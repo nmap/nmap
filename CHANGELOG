@@ -1,5 +1,193 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
+  are all listed at http://nmap.org/nsedoc/, and the summaries are
+  below (authors listed in brackets):
+
+  + amqp-info gathers information (a list of all server properties)
+    from an AMQP (advanced message queuing protocol) server. [Sebastian Dragomir]
+
+  + bitcoin-getaddr queries a BitCoin server for a list of known
+    BitCoin nodes. [Patrik Karlsson]
+
+  + bitcoin-info extracts version and node information from a BitCoin
+    server [Patrik Karlsson]
+
+  + bitcoinrpc-info obtains information from a Bitcoin server by
+    calling <code>getinfo</code> on its JSON-RPC interface. [Toni
+    Ruottu]
+
+  + broadcast-pc-anywhere sends a special broadcat probe to discover
+    PC-Anywhere hosts running on a LAN. [Patrik Karlsson]
+
+  + broadcast-pc-duo discovers PC-DUO remote control hosts and
+    gateways running on the LAN. [Patrik Karlsson]
+
+  + broadcast-rip-discover discovers hosts and routing information
+    from devices running RIPv2 on the LAN. It does so by sending a
+    RIPv2 Request command and collects the responses from all devices
+    responding to the request. [Patrik Karlsson]
+
+  + broadcast-sybase-asa-discover discovers Sybase Anywhere servers on
+    the LAN by sending broadcast discovery messages. [Patrik Karlsson]
+
+  + broadcast-wake-on-lan wakes a remote system up from sleep by
+    sending a Wake-On-Lan packet. [Patrik Karlsson]
+
+  + broadcast-wpad-discover Retrieves a list of proxy servers on the
+    LAN using the Web Proxy Autodiscovery Protocol (WPAD). [Patrik
+    Karlsson]
+
+  + dns-blacklist checks target IP addresses against multiple DNS
+    anti-spam and open proxy blacklists and returns a list of services
+    where the IP has been blacklisted. [Patrik Karlsson]
+
+  + dns-zeustracker checks if the target IP range is part of a Zeus
+    botnet by quering ZTDNS @ abuse.ch. [Mikael Keri]
+
+  + ganglia-info retrieves system information (OS version, available
+    memory, etc.) from a listening Ganglia Monitoring Daemon or
+    Ganglia Meta Daemon. [Brendan Coles]
+
+  + hadoop-datanode-info discovers information such as log directories
+    from an Apache Hadoop DataNode HTTP status page. [John R. Bond]
+
+  + hadoop-jobtracker-info retrieves information from an Apache Hadoop
+    JobTracker HTTP status page. [John R. Bond]
+
+  + hadoop-namenode-info retrieves information from an Apache Hadoop
+    NameNode HTTP status page. [John R. Bond]
+
+  + hadoop-secondary-namenode-info retrieves information from an
+    Apache Hadoop secondary NameNode HTTP status page. [John R. Bond]
+
+  + hadoop-tasktracker-info retrieves information from an Apache
+    Hadoop TaskTracker HTTP status page. [John R. Bond]
+
+  + hbase-master-info retrieves information from an Apache HBase
+    (Hadoop database) master HTTP status page. [John R. Bond]
+
+  + hbase-region-info retrieves information from an Apache HBase
+    (Hadoop database) region server HTTP status page. [John R. Bond]
+
+  + http-apache-negotiation checks if the target http server has
+    mod_negotiation enabled.  This feature can be leveraged to find
+    hidden resources and spider a web site using fewer requests. [Hani
+    Benhabiles]
+
+  + http-backup-finder Spiders a website and attempts to identify
+    backup copies of discovered files.  It does so by requesting a
+    number of different combinations of the filename (eg. index.bak,
+    index.html~, copy of index.html). [Patrik Karlsson]
+
+  + http-cors tests an http server for Cross-Origin Resource Sharing
+    (CORS), a way for domains to explicitly opt in to having certain
+    methods invoked by another domain. [Toni Ruottu]
+
+  + http-email-harvest spiders a web site and collects e-mail
+    addresses. [Patrik Karlsson]
+
+  + http-grep spiders a website and attempts to match all pages and
+    urls against a given string. Matches are counted and grouped per
+    url under which they were discovered. [Patrik Karlsson]
+
+  + http-method-tamper tests whether a JBoss target is vulnerable to
+    jmx console authentication bypass (CVE-2010-0738). [Hani
+    Benhabiles]
+
+  + http-open-redirect spiders a website and attempts to identify open
+    redirects. Open redirects are handlers which commonly take a URL
+    as a parameter and responds with a http redirect (3XX) to the
+    target. [Martin Holst Swende]
+
+  + http-put uploads a local file to a remote web server using the
+    HTTP PUT method. You must specify the filename and URL path with
+    NSE arguments. [Patrik Karlsson]
+
+  + http-robtex-reverse-ip Obtains up to 100 forward DNS names for a
+    target IP address by querying the Robtex service
+    (http://www.robtex.com/ip/). [riemann]
+
+  + http-unsafe-output-escaping Spiders a website and attempts to
+    identify output escaping problems where content is reflected back
+    to the user. [Martin Holst Swende]
+
+  + http-vuln-cve2011-3368 tests for the CVE-2011-3368 (Reverse Proxy
+    Bypass) vulnerability in Apache HTTP server's reverse proxy
+    mode. [Ange Gutek, Patrik Karlsson"]
+
+  + ipv6-node-info obtains hostnames, IPv4 and IPv6 addresses through
+    IPv6 Node Information Queries. [David Fifield]
+
+  + irc-botnet-channels checks an IRC server for channels that are
+    commonly used by malicious botnets. [David Fifield, Ange Gutek]
+
+  + irc-brute performs brute force password auditing against IRC
+    (Internet Relay Chat) servers. [Patrik Karlsson]
+
+  + krb5-enum-users discovers valid usernames by brute force querying
+    likely usernames against a Kerberos service. [Patrik Karlsson]
+
+  + maxdb-info retrieves version and database information from a SAP
+    Max DB database. [Patrik Karlsson]
+
+  + metasploit-xmlrpc-brute performs brute force password auditing
+    against a Metasploit RPC server using the XMLRPC protocol. [Vlatko
+    Kosturjak]
+
+  + ms-sql-dump-hashes Dumps the password hashes from an MS-SQL server
+    in a format suitable for cracking by tools such as
+    John-the-ripper. In order to do so the user needs to have the
+    appropriate DB privileges. [Patrik Karlsson]
+
+  + nessus-brute performs brute force password auditing against a
+    Nessus vulnerability scanning daemon using the NTP 1.2
+    protocol. [Patrik Karlsson]
+
+  + nexpose-brute performs brute force password auditing against a
+    Nexpose vulnerability scanner using the API 1.1. [Vlatko
+    Kosturjak]
+
+  + openlookup-info parses and displays the banner information of an
+    OpenLookup (network key-value store) server. [Toni Ruottu]
+
+  + openvas-otp-brute performs brute force password auditing against a
+    OpenVAS vulnerability scanner daemon using the OTP 1.0
+    protocol. [Vlatko Kosturjak]
+
+  + reverse-index creates a reverse index at the end of scan output
+    showing which hosts run a particular service. [Patrik Karlsson]
+
+  + rexec-brute performs brute force password auditing against the
+    classic UNIX rexec (remote exec) service. [Patrik Karlsson]
+
+  + rlogin-brute performs brute force password auditing against the
+    classic UNIX rlogin (remote login) service. [Patrik Karlsson]
+
+  + rtsp-methods determines which methods are supported by the RTSP
+    (real time streaming protocol) server. [Patrik Karlsson]
+
+  + rtsp-url-brute attempts to enumerate RTSP media URLS by testing
+    for common paths on devices such as surveillance IP
+    cameras. [Patrik Karlsson]
+
+  + telnet-encryption determines whether the encryption option is
+    supported on a remote telnet server.  Some systems (including
+    FreeBSD and the krb5 telnetd available in many Linux
+    distributions) implement this option incorrectly, leading to a
+    remote root vulnerability. [Patrik Karlsson, David Fifield,
+    Fyodor]
+
+  + tftp-enum enumerates TFTP (trivial file transfer protocol) filenames by testing
+    for a list of common ones. [Alexander Rudakov]
+
+  + unusual-port compares the detected service on a port against the
+    expected service for that port number (e.g. ssh on 22, http on 80)
+    and reports deviations. [Patrik Karlsson]
+
+  + vuze-dht-info retrieves some basic information, including protocol
+    version from a Vuze filesharing node. [Patrik Karlsson]
+
 o Scaled congestion control increments by the response rate during OS
   scan, just like was done for port scan before. [David]
 
@@ -11,9 +199,6 @@ o Targets requiring different source addresses now go into different
   Before, only responses to one of the source addresses would be
   processed, and the others would be ignored. [David]
 
-o [NSE] Added script broadcast-wpad-discover which detects proxy servers on the
-  network by using the Web Proxy Auto Discover Protocol (WPAD). [Patrik]
-
 o [NSE] Added local port to BPF filter in snmp-brute to fix bug that would
   prevent multiple scripts from receiving the correct responses. The bug was
   discovered by Brendan Bird. [Patrik]
@@ -22,18 +207,9 @@ o [NSE] Removed DoS code from dhcp-discover and placed it into the discover and
   safe categories. Added support for adding options to DHCP requests in the
   dhcp library. [Patrik]
 
-o [NSE] Added a telnet-encryption script which detects if a remote
-  telnet server supports the (weak) encryption option.  This is
-  particularly interesting due to a remotely exploitable root
-  vulnerability just discovered in FreeBSD's telnetd
-  (FreeBSD-SA-11:08.telnetd). [Patrik, David, Fyodor]
-
 o [NSE] Changed the dhcp-discover script to use the DHCPINFORM request to query
   dhcp servers instead of DHCPDISCOVER. Cleaned up some code in the DHCP
   library. [Patrik]
-
-o [NSE] Added script dns-blacklist that performs DNSBL checks of given or
-  scanned IP addresses against multiple DNSBL services. [Patrik]
 
 o [NSE] Applied patch to snmp-brute that solves problems with handling errors
   that occur when parsing files with community lists. [Duarte Silva]
@@ -61,40 +237,18 @@ o [NSE] Fixed bug in the http library that would fail parsing authentication
 o Added new fingerprints to http-enum for Subversion, CVS and Apache Archiva
   [Duarte Silva]
 
-o [NSE] Added the script http-open-redirect that finds web pages that do not
-  properly validate parameters used for HTTP redirects. [Martin Swende]
-
-o [NSE] Added the script broadcast-pc-anywhere that discovers host running the
-  PC-Anywhere remote control software on the LAN. [Patrik]
-
-o [NSE] Added the script broadcast-pc-duo that discovers hosts running the
-  PC-Duo remote control software on the LAN. [Patrik]
-
 o Added probes for discovering PC-Duo and PC-Anywhere hosts. [Patrik]
 
 o [NSE] Added support for forcing scripts to run agains certain ports by adding
   a plus in front of the script name. [Martin Swende]
 
-o [NSE] Added the script broadcast-wake-on-lan that wakes systems from sleep
-  by sending a Wake On Lan packet. [Patrik]
-
-o [NSE] Added the script http-unsafe-output-escaping that checks if parameter
-  contents are reflected in responses, aiding in discovering potential XSS
-  vulnerabilities. [Martin Swende]
-
 o Made a syntax change in the zenmap.desktop file for compliance with
   the XDG standard. [Frederik Schwarzer]
-
-o [NSE] Added the script http-grep that attempts to match web pages and urls
-  against a given pattern. [Patrik]
 
 o [NSE] Added stop function to crawler so that scripts can properly shutdown
   the crawler in case they want to end early. [Patrik]
 
 o [NSE] Fixed issue in path encoding in the http-backup-finder script. [Patrik]
-
-o [NSE] Added the script http-backup-finder that searches for backup copies
-  of files discovered by crawling a website. [Patrik]
 
 o [NSE] Added getLimitations function to httpspider that returns any 
   limitations imposed on the crawler. [Patrik]
@@ -104,13 +258,6 @@ o [NSE] Modified the httpspider library to prefetch links in the queue and
   now processed from within the library. [Patrik]
 
 o The --exclude and --excludefile options can be used together now. [David]
-
-o [NSE] Added the script http-apache-negotiation that detects if the Apache
-  module mod_negotiate is enabled. [Hani Benhabiles]
-
-o [NSE] Applied patch that corrects an issue where the http-method-tamper
-  script would fail to properly detect JBoss servers vulnerable to the
-  CVE-2010-0738 vulnerability. [Hani Benhabiles]
 
 o [NSE] Added a new httpspider library and the script http-email-harvest that
   collects e-mail addresses by spidering a website. [Patrik]
@@ -132,31 +279,11 @@ o [NSE] Added the a Vuze library, port probe and the script vuze-dht-info. The
 o [Nping] The --safe-payloads option is now default. Added --include-payloads
   for special situations. [Colin Rice]
 
-o [NSE] Added the script reverse-index that creates creates a reverse index
-  showing which hosts run a particular service rather than the services for
-  each host. [Patrik]
-
 o [NSE] Added whitelist capabilities to the unusual-port script to be able
   to handle legitimate services on dynamic ports and discrepancies between
   names of services. [Patrik]
 
-o [NSE] Added the script unusual-port that compares a detected service on a
-  port against the expected service listed in nmap-services [Patrik]
-
-o [NSE] Added the script broadcast-sybase-asa-discover that discovers Sybase
-  SQL Anywhere servers on the LAN. [Patrik]
-
 o Added a probe for Sybase SQL Anywhere. [Patrik]
-
-o [NSE] Added maxdb-info script that tries to enumerate version and database
-  information from a SAP MaxDB database [Patrik]
-
-o [NSE] Added nexpose-brute a script that performs password auditing against
-  the Nexpose vulnerability scanner. [Vlatko Kosturjak]
-
-o [NSE] Added http-vuln-cve2011-3368 a script that attempts to detect whether
-  the remote web server is vulnerable to the Apache reverse proxy bypass
-  vulnerability CVE-2011-3368. [Ange Gutek, Patrik]
 
 o [NSE] Added new functionality and fixed some bugs in the brute library:
   - Added support for restricting the amount of guesses performed by the
@@ -174,12 +301,6 @@ o [NSE] Re-enabled support for guessing the username in addition to password
   that was incorrectly removed from the metasploit-xmlrpc-brute in previous
   commit. [Patrik]
   
-o [NSE] Added the script metasploit-xmlrpc-brute that performs password
-  auditing against the Metasploit XMLRPC service. [Vlatko Kosturjak]
-
-o [NSE] Added the script openvas-otp-brute that performs password auditing
-  against the OpenVas service. [Vlatko Kosturjak]
-
 o [NSE] Fixed bug that would prevent brute scripts from running if no service
   field was present in the port table. [Patrik]
 
@@ -199,65 +320,17 @@ o [NSE] Modified the following vulnerability scripts to use the new
   - afp-path-vuln.nse
   [Djalal, Henri]
 
-o [NSE] Add irc-botnet-channels.nse, to check an IRC server for
-  channel names that may be used by botnets. [David, Ange Gutek]
-
-o [NSE] Added the http-method-tamper script that detects authentication bypass
-  vulnerabilities using the http HEAD method as reported in CVE-2010-738.
-  [Hani Benhabiles]
- 
 o [NSE] Turned on promiscuous mode in targets-sniffer.nse so that it
   finds packets not only from or to the scanning host. [David]
 
-o [NSE] Added scripts that grab information from the HTTP servers on
-  various ports used by Apache Hadoop and HBase.
-  - hadoop-datanode-info.nse
-  - hadoop-jobtracker-info.nse
-  - hadoop-namenode-info.nse
-  - hadoop-secondary-namenode-info.nse
-  - hadoop-tasktracker-info.nse
-  - hbase-master-info.nse
-  - hbase-region-info.nse
-  [John Bond]
-
 o [NSE] Modified the http library to support servers that don't return valid
   chunked encoded data, such as the Citrix XML service. [Patrik]
-
-o [NSE] Added brute scripts rlogin-brute and rexec-brute for the rlogin and
-  rexec services [Patrik]
-
-o [NSE] Added broadcast-rip-discover which gets RIPv2 routers and their routing
-  information by querying the multicast address [Patrik]
 
 o [NSE] Fixed a bug where the brute library would not abort even after all
   retries were exhausted [Patrik]
 
 o Added a service probe for VMware ESX Server. The probe is based on a
   script written by Aleksey Tyurin.
-
-o [NSE] Added dns-zeustracker, which checks whether an IP is part of the Zeus
-  botnet. [Mikael Keri]
-
-o [NSE] Added ipv6-node-info, which gets hostnames and IP addresses
-  with IPv6 Node Information Queries. [David]
-
-o [NSE] Added the script irc-brute that performs password guessing against 
-  password protected IRC servers. [Patrik]
-
-o [NSE] Added the script nessus-brute that performs password guessing against
-  Nessus using the NTP 1.2 protocol. [Patrik]
-
-o [NSE] Added the scripts rtsp-url-brute, rtsp-methods and the supporting rtsp
-  library. The scripts check the supported RTSP methods and attempt to brute
-  force valid RTSP urls. [Patrik]
-  
-o [NSE] Added the http-robtex-reverse-ip script that uses the Robtex service to
-  perform a reverse lookup in order to discover all names associated with the
-  IP. [riemann]
-
-o [NSE] Updated script.db to correct some of the category changes made
-  previously and to remove the accidental addition of non-existing snmp-brute2
-  script. [Patrik]
 
 o Fixed a bug in the IPv6 OS probe called NI. The Node Information
   Query didn't include the target address as the payload, so at least
@@ -287,23 +360,11 @@ o [NSE] Made changes to the categories of the following scripts. Their new
 o [NSE] Added a vulnerability management library (vulns.lua) to store and to
   report discovered vulnerabilities. [Djalal, Henri]
 
-o [NSE] Added a new script krb5-enum-users.nse that performs user enumeration
-  against Kerberos. [Patrik]
-
-o [NSE] Added a new script http-put.nse that allows uploading of local files
-  to remote web servers using the HTTP PUT method. Added HTTP PUT support to
-  the http library. [Patrik]
-
 o Made nbase compile with the clang compiler that is a part of Xcode
   4.2. [Daniel J. Luke]
 
 o [NSE] Applied patch that fixes a nil table index bug discovered in the
   mongodb library. [Thomas Buchanan]
-
-o [NSE] Added ms-sql-dump-hashes, a script that dumps the MS SQL hashes in a
-  format suitable for offline cracking. [Patrik]
-
-o [NSE] Added bitcoinrpc-info by Toni Ruottu.
 
 o Added a TCP Kerberos service probe. [Patrik]
 
@@ -312,16 +373,6 @@ o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
   now too. [David, Daniel Miller]
 
 o [NSE] Added XMPP support to ssl-cert.nse.
-
-o [NSE] Added http-cors by Toni Ruottu.
-
-o [NSE] Added ganglia-info by Brendan Coles.
-
-o [NSE] Added tftp-enum by Alexander Rudakov.
-
-o [NSE] Added openlookup-info by Toni Ruottu.
-
-o [NSE] Added amqp-info.nse by Sebastian Dragomir.
 
 o [NSE] Made http-wordpress-enum.nse able to get names of users who
   have no posts. [Duarte Silva]
