@@ -657,7 +657,10 @@ static int read_metadata_file(const char *metadata_filename, struct metadata *me
 
 static void usage(FILE *fp)
 {
+	char *install_dir;
+
 	internal_assert(program_name != NULL);
+	install_dir = get_install_dir();
 	fprintf(fp, "\
 Usage: %s [-d INSTALL_DIR] [CHANNEL...]\n\
 Updates system-independent Nmap files. By default the new files are installed to\n\
@@ -668,6 +671,7 @@ Updates system-independent Nmap files. By default the new files are installed to
   --username USERNAME  use this username.\n\
   --password PASSWORE  use this password.\n\
 ", program_name, get_install_dir(), get_install_dir());
+	free(install_dir);
 }
 
 static void usage_error(void)
