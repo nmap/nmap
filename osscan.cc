@@ -112,6 +112,7 @@
 # endif
 #endif
 
+#include <algorithm>
 #include <list>
 #include <set>
 
@@ -208,26 +209,12 @@ FingerPrintDB::~FingerPrintDB() {
 FingerPrint::FingerPrint() {
 }
 
-const struct AVal *FingerTest::getattrbyname(const char *name) const {
-  std::vector<struct AVal>::const_iterator i;
+void FingerPrint::sort() {
+  unsigned int i;
 
-  for (i = results.begin(); i != results.end(); i++) {
-    if (strcmp(i->attribute, name) == 0)
-      return &*i;
-  }
-
-  return NULL;
-}
-
-const FingerTest *FingerPrint::gettestbyname(const char *name) const {
-  std::vector<FingerTest>::const_iterator i;
-
-  for (i = tests.begin(); i != tests.end(); i++) {
-    if (strcmp(i->name, name) == 0)
-      return &*i;
-  };
-
-  return NULL;
+  for (i = 0; i < tests.size(); i++)
+    std::sort(tests[i].results.begin(), tests[i].results.end());
+  std::sort(tests.begin(), tests.end());
 }
 
 /* Compare an observed value (e.g. "45") against an OS DB expression (e.g.
@@ -380,46 +367,67 @@ static bool expr_match(const char *val, const char *expr) {
 static int AVal_match(const FingerTest *reference, const FingerTest *fprint, const FingerTest *points,
                       unsigned long *num_subtests,
                       unsigned long *num_subtests_succeeded, int shortcut,
-                      int verbose, const char *testGroupName) {
-  std::vector<struct AVal>::const_iterator current_ref;
-  const struct AVal *current_fp;
-  const struct AVal *current_points;
+                      int verbose) {
+  std::vector<struct AVal>::const_iterator current_ref, prev_ref;
+  std::vector<struct AVal>::const_iterator current_fp, prev_fp;
+  std::vector<struct AVal>::const_iterator current_points;
   int subtests = 0, subtests_succeeded=0;
   int pointsThisTest = 1;
   char *endptr;
 
-  for (current_ref = reference->results.begin();
-       current_ref != reference->results.end();
-       current_ref++) {
-    current_fp = fprint->getattrbyname(current_ref->attribute);
-    if (!current_fp)
-      continue;
+  /* We rely on AVals being sorted by attribute. */
+  prev_ref = reference->results.end();
+  prev_fp = fprint->results.end();
+  current_ref = reference->results.begin();
+  current_fp = fprint->results.begin();
+  current_points = points->results.begin();
+  while (current_ref != reference->results.end()
+    && current_fp != fprint->results.end()) {
+    int d;
 
-    if (points) {
-      current_points = points->getattrbyname(current_ref->attribute);
-      if (!current_points)
-        fatal("%s: Failed to find point amount for test %s.%s", __func__, testGroupName? testGroupName : "", current_ref->attribute);
+    /* Check for sortedness. */
+    if (prev_ref != reference->results.end())
+      assert(strcmp(prev_ref->attribute, current_ref->attribute) < 0);
+    if (prev_fp != fprint->results.end())
+      assert(strcmp(prev_fp->attribute, current_fp->attribute) < 0);
+
+    d = strcmp(current_ref->attribute, current_fp->attribute);
+    if (d == 0) {
+      for (; current_points != points->results.end(); current_points++) {
+        if (strcmp(current_ref->attribute, current_points->attribute) == 0)
+          break;
+      }
+      if (current_points == points->results.end())
+        fatal("%s: Failed to find point amount for test %s.%s", __func__, reference->name ? reference->name : "", current_ref->attribute);
       errno = 0;
       pointsThisTest = strtol(current_points->value, &endptr, 10);
       if (errno != 0 || *endptr != '\0' || pointsThisTest < 0)
-        fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
-    }
-    subtests += pointsThisTest;
+        fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, reference->name ? reference->name : "", current_ref->attribute);
+      subtests += pointsThisTest;
 
-    if (expr_match(current_fp->value, current_ref->value)) {
-      subtests_succeeded += pointsThisTest;
-    } else {
-      if (shortcut) {
-        if (num_subtests)
-          *num_subtests += subtests;
-        return 0;
+      if (expr_match(current_fp->value, current_ref->value)) {
+        subtests_succeeded += pointsThisTest;
+      } else {
+        if (shortcut) {
+          if (num_subtests)
+            *num_subtests += subtests;
+          return 0;
+        }
+        if (verbose)
+          log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", reference->name,
+                    current_ref->attribute, current_fp->value,
+                    current_ref->value, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
       }
-      if (verbose)
-        log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName,
-                  current_ref->attribute, current_fp->value,
-                  current_ref->value, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
     }
-    /* Whew, we made it past one Attribute alive , on to the next! */
+
+    if (d <= 0) {
+      prev_ref = current_ref;
+      current_ref++;
+    }
+    if (d >= 0) {
+      prev_fp = current_fp;
+      current_fp++;
+    }
   }
   if (num_subtests)
     *num_subtests += subtests;
@@ -434,34 +442,55 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
    verbose is nonzero, differences will be printed.  The comparison
    accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
    a special "fingerprints" which tells how many points each test is worth. */
-double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
-                            FingerPrint *MatchPoints, int verbose) {
-  std::vector<FingerTest>::iterator currentReferenceTest;
-  const FingerTest *currentObservedTest;
-  const FingerTest *currentTestMatchPoints;
+double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
+                            const FingerPrint *MatchPoints, int verbose) {
+  std::vector<FingerTest>::const_iterator current_ref, prev_ref;
+  std::vector<FingerTest>::const_iterator current_fp, prev_fp;
+  std::vector<FingerTest>::const_iterator current_points;
   unsigned long num_subtests = 0, num_subtests_succeeded = 0;
   unsigned long  new_subtests, new_subtests_succeeded;
   assert(referenceFP);
   assert(observedFP);
 
-  for (currentReferenceTest = referenceFP->tests.begin();
-       currentReferenceTest != referenceFP->tests.end();
-       currentReferenceTest++) {
-    currentObservedTest = observedFP->gettestbyname(currentReferenceTest->name);
-    if (currentObservedTest) {
-      new_subtests = new_subtests_succeeded = 0;
-      if (MatchPoints) {
-        currentTestMatchPoints = MatchPoints->gettestbyname(currentReferenceTest->name);
-        if (!currentTestMatchPoints)
-          fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, currentReferenceTest->name);
-      } else {
-        currentTestMatchPoints = NULL;
-      }
+  /* We rely on tests being sorted by name. */
+  prev_ref = referenceFP->tests.end();
+  prev_fp = observedFP->tests.end();
+  current_ref = referenceFP->tests.begin();
+  current_fp = observedFP->tests.begin();
+  current_points = MatchPoints->tests.begin();
+  while (current_ref != referenceFP->tests.end()
+    && current_fp != observedFP->tests.end()) {
+    int d;
 
-      AVal_match(&*currentReferenceTest, currentObservedTest, currentTestMatchPoints,
-                 &new_subtests, &new_subtests_succeeded, 0, verbose, currentReferenceTest->name);
+    /* Check for sortedness. */
+    if (prev_ref != referenceFP->tests.end())
+      assert(strcmp(prev_ref->name, current_ref->name) < 0);
+    if (prev_fp != observedFP->tests.end())
+      assert(strcmp(prev_fp->name, current_fp->name) < 0);
+
+    d = strcmp(current_ref->name, current_fp->name);
+    if (d == 0) {
+      new_subtests = new_subtests_succeeded = 0;
+      for (; current_points != MatchPoints->tests.end(); current_points++) {
+        if (strcmp(current_ref->name, current_points->name) == 0)
+          break;
+      }
+      if (current_points == MatchPoints->tests.end())
+        fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, current_ref->name);
+
+      AVal_match(&*current_ref, &*current_fp, &*current_points,
+                 &new_subtests, &new_subtests_succeeded, 0, verbose);
       num_subtests += new_subtests;
       num_subtests_succeeded += new_subtests_succeeded;
+    }
+
+    if (d <= 0) {
+      prev_ref = current_ref;
+      current_ref++;
+    }
+    if (d >= 0) {
+      prev_fp = current_fp;
+      current_fp++;
     }
   }
 
@@ -475,13 +504,14 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
    will be reverse-sorted by accuracy.  No results below
    accuracy_threshhold will be included.  The max matches returned is
    the maximum that fits in a FingerPrintResultsIPv4 class.  */
-void match_fingerprint(FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
-                      FingerPrintDB *DB, double accuracy_threshold) {
+void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
+                       const FingerPrintDB *DB, double accuracy_threshold) {
   double FPR_entrance_requirement = accuracy_threshold; /* accuracy must be
                                                            at least this big
                                                            to be added to the
                                                            list */
-  std::vector<FingerPrint *>::iterator current_os;
+  std::vector<FingerPrint *>::const_iterator current_os;
+  FingerPrint FP_copy;
   double acc;
   int state;
   int skipfp;
@@ -494,12 +524,15 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
   assert(FPR);
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
+  FP_copy = *FP;
+  FP_copy.sort();
+
   FPR->overall_results = OSSCAN_SUCCESS;
 
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
-    acc = compare_fingerprints(*current_os, FP, DB->MatchPoints, 0);
+    acc = compare_fingerprints(*current_os, &FP_copy, DB->MatchPoints, 0);
 
     /*    error("Comp to %s: %li/%li=%f", o.reference_FPs1[i]->OS_name, num_subtests_succeeded, num_subtests, acc); */
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
@@ -754,22 +787,16 @@ static std::vector<struct AVal> str2AVal(const char *str) {
    as an expression. This is used by mergeFPs. Unlike with AVal_match, it is
    always the case that AVal_match_literal(a, b) == AVal_match_literal(b, a). */
 static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
-  std::vector<struct AVal>::const_iterator i;
-  const struct AVal *av;
+  std::vector<struct AVal>::const_iterator ia, ib;
 
-  /* Check that b contains all the AVals in a, with the same values. */
-  for (i = a->results.begin(); i != a->results.end(); i++) {
-    av = b->getattrbyname(i->attribute);
-    if (av == NULL || strcmp(i->value, av->value) != 0)
+  for (ia = a->results.begin(), ib = b->results.begin();
+    ia != a->results.end() && ib != b->results.end();
+    ia++, ib++) {
+    if (strcmp(ia->attribute, ib->attribute) != 0)
       return false;
   }
-
-  /* Check that a contains all the AVals in b, with the same values. */
-  for (i = b->results.begin(); i != b->results.end(); i++) {
-    av = a->getattrbyname(i->attribute);
-    if (av == NULL || strcmp(i->value, av->value) != 0)
-      return false;
-  }
+  if (ia != a->results.end() || ib != b->results.end())
+    return false;
 
   return true;
 }
@@ -1223,6 +1250,9 @@ fparse:
         current->tests.push_back(test);
       }
     }
+    /* This sorting is important for later comparison of FingerPrints and
+       FingerTests. */
+    current->sort();
   }
 
   fclose(fp);

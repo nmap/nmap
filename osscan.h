@@ -139,8 +139,8 @@ void free_fingerprint_file(FingerPrintDB *DB);
    verbose is nonzero, differences will be printed.  The comparison
    accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is 
    a special "fingerprints" which tells how many points each test is worth. */
-double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
-			    FingerPrint *MatchPoints, int verbose);
+double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
+			    const FingerPrint *MatchPoints, int verbose);
 
 /* Takes a fingerprint and looks for matches inside the passed in
    reference fingerprint DB.  The results are stored in in FPR (which
@@ -148,8 +148,8 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
    will be reverse-sorted by accuracy.  No results below
    accuracy_threshhold will be included.  The max matches returned is
    the maximum that fits in a FingerPrintResultsIPv4 class.  */
-void match_fingerprint(FingerPrint *FP, FingerPrintResultsIPv4 *FPR, 
-		       FingerPrintDB *DB, double accuracy_threshold);
+void match_fingerprint(const FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
+		       const FingerPrintDB *DB, double accuracy_threshold);
 
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
