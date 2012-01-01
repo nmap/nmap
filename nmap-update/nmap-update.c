@@ -567,6 +567,13 @@ static int read_config_file(const char *conf_filename)
 				free(options.password);
 			}
 			options.password = safe_strdup(entry.value);
+		} else if (streq(entry.key, "repo")) {
+			if (options.svn_repo != NULL) {
+				fprintf(stderr, "Warning: %s:%lu: duplicate \"%s\".\n",
+					conf_filename, cp.lineno, entry.key);
+				free(options.svn_repo);
+			}
+			options.svn_repo = safe_strdup(entry.value);
 		} else {
 			fprintf(stderr, "Warning: %s:%lu: unknown key \"%s\".\n",
 				conf_filename, cp.lineno, entry.key);
