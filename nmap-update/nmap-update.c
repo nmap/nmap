@@ -45,8 +45,7 @@
 #define PATHSEP "/"
 #endif
 
-static const char *SVN_REPO = "https://svn.nmap.org";
-static const char *SVN_DIR = "/updates";
+static const char *DEFAULT_SVN_REPO = "https://svn.nmap.org/updates";
 
 static const char *DEFAULT_CHANNELS[] = { DEFAULT_CHANNEL };
 
@@ -492,6 +491,7 @@ static struct {
 	const char *conf_filename;
 	const char **channels;
 	unsigned int num_channels;
+	char *svn_repo;
 	char *username;
 	char *password;
 } options;
@@ -531,6 +531,7 @@ static void init_options(void)
 	options.channels = DEFAULT_CHANNELS;
 	options.num_channels = NELEMS(DEFAULT_CHANNELS);
 
+	options.svn_repo = NULL;
 	options.username = NULL;
 	options.password = NULL;
 }
@@ -668,9 +669,10 @@ Updates system-independent Nmap files. By default the new files are installed to
 \n\
   -d DIR               install files to DIR (default %s).\n\
   -h, --help           show this help.\n\
+  -r, --repo REPO      use REPO as SVN repository and path (default %s).\n\
   --username USERNAME  use this username.\n\
   --password PASSWORE  use this password.\n\
-", program_name, get_install_dir(), get_install_dir());
+", program_name, install_dir, install_dir, DEFAULT_SVN_REPO);
 	free(install_dir);
 }
 
@@ -702,6 +704,7 @@ static void summarize_options(void)
 
 const struct option LONG_OPTIONS[] = {
 	{ "help", no_argument, NULL, 'h' },
+	{ "repo", required_argument, NULL, 'r' },
 	{ "username", required_argument, NULL, '?' },
 	{ "password", required_argument, NULL, '?' },
 };
@@ -710,7 +713,7 @@ int main(int argc, char *argv[])
 {
 	int opt, longoptidx;
 	const char *successful_channel;
-	const char *username, *password;
+	const char *username, *password, *svn_repo;
 	time_t expiry_date;
 
 	internal_assert(argc > 0);
@@ -723,13 +726,16 @@ int main(int argc, char *argv[])
 
 	username = NULL;
 	password = NULL;
+	svn_repo = NULL;
 
-	while ((opt = getopt_long(argc, argv, "d:h", LONG_OPTIONS, &longoptidx)) != -1) {
+	while ((opt = getopt_long(argc, argv, "d:hr:", LONG_OPTIONS, &longoptidx)) != -1) {
 		if (opt == 'd') {
 			options.install_dir = optarg;
 		} else if (opt == 'h') {
 			usage(stdout);
 			exit(0);
+		} else if (opt == 'r') {
+			svn_repo = optarg;
 		} else if (opt == '?' && streq(LONG_OPTIONS[longoptidx].name, "username")) {
 			username = optarg;
 		} else if (opt == '?' && streq(LONG_OPTIONS[longoptidx].name, "password")) {
@@ -752,6 +758,10 @@ int main(int argc, char *argv[])
 
 	read_config_file(options.conf_filename);
 
+	/* Default options. */
+	if (options.svn_repo == NULL)
+		options.svn_repo = safe_strdup(DEFAULT_SVN_REPO);
+
 	/* Possibly override configuration file. */
 	if (username != NULL) {
 		free(options.username);
@@ -760,6 +770,10 @@ int main(int argc, char *argv[])
 	if (password != NULL) {
 		free(options.password);
 		options.password = safe_strdup(password);
+	}
+	if (svn_repo != NULL) {
+		free(options.svn_repo);
+		options.svn_repo = safe_strdup(svn_repo);
 	}
 
 	successful_channel = try_channels(options.channels, options.num_channels);
@@ -897,7 +911,7 @@ static int stage_channel(const char *channel, const char *staging_dir)
 
 	rc = 0;
 
-	svn_url = strs_cat(SVN_REPO, SVN_DIR, "/", channel, NULL);
+	svn_url = strs_cat(options.svn_repo, "/", channel, NULL);
 
 	if (options.verbose)
 		printf("Checking out %s to %s.\n", svn_url, staging_dir);
