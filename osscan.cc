@@ -230,6 +230,140 @@ const FingerTest *FingerPrint::gettestbyname(const char *name) const {
   return NULL;
 }
 
+/* Compare an observed value (e.g. "45") against an OS DB expression (e.g.
+   "3B-47" or "8|A" or ">10"). Return true iff there's a match. The syntax uses
+     < (less than)
+     > (greather than)
+     + (non-zero)
+     | (or)
+     - (range)
+     & (and)
+   No parentheses are allowed. */
+static bool expr_match(const char *val, const char *expr) {
+  int andexp, orexp, expchar, numtrue;
+  int testfailed;
+  char exprcpy[512];
+  char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
+  char *endptr;
+  unsigned int val_num, expr_num, expr_num1;
+
+  numtrue = andexp = orexp = 0; testfailed = 0;
+  Strncpy(exprcpy, expr, sizeof(exprcpy));
+  p = exprcpy;
+
+  if (strchr(expr, '|')) {
+    orexp = 1; expchar = '|';
+  } else {
+    andexp = 1; expchar = '&';
+  }
+
+  do {
+    q = strchr(p, expchar);
+    if (q)
+      *q = '\0';
+    if (strcmp(p, "+") == 0) {
+      if (!*val) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      } else {
+        val_num = strtol(val, &endptr, 16);
+        if (val_num == 0 || *endptr) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        } else {
+          numtrue++;
+          if (orexp)
+            break;
+        }
+      }
+    } else if (*p == '<' && isxdigit((int) (unsigned char) p[1])) {
+      if (!*val) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      }
+      expr_num = strtol(p + 1, &endptr, 16);
+      val_num = strtol(val, &endptr, 16);
+      if (val_num >= expr_num || *endptr) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      } else {
+        numtrue++;
+        if (orexp)
+          break;
+      }
+    } else if (*p == '>' && isxdigit((int) (unsigned char) p[1])) {
+      if (!*val) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      }
+      expr_num = strtol(p + 1, &endptr, 16);
+      val_num = strtol(val, &endptr, 16);
+      if (val_num <= expr_num || *endptr) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      } else {
+        numtrue++;
+        if (orexp)
+          break;
+      }
+    } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) (unsigned char) p[0]) && isxdigit((int) (unsigned char) q1[1])) {
+      if (!*val) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      }
+      *q1 = '\0';
+      expr_num = strtol(p, NULL, 16);
+      expr_num1 = strtol(q1 + 1, NULL, 16);
+      if (expr_num1 < expr_num && o.debugging) {
+        error("Range error in reference expr: %s", expr);
+      }
+      val_num = strtol(val, &endptr, 16);
+      if (val_num < expr_num || val_num > expr_num1 || *endptr) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      } else {
+        numtrue++;
+        if (orexp)
+          break;
+      }
+    } else {
+      if (strcmp(p, val)) {
+        if (andexp) {
+          testfailed = 1;
+          break;
+        }
+      } else {
+        numtrue++;
+        if (orexp)
+          break;
+      }
+    }
+    if (q)
+      p = q + 1;
+  } while (q);
+
+  if (numtrue == 0)
+    testfailed = 1;
+
+  return !testfailed;
+}
+
 /* Returns true if perfect match -- if num_subtests &
    num_subtests_succeeded are non_null it ADDS THE NEW VALUES to what
    is already there.  So initialize them to zero first if you only
@@ -250,15 +384,9 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
   std::vector<struct AVal>::const_iterator current_ref;
   const struct AVal *current_fp;
   const struct AVal *current_points;
-  unsigned int number, number1;
-  unsigned int val;
-  char *p, *q, *q1;  /* OHHHH YEEEAAAAAHHHH!#!@#$!% */
-  char valcpy[512];
-  char *endptr;
-  int andexp, orexp, expchar, numtrue;
-  int testfailed;
   int subtests = 0, subtests_succeeded=0;
   int pointsThisTest = 1;
+  char *endptr;
 
   for (current_ref = reference->results.begin();
        current_ref != reference->results.end();
@@ -266,123 +394,7 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
     current_fp = fprint->getattrbyname(current_ref->attribute);
     if (!current_fp)
       continue;
-    /* OK, we compare an attribute value in  current_fp->value to a
-       potentially large expression in current_ref->value.  The syntax
-       uses < (less than), > (greather than), + (non-zero), | (or), -
-       (range), and & (and).  No parenthesis are allowed */
-    numtrue = andexp = orexp = 0; testfailed = 0;
-    Strncpy(valcpy, current_ref->value, sizeof(valcpy));
-    p = valcpy;
 
-    if (strchr(current_ref->value, '|')) {
-      orexp = 1; expchar = '|';
-    } else {
-      andexp = 1; expchar = '&';
-    }
-
-    do {
-      q = strchr(p, expchar);
-      if (q)
-        *q = '\0';
-      if (strcmp(p, "+") == 0) {
-        if (!*current_fp->value) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        } else {
-          val = strtol(current_fp->value, &endptr, 16);
-          if (val == 0 || *endptr) {
-            if (andexp) {
-              testfailed = 1;
-              break;
-            }
-          } else {
-            numtrue++;
-            if (orexp)
-              break;
-          }
-        }
-      } else if (*p == '<' && isxdigit((int) (unsigned char) p[1])) {
-        if (!*current_fp->value) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        }
-        number = strtol(p + 1, &endptr, 16);
-        val = strtol(current_fp->value, &endptr, 16);
-        if (val >= number || *endptr) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        } else {
-          numtrue++;
-          if (orexp)
-            break;
-        }
-      } else if (*p == '>' && isxdigit((int) (unsigned char) p[1])) {
-        if (!*current_fp->value) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        }
-        number = strtol(p + 1, &endptr, 16);
-        val = strtol(current_fp->value, &endptr, 16);
-        if (val <= number || *endptr) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        } else {
-          numtrue++;
-          if (orexp)
-            break;
-        }
-      } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) (unsigned char) p[0]) && isxdigit((int) (unsigned char) q1[1])) {
-        if (!*current_fp->value) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        }
-        *q1 = '\0';
-        number = strtol(p, NULL, 16);
-        number1 = strtol(q1 + 1, NULL, 16);
-        if (number1 < number && o.debugging) {
-          error("Range error in reference aval: %s=%s", current_ref->attribute, current_ref->value);
-        }
-        val = strtol(current_fp->value, &endptr, 16);
-        if (val < number || val > number1 || *endptr) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        } else {
-          numtrue++;
-          if (orexp)
-            break;
-        }
-      } else {
-        if (strcmp(p, current_fp->value)) {
-          if (andexp) {
-            testfailed = 1;
-            break;
-          }
-        } else {
-          numtrue++;
-          if (orexp)
-            break;
-        }
-      }
-      if (q)
-        p = q + 1;
-    } while (q);
-
-    if (numtrue == 0)
-      testfailed = 1;
     if (points) {
       current_points = points->getattrbyname(current_ref->attribute);
       if (!current_points)
@@ -393,7 +405,10 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
         fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
     }
     subtests += pointsThisTest;
-    if (testfailed) {
+
+    if (expr_match(current_fp->value, current_ref->value)) {
+      subtests_succeeded += pointsThisTest;
+    } else {
       if (shortcut) {
         if (num_subtests)
           *num_subtests += subtests;
@@ -403,8 +418,6 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
         log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName,
                   current_ref->attribute, current_fp->value,
                   current_ref->value, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
-    } else {
-      subtests_succeeded += pointsThisTest;
     }
     /* Whew, we made it past one Attribute alive , on to the next! */
   }
