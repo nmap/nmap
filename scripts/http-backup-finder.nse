@@ -1,7 +1,6 @@
 description = [[
-Spiders a website and attempts to identify backup copies of existing files.
-It does so by requesting a number of different combinations of the filename,
-such as eg.: index.bak, index.html~, copy of index.html etc.
+Spiders a website and attempts to identify backup copies of discovered files.
+It does so by requesting a number of different combinations of the filename (eg. index.bak, index.html~, copy of index.html).
 ]]
 
 ---

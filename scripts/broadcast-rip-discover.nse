@@ -1,5 +1,5 @@
 description=[[
-Discovers devices and routing information from devices running RIPv2 on the
+Discovers hosts and routing information from devices running RIPv2 on the
 LAN. It does so by sending a RIPv2 Request command and collects the responses
 from all devices responding to the request.
 ]]

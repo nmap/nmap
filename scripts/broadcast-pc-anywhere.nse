@@ -1,5 +1,5 @@
 description = [[
-Discovers PC-Anywhere hosts running on the LAN
+Sends a special broadcat probe to discover PC-Anywhere hosts running on a LAN
 ]]
 
 ---

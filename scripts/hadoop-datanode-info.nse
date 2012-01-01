@@ -22,7 +22,7 @@ For more information about hadoop, see:
 ---
 
 
-author = "john.r.bond@gmail.com"
+author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"default", "discovery", "safe"}
 

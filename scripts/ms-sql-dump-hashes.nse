@@ -1,7 +1,7 @@
 description = [[
 Dumps the password hashes from an MS-SQL server in a format suitable for
 cracking by tools such as John-the-ripper. In order to do so the user
-needs to have the appropriate privileges.
+needs to have the appropriate DB privileges.
 
 Credentials passed as script arguments take precedence over credentials
 discovered by other scripts.

@@ -1,5 +1,5 @@
 description = [[
-Obtains up to 100 forward DNS names for a target IP address by querying http://www.robtex.com/ip/.
+Obtains up to 100 forward DNS names for a target IP address by querying the Robtex service (http://www.robtex.com/ip/).
 ]]
 
 ---

@@ -1,7 +1,8 @@
 description = [[
-Checks an IP address against a number of different DNS spam blacklists and returns a list of services where the IP has been blacklisted.
-Checks may be limited by service category (eg: SPAM, PROXY) or to a specific service name.
-]]
+Checks target IP addresses against multiple DNS anti-spam and open
+proxy blacklists and returns a list of services where the IP has been
+blacklisted.  Checks may be limited by service category (eg: SPAM,
+PROXY) or to a specific service name.  ]]
 
 ---
 -- @usage

@@ -1,5 +1,5 @@
 description = [[
-Uploads a local file to a remote web server using the HTTP PUT method.
+Uploads a local file to a remote web server using the HTTP PUT method. You must specify the filename and URL path with NSE arguments.
 ]]
 
 ---

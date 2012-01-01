@@ -1,9 +1,11 @@
 description = [[
-Retrieves a list of proxy servers on the LAN using the Web Proxy Autodiscovery Protocol (WPAD).
-It implements both the DHCP and DNS methods of doing so and starts by querying DHCP to get the address.
-DHCP discovery requires nmap to be running in privileged mode and will be skipped when this is not the case.
-DNS discovery relies on the script being able to resolve the local domain either through a script argument or
-by attempting to reverse resolve the local IP.
+Retrieves a list of proxy servers on the LAN using the Web Proxy
+Autodiscovery Protocol (WPAD).  It implements both the DHCP and DNS
+methods of doing so and starts by querying DHCP to get the address.
+DHCP discovery requires nmap to be running in privileged mode and will
+be skipped when this is not the case.  DNS discovery relies on the
+script being able to resolve the local domain either through a script
+argument or by attempting to reverse resolve the local IP.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Spiders a web site and collects e-mail addresses
+Spiders a web site and collects e-mail addresses.
 ]]
 
 ---

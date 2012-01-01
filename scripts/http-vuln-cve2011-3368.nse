@@ -1,5 +1,5 @@
 description = [[
-Checks for the CVE-2011-3368 (Reverse Proxy Bypass) vulnerability in Apache HTTP server's reverse proxy mode.
+Tests for the CVE-2011-3368 (Reverse Proxy Bypass) vulnerability in Apache HTTP server's reverse proxy mode.
 The script will run 3 tests:
  o the loopback test, with 3 payloads to handle different rewrite rules
  o the internal hosts test. According to Contextis, we expect a delay before a server error.

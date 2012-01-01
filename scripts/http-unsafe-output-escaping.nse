@@ -1,9 +1,11 @@
 description = [[
-Spiders a website and attempts to identify and issues with output escaping where content is reflected back to the user. 
-This script locates all parameters, ?x=foo&y=bar and checks if the values are reflected on the page. If they
-are indeed reflected, the script will try to insert ghz>hzx"zxc'xcv and check which (if any) characters were 
-reflected back onto the page without proper html escaping. 
-This is an indication of potential XSS issues. 
+Spiders a website and attempts to identify output escaping problems
+where content is reflected back to the user.  This script locates all
+parameters, ?x=foo&y=bar and checks if the values are reflected on the
+page. If they are indeed reflected, the script will try to insert
+ghz>hzx"zxc'xcv and check which (if any) characters were reflected
+back onto the page without proper html escaping.  This is an
+indication of potential XSS vulnerability.
 ]]
 
 ---

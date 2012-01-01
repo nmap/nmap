@@ -1,5 +1,5 @@
 description = [[
-Checks whether a JBoss target is vulnerable to jmx console authentication bypass (CVE-2010-0738).
+Tests whether a JBoss target is vulnerable to jmx console authentication bypass (CVE-2010-0738).
 
 It works by checking if the target paths require authentication or redirect to a login page that could be
 bypassed via a HEAD request. RFC 2616 specifies that the HEAD request should be treated exactly like GET but
@@ -25,7 +25,7 @@ For more information, see:
 -- @args http-method-tamper.path Array of paths to check. Defaults 
 -- to <code>{"/jmx-console/"}</code>.
 
-author = "Hani Benhabiles <kroosec@gmail.com>"
+author = "Hani Benhabiles"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

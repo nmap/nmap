@@ -1,5 +1,5 @@
 description=[[
-Performs brute force password auditing against a Nexpose vulnerability scanner using the API 1.1.
+Performs brute force password auditing against a Nexpose vulnerability scanner using the API 1.1.  By default it only tries three guesses per username to avoid target account lockout.
 ]]
 
 ---

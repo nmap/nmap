@@ -1,5 +1,5 @@
 description = [[
-Retrieves some basic information, including protocol version from a Vuze node.
+Retrieves some basic information, including protocol version from a Vuze filesharing node.
 ]]
 
 ---
@@ -28,6 +28,8 @@ Retrieves some basic information, including protocol version from a Vuze node.
 --
 -- @args vuze-dht-info.allports if set runs this script against every open port
 
+author = "Patrik Karlsson"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 require 'shortport'
