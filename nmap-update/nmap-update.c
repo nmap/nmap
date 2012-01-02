@@ -866,12 +866,13 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 		APR_HASH_KEY_STRING);
 	svn_config_set_bool(cfg, SVN_CONFIG_SECTION_GLOBAL,
 		SVN_CONFIG_OPTION_SSL_TRUST_DEFAULT_CA, TRUE);
-	svn_cmdline_setup_auth_baton(&ctx->auth_baton,
+	svn_cmdline_create_auth_baton(&ctx->auth_baton,
 		FALSE, /* non_interactive */
 		options.username, /* username */
 		options.password, /* password */
 		NULL, /* config_dir */
 		FALSE, /* no_auth_cache */
+		FALSE,
 		cfg, /* cfg */
 		NULL, /* cancel_func */
 		NULL, /* cancel_baton */
