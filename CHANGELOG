@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script vmauthd-brute that performs brute force password
+  guessing against the VMware authentication daemon. [Patrik]
+
 Nmap 5.61TEST4 [2012-01-02]
 
 o [NSE] Added a new httpspider library which is used for recursively
