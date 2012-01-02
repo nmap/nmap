@@ -11,7 +11,10 @@
    These changes have been made (set off with #if 0):
    * Made trust_server_cert always false in svn_cmdline_create_auth_baton. (This
      is only to avoid having to also copy in ssl_trust_unknown_server_cert.)
-   * Disabled username guessing in prompt_for_simple_creds. */
+   * Disabled username guessing in prompt_for_simple_creds.
+   * Made svn_auth_get_simple_prompt_provider have static scope.
+   * Renamed svn_cmdline_create_auth_baton to
+     nmap_update_svn_cmdline_create_auth_baton. */
 
 /*
  * ====================================================================
@@ -233,7 +236,7 @@ static const svn_auth_provider_t simple_prompt_provider = {
 
 
 /* Public API */
-void
+static void
 svn_auth_get_simple_prompt_provider
   (svn_auth_provider_object_t **provider,
    svn_auth_simple_prompt_func_t prompt_func,
@@ -254,7 +257,7 @@ svn_auth_get_simple_prompt_provider
 }
 
 svn_error_t *
-svn_cmdline_create_auth_baton(svn_auth_baton_t **ab,
+nmap_update_svn_cmdline_create_auth_baton(svn_auth_baton_t **ab,
                               svn_boolean_t non_interactive,
                               const char *auth_username,
                               const char *auth_password,

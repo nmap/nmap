@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="nmap-update.c" />
+    <ClCompile Include="svn_auth.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BBF27339-C7B6-4F52-B742-897796C1F13B}</ProjectGuid>
