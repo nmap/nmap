@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.61TEST4 [2012-01-02]
+
 o [NSE] Added a new httpspider library which is used for recursively
   crawling web sites for information.  New scripts using this
   functionality include http-backup-finder, http-email-harvest,
@@ -13,6 +15,20 @@ o [NSE] Added a new script-force feature.  You can force scripts to
   See
   http://nmap.org/book/nse-usage.html#nse-script-selection. [Martin
   Swende]
+
+o Our Mac OS X packages are now x86-only (rather than universal),
+  reducing the download size from 30 MB to about 17.  If you still
+  need a PowerPC version (Apple stopped selling those machines in
+  2006), you can use Nmap 5.51 or 5.61TEST2 from
+  http://nmap.org/dist/?C=M&O=D.
+
+o We set up a new SVN server for the Nmap codebase.  This one uses SSL
+  for better security, WebDAV rather than svnserve for greater
+  functionality, is hosted on a faster (virtual) machine, provides
+  Nmap code history back to 1998 rather than 2005, and removes the
+  need for the specail "guest" username.  The new server is at
+  https://svn.nmap.org.  More information:
+  http://seclists.org/nmap-dev/2011/q4/504.
 
 o [NSE] Added a vulnerability management library (vulns.lua) to store and to
   report discovered vulnerabilities.  Modified these scripts to use
@@ -215,16 +231,21 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
   + vuze-dht-info retrieves some basic information, including protocol
     version from a Vuze filesharing node. [Patrik Karlsson]
 
-o On Windows, the directory <HOME>\AppData\Roaming\nmap is now
-  searched for data files. This is the equivalent of $HOME/.nmap on
-  POSIX. [David]
-
 o [NSE] Added some new protocol libraries
  + amqp (advanced message queuing protocol) [Sebastian Dragomir]
  + bitcoin crypto currency [Patrik Karlsson
  + dnsbl for DNS-based blacklists [Patrik Karlsson
  + rtsp (real time streaming protocol) [Patrik Karlsson]
  + httpspider and vulns ahave separate entries in this CHANGELOG
+
+o Nmap now includes a nmap-update program for obtaining the latest
+  updates (new scripts, OS fingerprints, etc.)  The system is
+  currently only available to a few developers for testing, but we
+  hope to enable a larger set of beta testers soon. [David]
+
+o On Windows, the directory <HOME>\AppData\Roaming\nmap is now
+  searched for data files. This is the equivalent of $HOME/.nmap on
+  POSIX. [David]
 
 o Improved OS detection performance by scaling congestion control
   increments by the response rate during OS scan, just as was done
@@ -234,10 +255,29 @@ o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
   interfaces by default. They show the MAC address and interface name
   now too. [David, Daniel Miller]
 
+o Added some new version detection probes:
+ + MongoDB service [Martin Holst Swende]
+ + Metasploit XMLRPC service [Vlatko Kosturjak]
+ + Vuze filesharing system [Patrik]
+ + Redis key-value store [Patrik]
+ + memcached [Patrik]
+ + Sybase SQL Anywhere [Patrik]
+ + VMware ESX Server [Aleksey Tyurin]
+ + TCP Kerberos [Patrik]
+ + PC-Duo [Patrik]
+ + PC Anywhere [Patrik]
+
 o Targets requiring different source addresses now go into different
   hostgroups, not only for host discovery but also for port scanning.
   Before, only responses to one of the source addresses would be
   processed, and the others would be ignored. [David]
+
+o Tidied up the version detection DB (nmap-service-probes) with a new
+  cleanup/canonicalization program sv-tidy.  In particular, this:
+ - Removes excess whitespace
+ - Sorts temlates in the order m p v i d o h cpe:
+ - Canonicalizes template delimiters in the order: / | % = @ #.
+ [David]
 
 o [NSE] Added local port to BPF filter in snmp-brute to fix bug that would
   prevent multiple scripts from receiving the correct responses. The bug was
@@ -271,8 +311,6 @@ o [NSE] Added path argument to the http-auth script and update the
 o [NSE] Fixed bug in the http library that would fail to parse
   authentication headers if no parameters were present. [Patrik]
 
-o Added probes for discovering PC-Duo and PC-Anywhere hosts. [Patrik]
-
 o Made a syntax change in the zenmap.desktop file for compliance with
   the XDG standard. [Frederik Schwarzer]
 
@@ -301,17 +339,6 @@ o [NSE] Added new functionality and fixed some bugs in the brute library:
   - Added support to guess an empty string as password if not
     present in the dictionary. [Patrik]
 
-o Added some new version detection probes:
- + MongoDB service [Martin Holst Swende]
- + Metasploit XMLRPC service [Vlatko Kosturjak]
- + Vuze filesharing system [Patrik]
- + Redis key-value store [Patrik]
- + memcached [Patrik]
- + MochiWeb [Patrik]
- + Sybase SQL Anywhere [Patrik]
- + VMware ESX Server [Aleksey Tyurin]
- + TCP Kerberos [Patrik]
-
 o [NSE] Re-enabled support for guessing the username in addition to password
   that was incorrectly removed from the metasploit-xmlrpc-brute in previous
   commit. [Patrik]
@@ -321,6 +348,10 @@ o [NSE] Fixed bug that would prevent brute scripts from running if no service
 
 o [NSE] Turned on promiscuous mode in targets-sniffer.nse so that it
   finds packets not only from or to the scanning host. [David]
+
+o The Zenmap topology display feature is now disabled when there are
+  more than 1,000 target hosts.  Those topology maps slow down the
+  interface and are generally too crowded to be of much use.
 
 o [NSE] Modified the http library to support servers that don't return valid
   chunked encoded data, such as the Citrix XML service. [Patrik]
