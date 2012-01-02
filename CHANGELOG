@@ -1,11 +1,38 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new httpspider library which is used for recursively
+  crawling web sites for information.  New scripts using this
+  functionality include http-backup-finder, http-email-harvest,
+  http-grep, http-open-redirect, and http-unsafe-output-escaping. See
+  http://nmap.org/nsedoc/ or the list later in this file for details
+  on all of these. [Patrik]
+
+o [NSE] Added a new script-force feature.  You can force scripts to
+  run against target ports (even if the "wrong" service is detected)
+  by placing a plus in front of the script name passed to --script.
+  See
+  http://nmap.org/book/nse-usage.html#nse-script-selection. [Martin
+  Swende]
+
+o [NSE] Added a vulnerability management library (vulns.lua) to store and to
+  report discovered vulnerabilities.  Modified these scripts to use
+  the new library:
+  - ftp-libopie.nse
+  - http-vuln-cve2011-3192.nse
+  - ftp-vuln-cve2010-4221.nse
+  - ftp-vsftpd-backdoor.nse
+  - smtp-vuln-cve2011-1720.nse
+  - smtp-vuln-cve2011-1764.nse
+  - afp-path-vuln.nse
+  [Djalal, Henri]
+
 o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
   are all listed at http://nmap.org/nsedoc/, and the summaries are
   below (authors listed in brackets):
 
   + amqp-info gathers information (a list of all server properties)
-    from an AMQP (advanced message queuing protocol) server. [Sebastian Dragomir]
+    from an AMQP (advanced message queuing protocol)
+    server. [Sebastian Dragomir]
 
   + bitcoin-getaddr queries a BitCoin server for a list of known
     BitCoin nodes. [Patrik Karlsson]
@@ -108,7 +135,7 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
     target IP address by querying the Robtex service
     (http://www.robtex.com/ip/). [riemann]
 
-  + http-unsafe-output-escaping Spiders a website and attempts to
+  + http-unsafe-output-escaping spiders a website and attempts to
     identify output escaping problems where content is reflected back
     to the user. [Martin Holst Swende]
 
@@ -188,11 +215,24 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
   + vuze-dht-info retrieves some basic information, including protocol
     version from a Vuze filesharing node. [Patrik Karlsson]
 
-o Scaled congestion control increments by the response rate during OS
-  scan, just like was done for port scan before. [David]
+o On Windows, the directory <HOME>\AppData\Roaming\nmap is now
+  searched for data files. This is the equivalent of $HOME/.nmap on
+  POSIX. [David]
 
-o Added service probe for Redis key-value store, memcached and MochiWeb
-  [Patrik]
+o [NSE] Added some new protocol libraries
+ + amqp (advanced message queuing protocol) [Sebastian Dragomir]
+ + bitcoin crypto currency [Patrik Karlsson
+ + dnsbl for DNS-based blacklists [Patrik Karlsson
+ + rtsp (real time streaming protocol) [Patrik Karlsson]
+ + httpspider and vulns ahave separate entries in this CHANGELOG
+
+o Improved OS detection performance by scaling congestion control
+  increments by the response rate during OS scan, just as was done
+  for port scan before. [David]
+
+o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
+  interfaces by default. They show the MAC address and interface name
+  now too. [David, Daniel Miller]
 
 o Targets requiring different source addresses now go into different
   hostgroups, not only for host discovery but also for port scanning.
@@ -203,99 +243,74 @@ o [NSE] Added local port to BPF filter in snmp-brute to fix bug that would
   prevent multiple scripts from receiving the correct responses. The bug was
   discovered by Brendan Bird. [Patrik]
 
-o [NSE] Removed DoS code from dhcp-discover and placed it into the discover and
-  safe categories. Added support for adding options to DHCP requests in the
-  dhcp library. [Patrik]
+o [NSE] Changed the dhcp-discover script to use the DHCPINFORM request
+  to query dhcp servers instead of DHCPDISCOVER. Also removed DoS code
+  from dhcp-discover and placed the script into the discovery and safe
+  categories. Added support for adding options to DHCP requests and
+  cleaned up some code in the dhcp library. [Patrik]
 
-o [NSE] Changed the dhcp-discover script to use the DHCPINFORM request to query
-  dhcp servers instead of DHCPDISCOVER. Cleaned up some code in the DHCP
-  library. [Patrik]
+o [NSE] Applied patch to snmp-brute that solves problems with handling
+  errors that occur durring community list file parsing. [Duarte
+  Silva]
 
-o [NSE] Applied patch to snmp-brute that solves problems with handling errors
-  that occur when parsing files with community lists. [Duarte Silva]
-
-o [NSE] Applied patch to http-fingerprints adding support for identifying DCVS
-  systems Git, Mercurial and Bazaar. [Hani Benhabiles]
+o Added new fingerprints to http-enum for:
+  - Subversion, CVS and Apache Archiva [Duarte Silva]
+  - DVCS systems Git, Mercurial and Bazaar [Hani Benhabiles].
 
 o [NSE] Applied some code cleanup to the snmp library. [Brendan Byrd]
 
-o [NSE] Fixed a bug with an undeclared variable in snmp-ios-config.nse [Patrik]
+o [NSE] Fixed an undeclared variable bug in snmp-ios-config.nse
+  [Patrik]
 
-o On Windows, the directory <HOME>\AppData\Roaming\nmap is now
-  searched for data files. This is the equivalent of $HOME/.nmap on
-  POSIX. [David]
+o [NSE] Add additional version information to Mongodb scripts [Martin
+  Swende]
 
-o [NSE] Applied patch to add additional version information to Mongodb scripts
-  [Martin Swende]
+o [NSE] Added path argument to the http-auth script and update the
+  script to use stdnse.format_output. [Duarte Silva, Patrik]
 
-o [NSE] Added path argument to the http-auth script and changed so that script
-  output was returned using stdnse.format_output [Duarte Silva, Patrik]
-
-o [NSE] Fixed bug in the http library that would fail parsing authentication
-  headers if no parameters were present. [Patrik]
-
-o Added new fingerprints to http-enum for Subversion, CVS and Apache Archiva
-  [Duarte Silva]
+o [NSE] Fixed bug in the http library that would fail to parse
+  authentication headers if no parameters were present. [Patrik]
 
 o Added probes for discovering PC-Duo and PC-Anywhere hosts. [Patrik]
-
-o [NSE] Added support for forcing scripts to run agains certain ports by adding
-  a plus in front of the script name. [Martin Swende]
 
 o Made a syntax change in the zenmap.desktop file for compliance with
   the XDG standard. [Frederik Schwarzer]
 
-o [NSE] Added stop function to crawler so that scripts can properly shutdown
-  the crawler in case they want to end early. [Patrik]
-
-o [NSE] Fixed issue in path encoding in the http-backup-finder script. [Patrik]
-
-o [NSE] Added getLimitations function to httpspider that returns any 
-  limitations imposed on the crawler. [Patrik]
-
-o [NSE] Modified the httpspider library to prefetch links in the queue and
-  change how script arguments are processed. Script and library arguments are
-  now processed from within the library. [Patrik]
-
-o The --exclude and --excludefile options can be used together now. [David]
-
-o [NSE] Added a new httpspider library and the script http-email-harvest that
-  collects e-mail addresses by spidering a website. [Patrik]
+o The --exclude and --excludefile options for excluding targets can
+  now be used together. [David]
 
 o [NSE] Added support for detecting whether a http connection was established
-  using SSL or not by the http.lua library [Patrik]
+  using SSL or not to the http.lua library [Patrik]
 
-o [NSE] Applied patch that replaces a number of GET requests to HEAD in http-
-  fingerprints.lua where no matching was performed on the returned contents.
-  [Hani Benhabiles]
+o [NSE] Replaced a number of GET requests to HEAD in http-
+  fingerprints.lua.  HEAD is quicker and sufficient when no matching
+  is performed on the returned contents.  [Hani Benhabiles]
 
-o [NSE] Applied patch to the ssl-cert script that adds support for getting SSL
-  certificates from FTP servers. [Matt Selsky]
+o [NSE] Added support for retrieving SSL certificates from FTP
+  servers. [Matt Selsky]
 
-o [NSE] Added the a Vuze library, port probe and the script vuze-dht-info. The
-  script connects to a Vuze node and gets protocol, vendor and network
-  information. [Patrik]
-
-o [Nping] The --safe-payloads option is now default. Added --include-payloads
-  for special situations. [Colin Rice]
-
-o [NSE] Added whitelist capabilities to the unusual-port script to be able
-  to handle legitimate services on dynamic ports and discrepancies between
-  names of services. [Patrik]
-
-o Added a probe for Sybase SQL Anywhere. [Patrik]
+o [Nping] The --safe-payloads option is now the default. Added
+  --include-payloads for the special situations where payloads are
+  needed. [Colin Rice]
 
 o [NSE] Added new functionality and fixed some bugs in the brute library:
-  - Added support for restricting the amount of guesses performed by the
+  - Added support for restricting the number of guesses performed by the
     brute library against users, to prevent account lockouts.
-  - Added support to guess the username as password as incorrectly
-    suggested as default behavior by the documentation.
-  - Added support to guess an empty string as password if not present
-    in the dictionary. [Patrik]
+  - Added support to guess the username as password. The documentation
+    previusly suggested (wrongly) that this was the default behavior.
+  - Added support to guess an empty string as password if not
+    present in the dictionary. [Patrik]
 
-o Added a probe for the MongoDB service [Martin Holst Swende]
-
-o Added a probe for the Metasploit XMLRPC service [Vlatko Kosturjak]
+o Added some new version detection probes:
+ + MongoDB service [Martin Holst Swende]
+ + Metasploit XMLRPC service [Vlatko Kosturjak]
+ + Vuze filesharing system [Patrik]
+ + Redis key-value store [Patrik]
+ + memcached [Patrik]
+ + MochiWeb [Patrik]
+ + Sybase SQL Anywhere [Patrik]
+ + VMware ESX Server [Aleksey Tyurin]
+ + TCP Kerberos [Patrik]
 
 o [NSE] Re-enabled support for guessing the username in addition to password
   that was incorrectly removed from the metasploit-xmlrpc-brute in previous
@@ -303,22 +318,6 @@ o [NSE] Re-enabled support for guessing the username in addition to password
   
 o [NSE] Fixed bug that would prevent brute scripts from running if no service
   field was present in the port table. [Patrik]
-
-o [NSE] Added the scripts bitcoin-info, bitcoin-getaddr and a supporting
-  Bitcoin library. The script bitcoin-info retrieves information about the
-  remote server, while the bitcoin-getaddr script retrieves a list of
-  discovered remote Bitcoin nodes. [Patrik]
-
-o [NSE] Modified the following vulnerability scripts to use the new
-  vulnerability library.
-  - ftp-libopie.nse
-  - http-vuln-cve2011-3192.nse
-  - ftp-vuln-cve2010-4221.nse
-  - ftp-vsftpd-backdoor.nse
-  - smtp-vuln-cve2011-1720.nse
-  - smtp-vuln-cve2011-1764.nse
-  - afp-path-vuln.nse
-  [Djalal, Henri]
 
 o [NSE] Turned on promiscuous mode in targets-sniffer.nse so that it
   finds packets not only from or to the scanning host. [David]
@@ -328,9 +327,6 @@ o [NSE] Modified the http library to support servers that don't return valid
 
 o [NSE] Fixed a bug where the brute library would not abort even after all
   retries were exhausted [Patrik]
-
-o Added a service probe for VMware ESX Server. The probe is based on a
-  script written by Aleksey Tyurin.
 
 o Fixed a bug in the IPv6 OS probe called NI. The Node Information
   Query didn't include the target address as the payload, so at least
@@ -345,32 +341,22 @@ o [NSE] Fixed an error in the mssql library that was causing the
 o [NSE] Added the missing broadcast category to the broadcast-listener script.
   [Jason DePriest]
 
-o [NSE] Made changes to the categories of the following scripts. Their new
-  categories are:
-    - http-userdir-enum.nse (auth,intrusive)
-    - mysql-users.nse (auth,intrusive)
-    - http-wordpress-enum.nse (auth,intrusive,vuln)
-    - krb5-enum-users.nse (auth,intrusive)
-    - snmp-win32-users.nse (default,auth,safe)
-    - smtp-enum-users.nse (auth,external,intrusive)
-    - ncp-enum-users.nse (auth,safe)
-    - smb-enum-users.nse (auth,intrusive)
-  [Duarte Silva]
-
-o [NSE] Added a vulnerability management library (vulns.lua) to store and to
-  report discovered vulnerabilities. [Djalal, Henri]
+o [NSE] Made changes to the categories of the following scripts (new
+  categories shown) [Duarte Silva]:
+  - http-userdir-enum.nse (auth,intrusive)
+  - mysql-users.nse (auth,intrusive)
+  - http-wordpress-enum.nse (auth,intrusive,vuln)
+  - krb5-enum-users.nse (auth,intrusive)
+  - snmp-win32-users.nse (default,auth,safe)
+  - smtp-enum-users.nse (auth,external,intrusive)
+  - ncp-enum-users.nse (auth,safe)
+  - smb-enum-users.nse (auth,intrusive)
 
 o Made nbase compile with the clang compiler that is a part of Xcode
   4.2. [Daniel J. Luke]
 
-o [NSE] Applied patch that fixes a nil table index bug discovered in the
-  mongodb library. [Thomas Buchanan]
-
-o Added a TCP Kerberos service probe. [Patrik]
-
-o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
-  interfaces by default. They show the MAC address and interface name
-  now too. [David, Daniel Miller]
+o [NSE] Fix a nil table index bug discovered in the mongodb
+  library. [Thomas Buchanan]
 
 o [NSE] Added XMPP support to ssl-cert.nse.
 

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/19/2011
+.\"      Date: 01/01/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/19/2011" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/01/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1248,6 +1248,9 @@ of each of the following places until found:
 ~/\&.nmap (not searched on Windows).\" .nmap directory
 .RE
 .RS 4
+\fIHOME\fR\eAppData\eRoaming\enmap (only on Windows).\" .nmap directory
+.RE
+.RS 4
 the directory containing the nmap
 executable
 .RE
@@ -2195,7 +2198,12 @@ option (if any)\&. Any files not found there, are searched for in the directory 
 \fBNMAPDIR\fR.\" NMAPDIR environment variable
 environment variable\&. Next comes
 ~/\&.nmap.\" .nmap directory
-for real and effective UIDs (POSIX systems only)\&. This is followed by the location of the
+for real and effective UIDs; or on Windows,
+\fIHOME\fR\eAppData\eRoaming\enmap
+(where
+\fIHOME\fR
+is the user\*(Aqs home directory, like
+C:\eUsers\euser)\&. This is followed by the location of the
 nmap
 executable and the same location with
 \&.\&./share/nmap
