@@ -75,4 +75,25 @@ on Windows\&. This option can be used by root to install updates system\-wide\&.
 Show a help message and exit\&.
 .RE
 .PP
+\fB\-r\fR, \fB\-\-repo\fR \fIrepository\fR
+.RS 4
+Use the given repository and path rather than the default\&. For example,
+\fB\-\-repo https://svn\&.example\&.com/updates\fR\&.
+.RE
+.PP
+\fB\-\-username\fR \fIusername\fR
+.RS 4
+Authenticate with the given username\&.
+.RE
+.PP
+\fB\-\-password\fR \fIpassword\fR
+.RS 4
+Authenticate with the given password\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-verbose\fR
+.RS 4
+Be more verbose\&. Show the used channel and repository\&.
+.RE
+.PP
 Any other arguments are taken to be the names of channels to load from\&. The channels are tried in order until one is successful\&.
