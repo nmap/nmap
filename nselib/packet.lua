@@ -827,7 +827,7 @@ function Packet:tcp_parse(force_continue)
 	self.tcp_seq		= self:u32(self.tcp_offset + 4)
 	self.tcp_ack		= self:u32(self.tcp_offset + 8)
 	self.tcp_hl		= bit.rshift(bit.band(self:u8(self.tcp_offset+12), 0xF0), 4)	-- header_length or data_offset
-	self.tcp_x2		=            bit.band(self:u8(self.tcp_offset+12), 0x0F)
+	self.tcp_x2		= bit.band(self:u8(self.tcp_offset+12), 0x0F)
 	self.tcp_flags		= self:u8(self.tcp_offset + 13)
 	self.tcp_th_fin		= bit.band(self.tcp_flags, 0x01)~=0		-- true/false
 	self.tcp_th_syn		= bit.band(self.tcp_flags, 0x02)~=0
