@@ -1,7 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added the script redis-info that lists version and statistic information
-  gathered from the Redis network key-value store. [Patrik]
+o [NSE] Added the script memcached-info that lists version and statistics
+  information from the distributed memory object caching service memcached
+  [Patrik]
+
+o [NSE] Added the script redis-info that lists version and statistic
+  information gathered from the Redis network key-value store. [Patrik]
 
 o [NSE] Added the script redis-brute that performs brute force password
   guessing against the Redis network key-value store. [Patrik]
