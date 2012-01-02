@@ -83,6 +83,26 @@ password = <replaceable>password</replaceable>
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term><option>-r</option></term>
+        <term><option>--repo</option> <replaceable>repository</replaceable></term>
+        <listitem>
+          <para>Use the given repository and path rather than the default.
+          For example, <option>--repo https://svn.example.com/updates</option>.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--username</option> <replaceable>username</replaceable></term>
+        <listitem>
+          <para>Authenticate with the given username.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term><option>--password</option> <replaceable>password</replaceable></term>
+        <listitem>
+          <para>Authenticate with the given password.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term><option>-v</option></term>
         <term><option>--verbose</option></term>
         <listitem>
