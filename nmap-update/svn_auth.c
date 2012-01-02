@@ -13,8 +13,8 @@
      is only to avoid having to also copy in ssl_trust_unknown_server_cert.)
    * Disabled username guessing in prompt_for_simple_creds.
    * Made svn_auth_get_simple_prompt_provider have static scope.
-   * Renamed svn_cmdline_create_auth_baton to
-     nmap_update_svn_cmdline_create_auth_baton. */
+   * Put an "nmap_update_" prefix on svn_auth_get_simple_prompt_provider and
+     svn_cmdline_create_auth_baton. */
 
 /*
  * ====================================================================
@@ -237,7 +237,7 @@ static const svn_auth_provider_t simple_prompt_provider = {
 
 /* Public API */
 static void
-svn_auth_get_simple_prompt_provider
+nmap_update_svn_auth_get_simple_prompt_provider
   (svn_auth_provider_object_t **provider,
    svn_auth_simple_prompt_func_t prompt_func,
    void *prompt_baton,
@@ -340,7 +340,7 @@ nmap_update_svn_cmdline_create_auth_baton(svn_auth_baton_t **ab,
   if (non_interactive == FALSE)
     {
       /* Two basic prompt providers: username/password, and just username. */
-      svn_auth_get_simple_prompt_provider(&provider,
+      nmap_update_svn_auth_get_simple_prompt_provider(&provider,
                                           svn_cmdline_auth_simple_prompt,
                                           pb,
                                           2, /* retry limit */
