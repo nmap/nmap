@@ -1,5 +1,5 @@
 description = [[
-Extracts version and node information from a BitCoin server
+Extracts version and node information from a Bitcoin server
 ]]
 
 ---

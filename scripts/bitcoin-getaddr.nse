@@ -1,5 +1,5 @@
 description = [[
-Queries a BitCoin server for a list of known BitCoin nodes
+Queries a Bitcoin server for a list of known Bitcoin nodes
 ]]
 
 ---
