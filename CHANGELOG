@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a natpmp library and the script nat-pmp-mapport that allows
+  NAT mapping of external TCP and UDP ports to internal addresses. [Patrik]
+
 o [NSE] Added the script riak-http-info that lists version and statistics
   information from the Basho Riak distributed database. [Patrik]
 
@@ -10,8 +13,8 @@ o [NSE] Added the script memcached-info that lists version and statistics
 o [NSE] Added the script redis-info that lists version and statistic
   information gathered from the Redis network key-value store. [Patrik]
 
-o [NSE] Added the script redis-brute that performs brute force password
-  guessing against the Redis network key-value store. [Patrik]
+o [NSE] Added the redis library and the script redis-brute that performs brute
+  force password guessing against the Redis network key-value store. [Patrik]
 
 o [NSE] Added the script http-proxy-brute that performs brute force password
   guessing against HTTP proxy servers. [Patrik]
