@@ -509,7 +509,7 @@ static void metadata_init(struct metadata *metadata)
 
 static void init_options(void)
 {
-	options.verbose = 1;
+	options.verbose = 0;
 	options.install_dir = get_install_dir();
 	if (options.install_dir == NULL) {
 		fprintf(stderr, "Could not find an install directory: %s.\n",
@@ -677,6 +677,7 @@ Updates system-independent Nmap files. By default the new files are installed to
   -d DIR               install files to DIR (default %s).\n\
   -h, --help           show this help.\n\
   -r, --repo REPO      use REPO as SVN repository and path (default %s).\n\
+  -v, --verbose        be more verbose.\n\
   --username USERNAME  use this username.\n\
   --password PASSWORE  use this password.\n\
 ", program_name, install_dir, install_dir, DEFAULT_SVN_REPO);
@@ -712,6 +713,7 @@ static void summarize_options(void)
 const struct option LONG_OPTIONS[] = {
 	{ "help", no_argument, NULL, 'h' },
 	{ "repo", required_argument, NULL, 'r' },
+	{ "verbose", required_argument, NULL, 'v' },
 	{ "username", required_argument, NULL, '?' },
 	{ "password", required_argument, NULL, '?' },
 };
@@ -735,7 +737,7 @@ int main(int argc, char *argv[])
 	password = NULL;
 	svn_repo = NULL;
 
-	while ((opt = getopt_long(argc, argv, "d:hr:", LONG_OPTIONS, &longoptidx)) != -1) {
+	while ((opt = getopt_long(argc, argv, "d:hr:v", LONG_OPTIONS, &longoptidx)) != -1) {
 		if (opt == 'd') {
 			options.install_dir = optarg;
 		} else if (opt == 'h') {
@@ -743,6 +745,8 @@ int main(int argc, char *argv[])
 			exit(0);
 		} else if (opt == 'r') {
 			svn_repo = optarg;
+		} else if (opt == 'v') {
+			options.verbose = 1;
 		} else if (opt == '?' && streq(LONG_OPTIONS[longoptidx].name, "username")) {
 			username = optarg;
 		} else if (opt == '?' && streq(LONG_OPTIONS[longoptidx].name, "password")) {

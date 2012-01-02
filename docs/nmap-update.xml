@@ -82,6 +82,13 @@ password = <replaceable>password</replaceable>
           <para>Show a help message and exit.</para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term><option>-v</option></term>
+        <term><option>--verbose</option></term>
+        <listitem>
+          <para>Be more verbose. Show the used channel and repository.</para>
+        </listitem>
+      </varlistentry>
     </variablelist>
 
     <para>
