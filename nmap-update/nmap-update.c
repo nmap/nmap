@@ -927,6 +927,13 @@ static int stage_channel(const char *channel, const char *staging_dir)
 	if (options.verbose)
 		printf("Checking out %s to %s.\n", svn_url, staging_dir);
 
+	printf("\
+\n\
+The Nmap Updater is currently only available to a small set of users\n\
+for testing purposes. We hope to expand it in the future.\n\
+\n\
+");
+
 	err = checkout_svn(svn_url, staging_dir);
 	if (err != NULL) {
 		svn_handle_error2(err, stderr, FALSE, "nmap-update: ");
