@@ -137,6 +137,8 @@ clean:
 	rm -rf $(NDIFF_STAGING_DIR)
 	rm -rf $(NPING_BUILD_DIR)
 	rm -rf $(NPING_STAGING_DIR)
+	rm -rf $(NMAP_UPDATE_BUILD_DIR)
+	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	rm -f COPYING.formatted
 	rm -f $(IMAGE_NAME)
 
