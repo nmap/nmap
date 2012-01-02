@@ -3,6 +3,7 @@ srcdir = @srcdir@
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 bindir = @bindir@
+mandir = @mandir@
 
 CC = @CC@
 CFLAGS = @CFLAGS@
@@ -38,9 +39,10 @@ $(NBASELIB):
 	cd $(NBASEDIR) && $(MAKE)
 
 install: nmap-update
-	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir)
+	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir) $(DESTDIR)$(mandir)/man1
 	$(INSTALL) -c -m 755 nmap-update $(DESTDIR)$(bindir)
 	$(STRIP) -x $(DESTDIR)$(bindir)/nmap-update
+	$(INSTALL) -c -m 644 ../docs/nmap-update.1 $(DESTDIR)$(mandir)/man1/
 
 uninstall:
 	$(RM) -f $(DESTDIR)$(bindir)/nmap-update
