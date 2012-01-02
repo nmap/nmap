@@ -13,6 +13,9 @@ o [NSE] Added the script redis-brute that performs brute force password
 o [NSE] Added the script http-proxy-brute that performs brute force password
   guessing against HTTP proxy servers. [Patrik]
 
+o [NSE] Added the script socks-auth-info that lists supported SOCKS 5
+  authentication mechanisms. [Patrik]
+
 o [NSE] Added the script socks-brute that performs brute force password
   guessing against SOCKS 5 servers. [Patrik]
 

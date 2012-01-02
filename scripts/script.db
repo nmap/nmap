@@ -268,6 +268,7 @@ Entry { filename = "snmp-win32-services.nse", categories = { "default", "discove
 Entry { filename = "snmp-win32-shares.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-win32-software.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-win32-users.nse", categories = { "auth", "default", "safe", } }
+Entry { filename = "socks-auth-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "socks-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "sql-injection.nse", categories = { "intrusive", "vuln", } }
