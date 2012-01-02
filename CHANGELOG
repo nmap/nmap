@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script redis-info that lists version and statistic information
+  gathered from the Redis network key-value store. [Patrik]
+
+o [NSE] Added the script redis-brute that performs brute force password
+  guessing against the Redis network key-value store. [Patrik]
+
 o [NSE] Added the script http-proxy-brute that performs brute force password
   guessing against HTTP proxy servers. [Patrik]
 
