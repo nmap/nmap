@@ -7,14 +7,7 @@ o [NSE] Added a new httpspider library which is used for recursively
   functionality include http-backup-finder, http-email-harvest,
   http-grep, http-open-redirect, and http-unsafe-output-escaping. See
   http://nmap.org/nsedoc/ or the list later in this file for details
-  on all of these. [Patrik]
-
-o [NSE] Added a new script-force feature.  You can force scripts to
-  run against target ports (even if the "wrong" service is detected)
-  by placing a plus in front of the script name passed to --script.
-  See
-  http://nmap.org/book/nse-usage.html#nse-script-selection. [Martin
-  Swende]
+  on these. [Patrik]
 
 o Our Mac OS X packages are now x86-only (rather than universal),
   reducing the download size from 30 MB to about 17.  If you still
@@ -26,7 +19,7 @@ o We set up a new SVN server for the Nmap codebase.  This one uses SSL
   for better security, WebDAV rather than svnserve for greater
   functionality, is hosted on a faster (virtual) machine, provides
   Nmap code history back to 1998 rather than 2005, and removes the
-  need for the specail "guest" username.  The new server is at
+  need for the special "guest" username.  The new server is at
   https://svn.nmap.org.  More information:
   http://seclists.org/nmap-dev/2011/q4/504.
 
@@ -42,6 +35,13 @@ o [NSE] Added a vulnerability management library (vulns.lua) to store and to
   - afp-path-vuln.nse
   [Djalal, Henri]
 
+o [NSE] Added a new script force feature.  You can force scripts to
+  run against target ports (even if the "wrong" service is detected)
+  by placing a plus in front of the script name passed to --script.
+  See
+  http://nmap.org/book/nse-usage.html#nse-script-selection. [Martin
+  Swende]
+
 o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
   are all listed at http://nmap.org/nsedoc/, and the summaries are
   below (authors listed in brackets):
@@ -50,17 +50,17 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
     from an AMQP (advanced message queuing protocol)
     server. [Sebastian Dragomir]
 
-  + bitcoin-getaddr queries a BitCoin server for a list of known
-    BitCoin nodes. [Patrik Karlsson]
+  + bitcoin-getaddr queries a Bitcoin server for a list of known
+    Bitcoin nodes. [Patrik Karlsson]
 
-  + bitcoin-info extracts version and node information from a BitCoin
+  + bitcoin-info extracts version and node information from a Bitcoin
     server [Patrik Karlsson]
 
   + bitcoinrpc-info obtains information from a Bitcoin server by
     calling <code>getinfo</code> on its JSON-RPC interface. [Toni
     Ruottu]
 
-  + broadcast-pc-anywhere sends a special broadcat probe to discover
+  + broadcast-pc-anywhere sends a special broadcast probe to discover
     PC-Anywhere hosts running on a LAN. [Patrik Karlsson]
 
   + broadcast-pc-duo discovers PC-DUO remote control hosts and
@@ -86,7 +86,7 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
     where the IP has been blacklisted. [Patrik Karlsson]
 
   + dns-zeustracker checks if the target IP range is part of a Zeus
-    botnet by quering ZTDNS @ abuse.ch. [Mikael Keri]
+    botnet by querying ZTDNS @ abuse.ch. [Mikael Keri]
 
   + ganglia-info retrieves system information (OS version, available
     memory, etc.) from a listening Ganglia Monitoring Daemon or
@@ -120,7 +120,7 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
 
   + http-backup-finder Spiders a website and attempts to identify
     backup copies of discovered files.  It does so by requesting a
-    number of different combinations of the filename (eg. index.bak,
+    number of different combinations of the filename (e.g. index.bak,
     index.html~, copy of index.html). [Patrik Karlsson]
 
   + http-cors tests an http server for Cross-Origin Resource Sharing
@@ -236,7 +236,7 @@ o [NSE] Added some new protocol libraries
  + bitcoin crypto currency [Patrik Karlsson
  + dnsbl for DNS-based blacklists [Patrik Karlsson
  + rtsp (real time streaming protocol) [Patrik Karlsson]
- + httpspider and vulns ahave separate entries in this CHANGELOG
+ + httpspider and vulns have separate entries in this CHANGELOG
 
 o Nmap now includes a nmap-update program for obtaining the latest
   updates (new scripts, OS fingerprints, etc.)  The system is
@@ -275,9 +275,15 @@ o Targets requiring different source addresses now go into different
 o Tidied up the version detection DB (nmap-service-probes) with a new
   cleanup/canonicalization program sv-tidy.  In particular, this:
  - Removes excess whitespace
- - Sorts temlates in the order m p v i d o h cpe:
+ - Sorts templates in the order m p v i d o h cpe:
  - Canonicalizes template delimiters in the order: / | % = @ #.
  [David]
+
+o The --exclude and --excludefile options for excluding targets can
+  now be used together. [David]
+
+o [NSE] Added support for detecting whether a http connection was established
+  using SSL or not to the http.lua library [Patrik]
 
 o [NSE] Added local port to BPF filter in snmp-brute to fix bug that would
   prevent multiple scripts from receiving the correct responses. The bug was
@@ -290,17 +296,16 @@ o [NSE] Changed the dhcp-discover script to use the DHCPINFORM request
   cleaned up some code in the dhcp library. [Patrik]
 
 o [NSE] Applied patch to snmp-brute that solves problems with handling
-  errors that occur durring community list file parsing. [Duarte
+  errors that occur during community list file parsing. [Duarte
   Silva]
 
-o Added new fingerprints to http-enum for:
+o [NSE] Added new fingerprints to http-enum for:
   - Subversion, CVS and Apache Archiva [Duarte Silva]
   - DVCS systems Git, Mercurial and Bazaar [Hani Benhabiles].
 
 o [NSE] Applied some code cleanup to the snmp library. [Brendan Byrd]
 
-o [NSE] Fixed an undeclared variable bug in snmp-ios-config.nse
-  [Patrik]
+o [NSE] Fixed an undeclared variable bug in snmp-ios-config [Patrik]
 
 o [NSE] Add additional version information to Mongodb scripts [Martin
   Swende]
@@ -313,12 +318,6 @@ o [NSE] Fixed bug in the http library that would fail to parse
 
 o Made a syntax change in the zenmap.desktop file for compliance with
   the XDG standard. [Frederik Schwarzer]
-
-o The --exclude and --excludefile options for excluding targets can
-  now be used together. [David]
-
-o [NSE] Added support for detecting whether a http connection was established
-  using SSL or not to the http.lua library [Patrik]
 
 o [NSE] Replaced a number of GET requests to HEAD in http-
   fingerprints.lua.  HEAD is quicker and sufficient when no matching
@@ -335,7 +334,7 @@ o [NSE] Added new functionality and fixed some bugs in the brute library:
   - Added support for restricting the number of guesses performed by the
     brute library against users, to prevent account lockouts.
   - Added support to guess the username as password. The documentation
-    previusly suggested (wrongly) that this was the default behavior.
+    previously suggested (wrongly) that this was the default behavior.
   - Added support to guess an empty string as password if not
     present in the dictionary. [Patrik]
 
