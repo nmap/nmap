@@ -10170,3 +10170,17 @@ Probe UDP memcached q|\0\x01\0\0\0\x01\0\0stats\r\n|
 rarity 8
 ports 11211
 match memcached m|^\0\x01\0\0\0\x01\0\0STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$1/
+
+##############################NEXT PROBE##############################
+# Sends a ServerInfo PBC request to the Basho Riak distributed database
+Probe TCP riak-pbc q|\0\0\0\x01\x07|
+rarity 8
+ports 8087
+match riak-pbc m|^....\x08..(riak@[.\d]*)..([.\d]+)$|s p/Basho Riak/ v/$2/ i/Node name: $1/
+
+##############################NEXT PROBE##############################
+# Sends a ServerInfo PBC request to the Basho Riak distributed database
+Probe TCP tarantool q|show info\r\n|
+rarity 8
+ports 33015
+match tarantool m|---\r\ninfo:\r\n  version: \"([^\"]*)\"\r\n  uptime: (\d*)\r\n  pid: (\d*)\r\n  ([._\w\s]*: .*\r\n)*  config: \"([^\"]*)\"| p/Tarantool/ v/$1/ i/Uptime: $2, PID: $3, Config: $5/

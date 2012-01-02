@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added two new probes for the Basho Riak PBC and Tarantool protocols.
+  [Patrik] 
+
 o [NSE] Added a natpmp library and the script nat-pmp-mapport that allows
   NAT mapping of external TCP and UDP ports to internal addresses. [Patrik]
 
