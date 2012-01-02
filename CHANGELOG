@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-vuln-cve2009-3960 that detects and exploits the
+  CVE 2009-3960 XML injection vulnerability in Adobe products. [Hani
+  Benhabiles]
+
 o Added two new probes for the Basho Riak PBC and Tarantool protocols.
   [Patrik] 
 
