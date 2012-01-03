@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added probe and matchline for Couchbase Membase NoSQL database [Patrik]
+
 o Added the new --script-args-file option which allows you to specify
   the name of a file containing all of your desired NSE script
   arguments.  The arguments may be separated with commas or newlines

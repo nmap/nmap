@@ -10184,3 +10184,10 @@ Probe TCP tarantool q|show info\r\n|
 rarity 8
 ports 33015
 match tarantool m|---\r\ninfo:\r\n  version: \"([^\"]*)\"\r\n  uptime: (\d*)\r\n  pid: (\d*)\r\n  ([._\w\s]*: .*\r\n)*  config: \"([^\"]*)\"| p/Tarantool/ v/$1/ i/Uptime: $2, PID: $3, Config: $5/
+
+##############################NEXT PROBE##############################
+# Sends a stats request to a Couchbase Membase server
+Probe TCP couchbase-data q|\x80\x10\0\0\0\0\0\0\0\0\0\0\x15\xf0\xd1\x62\0\0\0\0\0\0\0\0|
+rarity 8
+ports 11210
+match couchbase-tap m|^\x81\x10..\0\0\0\0\0\0\0.....\0\0\0\0\0\0\0\0ep_version([._\w]+).*ep_dbname([_\\\/\w]*)|s p/Couchbase Membase/ v/$1/ i/DB name: $2/
