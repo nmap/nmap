@@ -45,7 +45,7 @@ end
 -- @usage sock:receive_buf(match.numbytes(80))
 -- @see nmap.receive_buf
 numbytes = function(num)
-	local n = num
+	local n = num + 1
 	return function(buf)
 		if(#buf >=n) then
 			return n, n
