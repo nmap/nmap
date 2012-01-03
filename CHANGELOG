@@ -1,8 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Fixed bug in match.numbytes that would return one byte less than what
-  was requested. Updated redis library to take the fix into account. [Patrik]
-
 o Added probe and matchline for Couchbase Membase NoSQL database [Patrik]
 
 o Added the new --script-args-file option which allows you to specify
