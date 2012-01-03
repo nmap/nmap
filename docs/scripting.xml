@@ -191,8 +191,8 @@ Black Hat Briefings in 2010.</para>
       execute by providing categories, script file names, or the name of
       directories full of scripts you wish to execute.  You can customize 
 	  some scripts by providing arguments to them via the
-	  <option>--script-args</option><indexterm><primary><option>--script-args</option></primary></indexterm>
-          option.
+	  <option>--script-args</option><indexterm><primary><option>--script-args</option></primary></indexterm> and <option>--script-args-file</option><indexterm><primary><option>--script-args-file</option></primary></indexterm>
+          options.
           The <option>--script-help</option><indexterm><primary><option>--script-help</option></primary></indexterm>
           shows a description of what each selected script does.
           The two remaining options,
@@ -704,6 +704,20 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
 
         <varlistentry>
           <term>
+            <indexterm><primary><option>--script-args-file</option></primary></indexterm>
+            <option>--script-args-file <replaceable>filename</replaceable></option>
+          </term>
+          <listitem>
+            <para>This option is the same as
+            <option>--script-args</option> except that you pass the
+            arguments in a file rather than on the command-line.  See
+            <xref linkend="nse-args"/> for a detailed
+            explanation.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
             <indexterm><primary><option>--script-help</option></primary></indexterm>
             <option>--script-help <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option>
           </term>
@@ -971,6 +985,15 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
       the <varname>whois</varname> table in the example below.
       </para>
       
+      <para>Rather than pass the arguments on the command line with
+      <option>--script-args</option>, you may store them in a file
+      (separated by commas or newlines) and specify just the file name
+      with <option>--script-args-file</option>.  Options specified
+      with <option>--script-args</option> on the command-line take
+      precedence over those given in a file.  The filename may be
+      given as an absolute path or relative to Nmap's usual
+      search path (NMAPDIR, etc.)
+
       <para>Here is a typical Nmap invocation with script arguments:
 <informalexample>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>

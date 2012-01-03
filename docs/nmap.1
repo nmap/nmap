@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 01/01/2012
+.\"      Date: 01/02/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "01/01/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/02/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1358,6 +1358,13 @@ pairs\&. Names and values may be strings not containing whitespace or the charac
 The online NSE Documentation Portal at
 \m[blue]\fB\%http://nmap.org/nsedoc/\fR\m[]
 lists the arguments that each script accepts\&.
+.RE
+.PP
+\fB\-\-script\-args\-file \fR\fB\fIfilename\fR\fR .\" --script-args-file .\" script arguments from file
+.RS 4
+Lets you load arguments to NSE scripts from a file\&. Any arguments on the command line supersede ones in the file\&. The file can be an absolute path, or a path relative to Nmap\*(Aqs usual search path (NMAPDIR, etc\&.) Arguments can be comma\-separated or newline\-separated, but otherwise follow the same rules as for
+\fB\-\-script\-args\fR, without requiring special quoting and escaping, since they are not parsed by the shell\&.
+.RE
 .PP
 \fB\-\-script\-help \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIexpression\fR\fR\fB|all\fR\fB[,\&.\&.\&.]\fR .\" --script-help
 .RS 4
@@ -1367,7 +1374,6 @@ ftp\-anon
 script, you would run
 \fBnmap \-\-script\-help ftp\-anon\fR\&. In addition to getting help for individual scripts, you can use this as a preview of what scripts will be run for a specification, for example with
 \fBnmap \-\-script\-help default\fR\&.
-.RE
 .RE
 .PP
 \fB\-\-script\-trace\fR .\" --script-trace

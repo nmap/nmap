@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the new --script-args-file option which allows you to specify
+  the name of a file containing all of your desired NSE script
+  arguments.  The arguments may be separated with commas or newlines
+  and may be overridden by arguments specified on the command-line
+  with --script-args. [Daniel Miller]
+
 o [NSE] Added the script http-vuln-cve2009-3960 that detects and exploits the
   CVE 2009-3960 XML injection vulnerability in Adobe products. [Hani
   Benhabiles]

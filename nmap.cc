@@ -629,6 +629,8 @@ void parse_options(int argc, char **argv) {
       {"script_updatedb", no_argument, 0, 0},
       {"script-args",required_argument,0,0},
       {"script_args",required_argument,0,0},
+      {"script-args-file",required_argument,0,0},
+      {"script_args_file",required_argument,0,0},
       {"script-help",required_argument,0,0},
       {"script_help",required_argument,0,0},
 #endif
@@ -657,6 +659,8 @@ void parse_options(int argc, char **argv) {
               o.chooseScripts(optarg);
       } else if (optcmp(long_options[option_index].name,"script-args")==0){
               o.scriptargs=strdup(optarg);
+      } else if (optcmp(long_options[option_index].name,"script-args-file")==0){
+              o.scriptargsfile=strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "script-trace") == 0) {
               o.scripttrace = 1;
       } else if (optcmp(long_options[option_index].name, "script-updatedb") == 0){

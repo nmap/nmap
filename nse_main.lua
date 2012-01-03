@@ -1044,6 +1044,19 @@ do -- Load script arguments (--script-args)
     end
   end
   nmap.registry.args = parse_table("{"..args.."}", 1);
+  -- Check if user wants to read scriptargs from a file
+  if cnse.scriptargsfile ~= nil then --scriptargsfile path/to/file
+    local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
+    assert(t == 'file', format("%s is not a file", path))
+    local argfile = assert(open(path, 'r'));
+    local argstring = argfile:read("*a")
+    argstring = gsub(argstring,"\n",",")
+    local tmpargs = parse_table("{"..argstring.."}",1)
+    for k,v in pairs(nmap.registry.args) do
+      tmpargs[k] = v
+    end
+    nmap.registry.args = tmpargs
+  end
 end
 
 -- Update Missing Script Database?

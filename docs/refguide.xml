@@ -2409,7 +2409,24 @@ The online NSE Documentation Portal at <ulink url="http://nmap.org/nsedoc/"/>
 lists the arguments that each script accepts.
 </para>
 </listitem>
+</varlistentry>
 
+	  <varlistentry>
+        <term><option>--script-args-file <replaceable>filename</replaceable></option>
+        <indexterm significance="preferred"><primary><option>--script-args-file</option></primary></indexterm>
+        <indexterm><primary>script arguments from file</primary><seealso><option>--script-args-file</option></seealso></indexterm></term>
+
+<listitem>
+<para>
+    Lets you load arguments to NSE scripts from a file. Any arguments on the
+    command line supersede ones in the file. The file can be an absolute path,
+    or a path relative to Nmap's usual search path (NMAPDIR, etc.)
+    Arguments can be comma-separated or newline-separated, but otherwise follow
+    the same rules as for <option>--script-args</option>, without requiring
+    special quoting and escaping, since they are not parsed by the shell.
+</para>
+</listitem>
+</varlistentry>
       <varlistentry>
         <term>
           <option>--script-help <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option>
@@ -2431,7 +2448,6 @@ lists the arguments that each script accepts.
         </listitem>
       </varlistentry>
 
-</varlistentry>
       <varlistentry>
         <term><option>--script-trace</option>
           <indexterm significance="preferred"><primary><option>--script-trace</option></primary></indexterm></term>
