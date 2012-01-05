@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * netutils.c -- This contains some useful little network/socket related   *
  * utility functions.                                                      *
@@ -87,17 +86,15 @@
 
 static int netutils_debugging = 0;
 
-/* maximize the number of file descriptors (including sockets) allowed
-   for this process and return that maximum value (note -- you better
-   not actually open this many -- stdin, stdout, other files opened by
-   libraries you use, etc. all count toward this limit.  Leave a
-   little slack */
+/* maximize the number of file descriptors (including sockets) allowed for this
+ * process and return that maximum value (note -- you better not actually open
+ * this many -- stdin, stdout, other files opened by libraries you use, etc. all
+ * count toward this limit.  Leave a little slack */
+int maximize_fdlimit(void) { 
 
-int maximize_fdlimit() { 
 #ifndef WIN32
-
-struct rlimit r; 
-static int maxfds = -1;
+  struct rlimit r; 
+  static int maxfds = -1;
 
   if (maxfds > 0)
     return maxfds;
@@ -106,22 +103,31 @@ static int maxfds = -1;
   if (!getrlimit(RLIMIT_NOFILE, &r)) {
     r.rlim_cur = r.rlim_max;
     if (setrlimit(RLIMIT_NOFILE, &r))
-      if (netutils_debugging) perror("setrlimit RLIMIT_NOFILE failed");
+      if (netutils_debugging)
+        perror("setrlimit RLIMIT_NOFILE failed");
+
     if (!getrlimit(RLIMIT_NOFILE, &r)) {
       maxfds = r.rlim_cur;
       return maxfds;
-    } else return 0;
+    } else {
+      return 0;
+    }
   }
 #endif
+
 #if(defined(RLIMIT_OFILE) && !defined(RLIMIT_NOFILE))
   if (!getrlimit(RLIMIT_OFILE, &r)) {
     r.rlim_cur = r.rlim_max;
     if (setrlimit(RLIMIT_OFILE, &r))
-      if (netutils_debugging) perror("setrlimit RLIMIT_OFILE failed");
+      if (netutils_debugging)
+        perror("setrlimit RLIMIT_OFILE failed");
+
     if (!getrlimit(RLIMIT_OFILE, &r)) {
       maxfds = r.rlim_cur;
       return maxfds;
-    } else return 0;
+    } else {
+      return 0;
+    }
   }
 #endif
 #endif /* !WIN32 */

@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * gh_list.h -- a simple doubly-linked list implementation with a very     *
  * heavy focus on efficiency.                                              *
@@ -75,37 +74,51 @@
 
 /* Take a LIST ELEMENT (not just the data) and return the next one */
 #define GH_LIST_ELEM_NEXT(x)  ((x)->next)
+
 /* Same as above but return the previous element */
 #define GH_LIST_ELEM_PREV(x)  ((x)->prev)
+
 /* Take a LIST (not a list element) and return the first element */
 #define GH_LIST_FIRST_ELEM(x) ((x)->first)
+
 /* Same as above but return the last element */
 #define GH_LIST_LAST_ELEM(x)  ((x)->last)
+
 /* Obtain the actual data stored in an element */
 #define GH_LIST_ELEM_DATA(x)  ((x)->data)
+
 /* Obtain the number of elements in a list */
 #define GH_LIST_COUNT(x)      ((x)->count)
+
 
 typedef struct gh_list_elem {
   void *data;
   struct gh_list_elem *next;
-  struct gh_list_elem *prev; 
-  int allocated; /* nonzero if this element was the first (or only) in a group
-		    that was allocated.  This means we can safely free() it as
-		    long as we are OK with freeing others that were freed 
-		    with it ... */
+  struct gh_list_elem *prev;
+
+  /* nonzero if this element was the first (or only) in a group that was
+   * allocated.  This means we can safely free() it as long as we are OK with
+   * freeing others that were freed with it ... */
+  int allocated;
+
 #ifndef NDEBUG
   unsigned long magic;
 #endif
 } gh_list_elem;
 
 typedef struct gh_list {
-  int count; /* Number of elements in the list */  
+  /* Number of elements in the list */
+  int count;
   struct gh_list_elem *first;
   struct gh_list_elem *last;
-  struct gh_list_elem *free; /* Instead of free()ing elements when something is  			        removed from the list, we stick them here 
-                                 for the next insert. */
-  int last_alloc; /* The number of list elements in the most recent malloc */
+
+  /* Instead of free()ing elements when something is removed from the list, we
+   * stick them here for the next insert. */
+  struct gh_list_elem *free;
+
+  /* The number of list elements in the most recent malloc */
+  int last_alloc;
+
 #ifndef NDEBUG
   unsigned long magic;
 #endif
@@ -113,12 +126,22 @@ typedef struct gh_list {
 
 
 int gh_list_init(gh_list *newlist);
+
 gh_list_elem *gh_list_append(gh_list *list, void *data);
+
 gh_list_elem *gh_list_prepend(gh_list *list, void *data);
+
+gh_list_elem *gh_list_insert_before(gh_list *list, gh_list_elem *before, void *data);
+
 void *gh_list_pop(gh_list *list);
+
 int gh_list_remove(gh_list *list, void *data);
+
 int gh_list_free(gh_list *list);
+
+int gh_list_move_front(gh_list *list, gh_list_elem *elem);
+
 int gh_list_remove_elem(gh_list *list, gh_list_elem *elem);
 
-
 #endif /* GH_LIST_H */
+

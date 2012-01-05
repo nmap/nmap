@@ -1,3 +1,60 @@
+/***************************************************************************
+ * nsock_pcap.h -- Header for pcap operations functions from               *
+ * the nsock parallel socket event library                                 *
+ *                                                                         *
+ ***********************IMPORTANT NSOCK LICENSE TERMS***********************
+ *                                                                         *
+ * The nsock parallel socket event library is (C) 1999-2011 Insecure.Com   *
+ * LLC This library is free software; you may redistribute and/or          *
+ * modify it under the terms of the GNU General Public License as          *
+ * published by the Free Software Foundation; Version 2.  This guarantees  *
+ * your right to use, modify, and redistribute this software under certain *
+ * conditions.  If this license is unacceptable to you, Insecure.Com LLC   *
+ * may be willing to sell alternative licenses (contact                    *
+ * sales@insecure.com ).                                                   *
+ *                                                                         *
+ * As a special exception to the GPL terms, Insecure.Com LLC grants        *
+ * permission to link the code of this program with any version of the     *
+ * OpenSSL library which is distributed under a license identical to that  *
+ * listed in the included docs/licenses/OpenSSL.txt file, and distribute   *
+ * linked combinations including the two. You must obey the GNU GPL in all *
+ * respects for all of the code used other than OpenSSL.  If you modify    *
+ * this file, you may extend this exception to your version of the file,   *
+ * but you are not obligated to do so.                                     *
+ *                                                                         *
+ * If you received these files with a written license agreement stating    *
+ * terms other than the (GPL) terms above, then that alternative license   *
+ * agreement takes precedence over this comment.                           *
+ *                                                                         *
+ * Source is provided to this software because we believe users have a     *
+ * right to know exactly what a program is going to do before they run it. *
+ * This also allows you to audit the software for security holes (none     *
+ * have been found so far).                                                *
+ *                                                                         *
+ * Source code also allows you to port Nmap to new platforms, fix bugs,    *
+ * and add new features.  You are highly encouraged to send your changes   *
+ * to nmap-dev@insecure.org for possible incorporation into the main       *
+ * distribution.  By sending these changes to Fyodor or one of the         *
+ * Insecure.Org development mailing lists, it is assumed that you are      *
+ * offering the Nmap Project (Insecure.Com LLC) the unlimited,             *
+ * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
+ * will always be available Open Source, but this is important because the *
+ * inability to relicense code has caused devastating problems for other   *
+ * Free Software projects (such as KDE and NASM).  We also occasionally    *
+ * relicense the code to third parties as discussed above.  If you wish to *
+ * specify special license conditions of your contributions, just say so   *
+ * when you send them.                                                     *
+ *                                                                         *
+ * This program is distributed in the hope that it will be useful, but     *
+ * WITHOUT ANY WARRANTY; without even the implied warranty of              *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU       *
+ * General Public License v2.0 for more details                            *
+ * (http://www.gnu.org/licenses/gpl-2.0.html).                             *
+ *                                                                         *
+ ***************************************************************************/
+
+/* $Id: $ */
+
 #ifndef NSOCK_PCAP_H 
 #define NSOCK_PCAP_H
 
@@ -14,18 +71,18 @@
  * There are three possible ways of reading packets from pcap descriptor:
  *  do select() on descriptor -> this one is of course the best, but 
  *              there are systems that don't support this like WIN32
- * 		This works perfectly for Linux.
+ *     This works perfectly for Linux.
  *  do select() but whith some hacks -> this one is hack for older bsd
- * 		systems, Descriptor *must* be set in nonblocking mode.
+ *     systems, Descriptor *must* be set in nonblocking mode.
  *  never do select() -> this one is for WIN32 and other systems that
- * 		return descriptor -1 from pcap_get_selectable_fd()
- * 		In this case descriptor *must* be set in nonblocking mode.
- * 		If that fails than we can't do any sniffing from that box.
+ *     return descriptor -1 from pcap_get_selectable_fd()
+ *     In this case descriptor *must* be set in nonblocking mode.
+ *     If that fails than we can't do any sniffing from that box.
  * 
  * In all cases we try to set descriptor to non-blocking mode.
- * */
+ */
 
-// Returns whether the system supports pcap_get_selectable_fd() properly
+/* Returns whether the system supports pcap_get_selectable_fd() properly */
 #if !defined(WIN32) && !defined(SOLARIS)
 #define PCAP_CAN_DO_SELECT 1
 #endif
@@ -54,40 +111,40 @@
  * on BPF devices, so the workaround isn't necessary, although it does no harm.)
  */
 #if defined(MACOSX) || defined(FREEBSD) || defined(OPENBSD)
-// Well, now select() is not receiving any pcap events on MACOSX, but maybe it will someday :)
-// in both cases. It never hurts to enable this feature. It just has performance penalty.  
+/* Well, now select() is not receiving any pcap events on MACOSX, but maybe it will someday :)
+ * in both cases. It never hurts to enable this feature. It just has performance penalty. */
 #define PCAP_BSD_SELECT_HACK 1
 #endif
 
-// Returns whether the packet receive time value obtained from libpcap
-// (and thus by readip_pcap()) should be considered valid.  When
-// invalid (Windows and Amiga), readip_pcap returns the time you called it.
+/* Returns whether the packet receive time value obtained from libpcap
+ * (and thus by readip_pcap()) should be considered valid.  When
+ * invalid (Windows and Amiga), readip_pcap returns the time you called it. */
 #if !defined(WIN32) && !defined(__amigaos__)
 #define PCAP_RECV_TIMEVAL_VALID 1 
 #endif
 
 
 typedef struct{
-	pcap_t *pt;
-	int pcap_desc;
-	/* Like the corresponding member in msiod, when this reaches 0 we stop
-	   watching the socket for readability. */
-	int readsd_count;
-	int datalink;
-	int l3_offset;
-	int snaplen;
-	char *pcap_device;
+  pcap_t *pt;
+  int pcap_desc;
+  /* Like the corresponding member in msiod, when this reaches 0 we stop
+   * watching the socket for readability. */
+  int readsd_count;
+  int datalink;
+  int l3_offset;
+  int snaplen;
+  char *pcap_device;
 } mspcap;
 
-
 typedef struct{
-	struct timeval ts;
-	int caplen;
-	int len;
-	const unsigned char *packet;	// caplen bytes
+  struct timeval ts;
+  int caplen;
+  int len;
+  const unsigned char *packet;  /* caplen bytes */
 } nsock_pcap;
 
 int do_actual_pcap_read(msevent *nse);
 
 #endif /* HAVE_PCAP */
 #endif /* NSOCK_PCAP_H */
+

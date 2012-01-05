@@ -182,12 +182,15 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\engine_epoll.c" />
+    <ClCompile Include="src\engine_select.c" />
     <ClCompile Include="src\error.c" />
     <ClCompile Include="src\filespace.c" />
     <ClCompile Include="src\gh_list.c" />
     <ClCompile Include="src\netutils.c" />
     <ClCompile Include="src\nsock_connect.c" />
     <ClCompile Include="src\nsock_core.c" />
+    <ClCompile Include="src\nsock_engines.c" />
     <ClCompile Include="src\nsock_event.c" />
     <ClCompile Include="src\nsock_iod.c" />
     <ClCompile Include="src\nsock_pcap.c" />

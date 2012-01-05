@@ -74,3 +74,6 @@
 #undef HAVE_SYS_IOCTL_H
 
 #undef HAVE_SSL_SET_TLSEXT_HOST_NAME
+
+#undef HAVE_EPOLL
+

@@ -83,285 +83,244 @@
 
 #if HAVE_PCAP
 #include "nsock_pcap.h"
-static int pcap_read_on_nonselect(mspool *nsp);
 #endif
 
-/* Nsock time of day -- we update this at least once per
-   nsock_loop round (and after most calls that are likely to block).
-   Other nsock files should grab this
-*/
+/* Get events which are exclusively on event set A */
+#define X_EV(a, b) ((a) & ((a)^(b)))
+
+
+/* Nsock time of day -- we update this at least once per nsock_loop round (and
+ * after most calls that are likely to block).  Other nsock files should grab
+ * this */
 struct timeval nsock_tod;
 
-#ifdef WIN32
-#define CHECKED_FD_SET FD_SET
-#else
-#define CHECKED_FD_SET(fd, set) \
-  do { \
-    if ((fd) < FD_SETSIZE) { \
-      FD_SET((fd), (set)); \
-    } else { \
-      fatal("%s:%ld: Attempt to FD_SET fd %d, which is not less than" \
-        " FD_SETSIZE (%d). Try using a lower parallelism.", \
-        __FILE__, __LINE__, (fd), FD_SETSIZE); \
-    } \
-  } while (0)
-#endif
+/* Internal function defined in nsock_event.c
+ * Update the nse->iod first events, assuming nse is about to be deleted */
+void update_first_events(msevent *nse);
 
-#ifdef WIN32
-#define CHECKED_FD_CLR FD_CLR
-#else
-#define CHECKED_FD_CLR(fd, set) \
-  do { \
-    if ((fd) < FD_SETSIZE) { \
-      FD_CLR((fd), (set)); \
-    } else { \
-      fatal("%s:%ld: Attempt to FD_CLR fd %d, which is not less than" \
-        " FD_SETSIZE (%d). Try using a lower parallelism.", \
-        __FILE__, __LINE__, (fd), FD_SETSIZE); \
-    } \
-  } while (0)
-#endif
 
-/* These macros construct the bodies of the socket_count_*_{inc,dec} functions. */
-#define SOCKET_COUNT_INC(sd, count, fdset, max_sd) \
-do { \
-  assert((count) >= 0); \
-  (count)++; \
-  CHECKED_FD_SET((sd), (fdset)); \
-  (max_sd) = MAX((max_sd), (sd)); \
-  return 1; \
-} while (0)
-
-#define SOCKET_COUNT_DEC(sd, count, fdset, max_sd, iod) \
-do { \
-  assert((count) > 0); \
-  (count)--; \
-  if ((count) == 0) { \
-    CHECKED_FD_CLR((sd), (fdset)); \
-    assert((iod)->events_pending > 0); \
-    if ((iod)->events_pending == 1 && (max_sd) == (sd)) \
-      (max_sd)--; \
-  } \
-  return (count) != 0; \
-} while (0)
 
 /* Each iod has a count of pending socket reads, socket writes, and pcap reads.
-   When a descriptor's count is nonzero, its bit must be set in the appropriate
-   master fd_set, and when the count is zero the bit must be cleared. What we
-   are simulating is an fd_set with a counter for each socket instead of just an
-   on/off switch. The fd_set's bits aren't enough by itself because a descriptor
-   may for example have two reads pending at once, and the bit must not be
-   cleared after the first is completed. The socket_count_* functions take care
-   of keeping the fd_sets in sync when the counts change. */
-
+ * When a descriptor's count is nonzero, its bit must be set in the appropriate
+ * master fd_set, and when the count is zero the bit must be cleared. What we
+ * are simulating is an fd_set with a counter for each socket instead of just an
+ * on/off switch. The fd_set's bits aren't enough by itself because a descriptor
+ * may for example have two reads pending at once, and the bit must not be
+ * cleared after the first is completed.
+ * The socket_count_* functions return the event to transmit to update_events()
+ */
 int socket_count_zero(msiod *iod, mspool *ms) {
   iod->readsd_count = 0;
   iod->writesd_count = 0;
   iod->readpcapsd_count = 0;
-
-#if HAVE_PCAP
-  if (iod->pcap) {
-    int sd = ((mspcap *) iod->pcap)->pcap_desc;
-    if (sd >= 0) {
-      CHECKED_FD_CLR(sd, &ms->mioi.fds_master_r);
-      CHECKED_FD_CLR(sd, &ms->mioi.fds_results_r);
-    }
-  } else
-#endif
-  {
-    CHECKED_FD_CLR(iod->sd, &ms->mioi.fds_master_r);
-    CHECKED_FD_CLR(iod->sd, &ms->mioi.fds_master_w);
-    CHECKED_FD_CLR(iod->sd, &ms->mioi.fds_results_r);
-    CHECKED_FD_CLR(iod->sd, &ms->mioi.fds_results_w);
-  }
-
-  if (iod->events_pending == 1 && ms->mioi.max_sd == iod->sd)
-    ms->mioi.max_sd--;
-
-  return 0;
+  return ms->engine->iod_unregister(ms, iod);
 }
 
-static int socket_count_read_inc(msiod *iod, mspool *ms)
-{
-  SOCKET_COUNT_INC(iod->sd, iod->readsd_count, &ms->mioi.fds_master_r, ms->mioi.max_sd);
+static int socket_count_read_inc(msiod *iod) {
+  assert(iod->readsd_count >= 0);
+  iod->readsd_count++;
+  return EV_READ;
 }
 
-static int socket_count_read_dec(msiod *iod, mspool *ms) {
-  SOCKET_COUNT_DEC(iod->sd, iod->readsd_count, &ms->mioi.fds_master_r, ms->mioi.max_sd, iod);
+static int socket_count_read_dec(msiod *iod) {
+  assert(iod->readsd_count > 0);
+  iod->readsd_count--;
+  return (iod->readsd_count == 0) ? EV_READ : EV_NONE;
 }
 
-static int socket_count_write_inc(msiod *iod, mspool *ms)
-{
-  SOCKET_COUNT_INC(iod->sd, iod->writesd_count, &ms->mioi.fds_master_w, ms->mioi.max_sd);
+static int socket_count_write_inc(msiod *iod) {
+  assert(iod->writesd_count >= 0);
+  iod->writesd_count++;
+  return EV_WRITE;
 }
 
-static int socket_count_write_dec(msiod *iod, mspool *ms) {
-  SOCKET_COUNT_DEC(iod->sd, iod->writesd_count, &ms->mioi.fds_master_w, ms->mioi.max_sd, iod);
+static int socket_count_write_dec(msiod *iod) {
+  assert(iod->writesd_count > 0);
+  iod->writesd_count--;
+  return (iod->writesd_count == 0) ? EV_WRITE : EV_NONE;
 }
 
 #if HAVE_PCAP
-static int socket_count_readpcap_inc(msiod *iod, mspool *ms)
-{
-  SOCKET_COUNT_INC(((mspcap *) iod->pcap)->pcap_desc, iod->readpcapsd_count, &ms->mioi.fds_master_r, ms->mioi.max_sd);
+static int socket_count_readpcap_inc(msiod *iod) {
+  assert(iod->readpcapsd_count >= 0);
+  iod->readpcapsd_count++;
+  return EV_READ;
 }
 
-static int socket_count_readpcap_dec(msiod *iod, mspool *ms) {
-  SOCKET_COUNT_DEC(((mspcap *) iod->pcap)->pcap_desc, iod->readpcapsd_count, &ms->mioi.fds_master_r, ms->mioi.max_sd, iod);
+static int socket_count_readpcap_dec(msiod *iod) {
+  assert(iod->readpcapsd_count > 0);
+  iod->readpcapsd_count--;
+  return (iod->readpcapsd_count == 0) ? EV_READ : EV_NONE;
 }
 #endif
 
 #if HAVE_OPENSSL
 /* Call socket_count_read_dec or socket_count_write_dec on nse->iod depending on
-   the current value of nse->sslinfo.ssl_desire. */
-static int socket_count_dec_ssl_desire(msevent *nse, mspool *ms)
-{
+ * the current value of nse->sslinfo.ssl_desire. */
+static int socket_count_dec_ssl_desire(msevent *nse) {
   assert(nse->iod->ssl != NULL &&
     (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
      nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE));
+
   if (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ)
-    return socket_count_read_dec(nse->iod, ms);
+    return socket_count_read_dec(nse->iod);
   else
-    return socket_count_write_dec(nse->iod, ms);
+    return socket_count_write_dec(nse->iod);
 }
 #endif
 
-/* Returns -1 (and sets ms->errno if there is an error so severe that
-   we might as well quit waiting and have nsock_loop() return an error */
-static int wait_for_events(mspool *ms, int msec_timeout) {
-  int event_msecs; /* Msecs before an event goes off */
-  int combined_msecs;
-  int sock_err = 0;
-  struct timeval select_tv;
-  struct timeval *select_tv_p;
+/* Update the events that the IO engine should watch for a given IOD.
+ *
+ * ev_inc is a set of events for which the event counters should be increased.
+ * These events will therefore be watched by the IO engine for this IOD.
+ *
+ * ev_dec is a set of events for which the event counters should be decreased.
+ * If this counter reaches zero, the event won't be watched anymore by the
+ * IO engine for this IOD.
+ */
 
-  assert(msec_timeout >= -1);
+static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
+  int setmask, clrmask;
 
-  if (ms->evl.events_pending == 0)
-    return 0; /* No need to wait on 0 events ... */
+  assert((ev_inc & ev_dec) == 0);
 
-  do {
-    if (ms->tracelevel > 3)
-      nsock_trace(ms, "wait_for_events");
+  setmask = ev_inc;
+  clrmask = EV_NONE;
 
-    if (ms->evl.next_ev.tv_sec == 0) {
-      event_msecs = -1; /* None of the events specified a timeout */
-    } else {
-      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(ms->evl.next_ev, nsock_tod));
-    }
-
+  if ((ev_dec & EV_READ) && (!iod->readsd_count
 #if HAVE_PCAP
-#ifndef PCAP_CAN_DO_SELECT
-    /* Force a low timeout when capturing packets on systems where
-     * the pcap descriptor is not select()able. */
-    if (ms->evl.pcap_read_events.count > 0) {
-      if (event_msecs > PCAP_POLL_INTERVAL)
-        event_msecs = PCAP_POLL_INTERVAL;
-    }
+        && !iod->readpcapsd_count)
 #endif
-#endif
+  )
+    clrmask |= EV_READ;
 
-    /* We cast to unsigned because we want -1 to be very high (since it means
-       no timeout) */
-    combined_msecs = MIN((unsigned) event_msecs, (unsigned) msec_timeout);
+  if ((ev_dec & EV_WRITE) && (!iod->writesd_count))
+    clrmask |= EV_WRITE;
 
-    /* printf("wait_for_events: starting wait -- combined_msecs=%d\n", combined_msecs); */
-    /* Set up the timeval pointer we will give to select() */
-    memset(&select_tv, 0, sizeof(select_tv));
-    if (combined_msecs > 0) {
-      select_tv.tv_sec = combined_msecs / 1000;
-      select_tv.tv_usec = (combined_msecs % 1000) * 1000;
-      select_tv_p = &select_tv;
-    } else if (combined_msecs == 0) {
-      /* we want the tv_sec and tv_usec to be zero -- but they already are from
-         bzero */
-      select_tv_p = &select_tv;
-    } else {
-      assert(combined_msecs == -1);
-      select_tv_p = NULL;
-    }
+  if (ev_dec & EV_EXCEPT)
+    clrmask |= EV_EXCEPT;
 
-
-#if HAVE_PCAP
-    /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, don't do usleep() or select(), just leave this loop */
-    if (pcap_read_on_nonselect(ms)) {
-      /* okay, something was read. */
-    } else
-#endif
-    {
-      /* Set up the descriptors for select */
-      ms->mioi.fds_results_r = ms->mioi.fds_master_r;
-      ms->mioi.fds_results_w = ms->mioi.fds_master_w;
-      ms->mioi.fds_results_x = ms->mioi.fds_master_x;
-
-      ms->mioi.results_left = fselect(ms->mioi.max_sd + 1, &ms->mioi.fds_results_r, &ms->mioi.fds_results_w, &ms->mioi.fds_results_x, select_tv_p);
-      if (ms->mioi.results_left == -1)
-        sock_err = socket_errno();
-    }
-
-    gettimeofday(&nsock_tod, NULL); /* Due to usleep or select delay */
-  } while (ms->mioi.results_left == -1 && sock_err == EINTR); // repeat only if signal occured
-
-  if (ms->mioi.results_left == -1 && sock_err != EINTR) {
-    nsock_trace(ms, "nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
-    ms->errnum = sock_err;
-    return -1;
+  if (!IOD_PROPGET(iod, IOD_REGISTERED)) {
+    assert(clrmask == EV_NONE);
+    ms->engine->iod_register(ms, iod, setmask);
+  } else {
+    ms->engine->iod_modify(ms, iod, setmask, clrmask);
   }
+}
 
+/* Add a new event for a given IOD. msevents are stored in separate event lists
+ * (in the nsock pool) and are grouped by IOD within each list.
+ *
+ * This function appends the event _before_ the first similar event we have for
+ * the given IOD, or append it to the end of the list if no similar event is
+ * already present.
+ *
+ * Note that adding the event before the similar ones is important for
+ * reentrancy, as it will prevent the new event to be processed in the event
+ * loop just after its addition.
+ */
+static int iod_add_event(msiod *iod, msevent *nse) {
+  switch(nse->type) {
+      case NSE_TYPE_CONNECT:
+      case NSE_TYPE_CONNECT_SSL:
+        if (iod->first_connect)
+          iod->first_connect = gh_list_insert_before(&iod->nsp->connect_events, iod->first_connect, nse);
+        else
+          iod->first_connect = gh_list_append(&iod->nsp->connect_events, nse);
+        break;
+
+      case NSE_TYPE_READ:
+        if (iod->first_read)
+          iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
+        else
+          iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
+        break;
+
+      case NSE_TYPE_WRITE:
+        if (iod->first_write)
+          iod->first_write = gh_list_insert_before(&iod->nsp->write_events, iod->first_write, nse);
+        else
+          iod->first_write = gh_list_append(&iod->nsp->write_events, nse);
+        break;
+
+#if HAVE_PCAP
+      case NSE_TYPE_PCAP_READ: {
+        char add_read = 0, add_pcap_read = 0;
+
+#if PCAP_BSD_SELECT_HACK
+        /* BSD hack mode: add event to both read and pcap_read lists */
+        add_read = add_pcap_read = 1;
+#else
+        if (((mspcap *)iod->pcap)->pcap_desc >= 0) {
+          add_read = 1;
+        } else {
+          add_pcap_read = 1;
+        }
+#endif
+        if (add_read) {
+          if (iod->first_read)
+            iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
+          else
+            iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
+        }
+        if (add_pcap_read) {
+          if (iod->first_pcap_read)
+            iod->first_pcap_read = gh_list_insert_before(&iod->nsp->pcap_read_events, iod->first_pcap_read, nse);
+          else
+            iod->first_pcap_read = gh_list_append(&iod->nsp->pcap_read_events, nse);
+        }
+        break;
+      }
+#endif
+
+      default:
+        fatal("Unknown event type (%d) for IOD #%d\n", nse->type, iod->id);
+  }
   return 0;
 }
 
-
-/* A handler function is defined for each of the main event types
-   (read, write, connect, timer, etc) -- the handler is called when
-   new information is available for the event.  The handler makes
-   any neccessary updates to the event based on any new information
-   available.  If the event becomes ready for delivery, the handler
-   sets nse->event_done and fills out the relevant event fields
-   (status, errnum) as applicable.  The handlers also take care of
-   event type specific teardown (such as clearing socket descriptors
-   from select/poll lists).  If event_done is not set, the handler
-   will be called again in the case of more information or an event
-   timeout */
+/* A handler function is defined for each of the main event types (read, write,
+ * connect, timer, etc) -- the handler is called when new information is
+ * available for the event.  The handler makes any neccessary updates to the
+ * event based on any new information available.  If the event becomes ready for
+ * delivery, the handler sets nse->event_done and fills out the relevant event
+ * fields (status, errnum) as applicable.  The handlers also take care of event
+ * type specific teardown (such as clearing socket descriptors from select/poll
+ * lists).  If event_done is not set, the handler will be called again in the
+ * case of more information or an event timeout */
 
 /* The event type handlers -- the first three arguments of each are the same:
-   mspool *ms
-   msevent *nse -- the event we have new info on
-   enum nse_status -- The reason for the call, usually NSE_STATUS_SUCCESS
-                      (which generally means a successful I/O call or
-                      NSE_STATUS_TIMEOUT or NSE_STATUS_CANCELLED
+ * mspool *ms msevent *nse -- the event we have new info on enum nse_status --
+ * The reason for the call, usually NSE_STATUS_SUCCESS (which generally means a
+ * successful I/O call or NSE_STATUS_TIMEOUT or NSE_STATUS_CANCELLED
+ *
+ *  Some of the event type handlers have other parameters, specific to their
+ *  needs.  All the handlers can assume that the calling function has checked
+ *  that select or poll said their descriptors were readable/writeable (as
+ *  appropriate).
+ *
+ *  The idea is that each handler will take care of the stuff that is specific
+ *  to it and the calling function will handle the stuff that can be generalized
+ *  to dispatching/deleting/etc. all events.  But the calling function may use
+ *  type-specific info to determine whether the handler should be called at all
+ *  (to save CPU time). */
 
-   Some of the event type handlers have other parameters, specific
-   to their needs.  All the handlers can assume that the calling
-   function has checked that select or poll said their descriptors
-   were readable/writeable (as appropriate).
-
-   The idea is that each handler will take care of the stuff that is
-   specific to it and the calling function will handle the stuff that
-   can be generalized to dispatching/deleting/etc. all events.  But the
-   calling function may use type-specific info to determine whether
-   the handler should be called at all (to save CPU time).
-*/
-
-/* handle_connect_results assumes that select or poll have already
-   shown the descriptor to be active */
-void handle_connect_result(mspool *ms, msevent *nse,
-                           enum nse_status status)
-{
+/* handle_connect_results assumes that select or poll have already shown the
+ * descriptor to be active */
+void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
   int optval;
   socklen_t optlen = sizeof(int);
   char buf[1024];
   msiod *iod = nse->iod;
 #if HAVE_OPENSSL
   int sslerr;
+  int rc = 0;
   int sslconnect_inprogress = nse->type == NSE_TYPE_CONNECT_SSL && nse->iod &&
     (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
      nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE);
 #else
   int sslconnect_inprogress = 0;
 #endif
-  int rc;
-  rc = 0;
 
   if (status == NSE_STATUS_TIMEOUT || status == NSE_STATUS_CANCELLED) {
     nse->status = status;
@@ -370,38 +329,39 @@ void handle_connect_result(mspool *ms, msevent *nse,
     /* Do nothing */
   } else if (status == NSE_STATUS_SUCCESS) {
     /* First we want to determine whether the socket really is connected */
-    if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *) &optval, &optlen) != 0)
+    if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) != 0)
       optval = socket_errno(); /* Stupid Solaris */
 
     switch(optval) {
-    case 0:
-      nse->status = NSE_STATUS_SUCCESS;
-      break;
-    case ECONNREFUSED:
-    case EHOSTUNREACH:
-    case ENETDOWN:
-    case ENETUNREACH:
-    case ENETRESET:
-    case ECONNABORTED:
-    case ETIMEDOUT:
-    case EHOSTDOWN:
-    case ECONNRESET:
+      case 0:
+        nse->status = NSE_STATUS_SUCCESS;
+        break;
+      case ECONNREFUSED:
+      case EHOSTUNREACH:
+      case ENETDOWN:
+      case ENETUNREACH:
+      case ENETRESET:
+      case ECONNABORTED:
+      case ETIMEDOUT:
+      case EHOSTDOWN:
+      case ECONNRESET:
 #ifdef WIN32
-    case WSAEADDRNOTAVAIL:
-    case WSAEACCES:     /* Can happen when Windows Firewall blocks a port. */
+      case WSAEADDRNOTAVAIL:
+      case WSAEACCES:     /* Can happen when Windows Firewall blocks a port. */
 #endif
 #ifndef WIN32
-    case EPIPE: /* Has been seen after connect on Linux. */
-    case ENOPROTOOPT: /* Also seen on Linux, perhaps in response to protocol unreachable. */
+      case EPIPE: /* Has been seen after connect on Linux. */
+      case ENOPROTOOPT: /* Also seen on Linux, perhaps in response to protocol unreachable. */
 #endif
-      nse->status = NSE_STATUS_ERROR;
-      nse->errnum = optval;
-      break;
-    default:
-      Snprintf(buf, sizeof(buf), "Strange connect error from %s (%d)", inet_ntop_ez(&iod->peer, iod->peerlen), optval);
-      perror(buf);
-      assert(0); /* I'd like for someone to report it */
-      break;
+        nse->status = NSE_STATUS_ERROR;
+        nse->errnum = optval;
+        break;
+      default:
+        Snprintf(buf, sizeof(buf), "Strange connect error from %s (%d)",
+                 inet_ntop_ez(&iod->peer, iod->peerlen), optval);
+        perror(buf);
+        assert(0); /* I'd like for someone to report it */
+        break;
     }
 
     /* Now special code for the SSL case where the TCP connection was successful. */
@@ -424,8 +384,8 @@ void handle_connect_result(mspool *ms, msevent *nse,
 #endif
       }
 
-      /* Associate our new SSL with the connected socket.  It will inherit
-         the non-blocking nature of the sd */
+      /* Associate our new SSL with the connected socket.  It will inherit the
+       * non-blocking nature of the sd */
       if (SSL_set_fd(iod->ssl, iod->sd) != 1) {
         fatal("SSL_set_fd failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
@@ -433,9 +393,8 @@ void handle_connect_result(mspool *ms, msevent *nse,
       nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
 #endif
     } else {
-      /* This is not an SSL connect (in which case we are always done), or
-         the TCP connect() underlying the SSL failed (in which case we are also
-         done */
+      /* This is not an SSL connect (in which case we are always done), or the
+       * TCP connect() underlying the SSL failed (in which case we are also done */
       nse->event_done = 1;
     }
   } else {
@@ -443,15 +402,18 @@ void handle_connect_result(mspool *ms, msevent *nse,
   }
 
   /* At this point the TCP connection is done, whether successful or not.
-     Therefore decrease the read/write listen counts that were incremented in
-     nsp_add_event. In the SSL case, we may increase one of the counts depending
-     on whether SSL_connect returns an error of SSL_ERROR_WANT_READ or
-     SSL_ERROR_WANT_WRITE. In that case we will re-enter this function, but we
-     don't want to execute this block again. */
+   * Therefore decrease the read/write listen counts that were incremented in
+   * nsp_add_event. In the SSL case, we may increase one of the counts depending
+   * on whether SSL_connect returns an error of SSL_ERROR_WANT_READ or
+   * SSL_ERROR_WANT_WRITE. In that case we will re-enter this function, but we
+   * don't want to execute this block again. */
   if (iod->sd != -1 && !sslconnect_inprogress) {
-    socket_count_read_dec(iod, ms);
-    socket_count_write_dec(iod, ms);
-    CHECKED_FD_CLR(iod->sd, &ms->mioi.fds_master_x);
+    int ev = EV_NONE;
+
+    ev |= socket_count_read_dec(iod);
+    ev |= socket_count_write_dec(iod);
+    ev |= EV_EXCEPT;
+    update_events(iod, ms, EV_NONE, ev);
   }
 
 #if HAVE_OPENSSL
@@ -465,12 +427,15 @@ void handle_connect_result(mspool *ms, msevent *nse,
     }
 
     /* If this is a reinvocation of handle_connect_result, clear out the listen
-       bits that caused it, based on the previous SSL desire. */
-    if (sslconnect_inprogress)
-      socket_count_dec_ssl_desire(nse, ms);
+     * bits that caused it, based on the previous SSL desire. */
+    if (sslconnect_inprogress) {
+      int ev;
+
+      ev = socket_count_dec_ssl_desire(nse);
+      update_events(iod, ms, EV_NONE, ev);
+    }
 
     rc = SSL_connect(iod->ssl);
-    /* printf("DBG: SSL_connect()=%d", rc); */
     if (rc == 1) {
       /* Woop!  Connect is done! */
       nse->event_done = 1;
@@ -478,27 +443,29 @@ void handle_connect_result(mspool *ms, msevent *nse,
       if (nsi_ssl_post_connect_verify(iod)) {
         nse->status = NSE_STATUS_SUCCESS;
       } else {
-        if (ms->tracelevel > 0) {
+        if (ms->tracelevel > 0)
           nsock_trace(ms, "certificate verification error for EID %li: %s",
                       nse->id, ERR_error_string(ERR_get_error(), NULL));
-        }
         nse->status = NSE_STATUS_ERROR;
       }
     } else {
       long options = SSL_get_options(iod->ssl);
+
       sslerr = SSL_get_error(iod->ssl, rc);
       if (rc == -1 && sslerr == SSL_ERROR_WANT_READ) {
         nse->sslinfo.ssl_desire = sslerr;
-        socket_count_read_inc(iod, ms);
-      } else if  (rc == -1 && sslerr == SSL_ERROR_WANT_WRITE) {
+        socket_count_read_inc(iod);
+        update_events(iod, ms, EV_READ, EV_NONE);
+      } else if (rc == -1 && sslerr == SSL_ERROR_WANT_WRITE) {
         nse->sslinfo.ssl_desire = sslerr;
-        socket_count_write_inc(iod, ms);
+        socket_count_write_inc(iod);
+        update_events(iod, ms, EV_WRITE, EV_NONE);
       } else if (!(options & SSL_OP_NO_SSLv2)) {
         /* SSLv3-only and TLSv1-only servers can't be connected to when the
-           SSL_OP_NO_SSLv2 option is not set, which is the case when the pool
-           was initialized with nsp_ssl_init_max_speed. Try reconnecting with
-           SSL_OP_NO_SSLv2. Never downgrade a NO_SSLv2 connection to one that
-           might use SSLv2. */
+         * SSL_OP_NO_SSLv2 option is not set, which is the case when the pool
+         * was initialized with nsp_ssl_init_max_speed. Try reconnecting with
+         * SSL_OP_NO_SSLv2. Never downgrade a NO_SSLv2 connection to one that
+         * might use SSLv2. */
         if (ms->tracelevel > 0)
           nsock_trace(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
         close(iod->sd);
@@ -508,8 +475,9 @@ void handle_connect_result(mspool *ms, msevent *nse,
            fatal("SSL_clear failed: %s", ERR_error_string(ERR_get_error(), NULL));
 
         SSL_set_options(iod->ssl, options | SSL_OP_NO_SSLv2);
-        socket_count_read_inc(nse->iod, ms);
-        socket_count_write_inc(nse->iod, ms);
+        socket_count_read_inc(nse->iod);
+        socket_count_write_inc(nse->iod);
+        update_events(iod, ms, EV_READ|EV_WRITE, EV_NONE);
         nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
       } else {
         if (ms->tracelevel > 0)
@@ -521,13 +489,10 @@ void handle_connect_result(mspool *ms, msevent *nse,
     }
   }
 #endif
-
   return;
 }
 
-void handle_write_result(mspool *ms, msevent *nse,
-                         enum nse_status status)
-{
+void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
   int bytesleft;
   char *str;
   int res;
@@ -562,12 +527,18 @@ void handle_write_result(mspool *ms, msevent *nse,
 #if HAVE_OPENSSL
         err = SSL_get_error(iod->ssl, res);
         if (err == SSL_ERROR_WANT_READ) {
-          socket_count_dec_ssl_desire(nse, ms);
-          socket_count_read_inc(iod, ms);
+          int evclr;
+
+          evclr = socket_count_dec_ssl_desire(nse);
+          socket_count_read_inc(iod);
+          update_events(iod, ms, EV_READ, evclr);
           nse->sslinfo.ssl_desire = err;
         } else if (err == SSL_ERROR_WANT_WRITE) {
-          socket_count_dec_ssl_desire(nse, ms);
-          socket_count_write_inc(iod, ms);
+          int evclr;
+
+          evclr = socket_count_dec_ssl_desire(nse);
+          socket_count_write_inc(iod);
+          update_events(iod, ms, EV_WRITE, evclr);
           nse->sslinfo.ssl_desire = err;
         } else {
           /* Unexpected error */
@@ -594,26 +565,23 @@ void handle_write_result(mspool *ms, msevent *nse,
   }
 
   if (nse->event_done && nse->iod->sd != -1) {
+    int ev = EV_NONE;
+
 #if HAVE_OPENSSL
     if (nse->iod->ssl != NULL)
-      socket_count_dec_ssl_desire(nse, ms);
+      ev |= socket_count_dec_ssl_desire(nse);
     else
 #endif
-      socket_count_write_dec(nse->iod, ms);
+      ev |= socket_count_write_dec(nse->iod);
+    update_events(nse->iod, ms, EV_NONE, ev);
   }
-
   return;
 }
 
-void handle_timer_result(mspool *ms, msevent *nse,
-                         enum nse_status status)
-{
+void handle_timer_result(mspool *ms, msevent *nse, enum nse_status status) {
   /* Ooh this is a hard job :) */
-
   nse->event_done = 1;
   nse->status = status;
-
-  return;
 }
 
 /* Returns -1 if an error, otherwise the number of newly written bytes */
@@ -634,10 +602,11 @@ static int do_actual_read(mspool *ms, msevent *nse) {
       socklen_t peerlen;
 
       peerlen = sizeof(peer);
-      buflen = recvfrom(iod->sd, buf, sizeof(buf), 0, (struct sockaddr *) &peer, &peerlen);
+      buflen = recvfrom(iod->sd, buf, sizeof(buf), 0, (struct sockaddr *)&peer, &peerlen);
+
       /* Using recv() was failing, at least on UNIX, for non-network sockets
-         (i.e. stdin) in this case, a read() is done - as on ENOTSOCK we may
-         have a non-network socket */
+       * (i.e. stdin) in this case, a read() is done - as on ENOTSOCK we may
+       * have a non-network socket */
       if (buflen == -1) {
         if (socket_errno() == ENOTSOCK) {
           peer.ss_family = AF_UNSPEC;
@@ -662,9 +631,9 @@ static int do_actual_read(mspool *ms, msevent *nse) {
           return -1;
         }
 
-        /* Sometimes a service just spews and spews data.  So we return
-         * after a somewhat large amount to avoid monopolizing resources
-         * and avoid DOS attacks. */
+        /* Sometimes a service just spews and spews data.  So we return after a
+         * somewhat large amount to avoid monopolizing resources and avoid DOS
+         * attacks. */
         if (FILESPACE_LENGTH(&nse->iobuf) > max_chunk)
           return FILESPACE_LENGTH(&nse->iobuf) - startlen;
 
@@ -708,12 +677,18 @@ static int do_actual_read(mspool *ms, msevent *nse) {
     if (buflen == -1) {
       err = SSL_get_error(iod->ssl, buflen);
       if (err == SSL_ERROR_WANT_READ) {
-        socket_count_dec_ssl_desire(nse, ms);
-        socket_count_read_inc(iod, ms);
+        int evclr;
+
+        evclr = socket_count_dec_ssl_desire(nse);
+        socket_count_read_inc(iod);
+        update_events(iod, ms, X_EV(EV_READ, evclr), X_EV(evclr, EV_READ));
         nse->sslinfo.ssl_desire = err;
       } else if (err == SSL_ERROR_WANT_WRITE ) {
-        socket_count_dec_ssl_desire(nse, ms);
-        socket_count_write_inc(iod, ms);
+        int evclr;
+
+        evclr = socket_count_dec_ssl_desire(nse);
+        socket_count_write_inc(iod);
+        update_events(iod, ms, X_EV(EV_WRITE, evclr), X_EV(evclr, EV_READ));
         nse->sslinfo.ssl_desire = err;
       } else {
         /* Unexpected error */
@@ -745,9 +720,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
 }
 
 
-void handle_read_result(mspool *ms, msevent *nse,
-                        enum nse_status status)
-{
+void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
   unsigned int count;
   char *str;
   int rc, len;
@@ -755,11 +728,10 @@ void handle_read_result(mspool *ms, msevent *nse,
 
   if (status == NSE_STATUS_TIMEOUT) {
     nse->event_done = 1;
-    if (FILESPACE_LENGTH(&nse->iobuf) > 0) {
+    if (FILESPACE_LENGTH(&nse->iobuf) > 0)
       nse->status = NSE_STATUS_SUCCESS;
-    } else {
+    else
       nse->status = NSE_STATUS_TIMEOUT;
-    }
   } else if (status == NSE_STATUS_CANCELLED) {
     nse->status = status;
     nse->event_done = 1;
@@ -786,10 +758,10 @@ void handle_read_result(mspool *ms, msevent *nse,
         count = 0;
         len = FILESPACE_LENGTH(&nse->iobuf) -1;
         str = FILESPACE_STR(&nse->iobuf);
-        for(count=0; len >= 0; len--) {
+        for (count=0; len >= 0; len--) {
           if (str[len] == '\n') {
             count++;
-            if ((int) count >= nse->readinfo.num)
+            if ((int)count >= nse->readinfo.num)
               break;
           }
         }
@@ -809,26 +781,24 @@ void handle_read_result(mspool *ms, msevent *nse,
   }
 
   /* If there are no more reads for this IOD, we are done reading on the socket
-     so we can take it off the descriptor list ... */
+   * so we can take it off the descriptor list ... */
   if (nse->event_done && iod->sd >= 0) {
+    int ev = EV_NONE;
+
 #if HAVE_OPENSSL
     if (nse->iod->ssl != NULL)
-      socket_count_dec_ssl_desire(nse, ms);
+      ev |= socket_count_dec_ssl_desire(nse);
     else
 #endif
-      socket_count_read_dec(nse->iod, ms);
+      ev |= socket_count_read_dec(nse->iod);
+    update_events(nse->iod, ms, EV_NONE, ev);
   }
-
-  return;
 }
 
 #if HAVE_PCAP
-void handle_pcap_read_result(mspool *ms, msevent *nse,
-                             enum nse_status status)
-{
+void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status) {
   msiod *iod = nse->iod;
-  mspcap *mp = (mspcap *) iod->pcap;
-
+  mspcap *mp = (mspcap *)iod->pcap;
 
   if (status == NSE_STATUS_TIMEOUT) {
     nse->status = NSE_STATUS_TIMEOUT;
@@ -849,250 +819,46 @@ void handle_pcap_read_result(mspool *ms, msevent *nse,
     assert(0); /* Currently we only know about TIMEOUT, CANCELLED, and SUCCESS callbacks */
   }
 
-  /* If there are no more read events, we are done reading on the socket so
-     we can take it off the descriptor list ... */
-  if (nse->event_done && mp->pcap_desc >= 0)
-    socket_count_readpcap_dec(iod, ms);
+  /* If there are no more read events, we are done reading on the socket so we
+   * can take it off the descriptor list... */
+  if (nse->event_done && mp->pcap_desc >= 0) {
+    int ev;
 
-  return;
+    ev = socket_count_readpcap_dec(iod);
+    update_events(iod, ms, EV_NONE, ev);
+  }
 }
 
-/* returns number of descriptors on which data was read */
-static int pcap_read_on_nonselect(mspool *nsp) {
-  gh_list *event_list = &nsp->evl.pcap_read_events;
+/* Returns whether something was read */
+int pcap_read_on_nonselect(mspool *nsp) {
   gh_list_elem *current, *next;
   msevent *nse;
-  int rc;
   int ret = 0;
 
-  for (current = GH_LIST_FIRST_ELEM(event_list); current != NULL; current = next) {
-    nse = (msevent *) GH_LIST_ELEM_DATA(current);
-    rc = do_actual_pcap_read(nse);
-    if (rc == 1) { /* something received */
+  for (current = GH_LIST_FIRST_ELEM(&nsp->pcap_read_events); current != NULL; current = next) {
+    nse = (msevent *)GH_LIST_ELEM_DATA(current);
+    if (do_actual_pcap_read(nse) == 1) {
+      /* something received */
       ret++;
       break;
     }
     next = GH_LIST_ELEM_NEXT(current);
   }
 
-  return(ret);
+  return ret;
 }
-#endif // HAVE_PCAP
+#endif /* HAVE_PCAP */
 
-/* Iterate through all the event lists (such as connect_events, read_events,
-   timer_events, etc) and take action for those that have completed (due to
-   timeout, i/o, etc) */
-static void iterate_through_event_lists(mspool *nsp) {
-  gh_list_elem *current, *next, *prev, *last;
-  msevent *nse;
-  int match_r = 0, match_w = 0;
-#if HAVE_OPENSSL
-  int desire_r = 0, desire_w = 0;
-#endif
-  gh_list *event_lists[] = { &nsp->evl.connect_events,
-                             &nsp->evl.read_events,
-                             &nsp->evl.write_events,
-                             &nsp->evl.timer_events,
-#if HAVE_PCAP
-                             &nsp->evl.pcap_read_events,
-#endif
-                             0
-                           };
-  int current_list_idx;
-  nsp->evl.next_ev.tv_sec = 0; /* Clear it -- We will find the next
-                                  event as we go through the list */
-
-  /* We keep the events seperate because we want to handle them in the
-     order: connect => read => write => timer for several reasons:
-     1) Makes sure we have gone through all the net i/o events before
-        a timer expires (would be a shame to timeout after the data was
-        available but before we delivered the events
-     2) The connect() results often lead to a read or write that can be
-        processed in the same cycle.  In the same way, read() often
-        leads to write().
-  */
-
-  /* foreach list */
-  if (nsp->tracelevel > 7){
-    for(current_list_idx = 0; event_lists[current_list_idx] != NULL;
-      current_list_idx++) {
-      nsock_trace(nsp, "before iterating, list %i", current_list_idx);
-      for(current = GH_LIST_FIRST_ELEM(event_lists[current_list_idx]);
-          current != NULL; current = GH_LIST_ELEM_NEXT(current)) {
-        nse = (msevent *) GH_LIST_ELEM_DATA(current);
-        nsock_trace(nsp, "before iterating %lu",nse->id);
-      }
-    }
-  }
-  /* foreach list */
-  for(current_list_idx = 0; event_lists[current_list_idx] != NULL;
-      current_list_idx++) {
-    /* Remember the last element and don't look past it. This is because, for
-       example, handling a read event may add another read event to the end of
-       the list, which then adds another, and so on. */
-    last = GH_LIST_LAST_ELEM(event_lists[current_list_idx]);
-    /* foreach element in the list */
-    for (prev = NULL, current = GH_LIST_FIRST_ELEM(event_lists[current_list_idx]);
-         current != NULL && prev != last;
-         prev = current, current = next) {
-      nse = (msevent *) GH_LIST_ELEM_DATA(current);
-      if (nsp->tracelevel > 7)
-        nsock_trace(nsp, "list %i, iterating %lu",current_list_idx, nse->id);
-
-      if (!nse->event_done) {
-        switch(nse->type) {
-        case NSE_TYPE_CONNECT:
-        case NSE_TYPE_CONNECT_SSL:
-          if (FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_r) ||
-              FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_w) ||
-              FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_x)) {
-            handle_connect_result(nsp, nse, NSE_STATUS_SUCCESS);
-          }
-          if (!nse->event_done && nse->timeout.tv_sec &&
-              !TIMEVAL_AFTER(nse->timeout, nsock_tod)) {
-            handle_connect_result(nsp, nse, NSE_STATUS_TIMEOUT);
-          }
-          break;
-
-        case NSE_TYPE_READ:
-          match_r = FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_r);
-          match_w = FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_w);
-#if HAVE_OPENSSL
-          desire_r = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ;
-          desire_w = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE;
-          if (nse->iod->ssl && ((desire_r && match_r) || (desire_w && match_w)))
-            handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
-          else
-#endif
-          if (!nse->iod->ssl && match_r)
-            handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
-
-          if (!nse->event_done && nse->timeout.tv_sec &&
-              !TIMEVAL_AFTER(nse->timeout, nsock_tod)) {
-            handle_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
-          }
-          break;
-
-        case NSE_TYPE_WRITE:
-          match_r = FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_r);
-          match_w = FD_ISSET(nse->iod->sd, &nsp->mioi.fds_results_w);
-#if HAVE_OPENSSL
-          desire_r = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ;
-          desire_w = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE;
-          if (nse->iod->ssl && ((desire_r && match_r) ||
-                                (desire_w && match_w)))
-            handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
-          else
-#endif
-          if (!nse->iod->ssl && match_w)
-            handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
-
-          if (!nse->event_done && nse->timeout.tv_sec &&
-              !TIMEVAL_AFTER(nse->timeout, nsock_tod)) {
-            handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
-          }
-          break;
-
-        case NSE_TYPE_TIMER:
-          if (nse->timeout.tv_sec &&
-              !TIMEVAL_AFTER(nse->timeout, nsock_tod)) {
-            handle_timer_result(nsp, nse, NSE_STATUS_SUCCESS);
-          }
-          break;
-
-#if HAVE_PCAP
-        case NSE_TYPE_PCAP_READ:{
-          if (nsp->tracelevel > 5)
-                  nsock_trace(nsp, "PCAP iterating %lu",nse->id);
-#ifdef PCAP_CAN_DO_SELECT
-          match_r = FD_ISSET(((mspcap *) nse->iod->pcap)->pcap_desc, &nsp->mioi.fds_results_r);
-
-          if (match_r)
-#endif
-          {
-            /* buffer empty? check it! */
-            if ( FILESPACE_LENGTH(&(nse->iobuf))==0 )
-                do_actual_pcap_read(nse);
-          }
-
-          /* if already received smth */
-          if ( FILESPACE_LENGTH(&(nse->iobuf))>0 )
-            handle_pcap_read_result(nsp, nse, NSE_STATUS_SUCCESS);
-
-          if (!nse->event_done && nse->timeout.tv_sec &&
-              !TIMEVAL_AFTER(nse->timeout, nsock_tod))
-            handle_pcap_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
-
-          #if PCAP_BSD_SELECT_HACK
-          /* If event occured, and we're in BSD_HACK mode, than this event was added
-           * to two queues. evl.read_event and evl.pcap_read_event
-           * Of coure we should destroy it only once.
-           * I assume we're now in evl.read_event, co just unlink this event from
-           * evl.pcap_read_event */
-          if (((mspcap *) nse->iod->pcap)->pcap_desc >= 0 &&
-              nse->event_done &&
-              event_lists[current_list_idx] == &nsp->evl.read_events) {
-            /* event is done, list is read_events and we're in BSD_HACK mode.
-             * So unlink event from pcap_read_events */
-            gh_list_remove(&nsp->evl.pcap_read_events, nse);
-            if (nsp->tracelevel > 8)
-                nsock_trace(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
-          }
-          if (((mspcap *) nse->iod->pcap)->pcap_desc >= 0 &&
-              nse->event_done &&
-              event_lists[current_list_idx] == &nsp->evl.pcap_read_events) {
-            gh_list_remove(&nsp->evl.read_events, nse);
-            if (nsp->tracelevel > 8)
-              nsock_trace(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
-          }
-          #endif
-          break;
-        }
-#endif
-        default:
-          fatal("Event has unknown type (%d)", nse->type);
-          break; /* unreached */
-        }
-      }
-
-      if (nse->event_done) {
-        /* Security sanity check: don't return a functional SSL iod without
-           setting an SSL data structure. */
-        if (nse->type == NSE_TYPE_CONNECT_SSL && nse->status == NSE_STATUS_SUCCESS)
-          assert(nse->iod->ssl != NULL);
-
-        if (nsp->tracelevel > 8)
-          nsock_trace(nsp, "NSE #%lu: Removing event from event_lists[%i]", nse->id, current_list_idx);
-
-        /* WooHoo!  The event is ready to be sent */
-        msevent_dispatch_and_delete(nsp, nse, 1);
-        next = GH_LIST_ELEM_NEXT(current);
-        gh_list_remove_elem(event_lists[current_list_idx], current);
-      } else {
-        next = GH_LIST_ELEM_NEXT(current);
-        /* Is this event the next-to-timeout? */
-        if (nse->timeout.tv_sec != 0) {
-          if (nsp->evl.next_ev.tv_sec == 0)
-            nsp->evl.next_ev = nse->timeout;
-          else if (TIMEVAL_AFTER(nsp->evl.next_ev, nse->timeout))
-            nsp->evl.next_ev = nse->timeout;
-        }
-      }
-    }
-  }
-}
-
-/* Here is the all important looping function that tells the event
-   engine to start up and begin processing events.  It will continue
-   until all events have been delivered (including new ones started
-   from event handlers), or the msec_timeout is reached, or a major
-   error has occured.  Use -1 if you don't want to set a maximum time
-   for it to run.  A timeout of 0 will return after 1 non-blocking
-   loop.  The nsock loop can be restarted again after it returns.  For
-   example you could do a series of 15 second runs, allowing you to do
-   other stuff between them */
+/* Here is the all important looping function that tells the event engine to
+ * start up and begin processing events.  It will continue until all events have
+ * been delivered (including new ones started from event handlers), or the
+ * msec_timeout is reached, or a major error has occured.  Use -1 if you don't
+ * want to set a maximum time for it to run.  A timeout of 0 will return after 1
+ * non-blocking loop.  The nsock loop can be restarted again after it returns.
+ * For example you could do a series of 15 second runs, allowing you to do other
+ * stuff between them */
 enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
-  mspool *ms = (mspool *) nsp;
+  mspool *ms = (mspool *)nsp;
   struct timeval loop_timeout;
   int msecs_left;
   unsigned long loopnum = 0;
@@ -1108,13 +874,12 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
   msecs_left = msec_timeout;
 
   if (ms->tracelevel > 2) {
-    if (msec_timeout >= 0) {
+    if (msec_timeout >= 0)
       nsock_trace(ms, "nsock_loop() started (timeout=%dms). %d events pending",
-        msec_timeout, ms->evl.events_pending);
-    } else {
+                  msec_timeout, ms->events_pending);
+    else
       nsock_trace(ms, "nsock_loop() started (no timeout). %d events pending",
-        ms->evl.events_pending);
-    }
+                  ms->events_pending);
   }
 
   while (1) {
@@ -1125,9 +890,9 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
       break;
     }
 
-    if (ms->evl.events_pending == 0) {
+    if (ms->events_pending == 0) {
       /* if no events at all are pending, then none can be created until
-         we quit nsock_loop() -- so we do that now. */
+       * we quit nsock_loop() -- so we do that now. */
       quitstatus = NSOCK_LOOP_NOEVENTS;
       break;
     }
@@ -1140,134 +905,322 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
       }
     }
 
-    if (wait_for_events(ms, msecs_left) == -1) {
+    if (ms->engine->loop(ms, msecs_left) == -1) {
       quitstatus = NSOCK_LOOP_ERROR;
       break;
     }
 
-    /* Now we go through the event lists, doing callbacks for those which
-       have completed */
-    iterate_through_event_lists(ms);
-
     gettimeofday(&nsock_tod, NULL); /* we do this at end because there is one
-                                       at beginning of function */
+                                     * at beginning of function */
     loopnum++;
   }
 
   return quitstatus;
 }
 
-/* Calling this function will cause nsock_loop to quit on its next iteration
-   with a return value of NSOCK_LOOP_QUIT. */
-void nsock_loop_quit(nsock_pool nsp) {
-  mspool *ms = (mspool *) nsp;
+void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
+  int match_r = 0, match_w = 0;
+#if HAVE_OPENSSL
+  int desire_r = 0, desire_w = 0;
+#endif
 
+  if (nsp->tracelevel > 7)
+    nsock_trace(nsp, "Processing event %lu", nse->id);
+
+  if (!nse->event_done) {
+    switch(nse->type) {
+      case NSE_TYPE_CONNECT:
+      case NSE_TYPE_CONNECT_SSL:
+        if (ev != EV_NONE)
+          handle_connect_result(nsp, nse, NSE_STATUS_SUCCESS);
+        if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+          handle_connect_result(nsp, nse, NSE_STATUS_TIMEOUT);
+        break;
+
+      case NSE_TYPE_READ:
+        match_r = ev & EV_READ;
+        match_w = ev & EV_WRITE;
+#if HAVE_OPENSSL
+        desire_r = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ;
+        desire_w = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE;
+        if (nse->iod->ssl && ((desire_r && match_r) || (desire_w && match_w)))
+          handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
+        else
+#endif
+        if (!nse->iod->ssl && match_r)
+          handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
+
+        if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+          handle_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
+        break;
+
+      case NSE_TYPE_WRITE:
+        match_r = ev & EV_READ;
+        match_w = ev & EV_WRITE;
+#if HAVE_OPENSSL
+        desire_r = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ;
+        desire_w = nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE;
+        if (nse->iod->ssl && ((desire_r && match_r) || (desire_w && match_w)))
+          handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
+        else
+#endif
+          if (!nse->iod->ssl && match_w)
+            handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
+
+          if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+            handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
+          break;
+
+      case NSE_TYPE_TIMER:
+        if (nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+          handle_timer_result(nsp, nse, NSE_STATUS_SUCCESS);
+        break;
+
+#if HAVE_PCAP
+      case NSE_TYPE_PCAP_READ:{
+        if (nsp->tracelevel > 5)
+          nsock_trace(nsp, "PCAP iterating %lu", nse->id);
+
+#if PCAP_CAN_DO_SELECT
+        if (ev & EV_READ)
+#endif
+        {
+          /* buffer empty? check it! */
+          if (FILESPACE_LENGTH(&(nse->iobuf)) == 0)
+            do_actual_pcap_read(nse);
+        }
+
+        /* if already received smth */
+        if (FILESPACE_LENGTH(&(nse->iobuf)) > 0)
+          handle_pcap_read_result(nsp, nse, NSE_STATUS_SUCCESS);
+
+        if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+          handle_pcap_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
+
+        #if PCAP_BSD_SELECT_HACK
+        /* If event occured, and we're in BSD_HACK mode, then this event was added
+         * to two queues. read_event and pcap_read_event
+         * Of course we should destroy it only once.
+         * I assume we're now in read_event, so just unlink this event from
+         * pcap_read_event */
+        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && nse->event_done && evlist == &nsp->read_events) {
+          /* event is done, list is read_events and we're in BSD_HACK mode.
+           * So unlink event from pcap_read_events */
+          update_first_events(nse);
+          gh_list_remove(&nsp->pcap_read_events, nse);
+
+          if (nsp->tracelevel > 8)
+            nsock_trace(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
+        }
+        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && nse->event_done && evlist == &nsp->pcap_read_events) {
+          update_first_events(nse);
+          gh_list_remove(&nsp->read_events, nse);
+          if (nsp->tracelevel > 8)
+            nsock_trace(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
+        }
+        #endif
+        break;
+      }
+#endif
+      default:
+        fatal("Event has unknown type (%d)", nse->type);
+        break; /* unreached */
+      }
+  }
+  if (nse->event_done) {
+    /* Security sanity check: don't return a functional SSL iod without setting an SSL data structure. */
+    if (nse->type == NSE_TYPE_CONNECT_SSL && nse->status == NSE_STATUS_SUCCESS)
+      assert(nse->iod->ssl != NULL);
+
+    if (nsp->tracelevel > 8)
+      nsock_trace(nsp, "NSE #%lu: Sending event", nse->id);
+
+    /* WooHoo!  The event is ready to be sent */
+    msevent_dispatch_and_delete(nsp, nse, 1);
+  } else {
+    /* Is this event the next-to-timeout? */
+    if (nse->timeout.tv_sec != 0) {
+      if (nsp->next_ev.tv_sec == 0)
+        nsp->next_ev = nse->timeout;
+      else if (TIMEVAL_AFTER(nsp->next_ev, nse->timeout))
+        nsp->next_ev = nse->timeout;
+    }
+  }
+}
+
+void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
+  int i = 0;
+  /* store addresses of the pointers to the first elements of each kind instead
+   * of storing the values, as a connect can add a read for instance */
+  gh_list_elem **start_elems[] = {
+    &nsi->first_connect,
+    &nsi->first_read,
+    &nsi->first_write,
+#if HAVE_PCAP
+    &nsi->first_pcap_read,
+#endif
+    NULL
+  };
+  gh_list *evlists[] = {
+    &nsi->nsp->connect_events,
+    &nsi->nsp->read_events,
+    &nsi->nsp->write_events,
+#if HAVE_PCAP
+    &nsi->nsp->pcap_read_events,
+#endif
+    NULL
+  };
+
+  /* We keep the events seperate because we want to handle them in the
+   * order: connect => read => write => timer for several reasons:
+   *
+   *  1) Makes sure we have gone through all the net i/o events before
+   *     a timer expires (would be a shame to timeout after the data was
+   *     available but before we delivered the events
+   *
+   *  2) The connect() results often lead to a read or write that can be
+   *     processed in the same cycle.  In the same way, read() often
+   *     leads to write().
+   */
+  for (i = 0; start_elems[i] != NULL; i++) {
+    gh_list_elem *current, *next, *last;
+
+    /* for each list, get the last event and don't look past it as an event could
+     * add another event in the same list and so on... */
+    last = GH_LIST_LAST_ELEM(evlists[i]);
+
+    for (current = *start_elems[i]; current != NULL
+        && GH_LIST_ELEM_PREV(current) != last; current = next) {
+      msevent *nse = (msevent *)GH_LIST_ELEM_DATA(current);
+
+      /* events are grouped by IOD. Break if we're done with the events for the
+       * current IOD */
+      if (nse->iod != nsi)
+        break;
+
+      process_event(nsp, evlists[i], nse, ev);
+      next = GH_LIST_ELEM_NEXT(current);
+
+      if (nse->event_done) {
+        /* event is done, remove it from the event list and udpate IOD pointers
+         * to the first events of each kind */
+        update_first_events(nse);
+        gh_list_remove_elem(evlists[i], current);
+      }
+    }
+  }
+}
+
+/* Calling this function will cause nsock_loop to quit on its next iteration
+ * with a return value of NSOCK_LOOP_QUIT. */
+void nsock_loop_quit(nsock_pool nsp) {
+  mspool *ms = (mspool *)nsp;
   ms->quit = 1;
 }
 
-/* Grab the latest time as recorded by the nsock library, which does
-   so at least once per event loop (in main_loop).  Not only does this
-   function (generally) avoid a system call, but in many circumstances
-   it is better to use nsock's time rather than the system time.  If
-   nsock has never obtained the time when you call it, it will do so
-   before returning */
+/* Grab the latest time as recorded by the nsock library, which does so at least
+ * once per event loop (in main_loop).  Not only does this function (generally)
+ * avoid a system call, but in many circumstances it is better to use nsock's
+ * time rather than the system time.  If nsock has never obtained the time when
+ * you call it, it will do so before returning */
 const struct timeval *nsock_gettimeofday() {
   if (nsock_tod.tv_sec == 0)
     gettimeofday(&nsock_tod, NULL);
-
   return &nsock_tod;
 }
 
-
-/* Adds an event to the appropriate nsp event list, handles housekeeping
-   such as adjusting the descriptor select/poll lists, registering the
-   timeout value, etc. */
+/* Adds an event to the appropriate nsp event list, handles housekeeping such as
+ * adjusting the descriptor select/poll lists, registering the timeout value,
+ * etc. */
 void nsp_add_event(mspool *nsp, msevent *nse) {
   if (nsp->tracelevel > 5)
     nsock_trace(nsp, "NSE #%lu: Adding event", nse->id);
 
-  /* First lets do the event-type independant stuff -- starting with
-     timeouts */
+  /* First lets do the event-type independant stuff, starting with timeouts */
   if (nse->event_done) {
-    nsp->evl.next_ev = nsock_tod;
+    nsp->next_ev = nsock_tod;
   } else {
     if (nse->timeout.tv_sec != 0) {
-      if (nsp->evl.next_ev.tv_sec == 0) {
-        nsp->evl.next_ev = nse->timeout;
-      } else if (TIMEVAL_AFTER(nsp->evl.next_ev, nse->timeout)) {
-        nsp->evl.next_ev = nse->timeout;
-      }
+      if (nsp->next_ev.tv_sec == 0)
+        nsp->next_ev = nse->timeout;
+      else if (TIMEVAL_AFTER(nsp->next_ev, nse->timeout))
+        nsp->next_ev = nse->timeout;
     }
   }
 
-  nsp->evl.events_pending++;
+  nsp->events_pending++;
 
   /* Now we do the event type specific actions */
   switch(nse->type) {
-  case NSE_TYPE_CONNECT:
-  case NSE_TYPE_CONNECT_SSL:
-    if (!nse->event_done) {
-      assert(nse->iod->sd >= 0);
-      socket_count_read_inc(nse->iod, nsp);
-      socket_count_write_inc(nse->iod, nsp);
-      CHECKED_FD_SET( nse->iod->sd, &nsp->mioi.fds_master_x);
-      nsp->mioi.max_sd = MAX(nsp->mioi.max_sd, nse->iod->sd);
-    }
-    gh_list_append(&nsp->evl.connect_events, nse);
-    break;
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      if (!nse->event_done) {
+        assert(nse->iod->sd >= 0);
+        socket_count_read_inc(nse->iod);
+        socket_count_write_inc(nse->iod);
+        update_events(nse->iod, nsp, EV_READ|EV_WRITE|EV_EXCEPT, EV_NONE);
+      }
+      iod_add_event(nse->iod, nse);
+      break;
 
-  case NSE_TYPE_READ:
-    if (!nse->event_done) {
-      assert(nse->iod->sd >= 0);
-      socket_count_read_inc(nse->iod, nsp);
+    case NSE_TYPE_READ:
+      if (!nse->event_done) {
+        assert(nse->iod->sd >= 0);
+        socket_count_read_inc(nse->iod);
+        update_events(nse->iod, nsp, EV_READ, EV_NONE);
 #if HAVE_OPENSSL
-      if (nse->iod->ssl) nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
+        if (nse->iod->ssl)
+          nse->sslinfo.ssl_desire = SSL_ERROR_WANT_READ;
 #endif
-    }
-    gh_list_append(&nsp->evl.read_events, nse);
-    break;
+      }
+      iod_add_event(nse->iod, nse);
+      break;
 
-  case NSE_TYPE_WRITE:
-    if (!nse->event_done) {
-      assert(nse->iod->sd >= 0);
-      socket_count_write_inc(nse->iod, nsp);
+    case NSE_TYPE_WRITE:
+      if (!nse->event_done) {
+        assert(nse->iod->sd >= 0);
+        socket_count_write_inc(nse->iod);
+        update_events(nse->iod, nsp, EV_WRITE, EV_NONE);
 #if HAVE_OPENSSL
-      if (nse->iod->ssl) nse->sslinfo.ssl_desire = SSL_ERROR_WANT_WRITE;
+        if (nse->iod->ssl)
+          nse->sslinfo.ssl_desire = SSL_ERROR_WANT_WRITE;
 #endif
-    }
-    gh_list_append(&nsp->evl.write_events, nse);
-    break;
+      }
+      iod_add_event(nse->iod, nse);
+      break;
 
-  case NSE_TYPE_TIMER:
-    gh_list_append(&nsp->evl.timer_events, nse);
-    break;
+    case NSE_TYPE_TIMER:
+      gh_list_append(&nsp->timer_events, nse);
+      break;
 
 #if HAVE_PCAP
-  case NSE_TYPE_PCAP_READ:{
-    mspcap *mp = (mspcap *) nse->iod->pcap;
-    assert(mp);
-    if(mp->pcap_desc >= 0){ /* pcap descriptor present */
-      if(!nse->event_done)
-        socket_count_readpcap_inc(nse->iod, nsp);
-      if (nsp->tracelevel > 8)
+    case NSE_TYPE_PCAP_READ: {
+      mspcap *mp = (mspcap *)nse->iod->pcap;
+
+      assert(mp);
+      if (mp->pcap_desc >= 0) { /* pcap descriptor present */
+        if (!nse->event_done) {
+          socket_count_readpcap_inc(nse->iod);
+          update_events(nse->iod, nsp, EV_READ, EV_NONE);
+        }
+        if (nsp->tracelevel > 8)
           nsock_trace(nsp, "PCAP NSE #%lu: Adding event to READ_EVENTS", nse->id);
-      gh_list_append(&nsp->evl.read_events, nse);
 
       #if PCAP_BSD_SELECT_HACK
       /* when using BSD hack we must do pcap_next() after select().
        * Let's insert this pcap to bot queues, to selectable and nonselectable.
        * This will result in doing pcap_next_ex() just before select() */
       if (nsp->tracelevel > 8)
-          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
-      gh_list_append(&nsp->evl.pcap_read_events, nse);
+        nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
       #endif
-    }else{ /* pcap isn't selectable. Add it to pcap-specific queue. */
+    } else {
+      /* pcap isn't selectable. Add it to pcap-specific queue. */
       if (nsp->tracelevel > 8)
-          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
-      gh_list_append(&nsp->evl.pcap_read_events, nse);
+        nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
     }
+    iod_add_event(nse->iod, nse);
     break;
-  }
+    }
 #endif
 
   default:
@@ -1288,11 +1241,10 @@ void nsock_trace(mspool *ms, char *fmt, ...) {
   vfprintf(ms->tracefile, fmt, ap);
   fprintf(ms->tracefile, "\n");
   va_end(ap);
-  return;
 }
 
-/* An event has been completed and the handler is about to be called.  This
-   function writes out tracing data about the event if necessary */
+/* An event has been completed and the handler is about to be called. This
+ * function writes out tracing data about the event if necessary */
 void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
   msiod *nsi;
   char *str;
@@ -1305,79 +1257,81 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
 
   nsi = nse->iod;
 
-  if (nse->status == NSE_STATUS_ERROR) {
+  if (nse->status == NSE_STATUS_ERROR)
     Snprintf(errstr, sizeof(errstr), "[%s (%d)] ", strerror(nse->errnum), nse->errnum);
-  } else {
+  else
     errstr[0] = '\0';
-  }
 
   /* Some types have special tracing treatment */
   switch(nse->type) {
-  case NSE_TYPE_CONNECT:
-  case NSE_TYPE_CONNECT_SSL:
-    nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%hu]",
-                nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen), nsi_peerport(nsi));
-    break;
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%d]",
+                  nse_type2str(nse->type), nse_status2str(nse->status), errstr,
+                  nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen), nsi_peerport(nsi));
+      break;
 
-  case NSE_TYPE_READ:
-    if (nse->status != NSE_STATUS_SUCCESS) {
-      if (nsi->peerlen > 0) {
-         nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%hu]",
-                  nse_type2str(nse->type), nse_status2str(nse->status),
-                  errstr, nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
+    case NSE_TYPE_READ:
+      if (nse->status != NSE_STATUS_SUCCESS) {
+        if (nsi->peerlen > 0) {
+           nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%d]",
+                       nse_type2str(nse->type), nse_status2str(nse->status),
+                       errstr, nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
+                       nsi_peerport(nsi));
+        } else {
+          nsock_trace(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
+                      nse_type2str(nse->type), nse_status2str(nse->status),
+                      errstr, nse->id);
+        }
+      } else {
+        str = nse_readbuf(nse, &strlength);
+        if (ms->tracelevel > 1 && strlength < 80) {
+          memcpy(displaystr, ": ", 2);
+          memcpy(displaystr + 2, str, strlength);
+          displaystr[2 + strlength] = '\0';
+          replacenonprintable(displaystr + 2, strlength, '.');
+        } else {
+          displaystr[0] = '\0';
+        }
+
+        if (nsi->peerlen > 0) {
+          nsock_trace(ms, "Callback: %s %s for EID %li [%s:%d] %s(%d bytes)%s",
+                      nse_type2str(nse->type), nse_status2str(nse->status),
+                      nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
+                      nsi_peerport(nsi), nse_eof(nse)? "[EOF]" : "", strlength,
+                      displaystr);
+        } else {
+          nsock_trace(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
+                      nse_type2str(nse->type), nse_status2str(nse->status),
+                      nse->id, nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
+        }
+      }
+      break;
+
+    case NSE_TYPE_WRITE:
+      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%d]",
+                  nse_type2str(nse->type), nse_status2str(nse->status), errstr,
+                  nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
                   nsi_peerport(nsi));
-      } else {
-         nsock_trace(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
-                     nse_type2str(nse->type), nse_status2str(nse->status),
-                     errstr, nse->id);
-      }
-    } else {
-      str = nse_readbuf(nse, &strlength);
-      if (ms->tracelevel > 1 && strlength < 80) {
-        memcpy(displaystr, ": ", 2);
-        memcpy(displaystr + 2, str, strlength);
-        displaystr[2 + strlength] = '\0';
-        replacenonprintable(displaystr + 2, strlength, '.');
-      } else {
-        displaystr[0] = '\0';
-      }
+      break;
 
-      if (nsi->peerlen > 0) {
-        nsock_trace(ms, "Callback: %s %s for EID %li [%s:%hu] %s(%d bytes)%s",
-                    nse_type2str(nse->type), nse_status2str(nse->status),
-                    nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
-                    nsi_peerport(nsi), nse_eof(nse)? "[EOF]" : "", strlength,
-                    displaystr);
-      } else {
-        nsock_trace(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
-                    nse_type2str(nse->type), nse_status2str(nse->status),
-                    nse->id, nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
-      }
-    }
-    break;
+    case NSE_TYPE_TIMER:
+      nsock_trace(ms, "Callback: %s %s %sfor EID %li",
+                  nse_type2str(nse->type), nse_status2str(nse->status), errstr,
+                  nse->id);
+      break;
 
-  case NSE_TYPE_WRITE:
-    nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%hu]",
-                nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
-                  nsi_peerport(nsi));
-    break;
-  case NSE_TYPE_TIMER:
-    nsock_trace(ms, "Callback: %s %s %sfor EID %li",
-                nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                nse->id);
-
-    break;
 #if HAVE_PCAP
-  case NSE_TYPE_PCAP_READ:
-    nsock_trace(ms, "Callback: %s %s %sfor EID %li ",
-                nse_type2str(nse->type), nse_status2str(nse->status),
-                errstr, nse->id);
-    break;
+    case NSE_TYPE_PCAP_READ:
+      nsock_trace(ms, "Callback: %s %s %sfor EID %li ",
+                  nse_type2str(nse->type), nse_status2str(nse->status),
+                  errstr, nse->id);
+      break;
 #endif
-  default:
-    assert(0);
-    break;
+
+    default:
+      assert(0);
+      break;
   }
 }
+

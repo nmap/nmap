@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * error.c -- a few simple routines for dealing with errors (quitting,     *
  * printing error messages, etc.                                           *
@@ -59,28 +58,40 @@
 #include "error.h"
 
 void fatal(char *fmt, ...) {
-va_list  ap;va_start(ap, fmt);
-fflush(stdout);vfprintf(stderr, fmt, ap);
-fprintf(stderr, "\n");va_end(ap);
-exit(1);}
+  va_list ap;
+
+  va_start(ap, fmt);
+  fflush(stdout);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  va_end(ap);
+
+  exit(1);
+}
 
 void pfatal(char *fmt, ...) {
-va_list  ap;va_start(ap, fmt);
-fflush(stdout);
-vfprintf(stderr, fmt, ap);
-fprintf(stderr, ": ");
-perror("");
-fprintf(stderr, "\n");
-va_end(ap);
-exit(1);
+  va_list ap;
+
+  va_start(ap, fmt);
+  fflush(stdout);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, ": ");
+  perror("");
+  fprintf(stderr, "\n");
+  va_end(ap);
+
+  exit(1);
 }
 
 void gh_perror(char *err, ...) {
-va_list  ap;va_start(ap, err);
-fflush(stdout);
-vfprintf(stderr, err, ap);
-va_end(ap);
-perror(" ");
-fflush(stderr);
-return;
+  va_list ap;
+
+  va_start(ap, err);
+  fflush(stdout);
+  vfprintf(stderr, err, ap);
+  va_end(ap);
+
+  perror(" ");
+  fflush(stderr);
 }
+

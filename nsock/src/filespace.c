@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * filespace.c -- a simple mechanism for storing dynamic amounts of data   *
  * in a simple to use, and quick to append-to structure.                   *
@@ -61,54 +60,47 @@
 
 #include <string.h>
 
+#define FS_INITSIZE_DEFAULT 1024
+
+
 /* Assumes space for fs has already been allocated */
 int filespace_init(struct filespace *fs, int initial_size) {
-  
+
   memset(fs, 0, sizeof(struct filespace));
   if (initial_size == 0)
-    initial_size = 1024;
+    initial_size = FS_INITSIZE_DEFAULT;
+
   fs->current_alloc = initial_size;
-  fs->str = (char *) safe_malloc(fs->current_alloc);
+  fs->str = (char *)safe_malloc(fs->current_alloc);
   fs->str[0] = '\0';
   fs->pos = fs->str;
   return 0;
 }
 
-/* Used when you want to start over with a filespace you have been
-   using (it sets the length to zero and the pointers to the beginning
-   of memory , etc */
-int fs_clear(struct filespace *fs) {
-  fs->current_size = 0;
-  fs->pos = fs->str;
-  fs->str[0] = '\0'; /* Not necessary, possible help with debugging */
-  return 0;
-}
-
-
-int fs_free(struct filespace *fs) {
-  if (fs->str) free(fs->str);
-  fs->current_alloc = fs->current_size = 0;
-  fs->pos = fs->str = NULL;
-  return 0;
-}
-
 /* Prepend an n-char string to a filespace */
-int fs_prepend(char *str, int len, struct filespace *fs)  {
-char *tmpstr;
+int fs_prepend(char *str, int len, struct filespace *fs){
+  char *tmpstr;
 
-if (len < 0) return -1;
-if (len == 0) return 0;
+  if (len < 0)
+    return -1;
+
+  if (len == 0)
+    return 0;
 
   if (fs->current_alloc - fs->current_size < len + 2) {
-    fs->current_alloc = (int) (fs->current_alloc * 1.4 + 1 );
+    fs->current_alloc = (int)(fs->current_alloc * 1.4 + 1);
     fs->current_alloc += 100 + len;
-    tmpstr = (char *) safe_malloc(fs->current_alloc);
+
+    tmpstr = (char *)safe_malloc(fs->current_alloc);
     memcpy(tmpstr, fs->str, fs->current_size);
+
     fs->pos = (fs->pos - fs->str) + tmpstr;
-    if (fs->str) free(fs->str);
-    fs->str = tmpstr; 
+    if (fs->str)
+      free(fs->str);
+
+    fs->str = tmpstr;
   }
-  if (fs->current_size > 0)   
+  if (fs->current_size > 0)
     memmove(fs->str + len, fs->str, fs->current_size);
   memcpy(fs->str, str, len);
 
@@ -117,14 +109,21 @@ if (len == 0) return 0;
   return 0;
 }
 
+/* Used when you want to start over with a filespace you have been using (it
+ * sets the length to zero and the pointers to the beginning of memory , etc */
+int fs_clear(struct filespace *fs) {
+  fs->current_size = 0;
+  fs->pos = fs->str;
+  fs->str[0] = '\0'; /* Not necessary, possible help with debugging */
+  return 0;
+}
 
+int fs_free(struct filespace *fs) {
+  if (fs->str)
+    free(fs->str);
 
-
-
-
-
-
-
-
-
+  fs->current_alloc = fs->current_size = 0;
+  fs->pos = fs->str = NULL;
+  return 0;
+}
 

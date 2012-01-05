@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * gh_list.c -- a simple doubly-linked list implementation with a very     *
  * heavy focus on efficiency.                                              *
@@ -69,6 +68,21 @@
 #include <strings.h>
 #endif
 
+
+#define SAFETY_CHECK_LIST(l) do { \
+    assert(l); \
+    assert((l)->magic == GH_LIST_MAGIC); \
+    assert((l)->count == 0 || ((l)->first && (l)->last)); \
+    assert((l)->count != 0 || ((l)->first == NULL && (l)->last == NULL)); \
+  } while (0)
+
+#define SAFETY_CHECK_ELEM(e) do { \
+    assert(e); \
+    assert((e)->magic == GH_LIST_MAGIC); \
+  } while (0)
+
+
+
 #ifdef GH_LIST_MAIN
 int main(int argc, char *argv[]) {
   gh_list lists[16];
@@ -76,22 +90,22 @@ int main(int argc, char *argv[]) {
   int num = 0;
   int ret;
   int i;
-  
+
   for(i=0; i < 16; i++)
     gh_list_init(&lists[i]);
-  
+
   for(num=25000; num < 50000; num++) {
     for(i=0; i < 16; i++) {
-      gh_list_append(&lists[i], (void *) num);
+      gh_list_append(&lists[i], (void *)num);
     }
   }
-  
+
   for(num=24999; num >= 0; num--) {
     for(i=0; i < 16; i++) {
-      gh_list_prepend(&lists[i], (void *) num);
+      gh_list_prepend(&lists[i], (void *)num);
     }
   }
-  
+
   for(num=0; num < 50000; num++) {
     for(i=0; i < 16; i++) {
       ret = (int) gh_list_pop(&lists[i]);
@@ -109,16 +123,16 @@ int main(int argc, char *argv[]) {
 
   for(num=24999; num >= 0; num--) {
     for(i=0; i < 16; i++) {
-      gh_list_prepend(&lists[i], (void *) num);
+      gh_list_prepend(&lists[i], (void *)num);
     }
   }
 
   for(num=25000; num < 50000; num++) {
     for(i=0; i < 16; i++) {
-      gh_list_append(&lists[i], (void *) num);
+      gh_list_append(&lists[i], (void *)num);
     }
   }
-  
+
   for(num=0; num < 50000; num++) {
     for(i=0; i < 16; i++) {
       ret = (int) gh_list_pop(&lists[i]);
@@ -130,16 +144,16 @@ int main(int argc, char *argv[]) {
   printf("Done with second set\n");
   for(num=25000; num < 50000; num++) {
     for(i=0; i < 16; i++) {
-      gh_list_append(&lists[i], (void *) num);
+      gh_list_append(&lists[i], (void *)num);
     }
   }
-  
+
   for(num=24999; num >= 0; num--) {
     for(i=0; i < 16; i++) {
-      gh_list_prepend(&lists[i], (void *) num);
+      gh_list_prepend(&lists[i], (void *)num);
     }
   }
-  
+
   for(num=0; num < 50000; num++) {
     for(i=0; i < 16; i++) {
       ret = (int) gh_list_pop(&lists[i]);
@@ -152,19 +166,19 @@ int main(int argc, char *argv[]) {
 
   for(num=24999; num >= 0; num--) {
     for(i=0; i < 16; i++) {
-      gh_list_prepend(&lists[i], (void *) num);
+      gh_list_prepend(&lists[i], (void *)num);
     }
   }
 
   for(num=25000; num < 50000; num++) {
     for(i=0; i < 16; i++) {
-      gh_list_append(&lists[i], (void *) num);
+      gh_list_append(&lists[i], (void *)num);
     }
   }
-  
-  for(i=0; i < 16; i++) {  
+
+  for(i=0; i < 16; i++) {
     num=0;
-    for(current = GH_LIST_FIRST_ELEM(&lists[i]); current; 
+    for(current = GH_LIST_FIRST_ELEM(&lists[i]); current;
 	current = next) {
       next = GH_LIST_ELEM_NEXT(current);
       if ((int)GH_LIST_ELEM_DATA(current) != num)
@@ -193,12 +207,12 @@ static inline struct gh_list_elem *get_free_buffer(struct gh_list *list) {
 
   if (!list->free) {
     list->last_alloc *= 2;
-    list->free = (struct gh_list_elem *) safe_malloc(list->last_alloc * sizeof(struct gh_list_elem));
+    list->free = (struct gh_list_elem *)safe_malloc(list->last_alloc * sizeof(struct gh_list_elem));
     memset(list->free, 0, list->last_alloc * sizeof(struct gh_list_elem));
     list->free->allocated = 1;
-    for(i=0; i < list->last_alloc - 1; i++) {
+    for (i=0; i < list->last_alloc - 1; i++) {
       (list->free + i)->next = list->free + i + 1;
-    }   
+    }
   }
   newelem = list->free;
   list->free = list->free->next;
@@ -209,95 +223,138 @@ static inline struct gh_list_elem *get_free_buffer(struct gh_list *list) {
 }
 
 int gh_list_init(gh_list *newlist) {
-int i;
-if (!newlist) return -1;
+  int i;
 
-newlist->count = 0;
-newlist->first = newlist->last = NULL;
-newlist->last_alloc = 32;
-newlist->free = (struct gh_list_elem *) safe_malloc(newlist->last_alloc * sizeof(struct gh_list_elem));
-memset(newlist->free, 0, newlist->last_alloc * sizeof(struct gh_list_elem));
-newlist->free->allocated = 1;
- for(i=0; i < newlist->last_alloc - 1; i++) {
-   (newlist->free + i)->next = newlist->free + i + 1;
- }
- /* Not needed (newlist->free + newlist->last_alloc - 1)->next = NULL */
+  if (!newlist)
+    return -1;
+
+  newlist->count = 0;
+  newlist->first = newlist->last = NULL;
+  newlist->last_alloc = 16;
+  newlist->free = (struct gh_list_elem *)safe_malloc(newlist->last_alloc * sizeof(struct gh_list_elem));
+
+  memset(newlist->free, 0, newlist->last_alloc * sizeof(struct gh_list_elem));
+  newlist->free->allocated = 1;
+
+  for (i = 0; i < newlist->last_alloc - 1; i++) {
+    (newlist->free + i)->next = newlist->free + i + 1;
+  }
+  /* Not needed (newlist->free + newlist->last_alloc - 1)->next = NULL */
 #ifndef NDEBUG
-newlist->magic = GH_LIST_MAGIC;
+  newlist->magic = GH_LIST_MAGIC;
 #endif
-return 0;
+  return 0;
 }
 
 gh_list_elem *gh_list_append(gh_list *list, void *data) {
-  gh_list_elem *newelem; 
+  gh_list_elem *newelem;
   gh_list_elem *oldlast;
 
-  assert(list);
-  assert(list->magic == GH_LIST_MAGIC);
-  assert(list->count == 0 || (list->first && list->last));
-  assert(list->count != 0 || (list->first == NULL && list->last == NULL));
+  SAFETY_CHECK_LIST(list);
 
   newelem = get_free_buffer(list);
   oldlast = list->last;
+
   if (oldlast) {
     oldlast->next = newelem;
     newelem->prev = oldlast;
-  } else newelem->prev = NULL;
+  } else {
+    newelem->prev = NULL;
+  }
 
   newelem->next = NULL;
   newelem->data = data;
+
 #ifndef NDEBUG
   newelem->magic = GH_LIST_MAGIC;
 #endif
+
   list->count++;
   list->last = newelem;
+
   if (list->count == 1)
-    list->first = newelem;    
+    list->first = newelem;
+
   return newelem;
 }
 
 gh_list_elem *gh_list_prepend(gh_list *list, void *data) {
-  gh_list_elem *newelem; 
+  gh_list_elem *newelem;
   gh_list_elem *oldfirst;
 
-  assert(list);
-  assert(list->magic == GH_LIST_MAGIC);
-  assert(list->count == 0 || (list->first && list->last));
-  assert(list->count != 0 || (list->first == NULL && list->last == NULL));
+  SAFETY_CHECK_LIST(list);
 
   newelem = get_free_buffer(list);
   oldfirst = list->first;
   if (oldfirst) {
     oldfirst->prev = newelem;
     newelem->next = oldfirst;
-  } else newelem->next = NULL;
+  } else {
+    newelem->next = NULL;
+  }
+
   newelem->prev = NULL;
   newelem->data = data;
+
 #ifndef NDEBUG
   newelem->magic = GH_LIST_MAGIC;
 #endif
+
   list->count++;
   list->first = newelem;
+
   if (list->count == 1)
-    list->last = newelem;    
+    list->last = newelem;
+
+  return newelem;
+}
+
+gh_list_elem *gh_list_insert_before(gh_list *list, gh_list_elem *before, void *data) {
+  gh_list_elem *newelem;
+
+  SAFETY_CHECK_LIST(list);
+  SAFETY_CHECK_ELEM(before);
+
+  /* create or reuse a new cell */
+  newelem = get_free_buffer(list);
+
+  newelem->data = data;
+  newelem->prev = before->prev;
+  newelem->next = before;
+#ifndef NDEBUG
+  newelem->magic = GH_LIST_MAGIC;
+#endif
+
+  if (before->prev)
+    before->prev->next = newelem;
+  else
+    list->first = newelem;
+
+  before->prev = newelem;
+
+  list->count++;
+
   return newelem;
 }
 
 void *gh_list_pop(gh_list *list) {
-  struct gh_list_elem *oldelem; 
-  assert(list);
-  assert(list->magic == GH_LIST_MAGIC);
-  assert(list->count == 0 || (list->first && list->last));
-  assert(list->count != 0 || (list->first == NULL && list->last == NULL));
+  struct gh_list_elem *oldelem;
+
+  SAFETY_CHECK_LIST(list);
 
   oldelem = list->first;
-  if (!oldelem) return NULL;
-  list->first = list->first->next;  
+  if (!oldelem)
+    return NULL;
+
+  list->first = list->first->next;
   if (list->first)
     list->first->prev = NULL;
+
   list->count--;
+
   if (list->count < 2)
     list->last = list->first;
+
   oldelem->next = list->free;
   list->free = oldelem;
 
@@ -308,44 +365,39 @@ int gh_list_free(gh_list *list) {
   struct gh_list_elem *current;
   char *free_list[32];
   int free_index = 0;
-  int i=0;
+  int i = 0;
 
-  assert(list);
-  assert(list->magic == GH_LIST_MAGIC);
-  assert(list->count == 0 || (list->first && list->last));
-  assert(list->count != 0 || (list->first == NULL && list->last == NULL));
+  SAFETY_CHECK_LIST(list);
 
 #ifndef NDEBUG
   list->magic++;
 #endif
-  for(current = list->first; current; current = current->next) {  
-#   ifndef NDEBUG
-      current->magic++;
-#   endif
+
+  for (current = list->first; current; current = current->next) {
+#ifndef NDEBUG
+    current->magic++;
+#endif
     if (current->allocated) {
-      assert(free_index < 32); 
-      free_list[free_index++] = (char *) current;
+      assert(free_index < 32);
+      free_list[free_index++] = (char *)current;
     }
   }
 
-  for(current = list->free; current; current = current->next)
-    if (current->allocated) {    
+  for (current = list->free; current; current = current->next)
+    if (current->allocated) {
       assert(free_index < 32);
-      free_list[free_index++] = (char *) current;
+      free_list[free_index++] = (char *)current;
     }
 
-  for(i=0; i < free_index; i++)
+  for (i = 0; i < free_index; i++)
     free(free_list[i]);
+
   return 0;
 }
 
 int gh_list_remove_elem(gh_list *list, gh_list_elem *elem) {
-  assert(elem);
-  assert(elem->magic == GH_LIST_MAGIC);
-  assert(list);
-  assert(list->magic == GH_LIST_MAGIC);
-  assert(list->count == 0 || (list->first && list->last));
-  assert(list->count != 0 || (list->first == NULL && list->last == NULL));
+  SAFETY_CHECK_ELEM(elem);
+  SAFETY_CHECK_LIST(list);
 
   if (elem->prev) {
     elem->prev->next = elem->next;
@@ -372,26 +424,41 @@ int gh_list_remove_elem(gh_list *list, gh_list_elem *elem) {
   return 0;
 }
 
+int gh_list_move_front(gh_list *list, gh_list_elem *elem) {
+  SAFETY_CHECK_LIST(list);
+  SAFETY_CHECK_ELEM(elem);
+
+  if (list->first == elem)
+      return 0;
+
+  /* remove element from its current position */
+  elem->prev->next = elem->next;
+
+  if (elem->next) {
+    elem->next->prev = elem->prev;
+  } else {
+    assert(list->last == elem);
+    list->last = elem->prev;
+  }
+
+  /* add element to the beginning list */
+  list->first->prev = elem;
+  elem->next = list->first;
+  elem->prev = NULL;
+  list->first = elem;
+
+  return 0;
+}
+
 int gh_list_remove(gh_list *list, void *data) {
   struct gh_list_elem *current;
 
-  assert(list);
-  assert(list->magic == GH_LIST_MAGIC);
-  assert(list->count == 0 || (list->first && list->last));
-  assert(list->count != 0 || (list->first == NULL && list->last == NULL));
+  SAFETY_CHECK_LIST(list);
 
-  for(current = list->first; current; current = current->next) {
+  for (current = list->first; current; current = current->next) {
     if (current->data == data)
       return gh_list_remove_elem(list, current);
   }
   return -1;
 }
-
-
-
-
-
-
-
-
 

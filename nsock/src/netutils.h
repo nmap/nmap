@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * netutils.h -- This contains some useful little network/socket related   *
  * utility functions.                                                      *
@@ -70,12 +69,11 @@
 #include "nbase_winunix.h"
 #endif
 
-/* maximize the number of file descriptors (including sockets) allowed
-   for this process and return that maximum value (note -- you better
-   not actually open this many -- stdin, stdout, other files opened by
-   libraries you use, etc. all count toward this limit.  Leave a
-   little slack */
-int maximize_fdlimit();
+/* Maximize the number of file descriptors (including sockets) allowed for this
+ * process and return that maximum value (note -- you better not actually open
+ * this many -- stdin, stdout, other files opened by libraries you use, etc. all
+ * count toward this limit.  Leave a little slack */
+int maximize_fdlimit(void);
 
 #endif /* NETUTILS_H */
 

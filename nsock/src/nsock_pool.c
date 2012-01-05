@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * nsock_pool.c -- This contains the functions that deal with creating,    *
  * destroying, and otherwise manipulating nsock_pools (and their internal  *
@@ -71,15 +70,210 @@
 #endif
 #include <signal.h>
 
+
 extern struct timeval nsock_tod;
+
 unsigned long nsp_next_id = 2;
 
-static int nsocklib_initialized = 0; /* To use this library, the first thing
-					they must do is create a pool -- so
-					we do the initialization during the 
-					first pool creation */
+/* To use this library, the first thing they must do is create a pool
+ * so we do the initialization during the first pool creation */
+static int nsocklib_initialized = 0;
 
-static void nsock_library_initialize(void) {
+
+/* defined in nsock_engines.h */
+struct io_engine *get_io_engine(const char *engine_hint);
+
+/* ---- INTERNAL FUNCTIONS PROTOTYPES ---- */
+static void nsock_library_initialize(void);
+/* --------------------------------------- */
+
+
+/* Every mst has an ID that is unique across the program execution */
+unsigned long nsp_getid(nsock_pool nsp) {
+  mspool *mt = (mspool *)nsp;
+  return mt->id;
+}
+
+/* This next function returns the errno style error code -- which is only
+ * valid if the status NSOCK_LOOP_ERROR was returned by nsock_loop() */
+
+int nsp_geterrorcode(nsock_pool nsp) {
+  mspool *mt = (mspool *)nsp;
+  return mt->errnum;
+}
+
+/* Sometimes it is useful to store a pointer to information inside
+ * the NSP so you can retrieve it during a callback. */
+void nsp_setud(nsock_pool nsp, void *data) {
+  mspool *mt = (mspool *)nsp;
+  mt->userdata = data;
+}
+
+/* And the define above wouldn't make much sense if we didn't have a way
+ * to retrieve that data ... */
+void *nsp_getud(nsock_pool nsp) {
+  mspool *mt = (mspool *)nsp;
+  return mt->userdata;
+}
+
+/* Sets a trace/debug level and stream.  A level of 0 (the default) turns
+ * tracing off, while higher numbers are more verbose.  If the stream given is
+ * NULL, it defaults to stdout.  This is generally only used for debugging
+ * purposes. A level of 1 or 2 is usually sufficient, but 10 will ensure you get
+ * everything.  The basetime can be NULL to print trace lines with the current
+ * time, otherwise the difference between the current time and basetime will be
+ * used (the time program execution starts would be a good candidate) */
+void nsp_settrace(nsock_pool nsp, FILE *file, int level, const struct timeval *basetime) {
+  mspool *mt = (mspool *)nsp;
+
+  if (file == NULL)
+    mt->tracefile = stdout;
+  else
+    mt->tracefile = file;
+
+  mt->tracelevel = level;
+
+  if (!basetime)
+    memset(&mt->tracebasetime, 0, sizeof(struct timeval));
+  else
+    mt->tracebasetime = *basetime;
+}
+
+/* Turns on or off broadcast support on new sockets. Default is off (0, false)
+ * set in nsp_new(). Any non-zero (true) value sets SO_BROADCAST on all new
+ * sockets (value of optval will be used directly in the setsockopt() call */
+void nsp_setbroadcast(nsock_pool nsp, int optval) {
+  mspool *mt = (mspool *)nsp;
+  mt->broadcast = optval;
+}
+
+/* And here is how you create an nsock_pool.  This allocates, initializes, and
+ * returns an nsock_pool event aggregator.  In the case of error, NULL will be
+ * returned.  If you do not wish to immediately associate any userdata, pass in
+ * NULL. */
+nsock_pool nsp_new(void *userdata) {
+  mspool *nsp;
+
+  /* initialize the library in not already done */
+  if (!nsocklib_initialized) {
+    nsock_library_initialize();
+    nsocklib_initialized = 1;
+  }
+
+  nsp = (mspool *)safe_malloc(sizeof(*nsp));
+  memset(nsp, 0, sizeof(*nsp));
+
+  gettimeofday(&nsock_tod, NULL);
+  nsp_settrace(nsp, NULL, 0, NULL);
+
+  nsp->id = nsp_next_id++;
+
+  nsp->userdata = userdata;
+
+  nsp->engine = get_io_engine(NULL);
+  nsp->engine->init(nsp);
+
+  /* initialize IO events lists */
+  gh_list_init(&nsp->connect_events);
+  gh_list_init(&nsp->read_events);
+  gh_list_init(&nsp->write_events);
+#if HAVE_PCAP
+  gh_list_init(&nsp->pcap_read_events);
+#endif
+  /* initialize timer list */
+  gh_list_init(&nsp->timer_events);
+
+  /* initialize the list of IODs */
+  gh_list_init(&nsp->active_iods);
+
+  /* initialize caches */
+  gh_list_init(&nsp->free_iods);
+  gh_list_init(&nsp->free_events);
+
+  nsp->next_event_serial = 1;
+
+#if HAVE_OPENSSL
+  nsp->sslctx = NULL;
+#endif
+
+  return (nsock_pool)nsp;
+}
+
+/* If nsp_new returned success, you must free the nsp when you are done with it
+ * to conserve memory (and in some cases, sockets).  After this call, nsp may no
+ * longer be used.  Any pending events are sent an NSE_STATUS_KILL callback and
+ * all outstanding iods are deleted. */
+void nsp_delete(nsock_pool ms_pool) {
+  mspool *nsp = (mspool *)ms_pool;
+  msevent *nse;
+  msiod *nsi;
+  int i;
+  gh_list_elem *current, *next;
+  gh_list *event_lists[] = {
+    &nsp->connect_events,
+    &nsp->read_events,
+    &nsp->write_events,
+    &nsp->timer_events,
+#if HAVE_PCAP
+    &nsp->pcap_read_events,
+#endif
+    NULL
+  };
+
+  assert(nsp);
+
+  /* First I go through all the events sending NSE_STATUS_KILL */
+  for (i = 0; event_lists[i] != NULL; i++) {
+    while (GH_LIST_COUNT(event_lists[i]) > 0) {
+      nse = (msevent *)gh_list_pop(event_lists[i]);
+
+      assert(nse);
+      nse->status = NSE_STATUS_KILL;
+      nsock_trace_handler_callback(nsp, nse);
+      nse->handler(nsp, nse, nse->userdata);
+      if (nse->iod) {
+        nse->iod->events_pending--;
+        assert(nse->iod->events_pending >= 0);
+      }
+      msevent_delete(nsp, nse);
+    }
+    gh_list_free(event_lists[i]);
+  }
+
+  /* foreach msiod */
+  for (current = GH_LIST_FIRST_ELEM(&nsp->active_iods); current != NULL; current = next) {
+    next = GH_LIST_ELEM_NEXT(current);
+    nsi = (msiod *)GH_LIST_ELEM_DATA(current);
+    nsi_delete(nsi, NSOCK_PENDING_ERROR);
+
+    gh_list_remove_elem(&nsp->active_iods, current);
+    gh_list_prepend(&nsp->free_iods, nsi);
+  }
+
+  /* Now we free all the memory in the free iod list */
+  while ((nsi = (msiod *)gh_list_pop(&nsp->free_iods))) {
+    free(nsi);
+  }
+
+  while ((nse = (msevent *)gh_list_pop(&nsp->free_events))) {
+    free(nse);
+  }
+
+  gh_list_free(&nsp->active_iods);
+  gh_list_free(&nsp->free_iods);
+  gh_list_free(&nsp->free_events);
+
+  nsp->engine->destroy(nsp);
+
+#if HAVE_OPENSSL
+  if (nsp->sslctx != NULL)
+    SSL_CTX_free(nsp->sslctx);
+#endif
+
+  free(nsp);
+}
+
+void nsock_library_initialize(void) {
   int res;
 
   /* We want to make darn sure the evil SIGPIPE is ignored */
@@ -94,183 +288,3 @@ static void nsock_library_initialize(void) {
 #endif
 }
 
-/* Every mst has an ID that is unique across the program execution */
-unsigned long nsp_getid(nsock_pool nsp) {
-  mspool *mt = (mspool *) nsp;
-  return mt->id;
-}
-
-/* This next function returns the errno style error code -- which is only
-   valid if the status NSOCK_LOOP_ERROR was returned by nsock_loop() */
-int nsp_geterrorcode(nsock_pool nsp) {
-  mspool *mt = (mspool *) nsp;
-  return mt->errnum;
-}
-
-/* Sometimes it is useful to store a pointer to information inside
-   the NSP so you can retrieve it during a callback. */
-void nsp_setud(nsock_pool nsp, void *data) {
-  mspool *mt = (mspool *) nsp;
-  mt->userdata = data;
-}
-
-/* And the define above wouldn't make much sense if we didn't have a way
-   to retrieve that data ... */
-void *nsp_getud(nsock_pool nsp) {
-  mspool *mt = (mspool *) nsp;
-  return mt->userdata;
-}
-
-/* Sets a trace/debug level and stream.  A level of 0 (the default)
-   turns tracing off, while higher numbers are more verbose.  If the
-   stream given is NULL, it defaults to stdout.  This is generally only
-   used for debugging purposes. A level of 1 or 2 is usually sufficient,
-   but 10 will ensure you get everything.  The basetime can be NULL to
-   print trace lines with the current time, otherwise the difference
-   between the current time and basetime will be used (the time program
-   execution starts would be a good candidate) */
-void nsp_settrace(nsock_pool nsp, FILE *file, int level, const struct timeval *basetime) {
-  mspool *mt = (mspool *) nsp;
-  if (file == NULL)
-    mt->tracefile = stdout;
-  else
-    mt->tracefile = file;
-  mt->tracelevel = level;
-  if (!basetime) 
-    memset(&(mt->tracebasetime), 0, sizeof(struct timeval));
-  else mt->tracebasetime = *basetime;
-}
-
-/* Turns on or off broadcast support on new sockets. Default is off 
-   (0, false) set in nsp_new(). Any non-zero (true) value sets 
-   SO_BROADCAST on all new sockets (value of optval will be used directly
-   in the setsockopt() call */
-void nsp_setbroadcast(nsock_pool nsp, int optval) {
-  mspool *mt = (mspool *) nsp;
-  mt->broadcast = optval;
-}
-
-/* And here is how you create an nsock_pool.  This allocates, initializes,
-   and returns an nsock_pool event aggregator.  In the case of error,
-   NULL will be returned.  If you do not wish to immediately associate
-   any userdata, pass in NULL. */
-nsock_pool nsp_new(void *userdata) {
-  mspool *nsp;
-  nsp = (mspool *) safe_malloc(sizeof(*nsp));
-  memset(nsp, 0, sizeof(*nsp));
-
-  gettimeofday(&nsock_tod, NULL);
-  nsp_settrace(nsp, NULL, 0, NULL);
-
-  nsp->broadcast = 0;
-  if (!nsocklib_initialized) {
-    nsock_library_initialize();
-    nsocklib_initialized = 1;
-  }
-
-  nsp->id = nsp_next_id++;
-
-  /* Now to init the nsock_io_info */
-  FD_ZERO(&nsp->mioi.fds_master_r);
-  FD_ZERO(&nsp->mioi.fds_master_w);
-  FD_ZERO(&nsp->mioi.fds_master_x);
-  nsp->mioi.max_sd = -1;
-  nsp->mioi.results_left = 0;
-
-  /* Next comes the event list structure */
-  gh_list_init(&nsp->evl.connect_events);
-  gh_list_init(&nsp->evl.read_events);
-  gh_list_init(&nsp->evl.write_events);
-  gh_list_init(&nsp->evl.timer_events);
-  #if HAVE_PCAP
-  gh_list_init(&nsp->evl.pcap_read_events);
-  #endif 
-  gh_list_init(&nsp->evl.free_events);
-  nsp->evl.next_ev.tv_sec = 0;
-  nsp->evl.events_pending = 0;
-
-  nsp->userdata = userdata;
-
-  gh_list_init(&nsp->free_iods);
-  gh_list_init(&nsp->active_iods);
-  nsp->next_event_serial = 1;
-
-  nsp->quit = 0;
-
-#if HAVE_OPENSSL
-  nsp->sslctx = NULL;
-#endif
-
-  return (nsock_pool) nsp;
-}
-
-/* If nsp_new returned success, you must free the nsp when you are
-   done with it to conserve memory (and in some cases, sockets).
-   After this call, nsp may no longer be used.  Any pending events are
-   sent an NSE_STATUS_KILL callback and all outstanding iods are
-   deleted. */
-void nsp_delete(nsock_pool ms_pool) {
-  mspool *nsp = (mspool *) ms_pool;
-   gh_list *event_lists[] = { &nsp->evl.connect_events,
-                               &nsp->evl.read_events,
-                               &nsp->evl.write_events,
-                               &nsp->evl.timer_events,
-                               #if HAVE_PCAP
-                               &nsp->evl.pcap_read_events,
-                               #endif
-                               0
-                             };
-   int current_list_idx;
-   msevent *nse;
-   msiod *nsi;
-   gh_list_elem *current, *next;
-
-   assert(nsp);
-
-
-  /* First I go through all the events sending NSE_STATUS_KILL */
-    /* foreach list */
-    for(current_list_idx = 0; event_lists[current_list_idx] != NULL;
-	current_list_idx++) {
-      while(GH_LIST_COUNT(event_lists[current_list_idx]) > 0) {
-	nse = (msevent *) gh_list_pop(event_lists[current_list_idx]);
-	assert(nse);
-	nse->status = NSE_STATUS_KILL;
-	nsock_trace_handler_callback(nsp, nse);
-	nse->handler(nsp, nse, nse->userdata);
-	if (nse->iod) {
-	  nse->iod->events_pending--;
-	  assert(nse->iod->events_pending >= 0);
-	}
-	msevent_delete(nsp, nse);
-      }      
-      gh_list_free(event_lists[current_list_idx]);
-    }
-
-  /* Then I go through and kill the iods */
-    for(current = GH_LIST_FIRST_ELEM(&nsp->active_iods);
-	current != NULL; current = next) {
-      next = GH_LIST_ELEM_NEXT(current);
-      nsi = (msiod *) GH_LIST_ELEM_DATA(current);
-      nsi_delete(nsi, NSOCK_PENDING_ERROR);
-    }
-
-    /* Now we free all the memory in the free iod list */
-    while((nsi = (msiod *) gh_list_pop(&nsp->free_iods))) {
-      free(nsi);
-    }
-
-    while((nsi = (msiod *) gh_list_pop(&nsp->evl.free_events))) {
-      free(nsi);
-    }
-    gh_list_free(&nsp->evl.free_events);
-    gh_list_free(&nsp->active_iods);
-    gh_list_free(&nsp->free_iods);
-
-#if HAVE_OPENSSL
-    if (nsp->sslctx != NULL)
-      SSL_CTX_free(nsp->sslctx);
-#endif
-
-    free(nsp);
-}

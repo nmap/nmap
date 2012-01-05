@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * error.h -- a few simple routines for dealing with errors (quitting,     *
  * printing error messages, etc.                                           *
@@ -76,10 +75,12 @@
 #endif
 
 void fatal(char *fmt, ...) __attribute__((noreturn));
+
 void myerror(char *fmt, ...);
+
 void pfatal(char *fmt, ...) __attribute__((noreturn));
+
 void gh_perror(char *err, ...);
 
 #endif /* ERROR_H */
-
 

@@ -107,6 +107,8 @@ if test "$pcap_enabled" != "no"; then
   AC_DEFINE(HAVE_PCAP)
 fi
 
+AC_CHECK_FUNCS(epoll_create epoll_ctl epoll_wait, [AC_DEFINE(HAVE_EPOLL)], )
+
 dnl Checks for programs.
 AC_PROG_CC
  if test -n "$GCC"; then

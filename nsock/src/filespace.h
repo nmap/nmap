@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * filespace.h -- a simple mechanism for storing dynamic amounts of data   *
  * in a simple to use, and quick to append-to structure.                   *
@@ -83,68 +82,80 @@
 struct filespace {
   int current_size;
   int current_alloc;
-  char *pos; /* Current position in the filespace */
+
+  /* Current position in the filespace */
+  char *pos;
   char *str;
 };
 
 /* If you want to express a length, use fscat() */
 static inline int fs_rputs(const char *str, struct filespace *fs) {
   char *new_str;
-  int len = (int) strlen(str);
+  int len;
+
+  len = (int)strlen(str);
 
   if (len + fs->current_size + 1 > fs->current_alloc) {
     fs->current_alloc =  MAX(fs->current_size * 2, fs->current_size + len  + 1000);
-    new_str = (char *) safe_malloc(fs->current_alloc);
+
+    new_str = (char *)safe_malloc(fs->current_alloc);
     memcpy(new_str, fs->str, fs->current_size);
+
     fs->pos = (fs->pos - fs->str) + new_str;
-    if (fs->str)  
+    if (fs->str)
       free(fs->str);
     fs->str = new_str;
   }
   memcpy(fs->str + fs->current_size, str, len);
   fs->current_size += len;
   fs->str[fs->current_size] = '\0';
+
   return 0;
 }
 
 
-static inline int fs_rvputs(struct filespace *fs,...)
-{
-    va_list args;
-    const char *x;
+static inline int fs_rvputs(struct filespace *fs,...) {
+  va_list args;
+  const char *x;
 
-    va_start(args, fs);
-    for (;;) {
-        x = va_arg(args, const char *);
-        if (x == NULL)
-            break;
-        if (fs_rputs(x,fs) == -1) {
-          va_end(args);
-          return -1;
-        }
+  va_start(args, fs);
+  for (;;) {
+    x = va_arg(args, const char *);
+    if (x == NULL)
+      break;
+
+    if (fs_rputs(x,fs) == -1) {
+      va_end(args);
+      return -1;
     }
-    va_end(args);
-
-    return 1;
+  }
+  va_end(args);
+  return 1;
 }
 
 /* Concatenate a string to the end of a filespace */
-static inline int fscat(struct filespace *fs, const char *str, int len)  {
-char *tmpstr;
+static inline int fscat(struct filespace *fs, const char *str, int len) {
+  char *tmpstr;
 
-if (len < 0) return -1;
-if (len == 0) return 0;
+  if (len < 0)
+    return -1;
+  if (len == 0)
+    return 0;
 
-/* printf("fscat: current_alloc=%d; current_size=%d; len=%d\n", fs->current_alloc, fs->current_size, len); */
+  /*
+  printf("fscat: current_alloc=%d; current_size=%d; len=%d\n", fs->current_alloc, fs->current_size, len);
+  */
 
   if (fs->current_alloc - fs->current_size < len + 2) {
     fs->current_alloc = (int) (fs->current_alloc * 1.4 + 1 );
     fs->current_alloc += 100 + len;
-    tmpstr = (char *) safe_malloc(fs->current_alloc);
+
+    tmpstr = (char *)safe_malloc(fs->current_alloc);
     memcpy(tmpstr, fs->str, fs->current_size);
+
     fs->pos = (fs->pos - fs->str) + tmpstr;
     if (fs->str) free(fs->str);
-    fs->str = tmpstr; 
+    fs->str = tmpstr;
   }
   memcpy(fs->str + fs->current_size, str, len);
 
@@ -154,25 +165,30 @@ if (len == 0) return 0;
 }
 
 static inline int fs_rputc(int ch, struct filespace *fs) {
-char s[2];
+  char s[2];
 
-if (fs->current_size + 2 <= fs->current_alloc) {
-  fs->str[fs->current_size] = ch;
-  fs->current_size++;
-  fs->str[fs->current_size] = '\0';
-} /* otherwise we use the ueber-technique of letting fscat handle it ...
-     umm actually I don't know why we don't do this in all cases ... */
- else {
-   s[0] = ch;
-   s[1] = '\0';
-   fscat(fs, s, 1);
- }
-return 0;
+  if (fs->current_size + 2 <= fs->current_alloc) {
+    fs->str[fs->current_size] = ch;
+    fs->current_size++;
+    fs->str[fs->current_size] = '\0';
+  } else {
+    /* otherwise we use the ueber-technique of letting fscat handle it ...  umm
+     * actually I don't know why we don't do this in all cases ... */
+    s[0] = ch;
+    s[1] = '\0';
+    fscat(fs, s, 1);
+  }
+  return 0;
 }
 
-int fs_free(struct filespace *fs);
+
 int filespace_init(struct filespace *fs, int initial_size);
-int fs_clear(struct filespace *fs);
+
 int fs_prepend(char *str, int len, struct filespace *fs);
+
+int fs_clear(struct filespace *fs);
+
+int fs_free(struct filespace *fs);
+
 #endif /* FILESPACE_H */
 

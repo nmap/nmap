@@ -1,8 +1,8 @@
 /***************************************************************************
- * nsock_ssl.c -- This contains functions that relate somewhat exclusively *
- * to SSL (over TCP) support in nsock.  Where SSL support is incidental,   *
- * it is often in other files where code can be more easily shared between *
- * the SSL and NonSSL paths.                                               *
+ * nsock_engines.c -- This contains the functions and definitions to       *
+ * manage the list of available IO engines.  Each IO engine leverages a    *
+ * specific IO notification function to wait for events.  Nsock will try   *
+ * to use the most efficient engine for your system.                       *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
@@ -57,27 +57,51 @@
 
 /* $Id$ */
 
-#ifndef NSOCK_SSL_H
-#define NSOCK_SSL_H
-
 #ifdef HAVE_CONFIG_H
 #include "nsock_config.h"
 #endif
+
 #include "nsock_internal.h"
 
-#if HAVE_OPENSSL
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
 
-struct sslinfo {
-  /* SSL_ERROR_NONE, SSL_ERROR_WANT_CONNECT, SSL_ERROR_WAINT_READ, or
-   * SSL_ERROR_WANT_WRITE */
-  int ssl_desire; 
+#if HAVE_EPOLL
+  extern struct io_engine engine_epoll;
+  #define ENGINE_EPOLL &engine_epoll,
+#else
+  #define ENGINE_EPOLL
+#endif /* HAVE_EPOLL */
+
+/* select() based engine is the fallback engine, we assume it's always available */
+extern struct io_engine engine_select;
+#define ENGINE_SELECT &engine_select,
+
+/* Available IO engines. This depends on which IO management interfaces are
+ * available on your system. Engines must be sorted by order of preference */
+static struct io_engine *available_engines[] = {
+  ENGINE_EPOLL
+  ENGINE_SELECT
+  NULL
 };
 
-int nsi_ssl_post_connect_verify(const nsock_iod nsockiod);
 
-#endif /* HAVE_OPENSSL */
-#endif /* NSOCK_SSL_H */
+struct io_engine *get_io_engine(const char *engine_hint) {
+  struct io_engine *engine = NULL;
+  int i;
+
+  if (!engine_hint) {
+    engine = available_engines[0];
+  } else {
+    for (i = 0; available_engines[i] != NULL; i++)
+      if (strcmp(engine_hint, available_engines[i]->name) == 0) {
+        engine = available_engines[i];
+        break;
+      }
+  }
+
+  if (!engine)
+    fatal("No suitable IO engine found! (%s)\n",
+          engine_hint ? engine_hint : "no hint");
+
+  return engine;
+}
 

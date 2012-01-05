@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * nsock_ssl.c -- This contains functions that relate somewhat exclusively *
  * to SSL (over TCP) support in nsock.  Where SSL support is incidental,   *
@@ -67,88 +66,87 @@
 #if HAVE_OPENSSL
 
 /* Disallow anonymous ciphers (Diffie-Hellman key agreement), low bit-strength
-   ciphers, export-crippled ciphers, and MD5. Prefer ciphers in decreasing order
-   of key size. The cipher list is taken from the book Network Security with
-   OpenSSL. To see exactly what ciphers are enabled, use the command
-     openssl ciphers -v '...'
-   where ... is the string below. */
+ * ciphers, export-crippled ciphers, and MD5. Prefer ciphers in decreasing order
+ * of key size. The cipher list is taken from the book Network Security with
+ *  OpenSSL. To see exactly what ciphers are enabled, use the command
+ *   openssl ciphers -v '...'
+ * where ... is the string below. */
 #define CIPHERS_SECURE "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH"
 
 /* This list of ciphers is for speed and compatibility, not security. Any cipher
-   is accepted, and the list is sorted by speed based on Brian Hatch's
-   (bri@ifokr.org) tests on an Pentium 686 against the ciphers listed. */
+ *  is accepted, and the list is sorted by speed based on Brian Hatch's
+ *  (bri@ifokr.org) tests on an Pentium 686 against the ciphers listed. */
 #define CIPHERS_FAST "RC4-SHA:RC4-MD5:NULL-SHA:EXP-DES-CBC-SHA:EXP-EDH-RSA-DES-CBC-SHA:EXP-RC4-MD5:NULL-MD5:EDH-RSA-DES-CBC-SHA:EXP-RC2-CBC-MD5:EDH-RSA-DES-CBC3-SHA:EXP-ADH-RC4-MD5:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:EXP-ADH-DES-CBC-SHA:ADH-AES256-SHA:ADH-DES-CBC-SHA:ADH-RC4-MD5:AES256-SHA:DES-CBC-SHA:DES-CBC3-SHA:ADH-DES-CBC3-SHA:AES128-SHA:ADH-AES128-SHA:eNULL:ALL"
 
 extern struct timeval nsock_tod;
 
 /* Create an SSL_CTX and do initialization that is common to nsp_ssl_init and
-   nsp_ssl_init_max_speed. */
+ * nsp_ssl_init_max_speed. */
 static SSL_CTX *ssl_init_common() {
   SSL_CTX *ctx;
 
   SSL_load_error_strings();
   SSL_library_init();
 
-  ctx = SSL_CTX_new( SSLv23_client_method() );
-  if ( ! ctx ) {
-    fatal("OpenSSL failed to create a new SSL_CTX: %s", 
-	  ERR_error_string(ERR_get_error(), NULL));
+  ctx = SSL_CTX_new(SSLv23_client_method());
+  if (!ctx) {
+    fatal("OpenSSL failed to create a new SSL_CTX: %s",
+          ERR_error_string(ERR_get_error(), NULL));
   }
 
-  /* Our SSL* will always have the SSL_SESSION* inside it, so we neither
-     need to use nor waste memory for the session cache.
-     (Use '1' because '0' means 'infinite'.)   */
-  SSL_CTX_set_session_cache_mode(
-     ctx,  SSL_SESS_CACHE_OFF | SSL_SESS_CACHE_NO_AUTO_CLEAR );
-  SSL_CTX_sess_set_cache_size( ctx, 1 ); 
-  SSL_CTX_set_timeout( ctx, 3600); /* pretty unnecessary */
+  /* Our SSL* will always have the SSL_SESSION* inside it, so we neither need to
+   * use nor waste memory for the session cache.  (Use '1' because '0' means
+   * 'infinite'.)   */
+  SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_OFF|SSL_SESS_CACHE_NO_AUTO_CLEAR);
+  SSL_CTX_sess_set_cache_size(ctx, 1);
+  SSL_CTX_set_timeout(ctx, 3600); /* pretty unnecessary */
 
   return ctx;
 }
 #endif /* HAVE_OPENSSL */
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
-   SSL_CTX, which is like a template that sets options for all connections that
-   are made from it. The connections made from this context will use only secure
-   ciphers but no server certificate verification is done. Returns the SSL_CTX
-   so you can set your own options. */
+ * SSL_CTX, which is like a template that sets options for all connections that
+ * are made from it. The connections made from this context will use only secure
+ * ciphers but no server certificate verification is done. Returns the SSL_CTX
+ * so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
 #if HAVE_OPENSSL
-  mspool *ms = (mspool *) ms_pool;
+  mspool *ms = (mspool *)ms_pool;
   char rndbuf[128];
 
   if (ms->sslctx == NULL)
     ms->sslctx = ssl_init_common();
-  
+
   /* get_random_bytes may or may not provide high-quality randomness. Add it to
-     the entropy pool without increasing the entropy estimate (third argument of
-     RAND_add is 0). We rely on OpenSSL's entropy gathering, called implicitly
-     by RAND_status, to give us what we need, or else bail out if it fails. */
+   * the entropy pool without increasing the entropy estimate (third argument of
+   * RAND_add is 0). We rely on OpenSSL's entropy gathering, called implicitly
+   * by RAND_status, to give us what we need, or else bail out if it fails. */
   get_random_bytes(rndbuf, sizeof(rndbuf));
   RAND_add(rndbuf, sizeof(rndbuf), 0);
   if (!RAND_status())
     fatal("nsp_ssl_init: Failed to seed OpenSSL PRNG (RAND_status returned false).");
 
   /* By default, do no server certificate verification. To enable it, do
-     something like
-       SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
-     on the SSL_CTX returned. If you do, it is then up to the application to
-     load trusted certificates with SSL_CTX_load_verify_locations or
-     SSL_CTX_set_default_verify_paths, or else every connection will fail. It is
-     also up to the application to do any further checks such as domain name
-     validation. */
+   * something like:
+   *    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+   *
+   *  on the SSL_CTX returned. If you do, it is then up to the application to
+   *  load trusted certificates with SSL_CTX_load_verify_locations or
+   *  SSL_CTX_set_default_verify_paths, or else every connection will fail. It
+   *  is also up to the application to do any further checks such as domain name
+   *  validation. */
   SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
 
   /* SSL_OP_ALL sets bug-compatibility for pretty much everything.
-     SSL_OP_NO_SSLv2 disables the less-secure SSLv2 while allowing us to use the
-     SSLv2-compatible SSLv23_client_method. */
-  SSL_CTX_set_options(ms->sslctx, SSL_OP_ALL | SSL_OP_NO_SSLv2);
+   * SSL_OP_NO_SSLv2 disables the less-secure SSLv2 while allowing us to use the
+   * SSLv2-compatible SSLv23_client_method. */
+  SSL_CTX_set_options(ms->sslctx, SSL_OP_ALL|SSL_OP_NO_SSLv2);
 
   if (!SSL_CTX_set_cipher_list(ms->sslctx, CIPHERS_SECURE)) {
-    fatal("Unable to set OpenSSL cipher list: %s", 
-	  ERR_error_string(ERR_get_error(), NULL));
+    fatal("Unable to set OpenSSL cipher list: %s",
+          ERR_error_string(ERR_get_error(), NULL));
   }
-
   return ms->sslctx;
 #else
   fatal("%s called with no OpenSSL support", __func__);
@@ -156,11 +154,11 @@ nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool) {
 }
 
 /* Initializes an Nsock pool to create SSL connections that emphasize speed over
-   security. Insecure ciphers are used when they are faster and no certificate
-   verification is done. Returns the SSL_CTX so you can set your own options. */
+ * security. Insecure ciphers are used when they are faster and no certificate
+ * verification is done. Returns the SSL_CTX so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
 #if HAVE_OPENSSL
-  mspool *ms = (mspool *) ms_pool;
+  mspool *ms = (mspool *)ms_pool;
   char rndbuf[128];
 
   if (ms->sslctx == NULL)
@@ -173,10 +171,9 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
   SSL_CTX_set_verify(ms->sslctx, SSL_VERIFY_NONE, NULL);
   SSL_CTX_set_options(ms->sslctx, SSL_OP_ALL);
   if (!SSL_CTX_set_cipher_list(ms->sslctx, CIPHERS_FAST)) {
-    fatal("Unable to set OpenSSL cipher list: %s", 
-	  ERR_error_string(ERR_get_error(), NULL));
+    fatal("Unable to set OpenSSL cipher list: %s",
+          ERR_error_string(ERR_get_error(), NULL));
   }
-
   return ms->sslctx;
 #else
   fatal("%s called with no OpenSSL support", __func__);
@@ -184,15 +181,15 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool) {
 }
 
 /* Check server certificate verification, after a connection is established. We
-   check first that a certificate was even offered, then call
-   SSL_get_verify_result to get the overall status of verification. (Just
-   calling SSL_get_verify_result is not enough because that function returns
-   X509_V_OK when 0 certificates are presented.) If the verification mode of the
-   SSL object is SSL_VERIFY_NONE, or if OpenSSL is disabled, this function
-   always returns true. */
+ * check first that a certificate was even offered, then call
+ * SSL_get_verify_result to get the overall status of verification. (Just
+ * calling SSL_get_verify_result is not enough because that function returns
+ * X509_V_OK when 0 certificates are presented.) If the verification mode of the
+ * SSL object is SSL_VERIFY_NONE, or if OpenSSL is disabled, this function
+ * always returns true. */
 int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
 #if HAVE_OPENSSL
-  msiod *iod = (msiod *) nsockiod;
+  msiod *iod = (msiod *)nsockiod;
 
   assert(iod->ssl != NULL);
   if (SSL_get_verify_mode(iod->ssl) != SSL_VERIFY_NONE) {
@@ -202,6 +199,7 @@ int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
     if (cert == NULL)
       /* No certificate presented. */
       return 0;
+
     X509_free(cert);
 
     if (SSL_get_verify_result(iod->ssl) != X509_V_OK)
@@ -209,6 +207,6 @@ int nsi_ssl_post_connect_verify(const nsock_iod nsockiod) {
       return 0;
   }
 #endif
-
   return 1;
 }
+
