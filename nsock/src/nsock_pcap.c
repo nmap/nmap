@@ -65,7 +65,7 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod,
 	int to_ms = 1;
 	#endif
 	if(mp) return "nsock-pcap: this nsi already has pcap device opened";
-	mp = (mspcap *)safe_malloc(sizeof(mspcap));
+	mp = (mspcap *)safe_zalloc(sizeof(mspcap));
 	nsi->pcap = (void*)mp;
 	
 	va_start(ap, bpf_fmt);
