@@ -1,5 +1,5 @@
 description = [[
-Attempts to discover master browsers and the domains they manage
+Attempts to discover master browsers and the domains they manage.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Audit MySQL database server security configuration against parts of
+Audits MySQL database server security configuration against parts of
 the CIS MySQL v1.0.2 benchmark (the engine can be used for other MySQL
 audits by creating appropriate audit files).
 ]]

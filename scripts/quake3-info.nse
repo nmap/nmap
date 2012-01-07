@@ -1,5 +1,5 @@
 description = [[
-Extracts information from a Quake3-like game server.
+Extracts information from a Quake3 game server and other games which use the same protocol.
 ]]
 
 ---
