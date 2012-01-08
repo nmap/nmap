@@ -59,6 +59,7 @@ firewalk tool.
 
 -- 11/29/2010: initial version
 -- 03/28/2011: added IPv4 check
+-- 01/02/2012: added IPv6 support
 
 author = "Henri Doreau"
 
@@ -76,6 +77,7 @@ require('bin')
 require('stdnse')
 require('packet')
 require('tab')
+
 
 -----=  scan parameters defaults  =-----
 
@@ -109,10 +111,31 @@ local MaxProbedPorts
 local FirewalkPorts
 
 
--- ICMP constant
-local ICMP_TIME_EXCEEDED = 11
+-- ICMP constants
+local ICMP_TIME_EXCEEDEDv4 = 11
+local ICMP_TIME_EXCEEDEDv6 = 03
 
 
+
+-- Layer 4 specific function tables
+local proto_vtable = {}
+
+-- Layer 3 specific function tables for the scanner
+local Firewalk = {}
+
+
+--- Printable representation of a v4 or v6 IP address.
+-- @param addr Binary representation of the address
+-- @return the printable representation of the address, as a string.
+local function toip(addr)
+  -- XXX Beware this function uses nmap.address_family() to format the result.
+
+  if nmap.address_family() == "inet" then
+    return packet.toip(addr)
+  else
+    return packet.toipv6(addr)
+  end
+end
 
 --- lookup for TTL of a given gateway in a traceroute results table
 -- @param traceroute a host traceroute results table
@@ -130,6 +153,20 @@ local function gateway_ttl(traceroute, gw)
   return -1
 end
 
+--- get the protocol name given its "packet" value
+-- @param proto the protocol value (eg. packet.IPPROTO_*)
+-- @return the protocol name as a string
+local function proto2str(proto)
+
+  if proto == packet.IPPROTO_TCP then
+    return "tcp"
+  elseif proto == packet.IPPROTO_UDP then
+    return "udp"
+  end
+
+  return nil
+end
+
 
 --=
 -- Protocol specific functions are broken down per protocol, in separate tables.
@@ -137,7 +174,7 @@ end
 --=
 
 --- TCP related functions
-local tcp_funcs = {
+local tcp_funcs_v4 = {
 
   --- update the global scan status with a reply
   -- @param scanner the scanner handle
@@ -149,10 +186,10 @@ local tcp_funcs = {
 
     if port and scanner.ports.tcp[port] then
 
-      stdnse.print_debug("Marking port %d/tcp as forwarded (reply from %s)", ip2.tcp_dport, packet.toip(ip.ip_bin_src))
+      stdnse.print_debug("Marking port %d/tcp v4 as forwarded (reply from %s)", ip2.tcp_dport, toip(ip.ip_bin_src))
 
       -- mark the gateway as forwarding the packet
-      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, packet.toip(ip.ip_bin_src))
+      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip_bin_src))
       scanner.ports.tcp[port].scanned = true
 
       -- remove the related probe
@@ -201,7 +238,7 @@ local tcp_funcs = {
 }
 
 -- UDP related functions
-local udp_funcs = {
+local udp_funcs_v4 = {
 
   --- update the global scan status with a reply
   -- @param scanner the scanner handle
@@ -213,10 +250,10 @@ local udp_funcs = {
 
     if port and scanner.ports.udp[port] then
 
-      stdnse.print_debug("Marking port %d/udp as forwarded", ip2.udp_dport)
+      stdnse.print_debug("Marking port %d/udp v4 as forwarded", ip2.udp_dport)
 
       -- mark the gateway as forwarding the packet
-      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, packet.toip(ip.ip_bin_src))
+      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip_bin_src))
       scanner.ports.udp[port].scanned = true
 
       for i, probe in ipairs(scanner.active_probes) do
@@ -228,6 +265,7 @@ local udp_funcs = {
     else
       stdnse.print_debug("Invalid reply to port %d/udp", ip2.udp_dport)
     end
+
   end,
 
   --- create a generic UDP probe packet, with IP ttl and destination port set to zero
@@ -262,24 +300,248 @@ local udp_funcs = {
   end,
 }
 
--- list of supported protocols
-local supported_protocols = {
-  tcp = tcp_funcs,
-  udp = udp_funcs,
+--- TCP related functions
+local tcp_funcs_v6 = {
+
+  --- update the global scan status with a reply
+  -- @param scanner the scanner handle
+  -- @param ip the ICMP time exceeded error packet
+  -- @param ip2 the ICMP payload (our original expired probe)
+  update_scan = function(scanner, ip, ip2)
+
+    local port = ip2.tcp_dport
+
+    if port and scanner.ports.tcp[port] then
+
+      stdnse.print_debug("Marking port %d/tcp v6 as forwarded (reply from %s)", ip2.tcp_dport, toip(ip.ip6_src))
+
+      -- mark the gateway as forwarding the packet
+      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip6_src))
+      scanner.ports.tcp[port].scanned = true
+
+      -- remove the related probe
+      for i, probe in ipairs(scanner.active_probes) do
+        if probe.proto == "tcp" and probe.portno == ip2.tcp_dport then
+          table.remove(scanner.active_probes, i)
+        end
+      end
+
+    else
+      stdnse.print_debug("Invalid reply to port %d/tcp", ip2.tcp_dport)
+    end
+  end,
+
+  --- create a TCP probe packet
+  -- @param host Host object that represents the destination
+  -- @param dport the TCP destination port
+  -- @param ttl the IP time to live
+  -- @return the newly crafted IP packet
+  getprobe = function(host, dport, ttl)
+    local pktbin = bin.pack("H",
+      "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000" ..
+      "0000 0000 0000 0000 0000 0000 6002 0c00 0000 0000 0204 05b4"
+    )
+
+    local tcp = packet.Packet:new(pktbin, pktbin:len())
+    local ip = packet.Packet:new()
+
+    tcp:tcp_parse(false)
+
+    tcp:tcp_set_sport(math.random(0x401, 0xffff))
+    tcp:tcp_set_dport(dport)
+    tcp:tcp_set_seq(math.random(1, 0x7fffffff))
+    tcp:tcp_count_checksum()
+    tcp:ip_count_checksum()
+
+    local tcp_buf = tcp.buf:sub(tcp.tcp_offset + 1, tcp.buf:len())
+    ip:build_ipv6_packet(host.bin_ip_src, host.bin_ip, packet.IPPROTO_TCP, tcp_buf, ttl)
+
+    return ip
+  end,
+
 }
 
---- get the protocol name given its "packet" value
--- @param proto the protocol value (eg. packet.IPPROTO_*)
--- @return the protocol name as a string
-local function proto2str(proto)
+-- UDP related functions
+local udp_funcs_v6 = {
 
-  if proto == packet.IPPROTO_TCP then
-    return "tcp"
-  elseif proto == packet.IPPROTO_UDP then
-    return "udp"
+  --- update the global scan status with a reply
+  -- @param scanner the scanner handle
+  -- @param ip the ICMP time exceeded error packet
+  -- @param ip2 the ICMP payload (our original expired probe)
+  update_scan = function(scanner, ip, ip2)
+
+    local port = ip2.udp_dport
+
+    if port and scanner.ports.udp[port] then
+
+      stdnse.print_debug("Marking port %d/udp v6 as forwarded (reply from %s)", ip2.udp_dport, toip(ip2.ip6_src))
+
+      -- mark the gateway as forwarding the packet
+      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip6_src))
+      scanner.ports.udp[port].scanned = true
+
+      for i, probe in ipairs(scanner.active_probes) do
+        if probe.proto == "udp" and probe.portno == ip2.udp_dport then
+          table.remove(scanner.active_probes, i)
+        end
+      end
+
+    else
+      stdnse.print_debug("Invalid reply to port %d/udp", ip2.udp_dport)
+    end
+
+  end,
+
+  --- create a generic UDP probe packet, with IP ttl and destination port set to zero
+  -- @param host Host object that represents the destination
+  -- @param dport the UDP destination port
+  -- @param ttl the IP time to live
+  -- @return the newly crafted IP packet
+  getprobe = function(host, dport, ttl)
+    local pktbin = bin.pack("H",
+      "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000" ..
+      "0000 0000 0800 0000"
+    )
+
+    local udp = packet.Packet:new(pktbin, pktbin:len())
+    local ip = packet.Packet:new()
+
+    udp:udp_parse(false)
+
+    udp:udp_set_sport(math.random(0x401, 0xffff))
+    udp:udp_set_dport(dport)
+    udp:udp_set_length(8)
+    udp:udp_count_checksum()
+    udp:ip_count_checksum()
+
+    local udp_buf = udp.buf:sub(udp.udp_offset + 1, udp.buf:len())
+    ip:build_ipv6_packet(host.bin_ip_src, host.bin_ip, packet.IPPROTO_UDP, udp_buf, ttl)
+
+    return ip
+  end,
+}
+
+local Firewalk_v4 = {
+  init = function(scanner)
+    local saddr = toip(scanner.target.bin_ip_src)
+
+    scanner.sock = nmap.new_dnet()
+    scanner.pcap = nmap.new_socket()
+
+    -- filter for incoming ICMP time exceeded replies
+    scanner.pcap:pcap_open(scanner.target.interface, 104, false, "icmp and dst host " .. saddr)
+
+    local try = nmap.new_try()
+    try(scanner.sock:ip_open())
+  end,
+
+  shutdown = function(scanner)
+    scanner.sock:ip_close()
+    scanner.pcap:pcap_close()
+  end,
+
+  --- check whether an incoming IP packet is an ICMP TIME_EXCEEDED packet or not
+  -- @param src the source IP address
+  -- @param layer3 the IP incoming datagram
+  -- @return whether the packet seems to be a valid reply or not
+  check = function(src, layer3)
+    local ip = packet.Packet:new(layer3, layer3:len())
+    return ip.ip_bin_dst == src
+            and ip.ip_p == packet.IPPROTO_ICMP
+            and ip.icmp_type == ICMP_TIME_EXCEEDEDv4
+  end,
+
+  --- update global state with an incoming reply
+  -- @param scanner the scanner handle
+  -- @param pkt an incoming valid IP packet
+  parse_reply = function(scanner, pkt)
+    local ip = packet.Packet:new(pkt, pkt:len())
+
+    if ip.ip_p ~= packet.IPPROTO_ICMP or ip.icmp_type ~= ICMP_TIME_EXCEEDEDv4 then
+      return
+    end
+
+    local is = ip.buf:sub(ip.icmp_offset + 9)
+    local ip2 = packet.Packet:new(is, is:len(), true)
+
+    -- check ICMP payload
+    if ip2.ip_bin_src == scanner.target.bin_ip_src and
+      ip2.ip_bin_dst == scanner.target.bin_ip then
+
+      -- layer 4 checks
+      local proto_func = proto_vtable[proto2str(ip2.ip_p)]
+      if proto_func then
+        -- mark port as forwarded and discard any related pending probes
+        proto_func.update_scan(scanner, ip, ip2)
+      else
+        stdnse.print_debug("Invalid protocol for reply (%d)", ip2.ip_p)
+      end
+    end
+  end,
+}
+
+local Firewalk_v6 = {
+  init = function(scanner)
+    local saddr = toip(scanner.target.bin_ip_src)
+
+    scanner.sock = nmap.new_dnet()
+    scanner.pcap = nmap.new_socket()
+
+    -- filter for incoming ICMP time exceeded replies
+    scanner.pcap:pcap_open(scanner.target.interface, 1500, false, "icmp6 and dst host " .. saddr)
+
+    local try = nmap.new_try()
+    try(scanner.sock:ip_open())
+  end,
+
+  shutdown = function(scanner)
+    scanner.sock:ip_close()
+    scanner.pcap:pcap_close()
+  end,
+
+  check = function(src, layer3)
+    local ip = packet.Packet:new(layer3)
+    return ip.ip6_dst == src
+            and ip.ip_p == packet.IPPROTO_ICMPV6
+            and ip.icmpv6_type == ICMP_TIME_EXCEEDEDv6
+  end,
+
+  parse_reply = function(scanner, pkt)
+    local ip = packet.Packet:new(pkt)
+
+    if ip.ip_p ~= packet.IPPROTO_ICMPV6 or ip.icmpv6_type ~= ICMP_TIME_EXCEEDEDv6 then
+      return
+    end
+
+    local is = ip.buf:sub(ip.icmpv6_offset + 9, ip.buf:len())
+    local ip2 = packet.Packet:new(is)
+
+    -- check ICMP payload
+    if ip2.ip6_src == scanner.target.bin_ip_src and
+      ip2.ip6_dst == scanner.target.bin_ip then
+
+      -- layer 4 checks
+      local proto_func = proto_vtable[proto2str(ip2.ip_p)]
+      if proto_func then
+        -- mark port as forwarded and discard any related pending probes
+        proto_func.update_scan(scanner, ip, ip2)
+      else
+        stdnse.print_debug("Invalid protocol for reply (%d)", ip2.ip_p)
+      end
+    end
+  end,
+}
+
+local function firewalk_init()
+  if nmap.address_family() == "inet" then
+    proto_vtable.tcp = tcp_funcs_v4
+    proto_vtable.udp = udp_funcs_v4
+    Firewalk = Firewalk_v4
+  else
+    proto_vtable.tcp = tcp_funcs_v6
+    proto_vtable.udp = udp_funcs_v6
+    Firewalk = Firewalk_v6
   end
-
-  return nil
 end
 
 --- generate list of ports to probe
@@ -395,11 +657,6 @@ hostrule = function(host)
     return false
   end
 
-  if nmap.address_family() ~= 'inet' then
-    stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
-    return false
-  end
-
   if not host.interface then
     return false
   end
@@ -510,17 +767,6 @@ local function portrange(ports)
 
 end
 
---- check whether an incoming IP packet is an ICMP TIME_EXCEEDED packet or not
--- @param src the source IP address
--- @param layer3 the IP incoming datagram
--- @return whether the packet seems to be a valid reply or not
-local function check(src, layer3)
-
-  local ip = packet.Packet:new(layer3, layer3:len())
-  return ip.ip_bin_dst == src and ip.ip_p == packet.IPPROTO_ICMP and ip.icmp_type == ICMP_TIME_EXCEEDED
-
-end
-
 --- return a printable report of the scan
 -- @param scanner the scanner handle
 -- @return a printable table of scan results
@@ -537,7 +783,7 @@ local function report(scanner)
   -- duplicate traceroute results and add localhost at the beginning
   local path = {
     -- XXX 'localhost' might be a better choice?
-    {ip = packet.toip(scanner.target.bin_ip_src)}
+    {ip = toip(scanner.target.bin_ip_src)}
   }
 
   for _, v in pairs(scanner.target.traceroute) do
@@ -630,7 +876,7 @@ local function send_probe(scanner, probe)
   stdnse.print_debug("Sending new probe (%d/%s ttl=%d)", probe.portno, probe.proto, probe.ttl)
 
   -- craft the raw packet
-  local pkt = supported_protocols[probe.proto].getprobe(scanner.target, probe.portno, probe.ttl)
+  local pkt = proto_vtable[probe.proto].getprobe(scanner.target, probe.portno, probe.ttl)
 
   try(scanner.sock:ip_send(pkt.buf))
 
@@ -671,35 +917,6 @@ local function send_next_probes(scanner)
 
 end
 
---- update global state with an incoming reply
--- @param scanner the scanner handle
--- @param pkt an incoming valid IP packet
-local function parse_reply(scanner, pkt)
-
-  local ip = packet.Packet:new(pkt, pkt:len())
-
-  if ip.ip_p ~= packet.IPPROTO_ICMP or ip.icmp_type ~= ICMP_TIME_EXCEEDED then
-    return
-  end
-
-  local is = ip.buf:sub(ip.icmp_offset + 9)
-  local ip2 = packet.Packet:new(is, is:len(), true)
-
-  -- check ICMP payload
-  if ip2.ip_bin_src == scanner.target.bin_ip_src and
-    ip2.ip_bin_dst == scanner.target.bin_ip then
-
-    -- layer 4 checks
-    local proto_func = supported_protocols[proto2str(ip2.ip_p)]
-    if proto_func then
-      -- mark port as forwarded and discard any related pending probes
-      proto_func.update_scan(scanner, ip, ip2)
-    else
-      stdnse.print_debug("Invalid protocol for reply (%d)", ip2.ip_p)
-    end
-  end
-end
-
 --- wait for incoming replies
 -- @param scanner the scanner handle
 local function read_replies(scanner)
@@ -714,8 +931,8 @@ local function read_replies(scanner)
 
     local status, _, _, l3, _ = scanner.pcap:pcap_receive()
 
-    if status and check(scanner.target.bin_ip_src, l3) then
-      parse_reply(scanner, l3)
+    if status and Firewalk.check(scanner.target.bin_ip_src, l3) then
+      Firewalk.parse_reply(scanner, l3)
     end
 
     timeout = timeout - (nmap.clock_ms() - start)
@@ -784,15 +1001,13 @@ end
 
 --- firewalk entry point
 action = function(host)
-  local saddr = packet.toip(host.bin_ip_src)
+
+  firewalk_init() -- global script initialization process
 
   -- scan handle, scanner state is saved in this table
   local scanner = {
     target = host,
     ttl = initial_ttl(host),
-
-    sock = nmap.new_dnet(),
-    pcap = nmap.new_socket(),
 
     ports = FirewalkPorts,
 
@@ -805,12 +1020,7 @@ action = function(host)
     return nil
   end
 
-  -- filter for incoming ICMP time exceeded replies
-  scanner.pcap:pcap_open(host.interface, 104, false, "icmp and dst host " .. saddr)
-
-  local try = nmap.new_try()
-
-  try(scanner.sock:ip_open())
+  Firewalk.init(scanner)
 
   generate_initial_probes(scanner)
 
@@ -820,8 +1030,7 @@ action = function(host)
     update_probe_queues(scanner)
   end
 
-  scanner.sock:ip_close()
-  scanner.pcap:pcap_close()
+  Firewalk.shutdown(scanner)
 
   return report(scanner)
 end

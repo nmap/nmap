@@ -811,7 +811,7 @@ end
 -- @return Whether the parsing succeeded.
 function Packet:tcp_parse(force_continue)
 	self.tcp = true
-	self.tcp_offset		= self.ip_data_offset
+	self.tcp_offset		= self.ip_data_offset or self.ip6_data_offset
 	if #self.buf < self.tcp_offset + 4 then
 		return false
 	end
@@ -843,8 +843,10 @@ function Packet:tcp_parse(force_continue)
 	self.tcp_opt_offset	= self.tcp_offset + 20
 	self.tcp_options	= self:parse_options(self.tcp_opt_offset, ((self.tcp_hl*4)-20))
 	self.tcp_data_offset	= self.tcp_offset + self.tcp_hl*4
-	self.tcp_data_length	= self.ip_len - self.tcp_offset - self.tcp_hl*4
-        self:tcp_parse_options()
+
+	local plen = self.ip_len or self.ip6_plen
+	self.tcp_data_length	= plen - self.tcp_offset - self.tcp_hl*4
+	self:tcp_parse_options()
 	return true
 end
 
@@ -997,7 +999,7 @@ end
 -- @return Whether the parsing succeeded.
 function Packet:udp_parse(force_continue)
 	self.udp = true
-	self.udp_offset		= self.ip_data_offset
+	self.udp_offset		= self.ip_data_offset or self.ip6_data_offset
 	if #self.buf < self.udp_offset + 4 then
 		return false
 	end
