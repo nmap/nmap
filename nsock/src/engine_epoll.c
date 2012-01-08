@@ -73,7 +73,12 @@
 
 #define EPOLL_R_FLAGS (EPOLLIN | EPOLLPRI)
 #define EPOLL_W_FLAGS EPOLLOUT
-#define EPOLL_X_FLAGS (EPOLLERR | EPOLLRDHUP | EPOLLHUP)
+#ifdef EPOLLRDHUP
+  #define EPOLL_X_FLAGS (EPOLLERR | EPOLLRDHUP| EPOLLHUP)
+#else
+  /* EPOLLRDHUP was introduced later and might be unavailable on older systems. */
+  #define EPOLL_X_FLAGS (EPOLLERR | EPOLLHUP)
+#endif /* EPOLLRDHUP */
 
 
 /* --- ENGINE INTERFACE PROTOTYPES --- */
