@@ -24,7 +24,8 @@ Source0: http://nmap.org/dist/%{name}-%{version}.tgz
 URL: http://nmap.org
 
 # For Ndiff.
-Requires: python >= 2.4, subversion-devel
+Requires: python >= 2.4, subversion
+BuildRequires: subversion-devel
 
 # RPM can't be relocatable until I stop storing path info in the binary.
 # Prefix: %{_prefix}
