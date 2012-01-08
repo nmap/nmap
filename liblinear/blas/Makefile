@@ -1,4 +1,4 @@
-AR     = ar rcv
+AR     = ar
 RANLIB = ranlib 
 
 HEADERS = blas.h blas.h blasp.h
@@ -8,7 +8,7 @@ CFLAGS = $(OPTFLAGS)
 FFLAGS = $(OPTFLAGS)
 
 blas: $(FILES) $(HEADERS)
-	$(AR) blas.a $(FILES)  
+	$(AR) rcv blas.a $(FILES)  
 	$(RANLIB) blas.a
 
 clean:
