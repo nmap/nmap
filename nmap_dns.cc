@@ -600,21 +600,39 @@ static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
 // Turns a DNS packet encoded name (see the RFC) and turns it into
 // a normal decimal separated hostname.
 // ASSUMES NAME LENGTH/VALIDITY HAS ALREADY BEEN VERIFIED
-static int encoded_name_to_normal(unsigned char *buf, char *output, int outputsize){
-  while (buf[0]) {
-    if (buf[0] >= outputsize-1) return -1;
-    memcpy(output, buf+1, buf[0]);
-    outputsize -= buf[0];
-    output += buf[0];
-    buf += buf[0]+1;
+static int encoded_name_to_normal(const unsigned char *buf, char *output, int outputsize) {
+  int len;
+  char *p;
 
-    if (buf[0]) {
-      *output++ = '.';
-      outputsize--;
-    } else {
-      *output = '\0';
-    }
+  p = output;
+
+  /* Special case: keep the trailing dot only for the name ".". */
+  if (buf[0] == 0) {
+    if (p + 2 > output + outputsize)
+      return -1;
+    *p++ = '.';
+    *p++ = '\0';
+    return 0;
   }
+
+  while ((len = buf[0]) != 0) {
+    /* Add a dot before every component but the first. */
+    if (p > output) {
+      if (p + 1 > output + outputsize)
+        return -1;
+      *p++ = '.';
+    }
+
+    if (p + len > output + outputsize)
+      return -1;
+    memcpy(p, buf + 1, len);
+    p += len;
+    buf += 1 + len;
+  }
+
+  if (p + 1 > output + outputsize)
+    return -1;
+  *p++ = '\0';
 
   return 0;
 }

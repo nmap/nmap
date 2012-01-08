@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in reverse name resolution: a name of "." would leave
+  the hostname unintialized, which would manifest as
+    Illegal character(s) in hostname -- replacing with '*'
+  errors. [Gisle Vanem]
+
 o Merged nsock-engines from nmap-exp. This rewrite of the nsock library adds
   support for system-specific scalable IO notification facilities without
   breaking portability. This initial version comes with an epoll(7)-based engine
