@@ -176,7 +176,7 @@ void nsi_delete(nsock_iod nsockiod, int pending_response) {
   if (nsi->events_pending > 0) {
     /* shit -- they killed the msiod while an event was still pending on it.
      * Maybe I should store the pending events in the msiod.  On the other hand,
-     * this should be a pretty rare occurance and so I'll save space and hassle
+     * this should be a pretty rare occurrence and so I'll save space and hassle
      * by just locating the events here by searching through the active events
      * list */
     if (pending_response == NSOCK_PENDING_ERROR)
@@ -392,7 +392,7 @@ int nsi_set_ipoptions(nsock_iod nsi, void *opts, size_t optslen) {
 }
 
 /* I didn't want to do this.  Its an ugly hack, but I suspect it will be
- * neccessary.  I certainly can't reproduce in nsock EVERYTHING you might want
+ * necessary.  I certainly can't reproduce in nsock EVERYTHING you might want
  * to do with a socket.  So I'm offering you this function to obtain the socket
  * descriptor which is (usually) wrapped in a nsock_iod).  You can do
  * "reasonable" things with it, like setting socket receive buffers.  But don't

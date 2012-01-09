@@ -281,7 +281,7 @@ static int iod_add_event(msiod *iod, msevent *nse) {
 
 /* A handler function is defined for each of the main event types (read, write,
  * connect, timer, etc) -- the handler is called when new information is
- * available for the event.  The handler makes any neccessary updates to the
+ * available for the event.  The handler makes any necessary updates to the
  * event based on any new information available.  If the event becomes ready for
  * delivery, the handler sets nse->event_done and fills out the relevant event
  * fields (status, errnum) as applicable.  The handlers also take care of event
@@ -638,7 +638,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
           return FILESPACE_LENGTH(&nse->iobuf) - startlen;
 
         /* No good reason to read again if we we were successful in the read but
-         * didn't fill up the buffer.  Espcecially for UDP, where we want to
+         * didn't fill up the buffer.  Especially for UDP, where we want to
          * return only one datagram at a time. The consistency of the above
          * assignment of iod->peer depends on not consolidating more than one
          * UDP read buffer. */
@@ -1071,7 +1071,7 @@ void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
     NULL
   };
 
-  /* We keep the events seperate because we want to handle them in the
+  /* We keep the events separate because we want to handle them in the
    * order: connect => read => write => timer for several reasons:
    *
    *  1) Makes sure we have gone through all the net i/o events before
@@ -1102,7 +1102,7 @@ void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
       next = GH_LIST_ELEM_NEXT(current);
 
       if (nse->event_done) {
-        /* event is done, remove it from the event list and udpate IOD pointers
+        /* event is done, remove it from the event list and update IOD pointers
          * to the first events of each kind */
         update_first_events(nse);
         gh_list_remove_elem(evlists[i], current);
@@ -1136,7 +1136,7 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
   if (nsp->tracelevel > 5)
     nsock_trace(nsp, "NSE #%lu: Adding event", nse->id);
 
-  /* First lets do the event-type independant stuff, starting with timeouts */
+  /* First lets do the event-type independent stuff, starting with timeouts */
   if (nse->event_done) {
     nsp->next_ev = nsock_tod;
   } else {

@@ -86,7 +86,7 @@ static char * nsock_pcap_set_filter(pcap_t *pt, const char *device, const char *
  * as for pcap_open_live in pcap(3).
  *   device   : pcap-style device name
  *   snaplen  : size of packet to be copied to hanler
- *   promisc  : whether to open device in promiscous mode
+ *   promisc  : whether to open device in promiscuous mode
  *   bpf_fmt   : berkeley filter
  * return value: NULL if everything was okay, or error string if error occurred. */
 char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, int snaplen,
@@ -154,7 +154,7 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
               "*WINDOWS:  Nmap only supports ethernet interfaces on Windows for most operations because Microsoft disabled raw sockets as of Windows XP SP2.  Depending on the reason for this error, it is possible that the --unprivileged command-line argument will help.\n"
               "SOLARIS:  If you are trying to scan localhost and getting '/dev/lo0: No such file or directory', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-PN -sT localhost\" though.\n\n",
         pcap_device, snaplen, promisc, to_ms, err0r);
-      return "nsock-pcap: can't open pcap! are you root?";
+      return "nsock-pcap: can't open pcap! Are you root?";
     }
 
     fprintf(stderr,
@@ -332,7 +332,7 @@ int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
   return (offset);
 }
 
-/* Requests exacly one packet to be captured. */
+/* Requests exactly one packet to be captured. */
 nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod,
                                       nsock_ev_handler handler, int timeout_msecs, void *userdata) {
   msiod *nsi = (msiod *)nsiod;

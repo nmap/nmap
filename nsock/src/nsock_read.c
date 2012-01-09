@@ -58,7 +58,7 @@
 #include "nsock_internal.h"
 
 
-/* Read up to nlines lines (terminated with \n, which of course inclues \r\n),
+/* Read up to nlines lines (terminated with \n, which of course includes \r\n),
  * or until EOF, or until the timeout, whichever comes first.  Note that
  * NSE_STATUS_SUCCESS will be returned in the case of EOF or tiemout if at least
  * 1 char has been read.  Also note that you may get more than 'nlines' back --

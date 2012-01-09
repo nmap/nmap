@@ -72,7 +72,7 @@
  *  do select() on descriptor -> this one is of course the best, but 
  *              there are systems that don't support this like WIN32
  *     This works perfectly for Linux.
- *  do select() but whith some hacks -> this one is hack for older bsd
+ *  do select() but with some hacks -> this one is hack for older bsd
  *     systems, Descriptor *must* be set in nonblocking mode.
  *  never do select() -> this one is for WIN32 and other systems that
  *     return descriptor -1 from pcap_get_selectable_fd()

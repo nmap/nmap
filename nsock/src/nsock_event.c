@@ -242,7 +242,7 @@ int nsock_event_cancel(nsock_pool ms_pool, nsock_event_id id, int notify ) {
   return msevent_cancel(nsp, nse, event_list, current, notify);
 }
 
-/* An inernal function for cancelling an event when you already have a pointer
+/* An internal function for cancelling an event when you already have a pointer
  * to the msevent (use nsock_event_cancel if you just have an ID). The
  * event_list passed in should correspond to the type of the event. For example,
  * with NSE_TYPE_READ, you would pass in &nsp->read_events;. elem is the list
