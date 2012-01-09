@@ -305,7 +305,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
                   nse->id, &nsp->pcap_read_events, &nsp->read_events,
                   event_list,((mspcap *)nse->iod->pcap)->pcap_desc);
 
-    /* If event occured, and we're in BSD_HACK mode, than this event was added to
+    /* If event occurred, and we're in BSD_HACK mode, then this event was added to
      * two queues. read_event and pcap_read_event Of course we should
      * destroy it only once.  I assume we're now in read_event, so just unlink
      * this event from pcap_read_event */

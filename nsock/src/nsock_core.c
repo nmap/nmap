@@ -852,7 +852,7 @@ int pcap_read_on_nonselect(mspool *nsp) {
 /* Here is the all important looping function that tells the event engine to
  * start up and begin processing events.  It will continue until all events have
  * been delivered (including new ones started from event handlers), or the
- * msec_timeout is reached, or a major error has occured.  Use -1 if you don't
+ * msec_timeout is reached, or a major error has occurred.  Use -1 if you don't
  * want to set a maximum time for it to run.  A timeout of 0 will return after 1
  * non-blocking loop.  The nsock loop can be restarted again after it returns.
  * For example you could do a series of 15 second runs, allowing you to do other
@@ -998,7 +998,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
           handle_pcap_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
 
         #if PCAP_BSD_SELECT_HACK
-        /* If event occured, and we're in BSD_HACK mode, then this event was added
+        /* If event occurred, and we're in BSD_HACK mode, then this event was added
          * to two queues. read_event and pcap_read_event
          * Of course we should destroy it only once.
          * I assume we're now in read_event, so just unlink this event from

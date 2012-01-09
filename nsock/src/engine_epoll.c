@@ -291,7 +291,7 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
     }
 
     gettimeofday(&nsock_tod, NULL); /* Due to usleep or epoll delay */
-  } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occured */
+  } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
     nsock_trace(nsp, "nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));

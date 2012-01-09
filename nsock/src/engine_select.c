@@ -140,13 +140,13 @@ extern struct timeval nsock_tod;
  * Engine specific data structure
  */
 struct select_engine_info {
-  /* Descriptors from which have pending READ events */
+  /* Descriptors which have pending READ events */
   fd_set fds_master_r;
 
-  /* Descriptors which we are tryint to WRITE to */
+  /* Descriptors we are trying to WRITE to */
   fd_set fds_master_w;
 
-  /* looking for exceptional events -- used with connect */
+  /* Looking for exceptional events -- used with connect */
   fd_set fds_master_x;
 
   /* For keeping track of the select results */
@@ -333,7 +333,7 @@ int select_loop(mspool *nsp, int msec_timeout) {
     }
 
     gettimeofday(&nsock_tod, NULL); /* Due to usleep or select delay */
-  } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occured */
+  } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
     nsock_trace(nsp, "nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
