@@ -170,10 +170,13 @@ end
 
 --=
 -- Protocol specific functions are broken down per protocol, in separate tables.
--- This design eases the addition of new protocols
+-- This design eases the addition of new protocols.
+--
+-- Layer 4 (TCP, UDP) tables are duplicated to distinguish IPv4 and IPv6
+-- versions.
 --=
 
---- TCP related functions
+--- TCP related functions (IPv4 versions)
 local tcp_funcs_v4 = {
 
   --- update the global scan status with a reply
@@ -237,7 +240,7 @@ local tcp_funcs_v4 = {
 
 }
 
--- UDP related functions
+-- UDP related functions (IPv4 versions)
 local udp_funcs_v4 = {
 
   --- update the global scan status with a reply
@@ -300,7 +303,7 @@ local udp_funcs_v4 = {
   end,
 }
 
---- TCP related functions
+--- TCP related functions (IPv6 versions)
 local tcp_funcs_v6 = {
 
   --- update the global scan status with a reply
@@ -353,6 +356,7 @@ local tcp_funcs_v6 = {
     tcp:tcp_count_checksum()
     tcp:ip_count_checksum()
 
+    -- Extract layer 4 part and add it as payload to the IP packet
     local tcp_buf = tcp.buf:sub(tcp.tcp_offset + 1, tcp.buf:len())
     ip:build_ipv6_packet(host.bin_ip_src, host.bin_ip, packet.IPPROTO_TCP, tcp_buf, ttl)
 
@@ -361,7 +365,7 @@ local tcp_funcs_v6 = {
 
 }
 
--- UDP related functions
+-- UDP related functions (IPv6 versions)
 local udp_funcs_v6 = {
 
   --- update the global scan status with a reply
@@ -414,6 +418,7 @@ local udp_funcs_v6 = {
     udp:udp_count_checksum()
     udp:ip_count_checksum()
 
+    -- Extract layer 4 part and add it as payload to the IP packet
     local udp_buf = udp.buf:sub(udp.udp_offset + 1, udp.buf:len())
     ip:build_ipv6_packet(host.bin_ip_src, host.bin_ip, packet.IPPROTO_UDP, udp_buf, ttl)
 
@@ -421,7 +426,19 @@ local udp_funcs_v6 = {
   end,
 }
 
+
+
+--=
+-- IP-specific functions. The following tables provides scanner functions that
+-- depend on the IP version.
+--=
+
+
+-- IPv4 functions
 local Firewalk_v4 = {
+
+  --- IPv4 initialization function. Open injection and reception sockets.
+  -- @param scanner the scanner handle
   init = function(scanner)
     local saddr = toip(scanner.target.bin_ip_src)
 
@@ -435,6 +452,8 @@ local Firewalk_v4 = {
     try(scanner.sock:ip_open())
   end,
 
+  --- IPv4 cleanup function. Close injection and reception sockets.
+  -- @param scanner the scanner handle
   shutdown = function(scanner)
     scanner.sock:ip_close()
     scanner.pcap:pcap_close()
@@ -480,7 +499,12 @@ local Firewalk_v4 = {
   end,
 }
 
+
+-- IPv6 functions
 local Firewalk_v6 = {
+
+  --- IPv6 initialization function. Open injection and reception sockets.
+  -- @param scanner the scanner handle
   init = function(scanner)
     local saddr = toip(scanner.target.bin_ip_src)
 
@@ -494,11 +518,17 @@ local Firewalk_v6 = {
     try(scanner.sock:ip_open())
   end,
 
+  --- IPv6 cleanup function. Close injection and reception sockets.
+  -- @param scanner the scanner handle
   shutdown = function(scanner)
     scanner.sock:ip_close()
     scanner.pcap:pcap_close()
   end,
 
+  --- check whether an incoming IP packet is an ICMP TIME_EXCEEDED packet or not
+  -- @param src the source IP address
+  -- @param layer3 the IP incoming datagram
+  -- @return whether the packet seems to be a valid reply or not
   check = function(src, layer3)
     local ip = packet.Packet:new(layer3)
     return ip.ip6_dst == src
@@ -506,6 +536,9 @@ local Firewalk_v6 = {
             and ip.icmpv6_type == ICMP_TIME_EXCEEDEDv6
   end,
 
+  --- update global state with an incoming reply
+  -- @param scanner the scanner handle
+  -- @param pkt an incoming valid IP packet
   parse_reply = function(scanner, pkt)
     local ip = packet.Packet:new(pkt)
 
@@ -532,6 +565,7 @@ local Firewalk_v6 = {
   end,
 }
 
+--- Initialize global function tables according to the current address family
 local function firewalk_init()
   if nmap.address_family() == "inet" then
     proto_vtable.tcp = tcp_funcs_v4
