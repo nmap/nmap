@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added IPv6 support to firewalk.nse. [Henri]
+
 o Fixed a bug in reverse name resolution: a name of "." would leave
   the hostname unintialized, which would manifest as
     Illegal character(s) in hostname -- replacing with '*'
