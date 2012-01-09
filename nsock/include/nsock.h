@@ -124,7 +124,7 @@ typedef void *nsock_ssl;
 /* Here is the all important looping function that tells the event
  * engine to start up and begin processing events.  It will continue until all
  * events have been delivered (including new ones started from event handlers),
- * or the msec_timeout is reached, or a major error has occured.  Use -1 if you
+ * or the msec_timeout is reached, or a major error has occurred.  Use -1 if you
  * don't want to set a maximum time for it to run.  A timeout of 0 will return
  * after 1 non-blocking loop.  The nsock loop can be restarted again after it
  * returns.  For example you could do a series of 15 second runs, allowing you
@@ -260,7 +260,7 @@ const char *nse_status2str(enum nse_status status);
 int nse_eof(nsock_event nse);
 
 /* This next function returns the errno style error code -- which is only valid
- * if the status is NSE_STATUS_ERROR (this is a normal errno style errorcode). */
+ * if the status is NSE_STATUS_ERROR (this is a normal errno style error code). */
 int nse_errorcode(nsock_event nse);
 
 /* Every event has an ID which will be unique throughout the program's execution
@@ -313,7 +313,7 @@ void nsi_setud(nsock_iod nsiod, void *data);
 void *nsi_getud(nsock_iod nsiod);
 
 /* I didn't want to do this.  Its an ugly hack, but I suspect it will be
- * neccessary.  I certainly can't reproduce in nsock EVERYTHING you might want
+ * necessary.  I certainly can't reproduce in nsock EVERYTHING you might want
  * to do with a socket.  So I'm offering you this function to obtain the socket
  * descriptor which is (usually) wrapped in a nsock_iod).  You can do
  * "reasonable" things with it, like setting socket receive buffers.  But don't
@@ -400,7 +400,7 @@ int nsi_set_hostname(nsock_iod nsi, const char *hostname);
  *     pass NULL.
  *
  *   These functions return an nsock_event_id which can be used to cancel the
- *   event if neccessary.
+ *   event if necessary.
  */
 typedef void (*nsock_ev_handler)(nsock_pool, nsock_event, void *);
 
@@ -515,7 +515,7 @@ const struct timeval *nsock_gettimeofday();
  *
  *   device:  pcap-style device name
  *   snaplen: size of packet to be copied to handler
- *   promisc: whether to open device in promiscous mode
+ *   promisc: whether to open device in promiscuous mode
  *   bpf_fmt: berkeley filter
  *
  * return value: NULL if everything was okay, or error string if error occurred
@@ -523,10 +523,10 @@ const struct timeval *nsock_gettimeofday();
  * */
 char *nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, int snaplen, int promisc, const char *bpf_fmt, ...);
 
-/* Requests exacly one packet to be captured.from pcap.See nsock_read() for parameters description. */
+/* Requests exactly one packet to be captured.from pcap.See nsock_read() for parameters description. */
 nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs, void *userdata);
 
-/* Gets packet data. This should be called after succesfull receiving of packet
+/* Gets packet data. This should be called after successful receipt of packet
  * to get packet.  If you're not interested in some values, just pass NULL
  * instead of valid pointer.
  * l3_data is just after l2_data in buffer. Feel free to treat l2_data as one

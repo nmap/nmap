@@ -148,7 +148,7 @@ struct writeinfo {
  * fields directly */
 typedef struct {
 
-  /* Every msp has a unique (accross the program execution) id */
+  /* Every msp has a unique (across the program execution) id */
   unsigned long id;
 
   /* User data, NULL if unset */
@@ -261,7 +261,7 @@ typedef struct {
 
   /* The mspool keeps track of msiods that have been allocated so that it can
    * destroy them if the msp is deleted.  This pointer makes it easy to remove
-   * this msiod from the allocated list when neccessary */
+   * this msiod from the allocated list when necessary */
   gh_list_elem *entry_in_nsp_active_iods;
 
 #define IOD_REGISTERED  0x01
