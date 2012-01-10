@@ -1,19 +1,72 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o finish making nmap-update part of the nmap windows compile-time
-  infrastructure
-  o See if we can build just one project within a solution, rather
-    than having special "with nmap-update" configuration.
+o Get RPM staticly linking to libsvn (rather than dynamic linking) so
+  that it isn't a requirement for installing the RPM.
+  - since the libsvn-devel package apparently only installs dynamic
+    libs, we'll probably have to install it ourselves on the CentOS
+    build machines.
 
-o Add homedir support to Nmap for the updater
+o Do more thinking/researching/investigating the way our machine
+  learning IPv6 OS detection system decides whether a match is perfect
+  and/or how close the match is.  Maybe our current system works well
+  enough, we'll need to watch how it performs as we increase the DB
+  size and collect/integrate more signatures.  The goal is to:
+  o Producing fewer way-off matches since it would have a way (like our
+    current system) to decide how close the match really is
+  o Doing a better job about printing fingerprints for matches with
+    aren't close enough
 
-o Fix expiration date parsing on Nmap Windows for the updater
+o Write and send GSoC 2011 results email
 
-o Updater: Make a missing nmap-update.conf nonfatal (perhaps doesn't
-  even need to mention it).
+o Integrate latest IPv6 OS detection fingerprint submissions
+ - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
 
-o Updater: Clean up the output messages (e.g. only print what user needs to see
-  unless debugging is specified)
+o Document the nsearg format changes made by Paulino (how you can
+  prefase an argument with a script to make it more specific, or make it
+  general to apply to multiple scripts)
+  o Rough drafts:
+  o nmap-exp/calderon/refguide.xml
+  o nmap-exp/calderon/scripting.xml
+  o Relates to:
+    o We should probably modify stdnse.get_script_args so that it first
+     checks [scriptname].[argname] and then (if that fails) looks for
+     [argname] by itself.  This way people who are only running one
+     script or who want to use the same value for multiple scripts that
+     take the same argument can just give [argname].  But those who want
+     an argument to only apply to a specific script can give
+     [scriptname].[argname].
+
+o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
+  packets.
+
+o Integrate new service fingerprint submissions (we have more than
+  2,531 submissions in two files since 11/30/10)
+
+o Integrate new OS detection submissions (1,893 since 6/22/11)
+
+o Make stable release candidate branch
+
+o Make at least one more test release from the candidate branch
+
+o Prepare release notes, web page, etc.
+
+o Make the release
+
+==Things needed for next STABLE release go ABOVE THIS LINE==
+
+o Revive the Nmap Public Source License project (need to find an open
+  source attorney to review it).  http://nmap.org/npsl/
+  o Also take close look at Mozilla's license modernization project:
+    http://mpl.mozilla.org/scope/
+
+o Nmap Network Scanning, 2nd Edition work [placeholder]
+
+o Update more web content in real time (or near real-time, or at least
+  on an automated basis rather than requiring manual checkin and
+  update).  In particular:
+  o NSEDoc generation
+  o SVN dir (http://nmap.org/svn/) should be real-time or nearly so
+  o Maybe Nmap book building
 
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
@@ -31,34 +84,11 @@ o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
   simply analyze Nmap's existing data and report when useful.
 
-o Decide what to do with Henri's nsock-engines branch
-  (/nmap-exp/henri/nsock-engines).
-
-o Integrate latest IPv6 OS detection fingerprint submissions
- - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
-
-o Integrate more NSE scripts, I think our review queue is getting
-  pretty long.
-
-o Do more thinking/researching/investigating the way our machine
-  learning IPv6 OS detection system decides whether a match is perfect
-  and/or how close the match is.  Maybe our current system works well
-  enough, we'll need to watch how it performs as we increase the DB
-  size and collect/integrate more signatures.  The goal is to:
-  o Producing fewer way-off matches since it would have a way (like our
-    current system) to decide how close the match really is
-  o Doing a better job about printing fingerprints for matches with
-    aren't close enough
-
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
 
 o Give CPE visibility to NSE.
-
-o Collect many more IPv6 OS detection training samples from users
- - Can start with nmap-dev, but will probably have to do an Nmap
-   release too.
 
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
@@ -75,14 +105,7 @@ o Change the interface of nmap.send_ip to take an explicit destination
 
 o Process Nmap survey and send out results [Fyodor]
 
-o Make new SecTools.Org site with the 2010 survey results.
-
-o Integrate new service fingerprint submissions (we have more than
-  1,400 submissions since 11/30/10)
-
 o Add many more CPE entries to OS and version detection databases
-
-==Things needed for next STABLE release go ABOVE THIS LINE==
 
 o Move advanced IPv6 host discovery features from NSE into core Nmap.
   We'll probably add the functionality of
@@ -96,20 +119,8 @@ o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
 
-o Revive the Nmap Public Source License project (need to find an open
-  source attorney to review it).  http://nmap.org/npsl/
-  o Also take close look at Mozilla's license modernization project:
-    http://mpl.mozilla.org/scope/
-
-o Script review
- o http-phpself-xss
-  - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916. [
-    waiting on response]
-  - Martin Swende patch to force script run
-    http://seclists.org/nmap-dev/2010/q4/567
-  - irc-info patch. http://seclists.org/nmap-dev/2011/q2/289.
-  - NSE-based port scanning and RST idle scan.
-    http://seclists.org/nmap-dev/2011/q2/307.
+o Review NSE-based port scanning and RST idle scan.
+  http://seclists.org/nmap-dev/2011/q2/307.
 
 o [UPDATER] Create a way to send an error message to the user
   (e.g. "your account has expired" or "updates denied due to
@@ -120,9 +131,6 @@ o [UPDATER] Create webapp for account creation (can be deferred until later)
 
 o [UPDATER] Release to community, probably starting with a small test
   group of people.
-
-o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
-  packets.
 
 o Raw scans from Mac OS X seems not to retrieve the MAC address or do
   ARP ping, except when scanning the router on an interface. For
@@ -167,17 +175,6 @@ o Investigate report of Nmap ARP discovery using the wrong target MAC
   address field in ARP requests (it is correct in the ethernet frame
   itself).  See this thread: http://seclists.org/nmap-dev/2011/q3/547
 
-o We should probably modify stdnse.get_script_args so that it first
-  checks [scriptname].[argname] and then (if that fails) looks for
-  [argname] by itself.  This way people who are only running one
-  script or who want to use the same value for multiple scripts that
-  take the same argument can just give [argname].  But those who want
-  an argument to only apply to a specific script can give
-  [scriptname].[argname].
-  o The code is in place now, we just need to document the feature.
-
-o Nmap Network Scanning, 2nd Edition work [placeholder]
-
 o Nscan work [placeholder]
  - Hosted Nmap system
 
@@ -185,8 +182,6 @@ o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
  o Daniel Miller is working on an implementation:
    http://seclists.org/nmap-dev/2011/q2/263.
-
-o [NSE] HTTP spidering library/script
 
 o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
   o Check for the same reference (like $1) being used in unrelated fields
@@ -207,45 +202,48 @@ o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
     (Maybe only when there are non-ASCII literal characters in the
     template.)
 
-o Summer of Code feature creeper:
-  o [Zenmap] should actually parse and use script results. See
-    http://seclists.org/nmap-dev/2010/q1/1108
-  o Make Zenmap settings get upgraded when the Zenmap executable is
-    upgraded. The per-user configuration files such as scan_profile.usp
-    and zenmap.conf are never overwritten once installed by Zenmap, so
-    changes and fixes to those files don't reach anyone who has
-    installed Zenmap already. This is most noticeable with changes to
-    profiles and highlight definitions are notably affected. This fix
-    may involve hard-coding settings that are not normally configured by
-    users (like highlighting) or updating the per-user files at startup
-    (only those parts that haven't been changed by the user).
-  (Later...)
-  o We should offer partial results when a host
-    timeouts. I (Fyodor) have been against this in the past, but maybe
-    the value is sufficient to be worth the maintenance headaches.  Many
-    users have asked for this.  If we do implement this, we may want to
-    only print results for the COMPLETED phases (e.g. host discovery,
-    port scanning, version detection, traceroute, NSE, etc.)  Trying to
-    print partial results of a port scan or NSE or the like might be a
-    pain.  And if we print some results for a host which timeouts, we
-    should give a very clear warning that the results for that host are
-    incomplete. As an example, here is someone who hacked Nmap source
-    code to achieve this: http://seclists.org/pen-test/2010/Mar/108.
-    o Another benefit would be that it would allow us to clean
-      up/regularize the host output code. Right now there are I think
-      three places where a host's final output can be printed. If,
-      instead, that code just looked at what information was available and
-      printed that out only, we could potentially isolate it in just one
-      place.
-    o This also might let us provide a feature for skipping the rest of
-      an Nmap phase which is going too slowly (I think that has its own
-      Nmap TODO item).
-    o Consider providing an option which causes Nmap to scan ALL IP
-      addresses returned for a given name.  So if "google.com" returns
-      4 names, scan them all (right now we print them all but only
-      scan the one which happens to be the first on the current list).
-      We then might want to make -A imply that option.  Here is a
-      thread on the topic: http://seclists.org/nmap-dev/2010/q2/302
+o [Zenmap] should actually parse and use script results. See
+   http://seclists.org/nmap-dev/2010/q1/1108
+  - We have an initial prototype, but probably need to redo because it
+    doesn't present the results in the way we'd like yet due to
+    problems implementing such a presentation with GTK, etc.
+
+o Make Zenmap settings get upgraded when the Zenmap executable is
+  upgraded. The per-user configuration files such as scan_profile.usp
+  and zenmap.conf are never overwritten once installed by Zenmap, so
+  changes and fixes to those files don't reach anyone who has
+  installed Zenmap already. This is most noticeable with changes to
+  profiles and highlight definitions are notably affected. This fix
+  may involve hard-coding settings that are not normally configured by
+  users (like highlighting) or updating the per-user files at startup
+  (only those parts that haven't been changed by the user).
+
+o We should offer partial results when a host timeouts. I (Fyodor)
+  have been against this in the past, but maybe the value is
+  sufficient to be worth the maintenance headaches.  Many users have
+  asked for this.  If we do implement this, we may want to only print
+  results for the COMPLETED phases (e.g. host discovery, port
+  scanning, version detection, traceroute, NSE, etc.)  Trying to print
+  partial results of a port scan or NSE or the like might be a pain.
+  And if we print some results for a host which timeouts, we should
+  give a very clear warning that the results for that host are
+  incomplete. As an example, here is someone who hacked Nmap source
+  code to achieve this: http://seclists.org/pen-test/2010/Mar/108.
+  o Another benefit would be that it would allow us to clean
+    up/regularize the host output code. Right now there are I think
+    three places where a host's final output can be printed. If,
+    instead, that code just looked at what information was available and
+    printed that out only, we could potentially isolate it in just one
+    place.
+  o This also might let us provide a feature for skipping the rest of
+    an Nmap phase which is going too slowly (I think that has its own
+    Nmap TODO item).
+  o Consider providing an option which causes Nmap to scan ALL IP
+    addresses returned for a given name.  So if "google.com" returns
+    4 names, scan them all (right now we print them all but only
+    scan the one which happens to be the first on the current list).
+    We then might want to make -A imply that option.  Here is a
+    thread on the topic: http://seclists.org/nmap-dev/2010/q2/302
       - Need to decide what to do with e.g. google.com/24 -- scan four
         class C ranges?  That's probably what we do.
       - Note that we now have a script which does something similar
@@ -259,26 +257,11 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
-o Implement a solution for people who want NIST CPE OS detection
-  results (we'll save version detection for a 2nd phase).  Notes:
-  David report on CPE for OS Detection: 
-    http://seclists.org/nmap-dev/2010/q3/278
-  David report on CPE for version detection: 
-    http://seclists.org/nmap-dev/2010/q3/303
-  Nessus has described their integration of CPE:
-    http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
-  Older messages about it:
-    http://seclists.org/nmap-dev/2008/q4/627
-    http://seclists.org/nmap-dev/2010/q2/788
-
 o [NSE] Consider a system where scripts can tell if any other scripts
   depend on them.  They could then use that to determine whether they
   should bother storing information in the registry.  For example,
   snmp-interfaces could store the discovered table if another script
   (such as a mac address geolocator script) depends on it.
-
-o NSEDoc generation should be performed automatically on the web
-  server on at least a daily (just before VA modules email) basis.
 
 o Add parallel IPv6 reverse DNS support (right now we use the system
   functions).
@@ -759,6 +742,68 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Implement a solution for people who want NIST CPE OS detection
+  results (we'll save version detection for a 2nd phase).  Notes:
+  David report on CPE for OS Detection: 
+    http://seclists.org/nmap-dev/2010/q3/278
+  David report on CPE for version detection: 
+    http://seclists.org/nmap-dev/2010/q3/303
+  Nessus has described their integration of CPE:
+    http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
+  Older messages about it:
+    http://seclists.org/nmap-dev/2008/q4/627
+    http://seclists.org/nmap-dev/2010/q2/788
+
+o [NSE] HTTP spidering library/script
+
+o We should probably modify stdnse.get_script_args so that it first
+  checks [scriptname].[argname] and then (if that fails) looks for
+  [argname] by itself.  This way people who are only running one
+  script or who want to use the same value for multiple scripts that
+  take the same argument can just give [argname].  But those who want
+  an argument to only apply to a specific script can give
+  [scriptname].[argname].
+   o The code is in place now, we just need to document the feature.
+
+o Script review
+ o Martin Swende patch to force script run
+   http://seclists.org/nmap-dev/2010/q4/567
+   o applied
+ o irc-info patch. http://seclists.org/nmap-dev/2011/q2/289.
+   o applied
+ o http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
+   o Had some issues--never got to a state ready for integration
+ o http-phpself-xss
+  - Would need to be rewritten to use newer spider.lua.  Added an item
+   to incoming section of Nmap Script Ideas secwiki page.
+
+o Make new SecTools.Org site with the 2010 survey results.
+
+o Collect many more IPv6 OS detection training samples from users
+ - Can start with nmap-dev, but will probably have to do an Nmap
+   release too.
+
+o Integrate more NSE scripts, I think our review queue is getting
+  pretty long.
+
+o Decide what to do with Henri's nsock-engines branch
+  (/nmap-exp/henri/nsock-engines).
+
+o finish making nmap-update part of the nmap windows compile-time
+  infrastructure
+  o See if we can build just one project within a solution, rather
+    than having special "with nmap-update" configuration.
+
+o Add homedir support to Nmap for the updater
+
+o Fix expiration date parsing on Nmap Windows for the updater
+
+o Updater: Make a missing nmap-update.conf nonfatal (perhaps doesn't
+  even need to mention it).
+
+o Updater: Clean up the output messages (e.g. only print what user needs to see
+  unless debugging is specified)
 
 o [Nping] The --safe-payloads option should be default (though we
   should keep it for backward compatability).  We could then introduce
