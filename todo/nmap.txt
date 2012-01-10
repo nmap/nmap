@@ -18,6 +18,10 @@ o Do more thinking/researching/investigating the way our machine
 
 o Write and send GSoC 2011 results email
 
+o Make the nmap.header.tmpl wording a little more generic so it more
+  clearly applies to Ncat, Zenmap, Nping, etc. Then use
+  templatereplace.pl to apply those changes to the code. [Fyodor]
+
 o Change Nmap copyright dates (in the file headers, etc.) from 2011 to
   2012.
 
@@ -72,6 +76,13 @@ o Update more web content in real time (or near real-time, or at least
     added to https svn server.
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
+
+o Investigate ways to limit Winpcap privileges so that only
+  administrative users or a certain accounts can sniff.  Maybe there
+  is a solution people use for Wireshark or does it always cause this
+  issue (allowing any user to sniff the network) when it is installed?
+  - CACE says they will add a feature to do this.  See this thread:
+  http://seclists.org/nmap-dev/2010/q3/826
 
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
@@ -141,6 +152,12 @@ o [UPDATER] Create webapp for account creation (can be deferred until later)
 
 o [UPDATER] Release to community, probably starting with a small test
   group of people.
+
+o [UPDATER] When it runs, it should give user more status about what
+  happened.  Maybe it could give the number of new/updated files and
+  mention what directory it put them in
+  (e.g. /home/fyodor/.nmap/updates/5.61TEST4).  And if there are no
+  updates available, it should say so.
 
 o Raw scans from Mac OS X seems not to retrieve the MAC address or do
   ARP ping, except when scanning the router on an interface. For
@@ -317,13 +334,6 @@ o We should run at least one SCTP service on scanme.  Daniel
   (preferably one which is relatively simple, easy to install, secure,
   and supports IPv6).
 
-o Investigate ways to limit Winpcap privileges so that only
-  administrative users or a certain accounts can sniff.  Maybe there
-  is a solution people use for Wireshark or does it always cause this
-  issue (allowing any user to sniff the network) when it is installed?
-  - CACE says they will add a feature to do this.  See this thread:
-  http://seclists.org/nmap-dev/2010/q3/826
-
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -351,11 +361,6 @@ o [NCAT] Work as a SOCKS4a/SOCKSv5 proxy.
 
 o [NSE] Script writing contest (something to think about)
 
-o [NSE] Consider using .idl files rather than manually coding all the
-  MSRPC stuff.  The current idea, if we do this, is to have an
-  application in nmap-private-dev which converts .idl files to LUA
-  code for nmap/nselib. Consider adapting the pidl utility from Samba.
-
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
@@ -363,32 +368,12 @@ o We should document an official way to compile/test refguide.xml so
   o Note that nping has its own /nmap/nping/docs/genmanpage.sh - we
   could look at how that could apply to Nmap.
 
-o Make the nmap.header.tmpl wording a little more generic so it more
-  clearly applies to Ncat, Zenmap, Nping, etc. Then use
-  templatereplace.pl to apply those changes to the code. [Fyodor]
-
 o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
   the man page location for ncat and ndiff.
  o Don't break packaging/build system
  o Don't break the system for posting html to web site. 
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
-
-o Consider an update feed system for Nmap which let's people obtain
-  the latest Nmap data files, such as NSE scripts/libs, nmap-os-db,
-  nmap-service-probes, etc.
-  o Note that some scripts require updated compiled libraries.  We
-    will need some sort of compatability system.
-  o One approach is "svn up".  Note that Metasploit uses that approach
-    even for Windows by shipping .svn directories and an svn executable
-    with the Windows installer.  In taht case we might need to have a
-    separate branch for each release that gets updated version/OS
-    databases and scripts.
-  o Another approach is a special feed system as is used by Nessus and
-    OpenVAS.  OpenVAS uses a script wrapper around rsync, or an HTTP
-    download if that fails.
-  o Colin's analysis of different methods:
-    http://seclists.org/nmap-dev/2011/q2/821
 
 o [Web] Add a page with the Nmap related videos we do have already
 
@@ -564,25 +549,6 @@ o The Zenmap translation system
   isalpha. Locale-dependent functions need to be checked for security
   risks.
 
-o Consider changing Nsock so that it is able to take advantage of more
-  modern interfaces to dealing with large sockets, rather than just
-  select.  Perhaps we should look at poll(), Windows completion ports,
-  and some of the advanced Linux APIs.  Select() limits us to
-  descriptors no higher than FD_SETSIZE, and it may not performa all
-  that well.  We should do some benchmarking and decide on the
-  interface to use for each platform. May want to take a look at
-  libevent (http://www.monkey.org/~provos/libevent/) for inspiration.
-  The libevent home page has some interesting benchmark graphs too.
-  [Josh implemented poll as a SoC student, but it had problems with
-  Nsock's architecture.  O(1) lookups were becoming O(n) because of
-  the nature of the data structures. It was slower in his benchmarks.
-  Nsock would have change from a model of "loop over the event list,
-  and check to see if the fd for each event is set," to one of "loop
-  over the fd list, and see if there is a corresponding event for
-  each. It is the "see if the fd is set" operation that's O(1) with
-  select (it's FD_ISSET) and O(n) with poll (it's a traversal of a
-  linked list).]
-
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, Nmap now provides a
   traceback (with sufficient debugging/verbosity) when a script ends
@@ -662,15 +628,6 @@ o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
   o It is interesting to look at: http://www.gnupg.org/gpgme.html
 
-o Improve the "run Zenmap as root" menu item to work on distributions
-  without su-to-root.  We might even want to improve Zenmap so that it
-  itself does not have to run as root, and just executes Nmap that
-  way.  Rather than not showing Zenmap as root on the Menu of
-  non-working systems, it might be better to have it but let it give
-  an error message (and then, perhaps, run as nonroot) so that users
-  of those distributions are more likely to contribute a fix.  We also
-  might want to look at how the distributions themselves package Zenmap.
-
 o Deal with UDP retransmission for version detection (I think I
   should just do a second run of all probes for UDP if it fails to
   match anything).  The advantage there is that no retransmissions are
@@ -721,7 +678,7 @@ o Provide an option to send a comment in scan packet data for target
 
 o Consider implementing RPC scan with ultra_scan or something else.
   Right now it is the only program using pos_scan.  On the other hand,
-  I'm not sure TCP rpc scanning is appropriate for ultra_scan.
+  I'm not sure TCP RPC scanning is appropriate for ultra_scan.
 
 o Look at all the pcap functions, there are some like
   pcap_findalldevs() which could be quite useful.  There are mails to
@@ -752,6 +709,63 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Improve the "run Zenmap as root" menu item to work on distributions
+  without su-to-root.  We might even want to improve Zenmap so that it
+  itself does not have to run as root, and just executes Nmap that
+  way.  Rather than not showing Zenmap as root on the Menu of
+  non-working systems, it might be better to have it but let it give
+  an error message (and then, perhaps, run as nonroot) so that users
+  of those distributions are more likely to contribute a fix.  We also
+  might want to look at how the distributions themselves package Zenmap.
+
+o Consider changing Nsock so that it is able to take advantage of more
+  modern interfaces to dealing with large sockets, rather than just
+  select.  Perhaps we should look at poll(), Windows completion ports,
+  and some of the advanced Linux APIs.  Select() limits us to
+  descriptors no higher than FD_SETSIZE, and it may not performa all
+  that well.  We should do some benchmarking and decide on the
+  interface to use for each platform. May want to take a look at
+  libevent (http://www.monkey.org/~provos/libevent/) for inspiration.
+  The libevent home page has some interesting benchmark graphs too.
+  [Josh implemented poll as a SoC student, but it had problems with
+  Nsock's architecture.  O(1) lookups were becoming O(n) because of
+  the nature of the data structures. It was slower in his benchmarks.
+  Nsock would have change from a model of "loop over the event list,
+  and check to see if the fd for each event is set," to one of "loop
+  over the fd list, and see if there is a corresponding event for
+  each. It is the "see if the fd is set" operation that's O(1) with
+  select (it's FD_ISSET) and O(n) with poll (it's a traversal of a
+  linked list).]
+  o Henri added nsock-engines
+
+o Consider an update feed system for Nmap which let's people obtain
+  the latest Nmap data files, such as NSE scripts/libs, nmap-os-db,
+  nmap-service-probes, etc.
+  o Note that some scripts require updated compiled libraries.  We
+    will need some sort of compatability system.
+  o One approach is "svn up".  Note that Metasploit uses that approach
+    even for Windows by shipping .svn directories and an svn executable
+    with the Windows installer.  In taht case we might need to have a
+    separate branch for each release that gets updated version/OS
+    databases and scripts.
+  o Another approach is a special feed system as is used by Nessus and
+    OpenVAS.  OpenVAS uses a script wrapper around rsync, or an HTTP
+    download if that fails.
+  o Colin's analysis of different methods:
+    http://seclists.org/nmap-dev/2011/q2/821
+
+o [NSE] Consider using .idl files rather than manually coding all the
+  MSRPC stuff.  The current idea, if we do this, is to have an
+  application in nmap-private-dev which converts .idl files to LUA
+  code for nmap/nselib. Consider adapting the pidl utility from Samba.
+ o Drazen did some work on this during SoC.
+   https://svn.nmap.org/nmap-exp/drazen/nmap-msrpc could get someone
+   started.
+ o We moved this out of the active section of the TODO because, while
+   it is still a good idea and we'd welcome the change if someone wants
+   to take it on, it isn't something that we are likely to make
+   progress on unless someone steps forward.
 
 o Implement a solution for people who want NIST CPE OS detection
   results (we'll save version detection for a 2nd phase).  Notes:
