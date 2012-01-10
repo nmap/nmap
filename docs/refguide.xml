@@ -141,7 +141,7 @@ is available at <ulink url="http://nmap.org/book/man.html"/>.
 
 <para>This options summary is printed when Nmap is run
 with no arguments, and the latest version is always available at
-<ulink url="http://nmap.org/data/nmap.usage.txt" />.
+<ulink url="https://svn.nmap.org/nmap/docs/nmap.usage.txt" />.
 It helps people remember the most common options, but is no
 substitute for the in-depth documentation in the rest of this
 manual.  Some obscure options aren't even included here.</para>
@@ -3571,7 +3571,7 @@ described below.</para>
           output.  The DTD defines the legal elements of the format,
           and often enumerates the attributes and values they can take
           on.  The latest version is always available from <ulink
-          url="http://nmap.org/data/nmap.dtd"/>.</para>
+          url="https://svn.nmap.org/nmap/docs/nmap.dtd"/>.</para>
 
           <para>XML offers a stable format that is easily parsed by
           software. Free XML parsers are available for all major
@@ -4481,7 +4481,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are
     available at <ulink
-    url="http://nmap.org/data/HACKING" />.  Patches may
+    url="https://svn.nmap.org/nmap/HACKING" />.  Patches may
     be sent to <citetitle>nmap-dev</citetitle> (recommended) or to Fyodor directly.</para>
   </refsect1>
 

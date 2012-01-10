@@ -128,7 +128,7 @@ url="http://www.gnupg.org/">GNU Privacy Guard (GPG)</ulink>.</para>
 Nmap releases are signed with a special
 Nmap Project Signing Key,<indexterm><primary>Nmap Project Signing Key</primary></indexterm>
 which can be obtained from the major keyservers or <ulink
-url="http://nmap.org/data/nmap_gpgkeys.txt"/>.  My key is
+url="https://svn.nmap.org/nmap/docs/nmap_gpgkeys.txt"/>.  My key is
 included in that file too.  The keys can be imported with the command
 <command>gpg --import nmap_gpgkeys.txt</command>.  You only need to do
 this once, then you can verify all future Nmap releases from that
@@ -892,10 +892,7 @@ given in the next section.</para></listitem>
 
 <para>If you wish to build an Nmap executable Windows
 installer or Zenmap executable,
-see <filename>docs/win32-installer-zenmap-buildguide.txt</filename> in
-Nmap SVN
-(also <ulink url="http://nmap.org/data/win32-installer-zenmap-buildguide.txt">available
-on the Nmap Web site</ulink>).</para>
+see <ulink url="https://svn.nmap.org/nmap/docs/win32-installer-zenmap-buildguide.txt"><filename>docs/win32-installer-zenmap-buildguide.txt</filename></ulink> in the Nmap SVN repository.</para>
 
 <para>Many people have asked whether Nmap can be compiled with the
 <application>gcc</application>/<application>g++</application> included

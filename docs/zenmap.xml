@@ -143,7 +143,7 @@
 
     <para>Code patches to fix bugs are even better than bug reports. Basic
     instructions for creating patch files with your changes are available at
-    <ulink url="http://nmap.org/data/HACKING" />.  Patches may be sent
+    <ulink url="https://svn.nmap.org/nmap/HACKING" />.  Patches may be sent
     to <citetitle>nmap-dev</citetitle> (recommended) or to Fyodor directly.</para>
   </refsect1>
 
