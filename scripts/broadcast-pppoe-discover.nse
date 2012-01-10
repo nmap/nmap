@@ -32,7 +32,9 @@ require 'pppoe'
 prerule = function() return true end
 
 local function fail(err)
-	return ("\n  ERROR: %s"):format(err)
+	if ( err ) then
+		return ("\n  ERROR: %s"):format(err)
+	end
 end
 
 local function mac_tostr(mac)

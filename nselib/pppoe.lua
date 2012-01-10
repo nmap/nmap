@@ -434,12 +434,19 @@ PPPoE = {
 		-- @param value string/number containing the tag value
 		-- @return o instance of ConfigNak	
 		new = function(self, tags)
+			local c = tostring(coroutine.running())
+			c = c:match("^thread: 0x(.*)"):sub(1, 8)
+			
+			math.randomseed(os.time())
+			while ( #c < 8 ) do
+				c = c .. stdnse.tohex(math.random(255))
+			end
+			
 			local o = {
 				header = PPPoE.Header:new(PPPoE.Code.PADI),
 				tags = tags or { 
 					PPPoE.Tag:new(PPPoE.TagType.SERVICE_NAME),
-					PPPoE.Tag:new(PPPoE.TagType.HOST_UNIQUE,  bin.pack("H", 
-						tostring(coroutine.running()):match("^thread: 0x(........)")))
+					PPPoE.Tag:new(PPPoE.TagType.HOST_UNIQUE,  bin.pack("H", c))
 				}
 			}
 			setmetatable(o, self)
