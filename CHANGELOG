@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script membase-brute that performs password brute force
+  password guessing against the Membase TAP protocol. [Patrik]
+
+o [NSE] Added the script membase-http-info that retrieves information from the
+  Couchbase distributed key-value pair server. [Patrik]
+
 o [NSE] Fixed a race condition in broadcast-dhcp-discover.nse that
   could cause responses to be missed on fast networks. It was noticed
   by Vasiliy Kulikov. [David]
