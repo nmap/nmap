@@ -80,12 +80,10 @@ end
 -- @param timeout number of ms to wait for a response
 -- @param xid the DHCP transaction id
 -- @param result a table to which the result is written
-local function dhcp_listener(iface, timeout, xid, result)
-	local sock = nmap.new_socket()
+local function dhcp_listener(sock, timeout, xid, result)
 	local condvar = nmap.condvar(result)
 	
 	sock:set_timeout(100)
-	sock:pcap_open(iface, 1500, false, "ip && udp && port 68")
 	
 	local start_time = nmap.clock_ms()
 	while( nmap.clock_ms() - start_time < timeout ) do
@@ -158,20 +156,23 @@ action = function()
 	local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, nil, request_options, overrides, lease_time, transaction_id)
 	if (not(status)) then return "\n  ERROR: Failed to build packet" end
 
-	local socket = nmap.new_socket("udp")
-	socket:bind(nil, 68)
-	socket:sendto( host, port, packet )
-	socket:close()
-
 	local threads = {}
 	local result = {}
 	local condvar = nmap.condvar(result)
 	
 	-- start a listening thread for each interface
 	for iface, _ in pairs(interfaces) do
-		local co = stdnse.new_thread( dhcp_listener, iface, timeout, transaction_id, result )
+		local sock, co
+		sock = nmap.new_socket()
+		sock:pcap_open(iface, 1500, false, "ip && udp && port 68")
+		co = stdnse.new_thread( dhcp_listener, sock, timeout, transaction_id, result )
 		threads[co] = true
 	end
+
+	local socket = nmap.new_socket("udp")
+	socket:bind(nil, 68)
+	socket:sendto( host, port, packet )
+	socket:close()
 	
 	-- wait until all threads are done
 	repeat 

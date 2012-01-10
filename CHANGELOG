@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a race condition in broadcast-dhcp-discover.nse that
+  could cause responses to be missed on fast networks. It was noticed
+  by Vasiliy Kulikov. [David]
+
 o Added IPv6 support to firewalk.nse. [Henri]
 
 o Fixed a bug in reverse name resolution: a name of "." would leave
