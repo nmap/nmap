@@ -210,6 +210,7 @@ function Frame:ether_parse()
 	end
 	self.mac_dst = string.sub(self.frame_buf, 1, 6)
 	self.mac_src = string.sub(self.frame_buf, 7, 12)
+	self.ether_type = u16(self.frame_buf, 12)
 end
 
 ----------------------------------------------------------------------------------------------------------------
