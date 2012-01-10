@@ -286,7 +286,8 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
 
   + unusual-port compares the detected service on a port against the
     expected service for that port number (e.g. ssh on 22, http on 80)
-    and reports deviations. [Patrik Karlsson]
+    and reports deviations. An early version of this same idea was
+    written by Daniel Miller. [Patrik Karlsson]
 
   + vuze-dht-info retrieves some basic information, including protocol
     version from a Vuze filesharing node. [Patrik Karlsson]
