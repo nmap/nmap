@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-pppoe-discover that discovers PPPoE servers
+  on the LAN using the PPPoE Discovery Protocol. [Patrik]
+
 o [NSE] Added the script membase-brute that performs password brute force
   password guessing against the Membase TAP protocol. [Patrik]
 
