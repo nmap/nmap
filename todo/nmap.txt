@@ -18,6 +18,9 @@ o Do more thinking/researching/investigating the way our machine
 
 o Write and send GSoC 2011 results email
 
+o Change Nmap copyright dates (in the file headers, etc.) from 2011 to
+  2012.
+
 o Integrate latest IPv6 OS detection fingerprint submissions
  - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
 
@@ -65,8 +68,10 @@ o Update more web content in real time (or near real-time, or at least
   on an automated basis rather than requiring manual checkin and
   update).  In particular:
   o NSEDoc generation
-  o SVN dir (http://nmap.org/svn/) should be real-time or nearly so
+  o SVN dir (http://nmap.org/svn/) should be removed and a redirect
+    added to https svn server.
   o Maybe Nmap book building
+  o Maybe the generated files in nmap.org/data/
 
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
@@ -102,6 +107,11 @@ o Change the interface of nmap.send_ip to take an explicit destination
   which does not have enough information to reconstruct link-local
   addresses. See r26621 for a similar change that was made to Nmap 
   internals.
+
+o Install some sort of svnview webapp for svn.nmap.org which is
+  wrapped in Insecure chrome, allows people to click link for direct
+  file download, probably shows revision history and allows users to
+  see older versions, etc.
 
 o Process Nmap survey and send out results [Fyodor]
 
