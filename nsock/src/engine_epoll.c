@@ -164,6 +164,7 @@ int epoll_iod_register(mspool *nsp, msiod *iod, int ev) {
 
   iod->watched_events = ev;
 
+  memset(&epev, 0x00, sizeof(struct epoll_event));
   epev.events = EPOLLET;
   epev.data.ptr = (void *)iod;
 
@@ -207,6 +208,7 @@ int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
 
   assert((ev_set & ev_clr) == 0);
 
+  memset(&epev, 0x00, sizeof(struct epoll_event));
   epev.events = EPOLLET;
   epev.data.ptr = (void *)iod;
 
