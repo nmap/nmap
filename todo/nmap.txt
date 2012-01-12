@@ -61,6 +61,9 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
+o Solve "spurious closed port detection" issue discovered by David:
+  http://seclists.org/nmap-dev/2012/q1/62
+
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
