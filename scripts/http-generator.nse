@@ -4,7 +4,7 @@ Displays the contents of the "generator" meta tag if there is one.
 
 author = "Michael Kohl"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 ---
 -- @usage
