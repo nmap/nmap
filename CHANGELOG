@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-generator.nse by Michael Kohl, which gets version
+  information for web applications that set the "generator" meta
+  element.
+
 o [NSE] Added the script broadcast-pppoe-discover that discovers PPPoE servers
   on the LAN using the PPPoE Discovery Protocol. [Patrik]
 
