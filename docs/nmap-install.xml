@@ -840,10 +840,13 @@ the latest version from <ulink url="http://www.winpcap.org" />.  You
 must install version 4.0 or later.</para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
-<ulink role="hidepdf" url="http://www.microsoft.com/downloads/details.aspx?familyid=2051a0c1-c9b5-4b0a-a8f5-770a549fd78c&amp;displaylang=en">Microsoft Visual C++ 2008 Redistributable Package</ulink> of runtime
+<ulink role="hidepdf" url="http://www.microsoft.com/download/en/details.aspx?id=21576">Microsoft Visual C++ 2010 Redistributable Package</ulink> of runtime
 components. Many systems already have this installed from other
 packages, but you should run <filename>vcredist_x86.exe</filename>
-from the zip file just in case you need it. Pass the <option>/q</option> option to run that installer in quiet (non interactive) mode.</para></listitem>
+from the zip file just in case you need it.
+Some systems may also require the
+<ulink role="hidepdf" url="http://www.microsoft.com/downloads/details.aspx?familyid=2051a0c1-c9b5-4b0a-a8f5-770a549fd78c">2008 Redistributable Package</ulink> as well, so it is included as <filename>vcredist2008_x86.exe</filename>.
+Pass the <option>/q</option> option to run these installers in quiet (non interactive) mode.</para></listitem>
 
 <listitem><para>Instructions for executing your compiled Nmap are
 given in <xref linkend="inst-win-exec"/>.</para></listitem>
