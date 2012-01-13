@@ -74,10 +74,19 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-prerule = function() return true end
 
 require('packet')
 require('tab')
+require('nmap')
+
+
+prerule = function()
+	if not nmap.is_privileged() then
+		stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+		return false
+	end
+	return true
+end
 
 ---
 -- loads the decoders from file

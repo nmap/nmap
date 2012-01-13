@@ -28,8 +28,15 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 require 'pppoe'
+require 'nmap'
 
-prerule = function() return true end
+prerule = function()
+	if not nmap.is_privileged() then
+		stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+		return false
+	end
+	return true
+end
 
 local function fail(err)
 	if ( err ) then

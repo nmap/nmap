@@ -37,11 +37,24 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-prerule = function() return not( nmap.address_family() == "inet6") end
 
 require 'dhcp'
 require 'ipOps'
 require 'packet'
+require 'nmap'
+
+prerule = function()
+	if not nmap.is_privileged() then
+		stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+		return false
+	end
+
+	if nmap.address_family() ~= 'inet' then
+		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+		return false
+	end
+	return true
+end
 
 -- Creates a random MAC address
 --
@@ -115,10 +128,6 @@ end
 
 
 action = function()
-
-	if not nmap.is_privileged() then
-		return ("\n  ERROR: %s needs to be run as a privileged user (root)."):format(SCRIPT_NAME)
-	end
 
 	local host, port = "255.255.255.255", 67
 	local timeout = stdnse.get_script_args("broadcast-dhcp-discover.timeout")
