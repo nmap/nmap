@@ -449,6 +449,7 @@ void nse_readpcap(nsock_event nsee, const unsigned char **l2_data, size_t *l2_le
 int nsi_pcap_linktype(nsock_iod nsiod) {
   msiod *nsi = (msiod *)nsiod;
   mspcap *mp = (mspcap *)nsi->pcap;
+
   assert(mp);
   return (mp->datalink);
 }
@@ -456,6 +457,7 @@ int nsi_pcap_linktype(nsock_iod nsiod) {
 int nsi_is_pcap(nsock_iod nsiod) {
   msiod *nsi = (msiod *)nsiod;
   mspcap *mp = (mspcap *)nsi->pcap;
+
   return (mp != NULL);
 }
 

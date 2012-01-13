@@ -514,10 +514,10 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
       res = SSL_write(iod->ssl, str, bytesleft);
     else
 #endif
-      if (nse->writeinfo.dest.ss_family == AF_UNSPEC )
+      if (nse->writeinfo.dest.ss_family == AF_UNSPEC)
         res = send(nse->iod->sd, str, bytesleft, 0);
       else
-        res = sendto(nse->iod->sd, str, bytesleft, 0, (struct sockaddr *)&nse->writeinfo.dest, (int) nse->writeinfo.destlen);
+        res = sendto(nse->iod->sd, str, bytesleft, 0, (struct sockaddr *)&nse->writeinfo.dest, (int)nse->writeinfo.destlen);
     if (res == bytesleft) {
       nse->event_done = 1;
       nse->status = NSE_STATUS_SUCCESS;
@@ -685,7 +685,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
         socket_count_read_inc(iod);
         update_events(iod, ms, X_EV(EV_READ, evclr), X_EV(evclr, EV_READ));
         nse->sslinfo.ssl_desire = err;
-      } else if (err == SSL_ERROR_WANT_WRITE ) {
+      } else if (err == SSL_ERROR_WANT_WRITE) {
         int evclr;
 
         evclr = socket_count_dec_ssl_desire(nse);
