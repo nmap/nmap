@@ -112,7 +112,9 @@ void update_first_events(msevent *nse);
 int socket_count_zero(msiod *iod, mspool *ms) {
   iod->readsd_count = 0;
   iod->writesd_count = 0;
+#if HAVE_PCAP
   iod->readpcapsd_count = 0;
+#endif
   return ms->engine->iod_unregister(ms, iod);
 }
 
@@ -187,11 +189,11 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
   setmask = ev_inc;
   clrmask = EV_NONE;
 
-  if ((ev_dec & EV_READ) && (!iod->readsd_count
+  if ((ev_dec & EV_READ) && (!iod->readsd_count)
 #if HAVE_PCAP
-        && !iod->readpcapsd_count)
+        && (!iod->readpcapsd_count)
 #endif
-  )
+     )
     clrmask |= EV_READ;
 
   if ((ev_dec & EV_WRITE) && (!iod->writesd_count))

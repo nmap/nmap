@@ -113,11 +113,10 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
   nsi->first_write = NULL;
 #if HAVE_PCAP
   nsi->first_pcap_read = NULL;
+  nsi->readpcapsd_count = 0;
 #endif
-
   nsi->readsd_count = 0;
   nsi->write_count = 0;
-  nsi->readpcapsd_count = 0;
 
   nsi->userdata = userdata;
   nsi->nsp = (mspool *)nsockp;
