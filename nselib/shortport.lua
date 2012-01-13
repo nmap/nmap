@@ -168,7 +168,7 @@ end
   Litespeed webserver default ports: 8088 and 7080
 --]]
 http = shortport.port_or_service({80, 443, 631, 7080, 8080, 8088, 5800, 3872, 8180, 8000},
-	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent"})
+	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent", "soap"})
 
 local LIKELY_SSL_PORTS = {
     443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
