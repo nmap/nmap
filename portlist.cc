@@ -115,7 +115,7 @@ Port::Port() {
   state_reason_init(&reason);
 }
 
-void Port::freeService() {
+void Port::freeService(bool del_service) {
   if (service != NULL) {
     std::vector<char *>::iterator it;
 
@@ -137,7 +137,10 @@ void Port::freeService() {
       free(service->service_fp);
     for (it = service->cpe.begin(); it != service->cpe.end(); it++)
       free(*it);
-    delete service;
+    service->cpe.clear();
+
+    if (del_service)
+      delete service;
   }
 }
 
@@ -336,8 +339,9 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   enum serviceprobestate sres, const char *sname,
   enum service_tunnel_type tunnel, const char *product, const char *version,
   const char *extrainfo, const char *hostname, const char *ostype,
-  const char *devicetype, const char *cpe_a, const char *cpe_h, const char *cpe_o,
+  const char *devicetype, const std::vector<const char *> *cpe,
   const char *fingerprint) {
+  std::vector<char *>::iterator it;
   Port *port;
   char *p;
 
@@ -370,6 +374,8 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   // port->serviceprobe_results = sres;
   port->service->service_tunnel = tunnel;
 
+  port->freeService(false);
+
   if (sname)
     port->service->name = strdup(sname);
   else
@@ -387,15 +393,15 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   port->service->ostype = cstringSanityCheck(ostype, 32);
   port->service->devicetype = cstringSanityCheck(devicetype, 32);
 
-  p = cstringSanityCheck(cpe_a, 80);
-  if (p != NULL)
-    port->service->cpe.push_back(p);
-  p = cstringSanityCheck(cpe_h, 80);
-  if (p != NULL)
-    port->service->cpe.push_back(p);
-  p = cstringSanityCheck(cpe_o, 80);
-  if (p != NULL)
-    port->service->cpe.push_back(p);
+  if (cpe) {
+    std::vector<const char *>::const_iterator cit;
+
+    for (cit = cpe->begin(); cit != cpe->end(); cit++) {
+      p = cstringSanityCheck(*cit, 80);
+      if (p != NULL)
+        port->service->cpe.push_back(p);
+    }
+  }
 }
 
 /* Sets the results of an RPC scan.  if rpc_status is not
@@ -498,7 +504,7 @@ PortList::~PortList() {
     if(port_list[proto]) {
       for(i=0; i < port_list_count[proto]; i++) { // free every Port
         if(port_list[proto][i]) {
-          port_list[proto][i]->freeService();
+          port_list[proto][i]->freeService(true);
           delete port_list[proto][i];
         }
       }

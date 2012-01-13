@@ -32,6 +32,8 @@ static const int NSE_PROTOCOL[] = {IPPROTO_TCP, IPPROTO_UDP, IPPROTO_SCTP};
 
 void set_version (lua_State *L, const struct serviceDeductions *sd)
 {
+  size_t i;
+
   setsfield(L, -1, "name", sd->name);
   setnfield(L, -1, "name_confidence", sd->name_confidence);
   setsfield(L, -1, "product", sd->product);
@@ -61,6 +63,13 @@ void set_version (lua_State *L, const struct serviceDeductions *sd)
     setnfield(L, -1, "rpc_lowver", sd->rpc_lowver);
     setnfield(L, -1, "rpc_highver", sd->rpc_highver);
   }
+
+  lua_newtable(L);
+  for (i = 0; i < sd->cpe.size(); i++) {
+    lua_pushstring(L, sd->cpe[i]);
+    lua_rawseti(L, -2, i+1);
+  }
+  lua_setfield(L, -2, "cpe");
 }
 
 /* set some port state information onto the
@@ -179,13 +188,23 @@ void set_hostinfo(lua_State *L, Target *currenths) {
       FPR->overall_results == OSSCAN_SUCCESS && FPR->num_perfect_matches > 0 &&
       FPR->num_perfect_matches <= 8 )
   {
-    int i;
+    int i, classno;
+    const OS_Classification_Results *OSR = FPR->getOSClassification();
 
     lua_newtable(L);
     // this will run at least one time and at most 8 times, see if condition
     for(i = 0; FPR->accuracy[i] == 1; i++) {
       lua_pushstring(L, FPR->matches[i]->OS_name);
       lua_rawseti(L, -2, i+1);
+    }
+
+    for (classno = 0; classno < OSR->OSC_num_matches; classno++) {
+      size_t j;
+
+      for (j = 0; j < OSR->OSC[classno]->cpe.size(); j++) {
+        lua_pushstring(L, OSR->OSC[classno]->cpe[j]);
+        lua_rawseti(L, -2, ++i);
+      }
     }
     lua_setfield(L, -2, "os");
   }
@@ -508,6 +527,7 @@ static int l_set_port_version (lua_State *L)
   Target *target;
   Port *p;
   Port port;
+  std::vector<const char *> cpe;
   enum service_tunnel_type tunnel = SERVICE_TUNNEL_NONE;
   enum serviceprobestate probestate =
       opversion[luaL_checkoption(L, 3, "hardmatched", ops)];
@@ -537,14 +557,23 @@ static int l_set_port_version (lua_State *L)
   else
     luaL_argerror(L, 2, "invalid value for port.version.service_tunnel");
 
+  lua_getfield(L, 4, "cpe");
+  if (!lua_istable(L, -1))
+    luaL_error(L, "port.version 'cpe' field must be a table");
+
+  for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+    cpe.push_back(lua_tostring(L, -1));
+  }
+
   if (o.servicescan)
     target->ports.setServiceProbeResults(p->portno, p->proto,
         probestate, name, tunnel, product,
-        version, extrainfo, hostname, ostype, devicetype, NULL, NULL, NULL, NULL);
+        version, extrainfo, hostname, ostype, devicetype,
+        (cpe.size() > 0) ? &cpe : NULL, NULL);
   else
     target->ports.setServiceProbeResults(p->portno, p->proto,
         probestate, name, tunnel, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+        NULL, NULL, NULL, NULL, NULL, NULL);
 
   return 0;
 }

@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made gathered CPE codes available to NSE. [Henri]
+
+o [NSE] Fixed a memory leak in PortList::setServiceProbeResults() noticed and
+  reported by David. The leak was triggered by set_port_version calls from NSE.
+  [Henri]
+
 o [NSE] Added http-generator.nse by Michael Kohl, which gets version
   information for web applications that set the "generator" meta
   element.

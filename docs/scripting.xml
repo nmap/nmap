@@ -1630,6 +1630,12 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 		<option>-O</option> option, then
 		<literal>host.os</literal> is <literal>nil</literal>.
 	      </para>
+	      <para>
+                Additionally the table can contain CPE codes for the detected
+                operating system. These codes, as described in
+                <ulink url="http://cpe.mitre.org">the official CPE specification
+                </ulink> all start with the <literal>cpe:/</literal> prefix.
+	      </para>
 	    </listitem>
 	  </varlistentry>
 	  
@@ -1890,6 +1896,15 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
     <literal>nil</literal> if <literal>rpc_status</literal> is
     anything other than <literal>good_prog</literal>.</entry>
    </row>
+
+   <row>
+    <entry align="left"><literal>cpe</literal></entry>
+
+    <entry>List of CPE codes for the detected service. As described in the
+    <ulink url="http://cpe.mitre.org">official CPE specification</ulink> these strings
+    all start with the <literal>cpe:/</literal> prefix.</entry>
+   </row>
+
 </tbody></tgroup></table>
 
 	    </listitem>

@@ -2536,6 +2536,15 @@ list<ServiceNFO *>::iterator svc;
 
  for(svc = SG->services_finished.begin(); svc != SG->services_finished.end(); svc++) {
    if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
+     vector<const char *> cpe;
+
+     if (*(*svc)->cpe_a_matched)
+       cpe.push_back((*svc)->cpe_a_matched);
+     if (*(*svc)->cpe_h_matched)
+       cpe.push_back((*svc)->cpe_h_matched);
+     if (*(*svc)->cpe_o_matched)
+       cpe.push_back((*svc)->cpe_o_matched);
+
      (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
 					  (*svc)->probe_state, 
 					  (*svc)->probe_matched,
@@ -2546,15 +2555,13 @@ list<ServiceNFO *>::iterator svc;
 					  *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL, 
 					  *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL, 
 					  *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL, 
-					  *(*svc)->cpe_a_matched? (*svc)->cpe_a_matched : NULL, 
-					  *(*svc)->cpe_h_matched? (*svc)->cpe_h_matched : NULL, 
-					  *(*svc)->cpe_o_matched? (*svc)->cpe_o_matched : NULL, 
+					  (cpe.size() > 0) ? &cpe : NULL,
 					  shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
    }  else {
        (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
 					    (*svc)->probe_state, NULL,
 					    (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,
-					    NULL, NULL, NULL,
+					    NULL,
 					    (*svc)->getServiceFingerprint(NULL));
    }
  }
@@ -2600,8 +2607,7 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
 					PROBESTATE_EXCLUDED, NULL, 
 					SERVICE_TUNNEL_NONE,
                                         "Excluded from version scan", NULL,
-					NULL, NULL, NULL, NULL,
-					NULL, NULL, NULL, NULL);
+					NULL, NULL, NULL, NULL, NULL, NULL);
 
       SG->services_remaining.erase(i);
       SG->services_finished.push_back(svc);

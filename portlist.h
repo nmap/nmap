@@ -178,7 +178,7 @@ class Port {
 
  public:
   Port();
-  void freeService();
+  void freeService(bool del_service);
   void getNmapServiceName(char *namebuf, int buflen, const char *rpcinfo) const;
 
   u16 portno;
@@ -267,7 +267,7 @@ class PortList {
 			      const char *version, const char *hostname,
 			      const char *ostype, const char *devicetype,
 			      const char *extrainfo,
-			      const char *cpe_a, const char *cpe_h, const char *cpe_o,
+			      const std::vector<const char *> *cpe,
 			      const char *fingerprint);
 
   // pass in an allocated struct serviceDeductions (don't worry about initializing, and
