@@ -67,12 +67,14 @@ action = function( host, port )
 		for i in string.gmatch(body,"\n[%w%s]+:%s+[^][\n]+") do
 			table.insert(stats,i:match(":%s+([^][\n]+)"))
 		end
-		stdnse.print_debug(1, ("%s: namenode %s"):format(SCRIPT_NAME,stats[1]))
-		stdnse.print_debug(1, ("%s: Start %s"):format(SCRIPT_NAME,stats[2]))
-		stdnse.print_debug(1, ("%s: Last Checkpoint %s"):format(SCRIPT_NAME,stats[3]))
-		stdnse.print_debug(1, ("%s: Checkpoint Period %s"):format(SCRIPT_NAME,stats[4]))
-		stdnse.print_debug(1, ("%s: Checkpoint Size %s"):format(SCRIPT_NAME,stats[5]))
-		table.insert(result, ("Start: %s"):format(stats[2]))
+		if #stats == 5 then
+			stdnse.print_debug(1, ("%s: namenode %s"):format(SCRIPT_NAME,stats[1]))
+			stdnse.print_debug(1, ("%s: Start %s"):format(SCRIPT_NAME,stats[2]))
+			stdnse.print_debug(1, ("%s: Last Checkpoint %s"):format(SCRIPT_NAME,stats[3]))
+			stdnse.print_debug(1, ("%s: Checkpoint Period %s"):format(SCRIPT_NAME,stats[4]))
+			stdnse.print_debug(1, ("%s: Checkpoint Size %s"):format(SCRIPT_NAME,stats[5]))
+			table.insert(result, ("Start: %s"):format(stats[2]))
+		end
 		if body:match("Version:%s*</td><td>([^][\n]+)") then
 			local version = body:match("Version:%s*</td><td>([^][\n]+)")
 			stdnse.print_debug(1, ("%s: Version %s"):format(SCRIPT_NAME,version))
@@ -89,10 +91,12 @@ action = function( host, port )
 			stdnse.print_debug(1, ("%s: Logs %s"):format(SCRIPT_NAME,logs))
 			table.insert(result, ("Logs: %s"):format(logs))
 		end
-		table.insert(result, ("Namenode: %s"):format(stats[1]))
-		table.insert(result, ("Last Checkpoint: %s"):format(stats[3]))
-		table.insert(result, ("Checkpoint Period: %s"):format(stats[4]))
-		table.insert(result, ("Checkpoint: Size %s"):format(stats[5]))
+		if #stats == 5 then
+			table.insert(result, ("Namenode: %s"):format(stats[1]))
+			table.insert(result, ("Last Checkpoint: %s"):format(stats[3]))
+			table.insert(result, ("Checkpoint Period: %s"):format(stats[4]))
+			table.insert(result, ("Checkpoint: Size %s"):format(stats[5]))
+		end
 		if target.ALLOW_NEW_TARGETS then
 			if stats[1]:match("([^][/]+)") then
 				local newtarget = stats[1]:match("([^][/]+)")
