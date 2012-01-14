@@ -151,6 +151,18 @@ version_port_or_service = function(ports, services, protos, states)
         end
 end
 
+--[[
+  Apache Tomcat HTTP server default ports: 8180 and 8000
+  Litespeed webserver default ports: 8088 and 7080
+--]]
+LIKELY_HTTP_PORTS = {
+	80, 443, 631, 7080, 8080, 8088, 5800, 3872, 8180, 8000
+}
+
+LIKELY_HTTP_SERVICES = {
+	"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent", "soap",
+}
+
 ---
 -- A portrule that matches likely HTTP services.
 --
@@ -163,12 +175,7 @@ end
 -- @usage
 -- portrule = shortport.http
 
---[[
-  Apache Tomcat HTTP server default ports: 8180 and 8000
-  Litespeed webserver default ports: 8088 and 7080
---]]
-http = shortport.port_or_service({80, 443, 631, 7080, 8080, 8088, 5800, 3872, 8180, 8000},
-	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent", "soap"})
+http = shortport.port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 
 local LIKELY_SSL_PORTS = {
     443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
