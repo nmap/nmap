@@ -136,11 +136,15 @@ action = function( host, port )
 		end
 		nmap.set_port_version(host, port, "hardmatched")
 		local datanodes_live = get_datanodes(host,port, "LIVE")
-		table.insert(result, "Datanodes (Live): ")
-		table.insert(result, datanodes_live)
+		if next(datanodes_live) then
+			table.insert(result, "Datanodes (Live): ")
+			table.insert(result, datanodes_live)
+		end
 		local datanodes_dead = get_datanodes(host,port, "DEAD")
-		table.insert(result, "Datanodes (Dead): ")
-		table.insert(result, datanodes_dead)
+		if next(datanodes_dead) then
+			table.insert(result, "Datanodes (Dead): ")
+			table.insert(result, datanodes_dead)
+		end
 		return stdnse.format_output(true, result)
 	end
 end
