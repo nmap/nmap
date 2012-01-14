@@ -17,7 +17,7 @@ For more information about hadoop, see:
 -- @output
 -- PORT      STATE SERVICE         REASON
 -- 50075/tcp open  hadoop-datanode syn-ack
--- | hadoop-datanode-info: 
+-- | hadoop-datanode-info:
 -- |_  Logs: /logs/
 ---
 
@@ -38,22 +38,22 @@ end
 
 action = function( host, port )
 
-        local result = {}
+	local result = {}
 	local uri = "/browseDirectory.jsp"
 	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
 	local response = http.get( host.targetname or host.ip, port.number, uri )
-	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))  
+	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		port.version.name = "hadoop-datanode"
-        	port.version.product = "Apache Hadoop"
+		port.version.product = "Apache Hadoop"
 		nmap.set_port_version(host, port, "hardmatched")
 		local body = response['body']:gsub("%%","%%%%")
-		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))  
+		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
 		 if body:match("([^][\"]+)\">Log") then
-                        local logs = body:match("([^][\"]+)\">Log")
-                        stdnse.print_debug(1, ("%s: Logs %s"):format(SCRIPT_NAME,logs))  
-                        table.insert(result, ("Logs: %s"):format(logs))
-                end
+			local logs = body:match("([^][\"]+)\">Log")
+			stdnse.print_debug(1, ("%s: Logs %s"):format(SCRIPT_NAME,logs))
+			table.insert(result, ("Logs: %s"):format(logs))
+		end
 		return stdnse.format_output(true, result)
 	end
 end
