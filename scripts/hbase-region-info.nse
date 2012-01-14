@@ -38,7 +38,12 @@ require ("shortport")
 require ("http")
 require ("target")
 
-portrule = shortport.port_or_service ({60030}, "hbase-region", {"tcp"})
+portrule = function(host, port)
+	-- Run for the special port number, or for any HTTP-like service that is
+	-- not on a usual HTTP port.
+	return shortport.port_or_service ({60030}, "hbase-region")(host, port)
+		or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
+end
 
 action = function( host, port )
 

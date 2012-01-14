@@ -47,7 +47,12 @@ require ("shortport")
 require ("target")
 require ("http")
 
-portrule = shortport.port_or_service ({50070}, "hadoop-namenode", {"tcp"})
+portrule = function(host, port)
+	-- Run for the special port number, or for any HTTP-like service that is
+	-- not on a usual HTTP port.
+	return shortport.port_or_service ({50070}, "hadoop-namenode")(host, port)
+		or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
+end
 
 get_datanodes = function( host, port, Status )
 	local result = {}
