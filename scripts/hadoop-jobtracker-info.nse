@@ -147,8 +147,10 @@ action = function( host, port )
 		end
 		nmap.set_port_version(host, port, "hardmatched")
 		local tasktrackers = get_tasktrackers (host, port)
-		table.insert(result, "Tasktrackers: ")
-		table.insert(result, tasktrackers)
+		if next(tasktrackers) then
+			table.insert(result, "Tasktrackers: ")
+			table.insert(result, tasktrackers)
+		end
 		if stdnse.get_script_args('hadoop-jobtracker-info.userinfo') then
 			local userhistory = get_userhistory (host, port)
 			table.insert(result, "Userhistory: ")
