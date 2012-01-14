@@ -29,6 +29,7 @@ Entry { filename = "broadcast-pc-duo.nse", categories = { "broadcast", "safe", }
 Entry { filename = "broadcast-ping.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-pppoe-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-rip-discover.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-ripng-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-sybase-asa-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wake-on-lan.nse", categories = { "broadcast", "safe", } }

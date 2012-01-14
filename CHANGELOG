@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added broadcast-ripng-discover that discovers IPv6 RIPng routers and
+  displays their routing information. [Patrik]
+
 o [NSE] Made gathered CPE codes available to NSE. [Henri]
 
 o [NSE] Fixed a memory leak in PortList::setServiceProbeResults() noticed and
