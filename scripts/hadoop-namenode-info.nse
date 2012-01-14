@@ -126,12 +126,14 @@ action = function( host, port )
 		for i in string.gmatch(body, "[%d%.]+%s[KMGTP]B") do
 			table.insert(capacity,i)
 		end
-		stdnse.print_debug(1, ("%s: Total %s"):format(SCRIPT_NAME,capacity[3]))
-		stdnse.print_debug(1, ("%s: Used DFS (NonDFS) %s (%s)"):format(SCRIPT_NAME,capacity[4],capacity[5]))
-		stdnse.print_debug(1, ("%s: Remaining %s"):format(SCRIPT_NAME,capacity[6]))
-		table.insert(result,"Storage:")
-		table.insert(result,"Total\tUsed (DFS)\tUsed (Non DFS)\tRemaining")
-		table.insert(result, ("%s\t%s\t%s\t%s"):format(capacity[3],capacity[4],capacity[5],capacity[6]))
+		if #capacity >= 6 then
+			stdnse.print_debug(1, ("%s: Total %s"):format(SCRIPT_NAME,capacity[3]))
+			stdnse.print_debug(1, ("%s: Used DFS (NonDFS) %s (%s)"):format(SCRIPT_NAME,capacity[4],capacity[5]))
+			stdnse.print_debug(1, ("%s: Remaining %s"):format(SCRIPT_NAME,capacity[6]))
+			table.insert(result,"Storage:")
+			table.insert(result,"Total\tUsed (DFS)\tUsed (Non DFS)\tRemaining")
+			table.insert(result, ("%s\t%s\t%s\t%s"):format(capacity[3],capacity[4],capacity[5],capacity[6]))
+		end
 		nmap.set_port_version(host, port, "hardmatched")
 		local datanodes_live = get_datanodes(host,port, "LIVE")
 		table.insert(result, "Datanodes (Live): ")
