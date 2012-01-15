@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Changed the dnsbl library to take a threaded approach into querying
+  DNSBL provides drastically improving performance. [Patrik]
+
+o [NSE] Applied patch from Duarte Silva to dnsbl adding new services and the
+  ATTACK category. [Duarte Silva]
+
 o [NSE] Added broadcast-ripng-discover that discovers IPv6 RIPng routers and
   displays their routing information. [Patrik]
 

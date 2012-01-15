@@ -21,6 +21,7 @@
 module(... or "dnsbl", package.seeall)
 
 require 'bit'
+require 'ipOps'
 
 -- The services table contains a list of valid DNSBL providers
 -- Providers are categorized in categories that should contain services that
@@ -52,7 +53,16 @@ require 'bit'
 --
 -- <code>fmt_query</code> - A function responsible for formatting the DNS
 --   query. When the default format is being used <reverse ip>.<servicename>
---   eg: 4.3.2.1.spam.dnsbl.sorbs.net, this function can be omitted.
+--   eg: 4.3.2.1.spam.dnsbl.sorbs.net, this function can be omitted. But if
+--   this function is defined, it must return the query to be executed,
+--   otherwise the library will assume that the provider needs configuration
+--   that failed to be provided.
+--
+-- <code>configuration</code> - If the service requires the user to provide
+--   configurations, this function will have to return a list with the name
+--   and description of the arguments that provide the configuration/options.
+--   If this function isn't specified, the library will assume the service
+--   doesn't require configuration.
 --                            
 SERVICES = {
 	
@@ -60,24 +70,37 @@ SERVICES = {
 		
 		["dnsbl.inps.de"] = {
 			-- This service supports both long and short <code>mode</code>
-			ns_type	= {
+			ns_type = {
 				["short"] = "A",
 				["long"] = "TXT",
 			},
-			-- sample fmt_query function, if no function is specified, the library
+			-- Creates a new Service instance
+			-- @param ip host that needs to be checked
+			-- @param mode string (short|long) specifying whether short or long
+			--        results are to be returned
+			-- @param config service configuration in case this service provider
+			--        needs user supplied configuration
+			-- @return o instance of Helper
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			-- Sample fmt_query function, if no function is specified, the library
 			-- will assume that the IP should be reversed add suffixed with the
 			-- service name.
-			fmt_query   = function(ip)
-				local rev_ip = dns.reverse(ip):match("^(.*)%.in%-addr%.arpa$")
+			fmt_query = function(self)
+				local rev_ip = dns.reverse(self.ip):match("^(.*)%.in%-addr%.arpa$")
 				return ("%s.spam.dnsbl.sorbs.net"):format(rev_ip)
 			end,
 			-- This function parses the response and supports borth long and
 			-- short mode.
-			resp_parser = function(r, mode)
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.2"] = "SPAM",
 				}
-				if ( ("short" == mode and r[1]) ) then
+				if ( ("short" == self.mode and r[1]) ) then
 					return responses[r[1]]
 				else
 					return { state = "SPAM", details = { r[1] } }
@@ -86,16 +109,28 @@ SERVICES = {
 		},
 
 		["spam.dnsbl.sorbs.net"] = { 
-			ns_type		= {
+			ns_type = {
 				["short"] = "A"
 			},
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				return ( r[1] == "127.0.0.6" and { state = "SPAM" } )
 			end,
 		},
 
 		["bl.nszones.com"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.2"] = "SPAM",
 					["127.0.0.3"] = "DYNAMIC"
@@ -105,7 +140,13 @@ SERVICES = {
 		},
 	
 		["all.spamrats.com"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.36"] = "DYNAMIC",
 					["127.0.0.38"] = "SPAM",
@@ -115,13 +156,25 @@ SERVICES = {
 		},
 		
 		["list.quorum.to"] = {
-			resp_parser = function(r)
-				return ( ( r[1] and r[1] == "127.0.0.2" ) and { state = "SPAM" } ) 
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
+				return ( ( r[1] and r[1] == "127.0.0.0" ) and { state = "SPAM" } ) 
 			end
 		},
 		
 		["sbl.spamhaus.org"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.2"] = "SPAM",
 					["127.0.0.3"] = "SPAM",
@@ -131,16 +184,28 @@ SERVICES = {
 		},
 		
 		["bl.spamcop.net"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.2"] = "SPAM",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,					
+			end,
 		},
 		
 		["dnsbl.ahbl.org"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.4"] = "SPAM",
 					["127.0.0.5"] = "SPAM",
@@ -149,37 +214,50 @@ SERVICES = {
 					["127.0.0.8"] = "SPAM",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,								
+			end,
 		},
 		
 		["l2.apews.org"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.2"] = "SPAM",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,					
+			end,
 		},
 	
 	},
 
-	PROXY = {		
+	PROXY = {
+		
 		["dnsbl.tornevall.org"] = {
-			resp_parser = function(r, mode)
-				if ( "short" == mode and r[1] ) then
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
+				if ( "short" == self.mode and r[1] ) then
 					return { state = "PROXY" }
-				elseif ( "long" == mode ) then
+				elseif ( "long" == self.mode ) then
 					local responses = {
-						[1]		= "Proxy has been scanned",
-						[2]		= "Proxy is working",
-						[4]		= "?",
+						[1]	= "Proxy has been scanned",
+						[2]	= "Proxy is working",
+						[4]	= "?",
 						[8] 	= "Proxy was tested, but timed out on connection",
 						[16]	= "Proxy was tested but failed at connection",
 						[32]	= "Proxy was tested but the IP was different",
 						[64]	= "IP marked as \"abusive host\"",
 						[128]	= "Proxy has a different anonymous-state"
 					}
-					
+
 					local code = tonumber(r[1]:match("%.(%d*)$"))
 					local result = {}
 
@@ -187,49 +265,289 @@ SERVICES = {
 						if ( bit.band( code, k ) == k ) then
 							table.insert(result, v)
 						end
-					end					
+					end	
 					return { state = "PROXY", details = result }
 				end	
-			end,					
+			end,
 		},
 		
-		["dnsbl.ahbl.org"] = {
-			resp_parser = function(r)
-				local responses = {
-					["127.0.0.3"] = "PROXY",
-				}
-				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,									
-		},
-		
-		["http.dnsbl.sorbs.net"] = {
-			resp_parser = function(r)
+		["ip-port.exitlist.torproject.org"] = {
+			configuration = {
+				["port"] = "the port to which the target can relay to",
+				["ip"] = "the IP address to which the target can relay to"
+			},
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			fmt_query = function(self)
+				if ( not(self.config.port) or not(self.config.ip) ) then
+					return
+				end
+
+				local rev_ip = dns.reverse(self.ip):match("^(.*)%.in%-addr%.arpa$")
+				return ("%s.%s.%s.ip-port.exitlist.torproject.org"):format(rev_ip,
+						self.config.port, self.config.ip)
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.2"] = "PROXY",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,												
+			end,
+		},
+
+		["tor.dan.me.uk"] = {
+			ns_type = {
+				["short"] = "A",
+				["long"] = "TXT",
+			},
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
+				local responses = {
+					["127.0.0.100"] = "PROXY",
+				}
+				if ( "short" == self.mode and r[1] ) then
+					return { state = responses[r[1]] }
+				else
+					local flagsinfo = {
+						["E"] = "Exit",
+						["A"] = "Authority",
+						["B"] = "BadExit",
+						["D"] = "V2Dir",
+						["F"] = "Fast",
+						["G"] = "Guard",
+						["H"] = "HSDir",
+						["N"] = "Named",
+						["R"] = "Running",
+						["S"] = "Stable",
+						["U"] = "Unnamed",
+						["V"] = "Valid"
+					}
+
+					local name, ports, flagsfound = r[1]:match(
+						"N:(.+)/P:([%d,]+)/F:([EABDFGHNRSUV]+)")
+
+					local flags = {}
+					flags['name'] = "Flags"
+
+					for k, v in pairs(flagsinfo) do
+						if flagsfound:match(k) then
+							table.insert(flags, v)
+						end
+					end
+
+					local result = {
+						("Name: %s"):format(name),
+						("Ports: %s"):format(ports),
+						flags
+					}
+
+					return { state = "PROXY", details = result }
+				end
+			end,
 		},
 		
-		["socks.dnsbl.sorbs.net"] = {
-			resp_parser = function(r)
+		["dnsbl.ahbl.org"] = {
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.3"] = "PROXY",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,												
+			end,
+		},
+		
+		["http.dnsbl.sorbs.net"] = {
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
+				local responses = {
+					["127.0.0.2"] = "PROXY",
+				}
+				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
+			end,
+		},
+		
+		["socks.dnsbl.sorbs.net"] = {
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
+				local responses = {
+					["127.0.0.3"] = "PROXY",
+				}
+				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
+			end,
 		},
 		
 		["misc.dnsbl.sorbs.net"] = {
-			resp_parser = function(r)
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
 				local responses = {
 					["127.0.0.4"] = "PROXY",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,												
+			end,
 		}
 			
-	}
+	},
+
+	ATTACK = {
+		["dnsbl.httpbl.org"] = {
+			configuration = {
+				["apikey"] = "the http:BL API key"
+			},
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			fmt_query = function(self)
+				if ( not(self.config.apikey) ) then
+					return
+				end
+
+				local rev_ip = dns.reverse(self.ip):match("^(.*)%.in%-addr%.arpa$")
+				return ("%s.%s.dnsbl.httpbl.org"):format(self.config.apikey, rev_ip)
+			end,
+			resp_parser = function(self, r)
+				if ( not(r[1]) ) then
+					return
+				end
+
+				local parts, err = ipOps.get_parts_as_number(r[1])
+
+				if ( not(parts) or err ) then
+					-- TODO Should we return failure in the result?
+					stdnse.print_debug("The dnsbl.httpbl.org provider failed to return a valid address")
+					return
+				end
+
+				local octet1, octet2, octet3, octet4 = unpack(parts)
+
+				if ( octet1 ~= 127 ) then
+					-- This should'nt happen :P
+					stdnse.print_debug(string.format(
+						"The request made to dnsbl.httpbl.org was considered invalid (%i)", octet1))
+				elseif ( "short" == self.mode ) then
+					return { state = "ATTACK" }
+				else
+					local search = {
+						[0] = "Undocumented",
+						[1] = "AltaVista",
+						[2] = "Ask",
+						[3] = "Baidu",
+						[4] = "Excite",
+						[5] = "Google",
+						[6] = "Looksmart",
+						[7] = "Lycos",
+						[8] = "MSN",
+						[9] = "Yahoo",
+						[10] = "Cuil",
+						[11] = "InfoSeek",
+						[12] = "Miscellaneous"
+					}
+
+					local result = {}
+					
+					-- Search engines are a special case.
+					if ( octet4 == 0 ) then
+						table.insert(result, ("Search engine: %s"):format(
+							search[octet3]))
+					else
+						table.insert(result, ("Last activity: %i days"):format(
+							octet2))
+						table.insert(result, ("Threat score: %i"):format(
+							octet3))
+						
+						local activity = {}
+						activity['name'] = "Activity"
+						-- Suspicious activity
+						if ( bit.band(octet4, 1) == 1) then
+							table.insert(activity, "Suspicious")
+						end
+
+						-- Harvester
+						if ( bit.band(octet4, 2) == 2) then
+							table.insert(activity, "Harvester")
+						end
+
+						-- Comment spammer
+						if ( bit.band(octet4, 4)  == 4) then
+							table.insert(activity, "Comment spammer")
+						end
+						
+						table.insert(result, activity)
+					end
+
+					return { state = "ATTACK", details = result }
+				end
+			end,
+		},
+
+		["all.bl.blocklist.de"] = {
+			new = function(self, ip, mode, config)
+				local o = { ip = ip, mode = mode, config = config }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+			resp_parser = function(self, r)
+ 				local responses = {
+ 					["127.0.0.2"] = "Amavis",
+ 					["127.0.0.3"] = "DDoS",
+ 					["127.0.0.4"] = "Asterisk, SIP, VoIP",
+ 					["127.0.0.5"] = "Badbot",
+ 					["127.0.0.6"] = "FTP",
+ 					["127.0.0.7"] = "IMAP",
+ 					["127.0.0.8"] = "IRC bot",
+ 					["127.0.0.9"] = "Mail",
+ 					["127.0.0.10"] = "POP3",
+ 					["127.0.0.11"] = "Registration bot",
+ 					["127.0.0.12"] = "Remote file inclusion",
+ 					["127.0.0.13"] = "SASL",
+ 					["127.0.0.14"] = "SSH",
+ 					["127.0.0.15"] = "w00tw00t",
+ 					["127.0.0.16"] = "Port flood",
+ 				}
+ 				if ( "short" == self.mode and r[1] ) then
+ 					return "ATTACK"
+ 				else
+ 					return ( r[1] and responses[r[1]] ) and { state = "ATTACK",
+ 						details = {
+ 							("Type: %s"):format(responses[r[1]])
+ 						}
+ 					}
+ 				end
+ 			end,
+ 		}
+	},
 	
 }
 
@@ -254,8 +572,20 @@ Helper = {
 	-- @return services table of service names
 	listServices = function(self)
 		local services = {}
-		for svc in pairs(SERVICES[self.category]) do
-			table.insert(services, svc)
+		for name, svc in pairs(SERVICES[self.category]) do
+			if ( svc.configuration ) then
+				local service = {}
+				service['name'] = name
+
+				for config, description in pairs(svc.configuration) do
+					table.insert(service, ("config: %s.%s - %s"):format(
+						name, config, description))
+				end
+
+				table.insert(services, service )
+			else
+				table.insert(services, name)
+			end
 		end
 		return services		
 	end,
@@ -307,54 +637,84 @@ Helper = {
 		end
 	end,
 	
+	doQuery = function(self, ip, name, svc, answers)
+
+		local condvar = nmap.condvar(answers)
+		local config = {}
+
+		if ( svc.configuration ) then
+			for key in pairs(svc.configuration) do
+				config[key] = stdnse.get_script_args(("%s.%s"):format(name, key))
+			end
+		end
+
+		svc = svc:new(ip, self.mode, config)
+
+		local ns_type = ( svc.ns_type and svc.ns_type[self.mode] ) and svc.ns_type[self.mode] or "A"
+		local query
+
+		if ( not(svc.fmt_query) ) then
+			local rev_ip = dns.reverse(ip):match("^(.*)%.in%-addr%.arpa$")
+			query = ("%s.%s"):format(rev_ip, name)
+		else
+			query = svc:fmt_query()
+		end
+
+		if ( query ) then
+			local status, answer = dns.query(query, {dtype=ns_type, retAll=true} )
+			answers[name] = { status = status, answer = answer, svc = svc }
+		else
+			stdnse.print_debug("Query function returned nothing, skipping '%s'", name)
+		end
+		
+		condvar "signal"
+	end,
+	
 	-- Runs the DNS blacklist check for the given IP against all non-filtered
 	-- services in the given category.
 	-- @param ip string containing the IP address to check
 	-- @return result table containing the results of the BL checks
 	checkBL = function(self, ip)
-	
-		local result = {}
+		local result, answers, threads = {}, {}, {}
+		local condvar = nmap.condvar(answers)
 		
 		for name, svc in pairs(self:getServices()) do
-			--local ns_type = ( self.mode == "long" and (tabcontains(svc.ns_type or {}, 'TXT') and 'TXT' or 'A') or 'A')
-			local ns_type = ( svc.ns_type and svc.ns_type[self.mode] ) and svc.ns_type[self.mode] or "A"
-			local query
-			
-			if ( svc.fmt_query ) then
-				query = svc.fmt_query(ip)
-			else
-				local rev_ip = dns.reverse(ip):match("^(.*)%.in%-addr%.arpa$")
-				query = ("%s.%s"):format(rev_ip, name)
+			local co = stdnse.new_thread(self.doQuery, self, ip, name, svc, answers)
+			threads[co] = true
+		end
+
+		repeat
+			condvar "wait"
+			for t in pairs(threads) do
+				if ( coroutine.status(t) == "dead" ) then threads[t] = nil end
 			end
-			
-			local status, answer = dns.query(query, {dtype=ns_type, retAll=true} )
+		until( next(threads) == nil )
+		
+		for name, answer in pairs(answers) do
+			local status, answer, svc = answer.status, answer.answer, answer.svc
 			if ( status ) then
-				local svc_result = svc.resp_parser(answer, self.mode)
-				
-			 	if ( not(svc_result) ) then
+				local svc_result = svc:resp_parser(answer)
+				if ( not(svc_result) ) then
 					local resp = ( #answer > 0 and ("UNKNOWN (%s)"):format(answer[1]) or "UNKNOWN" )
 					stdnse.print_debug(2, ("%s received %s"):format(name, resp))
 				end
-				
+	
 				-- only add a record if the response could be parsed, some
 				-- services, such as list.quorum.to, incorrectly return
 				-- 127.0.0.0 when all is good.
 				if ( svc_result ) then
 					table.insert(result, { name = name, result = svc_result })
 				end
-			-- if status is false, and the response was "No Such Name", it
-			-- simply means that the IP isn't listed, we haven't failed at
-			-- this point. It would obviously be better to check this against
-			-- an error code, or in some other way, but this is what we've got.
+
+ 				-- if status is false, and the response was "No Such Name", it
+				-- simply means that the IP isn't listed, we haven't failed at
+				-- this point. It would obviously be better to check this against
+				-- an error code, or in some other way, but this is what we've got.
 			elseif ( answer ~= "No Such Name" ) then
 				table.insert(result, { name = name, result = { state = "FAIL" }})
 			end
 		end
 		return result
 	end,
-	
 
 }
-
-
-
