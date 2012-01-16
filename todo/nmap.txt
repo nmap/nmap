@@ -1,5 +1,14 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o We need to fix the svn server so that Nmap committers can make
+  branches from /nmap to /nmap-exp.  We may need to add some sort of
+  OPTIONS permission to the root directory or something, because
+  they're getting errors like:
+  $ svn cp https://svn.nmap.org/nmap https://svn.nmap.org/nmap-exp/branchname
+  svn: Server sent unexpected return value (403 Forbidden) in response
+  to OPTIONS request for 'https://svn.nmap.org'
+
+
 o Get RPM staticly linking to libsvn (rather than dynamic linking) so
   that it isn't a requirement for installing the RPM.
   - since the libsvn-devel package apparently only installs dynamic
