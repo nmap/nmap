@@ -8,12 +8,16 @@ o We need to fix the svn server so that Nmap committers can make
   svn: Server sent unexpected return value (403 Forbidden) in response
   to OPTIONS request for 'https://svn.nmap.org'
 
-
 o Get RPM staticly linking to libsvn (rather than dynamic linking) so
   that it isn't a requirement for installing the RPM.
   - since the libsvn-devel package apparently only installs dynamic
     libs, we'll probably have to install it ourselves on the CentOS
     build machines.
+
+o Add options in configure script for users to specify where to find
+  subversion lib/include dirs (like we do with our other library
+  dependencies).  See this mail:
+  http://seclists.org/nmap-dev/2012/q1/37
 
 o Do more thinking/researching/investigating the way our machine
   learning IPv6 OS detection system decides whether a match is perfect
@@ -69,6 +73,9 @@ o Prepare release notes, web page, etc.
 o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
+
+o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
+  6, since Linode doesn't currently offer ScientificLinux images).
 
 o Solve "spurious closed port detection" issue discovered by David:
   http://seclists.org/nmap-dev/2012/q1/62
