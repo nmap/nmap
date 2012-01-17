@@ -159,6 +159,9 @@ o [UPDATER] Create a way to send an error message to the user
   (e.g. "your account has expired" or "updates denied due to
   overuse--please wait 24 hours before trying again", or "account
   suspended due to abuse")?
+  David: I've seen svn errors like this:
+    svn: Repository moved temporarily to 'http://www.metasploit.com/svn/framework3/trunk/modules'; please relocate
+  so maybe there is a standard way to do it.
 
 o [UPDATER] Create webapp for account creation (can be deferred until later)
 
