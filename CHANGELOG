@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script dns-nsid by John Bond, that retrieves name server ID and
+  version information.
+
+o [NSE] Applied patch to DNS library by John Bond that adds support for the
+  CHAOS class and NSID requests.
+
 o [NSE] Changed the dnsbl library to take a threaded approach into querying
   DNSBL provides drastically improving performance. [Patrik]
 

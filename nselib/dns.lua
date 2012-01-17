@@ -62,6 +62,7 @@ types = {
 
 CLASS = {
     IN = 1,
+    CH = 3,
     ANY = 255
 }
 
@@ -252,6 +253,7 @@ function query(dname, options)
 
     local dtype, host, port = options.dtype, options.host, options.port
 
+    local class = options.class or CLASS.IN
     if not options.tries then options.tries = 10 end -- don't get into an infinite loop
 
     if not options.sendCount then options.sendCount = 2 end
@@ -279,12 +281,18 @@ function query(dname, options)
     end
 
     local pkt = newPacket()
-    addQuestion(pkt, dname, dtype)
+    addQuestion(pkt, dname, dtype, class)
     if options.norecurse then pkt.flags.RD = false end
 
-    if options.dnssec then
-        addOPT(pkt, {DO = true})
-    end
+	if ( options.dnssec ) then
+		if ( options.nsid ) then
+			addNSID(pkt, {DO = true})
+		else
+			addOPT(pkt, {DO = true})
+		end
+	elseif ( options.nsid ) then
+		addNSID(pkt, {})
+	end
 
 	if ( options.flags ) then pkt.flags.raw = options.flags end
 	if ( options.id ) then pkt.id = options.id end
@@ -1076,6 +1084,25 @@ decoder[types.TXT] =
 
   end
 
+---
+-- Decodes OPT record, puts it in <code>entry.OPT</code>.
+--
+-- <code>entry.OPT</code> has the fields <code>mname</code>, <code>rname</code>,
+-- <code>serial</code>, <code>refresh</code>, <code>retry</code>,
+-- <code>expire</code>, and <code>minimum</code>.
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
+decoder[types.OPT] = 
+	function(entry, data, pos)
+		local np = pos - #entry.data - 6
+		local opt = { bufsize = entry.class }
+		np, opt.rcode, opt.version, opt.zflags, opt.rdlen = bin.unpack(">CCSS", data, np)
+		np, opt.data = bin.unpack("A" .. opt.rdlen, data, np)
+  		entry.OPT = opt
+	end
+
+
 -- Decodes MX record, puts it in <code>entry.MX</code>.
 --
 -- <code>entry.MX</code> has the fields <code>pref</code> and
@@ -1109,7 +1136,6 @@ decoder[types.SRV] =
      np, entry.SRV.target = decStr(data, np)
   end
 
----
 -- Decodes returned resource records (answer, authority, or additional part).
 -- @param data Complete encoded DNS packet.
 -- @param count Value of according counter in header.
@@ -1226,13 +1252,14 @@ end
 -- @param pkt Table representing DNS packet.
 -- @param dname Domain name to be asked.
 -- @param dtype RR to be asked.
-function addQuestion(pkt, dname, dtype)
+function addQuestion(pkt, dname, dtype, class)
     if type(pkt) ~= "table" then return nil end
     if type(pkt.questions) ~= "table" then return nil end
+    local class = class or CLASS.IN
     local q = {}
     q.dname = dname
     q.dtype = dtype
-    q.class = CLASS.IN
+    q.class = class
     table.insert(pkt.questions, q)
     return pkt
 end
@@ -1269,12 +1296,18 @@ local function encodeOPT_Z(flags)
     return table.concat(bits)
 end
 
+function addNSID (pkt,Z)
+	local udp_payload_size = 4096
+	local opt = bin.pack(">SS",3, 0) -- nsid data
+	addOPT(pkt,Z,opt)  
+end
 ---
 -- Adds an OPT RR to a DNS packet's additional section. Only the table of Z
 -- flags is supported (i.e., not RDATA). See RFC 2671 section 4.3.
 -- @param pkt Table representing DNS packet.
 -- @param Z Table of Z flags. Only DO is supported.
-function addOPT(pkt, Z)
+function addOPT(pkt, Z, opt)
+    local rdata = opt or ""
     if type(pkt) ~= "table" then return nil end
     if type(pkt.additional) ~= "table" then return nil end
     local _, Z_int = bin.unpack(">S", bin.pack("B", encodeOPT_Z(Z)))
@@ -1282,8 +1315,8 @@ function addOPT(pkt, Z)
         type = types.OPT,
         class = 4096,  -- Actually the sender UDP payload size.
         ttl = 0 * (0x01000000) + 0 * (0x00010000) + Z_int,
-        rdlen = 0,
-        rdata = "",
+        rdlen = #rdata,
+        rdata = rdata,
     }
     table.insert(pkt.additional, opt)
     return pkt
