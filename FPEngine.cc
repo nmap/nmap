@@ -665,6 +665,8 @@ FPEngine6::~FPEngine6() {
 /* From FPModel.cc. */
 extern struct model FPModel;
 extern double FPscale[][2];
+extern double FPmean[][659];
+extern double FPvariance[][659];
 extern FingerMatch FPmatches[];
 
 /* Not all operating systems allow setting the flow label in outgoing packets;
@@ -926,7 +928,33 @@ int label_prob_cmp(const void *a, const void *b) {
 #define NOVELTY_THRESHOLD 10.0
 
 static double novelty_of(const struct feature_node *features, int label) {
-  return 0.0;
+  const double *means, *variances;
+  int i, nr_feature;
+  double sum;
+
+  nr_feature = get_nr_feature(&FPModel);
+  assert(0 <= label);
+  assert(label < nr_feature);
+
+  means = FPmean[label];
+  variances = FPvariance[label];
+
+  sum = 0.0;
+  for (i = 0; i < nr_feature; i++) {
+    double d, v;
+
+    assert(i + 1 == features[i].index);
+    d = features[i].value - means[i];
+    v = variances[i];
+    if (v == 0.0) {
+      /* No variance? It means that samples were identical. Substitute a sample
+         variance. */
+      v = 1.0;
+    }
+    sum += d * d / v;
+  }
+
+  return sqrt(sum);
 }
 
 static void classify(FingerPrintResultsIPv6 *FPR) {
@@ -955,8 +983,10 @@ static void classify(FingerPrintResultsIPv6 *FPR) {
     FPR->num_matches = i + 1;
     if (labels[i].prob >= 0.90 * labels[0].prob)
       FPR->num_perfect_matches = i + 1;
-    if (o.debugging > 2)
-      printf("%7.4f %3u %s\n", FPR->accuracy[i] * 100, labels[i].label, FPR->matches[i]->OS_name);
+    if (o.debugging > 2) {
+      printf("%7.4f %7.4f %3u %s\n", FPR->accuracy[i] * 100,
+        novelty_of(features, labels[i].label), labels[i].label, FPR->matches[i]->OS_name);
+    }
   }
   if (FPR->num_perfect_matches == 0) {
     FPR->overall_results = OSSCAN_NOMATCHES;
