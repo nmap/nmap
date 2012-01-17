@@ -19,15 +19,7 @@ o Add options in configure script for users to specify where to find
   dependencies).  See this mail:
   http://seclists.org/nmap-dev/2012/q1/37
 
-o Do more thinking/researching/investigating the way our machine
-  learning IPv6 OS detection system decides whether a match is perfect
-  and/or how close the match is.  Maybe our current system works well
-  enough, we'll need to watch how it performs as we increase the DB
-  size and collect/integrate more signatures.  The goal is to:
-  o Producing fewer way-off matches since it would have a way (like our
-    current system) to decide how close the match really is
-  o Doing a better job about printing fingerprints for matches with
-    aren't close enough
+o Document the new IPv6 OS detection novelty system in os-detection.xml
 
 o Write and send GSoC 2011 results email
 
@@ -731,6 +723,16 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Do more thinking/researching/investigating the way our machine
+  learning IPv6 OS detection system decides whether a match is perfect
+  and/or how close the match is.  Maybe our current system works well
+  enough, we'll need to watch how it performs as we increase the DB
+  size and collect/integrate more signatures.  The goal is to:
+  o Producing fewer way-off matches since it would have a way (like our
+    current system) to decide how close the match really is
+  o Doing a better job about printing fingerprints for matches with
+    aren't close enough
 
 o Improve the "run Zenmap as root" menu item to work on distributions
   without su-to-root.  We might even want to improve Zenmap so that it
