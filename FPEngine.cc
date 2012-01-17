@@ -947,9 +947,10 @@ static double novelty_of(const struct feature_node *features, int label) {
     d = features[i].value - means[i];
     v = variances[i];
     if (v == 0.0) {
-      /* No variance? It means that samples were identical. Substitute a sample
-         variance. */
-      v = 1.0;
+      /* No variance? It means that samples were identical. Substitute a default
+         variance. This will tend to make novelty large in these cases, which
+         will hopefully encourage for submissions for this class. */
+      v = 0.01;
     }
     sum += d * d / v;
   }
