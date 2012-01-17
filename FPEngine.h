@@ -124,7 +124,7 @@ class FingerPrintResultsIPv6;
 
 /* Even with a successful classification, we may not consider a match good if it
    is too different from other members of the class. */
-#define FP_NOVELTY_THRESHOLD 10.0
+#define FP_NOVELTY_THRESHOLD 15.0
 
 const unsigned int OSDETECT_FLOW_LABEL = 0x12345;
 
