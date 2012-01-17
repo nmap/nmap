@@ -122,6 +122,10 @@ class FingerPrintResultsIPv6;
 /* Total number of IPv6 OS detection probes. */
 #define NUM_FP_PROBES_IPv6 (NUM_FP_PROBES_IPv6_TCP+NUM_FP_PROBES_IPv6_ICMPv6+NUM_FP_PROBES_IPv6_UDP)
 
+/* Even with a successful classification, we may not consider a match good if it
+   is too different from other members of the class. */
+#define FP_NOVELTY_THRESHOLD 10.0
+
 const unsigned int OSDETECT_FLOW_LABEL = 0x12345;
 
 

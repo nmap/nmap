@@ -925,8 +925,6 @@ int label_prob_cmp(const void *a, const void *b) {
     return 0;
 }
 
-#define NOVELTY_THRESHOLD 10.0
-
 static double novelty_of(const struct feature_node *features, int label) {
   const double *means, *variances;
   int i, nr_feature;
@@ -998,12 +996,12 @@ static void classify(FingerPrintResultsIPv6 *FPR) {
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Novelty of closest match is %.3f.\n", novelty);
 
-    if (novelty < NOVELTY_THRESHOLD) {
+    if (novelty < FP_NOVELTY_THRESHOLD) {
       FPR->overall_results = OSSCAN_SUCCESS;
     } else {
       if (o.debugging > 0) {
         log_write(LOG_PLAIN, "Novelty of closest match is %.3f > %.3f; ignoring.\n",
-          novelty, NOVELTY_THRESHOLD);
+          novelty, FP_NOVELTY_THRESHOLD);
       }
       FPR->overall_results = OSSCAN_NOMATCHES;
       FPR->num_perfect_matches = 0;
