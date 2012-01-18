@@ -925,6 +925,28 @@ int label_prob_cmp(const void *a, const void *b) {
     return 0;
 }
 
+/* Return a measure of how much the given feature vector differs from the other
+   members of the class given by label.
+
+   This can be thought of as the distance from the given feature vector to the
+   mean of the class in multidimensional space, after scaling. Each dimension is
+   further scaled by the inverse of the sample variance of that feature. This is
+   an approximation of the Mahalanobis distance
+   (https://en.wikipedia.org/wiki/Mahalanobis_distance), which normally uses a
+   full covariance matrix of the features. If we take the features to be
+   pairwise independent (which they are not), then the covariance matrix is just
+   the diagonal matrix containing per-feature variances, leading to the same
+   calculation as is done below. Using only the per-feature variances rather
+   than covariance matrices is to save space; it requires only n entries per
+   class rather than n^2, where n is the length of a feature vector.
+
+   It happens often that a feature's variance is undefined (because there is
+   only one example in the class) or zero (because there are two identical
+   values for that feature). Both these cases are mapped to zero by train.py,
+   and we handle them the same way: by using a small default variance. This will
+   tend to make small differences count a lot (because we probably want this
+   fingerprint in order to expand the class), while still allowing near-perfect
+   matches to match. */
 static double novelty_of(const struct feature_node *features, int label) {
   const double *means, *variances;
   int i, nr_feature;
