@@ -993,6 +993,7 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
       precedence over those given in a file.  The filename may be
       given as an absolute path or relative to Nmap's usual
       search path (NMAPDIR, etc.)
+      </para>
 
       <para>Here is a typical Nmap invocation with script arguments:
 <informalexample>
