@@ -17,7 +17,7 @@
 -- If a script is planning on making a lot of requests, the pipelining functions can
 -- be helpful. <code>pipeline_add</code> queues requests in a table, and
 -- <code>pipeline</code> performs the requests, returning the results as an array,
--- with the respones in the same order as the queries were added. As a simple example:
+-- with the responses in the same order as the queries were added. As a simple example:
 --<code>
 --	-- Start by defining the 'all' variable as nil
 --	local all = nil
