@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script dns-srv-enum that enumerates DNS service records for a
+  given domain. [Patrik]
+
 o [NSE] Added script nessus-xmlrpc-brute that performs brute force password
   guessing against the Nessus web GUI. [Patrik]
 
