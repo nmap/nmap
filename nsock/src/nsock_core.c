@@ -312,7 +312,6 @@ static int iod_add_event(msiod *iod, msevent *nse) {
 void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
   int optval;
   socklen_t optlen = sizeof(int);
-  char buf[1024];
   msiod *iod = nse->iod;
 #if HAVE_OPENSSL
   int sslerr;
@@ -360,9 +359,8 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         nse->errnum = optval;
         break;
       default:
-        Snprintf(buf, sizeof(buf), "Strange connect error from %s (%d)",
-                 inet_ntop_ez(&iod->peer, iod->peerlen), optval);
-        perror(buf);
+        fprintf(stderr, "Strange connect error from %s (%d): %s",
+                 inet_ntop_ez(&iod->peer, iod->peerlen), optval, socket_strerror(optval));
         assert(0); /* I'd like for someone to report it */
         break;
     }
