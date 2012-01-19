@@ -4,7 +4,7 @@
 -- Because HTTP has so many uses, there are a number of interfaces to this library.
 -- The most obvious and common ones are simply <code>get</code>, <code>post</code>,
 -- and <code>head</code>; or, if more control is required, <code>generic_request</code>
--- can be used. Thse functions do what one would expect. The <code>get_url</code> 
+-- can be used. These functions do what one would expect. The <code>get_url</code> 
 -- helper function can be used to parse and retrieve a full URL. 
 --
 -- These functions return a table of values, including:
@@ -12,9 +12,9 @@
 -- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present. 
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
 -- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>. 
--- * <code>body</code> - The full body, as retunred by the server. 
+-- * <code>body</code> - The full body, as returned by the server. 
 --
--- If a script is planning on making a lot of requests, the pipeling functions can
+-- If a script is planning on making a lot of requests, the pipelining functions can
 -- be helpful. <code>pipeline_add</code> queues requests in a table, and
 -- <code>pipeline</code> performs the requests, returning the results as an array,
 -- with the respones in the same order as the queries were added. As a simple example:
