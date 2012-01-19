@@ -112,7 +112,11 @@ local function needsPassword(host, port)
 	if (code == 464) then
 		return true
 	end
-	return false, ("Failed to check password requirements, unknown code (%d)"):format(code)
+	if ( code ) then
+		return false, ("Failed to check password requirements, unknown code (%d)"):format(code)
+	else
+		return false, "Failed to check password requirements"
+	end
 end
 
 
