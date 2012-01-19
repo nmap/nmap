@@ -338,6 +338,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
       case 0:
         nse->status = NSE_STATUS_SUCCESS;
         break;
+      case EACCES: /* Can be caused by ICMPv6 dest-unreach-admin. */
       case ECONNREFUSED:
       case EHOSTUNREACH:
       case ENETDOWN:
