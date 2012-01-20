@@ -337,7 +337,9 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
       case 0:
         nse->status = NSE_STATUS_SUCCESS;
         break;
-      case EACCES: /* Can be caused by ICMPv6 dest-unreach-admin. */
+      /* EACCES can be caused by ICMPv6 dest-unreach-admin, or when a port is
+         blocked by Windows Firewall (WSAEACCES). */
+      case EACCES:
       case ECONNREFUSED:
       case EHOSTUNREACH:
       case ENETDOWN:
@@ -349,7 +351,6 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
       case ECONNRESET:
 #ifdef WIN32
       case WSAEADDRNOTAVAIL:
-      case WSAEACCES:     /* Can happen when Windows Firewall blocks a port. */
 #endif
 #ifndef WIN32
       case EPIPE: /* Has been seen after connect on Linux. */
