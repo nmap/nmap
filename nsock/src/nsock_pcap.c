@@ -272,60 +272,60 @@ int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
    * if a new offset ever exceeds the current max (24), adjust max_link_headersz in tcpip.h */
   switch(datalink) {
     case DLT_EN10MB: offset = 14; break;
-  case DLT_IEEE802: offset = 22; break;
-  #ifdef __amigaos__
-  case DLT_MIAMI: offset = 16; break;
-  #endif
-  #ifdef DLT_LOOP
-  case DLT_LOOP:
-  #endif
-  case DLT_NULL: offset = 4; break;
+    case DLT_IEEE802: offset = 22; break;
+    #ifdef __amigaos__
+    case DLT_MIAMI: offset = 16; break;
+    #endif
+    #ifdef DLT_LOOP
+    case DLT_LOOP:
+    #endif
+    case DLT_NULL: offset = 4; break;
 
-  case DLT_SLIP:
-  #ifdef DLT_SLIP_BSDOS
-  case DLT_SLIP_BSDOS:
-  #endif
-  #if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
-  offset = 16;break;
-  #else
-  offset = 24;break; /* Anyone use this??? */
-  #endif
-
-  case DLT_PPP:
-  #ifdef DLT_PPP_BSDOS
-  case DLT_PPP_BSDOS:
-  #endif
-  #ifdef DLT_PPP_SERIAL
-  case DLT_PPP_SERIAL:
-  #endif
-  #ifdef DLT_PPP_ETHER
-  case DLT_PPP_ETHER:
-  #endif
-  #if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
-  offset = 4;break;
-  #else
-    #ifdef SOLARIS
-      offset = 8;break;
+    case DLT_SLIP:
+    #ifdef DLT_SLIP_BSDOS
+    case DLT_SLIP_BSDOS:
+    #endif
+    #if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
+    offset = 16;break;
     #else
-      offset = 24;break; /* Anyone use this? */
-    #endif /* ifdef solaris */
-  #endif /* if freebsd || openbsd || netbsd || bsdi */
-  #ifdef DLT_RAW
-  case DLT_RAW: offset = 0; break;
-  #endif /* DLT_RAW */
-  case DLT_FDDI: offset = 21; break;
-  #ifdef DLT_ENC
-  case DLT_ENC: offset = 12; break;
-  #endif /* DLT_ENC */
-  #ifdef DLT_LINUX_SLL
-  case DLT_LINUX_SLL: offset = 16; break;
-  #endif
-  #ifdef DLT_IPNET
-  case DLT_IPNET: offset = 24; break;
-  #endif /* DLT_IPNET */
+    offset = 24;break; /* Anyone use this??? */
+    #endif
 
-  default: /* Sorry, link type is unknown. */
-    fatal("Unknown datalink type %d.\n", datalink);
+    case DLT_PPP:
+    #ifdef DLT_PPP_BSDOS
+    case DLT_PPP_BSDOS:
+    #endif
+    #ifdef DLT_PPP_SERIAL
+    case DLT_PPP_SERIAL:
+    #endif
+    #ifdef DLT_PPP_ETHER
+    case DLT_PPP_ETHER:
+    #endif
+    #if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
+    offset = 4;break;
+    #else
+      #ifdef SOLARIS
+        offset = 8;break;
+      #else
+        offset = 24;break; /* Anyone use this? */
+      #endif /* ifdef solaris */
+    #endif /* if freebsd || openbsd || netbsd || bsdi */
+    #ifdef DLT_RAW
+    case DLT_RAW: offset = 0; break;
+    #endif /* DLT_RAW */
+    case DLT_FDDI: offset = 21; break;
+    #ifdef DLT_ENC
+    case DLT_ENC: offset = 12; break;
+    #endif /* DLT_ENC */
+    #ifdef DLT_LINUX_SLL
+    case DLT_LINUX_SLL: offset = 16; break;
+    #endif
+    #ifdef DLT_IPNET
+    case DLT_IPNET: offset = 24; break;
+    #endif /* DLT_IPNET */
+
+    default: /* Sorry, link type is unknown. */
+      fatal("Unknown datalink type %d.\n", datalink);
   }
   if (dl)
     *dl = datalink;

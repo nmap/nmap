@@ -180,7 +180,6 @@ static int socket_count_dec_ssl_desire(msevent *nse) {
  * If this counter reaches zero, the event won't be watched anymore by the
  * IO engine for this IOD.
  */
-
 static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
   int setmask, clrmask;
 
@@ -223,60 +222,60 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
  */
 static int iod_add_event(msiod *iod, msevent *nse) {
   switch(nse->type) {
-      case NSE_TYPE_CONNECT:
-      case NSE_TYPE_CONNECT_SSL:
-        if (iod->first_connect)
-          iod->first_connect = gh_list_insert_before(&iod->nsp->connect_events, iod->first_connect, nse);
-        else
-          iod->first_connect = gh_list_append(&iod->nsp->connect_events, nse);
-        break;
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      if (iod->first_connect)
+        iod->first_connect = gh_list_insert_before(&iod->nsp->connect_events, iod->first_connect, nse);
+      else
+        iod->first_connect = gh_list_append(&iod->nsp->connect_events, nse);
+      break;
 
-      case NSE_TYPE_READ:
+    case NSE_TYPE_READ:
+      if (iod->first_read)
+        iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
+      else
+        iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
+      break;
+
+    case NSE_TYPE_WRITE:
+      if (iod->first_write)
+        iod->first_write = gh_list_insert_before(&iod->nsp->write_events, iod->first_write, nse);
+      else
+        iod->first_write = gh_list_append(&iod->nsp->write_events, nse);
+      break;
+
+#if HAVE_PCAP
+    case NSE_TYPE_PCAP_READ: {
+      char add_read = 0, add_pcap_read = 0;
+
+#if PCAP_BSD_SELECT_HACK
+      /* BSD hack mode: add event to both read and pcap_read lists */
+      add_read = add_pcap_read = 1;
+#else
+      if (((mspcap *)iod->pcap)->pcap_desc >= 0) {
+        add_read = 1;
+      } else {
+        add_pcap_read = 1;
+      }
+#endif
+      if (add_read) {
         if (iod->first_read)
           iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
         else
           iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
-        break;
-
-      case NSE_TYPE_WRITE:
-        if (iod->first_write)
-          iod->first_write = gh_list_insert_before(&iod->nsp->write_events, iod->first_write, nse);
-        else
-          iod->first_write = gh_list_append(&iod->nsp->write_events, nse);
-        break;
-
-#if HAVE_PCAP
-      case NSE_TYPE_PCAP_READ: {
-        char add_read = 0, add_pcap_read = 0;
-
-#if PCAP_BSD_SELECT_HACK
-        /* BSD hack mode: add event to both read and pcap_read lists */
-        add_read = add_pcap_read = 1;
-#else
-        if (((mspcap *)iod->pcap)->pcap_desc >= 0) {
-          add_read = 1;
-        } else {
-          add_pcap_read = 1;
-        }
-#endif
-        if (add_read) {
-          if (iod->first_read)
-            iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
-          else
-            iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
-        }
-        if (add_pcap_read) {
-          if (iod->first_pcap_read)
-            iod->first_pcap_read = gh_list_insert_before(&iod->nsp->pcap_read_events, iod->first_pcap_read, nse);
-          else
-            iod->first_pcap_read = gh_list_append(&iod->nsp->pcap_read_events, nse);
-        }
-        break;
       }
+      if (add_pcap_read) {
+        if (iod->first_pcap_read)
+          iod->first_pcap_read = gh_list_insert_before(&iod->nsp->pcap_read_events, iod->first_pcap_read, nse);
+        else
+          iod->first_pcap_read = gh_list_append(&iod->nsp->pcap_read_events, nse);
+      }
+      break;
+    }
 #endif
 
-      default:
-        fatal("Unknown event type (%d) for IOD #%d\n", nse->type, iod->id);
+    default:
+      fatal("Unknown event type (%d) for IOD #%d\n", nse->type, iod->id);
   }
   return 0;
 }
@@ -744,38 +743,38 @@ void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
       nse->iod->read_count += rc;
       /* We decide whether we have read enough to return */
       switch(nse->readinfo.read_type) {
-      case NSOCK_READ:
-        nse->status = NSE_STATUS_SUCCESS;
-        nse->event_done = 1;
-        break;
-      case NSOCK_READBYTES:
-        if (FILESPACE_LENGTH(&nse->iobuf) >= nse->readinfo.num) {
+        case NSOCK_READ:
           nse->status = NSE_STATUS_SUCCESS;
           nse->event_done = 1;
-        }
-        /* else we are not done */
-        break;
-      case NSOCK_READLINES:
-        /* Lets count the number of lines we have ... */
-        count = 0;
-        len = FILESPACE_LENGTH(&nse->iobuf) -1;
-        str = FILESPACE_STR(&nse->iobuf);
-        for (count=0; len >= 0; len--) {
-          if (str[len] == '\n') {
-            count++;
-            if ((int)count >= nse->readinfo.num)
-              break;
+          break;
+        case NSOCK_READBYTES:
+          if (FILESPACE_LENGTH(&nse->iobuf) >= nse->readinfo.num) {
+            nse->status = NSE_STATUS_SUCCESS;
+            nse->event_done = 1;
           }
-        }
-        if ((int) count >= nse->readinfo.num) {
-          nse->event_done = 1;
-          nse->status = NSE_STATUS_SUCCESS;
-        }
-        /* Else we are not done */
-        break;
-      default:
-        assert(0);
-        break; /* unreached */
+          /* else we are not done */
+          break;
+        case NSOCK_READLINES:
+          /* Lets count the number of lines we have ... */
+          count = 0;
+          len = FILESPACE_LENGTH(&nse->iobuf) -1;
+          str = FILESPACE_STR(&nse->iobuf);
+          for (count=0; len >= 0; len--) {
+            if (str[len] == '\n') {
+              count++;
+              if ((int)count >= nse->readinfo.num)
+                break;
+            }
+          }
+          if ((int) count >= nse->readinfo.num) {
+            nse->event_done = 1;
+            nse->status = NSE_STATUS_SUCCESS;
+          }
+          /* Else we are not done */
+          break;
+        default:
+          assert(0);
+          break; /* unreached */
       }
     }
   } else {
@@ -1208,26 +1207,26 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
         if (nsp->tracelevel > 8)
           nsock_trace(nsp, "PCAP NSE #%lu: Adding event to READ_EVENTS", nse->id);
 
-      #if PCAP_BSD_SELECT_HACK
-      /* when using BSD hack we must do pcap_next() after select().
-       * Let's insert this pcap to bot queues, to selectable and nonselectable.
-       * This will result in doing pcap_next_ex() just before select() */
-      if (nsp->tracelevel > 8)
-        nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
-      #endif
-    } else {
-      /* pcap isn't selectable. Add it to pcap-specific queue. */
-      if (nsp->tracelevel > 8)
-        nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
-    }
-    iod_add_event(nse->iod, nse);
-    break;
+        #if PCAP_BSD_SELECT_HACK
+        /* when using BSD hack we must do pcap_next() after select().
+         * Let's insert this pcap to bot queues, to selectable and nonselectable.
+         * This will result in doing pcap_next_ex() just before select() */
+        if (nsp->tracelevel > 8)
+          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
+        #endif
+      } else {
+        /* pcap isn't selectable. Add it to pcap-specific queue. */
+        if (nsp->tracelevel > 8)
+          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
+      }
+      iod_add_event(nse->iod, nse);
+      break;
     }
 #endif
 
-  default:
-    assert(0);
-    break; /* unreached */
+    default:
+      assert(0);
+      break; /* unreached */
   }
 }
 

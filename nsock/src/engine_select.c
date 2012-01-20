@@ -363,7 +363,7 @@ void iterate_through_event_lists(mspool *nsp) {
   timer_last = GH_LIST_LAST_ELEM(&nsp->timer_events);
 
   for (current = GH_LIST_FIRST_ELEM(&nsp->active_iods);
-      current != NULL && GH_LIST_ELEM_PREV(current) != last; current = next) {
+       current != NULL && GH_LIST_ELEM_PREV(current) != last; current = next) {
     msiod *nsi = (msiod *)GH_LIST_ELEM_DATA(current);
     
     if (nsi->state != NSIOD_STATE_DELETED && nsi->events_pending) {
@@ -395,7 +395,7 @@ void iterate_through_event_lists(mspool *nsp) {
 
   /* iterate through timers */
   for (current = GH_LIST_FIRST_ELEM(&nsp->timer_events);
-        current != NULL && GH_LIST_ELEM_PREV(current) != timer_last; current = next) {
+       current != NULL && GH_LIST_ELEM_PREV(current) != timer_last; current = next) {
 
     msevent *nse = (msevent *)GH_LIST_ELEM_DATA(current);
 
