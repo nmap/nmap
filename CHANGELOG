@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o IPv6 OS detection now includes a novelty detection phase that avoids
+  printing a match when an observed fingerprint is too different from
+  fingerprints seen before. As the OS database is still small, this
+  will help not to make what is essentially a wild guess when seeing a
+  new operating system. [David]
+
 o [NSE] Added script dns-srv-enum that enumerates DNS service records for a
   given domain. [Patrik]
 
