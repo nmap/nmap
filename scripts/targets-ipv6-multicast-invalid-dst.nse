@@ -112,8 +112,8 @@ local function single_interface_broadcast(if_nfo, results)
 	local probe = packet.Frame:new()
 	probe.mac_src = src_mac
 	probe.mac_dst = dst_mac
-	probe.ip6_src = src_ip6
-	probe.ip6_dst = dst_ip6
+	probe.ip_bin_src = src_ip6
+	probe.ip_bin_dst = dst_ip6
 
 	-- In addition to setting an invalid option in
 	-- build_invalid_extension_header, we set an unknown ICMPv6 type of
@@ -152,7 +152,7 @@ local function single_interface_broadcast(if_nfo, results)
 			local l2reply = packet.Frame:new(layer2)
 			if l2reply.mac_dst == src_mac then
 				local reply = packet.Packet:new(layer3)
-				local target_str = packet.toipv6(reply.ip6_src)
+				local target_str = reply.ip_src
 				if not results[target_str] then
 					if target.ALLOW_NEW_TARGETS then
 						target.add(target_str)

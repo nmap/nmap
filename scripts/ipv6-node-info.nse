@@ -248,7 +248,7 @@ local function handle_received_packet(buf)
 
 	if not STRINGIFY[qtype] then
 		-- This is a not a qtype we sent or know about.
-		stdnse.print_debug(1, "Got NI reply with unknown qtype %d from %s", qtype, packet.toipv6(p.ip6_src))
+		stdnse.print_debug(1, "Got NI reply with unknown qtype %d from %s", qtype, p.ip6_src)
 		return
 	end
 

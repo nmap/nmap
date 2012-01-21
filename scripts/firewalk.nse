@@ -189,10 +189,10 @@ local tcp_funcs_v4 = {
 
     if port and scanner.ports.tcp[port] then
 
-      stdnse.print_debug("Marking port %d/tcp v4 as forwarded (reply from %s)", ip2.tcp_dport, toip(ip.ip_bin_src))
+      stdnse.print_debug("Marking port %d/tcp v4 as forwarded (reply from %s)", ip2.tcp_dport, ip.ip_src)
 
       -- mark the gateway as forwarding the packet
-      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip_bin_src))
+      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
       scanner.ports.tcp[port].scanned = true
 
       -- remove the related probe
@@ -256,7 +256,7 @@ local udp_funcs_v4 = {
       stdnse.print_debug("Marking port %d/udp v4 as forwarded", ip2.udp_dport)
 
       -- mark the gateway as forwarding the packet
-      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip_bin_src))
+      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
       scanner.ports.udp[port].scanned = true
 
       for i, probe in ipairs(scanner.active_probes) do
@@ -316,10 +316,10 @@ local tcp_funcs_v6 = {
 
     if port and scanner.ports.tcp[port] then
 
-      stdnse.print_debug("Marking port %d/tcp v6 as forwarded (reply from %s)", ip2.tcp_dport, toip(ip.ip6_src))
+      stdnse.print_debug("Marking port %d/tcp v6 as forwarded (reply from %s)", ip2.tcp_dport, ip.ip_src)
 
       -- mark the gateway as forwarding the packet
-      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip6_src))
+      scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
       scanner.ports.tcp[port].scanned = true
 
       -- remove the related probe
@@ -378,10 +378,10 @@ local udp_funcs_v6 = {
 
     if port and scanner.ports.udp[port] then
 
-      stdnse.print_debug("Marking port %d/udp v6 as forwarded (reply from %s)", ip2.udp_dport, toip(ip2.ip6_src))
+      stdnse.print_debug("Marking port %d/udp v6 as forwarded (reply from %s)", ip2.udp_dport, ip2.ip_src)
 
       -- mark the gateway as forwarding the packet
-      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, toip(ip.ip6_src))
+      scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, ip.ip_src)
       scanner.ports.udp[port].scanned = true
 
       for i, probe in ipairs(scanner.active_probes) do
@@ -440,7 +440,7 @@ local Firewalk_v4 = {
   --- IPv4 initialization function. Open injection and reception sockets.
   -- @param scanner the scanner handle
   init = function(scanner)
-    local saddr = toip(scanner.target.bin_ip_src)
+    local saddr = packet.toip(scanner.target.bin_ip_src)
 
     scanner.sock = nmap.new_dnet()
     scanner.pcap = nmap.new_socket()
@@ -506,7 +506,7 @@ local Firewalk_v6 = {
   --- IPv6 initialization function. Open injection and reception sockets.
   -- @param scanner the scanner handle
   init = function(scanner)
-    local saddr = toip(scanner.target.bin_ip_src)
+    local saddr = packet.toipv6(scanner.target.bin_ip_src)
 
     scanner.sock = nmap.new_dnet()
     scanner.pcap = nmap.new_socket()
@@ -531,7 +531,7 @@ local Firewalk_v6 = {
   -- @return whether the packet seems to be a valid reply or not
   check = function(src, layer3)
     local ip = packet.Packet:new(layer3)
-    return ip.ip6_dst == src
+    return ip.ip_bin_dst == src
             and ip.ip_p == packet.IPPROTO_ICMPV6
             and ip.icmpv6_type == ICMP_TIME_EXCEEDEDv6
   end,
@@ -550,8 +550,8 @@ local Firewalk_v6 = {
     local ip2 = packet.Packet:new(is)
 
     -- check ICMP payload
-    if ip2.ip6_src == scanner.target.bin_ip_src and
-      ip2.ip6_dst == scanner.target.bin_ip then
+    if ip2.ip_bin_src == scanner.target.bin_ip_src and
+      ip2.ip_bin_dst == scanner.target.bin_ip then
 
       -- layer 4 checks
       local proto_func = proto_vtable[proto2str(ip2.ip_p)]

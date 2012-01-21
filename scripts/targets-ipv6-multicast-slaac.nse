@@ -161,8 +161,8 @@ local function single_interface_broadcast(if_nfo, results)
 
 	local probe = packet.Frame:new()
 
-	probe.ip6_src = packet.mac_to_lladdr(src_mac)
-	probe.ip6_dst = dst_ip6
+	probe.ip_bin_src = packet.mac_to_lladdr(src_mac)
+	probe.ip_bin_dst = dst_ip6
 	probe.mac_src = src_mac
 	probe.mac_dst = packet.mactobin("33:33:00:00:00:01")
 
@@ -192,8 +192,8 @@ local function single_interface_broadcast(if_nfo, results)
 			local l2reply = packet.Frame:new(layer2)
 			if string.sub(l2reply.mac_dst, 1, 3) == string.sub(expected_mac_dst_prefix, 1, 3) then
 				local reply = packet.Packet:new(layer3)
-				if reply.ip6_src == expected_ip6_src and
-					string.sub(expected_ip6_dst_prefix,1,12) == string.sub(reply.ip6_dst,1,12) then
+				if reply.ip_bin_src == expected_ip6_src and
+					string.sub(expected_ip6_dst_prefix,1,12) == string.sub(reply.ip_bin_dst,1,12) then
 					local ula_target_addr_str = packet.toipv6(reply.ns_target)
 					local identifier = get_identifier(reply.ns_target)
 					--Filter out the reduplicative identifiers.

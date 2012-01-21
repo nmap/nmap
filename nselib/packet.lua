@@ -289,8 +289,8 @@ end
 function Packet:build_ipv6_packet(src, dst, nx_hdr, payload, h_limit, t_class, f_label)
 	self.ether_type = ETHER_TYPE_IPV6
 	self.ip_v = 6
-	self.ip6_src = src or self.ip6_src
-	self.ip6_dst = dst or self.ip6_dst
+	self.ip_bin_src = src or self.ip_bin_src
+	self.ip_bin_dst = dst or self.ip_bin_dst
 	self.ip6_nhdr = nx_hdr or self.ip6_nhdr
 	self.l4_packet = payload or self.l4_packet
 	self.ip6_tc = t_class or self.ip6_tc or 1
@@ -302,8 +302,8 @@ function Packet:build_ipv6_packet(src, dst, nx_hdr, payload, h_limit, t_class, f
 		numtostr16(self.ip6_plen) .. --payload length
 		string.char(self.ip6_nhdr) .. --next header
 		string.char(self.ip6_hlimit) .. --hop limit
-		self.ip6_src .. --Source
-		self.ip6_dst ..--dest
+		self.ip_bin_src .. --Source
+		self.ip_bin_dst ..--dest
 		(self.exheader or "")..
 		(self.l4_packet or "")
 end
@@ -322,7 +322,7 @@ end
 --- Count IPv6 checksum.
 -- @return the checksum.
 function Packet:count_ipv6_pseudoheader_cksum()
-	local pseudoheader = self.ip6_src .. self.ip6_dst .. numtostr16(#self.l4_packet) .. string.char(0x0,0x0,0x0) .. string.char(self.ip6_nhdr)
+	local pseudoheader = self.ip_bin_src .. self.ip_bin_dst .. numtostr16(#self.l4_packet) .. string.char(0x0,0x0,0x0) .. string.char(self.ip6_nhdr)
 	local ck_content = pseudoheader .. self.l4_packet
 	return in_cksum(ck_content)
 end
@@ -334,15 +334,15 @@ end
 -- @param icmpv6_type integer that represent ICMPv6 type.
 -- @param icmpv6_code integer that represent ICMPv6 code.
 -- @param icmpv6_payload string of the payload
--- @param ip6_src 16-byte string of the source IPv6 address.
--- @param ip6_dst 16-byte string of the destination IPv6 address.
-function Packet:build_icmpv6_header(icmpv6_type, icmpv6_code, icmpv6_payload, ip6_src, ip6_dst)
+-- @param ip_bin_src 16-byte string of the source IPv6 address.
+-- @param ip_bin_dst 16-byte string of the destination IPv6 address.
+function Packet:build_icmpv6_header(icmpv6_type, icmpv6_code, icmpv6_payload, ip_bin_src, ip_bin_dst)
 	self.ip6_nhdr = IPPROTO_ICMPV6
 	self.icmpv6_type = icmpv6_type or self.icmpv6_type
 	self.icmpv6_code = icmpv6_code or self.icmpv6_code
 	self.icmpv6_payload	 = icmpv6_payload or self.icmpv6_payload
-	self.ip6_src = ip6_src or self.ip6_src
-	self.ip6_dst = ip6_dst or self.ip6_dst
+	self.ip_bin_src = ip_bin_src or self.ip_bin_src
+	self.ip_bin_dst = ip_bin_dst or self.ip_bin_dst
 
 	self.l4_packet =
 		string.char(self.icmpv6_type,self.icmpv6_code) ..
@@ -354,20 +354,20 @@ end
 --- Build an ICMPv6 Echo Request frame.
 -- @param mac_src six-byte string of source MAC address.
 -- @param mac_dst sis-byte string of destination MAC address.
--- @param ip6_src 16-byte string of source IPv6 address.
--- @param ip6_dst 16-byte string of destinatiion IPv6 address.
+-- @param ip_bin_src 16-byte string of source IPv6 address.
+-- @param ip_bin_dst 16-byte string of destinatiion IPv6 address.
 -- @param id integer that represents Echo ID.
 -- @param sequence integer that represents Echo sequence.
 -- @param data string of Echo data.
 -- @param tc integer that represents traffic class of IPv6 packet.
 -- @param fl integer that represents flow label of IPv6 packet.
 -- @param hop-limit integer that represents hop limit of IPv6 packet.
-function Packet:build_icmpv6_echo_request(id, sequence, data, mac_src, mac_dst, ip6_src, ip6_dst, tc, fl, hop_limit)
+function Packet:build_icmpv6_echo_request(id, sequence, data, mac_src, mac_dst, ip_bin_src, ip_bin_dst, tc, fl, hop_limit)
 	self.mac_src = mac_src or self.mac_src
 	self.mac_dst = mac_dst or self.mac_dst
 
-	self.ip6_src = ip6_src or self.ip6_src
-	self.ip6_dst = ip6_dst or self.ip6_dst
+	self.ip_bin_src = ip_bin_src or self.ip_bin_src
+	self.ip_bin_dst = ip_bin_dst or self.ip_bin_dst
 	self.traffic_class = tc or 1
 	self.flow_label = fl or 1
 	self.ip6_hlimit = hop_limit or 255
@@ -576,11 +576,13 @@ end
 function Packet:ip_parse(force_continue)
 	self.ip_offset		= 0
 	if    #self.buf < 20 then 	-- too short
+	        print("too short")
 		return false
 	end
 	self.ip_v		= bit.rshift(bit.band(self:u8(self.ip_offset + 0), 0xF0), 4)
 	self.ip_hl		=            bit.band(self:u8(self.ip_offset + 0), 0x0F)		-- header_length or data_offset
 	if    self.ip_v ~= 4 then 	-- not ip
+	        print("not v4")
 		return false
 	end
 	self.ip = true
@@ -622,8 +624,10 @@ function Packet:ip6_parse(force_continue)
 	self.ip6_plen	= self:u16(self.ip6_offset + 4)
 	self.ip6_nhdr	= self:u8(self.ip6_offset + 6)
 	self.ip6_hlimt	= self:u8(self.ip6_offset + 7)
-	self.ip6_src = self:raw(self.ip6_offset + 8, 16)
-	self.ip6_dst = self:raw(self.ip6_offset + 24, 16)
+	self.ip_bin_src = self:raw(self.ip6_offset + 8, 16)
+	self.ip_bin_dst = self:raw(self.ip6_offset + 24, 16)
+	self.ip_src = toipv6(self.ip_bin_src)
+	self.ip_dst = toipv6(self.ip_bin_dst)
 	self.ip6_data_offset = 40
 	return true
 end

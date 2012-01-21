@@ -94,8 +94,8 @@ local function single_interface_broadcast(if_nfo, results)
 	local probe = packet.Frame:new()
 	probe.mac_src = src_mac
 	probe.mac_dst = dst_mac
-	probe.ip6_src = src_ip6
-	probe.ip6_dst = dst_ip6
+	probe.ip_bin_src = src_ip6
+	probe.ip_bin_dst = dst_ip6
 	probe.echo_id = 5
 	probe.echo_seq = 6
 	probe.echo_data = "Nmap host discovery."
@@ -120,7 +120,7 @@ local function single_interface_broadcast(if_nfo, results)
 		else
 			local reply = packet.Frame:new(layer2..layer3)
 			if reply.mac_dst == src_mac then
-				local target_str = packet.toipv6(reply.ip6_src)
+				local target_str = reply.ip_src
 				if not results[target_str] then
 					if target.ALLOW_NEW_TARGETS then
 						target.add(target_str)
