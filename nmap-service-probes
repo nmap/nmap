@@ -488,13 +488,13 @@ match ftp m|^220 ABB Robotics FTP server \(VxWorks ([\d.]+) rev ([\d.]+)\) ready
 
 # Pure-ftpd
 match ftp m|^220.*Welcome to .*Pure-?FTPd (\d\S+\s*)| p/Pure-FTPd/ v/$1/ cpe:/a:pureftpd:pure-ftpd:$1/
-match ftp m|^220.*Welcome to .*Pure-?FTPd[^(]+\r\n| p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd:$1/
+match ftp m|^220.*Welcome to .*Pure-?FTPd[^(]+\r\n| p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd/
 match ftp m|^220.*Bienvenue sur .*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/French/ cpe:/a:pureftpd:pure-ftpd:$1/
 match ftp m|^220.*Bienvenue sur .*Pure-?FTPd (\d[-.\w]+)| p/Pure-FTPd/ v/$1/ i/French/ cpe:/a:pureftpd:pure-ftpd:$1:::fr/
-match ftp m|^220.*Velkommen til .*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/Danish/ cpe:/a:pureftpd:pure-ftpd:$1:::da/
+match ftp m|^220.*Velkommen til .*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/Danish/ cpe:/a:pureftpd:pure-ftpd::::da/
 match ftp m|^220.*Bem-vindo.*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/Portugese/ cpe:/a:pureftpd:pure-ftpd::::pt/
 # pure-ftpd 1.0.12 on Linux 2.4
-match ftp m|^220[- ]FTP server ready\.\r\n.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd:$1/
+match ftp m|^220[- ]FTP server ready\.\r\n.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd/
 # OpenBSD 3.4 beta running Pure-FTPd 1.0.16 with SSL/TLS
 match ftp m|^220---------- Welcome to Pure-FTPd \[privsep\] \[TLS\] ----------\r\n220-You are user number| p/Pure-FTPd/ i|with SSL/TLS| cpe:/a:pureftpd:pure-ftpd/
 match ftp m|^220---------- .* Pure-FTPd ----------\r\n220-| p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd/
