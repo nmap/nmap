@@ -489,7 +489,7 @@ match ftp m|^220 ABB Robotics FTP server \(VxWorks ([\d.]+) rev ([\d.]+)\) ready
 # Pure-ftpd
 match ftp m|^220.*Welcome to .*Pure-?FTPd (\d\S+\s*)| p/Pure-FTPd/ v/$1/ cpe:/a:pureftpd:pure-ftpd:$1/
 match ftp m|^220.*Welcome to .*Pure-?FTPd[^(]+\r\n| p/Pure-FTPd/ cpe:/a:pureftpd:pure-ftpd/
-match ftp m|^220.*Bienvenue sur .*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/French/ cpe:/a:pureftpd:pure-ftpd:$1/
+match ftp m|^220.*Bienvenue sur .*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/French/ cpe:/a:pureftpd:pure-ftpd/
 match ftp m|^220.*Bienvenue sur .*Pure-?FTPd (\d[-.\w]+)| p/Pure-FTPd/ v/$1/ i/French/ cpe:/a:pureftpd:pure-ftpd:$1:::fr/
 match ftp m|^220.*Velkommen til .*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/Danish/ cpe:/a:pureftpd:pure-ftpd::::da/
 match ftp m|^220.*Bem-vindo.*Pure-?FTPd.*\r\n| p/Pure-FTPd/ i/Portugese/ cpe:/a:pureftpd:pure-ftpd::::pt/
@@ -1170,7 +1170,7 @@ match imap m|^\* OK \[([-\w_.]+)\] IMAP4rev1 Mercury/32 v([\w.]+) server ready\.
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN BINARY(?: UNSELECT)? LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN\] ([-\w_.]+) IMAP4 service \(Sun Java\(tm\) System Messaging Server ([-\w. ]+) \(built .*\)\)\r\n| p/Sun Java System Messaging Server imapd/ v/$2/ h/$1/
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1[\w+= -]*\] ([\w._-]+) IMAP4 service \(Sun Java\(tm\) System Messaging Server ([\w._-]+) (\d+)bit \(built .*\)\)\r\n| p/Sun Java System Messaging Server imapd/ v/$2/ i/$3 bits/ h/$1/
 match imap m|^\* OK \[CAPABILITY IMAP4[^\]]*\] Messaging Multiplexor \(Sun Java\(tm\) System Messaging Server (\d[-\w_.]+) \(built .*\)\)\r\n| p/Sun Java System Messaging Multiplexor imapd/ v/$1/
-match imap m|^\* OK ([-\w_.]+) IMAP4 service \(iPlanet Messaging Server ([\w. ]+) \(built .*\)\)\r\n| p/Sun iPlanet Messaging Server imapd/ v/$2/ i/HotFix $3/ h/$1/
+match imap m|^\* OK ([-\w_.]+) IMAP4 service \(iPlanet Messaging Server ([\w. ]+) \(built .*\)\)\r\n| p/Sun iPlanet Messaging Server imapd/ v/$2/ h/$1/
 match imap m|^\* OK Anonymous Mail Server v([\d.]+) IMAP4rev1 .*\r\n| p/Anonymous Mail Server imapd/ v/$1/
 match imap m|^\* OK ([-\w_.]+) ModusMail IMAP4 Server ([\d.]+) ready\r\n| p/ModusMail imapd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK IMAP4rev1 Service at Jana-Server ready\r\n| p/JanaServer imapd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -1270,7 +1270,7 @@ match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :
 
 match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email ([-\w_.]+@[-\w_.]+) for more information\.| p/Unreal ircd/ i/Admin email $1/
 # Sometimes multiple emails are specified, bad emails, etc
-match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email .* for more information\.| p/Unreal ircd/ i/Admin email $1/
+match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email (.*) for more information\.| p/Unreal ircd/ i/Admin email $1/
 match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Too many unknown connections from your IP\)\r\n| p/Unreal ircd/
 match irc m|^ERROR :Reconnecting too fast, throttled\.\r\n$| p/ratbox, charybdis, or ircd-seven ircd/
 
@@ -2531,7 +2531,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+-CERN\d+)\r?\n| p/OpenSSH/ v/$2/ i/prot
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+\.cern-hpn)| p/OpenSSH/ v/$2/ i/protocol $1/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-hpn)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-pwexp\d+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/AIX/ cpe:/a:openbsd:openssh:$2/ cpe:/o:ibm:aix/a
-match ssh m|^SSH-([\d.]+)-Nortel\r?\n| p/Nortel SSH/ i/protocol $1/ d/switch/ cpe:/a:openbsd:openssh:$2/
+match ssh m|^SSH-([\d.]+)-Nortel\r?\n| p/Nortel SSH/ i/protocol $1/ d/switch/ cpe:/a:openbsd:openssh/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) DragonFly-\d+\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/DragonFlyBSD/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) FIPS\n| p/OpenSSH/ v/$2/ i/protocol $1; Imperva SecureSphere firewall/ d/firewall/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) NCSA_GSSAPI_GPT_([-\w_.]+) GSI\n| p/OpenSSH/ v/$2/ i/protocol $1; NCSA GSSAPI authentication patch/ cpe:/a:openbsd:openssh:$2/
@@ -2848,7 +2848,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nWelcome 
 match telnet m|^\xff\xfb\x01\xff\xfd\x18\nTelnet Service on the PrintServer\n\n\rPassword: | p|Hawking/TRENDnet Print Server telnetd| d/print server/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS \(TM\) Alpha Operating System, Version V([\d.]+)    \r\n\r\n\rUsername: | p/OpenVMS telnetd/ i/OpenVMS $1/ o/OpenVMS/ cpe:/o:hp:openvms/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfd \xff\xfd!\x07\r\n\r\n Welcome to OpenVMS \(TM\) Alpha Operating System, Version V([-\w_.]+)  \r\n\r\n\rUsername: | p/OpenVMS telnetd/ i/OpenVMS $1/ o/OpenVMS/ cpe:/o:hp:openvms/a
-match telnet m|\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS Alpha OS, Version V[\d+.]+| p/OpenVMS telnetd/ i/OpenVMS $1/ o/OpenVMS/ cpe:/o:hp:openvms/a
+match telnet m|\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS Alpha OS, Version V([\d+.]+)| p/OpenVMS telnetd/ i/OpenVMS $1/ o/OpenVMS/ cpe:/o:hp:openvms/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\x1b\[0;37;40m\x1b\[2J\x1b\[0;37;40m\x1b\[1m\x1b\[5;27HVertical Horizon Stack Manager\x1b\[0;37;40m\x1b\[1m\x1b\[10;26HEnterasys Networks, Incorporated| p/Enterasys Vertical Horizon Manager/ d/switch/
 match telnet m|^\xff\xfd\($| p|IBM OS/390 or SNA telnetd|
 match telnet m|^\xff\xfb\r\nRemotelyAnywhere Telnet Server v([\d.]+)\r\n.*\r\n\r\n([-\w_. ]+) login\r\nuser name: | p/RemotelyAnywhere telnetd/ v/$1/ i/Name $2/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -4239,7 +4239,7 @@ match backdoor m|^sh-2\.05b\$ | p/r0nin rootkit backdoor/
 
 match websense-eim m|^\0\x0c\r\n\0\x01\0\x01\0\0\0\0$| p/Websense EIM/
 
-match wesnoth m|^\0\0\0.\0\0\0\x1f\x02version\0\x04[\d.]+\0\0\x02mustlogin\0\x05\x01\0|s p/Battle For Wesnoth game server/ v/$1/
+match wesnoth m|^\0\0\0.\0\0\0\x1f\x02version\0\x04([\d.]+)\0\0\x02mustlogin\0\x05\x01\0|s p/Battle For Wesnoth game server/ v/$1/
 match wesnoth m|^\0\0\0.\0\0\0.\x1f\x8b\x08\0\0\0\0\0\0\xff\x8b\.K-\*\xce\xcc\xcf\x8b\xe5\x8a\xd6\x873\x01 \xbc\x17\x06\x15\0\0\0| p/Battle For Wesnoth game server/
 
 match workrave m|^\0\x26\x02\0\0\x06\0.[\d.]+:\d+\0\x01\0\x11\0\x04\0\x01\0\x03\0\xaa\x02\0\0\x06\0.[\d.]+:\d+\0\x01\0\x10\0\x88\0\x03\0\x0bmicro_pause\0\x20\x4c\xa4\x86\x8e\0\0\0\xb4\0\0\0\x01\0\0\0\0\0\0\0\0L\xa4\x86\x8d\0\0\0\xb4\0\0\0\x0arest_break\0|s p/Workrave/
@@ -4903,7 +4903,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: ([\d.]+)\r\nCo
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: HTTP/x\.y\.z \(Unix\) PHP/x\.y\.z mod_ssl/x\.y\.z SSL/x\.y\.z\r\nLast-Modified: .*\r\nETag: \".*\"\r\nAccept-Ranges: bytes\r\nContent-Length: .*\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Loading\.\.\.</TITLE>\n| p/Coldfusion httpd/ i/SSL support/ o/Unix/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nServer: SIMS/([\w.]+)\r\n\r\n<HTML>\r<HEAD>\r  <TITLE>Stalker Internet Mail Server: Setup Entrance</TITLE>\r</HEAD>\r<BODY BGCOLOR=white>\r\r<H2><TABLE WIDTH=\"100%\" BORDER=0 CELLSPACING=0 CELLPADDING=0>\r<TR>\r<TD><H3><IMG SRC=\"/Icon\.gif\" ALIGN=MIDDLE>([-\w_.]+)</H3>| p/Stalker Mail Server web config/ v/$1/ o/Mac OS/ h/$2/ cpe:/o:apple:mac_os/a
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organization-\r\n.*X-Powered-By: ([^\r\n]+)\r\n|s p/Apache - OOPS Devel Org/ i/$1/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organization-\r\n|s p/Apache - OOPS Devel Org/ i/$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache  -OOPS Development Organization-\r\n|s p/Apache - OOPS Devel Org/
 match http m|^HTTP/1\.0 200 OK\nDATE: .*\nPragma: no-cache\nServer: Delta UPSentry\n| p/Sentry Bulldog UPS httpd/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: Gatling/([\d.]+)\r\n|s p/Gatling httpd/ v/$1/
 # PolyCom ViewStation 128
@@ -5360,7 +5360,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: DirectUpdate/([\d.]+)\r\n| p/Direct
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: CCS/Jigsaw/([\d.]+)\r\n|s p/Commerce One httpd/ i/Java Jigaw $1/
 match http m|^HTTP/1\.1 \d\d\d .*Server: VisiBroker/([\d.]+)\r\n\r\n|s p/Borland VisiBroker CORBA httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Compaq Insight Manager XE ([\d.]+)\r\n|s p/Compaq Insight Manager XE httpd/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ISS-PXServer/1\.0\r\n|s p/ISS-PXServer httpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ISS-PXServer/([\d.]+)\r\n|s p/ISS-PXServer httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Jigsaw/([\w.-]+)\r\n|s p/Java Jigsaw httpd/ v/$1/
 match http m|^Language received from client: .*\nSetlocale: .*\n| p/AIX Web-based System Manager/ o/AIX/ cpe:/o:ibm:aix/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: gnump3d2 ([\d.]+) \([\d/]+\)\r\n| p/GNUMP3d streaming server/ v/$1/
@@ -5545,7 +5545,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Kannel/([\d.]+)\r\n| p/Kannel SM
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n.*<title>ExtremeWare Management Interface</title>|s p/Extreme Networks switch http config/ i/Allegro embedded httpd $1/ d/switch/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>AudioCodes\n</TITLE>|s p/AudioCodes VoIP gateway http config/ i/Allegro embedded httpd $1/ d/VoIP adapter/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"Switched Rack PDU\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/([\d.]+)\r\n\r\n| p/APC switched rack PDU http config/ i/Allegro embedded httpd $1/ d/power-device/ cpe:/a:allegro:rompager:$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"IES-1000 \w+-\d+\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/([\d.]+)\r\n\r\n| p/ZyXEL IES-1000 DSLAM http config/ i/ZyXEL httpd $1/ d/telecom-misc/ cpe:/a:zyxel:rompager:$2/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"IES-1000 \w+-\d+\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/([\d.]+)\r\n\r\n| p/ZyXEL IES-1000 DSLAM http config/ i/ZyXEL httpd $1/ d/telecom-misc/ cpe:/a:zyxel:rompager:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: DIONIS/([\d.]+)\r\n| p/DIONIS httpd/ v/$1/
 match http m|^HTTP/1\.0 400 Bad-Request\nHTTP/1\.0 200 OK\r\n.*Aironet BR500E V([\d.]+)</td>|s p/Aironet BR500E wireless bridge http config/ v/$1/ d/WAP/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"4AFXS Configuration Web Server\"\r\n| p/SunComm 4AFXS VoIP gateway http config/ d/VoIP adapter/
@@ -7910,7 +7910,7 @@ match domain m|^\0\x06\x81\x04\0\0\0\0\0\0\0\0$| p/MyDNS/
 match domain m|^\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by POWERDNS ([\d.]+) |s p/PowerDNS/ v/$1/
 match domain m|^\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by PowerDNS - http://www\.powerdns\.com|s p/PowerDNS/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
-match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03......PowerDNS Recursor ([\w._-]+) \$Id: pdns_recursor\.cc .*?\$$|s p/PowerDNS/ v/$1/ i/$2/
+match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x03\0\x04....$|s p/Netgear ProSafe FVS318v3 firewall named/ d/firewall/
 match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.*)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04....|s p/Aruba 3400 Mobility Controller named/
