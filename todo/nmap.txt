@@ -294,6 +294,11 @@ o We should offer partial results when a host timeouts. I (Fyodor)
         Nmap command-line option to do it.  Once this is added, we can
         probably remove the script.
 
+o [Zenmap] Combine parallel timed-out hops into one node in the
+  topology view. http://seclists.org/nmap-dev/2012/q1/82 has a patch,
+  however it doesn't handle the case of two or more consecutive
+  timeouts.
+
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
