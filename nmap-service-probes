@@ -3291,7 +3291,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nW
 match telnet m|^\xff\xfb\x01\xff\xfe\x01Connected\r\n\n\rAironet BR500E V([\w._-]+)                Main Menu| p/Cisco Aironet BR500E telnetd/ v/$1/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03login: | p/D-Link 524, DIR-300, or WBR-1310 WAP telnetd/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03TrioLink \(ADSL IAD\)\r\nLogin: | p/Nortel-LG VoIP IAD telnetd/ d/PBX/
-match telnet m|^Linux ([\w._-]+) \[INSTALL: [\d-]+\]\nLASTPATCH: [\d-:]+\n| p/Netkit-telnetd/ i/Linux $1/ o/Linux/ cpe:/o:linux:kernel/a
+match telnet m|^Linux ([\w._-]+) \[INSTALL: [\d-]+\]\nLASTPATCH: [\d:-]+\n| p/Netkit-telnetd/ i/Linux $1/ o/Linux/ cpe:/o:linux:kernel/a
 match telnet m|^\xff\xfb\0\xff\xfd\0\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\x1b\[0;37;40m\x1b\[2J\x1b\[1;1HLogin Name:  | p/HP Remote Insight Lights-Out telnetd/ d/remote management/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03Xcelerator IP \r\nLogin: | p/Vertical Xcelerator IP telnetd/ d/VoIP adapter/
 match telnet m|^Console is locked by another telnet/SSH application!\n| p/Arris tm602g cable modem telnetd/ i/console in use/ d/broadband router/
@@ -4544,7 +4544,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Debian GNU/Lin
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Ubuntu\)\r\n|s p/Cherokee httpd/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/o:canonical:ubuntu_linux/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(openSUSE Build Service\)\r\n|s p/Cherokee httpd/ v/$1/ i/OpenSUSE/ o/Linux/ cpe:/o:novell:opensuse/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Gentoo Linux\)\r\n|s p/Cherokee httpd/ v/$1/ i/Gentoo/ o/Linux/ cpe:/o:gentoo:linux/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]++) \(UNIX\)\r\n|s p/Cherokee httpd/ v/$1/ o/Unix/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(UNIX\)\r\n|s p/Cherokee httpd/ v/$1/ o/Unix/
 
 match http m|^HTTP/1\.0 200 OK\r\nServer: HomeSeer\r\n| p/HomeSeer Home Control Web Interface/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 401 \r\nWWW-Authenticate: Basic realm=\"HomeSeer\d+\"\r\n\r\n| p/HomeSeer Home Control Web Interface/ o/Windows/ cpe:/o:microsoft:windows/a
