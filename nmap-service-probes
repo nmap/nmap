@@ -291,7 +291,7 @@ match directconnect m|^\r\nDConnect Daemon v([\d.]+)\r\nlogin: | p/Direct Connec
 match directconnect m=<Hub-Security> Your IP is temporarily banned for (\d+) minutes\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
 match directconnect m=<Hub-Security> You are being banned for (\d+) minutes \(by SDCH Anti Hammering\)\.\|= p/Shadows DirectConnect hub/ i/Banned for $1 minutes/
 match directconnect m=<Hub-Security> You are being redirected to ([\d.]+)\|\$ForceMove [\d.]+\|= p/PtokaX directconnect hub/ i/Redirected to $1/
-match directconnect m=^server-version\$([\w._-]+)\|init-completion\$200\|port\$\d+\|= p/Shakespeer Direct Connect GUI/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
+match directconnect m=^server-version\$([\w._-]+)\|init-completion\$200\|port\$\d+\|= p/Shakespeer Direct Connect GUI/ v/$1/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match directconnect-admin m=^\r\nOpen DC Hub, version ([\d.]+), administrators port\.\r\nAll commands begin with '\$' and end with '\|'\.\r\nPlease supply administrators passord\.\r\n= p/OpenDCHub directconenct hub admin port/ v/$1/ o/Unix/
 
 match directupdate m|^OK Welcome <[\d.]+> on DirectUpdate server ([\d.]+)\r\n| p/DirectUpdate dynamic IP updater/ v/$1/
