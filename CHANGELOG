@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script iax2-brute and supporting IAX2 library that performs
+  brute-force password guessing against the Asterisk IAX2 protocol. [Patrik]
+
 o Added service probe for the Erlang Port Mapper Daemon. [Patrik]
 
 o [NSE] Added script broadcast-dhcp6-discover and supporting DHCPv6 library.

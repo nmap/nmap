@@ -142,6 +142,7 @@ Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-wordpress-enum.nse", categories = { "auth", "intrusive", "vuln", } }
 Entry { filename = "http-wordpress-plugins.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
