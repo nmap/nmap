@@ -8,7 +8,8 @@ The following services are enumerated by the script:
   - Kerberos Passwd Change Service
   - LDAP Servers
   - SIP Servers
-  - XMPP Servers
+  - XMPP S2S
+  - XMPP C2S
 ]]
 
 ---
@@ -37,7 +38,7 @@ The following services are enumerated by the script:
 -- |     5070/udp  10    50      vcbxl2.example.com
 -- |     5060/tcp  10    50      vclux2.example.com
 -- |     5060/tcp  10    50      vcbxl2.example.com
--- |   XMPP
+-- |   XMPP server-to-server
 -- |     service   prio  weight  host
 -- |     5269/tcp  5     0       xmpp-server.l.example.com
 -- |     5269/tcp  20    0       alt2.xmpp-server.l.example.com
@@ -55,9 +56,9 @@ categories = {"discovery", "safe"}
 
 require 'dns'
 require 'tab'
+require 'target'
 
 prerule = function() return true end
-hostrule = function() return true end
 
 local arg_domain = stdnse.get_script_args(SCRIPT_NAME .. ".domain")
 local arg_filter = stdnse.get_script_args(SCRIPT_NAME .. ".filter")
@@ -120,6 +121,9 @@ local function doQuery(name, queries, result)
 		local fqdn = ("%s.%s"):format(query, arg_domain)
 		local status, resp = dns.query(fqdn, { dtype="SRV", retAll=true, retPkt=true } )
 		for host, port, prio, weight in parseSrvResponse(resp) do
+			if target.ALLOW_NEW_TARGETS then
+				target.add(host)
+			end
 			local proto = query:sub(-3)
 			tab.addrow(svc_result, ("%d/%s"):format(port, proto), prio, weight, host)
 		end
@@ -139,7 +143,8 @@ action = function(host)
 		{ name = "Kerberos Password Change Service", query = {"_kpasswd._tcp", "_kpasswd._udp"} },
 		{ name = "LDAP", query = {"_ldap._tcp"} },
 		{ name = "SIP", query = {"_sip._udp", "_sip._tcp"} },
-		{ name = "XMPP", query = {"_xmpp-server._tcp"} },
+		{ name = "XMPP server-to-server", query = {"_xmpp-server._tcp"} },
+		{ name = "XMPP client-to-server", query = {"_xmpp-client._tcp"} },
 	}
 	
 	if ( not(checkFilter(services)) ) then
