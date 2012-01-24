@@ -18,6 +18,7 @@ Entry { filename = "bittorrent-discovery.nse", categories = { "discovery", "safe
 Entry { filename = "broadcast-avahi-dos.nse", categories = { "broadcast", "dos", "intrusive", "vuln", } }
 Entry { filename = "broadcast-db2-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dhcp-discover.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-dhcp6-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-listener.nse", categories = { "broadcast", "safe", } }

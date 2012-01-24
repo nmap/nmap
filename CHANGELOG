@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script broadcast-dhcp6-discover and supporting DHCPv6 library.
+  The script retrieves and prints an IPv6 address and some of the DHCP6
+  options. [Patrik]
+
 o IPv6 OS detection now includes a novelty detection phase that avoids
   printing a match when an observed fingerprint is too different from
   fingerprints seen before. As the OS database is still small, this
