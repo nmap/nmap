@@ -1553,18 +1553,19 @@ match netbus m|^NetBus ([\d.]+).*\r$| p/NetBus trojan/ v/$1/ o/Windows/ cpe:/o:m
 match nntp m|^nnrpd: invalid option -- S\nUsage error\.\n| p/INN NNTPd/ i/broken/
 match nntp m|^502 You have no permission to talk\.  Goodbye.\r\n$| p/INN NNTPd/ i/unauthorized/
 match nntp m|^200 ([-.\w]+) NNTP Service Ready - ([-.\w]+@[-.\w]+) \(DIABLO (\d[-.\w ]+)\)\r\n| p/Diablo NNTP service/ v/$3/ i/Admin: $2/ h/$1/
-match nntp m|^200 NNTP Service (\d[-.\w ]+) Version: (\d[-.\w ]+) Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$2/ i/posting ok/ o/Windows/ cpe:/o:microsoft:windows/a
-match nntp m|^200 Service NNTP (\d[-.\w ]+) Version: (\d[-.\w ]+) Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$2/ i/posting ok/ o/Windows/ cpe:/o:microsoft:windows/a
-match nntp m|^200 Servicio NNTP (\d[-.\w ]+) Version: (\d[-.\w ]+) Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$2/ i/Spanish; posting ok/ o/Windows/ cpe:/o:microsoft:windows/a
+
+match nntp m|^200 NNTP Service (\d[-.\w ]+) Version: \d+\.\d+\.\d+\.\d+ Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$1/ o/Windows 2000/ cpe:/o:microsoft:windows/
+match nntp m|^200 NNTP-service (\d[-.\w ]+) Version: \d+\.\d+\.\d+\.\d+ Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$1/ o/Windows 2000/ cpe:/o:microsoft:windows/
+match nntp m|^200 Service NNTP (\d[-.\w ]+) Version: \d+\.\d+\.\d+\.\d+ Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/
+match nntp m|^200 Servicio NNTP (\d[-.\w ]+) Version: \d+\.\d+\.\d+\.\d+ Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$1/ i/Spanish/ o/Windows/ cpe:/o:microsoft:windows/
+match nntp m|^200 NNTP Service Microsoft\xae Internet Services (\d[-.\w]+) Version: \d+\.\d+\.\d+\.\d+ Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/
+match nntp m|^502 Connection refused\r\n| p/Microsoft NNTP Service/ i/refused/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match nntp m|^200 ([-.\w]+) DNEWS Version *(\d[-.\w]+).*posting OK \r\n| p/Netwinsite DNEWS/ v/$2/ i/posting OK/ h/$1/
 match nntp m|^200 Leafnode NNTP Daemon, version (\d[-.\w]+) running at| p/Leafnode NNTPd/ v/$1/
 match nntp m|^200 Lotus Domino NNTP Server for ([-./\w]+) \(Release (\d[-.\w]+), .*\) - Not OK to post\r\n$| p/Lotus Domino nntpd/ v/$2/ i/posting denied/ o/$1/
 match nntp m|^200 Lotus Domino NNTP Server for ([-./\w]+) \(Release (\d[-.\w]+), .*\) - OK to post\r\n$| p/Lotus Domino nntpd/ v/$2/ i/posting ok/ o/$1/
 
-match nntp m|^200 NNTP Service 5\.00\.0984 Version: (5\.0\.2159.1) Posting Allowed \r\n| p/Microsoft NNTP Service/ v/$1/ i/posting OK/ o/Windows 2000/ cpe:/o:microsoft:windows_2000/ cpe:/o:microsoft:windows_2000/
-match nntp m|^200 NNTP Service Microsoft\xae Internet Services (\d[-.\w]+) Version: (\d[-.\w]+) Posting Allowed \r\n| p/Microsoft NNTP Service $1/ v/$2/ i/posting OK/ o/Windows/ cpe:/o:microsoft:windows/a
-match nntp m|^502 Connection refused\r\n| p/Microsoft NNTP Service/ i/refused/ o/Windows/ cpe:/o:microsoft:windows/a
 # Windows NT 4.0 SP5-SP6
 match nntp m|^20[01] Microsoft Exchange Internet News Service Version (\d\.\d\.[\d.]+) \((.*)\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/$2/ o/Windows/ cpe:/o:microsoft:windows/a
 match nntp m|^20. ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w ]+) ready \(posting ok\)\.\r\n| p/InterNetNews (INN)/ v/$2/ i/posting ok/ h/$1/
@@ -1601,7 +1602,6 @@ match nntp m|^200 NewsCache ([-\w_.]+), accepting NNRP commands\r\n| p/Newscache
 match nntp m|^200 ([\w._-]+) Cyrus NNTP v([\w._-]+) server ready, posting allowed\r\n| p/Cyrus nntpd/ v/$2/ i/posting ok/ h/$1/
 match nntp m|^200 ([-\w_.]+) ready for action \(Mailtraq ([\d.]+)/NNTP\)\r\n| p/Mailtraq nntpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match nntp m|^200 Service available, posting allowed\r\n| p/Freenet Message System nntpd/
-match nntp m|^200 NNTP-service [\d.]+ Version: ([\d.]+) Posting Allowed \r\n| p/Microsoft NNTP service/ v/$1/
 match nntp m|^200 ([-\w._]+) InterNetNews NNRP server INN (.*) ready \(posting ok\)\r\n| p/InterNetNews NNRP server/ v/$2/ h/$1/
 
 match nntp-proxy m|^200 CCProxy NNTP Service\r\n| p/CCProxy NNTP proxy/ o/Windows/ cpe:/o:microsoft:windows/a
