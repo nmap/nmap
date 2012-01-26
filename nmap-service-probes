@@ -399,7 +399,8 @@ match ftp m|^220-FileZilla Server\r\n| p/FileZilla ftpd/ o/Windows/ cpe:/a:filez
 match ftp m|^431 Could not initialize SSL connection\r\n| p/FileZilla ftpd/ i/Mandatory SSL/ o/Windows/ cpe:/a:filezilla-project:filezilla/ cpe:/o:microsoft:windows/a
 match ftp m|^550 No connections allowed from your IP\r\n| p/FileZilla ftpd/ i/IP blocked/ o/Windows/ cpe:/a:filezilla-project:filezilla/ cpe:/o:microsoft:windows/a
 # Netgear RP114 switch with integrated ftp server or ZyXel P2302R VoIP
-match ftp m|^220 ([-\w]+)? FTP version 1\.0 ready at | p/Netgear broadband router or ZyXel VoIP adapter ftpd/ v/1.0/
+match ftp m|^220  FTP version 1\.0 ready at | p/Netgear broadband router or ZyXel VoIP adapter ftpd/ v/1.0/
+match ftp m|^220 ([\w._-]+) FTP version 1\.0 ready at | p/Netgear broadband router or ZyXel VoIP adapter ftpd/ v/1.0/ h/$1/
 match ftp m|^220 \(none\) FTP server \(GNU inetutils ([\w._-]+)\) ready\.\r\n| p/GNU Inetutils FTPd/ v/$1/
 match ftp m|^220 ([-.\w]+) FTP server \(GNU inetutils (\d[-.\w ]+)\) ready\.\r\n| p/GNU Inetutils FTPd/ v/$2/ h/$1/
 match ftp m|^220 .* \(glftpd (\d[-.0-9a-zA-Z]+)_(\w+)(?:\+TLS)?\) ready\.\r\n| p/glFTPd/ v/$1/ i/$2/ o/Unix/
@@ -468,7 +469,7 @@ match ftp m|^220 ProFTP Ready\r\n| p/ProFTPD/ o/Unix/ cpe:/a:proftpd:proftpd/a
 match ftp m|^220 Welcome @ my\.ftp\.org\r\n$| p/ProFTPD/ o/Unix/ cpe:/a:proftpd:proftpd/a
 match ftp m|^220-.*\r\n220 ProFTPD ([\d.]+) Server|s p/ProFTPD/ v/$1/ o/Unix/ cpe:/a:proftpd:proftpd:$1/a
 match ftp m|^220 .* FTP Server \(ProFTPD ([\d.]+) on Red Hat linux ([\d.]+)\) ready\.\r\n| p/ProFTPD/ v/$1/ i/RedHat $2/ o/Linux/ cpe:/a:proftpd:proftpd:$1/a cpe:/o:redhat:linux/
-match ftp m|^220 ProFTP-Server auf ([-\w_.]+)\r\n| p/ProFTPD/ i/German/ o/Unix/ cpe:/a:proftpd:proftpd/a
+match ftp m|^220 ProFTP-Server auf ([-\w_.]+)\r\n| p/ProFTPD/ h/$1/ i/German/ o/Unix/ cpe:/a:proftpd:proftpd::::de/
 match ftp m|^220.*\r\n220 ProFTPD ([\w._-]+) Server \(ProFTPD\)|s p/ProFTPD/ v/$1/ o/Unix/ cpe:/a:proftpd:proftpd:$1/a
 # Hope these aren't too general -Doug
 match ftp m|^220 ([-\w_.]+) FTP server ready!\r\n| p/ProFTPD/ o/Unix/ h/$1/ cpe:/a:proftpd:proftpd/a
