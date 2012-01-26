@@ -7,6 +7,8 @@ o We need to fix the svn server so that Nmap committers can make
   $ svn cp https://svn.nmap.org/nmap https://svn.nmap.org/nmap-exp/branchname
   svn: Server sent unexpected return value (403 Forbidden) in response
   to OPTIONS request for 'https://svn.nmap.org'
+  - Patrick also reported some other funny business related to svn
+    mv'ing directories in email to Fyodor and David.
 
 o Get RPM staticly linking to libsvn (rather than dynamic linking) so
   that it isn't a requirement for installing the RPM.
@@ -18,8 +20,6 @@ o Add options in configure script for users to specify where to find
   subversion lib/include dirs (like we do with our other library
   dependencies).  See this mail:
   http://seclists.org/nmap-dev/2012/q1/37
-
-o Document the new IPv6 OS detection novelty system in os-detection.xml
 
 o Write and send GSoC 2011 results email
 
@@ -105,7 +105,7 @@ o Clean up the Nmap repo to remove some bloat we've allowed to creep
     in install chapter to match the change.  This may also enable us
     to check in GTK, Glib, etc. so that building on Windows doesn't
     require installing so many other packages first.
-  - Remove the 5MB of XSL in nping/docs/xsl
+  - [done] Remove the 5MB of XSL in nping/docs/xsl
 
 o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
@@ -114,8 +114,6 @@ o Maybe we should add an analysis or reporting or intelligence (or
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
-
-o Give CPE visibility to NSE.
 
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
@@ -229,10 +227,6 @@ o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
     (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
     (o, cpe:)).
     For example if we have v/$1/ h/$1/ it is a bug.
-  o Check that used references start at 1 and are contiguous. If $1 and $3
-    are used but not $2, it's probably a bug.
-    Maybe you can even find out how many there should be by inspecting the
-    regular expression.
   o Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
   o Check a list of common product names that should only appear in p//,
     not in i//. We still have entries that are like this:
@@ -242,6 +236,10 @@ o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
   o Warn when a match template contains '.' but not the 's' flag.
     (Maybe only when there are non-ASCII literal characters in the
     template.)
+  o [DONE] Check that used references start at 1 and are
+    contiguous. If $1 and $3 are used but not $2, it's probably a bug.
+    Maybe you can even find out how many there should be by inspecting
+    the regular expression.
 
 o [Zenmap] should actually parse and use script results. See
    http://seclists.org/nmap-dev/2010/q1/1108
@@ -728,6 +726,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Give CPE visibility to NSE.
+ - done by Henri
+
+o Document the new IPv6 OS detection novelty system in os-detection.xml
 
 o Do more thinking/researching/investigating the way our machine
   learning IPv6 OS detection system decides whether a match is perfect
