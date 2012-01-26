@@ -187,7 +187,7 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
    * release) will buffer packets in non-blocking mode and only return them in a
    * bunch when the buffer is full. Setting the ioctl makes each one be
    * delivered immediately. This is how Linux works by default. See the comments
-   * surrounding the ssetting of BIOCIMMEDIATE in libpcap/pcap-bpf.c. */
+   * surrounding the setting of BIOCIMMEDIATE in libpcap/pcap-bpf.c. */
 #ifdef BIOCIMMEDIATE
   if (mp->pcap_desc != -1) {
     int immediate = 1;
@@ -199,7 +199,7 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
 
   /* Set device non-blocking */
   if (pcap_setnonblock(mp->pt, 1, err0r) < 0) {
-    /* I can't do select() on pcap! blockig + no_select is fatal */
+    /* I can't do select() on pcap! blocking + no_select is fatal */
     if(mp->pcap_desc < 0){
       Snprintf(errorbuf, sizeof(errorbuf),
                "nsock-pcap: Failed to set pcap descriptor on device %s to nonblocking state: %s",
