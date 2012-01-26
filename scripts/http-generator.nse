@@ -20,7 +20,7 @@ categories = {"default", "discovery", "safe"}
 -- @args http-generator.path Specify the path you want to check for a generator meta tag (default to '/').
 -- @args http-generator.redirects Specify the maximum number of redirects to follow (defaults to 3).
 
---- Changelog:
+-- Changelog:
 -- 2011-12-23 Michael Kohl <citizen428@gmail.com>:
 --   + Initial version
 -- 2012-01-10 Michael Kohl <citizen428@gmail.com>:
@@ -38,7 +38,7 @@ categories = {"default", "discovery", "safe"}
 --   + update documentation
 --   + add changelog
 
---- TODO:
+-- TODO:
 -- more generic generator pattern
 
 require('http')
