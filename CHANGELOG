@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the scripts xdmcp-discover, broadcast-xdmcp-discover and the
+  X Display Manager Control Protocol (xdmcp) library. The scripts discover
+  hosts either using unicast or broadcast and try to detect supported
+  authentication and authorization mechanisms. [Patrik]
+
 o Audited the nmap-service-probes database to remove all unused
   captures, fixing dozens of bugs with captures either being ignored
   or two fields erroneously using the same capture. This was done by

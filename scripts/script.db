@@ -36,6 +36,7 @@ Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe"
 Entry { filename = "broadcast-wake-on-lan.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wpad-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-xdmcp-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
@@ -313,5 +314,6 @@ Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "ve
 Entry { filename = "whois.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "wsdd-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "x11-access.nse", categories = { "auth", "default", "safe", } }
+Entry { filename = "xdmcp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "xmpp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "xmpp-info.nse", categories = { "default", "discovery", "safe", "version", } }
