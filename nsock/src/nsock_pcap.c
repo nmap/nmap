@@ -269,7 +269,7 @@ int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
     fatal("Cannot obtain datalink information: %s", pcap_geterr(pt));
 
   /* XXX NOTE:
-   * if a new offset ever exceeds the current max (24), adjust max_link_headersz in tcpip.h */
+   * if a new offset ever exceeds the current max (24), adjust MAX_LINK_HEADERSZ in libnetutil/netutil.h */
   switch(datalink) {
     case DLT_EN10MB: offset = 14; break;
     case DLT_IEEE802: offset = 22; break;

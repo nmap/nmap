@@ -1534,7 +1534,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
 
   /* NOTE: IF A NEW OFFSET EVER EXCEEDS THE CURRENT MAX (24), ADJUST
-     MAX_LINK_HEADERSZ in tcpip.h */
+     MAX_LINK_HEADERSZ in libnetutil/netutil.h */
   switch (datalink) {
   case DLT_EN10MB:
     offset = 14;
