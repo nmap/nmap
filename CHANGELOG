@@ -1,9 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Audited the nmap-service-probes database to remove many unused
+o Audited the nmap-service-probes database to remove all unused
   captures, fixing dozens of bugs with captures either being ignored
   or two fields erroneously using the same capture. This was done by
-  Lauri Kokkonen.
+  Lauri Kokkonen, David Fifield, and Rob Nicholls.
 
 o [NSE] Added script iax2-brute and supporting IAX2 library that performs
   brute-force password guessing against the Asterisk IAX2 protocol. [Patrik]
