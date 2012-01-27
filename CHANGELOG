@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an assertion failure which could occur when connecting to an
+  SSL server:
+  nsock_core.c:186: update_events: Assertion `(ev_inc & ev_dec) == 0' failed.
+  Thanks to Ron for reporting the bug and testing. [Henri]
+
 o [NSE] Added cccam-version.nse. It detects the CCcam TV card sharing
   system. [David]
 

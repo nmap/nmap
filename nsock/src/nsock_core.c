@@ -532,14 +532,14 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
 
           evclr = socket_count_dec_ssl_desire(nse);
           socket_count_read_inc(iod);
-          update_events(iod, ms, EV_READ, evclr);
+          update_events(iod, ms, X_EV(EV_READ, evclr), X_EV(evclr, EV_READ));
           nse->sslinfo.ssl_desire = err;
         } else if (err == SSL_ERROR_WANT_WRITE) {
           int evclr;
 
           evclr = socket_count_dec_ssl_desire(nse);
           socket_count_write_inc(iod);
-          update_events(iod, ms, EV_WRITE, evclr);
+          update_events(iod, ms, X_EV(EV_WRITE, evclr), X_EV(evclr, EV_WRITE));
           nse->sslinfo.ssl_desire = err;
         } else {
           /* Unexpected error */
