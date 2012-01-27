@@ -689,7 +689,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
 
         evclr = socket_count_dec_ssl_desire(nse);
         socket_count_write_inc(iod);
-        update_events(iod, ms, X_EV(EV_WRITE, evclr), X_EV(evclr, EV_READ));
+        update_events(iod, ms, X_EV(EV_WRITE, evclr), X_EV(evclr, EV_WRITE));
         nse->sslinfo.ssl_desire = err;
       } else {
         /* Unexpected error */
