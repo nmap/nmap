@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added cccam-version.nse. It detects the CCcam TV card sharing
+  system. [David]
+
 o [NSE] Added the scripts xdmcp-discover, broadcast-xdmcp-discover and the
   X Display Manager Control Protocol (xdmcp) library. The scripts discover
   hosts either using unicast or broadcast and try to detect supported
