@@ -58,10 +58,10 @@ require 'dns'
 require 'tab'
 require 'target'
 
-prerule = function() return true end
-
 local arg_domain = stdnse.get_script_args(SCRIPT_NAME .. ".domain")
 local arg_filter = stdnse.get_script_args(SCRIPT_NAME .. ".filter")
+
+prerule = function() return not(not(arg_domain)) end
 
 local function parseSvcList(services)
 	local i = 1
