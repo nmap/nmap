@@ -119,7 +119,7 @@ local function dnsDiscover()
 			if ( status and response[1] ) then
 				return true, { name = name, ip = response[1] }
 			end
-		until( not(d:match("%.")) )
+		until( not(d) or not(d:match("%.")) )
 		
 	end
 	

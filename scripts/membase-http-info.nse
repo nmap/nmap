@@ -112,7 +112,7 @@ local function cmdReq(host, port, url, result)
 			result[item] = { name = name, value = val }
 		end
 	end
-	return result
+	return true, result
 end
 
 action = function(host, port)
@@ -121,7 +121,11 @@ action = function(host, port)
 	
 	local result
 	for _, u in ipairs(urls) do
-		result = cmdReq(host, port, u, result)
+		status, result = cmdReq(host, port, u, result)
+	end
+
+	if ( not(result) or not(next(result)) ) then
+	 	return
 	end
 	
 	local output = tab.new(2)
