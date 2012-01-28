@@ -58,13 +58,13 @@ action = function(host, port)
 
   www_authenticate = answer.header["www-authenticate"]
   if not www_authenticate then
-    table.insert( ("Server returned status %d but no WWW-Authenticate header."):format(answer.status) )
+    table.insert( result, ("Server returned status %d but no WWW-Authenticate header."):format(answer.status) )
     return stdnse.format_output(true, result)
   end
   challenges = http.parse_www_authenticate(www_authenticate)
   if not challenges then
-    table.insert( ("Server returned status %d but the WWW-Authenticate header could not be parsed."):format(answer.status) )
-    table.insert( ("WWW-Authenticate: %s"):format(www_authenticate) )
+    table.insert( result, ("Server returned status %d but the WWW-Authenticate header could not be parsed."):format(answer.status) )
+    table.insert( result, ("WWW-Authenticate: %s"):format(www_authenticate) )
     return stdnse.format_output(true, result)
   end
 
@@ -78,6 +78,5 @@ action = function(host, port)
     table.insert(result, line)
   end
 
-  --return table.concat(result, "\n")
   return stdnse.format_output(true, result)
 end
