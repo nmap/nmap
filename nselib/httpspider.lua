@@ -659,12 +659,12 @@ Crawler = {
 			return
 		end
 		
-		self.options.maxdepth		= tonumber(stdnse.get_script_args(sn .. ".maxdepth"))
-		self.options.maxpagecount 	= tonumber(stdnse.get_script_args(sn .. ".maxpagecount"))
-		self.url 					= stdnse.get_script_args(sn .. ".url")
-		self.options.withinhost 	= stdnse.get_script_args(sn .. ".withinhost")
-		self.options.withindomain 	= stdnse.get_script_args(sn .. ".withindomain")
-		self.options.noblacklist    = stdnse.get_script_args(sn .. ".noblacklist")
+		self.options.maxdepth		= self.options.maxdepth or tonumber(stdnse.get_script_args(sn .. ".maxdepth"))
+		self.options.maxpagecount 	= self.options.maxpagecount or tonumber(stdnse.get_script_args(sn .. ".maxpagecount"))
+		self.url 					= self.url or stdnse.get_script_args(sn .. ".url")
+		self.options.withinhost 	= self.options.withinhost or stdnse.get_script_args(sn .. ".withinhost")
+		self.options.withindomain 	= self.options.withindomain or stdnse.get_script_args(sn .. ".withindomain")
+		self.options.noblacklist    = self.options.noblacklist or stdnse.get_script_args(sn .. ".noblacklist")
 	end,
 	
 	-- Loads the argument on a library level
