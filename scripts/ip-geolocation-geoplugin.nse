@@ -41,9 +41,7 @@ local geoplugin = function(ip)
 	
 	local output = {}
 	table.insert(output, "coordinates (lat,lon): "..loc.geoplugin_latitude..","..loc.geoplugin_longitude)
-	-- The JSON response for regionName contains a null sometimes which is represented
-	-- as a table by the library.
-	local regionName = ("table" == type(loc.geoplugin_regionName)) and "Unknown" or loc.geoplugin_regionName
+	local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
 	table.insert(output,"state: ".. regionName ..", ".. loc.geoplugin_countryName)
 	
 	return output
