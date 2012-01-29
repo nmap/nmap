@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added url-snarf. The script sniffs the network for URLs in HTTP
+  traffic and prints the URL together with the originating IP. [Patrik]
+
 o [NSE] Added http-auth-finder. The scripts spiders a site looking for URLs
   requiring form- or HTTP-based authentication. [Patrik]
 
