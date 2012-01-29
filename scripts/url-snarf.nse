@@ -15,7 +15,7 @@ ctrl+break is issued, which is the default.
 -- | url-snarf: 
 -- |_  Sniffed 169 URLs in 5 seconds
 --
--- @arg timeout runs the script until timeout is reached (defaul: infinite)
+-- @arg timeout runs the script until timeout is reached (defaul: 30s)
 -- @arg nostdout doesn't write any output to stdout while running
 -- @arg outfile filename to which all discovered URLs are written
 --
@@ -78,7 +78,7 @@ local function get_url(data)
 	return u
 end
 
-local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
+local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME..".timeout")) or 30
 local arg_nostdout= stdnse.get_script_args(SCRIPT_NAME..".nostdout")
 local arg_outfile = stdnse.get_script_args(SCRIPT_NAME..".outfile")
 
