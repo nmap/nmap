@@ -22,7 +22,7 @@ ctrl+break is issued, which is the default.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe"}
+categories = {"broadcast", "safe"}
 
 require 'packet'
 require 'url'
