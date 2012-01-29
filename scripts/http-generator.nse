@@ -50,7 +50,7 @@ local follow_redirects = function(host, port, path, n)
    local pattern = "^[hH][tT][tT][pP]/1.[01] 30[12]"
    local response = http.get(host, port, path)
 
-   while response['status-line']:match(pattern) and n > 0 do
+   while (response['status-line'] or ""):match(pattern) and n > 0 do
       n = n - 1
       loc = response.header['location']
       response = http.get_url(loc)
