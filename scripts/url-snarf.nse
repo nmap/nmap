@@ -9,7 +9,7 @@ ctrl+break is issued, by setting the timeout to 0.
 
 ---
 -- @usage
--- nmap --script url-snarf
+-- nmap --script url-snarf -e <interface>
 --
 -- @output
 -- | url-snarf: 
@@ -23,13 +23,12 @@ ctrl+break is issued, by setting the timeout to 0.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"broadcast", "safe"}
+categories = {"safe"}
 
 require 'packet'
 require 'url'
 
-local arg_iface = 	nmap.get_interface() or 
-					stdnse.get_script_args(SCRIPT_NAME .. ".interface")
+local arg_iface = nmap.get_interface() or stdnse.get_script_args(SCRIPT_NAME .. ".interface")
 
 prerule = function()
  	local has_interface = ( arg_iface ~= nil )

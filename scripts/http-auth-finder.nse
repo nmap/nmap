@@ -56,7 +56,7 @@ end
 action = function(host, port)
 
 	-- create a new crawler instance
-	local crawler = httpspider.Crawler:new(	host, port,	nil, { scriptname = SCRIPT_NAME } )
+	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME } )
 
 	-- create a table entry in the registry
 	nmap.registry.auth_urls = nmap.registry.auth_urls or {}
