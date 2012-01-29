@@ -4,7 +4,7 @@ IP. Script output differs from other script as URLs are written to stdout
 directly. There is also an option to log the results to file.
 
 The script can be limited in time by using the timeout argument or run until a
-ctrl+break is issued, which is the default.
+ctrl+break is issued, by setting the timeout to 0.
 ]]
 
 ---
@@ -15,7 +15,8 @@ ctrl+break is issued, which is the default.
 -- | url-snarf: 
 -- |_  Sniffed 169 URLs in 5 seconds
 --
--- @arg timeout runs the script until timeout is reached (defaul: 30s)
+-- @arg timeout runs the script until the timeout (in seconds) is reached.
+--      a timeout of 0s can be used to run until ctrl+break. (default: 30s)
 -- @arg nostdout doesn't write any output to stdout while running
 -- @arg outfile filename to which all discovered URLs are written
 --
@@ -92,7 +93,7 @@ local function log_entry(src_ip, url)
 end
 
 action = function()
-	local counter = 1
+	local counter = 0
 	
 	if ( arg_outfile ) then
 		local outfd = io.open(arg_outfile, "a")
@@ -125,10 +126,12 @@ action = function()
 				end
 			end
 		end
-		if ( arg_timeout and arg_timeout <= os.time() - start ) then
+		if ( arg_timeout and arg_timeout > 0 and arg_timeout <= os.time() - start ) then
 			stop = os.time()
 			break
 		end
 	until(false)
-	return ("\n  Sniffed %d URLs in %d seconds"):format(counter, stop - start)
+	if ( counter > 0 ) then
+		return ("\n  Sniffed %d URLs in %d seconds"):format(counter, stop - start)
+	end
 end
