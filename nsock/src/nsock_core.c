@@ -183,7 +183,9 @@ static int socket_count_dec_ssl_desire(msevent *nse) {
 static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
   int setmask, clrmask;
 
-  assert((ev_inc & ev_dec) == 0);
+  /* Filter out events that belong to both sets. */
+  ev_inc = X_EV(ev_inc, ev_dec);
+  ev_dec = X_EV(ev_dec, ev_inc);
 
   setmask = ev_inc;
   clrmask = EV_NONE;
@@ -532,14 +534,14 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
 
           evclr = socket_count_dec_ssl_desire(nse);
           socket_count_read_inc(iod);
-          update_events(iod, ms, X_EV(EV_READ, evclr), X_EV(evclr, EV_READ));
+          update_events(iod, ms, EV_READ, evclr);
           nse->sslinfo.ssl_desire = err;
         } else if (err == SSL_ERROR_WANT_WRITE) {
           int evclr;
 
           evclr = socket_count_dec_ssl_desire(nse);
           socket_count_write_inc(iod);
-          update_events(iod, ms, X_EV(EV_WRITE, evclr), X_EV(evclr, EV_WRITE));
+          update_events(iod, ms, EV_WRITE, evclr);
           nse->sslinfo.ssl_desire = err;
         } else {
           /* Unexpected error */
@@ -682,14 +684,14 @@ static int do_actual_read(mspool *ms, msevent *nse) {
 
         evclr = socket_count_dec_ssl_desire(nse);
         socket_count_read_inc(iod);
-        update_events(iod, ms, X_EV(EV_READ, evclr), X_EV(evclr, EV_READ));
+        update_events(iod, ms, EV_READ, evclr);
         nse->sslinfo.ssl_desire = err;
       } else if (err == SSL_ERROR_WANT_WRITE) {
         int evclr;
 
         evclr = socket_count_dec_ssl_desire(nse);
         socket_count_write_inc(iod);
-        update_events(iod, ms, X_EV(EV_WRITE, evclr), X_EV(evclr, EV_WRITE));
+        update_events(iod, ms, EV_WRITE, evclr);
         nse->sslinfo.ssl_desire = err;
       } else {
         /* Unexpected error */
