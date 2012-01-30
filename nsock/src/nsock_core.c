@@ -85,9 +85,6 @@
 #include "nsock_pcap.h"
 #endif
 
-/* Get events which are exclusively on event set A */
-#define X_EV(a, b) ((a) & ((a)^(b)))
-
 
 /* Nsock time of day -- we update this at least once per nsock_loop round (and
  * after most calls that are likely to block).  Other nsock files should grab
@@ -181,11 +178,12 @@ static int socket_count_dec_ssl_desire(msevent *nse) {
  * IO engine for this IOD.
  */
 static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
-  int setmask, clrmask;
+  int setmask, clrmask, ev_temp;
 
   /* Filter out events that belong to both sets. */
-  ev_inc = X_EV(ev_inc, ev_dec);
-  ev_dec = X_EV(ev_dec, ev_inc);
+  ev_temp = ev_inc ^ ev_dec;
+  ev_inc = ev_inc & ev_temp;
+  ev_dec = ev_dec & ev_temp;
 
   setmask = ev_inc;
   clrmask = EV_NONE;
