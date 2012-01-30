@@ -163,7 +163,7 @@ TAP = {
 			-- @return status true on success, false on failure
 			parse = function(self)
 				if ( 24 > #self.data ) then
-					stdnse.print_debug("%s: Header packet too short (%d bytes)", SCRIPT_NAME, #self.data)
+					stdnse.print_debug("membase: Header packet too short (%d bytes)", #self.data)
 					return false, "Packet to short"
 				end
 				local pos

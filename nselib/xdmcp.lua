@@ -310,7 +310,7 @@ Helper = {
 	createSession = function(self, auth_names, authr_names, disp_no)
 		local info  = nmap.get_interface_info(self.host.interface)
 		if ( not(info) ) then
-			return false, ("Failed to get information for interface %s"):format(host.interface)
+			return false, ("Failed to get information for interface %s"):format(self.host.interface)
 		end
 		
 		local req = xdmcp.Packet[xdmcp.OpCode.QUERY]:new(auth_names)

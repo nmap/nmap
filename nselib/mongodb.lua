@@ -623,12 +623,12 @@ local function printBuffer(strData)
 	print(out)
 end
 
-function test()
-	local res
-	res = versionQuery()
-	print(type(res),res:len(),res)
-	local  out= bin.unpack('C'..#res,res)
-	printBuffer(res)
-end
+-- function test()
+-- 	local res
+-- 	res = versionQuery()
+-- 	print(type(res),res:len(),res)
+-- 	local  out= bin.unpack('C'..#res,res)
+-- 	printBuffer(res)
+-- end
 --test()
 

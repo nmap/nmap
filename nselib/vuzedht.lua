@@ -299,7 +299,7 @@ Response = {
 		fromString = function(data)
 			local find = Response.FIND_NODE:new(data)
 			if ( find.header.proto_version < 13 ) then
-				stdnse.print_debug("ERROR: Unsupported version %d", self.header.proto_version)
+				stdnse.print_debug("ERROR: Unsupported version %d", find.header.proto_version)
 				return false
 			end
 

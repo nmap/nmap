@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bunch of global access errors in various libraries reported by
+  the nse_check_globals script. [Patrik]
+
 o [NSE] Added url-snarf. The script sniffs the network for URLs in HTTP
   traffic and prints the URL together with the originating IP. [Patrik]
 

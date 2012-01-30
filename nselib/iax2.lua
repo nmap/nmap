@@ -137,7 +137,7 @@ IAX2 = {
 		-- @param key number containing the element number to retrieve
 		-- @return ie table containing the info element if it exists
 		getIE = function(self, key)
-			for _, ie in ipairs(r.ies or {}) do
+			for _, ie in ipairs(self.ies or {}) do
 				if ( key == ie.type ) then
 					return ie
 				end

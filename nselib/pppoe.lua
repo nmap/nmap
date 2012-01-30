@@ -74,7 +74,7 @@ LCP = {
 			
 			-- MRU
 			if ( 1 == opt.option ) then
-				opt.value = select(2, bin.unpack(">S", self.raw))
+				opt.value = select(2, bin.unpack(">S", opt.raw))
 			end
 			return LCP.ConfigOption:new(opt.option, opt.value, opt.raw)
 		end,
@@ -297,7 +297,7 @@ LCP = {
 		parse = function(data)
 			local ack = LCP.ConfigAck:new()
 			ack.header = LCP.Header.parse(data)
-			ack.options = LCP.ConfigOptions.parse(data:sub(#tostring(req.header) + 1))
+			ack.options = LCP.ConfigOptions.parse(data:sub(#tostring(ack.header) + 1))
 			return ack
 		end,
 		

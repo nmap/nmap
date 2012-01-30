@@ -1205,10 +1205,10 @@ local l_filter_vuln = function(vuln_table, filter)
 
     if filter.id_type then
       if not vuln_table.IDS or not next(vuln_table.IDS) or
-      not vuln_table.IDS[id_type] then
+      not vuln_table.IDS[filter.id_type] then
         return false
       elseif filter.id then
-        return (vuln_table.IDS[id_type] == filter.id)
+        return (vuln_table.IDS[filter.id_type] == filter.id)
       end
     end
   end

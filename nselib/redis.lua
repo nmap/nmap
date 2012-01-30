@@ -102,7 +102,7 @@ Response = {
 				end
 				table.insert(results, data)
 			end
-			return true, { data = results, type = MULTIBULK }
+			return true, { data = results, type = Response.Type.MULTIBULK }
 		end
 		
 		return false, "Unsupported response"
