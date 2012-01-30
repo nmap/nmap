@@ -6,7 +6,7 @@
 -- implement SMB as well, including Samba and a lot of embedded devices. Some of them implement
 -- it properly and many of them not. Although the protocol has been documented decently 
 -- well by Samba and others, many 3rd party implementations are broken or make assumptions. 
--- Even Samba's and Windows' implementations aren't completely compatiable. As a result, 
+-- Even Samba's and Windows' implementations aren't completely compatible. As a result, 
 -- creating an implementation that accepts everything is a bit of a minefield. Microsoft's
 -- extensive documentation is available at the following URLs:
 -- * SMB: http://msdn.microsoft.com/en-us/library/cc246231(v=prot.13).aspx
@@ -911,9 +911,9 @@ end
 -- * List of known protocols
 --
 -- Receives:
--- * The prefered dialect
+-- * The preferred dialect
 -- * The security mode
--- * Max number of multiplexed connectiosn, virtual circuits, and buffer sizes
+-- * Max number of multiplexed connections, virtual circuits, and buffer sizes
 -- * The server's system time and timezone
 -- * The "encryption key" (aka, the server challenge)
 -- * The capabilities
@@ -1584,7 +1584,7 @@ end
 --
 --@param smb    The SMB object associated with the connection
 --@param overrides THe overrides table
---@return (status, result) If statis is false, result is an error message. If status is true, 
+--@return (status, result) If status is false, result is an error message. If status is true, 
 --              the logoff was successful. 
 function logoff(smb, overrides)
 	overrides = overrides or {}
