@@ -310,7 +310,7 @@ end
 -- initialization packets. Note that each packet depends on the previous one, so if you want
 -- to go all the way up to create_file, you have to set all parameters. 
 --
--- If anything fails, we back out of the connection and return an error, so the calling functino
+-- If anything fails, we back out of the connection and return an error, so the calling function
 -- doesn't have to call smb.stop(). 
 --
 --@param host               The host object. 
