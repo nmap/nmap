@@ -10490,3 +10490,10 @@ Probe TCP epmd q|\0\x01\x6e|
 rarity 8
 ports 4369
 match epmd m|^\0\0\x11\x11.*| p/Erlang Port Mapper Daemon/
+
+##############################NEXT PROBE##############################
+# Voldemort Native Protocol Version 3 connect probe
+Probe TCP vp3 q|vp3|
+rarity 8
+ports 6666
+match vp3 m|^ok$| p/Voldemort/
