@@ -88,6 +88,10 @@ o Update more web content in real time (or near real-time, or at least
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
 
+o Investigate increasing FD_SETSIZE on Windows to allow us to
+  multiplex more sockets.  See Henri's email:
+  http://seclists.org/nmap-dev/2012/q1/267
+
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
   is a solution people use for Wireshark or does it always cause this
