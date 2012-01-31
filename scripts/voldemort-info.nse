@@ -1,6 +1,5 @@
 description = [[
-Retrieves cluster and store information from the Voldemort distributed key-
-value store using the Voldemort Native Protocol.
+Retrieves cluster and store information from the Voldemort distributed key-value store using the Voldemort Native Protocol.
 ]]
 
 ---
