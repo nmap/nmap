@@ -78,6 +78,15 @@ o Update more web content in real time (or near real-time, or at least
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
 
+o ssl-google-cert-catalog should not require that the user specify
+  ssl-cert in order to run.  Instead, they should probably both call a
+  library which obtains the certificate (and caches it so that it
+  doesn't happen twice if both scripts are run).  In general, we want
+  to avoid having any scripts tell the user "this script only works if
+  you specify this other script too".  If we really find we need that
+  functionality, we should add a "strong dependencies" feature so that
+  scripts can tell Nmap what other scripts they require.
+
 o Investigate increasing FD_SETSIZE on Windows to allow us to
   multiplex more sockets.  See Henri's email:
   http://seclists.org/nmap-dev/2012/q1/267
