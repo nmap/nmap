@@ -130,6 +130,7 @@ Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-proxy-brute.nse", categories = { "brute", "external", "intrusive", } }
 Entry { filename = "http-put.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-qnap-nas-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }

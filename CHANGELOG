@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-qnap-nas-info, that retrieves the model, firware version,
+  and enabled services from a QNAP Network Attached Storage (NAS) device.
+  [Brendan Coles]
+
 o [NSE] Fixed a bunch of global access errors in various libraries reported by
   the nse_check_globals script. [Patrik]
 
