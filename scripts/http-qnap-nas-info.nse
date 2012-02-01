@@ -51,7 +51,7 @@ action = function(host, port)
 
 	-- Retrieve file
 	stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-	data = http.get(host, port, path)
+	local data = http.get(host, port, path)
 
 	-- Check if file exists
 	if data and data.status and data.status == 200 and data.body and data.body ~= "" then
