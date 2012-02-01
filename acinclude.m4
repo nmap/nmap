@@ -84,7 +84,6 @@ int main() {
   ],
   [AC_MSG_RESULT(no); $2],
   [AC_MSG_RESULT(cross-compiling -- assuming yes); $3])
-  ])
 ])
 
 dnl Checks if IPPROTO_RAW induces IP_HDRINCL-like behavior in AF_INET6 sockets.
