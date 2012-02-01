@@ -911,6 +911,7 @@ if test "$with_nmap_update" = "no"; then
   NMAP_UPDATE_CLEAN=""
   NMAP_UPDATE_DIST_CLEAN=""
 else
+  AC_CONFIG_SUBDIRS(nmap-update)
   NMAP_UPDATE_BUILD="build-nmap-update"
   NMAP_UPDATE_INSTALL="install-nmap-update"
   NMAP_UPDATE_UNINSTALL="uninstall-nmap-update"
@@ -923,8 +924,6 @@ AC_SUBST(NMAP_UPDATE_INSTALL)
 AC_SUBST(NMAP_UPDATE_UNINSTALL)
 AC_SUBST(NMAP_UPDATE_CLEAN)
 AC_SUBST(NMAP_UPDATE_DIST_CLEAN)
-
-AC_CONFIG_SUBDIRS(nmap-update)
 
 
 AC_OUTPUT(Makefile libnetutil/Makefile)

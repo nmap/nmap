@@ -7835,6 +7835,8 @@ if test "$with_nmap_update" = "no"; then
   NMAP_UPDATE_CLEAN=""
   NMAP_UPDATE_DIST_CLEAN=""
 else
+  subdirs="$subdirs nmap-update"
+
   NMAP_UPDATE_BUILD="build-nmap-update"
   NMAP_UPDATE_INSTALL="install-nmap-update"
   NMAP_UPDATE_UNINSTALL="uninstall-nmap-update"
@@ -7846,9 +7848,6 @@ fi
 
 
 
-
-
-subdirs="$subdirs nmap-update"
 
 
 
