@@ -18,8 +18,6 @@ SHTOOL = ../shtool
 
 DESTDIR =
 
-APR_CONFIG = @APR_CONFIG@
-
 SOURCES = nmap-update svn_auth
 C_FILES = $(addsuffix .c,$(SOURCES))
 O_FILES = $(addsuffix .o,$(SOURCES))

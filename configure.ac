@@ -858,6 +858,11 @@ AC_SUBST(NCAT_DIST_CLEAN)
 AC_ARG_WITH([nmap-update],
   AC_HELP_STRING([--without-nmap-update], [Skip build and installation of nmap-update]), [], [with_nmap_update=check])
 
+APR_FIND_APR(, , 1, 1)
+if test "$apr_found" = "no"; then
+  with_nmap_update=no
+fi
+
 AC_ARG_WITH(subversion,
 AC_HELP_STRING([--with-subversion=DIR], [Look for libsvn1 in DIR/include and DIR/libs.]),
 [
@@ -877,9 +882,8 @@ case "$with_subversion" in
 if test "$with_nmap_update" != "no"; then
   have_libsvn=yes
   if test "$have_libsvn" = "yes"; then
-    AC_CHECK_PROGS([APR_CONFIG], [apr-1-config])
     old_CPPFLAGS="$CPPFLAGS"
-    CPPFLAGS="$CPPFLAGS $($APR_CONFIG --cppflags --includes)"
+    CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
     AC_CHECK_HEADER([svn_client.h], [], [
       AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
     ])

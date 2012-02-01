@@ -5,11 +5,19 @@ AC_PREREQ([2.68])
 AC_INIT([nmap-update.c])
 AC_CONFIG_HEADERS([config.h])
 
+m4_include([../acinclude.m4])
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
-AC_CHECK_PROGS([APR_CONFIG], [apr-1-config])
+
+APR_FIND_APR(, , 1, 1)
+if test "$apr_found" = "no"; then
+  AC_MSG_ERROR([libapr is required to build nmap-update.])
+fi
+CPPFLAGS="$CPPFLAGS $($apr_config --cppflags --includes)"
+LIBS="$LIBS $($apr_config --link-ld)"
 
 AC_ARG_WITH(subversion,
 AC_HELP_STRING([--with-subversion=DIR], [Look for libsvn1 in DIR/include and DIR/libs.]),
@@ -33,7 +41,6 @@ AC_CHECK_LIB([svn_subr-1], [svn_handle_error2])
 AC_CHECK_LIB([apr-1], [apr_pool_destroy])
 
 # Checks for header files.
-CPPFLAGS="$CPPFLAGS $($APR_CONFIG --cppflags --includes)"
 AC_CHECK_HEADERS([svn_client.h subversion-1/svn_client.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
