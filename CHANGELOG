@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added --with-apr and --with-subversion configuration options to
+  support systems where those libraries aren't in the usual places.
+  [David]
+
 o [NSE] Added voldemort-info, that retrieves cluster and store information
   from the Voldemort distributed key-value store. [Patrik]
 
