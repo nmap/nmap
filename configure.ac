@@ -858,6 +858,22 @@ AC_SUBST(NCAT_DIST_CLEAN)
 AC_ARG_WITH([nmap-update],
   AC_HELP_STRING([--without-nmap-update], [Skip build and installation of nmap-update]), [], [with_nmap_update=check])
 
+AC_ARG_WITH(subversion,
+AC_HELP_STRING([--with-subversion=DIR], [Look for libsvn1 in DIR/include and DIR/libs.]),
+[
+case "$with_subversion" in
+  yes)
+    ;;
+  no)
+    with_nmap_update=no
+    ;;
+  *)
+    CPPFLAGS="-I$with_subversion/include $CPPFLAGS"
+    LDFLAGS="-L$with_subversion/lib $LDFLAGS"
+    ;;
+  esac
+])
+
 if test "$with_nmap_update" != "no"; then
   have_libsvn=yes
   if test "$have_libsvn" = "yes"; then

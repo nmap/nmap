@@ -11,6 +11,22 @@ AC_PROG_INSTALL
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 AC_CHECK_PROGS([APR_CONFIG], [apr-1-config])
 
+AC_ARG_WITH(subversion,
+AC_HELP_STRING([--with-subversion=DIR], [Look for libsvn1 in DIR/include and DIR/libs.]),
+[
+case "$with_subversion" in
+  yes)
+    ;;
+  no)
+    AC_MSG_ERROR([Subversion and libsvn1 are required to build nmap-update.])
+    ;;
+  *)
+    CPPFLAGS="-I$with_subversion/include $CPPFLAGS"
+    LDFLAGS="-L$with_subversion/lib $LDFLAGS"
+    ;;
+  esac
+])
+
 # Checks for libraries.
 AC_CHECK_LIB([svn_client-1], [svn_client_create_context])
 AC_CHECK_LIB([svn_subr-1], [svn_handle_error2])

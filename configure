@@ -766,6 +766,7 @@ with_libnbase
 with_libnsock
 with_ncat
 with_nmap_update
+with_subversion
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1435,6 +1436,7 @@ Optional Packages:
   --with-libnsock=DIR     Compile and link to libnsock in DIR
   --without-ncat          Skip build and installation of Ncat
   --without-nmap-update   Skip build and installation of nmap-update
+  --with-subversion=DIR   Look for libsvn1 in DIR/include and DIR/libs.
 
 Some influential environment variables:
   CC          C compiler command
@@ -7605,6 +7607,25 @@ else
 fi
 
 
+
+# Check whether --with-subversion was given.
+if test "${with_subversion+set}" = set; then :
+  withval=$with_subversion;
+case "$with_subversion" in
+  yes)
+    ;;
+  no)
+    with_nmap_update=no
+    ;;
+  *)
+    CPPFLAGS="-I$with_subversion/include $CPPFLAGS"
+    LDFLAGS="-L$with_subversion/lib $LDFLAGS"
+    ;;
+  esac
+
+fi
+
+
 if test "$with_nmap_update" != "no"; then
   have_libsvn=yes
   if test "$have_libsvn" = "yes"; then
@@ -7659,7 +7680,7 @@ else
 
       ac_fn_c_check_header_mongrel "$LINENO" "subversion-1/svn_client.h" "ac_cv_header_subversion_1_svn_client_h" "$ac_includes_default"
 if test "x$ac_cv_header_subversion_1_svn_client_h" = xyes; then :
-  echo $ac_cv_header_subversion_1_svn_client_h
+
 else
   have_libsvn=no
 fi
