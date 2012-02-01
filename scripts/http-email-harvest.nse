@@ -40,7 +40,7 @@ portrule = shortport.http
 function action(host, port)
 	local EMAIL_PATTERN = "[A-Za-z0-9%.%%%+%-]+@[A-Za-z0-9%.%%%+%-]+%.%w%w%w?%w?"
 	
-	local crawler = httpspider.Crawler:new(host, port, url or '/', { 
+	local crawler = httpspider.Crawler:new(host, port, nil, { 
 			scriptname = SCRIPT_NAME
 		}
 	)
