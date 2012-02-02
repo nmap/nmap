@@ -73,19 +73,10 @@ Options = {
 
 		-- set a few default values
 		o.timeout  = options.timeout or 10000
-		o.withindomain = o.withindomain or false
-		
-		-- we default to withinhost, unless withindomain is set
-		if ( o.withindomain ) then
-			o.withinhost = o.withinhost or false
-		else
-			o.withinhost = o.withinhost or true
-		end
-		
 		o.whitelist = o.whitelist or {}
 		o.blacklist = o.blacklist or {}
-				
-		if ( o.withinhost or o.withindomain ) then
+		
+		if ( o.withinhost == true or o.withindomain == true ) then
 			local host_match, domain_match
 			if ( ( o.base_url:getProto() == 'https' and o.base_url:getPort() == 443 ) or
 				 ( o.base_url:getProto() == 'http'  and o.base_url:getPort() == 80 ) ) then
@@ -101,7 +92,6 @@ Options = {
 					domain_match = ("%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain() )
 				end
 			end
-			
 			-- set up the appropriate matching functions
 			if ( o.withinhost ) then
 				o.withinhost = function(url) return string.match(tostring(url), host_match)	end
@@ -277,7 +267,7 @@ LinkExtractor = {
 							return false
 						end
 					end
-					
+
 					-- withinhost trumps any whitelisting
 					if ( self.options.withinhost ) then
 						if ( not(self.options.withinhost(url)) ) then
@@ -410,7 +400,14 @@ URL = {
 	
 	-- Gets the domain component of the URL
 	-- @return domain string containing the hosts domain
-	getDomain = function(self) return self.domain end,
+	getDomain = function(self)
+		if ( self.domain ) then
+			return self.domain 
+		-- fallback to the host, if we can't find a domain
+		else
+			return self.host
+		end
+	end,
 	
 	-- Converts the URL to a string
 	-- @return url string containing the string representation of the url
@@ -589,7 +586,7 @@ Crawler = {
 	crawl_thread = function(self, response_queue)
 		local condvar = nmap.condvar(response_queue)
 
-		if ( self.options.withinhost and self.options.withindomain ) then
+		if ( false ~= self.options.withinhost and false ~= self.options.withindomain ) then
 			table.insert(response_queue, { false, { err = true, reason = "Invalid options: withinhost and withindomain can't both be true" } })
 			condvar "signal"
 			return
@@ -634,13 +631,26 @@ Crawler = {
 			-- fetch the url, and then push it to the processed table
 			local response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout } )
 			self.processed[tostring(url)] = true
-		
-			-- if we have a response, proceed scraping it
-			if ( response.body ) then
-				local links = LinkExtractor:new(url, response.body, self.options):getLinks()
-				self.urlqueue:add(links)
+
+			if ( response ) then
+				-- were we redirected?
+				if ( response.location ) then
+					-- was the link absolute?
+					if ( response.location:match("^http") ) then
+						url = URL:new(response.location)
+					-- guess not
+					else
+						url.path = response.location
+					end
+				end
+				-- if we have a response, proceed scraping it
+				if ( response.body ) then
+					local links = LinkExtractor:new(url, response.body, self.options):getLinks()
+					self.urlqueue:add(links)
+				end		
+			else
+				response = { body = "", headers = {} }
 			end
-		
 			table.insert(response_queue, { true, { url = url, response = response } } )
 			while ( PREFETCH_SIZE < #response_queue ) do
 				stdnse.print_debug(2, "%s: Response queue full, waiting ...", LIBRARY_NAME)
@@ -659,28 +669,78 @@ Crawler = {
 			return
 		end
 		
-		self.options.maxdepth		= self.options.maxdepth or tonumber(stdnse.get_script_args(sn .. ".maxdepth"))
-		self.options.maxpagecount 	= self.options.maxpagecount or tonumber(stdnse.get_script_args(sn .. ".maxpagecount"))
-		self.url 					= self.url or stdnse.get_script_args(sn .. ".url")
-		self.options.withinhost 	= self.options.withinhost or stdnse.get_script_args(sn .. ".withinhost")
-		self.options.withindomain 	= self.options.withindomain or stdnse.get_script_args(sn .. ".withindomain")
-		self.options.noblacklist    = self.options.noblacklist or stdnse.get_script_args(sn .. ".noblacklist")
+		if ( nil == self.options.maxdepth ) then
+			self.options.maxdepth = tonumber(stdnse.get_script_args(sn .. ".maxdepth"))
+		end
+		if ( nil == self.options.maxpagecount ) then
+			self.options.maxpagecount = tonumber(stdnse.get_script_args(sn .. ".maxpagecount"))
+		end
+		if ( nil == self.url ) then
+			self.url = stdnse.get_script_args(sn .. ".url")
+		end
+		if ( nil == self.options.withinhost ) then
+			self.options.withinhost = stdnse.get_script_args(sn .. ".withinhost")
+		end
+		if ( nil == self.options.withindomain ) then
+			self.options.withindomain = stdnse.get_script_args(sn .. ".withindomain")
+		end
+		if ( nil == self.options.noblacklist ) then
+			self.options.noblacklist = stdnse.get_script_args(sn .. ".noblacklist")
+		end
 	end,
 	
 	-- Loads the argument on a library level
 	loadLibraryArguments = function(self)
 		local ln = LIBRARY_NAME
-		
-		self.options.maxdepth		= self.options.maxdepth or tonumber(stdnse.get_script_args(ln .. ".maxdepth"))
-		self.options.maxpagecount 	= self.options.maxpagecount or tonumber(stdnse.get_script_args(ln .. ".maxpagecount"))
-		self.url 					= self.url or stdnse.get_script_args(ln .. ".url")
-		self.options.withinhost 	= self.options.withinhost or stdnse.get_script_args(ln .. ".withinhost")
-		self.options.withindomain 	= self.options.withindomain or stdnse.get_script_args(ln .. ".withindomain")
-		self.options.noblacklist    = self.options.noblacklist or stdnse.get_script_args(ln .. ".noblacklist")
+
+		if ( nil == self.options.maxdepth ) then
+			self.options.maxdepth = tonumber(stdnse.get_script_args(ln .. ".maxdepth"))
+		end
+		if ( nil == self.options.maxpagecount ) then
+			self.options.maxpagecount = tonumber(stdnse.get_script_args(ln .. ".maxpagecount"))
+		end
+		if ( nil == self.url ) then
+			self.url = stdnse.get_script_args(ln .. ".url")
+		end
+		if ( nil == self.options.withinhost ) then
+			self.options.withinhost = stdnse.get_script_args(ln .. ".withinhost")
+		end
+		if ( nil == self.options.withindomain ) then
+			self.options.withindomain = stdnse.get_script_args(ln .. ".withindomain")
+		end
+		if ( nil == self.options.noblacklist ) then
+			self.options.noblacklist = stdnse.get_script_args(ln .. ".noblacklist")
+		end
 	end,
 	
 	-- Loads any defaults for arguments that were not set
 	loadDefaultArguments = function(self)
+		local function tobool(b)
+			if ( nil == b ) then
+				return
+			end
+			assert("string" == type(b) or "boolean" == type(b), "httpspider: tobool failed, unsupported type")
+			if ( "string" == type(b) ) then
+				if ( "true" == b ) then
+					return true
+				else
+					return false
+				 end
+			end
+			return b
+		end
+		
+		-- fixup some booleans to make sure they're actually booleans
+		self.options.withinhost = tobool(self.options.withinhost)
+		self.options.withindomain = tobool(self.options.withindomain)
+		self.options.noblacklist = tobool(self.options.noblacklist)	
+		
+		if ( self.options.withinhost == nil ) then	
+			self.options.withinhost = true
+		end
+		if ( self.options.withindomain == nil ) then
+			self.options.withindomain = false
+		end
 		self.options.maxdepth = self.options.maxdepth or 3
 		self.options.maxpagecount = self.options.maxpagecount or 20
 		self.url = self.url or '/'
@@ -690,7 +750,6 @@ Crawler = {
 	getLimitations = function(self)
 		local o = self.options
 		local limits = {}
-		
 		if ( o.maxdepth > 0 or o.maxpagecount > 0 or
 			 o.withinhost or o.wihtindomain ) then
 			if ( o.maxdepth > 0 ) then
@@ -700,7 +759,7 @@ Crawler = {
 				table.insert(limits, ("maxpagecount=%d"):format(o.maxpagecount))
 			end
 			if ( o.withindomain ) then
-				table.insert(limits, ("withindomain=%s"):format(o.base_url:getDomain()))
+				table.insert(limits, ("withindomain=%s"):format(o.base_url:getDomain() or o.base_url:getHost()))
 			end
 			if ( o.withinhost ) then
 				table.insert(limits, ("withinhost=%s"):format(o.base_url:getHost()))

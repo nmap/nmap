@@ -58,6 +58,10 @@ action = function(host, port)
 	-- create a new crawler instance
 	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME } )
 
+	if ( not(crawler) ) then
+		return
+	end
+
 	-- create a table entry in the registry
 	nmap.registry.auth_urls = nmap.registry.auth_urls or {}
 	crawler:set_timeout(10000)
@@ -70,7 +74,7 @@ action = function(host, port)
 		-- most of them are "legitimate" and should not be reason to abort
 		if ( not(status) ) then
 			if ( r.err ) then
-				return stdnse.format_output(true, "ERROR: %s", r.reason)
+				return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
 			else
 				break
 			end
@@ -101,6 +105,8 @@ action = function(host, port)
 		end
 	end
 	if ( #auth_urls > 1 ) then
-		return stdnse.format_output(true, tab.dump(auth_urls))
+		local result = { tab.dump(auth_urls) }
+		result.name = crawler:getLimitations()
+		return stdnse.format_output(true, result)
 	end
 end
