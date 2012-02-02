@@ -277,7 +277,7 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
 
 #if HAVE_PCAP
     /* do non-blocking read on pcap devices that doesn't support select()
-     * If there is anything read, don't do usleep() or select(), just leave this loop */
+     * If there is anything read, just leave this loop. */
     if (pcap_read_on_nonselect(nsp)) {
       /* okay, something was read. */
     } else
@@ -292,7 +292,7 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
         sock_err = socket_errno();
     }
 
-    gettimeofday(&nsock_tod, NULL); /* Due to usleep or epoll delay */
+    gettimeofday(&nsock_tod, NULL); /* Due to epoll delay */
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
