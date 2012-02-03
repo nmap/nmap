@@ -63,7 +63,7 @@ http://www.exploit-db.com/exploits/15130/
 -- |_http://seclists.org/fulldisclosure/2010/Oct/119
 --
 -- @changelog
--- 2011-06-08 - created by Brendan Coles <bcoles@gmail.com>
+-- 2011-06-08 - created by Brendan Coles - itsecuritysolutions.org
 -- 2011-06-10 - added user count
 --            - looped path detection
 -- 2011-06-15 - looped system info extraction

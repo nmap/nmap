@@ -72,7 +72,7 @@ For more information about Ganglia, see:
 -- |_              pkts out: 0.06packets/sec
 
 -- Version 0.1
--- Created 2011-06-28 - v0.1 - created by Brendan Coles <bcoles@gmail.com>
+-- Created 2011-06-28 - v0.1 - created by Brendan Coles - itsecuritysolutions.org
 
 author = "Brendan Coles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

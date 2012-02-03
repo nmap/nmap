@@ -1,5 +1,5 @@
 description = [[
-Attempts to retrieve the model, firware version, and enabled services from a 
+Attempts to retrieve the model, firmware version, and enabled services from a 
 QNAP Network Attached Storage (NAS) device.
 ]]
 
@@ -32,7 +32,7 @@ QNAP Network Attached Storage (NAS) device.
 -- 2012-01-29 - created by Brendan Coles - itsecuritysolutions.org
 --
 
-author = "Brendan Coles [itsecuritysolutions.org]"
+author = "Brendan Coles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","discovery"}
 
