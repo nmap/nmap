@@ -45,16 +45,20 @@ local function backupNames(filename)
 	local function createBackupNames()
 		local dir = filename:match("^(.*/)") or ""
 		local basename, suffix = filename:match("([^/]*)%.(.*)$")
-	
-		local backup_names = {
-			"{basename}.bak", -- generic bak file
-			"{basename}.{suffix}~", -- emacs
-			"{basename} copy.{suffix}", -- mac copy
-			"Copy of {basename}.{suffix}", -- windows copy
-			"Copy (2) of {basename}.{suffix}", -- windows second copy of
-			"{basename}.{suffix}.1", -- generic backup
-		}
-	
+		
+		local backup_names = {}
+		if basename then
+			table.insert(backup_names, "{basename}.bak") -- generic bak file
+		end
+		if basename and suffix then 
+			table.insert(backup_names, "{basename}.{suffix}~") -- emacs
+			table.insert(backup_names, "{basename} copy.{suffix}") -- mac copy
+			table.insert(backup_names, "Copy of {basename}.{suffix}") -- windows copy
+			table.insert(backup_names, "Copy (2) of {basename}.{suffix}") -- windows second copy
+			table.insert(backup_names, "{basename}.{suffix}.1") -- generic backup
+		
+		end
+
 		local replace_patterns = {
 			["{filename}"] = filename,
 			["{basename}"] = basename,
