@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified the sql-injection script to use the httpspider library.
+  [Lauri Kokkonen]
+
 o [NSE] Added a rsync library and two new script:
   + rsync-list-modules - list available rsync modules
   + rsync-brute - attempts to brute force passwords against a rsync module

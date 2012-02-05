@@ -81,15 +81,15 @@ Options = {
 			if ( ( o.base_url:getProto() == 'https' and o.base_url:getPort() == 443 ) or
 				 ( o.base_url:getProto() == 'http'  and o.base_url:getPort() == 80 ) ) then
 				if ( o.withinhost ) then
-					host_match = ("%s://%s"):format(o.base_url:getProto(), o.base_url:getHost())
+					host_match = ("^%s://%s"):format(o.base_url:getProto(), o.base_url:getHost())
 				elseif ( o.withindomain ) then
-					domain_match = ("%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain())
+					domain_match = ("^%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain())
 				end
 			else
 				if ( o.withinhost ) then
-				 	host_match = ("%s://%s:%d"):format(o.base_url:getProto(), o.base_url:getHost(), o.base_url:getPort() )
+				 	host_match = ("^%s://%s:%d"):format(o.base_url:getProto(), o.base_url:getHost(), o.base_url:getPort() )
 				elseif( o.withindomain ) then
-					domain_match = ("%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain() )
+					domain_match = ("^%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain() )
 				end
 			end
 			-- set up the appropriate matching functions
