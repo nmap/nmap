@@ -56,6 +56,9 @@ action = function(host, port)
 	if not whois_port then
 		whois_port = 43
 	end
+	if type(asns) ~= "table" then
+		asns = {asns}
+	end
 
 	for _, asn in ipairs(asns) do
 		local socket = nmap.new_socket()
