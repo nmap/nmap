@@ -6,7 +6,7 @@ Entry { filename = "afp-serverinfo.nse", categories = { "default", "discovery", 
 Entry { filename = "afp-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "amqp-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
-Entry { filename = "asn-to-prefix.nse", categories = { "discovery", } }
+Entry { filename = "asn-to-prefix.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
 Entry { filename = "backorifice-brute.nse", categories = { "brute", "intrusive", } }

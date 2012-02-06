@@ -28,7 +28,7 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 author = "John Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 
-categories = {"discovery"}
+categories = {"discovery", "external", "safe"}
 
 require "stdnse"
 require "shortport"
