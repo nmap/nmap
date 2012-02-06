@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added asn-to-prefix.nse by John Bond, to convert AS numbers to
+  IP address ranges and optionally scan them.
+
 o [NSE] Modified the sql-injection script to use the httpspider library.
   [Lauri Kokkonen]
 
