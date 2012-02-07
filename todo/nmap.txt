@@ -6,11 +6,6 @@ o Get RPM staticly linking to libsvn (rather than dynamic linking) so
     libs, we'll probably have to install it ourselves on the CentOS
     build machines.
 
-o Add options in configure script for users to specify where to find
-  subversion lib/include dirs (like we do with our other library
-  dependencies).  See this mail:
-  http://seclists.org/nmap-dev/2012/q1/37
-
 o Write and send GSoC 2011 results email
 
 o Make the nmap.header.tmpl wording a little more generic so it more
@@ -729,6 +724,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add options in configure script for users to specify where to find
+  subversion lib/include dirs (like we do with our other library
+  dependencies).  See this mail:
+  http://seclists.org/nmap-dev/2012/q1/37
+  -- David added --with-apr and --with-subversion
 
 o We need to fix the svn server so that Nmap committers can make
   branches from /nmap to /nmap-exp.  We may need to add some sort of
