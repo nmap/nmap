@@ -19,12 +19,14 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 -- @args newtargets Add discovered targets to Nmap scan queue.
 --
 -- @usage
--- nmap --script asn-to-prefix --script-args asn-to-prefix.asn={65000,65001}[asn-to-prefix.whois_server=asn.shadowserver.org,asn-to-prefix.whois_port=43,newtargets]
+-- nmap --script asn-to-prefix --script-args asn-to-prefix.asn=12
 --
 -- @output
 -- 53/udp open  domain  udp-response
 -- | asn-to-prefix:
--- |_    127.0.0.0/8
+-- |   32
+-- |     128.12.0.0/16
+-- |_    171.64.0.0/14
 
 author = "John Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
