@@ -2,7 +2,8 @@ description = [[
 Produces a list of prefixes for a given ASN.
 
 This script uses a whois server database operated by the Shadowserver
-Foundation.
+Foundation.  We thank them for granting us permission to use this in
+Nmap.
 
 Output is in CIDR notation. If the <code>newtargets</code> script
 argument is given, all discovered prefixes will be added to the Nmap
