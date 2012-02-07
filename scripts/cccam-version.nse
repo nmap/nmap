@@ -110,7 +110,7 @@ local function trial(host, port)
 	return data
 end
 
-portrule = shortport.version_port_or_service(12000, "cccam")
+portrule = shortport.version_port_or_service({10000, 10001, 12000, 12001, 16000, 16001}, "cccam")
 
 function action(host, port)
 	local seen = {}
