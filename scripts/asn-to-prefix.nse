@@ -19,7 +19,7 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 -- @args newtargets Add discovered targets to Nmap scan queue.
 --
 -- @usage
--- nmap --script asn-to-prefix --script-args asn-to-prefix.asn=12
+-- nmap --script asn-to-prefix --script-args asn-to-prefix.asn=32
 --
 -- @output
 -- 53/udp open  domain  udp-response
