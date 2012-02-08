@@ -347,7 +347,7 @@ SqlServerVersionInfo =
 		
 		local SP_LOOKUP_TABLE_2008 = { {1600, "RTM"}, {2531, "SP1"}, {4000, "SP2"}, }
 		
-		local SP_LOOKUP_TABLE_2008R2 = { {1660, "RTM"}, }
+		local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, }
 	
 	
 		if ( not self.brandedVersion ) then
