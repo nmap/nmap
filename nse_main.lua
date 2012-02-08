@@ -128,7 +128,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
       return "\n\tNSE failed to find "..name.." in search paths.";
     end
   end
-  insert(package.loaders, loader);
+  insert(package.loaders, 1, loader);
 end
 
 local script_database_type, script_database_path =
