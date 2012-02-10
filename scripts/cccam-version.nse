@@ -1,8 +1,10 @@
-description = [[Detects the CCcam service.
+description = [[
+Detects the CCcam service (software for sharing subscription TV among
+multiple receivers).
 
-CCcam is a way of sharing subscription TV among multiple receivers. The service
-normally runs on port 12000. It distinguishes itself by printing 16
-random-looking bytes upon receiving a connection.
+The service normally runs on port 12000. It distinguishes
+itself by printing 16 random-looking bytes upon receiving a
+connection.
 
 Because the script attempts to detect "random-looking" bytes, it has a small
 chance of failing to detect the service when the data do not seem random

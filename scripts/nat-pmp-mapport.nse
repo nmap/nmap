@@ -1,6 +1,5 @@
 description = [[
-Maps a WAN port on the router to a local port on the client.
-The script uses the NAT Port Mapping Protocol (NAT-PMP) to do so and supports the following operations:
+Maps a WAN port on the router to a local port on the client using the NAT Port Mapping Protocol (NAT-PMP).  It supports the following operations:
 o map - maps a new external port on the router to an internal port of the requesting IP
 o unmap - unmaps a previously mapped port for the requesting IP
 o unmapall - unmaps all previously mapped ports for the requesting IP

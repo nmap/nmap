@@ -1,10 +1,12 @@
 description = [[
-Ateemps to get more information from a server by requesting the server nsid[1],
-and asking for id.server[2] and version.bind. This script dose the same as the
-following two dig commands:
+Retrieves information from a DNS nameserver by requesting
+its nameserver ID (nsid), and asking for its id.server and
+version.bind. This script performs the same queries as the following
+two dig commands:
   - dig CH TXT bind.version @target
   - dig +nsid CH TXT id.server @target
 
+References:
 [1]http://www.ietf.org/rfc/rfc5001.txt
 [2]http://www.ietf.org/rfc/rfc4892.txt
 ]]

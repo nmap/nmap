@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password guessing against the VMWare Authentication Daemon (vmware-authd)
+Performs brute force password auditing against the VMWare Authentication Daemon (vmware-authd).
 ]]
 
 ---

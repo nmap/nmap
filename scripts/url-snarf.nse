@@ -1,7 +1,8 @@
 description=[[
-Sniffs an interface for HTTP traffic and dumps any URLs, and their originating
-IP. Script output differs from other script as URLs are written to stdout
-directly. There is also an option to log the results to file.
+Sniffs an interface for HTTP traffic and dumps any URLs, and their
+originating IP address. Script output differs from other script as
+URLs are written to stdout directly. There is also an option to log
+the results to file.
 
 The script can be limited in time by using the timeout argument or run until a
 ctrl+break is issued, by setting the timeout to 0.

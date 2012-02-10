@@ -1,7 +1,7 @@
 description = [[
 Discovers hosts and routing information from devices running RIPng on the
-LAN. It does so by sending a RIPng Request command and collects the responses
-from all devices responding to the request.
+LAN by sending a RIPng Request command and collecting the responses
+from all responsive devices.
 ]]
 
 ---

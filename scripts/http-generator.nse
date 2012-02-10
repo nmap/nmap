@@ -1,5 +1,5 @@
 description = [[
-Displays the contents of the "generator" meta tag if there is one.
+Displays the contents of the "generator" meta tag of a web page (default: /) if there is one.
 ]]
 
 author = "Michael Kohl"

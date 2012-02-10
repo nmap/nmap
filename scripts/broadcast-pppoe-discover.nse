@@ -1,6 +1,6 @@
 description = [[
-Discovers PPPoE servers using the PPPoE Discovery protocol (PPPoED)
-The PPPoE is an ethernet based protocol so the script has to know what ethernet
+Discovers PPPoE servers using the PPPoE Discovery protocol (PPPoED).
+PPPoE is an ethernet based protocol so the script has to know what ethernet
 interface to use for discovery. If no interface is specified, requests are sent
 out on all available interfaces.
 

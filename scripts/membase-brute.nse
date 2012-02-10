@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password guessing against Couchbase Membase servers.
+Performs brute force password auditing against Couchbase Membase servers.
 ]]
 
 ---

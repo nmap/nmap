@@ -1,5 +1,5 @@
 description = [[
-Retrieves information from distributed memory object caching system memcached
+Retrieves information from distributed memory object caching system memcached.
 ]]
 
 ---

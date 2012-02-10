@@ -1,5 +1,5 @@
 description = [[
-Performs brute force passwords guessing against a Redis key-value store
+Performs brute force passwords auditing against a Redis key-value store.
 ]]
 
 ---

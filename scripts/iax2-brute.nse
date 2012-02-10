@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password guessing against the Asterisk IAX2 protocol.
+Performs brute force password auditing against the Asterisk IAX2 protocol.
 Guessing fails when a large number of attempts is made due to the maxcallnumber limit (default 2048).
 In case your getting "ERROR: Too many retries, aborted ..." after a while, this is most likely what's happening.
 In order to avoid this problem try:

@@ -1,5 +1,5 @@
 description = [[
-Retrieves information from a Basho Riak distributed database using the HTTP protocol.
+Retrieves information (such as node name and architecture) from a Basho Riak distributed database using the HTTP protocol.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Determines the supported authentication mechanisms of the remote SOCKS server.
+Determines the supported authentication mechanisms of a remote SOCKS server.
 Starting with SOCKS version 5 socks servers may support authentication.
 The script checks for the following authentication types:
   0 - No authentication

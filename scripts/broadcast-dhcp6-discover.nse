@@ -1,7 +1,7 @@
 description = [[
-Sends a DHCPv6 request (Solicit) to the DHCPv6 multicast address. It parses the
-response and extracts the address along with any options returned by the
-server.
+Sends a DHCPv6 request (Solicit) to the DHCPv6 multicast address,
+parses the response, then extracts and prints the address along with
+any options returned by the server.
 
 The script requires Nmap to be run in privileged mode as it binds the socket
 to a privileged port (udp/546).

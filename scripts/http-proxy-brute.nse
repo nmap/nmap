@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password guessing against a HTTP proxy server
+Performs brute force password guessing against a HTTP proxy server.
 ]]
 
 ---

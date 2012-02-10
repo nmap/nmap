@@ -1,5 +1,5 @@
 description = [[
-Requests a XDMCP session and lists supported authentication and authorization mechanisms 
+Requests an XDMCP (X display manager control protocol) session and lists supported authentication and authorization mechanisms.
 ]]
 
 ---

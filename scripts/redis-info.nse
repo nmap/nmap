@@ -1,5 +1,5 @@
 description = [[
-Gets information from a Redis key-value store
+Retrieves information (such as version number and architecture) from a Redis key-value store.
 ]]
 
 ---

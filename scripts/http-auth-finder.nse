@@ -1,6 +1,5 @@
 description = [[
-Spiders a web site to find web pages requiring authentication, either form-
-based or HTTP-based. The results are returned in a table with each url and the
+Spiders a web site to find web pages requiring form-based or HTTP-based authentication. The results are returned in a table with each url and the
 detected method.
 ]]
 
