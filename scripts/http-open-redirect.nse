@@ -1,7 +1,7 @@
 description = [[
 Spiders a website and attempts to identify open redirects. Open
 redirects are handlers which commonly take a URL as a parameter and
-responds with a http redirect (3XX) to the target.
+responds with a http redirect (3XX) to the target.  Risks of open redirects are described at http://cwe.mitre.org/data/definitions/601.html.
 ]]
 
 ---

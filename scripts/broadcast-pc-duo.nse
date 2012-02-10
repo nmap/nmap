@@ -1,5 +1,5 @@
 description = [[
-Discovers PC-DUO remote control hosts and gateways running on the LAN
+Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a special UDP probe.
 ]]
 
 ---
