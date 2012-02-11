@@ -541,7 +541,7 @@ action = function(host, port)
 
     if targetname ~= nil then
 
-      http_response = http.head(host, port, path, {header={Host=targetname}, bypass_cache=true})
+      http_response = http.head(host, port, path, {header={Host=targetname}, bypass_cache=true, redirect_ok = false})
 
       if not http_response.status  then
         if not http_response["ERROR"] then

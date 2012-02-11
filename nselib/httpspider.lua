@@ -482,6 +482,7 @@ Crawler = {
 	--        <code>withindomain</code> - stay within the base_url domain
 	--        <code>scriptname</code> - should be set to SCRIPT_NAME to enable
 	--                                  script specific arguments.
+	--        <code>redirect_ok</code> - redirect_ok closure to pass to http.get function
 	-- @return o new instance of Crawler or nil on failure
 	new = function(self, host, port, url, options)
 		local o = {
@@ -498,7 +499,7 @@ Crawler = {
 		o:loadLibraryArguments()
 		o:loadDefaultArguments()
 
-		local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout } )
+		local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok } )
 		
 		if ( not(response) or 'table' ~= type(response) ) then
 			return
@@ -629,7 +630,7 @@ Crawler = {
 			end
 
 			-- fetch the url, and then push it to the processed table
-			local response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout } )
+			local response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok } )
 			self.processed[tostring(url)] = true
 
 			if ( response ) then

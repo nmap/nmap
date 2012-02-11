@@ -82,7 +82,7 @@ end
 
 action = function(host, port)
 
-	local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
+	local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME, redirect_ok = false } )
 	crawler:set_timeout(10000)
 	
 	local results = {}

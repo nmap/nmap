@@ -23,7 +23,7 @@
 ---
 local function try_http_basic_login(host, port, path, user, pass)
     local credentials = {username = user, password = pass}
-    local req = http.get(host, port, path, {no_cache=true, auth=credentials})
+    local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
     if req.status ~= 401 and req.status ~= 403 then
       return true
     end
@@ -46,7 +46,7 @@ local function try_http_post_login(host, port, path, target, failstr, params, fo
     
     local status = ( req and tonumber(req.status) ) or 0
     if follow_redirects and ( status > 300 and status < 400 ) then
-      req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true})
+      req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true, redirect_ok = false })
     end
     if not(http.response_contains(req, failstr)) then
       return true

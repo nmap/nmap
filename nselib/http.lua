@@ -1316,7 +1316,7 @@ local function parse_redirect(host, port, path, response)
        not(response.header.location) ) then
     return nil
   end
-
+  port = ( "number" == type(port) ) and { number = port } or port
   local u = url.parse(response.header.location)
   if ( not(u.host) and not(u.scheme) ) then
     -- we're dealing with a relative url
