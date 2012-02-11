@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added redirect support to the http library. All calls to http.get and
+  http.head now transparently handle any HTTP redirects. [Patrik]
+
 o [NSE] Added asn-to-prefix.nse by John Bond, to convert AS numbers to
   IP address ranges and optionally scan them.
 

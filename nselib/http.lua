@@ -69,6 +69,18 @@
 -- * <code>bypass_cache</code>: Do not perform a lookup in the local HTTP cache.
 -- * <code>no_cache</code>: Do not save the result of this request to the local HTTP cache.
 -- * <code>no_cache_body</code>: Do not save the body of the response to the local HTTP cache.
+-- * <code>redirect_ok</code>: Closure that overrides the default redirect_ok used to validate whether to follow HTTP redirects or not. False, if no HTTP redirects should be followed.
+--   The following example shows how to write a custom closure that follows 5 consecutive redirects:
+--   <code>
+--   redirect_ok = function(host,port)
+--     local c = 5
+--     return function(url)
+--       if ( c==0 ) then return false end
+--       c = c - 1
+--       return true
+--     end
+--   end
+--   </code>
 --  
 -- @args http-max-cache-size The maximum memory size (in bytes) of the cache.
 --
@@ -101,6 +113,7 @@ module(... or "http",package.seeall)
 local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
 local USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+local MAX_REDIRECT_COUNT = 5
 
 -- Recursively copy a table.
 -- Only recurs when a value is a table, other values are copied by assignment.
@@ -315,6 +328,11 @@ local function validate_options(options)
     elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body') then
       if(type(value) ~= 'boolean') then
         stdnse.print_debug(1, "http: options.bypass_cache, options.no_cache, and options.no_cache_body must be boolean values")
+        bad = true
+      end
+    elseif(key == 'redirect_ok') then
+      if(type(value)~= 'function' and type(value)~='boolean') then
+        stdnse.print_debug(1, "http: options.redirect_ok must be a function or boolean")
         bad = true
       end
     else
@@ -1199,6 +1217,137 @@ function put(host, port, path, options, putdata)
   return generic_request(host, port, "PUT", path, mod_options)
 end
 
+-- Check if the given URL is okay to redirect to. Return a table with keys
+-- "host", "port", and "path" if okay, nil otherwise.
+-- @param url table as returned by url.parse
+-- @param host table as received by the action function
+-- @param port table as received by the action function
+-- @return loc table containing the new location
+function redirect_ok(host, port)
+
+  -- A battery of tests a URL is subjected to in order to decide if it may be
+  -- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
+  local rules = {
+
+	-- Check if there's any credentials in the url
+    function (url, host, port)
+      -- bail if userinfo is present
+      return ( url.userinfo and false ) or true
+    end,
+
+    -- Check if the location is within the domain or host
+    function (url, host, port)
+      local hostname = stdnse.get_hostname(host)
+      if ( hostname == host.ip and host.ip == url.host.ip ) then
+        return true
+      end
+      local domain = hostname:match("^[^%.]-%.(.*)") or hostname
+      local match = ("^.*%s$"):format(domain)
+      if ( url.host:match(match) ) then
+        return true
+      end
+      return false
+    end,
+
+    -- Check whether the new location has the same port number
+    function (url, host, port)
+      -- port fixup, adds default ports 80 and 443 in case no url.port was
+      -- defined, we do this based on the url scheme
+      local url_port = url.port
+      if ( not(url_port) ) then
+        if ( url.scheme == "http" ) then
+          url_port = 80
+        elseif( url.scheme == "https" ) then
+          url_port = 443
+        end
+      end
+      if (not url_port) or tonumber(url_port) == port.number then
+        return true
+      end
+      return false
+    end,
+
+    -- Check whether the url.scheme matches the port.service
+    function (url, host, port)
+      -- if url.scheme is present then it must match the scanned port
+      if url.scheme and url.port then return true end
+      if url.scheme and url.scheme ~= port.service then return false end
+      return true
+    end,
+
+    -- make sure we're actually being redirected somewhere and not to the same url
+    function (url, host, port)
+      -- path cannot be unchanged unless host has changed
+      -- loc.path must be set if returning true
+      if ( not url.path or url.path == "/" ) and url.host == ( host.targetname or host.ip) then return false end
+      if not url.path then return true end
+      return true
+    end,
+  }
+
+  local counter = MAX_REDIRECT_COUNT
+  return function(url)
+    if ( counter == 0 ) then return false end
+    counter = counter - 1
+    for i, rule in ipairs( rules ) do
+	  if ( not(rule( url, host, port )) ) then
+        --stdnse.print_debug("Rule failed: %d", i)
+        return false
+      end
+    end
+    return true
+  end
+end
+
+-- Handles a HTTP redirect
+-- @param host table as received by the script action function
+-- @param port table as received by the script action function
+-- @param path string
+-- @param response table as returned by http.get or http.head
+-- @return url table as returned by <code>url.parse</code> or nil if there's no
+--         redirect taking place
+local function parse_redirect(host, port, path, response)
+  if ( not(tostring(response.status):match("^30[127]$")) or 
+       not(response.header) or
+       not(response.header.location) ) then
+    return nil
+  end
+
+  local u = url.parse(response.header.location)
+  if ( not(u.host) and not(u.scheme) ) then
+    -- we're dealing with a relative url
+    u.host, u.port = stdnse.get_hostname(host), port.number
+    u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
+  end
+  if ( u.query ) then
+    u.path = ("%s?%s"):format( u.path, u.query )
+  end
+  -- do port fixup
+  if ( not(u.port) ) then
+    if ( u.scheme == "http" ) then u.port = 80 end
+    if ( u.scheme == "https") then u.port = 443 end
+  end
+  return u
+end
+
+-- Retrieves the correct function to use to validate HTTP redirects
+-- @param host table as received by the action function
+-- @param port table as received by the action function
+-- @param options table as passed to http.get or http.head
+-- @return redirect_ok function used to validate HTTP redirects
+local function get_redirect_ok(host, port, options)
+  if ( options ) then
+    if ( options.redirect_ok == false ) then
+      return function() return false end
+    elseif( "function" == type(options.redirect_ok) ) then
+	  return options.redirect_ok(host, port)
+	else
+      return redirect_ok(host, port)
+    end
+  else
+    return redirect_ok(host, port)
+  end
+end
 
 ---Fetches a resource with a GET request and returns the result as a table. This is a simple
 -- wraper around <code>generic_request</code>, with the added benefit of having local caching. 
@@ -1215,11 +1364,23 @@ function get(host, port, path, options)
   if(not(validate_options(options))) then
     return nil
   end
-  local response, state = lookup_cache("GET", host, port, path, options);
-  if response == nil then
-    response = generic_request(host, port, "GET", path, options)
-    insert_cache(state, response);
-  end
+  local redir_check = get_redirect_ok(host, port, options)
+  local response, state, location
+  local u = { host = host, port = port, path = path }
+  repeat
+    response, state = lookup_cache("GET", u.host, u.port, u.path, options);
+    if ( response == nil ) then
+      response = generic_request(u.host, u.port, "GET", u.path, options)
+      insert_cache(state, response);
+    end
+    u = parse_redirect(host, port, path, response)
+    if ( not(u) ) then
+      break
+    end
+    location = location or {}
+    table.insert(location, response.header.location)
+  until( not(redir_check(u)) )
+  response.location = location
   return response
 end
 
@@ -1269,12 +1430,24 @@ function head(host, port, path, options)
   if(not(validate_options(options))) then
     return nil
   end
-  local response, state = lookup_cache("HEAD", host, port, path, options);
-  if response == nil then
-    response = generic_request(host, port, "HEAD", path, options)
-    insert_cache(state, response);
-  end
-  return response;
+  local redir_check = get_redirect_ok(host, port, options)
+  local response, state, location
+  local u = { host = host, port = port, path = path }
+  repeat
+    response, state = lookup_cache("HEAD", host, port, path, options);
+    if response == nil then
+      response = generic_request(host, port, "HEAD", path, options)
+      insert_cache(state, response);
+    end
+    u = parse_redirect(host, port, path, response)
+    if ( not(u) ) then
+      break
+    end
+    location = location or {}
+    table.insert(location, response.header.location)
+  until( not(redir_check(u)) )
+  response.location = location
+  return response
 end
 
 ---Fetches a resource with a POST request. Like <code>get</code>, this is a simple
