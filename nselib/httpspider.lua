@@ -636,11 +636,12 @@ Crawler = {
 				-- were we redirected?
 				if ( response.location ) then
 					-- was the link absolute?
-					if ( response.location:match("^http") ) then
-						url = URL:new(response.location)
+					local link = response.location[#response.location]
+					if ( link:match("^http") ) then
+						url = URL:new(link)
 					-- guess not
 					else
-						url.path = response.location
+						url.path = link
 					end
 				end
 				-- if we have a response, proceed scraping it

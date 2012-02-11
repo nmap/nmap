@@ -1286,6 +1286,10 @@ function redirect_ok(host, port)
   }
 
   local counter = MAX_REDIRECT_COUNT
+  -- convert a numeric port to a table
+  if ( "number" == type(port) ) then
+    port = { number = port }
+  end
   return function(url)
     if ( counter == 0 ) then return false end
     counter = counter - 1
