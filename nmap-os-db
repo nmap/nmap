@@ -53206,6 +53206,23 @@ T7(R=Y%DF=N%T=19-23%TG=20%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=19-23%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=19-23%TG=20%CD=S)
 
+# Canopy / Motorola Wimax Subscriber Module (SM) 5.4GHz, CANOPY 10.3.1 SM-DES
+Fingerprint Motorola Canopy wireless bridge
+Class Motorola | embedded || bridge
+SEQ(SP=C-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%TI=I%CI=I%II=RI%SS=O%TS=U)
+OPS(O1=M5B0%O2=M578%O3=M280%O4=M5B0%O5=M218%O6=M109)
+WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
+ECN(R=Y%DF=N%T=19-23%TG=20%W=4000%O=M5B0%CC=N)
+T1(R=Y%DF=N%T=19-23%TG=20%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=19-23%TG=20%W=4000%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=19-23%TG=20%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=19-23%TG=20%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=N)
+U1(DF=N%T=19-23%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=24-3F%TG=40%CD=S)
+
 # Motorola PTP-600 (Wireless Ethernet Bridge), Software Version 54600-05-04, Hardware Version D05-R01-C
 Fingerprint Motorola PTP 600 wireless Ethernet bridge
 Class Motorola | embedded || bridge
@@ -67005,3 +67022,20 @@ T6(R=N)
 T7(R=N)
 U1(DF=N%T=FE%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FE%TG=FF%CD=S)
+
+# RF-Space SDR-IP firmware v1.05
+Fingerprint RF-Space SDR-IP software radio
+Class RF-Space | embedded || specialized
+SEQ(R=N)
+OPS(O1=|M5B4%O2=|M578)
+WIN(W1=0|1FFE%W2=0|1FFE%W3=0%W4=0%W5=0%W6=0)
+ECN(R=Y%DF=Y%T=7B-85%TG=80%W=0%CC=N)
+T1(R=Y%DF=Y%T=7B-85%TG=80%S=A|O%A=O|S+%F=AR|AS%RD=0)
+T2(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=S+%F=AR%RD=0)
+T3(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=S+%F=AR%RD=0)
+T4(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=S+%F=AR%RD=0)
+T5(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=S+%F=AR%RD=0)
+T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=S+%F=AR%RD=0)
+U1(DF=Y%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(R=N)
