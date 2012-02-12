@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support for decoding EIGRP broadcasts from Cisco routers
+  to broadcast-listener. [Tom]
+
 o [NSE] Added redirect support to the http library. All calls to http.get and
   http.head now transparently handle any HTTP redirects. [Patrik]
 

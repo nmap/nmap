@@ -134,8 +134,8 @@ sniffInterface = function(iface, Decoders, decodertab)
 	-- default to 30 seconds, if nothing else was set
 	timeout = timeout and (timeout * 1000) or (30 * 1000)
 
-	-- We wan't all packets that aren't explicitly for us
- 	sock:pcap_open(iface.name, 1500, false, ("!host %s"):format(iface.address))
+	-- We want all packets that aren't explicitly for us
+ 	sock:pcap_open(iface.name, 1500, true, ("!host %s"):format(iface.address))
 
 	-- Set a short timeout so that we can timeout in time if needed
 	sock:set_timeout(100)

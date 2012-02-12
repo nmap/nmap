@@ -27,6 +27,7 @@
 -- o Ether
 --   x ARP requests (IPv4)
 --   x CDP - Cisco Discovery Protocol
+--   x EIGRP - Cisco Enhanced Interior Gateway Routing Protocol
 --
 -- o UDP
 --   x DHCP
@@ -42,8 +43,9 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
--- Version 0.1
+-- Version 0.2
 -- Created 07/25/2011 - v0.1 - created by Patrik Karlsson
+--         02/12/2012 - v.02 - added support for EIGRP - Tom Sellers
 
 require 'target'
 
@@ -147,7 +149,150 @@ Decoders = {
 			end,
 			
 			getResults = function(self)	return { name = "CDP", (self.results and tab.dump(self.results) or "")  } end,
-		}
+		},
+		
+		
+		-- EIGRP Query & Update
+		['020[13]....00000000'] = {
+
+			new = function(self)
+				local o = { dups = {} }
+				setmetatable(o, self)
+						self.__index = self
+				return o
+			end,
+
+			process = function(self, layer3)
+		  
+				local p = packet.Packet:new( layer3, #layer3 ) 
+				local data = layer3:sub(p.ip_data_offset + 1)
+				
+				-- Extract the EIGRP header
+				local pos, ver, opcode, checksum, flags, seq, ack, asnum = bin.unpack(">CCSiiii", data)
+
+			  local route_type, size, nexthop, delay, bandwidth, temp, mtu, orig_router, orig_as, arbtag
+				local hop_count, reliability, load, reserved, mask
+				local destination
+				
+				-- Iterate over the routes
+				while ( pos < #data ) do 
+					-- Get the route type as the packet construction varies
+					pos,route_type = bin.unpack(">S", data, pos)
+					
+					if ( route_type == 258 ) then
+						route_type = 'internal' 
+						pos, size, nexthop, delay, bandwidth, temp, mtu = bin.unpack(">SiiiCS", data, pos)
+						pos, hop_count, reliability, load, reserved, mask = bin.unpack(">CCCSC", data, pos)
+
+						local oct1, oct2, oct3, oct4 = 0, 0, 0, 0
+						-- unneeded address octets are left out of the packets, lets fill in the gaps
+						if ( size == 29 ) then
+							-- mask 25 or above
+							pos, oct1, oct2, oct3, oct4 = bin.unpack(">CCCC", data, pos)
+						elseif ( size == 28 ) then
+							pos, oct1, oct2, oct3 = bin.unpack(">CCC", data, pos)
+						elseif ( size == 27 ) then
+							pos, oct1, oct2 = bin.unpack(">CC", data, pos)
+						elseif ( size == 26 ) then
+							pos, oct1 = bin.unpack(">C", data, pos)
+						end
+					
+						destination = oct1 .. '.' .. oct2 .. '.' .. oct3 .. '.' .. oct4 .. "/" .. mask
+						orig_router = 'n/a'
+					elseif ( route_type == 259 ) then
+					  -- external route, from a different routing protocol
+						pos, size, nexthop = bin.unpack(">Si", data, pos)
+						local orig_rtr_oct1, orig_rtr_oct2, orig_rtr_oct3, orig_rtr_oct4
+						pos, orig_rtr_oct1, orig_rtr_oct2, orig_rtr_oct3, orig_rtr_oct4 = bin.unpack(">CCCC", data, pos)
+						orig_router = orig_rtr_oct1 .. '.' .. orig_rtr_oct2 .. '.' .. orig_rtr_oct3 .. '.' .. orig_rtr_oct4
+						pos, orig_as, arbtag, ext_metric = bin.unpack(">iii", data, pos)
+						pos, reserved, ext_proto_id, flags, delay, bandwidth = bin.unpack(">SCCii", data, pos)
+						pos, temp, mtu, hop_count, reliability, load, reserved, mask = bin.unpack(">CSCCCSC", data, pos)
+						
+						local oct1, oct2, oct3, oct4 = 0, 0, 0, 0
+						-- unneeded address octets are left out of the packets, lets fill in the gaps
+						if ( size == 49 ) then
+							-- mask 25 or above
+							pos, oct1, oct2, oct3, oct4 = bin.unpack(">CCCC", data, pos)
+						elseif ( size == 48 ) then
+							pos, oct1, oct2, oct3 = bin.unpack(">CCC", data, pos)
+						elseif ( size == 47 ) then
+							pos, oct1, oct2 = bin.unpack(">CC", data, pos)
+						elseif ( size == 46 ) then
+							pos, oct1 = bin.unpack(">C", data, pos)
+						end
+					
+						destination = oct1 .. '.' .. oct2 .. '.' .. oct3 .. '.' .. oct4 .. "/" .. mask
+						
+						local Proto_Types = {
+							[1] = 'external (IGRP)',
+							[2] = 'external (EIGRP)',
+							[3] = 'external (static)',
+							[4] = 'external (RIP)',
+							[6] = 'external (OSPF)',
+							[9] = 'external (RIP)'
+						}
+						
+						route_type = Proto_Types[ext_proto_id]
+					end
+				
+					if ( not(self.results) ) then
+						self.results = tab.new(9)
+						tab.addrow(self.results, 'sender ip', 'AS#', 'route type', 'destination', 'hop', 'bandwidth', 'delay', 'seq','orig router')
+					end
+					  
+
+					if (delay == -1) then delay = 'unreachable' end
+					
+					if ( not(self.dups[("%s:%s:s:%s"):format(p.ip_src,asnum,destination,seq)]) ) then
+						if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
+						self.dups[("%s:%s:%s:%s"):format(p.ip_src,asnum,destination,seq)] = true
+						tab.addrow( self.results, p.ip_src, asnum, route_type, destination, hop_count, bandwidth, delay, seq, orig_router )
+					end
+				end
+			end,
+			
+			getResults = function(self)	return { name = "EIGRP Query", (self.results and tab.dump(self.results) or "")  } end,
+		},
+		
+		['0205....00000000'] = {
+
+			new = function(self)
+				local o = { dups = {} }
+				setmetatable(o, self)
+						self.__index = self
+				return o
+			end,
+
+			process = function(self, layer3)
+		  
+				local p = packet.Packet:new( layer3, #layer3 ) 
+				local data = layer3:sub(p.ip_data_offset + 1)
+				
+				-- Extract the EIGRP header
+				local pos, ver, opcode, checksum, flags, seq, ack, asnum = bin.unpack(">CCSiiii", data)
+
+				-- Skip the parameters for now.
+				pos = pos + 10
+		
+				local holdtime, software, size, ios_major, ios_minor, eigrp_major, eigrp_minor
+				pos, holdtime, software, size, ios_major, ios_minor, eigrp_major, eigrp_minor = bin.unpack(">SSSCCCC", data, pos)
+
+				if ( not(self.results) ) then
+					self.results = tab.new(5)
+					tab.addrow(self.results, 'sender ip', 'AS number', 'hold time', 'EIGRP version', 'IOS version')
+				end
+				
+				if ( not(self.dups[("%s:%s"):format(p.ip_src,asnum)]) ) then
+					if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
+					self.dups[("%s:%s"):format(p.ip_src,asnum)] = true
+					tab.addrow( self.results, p.ip_src, asnum, holdtime, eigrp_major .. '.' .. eigrp_minor, ios_major .. '.' .. ios_minor )
+				end
+			
+			end,
+			
+			getResults = function(self)	return { name = "EIGRP Hello", (self.results and tab.dump(self.results) or "")  } end,
+		},
 		
 	},
 	
