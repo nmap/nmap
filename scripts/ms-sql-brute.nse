@@ -68,7 +68,7 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-dependencies = {"ms-sql-discover", "ms-sql-empty-password"}
+dependencies = {"ms-sql-empty-password"}
 
 require 'shortport'
 require 'stdnse'

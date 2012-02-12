@@ -51,8 +51,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth","intrusive"}
 
-dependencies = {"ms-sql-discover"}
-
 require 'shortport'
 require 'stdnse'
 require 'mssql'

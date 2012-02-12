@@ -106,8 +106,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-dependencies = {"ms-sql-discover"}
-
 require("shortport")
 require("mssql")
 

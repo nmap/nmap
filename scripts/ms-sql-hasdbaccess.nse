@@ -71,7 +71,7 @@ require 'shortport'
 require 'stdnse'
 require 'mssql'
 
-dependencies = {"ms-sql-brute", "ms-sql-empty-password", "ms-sql-discover"}
+dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 
 
 hostrule = mssql.Helper.GetHostrule_Standard()
