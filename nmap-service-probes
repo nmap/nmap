@@ -3776,7 +3776,7 @@ match tmail m|^\*\*\x18B0800000000022d\r\n\x11\x11\x11\*\*EMSI_REQA77E\r\r\[CONN
 
 match trackerlink m=^\d+\|\d+\|TrackerLINK Ver\. ([\d.]+)= p/TrackerLINK/ v/$1/
 
-match transferimg m|^0202 Camera Server Ready        CS-73D9C2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0Lab\. de Inform\xe1tica\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/D-Link DCS-900 webcam transfer image service/ d/webcam/ cpe:/h:d-link:dcs-900/
+match transferimg m|^0202 Camera Server Ready        CS-73D9C2\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0Lab\. de Inform\xe1tica\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/D-Link DCS-900 webcam transfer image service/ d/webcam/ cpe:/h:dlink:dcs-900/
 
 match trendnet-webcam m|^0301&<\x16\0\x84\xc7\x02\xe0\xe1\xb1\x008\x13\x1e\x0b\x80<\x16\0\xc7\t\x8f\x05\xc0\xf0X\0\x1c\xc2c\x01p\x1e\x0b\x80\xe3c\x01p\xdcX\0\x1c7\x8f\x05\xc0q\x0b\x80\xe3F\xc7\x02\xe0\xb8,\0\x8e\x1b\xb1\x008n\x05\xc0q\xa3\x008n\xb4\x02\xe0\xb8\xd1\x01p\xdch\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/TRENDnet TV-IP100 webcam display/ d/webcam/
 
@@ -5743,7 +5743,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Rapid Logic/([\d.]+)\r\n.*<!-- Copy
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: OpenLink-Web-Configurator/([\d.]+)\r\n| p/OpenLink http config/ v/$1/
 match http m|^HTTP/1\.0 401 Unauthorized\nServer: wr_httpd/([\d.]+) .*\nWWW-Authenticate: Basic realm=\"WebRamp \(use wradmin as the User Name\)\"\n| p/Webramp router http config/ i/wr_httpd $1/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*{FONT: bold 10pt Arial,Helvetica,sans-serif; COLOR: white;}.*{FONT: 10pt Arial,Helvetica,sans-serif; COLOR: black; BORDER: Medium White None; border-collapse: collapse}.*{\tCOLOR: #b5b5e6}.*{COLOR: #b5b5e6}.*src=Gozila\.js>|s p/Linksys BEFW11S4 router http config/ d/router/
-match http m|^<html>\n<title>(DGS-\w+) *(?:Login)?</title>\n| p/D-Link $1 Gigabit switch http config/ d/switch/ cpe:/h:d-link:$1/
+match http m|^<html>\n<title>(DGS-\w+) *(?:Login)?</title>\n| p/D-Link $1 Gigabit switch http config/ d/switch/ cpe:/h:dlink:$1/
 match http m|^HTTP/1\.1 401 Authorized Required\r\nWWW-Authenticate: Basic realm=\"Linksys WML(\w+)\"\r\n| p/Linksys WML$1 media device http config/ d/media device/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: CERN/([-\w.]+)\r\n|s p/CERN httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\n<TITLE>KONICA MINOLTA PageScope Light for (Di\d+)</TITLE>\r\n|s p/Konica Minolta Di$1 printer http config/ i/PageScope Light/ d/printer/
@@ -6470,10 +6470,10 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Server: NessusWWW\r\n.*Content-Length: 6518\
 match http m|^HTTP/1\.1 302 Found\r\n.*Server: NessusWWW\r\n.*Content-Type: text/html\r\nLocation: https://[\w._-]+/loading/\r\nCache-Control: \r\nExpires: 0\r\nPragma : \r\n\r\n|s p/NessusWWW/ v/4.2.2 - 4.49RC1/ i/Nessus vulnerability scanner http UI/
 
 # CAMEO-httpd
-match http m=^HTTP/1\.0 200 Ok\r\nServer: CAMEO-httpd\r\n.*<title>D-LINK CORPORATION \| WIRELESS AP \| LOGIN</title>=s p/CAMEO httpd/ i/D-Link DAP-1150 WAP http config/ d/WAP/ cpe:/h:d-link:dap-1150/
-match http m=^HTTP/1\.0 200 Ok\r\nServer: CAMEO-httpd\r\n.*<title>D-LINK SYSTEMS, INC \| WIRELESS AP \| LOGIN</title>=s p/CAMEO httpd/ i/D-Link DAP-1160 WAP http config/ d/WAP/ cpe:/h:d-link:dap-1160/
-match http m=^HTTP/1\.0 200 Ok\r\nServer: CAMEO-httpd\r\n.*<title>D-LINK SYSTEMS, INC\. \| WIRELESS AP : LOGIN</title>=s p/CAMEO httpd/ i/D-Link DAP-1360 WAP http config/ d/WAP/ cpe:/h:d-link:dap-1360/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: CAMEO-httpd\r\n.*WWW-Authenticate: Basic realm=\"DWL-G700AP Login\"\r\n|s p/CAMEO httpd/ i/D-Link DWL-G700AP http config/ d/WAP/ cpe:/h:d-link:dwl-g700ap/
+match http m=^HTTP/1\.0 200 Ok\r\nServer: CAMEO-httpd\r\n.*<title>D-LINK CORPORATION \| WIRELESS AP \| LOGIN</title>=s p/CAMEO httpd/ i/D-Link DAP-1150 WAP http config/ d/WAP/ cpe:/h:dlink:dap-1150/
+match http m=^HTTP/1\.0 200 Ok\r\nServer: CAMEO-httpd\r\n.*<title>D-LINK SYSTEMS, INC \| WIRELESS AP \| LOGIN</title>=s p/CAMEO httpd/ i/D-Link DAP-1160 WAP http config/ d/WAP/ cpe:/h:dlink:dap-1160/
+match http m=^HTTP/1\.0 200 Ok\r\nServer: CAMEO-httpd\r\n.*<title>D-LINK SYSTEMS, INC\. \| WIRELESS AP : LOGIN</title>=s p/CAMEO httpd/ i/D-Link DAP-1360 WAP http config/ d/WAP/ cpe:/h:dlink:dap-1360/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: CAMEO-httpd\r\n.*WWW-Authenticate: Basic realm=\"DWL-G700AP Login\"\r\n|s p/CAMEO httpd/ i/D-Link DWL-G700AP http config/ d/WAP/ cpe:/h:dlink:dwl-g700ap/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: CAMEO-httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"802\.11g WLAN Login\"\r\n| p/CAMEO httpd/ i/TRENDnet WAP http config/ d/WAP/
 
 
@@ -6927,9 +6927,9 @@ match http m|^HTTP/1\.0 302 Moved Temporarily\r\n.*Server: Mbedthis-Appweb/([\d.
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nContent-Type: text/html\r\nLocation: /EnterpriseController\r\n| p/GoogleMini search appliance httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\n.*WWW-Authenticate: Basic realm=\"Huawei SmartAX (\w+)\"\r\n|s p/micro_httpd/ i/Huawei SmartAX $1 ADSL router http config/ d/broadband router/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.0 200 OK Content-type: text/html\r\n\r\n.*<H2>57066 Minolta Network Configuration Sheet 1 of 2\n\n</H2>.*Serial Number: *(\d+)\n.*Ethernet Address: *([0-9A-F.]+).*F/W Version: *([\w.]+ \(\w+\)).*Print Server Name: *([\w_.-]+)|s p/Minolta PagePro 20 printer http config/ i/serial number: $1, MAC: $2, firmware $3/ d/printer/ h/$4/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(DCS-\w+)\"\r\n.*Server: WIC-2300\r\n|s p/D-Link $1 webcam http config/ d/webcam/ cpe:/h:d-link:$1/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(DCS-\w+)\"\r\n.*Server: DCS-\w+\r\n|s p/D-Link $1 webcam http config/ d/webcam/ cpe:/h:d-link:$1/
-match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: BASIC realm=(DCS-\w+)\r\n\r\nPassword Error\. $| p/D-Link $1 webcam http config/ d/webcam/ cpe:/h:d-link:$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(DCS-\w+)\"\r\n.*Server: WIC-2300\r\n|s p/D-Link $1 webcam http config/ d/webcam/ cpe:/h:dlink:$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(DCS-\w+)\"\r\n.*Server: DCS-\w+\r\n|s p/D-Link $1 webcam http config/ d/webcam/ cpe:/h:dlink:$1/
+match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: BASIC realm=(DCS-\w+)\r\n\r\nPassword Error\. $| p/D-Link $1 webcam http config/ d/webcam/ cpe:/h:dlink:$1/
 match http m|^HTTP/1\.0 400 bad url /\r\nServer: TinyHTTPProxy/([\d.]+) ([^\r\n]+)\r\n| p/TinyHTTPProxy/ v/$1/ i/$2/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-store\r\nExpires: -1\r\n.*<script src=\"/dana-na/css/ds\.js\"></script>|s p/Juniper SA2000 or SA4000 VPN gateway http config/ d/proxy server/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Type: text/html\r\nDate: .*\r\n\r\n<html xml:lang=\"en\" xmlns=\"http://www\.w3\.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n<title>FMS : Freenet Message System</title>| p/Freenet Message System web client/
@@ -7394,7 +7394,7 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: ITW Embedded Web Server \(v([\w._-]+
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Cyms-SecS v([\w._-]+)\r\n| p/Citrix Cyms-SecS/ v/$1/
 match http m|^HTTP/1\.1 200 Success\r\n.*Server: LightSpeedServer/([\w._-]+)  client_version/([\w._-]+) rest_protocol/([\w._-]+)\r\n|s p/LightSpeedServer/ v/$1/ i/client_version $2; rest_protocol $3/
 match http m|^HTTP/1\.1 200 OK\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=\w+;Path=/\r\nContent-Type: text/html\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nContent-Length: 115\r\n\r\n<html>\n<head><title></title>\n<meta http-equiv=\"refresh\" content=\"0;URL=index\.jsp\">\n</head>\n<body>\n</body>\n</html>\n\n| p/Jetty/ i/Openfire chat server http admin/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Linux, HTTP/1\.1, (DIR-[\w._+-]+) Ver ([\w._-]+)\r\n| p/D-Link $1 WAP http config/ v/$2/ o/Linux/ cpe:/h:d-link:$1:$2/ cpe:/o:linux:kernel/a
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Linux, HTTP/1\.1, (DIR-[\w._+-]+) Ver ([\w._-]+)\r\n| p/D-Link $1 WAP http config/ v/$2/ o/Linux/ cpe:/h:dlink:$1:$2/ cpe:/o:linux:kernel/a
 match http m|^HTTP/1\.1 200 OK\r\n.*X-Powered-By: Servlet ([\w._-]+); JBoss-([\w._-]+) \(build: SVNTag=JBoss_[\w._-]+ date=\d+\)/Tomcat-([\w._-]+)\r\n|s p/Apache Tomcat/ v/$3/ i/JBoss $2; Servlet $1/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Prayer/([\w._-]+)\r\n|s p/Prayer webmail httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Nu-OS/([\w._-]+)\r\n.*<title>Pioneer Web Control System</title>|s p/Nu-OS/ v/$1/ i/Pioneer VSX-2020 AV receiver/ d/media device/
@@ -7452,7 +7452,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nExpires: Sat, 01 Ja
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Kayak\r\nDate: \d+/\d+/\d+ \d+:\d+:\d+ [AP]M\r\n|s p/Kayak/
 match http m|^HTTP/1\.1 200 OK\r\nServer: DOT-TUNES\r\n.*DOT-TUNES: ([\w._-]+)\r\n|s p/Dot.Tunes iTunes sharing httpd/ v/$1/
 match http m|^HTTP/1\.0 404 Not Found\r\n.*Server: Hiawatha v([\w._-]+)\r\n.*<html><head><title>404 - Not Found</title><style type=\"text/css\">\n<!--\nBODY { color:#ffffff ; background-color:#00000a }\nDIV { font-family:sans-serif ; font-size:30px ; letter-spacing:20px ; text-align:center ; position:relative ; top:250px }\n--></style></head>\n<body><div>404 - Not Found</div></body></html>\n$|s p/Hiawatha/ v/$1/ i/Aerohive HiveAP WAP http config/ d/WAP/
-match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nCache-Control: no-cache\r\nContent-Length: 415\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<html>\n<head>\n<title>Login</title>\n<script>\nvar exp = new Date\(\);\nexp\.setTime\(exp\.getTime\(\)\+\(1000\*6\)\);\n| p/D-Link DGS-1100 switch http config/ d/switch/ cpe:/h:d-link:dgs-1100/
+match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nCache-Control: no-cache\r\nContent-Length: 415\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<html>\n<head>\n<title>Login</title>\n<script>\nvar exp = new Date\(\);\nexp\.setTime\(exp\.getTime\(\)\+\(1000\*6\)\);\n| p/D-Link DGS-1100 switch http config/ d/switch/ cpe:/h:dlink:dgs-1100/
 match http m|^HTTP/1\.0 404 Not Found\r\nConnection: closed\r\nContent-Type: text/html; charset=UTF-8\r\n.*<html><head><title>404 Not Found</title>|s p/PHP/ v/5.4.0 or later/ i/built-in httpd/
 match http m|^HTTP/1\.0 200 OK\r\nServer: gunicorn/([\w._-]+)\r\n| p/Gunicorn/ v/$1/
 # Also "COMAR SLR-200N - AIS Receiver with LANTRONIX XPort server".
@@ -7464,7 +7464,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\nContent-Type: text/html\nExpires: Thu,
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\n.*<title>VMware View</title>|s p/VMware ESX Server httpd/
 match http m|^HTTP/1\.1 200 Ok\r\nServer: PMSoftware-SWS/([\w._-]+)\r\n| p/PMSoftware Simple Web Server/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\ncontent-type: text/html\r\ncontent-length: \d+\r\nlast-modified: .*\r\netag: [0-9a-f]+\r\nConnection: close\r\n\r\n| p/Joyent Node.js/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: (DPH-\w+)\r\n| p/D-Link $1 VoIP phone http config/ d/VoIP phone/ cpe:/h:d-link:$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: (DPH-\w+)\r\n| p/D-Link $1 VoIP phone http config/ d/VoIP phone/ cpe:/h:dlink:$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Mango DSP HTTP Stack\r\n.*<title>Mango IP Node Configuration</title>|s p/Mango DSP AVS Raven-M video server http config/ d/media device/
 # Last-Modified has time zone.
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nLast-Modified: .* [-+]\d+\r\nExpires: .*\r\n\r\n| p/OpenText FirstClass webmail httpd/
@@ -8094,7 +8094,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: SCS\r\nContent-Type: text/html; charse
 match soap m|^HTTP/1\.0 500 Internal Server Error\r\nServer: gSOAP/([\w._-]+)\r\n.* xmlns:gmmiws=\"https://([\w._-]+):\d+/glsinternal\.wsdl\" .*<faultstring>HTTP GET method not implemented</faultstring>|s p/gSOAP soap/ v/$1/ i/Good Messaging Server gddomsyncsrv/ h/$2/
 match soap m|^HTTP/1\.0 500 Internal Server Error\r\nServer: gSOAP/([\w._-]+)\r\n.* xmlns:pushws=\"https://([\w._-]+):\d+/pushws\">.*<faultstring>HTTP GET method not implemented</faultstring>|s p/gSOAP soap/ v/$1/ i/Good Messaging Server gdpushproc/ h/$2/
 match soap m|^HTTP/1\.1 405 Method Not Allowed\r\nDate:\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\r\nContent-Type: application/soap\+xml; charset=\"utf-8\"\r\n\r\n$| p/Dell 1130n printer soap/ d/printer/ cpe:/h:dell:1130n/
-match soap m|^HTTP/1\.1  200 OK\r\nContent-Type: text/xml; charset=utf-8: \r\nConnection: close\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"yes\"\?>.*<ModelDescription>Xtreme N GIGABIT Router</ModelDescription><ModelName>(DIR-655) \w+</ModelName><FirmwareVersion>([^<]+)</FirmwareVersion>|s p/D-Link $1 soap/ v/$2/ d/WAP/ cpe:/h:d-link:$1/
+match soap m|^HTTP/1\.1  200 OK\r\nContent-Type: text/xml; charset=utf-8: \r\nConnection: close\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalone=\"yes\"\?>.*<ModelDescription>Xtreme N GIGABIT Router</ModelDescription><ModelName>(DIR-655) \w+</ModelName><FirmwareVersion>([^<]+)</FirmwareVersion>|s p/D-Link $1 soap/ v/$2/ d/WAP/ cpe:/h:dlink:$1/
 match soap m|^HTTP/1\.1 200 OK\r\nContent-Type: text/xml; charset=utf-8\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<\?xml version=\"1\.0\" encoding=\"utf-8\"\?>.*<ModelName>(SMC\w+)</ModelName>\n<FirmwareVersion>V([\w._-]+)</FirmwareVersion>|s p/SMC $1 Barricade WAP soap/ v/$2/ d/WAP/ cpe:/h:smc:$1:$2/
 
 # spamd 2.20-1woody
