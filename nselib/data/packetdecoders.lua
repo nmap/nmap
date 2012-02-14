@@ -165,6 +165,9 @@ Decoders = {
 			process = function(self, layer3)
 		  
 				local p = packet.Packet:new( layer3, #layer3 ) 
+				-- EIGRP is IP protocol 88 (0x58), so verify this
+				if ( p.ip_p ~= 88 ) then return end
+				
 				local data = layer3:sub(p.ip_data_offset + 1)
 				
 				-- Extract the EIGRP header
@@ -267,8 +270,10 @@ Decoders = {
 			process = function(self, layer3)
 		  
 				local p = packet.Packet:new( layer3, #layer3 ) 
-				local data = layer3:sub(p.ip_data_offset + 1)
+				-- EIGRP is IP protocol 88 (0x58), so verify this
+				if ( p.ip_p ~= 88 ) then return end
 				
+				local data = layer3:sub(p.ip_data_offset + 1)			
 				-- Extract the EIGRP header
 				local pos, ver, opcode, checksum, flags, seq, ack, asnum = bin.unpack(">CCSiiii", data)
 
