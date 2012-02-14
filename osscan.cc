@@ -213,8 +213,8 @@ void FingerPrint::sort() {
   unsigned int i;
 
   for (i = 0; i < tests.size(); i++)
-    std::sort(tests[i].results.begin(), tests[i].results.end());
-  std::sort(tests.begin(), tests.end());
+    std::stable_sort(tests[i].results.begin(), tests[i].results.end());
+  std::stable_sort(tests.begin(), tests.end());
 }
 
 /* Compare an observed value (e.g. "45") against an OS DB expression (e.g.
