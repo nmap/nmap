@@ -3416,8 +3416,8 @@ hp-clic	3384/udp	0.000330	# Hardware Management
 gprs-sig	3386/udp	0.000330	# GPRS SIG
 cbserver	3388/tcp	0.000076	# CB Server
 cbserver	3388/udp	0.000330	# CB Server
-ms-term-serv	3389/tcp	0.083904	# Microsoft Remote Display Protocol
-ms-term-serv	3389/udp	0.004955	# Microsoft Remote Display Protocol
+ms-wbt-server	3389/tcp	0.083904	# Microsoft Remote Display Protocol (aka ms-term-serv, microsoft-rdp)
+ms-wbt-server	3389/udp	0.004955	# Microsoft Remote Display Protocol (aka ms-term-serv, microsoft-rdp)
 dsc	3390/tcp	0.000228	# Distributed Service Coordinator
 savant	3391/udp	0.000330	# SAVANT
 efi-lm	3392/udp	0.000330	# EFI License Management
