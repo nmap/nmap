@@ -3544,7 +3544,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
 
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are
-    available at <ulink url="http://nmap.org/data/HACKING"/>.  Patches may
+    available at <ulink url="https://svn.nmap.org/nmap/HACKING"/>.  Patches may
     be sent to <citetitle>nmap-dev</citetitle> (recommended) or to any of the
     authors listed in the next section directly.</para>
   </refsect1>
