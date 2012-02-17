@@ -118,7 +118,8 @@ TypeNames = {
 	SV_TYPE_MASTER_BROWSER = { long = "Master Browser", short = "MBRWS"},
 	SV_TYPE_DOMAIN_MASTER = { long = "Domain Master Browser", short = "DOMBRWS"},
 	SV_TYPE_WINDOWS = { long = "Windows 95/98/ME", short="WIN95"},
-	SV_TYPE_DFS = { long = "DFS Root", short = "DFS"},		
+	SV_TYPE_DFS = { long = "DFS Root", short = "DFS"},
+	SV_TYPE_TERMINALSERVER = { long = "Terminal Server", short = "TS" },
 }
 
 OutputFormat = {
@@ -185,7 +186,7 @@ action = function(host, port)
 	local results, output = {}, {}
 	for k, _ in pairs(ServerTypes) do
 		for _, server in ipairs(entries) do
-			if ( bit.band(server.type,ServerTypes[k]) == ServerTypes[k] ) then
+			if ( TypeNames[k] and bit.band(server.type,ServerTypes[k]) == ServerTypes[k] ) then
 				results[TypeNames[k].long] = results[TypeNames[k].long] or {}
 				if ( format == OutputFormat.BY_TYPE_V_DETAILED ) then
 					table.insert(results[TypeNames[k].long], server)
