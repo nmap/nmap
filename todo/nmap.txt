@@ -55,6 +55,18 @@ o [NPING] Nping should probably give you an error or warning when you
   do: "nmap -p80 google.com" since it is ignoring the port specifier.
   The user probably wants to add --tcp.
 
+o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
+  killed: Resource temporarily unavailable" with some commands.
+  Example:
+  # nping --tcp -p80 -c1 scanme.nmap.org
+
+  Starting Nping 0.5.61TEST4 ( http://nmap.org/nping ) at 2012-02-16 17:52 PST
+  SENT (0.3307s) TCP 192.168.0.5:42005 > 74.207.244.221:80 S ttl=64 id=23109 iplen=40  seq=1015357225 win=1480
+  RCVD (0.3524s) TCP 74.207.244.221:80 > 192.168.0.5:42005 SA ttl=51 id=0 iplen=44  seq=3197025741 win=14600 <mss 1460>
+  nping_event_handler(): READ-PCAP killed: Resource temporarily unavailable
+  nping_event_handler(): TIMER killed: Resource temporarily unavailable
+  [...]
+
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
 
