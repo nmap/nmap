@@ -51,6 +51,10 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
+o [NPING] Nping should probably give you an error or warning when you
+  do: "nmap -p80 google.com" since it is ignoring the port specifier.
+  The user probably wants to add --tcp.
+
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
 
