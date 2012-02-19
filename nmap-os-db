@@ -2833,8 +2833,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Darwin 11.0.1 Darwin Kernel Version 11.0.1: Thu Jul 28 02:01:39 PDT 2011; root:xnu-1699.23.4~1/RELEASE_X86_64 x86_64, OSX Lion 10.7.1
 # Darwin 11.2.0 Darwin Kernel Version 11.2.0: Tue Aug  9 20:56:15 PDT 2011; root:xnu-1699.24.8~1/RELEASE_I386 i386 10.7.2
 Fingerprint Apple Mac OS X 10.7.0 - 10.7.2 (Lion) (Darwin 11.0.0 - 11.2.0) or iOS 4.2 - 4.3.5
-Class Apple | OS X | 10.7.X | media device
-CPE cpe:/o:apple:os_x:10.7 auto
+Class Apple | Mac OS X | 10.7.X | media device
+CPE cpe:/o:apple:mac_os_x:10.7 auto
 Class Apple | iOS | 4.X | media device
 CPE cpe:/o:apple:iphone_os:4 auto
 Class Apple | iOS | 4.X | phone
@@ -3014,8 +3014,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Darwin 11.2.0 Darwin Kernel Version 11.2.0: Tue Aug  9 20:54:00 PDT 2011; root:xnu-1699.24.8~1/RELEASE_X86_64 x86_64
 # iphone 3gs with iso 5.0
 Fingerprint Apple Mac OS X 10.7.0 - 10.7.2 (Lion) (Darwin 11.0.0 - 11.2.0) or iPhone mobile phone (iOS 4.3.2)
-Class Apple | OS X | 10.7.X | general purpose
-CPE cpe:/o:apple:os_x:10.7 auto
+Class Apple | Mac OS X | 10.7.X | general purpose
+CPE cpe:/o:apple:mac_os_x:10.7 auto
 Class Apple | iOS | 4.X | phone
 CPE cpe:/o:apple:iphone_os:4 auto
 SEQ(SP=EB-109%GCD=1-6%ISR=EE-10C%TI=RD|RI%CI=RD|RI%II=RI%TS=A)
@@ -63919,7 +63919,7 @@ IE(DFI=S%T=2B-3F%TG=40%CD=S)
 
 # Schrack smart meter with a Variomod XC (ethernet) module, which itself is a clone of http://www.emh-meter.de/de/produkte/lzqj-xc1/ LZQJ-XC.
 Fingerprint Schrack electric meter
-Class Schrack | embedded || power-misc
+Class Schrack | embedded || power-device
 SEQ(SP=C-20%GCD=28|50|78|A0|C8%ISR=42-4C%TI=I%CI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5A6%O2=M5A6%O3=M5A6%O4=M5A6%O5=M5A6%O6=M5A6)
 WIN(W1=7B8%W2=7B8%W3=7B8%W4=7B8%W5=7B8%W6=7B8)
@@ -64507,7 +64507,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Belkin Network USB Hub (F5L009)
 Fingerprint Belkin F5L009 power adapter
-Class Belkin | embedded || power-misc
+Class Belkin | embedded || power-device
 SEQ(SP=0-5%GCD=10001|20002|30003|40004|50005%ISR=96-A0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NNS%O2=M5B4NNS%O3=M5B4NNS%O4=M5B4NNS%O5=M5B4NNS%O6=M5B4NNS)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -66095,8 +66095,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Darwin 11.2.0
 Fingerprint Apple Mac OS X 10.7.2 (Lion) (Darwin 11.2.0)
-Class Apple | OS X | 10.7.X | general purpose
-CPE cpe:/o:apple:os_x:10.7 auto
+Class Apple | Mac OS X | 10.7.X | general purpose
+CPE cpe:/o:apple:mac_os_x:10.7 auto
 SEQ(SP=F0-108%GCD=1-6%ISR=F2-108%TI=RD%CI=RD|RI%TS=A)
 OPS(O1=M3FD8NW2NNT11SLL%O2=M3FD8NW2NNT11SLL%O3=M3FD8NW2NNT11%O4=M3FD8NW2NNT11SLL%O5=M3FD8NW3NNT11SLL%O6=M3FD8NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
