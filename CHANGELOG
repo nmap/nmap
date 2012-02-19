@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-vuln-cve2010-2861 to detect the Cold Fusion
+  CVE-2010-2861 directory traversal vulnerability. [Micah Hoffman]
+
 o [NSE] Added support for edns-client-subnet requests to the DNS library and
   the script dns-client-subnet-scan that scans for addresses resolved from
   different subnets. [John Bond]
