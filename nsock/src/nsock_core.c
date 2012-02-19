@@ -1232,13 +1232,13 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
 
 void nsock_trace(mspool *ms, char *fmt, ...) {
   va_list  ap;
-  int elapsedTimeMS;
+  int elapsed_time_ms;
 
   assert(ms->tracefile != NULL);
-  elapsedTimeMS = TIMEVAL_MSEC_SUBTRACT(nsock_tod, ms->tracebasetime);
+  elapsed_time_ms = TIMEVAL_MSEC_SUBTRACT(nsock_tod, ms->tracebasetime);
   va_start(ap, fmt);
   fflush(ms->tracefile);
-  fprintf(ms->tracefile, "NSOCK (%.4fs) ", elapsedTimeMS / 1000.0);
+  fprintf(ms->tracefile, "NSOCK (%.4fs) ", elapsed_time_ms / 1000.0);
   vfprintf(ms->tracefile, fmt, ap);
   fprintf(ms->tracefile, "\n");
   va_end(ap);
