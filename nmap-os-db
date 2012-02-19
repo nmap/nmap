@@ -446,6 +446,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Gigavue 2404 Gigamon Lawful interception/monitoring device
 # IBC-Solar string inverter with a webinterface
 # Gigamon GigaVUE-420 Data Access Switch, OS ver. 7.2.18.
+# Cisco EPC3925 home DOCSIS modem/gateway.
 # VxWorks? --Ed.
 Fingerprint 3Com Baseline Switch 2948-SFP Plus; Allworx 24x PBX; Motorola SURFboard SB5101 or Scientific Atlanta WebSTAR EPX2203 cable modem; or Tandberg MXP video conferencing system
 Class 3Com | embedded || switch
@@ -4375,12 +4376,13 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Darwin 10.0.0 Darwin Kernel Version 10.0.0: Fri Jul 31 22:47:34 PDT 2009; root:xnu-1456.1.25~1/RELEASE_I386 i386
 # Darwin 10.2.0 Darwin Kernel Version 10.2.0: Tue Nov  3 10:37:10 PST 2009; root:xnu-1486.2.11~1/RELEASE_I386 i386
 # Darwin 10.3.0 Darwin Kernel Version 10.3.0: Fri Feb 26 11:58:09 PST 2010; root:xnu-1504.3.12~1/RELEASE_I386 i386, 10.6.3
-Fingerprint Apple Mac OS X 10.5 - 10.6.3 (Leopard - Snow Leopard) (Darwin 9.0.0 - 10.3.0)
+# 10.6.7
+Fingerprint Apple Mac OS X 10.5 - 10.6.7 (Leopard - Snow Leopard) (Darwin 9.0.0 - 10.7.0)
 Class Apple | Mac OS X | 10.5.X | general purpose
 CPE cpe:/o:apple:mac_os_x:10.5 auto
 Class Apple | Mac OS X | 10.6.X | general purpose
 CPE cpe:/o:apple:mac_os_x:10.6 auto
-SEQ(SP=F1-107%GCD=1-6%ISR=FB-10C%TI=RD%II=RI%TS=3)
+SEQ(SP=F1-107%GCD=1-6%ISR=F7-10C%TI=RD%CI=RD%II=RI%TS=3)
 OPS(O1=M3FD8NW1NNT11SLL|M3FD8NW2NNT11SLL|M3FD8NW3NNT11SLL%O2=M3FD8NW1NNT11SLL|M3FD8NW2NNT11SLL|M3FD8NW3NNT11SLL%O3=M3FD8NW1NNT11|M3FD8NW2NNT11|M3FD8NW3NNT11%O4=M3FD8NW1NNT11SLL|M3FD8NW2NNT11SLL|M3FD8NW3NNT11SLL%O5=M3FD8NW1NNT11SLL|M3FD8NW2NNT11SLL|M3FD8NW3NNT11SLL%O6=M3FD8NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M3FD8NW1SLL|M3FD8NW2SLL|M3FD8NW3SLL%CC=N%Q=)
@@ -4965,7 +4967,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 Fingerprint Apple Mac OS X 10.7.0 - 10.7.2 (Lion) (Darwin 11.0.0 - 11.2.0)
 Class Apple | Mac OS X | 10.7.X | general purpose
 CPE cpe:/o:apple:mac_os_x:10.7.0
-SEQ(SP=F4-10A%GCD=1-6%ISR=FA-10E%TI=RD%CI=RD|RI%II=RI%TS=A)
+SEQ(SP=EE-10A%GCD=1-6%ISR=FA-10E%TI=RD%CI=RD|RI%II=RI%TS=A)
 OPS(O1=M5B4NW3NNT11SLL%O2=M5B4NW3NNT11SLL%O3=M5B4NW3NNT11%O4=M5B4NW3NNT11SLL%O5=M5B4NW3NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW3SLL%CC=N%Q=)
@@ -9417,7 +9419,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # HP Switch: "PROCURVE J9028B" adm Software version PB.02.09, Hardware version R01
 # HP ProCurve 1800-24G J9028B running firmware version PB.03.02
 # Cisco Small Business Switch SLM2008 Firmware Revision 2.0.0.10
-Fingerprint Cisco SLM2008 or HP ProCurve 1800-24G switch
+Fingerprint Cisco SLM2008 or HP ProCurve 1800 switch
 Class Cisco | embedded || switch
 CPE cpe:/h:cisco:slm2008
 Class HP | embedded || switch
@@ -10537,9 +10539,12 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # Cisco IOS Software, 1841 Software (C1841-ADVENTERPRISEK9-M), Version 15.0(1)M
 # Cisco IOS Software, C890 Software (C890-UNIVERSALK9-M), Version 12.4(22)YB, RELEASE SOFTWARE (fc2), Cisco 891 (MPC8300) processor (revision 1.0)
 # Cisco IOS Software, 2801 Software (C2801-ADVENTERPRISEK9-M), Version 12.4(25a), RELEASE SOFTWARE (fc2)
-Fingerprint Cisco 836, 890, 1751, 1841, or 2800 router (IOS 12.4 - 15.0)
+# Cisco IOS Software, 1841 Software (C1841-ADVENTERPRISEK9-M), Version 15.1(3)T1, RELEASE SOFTWARE (fc2)
+Fingerprint Cisco 836, 890, 1751, 1841, or 2800 router (IOS 12.4 - 15.1)
 Class Cisco | IOS | 12.X | router
 CPE cpe:/o:cisco:ios:12 auto
+Class Cisco | IOS | 15.X | router
+CPE cpe:/o:cisco:ios:15 auto
 SEQ(SP=F6-10C%GCD=1-6%ISR=FF-111%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -10723,9 +10728,12 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Cisco 2821 running ios c2800nm-advipservicesk9-mz.124-20.YA2.bin
 # Cisco IOS Software, C860 Software (C860-UNIVERSALK9-M), Version 12.4(24)T4, RELEASE SOFTWARE (fc2)
-Fingerprint Cisco C860 or 2821 router
+# Cisco IOS Software, C880 Software (C880DATA-UNIVERSALK9-M), Version 15.0(1)M4, RELEASE SOFTWARE (fc1)
+Fingerprint Cisco C860, C880, or 2821 router (IOS 12.4 - 15.0)
 Class Cisco | IOS | 12.X | router
 CPE cpe:/o:cisco:ios:12 auto
+Class Cisco | IOS | 15.X | router
+CPE cpe:/o:cisco:ios:15 auto
 SEQ(SP=F0-10C%GCD=1-6%ISR=102-112%TI=RD|RI%CI=RD%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M218%O5=M5B4%O6=M5B4)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -11702,17 +11710,17 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco 1240AG, IOS 12.4
 # Cisco IOS Software, C2600 Software (C2600-ADVENTERPRISEK9_IVS-M), Version 12.4(4)XC7, RELEASE SOFTWARE (fc1)
 # Cat 3560 IOS 12.2(35)SE5
-Fingerprint Cisco Aironet 1240AG WAP, C2600 router, or C3560 switch (IOS 12.2 - 12.4)
+# Cisco IOS Software, 2800 Software (C2800NM-SPSERVICESK9-M), Version 12.4(10b), RELEASE SOFTWARE (fc3), Cisco 2811 (revision 53.51) with 251904K/10240K bytes of memory.
+Fingerprint Cisco Aironet 1240AG WAP, C2600 or C2800 router, or C3560 switch (IOS 12.2 - 12.4)
 Class Cisco | IOS | 12.X | WAP
 CPE cpe:/h:cisco:aironet_ap1240ag
 CPE cpe:/o:cisco:ios:12.4
 Class Cisco | IOS | 12.X | router
-CPE cpe:/h:cisco:catalyst_2600
 CPE cpe:/o:cisco:ios:12.4
 Class Cisco | IOS | 12.X | switch
 CPE cpe:/h:cisco:catalyst_3560
 CPE cpe:/o:cisco:ios:12.2
-SEQ(SP=F3-10D%GCD=1-6%ISR=F7-10D%TI=RD%II=RI%TS=U)
+SEQ(SP=F3-10D%GCD=1-6%ISR=F7-10F%TI=RD|RI%CI=I%II=RI%SS=O%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
 ECN(R=Y%DF=N%T=FA-104%TG=FF%W=1020%O=M218%CC=N%Q=)
@@ -12856,7 +12864,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # DLINK DIR-615 wireless access router Firmware Version: 2.25RU
 # D-LINK DIR-855 Wireless N Quadband Gigabit Router
 # D-Link Systems DGL-4500.
-Fingerprint D-Link DPR-1260 print server; or DGL-4300, DGL-4500, DIR-615, DIR-625, DIR-655, or DIR-855 WAP
+# DIR-628 Router
+Fingerprint D-Link DPR-1260 print server; or DGL-4300, DGL-4500, DIR-615, DIR-625, DIR-628, DIR-655, or DIR-855 WAP
 Class D-Link | embedded || print server
 Class D-Link | embedded || WAP
 SEQ(SP=95-B5%GCD=1-6%ISR=A9-BB%TI=I%II=I%SS=S%TS=U)
@@ -13241,7 +13250,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # DI 524 H/W revision B4: Current Firmware Version: V2.06
 # DI-604 Firmware Version : V3.14, Thu, Dec 15 2005
 # ZyXEL Prestige 320W, P-320W 802.11g
-Fingerprint D-Link DI-524 or DI-604, SMC SMC7004VBR, or ZyXEL Prestige 320W broadband router
+# Airlive WT-2000R
+Fingerprint AirLive WT-2000R, D-Link DI-524 or DI-604, SMC SMC7004VBR, or ZyXEL Prestige 320W broadband router
+Class AirLive | embedded || WAP
 Class D-Link | embedded || WAP
 Class SMC | embedded || broadband router
 Class ZyXEL | embedded || broadband router
@@ -19859,10 +19870,12 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # HP LaserJet 1102w
 # HP Laserjet P1102w
 # HP Laserjet M1217nfw MFP
-Fingerprint HP LaserJet 1102w or M1217nfw printer
+# HP LaserJet Professional P1606dn
+Fingerprint HP LaserJet 1102w, M1217nfw, or P1606dn printer
 Class HP | embedded || printer
 CPE cpe:/h:hp:laserjet_1102w
 CPE cpe:/h:hp:laserjet_m1217nfw
+CPE cpe:/h:hp:laserjet_p1606dn
 SEQ(SP=AC-DA%GCD=1-6%ISR=AA-CC%TI=RI%TS=A)
 OPS(O1=M5B4NNSNNT11%O2=M578NNSNNT11%O3=M280NNT11%O4=M5B4NNSNNT11%O5=M218NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
@@ -20233,9 +20246,12 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP LaserJet 4250 printer, Firmware Version: V.28.47.FF
 # hp LaserJet 4250 model Q5402A, V.28.47, J7949E
 # hp LaserJet 4345 mfp
-Fingerprint HP LaserJet 4250 or 4345 printer
+# HP LaserJet 4345
+# HP LaserJet 9040
+# "HP Color LaserJet 3800 Printer" (model number Q5983A)
+Fingerprint HP LaserJet 3800, 4250, 4345, 9040 printer
 Class HP | embedded || printer
-SEQ(SP=13-25%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%CI=I%II=I%SS=S%TS=1)
+SEQ(SP=18-1C%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=9D-A3%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
 ECN(R=Y%DF=N%T=3B-45%TG=40%W=5B4%O=M5B4NW0%CC=N%Q=)
@@ -20284,24 +20300,6 @@ T6(R=Y%DF=N%T=41%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=41%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=41%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(R=N)
-
-# HP LaserJet 4345
-# HP LaserJet 9040
-Fingerprint HP LaserJet 4250dtn, 4345, or 9040 (JetDirect) printer
-Class HP | embedded || printer
-SEQ(SP=18-1C%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=9D-A3%TI=I%II=I%SS=S%TS=1)
-OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
-WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
-ECN(R=Y%DF=N%T=3B-45%TG=40%W=5B4%O=M5B4NW0%CC=N%Q=)
-T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=Y%DF=N%T=3B-45%TG=40%W=5B4%S=O%A=O%F=A%O=NNT11%RD=0%Q=)
-T4(R=Y%DF=N%T=3B-45%TG=40%W=5B4%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
-IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP LaserJet 4300 JetDirect FW R.25.57
 Fingerprint HP LaserJet 4300 printer
@@ -20633,7 +20631,9 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # HP Color LaserJet 2600n
 # HP LaserJet P2015 Series
 # Sony Network Camerea model SNC-Z20N
-Fingerprint HP LaserJet P2015, 2600n, or 3055 printer; or Sony SNC-Z20N network camera
+# Brother MFC-8460N
+Fingerprint Brother MFC-8460N or HP LaserJet P2015, 2600n, or 3055 printer; or Sony SNC-Z20N network camera
+Class Brother | embedded || printer
 Class HP | embedded || printer
 Class Sony | embedded || webcam
 SEQ(SP=B-15%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9E-A8%TI=I%II=I%SS=S%TS=A)
@@ -20796,7 +20796,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # HP Officejet 7000 Wide
 # Printer Photosmart C4780 wireless
 # HP PhotoSmart C4780 Printer
-Fingerprint HP PhotoSmart C390 or C4780, or Officejet 7000 printer
+# HP Officejet 6500 E709n
+Fingerprint HP PhotoSmart C390 or C4780, or Officejet 6500 or 7000 printer
 Class HP | embedded || printer
 SEQ(SP=38-C6%GCD=1-6%ISR=8A-BE%TI=RD|RI%CI=RI%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
@@ -22726,7 +22727,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Zyxel Prestige 782R, firmware ZyNOS 2.50(BH.4) | 8/6/2002
 # Zyxel 643
 # ZyNOS Firmware Version:  V3.40(AGJ.3) | 02/06/2007
-Fingerprint ADSL router: Huawei MT800u-T; or ZyXEL Prestige 623ME-T1, 643, 782, or 2602R-61
+# "Prestige 662HW-61" with "ZyNOS F/W Version: V3.40(QR.8) | 10/28/2005" inside.
+Fingerprint ADSL router: Huawei MT800u-T; or ZyXEL Prestige 623ME-T1, 643, 662HW-61, 782, or 2602R-61
 Class Huawei | embedded || broadband router
 Class ZyXEL | ZyNOS | 2.X | broadband router
 CPE cpe:/o:zyxel:zynos:2 auto
@@ -25254,14 +25256,14 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # JUNOS 10.0.R1.8 JUNOS 10.0.R!.8 #0: 2009-11-03 09:00:32 UTC builder@ormonth.juniper.net:/volume/build/junos/10.0/release/10.0R1.8/obj-i386/bsd/sys/compile/JUNIPER i386
 # Juniper EX3200 Switch
 # Juniper EX8200 chassis switch running JUNOS 9.6
-Fingerprint Juniper Networks J2320 router; or EX3200, EX4200, or EX8200 switch (JUNOS 8.5 - 10.0)
+Fingerprint Juniper Networks J2320 router; or EX2200, EX3200, EX4200, or EX8200 switch (JUNOS 8.5 - 10.0)
 Class Juniper | JUNOS | 8.X | router
 CPE cpe:/o:juniper:junos:8 auto
 Class Juniper | JUNOS | 9.X | switch
 CPE cpe:/o:juniper:junos:9 auto
 Class Juniper | JUNOS | 10.X | switch
 CPE cpe:/o:juniper:junos:10 auto
-SEQ(SP=F8-10C%GCD=1-6%ISR=105-111%TI=I%II=I%SS=S%TS=A)
+SEQ(SP=F8-10C%GCD=1-6%ISR=FD-111%TI=I%CI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW1NNT11SLL%O2=M5B4NW1NNT11SLL%O3=M5B4NW1NNT11%O4=M5B4NW1NNT11SLL%O5=M5B4NW1NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW1SLL%CC=N%Q=)
@@ -30365,7 +30367,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux 2.6.22-1-mepis-smp #1 SMP PREEMPT Mon Feb 18 21:44:02 EST 2008 i686 GNU/Linux
 # Linux 2.6.24-19-xen #1 SMP Wed Aug 20 21:08:51 UTC 2008 x86_64 GNU/Linux
 # Linux 2.6.30-2-amd64 #1 SMP Mon Dec 7 05:21:45 UTC 2009 x86_64 GNU/Linux
-Fingerprint Linux 2.6.17 - 2.6.30
+# 2.6.38
+Fingerprint Linux 2.6.17 - 2.6.38
 Class Linux | Linux | 2.6.X | general purpose
 CPE cpe:/o:linux:kernel:2.6 auto
 SEQ(SP=A5-D5%GCD=1-6%ISR=A7-D7%TI=Z%II=I%TS=U)
@@ -38342,6 +38345,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linux 2.6.22.6 #70 Thu Sep 6 15:38:04 CEST 2007 mips unknown (DD-WRT v24 rc4 for Fonera)
 # Buffalo LinkStation Live 1TB MultiMedia Network Attached Storage
+# Linksys E4200 wireless-N router, firmware Version: 1.0.02 (updated factory firmware)
 Fingerprint DD-WRT v24 (Linux 2.6.22)
 Class Linux | Linux | 2.6.X | WAP
 CPE cpe:/o:linux:kernel:2.6.22
@@ -45927,9 +45931,10 @@ U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Version 5.1 (Build 2600.xpsp1.020828-1920 : Service Pack 1)
-Fingerprint Microsoft Windows XP SP1
+# Windows Server 2000 SP6
+Fingerprint Microsoft Windows 2000 SP6
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp::sp1
+CPE cpe:/o:microsoft:windows_2000::sp6
 SEQ(SP=76-8E%GCD=1-6%ISR=97-A1%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FC00%W2=FC00%W3=FC00%W4=FC00%W5=FC00%W6=FC00)
@@ -46376,6 +46381,24 @@ T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
+# windows xp sp3
+Fingerprint Microsoft Windows XP SP3
+Class Microsoft | Windows | XP | general purpose
+CPE cpe:/o:microsoft:windows_xp::sp3
+SEQ(SP=FC-106%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=0)
+OPS(O1=NNT11|M564NW0NNT00NNS%O2=NNT11|M564NW0NNT00NNS%O3=NNT11|M564NW0NNT00%O4=NNT11|M564NW0NNT00NNS%O5=NNT11|M564NW0NNT00NNS%O6=NNT11|M564NNT00NNS)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=7B-85%TG=80%W=FFFF%O=|M564NW0NNS%CC=N)
+T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=O|S+%F=A|AS%RD=0)
+T2(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%RD=0)
+T3(R=Y%DF=Y%T=7B-85%TG=80%W=FFFF%S=O%A=O|S+%F=A|AS%O=NNT11|M564NW0NNT00NNS%RD=0)
+T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%RD=0)
+T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%RD=0)
+T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
@@ -51025,9 +51048,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Netgear CG814WG v2 (Comcast)
 # Thomson TWG870U  DOCSIS 3.0-compliant VoIP cable modem with software STBA.01.05.
-Fingerprint Netgear CG814WG v2 or Thomson TWG870U wireless cable modem
+# Ubee DVW3201B
+Fingerprint Netgear CG814WG v2, Thomson TWG870U, or Ubee DVW3201B wireless cable modem
 Class Netgear | embedded || WAP
 Class Thomson | embedded || WAP
+Class Ubee | embedded || WAP
 SEQ(SP=E7-107%GCD=1-6%ISR=EF-10B%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -51944,8 +51969,12 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # *** BOSS 5.0 SSH                                            ***
 #  *** HW:31       FW:5.0.0.2   SW:v5.0.0.011                  ***
 # Nortel v5.0.1.0 Ethernet routing switch
-Fingerprint Nortel 5520 Ethernet Routing Switch
+# Sun StorageTek 6140 Array
+# CISCO IP PHONE 303 (SPA303) SW.version: 7.4.8a
+Fingerprint Cisco SPA 303 VoIP phone, Nortel 5520 Ethernet Routing Switch, or Sun StorageTek 6140 NAS device
+Class Cisco | embedded || switch
 Class Nortel | embedded || switch
+Class Sun | embedded || storage-misc
 SEQ(SP=95-9F%GCD=1-6%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -57483,7 +57512,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # TZ 180 Standard. SonicROM 4.0.1.1, SonicOS Standard 3.8.0.1-27s.
 # Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1477 : Service Pack 1)
-Fingerprint SonicWALL TZ 180 Standard firewall (SonicOS 3.8)
+# Kronos Time keeping machine employees use to clock in and out
+Fingerprint Kronos Timeclock or SonicWALL TZ 180 Standard firewall (SonicOS 3.8)
+Class Kronos | embedded || specialized
 Class SonicWALL | SonicOS | 3.X | firewall
 CPE cpe:/o:sonicwall:sonicos:3 auto
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%II=I%TS=1)
@@ -58164,23 +58195,6 @@ T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=N)
 U1(DF=Y%T=FA-104%TG=FF%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=Y%T=FA-104%TG=FF%CD=S)
-
-# Sun StorageTek 6140 Array
-Fingerprint Sun StorageTek 6140 NAS device
-Class Sun | embedded || storage-misc
-SEQ(SP=95-9F%GCD=1-6%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
-OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N%Q=)
-T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=N)
-U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
-IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Sun StoreEdge 3310 disk array. firmware version 4.13B
 Fingerprint Sun StorEdge 3310 FC storage array
@@ -66706,3 +66720,20 @@ T6(R=N)
 T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
 U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Sonus GSX 9000 HD SIP Server. A carrier-level SIP proxy.
+Fingerprint Sonus GSX9000 VoIP proxy
+Class Sonus | embedded || VoIP adapter
+SEQ(SP=B2-BC%GCD=1-6%ISR=C7-D1%CI=I%TS=U)
+OPS(O1=M5AC%O2=M5AC%O3=M5AC%O4=M5AC%O5=M5AC%O6=M5AC)
+WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=1000%O=M5AC%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=N)
+U1(R=N)
+IE(R=N)
