@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a Network Data Management Protocol (ndmp) library and the
+  scripts:
+  + ndmp-version - retrieves version information
+  + ndmp-fs-info - retrieves information about remote filesystems
+  [Patrik]
+
 o [NSE] Added the script http-vuln-cve2010-2861 to detect the Cold Fusion
   CVE-2010-2861 directory traversal vulnerability. [Micah Hoffman]
 

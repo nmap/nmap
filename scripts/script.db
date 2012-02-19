@@ -205,6 +205,8 @@ Entry { filename = "nat-pmp-mapport.nse", categories = { "discovery", "safe", } 
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ncp-enum-users.nse", categories = { "auth", "safe", } }
 Entry { filename = "ncp-serverinfo.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ndmp-fs-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ndmp-version.nse", categories = { "version", } }
 Entry { filename = "nessus-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "nessus-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "netbus-auth-bypass.nse", categories = { "auth", "safe", "vuln", } }
