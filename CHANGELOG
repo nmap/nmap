@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support for edns-client-subnet requests to the DNS library and
+  the script dns-client-subnet-scan that scans for addresses resolved from
+  different subnets. [John Bond]
+
 o [NSE] Added support for decoding EIGRP broadcasts from Cisco routers
   to broadcast-listener. [Tom]
 
