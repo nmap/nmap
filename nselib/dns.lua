@@ -244,6 +244,11 @@ end
 -- * <code>multiple</code>: If true, expects multiple hosts to respond to multicast request
 -- * <code>flags</code>: numeric value to set flags in the DNS query to a specific value
 -- * <code>id</code>: numeric value to use for the DNS transaction id
+-- * <code>nsid</code>: If true, queries the server for the nameserver identifier (RFC 5001)
+-- * <code>subnet</code>: table, if set perform a edns-client-subnet lookup. The table should contain the fields:
+--                        <code>family</code> - string can be either inet or inet6
+--                        <code>address</code> - string containing the originating subnet IP address
+--                        <code>mask</code> - number containing the number of subnet bits 
 -- @return <code>true</code> if a dns response was received and contained an answer of the requested type,
 --  or the decoded dns response was requested (retPkt) and is being returned - or <code>false</code> otherwise.
 -- @return String answer of the requested type, table of answers or a String error message of one of the following:
@@ -284,15 +289,21 @@ function query(dname, options)
     addQuestion(pkt, dname, dtype, class)
     if options.norecurse then pkt.flags.RD = false end
 
-	if ( options.dnssec ) then
-		if ( options.nsid ) then
-			addNSID(pkt, {DO = true})
-		else
-			addOPT(pkt, {DO = true})
-		end
-	elseif ( options.nsid ) then
-		addNSID(pkt, {})
-	end
+    local dnssec = {}
+    if ( options.dnssec ) then
+        dnssec = { DO = true }
+    end
+
+    if ( options.nsid ) then
+        addNSID(pkt, dnssec)
+    elseif ( options.subnet ) then
+		local family = { ["inet"] = 1, ["inet6"] = 2 }
+		assert( family[options.subnet.family], "Unsupported subnet family")
+		options.subnet.family = family[options.subnet.family]
+        addClientSubnet(pkt, dnssec, options.subnet )
+    elseif ( dnssec.DO ) then
+        addOPT(pkt, {DO = true})
+    end
 
 	if ( options.flags ) then pkt.flags.raw = options.flags end
 	if ( options.id ) then pkt.id = options.id end
@@ -1296,11 +1307,34 @@ local function encodeOPT_Z(flags)
     return table.concat(bits)
 end
 
+---
+-- Adds an client-subnet paylod to the OPT packet
+-- implementing http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
+-- @param pkt Table representing DNS packet.
+-- @param Z Table of Z flags. Only DO is supported.
+-- @param client_subnet table containing the following fields
+--        <code>family</code>  - 1 IPv4, 2 - IPv6
+--        <code>mask</code>    - byte containing the length of the subnet mask
+--        <code>address</code> - string containing the IP address 
+function addClientSubnet(pkt,Z,subnet)
+	local udp_payload_size = 4096
+	local code = 20730 -- temporary option-code http://comments.gmane.org/gmane.ietf.dnsext/19776
+	local scope_mask = 0 -- In requests, it MUST be set to 0 see draft
+	local data = bin.pack(">SCCA",subnet.family or 1,subnet.mask,scope_mask,ipOps.ip_to_str(subnet.address))
+	local opt = bin.pack(">SS",code, #data) .. data
+	addOPT(pkt,Z,opt)  
+end
+
+---
+-- Adds an NSID paylod to the OPT packet
+-- @param pkt Table representing DNS packet.
+-- @param Z Table of Z flags. Only DO is supported.
 function addNSID (pkt,Z)
 	local udp_payload_size = 4096
 	local opt = bin.pack(">SS",3, 0) -- nsid data
 	addOPT(pkt,Z,opt)  
 end
+
 ---
 -- Adds an OPT RR to a DNS packet's additional section. Only the table of Z
 -- flags is supported (i.e., not RDATA). See RFC 2671 section 4.3.

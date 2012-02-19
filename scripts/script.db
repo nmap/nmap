@@ -57,6 +57,7 @@ Entry { filename = "dhcp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dns-blacklist.nse", categories = { "external", "safe", } }
 Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "dns-client-subnet-scan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "dns-nsec-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsid.nse", categories = { "default", "discovery", } }
