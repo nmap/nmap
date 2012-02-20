@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch from Andrew Orr that fixes the recent changes in the
+  BitCoin protocol. [Patrik]
+
 o [NSE] Added a Network Data Management Protocol (ndmp) library and the
   scripts:
   + ndmp-version - retrieves version information

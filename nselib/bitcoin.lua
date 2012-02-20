@@ -20,12 +20,17 @@
 --
 -- * Helper - The primary interface to scripts
 --
+--@author Patrik Karlsson <patrik@cqure.net>
+--@author Andrew Orr <andrew@andreworr.ca>
+--@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 --
--- Version 0.1
+-- Version 0.2
 -- 
 -- Created 11/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
---
+-- Revised 17/02/2012 - v0.2 - fixed count parsing
+--                           - changed version/verack handling to support
+--                             February 20th 2012 bitcoin protocol switchover
 
 module(... or "bitcoin", package.seeall)
 
@@ -114,11 +119,24 @@ Request = {
 			local ra = NetworkAddress:new(self.host, self.port)
 			local sa = NetworkAddress:new(self.lhost, self.lport)
 			local nodeid = openssl.rand_bytes(8)
-			local subver = "\0"
+			local useragent = "\0"
 			local lastblock = 0
+
+			-- Construct payload in order to calculate checksum for the header
+			local payload = bin.pack("<ILLAAAAI", ver, services, timestamp,
+				tostring(ra), tostring(sa), nodeid, useragent, lastblock)
+
+			-- Checksum is first 4 bytes of sha256(sha256(payload))
+			local checksum = openssl.digest("sha256", payload)
+			checksum = openssl.digest("sha256", checksum)
+		
+			-- Construct the header without checksum
+			local header = bin.pack("<IAI", magic, cmd, len)	
 			
-			return bin.pack("<IAIILLAAAAI", magic, cmd, len, ver, services,
-				timestamp, tostring(ra), tostring(sa), nodeid, subver, lastblock)
+			-- After 2012-02-20, version messages require checksums
+			header = header .. bin.pack("A", checksum:sub(1,4))
+		
+			return header .. payload
 		end,
 	},
 	
@@ -149,16 +167,90 @@ Request = {
 			local magic = 0xD9B4BEF9
 			local cmd = "getaddr\0\0\0\0\0"
 			local len = 0
-			local chksum = 0x5DF6E0E2
+			local chksum = 0xe2e0f65d
 
 			return bin.pack("<IAII", magic, cmd, len, chksum)
 		end
+	},
+	
+	VerAck = {
+		
+		new = function(self)
+			local o = {}
+			setmetatable(o, self)
+			self.__index = self
+			return o
+		end,
+			
+		__tostring = function(self)
+			return bin.pack("<IAII", 0xD9B4BEF9, "verack\0\0\0\0\0\0", 0, 0xe2e0f65d)
+		end,
+		
 	}
 	
 }
 
 -- The response class container
 Response = {
+	
+	Header = {
+		size = 24,
+		new = function(self)
+			local o = {
+				magic = 0,
+				cmd = "",
+				length = 0,
+				checksum = 0,
+			}
+			setmetatable(o, self)
+			self.__index = self
+			return o
+		end,
+
+		parse = function(data)
+			local header = Response.Header:new()
+			local pos
+			
+			pos, header.magic, header.cmd, header.length, header.checksum = bin.unpack(">IA12II", data)
+			return header
+		end,
+	},
+	
+	
+	Alert = {
+		
+		type = "Alert",
+		-- Creates a new instance of Version based on data string
+		-- @param data string containing the raw response
+		-- @return o instance of Version
+		new = function(self, data)
+			local o = { 
+				data = data,
+			}
+			setmetatable(o, self)
+			self.__index = self
+			o:parse()
+			return o
+		end,
+
+		-- Parses the raw data and builds the Version instance
+		parse = function(self)
+			local pos = Response.Header.size + 1
+			self.header = Response.Header.parse(self.data)
+			
+			local p_length
+			pos, p_length = Util.decodeVarInt(self.data, pos)
+			local data
+			pos, data = bin.unpack("A" .. p_length, self.data, pos)
+			
+			--
+			-- TODO: Alert decoding goes here
+			--
+			
+			return
+		end,		
+	},
+			
 	
 	-- The version response message
 	Version = {
@@ -177,20 +269,22 @@ Response = {
 		-- Parses the raw data and builds the Version instance
 		parse = function(self)
 			local pos, ra, sa
-			pos, self.magic, self.cmd, self.len, self.ver_raw, self.service,
+
+			-- After 2012-02-20, version messages contain checksums
+			pos, self.magic, self.cmd, self.len, self.checksum, self.ver_raw, self.service,
 				self.timestamp, ra, sa, self.nodeid,
-				self.subver, self.lastblock = bin.unpack("<IA12IILLA26A26H8CI", self.data)
+				self.subver, self.lastblock = bin.unpack("<IA12IIILLA26A26H8CI", self.data)
 			
 			local function decode_bitcoin_version(n)
-	        	if ( n < 31300 ) then
-	                local minor, micro = n / 100, n % 100
-	                return ("0.%d.%d"):format(minor, micro)
-		        else
-	                local minor, micro = n / 10000, (n / 100) % 100
-				    return ("0.%d.%d"):format(minor, micro)
+				if ( n < 31300 ) then
+					local minor, micro = n / 100, n % 100
+					return ("0.%d.%d"):format(minor, micro)
+				else
+					local minor, micro = n / 10000, (n / 100) % 100
+					return ("0.%d.%d"):format(minor, micro)
 				end
 			end
-			
+		
 			self.ver = decode_bitcoin_version(self.ver_raw)
 			self.sa = NetworkAddress.fromString(sa)
 			self.ra = NetworkAddress.fromString(ra)
@@ -214,8 +308,9 @@ Response = {
 		-- Parses the raw data and builds the VerAck instance
 		parse = function(self)
 			local pos
-			pos, self.magic, self.cmd = bin.unpack("<IA12", self.data)
-		end,		
+			-- After 2012-02-20, VerAck messages contain checksums
+			pos, self.magic, self.cmd, self.checksum = bin.unpack("<IA12I", self.data)
+		end,
 	},
 
 	-- The Addr response message
@@ -235,7 +330,9 @@ Response = {
 		-- Parses the raw data and builds the Addr instance
 		parse = function(self)
 			local pos, count
-			pos, self.magic, self.cmd, self.len, self.chksum, count = bin.unpack("<IA12IIC", self.data)
+			pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)	
+			pos, count = Util.decodeVarInt(self.data, pos)
+			
 			self.addresses = {}
 			for c=1, count do
 				if ( self.version > 31402 ) then
@@ -277,17 +374,13 @@ Response = {
 	-- @return response instance of response packet if status is true
 	--         err string containing the error message if status is false
 	recvPacket = function(socket, version)
-		local status, header = socket:recv(20)
+		local status, header = socket:recv(24)
 		if ( not(status) ) then
 			return false, "Failed to read the packet header"
 		end
 		
-		local pos, magic, cmd, len = bin.unpack("<IA12I", header)
+		local pos, magic, cmd, len, checksum = bin.unpack("<IA12II", header)
 		local data = ""
-		
-		if ( cmd ~= "version\0\0\0\0\0" and cmd ~= "verack\0\0\0\0\0\0") then
-			len = len + 4
-		end
 		
 		-- the verack has no payload
 		if ( 0 ~= len ) then
@@ -315,10 +408,35 @@ Response = {
 			return true, Response.Addr:new(data, version)
 		elseif ( "inv\0\0\0\0\0\0\0\0\0" == cmd ) then
 			return true, Response.Inv:new(data)
+		elseif ( "alert\0\0\0\0\0") then
+			return true, Response.Alert:new(data)
 		else
 			return false, ("Unknown command (%s)"):format(cmd)
 		end
 	end,	
+}
+
+Util = {
+
+	-- Decodes a variable length int
+	-- @param data string of data
+	-- @param pos the location within the string to decode
+	-- @return pos the new position
+	-- @return count number the decoded argument
+	decodeVarInt = function(data, pos)
+		local pos, count = bin.unpack("C", data, pos)
+		if ( count == 0xfd ) then
+			return bin.unpack("<S", data, pos)
+		elseif ( count == 0xfe ) then
+			return bin.unpack("<I", data, pos)
+		elseif ( count == 0xff ) then
+			return bin.unpack("<L", data, pos)
+		else
+			return pos, count
+		end
+	end
+	
+	
 }
 	
 -- A buffered socket implementation
@@ -338,8 +456,8 @@ BCSocket =
 			port = port,
 			timeout = "table" == type(options) and options.timeout or 10000
 		}
-       	setmetatable(o, self)
-        self.__index = self
+		setmetatable(o, self)
+		self.__index = self
 		o.Socket = nmap.new_socket()
 		o.Buffer = nil
 		return o
@@ -439,11 +557,11 @@ Helper = {
 		if ( not(self.socket) ) then
 			return false
 		end
-
+		
 		local req = Request.Version:new(
 			self.host, self.port, self.lhost, self.lport
 		)
-
+		
 		local status, err = self.socket:send(tostring(req))
 		if ( not(status) ) then
 			return false, "Failed to send \"Version\" request to server"
@@ -460,6 +578,12 @@ Helper = {
 			local status, verack = Response.recvPacket(self.socket)
 		end
 		
+		local verack = Request.VerAck:new()
+		local status, err = self.socket:send(tostring(verack))
+		if ( not(status) ) then
+			return false, "Failed to send \"Version\" request to server"
+		end
+			
 		self.version = version.ver_raw
 		return status, version
 	end,
@@ -467,14 +591,20 @@ Helper = {
 	getNodes = function(self)
 		local req = Request.GetAddr:new(
 			self.host, self.port, self.lhost, self.lport
-		)
+		)		
 
 		local status, err = self.socket:send(tostring(req))
 		if ( not(status) ) then
 			return false, "Failed to send \"Version\" request to server"
 		end
 		
-		return Response.recvPacket(self.socket, self.version)
+		-- take care of any alerts that may be incoming
+		local status, response = Response.recvPacket(self.socket, self.version)
+		while ( status and response and response.type == "Alert" ) do
+			status, response = Response.recvPacket(self.socket, self.version)
+		end
+		
+		return status, response
 	end,
 	
 	-- Reads a message from the server
