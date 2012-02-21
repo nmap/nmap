@@ -36,11 +36,6 @@ o Document the nsearg format changes made by Paulino (how you can
 o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
   packets.
 
-o Integrate new service fingerprint submissions (we have more than
-  2,531 submissions in two files since 11/30/10)
-
-o Integrate new OS detection submissions (1,893 since 6/22/11)
-
 o Make stable release candidate branch
 
 o Make at least one more test release from the candidate branch
@@ -740,6 +735,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Integrate new service fingerprint submissions (we have more than
+  2,531 submissions in two files since 11/30/10)
+
+o Integrate new OS detection submissions (1,893 since 6/22/11)
 
 o Add options in configure script for users to specify where to find
   subversion lib/include dirs (like we do with our other library
