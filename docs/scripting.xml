@@ -2147,34 +2147,46 @@ try(socket:send(result))
     <sect2 id="nse-api-registry">
       <title>The Registry</title>
       <indexterm><primary>registry (NSE)</primary></indexterm>
-      <para>
-	The registry is a Lua table (accessible
-	as <literal>nmap.registry</literal>) with the special property
-	that it is visible by all scripts and retains its state
-	between script executions.  The registry is transient&mdash;it
-	is not stored between Nmap executions. Every script can read
-	and write to the registry.  Scripts commonly use it to save
-	information for other instances of the same script.  For
-	example, the <literal>whois</literal>
-	and <literal>asn-query</literal> scripts may query one IP
-	address, but receive information which may apply to tens of
-	thousands of IPs on that network.  Saving the information in
-	the registry may prevent other script threads from having to
-	repeat the query.</para>
+	<para>Scripts can share information by stroring values in a
+	<firstterm>register</firstterm>, which is a special table that can be
+	accessed by all scripts. There is a global registry with the name
+	<varname>nmap.registry</varname>, shared by all scripts. Each host
+	additionally has its own registry called
+	<varname>host.registry</varname>, where <varname>host</varname> is the
+	<link linkend="nse-api-arguments">host table</link> passed to a script.
+	Information in the registries is not stored between Nmap
+	executions.</para>
 
-        <para>The registry may also be used to hand
-	information to completely different scripts.  For example,
-	the <literal>snmp-brute</literal> script saves a discovered
-	community name in the registry where it may be used by other
-	SNMP scripts.  Script which use the results of another script
-        must declare it using the <literal>dependencies</literal>
-        variable to make sure that the earlier script runs first.
-        </para>
+	<para>The global registry persists throughout an entire scan session.
+	Scripts can use it, for example, to store values that will later be
+	displayed by a postrule script. The per-host registries, on the other
+	hand, only exist while a host is being scanned. They can be used to send
+	information from one script to another one that runs against the same
+	host. When possible, use the per-host registry; this not only saves you
+	from having to make key names unique across hosts, but also allows the
+	memory used by the registry to be reclaimed when it is no longer
+	needed.</para>
 
-        <para>Because every script can write to the registry table, it
-        is important to avoid conflicts by choosing keys wisely
-        (uniquely).</para>
+	<para>
+	Here are examples of using both registries:
+	<simplelist>
+	<member>The portrule of the <filename>ssh-hostkey</filename> script collects SSH key fingerprints
+	and stores them in the global <varname>nmap.registry</varname> so they
+	can be printed later by the postrule.</member>
+	<member>The <filename>ssl-cert</filename> script collects SSL certificates and
+	stores them in the per-host registry so that the
+	<filename>ssl-google-cert-catalog</filename> script can use them without
+	having to make another connection to the server.</member>
+	</simplelist>
+	</para>
 
+	<para>Because every script can write to the global registry table, it is
+	important to make the keys you use unique, to avoid overwriting the keys
+	of other scripts (or the same script running in parallel).</para>
+
+	<para>Scripts that use the results of another script must declare it using
+	the <literal>dependencies</literal> variable to make sure that the earlier
+	script runs first.</para>
     </sect2>
     <indexterm class="endofrange" startref="nse-nmap-indexterm"/>
   </sect1>

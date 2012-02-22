@@ -154,6 +154,9 @@ void set_hostinfo(lua_State *L, Target *currenths) {
   setnfield(L, -1, "timeout", (lua_Number) currenths->to.timeout / 1000000.0);
   lua_setfield(L, -2, "times");
 
+  lua_newtable(L);
+  lua_setfield(L, -2, "registry");
+
   /* add distance (in hops) if traceroute has been performed */
   if (currenths->traceroute_hops.size() > 0)
   {

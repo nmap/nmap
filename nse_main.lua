@@ -219,6 +219,13 @@ local function tcopy (t)
   return tc;
 end
 
+-- copies the host table while preserving the registry
+local function host_copy(t)
+  local h = tcopy(t)
+  h.registry = t.registry
+  return h
+end
+
 local REQUIRE_ERROR = {};
 rawset(stdnse, "silent_require", function (...)
   local status, mod = pcall(require, ...);
@@ -1179,18 +1186,18 @@ local function main (hosts, scantype)
         -- Check hostrules for this host.
         for j, host in ipairs(hosts) do
           for _, script in ipairs(scripts) do
-            local thread = script:new_thread("hostrule", tcopy(host));
+            local thread = script:new_thread("hostrule", host_copy(host));
             if thread then
-              thread.args, thread.host = {n = 1, tcopy(host)}, host;
+              thread.args, thread.host = {n = 1, host_copy(host)}, host;
               yield(thread);
             end
           end
           -- Check portrules for this host.
           for port in cnse.ports(host) do
             for _, script in ipairs(scripts) do
-              local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
+              local thread = script:new_thread("portrule", host_copy(host), tcopy(port));
               if thread then
-                thread.args, thread.host, thread.port = {n = 2, tcopy(host), tcopy(port)}, host, port;
+                thread.args, thread.host, thread.port = {n = 2, host_copy(host), tcopy(port)}, host, port;
                 yield(thread);
               end
             end

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added host based registry, which allows scripts to share data between
+  scripts scanning a specific host. [Patrik]
+
 o [NSE] Applied patch from Andrew Orr that fixes the recent changes in the
   BitCoin protocol. [Patrik]
 
