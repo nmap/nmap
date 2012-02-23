@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a sslcert library that gets and caches SSL certificates in the
+  registry. Modified the scripts ssl-cert and ssl-google-cert-catalog to take
+  advantage of this change. [Patrik]
+
 o [NSE] Added host based registry, which allows scripts to share data between
   scripts scanning a specific host. [Patrik]
 

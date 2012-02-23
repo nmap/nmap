@@ -23,19 +23,13 @@ matching domain name, it may be suspicious.  This script requires the
 author = "Vasiliy Kulikov"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "safe", "discovery", "external" }
-dependencies = { "ssl-cert" }
+--dependencies = { "ssl-cert" }
 
 require("nmap")
 require("shortport")
 require("stdnse")
 require("dns")
-
-
-local get_cert = function(host, port)
-    if nmap.registry[host.ip] and nmap.registry[host.ip][port] then
-        return nmap.registry[host.ip][port]["ssl-cert"]
-    end
-end
+require("sslcert")
 
 local format_date = function(day_num)
     return os.date("%d %b %Y", 60 * 60 * 24 * tonumber(day_num))
@@ -45,9 +39,9 @@ portrule = shortport.ssl
 
 action = function(host, port)
     local lines, sha1, query
-    local cert = get_cert(host, port.number)
+    local status, cert = sslcert.getCertificate(host, port)
 
-    if not cert then
+    if not status then
         return nil
     end
 
