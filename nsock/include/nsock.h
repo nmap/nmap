@@ -180,7 +180,7 @@ void nsp_settrace(nsock_pool nsp, FILE *file, int level, const struct timeval *b
 
 /* Turns on or off broadcast support on new sockets. Default is off (0, false)
  * set in nsp_new(). Any non-zero (true) value sets SO_BROADCAST on all new
- * sockets (value of optval will be used directly in the setsockopt() call */
+ * sockets (value of optval will be used directly in the setsockopt() call). */
 void nsp_setbroadcast(nsock_pool nsp, int optval);
 
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
@@ -226,7 +226,7 @@ enum nse_type {
 /* Find the type of an event that spawned a callback */
 enum nse_type nse_type(nsock_event nse);
 
-/* Takes an nse_type (as returned by nse_type() and returns a static string name
+/* Takes an nse_type (as returned by nse_type()) and returns a static string name
  * that you can use for printing, etc. */
 const char *nse_type2str(enum nse_type type);
 
@@ -236,13 +236,13 @@ enum nse_status {
   NSE_STATUS_SUCCESS,   /* Everything went A-OK! */
   NSE_STATUS_ERROR,     /* Uh-oh!  Problem, check the nse_errorcode() */
   NSE_STATUS_TIMEOUT,   /* The async call surpassed the timeout you specified */
-  NSE_STATUS_CANCELLED, /* Someone cancelled the event. (by calling nsock_event_cancel. */
+  NSE_STATUS_CANCELLED, /* Someone cancelled the event. (by calling nsock_event_cancel()). */
   NSE_STATUS_KILL,      /* The event has been killed, this generally means the
                            nspool is being deleted -- you should free up any
                            resources you have allocated and exit.  Don't you
                            dare make any more async nsock calls!  */
   NSE_STATUS_EOF        /* We got EOF and NO DATA -- if we got data first,
-                           SUCCESS is reported (see nse_eof() */
+                           SUCCESS is reported (see nse_eof()). */
 };
 
 enum nse_status nse_status(nsock_event nse);
@@ -371,7 +371,7 @@ int nsi_set_hostname(nsock_iod nsi, const char *hostname);
  * notification of completion of an event.  The handler will never be
  * synchronously called back during the event creation call (that causes too
  * many hard to debug errors and plus we don't want people to have to deal with
- * callbacks until they actually call nsock_loop */
+ * callbacks until they actually call nsock_loop). */
 
 /* These functions generally take a common 5 initial parameters:
  *
@@ -430,7 +430,7 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_hand
  * made).  You can then use the normal nsock write calls on the socket.  There
  * is no timeout since this call always calls your callback at the next
  * opportunity.  The advantages to having a connected UDP socket (as opposed to
- * just specifying an address with sendto() are that we can now use a consistent
+ * just specifying an address with sendto()) are that we can now use a consistent
  * set of write/read calls for TCP/UDP, received packets from the non-partner
  * are automatically dropped by the OS, and the OS can provide asynchronous
  * errors (see Unix Network Programming pp224).  ss should be a
