@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Integrated latest IPv6 OS submissions and corrections.
+
 o [NSE] Added a sslcert library that gets and caches SSL certificates in the
   registry. Modified the scripts ssl-cert and ssl-google-cert-catalog to take
   advantage of this change. [Patrik]
