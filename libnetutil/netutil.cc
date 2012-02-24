@@ -2931,12 +2931,15 @@ icmpbad:
       hdr.proto, srchost, dsthost,
       icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
   } else {
-    if (nexthdrtoa(hdr.proto, 1) == NULL) {
+    const char *hdrstr;
+
+    hdrstr = nexthdrtoa(hdr.proto, 1);
+    if (hdrstr == NULL || *hdrstr == '\0') {
       Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s",
         hdr.proto, srchost, dsthost, ipinfo);
     } else {
       Snprintf(protoinfo, sizeof(protoinfo), "%s (%d) %s > %s: %s",
-        nexthdrtoa(hdr.proto, 1), hdr.proto, srchost, dsthost, ipinfo);
+        hdrstr, hdr.proto, srchost, dsthost, ipinfo);
     }
   }
 
