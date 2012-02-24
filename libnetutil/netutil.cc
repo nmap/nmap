@@ -2167,7 +2167,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   int reserved_flag = 0;                /* True if IP Reserved flag is set.  */
 
   datalen = len;
-  data = (u8 *) ip_get_data(packet, &datalen, &hdr);
+  data = (u8 *) ip_get_data_any(packet, &datalen, &hdr);
   if (data == NULL)
     return "BOGUS!  Can't parse supposed IP packet";
 
