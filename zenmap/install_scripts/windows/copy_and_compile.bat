@@ -34,7 +34,7 @@ echo Copying GTK files to dist directory...
 xcopy %GTKDir%\bin\*.dll %LibraryDir% /S >> %Output%
 rem intl.dll is a special case; has to be in the executable directory instead of
 rem the py2exe subdirectory.
-move /Y %LibraryDir%/intl.dll %DistDir% >> %Output%
+move /Y %LibraryDir%\intl.dll %DistDir% >> %Output%
 xcopy %GTKDir%\etc %LibraryDir%\etc /S /I >> %Output%
 xcopy %GTKDir%\lib\gtk-2.0 %LibraryDir%\lib\gtk-2.0 /S /I >> %Output%
 xcopy %GTKDir%\share\themes\Default %LibraryDir%\share\themes\Default /S /I >> %Output%
