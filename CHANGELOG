@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-networker-discover that discoverer EMC
+  Networker servers on the LAN. [Patrik]
+
 o [NSE] Added RPC Call CALLIT to the RPC library and modified UDP sockets to be
   unconnected in order to support broadcast. [Patrik]
 
