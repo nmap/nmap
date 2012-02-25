@@ -106,15 +106,38 @@ Decoders = {
 				return o
 			end,
 
+			getAddresses = function(data)
+				local ipOps = require("ipOps")
+				local pos, proto_type, proto_len, addr_proto, addr_len, dev_addr, count
+				local addr_list = ''
+						
+				pos, count = bin.unpack(">I", data)
+				for i=1, count do
+					pos, proto_type, proto_len = bin.unpack(">CC", data, pos)
+					pos, addr_proto = bin.unpack(">H" .. proto_len, data, pos)
+					if ( addr_proto == 'CC' ) then
+						-- IPv4 address, extract it
+						pos, addr_len = bin.unpack(">S", data, pos)
+						pos, dev_addr = bin.unpack("<I", data, pos)
+						addr_list = addr_list .. ' ' .. ipOps.fromdword(dev_addr)
+					end
+					-- Add code here for IPv6, others
+				end
+				
+				return addr_list
+			end,
+			
 			process = function(self, data)
+
 				local pos, ver, ttl, chk = bin.unpack(">CCS", data, 9)
 				if ( ver ~= 2 ) then return end
 				if ( not(self.results) ) then
-					self.results = tab.new(4)				
-					tab.addrow(	self.results, 'ip', 'id', 'platform', 'version' )
+					self.results = tab.new(5)				
+					tab.addrow(	self.results, 'ip', 'id', 'platform', 'version', 'notes' )
 				end
 
 				local result_part = {}
+				result_part.notes = ''
 				while ( pos < #data ) do
 					local typ, len, typdata
 					pos, typ, len = bin.unpack(">SS", data, pos)
@@ -131,20 +154,21 @@ Decoders = {
 						result_part.platform = typdata
 					-- Address
 					elseif ( typ == 2 ) then
-						-- TODO: add more decoding here ...
-						local pos, count = bin.unpack(">I", typdata)
-						-- for i=1, count do
-						-- 	
-						-- end
-						
-						result_part.ip = '?'
+						result_part.ip = self.getAddresses(typdata)
+					elseif ( typ == 10) then
+						local _, mgmt_vlan = bin.unpack(">S", data,pos - 2)
+						result_part.notes = result_part.notes .. 'native vlan:' .. mgmt_vlan .. ' '
+					-- Management Address
+					elseif ( typ == 22 ) then
+						result_part.notes = result_part.notes .. 'mgmt ip:' .. self.getAddresses(typdata) .. ' '
+					-- TODO: add more decoding of types here ...
 					end
 				end
 				
 				-- TODO: add code for dups check
 				if ( not(self.dups[result_part.ip]) ) then
 					self.dups[result_part.ip] = true
-					tab.addrow( self.results, result_part.ip, result_part.id, result_part.platform, result_part.version )
+					tab.addrow( self.results, result_part.ip, result_part.id, result_part.platform, result_part.version, result_part.notes )
 				end
 			end,
 			

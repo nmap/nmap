@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support to broadcast-listener for extracting address, native vlan
+  and management IP address from CDP packets. [Tom]
+	
 o [NSE] Added the script broadcast-networker-discover that discoverer EMC
   Networker servers on the LAN. [Patrik]
 
