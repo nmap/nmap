@@ -65735,7 +65735,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Linux 2.6.38-12-generic-pae #51-Ubuntu SMP Wed Sep 28 16:11:32 UTC 2011 i686 i686 i386 GNU/Linux
-Fingerprint Linux 2.6.38-12-generic-pae #51-Ubuntu SMP Wed Sep 28 16:11:32 UTC 2011 i686 i686 i386 GNU/Linux
+Fingerprint Linux 2.6.38
 Class Linux | Linux | 2.6.X | general purpose
 CPE cpe:/o:linux:kernel:2.6 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=109-113%TI=Z%CI=Z%II=I%TS=8)
