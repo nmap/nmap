@@ -6,17 +6,12 @@ o Get RPM staticly linking to libsvn (rather than dynamic linking) so
     libs, we'll probably have to install it ourselves on the CentOS
     build machines.
 
-o Write and send GSoC 2011 results email
-
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
 
 o Change Nmap copyright dates (in the file headers, etc.) from 2011 to
   2012.
-
-o Integrate latest IPv6 OS detection fingerprint submissions
- - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
 
 o Document the nsearg format changes made by Paulino (how you can
   prefase an argument with a script to make it more specific, or make it
@@ -33,12 +28,11 @@ o Document the nsearg format changes made by Paulino (how you can
      an argument to only apply to a specific script can give
      [scriptname].[argname].
 
-o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
-  packets.
-
 o Make stable release candidate branch
 
 o Make at least one more test release from the candidate branch
+
+o Write and send GSoC 2011 results email
 
 o Prepare release notes, web page, etc.
 
@@ -735,6 +729,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
+  packets.
+
+o Integrate latest IPv6 OS detection fingerprint submissions
+ - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
 
 o Integrate new service fingerprint submissions (we have more than
   2,531 submissions in two files since 11/30/10)
