@@ -24,8 +24,7 @@ Source0: http://nmap.org/dist/%{name}-%{version}.tgz
 URL: http://nmap.org
 
 # For Ndiff.
-Requires: python >= 2.4, subversion
-BuildRequires: subversion-devel
+Requires: python >= 2.4
 
 # RPM can't be relocatable until I stop storing path info in the binary.
 # Prefix: %{_prefix}
@@ -80,10 +79,8 @@ gzip $RPM_BUILD_ROOT%{_mandir}/man1/* || :
 %doc docs/nmap.usage.txt
 %doc %{_prefix}/share/man/man1/nmap.1.gz
 %doc %{_prefix}/share/man/*/man1/nmap.1.gz
-%doc %{_prefix}/share/man/man1/nmap-update.1.gz
 %{_bindir}/nmap
 %{_datadir}/nmap
-%{_bindir}/nmap-update
 
 %{_bindir}/ndiff
 %doc %{_prefix}/share/man/man1/ndiff.1.gz
@@ -134,6 +131,24 @@ Service attacks, route tracing, etc.
 %{_bindir}/nping
 
 %endif
+
+# nmap-update subpackage
+%package -n nmap-update
+Summary: Nmap's updater
+Group: Applications/System
+
+Requires: subversion
+BuildRequires: subversion-devel
+
+%description -n nmap-update
+nmap-update gets the latest versions of architecture-independent
+files, such as scripts and databases, for the installed version
+of Nmap.
+
+%files -n nmap-update
+%defattr(-,root,root)
+%doc %{_prefix}/share/man/man1/nmap-update.1.gz
+%{_bindir}/nmap-update
 
 %changelog
 
