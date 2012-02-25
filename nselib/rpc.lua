@@ -154,13 +154,18 @@ Comm = {
       if (not(status)) then
         return status, err
       end
-      socket = nmap.new_socket()
-      status, err = socket:connect(host, port)
+      if ( port.protocol == "tcp" ) then
+        socket = nmap.new_socket()
+        status, err = socket:connect(host, port)
+      else
+        socket = nmap.new_socket("udp")
+      end
       if (not(status)) then
         return status, string.format("%s connect error: %s",
                           self.program, err)
       else
         self.socket = socket
+        self.host = host
         self.ip = host.ip
         self.port = port.number
         self.proto = port.protocol
@@ -413,7 +418,15 @@ Comm = {
   end,
   
   SendPacket = function( self, packet )
-    return self.socket:send( packet )
+    if ( self.host and self.port ) then
+      return self.socket:sendto(self.host, self.port, packet)
+    else
+      return self.socket:send( packet )
+    end
+  end,
+
+  GetSocketInfo = function(self)
+    return self.socket:get_info()
   end,
 
 }
@@ -469,6 +482,7 @@ Portmap =
     {
       GETPORT = 3,
       DUMP = 4,
+      CALLIT = 5,
     },
 
   },
@@ -615,6 +629,51 @@ Portmap =
     nmap.registry[comm.ip]['portmapper'] = program_table
     return true, nmap.registry[comm.ip]['portmapper']
   end,
+
+  --- Calls the portmap callit call and returns the raw response
+  --
+  -- @param comm object handles rpc program information and
+  --  low-level packet manipulation
+  -- @param program string name of the program
+  -- @param protocol string containing either "tcp" or "udp"
+  -- @param version number containing the version of the queried program
+  -- @return status true on success, false on failure
+  -- @return data string containing the raw response
+  Callit = function( self, comm, program, protocol, version )
+    if ( not( Portmap.PROTOCOLS[protocol] ) ) then
+      return false, ("Portmap.Callit: Protocol %s not supported"):format(protocol)
+    end
+    
+    if ( Util.ProgNameToNumber(program) == nil ) then
+      return false, ("Portmap.Callit: Unknown program name: %s"):format(program)
+    end
+  
+    local data = bin.pack(">IIII", Util.ProgNameToNumber(program), version, 0, 0 )
+    local packet = comm:EncodePacket(nil, Portmap.Procedure[comm.version].CALLIT,
+                              { type=Portmap.AuthType.NULL }, data )
+      
+    if (not(comm:SendPacket(packet))) then
+      return false, "Portmap.Callit: Failed to send data"
+    end
+
+    data = ""
+    local status, data = comm:ReceivePacket()
+    if ( not(status) ) then
+      return false, "Portmap.Callit: Failed to read data from socket"
+    end
+
+    local pos, header = comm:DecodeHeader( data, 1 )
+    if ( not(header) ) then
+      return false, "Portmap.Callit: Failed to decode RPC header"
+    end
+
+    if header.type ~= Portmap.MessageType.REPLY then
+      return false, "Portmap.Callit: Packet was not a reply"
+    end
+
+    return true, data
+  end,
+
 
   --- Queries the portmapper for the port of the selected program, 
   --  protocol and version
@@ -2650,12 +2709,12 @@ Helper = {
   --
   -- @param host table
   -- @param port table
-  -- @param program_id number containing the RPC program ID
+  -- @param program string containing the RPC program name
   -- @param protocol string containing either "tcp" or "udp"
   -- @return status true on success, false on failure
   -- @return table containing the portmapper information as returned by 
   -- <code>Portmap.Dump</code>
-  GetPortForProgram = function( host, port, program_id, protocol )
+  GetPortForProgram = function( host, port, program, protocol )
     local status, result
     local portmap = Portmap:new()
     local comm = Comm:new('rpcbind', 2)
@@ -2666,7 +2725,7 @@ Helper = {
       return status, result
     end
 
-    status, result = portmap:GetPort(comm, program_id, protocol, 1 )
+    status, result = portmap:GetPort(comm, program, protocol, 1 )
     comm:Disconnect()
     if (not(status)) then
       stdnse.print_debug(4, "rpc.Helper.GetPortForProgram: %s", result)
@@ -2674,7 +2733,7 @@ Helper = {
   
     return status, result
   end,
-  
+ 
   --- Get RPC program information
   --
   -- @param host table

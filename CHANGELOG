@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added RPC Call CALLIT to the RPC library and modified UDP sockets to be
+  unconnected in order to support broadcast. [Patrik]
+
 o Integrated latest IPv6 OS submissions and corrections.
 
 o [NSE] Added a sslcert library that gets and caches SSL certificates in the
