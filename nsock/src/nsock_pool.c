@@ -81,7 +81,7 @@ static int nsocklib_initialized = 0;
 
 
 /* defined in nsock_engines.h */
-struct io_engine *get_io_engine(const char *engine_hint);
+struct io_engine *get_io_engine(void);
 
 /* ---- INTERNAL FUNCTIONS PROTOTYPES ---- */
 static void nsock_library_initialize(void);
@@ -170,7 +170,7 @@ nsock_pool nsp_new(void *userdata) {
 
   nsp->userdata = userdata;
 
-  nsp->engine = get_io_engine(NULL);
+  nsp->engine = get_io_engine();
   nsp->engine->init(nsp);
 
   /* initialize IO events lists */

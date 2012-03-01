@@ -193,6 +193,14 @@ nsock_ssl_ctx nsp_ssl_init(nsock_pool ms_pool);
  * verification is done. Returns the SSL_CTX so you can set your own options. */
 nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool);
 
+/* Enforce use of a given IO engine.
+ * The engine parameter is a zero-terminated string that will be
+ * strup()'ed by the library. No validity check is performed by this function,
+ * beware nsp_new() will fatal() if an invalid/unavailable engine name was
+ * supplied before.
+ * Pass NULL to reset to default (use most efficient engine available). */
+void nsock_set_default_engine(char *engine);
+
 /* And here is how you create an nsock_pool.  This allocates, initializes, and
  * returns an nsock_pool event aggregator.  In the case of error, NULL will be
  * returned.  If you do not wish to immediately associate any userdata, pass in

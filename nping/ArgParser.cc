@@ -271,6 +271,7 @@ char errstr[256];
   {"send-ip", no_argument, 0, 0},
   {"bpf-filter", required_argument, 0, 0},
   {"filter", required_argument, 0, 0},
+  {"nsock-engine", required_argument, 0, 0},
   {"no-capture", no_argument, 0, 'N'},
   {"hide-sent", no_argument, 0, 'H'},
     
@@ -954,7 +955,9 @@ char errstr[256];
         o.setBPFFilterSpec( optarg );
         if( o.issetDisablePacketCapture() && o.disablePacketCapture()==true )
             outError(QT_2, "Warning: There is no point on specifying a BPF filter if you disable packet capture. BPF filter will be ignored.");
-        
+    } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0){
+        nsock_set_default_engine(optarg);
+
     /* Output Options */
     } else if (optcmp(long_options[option_index].name, "quiet") == 0 ){
             o.setVerbosity(-4);

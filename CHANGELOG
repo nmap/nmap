@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a --nsock-engine option to nmap, nping and ncat to enforce use of a
+  given nsock IO engine. [Henri]
+
 o [NSE] Added support to broadcast-listener for extracting address, native vlan
   and management IP address from CDP packets. [Tom]
 	

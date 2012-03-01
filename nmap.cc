@@ -573,6 +573,8 @@ void parse_options(int argc, char **argv) {
       {"source-port", required_argument, 0, 'g'},
       {"randomize_hosts", no_argument, 0, 0},
       {"randomize-hosts", no_argument, 0, 0},
+      {"nsock_engine", required_argument, 0, 0},
+      {"nsock-engine", required_argument, 0, 0},
       {"osscan_limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
       {"osscan-limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
       {"osscan_guess", no_argument, 0, 0}, /* More guessing flexability */
@@ -793,6 +795,8 @@ void parse_options(int argc, char **argv) {
                  || strcmp(long_options[option_index].name, "rH") == 0) {
         o.randomize_hosts = 1;
         o.ping_group_sz = PING_GROUP_SZ * 4;
+      } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
+        nsock_set_default_engine(optarg);
       } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
         o.osscan_limit = 1;
       } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
@@ -2111,6 +2115,7 @@ void nmap_free_mem() {
   free_services();
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();
+  nsock_set_default_engine(NULL);
 }
 
 /* Reads in a (normal or machine format) Nmap log file and gathers enough

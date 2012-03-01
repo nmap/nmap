@@ -262,6 +262,7 @@ int main(int argc, char *argv[])
         {"proxy",           required_argument,  NULL,         0},
         {"proxy-type",      required_argument,  NULL,         0},
         {"proxy-auth",      required_argument,  NULL,         0},
+        {"nsock-engine",    required_argument,  NULL,         0},
 #ifdef HAVE_OPENSSL
         {"ssl",             no_argument,        &o.ssl,       1},
         {"ssl-cert",        required_argument,  NULL,         0},
@@ -411,6 +412,10 @@ int main(int argc, char *argv[])
                 if (o.proxy_auth)
                         bye("You can't specify more than one --proxy-auth.");
                 o.proxy_auth = Strdup(optarg);
+            }
+            else if (strcmp(long_options[option_index].name, "nsock-engine") == 0)
+            {
+                nsock_set_default_engine(optarg);
             }
             else if (strcmp(long_options[option_index].name, "broker") == 0)
             {

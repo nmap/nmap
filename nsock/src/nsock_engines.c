@@ -83,8 +83,10 @@ static struct io_engine *available_engines[] = {
   NULL
 };
 
+static char *engine_hint;
 
-struct io_engine *get_io_engine(const char *engine_hint) {
+
+struct io_engine *get_io_engine(void) {
   struct io_engine *engine = NULL;
   int i;
 
@@ -103,5 +105,15 @@ struct io_engine *get_io_engine(const char *engine_hint) {
           engine_hint ? engine_hint : "no hint");
 
   return engine;
+}
+
+void nsock_set_default_engine(char *engine) {
+  if (engine_hint)
+    free(engine_hint);
+
+  if (engine)
+    engine_hint = strdup(engine);
+  else
+    engine_hint = NULL;
 }
 
