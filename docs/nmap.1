@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 01/02/2012
+.\"      Date: 02/25/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "01/02/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "02/25/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -115,7 +115,7 @@ It is also included as a chapter of Nmap Network Scanning: The Official Nmap Pro
 .SH "OPTIONS SUMMARY"
 .PP
 This options summary is printed when Nmap is run with no arguments, and the latest version is always available at
-\m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]\&. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual\&. Some obscure options aren\*(Aqt even included here\&.
+\m[blue]\fB\%https://svn.nmap.org/nmap/docs/nmap.usage.txt\fR\m[]\&. It helps people remember the most common options, but is no substitute for the in\-depth documentation in the rest of this manual\&. Some obscure options aren\*(Aqt even included here\&.
 .\" summary of options
 .\" command-line options: of Nmap
 .sp
@@ -170,6 +170,7 @@ SCRIPT SCAN:
   \-\-script=<Lua scripts>: <Lua scripts> is a comma separated list of 
            directories, script\-files or script\-categories
   \-\-script\-args=<n1=v1,[n2=v2,\&.\&.\&.]>: provide arguments to scripts
+  \-\-script\-args\-file=filename: provide NSE script args in a file
   \-\-script\-trace: Show all data sent and received
   \-\-script\-updatedb: Update the script database\&.
   \-\-script\-help=<Lua scripts>: Show help about scripts\&.
@@ -1935,7 +1936,7 @@ interactive output\&.
 \fB\-oX \fR\fB\fIfilespec\fR\fR (XML output) .\" -oX .\" XML output
 .RS 4
 Requests that XML output be directed to the given filename\&. Nmap includes a document type definition (DTD) which allows XML parsers to validate Nmap XML output\&. While it is primarily intended for programmatic use, it can also help humans interpret Nmap XML output\&. The DTD defines the legal elements of the format, and often enumerates the attributes and values they can take on\&. The latest version is always available from
-\m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
+\m[blue]\fB\%https://svn.nmap.org/nmap/docs/nmap.dtd\fR\m[]\&.
 .sp
 XML offers a stable format that is easily parsed by software\&. Free XML parsers are available for all major computer languages, including C/C++, Perl, Python, and Java\&. People have even written bindings for most of these languages to handle Nmap output and execution specifically\&. Examples are
 \m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[15]\d\s+2.\" Nmap::Scanner
@@ -2395,7 +2396,7 @@ are far more likely to be answered than those sent to Fyodor directly\&. If you 
 \m[blue]\fB\%http://cgi.insecure.org/mailman/listinfo/nmap-dev\fR\m[]\&.
 .PP
 Code patches to fix bugs are even better than bug reports\&. Basic instructions for creating patch files with your changes are available at
-\m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]\&. Patches may be sent to
+\m[blue]\fB\%https://svn.nmap.org/nmap/HACKING\fR\m[]\&. Patches may be sent to
 nmap\-dev
 (recommended) or to Fyodor directly\&.
 .SH "AUTHOR"

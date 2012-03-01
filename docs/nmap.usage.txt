@@ -45,6 +45,7 @@ SCRIPT SCAN:
   --script=<Lua scripts>: <Lua scripts> is a comma separated list of 
            directories, script-files or script-categories
   --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts
+  --script-args-file=filename: provide NSE script args in a file
   --script-trace: Show all data sent and received
   --script-updatedb: Update the script database.
   --script-help=<Lua scripts>: Show help about scripts.
