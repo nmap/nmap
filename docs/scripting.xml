@@ -959,8 +959,9 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
       <option>--script-args</option> option. The arguments describe a table of
       key-value pairs and possibly array values. The arguments are provided to
       scripts as a table in the registry called
-      <varname>nmap.registry.args</varname>.
+      <varname>nmap.registry.args</varname>, though they are normally accessed through the <literal>stdnse.get_script_args</literal> function.
       </para>
+
       <para>
       The syntax for script arguments is similar to Lua's table constructor
       syntax. Arguments are a comma-separated list of
@@ -984,6 +985,27 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
       script, in a table named after the script. That is what is happening with
       the <varname>whois</varname> table in the example below.
       </para>
+
+      <para>Script arguments are often qualified with the relevant
+      script name so that a user doesn't unintentially affect multiple
+      scripts with a single generic name.  For example, you can set
+      the timeout for responses to the
+      <literal>broadcast-ping</literal> script (and only that script)
+      by setting <literal>broadcast-ping.timeout</literal> to the
+      number of milliseconds you're willing to wait.  Sometimes,
+      however, you want a script argument applied more widely.  If you
+      remove the qualification and specify just
+      <literal>timeout=250</literal>, you will be setting the value
+      for more than a dozen scripts in addition to
+      <literal>broadcast-ping</literal>.  You can even combine
+      qualified and unqualified arguments, and the most specific match
+      takes precedence.  For example, you could specify
+      <literal>rlogin-brute.timeout=20000,timeout=250</literal>.  In
+      that case, the timeout will be 20,000 for the
+      <literal>rlogin-brute</literal> scripts, and 250 for all other
+      scripts which support this variable
+      (<literal>broadcast-ping</literal>,
+      <literal>lltd-discovery</literal>, etc.)</para>
       
       <para>Rather than pass the arguments on the command line with
       <option>--script-args</option>, you may store them in a file
@@ -999,7 +1021,7 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
 <informalexample>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <literallayout>
-<command>nmap -sC --script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=custom'</command>
+<command>nmap -sC --script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</command>
 </literallayout>
 </informalexample>
       Notice that the script arguments are surrounded in single quotes. For the
@@ -1014,13 +1036,12 @@ nmap.registry.args = {
 	whois = {
 		whodb = "nofollow+ripe"
 	},
-	userdb="custom"
+	xmpp-info.server_name="localhost"
 }
 </programlisting>
-      You could then access the username <literal>"foo"</literal> inside
-      your script with this statement:
+      While you could access the values directly from <literal>nmap.registry.args</literal>, it is normally better to use the <literal>stdnse.get_script_args</literal> function like this:
 <programlisting>
-local username = nmap.registry.args.user
+local server_name = stdnse.get_script_args("xmpp-info.server_name")
 </programlisting>
       </para>
       <para>

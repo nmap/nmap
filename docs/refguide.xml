@@ -2398,14 +2398,8 @@ escapes a quote. A backslash is only used to escape quotation marks in this
 special case; in all other cases a backslash is interpreted literally. Values
 may also be tables enclosed in <literal>{}</literal>, just as in Lua. A table
 may contain simple string values or more name-value pairs, including nested
-tables. A complex example of script arguments is
-<informalexample>
-<indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
-<literallayout>
-<command>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=custom'</command>
-</literallayout>
-</informalexample>
-The online NSE Documentation Portal at <ulink url="http://nmap.org/nsedoc/"/>
+tables.  Many scripts qualify their arguments with the script name, as in <literal>xmpp-info.server_name</literal>.  You may use that full qualified version to affect just the specified script, or you may pass the unqualified version (<literal>server_name</literal> in this case) to affect all scripts using that argument name.  A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name.  A complex example of script arguments is
+<option>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp-info.server_name=localhost'</option>.  The online NSE Documentation Portal at <ulink url="http://nmap.org/nsedoc/"/>
 lists the arguments that each script accepts.
 </para>
 </listitem>

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 02/25/2012
+.\"      Date: 03/01/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "02/25/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/01/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1354,9 +1354,10 @@ http\-\&.
 Lets you provide arguments to NSE scripts\&. Arguments are a comma\-separated list of
 name=value
 pairs\&. Names and values may be strings not containing whitespace or the characters \(oq{\(cq, \(oq}\(cq, \(oq=\(cq, or \(oq,\(cq\&. To include one of these characters in a string, enclose the string in single or double quotes\&. Within a quoted string, \(oq\e\(cq escapes a quote\&. A backslash is only used to escape quotation marks in this special case; in all other cases a backslash is interpreted literally\&. Values may also be tables enclosed in
-{}, just as in Lua\&. A table may contain simple string values or more name\-value pairs, including nested tables\&. A complex example of script arguments is
-.\" --script-args: example of .sp .if n \{\ .RS 4 .\} .nf \fB\-\-script\-args \*(Aquser=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=custom\*(Aq\fR .fi .if n \{\ .RE .\}
-The online NSE Documentation Portal at
+{}, just as in Lua\&. A table may contain simple string values or more name\-value pairs, including nested tables\&. Many scripts qualify their arguments with the script name, as in
+xmpp\-info\&.server_name\&. You may use that full qualified version to affect just the specified script, or you may pass the unqualified version (server_name
+in this case) to affect all scripts using that argument name\&. A script will first check for its fully qualified argument name (the name specified in its documentation) before it accepts an unqualified argument name\&. A complex example of script arguments is
+\fB\-\-script\-args \*(Aquser=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},xmpp\-info\&.server_name=localhost\*(Aq\fR\&. The online NSE Documentation Portal at
 \m[blue]\fB\%http://nmap.org/nsedoc/\fR\m[]
 lists the arguments that each script accepts\&.
 .RE
