@@ -1,27 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Make the nmap.header.tmpl wording a little more generic so it more
-  clearly applies to Ncat, Zenmap, Nping, etc. Then use
-  templatereplace.pl to apply those changes to the code. [Fyodor]
-
-o Change Nmap copyright dates (in the file headers, etc.) from 2011 to
-  2012.
-
-o Document the nsearg format changes made by Paulino (how you can
-  preface an argument with a script to make it more specific, or make it
-  general to apply to multiple scripts)
-  o Rough drafts:
-  o nmap-exp/calderon/refguide.xml
-  o nmap-exp/calderon/scripting.xml
-  o Relates to:
-    o We should probably modify stdnse.get_script_args so that it first
-     checks [scriptname].[argname] and then (if that fails) looks for
-     [argname] by itself.  This way people who are only running one
-     script or who want to use the same value for multiple scripts that
-     take the same argument can just give [argname].  But those who want
-     an argument to only apply to a specific script can give
-     [scriptname].[argname].
-
 o Create CHANGELOG
 
 o Make stable release candidate branch
@@ -725,6 +703,28 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Document the nsearg format changes made by Paulino (how you can
+  preface an argument with a script to make it more specific, or make it
+  general to apply to multiple scripts)
+  o Rough drafts:
+  o nmap-exp/calderon/refguide.xml
+  o nmap-exp/calderon/scripting.xml
+  o Relates to:
+    o We should probably modify stdnse.get_script_args so that it first
+     checks [scriptname].[argname] and then (if that fails) looks for
+     [argname] by itself.  This way people who are only running one
+     script or who want to use the same value for multiple scripts that
+     take the same argument can just give [argname].  But those who want
+     an argument to only apply to a specific script can give
+     [scriptname].[argname].
+
+o Make the nmap.header.tmpl wording a little more generic so it more
+  clearly applies to Ncat, Zenmap, Nping, etc. Then use
+  templatereplace.pl to apply those changes to the code. [Fyodor]
+
+o Change Nmap copyright dates (in the file headers, etc.) from 2011 to
+  2012.
 
 o Get RPM staticly linking to libsvn (rather than dynamic linking) so
   that it isn't a requirement for installing the RPM.
