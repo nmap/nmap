@@ -31,7 +31,7 @@ function action()
 	local helper = srvloc.Helper:new()
 	
 	local status, bindery = helper:ServiceRequest("bindery.novell", "DEFAULT")
-	if ( not(status) ) then return end
+	if ( not(status) or not(bindery) ) then return end
 	local srvname = bindery:match("%/%/%/(.*)$")
 	
 	local status, attrib = helper:AttributeRequest(bindery, "DEFAULT", "svcaddr-ws")

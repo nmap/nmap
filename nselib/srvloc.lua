@@ -75,11 +75,14 @@ Reply = {
 			pos, self.lang_tag = bin.unpack("A" .. lang_tag_len, data, pos)
 		
 			local no_urls, reserved, url_len
-			pos, self.error_code, no_urls, reserved, self.url_lifetime,
-				url_len = bin.unpack(">SSCSS", data, pos)
+			pos, self.error_code, no_urls = bin.unpack(">SS", data, pos)
 			
-			local num_auths
-			pos, self.url, num_auths = bin.unpack("A" .. url_len .. "C", data, pos)
+			if ( no_urls > 0 ) then
+				pos, reserved, self.url_lifetime, url_len = bin.unpack(">CSS", data, pos)
+
+				local num_auths
+				pos, self.url, num_auths = bin.unpack("A" .. url_len .. "C", data, pos)
+			end
 		end,
 	
 		--- Attempts to create an instance by reading data off the socket
