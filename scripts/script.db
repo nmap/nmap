@@ -250,6 +250,8 @@ Entry { filename = "rexec-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "riak-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rlogin-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "rpcap-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "rpcap-info.nse", categories = { "discover", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rsync-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rsync-list-modules.nse", categories = { "discovery", "safe", } }

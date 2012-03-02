@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the library rpcap and the scripts rpcap-brute and rpcap-info
+  which perform brute force password guessing and extract information from the
+  WinPcap Remote Packet Capture daemon. [Patrik]
+
 o [NSE] Added authentication support to MongoDB library and modified existing
   scripts to support it. Added the script mongodb-brute to perform password
   brute force guessing. [Patrik]
