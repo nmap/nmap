@@ -4,17 +4,27 @@
 -- @author Martin Holst Swende
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
--- Version 0.1
+-- Version 0.2
+--
+-- @args mongodb.db - the database to use for authentication
 
 -- Created 01/13/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
+-- Revised 01/03/2012 - v0.2 - added authentication support <patrik@cqure.net>
+
 module("mongodb", package.seeall)
 require("bin")
---require("bson")
+stdnse.silent_require "openssl"
+
+
+-- this is not yet widely implemented but at least used for authentication
+-- ideally, it would be used to set the database against which operations,
+-- that do not require a specific database, should run
+local arg_DB = stdnse.get_script_args("mongodb.db")
 
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug("MngoDb:"..str, unpack(arg))
+	stdnse.print_debug(3, "MngoDb:"..str, unpack(arg))
 end
 --local dbg =stdnse.print_debug
 
@@ -96,17 +106,23 @@ end
 --@return result : a string of binary data OR error message
 function toBson(dict)
     
-        local elements = ""
+	local elements = ""
 	--Put id first
 	if dict._id then
 		local status,res = _element_to_bson("_id", dict._id)
 		if not status then return false, res end
 		elements = elements..res
+	elseif ( dict._cmd ) then
+		for k, v in pairs(dict._cmd) do
+			local status,res = _element_to_bson(k, v)
+			if not status then return false, res end
+			elements = elements..res
+		end
 	end
 	--Concatenate binary values
 	for key, value in pairs( dict ) do
-		dbg("dictionary to bson : key,value =(%s,%s)",key,value)
-		if key ~= "_id" then
+		if key ~= "_id" and key ~= "_cmd" then
+			dbg("dictionary to bson : key,value =(%s,%s)",key,value)
 			local status,res = _element_to_bson(key,value)
 			if not status then return false, res end
 			elements = elements..res
@@ -463,7 +479,6 @@ function buildInfoQuery(responseTo)
 	local query = {buildinfo = 1}
 	return createQuery(collectionName, query)
 end
-
 --Reads an int32 from data
 --@return int32 value
 --@return data unread
@@ -578,6 +593,38 @@ function query(socket, data)
 	end
 	return true,result, residualData
 end
+
+function login(socket, db, username, password)
+
+	local collectionName = ("%s.$cmd"):format(arg_DB or db)
+	local query = { getnonce = 1 }
+	local status, packet = createQuery(collectionName, query)
+	local response
+	status, response = mongodb.query(socket, packet)
+	if ( not(status) or not(response.nonce) ) then
+		return false, "Failed to retrieve nonce"
+	end
+	
+	local nonce = response.nonce
+	local pwdigest = stdnse.tohex(openssl.md5(username .. ':mongo:' ..password))
+	local digest = stdnse.tohex(openssl.md5(nonce .. username .. pwdigest))
+	
+	query = { user = username, nonce = nonce, key = digest }
+	query._cmd = { authenticate = 1 }
+
+	local status, packet = createQuery(collectionName, query)
+	status, response = mongodb.query(socket, packet)
+	if ( not(status) ) then
+		return status, response
+	elseif ( response.errmsg == "auth fails" ) then
+		return false, "Authentication failed"
+	elseif ( response.errmsg ) then
+		return false, response.errmsg
+	end
+	return status, response
+end
+
+
 --- Converts a quert result as received from MongoDB query into nmap "result" table
 -- @param resultTable table as returned from a quer
 -- @return table suitable for <code>stdnse.format_output</code>

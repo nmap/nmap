@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added authentication support to MongoDB library and modified existing
+  scripts to support it. Added the script mongodb-brute to perform password
+  brute force guessing. [Patrik]
+
 o Added a --nsock-engine option to nmap, nping and ncat to enforce use of a
   given nsock IO engine. [Henri]
 
