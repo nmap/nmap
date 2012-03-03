@@ -39,7 +39,7 @@
 -- a page exists. The <code>identify_404</code> function will try several URLs on the 
 -- server to determine what the server's 404 pages look like. It will attempt to identify
 -- customized 404 pages that may not return the actual status code 404. If successful, 
--- the function <code>page_exists</code> can then be used to determine whether no not
+-- the function <code>page_exists</code> can then be used to determine whether or not
 -- a page existed. 
 --
 -- Some other miscellaneous functions that can come in handy are <code>response_contains</code>,
