@@ -98,7 +98,7 @@ action = function(host, port)
   --identify the 404
   local status_404, result_404, body_404 = http.identify_404(host, port)
   if not status_404 then
-    stdnse.print_debug(1, "%s unable to handle 404 pages (%s)", SCRIPT_NAME, result_404)
+    return stdnse.format_output(false, SCRIPT_NAME .. " unable to handle 404 pages (" .. result_404 .. ")")
   end
 
 
