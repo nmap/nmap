@@ -315,7 +315,7 @@ Comm = {
 	recv = function(self)
 		local status, hdr_data = self.socket:receive_buf(match.numbytes(RPCAP.Header.size), true)
 		if ( not(status) ) then
-			return status, data
+			return status, hdr_data
 		end
 
 		local header = RPCAP.Header.parse(hdr_data)
