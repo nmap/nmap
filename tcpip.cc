@@ -437,7 +437,7 @@ const char *inet_socktop(struct sockaddr_storage *ss) {
    This function calls getaddrinfo and returns the same addrinfo linked list
    that getaddrinfo produces. Returns NULL for any error or failure to resolve.
    You need to call freeaddrinfo on the result if non-NULL. */
-struct addrinfo *resolve_all(char *hostname, int pf)
+struct addrinfo *resolve_all(const char *hostname, int pf)
 {
   struct addrinfo hints;
   struct addrinfo *result;

@@ -742,12 +742,8 @@ static int l_resolve(lua_State *L)
   struct sockaddr_storage ss;
   struct addrinfo *addr, *addrs;
   int i;
-  char *host;
+  const char *host = luaL_checkstring(L, 1);
   int af = fams[luaL_checkoption(L, 2, "unspec", fam_op)];
-
-  if (!lua_isstring(L, 1))
-    luaL_error(L, "Host to resolve must be a string");
-  host = (char *) lua_tostring(L, 1);
 
   addrs = resolve_all(host, af);
 

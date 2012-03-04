@@ -264,7 +264,7 @@ const char *inet_socktop(struct sockaddr_storage *ss);
    structure. This function calls getaddrinfo and returns the same
    addrinfo linked list that getaddrinfo produces. Returns NULL for any
    error or failure to resolve. */
-struct addrinfo *resolve_all(char *hostname, int pf);
+struct addrinfo *resolve_all(const char *hostname, int pf);
 
 /* Takes a destination address (dst) and tries to determine the
    source address and interface necessary to route to this address.
