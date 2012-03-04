@@ -27,7 +27,7 @@
 
 module(... or "rpcap", package.seeall)
 
-require 'ipops'
+require 'ipOps'
 require 'match'
 
 
