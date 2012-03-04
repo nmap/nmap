@@ -5254,6 +5254,7 @@ else
 /* end confdefs.h.  */
 
 #include <stdio.h>
+#include <sys/types.h>
 #ifdef HAVE_SYS_IOCCOM_H
 #include <sys/ioccom.h>
 #endif

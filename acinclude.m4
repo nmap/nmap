@@ -51,6 +51,7 @@ int main() {
   ], [
     AC_TRY_RUN([
 #include <stdio.h>
+#include <sys/types.h>
 #ifdef HAVE_SYS_IOCCOM_H
 #include <sys/ioccom.h>
 #endif
