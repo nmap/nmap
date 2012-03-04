@@ -506,15 +506,10 @@ MessageDecoder = {
 		pos = pos + len + 16
 
 		pos, len = bin.unpack(bo .. "I", packet.stub_data, pos)
-		print("len", len)
-		
 		pos, ip = bin.unpack( bo .. "A" .. len, packet.stub_data, pos)
-		print("tmp", ip)
-		
+
 		pos = pos + 3
 		pos, len = bin.unpack(bo .. "I", packet.stub_data, pos)
-		print("len", len)
-		
 		pos, ctx = bin.unpack( bo .. "A" .. len, packet.stub_data, pos)
 		
 		return true, { ip = ip, ctx = ctx}
