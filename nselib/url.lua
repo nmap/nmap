@@ -1,6 +1,20 @@
 ---
 -- URI parsing, composition, and relative URL resolution.
 --
+-- A URL is represented as a table with the following entries:
+-- * <code>scheme</code>
+-- * <code>fragment</code>
+-- * <code>query</code>
+-- * <code>params</code>
+-- * <code>authority</code>
+-- * <code>userinfo</code>
+-- * <code>path</code>
+-- * <code>password</code>
+-- These correspond to these parts of a URL (some may be <code>nil</code>):
+-- <code>
+-- scheme://userinfo@password:authority:port/path;params?query#fragment
+-- </code>
+--
 -- @author Diego Nehab
 -- @author Eddie Bell <ejlbell@gmail.com>
 
