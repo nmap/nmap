@@ -57,6 +57,7 @@
 
 module(... or "httpspider", package.seeall)
 
+require 'url'
 require 'http'
 
 local LIBRARY_NAME = "httpspider"
@@ -77,26 +78,36 @@ Options = {
 		o.blacklist = o.blacklist or {}
 		
 		if ( o.withinhost == true or o.withindomain == true ) then
-			local host_match, domain_match
-			if ( ( o.base_url:getProto() == 'https' and o.base_url:getPort() == 443 ) or
-				 ( o.base_url:getProto() == 'http'  and o.base_url:getPort() == 80 ) ) then
-				if ( o.withinhost ) then
-					host_match = ("^%s://%s"):format(o.base_url:getProto(), o.base_url:getHost())
-				elseif ( o.withindomain ) then
-					domain_match = ("^%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain())
-				end
-			else
-				if ( o.withinhost ) then
-				 	host_match = ("^%s://%s:%d"):format(o.base_url:getProto(), o.base_url:getHost(), o.base_url:getPort() )
-				elseif( o.withindomain ) then
-					domain_match = ("^%s://.*%s/"):format(o.base_url:getProto(), o.base_url:getDomain() )
-				end
-			end
 			-- set up the appropriate matching functions
 			if ( o.withinhost ) then
-				o.withinhost = function(url) return string.match(tostring(url), host_match)	end
+				o.withinhost = function(u)
+					local parsed_u = url.parse(tostring(u))
+													
+					if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
+						if ( parsed_u.port ~= o.base_url:getPort() ) then
+							return false
+						end
+					elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
+						return false
+					elseif ( parsed_u.host:lower() ~= o.base_url:getHost():lower() ) then
+						return false
+					end
+					return true
+				end
 			else
-				o.withindomain = function(url) return string.match(tostring(url), domain_match)	end
+				o.withindomain = function(u)
+					local parsed_u = url.parse(tostring(u))				
+					if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
+						if ( parsed_u.port ~= o.base_url:getPort() ) then
+							return false
+						end
+					elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
+						return false
+					elseif ( parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
+						return false
+					end
+					return true
+				end
 			end
 		end
 		setmetatable(o, self)
@@ -721,13 +732,19 @@ Crawler = {
 			if ( nil == b ) then
 				return
 			end
-			assert("string" == type(b) or "boolean" == type(b), "httpspider: tobool failed, unsupported type")
+			assert("string" == type(b) or "boolean" == type(b) or "number" == type(b), "httpspider: tobool failed, unsupported type")
 			if ( "string" == type(b) ) then
 				if ( "true" == b ) then
 					return true
 				else
 					return false
-				 end
+				end
+			elseif ( "number" == type(b) ) then
+				if ( 1 == b ) then
+					return true
+				else
+					return false
+				end
 			end
 			return b
 		end
@@ -736,9 +753,13 @@ Crawler = {
 		self.options.withinhost = tobool(self.options.withinhost)
 		self.options.withindomain = tobool(self.options.withindomain)
 		self.options.noblacklist = tobool(self.options.noblacklist)	
-		
-		if ( self.options.withinhost == nil ) then	
-			self.options.withinhost = true
+
+		if ( self.options.withinhost == nil ) then
+			if ( self.options.withindomain ~= true ) then
+				self.options.withinhost = true
+			else
+				self.options.withinhost = false
+			end
 		end
 		if ( self.options.withindomain == nil ) then
 			self.options.withindomain = false
