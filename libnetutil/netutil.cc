@@ -116,6 +116,17 @@
 #if HAVE_SYS_SOCKIO_H
 #include <sys/sockio.h>  /* SIOCGIFCONF for Solaris */
 #endif
+
+#if HAVE_NET_IF_H
+#ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
+#include <net/if.h>
+#define NET_IF_H
+#endif
+#endif
+#ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
+#include <netinet/ip.h> 
+#define NETINET_IP_H
+#endif
 #include <net/if_arp.h>
 
 /* Define CMSG_* symbols for Solaris 9 and earlier. See
@@ -151,17 +162,6 @@
 #endif
 
 #include "netutil.h"
-
-#if HAVE_NET_IF_H
-#ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
-#include <net/if.h>
-#define NET_IF_H
-#endif
-#endif
-#ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
-#include <netinet/ip.h> 
-#define NETINET_IP_H
-#endif
 
 #if HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
