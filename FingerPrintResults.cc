@@ -241,25 +241,27 @@ void FingerPrintResults::populateClassification() {
          osclass != matches[printno]->OS_class.end();
          osclass++) {
       if (!classAlreadyExistsInResults(&*osclass)) {
-	// Then we have to add it ... first ensure we have room
-	if (OSR.OSC_num_matches == MAX_FP_RESULTS) {
-	  // Out of space ... if the accuracy of this one is 100%, we have a problem
-	  if (accuracy[printno] == 1.0) OSR.overall_results = OSSCAN_TOOMANYMATCHES;
-	  return;
-	}
+        // Then we have to add it ... first ensure we have room
+        if (OSR.OSC_num_matches == MAX_FP_RESULTS) {
+          // Out of space ... if the accuracy of this one is 100%, we have a problem
+          if (accuracy[printno] == 1.0)
+            OSR.overall_results = OSSCAN_TOOMANYMATCHES;
+          return;
+        }
 
-	// We have space, but do we even want this one?  No point
-	// including lesser matches if we have 1 or more perfect
-	// matches.
-	if (OSR.OSC_num_perfect_matches > 0 && accuracy[printno] < 1.0) {
-	  return;
-	}
+        // We have space, but do we even want this one?  No point
+        // including lesser matches if we have 1 or more perfect
+        // matches.
+        if (OSR.OSC_num_perfect_matches > 0 && accuracy[printno] < 1.0) {
+          return;
+        }
 
-	// OK, we will add the new class
-       OSR.OSC[OSR.OSC_num_matches] = &*osclass;
-	OSR.OSC_Accuracy[OSR.OSC_num_matches] = accuracy[printno];
-	if (printno < num_perfect_matches) OSR.OSC_num_perfect_matches++;
-	OSR.OSC_num_matches++;
+        // OK, we will add the new class
+        OSR.OSC[OSR.OSC_num_matches] = &*osclass;
+        OSR.OSC_Accuracy[OSR.OSC_num_matches] = accuracy[printno];
+        if (printno < num_perfect_matches)
+          OSR.OSC_num_perfect_matches++;
+        OSR.OSC_num_matches++;
       }
     }
   }
