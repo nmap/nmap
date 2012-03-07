@@ -244,7 +244,7 @@ void FingerPrintResults::populateClassification() {
         // Then we have to add it ... first ensure we have room
         if (OSR.OSC_num_matches == MAX_FP_RESULTS) {
           // Out of space ... if the accuracy of this one is 100%, we have a problem
-          if (accuracy[printno] == 1.0)
+          if (printno < num_perfect_matches)
             OSR.overall_results = OSSCAN_TOOMANYMATCHES;
           return;
         }
@@ -252,7 +252,7 @@ void FingerPrintResults::populateClassification() {
         // We have space, but do we even want this one?  No point
         // including lesser matches if we have 1 or more perfect
         // matches.
-        if (OSR.OSC_num_perfect_matches > 0 && accuracy[printno] < 1.0) {
+        if (OSR.OSC_num_perfect_matches > 0 && printno >= num_perfect_matches) {
           return;
         }
 
