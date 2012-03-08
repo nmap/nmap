@@ -47,6 +47,13 @@ local DEFAULT_PLUGINS_SEARCH = 100
 
 portrule = shortport.service("http")
 
+local function read_data_file(file)
+  return coroutine.wrap(function()
+    for line in file:lines(file) do
+      coroutine.yield(line)
+    end
+  end)
+end
 
 action = function(host, port)
 
@@ -104,12 +111,7 @@ action = function(host, port)
 
   --build a table of both directories to brute force and the corresponding WP plugins' name
   local plugin_count = 0
-  while true do
-    local line = file:read()
-    if not line then
-      break
-    end
-
+  for line in read_data_file(file) do
     if plugins_search and plugin_count >= plugins_search then
       break
     end
