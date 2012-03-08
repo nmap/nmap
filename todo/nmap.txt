@@ -14,6 +14,19 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
+o [NSE] host.os should not just be a list of strings which can contain
+  human-readible strings and/or CPE info.  It should probably be list
+  of host.os tables which can contain:
+  host.os[].name <-- human readible name
+  host.os[].class[].vendor
+  host.os[].class[].osfamily
+  host.os[].class[].osgen
+  host.os[].class[].devicetype
+  host.os[].class[].cpe[] <-- array of cpe:/ strings
+  So host.os[1].class[1].cpe[1] is the first CPE entry for the first
+  classification of the first OS match for the target system.
+  The host.os entry docs/scripting.xml would have to be updated too.
+
 o [NPING] Nping should probably give you an error or warning when you
   do: "nmap -p80 google.com" since it is ignoring the port specifier.
   The user probably wants to add --tcp.
