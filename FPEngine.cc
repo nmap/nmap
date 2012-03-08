@@ -847,7 +847,7 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
       continue;
     }
     features[idx++].value = tcp->getWindow();
-    flags = tcp->getFlags();
+    flags = tcp->getFlags16();
     for (mask = 0x001; mask <= 0x800; mask <<= 1)
       features[idx++].value = (flags & mask) != 0;
 
