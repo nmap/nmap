@@ -324,15 +324,19 @@ Helper = {
 		self.socket:set_timeout(5000)
 		self.socket:sendto( self.host, self.port, tostring(sr) )
 		
-		local r = Reply.Service.fromSocket(self.socket)
-		self.socket:close()
+		local result = {}
+		repeat
+			local r = Reply.Service.fromSocket(self.socket)
+			if ( r ) then
+				table.insert(result, r:getUrl())
+			end
+			self.xid = self.xid + 1
+		until(not(r))
 		
-		self.xid = self.xid + 1
-		
-		if ( not(r) ) then
+		if ( #result == 0 ) then
 			return false, "ERROR: Helper.Locate no response received"
 		end
-		return true, r:getUrl()
+		return true, result
 	end,
 	
 	--- Requests an attribute from the server
@@ -355,13 +359,16 @@ Helper = {
 		self.socket:sendto( self.host, self.port, tostring(ar) )
 		
 		local r = Reply.Attribute.fromSocket(self.socket)
-		self.socket:close()
 	
 		self.xid = self.xid + 1
 		if ( not(r) ) then
 			return false, "ERROR: Helper.Locate no response received"
 		end
 		return true, r:getAttribList()
+	end,
+	
+	close = function(self)
+		return self.socket:close()
 	end,
 	
 }

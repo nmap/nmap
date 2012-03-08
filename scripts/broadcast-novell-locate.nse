@@ -31,10 +31,15 @@ function action()
 	local helper = srvloc.Helper:new()
 	
 	local status, bindery = helper:ServiceRequest("bindery.novell", "DEFAULT")
-	if ( not(status) or not(bindery) ) then return end
+	if ( not(status) or not(bindery) ) then
+		helper:close()
+		return
+	end
+	bindery = bindery[1]
 	local srvname = bindery:match("%/%/%/(.*)$")
 	
 	local status, attrib = helper:AttributeRequest(bindery, "DEFAULT", "svcaddr-ws")
+	helper:close()
 	attrib = attrib:match("^%(svcaddr%-ws=(.*)%)$")
 	if ( not(attrib) ) then return end
 
@@ -59,6 +64,7 @@ function action()
 	local output = {}
 	local status, treename = helper:ServiceRequest("ndap.novell", "DEFAULT")
 	if ( status ) then 
+		treename = treename[1]
 		treename = treename:match("%/%/%/(.*)%.$")
 		table.insert(output, ("Tree name: %s"):format(treename))
 	end
