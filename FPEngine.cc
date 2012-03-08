@@ -432,9 +432,8 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
       assert(myprobe->host != NULL);
       if (send_ip_packet(this->rawsd, myprobe->getEthernet(), myprobe->host->getTargetAddress(), buf, len) == -1) {
         pfatal("Unable to send packet in %s", __func__);
-      } else {
-        myprobe->setTimeSent();
       }
+      myprobe->setTimeSent();
       free(buf);
       break;
 
