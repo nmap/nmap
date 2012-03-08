@@ -170,42 +170,6 @@ struct xml_writer {
 
 static struct xml_writer xml;
 
-static char *alloc_vsprintf(const char *fmt, va_list va) __attribute__ ((format (printf, 1, 0)));
-
-/* vsprintf into a dynamically allocated buffer, similar to asprintf in
-   Glibc. Return the buffer or NULL on error. */
-static char *alloc_vsprintf(const char *fmt, va_list va) {
-  va_list va_tmp;
-  char *s, *p;
-  int size = 32;
-  int n;
-
-  s = NULL;
-  size = 32;
-  for (;;) {
-    p = (char *) safe_realloc(s, size);
-    if (p == NULL)
-      return NULL;
-    s = p;
-
-#ifdef WIN32
-    va_tmp = va;
-#else
-    va_copy(va_tmp, va);
-#endif
-    n = vsnprintf(s, size, fmt, va_tmp);
-
-    if (n >= size)
-      size = n + 1;
-    else if (n < 0)
-      size = size * 2;
-    else
-      break;
-  }
-
-  return s;
-}
-
 /* Escape a string for inclusion in XML. This gets <>&, "' for attribute
    values, -- for inside comments, and characters with value > 0x7F. It
    also gets control characters with value < 0x20 to avoid parser

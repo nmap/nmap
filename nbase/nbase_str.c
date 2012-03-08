@@ -165,6 +165,40 @@ int Snprintf(char *s, size_t n, const char *fmt, ...)
 	return ret;
 }
 
+/* vsprintf into a dynamically allocated buffer, similar to asprintf in
+   Glibc. Return the buffer or NULL on error. */
+char *alloc_vsprintf(const char *fmt, va_list va) {
+  va_list va_tmp;
+  char *s, *p;
+  int size = 32;
+  int n;
+
+  s = NULL;
+  size = 32;
+  for (;;) {
+    p = (char *) safe_realloc(s, size);
+    if (p == NULL)
+      return NULL;
+    s = p;
+
+#ifdef WIN32
+    va_tmp = va;
+#else
+    va_copy(va_tmp, va);
+#endif
+    n = vsnprintf(s, size, fmt, va_tmp);
+
+    if (n >= size)
+      size = n + 1;
+    else if (n < 0)
+      size = size * 2;
+    else
+      break;
+  }
+
+  return s;
+}
+
 /* Trivial function that returns nonzero if all characters in str of length strlength are
    printable (as defined by isprint()) */
 int stringisprintable(const char *str, int strlength) {

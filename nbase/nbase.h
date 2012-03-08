@@ -395,6 +395,9 @@ int Vsnprintf(char *, size_t, const char *, va_list)
 int Snprintf(char *, size_t, const char *, ...)
      __attribute__ ((format (printf, 3, 4)));
 
+char *alloc_vsprintf(const char *fmt, va_list va)
+     __attribute__ ((format (printf, 1, 0)));
+
 /* Trivial function that returns nonzero if all characters in str of
    length strlength are printable (as defined by isprint()) */
 int stringisprintable(const char *str, int strlength);
