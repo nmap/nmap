@@ -1,3 +1,8 @@
+# WordPress plugins, sorted by popularity. See
+# http://seclists.org/nmap-dev/2011/q2/352 and
+# http://seclists.org/nmap-dev/2011/q2/att-352/wp-plugins_pl.bin
+# for the script used to make this file.
+
 akismet
 contact-form-7
 nextgen-gallery
