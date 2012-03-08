@@ -1,5 +1,5 @@
 description = [[
-Produces a list of prefixes for a given ASN.
+Produces a list of IP prefixes for a given AS number (ASN).
 
 This script uses a whois server database operated by the Shadowserver
 Foundation.  We thank them for granting us permission to use this in

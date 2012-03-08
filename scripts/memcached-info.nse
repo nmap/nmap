@@ -1,5 +1,6 @@
 description = [[
-Retrieves information from distributed memory object caching system memcached.
+Retrieves information (including system architecture, process ID, and
+server time) from distributed memory object caching system memcached.
 ]]
 
 ---

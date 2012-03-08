@@ -1,7 +1,8 @@
 description = [[
-Determines the supported authentication mechanisms of a remote SOCKS server.
-Starting with SOCKS version 5 socks servers may support authentication.
-The script checks for the following authentication types:
+Determines the supported authentication mechanisms of a remote SOCKS
+proxy server.  Starting with SOCKS version 5 socks servers may support
+authentication.  The script checks for the following authentication
+types:
   0 - No authentication
   1 - GSSAPI
   2 - Username and password

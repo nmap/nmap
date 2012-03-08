@@ -1,7 +1,7 @@
 description = [[
-This script will execute a directory traversal attack against a ColdFusion
-server and try to grab the password hash for the administrator user. It
-will then use the salt value (hidden in the web page) to create the SHA1
+Executes a directory traversal attack against a ColdFusion
+server and tries to grab the password hash for the administrator user. It
+then uses the salt value (hidden in the web page) to create the SHA1
 HMAC hash that the web server needs for authentication as admin. You can
 pass this value to the ColdFusion server as the admin without cracking
 the password hash.

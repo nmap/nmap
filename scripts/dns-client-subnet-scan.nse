@@ -1,12 +1,12 @@
 description = [[
-Performs a domain lookup using the edns-client-subnet [1] option that adds
-support for adding subnet information to the query in regards to where the
-query is originating from. The script uses this option to supply a number of
+Performs a domain lookup using the edns-client-subnet option that adds
+support for adding subnet information to the query describing where the
+query is originating. The script uses this option to supply a number of
 geographically distributed locations in an attempt to enumerate as many
 different address records as possible. The script also supports requests using
 a given subnet.
 
-[1]http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
+* http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password guessing against the MongoDB database.
+Performs brute force password auditing against the MongoDB database.
 ]]
 
 ---

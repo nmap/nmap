@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password auditing against SOCKS 5 servers.
+Performs brute force password auditing against SOCKS 5 proxy servers.
 ]]
 
 ---

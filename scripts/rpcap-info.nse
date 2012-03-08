@@ -1,6 +1,6 @@
 description = [[
-Connect to the rpcap service, a service providing remote sniffing capabilities
-through WinPcap, and retrieves interface information. The service can either be
+Connects to the rpcap service (provides remote sniffing capabilities
+through WinPcap) and retrieves interface information. The service can either be
 setup to require authentication or not and also supports IP restrictions.
 ]]
 

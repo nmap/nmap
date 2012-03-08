@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password auditing against rsync.
+Performs brute force password auditing against the rsync remote file syncing protocol.
 ]]
 
 ---

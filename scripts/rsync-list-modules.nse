@@ -1,5 +1,5 @@
 description = [[
-List modules available for rsync synchronization
+Lists modules available for rsync (remote file sync) synchronization.
 ]]
 
 ---

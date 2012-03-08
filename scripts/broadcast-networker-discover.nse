@@ -1,5 +1,5 @@
 description = [[
-Discovers the server for EMC Networker backup software on the LAN by
+Discovers the EMC Networker backup software server on a LAN by
 using network broadcasts.
 ]]
 

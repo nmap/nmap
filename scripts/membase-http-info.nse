@@ -1,6 +1,7 @@
 description = [[
-Retrieves information from the CouchBase Web Administration port.
-The information retrieved by this script does not require any credentials.
+Retrieves information (hostname, OS, uptime, etc.) from the CouchBase
+Web Administration port.  The information retrieved by this script
+does not require any credentials.
 ]]
 
 ---

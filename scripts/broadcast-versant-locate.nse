@@ -1,5 +1,5 @@
 description = [[
-Discovers Versant object databases using the srvloc protocol
+Discovers Versant object databases using the srvloc protocol.
 ]]
 
 ---

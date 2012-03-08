@@ -1,9 +1,9 @@
 description = [[
-Retrieves information from a listening acarsd daemon.
-acarsd is an ACARS decoder for a Linux or Windows PC which attempts to decode
-ACARS transmissions in real-time. The information retrieved includes the
-daemon version, API version, administrator e-mail address and listening
-frequency.
+Retrieves information from a listening acarsd daemon. Acarsd decodes
+ACARS (Aircraft Communication Addressing and Reporting System) data in
+real time.  The information retrieved by this script includes the
+daemon version, API version, administrator e-mail address and
+listening frequency.
 
 For more information about acarsd, see:
 * http://www.acarsd.org/

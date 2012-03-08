@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password guessing against the WinPcap Remote Capture
+Performs brute force password auditing against the WinPcap Remote Capture
 Daemon (rpcap).
 ]]
 
