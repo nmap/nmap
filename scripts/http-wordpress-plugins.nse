@@ -50,7 +50,9 @@ portrule = shortport.service("http")
 local function read_data_file(file)
   return coroutine.wrap(function()
     for line in file:lines(file) do
-      coroutine.yield(line)
+      if not line:match("^%s*#") and not line:match("^%s*$") then
+        coroutine.yield(line)
+      end
     end
   end)
 end
