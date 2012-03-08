@@ -912,17 +912,13 @@ char *logfilename(const char *str, struct tm *tm) {
    In addition, YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL BETWEEN
    va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap) {
-  static char *writebuf = NULL;
-  static int writebuflen = 8192;
+  char *writebuf;
   bool skid_noxlate = false;
   int rc = 0;
   int len;
   int fileidx = 0;
   int l;
   va_list apcopy;
-
-  if (!writebuf)
-    writebuf = (char *) safe_malloc(writebuflen);
 
   if (logt == LOG_SKID_NOXLT) {
     logt = LOG_SKID;
@@ -943,11 +939,10 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   case LOG_MACHINE:
   case LOG_SKID:
   case LOG_XML:
-#ifdef WIN32
-    apcopy = ap;
-#else
-    va_copy(apcopy, ap); /* Needed in case we need to do a second vsnprintf */
-#endif
+    writebuf = alloc_vsprintf(fmt, ap);
+    if (writebuf == NULL)
+      fatal("%s: alloc_vsprintf failed.", __func__);
+    len = strlen(writebuf);
     l = logt;
     fileidx = 0;
     while ((l & 1) == 0) {
@@ -956,26 +951,6 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
     }
     assert(fileidx < LOG_NUM_FILES);
     if (o.logfd[fileidx]) {
-      len = Vsnprintf(writebuf, writebuflen, fmt, ap);
-      if (len == 0) {
-        va_end(apcopy);
-        return;
-      } else if (len < 0 || len >= writebuflen) {
-        /* Didn't have enough space.  Expand writebuf and try again */
-        if (len >= writebuflen) {
-          writebuflen = len + 1024;
-        } else {
-          /* Windows seems to just give -1 rather than the amount of space we
-             would need.  So lets just gulp up a huge amount in the hope it
-             will be enough */
-          writebuflen *= 500;
-        }
-        writebuf = (char *) safe_realloc(writebuf, writebuflen);
-        len = Vsnprintf(writebuf, writebuflen, fmt, apcopy);
-        if (len <= 0 || len >= writebuflen) {
-          fatal("%s: vsnprintf failed.  Even after increasing bufferlen to %d, Vsnprintf returned %d (logt == %d).  Please report this as a bug to nmap-dev (including this whole error message) as described at http://nmap.org/book/man-bugs.html.  Quitting.", __func__, writebuflen, len, logt);
-        }
-      }
       if (logt == LOG_SKID && !skid_noxlate)
         skid_output(writebuf);
       rc = fwrite(writebuf, len, 1, o.logfd[fileidx]);
@@ -984,6 +959,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
       }
       va_end(apcopy);
     }
+    free(writebuf);
     break;
 
   default:
