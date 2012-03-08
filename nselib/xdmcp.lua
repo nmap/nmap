@@ -1,5 +1,5 @@
 ---
--- Implementation of the XDMCP X-Windows protocol based on:
+-- Implementation of the XDMCP (X Display Manager Control Protocol) based on:
 --   x http://www.xfree86.org/current/xdmcp.pdf
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"

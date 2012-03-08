@@ -1,6 +1,7 @@
 ---
--- A minimalist RSYNC library
+-- A minimalist RSYNC (remote file sync) library
 --
+-- @author "Patrik Karlsson <patrik@cqure.net>"
 
 module(... or "rsync",package.seeall)
 

@@ -1,4 +1,5 @@
---- A minimalistic PPPoE library, implementing basic support for PPPoE
+--- A minimalistic PPPoE (Point-to-point protocol over Ethernet)
+-- library, implementing basic support for PPPoE
 -- Discovery and Configuration requests. The PPPoE protocol is ethernet based
 -- and hence does not use any IPs or port numbers. 
 --

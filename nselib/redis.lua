@@ -1,5 +1,6 @@
-
-
+--- A minimalistic Redis (in-memory key-value data store) library.
+--
+-- @author "Patrik Karlsson <patrik@cqure.net>"
 
 module(... or "redis", package.seeall)
 

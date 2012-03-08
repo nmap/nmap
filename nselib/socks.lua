@@ -1,5 +1,5 @@
 ---
--- A smallish SOCKS version 5 implementation
+-- A smallish SOCKS version 5 proxy protocol implementation
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --

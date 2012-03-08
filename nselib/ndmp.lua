@@ -1,5 +1,5 @@
 ---
--- A minimalistic ndmp library
+-- A minimalistic NDMP (Network Data Management Protocol) library
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 --

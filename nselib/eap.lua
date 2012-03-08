@@ -1,5 +1,6 @@
 --- 
--- EAP library supporting a limited subset of features.
+-- EAP (Extensible Authentication Protocol) library supporting a
+-- limited subset of features.
 --
 -- The library was designed and tested against hostapd v0.6.10
 -- The EAP protocol names are the ones specified in:

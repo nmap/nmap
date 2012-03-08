@@ -1,5 +1,5 @@
 ---
--- A minimalistic Asterisk IAX2 implementation.
+-- A minimalistic Asterisk IAX2 (Inter-Asterisk eXchange v2) VoIP protocol implementation.
 -- The library implements the minimum needed to perform brute force password guessing.
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"

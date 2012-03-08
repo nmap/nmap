@@ -6,6 +6,7 @@
 -- ssl-cert script in an effort to allow certs to be cached and shared among
 -- other scripts.
 --
+-- @author "Patrik Karlsson <patrik@cqure.net>"
 
 module(... or "sslcert", package.seeall)
 

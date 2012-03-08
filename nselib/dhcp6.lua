@@ -1,6 +1,7 @@
 ---
--- Minimalistic DHCP6 implementation supporting basic DHCP6 Solicit requests
--- The library is structured around the following classes:
+-- Minimalistic DHCP6 (Dynamic Host Configuration Protocol for IPv6)
+-- implementation supporting basic DHCP6 Solicit requests The library
+-- is structured around the following classes:
 -- * DHCP6.Option	- DHCP6 options encoders (for requests) and decoders
 --                    (for responses)
 -- * DHCP6.Request	- DHCP6 request encoder and decoder
