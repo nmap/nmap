@@ -1,59 +1,205 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added the script acarsd-info that retrieves information from the acarsd
-  decoder daemon. [Brendan Coles]
+o [NSE] Added host based registry, which allows scripts to share data between
+  scripts scanning a specific host. [Patrik]
 
-o [NSE] Added an EAP library and the script eap-info which discovers supported
-  EAP authentication methods. [Riccardo Cecolin]
+o [NSE] Added 43(!) NSE scripts, bringing the total up to 340.  They
+  are all listed at http://nmap.org/nsedoc/, and the summaries are
+  below (authors listed in brackets):
 
-o [NSE] Added a Versant object database library and the scripts 
-  broadcast-versant-locate and versant-info. The first discovers Versant
-  databases on the LAN and the second queries them for information. [Patrik]
+  + acarsd-info retrieves information from a listening acarsd
+    daemon. Acarsd decodes ACARS (Aircraft Communication Addressing
+    and Reporting System) data in real time. [Brendan Coles]
 
-o [NSE] Added the library rpcap and the scripts rpcap-brute and rpcap-info
-  which perform brute force password guessing and extract information from the
-  WinPcap Remote Packet Capture daemon. [Patrik]
+  + asn-to-prefix produces a list of IP prefixes for a given AS number
+    (ASN). [John Bond]
+
+  + broadcast-dhcp6-discover sends a DHCPv6 request (Solicit) to the
+    DHCPv6 multicast address, parses the response, then extracts and
+    prints the address along with any options returned by the
+    server. [Patrik Karlsson]
+
+  + broadcast-networker-discover discovers the EMC Networker backup
+    software server on a LAN by using network broadcasts. [Patrik
+    Karlsson]
+
+  + broadcast-pppoe-discover discovers PPPoE servers using the PPPoE
+    Discovery protocol (PPPoED). [Patrik Karlsson]
+
+  + broadcast-ripng-discover discovers hosts and routing information
+    from devices running RIPng on the LAN by sending a RIPng Request
+    command and collecting the responses from all responsive
+    devices. [Patrik Karlsson]
+
+  + broadcast-versant-locate discovers Versant object databases using
+  the srvloc protocol. [Patrik Karlsson]
+
+  + broadcast-xdmcp-discover discovers servers running the X Display
+    Manager Control Protocol (XDMCP) by sending a XDMCP broadcast
+    request to the LAN. [Patrik Karlsson]
+
+  + cccam-version detects the CCcam service (software for sharing
+    subscription TV among multiple receivers). [David Fifield]
+
+  + dns-client-subnet-scan performs a domain lookup using the
+    edns-client-subnet option that adds support for adding subnet
+    information to the query describing where the query is
+    originating. The script uses this option to supply a number of
+    geographically distributed locations in an attempt to enumerate as
+    many different address records as possible. [John Bond]
+
+  + dns-nsid retrieves information from a DNS nameserver by requesting
+    its nameserver ID (nsid) and asking for its id.server and
+    version.bind values. [John Bond]
+
+  + dns-srv-enum enumerates various common service (SRV) records for a
+    given domain name.  The service records contain the hostname, port
+    and priority of servers for a given service. [Patrik Karlsson]
+
+  + eap-info enumerates the authentication methods offered by an EAP
+    authenticator for a given identity or for the anonymous identity
+    if no argument is passed. [Riccardo Cecolin]
+
+  + http-auth-finder spiders a web site to find web pages requiring
+    form-based or HTTP-based authentication. [Patrik Karlsson]
+
+  + http-config-backup checks for backups and swap files of common
+    content management system and web server configuration
+    files. [Riccardo Cecolin]
+
+  + http-generator displays the contents of the "generator" meta tag
+    of a web page (default: /) if there is one. [Michael Kohl]
+
+  + http-proxy-brute performs brute force password guessing against a
+    HTTP proxy server. [Patrik Karlsson]
+
+  + http-qnap-nas-info attempts to retrieve the model, firmware
+    version, and enabled services from a QNAP Network Attached Storage
+    (NAS) device. [Brendan Coles]
+
+  + http-vuln-cve2009-3960 exploits cve-2009-3960 also known as Adobe
+    XML External Entity Injection. [Hani Benhabiles]
+
+  + http-vuln-cve2010-2861 executes a directory traversal attack
+    against a ColdFusion server and tries to grab the password hash
+    for the administrator user. It then uses the salt value (hidden in
+    the web page) to create the SHA1 HMAC hash that the web server
+    needs for authentication as admin. [Micah Hoffman]
+
+  + iax2-brute performs brute force password auditing against the
+    Asterisk IAX2 protocol. [Patrik Karlsson]
+
+  + membase-brute performs brute force password auditing against
+    Couchbase Membase servers. [Patrik Karlsson]
+
+  + membase-http-info retrieves information (hostname, OS, uptime,
+    etc.) from the CouchBase Web Administration port. [Patrik
+    Karlsson]
+
+  + memcached-info retrieves information (including system
+    architecture, process ID, and server time) from distributed memory
+    object caching system memcached. [Patrik Karlsson]
+
+  + mongodb-brute performs brute force password auditing against the
+    MongoDB database. [Patrik Karlsson]
+
+  + nat-pmp-mapport maps a WAN port on the router to a local port on
+    the client using the NAT Port Mapping Protocol (NAT-PMP). [Patrik
+    Karlsson]
+
+  + ndmp-fs-info lists remote file systems by querying the remote
+    device using the Network Data Management Protocol (ndmp). [Patrik
+    Karlsson]
+
+  + ndmp-version retrieves version information from the remote Network
+    Data Management Protocol (ndmp) service. [Patrik Karlsson]
+
+  + nessus-xmlrpc-brute performs brute force password auditing against
+    a Nessus vulnerability scanning daemon using the XMLRPC
+    protocol. [Patrik Karlsson]
+
+  + redis-brute performs brute force passwords auditing against a
+    Redis key-value store. [Patrik Karlsson]
+
+  + redis-info retrieves information (such as version number and
+    architecture) from a Redis key-value store. [Patrik Karlsson]
+
+  + riak-http-info retrieves information (such as node name and
+    architecture) from a Basho Riak distributed database using the
+    HTTP protocol. [Patrik Karlsson]
+
+  + rpcap-brute performs brute force password auditing against the
+    WinPcap Remote Capture Daemon (rpcap). [Patrik Karlsson]
+
+  + rpcap-info connects to the rpcap service (provides remote sniffing
+    capabilities through WinPcap) and retrieves interface
+    information. [Patrik Karlsson]
+
+  + rsync-brute performs brute force password auditing against the
+    rsync remote file syncing protocol. [Patrik Karlsson]
+
+  + rsync-list-modules lists modules available for rsync (remote file
+    sync) synchronization. [Patrik Karlsson]
+
+  + socks-auth-info determines the supported authentication mechanisms
+    of a remote SOCKS proxy server. [Patrik Karlsson]
+
+  + socks-brute performs brute force password auditing against SOCKS 5
+    proxy servers. [Patrik Karlsson]
+
+  + url-snarf sniffs an interface for HTTP traffic and dumps any URLs, and their
+    originating IP address. [Patrik Karlsson]
+
+  + versant-info extracts information, including file paths, version
+    and database names from a Versant object database. [Patrik
+    Karlsson]
+
+  + vmauthd-brute performs brute force password auditing against the
+    VMWare Authentication Daemon (vmware-authd). [Patrik Karlsson]
+
+  + voldemort-info retrieves cluster and store information from the
+    Voldemort distributed key-value store using the Voldemort Native
+    Protocol. [Patrik Karlsson]
+
+  + xdmcp-discover requests an XDMCP (X display manager control
+    protocol) session and lists supported authentication and
+    authorization mechanisms. [Patrik Karlsson]
+
+o [NSE] Added 14 new protocol libraries! They were all written by
+  Patrik Karlsson, except for the EAP library by Riccardo Cecolin:
+ + dhcp6 (Dynamic Host Configuration Protocol for IPv6)
+ + eap (Extensible Authentication Protocol)
+ + iax2 (Inter-Asterisk eXchange v2 VoIP protocol)
+ + membase (Couchbase Membase TAP protocol)
+ + natpmp (NAT Port Mapping Protocol)
+ + ndmp (Network Data Management Protocol)
+ + pppoe (Point-to-point protocol over Ethernet)
+ + redis (in-memory key-value data store)
+ + rpcap (WinPcap Remote Capture Deamon)
+ + rsync (remote file sync)
+ + socks (proxy protocol)
+ + sslcert (for collecting SSL certificates and storing them in the
+   host-based registry)
+ + versant (an object database)
+ + xdmcp (X Display Manager Control Protocol)
 
 o [NSE] Added authentication support to MongoDB library and modified existing
-  scripts to support it. Added the script mongodb-brute to perform password
-  brute force guessing. [Patrik]
-
-o Added a --nsock-engine option to nmap, nping and ncat to enforce use of a
-  given nsock IO engine. [Henri]
+  scripts to support it. [Patrik]
 
 o [NSE] Added support to broadcast-listener for extracting address, native vlan
   and management IP address from CDP packets. [Tom]
 	
-o [NSE] Added the script broadcast-networker-discover that discoverer EMC
-  Networker servers on the LAN. [Patrik]
-
 o [NSE] Added RPC Call CALLIT to the RPC library and modified UDP sockets to be
   unconnected in order to support broadcast. [Patrik]
 
 o Integrated latest IPv6 OS submissions and corrections.
 
-o [NSE] Added a sslcert library that gets and caches SSL certificates in the
-  registry. Modified the scripts ssl-cert and ssl-google-cert-catalog to take
-  advantage of this change. [Patrik]
+o [NSE] Modified the ssl-cert and ssl-google-cert-catalog scripts to
+  take advantage of the new sslcert library which retrieves and caches
+  SSL certificates in the registry.
 
-o [NSE] Added host based registry, which allows scripts to share data between
-  scripts scanning a specific host. [Patrik]
-
-o [NSE] Applied patch from Andrew Orr that fixes the recent changes in the
-  BitCoin protocol. [Patrik]
-
-o [NSE] Added a Network Data Management Protocol (ndmp) library and the
-  scripts:
-  + ndmp-version - retrieves version information
-  + ndmp-fs-info - retrieves information about remote filesystems
-  [Patrik]
-
-o [NSE] Added the script http-vuln-cve2010-2861 to detect the Cold Fusion
-  CVE-2010-2861 directory traversal vulnerability. [Micah Hoffman]
-
-o [NSE] Added support for edns-client-subnet requests to the DNS library and
-  the script dns-client-subnet-scan that scans for addresses resolved from
-  different subnets. [John Bond]
+o [NSE] Applied patch from Andrew Orr that supports recent changes in
+  the BitCoin protocol. [Patrik]
 
 o [NSE] Added support for decoding EIGRP broadcasts from Cisco routers
   to broadcast-listener. [Tom]
@@ -61,16 +207,8 @@ o [NSE] Added support for decoding EIGRP broadcasts from Cisco routers
 o [NSE] Added redirect support to the http library. All calls to http.get and
   http.head now transparently handle any HTTP redirects. [Patrik]
 
-o [NSE] Added asn-to-prefix.nse by John Bond, to convert AS numbers to
-  IP address ranges and optionally scan them.
-
 o [NSE] Modified the sql-injection script to use the httpspider library.
   [Lauri Kokkonen]
-
-o [NSE] Added a rsync library and two new script:
-  + rsync-list-modules - list available rsync modules
-  + rsync-brute - attempts to brute force passwords against a rsync module
-  [Patrik]
 
 o Added --with-apr and --with-subversion configuration options to
   support systems where those libraries aren't in the usual places.
@@ -79,60 +217,26 @@ o Added --with-apr and --with-subversion configuration options to
 o [NSE] Added voldemort-info, that retrieves cluster and store information
   from the Voldemort distributed key-value store. [Patrik]
 
-o [NSE] Added http-qnap-nas-info, that retrieves the model, firware version,
-  and enabled services from a QNAP Network Attached Storage (NAS) device.
-  [Brendan Coles]
-
 o [NSE] Fixed a bunch of global access errors in various libraries reported by
   the nse_check_globals script. [Patrik]
-
-o [NSE] Added url-snarf. The script sniffs the network for URLs in HTTP
-  traffic and prints the URL together with the originating IP. [Patrik]
-
-o [NSE] Added http-auth-finder. The scripts spiders a site looking for URLs
-  requiring form- or HTTP-based authentication. [Patrik]
 
 o Fixed an assertion failure which could occur when connecting to an
   SSL server:
   nsock_core.c:186: update_events: Assertion `(ev_inc & ev_dec) == 0' failed.
   Thanks to Ron for reporting the bug and testing. [Henri]
 
-o [NSE] Added cccam-version.nse. It detects the CCcam TV card sharing
-  system. [David]
-
-o [NSE] Added the scripts xdmcp-discover, broadcast-xdmcp-discover and the
-  X Display Manager Control Protocol (xdmcp) library. The scripts discover
-  hosts either using unicast or broadcast and try to detect supported
-  authentication and authorization mechanisms. [Patrik]
-
 o Audited the nmap-service-probes database to remove all unused
   captures, fixing dozens of bugs with captures either being ignored
   or two fields erroneously using the same capture. This was done by
   Lauri Kokkonen, David Fifield, and Rob Nicholls.
 
-o [NSE] Added script iax2-brute and supporting IAX2 library that performs
-  brute-force password guessing against the Asterisk IAX2 protocol. [Patrik]
-
 o Added service probe for the Erlang Port Mapper Daemon. [Patrik]
-
-o [NSE] Added script broadcast-dhcp6-discover and supporting DHCPv6 library.
-  The script retrieves and prints an IPv6 address and some of the DHCP6
-  options. [Patrik]
 
 o IPv6 OS detection now includes a novelty detection phase that avoids
   printing a match when an observed fingerprint is too different from
   fingerprints seen before. As the OS database is still small, this
   will help not to make what is essentially a wild guess when seeing a
   new operating system. [David]
-
-o [NSE] Added script dns-srv-enum that enumerates DNS service records for a
-  given domain. [Patrik]
-
-o [NSE] Added script nessus-xmlrpc-brute that performs brute force password
-  guessing against the Nessus web GUI. [Patrik]
-
-o [NSE] Added script dns-nsid by John Bond, that retrieves name server ID and
-  version information.
 
 o [NSE] Applied patch to DNS library by John Bond that adds support for the
   CHAOS class and NSID requests.
@@ -143,27 +247,11 @@ o [NSE] Changed the dnsbl library to take a threaded approach into querying
 o [NSE] Applied patch from Duarte Silva to dnsbl adding new services and the
   ATTACK category. [Duarte Silva]
 
-o [NSE] Added broadcast-ripng-discover that discovers IPv6 RIPng routers and
-  displays their routing information. [Patrik]
-
 o [NSE] Made gathered CPE codes available to NSE. [Henri]
 
 o [NSE] Fixed a memory leak in PortList::setServiceProbeResults() noticed and
   reported by David. The leak was triggered by set_port_version calls from NSE.
   [Henri]
-
-o [NSE] Added http-generator.nse by Michael Kohl, which gets version
-  information for web applications that set the "generator" meta
-  element.
-
-o [NSE] Added the script broadcast-pppoe-discover that discovers PPPoE servers
-  on the LAN using the PPPoE Discovery Protocol. [Patrik]
-
-o [NSE] Added the script membase-brute that performs password brute force
-  password guessing against the Membase TAP protocol. [Patrik]
-
-o [NSE] Added the script membase-http-info that retrieves information from the
-  Couchbase distributed key-value pair server. [Patrik]
 
 o [NSE] Fixed a race condition in broadcast-dhcp-discover.nse that
   could cause responses to be missed on fast networks. It was noticed
@@ -176,11 +264,13 @@ o Fixed a bug in reverse name resolution: a name of "." would leave
     Illegal character(s) in hostname -- replacing with '*'
   errors. [Gisle Vanem]
 
-o Merged nsock-engines from nmap-exp. This rewrite of the nsock library adds
-  support for system-specific scalable IO notification facilities without
-  breaking portability. This initial version comes with an epoll(7)-based engine
-  for Linux and a select(2)-based fallback engine for all other operating
-  systems. [Henri] 
+o Merged nsock-engines from nmap-exp. This rewrite of the nsock
+  library adds support for system-specific scalable IO notification
+  facilities without breaking portability. This initial version comes
+  with an epoll(7)-based engine for Linux and a select(2)-based
+  fallback engine for all other operating systems.  Also added the
+  --nsock-engine option to nmap, nping and ncat to enforce use of a
+  given nsock IO engine. [Henri]
 
 o Added probe and matchline for Couchbase Membase NoSQL database [Patrik]
 
@@ -190,40 +280,8 @@ o Added the new --script-args-file option which allows you to specify
   and may be overridden by arguments specified on the command-line
   with --script-args. [Daniel Miller]
 
-o [NSE] Added the script http-vuln-cve2009-3960 that detects and exploits the
-  CVE 2009-3960 XML injection vulnerability in Adobe products. [Hani
-  Benhabiles]
-
 o Added two new probes for the Basho Riak PBC and Tarantool protocols.
   [Patrik] 
-
-o [NSE] Added a natpmp library and the script nat-pmp-mapport that allows
-  NAT mapping of external TCP and UDP ports to internal addresses. [Patrik]
-
-o [NSE] Added the script riak-http-info that lists version and statistics
-  information from the Basho Riak distributed database. [Patrik]
-
-o [NSE] Added the script memcached-info that lists version and statistics
-  information from the distributed memory object caching service memcached
-  [Patrik]
-
-o [NSE] Added the script redis-info that lists version and statistic
-  information gathered from the Redis network key-value store. [Patrik]
-
-o [NSE] Added the redis library and the script redis-brute that performs brute
-  force password guessing against the Redis network key-value store. [Patrik]
-
-o [NSE] Added the script http-proxy-brute that performs brute force password
-  guessing against HTTP proxy servers. [Patrik]
-
-o [NSE] Added the script socks-auth-info that lists supported SOCKS 5
-  authentication mechanisms. [Patrik]
-
-o [NSE] Added the script socks-brute that performs brute force password
-  guessing against SOCKS 5 servers. [Patrik]
-
-o [NSE] Added the script vmauthd-brute that performs brute force password
-  guessing against the VMware authentication daemon. [Patrik]
 
 Nmap 5.61TEST4 [2012-01-02]
 
