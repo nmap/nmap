@@ -236,7 +236,7 @@ int xml_write_raw(const char *fmt, ...) {
   char *s;
 
   va_start(va, fmt);
-  s = alloc_vsprintf(fmt, va);
+  alloc_vsprintf(&s, fmt, va);
   va_end(va);
   if (s == NULL)
     return -1;
@@ -264,7 +264,7 @@ int xml_write_escaped(const char *fmt, ...) {
 int xml_write_escaped_v(const char *fmt, va_list va) {
   char *s, *esc_s;
 
-  s = alloc_vsprintf(fmt, va);
+  alloc_vsprintf(&s, fmt, va);
   if (s == NULL)
     return -1;
   esc_s = escape(s);
@@ -386,7 +386,7 @@ int xml_attribute(const char *name, const char *fmt, ...) {
   assert(xml.tag_open);
 
   va_start(va, fmt);
-  val = alloc_vsprintf(fmt, va);
+  alloc_vsprintf(&val, fmt, va);
   va_end(va);
   if (val == NULL)
     return -1;

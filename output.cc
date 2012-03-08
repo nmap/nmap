@@ -939,10 +939,9 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   case LOG_MACHINE:
   case LOG_SKID:
   case LOG_XML:
-    writebuf = alloc_vsprintf(fmt, ap);
+    len = alloc_vsprintf(&writebuf, fmt, ap);
     if (writebuf == NULL)
       fatal("%s: alloc_vsprintf failed.", __func__);
-    len = strlen(writebuf);
     l = logt;
     fileidx = 0;
     while ((l & 1) == 0) {

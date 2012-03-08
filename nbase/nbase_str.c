@@ -166,20 +166,17 @@ int Snprintf(char *s, size_t n, const char *fmt, ...)
 }
 
 /* vsprintf into a dynamically allocated buffer, similar to asprintf in
-   Glibc. Return the buffer or NULL on error. */
-char *alloc_vsprintf(const char *fmt, va_list va) {
+   Glibc. Return the length of the buffer or -1 on error. */
+int alloc_vsprintf(char **strp, const char *fmt, va_list va) {
   va_list va_tmp;
-  char *s, *p;
+  char *s;
   int size = 32;
   int n;
 
   s = NULL;
   size = 32;
   for (;;) {
-    p = (char *) safe_realloc(s, size);
-    if (p == NULL)
-      return NULL;
-    s = p;
+    s = (char *) safe_realloc(s, size);
 
 #ifdef WIN32
     va_tmp = va;
@@ -195,8 +192,9 @@ char *alloc_vsprintf(const char *fmt, va_list va) {
     else
       break;
   }
+  *strp = s;
 
-  return s;
+  return n;
 }
 
 /* Trivial function that returns nonzero if all characters in str of length strlength are
