@@ -35,6 +35,7 @@ Entry { filename = "broadcast-rip-discover.nse", categories = { "broadcast", "sa
 Entry { filename = "broadcast-ripng-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-sybase-asa-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-versant-locate.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wake-on-lan.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wpad-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
@@ -322,6 +323,7 @@ Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "url-snarf.nse", categories = { "safe", } }
+Entry { filename = "versant-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "vmauthd-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vnc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe", } }

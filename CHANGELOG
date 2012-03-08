@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a Versant object database library and the scripts 
+  broadcast-versant-locate and versant-info. The first discovers Versant
+  databases on the LAN and the second queries them for information. [Patrik]
+
 o [NSE] Added the library rpcap and the scripts rpcap-brute and rpcap-info
   which perform brute force password guessing and extract information from the
   WinPcap Remote Packet Capture daemon. [Patrik]
