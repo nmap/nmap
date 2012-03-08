@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script acarsd-info that retrieves information from the acarsd
+  decoder daemon. [Brendan Coles]
+
 o [NSE] Added an EAP library and the script eap-info which discovers supported
   EAP authentication methods. [Riccardo Cecolin]
 
