@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added an EAP library and the script eap-info which discovers supported
+  EAP authentication methods. [Riccardo Cecolin]
+
 o [NSE] Added a Versant object database library and the scripts 
   broadcast-versant-locate and versant-info. The first discovers Versant
   databases on the LAN and the second queries them for information. [Patrik]
