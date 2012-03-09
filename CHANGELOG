@@ -228,12 +228,13 @@ o CPE (Common Platform Enumeration) OS classification is now supported
   for IPv6 OS detection. Previously it was only available for
   IPv4. [David Fifield]
 
-o [NSE] Scripts can now access CPE (Common Platform Enumeration)
-  information for the detected remote OS and applications in the
-  host.os table and the port.version.cpe values described at
-  http://nmap.org/book/nse-api.html. Note that we're already planning
-  to change how host.os is structured (see the Nmap TODO file). [Henri
-  Doreau]
+o [NSE] The host.os table is now a structured array of table that
+  include OS class information and CPE. See
+  http://nmap.org/book/nse-api.html for documentation of the new
+  structure. [Henri Doreau, David]
+
+o [NSE] Service matches can now access CPE through the
+  port.version.cpe array. [Henri Doreau]
 
 o Added a new --script-args-file option which allows you to specify
   the name of a file containing all of your desired NSE script
