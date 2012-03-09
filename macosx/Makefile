@@ -101,7 +101,7 @@ stage-nping: export-$(NPING_BUILD_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
 
 stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
-	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update $(CONFIGURE_ARGS)
+	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update --with-apr=$(MACPORTS_PREFIX) --with-subversion=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
 	make -C $(NMAP_UPDATE_BUILD_DIR)
 	rm -rf $(NMAP_UPDATE_STAGING_DIR)
 	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
