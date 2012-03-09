@@ -34,7 +34,8 @@ categories = {"discovery", "safe"}
 
 require 'shortport'
 require 'ipOps'
-require 'vuzedht'
+require 'stdnse'
+stdnse.silent_require('vuzedht')
 
 portrule = function(host, port)
 	local allports = stdnse.get_script_args('vuze-dht-info.allports')

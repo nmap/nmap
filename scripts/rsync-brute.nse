@@ -21,7 +21,8 @@ Performs brute force password auditing against the rsync remote file syncing pro
 
 require 'shortport'
 require 'brute'
-require 'rsync'
+require 'stdnse'
+stdnse.silent_require('rsync')
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

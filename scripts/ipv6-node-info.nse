@@ -29,8 +29,9 @@ author = "David Fifield"
 require("bin")
 require("bit")
 require("dns")
-require("openssl")
+require("stdnse")
 require("packet")
+stdnse.silent_require("openssl")
 
 local ICMPv6_NODEINFOQUERY = 139
 local   ICMPv6_NODEINFOQUERY_IPv6ADDR = 0

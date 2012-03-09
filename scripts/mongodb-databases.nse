@@ -40,8 +40,9 @@ categories = {"default", "discovery", "safe"}
 dependencies = {"mongodb-brute"}
 
 require "creds"
-require "mongodb"
 require "shortport"
+require 'stdnse'
+stdnse.silent_require('mongodb')
 
 portrule = shortport.port_or_service({27017}, {"mongodb"})
 

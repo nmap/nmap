@@ -17,8 +17,9 @@ Performs brute force password auditing against the MongoDB database.
 --
 
 require 'brute'
-require 'mongodb'
 require 'shortport'
+require 'stdnse'
+stdnse.silent_require('mongodb')
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

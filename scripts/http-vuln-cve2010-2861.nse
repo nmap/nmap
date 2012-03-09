@@ -49,7 +49,8 @@ require("http")
 require("shortport")
 require("tab")
 require("vulns")
-require("openssl")
+require("stdnse")
+stdnse.silent_require("openssl")
 
 portrule = shortport.http
 

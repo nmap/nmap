@@ -39,9 +39,9 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","safe"}
 
-require "bittorrent"
-require "stdnse"
 require "target"
+require 'stdnse'
+stdnse.silent_require('bittorrent')
 
 prerule = function()
     if not stdnse.get_script_args(SCRIPT_NAME..".torrent") and

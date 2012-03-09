@@ -26,7 +26,8 @@ require "bin"
 require "stdnse"
 require "target"
 require "nmap"
-require "openssl"
+require "stdnse"
+stdnse.silent_require("openssl")
 
 prerule = function()
 	if not nmap.is_privileged() then

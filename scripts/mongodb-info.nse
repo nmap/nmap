@@ -53,8 +53,9 @@ categories = {"default", "discovery", "safe"}
 dependencies = {"mongodb-brute"}
 
 require "creds"
-require "mongodb"
 require "shortport"
+require 'stdnse'
+stdnse.silent_require('mongodb')
 
 local arg_db = stdnse.get_script_args(SCRIPT_NAME .. ".db") or "admin"
 

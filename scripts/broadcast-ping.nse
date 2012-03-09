@@ -49,10 +49,10 @@ categories = {"discovery","safe","broadcast"}
 require "nmap"
 require "stdnse"
 require "packet"
-require "openssl"
 require "bin"
 require "tab"
 require "target"
+stdnse.silent_require("openssl")
 
 prerule = function()
 	if not nmap.is_privileged() then

@@ -22,9 +22,10 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 require 'shortport'
-require 'bitcoin'
 require 'tab'
 require 'target'
+require 'stdnse'
+stdnse.silent_require('bitcoin')
 
 --
 -- Version 0.1
