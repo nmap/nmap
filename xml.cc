@@ -413,6 +413,11 @@ int xml_depth() {
 }
 
 /* Return true iff a root element has been started. */
+bool xml_tag_open() {
+  return xml.tag_open;
+}
+
+/* Return true iff a root element has been started. */
 bool xml_root_written() {
   return xml.root_written;
 }

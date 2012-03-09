@@ -122,6 +122,8 @@ void fatal(const char *fmt, ...) {
   }
   log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\nQUITTING!\n");
 
+  if (xml_tag_open())
+    xml_close_start_tag();
   if (!xml_root_written())
     xml_start_tag("nmaprun");
   /* Close all open XML elements but one. */
@@ -198,6 +200,8 @@ void pfatal(const char *fmt, ...) {
   log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "%s: %s (%d)\n", 
 	    errbuf, strerror_s, error_number);
 
+  if (xml_tag_open())
+    xml_close_start_tag();
   if (!xml_root_written())
     xml_start_tag("nmaprun");
   /* Close all open XML elements but one. */

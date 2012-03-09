@@ -118,6 +118,7 @@ int xml_attribute(const char *name, const char *fmt, ...) __attribute__ ((format
 int xml_newline();
 
 int xml_depth();
+bool xml_tag_open();
 bool xml_root_written();
 
 #endif
