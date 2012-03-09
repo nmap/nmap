@@ -1,13 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.61TEST5 [2012-03-08]
+
 o Integrated all of your IPv4 OS fingerprint submissions since June
   2011 (about 1,900 of them).  Added about 256 new fingerprints (and
   deleted some bogus ones), bringing the new total to 3,572.
   Additions include Apple iOS 5.01, OpenBSD 4.9 and 5.0, FreeBSD 7.0
   through 9.0-PRERELEASE, and a ton of new WAPs, routers, and other
-  devices.  Many existing fingerprints were improved. For more
-  details, see http://seclists.org/nmap-dev/2012/q1/431 [David
-  Fifield]
+  devices. Many existing fingerprints were improved. For more details,
+  see http://seclists.org/nmap-dev/2012/q1/431 [David Fifield]
 
 o Integrated all of your service/version detection fingerprints
   submitted since November 2010--more than 2,500 of them!  Our
@@ -15,35 +16,37 @@ o Integrated all of your service/version detection fingerprints
   protocols. Some amusing and bizarre new services are described at
   http://seclists.org/nmap-dev/2012/q1/359 [David Fifield]
 
-o Integrated latest IPv6 OS submissions and corrections.  We're still
-  low on IPv6 fingerprints, so please scan any IPv6 systems you own or
-  administer and submit them to http://nmap.org/submit/.  Both new
-  fingerprints (if Nmap doesn't find a good match) and corrections (if
-  Nmap guesses wrong) are useful.
+o Integrated your latest IPv6 OS submissions and corrections. We're
+  still low on IPv6 fingerprints, so please scan any IPv6 systems you
+  own or administer and submit them to http://nmap.org/submit/.  Both
+  new fingerprints (if Nmap doesn't find a good match) and corrections
+  (if Nmap guesses wrong) are useful.
 
-o [NSE] Added a host-based registry, which only persists until all
-  scripts have finished scanning the host.  The normal registry saves
-  information until it is deleted or the Nmap scan ends.  Use the host
-  based registry if you can to save memory.  See
-  http://nmap.org/book/nse-api.html#nse-api-registry. [Patrik Karlsson]
+o [NSE] Added a host-based registry which only persists (for the given
+  host) until all scripts have finished scanning that host. The normal
+  registry saves information until it is deleted or the Nmap scan
+  ends. That is a waste of memory for information which doesn't need
+  to persist that long. Use the host based registry instead if you
+  can. See http://nmap.org/book/nse-api.html#nse-api-registry. [Patrik
+  Karlsson]
 
-o IPv6 OS detection now includes a novelty detection phase that avoids
-  printing a match when an observed fingerprint is too different from
-  fingerprints seen before. As the OS database is still small, this
-  will help avoid making (essentially) wild guesses when seeing a new
-  operating system.  [David Fifield]
+o IPv6 OS detection now includes a novelty detection system which
+  avoids printing a match when an observed fingerprint is too
+  different from fingerprints seen before. As the OS database is still
+  small, this helps to avoid making (essentially) wild guesses when
+  seeing a new operating system. [David Fifield]
 
-o Refactored the nsock library add "nsock-engines", support for
-  system-specific scalable IO notification facilities while
-  maintaining the portable Nsock API. This initial version comes with
-  an epoll(7)-based engine for Linux and a select(2)-based fallback
-  engine for all other operating systems.  Also added the
-  --nsock-engine option to nmap, nping and ncat to enforce use of a
-  given Nsock IO engine. [Henri Doreau]
+o Refactored the nsock library to add the nsock-engines system. This
+  allows system-specific scalable IO notification facilities to be
+  used while maintaining the portable Nsock API. This initial version
+  comes with an epoll-based engine for Linux and a select-based
+  fallback engine for all other operating systems. Also added the
+  --nsock-engine option to Nmap, Nping and Ncat to enforce use of a
+  specific Nsock IO engine. [Henri Doreau]
 
 o [NSE] Added 43(!) NSE scripts, bringing the total up to 340.  They
   are all listed at http://nmap.org/nsedoc/, and the summaries are
-  below (authors listed in brackets):
+  below (authors are listed in brackets):
 
   + acarsd-info retrieves information from a listening acarsd
     daemon. Acarsd decodes ACARS (Aircraft Communication Addressing
@@ -150,7 +153,7 @@ o [NSE] Added 43(!) NSE scripts, bringing the total up to 340.  They
     Karlsson]
 
   + ndmp-version retrieves version information from the remote Network
-    Data Management Protocol (ndmp) service. [Patrik Karlsson]
+    Data Management Protocol (NDMP) service. [Patrik Karlsson]
 
   + nessus-xmlrpc-brute performs brute force password auditing against
     a Nessus vulnerability scanning daemon using the XMLRPC
@@ -180,7 +183,7 @@ o [NSE] Added 43(!) NSE scripts, bringing the total up to 340.  They
     sync) synchronization. [Patrik Karlsson]
 
   + socks-auth-info determines the supported authentication mechanisms
-    of a remote SOCKS proxy server. [Patrik Karlsson]
+    of a remote SOCKS 5 proxy server. [Patrik Karlsson]
 
   + socks-brute performs brute force password auditing against SOCKS 5
     proxy servers. [Patrik Karlsson]
@@ -215,44 +218,51 @@ o [NSE] Added 14 new protocol libraries! They were all written by
   + redis (in-memory key-value data store)
   + rpcap (WinPcap Remote Capture Deamon)
   + rsync (remote file sync)
-  + socks (proxy protocol)
+  + socks (SOCKS 5 proxy protocol)
   + sslcert (for collecting SSL certificates and storing them in the
     host-based registry)
   + versant (an object database)
   + xdmcp (X Display Manager Control Protocol)
 
 o CPE (Common Platform Enumeration) OS classification is now supported
-  for IPv6 OS detection (previously it was only available for
-  IPv4). [David Fifield]
+  for IPv6 OS detection. Previously it was only available for
+  IPv4. [David Fifield]
 
-o [NSE] Scripts can now access CPE (common platform enumeration)
+o [NSE] Scripts can now access CPE (Common Platform Enumeration)
   information for the detected remote OS and applications in the
-  host.os table and port.version.cpe values described at
+  host.os table and the port.version.cpe values described at
   http://nmap.org/book/nse-api.html. Note that we're already planning
-  to change how host.os is structured (see the Nmap TODO
-  file). [Henri Doreau]
+  to change how host.os is structured (see the Nmap TODO file). [Henri
+  Doreau]
 
-o Added the new --script-args-file option which allows you to specify
+o Added a new --script-args-file option which allows you to specify
   the name of a file containing all of your desired NSE script
-  arguments.  The arguments may be separated with commas or newlines
+  arguments. The arguments may be separated with commas or newlines
   and may be overridden by arguments specified on the command-line
   with --script-args. [Daniel Miller]
 
 o Audited the nmap-service-probes database to remove all unused
   captures, fixing dozens of bugs with captures either being ignored
-  or two fields erroneously using the same capture. This was done by
-  Lauri Kokkonen, David Fifield, and Rob Nicholls.
+  or two fields erroneously using the same capture. [Lauri Kokkonen,
+  David Fifield, and Rob Nicholls]
 
-o Split the nmap-update client in to its own RPM to avoid the Nmap RPM
-  having a dependency on subversion and APR libraries.  We're not yet
-  distributing this binary nmap-update RPM since the system isn't
-  complete, but the source code is available in the Nmap tarball and
-  source RPM. [David]
+o Added new version detection probes and match lines for:
+ + Erlang Port Mapper Daemon
+ + Couchbase Membase NoSQL database
+ + Basho Riak distributed database protocol buffers client (PBC)
+ + Tarantool in-memory data store
+ [Patrik Karlsson]
+
+o Split the nmap-update client into its own binary RPM to avoid the
+  Nmap RPM having a dependency on the Subversion and APR libraries.
+  We're not yet distributing this binary nmap-update RPM since the
+  system isn't complete, but the source code is available in the Nmap
+  tarball and source RPM. [David]
 
 o [NSE] Added authentication support to the MongoDB library and
   modified existing scripts to support it. [Patrik Karlsson]
 
-o [NSE] Added support to broadcast-listener for extracting address, native vlan
+o [NSE] Added support to broadcast-listener for extracting address, native VLAN
   and management IP address from CDP packets. [Tom Sellers]
 	
 o [NSE] Added RPC Call CALLIT to the RPC library and modified UDP sockets to be
@@ -262,17 +272,18 @@ o [NSE] Modified the ssl-cert and ssl-google-cert-catalog scripts to
   take advantage of the new sslcert library which retrieves and caches
   SSL certificates in the registry.
 
-o [NSE] Applied patch from Andrew Orr that supports recent changes in
-  the BitCoin protocol. [Patrik Karlsson]
+o [NSE] Patch our bitcoin library to support recent changes in the
+  BitCoin protocol. [Andrew Orr, Patrik Karlsson]
 
-o Fixed an error where very long long messages could cause an
+o Fixed an error where very long messages could cause an
   assertion failure: "log_vwrite: vsnprintf failed.  Even after
   increasing bufferlen to ---, Vsnprintf returned -1 (logt == 1)."
   This was reported by David Hingos.
 
 o Fixed an assertion failure that was printed when a fatal error
   occurred while an XML tag was incomplete: "!xml.tag_open, file
-  ..\xml.cc, line 401". This was reported by David Hingos.
+  ..\xml.cc, line 401". This was reported by David Hingos. [David
+  Fifield]
 
 o [NSE] Added support for decoding EIGRP broadcasts from Cisco routers
   to broadcast-listener. [Tom Sellers]
@@ -290,9 +301,6 @@ o Added --with-apr and --with-subversion configuration options to
   support systems where those libraries aren't in the usual places.
   [David Fifield]
 
-o [NSE] Added voldemort-info, that retrieves cluster and store information
-  from the Voldemort distributed key-value store. [Patrik Karlsson]
-
 o [NSE] Fixed a bunch of global access errors in various libraries reported by
   the nse_check_globals script. [Patrik Karlsson]
 
@@ -301,56 +309,47 @@ o Fixed an assertion failure which could occur when connecting to an
   nsock_core.c:186: update_events: Assertion `(ev_inc & ev_dec) == 0' failed.
   Thanks to Ron for reporting the bug and testing. [Henri Doreau]
 
-o Added new version detection probes and match lines for:
- + Erlang Port Mapper Daemon
- + Couchbase Membase NoSQL database
- + Basho Riak distributed database protocol buffers client (PBC)
- + Tarantool in-memory data store
- [Patrik Karlsson]
+o [NSE] Added support to the DNS library for the CHAOS class and NSID
+  requests. [John Bond]
 
-o [NSE] Applied patch to DNS library by John Bond that adds support for the
-  CHAOS class and NSID requests.
+o [NSE] Changed the dnsbl library to take a much faster threaded
+  approach to querying DNS blacklists. [Patrik Karlsson]
 
-o [NSE] Changed the dnsbl library to take a threaded approach into querying
-  DNSBL provides drastically improving performance. [Patrik Karlsson]
+o [NSE] Added new services and the ATTACK category to the dnsbl
+  script. [Duarte Silva]
 
-o [NSE] Applied patch from Duarte Silva to dnsbl adding new services and the
-  ATTACK category. [Duarte Silva]
-
-o [NSE] Fixed a memory leak in PortList::setServiceProbeResults() noticed and
-  reported by David Fifield. The leak was triggered by set_port_version calls from NSE.
-  [Henri Doreau]
+o [NSE] Fixed a memory leak in PortList::setServiceProbeResults()
+  which was noticed and reported by David Fifield. The leak was
+  triggered by set_port_version calls from NSE.  [Henri Doreau]
 
 o [NSE] Fixed a race condition in broadcast-dhcp-discover.nse that
   could cause responses to be missed on fast networks. It was noticed
   by Vasiliy Kulikov. [David Fifield]
 
-o Added IPv6 support to firewalk.nse. [Henri Doreau]
-
 o Fixed a bug in reverse name resolution: a name of "." would leave
-  the hostname unintialized, which would manifest as
-    Illegal character(s) in hostname -- replacing with '*'
-  errors. [Gisle Vanem]
+  the hostname unintialized and cause "Illegal character(s) in
+  hostname" warnings. [Gisle Vanem]
 
-o Allow overriding the AR variable to use a different version of ar
-  when creating the liblinear library. [Nuno Gonçalves]
+o Allow overriding the AR variable to use a different version of the
+  ar library creation tool when creating the liblinear library. [Nuno
+  Gonçalves]
 
-o Added vcredist2008_x86.exe to the Windows zipfile. This installer
+o Added vcredist2008_x86.exe to the Windows zip file. This installer
   from MS must be run on new Windows 2008 systems (those which don't
-  already have it) befure running Nmap.  The Nmap Windows installer
+  already have it) before running Nmap.  The Nmap Windows installer
   already takes care of this. [David Fifield]
 
-o Removed about 5MB of not-needed DocBook XSL from the Nping docs
+o Removed about 5MB of unnecessary DocBook XSL from the Nping docs
   directory. [David Fifield]
 
 o The packet library now uses consistent naming of the address fields
   for IPv4 and IPv6 packets (ip_bin_src, ip_bin_dst, ip_src, and
-  ip_dst).  [Henri Doreau]
+  ip_dst). [Henri Doreau]
 
 o Update to the latest MAC address prefix assignments from IEEE as of
   March 8, 2012. [Fyodor]
 
-o Fied a problem in the ippackethdrinfo function which was leading to
+o Fixed a problem in the ippackethdrinfo function which was leading to
   warning messages like: "BOGUS!  Can't parse supposed IP packet" during
   certain IPv6 scans. [David Fifield]
 
@@ -360,6 +359,8 @@ o Fixed building on Arch Linux. The PCAP_IS_SUITABLE test had to be
 
 o Include net/if.h before net/if_arp.h in netutil.cc and tcpip.cc to
   hopefully fix some build problems on AIX 5.3.
+
+o [NSE] Added IPv6 support to firewalk.nse. [Henri Doreau]
 
 Nmap 5.61TEST4 [2012-01-02]
 
