@@ -201,6 +201,15 @@ o [NSE] Modified the ssl-cert and ssl-google-cert-catalog scripts to
 o [NSE] Applied patch from Andrew Orr that supports recent changes in
   the BitCoin protocol. [Patrik]
 
+o Fixed an error where very long long messages could cause an
+  assertion failure: "log_vwrite: vsnprintf failed.  Even after
+  increasing bufferlen to ---, Vsnprintf returned -1 (logt == 1)."
+  This was reported by David Hingos.
+
+o Fixed an assertion failure that was printed when a fatal error
+  occurred while an XML tag was incomplete: "!xml.tag_open, file
+  ..\xml.cc, line 401". This was reported by David Hingos.
+
 o [NSE] Added support for decoding EIGRP broadcasts from Cisco routers
   to broadcast-listener. [Tom]
 
