@@ -110,6 +110,49 @@ static void push_bin_ip(lua_State *L, const struct sockaddr_storage *ss)
   }
 }
 
+static void set_string_or_nil(lua_State *L, const char *fieldname, const char *value) {
+  if (value != NULL) {
+    lua_pushstring(L, value);
+    lua_setfield(L, -2, fieldname);
+  }
+}
+
+static void push_osclass_table(lua_State *L,
+  const struct OS_Classification *osclass) {
+  unsigned int i;
+
+  lua_newtable(L);
+
+  set_string_or_nil(L, "vendor", osclass->OS_Vendor);
+  set_string_or_nil(L, "osfamily", osclass->OS_Family);
+  set_string_or_nil(L, "osgen", osclass->OS_Generation);
+  set_string_or_nil(L, "type", osclass->Device_Type);
+
+  lua_newtable(L);
+  for (i = 0; i < osclass->cpe.size(); i++) {
+    lua_pushstring(L, osclass->cpe[i]);
+    lua_rawseti(L, -2, i + 1);
+  }
+  lua_setfield(L, -2, "cpe");
+}
+
+static void push_osmatch_table(lua_State *L, const FingerMatch *match,
+  const OS_Classification_Results *OSR) {
+  int i;
+
+  lua_newtable(L);
+
+  lua_pushstring(L, match->OS_name);
+  lua_setfield(L, -2, "name");
+
+  lua_newtable(L);
+  for (i = 0; i < OSR->OSC_num_matches; i++) {
+    push_osclass_table(L, OSR->OSC[i]);
+    lua_rawseti(L, -2, i + 1);
+  }
+  lua_setfield(L, -2, "classes");
+}
+
 /* set host ip, host name and target name onto the
  * table which is currently on the stack
  * set name of the os run by the host onto the
@@ -191,23 +234,13 @@ void set_hostinfo(lua_State *L, Target *currenths) {
       FPR->overall_results == OSSCAN_SUCCESS && FPR->num_perfect_matches > 0 &&
       FPR->num_perfect_matches <= 8 )
   {
-    int i, classno;
+    int i;
     const OS_Classification_Results *OSR = FPR->getOSClassification();
 
     lua_newtable(L);
-    // this will run at least one time and at most 8 times, see if condition
-    for(i = 0; FPR->accuracy[i] == 1; i++) {
-      lua_pushstring(L, FPR->matches[i]->OS_name);
-      lua_rawseti(L, -2, i+1);
-    }
-
-    for (classno = 0; classno < OSR->OSC_num_matches; classno++) {
-      size_t j;
-
-      for (j = 0; j < OSR->OSC[classno]->cpe.size(); j++) {
-        lua_pushstring(L, OSR->OSC[classno]->cpe[j]);
-        lua_rawseti(L, -2, ++i);
-      }
+    for (i = 0; i < FPR->num_perfect_matches; i++) {
+      push_osmatch_table(L, FPR->matches[i], OSR);
+      lua_rawseti(L, -2, i + 1);
     }
     lua_setfield(L, -2, "os");
   }

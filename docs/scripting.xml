@@ -1643,20 +1643,87 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	      </term>
 	    <listitem>
 	      <para>
-		The <literal>os</literal> entry in the host table is
-               an array of strings. The strings (as many as eight) are the
-		names of the operating systems the target is possibly
-		running. Strings are only entered in this array if the
-		target machine is a perfect match for one or more OS
-		database entries.  If Nmap was run without the
-		<option>-O</option> option, then
-		<literal>host.os</literal> is <literal>nil</literal>.
+		An array of OS match tables. An OS match consists of a
+		human-readable name and an array of OS classes. Each OS
+		class consists of a vendor, OS family, OS generation,
+		device type, and an array of
+                CPE<indexterm><primary>CPE</primary></indexterm> entries
+                for the class. (See <xref linkend="osdetect-ref-format"/>
+                for a description of OS match fields.) Fields may be
+                <varname>nil</varname> if they are not defined. The
+                <varname>host.os</varname> table has this overall
+                structure:
 	      </para>
+
+<programlisting>
+host.os = {
+  {
+    name = <replaceable>string</replaceable>,
+    classes = {
+      {
+        vendor = <replaceable>string</replaceable>,
+        osfamily = <replaceable>string</replaceable>,
+        osgen = <replaceable>string</replaceable>,
+        type = <replaceable>string</replaceable>,
+        cpe = {
+          "cpe:/<replaceable>...</replaceable>",
+          <optional>More CPE</optional>
+        }
+      },
+      <optional>More classes</optional>
+    },
+  },
+  <optional>More OS matches</optional>
+}
+</programlisting>
+
 	      <para>
-                Additionally the table can contain CPE codes for the detected
-                operating system. These codes, as described in
-                <ulink url="http://cpe.mitre.org">the official CPE specification
-                </ulink> all start with the <literal>cpe:/</literal> prefix.
+	        For example, an OS match on this
+	        <filename>nmap-os-db</filename><indexterm><primary><filename>nmap-os-db</filename></primary></indexterm>
+	        entry:
+	      </para>
+
+<programlisting>
+Fingerprint Linux 2.6.32 - 3.2
+Class Linux | Linux | 2.6.X | general purpose
+CPE cpe:/o:linux:kernel:2.6
+Class Linux | Linux | 3.X | general purpose
+CPE cpe:/o:linux:kernel:3
+</programlisting>
+
+              <para>
+                will result in this <varname>host.os</varname> table:
+              </para>
+
+<programlisting>
+host.os = {
+  {
+    name = "Linux 2.6.32 - 3.2",
+    classes = {
+      {
+        vendor = "Linux",
+        osfamily = "Linux",
+        osgen = "2.6.X",
+        type = "general purpose",
+        cpe = { "cpe:/o:linux:kernel:2.6" }
+      },
+      {
+        vendor = "Linux",
+        osfamily = "Linux",
+        osgen = "3.X",
+        type = "general purpose",
+        cpe = { "cpe:/o:linux:kernel:3" }
+      }
+    },
+  }
+}
+</programlisting>
+
+              <para>
+                Only entries corresponding to perfect OS matches are put
+                in the <varname>host.os</varname> table. If Nmap was run
+                without the <option>-O</option> option, then
+                <literal>host.os</literal> is <literal>nil</literal>.
 	      </para>
 	    </listitem>
 	  </varlistentry>
