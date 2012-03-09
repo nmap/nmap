@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 5.61TEST5 [2012-03-08]
+Nmap 5.61TEST5 [2012-03-09]
 
 o Integrated all of your IPv4 OS fingerprint submissions since June
   2011 (about 1,900 of them).  Added about 256 new fingerprints (and
