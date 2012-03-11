@@ -163,7 +163,7 @@ SERVICES = {
 				return o
 			end,
 			resp_parser = function(self, r)
-				return ( ( r[1] and r[1] == "127.0.0.0" ) and { state = "SPAM" } ) 
+				return ( ( r[1] and r[1] ~= "127.0.0.0" ) and { state = "SPAM" } ) 
 			end
 		},
 		
