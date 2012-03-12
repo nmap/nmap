@@ -163,6 +163,10 @@ SERVICES = {
 				return o
 			end,
 			resp_parser = function(self, r)
+				-- this service appears to return 127.0.0.0 when the service is
+				-- "blocked because it has never been seen to send mail".
+				-- This would essentially return every host as SPAM and we
+				-- don't want that. 
 				return ( ( r[1] and r[1] ~= "127.0.0.0" ) and { state = "SPAM" } ) 
 			end
 		},
@@ -699,9 +703,6 @@ Helper = {
 					stdnse.print_debug(2, ("%s received %s"):format(name, resp))
 				end
 	
-				-- only add a record if the response could be parsed, some
-				-- services, such as list.quorum.to, incorrectly return
-				-- 127.0.0.0 when all is good.
 				if ( svc_result ) then
 					table.insert(result, { name = name, result = svc_result })
 				end
