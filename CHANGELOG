@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script duplicates which attempts to determine duplicate
+  hosts by analyzing information collected by other scripts. [Patrik Karlsson]
+
 Nmap 5.61TEST5 [2012-03-09]
 
 o Integrated all of your IPv4 OS fingerprint submissions since June

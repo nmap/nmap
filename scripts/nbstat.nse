@@ -110,6 +110,10 @@ action = function(host)
 		if manuf == nil then
 			manuf = "unknown"
 		end
+		host.registry['nbstat'] = { 
+			server_name = server_name, 
+			mac = ("%02x:%02x:%02x:%02x:%02x:%02x"):format( statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6) )
+		}
 		mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x (%s)", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6), manuf)
 		-- Samba doesn't set the Mac address, and nmap-mac-prefixes shows that as Xerox
 		if(mac == "00:00:00:00:00:00 (Xerox)") then
