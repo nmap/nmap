@@ -1,12 +1,12 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Create CHANGELOG
-
-o Make stable release candidate branch
-
-o Make at least one more test release from the candidate branch
-
-o Write and send GSoC 2011 results email
+o Deal with the issue of timeouts happening too soon due to global
+  congestion control in some cases.  For example, if Nmap sends host
+  discovery probes to two hosts, and one comes back extremely quickly,
+  it can cause the global congestion control to use a very low timeout
+  and cause the 2nd host (which doesn't have any host-based congestion
+  control values yet) to timeout arguably too quickly.  We should look
+  at potential algorithm changes to improve this.
 
 o Prepare release notes, web page, etc.
 
@@ -720,6 +720,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Create CHANGELOG
+
+o Make stable release candidate branch
+
+o Make at least one more test release from the candidate branch
+
+o Write and send GSoC 2011 results email
 
 o Document the nsearg format changes made by Paulino (how you can
   preface an argument with a script to make it more specific, or make it
