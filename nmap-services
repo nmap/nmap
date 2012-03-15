@@ -7653,6 +7653,7 @@ unknown	17493/udp	0.000654
 unknown	17494/udp	0.001307
 unknown	17495/udp	0.000654
 unknown	17499/udp	0.000654
+db-lsp	17500/tcp	0.000076	# Dropbox LanSync Protocol
 unknown	17501/udp	0.000654
 unknown	17505/udp	0.001307
 unknown	17511/udp	0.000654
