@@ -1354,9 +1354,18 @@ local function get_redirect_ok(host, port, options)
 end
 
 ---Fetches a resource with a GET request and returns the result as a table. This is a simple
--- wraper around <code>generic_request</code>, with the added benefit of having local caching. 
--- This caching can be controlled in the <code>options</code> array, see module documentation 
--- for more information. 
+-- wraper around <code>generic_request</code>, with the added benefit of having local caching
+-- and support for HTTP redirects. Redirects are followed only if they pass all the
+-- validation rules of the redirect_ok function. This function may be overrided by supplying
+-- a custom function in the <code>redirect_ok</code> field of the options array. The default
+-- function redirects the request if the destination is:
+-- * Within the same host or domain
+-- * Has the same port number
+-- * Stays within the current scheme
+-- * Does not exceed <code>MAX_REDIRECT_COUNT</code> count of redirects
+-- 
+-- Caching and redirects can be controlled in the <code>options</code> array, see module
+-- documentation for more information. 
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
@@ -1422,7 +1431,19 @@ function get_url( u, options )
 end
 
 ---Fetches a resource with a HEAD request. Like <code>get</code>, this is a simple
--- wrapper around <code>generic_request</code> with response caching. 
+-- wrapper around <code>generic_request</code> with response caching. This function
+-- also has support for HTTP redirects. Redirects are followed only if they pass
+-- all the validation rules of the redirect_ok function. This function may be
+-- overrided by supplying a custom function in the <code>redirect_ok</code> field
+-- of the options array. The default function redirects the request if the
+-- destination is:
+-- * Within the same host or domain
+-- * Has the same port number
+-- * Stays within the current scheme
+-- * Does not exceed <code>MAX_REDIRECT_COUNT</code> count of redirects
+-- 
+-- Caching and redirects can be controlled in the <code>options</code> array,
+-- see module documentation for more information.
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
