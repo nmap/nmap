@@ -43,7 +43,9 @@ result in a large number of accounts being locked out on the database server.
 -- Revised 07/23/2010 - v0.2 - added script usage and output and 
 -- 							 - oracle-brute.sid argument
 -- Revised 07/25/2011 - v0.3 - added support for guessing default accounts
---								changed code to use ConnectionPool
+--                             changed code to use ConnectionPool
+-- Revised 03/13/2012 - v0.4 - revised by László Tóth
+--                             added support for SYSDBA accounts
 
 --
 -- Summary
@@ -65,6 +67,7 @@ require 'creds'
 portrule = shortport.port_or_service(1521, "oracle-tns", "tcp", "open")
 
 local ConnectionPool = {}
+local sysdba = {}
 
 Driver = 
 {
@@ -127,6 +130,10 @@ Driver =
 	login = function( self, username, password )
 		local status, data = self.helper:Login( username, password )
 		
+		if ( sysdba[username] ) then
+			return false, brute.Error:new("Account already discovered")
+		end
+		
 		if ( status ) then
 			self.helper:Close()
 			ConnectionPool[coroutine.running()] = nil
@@ -134,6 +141,10 @@ Driver =
 		-- Check for account locked message
 		elseif ( data:match("ORA[-]28000") ) then
 			return true, brute.Account:new(username, password, creds.State.LOCKED)
+		-- Check for account is SYSDBA message
+		elseif ( data:match("ORA[-]28009") ) then
+			sysdba[username] = true
+			return true, brute.Account:new(username .. " as sysdba", password, creds.State.VALID)
 		-- check for any other message
 		elseif ( data:match("ORA[-]%d+")) then
 			stdnse.print_debug(3, "username: %s, password: %s, error: %s", username, password, data )
