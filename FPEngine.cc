@@ -1901,7 +1901,7 @@ int FPHost6::schedule() {
       if (o.debugging > 3)
         log_write(LOG_PLAIN, "[%s] Slots granted!\n", this->target_host->targetipstr());
       this->timedprobes_sent = true;
-      int whentostart = get_random_u8()%100;
+      int whentostart = get_random_u16()%100;
       for (size_t i = 0; i < this->timed_probes; i++) {
         this->netctl->scheduleProbe(&(this->fp_probes[i]), whentostart + i*100);
         this->probes_sent++;
@@ -2125,7 +2125,7 @@ int FPHost6::schedule() {
       /* Finally do the actual retransmission. Like the first time,
        * we schedule them 100ms apart, starting at same random point
        * between right now and 99ms. */
-      int whentostart = get_random_u8()%100;
+      int whentostart = get_random_u16()%100;
       for (size_t l = 0; l < this->timed_probes; l++) {
         this->fp_probes[l].incrementRetransmissions();
         this->fp_probes[l].resetTimeSent();
