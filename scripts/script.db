@@ -313,6 +313,8 @@ Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusiv
 Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ssl-known-key.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
+Entry { filename = "stun-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "stun-version.nse", categories = { "version", } }
 Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "svn-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "targets-ipv6-multicast-echo.nse", categories = { "broadcast", "discovery", } }

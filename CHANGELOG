@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a stun library and the scripts stun-version and stun-info, which
+  extract version information and the external NAT:ed address.
+  [Patrik Karlsson]
+
 o [NSE] Added the script duplicates which attempts to determine duplicate
   hosts by analyzing information collected by other scripts. [Patrik Karlsson]
 
