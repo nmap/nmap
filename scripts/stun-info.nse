@@ -1,6 +1,5 @@
 description = [[
-Retrieves the external IP address of a NAT:ed host using the STUN Classic
-protocol.
+Retrieves the external IP address of a NAT:ed host using the STUN protocol.
 ]]
 
 ---
