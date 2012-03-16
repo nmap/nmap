@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that could cause Nsock timers to fire too early. This
+  could happen for the timed probes in IPv6 OS detection, causing an
+  incorrect measurement of the TCP_ISR feature. [David Fifield]
+
 o [NSE] Added a stun library and the scripts stun-version and stun-info, which
   extract version information and the external NAT:ed address.
   [Patrik Karlsson]

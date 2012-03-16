@@ -57,12 +57,16 @@
 
 #include "nsock_internal.h"
 
+extern struct timeval nsock_tod;
+
 /* Send back an NSE_TYPE_TIMER after the number of milliseconds specified.  Of
  * course it can also return due to error, cancellation, etc. */
 nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
                                   int timeout_msecs, void *userdata) {
   mspool *nsp = (mspool *)ms_pool;
   msevent *nse;
+
+  gettimeofday(&nsock_tod, NULL);
 
   nse = msevent_new(nsp, NSE_TYPE_TIMER, NULL, timeout_msecs, handler, userdata);
   assert(nse);
