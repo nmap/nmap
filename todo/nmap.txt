@@ -10,6 +10,8 @@ o Deal with the issue of timeouts happening too soon due to global
 
 o Prepare release notes, web page, etc.
 
+o Do private beta release
+
 o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
