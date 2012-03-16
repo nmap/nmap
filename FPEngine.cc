@@ -1099,7 +1099,7 @@ int FPEngine6::os_scan(vector<Target *> &Targets) {
     /* Go through the list of hosts and ask them to schedule their probes */
     for (unsigned int i = 0; i < curr_hosts.size(); i++) {
 
-      /* If the host is not done yet, call shedule() to let it schedule
+      /* If the host is not done yet, call schedule() to let it schedule
        * new probes, retransmissions, etc. */
       if (!curr_hosts[i]->done()) {
         osscan_done = false;
