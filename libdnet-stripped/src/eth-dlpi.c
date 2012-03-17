@@ -114,10 +114,10 @@ eth_match_ppa(eth_t *e, const char *device)
 	return (ppa);
 }
 #else
-static int
-dev_find_ppa(const char *dev)
+static char *
+dev_find_ppa(char *dev)
 {
-	const char *p;
+	char *p;
 
 	p = dev + strlen(dev);
 	while (p > dev && strchr("0123456789", *(p - 1)) != NULL)
@@ -161,8 +161,11 @@ eth_open(const char *device)
 
 	if ((e->fd = open(dev, O_RDWR)) < 0) {
 		snprintf(dev, sizeof(dev), "/dev/%s", device);
-		if ((e->fd = open(dev, O_RDWR)) < 0)
-			return (eth_close(e));
+		if ((e->fd = open(dev, O_RDWR)) < 0) {
+			snprintf(dev, sizeof(dev), "/dev/net/%s", device);
+			if ((e->fd = open(dev, O_RDWR)) < 0)
+				return (eth_close(e));
+		}
 	}
 #endif
 	dlp = (union DL_primitives *)buf;
