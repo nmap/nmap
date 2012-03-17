@@ -116,18 +116,6 @@
 #include <unistd.h>
 #endif
 
-#if HAVE_NET_IF_H
-#ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
-#include <net/if.h>
-#define NET_IF_H
-#endif
-#endif
-#ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
-#include <netinet/ip.h> 
-#define NETINET_IP_H
-#endif
-#include <net/if_arp.h>
-
 #if HAVE_NETINET_IF_ETHER_H
 #ifndef NETINET_IF_ETHER_H
 #include <netinet/if_ether.h>
