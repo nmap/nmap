@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added new script broadcast-ataoe-discover, which discovers ATA over
+  Ethernet capable devices through LAN ethernet broadcasts. [Patrik Karlsson]
+
 o Fixed a bug that could cause Nsock timers to fire too early. This
   could happen for the timed probes in IPv6 OS detection, causing an
   incorrect measurement of the TCP_ISR feature. [David Fifield]
