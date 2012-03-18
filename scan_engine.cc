@@ -4089,8 +4089,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
    an ultra-quick pcap read just in case.  Returns true if a "good"
    result was found, false if it timed out instead. */
 static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
-
-  gettimeofday(&USI->now, NULL);
   long to_usec;
   int rc;
   u8 rcvdmac[6];
@@ -4102,25 +4100,31 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
   list<UltraProbe *>::iterator probeI;
   int gotone = 0;
 
+  gettimeofday(&USI->now, NULL);
+
   do {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
-    if (to_usec < 2000) to_usec = 2000;
+    if (to_usec < 2000)
+      to_usec = 2000;
     rc = read_arp_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, PacketTrace::traceArp);
     gettimeofday(&USI->now, NULL);
-    if (rc == -1) fatal("Received -1 response from read_arp_reply_pcap");
+    if (rc == -1)
+      fatal("Received -1 response from read_arp_reply_pcap");
     if (rc == 0) {
       if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
-	timedout = true;
-	break;
-      } else continue;
+        timedout = true;
+        break;
+      } else {
+        continue;
+      }
     }     
     if (rc == 1) {
       if (TIMEVAL_SUBTRACT(USI->now, *stime) > 200000) {
-	/* While packets are still being received, I'll be generous
-	   and give an extra 1/5 sec.  But we have to draw the line
-	   somewhere.  Hopefully this response will be a keeper so it
-	   won't matter.  */
-	timedout = true;
+        /* While packets are still being received, I'll be generous
+           and give an extra 1/5 sec.  But we have to draw the line
+           somewhere.  Hopefully this response will be a keeper so it
+           won't matter.  */
+        timedout = true;
       }
 
       /* Yay, I got one.  Find whether I asked for it */
@@ -4129,14 +4133,15 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
       sin.sin_addr.s_addr = rcvdIP.s_addr;
       sin.sin_family = AF_INET;
       hss = USI->findHost((struct sockaddr_storage *) &sin);
-      if (!hss) continue;
+      if (!hss)
+        continue;
       /* Add found HW address for target */
       hss->target->setMACAddress(rcvdmac);
-	  hss->target->reason.reason_id = ER_ARPRESPONSE;
+      hss->target->reason.reason_id = ER_ARPRESPONSE;
 
       if (hss->probes_outstanding.empty()) {
-	continue;
-	/* TODO: I suppose I should really mark the @@# host as up */
+        continue;
+        /* TODO: I suppose I should really mark the @@# host as up */
       }
       probeI = hss->probes_outstanding.end();
       probeI--;
@@ -4154,8 +4159,6 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
 }
 
 static bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
-
-  gettimeofday(&USI->now, NULL);
   long to_usec;
   int rc;
   u8 rcvdmac[6];
@@ -4168,25 +4171,31 @@ static bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
   list<UltraProbe *>::iterator probeI;
   int gotone = 0;
 
+  gettimeofday(&USI->now, NULL);
+
   do {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
-    if (to_usec < 2000) to_usec = 2000;
+    if (to_usec < 2000)
+      to_usec = 2000;
     rc = read_na_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac);
     gettimeofday(&USI->now, NULL);
-    if (rc == -1) fatal("Received -1 response from read_arp_reply_pcap");
+    if (rc == -1)
+      fatal("Received -1 response from read_arp_reply_pcap");
     if (rc == 0) {
       if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
-    timedout = true;
-    break;
-      } else continue;
+        timedout = true;
+        break;
+      } else {
+        continue;
+      }
     }
     if (rc == 1) {
       if (TIMEVAL_SUBTRACT(USI->now, *stime) > 200000) {
-    /* While packets are still being received, I'll be generous
-       and give an extra 1/5 sec.  But we have to draw the line
-       somewhere.  Hopefully this response will be a keeper so it
-       won't matter.  */
-    timedout = true;
+        /* While packets are still being received, I'll be generous
+           and give an extra 1/5 sec.  But we have to draw the line
+           somewhere.  Hopefully this response will be a keeper so it
+           won't matter.  */
+        timedout = true;
       }
 
       /* Yay, I got one.  Find whether I asked for it */
@@ -4195,17 +4204,17 @@ static bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
       sin6.sin6_addr = rcvdIP.sin6_addr;
       sin6.sin6_family = AF_INET6;
       hss = USI->findHost((struct sockaddr_storage *) &sin6);
-      if (!hss) continue;
+      if (!hss)
+        continue;
       /* Add found HW address for target */
       /* A Neighbor Advertisement packet may not include the Target link-layer address. */
-      if (has_mac){
+      if (has_mac)
         hss->target->setMACAddress(rcvdmac);
-      }
       hss->target->reason.reason_id = ER_NDRESPONSE;
 
       if (hss->probes_outstanding.empty()) {
-    continue;
-    /* TODO: I suppose I should really mark the @@# host as up */
+        continue;
+        /* TODO: I suppose I should really mark the @@# host as up */
       }
       probeI = hss->probes_outstanding.end();
       probeI--;
