@@ -151,23 +151,24 @@ void adjust_timeouts2(const struct timeval *sent,
     to->srtt = delta;
     to->rttvar = MAX(5000, MIN(to->srtt, 2000000));
     to->timeout = to->srtt + (to->rttvar << 2);
-  }
-  else {
+  } else {
+    long rttdelta;
+
     if (delta >= 8000000 || delta < 0) {
       if (o.verbose)
 	error("%s: packet supposedly had rtt of %ld microseconds.  Ignoring time.", __func__, delta);
       return;
     }
-    delta -= to->srtt;
+    rttdelta = delta - to->srtt;
     /* sanity check 2*/
-    if (delta > 1500000 && delta > 3 * to->srtt + 2 * to->rttvar) {
+    if (rttdelta > 1500000 && rttdelta > 3 * to->srtt + 2 * to->rttvar) {
       if (o.debugging) {
-	log_write(LOG_STDOUT, "Bogus delta: %ld (srtt %d) ... ignoring\n", delta, to->srtt);
+	log_write(LOG_STDOUT, "Bogus rttdelta: %ld (srtt %d) ... ignoring\n", rttdelta, to->srtt);
       }
       return;
     }
-    to->srtt += delta >> 3;
-    to->rttvar += (ABS(delta) - to->rttvar) >> 2;
+    to->srtt += rttdelta >> 3;
+    to->rttvar += (ABS(rttdelta) - to->rttvar) >> 2;
     to->timeout = to->srtt + (to->rttvar << 2);  
   }
   if (to->rttvar > 2300000) {
