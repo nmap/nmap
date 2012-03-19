@@ -3876,7 +3876,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   recvfrom6_t optlen = sizeof(int);
   int numGoodSD = 0;
   int err = 0;
-  u16 pport = 0;
   reason_t current_reason = ER_NORESPONSE;
 #ifdef LINUX
   struct sockaddr_storage sin,sout;
@@ -3943,7 +3942,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       probe = *probeI;
       /* Assume that we will adjust timing when a response is received. */
       bool adjust_timing = true;
-      pport = probe->pspec()->pd.tcp.dport;
       assert(probe->type == UltraProbe::UP_CONNECT);
       sd = probe->CP()->sd;
 	/* Let see if anything has happened! */
@@ -3958,6 +3956,8 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	case 0:
 #ifdef LINUX
 	  if (!FD_ISSET(sd, &fds_rtmp)) {
+            u16 pport = probe->pspec()->pd.tcp.dport;
+
             if (getpeername(sd, (struct sockaddr *) &sin, &sinlen) < 0) {
               pfatal("error in getpeername of connect_results for port %hu", (u16) pport);
             } else {
