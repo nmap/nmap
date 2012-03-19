@@ -95,7 +95,6 @@
 #ifndef PORTLIST_H
 #define PORTLIST_H
 
-#include <map>
 #include "nbase.h"
 #ifndef NOLUA
 #include "nse_main.h"
