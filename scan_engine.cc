@@ -3740,7 +3740,7 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   list<UltraProbe *>::iterator probeI;
   /* A cache of the last processed probe from each host, to avoid re-examining a
      bunch of probes to find the next one that needs to be retransmitted. */
-  map<HostScanStats *, list<UltraProbe *>::iterator> probe_cache;
+  std::map<HostScanStats *, list<UltraProbe *>::iterator> probe_cache;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   int retrans = 0; /* Number of retransmissions during a loop */
