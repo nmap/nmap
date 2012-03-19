@@ -31,15 +31,21 @@ struct ip {
 /* BSDI needs this to insure the correct struct ip */
 #undef _IP_VHL
 
-#include <net/if_arp.h>
 #ifndef NETINET_IN_SYSTM_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/in_systm.h> /* defines n_long needed for netinet/ip.h */
 #define NETINET_IN_SYSTM_H
+#endif
+#if HAVE_NET_IF_H
+#ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
+#include <net/if.h>
+#define NET_IF_H
+#endif
 #endif
 #ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/ip.h>
 #define NETINET_IP_H
 #endif
+#include <net/if_arp.h>
 
 #ifndef WIN32
 #include <netinet/ip_icmp.h>
