@@ -613,7 +613,7 @@ FPEngine::~FPEngine() {
  *
  * dst host fe80::250:56ff:fec0:1
  */
-const char *FPEngine::bpf_filter(vector<Target *> &Targets) {
+const char *FPEngine::bpf_filter(std::vector<Target *> &Targets) {
   static char pcap_filter[2048];
   /* 20 IPv6 addresses is max (46 byte addy + 14 (" or src host ")) * 20 == 1200 */
   char dst_hosts[1220];
@@ -1047,12 +1047,12 @@ static void classify(FingerPrintResultsIPv6 *FPR) {
  * results and matching fingerprints. If everything goes well, the internal
  * state of the supplied target objects will be modified to reflect the results
  * of the */
-int FPEngine6::os_scan(vector<Target *> &Targets) {
+int FPEngine6::os_scan(std::vector<Target *> &Targets) {
   bool osscan_done = false;
   const char *bpf_filter = NULL;
-  vector<FPHost6 *> curr_hosts;  /* Hosts currently doing OS detection      */
-  vector<FPHost6 *> done_hosts;  /* Hosts for which we already did OSdetect */
-  vector<FPHost6 *> left_hosts;  /* Hosts we have not yet started with      */
+  std::vector<FPHost6 *> curr_hosts;  /* Hosts currently doing OS detection      */
+  std::vector<FPHost6 *> done_hosts;  /* Hosts for which we already did OSdetect */
+  std::vector<FPHost6 *> left_hosts;  /* Hosts we have not yet started with      */
   struct timeval begin_time;
 
   if (o.debugging)

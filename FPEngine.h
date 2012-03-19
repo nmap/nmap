@@ -98,11 +98,9 @@
 #define __FPENGINE_H__ 1
 
 #include "nsock.h"
-#include <list>
 #include <vector>
 #include "nmap.h"
 #include "libnetutil/npacket.h"
-using namespace std;
 
 /* Mention some classes here so we don't have to place the declarations in
  * the right order (otherwise the compiler complains). */
@@ -176,7 +174,7 @@ class FPNetworkControl {
   bool first_pcap_scheduled; /* True if we scheduled the first pcap read event.     */
   bool nsock_init;           /* True if the nsock pool has been initialized.        */
   int rawsd;                 /* Raw socket.                                         */
-  vector<FPHost *> callers;  /* List of users of this instance (used for callbacks).*/
+  std::vector<FPHost *> callers;  /* List of users of this instance (used for callbacks).*/
   int probes_sent;           /* Number of unique probes sent (not retransmissions). */
   int responses_recv;        /* Number of probe responses received.                 */
   int probes_timedout;       /* Number of probes that timeout after all retransms.  */
@@ -228,8 +226,8 @@ class FPEngine {
   FPEngine();
   ~FPEngine();
   void reset();
-  virtual int os_scan(vector<Target *> &Targets) = 0;
-  const char *bpf_filter(vector<Target *> &Targets);
+  virtual int os_scan(std::vector<Target *> &Targets) = 0;
+  const char *bpf_filter(std::vector<Target *> &Targets);
 
 };
 
@@ -242,13 +240,13 @@ class FPEngine {
 class FPEngine6 : public FPEngine {
 
  private:
-  vector<FPHost6 *> fphosts; /* Information about each target to fingerprint */
+  std::vector<FPHost6 *> fphosts; /* Information about each target to fingerprint */
 
  public:
   FPEngine6();
   ~FPEngine6();
   void reset();
-  int os_scan(vector<Target *> &Targets);
+  int os_scan(std::vector<Target *> &Targets);
 
 };
 

@@ -104,7 +104,6 @@
 #include <list>
 #include "Target.h"
 class Target;
-using namespace std;
 
 
 /******************************************************************************
@@ -212,12 +211,12 @@ class HostOsScanStats {
   void initScanStats();
   struct eth_nfo *fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const;
   void addNewProbe(OFProbeType type, int subid);
-  void removeActiveProbe(list<OFProbe *>::iterator probeI);
+  void removeActiveProbe(std::list<OFProbe *>::iterator probeI);
   /* Get an active probe from active probe list identified by probe type
    * and subid.  returns probesActive.end() if there isn't one. */
-  list<OFProbe *>::iterator getActiveProbe(OFProbeType type, int subid);
-  void moveProbeToActiveList(list<OFProbe *>::iterator probeI);
-  void moveProbeToUnSendList(list<OFProbe *>::iterator probeI);
+  std::list<OFProbe *>::iterator getActiveProbe(OFProbeType type, int subid);
+  void moveProbeToActiveList(std::list<OFProbe *>::iterator probeI);
+  void moveProbeToUnSendList(std::list<OFProbe *>::iterator probeI);
   unsigned int numProbesToSend() {return probesToSend.size();}
   unsigned int numProbesActive() {return probesActive.size();}
   FingerPrint *getFP() {return FP;}
@@ -256,8 +255,8 @@ class HostOsScanStats {
    * probesToSend and appended to probesActive. If any probes in
    * probesActive are timedout, they will be moved to probesToSend and
    * sent again till expired. */
-  list<OFProbe *> probesToSend;
-  list<OFProbe *> probesActive;
+  std::list<OFProbe *> probesToSend;
+  std::list<OFProbe *> probesActive;
 
   /* A record of total number of probes that have been sent to this
    * host, including restranmited ones. */
@@ -432,14 +431,14 @@ private:
 class OsScanInfo {
 
  public:
-  OsScanInfo(vector<Target *> &Targets);
+  OsScanInfo(std::vector<Target *> &Targets);
   ~OsScanInfo();
   float starttime;
 
   /* If you remove from this, you had better adjust nextI too (or call
    * resetHostIterator() afterward). Don't let this list get empty,
    * then add to it again, or you may mess up nextI (I'm not sure) */
-  list<HostOsScanInfo *> incompleteHosts;
+  std::list<HostOsScanInfo *> incompleteHosts;
 
   unsigned int numIncompleteHosts() {return incompleteHosts.size();}
   HostOsScanInfo *findIncompleteHost(struct sockaddr_storage *ss);
@@ -459,7 +458,7 @@ class OsScanInfo {
 
  private:
   unsigned int numInitialTargets;
-  list<HostOsScanInfo *>::iterator nextI;
+  std::list<HostOsScanInfo *>::iterator nextI;
 };
 
 
@@ -493,15 +492,15 @@ class OSScan {
 
  private:
   int ip_ver;             /* IP version for the OS Scan (4 or 6) */
-  int chunk_and_do_scan(vector<Target *> &Targets, int family);
-  int os_scan_ipv4(vector<Target *> &Targets);
-  int os_scan_ipv6(vector<Target *> &Targets);
+  int chunk_and_do_scan(std::vector<Target *> &Targets, int family);
+  int os_scan_ipv4(std::vector<Target *> &Targets);
+  int os_scan_ipv6(std::vector<Target *> &Targets);
         
   public:
    OSScan();
    ~OSScan();
    void reset();
-   int os_scan(vector<Target *> &Targets);
+   int os_scan(std::vector<Target *> &Targets);
 };
 
 #endif /*OSSCAN2_H*/
