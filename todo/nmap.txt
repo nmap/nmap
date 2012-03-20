@@ -7,6 +7,15 @@ o Deal with the issue of timeouts happening too soon due to global
   and cause the 2nd host (which doesn't have any host-based congestion
   control values yet) to timeout arguably too quickly.  We should look
   at potential algorithm changes to improve this.
+    David: I think I was wrong about the cause of this. Even when
+    replies come back very quickly, the timeout is by default limited
+    to 100000 microseconds, much higher than the straightforward
+    calculation would give. What I think is really happening is that
+    select is not working reliably on this platform (Solaris 10 x86).
+    In the loop in read_arp_reply_pcap, pcap_select returns 1, then a
+    pcap_next is done. Then pcap_select returns 0, but if I insert
+    another pcap_next after that, the pcap_next finds another packet
+    without blocking (the first time, anyway; after that it blocks).
 
 o Prepare release notes, web page, etc.
 
