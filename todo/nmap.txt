@@ -121,7 +121,7 @@ o We should add fields to the service submitter
   application name and version.
 
 o Use BPF libpcap logic on Solaris 11, otherwise packet capture doesn't
-  work at all. http://seclists.org/nmap-dev/2012/q1/612
+  work at all. http://seclists.org/nmap-dev/2012/q1/613
 
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
