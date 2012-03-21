@@ -3920,23 +3920,6 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
 }
 
 
-/* Returns true if the captured frame is ARP. This function understands the
-   datalink types DLT_EN10MB and DLT_LINUX_SLL. */
-static bool frame_is_arp(const u8 *frame, size_t len, int datalink, size_t offset) {
-  if (len < offset + 28)
-    return false;
-
-  if (datalink == DLT_EN10MB) {
-    return ntohs(*((u16 *) (frame + 12))) == ETH_TYPE_ARP;
-  } else if (datalink == DLT_LINUX_SLL) {
-    return ntohs(*((u16 *) (frame + 2))) == ARPHRD_ETHER && /* sll_hatype */
-      ntohs(*((u16 *) (frame + 4))) == 6 && /* sll_halen */
-      ntohs(*((u16 *) (frame + 14))) == ETH_TYPE_ARP; /* sll_protocol */
-  } else {
-    return false;
-  }
-}
-
 /* Return the data offset for the given datalink. This function understands the
    datalink types DLT_EN10MB and DLT_LINUX_SLL. Returns -1 on error. */
 int datalink_offset(int datalink)
@@ -3950,10 +3933,15 @@ int datalink_offset(int datalink)
     return -1;
 }
 
-static int read_reply_pcap(pcap_t *pd, long to_usec, unsigned char **p,
-  struct pcap_pkthdr *head, struct timeval *rcvdtime,
-  int *datalink, size_t *offset,
-  bool (*accept_callback)(const unsigned char *, const struct pcap_pkthdr *, int, size_t))
+/* Common subroutine for reading ARP and NS responses. Input parameters are pd,
+   to_usec, and accept_callback. If a received frame passes accept_callback,
+   then the output parameters p, head, rcvdtime, datalink, and offset are filled
+   in, and the function returns 1. If no frame passes before the timeout, then
+   the function returns 0 and the output parameters are undefined. */
+static int read_reply_pcap(pcap_t *pd, long to_usec,
+  bool (*accept_callback)(const unsigned char *, const struct pcap_pkthdr *, int, size_t),
+  unsigned char **p, struct pcap_pkthdr *head, struct timeval *rcvdtime,
+  int *datalink, size_t *offset)
 {
   static int warning = 0;
   int timedout = 0;
@@ -4050,13 +4038,23 @@ static int read_reply_pcap(pcap_t *pd, long to_usec, unsigned char **p,
 static bool accept_arp(const unsigned char *p, const struct pcap_pkthdr *head,
   int datalink, size_t offset)
 {
-  if (head->caplen < offset + 8)
+  if (head->caplen < offset + 28)
     return false;
 
   /* hw type eth (0x0001), prot ip (0x0800),
      hw size (0x06), prot size (0x04) */
-  return frame_is_arp(p, head->caplen, datalink, offset) &&
-    memcmp(p + offset, "\x00\x01\x08\x00\x06\x04\x00\x02", 8) == 0;
+  if (memcmp(p + offset, "\x00\x01\x08\x00\x06\x04\x00\x02", 8) != 0)
+    return false;
+
+  if (datalink == DLT_EN10MB) {
+    return ntohs(*((u16 *) (p + 12))) == ETH_TYPE_ARP;
+  } else if (datalink == DLT_LINUX_SLL) {
+    return ntohs(*((u16 *) (p + 2))) == ARPHRD_ETHER && /* sll_hatype */
+      ntohs(*((u16 *) (p + 4))) == 6 && /* sll_halen */
+      ntohs(*((u16 *) (p + 14))) == ETH_TYPE_ARP; /* sll_protocol */
+  } else {
+    return false;
+  }
 }
 
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
@@ -4078,7 +4076,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
   size_t offset;
   int rc;
 
-  rc = read_reply_pcap(pd, to_usec, &p, &head, rcvdtime, &datalink, &offset, accept_arp);
+  rc = read_reply_pcap(pd, to_usec, accept_arp, &p, &head, rcvdtime, &datalink, &offset);
   if (rc == 0)
     return 0;
 
@@ -4131,7 +4129,7 @@ int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
   int rc;
   struct icmpv6_msg_nd *na;
 
-  rc = read_reply_pcap(pd, to_usec, &p, &head, rcvdtime, &datalink, &offset, accept_ns);
+  rc = read_reply_pcap(pd, to_usec, accept_ns, &p, &head, rcvdtime, &datalink, &offset);
   if (rc == 0)
     return 0;
 
@@ -4146,6 +4144,7 @@ int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
 
   return 1;
 }
+
 
 /* Issues an Neighbor Solicitation for the MAC of targetss (which will be placed
    in targetmac if obtained) from the source IP (srcip) and source mac
