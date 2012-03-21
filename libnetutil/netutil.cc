@@ -3922,7 +3922,10 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
 
 /* Returns true if the captured frame is ARP. This function understands the
    datalink types DLT_EN10MB and DLT_LINUX_SLL. */
-static bool frame_is_arp(const u8 *frame, int datalink) {
+static bool frame_is_arp(const u8 *frame, size_t len, int datalink) {
+  if (len < 16)
+    return false;
+
   if (datalink == DLT_EN10MB) {
     return ntohs(*((u16 *) (frame + 12))) == ETH_TYPE_ARP;
   } else if (datalink == DLT_LINUX_SLL) {
@@ -4007,7 +4010,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
     if (p && head.caplen >= offset + 28) {
       /* hw type eth (0x0001), prot ip (0x0800),
          hw size (0x06), prot size (0x04) */
-      if (frame_is_arp(p, datalink) &&
+      if (frame_is_arp(p, head.caplen, datalink) &&
         memcmp(p + offset, "\x00\x01\x08\x00\x06\x04\x00\x02", 8) == 0) {
         memcpy(sendermac, p + offset + 8, 6);
         /* I think alignment should allow this ... */
