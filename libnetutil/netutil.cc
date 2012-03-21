@@ -873,12 +873,10 @@ int pcap_selectable_fd_valid() {
    results.  If you just want to test whether the function is supported,
    use pcap_selectable_fd_valid() instead. */
 int my_pcap_get_selectable_fd(pcap_t *p) {
-#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
-  return -1;
-#else
-  assert(pcap_selectable_fd_valid());
-  return pcap_get_selectable_fd(p);
-#endif
+  if (pcap_selectable_fd_valid())
+    return pcap_get_selectable_fd(p);
+  else
+    return -1;
 }
 
 
