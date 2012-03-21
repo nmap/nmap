@@ -25,6 +25,14 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
+o Scans from Mac OS X tend to use raw IP packets rather than ethernet
+  frames even on the local network because Dnet does not seem to be
+  retrieving the routing table properly -- so the LAN doesn't even
+  show up in --iflist.  Patrik can reproduce this on all 3 of his
+  MACs (OS X versions 10.7.3).  Comparing the code in DNet route-bsd.c
+  to Apple's own routing table code discovered by Patrik suggests that
+  the Dnet code may be incorrect.
+
 o We should probably remove the intl.dll mv command from
   zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
   described at http://seclists.org/nmap-dev/2012/q1/430.
