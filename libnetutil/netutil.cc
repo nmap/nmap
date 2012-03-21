@@ -3922,8 +3922,8 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
 
 /* Returns true if the captured frame is ARP. This function understands the
    datalink types DLT_EN10MB and DLT_LINUX_SLL. */
-static bool frame_is_arp(const u8 *frame, size_t len, int datalink) {
-  if (len < 16)
+static bool frame_is_arp(const u8 *frame, size_t len, int datalink, size_t offset) {
+  if (len < offset + 28)
     return false;
 
   if (datalink == DLT_EN10MB) {
@@ -3937,27 +3937,29 @@ static bool frame_is_arp(const u8 *frame, size_t len, int datalink) {
   }
 }
 
-/* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
-   descriptor pd.  If it receives one, fills in sendermac (must pass
-   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
-   and returns 1.  If it times out and reads no arp requests, returns
-   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
-   blocking to the extent possible.  Returns -1 or exits if there is
-   an error.  The last parameter is a pointer to a callback function
-   that can be used for packet tracing. This is intended to be used
-   by Nmap only. Any other calling this should pass NULL instead. */
-int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
-                        struct in_addr *senderIP, long to_usec,
-                        struct timeval *rcvdtime,
-                        void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *)) {
+/* Return the data offset for the given datalink. This function understands the
+   datalink types DLT_EN10MB and DLT_LINUX_SLL. Returns -1 on error. */
+int datalink_offset(int datalink)
+{
+  if (datalink == DLT_EN10MB)
+    return ETH_HDR_LEN;
+  else if (datalink == DLT_LINUX_SLL)
+    /* The datalink type is Linux "cooked" sockets. See pcap-linktype(7). */
+    return 16;
+  else
+    return -1;
+}
+
+static int read_reply_pcap(pcap_t *pd, long to_usec, unsigned char **p,
+  struct pcap_pkthdr *head, struct timeval *rcvdtime,
+  int *datalink, size_t *offset,
+  bool (*accept_callback)(const unsigned char *, const struct pcap_pkthdr *, int, size_t))
+{
   static int warning = 0;
-  int datalink;
-  struct pcap_pkthdr head;
-  u8 *p;
   int timedout = 0;
   int badcounter = 0;
-  unsigned int offset=0;
   struct timeval tv_start, tv_end;
+  int ioffset;
 
   if (!pd)
     netutil_fatal("NULL packet device passed to %s", __func__);
@@ -3971,17 +3973,12 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
   }
 
   /* New packet capture device, need to recompute offset */
-  if ((datalink = pcap_datalink(pd)) < 0)
+  if ((*datalink = pcap_datalink(pd)) < 0)
     netutil_fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
-
-  if (datalink == DLT_EN10MB) {
-    offset = ETH_HDR_LEN;
-  } else if (datalink == DLT_LINUX_SLL) {
-    /* The datalink type is Linux "cooked" sockets. See pcap-linktype(7). */
-    offset = 16;
-  } else {
-    netutil_fatal("%s called on interface that is datatype %d rather than DLT_EN10MB (%d) or DLT_LINUX_SLL (%d)", __func__, datalink, DLT_EN10MB, DLT_LINUX_SLL);
-  }
+  ioffset = datalink_offset(*datalink);
+  if (ioffset < 0)
+    netutil_fatal("datalink_offset failed for type %d (DLT_EN10MB = %d, DLT_LINUX_SLL = %d)", *datalink, DLT_EN10MB, DLT_LINUX_SLL);
+  *offset = (unsigned int) ioffset;
 
   if (to_usec > 0) {
     gettimeofday(&tv_start, NULL);
@@ -4000,26 +3997,16 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
     }
 #endif
 
-    p = NULL;
+    *p = NULL;
 
     if (pcap_select(pd, to_usec) == 0)
       timedout = 1;
     else
-      p = (u8 *) pcap_next(pd, &head);
+      *p = (u8 *) pcap_next(pd, head);
 
-    if (p && head.caplen >= offset + 28) {
-      /* hw type eth (0x0001), prot ip (0x0800),
-         hw size (0x06), prot size (0x04) */
-      if (frame_is_arp(p, head.caplen, datalink) &&
-        memcmp(p + offset, "\x00\x01\x08\x00\x06\x04\x00\x02", 8) == 0) {
-        memcpy(sendermac, p + offset + 8, 6);
-        /* I think alignment should allow this ... */
-        memcpy(&senderIP->s_addr, p + offset + 14, 4);
-        break;
-      }
-    }
-
-    if (!p) {
+    if (*p != NULL && accept_callback(*p, head, *datalink, *offset)) {
+      break;
+    } else if (*p == NULL) {
       /* Should we timeout? */
       if (to_usec == 0) {
         timedout = 1;
@@ -4051,17 +4038,77 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
     gettimeofday(&tv_end, NULL);
     *rcvdtime = tv_end;
 #else
-    rcvdtime->tv_sec = head.ts.tv_sec;
-    rcvdtime->tv_usec = head.ts.tv_usec;
-    assert(head.ts.tv_sec);
+    rcvdtime->tv_sec = head->ts.tv_sec;
+    rcvdtime->tv_usec = head->ts.tv_usec;
+    assert(head->ts.tv_sec);
 #endif
-  }
-  if(traceArp_callback!=NULL){
-    /* TODO: First parameter "2" is a hardcoded value for Nmap's PacketTrace::RECV*/
-    traceArp_callback(2, (u8 *) p + offset, ARP_HDR_LEN + ARP_ETHIP_LEN, rcvdtime);
   }
 
   return 1;
+}
+
+static bool accept_arp(const unsigned char *p, const struct pcap_pkthdr *head,
+  int datalink, size_t offset)
+{
+  if (head->caplen < offset + 8)
+    return false;
+
+  /* hw type eth (0x0001), prot ip (0x0800),
+     hw size (0x06), prot size (0x04) */
+  return frame_is_arp(p, head->caplen, datalink, offset) &&
+    memcmp(p + offset, "\x00\x01\x08\x00\x06\x04\x00\x02", 8) == 0;
+}
+
+/* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
+   descriptor pd.  If it receives one, fills in sendermac (must pass
+   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
+   and returns 1.  If it times out and reads no arp requests, returns
+   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
+   blocking to the extent possible.  Returns -1 or exits if there is
+   an error.  The last parameter is a pointer to a callback function
+   that can be used for packet tracing. This is intended to be used
+   by Nmap only. Any other calling this should pass NULL instead. */
+int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
+                        struct in_addr *senderIP, long to_usec,
+                        struct timeval *rcvdtime,
+                        void (*trace_callback)(int, const u8 *, u32, struct timeval *)) {
+  unsigned char *p;
+  struct pcap_pkthdr head;
+  int datalink;
+  size_t offset;
+  int rc;
+
+  rc = read_reply_pcap(pd, to_usec, &p, &head, rcvdtime, &datalink, &offset, accept_arp);
+  if (rc == 0)
+    return 0;
+
+  memcpy(sendermac, p + offset + 8, 6);
+  /* I think alignment should allow this ... */
+  memcpy(&senderIP->s_addr, p + offset + 14, 4);
+
+  if (trace_callback != NULL) {
+    /* TODO: First parameter "2" is a hardcoded value for Nmap's PacketTrace::RECV. */
+    trace_callback(2, (u8 *) p + offset, ARP_HDR_LEN + ARP_ETHIP_LEN, rcvdtime);
+  }
+
+  return 1;
+}
+
+static bool accept_ns(const unsigned char *p, const struct pcap_pkthdr *head,
+  int datalink, size_t offset)
+{
+  struct icmpv6_hdr *icmp6_header;
+  struct icmpv6_msg_nd *na;
+
+  if (head->caplen < offset + IP6_HDR_LEN + 32)
+    return false;
+
+  icmp6_header = (struct icmpv6_hdr *)(p + offset + IP6_HDR_LEN);
+  na = (struct icmpv6_msg_nd *)(p + offset + IP6_HDR_LEN + ICMPV6_HDR_LEN);
+  return icmp6_header->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT &&
+    icmp6_header->icmpv6_code == 0 &&
+    na->icmpv6_option_type == 2 &&
+    na->icmpv6_option_length == 1;
 }
 
 /* Attempts to read one IPv6/Ethernet Neighbor Solicitation reply packet from the pcap
@@ -4076,120 +4123,25 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
 int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct sockaddr_in6 *senderIP, long to_usec,
                         struct timeval *rcvdtime,
-                        void (*traceND_callback)(int, const u8 *, u32 , struct timeval *)) {
-  static int warning = 0;
-  int datalink;
+                        void (*trace_callback)(int, const u8 *, u32, struct timeval *)) {
+  unsigned char *p;
   struct pcap_pkthdr head;
-  u8 *p;
-  int timedout = 0;
-  int badcounter = 0;
-  unsigned int offset=0;
-  struct timeval tv_start, tv_end;
-  struct icmpv6_hdr *icmp6_header = NULL;
-  struct icmpv6_msg_nd *na = NULL;
+  int datalink;
+  size_t offset;
+  int rc;
+  struct icmpv6_msg_nd *na;
 
-  if (!pd)
-    netutil_fatal("NULL packet device passed to %s", __func__);
-
-  if (to_usec < 0) {
-    if (!warning) {
-      warning = 1;
-      netutil_error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
-    }
-    to_usec = 0;
-  }
-
-  /* New packet capture device, need to recompute offset */
-  if ((datalink = pcap_datalink(pd)) < 0)
-    netutil_fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
-
-  if (datalink == DLT_EN10MB) {
-    offset = ETH_HDR_LEN;
-  } else if (datalink == DLT_LINUX_SLL) {
-    /* The datalink type is Linux "cooked" sockets. See pcap-linktype(7). */
-    offset = 16;
-  } else {
-    netutil_fatal("%s called on interface that is datatype %d rather than DLT_EN10MB (%d) or DLT_LINUX_SLL (%d)", __func__, datalink, DLT_EN10MB, DLT_LINUX_SLL);
-  }
-
-  if (to_usec > 0) {
-    gettimeofday(&tv_start, NULL);
-  }
-
-  do {
-#ifdef WIN32
-    if (to_usec == 0) {
-      PacketSetReadTimeout(pd->adapter, 1);
-    } else {
-      gettimeofday(&tv_end, NULL);
-      long to_left =
-          MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
-      // Set the timeout (BUGBUG: this is cheating)
-      PacketSetReadTimeout(pd->adapter, to_left);
-    }
-#endif
-
-    p = NULL;
-
-    if (pcap_select(pd, to_usec) == 0)
-      timedout = 1;
-    else
-      p = (u8 *) pcap_next(pd, &head);
-
-    if (p && head.caplen >= offset + IP6_HDR_LEN + 32) {
-      /* hw type eth (0x0001), prot ip (0x0800),
-         hw size (0x06), prot size (0x04)  */
-      icmp6_header = (struct icmpv6_hdr *)(p + offset + IP6_HDR_LEN);
-      na = (struct icmpv6_msg_nd *)(p + offset + IP6_HDR_LEN + ICMPV6_HDR_LEN);
-      if (icmp6_header->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT &&
-          icmp6_header->icmpv6_code == 0 &&
-          na->icmpv6_option_type == 2 && na->icmpv6_option_length == 1){
-        memcpy(sendermac, &na->icmpv6_mac, 6);
-        memcpy(&senderIP->sin6_addr.s6_addr, &na->icmpv6_target, 16);
-        break;
-      }
-    }
-
-    if (!p) {
-      /* Should we timeout? */
-      if (to_usec == 0) {
-        timedout = 1;
-      } else if (to_usec > 0) {
-        gettimeofday(&tv_end, NULL);
-        if (TIMEVAL_SUBTRACT(tv_end, tv_start) >= to_usec) {
-          timedout = 1;
-        }
-      }
-    } else {
-      /* We'll be a bit patient if we're getting actual packets back, but
-         not indefinitely so */
-      if (badcounter++ > 50)
-        timedout = 1;
-    }
-  } while (!timedout);
-
-  if (timedout)
+  rc = read_reply_pcap(pd, to_usec, &p, &head, rcvdtime, &datalink, &offset, accept_ns);
+  if (rc == 0)
     return 0;
 
-  if (rcvdtime) {
-    // FIXME: I eventually need to figure out why Windows head.ts time is sometimes BEFORE the time I
-    // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
-    // use gettimeofday() for Windows in this case
-    // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
-    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a
-    // COUPLE SECONDS before the gettimeofday() results :(.
-#if defined(WIN32) || defined(__amigaos__)
-    gettimeofday(&tv_end, NULL);
-    *rcvdtime = tv_end;
-#else
-    rcvdtime->tv_sec = head.ts.tv_sec;
-    rcvdtime->tv_usec = head.ts.tv_usec;
-    assert(head.ts.tv_sec);
-#endif
-  }
-  if(traceND_callback!=NULL){
-    /* TODO: First parameter "2" is a hardcoded value for Nmap's PacketTrace::RECV*/
-    traceND_callback(2, (u8 *) p + offset, IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8, rcvdtime);
+  na = (struct icmpv6_msg_nd *)(p + offset + IP6_HDR_LEN + ICMPV6_HDR_LEN);
+  memcpy(sendermac, &na->icmpv6_mac, 6);
+  memcpy(&senderIP->sin6_addr.s6_addr, &na->icmpv6_target, 16);
+
+  if (trace_callback != NULL) {
+    /* TODO: First parameter "2" is a hardcoded value for Nmap's PacketTrace::RECV. */
+    trace_callback(2, (u8 *) p + offset, IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8, rcvdtime);
   }
 
   return 1;
