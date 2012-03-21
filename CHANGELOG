@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added new script http-drupal-users-enum, which enumerates all available
+  Drupal user accounts by exploiting a vulnerability in the Views module.
+  [Hani Benhabiles]
+
 o [NSE] Added new script broadcast-ataoe-discover, which discovers ATA over
   Ethernet capable devices through LAN ethernet broadcasts. [Patrik Karlsson]
 
