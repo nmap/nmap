@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added ciphers from RFC 5932 and Fortezza-based ciphers to
+  ssl-enum-ciphers.nse. The patch was submitted by Darren McDonald.
+
 o [NSE] Added new script http-drupal-users-enum, which enumerates all available
   Drupal user accounts by exploiting a vulnerability in the Views module.
   [Hani Benhabiles]
