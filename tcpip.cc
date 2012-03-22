@@ -104,6 +104,7 @@
 #include "NmapOps.h"
 #include "Target.h"
 #include "utils.h"
+#include "libnetutil/netutil.h"
 
 #include "struct_ip.h"
 
@@ -1641,11 +1642,28 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 #endif
 
     p = NULL;
+    /* It may be that protecting this with !pcap_selectable_fd_one_to_one is not
+       necessary, that it is always safe to do a nonblocking read in this way on
+       all platforms. But I have only tested it on Solaris. */
+    if (!pcap_selectable_fd_one_to_one()) {
+      int rc, nonblock;
 
-    if (pcap_select(pd, to_usec) == 0)
-      timedout = 1;
-    else
+      nonblock = pcap_getnonblock(pd, NULL);
+      assert(nonblock == 0);
+      rc = pcap_setnonblock(pd, 1, NULL);
+      assert(rc == 0);
       p = (char *) pcap_next(pd, &head);
+      rc = pcap_setnonblock(pd, nonblock, NULL);
+      assert(rc == 0);
+    }
+
+    if (p == NULL) {
+      /* Nonblocking pcap_next didn't get anything. */
+      if (pcap_select(pd, to_usec) == 0)
+        timedout = 1;
+      else
+        p = (char *) pcap_next(pd, &head);
+    }
 
     if (p) {
       if (head.caplen <= offset) {

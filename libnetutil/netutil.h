@@ -233,6 +233,7 @@ void set_ttl(int sd, int ttl);
 
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
 int pcap_selectable_fd_valid();
+int pcap_selectable_fd_one_to_one();
 
 /* Call this instead of pcap_get_selectable_fd directly (or your code
    won't compile on Windows).  On systems which don't seem to support
