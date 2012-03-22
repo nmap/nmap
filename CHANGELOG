@@ -27,6 +27,10 @@ o [NSE] Added a stun library and the scripts stun-version and stun-info, which
 o [NSE] Added the script duplicates which attempts to determine duplicate
   hosts by analyzing information collected by other scripts. [Patrik Karlsson]
 
+o Changed the way timeout calculations are made in the IPv6 OS engine.
+  In rare cases a certain interleaving of probes and responses would
+  result in an assertion failure.
+
 Nmap 5.61TEST5 [2012-03-09]
 
 o Integrated all of your IPv4 OS fingerprint submissions since June

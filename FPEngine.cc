@@ -2000,7 +2000,6 @@ int FPHost6::schedule() {
               this->fp_probes[i].getRetransmissions());
           }
           this->fp_probes[i].incrementRetransmissions();
-          this->fp_probes[i].resetTimeSent();
           this->netctl->scheduleProbe(&(this->fp_probes[i]), 0);
           break;
         }
@@ -2128,7 +2127,6 @@ int FPHost6::schedule() {
       int whentostart = get_random_u16()%100;
       for (size_t l = 0; l < this->timed_probes; l++) {
         this->fp_probes[l].incrementRetransmissions();
-        this->fp_probes[l].resetTimeSent();
         this->netctl->scheduleProbe(&(this->fp_probes[l]), whentostart + l*100);
       }
       if (o.debugging > 3 && this->timed_probes > 0)
@@ -2516,6 +2514,11 @@ void FPProbe::reset() {
  * PacketParser::is_response(). Check there for a list of matched packets and
  * some usage examples.*/
 bool FPProbe::isResponse(PacketElement *rcvd) {
+  /* If we don't have a record of even sending this probe, no packet can be a
+     response. */
+  if (this->pkt_time.tv_sec == 0 && this->pkt_time.tv_usec == 0)
+    return false;
+
   return PacketParser::is_response(this->pkt, rcvd);
 }
 
