@@ -4016,7 +4016,7 @@ static int read_reply_pcap(pcap_t *pd, long to_usec,
       assert(rc == 0);
     }
 
-    if (p == NULL) {
+    if (*p == NULL) {
       /* Nonblocking pcap_next didn't get anything. */
       if (pcap_select(pd, to_usec) == 0)
         timedout = 1;
