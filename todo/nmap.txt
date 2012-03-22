@@ -66,6 +66,10 @@ o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
   nping_event_handler(): TIMER killed: Resource temporarily unavailable
   [...]
 
+o Add CPE entries to OS fingerpting DB entries which still lack them
+ - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
+   fingerprints.
+
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
 
@@ -151,7 +155,8 @@ o Install some sort of svnview webapp for svn.nmap.org which is
 
 o Process Nmap survey and send out results [Fyodor]
 
-o Add many more CPE entries to OS and version detection databases
+o Add CPE entries to the service detection DB entries which don't yet
+  have them.
 
 o Move advanced IPv6 host discovery features from NSE into core Nmap.
   We'll probably add the functionality of
