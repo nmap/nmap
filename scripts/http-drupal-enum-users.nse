@@ -12,18 +12,18 @@ For more information,see:
 
 ---
 -- @usage
--- nmap --script=http-drupal-users --script-arg http-drupal-users.root="/path/" <targets>
+-- nmap --script=http-drupal-enum-users --script-arg http-drupal-enum-users.root="/path/" <targets>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-drupal-users: 
+-- | http-drupal-enum-users: 
 -- |   admin 
 -- |   alex
 -- |   manager
 -- |_  user
 --
--- @args http-drupal-users.root base path. Defaults to "/" 
+-- @args http-drupal-enum-users.root base path. Defaults to "/" 
 
 author = "Hani Benhabiles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -37,7 +37,7 @@ require 'json'
 portrule = shortport.http
 
 action = function(host, port)
-  local root = stdnse.get_script_args("http-drupal-users.root") or "/"
+  local root = stdnse.get_script_args(SCRIPT_NAME .. ".root") or "/"
   local character, allrequests,user
   local result = {}
 
