@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Applied a workaround to make pcap captures work better on Solaris
+  10. This involves peeking at the pcap buffer to ensure that captures
+  are not being lost. A symptom of behavior before this fix was that,
+  when doing ARP host discovery against two targets, only one would be
+  reported up. [David Fifield]
+
 o Added ciphers from RFC 5932 and Fortezza-based ciphers to
   ssl-enum-ciphers.nse. The patch was submitted by Darren McDonald.
 
