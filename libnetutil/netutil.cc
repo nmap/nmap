@@ -866,6 +866,23 @@ int pcap_selectable_fd_valid() {
 #endif
 }
 
+/* Are we guaranteed to be able to read exactly one frame for each time the pcap
+   fd is selectable? If not, it's possible for the fd to become selectable, then
+   for pcap_dispatch to buffer two or more frames, and return only the first one
+   Because select doesn't know about pcap's buffer, the fd does not become
+   selectable again, even though another pcap_next would succeed. On these
+   platforms, we must do a non-blocking read from the fd before doing a select
+   on the fd.
+
+   It is guaranteed that if pcap_selectable_fd_valid() is false, then so is the
+   return value of this function. */
+int pcap_selectable_fd_one_to_one() {
+#ifdef SOLARIS
+  return 0;
+#endif
+  return pcap_selectable_fd_valid();
+}
+
 /* Call this instead of pcap_get_selectable_fd directly (or your code
    won't compile on Windows).  On systems which don't seem to support
    the pcap_get_selectable_fd() function properly, returns -1,
@@ -3984,11 +4001,28 @@ static int read_reply_pcap(pcap_t *pd, long to_usec,
 #endif
 
     *p = NULL;
+    /* It may be that protecting this with !pcap_selectable_fd_one_to_one is not
+       necessary, that it is always safe to do a nonblocking read in this way on
+       all platforms. But I have only tested it on Solaris. */
+    if (!pcap_selectable_fd_one_to_one()) {
+      int rc, nonblock;
 
-    if (pcap_select(pd, to_usec) == 0)
-      timedout = 1;
-    else
+      nonblock = pcap_getnonblock(pd, NULL);
+      assert(nonblock == 0);
+      rc = pcap_setnonblock(pd, 1, NULL);
+      assert(rc == 0);
       *p = (u8 *) pcap_next(pd, head);
+      rc = pcap_setnonblock(pd, nonblock, NULL);
+      assert(rc == 0);
+    }
+
+    if (p == NULL) {
+      /* Nonblocking pcap_next didn't get anything. */
+      if (pcap_select(pd, to_usec) == 0)
+        timedout = 1;
+      else
+        *p = (u8 *) pcap_next(pd, head);
+    }
 
     if (*p != NULL && accept_callback(*p, head, *datalink, *offset)) {
       break;
