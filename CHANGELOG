@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added new script http-chrono, which measures min, max and average
+  response times of web servers. [Ange Gutek]
+
 o Applied a workaround to make pcap captures work better on Solaris
   10. This involves peeking at the pcap buffer to ensure that captures
   are not being lost. A symptom of behavior before this fix was that,
@@ -551,7 +554,7 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
 
   + http-vuln-cve2011-3368 tests for the CVE-2011-3368 (Reverse Proxy
     Bypass) vulnerability in Apache HTTP server's reverse proxy
-    mode. [Ange Gutek, Patrik Karlsson"]
+    mode. [Ange Gutek, Patrik Karlsson]
 
   + ipv6-node-info obtains hostnames, IPv4 and IPv6 addresses through
     IPv6 Node Information Queries. [David Fifield]
