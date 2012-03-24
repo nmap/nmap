@@ -857,14 +857,29 @@ void set_ttl(int sd, int ttl) {
 #endif
 }
 
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
 int pcap_selectable_fd_valid() {
-#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
   return 0;
-#else
-  return 1;
-#endif
 }
+
+/* Call this instead of pcap_get_selectable_fd directly (or your code
+   won't compile on Windows).  On systems which don't seem to support
+   the pcap_get_selectable_fd() function properly, returns -1,
+   otherwise simply calls pcap_selectable_fd and returns the
+   results.  If you just want to test whether the function is supported,
+   use pcap_selectable_fd_valid() instead. */
+int my_pcap_get_selectable_fd(pcap_t *p) {
+  return -1;
+}
+#else
+int pcap_selectable_fd_valid() {
+  return 1;
+}
+int my_pcap_get_selectable_fd(pcap_t *p) {
+  return pcap_get_selectable_fd(p);
+}
+#endif
 
 /* Are we guaranteed to be able to read exactly one frame for each time the pcap
    fd is selectable? If not, it's possible for the fd to become selectable, then
@@ -881,19 +896,6 @@ int pcap_selectable_fd_one_to_one() {
   return 0;
 #endif
   return pcap_selectable_fd_valid();
-}
-
-/* Call this instead of pcap_get_selectable_fd directly (or your code
-   won't compile on Windows).  On systems which don't seem to support
-   the pcap_get_selectable_fd() function properly, returns -1,
-   otherwise simply calls pcap_selectable_fd and returns the
-   results.  If you just want to test whether the function is supported,
-   use pcap_selectable_fd_valid() instead. */
-int my_pcap_get_selectable_fd(pcap_t *p) {
-  if (pcap_selectable_fd_valid())
-    return pcap_get_selectable_fd(p);
-  else
-    return -1;
 }
 
 
