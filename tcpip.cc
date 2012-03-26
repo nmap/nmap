@@ -1202,7 +1202,6 @@ int readtcppacket(const u8 *packet, int readdata) {
 
   bullshit.s_addr = ip->ip_src.s_addr;
   bullshit2.s_addr = ip->ip_dst.s_addr;
-  /* this is gay */
   realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
   tot_len = htons(ip->ip_len);
   strncpy(sourcehost, inet_ntoa(bullshit), 16);
@@ -1279,7 +1278,6 @@ int readudppacket(const u8 *packet, int readdata) {
 
   bullshit.s_addr = ip->ip_src.s_addr;
   bullshit2.s_addr = ip->ip_dst.s_addr;
-  /* this is gay */
   realfrag = htons(ntohs(ip->ip_off) & IP_OFFMASK);
   tot_len = htons(ip->ip_len);
   strncpy(sourcehost, inet_ntoa(bullshit), 16);
