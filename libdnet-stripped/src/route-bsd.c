@@ -284,16 +284,23 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	lim = buf + gp->gi_size;
 	next = buf + sizeof(giarg);
 #endif
+	/* This loop assumes that RTA_DST, RTA_GATEWAY, and RTA_NETMASK have the
+	 * values, 1, 2, and 4 respectively. Cf. Unix Network Programming,
+	 * p. 494, function get_rtaddrs. */
 	for (ret = 0; next < lim; next += rtm->rtm_msglen) {
 		rtm = (struct rt_msghdr *)next;
 		sa = (struct sockaddr *)(rtm + 1);
 
-		if (addr_ston(sa, &entry.route_dst) < 0 ||
-		    (rtm->rtm_addrs & RTA_GATEWAY) == 0)
+		if ((rtm->rtm_addrs & RTA_DST) == 0)
+			/* Need a destination. */
+			continue;
+		if (addr_ston(sa, &entry.route_dst) < 0)
 			continue;
 
+		if ((rtm->rtm_addrs & RTA_GATEWAY) == 0)
+			/* Need a gateway. */
+			continue;
 		sa = NEXTSA(sa);
-		
 		if (addr_ston(sa, &entry.route_gw) < 0)
 			continue;
 		
@@ -307,6 +314,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			if (addr_stob(sa, &entry.route_dst.addr_bits) < 0)
 				continue;
 		}
+
 		if ((ret = callback(&entry, arg)) != 0)
 			break;
 	}
