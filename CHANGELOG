@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the routing table loop on OS X so that on-link routes appear.
+  Previously, they were ignored so that things like ARP scan didn't
+  work. [Patrik Karlsson, David Fifield]
+
 o [NSE] Added new script http-chrono, which measures min, max and average
   response times of web servers. [Ange Gutek]
 
