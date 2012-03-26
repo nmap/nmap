@@ -23,7 +23,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast","discovery","safe"}
 
 require "bin"
-require "stdnse"
 require "target"
 require "nmap"
 require "stdnse"
