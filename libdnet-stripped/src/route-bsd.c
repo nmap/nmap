@@ -217,6 +217,33 @@ route_get(route_t *r, struct route_entry *entry)
 }
 
 #if defined(HAVE_SYS_SYSCTL_H) || defined(HAVE_STREAMS_ROUTE) || defined(HAVE_GETKERNINFO)
+/* This wrapper around addr_ston, on failure, checks for a gateway address
+ * family of AF_LINK, and if it finds one, stores an all-zero address of the
+ * same type as dst. The all-zero address is a convention for same-subnet
+ * routing table entries. */
+static int
+addr_ston_gateway(const struct addr *dst,
+	const struct sockaddr *sa, struct addr *a)
+{
+	int rc;
+
+	rc = addr_ston(sa, a);
+	if (rc == 0)
+		return rc;
+
+#ifdef HAVE_NET_IF_DL_H
+# ifdef AF_LINK
+	if (sa->sa_family == AF_LINK) {
+		memset(a, 0, sizeof(*a));
+		a->addr_type = dst->addr_type;
+		return (0);
+	}
+# endif
+#endif
+
+	return (-1);
+}
+
 int
 route_loop(route_t *r, route_handler callback, void *arg)
 {
@@ -301,7 +328,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			/* Need a gateway. */
 			continue;
 		sa = NEXTSA(sa);
-		if (addr_ston(sa, &entry.route_gw) < 0)
+		if (addr_ston_gateway(&entry.route_dst, sa, &entry.route_gw) < 0)
 			continue;
 		
 		if (entry.route_dst.addr_type != entry.route_gw.addr_type ||
