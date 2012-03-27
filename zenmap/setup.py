@@ -205,7 +205,6 @@ class my_install(install):
         install.run(self)
 
         self.set_perms()
-        self.set_modules_path()
         self.fix_paths()
         self.create_uninstaller()
         self.write_installed_files()
@@ -306,32 +305,6 @@ for dir in dirs:
         # Set exec bit for uninstaller
         mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
         os.chmod(uninstaller_filename, mode)
-
-    def set_modules_path(self):
-        app_file_name = os.path.join(self.install_scripts, APP_NAME)
-        # Find where the modules are installed. distutils will put them in
-        # self.install_lib, but that path can contain the root (DESTDIR), so we
-        # must strip it off if necessary.
-        modules = self.install_lib
-        if self.root is not None:
-            modules = path_strip_prefix(modules, self.root)
-
-        ufile = open(app_file_name, "r")
-        ucontent = ufile.readlines()
-        ufile.close()
-
-        # Insert our custom import after the first non-comment line.
-        re_sys = re.compile("^#")
-        uline = 0
-        for line in ucontent:
-            if not re_sys.match(line):
-                break
-            uline += 1
-        ucontent.insert(uline, "\nimport sys\nsys.path.append(%s)\n" % repr(modules))
-
-        ufile = open(app_file_name, "w")
-        ufile.writelines(ucontent)
-        ufile.close()
 
     def set_perms(self):
         re_bin = re.compile("(bin|\.sh)")
