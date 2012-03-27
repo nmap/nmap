@@ -1313,13 +1313,13 @@ You can work around this problem by installing the <command>as</command> from
 GNU binutils<indexterm><primary>binutils</primary></indexterm>. (But not
 <command>ld</command>; you want to continue using the default
 <command>ld</command>.) These instructions were tested on AIX 7.1 with
-<filename>binutils-2.21.1a</filename> from
+<filename>binutils-2.22</filename> from
 <literal>http://ftp.gnu.org/gnu/binutils</literal>.
 </para>
 
 <screen>
-$ <userinput>bzip2 -dc binutils-2.21.1a.tar.bz2 | tar -xvf -</userinput>
-$ <userinput>cd binutils-2.21.1</userinput>
+$ <userinput>bzip2 -dc binutils-2.22.tar.bz2 | tar -xvf -</userinput>
+$ <userinput>cd binutils-2.22</userinput>
 $ <userinput>./configure --disable-werror --disable-largefile CFLAGS="-O2 -Wall"</userinput>
 $ <userinput>gmake</userinput>
 $ <userinput>cd gas</userinput>
