@@ -10198,7 +10198,7 @@ match sip-proxy m|^SIP/2\.0 .*\r\nServer: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sphericall/([\w._-]+) Build/(\d+)\r\n|s p/Sphericall VoIP Gateway/ v/$1 build $2/ o/Windows/ cpe:/o:microsoft:windows/a
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w._-]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w._-]+) OpenIMSCore \(i386/linux\)\)\r\n|s p/OpenIMSCore SIP EXpress router/ v/$1/ i/Linux i386/ o/Linux/ cpe:/o:linux:kernel/a
-match sip-proxy m|^SIP/2\.0 200 OK\r\n.*User-Agent: FreeSWITCH-mod_sofia/([\w._ -]+)\r\n|s p/FreeSWITCH mod_sofia/ v/$1/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*User-Agent: FreeSWITCH-mod_sofia/([\w._ +-]+)\r\n|s p/FreeSWITCH mod_sofia/ v/$1/
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: 3CXPhoneSystem ([\w._-]+)\r\n|s p/3CX PhoneSystem PBX/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match sip-proxy m|^SIP/2\.0 503 Remote end of tunnel is not connected\r\n.*\r\nWarning: \d+ \w+ \"Remote end of the bridge is not connected\"\r\n|s p/3CX PhoneSystem PBX/ i/misconfigured/ d/PBX/ o/Windows/ cpe:/o:microsoft:windows/a
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: ComdasysB2BUA([\w._-]+)\r\n|s p/Comdasys SIP Server/ v/$1/
