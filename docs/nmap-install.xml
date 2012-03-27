@@ -1345,6 +1345,19 @@ $ <userinput>export PATH="/usr/local/bin:$PATH"</userinput>
 </screen>
 
 <para>
+In some cases GCC is configured to use an absolute path to the
+assembler. In this case you will have to temporarily move the default
+assembler out of the way. You can test whether this is the case by
+passing the <option>-print-prog-name=as</option> option to
+<command>gcc</command>:
+</para>
+
+<screen>
+$ <userinput>gcc -print-prog-name=as</userinput>
+/usr/bin/as
+</screen>
+
+<para>
 Now follow the instructions in <xref linkend="inst-source"/>.
 </para>
 </sect2>
