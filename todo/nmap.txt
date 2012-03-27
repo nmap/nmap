@@ -37,6 +37,11 @@ o We should probably remove the intl.dll mv command from
   zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
   described at http://seclists.org/nmap-dev/2012/q1/430.
 
+o Our targets-ipv6-multicast-slaac.nse should probably send the router
+  advertisements with low priority to reduce the chances of any
+  negative impacts on clients, if we're not doing that already.  See
+  http://lists.si6networks.com/pipermail/ipv6hackers/2012-March/000503.html.
+
 o [NSE] host.os should not just be a list of strings which can contain
   human-readible strings and/or CPE info.  It should probably be list
   of host.os tables which can contain:
