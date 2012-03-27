@@ -63,6 +63,16 @@ o Add CPE entries to OS fingerpting DB entries which still lack them
  - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
    fingerprints.
 
+o Consider making a version of Nmap for Apple's official Mac App
+  Store.  A particular concern with the downloadable Mac version of
+  Nmap is that Apple's new "Mountain Lion" release may require users
+  to jump through hoops to install unsigned non-app-store content per
+  their "Gatekeeper" "feature".  Though maybe signing the app will be
+  enough.  There may also be an issue with the "Sandboxing"
+  requirement for App Store apps starting June 2012.  Will Nmap be
+  able to request all the permissions it needs?  Ignoring the
+  technical challenges for the moment, what will users prefer?
+
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
 
