@@ -594,12 +594,14 @@ static int l_set_port_version (lua_State *L)
     luaL_argerror(L, 2, "invalid value for port.version.service_tunnel");
 
   lua_getfield(L, 4, "cpe");
-  if (!lua_istable(L, -1))
+  if (lua_isnil(L, -1))
+    ;
+  else if(lua_istable(L, -1))
+    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      cpe.push_back(lua_tostring(L, -1));
+    }
+  else
     luaL_error(L, "port.version 'cpe' field must be a table");
-
-  for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
-    cpe.push_back(lua_tostring(L, -1));
-  }
 
   if (o.servicescan)
     target->ports.setServiceProbeResults(p->portno, p->proto,
