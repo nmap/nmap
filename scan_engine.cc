@@ -155,6 +155,8 @@ static const char *pspectype2ascii(int type) {
     return "ICMP";
   case PS_ARP:
     return "ARP";
+  case PS_ICMPV6:
+    return "ICMPv6";
   case PS_ND:
     return "ND";
   case PS_CONNECTTCP:
@@ -731,6 +733,10 @@ static char *probespec2ascii(const probespec *pspec, char *buf, unsigned int buf
     break;
   case PS_ARP:
     Snprintf(buf, bufsz, "ARP");
+    break;
+  case PS_ICMPV6:
+    Snprintf(buf, bufsz, "icmpv6 type %d code %d",
+             pspec->pd.icmpv6.type, pspec->pd.icmpv6.code);
     break;
   case PS_ND:
     Snprintf(buf, bufsz, "ND");

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an error that could occur with ICMPv6 probes and -d4 debugging:
+  "Unexpected probespec2ascii type encountered" [David Fifield]
+
 o Fixed the routing table loop on OS X so that on-link routes appear.
   Previously, they were ignored so that things like ARP scan didn't
   work. [Patrik Karlsson, David Fifield]
