@@ -100,6 +100,7 @@
 #include "NmapOps.h"
 #include "nmap_error.h"
 #include "global_structures.h"
+#include "libnetutil/netutil.h"
 
 extern NmapOps o;
 
@@ -385,6 +386,21 @@ int TargetGroup::skip_range(_octet_nums octet) {
   return hosts_skipped;
 }
 
+/* Get the sin6_scope_id member of a sockaddr_in6, based on a device name. This
+   is used to assign scope to all addresses that otherwise lack a scope id when
+   the -e option is used. */
+static int get_scope_id(const char *devname) {
+  struct interface_info *ii;
+
+  if (devname == NULL || devname[0] == '\0')
+    return 0;
+  ii = getInterfaceByName(devname, AF_INET6);
+  if (ii != NULL)
+    return ii->ifindex;
+  else
+    return 0;
+}
+
  /* Grab the next host from this expression (if any) and updates its internal
     state to reflect that the IP was given out.  Returns 0 and
     fills in ss if successful.  ss must point to a pre-allocated
@@ -467,7 +483,10 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     sin6->sin6_len = *sslen;
 #endif /* SIN_LEN */
     memcpy(sin6->sin6_addr.s6_addr, ip6.sin6_addr.s6_addr, 16);
-    sin6->sin6_scope_id = ip6.sin6_scope_id;
+    if (ip6.sin6_scope_id == 0)
+      sin6->sin6_scope_id = get_scope_id(o.device);
+    else
+      sin6->sin6_scope_id = ip6.sin6_scope_id;
 #else
     fatal("IPV6 not supported on this platform");
 #endif // HAVE_IPV6

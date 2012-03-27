@@ -2013,34 +2013,16 @@ pcap_if_t *getpcapinterfaces() {
 
 
 
-/* Assign the sin6_scope_id member of a sockaddr_in6, based on a device name.
-   This is used to assign scope to all addresses with the -e option is used. */
-static void assign_scope_id(struct sockaddr_in6 *sin6, const char *devname) {
-  struct interface_info *ii;
-
-  if (devname == NULL || devname[0] == '\0')
-    return;
-  ii = getInterfaceByName(devname, sin6->sin6_family);
-  if (ii != NULL)
-    sin6->sin6_scope_id = ii->ifindex;
-}
-
 
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
-  struct sockaddr_storage dst_mod, spoofss;
+  struct sockaddr_storage spoofss;
   size_t spoofsslen;
-
-  /* Make a copy that we may modify (only to possibly add a sin6_scope_id). */
-  dst_mod = *dst;
-
-  if (dst_mod.ss_family == AF_INET6)
-    assign_scope_id((struct sockaddr_in6 *) &dst_mod, o.device);
 
   if (o.spoofsource) {
     o.SourceSockAddr(&spoofss, &spoofsslen);
-    return route_dst(&dst_mod, rnfo, o.device, &spoofss);
+    return route_dst(dst, rnfo, o.device, &spoofss);
   } else {
-    return route_dst(&dst_mod, rnfo, o.device, NULL);
+    return route_dst(dst, rnfo, o.device, NULL);
   }
 }
 
