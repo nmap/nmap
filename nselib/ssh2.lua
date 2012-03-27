@@ -75,7 +75,7 @@ transport.build = function( payload )
 end
 
 --- Extract the payload from a received SSH-2 packet.
--- @param packet Peceived SSH-2 packet.
+-- @param packet Received SSH-2 packet.
 -- @return Payload of the SSH-2 packet.
 transport.payload = function( packet )
   local packet_length, padding_length, payload_length, payload, offset
