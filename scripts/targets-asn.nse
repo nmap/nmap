@@ -13,17 +13,17 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 ]]
 
 ---
--- @args asn-to-prefix.asn The ASN to search.
--- @args asn-to-prefix.whois_server The whois server to use. Default: asn.shadowserver.org.
--- @args asn-to-prefix.whois_port The whois port to use. Default: 43.
+-- @args targets-asn.asn The ASN to search.
+-- @args targets-asn.whois_server The whois server to use. Default: asn.shadowserver.org.
+-- @args targets-asn.whois_port The whois port to use. Default: 43.
 -- @args newtargets Add discovered targets to Nmap scan queue.
 --
 -- @usage
--- nmap --script asn-to-prefix --script-args asn-to-prefix.asn=32
+-- nmap --script targets-asn --script-args targets-asn.asn=32
 --
 -- @output
 -- 53/udp open  domain  udp-response
--- | asn-to-prefix:
+-- | targets-asn:
 -- |   32
 -- |     128.12.0.0/16
 -- |_    171.64.0.0/14
@@ -45,13 +45,13 @@ action = function(host, port)
 	local asns, whois_server, whois_port, err, status
 	local results = {}
 
-	asns = stdnse.get_script_args('asn-to-prefix.asn')
-	whois_server = stdnse.get_script_args('asn-to-prefix.whois_server')
-	whois_port = stdnse.get_script_args('asn-to-prefix.whois_port')
-	newtargets = stdnse.get_script_args('asn-to-prefix.newtargets')
+	asns = stdnse.get_script_args('targets-asn.asn') or stdnse.get_script_args('asn-to-prefix.asn')
+	whois_server = stdnse.get_script_args('targets-asn.whois_server') or stdnse.get_script_args('asn-to-prefix.whois_server')
+	whois_port = stdnse.get_script_args('targets-asn.whois_port') or stdnse.get_script_args('asn-to-prefix.whois_port')
+	newtargets = stdnse.get_script_args('targets-asn.newtargets') or stdnse.get_script_args('asn-to-prefix.newtargets')
 
 	if not asns then
-		return stdnse.format_output(true, "asn-to-prefix.asn is a mandatory parameter")
+		return stdnse.format_output(true, "targets-asn.asn is a mandatory parameter")
 	end
 	if not whois_server then
 		whois_server = "asn.shadowserver.org"
