@@ -413,7 +413,7 @@ include makefile.dep
 # directory on "make install" so that duplicate, old copies of scripts
 # are not run.
 OLD_SCRIPT_NAMES = $(addsuffix .nse, \
-anonFTP ASN brutePOP3 bruteTelnet chargenTest daytimeTest \
+anonFTP ASN asn-to-prefix brutePOP3 bruteTelnet chargenTest daytimeTest \
 dns-safe-recursion-port dns-safe-recursion-txid dns-test-open-recursion \
 domino-enum-passwords echoTest ftpbounce HTTPAuth HTTP_open_proxy HTTPpasswd \
 HTTPtrace iax2Detect ircServerInfo ircZombieTest mac-geolocation MSSQLm \
