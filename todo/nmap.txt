@@ -1,22 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Deal with the issue of timeouts happening too soon due to global
-  congestion control in some cases.  For example, if Nmap sends host
-  discovery probes to two hosts, and one comes back extremely quickly,
-  it can cause the global congestion control to use a very low timeout
-  and cause the 2nd host (which doesn't have any host-based congestion
-  control values yet) to timeout arguably too quickly.  We should look
-  at potential algorithm changes to improve this.
-    David: I think I was wrong about the cause of this. Even when
-    replies come back very quickly, the timeout is by default limited
-    to 100000 microseconds, much higher than the straightforward
-    calculation would give. What I think is really happening is that
-    select is not working reliably on this platform (Solaris 10 x86).
-    In the loop in read_arp_reply_pcap, pcap_select returns 1, then a
-    pcap_next is done. Then pcap_select returns 0, but if I insert
-    another pcap_next after that, the pcap_next finds another packet
-    without blocking (the first time, anyway; after that it blocks).
-
 o Prepare release notes, web page, etc.
 
 o Do private beta release
@@ -33,14 +16,19 @@ o Scans from Mac OS X tend to use raw IP packets rather than ethernet
   to Apple's own routing table code discovered by Patrik suggests that
   the Dnet code may be incorrect.
 
+o Zenmap no longer ads the installed module directory to its module
+  search path because some distributors first install in a world
+  writeable directory (like /tmp) and then put those files into their
+  packages which they distribute to users.  But this change can lead
+  to Zenmap not working for users who install in nonsystem areas like
+  their home directory (e.g. --prefix /home/fyodor) unless they have
+  their PYTHONPATH set to find them.  We should implement a solution,
+  such as making sure Zenmap catches the missing modules error and
+  suggest that the user set their PYTHONPATH or something.
+
 o We should probably remove the intl.dll mv command from
   zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
   described at http://seclists.org/nmap-dev/2012/q1/430.
-
-o Our targets-ipv6-multicast-slaac.nse should probably send the router
-  advertisements with low priority to reduce the chances of any
-  negative impacts on clients, if we're not doing that already.  See
-  http://lists.si6networks.com/pipermail/ipv6hackers/2012-March/000503.html.
 
 o [NSE] host.os should not just be a list of strings which can contain
   human-readible strings and/or CPE info.  It should probably be list
@@ -752,6 +740,29 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Our targets-ipv6-multicast-slaac.nse should probably send the router
+  advertisements with low priority to reduce the chances of any
+  negative impacts on clients, if we're not doing that already.  See
+  http://lists.si6networks.com/pipermail/ipv6hackers/2012-March/000503.html.
+  - Actually, I think we already do this.  Marking as done.
+
+o Deal with the issue of timeouts happening too soon due to global
+  congestion control in some cases.  For example, if Nmap sends host
+  discovery probes to two hosts, and one comes back extremely quickly,
+  it can cause the global congestion control to use a very low timeout
+  and cause the 2nd host (which doesn't have any host-based congestion
+  control values yet) to timeout arguably too quickly.  We should look
+  at potential algorithm changes to improve this.
+    David: I think I was wrong about the cause of this. Even when
+    replies come back very quickly, the timeout is by default limited
+    to 100000 microseconds, much higher than the straightforward
+    calculation would give. What I think is really happening is that
+    select is not working reliably on this platform (Solaris 10 x86).
+    In the loop in read_arp_reply_pcap, pcap_select returns 1, then a
+    pcap_next is done. Then pcap_select returns 0, but if I insert
+    another pcap_next after that, the pcap_next finds another packet
+    without blocking (the first time, anyway; after that it blocks).
 
 o Create CHANGELOG
 
