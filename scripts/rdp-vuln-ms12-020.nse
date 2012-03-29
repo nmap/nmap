@@ -1,35 +1,28 @@
 description = [[
-Checks if a machine is vulnerable to ms12-020 RDP vulnerability.
+Checks if a machine is vulnerable to MS12-020 RDP vulnerability.
 
-Microsoft bulletin ms12-020 patches two vulnerabilities.
-CVE-2012-0152 which addresses a DoS vulnerability inside Terminal Server,
-and CVE-2012-0002 which fixes a vulnerability in Remote Desktop Protocol.
-Both are part of Remote Desktop Services.
+The Microsoft bulletin MS12-020 patches two vulnerabilities: CVE-2012-0152
+which addresses a denial of service vulnerability inside Terminal Server, and
+CVE-2012-0002 which fixes a vulnerability in Remote Desktop Protocol. Both are
+part of Remote Desktop Services.
 
-Script works by checking for a CVE-2012-0152 vulnerability.
-Patched and unpatched system differ in the results from which
-we can conclude if the service is vulnerable or not.
+The script works by checking for the CVE-2012-0152 vulnerability. If this
+vulnerability is not patched, it is assumed that CVE-2012-0002 is not patched
+either. This script can do its check without crashing the target.
 
 The way this works follows:
-1. send one user request
- - server replies with user id (let's call it A) and channel for that user
-2. send another user request
- - server replies with another user id (let's call it B) and another channel
-3. send channel join request with requesting user set to A and requesting channel set to B
- - if server replies with success message , we conclude that the server is vulnerable
- - if we do not get the success message , the server is patched
-4. in case the server is vulnerable, send a channel join request with requesting user set to B and requesting channel set to B to prevent the chance of BSoD
-5. The end
-
-For details on packet containts, please see links mentioned in the comments.
+* Send one user request. The server replies with a user id (call it A) and a channel for that user.
+* Send another user request. The server replies with another user id (call it B) and another channel.
+* Send a channel join request with requesting user set to A and requesting channel set to B. If the server replies with a success message, we conclude that the server is vulnerable.
+* In case the server is vulnerable, send a channel join request with the requesting user set to B and requesting channel set to B to prevent the chance of a crash.
 
 References:
-http://technet.microsoft.com/en-us/security/bulletin/ms12-020
-http://support.microsoft.com/kb/2621440
-http://zerodayinitiative.com/advisories/ZDI-12-044/
-http://aluigi.org/adv/termdd_1-adv.txt
+* http://technet.microsoft.com/en-us/security/bulletin/ms12-020
+* http://support.microsoft.com/kb/2621440
+* http://zerodayinitiative.com/advisories/ZDI-12-044/
+* http://aluigi.org/adv/termdd_1-adv.txt
 
-Original check by by Worawit Wang (sleepya)
+Original check by by Worawit Wang (sleepya).
 ]]
 -- @usage
 -- nmap -sV --script=rdp-ms12-020 -p 3389 <target>
@@ -43,7 +36,7 @@ Original check by by Worawit Wang (sleepya)
 -- |     IDs:  CVE:CVE-2012-0152
 -- |     Risk factor: Medium  CVSSv2: 4.3 (MEDIUM) (AV:N/AC:M/Au:N/C:N/I:N/A:P)
 -- |     Description:
--- |               Remote Desktop Protocol vulnerability that could allow remote attackers to cause Denial Of Service agains on the targeted system.
+-- |               Remote Desktop Protocol vulnerability that could allow remote attackers to cause a denial of service.
 -- |
 -- |     Disclosure date: 2012-03-13
 -- |     References:
@@ -125,9 +118,9 @@ action = function(host, port)
 
 	-- see http://msdn.microsoft.com/en-us/library/cc240835%28v=prot.10%29.aspx
 	local userRequestStr = "0300" -- header
-						.. "0008" -- length
-						.. "02f080" -- X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
-						.. "28" -- PER encoded PDU contents
+				.. "0008" -- length
+				.. "02f080" -- X.224 Data TPDU (2 bytes: 0xf0 = Data TPDU, 0x80 = EOT, end of transmission)
+				.. "28" -- PER encoded PDU contents
 	local userRequest = bin.pack("H",userRequestStr)
 
 	local user1,user2
@@ -141,7 +134,7 @@ action = function(host, port)
 		  CVSSv2 = "4.3 (MEDIUM) (AV:N/AC:M/Au:N/C:N/I:N/A:P)",
 		},
 		description = [[
-		Remote Desktop Protocol vulnerability that could allow remote attackers to cause Denial Of Service agains on the targeted system.
+		Remote Desktop Protocol vulnerability that could allow remote attackers to cause a denial of service.
 		]],
 		references = {
 		  'http://technet.microsoft.com/en-us/security/bulletin/ms12-020',
