@@ -174,7 +174,8 @@ action = function(host, port)
 	status, response = socket:receive_bytes(0)
 	if response ~= bin.pack("H","0300000b06d00000123400") then
 		--probably not rdp at all
-		return report:make_output(rdp_vuln_0152,rdp_vuln_0002)
+		stdnse.print_debug(1, "%s: not RDP", SCRIPT_NAME)
+		return nil
 	end
 	status, err = socket:send(connectInitial)
 	status, err = socket:send(userRequest)  -- send attach user request
