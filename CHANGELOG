@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added rdp-vuln-ms12-020.nse by Aleksandar Nikolic. This tests
+  for two Remote Desktop vulnerabilities, including one allowing
+  remote code execution, that were fixed in the MS12-020 advisory.
+
 o Fixed an error that could occur with ICMPv6 probes and -d4 debugging:
   "Unexpected probespec2ascii type encountered" [David Fifield]
 
