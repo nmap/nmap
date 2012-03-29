@@ -398,6 +398,9 @@ msevent *msevent_new(mspool *nsp, enum nse_type type, msiod *msiod, int timeout_
                      nsock_ev_handler handler, void *userdata) {
   msevent *nse;
 
+  /* Bring us up to date for the timeout calculation. */
+  gettimeofday(&nsock_tod, NULL);
+
   if (msiod) {
     msiod->events_pending++;
     assert(msiod->state != NSIOD_STATE_DELETED);

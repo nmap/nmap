@@ -62,8 +62,6 @@
 #include <errno.h>
 #include <string.h>
 
-extern struct timeval nsock_tod;
-
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
  * broadcast flag. Trying to change these functions after making this call will
@@ -111,8 +109,6 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
   msiod *nsi = (msiod *)ms_iod;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
-
-  gettimeofday(&nsock_tod, NULL);
 
   if (ms->tracelevel > 0)
     nsock_trace(ms, "UDP unconnected socket (IOD #%li)", nsi->id);
@@ -185,9 +181,6 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  /* Just in case someone waits a long time and then does a new connect */
-  gettimeofday(&nsock_tod, NULL);
-
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
@@ -216,9 +209,6 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
-
-  /* Just in case someone waits a long time and then does a new connect */
-  gettimeofday(&nsock_tod, NULL);
 
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
@@ -253,9 +243,6 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   msiod *nsi = (msiod *)nsiod;
   mspool *ms = (mspool *)nsp;
   msevent *nse;
-
-  /* Just in case someone waits a long time and then does a new connect */
-  gettimeofday(&nsock_tod, NULL);
 
   if (!ms->sslctx)
     nsp_ssl_init(ms);
@@ -339,9 +326,6 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
-
-  /* Just in case someone waits a long time and then does a new connect */
-  gettimeofday(&nsock_tod, NULL);
 
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);

@@ -66,8 +66,6 @@ nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
   mspool *nsp = (mspool *)ms_pool;
   msevent *nse;
 
-  gettimeofday(&nsock_tod, NULL);
-
   nse = msevent_new(nsp, NSE_TYPE_TIMER, NULL, timeout_msecs, handler, userdata);
   assert(nse);
 
