@@ -223,11 +223,11 @@ LinkExtractor = {
 	parse = function(self)
 		local links = {}
 		local patterns = {
-			'[hH][rR][eE][fF]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
+			'[hH][rR][eE][fF]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
 			'[hH][rR][eE][fF]%s*=%s*([^\'\"][^%s>]+)',
-			'[sS][rR][cC]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
+			'[sS][rR][cC]%s*=%s*[\'"]%s*([^"^\']-)%s*[\'"]',
 			'[sS][rR][cC]%s*=%s*([^\'\"][^%s>]+)',
-			'[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
+			'[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"]%s*([^"^\']+%s*)[\'"]',
 		}
 		
 		local base_hrefs = {
