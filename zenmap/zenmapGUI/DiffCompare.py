@@ -122,10 +122,10 @@ class ScanChooser(HIGVBox):
         "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
     }
 
-    def __init__(self, scan_dict, title):
+    def __init__(self, scans, title):
         self.__gobject_init__()
         self.title = title
-        self.scan_dict = scan_dict
+        self.scan_dict = {}
 
         # Setting HIGVBox
         self.set_border_width(5)
@@ -138,8 +138,8 @@ class ScanChooser(HIGVBox):
         self._set_text_view()
         self._set_open_button()
 
-        for scan in scan_dict:
-            self.list_scan.append([scan])
+        for scan in scans:
+            self.add_scan(scan.scan_name or scan.get_nmap_command(), scan)
 
         self.combo_scan.connect('changed', self.show_scan)
         self.combo_scan.connect('changed', lambda x: self.emit('changed'))
@@ -272,11 +272,8 @@ The parsing error that occurred was\n%s") % str(e))
 
 class DiffWindow(gtk.Window):
     def __init__(self, scans):
-        """scans in the format: {"scan_title":parsed_scan}
-        """
         gtk.Window.__init__(self)
         self.set_title(_("Compare Results"))
-        self.scans = scans
         self.ndiff_process = None
         # We allow the user to start a new diff before the old one has finished.
         # We have to keep references to old processes until they finish to avoid
@@ -284,16 +281,6 @@ class DiffWindow(gtk.Window):
         self.old_processes = []
         self.timer_id = None
 
-        self._create_widgets()
-        self._pack_widgets()
-        self._connect_widgets()
-
-        self.set_default_size(-1, 500)
-
-        # Initial Size Request
-        self.initial_size = self.get_size()
-
-    def _create_widgets(self):
         self.main_vbox = HIGVBox()
         self.diff_view = DiffView()
         self.diff_view.set_size_request(-1, 100)
@@ -301,8 +288,16 @@ class DiffWindow(gtk.Window):
         self.progress = gtk.ProgressBar()
         self.btn_close = HIGButton(stock=gtk.STOCK_CLOSE)
         self.hbox_selection = HIGHBox()
-        self.scan_chooser_a = ScanChooser(self.scans, _(u"A Scan"))
-        self.scan_chooser_b = ScanChooser(self.scans, _(u"B Scan"))
+        self.scan_chooser_a = ScanChooser(scans, _(u"A Scan"))
+        self.scan_chooser_b = ScanChooser(scans, _(u"B Scan"))
+
+        self._pack_widgets()
+        self._connect_widgets()
+
+        self.set_default_size(-1, 500)
+
+        # Initial Size Request
+        self.initial_size = self.get_size()
 
     def _pack_widgets(self):
         self.main_vbox.set_border_width(6)

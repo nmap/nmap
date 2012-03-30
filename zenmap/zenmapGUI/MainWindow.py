@@ -840,22 +840,7 @@ running at the background.\nWhat do you want to do?'))
     def _load_diff_compare_cb (self, widget=None, extra=None):
         """Loads all active scans into a dictionary, passes it to the DiffWindow
         constructor, and then displays the 'Compare Results' window."""
-        # We must change this test dict
-        # This dict has the following syntax:
-        # key = Scan name
-        # value = nmap output in string format
-        dic = {}
-
-        for parsed in self.scan_interface.inventory.get_scans():
-            if parsed.scan_name:
-                scan_name = parsed.scan_name
-            else:
-                scan_name = parsed.get_nmap_command()
-
-            dic[scan_name] = parsed
-
-        self.diff_window = DiffWindow(dic)
-
+        self.diff_window = DiffWindow(self.scan_interface.inventory.get_scans())
         self.diff_window.show_all()
 
 def show_help():
