@@ -177,6 +177,10 @@ The developers will see your report and try to fix the problem.""") % \
         self.btn_copy.connect("clicked", self.copy)
         self.connect("delete-event", self.close)
 
+    def get_description(self):
+        buff = self.description_text.get_buffer()
+        return buff.get_text(buff.get_start_iter(), buff.get_end_iter())
+
     def copy(self, widget=None, event=None):
         clipboard = gtk.clipboard_get()
         clipboard.set_text(self.get_description())
