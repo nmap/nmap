@@ -417,7 +417,10 @@ def get_script_entries(scripts_dir, nselib_dir):
     """Merge the information obtained so far into one single entry for
     each script and return it."""
     metadata = ScriptMetadata(scripts_dir, nselib_dir)
-    scriptdb = ScriptDB(os.path.join(scripts_dir, "script.db"))
+    try:
+        scriptdb = ScriptDB(os.path.join(scripts_dir, "script.db"))
+    except IOError:
+        return []
     entries = []
     for dbentry in scriptdb.get_entries_list():
         entry = metadata.get_metadata(dbentry["filename"])

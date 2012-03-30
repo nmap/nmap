@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash that would happen in the profile editor when
+  the script.db file doesn't exist. The bug was reported by Daniel
+  Miller.
+
 o [Zenmap] It is now possible to compare scans having the same name or
   command line. [Jah, David Fifield]
 
