@@ -261,7 +261,7 @@ class PortList {
   // chars. (these tests are to avoid annoying DOS (or other) attacks
   // by malicious services).  The fingerprint should be NULL unless
   // one is available and the user should submit it.  tunnel must be
-  // SERVICE_TUNNEL_NULL (normal) or SERVICE_TUNNEL_SSL (means ssl was
+  // SERVICE_TUNNEL_NONE (normal) or SERVICE_TUNNEL_SSL (means ssl was
   // detected and we tried to tunnel through it ).
   void setServiceProbeResults(u16 portno, int protocol,
 			      enum serviceprobestate sres, const char *sname,
