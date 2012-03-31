@@ -778,7 +778,7 @@ void printportoutput(Target *currenths, PortList *plist) {
           xml_attribute("reason_ip", "%s", inet_ntop_ez(&current->reason.ip_addr, sizeof(current->reason.ip_addr)));
         xml_close_empty_tag();
 
-        if (sd.name || sd.service_fp)
+        if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE)
           print_xml_service(&sd);
 
         rowno++;

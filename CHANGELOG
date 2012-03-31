@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed XML output to show the "service" element whenever a tunnel
+  is discovered for a port, even if the service behind it was unknown.
+  [Matt Foster]
+
 o [Zenmap] Fixed a crash that would happen in the profile editor when
   the script.db file doesn't exist. The bug was reported by Daniel
   Miller.
