@@ -22,6 +22,8 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 -- | 2001:0DB8:0:0:0:0:0:2              resolver1.example.com
 -- |_2001:0DB8:0:0:0:0:0:3              resolver2.example.com
 --
+-- @args prefix the ip6 prefix to scan
+-- @args mask the ip6 mask to start scanning from
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
