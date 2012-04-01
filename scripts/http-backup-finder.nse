@@ -56,6 +56,7 @@ local function backupNames(filename)
 			table.insert(backup_names, "Copy of {basename}.{suffix}") -- windows copy
 			table.insert(backup_names, "Copy (2) of {basename}.{suffix}") -- windows second copy
 			table.insert(backup_names, "{basename}.{suffix}.1") -- generic backup
+			table.insert(backup_names, "{basename}.{suffix}.~1~") -- bzr --revert residue
 		
 		end
 
