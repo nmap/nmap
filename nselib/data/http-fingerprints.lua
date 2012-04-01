@@ -1803,6 +1803,18 @@ table.insert(fingerprints, {
 		{match='', output='aMember'}
 	}
 })
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/.gitignore', method='HEAD'},
+		{path='/.bzrignore', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Revison control ignore file'}
+	}
+})
+
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
