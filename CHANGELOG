@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script dns-ip6-arpa-scan which uses a very efficient
+  technique to scan the ip6.arpa zone for PTR records. [Patrik Karlsson]
+
 o Changed XML output to show the "service" element whenever a tunnel
   is discovered for a port, even if the service behind it was unknown.
   [Matt Foster]
