@@ -1807,11 +1807,12 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/.hgignore', method='HEAD'},
 		{path='/.gitignore', method='HEAD'},
 		{path='/.bzrignore', method='HEAD'}
 	},
 	matches= {
-		{match='', output='Revison control ignore file'}
+		{match='', output='Revision control ignore file'}
 	}
 })
 
