@@ -13,7 +13,7 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 
 ---
 -- @usage
--- nmap --script dns-ipv6-arpa-scan --script-args='prefix=2001:0DB8,mask=48'
+-- nmap --script dns-ip6-arpa-scan --script-args='prefix=2001:0DB8,mask=48'
 --
 -- @output
 -- Pre-scan script results:
