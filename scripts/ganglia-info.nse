@@ -112,7 +112,7 @@ action = function( host, port )
 	end
 
 	-- Parse daemon info
-	if not string.match(data, "<\!DOCTYPE GANGLIA_XML") then
+	if not string.match(data, "<!DOCTYPE GANGLIA_XML") then
 		stdnse.print_debug(1, ("%s: %s:%s is not a Ganglia Daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
 		return
 	elseif string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmond"') then

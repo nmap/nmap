@@ -323,7 +323,7 @@ local scan = function(host, port, server_name, tls, n)
             stdnse.print_debug("OK")
             --http://xmpp.org/extensions/xep-0198.html
             --sample: el-tramo.be
-            local version = string.match(tag.attrs.xmlns, "^urn:xmpp:sm:(\.)")
+            local version = string.match(tag.attrs.xmlns, "^urn:xmpp:sm:(%.)")
             table.insert(features_list[n], 'Stream management v' .. version)
         end
 

@@ -57,7 +57,7 @@ Driver = {
 	
 	login = function(self, username, password)
 		local cmd = "id"
-		local data = ("\0%s\0%s\0\%s\0"):format(username, password, cmd)
+		local data = ("\0%s\0%s\0%s\0"):format(username, password, cmd)
 		
 		local status, err = self.socket:send(data)
 		if ( not(status) ) then

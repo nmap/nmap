@@ -113,7 +113,7 @@ function go(host, port)
                           port.number)
     end
 
-    local srvname = string.match(response, "%d+%s([%w]+[%w\.\-]*)")
+    local srvname = string.match(response, "%d+%s([%w]+[%w%.-]*)")
 
     local status, response = smtp.ehlo(socket, domain)
     if not status then
@@ -121,7 +121,7 @@ function go(host, port)
     end
        
     if not srvname then
-        srvname = string.match(response, "%d+%-([%w]+[%w\.\-]*)")
+        srvname = string.match(response, "%d+%-([%w]+[%w%.-]*)")
     end
 
     -- Antispam tests.

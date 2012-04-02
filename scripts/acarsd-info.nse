@@ -70,7 +70,7 @@ action = function(host, port)
 	end
 
 	-- Check for restricted access -- Parse daemon info
-	if string.match(data, "Authorization needed\. If your client doesnt support this") then
+	if string.match(data, "Authorization needed%. If your client doesnt support this") then
 
 		local version_match = string.match(data, "acarsd\t(.+)\t")
 		if version_match then table.insert(result, string.format("Version: %s", version_match)) end
@@ -96,7 +96,7 @@ action = function(host, port)
 		}
 		for _, var in ipairs(vars) do
 			local tag = var[2]
-			local var_match = string.match(data, string.format('<%s>(.+)<\/%s>', tag, tag))
+			local var_match = string.match(data, string.format('<%s>(.+)</%s>', tag, tag))
 			if var_match then table.insert(result, string.format("%s: %s", var[1], string.gsub(var_match, "&amp;", "&"))) end
 		end
 

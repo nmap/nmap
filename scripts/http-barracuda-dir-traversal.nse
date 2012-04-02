@@ -109,7 +109,7 @@ action = function(host, port)
 				if data and data.status and tostring(data.status):match("200") and data.body and data.body ~= "" then
 
 					-- Check if the HTTP response contains a valid config file in MySQL database dump format
-  				if string.match(data.body, "DROP TABLE IF EXISTS config;") and string.match(data.body, "barracuda\.css") then
+  				if string.match(data.body, "DROP TABLE IF EXISTS config;") and string.match(data.body, "barracuda%.css") then
 						config_file = data.body
 						break
 					end

@@ -99,7 +99,7 @@ action = function(host, port)
 
 	}
 	for _, var in ipairs(vars) do
-		local var_match = string.match(config_file, string.format('<%s><!.CDATA.(.+)..><\/%s>', var[2], var[2]))
+		local var_match = string.match(config_file, string.format('<%s><!.CDATA.(.+)..></%s>', var[2], var[2]))
 		if var_match then table.insert(result, string.format("%s: %s", var[1], var_match)) end
 	end
 

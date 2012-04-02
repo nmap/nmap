@@ -79,8 +79,8 @@ local function createVerticalResults(db)
 			table.insert(results, result_entries)
 			table.sort(results, 
 				function(a,b)
-			 		local a_port, a_proto = a.name:match("^(%d+)\/(%w*)")
-					local b_port, b_proto = b.name:match("^(%d+)\/(%w*)")
+			 		local a_port, a_proto = a.name:match("^(%d+)/(%w*)")
+					local b_port, b_proto = b.name:match("^(%d+)/(%w*)")
 					if ( a_proto == b_proto ) then
 						return ( tonumber(a_port) ) < ( tonumber(b_port) )
 					else
@@ -116,8 +116,8 @@ local function createHorizontalResults(db)
 			table.insert(results, str)
 			table.sort(results, 
 				function(a,b)
-			 		local a_port, a_proto = a:match("^(%d+)\/(%w*):")
-					local b_port, b_proto = b:match("^(%d+)\/(%w*):")
+			 		local a_port, a_proto = a:match("^(%d+)/(%w*):")
+					local b_port, b_proto = b:match("^(%d+)/(%w*):")
 					if ( a_proto == b_proto ) then
 						return ( tonumber(a_port) ) < ( tonumber(b_port) )
 					else

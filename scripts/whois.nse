@@ -1361,8 +1361,8 @@ function script_init( )
       ob_netnum = {ob_start = "\r?\n?%s*[Ii]net6?num:%s*.-\r?\n",
             ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
             inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
-            netname = "\r?\n%s*[Nn]et[\-]-[Nn]ame:%s*(.-)\r?\n",
-            nettype = "\r?\n%s*[Nn]et[\-]-[Tt]ype:%s*(.-)\r?\n",
+            netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:%s*(.-)\r?\n",
+            nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:%s*(.-)\r?\n",
             descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
             country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
             status = "\r?\n%s*[Ss]tatus:%s*(.-)\r?\n",
@@ -1370,62 +1370,62 @@ function script_init( )
       ob_org = {  ob_start = "\r?\n%s*[Oo]rgani[sz]ation:%s*.-\r?\n",
             ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
             organisation = "\r?\n%s*[Oo]rgani[sz]ation:%s*(.-)\r?\n",
-            orgname = "\r?\n%s*[Oo]rg[\-]-[Nn]ame:%s*(.-)\r?\n",
+            orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:%s*(.-)\r?\n",
             descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
-            email = "\r?\n%s*[Ee][\-]-[Mm]ail:%s*(.-)\r?\n"},
+            email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"},
       ob_role = { ob_start = "\r?\n%s*[Rr]ole:%s*.-\r?\n",
             ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
             role = "\r?\n%s*[Rr]ole:%s*(.-)\r?\n",
-            email = "\r?\n%s*[Ee][\-]-[Mm]ail:%s*(.-)\r?\n"},
+            email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"},
       ob_persn = {  ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
             ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
             person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
-            email = "\r?\n%s*[Ee][\-]-[Mm]ail:%s*(.-)\r?\n"}  },
+            email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
     arin = {
-      ob_exist =  "\r?\n%s*[Nn]et[\-]-[Rr]ange:.-\r?\n",
-      ob_netnum = {ob_start = "\r?\n%s*[Nn]et[\-]-[Rr]ange:.-\r?\n",
+      ob_exist =  "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
+      ob_netnum = {ob_start = "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
             ob_end = "\r?\n\r?\n",
-            netrange = "\r?\n%s*[Nn]et[\-]-[Rr]ange:(.-)\r?\n",
-            netname = "\r?\n%s*[Nn]et[\-]-[Nn]ame:(.-)\r?\n",
-            nettype = "\r?\n%s*[Nn]et[\-]-[Tt]ype:(.-)\r?\n"},
-      ob_org = {ob_start = "\r?\n%s*[Oo]rg[\-]-[Nn]ame:.-\r?\n",
+            netrange = "\r?\n%s*[Nn]et[-]-[Rr]ange:(.-)\r?\n",
+            netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:(.-)\r?\n",
+            nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:(.-)\r?\n"},
+      ob_org = {ob_start = "\r?\n%s*[Oo]rg[-]-[Nn]ame:.-\r?\n",
             ob_end = "\r?\n\r?\n",
-            orgname = "\r?\n%s*[Oo]rg[\-]-[Nn]ame:(.-)\r?\n",
-            orgid = "\r?\n%s*[Oo]rg[\-]-[Ii][Dd]:(.-)\r?\n",
-            stateprov = "\r?\n%s*[Ss]tate[\-]-[Pp]rov:(.-)\r?\n",
+            orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:(.-)\r?\n",
+            orgid = "\r?\n%s*[Oo]rg[-]-[Ii][Dd]:(.-)\r?\n",
+            stateprov = "\r?\n%s*[Ss]tate[-]-[Pp]rov:(.-)\r?\n",
             country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
-      ob_cust = {ob_start = "\r?\n%s*[Cc]ust[\-]-[Nn]ame:.-\r?\n",
+      ob_cust = {ob_start = "\r?\n%s*[Cc]ust[-]-[Nn]ame:.-\r?\n",
             ob_end = "\r?\n\r?\n",
-            custname =  "\r?\n%s*[Cc]ust[\-]-[Nn]ame:(.-)\r?\n",
-            stateprov = "\r?\n%s*[Ss]tate[\-]-[Pp]rov:(.-)\r?\n",
+            custname =  "\r?\n%s*[Cc]ust[-]-[Nn]ame:(.-)\r?\n",
+            stateprov = "\r?\n%s*[Ss]tate[-]-[Pp]rov:(.-)\r?\n",
             country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
-      ob_persn = {ob_start = "\r?\n%s*[Oo]rg[\-]-[Tt]ech[\-]-[Nn]ame:.-\r?\n",
+      ob_persn = {ob_start = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:.-\r?\n",
             ob_end = "\r?\n\r?\n",
             orgtechname =
-            "\r?\n%s*[Oo]rg[\-]-[Tt]ech[\-]-[Nn]ame:(.-)\r?\n",
+            "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:(.-)\r?\n",
             orgtechemail =
-            "\r?\n%s*[Oo]rg[\-]-[Tt]ech[\-]-[Ee][\-]-[Mm]ail:(.-)\r?\n"}  },
+            "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Ee][-]-[Mm]ail:(.-)\r?\n"}  },
     lacnic = {
       ob_exist =  "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
       ob_netnum = {ob_start = "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
             ob_end = "\r?\n\r?\n",
             inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
             owner = "\r?\n%s*[Oo]wner:%s*(.-)\r?\n",
-            ownerid = "\r?\n%s*[Oo]wner[\-]-[Ii][Dd]:%s*(.-)\r?\n",
+            ownerid = "\r?\n%s*[Oo]wner[-]-[Ii][Dd]:%s*(.-)\r?\n",
             responsible = "\r?\n%s*[Rr]esponsible:%s*(.-)\r?\n",
             country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
             source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
       ob_persn = {ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
             ob_end = "\r?\n\r?\n",
             person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
-            email = "\r?\n%s*[Ee][\-]-[Mm]ail:%s*(.-)\r?\n"}  },
+            email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
     jpnic = {
       ob_exist =  "\r?\n%s*[Nn]etwork%s-[Ii]nformation:%s*.-\r?\n",
-      ob_netnum = {ob_start = "\[[Nn]etwork%s*[Nn]umber\]%s*.-\r?\n",
+      ob_netnum = {ob_start = "[[Nn]etwork%s*[Nn]umber]%s*.-\r?\n",
             ob_end = "\r?\n\r?\n",
-            inetnum = "\[[Nn]etwork%s*[Nn]umber\]%s*(.-)\r?\n",
-            netname = "\[[Nn]etwork%s*[Nn]ame\]%s*(.-)\r?\n",
-            orgname = "\[[Oo]rganization\]%s*(.-)\r?\n"} }
+            inetnum = "[[Nn]etwork%s*[Nn]umber]%s*(.-)\r?\n",
+            netname = "[[Nn]etwork%s*[Nn]ame]%s*(.-)\r?\n",
+            orgname = "[[Oo]rganization]%s*(.-)\r?\n"} }
   }
 
   ---
@@ -1578,7 +1578,7 @@ function script_init( )
   }
 
   nmap.registry.whois.m_none = {
-    "\n%s*([Nn]o match found for[%s\+]*$addr)",
+    "\n%s*([Nn]o match found for[%s+]*$addr)",
     "\n%s*([Uu]nallocated resource:%s*$addr)",
     "\n%s*([Rr]eserved:%s*$addr)",
     "\n[^\n]*([Nn]ot%s[Aa]ssigned[^\n]*$addr)",
@@ -1595,8 +1595,8 @@ function script_init( )
       {
         remote_resource = "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt",
         local_resource = "ipv4-address-space",
-        match_assignment = "^%s*([\.%d]+/%d+)",
-        match_service = "whois\.(%w+)\.net"
+        match_assignment = "^%s*([%.%d]+/%d+)",
+        match_service = "whois%.(%w+)%.net"
       }
     }
     nmap.registry.whois.remote_assignments_files.ipv6 = {
@@ -1610,7 +1610,7 @@ function script_init( )
         remote_resource = "http://www.iana.org/assignments/ipv6-unicast-address-assignments/ipv6-unicast-address-assignments.txt",
         local_resource = "ipv6-unicast-address-assignments",
         match_assignment = "^%s*([:%x]+/%d+)",
-        match_service = "whois\.(%w+)\.net"
+        match_service = "whois%.(%w+)%.net"
       }
   }
 
@@ -1773,7 +1773,7 @@ function get_local_assignments_data()
           -- update our file header with a new timestamp
           stdnse.print_debug( 1, "%s: %s is up-to-date.", SCRIPT_NAME, file )
           file_content = read_from_file( file )
-          file_content[2] = file_content[2]:gsub("^<[\-\+]?%d+>(.*)$", "<" .. os.time() .. ">%1")
+          file_content[2] = file_content[2]:gsub("^<[-+]?%d+>(.*)$", "<" .. os.time() .. ">%1")
           write_success, err = write_to_file( file, file_content )
           if err then
             stdnse.print_debug( 1, "%s: Error writing to %s: %s.", SCRIPT_NAME, file, err )
@@ -1903,7 +1903,7 @@ function requires_updating( file )
   if not (
     mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
   or
-    mod:match( "%a*day,%d%d\-%a%a%a\-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+    mod:match( "%a*day,%d%d-%a%a%a-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
   or
     mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
   ) then
@@ -2144,7 +2144,7 @@ end
 function get_period( period )
 
   if type( period ) ~= string or ( period == "" ) then return nil end
-  local quant, unit = period:match( "(\-?\+?%d*\.?%d*)([SsMmHhDd]?)" )
+  local quant, unit = period:match( "(-?+?%d*%.?%d*)([SsMmHhDd]?)" )
   if not ( tonumber( quant ) ) then return nil end
 
   if ( string.lower( unit ) == "m" ) then

@@ -160,7 +160,7 @@ end
 -- @param body the html content of the recieved page
 -- @return link to next page
 local function getPager( body )
-	return body:match("<form.+action=\"(.+%?ReadForm)\&" )
+	return body:match("<form.+action=\"(.+%?ReadForm)&" )
 end
 
 --- Retrieves the username and passwords for a user
@@ -253,7 +253,7 @@ action = function(host, port)
 	pager = getPager( http_response.body )
 	if ( not(pager) ) then
 		if ( http_response.body and 
-			 http_response.body:match(".*\<input type=\"submit\".* value=\"Sign In\"\>.*" ) ) then
+			 http_response.body:match(".*<input type=\"submit\".* value=\"Sign In\">.*" ) ) then
 			return "  \n  ERROR: Failed to authenticate"
 		else
 			return "  \n  ERROR: Failed to process results"

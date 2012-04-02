@@ -53,7 +53,7 @@ local function parseVersion( server_version )
 		local hotfix = string.sub(server_version,8)
 		server_version = major_version .. "." .. minor_version .. "." .. hotfix
 	elseif( pfx == "CSS" ) then
-		return server_version:match("%w+\/(.*)")
+		return server_version:match("%w+/(.*)")
 	end
 	
 	return server_version
@@ -78,7 +78,7 @@ action = function( host, port )
 	helper:close()
 
 	-- Set port information
-	if ( response.srvclass and response.srvclass:match("IDS\/") ) then
+	if ( response.srvclass and response.srvclass:match("IDS/") ) then
 		port.version.name = "drda"
 		port.version.product = "IBM Informix Dynamic Server"
 		port.version.name_confidence = 100

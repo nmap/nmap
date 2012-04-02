@@ -131,7 +131,7 @@ local ALEXA_DOMAINS = {
 -- Construct the default list of domains.
 for _, domain in ipairs(ALEXA_DOMAINS) do
   DOMAINS[#DOMAINS + 1] = domain
-  if not string.match(domain, "^www\.") then
+  if not string.match(domain, "^www%.") then
     DOMAINS[#DOMAINS + 1] = "www." .. domain
   end
 end

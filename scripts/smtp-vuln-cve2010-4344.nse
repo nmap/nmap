@@ -84,7 +84,7 @@ local function get_exim_banner(response)
   local banner, version
   banner = response:match("%d+%s(.+)")
   if banner then
-    version = tonumber(banner:match("Exim%s([0-9\.]+)"))
+    version = tonumber(banner:match("Exim%s([0-9%.]+)"))
   end
   return banner, version
 end

@@ -445,8 +445,8 @@ function nice_output( output, combined_records )
     for j=1,#output,1 do
       -- does everything after the first pipe match for i ~= j?
       if i ~= j and output[i]:match( "[^|]+|([^$]+$)" ) == output[j]:match( "[^|]+|([^$]+$)" ) then
-        first = output[i]:match( "([%x%d:\.]+/%d+)%s|" ) -- the lastmost BGP before the pipe in i.
-        second = output[j]:match( "([%x%d:\.]+/%d+)" ) -- first BGP in j
+        first = output[i]:match( "([%x%d:%.]+/%d+)%s|" ) -- the lastmost BGP before the pipe in i.
+        second = output[j]:match( "([%x%d:%.]+/%d+)" ) -- first BGP in j
         -- add in the new BGP from j and delete j
         if first and second then
           output[i] = output[i]:gsub( first, ("%s and %s"):format( first, second ) )

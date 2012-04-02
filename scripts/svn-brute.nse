@@ -118,7 +118,7 @@ svn =
 				return false, "error"
 			end
 		
-			challenge = msg:match("\<.+\>")
+			challenge = msg:match("<.+>")
 		
 			if ( not(challenge) ) then
 				return false, "Failed to read challenge"
