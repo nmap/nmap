@@ -152,7 +152,7 @@ eap_str = {
 }
 
 local make_eapol = function (arg)
-	if not arg.type then arg.type = eapol_types.PACKET end
+	if not arg.type then arg.type = eapol_t.PACKET end
 	if not arg.version then arg.version = 1 end
 	if not arg.payload then arg.payload = "" end		      
 	if not arg.src then return nil end
