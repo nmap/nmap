@@ -13,6 +13,7 @@ o We should probably go through the nmap-os-db (and IPv6 version)
   number (or even two of them), ensure that we have sp-qualified CPE
   entries like "cpe:/o:microsoft:windows_xp::sp2".  Right now we
   sometimes include the qualification, and sometimes not.
+  o This is best done with cpeify-os.py, if possible.
 
 o Scans from Mac OS X tend to use raw IP packets rather than ethernet
   frames even on the local network because Dnet does not seem to be
