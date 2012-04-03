@@ -45820,7 +45820,7 @@ U1(DF=N%T=7A-84%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7A-84%TG=80%CD=Z)
 
 # Windows 2008 Server R2 Standard
-Fingerprint Windows Server 2008 R2
+Fingerprint Microsoft Windows Server 2008 R2
 Class Microsoft | Windows | 2008 | general purpose
 CPE cpe:/o:microsoft:windows_server_2008:r2
 SEQ(SP=FC-10C%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=7)
