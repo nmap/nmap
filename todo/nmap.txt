@@ -8,6 +8,12 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
+o We should probably go through the nmap-os-db (and IPv6 version)
+  entries and, where the fingerprint line specifies a service pack
+  number (or even two of them), ensure that we have sp-qualified CPE
+  entries like "cpe:/o:microsoft:windows_xp::sp2".  Right now we
+  sometimes include the qualification, and sometimes not.
+
 o Scans from Mac OS X tend to use raw IP packets rather than ethernet
   frames even on the local network because Dnet does not seem to be
   retrieving the routing table properly -- so the LAN doesn't even
@@ -94,15 +100,6 @@ o Update more web content in real time (or near real-time, or at least
     added to https svn server.
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
-
-o ssl-google-cert-catalog should not require that the user specify
-  ssl-cert in order to run.  Instead, they should probably both call a
-  library which obtains the certificate (and caches it so that it
-  doesn't happen twice if both scripts are run).  In general, we want
-  to avoid having any scripts tell the user "this script only works if
-  you specify this other script too".  If we really find we need that
-  functionality, we should add a "strong dependencies" feature so that
-  scripts can tell Nmap what other scripts they require.
 
 o Investigate increasing FD_SETSIZE on Windows to allow us to
   multiplex more sockets.  See Henri's email:
@@ -750,6 +747,16 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o ssl-google-cert-catalog should not require that the user specify
+  ssl-cert in order to run.  Instead, they should probably both call a
+  library which obtains the certificate (and caches it so that it
+  doesn't happen twice if both scripts are run).  In general, we want
+  to avoid having any scripts tell the user "this script only works if
+  you specify this other script too".  If we really find we need that
+  functionality, we should add a "strong dependencies" feature so that
+  scripts can tell Nmap what other scripts they require.
+  [Patrik did this by adding an ssl cert library]
 
 o Our targets-ipv6-multicast-slaac.nse should probably send the router
   advertisements with low priority to reduce the chances of any
