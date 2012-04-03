@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Service-scan information is now included in XML and grepable output
+  even if -sV wasn't used. This information can be set by scripts in the
+  absence of -sV. [Daniel Miller]
+
 o [NSE] Added the script dns-ip6-arpa-scan which uses a very efficient
   technique to scan the ip6.arpa zone for PTR records. [Patrik Karlsson]
 

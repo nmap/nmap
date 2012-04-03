@@ -739,7 +739,7 @@ void printportoutput(Target *currenths, PortList *plist) {
           Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
 
         sd.populateFullVersionString(fullversion, sizeof(fullversion));
-        if (*fullversion)
+        if (*fullversion && versioncol > 0)
           Tbl->addItem(rowno, versioncol, true, fullversion);
 
         // How should we escape illegal chars in grepable output?

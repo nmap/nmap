@@ -603,16 +603,10 @@ static int l_set_port_version (lua_State *L)
   else
     luaL_error(L, "port.version 'cpe' field must be a table");
 
-  if (o.servicescan)
-    target->ports.setServiceProbeResults(p->portno, p->proto,
-        probestate, name, tunnel, product,
-        version, extrainfo, hostname, ostype, devicetype,
-        (cpe.size() > 0) ? &cpe : NULL, NULL);
-  else
-    target->ports.setServiceProbeResults(p->portno, p->proto,
-        probestate, name, tunnel, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL, NULL);
-
+  target->ports.setServiceProbeResults(p->portno, p->proto,
+      probestate, name, tunnel, product,
+      version, extrainfo, hostname, ostype, devicetype,
+      (cpe.size() > 0) ? &cpe : NULL, NULL);
   return 0;
 }
 
