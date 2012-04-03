@@ -857,6 +857,13 @@ void set_ttl(int sd, int ttl) {
 #endif
 }
 
+/* This should additionally be true for Solaris version 11 (but not 10 or
+   earlier), but I haven't found a preprocessor symbol that allows easily
+   testing that. Solaris 10 used DLPI for packet capture, but what OS X,
+   FreeBSD, and Solaris 11 have in common is that they use BPF. We can get away
+   with not having Solaris 11 here because the pcap_selectable_fd_one_to_one
+   test is true for all Solaris and overrides this function everywhere it is
+   used. */
 #if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
 int pcap_selectable_fd_valid() {
