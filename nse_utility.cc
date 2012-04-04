@@ -90,7 +90,7 @@ void check_target (lua_State *L, int idx, const char **address, const char **tar
     *address = lua_tostring(L, -1);
     lua_getfield(L, idx, "targetname");
     *targetname = lua_tostring(L, -1);
-    if (address == NULL && targetname == NULL)
+    if (*address == NULL && *targetname == NULL)
       luaL_argerror(L, idx, "host table lacks 'ip' or 'targetname' fields");
     *address = *address ? *address : *targetname;
     lua_pop(L, 2); /* no point replacing idx, need 2 only have 1 */
