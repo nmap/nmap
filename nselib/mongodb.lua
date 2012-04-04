@@ -28,7 +28,7 @@ local function dbg(str,...)
 end
 --local dbg =stdnse.print_debug
 
-local err =stdnse.log_error
+local err =stdnse.print_debug
 
 ----------------------------------------------------------------------
 -- First of all comes a Bson parsing library. This can easily be moved out into a separate library should other 
