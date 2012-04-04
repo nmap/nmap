@@ -1192,7 +1192,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/info.php', method='HEAD'}
+		{path='/info.php', method='HEAD'},
+		{path='/phpinfo.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Possible information file'}
