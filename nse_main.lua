@@ -882,8 +882,12 @@ local function run (threads_iter, hosts)
       local s, result = resume(co, unpack(thread.args, 1, thread.args.n));
       if not s then -- script error...
         all[co], num_threads = nil, num_threads-1;
-        thread:d("%THREAD_AGAINST threw an error!\n%s\n",
-            traceback(co, tostring(result)));
+        if debugging() > 0 then
+          thread:d("%THREAD_AGAINST threw an error!\n%s\n",
+              traceback(co, tostring(result)));
+        else
+          thread:set_output("ERROR: Script execution failed (use -d to debug)");
+        end
         thread:close(timeouts, result);
       elseif status(co) == "suspended" then
         if result == NSE_YIELD_VALUE then

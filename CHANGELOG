@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added an error message indicating script failure, when Nmap is being
+  run in non verbose/debug mode. [Patrik Karlsson]
+
 o Service-scan information is now included in XML and grepable output
   even if -sV wasn't used. This information can be set by scripts in the
   absence of -sV. [Daniel Miller]
