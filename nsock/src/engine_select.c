@@ -376,6 +376,8 @@ void iterate_through_event_lists(mspool *nsp) {
 #endif
         sd = nsi->sd;
 
+      assert(sd >= 0);
+
       if (FD_ISSET(sd, &sinfo->fds_results_r))
         evmask |= EV_READ;
       if (FD_ISSET(sd, &sinfo->fds_results_w))
