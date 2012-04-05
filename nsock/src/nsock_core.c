@@ -982,10 +982,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
         if (nsp->tracelevel > 5)
           nsock_trace(nsp, "PCAP iterating %lu", nse->id);
 
-#if PCAP_CAN_DO_SELECT
-        if (ev & EV_READ)
-#endif
-        {
+        if (ev & EV_READ) {
           /* buffer empty? check it! */
           if (FILESPACE_LENGTH(&(nse->iobuf)) == 0)
             do_actual_pcap_read(nse);

@@ -349,12 +349,47 @@ int select_loop(mspool *nsp, int msec_timeout) {
 
 /* ---- INTERNAL FUNCTIONS ---- */
 
+static int get_evmask(const mspool *nsp, const msiod *nsi) {
+  struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
+  int sd, evmask;
+
+  evmask = EV_NONE;
+
+#if HAVE_PCAP
+#ifndef PCAP_CAN_DO_SELECT
+  if (nsi->pcap) {
+    /* Always assume readable for a non-blocking read. We can't check FD_ISSET
+       because we don't have a pcap_desc. */
+    evmask |= EV_READ;
+    return evmask;
+  }
+#endif
+#endif
+
+#if HAVE_PCAP
+  if (nsi->pcap)
+    sd = ((mspcap *)nsi->pcap)->pcap_desc;
+  else
+#endif
+    sd = nsi->sd;
+
+  assert(sd >= 0);
+
+  if (FD_ISSET(sd, &sinfo->fds_results_r))
+    evmask |= EV_READ;
+  if (FD_ISSET(sd, &sinfo->fds_results_w))
+    evmask |= EV_WRITE;
+  if (FD_ISSET(sd, &sinfo->fds_results_x))
+    evmask |= EV_EXCEPT;
+
+  return evmask;
+}
+
 /* Iterate through all the event lists (such as connect_events, read_events,
  * timer_events, etc) and take action for those that have completed (due to
  * timeout, i/o, etc) */
 void iterate_through_event_lists(mspool *nsp) {
   gh_list_elem *current, *next, *last, *timer_last;
-  struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
 
   /* Clear it -- We will find the next event as we go through the list */
   nsp->next_ev.tv_sec = 0;
@@ -366,27 +401,8 @@ void iterate_through_event_lists(mspool *nsp) {
        current != NULL && GH_LIST_ELEM_PREV(current) != last; current = next) {
     msiod *nsi = (msiod *)GH_LIST_ELEM_DATA(current);
     
-    if (nsi->state != NSIOD_STATE_DELETED && nsi->events_pending) {
-      int sd, evmask = EV_NONE;
-
-#if HAVE_PCAP
-      if (nsi->pcap)
-        sd = ((mspcap *)nsi->pcap)->pcap_desc;
-      else
-#endif
-        sd = nsi->sd;
-
-      assert(sd >= 0);
-
-      if (FD_ISSET(sd, &sinfo->fds_results_r))
-        evmask |= EV_READ;
-      if (FD_ISSET(sd, &sinfo->fds_results_w))
-        evmask |= EV_WRITE;
-      if (FD_ISSET(sd, &sinfo->fds_results_x))
-        evmask |= EV_EXCEPT;
-    
-      process_iod_events(nsp, nsi, evmask);
-    }
+    if (nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
+      process_iod_events(nsp, nsi, get_evmask(nsp, nsi));
 
     next = GH_LIST_ELEM_NEXT(current);
     if (nsi->state == NSIOD_STATE_DELETED) {
