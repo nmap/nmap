@@ -62,6 +62,7 @@ Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-client-subnet-scan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
+Entry { filename = "dns-ip6-arpa-scan.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsec-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsid.nse", categories = { "default", "discovery", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
@@ -148,6 +149,7 @@ Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln",
 Entry { filename = "http-unsafe-output-escaping.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-virustotal.nse", categories = { "external", "malware", "safe", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2009-3960.nse", categories = { "exploit", "intrusive", } }
 Entry { filename = "http-vuln-cve2010-2861.nse", categories = { "intrusive", "vuln", } }
@@ -248,7 +250,7 @@ Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "quake3-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "quake3-master-getservers.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "rdp-vuln-ms12-020.nse", categories = { "vuln", } }
+Entry { filename = "rdp-vuln-ms12-020.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "redis-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "redis-info.nse", categories = { "discovery", "safe", } }

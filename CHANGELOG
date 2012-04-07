@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script http-virustotal that allows checking files, or hashes
+  of previously scanned files, against the major antivirus engines. [Patrik
+  Karlsson]
+
 o Setting --min-parallelism by itself no longer forces the maximum
   parallelism to the same value. [Chris Woodbury, David Fifield]
 
