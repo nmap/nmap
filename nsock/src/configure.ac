@@ -34,6 +34,11 @@ case "$host" in
   *-hpux*)
     AC_DEFINE(HPUX)
     ;;
+  *-solaris2.1[[1-9]]*)
+    AC_DEFINE(SOLARIS)
+    # Solaris 11 and later use BPF packet capture rather than DLPI.
+    AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE)
+    ;;
   *-solaris2.0*)  
     AC_DEFINE(SOLARIS)
     ;;

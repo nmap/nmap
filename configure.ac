@@ -123,6 +123,11 @@ case "$host" in
     AC_CHECK_LIB(cfg, _system_configuration)
     AC_CHECK_LIB(crypt, crypt_r)
     ;;
+  *-solaris2.1[[1-9]]*)
+    AC_DEFINE(SOLARIS)
+    # Solaris 11 and later use BPF packet capture rather than DLPI.
+    AC_DEFINE(SOLARIS_BPF_PCAP_CAPTURE)
+    ;;
   *-solaris2.0*)  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
     AC_DEFINE(SOLARIS)

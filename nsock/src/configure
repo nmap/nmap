@@ -2217,6 +2217,13 @@ case "$host" in
     $as_echo "#define HPUX 1" >>confdefs.h
 
     ;;
+  *-solaris2.1[1-9]*)
+    $as_echo "#define SOLARIS 1" >>confdefs.h
+
+    # Solaris 11 and later use BPF packet capture rather than DLPI.
+    $as_echo "#define SOLARIS_BPF_PCAP_CAPTURE 1" >>confdefs.h
+
+    ;;
   *-solaris2.0*)
     $as_echo "#define SOLARIS 1" >>confdefs.h
 

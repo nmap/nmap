@@ -83,7 +83,7 @@
  */
 
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
-#if !defined(WIN32) && !defined(SOLARIS)
+#if !defined(WIN32) && !defined(SOLARIS_BPF_PCAP_CAPTURE)
 #define PCAP_CAN_DO_SELECT 1
 #endif
 

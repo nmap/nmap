@@ -70,6 +70,8 @@
 #undef NETBSD
 #undef MACOSX
 
+#undef SOLARIS_BPF_PCAP_CAPTURE
+
 #undef HAVE_NET_BPF_H
 #undef HAVE_SYS_IOCTL_H
 
