@@ -818,6 +818,9 @@ Crawler = {
 		local condvar = nmap.condvar(self.response_queue)
 		self.quit = true
 		condvar "signal"
+		if ( coroutine.status(self.thread) == "dead" ) then
+			return
+		end
 		condvar "wait"
 	end
 }
