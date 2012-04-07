@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Setting --min-parallelism by itself no longer forces the maximum
+  parallelism to the same value. [Chris Woodbury, David Fifield]
+
 o [NSE] Added an error message indicating script failure, when Nmap is being
   run in non verbose/debug mode. [Patrik Karlsson]
 

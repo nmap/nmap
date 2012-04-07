@@ -5904,15 +5904,8 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 
   memset(&pil, 0, sizeof(pil));
 
-  if (o.max_parallelism) {
-    ss.max_width = o.max_parallelism;
-  } else {
-      ss.max_width = 150;
-  }
-
-  if (o.min_parallelism) {
-    ss.min_width = o.min_parallelism;
-  } else ss.min_width = 1;
+  ss.min_width = o.min_parallelism ? o.min_parallelism : 1;
+  ss.max_width = MAX(ss.min_width, o.max_parallelism ? o.max_parallelism : 150);
 
   ss.initial_packet_width = box(ss.min_width, ss.max_width, ss.initial_packet_width);
   ss.numqueries_ideal = ss.initial_packet_width;

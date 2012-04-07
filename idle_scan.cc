@@ -304,8 +304,8 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   initialize_proxy_struct(proxy);
   initialize_timeout_info(&proxy->host.to);
 
-  proxy->max_groupsz = (o.max_parallelism)? o.max_parallelism : 100;
-  proxy->min_groupsz = (o.min_parallelism)? o.min_parallelism : 4;
+  proxy->min_groupsz = o.min_parallelism ? o.min_parallelism : 4;
+  proxy->max_groupsz = MAX(proxy->min_groupsz, o.max_parallelism ? o.max_parallelism : 100);
   proxy->max_senddelay = 100000;
 
   Strncpy(name, proxyName, sizeof(name));

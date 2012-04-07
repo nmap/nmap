@@ -1880,7 +1880,10 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
   if (o.timing_level == 4) desired_par = 30;
   if (o.timing_level >= 5) desired_par = 40;
   // TODO: Come up with better ways to determine ideal_parallelism
-  ideal_parallelism = box(o.min_parallelism, o.max_parallelism? o.max_parallelism : 100, desired_par);
+  int min_par, max_par;
+  min_par = o.min_parallelism;
+  max_par = MAX(min_par, o.max_parallelism ? o.max_parallelism : 100);
+  ideal_parallelism = box(min_par, max_par, desired_par);
 }
 
 ServiceGroup::~ServiceGroup() {

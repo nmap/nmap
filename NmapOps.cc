@@ -533,10 +533,6 @@ dialog where you can start NPF if you have administrator privileges.";
     fatal("Sorry -- IPv6 support is currently only available for TCP, UDP, and SCTP port scans and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
   }
 
-  /* Prevent performance values from getting out of whack */
-  if (min_parallelism > max_parallelism)
-    max_parallelism = min_parallelism;
-
   if(ipoptions && osscan)
     error("WARNING: Ip options are NOT used while OS scanning!");
 

@@ -295,9 +295,9 @@ void ultra_timing_vals::drop_group(unsigned in_flight,
 void scan_performance_vars::init() {
   /* TODO: I should revisit these values for tuning.  They should probably
      at least be affected by -T. */
-  low_cwnd = MAX(o.min_parallelism, 1);
-  max_cwnd = o.max_parallelism? o.max_parallelism : 300;
-  group_initial_cwnd = box(o.min_parallelism, max_cwnd, 10);
+  low_cwnd = o.min_parallelism ? o.min_parallelism : 1;
+  max_cwnd = MAX(low_cwnd, o.max_parallelism ? o.max_parallelism : 300);
+  group_initial_cwnd = box(low_cwnd, max_cwnd, 10);
   host_initial_cwnd = group_initial_cwnd;
   slow_incr = 1;
   /* The congestion window grows faster with more aggressive timing. */
