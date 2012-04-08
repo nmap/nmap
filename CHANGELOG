@@ -1,7 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added script targets-ipv6-mld that sends a malformed ICMP6 MLD Query
-  to discover IPv6 enabled hosts on the LAN. [Niteesh Kumar]
+o [NSE] Added the script http-vlcstreamer-ls which queries the VLC Streamer
+  helper service for a list of files in a given directory. [Patrik Karlsson]
+
+o [NSE] Added the script targets-ipv6-mld that sends a malformed ICMP6 MLD
+  Query to discover IPv6 enabled hosts on the LAN. [Niteesh Kumar]
 
 o [NSE] Added script http-virustotal that allows checking files, or hashes
   of previously scanned files, against the major antivirus engines. [Patrik
