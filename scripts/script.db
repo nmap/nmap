@@ -323,6 +323,7 @@ Entry { filename = "stun-version.nse", categories = { "version", } }
 Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "svn-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "targets-asn.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "targets-ipv6-mld.nse", categories = { "broadcast", "discovery", } }
 Entry { filename = "targets-ipv6-multicast-echo.nse", categories = { "broadcast", "discovery", } }
 Entry { filename = "targets-ipv6-multicast-invalid-dst.nse", categories = { "broadcast", "discovery", } }
 Entry { filename = "targets-ipv6-multicast-slaac.nse", categories = { "broadcast", "discovery", } }
