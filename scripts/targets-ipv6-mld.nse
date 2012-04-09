@@ -31,7 +31,8 @@ local target 	= require 'target'
 local packet	= require 'packet'
 local bit		= require 'bit'
 local bin		= require 'bin'
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME, '.timeout') or 10 
+
+local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
 
 prerule = function()
 	if ( not(nmap.is_privileged()) ) then
@@ -106,19 +107,16 @@ local function single_interface_broadcast(if_nfo, results)
 
 	dnet:ethernet_send(probe.frame_buf)
 
-	pcap:set_timeout(10000)
+	pcap:set_timeout(1000)
 	local pcap_timeout_count = 0
 	local nse_timeout = arg_timeout or 10
 	local start_time = nmap:clock()
-
 	local addrs = {}
 
 	repeat
 		local status, length, layer2, layer3 = pcap:pcap_receive()
 		local cur_time = nmap:clock()
-		if not status then
-			pcap_timeout_count = pcap_timeout_count + 1
-		else
+		if ( status ) then
 			local l2reply = packet.Frame:new(layer2)
 			local reply = packet.Packet:new(layer3, length, true)
 			if reply.ip6_nhdr == packet.MLD_LISTENER_REPORT then
@@ -131,7 +129,7 @@ local function single_interface_broadcast(if_nfo, results)
 				end
 			end
 		end
-	until ( pcap_timeout_count >= 2 or cur_time - start_time >= nse_timeout )
+	until ( cur_time - start_time >= nse_timeout )
 
 	dnet:ethernet_close()
 	pcap:pcap_close()
