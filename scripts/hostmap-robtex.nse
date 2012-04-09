@@ -1,5 +1,7 @@
 description = [[
-Tries to find hostnames that resolve to the target's IP address by querying the Robtex service at http://www.robtex.com/dns/.
+Finds up to 100 domain names that use the same name server as the target by querying the Robtex service at http://www.robtex.com/dns/.
+
+The target must be specified by DNS name, not IP address.
 ]];
 
 ---
@@ -28,7 +30,6 @@ categories = {
 };
 
 require "http";
-require "ipOps"
 require "shortport";
 
 --- Scrape domains sharing name servers from robtex website
@@ -46,11 +47,11 @@ function parse_robtex_response (data)
 end
 
 hostrule = function (host)
-  return not ipOps.isPrivate(host.ip)
+  return host.targetname
 end;
 
 action = function (host)
-  local link = "http://www.robtex.com/dns/" .. host.ip .. ".html";
+  local link = "http://www.robtex.com/dns/" .. host.targetname .. ".html";
   local htmldata = http.get_url(link);
   local domains = parse_robtex_response(htmldata.body);
   if (#domains > 0) then
