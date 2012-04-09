@@ -119,7 +119,8 @@ local function single_interface_broadcast(if_nfo, results)
 		if ( status ) then
 			local l2reply = packet.Frame:new(layer2)
 			local reply = packet.Packet:new(layer3, length, true)
-			if reply.ip6_nhdr == packet.MLD_LISTENER_REPORT then
+			if ( reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or 
+				 reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT ) then
 				local target_str = reply.ip_src
 				if not results[target_str] then
 					if target.ALLOW_NEW_TARGETS then
