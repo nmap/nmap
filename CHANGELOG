@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added hostmap-robtex.nse by Arturo Busleiman, which finds other
+  domain names sharing the IP address of the target.
+
 o [NSE] Added the script http-vlcstreamer-ls which queries the VLC Streamer
   helper service for a list of files in a given directory. [Patrik Karlsson]
 
