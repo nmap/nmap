@@ -4,7 +4,7 @@ Tries to find hostnames that resolve to the target's IP address by querying the 
 
 ---
 -- @usage
--- nmap --script hostmap-robtex --script-args hostmap-robtex.host='<domain_name>'
+-- nmap --script hostmap-robtex
 --
 -- @output
 -- Host script results:
