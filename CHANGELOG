@@ -5,6 +5,9 @@ o [NSE] Added hostmap-robtex.nse by Arturo Busleiman, which finds other
 
 o [NSE] Renamed hostmap.nse to hostmap-bfk.nse.
 
+o [NSE] Added http-robtex-shared-ns by Arturo Busleiman, finding
+  domain names that share the same name server as the target.
+
 o [NSE] Added the script http-vlcstreamer-ls which queries the VLC Streamer
   helper service for a list of files in a given directory. [Patrik Karlsson]
 
