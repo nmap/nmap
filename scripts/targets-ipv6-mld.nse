@@ -1,9 +1,9 @@
 description = [[
-Sends an ICMPv6 packet with an invalid extension header to the
-all-nodes link-local multicast address (<code>ff02::1</code>) to
-discover (some) available hosts on the LAN. This works because some
-hosts will respond to this probe with an ICMPv6 Parameter Problem
-packet.
+Sends an MLD query with maximum response delay 0 to the
+to discover available hosts on the LAN. This works because 
+hosts will respond to this probe with an MLD report packet and 
+as maximum response delay is 0 nobody gets time to wait for others`
+report even in the same multicast group.
 ]]
 
 ---
