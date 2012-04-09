@@ -8,17 +8,17 @@ report even in the same multicast group.
 
 ---
 -- @usage
--- nmap -6 --script=targets-ipv6-mld.nse --script-args 'newtargets,interface=eth0' -sP
+-- nmap -6 --script=targets-ipv6-multicast-mld.nse --script-args 'newtargets,interface=eth0' -sP
 --
 -- Pre-scan script results:
--- | targets-ipv6-mld: 
+-- | targets-ipv6-multicast-mld: 
 -- |   IP: fe80::5a55:abcd:ef01:2345  MAC: 58:55:ab:cd:ef:01  IFACE: en0
 -- |   IP: fe80::9284:0123:4567:89ab  MAC: 90:84:01:23:45:67  IFACE: en0
 -- |   
 -- |_  Use --script-args=newtargets to add the results as targets
 --
--- @args targets-ipv6-mld.timeout timeout in seconds to wait for responses
---       (default: 10)
+-- @args targets-ipv6-multicast-mld.timeout timeout in seconds to wait for 
+--       responses (default: 10)
 --
 
 author = "niteesh"
