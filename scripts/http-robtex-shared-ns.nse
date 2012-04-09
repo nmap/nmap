@@ -6,11 +6,11 @@ The target must be specified by DNS name, not IP address.
 
 ---
 -- @usage
--- nmap --script hostmap-robtex
+-- nmap --script http-robtex-shared-ns
 --
 -- @output
 -- Host script results:
--- | hostmap-robtex:
+-- | http-robtex-shared-ns:
 -- |   example.edu
 -- |   example.net
 -- |   example.edu
