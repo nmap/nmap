@@ -6,10 +6,8 @@ Tries to find hostnames that resolve to the target's IP address by querying the 
 -- @usage
 -- nmap --script hostmap-robtex --script-args hostmap-robtex.host='<domain_name>'
 --
--- @args hostmap-robtex.host IPv4 address of the host to lookup
---
 -- @output
--- Pre-scan script results:
+-- Host script results:
 -- | hostmap-robtex:
 -- |   example.edu
 -- |   example.net
@@ -30,6 +28,7 @@ categories = {
 };
 
 require "http";
+require "ipOps"
 require "shortport";
 
 --- Scrape domains sharing name servers from robtex website
@@ -46,14 +45,12 @@ function parse_robtex_response (data)
   return result;
 end
 
-prerule = function ()
-  return stdnse.get_script_args("hostmap-robtex.host") ~= nil;
+hostrule = function (host)
+  return not ipOps.isPrivate(host.ip)
 end;
 
-action = function (host, port)
-  local target = stdnse.get_script_args("hostmap-robtex.host");
-
-  local link = "http://www.robtex.com/dns/" .. target .. ".html";
+action = function (host)
+  local link = "http://www.robtex.com/dns/" .. host.ip .. ".html";
   local htmldata = http.get_url(link);
   local domains = parse_robtex_response(htmldata.body);
   if (#domains > 0) then
