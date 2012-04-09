@@ -102,8 +102,8 @@ Entry { filename = "hadoop-tasktracker-info.nse", categories = { "default", "dis
 Entry { filename = "hbase-master-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
-Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth-finder.nse", categories = { "discovery", "safe", } }

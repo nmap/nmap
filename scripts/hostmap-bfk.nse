@@ -2,10 +2,12 @@ description = [[
 Tries to find hostnames that resolve to the target's IP address by querying the online database at http://www.bfk.de/bfk_dnslogger.html.
 
 The script is in the "external" category because it sends target IPs to a third party in order to query their database.
+
+This script was formerly (until April 2012) known as hostmap.nse.
 ]]
 
 ---
--- @args hostmap.prefix If set, saves the output for each host in a file
+-- @args hostmap-bfk.prefix If set, saves the output for each host in a file
 -- called "<prefix><target>". The file contains one entry per line.
 -- @args newtargets If set, add the new hostnames to the scanning queue.
 -- This the names presumably resolve to the same IP address as the
@@ -13,11 +15,11 @@ The script is in the "external" category because it sends target IPs to a third 
 -- can change their behavior based on hostname.
 --
 -- @usage
--- nmap --script hostmap --script-args hostmap.prefix=hostmap- <targets>
+-- nmap --script hostmap-bfk --script-args hostmap-bfk.prefix=hostmap- <targets>
 --
 -- @output
 -- Host script results:
--- | hostmap: Saved to hostmap-nmap.org
+-- | hostmap-bfk: Saved to hostmap-nmap.org
 -- | insecure.org
 -- | 74.207.254.18
 -- | web.insecure.org
@@ -85,7 +87,7 @@ action = function(host)
   local hostnames_str = stdnse.strjoin("\n", hostnames)
   local output_str
 
-  local filename_prefix = stdnse.get_script_args("hostmap.prefix")
+  local filename_prefix = stdnse.get_script_args("hostmap-bfk.prefix")
   if filename_prefix then
     local filename = filename_prefix .. filename_escape(host.targetname or host.ip)
     local status, err = write_file(filename, hostnames_str .. "\n")
