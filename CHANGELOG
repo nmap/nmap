@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded included libpcap to version 1.2.1.
+
 o [NSE] Added hostmap-robtex.nse by Arturo Busleiman, which finds other
   domain names sharing the IP address of the target.
 
