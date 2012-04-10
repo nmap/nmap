@@ -562,6 +562,8 @@ o Scanning through proxies
      these different applications can be scanned through using the
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
+   o David: I'm starting to think about building proxy support into
+     Nsock and then implementing -sT with Nsock instead of ultra_scan.
 
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
