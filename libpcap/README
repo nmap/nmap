@@ -63,13 +63,14 @@ added overhead (especially, for selective filters).  Ideally, libpcap
 would translate BPF filters into a filter program that is compatible
 with the underlying kernel subsystem, but this is not yet implemented.
 
-BPF is standard in 4.4BSD, BSD/OS, NetBSD, FreeBSD, and OpenBSD.  DEC
-OSF/1/Digital UNIX/Tru64 UNIX uses the packetfilter interface but has
-been extended to accept BPF filters (which libpcap utilizes).  Also, you
-can add BPF filter support to Ultrix using the kernel source and/or
-object patches available in:
+BPF is standard in 4.4BSD, BSD/OS, NetBSD, FreeBSD, OpenBSD, DragonFly
+BSD, and Mac OS X; an older, modified and undocumented version is
+standard in AIX.  {DEC OSF/1, Digital UNIX, Tru64 UNIX} uses the
+packetfilter interface but has been extended to accept BPF filters
+(which libpcap utilizes).  Also, you can add BPF filter support to
+Ultrix using the kernel source and/or object patches available in:
 
-	ftp://gatekeeper.dec.com/pub/DEC/net/bpfext42.tar.Z.
+	http://www.tcpdump.org/other/bpfext42.tar.Z
 
 Linux, in the 2.2 kernel and later kernels, has a "Socket Filter"
 mechanism that accepts BPF filters; see the README.linux file for

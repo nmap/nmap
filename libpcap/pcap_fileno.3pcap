@@ -47,7 +47,7 @@ returns the file descriptor from which captured packets are read.
 .LP
 If
 .I p
-refers to a ``savefile'' that was opened using fuctions such as
+refers to a ``savefile'' that was opened using functions such as
 .BR pcap_open_offline()
 or
 .BR pcap_fopen_offline() ,

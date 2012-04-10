@@ -19,9 +19,10 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_FINDALLDEVS 3PCAP "5 April 2008"
+.TH PCAP_FINDALLDEVS 3PCAP "22 August 2010"
 .SH NAME
-pcap_findalldevs \- get a list of capture devices
+pcap_findalldevs, pcap_freealldevs \- get a list of capture devices, and
+free that list
 .SH SYNOPSIS
 .nf
 .ft B
@@ -35,6 +36,7 @@ char errbuf[PCAP_ERRBUF_SIZE];
 .LP
 .ft B
 int pcap_findalldevs(pcap_if_t **alldevsp, char *errbuf);
+void pcap_freealldevs(pcap_if_t *alldevs);
 .ft
 .fi
 .SH DESCRIPTION
@@ -48,12 +50,17 @@ or with
 (Note that there may be network devices that cannot be opened by the
 process calling
 .BR pcap_findalldevs() ,
-because, for example, that process might not have sufficient privileges
+because, for example, that process does not have sufficient privileges
 to open them for capturing; if so, those devices will not appear on the
 list.)
+If
+.B pcap_findalldevs()
+succeeds, the pointer pointed to by
 .I alldevsp
-is set to point to the first element of the list; each element of the
-list is of type
+is set to point to the first element of the list, or to
+.B NULL
+if no devices were found (this is considered success).
+Each element of the list is of type
 .BR pcap_if_t ,
 and has the following members:
 .RS
@@ -75,14 +82,18 @@ if not
 a pointer to a string giving a human-readable description of the device
 .TP
 .B addresses
-a pointer to the first element of a list of addresses for the interface
+a pointer to the first element of a list of network addresses for the
+device,
+or
+.B NULL
+if the device has no addresses
 .TP
 .B flags
-interface flags:
+device flags:
 .RS
 .TP
 .B PCAP_IF_LOOPBACK
-set if the interface is a loopback interface
+set if the device is a loopback interface
 .RE
 .RE
 .PP
@@ -119,7 +130,7 @@ a pointer to a
 that contains the broadcast address corresponding to the address pointed
 to by
 .BR addr ;
-may be null if the interface doesn't support broadcasts
+may be null if the device doesn't support broadcasts
 .TP
 .B dstaddr
 if not
@@ -129,21 +140,40 @@ a pointer to a
 that contains the destination address corresponding to the address pointed
 to by
 .BR addr ;
-may be null if the interface isn't a point-to-point interface
+may be null if the device isn't a point-to-point interface
 .RE
 .PP
-Note that not all the addresses in the list of addresses are
-necessarily IPv4 or IPv6 addresses - you must check the
+Note that the addresses in the list of addresses might be IPv4
+addresses, IPv6 addresses, or some other type of addresses, so you must
+check the
 .B sa_family
 member of the
 .B "struct sockaddr"
-before interpreting the contents of the address.
+before interpreting the contents of the address; do not assume that the
+addresses are all IPv4 addresses, or even all IPv4 or IPv6 addresses.
+IPv4 addresses have the value
+.BR AF_INET ,
+IPv6 addresses have the value
+.B AF_INET6
+(which older operating systems that don't support IPv6 might not
+define), and other addresses have other values.  Whether other addresses
+are returned, and what types they might have is platform-dependent.
+For IPv4 addresses, the
+.B "struct sockaddr"
+pointer can be interpreted as if it pointed to a
+.BR "struct sockaddr_in" ;
+for IPv6 addresses, it can be interpreted as if it pointed to a
+.BR "struct sockaddr_in6".
 .PP
 The list of devices must be freed with
-.BR pcap_freealldevs() .
+.BR pcap_freealldevs() ,
+whch frees the list pointed to by
+.IR alldevs .
 .SH RETURN VALUE
 .B pcap_findalldevs()
-returns 0 on success and \-1 on failure.
+returns 0 on success and \-1 on failure; as indicated, finding no
+devices is considered success, rather than failure, so 0 will be
+returned in that case.
 If \-1 is returned,
 .I errbuf
 is filled in with an appropriate error message.
@@ -153,4 +183,4 @@ is assumed to be able to hold at least
 chars.
 .SH SEE ALSO
 pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
-pcap_open_live(3PCAP), pcap_freealldevs(3PCAP)
+pcap_open_live(3PCAP)

@@ -209,6 +209,7 @@ struct pcap_opt {
 	char	*source;
 	int	promisc;
 	int	rfmon;
+	int	tstamp_type;
 };
 
 /*
@@ -331,6 +332,8 @@ struct pcap {
 	char errbuf[PCAP_ERRBUF_SIZE + 1];
 	int dlt_count;
 	u_int *dlt_list;
+	int tstamp_type_count;
+	u_int *tstamp_type_list;
 
 	struct pcap_pkthdr pcap_header;	/* This is needed for the pcap_next_ex() to work */
 };

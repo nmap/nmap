@@ -49,6 +49,7 @@ static const char rcsid[] _U_ =
 #include "dlpisubs.h"
 
 /* Forwards. */
+static int dlpromiscon(pcap_t *, bpf_u_int32);
 static int pcap_read_libdlpi(pcap_t *, int, pcap_handler, u_char *);
 static int pcap_inject_libdlpi(pcap_t *, const void *, size_t);
 static void pcap_close_libdlpi(pcap_t *);
@@ -114,7 +115,8 @@ pcap_activate_libdlpi(pcap_t *p)
 	if (retv != DLPI_SUCCESS) {
 		if (retv == DLPI_ELINKNAMEINVAL || retv == DLPI_ENOLINK)
 			err = PCAP_ERROR_NO_SUCH_DEVICE;
-		else if (retv == DL_SYSERR && errno == EACCES)
+		else if (retv == DL_SYSERR &&
+		    (errno == EPERM || errno == EACCES))
 			err = PCAP_ERROR_PERM_DENIED;
 		pcap_libdlpi_err(p->opt.source, "dlpi_open", retv,
 		    p->errbuf);
@@ -139,34 +141,43 @@ pcap_activate_libdlpi(pcap_t *p)
 
 	/* Enable promiscuous mode. */
 	if (p->opt.promisc) {
-		retv = dlpi_promiscon(p->dlpi_hd, DL_PROMISC_PHYS);
-		if (retv != DLPI_SUCCESS) {
-			pcap_libdlpi_err(p->opt.source,
-			    "dlpi_promisc(PHYSICAL)", retv, p->errbuf);
+		err = dlpromiscon(p, DL_PROMISC_PHYS);
+		if (err < 0) {
+			/*
+			 * "You don't have permission to capture on
+			 * this device" and "you don't have permission
+			 * to capture in promiscuous mode on this
+			 * device" are different; let the user know,
+			 * so if they can't get permission to
+			 * capture in promiscuous mode, they can at
+			 * least try to capture in non-promiscuous
+			 * mode.
+			 *
+			 * XXX - you might have to capture in
+			 * promiscuous mode to see outgoing packets.
+			 */
+			if (err == PCAP_ERROR_PERM_DENIED)
+				err = PCAP_ERROR_PROMISC_PERM_DENIED;
 			goto bad;
 		}
 	} else {
 		/* Try to enable multicast. */
-		retv = dlpi_promiscon(p->dlpi_hd, DL_PROMISC_MULTI);
-		if (retv != DLPI_SUCCESS) {
-			pcap_libdlpi_err(p->opt.source, "dlpi_promisc(MULTI)",
-			    retv, p->errbuf);
+		err = dlpromiscon(p, DL_PROMISC_MULTI);
+		if (err < 0)
 			goto bad;
-		}
 	}
 
 	/* Try to enable SAP promiscuity. */
-	retv = dlpi_promiscon(p->dlpi_hd, DL_PROMISC_SAP);
-	if (retv != DLPI_SUCCESS) {
-		if (p->opt.promisc) {
-			pcap_libdlpi_err(p->opt.source, "dlpi_promisc(SAP)",
-			    retv, p->errbuf);
+	err = dlpromiscon(p, DL_PROMISC_SAP);
+	if (err < 0) {
+		/*
+		 * Not fatal, since the DL_PROMISC_PHYS mode worked.
+		 * Report it as a warning, however.
+		 */
+		if (p->opt.promisc)
+			err = PCAP_WARNING;
+		else
 			goto bad;
-		}
-
-		/* Not fatal, since the DL_PROMISC_PHYS mode worked. */
-		fprintf(stderr, "WARNING: dlpi_promisc(SAP) failed on"
-		    " %s:(%s)\n", p->opt.source, dlpi_strerror(retv));
 	}
 
 	/* Determine link type.  */
@@ -217,6 +228,27 @@ pcap_activate_libdlpi(pcap_t *p)
 bad:
 	pcap_cleanup_libdlpi(p);
 	return (err);
+}
+
+#define STRINGIFY(n)	#n
+
+static int
+dlpromiscon(pcap_t *p, bpf_u_int32 level)
+{
+	int err;
+
+	retv = dlpi_promiscon(p->hd, level);
+	if (retv != DLPI_SUCCESS) {
+		if (retv == DL_SYSERR &&
+		    (errno == EPERM || errno == EACCES))
+			err = PCAP_ERROR_PERM_DENIED;
+		else
+			err = PCAP_ERROR;
+		pcap_libdlpi_err(p->opt.source, "dlpi_promiscon" STRINGIFY(level),
+		    retv, p->errbuf);
+		return (err);
+	}
+	return (0);
 }
 
 /*

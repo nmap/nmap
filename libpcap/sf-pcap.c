@@ -271,8 +271,12 @@ pcap_check_header(pcap_t *p, bpf_u_int32 magic, FILE *fp, char *errbuf)
 	 * Allocate a buffer for the packet data.
 	 */
 	p->bufsize = p->snapshot;
-	if (p->bufsize <= 0)
-		p->bufsize = BPF_MAXBUFSIZE;
+	if (p->bufsize <= 0) {
+		/*
+		 * Bogus snapshot length; use 64KiB as a fallback.
+		 */
+		p->bufsize = 65536;
+	}
 	p->buffer = malloc(p->bufsize);
 	if (p->buffer == NULL) {
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "out of memory");

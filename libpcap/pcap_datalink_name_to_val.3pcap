@@ -19,7 +19,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DATALINK_NAME_TO_VAL 3PCAP "5 April 2008"
+.TH PCAP_DATALINK_NAME_TO_VAL 3PCAP "22 August 2010"
 .SH NAME
 pcap_datalink_name_to_val \- get the link-layer header type value
 corresponding to a header type name
@@ -35,12 +35,12 @@ int pcap_datalink_name_to_val(const char *name);
 .fi
 .SH DESCRIPTION
 .B pcap_datalink_name_to_val()
-translates a data link type name, which is a
+translates a link-layer header type name, which is a
 .B DLT_
 name with the
 .B DLT_
-removed, to the corresponding data link type value.  The translation
-is case-insensitive.
+removed, to the corresponding link-layer header type value.  The
+translation is case-insensitive.
 .SH RETURN VALUE
 .B pcap_datalink_name_to_val()
 returns 0 on success and \-1 on failure.

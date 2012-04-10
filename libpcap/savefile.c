@@ -94,10 +94,16 @@ static int
 sf_setnonblock(pcap_t *p, int nonblock, char *errbuf)
 {
 	/*
-	 * This is a savefile, not a live capture file, so ignore
-	 * requests to put it in non-blocking mode.
+	 * This is a savefile, not a live capture file, so reject
+	 * requests to put it in non-blocking mode.  (If it's a
+	 * pipe, it could be put in non-blocking mode, but that
+	 * would significantly complicate the code to read packets,
+	 * as it would have to handle reading partial packets and
+	 * keeping the state of the read.)
 	 */
-	return (0);
+	snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+	    "Savefiles cannot be put into non-blocking mode");
+	return (-1);
 }
 
 static int
@@ -161,6 +167,7 @@ sf_cleanup(pcap_t *p)
 		(void)fclose(p->sf.rfile);
 	if (p->buffer != NULL)
 		free(p->buffer);
+	pcap_freecode(&p->fcode);
 }
 
 pcap_t *
@@ -376,7 +383,7 @@ pcap_offline_read(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 		}
 
 		if ((fcode = p->fcode.bf_insns) == NULL ||
-		    bpf_filter(fcode, p->buffer, h.len, h.caplen)) {
+		    bpf_filter(fcode, data, h.len, h.caplen)) {
 			(*callback)(user, &h, data);
 			if (++n >= cnt && cnt > 0)
 				break;

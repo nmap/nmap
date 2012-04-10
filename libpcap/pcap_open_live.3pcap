@@ -74,7 +74,7 @@ is filled in with an appropriate error message.
 .I errbuf
 may also be set to warning text when
 .B pcap_open_live()
-succeds; to detect this case the caller should store a zero-length string in
+succeeds; to detect this case the caller should store a zero-length string in
 .I errbuf
 before calling
 .B pcap_open_live()

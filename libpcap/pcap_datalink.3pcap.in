@@ -19,7 +19,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_DATALINK 3PCAP "5 April 2008"
+.TH PCAP_DATALINK 3PCAP "22 August 2010"
 .SH NAME
 pcap_datalink \- get the link-layer header type
 .SH SYNOPSIS
@@ -34,7 +34,7 @@ int pcap_datalink(pcap_t *p);
 .fi
 .SH DESCRIPTION
 .B pcap_datalink()
-returns the link layer type for the live capture or ``savefile''
+returns the link-layer header type for the live capture or ``savefile''
 specified by
 .IR p .
 .SH SEE ALSO

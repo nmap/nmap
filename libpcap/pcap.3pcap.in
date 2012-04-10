@@ -37,22 +37,51 @@ on the network, even those destined for other hosts, are accessible
 through this mechanism.
 It also supports saving captured packets to a ``savefile'', and reading
 packets from a ``savefile''.
-.PP
-To open a handle for a live capture, call
-.BR pcap_create() ,
+.SS Opening a capture handle for reading
+To open a handle for a live capture, given the name of the network or
+other interface on which the capture should be done, call
+.BR pcap_create (),
 set the appropriate options on the handle, and then activate it with
-.BR pcap_activate() .
-To open a handle for a ``savefile'' with captured packets, call
-.BR pcap_open_offline() .
-Both
-.B pcap_create()
+.BR pcap_activate ().
+.PP
+To obtain a list of devices that can be opened for a live capture, call
+.BR pcap_findalldevs ();
+to free the list returned by
+.BR pcap_findalldevs (),
+call
+.BR pcap_freealldevs ().
+.BR pcap_lookupdev ()
+will return the first device on that list that is not a ``loopback``
+network interface.
+.PP
+To open a handle for a ``savefile'' from which to read packets, given the
+pathname of the ``savefile'', call
+.BR pcap_open_offline ();
+to set up a handle for a ``savefile'', given a
+.B "FILE\ *"
+referring to a file already opened for reading, call
+.BR pcap_fopen_offline ().
+.PP
+In order to get a ``fake''
+.B pcap_t
+for use in routines that require a
+.B pcap_t
+as an argument, such as routines to open a ``savefile'' for writing and
+to compile a filter expression, call
+.BR pcap_open_dead ().
+.PP
+.BR pcap_create (),
+.BR pcap_open_offline (),
+.BR pcap_fopen_offline (),
 and
-.B pcap_open_offline()
+.BR pcap_open_dead ()
 return a pointer to a
 .BR pcap_t ,
 which is the handle used for reading packets from the capture stream or
 the ``savefile'', and for finding out information about the capture
 stream or ``savefile''.
+To close a handle, use
+.BR pcap_close ().
 .PP
 The options that can be set on a capture handle include
 .IP "snapshot length"
@@ -75,7 +104,7 @@ A snapshot length of 65535 should be sufficient, on most if not all
 networks, to capture all the data available from the packet.
 .IP
 The snapshot length is set with
-.BR pcap_set_snaplen() .
+.BR pcap_set_snaplen ().
 .IP "promiscuous mode"
 On broadcast LANs such as Ethernet, if the network isn't switched, or if
 the adapter is connected to a "mirror port" on a switch to which all
@@ -97,7 +126,7 @@ For now, this doesn't work on the "any" device; if an argument of "any"
 or NULL is supplied, the setting of promiscuous mode is ignored.
 .IP
 Promiscuous mode is set with
-.BR pcap_set_promisc() .
+.BR pcap_set_promisc ().
 .IP "monitor mode"
 On IEEE 802.11 wireless LANs, even if an adapter is in promiscuous mode,
 it will supply to the host only frames for the network with which it's
@@ -118,9 +147,9 @@ if you are capturing in monitor mode and are not connected to another
 network with another adapter.
 .IP
 Monitor mode is set with
-.BR pcap_set_rfmon() ,
+.BR pcap_set_rfmon (),
 and
-.B pcap_can_set_rfmon()
+.BR pcap_can_set_rfmon ()
 can be used to determine whether an adapter can be put into monitor
 mode.
 .IP "read timeout"
@@ -162,7 +191,7 @@ guarantee that a call reading packets will return after the timeout
 expires even if no packets have arrived.
 .IP
 The read timeout is set with
-.BR pcap_set_timeout() .
+.BR pcap_set_timeout ().
 .IP "buffer size"
 Packets that arrive for a capture are stored in a buffer, so that they
 do not have to be read by the application as soon as they arrive.  On
@@ -175,7 +204,17 @@ non-pageable operating system memory than is necessary to prevent
 packets from being dropped.
 .IP
 The buffer size is set with
-.BR pcap_set_buffer_size() .
+.BR pcap_set_buffer_size ().
+.IP "timestamp type"
+On some platforms, the time stamp given to packets on live captures can
+come from different sources that can have different resolutions or that
+can have different relationships to the time values for the current time
+supplied by routines on the native operating system.  See
+.BR pcap-tstamp (@MAN_MISC_INFO@)
+for a list of time stamp types.
+.IP
+The time stamp type is set with
+.BR pcap_set_tstamp_type ().
 .PP
 Reading packets from a network interface may require that you have
 special privileges:
@@ -260,26 +299,193 @@ have to find some other way to make that happen at boot time.
 .PP
 Reading a saved packet file doesn't require special privileges.
 .PP
-To open a ``savefile`` to which to write packets, call
-.BR pcap_dump_open() .
-It returns a pointer to a
-.BR pcap_dumper_t ,
-which is the handle used for writing packets to the ``savefile''.
+The packets read from the handle may include a ``pseudo-header''
+containing various forms of packet meta-data, and probably includes a
+link-layer header whose contents can differ for different network
+interfaces.  To determine the format of the packets supplied by the
+handle, call
+.BR pcap_datalink ();
+.I http://www.tcpdump.org/linktypes.html
+lists the values it returns and describes the packet formats that
+correspond to those values.
 .PP
+To obtain the
+.B "FILE\ *"
+corresponding to a
+.B pcap_t
+opened for a ``savefile'', call
+.BR pcap_file ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_create (3PCAP)
+get a
+.B pcap_t
+for live capture
+.TP
+.BR pcap_activate (3PCAP)
+activate a
+.B pcap_t
+for live capture
+.TP
+.BR pcap_findalldevs (3PCAP)
+get a list of devices that can be opened for a live capture
+.TP
+.BR pcap_freealldevs (3PCAP)
+free list of devices
+.TP
+.BR pcap_lookupdev (3PCAP)
+get first non-loopback device on that list
+.TP
+.BR pcap_open_offline (3PCAP)
+open a
+.B pcap_t
+for a ``savefile'', given a pathname
+.TP
+.BR pcap_fopen_offline (3PCAP)
+open a
+.B pcap_t
+for a ``savefile'', given a
+.B "FILE\ *"
+.TP
+.BR pcap_open_dead (3PCAP)
+create a ``fake''
+.B pcap_t
+.TP
+.BR pcap_close (3PCAP)
+close a
+.B pcap_t
+.TP
+.BR pcap_set_snaplen (3PCAP)
+set the snapshot length for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_snapshot (3PCAP)
+get the snapshot length for a
+.B pcap_t
+.TP
+.BR pcap_set_promisc (3PCAP)
+set promiscuous mode for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_set_rfmon (3PCAP)
+set monitor mode for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_can_set_rfmon (3PCAP)
+determine whether monitor mode can be set for a
+.B pcap_t
+for live capture
+.TP
+.BR pcap_set_timeout (3PCAP)
+set read timeout for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_set_buffer_size (3PCAP)
+set buffer size for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_set_tstamp_type (3PCAP)
+set time stamp type for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_list_tstamp_types (3PCAP)
+get list of available time stamp types for a not-yet-activated
+.B pcap_t
+for live capture
+.TP
+.BR pcap_free_tstamp_types (3PCAP)
+free list of available time stamp types
+.TP
+.BR pcap_tstamp_type_val_to_name (3PCAP)
+get name for a time stamp type
+.TP
+.BR pcap_tstamp_type_val_to_description (3PCAP)
+get description for a time stamp type
+.TP
+.BR pcap_tstamp_name_to_val (3PCAP)
+get time stamp type corresponding to a name
+.TP
+.BR pcap_datalink (3PCAP)
+get link-layer header type for a
+.B pcap_t
+.TP
+.BR pcap_file (3PCAP)
+get the
+.B "FILE\ *"
+for a
+.B pcap_t
+opened for a ``savefile''
+.TP
+.BR pcap_is_swapped (3PCAP)
+determine whether a ``savefile'' being read came from a machine with the
+opposite byte order
+.TP
+.BR pcap_major_version (3PCAP)
+.PD 0
+.TP
+.BR pcap_minor_version (3PCAP)
+get the major and minor version of the file format version for a
+``savefile''
+.PD
+.RE
+.SS Selecting a link-layer header type for a live capture
+Some devices may provide more than one link-layer header type.  To
+obtain a list of all link-layer header types provided by a device, call
+.BR pcap_list_datalinks ()
+on an activated
+.B pcap_t
+for the device.
+To free a list of link-layer header types, call
+.BR pcap_free_datalinks ().
+To set the link-layer header type for a device, call
+.BR pcap_set_datalink ().
+This should be done after the device has been activated but before any
+packets are read and before any filters are compiled or installed.
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_list_datalinks (3PCAP)
+get a list of link-layer header types for a device
+.TP
+.BR pcap_free_datalinks (3PCAP)
+free list of link-layer header types
+.TP
+.BR pcap_set_datalink (3PCAP)
+set link-layer header type for a device
+.TP
+.BR pcap_datalink_val_to_name (3PCAP)
+get name for a link-layer header type
+.TP
+.BR pcap_datalink_val_to_description (3PCAP)
+get description for a link-layer header type
+.TP
+.BR pcap_datalink_name_to_val (3PCAP)
+get link-layer header type corresponding to a name
+.RE
+.SS Reading packets
 Packets are read with
-.B pcap_dispatch()
+.BR pcap_dispatch ()
 or
-.BR pcap_loop() ,
+.BR pcap_loop (),
 which process one or more packets, calling a callback routine for each
 packet, or with
-.B pcap_next()
+.BR pcap_next ()
 or
-.BR pcap_next_ex() ,
+.BR pcap_next_ex (),
 which return the next packet.
 The callback for
-.B pcap_dispatch()
+.BR pcap_dispatch ()
 and
-.BR pcap_loop()
+.BR pcap_loop ()
 is supplied a pointer to a
 .IR "struct pcap_pkthdr" ,
 which includes the following members:
@@ -304,9 +510,9 @@ number of bytes available from the capture, if the length of the packet
 is larger than the maximum number of bytes to capture).
 .RE
 .PP
-.B pcap_next_ex()
+.BR pcap_next_ex ()
 supplies that pointer through a pointer argument.
-.B pcap_next()
+.BR pcap_next ()
 is passed an argument that points to a
 .I struct pcap_pkthdr
 structure, and fills it in.
@@ -323,15 +529,306 @@ packet; to capture the entire packet, you will have to provide a value
 for
 .I snaplen
 in your call to
-.B pcap_open_live()
+.BR pcap_set_snaplen ()
 that is sufficiently large to get all of the packet's data - a value of
 65535 should be sufficient on most if not all networks).  When reading
 from a ``savefile'', the snapshot length specified when the capture was
 performed will limit the amount of packet data available.
-.B pcap_next()
+.BR pcap_next ()
 returns that pointer;
-.B pcap_next_ex()
+.BR pcap_next_ex ()
 supplies that pointer through a pointer argument.
+.PP
+To force the loop in
+.BR pcap_dispatch ()
+or
+.BR pcap_loop ()
+to terminate, call
+.BR pcap_breakloop ().
+.PP
+By default, when reading packets from an interface opened for a live
+capture,
+.BR pcap_dispatch (),
+.BR pcap_next (),
+and
+.BR pcap_next_ex ()
+will, if no packets are currently available to be read, block waiting
+for packets to become available.  On some, but
+.I not
+all, platforms, if a read timeout was specified, the wait will terminate
+after the read timeout expires; applications should be prepared for
+this, as it happens on some platforms, but should not rely on it, as it
+does not happen on other platforms.
+.PP
+A handle can be put into ``non-blocking mode'', so that those routines
+will, rather than blocking, return an indication that no packets are
+available to read.  Call
+.BR pcap_setnonblock ()
+to put a handle into non-blocking mode or to take it out of non-blocking
+mode; call
+.BR pcap_getnonblock ()
+to determine whether a handle is in non-blocking mode.  Note that
+non-blocking mode does not work correctly in Mac OS X 10.6.
+.PP
+Non-blocking mode is often combined with routines such as
+.BR select (2)
+or
+.BR poll (2)
+or other routines a platform offers to wait for the availability of data
+on any of a set of descriptors.  To obtain, for a handle, a descriptor
+that can be used in those routines, call
+.BR pcap_get_selectable_fd ().
+Not all handles have such a descriptor available;
+.BR pcap_get_selectable_fd ()
+will return \-1 if no such descriptor exists.  In addition, for various
+reasons, one or more of those routines will not work properly with the
+descriptor; the documentation for
+.BR pcap_get_selectable_fd ()
+gives details.
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_dispatch (3PCAP)
+read a bufferful of packets from a
+.B pcap_t
+open for a live capture or the full set of packets from a
+.B pcap_t
+open for a ``savefile''
+.TP
+.BR pcap_loop (3PCAP)
+read packets from a
+.B pcap_t
+until an interrupt or error occurs
+.TP
+.BR pcap_next (3PCAP)
+read the next packet from a
+.B pcap_t
+without an indication whether an error occurred
+.TP
+.BR pcap_next_ex (3PCAP)
+read the next packet from a
+.B pcap_t
+with an error indication on an error
+.TP
+.BR pcap_breakloop (3PCAP)
+prematurely terminate the loop in
+.BR pcap_dispatch ()
+or
+.BR pcap_loop ()
+.TP
+.BR pcap_setnonblock (3PCAP)
+set or clear non-blocking mode on a
+.B pcap_t
+.TP
+.BR pcap_getnonblock (3PCAP)
+get the state of non-blocking mode for a
+.B pcap_t
+.TP
+.BR pcap_get_selectable_fd (3PCAP)
+attempt to get a descriptor for a
+.B pcap_t
+that can be used in calls such as
+.BR select (2)
+and
+.BR poll (2)
+.RE
+.SS Filters
+In order to cause only certain packets to be returned when reading
+packets, a filter can be set on a handle.  For a live capture, the
+filtering will be performed in kernel mode, if possible, to avoid
+copying ``uninteresting'' packets from the kernel to user mode.
+.PP
+A filter can be specified as a text string; the syntax and semantics of
+the string are as described by
+.BR pcap-filter (@MAN_MISC_INFO@).
+A filter string is compiled into a program in a pseudo-machine-language
+by
+.BR pcap_compile ()
+and the resulting program can be made a filter for a handle with
+.BR pcap_setfilter ().
+The result of
+.BR pcap_compile ()
+can be freed with a call to
+.BR pcap_freecode ().
+.BR pcap_compile ()
+may require a network mask for certain expressions in the filter string;
+.BR pcap_lookupnet ()
+can be used to find the network address and network mask for a given
+capture device.
+.PP
+A compiled filter can also be applied directly to a packet that has been
+read using
+.BR pcap_offline_filter ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_compile (3PCAP)
+compile filter expression to a pseudo-machine-language code program
+.TP
+.BR pcap_freecode (3PCAP)
+free a filter program
+.TP
+.BR pcap_setfilter (3PCAP)
+set filter for a
+.B pcap_t
+.TP
+.BR pcap_lookupnet (3PCAP)
+get network address and network mask for a capture device
+.TP
+.BR pcap_offline_filter (3PCAP)
+apply a filter program to a packet
+.RE
+.SS Incoming and outgoing packets
+By default, libpcap will attempt to capture both packets sent by the
+machine and packets received by the machine.  To limit it to capturing
+only packets received by the machine or, if possible, only packets sent
+by the machine, call
+.BR pcap_setdirection ().
+.TP
+.BR Routines
+.RS
+.TP
+.BR pcap_setdirection (3PCAP)
+specify whether to capture incoming packets, outgoing packets, or both
+.RE
+.SS Capture statistics
+To get statistics about packets received and dropped in a live capture,
+call
+.BR pcap_stats ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_stats (3PCAP)
+get capture statistics
+.RE
+.SS Opening a handle for writing captured packets
+To open a ``savefile`` to which to write packets, given the pathname the
+``savefile'' should have, call
+.BR pcap_dump_open ().
+To open a ``savefile`` to which to write packets, given the pathname the
+``savefile'' should have, call
+.BR pcap_dump_open ();
+to set up a handle for a ``savefile'', given a
+.B "FILE\ *"
+referring to a file already opened for writing, call
+.BR pcap_dump_fopen ().
+They each return pointers to a
+.BR pcap_dumper_t ,
+which is the handle used for writing packets to the ``savefile''.  If it
+succeeds, it will have created the file if it doesn't exist and
+truncated the file if it does exist.
+To close a
+.BR pcap_dumper_t ,
+call
+.BR pcap_dump_close ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_dump_open (3PCAP)
+open a
+.B pcap_dumper_t
+for a ``savefile``, given a pathname
+.TP
+.BR pcap_dump_fopen (3PCAP)
+open a
+.B pcap_dumper_t
+for a ``savefile``, given a
+.B "FILE\ *"
+.TP
+.BR pcap_dump_close (3PCAP)
+close a
+.B pcap_dumper_t
+.TP
+.BR pcap_dump_file (3PCAP)
+get the
+.B "FILE\ *"
+for a
+.B pcap_dumper_t
+opened for a ``savefile''
+.RE
+.SS Writing packets
+To write a packet to a
+.BR pcap_dumper_t ,
+call
+.BR pcap_dump ().
+Packets written with
+.BR pcap_dump ()
+may be buffered, rather than being immediately written to the
+``savefile''.  Closing the
+.B pcap_dumper_t
+will cause all buffered-but-not-yet-written packets to be written to the
+``savefile''.
+To force all packets written to the
+.BR pcap_dumper_t ,
+and not yet written to the ``savefile'' because they're buffered by the
+.BR pcap_dumper_t ,
+to be written to the ``savefile'', without closing the
+.BR pcap_dumper_t ,
+call
+.BR pcap_dump_flush ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_dump (3PCAP)
+write packet to a
+.B pcap_dumper_t
+.TP
+.BR pcap_dump_flush (3PCAP)
+flush buffered packets written to a
+.B pcap_dumper_t
+to the ``savefile''
+.TP
+.BR pcap_dump_ftell (3PCAP)
+get current file position for a
+.B pcap_dumper_t
+.RE
+.SS Injecting packets
+If you have the required privileges, you can inject packets onto a
+network with a
+.B pcap_t
+for a live capture, using
+.BR pcap_inject ()
+or
+.BR pcap_sendpacket ().
+(The two routines exist for compatibility with both OpenBSD and WinPcap;
+they perform the same function, but have different return values.)
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_inject (3PCAP)
+.PD 0
+.TP
+.BR pcap_sendpacket (3PCAP)
+transmit a packet
+.PD
+.RE
+.SS Reporting errors
+Some routines return error or warning status codes; to convert them to a
+string, use
+.BR pcap_statustostr ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_statustostr (3PCAP)
+get a string for an error or warning status code
+.RE
+.SS Getting library version information
+To get a string giving version information about libpcap, call
+.BR pcap_library_version ().
+.TP
+.B Routines
+.RS
+.TP
+.BR pcap_library_version (3PCAP)
+get library version string
+.RE
 .SH BACKWARDS COMPATIBILITY
 .PP
 In versions of libpcap prior to 1.0, the
@@ -346,18 +843,18 @@ which will include
 for you, rather than including
 .BR <pcap/pcap.h> .
 .PP
-.B pcap_create()
+.BR pcap_create ()
 and
-.B pcap_activate()
+.BR pcap_activate ()
 were not available in versions of libpcap prior to 1.0; if you are
 writing an application that must work on versions of libpcap prior to
 1.0, either use
-.B pcap_open_live()
+.BR pcap_open_live ()
 to get a handle for a live capture or, if you want to be able to use the
 additional capabilities offered by using
-.B pcap_create()
+.BR pcap_create ()
 and
-.BR pcap_activate() ,
+.BR pcap_activate (),
 use an
 .BR autoconf (1)
 script or some other configuration script to check whether the libpcap

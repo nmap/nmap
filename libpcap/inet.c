@@ -133,6 +133,7 @@ add_or_find_if(pcap_if_t **curdev_ret, pcap_if_t **alldevs, const char *name,
 	pcap_t *p;
 	pcap_if_t *curdev, *prevdev, *nextdev;
 	int this_instance;
+	char open_errbuf[PCAP_ERRBUF_SIZE];
 
 	/*
 	 * Is there already an entry in the list for this interface?
@@ -192,11 +193,11 @@ add_or_find_if(pcap_if_t **curdev_ret, pcap_if_t **alldevs, const char *name,
 			}
 			strcpy(en_name, "en");
 			strcat(en_name, name + 3);
-			p = pcap_open_live(en_name, 68, 0, 0, errbuf);
+			p = pcap_open_live(en_name, 68, 0, 0, open_errbuf);
 			free(en_name);
 		} else
 #endif /* __APPLE */
-		p = pcap_open_live(name, 68, 0, 0, errbuf);
+		p = pcap_open_live(name, 68, 0, 0, open_errbuf);
 		if (p == NULL) {
 			/*
 			 * No.  Don't bother including it.
@@ -431,26 +432,53 @@ add_addr_to_iflist(pcap_if_t **alldevs, const char *name, u_int flags,
 	strlcpy(ifrdesc.ifr_name, name, sizeof ifrdesc.ifr_name);
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s >= 0) {
+#ifdef __FreeBSD__
+		/*
+		 * On FreeBSD, if the buffer isn't big enough for the
+		 * description, the ioctl succeeds, but the description
+		 * isn't copied, ifr_buffer.length is set to the description
+		 * length, and ifr_buffer.buffer is set to NULL.
+		 */
 		for (;;) {
 			free(description);
 			if ((description = malloc(descrlen)) != NULL) {
-#ifdef __FreeBSD__
 				ifrdesc.ifr_buffer.buffer = description;
 				ifrdesc.ifr_buffer.length = descrlen;
-#else /* __FreeBSD__ */
-				ifrdesc.ifr_data = (caddr_t)description;
-#endif /* __FreeBSD__ */
-				if (ioctl(s, SIOCGIFDESCR, &ifrdesc) == 0)
+				if (ioctl(s, SIOCGIFDESCR, &ifrdesc) == 0) {
+					if (ifrdesc.ifr_buffer.buffer ==
+					    description)
+						break;
+					else
+						descrlen = ifrdesc.ifr_buffer.length;
+				} else {
+					/*
+					 * Failed to get interface description.
+					 */
+					free(description);
+					description = NULL;
 					break;
-#ifdef __FreeBSD__
-				else if (errno == ENAMETOOLONG)
-					descrlen = ifrdesc.ifr_buffer.length;
-#endif /* __FreeBSD__ */
-				else
-					break;
+				}
 			} else
 				break;
 		}
+#else /* __FreeBSD__ */
+		/*
+		 * The only other OS that currently supports
+		 * SIOCGIFDESCR is OpenBSD, and it has no way
+		 * to get the description length - it's clamped
+		 * to a maximum of IFDESCRSIZE.
+		 */
+		if ((description = malloc(descrlen)) != NULL) {
+			ifrdesc.ifr_data = (caddr_t)description;
+			if (ioctl(s, SIOCGIFDESCR, &ifrdesc) != 0) {
+				/*
+				 * Failed to get interface description.
+				 */
+				free(description);
+				description = NULL;
+			}
+		}
+#endif /* __FreeBSD__ */
 		close(s);
 		if (description != NULL && strlen(description) == 0) {
 			free(description);
@@ -850,8 +878,10 @@ pcap_lookupdev(errbuf)
 		 */
 		while(NAdapts--)
 		{
-			strcpy((char*)tUstr, tAstr);
-			(char*)tUstr += strlen(tAstr) + 1;;
+			char* tmp = (char*)tUstr;
+			strcpy(tmp, tAstr);
+			tmp += strlen(tAstr) + 1;
+			tUstr = (WCHAR*)tmp;
 			tAstr += strlen(tAstr) + 1;
 		}
 

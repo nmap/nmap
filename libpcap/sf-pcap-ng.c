@@ -746,7 +746,7 @@ pcap_ng_check_header(pcap_t *p, bpf_u_int32 magic, FILE *fp, char *errbuf)
 done:
 	p->tzoff = 0;	/* XXX - not used in pcap */
 	p->snapshot = idbp->snaplen;
-	p->linktype = idbp->linktype;
+	p->linktype = linktype_to_dlt(idbp->linktype);
 	p->linktype_ext = 0;
 
 	p->sf.next_packet_op = pcap_ng_next_packet;
@@ -772,7 +772,6 @@ pcap_ng_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 	struct simple_packet_block *spbp;
 	struct packet_block *pbp;
 	bpf_u_int32 interface_id = 0xFFFFFFFF;
-	size_t pblock_len;
 	struct interface_description_block *idbp;
 	struct section_header_block *shbp;
 	FILE *fp = p->sf.rfile;
@@ -823,7 +822,6 @@ pcap_ng_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 				t = ((u_int64_t)epbp->timestamp_high) << 32 |
 				    epbp->timestamp_low;
 			}
-			pblock_len = sizeof(*epbp);
 			goto found;
 			
 		case BT_SPB:
@@ -860,7 +858,6 @@ pcap_ng_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 			if (hdr->caplen > p->snapshot)
 				hdr->caplen = p->snapshot;
 			t = 0;	/* no time stamps */
-			pblock_len = sizeof(*spbp);
 			goto found;
 
 		case BT_PB:
@@ -890,7 +887,6 @@ pcap_ng_next_packet(pcap_t *p, struct pcap_pkthdr *hdr, u_char **data)
 				t = ((u_int64_t)pbp->timestamp_high) << 32 |
 				    pbp->timestamp_low;
 			}
-			pblock_len = sizeof(*pbp);
 			goto found;
 
 		case BT_IDB:
@@ -1053,7 +1049,7 @@ found:
 	/*
 	 * Is the interface ID an interface we know?
 	 */
-	if (interface_id > p->sf.ifcount) {
+	if (interface_id >= p->sf.ifcount) {
 		/*
 		 * Yes.  Fail.
 		 */

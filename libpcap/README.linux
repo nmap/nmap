@@ -97,12 +97,12 @@ reported by pcap_stats on Linux are as follows:
 2.2.x
 =====
 ps_recv   Number of packets that were accepted by the pcap filter
-ps_drops  Always 0, this statistic is not gatherd on this platform
+ps_drop   Always 0, this statistic is not gatherd on this platform
 
 2.4.x
 =====
-ps_rec    Number of packets that were accepted by the pcap filter
-ps_drops  Number of packets that had passed filtering but were not
+ps_recv   Number of packets that were accepted by the pcap filter
+ps_drop   Number of packets that had passed filtering but were not
           passed on to pcap due to things like buffer shortage, etc.
-			 This is useful because these are packets you are interested in
-			 but won't be reported by, for example, tcpdump output.
+          This is useful because these are packets you are interested in
+          but won't be reported by, for example, tcpdump output.

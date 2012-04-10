@@ -47,7 +47,7 @@ static const char rcsid[] _U_ =
  * XXX - why was this included even on UNIX?
  */
 #ifdef __MINGW32__
-#include "IP6_misc.h"
+#include "ip6_misc.h"
 #endif
 
 #ifndef WIN32
@@ -772,7 +772,8 @@ static int reg_off_ll;
  * This is the offset of the beginning of the MAC-layer header from
  * the beginning of the link-layer header.
  * It's usually 0, except for ATM LANE, where it's the offset, relative
- * to the beginning of the raw packet data, of the Ethernet header.
+ * to the beginning of the raw packet data, of the Ethernet header, and
+ * for Ethernet with various additional information.
  */
 static u_int off_mac;
 
@@ -1238,26 +1239,6 @@ init_linktype(p)
 		off_nl_nosnap = 0;	/* no 802.2 LLC */
 		return;
 
-	case DLT_LINUX_IRDA:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_DOCSIS:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
 	case DLT_SYMANTEC_FIREWALL:
 		off_linktype = 6;
 		off_macpl = 44;
@@ -1366,6 +1347,16 @@ init_linktype(p)
 		off_nl_nosnap = -1;
 		return;
 
+	case DLT_JUNIPER_VS:
+	case DLT_JUNIPER_SRX_E2E:
+	case DLT_JUNIPER_FIBRECHANNEL:
+	case DLT_JUNIPER_ATM_CEMIC:
+		off_linktype = 8;
+		off_macpl = -1;
+		off_nl = -1;
+		off_nl_nosnap = -1;
+		return;
+
 	case DLT_MTP2:
 		off_li = 2;
 		off_sio = 3;
@@ -1411,126 +1402,6 @@ init_linktype(p)
 		return;
 #endif
 
-	case DLT_LINUX_LAPD:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_USB:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_BLUETOOTH_HCI_H4:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_USB_LINUX:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_CAN20B:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_IEEE802_15_4_LINUX:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_IEEE802_16_MAC_CPS_RADIO:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_IEEE802_15_4:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_SITA:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_RAIF1:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_IPMB:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_BLUETOOTH_HCI_H4_WITH_PHDR:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
 	case DLT_AX25_KISS:
 		/*
 		 * Currently, only raw "link[N:M]" filtering is supported.
@@ -1542,52 +1413,43 @@ init_linktype(p)
 		off_mac = 1;		/* step over the kiss length byte */
 		return;
 
-	case DLT_IEEE802_15_4_NONASK_PHY:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_MPLS:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_USB_LINUX_MMAPPED:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
-	case DLT_CAN_SOCKETCAN:
-		/*
-		 * Currently, only raw "link[N:M]" filtering is supported.
-		 */
-		off_linktype = -1;
-		off_macpl = -1;
-		off_nl = -1;
-		off_nl_nosnap = -1;
-		return;
-
 	case DLT_IPNET:
 		off_linktype = 1;
 		off_macpl = 24;		/* ipnet header length */
 		off_nl = 0;
 		off_nl_nosnap = -1;
 		return;
+
+	case DLT_NETANALYZER:
+		off_mac = 4;		/* MAC header is past 4-byte pseudo-header */
+		off_linktype = 16;	/* includes 4-byte pseudo-header */
+		off_macpl = 18;		/* pseudo-header+Ethernet header length */
+		off_nl = 0;		/* Ethernet II */
+		off_nl_nosnap = 3;	/* 802.3+802.2 */
+		return;
+
+	case DLT_NETANALYZER_TRANSPARENT:
+		off_mac = 12;		/* MAC header is past 4-byte pseudo-header, preamble, and SFD */
+		off_linktype = 24;	/* includes 4-byte pseudo-header+preamble+SFD */
+		off_macpl = 26;		/* pseudo-header+preamble+SFD+Ethernet header length */
+		off_nl = 0;		/* Ethernet II */
+		off_nl_nosnap = 3;	/* 802.3+802.2 */
+		return;
+
+	default:
+		/*
+		 * For values in the range in which we've assigned new
+		 * DLT_ values, only raw "link[N:M]" filtering is supported.
+		 */
+		if (linktype >= DLT_MATCHING_MIN &&
+		    linktype <= DLT_MATCHING_MAX) {
+			off_linktype = -1;
+			off_macpl = -1;
+			off_nl = -1;
+			off_nl_nosnap = -1;
+			return;
+		}
+
 	}
 	bpf_error("unknown data link type %d", linktype);
 	/* NOTREACHED */
@@ -3059,6 +2921,8 @@ gen_linktype(proto)
 	switch (linktype) {
 
 	case DLT_EN10MB:
+	case DLT_NETANALYZER:
+	case DLT_NETANALYZER_TRANSPARENT:
 		return gen_ether_linktype(proto);
 		/*NOTREACHED*/
 		break;
@@ -3462,6 +3326,11 @@ gen_linktype(proto)
         case DLT_JUNIPER_VP:
         case DLT_JUNIPER_ST:
         case DLT_JUNIPER_ISM:
+        case DLT_JUNIPER_VS:
+        case DLT_JUNIPER_SRX_E2E:
+        case DLT_JUNIPER_FIBRECHANNEL:
+	case DLT_JUNIPER_ATM_CEMIC:
+
 		/* just lets verify the magic number for now -
 		 * on ATM we may have up to 6 different encapsulations on the wire
 		 * and need a lot of heuristics to figure out that the payload
@@ -3511,6 +3380,7 @@ gen_linktype(proto)
 	case DLT_IEEE802_15_4:
 	case DLT_IEEE802_15_4_LINUX:
 	case DLT_IEEE802_15_4_NONASK_PHY:
+	case DLT_IEEE802_15_4_NOFCS:
 		bpf_error("IEEE 802.15.4 link-layer type filtering not implemented");
 
 	case DLT_IEEE802_16_MAC_CPS_RADIO:
@@ -3785,6 +3655,30 @@ gen_ehostop(eaddr, dir)
 		b1 = gen_ehostop(eaddr, Q_DST);
 		gen_or(b0, b1);
 		return b1;
+
+	case Q_ADDR1:
+		bpf_error("'addr1' is only supported on 802.11 with 802.11 headers");
+		break;
+
+	case Q_ADDR2:
+		bpf_error("'addr2' is only supported on 802.11 with 802.11 headers");
+		break;
+
+	case Q_ADDR3:
+		bpf_error("'addr3' is only supported on 802.11 with 802.11 headers");
+		break;
+
+	case Q_ADDR4:
+		bpf_error("'addr4' is only supported on 802.11 with 802.11 headers");
+		break;
+
+	case Q_RA:
+		bpf_error("'ra' is only supported on 802.11 with 802.11 headers");
+		break;
+
+	case Q_TA:
+		bpf_error("'ta' is only supported on 802.11 with 802.11 headers");
+		break;
 	}
 	abort();
 	/* NOTREACHED */
@@ -3827,6 +3721,30 @@ gen_fhostop(eaddr, dir)
 		b1 = gen_fhostop(eaddr, Q_DST);
 		gen_or(b0, b1);
 		return b1;
+
+	case Q_ADDR1:
+		bpf_error("'addr1' is only supported on 802.11");
+		break;
+
+	case Q_ADDR2:
+		bpf_error("'addr2' is only supported on 802.11");
+		break;
+
+	case Q_ADDR3:
+		bpf_error("'addr3' is only supported on 802.11");
+		break;
+
+	case Q_ADDR4:
+		bpf_error("'addr4' is only supported on 802.11");
+		break;
+
+	case Q_RA:
+		bpf_error("'ra' is only supported on 802.11");
+		break;
+
+	case Q_TA:
+		bpf_error("'ta' is only supported on 802.11");
+		break;
 	}
 	abort();
 	/* NOTREACHED */
@@ -3861,6 +3779,30 @@ gen_thostop(eaddr, dir)
 		b1 = gen_thostop(eaddr, Q_DST);
 		gen_or(b0, b1);
 		return b1;
+
+	case Q_ADDR1:
+		bpf_error("'addr1' is only supported on 802.11");
+		break;
+
+	case Q_ADDR2:
+		bpf_error("'addr2' is only supported on 802.11");
+		break;
+
+	case Q_ADDR3:
+		bpf_error("'addr3' is only supported on 802.11");
+		break;
+
+	case Q_ADDR4:
+		bpf_error("'addr4' is only supported on 802.11");
+		break;
+
+	case Q_RA:
+		bpf_error("'ra' is only supported on 802.11");
+		break;
+
+	case Q_TA:
+		bpf_error("'ta' is only supported on 802.11");
+		break;
 	}
 	abort();
 	/* NOTREACHED */
@@ -4154,8 +4096,79 @@ gen_wlanhostop(eaddr, dir)
 		gen_and(b1, b0);
 		return b0;
 
+	case Q_RA:
+		/*
+		 * Not present in management frames; addr1 in other
+		 * frames.
+		 */
+
+		/*
+		 * If the high-order bit of the type value is 0, this
+		 * is a management frame.
+		 * I.e, check "(link[0] & 0x08)".
+		 */
+		s = gen_load_a(OR_LINK, 0, BPF_B);
+		b1 = new_block(JMP(BPF_JSET));
+		b1->s.k = 0x08;
+		b1->stmts = s;
+
+		/*
+		 * Check addr1.
+		 */
+		b0 = gen_bcmp(OR_LINK, 4, 6, eaddr);
+
+		/*
+		 * AND that with the check of addr1.
+		 */
+		gen_and(b1, b0);
+		return (b0);
+
+	case Q_TA:
+		/*
+		 * Not present in management frames; addr2, if present,
+		 * in other frames.
+		 */
+
+		/*
+		 * Not present in CTS or ACK control frames.
+		 */
+		b0 = gen_mcmp(OR_LINK, 0, BPF_B, IEEE80211_FC0_TYPE_CTL,
+			IEEE80211_FC0_TYPE_MASK);
+		gen_not(b0);
+		b1 = gen_mcmp(OR_LINK, 0, BPF_B, IEEE80211_FC0_SUBTYPE_CTS,
+			IEEE80211_FC0_SUBTYPE_MASK);
+		gen_not(b1);
+		b2 = gen_mcmp(OR_LINK, 0, BPF_B, IEEE80211_FC0_SUBTYPE_ACK,
+			IEEE80211_FC0_SUBTYPE_MASK);
+		gen_not(b2);
+		gen_and(b1, b2);
+		gen_or(b0, b2);
+
+		/*
+		 * If the high-order bit of the type value is 0, this
+		 * is a management frame.
+		 * I.e, check "(link[0] & 0x08)".
+		 */
+		s = gen_load_a(OR_LINK, 0, BPF_B);
+		b1 = new_block(JMP(BPF_JSET));
+		b1->s.k = 0x08;
+		b1->stmts = s;
+
+		/*
+		 * AND that with the check for frames other than
+		 * CTS and ACK frames.
+		 */
+		gen_and(b1, b2);
+
+		/*
+		 * Check addr2.
+		 */
+		b1 = gen_bcmp(OR_LINK, 10, 6, eaddr);
+		gen_and(b2, b1);
+		return b1;
+
 	/*
-	 * XXX - add RA, TA, and BSSID keywords?
+	 * XXX - add BSSID keyword?
 	 */
 	case Q_ADDR1:
 		return (gen_bcmp(OR_LINK, 4, 6, eaddr));
@@ -4251,6 +4264,30 @@ gen_ipfchostop(eaddr, dir)
 		b1 = gen_ipfchostop(eaddr, Q_DST);
 		gen_or(b0, b1);
 		return b1;
+
+	case Q_ADDR1:
+		bpf_error("'addr1' is only supported on 802.11");
+		break;
+
+	case Q_ADDR2:
+		bpf_error("'addr2' is only supported on 802.11");
+		break;
+
+	case Q_ADDR3:
+		bpf_error("'addr3' is only supported on 802.11");
+		break;
+
+	case Q_ADDR4:
+		bpf_error("'addr4' is only supported on 802.11");
+		break;
+
+	case Q_RA:
+		bpf_error("'ra' is only supported on 802.11");
+		break;
+
+	case Q_TA:
+		bpf_error("'ta' is only supported on 802.11");
+		break;
 	}
 	abort();
 	/* NOTREACHED */
@@ -4444,6 +4481,9 @@ gen_host(addr, mask, proto, dir, type)
 	case Q_VRRP:
 		bpf_error("'vrrp' modifier applied to %s", typestr);
 
+	case Q_CARP:
+		bpf_error("'carp' modifier applied to %s", typestr);
+
 	case Q_ATALK:
 		bpf_error("ATALK host filtering not implemented");
 
@@ -4563,6 +4603,9 @@ gen_host6(addr, mask, proto, dir, type)
 	case Q_VRRP:
 		bpf_error("'vrrp' modifier applied to %s", typestr);
 
+	case Q_CARP:
+		bpf_error("'carp' modifier applied to %s", typestr);
+
 	case Q_ATALK:
 		bpf_error("ATALK host filtering not implemented");
 
@@ -4647,6 +4690,8 @@ gen_gateway(eaddr, alist, proto, dir)
 	case Q_RARP:
 		switch (linktype) {
 		case DLT_EN10MB:
+		case DLT_NETANALYZER:
+		case DLT_NETANALYZER_TRANSPARENT:
 			b0 = gen_ehostop(eaddr, Q_OR);
 			break;
 		case DLT_FDDI:
@@ -4774,6 +4819,14 @@ gen_proto_abbrev(proto)
 
 	case Q_VRRP:
 		b1 = gen_proto(IPPROTO_VRRP, Q_IP, Q_DEFAULT);
+		break;
+
+#ifndef IPPROTO_CARP
+#define IPPROTO_CARP	112
+#endif
+
+	case Q_CARP:
+		b1 = gen_proto(IPPROTO_CARP, Q_IP, Q_DEFAULT);
 		break;
 
 	case Q_IP:
@@ -4957,7 +5010,7 @@ gen_ipfrag()
 	struct slist *s;
 	struct block *b;
 
-	/* not ip frag */
+	/* not IPv4 frag other than the first frag */
 	s = gen_load_a(OR_NET, 6, BPF_H);
 	b = new_block(JMP(BPF_JSET));
 	b->s.k = 0x1fff;
@@ -5000,7 +5053,7 @@ gen_portop(port, proto, dir)
 {
 	struct block *b0, *b1, *tmp;
 
-	/* ip proto 'proto' */
+	/* ip proto 'proto' and not a fragment other than the first fragment */
 	tmp = gen_cmp(OR_NET, 9, BPF_B, (bpf_int32)proto);
 	b0 = gen_ipfrag();
 	gen_and(tmp, b0);
@@ -5092,6 +5145,7 @@ gen_portop6(port, proto, dir)
 	struct block *b0, *b1, *tmp;
 
 	/* ip6 proto 'proto' */
+	/* XXX - catch the first fragment of a fragmented packet? */
 	b0 = gen_cmp(OR_NET, 6, BPF_B, (bpf_int32)proto);
 
 	switch (dir) {
@@ -5193,7 +5247,7 @@ gen_portrangeop(port1, port2, proto, dir)
 {
 	struct block *b0, *b1, *tmp;
 
-	/* ip proto 'proto' */
+	/* ip proto 'proto' and not a fragment other than the first fragment */
 	tmp = gen_cmp(OR_NET, 9, BPF_B, (bpf_int32)proto);
 	b0 = gen_ipfrag();
 	gen_and(tmp, b0);
@@ -5297,6 +5351,7 @@ gen_portrangeop6(port1, port2, proto, dir)
 	struct block *b0, *b1, *tmp;
 
 	/* ip6 proto 'proto' */
+	/* XXX - catch the first fragment of a fragmented packet? */
 	b0 = gen_cmp(OR_NET, 6, BPF_B, (bpf_int32)proto);
 
 	switch (dir) {
@@ -5574,12 +5629,9 @@ gen_protochain(v, proto, dir)
 
 		/*
 		 * in short,
-		 * A = P[X];
-		 * X = X + (P[X + 1] + 1) * 8;
+		 * A = P[X + packet head];
+		 * X = X + (P[X + packet head + 1] + 1) * 8;
 		 */
-		/* A = X */
-		s[i] = new_stmt(BPF_MISC|BPF_TXA);
-		i++;
 		/* A = P[X + packet head] */
 		s[i] = new_stmt(BPF_LD|BPF_IND|BPF_B);
 		s[i]->s.k = off_macpl + off_nl;
@@ -5588,19 +5640,9 @@ gen_protochain(v, proto, dir)
 		s[i] = new_stmt(BPF_ST);
 		s[i]->s.k = reg2;
 		i++;
-		/* A = X */
-		s[i] = new_stmt(BPF_MISC|BPF_TXA);
-		i++;
-		/* A += 1 */
-		s[i] = new_stmt(BPF_ALU|BPF_ADD|BPF_K);
-		s[i]->s.k = 1;
-		i++;
-		/* X = A */
-		s[i] = new_stmt(BPF_MISC|BPF_TAX);
-		i++;
-		/* A = P[X + packet head]; */
+		/* A = P[X + packet head + 1]; */
 		s[i] = new_stmt(BPF_LD|BPF_IND|BPF_B);
-		s[i]->s.k = off_macpl + off_nl;
+		s[i]->s.k = off_macpl + off_nl + 1;
 		i++;
 		/* A += 1 */
 		s[i] = new_stmt(BPF_ALU|BPF_ADD|BPF_K);
@@ -5609,6 +5651,10 @@ gen_protochain(v, proto, dir)
 		/* A *= 8 */
 		s[i] = new_stmt(BPF_ALU|BPF_MUL|BPF_K);
 		s[i]->s.k = 8;
+		i++;
+		/* A += X */
+		s[i] = new_stmt(BPF_ALU|BPF_ADD|BPF_X);
+		s[i]->s.k = 0;
 		i++;
 		/* X = A; */
 		s[i] = new_stmt(BPF_MISC|BPF_TAX);
@@ -5933,6 +5979,10 @@ gen_proto(v, proto, dir)
 		bpf_error("'vrrp proto' is bogus");
 		/* NOTREACHED */
 
+	case Q_CARP:
+		bpf_error("'carp proto' is bogus");
+		/* NOTREACHED */
+
 #ifdef INET6
 	case Q_IPV6:
 		b0 = gen_linktype(ETHERTYPE_IPV6);
@@ -6016,6 +6066,8 @@ gen_scode(name, q)
 			switch (linktype) {
 
 			case DLT_EN10MB:
+			case DLT_NETANALYZER:
+			case DLT_NETANALYZER_TRANSPARENT:
 				eaddr = pcap_ether_hostton(name);
 				if (eaddr == NULL)
 					bpf_error(
@@ -6197,6 +6249,10 @@ gen_scode(name, q)
 				/* override PROTO_UNDEF */
 				real_proto = IPPROTO_SCTP;
 		}
+		if (port < 0)
+			bpf_error("illegal port number %d < 0", port);
+		if (port > 65535)
+			bpf_error("illegal port number %d > 65535", port);
 #ifndef INET6
 		return gen_port(port, real_proto, dir);
 #else
@@ -6238,6 +6294,15 @@ gen_scode(name, q)
 				/* override PROTO_UNDEF */
 				real_proto = IPPROTO_SCTP;	
 		}
+		if (port1 < 0)
+			bpf_error("illegal port number %d < 0", port1);
+		if (port1 > 65535)
+			bpf_error("illegal port number %d > 65535", port1);
+		if (port2 < 0)
+			bpf_error("illegal port number %d < 0", port2);
+		if (port2 > 65535)
+			bpf_error("illegal port number %d > 65535", port2);
+
 #ifndef INET6
 		return gen_portrange(port1, port2, real_proto, dir);
 #else
@@ -6389,6 +6454,9 @@ gen_ncode(s, v, q)
 		else
 			bpf_error("illegal qualifier of 'port'");
 
+		if (v > 65535)
+			bpf_error("illegal port number %u > 65535", v);
+
 #ifndef INET6
 		return gen_port((int)v, proto, dir);
 #else
@@ -6411,6 +6479,9 @@ gen_ncode(s, v, q)
 			proto = PROTO_UNDEF;
 		else
 			bpf_error("illegal qualifier of 'portrange'");
+
+		if (v > 65535)
+			bpf_error("illegal port number %u > 65535", v);
 
 #ifndef INET6
 		return gen_portrange((int)v, (int)v, proto, dir);
@@ -6516,6 +6587,8 @@ gen_ecode(eaddr, q)
 	if ((q.addr == Q_HOST || q.addr == Q_DEFAULT) && q.proto == Q_LINK) {
 		switch (linktype) {
 		case DLT_EN10MB:
+		case DLT_NETANALYZER:
+		case DLT_NETANALYZER_TRANSPARENT:
 			return gen_ehostop(eaddr, (int)q.dir);
 		case DLT_FDDI:
 			return gen_fhostop(eaddr, (int)q.dir);
@@ -6645,7 +6718,7 @@ gen_load(proto, inst, size)
 
 		/*
 		 * Load into the X register the offset computed into the
-		 * register specifed by "index".
+		 * register specified by "index".
 		 */
 		s = xfer_to_x(inst);
 
@@ -6677,7 +6750,7 @@ gen_load(proto, inst, size)
 		 * the link-layer header.  Add to it the offset computed
 		 * into the register specified by "index", and move that
 		 * into the X register.  Otherwise, just load into the X
-		 * register the offset computed into the register specifed
+		 * register the offset computed into the register specified
 		 * by "index".
 		 */
 		if (s != NULL) {
@@ -6726,7 +6799,7 @@ gen_load(proto, inst, size)
 		 * payload.  Add to it the offset computed into the
 		 * register specified by "index", and move that into
 		 * the X register.  Otherwise, just load into the X
-		 * register the offset computed into the register specifed
+		 * register the offset computed into the register specified
 		 * by "index".
 		 */
 		if (s != NULL) {
@@ -6771,6 +6844,7 @@ gen_load(proto, inst, size)
 	case Q_IGRP:
 	case Q_PIM:
 	case Q_VRRP:
+	case Q_CARP:
 		/*
 		 * The offset is relative to the beginning of
 		 * the transport-layer header.
@@ -7119,6 +7193,8 @@ gen_broadcast(proto)
 		case DLT_ARCNET_LINUX:
 			return gen_ahostop(abroadcast, Q_DST);
 		case DLT_EN10MB:
+		case DLT_NETANALYZER:
+		case DLT_NETANALYZER_TRANSPARENT:
 			return gen_ehostop(ebroadcast, Q_DST);
 		case DLT_FDDI:
 			return gen_fhostop(ebroadcast, Q_DST);
@@ -7214,6 +7290,8 @@ gen_multicast(proto)
 			/* all ARCnet multicasts use the same address */
 			return gen_ahostop(abroadcast, Q_DST);
 		case DLT_EN10MB:
+		case DLT_NETANALYZER:
+		case DLT_NETANALYZER_TRANSPARENT:
 			/* ether[0] & 1 != 0 */
 			return gen_mac_multicast(0);
 		case DLT_FDDI:
@@ -7477,6 +7555,11 @@ gen_inbound(dir)
         case DLT_JUNIPER_VP:
         case DLT_JUNIPER_ST:
         case DLT_JUNIPER_ISM:
+        case DLT_JUNIPER_VS:
+        case DLT_JUNIPER_SRX_E2E:
+        case DLT_JUNIPER_FIBRECHANNEL:
+	case DLT_JUNIPER_ATM_CEMIC:
+
 		/* juniper flags (including direction) are stored
 		 * the byte after the 3-byte magic number */
 		if (dir) {
@@ -7757,6 +7840,30 @@ gen_ahostop(eaddr, dir)
 		b1 = gen_ahostop(eaddr, Q_DST);
 		gen_or(b0, b1);
 		return b1;
+
+	case Q_ADDR1:
+		bpf_error("'addr1' is only supported on 802.11");
+		break;
+
+	case Q_ADDR2:
+		bpf_error("'addr2' is only supported on 802.11");
+		break;
+
+	case Q_ADDR3:
+		bpf_error("'addr3' is only supported on 802.11");
+		break;
+
+	case Q_ADDR4:
+		bpf_error("'addr4' is only supported on 802.11");
+		break;
+
+	case Q_RA:
+		bpf_error("'ra' is only supported on 802.11");
+		break;
+
+	case Q_TA:
+		bpf_error("'ta' is only supported on 802.11");
+		break;
 	}
 	abort();
 	/* NOTREACHED */
@@ -7811,9 +7918,15 @@ gen_vlan(vlan_num)
 	switch (linktype) {
 
 	case DLT_EN10MB:
-		/* check for VLAN */
+	case DLT_NETANALYZER:
+	case DLT_NETANALYZER_TRANSPARENT:
+		/* check for VLAN, including QinQ */
 		b0 = gen_cmp(OR_LINK, off_linktype, BPF_H,
 		    (bpf_int32)ETHERTYPE_8021Q);
+		b1 = gen_cmp(OR_LINK, off_linktype, BPF_H,
+		    (bpf_int32)ETHERTYPE_8021QINQ);
+		gen_or(b0,b1);
+		b0 = b1;
 
 		/* If a specific VLAN is requested, check VLAN id */
 		if (vlan_num >= 0) {
@@ -7874,6 +7987,8 @@ gen_mpls(label_num)
                 
             case DLT_C_HDLC: /* fall through */
             case DLT_EN10MB:
+            case DLT_NETANALYZER:
+            case DLT_NETANALYZER_TRANSPARENT:
                     b0 = gen_linktype(ETHERTYPE_MPLS);
                     break;
                 

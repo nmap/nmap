@@ -19,7 +19,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_CAN_SET_RFMON 3PCAP "5 April 2008"
+.TH PCAP_CAN_SET_RFMON 3PCAP "18 May 2010"
 .SH NAME
 pcap_can_set_rfmon \- check whether monitor mode can be set for a
 not-yet-activated capture handle
@@ -37,11 +37,15 @@ int pcap_can_set_rfmon(pcap_t *p);
 checks whether monitor mode could be set on a capture handle when
 the handle is activated.
 .SH RETURN VALUE
-.B pcap_set_rfmon()
+.B pcap_can_set_rfmon()
 returns 0 if monitor mode could not be set,
 1 if monitor mode could be set,
 .B PCAP_ERROR_NO_SUCH_DEVICE
-if the device specified when the handle was created doesn't exist,
+if the capture source specified when the handle was created doesn't
+exist,
+.B PCAP_ERROR_PERM_DENIED
+if the process doesn't have permission to check whether monitor mode
+could be supported,
 .B PCAP_ERROR_ACTIVATED
 if called on a capture handle that has been activated, or
 .B PCAP_ERROR

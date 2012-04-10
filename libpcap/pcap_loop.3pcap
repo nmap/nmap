@@ -109,7 +109,12 @@ pointer to the first
 (as given in the
 .I struct pcap_pkthdr
 a pointer to which is passed to the callback routine)
-bytes of data from the packet.
+bytes of data from the packet.  The
+.I struct pcap_pkthdr
+and the packet data are not to be freed by the callback routine, and are
+not guaranteed to be valid after the callback routine returns; if the
+code needs them to be valid after the callback, it must make a copy of
+them.
 .SH RETURN VALUE
 .B pcap_loop()
 returns 0 if

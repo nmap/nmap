@@ -55,7 +55,7 @@ the filter program.  If the netmask of the network on which packets are
 being captured isn't known to the program, or if packets are being
 captured on the Linux "any" pseudo-interface that can capture on more
 than one network, a value of PCAP_NETMASK_UNKNOWN can be supplied; tests
-for IPv4 broadcast addreses will fail to compile, but all other tests in
+for IPv4 broadcast addresses will fail to compile, but all other tests in
 the filter program will be OK.
 .SH RETURN VALUE
 .B pcap_compile()

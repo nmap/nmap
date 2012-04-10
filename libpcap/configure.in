@@ -103,6 +103,8 @@ dnl and set "HAVE_SYS_IOCCOM_H" if we have it, otherwise
 dnl "AC_LBL_FIXINCLUDES" wouldn't work on some platforms such as Solaris.
 dnl
 AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h limits.h paths.h)
+AC_CHECK_HEADERS(linux/types.h)
+AC_CHECK_HEADERS(linux/if_packet.h netpacket/packet.h netpacket/if_packet.h)
 AC_CHECK_HEADERS(net/pfvar.h, , , [#include <sys/types.h>
 #include <sys/socket.h>
 #include <net/if.h>])
@@ -152,7 +154,7 @@ needsnprintf=no
 AC_CHECK_FUNCS(vsnprintf snprintf,,
 	[needsnprintf=yes])
 if test $needsnprintf = yes; then
-	AC_LIBOBJ(snprintf)
+	AC_LIBOBJ([snprintf])
 fi
 
 #
@@ -410,23 +412,6 @@ dlpi)
 	;;
 
 linux)
-	AC_MSG_CHECKING(Linux kernel version)
- 	if test "$cross_compiling" = yes; then
- 		AC_CACHE_VAL(ac_cv_linux_vers,
- 		    ac_cv_linux_vers=unknown)
- 	else
- 		AC_CACHE_VAL(ac_cv_linux_vers,
- 		    ac_cv_linux_vers=`uname -r 2>&1 | \
- 			sed -n -e '$s/.* //' -e '$s/\..*//p'`)
- 	fi
-	AC_MSG_RESULT($ac_cv_linux_vers)
- 	if test $ac_cv_linux_vers = unknown ; then
- 		AC_MSG_ERROR(cannot determine linux version when cross-compiling)
- 	fi
-	if test $ac_cv_linux_vers -lt 2 ; then
-		AC_MSG_ERROR(version 2 or higher required; see the INSTALL doc for more info)
-	fi
-
 	#
 	# Do we have the wireless extensions?
 	#
@@ -445,15 +430,46 @@ linux)
 		with_libnl=$withval,,)
 
 	if test x$with_libnl != xno ; then
-		AC_CHECK_LIB(nl, nl_handle_alloc,
-			LIBS="-lnl $LIBS"
-			AC_DEFINE(HAVE_LIBNL,1,[if libnl exists]),
-			if test x$with_libnl = xyes ; then
-				AC_MSG_ERROR([libnl support requested but libnl not found])
-			fi
-		)
+		#
+		# Try libnl 2.x first.
+		#
+		AC_CHECK_LIB(nl, nl_socket_alloc,
+		[
+			#
+			# Yes, we have libnl 2.x.
+			#
+			LIBS="-lnl-genl -lnl $LIBS"
+			AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
+			AC_DEFINE(HAVE_LIBNL_2_x,1,[if libnl exists and is version 2.x])
+		],
+		[
+			#
+			# No, we don't; do we have libnl 1.x?
+			#
+			AC_CHECK_LIB(nl, nl_handle_alloc,
+			[
+				#
+				# Yes.
+				#
+				LIBS="-lnl $LIBS"
+				AC_DEFINE(HAVE_LIBNL,1,[if libnl exists])
+			],
+			[
+				#
+				# No, we don't have libnl at all.
+				#
+				if test x$with_libnl = xyes ; then
+					AC_MSG_ERROR([libnl support requested but libnl not found])
+				fi
+			])
+		])
 	fi
 
+	AC_CHECK_HEADERS(linux/ethtool.h,,,
+	    [
+AC_INCLUDES_DEFAULT
+#include <linux/types.h>
+	    ])
 	AC_LBL_TPACKET_STATS
 	AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI
 	;;
@@ -727,7 +743,7 @@ if test "$want_dag" != no; then
 	
 	if test -z "$dag_tools_dir"; then
 	    dag_tools_dir="$dag_root/tools"
-		fi
+	fi
 
 	if test -r $dag_include_dir/dagapi.h; then
 		ac_cv_lbl_dag_api=yes
@@ -736,130 +752,8 @@ if test "$want_dag" != no; then
 fi
 
 if test $ac_cv_lbl_dag_api = yes; then
-
-	AC_MSG_CHECKING([dagapi.o])	
-	dagapi_obj=no
-	if test -r $dag_tools_dir/dagapi.o; then
-		# 2.4.x.
-		dagapi_obj=$dag_tools_dir/dagapi.o
-	elif test -r $dag_lib_dir/dagapi.o; then
-		# 2.5.x.
-		dagapi_obj=$dag_lib_dir/dagapi.o
-	elif test -r $dag_lib_dir/libdag.a; then
-		# 2.5.x.
-		ar x $dag_lib_dir/libdag.a dagapi.o 2>/dev/null
-		if test -r ./dagapi.o; then
-		    dagapi_obj=./dagapi.o
-		else
-		    ar x $dag_lib_dir/libdag.a libdag_la-dagapi.o 2>/dev/null
-		    if test -r ./libdag_la-dagapi.o; then
-		       dagapi_obj=./libdag_la-dagapi.o
-		    fi		
-		fi
-	fi
-
-	if test $dagapi_obj = no; then
-		AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_tools_dir  $dag_lib_dir/libdag.a)])
-			ac_cv_lbl_dag_api=no
-	else
-		AC_MSG_RESULT([yes ($dagapi_obj)])
-	fi
-fi
-
-if test $ac_cv_lbl_dag_api = yes; then
-
-	AC_MSG_CHECKING([dagopts.o])	
-	dagopts_obj=no
-	if test -r $dag_tools_dir/dagopts.o; then
-		# 2.4.x.
-		dagopts_obj=$dag_tools_dir/dagopts.o
-	elif test -r $dag_lib_dir/dagopts.o; then
-		# 2.5.x.
-		dagopts_obj=$dag_lib_dir/dagopts.o
-	elif test -r $dag_lib_dir/libdag.a; then
-		# 2.5.x.
-		ar x $dag_lib_dir/libdag.a dagopts.o 2>/dev/null
-		if test -r ./dagopts.o; then
-		    dagopts_obj=./dagopts.o
-		else
-		    ar x $dag_lib_dir/libdag.a libdag_la-dagopts.o 2>/dev/null
-		    if test -r ./libdag_la-dagopts.o; then
-		       dagopts_obj=./libdag_la-dagopts.o
-		    fi
-		fi
-	fi
-
-	if test $dagopts_obj = no; then
-		AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_tools_dir  $dag_lib_dir/libdag.a)])
-		ac_cv_lbl_dag_api=no
-	else
-		AC_MSG_RESULT([yes ($dagopts_obj)])
-	fi
-fi
-
-if test $ac_cv_lbl_dag_api = yes; then
-	# Under 2.5.x only we need to add dagreg.o.
-	if test -r $dag_include_dir/dagreg.h; then
-		AC_MSG_CHECKING([dagreg.o])	
-		dagreg_obj=no
-		if test -r $dag_lib_dir/dagreg.o; then
-			# Object file is ready and waiting.
-			dagreg_obj=$dag_lib_dir/dagreg.o
-		elif test -r $dag_lib_dir/libdag.a; then
-			# Extract from libdag.a.
-			ar x $dag_lib_dir/libdag.a dagreg.o 2>/dev/null
-			if test -r ./dagreg.o; then
-				dagreg_obj=./dagreg.o
-			else
-				ar x $dag_lib_dir/libdag.a libdag_la-dagreg.o 2>/dev/null
-				if test -r ./libdag_la-dagreg.o; then
-				   dagreg_obj=./libdag_la-dagreg.o
-				fi
-			fi
-		fi
-
-		if test $dagreg_obj = no; then
-			AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_lib_dir/libdag.a)])
-			ac_cv_lbl_dag_api=no
-		else
-			AC_MSG_RESULT([yes ($dagreg_obj)])
-		fi
-	fi
-fi
-
-if test $ac_cv_lbl_dag_api = yes; then
-        # Under 2.5.x only we need to add dagutil.o.
-        if test -r $dag_include_dir/dagutil.h; then
-                AC_MSG_CHECKING([dagutil.o])
-                dagutil_obj=no
-                if test -r $dag_lib_dir/dagutil.o; then
-                        # Object file is ready and waiting.
-                        dagutil_obj=$dag_lib_dir/dagutil.o
-                elif test -r $dag_lib_dir/libdag.a; then
-                        # Extract from libdag.a.
-                        ar x $dag_lib_dir/libdag.a dagutil.o 2>/dev/null
-                        if test -r ./dagutil.o; then
-                                dagutil_obj=./dagutil.o
-                        else
-                                ar x $dag_lib_dir/libdag.a libdag_la-dagutil.o 2>/dev/null
-                                if test -r ./libdag_la-dagutil.o; then
-                                   dagutil_obj=./libdag_la-dagutil.o
-                                fi
-                        fi
-                fi
-
-                if test $dagutil_obj = no; then
-                        AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_lib_dir/libdag.a)])
-                        ac_cv_lbl_dag_api=no
-                else
-                        AC_MSG_RESULT([yes ($dagutil_obj)])
-                fi
-        fi
-fi
-
-if test $ac_cv_lbl_dag_api = yes; then
 	V_INCLS="$V_INCLS -I$dag_include_dir"
-	ADDLARCHIVEOBJS="$ADDLARCHIVEOBJS $dagapi_obj $dagopts_obj $dagreg_obj $dagutil_obj"
+
 	if test $V_PCAP != dag ; then
 		 SSRC="pcap-dag.c"
 	fi
@@ -874,11 +768,19 @@ if test $ac_cv_lbl_dag_api = yes; then
 		AC_DEFINE(HAVE_DAG_GET_ERF_TYPES, 1, [define if you have dag_get_erf_types()])])
 	AC_CHECK_LIB([dag],[dag_get_stream_erf_types], [
 		AC_DEFINE(HAVE_DAG_GET_STREAM_ERF_TYPES, 1, [define if you have dag_get_stream_erf_types()])])
+
 	LDFLAGS=$saved_ldflags
 
 	if test "$dag_streams" = 1; then
 		AC_DEFINE(HAVE_DAG_STREAMS_API, 1, [define if you have streams capable DAG API])
 		LIBS="$LIBS -ldag"
+		LDFLAGS="$LDFLAGS -L$dag_lib_dir"
+		
+		AC_CHECK_LIB([vdag],[vdag_set_device_info], [ac_dag_have_vdag="1"], [ac_dag_have_vdag="0"])
+		if test "$ac_dag_have_vdag" = 1; then
+			AC_DEFINE(HAVE_DAG_VDAG, 1, [define if you have vdag_set_device_info()])
+			LIBS="$LIBS -lpthread"
+		fi
 	fi
 
 	AC_DEFINE(HAVE_DAG_API, 1, [define if you have the DAG API])
@@ -1151,6 +1053,46 @@ aix*)
 darwin*)
 	DYEXT="dylib"
 	V_CCOPT="$V_CCOPT -fno-common"
+	AC_ARG_ENABLE(universal,
+	AC_HELP_STRING([--disable-universal],[don't build universal on OS X]))
+	if test "$enable_universal" != "no"; then
+		case "$host_os" in
+
+		darwin9.*)
+			#
+			# Leopard.  Build for 32-bit PowerPC, 64-bit
+			# PowerPC, x86, and x86-64, with 32-bit PowerPC
+			# first.  (That's what Apple does.)
+			#
+			V_CCOPT="$V_CCOPT -arch ppc -arch ppc64 -arch i386 -arch x86_64"
+			LDFLAGS="$LDFLAGS -arch ppc -arch ppc64 -arch i386 -arch x86_64"
+			;;
+
+		darwin10.*)
+			#
+			# Snow Leopard.  Build for x86-64, x86, and
+			# 32-bit PowerPC, with x86-64 first.  (That's
+			# what Apple does, even though Snow Leopard
+			# doesn't run on PPC, so PPC libpcap runs under
+			# Rosetta, and Rosetta doesn't support BPF
+			# ioctls, so PPC programs can't do live
+			# captures.)
+			#
+			V_CCOPT="$V_CCOPT -arch x86_64 -arch i386 -arch ppc"
+			LDFLAGS="$LDFLAGS -arch x86_64 -arch i386 -arch ppc"
+			;;
+
+		darwin11.*)
+			#
+			# Lion.  Build for x86-64 and x86, with x86-64
+			# first.  (That's probably what Apple does,
+			# given that Rosetta is gone.)
+			#
+			V_CCOPT="$V_CCOPT -arch x86_64 -arch i386"
+			LDFLAGS="$LDFLAGS -arch x86_64 -arch i386"
+			;;
+		esac
+	fi
 	;;
 
 hpux9*)
@@ -1216,7 +1158,7 @@ irix*)
 	MAN_MISC_INFO=5
 	;;
 
-linux*|freebsd*|netbsd*|openbsd*|dragonfly*)
+linux*|freebsd*|netbsd*|openbsd*|dragonfly*|kfreebsd*|gnu*)
 	DYEXT="so"
 
 	#
@@ -1265,6 +1207,7 @@ solaris*)
 esac
 
 AC_PROG_RANLIB
+AC_CHECK_TOOL([AR], [ar])
 
 AC_LBL_DEVEL(V_CCOPT)
 
@@ -1305,38 +1248,38 @@ dnl check for USB sniffing support
 AC_MSG_CHECKING(for USB sniffing support)
 case "$host_os" in
 linux*)
-       AC_DEFINE(PCAP_SUPPORT_USB, 1, [target host supports USB sniffing])
-       USB_SRC=pcap-usb-linux.c
-       AC_MSG_RESULT(yes)
-       ac_usb_dev_name=`udevinfo -q name -p /sys/class/usb_device/usbmon 2>/dev/null`
-       if test $? -ne 0 ; then
-               ac_usb_dev_name="usbmon"
-       fi
-       AC_DEFINE_UNQUOTED(LINUX_USB_MON_DEV, "/dev/$ac_usb_dev_name", [path for device for USB sniffing])
-       AC_MSG_NOTICE(Device for USB sniffing is /dev/$ac_usb_dev_name)
-       #
-       # Do we have a version of <linux/compiler.h> available?
-       # If so, we might need it for <linux/usbdevice_fs.h>.
-       #
-       AC_CHECK_HEADERS(linux/compiler.h)
-       if test "$ac_cv_header_linux_compiler_h" = yes; then
-         #
-	 # Yes - include it when testing for <linux/usbdevice_fs.h>.
-	 #
-         AC_CHECK_HEADERS(linux/usbdevice_fs.h,,,[#include <linux/compiler.h>])
-       else
-         AC_CHECK_HEADERS(linux/usbdevice_fs.h)
-       fi
-       if test "$ac_cv_header_linux_usbdevice_fs_h" = yes; then
-         #
-         # OK, does it define bRequestType?  Older versions of the kernel
-         # define fields with names like "requesttype, "request", and
-         # "value", rather than "bRequestType", "bRequest", and
-         # "wValue".
-         #
-         AC_MSG_CHECKING(if usbdevfs_ctrltransfer struct has bRequestType member)
-         AC_CACHE_VAL(ac_cv_usbdevfs_ctrltransfer_has_bRequestType,
-           AC_TRY_COMPILE([
+	AC_DEFINE(PCAP_SUPPORT_USB, 1, [target host supports USB sniffing])
+	USB_SRC=pcap-usb-linux.c
+	AC_MSG_RESULT(yes)
+	ac_usb_dev_name=`udevinfo -q name -p /sys/class/usb_device/usbmon 2>/dev/null`
+	if test $? -ne 0 ; then
+	  ac_usb_dev_name="usbmon"
+	fi
+	AC_DEFINE_UNQUOTED(LINUX_USB_MON_DEV, "/dev/$ac_usb_dev_name", [path for device for USB sniffing])
+	AC_MSG_NOTICE(Device for USB sniffing is /dev/$ac_usb_dev_name)
+	#
+	# Do we have a version of <linux/compiler.h> available?
+	# If so, we might need it for <linux/usbdevice_fs.h>.
+	#
+	AC_CHECK_HEADERS(linux/compiler.h)
+	if test "$ac_cv_header_linux_compiler_h" = yes; then
+	  #
+	  # Yes - include it when testing for <linux/usbdevice_fs.h>.
+	  #
+	  AC_CHECK_HEADERS(linux/usbdevice_fs.h,,,[#include <linux/compiler.h>])
+	else
+	  AC_CHECK_HEADERS(linux/usbdevice_fs.h)
+	fi
+	if test "$ac_cv_header_linux_usbdevice_fs_h" = yes; then
+	  #
+	  # OK, does it define bRequestType?  Older versions of the kernel
+	  # define fields with names like "requesttype, "request", and
+	  # "value", rather than "bRequestType", "bRequest", and
+	  # "wValue".
+	  #
+	  AC_MSG_CHECKING(if usbdevfs_ctrltransfer struct has bRequestType member)
+	  AC_CACHE_VAL(ac_cv_usbdevfs_ctrltransfer_has_bRequestType,
+	    AC_TRY_COMPILE([
 AC_INCLUDES_DEFAULT
 #ifdef HAVE_SYS_BITYPES_H
 #include <sys/bitypes.h>
@@ -1344,23 +1287,63 @@ AC_INCLUDES_DEFAULT
 #ifdef HAVE_LINUX_COMPILER_H
 #include <linux/compiler.h>
 #endif
-#            include <linux/usbdevice_fs.h>],
-             [u_int i = sizeof(((struct usbdevfs_ctrltransfer *)0)->bRequestType)],
-             ac_cv_usbdevfs_ctrltransfer_has_bRequestType=yes,
-             ac_cv_usbdevfs_ctrltransfer_has_bRequestType=no))
-         AC_MSG_RESULT($ac_cv_usbdevfs_ctrltransfer_has_bRequestType)
-         if test $ac_cv_usbdevfs_ctrltransfer_has_bRequestType = yes ; then
-	    AC_DEFINE(HAVE_USBDEVFS_CTRLTRANSFER_BREQUESTTYPE,1,
-              [if struct usbdevfs_ctrltransfer has bRequestType])
-         fi
-       fi
-       ;;
+#include <linux/usbdevice_fs.h>],
+	      [u_int i = sizeof(((struct usbdevfs_ctrltransfer *)0)->bRequestType)],
+	      ac_cv_usbdevfs_ctrltransfer_has_bRequestType=yes,
+	      ac_cv_usbdevfs_ctrltransfer_has_bRequestType=no))
+	    AC_MSG_RESULT($ac_cv_usbdevfs_ctrltransfer_has_bRequestType)
+	    if test $ac_cv_usbdevfs_ctrltransfer_has_bRequestType = yes ; then
+	      AC_DEFINE(HAVE_USBDEVFS_CTRLTRANSFER_BREQUESTTYPE,1,
+	        [if struct usbdevfs_ctrltransfer has bRequestType])
+	    fi
+	fi
+	;;
 *)
-       AC_MSG_RESULT(no)
-       ;;
+	AC_MSG_RESULT(no)
+	;;
 esac
 AC_SUBST(PCAP_SUPPORT_USB)
 AC_SUBST(USB_SRC)
+
+dnl check for netfilter sniffing support
+AC_MSG_CHECKING(whether the platform could support netfilter sniffing)
+case "$host_os" in
+linux*)
+	AC_MSG_RESULT(yes)
+	#
+	# Life's too short to deal with trying to get this to compile
+	# if you don't get the right types defined with
+	# __KERNEL_STRICT_NAMES getting defined by some other include.
+	#
+	# Check whether the includes Just Work.  If not, don't turn on
+	# netfilter support.
+	#
+	AC_MSG_CHECKING(whether we can compile the netfilter support)
+	AC_CACHE_VAL(ac_cv_netfilter_can_compile,
+	  AC_TRY_COMPILE([
+AC_INCLUDES_DEFAULT
+#include <sys/socket.h>
+#include <linux/types.h>
+
+#include <linux/netlink.h>
+#include <linux/netfilter/nfnetlink.h>
+#include <linux/netfilter/nfnetlink_log.h>],
+	    [],
+	    ac_cv_netfilter_can_compile=yes,
+	    ac_cv_netfilter_can_compile=no))
+	AC_MSG_RESULT($ac_cv_netfilter_can_compile)
+	if test $ac_cv_netfilter_can_compile = yes ; then
+	  AC_DEFINE(PCAP_SUPPORT_NETFILTER, 1,
+	    [target host supports netfilter sniffing])
+	  NETFILTER_SRC=pcap-netfilter-linux.c
+	fi
+	;;
+*)
+	AC_MSG_RESULT(no)
+	;;
+esac
+AC_SUBST(PCAP_SUPPORT_NETFILTER)
+AC_SUBST(NETFILTER_SRC)
 
 AC_ARG_ENABLE([bluetooth],
 [AC_HELP_STRING([--enable-bluetooth],[enable Bluetooth support @<:@default=yes, if support available@:>@])],
@@ -1370,18 +1353,18 @@ if test "x$enable_bluetooth" != "xno" ; then
 	dnl check for Bluetooth sniffing support
 	case "$host_os" in
 	linux*)
-	       AC_CHECK_HEADER(bluetooth/bluetooth.h,
-	       	[
+		AC_CHECK_HEADER(bluetooth/bluetooth.h,
+		[
 		  AC_DEFINE(PCAP_SUPPORT_BT, 1, [target host supports Bluetooth sniffing])
-	          BT_SRC=pcap-bt-linux.c
-	          AC_MSG_NOTICE(Bluetooth sniffing is supported)
+		  BT_SRC=pcap-bt-linux.c
+		  AC_MSG_NOTICE(Bluetooth sniffing is supported)
 		],
 		AC_MSG_NOTICE(Bluetooth sniffing is not supported; install bluez-lib devel to enable it)
-	       )
-	       ;;
+		)
+		;;
 	*)
-	       AC_MSG_NOTICE(no Bluetooth sniffing support implemented for $host_os)
-	       ;;
+		AC_MSG_NOTICE(no Bluetooth sniffing support implemented for $host_os)
+		;;
 	esac
 	AC_SUBST(PCAP_SUPPORT_BT)
 	AC_SUBST(BT_SRC)
@@ -1411,6 +1394,16 @@ if test "x$enable_can" != "xno" ; then
 	AC_SUBST(CAN_SRC)
 fi
 
+dnl check for hardware timestamp support
+case "$host_os" in
+linux*)
+	AC_CHECK_HEADERS([linux/net_tstamp.h])
+	;;
+*)
+	AC_MSG_NOTICE(no hardware timestamp support implemented for $host_os)
+	;;
+esac
+
 dnl The packet ring capture facility of Linux, described in
 dnl Documentation/networking/packet_mmap.txt, is not 32/64-bit compatible before
 dnl version 2.6.27. A 32-bit kernel requires a 32-bit userland, and likewise for
@@ -1434,10 +1427,11 @@ AC_PROG_INSTALL
 AC_CONFIG_HEADER(config.h)
 
 AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
-	pcap-savefile.manfile pcap.3pcap pcap_compile.3pcap
-	pcap_datalink.3pcap pcap_dump_open.3pcap
-	pcap_list_datalinks.3pcap pcap_open_dead.3pcap
-	pcap_open_offline.3pcap)
+	pcap-tstamp.manmisc pcap-savefile.manfile pcap.3pcap
+	pcap_compile.3pcap pcap_datalink.3pcap pcap_dump_open.3pcap
+	pcap_list_datalinks.3pcap pcap_list_tstamp_types.3pcap
+	pcap_open_dead.3pcap pcap_open_offline.3pcap
+	pcap_set_tstamp_type.3pcap)
 
 if test -f .devel ; then
 	make depend

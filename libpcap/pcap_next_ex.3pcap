@@ -45,7 +45,16 @@ argument is set to point to the
 struct for the packet, and the
 pointer pointed to by the
 .I pkt_data
-argument is set to point to the data in the packet.
+argument is set to point to the data in the packet.  The
+.I struct pcap_pkthdr
+and the packet data are not to be freed by the caller, and are not
+guaranteed to be valid after the next call to
+.BR pcap_next_ex() ,
+.BR pcap_next() ,
+.BR pcap_loop() ,
+or
+.BR pcap_dispatch() ;
+if the code needs them to remain valid, it must make a copy of them.
 .PP
 .B pcap_next()
 reads the next packet (by calling
@@ -54,7 +63,15 @@ with a
 .I cnt
 of 1) and returns a
 .I u_char
-pointer to the data in that packet.
+pointer to the data in that packet.  The
+packet data is not to be freed by the caller, and is not
+guaranteed to be valid after the next call to
+.BR pcap_next_ex() ,
+.BR pcap_next() ,
+.BR pcap_loop() ,
+or
+.BR pcap_dispatch() ;
+if the code needs it to remain valid, it must make a copy of it.
 The
 .I pcap_pkthdr
 structure pointed to by
@@ -78,13 +95,13 @@ as an argument to fetch or display the error text.
 .B pcap_next()
 returns a pointer to the packet data on success, and returns
 .B NULL
-if an error occured, or if no packets were read from a live
+if an error occurred, or if no packets were read from a live
 capture (if, for example, they were discarded because they didn't pass
 the packet filter, or if, on platforms that support a read timeout that
 starts before any packets arrive, the timeout expires before any packets
 arrive, or if the file descriptor for the capture device is in
 non-blocking mode and no packets were available to be read), or if no
 more packets are available in a ``savefile.''  Unfortunately, there is
-no way to determine whether an error occured or not.
+no way to determine whether an error occurred or not.
 .SH SEE ALSO
 pcap(3PCAP), pcap_geterr(3PCAP), pcap_dispatch(3PCAP)

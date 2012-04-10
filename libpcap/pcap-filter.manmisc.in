@@ -65,6 +65,8 @@ Possible directions are
 .BR dst ,
 .BR "src or dst" ,
 .BR "src and dst" ,
+.BR ra ,
+.BR ta ,
 .BR addr1 ,
 .BR addr2 ,
 .BR addr3 ,
@@ -76,6 +78,8 @@ there is no dir qualifier,
 .B "src or dst"
 is assumed.
 The
+.BR ra ,
+.BR ta ,
 .BR addr1 ,
 .BR addr2 ,
 .BR addr3 ,
@@ -472,6 +476,15 @@ and
 .B scrub
 (applies only to packets logged by OpenBSD's or FreeBSD's
 .BR pf (4)).
+.IP "\fBwlan ra \fIehost\fR"
+True if the IEEE 802.11 RA is
+.IR ehost .
+The RA field is used in all frames except for management frames.
+.IP "\fBwlan ta \fIehost\fR"
+True if the IEEE 802.11 TA is
+.IR ehost .
+The TA field is used in all frames except for management frames and
+CTS (Clear To Send) and ACK (Acknowledgment) control frames.
 .IP "\fBwlan addr1 \fIehost\fR"
 True if the first IEEE 802.11 address is
 .IR ehost .
@@ -490,7 +503,7 @@ True if the fourth IEEE 802.11 address, if present, is
 .IR ehost .
 The fourth address field is only used for
 WDS (Wireless Distribution System) frames.
-.IP "\fBip\fR, \fBip6\fR, \fBarp\fR, \fBrarp\fR, \fBatalk\fR, \fBaarp\fR, \fBdecnet\fR, \fBiso\fR, \fBstp\fR, \fBipx\fR, \fInetbeui\fP"
+.IP "\fBip\fR, \fBip6\fR, \fBarp\fR, \fBrarp\fR, \fBatalk\fR, \fBaarp\fR, \fBdecnet\fR, \fBiso\fR, \fBstp\fR, \fBipx\fR, \fBnetbeui\fP"
 Abbreviations for:
 .in +.5i
 .nf

@@ -1,0 +1,152 @@
+#
+# GNU Makefile for DOS-libpcap. djgpp version.
+#
+# Use this makefile from the libpcap root directory.
+# E.g. like this:
+#
+#  c:\net\pcap> make -f msdos/makefile.dj
+#
+# @(#) $Header: /tcpdump/master/libpcap/msdos/makefile.dj,v 1.2 2004-12-19 19:41:06 guy Exp $ (LBL)
+
+VPATH = missing msdos
+
+PREREQUISITES = scanner.c grammar.c tokdefs.h version.h msdos/pkt_stub.inc
+
+include msdos/common.dj
+
+DRIVER_DIR = ./msdos/pm_drvr
+
+CFLAGS += -DDEBUG -DNDIS_DEBUG -DHAVE_LIMITS_H -DHAVE_STRERROR \
+          -D_U_='__attribute__((unused))' -DHAVE_VERSION_H
+
+# CFLAGS += -Dyylval=pcap_lval -DBDEBUG -DNDEBUG
+
+SOURCES = grammar.c scanner.c bpf_filt.c bpf_imag.c bpf_dump.c   \
+          etherent.c gencode.c nametoad.c pcap-dos.c optimize.c  \
+          savefile.c pcap.c inet.c msdos\pktdrvr.c msdos/ndis2.c \
+          missing/snprintf.c
+
+OBJECTS = $(notdir $(SOURCES:.c=.o))
+TEMPBIN = tmp.bin
+
+ifeq ($(USE_32BIT_DRIVERS),1)
+  PM_OBJECTS = $(addprefix $(DRIVER_DIR)/, \
+                 printk.o pci.o pci-scan.o bios32.o dma.o irq.o intwrap.o \
+                 lock.o kmalloc.o quirks.o timer.o net_init.o)
+  #
+  # Static link of drivers
+  #
+  ifeq ($(USE_32BIT_MODULES),0)
+    PM_OBJECTS += $(addprefix $(DRIVER_DIR)/, \
+                    accton.o 8390.o 3c503.o 3c509.o 3c59x.o 3c515.o \
+                    3c575_cb.o 3c90x.o ne.o wd.o cs89x0.o rtl8139.o)
+  endif
+endif
+
+all: libpcap.a
+
+ifeq ($(USE_32BIT_DRIVERS),1)
+$(PM_OBJECTS):
+	$(MAKE) -f Makefile.dj -C $(DRIVER_DIR) $(notdir $@)
+endif
+
+libpcap.a: version.h $(OBJECTS) $(PM_OBJECTS)
+	rm -f $@
+	ar rs $@ $^
+
+msdos/pkt_stub.inc: msdos/bin2c.exe msdos/pkt_rx1.S
+	$(ASM) -o $(TEMPBIN) -lmsdos/pkt_rx1.lst msdos/pkt_rx1.S
+	./msdos/bin2c $(TEMPBIN) > $@
+	rm -f $(TEMPBIN)
+
+grammar.c tokdefs.h: grammar.y
+	rm -f grammar.c tokdefs.h
+	$(YACC) --name-prefix=pcap_ --yacc --defines grammar.y
+	mv -f y_tab.c grammar.c
+	mv -f y_tab.h tokdefs.h
+
+version.h: ./VERSION
+	@echo '/* Generated from VERSION. Do not edit */' > $@
+	sed -e 's/.*/static char pcap_version_string[] = "libpcap (&)";/' ./VERSION >> $@
+
+scanner.c: scanner.l
+	$(LEX) -Ppcap_ -7 -t $^ > $@
+	@echo
+
+msdos/bin2c.exe: msdos/bin2c.c
+	$(CC) $*.c -o $*.exe
+
+clean:
+	$(MAKE) -f Makefile.dj -C $(DRIVER_DIR) clean
+	$(MAKE) -f Makefile.dj -C libcpcap clean
+	rm -f $(OBJECTS) msdos/pkt_rx1.lst Makefile.bak $(PREREQUISITES)
+
+vclean: clean
+	rm -f libpcap.a msdos/bin2c.exe
+
+#
+# Generated dependencies; Due to some hacks in gcc 2.95 and djgpp 2.03
+# we must prevent "$(DJDIR)/bin/../include/sys/version.h" from beeing
+# included in dependency output (or else this makefile cannot be used on
+# another machine). We therefore use a special 'specs' file during
+# pre-processing.
+#
+MM_SPECS = specs.tmp
+MAKEFILE = msdos/Makefile.dj
+
+depend: $(PREREQUISITES)
+	@echo Generating dependencies..
+	@cp $(MAKEFILE) Makefile.bak
+	@echo "*cpp: %(cpp_cpu) %{posix:-D_POSIX_SOURCE} -remap" > $(MM_SPECS)
+	sed -e "/^# DO NOT DELETE THIS LINE/,$$d" < Makefile.bak > $(MAKEFILE)
+	echo "# DO NOT DELETE THIS LINE"                        >> $(MAKEFILE)
+	$(CC) -MM -specs=$(MM_SPECS) $(CFLAGS) $(SOURCES)       >> $(MAKEFILE)
+	rm -f $(MM_SPECS)
+
+#
+# Manually generated dependencies
+#             
+msdos/pktdrvr.c: msdos/pkt_stub.inc
+scanner.c: scanner.l
+grammar.c tokdefs.h: grammar.y
+grammar.h: grammar.y
+scanner.l: pcap-int.h pcap-namedb.h gencode.h grammar.h gnuc.h
+grammar.y: pcap-int.h gencode.h pcap-namedb.h gnuc.h
+
+#
+# Automatically generated dependencies
+#
+# DO NOT DELETE THIS LINE
+grammar.o: grammar.c pcap-int.h pcap.h pcap-bpf.h gencode.h pf.h \
+  pcap-namedb.h
+scanner.o: scanner.c pcap-int.h pcap.h pcap-bpf.h gencode.h pcap-namedb.h \
+  tokdefs.h
+bpf_filt.o: bpf_filt.c pcap-int.h pcap.h pcap-bpf.h gnuc.h
+bpf_imag.o: bpf_imag.c pcap-int.h pcap.h pcap-bpf.h
+bpf_dump.o: bpf_dump.c pcap.h pcap-bpf.h
+etherent.o: etherent.c pcap-int.h pcap.h pcap-bpf.h pcap-namedb.h
+gencode.o: gencode.c pcap-dos.h msdos/pm_drvr/lock.h pcap-int.h pcap.h \
+  pcap-bpf.h ethertype.h nlpid.h llc.h gencode.h atmuni31.h sunatmpos.h \
+  ppp.h sll.h arcnet.h pf.h pcap-namedb.h
+nametoad.o: nametoad.c pcap-int.h pcap.h pcap-bpf.h gencode.h \
+  pcap-namedb.h ethertype.h
+pcap-dos.o: pcap-dos.c msdos/pm_drvr/pmdrvr.h msdos/pm_drvr/iface.h \
+  msdos/pm_drvr/lock.h msdos/pm_drvr/ioport.h pcap-dos.h pcap-int.h \
+  pcap.h pcap-bpf.h msdos/pm_drvr/kmalloc.h msdos/pm_drvr/bitops.h \
+  msdos/pm_drvr/timer.h msdos/pm_drvr/dma.h msdos/pm_drvr/irq.h \
+  msdos/pm_drvr/printk.h msdos/pm_drvr/pci.h msdos/pm_drvr/bios32.h \
+  msdos/pm_drvr/module.h msdos/pm_drvr/3c501.h msdos/pm_drvr/3c503.h \
+  msdos/pm_drvr/3c509.h msdos/pm_drvr/3c59x.h msdos/pm_drvr/3c515.h \
+  msdos/pm_drvr/3c90x.h msdos/pm_drvr/3c575_cb.h msdos/pm_drvr/ne.h \
+  msdos/pm_drvr/wd.h msdos/pm_drvr/accton.h msdos/pm_drvr/cs89x0.h \
+  msdos/pm_drvr/rtl8139.h msdos/pm_drvr/ne2k-pci.h msdos/pktdrvr.h
+optimize.o: optimize.c pcap-int.h pcap.h pcap-bpf.h gencode.h
+savefile.o: savefile.c pcap-int.h pcap.h pcap-bpf.h
+pcap.o: pcap.c pcap-dos.h msdos/pm_drvr/lock.h pcap-int.h pcap.h \
+  pcap-bpf.h
+inet.o: inet.c pcap-int.h pcap.h pcap-bpf.h
+pktdrvr.o: msdos/pktdrvr.c gnuc.h pcap-dos.h msdos/pm_drvr/lock.h \
+  pcap-int.h pcap.h pcap-bpf.h msdos/pktdrvr.h msdos/pkt_stub.inc
+ndis2.o: msdos/ndis2.c pcap-dos.h msdos/pm_drvr/lock.h pcap-int.h pcap.h \
+  pcap-bpf.h msdos/ndis2.h
+snprintf.o: missing/snprintf.c pcap-int.h pcap.h pcap-bpf.h

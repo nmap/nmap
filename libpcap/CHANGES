@@ -1,3 +1,77 @@
+Friday  December 9, 2011.  guy@alum.mit.edu.
+Summary for 1.2.1 libpcap release
+	Update README file.
+	Fix typoes in README.linux file.
+	Clean up some compiler warnings.
+	Fix Linux compile problems and tests for ethtool.h.
+	Treat Debian/kFreeBSD and GNU/Hurd as systems with GNU
+	 toolchains.
+	Support 802.1 QinQ as a form of VLAN in filters.
+	Treat "carp" as equivalent to "vrrp" in filters.
+	Fix code generated for "ip6 protochain".
+	Add some new link-layer header types.
+	Support capturing NetFilter log messages on Linux.
+	Clean up some error messages.
+	Turn off monitor mode on exit for mac80211 interfaces on Linux.
+	Fix problems turning monitor mode on for non-mac80211 interfaces
+	 on Linux.
+	Properly fail if /sys/class/net or /proc/net/dev exist but can't
+	 be opened.
+	Fail if pcap_activate() is called on an already-activated
+	 pcap_t, and add a test program for that.
+	Fix filtering in pcap-ng files.
+	Don't build for PowerPC on Mac OS X Lion.
+	Simplify handling of new DLT_/LINKTYPE_ values.
+	Expand pcap(3PCAP) man page.
+
+Sunday  July 24, 2011.  mcr@sandelman.ca.
+Summary for 1.2 libpcap release
+        All of the changes listed below for 1.1.1 and 1.1.2.
+        Changes to error handling for pcap_findalldevs().
+        Fix the calculation of the frame size in memory-mapped captures.
+        Add a link-layer header type for STANAG 5066 D_PDUs.
+        Add a link-layer type for a variant of 3GPP TS 27.010.
+        Noted real nature of LINKTYPE_ARCNET.
+        Add a link-layer type for DVB-CI.
+        Fix configure-script discovery of VLAN acceleration support.
+         see http://netoptimizer.blogspot.com/2010/09/tcpdump-vs-vlan-tags.html
+        Linux, HP-UX, AIX, NetBSD and OpenBSD compilation/conflict fixes.
+        Protect against including AIX 5.x's <net/bpf.h> having been included.
+        Add DLT_DBUS, for raw D-Bus messages.
+        Treat either EPERM or EACCES as "no soup for you".
+        Changes to permissions on DLPI systems.
+        Add DLT_IEEE802_15_4_NOFCS for 802.15.4 interfaces.
+
+Fri.    August 6, 2010.  guy@alum.mit.edu.
+Summary for 1.1.2 libpcap release
+	Return DLT_ values, not raw LINKTYPE_ values from
+	  pcap_datalink() when reading pcap-ng files
+	Add support for "wlan ra" and "wlan ta", to check the RA and TA
+	  of WLAN frames that have them
+	Don't crash if "wlan addr{1,2,3,4}" are used without 802.11
+	  headers
+	Do filtering on USB and Bluetooth capturing
+	On FreeBSD/SPARC64, use -fPIC - it's apparently necessary
+	Check for valid port numbers (fit in a 16-bit unsigned field) in
+	  "port" filters
+	Reject attempts to put savefiles into non-blocking mode
+	Check for "no such device" for the "get the media types" ioctl
+	  in *BSD
+	Improve error messages from bpf_open(), and let it do the error
+	  handling
+	Return more specific errors from pcap_can_set_rfmon(); fix
+	  documentation
+	Update description fetching code for FreeBSD, fix code for
+	  OpenBSD
+	Ignore /sys/net/dev files if we get ENODEV for them, not just
+	  ENXIO; fixes handling of bonding devices on Linux
+	Fix check for a constant 0 argument to BPF_DIV
+	Use the right version of ar when cross-building
+	Free any filter set on a savefile when the savefile is closed
+	Include the CFLAGS setting when configure was run in the
+	  compiler flags
+	Add support for 802.15.4 interfaces on Linux
+
 Thu.    April 1, 2010.  guy@alum.mit.edu.
 Summary for 1.1.1 libpcap release
 	Update CHANGES to reflect more of the changes in 1.1.0.

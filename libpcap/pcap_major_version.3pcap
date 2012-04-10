@@ -36,12 +36,14 @@ int pcap_minor_version(pcap_t *p);
 .SH DESCRIPTION
 If
 .I p
-refers to a savefile,
+refers to a ``savefile'',
 .B pcap_major_version()
-returns the major number of the file format of the savefile and
+returns the major number of the file format of the ``savefile'' and
 .B pcap_minor_version()
-returns the minor number of the file format of the savefile.  The
-version number is stored in the header of the savefile.
+returns the minor number of the file format of the ``savefile''.  The
+version number is stored in the ``savefile''; note that the meaning of
+its values depends on the type of ``savefile'' (for example, pcap or
+pcap-NG).
 .PP
 If
 .I p

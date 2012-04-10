@@ -56,19 +56,29 @@ or
 (for example, regular network devices on FreeBSD 4.3 and 4.4, and Endace
 DAG devices), so \-1 is returned for those devices.
 .PP
-Note that on most versions of most BSDs (including Mac OS X)
+Note that in:
+.IP
+FreeBSD prior to FreeBSD 4.6;
+.IP
+NetBSD prior to NetBSD 3.0;
+.IP
+OpenBSD prior to OpenBSD 2.4;
+.IP
+Mac OS X prior to Mac OS X 10.7;
+.PP
 .B select()
 and
 .B poll()
 do not work correctly on BPF devices;
 .B pcap_get_selectable_fd()
 will return a file descriptor on most of those versions (the exceptions
-being FreeBSD 4.3 and 4.4), a simple
+being FreeBSD 4.3 and 4.4), but a simple
 .B select()
 or
 .B poll()
-will not return even after the read timeout expires.  To work around
-this, an application that uses
+will not indicate that the descriptor is readable until a full buffer's
+worth of packets is received, even if the read timeout expires before
+then.  To work around this, an application that uses
 .B select()
 or
 .B poll()

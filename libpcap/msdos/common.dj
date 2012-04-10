@@ -1,0 +1,80 @@
+#
+# Common defines for libpcap and 16/32-bit network drivers (djgpp)
+#
+# @(#) $Header: /tcpdump/master/libpcap/msdos/common.dj,v 1.2 2004-12-19 19:36:33 guy Exp $ (LBL)
+
+.SUFFIXES: .exe .wlm .dxe .l .y
+.PHONY:    check_gcclib
+
+default: check_gcclib all
+
+GCCLIB   = /djgpp/lib/gcc-lib/djgpp/3.31
+MAKEFILE = Makefile.dj
+
+#
+# DLX 2.91+ lib. Change path to suite.
+# Not used anymore. Uses DXE3 now.
+#
+# DLX_LIB  = $(DJDIR)/contrib/dlx.291/libdlx.a
+# DLX_LINK = $(DJDIR)/bin/dlxgen.exe
+
+WATT32_ROOT = $(subst \,/,$(WATT_ROOT))
+
+
+ifeq ($(wildcard $(GCCLIB)/libgcc.a),)
+check_gcclib:
+	@echo libgcc.a not found. Set \"$(GCCLIB)\" to \"/djgpp/lib/gcc-lib/djgpp/3.X\"
+endif
+
+
+#
+# Include 32-bit driver support
+#
+USE_32BIT_DRIVERS = 0
+
+#
+# Use loadable driver modules instead of statically linking
+# all drivers.
+#
+USE_32BIT_MODULES = 0
+
+#
+# Put interrupt sensitive code/data in locked sections
+# Do `make clean' in all affected directories after changing this.
+#
+USE_SECTION_LOCKING = 0
+
+#
+# Set to 1 to use exception handler lib (only for me)
+#
+USE_EXCEPT = 0
+
+CC   = gcc.exe
+LD   = ld.exe
+ASM  = nasm.exe -fbin -dDEBUG
+YACC = bison.exe
+LEX  = flex.exe
+
+CFLAGS = -g -gcoff -O2 -Wall -I. -I$(WATT32_ROOT)/inc
+
+ifeq ($(USE_EXCEPT),1)
+  CFLAGS += -DUSE_EXCEPT
+  EXC_LIB = d:/prog/mw/except/lib/libexc.a
+endif
+
+ifeq ($(USE_SECTION_LOCKING),1)
+  CFLAGS += -DUSE_SECTION_LOCKING
+endif
+
+ifeq ($(USE_32BIT_DRIVERS),1)
+  CFLAGS += -DUSE_32BIT_DRIVERS
+endif
+
+%.o: %.c
+	$(CC) -c $(CFLAGS) $<
+	@echo
+
+%.o: %.s
+	$(CC) -c $(CFLAGS) -x assembler-with-cpp -o $@ $<
+	@echo
+
