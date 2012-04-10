@@ -54,12 +54,6 @@ static const char rcsid[] _U_ =
 #include <string.h>
 #include <ifaddrs.h>
 
-#include "pcap-int.h"
-
-#ifdef HAVE_OS_PROTO_H
-#include "os-proto.h"
-#endif
-
 #ifdef AF_PACKET
 # ifdef HAVE_NETPACKET_PACKET_H
 /* Solaris 11 and later, Linux distributions with newer glibc */
@@ -76,6 +70,12 @@ static const char rcsid[] _U_ =
 # endif /* __Lynx__ */
 # endif /* HAVE_NETPACKET_PACKET_H */
 #endif /* AF_PACKET */
+
+#include "pcap-int.h"
+
+#ifdef HAVE_OS_PROTO_H
+#include "os-proto.h"
+#endif
 
 /*
  * This is fun.
