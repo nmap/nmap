@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a compilation problem on Solaris 9 caused by a missing
+  definition of IPV6_V6ONLY. Reported by Dagobert Michelsen.
+
 o Upgraded included libpcap to version 1.2.1.
 
 o [NSE] Added hostmap-robtex.nse by Arturo Busleiman, which finds other
