@@ -1,0 +1,73 @@
+From edb5f1e2f1d2a010f2d4a1e421efc7895b9e41c9 Mon Sep 17 00:00:00 2001
+From: David Fifield <david@bamsoftware.com>
+Date: Mon, 9 Apr 2012 17:02:40 -0700
+Subject: [PATCH 3/4] Add the --disable-packet-ring configure option.
+
+This allows the creation of 32-bit binaries that are compatible with
+64-bit Linux kernels before version 2.6.27.
+---
+ configure.in |   18 ++++++++++++++++++
+ pcap-linux.c |   18 ++++++++++--------
+ 2 files changed, 28 insertions(+), 8 deletions(-)
+
+diff --git configure.in configure.in
+index 24097b2..5eca6ab 100644
+--- configure.in
++++ configure.in
+@@ -1404,6 +1404,24 @@ linux*)
+ 	;;
+ esac
+ 
++dnl The packet ring capture facility of Linux, described in
++dnl Documentation/networking/packet_mmap.txt, is not 32/64-bit compatible before
++dnl version 2.6.27. A 32-bit kernel requires a 32-bit userland, and likewise for
++dnl 64-bit. The effect of this is that a 32-bit libpcap binary will not run
++dnl correctly on a 64-bit kernel (the binary will use the wrong offsets into a
++dnl kernel struct). This problem was solved in Linux 2.6.27. Use
++dnl --disable-packet-ring whenever a 32-bit application must run on a 64-bit
++dnl target host, and either the build host or the target host run Linux 2.6.26
++dnl or earlier.
++AC_ARG_ENABLE([packet-ring],
++[AC_HELP_STRING([--enable-packet-ring],[enable Linux packet ring support @<:@default=yes@:>@])],
++,enable_packet_ring=yes)
++
++if test "x$enable_packet_ring" != "xno" ; then
++	AC_DEFINE(PCAP_SUPPORT_PACKET_RING, 1, [use Linux packet ring capture if available])
++	AC_SUBST(PCAP_SUPPORT_PACKET_RING)
++fi
++
+ AC_PROG_INSTALL
+ 
+ AC_CONFIG_HEADER(config.h)
+diff --git pcap-linux.c pcap-linux.c
+index d4f50b7..213558b 100644
+--- pcap-linux.c
++++ pcap-linux.c
+@@ -219,14 +219,16 @@ static const char rcsid[] _U_ =
+  /* check for memory mapped access avaibility. We assume every needed 
+   * struct is defined if the macro TPACKET_HDRLEN is defined, because it
+   * uses many ring related structs and macros */
+-# ifdef TPACKET_HDRLEN
+-#  define HAVE_PACKET_RING
+-#  ifdef TPACKET2_HDRLEN
+-#   define HAVE_TPACKET2
+-#  else
+-#   define TPACKET_V1	0
+-#  endif /* TPACKET2_HDRLEN */
+-# endif /* TPACKET_HDRLEN */
++# ifdef PCAP_SUPPORT_PACKET_RING
++#  ifdef TPACKET_HDRLEN
++#   define HAVE_PACKET_RING
++#   ifdef TPACKET2_HDRLEN
++#    define HAVE_TPACKET2
++#   else
++#    define TPACKET_V1	0
++#   endif /* TPACKET2_HDRLEN */
++#  endif /* TPACKET_HDRLEN */
++# endif /* PCAP_SUPPORT_PACKET_RING */
+ #endif /* PF_PACKET */
+ 
+ #ifdef SO_ATTACH_FILTER
+-- 
+1.7.9.5
+
