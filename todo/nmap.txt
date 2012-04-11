@@ -15,14 +15,6 @@ o We should probably go through the nmap-os-db (and IPv6 version)
   sometimes include the qualification, and sometimes not.
   o This is best done with cpeify-os.py, if possible.
 
-o Scans from Mac OS X tend to use raw IP packets rather than ethernet
-  frames even on the local network because Dnet does not seem to be
-  retrieving the routing table properly -- so the LAN doesn't even
-  show up in --iflist.  Patrik can reproduce this on all 3 of his
-  MACs (OS X versions 10.7.3).  Comparing the code in DNet route-bsd.c
-  to Apple's own routing table code discovered by Patrik suggests that
-  the Dnet code may be incorrect.
-
 o Zenmap no longer ads the installed module directory to its module
   search path because some distributors first install in a world
   writeable directory (like /tmp) and then put those files into their
@@ -49,6 +41,13 @@ o [NSE] host.os should not just be a list of strings which can contain
   So host.os[1].class[1].cpe[1] is the first CPE entry for the first
   classification of the first OS match for the target system.
   The host.os entry docs/scripting.xml would have to be updated too.
+
+o Implement some improvements to dns-ip6-arpa.nse, as describe at
+  http://seclists.org/nmap-dev/2012/q2/45.
+  - Also consider a move to "fire and forget" logic.  Just blast out
+  the queries that we know we have to make, and then read any replies
+  that may happen to come back. (but still try not to introduce
+  inaccuracy (missed hosts) by flooding the network.
 
 o [NPING] Nping should probably give you an error or warning when you
   do: "nmap -p80 google.com" since it is ignoring the port specifier.
@@ -750,6 +749,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Scans from Mac OS X tend to use raw IP packets rather than ethernet
+  frames even on the local network because Dnet does not seem to be
+  retrieving the routing table properly -- so the LAN doesn't even
+  show up in --iflist.  Patrik can reproduce this on all 3 of his
+  MACs (OS X versions 10.7.3).  Comparing the code in DNet route-bsd.c
+  to Apple's own routing table code discovered by Patrik suggests that
+  the Dnet code may be incorrect.
 
 o ssl-google-cert-catalog should not require that the user specify
   ssl-cert in order to run.  Instead, they should probably both call a
