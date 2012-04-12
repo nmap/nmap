@@ -5,102 +5,122 @@ Tries to log into a POP3 account by guessing usernames and passwords.
 ---
 -- @args pop3loginmethod The login method to use: <code>"USER"</code>
 -- (default), <code>"SASL-PLAIN"</code>, <code>"SASL-LOGIN"</code>,
--- <code>"SASL-CRAM-MD5"</code>, or <code>"APOP"</code>.
+-- <code>"SASL-CRAM-MD5"</code>, or <code>"APOP"</code>. Defaults to <code>"USER"</code>,
 --
 -- @output
 -- PORT    STATE SERVICE
 -- 110/tcp open  pop3
--- | pop3-brute: root : password
+-- | pop3-brute-ported:
+-- | Accounts:
+-- |  user:pass => Login correct
+-- | Statistics:
+-- |_ Performed 8 scans in 1 seconds, average tps: 8
 
-author = "Philip Pickering"
+author = "Philip Pickering, Piotr Olma"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
 require 'pop3'
 require 'shortport'
-require 'unpwdb'
+require 'brute'
+
+
+Driver = {
+  new = function(self, host, port, login_function, is_apop)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.port = port
+    o.host = host
+    o.login_function = login_function
+    o.is_apop = is_apop
+    return o
+  end,
+
+  -- Attempts to connect to the POP server
+  -- @return true on success
+  -- @return false, brute.Error object on failure
+  connect = function(self)
+
+    self.socket = nmap.new_socket()
+    local opts = {timeout=10000, recv_before=true}
+    local best_opt, line
+    self.socket, _, best_opt, line = comm.tryssl(self.host, self.port, "" , opts)
+
+    if not self.socket then
+      local err = brute.Error:new("Failed to connect.")
+      err:setAbort(true)
+      return false, err
+    end --no connection
+    if not pop3.stat(line) then
+      local err = brute.Error:new("Failed to make a pop-connection.")
+      err:setAbort(true)
+      return false, err
+    end -- no pop-connection
+
+    if self.is_apop then
+      self.additional = string.match(line, "<[%p%w]+>") --apop challenge
+    end
+    return true
+  end, --connect
+
+  -- Attempts to login to the POP server
+  --
+  -- @param username string containing the login username
+  -- @param password string containing the login password
+  -- @return status, true on success, false on failure
+  -- @return brute.Error object on failure
+  --         brute.Account object on success
+  login = function(self, username, password)
+    local pstatus
+    local perror
+    pstatus, perror = self.login_function(self.socket, username, password, self.additional)
+    if pstatus then
+      return true, brute.Account:new(username, password, "OPEN")
+    elseif (perror == pop3.err.pwError) then
+      return false, brute.Error:new("Wrong password.")
+    elseif (perror == pop3.err.userError) then
+      return false, brute.Error:new("Wrong username.")
+    end
+    return false, brute.Error:new("Login failed.")
+  end, --login
+
+  disconnect = function(self)
+    self.socket:close()
+  end, --disconnect
+
+  check = function(self)
+    return true
+  end, --check
+}
 
 portrule = shortport.port_or_service({110, 995}, {"pop3","pop3s"})
 
 action = function(host, port)
-   local pMeth = nmap.registry.args.pop3loginmethod
-   if (not pMeth) then pMeth = nmap.registry.pop3loginmethod end
-   if (not pMeth) then pMeth = "USER" end
+  local pMeth = nmap.registry.args.pop3loginmethod
+  if (not pMeth) then pMeth = nmap.registry.pop3loginmethod end
+  if (not pMeth) then pMeth = "USER" end
 
-   local login
-   local additional
+  --determine function we will use to login to server
+  local is_apop = false
+  if (pMeth == "USER") then
+    login_function = pop3.login_user
+  elseif (pMeth == "SASL-PLAIN") then
+    login_function = pop3.login_sasl_plain
+  elseif (pMeth == "SASL-LOGIN") then
+    login_function = pop3.login_sasl_login
+  elseif (pMeth == "SASL-CRAM-MD5") then
+    login_function = pop3.login_sasl_crammd5
+  elseif (pMeth == "APOP") then
+    login_function = pop3.login_apop
+    is_apop = true
+  else
+    login_function = pop3.login_user
+  end
 
-   local stat = pop3.stat
-
-   if (pMeth == "USER") then 
-      login = pop3.login_user
-   elseif (pMeth == "SASL-PLAIN") then 
-      login = pop3.login_sasl_plain
-   elseif (pMeth == "SASL-LOGIN") then 
-      login = login_sasl_login
-   elseif (pMeth == "SASL-CRAM-MD5") then
-      login = login_sasl_crammd5
-   elseif (pMeth == "APOP") then 
-      login = login_apop     
-   end
-
-
-   local status
-   local line
-   local socket = nmap.new_socket()
-   local opts = {timeout=10000, recv_before=true}
-   
-   local socket, nothing, bopt, line = comm.tryssl(host, port, "" , opts)
-
-   if not socket then return end -- no connection 
-   if not stat(line) then return end -- no pop-connection
-
-   local apopChallenge = string.match(line, "<[%p%w]+>") 
-  
-   if pMeth == "APOP" then 
-      additional = apopChallenge 
-   end
-   
-   local getUser
-   local _
-
-   status, getUser = unpwdb.usernames()
-   if (not status) then return end
-
-
-   local currUser = getUser()
-   while currUser do
-      local getPW
-      status, getPW = unpwdb.passwords()
-      if (not status) then return end
-
-      local currPw = getPW()
-
-      while currPw do
-	 local pstatus
-	 local perror
-
-	 pstatus, perror = login(socket, currUser, currPw, additional)
-	 
-	 if (pstatus) then 
-	    return currUser .. " : " .. currPw
-	 elseif (perror == pop3.err.pwError) then
-	    currPw = getPW()
-	 elseif (perror == pop3.err.userError) then
-	    currPw = nil
-	 else
-            local socstatus = socket:connect(host, port, bopt)
-	    if not socstatus 
-	       then return
-               else _, line = socket:receive()
-                    if not stat(line) then return end -- no connection
-            end
-         end
-      end
-      currUser = getUser()
-      getPW("reset")
-   end
-   return -- "wrong pw" 
-
+  local engine = brute.Engine:new(Driver, host, port, login_function, is_apop)
+  engine.options.script_name = SCRIPT_NAME
+  status, accounts = engine:start()
+  return accounts
 end

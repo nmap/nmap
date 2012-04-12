@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Ported the pop3-brute script to use the brute library.
+  [Piotr Olma]
+
 o Fixed a compilation problem on Solaris 9 caused by a missing
   definition of IPV6_V6ONLY. Reported by Dagobert Michelsen.
 
