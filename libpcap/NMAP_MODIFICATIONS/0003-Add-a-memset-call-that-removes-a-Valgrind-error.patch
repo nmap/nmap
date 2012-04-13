@@ -1,7 +1,7 @@
-From 289ac878ff758d548628e7702618db3b0e141e0c Mon Sep 17 00:00:00 2001
+From 6a31f45eb5ae5c7319263806c2962c844efb0e99 Mon Sep 17 00:00:00 2001
 From: David Fifield <david@bamsoftware.com>
 Date: Mon, 9 Apr 2012 17:10:19 -0700
-Subject: [PATCH 4/4] Add a memset call that removes a Valgrind error.
+Subject: [PATCH 3/4] Add a memset call that removes a Valgrind error.
 
 http://seclists.org/nmap-dev/2010/q3/796
 ---

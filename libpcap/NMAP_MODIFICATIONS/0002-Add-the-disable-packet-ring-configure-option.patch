@@ -1,7 +1,7 @@
-From edb5f1e2f1d2a010f2d4a1e421efc7895b9e41c9 Mon Sep 17 00:00:00 2001
+From 3807934db1b073534a01d9a8546cddcec9be501f Mon Sep 17 00:00:00 2001
 From: David Fifield <david@bamsoftware.com>
 Date: Mon, 9 Apr 2012 17:02:40 -0700
-Subject: [PATCH 3/4] Add the --disable-packet-ring configure option.
+Subject: [PATCH 2/4] Add the --disable-packet-ring configure option.
 
 This allows the creation of 32-bit binaries that are compatible with
 64-bit Linux kernels before version 2.6.27.

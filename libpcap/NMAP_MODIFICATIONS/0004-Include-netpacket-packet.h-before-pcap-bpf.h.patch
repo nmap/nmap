@@ -1,7 +1,7 @@
-From 4945c5795ad655f01203d3356f6fbce0ebffdfc4 Mon Sep 17 00:00:00 2001
+From c819d7677bafa2b8f899f50895b498275c0a6375 Mon Sep 17 00:00:00 2001
 From: David Fifield <david@bamsoftware.com>
 Date: Mon, 9 Apr 2012 19:48:21 -0700
-Subject: [PATCH 5/5] Include <netpacket/packet.h> before "pcap/bpf.h".
+Subject: [PATCH 4/4] Include <netpacket/packet.h> before "pcap/bpf.h".
 
 On Solaris 11, <netpacket/packet.h> includes <net/bpf.h>, which defines
 the symbols bpf_program and bpf_insn. The included "pcap/bpf.h" also
