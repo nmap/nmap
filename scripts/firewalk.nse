@@ -38,11 +38,11 @@ firewalk tool.
 -- nmap --script=firewalk --traceroute --script-args=firewalk.max-probed-ports=7 <host>
 --
 --
--- @args firewalk.max-retries the maximum number of allowed retransmissions
--- @args firewalk.recv-timeout the duration of the packets capture loop (in milliseconds)
--- @args firewalk.probe-timeout validity period of a probe (in milliseconds)
--- @args firewalk.max-active-probes maximum number of parallel active probes
--- @args firewalk.max-probed-ports maximum number of ports to probe per protocol. Set to -1 to scan every filtered ports
+-- @args firewalk.max-retries the maximum number of allowed retransmissions.
+-- @args firewalk.recv-timeout the duration of the packets capture loop (in milliseconds).
+-- @args firewalk.probe-timeout validity period of a probe (in milliseconds).
+-- @args firewalk.max-active-probes maximum number of parallel active probes.
+-- @args firewalk.max-probed-ports maximum number of ports to probe per protocol. Set to -1 to scan every filtered port.
 --
 --
 -- @output
