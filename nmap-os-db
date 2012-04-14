@@ -9396,10 +9396,12 @@ IE(DFI=S%T=3B-3D%TG=40%CD=S)
 # WS-C2948G with cat4000-k9.8-4-11-GLX
 Fingerprint Cisco Catalyst 2948G, 4003, 4006, or 6509 switch (CatOS 7.6(17) - 8.4(3))
 Class Cisco | CatOS | 7.X | switch
-CPE cpe:/h:cisco:catalyst
+CPE cpe:/h:cisco:catalyst_4003
+CPE cpe:/h:cisco:catalyst_4006
 CPE cpe:/o:cisco:catos:7 auto
 Class Cisco | CatOS | 8.X | switch
-CPE cpe:/h:cisco:catalyst
+CPE cpe:/h:cisco:catalyst_2948g
+CPE cpe:/h:cisco:catalyst_6509
 CPE cpe:/o:cisco:catos:8 auto
 SEQ(SP=FC-108%GCD=1-6%ISR=FA-112%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -9473,9 +9475,9 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # CISCO 827H
-Fingerprint Cisco 827H ADSL router
+Fingerprint Cisco 827H ADSL router (IOS 12.2)
 Class Cisco | embedded || broadband router
-CPE cpe:/h:cisco:827h_adsl_router
+CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=EF-113%GCD=1-6%ISR=102-114%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -9491,9 +9493,9 @@ U1(DF=N%T=100%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=100%TG=FF%CD=S)
 
 # CISCO C827H (MPC855T) ADSL ROUTER, IOS (tm) C820 Software (C820-Y6-M), Version 12.2(15)T5,  RELEASE SOFTWARE (fc1)
-Fingerprint Cisco 827H ADSL router
+Fingerprint Cisco 827H ADSL router (IOS 12.2)
 Class Cisco | embedded || broadband router
-CPE cpe:/h:cisco:827h_adsl_router
+CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=FE-108%GCD=1-6%ISR=106-110%TI=Z%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -9666,6 +9668,7 @@ IE(DFI=S%T=3A-44%TG=40%CD=S)
 # Cisco Systems, Inc./VPN 3000 Concentrator Version 4.1.7.O
 Fingerprint Cisco VPN 3000 Concentrator VPN platform (software version 4.1.7.O)
 Class Cisco | embedded || proxy server
+CPE cpe:/h:cisco:vpn_3000_concentrator:4.1.7.0
 SEQ(SP=D3-DD%GCD=1-6%ISR=DB-E5%TI=RD%II=RI%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -9683,6 +9686,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 # Cisco VPN Concentrator, software revision: "Cisco Systems, Inc./VPN 3000 Concentrator Version 4.7.2.D Dec 20 2005 15:26:54"
 Fingerprint Cisco VPN 3000 Concentrator VPN platform (software version 4.7.2.D)
 Class Cisco | embedded || proxy server
+CPE cpe:/h:cisco:vpn_3000_concentrator:4.7.2.d
 SEQ(SP=D0-DA%GCD=1-6%ISR=DA-E4%TI=I%II=RI%SS=O|S%TS=1|2)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -9700,6 +9704,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 # Cisco Concentrator 3030
 Fingerprint Cisco VPN 3030 Concentrator VPN platform
 Class Cisco | embedded || proxy server
+CPE cpe:/h:cisco:vpn_3030_concentrator
 SEQ(SP=D6-E0%GCD=1-6%ISR=D8-E2%TI=RD%II=RI%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -9717,6 +9722,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 # Cisco Systems, Inc./VPN 3000 Concentrator Version 4.7.2.F (VPN Concentrator Type: 3030)
 Fingerprint Cisco VPN 3030 Concentrator VPN platform (software 4.7.2.F)
 Class Cisco | embedded || proxy server
+CPE cpe:/h:cisco:vpn_3030_concentrator:4.7.2.f
 SEQ(SP=CE-D8%GCD=1-6%ISR=CF-D9%TI=RD%II=RI%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -10038,6 +10044,7 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # Cisco Communications Manager 7.1.1
 Fingerprint Cisco Unified Communications Manager VoIP gateway
 Class Cisco | embedded || VoIP adapter
+CPE cpe:/a:cisco:unified_communications_manager:7.1.1
 SEQ(SP=FE-10A%GCD=1-6%ISR=104-112%TI=Z%CI=RD%II=I%TS=A)
 OPS(O1=M564ST11NW2%O2=M564ST11NW2%O3=M564NNT11NW2%O4=M564ST11NW2%O5=M564ST11NW2%O6=M564ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -10056,6 +10063,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # UNITY Connection
 Fingerprint Cisco Unified Communications Manager VoIP gateway
 Class Cisco | embedded || VoIP adapter
+CPE cpe:/h:cisco:unified_call_manager
 SEQ(SP=C6-D0%GCD=1-6%ISR=C9-D3%TI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW2%O2=M5B4ST11NW2%O3=M5B4NNT11NW2%O4=M5B4ST11NW2%O5=M5B4ST11NW2%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -10074,6 +10082,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # CISCO Unified IP Conference Station 7935. Polycom hardware with CISCO software.
 Fingerprint Cisco 7935 or 7936 IP Conference State VoIP phone
 Class Cisco | embedded || VoIP phone
+CPE cpe:/h:cisco:unified_ip_conference_station_7935
+CPE cpe:/h:cisco:unified_ip_conference_station_7936
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -10112,7 +10122,10 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Cisco IP Phone CP-7970G, Version SCCP70.8-2-2SR2S
 Fingerprint Cisco IP Phone (7911, 7941, 7961, or 7970)
 Class Cisco | embedded || VoIP phone
-CPE cpe:/h:cisco:unified_ip_phone
+CPE cpe:/h:cisco:unified_ip_phone_7911
+CPE cpe:/h:cisco:unified_ip_phone_7941
+CPE cpe:/h:cisco:unified_ip_phone_7961
+CPE cpe:/h:cisco:unified_ip_phone_7970
 SEQ(SP=FF-10B%GCD=1-8%ISR=101-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -10241,6 +10254,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Cisco IP Phone 7975
 Fingerprint Cisco IP Phone 7941, 7961, or 7975
 Class Cisco | embedded || VoIP phone
+CPE cpe:/h:cisco:unified_ip_phone_7941
+CPE cpe:/h:cisco:unified_ip_phone_7961
+CPE cpe:/h:cisco:unified_ip_phone_7975
 CPE cpe:/h:cisco:unified_ip_phone
 SEQ(SP=C9-109%GCD=1-6%ISR=FE-112%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
@@ -10279,7 +10295,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Cisco ATA phone adapter
 Fingerprint Cisco Unified IP Phone 7905G or 7960
 Class Cisco | embedded || VoIP phone
-CPE cpe:/h:cisco:unified_ip_phone
+CPE cpe:/h:cisco:unified_ip_phone_7905g
+CPE cpe:/h:cisco:unified_ip_phone_7960
 SEQ(SP=0-1B%GCD=1000|2000|3000|4000|5000|A000|14000|1E000|28000|32000%ISR=90-9A%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -10446,7 +10463,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # IOS (tm) C2900XL Software (C2900XL-HS-M), Version 11.2(8.6)SA6
 Fingerprint Cisco 2900XL switch (IOS 11.2)
 Class Cisco | IOS | 11.X | switch
-CPE cpe:/h:cisco:catalyst_2900:xl
+CPE cpe:/h:cisco:catalyst_2900xl
 CPE cpe:/o:cisco:ios:11.2
 SEQ(SP=3F-8D%GCD=1-6%ISR=9A-A4%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
@@ -10471,10 +10488,11 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # IOS (tm) C2950 Software (C2950-C3H2S-M), Version 12.0(5.3)WC(1)
 Fingerprint Cisco Catalyst 2600-, 2900- or 3500 XL-series switch (IOS 11.3 - 12.0)
 Class Cisco | IOS | 11.X | switch
-CPE cpe:/h:cisco:catalyst
+CPE cpe:/h:cisco:catalyst_2600
 CPE cpe:/o:cisco:ios:11 auto
 Class Cisco | IOS | 12.X | switch
-CPE cpe:/h:cisco:catalyst
+CPE cpe:/h:cisco:catalyst_2900
+CPE cpe:/h:cisco:catalyst_3500
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=ED-10B%GCD=1-6%ISR=102-10E%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -10548,6 +10566,7 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # IOS (tm) C1700 Software (C1700-BNR2SY-M), Version 12.0(0.18)PI, BETA TEST SOFTWARE
 Fingerprint Cisco 1700 router (IOS 12.0)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:router_1700
 CPE cpe:/o:cisco:ios:12.0
 SEQ(SP=33-5D%GCD=1-6%ISR=9A-A4%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -10568,6 +10587,9 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(7), RELEASE SOFTWARE (fc6)
 Fingerprint Cisco 1812, 3640, or 3700 router (IOS 12.4)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:c1812
+CPE cpe:/h:cisco:c3640
+CPE cpe:/h:cisco:c3700
 CPE cpe:/o:cisco:ios:12.4
 SEQ(SP=FA-10A%GCD=1-6%ISR=103-10D%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -10681,6 +10703,7 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # IOS (tm) C2600 Software (C2600-K4P-M), Version 12.0(13.5)S, EARLY DEPLOYMENT MAINTENANCE INTERIM SOFTWARE
 Fingerprint Cisco 2600 router (IOS 12.0)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:2600_router
 CPE cpe:/o:cisco:ios:12.0
 SEQ(SP=4B-79%GCD=1-6%ISR=9A-A4%TI=Z%CI=I%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -10699,6 +10722,7 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # Cisco IOS C2600 Software (C2600-IS-M) Version 12.1(3a)T4 release software (fc1)
 Fingerprint Cisco 2600 router (IOS 12.1)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:2600_router
 CPE cpe:/o:cisco:ios:12.1
 SEQ(SP=49-57%GCD=1-6%ISR=9A-A4%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -10737,6 +10761,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco-3620 Cisco Internetwork Operating System Software IOS (tm) 3600 Software (C3620-I-M), Version 12.1(1)
 Fingerprint Cisco 2620 or 3620 router (IOS 12.1 - 12.3)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:2620_router
+CPE cpe:/h:cisco:3620_router
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=FE-112%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
@@ -10833,6 +10859,9 @@ IE(DFI=S%T=FB-105%TG=FF%CD=S)
 # IOS (tm) s72033_rp Software (s72033_rp-IPSERVICESK9-M), Version 12.2(18)SXF6, cisco WS-C6506 (R7000) processor
 Fingerprint Cisco 2821, 6506, or 7206VXR router (IOS 12.2)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:catalyst_2821
+CPE cpe:/h:cisco:catalyst_6506
+CPE cpe:/h:cisco:catalyst_7206vxr
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=F5-109%GCD=1-6%ISR=FD-10F%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -10860,10 +10889,17 @@ IE(DFI=S%T=FC-106%TG=FF%CD=S)
 # Cisco Cat6509, IOS (tm) MSFC2 Software (C6MSFC2-PK2SV-M), Version 12.1(8a)E5
 Fingerprint Cisco 2900-series, 3650, or 3750 switch; 6509 or 7206VXR router; or uBR925 or uBR7111 cable modem (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:catalyst_6509
+CPE cpe:/h:cisco:catalyst_7206vxr
 CPE cpe:/o:cisco:ios:12 auto
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2900
+CPE cpe:/h:cisco:catalyst_3650
+CPE cpe:/h:cisco:catalyst_3750
 CPE cpe:/o:cisco:ios:12 auto
 Class Cisco | IOS | 12.X | broadband router
+CPE cpe:/h:cisco:ubr925
+CPE cpe:/h:cisco:ubr7111
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=F7-10D%GCD=1-6%ISR=FF-111%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
@@ -10917,8 +10953,16 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # IOS (tm) Catalyst 4000 L3 Switch Software (cat4000-IS-M), Version 12.1(12c)EW1
 Fingerprint Cisco 500, 2000-, 3000-, 4000-, 5000-series, or 6506 switch; or 2500- or 4500-series router (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:router_2500
+CPE cpe:/h:cisco:router_4500
 CPE cpe:/o:cisco:ios:12 auto
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_500
+CPE cpe:/h:cisco:catalyst_2000
+CPE cpe:/h:cisco:catalyst_3000
+CPE cpe:/h:cisco:catalyst_4000
+CPE cpe:/h:cisco:catalyst_5000
+CPE cpe:/h:cisco:catalyst_6506
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=F6-107%GCD=1-6%ISR=F5-115%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11572,6 +11616,12 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # cisco WS-C2960-8TC-L (PowerPC405) processor (revision A0)
 Fingerprint Cisco 2950, 2960, 3000-series, 4510R, 6000-series, or 6500-series switch (IOS 12.1 or 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2950
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3000
+CPE cpe:/h:cisco:catalyst_4510r
+CPE cpe:/h:cisco:catalyst_6000
+CPE cpe:/h:cisco:catalyst_6500
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=FA-108%GCD=1-6%ISR=100-110%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11594,6 +11644,12 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # 4500 series catalyst core switch IOS Version 12.2(54)SG1
 Fingerprint Cisco 2950, 2960, 3550, 3560, 3750, or 4500 switch (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2950
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3550
+CPE cpe:/h:cisco:catalyst_3560
+CPE cpe:/h:cisco:catalyst_3750
+CPE cpe:/h:cisco:catalyst_4500
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=F1-10F%GCD=1-6%ISR=102-110%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11616,6 +11672,11 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco IOS Software, C2960 Software (C2960-LANBASEK9-M), Version 12.2(46)SE, RELEASE SOFTWARE (fc2)
 Fingerprint Cisco 2950, 2960, 3550, 3560, or 3750 switch (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2950
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3550
+CPE cpe:/h:cisco:catalyst_3560
+CPE cpe:/h:cisco:catalyst_3750
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=F2-10C%GCD=1-6%ISR=FE-10E%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11632,10 +11693,10 @@ U1(DF=N%T=FB-105%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FB-105%TG=FF%CD=S)
 
 # Cisco catalyst 3500 XL
-Fingerprint Cisco 3500 switch
+Fingerprint Cisco 3500 XL switch
 Class Cisco | IOS | 12.X | switch
-CPE cpe:/h:cisco:catalyst_3500:xl
-CPE cpe:/h:cisco:catalyst_3500
+CPE cpe:/h:cisco:catalyst_3500xl
+CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=F6-108%GCD=1-6%ISR=FE-10E%TI=Z%II=RI%TS=A)
 OPS(R=N)
 WIN(R=N)
@@ -11711,6 +11772,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco 6500 supervisor 720 IOS ver 12.2(33)
 Fingerprint Cisco 3750 or 6500 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_3750
+CPE cpe:/h:cisco:catalyst_6500
 CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=102-10C%GCD=1-6%ISR=103-10D%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11748,6 +11811,7 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # IOS Version 12.2.33SXI6 6509-E chassis running Supervisor 720 - 3B
 Fingerprint Cisco 6509 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_6509:e
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=FE-108%GCD=1-6%ISR=104-10E%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11827,8 +11891,10 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # C3500XL Software (C3500XL-C3H2S-M), Version 12.0(5)WC15
 # IOS (tm) C2900XL Software (C2900XL-C3H2S-M), Version 12.0(5)WC17, RELEASE SOFTWARE (fc1)
-Fingerprint Cisco Catalyst 2900XL or 3500 XL switch (IOS 12.0)
+Fingerprint Cisco Catalyst 2900XL or 3500XL switch (IOS 12.0)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2900xl
+CPE cpe:/h:cisco:catalyst_3500xl
 CPE cpe:/o:cisco:ios:12.0
 SEQ(SP=DE-108%GCD=1-6%ISR=101-10F%TI=Z%II=RI%TS=U)
 OPS(O1=M22C%O2=M22C%O3=M22C%O4=M22C%O5=M22C%O6=M22C)
@@ -11886,6 +11952,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 Fingerprint Cisco Catalyst 2950 switch
 Class Cisco | IOS | 12.X | switch
 CPE cpe:/h:cisco:catalyst_2950
+CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=FE-108%GCD=1-6%ISR=102-114%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4LLLL|M5B4LLNL%O2=M578LLLL|M578LLNL%O3=M280LLLL|M280LLNL%O4=M218LLLL|M218LLNL|M218NLLL%O5=M218LLLL|M218LLNL%O6=M109LLLL|M109LLNL|M109NLLL)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -11924,6 +11991,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 Fingerprint Cisco Catalyst 2950-series switch
 Class Cisco | IOS | 12.X | switch
 CPE cpe:/h:cisco:catalyst_2950
+CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=103-10D%TI=Z%II=RI%TS=U)
 OPS(O1=%O2=M578LLLN%O3=M280LLLN%O4=%O5=M218LLLN%O6=M109LLLL)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -11943,6 +12011,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco IOS Software, C3560 Software (C3560-IPBASE-M), Version 12.2(35)SE5, RELEASE SOFTWARE (fc1)
 Fingerprint Cisco Catalyst 2960 or 3560 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3560
 CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=100-10C%GCD=1-6%ISR=102-112%TI=RD%CI=I%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -11960,9 +12030,11 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # CIsco 2960
 # IOS (tm) 3600 Software (C3640-IK9S-M), Version 12.3(20), RELEASE SOFTWARE (fc2)
-Fingerprint Cisco Catalyst 2960 or 3600 switch
+Fingerprint Cisco Catalyst 2960 or 3600 switch (IOS 12.3)
 Class Cisco | IOS | 12.X | switch
-CPE cpe:/o:cisco:ios:12 auto
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3600
+CPE cpe:/o:cisco:ios:12.3
 SEQ(SP=FE-108%GCD=1-6%ISR=102-10C%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -12020,6 +12092,9 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # cisco catalyst c2960
 Fingerprint Cisco Catalyst 2960, 3550, or 3560 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3550
+CPE cpe:/h:cisco:catalyst_3560
 CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=FD-107%GCD=1-6%ISR=103-113%TI=RD|RI%II=RI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -12041,6 +12116,10 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco WS-C3750-48P - Version 12.2(55)SE1
 Fingerprint Cisco Catalyst 2960, 3560, 3750, 4500, or 6513 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3560
+CPE cpe:/h:cisco:catalyst_4500
+CPE cpe:/h:cisco:catalyst_6513
 CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=F8-10C%GCD=1-6%ISR=100-110%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -12062,6 +12141,9 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco IOS Software, C3560 Software (C3560-ADVIPSERVICESK9-M), Version 12.2(25)SEE4
 Fingerprint Cisco Catalyst 2960, 3560, or 6500 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_2960
+CPE cpe:/h:cisco:catalyst_3560
+CPE cpe:/h:cisco:catalyst_6500
 CPE cpe:/o:cisco:ios:12.2
 SEQ(SP=FF-109%GCD=1-6%ISR=100-10E%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
@@ -12121,6 +12203,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco Catalyst 3560 switch [WS-C3560-48PS] running IOS 12.2(35)SE1.
 Fingerprint Cisco Catalyst 3560 or 6500-series switch (IOS 12.1 - 12.2)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_3560
+CPE cpe:/h:cisco:catalyst_6500
 CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=E6-107%GCD=1-6%ISR=105-114%TI=RD%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
@@ -12158,6 +12242,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco LS1010 Cat8510MSR WA5-5 Software (Cat8510M-WP-M), Version 12.0(10)W5(18b)
 Fingerprint Cisco Catalyst 8510MSR switch (IOS 12.0)
 Class Cisco | IOS | 12.X | switch
+CPE cpe:/h:cisco:catalyst_8510msr
 CPE cpe:/o:cisco:ios:12.0
 SEQ(SP=48-5C%GCD=1-6%ISR=9A-A4%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
@@ -12196,6 +12281,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 Fingerprint Cisco Catalyst Express 500 switch
 Class Cisco | IOS | 12.X | switch
 CPE cpe:/h:cisco:catalyst_express_500
+CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=FA-108%GCD=1-6%ISR=103-10D%TI=Z%CI=I%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -12233,6 +12319,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 Fingerprint Cisco Catalyst Express 520 switch
 Class Cisco | IOS | 12.X | switch
 CPE cpe:/h:cisco:catalyst_express_520
+CPE cpe:/o:cisco:ios:12 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=104-10E%TI=RD%CI=I%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -12327,6 +12414,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco IOS Software, C1240 Software (C1240-K9W7-M), Version 12.3(8)JA2, RELEASE SOFTWARE (fc1)
 Fingerprint Cisco Aironet 1230 or 1240-series WAP (IOS 12.3)
 Class Cisco | IOS | 12.X | WAP
+CPE cpe:/h:cisco:aironet_ap1230
+CPE cpe:/h:cisco:aironet_ap1240
 CPE cpe:/o:cisco:ios:12.3
 SEQ(SP=CF-10D%GCD=1-6%ISR=101-10D%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
@@ -12371,6 +12460,8 @@ Class Cisco | IOS | 12.X | WAP
 CPE cpe:/h:cisco:aironet_ap1240ag
 CPE cpe:/o:cisco:ios:12.4
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:router_2600
+CPE cpe:/h:cisco:router_2800
 CPE cpe:/o:cisco:ios:12.4
 Class Cisco | IOS | 12.X | switch
 CPE cpe:/h:cisco:catalyst_3560
@@ -12416,6 +12507,9 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Model: AIR-AP-1131AG-A-K9, Firmware Version:12.3(7) IOS
 Fingerprint Cisco Aironet 350, 1100, 1200, or 1131AG WAP; or Cisco 2600 router (IOS 12.3)
 Class Cisco | IOS | 12.X | WAP
+CPE cpe:/h:cisco:aironet_ap350
+CPE cpe:/h:cisco:aironet_ap1100
+CPE cpe:/h:cisco:aironet_ap1200
 CPE cpe:/o:cisco:ios:12.3
 Class Cisco | IOS | 12.X | router
 CPE cpe:/h:cisco:catalyst_2600
