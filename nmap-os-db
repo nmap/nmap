@@ -55551,7 +55551,7 @@ IE(DFI=N%T=75-7F%TG=80%CD=Z)
 # Novell Netware 3.12 running under KVM. "TCP/IP for Netware Version 2.02i".
 Fingerprint Novell NetWare 3.12
 Class Novell | NetWare | 3.X | general purpose
-CPE cpe:/o:novell:netware:3 auto
+CPE cpe:/o:novell:netware:3.12
 SEQ(SP=C-16%GCD=35A3|6B46|A0E9|D68C|10C2F%ISR=8A-94%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=5B4%W2=578%W3=780%W4=648%W5=648%W6=73F)
@@ -55570,7 +55570,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Netware 4.11 Virgin Install, with TCPIP NLM bound to Ethernet_II adapter on a VMWare Player instance
 Fingerprint Novell NetWare 4.11
 Class Novell | NetWare | 4.X | general purpose
-CPE cpe:/o:novell:netware:4 auto
+CPE cpe:/o:novell:netware:4.11
 SEQ(SP=C-16%GCD=10|20|30|40|50%ISR=3C-46%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=7D0%W2=7D0%W3=7D0%W4=7D0%W5=7D0%W6=7D0)
@@ -55588,7 +55588,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Netware 5
 Fingerprint Novell NetWare 5
 Class Novell | NetWare | 5.X | general purpose
-CPE cpe:/o:novell:netware:5 auto
+CPE cpe:/o:novell:netware:5.0
 SEQ(SP=FD-107%GCD=1-6%ISR=105-10F%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=17FF%W2=17FF%W3=17FF%W4=17FF%W5=17FF%W6=17FF)
@@ -55606,7 +55606,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Netware 5.1
 Fingerprint Novell NetWare 5.1
 Class Novell | NetWare | 5.X | general purpose
-CPE cpe:/o:novell:netware:5 auto
+CPE cpe:/o:novell:netware:5.1
 SEQ(SP=F5-FF%GCD=1-6%ISR=107-111%TI=BI%II=BI%SS=O|S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=17FF%W2=17FF%W3=17FF%W4=17FF%W5=17FF%W6=17FF)
@@ -55626,9 +55626,10 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell NetWare 6.5 SP5 CPR Release, Server Version 5.70.05
 # Novell Netware 6.5 German
 # Novell Netware 6 Support Pack Revision 05, Server Version 5.60.05 May 27, 2004
-Fingerprint Novell NetWare 6.0 or 6.5 SP5
+Fingerprint Novell NetWare 6.0 SP5 or 6.5 SP5
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6:sp5 auto
+CPE cpe:/o:novell:netware:6.0:sp5
+CPE cpe:/o:novell:netware:6.5:sp5
 SEQ(SP=F5-10D%GCD=1-6%ISR=9A-111%TI=BI|RD|RI%II=BI|RI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55647,9 +55648,12 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Open Enterprise Server, Netware 6.5, Support Pack Revision 07
 Fingerprint Novell NetWare 6.0 or 6.5 SP5 - SP7
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6:sp5 auto
-CPE cpe:/o:novell:netware:6:sp6 auto
-CPE cpe:/o:novell:netware:6:sp7 auto
+CPE cpe:/o:novell:netware:6.0:sp5
+CPE cpe:/o:novell:netware:6.0:sp6
+CPE cpe:/o:novell:netware:6.0:sp7
+CPE cpe:/o:novell:netware:6.5:sp5
+CPE cpe:/o:novell:netware:6.5:sp6
+CPE cpe:/o:novell:netware:6.5:sp7
 SEQ(SP=FD-109%GCD=1-6%ISR=F9-111%TI=BI%CI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W1NSNN%O2=M578W1NSNN%O3=M280W1N%O4=M5B4W1NSNN%O5=M218W1NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55667,7 +55671,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell NetWare 6.5
 Fingerprint Novell NetWare 6.5
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6.5
 SEQ(SP=F1-FB%GCD=1-6%ISR=FC-106%TI=RD%II=BI|RI%TS=U)
 OPS(O1=M5B4W2NSNN%O2=M578W2NSNN%O3=M280W2N%O4=M5B4W2NSNN%O5=M218W2NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55685,7 +55689,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # 6.5 sp 3 or sp 5
 Fingerprint Novell NetWare 6.5
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6.5
 SEQ(SP=F7-105%GCD=1-6%ISR=109-113%TI=BI%CI=BI%TS=U)
 OPS(O1=M5B4W2NSNN%O2=M578W2NSNN%O3=M280W2N%O4=M5B4W2NSNN%O5=M218W2NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55703,7 +55707,7 @@ IE(R=N)
 # Novell Open Enterprise Server 6.5 Server Version 5.7.06
 Fingerprint Novell NetWare 6.5 Open Enterprise Server
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6.5
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -55722,7 +55726,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell NetWare 6.5
 Fingerprint Novell NetWare 6.5 Open Enterprise Server SP6
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6:sp6 auto
+CPE cpe:/o:novell:netware:6.5:sp6
 SEQ(SP=FE-10D%GCD=1-6%ISR=105-10F%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W2NSNN%O2=M578W2NSNN%O3=M280W2N%O4=M5B4W2NSNN%O5=M218W2NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55740,7 +55744,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Open Enterprise Server (NW6.5) SP3 - Running Bordermanager 3.8 SP4
 Fingerprint Novell NetWare 6.5 SP3 Open Enterprise Server
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6:sp3 auto
+CPE cpe:/o:novell:netware:6.5:sp3
 SEQ(SP=100-10A%GCD=1-6%ISR=104-10E%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=17FF%W2=17FF%W3=17FF%W4=17FF%W5=17FF%W6=17FF)
@@ -55759,7 +55763,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Open Enterprise Server, Netware 6.5
 Fingerprint Novell NetWare 6.5 SP5
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6:sp5 auto
+CPE cpe:/o:novell:netware:6.5:sp5
 SEQ(SP=FD-10B%GCD=1-6%ISR=108-112%TI=BI|RD|RI%II=BI|RI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55777,7 +55781,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Netware 6.5 SP7
 Fingerprint Novell NetWare 6.5 SP7
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6:sp7 auto
+CPE cpe:/o:novell:netware:6.5:sp7
 SEQ(SP=101-10B%GCD=1-6%ISR=103-10D%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W2N%O2=M578W2N%O3=M280W2N%O4=M5B4W2N%O5=M218W2N%O6=M109)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
