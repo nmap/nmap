@@ -24895,7 +24895,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # 5300-04-CSP, AIX 5.3 with SP4, running on a 7026-B80 (Power4)
 Fingerprint IBM AIX 5.3 SP4
 Class IBM | AIX | 5.X | general purpose
-CPE cpe:/o:ibm:aix:5 auto
+CPE cpe:/o:ibm:aix:5:sp4 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=107-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2000%W5=2180%W6=2017)
@@ -26768,7 +26768,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Windows 2000 with SP4
 Fingerprint Microsoft Windows 2000 SP4
 Class Juniper | Windows | 2000 | security-misc
-CPE cpe:/o:juniper:windows_2000 auto
+CPE cpe:/o:juniper:windows_2000::sp4 auto
 SEQ(SP=FF-109%GCD=1-6%ISR=106-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -41894,7 +41894,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # windows 2000 Version 5.0 (Build 2195: Service Pack 3)
 Fingerprint Microsoft Windows 2000 Server SP3 or SP4
 Class Microsoft | Windows | 2000 | general purpose
-CPE cpe:/o:microsoft:windows_2000 auto
+CPE cpe:/o:microsoft:windows_2000::sp3 auto
+CPE cpe:/o:microsoft:windows_2000::sp4 auto
 SEQ(SP=F4-10E%GCD=1-6%ISR=FE-110%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -42042,7 +42043,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Version 5.0 (Build 2195), absolutely no updates or service packs
 Fingerprint Microsoft Windows 2000 SP0
 Class Microsoft | Windows | 2000 | general purpose
-CPE cpe:/o:microsoft:windows_2000 auto
+CPE cpe:/o:microsoft:windows_2000::- auto
 SEQ(SP=83-8D%GCD=1-6%ISR=97-A1%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -42060,7 +42061,7 @@ IE(R=N)
 # Microsoft Windows 2000 Version 5.0 (Build 2195)
 Fingerprint Microsoft Windows 2000 SP0
 Class Microsoft | Windows | 2000 | general purpose
-CPE cpe:/o:microsoft:windows_2000 auto
+CPE cpe:/o:microsoft:windows_2000::- auto
 SEQ(SP=79-83%GCD=1-6%ISR=97-A1%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -43226,7 +43227,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # version 5.0 (build 2195 service pack 4)
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | 2000 | general purpose
-CPE cpe:/o:microsoft:windows_2000 auto
+CPE cpe:/o:microsoft:windows_2000::sp4 auto
 SEQ(SP=FE-108%GCD=1-6%ISR=10A-114%TI=I%CI=RD%II=I%SS=S%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -43244,7 +43245,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.0 (Build 2195: Service Pack 4)
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | 2000 | general purpose
-CPE cpe:/o:microsoft:windows_2000 auto
+CPE cpe:/o:microsoft:windows_2000::sp4 auto
 SEQ(SP=FF-109%GCD=1-6%ISR=102-10C%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FC00%W2=FC00%W3=FC00%W4=FC00%W5=FC00%W6=FC00)
@@ -43262,7 +43263,7 @@ IE(R=N)
 # Windows Version 5.0 (Build 2195: Service Pack 4)
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | 2000 | general purpose
-CPE cpe:/o:microsoft:windows_2000 auto
+CPE cpe:/o:microsoft:windows_2000::sp4 auto
 SEQ(SP=F4-FE%GCD=1-6%ISR=FF-109%TI=I%CI=RD%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
 WIN(W1=40B0%W2=40B0%W3=4100%W4=40E8%W5=40E8%W6=402E)
@@ -43747,7 +43748,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # 5.2 R2
 Fingerprint Microsoft Windows Server 2003 SP0
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::- auto
 SEQ(SP=FE-108%GCD=1-6%ISR=109-113%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW1NNT00NNS%O2=M5B4NW1NNT00NNS%O3=M5B4NW1NNT00%O4=M5B4NW1NNT00NNS%O5=M5B4NW1NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -43992,7 +43993,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 R2 (build 3790.srv03_sp2_gdr.100216-1301) : Service pack 2
 Fingerprint Microsoft Windows Server 2003 SP1 - SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FA-10C%GCD=1-6%ISR=106-110%TI=RD%TS=0)
 OPS(O1=M5B4NW2NNT00NNS|M5B4NWENNT00NNS%O2=M5B4NW2NNT00NNS|M5B4NWENNT00NNS%O3=M5B4NW2NNT00|M5B4NWENNT00%O4=M5B4NW2NNT00NNS|M5B4NWENNT00NNS%O5=M5B4NW2NNT00NNS|M5B4NWENNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -44013,7 +44015,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows (built 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
 Fingerprint Microsoft Windows Server 2003 SP1 - SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=F8-108%GCD=1-6%ISR=F8-112%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -44032,7 +44035,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Versión 5.2 (Build 3790.srv03_sp2_gdr.080813-1204:Service
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FD-107%GCD=1-6%ISR=106-112%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -44051,7 +44055,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.080813-1204 : Service Pack 2)
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -44072,7 +44077,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.080813-1204 : Service Pack 2)
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FB-10B%GCD=1-6%ISR=FC-10E%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FC00%W2=FC00%W3=FC00%W4=FC00%W5=FC00%W6=FC00)
@@ -44091,7 +44097,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FE-10A%GCD=1-6%ISR=104-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -44112,7 +44119,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows 5.2 R2 (Build 3790.srv03_sp1_gdr.060315-1609: Service Pack 1)
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=D7-129%GCD=1-6%ISR=F1-113%TI=RD|RI%II=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -44130,7 +44138,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows Server 2003 R2 Enterprise x64 Edition
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=F8-102%GCD=1-6%ISR=101-10B%TI=RD|RI%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -44152,7 +44161,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Server 2003 Version5.2(Build 3790.srv03_sp1_gdr.070304-2232 : Service Pack 1)
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=F2-10C%GCD=1-6%ISR=FF-111%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -44174,7 +44184,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FB-10B%GCD=1-6%ISR=100-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -44193,7 +44204,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows 2003 SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)]
 Fingerprint Microsoft Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=EE-10C%GCD=1-6%ISR=FE-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -45225,7 +45237,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.101019-0340 : Service Pack 2)
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FC-106%GCD=1-6%ISR=102-10C%TI=I|RD%CI=RD|RI%II=I%SS=S%TS=0)
 OPS(O1=M564NW0NNT00%O2=M564NW0NNT00%O3=M564NW0NNT00%O4=M564NW0NNT00%O5=M564NW0NNT00%O6=M564NNT00)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -45243,7 +45255,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows Server 2003 R2 EE, 64-bit, SP2
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=F9-10B%GCD=1-6%ISR=106-110%TI=I%CI=RD|RI%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -45261,7 +45273,7 @@ IE(R=N)
 # Microsoft Windows version 5.2 (Build 3790.srv03_sp2gdr.101019-0340 : service pack 2)
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=C6-D0%GCD=1-6%ISR=CA-D4%TI=Z%CI=RD|RI%II=I%TS=A)
 OPS(O1=M5B4ST11NW2%O2=M5B4ST11NW2%O3=M5B4NNT11NW2%O4=M5B4ST11NW2%O5=M5B4ST11NW2%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -45279,7 +45291,7 @@ IE(DFI=S%T=7A-84%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp2_gdr.101019-0340 : Service Pack 2)
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FA-108%GCD=1-6%ISR=105-10F%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -45297,7 +45309,7 @@ IE(R=N)
 # Version 5.2 R2 (Build 3790 ServicePack 2)
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=104-10E%TI=I%TS=0)
 OPS(O1=M546NW0NNT00NNS%O2=M546NW0NNT00NNS%O3=M546NW0NNT00%O4=M546NW0NNT00NNS%O5=M546NW0NNT00NNS%O6=M546NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -45369,7 +45381,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232 : Service Pack 1)
 Fingerprint Microsoft Windows Small Business Server 2003 SP1
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp1 auto
 SEQ(SP=FF-109%GCD=1-6%ISR=FD-111%II=I%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -45387,7 +45399,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Small Business Server 2003 Service Pack 2
 Fingerprint Microsoft Windows Small Business Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
-CPE cpe:/o:microsoft:windows_server_2003 auto
+CPE cpe:/o:microsoft:windows_server_2003::sp2 auto
 SEQ(SP=FA-104%GCD=1-6%ISR=105-10F%TI=RD%CI=Z%II=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -45531,7 +45543,7 @@ IE(DFI=N%T=7A-84%TG=80%CD=Z)
 # version 6.1 (Build 7601: Service Pack 1)
 Fingerprint Microsoft Windows Server 2008 SP1
 Class Microsoft | Windows | 2008 | general purpose
-CPE cpe:/o:microsoft:windows_server_2008 auto
+CPE cpe:/o:microsoft:windows_server_2008::sp1 auto
 SEQ(SP=FF-109%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000|FFFF%W2=2000|FFFF%W3=2000|FFFF%W4=2000|FFFF%W5=2000|FFFF%W6=2000|FFFF)
@@ -46257,7 +46269,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
 Fingerprint Microsoft Windows 7 Professional SP1
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7 auto
+CPE cpe:/o:microsoft:windows_7::sp1 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=102-10C%TI=RD%CI=RD%II=I%TS=7|8)
 OPS(O1=M5B8NW8ST11%O2=M5B8NW8ST11%O3=M5B8NW8NNT11%O4=M5B8NW8ST11%O5=M5B8NW8ST11%O6=M5B8ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -46311,7 +46323,7 @@ IE(DFI=N%T=3C-46%TG=40%CD=S)
 # Version 6.1 (Build 7601: Service Pack 1)
 Fingerprint Microsoft Windows 7 SP1
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7 auto
+CPE cpe:/o:microsoft:windows_7::sp1 auto
 SEQ(SP=FF-109%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M580NW8ST11%O2=M580NW8ST11%O3=M580NW8NNT11%O4=M580NW8ST11%O5=M580NW8ST11%O6=M580ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -46329,7 +46341,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # windows 7 ultimate ver 6.1, build 7601:SP1
 Fingerprint Microsoft Windows 7 SP1
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7 auto
+CPE cpe:/o:microsoft:windows_7::sp1 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=103-10D%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M7CANW8ST11%O2=M7CANW8ST11%O3=M7CANW8NNT11%O4=M7CANW8ST11%O5=M7CANW8ST11%O6=M7CAST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -46456,7 +46468,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Windows 7 Ultimate 6.1 Build 7601: Service Pack 1
 Fingerprint Microsoft Windows 7 Ultimate SP0 - SP1
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7 auto
+CPE cpe:/o:microsoft:windows_7::- auto
+CPE cpe:/o:microsoft:windows_7::sp1 auto
 SEQ(SP=F6-10C%GCD=1-6%ISR=107-111%TI=I%CI=I%II=I%SS=O|S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -47112,7 +47125,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # windows NT 4 (Standard)
 Fingerprint Microsoft Windows NT 4.0 SP0
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::- auto
 SEQ(SP=F4-FE%GCD=1-6%ISR=F7-101%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
 WIN(W1=2058%W2=2058%W3=2080%W4=2180%W5=2180%W6=2017)
@@ -47131,7 +47144,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 4.0 (Build 1381: Service Pack 3)
 Fingerprint Microsoft Windows NT 4.0 SP3
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp3 auto
 SEQ(SP=11-3B%GCD=1-6|A|14|1E|28|32%ISR=4B-55%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2180%W5=2180%W6=2017)
@@ -47149,7 +47162,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows NT 4.0 SP5
 Fingerprint Microsoft Windows NT 4.0 SP5
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp5 auto
 SEQ(SP=7A-7C%GCD=1-6%ISR=7A-7C%TI=RD%II=RI%TS=U)
 OPS(O1=|M5B4%O2=M5B4%O3=M5B4%O4=|M5B4%O5=|M5B4%O6=M5B4)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2180%W5=2180%W6=2017)
@@ -47171,7 +47184,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows NT 4.0 Workstation with SP6
 Fingerprint Microsoft Windows NT 4.0 SP5 - SP6a
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp5 auto
 SEQ(SP=20-90%GCD=1-6%ISR=30-A1%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2180%W5=2180%W6=2017)
@@ -47190,7 +47203,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows NT Version  4.0 (Build 1381: Service Pack 6)
 Fingerprint Microsoft Windows NT 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=28-FE%GCD=1-6%ISR=2B-E9%TI=BI|RI%II=BI%SS=O|S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=7210%W2=7210%W3=7210%W4=7210%W5=7210%W6=7210)
@@ -47208,7 +47221,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows NT 4 Server Service Pack 6 Build 1381
 Fingerprint Microsoft Windows NT 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=FC-106%GCD=1-6%ISR=104-10E%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
 WIN(W1=2058%W2=2058%W3=2080%W4=2180%W5=2180%W6=2017)
@@ -47226,7 +47239,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Verion 4.0 (Build 1381: Service PAck 6)
 Fingerprint Microsoft Windows NT 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=0-9E%GCD=1-6%ISR=0-95%TI=BI%TS=U)
 OPS(O1=M558%O2=M558%O3=M558%O4=M558%O5=M558%O6=M558)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -47244,7 +47257,7 @@ IE(R=N)
 # Version 4.0 (Build 1381: Service Pack 6)
 Fingerprint Microsoft Windows NT 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=25-2F%GCD=1-6%ISR=31-3B%TI=BI%CI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -47262,7 +47275,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows NT 4.0 SP6
 Fingerprint Microsoft Windows NT 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=29-33%GCD=1-6%ISR=30-3A%TI=BI%CI=BI%II=BI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=%O6=)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2180%W5=0%W6=0)
@@ -47280,7 +47293,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 4.0 (Build 1381: Service Pack 6) Revised Service Pack 6a
 Fingerprint Microsoft Windows NT 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=7B-89%GCD=1-6%ISR=96-A0%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2180%W5=2180%W6=2017)
@@ -47335,7 +47348,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 4.0 (Build 1381:Service Pack 6)
 Fingerprint Microsoft Windows NT 4.0 Terminal Server Edition SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=7D-95%GCD=1-6%ISR=97-A1%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -47353,7 +47366,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows NT (TM) Workstation Version 4.0 (Build 1381: Service Pack 6)
 Fingerprint Microsoft Windows NT SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(SP=23-2D%GCD=1-6%ISR=2F-39%TI=BI%CI=BI%II=BI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=%O6=)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2180%W5=0%W6=0)
@@ -47371,7 +47384,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows NT Version 4.0, NT4.0 SP6
 Fingerprint Microsoft Windows NT Version 4.0 SP6
 Class Microsoft | Windows | NT | general purpose
-CPE cpe:/o:microsoft:windows_nt auto
+CPE cpe:/o:microsoft:windows_nt::sp6 auto
 SEQ(TI=RD%CI=BI%II=BI|RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=%O5=%O6=)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=0%W5=0%W6=0)
@@ -47862,7 +47875,8 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Version 6.0 (Build 6000) -- Home Premium
 Fingerprint Microsoft Windows Vista SP0 - SP1
 Class Microsoft | Windows | Vista | general purpose
-CPE cpe:/o:microsoft:windows_vista auto
+CPE cpe:/o:microsoft:windows_vista::- auto
+CPE cpe:/o:microsoft:windows_vista::sp1 auto
 SEQ(SP=FC-10C%GCD=1-6%ISR=102-114%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -47917,7 +47931,8 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Version 6.0 (Build 6001: Service Pack 1)
 Fingerprint Microsoft Windows Vista SP0 or SP1
 Class Microsoft | Windows | Vista | general purpose
-CPE cpe:/o:microsoft:windows_vista auto
+CPE cpe:/o:microsoft:windows_vista::- auto
+CPE cpe:/o:microsoft:windows_vista::sp1 auto
 SEQ(SP=FA-10A%GCD=1-6%ISR=FE-10C%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B0NW8ST11%O2=M5B0NW8ST11%O3=M5B0NW8NNT11%O4=M5B0NW8ST11%O5=M5B0NW8ST11%O6=M5B0ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48142,7 +48157,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Version 6.0 (build 6002; service pack 2)
 Fingerprint Microsoft Windows Vista SP2
 Class Microsoft | Windows | Vista | general purpose
-CPE cpe:/o:microsoft:windows_vista auto
+CPE cpe:/o:microsoft:windows_vista::sp2 auto
 SEQ(SP=FB-105%GCD=1-6%ISR=105-10F%TI=I%CI=I%TS=7)
 OPS(O1=M5A0NW8ST11%O2=M5A0NW8ST11%O3=M5A0NW8NNT11%O4=M5A0NW8ST11%O5=M5A0NW8ST11%O6=M5A0ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48438,7 +48453,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows XP Home SP1 (fench) [Winver: Version 5.1 (num\303 \251ro 2600.xpsp2.050301-1526; Service Pack 1)]
 Fingerprint Microsoft Windows XP Home SP1 (French)
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp1 auto
 SEQ(SP=F6-100%GCD=1-6%ISR=10B-115%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -48475,7 +48490,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # \320\222\320\265\321\200\321\201\320\270\321\217 5.1 (\321\201\320\261\320\276\321\200\320\272\320\260 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2
 Fingerprint Microsoft Windows XP Home SP2 (Russian)
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=100-10A%TI=I%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FB90%W3=FC80%W4=FB40%W5=FB40%W6=FB8B)
@@ -48819,7 +48834,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows XP PRO SP2 (French) [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2)]
 Fingerprint Microsoft Windows XP Professional SP2 (French)
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
 SEQ(SP=E9-F3%GCD=1-6%ISR=104-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M564NW0NNT00NNS%O2=M564NW0NNT00NNS%O3=M564NW0NNT00%O4=M564NW0NNT00NNS%O5=M564NW0NNT00NNS%O6=M564NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -48837,7 +48852,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows XP Prof SP2 (German) [Winver: Version 5.1 (build 2600.xpsp_sp2_gdr.050301-1519: Service Pack 2)
 Fingerprint Microsoft Windows XP Professional SP2 (German)
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
 SEQ(SP=FB-105%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -48855,7 +48870,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows XP Professional (German) [Winver: Version 5.1 (Build 2600.xpsp.051011-1528 : Service Pack 2)]
 Fingerprint Microsoft Windows XP Professional SP2 (German)
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=107-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=7D78%W2=7D78%W3=7D78%W4=7D78%W5=7D78%W6=7D78)
@@ -48875,7 +48890,8 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Build 2600.xpsp.080413-2111: Service Pack 3
 Fingerprint Microsoft Windows XP Professional SP2 - SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F8-10A%GCD=1-6%ISR=103-113%TI=I%CI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS|M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O2=M5B4NW0NNT00NNS|M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O3=M5B4NW0NNT00|M5B4NW1NNT00|M5B4NW2NNT00%O4=M5B4NW0NNT00NNS|M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O5=M5B4NW0NNT00NNS|M5B4NW1NNT00NNS|M5B4NW2NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -48895,7 +48911,8 @@ IE(R=N)
 # Microsoft Windows Version 5.1 Build 2600.xpsp_sp3_gdr.090206-1234 : Service Pack 3
 Fingerprint Microsoft Windows XP Professional SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=E5-10B%GCD=1-6%ISR=F5-113%TI=I%II=I%SS=O%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=|M5B4NW0NNT00NNS%O6=)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=0|FFFF%W6=0)
@@ -49009,7 +49026,7 @@ IE(R=N)
 # Microsoft Windows XP [verziószám: 5.1.2600]
 Fingerprint Microsoft Windows XP SP0
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::- auto
 SEQ(SP=100-10A%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW2NNT00NNS%O2=M4ECNW2NNT00NNS%O3=M4ECNW2NNT00%O4=M4ECNW2NNT00NNS%O5=M4ECNW2NNT00NNS%O6=M4ECNNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -49028,7 +49045,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows XP Pro version 5.1 Build 2600.xpclient.010817-1148 x86 Dell Optiplex GX150 256MB RAM BIOS A06 SMBIOS 2.3 no service packs
 Fingerprint Microsoft Windows XP SP0 or SP1
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::- auto
+CPE cpe:/o:microsoft:windows_xp::sp1 auto
 SEQ(SP=7D-8B%GCD=1-6%ISR=96-A0%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -50276,7 +50294,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Versjon 5.1 (Build 2600.xpsp_sp2_gdr.070227-2254: Service Pack 2)
 Fingerprint Microsoft Windows XP SP2 (Norwegian)
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
 SEQ(SP=FD-107%GCD=1-6%ISR=100-10A%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50295,7 +50313,8 @@ IE(R=N)
 # Windows XP Professional with SP3
 Fingerprint Microsoft Windows XP SP2 - SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FA-10A%GCD=1-6%ISR=FE-10E%TI=I%CI=I%II=I%SS=O|S%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=FC00%W2=FC00%W3=FC00%W4=FC00%W5=FC00%W6=FC00)
@@ -50314,7 +50333,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.090804-1435 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP2 - SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F9-10B%GCD=1-6%ISR=F5-111%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50353,7 +50373,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # version 5.1 build 2600.xpsp_sp3_gdr.0902006-1234: Service Pack 3
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=C6-10A%GCD=1-6%ISR=101-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW3NNS%O2=M5B4NW3NNS%O3=M5B4NW3%O4=M5B4NW3NNS%O5=M5B4NW3NNS%O6=M5B4NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50370,7 +50391,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=C6-10A%GCD=1-6%ISR=101-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M4ECNW1NNT00NNS%O2=M4ECNW1NNT00NNS%O3=M4ECNW1NNT00%O4=M4ECNW1NNT00NNS%O5=M4ECNW1NNT00NNS%O6=M4ECNNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50389,7 +50411,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Version 5.1 (Build 2600.xpsp_sp3_gdr.090206-1234 : Service pack 3)
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F8-10E%GCD=1-6%ISR=100-10C%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FC00%W2=FC00%W3=FC00%W4=FC00%W5=FC00%W6=FC00)
@@ -50408,7 +50431,8 @@ IE(R=N)
 # Windows XP SP3
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F9-105%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50427,7 +50451,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows XP Home Edition version 2002 with SP3
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F6-10C%GCD=1-6%ISR=103-111%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50448,7 +50473,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows XP Media Center service pack 3 version 5.1 build 2600.xpsp.080413-2111
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F8-10C%GCD=1-6%ISR=101-115%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O2=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O3=M5B4NW1NNT00|M5B4NW2NNT00|M5B4NW3NNT00|M5B4NW4NNT00|M5B4NW6NNT00|M5B4NW8NNT00%O4=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O5=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O6=|M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50468,7 +50494,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Version 5.1 (Build 2600.xpsp_sp3_gdr.080814-1236 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FA-10B%GCD=1-6%ISR=106-114%II=I%TS=0)
 OPS(O1=M5ACNW0NNT00NNS%O2=M5ACNW0NNT00NNS%O3=M5ACNW0NNT00%O4=M5ACNW0NNT00NNS%O5=M5ACNW0NNT00NNS%O6=M5ACNNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50488,7 +50515,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # MS Windows Ver 5.1(Build 2600.xpsp.080413-211:sERVICE pACK 3
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F4-106%GCD=1-6%ISR=FC-112%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M554NW0NNT00NNS%O2=M554NW0NNT00NNS%O3=M554NW0NNT00%O4=M554NW0NNT00NNS%O5=M554NW0NNT00NNS%O6=M554NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50512,7 +50540,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows version 5.1 build 2600.xpsp.080413-2111 : Service Pack 3
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=DA-108%GCD=1-6%ISR=100-110%TI=I%II=I%SS=O|S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS|M5B4NW0NNT00NNS%O2=M4ECNW0NNT00NNS|M5B4NW0NNT00NNS%O3=M4ECNW0NNT00|M5B4NW0NNT00%O4=M4ECNW0NNT00NNS|M5B4NW0NNT00NNS%O5=M4ECNW0NNT00NNS|M5B4NW0NNT00NNS%O6=M4ECNNT00NNS|M5B4NNT00NNS)
 WIN(W1=2238|C79C|FFF0%W2=2648|C4E0|FFF0%W3=2300|C580%W4=2180|C4D0|FD58%W5=2180|C4D0|FD58%W6=2229|C3A5|FC94)
@@ -50531,7 +50560,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.080814-1236 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F3-10D%GCD=1-6%ISR=FD-10F%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50552,7 +50582,8 @@ IE(R=N)
 # version 5.1 (Build 2600.xpsp.071030-1537 : Service Pack 3, v.3244)
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FF-10B%GCD=1-6%ISR=103-10F%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW1NNS|M5B4NW2NNS|M5B4NW3NNS|M5B4NW4NNS%O2=M5B4NW1NNS|M5B4NW2NNS|M5B4NW3NNS|M5B4NW4NNS%O3=M5B4NW1|M5B4NW2|M5B4NW3|M5B4NW4%O4=M5B4NW1NNS|M5B4NW2NNS|M5B4NW3NNS|M5B4NW4NNS%O5=M5B4NW1NNS|M5B4NW2NNS|M5B4NW3NNS|M5B4NW4NNS%O6=M5B4NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50571,7 +50602,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Microsoft Windows XP SP3
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FC-108%GCD=1-6%ISR=103-10D%TI=I%TS=0)
 OPS(O1=NNT11|M5B4NW0NNT00NNS%O2=NNT11|M5B4NW0NNT00NNS%O3=NNT11|M5B4NW0NNT00%O4=NNT11|M5B4NW0NNT00NNS%O5=NNT11|M5B4NW0NNT00NNS%O6=NNT11|M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50596,7 +50628,8 @@ IE(R=N)
 # XP version 5.1 Build 2600.xpsp_sp2_gdr.070227-2254 SP2
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=DC-10A%GCD=1-6%ISR=FC-112%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW0NNT00NNS%O2=M4ECNW0NNT00NNS%O3=M4ECNW0NNT00%O4=M4ECNW0NNT00NNS%O5=M4ECNW0NNT00NNS%O6=M4ECNNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50614,7 +50647,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.101209-1647 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FF-109%GCD=1-6%ISR=100-10A%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M4ECNW3NNT00NNS%O2=M4ECNW3NNT00NNS%O3=M4ECNW3NNT00%O4=M4ECNW3NNT00NNS%O5=M4ECNW3NNT00NNS%O6=M4ECNNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -50636,7 +50670,8 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.2
 Fingerprint Microsoft Windows XP SP2 or SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp2 auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F0-10A%GCD=1-6%ISR=FB-112%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -50768,7 +50803,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1(Build 2600.xpsp_sp3_gdr.100427-1636 : Service pack 3 )
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F7-10B%GCD=1-6%ISR=102-112%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -52362,7 +52397,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows (numero 2600.xpsp_sp3_gdr.101209-1647 : Service Pack 3), point to point connection through OpenVPN
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FC-106%GCD=1-6%ISR=102-10C%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M558NW0NNT00NNS%O2=M558NW0NNT00NNS%O3=M558NW0NNT00%O4=M558NW0NNT00NNS%O5=M558NW0NNT00NNS%O6=M558NNT00NNS)
 WIN(W1=4020%W2=4020%W3=4100%W4=40E8%W5=40E8%W6=402E)
@@ -52380,7 +52415,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp.080413-2111 : Sevice Pack 3)
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=107-111%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -52398,7 +52433,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # sp3
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FD-107%GCD=1-6%ISR=100-10A%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=EC40%W2=EC40%W3=EC40%W4=EC40%W5=EC40%W6=EC40)
@@ -52416,7 +52451,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # version 5.1 (build 2600.xp_sp_sp3_qfe.100427-1650 : Service Pack 3
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=107-111%TI=I%TS=U)
 OPS(O1=|M5B4NW2NNS%O2=|M5B4NW2NNS%O3=|M5B4NW2%O4=|M5B4NW2NNS%O5=|M5B4NW2NNS%O6=|M5B4NNS)
 WIN(W1=FAF0|FFFF%W2=FAF0|FFFF%W3=FAF0|FFFF%W4=FAF0|FFFF%W5=FAF0|FFFF%W6=FAF0|FFFF)
@@ -52434,7 +52469,7 @@ IE(R=N)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.101209-1647 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FE-108%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M580NW0NNT00NNS%O2=M580NW0NNT00NNS%O3=M580NW0NNT00%O4=M580NW0NNT00NNS%O5=M580NW0NNT00NNS%O6=M580NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -52452,7 +52487,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.090804-1435 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FA-104%GCD=1-6%ISR=109-113%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -52470,7 +52505,7 @@ IE(R=N)
 # version 5.1 num 2600.xpsp_sp3_gdr.101209-1647 : Service Pack 3
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=10A-114%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M550NW1NNS%O2=M550NW1NNS%O3=M550NW1%O4=M550NW1NNS%O5=M550NW1NNS%O6=M550NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -52488,7 +52523,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.101209-1647 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=F9-103%GCD=1-6%ISR=101-10B%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FC00%W2=FC00%W3=FC00%W4=FC00%W5=FC00%W6=FC00)
@@ -52506,7 +52541,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp.080413-2111 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FA-104%GCD=1-6%ISR=103-10D%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M2300NW0NNT00NNS%O2=M2300NW0NNT00NNS%O3=M2300NW0NNT00%O4=M2300NW0NNT00NNS%O5=M2300NW0NNT00NNS%O6=M2300NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -52524,7 +52559,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr . 100216-1514 : Service Pack 3
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=103-10D%GCD=1-6%ISR=106-110%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5ACNW0NNS%O2=M5ACNW0NNS%O3=M5ACNW0%O4=M5ACNW0NNS%O5=M5ACNW0NNS%O6=M5ACNNS)
 WIN(W1=7FFF%W2=7FFF%W3=7FFF%W4=7FFF%W5=7FFF%W6=7FFF)
@@ -52542,7 +52577,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows XP Home Edition, Service Pack 3
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=100-10A%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW4NNS%O2=M5B4NW4NNS%O3=M5B4NW4%O4=M5B4NW4NNS%O5=M5B4NW4NNS%O6=M5B4NNS)
 WIN(W1=FF3C|FFFF%W2=FF3C|FFFF%W3=FF3C|FFFF%W4=FF3C|FFFF%W5=FF3C|FFFF%W6=FFFF)
@@ -52560,7 +52595,7 @@ IE(DFI=S%T=2B-35%TG=40%CD=Z)
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.101209-1647 : Service Pacl 3)
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=105-10F%CI=I%II=I%TS=0)
 OPS(O1=M550NW0NNT00NNS%O2=M550NW0NNT00NNS%O3=M550NW0NNT00%O4=M550NW0NNT00NNS%O5=M550NW0NNT00NNS%O6=M550NNT00NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -52578,7 +52613,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Version 5.1 Service Pack 3
 Fingerprint Microsoft Windows XP SP3
 Class Microsoft | Windows | XP | general purpose
-CPE cpe:/o:microsoft:windows_xp auto
+CPE cpe:/o:microsoft:windows_xp::sp3 auto
 SEQ(SP=FE-108%GCD=1-6%ISR=103-10D%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M4ECNW0NNS%O2=M4ECNW0NNS%O3=M4ECNW0%O4=M4ECNW0NNS%O5=M4ECNW0NNS%O6=M4ECNNS)
 WIN(W1=1F40%W2=1F40%W3=1F40%W4=1F40%W5=1F40%W6=1F40)
@@ -55593,7 +55628,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Netware 6 Support Pack Revision 05, Server Version 5.60.05 May 27, 2004
 Fingerprint Novell NetWare 6.0 or 6.5 SP5
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6:sp5 auto
 SEQ(SP=F5-10D%GCD=1-6%ISR=9A-111%TI=BI|RD|RI%II=BI|RI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55612,7 +55647,9 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Open Enterprise Server, Netware 6.5, Support Pack Revision 07
 Fingerprint Novell NetWare 6.0 or 6.5 SP5 - SP7
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6:sp5 auto
+CPE cpe:/o:novell:netware:6:sp6 auto
+CPE cpe:/o:novell:netware:6:sp7 auto
 SEQ(SP=FD-109%GCD=1-6%ISR=F9-111%TI=BI%CI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W1NSNN%O2=M578W1NSNN%O3=M280W1N%O4=M5B4W1NSNN%O5=M218W1NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55685,7 +55722,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell NetWare 6.5
 Fingerprint Novell NetWare 6.5 Open Enterprise Server SP6
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6:sp6 auto
 SEQ(SP=FE-10D%GCD=1-6%ISR=105-10F%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W2NSNN%O2=M578W2NSNN%O3=M280W2N%O4=M5B4W2NSNN%O5=M218W2NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55703,7 +55740,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Open Enterprise Server (NW6.5) SP3 - Running Bordermanager 3.8 SP4
 Fingerprint Novell NetWare 6.5 SP3 Open Enterprise Server
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6:sp3 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=104-10E%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=17FF%W2=17FF%W3=17FF%W4=17FF%W5=17FF%W6=17FF)
@@ -55722,7 +55759,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Novell Open Enterprise Server, Netware 6.5
 Fingerprint Novell NetWare 6.5 SP5
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6:sp5 auto
 SEQ(SP=FD-10B%GCD=1-6%ISR=108-112%TI=BI|RD|RI%II=BI|RI%SS=S%TS=U)
 OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -55740,7 +55777,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Netware 6.5 SP7
 Fingerprint Novell NetWare 6.5 SP7
 Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6 auto
+CPE cpe:/o:novell:netware:6:sp7 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=103-10D%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4W2N%O2=M578W2N%O3=M280W2N%O4=M5B4W2N%O5=M218W2N%O6=M109)
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
@@ -59803,7 +59840,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Sidewinder G2 appliance running version 6.1.2.0.3
 Fingerprint Secure Computing Sidewinder G2 firewall (SecureOS 6.1.2.0.3)
-Class Secure Computing | SecureOS | 6.X| firewall
+Class Secure Computing | SecureOS | 6.X | firewall
 CPE cpe:/o:securecomputing:secureos:6 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW4NNT11%O2=M5B4NW0NNT11%O3=M5B4NW4NNT11%O4=M5B4NW4NNT11%O5=M5B4NW4NNT11%O6=M5B4NNT11)
