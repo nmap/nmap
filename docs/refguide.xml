@@ -1761,14 +1761,14 @@ way.</para>
 
           <para>Nmap needs an <filename>nmap-services</filename> file
           with frequency information in order to know which ports are
-          the most
-          common<notman> (see <xref linkend="nmap-services"/>
+          the most common<notman> (see <xref linkend="nmap-services"/>
           for more about port frequencies)</notman>. If port frequency
           information isn't available, perhaps because of the use of a
-          custom <filename>nmap-services</filename> file,
-          <option>-F</option> means to scan only ports that are named in
-          the services file (normally Nmap scans all named ports plus
-          ports 1&ndash;1024).</para>
+          custom <filename>nmap-services</filename> file, Nmap scans
+          all named ports plus ports 1-1024.  In that case,
+          <option>-F</option> means to scan only ports that are named
+          in the services file.</para>
+
         </listitem>
       </varlistentry>
 
