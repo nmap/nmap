@@ -3967,16 +3967,21 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
             if (getpeername(sd, (struct sockaddr *) &sin, &sinlen) < 0) {
               pfatal("error in getpeername of connect_results for port %hu", (u16) pport);
             } else {
+              u16 sinport;
+
               s_in = (struct sockaddr_in *) &sin;
               s_in6 = (struct sockaddr_in6 *) &sin;
-              if ((o.af() == AF_INET &&
-                   pport != ntohs(s_in->sin_port))
+
+              if (o.af() == AF_INET)
+                sinport = ntohs(s_in->sin_port);
 #ifdef HAVE_IPV6
-                  || (o.af() == AF_INET6 && pport != ntohs(s_in6->sin6_port))
+              else if (o.af() == AF_INET6)
+                sinport = ntohs(s_in6->sin6_port);
 #endif
-                  ) {
-                error("Mismatch!!!! we think we have port %hu but we really have a different one", (u16) pport);
-              }
+              else
+                assert(0);
+              if (pport != sinport)
+                error("Mismatch!!!! we think we have port %hu but we really have %hu", (u16) pport, sinport);
             }
             
             if (getsockname(sd, (struct sockaddr *) &sout, &soutlen) < 0) {
