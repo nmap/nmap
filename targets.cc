@@ -215,7 +215,7 @@ int load_exclude_string(addrset *excludelist, const char *s) {
 
 
 /* A debug routine to dump some information to stdout. Invoked if debugging is
-   set to 3 or higher. */
+   set to 4 or higher. */
 int dumpExclude(addrset *exclude_group) {
   const struct addrset_elem *elem;
 
