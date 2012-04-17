@@ -8,22 +8,39 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
-o We should probably go through the nmap-os-db (and IPv6 version)
-  entries and, where the fingerprint line specifies a service pack
-  number (or even two of them), ensure that we have sp-qualified CPE
-  entries like "cpe:/o:microsoft:windows_xp::sp2".  Right now we
-  sometimes include the qualification, and sometimes not.
-  o This is best done with cpeify-os.py, if possible.
+o Right now, when an IPv4 or IPv6 address seems bogus (such as 1.2.3
+  or 2001::0 in IPv4 mode), we give a fatal error and abort the scan.
+  But since that might just be one bad target in a long list of hosts to
+  be scanned, it is probably better to just print a warning and
+  continue.  Some sort of warning or host element should be included in
+  the XML to explain what happened too.  This should also happen if
+  we're unable to resolve a DNS name.
 
-o Zenmap no longer ads the installed module directory to its module
-  search path because some distributors first install in a world
-  writeable directory (like /tmp) and then put those files into their
-  packages which they distribute to users.  But this change can lead
-  to Zenmap not working for users who install in nonsystem areas like
-  their home directory (e.g. --prefix /home/fyodor) unless they have
-  their PYTHONPATH set to find them.  We should implement a solution,
-  such as making sure Zenmap catches the missing modules error and
-  suggest that the user set their PYTHONPATH or something.
+o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
+  6, since Linode doesn't currently offer ScientificLinux images).
+  o Maybe start with svn server, since we've had reports of our
+    current one giving people unexpected password prompts.  There is a
+    thread about that at http://seclists.org/nmap-dev/2012/q2/17
+
+o Add CPE entries to OS fingerpting DB entries which still lack them
+ - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
+   fingerprints.
+
+o Revive the Nmap Public Source License project (need to find an open
+  source attorney to review it).  http://nmap.org/npsl/
+  o Also take close look at Mozilla's license modernization project:
+    http://mpl.mozilla.org/scope/
+
+o Nmap Network Scanning, 2nd Edition work [placeholder]
+
+o Update more web content in real time (or near real-time, or at least
+  on an automated basis rather than requiring manual checkin and
+  update).  In particular:
+  o NSEDoc generation
+  o SVN dir (http://nmap.org/svn/) should be removed and a redirect
+    added to https svn server.
+  o Maybe Nmap book building
+  o Maybe the generated files in nmap.org/data/
 
 o We should probably remove the intl.dll mv command from
   zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
@@ -65,10 +82,6 @@ o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
   nping_event_handler(): TIMER killed: Resource temporarily unavailable
   [...]
 
-o Add CPE entries to OS fingerpting DB entries which still lack them
- - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
-   fingerprints.
-
 o Consider making a version of Nmap for Apple's official Mac App
   Store.  A particular concern with the downloadable Mac version of
   Nmap is that Apple's new "Mountain Lion" release may require users
@@ -79,27 +92,8 @@ o Consider making a version of Nmap for Apple's official Mac App
   able to request all the permissions it needs?  Ignoring the
   technical challenges for the moment, what will users prefer?
 
-o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
-  6, since Linode doesn't currently offer ScientificLinux images).
-
 o Solve "spurious closed port detection" issue discovered by David:
   http://seclists.org/nmap-dev/2012/q1/62
-
-o Revive the Nmap Public Source License project (need to find an open
-  source attorney to review it).  http://nmap.org/npsl/
-  o Also take close look at Mozilla's license modernization project:
-    http://mpl.mozilla.org/scope/
-
-o Nmap Network Scanning, 2nd Edition work [placeholder]
-
-o Update more web content in real time (or near real-time, or at least
-  on an automated basis rather than requiring manual checkin and
-  update).  In particular:
-  o NSEDoc generation
-  o SVN dir (http://nmap.org/svn/) should be removed and a redirect
-    added to https svn server.
-  o Maybe Nmap book building
-  o Maybe the generated files in nmap.org/data/
 
 o Investigate increasing FD_SETSIZE on Windows to allow us to
   multiplex more sockets.  See Henri's email:
@@ -749,6 +743,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should probably go through the nmap-os-db (and IPv6 version)
+  entries and, where the fingerprint line specifies a service pack
+  number (or even two of them), ensure that we have sp-qualified CPE
+  entries like "cpe:/o:microsoft:windows_xp::sp2".  Right now we
+  sometimes include the qualification, and sometimes not.
+  o This is best done with cpeify-os.py, if possible.
+
+o Zenmap no longer ads the installed module directory to its module
+  search path because some distributors first install in a world
+  writeable directory (like /tmp) and then put those files into their
+  packages which they distribute to users.  But this change can lead
+  to Zenmap not working for users who install in nonsystem areas like
+  their home directory (e.g. --prefix /home/fyodor) unless they have
+  their PYTHONPATH set to find them.  We should implement a solution,
+  such as making sure Zenmap catches the missing modules error and
+  suggest that the user set their PYTHONPATH or something.
 
 o Scans from Mac OS X tend to use raw IP packets rather than ethernet
   frames even on the local network because Dnet does not seem to be
