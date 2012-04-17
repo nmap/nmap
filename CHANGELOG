@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added gps library and the gpsd-info script that collects GPS data
+  from the gpsd daemon. [Patrik Karlsson]
+
 o [NSE] Ported the pop3-brute script to use the brute library.
   [Piotr Olma]
 
