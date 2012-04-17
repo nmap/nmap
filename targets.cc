@@ -301,7 +301,7 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
      replies. What happens is one target gets the replies for all probes
      referring to the same IP address. */
   for (i = 0; i < hs->current_batch_sz; i++) {
-    if (sockaddr_storage_cmp(hs->hostbatch[0]->TargetSockAddr(), target->TargetSockAddr()) == 0)
+    if (sockaddr_storage_cmp(hs->hostbatch[i]->TargetSockAddr(), target->TargetSockAddr()) == 0)
       return true;
   }
 
