@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the ipp library and the script cups-info that lists available
+  printers by querying the cups network daemon. [Patrik Karlsson]
+
 o [NSE] Added the mobilme library and the scripts http-icloud-findmyiphone and
   http-icloud-sendmsg, that finds the location of iOS devices and provides
   functionality to send them messages. [Patrik Karlsson]
