@@ -8,6 +8,9 @@ version. This script uses the following queries:
 A list of magic queries is at http://www.0php.com/php_easter_egg.php.
 The script also checks if any header field value starts with
 <code>"PHP"</code> and reports that value if found.
+
+Link:
+* http://phpsadness.com/sad/11
 ]]
 
 ---
