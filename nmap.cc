@@ -1709,7 +1709,7 @@ int nmap_main(int argc, char *argv[]) {
     fclose(o.excludefd);
   }
   if (o.exclude_spec != NULL) {
-    load_exclude_string(&exclude_group , o.exclude_spec);
+    load_exclude_string(&exclude_group, o.exclude_spec);
   }
 
   if (o.debugging > 3)
