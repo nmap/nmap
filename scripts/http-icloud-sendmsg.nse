@@ -1,5 +1,9 @@
 description = [[
+Sends a message to a iOS device throught the Apple MobileMe web service. The
+device has to be registered with an Apple ID using the Find My Iphone
+application.
 ]]
+
 ---
 -- @usage
 -- nmap -sn -Pn --script http-icloud-sendmsg --script-args="username=<user>,password=<pass>,http-icloud-sendmsg.listdevices"
