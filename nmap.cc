@@ -2070,17 +2070,25 @@ int nmap_main(int argc, char *argv[]) {
    group. This happens when:
      1. it uses a different interface, or
      2. it uses a different source address, or
-     3. it has the same IP address as another target already in the group.
+     3. it is directly connected when the other hosts are not, or vice versa, or
+     4. it has the same IP address as another target already in the group.
    These restrictions only apply for raw scans. This function is similar to one
    of the same name in targets.cc. That one is for ping scanning, this one is
    for port scanning. */
-static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
-  const Target *target) {
+static bool target_needs_new_hostgroup(std::vector<Target *> &targets, const Target *target) {
   std::vector<Target *>::iterator it;
 
   /* We've just started a new hostgroup, so any target is acceptable. */
   if (targets.empty())
     return false;
+
+  /* There are no restrictions on non-root scans. */
+  if (!(o.isr00t && target->deviceName() != NULL))
+    return false;
+
+  /* Different address family? */
+  if (targets[0]->af() != target->af())
+    return true;
 
   /* Different interface name? */
   if (targets[0]->deviceName() != NULL &&
@@ -2091,6 +2099,10 @@ static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
 
   /* Different source address? */
   if (sockaddr_storage_cmp(targets[0]->SourceSockAddr(), target->SourceSockAddr()) != 0)
+    return true;
+
+  /* Different direct connectedness? */
+  if (targets[0]->directlyConnected() != target->directlyConnected())
     return true;
 
   /* Is there already a target with this same IP address? ultra_scan doesn't

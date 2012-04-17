@@ -284,6 +284,7 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
 
   /* Different interface name? */
   if (hs->hostbatch[0]->deviceName() != NULL &&
+      target->deviceName() != NULL &&
       strcmp(hs->hostbatch[0]->deviceName(), target->deviceName()) != 0) {
     return true;
   }
