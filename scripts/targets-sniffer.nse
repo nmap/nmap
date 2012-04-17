@@ -41,13 +41,17 @@ require("bin")
 local interface_info
 local all_addresses= {}
 local unique_addresses = {}
+local INVALID_ADDRESS = "????"
 
 --Make sure the IP is not a broadcast or the local address
 local function check_if_valid(address)
   local broadcast = interface_info.broadcast
   local local_address = interface_info.address
 
-  if address == local_address or address == broadcast or address == "255.255.255.255" then
+  if address == local_address 
+    or address == broadcast or address == "255.255.255.255" 
+    or address:match('^ff') --IPv6 Multicast addrs
+    or address == INVALID_ADDRESS then
     return false
   else
     return true end
@@ -55,7 +59,13 @@ end
 
 local function get_ip_addresses(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
-  return packet.toip(ip.ip_bin_src),packet.toip(ip.ip_bin_dst)
+  if ip.ip_v == 4 then
+    return packet.toip(ip.ip_bin_src),packet.toip(ip.ip_bin_dst)
+  elseif ip.ip_v == 6 then
+    return packet.toipv6(ip.ip_bin_src),packet.toipv6(ip.ip_bin_dst)
+  else
+    return INVALID_ADDRESS,INVALID_ADDRESS
+  end
 end
 
 prerule =  function()
@@ -86,7 +96,7 @@ action = function()
     stdnse.print_debug(1,"Error - unable to open socket using interface %s",interface)
     return
   else
-    sock:pcap_open(interface, 104, true, "ip")
+    sock:pcap_open(interface, 104, true, "ip or ip6")
     stdnse.print_debug(1, "Will sniff for %s seconds on interface %s.", (timeout/1000),interface)
 
     repeat
@@ -126,11 +136,21 @@ action = function()
   end
 
   if target.ALLOW_NEW_TARGETS == true then
-    for _,v in pairs(all_addresses) do
-      target.add(v)
-   end
+    if nmap.address_family() == 'inet6' then
+      for _,v in pairs(all_addresses) do
+        if v:match(':') then
+          target.add(v)
+        end
+      end
     else
-      stdnse.print_debug(1,"Not adding targets to newtargets. If you want to do that use the 'newtargets' script argument.")
+      for _,v in pairs(all_addresses) do
+        if not v:match(':') then
+          target.add(v)
+        end
+      end
+    end
+  else
+    stdnse.print_debug(1,"Not adding targets to newtargets. If you want to do that use the 'newtargets' script argument.")
   end
 
   if #all_addresses>0 then

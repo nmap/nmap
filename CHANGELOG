@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] targets-sniffer now is capable of sniffing IPv6 addresses.
+  [Daniel Miller]
+
 o [NSE] Added the script traceroute-geolocation that queries geographic
   locations of each traceroute hop and allows to export the results to KLM,
   allowing the hops to be plotted on a map. [Patrik Karlsson]
