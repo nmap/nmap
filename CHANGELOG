@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the mobilme library and the scripts http-icloud-findmyiphone and
+  http-icloud-sendmsg, that finds the location of iOS devices and provides
+  functionality to send them messages. [Patrik Karlsson]
+
 o [NSE] Added gps library and the gpsd-info script that collects GPS data
   from the gpsd daemon. [Patrik Karlsson]
 

@@ -130,6 +130,8 @@ Entry { filename = "http-generator.nse", categories = { "default", "discovery", 
 Entry { filename = "http-google-malware.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "http-grep.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-icloud-findmyiphone.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-icloud-sendmsg.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-joomla-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-litespeed-sourcecode-download.nse", categories = { "exploit", "intrusive", "vuln", } }
