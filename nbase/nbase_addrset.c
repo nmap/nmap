@@ -203,13 +203,16 @@ static char *address_to_string(const struct sockaddr *sa, size_t sa_len,
     return buf;
 }
 
-/* Break an IPv4 address into an array of octets. */
+/* Break an IPv4 address into an array of octets. octets[0] contains the most
+   significant octet and octets[3] the least significant. */
 static void in_addr_to_octets(const struct in_addr *ia, uint8_t octets[4])
 {
-    octets[0] = (uint8_t) (ia->s_addr & 0xFF);
-    octets[1] = (uint8_t) ((ia->s_addr & (0xFF << 8)) >> 8);
-    octets[2] = (uint8_t) ((ia->s_addr & (0xFF << 16)) >> 16);
-    octets[3] = (uint8_t) ((ia->s_addr & (0xFF << 24)) >> 24);
+    u32 hbo = ntohl(ia->s_addr);
+
+    octets[0] = (uint8_t) ((hbo & (0xFF << 24)) >> 24);
+    octets[1] = (uint8_t) ((hbo & (0xFF << 16)) >> 16);
+    octets[2] = (uint8_t) ((hbo & (0xFF << 8)) >> 8);
+    octets[3] = (uint8_t) (hbo & 0xFF);
 }
 
 #define BITVECTOR_BITS (sizeof(bitvector_t) * CHAR_BIT)
