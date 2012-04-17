@@ -1475,6 +1475,8 @@ match java-rmi m=^\x80c\0\0\x00622996\|com\.code42\.messaging\.security\.DHPubli
 # I'm not sure if this is RMI per se or just the Java serialization format. --Ed.
 match java-rmi m|^\xac\xed\0\x05sr\0\x19java\.rmi\.MarshalledObject\x7c\xbd\x1e\x97\xedc\xfc>\x02\0\x03I\0\x04hash\[\0\x08locBytest\0\x02\[B\[\0\x08objBytesq\0~\0\x01xp\x15\xc8\"\x95ur\0\x02\[B\xac\xf3\x17\xf8\x06\x08T\xe0\x02\0\0xp\0\0\0'\xac\xed\0\x05t..http://([\w._-]+):\d+/|s p/Java RMI/ i/JBoss JNP service 6/ h/$1/
 match java-rmi m|^\xac\xed\0\x05sr\0\x19java\.rmi\.MarshalledObject\x7c\xbd\x1e\x97\xedc\xfc>\x02\0\x03I\0\x04hash\[\0\x08locBytest\0\x02\[B\[\0\x08objBytesq\0~\0\x01xp\x04\xaaZ\x7fur\0\x02\[B\xac\xf3\x17\xf8\x06\x08T\xe0\x02\0\0xp\0\0\0\$\xac\xed\0\x05t..http://([\w._-]+):\d+/|s p/Java RMI/ i/HP Network Node Manager 9/ h/$1/
+# May be more general: "WebGoat (OWASP): in the WebGoat WEB-INF\web.xml: Axis SOAPMonitorService.
+match ovm-manager m|^\xac\xed\0\x05$| p/Oracle OVM Manager/
 # ACED is a magic number and 5 is a version number.
 # http://docs.oracle.com/javase/6/docs/platform/serialization/spec/protocol.html
 softmatch java-rmi m|^\xac\xed\x00\x05| p/Java RMI/
@@ -1598,9 +1600,6 @@ match nngs m|^>>messages/login\r\n----- Welcome to the No Name Go Server \(NNGS\
 match omniback m|^HP Data Protector ([\w.]+): INET, internal build 611, built on .*\n$| p/HP Data Protector/ v/$1/
 
 match outpost-ctl m|^\[\xb0`\x81\x91\xd3\x9eI\xa2\*\x0f\x99\xff\x8a_\x12................\x01\0$|s p/Agnitum Outpost Firewall control/ d/firewall/
-
-# May be more general: "WebGoat (OWASP): in the WebGoat WEB-INF\web.xml: Axis SOAPMonitorService.
-match ovm-manager m|^\xac\xed\0\x05$| p/Oracle OVM Manager/
 
 match para-ups m|^DeltaUPS:NET01,00,0008 1\t\d+\t\tDeltaUPS:SOD00,00,0000 DeltaUPS:STS00,00,0231 0\tMinuteman\tE 3200\t([\w._-]+)\t([\w._-]+)\t\d+\t\d+\t| p/Para Systems Sentry Plus UPS server daemon/ v/$1/ d/power-misc/ h/$2/
 
