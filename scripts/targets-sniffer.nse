@@ -41,7 +41,6 @@ require("bin")
 local interface_info
 local all_addresses= {}
 local unique_addresses = {}
-local INVALID_ADDRESS = "????"
 
 --Make sure the IP is not a broadcast or the local address
 local function check_if_valid(address)
@@ -51,20 +50,19 @@ local function check_if_valid(address)
   if address == local_address 
     or address == broadcast or address == "255.255.255.255" 
     or address:match('^ff') --IPv6 Multicast addrs
-    or address == INVALID_ADDRESS then
+    then
     return false
   else
     return true end
 end
 
+-- Returns an array of address strings.
 local function get_ip_addresses(layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
   if ip.ip_v == 4 then
-    return packet.toip(ip.ip_bin_src),packet.toip(ip.ip_bin_dst)
+    return { packet.toip(ip.ip_bin_src), packet.toip(ip.ip_bin_dst) }
   elseif ip.ip_v == 6 then
-    return packet.toipv6(ip.ip_bin_src),packet.toipv6(ip.ip_bin_dst)
-  else
-    return INVALID_ADDRESS,INVALID_ADDRESS
+    return { packet.toipv6(ip.ip_bin_src), packet.toipv6(ip.ip_bin_dst) }
   end
 end
 
@@ -77,7 +75,6 @@ end
 action = function()
 
   local sock = nmap.new_socket()
-  local ip_src,ip_dst
   local packet_counter = 0
   local ip_counter = 0
   local DEFAULT_TIMEOUT_SEC = 10 -- Default timeout value in seconds if the timeout argument is not specified
@@ -106,23 +103,18 @@ action = function()
       local status, _, _, layer3 = sock:pcap_receive()
 
       if status then
+        local addresses
 
         packet_counter=packet_counter+1
-        ip_src,ip_dst = get_ip_addresses(layer3)
-        stdnse.print_debug(1,"Got IP addresses %s and %s",ip_src,ip_dst)
+        addresses = get_ip_addresses(layer3)
+        stdnse.print_debug(1, "Got IP addresses %s", stdnse.strjoin(" ", addresses))
 
-        if check_if_valid(ip_src) == true then
-          if not unique_addresses[ip_src] then
-            unique_addresses[ip_src] = true
-            table.insert(all_addresses,ip_src)
-          end
-        end
-
-
-        if check_if_valid(ip_dst) == true then
-          if not unique_addresses[ip_dst] then
-            unique_addresses[ip_dst] = true
-            table.insert(all_addresses,ip_dst)
+        for _, addr in ipairs(addresses) do
+          if check_if_valid(addr) == true then
+            if not unique_addresses[addr] then
+              unique_addresses[addr] = true
+              table.insert(all_addresses, addr)
+            end
           end
         end
 
