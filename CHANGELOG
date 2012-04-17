@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script traceroute-geolocation that queries geographic
+  locations of each traceroute hop and allows to export the results to KLM,
+  allowing the hops to be plotted on a map. [Patrik Karlsson]
+
 o [NSE] Added the ipp library and the script cups-info that lists available
   printers by querying the cups network daemon. [Patrik Karlsson]
 
