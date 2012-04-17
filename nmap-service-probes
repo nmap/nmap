@@ -2784,21 +2784,21 @@ match ssh m|^SSH-(\d[\d.]*)-(AKAMAI-I*)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1
 match ssh m|^SSH-(\d[\d.]*)-(Server-V)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/ cpe:/a:akamai:ssh:$2/
 match ssh m|^SSH-(\d[\d.]*)-(Server-VI)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/ cpe:/a:akamai:ssh:$2/
 match ssh m|^SSH-(\d[\d.]*)-(Server-VII)\r?\n| p/Akamai SSH/ v/$2/ i/protocol $1/ cpe:/a:akamai:ssh:$2/
-match ssh m|^SSH-(\d[\d.]+)-Cisco-(\d[\d.]+)\r?\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:ssh:$2/
-match ssh m|^SSH-(\d[\d.]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:ssh:$2/
+match ssh m|^SSH-(\d[\d.]+)-Cisco-(\d[\d.]+)\r?\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/ cpe:/a:cisco:ssh:$2/ cpe:/o:cisco:ios/a
+match ssh m|^SSH-(\d[\d.]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/ cpe:/a:cisco:ssh:$2/ cpe:/o:cisco:ios/a
 match ssh m|^\r\nDestination server does not have Ssh activated\.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh\.\r\n| p/Cisco CSS SSH/ i/Unlicensed/ cpe:/a:cisco:ssh/
 match ssh m|^SSH-(\d[\d.]+)-VShell_(\d[_\d.]+) VShell\r?\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
 match ssh m|^SSH-2\.0-0\.0 \r?\n| p/VanDyke VShell sshd/ i/version info hidden; protocol 2.0/
 match ssh m|^SSH-([\d.]+)-([\w.]+) VShell\r?\n| p/VanDyke VShell/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-([\w.]+) \(beta\) VShell\r?\n| p/VanDyke VShell/ v/$2 beta/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r?\n| p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:bitvise:winsshd:$3/
-match ssh m|^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD\r?\n| p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:bitvise:winsshd/
+match ssh m|^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r?\n| p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/ cpe:/a:bitvise:winsshd:$3/ cpe:/o:microsoft:windows/a
+match ssh m|^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD\r?\n| p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/ cpe:/a:bitvise:winsshd/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: sshlibSrSshServer ([\w._-]+)\r\n| p/SrSshServer/ v/$3/ i/sshlib $2; protocol $1/
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: GlobalScape\r?\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: EdmzSshDaemon ([\w._-]+)\r\n| p/EdmzSshDaemon/ v/$3/ i/sshlib $2; protocol $1/
-match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+)\r\n| p/Bitvise WinSSHD/ v/$3/ i/FlowSsh $2; protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:bitvise:winsshd:$3/
-match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+): free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ v/$3/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:bitvise:winsshd:$3/
-match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD: free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:bitvise:winsshd/
+match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+)\r\n| p/Bitvise WinSSHD/ v/$3/ i/FlowSsh $2; protocol $1/ o/Windows/ cpe:/a:bitvise:winsshd:$3/ cpe:/o:microsoft:windows/a
+match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+): free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ v/$3/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/ cpe:/a:bitvise:winsshd:$3/ cpe:/o:microsoft:windows/a
+match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD: free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/ cpe:/a:bitvise:winsshd/ cpe:/o:microsoft:windows/a
 # Cisco VPN 3000 Concentrator
 # Cisco VPN Concentrator 3005 - Cisco Systems, Inc./VPN 3000 Concentrator Version 4.0.1.B Jun 20 2003
 match ssh m|^SSH-([\d.]+)-OpenSSH\r?\n$| p/OpenSSH/ i/protocol $1/ d/terminal server/
@@ -2854,8 +2854,8 @@ match ssh m|^SSH-2\.0-SSH_0\.2\r?\n$| p/3com WAP sshd/ v/0.2/ i/protocol 2.0/ d/
 match ssh m|^SSH-([\d.]+)-CoreFTP-([\w._-]+)\r?\n| p/CoreFTP sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-RomSShell_([\w._-]+)\r\n| p/AllegroSoft RomSShell sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-IFT SSH server BUILD_VER\n| p/Sun StorEdge 3511 sshd/ i/protocol $1; IFT SSH/ d/storage-misc/
-match ssh m|^Could not load hosy key\. Closing connection\.\.\.$| p/Cisco switch sshd/ i/misconfigured/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:ssh/
-match ssh m|^Could not load host key\. Closing connection\.\.\.$| p/Cisco switch sshd/ i/misconfigured/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:ssh/
+match ssh m|^Could not load hosy key\. Closing connection\.\.\.$| p/Cisco switch sshd/ i/misconfigured/ d/switch/ o/IOS/ cpe:/a:cisco:ssh/ cpe:/o:cisco:ios/a
+match ssh m|^Could not load host key\. Closing connection\.\.\.$| p/Cisco switch sshd/ i/misconfigured/ d/switch/ o/IOS/ cpe:/a:cisco:ssh/ cpe:/o:cisco:ios/a
 match ssh m|^SSH-([\d.]+)-WS_FTP-SSH_([\w._-]+)(?: FIPS)?\r\n| p/WS_FTP sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:ipswitch:ws_ftp:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-http://www\.sshtools\.com J2SSH \[SERVER\]\r\n| p/SSHTools J2SSH/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n\n\rNo connection is available now\. Try again later!$| p/DrayTek Vigor 2820 ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/
@@ -2922,7 +2922,7 @@ match tdm m|^\x01\0\0\0\x03$| p/Turbine Download Manager/
 match teamtalk m|^welcome userid=\d+ servername=\"([^"]+)\" motd=\"\" forwarding=\d+ channels=\d+ operators=\d+ maxusers=\d+ protocol=\"([\d.]+)\"\r\n| p/Bearware TeamTalk/ i/Server Name $1; protocol $2/
 
 # Cisco router running IOS 12.1.5-12.2.13a
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f$| p/Cisco router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f$| p/Cisco router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 # Draytek Vigor 2600 aDSL router
 match telnet m|^\xff\xfd\x18\xff\xfb\x01\n\r\n\rPassword: | p/Draytek Vigor ADSL router telnetd/ d/broadband router/
 # IBM Infoprint 12 printer with JetDirect
@@ -2936,7 +2936,7 @@ match telnet m|^\x1b\[H\x1b\[2JYou have connected to a FirstClass System\. Pleas
 # 3Com 3Com SuperStack II Switch 3300
 match telnet m|^\xff\xfd\x03\xff\xfb\x03\xff\xfb\x01| i|Usually a Cisco/3com switch| d/switch/ o/IOS/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nSun\(tm\) Advanced Lights Out Manager (\d[-.\w]+) \(v(\d+)\)\r\n\r\nPlease login: | p/Sun Advanced Lights Out Manager/ v/$1/ i/on Sun v$2; for remote system control/ d/remote management/ cpe:/a:sun:advanced_lights_out_manager:$1/
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nCopyright \d+ Sun Microsystems, Inc\.  All rights reserved\.\r\nUse is subject to license terms\.\r\n\r\n\r\nSun\(tm\) Advanced Lights Out Manager ([\d.]+) \(([\w._-]+)\)\r\n\r\nPlease login: | p/Sun Advanced Lights Out Manager telnetd/ v/$1/ d/remote management/ o/Solaris/ h/$2/ cpe:/o:sun:sunos/a cpe:/a:sun:advanced_lights_out_manager:$1/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nCopyright \d+ Sun Microsystems, Inc\.  All rights reserved\.\r\nUse is subject to license terms\.\r\n\r\n\r\nSun\(tm\) Advanced Lights Out Manager ([\d.]+) \(([\w._-]+)\)\r\n\r\nPlease login: | p/Sun Advanced Lights Out Manager telnetd/ v/$1/ d/remote management/ o/Solaris/ h/$2/ cpe:/a:sun:advanced_lights_out_manager:$1/ cpe:/o:sun:sunos/a
 # Epson Stylus Color 900N telnet
 match telnet m|^\xff\xfb\x01\xff\xfb\x01Connected to [-/.+\w]+!\r\n\r\nPassword: | p/Epson printer telnetd/ d/printer/
 # This one may not technically be considered telnet protocol, but you seem to use it via telnet
@@ -3042,12 +3042,12 @@ match telnet m|^\r\n\r\nUser Access Verification\r\n\r\nUsername: | p/Cisco rout
 #  Cisco 2900 Catalyst switch, IOS 12.0(5)XU
 # Cisco 3600 router running IOS 12.X
 # Cisco 2600 IOS 12.0
-match telnet m=^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f.*User Access Verification\r\n\r\n(?:Username|Password): $=s p/Cisco IOS telnetd/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m=^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f.*User Access Verification\r\n\r\n(?:Username|Password): $=s p/Cisco IOS telnetd/ d/switch/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 # Cisco Pix 501 PIX IOS 6.3(1) telnet
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01.*\r\nUser Access Verification\r\n\r\nPassword: |s p/Cisco telnetd/ i/IOS 6.X/ d/firewall/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
-match telnet m|^\xff\xfb\x01\r\r\nUser Access Verification\r\r\n\r\r\nUsername:| p/Cisco PIX 500 series telnetd/ d/firewall/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01.*\r\nUser Access Verification\r\n\r\nPassword: |s p/Cisco telnetd/ i/IOS 6.X/ d/firewall/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
+match telnet m|^\xff\xfb\x01\r\r\nUser Access Verification\r\r\n\r\r\nUsername:| p/Cisco PIX 500 series telnetd/ d/firewall/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 # Cisco Catalyst 6509 - WS-C6509 Software, Version NmpSW: 5.5(1)
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems Console\r\n| p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems Console\r\n| p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nPassword required, but none set\r\n| p/Cisco router telnetd/ i/password required but not set/ d/router/ cpe:/a:cisco:telnet/
 match telnet m|^Access not permitted\. Closing connection\.\.\.\n$|s p/Cisco catalyst switch telnetd/ i/access denied/ d/switch/ cpe:/a:cisco:telnet/
 # The match below matches Cisco microswitch devices and also Edge-core ES3526XA
@@ -3090,7 +3090,7 @@ match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\n\*+\r\n\*  Welcome to TRENDnet P
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*+\r\n\*  Welcome to Print Server  \*\r\n\*     Telnet Console        \*\r\n\*+\r\n\r\nServer Name    :  ([-\w_.]+)\r\nServer Model   :  Pocket Size Print Server\0\0\0\0\0\0\0\0\r\nF/W Version    :  ([\d.]+)  \0\0\0\0\r\nMAC Address    :  ([\w ]+)\r\nUptime         :  ([^\r\n]+)\r\n\nPlease Enter Password:| p/Lexmark W810 telnetd/ v/$2/ i/Name $1; MAC $3; Uptime $4/ d/printer/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\n\*+\r\n\*  Welcome to Print Server  \*\r\n\*     Telnet Console        \*\r\n\*+\r\n\r\nServer Name    :  ([-\w_.]+)\0*\r\nServer Model   :  3Port Print Server\0\0\0\0\0\0\0\0\0\0\0\0\0\0\r\nF/W Version    :  ([-\w_.]+)  \0*\r\nMAC Address    :  ([\w ]+)\r\nUptime         :  ([^\r\n]+)\r\n\nPlease Enter Password: | p/3Port print server telnetd/ v/$2/ i/MAC $3; Uptime $4/ d/print server/ h/$1/
 match telnet m|^\x1b\[0m\x1b\[2J\x1b\[01;28HCONEXANT SYSTEMS, INC\.\x1b\[02;19H ACCESS RUNNER ADSL CONSOLE PORT\x1b\[24;01H>>>\x1b\[24;01HLOGON PASSWORD>\x1b\[02;53H3\.\d+\x1b\[24;17H\x1b\[24;17H\x1b\[24;17H\x1b\[24;17H| p/Conexant Access Runner adsl router telnetd/ d/router/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nWelcome on (.*)\r\n\r\n\r\nUsername: | p/Cisco 2621 router telnetd/ i/Banner: $1/ cpe:/a:cisco:telnet/ d/router/ cpe:/h:cisco:router_2621/ o/IOS/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nWelcome on (.*)\r\n\r\n\r\nUsername: | p/Cisco 2621 router telnetd/ i/Banner: $1/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_2621/
 match telnet m|^\xff\xfb\x01\xff\xfd\x18\nTelnet Service on the PrintServer\n\n\rPassword: | p|Hawking/TRENDnet Print Server telnetd| d/print server/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n Welcome to OpenVMS \(TM\) Alpha Operating System, Version V([\d.]+)    \r\n\r\n\rUsername: | p/OpenVMS telnetd/ i/OpenVMS $1/ o/OpenVMS/ cpe:/o:hp:openvms/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfd \xff\xfd!\x07\r\n\r\n Welcome to OpenVMS \(TM\) Alpha Operating System, Version V([-\w_.]+)  \r\n\r\n\rUsername: | p/OpenVMS telnetd/ i/OpenVMS $1/ o/OpenVMS/ cpe:/o:hp:openvms/a
@@ -3101,8 +3101,8 @@ match telnet m|^\xff\xfb\r\nRemotelyAnywhere Telnet Server v([\d.]+)\r\n.*\r\n\r
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\xff\xfd\x1f\xff\xfd\x18([^\r\n]+)\r\nRemotelyAnywhere Telnet Server ([\d.]+)\r\n.*\r\n\r\n([-\w_. ]+) login\r\nuser name: |s p/RemotelyAnywhere telnetd/ v/$2/ i/$1; Name $3/ o/Windows/ cpe:/o:microsoft:windows/a
 match telnet m|^\r\nVxWorks login: \xff\xfb\x01$| p/VxWorks telnetd/ o/VxWorks/ cpe:/o:windriver:vxworks/a
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\r\n\r\nSelect Access Level\r\n===================\r\n1 - Read-Only\r\n2 - Installer\r\n3 - Administrator\r\n13008 >>> | p/BreezeCOM telnetd/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nExterior router [-\w_.]+\r\nType: Cisco 2651\r\nModule: E3/T3 interface\r\n\r\n| p/Cisco 2651 router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/ cpe:/h:cisco:router_2621/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n[-\w_.]+>%| p/Cisco router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nExterior router [-\w_.]+\r\nType: Cisco 2651\r\nModule: E3/T3 interface\r\n\r\n| p/Cisco 2651 router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_2621/ cpe:/o:cisco:ios/a
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n[-\w_.]+>%| p/Cisco router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m=^\xff\xfb\x01\r\n\r\n#\r\n\| ELSA, MicroLink Cable\r\n\| Ver\. ([\d.]+) / [\d.]+ \d\d:\d\d .*\r\n\| SN\.  \d+\r\n\| Copyright \(c\) ELSA AG, Aachen \(Germany\)\r\n\r\ncm2, Connection No\.: \d+ \(LAN\) \(read-only connection\)\r\n\r\nPassword:= p/ELSA Microlink Cable modem/ v/$1/ i/read-only connection/ d/router/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\npassword: $| p/Cisco LocalDirector telnetd/ d/load balancer/
 match telnet m|^\xff\xfb\x01\xff\xfb\0\xff\xfd\xfb\xff\xfd\x03\x1b\[H\x1b\[2JYou have connected to a FirstClass System\. Please login\.\.\.\r\nUserID: | p/FirstClass telnetd/
@@ -3117,8 +3117,8 @@ match telnet m|^\xff\xfd\x03\xff\xfb\x01\r\n\r\n\t\tWelcome to X330WAN-2DS1\r\n\
 match telnet m|^\x1b\[0m\x1b\[2J\x1b\[01;28HCONEXANT SYSTEMS, INC\.\x1b\[02;14HATU-R ACCESS RUNNER ADSL TERMINAL\x1b\[24;01HENTER CHOICE-->| p/Conexant ATU-R ADSL router telnetd/ d/router/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\| LANCOM L-54g Wireless\r\n\|= p/LANCOM L-54g Wireless router telnetd/ d/router/
 match telnet m|^\xff\xfc\x01\r\nHP JetDirect\r\n\r\nPassword: | p/HP JetDirect telnetd/ d/printer/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems, Inc\. Console\r\n\r\n\r\n\r\n\r\nEnter password: | p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems, Inc\. Console\r\n\r\n\r\n\r\r\n\r\nUsername: | p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems, Inc\. Console\r\n\r\n\r\n\r\n\r\nEnter password: | p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\r\n\r\nCisco Systems, Inc\. Console\r\n\r\n\r\n\r\r\n\r\nUsername: | p/Cisco Catalyst switch telnetd/ d/switch/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\nComOS - Livingston PortMaster\r\n\r\nlogin: | p/Livingston Portmaster telnetd/ d/telecom-misc/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\n\r +\*+\n\r +Welcome to DSLink 200 U/E\n\r +\*+\n\r\n\rGlobespanVirata Inc\., Software Release VIK-([\w.]+)\n\r| p/DSLink 200 adsl modem telnetd/ v/Software version $1/ d/router/
 match telnet m|^\xff\xfe\x01\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfd\0\xff\xfb\x03\xff\xfb\x01\xff\xfb\0This copy of the Ataman TCP Remote Logon Services is registered as licensed to:\r\n\t(.*)\r\n\r\nAccount Name: | p/Ataman TCP Remote Logon Service telnetd/ i/Registered to $1/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -3148,8 +3148,8 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\
 
 # Fairly common so relying on release date:
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\n\r\nBusyBox v([-\w_.]+) \(2006\.02\.15-21:18\+0000\) Built-in shell \(msh\)\r\nEnter 'help' for a list of built-in commands\.\r\n\r\n# | p/BusyBox telnetd/ v/$1/ i/DiskEdge storage telnet config/ d/storage-misc/ cpe:/a:busybox:telnetd:$1/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nRouter>| p/Cisco 806 router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/ cpe:/h:cisco:router_806/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n\r\nUser Access Verification\r\n\r\nPassword: | p/Cisco 2514 router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/ cpe:/h:cisco:router_2514/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nRouter>| p/Cisco 806 router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_806/ cpe:/o:cisco:ios/a
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n\r\nUser Access Verification\r\n\r\nPassword: | p/Cisco 2514 router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_2514/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfd\x01\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\xff\xfe\"\xff\xfc\"\x1b\[2J\x1b\[3;0H\x1b\[0mLogin Menu \x1b\[m\x1b\[4;0H\x1b\[0m_+\x1b\[m\x1b\[1;0H\x1b\[0mMCT-2114 Version ([\d.]+) \x1b\[m\x1b\[20;10H\x1b\[0m| p/MCT-2114 switch telnetd/ v/$1/ d/switch/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nAmiNET\d+ login: | p/Amino AmiNET set-top box telnetd/ d/media device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nMSDOS [\d.]+ Windows [\d.]+ \([\d.]+\) \(ttyp\d\)\r\n\r\nlogin: | p/Windows for Workgroups telnetd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -3199,7 +3199,7 @@ match telnet m|^\r\nSiemens \d+ T1E1 \[COMBO\] Router \(([-\d]+)\) v([\d.]+) Rea
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\n\r\n\r\n\rWelcome to the SIA2410R\n\r| p/Net to Net SIA2410R DSL router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01Welcome to the DataStage Telnet Server\.\r\0\r\nEnter user name: | p/Ascentia DataStage telnetd/
 match telnet m|^\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[4;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HCopyright \(C\) 1991-1994 Hewlett-Packard Co\.  All Rights Reserved\.| p/HP switch telnetd/ d/switch/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nReload scheduled for .* \(in .*\)\r\nRouter>| p/Cisco 1601R router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/ cpe:/h:cisco:router_1601r/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\nReload scheduled for .* \(in .*\)\r\nRouter>| p/Cisco 1601R router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_1601r/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03Telnet access disabled\. Enable in switch CLI\r\n| p/Aruba Networks AP 61 telnetd/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x05PointRed Technologies, Inc\. PartNo: (?:[-\d]+), Version: ([\d.]+)\r\n\r\nlogin:| p/PointRed Technologies telnetd/ v/$1/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\n\r\n\r +Copyright \(C\) \d+ MultiTech Software Systems Inc\.,\n\r.*MultiVoIP Version ([\d.]+)\n\r|s p/MultiTech MultiVoIP telnetd/ v/$1/ d/VoIP adapter/
@@ -3238,12 +3238,12 @@ match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\xff\xfd\x1f\xff\xfd\x18| p/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nlogin: | p/D-Link DSL router telnetd/ d/router/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n([-\w_.]+) login: | p|NASLite-SMB/Sveasoft Alchemy firmware telnetd| h/$1/
 match telnet m|^\r\nAnother telnet session is in progress\.\r\n$| p/HP JetDirect telnetd/ d/printer/
-match telnet m|^\r\nSystem unavailable\.  Please try later\.\r\n$| p/Cisco CSS telnetd/ d/load balancer/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\r\nSystem unavailable\.  Please try later\.\r\n$| p/Cisco CSS telnetd/ d/load balancer/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x03\xff\xfa\x18\x01\xff\xf0$| p/Netgear FVS318 router telnetd/ d/router/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n(FVS\w+) login: | p/Netgear $1 router telnetd/ d/router/
 match telnet m|^\xff\xfb\0\xff\xfd\0\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03Login Name:  | p/HP Remote Lights-Out Edition II telnetd/ d/remote management/
 match telnet m|^\xff\xfb\x01\xff\xfe\"\r\n\*$| p/Network Systems Group router telnetd/ d/router/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nUser Access Verification\r\n\r\nlogin:| p/Cisco 1721 router telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/ cpe:/h:cisco:router_1721/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\nUser Access Verification\r\n\r\nlogin:| p/Cisco 1721 router telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/h:cisco:router_1721/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n Disconnecting\.\.\.\r\n\n$| p/HP LaserJet printer telnetd/ d/printer/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\x1b\[2J\x1b\[0;0H\x1b\[K\x1b\[7mTelnet configuration                          RELEASE ([\d.]+)\x1b| p/Pirelli Age UB router telnetd/ v/$1/ d/router/
 match telnet m|^Telnet server disabled\r\n$| p/F5 BIG-IP load balancer telnetd/ i/telnet disabled/ d/load balancer/
@@ -3388,7 +3388,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\nMAC address (\w+)\n\r\0Software ve
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\nMAC address (\w+)\n\r\0Software version ([\w._-]+ \(\d+\)) XPTEXE\r\0\n\n\r\0Press Enter to go into Setup Mode \n\r\0| p/Napco NetLink NL-MOD alarm system telnetd/ v/$2/ i/MAC $1/ d/security-misc/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03USR ADSL Gateway\r\nLogin: | p/USRobotics ADSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nService Processor login: | p/HP-UX GSP processor telnetd/ o/HP-UX/ cpe:/o:hp:hp-ux/a
-match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\0\xff\xfd\x1f\r\n.*User Access Verification\r\n\r\nUsername: |s p/Cisco telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\0\xff\xfd\x1f\r\n.*User Access Verification\r\n\r\nUsername: |s p/Cisco telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^CCProxy Telnet>CCProxy Telnet Service Ready\.\r\nCCProxy Telnet>| p/CCProxy telnet configuration/ o/Windows/ cpe:/o:microsoft:windows/a
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03ADSL2\+ Wireless Router (\w+) \r\nSoftware Version: ([\w.]+)\r\nLogin name: | p/BT ADSL2+ $1 wireless router telnetd/ v/$2/ d/WAP/
 match telnet m|^\xff\xfb\x01Symbol Access Point User/Admin password: | p/Symbol WAP telnetd/ d/WAP/
@@ -3667,7 +3667,7 @@ match telnet m|^\xff\xfb\x01\xff\xfd\"\[game001\] remote control session\.\r\nPa
 match telnet m|^\r\nVOLKTEK Corporation\r\nSystem version: ([\w._-]+) \((built at .*?)\)\r\n\r\nUsername: | p/Volktek router telnetd/ v/$1/ i/$2/ d/router/
 match telnet m|^\xff\xfd\x18\xff\xfb\x01\x1b\[2J\x1b\[\?7l\x1b\[3;23r\x1b\[\?6l\x1b\[1;1H\x1b\[\?25l\x1b\[1;1HProCurve J\w+ Switch ([\w-]+)\r\n\rSoftware revision ([\w._-]+)\r\n| p/HP ProCurve $1 switch telnetd/ v/$2/ cpe:/h:hp:procurve_switch_$1/ cpe:/o:hp:procurve_switch_software:$2/
 match telnet m|^This is version ([\w._-]+) of the API\nSMS is enabled and HOMEAUTOMATION is enabled for you\n>> | p/Dovado 4GR WAP telnetd/ v/$1/ d/WAP/
-match telnet m|^\xff\xfd\x03\xff\xfb\x03\xff\xfd\x01\xff\xfb\x01\r\n\r\x1b\[2J\x1b\[0;0H\x1b\[K\x1b\[1;0H\x1b\[K\x1b\[2;0H\x1b\[K\x1b\[3;0H\x1b\[K\x1b\[4;0H\x1b\[K\x1b\[5;0H\x1b\[K\x1b\[6;0H\x1b\[K\x1b\[7;0H\x1b\[K\x1b\[8;0H\x1b\[K\x1b\[9;0H\x1b\[K\x1b\[10;0H\x1b\[K\x1b\[11;0H\x1b\[K\x1b\[12;0H\x1b\[K\x1b\[13;0H\x1b\[K\x1b\[14;0H\x1b\[K\x1b\[15;0H\x1b\[K\x1b\[16;0H\x1b\[K\x1b\[17;0H\x1b\[K\x1b\[18;0H\x1b\[K\x1b\[19;0H\x1b\[K\x1b\[20;0H\x1b\[K\x1b\[21;0H\x1b\[K\x1b\[22;0H\x1b\[K\x1b\[0;0H\x1b\[K\x1b\[1;0H\x1b\[K\x1b\[2;0H\x1b\[K\x1b\[3;0H\x1b\[K\x1b\[4;0H\x1b\[K\x1b\[5;0H\x1b\[K\x1b\[6;0H\x1b\[K\x1b\[7;0H\x1b\[K\x1b\[8;0H\x1b\[K\x1b\[9;0H\x1b\[K\x1b\[10;0H\x1b\[K\x1b\[11;0H\x1b\[K\x1b\[12;0H\x1b\[K\x1b\[13;0H\x1b\[K\x1b\[14;0H\x1b\[K\x1b\[15;0H\x1b\[K\x1b\[16;0H\x1b\[K\x1b\[17;0H\x1b\[K\x1b\[18;0H\x1b\[K\x1b\[19;0H\x1b\[K\x1b\[20;0H\x1b\[K\x1b\[3;27H            \x1b\[3;27HLogin Screen\x1b\[4;27H            \x1b\[4;27H============\x1b\[7;24H          \x1b\[7;24HUser Name:\x1b\[9;24H         \x1b\[9;24HPassword:\x1b\[7m\x1b\[7;36H                    \x1b\[7;36H                     \x1b\[7;36H\x1b\[7;36H| p/Cisco SRW2016 or SRW2024 router telnetd/ d/router/ cpe:/h:cisco:srw2016/ cpe:/h:cisco:srw2024/ cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfd\x03\xff\xfb\x03\xff\xfd\x01\xff\xfb\x01\r\n\r\x1b\[2J\x1b\[0;0H\x1b\[K\x1b\[1;0H\x1b\[K\x1b\[2;0H\x1b\[K\x1b\[3;0H\x1b\[K\x1b\[4;0H\x1b\[K\x1b\[5;0H\x1b\[K\x1b\[6;0H\x1b\[K\x1b\[7;0H\x1b\[K\x1b\[8;0H\x1b\[K\x1b\[9;0H\x1b\[K\x1b\[10;0H\x1b\[K\x1b\[11;0H\x1b\[K\x1b\[12;0H\x1b\[K\x1b\[13;0H\x1b\[K\x1b\[14;0H\x1b\[K\x1b\[15;0H\x1b\[K\x1b\[16;0H\x1b\[K\x1b\[17;0H\x1b\[K\x1b\[18;0H\x1b\[K\x1b\[19;0H\x1b\[K\x1b\[20;0H\x1b\[K\x1b\[21;0H\x1b\[K\x1b\[22;0H\x1b\[K\x1b\[0;0H\x1b\[K\x1b\[1;0H\x1b\[K\x1b\[2;0H\x1b\[K\x1b\[3;0H\x1b\[K\x1b\[4;0H\x1b\[K\x1b\[5;0H\x1b\[K\x1b\[6;0H\x1b\[K\x1b\[7;0H\x1b\[K\x1b\[8;0H\x1b\[K\x1b\[9;0H\x1b\[K\x1b\[10;0H\x1b\[K\x1b\[11;0H\x1b\[K\x1b\[12;0H\x1b\[K\x1b\[13;0H\x1b\[K\x1b\[14;0H\x1b\[K\x1b\[15;0H\x1b\[K\x1b\[16;0H\x1b\[K\x1b\[17;0H\x1b\[K\x1b\[18;0H\x1b\[K\x1b\[19;0H\x1b\[K\x1b\[20;0H\x1b\[K\x1b\[3;27H            \x1b\[3;27HLogin Screen\x1b\[4;27H            \x1b\[4;27H============\x1b\[7;24H          \x1b\[7;24HUser Name:\x1b\[9;24H         \x1b\[9;24HPassword:\x1b\[7m\x1b\[7;36H                    \x1b\[7;36H                     \x1b\[7;36H\x1b\[7;36H| p/Cisco SRW2016 or SRW2024 router telnetd/ d/router/ cpe:/a:cisco:telnet/ cpe:/h:cisco:srw2016/ cpe:/h:cisco:srw2024/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nPassword: | p/Cyberoam UTM firewall telnetd/ d/firewall/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03Login: | p/D-Link DSL-2640B ADSL router telnetd/ d/broadband router/ cpe:/h:dlink:dsl-2640b/
 match telnet m|^\xff\xfd\x03\xff\xfb\x03\xff\xfd\x01\xff\xfb\x01\r\n\r\r\nUserName:| p/D-Link DGS-3100 switch telnetd/ d/switch/ cpe:/h:dlink:dgs-3100/
@@ -4535,7 +4535,7 @@ match bmc-perform-service m|^SDPACK$| p/BMC Perform Service Daemon/
 
 match nntp m|^200 Coruscant BBS News \(Synchronet NNTP Service v(\d[-.\w ]+)\)\r\n| p/Synchronet NNTP Service/ v/$1/
 
-match telnet m|^\xff\xfb\x01\n\rSSH service name not present in rcvd msg\n\rSSH Session task 0x\w+: Version Exchange Failed\n\r\n\r\n\rSSH service name not present in rcvd msg\n\r| p/Cisco Aironet 350-series WAP telnetd/ d/WAP/ cpe:/o:cisco:aironet_350/ cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfb\x01\n\rSSH service name not present in rcvd msg\n\rSSH Session task 0x\w+: Version Exchange Failed\n\r\n\r\n\rSSH service name not present in rcvd msg\n\r| p/Cisco Aironet 350-series WAP telnetd/ d/WAP/ cpe:/a:cisco:telnet/ cpe:/o:cisco:aironet_350/
 match telnet m|^\xff\xfe\"\xff\xfb\x01\xff\xfb\x03User : \r\n\r?SpeedTouch \(([-\w]+)\)\r\n\r?Password : Invalid Password\r\n\r?Closing connection\r\n| p/Alcatel SpeedTouch DSL router/ i/MAC $1/ d/router/
 match telnet m|^\xff\xfe\x01\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x03\xff\xfb\x01\r\nAccount Name: \r\nPassword: \r\nThis copy of the Ataman Telnetd Server is registered as licensed to:\r\n\t(.+)\r\n\r\nLogin failed: unknown user name, password or privilege incorrect\.\r\n| p/Ataman telnetd/ i/Registerd to $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match telnet m|^Password:\xff\xfb\x01\n\rTry again, you polio:\n\n\rTry again, you polio:\n| p/VLC Player telnetd/
@@ -4566,13 +4566,13 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\nTOSHIBA Maintenance Shell\.   \n\rUser
 
 match telnet m|^\r\nPress return:\*\*\*\*\r\nEnter Password:| p/IPSentry telnetd/ o/Windows/ cpe:/o:microsoft:windows/a
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\r\0\n\r\0\n\r\0\n\r\0\n- NetQue AppleTalk/NetWare/TCP/LAT Printer Server| p/EMULEX NetQue print server telnetd/ d/print server/
-match telnet m|^\r\n\r\nUser Access Verification\r\n\r\nPassword: \r\nPassword: \r\nPassword: \r\n% Bad passwords\r\n| p/Cisco telnetd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\r\n\r\nUser Access Verification\r\n\r\nPassword: \r\nPassword: \r\nPassword: \r\n% Bad passwords\r\n| p/Cisco telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^\xff\xfb\x01\xff\xfe\"\xff\xfe\0\xff\xfd\x03\xff\xfd\x18\xff\xfd\x1f\r\n\r\n\r\nlogin: | p/freeSSHd telnetd/ o/Windows/ cpe:/o:microsoft:windows/a
 match telnet m|^\xff\xfb\x01\x1b\[7l\x1b\[\?1l\x1b\[0m\x1b\[2JUsername: \x1b\[7l\x1b| p/CyberSwitching Dualcom power device rabbit 2000 embedded telnetd/ d/power-device/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nRead /disclaimer\.txt and have fun with yadi on your Nokia D-BOX2 - Kernel ([-\w_.]+) \(| p/Nokia D-BOX2 telnetd/ i/Linux kernel $1/ d/media device/ o/Linux/ cpe:/o:linux:kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nPhilips D-BOX2 - Kernel ([\w._-]+) \(| p/Philips D-BOX2 telnetd/ i/Linux kernel $1/ d/media device/ o/Linux/ cpe:/o:linux:kernel/a
 match telnet m|^\xff\xfb\x01\n\rLogin: \n\r\n\r\n\rLogin: \n\rLogin: | p/Nortel Extranet Contivity Secure IP Services telnetd/ d/security-misc/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\rlogin: \r\n\r\nLogin incorrect\r\n\r\nlogin: | p/Cisco Intrusion Prevention System telnetd/ d/security-misc/ o/IOS/ cpe:/o:cisco:ios/a cpe:/a:cisco:telnet/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n\r\n\rlogin: \r\n\r\nLogin incorrect\r\n\r\nlogin: | p/Cisco Intrusion Prevention System telnetd/ d/security-misc/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
 match telnet m|^ 105 Access denied\.\r\n 105 Access denied\.\r\n 105 Access denied\.\r\n 105 Access denied\.\r\n| p/ShroudBNC telnet config/
 match telnet m|^User Name: \r\r\nPassword: \r\r\nRemote MAC address: | p/Airaya WAP diagnostics telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x01\r\nAP11G login: \r\n\r\nPassword: | p/OfficeConnect AP11G WAP telnetd/ d/WAP/
