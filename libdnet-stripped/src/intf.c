@@ -414,7 +414,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	_intf_set_type(entry);
 	
 	/* Get interface MTU. */
-#ifdef SIOCSIFMTU
+#ifdef SIOCGLIFMTU
 	if (ioctl(intf->fd, SIOCGLIFMTU, &lifr) < 0)
 #endif
 		return (-1);
@@ -473,7 +473,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	_intf_set_type(entry);
 	
 	/* Get interface MTU. */
-#ifdef SIOCSIFMTU
+#ifdef SIOCGIFMTU
 	if (ioctl(intf->fd, SIOCGIFMTU, &ifr) < 0)
 #endif
 		return (-1);
