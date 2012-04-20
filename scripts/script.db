@@ -128,6 +128,7 @@ Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vu
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-form-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-generator.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-gitweb-projects-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-google-malware.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "http-grep.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }

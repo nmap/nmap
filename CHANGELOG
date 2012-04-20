@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the http-gitweb-projects-enum that queries a gitweb for a list
+  of Git projects, their authors and descriptions. [riemann]
+
 o [NSE] targets-sniffer now is capable of sniffing IPv6 addresses.
   [Daniel Miller]
 
