@@ -204,7 +204,7 @@ local function processResponse( response, dname, dtype, options )
          else
              return findNiceAnswer(dtype, rPkt, options.retAll)
          end
-     else -- if not, ask the next server in authority
+     elseif ( not(options.noauth) ) then -- if not, ask the next server in authority
 
          local next_server = getAuthDns(rPkt)
 
@@ -222,6 +222,8 @@ local function processResponse( response, dname, dtype, options )
              options.tries = options.tries - 1
              return query(dname, options)
          end
+     elseif ( options.retPkt ) then
+         return true, rPkt
      end
 
      -- nothing worked
@@ -241,6 +243,7 @@ end
 -- * <code>retAll</code>: Return all answers, not just the first.
 -- * <code>retPkt</code>: Return the packet instead of using the answer-fetching mechanism.
 -- * <code>norecurse</code>: If true, do not set the recursion (RD) flag.
+-- * <code>noauth</code>: If true, do not try to find authoritative server
 -- * <code>multiple</code>: If true, expects multiple hosts to respond to multicast request
 -- * <code>flags</code>: numeric value to set flags in the DNS query to a specific value
 -- * <code>id</code>: numeric value to use for the DNS transaction id
