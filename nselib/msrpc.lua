@@ -1584,6 +1584,29 @@ function samr_openalias(smbstate, domain_handle, rid)
 	return true, result
 end
 
+---Call the <code>GetAliasMembership</code> function. 
+--Sends the "raw" data, without marshaling. 
+-- 
+--@param smbstate       The SMB state table
+--@param alias_handle   The alias_handle, already marshaled
+--@param args			Actuall data to send, already marshaled
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+function samr_getaliasmembership(smbstate, alias_handle,args)
+	local status, result
+	local arguments
+
+	arguments = ''
+
+	arguments = arguments .. alias_handle .. args
+	-- Do the call
+	status, result = call_function(smbstate, 0x10, arguments)
+	if(status ~= true) then
+		return false, result
+	end
+
+	return true, result
+end
+
 ---Call the <code>GetMembersInAlias</code> function, which retrieves a list of users in 
 -- a group. 
 --

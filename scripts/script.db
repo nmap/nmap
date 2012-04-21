@@ -276,6 +276,7 @@ Entry { filename = "rsync-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rsync-list-modules.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rtsp-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "rtsp-url-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "samba-vuln-cve-2012-1182.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "sip-enum-users.nse", categories = { "auth", "intrusive", } }
