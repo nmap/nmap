@@ -143,7 +143,7 @@ intf_open(void)
 		setsockopt(intf->fd, SOL_SOCKET, SO_BROADCAST,
 			(const char *) &one, sizeof(one));
 
-#if defined(SIOCGIFNETMASK_IN6) || defined(SIOCGIFNETMASK6)
+#if defined(SIOCGLIFCONF) || defined(SIOCGIFNETMASK_IN6) || defined(SIOCGIFNETMASK6)
 		if ((intf->fd6 = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
 #  ifdef EPROTONOSUPPORT
 			if (errno != EPROTONOSUPPORT)
@@ -398,6 +398,7 @@ int
 _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 {
 	struct lifreq lifr;
+	int fd;
 
 	/* Get interface index. */
 	entry->intf_index = if_nametoindex(entry->intf_name);
@@ -406,8 +407,14 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 
 	strlcpy(lifr.lifr_name, entry->intf_name, sizeof(lifr.lifr_name));
 
-	/* Get interface flags. */
-	if (ioctl(intf->fd, SIOCGLIFFLAGS, &lifr) < 0)
+	/* Get interface flags. Here he also check whether we need to use fd or
+	 * fd6 in the rest of the function. Using the wrong address family in
+	 * the ioctls gives ENXIO on Solaris. */
+	if (ioctl(intf->fd, SIOCGLIFFLAGS, &lifr) >= 0)
+		fd = intf->fd;
+	else if (intf->fd6 == -1 || ioctl(intf->fd6, SIOCGLIFFLAGS, &lifr) >= 0)
+		fd = intf->fd6;
+	else
 		return (-1);
 	
 	entry->intf_flags = intf_iff_to_flags(lifr.lifr_flags);
@@ -415,7 +422,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	
 	/* Get interface MTU. */
 #ifdef SIOCGLIFMTU
-	if (ioctl(intf->fd, SIOCGLIFMTU, &lifr) < 0)
+	if (ioctl(fd, SIOCGLIFMTU, &lifr) < 0)
 #endif
 		return (-1);
 	entry->intf_mtu = lifr.lifr_mtu;
@@ -424,15 +431,15 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	    entry->intf_link_addr.addr_type = ADDR_TYPE_NONE;
 	
 	/* Get primary interface address. */
-	if (ioctl(intf->fd, SIOCGLIFADDR, &lifr) == 0) {
+	if (ioctl(fd, SIOCGLIFADDR, &lifr) == 0) {
 		addr_ston((struct sockaddr *)&lifr.lifr_addr, &entry->intf_addr);
-		if (ioctl(intf->fd, SIOCGLIFNETMASK, &lifr) < 0)
+		if (ioctl(fd, SIOCGLIFNETMASK, &lifr) < 0)
 			return (-1);
 		addr_stob((struct sockaddr *)&lifr.lifr_addr, &entry->intf_addr.addr_bits);
 	}
 	/* Get other addresses. */
 	if (entry->intf_type == INTF_TYPE_TUN) {
-		if (ioctl(intf->fd, SIOCGLIFDSTADDR, &lifr) == 0) {
+		if (ioctl(fd, SIOCGLIFDSTADDR, &lifr) == 0) {
 			if (addr_ston((struct sockaddr *)&lifr.lifr_addr,
 			    &entry->intf_dst_addr) < 0)
 				return (-1);
@@ -604,8 +611,11 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 			if (ioctl(intf->fd, SIOCGIFNETMASK, &tmplifr) == 0)
 				addr_stob((struct sockaddr *)&tmplifr.lifr_addr, &ap->addr_bits);
 		} else if (ap->addr_type == ADDR_TYPE_IP6 && intf->fd6 != -1) {
+			if (memcmp(&ap->addr_ip6, &entry->intf_addr.addr_ip6, IP6_ADDR_LEN) == 0 ||
+			    memcmp(&ap->addr_ip6, &entry->intf_dst_addr.addr_ip6, IP6_ADDR_LEN) == 0)
+				continue;
 			strlcpy(tmplifr.lifr_name, lifr->lifr_name, sizeof(tmplifr.lifr_name));
-			if (ioctl(intf->fd, SIOCGLIFNETMASK, &tmplifr) == 0) {
+			if (ioctl(intf->fd6, SIOCGLIFNETMASK, &tmplifr) == 0) {
 				addr_stob((struct sockaddr *)&tmplifr.lifr_addr,
 				    &ap->addr_bits);
 			}
@@ -909,7 +919,7 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 			if (strcmp(lifr->lifr_name, plifr->lifr_name) == 0)
 				break;
 		}
-		if (lifr > intf->lifc.lifc_req && plifr < llifr)
+		if (lifr > intf->lifc.lifc_req && plifr < lifr)
 			continue;
 
 		memset(ebuf, 0, sizeof(ebuf));
