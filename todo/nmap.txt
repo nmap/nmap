@@ -26,6 +26,74 @@ o Add CPE entries to OS fingerpting DB entries which still lack them
  - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
    fingerprints.
 
+o FEATURE CREEPERS!  We have two talented GSoC students for summer
+  2012.  Here are some ideas that they could do, though anyone else is
+  welcome to take a stab at them too:
+  o Solve "spurious closed port detection" issue discovered by David:
+    http://seclists.org/nmap-dev/2012/q1/62 .  So we need to figure
+    out what is going on here and then how to fix it.  Note that this
+    doesn't seem to happen when you do ICMP host discovery first (-PE),
+    so it probably relates to the ACK packet that Nmap sends to port 80
+    on the target by default. [James and Fyodor?]
+  o We should probably remove the intl.dll mv command from
+    zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
+    described at http://seclists.org/nmap-dev/2012/q1/430. [Sean and David?]
+  o We should document Ron's sample script
+    (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
+    so that new script writers know about it. [James and Fyodor?]
+  o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
+    o Check for the same reference (like $1) being used in unrelated fields
+      (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
+      (o, cpe:)).
+      For example if we have v/$1/ h/$1/ it is a bug.
+    o Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
+    o Check a list of common product names that should only appear in p//,
+      not in i//. We still have entries that are like this:
+        p/Foobar 2000 ADSL router/ i/micro_httpd web server/
+      that should rather be written this way:
+        p/micro_httpd/ i/Foobar 2000 ADSL router/
+    [Sean and David?]
+  o Investigate increasing FD_SETSIZE on Windows to allow us to
+    multiplex more sockets.  See Henri's email:
+    http://seclists.org/nmap-dev/2012/q1/267 [James and Fyodor?]
+  o Add IPv6 subnet/pattern support like we offer for IPv4.
+   o Obviously we can't go scanning a /48 in IPv6, but small subnets
+     do make sense in some cases.  For example, the VPS hosting
+     company Linode assigns only one IPv6 address per user (unless
+     they pay) and you can find many Linode machines by scanning
+     certain /112's.  And patterns might be useful because people
+     assigned /64's might still put their machines at ::1, ::2, etc.
+     o David says: "We need to design a new way to iterate over host
+       specifications (i.e., different than nexthost). Because the new
+       host discovery code is sometimes going to want whole netblocks
+       and sometimes individual hosts. So I'm thinking of a two-stage
+       model, where the iterator will received (parsed) specifications
+       like AAAA::1/48, and then it can decide whether to further
+       iterate that into individual addresses, or pass the block off
+       to some specialized discovery routine."
+    [Sean and David?]
+  o Investigate ways to limit Winpcap privileges so that only
+    administrative users or a certain accounts can sniff.  Maybe there
+    is a solution people use for Wireshark or does it always cause
+    this issue (allowing any user to sniff the network) when it is
+    installed?  - CACE says they will add a feature to do this.  See
+    this thread: http://seclists.org/nmap-dev/2010/q3/826 
+    [ This might be a good one for Sean or James if they feel that
+    they have the low-level Windows driver programming experience.
+    The idea is to produce a patch that we can then try to convince
+    the WinPcap folks to apply ]
+
+o NSE WORK (potential work for the NSE GSoC folks -- note that this is
+  mostly infrastructure because script ideas are generally put on the
+  script ideas page instead: https://secwiki.org/w/Nmap_Script_Ideas)
+  o Change the interface of nmap.send_ip to take an explicit
+    destination address. It currently extracts the destination from
+    the packet buffer, which does not have enough information to
+    reconstruct link-local addresses. See r26621 for a similar change
+    that was made to Nmap internals.
+  o Review NSE-based port scanning and RST idle scan.
+    http://seclists.org/nmap-dev/2011/q2/307. [Henri and Hani?]
+
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
@@ -41,23 +109,6 @@ o Update more web content in real time (or near real-time, or at least
     added to https svn server.
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
-
-o We should probably remove the intl.dll mv command from
-  zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
-  described at http://seclists.org/nmap-dev/2012/q1/430.
-
-o [NSE] host.os should not just be a list of strings which can contain
-  human-readible strings and/or CPE info.  It should probably be list
-  of host.os tables which can contain:
-  host.os[].name <-- human readible name
-  host.os[].class[].vendor
-  host.os[].class[].osfamily
-  host.os[].class[].osgen
-  host.os[].class[].devicetype
-  host.os[].class[].cpe[] <-- array of cpe:/ strings
-  So host.os[1].class[1].cpe[1] is the first CPE entry for the first
-  classification of the first OS match for the target system.
-  The host.os entry docs/scripting.xml would have to be updated too.
 
 o Implement some improvements to dns-ip6-arpa.nse, as describe at
   http://seclists.org/nmap-dev/2012/q2/45.
@@ -92,20 +143,6 @@ o Consider making a version of Nmap for Apple's official Mac App
   able to request all the permissions it needs?  Ignoring the
   technical challenges for the moment, what will users prefer?
 
-o Solve "spurious closed port detection" issue discovered by David:
-  http://seclists.org/nmap-dev/2012/q1/62
-
-o Investigate increasing FD_SETSIZE on Windows to allow us to
-  multiplex more sockets.  See Henri's email:
-  http://seclists.org/nmap-dev/2012/q1/267
-
-o Investigate ways to limit Winpcap privileges so that only
-  administrative users or a certain accounts can sniff.  Maybe there
-  is a solution people use for Wireshark or does it always cause this
-  issue (allowing any user to sniff the network) when it is installed?
-  - CACE says they will add a feature to do this.  See this thread:
-  http://seclists.org/nmap-dev/2010/q3/826
-
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
   obvious candidates:
@@ -126,21 +163,12 @@ o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
 
-o Use BPF libpcap logic on Solaris 11, otherwise packet capture doesn't
-  work at all. http://seclists.org/nmap-dev/2012/q1/613
-
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
   classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). It
   uses a three-clause BSD license:
   http://www.csie.ntu.edu.tw/~cjlin/liblinear/COPYRIGHT
   - David has added it to 3rd-party-licenses.txt
-
-o Change the interface of nmap.send_ip to take an explicit destination
-  address. It currently extracts the destination from the packet buffer,
-  which does not have enough information to reconstruct link-local
-  addresses. See r26621 for a similar change that was made to Nmap 
-  internals.
 
 o Install some sort of svnview webapp for svn.nmap.org which is
   wrapped in Insecure chrome, allows people to click link for direct
@@ -159,13 +187,6 @@ o Move advanced IPv6 host discovery features from NSE into core Nmap.
   - The idea is that Nmap does them automatically if it gets a large
     target specification and sees that it is local so can be multicast
     pinged.
-
-o We should document Ron's sample script
-  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
-  that new script writers know about it.
-
-o Review NSE-based port scanning and RST idle scan.
-  http://seclists.org/nmap-dev/2011/q2/307.
 
 o [UPDATER] Create a way to send an error message to the user
   (e.g. "your account has expired" or "updates denied due to
@@ -186,45 +207,6 @@ o [UPDATER] When it runs, it should give user more status about what
   (e.g. /home/fyodor/.nmap/updates/5.61TEST4).  And if there are no
   updates available, it should say so.
 
-o Raw scans from Mac OS X seems not to retrieve the MAC address or do
-  ARP ping, except when scanning the router on an interface. For
-  example, scanning 192.168.0.1-5 sends ARP pings to 192.168.0.1, but
-  the normal four-probe combination to the other addresses. The "MAC
-  address:" line appears in the output for .1 but not for the others.
-
-o To avoid Nmap memory usage bloat, find a way for NSE scripts to
-  store information about a host which expires after Nmap is done
-  scanning that host (e.g. when the hostgroup containing that host is
-  finished).  Right now scripts store such information in the registry
-  and it persists forever.  For example, a web spidering
-  script/library could store information about the web structure and
-  even page contents so that other scripts can use that information
-  without spidering the target again, but ensuring that the memory
-  will be freed after the hostgroup finishes so there is room to store
-  the web information for the next group of systems.  One idea would
-  be to make a host.registry member which contains a registry specific
-  to a specific target.  Scripts could store temporary information
-  there, but still use the global registry for information which must
-  persist (e.g. to be used by postrules, etc.)
-
-o Add CPE support to IPv6 OS detection
-
-o Add IPv6 subnet/pattern support like we offer for IPv4.
- o Obviously we can't go scanning a /48 in IPv6, but small subnets do
- make sense in some cases.  For example, the VPS hosting company
- Linode assigns only one IPv6 address per user (unless they pay) and
- you can find many Linode machines by scanning certain /112's.  And
- patterns might be useful because people assigned /64's might still
- put their machines at ::1, ::2, etc.
- o David says: "We need to design a new way to iterate over host
-   specifications (i.e., different than nexthost). Because the new
-   host discovery code is sometimes going to want whole netblocks and
-   sometimes individual hosts. So I'm thinking of a two-stage model,
-   where the iterator will received (parsed) specifications like
-   AAAA::1/48, and then it can decide whether to further iterate that
-   into individual addresses, or pass the block off to some
-   specialized discovery routine."
-
 o Investigate report of Nmap ARP discovery using the wrong target MAC
   address field in ARP requests (it is correct in the ethernet frame
   itself).  See this thread: http://seclists.org/nmap-dev/2011/q3/547
@@ -237,24 +219,6 @@ o Nmap should have a better way to handle XML script output.
  o Daniel Miller is working on an implementation:
    http://seclists.org/nmap-dev/2011/q2/263.
 
-o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
-  o Check for the same reference (like $1) being used in unrelated fields
-    (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
-    (o, cpe:)).
-    For example if we have v/$1/ h/$1/ it is a bug.
-  o Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
-  o Check a list of common product names that should only appear in p//,
-    not in i//. We still have entries that are like this:
-      p/Foobar 2000 ADSL router/ i/micro_httpd web server/
-    that should rather be written this way:
-      p/micro_httpd/ i/Foobar 2000 ADSL router/
-  o Warn when a match template contains '.' but not the 's' flag.
-    (Maybe only when there are non-ASCII literal characters in the
-    template.)
-  o [DONE] Check that used references start at 1 and are
-    contiguous. If $1 and $3 are used but not $2, it's probably a bug.
-    Maybe you can even find out how many there should be by inspecting
-    the regular expression.
 
 o [Zenmap] should actually parse and use script results. See
    http://seclists.org/nmap-dev/2010/q1/1108
@@ -743,6 +707,50 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o In sv-tidy, check that used references start at 1 and are
+  contiguous. If $1 and $3 are used but not $2, it's probably a bug.
+  Maybe you can even find out how many there should be by inspecting
+  the regular expression.
+
+o Raw scans from Mac OS X seems not to retrieve the MAC address or do
+  ARP ping, except when scanning the router on an interface. For
+  example, scanning 192.168.0.1-5 sends ARP pings to 192.168.0.1, but
+  the normal four-probe combination to the other addresses. The "MAC
+  address:" line appears in the output for .1 but not for the others.
+
+o To avoid Nmap memory usage bloat, find a way for NSE scripts to
+  store information about a host which expires after Nmap is done
+  scanning that host (e.g. when the hostgroup containing that host is
+  finished).  Right now scripts store such information in the registry
+  and it persists forever.  For example, a web spidering
+  script/library could store information about the web structure and
+  even page contents so that other scripts can use that information
+  without spidering the target again, but ensuring that the memory
+  will be freed after the hostgroup finishes so there is room to store
+  the web information for the next group of systems.  One idea would
+  be to make a host.registry member which contains a registry specific
+  to a specific target.  Scripts could store temporary information
+  there, but still use the global registry for information which must
+  persist (e.g. to be used by postrules, etc.)
+
+o Add CPE support to IPv6 OS detection
+
+o Use BPF libpcap logic on Solaris 11, otherwise packet capture doesn't
+  work at all. http://seclists.org/nmap-dev/2012/q1/613
+
+o [NSE] host.os should not just be a list of strings which can contain
+  human-readible strings and/or CPE info.  It should probably be list
+  of host.os tables which can contain:
+  host.os[].name <-- human readible name
+  host.os[].class[].vendor
+  host.os[].class[].osfamily
+  host.os[].class[].osgen
+  host.os[].class[].devicetype
+  host.os[].class[].cpe[] <-- array of cpe:/ strings
+  So host.os[1].class[1].cpe[1] is the first CPE entry for the first
+  classification of the first OS match for the target system.
+  The host.os entry docs/scripting.xml would have to be updated too.
 
 o We should probably go through the nmap-os-db (and IPv6 version)
   entries and, where the fingerprint line specifies a service pack
