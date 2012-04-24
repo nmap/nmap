@@ -6,7 +6,7 @@ of different tests.
 
 ---
 -- @usage
--- nmap -sn -Pn ns1.example.com --script-args='dns-check-zone.domain=example.com'
+-- nmap -sn -Pn ns1.example.com --script dns-check-zone --script-args='dns-check-zone.domain=example.com'
 --
 -- @output
 -- | dns-check-zone: 
