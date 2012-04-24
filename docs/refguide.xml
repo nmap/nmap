@@ -652,7 +652,7 @@ you would expect.</para>
           response.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
 <man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
- The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm> option sends a fixed-length random payload for all ports.</para>
+ The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm> option can be used to send a fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.  You can also disable payloads by specifying <option>--data-length 0</option>.</para>
           <para>The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
@@ -1240,7 +1240,7 @@ targeted port. For some common ports such as 53 and 161, a
 protocol-specific payload is sent, but for most ports the packet is
 empty.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
 The <option>--data-length</option> option can be used to send a
-fixed-length random payload to every port.
+fixed-length random payload to every port or (if you specify a value of <literal>0</literal>) to disable payloads.
 If an ICMP port unreachable error (type 3, code 3) is
 returned, the port is <literal>closed</literal>.  Other ICMP unreachable errors (type 3,
 codes 1, 2, 9, 10, or 13) mark the port as <literal>filtered</literal>.  Occasionally, a
