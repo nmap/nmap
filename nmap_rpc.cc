@@ -332,9 +332,9 @@ int send_rpc_query(Target *target_host, unsigned short portno,
     if (res == -1) {
       if (o.debugging) {
 	gh_perror("Sendto in %s", __func__);
-	close(udp_rpc_socket);
-	udp_rpc_socket = -1;
       }
+      close(udp_rpc_socket);
+      udp_rpc_socket = -1;
       return -1;
     }
   } else {
