@@ -4274,7 +4274,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"esec
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"esecsrva\"\r\n\r\n$| p/IBM Director wmicimserver httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"ANLYX2\"\r\n\r\n\0*$| p/IBM Director wmicimserver httpd/
 match http m|^HTTP/1\.0 501 Document Follows\r\nContent-Type: text/html\r\nContent-Length: 106\r\n\r\n<HEAD><TITLE>501 Method Not Implemented</TITLE></HEAD>\r\n<BODY><H1>501 Method Not Implemented</H1>\r\n</BODY>$| p/HP StorageWorks AG118A tape autoloader http config/ d/storage-misc/
-match http m|^UNKNOWN 400 Bad Request\r\nServer: mini_httpd/([\w._ -]+)\r\n| p/mini_httpd/ v/$1/
+match http m|^UNKNOWN 400 Bad Request\r\nServer: mini_httpd/([\w._ -]+)\r\n| p/mini_httpd/ v/$1/ cpe:/a:acme:mini_httpd:$1/
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\n\r\n$| p/JBoss service httpd/
 match http m|^HTTP/1\.0 400 Bad Request\r\n.*Server: PeopleSoft PSRENSRV/([\w._-]+)\r\n.*<I>PeopleSoft PSRENSRV/[\w._-]+ on http://([\w._-]+):\d+</I>|s p/PeopleSoft Remote Event Notification Server httpd/ v/$1/ h/$2/
 match http m|^ 501 Not Implemented\r\n.*Server: HT5XX ht\r\n|s p/Grandstream HT502 VoIP router http config/ d/VoIP adapter/
@@ -5071,7 +5071,7 @@ match http m|^HTTP/1\.0 404 NON-EXISTENT BACKEND\r\n\r\n$| p/Debian Apt-proxy/ i
 # This one is too general; I'm not including it -Doug
 #match http m|^HTTP/1\.0 404 Not Found(\r\nConnection: close)?\r\n\r\n$| p/Debian Apt-proxy/
 
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: mini_httpd/([\w._ /-]+)\r\n| p/mini_httpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: mini_httpd/([\w._ /-]+)\r\n| p/mini_httpd/ v/$1/ cpe:/a:acme:mini_httpd:$1/
 
 # HP ProCurve Switch 2650 / Firmware revision H.07.32
 match http m|^HTTP/1\.0 200 OK\r\nServer: eHTTP v([\w._-]+)\r\n.*<title> \n    HP ProCurve Switch ([-\w_.]+) \n|s p/eHTTP/ v/$1/ i/HP ProCurve Switch $2 http config/ d/switch/ cpe:/a:ehttp:ehttp:$1/ cpe:/h:hp:procurve_switch_$2/ cpe:/o:hp:procurve_switch_software/
@@ -6403,7 +6403,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (DCS-\w+)\r\n|s p/D-Link $1 webcam 
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(DCS-\w+)\"\r\n| p/D-Link $1 webcam http config/ d/webcam/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: Slinger/([-\w_.]+)\r\n| p/Panasonic DVR slinger http config/ v/$1/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nDate: .*Server: lighttpd/([\d.]+)\r\n\r\n\n<html>\n<head>\n<title>Shared Storage Manager</title>\n\n|s p/Western Digital My Book http config/ i/lighttpd $1/ d/storage-misc/ o/Linux/ cpe:/o:linux:kernel/a
-match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: mini_httpd/([-\w_.]+)/astlinux (\w+)\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\n| p/Pointca PBX http config/ i/mini_httpd $1; astlinux $2/ d/PBX/ o/Linux/ cpe:/o:linux:kernel/a
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: mini_httpd/([-\w_.]+)/astlinux (\w+)\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\n| p/mini_httpd/ v/$1/ i/Pointca PBX http config; astlinux $2/ d/PBX/ o/Linux/ cpe:/o:linux:kernel:$2/ cpe:/a:acme:mini_httpd:$1/
 match http m|^HTTP/1\.1  200 OK\r\n.*<p:DeviceName>D-Link (DIR-[-\w_.+]+)</p:DeviceName>.*<p:FirmwareVersion>([^<]+)</p:FirmwareVersion>|s p/D-Link $1 WAP http config/ i/FW $2/ d/WAP/
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: RoamAbout Switch Manager Services ([^\r\n]+)\r\nContent-length: 0\r\n\r\n| p/Enterasys RoamAbout Switch Manager http config/ v/$1/
 match http m|^HTTP/1\.1 200 .*Server: Virata-EmWeb/R([-\w_.]+)\r\n.*<title>NBX NetSet</title>\n<META NAME=\"robots\" CONTENT=\"noindex,noarchive,nofollow\">\n<!-- \(c\) Copyright, 3Com Corporation or its subsidiaries|s p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/3Com NBX NetSet VoIP adapter http config/ d/VoIP adapter/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a
@@ -6507,7 +6507,7 @@ match http m|^HTTP/1\.0 200 Ok\r\nServer: micro_httpd\r\n.*var isRouter\t='1' \?
 match http m|^HTTP/1\.0 200 OK\n.*Server: SWILL/([-\w_.]+)\n|s p/SWILL httpd/ v/$1/
 match http m|^HTTP/1\.1 .*<p:Type>GatewayWithWiFi</p:Type><p:DeviceName>D-Link DGL-4300</p:DeviceName>|s p/D-Link DGL-4300 WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: IPL T S2/([-\w_.]+)\r\n|s p/Exton IPL T S2 http config/ v/$1/ d/media device/
-match http m|^HTTP/1\.0 200 Ok\r\nServer: \r\n.*<title>RWO-CPE-PLUS-G Login Page</title>|s p/Demarc RWO WAP http config/ i/mini_httpd/ d/WAP/
+match http m|^HTTP/1\.0 200 Ok\r\nServer: \r\n.*<title>RWO-CPE-PLUS-G Login Page</title>|s i/Demarc RWO WAP http config/ p/mini_httpd/ d/WAP/ cpe:/a:acme:mini_httpd/
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>Netgear System Login</TITLE>.*<IMG SRC = \"/base/images/Netgear_fsm(\w+)_banner\.gif\"|s p/Netgear FSM$1 switch http config/ d/switch/
 match http m|^HTTP/1\.1 200 OK.*\r\nServer: Web Server\r\n.*<TITLE>NetGear FSM7352S</TITLE>|s p/Netgear FSM7352S switch http config/ d/switch/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: FM Web Publishing\r\n|s p/FileMaker Web Publishing httpd/
@@ -8403,7 +8403,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: micro_httpd\r\n| p/micro_httpd/ 
 # github.com/xen-org/xen-api-libs.git
 match http m|^HTTP/1\.0 500 Internal Error\r\nConnection: close\r\nCache-Control: no-cache, no-store\r\n\r\n<html><body><h1>Internal Server Error</h1>Failure\(&quot;No handler table for HTTP method Unknown OPTIONS&quot;\)</body></html>$| p/Citrix Xen Simple HTTP Server/
 match http m|^HTTP/1\.1 302 Found\r\nDate: \w\w\w \w\w\w \d\d \d\d:\d\d:\d\d \d\d\d\d\n GMT\r\nServer: VCS-VideoJet-Webserver\r\nLocation: http://[\w._-]+/xampp/\r\nKeep-Alive: timeout=5, max=100\r\nConnection: Keep-Alive\r\n\r\n|s p/VCS-VideoJet-Webserver httpd/ i/Bosch VIP X1 video encoder http config/ d/webcam/
-match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: mini_httpd ([^\r\n]+)\r\n.*Cache-Control: no-cache,no-store\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n|s p/mini_httpd/ v/$1/
+match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: mini_httpd ([^\r\n]+)\r\n.*Cache-Control: no-cache,no-store\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n|s p/mini_httpd/ v/$1/ cpe:/a:acme:mini_httpd:$1/
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: keyreporter/([\w._-]+)\r\nConnection: Close\r\nContent-Type: text/plain\r\nContent-Length: 20\r\n.*URL is malformatted\n$|s p/Sassafras KeyReporter http interface/ v/$1/
 match http m|^HTTP/1\.1 403 Forbidden\r\n.*Content-Type: text/html;charset=[\w._-]+\r\nContent-Language: ([\w._-]+)\r\n.*Server: Hidden\r\n\r\n<html><head><title>Apache Tomcat/([\w._-]+) - Error report</title>|s p/Symantec Endpoint Protection Manager http config/ i/Apache Tomcat $2; $1/ d/firewall/
 match http m|^HTTP/1\.1 403 Forbidden\r\n.*Content-Type: text/html;charset=[\w._-]+\r\n.*Server: Hidden\r\n\r\n<html><head><title>Apache Tomcat/([\w._-]+) - Error report</title>|s p/Symantec Endpoint Protection Manager http config/ i/Apache Tomcat $1/ d/firewall/
