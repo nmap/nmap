@@ -140,8 +140,10 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
 
   if (af == AF_INET) {
 
-    if (strchr(hostexp, ':'))
-      fatal("Invalid host expression: %s -- colons only allowed in IPv6 addresses, and then you need the -6 switch", hostexp);
+    if (strchr(hostexp, ':')) {
+      error("Invalid host expression: %s -- colons only allowed in IPv6 addresses, and then you need the -6 switch", hostexp);
+      return 1;
+    }
 
     /*struct in_addr current_in;*/
     addy[0] = addy[1] = addy[2] = addy[3] = addy[4] = NULL;
@@ -232,11 +234,16 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
           *r = '\0';
           addy[i] = r + 1;
         }
-        else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) 
-          fatal("Invalid character in host specification.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.");
+        else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) {
+          error("Invalid character in host specification: %s.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.", target_expr);
+          return 1;
+        }
         r++;
       }
-      if (i != 3) fatal("Invalid target host specification: %s", target_expr);
+      if (i != 3) {
+        error("Invalid target host specification: %s", target_expr);
+        return 1;
+      }
       
       for(i=0; i < 4; i++) {
         j=0;
@@ -256,10 +263,14 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
           }
        /* if (o.debugging > 2)
         *   log_write(LOG_STDOUT, "The first host is %d, and the last one is %d\n", start, end); */
-          if (start < 0 || start > end || start > 255 || end > 255)
-            fatal("Your host specifications are illegal!");
-          if (j + (end - start) > 255) 
-            fatal("Your host specifications are illegal!");
+          if (start < 0 || start > end || start > 255 || end > 255) {
+            error("Your host specifications are illegal!");
+            return 1;
+          }
+          if (j + (end - start) > 255) {
+            error("Your host specifications are illegal!");
+            return 1;
+          }
           for(k=start; k <= end; k++)
             addresses[i][j++] = k;
           last[i] = j-1;
@@ -281,7 +292,9 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
 
     assert(af == AF_INET6);
     if (strchr(hostexp, '/')) {
-      fatal("Invalid host expression: %s -- slash not allowed.  IPv6 addresses can currently only be specified individually", hostexp);
+      error("Invalid host expression: %s -- slash not allowed.  IPv6 addresses can currently only be specified individually", hostexp);
+      free(hostexp);
+      return 1;
     }
     resolvedname = hostexp;
     if (strchr(hostexp, ':') == NULL)
