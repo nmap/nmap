@@ -397,9 +397,12 @@ Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
     if (hs->current_batch_sz < hs->max_batch_sz &&
         hs->next_expression < hs->num_expressions) {
       /* We are going to have to pop in another expression. */
-      while(hs->current_expression.parse_expr(hs->target_expressions[hs->next_expression++], o.af()) != 0) 
-        if (hs->next_expression >= hs->num_expressions)
+      while (hs->next_expression < hs->num_expressions) {
+        const char *expr;
+        expr = hs->target_expressions[hs->next_expression++];
+        if (hs->current_expression.parse_expr(expr, o.af()) == 0)
           break;
+      }
     } else break;
   } while(1);
 
