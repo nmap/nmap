@@ -7,6 +7,7 @@
 module(... or "ipp", package.seeall)
 
 local bin = require('bin')
+local tba = require('tab')
 
 -- The IPP layer
 IPP = {
@@ -15,10 +16,32 @@ IPP = {
 		OK        = 0,
 	},
 	
+	State = {
+	  IPP_JOB_PENDING     = 3,
+	  IPP_JOB_HELD        = 4,
+	  IPP_JOB_PROCESSING  = 5,
+	  IPP_JOB_STOPPED     = 6,
+	  IPP_JOB_CANCELED    = 7,
+	  IPP_JOB_ABORTED     = 8,
+	  IPP_JOB_COMPLETED   = 9,
+	},
+	
+	StateName = {
+		[3] = "Pending",
+		[4] = "Held",
+		[5] = "Processing",
+		[6] = "Stopped",
+		[7] = "Canceled",
+		[8] = "Aborted",
+		[9] = "Completed",
+	},
+	
 	OperationID = {
+		IPP_CANCEL_JOB           = 0x0008,
 		IPP_GET_JOB_ATTRIBUTES   = 0x0009,
 		IPP_GET_JOBS             = 0x000a,
 		CUPS_GET_PRINTERS        = 0x4002,
+		CUPS_GET_DOCUMENT        = 0x4027
 	},
 	
 	PrinterState = {
@@ -33,6 +56,8 @@ IPP = {
 		IPP_TAG_JOB			= 0x02,
 		IPP_TAG_END			= 0x03,
 		IPP_TAG_PRINTER     = 0x04,
+		IPP_TAG_INTEGER		= 0x21,
+		IPP_TAG_ENUM        = 0x23,
 		IPP_TAG_NAME        = 0x42,
 		IPP_TAG_KEYWORD     = 0x44,
 		IPP_TAG_URI         = 0x45,
@@ -50,7 +75,7 @@ IPP = {
 			local attrib = IPP.Attribute:new()
 			local val
 			pos, attrib.tag, attrib.name, val = bin.unpack(">CPP", data, pos)
-			
+			-- print(attrib.name, stdnse.tohex(val))
 			attrib.value = {}		
 			table.insert(attrib.value, { tag = attrib.tag, val = val })
 			
@@ -65,15 +90,24 @@ IPP = {
 				if ( name_len == 0 ) then
 					pos, val = bin.unpack(">P", data, pos)
 					table.insert(attrib.value, { tag = tag, val = val })
-					--print("val", val)
 				else
 					pos = pos - 3
 				end
 			until( name_len ~= 0 )
 			
+			-- do minimal decoding
+			for i=1, #attrib.value do
+				if ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_INTEGER ) then
+					attrib.value[i].val = select(2, bin.unpack(">I", attrib.value[i].val))
+				elseif ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_ENUM ) then
+					attrib.value[i].val = select(2, bin.unpack(">I", attrib.value[i].val))
+				end
+			end
+			
 			if ( 1 == #attrib.value ) then
 				attrib.value = attrib.value[1].val
 			end
+			--print(attrib.name, attrib.value, stdnse.tohex(val))
 			
 			return pos, attrib
 		end,
@@ -106,18 +140,32 @@ IPP = {
 			table.insert(self.attribs, attrib)
 		end,
 		
-		getAttribute = function(self, name)
+		--
+		-- Gets the first attribute matching name and optionally tag from the
+		-- attribute group.
+		--
+		-- @param name string containing the attribute name
+		-- @param tag number containing the attribute tag
+		getAttribute = function(self, name, tag)
 			for _, attrib in ipairs(self.attribs) do
 				if ( attrib.name == name ) then
-					return attrib
+					if ( not(tag) ) then
+						return attrib
+					elseif ( tag and attrib.tag == tag ) then
+						return attrib
+					end
 				end
 			end
 		end,
 
-		getAttributeValue = function(self, name)
+		getAttributeValue = function(self, name, tag)
 			for _, attrib in ipairs(self.attribs) do
 				if ( attrib.name == name ) then
-					return attrib.value
+					if ( not(tag) ) then
+						return attrib.value
+					elseif ( tag and attrib.tag == tag ) then
+						return attrib.value
+					end
 				end
 			end
 		end,
@@ -230,6 +278,29 @@ IPP = {
 	
 }
 
+HTTP = {
+	
+	Request = function(host, port, request)
+		local headers = {
+			['Content-Type'] = 'application/ipp',
+			['User-Agent'] = 'CUPS/1.5.1',
+		}
+		port.version.service_tunnel = "ssl"
+		local http_resp = http.post(host, port, '/', { header = headers }, nil, tostring(request))
+		if ( http_resp.status ~= 200 ) then
+			return false, "Unexpected response from server"
+		end
+
+		local response = ipp.IPP.Response.parse(http_resp.body)
+		if ( not(response) ) then
+			return false, "Failed to parse response"
+		end
+		
+		return true, response
+	end,
+	
+}
+
 
 Helper = {
 	
@@ -247,10 +318,6 @@ Helper = {
 	end,
 	
 	getPrinters = function(self)
-		local headers = {
-			['Content-Type'] = 'application/ipp',
-			['User-Agent'] = 'CUPS/1.5.1',
-		}
 
 		local attribs = {
 			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
@@ -261,12 +328,11 @@ Helper = {
 		local request = IPP.Request:new(IPP.OperationID.CUPS_GET_PRINTERS, 1)
 		request:addAttributeGroup(ag)
 
-		local http_resp = http.post(self.host, self.port, '/', { header = headers }, nil, tostring(request))
-		if ( http_resp.status ~= 200 ) then
-			return false, "Unexpected response from server"
+		local status, response = HTTP.Request( self.host, self.port, tostring(request) )
+		if ( not(response) ) then
+			return status, response
 		end
 
-		local response = ipp.IPP.Response.parse(http_resp.body)
 		local printers = {}
 		
 		for _, ag in ipairs(response:getAttributeGroups(ipp.IPP.Attribute.IPP_TAG_PRINTER)) do
@@ -290,42 +356,76 @@ Helper = {
 		return true, printers
 	end,
 	
-	-- getQueueInfo = function(self, uri)
-	-- 	local headers = {
-	-- 		['Content-Type'] = 'application/ipp',
-	-- 		['User-Agent'] = 'CUPS/1.5.1',
-	-- 	}
-	-- 
-	-- 	local uri = uri or ("ipp://%s/"):format(self.host.ip)
-	-- 
-	-- 	local attribs = {
-	-- 		IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
-	-- 		IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en-us"),
-	-- 		IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_URI, "printer-uri", uri),
-	-- 		IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_KEYWORD, "requested-attributes", {
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-id" },
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-k-octets" },
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-name" },
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-state-message" },
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-uri" },
-	-- 			{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
-	-- 		IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_NAME, "requesting-user-name", "nmap" ),
-	-- 		IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_KEYWORD, "which-jobs", "not-completed" )
-	-- 	}
-	-- 
-	-- 	local ag = IPP.AttributeGroup:new(ipp.IPP.Attribute.IPP_TAG_OPERATION, attribs)
-	-- 	local request = IPP.Request:new(IPP.OperationID.IPP_GET_JOBS, 1)
-	-- 	request:addAttributeGroup(ag)
-	-- 
-	-- 	local http_resp = http.post(self.host, self.port, '/', { header = headers }, nil, tostring(request))
-	-- 	if ( http_resp.status ~= 200 ) then
-	-- 		return false, "Unexpected response from server"
-	-- 	end
-	-- 
-	-- 	local response = ipp.IPP.Response.parse(http_resp.body)
-	-- 	
-	-- end,
+	getQueueInfo = function(self, uri)
+		local uri = uri or ("ipp://%s/"):format(self.host.ip)
+	
+		local attribs = {
+			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
+			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en-us"),
+			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_URI, "printer-uri", uri),
+			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_KEYWORD, "requested-attributes", {
+				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-host-name"},
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "com.apple.print.JobInfo.PMJobName"},
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "com.apple.print.JobInfo.PMJobOwner"},
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-id" },
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-k-octets" },
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-name" },
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-state" },
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "printer-uri" },
+				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
+				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-state-message" },
+				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-uri" },
+				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
+			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_KEYWORD, "which-jobs", "not-completed" )
+		}
+	
+		local ag = IPP.AttributeGroup:new(ipp.IPP.Attribute.IPP_TAG_OPERATION, attribs)
+		local request = IPP.Request:new(IPP.OperationID.IPP_GET_JOBS, 1)
+		request:addAttributeGroup(ag)
+	
+		local status, response = HTTP.Request( self.host, self.port, tostring(request) )
+		if ( not(response) ) then
+			return status, response
+		end
+		
+		local results = {}
+		for _, ag in ipairs(response:getAttributeGroups(ipp.IPP.Attribute.IPP_TAG_JOB)) do
+			local uri = ag:getAttributeValue("printer-uri")
+			local printer = uri:match(".*/(.*)$") or "Unknown"
+			-- some jobs have mutlitple state attributes, so far the ENUM ones have been correct
+			local state = ag:getAttributeValue("job-state", IPP.Attribute.IPP_TAG_ENUM) or ag:getAttributeValue("job-state")
+			-- some jobs have multiple id tag, so far the INTEGER type have shown the correct ID
+			local id = ag:getAttributeValue("job-id", IPP.Attribute.IPP_TAG_INTEGER) or ag:getAttributeValue("job-id")
+			local attr = ag:getAttribute("time-at-creation")
+			local tm = ag:getAttributeValue("time-at-creation")
+			local size = ag:getAttributeValue("job-k-octets") .. "k"
+			local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName") or "Unknown"
+			local owner = ag:getAttributeValue("com.apple.print.JobInfo.PMJobOwner") or "Unknown"
+			
+			results[printer] = results[printer] or {}
+			table.insert(results[printer], {
+				id = id, 
+				time = os.date("%Y-%m-%d %H:%M:%S", tm),
+				state = ( IPP.StateName[tonumber(state)] or "Unknown" ),
+				size = size,
+				owner = owner,
+				jobname = jobname })			
+		end
+		
+		local output = {}
+		for name, entries in pairs(results) do			
+			local t = tab.new(5)
+			tab.addrow(t, "id", "time", "state", "size (kb)", "owner", "jobname")
+			for _, entry in ipairs(entries) do
+				tab.addrow(t, entry.id, entry.time, entry.state, entry.size, entry.owner, entry.jobname)
+			end
+			if ( 1<#t ) then
+				table.insert(output, { name = name, tab.dump(t) })
+			end
+		end
+		
+		return output
+	end,
 	
 	close = function(self)
 		return self.socket:close()

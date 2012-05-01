@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script cups-queue-info that lists the contents of a remote
+  CUPS printer queue. [Patrik Karlsson]
+
 o [NSE] Added the script ip-forwarding that detects devices that have IP
   forwarding enabled (acting as routers). [Patrik Karlsson]
 

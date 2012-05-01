@@ -51,6 +51,7 @@ Entry { filename = "couchdb-databases.nse", categories = { "discovery", "safe", 
 Entry { filename = "couchdb-stats.nse", categories = { "discovery", "safe", } }
 Entry { filename = "creds-summary.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "cups-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "cups-queue-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "cvs-brute-repository.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cvs-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
