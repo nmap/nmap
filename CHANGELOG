@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script ip-forwarding that detects devices that have IP
+  forwarding enabled (acting as routers). [Patrik Karlsson]
+
 o [NSE] Added the script samba-vuln-cve-2012-1182 which detects the SAMBA CVE
   2012-1182 vulnerability. [Aleksandar Nikolic]
 

@@ -175,6 +175,7 @@ Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } 
 Entry { filename = "informix-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "informix-query.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "informix-tables.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ip-forwarding.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ip-geolocation-geobytes.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-geoplugin.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "external", "safe", } }
