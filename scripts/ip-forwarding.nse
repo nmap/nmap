@@ -43,12 +43,23 @@ local ipops  = require('ipOps')
 local tab    = require('tab')
 local packet = require('packet')
 
+local function format_mac(mac)
+	local octets
+
+	octets = {}
+	for _, v in ipairs({ string.byte(mac, 1, #mac) }) do
+		octets[#octets + 1] = string.format("%02x", v)
+	end
+
+	return stdnse.strjoin(":", octets)
+end
+
 icmpEchoRequest = function(ifname, host, addr)
 	local iface = nmap.get_interface_info(ifname)
 	local dnet, pcap = nmap.new_dnet(), nmap.new_socket()
 
 	pcap:set_timeout(5000)
-	pcap:pcap_open(iface.device, 128, false, ("icmp and ( icmp[0] = 0 or icmp[0] = 5 ) and dst %s"):format(iface.address))
+	pcap:pcap_open(iface.device, 128, false, ("ether src %s and icmp and ( icmp[0] = 0 or icmp[0] = 5 ) and dst %s"):format(format_mac(host.mac_addr), iface.address))
 	dnet:ethernet_open(iface.device)
 	
 	local probe = packet.Frame:new()
