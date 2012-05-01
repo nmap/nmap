@@ -8338,6 +8338,8 @@ match printer m|^Invalid protocol request \(71\): GGET / HTTP/1\.0\r\n\n$| p/Sun
 
 match zftp-admin m|^220 \.\r\n500 ' / HTTP/1\.0': command not understood\.\r\n| p/zFTPServer ftpd admin/
 
+match mmouse m|^HTTP/1\.0\x20200\x20OK\x20\n\x20Server:\x20Mobile\x20Air\x20Mouse\x20Server\x20\n\x20Content-Type:\x20text/html\x20\n\x20Content-Length:\x20344\n\n<HTML><HEAD><TITLE>Success!</TITLE><meta\x20name=\"viewport\"\x20content=\"width=device-width,user-scalable=no\"\x20/></HEAD><BODY\x20BGCOLOR=#000000><br><br><p\x20style=\"font:12pt\x20arial,geneva,sans-serif;\x20text-align:center;\x20color:green;\x20font-weight:bold;\"\x20>The\x20Mobile\x20Air\x20Mouse\x20server\x20running\x20on\x20\"([^\"]*)\"\x20was\x20able\x20to\x20receive\x20your\x20request\.</p></BODY></HTML>$| i/server name: $1/
+
 # Know the device, but not the service. Port 515.
 # match unknown m|^\x02| p/Conceptronics CPSERVU print server/ d/print server/
 

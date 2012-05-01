@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script mmouse-exec that connects to a Mobile Mouse server,
+  starts an application, and sends a sequence of keystrokes to it. [Patrik
+  Karlsson]
+
+o [NSE] Added the script mmouse-brute that performs brute force password
+  auditing against the Mobile Mouse service. [Patrik Karlsson]
+
 o [NSE] Added the script cups-queue-info that lists the contents of a remote
   CUPS printer queue. [Patrik Karlsson]
 

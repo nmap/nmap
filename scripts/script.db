@@ -202,6 +202,8 @@ Entry { filename = "membase-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "membase-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "memcached-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "metasploit-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "mmouse-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "mmouse-exec.nse", categories = { "intrusive", } }
 Entry { filename = "modbus-discover.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mongodb-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
