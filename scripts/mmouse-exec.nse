@@ -2,6 +2,13 @@ description = [[
 Connects to the mobile mouse server, starts an application and sends a sequence
 of keys to it. Any application that the user has access to can be started and
 the key sequence is sent to the application after it has been started.
+
+The Mobile Mouse server runs on OS X, Windows and Linux and enables remote
+control of the keyboard and mouse from an iOS device. For more information:
+http://mobilemouse.com/
+
+The script has only been tested against OS X and will detect the remote OS
+and abort unless the OS is detected as Mac.
 ]]
 
 ---
