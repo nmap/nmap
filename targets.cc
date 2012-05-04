@@ -105,6 +105,7 @@
 #include "nmap_dns.h"
 #include "nmap_tty.h"
 #include "utils.h"
+#include "xml.h"
 using namespace std;
 extern NmapOps o;
 
@@ -309,6 +310,18 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
   return false;
 }
 
+/* Add a <target> element to the XML stating that a target specification was
+   ignored. This can be because of, for example, a DNS resolution failure, or a
+   syntax error. */
+static void log_bogus_target(const char *expr) {
+  xml_open_start_tag("target");
+  xml_attribute("specification", "%s", expr);
+  xml_attribute("status", "skipped");
+  xml_attribute("reason", "invalid");
+  xml_close_empty_tag();
+  xml_newline();
+}
+
 Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
                  struct scan_lists *ports, int pingtype) {
   int i;
@@ -400,7 +413,9 @@ Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
       while (hs->next_expression < hs->num_expressions) {
         const char *expr;
         expr = hs->target_expressions[hs->next_expression++];
-        if (hs->current_expression.parse_expr(expr, o.af()) == 0)
+        if (hs->current_expression.parse_expr(expr, o.af()) != 0)
+          log_bogus_target(expr);
+        else
           break;
       }
     } else break;

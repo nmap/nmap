@@ -72,7 +72,7 @@
      It represents to the topmost element of the output document.
 -->
 <!ELEMENT nmaprun      (scaninfo*, verbose, debugging,
-                        ( taskbegin | taskprogress | taskend |
+                        ( target | taskbegin | taskprogress | taskend |
                             prescript | postscript | host | output)*,
                             runstats) >
 <!ATTLIST nmaprun
@@ -102,6 +102,12 @@
 
 <!ELEMENT debugging 	EMPTY >
 <!ATTLIST debugging	level		%attr_numeric;	#IMPLIED >
+
+<!ELEMENT target	EMPTY >
+<!ATTLIST target	specification	CDATA		#REQUIRED
+			status		(skipped)	#IMPLIED
+			reason		(invalid)	#IMPLIED
+>
 
 <!-- this element is written in timing.c:beginOrEndTask() -->
 <!ELEMENT taskbegin	EMPTY >
