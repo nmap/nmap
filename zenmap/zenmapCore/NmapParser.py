@@ -199,20 +199,15 @@ class HostInfo(object):
         return self._osmatches
 
     def get_best_osmatch(self):
-        """Return the OS match with the highest accuracy. If there is a tie, one
-        of the best matches will be returned."""
+        """Return the OS match with the highest accuracy."""
         if not self._osmatches:
             return None
         def osmatch_key(osmatch):
-            # Sort first by accuracy, then by name so it's deterministic.
             try:
-                accuracy = float(osmatch.get("accuracy", ""))
+                return -float(osmatch["accuracy"])
             except ValueError:
-                accuracy = 0
-            return (accuracy, osmatch.get("name"))
-        osmatches = self.osmatches[:]
-        osmatches.sort(cmp = lambda a, b: cmp(osmatch_key(a), osmatch_key(b)))
-        return osmatches[-1]
+                return 0
+        return sorted(self._osmatches, key = osmatch_key)[0]
 
 
     # ports_used is a list like
