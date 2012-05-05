@@ -621,6 +621,8 @@ void parse_options(int argc, char **argv) {
       {"system-dns", no_argument, 0, 0},
       {"log_errors", no_argument, 0, 0},
       {"log-errors", no_argument, 0, 0},
+      {"deprecated_xml_osclass", no_argument, 0, 0},
+      {"deprecated-xml-osclass", no_argument, 0, 0},
       {"dns_servers", required_argument, 0, 0},
       {"dns-servers", required_argument, 0, 0},
       {"port-ratio", required_argument, 0, 0},
@@ -832,6 +834,8 @@ void parse_options(int argc, char **argv) {
         o.dns_servers = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
         o.log_errors = 1;
+      } else if (optcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
+        o.deprecated_xml_osclass = true;
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
         o.setXSLStyleSheet("http://nmap.org/svn/docs/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
@@ -1634,7 +1638,7 @@ int nmap_main(int argc, char *argv[]) {
   xml_attribute("start", "%lu", (unsigned long) timep);
   xml_attribute("startstr", "%s", mytime);
   xml_attribute("version", "%s", NMAP_VERSION);
-  xml_attribute("xmloutputversion", "1.03");
+  xml_attribute("xmloutputversion", "1.04");
   xml_close_start_tag();
   xml_newline();
 

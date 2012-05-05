@@ -320,7 +320,13 @@ class NmapOps {
   bool mass_dns;
   int resolve_all;
   char *dns_servers;
+
+  // Logging options
   bool log_errors;
+  // If true, write <os><osclass/><osmatch/></os> as in xmloutputversion 1.03
+  // rather than <os><osmatch><osclass/></osmatch></os> as in 1.04 and later.
+  bool deprecated_xml_osclass;
+
   bool traceroute;
   bool reason;
   bool adler32;

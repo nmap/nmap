@@ -1322,7 +1322,19 @@ static void write_xml_osmatch(const FingerMatch *match, double accuracy) {
   xml_attribute("name", "%s", match->OS_name);
   xml_attribute("accuracy", "%d", (int) (accuracy * 100));
   xml_attribute("line", "%d", match->line);
-  xml_close_empty_tag();
+  /* When o.deprecated_xml_osclass is true, we don't write osclass elements as
+     children of osmatch but rather as unrelated siblings. */
+  if (match->OS_class.empty() || o.deprecated_xml_osclass) {
+    xml_close_empty_tag();
+  } else {
+    unsigned int i;
+
+    xml_close_start_tag();
+    xml_newline();
+    for (i = 0; i < match->OS_class.size(); i++)
+      write_xml_osclass(&match->OS_class[i], accuracy);
+    xml_end_tag();
+  }
   xml_newline();
 }
 
@@ -1485,9 +1497,10 @@ static void printosclassificationoutput(const struct
 
   if (OSR->overall_results == OSSCAN_SUCCESS) {
 
-    /* Print the OS Classification results to XML output */
-    for (classno = 0; classno < OSR->OSC_num_matches; classno++)
-      write_xml_osclass(OSR->OSC[classno], OSR->OSC_Accuracy[classno]);
+    if (o.deprecated_xml_osclass) {
+      for (classno = 0; classno < OSR->OSC_num_matches; classno++)
+        write_xml_osclass(OSR->OSC[classno], OSR->OSC_Accuracy[classno]);
+    }
 
     // Now to create the fodder for normal output
     for (classno = 0; classno < OSR->OSC_num_matches; classno++) {

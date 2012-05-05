@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o In XML output, <osclass> elements are now child elements of the
+  <osmatch> they belong to. Old output was thus:
+    <os><osclass/><osclass/>...<osmatch/><osmatch/>...</os>
+  New output is:
+    <os><osmatch><osclass/><osclass/>...</osmatch>...</os>
+  The option --deprecated-xml-osclass restores the old output, in case
+  you use an Nmap XML parser that doesn't understand the new
+  structure. The xmloutputversion has been increased to 1.04.
+
 o Added a new <target> element to XML output that indicates when a
   target specification was ignored, perhaps because of a syntax error
   or DNS failure. It looks like this:

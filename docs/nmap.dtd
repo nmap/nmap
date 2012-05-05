@@ -235,7 +235,7 @@
 	output	CDATA	#REQUIRED
 >
 
-<!ELEMENT os		( portused* , osclass*, osmatch*, osfingerprint* ) >
+<!ELEMENT os		( portused* , osmatch*, osfingerprint* ) >
 
 <!ELEMENT portused	EMPTY >
 <!ATTLIST portused
@@ -253,7 +253,7 @@
 >
 
 
-<!ELEMENT osmatch	EMPTY >
+<!ELEMENT osmatch	(osclass*) >
 <!ATTLIST osmatch
 			name		CDATA		#REQUIRED
 			accuracy	%attr_numeric;	#REQUIRED
