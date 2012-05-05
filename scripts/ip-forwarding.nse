@@ -101,6 +101,10 @@ action = function(host)
 		target = arg_target
 	end
 	
+	if ( target == host.ip ) then
+		return ("\n  ERROR: Target can not be the same as the scanned host")
+	end
+	
 	if (icmpEchoRequest(ifname, host, target)) then
 		return ("\n  The host has ip forwarding enabled, tried ping against (%s)"):format(arg_target)
 	end
