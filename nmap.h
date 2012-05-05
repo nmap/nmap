@@ -239,6 +239,8 @@ void *realloc();
    earlier) than NMAP_VERSION. */
 #define NMAP_UPDATE_CHANNEL "5.61TEST4"
 
+#define NMAP_XMLOUTPUTVERSION "1.04"
+
 /* User configurable #defines: */
 #define MAX_PROBE_PORTS 10     /* How many TCP probe ports are allowed ? */
 /* Default number of ports in parallel.  Doesn't always involve actual 

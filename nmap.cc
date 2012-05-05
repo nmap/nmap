@@ -1638,7 +1638,7 @@ int nmap_main(int argc, char *argv[]) {
   xml_attribute("start", "%lu", (unsigned long) timep);
   xml_attribute("startstr", "%s", mytime);
   xml_attribute("version", "%s", NMAP_VERSION);
-  xml_attribute("xmloutputversion", "1.04");
+  xml_attribute("xmloutputversion", NMAP_XMLOUTPUTVERSION);
   xml_close_start_tag();
   xml_newline();
 
