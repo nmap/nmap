@@ -258,7 +258,7 @@ class ServicesPage(gtk.Notebook):
 
             for key in port['service']:
 
-                if key in ['servicefp', 'extrainfo']:
+                if key in ['servicefp']:
 
                     text = _('[%d] service: %s') % (port['id'], key)
 
