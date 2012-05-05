@@ -1292,6 +1292,40 @@ static void write_xml_initial_hostinfo(Target *currenths,
   log_flush_all();
 }
 
+static void write_xml_osclass(const OS_Classification *osclass, double accuracy) {
+  xml_open_start_tag("osclass");
+  xml_attribute("type", "%s", osclass->Device_Type);
+  xml_attribute("vendor", "%s", osclass->OS_Vendor);
+  xml_attribute("osfamily", "%s", osclass->OS_Family);
+  // Because the OS_Generation field is optional.
+  if (osclass->OS_Generation)
+    xml_attribute("osgen", "%s", osclass->OS_Generation);
+  xml_attribute("accuracy", "%d", (int) (accuracy * 100));
+  if (osclass->cpe.empty()) {
+    xml_close_empty_tag();
+  } else {
+    unsigned int i;
+
+    xml_close_start_tag();
+    for (i = 0; i < osclass->cpe.size(); i++) {
+      xml_start_tag("cpe");
+      xml_write_escaped("%s", osclass->cpe[i]);
+      xml_end_tag();
+    }
+    xml_end_tag();
+  }
+  xml_newline();
+}
+
+static void write_xml_osmatch(const FingerMatch *match, double accuracy) {
+  xml_open_start_tag("osmatch");
+  xml_attribute("name", "%s", match->OS_name);
+  xml_attribute("accuracy", "%d", (int) (accuracy * 100));
+  xml_attribute("line", "%d", match->line);
+  xml_close_empty_tag();
+  xml_newline();
+}
+
 /* Convert a number to a string, keeping the given number of significant digits.
    The result is returned in a static buffer. */
 static char *num_to_string_sigdigits(double d, int digits) {
@@ -1452,28 +1486,8 @@ static void printosclassificationoutput(const struct
   if (OSR->overall_results == OSSCAN_SUCCESS) {
 
     /* Print the OS Classification results to XML output */
-    for (classno = 0; classno < OSR->OSC_num_matches; classno++) {
-      xml_open_start_tag("osclass");
-      xml_attribute("type", "%s", OSR->OSC[classno]->Device_Type);
-      xml_attribute("vendor", "%s", OSR->OSC[classno]->OS_Vendor);
-      xml_attribute("osfamily", "%s", OSR->OSC[classno]->OS_Family);
-      // Because the OS_Generation filed is optional
-      if (OSR->OSC[classno]->OS_Generation)
-        xml_attribute("osgen", "%s", OSR->OSC[classno]->OS_Generation);
-      xml_attribute("accuracy", "%d", (int) (OSR->OSC_Accuracy[classno] * 100));
-      if (OSR->OSC[classno]->cpe.empty()) {
-        xml_close_empty_tag();
-      } else {
-        xml_close_start_tag();
-        for (i = 0; i < OSR->OSC[classno]->cpe.size(); i++) {
-          xml_start_tag("cpe");
-          xml_write_escaped("%s", OSR->OSC[classno]->cpe[i]);
-          xml_end_tag();
-        }
-        xml_end_tag();
-      }
-      xml_newline();
-    }
+    for (classno = 0; classno < OSR->OSC_num_matches; classno++)
+      write_xml_osclass(OSR->OSC[classno], OSR->OSC_Accuracy[classno]);
 
     // Now to create the fodder for normal output
     for (classno = 0; classno < OSR->OSC_num_matches; classno++) {
@@ -1829,14 +1843,8 @@ void printosscanoutput(Target *currenths) {
     /* Success, not too many perfect matches. */
     if (FPR->num_perfect_matches > 0) {
       /* Some perfect matches. */
-      for (i = 0; i < FPR->num_perfect_matches; i++) {
-        xml_open_start_tag("osmatch");
-        xml_attribute("name", "%s", FPR->matches[i]->OS_name);
-        xml_attribute("accuracy", "%d", (int) (FPR->accuracy[i] * 100));
-        xml_attribute("line", "%d", FPR->matches[i]->line);
-        xml_close_empty_tag();
-        xml_newline();
-      }
+      for (i = 0; i < FPR->num_perfect_matches; i++)
+        write_xml_osmatch(FPR->matches[i], FPR->accuracy[i]);
 
       log_write(LOG_MACHINE, "\tOS: %s", FPR->matches[0]->OS_name);
       for (i = 1; i < FPR->num_perfect_matches; i++)
@@ -1857,14 +1865,8 @@ void printosscanoutput(Target *currenths) {
 
       if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
         /* Print the best guesses available */
-        for (i = 0; i < 10 && i < FPR->num_matches && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
-          xml_open_start_tag("osmatch");
-          xml_attribute("name", "%s", FPR->matches[i]->OS_name);
-          xml_attribute("accuracy", "%d", (int) (FPR->accuracy[i] * 100));
-          xml_attribute("line", "%d", FPR->matches[i]->line);
-          xml_close_empty_tag();
-          xml_newline();
-        }
+        for (i = 0; i < 10 && i < FPR->num_matches && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++)
+          write_xml_osmatch(FPR->matches[i], FPR->accuracy[i]);
 
         log_write(LOG_PLAIN, "Aggressive OS guesses: %s (%.f%%)",
                   FPR->matches[0]->OS_name, floor(FPR->accuracy[0] * 100));
