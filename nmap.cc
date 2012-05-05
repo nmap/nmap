@@ -1366,10 +1366,6 @@ void  apply_delayed_options() {
       log_write(LOG_STDOUT|LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
     }
   }
-  if (delayed_options.iflist) {
-    print_iflist();
-    exit(0);
-  }
 
 #ifndef NOLUA
   if (o.scripthelp) {
@@ -1565,6 +1561,11 @@ int nmap_main(int argc, char *argv[]) {
 #ifdef WIN32
   win_init();
 #endif
+
+  if (delayed_options.iflist) {
+    print_iflist();
+    exit(0);
+  }
 
   /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
   if (o.quashargv) {
