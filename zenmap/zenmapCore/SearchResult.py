@@ -148,15 +148,14 @@ class HostSearch(object):
         os = os.lower()
         os_str = ""
 
-        osclasses = host.get_osclasses()
         osmatches = host.get_osmatches()
 
-        for osclass in osclasses:
-            os_str += osclass['vendor'].lower() + " " +\
-                      osclass['osfamily'].lower() + " " +\
-                      osclass['type'].lower()
         for osmatch in osmatches:
             os_str += osmatch['name'].lower()
+            for osclass in osmatch['osmatches']:
+                os_str += osclass['vendor'].lower() + " " +\
+                          osclass['osfamily'].lower() + " " +\
+                          osclass['type'].lower()
 
         if os in os_str:
             return True
@@ -566,7 +565,6 @@ if __name__ == "__main__":
                              #port_filtered="",
                              #port_closed="",
                              #service="",
-                             #osclass="Microsoft | Windows | 95/98/ME | General Purpose",
                              #osmatch="gentoo",
                              #product="Apache"\
 #                           ):

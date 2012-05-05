@@ -125,11 +125,20 @@ class TracerouteHostInfo(object):
         self.hostname = None
         self.ports = []
         self.extraports = []
-        self.osclasses = []
         self.osmatches = []
 
     def get_hostname(self):
         return self.hostname
+
+    def get_best_osmatch(self):
+        if not self.osmatches:
+            return None
+        def osmatch_key(osmatch):
+            try:
+                return -float(osmatch["accuracy"])
+            except ValueError:
+                return 0
+        return sorted(self.osmatches, key = osmatch_key)[0]
 
     hostnames = property(lambda self: self.hostname and [self.hostname] or [])
 

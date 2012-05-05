@@ -140,7 +140,6 @@ class HostDetails(HIGVBox):
         os = host.get_best_osmatch()
         if os:
             os['portsused'] = host.get_ports_used()
-            os['osclass'] = host.get_osclasses()
 
         self.set_os(os)
         self.set_tcpseq(host.get_tcpsequence())
@@ -154,7 +153,7 @@ class HostDetails(HIGVBox):
         self.hostnames_expander = gtk.Expander('<b>'+_('Hostnames')+'</b>')
         self.os_expander = gtk.Expander('<b>'+_('Operating System')+'</b>')
         self.portsused_expander = gtk.Expander('<b>'+_('Ports used')+'</b>')
-        self.osclass_expander = gtk.Expander('<b>'+_('OS Class')+'</b>')
+        self.osclass_expander = gtk.Expander('<b>'+_('OS Classes')+'</b>')
         self.tcp_expander = gtk.Expander('<b>'+_('TCP Sequence')+'</b>')
         self.ip_expander = gtk.Expander('<b>'+_('IP ID Sequence')+'</b>')
         self.tcpts_expander = gtk.Expander('<b>'+_('TCP TS Sequence')+'</b>')
@@ -368,7 +367,7 @@ class HostDetails(HIGVBox):
             except:pass
 
             try:
-                self.set_osclass(os['osclass'])
+                self.set_osclass(os['osclasses'])
                 self.osclass_expander.set_use_markup(True)
                 table.attach(self.osclass_expander,0,2,y1,y2)
             except:pass

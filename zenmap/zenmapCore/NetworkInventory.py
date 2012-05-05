@@ -257,8 +257,7 @@ class NetworkInventory(object):
         # OS detection fields
         # Replace old_host's OS detection fields with new_host's if old_host has no
         # OS detection info or new_host's info is newer.
-        if len(new_host.osclasses) > 0 and (len(old_host.osclasses) == 0 or old_date < new_date):
-            old_host.osclasses = new_host.osclasses
+        if len(new_host.osmatches) > 0 and (len(old_host.osmatches) == 0 or old_date < new_date):
             old_host.osmatches = new_host.osmatches
             old_host.ports_used = new_host.ports_used
 
@@ -633,7 +632,6 @@ if __name__ == "__main__":
             #for port in host.ports:
             #    print "  %s: %s" % (port["portid"], port["port_state"])
             #print "  OS matches: %s" % host.osmatches
-            #print "  OS classes: %s" % host.osclasses
             #print "  Ports used: %s" % host.ports_used
             #print "  Trace: %s" % host.trace
             #if "hops" in host.trace:

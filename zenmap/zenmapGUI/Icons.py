@@ -148,8 +148,11 @@ if pixmap_path:
     iconfactory.add_default()
 
 def get_os_icon(host):
-    osclass = host.get_best_osclass()
     osmatch = host.get_best_osmatch()
+    if osmatch and osmatch['osclasses']:
+        osclass = osmatch['osclasses'][0]
+    else:
+        osclass = None
 
     if osclass and osmatch:
         return get_os(osclass['osfamily'], osmatch['name'], 'icon')
@@ -157,8 +160,11 @@ def get_os_icon(host):
         return get_os(None, None, 'icon')
 
 def get_os_logo(host):
-    osclass = host.get_best_osclass()
     osmatch = host.get_best_osmatch()
+    if osmatch and osmatch['osclasses']:
+        osclass = osmatch['osclasses'][0]
+    else:
+        osclass = None
 
     if osclass and osmatch:
         return get_os(osclass['osfamily'], osmatch['name'], 'logo')

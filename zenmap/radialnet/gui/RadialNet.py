@@ -1851,28 +1851,18 @@ class NetNode(Node):
                 if host.uptime.get("seconds") or host.uptime.get("lastboot"):
                     return host.uptime
             elif info == "device_type":
-                if len(host.osclasses) == 0:
+                osmatch = host.get_best_osmatch()
+                if osmatch is None:
+                    return None
+                osclasses = osmatch['osclasses']
+                if len(osclasses) == 0:
                     return None
                 types = ["router", "wap", "switch", "firewall"]
                 for type in types:
-                    if type in host.osclasses[0].get("type", "").lower():
+                    if type in osclasses[0].get("type", "").lower():
                         return type
             elif info == "os":
                 os = {}
-
-                os_classes = []
-                for osclass in host.osclasses:
-                    os_class = {}
-
-                    os_class["type"] = osclass.get("type", "")
-                    os_class["vendor"] = osclass.get("vendor", "")
-                    #os_class["accuracy"] = int(osclass.get("accuracy", ""))
-                    os_class["accuracy"] = osclass.get("accuracy", "")
-                    os_class["os_family"] = osclass.get("osfamily", "")
-                    os_class["os_gen"] = osclass.get("osgen", "")
-
-                    os_classes.append(os_class)
-                os["classes"] = os_classes
 
                 # osmatches
                 if len(host.osmatches) > 0 and \
@@ -1882,6 +1872,20 @@ class NetNode(Node):
                         os = {}
                     os["matches"] = host.osmatches
                     os["matches"][0]["db_line"] = 0     # not supported
+
+                    os_classes = []
+                    for osclass in host.osmatches[0]["osclasses"]:
+                        os_class = {}
+
+                        os_class["type"] = osclass.get("type", "")
+                        os_class["vendor"] = osclass.get("vendor", "")
+                        #os_class["accuracy"] = int(osclass.get("accuracy", ""))
+                        os_class["accuracy"] = osclass.get("accuracy", "")
+                        os_class["os_family"] = osclass.get("osfamily", "")
+                        os_class["os_gen"] = osclass.get("osgen", "")
+
+                        os_classes.append(os_class)
+                    os["classes"] = os_classes
 
                 # ports_used
                 if len(host.ports_used) > 0:
