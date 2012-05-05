@@ -108,7 +108,7 @@ xml_end_tag();                         |</elem>|
 
 The typical use is to call xml_open_start_tag, then call xml_attribute a
 number of times. That is followed by xml_close_empty_tag, or else
-xml_close_start_tag followed by xml_end_tag later one. You can call
+xml_close_start_tag followed by xml_end_tag later on. You can call
 xml_start_tag if there are no attributes. Whenever a start tag is opened
 with xml_open_start_tag or xml_start_tag, the element name is pushed on
 the tag stack. xml_end_tag pops the element stack and closes the element
