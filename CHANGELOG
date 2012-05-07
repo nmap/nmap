@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-tellstick-discover, which discovers Telldus
+  Technologies TellStickNet devices on the LAN. [Patrik Karlsson]
+
 o [NSE] Added the Apache JServer Protocol (AJP) library and the scripts
   ajp-methods, ajp-headers and ajp-auth. [Patrik Karlsson]
 

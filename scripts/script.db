@@ -38,6 +38,7 @@ Entry { filename = "broadcast-pppoe-discover.nse", categories = { "broadcast", "
 Entry { filename = "broadcast-rip-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ripng-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-sybase-asa-discover.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-tellstick-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-versant-locate.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wake-on-lan.nse", categories = { "broadcast", "safe", } }
