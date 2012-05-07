@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the Apache JServer Protocol (AJP) library and the scripts
+  ajp-methods, ajp-headers and ajp-auth. [Patrik Karlsson]
+
 o In XML output, <osclass> elements are now child elements of the
   <osmatch> they belong to. Old output was thus:
     <os><osclass/><osclass/>...<osmatch/><osmatch/>...</os>
