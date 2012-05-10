@@ -207,7 +207,21 @@ _refresh_tables(intf_t *intf)
 	ULONG len;
 
 	p = NULL;
-	len = 2;
+	/* GetAdaptersAddresses is supposed to return ERROR_BUFFER_OVERFLOW and
+	 * set len to the required size when len is too small. So normally we
+	 * would call the function once with a small len, and then again with
+	 * the longer len. But, on Windows 2003, apparently you only get
+	 * ERROR_BUFFER_OVERFLOW the *first* time you call the function with a
+	 * too-small len--the next time you get ERROR_INVALID_PARAMETER. So this
+	 * function would fail the second and later times it is called.
+	 *
+	 * So, make the first call using a large len. On Windows 2003, this will
+	 * work the first time as long as there are not too many adapters. (It
+	 * will still fail with ERROR_INVALID_PARAMETER if there are too many
+	 * adapters, but this will happen infrequently because of the large
+	 * buffer.) Other systems that always return ERROR_BUFFER_OVERFLOW when
+	 * appropriate will enlarge the buffer if the initial len is too short. */
+	len = 16384;
 	do {
 		free(p);
 		p = malloc(len);
