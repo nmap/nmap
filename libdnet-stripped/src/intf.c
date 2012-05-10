@@ -904,7 +904,10 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 
 	/* http://www.unix.com/man-page/opensolaris/7p/if_tcp */
 	intf->lifc.lifc_family = AF_UNSPEC;
-	intf->lifc.lifc_flags = LIFC_UNDER_IPMP;
+	intf->lifc.lifc_flags = 0;
+#ifdef LIFC_UNDER_IPMP
+	intf->lifc.lifc_flags |= LIFC_UNDER_IPMP;
+#endif
 	intf->lifc.lifc_buf = (caddr_t)intf->ifcbuf;
 	intf->lifc.lifc_len = sizeof(intf->ifcbuf);
 	
