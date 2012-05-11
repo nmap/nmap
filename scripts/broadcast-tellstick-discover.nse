@@ -1,5 +1,7 @@
 description=[[
-Discovers Telldus Technologies TellStickNet devices on the LAN.
+Discovers Telldus Technologies TellStickNet devices on the LAN. The Telldus
+TellStick is used to wirelessly control electric devices such as lights,
+dimmers and electric outlets. For more information: http://www.telldus.com/
 ]]
 
 ---
