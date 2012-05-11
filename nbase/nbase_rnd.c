@@ -272,7 +272,7 @@ unsigned short get_random_ushort() {
  * if you get enough IPs (birthday paradox).
  *
  * This routine exploits the fact that a LCG won't repeat for the
- * entire duration of it's period.  An LCG has some pretty bad
+ * entire duration of its period.  An LCG has some pretty bad
  * properties though so this routine does extra work to try to
  * tweak the LCG output so that is has very good statistics but
  * doesn't repeat.  The tweak used was mostly made up on the spot
