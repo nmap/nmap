@@ -108,7 +108,7 @@ intf_flags_to_iff(u_short flags, int iff)
 }
 
 static u_int
-intf_iff_to_flags(int iff)
+intf_iff_to_flags(uint64_t iff)
 {
 	u_int n = 0;
 
@@ -124,6 +124,12 @@ intf_iff_to_flags(int iff)
 		n |= INTF_FLAG_BROADCAST;
 	if (iff & IFF_MULTICAST)
 		n |= INTF_FLAG_MULTICAST;
+#ifdef IFF_IPMP
+	/* Unset the BROADCAST and MULTICAST flags from Solaris IPMP interfaces,
+	 * otherwise _intf_set_type will think they are INTF_TYPE_ETH. */
+	if (iff & IFF_IPMP)
+		n &= ~(INTF_FLAG_BROADCAST | INTF_FLAG_MULTICAST);
+#endif
 
 	return (n);
 }
