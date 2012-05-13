@@ -136,7 +136,7 @@ AJP = {
 
 			-- add host header if it's missing
 			if ( not(self.headers['host']) ) then
-				self.headers['host'] = self.host.ip
+				self.headers['host'] = stdnse.get_hostname(self.host)
 			end
 			
 			-- add keep-alive connection header if missing
