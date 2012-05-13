@@ -418,7 +418,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	 * the ioctls gives ENXIO on Solaris. */
 	if (ioctl(intf->fd, SIOCGLIFFLAGS, &lifr) >= 0)
 		fd = intf->fd;
-	else if (intf->fd6 == -1 || ioctl(intf->fd6, SIOCGLIFFLAGS, &lifr) >= 0)
+	else if (intf->fd6 != -1 && ioctl(intf->fd6, SIOCGLIFFLAGS, &lifr) >= 0)
 		fd = intf->fd6;
 	else
 		return (-1);
