@@ -511,7 +511,7 @@ msgstr "Открыть результаты предыдущего сканир�
 
 #: zenmapGUI/MainWindow.py:231
 msgid "_Open Scan in This Window"
-msgstr "Открыть скнирование в этом окне"
+msgstr "Открыть сканирование в этом окне"
 
 #: zenmapGUI/MainWindow.py:233
 msgid "Append a saved scan to the list of scans in this window."
