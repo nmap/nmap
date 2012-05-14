@@ -8,15 +8,13 @@ o Make the release
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
-o In Nmap XML output, osclass (OS Classification) tags should be
-  children of osmatch (the human readable OS name line) rather than
-  having Nmap deduplicate all the osclasses and put them in as
-  siblings.  But this change might break some systems which utilize
-  Nmap XML output, so, along with this change, we need to introduce an
-  option such as --deprecated-osclass-xml to return the old behavior.
-  That option only needs to be documented in the CHANGELOG entry
-  referring to this change, and it should note that we're likely to
-  remove this option in a year or two.
+o For many years, the Nmap man page and online documentation has had
+  an "Inappropriate Usage" section which notes that "Nmap should never
+  be installed with special privileges (e.g. suid root) for security
+  reasons".  And of course Nmap's official installer would never
+  install Nmap that way.  While one would thinks that would be enough,
+  we might want to go even further and have Nmap detect when it is run
+  suid and print a security warning.
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
@@ -738,6 +736,16 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o In Nmap XML output, osclass (OS Classification) tags should be
+  children of osmatch (the human readable OS name line) rather than
+  having Nmap deduplicate all the osclasses and put them in as
+  siblings.  But this change might break some systems which utilize
+  Nmap XML output, so, along with this change, we need to introduce an
+  option such as --deprecated-osclass-xml to return the old behavior.
+  That option only needs to be documented in the CHANGELOG entry
+  referring to this change, and it should note that we're likely to
+  remove this option in a year or two.
 
 o Right now, when an IPv4 or IPv6 address seems bogus (such as 1.2.3
   or 2001::0 in IPv4 mode), we give a fatal error and abort the scan.
