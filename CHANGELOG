@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script dict-info, which retrieves information from a
+  DICT server, by issuing the SHOW SERVER command. [Patrik Karlsson]
+
 o [NSE] Added the script gkrellm-info, which displays information retrieved
   from the GKRellm monitoring service. [Patrik Karlsson]
 
