@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script gkrellm-info, which displays information retrieved
+  from the GKRellm monitoring service. [Patrik Karlsson]
+
 o [NSE] Added the script ajp-request, which adds support for creating custom
   Apache JServer Protocol requests. [Patrik Karlsson]
 

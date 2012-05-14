@@ -102,6 +102,7 @@ Entry { filename = "ftp-vsftpd-backdoor.nse", categories = { "exploit", "intrusi
 Entry { filename = "ftp-vuln-cve2010-4221.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ganglia-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "giop-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "gkrellm-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "gopher-ls.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "gpsd-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "hadoop-datanode-info.nse", categories = { "default", "discovery", "safe", } }
