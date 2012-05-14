@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script ajp-request, which adds support for creating custom
+  Apache JServer Protocol requests. [Patrik Karlsson]
+
+o [NSE] Added the script ajp-brute, which enables password brute force auditing
+  against the Apache JServ Protocol service. [Patrik Karlsson]
+
 o [NSE] Added the script broadcast-tellstick-discover, which discovers Telldus
   Technologies TellStickNet devices on the LAN. [Patrik Karlsson]
 
