@@ -7,6 +7,7 @@
 module(... or "ajp",package.seeall)
 
 local bin   = require('bin')
+local http  = require('http')
 local match = require('match')
 local url   = require('url')
 
@@ -213,7 +214,7 @@ AJP = {
 				pos, sh.status = bin.unpack(">S", data, pos)
 				pos, status_msg  = bin.unpack(">P", data, pos)
 				pos = pos + 1
-				sh['status-line'] = ("AJP1.3 %d %s"):format(sh.status, status_msg)
+				sh['status-line'] = ("AJP/1.3 %d %s"):format(sh.status, status_msg)
 								
 				pos, hdr_count = bin.unpack(">S", data, pos)
 								
@@ -342,7 +343,7 @@ Helper = {
 	-- @param opt 
 	-- @return o new Helper instance
 	new = function(self, host, port, opt)
-		local o = { host = host, port = port, opt = opt }
+		local o = { host = host, port = port, opt = opt or {} }
 		setmetatable(o, self)
         self.__index = self
        	return o
@@ -356,28 +357,73 @@ Helper = {
 		self.comm = Comm:new(self.host, self.port, self.opt)
 		return self.comm:connect()
 	end,
-
+	
+	getOption = function(self, options, key)
+	
+		-- first check options, then global self.opt
+		if ( options and options[key] ) then
+			return options[key]
+		elseif ( self.opt and self.opt[key] ) then
+			return self.opt[key]
+		end
+	
+	end,
+	
 	--- Sends an AJP request to the server
 	--
 	-- @param url string containing the URL to query
 	-- @param headers table containing optional headers
 	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
 	-- @return status true on succes, false on failure
 	-- @return response table (@see Comm.receive), or string containing error
 	--         message on failure
-	request = function(self, method, url, headers, attributes)
+	request = function(self, method, url, headers, attributes, options)
 		local status, lhost, lport, rhost, rport = self.comm.socket:get_info()
-		local options = {}
-		
-		if ( status ) then
-			options.raddr = rhost
+		if ( not(status) ) then
+			return false, "Failed to get socket information"
 		end
 				
-		local request = AJP.ForwardRequest:new(self.host, self.port, method, url, headers, attributes, options)
+		local request = AJP.ForwardRequest:new(self.host, self.port, method, url, headers, attributes, { raddr = rhost })
 		if ( not(self.comm:send(request)) ) then
 			return false, "Failed to send request to server"
 		end
-		return self.comm:receive()
+		local status, result = self.comm:receive()
+	
+		-- support Basic authentication
+		if ( status and result.status == 401 and result.headers['www-authenticate'] ) then
+			
+			local auth = self:getOption(options, "auth")
+			if ( not(auth) or not(auth.username) and not(auth.password) ) then
+				stdnse.print_debug(2, "No authentication information")
+				return status, result
+			end
+			
+			local challenges = http.parse_www_authenticate(result.headers['www-authenticate'])
+			local scheme
+			for _, challenge in ipairs(challenges or {}) do
+				if ( challenge and challenge.scheme and challenge.scheme:lower() == "basic") then
+					scheme = challenge.scheme:lower()
+					break
+				end
+			end
+						
+			if ( not(scheme) ) then
+				stdnse.print_debug(2, "Could not find a supported authentication scheme")
+			elseif ( "basic" ~= scheme ) then
+				stdnse.print_debug(2, "Unsupported authentication scheme: %s", scheme)
+			else
+				headers = headers or {}
+				headers["Authorization"] = ("Basic %s"):format(base64.enc(auth.username .. ":" .. auth.password))
+				request = AJP.ForwardRequest:new(self.host, self.port, method, url, headers, attributes, { raddr = rhost })
+				if ( not(self.comm:send(request)) ) then
+					return false, "Failed to send request to server"
+				end
+				status, result = self.comm:receive()
+			end
+			
+		end
+		return status, result
 	end,
 
 	--- Sends an AJP GET request to the server
@@ -385,11 +431,12 @@ Helper = {
 	-- @param url string containing the URL to query
 	-- @param headers table containing optional headers
 	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
 	-- @return status true on succes, false on failure
 	-- @return response table (@see Comm.receive), or string containing error
 	--         message on failure
-	get = function(self, url, headers, attributes)
-		return self:request("GET", url, headers, attributes)
+	get = function(self, url, headers, attributes, options)
+		return self:request("GET", url, headers, attributes, options)
 	end,
 	
 	--- Sends an AJP HEAD request to the server
@@ -397,11 +444,51 @@ Helper = {
 	-- @param url string containing the URL to query
 	-- @param headers table containing optional headers
 	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
 	-- @return status true on succes, false on failure
 	-- @return response table (@see Comm.receive), or string containing error
 	--         message on failure
-	head = function(self, url, headers, attributes)
-		return self:request("HEAD", url, headers, attributes)
+	head = function(self, url, headers, attributes, options)
+		return self:request("HEAD", url, headers, attributes, options)
+	end,
+	
+	--- Sends an AJP TRACE request to the server
+	--
+	-- @param url string containing the URL to query
+	-- @param headers table containing optional headers
+	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
+	-- @return status true on succes, false on failure
+	-- @return response table (@see Comm.receive), or string containing error
+	--         message on failure
+	trace = function(self, url, headers, attributes, options)
+		return self:request("TRACE", url, headers, attributes, options)
+	end,
+	
+	--- Sends an AJP PUT request to the server
+	--
+	-- @param url string containing the URL to query
+	-- @param headers table containing optional headers
+	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
+	-- @return status true on succes, false on failure
+	-- @return response table (@see Comm.receive), or string containing error
+	--         message on failure
+	put = function(self, url, headers, attributes, options)
+		return self:request("PUT", url, headers, attributes, options)
+	end,
+
+	--- Sends an AJP DELETE request to the server
+	--
+	-- @param url string containing the URL to query
+	-- @param headers table containing optional headers
+	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
+	-- @return status true on succes, false on failure
+	-- @return response table (@see Comm.receive), or string containing error
+	--         message on failure
+	delete = function(self, url, headers, attributes, options)
+		return self:request("DELETE", url, headers, attributes, options)
 	end,
 	
 	--- Sends an AJP OPTIONS request to the server
@@ -409,11 +496,12 @@ Helper = {
 	-- @param url string containing the URL to query
 	-- @param headers table containing optional headers
 	-- @param attributes table containing optional attributes
+	-- @param options table with request specific options
 	-- @return status true on succes, false on failure
 	-- @return response table (@see Comm.receive), or string containing error
 	--         message on failure
-	options = function(self, url, headers, attributes)
-		return self:request("OPTIONS", url, headers, attributes)
+	options = function(self, url, headers, attributes, options)
+		return self:request("OPTIONS", url, headers, attributes, options)
 	end,
 	
 	-- should only work against 127.0.0.1
