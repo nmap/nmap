@@ -123,6 +123,27 @@ o NSE WORK (potential work for the NSE GSoC folks -- note that this is
   o Review NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307. [Henri and Hani?]
 
+o Investigate why http pipelining so often doesn't work in NSE
+  scripts, and often NSE ends up reverting to one request at a time.
+  Scripts may not be using it correctly, and also we wish it were more
+  transparent and there wasn't this big API divide between pipeline
+  and non-pipeline.  We just want it send requests as fast as it can,
+  and get a callback when there's a response.  Maybe the http library
+  buffers them, or pipelines them, or blocks the http.get call until
+  there's more room.  It just seems to always degenerate to 1 request
+  at a time.  For example:
+  sudo nmap --script=http-enum bamsoftware.com -p80 -d2
+  quickly (within a few seconds) gives:
+    NSE: http-enum: Searching for entries under path '' (change with 'http-enum.basepath' argument)
+    NSE: Total number of pipelined requests: 2081
+    NSE: Number of requests allowed by pipeline: 100
+    NSE: Received only 41 of 100 expected responses.
+    Decreasing max pipelined requests to 41.
+    NSE: Received only 1 of 41 expected responses.
+    Decreasing max pipelined requests to 1.
+  100 may a wildly high number of requests to attempt to pipeline.
+  And then something else probably goes wrong after it decides 41 is okay.
+
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
