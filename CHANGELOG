@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-vuln-cve2012-1823.nse, which checks for PHP CGI
+  installations with a remote code execution vulnerability. [Paulino
+  Calderon]
+
 o [NSE] Added the script dict-info, which retrieves information from a
   DICT server, by issuing the SHOW SERVER command. [Patrik Karlsson]
 
