@@ -112,6 +112,9 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
     suspect playing it by ear will be sufficient. Talk to David for
     more of his thinking on this topic.
 
+o Maybe we should rename dns-brute to dns-brute-enum since it is so different
+  from our traditional brute force authentication cracking -brute scripts?
+
 o NSE WORK (potential work for the NSE GSoC folks -- note that this is
   mostly infrastructure because script ideas are generally put on the
   script ideas page instead: https://secwiki.org/w/Nmap_Script_Ideas)
