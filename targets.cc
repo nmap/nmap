@@ -372,7 +372,9 @@ Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
           )) {
         t->TargetSockAddr(&ss, &sslen);
         if (!nmap_route_dst(&ss, &rnfo)) {
-          fatal("%s: failed to determine route to %s", __func__, t->NameIP());
+          log_bogus_target(inet_ntop_ez(&ss, sslen));
+          error("%s: failed to determine route to %s", __func__, t->NameIP());
+          continue;
         }
         if (rnfo.direct_connect) {
           t->setDirectlyConnected(true);

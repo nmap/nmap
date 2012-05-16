@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The message "nexthost: failed to determine route to ..." is now a
+  warning rather than a fatal error. Addresses that are skipped in
+  this way are recorded in the XML output as <target> elements. [David
+  Fifield]
+
 o [NSE] Added the script http-drupal-modules, which enumerates the installed
   Drupal modules using drupal-modules.lst. [Hani Benhabiles]
 
