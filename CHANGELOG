@@ -40,6 +40,12 @@ o Added a new <target> element to XML output that indicates when a
     <target specification="1.2.3.4.5" status="skipped" reason="invalid"/>
   [David Fifield]
 
+o Nmap's development pace has increased because Google (again)
+  sponsored 5 full-time college and graduate student programmer
+  interns this summer as part of their Summer of Code program!
+  Thanks, Google Open Source Department!  We're delighted to introduce
+  the team: http://seclists.org/nmap-dev/2012/q2/204
+
 o [NSE] Added the script mmouse-exec that connects to a Mobile Mouse server,
   starts an application, and sends a sequence of keystrokes to it. [Patrik
   Karlsson]
