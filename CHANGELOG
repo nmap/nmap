@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-drupal-modules, which enumerates the installed
+  Drupal modules using drupal-modules.lst. [Hani Benhabiles]
+
 o [NSE] Added http-vuln-cve2012-1823.nse, which checks for PHP CGI
   installations with a remote code execution vulnerability. [Paulino
   Calderon]
