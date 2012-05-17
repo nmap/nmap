@@ -3395,8 +3395,10 @@ int Sendto(const char *functionname, int sd,
 #if WIN32
       return -1;
 #else
-      if (retries > 2 || err == EPERM || err == EACCES || err == EMSGSIZE
-          || err == EADDRNOTAVAIL || err == EINVAL)
+      if (retries > 2)
+        return -1;
+      /* For these enumerated errors, we sleep and try again. */
+      if (!(err == ENOBUFS || err == ENOMEM))
         return -1;
       sleeptime = 15 * (1 << (2 * retries));
       netutil_error("Sleeping %d seconds then retrying", sleeptime);
