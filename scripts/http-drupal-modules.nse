@@ -79,6 +79,8 @@ action = function(host, port)
   local all = {}
   local requests = {}
   local count = 0
+  local method = "HEAD"
+  local identification_string = "GNU GENERAL PUBLIC LICENSE"
 
   -- Default number of modules to be checked.
   local modules_limit = stdnse.get_script_args(SCRIPT_NAME .. '.number')
@@ -91,20 +93,25 @@ action = function(host, port)
   end
  
   local modules_path = get_modules_path(host, port, root)
-  
   --Check modules list
   local drupal_modules_list = nmap.fetchfile("nselib/data/drupal-modules.lst")
   if not drupal_modules_list then
     return false, "Couldn't find nselib/data/drupal-modules.lst"
   end
 
+  -- We default to HEAD requests unless the server returns
+  -- non 404 (200 or other) status code
+  local response = http.head(host,port,root .. modules_path .. "randomaBcD/LICENSE.txt")
+  if response.status ~= 404 then
+      method = "GET"
+  end
+
   for module_name in io.lines(drupal_modules_list) do 
     count = count + 1
     if modules_limit and count>modules_limit then break end
-
     -- add request to pipeline
-    all = http.pipeline_add(root .. modules_path.. module_name .. "/LICENSE.txt",
-                                nil, all, "HEAD")
+      all = http.pipeline_add(root .. modules_path.. module_name .. "/LICENSE.txt",
+                                  nil, all, method)
     -- add to requests buffer
     table.insert(requests, module_name)
   end
@@ -117,8 +124,11 @@ action = function(host, port)
   end
   
   for i, response in pairs(pipeline_responses) do
-    -- if response status = 200, then module exists
-    if response.status == 200 then
+    -- Module exists if 200 on HEAD
+    -- or contains identification string for GET
+    if method == "HEAD" and response.status == 200 or
+        method == "GET" and response.status == 200 and
+        string.match(response.body, identification_string) then 
       table.insert(result, requests[i])
     end
   end
