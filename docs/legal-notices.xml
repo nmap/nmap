@@ -126,7 +126,9 @@ system is scanned. Thus, it is often advisable to request permission
 before doing even a light scan of a network.</para>
 
 <para>Nmap should never be installed with special privileges
-(e.g. suid root) for security reasons.<indexterm><primary>setuid, why Nmap shouldn't be</primary></indexterm>
+(e.g. suid root).<indexterm><primary>setuid, why Nmap shouldn't be</primary></indexterm><indexterm><primary>suid</primary><see>setuid</see></indexterm>
+That would open up a major security vulnerability as other users on the
+system (or attackers) could use it for privilege escalation.
 </para>
 </refsect2>
 
