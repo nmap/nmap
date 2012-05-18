@@ -205,6 +205,7 @@ class my_install(install):
         install.run(self)
 
         self.set_perms()
+        self.set_modules_path()
         self.fix_paths()
         self.create_uninstaller()
         self.write_installed_files()
@@ -305,6 +306,30 @@ for dir in dirs:
         # Set exec bit for uninstaller
         mode = ((os.stat(uninstaller_filename)[ST_MODE]) | 0555) & 07777
         os.chmod(uninstaller_filename, mode)
+
+    def set_modules_path(self):
+        app_file_name = os.path.join(self.install_scripts, APP_NAME)
+        # Find where the modules are installed. distutils will put them in
+        # self.install_lib, but that path can contain the root (DESTDIR), so we
+        # must strip it off if necessary.
+        modules_dir = self.install_lib
+        if self.root is not None:
+            modules_dir = path_strip_prefix(modules, self.root)
+
+        app_file = open(app_file_name, "r")
+        lines = app_file.readlines()
+        app_file.close()
+
+        for i in range(len(lines)):
+            if re.match(r'^INSTALL_LIB =', lines[i]):
+                lines[i] = "INSTALL_LIB = %s\n" % repr(modules_dir)
+                break
+        else:
+            raise ValueError("INSTALL_LIB replacement not found in %s" % app_file_name)
+
+        app_file = open(app_file_name, "w")
+        app_file.writelines(lines)
+        app_file.close()
 
     def set_perms(self):
         re_bin = re.compile("(bin|\.sh)")
