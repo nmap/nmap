@@ -1,11 +1,7 @@
 description = [[
-The duplicates script attempts to discover multihomed systems by analysing and
+Attempts to discover multihomed systems by analysing and
 comparing information collected by other scripts. The information analyzed
-currently includes:
-  - SSL Certificates
-  - SSH Host keys
-  - MAC Address
-  - Netbios Server Name
+currently includes, SSL certificates, SSH host keys, MAC addresses, and Netbios server names.
 
 In order for the script to be able to analyze the data it has dependencies to
 the following scripts: ssl-cert,ssh-hostkey,nbtstat.
