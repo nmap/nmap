@@ -6856,116 +6856,116 @@ table.insert(fingerprints, {
 
 -- They're kind enough to tell us in the meta tags (used for the author's stats)
 table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
-    {
-  path = '/'
-    },
-    {
-      path = '/forum/'
-        },
-        {
-      path = '/site/'
+    category = 'cms',
+    probes = {
+      {
+        path = '/'
       },
-        {
+      {
+        path = '/forum/'
+      },
+      {
+        path = '/site/'
+      },
+      {
         path = '/website/'
       },
-    {
-    path = '/store/'
+      {
+        path = '/store/'
       },
-        {
+      {
         path = '/webstore/'
       },
-    {
-  path = '/comic/'
-},
-    {
-    path = '/wiki/'
+      {
+        path = '/comic/'
       },
-        {
+      {
+        path = '/wiki/'
+      },
+      {
         path = '/mediawiki/'
       },
       {
         path = '/Mediawiki/'
-        },
+      },
       {
-      path = '/MediaWiki/'
-        },
-        {
-      path = '/wordpress/'
-    },
-    {
-      path = '/blog/'
-        },
-        {
-      path = '/cms/'
-    },
-  {
-    path = '/comiccms/'
-    },
+        path = '/MediaWiki/'
+      },
+      {
+        path = '/wordpress/'
+      },
+      {
+        path = '/blog/'
+      },
+      {
+        path = '/cms/'
+      },
+      {
+        path = '/comiccms/'
+      },
       {
         path = '/weblog/'
-        },
-      {
-      path = '/joomla/'
-        },
-        {
-      path = '/administrator/'
       },
-        {
+      {
+        path = '/joomla/'
+      },
+      {
+        path = '/administrator/'
+      },
+      {
         path = '/openx/www/admin/index.php'
       },
-    {
-    path = '/www/admin/index.php'
+      {
+        path = '/www/admin/index.php'
       },
-        {
+      {
         path = '/ads/www/admin/index.php'
       },
-    {
-  path = '/adserver/www/admin/index.php'
-    },
-    {
-      path = '/splashfrog/'
-        },
-        {
-      path = '/pligg/'
+      {
+        path = '/adserver/www/admin/index.php'
       },
-        {
+      {
+        path = '/splashfrog/'
+      },
+      {
+        path = '/pligg/'
+      },
+      {
         path = '/vanilla/'
       },
       {
         path = '/vanillaforum/'
-        },
+      },
       {
-    path = '/vanillaforums/'
-    },
+        path = '/vanillaforums/'
+      },
       {
         path = '/statusnet/'
-        },
-      {
-    path = '/xoda/'
-  },
-    {
-    path = '/trac/'
       },
-        {
+      {
+        path = '/xoda/'
+      },
+      {
+        path = '/trac/'
+      },
+      {
         path = '/lime/'
       },
       {
         path = '/survey/'
-        },
+      },
       {
-      path = '/limesurvey/'
-        },
-        {
-      path = '/openvbx/'
-    },
-    {
-      path = '/getsimple/'
-        },
-        {
-      path = '/ecoder/'
-    },
+        path = '/limesurvey/'
+      },
+      {
+        path = '/openvbx/'
+      },
+      {
+        path = '/getsimple/'
+      },
+      {
+        path = '/ecoder/'
+      },
     },
     matches = {
       {
@@ -6980,676 +6980,676 @@ table.insert(fingerprints, {
         match = '<a href="http://www.splashfrog.com" target="_blank">Splash Frog WMS v(.-)</a>',
         output = 'Splash Frog WMS v\\1'
       },
-    {
-    match = '<a href="http://status.net/">StatusNet</a> microblogging software, version (.-),',
-      output = 'StatusNet v\\1'
-        },
-        {
-      match = '<script src=".*/applications/vanilla/js/options.js%?v%=(.-)" type="text/javascript">',
-    output = 'Vanilla Forums v\\1'
-  },
-{
-    match = 'about"><strong>Trac (.-)</strong></a>',
-    output = 'Trac version \\1'
-      },
-        }
-      });
-
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
       {
-      path = '/cmspages.php',
-        method = 'HEAD'
-        }
+        match = '<a href="http://status.net/">StatusNet</a> microblogging software, version (.-),',
+        output = 'StatusNet v\\1'
       },
-      matches = {
-        {
-        match = '',
-      output = '2Point Solutions CMS'
-      }
-        }
-        });
-
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/sc_webcat/ecat/cms_view.php',
-      method = 'HEAD'
-        }
-        },
-      matches = {
-    {
-    match = '',
-      output = 'Webcat'
-        }
-        }
-      });
-
-    table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
       {
-      path = '/kbcat.cgi',
-        method = 'HEAD'
-        }
+        match = '<script src=".*/applications/vanilla/js/options.js%?v%=(.-)" type="text/javascript">',
+        output = 'Vanilla Forums v\\1'
       },
-      matches = {
-        {
-        match = '',
-      output = 'ActivDesk'
-      }
-        }
-        });
+      {
+        match = 'about"><strong>Trac (.-)</strong></a>',
+        output = 'Trac version \\1'
+      },
+    }
+  });
 
-      table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/cmspages.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = '2Point Solutions CMS'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/sc_webcat/ecat/cms_view.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Webcat'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/kbcat.cgi',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'ActivDesk'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/workorder/FileDownload.jsp',
         method = 'GET'
       },
       {
-    path = '/sd/workorder/FileDownload.jsp',
-    method = 'GET'
-      }
-        },
-        matches = {
-      {
-    match = '500',
-  output = 'ManageEngine Support Center Plus'
-    }
-    }
-      });
-
-        table.insert(fingerprints, {
-    category = 'cms',
-      probes = {
-        {
-        path = '/sections/reference.inc.php',
-      method = 'GET'
-      }
-        },
-        matches = {
-      {
-      match = '200',
-        output = 'BrewBlogger'
-        }
-      }
-      });
-
-        table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-      path = '/store.php?action=view_cart',
+        path = '/sd/workorder/FileDownload.jsp',
         method = 'GET'
-        }
-      },
-      matches = {
-    {
-    match = '200',
-      output = 'AiCart'
-        }
-        }
-      });
+      }
+    },
+    matches = {
+      {
+        match = '500',
+        output = 'ManageEngine Support Center Plus'
+      }
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/catalog/main.php?cat_id=',
-      method = 'GET'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/sections/reference.inc.php',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '200',
+        output = 'BrewBlogger'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/store.php?action=view_cart',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '200',
+        output = 'AiCart'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/catalog/main.php?cat_id=',
+        method = 'GET'
+      }
+    },
+    matches = {
       {
         match = '200',
         output = 'Catalog Builder'
       }
-      }
-        });
-
-        table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
-    {
-  path = '/index.php?cat_id=1',
-    method = 'GET'
     }
-      },
-        matches = {
-        {
-      match = 'powered by CubeCart',
-    output = 'CubeCart'
-    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/index.php?cat_id=1',
+        method = 'GET'
       }
-        });
-
-        table.insert(fingerprints, {
-    category = 'cms',
-  probes = {
-    {
-    path = '/forum_answer.php?que_id=1',
-      method = 'HEAD'
-        }
-        },
-      matches = {
-    {
-    match = '',
-      output = 'Guru JustAnswer'
-        }
-        }
-      });
-
-    table.insert(fingerprints, {
-    category = 'cms',
-  probes = {
-    {
-    path = '/templates1/view_product.php',
-      method = 'HEAD'
-        }
-        },
-      matches = {
-    {
-    match = '',
-      output = 'HB ECommerce'
-        }
-        }
-      });
-
-    table.insert(fingerprints, {
-    category = 'cms',
-  probes = {
-    {
-    path = '/escort-profile.php',
-      method = 'HEAD'
-        }
-        },
-      matches = {
-    {
-    match = '',
-      output = 'First Escort Marketing CMS'
-        }
-        }
-      });
-
-    table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
-    {
-  path = '/pages/indexheader.php',
-    method = 'HEAD'
     },
+    matches = {
+      {
+        match = 'powered by CubeCart',
+        output = 'CubeCart'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/forum_answer.php?que_id=1',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Guru JustAnswer'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/templates1/view_product.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'HB ECommerce'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/escort-profile.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'First Escort Marketing CMS'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/pages/indexheader.php',
+        method = 'HEAD'
+      },
       {
         path = '/pages/searcher.php',
         method = 'HEAD'
       },
-    {
-    path = '/pages/indexviewentry.php',
-      method = 'HEAD'
-        }
-        },
-      matches = {
-    {
-  match = '',
-output = 'Green Pants CMS'
-}
-}
-});
+      {
+        path = '/pages/indexviewentry.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Green Pants CMS'
+      }
+    }
+  });
 
 table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-    path = '/tinymcpuk/filemanager/browser.html',
-    method = 'HEAD'
-      }
-        },
-        matches = {
-      {
-    match = '',
-  output = 'CMS Lokomedia'
-    }
-    }
-      });
-
-        table.insert(fingerprints, {
-      category = 'cms',
+    category = 'cms',
     probes = {
-  {
-    path = '/admin/libraries/ajaxfilemanager/ajaxfilemanager.php',
-    method = 'HEAD'
-      }
-        },
-        matches = {
       {
-      match = '',
-        output = 'Log1 CMS'
-        }
+        path = '/tinymcpuk/filemanager/browser.html',
+        method = 'HEAD'
       }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'CMS Lokomedia'
+      }
+    }
+  });
 
-        table.insert(fingerprints, {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/admin/libraries/ajaxfilemanager/ajaxfilemanager.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Log1 CMS'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
     category = 'cms',
     probes = {
       {
         path = '/leftmenubody.php',
         method = 'HEAD'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'Quicktech'
-        }
-        }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Quicktech'
+      }
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/dsp_page.cfm',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/dsp_page.cfm',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'Alcassofts SOPHIA CMS'
       }
-      }
-        });
-
-        table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-    path = '/zikula/index.php',
-  method = 'HEAD'
     }
-    },
-      matches = {
-        {
-        match = '',
-      output = 'Zikula CMS'
-      }
-        }
-        });
-
-      table.insert(fingerprints, {
-      category = 'cms',
-    probes = {
-    {
-      path = '/system/admin/header.php',
-        method = 'HEAD'
-        },
-      {
-    path = '/system/admin/comments_items.php',
-  method = 'HEAD'
-    }
-    },
-      matches = {
-        {
-        match = '',
-      output = 'Habari Blog'
-      }
-        }
-        });
-
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/scripts/fckeditor/editor/filemanager/connectors/test.html',
-    method = 'HEAD'
-  },
-    {
-    path = '/scripts/fckeditor/editor/filemanager/connectors/uploadtest.html',
-      method = 'HEAD'
-        }
-        },
-      matches = {
-      {
-    match = '',
-    output = 'Digitalus CMS/FCKEditor File upload'
-      }
-        }
-        });
-
-      table.insert(fingerprints, {
-    category = 'cms',
-      probes = {
-        {
-        path = '/fckeditor/editor/filemanager/connectors/test.html',
-      method = 'HEAD'
-    }
-  },
-matches = {
-{
-match = '',
-output = 'phpmotion/FCKeditor File upload'
-}
-}
-});
+  });
 
 table.insert(fingerprints, {
-category = 'cms',
-probes = {
-{
-path = '/fckeditor/editor/filemanager/upload/test.html',
-method = 'HEAD'
-}
-},
-matches = {
-{
-match = '',
-    output = 'Geeklog/FCKeditor File upload'
-    }
-      }
-        });
-
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
-        path = '/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html',
-      method = 'HEAD'
-      }
-        },
-        matches = {
+    category = 'cms',
+    probes = {
       {
-      match = '',
-        output = 'OpenCart/FCKeditor File upload'
-        }
+        path = '/zikula/index.php',
+        method = 'HEAD'
       }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Zikula CMS'
+      }
+    }
+  });
 
-        table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/system/admin/header.php',
+        method = 'HEAD'
+      },
+      {
+        path = '/system/admin/comments_items.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Habari Blog'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/scripts/fckeditor/editor/filemanager/connectors/test.html',
+        method = 'HEAD'
+      },
+      {
+        path = '/scripts/fckeditor/editor/filemanager/connectors/uploadtest.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Digitalus CMS/FCKEditor File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/fckeditor/editor/filemanager/connectors/test.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'phpmotion/FCKeditor File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/fckeditor/editor/filemanager/upload/test.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Geeklog/FCKeditor File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'OpenCart/FCKeditor File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/fckeditor/editor/filemanager/connectors/php/config.php',
         method = 'HEAD'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'DM File Manager/FCKeditor File upload'
-        }
-        }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'DM File Manager/FCKeditor File upload'
+      }
+    }
+  });
 
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
-      path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/php/connector.php',
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/php/connector.php',
         method = 'HEAD'
-        },
-      {
-    path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/asp/connector.asp',
-    method = 'HEAD'
       },
-        {
-      path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/aspx/connector.aspx',
-    method = 'HEAD'
-  },
-    {
-    path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/cfm/connector.cfm',
-      method = 'HEAD'
-        },
-        {
-      path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/lasso/connector.lasso',
-      method = 'HEAD'
-        },
-        {
-      path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/perl/connector.cgi',
-      method = 'HEAD'
-        },
-        {
-      path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/py/connector.py',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+      {
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/asp/connector.asp',
+        method = 'HEAD'
+      },
+      {
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/aspx/connector.aspx',
+        method = 'HEAD'
+      },
+      {
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/cfm/connector.cfm',
+        method = 'HEAD'
+      },
+      {
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/lasso/connector.lasso',
+        method = 'HEAD'
+      },
+      {
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/perl/connector.cgi',
+        method = 'HEAD'
+      },
+      {
+        path = '/includes/FCKeditor/editor/filemanager/browser/default/connectors/py/connector.py',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'PHPnuke/Remote File Download'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
-        path = '/FCKEditor/editor/filemanager/browser/default/connectors/test.html',
-      method = 'HEAD'
-      }
-        },
-        matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
-      match = '',
-        output = 'EgO or osCMax/FCKeditor File upload'
-        }
+        path = '/FCKEditor/editor/filemanager/browser/default/connectors/test.html',
+        method = 'HEAD'
       }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'EgO or osCMax/FCKeditor File upload'
+      }
+    }
+  });
 
-        table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/admin/includes/tiny_mce/plugins/tinybrowser/upload.php',
         method = 'HEAD'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'CompactCMS or B-Hind CMS/FCKeditor File upload'
-        }
-        }
-      });
-
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
+    },
+    matches = {
       {
-      path = '/Backstage/Components/FreeTextBox/ftb.imagegallery.aspx',
-        method = 'HEAD'
-        }
-      },
-      matches = {
-        {
         match = '',
-      output = 'Luftguitar CMS/File upload'
+        output = 'CompactCMS or B-Hind CMS/FCKeditor File upload'
       }
-        }
-        });
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/_plugin/fckeditor/editor/filemanager/connectors/test.html',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/Backstage/Components/FreeTextBox/ftb.imagegallery.aspx',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Luftguitar CMS/File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/_plugin/fckeditor/editor/filemanager/connectors/test.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'SweetRice/FCKeditor File upload'
       }
     }
-    });
+  });
 
-      table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/html/news_fckeditor/editor/filemanager/upload/php/upload.php',
         method = 'HEAD'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'cardinalCms/FCKeditor File upload'
-        }
-        }
-      });
-
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
+    },
+    matches = {
       {
-      path = '/fckeditor/editor/filemanager/connectors/test.html',
-        method = 'HEAD'
-        }
-      },
-      matches = {
-        {
         match = '',
-      output = 'LightNEasy/FCKeditor File upload'
+        output = 'cardinalCms/FCKeditor File upload'
       }
-        }
-        });
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/admin/includes/FCKeditor/editor/filemanager/upload/test.html',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/fckeditor/editor/filemanager/connectors/test.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'LightNEasy/FCKeditor File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/admin/includes/FCKeditor/editor/filemanager/upload/test.html',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'ASP Simple Blog / FCKeditor File Upload'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
         path = '/uploadsnaps.php',
-      method = 'HEAD'
-      }
-        },
-        matches = {
-      {
-      match = '',
-        output = 'ZeeMatri/File upload'
-        }
-      }
-      });
-
-        table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-      path = '/upload/includes/js/files/upload.php',
         method = 'HEAD'
-        }
-      },
-      matches = {
-        {
-        match = '',
-      output = 'Digital College/File upload'
       }
-        }
-        });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'ZeeMatri/File upload'
+      }
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/tinybrowser/upload.php',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/upload/includes/js/files/upload.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Digital College/File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/tinybrowser/upload.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'Tinybrowser Remote File Upload'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
-        path = '/editor/editor/filemanager/upload/test.html',
-      method = 'HEAD'
-      }
-        },
-        matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
-      match = '',
-        output = 'Tadbir / File Upload'
-        }
+        path = '/editor/editor/filemanager/upload/test.html',
+        method = 'HEAD'
       }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Tadbir / File Upload'
+      }
+    }
+  });
 
-        table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/photogallery_open.php',
         method = 'HEAD'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'Heaven Soft CMS'
-        }
-        }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Heaven Soft CMS'
+      }
+    }
+  });
 
-      table.insert(fingerprints, {
+table.insert(fingerprints, {
     category = 'cms',
-      probes = {
-        {
-      path = '/Providers/HtmlEditorProviders/Fck/fcklinkgallery.aspx',
-    method = 'HEAD'
-  }
+    probes = {
+      {
+        path = '/Providers/HtmlEditorProviders/Fck/fcklinkgallery.aspx',
+        method = 'HEAD'
+      }
     },
     matches = {
       {
         match = '',
         output = 'DotNetNuke / File Upload'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
-        path = '/assetmanager/assetmanager.asp',
-      method = 'HEAD'
-      }
-        },
-        matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
-      match = '',
-        output = 'Asset Manager/Remote File upload'
-        }
+        path = '/assetmanager/assetmanager.asp',
+        method = 'HEAD'
       }
-      });
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Asset Manager/Remote File upload'
+      }
+    }
+  });
 
-        table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/Final/login/ava_upl.php',
         method = 'HEAD'
@@ -7658,411 +7658,411 @@ match = '',
         path = '/Final/login/ava_upl2.php',
         method = 'HEAD'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'CH-CMS'
-        }
-        }
-      });
-
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-      path = '/spaw/demo.php',
-        method = 'HEAD'
-        }
-      },
-      matches = {
-        {
-        match = '',
-      output = 'SpawCMS/Remote File upload'
-      }
-        }
-        });
-
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/admin/jscript/upload.php',
-      method = 'HEAD'
     },
-    {
-      path = '/admin/jscript/upload.html',
-        method = 'HEAD'
-        },
+    matches = {
       {
-    path = '/admin/jscript/upload.pl',
-  method = 'HEAD'
-    },
-    {
-      path = '/admin/jscript/upload.asp',
-        method = 'HEAD'
-        }
-      },
-      matches = {
-    {
-    match = '',
-      output = 'Lizard Cart/Remote File upload'
-        }
-        }
-      });
-
-    table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-      path = '/databases/acidcat_3.mdb',
-        method = 'HEAD'
-        }
-      },
-      matches = {
-        {
         match = '',
-      output = 'Acidcat CMS Database'
+        output = 'CH-CMS'
       }
-        }
-        });
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/mdb-database/dblog.mdb',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/spaw/demo.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'SpawCMS/Remote File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/admin/jscript/upload.php',
+        method = 'HEAD'
+      },
+      {
+        path = '/admin/jscript/upload.html',
+        method = 'HEAD'
+      },
+      {
+        path = '/admin/jscript/upload.pl',
+        method = 'HEAD'
+      },
+      {
+        path = '/admin/jscript/upload.asp',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Lizard Cart/Remote File upload'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/databases/acidcat_3.mdb',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Acidcat CMS Database'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/mdb-database/dblog.mdb',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'dBlog Database'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
         path = '/db/users.mdb',
-      method = 'HEAD'
+        method = 'HEAD'
       },
-        {
+      {
         path = '/db/'
       }
-      },
-        matches = {
-        {
-      match = '',
-      output = 'BlogWorx Database'
-        }
-        }
-      });
-
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
+    },
+    matches = {
       {
-      path = '/infusions/avatar_studio/avatar_studio.php',
-        method = 'HEAD'
-        }
-      },
-      matches = {
-        {
         match = '',
-      output = 'PHP-Fusion Mod avatar_studio'
+        output = 'BlogWorx Database'
       }
-        }
-        });
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'cms',
-        probes = {
-        {
-      path = '/bnnr.php',
-      method = 'HEAD'
-        },
-        {
-      path = '/vb/bnnr.php',
-      method = 'HEAD'
-        },
-        {
-      path = '/forum/bnnr.php',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/infusions/avatar_studio/avatar_studio.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'PHP-Fusion Mod avatar_studio'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/bnnr.php',
+        method = 'HEAD'
+      },
+      {
+        path = '/vb/bnnr.php',
+        method = 'HEAD'
+      },
+      {
+        path = '/forum/bnnr.php',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'vBulletin ads_saed'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'cms',
+table.insert(fingerprints, {
+    category = 'cms',
     probes = {
-    {
-      path = '/weblink_cat_list.php',
+      {
+        path = '/weblink_cat_list.php',
         method = 'HEAD'
-        }
-      },
+      }
+    },
     matches = {
-  {
-    match = '',
-    output = 'WHMCompleteSolution CMS'
+      {
+        match = '',
+        output = 'WHMCompleteSolution CMS'
       }
-        }
-        });
+    }
+  });
 
-        -- Drupal signatures
-        table.insert(fingerprints, {
-      category = 'cms',
-      probes = {
-        {
+-- Drupal signatures
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
         path = '/',
-      method = 'GET'
+        method = 'GET'
       }
-        },
-        matches = {
+    },
+    matches = {
       {
-      match = ' src="/sites/all/themes/',
+        match = ' src="/sites/all/themes/',
         output = 'Drupal signature'
-        },
-      {
-      match = ' src="/sites/all/modules/',
-        output = 'Drupal signature'
-        },
-      {
-      match = ' href="/sites/all/themes/',
-        output = 'Drupal signature'
-        },
-      {
-      match = 'jQuery.extend(Drupal.settings,',
-        output = 'Drupal signature'
-        }
-      }
-      });
-
-      -- Drupal files
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
-      {
-      path = '/UPGRADE.txt'
-        },
-        {
-      path = '/INSTALL.txt'
       },
-        {
+      {
+        match = ' src="/sites/all/modules/',
+        output = 'Drupal signature'
+      },
+      {
+        match = ' href="/sites/all/themes/',
+        output = 'Drupal signature'
+      },
+      {
+        match = 'jQuery.extend(Drupal.settings,',
+        output = 'Drupal signature'
+      }
+    }
+  });
+
+-- Drupal files
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/UPGRADE.txt'
+      },
+      {
+        path = '/INSTALL.txt'
+      },
+      {
         path = '/MAINTENERS.txt'
       },
       {
         path = '/INSTALL.mysql.txt'
-        },
+      },
       {
-      path = '/INSTALL.pgsql.txt'
-        },
-        {
-      path = '/update.php'
+        path = '/INSTALL.pgsql.txt'
+      },
+      {
+        path = '/update.php'
       }
-        },
-        matches = {
+    },
+    matches = {
       {
-      match = 'Drupal ',
+        match = 'Drupal ',
         output = 'Drupal file'
-        }
       }
-      });
+    }
+  });
 
-      -- Joomla! version
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
+-- Joomla! version
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
-      path = '/language/en-GB/en-GB.xml'
-        }
-        },
-      matches = {
+        path = '/language/en-GB/en-GB.xml'
+      }
+    },
+    matches = {
       {
         match = '<version>(.-)</version>',
         output = 'Joomla! '
       }
-      }
-        });
+    }
+  });
 
-      -- Joomla!
-        table.insert(fingerprints, {
-        category = 'cms',
-      probes = {
+-- Joomla!
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
       {
         path = '/htaccess.txt'
-        },
+      },
       {
-    path = '/templates/system/css/toolbar.css'
-    },
+        path = '/templates/system/css/toolbar.css'
+      },
       {
         path = '/templates/beez/css/template_rtl.css'
-        }
-      },
+      }
+    },
     matches = {
-  {
-match = 'Joomla!',
-output = 'Joomla!'
-}
-}
-});
-
-    -- Drupal changelog
-      table.insert(fingerprints, {
-        category = 'cms',
-        probes = {
       {
-      path = '/CHANGELOG.txt'
-        }
-        },
-      matches = {
+        match = 'Joomla!',
+        output = 'Joomla!'
+      }
+    }
+  });
+
+-- Drupal changelog
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/CHANGELOG.txt'
+      }
+    },
+    matches = {
       {
         match = 'Drupal (%d..-),',
         output = 'Drupal v1'
       }
-      }
-        });
+    }
+  });
 
-      ------------------------------------------------
-        ----           UNCATEGORIZED                ----
-        ------------------------------------------------
+------------------------------------------------
+----           UNCATEGORIZED                ----
+------------------------------------------------
 
-      table.insert(fingerprints, {
-      category = 'uncategorized',
-        probes = {
-        {
-      path = '/archive/flash:home/html/images/Cisco_logo.gif',
-      method = 'HEAD'
-        },
+table.insert(fingerprints, {
+    category = 'uncategorized',
+    probes = {
+      {
+        path = '/archive/flash:home/html/images/Cisco_logo.gif',
+        method = 'HEAD'
       },
-      matches = {
-        {
+    },
+    matches = {
+      {
         match = '',
-      output = 'Cisco SDM'
+        output = 'Cisco SDM'
       }
-        }
-        });
+    }
+  });
 
-      table.insert(fingerprints, {
-      category = 'uncategorized',
-        probes = {
-        {
-      path = '/Default?MAIN=DEVICE',
-      method = 'HEAD'
-        },
-        {
-      path = '/TopAccess/images/RioGrande/Rio_PPC.gif',
-      method = 'HEAD'
-        }
-        },
-      matches = {
+table.insert(fingerprints, {
+    category = 'uncategorized',
+    probes = {
+      {
+        path = '/Default?MAIN=DEVICE',
+        method = 'HEAD'
+      },
+      {
+        path = '/TopAccess/images/RioGrande/Rio_PPC.gif',
+        method = 'HEAD'
+      }
+    },
+    matches = {
       {
         match = '',
         output = 'TopAccess Toshiba e-Studio520'
       }
-      }
-        });
+    }
+  });
 
-        table.insert(fingerprints, {
-      category = 'uncategorized',
-      probes = {
-        {
+table.insert(fingerprints, {
+    category = 'uncategorized',
+    probes = {
+      {
         path = '/jwsappmngr.jnlp',
-      method = 'HEAD'
+        method = 'HEAD'
       },
-        {
+      {
         path = '/nfdesktop.jnlp',
-      method = 'HEAD'
+        method = 'HEAD'
       },
-        {
+      {
         path = '/nfservlets/servlet/SPSRouterServlet/',
-      method = 'HEAD'
+        method = 'HEAD'
       },
-        },
-      matches = {
+    },
+    matches = {
       {
         match = '',
         output = 'netForensics'
       }
-      }
-        });
-
-        table.insert(fingerprints, {
-      category = 'uncategorized',
-      probes = {
-        {
-        path = '/na_admin/styles/dfm.css',
-      method = 'HEAD'
-    },
-      },
-        matches = {
-        {
-      match = '',
-    output = 'NetworkAppliance NetApp Release 6.5.3P4'
-  }
     }
-    });
+  });
 
-      ------------------------------------------------
-        ----    MISCELLANEOUS ITEMS OF INTEREST     ----
-        ------------------------------------------------
-
-      -- interesting README  files
-      table.insert(fingerprints, {
-        category = 'miscellaneous',
-        probes = {
+table.insert(fingerprints, {
+    category = 'uncategorized',
+    probes = {
       {
-      path = '/README'
-        },
-        {
-      path = '/xoda/README'
+        path = '/na_admin/styles/dfm.css',
+        method = 'HEAD'
       },
-        {
+    },
+    matches = {
+      {
+        match = '',
+        output = 'NetworkAppliance NetApp Release 6.5.3P4'
+      }
+    }
+  });
+
+------------------------------------------------
+----    MISCELLANEOUS ITEMS OF INTEREST     ----
+------------------------------------------------
+
+-- interesting README  files
+table.insert(fingerprints, {
+    category = 'miscellaneous',
+    probes = {
+      {
+        path = '/README'
+      },
+      {
+        path = '/xoda/README'
+      },
+      {
         path = '/docs/README'
       },
       {
         path = '/documents/README'
-        },
-      {
-      path = '/dms/README'
-        },
-        {
-      path = '/status/README'
       },
-        {
+      {
+        path = '/dms/README'
+      },
+      {
+        path = '/status/README'
+      },
+      {
         path = '/statusnet/README'
       },
       {
         path = '/twitter/README'
-        },
       },
-        matches = {
-        {
-      match = 'StatusNet (.-) ',
-      output = 'StatusNet README version \\1'
-        },
-        {
-      match = 'XODA.*Changelog%s---------%s(%d.-):',
-      output = 'XODA \\1'
-        },
-        {
-      output = 'Interesting, a readme.'
+    },
+    matches = {
+      {
+        match = 'StatusNet (.-) ',
+        output = 'StatusNet README version \\1'
+      },
+      {
+        match = 'XODA.*Changelog%s---------%s(%d.-):',
+        output = 'XODA \\1'
+      },
+      {
+        output = 'Interesting, a readme.'
       }
-        }
-        });
+    }
+  });
 
-      table.insert(fingerprints, {
-        category = 'miscellaneous',
-      probes = {
+table.insert(fingerprints, {
+    category = 'miscellaneous',
+    probes = {
       {
         path = '/0/',
         method = 'GET'
@@ -8663,2732 +8663,2732 @@ output = 'Joomla!'
         path = '/cgi-perl/',
         method = 'GET'
       },
-    {
-    path = '/cgi-scripts/',
-      method = 'GET'
-        },
-        {
-      path = '/cgiscripts/',
-      method = 'GET'
-        },
-        {
-      path = '/cgis/',
-      method = 'GET'
-        },
-        {
-      path = '/cgi-shl/',
-    method = 'GET'
-  },
-    {
-    path = '/cgi-shop/',
-      method = 'GET'
-        },
-        {
-      path = '/cgi-sys/',
-      method = 'GET'
-        },
-        {
-      path = '/cgi-weddico/',
-      method = 'GET'
-        },
-        {
-      path = '/cgi-win/',
-      method = 'GET'
-        },
-        {
-      path = '/cgiwin/',
-      method = 'GET'
-        },
-        {
-      path = '/class/',
-      method = 'GET'
-        },
-        {
-      path = '/classes/',
-      method = 'GET'
-        },
-        {
-      path = '/cliente/',
-      method = 'GET'
-        },
-        {
-      path = '/clientes/',
-      method = 'GET'
-        },
-        {
-      path = '/client/',
-      method = 'GET'
-        },
-        {
-      path = '/clients/',
-      method = 'GET'
-        },
-        {
-      path = '/cm/',
-      method = 'GET'
-        },
-        {
-      path = '/cobalt-images/',
-      method = 'GET'
-        },
-        {
-      path = '/code/',
-      method = 'GET'
-        },
-        {
-      path = '/com/',
-      method = 'GET'
-        },
-        {
-      path = '/comments/',
-      method = 'GET'
-        },
-        {
-      path = '/common/',
-      method = 'GET'
-        },
-        {
-      path = '/communicator/',
-      method = 'GET'
-        },
-        {
-      path = '/company/',
-      method = 'GET'
-        },
-        {
-      path = '/comp/',
-      method = 'GET'
-        },
-        {
-      path = '/compra/',
-      method = 'GET'
-        },
-        {
-      path = '/compras/',
-      method = 'GET'
-        },
-        {
-      path = '/compressed/',
-      method = 'GET'
-        },
-        {
-      path = '/conecta/',
-      method = 'GET'
-        },
-        {
-      path = '/conf/',
-      method = 'GET'
-        },
-        {
-      path = '/config/',
-      method = 'GET'
-        },
-        {
-      path = '/configs/',
-      method = 'GET'
-        },
-        {
-      path = '/configure/',
-      method = 'GET'
-        },
-        {
-      path = '/connect/',
-      method = 'GET'
-        },
-        {
-      path = '/console/',
-      method = 'GET'
-        },
-        {
-      path = '/contact/',
-      method = 'GET'
-        },
-        {
-      path = '/contacts/',
-      method = 'GET'
-        },
-        {
-      path = '/content/',
-      method = 'GET'
-        },
-        {
-      path = '/content.ie5/',
-      method = 'GET'
-        },
-        {
-      path = '/controlpanel/',
-      method = 'GET'
-        },
-        {
-      path = '/core/',
-      method = 'GET'
-        },
-        {
-      path = '/corp/',
-      method = 'GET'
-        },
-        {
-      path = '/correo/',
-      method = 'GET'
-        },
-        {
-      path = '/counter/',
-      method = 'GET'
-        },
-        {
-      path = '/credit/',
-      method = 'GET'
-        },
-        {
-      path = '/cron/',
-      method = 'GET'
-        },
-        {
-      path = '/crons/',
-      method = 'GET'
-        },
-        {
-      path = '/crypto/',
-      method = 'GET'
-        },
-        {
-      path = '/CS/',
-      method = 'GET'
-        },
-        {
-      path = '/csr/',
-      method = 'GET'
-        },
-        {
-      path = '/css/',
-      method = 'GET'
-        },
-        {
-      path = '/cuenta/',
-      method = 'GET'
-        },
-        {
-      path = '/cuentas/',
-      method = 'GET'
-        },
-        {
-      path = '/currency/',
-      method = 'GET'
-        },
-        {
-      path = '/cust/',
-      method = 'GET'
-        },
-        {
-      path = '/customer/',
-      method = 'GET'
-        },
-        {
-      path = '/customers/',
-      method = 'GET'
-        },
-        {
-      path = '/custom/',
-      method = 'GET'
-        },
-        {
-      path = '/CVS/',
-      method = 'GET'
-        },
-        {
-      path = '/cvsweb/',
-      method = 'GET'
-        },
-        {
-      path = '/cybercash/',
-      method = 'GET'
-        },
-        {
-      path = '/darkportal/',
-      method = 'GET'
-        },
-        {
-      path = '/database/',
-      method = 'GET'
-        },
-        {
-      path = '/databases/',
-      method = 'GET'
-        },
-        {
-      path = '/datafiles/',
-      method = 'GET'
-        },
-        {
-      path = '/dat/',
-      method = 'GET'
-        },
-        {
-      path = '/data/',
-      method = 'GET'
-        },
-        {
-      path = '/dato/',
-      method = 'GET'
-        },
-        {
-      path = '/datos/',
-      method = 'GET'
-        },
-        {
-      path = '/db/',
-      method = 'GET'
-        },
-        {
-      path = '/dbase/',
-      method = 'GET'
-        },
-        {
-      path = '/dcforum/',
-      method = 'GET'
-        },
-        {
-      path = '/ddreport/',
-      method = 'GET'
-        },
-        {
-      path = '/ddrint/',
-      method = 'GET'
-        },
-        {
-      path = '/debug/',
-      method = 'GET'
-        },
-        {
-      path = '/debugs/',
-      method = 'GET'
-        },
-        {
-      path = '/default/',
-      method = 'GET'
-        },
-        {
-      path = '/deleted/',
-      method = 'GET'
-        },
-        {
-      path = '/delete/',
-      method = 'GET'
-        },
-        {
-      path = '/demoauct/',
-      method = 'GET'
-        },
-        {
-      path = '/demomall/',
-      method = 'GET'
-        },
-        {
-      path = '/demo/',
-      method = 'GET'
-        },
-        {
-      path = '/demos/',
-      method = 'GET'
-        },
-        {
-      path = '/demouser/',
-      method = 'GET'
-        },
-        {
-      path = '/deny/',
-      method = 'GET'
-        },
-        {
-      path = '/derived/',
-      method = 'GET'
-        },
-        {
-      path = '/design/',
-      method = 'GET'
-        },
-        {
-      path = '/dev/',
-      method = 'GET'
-        },
-        {
-      path = '/devel/',
-      method = 'GET'
-        },
-        {
-      path = '/development/',
-      method = 'GET'
-        },
-        {
-      path = '/directories/',
-      method = 'GET'
-        },
-        {
-      path = '/directory/',
-      method = 'GET'
-        },
-        {
-      path = '/directorymanager/',
-      method = 'GET'
-        },
-        {
-      path = '/dir/',
-      method = 'GET'
-        },
-        {
-      path = '/dl/',
-      method = 'GET'
-        },
-        {
-      path = '/dm/',
-      method = 'GET'
-        },
-        {
-      path = '/DMR/',
-      method = 'GET'
-        },
-        {
-      path = '/dms0/',
-      method = 'GET'
-        },
-        {
-      path = '/dmsdump/',
-      method = 'GET'
-        },
-        {
-      path = '/dms/',
-      method = 'GET'
-        },
-        {
-      path = '/dnn/',
-      method = 'GET'
-        },
-        {
-      path = '/doc1/',
-      method = 'GET'
-        },
-        {
-      path = '/doc/',
-      method = 'GET'
-        },
-        {
-      path = '/doc-html/',
-      method = 'GET'
-        },
-        {
-      path = '/docs1/',
-      method = 'GET'
-        },
-        {
-      path = '/docs/',
-      method = 'GET'
-        },
-        {
-      path = '/DocuColor/',
-      method = 'GET'
-        },
-        {
-      path = '/documentation/',
-      method = 'GET'
-        },
-        {
-      path = '/document/',
-      method = 'GET'
-        },
-        {
-      path = '/documents/',
-      method = 'GET'
-        },
-        {
-      path = '/dotnetnuke/',
-      method = 'GET'
-        },
-        {
-      path = '/down/',
-      method = 'GET'
-        },
-        {
-      path = '/download/',
-      method = 'GET'
-        },
-        {
-      path = '/downloads/',
-      method = 'GET'
-        },
-        {
-      path = '/dump/',
-      method = 'GET'
-        },
-        {
-      path = '/durep/',
-      method = 'GET'
-        },
-        {
-      path = '/easylog/',
-      method = 'GET'
-        },
-        {
-      path = '/eforum/',
-      method = 'GET'
-        },
-        {
-      path = '/ejemplo/',
-      method = 'GET'
-        },
-        {
-      path = '/ejemplos/',
-      method = 'GET'
-        },
-        {
-      path = '/emailclass/',
-      method = 'GET'
-        },
-        {
-      path = '/email/',
-      method = 'GET'
-        },
-        {
-      path = '/employees/',
-      method = 'GET'
-        },
-        {
-      path = '/empoyees/',
-      method = 'GET'
-        },
-        {
-      path = '/empris/',
-      method = 'GET'
-        },
-        {
-      path = '/enter/',
-      method = 'GET'
-        },
-        {
-      path = '/envia/',
-      method = 'GET'
-        },
-        {
-      path = '/enviamail/',
-      method = 'GET'
-        },
-        {
-      path = '/error/',
-      method = 'GET'
-        },
-        {
-      path = '/errors/',
-      method = 'GET'
-        },
-        {
-      path = '/es/',
-      method = 'GET'
-        },
-        {
-      path = '/estmt/',
-      method = 'GET'
-        },
-        {
-      path = '/etc/',
-      method = 'GET'
-        },
-        {
-      path = '/etcpasswd/',
-      method = 'GET'
-        },
-        {
-      path = '/excel/',
-      method = 'GET'
-        },
-        {
-      path = '/exc/',
-      method = 'GET'
-        },
-        {
-      path = '/exchange/',
-      method = 'GET'
-        },
-        {
-      path = '/exchweb/',
-      method = 'GET'
-        },
-        {
-      path = '/exec/',
-      method = 'GET'
-        },
-        {
-      path = '/exe/',
-      method = 'GET'
-        },
-        {
-      path = '/exit/',
-      method = 'GET'
-        },
-        {
-      path = '/export/',
-      method = 'GET'
-        },
-        {
-      path = '/external/',
-      method = 'GET'
-        },
-        {
-      path = '/extranet/',
-      method = 'GET'
-        },
-        {
-      path = '/failure/',
-      method = 'GET'
-        },
-        {
-      path = '/fbsd/',
-      method = 'GET'
-        },
-        {
-      path = '/fcgi-bin/',
-      method = 'GET'
-        },
-        {
-      path = '/fcgi/',
-      method = 'GET'
-        },
-        {
-      path = '/features/',
-      method = 'GET'
-        },
-        {
-      path = '/fileadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/file/',
-      method = 'GET'
-        },
-        {
-      path = '/filemanager/',
-      method = 'GET'
-        },
-        {
-      path = '/files/',
-      method = 'GET'
-        },
-        {
-      path = '/find/',
-      method = 'GET'
-        },
-        {
-      path = '/flash/',
-      method = 'GET'
-        },
-        {
-      path = '/foldoc/',
-      method = 'GET'
-        },
-        {
-      path = '/foobar/',
-      method = 'GET'
-        },
-        {
-      path = '/foo/',
-      method = 'GET'
-        },
-        {
-      path = '/form/',
-      method = 'GET'
-        },
-        {
-      path = '/forms/',
-      method = 'GET'
-        },
-        {
-      path = '/formsmgr/',
-      method = 'GET'
-        },
-        {
-      path = '/form-totaller/',
-      method = 'GET'
-        },
-        {
-      path = '/foto/',
-      method = 'GET'
-        },
-        {
-      path = '/fotos/',
-      method = 'GET'
-        },
-        {
-      path = '/fpadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/fpclass/',
-      method = 'GET'
-        },
-        {
-      path = '/fpdb/',
-      method = 'GET'
-        },
-        {
-      path = '/fpe/',
-      method = 'GET'
-        },
-        {
-      path = '/framesets/',
-      method = 'GET'
-        },
-        {
-      path = '/frames/',
-      method = 'GET'
-        },
-        {
-      path = '/frontpage/',
-      method = 'GET'
-        },
-        {
-      path = '/ftp/',
-      method = 'GET'
-        },
-        {
-      path = '/ftproot/',
-      method = 'GET'
-        },
-        {
-      path = '/func/',
-      method = 'GET'
-        },
-        {
-      path = '/function/',
-      method = 'GET'
-        },
-        {
-      path = '/functions/',
-      method = 'GET'
-        },
-        {
-      path = '/fun/',
-      method = 'GET'
-        },
-        {
-      path = '/general/',
-      method = 'GET'
-        },
-        {
-      path = '/gfx/',
-      method = 'GET'
-        },
-        {
-      path = '/gif/',
-      method = 'GET'
-        },
-        {
-      path = '/gifs/',
-      method = 'GET'
-        },
-        {
-      path = '/global/',
-      method = 'GET'
-        },
-        {
-      path = '/globals/',
-      method = 'GET'
-        },
-        {
-      path = '/good/',
-      method = 'GET'
-        },
-        {
-      path = '/graphics/',
-      method = 'GET'
-        },
-        {
-      path = '/grocery/',
-      method = 'GET'
-        },
-        {
-      path = '/guestbook/',
-      method = 'GET'
-        },
-        {
-      path = '/guest/',
-      method = 'GET'
-        },
-        {
-      path = '/guests/',
-      method = 'GET'
-        },
-        {
-      path = '/GXApp/',
-      method = 'GET'
-        },
-        {
-      path = '/HB/',
-      method = 'GET'
-        },
-        {
-      path = '/HBTemplates/',
-      method = 'GET'
-        },
-        {
-      path = '/helpdesk/',
-      method = 'GET'
-        },
-        {
-      path = '/help/',
-      method = 'GET'
-        },
-        {
-      path = '/hidden/',
-      method = 'GET'
-        },
-        {
-      path = '/hide/',
-      method = 'GET'
-        },
-        {
-      path = '/hitmatic/',
-      method = 'GET'
-        },
-        {
-      path = '/hit_tracker/',
-      method = 'GET'
-        },
-        {
-      path = '/hlstats/',
-      method = 'GET'
-        },
-        {
-      path = '/home/',
-      method = 'GET'
-        },
-        {
-      path = '/hosted/',
-      method = 'GET'
-        },
-        {
-      path = '/host/',
-      method = 'GET'
-        },
-        {
-      path = '/hostingcontroller/',
-      method = 'GET'
-        },
-        {
-      path = '/hosting/',
-      method = 'GET'
-        },
-        {
-      path = '/hp/',
-      method = 'GET'
-        },
-        {
-      path = '/htbin/',
-      method = 'GET'
-        },
-        {
-      path = '/htdocs/',
-      method = 'GET'
-        },
-        {
-      path = '/ht/',
-      method = 'GET'
-        },
-        {
-      path = '/htm/',
-      method = 'GET'
-        },
-        {
-      path = '/html/',
-      method = 'GET'
-        },
-        {
-      path = '/http/',
-      method = 'GET'
-        },
-        {
-      path = '/https/',
-      method = 'GET'
-        },
-        {
-      path = '/hyperstat/',
-      method = 'GET'
-        },
-        {
-      path = '/i18n/',
-      method = 'GET'
-        },
-        {
-      path = '/ibank/',
-      method = 'GET'
-        },
-        {
-      path = '/ibill/',
-      method = 'GET'
-        },
-        {
-      path = '/IBMWebAS/',
-      method = 'GET'
-        },
-        {
-      path = '/icons/',
-      method = 'GET'
-        },
-        {
-      path = '/idea/',
-      method = 'GET'
-        },
-        {
-      path = '/ideas/',
-      method = 'GET'
-        },
-        {
-      path = '/I/',
-      method = 'GET'
-        },
-        {
-      path = '/iisadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/image/',
-      method = 'GET'
-        },
-        {
-      path = '/images/',
-      method = 'GET'
-        },
-        {
-      path = '/imagenes/',
-      method = 'GET'
-        },
-        {
-      path = '/imagery/',
-      method = 'GET'
-        },
-        {
-      path = '/img/',
-      method = 'GET'
-        },
-        {
-      path = '/imp/',
-      method = 'GET'
-        },
-        {
-      path = '/import/',
-      method = 'GET'
-        },
-        {
-      path = '/impreso/',
-      method = 'GET'
-        },
-        {
-      path = '/inc/',
-      method = 'GET'
-        },
-        {
-      path = '/include/',
-      method = 'GET'
-        },
-        {
-      path = '/includes/',
-      method = 'GET'
-        },
-        {
-      path = '/incoming/',
-      method = 'GET'
-        },
-        {
-      path = '/index/',
-      method = 'GET'
-        },
-        {
-      path = '/inet/',
-      method = 'GET'
-        },
-        {
-      path = '/inf/',
-      method = 'GET'
-        },
-        {
-      path = '/info/',
-      method = 'GET'
-        },
-        {
-      path = '/information/',
-      method = 'GET'
-        },
-        {
-      path = '/in/',
-      method = 'GET'
-        },
-        {
-      path = '/ingresa/',
-      method = 'GET'
-        },
-        {
-      path = '/ingreso/',
-      method = 'GET'
-        },
-        {
-      path = '/install/',
-      method = 'GET'
-        },
-        {
-      path = '/internal/',
-      method = 'GET'
-        },
-        {
-      path = '/internet/',
-      method = 'GET'
-        },
-        {
-      path = '/intranet/',
-      method = 'GET'
-        },
-        {
-      path = '/inventory/',
-      method = 'GET'
-        },
-        {
-      path = '/invitado/',
-      method = 'GET'
-        },
-        {
-      path = '/isapi/',
-      method = 'GET'
-        },
-        {
-      path = '/j2ee/',
-      method = 'GET'
-        },
-        {
-      path = '/japidoc/',
-      method = 'GET'
-        },
-        {
-      path = '/java/',
-      method = 'GET'
-        },
-        {
-      path = '/javascript/',
-      method = 'GET'
-        },
-        {
-      path = '/javasdk/',
-      method = 'GET'
-        },
-        {
-      path = '/javatest/',
-      method = 'GET'
-        },
-        {
-      path = '/jave/',
-      method = 'GET'
-        },
-        {
-      path = '/JBookIt/',
-      method = 'GET'
-        },
-        {
-      path = '/jdbc/',
-      method = 'GET'
-        },
-        {
-      path = '/job/',
-      method = 'GET'
-        },
-        {
-      path = '/jrun/',
-      method = 'GET'
-        },
-        {
-      path = '/jsa/',
-      method = 'GET'
-        },
-        {
-      path = '/jscript/',
-      method = 'GET'
-        },
-        {
-      path = '/jserv/',
-      method = 'GET'
-        },
-        {
-      path = '/js/',
-      method = 'GET'
-        },
-        {
-      path = '/jslib/',
-      method = 'GET'
-        },
-        {
-      path = '/jsp/',
-      method = 'GET'
-        },
-        {
-      path = '/junk/',
-      method = 'GET'
-        },
-        {
-      path = '/kiva/',
-      method = 'GET'
-        },
-        {
-      path = '/known/',
-      method = 'GET'
-        },
-        {
-      path = '/labs/',
-      method = 'GET'
-        },
-        {
-      path = '/lcgi/',
-      method = 'GET'
-        },
-        {
-      path = '/lib/',
-      method = 'GET'
-        },
-        {
-      path = '/libraries/',
-      method = 'GET'
-        },
-        {
-      path = '/library/',
-      method = 'GET'
-        },
-        {
-      path = '/libro/',
-      method = 'GET'
-        },
-        {
-      path = '/license/',
-      method = 'GET'
-        },
-        {
-      path = '/licenses/',
-      method = 'GET'
-        },
-        {
-      path = '/links/',
-      method = 'GET'
-        },
-        {
-      path = '/linux/',
-      method = 'GET'
-        },
-        {
-      path = '/loader/',
-      method = 'GET'
-        },
-        {
-      path = '/local/',
-      method = 'GET'
-        },
-        {
-      path = '/location/',
-      method = 'GET'
-        },
-        {
-      path = '/locations/',
-      method = 'GET'
-        },
-        {
-      path = '/logfile/',
-      method = 'GET'
-        },
-        {
-      path = '/logfiles/',
-      method = 'GET'
-        },
-        {
-      path = '/logger/',
-      method = 'GET'
-        },
-        {
-      path = '/logg/',
-      method = 'GET'
-        },
-        {
-      path = '/logging/',
-      method = 'GET'
-        },
-        {
-      path = '/logon/',
-      method = 'GET'
-        },
-        {
-      path = '/logout/',
-      method = 'GET'
-        },
-        {
-      path = '/lost+found/',
-      method = 'GET'
-        },
-        {
-      path = '/mailman/',
-      method = 'GET'
-        },
-        {
-      path = '/mailroot/',
-      method = 'GET'
-        },
-        {
-      path = '/makefile/',
-      method = 'GET'
-        },
-        {
-      path = '/manage/',
-      method = 'GET'
-        },
-        {
-      path = '/management/',
-      method = 'GET'
-        },
-        {
-      path = '/man/',
-      method = 'GET'
-        },
-        {
-      path = '/manual/',
-      method = 'GET'
-        },
-        {
-      path = '/map/',
-      method = 'GET'
-        },
-        {
-      path = '/maps/',
-      method = 'GET'
-        },
-        {
-      path = '/marketing/',
-      method = 'GET'
-        },
-        {
-      path = '/member/',
-      method = 'GET'
-        },
-        {
-      path = '/members/',
-      method = 'GET'
-        },
-        {
-      path = '/mem_bin/',
-      method = 'GET'
-        },
-        {
-      path = '/mem/',
-      method = 'GET'
-        },
-        {
-      path = '/message/',
-      method = 'GET'
-        },
-        {
-      path = '/messaging/',
-      method = 'GET'
-        },
-        {
-      path = '/metacart/',
-      method = 'GET'
-        },
-        {
-      path = '/microsoft/',
-      method = 'GET'
-        },
-        {
-      path = '/misc/',
-      method = 'GET'
-        },
-        {
-      path = '/mkstats/',
-      method = 'GET'
-        },
-        {
-      path = '/mod/',
-      method = 'GET'
-        },
-        {
-      path = '/module/',
-      method = 'GET'
-        },
-        {
-      path = '/modules/',
-      method = 'GET'
-        },
-        {
-      path = '/movimientos/',
-      method = 'GET'
-        },
-        {
-      path = '/mpcgi/',
-      method = 'GET'
-        },
-        {
-      path = '/mqseries/',
-      method = 'GET'
-        },
-        {
-      path = '/msfpe/',
-      method = 'GET'
-        },
-        {
-      path = '/ms/',
-      method = 'GET'
-        },
-        {
-      path = '/msql/',
-      method = 'GET'
-        },
-        {
-      path = '/Msword/',
-      method = 'GET'
-        },
-        {
-      path = '/mxhtml/',
-      method = 'GET'
-        },
-        {
-      path = '/mxportal/',
-      method = 'GET'
-        },
-        {
-      path = '/my/',
-      method = 'GET'
-        },
-        {
-      path = '/My Shared Folder/',
-      method = 'GET'
-        },
-        {
-      path = '/mysql_admin/',
-      method = 'GET'
-        },
-        {
-      path = '/mysql/',
-      method = 'GET'
-        },
-        {
-      path = '/name/',
-      method = 'GET'
-        },
-        {
-      path = '/names/',
-      method = 'GET'
-        },
-        {
-      path = '/ncadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/nchelp/',
-      method = 'GET'
-        },
-        {
-      path = '/netbasic/',
-      method = 'GET'
-        },
-        {
-      path = '/netcat/',
-      method = 'GET'
-        },
-        {
-      path = '/NetDynamic/',
-      method = 'GET'
-        },
-        {
-      path = '/NetDynamics/',
-      method = 'GET'
-        },
-        {
-      path = '/net/',
-      method = 'GET'
-        },
-        {
-      path = '/netmagstats/',
-      method = 'GET'
-        },
-        {
-      path = '/netscape/',
-      method = 'GET'
-        },
-        {
-      path = '/netshare/',
-      method = 'GET'
-        },
-        {
-      path = '/nettracker/',
-      method = 'GET'
-        },
-        {
-      path = '/network/',
-      method = 'GET'
-        },
-        {
-      path = '/new/',
-      method = 'GET'
-        },
-        {
-      path = '/news/',
-      method = 'GET'
-        },
-        {
-      path = '/News/',
-      method = 'GET'
-        },
-        {
-      path = '/nextgeneration/',
-      method = 'GET'
-        },
-        {
-      path = '/nl/',
-      method = 'GET'
-        },
-        {
-      path = '/notes/',
-      method = 'GET'
-        },
-        {
-      path = '/noticias/',
-      method = 'GET'
-        },
-        {
-      path = '/NSearch/',
-      method = 'GET'
-        },
-        {
-      path = '/objects/',
-      method = 'GET'
-        },
-        {
-      path = '/odbc/',
-      method = 'GET'
-        },
-        {
-      path = '/officescan/',
-      method = 'GET'
-        },
-        {
-      path = '/ojspdemos/',
-      method = 'GET'
-        },
-        {
-      path = '/old_files/',
-      method = 'GET'
-        },
-        {
-      path = '/oldfiles/',
-      method = 'GET'
-        },
-        {
-      path = '/old/',
-      method = 'GET'
-        },
-        {
-      path = '/oprocmgr-service/',
-      method = 'GET'
-        },
-        {
-      path = '/oprocmgr-status/',
-      method = 'GET'
-        },
-        {
-      path = '/oracle/',
-      method = 'GET'
-        },
-        {
-      path = '/oradata/',
-      method = 'GET'
-        },
-        {
-      path = '/order/',
-      method = 'GET'
-        },
-        {
-      path = '/orders/',
-      method = 'GET'
-        },
-        {
-      path = '/os/',
-      method = 'GET'
-        },
-        {
-      path = '/out/',
-      method = 'GET'
-        },
-        {
-      path = '/outgoing/',
-      method = 'GET'
-        },
-        {
-      path = '/owners/',
-      method = 'GET'
-        },
-        {
-      path = '/ows-bin/',
-      method = 'GET'
-        },
-        {
-      path = '/page/',
-      method = 'GET'
-        },
-        {
-      path = '/_pages/',
-      method = 'GET'
-        },
-        {
-      path = '/pages/',
-      method = 'GET'
-        },
-        {
-      path = '/partner/',
-      method = 'GET'
-        },
-        {
-      path = '/partners/',
-      method = 'GET'
-        },
-        {
-      path = '/passport/',
-      method = 'GET'
-        },
-        {
-      path = '/password/',
-      method = 'GET'
-        },
-        {
-      path = '/passwords/',
-      method = 'GET'
-        },
-        {
-      path = '/path/',
-      method = 'GET'
-        },
-        {
-      path = '/payment/',
-      method = 'GET'
-        },
-        {
-      path = '/payments/',
-      method = 'GET'
-        },
-        {
-      path = '/pccsmysqladm/',
-      method = 'GET'
-        },
-        {
-      path = '/PDG_Cart/',
-      method = 'GET'
-        },
-        {
-      path = '/perl5/',
-      method = 'GET'
-        },
-        {
-      path = '/perl/',
-      method = 'GET'
-        },
-        {
-      path = '/personal/',
-      method = 'GET'
-        },
-        {
-      path = '/pforum/',
-      method = 'GET'
-        },
-        {
-      path = '/phorum/',
-      method = 'GET'
-        },
-        {
-      path = '/phpBB/',
-      method = 'GET'
-        },
-        {
-      path = '/php_classes/',
-      method = 'GET'
-        },
-        {
-      path = '/phpclassifieds/',
-      method = 'GET'
-        },
-        {
-      path = '/php/',
-      method = 'GET'
-        },
-        {
-      path = '/phpimageview/',
-      method = 'GET'
-        },
-        {
-      path = '/phpnuke/',
-      method = 'GET'
-        },
-        {
-      path = '/phpPhotoAlbum/',
-      method = 'GET'
-        },
-        {
-      path = '/phpprojekt/',
-      method = 'GET'
-        },
-        {
-      path = '/phpSecurePages/',
-      method = 'GET'
-        },
-        {
-      path = '/pics/',
-      method = 'GET'
-        },
-        {
-      path = '/pictures/',
-      method = 'GET'
-        },
-        {
-      path = '/pike/',
-      method = 'GET'
-        },
-        {
-      path = '/piranha/',
-      method = 'GET'
-        },
-        {
-      path = '/pls/',
-      method = 'GET'
-        },
-        {
-      path = '/plsql/',
-      method = 'GET'
-        },
-        {
-      path = '/plssampleadmin_/',
-      method = 'GET'
-        },
-        {
-      path = '/plssampleadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/plssampleadmin_help/',
-      method = 'GET'
-        },
-        {
-      path = '/plssample/',
-      method = 'GET'
-        },
-        {
-      path = '/poll/',
-      method = 'GET'
-        },
-        {
-      path = '/polls/',
-      method = 'GET'
-        },
-        {
-      path = '/porn/',
-      method = 'GET'
-        },
-        {
-      path = '/portal/',
-      method = 'GET'
-        },
-        {
-      path = '/portals/',
-      method = 'GET'
-        },
-        {
-      path = '/postgres/',
-      method = 'GET'
-        },
-        {
-      path = '/postnuke/',
-      method = 'GET'
-        },
-        {
-      path = '/ppwb/',
-      method = 'GET'
-        },
-        {
-      path = '/printer/',
-      method = 'GET'
-        },
-        {
-      path = '/printers/',
-      method = 'GET'
-        },
-        {
-      path = '/privacy/',
-      method = 'GET'
-        },
-        {
-      path = '/privado/',
-      method = 'GET'
-        },
-        {
-      path = '/_private/',
-      method = 'GET'
-        },
-        {
-      path = '/private/',
-      method = 'GET'
-        },
-        {
-      path = '/priv/',
-      method = 'GET'
-        },
-        {
-      path = '/prod/',
-      method = 'GET'
-        },
-        {
-      path = '/projectserver/',
-      method = 'GET'
-        },
-        {
-      path = '/protected/',
-      method = 'GET'
-        },
-        {
-      path = '/proxy/',
-      method = 'GET'
-        },
-        {
-      path = '/prueba/',
-      method = 'GET'
-        },
-        {
-      path = '/pruebas/',
-      method = 'GET'
-        },
-        {
-      path = '/prv/',
-      method = 'GET'
-        },
-        {
-      path = '/pub/',
-      method = 'GET'
-        },
-        {
-      path = '/_public/',
-      method = 'GET'
-        },
-        {
-      path = '/public/',
-      method = 'GET'
-        },
-        {
-      path = '/publica/',
-      method = 'GET'
-        },
-        {
-      path = '/publicar/',
-      method = 'GET'
-        },
-        {
-      path = '/publico/',
-      method = 'GET'
-        },
-        {
-      path = '/publish/',
-      method = 'GET'
-        },
-        {
-      path = '/purchase/',
-      method = 'GET'
-        },
-        {
-      path = '/purchases/',
-      method = 'GET'
-        },
-        {
-      path = '/pw/',
-      method = 'GET'
-        },
-        {
-      path = '/python/',
-      method = 'GET'
-        },
-        {
-      path = '/random_banner/',
-      method = 'GET'
-        },
-        {
-      path = '/rdp/',
-      method = 'GET'
-        },
-        {
-      path = '/Readme/',
-      method = 'GET'
-        },
-        {
-      path = '/recycler/',
-      method = 'GET'
-        },
-        {
-      path = '/registered/',
-      method = 'GET'
-        },
-        {
-      path = '/register/',
-      method = 'GET'
-        },
-        {
-      path = '/registry/',
-      method = 'GET'
-        },
-        {
-      path = '/remote/',
-      method = 'GET'
-        },
-        {
-      path = '/remove/',
-      method = 'GET'
-        },
-        {
-      path = '/report/',
-      method = 'GET'
-        },
-        {
-      path = '/reports/',
-      method = 'GET'
-        },
-        {
-      path = '/reseller/',
-      method = 'GET'
-        },
-        {
-      path = '/restricted/',
-      method = 'GET'
-        },
-        {
-      path = '/retail/',
-      method = 'GET'
-        },
-        {
-      path = '/reveal/',
-      method = 'GET'
-        },
-        {
-      path = '/reviews/',
-      method = 'GET'
-        },
-        {
-      path = '/ROADS/',
-      method = 'GET'
-        },
-        {
-      path = '/robot/',
-      method = 'GET'
-        },
-        {
-      path = '/robots/',
-      method = 'GET'
-        },
-        {
-      path = '/root/',
-      method = 'GET'
-        },
-        {
-      path = '/rsrc/',
-      method = 'GET'
-        },
-        {
-      path = '/ruby/',
-      method = 'GET'
-        },
-        {
-      path = '/sales/',
-      method = 'GET'
-        },
-        {
-      path = '/save/',
-      method = 'GET'
-        },
-        {
-      path = '/script/',
-      method = 'GET'
-        },
-        {
-      path = '/ScriptLibrary/',
-      method = 'GET'
-        },
-        {
-      path = '/scripts/',
-      method = 'GET'
-        },
-        {
-      path = '/search/',
-      method = 'GET'
-        },
-        {
-      path = '/search-ui/',
-      method = 'GET'
-        },
-        {
-      path = '/sec/',
-      method = 'GET'
-        },
-        {
-      path = '/secret/',
-      method = 'GET'
-        },
-        {
-      path = '/secured/',
-      method = 'GET'
-        },
-        {
-      path = '/secure/',
-      method = 'GET'
-        },
-        {
-      path = '/security/',
-      method = 'GET'
-        },
-        {
-      path = '/sell/',
-      method = 'GET'
-        },
-        {
-      path = '/server/',
-      method = 'GET'
-        },
-        {
-      path = '/server-info/',
-      method = 'GET'
-        },
-        {
-      path = '/servers/',
-      method = 'GET'
-        },
-        {
-      path = '/server_stats/',
-      method = 'GET'
-        },
-        {
-      path = '/serverstats/',
-      method = 'GET'
-        },
-        {
-      path = '/server-status/',
-      method = 'GET'
-        },
-        {
-      path = '/service/',
-      method = 'GET'
-        },
-        {
-      path = '/services/',
-      method = 'GET'
-        },
-        {
-      path = '/servicio/',
-      method = 'GET'
-        },
-        {
-      path = '/servicios/',
-      method = 'GET'
-        },
-        {
-      path = '/servlet/',
-      method = 'GET'
-        },
-        {
-      path = '/servlets/',
-      method = 'GET'
-        },
-        {
-      path = '/session/',
-      method = 'GET'
-        },
-        {
-      path = '/setup/',
-      method = 'GET'
-        },
-        {
-      path = '/shared/',
-      method = 'GET'
-        },
-        {
-      path = '/sharedtemplates/',
-      method = 'GET'
-        },
-        {
-      path = '/share/',
-      method = 'GET'
-        },
-        {
-      path = '/shell-cgi/',
-      method = 'GET'
-        },
-        {
-      path = '/shipping/',
-      method = 'GET'
-        },
-        {
-      path = '/shop/',
-      method = 'GET'
-        },
-        {
-      path = '/shopper/',
-      method = 'GET'
-        },
-        {
-      path = '/show/',
-      method = 'GET'
-        },
-        {
-      path = '/SilverStream/',
-      method = 'GET'
-        },
-        {
-      path = '/siteadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/site/',
-      method = 'GET'
-        },
-        {
-      path = '/sitemgr/',
-      method = 'GET'
-        },
-        {
-      path = '/siteminderagent/',
-      method = 'GET'
-        },
-        {
-      path = '/siteminder/',
-      method = 'GET'
-        },
-        {
-      path = '/siteserver/',
-      method = 'GET'
-        },
-        {
-      path = '/sites/',
-      method = 'GET'
-        },
-        {
-      path = '/sitestats/',
-      method = 'GET'
-        },
-        {
-      path = '/siteupdate/',
-      method = 'GET'
-        },
-        {
-      path = '/smreports/',
-      method = 'GET'
-        },
-        {
-      path = '/smreportsviewer/',
-      method = 'GET'
-        },
-        {
-      path = '/soapdocs/',
-      method = 'GET'
-        },
-        {
-      path = '/soap/',
-      method = 'GET'
-        },
-        {
-      path = '/software/',
-      method = 'GET'
-        },
-        {
-      path = '/solaris/',
-      method = 'GET'
-        },
-        {
-      path = '/source/',
-      method = 'GET'
-        },
-        {
-      path = '/sql/',
-      method = 'GET'
-        },
-        {
-      path = '/squid/',
-      method = 'GET'
-        },
-        {
-      path = '/src/',
-      method = 'GET'
-        },
-        {
-      path = '/srchadm/',
-      method = 'GET'
-        },
-        {
-      path = '/ssi/',
-      method = 'GET'
-        },
-        {
-      path = '/ssl/',
-      method = 'GET'
-        },
-        {
-      path = '/sslkeys/',
-      method = 'GET'
-        },
-        {
-      path = '/staff/',
-      method = 'GET'
-        },
-        {
-      path = '/state/',
-      method = 'GET'
-        },
-        {
-      path = '/stat/',
-      method = 'GET'
-        },
-        {
-      path = '/statistic/',
-      method = 'GET'
-        },
-        {
-      path = '/statistics/',
-      method = 'GET'
-        },
-        {
-      path = '/stats-bin-p/',
-      method = 'GET'
-        },
-        {
-      path = '/stats/',
-      method = 'GET'
-        },
-        {
-      path = '/stats_old/',
-      method = 'GET'
-        },
-        {
-      path = '/status/',
-      method = 'GET'
-        },
-        {
-      path = '/storage/',
-      method = 'GET'
-        },
-        {
-      path = '/StoreDB/',
-      method = 'GET'
-        },
-        {
-      path = '/store/',
-      method = 'GET'
-        },
-        {
-      path = '/storemgr/',
-      method = 'GET'
-        },
-        {
-      path = '/stronghold-info/',
-      method = 'GET'
-        },
-        {
-      path = '/stronghold-status/',
-      method = 'GET'
-        },
-        {
-      path = '/stuff/',
-      method = 'GET'
-        },
-        {
-      path = '/style/',
-      method = 'GET'
-        },
-        {
-      path = '/styles/',
-      method = 'GET'
-        },
-        {
-      path = '/stylesheet/',
-      method = 'GET'
-        },
-        {
-      path = '/stylesheets/',
-      method = 'GET'
-        },
-        {
-      path = '/subir/',
-      method = 'GET'
-        },
-        {
-      path = '/sun/',
-      method = 'GET'
-        },
-        {
-      path = '/super_stats/',
-      method = 'GET'
-        },
-        {
-      path = '/supplier/',
-      method = 'GET'
-        },
-        {
-      path = '/suppliers/',
-      method = 'GET'
-        },
-        {
-      path = '/supply/',
-      method = 'GET'
-        },
-        {
-      path = '/supporter/',
-      method = 'GET'
-        },
-        {
-      path = '/support/',
-      method = 'GET'
-        },
-        {
-      path = '/sysadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/sysbackup/',
-      method = 'GET'
-        },
-        {
-      path = '/sys/',
-      method = 'GET'
-        },
-        {
-      path = '/system/',
-      method = 'GET'
-        },
-        {
-      path = '/systems/',
-      method = 'GET'
-        },
-        {
-      path = '/tar/',
-      method = 'GET'
-        },
-        {
-      path = '/target/',
-      method = 'GET'
-        },
-        {
-      path = '/tarjetas/',
-      method = 'GET'
-        },
-        {
-      path = '/tech/',
-      method = 'GET'
-        },
-        {
-      path = '/technote/',
-      method = 'GET'
-        },
-        {
-      path = '/te_html/',
-      method = 'GET'
-        },
-        {
-      path = '/temp/',
-      method = 'GET'
-        },
-        {
-      path = '/template/',
-      method = 'GET'
-        },
-        {
-      path = '/templates/',
-      method = 'GET'
-        },
-        {
-      path = '/temporal/',
-      method = 'GET'
-        },
-        {
-      path = '/test-cgi/',
-      method = 'GET'
-        },
-        {
-      path = '/testing/',
-      method = 'GET'
-        },
-        {
-      path = '/tests/',
-      method = 'GET'
-        },
-        {
-      path = '/testweb/',
-      method = 'GET'
-        },
-        {
-      path = '/themes/',
-      method = 'GET'
-        },
-        {
-      path = '/ticket/',
-      method = 'GET'
-        },
-        {
-      path = '/tickets/',
-      method = 'GET'
-        },
-        {
-      path = '/tip/',
-      method = 'GET'
-        },
-        {
-      path = '/tips/',
-      method = 'GET'
-        },
-        {
-      path = '/tmp/',
-      method = 'GET'
-        },
-        {
-      path = '/ToDo/',
-      method = 'GET'
-        },
-        {
-      path = '/tool/',
-      method = 'GET'
-        },
-        {
-      path = '/tools/',
-      method = 'GET'
-        },
-        {
-      path = '/TopAccess/',
-      method = 'GET'
-        },
-        {
-      path = '/top/',
-      method = 'GET'
-        },
-        {
-      path = '/tpv/',
-      method = 'GET'
-        },
-        {
-      path = '/trabajo/',
-      method = 'GET'
-        },
-        {
-      path = '/track/',
-      method = 'GET'
-        },
-        {
-      path = '/tracking/',
-      method = 'GET'
-        },
-        {
-      path = '/transfer/',
-      method = 'GET'
-        },
-        {
-      path = '/transito/',
-      method = 'GET'
-        },
-        {
-      path = '/transpolar/',
-      method = 'GET'
-        },
-        {
-      path = '/tree/',
-      method = 'GET'
-        },
-        {
-      path = '/trees/',
-      method = 'GET'
-        },
-        {
-      path = '/trick/',
-      method = 'GET'
-        },
-        {
-      path = '/tricks/',
-      method = 'GET'
-        },
-        {
-      path = '/u02/',
-      method = 'GET'
-        },
-        {
-      path = '/unix/',
-      method = 'GET'
-        },
-        {
-      path = '/unknown/',
-      method = 'GET'
-        },
-        {
-      path = '/updates/',
-      method = 'GET'
-        },
-        {
-      path = '/upload/',
-      method = 'GET'
-        },
-        {
-      path = '/uploads/',
-      method = 'GET'
-        },
-        {
-      path = '/usage/',
-      method = 'GET'
-        },
-        {
-      path = '/userdb/',
-      method = 'GET'
-        },
-        {
-      path = '/user/',
-      method = 'GET'
-        },
-        {
-      path = '/users/',
-      method = 'GET'
-        },
-        {
-      path = '/us/',
-      method = 'GET'
-        },
-        {
-      path = '/usr/',
-      method = 'GET'
-        },
-        {
-      path = '/ustats/',
-      method = 'GET'
-        },
-        {
-      path = '/usuario/',
-      method = 'GET'
-        },
-        {
-      path = '/usuarios/',
-      method = 'GET'
-        },
-        {
-      path = '/util/',
-      method = 'GET'
-        },
-        {
-      path = '/utils/',
-      method = 'GET'
-        },
-        {
-      path = '/vendor/',
-      method = 'GET'
-        },
-        {
-      path = '/vfs/',
-      method = 'GET'
-        },
-        {
-      path = '/view/',
-      method = 'GET'
-        },
-        {
-      path = '/vpn/',
-      method = 'GET'
-        },
-        {
-      path = '/vti_txt/',
-      method = 'GET'
-        },
-        {
-      path = '/w2000/',
-      method = 'GET'
-        },
-        {
-      path = '/w2k/',
-      method = 'GET'
-        },
-        {
-      path = '/w3perl/',
-      method = 'GET'
-        },
-        {
-      path = '/w-agora/',
-      method = 'GET'
-        },
-        {
-      path = '/way-board/',
-      method = 'GET'
-        },
-        {
-      path = '/web800fo/',
-      method = 'GET'
-        },
-        {
-      path = '/webaccess/',
-      method = 'GET'
-        },
-        {
-      path = '/webadmin/',
-      method = 'GET'
-        },
-        {
-      path = '/webAdmin/',
-      method = 'GET'
-        },
-        {
-      path = '/webalizer/',
-      method = 'GET'
-        },
-        {
-      path = '/webapps/',
-      method = 'GET'
-        },
-        {
-      path = '/WebBank/',
-      method = 'GET'
-        },
-        {
-      path = '/webboard/',
-      method = 'GET'
-        },
-        {
-      path = '/WebCalendar/',
-      method = 'GET'
-        },
-        {
-      path = '/webcart/',
-      method = 'GET'
-        },
-        {
-      path = '/webcart-lite/',
-      method = 'GET'
-        },
-        {
-      path = '/webcgi/',
-      method = 'GET'
-        },
-        {
-      path = '/webdata/',
-      method = 'GET'
-        },
-        {
-      path = '/webdav/',
-      method = 'GET'
-        },
-        {
-      path = '/webdb/',
-      method = 'GET'
-        },
-        {
-      path = '/webDB/',
-      method = 'GET'
-        },
-        {
-      path = '/web/',
-      method = 'GET'
-        },
-        {
-      path = '/webimages2/',
-      method = 'GET'
-        },
-        {
-      path = '/webimages/',
-      method = 'GET'
-        },
-        {
-      path = '/web-inf/',
-      method = 'GET'
-        },
-        {
-      path = '/webmaster/',
-      method = 'GET'
-        },
-        {
-      path = '/webmaster_logs/',
-      method = 'GET'
-        },
-        {
-      path = '/webMathematica/',
-      method = 'GET'
-        },
-        {
-      path = '/webpub/',
-      method = 'GET'
-        },
-        {
-      path = '/webpub-ui/',
-      method = 'GET'
-        },
-        {
-      path = '/webreports/',
-      method = 'GET'
-        },
-        {
-      path = '/webreps/',
-      method = 'GET'
-        },
-        {
-      path = '/webshare/',
-      method = 'GET'
-        },
-        {
-      path = '/WebShop/',
-      method = 'GET'
-        },
-        {
-      path = '/website/',
-      method = 'GET'
-        },
-        {
-      path = '/webstat/',
-      method = 'GET'
-        },
-        {
-      path = '/webstats/',
-      method = 'GET'
-        },
-        {
-      path = '/Web_store/',
-      method = 'GET'
-        },
-        {
-      path = '/webtrace/',
-      method = 'GET'
-        },
-        {
-      path = '/WebTrend/',
-      method = 'GET'
-        },
-        {
-      path = '/webtrends/',
-      method = 'GET'
-        },
-        {
-      path = '/web_usage/',
-      method = 'GET'
-        },
-        {
-      path = '/win2k/',
-      method = 'GET'
-        },
-        {
-      path = '/window/',
-      method = 'GET'
-        },
-        {
-      path = '/windows/',
-      method = 'GET'
-        },
-        {
-      path = '/win/',
-      method = 'GET'
-        },
-        {
-      path = '/winnt/',
-      method = 'GET'
-        },
-        {
-      path = '/word/',
-      method = 'GET'
-        },
-        {
-      path = '/work/',
-      method = 'GET'
-        },
-        {
-      path = '/world/',
-      method = 'GET'
-        },
-        {
-      path = '/wsdocs/',
-      method = 'GET'
-        },
-        {
-      path = '/WS_FTP/',
-      method = 'GET'
-        },
-        {
-      path = '/wstats/',
-      method = 'GET'
-        },
-        {
-      path = '/wusage/',
-      method = 'GET'
-        },
-        {
-      path = '/www0/',
-      method = 'GET'
-        },
-        {
-      path = '/www2/',
-      method = 'GET'
-        },
-        {
-      path = '/www3/',
-      method = 'GET'
-        },
-        {
-      path = '/www4/',
-      method = 'GET'
-        },
-        {
-      path = '/www/',
-      method = 'GET'
-        },
-        {
-      path = '/wwwjoin/',
-      method = 'GET'
-        },
-        {
-      path = '/wwwrooot/',
-      method = 'GET'
-        },
-        {
-      path = '/www-sql/',
-      method = 'GET'
-        },
-        {
-      path = '/wwwstat/',
-      method = 'GET'
-        },
-        {
-      path = '/wwwstats/',
-      method = 'GET'
-        },
-        {
-      path = '/xGB/',
-      method = 'GET'
-        },
-        {
-      path = '/xml/',
-      method = 'GET'
-        },
-        {
-      path = '/XSL/',
-      method = 'GET'
-        },
-        {
-      path = '/xtemp/',
-      method = 'GET'
-        },
-        {
-      path = '/xymon/',
-      method = 'GET'
-        },
-        {
-      path = '/zb41/',
-      method = 'GET'
-        },
-        {
-      path = '/zipfiles/',
-      method = 'GET'
-        },
-        {
-      path = '/zip/',
-      method = 'GET'
-        },
-        {
-      path = '/_docs/',
-      method = 'GET'
-        }
-        },
-      matches = {
+      {
+        path = '/cgi-scripts/',
+        method = 'GET'
+      },
+      {
+        path = '/cgiscripts/',
+        method = 'GET'
+      },
+      {
+        path = '/cgis/',
+        method = 'GET'
+      },
+      {
+        path = '/cgi-shl/',
+        method = 'GET'
+      },
+      {
+        path = '/cgi-shop/',
+        method = 'GET'
+      },
+      {
+        path = '/cgi-sys/',
+        method = 'GET'
+      },
+      {
+        path = '/cgi-weddico/',
+        method = 'GET'
+      },
+      {
+        path = '/cgi-win/',
+        method = 'GET'
+      },
+      {
+        path = '/cgiwin/',
+        method = 'GET'
+      },
+      {
+        path = '/class/',
+        method = 'GET'
+      },
+      {
+        path = '/classes/',
+        method = 'GET'
+      },
+      {
+        path = '/cliente/',
+        method = 'GET'
+      },
+      {
+        path = '/clientes/',
+        method = 'GET'
+      },
+      {
+        path = '/client/',
+        method = 'GET'
+      },
+      {
+        path = '/clients/',
+        method = 'GET'
+      },
+      {
+        path = '/cm/',
+        method = 'GET'
+      },
+      {
+        path = '/cobalt-images/',
+        method = 'GET'
+      },
+      {
+        path = '/code/',
+        method = 'GET'
+      },
+      {
+        path = '/com/',
+        method = 'GET'
+      },
+      {
+        path = '/comments/',
+        method = 'GET'
+      },
+      {
+        path = '/common/',
+        method = 'GET'
+      },
+      {
+        path = '/communicator/',
+        method = 'GET'
+      },
+      {
+        path = '/company/',
+        method = 'GET'
+      },
+      {
+        path = '/comp/',
+        method = 'GET'
+      },
+      {
+        path = '/compra/',
+        method = 'GET'
+      },
+      {
+        path = '/compras/',
+        method = 'GET'
+      },
+      {
+        path = '/compressed/',
+        method = 'GET'
+      },
+      {
+        path = '/conecta/',
+        method = 'GET'
+      },
+      {
+        path = '/conf/',
+        method = 'GET'
+      },
+      {
+        path = '/config/',
+        method = 'GET'
+      },
+      {
+        path = '/configs/',
+        method = 'GET'
+      },
+      {
+        path = '/configure/',
+        method = 'GET'
+      },
+      {
+        path = '/connect/',
+        method = 'GET'
+      },
+      {
+        path = '/console/',
+        method = 'GET'
+      },
+      {
+        path = '/contact/',
+        method = 'GET'
+      },
+      {
+        path = '/contacts/',
+        method = 'GET'
+      },
+      {
+        path = '/content/',
+        method = 'GET'
+      },
+      {
+        path = '/content.ie5/',
+        method = 'GET'
+      },
+      {
+        path = '/controlpanel/',
+        method = 'GET'
+      },
+      {
+        path = '/core/',
+        method = 'GET'
+      },
+      {
+        path = '/corp/',
+        method = 'GET'
+      },
+      {
+        path = '/correo/',
+        method = 'GET'
+      },
+      {
+        path = '/counter/',
+        method = 'GET'
+      },
+      {
+        path = '/credit/',
+        method = 'GET'
+      },
+      {
+        path = '/cron/',
+        method = 'GET'
+      },
+      {
+        path = '/crons/',
+        method = 'GET'
+      },
+      {
+        path = '/crypto/',
+        method = 'GET'
+      },
+      {
+        path = '/CS/',
+        method = 'GET'
+      },
+      {
+        path = '/csr/',
+        method = 'GET'
+      },
+      {
+        path = '/css/',
+        method = 'GET'
+      },
+      {
+        path = '/cuenta/',
+        method = 'GET'
+      },
+      {
+        path = '/cuentas/',
+        method = 'GET'
+      },
+      {
+        path = '/currency/',
+        method = 'GET'
+      },
+      {
+        path = '/cust/',
+        method = 'GET'
+      },
+      {
+        path = '/customer/',
+        method = 'GET'
+      },
+      {
+        path = '/customers/',
+        method = 'GET'
+      },
+      {
+        path = '/custom/',
+        method = 'GET'
+      },
+      {
+        path = '/CVS/',
+        method = 'GET'
+      },
+      {
+        path = '/cvsweb/',
+        method = 'GET'
+      },
+      {
+        path = '/cybercash/',
+        method = 'GET'
+      },
+      {
+        path = '/darkportal/',
+        method = 'GET'
+      },
+      {
+        path = '/database/',
+        method = 'GET'
+      },
+      {
+        path = '/databases/',
+        method = 'GET'
+      },
+      {
+        path = '/datafiles/',
+        method = 'GET'
+      },
+      {
+        path = '/dat/',
+        method = 'GET'
+      },
+      {
+        path = '/data/',
+        method = 'GET'
+      },
+      {
+        path = '/dato/',
+        method = 'GET'
+      },
+      {
+        path = '/datos/',
+        method = 'GET'
+      },
+      {
+        path = '/db/',
+        method = 'GET'
+      },
+      {
+        path = '/dbase/',
+        method = 'GET'
+      },
+      {
+        path = '/dcforum/',
+        method = 'GET'
+      },
+      {
+        path = '/ddreport/',
+        method = 'GET'
+      },
+      {
+        path = '/ddrint/',
+        method = 'GET'
+      },
+      {
+        path = '/debug/',
+        method = 'GET'
+      },
+      {
+        path = '/debugs/',
+        method = 'GET'
+      },
+      {
+        path = '/default/',
+        method = 'GET'
+      },
+      {
+        path = '/deleted/',
+        method = 'GET'
+      },
+      {
+        path = '/delete/',
+        method = 'GET'
+      },
+      {
+        path = '/demoauct/',
+        method = 'GET'
+      },
+      {
+        path = '/demomall/',
+        method = 'GET'
+      },
+      {
+        path = '/demo/',
+        method = 'GET'
+      },
+      {
+        path = '/demos/',
+        method = 'GET'
+      },
+      {
+        path = '/demouser/',
+        method = 'GET'
+      },
+      {
+        path = '/deny/',
+        method = 'GET'
+      },
+      {
+        path = '/derived/',
+        method = 'GET'
+      },
+      {
+        path = '/design/',
+        method = 'GET'
+      },
+      {
+        path = '/dev/',
+        method = 'GET'
+      },
+      {
+        path = '/devel/',
+        method = 'GET'
+      },
+      {
+        path = '/development/',
+        method = 'GET'
+      },
+      {
+        path = '/directories/',
+        method = 'GET'
+      },
+      {
+        path = '/directory/',
+        method = 'GET'
+      },
+      {
+        path = '/directorymanager/',
+        method = 'GET'
+      },
+      {
+        path = '/dir/',
+        method = 'GET'
+      },
+      {
+        path = '/dl/',
+        method = 'GET'
+      },
+      {
+        path = '/dm/',
+        method = 'GET'
+      },
+      {
+        path = '/DMR/',
+        method = 'GET'
+      },
+      {
+        path = '/dms0/',
+        method = 'GET'
+      },
+      {
+        path = '/dmsdump/',
+        method = 'GET'
+      },
+      {
+        path = '/dms/',
+        method = 'GET'
+      },
+      {
+        path = '/dnn/',
+        method = 'GET'
+      },
+      {
+        path = '/doc1/',
+        method = 'GET'
+      },
+      {
+        path = '/doc/',
+        method = 'GET'
+      },
+      {
+        path = '/doc-html/',
+        method = 'GET'
+      },
+      {
+        path = '/docs1/',
+        method = 'GET'
+      },
+      {
+        path = '/docs/',
+        method = 'GET'
+      },
+      {
+        path = '/DocuColor/',
+        method = 'GET'
+      },
+      {
+        path = '/documentation/',
+        method = 'GET'
+      },
+      {
+        path = '/document/',
+        method = 'GET'
+      },
+      {
+        path = '/documents/',
+        method = 'GET'
+      },
+      {
+        path = '/dotnetnuke/',
+        method = 'GET'
+      },
+      {
+        path = '/down/',
+        method = 'GET'
+      },
+      {
+        path = '/download/',
+        method = 'GET'
+      },
+      {
+        path = '/downloads/',
+        method = 'GET'
+      },
+      {
+        path = '/dump/',
+        method = 'GET'
+      },
+      {
+        path = '/durep/',
+        method = 'GET'
+      },
+      {
+        path = '/easylog/',
+        method = 'GET'
+      },
+      {
+        path = '/eforum/',
+        method = 'GET'
+      },
+      {
+        path = '/ejemplo/',
+        method = 'GET'
+      },
+      {
+        path = '/ejemplos/',
+        method = 'GET'
+      },
+      {
+        path = '/emailclass/',
+        method = 'GET'
+      },
+      {
+        path = '/email/',
+        method = 'GET'
+      },
+      {
+        path = '/employees/',
+        method = 'GET'
+      },
+      {
+        path = '/empoyees/',
+        method = 'GET'
+      },
+      {
+        path = '/empris/',
+        method = 'GET'
+      },
+      {
+        path = '/enter/',
+        method = 'GET'
+      },
+      {
+        path = '/envia/',
+        method = 'GET'
+      },
+      {
+        path = '/enviamail/',
+        method = 'GET'
+      },
+      {
+        path = '/error/',
+        method = 'GET'
+      },
+      {
+        path = '/errors/',
+        method = 'GET'
+      },
+      {
+        path = '/es/',
+        method = 'GET'
+      },
+      {
+        path = '/estmt/',
+        method = 'GET'
+      },
+      {
+        path = '/etc/',
+        method = 'GET'
+      },
+      {
+        path = '/etcpasswd/',
+        method = 'GET'
+      },
+      {
+        path = '/excel/',
+        method = 'GET'
+      },
+      {
+        path = '/exc/',
+        method = 'GET'
+      },
+      {
+        path = '/exchange/',
+        method = 'GET'
+      },
+      {
+        path = '/exchweb/',
+        method = 'GET'
+      },
+      {
+        path = '/exec/',
+        method = 'GET'
+      },
+      {
+        path = '/exe/',
+        method = 'GET'
+      },
+      {
+        path = '/exit/',
+        method = 'GET'
+      },
+      {
+        path = '/export/',
+        method = 'GET'
+      },
+      {
+        path = '/external/',
+        method = 'GET'
+      },
+      {
+        path = '/extranet/',
+        method = 'GET'
+      },
+      {
+        path = '/failure/',
+        method = 'GET'
+      },
+      {
+        path = '/fbsd/',
+        method = 'GET'
+      },
+      {
+        path = '/fcgi-bin/',
+        method = 'GET'
+      },
+      {
+        path = '/fcgi/',
+        method = 'GET'
+      },
+      {
+        path = '/features/',
+        method = 'GET'
+      },
+      {
+        path = '/fileadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/file/',
+        method = 'GET'
+      },
+      {
+        path = '/filemanager/',
+        method = 'GET'
+      },
+      {
+        path = '/files/',
+        method = 'GET'
+      },
+      {
+        path = '/find/',
+        method = 'GET'
+      },
+      {
+        path = '/flash/',
+        method = 'GET'
+      },
+      {
+        path = '/foldoc/',
+        method = 'GET'
+      },
+      {
+        path = '/foobar/',
+        method = 'GET'
+      },
+      {
+        path = '/foo/',
+        method = 'GET'
+      },
+      {
+        path = '/form/',
+        method = 'GET'
+      },
+      {
+        path = '/forms/',
+        method = 'GET'
+      },
+      {
+        path = '/formsmgr/',
+        method = 'GET'
+      },
+      {
+        path = '/form-totaller/',
+        method = 'GET'
+      },
+      {
+        path = '/foto/',
+        method = 'GET'
+      },
+      {
+        path = '/fotos/',
+        method = 'GET'
+      },
+      {
+        path = '/fpadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/fpclass/',
+        method = 'GET'
+      },
+      {
+        path = '/fpdb/',
+        method = 'GET'
+      },
+      {
+        path = '/fpe/',
+        method = 'GET'
+      },
+      {
+        path = '/framesets/',
+        method = 'GET'
+      },
+      {
+        path = '/frames/',
+        method = 'GET'
+      },
+      {
+        path = '/frontpage/',
+        method = 'GET'
+      },
+      {
+        path = '/ftp/',
+        method = 'GET'
+      },
+      {
+        path = '/ftproot/',
+        method = 'GET'
+      },
+      {
+        path = '/func/',
+        method = 'GET'
+      },
+      {
+        path = '/function/',
+        method = 'GET'
+      },
+      {
+        path = '/functions/',
+        method = 'GET'
+      },
+      {
+        path = '/fun/',
+        method = 'GET'
+      },
+      {
+        path = '/general/',
+        method = 'GET'
+      },
+      {
+        path = '/gfx/',
+        method = 'GET'
+      },
+      {
+        path = '/gif/',
+        method = 'GET'
+      },
+      {
+        path = '/gifs/',
+        method = 'GET'
+      },
+      {
+        path = '/global/',
+        method = 'GET'
+      },
+      {
+        path = '/globals/',
+        method = 'GET'
+      },
+      {
+        path = '/good/',
+        method = 'GET'
+      },
+      {
+        path = '/graphics/',
+        method = 'GET'
+      },
+      {
+        path = '/grocery/',
+        method = 'GET'
+      },
+      {
+        path = '/guestbook/',
+        method = 'GET'
+      },
+      {
+        path = '/guest/',
+        method = 'GET'
+      },
+      {
+        path = '/guests/',
+        method = 'GET'
+      },
+      {
+        path = '/GXApp/',
+        method = 'GET'
+      },
+      {
+        path = '/HB/',
+        method = 'GET'
+      },
+      {
+        path = '/HBTemplates/',
+        method = 'GET'
+      },
+      {
+        path = '/helpdesk/',
+        method = 'GET'
+      },
+      {
+        path = '/help/',
+        method = 'GET'
+      },
+      {
+        path = '/hidden/',
+        method = 'GET'
+      },
+      {
+        path = '/hide/',
+        method = 'GET'
+      },
+      {
+        path = '/hitmatic/',
+        method = 'GET'
+      },
+      {
+        path = '/hit_tracker/',
+        method = 'GET'
+      },
+      {
+        path = '/hlstats/',
+        method = 'GET'
+      },
+      {
+        path = '/home/',
+        method = 'GET'
+      },
+      {
+        path = '/hosted/',
+        method = 'GET'
+      },
+      {
+        path = '/host/',
+        method = 'GET'
+      },
+      {
+        path = '/hostingcontroller/',
+        method = 'GET'
+      },
+      {
+        path = '/hosting/',
+        method = 'GET'
+      },
+      {
+        path = '/hp/',
+        method = 'GET'
+      },
+      {
+        path = '/htbin/',
+        method = 'GET'
+      },
+      {
+        path = '/htdocs/',
+        method = 'GET'
+      },
+      {
+        path = '/ht/',
+        method = 'GET'
+      },
+      {
+        path = '/htm/',
+        method = 'GET'
+      },
+      {
+        path = '/html/',
+        method = 'GET'
+      },
+      {
+        path = '/http/',
+        method = 'GET'
+      },
+      {
+        path = '/https/',
+        method = 'GET'
+      },
+      {
+        path = '/hyperstat/',
+        method = 'GET'
+      },
+      {
+        path = '/i18n/',
+        method = 'GET'
+      },
+      {
+        path = '/ibank/',
+        method = 'GET'
+      },
+      {
+        path = '/ibill/',
+        method = 'GET'
+      },
+      {
+        path = '/IBMWebAS/',
+        method = 'GET'
+      },
+      {
+        path = '/icons/',
+        method = 'GET'
+      },
+      {
+        path = '/idea/',
+        method = 'GET'
+      },
+      {
+        path = '/ideas/',
+        method = 'GET'
+      },
+      {
+        path = '/I/',
+        method = 'GET'
+      },
+      {
+        path = '/iisadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/image/',
+        method = 'GET'
+      },
+      {
+        path = '/images/',
+        method = 'GET'
+      },
+      {
+        path = '/imagenes/',
+        method = 'GET'
+      },
+      {
+        path = '/imagery/',
+        method = 'GET'
+      },
+      {
+        path = '/img/',
+        method = 'GET'
+      },
+      {
+        path = '/imp/',
+        method = 'GET'
+      },
+      {
+        path = '/import/',
+        method = 'GET'
+      },
+      {
+        path = '/impreso/',
+        method = 'GET'
+      },
+      {
+        path = '/inc/',
+        method = 'GET'
+      },
+      {
+        path = '/include/',
+        method = 'GET'
+      },
+      {
+        path = '/includes/',
+        method = 'GET'
+      },
+      {
+        path = '/incoming/',
+        method = 'GET'
+      },
+      {
+        path = '/index/',
+        method = 'GET'
+      },
+      {
+        path = '/inet/',
+        method = 'GET'
+      },
+      {
+        path = '/inf/',
+        method = 'GET'
+      },
+      {
+        path = '/info/',
+        method = 'GET'
+      },
+      {
+        path = '/information/',
+        method = 'GET'
+      },
+      {
+        path = '/in/',
+        method = 'GET'
+      },
+      {
+        path = '/ingresa/',
+        method = 'GET'
+      },
+      {
+        path = '/ingreso/',
+        method = 'GET'
+      },
+      {
+        path = '/install/',
+        method = 'GET'
+      },
+      {
+        path = '/internal/',
+        method = 'GET'
+      },
+      {
+        path = '/internet/',
+        method = 'GET'
+      },
+      {
+        path = '/intranet/',
+        method = 'GET'
+      },
+      {
+        path = '/inventory/',
+        method = 'GET'
+      },
+      {
+        path = '/invitado/',
+        method = 'GET'
+      },
+      {
+        path = '/isapi/',
+        method = 'GET'
+      },
+      {
+        path = '/j2ee/',
+        method = 'GET'
+      },
+      {
+        path = '/japidoc/',
+        method = 'GET'
+      },
+      {
+        path = '/java/',
+        method = 'GET'
+      },
+      {
+        path = '/javascript/',
+        method = 'GET'
+      },
+      {
+        path = '/javasdk/',
+        method = 'GET'
+      },
+      {
+        path = '/javatest/',
+        method = 'GET'
+      },
+      {
+        path = '/jave/',
+        method = 'GET'
+      },
+      {
+        path = '/JBookIt/',
+        method = 'GET'
+      },
+      {
+        path = '/jdbc/',
+        method = 'GET'
+      },
+      {
+        path = '/job/',
+        method = 'GET'
+      },
+      {
+        path = '/jrun/',
+        method = 'GET'
+      },
+      {
+        path = '/jsa/',
+        method = 'GET'
+      },
+      {
+        path = '/jscript/',
+        method = 'GET'
+      },
+      {
+        path = '/jserv/',
+        method = 'GET'
+      },
+      {
+        path = '/js/',
+        method = 'GET'
+      },
+      {
+        path = '/jslib/',
+        method = 'GET'
+      },
+      {
+        path = '/jsp/',
+        method = 'GET'
+      },
+      {
+        path = '/junk/',
+        method = 'GET'
+      },
+      {
+        path = '/kiva/',
+        method = 'GET'
+      },
+      {
+        path = '/known/',
+        method = 'GET'
+      },
+      {
+        path = '/labs/',
+        method = 'GET'
+      },
+      {
+        path = '/lcgi/',
+        method = 'GET'
+      },
+      {
+        path = '/lib/',
+        method = 'GET'
+      },
+      {
+        path = '/libraries/',
+        method = 'GET'
+      },
+      {
+        path = '/library/',
+        method = 'GET'
+      },
+      {
+        path = '/libro/',
+        method = 'GET'
+      },
+      {
+        path = '/license/',
+        method = 'GET'
+      },
+      {
+        path = '/licenses/',
+        method = 'GET'
+      },
+      {
+        path = '/links/',
+        method = 'GET'
+      },
+      {
+        path = '/linux/',
+        method = 'GET'
+      },
+      {
+        path = '/loader/',
+        method = 'GET'
+      },
+      {
+        path = '/local/',
+        method = 'GET'
+      },
+      {
+        path = '/location/',
+        method = 'GET'
+      },
+      {
+        path = '/locations/',
+        method = 'GET'
+      },
+      {
+        path = '/logfile/',
+        method = 'GET'
+      },
+      {
+        path = '/logfiles/',
+        method = 'GET'
+      },
+      {
+        path = '/logger/',
+        method = 'GET'
+      },
+      {
+        path = '/logg/',
+        method = 'GET'
+      },
+      {
+        path = '/logging/',
+        method = 'GET'
+      },
+      {
+        path = '/logon/',
+        method = 'GET'
+      },
+      {
+        path = '/logout/',
+        method = 'GET'
+      },
+      {
+        path = '/lost+found/',
+        method = 'GET'
+      },
+      {
+        path = '/mailman/',
+        method = 'GET'
+      },
+      {
+        path = '/mailroot/',
+        method = 'GET'
+      },
+      {
+        path = '/makefile/',
+        method = 'GET'
+      },
+      {
+        path = '/manage/',
+        method = 'GET'
+      },
+      {
+        path = '/management/',
+        method = 'GET'
+      },
+      {
+        path = '/man/',
+        method = 'GET'
+      },
+      {
+        path = '/manual/',
+        method = 'GET'
+      },
+      {
+        path = '/map/',
+        method = 'GET'
+      },
+      {
+        path = '/maps/',
+        method = 'GET'
+      },
+      {
+        path = '/marketing/',
+        method = 'GET'
+      },
+      {
+        path = '/member/',
+        method = 'GET'
+      },
+      {
+        path = '/members/',
+        method = 'GET'
+      },
+      {
+        path = '/mem_bin/',
+        method = 'GET'
+      },
+      {
+        path = '/mem/',
+        method = 'GET'
+      },
+      {
+        path = '/message/',
+        method = 'GET'
+      },
+      {
+        path = '/messaging/',
+        method = 'GET'
+      },
+      {
+        path = '/metacart/',
+        method = 'GET'
+      },
+      {
+        path = '/microsoft/',
+        method = 'GET'
+      },
+      {
+        path = '/misc/',
+        method = 'GET'
+      },
+      {
+        path = '/mkstats/',
+        method = 'GET'
+      },
+      {
+        path = '/mod/',
+        method = 'GET'
+      },
+      {
+        path = '/module/',
+        method = 'GET'
+      },
+      {
+        path = '/modules/',
+        method = 'GET'
+      },
+      {
+        path = '/movimientos/',
+        method = 'GET'
+      },
+      {
+        path = '/mpcgi/',
+        method = 'GET'
+      },
+      {
+        path = '/mqseries/',
+        method = 'GET'
+      },
+      {
+        path = '/msfpe/',
+        method = 'GET'
+      },
+      {
+        path = '/ms/',
+        method = 'GET'
+      },
+      {
+        path = '/msql/',
+        method = 'GET'
+      },
+      {
+        path = '/Msword/',
+        method = 'GET'
+      },
+      {
+        path = '/mxhtml/',
+        method = 'GET'
+      },
+      {
+        path = '/mxportal/',
+        method = 'GET'
+      },
+      {
+        path = '/my/',
+        method = 'GET'
+      },
+      {
+        path = '/My Shared Folder/',
+        method = 'GET'
+      },
+      {
+        path = '/mysql_admin/',
+        method = 'GET'
+      },
+      {
+        path = '/mysql/',
+        method = 'GET'
+      },
+      {
+        path = '/name/',
+        method = 'GET'
+      },
+      {
+        path = '/names/',
+        method = 'GET'
+      },
+      {
+        path = '/ncadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/nchelp/',
+        method = 'GET'
+      },
+      {
+        path = '/netbasic/',
+        method = 'GET'
+      },
+      {
+        path = '/netcat/',
+        method = 'GET'
+      },
+      {
+        path = '/NetDynamic/',
+        method = 'GET'
+      },
+      {
+        path = '/NetDynamics/',
+        method = 'GET'
+      },
+      {
+        path = '/net/',
+        method = 'GET'
+      },
+      {
+        path = '/netmagstats/',
+        method = 'GET'
+      },
+      {
+        path = '/netscape/',
+        method = 'GET'
+      },
+      {
+        path = '/netshare/',
+        method = 'GET'
+      },
+      {
+        path = '/nettracker/',
+        method = 'GET'
+      },
+      {
+        path = '/network/',
+        method = 'GET'
+      },
+      {
+        path = '/new/',
+        method = 'GET'
+      },
+      {
+        path = '/news/',
+        method = 'GET'
+      },
+      {
+        path = '/News/',
+        method = 'GET'
+      },
+      {
+        path = '/nextgeneration/',
+        method = 'GET'
+      },
+      {
+        path = '/nl/',
+        method = 'GET'
+      },
+      {
+        path = '/notes/',
+        method = 'GET'
+      },
+      {
+        path = '/noticias/',
+        method = 'GET'
+      },
+      {
+        path = '/NSearch/',
+        method = 'GET'
+      },
+      {
+        path = '/objects/',
+        method = 'GET'
+      },
+      {
+        path = '/odbc/',
+        method = 'GET'
+      },
+      {
+        path = '/officescan/',
+        method = 'GET'
+      },
+      {
+        path = '/ojspdemos/',
+        method = 'GET'
+      },
+      {
+        path = '/old_files/',
+        method = 'GET'
+      },
+      {
+        path = '/oldfiles/',
+        method = 'GET'
+      },
+      {
+        path = '/old/',
+        method = 'GET'
+      },
+      {
+        path = '/oprocmgr-service/',
+        method = 'GET'
+      },
+      {
+        path = '/oprocmgr-status/',
+        method = 'GET'
+      },
+      {
+        path = '/oracle/',
+        method = 'GET'
+      },
+      {
+        path = '/oradata/',
+        method = 'GET'
+      },
+      {
+        path = '/order/',
+        method = 'GET'
+      },
+      {
+        path = '/orders/',
+        method = 'GET'
+      },
+      {
+        path = '/os/',
+        method = 'GET'
+      },
+      {
+        path = '/out/',
+        method = 'GET'
+      },
+      {
+        path = '/outgoing/',
+        method = 'GET'
+      },
+      {
+        path = '/owners/',
+        method = 'GET'
+      },
+      {
+        path = '/ows-bin/',
+        method = 'GET'
+      },
+      {
+        path = '/page/',
+        method = 'GET'
+      },
+      {
+        path = '/_pages/',
+        method = 'GET'
+      },
+      {
+        path = '/pages/',
+        method = 'GET'
+      },
+      {
+        path = '/partner/',
+        method = 'GET'
+      },
+      {
+        path = '/partners/',
+        method = 'GET'
+      },
+      {
+        path = '/passport/',
+        method = 'GET'
+      },
+      {
+        path = '/password/',
+        method = 'GET'
+      },
+      {
+        path = '/passwords/',
+        method = 'GET'
+      },
+      {
+        path = '/path/',
+        method = 'GET'
+      },
+      {
+        path = '/payment/',
+        method = 'GET'
+      },
+      {
+        path = '/payments/',
+        method = 'GET'
+      },
+      {
+        path = '/pccsmysqladm/',
+        method = 'GET'
+      },
+      {
+        path = '/PDG_Cart/',
+        method = 'GET'
+      },
+      {
+        path = '/perl5/',
+        method = 'GET'
+      },
+      {
+        path = '/perl/',
+        method = 'GET'
+      },
+      {
+        path = '/personal/',
+        method = 'GET'
+      },
+      {
+        path = '/pforum/',
+        method = 'GET'
+      },
+      {
+        path = '/phorum/',
+        method = 'GET'
+      },
+      {
+        path = '/phpBB/',
+        method = 'GET'
+      },
+      {
+        path = '/php_classes/',
+        method = 'GET'
+      },
+      {
+        path = '/phpclassifieds/',
+        method = 'GET'
+      },
+      {
+        path = '/php/',
+        method = 'GET'
+      },
+      {
+        path = '/phpimageview/',
+        method = 'GET'
+      },
+      {
+        path = '/phpnuke/',
+        method = 'GET'
+      },
+      {
+        path = '/phpPhotoAlbum/',
+        method = 'GET'
+      },
+      {
+        path = '/phpprojekt/',
+        method = 'GET'
+      },
+      {
+        path = '/phpSecurePages/',
+        method = 'GET'
+      },
+      {
+        path = '/pics/',
+        method = 'GET'
+      },
+      {
+        path = '/pictures/',
+        method = 'GET'
+      },
+      {
+        path = '/pike/',
+        method = 'GET'
+      },
+      {
+        path = '/piranha/',
+        method = 'GET'
+      },
+      {
+        path = '/pls/',
+        method = 'GET'
+      },
+      {
+        path = '/plsql/',
+        method = 'GET'
+      },
+      {
+        path = '/plssampleadmin_/',
+        method = 'GET'
+      },
+      {
+        path = '/plssampleadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/plssampleadmin_help/',
+        method = 'GET'
+      },
+      {
+        path = '/plssample/',
+        method = 'GET'
+      },
+      {
+        path = '/poll/',
+        method = 'GET'
+      },
+      {
+        path = '/polls/',
+        method = 'GET'
+      },
+      {
+        path = '/porn/',
+        method = 'GET'
+      },
+      {
+        path = '/portal/',
+        method = 'GET'
+      },
+      {
+        path = '/portals/',
+        method = 'GET'
+      },
+      {
+        path = '/postgres/',
+        method = 'GET'
+      },
+      {
+        path = '/postnuke/',
+        method = 'GET'
+      },
+      {
+        path = '/ppwb/',
+        method = 'GET'
+      },
+      {
+        path = '/printer/',
+        method = 'GET'
+      },
+      {
+        path = '/printers/',
+        method = 'GET'
+      },
+      {
+        path = '/privacy/',
+        method = 'GET'
+      },
+      {
+        path = '/privado/',
+        method = 'GET'
+      },
+      {
+        path = '/_private/',
+        method = 'GET'
+      },
+      {
+        path = '/private/',
+        method = 'GET'
+      },
+      {
+        path = '/priv/',
+        method = 'GET'
+      },
+      {
+        path = '/prod/',
+        method = 'GET'
+      },
+      {
+        path = '/projectserver/',
+        method = 'GET'
+      },
+      {
+        path = '/protected/',
+        method = 'GET'
+      },
+      {
+        path = '/proxy/',
+        method = 'GET'
+      },
+      {
+        path = '/prueba/',
+        method = 'GET'
+      },
+      {
+        path = '/pruebas/',
+        method = 'GET'
+      },
+      {
+        path = '/prv/',
+        method = 'GET'
+      },
+      {
+        path = '/pub/',
+        method = 'GET'
+      },
+      {
+        path = '/_public/',
+        method = 'GET'
+      },
+      {
+        path = '/public/',
+        method = 'GET'
+      },
+      {
+        path = '/publica/',
+        method = 'GET'
+      },
+      {
+        path = '/publicar/',
+        method = 'GET'
+      },
+      {
+        path = '/publico/',
+        method = 'GET'
+      },
+      {
+        path = '/publish/',
+        method = 'GET'
+      },
+      {
+        path = '/purchase/',
+        method = 'GET'
+      },
+      {
+        path = '/purchases/',
+        method = 'GET'
+      },
+      {
+        path = '/pw/',
+        method = 'GET'
+      },
+      {
+        path = '/python/',
+        method = 'GET'
+      },
+      {
+        path = '/random_banner/',
+        method = 'GET'
+      },
+      {
+        path = '/rdp/',
+        method = 'GET'
+      },
+      {
+        path = '/Readme/',
+        method = 'GET'
+      },
+      {
+        path = '/recycler/',
+        method = 'GET'
+      },
+      {
+        path = '/registered/',
+        method = 'GET'
+      },
+      {
+        path = '/register/',
+        method = 'GET'
+      },
+      {
+        path = '/registry/',
+        method = 'GET'
+      },
+      {
+        path = '/remote/',
+        method = 'GET'
+      },
+      {
+        path = '/remove/',
+        method = 'GET'
+      },
+      {
+        path = '/report/',
+        method = 'GET'
+      },
+      {
+        path = '/reports/',
+        method = 'GET'
+      },
+      {
+        path = '/reseller/',
+        method = 'GET'
+      },
+      {
+        path = '/restricted/',
+        method = 'GET'
+      },
+      {
+        path = '/retail/',
+        method = 'GET'
+      },
+      {
+        path = '/reveal/',
+        method = 'GET'
+      },
+      {
+        path = '/reviews/',
+        method = 'GET'
+      },
+      {
+        path = '/ROADS/',
+        method = 'GET'
+      },
+      {
+        path = '/robot/',
+        method = 'GET'
+      },
+      {
+        path = '/robots/',
+        method = 'GET'
+      },
+      {
+        path = '/root/',
+        method = 'GET'
+      },
+      {
+        path = '/rsrc/',
+        method = 'GET'
+      },
+      {
+        path = '/ruby/',
+        method = 'GET'
+      },
+      {
+        path = '/sales/',
+        method = 'GET'
+      },
+      {
+        path = '/save/',
+        method = 'GET'
+      },
+      {
+        path = '/script/',
+        method = 'GET'
+      },
+      {
+        path = '/ScriptLibrary/',
+        method = 'GET'
+      },
+      {
+        path = '/scripts/',
+        method = 'GET'
+      },
+      {
+        path = '/search/',
+        method = 'GET'
+      },
+      {
+        path = '/search-ui/',
+        method = 'GET'
+      },
+      {
+        path = '/sec/',
+        method = 'GET'
+      },
+      {
+        path = '/secret/',
+        method = 'GET'
+      },
+      {
+        path = '/secured/',
+        method = 'GET'
+      },
+      {
+        path = '/secure/',
+        method = 'GET'
+      },
+      {
+        path = '/security/',
+        method = 'GET'
+      },
+      {
+        path = '/sell/',
+        method = 'GET'
+      },
+      {
+        path = '/server/',
+        method = 'GET'
+      },
+      {
+        path = '/server-info/',
+        method = 'GET'
+      },
+      {
+        path = '/servers/',
+        method = 'GET'
+      },
+      {
+        path = '/server_stats/',
+        method = 'GET'
+      },
+      {
+        path = '/serverstats/',
+        method = 'GET'
+      },
+      {
+        path = '/server-status/',
+        method = 'GET'
+      },
+      {
+        path = '/service/',
+        method = 'GET'
+      },
+      {
+        path = '/services/',
+        method = 'GET'
+      },
+      {
+        path = '/servicio/',
+        method = 'GET'
+      },
+      {
+        path = '/servicios/',
+        method = 'GET'
+      },
+      {
+        path = '/servlet/',
+        method = 'GET'
+      },
+      {
+        path = '/servlets/',
+        method = 'GET'
+      },
+      {
+        path = '/session/',
+        method = 'GET'
+      },
+      {
+        path = '/setup/',
+        method = 'GET'
+      },
+      {
+        path = '/shared/',
+        method = 'GET'
+      },
+      {
+        path = '/sharedtemplates/',
+        method = 'GET'
+      },
+      {
+        path = '/share/',
+        method = 'GET'
+      },
+      {
+        path = '/shell-cgi/',
+        method = 'GET'
+      },
+      {
+        path = '/shipping/',
+        method = 'GET'
+      },
+      {
+        path = '/shop/',
+        method = 'GET'
+      },
+      {
+        path = '/shopper/',
+        method = 'GET'
+      },
+      {
+        path = '/show/',
+        method = 'GET'
+      },
+      {
+        path = '/SilverStream/',
+        method = 'GET'
+      },
+      {
+        path = '/siteadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/site/',
+        method = 'GET'
+      },
+      {
+        path = '/sitemgr/',
+        method = 'GET'
+      },
+      {
+        path = '/siteminderagent/',
+        method = 'GET'
+      },
+      {
+        path = '/siteminder/',
+        method = 'GET'
+      },
+      {
+        path = '/siteserver/',
+        method = 'GET'
+      },
+      {
+        path = '/sites/',
+        method = 'GET'
+      },
+      {
+        path = '/sitestats/',
+        method = 'GET'
+      },
+      {
+        path = '/siteupdate/',
+        method = 'GET'
+      },
+      {
+        path = '/smreports/',
+        method = 'GET'
+      },
+      {
+        path = '/smreportsviewer/',
+        method = 'GET'
+      },
+      {
+        path = '/soapdocs/',
+        method = 'GET'
+      },
+      {
+        path = '/soap/',
+        method = 'GET'
+      },
+      {
+        path = '/software/',
+        method = 'GET'
+      },
+      {
+        path = '/solaris/',
+        method = 'GET'
+      },
+      {
+        path = '/source/',
+        method = 'GET'
+      },
+      {
+        path = '/sql/',
+        method = 'GET'
+      },
+      {
+        path = '/squid/',
+        method = 'GET'
+      },
+      {
+        path = '/src/',
+        method = 'GET'
+      },
+      {
+        path = '/srchadm/',
+        method = 'GET'
+      },
+      {
+        path = '/ssi/',
+        method = 'GET'
+      },
+      {
+        path = '/ssl/',
+        method = 'GET'
+      },
+      {
+        path = '/sslkeys/',
+        method = 'GET'
+      },
+      {
+        path = '/staff/',
+        method = 'GET'
+      },
+      {
+        path = '/state/',
+        method = 'GET'
+      },
+      {
+        path = '/stat/',
+        method = 'GET'
+      },
+      {
+        path = '/statistic/',
+        method = 'GET'
+      },
+      {
+        path = '/statistics/',
+        method = 'GET'
+      },
+      {
+        path = '/stats-bin-p/',
+        method = 'GET'
+      },
+      {
+        path = '/stats/',
+        method = 'GET'
+      },
+      {
+        path = '/stats_old/',
+        method = 'GET'
+      },
+      {
+        path = '/status/',
+        method = 'GET'
+      },
+      {
+        path = '/storage/',
+        method = 'GET'
+      },
+      {
+        path = '/StoreDB/',
+        method = 'GET'
+      },
+      {
+        path = '/store/',
+        method = 'GET'
+      },
+      {
+        path = '/storemgr/',
+        method = 'GET'
+      },
+      {
+        path = '/stronghold-info/',
+        method = 'GET'
+      },
+      {
+        path = '/stronghold-status/',
+        method = 'GET'
+      },
+      {
+        path = '/stuff/',
+        method = 'GET'
+      },
+      {
+        path = '/style/',
+        method = 'GET'
+      },
+      {
+        path = '/styles/',
+        method = 'GET'
+      },
+      {
+        path = '/stylesheet/',
+        method = 'GET'
+      },
+      {
+        path = '/stylesheets/',
+        method = 'GET'
+      },
+      {
+        path = '/subir/',
+        method = 'GET'
+      },
+      {
+        path = '/sun/',
+        method = 'GET'
+      },
+      {
+        path = '/super_stats/',
+        method = 'GET'
+      },
+      {
+        path = '/supplier/',
+        method = 'GET'
+      },
+      {
+        path = '/suppliers/',
+        method = 'GET'
+      },
+      {
+        path = '/supply/',
+        method = 'GET'
+      },
+      {
+        path = '/supporter/',
+        method = 'GET'
+      },
+      {
+        path = '/support/',
+        method = 'GET'
+      },
+      {
+        path = '/sysadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/sysbackup/',
+        method = 'GET'
+      },
+      {
+        path = '/sys/',
+        method = 'GET'
+      },
+      {
+        path = '/system/',
+        method = 'GET'
+      },
+      {
+        path = '/systems/',
+        method = 'GET'
+      },
+      {
+        path = '/tar/',
+        method = 'GET'
+      },
+      {
+        path = '/target/',
+        method = 'GET'
+      },
+      {
+        path = '/tarjetas/',
+        method = 'GET'
+      },
+      {
+        path = '/tech/',
+        method = 'GET'
+      },
+      {
+        path = '/technote/',
+        method = 'GET'
+      },
+      {
+        path = '/te_html/',
+        method = 'GET'
+      },
+      {
+        path = '/temp/',
+        method = 'GET'
+      },
+      {
+        path = '/template/',
+        method = 'GET'
+      },
+      {
+        path = '/templates/',
+        method = 'GET'
+      },
+      {
+        path = '/temporal/',
+        method = 'GET'
+      },
+      {
+        path = '/test-cgi/',
+        method = 'GET'
+      },
+      {
+        path = '/testing/',
+        method = 'GET'
+      },
+      {
+        path = '/tests/',
+        method = 'GET'
+      },
+      {
+        path = '/testweb/',
+        method = 'GET'
+      },
+      {
+        path = '/themes/',
+        method = 'GET'
+      },
+      {
+        path = '/ticket/',
+        method = 'GET'
+      },
+      {
+        path = '/tickets/',
+        method = 'GET'
+      },
+      {
+        path = '/tip/',
+        method = 'GET'
+      },
+      {
+        path = '/tips/',
+        method = 'GET'
+      },
+      {
+        path = '/tmp/',
+        method = 'GET'
+      },
+      {
+        path = '/ToDo/',
+        method = 'GET'
+      },
+      {
+        path = '/tool/',
+        method = 'GET'
+      },
+      {
+        path = '/tools/',
+        method = 'GET'
+      },
+      {
+        path = '/TopAccess/',
+        method = 'GET'
+      },
+      {
+        path = '/top/',
+        method = 'GET'
+      },
+      {
+        path = '/tpv/',
+        method = 'GET'
+      },
+      {
+        path = '/trabajo/',
+        method = 'GET'
+      },
+      {
+        path = '/track/',
+        method = 'GET'
+      },
+      {
+        path = '/tracking/',
+        method = 'GET'
+      },
+      {
+        path = '/transfer/',
+        method = 'GET'
+      },
+      {
+        path = '/transito/',
+        method = 'GET'
+      },
+      {
+        path = '/transpolar/',
+        method = 'GET'
+      },
+      {
+        path = '/tree/',
+        method = 'GET'
+      },
+      {
+        path = '/trees/',
+        method = 'GET'
+      },
+      {
+        path = '/trick/',
+        method = 'GET'
+      },
+      {
+        path = '/tricks/',
+        method = 'GET'
+      },
+      {
+        path = '/u02/',
+        method = 'GET'
+      },
+      {
+        path = '/unix/',
+        method = 'GET'
+      },
+      {
+        path = '/unknown/',
+        method = 'GET'
+      },
+      {
+        path = '/updates/',
+        method = 'GET'
+      },
+      {
+        path = '/upload/',
+        method = 'GET'
+      },
+      {
+        path = '/uploads/',
+        method = 'GET'
+      },
+      {
+        path = '/usage/',
+        method = 'GET'
+      },
+      {
+        path = '/userdb/',
+        method = 'GET'
+      },
+      {
+        path = '/user/',
+        method = 'GET'
+      },
+      {
+        path = '/users/',
+        method = 'GET'
+      },
+      {
+        path = '/us/',
+        method = 'GET'
+      },
+      {
+        path = '/usr/',
+        method = 'GET'
+      },
+      {
+        path = '/ustats/',
+        method = 'GET'
+      },
+      {
+        path = '/usuario/',
+        method = 'GET'
+      },
+      {
+        path = '/usuarios/',
+        method = 'GET'
+      },
+      {
+        path = '/util/',
+        method = 'GET'
+      },
+      {
+        path = '/utils/',
+        method = 'GET'
+      },
+      {
+        path = '/vendor/',
+        method = 'GET'
+      },
+      {
+        path = '/vfs/',
+        method = 'GET'
+      },
+      {
+        path = '/view/',
+        method = 'GET'
+      },
+      {
+        path = '/vpn/',
+        method = 'GET'
+      },
+      {
+        path = '/vti_txt/',
+        method = 'GET'
+      },
+      {
+        path = '/w2000/',
+        method = 'GET'
+      },
+      {
+        path = '/w2k/',
+        method = 'GET'
+      },
+      {
+        path = '/w3perl/',
+        method = 'GET'
+      },
+      {
+        path = '/w-agora/',
+        method = 'GET'
+      },
+      {
+        path = '/way-board/',
+        method = 'GET'
+      },
+      {
+        path = '/web800fo/',
+        method = 'GET'
+      },
+      {
+        path = '/webaccess/',
+        method = 'GET'
+      },
+      {
+        path = '/webadmin/',
+        method = 'GET'
+      },
+      {
+        path = '/webAdmin/',
+        method = 'GET'
+      },
+      {
+        path = '/webalizer/',
+        method = 'GET'
+      },
+      {
+        path = '/webapps/',
+        method = 'GET'
+      },
+      {
+        path = '/WebBank/',
+        method = 'GET'
+      },
+      {
+        path = '/webboard/',
+        method = 'GET'
+      },
+      {
+        path = '/WebCalendar/',
+        method = 'GET'
+      },
+      {
+        path = '/webcart/',
+        method = 'GET'
+      },
+      {
+        path = '/webcart-lite/',
+        method = 'GET'
+      },
+      {
+        path = '/webcgi/',
+        method = 'GET'
+      },
+      {
+        path = '/webdata/',
+        method = 'GET'
+      },
+      {
+        path = '/webdav/',
+        method = 'GET'
+      },
+      {
+        path = '/webdb/',
+        method = 'GET'
+      },
+      {
+        path = '/webDB/',
+        method = 'GET'
+      },
+      {
+        path = '/web/',
+        method = 'GET'
+      },
+      {
+        path = '/webimages2/',
+        method = 'GET'
+      },
+      {
+        path = '/webimages/',
+        method = 'GET'
+      },
+      {
+        path = '/web-inf/',
+        method = 'GET'
+      },
+      {
+        path = '/webmaster/',
+        method = 'GET'
+      },
+      {
+        path = '/webmaster_logs/',
+        method = 'GET'
+      },
+      {
+        path = '/webMathematica/',
+        method = 'GET'
+      },
+      {
+        path = '/webpub/',
+        method = 'GET'
+      },
+      {
+        path = '/webpub-ui/',
+        method = 'GET'
+      },
+      {
+        path = '/webreports/',
+        method = 'GET'
+      },
+      {
+        path = '/webreps/',
+        method = 'GET'
+      },
+      {
+        path = '/webshare/',
+        method = 'GET'
+      },
+      {
+        path = '/WebShop/',
+        method = 'GET'
+      },
+      {
+        path = '/website/',
+        method = 'GET'
+      },
+      {
+        path = '/webstat/',
+        method = 'GET'
+      },
+      {
+        path = '/webstats/',
+        method = 'GET'
+      },
+      {
+        path = '/Web_store/',
+        method = 'GET'
+      },
+      {
+        path = '/webtrace/',
+        method = 'GET'
+      },
+      {
+        path = '/WebTrend/',
+        method = 'GET'
+      },
+      {
+        path = '/webtrends/',
+        method = 'GET'
+      },
+      {
+        path = '/web_usage/',
+        method = 'GET'
+      },
+      {
+        path = '/win2k/',
+        method = 'GET'
+      },
+      {
+        path = '/window/',
+        method = 'GET'
+      },
+      {
+        path = '/windows/',
+        method = 'GET'
+      },
+      {
+        path = '/win/',
+        method = 'GET'
+      },
+      {
+        path = '/winnt/',
+        method = 'GET'
+      },
+      {
+        path = '/word/',
+        method = 'GET'
+      },
+      {
+        path = '/work/',
+        method = 'GET'
+      },
+      {
+        path = '/world/',
+        method = 'GET'
+      },
+      {
+        path = '/wsdocs/',
+        method = 'GET'
+      },
+      {
+        path = '/WS_FTP/',
+        method = 'GET'
+      },
+      {
+        path = '/wstats/',
+        method = 'GET'
+      },
+      {
+        path = '/wusage/',
+        method = 'GET'
+      },
+      {
+        path = '/www0/',
+        method = 'GET'
+      },
+      {
+        path = '/www2/',
+        method = 'GET'
+      },
+      {
+        path = '/www3/',
+        method = 'GET'
+      },
+      {
+        path = '/www4/',
+        method = 'GET'
+      },
+      {
+        path = '/www/',
+        method = 'GET'
+      },
+      {
+        path = '/wwwjoin/',
+        method = 'GET'
+      },
+      {
+        path = '/wwwrooot/',
+        method = 'GET'
+      },
+      {
+        path = '/www-sql/',
+        method = 'GET'
+      },
+      {
+        path = '/wwwstat/',
+        method = 'GET'
+      },
+      {
+        path = '/wwwstats/',
+        method = 'GET'
+      },
+      {
+        path = '/xGB/',
+        method = 'GET'
+      },
+      {
+        path = '/xml/',
+        method = 'GET'
+      },
+      {
+        path = '/XSL/',
+        method = 'GET'
+      },
+      {
+        path = '/xtemp/',
+        method = 'GET'
+      },
+      {
+        path = '/xymon/',
+        method = 'GET'
+      },
+      {
+        path = '/zb41/',
+        method = 'GET'
+      },
+      {
+        path = '/zipfiles/',
+        method = 'GET'
+      },
+      {
+        path = '/zip/',
+        method = 'GET'
+      },
+      {
+        path = '/_docs/',
+        method = 'GET'
+      }
+    },
+    matches = {
       {
         match = '<title>Index of .*(Apache.*) Server at',
         output = 'Potentially interesting directory w/ listing on \'\\1\''
@@ -11401,6 +11401,6 @@ output = 'Joomla!'
         match = '',
         output = 'Potentially interesting folder'
       }
-      }
-        });
+    }
+  });
 
