@@ -140,7 +140,18 @@ INSTALL_LIB = None
 if INSTALL_LIB is not None and is_secure_dir(INSTALL_LIB):
     sys.path.append(INSTALL_LIB)
 
-import zenmapGUI.App
+try:
+    import zenmapGUI.App
+except ImportError, e:
+    print >> sys.stderr, """\
+Could not import the zenmapGUI.App module: %s.
+I checked in these directories:""" % repr(e.message)
+    for dir in sys.path:
+        print >> sys.stderr, "    %s" % dir
+    print >> sys.stderr, """\
+If you installed Zenmap in another directory, you may have to add the
+modules directory to the PYTHONPATH environment variable."""
+    sys.exit(1)
 
 if __name__ == '__main__':
     try:
