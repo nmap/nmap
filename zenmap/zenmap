@@ -91,6 +91,48 @@
 
 import sys
 
+# Check if the given directory, and all its parent directories, are owned and
+# writable only by our euid or by root. If symlinks are present, they are
+# recursively checked, up to a limit of SYMLINK_LIMIT.
+# https://www.securecoding.cert.org/confluence/display/seccode/FIO15-C.+Ensure+that+file+operations+are+performed+in+a+secure+directory
+SYMLINK_LIMIT = 5
+def is_secure_dir(path, num_symlinks = 0):
+    import os
+    import os.path
+    import stat
+
+    if not os.path.isabs(path):
+        return False
+
+    if num_symlinks >= SYMLINK_LIMIT:
+        return False
+
+    dirs = []
+    while True:
+        dirs.append(path)
+        dirname = os.path.dirname(path)
+        if dirname == path:
+            break
+        path = dirname
+    # Traverse root-to-leaf.
+    dirs.reverse()
+
+    for dir in dirs:
+        if os.path.islink(dir):
+            link = os.readlink(dir)
+            if not is_secure_dir(link, num_symlinks + 1):
+                return False
+            continue
+        if not os.path.isdir(dir):
+            return False
+        buf = os.stat(dir)
+        if buf.st_uid != os.geteuid() and buf.st_uid != 0:
+            return False
+        if buf.st_mode & (stat.S_IWGRP | stat.S_IWOTH) != 0:
+            return False
+
+    return True
+
 import zenmapGUI.App
 
 if __name__ == '__main__':
