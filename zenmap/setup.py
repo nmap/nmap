@@ -314,7 +314,7 @@ for dir in dirs:
         # must strip it off if necessary.
         modules_dir = self.install_lib
         if self.root is not None:
-            modules_dir = path_strip_prefix(modules, self.root)
+            modules_dir = path_strip_prefix(modules_dir, self.root)
 
         app_file = open(app_file_name, "r")
         lines = app_file.readlines()
