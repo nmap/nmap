@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the script distcc-CVE-2004-2687 that checks and exploits a remote
+  command execution vulnerability in distcc. [Patrik Karlsson]
+
 o Added two new scripts mysql-query and mysql-dump-hashes, which add support
   for performing custom MySQL queries and dump MySQL password hashes. [Patrik
   Karlsson]
