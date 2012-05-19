@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against MySQL
+Performs password guessing against MySQL.
 ]]
 
 ---
