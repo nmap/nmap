@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added two new scripts mysql-query and mysql-dump-hashes, which add support
+  for performing custom MySQL queries and dump MySQL password hashes. [Patrik
+  Karlsson]
+
 o Improved the mysql library to handle multiple columns with the same name,
   added a formatResultset function to format a query response to a table
   suitable for script output. [Patrik Karlsson]
