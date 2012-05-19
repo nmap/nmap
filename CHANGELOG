@@ -1617,7 +1617,7 @@ o Improved Nmap's service/version detection database by adding:
   + Apple iPhoto (DPAP) protocol probe [Patrik]
   + Zend Java Bridge probe [Michael Schierl]
   + BackOrifice probe [Gorjan Petrovski]
-  + GKrellM probe [Toni Ruotto]
+  + GKrellM probe [Toni Ruottu]
   + Signature improvements for a wide variety of services (we now have
     7,375 signatures)
 
