@@ -17,6 +17,8 @@ module(... or "mysql", package.seeall)
 --                             fixed a number of incorrect receives and changed
 --                             them to receive_bytes instead.
 
+local tab = require('tab')
+
 local HAVE_SSL = false
 
 if pcall(require,'openssl') then
@@ -455,11 +457,10 @@ end
 -- ref: http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol#Row_Data_Packet
 --
 -- @param data string containing the row data packet
--- @param fields table containing the field data as recieved from <code>decodeFieldPackets</code>
 -- @param count number containing the number of fields to decode
 -- @return status true on success, false on failure
 -- @return rows table containing row tables
-function decodeDataPackets( data, fields, count )
+function decodeDataPackets( data, count )
 	
 	local len, pos = 0, 1, 1
 	local header, row, rows = {}, {}, {}
@@ -470,7 +471,7 @@ function decodeDataPackets( data, fields, count )
 	
 		for i=1, count do
 			pos, len = bin.unpack("C", data, pos )
-			pos, row[fields[i].name] = bin.unpack("A" .. len, data, pos)
+			pos, row[i] = bin.unpack("A" .. len, data, pos)
 		end
 		
 		table.insert( rows, row )
@@ -530,12 +531,39 @@ function sqlQuery( socket, query )
 		return false, fields
 	end
 
-	status, rows = decodeDataPackets(rs.data, fields, field_count)
+	status, rows = decodeDataPackets(rs.data, field_count)
 
 	if not status then
 		return false, rows
 	end
 	
-	return true, rows
+	return true, { cols = fields, rows = rows }	
+end
+
+---
+-- Formats the resultset returned from <code>sqlQuery</code>
+--
+-- @param rs table as returned from <code>sqlQuery</code>
+-- @param options table containing additional options, currently:
+--        - <code>noheaders</code> - does not include column names in result
+-- @return string containing the formated resultset table
+function formatResultset(rs, options)
+	options = options or {}
+	if ( not(rs) or not(rs.cols) or not(rs.rows) ) then
+		return
+	end
+
+	local restab = tab.new(#rs.cols)
+	local colnames = {}
 	
+	if ( not(options.noheaders) ) then
+		for _, col in ipairs(rs.cols) do table.insert(colnames, col.name) end
+		tab.addrow(restab, unpack(colnames))
+	end
+	
+	for _, row in ipairs(rs.rows) do
+		tab.addrow(restab, unpack(row))
+	end
+	
+	return tab.dump(restab)
 end

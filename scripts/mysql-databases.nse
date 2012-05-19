@@ -78,13 +78,10 @@ action = function( host, port )
 		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 
 		if status and response.errorcode == 0 then
-			status, rows = mysql.sqlQuery( socket, "show databases" )
+			local status, rs = mysql.sqlQuery( socket, "show databases" )
 			if status then
-				for i=1, #rows do
-					-- cheap way of avoiding duplicates
-					dbs[rows[i]['Database']] = rows[i]['Database']
-				end
-				
+				result = mysql.formatResultset(rs, { noheaders = true })
+
 				-- if we got here as root, we've got them all
 				-- if we're here as someone else, we cant be sure
 				if username == 'root' then	
@@ -94,11 +91,5 @@ action = function( host, port )
 		end
 		socket:close()
 	end
-
-	for _, v in pairs( dbs ) do
-		table.insert(result, v)
-	end
-
 	return stdnse.format_output(true, result)	
-
 end

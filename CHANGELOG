@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Improved the mysql library to handle multiple columns with the same name,
+  added a formatResultset function to format a query response to a table
+  suitable for script output. [Patrik Karlsson]
+
 o The message "nexthost: failed to determine route to ..." is now a
   warning rather than a fatal error. Addresses that are skipped in
   this way are recorded in the XML output as <target> elements. [David

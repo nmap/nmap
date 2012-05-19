@@ -86,7 +86,7 @@ require 'shortport'
 require 'mysql'
 
 portrule = shortport.port_or_service(3306, "mysql")
-local TEMPLATE_NAME = ""
+local TEMPLATE_NAME, ADMIN_ACCOUNTS = "", ""
 
 local function loadAuditRulebase( filename )
 
@@ -103,6 +103,7 @@ local function loadAuditRulebase( filename )
 	
 	file()
 	TEMPLATE_NAME = getfenv(file)["TEMPLATE_NAME"]
+	ADMIN_ACCOUNTS = getfenv(file)["ADMIN_ACCOUNTS"]
 	return true, rules
 end
 
@@ -121,7 +122,7 @@ action = function( host, port )
 	end
 
 	local status, tests = loadAuditRulebase( filename )
-	if( not(status) ) then return rules end
+	if( not(status) ) then return tests end
 
 	local socket = nmap.new_socket()
 	status = socket:connect(host, port)
@@ -166,7 +167,10 @@ action = function( host, port )
 	socket:close()
 	results.name = TEMPLATE_NAME
 
-	table.insert(results, {"", ("The audit was performed using the db-account: %s"):format(username)})
+	table.insert(results, "")
+	table.insert(results, {name = "Additional information", ("The audit was performed using the db-account: %s"):format(username),
+		("The following admin accounts were excluded from the audit: %s"):format(stdnse.strjoin(",", ADMIN_ACCOUNTS))
+	})
 
 	return stdnse.format_output(true, { results })
 end

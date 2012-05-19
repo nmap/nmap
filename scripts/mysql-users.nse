@@ -81,12 +81,9 @@ action = function( host, port )
 		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 	
 		if status and response.errorcode == 0 then
-			status, rows = mysql.sqlQuery( socket, "SELECT DISTINCT user FROM mysql.user" )
+			status, rs = mysql.sqlQuery( socket, "SELECT DISTINCT user FROM mysql.user" )
 			if status then
-				for i=1, #rows do
-					table.insert(result, rows[i]['user'])
-				end		
-				break
+				result = mysql.formatResultset(rs, { noheaders = true })
 			end
 		end
 		socket:close()

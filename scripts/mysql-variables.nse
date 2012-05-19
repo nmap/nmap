@@ -89,10 +89,10 @@ action = function( host, port )
 		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt ) 
 	
 		if status and response.errorcode == 0 then
-			status, rows = mysql.sqlQuery( socket, "show variables" )
+			local status, rs = mysql.sqlQuery( socket, "show variables" )
 			if status then
-				for i=1, #rows do
-					table.insert(result, string.format("%s: %s" , rows[i]['Variable_name'], rows[i]['Value']) )
+				for _, row in ipairs(rs.rows) do
+					table.insert(result, ("%s: %s"):format(row[1], row[2]) )
 				end
 			end
 		end

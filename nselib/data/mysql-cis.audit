@@ -3,7 +3,7 @@ require("tab")
 TEMPLATE_NAME="CIS MySQL Benchmarks v1.0.2"
 
 -- These accounts should be treated as admins and excluded from some of the results
-local ADMIN_ACCOUNTS={"root", "debian-sys-maint"}
+ADMIN_ACCOUNTS={"root", "debian-sys-maint"}
 
 -- Checks whether a resultset is empty or not
 local function isEmpty(rows) 
@@ -12,9 +12,19 @@ local function isEmpty(rows)
 end
 
 -- Extracts a column from a row and return all occurances as an array
-local function col2tab(rows, cname)
+local function col2tab(rs, cname)
 	local tab = {}
-	for _, row in ipairs(rows) do table.insert(tab, row[cname]) end
+	local cpos
+	for i=1, #rs.cols do
+		if ( rs.cols[i].name == cname ) then
+			cpos = i
+			break
+		end
+	end
+	if ( not(cpos) ) then
+		return
+	end
+	for _, row in ipairs(rs.rows) do table.insert(tab, row[cpos]) end
 	return tab
 end
 
@@ -92,10 +102,9 @@ test { id="5.1", desc="Access to mysql database",
 		local result = tab.new(2)
 		tab.addrow(result, "user", "host")
 		
-		for _, rows in ipairs(rowstab) do
-			for _, row in ipairs(rows) do
-				tab.addrow( result, row.user, row.host )
-			end
+		local rs = rowstab[1]
+		for _, row in ipairs(rs.rows) do
+			tab.addrow( result, row[1], row[2] )
 		end
 		
 		return { status = false, review = true, result = { tab.dump(result), name="Verify the following users that have access to the MySQL database" } }
