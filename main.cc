@@ -132,6 +132,10 @@ extern NmapOps o;  /* option structure */
 
 extern void set_program_name(const char *name);
 
+#ifdef WIN32
+static void check_setugid(void) {
+}
+#else
 /* Show a warning when running setuid or setgid, as this allows code execution
    (for example NSE scripts) as the owner/group. */
 static void check_setugid(void) {
@@ -140,6 +144,7 @@ static void check_setugid(void) {
   if (getgid() != getegid())
     log_write(LOG_PLAIN, "WARNING: Running Nmap setgid, as you are doing, is a major security risk.\n");
 }
+#endif
 
 int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
