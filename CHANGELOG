@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-traceroute, which exploits the
+  Max-Forwards HTTP header to detect reverse proxies. [Hani Benhabiles]
+
 o Added the script distcc-CVE-2004-2687 that checks and exploits a remote
   command execution vulnerability in distcc. [Patrik Karlsson]
 
