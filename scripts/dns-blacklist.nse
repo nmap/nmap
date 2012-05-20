@@ -27,7 +27,7 @@ PROXY) or to a specific service name.  ]]
 -- |     bl.spamcop.net - SPAM
 -- |_    spam.dnsbl.sorbs.net - SPAM
 --
--- Supported blacklist list mode (--script-arg dns-blacklist.list):
+-- Supported blacklist list mode (--script-args dns-blacklist.list):
 -- | dns-blacklist: 
 -- |   PROXY
 -- |     dnsbl.ahbl.org

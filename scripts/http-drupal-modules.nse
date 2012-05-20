@@ -15,7 +15,7 @@ By default, the script checks for the top 100 modules (by downloads), given the 
 -- find the path or default to <code>sites/all/modules/</code>
 --
 -- @usage
--- nmap --script=http-drupal-modules --script-arg http-drupal-modules.root="/path/",http-drupal-modules.number=1000 <targets>
+-- nmap --script=http-drupal-modules --script-args http-drupal-modules.root="/path/",http-drupal-modules.number=1000 <targets>
 --
 --@output
 -- Interesting ports on my.woot.blog (123.123.123.123):

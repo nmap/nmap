@@ -17,7 +17,7 @@ For more information see:
 -- @args http-vuln-cve2009-3960.readfile target file to be read. Defaults to "/etc/passwd"
 --
 -- @usage
--- nmap --script=http-vuln-cve2009-3960 --script-arg http-http-vuln-cve2009-3960.root="/root/" <target>
+-- nmap --script=http-vuln-cve2009-3960 --script-args http-http-vuln-cve2009-3960.root="/root/" <target>
 --
 --@output
 -- PORT   STATE SERVICE

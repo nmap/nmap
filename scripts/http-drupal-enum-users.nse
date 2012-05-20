@@ -12,7 +12,7 @@ For more information,see:
 
 ---
 -- @usage
--- nmap --script=http-drupal-enum-users --script-arg http-drupal-enum-users.root="/path/" <targets>
+-- nmap --script=http-drupal-enum-users --script-args http-drupal-enum-users.root="/path/" <targets>
 --
 -- @output
 -- PORT   STATE SERVICE REASON

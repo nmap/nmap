@@ -18,7 +18,7 @@ check the first 100 ones. Users can tweak this with an option (see below).
 -- Use this option with a number or "all" as an argument for a more comprehensive brute force.
 --
 -- @usage
--- nmap --script=http-wordpress-plugins --script-arg http-wordpress-plugins.root="/blog/",http-wordpress-plugins.search=500 <targets>
+-- nmap --script=http-wordpress-plugins --script-args http-wordpress-plugins.root="/blog/",http-wordpress-plugins.search=500 <targets>
 --
 --@output
 -- Interesting ports on my.woot.blog (123.123.123.123):
@@ -157,7 +157,7 @@ action = function(host, port)
     result.name = "search amongst the " .. plugin_count .. " most popular plugins"
     return stdnse.format_output(true, result)
   else
-    return "nothing found amongst the " .. plugin_count .. " most popular plugins, use --script-arg http-wordpress-plugins.search=<number|all> for deeper analysis)\n"
+    return "nothing found amongst the " .. plugin_count .. " most popular plugins, use --script-args http-wordpress-plugins.search=<number|all> for deeper analysis)\n"
   end
 
 end
