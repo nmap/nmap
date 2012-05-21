@@ -1,26 +1,17 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Prepare release notes, web page, etc.
-
-o Do private beta release
-
-o Make the release
-
-==Things needed for next STABLE release go ABOVE THIS LINE==
-
-o For many years, the Nmap man page and online documentation has had
-  an "Inappropriate Usage" section which notes that "Nmap should never
-  be installed with special privileges (e.g. suid root) for security
-  reasons".  And of course Nmap's official installer would never
-  install Nmap that way.  While one would thinks that would be enough,
-  we might want to go even further and have Nmap detect when it is run
-  suid and print a security warning.
+o We should add fields to the service submitter
+  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
+  application name and version.
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
   o Maybe start with svn server, since we've had reports of our
     current one giving people unexpected password prompts.  There is a
     thread about that at http://seclists.org/nmap-dev/2012/q2/17
+    o UPDATE on this - adding read-only rights (rather than no rights)
+      to the root of the svn repo seems to have solved this problem.
+
 
 o Add CPE entries to OS fingerpting DB entries which still lack them
  - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
@@ -211,10 +202,6 @@ o Clean up the Nmap repo to remove some bloat we've allowed to creep
 o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
   simply analyze Nmap's existing data and report when useful.
-
-o We should add fields to the service submitter
-  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
-  application name and version.
 
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
@@ -760,6 +747,20 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o For many years, the Nmap man page and online documentation has had
+  an "Inappropriate Usage" section which notes that "Nmap should never
+  be installed with special privileges (e.g. suid root) for security
+  reasons".  And of course Nmap's official installer would never
+  install Nmap that way.  While one would thinks that would be enough,
+  we might want to go even further and have Nmap detect when it is run
+  suid and print a security warning.
+
+o Prepare release notes, web page, etc.
+
+o Do private beta release
+
+o Make the release
 
 o In Nmap XML output, osclass (OS Classification) tags should be
   children of osmatch (the human readable OS name line) rather than
