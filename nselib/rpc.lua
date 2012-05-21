@@ -123,7 +123,7 @@ RPC_version = {
 -- Low-level communication class
 Comm = {
 
-    --- Creats a new rpc Comm object
+    --- Creates a new rpc Comm object
     --
     -- @param program name string
     -- @param version number containing the program version to use
