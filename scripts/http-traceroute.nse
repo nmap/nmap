@@ -19,7 +19,7 @@ For more information, see:
 -- among other values, TRACE is probably the most interesting.
 --
 -- @usage
--- nmap --script=http-traceroute --script-args http-traceroute.verbosity=1 <targets>
+-- nmap --script=http-traceroute <targets>
 --
 --@output
 -- PORT   STATE SERVICE REASON
