@@ -1,9 +1,5 @@
 description = [[
-Sends an MLD query with maximum response delay 0 to the
-to discover available hosts on the LAN. This works because 
-hosts will respond to this probe with an MLD report packet and 
-as maximum response delay is 0 nobody gets time to wait for others`
-report even in the same multicast group.
+Attempts to discover available IPv6 hosts on the LAN by sending an MLD (multicast listener discovery) query to the link-local multicast address (ff02::1) and listening for any responses.  The query's maximum response delay set to 0 to provoke hosts to respond immediately rather than waiting for other responses from their multicast group.
 ]]
 
 ---
