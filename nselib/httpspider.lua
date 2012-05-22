@@ -89,7 +89,7 @@ Options = {
 						end
 					elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
 						return false
-					elseif ( parsed_u.host:lower() ~= o.base_url:getHost():lower() ) then
+					elseif ( parsed_u.host == nil or parsed_u.host:lower() ~= o.base_url:getHost():lower() ) then
 						return false
 					end
 					return true
@@ -103,7 +103,7 @@ Options = {
 						end
 					elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
 						return false
-					elseif ( parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
+					elseif ( parsed_u.host == nil or parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
 						return false
 					end
 					return true
@@ -216,6 +216,65 @@ LinkExtractor = {
 		end
 	end,
 	
+  	validate_link = function(self, url)
+		local valid = true
+
+		-- if our url is nil, abort, this could be due to a number of
+		-- reasons such as unsupported protocols: javascript, mail ... or
+		-- that the URL failed to parse for some reason
+		if ( url == nil or tostring(url) == nil ) then
+			return false
+		end
+
+		-- linkdepth trumps whitelisting
+		if ( self.options.maxdepth and self.options.maxdepth >= 0 ) then
+			local depth = self:getDepth( url )
+			if ( -1 == depth or depth > self.options.maxdepth ) then
+				stdnse.print_debug(3, "%s: Skipping link depth: %d; b_url=%s; url=%s", LIBRARY_NAME, depth, tostring(self.options.base_url), tostring(url))
+				return false
+			end		
+		end
+
+		-- withindomain trumps any whitelisting
+		if ( self.options.withindomain ) then
+			if ( not(self.options.withindomain(url)) ) then
+				stdnse.print_debug(2, "%s: Link is not within domain: %s", LIBRARY_NAME, tostring(url))
+				return false
+			end
+		end
+
+		-- withinhost trumps any whitelisting
+		if ( self.options.withinhost ) then
+			if ( not(self.options.withinhost(url)) ) then
+				stdnse.print_debug(2, "%s: Link is not within host: %s", LIBRARY_NAME, tostring(url))
+				return false
+			end
+		end
+
+		-- run through all blacklists	
+		if ( #self.options.blacklist > 0 ) then
+			for _, func in ipairs(self.options.blacklist) do
+				if ( func(url) ) then
+					stdnse.print_debug(2, "%s: Blacklist match: %s", LIBRARY_NAME, tostring(url))
+					valid = false
+					break
+				end
+			end
+		end
+
+		-- check the url against our whitelist
+		if ( #self.options.whitelist > 0 ) then
+			for _, func in ipairs(self.options.whitelist) do
+				if ( func(url) ) then
+					stdnse.print_debug(2, "%s: Whitelist match: %s", LIBRARY_NAME, tostring(url))
+					valid = true
+					break
+				end
+			end
+		end
+		return valid
+  	end,
+
 	-- Parses a HTML response and extracts all links it can find
 	-- The function currently supports href, src and action links
 	-- Also all behaviour options, such as depth, white- and black-list are
@@ -252,66 +311,7 @@ LinkExtractor = {
 				
 				local url = URL:new(link)
 				
-				local function validate_link()
-					local valid = true
-
-					-- if our url is nil, abort, this could be due to a number of
-					-- reasons such as unsupported protocols: javascript, mail ... or
-					-- that the URL failed to parse for some reason
-					if ( url == nil or tostring(url) == nil ) then
-						return false
-					end
-
-					-- linkdepth trumps whitelisting
-					if ( self.options.maxdepth ) then
-						local depth = self:getDepth( url )
-						if ( -1 == depth or depth > self.options.maxdepth ) then
-							stdnse.print_debug(3, "%s: Skipping link depth: %d; b_url=%s; url=%s", LIBRARY_NAME, depth, tostring(self.options.base_url), tostring(url))
-							return false
-						end		
-					end
-				
-					-- withindomain trumps any whitelisting
-					if ( self.options.withindomain ) then
-						if ( not(self.options.withindomain(url)) ) then
-							stdnse.print_debug(2, "%s: Link is not within domain: %s", LIBRARY_NAME, tostring(url))
-							return false
-						end
-					end
-
-					-- withinhost trumps any whitelisting
-					if ( self.options.withinhost ) then
-						if ( not(self.options.withinhost(url)) ) then
-							stdnse.print_debug(2, "%s: Link is not within host: %s", LIBRARY_NAME, tostring(url))
-							return false
-						end
-					end
-				
-					-- run through all blacklists	
-					if ( #self.options.blacklist > 0 ) then
-						for _, func in ipairs(self.options.blacklist) do
-							if ( func(url) ) then
-								stdnse.print_debug(2, "%s: Blacklist match: %s", LIBRARY_NAME, tostring(url))
-								valid = false
-								break
-							end
-						end
-					end
-					
-					-- check the url against our whitelist
-					if ( #self.options.whitelist > 0 ) then
-						for _, func in ipairs(self.options.whitelist) do
-							if ( func(url) ) then
-								stdnse.print_debug(2, "%s: Whitelist match: %s", LIBRARY_NAME, tostring(url))
-								valid = true
-								break
-							end
-						end
-					end
-					return valid
-				end
-				
-				local valid = validate_link()
+				local valid = self:validate_link(url)
 				
 				if ( valid ) then
 					stdnse.print_debug(3, "%s: Adding link: %s", LIBRARY_NAME, tostring(url))
