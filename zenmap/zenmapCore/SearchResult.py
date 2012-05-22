@@ -152,7 +152,7 @@ class HostSearch(object):
 
         for osmatch in osmatches:
             os_str += osmatch['name'].lower()
-            for osclass in osmatch['osmatches']:
+            for osclass in osmatch['osclasses']:
                 os_str += osclass['vendor'].lower() + " " +\
                           osclass['osfamily'].lower() + " " +\
                           osclass['type'].lower()
