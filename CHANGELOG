@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added Japanese translation by Yuji Tounai.
+
 o [NSE] Added the script icap-info, which tries to identify common ICAP
   service names and list service and tag information. [Patrik Karlsson]
 

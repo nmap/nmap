@@ -1,0 +1,1498 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: nmap-dev@insecure.org\n"
+"POT-Creation-Date: 2009-08-21 09:04-0600\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Yuji Tounai <bogus@bogus.jp>\n"
+"Language-Team: bogus.jp <bogus@bogus.jp>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Japanese\n"
+"X-Poedit-Country: JAPAN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: zenmap:58
+msgid "Import error"
+msgstr "インポートエラー"
+
+#: zenmap:59
+msgid ""
+"A required module was not found.\n"
+"\n"
+msgstr ""
+"必要なモジュールが見つかりません \n"
+"\n"
+
+#: zenmap:83
+#: zenmapGUI/CrashReport.py:154
+msgid "Bug not reported"
+msgstr "バグは報告されませんでした"
+
+#: zenmap:84
+#, python-format
+msgid ""
+"A critical error occurred during %s execution,\n"
+"and it was not properly reported to our bug tracker. Please,\n"
+"copy the error message bellow and report it on our bug tracker.\n"
+"\n"
+"The following error message was NOT reported:\n"
+"%s"
+msgstr ""
+"%s 実行時に致命的なエラーが発生しました\n"
+"このエラーはまだバグトラッカーに報告されていません\n"
+"ぜひエラーメッセージをコピーしてバグトラッカーに報告してください\n"
+"\n"
+"このエラーメッセージはまだ報告されていません:\n"
+"%s"
+
+#: zenmapCore/NmapCommand.py:40
+msgid "Python 2.4 or later is required."
+msgstr "Python 2.4 もしくはそれ以降のバージョンが必要です"
+
+#: zenmapCore/NmapParser.py:279
+msgid "Unknown Host"
+msgstr "不明なホスト"
+
+#: zenmapCore/NmapParser.py:325
+msgid "unknown"
+msgstr "不明"
+
+#: zenmapCore/NmapParser.py:328
+msgid "Unknown version"
+msgstr "不明なバージョン"
+
+#: zenmapCore/NmapParser.py:331
+#: zenmapGUI/SearchGUI.py:414
+#: zenmapGUI/ScanInterface.py:859
+#: zenmapGUI/ScanInterface.py:881
+msgid "Unknown"
+msgstr "不明"
+
+#: zenmapCore/NmapParser.py:616
+#, python-format
+msgid "%s on %s"
+msgstr "%s on %s"
+
+#: zenmapCore/UmitOptionParser.py:45
+msgid "Specify a scan result file in Nmap XML output format. Can be used more than once to specify several scan result files."
+msgstr "XMLフォーマットのスキャン結果ファイルを指定してください。1つのファイルでいくつものスキャン結果を使用できます"
+
+#: zenmapCore/UmitOptionParser.py:56
+#, python-format
+msgid "Run %s with the specified args."
+msgstr "%s のようなコマンドが実行されました"
+
+#: zenmapCore/UmitOptionParser.py:63
+msgid "Begin with the specified profile selected. If combined with the -t (--target) option, automatically run the profile against the specified target."
+msgstr "選ばれたスキャンプロファイルを使ってスキャンは行われます。-t(--target)オプションがあれば自動的にターゲットに向けて実行されるでしょう。"
+
+#: zenmapCore/UmitOptionParser.py:74
+msgid "Specify a target to be used along with other options. If specified alone, open with the target field filled with the specified target"
+msgstr "オプションと共にターゲットを指定してください。指定するターゲットをターゲットフィールドに入力してください"
+
+#: zenmapCore/UmitOptionParser.py:82
+msgid "Increase verbosity of the output. May be used more than once to get even more verbosity"
+msgstr "スキャン結果の詳細さを増やすことで、より多くの情報を得られるかもしれません。"
+
+#: zenmapCore/UmitDB.py:39
+msgid "No module named dbapi2.pysqlite2 or sqlite3"
+msgstr "dbapi2.pysqlite2 sqlite3のモジュールがありません"
+
+#: zenmapGUI/SearchGUI.py:213
+msgid "Search:"
+msgstr "検索:"
+
+#: zenmapGUI/SearchGUI.py:215
+msgid "Expressions "
+msgstr "式"
+
+#: zenmapGUI/SearchGUI.py:227
+#: zenmapGUI/ProfileEditor.py:133
+#: zenmapGUI/ScanToolbar.py:72
+msgid "Scan"
+msgstr "スキャン"
+
+#: zenmapGUI/SearchGUI.py:228
+msgid "Date"
+msgstr "日"
+
+#: zenmapGUI/SearchGUI.py:362
+msgid "No search method selected!"
+msgstr "検索方法が選ばれていません"
+
+#: zenmapGUI/SearchGUI.py:363
+#, python-format
+msgid "%s can search results on directories or inside it's own database. Please, select a method by choosing a directory or by checking the search data base option at the 'Search options' tab before start the search"
+msgstr "%s はディレクトリ、もしくはデータベースを検索可能です。検索の前に検索オプションをチェックしてディレクトリかデータベースか検索したい方を選んでください。 "
+
+#: zenmapGUI/SearchGUI.py:824
+msgid ""
+"Entering the text into the search performs a <b>keyword search</b> - the search string is matched against the entire output of each scan.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only within a specific part of a scan. Operators can be added to the search interactively if you click on the <b>Expressions</b> button, or you can enter them manually into the search field. Most operators have a short form, listed.\n"
+"\n"
+"<b>profile: (pr:)</b> - Profile used.\n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>option: (o:)</b> - Scan options.\n"
+"<b>date: (d:)</b> - The date when scan was performed. Fuzzy matching is possible using the \"~\" suffix. Each \"~\" broadens the search by one day on \"each side\" of the date. In addition, it is possible to use the \"date:-n\" notation which means \"n days ago\".\n"
+"<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-DD</i> or <i>-n</i>).\n"
+"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-DD</i> or <i>-n</i>).\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>scanned: (sp:)</b> - Matches a port if it was among those scanned.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+msgstr ""
+"Entering the text into the search performs a <b>keyword search</b> - the search string is matched against the entire output of each scan.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only within a specific part of a scan. Operators can be added to the search interactively if you click on the <b>Expressions</b> button, or you can enter them manually into the search field. Most operators have a short form, listed.\n"
+"\n"
+"<b>profile: (pr:)</b> - Profile used.\n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>option: (o:)</b> - Scan options.\n"
+"<b>date: (d:)</b> - The date when scan was performed. Fuzzy matching is possible using the \"~\" suffix. Each \"~\" broadens the search by one day on \"each side\" of the date. In addition, it is possible to use the \"date:-n\" notation which means \"n days ago\".\n"
+"<b>after: (a:)</b> - Matches scans made after the supplied date (<i>YYYY-MM-DD</i> or <i>-n</i>).\n"
+"<b>before (b:)</b> - Matches scans made before the supplied date(<i>YYYY-MM-DD</i> or <i>-n</i>).\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>scanned: (sp:)</b> - Matches a port if it was among those scanned.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+
+#: zenmapGUI/About.py:87
+#, python-format
+msgid "About %s and %s"
+msgstr "%s と %s について"
+
+#: zenmapGUI/About.py:103
+#, python-format
+msgid "%s is a free and open source utility for network exploration and security auditing."
+msgstr "%s はネットワーク調査とセキュリティ監査用途に使われるフリーのオープンソースユーティリティです"
+
+#: zenmapGUI/About.py:108
+#, python-format
+msgid "%s is a multi-platform graphical %s frontend and results viewer. It was originally derived from %s."
+msgstr "%s はマルチプラットフォームかつグラフィカルなl %s のフロントエンド、そして結果を表示するソフトウェアです。%s によってデザインされました。"
+
+#: zenmapGUI/About.py:114
+#, python-format
+msgid "%s is an %s GUI created as part of the Nmap/Google Summer of Code program."
+msgstr "%s の %s GUIは Nmap/Googleのサマー・オブ・コードプログラムの一部にて作成されました。 "
+
+#: zenmapGUI/About.py:117
+#: zenmapGUI/About.py:157
+#, python-format
+msgid "%s credits"
+msgstr "%s のクレジット"
+
+#: zenmapGUI/About.py:198
+msgid "Written by"
+msgstr "によって書かれた"
+
+#: zenmapGUI/About.py:199
+msgid "Design"
+msgstr "デザイン"
+
+#: zenmapGUI/About.py:200
+msgid "SoC 2007"
+msgstr "SoC 2007"
+
+#: zenmapGUI/About.py:201
+msgid "Contributors"
+msgstr "貢献した人たち"
+
+#: zenmapGUI/About.py:202
+msgid "Translation"
+msgstr "翻訳"
+
+#: zenmapGUI/About.py:203
+msgid "Maemo"
+msgstr "Maemo"
+
+#: zenmapGUI/NmapOutputProperties.py:38
+msgid "Nmap Output Properties"
+msgstr "Nmap出力のプロパティ"
+
+#: zenmapGUI/NmapOutputProperties.py:65
+msgid "details"
+msgstr "概要"
+
+#: zenmapGUI/NmapOutputProperties.py:66
+msgid "port listing title"
+msgstr "ポート 受信中 タイトル"
+
+#: zenmapGUI/NmapOutputProperties.py:67
+msgid "open port"
+msgstr "開いているポート"
+
+#: zenmapGUI/NmapOutputProperties.py:68
+msgid "closed port"
+msgstr "閉じているポート"
+
+#: zenmapGUI/NmapOutputProperties.py:69
+msgid "filtered port"
+msgstr "フィルタされているポート"
+
+#: zenmapGUI/NmapOutputProperties.py:70
+msgid "date"
+msgstr "日"
+
+#: zenmapGUI/NmapOutputProperties.py:71
+msgid "hostname"
+msgstr "ホスト名"
+
+#: zenmapGUI/NmapOutputProperties.py:72
+msgid "ip"
+msgstr "IPアドレス"
+
+#: zenmapGUI/NmapOutputProperties.py:111
+msgid "Highlight definitions"
+msgstr "ハイライト表示の定義"
+
+#: zenmapGUI/NmapOutputProperties.py:137
+msgid "Text"
+msgstr "テキスト"
+
+#: zenmapGUI/NmapOutputProperties.py:138
+msgid "Highlight"
+msgstr "ハイライト表示"
+
+#: zenmapGUI/NmapOutputProperties.py:153
+msgid "text color"
+msgstr "テキスト表示色"
+
+#: zenmapGUI/NmapOutputProperties.py:179
+msgid "highlight color"
+msgstr "ハイライト表示する色"
+
+#: zenmapGUI/ScanOpenPortsPage.py:63
+#: zenmapGUI/ScanHostsView.py:61
+msgid "Host"
+msgstr "ホスト"
+
+#: zenmapGUI/ScanOpenPortsPage.py:65
+#: zenmapGUI/ScanOpenPortsPage.py:85
+#: radialnet/gui/NodeNotebook.py:31
+msgid "Port"
+msgstr "ポート"
+
+#: zenmapGUI/ScanOpenPortsPage.py:66
+#: zenmapGUI/ScanOpenPortsPage.py:84
+#: radialnet/gui/NodeNotebook.py:31
+msgid "Protocol"
+msgstr "プロトコル"
+
+#: zenmapGUI/ScanOpenPortsPage.py:67
+#: zenmapGUI/ScanOpenPortsPage.py:86
+#: radialnet/gui/NodeNotebook.py:31
+#: radialnet/gui/NodeNotebook.py:32
+msgid "State"
+msgstr "状態"
+
+#: zenmapGUI/ScanOpenPortsPage.py:68
+#: zenmapGUI/ScanOpenPortsPage.py:81
+#: zenmapGUI/ScanHostsView.py:68
+#: radialnet/gui/NodeNotebook.py:31
+msgid "Service"
+msgstr "サービス"
+
+#: zenmapGUI/ScanOpenPortsPage.py:69
+#: zenmapGUI/ScanOpenPortsPage.py:87
+#: radialnet/gui/NodeNotebook.py:56
+msgid "Version"
+msgstr "バージョン"
+
+#: zenmapGUI/ScanOpenPortsPage.py:82
+#: radialnet/gui/NodeNotebook.py:42
+msgid "Hostname"
+msgstr "ホスト名"
+
+#: zenmapGUI/CrashReport.py:43
+msgid "Crash Report"
+msgstr "クラッシュを報告"
+
+#: zenmapGUI/CrashReport.py:59
+msgid "An email address is optional. Sometimes we use it to get more information. If you provide an email address your report will be marked private so only project developers can read it."
+msgstr "Eメールアドレスはオプションです。私たちがより多くの情報を得たいとき使用するときがあるかもしれません。あなたがEメールアドレスを入力した場合、あなたのレポートはプライベートなものであるとマークされ、プロジェクト開発者だけしか読むことができないようになります。"
+
+#: zenmapGUI/CrashReport.py:68
+msgid "What were you doing when the crash happened?"
+msgstr "クラッシュが起きたときどうすればいいですか？"
+
+#: zenmapGUI/CrashReport.py:74
+msgid "An unhandled exception has crashed Zenmap. This dialog allows you to tell us what you did to cause the crash and help us to fix it. Submitting the report will open a description of the new bug at the bug tracker. Feel free to edit the report to remove any identifying information such as your home directory."
+msgstr "予期しない例外によってZenmapはクラッシュしました。このダイアログは何が原因でクラッシュが起きたのか報告して改善の助けとするためのものです。レポートを報告するとバグを追跡する人が解析するでしょう。報告の前にレポートを編集してホームディレクトリなどのあらゆる身元がわかるような情報を取り除いてください。"
+
+#: zenmapGUI/CrashReport.py:103
+msgid "Summary"
+msgstr "概要"
+
+#: zenmapGUI/CrashReport.py:110
+msgid "Email"
+msgstr "Emailアドレス"
+
+#: zenmapGUI/CrashReport.py:148
+msgid "Bug reported"
+msgstr "バグは報告されました"
+
+#: zenmapGUI/CrashReport.py:149
+msgid "The bug was successfully reported."
+msgstr "バグレポートが送られました"
+
+#: zenmapGUI/CrashReport.py:155
+msgid ""
+"This error occurred while trying to report the bug:\n"
+"\n"
+msgstr ""
+"バグレポート送信中にエラーが発生しました:\n"
+"\n"
+
+#: zenmapGUI/SearchWindow.py:47
+msgid "Search Scans"
+msgstr "スキャン結果を検索"
+
+#: zenmapGUI/SearchWindow.py:73
+msgid "Append"
+msgstr "追加"
+
+#: zenmapGUI/ScanHostsView.py:50
+msgid "Hosts"
+msgstr "ホスト"
+
+#: zenmapGUI/ScanHostsView.py:51
+#: radialnet/gui/NodeNotebook.py:95
+msgid "Services"
+msgstr "サービス"
+
+#: zenmapGUI/ScanHostsView.py:60
+msgid "OS"
+msgstr "OS"
+
+#: zenmapGUI/ProfileEditor.py:46
+msgid "Profile Editor"
+msgstr "スキャンプロファイルエディタ"
+
+#: zenmapGUI/ProfileEditor.py:140
+msgid "Profile Information"
+msgstr "スキャンプロファイルの情報"
+
+#: zenmapGUI/ProfileEditor.py:141
+msgid "Profile name"
+msgstr "スキャンプロファイル名"
+
+#: zenmapGUI/ProfileEditor.py:144
+msgid "Description"
+msgstr "概要"
+
+#: zenmapGUI/ProfileEditor.py:159
+msgid "Save Changes"
+msgstr "変更を保存"
+
+#: zenmapGUI/ProfileEditor.py:164
+msgid "Help"
+msgstr "ヘルプ"
+
+#: zenmapGUI/ProfileEditor.py:197
+msgid "Profile"
+msgstr "スキャンプロファイル"
+
+#: zenmapGUI/ProfileEditor.py:257
+msgid "Unnamed profile"
+msgstr "無名スキャンプロファイル"
+
+#: zenmapGUI/ProfileEditor.py:258
+msgid "You must provide a name for this profile."
+msgstr "名前が必要です"
+
+#: zenmapGUI/ProfileEditor.py:294
+msgid "Deleting Profile"
+msgstr "スキャンプロファイルを削除する"
+
+#: zenmapGUI/ProfileEditor.py:295
+msgid "Your profile is going to be deleted! Click Ok to continue, or Cancel to go back to Profile Editor."
+msgstr "スキャンプロファイルが削除されます。OKをクリックするかCancelをクリックしてプロファイルエディタに戻ります。"
+
+#: zenmapGUI/ScanToolbar.py:40
+#: zenmapGUI/ScanRunDetailsPage.py:36
+msgid "Command:"
+msgstr "コマンド:"
+
+#: zenmapGUI/ScanToolbar.py:74
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: zenmapGUI/ScanToolbar.py:96
+msgid "Target:"
+msgstr "ターゲット"
+
+#: zenmapGUI/ScanToolbar.py:103
+msgid "Profile:"
+msgstr "ｽｷｬﾝﾌﾟﾛﾌｧｲﾙ"
+
+#: zenmapGUI/BugReport.py:37
+msgid "How to Report a Bug"
+msgstr "バグレポート方法"
+
+#: zenmapGUI/BugReport.py:56
+#, python-format
+msgid ""
+"<big><b>How to report a bug</b></big>\n"
+"\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;nmap-dev@insecure.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to nmap-dev@insecure.org are far more likely to be answered than those sent to Fyodor directly.\n"
+"\n"
+"Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at http://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) or to Fyodor directly.\n"
+msgstr ""
+"<big><b>バグリポートの送り方</b></big>\n"
+"\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;nmap-dev@insecure.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to nmap-dev@insecure.org are far more likely to be answered than those sent to Fyodor directly.\n"
+"\n"
+"Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at http://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) or to Fyodor directly.\n"
+
+#: zenmapGUI/App.py:123
+msgid "Error creating the per-user configuration directory"
+msgstr "ユーザーごとの構成ディレクトリの作成に失敗しました"
+
+#: zenmapGUI/App.py:124
+#, python-format
+msgid ""
+"There was an error creating the directory %s or one of the files in it. The directory is created by copying the contents of %s. The specific error was\n"
+"\n"
+"%s\n"
+"\n"
+"%s needs to create this directory to store information such as the list of scan profiles. Check for access to the directory and try again."
+msgstr ""
+"ディレクトリ %s かその中でのファイル作成時にエラーが発生しました。このディレクトリは%s のコンテンツをコピーするために作成されました。特定されたエラーは以下の通り\n"
+"\n"
+"%s\n"
+"\n"
+"スキャンプロファイルなど情報を保存するために%sディレクトリが必要です。ディレクトリを確認して再度試してみてください。"
+
+#: zenmapGUI/App.py:142
+msgid "Error parsing the configuration file"
+msgstr "設定ファイルの読み込みエラー"
+
+#: zenmapGUI/App.py:143
+#, python-format
+msgid ""
+"There was an error parsing the configuration file %s. The specific error was\n"
+"\n"
+"%s\n"
+"\n"
+"%s can continue without this file but any information in it will be ignored until it is repaired."
+msgstr ""
+"設定ファイル %s を開けません。.エラーは以下の通り\n"
+"\n"
+"%s\n"
+"\n"
+"%s のファイルなしでも継続できますが、修復されるまでどの情報も無視されます"
+
+#: zenmapGUI/App.py:207
+#, python-format
+msgid ""
+"You are trying to run %s with a non-root user!\n"
+"\n"
+"Some %s options need root privileges to work."
+msgstr ""
+"rootでないユーザーで %s を使おうとしています\n"
+"\n"
+"いくつかのオプション %s ではルート権限が必要になります"
+
+#: zenmapGUI/App.py:210
+msgid "Non-root user"
+msgstr "rootユーザーではありません"
+
+#: zenmapGUI/MainWindow.py:131
+msgid "Sc_an"
+msgstr "スキャン(_C)"
+
+#: zenmapGUI/MainWindow.py:135
+msgid "_Save Scan"
+msgstr "スキャン結果を保存する(_S)"
+
+#: zenmapGUI/MainWindow.py:137
+msgid "Save current scan results"
+msgstr "現在のスキャン結果を保存する"
+
+#: zenmapGUI/MainWindow.py:142
+msgid "Save All Scans to _Directory"
+msgstr "全てのスキャン結果をディレクトリに保存する(_D)"
+
+#: zenmapGUI/MainWindow.py:144
+msgid "Save all scans into a directory"
+msgstr "全てのスキャン結果をディレクトリに保存する"
+
+#: zenmapGUI/MainWindow.py:149
+msgid "_Open Scan"
+msgstr "スキャン結果を開く(_O)"
+
+#: zenmapGUI/MainWindow.py:151
+msgid "Open the results of a previous scan"
+msgstr "以前のスキャン結果を開く"
+
+#: zenmapGUI/MainWindow.py:156
+msgid "_Open Scan in This Window"
+msgstr "このウインドウにスキャン結果を開く"
+
+#: zenmapGUI/MainWindow.py:158
+msgid "Append a saved scan to the list of scans in this window."
+msgstr "このウインドウのスキャン結果を追加保存する"
+
+#: zenmapGUI/MainWindow.py:162
+msgid "_Tools"
+msgstr "ツール(_T)"
+
+#: zenmapGUI/MainWindow.py:166
+msgid "_New Window"
+msgstr "新規ウインドウ(_N)"
+
+#: zenmapGUI/MainWindow.py:168
+msgid "Open a new scan window"
+msgstr "新規スキャンウインドウを開く"
+
+#: zenmapGUI/MainWindow.py:173
+msgid "Close Window"
+msgstr "ウインドウを閉じる"
+
+#: zenmapGUI/MainWindow.py:175
+msgid "Close this scan window"
+msgstr "スキャンウインドウを閉じる"
+
+#: zenmapGUI/MainWindow.py:180
+msgid "Quit"
+msgstr "終了"
+
+#: zenmapGUI/MainWindow.py:182
+msgid "Quit the application"
+msgstr "アプリケーションを終了する"
+
+#: zenmapGUI/MainWindow.py:187
+msgid "New _Profile or Command"
+msgstr "ｽｷｬﾝﾌﾟﾛﾌｧｲﾙの新規作成またはｺﾏﾝﾄﾞ入力(_P)"
+
+#: zenmapGUI/MainWindow.py:189
+msgid "Create a new scan profile using the current command"
+msgstr "現在使用中のｺﾏﾝﾄﾞをｽｷｬﾝﾌﾟﾛﾌｧｲﾙとして保存"
+
+#: zenmapGUI/MainWindow.py:194
+msgid "Search Scan Results"
+msgstr "スキャン結果を検索する"
+
+#: zenmapGUI/MainWindow.py:196
+msgid "Search for a scan result"
+msgstr "スキャン結果を検索する"
+
+#: zenmapGUI/MainWindow.py:201
+#: zenmapGUI/ScanInterface.py:917
+msgid "Filter Hosts"
+msgstr "フィルタするホスト"
+
+#: zenmapGUI/MainWindow.py:203
+msgid "Search for host by criteria"
+msgstr "セキュリティ標準によるホスト探索"
+
+#: zenmapGUI/MainWindow.py:208
+msgid "_Edit Selected Profile"
+msgstr "選択したｽｷｬﾝﾌﾟﾛﾌｧｲﾙを編集する(_E)"
+
+#: zenmapGUI/MainWindow.py:210
+msgid "Edit selected scan profile"
+msgstr "選択したｽｷｬﾝﾌﾟﾛﾌｧｲﾙを編集する"
+
+#: zenmapGUI/MainWindow.py:214
+msgid "_Profile"
+msgstr "ｽｷｬﾝﾌﾟﾛﾌｧｲﾙ(_P)"
+
+#: zenmapGUI/MainWindow.py:218
+#: zenmapGUI/DiffCompare.py:207
+msgid "Compare Results"
+msgstr "結果を比較する"
+
+#: zenmapGUI/MainWindow.py:220
+msgid "Compare Scan Results using Diffies"
+msgstr "Diffesを使ってスキャン結果を比較する"
+
+#: zenmapGUI/MainWindow.py:225
+#: zenmapGUI/MainWindow.py:245
+msgid "_Help"
+msgstr "ヘルプ(_H)"
+
+#: zenmapGUI/MainWindow.py:229
+msgid "_Report a bug"
+msgstr "バグを報告する(_R)"
+
+#: zenmapGUI/MainWindow.py:231
+msgid "Report a bug"
+msgstr "バグを報告する"
+
+#: zenmapGUI/MainWindow.py:237
+msgid "_About"
+msgstr "Zenmapについて(_A)"
+
+#: zenmapGUI/MainWindow.py:239
+#, python-format
+msgid "About %s"
+msgstr "%s について"
+
+#: zenmapGUI/MainWindow.py:247
+msgid "Shows the application help"
+msgstr "アプリケーションヘルプを開く"
+
+#: zenmapGUI/MainWindow.py:439
+msgid "Error loading file"
+msgstr "ファイルのロードに失敗しました"
+
+#: zenmapGUI/MainWindow.py:461
+#: zenmapGUI/MainWindow.py:534
+msgid "Nothing to save"
+msgstr "セーブするものがありません"
+
+#: zenmapGUI/MainWindow.py:462
+msgid "There are no scans with results to be saved. Run a scan with the \"Scan\" button first."
+msgstr "スキャン結果がありません。\"スキャン\"ボタンをクリックしてスキャンしましょう"
+
+#: zenmapGUI/MainWindow.py:471
+#: zenmapGUI/MainWindow.py:543
+msgid "There is a scan still running. Wait until it finishes and then save."
+msgstr "スキャンが実行中です。終了するのを待ってください。"
+
+#: zenmapGUI/MainWindow.py:473
+#: zenmapGUI/MainWindow.py:545
+#, python-format
+msgid "There are %u scans still running. Wait until they finish and then save."
+msgstr "%u スキャンが実行中です。 終るまで待ってください"
+
+#: zenmapGUI/MainWindow.py:475
+#: zenmapGUI/MainWindow.py:547
+msgid "Scan is running"
+msgstr "スキャン実行中"
+
+#: zenmapGUI/MainWindow.py:514
+msgid "Save Scan"
+msgstr "スキャン結果を保存"
+
+#: zenmapGUI/MainWindow.py:535
+msgid "This scan has not been run yet. Start the scan with the \"Scan\" button first."
+msgstr "まだスキャンしていません。 まず \"スキャン\" ボタンをクリックしてスキャンを始めましょう"
+
+#: zenmapGUI/MainWindow.py:555
+msgid "Choose a directory to save scans into"
+msgstr "保存するディレクトリを選んでください"
+
+#: zenmapGUI/MainWindow.py:574
+#: zenmapGUI/MainWindow.py:594
+msgid "Can't save file"
+msgstr "セーブできません"
+
+#: zenmapGUI/MainWindow.py:595
+#, python-format
+msgid ""
+"Can't open file to write.\n"
+"%s"
+msgstr ""
+"書き込みファイルを開けません.\n"
+"%s"
+
+#: zenmapGUI/MainWindow.py:640
+#: zenmapGUI/MainWindow.py:678
+msgid "Close anyway"
+msgstr "気にせず終了"
+
+#: zenmapGUI/MainWindow.py:643
+msgid "Unsaved changes"
+msgstr "変更が保存されていません"
+
+#: zenmapGUI/MainWindow.py:645
+msgid ""
+"The given scan has unsaved changes.\n"
+"What do you want to do?"
+msgstr ""
+"スキャン結果が保存されていませんが\n"
+"どうしますか？"
+
+#: zenmapGUI/MainWindow.py:681
+msgid "Trying to close"
+msgstr "終了中"
+
+#: zenmapGUI/MainWindow.py:683
+msgid ""
+"The window you are trying to close has a scan running at the background.\n"
+"What do you want to do?"
+msgstr ""
+"終了しようとしているウインドウのバックグラウンドでスキャンが実行中ですが.\n"
+"どうしますか？"
+
+#: zenmapGUI/MainWindow.py:758
+msgid "Can't find documentation files"
+msgstr "ドキュメントファイルがみつかりません"
+
+#: zenmapGUI/MainWindow.py:759
+#, python-format
+msgid "There was an error loading the documentation file %s (%s). See the online documentation at %s."
+msgstr "ドキュメントファイル %s (%s)のロードに失敗しました。 オンラインドキュメントの %s を見てください"
+
+#: zenmapGUI/OptionBuilder.py:188
+msgid "Choose file"
+msgstr "ファイルを選択"
+
+#: zenmapGUI/ScanRunDetailsPage.py:33
+#: zenmapGUI/ScanHostDetailsPage.py:31
+msgid "Not available"
+msgstr "使用不可能"
+
+#: zenmapGUI/ScanRunDetailsPage.py:39
+msgid "Nmap Version:"
+msgstr "Nmapのバージョン:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:42
+msgid "Verbosity level:"
+msgstr "詳細度レベル:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:45
+msgid "Debug level:"
+msgstr "デバッグレベル:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:48
+msgid "Command Info"
+msgstr "コマンド情報"
+
+#: zenmapGUI/ScanRunDetailsPage.py:77
+msgid "Started on:"
+msgstr "スタート時間:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:80
+msgid "Finished on:"
+msgstr "終了時間:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:83
+msgid "Hosts up:"
+msgstr "生存しているホスト:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:86
+msgid "Hosts down:"
+msgstr "ダウンしているホスト:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:89
+msgid "Hosts scanned:"
+msgstr "スキャンされたホスト:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:92
+#: zenmapGUI/ScanHostDetailsPage.py:64
+msgid "Open ports:"
+msgstr "開いているポート:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:95
+#: zenmapGUI/ScanHostDetailsPage.py:67
+msgid "Filtered ports:"
+msgstr "フィルタされているポート:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:98
+#: zenmapGUI/ScanHostDetailsPage.py:70
+msgid "Closed ports:"
+msgstr "閉じているポート:"
+
+#: zenmapGUI/ScanRunDetailsPage.py:101
+msgid "General Info"
+msgstr "一般的な情報"
+
+#: zenmapGUI/ScanRunDetailsPage.py:162
+msgid "Scan Info"
+msgstr "スキャン情報"
+
+#: zenmapGUI/ScanRunDetailsPage.py:179
+msgid "Scan type:"
+msgstr "スキャン種別"
+
+#: zenmapGUI/ScanRunDetailsPage.py:182
+msgid "Protocol:"
+msgstr "プロトコル"
+
+#: zenmapGUI/ScanRunDetailsPage.py:185
+msgid "# scanned ports:"
+msgstr "# スキャンポート数"
+
+#: zenmapGUI/ScanRunDetailsPage.py:188
+msgid "Services:"
+msgstr "スキャンサービス"
+
+#: zenmapGUI/ScanNmapOutputPage.py:113
+msgid "Details"
+msgstr "概要"
+
+#: zenmapGUI/DiffCompare.py:86
+msgid "Scan Output"
+msgstr "スキャン結果"
+
+#: zenmapGUI/DiffCompare.py:137
+msgid "Select Scan Result"
+msgstr "スキャン結果を選択"
+
+#: zenmapGUI/DiffCompare.py:148
+msgid "Error parsing file"
+msgstr "ファイル展開エラー"
+
+#: zenmapGUI/DiffCompare.py:149
+#, python-format
+msgid ""
+"The file is not an Nmap XML output file. The parsing error that occurred was\n"
+"%s"
+msgstr ""
+"展開エラー。このファイルはNmap XMLフォーマットのファイルではありません。\n"
+"%s"
+
+#: zenmapGUI/DiffCompare.py:156
+msgid "Cannot open selected file"
+msgstr "選ばれたファイルが開きません"
+
+#: zenmapGUI/DiffCompare.py:157
+#, python-format
+msgid ""
+"This error occurred while trying to open the file:\n"
+"%s"
+msgstr ""
+"ファイルが開きません:\n"
+"%s"
+
+#: zenmapGUI/DiffCompare.py:233
+msgid "A Scan"
+msgstr "スキャンA"
+
+#: zenmapGUI/DiffCompare.py:234
+msgid "B Scan"
+msgstr "スキャンB"
+
+#: zenmapGUI/DiffCompare.py:284
+#: zenmapGUI/DiffCompare.py:331
+msgid "Error running ndiff"
+msgstr "ndiffの実行エラー"
+
+#: zenmapGUI/DiffCompare.py:285
+msgid ""
+"There was an error running the ndiff program.\n"
+"\n"
+msgstr ""
+"ndiff プログラムの実行エラー.\n"
+"\n"
+
+#: zenmapGUI/DiffCompare.py:318
+msgid "Error parsing ndiff output"
+msgstr "ndiff出力にエラーが発生しています"
+
+#: zenmapGUI/DiffCompare.py:326
+#, python-format
+msgid "The ndiff process terminated with status code %d."
+msgstr "ステータスコード %d でndiffのプロセスが終了されました"
+
+#: zenmapGUI/ScanHostDetailsPage.py:47
+msgid "Host Status"
+msgstr "ホストの状態"
+
+#: zenmapGUI/ScanHostDetailsPage.py:48
+msgid "Addresses"
+msgstr "アドレス"
+
+#: zenmapGUI/ScanHostDetailsPage.py:49
+msgid "Hostnames"
+msgstr "ホスト名"
+
+#: zenmapGUI/ScanHostDetailsPage.py:50
+#: radialnet/gui/NodeNotebook.py:346
+msgid "Operating System"
+msgstr "OS"
+
+#: zenmapGUI/ScanHostDetailsPage.py:51
+msgid "Ports used"
+msgstr "使用されているポート"
+
+#: zenmapGUI/ScanHostDetailsPage.py:52
+msgid "OS Class"
+msgstr "OSクラス"
+
+#: zenmapGUI/ScanHostDetailsPage.py:53
+msgid "TCP Sequence"
+msgstr "TCPシーケンス"
+
+#: zenmapGUI/ScanHostDetailsPage.py:54
+msgid "IP ID Sequence"
+msgstr "IP ID シーケンス"
+
+#: zenmapGUI/ScanHostDetailsPage.py:55
+msgid "TCP TS Sequence"
+msgstr "TCP TS シーケンス"
+
+#: zenmapGUI/ScanHostDetailsPage.py:56
+msgid "Comments"
+msgstr "コメント"
+
+#: zenmapGUI/ScanHostDetailsPage.py:61
+msgid "State:"
+msgstr "状態"
+
+#: zenmapGUI/ScanHostDetailsPage.py:73
+msgid "Scanned ports:"
+msgstr "スキャンされたポート"
+
+#: zenmapGUI/ScanHostDetailsPage.py:76
+msgid "Up time:"
+msgstr "稼働時間:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:79
+#: radialnet/gui/NodeNotebook.py:396
+msgid "Last boot:"
+msgstr "最終起動時間:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:84
+msgid "IPv4:"
+msgstr "IPv4:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:87
+msgid "IPv6:"
+msgstr "IPv6:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:90
+msgid "MAC:"
+msgstr "MACアドレス:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:93
+msgid "Vendor:"
+msgstr "ベンダー:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:231
+msgid "Name - Type:"
+msgstr "名前 - タイプ:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:249
+msgid "Not Available"
+msgstr "使用不可能"
+
+#: zenmapGUI/ScanHostDetailsPage.py:251
+msgid "Name:"
+msgstr "名前:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:254
+msgid "Accuracy:"
+msgstr "精度:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:281
+msgid "Port-Protocol-State:"
+msgstr "ポート-プロトコル-状態:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:293
+#: radialnet/gui/NodeNotebook.py:56
+msgid "Type"
+msgstr "タイプ"
+
+#: zenmapGUI/ScanHostDetailsPage.py:294
+#: radialnet/gui/NodeNotebook.py:56
+msgid "Vendor"
+msgstr "ベンダー"
+
+#: zenmapGUI/ScanHostDetailsPage.py:295
+msgid "OS Family"
+msgstr "OSファミリー"
+
+#: zenmapGUI/ScanHostDetailsPage.py:296
+msgid "OS Generation"
+msgstr "OS の世代"
+
+#: zenmapGUI/ScanHostDetailsPage.py:297
+msgid "Accuracy"
+msgstr "精度"
+
+#: zenmapGUI/ScanHostDetailsPage.py:324
+msgid "Difficulty:"
+msgstr "難易度:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:327
+msgid "Index:"
+msgstr "インデックス:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:330
+#: zenmapGUI/ScanHostDetailsPage.py:349
+#: zenmapGUI/ScanHostDetailsPage.py:368
+msgid "Values:"
+msgstr "値:"
+
+#: zenmapGUI/ScanHostDetailsPage.py:346
+#: zenmapGUI/ScanHostDetailsPage.py:365
+msgid "Class:"
+msgstr "クラス:"
+
+#: zenmapGUI/ScanScanListPage.py:31
+msgid "Running"
+msgstr "実行中"
+
+#: zenmapGUI/ScanScanListPage.py:34
+msgid "Unsaved"
+msgstr "未保存"
+
+#: zenmapGUI/ScanScanListPage.py:38
+msgid "Failed"
+msgstr "失敗"
+
+#: zenmapGUI/ScanScanListPage.py:40
+msgid "Canceled"
+msgstr "キャンセル"
+
+#: zenmapGUI/ScanScanListPage.py:61
+msgid "Status"
+msgstr "状態"
+
+#: zenmapGUI/ScanScanListPage.py:67
+msgid "Command"
+msgstr "コマンド"
+
+#: zenmapGUI/ScanScanListPage.py:84
+msgid "Append Scan"
+msgstr "スキャンを追加"
+
+#: zenmapGUI/ScanScanListPage.py:87
+msgid "Remove Scan"
+msgstr "スキャン結果を削除"
+
+#: zenmapGUI/ScanScanListPage.py:90
+msgid "Cancel Scan"
+msgstr "キャンセル"
+
+#: zenmapGUI/FileChoosers.py:35
+#, python-format
+msgid "All files (%s)"
+msgstr "全てのファイル (%s)"
+
+#: zenmapGUI/FileChoosers.py:44
+#, python-format
+msgid "Nmap XML files (%s)"
+msgstr "Nmap XML files (%s)"
+
+#: zenmapGUI/FilterBar.py:23
+msgid "Host Filter:"
+msgstr "ホストフィルタ:"
+
+#: zenmapGUI/FilterBar.py:56
+msgid ""
+"Entering the text into the search performs a <b>keyword search</b> - the search string is matched against every aspect of the host.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only specific fields within a host. Most operators have a short form, listed. \n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+msgstr ""
+"Entering the text into the search performs a <b>keyword search</b> - the search string is matched against every aspect of the host.\n"
+"\n"
+"To refine the search, you can use <b>operators</b> to search only specific fields within a host. Most operators have a short form, listed. \n"
+"<b>target: (t:)</b> - User-supplied target, or a rDNS result.\n"
+"<b>os:</b> - All OS-related fields.\n"
+"<b>open: (op:)</b> - Open ports discovered in a scan.\n"
+"<b>closed: (cp:)</b> - Closed ports discovered in a scan.\n"
+"<b>filtered: (fp:)</b> - Filtered ports discovered in scan.\n"
+"<b>unfiltered: (ufp:)</b> - Unfiltered ports found in a scan (using, for example, an ACK scan).\n"
+"<b>open|filtered: (ofp:)</b> - Ports in the \"open|filtered\" state.\n"
+"<b>closed|filtered: (cfp:)</b> - Ports in the \"closed|filtered\" state.\n"
+"<b>service: (s:)</b> - All service-related fields.\n"
+"<b>inroute: (ir:)</b> - Matches a router in the scan's traceroute output.\n"
+
+#: zenmapGUI/ScanInterface.py:316
+msgid "Empty Nmap Command"
+msgstr "Nmapのコマンドがありません"
+
+#: zenmapGUI/ScanInterface.py:317
+msgid "There is no command to  execute. Maybe the selected/typed profile doesn't exist. Please, check the profile name or type the nmap command you would like to execute."
+msgstr "コマンドが実行できません。 スキャンプロファイルが存在してない可能性がありますのでプロファイル名かnmapのコマンドオプションを確認してください"
+
+#: zenmapGUI/ScanInterface.py:420
+msgid "This means that the nmap executable was not found in your system PATH, which is"
+msgstr "Nmapの実行ファイルがPATHに見つかりませんでした"
+
+#: zenmapGUI/ScanInterface.py:420
+msgid "<undefined>"
+msgstr "<未定義>"
+
+#: zenmapGUI/ScanInterface.py:430
+msgid "plus the extra directory"
+msgstr "ディレクトリを追加する"
+
+#: zenmapGUI/ScanInterface.py:432
+msgid "plus the extra directories"
+msgstr "ディレクトリを追加する"
+
+#: zenmapGUI/ScanInterface.py:434
+msgid "Error executing command"
+msgstr "コマンド実行エラー"
+
+#: zenmapGUI/ScanInterface.py:501
+msgid "Parse error"
+msgstr "展開エラー"
+
+#: zenmapGUI/ScanInterface.py:502
+#, python-format
+msgid ""
+"There was an error while parsing the XML file generated from the scan:\n"
+"\n"
+"%s"
+msgstr ""
+"スキャンによって作成されたXMLファイルのパースエラーです。:\n"
+"\n"
+"%s"
+
+#: zenmapGUI/ScanInterface.py:614
+#, python-format
+msgid "%d/%d hosts shown"
+msgstr "%d/%d のホストが表示されています"
+
+#: zenmapGUI/ScanInterface.py:987
+msgid "Nmap Output"
+msgstr "Nmapの結果"
+
+#: zenmapGUI/ScanInterface.py:988
+msgid "Ports / Hosts"
+msgstr "ポート/ホスト"
+
+#: zenmapGUI/ScanInterface.py:989
+msgid "Topology"
+msgstr "トポロジー"
+
+#: zenmapGUI/ScanInterface.py:990
+msgid "Host Details"
+msgstr "ホスト情報"
+
+#: zenmapGUI/ScanInterface.py:991
+msgid "Scans"
+msgstr "スキャン履歴"
+
+#: zenmapGUI/ScanInterface.py:1012
+msgid "No host selected."
+msgstr "ホストが選ばれていません"
+
+#: radialnet/bestwidgets/windows.py:44
+msgid "Alert"
+msgstr "警告"
+
+#: radialnet/gui/HostsViewer.py:48
+#: radialnet/gui/Toolbar.py:132
+msgid "Hosts Viewer"
+msgstr "ホストビューアー"
+
+#: radialnet/gui/HostsViewer.py:52
+msgid "No node selected"
+msgstr "ノードが選ばれていません"
+
+#: radialnet/gui/Toolbar.py:55
+msgid "Hosts viewer"
+msgstr "ホストビューアー"
+
+#: radialnet/gui/Toolbar.py:129
+msgid "Save Graphic"
+msgstr "画像を保存"
+
+#: radialnet/gui/Toolbar.py:135
+msgid "Controls"
+msgstr "コントロール"
+
+#: radialnet/gui/Toolbar.py:139
+msgid "Fisheye"
+msgstr "魚眼モード"
+
+#: radialnet/gui/Toolbar.py:225
+msgid "Error saving snapshot"
+msgstr "スナップショットの保存に失敗しました"
+
+#: radialnet/gui/ControlWidget.py:81
+msgid "Action"
+msgstr "アクション"
+
+#: radialnet/gui/ControlWidget.py:99
+msgid "Change focus"
+msgstr "フォーカスを変更"
+
+#: radialnet/gui/ControlWidget.py:109
+msgid "Info"
+msgstr "情報"
+
+#: radialnet/gui/ControlWidget.py:112
+msgid "Show information"
+msgstr "情報を表示する"
+
+#: radialnet/gui/ControlWidget.py:118
+msgid "Group children"
+msgstr "Group children"
+
+#: radialnet/gui/ControlWidget.py:125
+msgid "Fill region"
+msgstr "領域を埋めてください"
+
+#: radialnet/gui/ControlWidget.py:131
+msgid "Red"
+msgstr "赤"
+
+#: radialnet/gui/ControlWidget.py:132
+msgid "Yellow"
+msgstr "黄"
+
+#: radialnet/gui/ControlWidget.py:133
+msgid "Green"
+msgstr "緑"
+
+#: radialnet/gui/ControlWidget.py:463
+msgid "<b>Fisheye</b> on ring"
+msgstr "リングの <b>魚眼</b>"
+
+#: radialnet/gui/ControlWidget.py:478
+msgid "with interest factor"
+msgstr "興味深い要素"
+
+#: radialnet/gui/ControlWidget.py:483
+msgid "and spread factor"
+msgstr "要素を広げる"
+
+#: radialnet/gui/ControlWidget.py:595
+msgid "Interpolation"
+msgstr "補間"
+
+#: radialnet/gui/ControlWidget.py:607
+msgid "Cartesian"
+msgstr "カルテシアン座標"
+
+#: radialnet/gui/ControlWidget.py:608
+msgid "Polar"
+msgstr "極座標"
+
+#: radialnet/gui/ControlWidget.py:621
+msgid "Frames"
+msgstr "フレーム"
+
+#: radialnet/gui/ControlWidget.py:682
+msgid "Layout"
+msgstr "レイアウト"
+
+#: radialnet/gui/ControlWidget.py:695
+msgid "Symmetric"
+msgstr "対称"
+
+#: radialnet/gui/ControlWidget.py:696
+msgid "Weighted"
+msgstr "重み"
+
+#: radialnet/gui/ControlWidget.py:756
+msgid "Ring gap"
+msgstr "輪の間隔"
+
+#: radialnet/gui/ControlWidget.py:760
+msgid "Lower ring gap"
+msgstr "リング間を最小に"
+
+#: radialnet/gui/ControlWidget.py:893
+msgid "View"
+msgstr "ビュー"
+
+#: radialnet/gui/ControlWidget.py:906
+msgid "Zoom"
+msgstr "拡大"
+
+#: radialnet/gui/ControlWidget.py:1140
+msgid "Navigation"
+msgstr "ナビゲーション"
+
+#: radialnet/gui/NodeNotebook.py:31
+msgid "Method"
+msgstr "メソッド"
+
+#: radialnet/gui/NodeNotebook.py:32
+msgid "Count"
+msgstr "数"
+
+#: radialnet/gui/NodeNotebook.py:32
+msgid "Reasons"
+msgstr "理由"
+
+#: radialnet/gui/NodeNotebook.py:42
+msgid "TTL"
+msgstr "TTL"
+
+#: radialnet/gui/NodeNotebook.py:42
+msgid "RTT"
+msgstr "RTT"
+
+#: radialnet/gui/NodeNotebook.py:42
+msgid "IP"
+msgstr "IP"
+
+#: radialnet/gui/NodeNotebook.py:44
+#, python-format
+msgid "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops."
+msgstr "ポート <b>%s/%s</b> のTraceroute結果。合計 <b>%d</b> ホップ行われています"
+
+#: radialnet/gui/NodeNotebook.py:48
+msgid "No traceroute information available."
+msgstr "traceroute情報はありません"
+
+#: radialnet/gui/NodeNotebook.py:55
+msgid "Name"
+msgstr "名前"
+
+#: radialnet/gui/NodeNotebook.py:55
+msgid "DB Line"
+msgstr "DB ライン"
+
+#: radialnet/gui/NodeNotebook.py:56
+msgid "Family"
+msgstr "ファミリー"
+
+#: radialnet/gui/NodeNotebook.py:60
+#, python-format
+msgid "<b>*</b> TCP sequence <i>index</i> equal to %d and <i>difficulty</i> is \"%s\"."
+msgstr "<b>*</b> TCP シーケンス<i>インデックス</i> 同じ %d and <i>難易度 </i> は \"%s\"."
+
+#: radialnet/gui/NodeNotebook.py:94
+msgid "General"
+msgstr "一般的な情報"
+
+#: radialnet/gui/NodeNotebook.py:96
+msgid "Traceroute"
+msgstr "Traceroute"
+
+#: radialnet/gui/NodeNotebook.py:140
+#, python-format
+msgid "Ports (%s)"
+msgstr "ポート (%s)"
+
+#: radialnet/gui/NodeNotebook.py:162
+#: radialnet/gui/NodeNotebook.py:702
+msgid "<unknown>"
+msgstr "< 不明 >"
+
+#: radialnet/gui/NodeNotebook.py:168
+msgid "<none>"
+msgstr "< なし >"
+
+#: radialnet/gui/NodeNotebook.py:193
+#, python-format
+msgid "[%d] service: %s"
+msgstr "[%d] サービス: %s"
+
+#: radialnet/gui/NodeNotebook.py:198
+msgid "<special field>"
+msgstr "<特別なフィールド>"
+
+#: radialnet/gui/NodeNotebook.py:301
+#, python-format
+msgid "Extraports (%s)"
+msgstr "Extraports (%s)"
+
+#: radialnet/gui/NodeNotebook.py:308
+msgid "Special fields"
+msgstr "特別なフィールド"
+
+#: radialnet/gui/NodeNotebook.py:344
+msgid "General information"
+msgstr "一般的な情報"
+
+#: radialnet/gui/NodeNotebook.py:345
+msgid "Sequences"
+msgstr "シーケンス"
+
+#: radialnet/gui/NodeNotebook.py:348
+msgid "No sequence information."
+msgstr "シーケンスに関する情報はありません"
+
+#: radialnet/gui/NodeNotebook.py:349
+msgid "No OS information."
+msgstr "OS情報がありません"
+
+#: radialnet/gui/NodeNotebook.py:354
+msgid "Address:"
+msgstr "アドレス:"
+
+#: radialnet/gui/NodeNotebook.py:377
+msgid "Hostname:"
+msgstr "ホスト名:"
+
+#: radialnet/gui/NodeNotebook.py:401
+#, python-format
+msgid "%s (%s seconds)."
+msgstr "%s (%s 秒)."
+
+#: radialnet/gui/NodeNotebook.py:467
+msgid "Match"
+msgstr "マッチ"
+
+#: radialnet/gui/NodeNotebook.py:517
+#: radialnet/gui/NodeNotebook.py:567
+msgid "Class"
+msgstr "クラス"
+
+#: radialnet/gui/NodeNotebook.py:525
+msgid "Used ports:"
+msgstr "使用されているポート:"
+
+#: radialnet/gui/NodeNotebook.py:548
+msgid "Fingerprint"
+msgstr "フィンガープリント"
+
+#: radialnet/gui/NodeNotebook.py:568
+msgid "Values"
+msgstr "値"
+
+#: radialnet/gui/NodeNotebook.py:570
+msgid "TCP *"
+msgstr "TCP *"
+
+#: radialnet/gui/NodeNotebook.py:571
+msgid "IP ID"
+msgstr "IP ID"
+
+#: radialnet/gui/NodeNotebook.py:572
+msgid "TCP Timestamp"
+msgstr "TCP タイムスタンプ"
+
+#: radialnet/gui/SaveDialog.py:47
+msgid "Save Topology"
+msgstr "トポロジーを保存"
+
+#: radialnet/gui/SaveDialog.py:67
+msgid "Select File Type:"
+msgstr "ファイルの種類:"
+
+#: radialnet/gui/SaveDialog.py:99
+msgid "No filename extension"
+msgstr "拡張子がありません"
+
+#: radialnet/gui/SaveDialog.py:100
+#, python-format
+msgid ""
+"The filename \"%s\" does not have an extension, and no specific file type was chosen.\n"
+"Enter a known extension or select the file type from the list."
+msgstr ""
+"このファイル名  \"%s\" には拡張子がありませんのでファイル種別を特定できません。\n"
+"適切な拡張子を入力するかリストからファイルタイプを選んでください"
+
+#: radialnet/gui/SaveDialog.py:106
+msgid "Unknown filename extension"
+msgstr "不明な拡張子です"
+
+#: radialnet/gui/SaveDialog.py:107
+#, python-format
+msgid ""
+"There is no file type known for the filename extension \"%s\".\n"
+"Enter a known extension or select the file type from the list."
+msgstr ""
+"このファイルのための拡張子 \"%s\" のファイルがありません\n"
+"適切な拡張子を入力するかリストからファイルタイプを選んでください"
+
