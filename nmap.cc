@@ -1988,7 +1988,7 @@ int nmap_main(int argc, char *argv[]) {
         xml_newline();
         log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n",
             currenths->NameIP(hostname, sizeof(hostname)));
-        log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout", 
+        log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout\n",
             currenths->targetipstr(), currenths->HostName());
       } else {
         /* --open means don't show any hosts without open ports. */
