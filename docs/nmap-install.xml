@@ -1032,9 +1032,9 @@ the trash.</para></listitem>
 <para>See the instructions in <xref linkend="inst-macosx-exec"/> for
 help on running Nmap and Zenmap after they are installed.</para>
 
-<para>The programs installed by the installer are universal binaries
-that will run on Mac OS X 10.4 (Tiger) or later. Users of earlier versions will
-have to compile from source or use a third-party package.</para>
+<para>The programs installed by the installer will run on Mac OS X 10.5
+(Leopard) or later. Users of earlier versions will have to compile from
+source or use a third-party package.</para>
 </sect2>
 
 <sect2 id="inst-macosx-source">
