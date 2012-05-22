@@ -562,8 +562,9 @@ local function client_hello(t)
 	return record_write("handshake", t["protocol"], h .. b)
 end
 
-local function try_params(host, port, t)
+local function try_params(host, port, t, name, records)
 	local buffer, err, i, record, req, resp, sock, status
+	local condvar = nmap.condvar(records)
 
 	-- Create socket.
 	sock = nmap.new_socket()
@@ -572,6 +573,7 @@ local function try_params(host, port, t)
 	if not status then
 		stdnse.print_debug(1, "Can't connect: %s", err)
 		sock:close()
+		condvar "signal"
 		return nil
 	end
 
@@ -581,6 +583,7 @@ local function try_params(host, port, t)
 	if not status then
 		stdnse.print_debug(1, "Can't send: %s", err)
 		sock:close()
+		condvar "signal"
 		return nil
 	end
 
@@ -592,6 +595,7 @@ local function try_params(host, port, t)
 		status, resp = sock:receive()
 		if not status then
 			sock:close()
+			condvar "signal"
 			return record
 		end
 
@@ -601,7 +605,10 @@ local function try_params(host, port, t)
 		i, record = record_read(buffer, i)
 		if record ~= nil then
 			sock:close()
-			return record
+			record.name = name
+			table.insert(records, record)
+			condvar "signal"
+			return
 		end
 	end
 end
@@ -611,6 +618,8 @@ local function try_protocol(host, port, protocol)
 
 	local function find_ciphers()
 		local name, protocol_worked, record, results, t,cipherstr
+		local records, threads = {}, {}
+		local condvar = nmap.condvar(records)
 
 		results = {}
 
@@ -624,7 +633,22 @@ local function try_protocol(host, port, protocol)
 			}
 
 			-- Try connecting with cipher.
-			record = try_params(host, port, t)
+			local co = stdnse.new_thread(try_params, host, port, t, name, records)
+			threads[co] = true
+		end
+		
+		repeat
+			for thread in pairs(threads) do
+				if coroutine.status(thread) == "dead" then threads[thread] = nil end
+			end
+			if ( next(threads) ) then
+				condvar "wait"
+			end
+		until next(threads) == nil
+			
+		
+		for _, record in ipairs(records) do
+			local name = record.name
 			if record == nil then
 				if protocol_worked then
 					stdnse.print_debug(2, "Cipher %s rejected.", name)
@@ -665,6 +689,8 @@ local function try_protocol(host, port, protocol)
 
 	local function find_compressors()
 		local name, protocol_worked, record, results, t
+		local records, threads = {}, {}
+		local condvar = nmap.condvar(records)
 
 		results = {}
 
@@ -678,7 +704,21 @@ local function try_protocol(host, port, protocol)
 			}
 
 			-- Try connecting with compressor.
-			record = try_params(host, port, t)
+			local co = stdnse.new_thread(try_params, host, port, t, name, records)
+			threads[co] = true
+		end
+		
+		repeat
+			for thread in pairs(threads) do
+				if coroutine.status(thread) == "dead" then threads[thread] = nil end
+			end
+			if ( next(threads) ) then
+				condvar "wait"
+			end
+		until next(threads) == nil
+		
+		for _, record in ipairs(records) do
+			local name = record.name
 			if record == nil then
 				if protocol_worked then
 					stdnse.print_debug(2, "Compressor %s rejected.", name)
