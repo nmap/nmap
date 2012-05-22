@@ -501,6 +501,7 @@ Crawler = {
 			port = port,
 			url = url,
 			options = options or {},
+			basethread = stdnse.base(),
 		}
 
 		setmetatable(o, self)
@@ -606,7 +607,7 @@ Crawler = {
 
 		while(true) do
 			
-			if ( self.quit ) then
+			if ( self.quit or coroutine.status(self.basethread) == 'dead'  ) then
 				table.insert(response_queue, {false, { err = false, msg = "Quit signalled by crawler" } })
 				break
 			end
