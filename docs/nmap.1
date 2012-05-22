@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 03/08/2012
+.\"      Date: 05/22/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "03/08/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/22/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -123,7 +123,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.61TEST5 ( http://nmap\&.org )
+Nmap 6\&.01 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -493,7 +493,9 @@ The payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payl
 
 The
 \fB\-\-data\-length\fR.\" --data-length
-option sends a fixed\-length random payload for all ports\&.
+option can be used to send a fixed\-length random payload to every port or (if you specify a value of
+0) to disable payloads\&. You can also disable payloads by specifying
+\fB\-\-data\-length 0\fR\&.
 .sp
 The port list takes the same format as with the previously discussed
 \fB\-PS\fR
@@ -732,7 +734,8 @@ option\&. It can be combined with a TCP scan type such as SYN scan (\fB\-sS\fR) 
 UDP scan works by sending a UDP packet to every targeted port\&. For some common ports such as 53 and 161, a protocol\-specific payload is sent, but for most ports the packet is empty\&..\" protocol-specific payloads: UDP
 The
 \fB\-\-data\-length\fR
-option can be used to send a fixed\-length random payload to every port\&. If an ICMP port unreachable error (type 3, code 3) is returned, the port is
+option can be used to send a fixed\-length random payload to every port or (if you specify a value of
+0) to disable payloads\&. If an ICMP port unreachable error (type 3, code 3) is returned, the port is
 closed\&. Other ICMP unreachable errors (type 3, codes 1, 2, 9, 10, or 13) mark the port as
 filtered\&. Occasionally, a service will respond with a UDP packet, proving that it is
 open\&. If no response is received after retransmissions, the port is classified as
@@ -1010,9 +1013,9 @@ Nmap needs an
 nmap\-services
 file with frequency information in order to know which ports are the most common\&. If port frequency information isn\*(Aqt available, perhaps because of the use of a custom
 nmap\-services
-file,
+file, Nmap scans all named ports plus ports 1\-1024\&. In that case,
 \fB\-F\fR
-means to scan only ports that are named in the services file (normally Nmap scans all named ports plus ports 1\(en1024)\&.
+means to scan only ports that are named in the services file\&.
 .RE
 .PP
 \fB\-r\fR (Don\*(Aqt randomize ports) .\" -r .\" randomization of ports
@@ -2535,7 +2538,8 @@ unless you are prepared to suffer downtime\&. We acknowledge here that Nmap may 
 .PP
 Because of the slight risk of crashes and because a few black hats like to use Nmap for reconnaissance prior to attacking systems, there are administrators who become upset and may complain when their system is scanned\&. Thus, it is often advisable to request permission before doing even a light scan of a network\&.
 .PP
-Nmap should never be installed with special privileges (e\&.g\&. suid root) for security reasons\&..\" setuid, why Nmap shouldn't be
+Nmap should never be installed with special privileges (e\&.g\&. suid root)\&..\" setuid, why Nmap shouldn't be.\" suid
+That would open up a major security vulnerability as other users on the system (or attackers) could use it for privilege escalation\&.
 .SS "Third\-Party Software and Funding Notices"
 .PP
 This product includes software developed by the

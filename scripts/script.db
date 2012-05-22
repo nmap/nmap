@@ -165,7 +165,7 @@ Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "ex
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
-Entry { filename = "http-traceroute.nse", categories = { "discovery", "safe", "default", } }
+Entry { filename = "http-traceroute.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-unsafe-output-escaping.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
