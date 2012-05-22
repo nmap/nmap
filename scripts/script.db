@@ -66,7 +66,7 @@ Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "vers
 Entry { filename = "db2-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dhcp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dict-info.nse", categories = { "discovery", "safe", } }
-Entry { filename = "distcc-CVE-2004-2687.nse", categories = { "exploit", "intrusive", "vuln", } }
+Entry { filename = "distcc-cve2004-2687.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "dns-blacklist.nse", categories = { "external", "safe", } }
 Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
