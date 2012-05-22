@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script icap-info, which tries to identify common ICAP
+  service names and list service and tag information. [Patrik Karlsson]
+
 o [NSE] Added the script http-traceroute, which exploits the
   Max-Forwards HTTP header to detect reverse proxies. [Hani Benhabiles]
 
