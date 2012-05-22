@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the greppable output of hosts that time-out (when --host-timeout was
+  used and the host timed-out after something was received from that host).
+  This issue was reported by Matthew Morgan. [jah]
+
 o [Zenmap] Added Japanese translation by Yuji Tounai.
 
 o [NSE] Added the script icap-info, which tries to identify common ICAP
