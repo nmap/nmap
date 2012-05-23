@@ -62,7 +62,7 @@ local function getReflected(parsed, r)
 	local q = url.parse_query(parsed.query)
 	-- Check the values (and keys) and see if they are reflected in the page
 	for k,v in pairs(q) do
-		if r.response.body:find(v) then
+		if r.response.body:find(v, 1, true) then
 			dbg("Reflected content %s=%s", k,v)
 			reflected_values[k] = v
 			count = count +1
@@ -83,7 +83,7 @@ local function createMinedLinks(reflected_values, all_values)
 	local new_links = {}
 	for k,v in pairs(reflected_values) do
 		-- First  of all, add the payload to the reflected param
-		local urlParams = {k = addPayload(v)}
+		local urlParams = { [k] = addPayload(v)}
 		for k2,v2 in pairs(all_values) do
 			if k2 ~= k then
 				urlParams[k2] = v2
