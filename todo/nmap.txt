@@ -12,10 +12,14 @@ o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
     o UPDATE on this - adding read-only rights (rather than no rights)
       to the root of the svn repo seems to have solved this problem.
 
-
 o Add CPE entries to OS fingerpting DB entries which still lack them
  - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
    fingerprints.
+
+o We should probably redo the Nmap header (e.g. on http://nmap.org) to
+  make it more attractive.  Or, at a minimum we should update the
+  screenshots and think about which links we really need (some of those
+  pages aren't really updated any more).
 
 o FEATURE CREEPERS!  We have two talented GSoC students for summer
   2012.  Here are some ideas that they could do, though anyone else is
