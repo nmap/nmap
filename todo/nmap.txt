@@ -106,6 +106,14 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
     be a principled or automatic way to build this hierarchy, but I
     suspect playing it by ear will be sufficient. Talk to David for
     more of his thinking on this topic.
+  o Add real headers for more protocol types in -6 -sO scan. Dario
+    Ciccarone provided some packet captures for
+      0x00: hop-by-hop
+      0x2b: routing
+      0x2c: fragment
+      0x3c: destination
+    (http://seclists.org/nmap-dev/2011/q2/1003). We also have examples
+    of crafting some of these in FPEngine.cc. [Sean and David]
 
 o Maybe we should rename dns-brute to dns-brute-enum since it is so different
   from our traditional brute force authentication cracking -brute scripts?
