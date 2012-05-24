@@ -941,6 +941,22 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 
 		/* Repair the alias name back up */
 		if (p) *p = ':';
+
+		/* Ignore IPMP interfaces. These are virtual interfaces made up
+		 * of physical interfaces. IPMP interfaces do not support things
+		 * like packet sniffing; it is necessary to use one of the
+		 * underlying physical interfaces instead. This works as long as
+		 * the physical interface's test address is on the same subnet
+		 * as the IPMP interface's address. */
+		if (ioctl(intf->fd, SIOCGLIFFLAGS, lifr) >= 0)
+			;
+		else if (intf->fd6 != -1 && ioctl(intf->fd6, SIOCGLIFFLAGS, lifr) >= 0)
+			;
+		else
+			return (-1);
+		if (lifr->lifr_flags & IFF_IPMP) {
+			continue;
+		}
 		
 		if (_intf_get_noalias(intf, entry) < 0)
 			return (-1);
