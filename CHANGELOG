@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Rewrote mysql-brute to use brute library [Aleksandar Nikolic]
+
 o Fixed the greppable output of hosts that time-out (when --host-timeout was
   used and the host timed-out after something was received from that host).
   This issue was reported by Matthew Morgan. [jah]
