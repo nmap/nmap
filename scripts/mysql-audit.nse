@@ -109,7 +109,7 @@ local function loadAuditRulebase( filename )
 	
 	file()
 	TEMPLATE_NAME = env.TEMPLATE_NAME
-	ADMIN_ACCOUNTS = getfenv(file)["ADMIN_ACCOUNTS"]
+	ADMIN_ACCOUNTS = env.ADMIN_ACCOUNTS
 	return true, rules
 end
 
