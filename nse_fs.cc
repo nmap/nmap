@@ -221,20 +221,18 @@ static int dir_close (lua_State *L) {
 static int l_readdir (lua_State *L) {
   const char *dirname = luaL_checkstring(L, 1);
   dir_data *d;
-  lua_pushcfunction(L, dir_iter);
+  lua_pushvalue(L, lua_upvalueindex(2)); /* dir_iter */
   d = (dir_data *)lua_newuserdata(L, sizeof(dir_data));
+  lua_pushvalue(L, DIR_METATABLE);
+  lua_setmetatable(L, -2);
   d->closed = 0;
 #ifdef  WIN32
   d->hFile = 0L;
-  lua_pushvalue(L, DIR_METATABLE);
-  lua_setmetatable(L, -2);
   if (strlen(dirname) > MAX_DIR_LENGTH)
     luaL_error(L, "%s: Path too long '%s'.", SCRIPT_ENGINE, dirname);
   else
     Snprintf(d->pattern, MAX_DIR_LENGTH, "%s/*", dirname);
 #else
-  lua_pushvalue(L, DIR_METATABLE);
-  lua_setmetatable(L, -2);
   d->dir = opendir(dirname);
   if (d->dir == NULL)
     luaL_error(L, "%s: Could not open directory '%s'.", SCRIPT_ENGINE, dirname);
@@ -253,7 +251,7 @@ LUALIB_API int luaopen_fs(lua_State *L)
   static const luaL_Reg lib[] = {
     {"fetchscript", l_fetchscript},
     {"fetchfile_absolute", l_fetchfile_absolute},
-    {"readdir", l_readdir},
+    {"readdir", nseU_placeholder},
     {NULL, NULL}
   };
 
@@ -270,6 +268,11 @@ LUALIB_API int luaopen_fs(lua_State *L)
   luaL_newlibtable(L, lib);
   lua_pushvalue(L, top+1);
   luaL_setfuncs(L, lib, 1);
+  lua_pushvalue(L, top+1);
+  lua_pushvalue(L, top+1);
+  lua_pushcclosure(L, dir_iter, 1);
+  lua_pushcclosure(L, l_readdir, 2);
+  lua_setfield(L, -2, "readdir");
 
   return 1;
 }
