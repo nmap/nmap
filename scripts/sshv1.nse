@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Checks if an SSH server supports the obsolete and less secure SSH Protocol Version 1.
 ]]
@@ -11,7 +15,6 @@ categories = {"default", "safe"}
 -- 22/tcp open  ssh
 -- |_sshv1: Server supports SSHv1
 
-require "shortport"
 
 portrule = shortport.port_or_service(22, "ssh")
 

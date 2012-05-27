@@ -1,3 +1,12 @@
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Sends an ICMPv6 echo request packet to the all-nodes link-local
 multicast address (<code>ff02::1</code>) to discover responsive hosts
@@ -21,11 +30,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery","broadcast"}
 
-require 'nmap'
-require 'tab'
-require 'target'
-require 'packet'
-local bit = require 'bit'
 
 prerule = function()
 	return nmap.is_privileged()

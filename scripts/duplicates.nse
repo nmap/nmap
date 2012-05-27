@@ -1,3 +1,10 @@
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local ssh1 = require "ssh1"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to discover multihomed systems by analysing and
 comparing information collected by other scripts. The information analyzed
@@ -49,7 +56,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe"}
 dependencies = {"ssl-cert", "ssh-hostkey", "nbstat"}
 
-require 'ipOps'
 
 hostrule = function() return true end
 postrule = function() return true end

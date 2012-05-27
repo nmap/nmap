@@ -182,29 +182,29 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 
+local bit = require "bit"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
 local type    = type
 local next    = next
 local pairs   = pairs
 local ipairs  = ipairs
 local select  = select
 local tostring = tostring
-local table   = require "table"
 local insert  = table.insert
 local concat  = table.concat
 local sort    = table.sort
 local setmetatable = setmetatable
-local string = require "string"
 local string_format = string.format
 local string_upper = string.upper
 
-local bit = require "bit"
-local ipOps = require "ipOps"
-local nmap  = require "nmap"
-local stdnse = require "stdnse"
 local print_debug = stdnse.print_debug
 local compare_ip = ipOps.compare_ip
 
-module("vulns")
+_ENV = stdnse.module("vulns", stdnse.seeall)
 
 -- This is the vulnerability database
 -- (it will reference a table in the registry: nmap.registry.VULNS
@@ -2261,3 +2261,5 @@ Report = {
     return stdnse.format_output(true, output)
   end,
 }
+
+return _ENV;

@@ -1,3 +1,9 @@
+local msrpc = require "msrpc"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates the users logged into a system either locally or through an SMB share. The local users 
 can be logged on either physically on the machine, or through a terminal services session. 
@@ -60,9 +66,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive"}
 dependencies = {"smb-brute"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

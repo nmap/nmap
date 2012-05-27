@@ -1,3 +1,10 @@
+local http = require "http"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Exploits a remote code execution vulnerability in Awstats Totals 1.0 up to 1.14 and possibly other products based on it (CVE: 2008-3922).
 
@@ -37,9 +44,6 @@ author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive", "exploit"}
 
-require "shortport"
-require "http"
-require "url"
 
 portrule = shortport.http
 

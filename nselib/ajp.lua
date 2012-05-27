@@ -1,15 +1,20 @@
+local base64 = require "base64"
+local bin = require "bin"
+local http = require "http"
+local match = require "match"
+local nmap = require "nmap"
+local package = require "package"
+local stdnse = require "stdnse"
+local table = require "table"
+local url = require "url"
+_ENV = stdnse.module("ajp", stdnse.seeall)
+
 ---
 -- A basic AJP 1.3 implementation based on documentation available from Apache
 -- mod_proxy_ajp; http://httpd.apache.org/docs/2.2/mod/mod_proxy_ajp.html
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
-module(... or "ajp",package.seeall)
-
-local bin   = require('bin')
-local http  = require('http')
-local match = require('match')
-local url   = require('url')
 
 AJP = {
 	

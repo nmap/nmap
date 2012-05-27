@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Sends a special broadcast probe to discover PC-Anywhere hosts running on a LAN.
 ]]

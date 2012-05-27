@@ -1,5 +1,5 @@
 /*
-** $Id: lmem.h,v 1.31.1.1 2007/12/27 13:02:25 roberto Exp $
+** $Id: lmem.h,v 1.38 2011/12/02 13:26:54 roberto Exp $
 ** Interface to Memory Manager
 ** See Copyright Notice in lua.h
 */
@@ -13,22 +13,22 @@
 #include "llimits.h"
 #include "lua.h"
 
-#define MEMERRMSG	"not enough memory"
-
 
 #define luaM_reallocv(L,b,on,n,e) \
-	((cast(size_t, (n)+1) <= MAX_SIZET/(e)) ?  /* +1 to avoid warnings */ \
-		luaM_realloc_(L, (b), (on)*(e), (n)*(e)) : \
-		luaM_toobig(L))
+	((cast(size_t, (n)+1) > MAX_SIZET/(e)) ?  /* +1 to avoid warnings */ \
+		(luaM_toobig(L), (void *)0) : \
+		luaM_realloc_(L, (b), (on)*(e), (n)*(e)))
 
 #define luaM_freemem(L, b, s)	luaM_realloc_(L, (b), (s), 0)
 #define luaM_free(L, b)		luaM_realloc_(L, (b), sizeof(*(b)), 0)
-#define luaM_freearray(L, b, n, t)   luaM_reallocv(L, (b), n, 0, sizeof(t))
+#define luaM_freearray(L, b, n)   luaM_reallocv(L, (b), n, 0, sizeof((b)[0]))
 
-#define luaM_malloc(L,t)	luaM_realloc_(L, NULL, 0, (t))
+#define luaM_malloc(L,s)	luaM_realloc_(L, NULL, 0, (s))
 #define luaM_new(L,t)		cast(t *, luaM_malloc(L, sizeof(t)))
 #define luaM_newvector(L,n,t) \
 		cast(t *, luaM_reallocv(L, NULL, 0, n, sizeof(t)))
+
+#define luaM_newobject(L,tag,s)	luaM_realloc_(L, NULL, tag, (s))
 
 #define luaM_growvector(L,v,nelems,size,t,limit,e) \
           if ((nelems)+1 > (size)) \
@@ -37,13 +37,14 @@
 #define luaM_reallocvector(L, v,oldn,n,t) \
    ((v)=cast(t *, luaM_reallocv(L, v, oldn, n, sizeof(t))))
 
+LUAI_FUNC l_noret luaM_toobig (lua_State *L);
 
+/* not to be called directly */
 LUAI_FUNC void *luaM_realloc_ (lua_State *L, void *block, size_t oldsize,
                                                           size_t size);
-LUAI_FUNC void *luaM_toobig (lua_State *L);
 LUAI_FUNC void *luaM_growaux_ (lua_State *L, void *block, int *size,
                                size_t size_elem, int limit,
-                               const char *errormsg);
+                               const char *what);
 
 #endif
 

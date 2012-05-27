@@ -4,9 +4,14 @@
 -- @author Patrik Karlsson <patrik@cqure.net>
 --
 
-module(... or "ndmp",package.seeall)
-
-require 'match'
+local bin = require "bin"
+local bit = require "bit"
+local match = require "match"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("ndmp", stdnse.seeall)
 
 NDMP = {
 	
@@ -386,15 +391,15 @@ Helper = {
 	end,
 	
 	getFsInfo = function(self)
-		return self.comm:exch(ndmp.NDMP.Message.ConfigGetFsInfo:new())
+		return self.comm:exch(NDMP.Message.ConfigGetFsInfo:new())
 	end,
 	
 	getHostInfo = function(self)
-		return self.comm:exch(ndmp.NDMP.Message.ConfigGetHostInfo:new())
+		return self.comm:exch(NDMP.Message.ConfigGetHostInfo:new())
 	end,
 	
 	getServerInfo = function(self)
-		return self.comm:exch(ndmp.NDMP.Message.ConfigGetServerInfo:new())
+		return self.comm:exch(NDMP.Message.ConfigGetServerInfo:new())
 	end,
 	
 	close = function(self)
@@ -403,3 +408,5 @@ Helper = {
 	end
 	
 }
+
+return _ENV;

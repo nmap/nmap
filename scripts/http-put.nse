@@ -1,3 +1,8 @@
+local http = require "http"
+local io = require "io"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Uploads a local file to a remote web server using the HTTP PUT method. You must specify the filename and URL path with NSE arguments.
 ]]
@@ -27,9 +32,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require 'shortport'
-require 'stdnse'
-require 'http'
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 

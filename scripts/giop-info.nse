@@ -1,3 +1,8 @@
+local giop = require "giop"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Queries a CORBA naming server for a list of objects.
 ]]
@@ -20,8 +25,6 @@ categories = {"default", "discovery", "safe"}
 
 -- Created 07/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-require 'shortport'
-require 'giop'
 
 portrule = shortport.port_or_service( {2809,1050,1049} , "giop", "tcp", "open")
 

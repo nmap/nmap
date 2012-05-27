@@ -1,3 +1,10 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Performs brute force password auditing against FTP servers.
 
@@ -27,10 +34,6 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
-
-require 'shortport'
-require 'brute'
-require 'creds'
 
 portrule = shortport.port_or_service(21, "ftp")
 

@@ -1,3 +1,7 @@
+local stdnse = require "stdnse"
+local string = require "string"
+local target = require "target"
+
 description = [[
 Inserts traceroute hops into the Nmap scanning queue. It only functions if Nmap's <code>--traceroute</code> option is used and the <code>newtargets</code> script argument is given.
 ]]
@@ -21,8 +25,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require("stdnse")
-require("target")
 
 hostrule = function(host)
   -- print debug messages because the script relies on

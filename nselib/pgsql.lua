@@ -12,16 +12,19 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
-module(... or "pgsql",package.seeall)
+local bin = require "bin"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("pgsql", stdnse.seeall)
 
 -- Version 0.3
 -- Created 02/05/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net> 
 -- Revised 02/20/2010 - v0.2 - added detectVersion to automaticaly detect and return 
 --                             the correct version class
 -- Revised 03/04/2010 - v0.3 - added support for trust authentication method
-
-require("openssl")
-require("bit")
 
 --- Supported pgsql message types
 MessageType = {
@@ -478,7 +481,7 @@ v3 =
 		local pos = 1
 
 		if ( params.authtype == AuthenticationType.MD5 ) then
-			local hash = pgsql.createMD5LoginHash(username, password, salt)
+			local hash = createMD5LoginHash(username, password, salt)
 			data = bin.pack( "C>Iz", MessageType.PasswordMessage, 40, hash )
 			try( socket:send( data ) )
 		elseif ( params.authtype == AuthenticationType.Plain ) then
@@ -621,3 +624,5 @@ function detectVersion(host, port)
 	
 	return v3
 end
+
+return _ENV;

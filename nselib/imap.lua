@@ -24,12 +24,13 @@
 --								added support for LOGIN and AUTHENTICATE
 --								<patrik@cqure.net>
 
-module(... or "imap", package.seeall)
+local base64 = require "base64"
+local comm = require "comm"
+local sasl = require "sasl"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("imap", stdnse.seeall)
 
-require 'stdnse'
-require 'comm'
-require 'base64'
-require 'sasl'
 
 IMAP = {
 	
@@ -145,7 +146,7 @@ IMAP = {
 		-- All mechanisms expect username and pass
 		-- add the otheronce for those who need them
 		local mech_params = { username, pass, data, "imap" }
-		auth_data = sasl.Helper:new(mech):encode(unpack(mech_params))
+		auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
 		auth_data = base64.enc(auth_data) .. "\r\n"
 			
 		status, data = self.socket:send(auth_data)
@@ -275,3 +276,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

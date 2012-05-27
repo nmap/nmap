@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local smb = require "smb"
+local string = require "string"
+
 description = [[
 Checks whether or not a server is running the SMBv2 protocol. 
 ]]
@@ -18,9 +22,6 @@ copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

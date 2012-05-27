@@ -1,3 +1,8 @@
+local dnssd = require "dnssd"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description=[[ 
 Attempts to discover target hosts' services using the DNS Service Discovery protocol.
 
@@ -46,8 +51,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require 'shortport'
-require 'dnssd'
 
 portrule = shortport.portnumber(5353, "udp")
 

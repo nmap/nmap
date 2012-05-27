@@ -41,7 +41,15 @@
 -- Version 0.1
 -- Created 2011/03/30 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-module(... or "sip", package.seeall)
+local bin = require "bin"
+local math = require "math"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("sip", stdnse.seeall)
 
 -- Method constants
 Method = {
@@ -147,7 +155,7 @@ Session = {
 		local timeout = ( ( options and options.timeout ) and 
 							options.timeout * 1000 ) or 5000
 		o.conn.socket:set_timeout( timeout )
-		o.sessdata = sessdata or sip.SessionData:new()
+		o.sessdata = sessdata or SessionData:new()
 		return o
 	end,
 			
@@ -824,3 +832,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

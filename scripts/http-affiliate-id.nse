@@ -1,3 +1,10 @@
+local http = require "http"
+local nmap = require "nmap"
+local pcre = require "pcre"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon
 Associates, etc.) from a web page. These can be used to identify pages
@@ -41,10 +48,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require 'shortport'
-require 'http'
-require 'pcre'
-require 'stdnse'
 
 -- these are the regular expressions for affiliate IDs
 local AFFILIATE_PATTERNS = {

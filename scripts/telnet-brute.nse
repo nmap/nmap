@@ -1,3 +1,11 @@
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local strbuf = require "strbuf"
+local string = require "string"
+local unpwdb = require "unpwdb"
+
 description = [[
 Tries to get Telnet login credentials by guessing usernames and passwords.
 ]]
@@ -14,11 +22,6 @@ categories = {'brute', 'intrusive'}
 
 -- Update (Ron Bowes, November, 2009): Now uses unpwdb database. 
 
-require('shortport')
-require('stdnse')
-require('strbuf')
-require('comm')
-require('unpwdb')
 
 local soc
 local catch = function() soc:close() end

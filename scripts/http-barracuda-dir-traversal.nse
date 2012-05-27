@@ -1,3 +1,9 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to retrieve the configuration settings from a Barracuda
 Networks Spam & Virus Firewall device using the directory traversal
@@ -74,12 +80,6 @@ author = "Brendan Coles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "exploit", "auth"}
 
-require("url")
-require("dns")
-require("http")
-require("ipOps")
-require("stdnse")
-require("shortport")
 
 portrule = shortport.port_or_service (8000, "barracuda", {"tcp"})
 

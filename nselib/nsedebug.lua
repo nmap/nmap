@@ -6,11 +6,15 @@
 -- 
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-require "stdnse"
+local coroutine = require "coroutine"
+local debug = require "debug"
+local io = require "io"
+local math = require "math"
+local stdnse = require "stdnse"
+local string = require "string"
+_ENV = stdnse.module("nsedebug", stdnse.seeall)
 
 local EMPTY = {}; -- Empty constant table
-
-module(... or "nsedebug", package.seeall);
 
 ---
 -- Converts an arbitrary data type into a string. Will recursively convert 
@@ -125,3 +129,5 @@ function print_stack()
 end
 
 
+
+return _ENV;

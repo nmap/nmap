@@ -27,7 +27,13 @@
 --
 -- 2011-01-22 - re-wrote library to use coroutines instead of new_thread code.
 
-module(... or "tftp", package.seeall)
+local bin = require "bin"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("tftp", stdnse.seeall)
 
 threads, infiles, running = {}, {}, {}
 state = "STOPPED"
@@ -336,3 +342,5 @@ function waitFile( filename, timeout )
 
 	return false
 end
+
+return _ENV;

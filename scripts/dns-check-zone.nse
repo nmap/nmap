@@ -1,3 +1,7 @@
+local dns = require "dns"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Checks DNS zone configuration against best practices, including RFC 1912.
 The configuration checks are divided into categories that each have a number
@@ -48,9 +52,6 @@ categories = {"discovery", "safe", "external"}
 
 local arg_domain = stdnse.get_script_args(SCRIPT_NAME .. '.domain')
 
-local shortport = require('shortport')
-local dns       = require('dns')
-local ipops     = require('ipOps')
 
 hostrule = function(host) return ( arg_domain ~= nil ) end
 

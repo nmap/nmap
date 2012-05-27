@@ -6,9 +6,13 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
-module(... or "versant", package.seeall)
-
-require 'match'
+local stdnse = require "stdnse"
+local bin = require "bin"
+local match = require "match"
+local nmap = require "nmap"
+local package = require "package"
+local table = require "table"
+_ENV = stdnse.module("versant", stdnse.seeall)
 
 Versant = {
 	
@@ -277,3 +281,5 @@ Versant.OBE = {
 		return true, result
 	end,
 }
+
+return _ENV;

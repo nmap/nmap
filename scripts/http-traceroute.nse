@@ -1,3 +1,10 @@
+local http = require "http"
+local nmap = require "nmap"
+local pcre = require "pcre"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Exploits the Max-Forwards HTTP header to detect the presence of reverse proxies.
 
@@ -56,9 +63,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
-require 'http'
-require 'stdnse'
-require 'shortport'
 
 portrule = shortport.service("http")
 

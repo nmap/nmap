@@ -1,3 +1,10 @@
+local http = require "http"
+local io = require "io"
+local json = require "json"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Lists the geographic locations of each hop in a traceroute and optionally
 saves the results to a KML file, plottable on Google earth and maps.
@@ -26,10 +33,6 @@ saves the results to a KML file, plottable on Google earth and maps.
 --       traceroute data.
 --
 
-local ipops = require("ipOps")
-local http  = require("http")
-local json  = require("json")
-local tab   = require("tab")
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -1,3 +1,10 @@
+local msrpc = require "msrpc"
+local nmap = require "nmap"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Checks for vulnerabilities:
 * MS08-067, a Windows RPC vulnerability
@@ -110,9 +117,6 @@ dependencies = {
   "smb-psexec",
 };
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

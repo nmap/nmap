@@ -1,3 +1,9 @@
+local bit = require "bit"
+local netbios = require "netbios"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Attempts to discover master browsers and the domains they manage.
 ]]
@@ -19,9 +25,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'netbios'
-require 'tab'
-require 'bit'
 
 prerule = function() return true end
 

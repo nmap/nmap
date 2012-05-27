@@ -58,9 +58,13 @@
 --								x Apache Derby
 --								x IBM Informix Dynamic Server
 
-module(... or "drda", package.seeall)
-
-require "bin"
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("drda", stdnse.seeall)
 
 -- CodePoint constants
 CodePoint = {
@@ -887,3 +891,5 @@ StringUtil =
 		return str
 	end,
 }
+
+return _ENV;

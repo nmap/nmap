@@ -1,3 +1,10 @@
+local mysql = require "mysql"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Attempts to list all databases on a MySQL server.
 ]]
@@ -24,10 +31,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require 'shortport'
-require 'stdnse'
-require 'mysql'
-stdnse.silent_require 'openssl'
 
 dependencies = {"mysql-brute", "mysql-empty-password"}
 

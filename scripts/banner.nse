@@ -1,3 +1,8 @@
+local comm = require "comm"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 A simple banner grabber which connects to an open TCP port and prints out anything sent by the listening service within five seconds.
 
@@ -17,9 +22,6 @@ categories = {"discovery", "safe"}
 
 
 
-local nmap   = require "nmap"
-local comm   = require "comm"
-local stdnse = require "stdnse"
 
 
 ---

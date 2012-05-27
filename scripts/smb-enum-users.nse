@@ -1,3 +1,10 @@
+local msrpc = require "msrpc"
+local nmap = require "nmap"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to enumerate the users on a remote Windows system, with as much
 information as possible, through two different techniques (both over MSRPC,
@@ -138,9 +145,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth","intrusive"}
 dependencies = {"smb-brute"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

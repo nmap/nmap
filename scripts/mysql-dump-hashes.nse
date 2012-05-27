@@ -1,3 +1,8 @@
+local mysql = require "mysql"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Dumps the password hashes from an MySQL server in a format suitable for
 cracking by tools such as John-the-ripper. In order to do so the user
@@ -28,8 +33,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "discovery", "safe"}
 
-local shortport = require('shortport')
-local mysql     = require('mysql')
 
 dependencies = {"mysql-empty-password", "mysql-brute"}
 

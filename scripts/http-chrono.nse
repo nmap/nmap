@@ -1,3 +1,13 @@
+local http = require "http"
+local httpspider = require "httpspider"
+local math = require "math"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+local url = require "url"
+
 description = [[
 This script measures the time a website takes to deliver a web page and returns
 the maximum, minimum and average time it took to fetch a page.
@@ -51,10 +61,6 @@ author = "Ange Gutek"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require 'http'
-require 'shortport'
-require 'httpspider'
-require 'tab'
 
 portrule = shortport.http
 

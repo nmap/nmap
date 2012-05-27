@@ -1,3 +1,10 @@
+local drda = require "drda"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to extract information from database servers supporting the DRDA
 protocol. The script sends a DRDA EXCSAT (exchange server attributes)
@@ -19,9 +26,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery", "version"}
 
-require "stdnse"
-require "shortport"
-require "drda"
 
 -- Version 0.1
 -- Created 05/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

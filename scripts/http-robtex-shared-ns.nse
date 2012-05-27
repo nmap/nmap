@@ -1,3 +1,8 @@
+local http = require "http"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Finds up to 100 domain names that use the same name server as the target by querying the Robtex service at http://www.robtex.com/dns/.
 
@@ -29,8 +34,6 @@ categories = {
   "external"
 };
 
-require "http";
-require "shortport";
 
 --- Scrape domains sharing name servers from robtex website
 -- @param data string containing the retrieved web page
@@ -38,7 +41,7 @@ require "shortport";
 function parse_robtex_response (data)
   local result = {};
 
-  for linkhref, ns, domain in string.gmatch(data, "<a href=\"(.-)\.html#shared\" title=\"using ns (.-)\">(.-)</a>") do
+  for linkhref, ns, domain in string.gmatch(data, "<a href=\"(.-)%.html#shared\" title=\"using ns (.-)\">(.-)</a>") do
     if not table.contains(result, domain) then
       table.insert(result, domain);
     end

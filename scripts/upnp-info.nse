@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local upnp = require "upnp"
+
 description = [[
 Attempts to extract system information from the UPnP service.
 ]]
@@ -22,9 +28,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-require("stdnse")
-require("shortport")
-require("upnp")
 
 ---
 -- Runs on UDP port 1900

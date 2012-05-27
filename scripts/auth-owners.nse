@@ -1,3 +1,6 @@
+local nmap = require "nmap"
+local string = require "string"
+
 description = [[
 Attempts to find the owner of an open TCP port by querying an auth
 daemon which must also be open on the target system. The auth service,

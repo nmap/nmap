@@ -1,3 +1,10 @@
+local afp = require "afp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local vulns = require "vulns"
+
 description = [[ 
 Detects the Mac OS X AFP directory traversal vulnerability, CVE-2010-0533.
 
@@ -61,10 +68,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "vuln"}
 
-require 'shortport'
-require 'stdnse'
-require 'afp'
-require 'vulns'
 
 dependencies = {"afp-brute"}
 

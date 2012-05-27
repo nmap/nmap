@@ -21,14 +21,12 @@ extern "C" {
 
 extern NmapOps o;
 
-/* Map of dnet userdata to ethernet device userdata */
-#define ETH_CACHE_DNET_ETH  0
-/* Map of ethernet device string identifier to ethernet device userdata */
-#define ETH_CACHE_DEVICE_ETH 1
-
-/* metatable entries in the registry */
-#define DNET_METATABLE  "DNET_METATABLE"
-#define DNET_ETH_METATABLE  "DNET_ETH_METATABLE"
+enum {
+  DNET_METATABLE = lua_upvalueindex(1),
+  DNET_ETHERNET_METATABLE = lua_upvalueindex(2),
+  CACHE_DNET_ETHERNET = lua_upvalueindex(3), /* Map of dnet userdata to ethernet device userdata */
+  CACHE_DEVICE_ETHERNET = lua_upvalueindex(4), /* Map of ethernet device string identifier to ethernet device userdata */
+};
 
 typedef struct nse_dnet_udata
 {
@@ -36,12 +34,12 @@ typedef struct nse_dnet_udata
   int sock; /* raw ip socket */
 } nse_dnet_udata;
 
-LUALIB_API int l_dnet_new (lua_State *L)
+static int l_dnet_new (lua_State *L)
 {
   nse_dnet_udata *udata;
 
   udata = (nse_dnet_udata *) lua_newuserdata(L, sizeof(nse_dnet_udata));
-  luaL_getmetatable(L, DNET_METATABLE);
+  lua_pushvalue(L, DNET_METATABLE);
   lua_setmetatable(L, -2);
   udata->eth = NULL;
   udata->sock = -1;
@@ -49,27 +47,24 @@ LUALIB_API int l_dnet_new (lua_State *L)
   return 1;
 }
 
-LUALIB_API int l_dnet_get_interface_info (lua_State *L)
+static int l_dnet_get_interface_info (lua_State *L)
 {
   char ipstr[INET6_ADDRSTRLEN];
   struct addr src, bcast;
   struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1),
                                                  o.af());
 
-  if (ii == NULL) {
-    lua_pushnil(L);
-    lua_pushstring(L, "failed to find interface");
-    return 2;
-  }
+  if (ii == NULL)
+    return nseU_safeerror(L, "failed to find interface");
 
   memset(ipstr, 0, INET6_ADDRSTRLEN);
   memset(&src, 0, sizeof(src));
   memset(&bcast, 0, sizeof(bcast));
   lua_newtable(L);
 
-  setsfield(L, -1, "device", ii->devfullname);
-  setsfield(L, -1, "shortname", ii->devname);
-  setnfield(L, -1, "netmask", ii->netmask_bits);
+  nseU_setsfield(L, -1, "device", ii->devfullname);
+  nseU_setsfield(L, -1, "shortname", ii->devname);
+  nseU_setnfield(L, -1, "netmask", ii->netmask_bits);
 
   if (ii->addr.ss_family == AF_INET)
     inet_ntop(AF_INET, &((struct sockaddr_in *)&ii->addr)->sin_addr,
@@ -80,11 +75,11 @@ LUALIB_API int l_dnet_get_interface_info (lua_State *L)
   else
     luaL_error(L, "unknown protocol");
 
-  setsfield(L, -1, "address", ipstr);
+  nseU_setsfield(L, -1, "address", ipstr);
 
   switch (ii->device_type) {
     case devt_ethernet:
-      setsfield(L, -1, "link", "ethernet");
+      nseU_setsfield(L, -1, "link", "ethernet");
       lua_pushlstring(L, (const char *) ii->mac, 6);
       lua_setfield(L, -2, "mac");
 
@@ -96,67 +91,66 @@ LUALIB_API int l_dnet_get_interface_info (lua_State *L)
         addr_bcast(&src, &bcast);
         memset(ipstr, 0, INET6_ADDRSTRLEN);
         if (addr_ntop(&bcast, ipstr, INET6_ADDRSTRLEN) != NULL)
-          setsfield(L, -1, "broadcast", ipstr);
+          nseU_setsfield(L, -1, "broadcast", ipstr);
       }
       break;
     case devt_loopback:
-      setsfield(L, -1, "link", "loopback");
+      nseU_setsfield(L, -1, "link", "loopback");
       break;
     case devt_p2p:
-      setsfield(L, -1, "link", "p2p");
+      nseU_setsfield(L, -1, "link", "p2p");
       break;
     case devt_other:
     default:
-      setsfield(L, -1, "link", "other");
+      nseU_setsfield(L, -1, "link", "other");
   }
 
-  setsfield(L, -1, "up", (ii->device_up ? "up" : "down"));
-  setnfield(L, -1, "mtu", ii->mtu);
+  nseU_setsfield(L, -1, "up", (ii->device_up ? "up" : "down"));
+  nseU_setnfield(L, -1, "mtu", ii->mtu);
 
   return 1;
 }
 
 static int close_eth (lua_State *L)
 {
-  eth_t **eth = (eth_t **) luaL_checkudata(L, 1, DNET_ETH_METATABLE);
+  eth_t **eth = (eth_t **) nseU_checkudata(L, 1, DNET_ETHERNET_METATABLE, "ethernet");
   assert(*eth != NULL);
   eth_close(*eth);
   *eth = NULL;
-  return success(L);
+  return nseU_success(L);
 }
 
 static eth_t *open_eth_cached (lua_State *L, int dnet_index, const char *device)
 {
   eth_t **eth;
 
-  lua_rawgeti(L, LUA_ENVIRONINDEX, ETH_CACHE_DNET_ETH);
-  lua_rawgeti(L, LUA_ENVIRONINDEX, ETH_CACHE_DEVICE_ETH);
-  lua_getfield(L, -1, device);
+  lua_getfield(L, CACHE_DEVICE_ETHERNET, device);
   if (!lua_isuserdata(L, -1))
   {
+    lua_pop(L, 1);
     eth = (eth_t **) lua_newuserdata(L, sizeof(eth_t *));
     *eth = eth_open(device);
     if (*eth == NULL)
       luaL_error(L, "unable to open dnet on ethernet interface %s", device);
-    luaL_getmetatable(L, DNET_ETH_METATABLE);
+    lua_pushvalue(L, DNET_ETHERNET_METATABLE);
     lua_setmetatable(L, -2);
     lua_pushvalue(L, -1);
-    lua_setfield(L, -4, device);
-    lua_replace(L, -2); /* replace nil */
+    lua_setfield(L, CACHE_DEVICE_ETHERNET, device);
   }
   eth = (eth_t **) lua_touserdata(L, -1);
 
   lua_pushvalue(L, dnet_index);
   lua_pushvalue(L, -2); /* eth_t userdata */
-  lua_rawset(L, -5); /* add to ETH_CACHE_DNET_ETH */
-  lua_pop(L, 3); /* ETH_CACHE_DNET_ETH, ETH_CACHE_DEVICE_ETH, eth_t userdata */
+  lua_rawset(L, CACHE_DNET_ETHERNET);
+
+  lua_pop(L, 1); /* eth_t userdata */
 
   return *eth;
 }
 
 static int ethernet_open (lua_State *L)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   const char *interface_name = luaL_checkstring(L, 2);
   struct interface_info *ii = getInterfaceByName(interface_name, o.af());
 
@@ -165,35 +159,34 @@ static int ethernet_open (lua_State *L)
 
   udata->eth = open_eth_cached(L, 1, interface_name);
 
-  return success(L);
+  return nseU_success(L);
 }
 
 static int ethernet_close (lua_State *L)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
 
   udata->eth = NULL;
 
-  lua_rawgeti(L, LUA_ENVIRONINDEX, ETH_CACHE_DNET_ETH);
   lua_pushvalue(L, 1);
   lua_pushnil(L);
-  lua_rawset(L, -3);
+  lua_rawset(L, CACHE_DNET_ETHERNET);
 
-  return success(L);
+  return nseU_success(L);
 }
 
 static int ethernet_send (lua_State *L)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   if (udata->eth == NULL)
     return luaL_error(L, "dnet ethernet interface is not open");
-  eth_send(udata->eth, luaL_checkstring(L, 2), lua_objlen(L, 2));
-  return success(L);
+  eth_send(udata->eth, luaL_checkstring(L, 2), lua_rawlen(L, 2));
+  return nseU_success(L);
 }
 
 static int ip_open (lua_State *L)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   udata->sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (udata->sock == -1)
     return luaL_error(L, "failed to open raw socket: %s (errno %d)",
@@ -202,23 +195,23 @@ static int ip_open (lua_State *L)
 #ifndef WIN32
   sethdrinclude(udata->sock);
 #endif
-  return success(L);
+  return nseU_success(L);
 }
 
 static int ip_close (lua_State *L)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   if (udata->sock == -1)
-    return safe_error(L, "raw socket already closed");
+    return nseU_safeerror(L, "raw socket already closed");
   close(udata->sock);
   udata->sock = -1;
-  return success(L);
+  return nseU_success(L);
 }
 
 static int ip_send (lua_State *L)
 {
   struct abstract_ip_hdr hdr;
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   const char *packet;
   size_t packetlen;
   unsigned int payloadlen;
@@ -281,25 +274,25 @@ static int ip_send (lua_State *L)
 
     udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
 
-    ret = send_ip_packet(udata->sock, &eth, &hdr.dst, (u8 *) packet, lua_objlen(L, 2));
+    ret = send_ip_packet(udata->sock, &eth, &hdr.dst, (u8 *) packet, lua_rawlen(L, 2));
   } else {
 usesock:
 #ifdef WIN32
     if (strlen(dev) > 0)
       win32_fatal_raw_sockets(dev);
 #endif
-    ret = send_ip_packet(udata->sock, NULL, &hdr.dst, (u8 *) packet, lua_objlen(L, 2));
+    ret = send_ip_packet(udata->sock, NULL, &hdr.dst, (u8 *) packet, lua_rawlen(L, 2));
   }
   if (ret == -1)
-    return safe_error(L, "error while sending: %s (errno %d)",
+    return nseU_safeerror(L, "error while sending: %s (errno %d)",
         socket_strerror(socket_errno()), socket_errno());
 
-  return success(L);
+  return nseU_success(L);
 }
 
 static int gc (lua_State *L)
 {
-  luaL_checkudata(L, 1, DNET_METATABLE);
+  nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
 
   lua_pushcfunction(L, ip_close);
   lua_pushvalue(L, 1);
@@ -313,7 +306,7 @@ static int gc (lua_State *L)
 
 LUALIB_API int luaopen_dnet (lua_State *L)
 {
-  static const luaL_reg l_dnet[] = {
+  static const luaL_Reg l_dnet_metatable[] = {
     {"ethernet_open", ethernet_open},
     {"ethernet_close", ethernet_close},
     {"ethernet_send", ethernet_send},
@@ -323,25 +316,44 @@ LUALIB_API int luaopen_dnet (lua_State *L)
     {NULL, NULL}
   };
 
-  lua_createtable(L, 2, 0);
-  lua_replace(L, LUA_ENVIRONINDEX);
-  weak_table(L, 0, 0, "k"); /* dnet udata weak, eth device strong */
-  lua_rawseti(L, LUA_ENVIRONINDEX, ETH_CACHE_DNET_ETH);
-  weak_table(L, 0, 0, "v"); /* eth_device weak */
-  lua_rawseti(L, LUA_ENVIRONINDEX, ETH_CACHE_DEVICE_ETH);
+  static const luaL_Reg l_dnet[] = {
+    {"new", l_dnet_new},
+    {"get_interface_info", l_dnet_get_interface_info},
+    {NULL, NULL}
+  };
+  int i;
+  int top = lua_gettop(L);
 
-  luaL_newmetatable(L, DNET_METATABLE);
-  lua_createtable(L, 0, 5);
-  luaL_register(L, NULL, l_dnet);
-  lua_setfield(L, -2, "__index");
+  /* Create the library upvalues:
+    DNET_METATABLE = lua_upvalueindex(1),
+    DNET_ETHERNET_METATABLE = lua_upvalueindex(2),
+    CACHE_DNET_ETHERNET = lua_upvalueindex(3),
+    CACHE_DEVICE_ETHERNET = lua_upvalueindex(4),
+  */
   lua_newtable(L);
-  lua_setfield(L, -2, "__metatable");
-  lua_pushcfunction(L, gc);
-  lua_setfield(L, -2, "__gc");
+  lua_newtable(L);
+  nseU_weaktable(L, 0, 0, "k"); /* dnet udata weak, eth device strong */
+  nseU_weaktable(L, 0, 0, "v"); /* eth_device weak */
 
-  luaL_newmetatable(L, DNET_ETH_METATABLE);
-  lua_pushcfunction(L, close_eth);
-  lua_setfield(L, -2, "__gc");
+  luaL_newlibtable(L, l_dnet_metatable);
+  for (i = top+1; i < top+1+4; i++) lua_pushvalue(L, i);
+  luaL_setfuncs(L, l_dnet_metatable, 4);
+  lua_setfield(L, top+1, "__index");
+  lua_newtable(L);
+  lua_setfield(L, top+1, "__metatable");
+  for (i = top+1; i < top+1+4; i++) lua_pushvalue(L, i);
+  lua_pushcclosure(L, gc, 4);
+  lua_setfield(L, top+1, "__gc");
 
-  return 0;
+  lua_newtable(L);
+  lua_setfield(L, top+2, "__metatable");
+  for (i = top+1; i < top+1+4; i++) lua_pushvalue(L, i);
+  lua_pushcclosure(L, close_eth, 4);
+  lua_setfield(L, top+2, "__gc");
+
+  luaL_newlibtable(L, l_dnet); /* external interface */
+  for (i = top+1; i < top+1+4; i++) lua_pushvalue(L, i);
+  luaL_setfuncs(L, l_dnet, 4);
+
+  return 1;
 }

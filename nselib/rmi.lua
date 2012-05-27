@@ -42,13 +42,17 @@
 -- Created 09/06/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Fixed more documentation - v0.2 Martin Holst Swende <martin@swende.se>
 
-module("rmi", package.seeall)
-require("bin")
-require("bit")
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("rmi", stdnse.seeall)
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug(3,"RMI:"..str, unpack(arg))
+	stdnse.print_debug(3,"RMI:"..str, table.unpack(arg))
 end
 -- Convenience function to both print an error message and return <false, msg>
 -- Example usage : 
@@ -56,7 +60,7 @@ end
 -- 	return doh("Foo should be gazonk but was %s", foo)
 -- end
 local function doh(str,...)
-	stdnse.print_debug("RMI-ERR:"..tostring(str), unpack(arg))
+	stdnse.print_debug("RMI-ERR:"..tostring(str), table.unpack(arg))
 	return false, str
 end
 
@@ -99,7 +103,7 @@ BufferedWriter = {
 	end,
 	-- Convenience function, wraps bin
 	pack = function(self, fmt, ... )
-		self.writeBuffer = self.writeBuffer .. bin.pack( fmt, unpack(arg))
+		self.writeBuffer = self.writeBuffer .. bin.pack( fmt, table.unpack(arg))
 	end,
 	
 	-- This function flushes the buffer contents, thereby emptying
@@ -192,7 +196,7 @@ BufferedReader = {
 	unpack = function(self,format)
 		local ret = {bin.unpack(format, self.readBuffer, self.pos)}
 		self.pos = ret[1]
-		return unpack(ret,2)
+		return table.unpack(ret,2)
 	end,
 	---
 	-- This function works just like bin.unpack (in fact, it is 
@@ -204,7 +208,7 @@ BufferedReader = {
 	--@return the unpacked value (NOT the index)
 	peekUnpack = function(self,format)
 		local ret = {bin.unpack(format, self.readBuffer, self.pos)}
-		return unpack(ret,2)
+		return table.unpack(ret,2)
 	end,
 	---
 	-- Tries to read a byte, without consuming it. 
@@ -290,7 +294,7 @@ JavaDOS = {
 		return self:pack('>P', text)
 	end,
 	pack = function(self, ...)
-		return self.bWriter:pack(unpack(arg))
+		return self.bWriter:pack(table.unpack(arg))
 	end,
 	write = function(self, data)
 		return self.bWriter:send(data)
@@ -1539,3 +1543,5 @@ STREAM_MAGIC =  0xaced
 STREAM_VERSION = 5
 
 baseWireHandle = 0x7E0000
+
+return _ENV;

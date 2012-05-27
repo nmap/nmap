@@ -1,3 +1,7 @@
+local rtsp = require "rtsp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Determines which methods are supported by the RTSP (real time streaming protocol) server.
 ]]
@@ -24,8 +28,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
-require 'rtsp'
-require 'shortport'
 
 portrule = shortport.port_or_service(554, "rtsp", "tcp", "open")
 

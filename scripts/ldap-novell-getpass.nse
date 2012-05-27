@@ -1,3 +1,10 @@
+local bin = require "bin"
+local comm = require "comm"
+local ldap = require "ldap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to retrieve the Novell Universal Password for a user. You
 must already have (and include in script arguments) the username and password for an eDirectory server
@@ -42,9 +49,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "ldap"
-require 'shortport'
-require 'comm'
 
 portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 

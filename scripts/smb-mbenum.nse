@@ -1,3 +1,10 @@
+local bit = require "bit"
+local msrpc = require "msrpc"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description=[[
 Queries information managed by the Windows Master Browser.
 ]]
@@ -54,10 +61,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'smb'
-require 'msrpc'
-require 'shortport'
-require 'tab'
 
 hostrule = function(host) return smb.get_port(host) ~= nil end
 

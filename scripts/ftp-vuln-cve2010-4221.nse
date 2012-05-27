@@ -1,3 +1,9 @@
+local ftp = require "ftp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local vulns = require "vulns"
+
 description = [[
 Checks for a stack-based buffer overflow in the ProFTPD server, version
 between 1.3.2rc3 and 1.3.3b. By sending a large number of TELNET_IAC escape
@@ -43,10 +49,6 @@ author = "Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
-require "ftp"
-require "shortport"
-require "stdnse"
-require "vulns"
 
 portrule = function (host, port)
   if port.version.product ~= nil and port.version.product ~= "ProFTPD" then

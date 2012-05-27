@@ -56,7 +56,7 @@ TDYADIC(rshift,  >>, luaL_checkubit, luaL_checkubit)
 TDYADIC(arshift, >>, luaL_checkbit, luaL_checkubit)
 DYADIC(mod,      %)
 
-static const struct luaL_reg bitlib[] = {
+static const struct luaL_Reg bitlib[] = {
   {"bnot",    bit_bnot},
   {"band",    bit_band},
   {"bor",     bit_bor},
@@ -69,7 +69,7 @@ static const struct luaL_reg bitlib[] = {
 };
 
 LUALIB_API int luaopen_bit(lua_State *L) {
-  luaL_register(L, BITLIBNAME, bitlib);
+  luaL_newlib(L, bitlib);
   return 1;
 }
 

@@ -1,3 +1,8 @@
+local citrixxml = require "citrixxml"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Extracts the name of the server farm and member servers from Citrix XML
 service.
@@ -23,9 +28,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "comm"
-require 'shortport'
-require 'citrixxml'
 
 portrule = shortport.portnumber({8080,80,443}, "tcp") 
 

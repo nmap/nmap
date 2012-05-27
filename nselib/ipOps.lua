@@ -3,19 +3,19 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
+local bin = require "bin"
+local bit = require "bit"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
 local type     = type
 local table    = table
 local string   = string
 local ipairs   = ipairs
 local tonumber = tonumber
 
-local stdnse   = require "stdnse"
-local bit      = require "bit"
-local bin      = require "bin"
 
-module ( "ipOps" )
-
-
+_ENV = stdnse.module("ipOps", stdnse.seeall)
 
 ---
 -- Checks to see if the supplied IP address is part of a non-routable
@@ -337,7 +337,7 @@ expand_ip = function( ip, family )
 
   if not ip:match( ":" ) then
     -- ipv4: missing octets should be "0" appended
-    if ip:match( "[^\.0-9]" ) then
+    if ip:match( "[^%.0-9]" ) then
       return nil, err4
     end
     local octets = {}
@@ -363,7 +363,7 @@ expand_ip = function( ip, family )
     return nil, "Error in ipOps.expand_ip: Cannot convert IPv6 address to IPv4"
   end
 
-  if ip:match( "[^\.:%x]" ) then
+  if ip:match( "[^%.:%x]" ) then
     return nil, ( err4:gsub( "IPv4", "IPv6" ) )
   end
 
@@ -372,16 +372,16 @@ expand_ip = function( ip, family )
 
   -- get a table of each hexadectet
   local hexadectets = {}
-  for hdt in string.gmatch( ip, "[\.z%x]+" ) do
+  for hdt in string.gmatch( ip, "[%.z%x]+" ) do
     hexadectets[#hexadectets+1] = hdt
   end
 
   -- deal with IPv4in6 (last hexadectet only)
   local t = {}
-  if hexadectets[#hexadectets]:match( "[\.]+" ) then
+  if hexadectets[#hexadectets]:match( "[%.]+" ) then
     hexadectets[#hexadectets], err = expand_ip( hexadectets[#hexadectets] )
     if err then return nil, ( err:gsub( "IPv4", "IPv4in6" ) ) end
-    t = stdnse.strsplit( "[\.]+", hexadectets[#hexadectets] )
+    t = stdnse.strsplit( "[%.]+", hexadectets[#hexadectets] )
     for i, v in ipairs( t ) do
       t[i] = tonumber( v, 10 )
     end
@@ -392,7 +392,7 @@ expand_ip = function( ip, family )
   -- deal with :: and check for invalid address
   local z_done = false
   for index, value in ipairs( hexadectets ) do
-    if value:match( "[\.]+" ) then
+    if value:match( "[%.]+" ) then
       -- shouldn't have dots at this point
       return nil, ( err4:gsub( "IPv4", "IPv6" ) )
     elseif value == "z" and z_done then
@@ -442,9 +442,9 @@ get_ips_from_range = function( range )
 
   local first, last, prefix
   if range:match( "/" ) then
-    first, prefix = range:match( "([%x%d:\.]+)/(%d+)" )
+    first, prefix = range:match( "([%x%d:%.]+)/(%d+)" )
   elseif range:match( "-" ) then
-    first, last = range:match( "([%x%d:\.]+)%s*\-%s*([%x%d:\.]+)" )
+    first, last = range:match( "([%x%d:%.]+)%s*%.%s*([%x%d:%.]+)" )
   end
 
   local err = {}
@@ -652,3 +652,5 @@ hex_to_bin = function( hex )
   return table.concat( t )
 
 end
+
+return _ENV;

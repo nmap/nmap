@@ -1,3 +1,8 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Displays the contents of the "generator" meta tag of a web page (default: /) if there is one.
 ]]
@@ -41,9 +46,6 @@ categories = {"default", "discovery", "safe"}
 -- TODO:
 -- more generic generator pattern
 
-require('http')
-require('shortport')
-require('stdnse')
 
 -- helper function
 local follow_redirects = function(host, port, path, n)

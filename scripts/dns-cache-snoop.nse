@@ -1,3 +1,10 @@
+local dns = require "dns"
+local math = require "math"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Performs DNS cache snooping against a DNS server.
 
@@ -47,11 +54,6 @@ different list.
 -- | www.google.co.uk
 -- |_www.linkedin.com
 
-require("shortport")
-require("dns")
-require("stdnse")
-require("nmap")
-require("math")
 
 author = "Eugene V. Alexeev"
 

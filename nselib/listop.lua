@@ -9,7 +9,9 @@
 -- function applying a given function to each element of a list. 
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "listop", package.seeall)
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("listop", stdnse.seeall)
 
 --[[
 --
@@ -71,7 +73,7 @@ end
 -- @param l A list.
 -- @return Results from <code>f</code>.
 function apply(f, l)
-  return f(unpack(l))
+  return f(table.unpack(l))
 end
 
 --- Returns a list containing only those elements for which a predicate
@@ -106,7 +108,7 @@ end
 -- @param l The list.
 -- @return Elements after the first.
 function cdr(l)
-  return {unpack(l, 2)}
+  return {table.unpack(l, 2)}
 end
 
 --- Fetch element at index <code>x</code> from <code>l</code>.
@@ -124,7 +126,7 @@ end
 -- @return Elements after index <code>x</code> or after index <code>1</code> if
 -- <code>x</code> is not given.
 function ncdr(l, x) 
-  return {unpack(l, x or 2)};
+  return {table.unpack(l, x or 2)};
 end
 
 --- Prepend a value or list to another value or list.
@@ -132,7 +134,7 @@ end
 -- @param v2 value or list.
 -- @return New list.
 function cons(v1, v2)
-    return{ is_list(v1) and {unpack(v1)} or v1, is_list(v2) and {unpack(v2)} or v2}
+    return{ is_list(v1) and {table.unpack(v1)} or v1, is_list(v2) and {table.unpack(v2)} or v2}
 end
 
 --- Concatenate two lists and return the result.
@@ -140,7 +142,7 @@ end
 -- @param l2 List.
 -- @return List.
 function append(l1, l2)
-    local results = {unpack(l1)}
+    local results = {table.unpack(l1)}
 
     for _, v in ipairs(l2) do
    	  results[#results+1] = v;
@@ -178,3 +180,5 @@ function flatten(l)
     end
     return flat({}, l)
 end
+
+return _ENV;

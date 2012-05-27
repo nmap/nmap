@@ -1,3 +1,14 @@
+local bin = require "bin"
+local coroutine = require "coroutine"
+local dhcp = require "dhcp"
+local ipOps = require "ipOps"
+local math = require "math"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Sends a DHCP request to the broadcast address (255.255.255.255) and reports
 the results. The script uses a static MAC address (DE:AD:CO:DE:CA:FE) while
@@ -38,10 +49,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
 
-require 'dhcp'
-require 'ipOps'
-require 'packet'
-require 'nmap'
 
 prerule = function()
 	if not nmap.is_privileged() then

@@ -1,3 +1,10 @@
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Discovers Sybase Anywhere servers on the LAN by sending broadcast discovery messages.
 ]]

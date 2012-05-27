@@ -1,3 +1,10 @@
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local mongodb = stdnse.silent_require "mongodb"
+
 description = [[
 Attempts to get a list of tables from a MongoDB database.
 ]]
@@ -39,10 +46,6 @@ categories = {"default", "discovery", "safe"}
 
 dependencies = {"mongodb-brute"}
 
-require "creds"
-require "shortport"
-require 'stdnse'
-stdnse.silent_require('mongodb')
 
 portrule = shortport.port_or_service({27017}, {"mongodb"})
 

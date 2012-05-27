@@ -1,3 +1,8 @@
+local ajp = require "ajp"
+local io = require "io"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Request an URI over the Apache JServe Protocol and displays or alternatively
 stores the result in a file. Different AJP methods such as; GET, HEAD, TRACE,
@@ -38,9 +43,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local shortport = require('shortport')
-local packet    = require('packet')
-local ajp       = require('ajp')
 
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 

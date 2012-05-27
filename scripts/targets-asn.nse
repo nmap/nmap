@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Produces a list of IP prefixes for a given AS number (ASN).
 
@@ -33,9 +38,6 @@ license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licen
 
 categories = {"discovery", "external", "safe"}
 
-require "stdnse"
-require "shortport"
-require "target"
 
 prerule = function()
 	return true

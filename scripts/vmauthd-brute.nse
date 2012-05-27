@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+
 description = [[
 Performs brute force password auditing against the VMWare Authentication Daemon (vmware-authd).
 ]]
@@ -20,8 +25,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-require 'brute'
-require 'shortport'
 
 portrule = shortport.port_or_service(902, {"ssl/vmware-auth", "vmware-auth"}, "tcp")
 

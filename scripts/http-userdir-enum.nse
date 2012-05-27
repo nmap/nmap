@@ -1,3 +1,15 @@
+local base64 = require "base64"
+local bin = require "bin"
+local datafiles = require "datafiles"
+local http = require "http"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 author = "jah"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
@@ -28,10 +40,6 @@ CVE-2001-1013: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013.
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.9
 -- |_ apache-userdir-enum: Potential Users: root (403), user (200), test (200)
 
-local http      = require 'http'
-local shortport = require 'shortport'
-local stdnse    = require 'stdnse'
-local datafiles = require 'datafiles'
 
 
 
@@ -149,8 +157,6 @@ end
 -- @return String
 
 function randomstring()
-  local bin    = require"bin"
-  local base64 = require"base64"
   local rnd, s, l, _
   if pcall(require, "openssl") then
     rnd = openssl.rand_pseudo_bytes

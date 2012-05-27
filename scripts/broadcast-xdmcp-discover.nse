@@ -1,3 +1,8 @@
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+local xdmcp = require "xdmcp"
+
 description = [[
 Discovers servers running the X Display Manager Control Protocol (XDMCP) by
 sending a XDMCP broadcast request to the LAN. Display managers allowing access
@@ -19,7 +24,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'xdmcp'
 
 prerule = function() return true end
 

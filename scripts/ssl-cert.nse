@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local sslcert = require "sslcert"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Retrieves a server's SSL certificate. The amount of information printed
 about the certificate depends on the verbosity level. With no extra
@@ -64,8 +71,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = { "default", "safe", "discovery" }
 
-require("sslcert")
-require("shortport")
 
 portrule = function(host, port)
     return shortport.ssl(host, port) or sslcert.isPortSupported(port)

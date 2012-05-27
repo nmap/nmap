@@ -3,13 +3,14 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "smtp", package.seeall)
-
-local comm    = require 'comm'
-local nmap    = require 'nmap'
-local stdnse  = require 'stdnse'
-local base64  = require 'base64'
-local sasl    = require 'sasl'
+local base64 = require "base64"
+local comm = require "comm"
+local nmap = require "nmap"
+local sasl = require "sasl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("smtp", stdnse.seeall)
 
 local ERROR_MESSAGES = {
   ["EOF"]     = "connection closed",
@@ -194,7 +195,7 @@ get_auth_mech = function(response)
   local list = {}
 
   for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
-    local authstr = line:match("%d+\-AUTH%s(.*)$")
+    local authstr = line:match("%d+%-AUTH%s(.*)$")
     if authstr then
       for mech in authstr:gmatch("[^%s]+") do
         table.insert(list, mech)
@@ -639,7 +640,7 @@ login = function(socket, username, password, mech)
 	-- All mechanisms expect username and pass
 	-- add the otheronce for those who need them
 	local mech_params = { username, password, chall, "smtp" }
-	local auth_data = sasl.Helper:new(mech):encode(unpack(mech_params))
+	local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
 	auth_data = base64.enc(auth_data)
 	
 	status, response = query(socket, auth_data)
@@ -659,3 +660,5 @@ login = function(socket, username, password, mech)
 		
 	return false, response
 end
+
+return _ENV;

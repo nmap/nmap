@@ -1,3 +1,9 @@
+local brute = require "brute"
+local creds = require "creds"
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 performs brute force password auditing against Wordpress CMS/blog installations.
 
@@ -49,10 +55,6 @@ author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'http'
-require 'brute'
-require 'creds'
 
 portrule = shortport.http
 

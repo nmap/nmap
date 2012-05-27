@@ -34,7 +34,10 @@
 -- Created 10/23/2011 - v0.1 - Created by Patrik Karlsson
 --
 
-module(... or "rtsp", package.seeall)
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("rtsp", stdnse.seeall)
 
 -- The RTSP Request object
 Request = {
@@ -284,3 +287,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

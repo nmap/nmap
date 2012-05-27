@@ -32,9 +32,13 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
 
-module(... or "wsdd", package.seeall)
-
-require 'target'
+local bin = require "bin"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local table = require "table"
+local target = require "target"
+_ENV = stdnse.module("wsdd", stdnse.seeall)
 
 local HAVE_SSL = false
 
@@ -136,15 +140,15 @@ Decoders = {
 		local response = {}
 
 		-- extracts the messagid, so we can check if we already got a response
-		response.msgid = data:match("\<.*:MessageID\>urn:uuid:(.*)\</.*:MessageID\>")
+		response.msgid = data:match("<.*:MessageID>urn:uuid:(.*)</.*:MessageID>")
 
 		-- if unable to parse msgid return nil
 		if ( not(response.msgid) ) then
 			return false, "No message id was found"
 		end
 
-		response.xaddrs = data:match("\<.*:*XAddrs\>(.*)\</.*:*XAddrs\>")
-		response.types = data:match("\<.*:Types\>[wsdp:]*(.*)\</.*:Types\>")
+		response.xaddrs = data:match("<.*:*XAddrs>(.*)</.*:*XAddrs>")
+		response.types = data:match("<.*:Types>[wsdp:]*(.*)</.*:Types>")
 
 		return true, response
 	end,
@@ -167,7 +171,7 @@ Decoders = {
 	-- @return err string containing the error message
 	['error'] = function( data )
 		local response = "Failed to decode response from device: "
-		local err = data:match("\<SOAP.-ENV:Reason\>\<SOAP.-ENV:Text\>(.-)\<")
+		local err = data:match("<SOAP.-ENV:Reason><SOAP.-ENV:Text>(.-)<")
 		response = response .. (err or "Unknown error")
 		
 		return true, response
@@ -380,3 +384,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

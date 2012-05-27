@@ -1,3 +1,11 @@
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local target = require "target"
+
+local bitcoin = stdnse.silent_require "bitcoin"
+
 description = [[
 Queries a Bitcoin server for a list of known Bitcoin nodes
 ]]
@@ -21,11 +29,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'tab'
-require 'target'
-require 'stdnse'
-stdnse.silent_require('bitcoin')
 
 --
 -- Version 0.1

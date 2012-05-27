@@ -1,3 +1,8 @@
+local dnssd = require "dnssd"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description=[[
 Attempts to discover hosts in the local network using the DNS Service
 Discovery protocol and sends a NULL UDP packet to each host to test
@@ -36,8 +41,6 @@ author = "Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "dos", "intrusive", "vuln"}
 
-require 'stdnse'
-require 'dnssd'
 
 prerule = function() return true end
 

@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local smtp = require "smtp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to relay mail by issuing a predefined combination of SMTP commands. The goal
 of this script is to tell if a SMTP server is vulnerable to mail relaying.
@@ -70,9 +77,6 @@ author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive","external"}
 
-require "shortport"
-require "stdnse"
-require "smtp"
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
                 { "smtp", "smtps", "submission" })

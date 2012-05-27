@@ -1,3 +1,10 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Obtains the CakePHP version of a web application built with the CakePHP framework by fingerprinting default files shipped with the CakePHP framework.
 
@@ -25,10 +32,6 @@ author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","safe"}
 
-require "http"
-require "shortport"
-require "stdnse"
-stdnse.silent_require "openssl"
 
 portrule = shortport.http
 

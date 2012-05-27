@@ -4,7 +4,12 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
-module(... or "xdmcp", package.seeall)
+local bin = require "bin"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("xdmcp", stdnse.seeall)
 
 -- Supported operations
 OpCode = {
@@ -313,15 +318,15 @@ Helper = {
 			return false, ("Failed to get information for interface %s"):format(self.host.interface)
 		end
 		
-		local req = xdmcp.Packet[xdmcp.OpCode.QUERY]:new(auth_names)
+		local req = Packet[OpCode.QUERY]:new(auth_names)
 		local status, response = self:exch(req)
 		if ( not(status) ) then
 			return false, response
-		elseif ( response.header.opcode ~= xdmcp.OpCode.WILLING ) then
+		elseif ( response.header.opcode ~= OpCode.WILLING ) then
 			return false, "Received unexpected response"
 		end
 
-		local REQ = xdmcp.Packet[xdmcp.OpCode.REQUEST]
+		local REQ = Packet[OpCode.REQUEST]
 		local iptype = REQ.Connection.IpType.IPv4
 		if ( nmap.address_family() == 'inet6' ) then
 			iptype = REQ.Connection.IpType.IPv6
@@ -332,7 +337,7 @@ Helper = {
 		local status, response = self:exch(req)
 		if ( not(status) ) then
 			return false, response
-		elseif ( response.header.opcode ~= xdmcp.OpCode.ACCEPT ) then
+		elseif ( response.header.opcode ~= OpCode.ACCEPT ) then
 			return false, "Received unexpected response"
 		end
 		
@@ -340,7 +345,7 @@ Helper = {
 		-- set up a listening TCP server anyway. When we can, we could enable
 		-- this and wait for the incoming request and retrieve X protocol info.
 		
-		-- local manage = xdmcp.Packet[xdmcp.OpCode.MANAGE]:new(response.session_id, 
+		-- local manage = Packet[OpCode.MANAGE]:new(response.session_id, 
 		-- 	disp_no, "MIT-unspecified")
 		-- local status, response = self:exch(manage)
 		-- if ( not(status) ) then
@@ -392,3 +397,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

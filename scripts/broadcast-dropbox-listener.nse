@@ -1,3 +1,9 @@
+local json = require "json"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local target = require "target"
+
 description = [[
 Listens for the LAN sync information broadcasts that the Dropbox.com client broadcasts every 20 seconds, then prints all the discovered client IP addresses, port numbers, version numbers, display names, and more.
 
@@ -29,11 +35,6 @@ author = "Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait Milne"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require("json")
-require("shortport")
-require("stdnse")
-require("tab")
-require("target")
 
 local DROPBOX_BROADCAST_PERIOD = 20
 local DROPBOX_PORT = 17500

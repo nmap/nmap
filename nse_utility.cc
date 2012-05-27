@@ -7,58 +7,68 @@
 #include "nse_main.h"
 #include "nse_utility.h"
 
-/* size_t table_length (lua_State *L, int index)
- *
- * Returns the length of the table at index index.
- * This length is the number of elements, not just array elements.
- */
-size_t table_length (lua_State *L, int index)
+int nseU_traceback (lua_State *L)
+{
+  if (lua_isstring(L, 1))
+    luaL_traceback(L, L, lua_tostring(L, 1), 1);
+  return 1;
+}
+
+int nseU_placeholder (lua_State *L)
+{
+  lua_pushnil(L);
+  return lua_error(L);
+}
+
+size_t nseU_tablen (lua_State *L, int idx)
 {
   size_t len = 0;
+  idx = lua_absindex(L, idx);
 
-  lua_pushvalue(L, index);
-  lua_pushnil(L);
-  while (lua_next(L, -2))
-  {
+  for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1))
     len++;
-    lua_pop(L, 1);
-  }
-  lua_pop(L, 1);
 
   return len;
 }
 
-void setsfield (lua_State *L, int idx, const char *field, const char *what)
+void nseU_setsfield (lua_State *L, int idx, const char *field, const char *what)
 {
-  lua_pushvalue(L, idx);
+  idx = lua_absindex(L, idx);
   lua_pushstring(L, what); /* what can be NULL */
-  lua_setfield(L, -2, field);
-  lua_pop(L, 1);
+  lua_setfield(L, idx, field);
 }
 
-void setnfield (lua_State *L, int idx, const char *field, lua_Number n)
+void nseU_setnfield (lua_State *L, int idx, const char *field, lua_Number n)
 {
-  lua_pushvalue(L, idx);
+  idx = lua_absindex(L, idx);
   lua_pushnumber(L, n);
-  lua_setfield(L, -2, field);
-  lua_pop(L, 1);
+  lua_setfield(L, idx, field);
 }
 
-void setbfield (lua_State *L, int idx, const char *field, int b)
+void nseU_setbfield (lua_State *L, int idx, const char *field, int b)
 {
-  lua_pushvalue(L, idx);
+  idx = lua_absindex(L, idx);
   lua_pushboolean(L, b);
-  lua_setfield(L, -2, field);
-  lua_pop(L, 1);
+  lua_setfield(L, idx, field);
 }
 
-int success (lua_State *L)
+void nseU_appendfstr (lua_State *L, int idx, const char *fmt, ...)
+{
+  va_list va;
+  idx = lua_absindex(L, idx);
+  va_start(va, fmt);
+  lua_pushvfstring(L, fmt, va);
+  va_end(va);
+  lua_rawseti(L, idx, lua_rawlen(L, idx)+1);
+}
+
+int nseU_success (lua_State *L)
 {
   lua_pushboolean(L, true);
   return 1;
 }
 
-int safe_error (lua_State *L, const char *fmt, ...)
+int nseU_safeerror (lua_State *L, const char *fmt, ...)
 {
   va_list va;
   lua_pushboolean(L, false);
@@ -68,7 +78,7 @@ int safe_error (lua_State *L, const char *fmt, ...)
   return 2;
 }
 
-void weak_table (lua_State *L, int narr, int nrec, const char *mode)
+void nseU_weaktable (lua_State *L, int narr, int nrec, const char *mode)
 {
   lua_createtable(L, narr, nrec);
   lua_createtable(L, 0, 1);
@@ -77,14 +87,26 @@ void weak_table (lua_State *L, int narr, int nrec, const char *mode)
   lua_setmetatable(L, -2);
 }
 
-/* const char *check_target (lua_State *L, int idx)
- *
- * Check for a valid target specification at index idx.
- * This function checks for a string at idx or a table containing
- * the typical host table fields, 'ip' and 'targetname' in particular.
- */
-void check_target (lua_State *L, int idx, const char **address, const char **targetname)
+void nseU_typeerror (lua_State *L, int idx, const char *type)
 {
+  const char *msg = lua_pushfstring(L, "%s expected, got %s", type, luaL_typename(L, idx));
+  luaL_argerror(L, idx, msg);
+}
+
+void *nseU_checkudata (lua_State *L, int idx, int upvalue, const char *name)
+{
+  idx = lua_absindex(L, idx);
+
+  lua_getmetatable(L, idx);
+  if (!(lua_isuserdata(L, idx) && lua_rawequal(L, -1, upvalue)))
+    nseU_typeerror(L, idx, name);
+  lua_pop(L, 1);
+  return lua_touserdata(L, idx);
+}
+
+void nseU_checktarget (lua_State *L, int idx, const char **address, const char **targetname)
+{
+  idx = lua_absindex(L, idx);
   if (lua_istable(L, idx)) {
     lua_getfield(L, idx, "ip");
     *address = lua_tostring(L, -1);
@@ -99,41 +121,34 @@ void check_target (lua_State *L, int idx, const char **address, const char **tar
   }
 }
 
-/* unsigned short check_port (lua_State *L, int idx)
- *
- * Check for a valid port specification at index idx.
- */
-unsigned short check_port (lua_State *L, int idx, const char **protocol)
+uint16_t nseU_checkport (lua_State *L, int idx, const char **protocol)
 {
-  unsigned short port;
+  uint16_t port;
+  idx = lua_absindex(L, idx);
 
   if (lua_istable(L, idx)) {
     lua_getfield(L, idx, "number");
     if (!lua_isnumber(L, -1))
       luaL_argerror(L, idx, "port table lacks numeric 'number' field");
-    port = (unsigned short) lua_tointeger(L, -1);
+    port = (uint16_t) lua_tointeger(L, -1);
     lua_getfield(L, idx, "protocol");
-    *protocol = lua_tostring(L, -1);
+    if (lua_isstring(L, -1))
+      *protocol = lua_tostring(L, -1);
     lua_pop(L, 2);
   } else {
-    port = (unsigned short) luaL_checkint(L, idx);
+    port = (uint16_t) luaL_checkint(L, idx);
   }
   return port;
 }
 
-/* Target *get_target (lua_State *L, int index)
- *
- * This function checks the value at index for a valid host table. It locates
- * the associated Target (C++) class object associated with the host and
- * returns it. If the Target is not being scanned then an error will be raised.
- */
-Target *get_target (lua_State *L, int index)
+Target *nseU_gettarget (lua_State *L, int idx)
 {
   int top = lua_gettop(L);
   Target *target;
-  luaL_checktype(L, index, LUA_TTABLE);
-  lua_getfield(L, index, "targetname");
-  lua_getfield(L, index, "ip");
+  idx = lua_absindex(L, idx);
+  luaL_checktype(L, idx, LUA_TTABLE);
+  lua_getfield(L, idx, "targetname");
+  lua_getfield(L, idx, "ip");
   if (!(lua_isstring(L, -2) || lua_isstring(L, -1)))
     luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
   if (lua_isstring(L, -2)) /* targetname */
@@ -154,21 +169,16 @@ done:
   return target;
 }
 
-/* Target *get_port (lua_State *L, Target *target, Port *port, int index)
- *
- * This function checks the value at index for a valid port table. It locates
- * the associated Port (C++) class object associated with the host and
- * returns it.
- */
-Port *get_port (lua_State *L, Target *target, Port *port, int index)
+Port *nseU_getport (lua_State *L, Target *target, Port *port, int idx)
 {
   Port *p = NULL;
   int portno, protocol;
-  luaL_checktype(L, index, LUA_TTABLE);
-  lua_getfield(L, index, "number");
+  idx = lua_absindex(L, idx);
+  luaL_checktype(L, idx, LUA_TTABLE);
+  lua_getfield(L, idx, "number");
   if (!lua_isnumber(L, -1))
     luaL_error(L, "port 'number' field must be a number");
-  lua_getfield(L, index, "protocol");
+  lua_getfield(L, idx, "protocol");
   if (!lua_isstring(L, -1))
     luaL_error(L, "port 'protocol' field must be a string");
   portno = (int) lua_tointeger(L, -2);

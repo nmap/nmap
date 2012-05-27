@@ -1,3 +1,13 @@
+local comm = require "comm"
+local creds = require "creds"
+local ldap = require "ldap"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to brute-force LDAP authentication. By default
 it uses the built-in username and password lists. In order to use your
@@ -71,12 +81,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'stdnse'
-require 'ldap'
-require 'unpwdb'
-require 'comm'
-require 'creds'
 
 -- Version 0.6
 -- Created 01/20/2010 - v0.1 - created by Patrik Karlsson

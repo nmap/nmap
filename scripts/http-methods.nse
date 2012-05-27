@@ -1,3 +1,9 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Finds out what options are supported by an HTTP server by sending an
 OPTIONS request. Lists potentially risky methods. Optionally tests each
@@ -46,10 +52,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
-require("http")
-require("nmap")
-require("shortport")
-require("stdnse")
 
 -- We don't report these methods except with verbosity.
 local UNINTERESTING_METHODS = {

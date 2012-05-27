@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stun = require "stun"
+
 description = [[
 Retrieves the external IP address of a NAT:ed host using the STUN protocol.
 ]]
@@ -17,8 +21,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'stun'
 
 portrule = shortport.port_or_service(3478, "stun", "udp")
 

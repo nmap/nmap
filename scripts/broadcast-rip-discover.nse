@@ -1,3 +1,10 @@
+local bin = require "bin"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description=[[
 Discovers hosts and routing information from devices running RIPv2 on the
 LAN. It does so by sending a RIPv2 Request command and collects the responses
@@ -36,9 +43,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'bin'
-require 'ipOps'
-require 'tab'
 
 prerule = function() return not( nmap.address_family() == "inet6") end
 

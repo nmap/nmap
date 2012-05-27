@@ -1,3 +1,12 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
+local openssl = stdnse.silent_require "openssl"
+
 description=[[
 Performs brute force password auditing against a OpenVAS vulnerability scanner daemon using the OTP 1.0 protocol.
 ]]
@@ -20,11 +29,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
-require "shortport"
-require "brute"
-require "comm"
-require "stdnse"
-stdnse.silent_require('openssl')
 
 portrule = shortport.port_or_service({9390,9391}, "openvas", "tcp")
 

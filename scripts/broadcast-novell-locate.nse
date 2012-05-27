@@ -1,3 +1,9 @@
+local bin = require "bin"
+local ipOps = require "ipOps"
+local srvloc = require "srvloc"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to use the Service Location Protocol to discover Novell NetWare Core Protocol (NCP) servers.
 ]]
@@ -21,8 +27,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'srvloc'
-require 'ipOps'
 
 prerule = function() return true end
 

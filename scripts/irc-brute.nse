@@ -1,3 +1,11 @@
+local brute = require "brute"
+local comm = require "comm"
+local creds = require "creds"
+local math = require "math"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description=[[
 Performs brute force password auditing against IRC (Internet Relay Chat) servers.
 ]]
@@ -21,9 +29,6 @@ Performs brute force password auditing against IRC (Internet Relay Chat) servers
 -- Created 26/10/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
-require 'brute'
-require 'shortport'
-require 'comm'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

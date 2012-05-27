@@ -5,10 +5,16 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
-module(... or "stun", package.seeall)
-
-require 'ipOps'
-require 'match'
+local bin = require "bin"
+local ipOps = require "ipOps"
+local match = require "match"
+local math = require "math"
+local nmap = require "nmap"
+local package = require "package"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("stun", stdnse.seeall)
 
 -- The supported request types
 MessageType = {
@@ -366,3 +372,4 @@ Helper = {
 	
 }
 
+return _ENV;

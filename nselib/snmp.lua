@@ -5,11 +5,15 @@
 -- <code>"public"</code>, or whatever is passed to <code>buildPacket</code>.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "snmp",package.seeall)
+local asn1 = require "asn1"
+local bin = require "bin"
+local math = require "math"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("snmp", stdnse.seeall)
 
-
-require("bit")
-require("asn1")
 
 -- SNMP ASN.1 Encoders
 local tagEncoder = {}
@@ -29,7 +33,7 @@ tagEncoder['table'] = function(self, val)
 		return bin.pack("HAA", '06', self.encodeLength(#oidStr), oidStr) 
 
  	elseif (val._snmp == '40') then -- ipAddress
-		return bin.pack("HC4", '40 04', unpack(val))
+		return bin.pack("HC4", '40 04', table.unpack(val))
  	
     -- counter or gauge or timeticks or opaque
 	elseif (val._snmp == '41' or val._snmp == '42' or val._snmp == '43' or val._snmp == '44') then
@@ -470,7 +474,7 @@ function snmpWalk( socket, base_oid )
 		
 		local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
 		options.reqId = 28428 -- unnecessary?
-		payload = snmp.encode( snmp.buildPacket( snmp.buildGetNextRequest(options, oid) ) )
+		payload = encode( buildPacket( buildGetNextRequest(options, oid) ) )
 
 		status, err = socket:send(payload)
 		if ( not( status ) ) then
@@ -488,7 +492,7 @@ function snmpWalk( socket, base_oid )
 			return false, nil
 		end
 	
-		snmpdata = snmp.fetchResponseValues( response )
+		snmpdata = fetchResponseValues( response )
 		
 		value = snmpdata[1][1]
 		oid  = snmpdata[1][2]
@@ -509,3 +513,5 @@ function snmpWalk( socket, base_oid )
 	return true, snmp_table
 	
 end
+
+return _ENV;

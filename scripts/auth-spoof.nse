@@ -1,3 +1,6 @@
+local comm = require "comm"
+local shortport = require "shortport"
+
 description = [[
 Checks for an identd (auth) server which is spoofing its replies.
 
@@ -19,8 +22,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"malware", "safe"}
 
-require "comm"
-require "shortport"
 
 portrule = shortport.port_or_service(113, "auth")
 

@@ -1,3 +1,8 @@
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
 
@@ -28,10 +33,6 @@ author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery", "vuln"}
 
-require("bin")
-require("nmap")
-require("shortport")
-require("stdnse")
 
 local FINGERPRINT_FILE = "ssl-fingerprints"
 

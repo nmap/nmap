@@ -6,9 +6,9 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "shortport", package.seeall)
-
 local nmap = require "nmap"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("shortport", stdnse.seeall)
 
 ---
 -- See if a table contains a value.
@@ -175,7 +175,7 @@ LIKELY_HTTP_SERVICES = {
 -- @usage
 -- portrule = shortport.http
 
-http = shortport.port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
+http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 
 local LIKELY_SSL_PORTS = {
     443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
@@ -199,3 +199,5 @@ function ssl(host, port)
     return port.version.service_tunnel == "ssl" or
         port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port)
 end
+
+return _ENV;

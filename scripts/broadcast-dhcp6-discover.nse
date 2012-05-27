@@ -1,3 +1,9 @@
+local coroutine = require "coroutine"
+local dhcp6 = require "dhcp6"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Sends a DHCPv6 request (Solicit) to the DHCPv6 multicast address,
 parses the response, then extracts and prints the address along with
@@ -29,7 +35,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'dhcp6'
 
 prerule = function()
 	if not nmap.is_privileged() then

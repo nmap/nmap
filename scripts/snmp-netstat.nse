@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local snmp = require "snmp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to query SNMP for a netstat like output.
 ]]
@@ -26,8 +33,6 @@ dependencies = {"snmp-brute"}
 -- Created 01/19/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 
-require "shortport"
-require "snmp"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 

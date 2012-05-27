@@ -1,3 +1,8 @@
+local httpspider = require "httpspider"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Spiders a website and attempts to match all pages and urls against a given
 string. Matches are counted and grouped per url under which they were
@@ -42,9 +47,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'httpspider'
-require 'shortport'
-require 'url'
 
 portrule = shortport.http
 

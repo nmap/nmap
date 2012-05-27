@@ -1,3 +1,10 @@
+local math = require "math"
+local msrpc = require "msrpc"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to enumerate domains on a system, along with their policies. This generally requires
 credentials, except against Windows 2000. In addition to the actual domain, the "Builtin" 
@@ -54,11 +61,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive"}
 dependencies = {"smb-brute"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
-require 'nsedebug'
 -- TODO: This script needs some love...
 
 hostrule = function(host)

@@ -1,3 +1,11 @@
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local rpc = require "rpc"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Detects vulnerabilities and gathers information (such as version
 numbers and hardware support) from VxWorks Wind DeBug agents.
@@ -28,9 +36,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- may also be "safe", but need testing to determine
 categories = {"default", "version", "discovery", "vuln"}
 
-require 'shortport'
-require 'rpc'
-require 'stdnse'
 
 -- WDB protocol information
 -- http://www-kryo.desy.de/documents/vxWorks/V5.5/tornado-api/wdbpcl/wdb.html

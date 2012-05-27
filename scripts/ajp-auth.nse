@@ -1,3 +1,9 @@
+local ajp = require "ajp"
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Retrieves the authentication scheme and realm of an AJP service that requires
 authentication.
@@ -20,9 +26,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
-local ajp       = require('ajp')
-local http      = require('http')
-local shortport = require('shortport')
 
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 

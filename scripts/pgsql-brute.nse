@@ -1,3 +1,13 @@
+local nmap = require "nmap"
+local pgsql = require "pgsql"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Performs password guessing against PostgreSQL.
 ]]
@@ -26,10 +36,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'stdnse'
-require 'unpwdb'
-stdnse.silent_require 'openssl'
 
 -- Version 0.4
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

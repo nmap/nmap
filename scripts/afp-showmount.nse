@@ -1,3 +1,9 @@
+local afp = require "afp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Shows AFP shares and ACLs.
 ]]
@@ -32,9 +38,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'stdnse'
-require 'afp'
 
 dependencies = {"afp-brute"}
 

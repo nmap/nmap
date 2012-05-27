@@ -1,3 +1,9 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local vulns = require "vulns"
+
 description = [[
 Detects PHP-CGI installations that are vulnerable to CVE-2012-1823, This vulnerability is critical and it allows attackers to retrieve source code and execute code remotely.
 
@@ -45,9 +51,6 @@ author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 
-require "shortport"
-require "http"
-require "vulns"
 
 portrule = shortport.http
 

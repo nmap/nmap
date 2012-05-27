@@ -1,3 +1,12 @@
+local http = require "http"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local vulns = require "vulns"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Tests for the CVE-2011-3368 (Reverse Proxy Bypass) vulnerability in Apache HTTP server's reverse proxy mode.
 The script will run 3 tests:
@@ -39,11 +48,6 @@ author = "Ange Gutek, Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
-require 'http'
-require 'stdnse'
-require 'shortport'
-require 'vulns'
-stdnse.silent_require('openssl')
 
 
 portrule = shortport.http

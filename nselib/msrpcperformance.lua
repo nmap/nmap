@@ -16,9 +16,13 @@
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
-module(... or "msrpcperformance", package.seeall)
 
-require 'msrpctypes'
+local bin = require "bin"
+local bit = require "bit"
+local msrpc = require "msrpc"
+local msrpctypes = require "msrpctypes"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("msrpcperformance", stdnse.seeall)
 
 ---Parses the title database, which is a series of null-terminated string pairs. 
 --
@@ -609,3 +613,5 @@ function get_performance_data(host, objects)
 end
 
 
+
+return _ENV;

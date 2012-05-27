@@ -1,3 +1,9 @@
+local dns = require "dns"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates DNS names using the DNSSEC NSEC-walking technique.
 
@@ -41,9 +47,6 @@ license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licen
 
 categories = {"discovery", "intrusive"}
 
-require "stdnse"
-require "shortport"
-require "dns"
 
 portrule = shortport.port_or_service(53, "domain", {"tcp", "udp"})
 
@@ -163,7 +166,7 @@ local function increment_component(name)
 		bytes[i] = DNS_CHARS[index]
 	end
 
-	return string.char(unpack(bytes))
+	return string.char(table.unpack(bytes))
 end
 
 -- Return the lexicographically next domain name that does not add a new

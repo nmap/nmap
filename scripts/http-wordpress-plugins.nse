@@ -1,3 +1,12 @@
+local coroutine = require "coroutine"
+local http = require "http"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Tries to obtain a list of installed WordPress plugins by brute force
 testing for known plugins.
@@ -38,9 +47,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 
-require 'http'
-require 'stdnse'
-require 'shortport'
 
 local DEFAULT_PLUGINS_SEARCH = 100
 

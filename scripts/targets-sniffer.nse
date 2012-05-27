@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
 -- -*- mode: lua -*-:
 -- vim: set filetype=lua :
 
@@ -32,11 +39,6 @@ author = "Nick Nikolaou"
 categories = {"broadcast", "discovery", "safe"}
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-require("stdnse")
-require("target")
-require("nmap")
-require("packet")
-require("bin")
 
 local interface_info
 local all_addresses= {}

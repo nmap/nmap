@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Retrieves information (including system architecture, process ID, and
 server time) from distributed memory object caching system memcached.
@@ -28,8 +34,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'tab'
 
 -- currently, we only support the TCP, text based protocol
 portrule = shortport.port_or_service(11211, "memcached", "tcp")

@@ -1,3 +1,9 @@
+local brute = require "brute"
+local creds = require "creds"
+local iscsi = require "iscsi"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force password auditing against iSCSI targets.
 ]]
@@ -16,10 +22,6 @@ Performs brute force password auditing against iSCSI targets.
 -- Created 2010/11/18 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 2010/11/27 - v0.2 - detect if no password is needed <patrik@cqure.net>
 
-require 'shortport'
-require 'brute'
-require 'iscsi'
-require 'creds'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -15,9 +15,13 @@
 --										o Each script or library should now create it's own Encoder and Decoder instance
 --
 
-module(... or "asn1",package.seeall)
-
-require("bit")
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("asn1", stdnse.seeall)
 
 BERCLASS = {
 	Universal = 0,
@@ -471,3 +475,5 @@ function intToBER( i )
 end
 
 
+
+return _ENV;

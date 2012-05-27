@@ -20,11 +20,16 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
-module(... or "dhcp6", package.seeall)
 
-require 'bin'
-require 'bit'
-require 'ipOps'
+local bin = require "bin"
+local bit = require "bit"
+local ipOps = require "ipOps"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("dhcp6", stdnse.seeall)
 
 DHCP6 = {}
 
@@ -616,3 +621,5 @@ Helper = {
 	end,	
 }
 
+
+return _ENV;

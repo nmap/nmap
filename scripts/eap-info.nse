@@ -1,3 +1,10 @@
+local bin = require "bin"
+local eap = require "eap"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates the authentication methods offered by an EAP authenticator for a
 given identity or for the anonymous identity if no argument is passed.
@@ -26,11 +33,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = { "broadcast", "safe" }
 
-require 'nmap'
-require 'packet'
-require 'bin'
-require 'stdnse'
-require 'eap'
 
 prerule = function()
 	return nmap.is_privileged()

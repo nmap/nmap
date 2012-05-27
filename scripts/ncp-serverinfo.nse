@@ -1,3 +1,7 @@
+local ncp = require "ncp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Retrieves eDirectory server information (OS version, server name,
 mounts, etc.) from the Novell NetWare Core Protocol (NCP) service.
@@ -29,8 +33,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require "shortport"
-require "ncp"
 
 portrule = shortport.port_or_service(524, "ncp", "tcp")
 

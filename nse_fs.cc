@@ -6,6 +6,7 @@ extern "C" {
 
 #include "nmap.h"
 #include "nse_fs.h"
+#include "nse_utility.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
 
@@ -14,11 +15,13 @@ extern "C" {
 
 #include <string>
 
+enum {
+  DIR_METATABLE = lua_upvalueindex(1),
+};
+
 #ifndef WIN32
 #include "dirent.h"
 #endif
-
-#define DIR_METATABLE "dir"
 
 #ifndef MAXPATHLEN
 #   define MAXPATHLEN 2048
@@ -115,12 +118,12 @@ static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
   return 2;
 }
 
-int fetchscript (lua_State *L)
+static int l_fetchscript (lua_State *L)
 {
   return nse_fetch(L, nse_fetchscript);
 }
 
-int fetchfile_absolute (lua_State *L)
+static int l_fetchfile_absolute (lua_State *L)
 {
   return nse_fetch(L, nse_fetchfile_absolute);
 }
@@ -157,7 +160,7 @@ static int dir_iter (lua_State *L) {
 #else
   struct dirent *entry;
 #endif
-  dir_data *d = (dir_data *)luaL_checkudata(L, 1, DIR_METATABLE);
+  dir_data *d = (dir_data *) nseU_checkudata(L, 1, DIR_METATABLE, "directory");
   luaL_argcheck(L, !d->closed, 1, "closed directory");
 #ifdef WIN32
   if (d->hFile == 0L) { /* first entry */
@@ -197,7 +200,7 @@ static int dir_iter (lua_State *L) {
 ** Closes directory iterators
 */
 static int dir_close (lua_State *L) {
-  dir_data *d = (dir_data *)lua_touserdata(L, 1);
+  dir_data *d = (dir_data *) nseU_checkudata(L, 1, DIR_METATABLE, "directory");
 #ifdef WIN32
   if (!d->closed && d->hFile) {
     _findclose(d->hFile);
@@ -215,7 +218,7 @@ static int dir_close (lua_State *L) {
 /*
 ** Factory of directory iterators
 */
-int nse_readdir (lua_State *L) {
+static int l_readdir (lua_State *L) {
   const char *dirname = luaL_checkstring(L, 1);
   dir_data *d;
   lua_pushcfunction(L, dir_iter);
@@ -223,14 +226,14 @@ int nse_readdir (lua_State *L) {
   d->closed = 0;
 #ifdef  WIN32
   d->hFile = 0L;
-  luaL_getmetatable(L, DIR_METATABLE);
+  lua_pushvalue(L, DIR_METATABLE);
   lua_setmetatable(L, -2);
   if (strlen(dirname) > MAX_DIR_LENGTH)
     luaL_error(L, "%s: Path too long '%s'.", SCRIPT_ENGINE, dirname);
   else
     Snprintf(d->pattern, MAX_DIR_LENGTH, "%s/*", dirname);
 #else
-  luaL_getmetatable(L, DIR_METATABLE);
+  lua_pushvalue(L, DIR_METATABLE);
   lua_setmetatable(L, -2);
   d->dir = opendir(dirname);
   if (d->dir == NULL)
@@ -239,22 +242,34 @@ int nse_readdir (lua_State *L) {
   return 2;
 }
 
-int luaopen_fs(lua_State *L)
+LUALIB_API int luaopen_fs(lua_State *L)
 {
-  /* create the dir metatable */
-  luaL_newmetatable(L, DIR_METATABLE);
-  lua_pushstring(L, "__index");
-  lua_newtable(L);
-  lua_pushstring(L, "next"); 
-  lua_pushcfunction(L, dir_iter);
-  lua_settable(L, -3);
-  lua_pushstring (L, "close");
-  lua_pushcfunction (L, dir_close);
-  lua_settable(L, -3);
-  lua_settable(L, -3);
-  lua_pushstring(L, "__gc");
-  lua_pushcfunction (L, dir_close);
-  lua_settable(L, -3);
-  lua_pop(L, 1);
-  return 0;
+  static const luaL_Reg metatable_index[] = {
+    {"next", dir_iter},
+    {"close", dir_close},
+    {NULL, NULL}
+  };
+
+  static const luaL_Reg lib[] = {
+    {"fetchscript", l_fetchscript},
+    {"fetchfile_absolute", l_fetchfile_absolute},
+    {"readdir", l_readdir},
+    {NULL, NULL}
+  };
+
+  int top = lua_gettop(L);
+  lua_newtable(L); /* DIR_METATABLE */
+
+  luaL_newlibtable(L, metatable_index);
+  lua_pushvalue(L, top+1);
+  luaL_setfuncs(L, metatable_index, 1);
+  lua_getfield(L, -1, "close");
+  lua_setfield(L, top+1, "__gc");
+  lua_setfield(L, top+1, "__index");
+
+  luaL_newlibtable(L, lib);
+  lua_pushvalue(L, top+1);
+  luaL_setfuncs(L, lib, 1);
+
+  return 1;
 }

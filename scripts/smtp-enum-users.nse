@@ -1,3 +1,11 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local smtp = require "smtp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to enumerate the users on a SMTP server by issuing the VRFY, EXPN or RCPT TO
 commands. The goal of this script is to discover all the user accounts in the remote
@@ -44,10 +52,6 @@ author = "Duarte Silva <duarte.silva@serializing.me>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth","external","intrusive"}
 
-require "shortport"
-require "stdnse"
-require "smtp"
-require "unpwdb"
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
                 { "smtp", "smtps", "submission" })

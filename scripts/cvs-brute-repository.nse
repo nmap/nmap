@@ -1,3 +1,12 @@
+local brute = require "brute"
+local coroutine = require "coroutine"
+local cvs = require "cvs"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to guess the name of the CVS repositories hosted on the remote server.
 With knowledge of the correct repository name, usernames and passwords can be guessed.
@@ -29,10 +38,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'cvs'
-require 'brute'
-require 'creds'
-require 'shortport'
 
 portrule = shortport.port_or_service(2401, "cvspserver")
 

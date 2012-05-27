@@ -75,7 +75,11 @@
 --							   queries
 --
 
-module(... or "informix", package.seeall)
+local bin = require "bin"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("informix", stdnse.seeall)
 
 -- A bunch of constants
 Constants =
@@ -1388,3 +1392,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

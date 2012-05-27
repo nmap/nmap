@@ -1,3 +1,11 @@
+local bin = require "bin"
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Retrieves a list of music from a DAAP server. The list includes artist
 names and album and song titles.
@@ -36,9 +44,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'stdnse'
-require 'http'
 
 -- Version 0.2
 -- Created 01/14/2010 - v0.1 - created by Patrik Karlsson

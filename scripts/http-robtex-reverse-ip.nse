@@ -1,3 +1,9 @@
+local http = require "http"
+local ipOps = require "ipOps"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Obtains up to 100 forward DNS names for a target IP address by querying the Robtex service (http://www.robtex.com/ip/).
 ]]
@@ -35,9 +41,6 @@ author = "riemann"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
-require "http"
-require "ipOps"
-require "shortport"
 
 --- Scrape reverse ip informations from robtex website
 -- @param data string containing the retrieved web page

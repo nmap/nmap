@@ -1,3 +1,11 @@
+local bin = require "bin"
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates SCADA Modbus slave ids (sids) and collects their device information.
 
@@ -34,10 +42,6 @@ author = "Alexander Rudakov"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require "bin"
-require "comm"
-require "stdnse"
-require "shortport"
 
 portrule = shortport.portnumber(502, "tcp")
 

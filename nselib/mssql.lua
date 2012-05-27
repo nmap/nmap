@@ -102,7 +102,20 @@
 --			listening on 43210/tcp, which was not scanned) will be reported but
 --			will not be stored for use by other ms-sql-* scripts.
 
-module(... or "mssql", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local shortport = require "shortport"
+local smb = require "smb"
+local smbauth = require "smbauth"
+local stdnse = require "stdnse"
+local strbuf = require "strbuf"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("mssql", stdnse.seeall)
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 03/28/2010 - v0.2 - fixed incorrect token types. added 30 seconds timeout
@@ -118,13 +131,6 @@ module(... or "mssql", package.seeall)
 --
 --								(Patrik Karlsson, Chris Woodbury)
 
-require("bit")
-require("bin")
-require("stdnse")
-require("strbuf")
-require("smb")
-require("smbauth")
-  
 HAVE_SSL = (nmap.have_ssl() and pcall(require, "openssl"))
 
 do
@@ -1819,7 +1825,7 @@ TDSStream = {
 			pos, spid, self._packetId, window = bin.unpack(">SCC", readBuffer, pos )
 			
 			-- TDS packet validity check: packet type is Response (0x4)
-			if ( packetType ~= mssql.PacketType.Response ) then
+			if ( packetType ~= PacketType.Response ) then
 				stdnse.print_debug( 2, "%s: Receiving (%s): Expected type 0x4 (response), but received type 0x%x",
 					"MSSQL", self._name, packetType )
 				return false, "Server returned invalid packet"
@@ -2046,15 +2052,15 @@ Helper =
 	DiscoverByTcp = function( host, port )
 		local version, instance, status
 		-- Check to see if we've already discovered an instance on this port
-		instance = mssql.Helper.GetDiscoveredInstances( host, port )
+		instance = Helper.GetDiscoveredInstances( host, port )
 		if ( not instance ) then
-			instance =  mssql.SqlServerInstanceInfo:new()
+			instance =  SqlServerInstanceInfo:new()
 			instance.host = host
 			instance.port = port
 			
-			status, version = mssql.Helper.GetInstanceVersion( instance )
+			status, version = Helper.GetInstanceVersion( instance )
 			if ( status ) then
-				mssql.Helper.AddOrMergeInstance( instance )
+				Helper.AddOrMergeInstance( instance )
 				-- The point of this wasn't to get the version, just to use the
 				-- pre-login packet to determine whether there was a SQL Server on
 				-- the port. However, since we have the version now, we'll store it.
@@ -2750,3 +2756,5 @@ Util =
 		return new_tbl
 	end,
 }
+
+return _ENV;

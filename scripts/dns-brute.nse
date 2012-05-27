@@ -1,3 +1,13 @@
+local coroutine = require "coroutine"
+local dns = require "dns"
+local io = require "io"
+local math = require "math"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Attempts to enumerate DNS hostnames by brute force guessing of common subdomains.
 ]]
@@ -43,9 +53,6 @@ hostrule = function(host)
 end
 
 
-require 'dns'
-require 'stdnse'
-require 'target'
 
 local HOST_LIST = {
 	'www', 'mail', 'blog', 'ns0', 'ns1', 'mail2', 'mail3', 'admin', 'ads', 'ssh',

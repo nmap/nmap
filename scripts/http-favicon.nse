@@ -1,3 +1,13 @@
+local datafiles = require "datafiles"
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local url = require "url"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Gets the favicon ("favorites icon") from a web page and matches it against a
 database of the icons of known web applications. If there is a match, the name
@@ -32,13 +42,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-require "shortport"
-require "http"
-require "stdnse"
-require "datafiles"
-require "nsedebug"
-require "stdnse"
-stdnse.silent_require "openssl"
 
 portrule = shortport.http
 

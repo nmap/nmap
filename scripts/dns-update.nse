@@ -1,3 +1,9 @@
+local dns = require "dns"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to perform a dynamic DNS update without authentication.
 ]]
@@ -39,8 +45,6 @@ categories = {"discovery", "safe"}
 -- Created 01/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/10/2011 - v0.2 - added test function <patrik@cqure.net>
 
-require 'shortport'
-require 'dns'
 
 portrule = shortport.port_or_service( 53, "dns", "udp", {"open", "open|filtered"} )
 

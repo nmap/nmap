@@ -1,3 +1,10 @@
+local brute = require "brute"
+local creds = require "creds"
+local informix = require "informix"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local table = require "table"
+
 description = [[
 Performs brute force password auditing against IBM Informix Dynamic Server.
 ]]
@@ -30,10 +37,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'brute'
-require 'informix'
-require 'creds'
 
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
 

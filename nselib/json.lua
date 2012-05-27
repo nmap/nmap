@@ -23,24 +23,27 @@
 -- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson 
 -- and fromJson intogenerate() and parse(), implemented more proper numeric parsing and added some more error checking. 
 
-module("json", package.seeall)
-require("bit")
-require("nsedebug")
-	
+local bit = require "bit"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("json", stdnse.seeall)
+
 --Some local shortcuts
 local function dbg(str,...)
-	stdnse.print_debug("Json:"..str, unpack(arg))
+	stdnse.print_debug("Json:"..str, table.unpack(arg))
 end
 local function d4(str,...)
-	if nmap.debugging() > 3 then dbg(str,unpack(arg)) end
+	if nmap.debugging() > 3 then dbg(str,table.unpack(arg)) end
 end
 local function d3(str,...)
-	if nmap.debugging() > 2 then dbg(str,unpack(arg)) end
+	if nmap.debugging() > 2 then dbg(str,table.unpack(arg)) end
 end
 
 --local dbg =stdnse.print_debug
 local function dbg_err(str,...)
-	stdnse.print_debug("json-ERR:"..str, unpack(arg))
+	stdnse.print_debug("json-ERR:"..str, table.unpack(arg))
 end
 
  -- Javascript null representation, see explanation above
@@ -535,3 +538,5 @@ function test()
 		end
 	end
 end
+
+return _ENV;

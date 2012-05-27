@@ -7,7 +7,14 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
-module(... or "mysql", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("mysql", stdnse.seeall)
 
 -- Version 0.3
 --
@@ -567,3 +574,5 @@ function formatResultset(rs, options)
 	
 	return tab.dump(restab)
 end
+
+return _ENV;

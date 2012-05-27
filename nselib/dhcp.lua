@@ -14,12 +14,15 @@
 --   o Added possibility to ovverride transaction id
 --   o Added WPAD action
 
-module(... or "dhcp", package.seeall)
+local bin = require "bin"
+local ipOps = require "ipOps"
+local math = require "math"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("dhcp", stdnse.seeall)
 
-require 'bin'
-require 'bit'
-require 'ipOps'
-require 'stdnse'
 
 request_types = 
 {
@@ -652,3 +655,5 @@ function make_request(target, request_type, ip_address, mac_address, options, re
 	return true, parsed
 end
 
+
+return _ENV;

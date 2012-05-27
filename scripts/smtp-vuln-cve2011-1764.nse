@@ -1,3 +1,10 @@
+local shortport = require "shortport"
+local smtp = require "smtp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local vulns = require "vulns"
+
 description = [[
 Checks for a format string vulnerability in the Exim SMTP server
 (version 4.70 through 4.75) with DomainKeys Identified Mail (DKIM) support
@@ -47,10 +54,6 @@ author = "Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
-require "shortport"
-require "smtp"
-require "stdnse"
-require "vulns"
 
 portrule = function (host, port)
   if port.version.product ~= nil and port.version.product ~= "Exim smtpd" then

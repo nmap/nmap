@@ -5,8 +5,9 @@
 -- <code>nmap.receive_buf</code> function in the Network I/O API (which see).
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "match",  package.seeall)
-require "pcre"
+local pcre = require "pcre"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("match", stdnse.seeall)
 
 --various functions for use with nse's nsock:receive_buf - function
 
@@ -54,3 +55,5 @@ numbytes = function(num)
 	end
 end
 
+
+return _ENV;

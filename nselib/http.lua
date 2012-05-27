@@ -98,16 +98,18 @@
 -- Implement cache system for http pipelines
 --
 
-local coroutine = require "coroutine";
-local table = require "table";
 
-local base64 = require "base64";
-local nmap = require "nmap";
-local url = require "url";
-local stdnse = require "stdnse";
-local comm = require "comm";
-
-module(... or "http",package.seeall)
+local base64 = require "base64"
+local comm = require "comm"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local url = require "url"
+_ENV = stdnse.module("http", stdnse.seeall)
 
 ---Use ssl if we have it
 local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
@@ -1920,7 +1922,7 @@ function can_use_head(host, port, result_404, path)
   end
 
   -- Perform a HEAD request and see what happens.
-  local data = http.head( host, port, path )
+  local data = head( host, port, path )
   if data then
     if data.status and data.status == 302 and data.header and data.header.location then
       stdnse.print_debug(1, "HTTP: Warning: Host returned 302 and not 200 when performing HEAD.")
@@ -2030,7 +2032,7 @@ function identify_404(host, port)
   local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
   local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
 
-  data = http.get(host, port, URL_404_1)
+  data = get(host, port, URL_404_1)
 
   if(data == nil) then
     stdnse.print_debug(1, "HTTP: Failed while testing for 404 status code")
@@ -2048,8 +2050,8 @@ function identify_404(host, port)
     -- Clean up the body (for example, remove the URI). This makes it easier to validate later
     if(data.body) then
       -- Obtain a couple more 404 pages to test different conditions
-      local data2 = http.get(host, port, URL_404_2)
-      local data3 = http.get(host, port, URL_404_3)
+      local data2 = get(host, port, URL_404_2)
+      local data3 = get(host, port, URL_404_3)
       if(data2 == nil or data3 == nil) then
         stdnse.print_debug(1, "HTTP: Failed while testing for extra 404 error messages")
         return false, "Failed while testing for extra 404 error messages"
@@ -2283,7 +2285,7 @@ function parse_url(url)
       result['querystring'] = {}
       local values = stdnse.strsplit('&', result['raw_querystring'])
       for i, v in ipairs(values) do
-        local name, value = unpack(stdnse.strsplit('=', v))
+        local name, value = table.unpack(stdnse.strsplit('=', v))
         result['querystring'][name] = value
       end
     end
@@ -2407,3 +2409,5 @@ local function get_default_timeout( nmap_timing )
   return timeout
 end
 
+
+return _ENV;

@@ -1,3 +1,10 @@
+local http = require "http"
+local json = require "json"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Gets database tables from a CouchDB database.
 
@@ -28,14 +35,11 @@ http://wiki.apache.org/couchdb/HTTP_database_API.
 author = "Martin Holst Swende"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
-require "shortport"
-require "http"
-require "json"
 
 portrule = shortport.port_or_service({5984})
 -- Some lazy shortcuts
 local function dbg(str,...)
-	stdnse.print_debug("couchdb-get-tables:"..str, unpack(arg))
+	stdnse.print_debug("couchdb-get-tables:"..str, table.unpack(arg))
 end
 
 local DISCARD = {}

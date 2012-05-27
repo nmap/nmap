@@ -373,7 +373,7 @@ static int Lpcre_get_flags (lua_State *L) {
 	return get_flags(L, pcre_flags);
 }
 
-static const luaL_reg pcremeta[] = {
+static const luaL_Reg pcremeta[] = {
 	{"exec",       Lpcre_exec},
 	{"match",      Lpcre_match},
 	{"gmatch",     Lpcre_gmatch},
@@ -383,7 +383,7 @@ static const luaL_reg pcremeta[] = {
 };
 
 /* Open the library */
-static const luaL_reg pcrelib[] = {
+static const luaL_Reg pcrelib[] = {
 	{"new",	Lpcre_comp},
 	{"flags", Lpcre_get_flags},
 	{"version", Lpcre_vers},
@@ -394,11 +394,11 @@ LUALIB_API int luaopen_pcrelib(lua_State *L)
 {
 	luaL_newmetatable(L, pcre_handle);
 	lua_pushliteral(L, "__index");
-	lua_pushvalue(L, -2); 
+	luaL_newlib(L, pcremeta);
 	lua_rawset(L, -3);
-    luaL_register(L, NULL, pcremeta);
 	lua_pop(L, 1);
-    luaL_register(L, NSE_PCRELIBNAME, pcrelib);
+
+	luaL_newlib(L, pcrelib);
 	
 	return 1;
 }

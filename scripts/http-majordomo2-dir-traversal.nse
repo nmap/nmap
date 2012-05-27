@@ -1,3 +1,9 @@
+local http = require "http"
+local io = require "io"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Exploits a directory traversal vulnerability existing in Majordomo2 to retrieve remote files. (CVE-2011-0049). 
 
@@ -34,8 +40,6 @@ author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln", "exploit"}
 
-require "http"
-require "shortport"
 
 portrule = shortport.http
 

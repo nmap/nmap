@@ -1,3 +1,11 @@
+local dns = require "dns"
+local http = require "http"
+local io = require "io"
+local ipOps = require "ipOps"
+local stdnse = require "stdnse"
+local string = require "string"
+local target = require "target"
+
 description = [[
 Tries to find hostnames that resolve to the target's IP address by querying the online database at http://www.bfk.de/bfk_dnslogger.html.
 
@@ -39,11 +47,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"external", "discovery", "intrusive"}
 
-require "dns"
-require "ipOps"
-require "http"
-require "stdnse"
-require "target"
 
 local HOSTMAP_SERVER = "www.bfk.de"
 

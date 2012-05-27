@@ -1,3 +1,11 @@
+local coroutine = require "coroutine"
+local dns = require "dns"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Performs IPv6 a quick reverse lookup of an IPv6 network using a technique
 that allows reducing the amount of queries by analyzing DNS server response
@@ -13,7 +21,7 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 
 ---
 -- @usage
--- nmap --script dns-ipv6-arpa-scan --script-args='prefix=2001:0DB8,mask=48'
+-- nmap --script dns-ip6-arpa-scan --script-args='prefix=2001:0DB8,mask=48'
 --
 -- @output
 -- Pre-scan script results:
@@ -29,23 +37,17 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "discovery"}
 
-require 'dns'
-require 'ipOps'
-require 'tab'
 
 local arg_prefix = stdnse.get_script_args(SCRIPT_NAME .. ".prefix")
 local arg_mask = stdnse.get_script_args(SCRIPT_NAME .. ".mask")
 
 prerule = function() return (arg_prefix ~= nil and arg_mask ~= nil) end
 
-local pending = {}
-local result = {}
-
-local function query_prefix(query)
+local function query_prefix(query, result)
 	local condvar = nmap.condvar(result)
 	local status, res = dns.query(query, { dtype='PTR' })
 	if ( not(status) and res == "No Answers") then
-		table.insert(pending, query)
+		table.insert(result, query)
 	elseif ( status ) then
 		local ip = query:sub(1, -10):gsub('%.',''):reverse():gsub('(....)', '%1:'):sub(1, -2)
 		ip = ipOps.bin_to_ip(ipOps.ip_to_bin(ip))
@@ -67,11 +69,12 @@ action = function()
 
 	local i = 20
 
+	local result
 	repeat
-		pending = {}
+		result = {}
 		for _, f in ipairs(found) do
 			for q in ("0123456789abcdef"):gmatch("(%w)") do
-				local co = stdnse.new_thread(query_prefix, q .. "." .. f)
+				local co = stdnse.new_thread(query_prefix, q .. "." .. f, result)
 				threads[co] = true
 			end
 		end
@@ -84,11 +87,11 @@ action = function()
 			end
 		until( next(threads) == nil )
 			
-		if ( 0 == #pending ) then
-			break
+		if ( 0 == #result ) then
+			return
 		end
 				
-		found = pending
+		found = result
 		i = i + 1
 	until( 128 == i * 2 + arg_mask )
 

@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Checks if a NetBus server is vulnerable to an authentication bypass
 vulnerability which allows full access without knowing the password.
@@ -20,9 +24,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "safe", "vuln"}
 
-require("nmap")
-require("stdnse")
-require("shortport")
 
 dependencies = {"netbus-version", "netbus-brute", "netbus-info"}
 

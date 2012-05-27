@@ -1,3 +1,10 @@
+local omp2 = require "omp2"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Attempts to retrieve the list of target systems and networks from an OpenVAS Manager server.
 
@@ -33,11 +40,6 @@ categories = {"discovery", "safe"}
 dependencies = {"omp2-brute"}
 
 
-require("tab")
-require("omp2")
-require("target")
-require("stdnse")
-require("shortport")
 
 
 portrule = shortport.port_or_service(9390, "openvas")
@@ -114,7 +116,7 @@ action = function(host, port)
 
     if target.ALLOW_NEW_TARGETS and targets ~= nil then
       stdnse.print_debug("%s: adding new targets %s", SCRIPT_NAME, stdnse.strjoin(", ", targets))
-      target.add(unpack(targets))
+      target.add(table.unpack(targets))
     end
 
   end

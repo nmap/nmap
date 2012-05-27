@@ -1,3 +1,12 @@
+local creds = require "creds"
+local http = require "http"
+local json = require "json"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Obtains information from a Bitcoin server by calling <code>getinfo</code> on its JSON-RPC interface.
 ]]
@@ -27,10 +36,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"http-brute"}
 
-require 'http'
-require 'shortport'
-require 'json'
-require 'creds'
 
 portrule = shortport.portnumber(8332)
 

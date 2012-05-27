@@ -1,3 +1,9 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Retrieves the authentication scheme and realm of a web service that requires
 authentication.
@@ -35,8 +41,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "auth", "safe"}
 
-require "shortport"
-require "http"
 
 portrule = shortport.http
 

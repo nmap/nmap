@@ -1,3 +1,10 @@
+local brute = require "brute"
+local coroutine = require "coroutine"
+local creds = require "creds"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local xmpp = require "xmpp"
+
 description = [[
 Performs brute force password auditing against XMPP (Jabber) instant messaging servers.
 ]]
@@ -26,9 +33,6 @@ Performs brute force password auditing against XMPP (Jabber) instant messaging s
 -- Version 0.1
 -- Created 07/21/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-require 'brute'
-require 'shortport'
-require 'xmpp'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

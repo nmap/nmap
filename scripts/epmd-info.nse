@@ -1,3 +1,10 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes with their respective port numbers.
 ]]
@@ -17,8 +24,6 @@ Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes with 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
-require "shortport"
-require "bin"
 
 portrule = shortport.port_or_service (4369, "epmd")
 

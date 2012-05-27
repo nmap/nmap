@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local vulns = require "vulns"
+
 description = [[
 Detects and exploits a remote code execution vulnerability in the distributed
 compiler daemon distcc. The vulnerability was disclosed in 2002, but is still
@@ -39,8 +44,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "vuln"}
 
-local shortport = require('shortport')
-local vulns     = require('vulns')
 
 portrule = shortport.port_or_service(3632, "distcc")
 

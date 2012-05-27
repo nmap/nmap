@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Lists files and directories at the root of a gopher service.
 ]]
@@ -22,9 +28,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require("nmap")
-require("stdnse")
-require("shortport")
 
 portrule = shortport.port_or_service (70, "gopher", {"tcp"})
 

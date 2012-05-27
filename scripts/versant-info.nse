@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local versant = require "versant"
+
 description = [[
 Extracts information, including file paths, version and database names from
 a Versant object database.
@@ -31,8 +37,6 @@ a Versant object database.
 -- |_      Version: 8.0.2
 --
 
-require 'shortport'
-require 'versant'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

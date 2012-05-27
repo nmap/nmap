@@ -1,3 +1,9 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Performs a GET request for the root folder ("/") of a web server and displays the HTTP headers returned. 
 ]]
@@ -28,8 +34,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
-require "shortport"
-require "http"
 
 portrule = shortport.http
 

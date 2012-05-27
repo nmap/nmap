@@ -1,3 +1,7 @@
+local srvloc = require "srvloc"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Discovers Versant object databases using the srvloc protocol.
 ]]
@@ -17,7 +21,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'srvloc'
 
 prerule = function() return true end
 

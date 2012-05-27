@@ -1,3 +1,10 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description=[[
 Performs brute force password auditing against a Nessus vulnerability scanning daemon using the XMLRPC protocol.
 ]]
@@ -20,9 +27,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
-require "shortport"
-require "brute"
-require "comm"
 
 portrule = shortport.port_or_service(8834, "ssl/http", "tcp")
 

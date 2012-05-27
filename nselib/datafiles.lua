@@ -10,9 +10,11 @@
 -- @author jah 08/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "datafiles", package.seeall)
-
+local io = require "io"
+local nmap = require "nmap"
 local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("datafiles", stdnse.seeall)
 
 
 ---
@@ -167,7 +169,7 @@ function parse_file(filename, ...)
     if not status then return false, ret[#ret] end
   end
 
-  return true, unpack( ret )
+  return true, table.unpack( ret )
 
 end
 
@@ -305,3 +307,5 @@ get_assoc_array = function(lines, i_pattern, v_pattern)
   end
   return ret
 end
+
+return _ENV;

@@ -1,3 +1,7 @@
+local smb = require "smb"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Exhausts a remote SMB server's connection limit by by opening as many
 connections as we can.  Most implementations of SMB have a hard global
@@ -32,8 +36,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive","dos"}
 dependencies = {"smb-brute"}
 
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

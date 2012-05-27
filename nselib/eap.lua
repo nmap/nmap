@@ -31,14 +31,15 @@
 -- @author "Riccardo Cecolin <n@rikiji.de>"
 --
 
-module(... or "eap", package.seeall)
+local bin = require "bin"
+local math = require "math"
+local nmap = require "nmap"
+local package = require "package"
+local packet = require "packet"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("eap", stdnse.seeall)
 
 -- Created 02/23/2012 - v0.1
-
-require 'nmap'
-require 'packet'
-require 'bin'
-
 
 local ETHER_BROADCAST = "01:80:c2:00:00:03"
 local ETHER_TYPE_EAPOL_N = 0x888E
@@ -246,7 +247,7 @@ send_identity_response = function (iface, id, identity)
 	end	
 
 	local dnet = nmap.new_dnet()		   
-	local tb = {src = iface.mac, type = eap.eapol_t.PACKET}
+	local tb = {src = iface.mac, type = eapol_t.PACKET}
 	local response = make_eap{header = tb, code = code_t.RESPONSE, type = eap_t.IDENTITY, id = id, payload = identity}
 
 	dnet:ethernet_open(iface.device)
@@ -262,7 +263,7 @@ send_nak_response = function (iface, id, auth)
 	end	
 
 	local dnet = nmap.new_dnet()		   
-	local tb = {src = iface.mac, type = eap.eapol_t.PACKET}
+	local tb = {src = iface.mac, type = eapol_t.PACKET}
 	local response = make_eap{header = tb, code = code_t.RESPONSE, type = eap_t.NAK, id = id, payload = bin.pack("C",auth)}
 
 	dnet:ethernet_open(iface.device)
@@ -279,10 +280,12 @@ send_start = function (iface)
 	end
 
 	local dnet = nmap.new_dnet()
-	local start = make_eapol{type = eap.eapol_t.START, src = iface.mac}   
+	local start = make_eapol{type = eapol_t.START, src = iface.mac}   
 
 	dnet:ethernet_open(iface.device)
 	dnet:ethernet_send(start)
 	dnet:ethernet_close()
 		
 end
+
+return _ENV;

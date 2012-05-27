@@ -1,3 +1,10 @@
+local brute = require "brute"
+local comm = require "comm"
+local nmap = require "nmap"
+local pop3 = require "pop3"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Tries to log into a POP3 account by guessing usernames and passwords.
 ]]
@@ -20,11 +27,6 @@ author = "Philip Pickering, Piotr Olma"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
-
-require 'pop3'
-require 'shortport'
-require 'brute'
-
 
 Driver = {
   new = function(self, host, port, login_function, is_apop)

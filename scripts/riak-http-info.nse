@@ -1,3 +1,9 @@
+local http = require "http"
+local json = require "json"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Retrieves information (such as node name and architecture) from a Basho Riak distributed database using the HTTP protocol.
 ]]
@@ -47,10 +53,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'http'
-require 'json'
-require 'shortport'
-require 'tab'
 
 portrule = shortport.port_or_service(8098, "http")
 

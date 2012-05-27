@@ -1,3 +1,10 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Retrieves information from an Apache HBase (Hadoop database) region server HTTP status page.
 
@@ -34,9 +41,6 @@ author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"default", "discovery", "safe"}
 
-require ("shortport")
-require ("http")
-require ("target")
 
 portrule = function(host, port)
 	-- Run for the special port number, or for any HTTP-like service that is

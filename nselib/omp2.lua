@@ -28,10 +28,10 @@
 -- @args omp2.password The password to use for authentication.
 --
 
-module(... or "omp2", package.seeall)
-
-require("stdnse")
-require("nmap")
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("omp2", stdnse.seeall)
 
 local HAVE_SSL = false
 
@@ -177,3 +177,5 @@ function get_accounts(host)
   return nil
 end
 
+
+return _ENV;

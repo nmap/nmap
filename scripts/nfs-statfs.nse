@@ -1,3 +1,10 @@
+local rpc = require "rpc"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Retrieves disk space statistics and information from a remote NFS share.
 The output is intended to resemble the output of <code>df</code>.
@@ -30,10 +37,6 @@ author = "Patrik Karlsson, Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require("stdnse")
-require("shortport")
-require("rpc")
-require("tab")
 
 portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 

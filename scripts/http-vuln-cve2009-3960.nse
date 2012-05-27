@@ -1,3 +1,10 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local vulns = require "vulns"
+
 description = [[
 Exploits cve-2009-3960 also known as Adobe XML External Entity Injection.
 
@@ -52,10 +59,6 @@ author = "Hani Benhabiles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive"}
 
-require 'http'
-require 'stdnse'
-require 'shortport'
-require 'vulns'
 
 portrule = shortport.http
 

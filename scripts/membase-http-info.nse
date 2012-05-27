@@ -1,3 +1,10 @@
+local _G = require "_G"
+local http = require "http"
+local json = require "json"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Retrieves information (hostname, OS, uptime, etc.) from the CouchBase
 Web Administration port.  The information retrieved by this script
@@ -32,10 +39,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'http'
-require 'json'
-require 'shortport'
-require 'tab'
 
 portrule = shortport.port_or_service(8091, "http", "tcp")
 
@@ -97,8 +100,8 @@ local function cmdReq(host, port, url, result)
 		local var, val = ""
 		for x in item:gmatch("(.-%])") do
 			var = var .. x
-			local func = loadstring("return " .. var)
-			setfenv(func, setmetatable({ parsed=parsed }, {__index = _G}))
+			local env = setmetatable({parsed=parsed}, {__index = _G})
+			local func = load("return " .. var, nil, "t", env)
 
 			if ( not(func()) ) then
 				val = nil

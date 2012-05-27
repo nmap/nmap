@@ -1,3 +1,8 @@
+local rpc = require "rpc"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Shows NFS exports, like the <code>showmount -e</code> command.
 ]]
@@ -26,9 +31,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require("stdnse")
-require("shortport")
-require("rpc")
 
 portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 

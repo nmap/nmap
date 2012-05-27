@@ -1,3 +1,9 @@
+local mssql = require "mssql"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
 
@@ -79,9 +85,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 
-require 'shortport'
-require 'stdnse'
-require 'mssql'
 
 dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 

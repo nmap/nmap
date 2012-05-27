@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Extends version detection to detect NetBuster, a honeypot service
 that mimes NetBus.
@@ -14,9 +18,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
-require("nmap")
-require("stdnse")
-require("shortport")
 
 portrule = shortport.version_port_or_service ({}, "netbus", {"tcp"})
 

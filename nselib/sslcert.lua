@@ -8,9 +8,11 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
-module(... or "sslcert", package.seeall)
-
-require("xmpp")
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local xmpp = require "xmpp"
+_ENV = stdnse.module("sslcert", stdnse.seeall)
 
 StartTLS = {
 	
@@ -207,3 +209,5 @@ function getCertificate(host, port)
 end
 
 
+
+return _ENV;

@@ -111,7 +111,15 @@
 -- Revised 04/03/2011 - v0.6 - add support for getting file- sizes, dates and Unix ACLs
 --							 - moved afp.username & afp.password arguments to library
 
-module(... or "afp",package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("afp", stdnse.seeall);
 
 local HAVE_SSL = false
 
@@ -805,7 +813,7 @@ Proto = {
 		local data_offset = 0
 		local flags = 1 -- Default User
 		local uid = 0
-		local bitmap = afp.USER_BITMAP.UserId
+		local bitmap = USER_BITMAP.UserId
 		local result = {}
 
 		local data = bin.pack( "CCI>S", COMMAND.FPGetUserInfo, flags, uid, bitmap )
@@ -1359,7 +1367,7 @@ Helper = {
 			return false, "Socket connection failed"
 		end
 		
-		self.proto = afp.Proto:new( { socket=self.socket} )
+		self.proto = Proto:new( { socket=self.socket} )
 		response = self.proto:dsi_open_session(self.socket)
 		
 		if response:getErrorCode() ~= ERROR.FPNoErr then
@@ -1432,11 +1440,11 @@ Helper = {
 	WalkDirTree = function( self, str_path )
 		local status, response, path
 		local elements = stdnse.strsplit( "/", str_path )
-		local f_bm = afp.FILE_BITMAP.NodeId + afp.FILE_BITMAP.ParentDirId + afp.FILE_BITMAP.LongName
-		local d_bm = afp.DIR_BITMAP.NodeId + afp.DIR_BITMAP.ParentDirId + afp.DIR_BITMAP.LongName
+		local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
+		local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
 		local item = { DirectoryId = 2 }
 
-		response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, elements[1] )
+		response = self.proto:fp_open_vol( VOL_BITMAP.ID, elements[1] )
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
@@ -1445,7 +1453,7 @@ Helper = {
 		item.DirectoryName = str_path
 
 		for i=2, #elements do
-			path = { ['type']=afp.PATH_TYPE.LongName, name=elements[i], len=elements[i]:len() }
+			path = { ['type']=PATH_TYPE.LongName, name=elements[i], len=elements[i]:len() }
 			response = self.proto:fp_get_file_dir_parms( item.VolumeId, item.DirectoryId, f_bm, d_bm, path )
 			if response:getErrorCode() ~= ERROR.FPNoErr then
 				return false, response:getErrorMessage()
@@ -1476,9 +1484,9 @@ Helper = {
 		vol_id = response.VolumeId
 		did = response.DirectoryId
 								
-		path = { ['type']=afp.PATH_TYPE.LongName, name=p.file, len=p.file:len() }
+		path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
 			
-		response = self.proto:fp_open_fork(0, vol_id, did, 0, afp.ACCESS_MODE.Read, path )
+		response = self.proto:fp_open_fork(0, vol_id, did, 0, ACCESS_MODE.Read, path )
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
@@ -1523,7 +1531,7 @@ Helper = {
 			return false, response
 		end
 	
-		path = { ['type']=afp.PATH_TYPE.LongName, name=p.file, len=p.file:len() }
+		path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
 
 		status, response = self.proto:fp_create_file( 0, vol_id, did, path )
 		if not status then
@@ -1532,7 +1540,7 @@ Helper = {
 			end
 		end
 
-		response = self.proto:fp_open_fork( 0, vol_id, did, 0, afp.ACCESS_MODE.Write, path )
+		response = self.proto:fp_open_fork( 0, vol_id, did, 0, ACCESS_MODE.Write, path )
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
@@ -1601,9 +1609,9 @@ Helper = {
 		local depth = depth or 1
 		local options = options or { max_depth = 1 }
 		local response, records
-		local f_bm = afp.FILE_BITMAP.NodeId + afp.FILE_BITMAP.ParentDirId + afp.FILE_BITMAP.LongName
-		local d_bm = afp.DIR_BITMAP.NodeId + afp.DIR_BITMAP.ParentDirId + afp.DIR_BITMAP.LongName
-		local path = { ['type']=afp.PATH_TYPE.LongName, name="", len=0 }
+		local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
+		local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
+		local path = { ['type']=PATH_TYPE.LongName, name="", len=0 }
 		
 		local TYPE_DIR = 0x80
 		
@@ -1685,14 +1693,14 @@ Helper = {
 	GetSharePermissions = function( self, vol_name )
 		local status, response, vol_id, acls
 		
-		response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+		response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
 
 		if response:getErrorCode() == ERROR.FPNoErr then
 			local vol_id
 			local path = {}
 			
 			vol_id = response.result.volume_id			
-			path.type = afp.PATH_TYPE.LongName
+			path.type = PATH_TYPE.LongName
 			path.name = ""
 			path.len = path.name:len()
 				
@@ -1720,14 +1728,14 @@ Helper = {
 	--						 eg: drwx------
 	-- @return err string (on failure) containing the error message
 	GetFileUnixPermissions = function(self, vol_name, str_path)
-		local response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+		local response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
 		
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
 		
 		local vol_id = response.result.volume_id
-		local path = { type = afp.PATH_TYPE.LongName, name = str_path, len = #str_path }
+		local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
 		response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.UnixPrivileges, DIR_BITMAP.UnixPrivileges, path )
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
@@ -1752,14 +1760,14 @@ Helper = {
 	-- @return size containing the size of the file in bytes
 	-- @return err string (on failure) containing the error message
 	GetFileSize = function( self, vol_name, str_path )
-		local response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+		local response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
 		
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
 		
 		local vol_id = response.result.volume_id
-		local path = { type = afp.PATH_TYPE.LongName, name = str_path, len = #str_path }
+		local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
 		response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.ExtendedDataForkSize, 0, path )
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
@@ -1781,14 +1789,14 @@ Helper = {
 	--	<code>backup</code> - Date of last backup
 	-- @return err string (on failure) containing the error message
 	GetFileDates = function( self, vol_name, str_path )
-		local response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+		local response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
 	
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
 	
 		local vol_id = response.result.volume_id
-		local path = { type = afp.PATH_TYPE.LongName, name = str_path, len = #str_path }
+		local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
 		local f_bm = FILE_BITMAP.CreationDate + FILE_BITMAP.ModificationDate + FILE_BITMAP.BackupDate
 		local d_bm = DIR_BITMAP.CreationDate + DIR_BITMAP.ModificationDate + DIR_BITMAP.BackupDate
 		response = self.proto:fp_get_file_dir_parms( vol_id, 2, f_bm, d_bm, path )
@@ -1814,7 +1822,7 @@ Helper = {
 	CreateDir = function( self, str_path )
 		local status, response, vol_id, did 
 		local p = Util.SplitPath( str_path )
-		local path = { ['type']=afp.PATH_TYPE.LongName, name=p.file, len=p.file:len() }
+		local path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
 		
 	
 		status, response = self:WalkDirTree( p.dir )
@@ -1881,15 +1889,15 @@ Util =
 
 		local acl_table = {}
 
-		if bit.band( acls, afp.ACLS.OwnerSearch ) == afp.ACLS.OwnerSearch then
+		if bit.band( acls, ACLS.OwnerSearch ) == ACLS.OwnerSearch then
 			table.insert( acl_table, "Search")
 		end 
 
-		if bit.band( acls, afp.ACLS.OwnerRead ) == afp.ACLS.OwnerRead then
+		if bit.band( acls, ACLS.OwnerRead ) == ACLS.OwnerRead then
 			table.insert( acl_table, "Read")
 		end
 
-		if bit.band( acls, afp.ACLS.OwnerWrite ) == afp.ACLS.OwnerWrite then
+		if bit.band( acls, ACLS.OwnerWrite ) == ACLS.OwnerWrite then
 			table.insert( acl_table, "Write")
 		end
 
@@ -1908,8 +1916,8 @@ Util =
 		local everyone = Util.acl_group_to_long_string( bit.band( bit.rshift(acls, 16), 255 ) )
 		local user = Util.acl_group_to_long_string( bit.band( bit.rshift(acls, 24), 255 ) )
 
-		local blank = bit.band( acls, afp.ACLS.BlankAccess ) == afp.ACLS.BlankAccess and "Blank" or nil
-		local isowner = bit.band( acls, afp.ACLS.UserIsOwner ) == afp.ACLS.UserIsOwner and "IsOwner" or nil
+		local blank = bit.band( acls, ACLS.BlankAccess ) == ACLS.BlankAccess and "Blank" or nil
+		local isowner = bit.band( acls, ACLS.UserIsOwner ) == ACLS.UserIsOwner and "IsOwner" or nil
 
 		local options = {}
 
@@ -2111,3 +2119,5 @@ Util =
 
 
 
+
+return _ENV;

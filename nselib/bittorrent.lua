@@ -88,15 +88,20 @@
 -- structure is not supported by Lua, so I had to use lists to represent
 -- the dictionaries as well which made accessing the keys a bit quirky
 
-module(... or "bittorrent", package.seeall)
-
-require "nmap"
-require "stdnse"
-require "http"
-require "openssl"
-require "url"
-require "bit"
-require "bin"
+local bin = require "bin"
+local bit = require "bit"
+local coroutine = require "coroutine"
+local http = require "http"
+local io = require "io"
+local math = require "math"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local url = require "url"
+_ENV = stdnse.module("bittorrent", stdnse.seeall)
 
 --- Given a buffer and a starting position in the buffer, this function decodes
 -- a bencoded string there and returns it as a normal lua string, as well as 
@@ -1237,3 +1242,5 @@ Torrent =
 }
 
 
+
+return _ENV;

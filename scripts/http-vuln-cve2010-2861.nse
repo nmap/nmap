@@ -1,3 +1,12 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local vulns = require "vulns"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Executes a directory traversal attack against a ColdFusion
 server and tries to grab the password hash for the administrator user. It
@@ -45,12 +54,6 @@ author = "Micah Hoffman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
-require("http")
-require("shortport")
-require("tab")
-require("vulns")
-require("stdnse")
-stdnse.silent_require("openssl")
 
 portrule = shortport.http
 

@@ -17,9 +17,12 @@
 --
 
 
-require 'http'
 
-module(... or "citrixxml",package.seeall)
+local http = require "http"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("citrixxml", stdnse.seeall)
 
 --- Decodes html-entities to chars eg. &#32; => <space>
 -- 
@@ -35,7 +38,7 @@ function decode_xml_document(xmldata)
 	
 	local newstr = xmldata
 	
-	for m in xmldata:gmatch("(\&\#%d+;)") do
+	for m in xmldata:gmatch("(&#%d+;)") do
 		hexval = m:match("(%d+)")
 		
 		if ( hexval ) then
@@ -96,7 +99,7 @@ function parse_server_farm_data_response( response )
 	local farms = {}
 	
 	response = response:gsub("\r?\n","")
-	for farm in response:gmatch("<ServerFarmName.->([^\<]+)</ServerFarmName>") do
+	for farm in response:gmatch("<ServerFarmName.->([^<]+)</ServerFarmName>") do
 		table.insert(farms, farm)
 	end
 		
@@ -333,7 +336,7 @@ function parse_server_data_response(response)
 	local servers = {}
 	
 	response = response:gsub("\r?\n","")	
-	for s in response:gmatch("<ServerName>([^\<]+)</ServerName>") do
+	for s in response:gmatch("<ServerName>([^<]+)</ServerName>") do
 		table.insert(servers, s)
 	end
 		
@@ -403,7 +406,7 @@ function parse_capabilities_response(response)
 	local servers = {}
 	
 	response = response:gsub("\r?\n","")	
-	for s in response:gmatch("<CapabilityId.->([^\<]+)</CapabilityId>") do
+	for s in response:gmatch("<CapabilityId.->([^<]+)</CapabilityId>") do
 		table.insert(servers, s)
 	end
 		
@@ -532,3 +535,5 @@ function request_reconnect_session_data(host, port, params)
 	
 	
 end
+
+return _ENV;

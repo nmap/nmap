@@ -1,3 +1,12 @@
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Discovers servers supporting the ATA over Ethernet protocol. ATA over Ethernet
 is an ethernet protocol developed by the Brantley Coile Company and allows for
@@ -22,8 +31,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'packet'
-require 'bit'
 
 prerule = function() return true end
 

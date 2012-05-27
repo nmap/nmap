@@ -1,3 +1,6 @@
+local dnssd = require "dnssd"
+local stdnse = require "stdnse"
+
 description=[[ 
 Attempts to discover hosts' services using the DNS Service Discovery protocol.  It sends a multicast DNS-SD query and collects all the responses.
 
@@ -40,8 +43,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'shortport'
-require 'dnssd'
 
 prerule = function() return true end
 

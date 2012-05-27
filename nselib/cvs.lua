@@ -9,7 +9,11 @@
 -- Created 07/13/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 
-module(... or "cvs", package.seeall)
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("cvs", stdnse.seeall)
 
 
 Helper = {
@@ -90,3 +94,5 @@ Util = {
 	end
 	
 }
+
+return _ENV;

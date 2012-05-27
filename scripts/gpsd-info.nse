@@ -1,3 +1,9 @@
+local gps = require "gps"
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Retrieves GPS time, coordinates and speed from the GPSD network daemon.
 ]]
@@ -20,10 +26,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local shortport = require 'shortport'
-local gps       = require 'gps'
-local json      = require 'json'
-local match     = require 'match'
 
 portrule = shortport.port_or_service(2947, "gpsd-ng", "tcp")
 

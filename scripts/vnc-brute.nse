@@ -1,3 +1,9 @@
+local brute = require "brute"
+local creds = require "creds"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local vnc = require "vnc"
+
 description = [[
 Performs brute force password auditing against VNC servers.
 ]]
@@ -29,10 +35,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'brute'
-require 'vnc'
-require 'creds'
 
 portrule = shortport.port_or_service(5901, "vnc", "tcp", "open")
 

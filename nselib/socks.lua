@@ -4,7 +4,11 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
-module(... or "socks", package.seeall)
+local bin = require "bin"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+_ENV = stdnse.module("socks", stdnse.seeall)
 
 -- SOCKS Authentication methods
 AuthMethod = {
@@ -351,3 +355,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

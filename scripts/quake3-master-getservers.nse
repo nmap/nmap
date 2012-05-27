@@ -1,3 +1,11 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Queries Quake3-style master servers for game servers (many games other than Quake 3 use this same protocol).
 ]]
@@ -19,10 +27,6 @@ Queries Quake3-style master servers for game servers (many games other than Quak
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
-require "datafiles"
-require "shortport"
-require "bin"
-require "tab"
 
 portrule = shortport.port_or_service ({20110, 20510, 27950, 30710}, "quake3-master", {"udp"})
 postrule = function()

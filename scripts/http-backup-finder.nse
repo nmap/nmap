@@ -1,3 +1,11 @@
+local coroutine = require "coroutine"
+local http = require "http"
+local httpspider = require "httpspider"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Spiders a website and attempts to identify backup copies of discovered files.
 It does so by requesting a number of different combinations of the filename (eg. index.bak, index.html~, copy of index.html).
@@ -35,9 +43,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'httpspider'
-require 'shortport'
-require 'url'
 
 portrule = shortport.http
 

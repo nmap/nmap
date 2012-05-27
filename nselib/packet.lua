@@ -4,10 +4,12 @@
 -- @author Marek Majkowski <majek04+nse@gmail.com>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "packet" ,package.seeall)
-
 local bit = require "bit"
+local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("packet", stdnse.seeall)
 
 
 ----------------------------------------------------------------------------------------------------------------
@@ -1166,3 +1168,5 @@ function Packet:udp_count_checksum()
 	self:udp_set_checksum(in_cksum(b))
 end
 
+
+return _ENV;

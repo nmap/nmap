@@ -1,3 +1,8 @@
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function and
 retrieve more information about them using <code>srvsvc.NetShareGetInfo</code>. If access
@@ -59,9 +64,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive"}
 dependencies = {"smb-brute"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

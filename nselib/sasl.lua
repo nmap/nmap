@@ -41,13 +41,15 @@
 -- Revised 07/18/2011 - v0.2 - 	Added NTLM, DIGEST-MD5 classes
 
 
-module(... or "sasl", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local openssl = require "openssl"
+local smbauth = require "smbauth"
+local stdnse = require "stdnse"
+local string = require "string"
+_ENV = stdnse.module("sasl", stdnse.seeall)
 
 local HAVE_SSL = false
-
-require 'stdnse'
-require 'base64'
-require 'smbauth'
 
 local MECHANISMS = { }
 
@@ -430,3 +432,5 @@ Helper = {
     return self.callback(...)
   end,
 }
+
+return _ENV;

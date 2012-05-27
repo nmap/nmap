@@ -1,3 +1,11 @@
+local coroutine = require "coroutine"
+local io = require "io"
+local nmap = require "nmap"
+local rtsp = require "rtsp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to enumerate RTSP media URLS by testing for common paths on devices such as surveillance IP cameras.
 ]]
@@ -29,8 +37,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-require 'rtsp'
-require 'shortport'
 
 portrule = shortport.port_or_service(554, "rtsp", "tcp", "open")
 

@@ -3,14 +3,16 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "pop3",package.seeall)
+local base64 = require "base64"
+local comm = require "comm"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("pop3", stdnse.seeall)
 
 local HAVE_SSL = false
-
-require 'base64'
-require 'bit'
-require 'stdnse'
-require 'comm'
 
 if pcall(require,'openssl') then
   HAVE_SSL = true
@@ -229,3 +231,5 @@ if not HAVE_SSL then
   login_sasl_crammd5 = no_ssl
 end
 
+
+return _ENV;

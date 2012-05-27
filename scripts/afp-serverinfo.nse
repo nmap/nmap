@@ -1,3 +1,10 @@
+local afp = require "afp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Shows AFP server information. This information includes the server's
 hostname, IPv4 and IPv6 addresses, and hardware type (for example
@@ -41,10 +48,6 @@ author = "Andrew Orr"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require 'shortport'
-require 'stdnse'
-require 'afp'
-require 'bit'
 
 portrule = shortport.portnumber(548, "tcp")
 

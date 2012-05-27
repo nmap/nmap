@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local rpcap = require "rpcap"
+local shortport = require "shortport"
+
 description = [[
 Performs brute force password auditing against the WinPcap Remote Capture
 Daemon (rpcap).
@@ -18,9 +23,6 @@ Daemon (rpcap).
 --
 --
 
-require 'brute'
-require 'rpcap'
-require 'shortport'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

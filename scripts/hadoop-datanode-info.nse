@@ -1,3 +1,9 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Discovers information such as log directories from an Apache Hadoop DataNode HTTP status page.
 
@@ -26,8 +32,6 @@ author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"default", "discovery", "safe"}
 
-require ("shortport")
-require ("http")
 
 portrule = function(host, port)
 	-- Run for the special port number, or for any HTTP-like service that is

@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Runs a console command on the Lotus Domino Console using the given authentication credentials (see also: domcon-brute)
 ]]
@@ -54,7 +59,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
-require 'shortport'
 
 portrule = shortport.port_or_service(2050, "dominoconsole", "tcp", "open")
 

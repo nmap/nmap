@@ -1,3 +1,8 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Checks if a web server is vulnerable to directory traversal by attempting to
 retrieve <code>/etc/passwd</code> or <code>\boot.ini</code>.
@@ -61,9 +66,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "vuln"}
 
-require "http"
-require "shortport"
-require "stdnse"
 
 --- Validates the HTTP response code and checks for a <code>valid</code> passwd
 -- or Windows Boot Loader format in the body.

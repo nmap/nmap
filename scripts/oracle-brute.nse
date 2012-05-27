@@ -1,3 +1,14 @@
+local brute = require "brute"
+local coroutine = require "coroutine"
+local creds = require "creds"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tns = require "tns"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Performs brute force password auditing against Oracle servers.
 
@@ -57,12 +68,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'brute'
-require 'stdnse'
-stdnse.silent_require 'openssl'
-require 'tns'
-require 'creds'
 
 portrule = shortport.port_or_service(1521, "oracle-tns", "tcp", "open")
 

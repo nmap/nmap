@@ -1,3 +1,9 @@
+local shortport = require "shortport"
+local sip = require "sip"
+local stdnse = require "stdnse"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to enumerate valid user account using SIP (Session Initiation
 Protocol - http://en.wikipedia.org/wiki/Session_Initiation_Protocol).
@@ -28,9 +34,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
-require "shortport"
-require "sip"
-require "unpwdb"
 
 portrule = shortport.port_or_service(5060, "sip", "udp")
 

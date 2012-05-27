@@ -1,3 +1,9 @@
+local creds = require "creds"
+local redis = require "redis"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Retrieves information (such as version number and architecture) from a Redis key-value store.
 ]]
@@ -26,10 +32,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"redis-brute"}
 
-require 'creds'
-require 'redis'
-require 'shortport'
-require 'tab'
 
 portrule = shortport.port_or_service(6379, "redis-server")
 

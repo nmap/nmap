@@ -1,3 +1,11 @@
+local dhcp = require "dhcp"
+local math = require "math"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Sends a DHCPINFORM request to a host on UDP port 67 to obtain all the local configuration parameters
 without allocating a new address.
@@ -59,11 +67,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
-require 'bin'
-require 'bit'
-require 'dhcp'
-require 'shortport'
-require 'stdnse'
 
 -- We want to run against a specific host if UDP/67 is open
 function portrule(host, port)

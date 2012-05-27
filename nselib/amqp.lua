@@ -23,10 +23,13 @@
 
 -- Created 05/04/2011 - v0.1 - created by Sebastian Dragomir <velorien@gmail.com>
 
-module(... or "amqp", package.seeall)
+local bin = require "bin"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("amqp", stdnse.seeall);
 
-require "bin"
-require "stdnse"
 
 AMQP = {
 
@@ -396,3 +399,5 @@ AMQPSocket =
     return self.Socket:send( data )
   end,
 }
+
+return _ENV;

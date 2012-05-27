@@ -7,11 +7,13 @@
 --
 
 
-module(... or "membase", package.seeall)
-
-require 'match'
-require 'sasl'
-
+local bin = require "bin"
+local match = require "match"
+local nmap = require "nmap"
+local sasl = require "sasl"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("membase", stdnse.seeall)
 
 -- A minimalistic implementation of the Couchbase Membase TAP protocol
 TAP = {
@@ -116,7 +118,7 @@ TAP = {
 			__tostring = function(self)
 				if ( self.mech == "PLAIN" ) then
 					local mech_params = { self.username, self.password }
-					local auth_data = sasl.Helper:new(self.mech):encode(unpack(mech_params))
+					local auth_data = sasl.Helper:new(self.mech):encode(table.unpack(mech_params))
 					
 					self.header.keylen = #self.mech
 					self.header.total_body = #auth_data + #self.mech
@@ -328,3 +330,5 @@ Helper = {
 }
 
 
+
+return _ENV;

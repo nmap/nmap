@@ -1,3 +1,14 @@
+local _G = require "_G"
+local bit = require "bit"
+local io = require "io"
+local math = require "math"
+local msrpc = require "msrpc"
+local nmap = require "nmap"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Implements remote process execution similar to the Sysinternals' psexec tool, 
 allowing a user to run a series of programs on a remote machine and read the output. This
@@ -407,10 +418,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 dependencies = {"smb-brute"}
 
-require 'bit'
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 
 -- Where we tell the user to get nmap_service.exe if it's not installed.
@@ -661,7 +668,6 @@ end
 --@param config A table to fill with configuration values.
 --@return status true or false
 --@return config The configuration table or an error message. 
---require 'nsedebug'
 local function get_config(host, config)
 	local status
 	local filename = nmap.registry.args.config
@@ -675,17 +681,17 @@ local function get_config(host, config)
 	end
 
 	-- Load the config file
+	local env = setmetatable({modules = {}; overrides = {}; module = function() stdnse.print_debug(1, "WARNING: Selected config file contains an unnecessary call to module()") end}, {__index = _G})
 	stdnse.print_debug(1, "smb-psexec: Attempting to load config file: %s", filename)
-	local file = loadfile(filename)
+	local file = loadfile(filename, "t", env)
 	if(not(file)) then
 		return false, "Couldn't load module file:\n" .. filename
 	end
 
 	-- Run the config file
-	setfenv(file, setmetatable({modules = {}; overrides = {}; module = function() stdnse.print_debug(1, "WARNING: Selected config file contains an unnecessary call to module()") end}, {__index = _G}))
 	file()
-	local modules = getfenv(file)["modules"]
-	local overrides = getfenv(file)["overrides"]
+	local modules = env.modules
+	local overrides = env.overrides
 
 	-- Generate a cipher key
 	if(stdnse.get_script_args( "nocipher" )) then

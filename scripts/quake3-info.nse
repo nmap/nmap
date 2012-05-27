@@ -1,3 +1,11 @@
+local bin = require "bin"
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Extracts information from a Quake3 game server and other games which use the same protocol.
 ]]
@@ -59,10 +67,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe", "version"}
 
-require "shortport"
-require "stdnse"
-require "comm"
-require "bin"
 
 local function range(first, last)
 	local list = {}

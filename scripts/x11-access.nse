@@ -1,3 +1,6 @@
+local nmap = require "nmap"
+local string = require "string"
+
 -- NSE x11-access v1.3
 
 description = [[

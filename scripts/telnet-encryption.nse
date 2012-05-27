@@ -1,3 +1,8 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local table = require "table"
+
 description = [[
 Determines whether the encryption option is supported on a remote telnet server.  Some systems (including FreeBSD and the krb5 telnetd available in many Linux distributions) implement this option incorrectly, leading to a remote root vulnerability. This script currently only tests whether encryption is supported, not for that particular vulnerability. 
 
@@ -21,7 +26,6 @@ References:
 
 categories = {"safe", "discovery"}
 
-require 'shortport'
 
 portrule = shortport.port_or_service(23, 'telnet')
 

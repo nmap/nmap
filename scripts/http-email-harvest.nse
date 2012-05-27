@@ -1,3 +1,8 @@
+local httpspider = require "httpspider"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Spiders a web site and collects e-mail addresses.
 ]]
@@ -32,8 +37,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "httpspider"
-require "shortport"
 
 portrule = shortport.http
 

@@ -1,3 +1,9 @@
+local dns = require "dns"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Detects whether the remote device has ip forwarding or "Internet connection
 sharing" enabled, by sending an ICMP echo request to a given target using
@@ -38,10 +44,6 @@ hostrule = function(host)
 	return (arg_target ~= nil and host.mac_addr ~= nil)
 end
 
-local dns    = require('dns')
-local ipops  = require('ipOps')
-local tab    = require('tab')
-local packet = require('packet')
 
 local function format_mac(mac)
 	local octets

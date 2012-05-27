@@ -1,3 +1,8 @@
+local imap = require "imap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Retrieves IMAP email server capabilities.
 
@@ -17,9 +22,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
-require 'imap'
-require 'shortport'
-require 'stdnse'
 
 portrule = shortport.port_or_service({143}, "imap")
 

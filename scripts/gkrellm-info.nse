@@ -1,3 +1,10 @@
+local math = require "math"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Queries a GKRellM service for monitoring information. A single round of
 collection is made, showing a snapshot of information at the time of the
@@ -42,8 +49,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local shortport = require('shortport')
-local tab       = require('tab')
 
 portrule = shortport.port_or_service(19150, "gkrellm", "tcp")
 

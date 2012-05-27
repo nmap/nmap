@@ -1,3 +1,8 @@
+local ncp = require "ncp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Retrieves a list of all eDirectory users from the Novell NetWare Core Protocol (NCP) service.
 ]]
@@ -26,8 +31,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "safe"}
 
-require 'shortport'
-require 'ncp'
 
 portrule = shortport.port_or_service(524, "ncp", "tcp")
 

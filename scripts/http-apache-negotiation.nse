@@ -1,3 +1,8 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Checks if the target http server has mod_negotiation enabled.  This
 feature can be leveraged to find hidden resources and spider a web
@@ -33,8 +38,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require 'shortport'
-require 'http'
 
 portrule = shortport.http
 

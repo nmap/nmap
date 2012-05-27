@@ -1,3 +1,9 @@
+local creds = require "creds"
+local nmap = require "nmap"
+local rpcap = require "rpcap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Connects to the rpcap service (provides remote sniffing capabilities
 through WinPcap) and retrieves interface information. The service can either be
@@ -31,9 +37,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"rpcap-brute"}
 
-require 'creds'
-require 'rpcap'
-require 'shortport'
 
 portrule = shortport.port_or_service(2002, "rpcap", "tcp")
 

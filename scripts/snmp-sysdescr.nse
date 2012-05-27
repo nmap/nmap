@@ -1,3 +1,9 @@
+local math = require "math"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local snmp = require "snmp"
+local string = require "string"
+
 description = [[
 Attempts to extract system information from an SNMP version 1 service.
 ]]
@@ -18,8 +24,6 @@ categories = {"default", "discovery", "safe"}
 
 dependencies = {"snmp-brute"}
 
-require "shortport"
-require "snmp"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 

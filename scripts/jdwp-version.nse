@@ -1,3 +1,8 @@
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Detects the Java Debug Wire Protocol. This protocol is used by Java programs
 to be debugged via the network. It should not be open to the public Internet,
@@ -16,8 +21,6 @@ categories = {"version"}
 -- PORT     STATE SERVICE VERSION
 -- 9999/tcp open  jdwp    Java Debug Wire Protocol (Reference Implementation) version 1.6 1.6.0_17
 
-require "comm"
-require "shortport"
 
 portrule = function(host, port)
         -- JDWP will close the port if there is no valid handshake within 2

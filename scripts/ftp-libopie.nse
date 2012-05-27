@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+local vulns = require "vulns"
+
 description = [[
 Checks if an FTPd is prone to CVE-2010-1938 (OPIE off-by-one stack overflow),
 a vulnerability discovered by Maksymilian Arciemowicz and Adam "pi3" Zabrocki.
@@ -32,8 +37,6 @@ author = "Ange Gutek"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln","intrusive"}
 
-require "shortport"
-require "vulns"
 
 portrule = shortport.port_or_service(21, "ftp")
 

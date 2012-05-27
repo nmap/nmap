@@ -1,3 +1,8 @@
+local mobileme = require "mobileme"
+local os = require "os"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Retrieves the locations of all "Find my iPhone" enabled iOS devices by querying
 the MobileMe web service.
@@ -23,8 +28,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local mobileme = require('mobileme')
-local tab      = require('tab')
 
 local arg_username = stdnse.get_script_args(SCRIPT_NAME .. ".username")
 local arg_password = stdnse.get_script_args(SCRIPT_NAME .. ".password")

@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local rmi = require "rmi"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Connects to a remote RMI registry and attempts to dump all of its objects.
 
@@ -143,18 +150,16 @@ author = "Martin Holst Swende"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require "shortport"
-require "rmi"
 portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"java-rmi", "rmiregistry"})
 
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug(3,"RMI-DUMPREG:"..str, unpack(arg))
+	stdnse.print_debug(3,"RMI-DUMPREG:"..str, table.unpack(arg))
 end
 
 local function dbg_err(str, ... )
-	stdnse.print_debug("RMI-DUMPREG-ERR:"..str, unpack(arg))
+	stdnse.print_debug("RMI-DUMPREG-ERR:"..str, table.unpack(arg))
 end
 
 -- Function to split a string

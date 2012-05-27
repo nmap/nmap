@@ -1,3 +1,12 @@
+local bin = require "bin"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Attempts to discover available IPv6 hosts on the LAN by sending an MLD (multicast listener discovery) query to the link-local multicast address (ff02::1) and listening for any responses.  The query's maximum response delay set to 0 to provoke hosts to respond immediately rather than waiting for other responses from their multicast group.
 ]]
@@ -21,12 +30,6 @@ author = "niteesh"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","broadcast"}
 
-local nmap		= require 'nmap'
-local tab 		= require 'tab'
-local target 	= require 'target'
-local packet	= require 'packet'
-local bit		= require 'bit'
-local bin		= require 'bin'
 
 local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
 

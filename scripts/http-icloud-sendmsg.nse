@@ -1,3 +1,7 @@
+local mobileme = require "mobileme"
+local stdnse = require "stdnse"
+local tab = require "tab"
+
 description = [[
 Sends a message to a iOS device throught the Apple MobileMe web service. The
 device has to be registered with an Apple ID using the Find My Iphone
@@ -31,8 +35,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local mobileme = require('mobileme')
-local tab      = require('tab')
 
 local arg_username    = stdnse.get_script_args(SCRIPT_NAME .. ".username")
 local arg_password    = stdnse.get_script_args(SCRIPT_NAME .. ".password")

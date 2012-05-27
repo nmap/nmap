@@ -1,3 +1,9 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Tests an http server for Cross-Origin Resource Sharing (CORS), a way
 for domains to explicitly opt in to having certain methods invoked by
@@ -27,9 +33,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require("shortport")
-require("stdnse")
-require("http")
 
 portrule =  shortport.http
 

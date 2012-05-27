@@ -1,3 +1,10 @@
+local stdnse = require "stdnse"
+local table = require "table"
+local target = require "target"
+
+
+local bittorrent = stdnse.silent_require "bittorrent"
+
 description = [[
 Discovers bittorrent peers sharing a file based on a user-supplied
 torrent file or magnet link.  Peers implement the Bittorrent protocol
@@ -39,9 +46,6 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","safe"}
 
-require "target"
-require 'stdnse'
-stdnse.silent_require('bittorrent')
 
 prerule = function()
     if not stdnse.get_script_args(SCRIPT_NAME..".torrent") and

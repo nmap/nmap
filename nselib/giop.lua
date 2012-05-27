@@ -57,7 +57,12 @@
 -- Created 08/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
-module(... or "giop", package.seeall)
+local bin = require "bin"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("giop", stdnse.seeall)
 
 -- A bunch of constants
 Constants = {
@@ -696,3 +701,5 @@ Helper = {
 		return true
 	end,
 }
+
+return _ENV;

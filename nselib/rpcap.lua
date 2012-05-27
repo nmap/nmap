@@ -25,11 +25,13 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
 
-module(... or "rpcap", package.seeall)
-
-require 'ipOps'
-require 'match'
-
+local bin = require "bin"
+local ipOps = require "ipOps"
+local match = require "match"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("rpcap", stdnse.seeall)
 
 RPCAP = {
 	
@@ -435,3 +437,5 @@ Helper = {
 		return self.comm:close()
 	end,
 }
+
+return _ENV;

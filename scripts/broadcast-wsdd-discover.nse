@@ -1,3 +1,9 @@
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+local wsdd = require "wsdd"
+
 description = [[ 
 Uses a multicast query to discover devices supporting the Web Services
 Dynamic Discovery (WS-Discovery) protocol. It also attempts to locate
@@ -39,8 +45,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'shortport'
-require 'wsdd'
 
 prerule = function() return true end
 
@@ -57,15 +61,8 @@ discoverThread = function( funcname, results )
 	helper:setMulticast(true)
 	helper:setTimeout(timeout)
 	
-	local func = loadstring( "return helper:" .. funcname .. "()" )
-	setfenv(func, setmetatable({ helper=helper; }, {__index = _G}))
-	
-	if ( func ) then
-		local status, result = func()
-		if ( status ) then table.insert(results, result) end
-	else
-		stdnse.print_debug("ERROR: Failed to call function: %s", funcname)
-	end
+	local status, result = helper[funcname](helper)
+	if ( status ) then table.insert(results, result) end
 	condvar("broadcast")
 end
 

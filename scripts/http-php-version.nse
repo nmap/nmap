@@ -1,3 +1,11 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Attempts to retrieve the PHP version from a web server. PHP has a number
 of magic queries that return images or text that can vary with the PHP
@@ -29,10 +37,6 @@ author = "Ange Gutek, Rob Nicholls"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "http"
-require "shortport"
-require "stdnse"
-stdnse.silent_require "openssl"
 
 portrule = shortport.http
 

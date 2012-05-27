@@ -1,3 +1,8 @@
+local natpmp = require "natpmp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Get's the routers WAN IP using the NAT Port Mapping Protocol (NAT-PMP). 
 The NAT-PMP protocol is supported by a broad range of routers including:
@@ -16,8 +21,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require 'shortport'
-require 'natpmp'
 
 portrule = shortport.port_or_service(5351, "nat-pmp", {"udp"} )
 

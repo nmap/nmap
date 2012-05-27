@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local redis = require "redis"
+local shortport = require "shortport"
+
 description = [[
 Performs brute force passwords auditing against a Redis key-value store.
 ]]
@@ -21,9 +26,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'brute'
-require 'redis'
-require 'shortport'
 
 portrule = shortport.port_or_service(6379, "redis-server")
 

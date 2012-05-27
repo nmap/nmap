@@ -1,3 +1,9 @@
+local bitcoin = require "bitcoin"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Extracts version and node information from a Bitcoin server
 ]]
@@ -27,8 +33,6 @@ categories = {"discovery", "safe"}
 -- Created 11/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
-require 'shortport'
-require 'bitcoin'
 
 portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 

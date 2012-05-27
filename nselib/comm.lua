@@ -20,10 +20,9 @@
 -- @author Kris Katterjohn 04/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "comm", package.seeall)
-
-require 'nsedebug'
-require 'datafiles'
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("comm", stdnse.seeall)
 
 -- Makes sure that opts exists and the default proto is there
 local initopts = function(opts)
@@ -269,3 +268,5 @@ function tryssl(host, port, data, opts)
     if not sd then best = "none" end
     return sd, response, best, early_resp
 end
+
+return _ENV;

@@ -21,11 +21,15 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
-module(... or "pppoe", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("pppoe", stdnse.seeall)
 
-require 'bin'
-require 'bit'
-require 'packet'
 
 EtherType = {
 	PPPOE_DISCOVERY = 0x8863,
@@ -1012,3 +1016,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

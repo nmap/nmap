@@ -1,3 +1,10 @@
+local mssql = require "mssql"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
 
@@ -70,10 +77,6 @@ categories = {"brute", "intrusive"}
 
 dependencies = {"ms-sql-empty-password"}
 
-require 'shortport'
-require 'stdnse'
-require 'mssql'
-require 'unpwdb'
 
 
 hostrule = mssql.Helper.GetHostrule_Standard()

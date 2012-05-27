@@ -1,3 +1,14 @@
+local bin = require "bin"
+local bit = require "bit"
+local ipOps = require "ipOps"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Checks if a host is infected with Conficker.C or higher, based on Conficker's peer to peer communication. 
 
@@ -71,9 +82,6 @@ copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe"}
 
-require 'smb'
-require 'stdnse'
-require 'ipOps'
 
 -- Max packet size
 local MAX_PACKET = 0x2000

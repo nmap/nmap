@@ -1,3 +1,5 @@
+local creds = require "creds"
+
 description = [[
 Lists all discovered credentials (e.g. from brute force and default password checking scripts) at end of scan.
 ]]
@@ -26,7 +28,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "default", "safe"}
 
-require 'creds'
 
 postrule = function() 
 	local all = creds.Credentials:new(creds.ALL_DATA)

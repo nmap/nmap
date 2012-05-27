@@ -47,14 +47,18 @@
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
-module(... or "msrpc", package.seeall)
 
-require 'bit'
-require 'bin'
-require 'msrpctypes'
-require 'netbios'
-require 'smb'
-require 'stdnse'
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local msrpctypes = require "msrpctypes"
+local netbios = require "netbios"
+local os = require "os"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("msrpc", stdnse.seeall)
 
 -- The path, UUID, and version for SAMR
 SAMR_PATH       = "\\samr"
@@ -3727,85 +3731,85 @@ local function get_domain_info(host, domain)
 	local status, smbstate, bind_result, connect4_result, lookupdomain_result, opendomain_result, enumdomainusers_result
 
 	-- Create the SMB session
-	status, smbstate  = msrpc.start_smb(host, msrpc.SAMR_PATH)
+	status, smbstate  = start_smb(host, SAMR_PATH)
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to SAMR service
-	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
+	status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, bind_result
 	end
 
 	-- Call connect4()
-	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
+	status, connect4_result = samr_connect4(smbstate, host.ip)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, connect4_result
 	end
 
 	-- Call LookupDomain()
-	status, lookupdomain_result = msrpc.samr_lookupdomain(smbstate, connect4_result['connect_handle'], domain)
+	status, lookupdomain_result = samr_lookupdomain(smbstate, connect4_result['connect_handle'], domain)
 	if(status == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, "Couldn't look up the domain: " .. lookupdomain_result
 	end
 
 	-- Call OpenDomain()
-	status, opendomain_result = msrpc.samr_opendomain(smbstate, connect4_result['connect_handle'], lookupdomain_result['sid'])
+	status, opendomain_result = samr_opendomain(smbstate, connect4_result['connect_handle'], lookupdomain_result['sid'])
 	if(status == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, opendomain_result
 	end
 
 	-- Call QueryDomainInfo2() to get domain properties. We call these for three types -- 1, 8, and 12, since those return
 	-- the most useful information. 
-	local status_1,  querydomaininfo2_result_1  = msrpc.samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 1)
-	local status_8,  querydomaininfo2_result_8  = msrpc.samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 8)
-	local status_12, querydomaininfo2_result_12 = msrpc.samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 12)
+	local status_1,  querydomaininfo2_result_1  = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 1)
+	local status_8,  querydomaininfo2_result_8  = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 8)
+	local status_12, querydomaininfo2_result_12 = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 12)
 
 	if(status_1 == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, querydomaininfo2_result_1
 	end
 
 	if(status_8 == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, querydomaininfo2_result_8
 	end
 
 	if(status_12 == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, querydomaininfo2_result_12
 	end
 
 	-- Call EnumDomainUsers() to get users
-	status, enumdomainusers_result = msrpc.samr_enumdomainusers(smbstate, opendomain_result['domain_handle'])
+	status, enumdomainusers_result = samr_enumdomainusers(smbstate, opendomain_result['domain_handle'])
 	if(status == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, enumdomainusers_result
 	end
 
 	-- Call EnumDomainAliases() to get groups
-	local status, enumdomaingroups_result = msrpc.samr_enumdomainaliases(smbstate, opendomain_result['domain_handle'])
+	local status, enumdomaingroups_result = samr_enumdomainaliases(smbstate, opendomain_result['domain_handle'])
 	if(status == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 		return false, enumdomaingroups_result
 	end
 
 	-- Close the domain handle
-	msrpc.samr_close(smbstate, opendomain_result['domain_handle'])
+	samr_close(smbstate, opendomain_result['domain_handle'])
 	-- Close the smb session
-	msrpc.stop_smb(smbstate)
+	stop_smb(smbstate)
 
 	-- Create a list of groups
 	local groups = {}
@@ -3881,7 +3885,7 @@ local function get_domain_info(host, domain)
 		local password_properties_response = {}
 		password_properties_response['name'] = "Password properties:"
 		for j = 1, #password_properties, 1 do
-			table.insert(password_properties_response, msrpc.samr_PasswordProperties_tostr(password_properties[j]))
+			table.insert(password_properties_response, samr_PasswordProperties_tostr(password_properties[j]))
 		end
 
 		response['password_properties'] = password_properties_response
@@ -3896,39 +3900,39 @@ function get_domains(host)
 	local i, j
 
 	-- Create the SMB session
-	status, smbstate  = msrpc.start_smb(host, msrpc.SAMR_PATH)
+	status, smbstate  = start_smb(host, SAMR_PATH)
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to SAMR service
-	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
+	status, bind_result = bind(smbstate, SAMR_UUID, SAMR_VERSION, nil)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, bind_result
 	end
 
 	-- Call connect4()
-	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
+	status, connect4_result = samr_connect4(smbstate, host.ip)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
+		stop_smb(smbstate)
 		return false, connect4_result
 	end
 
 	-- Call EnumDomains()
-	status, enumdomains_result = msrpc.samr_enumdomains(smbstate, connect4_result['connect_handle'])
+	status, enumdomains_result = samr_enumdomains(smbstate, connect4_result['connect_handle'])
 	if(status == false) then
-		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
-		msrpc.stop_smb(smbstate)
+		samr_close(smbstate, connect4_result['connect_handle'])
+		stop_smb(smbstate)
 
 		return false, enumdomains_result
 	end
 
 	-- Close the connect handle
-	msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+	samr_close(smbstate, connect4_result['connect_handle'])
 
 	-- Close the SMB session
-	msrpc.stop_smb(smbstate)
+	stop_smb(smbstate)
 
 	-- If no domains were returned, return an error (not sure that this can ever happen, but who knows?)
 	if(#enumdomains_result['sam']['entries'] == 0) then
@@ -4721,3 +4725,5 @@ function random_crap(length, charset)
 	return random_str
 end
 	
+
+return _ENV;

@@ -33,11 +33,15 @@
 -- Version 0.1
 --
 
-module(... or "upnp", package.seeall)
-
-require("strbuf")
-require("target")
-require("http")
+local http = require "http"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local strbuf = require "strbuf"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+_ENV = stdnse.module("upnp", stdnse.seeall)
 
 Util = {
 
@@ -339,3 +343,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

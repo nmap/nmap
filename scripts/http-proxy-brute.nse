@@ -1,3 +1,10 @@
+local base64 = require "base64"
+local brute = require "brute"
+local creds = require "creds"
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force password guessing against a HTTP proxy server.
 ]]
@@ -27,10 +34,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- as most request should not "leave" the proxy.
 categories = {"brute", "intrusive", "external"}
 
-require 'base64'
-require 'brute'
-require 'http'
-require 'shortport'
 
 portrule = shortport.port_or_service({8123,3128,8000,8080},{'polipo','squid-http','http-proxy'})
 

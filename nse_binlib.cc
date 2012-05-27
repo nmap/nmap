@@ -397,7 +397,7 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
  return 1;
 }
 
-static const luaL_reg binlib[] =
+static const luaL_Reg binlib[] =
 {
 	{"pack",	l_pack},
 	{"unpack",	l_unpack},
@@ -408,7 +408,7 @@ static const luaL_reg binlib[] =
 ** Open bin library
 */
 LUALIB_API int luaopen_binlib (lua_State *L) {
-  luaL_register(L, NSE_BINLIBNAME, binlib);
+  luaL_newlib(L, binlib);
   return 1;
 }
 

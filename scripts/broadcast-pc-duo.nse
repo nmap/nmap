@@ -1,3 +1,10 @@
+local bin = require "bin"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a special UDP probe.
 ]]

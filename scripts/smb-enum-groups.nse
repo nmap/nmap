@@ -1,3 +1,9 @@
+local msrpc = require "msrpc"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Obtains a list of groups from the remote Windows system, as well as a list of the group's users. 
 This works similarly to <code>enum.exe</code> with the <code>/G</code> switch. 
@@ -59,9 +65,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive"}
 dependencies = {"smb-brute"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil

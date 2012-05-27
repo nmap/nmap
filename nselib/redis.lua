@@ -2,10 +2,11 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
-module(... or "redis", package.seeall)
-
-local match = require 'match'		
-
+local match = require "match"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("redis", stdnse.seeall)
 
 Request = {
 
@@ -141,3 +142,5 @@ Helper = {
 	end
 	
 }
+
+return _ENV;

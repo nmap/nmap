@@ -1,3 +1,11 @@
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Connects to a BackOrifice service and gathers information about
 the host and the BackOrifice service itself.
@@ -67,11 +75,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"backorifice-brute"}
 
-require("stdnse")
-require("nmap")
-require("bin")
-require("bit")
-require("shortport")
 
 portrule = shortport.port_or_service (31337, "BackOrifice", "udp")
 

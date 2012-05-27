@@ -53,9 +53,15 @@
 -- Version 0.1
 -- Created 24/04/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-module(... or "ncp", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("ncp", stdnse.seeall)
 
-require 'ipOps'
 
 NCPType = {
 	CreateConnection = 0x1111,
@@ -1197,3 +1203,5 @@ Util =
 	end,
 	
 }
+
+return _ENV;

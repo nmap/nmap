@@ -6,9 +6,11 @@
 
 -- thanks to Patrick Donnelly for some optimizations
 
-module(... or "base64",package.seeall)
-
-require 'bin'
+local bin = require "bin"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("base64", stdnse.seeall)
 
 -- todo: make metatable/index --> '' for b64dctable
 
@@ -176,3 +178,5 @@ function dec(b64data)
 	return concat(bdataBuf)
 end
 
+
+return _ENV;

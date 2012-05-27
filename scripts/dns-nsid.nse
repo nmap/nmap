@@ -1,3 +1,9 @@
+local bin = require "bin"
+local dns = require "dns"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Retrieves information from a DNS nameserver by requesting
 its nameserver ID (nsid) and asking for its id.server and
@@ -28,9 +34,6 @@ license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licen
 
 categories = {"discovery", "default"}
 
-require "stdnse"
-require "shortport"
-require "dns"
 
 portrule = shortport.port_or_service(53, "domain", {"tcp", "udp"})
 

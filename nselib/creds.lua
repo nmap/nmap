@@ -92,10 +92,15 @@
 --                              * added saveToFile function for saving credential
 --								* table to file in CSV or text formats
 
-module(... or "creds", package.seeall)
+local bit = require "bit"
+local coroutine = require "coroutine"
+local io = require "io"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("creds", stdnse.seeall)
 
-require('ipOps')
-require('bit')
 
 -- Table containing the different account states
 State = {
@@ -423,3 +428,5 @@ Credentials = {
 	end,
 	
 }
+
+return _ENV;

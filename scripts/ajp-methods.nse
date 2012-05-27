@@ -1,3 +1,8 @@
+local ajp = require "ajp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Finds out what options are supported by the AJP server by sending an OPTIONS
 request and lists potentially risky methods.
@@ -29,8 +34,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
-local ajp       = require('ajp')
-local shortport = require('shortport') 
 
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 

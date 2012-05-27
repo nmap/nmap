@@ -1,3 +1,7 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+
 description = [[
 Wakes a remote system up from sleep by sending a Wake-On-Lan packet.
 ]]

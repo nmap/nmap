@@ -1,3 +1,8 @@
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description=[[
 Checks to see if an FTP server allows port scanning using the FTP bounce method.
 ]]
@@ -25,7 +30,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
-require "shortport"
 
 portrule = shortport.service("ftp")
 

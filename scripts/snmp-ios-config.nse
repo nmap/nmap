@@ -1,3 +1,11 @@
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local snmp = require "snmp"
+local stdnse = require "stdnse"
+local table = require "table"
+local tftp = require "tftp"
+
 description = [[
 Attempts to downloads Cisco router IOS configuration files using SNMP RW (v1) and display or save them.
 ]]
@@ -35,9 +43,6 @@ categories = {"intrusive"}
 
 dependencies = {"snmp-brute"}
 
-require "shortport"
-require "snmp"
-require "tftp"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 

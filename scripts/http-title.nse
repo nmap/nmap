@@ -1,3 +1,11 @@
+local dns = require "dns"
+local http = require "http"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local url = require "url"
+
 description = [[
 Shows the title of the default page of a web server.
 
@@ -20,11 +28,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-local url    = require 'url'
-local dns    = require 'dns'
-local http   = require 'http'
-local ipOps  = require 'ipOps'
-local stdnse = require 'stdnse'
 
 portrule = function(host, port)
     local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },

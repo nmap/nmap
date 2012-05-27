@@ -1,3 +1,10 @@
+local datafiles = require "datafiles"
+local netbios = require "netbios"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to retrieve the target's NetBIOS names and MAC address.
 
@@ -33,8 +40,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- Christopher R. Hertel. 
 categories = {"default", "discovery", "safe"}
 
-require "netbios"
-require "datafiles"
 
 hostrule = function(host)
 

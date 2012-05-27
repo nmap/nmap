@@ -1,3 +1,9 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Searches for web virtual hostnames by making a large number of HEAD requests against http servers using common hostnames.
 
@@ -53,10 +59,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = { "discovery", "intrusive" }
 
-require "http"
-require "stdnse"
-require "string"
-require "shortport"
 
 -- List of domains to try. (Will become names like example.com,
 -- abbot.example.com, admin.example.com, etc.) The list is derived from

@@ -3,11 +3,15 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
-module(... or "rsync",package.seeall)
+local base64 = require "base64"
+local bin = require "bin"
+local match = require "match"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+local openssl = stdnse.silent_require "openssl"
+_ENV = stdnse.module("rsync", stdnse.seeall)
 
-require 'base64'
-require 'match'
-stdnse.silent_require 'openssl'
 
 -- The Helper class serves as the main interface for script writers
 Helper = {
@@ -167,3 +171,5 @@ Helper = {
 	disconnect = function(self) return self.socket:close() end,
 	
 }
+
+return _ENV;

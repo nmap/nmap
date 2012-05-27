@@ -1,3 +1,9 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local strbuf = require "strbuf"
+local table = require "table"
+
 description = [[
 Checks for disallowed entries in <code>/robots.txt</code> on a web server.
 
@@ -17,9 +23,6 @@ The higher the verbosity or debug level, the more disallowed entries are shown.
 -- |_ /wml/? /wml/search?
 
 
-require('shortport')
-require('strbuf')
-require('http')
 
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -1,3 +1,12 @@
+local bit = require "bit"
+local comm = require "comm"
+local dns = require "dns"
+local math = require "math"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Launches a DNS fuzzing attack against DNS servers. 
 
@@ -30,11 +39,6 @@ author = "Michael Pattrick"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 
-require "bit"
-require "dns"
-require "stdnse"
-require "comm"
-require "shortport"
 
 portrule = shortport.portnumber(53, "udp")
 

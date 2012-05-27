@@ -1,3 +1,9 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Retrieves cluster and store information from the Voldemort distributed key-value store using the Voldemort Native Protocol.
 ]]
@@ -35,7 +41,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
 
 portrule = shortport.port_or_service(6666, "vp3", "tcp")
 

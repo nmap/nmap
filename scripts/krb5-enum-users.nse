@@ -1,3 +1,13 @@
+local asn1 = require "asn1"
+local bin = require "bin"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Discovers valid usernames by brute force querying likely usernames against a Kerberos service.
 When an invalid username is requested the server will responde using the
@@ -37,10 +47,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive"}
 
-require 'shortport'
-require 'stdnse'
-require 'asn1'
-require 'unpwdb'
 
 portrule = shortport.port_or_service( 88, {"kerberos-sec"}, {"udp","tcp"}, {"open", "open|filtered"} )
 

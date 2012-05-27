@@ -1,3 +1,8 @@
+local ftp = require "ftp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
 
@@ -25,9 +30,6 @@ author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "malware", "vuln"}
 
-require("ftp")
-require("shortport")
-require("stdnse")
 
 local CMD_FTP = "HELP ACIDBITCHEZ"
 local CMD_SHELL = "id"

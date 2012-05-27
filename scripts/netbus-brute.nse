@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local unpwdb = require "unpwdb"
+
 description = [[
 Performs brute force password auditing against the Netbus backdoor ("remote administration") service.
 ]]
@@ -14,10 +20,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-require("nmap")
-require("stdnse")
-require("shortport")
-require("unpwdb")
 
 dependencies = {"netbus-version"}
 

@@ -1,3 +1,11 @@
+local dns = require "dns"
+local os = require "os"
+local shortport = require "shortport"
+local sslcert = require "sslcert"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Queries Google's Certificate Catalog for the SSL certificates retrieved from
 target hosts.
@@ -24,11 +32,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "safe", "discovery", "external" }
 --dependencies = { "ssl-cert" }
 
-require("nmap")
-require("shortport")
-require("stdnse")
-require("dns")
-require("sslcert")
 
 local format_date = function(day_num)
     return os.date("%d %b %Y", 60 * 60 * 24 * tonumber(day_num))

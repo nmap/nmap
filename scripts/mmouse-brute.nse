@@ -1,3 +1,9 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force password auditing against the RPA Tech Mobile Mouse
 Server. 
@@ -25,8 +31,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-local shortport = require('shortport')
-local brute     = require('brute')
 
 local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or 5000
 

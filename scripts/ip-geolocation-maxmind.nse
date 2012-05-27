@@ -1,3 +1,10 @@
+local bit = require "bit"
+local io = require "io"
+local ipOps = require "ipOps"
+local math = require "math"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Tries to identify the physical location of an IP address using a
 Geolocation Maxmind database file (available from
@@ -23,9 +30,6 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","external","safe"}
 
-require "stdnse"
-require "ipOps"
-require "bit"
 
 hostrule = function(host)
 	local is_private, err = ipOps.isPrivate( host.ip )

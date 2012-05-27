@@ -6,10 +6,12 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
-module(... or "natpmp", package.seeall)
-
-require 'bin'
-require 'ipOps'
+local bin = require "bin"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("natpmp", stdnse.seeall)
 
 local ResultCode = {	
 	SUCCESS 			= 0,
@@ -218,3 +220,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

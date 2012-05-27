@@ -1,3 +1,8 @@
+local iscsi = require "iscsi"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Collects and displays information from remote iSCSI targets.
 ]]
@@ -23,8 +28,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe", "discovery"}
 
-require("shortport")
-require("iscsi")
 
 portrule = shortport.portnumber(3260, "tcp", {"open", "open|filtered"})
 

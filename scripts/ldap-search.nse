@@ -1,3 +1,11 @@
+local comm = require "comm"
+local ldap = require "ldap"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to perform an LDAP search and returns all matches.
 
@@ -88,9 +96,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "ldap"
-require 'shortport'
-require 'comm'
 
 dependencies = {"ldap-brute"}
 

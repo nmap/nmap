@@ -114,11 +114,15 @@
 -- +--------+---------------+---------+-------+-------------------------------+
 --
 
-require 'bin'
-require 'bit'
-stdnse.silent_require 'openssl'
-
-module(... or "tns", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local openssl = stdnse.silent_require "openssl"
+_ENV = stdnse.module("tns", stdnse.seeall)
 
 -- Oracle version constants
 ORACLE_VERSION_10G = 313
@@ -1878,3 +1882,5 @@ TNSSocket =
 		return self.Socket:send( data )
 	end,
 }
+
+return _ENV;

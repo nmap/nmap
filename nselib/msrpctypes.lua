@@ -103,11 +103,13 @@
 -- * SIDs will be converted to user-readable strings in the standard format (S-x-y-...)
 -- * GUIDs are stored as tables of values; however, I might change this to a string representation at some point
 
-module(... or "msrpctypes", package.seeall)
-
-require 'bit'
-require 'bin'
-require 'stdnse'
+local bin = require "bin"
+local bit = require "bit"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("msrpctypes", stdnse.seeall)
 
 local REFERENT_ID = 0x50414d4e
 local HEAD = 'HEAD'
@@ -274,7 +276,7 @@ local function marshall_ptr(location, func, args, value)
 	if(location == BODY or location == ALL) then
 		if(func == nil or args == nil or value == nil) then
 		else
-			result = result .. func(unpack(args))
+			result = result .. func(table.unpack(args))
 		end
 	end
 
@@ -341,7 +343,7 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
 
 	if(location == BODY or location == ALL) then
 		if(result == true) then
-			pos, result = func(data, pos, unpack(args))
+			pos, result = func(data, pos, table.unpack(args))
 		else
 			result = nil
 		end
@@ -373,7 +375,7 @@ local function marshall_basetype(location, func, args)
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_basetype()"))
 
 	if(location == HEAD or location == ALL) then
-		result = bin.pack("<A", func(unpack(args)))
+		result = bin.pack("<A", func(table.unpack(args)))
 	else
 		result = ""
 	end
@@ -417,7 +419,7 @@ function marshall_array(array)
 		local func = array[i]['func']
 		local args = array[i]['args']
 
-		result = result .. func(HEAD, unpack(args))
+		result = result .. func(HEAD, table.unpack(args))
 	end
 
 	-- Encode the BODY sections of all the elements in the array
@@ -425,7 +427,7 @@ function marshall_array(array)
 		local func = array[i]['func']
 		local args = array[i]['args']
 
-		result = result .. func(BODY, unpack(args))
+		result = result .. func(BODY, table.unpack(args))
 	end
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_array()"))
@@ -473,14 +475,14 @@ local function unmarshall_array(data, pos, count, func, args)
 
 	-- Unmarshall the header, which will be referent_ids and base types. 
 	for i = 1, count, 1 do
-		pos, result[i] = func(HEAD, data, pos, nil, unpack(args))
+		pos, result[i] = func(HEAD, data, pos, nil, table.unpack(args))
 	end
 
 	-- Unmarshall the body. Note that the original result (result[i]) is passed back
 	-- into this function. This is required for pointers because, to unmarshall a pointer,
 	-- we have to remember whether or not it's null. 
 	for i = 1, count, 1 do
-		pos, result[i] = func(BODY, data, pos, result[i], unpack(args))
+		pos, result[i] = func(BODY, data, pos, result[i], table.unpack(args))
 	end
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_array()"))
@@ -4090,7 +4092,7 @@ function unmarshall_samr_DispInfo(data, pos)
     local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_samr_DispInfo()"))
 
-    pos, level = msrpctypes.unmarshall_int16(data, pos)
+    pos, level = unmarshall_int16(data, pos)
 
     if(level == 1) then
         pos, result = unmarshall_samr_DispInfoGeneral(data, pos)
@@ -4622,3 +4624,5 @@ end
 
 
 
+
+return _ENV;

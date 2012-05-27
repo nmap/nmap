@@ -1,3 +1,9 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local vulns = require "vulns"
+
 description = [[
 Checks if a machine is vulnerable to MS12-020 RDP vulnerability.
 
@@ -62,9 +68,6 @@ author = "Aleksandar Nikolic, based on python script by sleepya"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
-require "shortport"
-require "stdnse"
-require "vulns"
 
 portrule = shortport.port_or_service({3389},{"ms-wbt-server"})
 

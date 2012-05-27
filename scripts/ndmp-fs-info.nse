@@ -1,3 +1,7 @@
+local ndmp = require "ndmp"
+local shortport = require "shortport"
+local tab = require "tab"
+
 description = [[
 Lists remote file systems by querying the remote device using the Network
 Data Management Protocol (ndmp). NDMP is a protocol intended to transport
@@ -36,9 +40,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'ndmp'
-require 'tab'
 
 portrule = shortport.port_or_service(10000, "ndmp", "tcp")
 

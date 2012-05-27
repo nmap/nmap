@@ -1,3 +1,10 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server (CVE-2009-3733).
 
@@ -24,8 +31,6 @@ author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
-require "http"
-require "shortport"
 
 portrule = shortport.port_or_service({80, 443, 8222,8333}, {"http", "https"})
 

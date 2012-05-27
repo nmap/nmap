@@ -1,3 +1,14 @@
+local bin = require "bin"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Uses the Microsoft LLTD protocol to discover hosts on a local network.
 
@@ -22,11 +33,6 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast","discovery","safe"}
 
-require "bin"
-require "target"
-require "nmap"
-require "stdnse"
-stdnse.silent_require("openssl")
 
 prerule = function()
 	if not nmap.is_privileged() then

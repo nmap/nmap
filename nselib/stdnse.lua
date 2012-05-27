@@ -4,53 +4,50 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
+local _G = require "_G"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
+local string = require "string"
+local table = require "table"
 local assert = assert;
 local error = error;
-local pairs = pairs
+local getmetatable = getmetatable;
 local ipairs = ipairs
+local pairs = pairs
+local require = require;
+local select = select
+local setmetatable = setmetatable;
 local tonumber = tonumber;
 local type = type
-local select = select
-local unpack = unpack
 
 local ceil = math.ceil
 local max = math.max
+
 local format = string.format;
 local rep = string.rep
+
 local concat = table.concat;
 local insert = table.insert;
-local os = os
-local math = math
-local string = string
+local pack = table.pack;
+local unpack = table.unpack;
 
-local io = require 'io'; -- TODO: Remove
-
-local nmap = require "nmap";
-
-local c_funcs = require "stdnse.c";
+local difftime = os.difftime;
+local time = os.time;
 
 local EMPTY = {}; -- Empty constant table
 
-module(... or "stdnse");
+_ENV = require "strict" {};
 
--- Load C functions from stdnse.c into this namespace.
-for k, v in pairs(c_funcs) do
-  _M[k] = v
-end
--- Remove visibility of the stdnse.c table.
-c = nil
-
---- Sleeps for a given amount of time.
+--- (Deprecated Alias) Sleeps for a given amount of time.
 --
--- This causes the program to yield control and not regain it until the time
--- period has elapsed. The time may have a fractional part. Internally, the
--- timer provides millisecond resolution.
+-- Please use nmap.sleep instead.
+--
 -- @name sleep
 -- @class function
 -- @param t Time to sleep, in seconds.
 -- @usage stdnse.sleep(1.5)
-
--- sleep is a C function defined in nse_nmaplib.cc.
+_ENV.sleep = nmap.sleep;
 
 ---
 -- Prints a formatted debug message if the current debugging level is greater
@@ -349,7 +346,7 @@ end
 function format_difftime(t2, t1)
   local d, s, sign, yeardiff
 
-  d = os.difftime(os.time(t2), os.time(t1))
+  d = difftime(time(t2), time(t1))
   if d > 0 then
     sign = "+"
   elseif d < 0 then
@@ -373,11 +370,11 @@ function format_difftime(t2, t1)
     local tmpyear = t1.year
     -- Put t1 in the same year as t2.
     t1.year = t2.year
-    d = os.difftime(os.time(t2), os.time(t1))
+    d = difftime(time(t2), time(t1))
     if d < 0 then
       -- Too far. Back off one year.
       t1.year = t2.year - 1
-      d = os.difftime(os.time(t2), os.time(t1))
+      d = difftime(time(t2), time(t1))
     end
     yeardiff = t1.year - tmpyear
     t1.year = tmpyear
@@ -853,7 +850,7 @@ end
 --  repeat
 --    local j = math.min(i+10, #requests);
 --    local co = stdnse.new_thread(thread_main, host, port, responses,
---        unpack(requests, i, j));
+--        table.unpack(requests, i, j));
 --    threads[co] = true;
 --    i = j+1;
 --  until i > #requests;
@@ -968,4 +965,44 @@ function in_port_range(port,port_range)
 	return false
 end
 
+--- Module function that mimics some behavior of Lua 5.1 module function.
+--
+-- This convenience function returns a module environment to set the _ENV
+-- upvalue. The _NAME, _PACKAGE, and _M fields are set as in the Lua 5.1
+-- version of this function. Each option function (e.g. stdnse.seeall)
+-- passed is run with the new environment, in order.
+--
+-- @see stdnse.seeall
+-- @see strict
+-- @usage
+--   _ENV = stdnse.module(name, stdnse.seeall, require "strict");
+-- @param name The module name.
+-- @param ... Option functions which modify the environment of the module.
+function module (name, ...)
+  local env = {};
+  env._NAME = name;
+  env._PACKAGE = name:match("(.+)%.[^.]+$");
+  env._M = env;
+  local mods = pack(...);
+  for i = 1, mods.n do
+    mods[i](env);
+  end
+  return env;
+end
 
+--- Change environment to load global variables.
+--
+-- Option function for use with stdnse.module. It is the same
+-- as package.seeall from Lua 5.1.
+--
+-- @see stdnse.module
+-- @usage
+--  _ENV = stdnse.module(name, stdnse.seeall);
+-- @param env Environment to change.
+function seeall (env)
+  local m = getmetatable(env) or {};
+  m.__index = _G;
+  setmetatable(env, m);
+end
+
+return _ENV;

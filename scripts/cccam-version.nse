@@ -1,3 +1,8 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Detects the CCcam service (software for sharing subscription TV among
 multiple receivers).
@@ -14,8 +19,6 @@ categories = {"version"}
 
 author = "David Fifield"
 
-require("bin")
-require("shortport")
 
 -- A chi-square test for the null hypothesis that the members of data are drawn
 -- from a uniform distribution over num_cats categories.

@@ -31,9 +31,12 @@
 -- Version 0.1
 -- Created 24/04/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-module(... or "srvloc", package.seeall)
-
-require 'bit'
+local bin = require "bin"
+local bit = require "bit"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("srvloc", stdnse.seeall)
 
 PacketFunction = {
 	SERVICE_REQUEST = 1,
@@ -370,5 +373,6 @@ Helper = {
 	close = function(self)
 		return self.socket:close()
 	end,
-	
 }
+
+return _ENV;

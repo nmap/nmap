@@ -1,3 +1,13 @@
+local bin = require "bin"
+local coroutine = require "coroutine"
+local io = require "io"
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 This script repeatedly initiates SSL/TLS connections, each time trying a new
 cipher or compressor while recording whether a host accepts or rejects it. The
@@ -60,10 +70,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 
-require("bin")
-require("nmap")
-require("shortport")
-require("stdnse")
 
 -- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/

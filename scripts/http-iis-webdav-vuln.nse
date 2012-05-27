@@ -1,3 +1,10 @@
+local http = require "http"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access secured WebDAV folders by searching for a password-protected folder and attempting to access it. This vulnerability was patched in Microsoft Security Bulletin MS09-020, http://nmap.org/r/ms09-020.
 
@@ -30,8 +37,6 @@ author = "Ron Bowes and Andrew Orr"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 
-require "http"
-require "shortport"
 
 portrule = shortport.http
 

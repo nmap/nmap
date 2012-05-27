@@ -1,3 +1,9 @@
+local bit = require "bit"
+local datafiles = require "datafiles"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Shows extra information about IPv6 addresses, such as embedded MAC or IPv4 addresses when available.
 
@@ -60,9 +66,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
-require("bit")
-require("datafiles")
-require("stdnse")
 
 hostrule = function(host)
 	return true

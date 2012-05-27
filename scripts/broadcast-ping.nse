@@ -1,3 +1,15 @@
+local bin = require "bin"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+local target = require "target"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Sends broadcast pings on a selected interface using raw ethernet packets and 
 outputs the responding hosts' IP and MAC addresses or (if requested) adds them as targets.  Root privileges on UNIX are required to run this script since it uses raw sockets.  Most operating systems don't respond to broadcast-ping probes, 
@@ -46,13 +58,6 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","safe","broadcast"}
 
-require "nmap"
-require "stdnse"
-require "packet"
-require "bin"
-require "tab"
-require "target"
-stdnse.silent_require("openssl")
 
 prerule = function()
 	if not nmap.is_privileged() then

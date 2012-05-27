@@ -1,3 +1,11 @@
+local _G = require "_G"
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates directories used by popular web applications and servers.
 
@@ -56,10 +64,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive", "vuln"}
 
-require 'http'
-require 'shortport'
-require 'stdnse'
-require 'nsedebug'
 
 portrule = shortport.http
 
@@ -174,16 +178,16 @@ local function get_fingerprints(fingerprint_file, category)
 	end
 
 	stdnse.print_debug("http-enum: Loading fingerprint database: %s", filename_full)
-	local file = loadfile(filename_full)
+	local env = setmetatable({fingerprints = {}}, {__index = _G})
+	local file = loadfile(filename_full, "t", env)
 	if(not(file)) then
 		stdnse.print_debug("http-enum: Couldn't load configuration file: %s", filename_full)
 		return false, "Couldn't load fingerprint file: " .. filename_full
 	end
 
-	setfenv(file, setmetatable({fingerprints = {}; }, {__index = _G}))
 	file()
 
-	local fingerprints = getfenv(file)["fingerprints"]
+	local fingerprints = env.fingerprints
 
 	-- Sanity check our file to ensure that all the fields were good. If any are bad, we 
 	-- stop and don't load the file. 

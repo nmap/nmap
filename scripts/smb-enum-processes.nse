@@ -1,3 +1,10 @@
+local msrpcperformance = require "msrpcperformance"
+local nmap = require "nmap"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Pulls a list of processes from the remote server over SMB. This will determine
 all running processes, their process IDs, and their parent processes. It is done
@@ -78,11 +85,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 dependencies = {"smb-brute"}
 
-require "bin"
-require "msrpc"
-require "msrpcperformance"
-require "smb"
-require "stdnse"
 
 function psl_mode (list, i)
 	local mode

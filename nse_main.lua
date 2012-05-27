@@ -57,14 +57,16 @@ local NSE_SCRIPT_RULES = {
   postrule = "postrule",
 };
 
+local cnse, rules = ...; -- The NSE C library and Script Rules
+
 local _G = _G;
 
 local assert = assert;
 local collectgarbage = collectgarbage;
 local error = error;
 local ipairs = ipairs;
+local load = load;
 local loadfile = loadfile;
-local loadstring = loadstring;
 local next = next;
 local pairs = pairs;
 local pcall = pcall;
@@ -72,12 +74,10 @@ local rawget = rawget;
 local rawset = rawset;
 local require = require;
 local select = select;
-local setfenv = setfenv;
 local setmetatable = setmetatable;
 local tonumber = tonumber;
 local tostring = tostring;
 local type = type;
-local unpack = unpack;
 
 local coroutine = require "coroutine";
 local create = coroutine.create;
@@ -91,6 +91,7 @@ local traceback = debug.traceback;
 local _R = debug.getregistry();
 
 local io = require "io";
+local lines = io.lines;
 local open = io.open;
 
 local math = require "math";
@@ -112,33 +113,37 @@ local concat = table.concat;
 local insert = table.insert;
 local remove = table.remove;
 local sort = table.sort;
-
-local nmap = require "nmap";
-
-local cnse, rules = ...; -- The NSE C library and Script Rules
+local unpack = table.unpack;
 
 do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   local function loader (lib)
     lib = lib:gsub("%.", "/"); -- change Lua "module seperator" to directory separator
     local name = "nselib/"..lib..".lua";
-    local type, path = cnse.fetchfile_absolute(name);
+    local type, path = cnse.fs.fetchfile_absolute(name);
     if type == "file" then
       return loadfile(path);
     else
       return "\n\tNSE failed to find "..name.." in search paths.";
     end
   end
-  insert(package.loaders, 1, loader);
+  insert(package.searchers, 1, loader);
 end
 
-local script_database_type, script_database_path =
-    cnse.fetchfile_absolute(cnse.script_dbpath);
-local script_database_update = cnse.scriptupdatedb;
-local script_help = cnse.scripthelp;
+local nmap = require "nmap";
+
+local socket = require "nmap.socket";
+local loop = socket.loop;
 
 local stdnse = require "stdnse";
 
-(require "strict")() -- strict global checking
+local strict = require "strict";
+assert(_ENV == _G);
+strict(_ENV);
+
+local script_database_type, script_database_path =
+    cnse.fs.fetchfile_absolute(cnse.script_dbpath);
+local script_database_update = cnse.scriptupdatedb;
+local script_help = cnse.scripthelp;
 
 -- NSE_YIELD_VALUE
 -- This is the table C uses to yield a thread with a unique value to
@@ -203,6 +208,21 @@ end
 
 local function table_size (t)
   local n = 0; for _ in pairs(t) do n = n + 1; end return n;
+end
+
+local function loadscript (filename)
+  local source = "@"..filename;
+  local function ld ()
+    -- header for scripts to allow setting the environment
+    yield [[return function (_ENV) return function (...)]];
+    for line in lines(filename, "*L") do
+      yield(line);
+    end
+    -- footer...
+    yield [[ end end]];
+    return nil;
+  end
+  return assert(load(wrap(ld), source, "t"))();
 end
 
 -- recursively copy a table, for host/port tables
@@ -333,7 +353,7 @@ do
   function Script:new_thread (rule, ...)
     local script_type = assert(NSE_SCRIPT_RULES[rule]);
     if not self[rule] then return nil end -- No rule for this script?
-    local file_closure = self.file_closure;
+    local script_closure_generator = self.script_closure_generator;
     -- Rebuild the environment for the running thread.
     local env = {
         SCRIPT_PATH = self.filename,
@@ -341,18 +361,16 @@ do
         SCRIPT_TYPE = script_type,
     };
     setmetatable(env, {__index = _G});
-    setfenv(file_closure, env);
+    local script_closure = script_closure_generator(env);
     local unique_value = {}; -- to test valid yield
-    local function main (...)
-      file_closure(); -- loads script globals
-      return env.action(yield(unique_value, env[rule](...)));
+    local function main (_ENV, ...)
+      script_closure(); -- loads script globals
+      return action(yield(unique_value, _ENV[rule](...)));
     end
-    setfenv(main, env);
     -- This thread allows us to load the script's globals in the
     -- same Lua thread the action and rule functions will execute in.
     local co = create(main);
-    local s, value, rule_return = resume(co, ...);
-    setfenv(file_closure, _G); -- reset the environment
+    local s, value, rule_return = resume(co, env, ...);
     if s and value ~= unique_value then
       print_debug(1,
     "A thread for %s yielded unexpectedly in the file or %s function:\n%s\n",
@@ -426,7 +444,7 @@ do
         script_params.selection and
         script_params.selection or "(unknown)",
         script_params.forced and " and forced to run" or "");
-    local file_closure = assert(loadfile(filename));
+    local script_closure_generator = loadscript(filename);
     -- Give the closure its own environment, with global access
     local env = {
       SCRIPT_PATH = filename,
@@ -434,8 +452,8 @@ do
       dependencies = {},
     };
     setmetatable(env, {__index = _G});
-    setfenv(file_closure, env);
-    local co = create(file_closure); -- Create a garbage thread
+    local script_closure = script_closure_generator(env);
+    local co = create(script_closure); -- Create a garbage thread
     local status, e = resume(co); -- Get the globals it loads in env
     if not status then
       log_error("Failed to load %s:\n%s", filename, traceback(co, e));
@@ -484,7 +502,7 @@ do
       basename = basename,
       short_basename = short_basename,
       id = match(filename, "^.-[/\\]([^\\/]-)%.nse$") or short_basename,
-      file_closure = file_closure,
+      script_closure_generator = script_closure_generator,
       prerule = prerule,
       hostrule = hostrule,
       portrule = portrule,
@@ -524,7 +542,8 @@ end
 local function get_chosen_scripts (rules)
   check_rules(rules);
 
-  local db_closure = assert(loadfile(script_database_path),
+  local db_env = {Entry = nil};
+  local db_closure = assert(loadfile(script_database_path, "t", db_env),
     "database appears to be corrupt or out of date;\n"..
     "\tplease update using: nmap --script-updatedb");
 
@@ -571,7 +590,8 @@ local function get_chosen_scripts (rules)
     local globalized_rule =
         gsub(rule, "[\033-\039\042-\043\045-\058\060-\126]+", globalize);
     -- Precompile the globalized rule
-    local compiled_rule, err = loadstring("return "..globalized_rule, "rule");
+    local env = {m = nil};
+    local compiled_rule, err = load("return "..globalized_rule, "rule", "t", env);
     if not compiled_rule then
       err = err:match("rule\"]:%d+:(.+)$"); -- remove (luaL_)where in code
       error("Bad script rule:\n\t"..original_rule.." -> "..err);
@@ -580,12 +600,13 @@ local function get_chosen_scripts (rules)
     entry_rules[globalized_rule] = {
       original_rule = rule,
       compiled_rule = compiled_rule,
+      env = env,
     };
   end
 
   -- Checks if a given script, script_entry, should be loaded. A script_entry
   -- should be in the form: { filename = "name.nse", categories = { ... } }
-  local function entry (script_entry)
+  function db_env.Entry (script_entry)
     local categories, filename = script_entry.categories, script_entry.filename;
     assert(type(categories) == "table" and type(filename) == "string",
         "script database appears corrupt, try `nmap --script-updatedb`");
@@ -625,12 +646,12 @@ local function get_chosen_scripts (rules)
 
       return false;
     end
-    local env = {m = m};
 
     for globalized_rule, rule_table in pairs(entry_rules) do
       -- Clear and set the environment of the compiled script rule
-      local compiled_rule = setfenv(rule_table.compiled_rule, env)
-      local status, found = pcall(compiled_rule)
+      rule_table.env.m = m;
+      local status, found = pcall(rule_table.compiled_rule)
+      rule_table.env.m = nil;
       if not status then
         error("Bad script rule:\n\t"..rule_table.original_rule..
               " -> script rule expression not supported.");
@@ -639,7 +660,7 @@ local function get_chosen_scripts (rules)
       if found then 
         used_rules[rule_table.original_rule] = true;
         script_params.forced = not not forced_rules[rule_table.original_rule];
-        local t, path = cnse.fetchscript(filename);
+        local t, path = cnse.fs.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
             local script = Script.new(path, script_params)
@@ -655,7 +676,6 @@ local function get_chosen_scripts (rules)
     end
   end
 
-  setfenv(db_closure, {Entry = entry});
   db_closure(); -- Load the scripts
 
   -- Now load any scripts listed by name rather than by category.
@@ -663,9 +683,9 @@ local function get_chosen_scripts (rules)
     if not loaded then -- attempt to load the file/directory
       local script_params = {};
       script_params.forced = not not forced_rules[rule];
-      local t, path = cnse.fetchscript(rule);
+      local t, path = cnse.fs.fetchscript(rule);
       if t == nil then -- perhaps omitted the extension?
-        t, path = cnse.fetchscript(rule..".nse");
+        t, path = cnse.fs.fetchscript(rule..".nse");
       end
       if t == nil then
         error("'"..rule.."' did not match a category, filename, or directory");
@@ -676,7 +696,7 @@ local function get_chosen_scripts (rules)
         chosen_scripts[#chosen_scripts+1] = script;
         files_loaded[path] = true;
       elseif t == "directory" then
-        for f in cnse.dir(path) do
+        for f in cnse.fs.readdir(path) do
           local file = path .."/".. f
           if find(f, "%.nse$") and not files_loaded[file] then
             script_params.selection = "directory";
@@ -914,7 +934,7 @@ local function run (threads_iter, hosts)
       current = nil;
     end
 
-    cnse.nsock_loop(50); -- Allow nsock to perform any pending callbacks
+    loop(50); -- Allow nsock to perform any pending callbacks
     -- Move pending threads back to running.
     for co, thread in pairs(pending) do
       pending[co], running[co] = nil, thread;
@@ -955,9 +975,9 @@ local function script_help_xml(chosen_scripts)
   cnse.xml_newline();
 
   local t, scripts_dir, nselib_dir
-  t, scripts_dir = cnse.fetchfile_absolute("scripts/")
+  t, scripts_dir = cnse.fs.fetchfile_absolute("scripts/")
   assert(t == 'directory', 'could not locate scripts directory');
-  t, nselib_dir = cnse.fetchfile_absolute("nselib/")
+  t, nselib_dir = cnse.fs.fetchfile_absolute("nselib/")
   assert(t == 'directory', 'could not locate nselib directory');
   cnse.xml_start_tag("directory", { name = "scripts", path = scripts_dir });
   cnse.xml_end_tag();
@@ -1057,7 +1077,7 @@ do -- Load script arguments (--script-args)
   nmap.registry.args = parse_table("{"..args.."}", 1);
   -- Check if user wants to read scriptargs from a file
   if cnse.scriptargsfile ~= nil then --scriptargsfile path/to/file
-    local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
+    local t, path = cnse.fs.fetchfile_absolute(cnse.scriptargsfile)
     assert(t == 'file', format("%s is not a file", path))
     local argfile = assert(open(path, 'r'));
     local argstring = argfile:read("*a")
@@ -1078,12 +1098,12 @@ end
 
 if script_database_update then
   log_write("stdout", "Updating rule database.");
-  local t, path = cnse.fetchfile_absolute('scripts/'); -- fetch script directory
+  local t, path = cnse.fs.fetchfile_absolute('scripts/'); -- fetch script directory
   assert(t == 'directory', 'could not locate scripts directory');
   script_database_path = path.."script.db";
   local db = assert(open(script_database_path, 'w'));
   local scripts = {};
-  for f in cnse.dir(path) do
+  for f in cnse.fs.readdir(path) do
     if match(f, '%.nse$') then
       scripts[#scripts+1] = path.."/"..f;
     end

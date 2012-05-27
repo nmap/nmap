@@ -1,3 +1,10 @@
+local comm = require "comm"
+local math = require "math"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Checks an IRC server for channels that are commonly used by malicious botnets.
 
@@ -38,10 +45,6 @@ categories = {"discovery", "vuln", "safe"}
 -- |   #loic
 -- |_  #RxBot
 
-require("stdnse")
-require "shortport"
-require("nsedebug")
-require("comm")
 
 -- See RFC 2812 for protocol documentation.
 

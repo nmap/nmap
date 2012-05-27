@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local iax2 = require "iax2"
+local shortport = require "shortport"
+
 description = [[
 Performs brute force password auditing against the Asterisk IAX2 protocol.
 Guessing fails when a large number of attempts is made due to the maxcallnumber limit (default 2048).
@@ -27,9 +32,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'brute'
-require 'shortport'
-require 'iax2'
 
 portrule = shortport.port_or_service(4569, "iax2", {"udp", "tcp"})
 

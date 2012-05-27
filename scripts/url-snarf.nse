@@ -1,3 +1,11 @@
+local io = require "io"
+local nmap = require "nmap"
+local os = require "os"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local table = require "table"
+local url = require "url"
+
 description=[[
 Sniffs an interface for HTTP traffic and dumps any URLs, and their
 originating IP address. Script output differs from other script as
@@ -26,8 +34,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe"}
 
-require 'packet'
-require 'url'
 
 local arg_iface = nmap.get_interface() or stdnse.get_script_args(SCRIPT_NAME .. ".interface")
 
@@ -48,7 +54,7 @@ end
 -- are all declared local.
 local function get_url(data)
 
-	local headers, body = unpack(stdnse.strsplit("\r\n\r\n", data))
+	local headers, body = table.unpack(stdnse.strsplit("\r\n\r\n", data))
 	if ( not(headers) ) then
 		return
 	end

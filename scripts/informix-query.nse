@@ -1,3 +1,9 @@
+local informix = require "informix"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Runs a query against IBM Informix Dynamic Server using the given
 authentication credentials (see also: informix-brute).
@@ -35,8 +41,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 dependencies = { "informix-brute" }
 
-require 'shortport'
-require 'informix'
 
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
 

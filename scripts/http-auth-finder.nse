@@ -1,3 +1,11 @@
+local http = require "http"
+local httpspider = require "httpspider"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Spiders a web site to find web pages requiring form-based or HTTP-based authentication. The results are returned in a table with each url and the
 detected method.
@@ -32,9 +40,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "httpspider"
-require "shortport"
-require "tab"
 
 portrule = shortport.http
 

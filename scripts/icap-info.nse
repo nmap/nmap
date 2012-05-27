@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Tries a list of known ICAP service names and prints information about the ones
 it detects. The Internet Content Adaptation Protocol (ICAP) is used to extend
@@ -32,7 +37,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
-local shortport = require('shortport')
 
 portrule = shortport.port_or_service(1344, "icap")
 

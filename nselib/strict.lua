@@ -14,15 +14,18 @@
 -- @name strict
 -- @copyright Copyright© Same as Nmap--See http://nmap.org/book/man-legal.html
 
+local debug = require "debug"
+
 local error = error;
-local getfenv = getfenv;
-local lmodule = module;
+local getmetatable = getmetatable;
 local rawset = rawset;
 local rawget = rawget;
-local setfenv = setfenv;
+local setmetatable = setmetatable;
 local type = type;
 
 local getinfo = debug.getinfo;
+
+_ENV = {};
 
 local function what ()
   local d = getinfo(3, "S");
@@ -35,10 +38,18 @@ end
 -- undeclared globals. A global is 'undeclared' if not assigned in the file
 -- (script) scope previously. An error will be raised on use of an undeclared
 -- global.
-function strict ()
-  local _G = getfenv(2);
-
-  local mt = getmetatable(_G) or setmetatable(_G, {}) and getmetatable(_G);
+--
+-- This function should be passed last to stdnse.module in order to allow
+-- other environment option functions (e.g. stdnse.seeall) to change the
+-- environment first. This is important for allowing globals outside the
+-- library (in _G) to be indexed.
+--
+-- @see stdnse.module
+-- @usage
+--  _ENV = stdnse.module(name, require "strict");
+-- @param env The environment to modify.
+local function strict (env)
+  local mt = getmetatable(env) or setmetatable(env, {}) and getmetatable(env);
   local _newindex, _index = mt.__newindex, mt.__index;
   
   mt.__declared = {};
@@ -70,16 +81,8 @@ function strict ()
     end
     return rawget(t, n);
   end
-end
 
-local strict = strict;
-
-function module (...)
-  local myenv = getfenv(1);
-  lmodule(...);
-  strict();
-  setfenv(2, getfenv(1));
-  setfenv(1, myenv);
+  return env;
 end
 
 return strict;

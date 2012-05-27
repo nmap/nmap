@@ -55,10 +55,13 @@
 -- @args httpspider.noblacklist if set, doesn't load the default blacklist
 --
 
-module(... or "httpspider", package.seeall)
-
-require 'url'
-require 'http'
+local coroutine = require "coroutine"
+local http = require "http"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+local url = require "url"
+_ENV = stdnse.module("httpspider", stdnse.seeall)
 
 local LIBRARY_NAME = "httpspider"
 local PREFETCH_SIZE = 5
@@ -303,7 +306,7 @@ LinkExtractor = {
 		end
 
 		for _, pattern in ipairs(patterns) do
-			for l in self.html:gfind(pattern) do
+			for l in self.html:gmatch(pattern) do
 				local link = l
 				if ( not(LinkExtractor.isAbsolute(l)) ) then
 					link = LinkExtractor.createAbsolute(self.url, l, base_href)
@@ -361,7 +364,7 @@ URL = {
 	parse = function(self)
 		self.proto, self.host, self.port, self.file = self.raw:match("^(http[s]?)://([^:/]*)[:]?(%d*)")
 		if ( self.proto and self.host ) then
-			self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^\#]*)") or '/'
+			self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^#]*)") or '/'
 			self.port = tonumber(self.port)
 			if ( not(self.port) ) then
 				if ( self.proto:match("https") ) then
@@ -810,7 +813,7 @@ Crawler = {
 		if ( #self.response_queue == 0 ) then
 			return false, { err = false, msg = "No more urls" }
 		else
-			return unpack(table.remove(self.response_queue, 1))
+			return table.unpack(table.remove(self.response_queue, 1))
 		end
 	end,
 	
@@ -825,3 +828,5 @@ Crawler = {
 		condvar "wait"
 	end
 }
+
+return _ENV;

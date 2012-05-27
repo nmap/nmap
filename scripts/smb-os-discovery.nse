@@ -1,3 +1,8 @@
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to determine the operating system, computer name, domain, workgroup, and current
 time over the SMB protocol (ports 445 or 139).
@@ -58,8 +63,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"smb-brute"}
 
-require 'smb'
-require 'stdnse'
 
 --- Check whether or not this script should be run.
 hostrule = function(host)

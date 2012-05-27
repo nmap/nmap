@@ -1,3 +1,10 @@
+local ftp = require "ftp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Checks if an FTP server allows anonymous logins.
 
@@ -27,8 +34,6 @@ author = "Eddie Bell, Rob Nicholls, Ange Gutek, David Fifield"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
-require "ftp"
-require "shortport"
 
 portrule = shortport.port_or_service(21, "ftp")
 

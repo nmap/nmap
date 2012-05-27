@@ -1,3 +1,10 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[ 
 Extracts a list of published applications from the ICA Browser service.
 ]]
@@ -26,10 +33,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery","safe"}
 
-require "comm"
-require "shortport"
-require "stdnse"
-require "bin"
 
 portrule = shortport.portnumber(1604, "udp")
 

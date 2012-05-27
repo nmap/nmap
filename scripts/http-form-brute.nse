@@ -1,3 +1,12 @@
+local brute = require "brute"
+local creds = require "creds"
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Performs brute force password auditing against http form-based authentication.
 ]]
@@ -69,11 +78,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'http'
-require 'brute'
-require 'url'
-require 'creds'
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 

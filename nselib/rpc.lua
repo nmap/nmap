@@ -75,8 +75,16 @@
 -- @args rpc.protocol table If set overrides the preferred order in which
 --       protocols are tested. (ie. "tcp", "udp")
 
-module(... or "rpc", package.seeall)
-require("datafiles")
+local bin = require "bin"
+local bit = require "bit"
+local datafiles = require "datafiles"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("rpc", stdnse.seeall)
 
 -- Version 0.3
 --
@@ -2953,12 +2961,12 @@ Util =
           end
 
           return string.format("%s%s  uid: %5d  gid: %5d  %6s  %s",
-                                rpc.Util.FtypeToChar(attr.mode),
-                                rpc.Util.FpermToString(attr.mode),
+                                Util.FtypeToChar(attr.mode),
+                                Util.FpermToString(attr.mode),
                                 attr.uid,
                                 attr.gid,
-                                rpc.Util.SizeToHuman(attr.size),
-                                rpc.Util.TimeToString(attr[time].seconds))
+                                Util.SizeToHuman(attr.size),
+                                Util.TimeToString(attr[time].seconds))
         end,
 
         marshall_int32 = function(int32, count)
@@ -3361,3 +3369,5 @@ Util =
     end
   end
 }
+
+return _ENV;

@@ -1,3 +1,11 @@
+local ftp = require "ftp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local vulns = require "vulns"
+
 description = [[
 Tests for the presence of the vsFTPd 2.3.4 backdoor reported on 2011-07-04
 (CVE-2011-2523). This script attempts to exploit the backdoor using the
@@ -44,11 +52,6 @@ author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "malware", "vuln"}
 
-require("ftp")
-require("nmap")
-require("shortport")
-require("stdnse")
-require("vulns")
 
 local CMD_FTP = "USER X:)\r\nPASS X\r\n"
 local CMD_SHELL_ID = "id"

@@ -1,3 +1,9 @@
+local dns = require "dns"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Retrieves configuration information from a Lexmark S300-S400 printer.
 
@@ -44,9 +50,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'stdnse'
-require 'dns'
 
 portrule = shortport.portnumber({5353,9100}, "udp")
 

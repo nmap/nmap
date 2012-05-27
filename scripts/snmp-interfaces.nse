@@ -1,3 +1,12 @@
+local datafiles = require "datafiles"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local snmp = require "snmp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Attempts to enumerate network interfaces through SNMP.
 
@@ -38,11 +47,6 @@ dependencies = {"snmp-brute"}
 -- Revised 05/27/2011 - v0.4 - action; add MAC addresses to nmap.registry[host.ip]["mac-geolocation"] (Gorjan Petrovski)
 
 
-require "stdnse"
-require "shortport"
-require "snmp"
-require "datafiles"
-require "target"
 
 
 prerule = function()

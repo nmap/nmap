@@ -1,3 +1,11 @@
+local brute = require "brute"
+local creds = require "creds"
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local openssl = stdnse.silent_require "openssl"
+
 description=[[
 Performs brute force password auditing against a Nexpose vulnerability scanner using the API 1.1.  By default it only tries three guesses per username to avoid target account lockout.
 ]]
@@ -26,10 +34,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
-require "shortport"
-require "brute"
-require "http"
-stdnse.silent_require "openssl"
 
 portrule = shortport.port_or_service(3780, "nexpose", "tcp")
 

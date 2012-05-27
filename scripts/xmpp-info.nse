@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local xmpp = require "xmpp"
+
 description = [[
 Connects to XMPP server (port 5222) and collects server information such as:
 supported auth mechanisms, compression methods, whether TLS is supported
@@ -41,10 +48,6 @@ author = "Vasiliy Kulikov"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe", "discovery", "version"}
 
-require 'shortport'
-require 'stdnse'
-require 'dns'
-require 'xmpp'
 
 local known_features = {
     ['starttls'] = true,

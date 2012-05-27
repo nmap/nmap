@@ -1,3 +1,6 @@
+local stdnse = require "stdnse"
+local upnp = require "upnp"
+
 description = [[
 Attempts to extract system information from the UPnP service by sending a multicast query, then collecting, parsing, and displaying all responses.
 ]]
@@ -30,8 +33,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require("shortport")
-require("upnp")
 
 prerule = function() return true end
 

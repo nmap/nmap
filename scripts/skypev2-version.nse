@@ -1,3 +1,8 @@
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Detects the Skype version 2 service.
 ]]
@@ -11,8 +16,6 @@ author = "Brandon Enright"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
-require "comm"
-require "shortport"
 
 portrule = function(host, port)
         return (port.number == 80 or port.number == 443 or

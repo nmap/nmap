@@ -1,3 +1,10 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Performs brute force password auditing against the Lotus Domino Console.
 ]]
@@ -27,9 +34,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'brute'
-require 'creds'
 
 portrule = shortport.port_or_service(2050, "", "tcp", "open")
 

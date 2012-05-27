@@ -1,3 +1,8 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Tests whether a JBoss target is vulnerable to jmx console authentication bypass (CVE-2010-0738).
 
@@ -31,9 +36,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "auth", "vuln"}
 
-require 'shortport'
-require 'http'
-require 'stdnse'
 
 portrule = shortport.http
 

@@ -1,3 +1,9 @@
+local brute = require "brute"
+local creds = require "creds"
+local membase = require "membase"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force password auditing against Couchbase Membase servers.
 ]]
@@ -23,9 +29,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'brute'
-require 'shortport'
-require 'membase'
 
 portrule = shortport.port_or_service({11210,11211}, "couchbase-tap", "tcp")
 

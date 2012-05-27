@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local shortport = require "shortport"
+local socks = require "socks"
+
 description = [[
 Performs brute force password auditing against SOCKS 5 proxy servers.
 ]]
@@ -20,9 +25,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-require 'brute'
-require 'shortport'
-require 'socks'
 
 portrule = shortport.port_or_service({1080, 9050}, {"socks", "socks5", "tor-socks"})
 

@@ -1,3 +1,16 @@
+local bit = require "bit"
+local dns = require "dns"
+local ipOps = require "ipOps"
+local listop = require "listop"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local strbuf = require "strbuf"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Requests a zone transfer (AXFR) from a DNS server.
 
@@ -68,15 +81,6 @@ Useful resources
 -- nmap --script dns-zone-transfer.nse \
 --      --script-args dns-zone-transfer.domain=<domain>
 
-require('shortport')
-require('strbuf')
-require('stdnse')
-require('listop')
-require('bit')
-require('tab')
-require('dns')
-require('target')
-require('ipOps')
 
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

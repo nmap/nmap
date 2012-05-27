@@ -1,3 +1,9 @@
+local bit = require "bit"
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Checks a DNS server for the predictable-TXID DNS recursion
 vulnerability.  Predictable TXID values can make a DNS server vulnerable to
@@ -32,9 +38,6 @@ txidtest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
 
 categories = {"external", "intrusive"}
 
-require "bit"
-require "comm"
-require "shortport"
 
 portrule = shortport.portnumber(53, "udp")
 

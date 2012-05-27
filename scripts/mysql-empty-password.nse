@@ -1,3 +1,10 @@
+local mysql = require "mysql"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Checks for MySQL servers with an empty password for <code>root</code> or
 <code>anonymous</code>.
@@ -14,9 +21,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
-require 'shortport'
-require 'stdnse'
-require 'mysql'
 
 -- Version 0.3
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

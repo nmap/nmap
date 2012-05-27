@@ -1,3 +1,9 @@
+local proxy = require "proxy"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local url = require "url"
+
 description=[[
 Checks if an HTTP proxy is open.
 
@@ -37,11 +43,6 @@ the target to retrieve a web page from www.google.com.
 author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "safe"}
-require "comm"
-require "shortport"
-require "stdnse"
-require "url"
-require "proxy"
 
 --- Performs the custom test, with user's arguments 
 -- @param host The host table

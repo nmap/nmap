@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local xdmcp = require "xdmcp"
+
 description = [[
 Requests an XDMCP (X display manager control protocol) session and lists supported authentication and authorization mechanisms.
 ]]
@@ -19,9 +25,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
-require 'ipOps'
-require 'shortport'
-require 'xdmcp'
 
 portrule = shortport.port_or_service(177, "xdmcp", "udp")
 

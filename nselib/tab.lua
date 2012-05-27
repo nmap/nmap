@@ -24,9 +24,11 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "tab", package.seeall)
-
-require('strbuf')
+local stdnse = require "stdnse"
+local strbuf = require "strbuf"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("tab", stdnse.seeall)
 
 --- Create and return a new table.
 -- @return A new table.
@@ -122,3 +124,5 @@ function dump(t)
 
 	return strbuf.dump(buf)
 end
+
+return _ENV;

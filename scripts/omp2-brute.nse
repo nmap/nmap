@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local omp2 = require "omp2"
+local shortport = require "shortport"
+
 description = [[
 Performs brute force password auditing against the OpenVAS manager using OMPv2.
 ]]
@@ -18,11 +23,6 @@ author = "Henri Doreau"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-require("omp2")
-require("nmap")
-require("brute")
-require("shortport")
-require("creds")
 
 portrule = shortport.port_or_service(9390, "openvas")
 

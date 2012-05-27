@@ -6806,7 +6806,7 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    for ac_header in lua.h lua/lua.h lua5.1/lua.h
+    for ac_header in lua.h lua/lua.h lua5.2/lua.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -6814,9 +6814,9 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   cat >>confdefs.h <<_ACEOF
 #define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
 _ACEOF
- { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua_call in -llua" >&5
-$as_echo_n "checking for lua_call in -llua... " >&6; }
-if ${ac_cv_lib_lua_lua_call+:} false; then :
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua_yieldk in -llua" >&5
+$as_echo_n "checking for lua_yieldk in -llua... " >&6; }
+if ${ac_cv_lib_lua_lua_yieldk+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -6830,37 +6830,37 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char lua_call ();
+char lua_yieldk ();
 int
 main ()
 {
-return lua_call ();
+return lua_yieldk ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_lua_lua_call=yes
+  ac_cv_lib_lua_lua_yieldk=yes
 else
-  ac_cv_lib_lua_lua_call=no
+  ac_cv_lib_lua_lua_yieldk=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lua_lua_call" >&5
-$as_echo "$ac_cv_lib_lua_lua_call" >&6; }
-if test "x$ac_cv_lib_lua_lua_call" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lua_lua_yieldk" >&5
+$as_echo "$ac_cv_lib_lua_lua_yieldk" >&6; }
+if test "x$ac_cv_lib_lua_lua_yieldk" = xyes; then :
   have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break
 fi
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua_call in -llua5.1" >&5
-$as_echo_n "checking for lua_call in -llua5.1... " >&6; }
-if ${ac_cv_lib_lua5_1_lua_call+:} false; then :
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua_yieldk in -llua5.2" >&5
+$as_echo_n "checking for lua_yieldk in -llua5.2... " >&6; }
+if ${ac_cv_lib_lua5_2_lua_yieldk+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-llua5.1 -lm $LIBS"
+LIBS="-llua5.2 -lm $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -6870,28 +6870,28 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char lua_call ();
+char lua_yieldk ();
 int
 main ()
 {
-return lua_call ();
+return lua_yieldk ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_lua5_1_lua_call=yes
+  ac_cv_lib_lua5_2_lua_yieldk=yes
 else
-  ac_cv_lib_lua5_1_lua_call=no
+  ac_cv_lib_lua5_2_lua_yieldk=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lua5_1_lua_call" >&5
-$as_echo "$ac_cv_lib_lua5_1_lua_call" >&6; }
-if test "x$ac_cv_lib_lua5_1_lua_call" = xyes; then :
-  have_lua=yes; LIBLUA_LIBS="-llua5.1"; CPPFLAGS="-I/usr/include/lua5.1 $CPPFLAGS"; break
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lua5_2_lua_yieldk" >&5
+$as_echo "$ac_cv_lib_lua5_2_lua_yieldk" >&6; }
+if test "x$ac_cv_lib_lua5_2_lua_yieldk" = xyes; then :
+  have_lua=yes; LIBLUA_LIBS="-llua5.2"; CPPFLAGS="-I/usr/include/lua5.2 $CPPFLAGS"; break
 fi
 
 
@@ -6906,8 +6906,8 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version >= 501" >&5
-$as_echo_n "checking for lua version >= 501... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for lua version >= 502" >&5
+$as_echo_n "checking for lua version >= 502... " >&6; }
 
 if test "$cross_compiling" = yes; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: cross-compiling -- assuming yes" >&5
@@ -6919,7 +6919,7 @@ else
 int
 main ()
 {
-if(LUA_VERSION_NUM < 501) return 1;
+if(LUA_VERSION_NUM < 502) return 1;
   ;
   return 0;
 }

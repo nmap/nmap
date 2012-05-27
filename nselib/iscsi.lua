@@ -35,10 +35,17 @@
 -- Revised 2010/11/28 - v0.2 - improved error handling, fixed discovery issues
 --								with multiple addresses <patrik@cqure.net>
 
-module(... or "iscsi",package.seeall)
 
-require("bin")
-require("ipOps")
+local bin = require "bin"
+local bit = require "bit"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("iscsi", stdnse.seeall)
+
 
 Packet = {
 	
@@ -788,3 +795,5 @@ Helper = {
 
 
 
+
+return _ENV;

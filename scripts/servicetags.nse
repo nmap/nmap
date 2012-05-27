@@ -1,3 +1,10 @@
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to extract system information (OS, hardware, etc.) from the Sun Service Tags service agent (UDP port 6481).
 
@@ -70,8 +77,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-require("stdnse")
-require("shortport")
 
 -- Mapping from XML element names to human-readable table labels.
 local XML_TO_TEXT = {

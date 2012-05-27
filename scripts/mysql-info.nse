@@ -1,3 +1,6 @@
+local bit = require "bit"
+local comm = require "comm"
+
 description = [[
 Connects to a MySQL server and prints information such as the protocol and
 version numbers, thread ID, status, capabilities, and the password salt.
@@ -25,8 +28,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = { "default", "discovery", "safe" }
 
-require 'bit'
-require 'comm'
 
 --- Grabs NUL-terminated string
 --@param orig Start of the string

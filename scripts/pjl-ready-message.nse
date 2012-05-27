@@ -1,3 +1,6 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+
 description = [[
 Retrieves or sets the ready message on printers that support the Printer
 Job Language. This includes most PostScript printers that listen on port
@@ -21,8 +24,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive"}
 
-require "nmap"
-require "shortport"
 portrule = shortport.port_or_service(9100, "jetdirect")
 
 local function parse_response(response)

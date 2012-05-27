@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Connects to a dictionary server using the DICT protocol and runs the SHOW
 SERVER command and displays the result. The DICT protocol is defined in RFC
@@ -29,7 +34,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local shortport = require('shortport')
 
 portrule = shortport.port_or_service(2628, "dict", "tcp")
 

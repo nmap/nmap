@@ -1,3 +1,11 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local mongodb = stdnse.silent_require "mongodb"
+
 description = [[
 Performs brute force password auditing against the MongoDB database.
 ]]
@@ -16,10 +24,6 @@ Performs brute force password auditing against the MongoDB database.
 -- |_    Performed 3542 guesses in 9 seconds, average tps: 393
 --
 
-require 'brute'
-require 'shortport'
-require 'stdnse'
-stdnse.silent_require('mongodb')
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -1,3 +1,10 @@
+local dns = require "dns"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Performs a domain lookup using the edns-client-subnet option that adds
 support for adding subnet information to the query describing where the
@@ -44,9 +51,6 @@ author = "John Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"discovery", "safe"}
 
-require "stdnse"
-require "shortport"
-require "dns"
 
 local argNS = stdnse.get_script_args(SCRIPT_NAME .. '.nameserver')
 local argDomain = stdnse.get_script_args(SCRIPT_NAME .. '.domain')

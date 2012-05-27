@@ -1,13 +1,16 @@
+local http = require "http"
+local json = require "json"
+local package = require "package"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("mobileme", stdnse.seeall)
+
 ---
 -- A MobileMe web service client that allows discovering Apple devices
 -- using the "find my iPhone" functionality. 
 -- 
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
-module(... or "mobileme", package.seeall)
-
-local http = require('http')
-local json = require('json')
 
 MobileMe = {
 	

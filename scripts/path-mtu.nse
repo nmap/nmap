@@ -1,3 +1,11 @@
+local bin = require "bin"
+local math = require "math"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Performs simple Path MTU Discovery to target hosts.
 
@@ -36,10 +44,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require 'bin'
-require 'packet'
-require 'nmap'
-require 'stdnse'
 
 local IPPROTO_ICMP = packet.IPPROTO_ICMP
 local IPPROTO_TCP  = packet.IPPROTO_TCP

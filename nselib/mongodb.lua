@@ -11,9 +11,13 @@
 -- Created 01/13/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Revised 01/03/2012 - v0.2 - added authentication support <patrik@cqure.net>
 
-module("mongodb", package.seeall)
-require("bin")
-stdnse.silent_require "openssl"
+local bin = require "bin"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local openssl = stdnse.silent_require "openssl"
+_ENV = stdnse.module("mongodb", stdnse.seeall)
 
 
 -- this is not yet widely implemented but at least used for authentication
@@ -24,7 +28,7 @@ local arg_DB = stdnse.get_script_args("mongodb.db")
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug(3, "MngoDb:"..str, unpack(arg))
+	stdnse.print_debug(3, "MngoDb:"..str, table.unpack(arg))
 end
 --local dbg =stdnse.print_debug
 
@@ -51,7 +55,7 @@ local err =stdnse.print_debug
 --module("bson", package.seeall)
 --require("bin")
 local function dbg_err(str,...)
-	stdnse.print_debug("Bson-ERR:"..str, unpack(arg))
+	stdnse.print_debug("Bson-ERR:"..str, table.unpack(arg))
 end
 --local err =stdnse.log_error
 
@@ -600,7 +604,7 @@ function login(socket, db, username, password)
 	local query = { getnonce = 1 }
 	local status, packet = createQuery(collectionName, query)
 	local response
-	status, response = mongodb.query(socket, packet)
+	status, response = query(socket, packet)
 	if ( not(status) or not(response.nonce) ) then
 		return false, "Failed to retrieve nonce"
 	end
@@ -613,7 +617,7 @@ function login(socket, db, username, password)
 	query._cmd = { authenticate = 1 }
 
 	local status, packet = createQuery(collectionName, query)
-	status, response = mongodb.query(socket, packet)
+	status, response = query(socket, packet)
 	if ( not(status) ) then
 		return status, response
 	elseif ( response.errmsg == "auth fails" ) then
@@ -679,3 +683,5 @@ end
 -- end
 --test()
 
+
+return _ENV;

@@ -1,3 +1,10 @@
+local bin = require "bin"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Guesses Oracle instance/SID names against the TNS-listener.
 
@@ -32,9 +39,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'comm'
-require 'datafiles'
-require 'shortport'
 
 portrule = shortport.port_or_service(1521, 'oracle-tns')
 

@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local vuzedht = stdnse.silent_require "vuzedht"
+
 description = [[
 Retrieves some basic information, including protocol version from a Vuze filesharing node.
 ]]
@@ -32,10 +38,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'ipOps'
-require 'stdnse'
-stdnse.silent_require('vuzedht')
 
 portrule = function(host, port)
 	local allports = stdnse.get_script_args('vuze-dht-info.allports')

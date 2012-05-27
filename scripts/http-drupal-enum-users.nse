@@ -1,3 +1,9 @@
+local http = require "http"
+local json = require "json"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Enumerates Drupal users by exploiting a an information disclosure vulnerability
 in Views, Drupal's most popular module.
@@ -29,10 +35,6 @@ author = "Hani Benhabiles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require 'http'
-require 'stdnse'
-require 'shortport'
-require 'json'
 
 portrule = shortport.http
 

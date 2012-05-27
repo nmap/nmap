@@ -18,10 +18,16 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
-module(... or "dnsbl", package.seeall)
+local bit = require "bit"
+local coroutine = require "coroutine"
+local dns = require "dns"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("dnsbl", stdnse.seeall)
 
-require 'bit'
-require 'ipOps'
 
 -- The services table contains a list of valid DNSBL providers
 -- Providers are categorized in categories that should contain services that
@@ -453,7 +459,7 @@ SERVICES = {
 					return
 				end
 
-				local octet1, octet2, octet3, octet4 = unpack(parts)
+				local octet1, octet2, octet3, octet4 = table.unpack(parts)
 
 				if ( octet1 ~= 127 ) then
 					-- This should'nt happen :P
@@ -719,3 +725,5 @@ Helper = {
 	end,
 
 }
+
+return _ENV;

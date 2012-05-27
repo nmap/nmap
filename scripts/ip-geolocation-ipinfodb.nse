@@ -1,3 +1,9 @@
+local http = require "http"
+local ipOps = require "ipOps"
+local json = require "json"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Tries to identify the physical location of an IP address using the
 IPInfoDB geolocation web service
@@ -26,10 +32,6 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","external","safe"}
 
-require "stdnse"
-require "ipOps"
-require "json"
-require "http"
 
 hostrule = function(host)
 	local is_private, err = ipOps.isPrivate( host.ip )

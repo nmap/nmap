@@ -1,3 +1,8 @@
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Connects to the mobile mouse server, starts an application and sends a sequence
 of keys to it. Any application that the user has access to can be started and
@@ -35,8 +40,6 @@ author = "Patrik Karlsson"
 categories = {"intrusive"}
 dependencies = {"mmouse-brute"}
 
-local shortport = require('shortport')
-local creds     = require('creds')
 
 local arg_password = stdnse.get_script_args(SCRIPT_NAME .. '.password')
 local arg_app      = stdnse.get_script_args(SCRIPT_NAME .. '.application')

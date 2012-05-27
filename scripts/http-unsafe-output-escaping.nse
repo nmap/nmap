@@ -1,3 +1,10 @@
+local http = require "http"
+local httpspider = require "httpspider"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Spiders a website and attempts to identify output escaping problems
 where content is reflected back to the user.  This script locates all
@@ -36,14 +43,11 @@ author = "Martin Holst Swende"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require 'httpspider'
-require 'shortport'
-require 'url'
 
 portrule = shortport.http
 
 local function dbg(str,...)
-	stdnse.print_debug(2,"%s:"..str, SCRIPT_NAME, unpack(arg))
+	stdnse.print_debug(2,"%s:"..str, SCRIPT_NAME, table.unpack(arg))
 end
 
 local function getHostPort(parsed)

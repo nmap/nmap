@@ -29,14 +29,18 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "dns", package.seeall)
 
-require("bit")
-require("ipOps")
-require("stdnse")
+local bin = require "bin"
+local bit = require "bit"
+local coroutine = require "coroutine"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("dns", stdnse.seeall)
 
 get_servers = nmap.get_dns_servers
-
 
 ---
 -- Table of DNS resource types.
@@ -1475,3 +1479,5 @@ function update(dname, options)
     end
     return false
 end
+
+return _ENV;

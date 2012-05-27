@@ -1,3 +1,8 @@
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local vnc = require "vnc"
+
 description = [[
 Queries a VNC server for its protocol version and supported security types.
 ]]
@@ -22,8 +27,6 @@ categories = {"default", "discovery", "safe"}
 -- Created 07/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 08/14/2010 - v0.2 - changed so that errors are reported even without debugging
 
-require 'shortport'
-require 'vnc'
 
 portrule = shortport.port_or_service( {5900, 5901, 5902} , "vnc", "tcp", "open")
 

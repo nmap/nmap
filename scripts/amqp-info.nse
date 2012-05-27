@@ -1,3 +1,8 @@
+local amqp = require "amqp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Gathers information (a list of all server properties) from an AMQP (advanced message queuing protocol) server.
 
@@ -33,9 +38,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe", "version"}
 
-require("stdnse")
-require("shortport")
-require("amqp")
 
 portrule = shortport.port_or_service(5672, "amqp", "tcp", "open")
 

@@ -149,7 +149,7 @@ static int ssl_cert_digest(lua_State *L)
 
 /* These are the contents of the table that is pointed to by the table that has
    ssl_cert_methods_index_ref as a reference. */
-static struct luaL_reg ssl_cert_methods[] = {
+static struct luaL_Reg ssl_cert_methods[] = {
   { "digest", ssl_cert_digest },
   { NULL, NULL },
 };
@@ -173,7 +173,7 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
     while ((n = OBJ_obj2txt(buf, size, obj, 1)) < 0 || (unsigned) n >= size) {
       size = size * 2;
       buf = (char *) lua_newuserdata(L, size);
-      memcpy(lua_touserdata(L, -1), lua_touserdata(L, -2), lua_objlen(L, -2));
+      memcpy(lua_touserdata(L, -1), lua_touserdata(L, -2), lua_rawlen(L, -2));
       lua_replace(L, -2);
     }
 
@@ -495,7 +495,7 @@ void nse_nsock_init_ssl_cert(lua_State *L)
      global shared table of certificate functions. */
   lua_newtable(L);
   lua_newtable(L);
-  luaL_register(L, NULL, ssl_cert_methods);
+  luaL_setfuncs(L, ssl_cert_methods, 0);
   lua_setfield(L, -2, "__index");
   ssl_cert_methods_index_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 }

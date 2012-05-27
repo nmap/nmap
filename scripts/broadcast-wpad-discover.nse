@@ -1,3 +1,12 @@
+local dhcp = require "dhcp"
+local dns = require "dns"
+local http = require "http"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Retrieves a list of proxy servers on the LAN using the Web Proxy
 Autodiscovery Protocol (WPAD).  It implements both the DHCP and DNS
@@ -26,10 +35,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'dns'
-require 'dhcp'
-require 'http'
-require 'url'
 
 prerule = function() return true end
 

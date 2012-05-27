@@ -37,11 +37,15 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
 
-module(... or "dnssd", package.seeall)
-
-require 'dns'
-require 'target'
-require 'ipOps'
+local coroutine = require "coroutine"
+local dns = require "dns"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+_ENV = stdnse.module("dnssd", stdnse.seeall)
 
 Util = {
 
@@ -388,3 +392,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

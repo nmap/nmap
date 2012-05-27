@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to discover DB2 servers on the network by querying open ibm-db2 UDP ports (normally port 523).
 ]]
@@ -23,8 +29,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
-require "stdnse"
-require "shortport"
 
 portrule = shortport.version_port_or_service(523, "ibm-db2", "udp",
 												{"open", "open|filtered"})

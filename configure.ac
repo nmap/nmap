@@ -606,16 +606,17 @@ else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
-    AC_CHECK_HEADERS([lua.h lua/lua.h lua5.1/lua.h],
-      AC_CHECK_LIB(lua, lua_call, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
-      AC_CHECK_LIB(lua5.1, lua_call, [have_lua=yes; LIBLUA_LIBS="-llua5.1"; CPPFLAGS="-I/usr/include/lua5.1 $CPPFLAGS"; break],, [-lm])
+    AC_CHECK_HEADERS([lua.h lua/lua.h lua5.2/lua.h],
+      AC_CHECK_LIB(lua, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua52, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua52"; CPPFLAGS="-I/usr/include/lua52 $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua5.2, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua5.2"; CPPFLAGS="-I/usr/include/lua5.2 $CPPFLAGS"; break],, [-lm])
     )
 
     AC_LANG_PUSH(C++)
-    AC_MSG_CHECKING([for lua version >= 501])
+    AC_MSG_CHECKING([for lua version >= 502])
     AC_RUN_IFELSE([ AC_LANG_PROGRAM(
     	[[#include <lua.h>]], 
-    	[[if(LUA_VERSION_NUM < 501) return 1;]])], 
+    	[[if(LUA_VERSION_NUM < 502) return 1;]])], 
     	have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
     AC_LANG_POP(C++)
   

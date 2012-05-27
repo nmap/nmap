@@ -1,3 +1,9 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to retrieve the model, firmware version, and enabled services from a 
 QNAP Network Attached Storage (NAS) device.
@@ -36,10 +42,6 @@ author = "Brendan Coles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","discovery"}
 
-require("url")
-require("http")
-require("stdnse")
-require("shortport")
 
 portrule = shortport.port_or_service ({443,8080}, "https", "tcp")
 

@@ -1,3 +1,12 @@
+local coroutine = require "coroutine"
+local drda = require "drda"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Performs password guessing against databases supporting the IBM DB2 protocol such as Informix, DB2 and Derby
 ]]
@@ -20,10 +29,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories={"intrusive", "brute"}
 
-require "stdnse"
-require "shortport"
-require "drda"
-require "unpwdb"
 
 -- Version 0.5
 -- Created 05/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

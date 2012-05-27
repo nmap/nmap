@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Attempts to discover DB2 servers on the network by sending a broadcast request to port 523/udp.
 ]]
@@ -19,9 +25,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require "stdnse"
-require "shortport"
-require "target"
 
 prerule = function() return true end
 

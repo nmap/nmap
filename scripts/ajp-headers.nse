@@ -1,3 +1,7 @@
+local ajp = require "ajp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs a HEAD or GET request against either the root directory or any
 optional directory and returns the server response headers.
@@ -18,8 +22,6 @@ optional directory and returns the server response headers.
 --
 -- @args ajp-headers.path The path to request, such as <code>/index.php</code>. Default <code>/</code>. 
 
-local ajp       = require('ajp')
-local shortport = require('shortport')
 
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 

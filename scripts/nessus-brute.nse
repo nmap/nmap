@@ -1,3 +1,8 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+
 description=[[
 Performs brute force password auditing against a Nessus vulnerability scanning daemon using the NTP 1.2 protocol.
 ]]
@@ -28,9 +33,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require 'shortport'
-require 'brute'
-require 'comm'
 
 portrule = shortport.port_or_service(1241, "nessus", "tcp")
 

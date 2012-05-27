@@ -80,12 +80,13 @@
 --                   For information, see <code>smbauth.lua</code>. 
 --@args smbnoguest   Use to disable usage of the 'guest' account. 
 
-module(... or "smbauth", package.seeall)
-
-require 'bit'
-require 'bin'
-require 'netbios'
-require 'stdnse'
+local bin = require "bin"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("smbauth", stdnse.seeall)
 
 have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
@@ -830,3 +831,5 @@ end
 
 
 
+
+return _ENV;

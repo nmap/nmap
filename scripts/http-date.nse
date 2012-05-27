@@ -1,3 +1,9 @@
+local http = require "http"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Gets the date from HTTP-like services. Also prints how much the date
 differs from local time. Local time is the time the HTTP request was
@@ -17,9 +23,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
-require("http")
-require("shortport")
-require("stdnse")
 
 portrule = shortport.http
 

@@ -1,3 +1,8 @@
+local shortport = require "shortport"
+local socks = require "socks"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Determines the supported authentication mechanisms of a remote SOCKS
 proxy server.  Starting with SOCKS version 5 socks servers may support
@@ -20,8 +25,6 @@ types:
 -- |_  Username and password
 --
 
-require 'shortport'
-require 'socks'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

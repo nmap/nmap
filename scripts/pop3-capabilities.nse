@@ -1,3 +1,9 @@
+local pop3 = require "pop3"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Retrieves POP3 email server capabilities.
 
@@ -17,9 +23,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default","discovery","safe"}
 
-require 'pop3'
-require 'shortport'
-require 'stdnse'
 
 portrule = shortport.port_or_service({110,995},{"pop3","pop3s"})
 

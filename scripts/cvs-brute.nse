@@ -1,3 +1,10 @@
+local brute = require "brute"
+local creds = require "creds"
+local cvs = require "cvs"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force password auditing against CVS pserver authentication.
 ]]
@@ -30,10 +37,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 dependencies = {"cvs-brute-repository"}
 
-require 'cvs'
-require 'brute'
-require 'creds'
-require 'shortport'
 
 portrule = shortport.port_or_service(2401, "cvspserver")
 

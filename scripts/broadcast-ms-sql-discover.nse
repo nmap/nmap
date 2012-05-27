@@ -1,3 +1,9 @@
+local mssql = require "mssql"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
 
@@ -47,9 +53,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast", "safe"}
 
-require 'mssql'
-require 'target'
-require 'stdnse'
 
 prerule = function() return true end
 

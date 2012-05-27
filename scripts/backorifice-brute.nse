@@ -1,3 +1,13 @@
+local bin = require "bin"
+local bit = require "bit"
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Performs brute force password auditing against the BackOrifice service. The
 <code>backorifice-brute.ports</code> script argument is mandatory (it specifies ports to run
@@ -36,13 +46,6 @@ author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-require("nmap")
-require("bin")
-require("bit")
-require("shortport")
-require("brute")
-require("stdnse")
-require("creds")
 
 -- This portrule succeeds only when the open|filtered port is in the port range
 -- which is specified by the ports script argument

@@ -4,7 +4,16 @@
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
-module(... or "iax2", package.seeall)
+
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+_ENV = stdnse.module("iax2", stdnse.seeall)
 
 
 IAX2 = {
@@ -330,3 +339,5 @@ Helper = {
 	
 	
 }
+
+return _ENV;

@@ -1,3 +1,12 @@
+local bin = require "bin"
+local math = require "math"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 	Repeatedly probe open and/or closed ports on a host to obtain a series
 	of round-trip time values for each port.  These values are used to
@@ -49,11 +58,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require 'stdnse'
-require 'bin'
-require 'packet'
-require 'tab'
-require 'nmap'
 
 -- defaults
 local DELAY = 0.200

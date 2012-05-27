@@ -1,3 +1,11 @@
+local comm = require "comm"
+local math = require "math"
+local nmap = require "nmap"
+local pcre = require "pcre"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Gathers information from an IRC server.
 
@@ -20,10 +28,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
-require("stdnse")
-require "shortport"
-require("nsedebug")
-require("comm")
 
 portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
 

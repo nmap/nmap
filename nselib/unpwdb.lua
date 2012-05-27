@@ -65,7 +65,11 @@
 -- @author Kris Katterjohn 06/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "unpwdb", package.seeall)
+local io = require "io"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("unpwdb", stdnse.seeall)
 
 local usertable = {}
 local passtable = {}
@@ -281,3 +285,5 @@ passwords = function(time_limit, count_limit)
 
 	return true, limited_iterator(iterator, time_limit, count_limit)
 end
+
+return _ENV;

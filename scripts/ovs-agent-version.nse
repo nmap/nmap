@@ -1,3 +1,8 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Detects the version of an Oracle OVSAgentServer by fingerprinting
 responses to an HTTP GET request and an XML-RPC method call.
@@ -25,8 +30,6 @@ categories = {"version"}
 author = "David Fifield"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-require("http")
-require("shortport")
 
 portrule = shortport.port_or_service({8899})
 

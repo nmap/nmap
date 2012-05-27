@@ -1,3 +1,10 @@
+local io = require "io"
+local nrpc = require "nrpc"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to discover valid IBM Lotus Domino users and download their ID files by exploiting the CVE-2006-5835 vulnerability.
 ]]
@@ -37,9 +44,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
-require 'shortport'
-require 'nrpc'
-require 'unpwdb'
 
 portrule = shortport.port_or_service(1352, "lotusnotes", "tcp", "open")
 

@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description=[[
 Discovers Telldus Technologies TellStickNet devices on the LAN. The Telldus
 TellStick is used to wirelessly control electric devices such as lights,

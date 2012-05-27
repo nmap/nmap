@@ -1,3 +1,8 @@
+local comm = require "comm"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+
 description = [[
 Attempts to extract system information from the point-to-point tunneling protocol (PPTP) service.
 ]]
@@ -15,8 +20,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"version"}
 
-require "comm"
-require "shortport"
 
 portrule = shortport.version_port_or_service(1723)
 

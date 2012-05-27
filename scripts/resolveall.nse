@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Resolves hostnames and adds every address (IPv4 or IPv6, depending on
 Nmap mode) to Nmap's target list.  This differs from Nmap's normal
@@ -27,8 +33,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require 'target'
-require 'stdnse'
 
 prerule = function()
   if not stdnse.get_script_args("resolveall.hosts") then

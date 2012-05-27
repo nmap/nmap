@@ -1,3 +1,11 @@
+local ajp = require "ajp"
+local base64 = require "base64"
+local brute = require "brute"
+local creds = require "creds"
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force passwords auditing against the Apache JServ protocol.
 The Apache JServ Protocol is commonly used by web servers to communicate with
@@ -22,11 +30,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
-local shortport = require('shortport')
-local ajp       = require('ajp')
-local base64    = require('base64')
-local brute     = require('brute')
-local http      = require('http')
 
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 

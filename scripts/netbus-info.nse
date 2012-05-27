@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Opens a connection to a NetBus server and extracts information about
 the host and the NetBus service itself.
@@ -51,10 +57,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require("nmap")
-require("comm")
-require("stdnse")
-require("shortport")
 
 dependencies = {"netbus-version", "netbus-brute"}
 

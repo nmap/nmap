@@ -1,3 +1,9 @@
+local bin = require "bin"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Connects to the IBM DB2 Administration Server (DAS) on TCP or UDP port 523 and
 exports the server profile.  No authentication is required for this request.
@@ -61,8 +67,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery", "version"}
 
-require "stdnse"
-require "shortport"
 
 --- Research Notes:
 --

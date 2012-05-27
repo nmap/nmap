@@ -4,10 +4,14 @@
 -- @author Joao Correa <joao@livewire.com.br>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "proxy",package.seeall)
-
-require 'dns'
-require 'ipOps'
+local bin = require "bin"
+local dns = require "dns"
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("proxy", stdnse.seeall)
 
 -- Start of local functions
 
@@ -22,8 +26,8 @@ local function check_code(result)
     if result:match( "\r?\n\r?\n" ) then
       result = result:match( "^(.-)\r?\n\r?\n(.*)$" )
     end
-    if result:lower():match("^http/%d\.%d%s*200") then return true end
-    if result:lower():match("^http/%d\.%d%s*30[12]") then return true end
+    if result:lower():match("^http/%d%.%d%s*200") then return true end
+    if result:lower():match("^http/%d%.%d%s*30[12]") then return true end
   end
   return false
 end
@@ -133,7 +137,7 @@ function hex_resolve(hostname)
   end
   local t, err = ipOps.get_parts_as_number(ip)
   if t and not err
-    then a, b, c, d = unpack(t)
+    then a, b, c, d = table.unpack(t)
     else return false
   end
   local sip = string.format("%.2x ", a) .. string.format("%.2x ", b) .. string.format("%.2x ", c) .. string.format("%.2x ",d)
@@ -280,3 +284,5 @@ function redirectCheck(resp1, resp2)
   end
   return false
 end
+
+return _ENV;

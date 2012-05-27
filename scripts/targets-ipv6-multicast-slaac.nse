@@ -1,3 +1,15 @@
+local coroutine = require "coroutine"
+local ipOps = require "ipOps"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+local target = require "target"
+
 description = [[
 Performs IPv6 host discovery by triggering stateless address auto-configuration
 (SLAAC).
@@ -34,13 +46,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery","broadcast"}
 
-require 'ipOps'
-require 'nmap'
-require 'tab'
-require 'target'
-require 'packet'
-require "os"
-require "math"
 
 prerule = function()
 	return nmap.is_privileged()

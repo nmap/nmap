@@ -1,3 +1,10 @@
+local shortport = require "shortport"
+local smtp = require "smtp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local vulns = require "vulns"
+
 description = [[
 Checks for a memory corruption in the Postfix SMTP server when it uses
 Cyrus SASL library authentication mechanisms (CVE-2011-1720).  This
@@ -40,10 +47,6 @@ author = "Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
-require "shortport"
-require "smtp"
-require "stdnse"
-require "vulns"
 
 portrule = shortport.port_or_service({25, 465, 587},
                 {"smtp", "smtps", "submission"})

@@ -1,3 +1,13 @@
+local bin = require "bin"
+local datafiles = require "datafiles"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates TFTP (trivial file transfer protocol) filenames by testing
 for a list of common ones.
@@ -31,10 +41,6 @@ author = "Alexander Rudakov"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "discovery", "intrusive" }
 
-require'bin'
-require'stdnse'
-require'shortport'
-require'datafiles'
 
 local REQUEST_ERROR = -1
 local FILE_FOUND = 1

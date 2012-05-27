@@ -5,13 +5,14 @@
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "ssh1",package.seeall)
 
-require "bin"
-require "bit"
-require "math"
-require "stdnse"
-require "openssl"
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+_ENV = stdnse.module("ssh1", stdnse.seeall)
 
 --- Retrieve the size of the packet that is being received
 --  and checks if it is fully received
@@ -206,3 +207,5 @@ fingerprint_visual = function( fingerprint, algorithm, bits )
   return s
 end
 
+
+return _ENV;

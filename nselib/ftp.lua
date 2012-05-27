@@ -3,10 +3,10 @@
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "ftp", package.seeall)
-
-local comm    = require 'comm'
-local stdnse  = require 'stdnse'
+local comm = require "comm"
+local stdnse = require "stdnse"
+local string = require "string"
+_ENV = stdnse.module("ftp", stdnse.seeall)
 
 local ERROR_MESSAGES = {
   ["EOF"]     = "connection closed",
@@ -77,3 +77,5 @@ function read_reply(buffer)
 
 	return nil, string.format("Unparseable response: %q", line)
 end
+
+return _ENV;

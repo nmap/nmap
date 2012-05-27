@@ -1,3 +1,9 @@
+local shortport = require "shortport"
+local smtp = require "smtp"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Attempts to use EHLO and HELP to gather the Extended commands supported by an
 SMTP server.
@@ -60,9 +66,6 @@ author = "Jason DePriest"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-require "shortport"
-require "stdnse"
-require "smtp"
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
                 { "smtp", "smtps", "submission" })

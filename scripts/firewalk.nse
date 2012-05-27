@@ -1,3 +1,11 @@
+local bin = require "bin"
+local math = require "math"
+local nmap = require "nmap"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Tries to discover firewall rules using an IP TTL expiration technique known
 as firewalking.
@@ -73,10 +81,6 @@ categories = {"safe", "discovery"}
 --  o remove traceroute dependency
 
 
-require('bin')
-require('stdnse')
-require('packet')
-require('tab')
 
 
 -----=  scan parameters defaults  =-----

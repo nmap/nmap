@@ -1,3 +1,7 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stun = require "stun"
+
 description = [[
 Sends a binding request to the server and attempts to extract version
 information from the response, if the server attribute is present.
@@ -13,8 +17,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
-require 'shortport'
-require 'stun'
 
 portrule = shortport.port_or_service(3478, "stun", "udp")
 

@@ -1,3 +1,10 @@
+local afp = require "afp"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Attempts to get useful information about files from AFP volumes.
 The output is intended to resemble the output of <code>ls</code>.
@@ -53,10 +60,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require 'shortport'
-require 'stdnse'
-require 'afp'
-require 'tab'
 
 dependencies = {"afp-brute"}
 

@@ -1,3 +1,10 @@
+local citrixxml = require "citrixxml"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to guess valid credentials for the Citrix PN Web Agent XML
 Service. The XML service authenticates against the local Windows server
@@ -30,9 +37,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
-require 'unpwdb'
-require 'shortport'
-require 'citrixxml'
 
 portrule = shortport.portnumber({8080,80,443}, "tcp")
 

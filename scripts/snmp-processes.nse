@@ -1,3 +1,9 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local snmp = require "snmp"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to enumerate running processes through SNMP.
 ]]
@@ -36,8 +42,6 @@ dependencies = {"snmp-brute"}
 -- Revised 01/19/2010 - v0.3 - removed debugging output and renamed file
 -- Revised 04/11/2010 - v0.4 - moved snmp_walk to snmp library <patrik@cqure.net>
 
-require "shortport"
-require "snmp"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 

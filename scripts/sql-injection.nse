@@ -1,3 +1,11 @@
+local http = require "http"
+local httpspider = require "httpspider"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Spiders an HTTP server looking for URLs containing queries vulnerable to an SQL
 injection attack.
@@ -12,14 +20,6 @@ We may not have access to the target web server's true hostname, which can preve
 virtually hosted sites.
 ]]
 
-require('url')
-require('shortport')
-require('stdnse')
-require('strbuf')
-require('comm')
-require('http')
-require('nsedebug')
-require('httpspider')
 
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

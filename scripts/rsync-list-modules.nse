@@ -1,3 +1,7 @@
+local rsync = require "rsync"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Lists modules available for rsync (remote file sync) synchronization.
 ]]
@@ -15,8 +19,6 @@ Lists modules available for rsync (remote file sync) synchronization.
 -- |_  etc            	etc directory
 --
 
-require 'rsync'
-require 'shortport'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -1,3 +1,12 @@
+local coroutine = require "coroutine"
+local http = require "http"
+local io = require "io"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Checks for backups and swap files of common content management system
 and web server configuration files.
@@ -53,9 +62,6 @@ author = "Riccardo Cecolin";
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html";
 categories = { "auth", "intrusive" };
 
-require 'http';
-require 'shortport';
-require 'url';
 
 portrule = shortport.http;
 

@@ -1,3 +1,9 @@
+local citrixxml = require "citrixxml"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[ 
 Extracts a list of applications, ACLs, and settings from the Citrix XML
 service.
@@ -60,9 +66,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-require "comm"
-require 'shortport'
-require 'citrixxml'
 
 portrule = shortport.portnumber({8080,80,443}, "tcp")
 

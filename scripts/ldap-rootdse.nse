@@ -1,3 +1,10 @@
+local comm = require "comm"
+local ldap = require "ldap"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+
 description = [[
 Retrieves the LDAP root DSA-specific Entry (DSE)
 ]]
@@ -88,9 +95,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 dependencies = {"ldap-brute"}
 
-require "ldap"
-require 'shortport'
-require 'comm'
 
 portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 

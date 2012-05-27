@@ -1,3 +1,11 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
+local openssl = stdnse.silent_require "openssl"
+local ssh2 = stdnse.silent_require "ssh2"
+
 description = [[
 Reports the number of algorithms (for encryption, compression, etc.) that
 the target SSH2 server offers. If verbosity is set, the offered algorithms
@@ -55,10 +63,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
-require "shortport"
-require "stdnse"
-stdnse.silent_require "openssl"
-stdnse.silent_require "ssh2"
 
 portrule = shortport.port_or_service(22, "ssh")
 

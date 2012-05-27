@@ -1,3 +1,12 @@
+local bin = require "bin"
+local comm = require "comm"
+local nmap = require "nmap"
+local os = require "os"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Gets the time and configuration variables from an NTP server. We send two
 requests: a time request and a "read variables" (opcode 2) control message.
@@ -30,11 +39,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 
-require "bin"
-require "nmap"
-require "stdnse"
-require "comm"
-require "shortport"
 
 portrule = shortport.port_or_service(123, "ntp", {"udp", "tcp"})
 

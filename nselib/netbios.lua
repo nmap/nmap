@@ -5,12 +5,16 @@
 -- @author Ron Bowes <ron@skullsecurity.net>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "netbios", package.seeall)
+local bin = require "bin"
+local bit = require "bit"
+local dns = require "dns"
+local math = require "math"
+local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("netbios", stdnse.seeall)
 
-require 'bit'
-require 'bin'
-require 'stdnse'
-require 'dns'
 
 types = {
 	NB = 32,
@@ -441,3 +445,5 @@ function flags_to_string(flags)
 	return result
 end
 
+
+return _ENV;

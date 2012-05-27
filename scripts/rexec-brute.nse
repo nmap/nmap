@@ -1,3 +1,9 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description=[[
 Performs brute force password auditing against the classic UNIX rexec (remote exec) service.
 ]]
@@ -20,8 +26,6 @@ Performs brute force password auditing against the classic UNIX rexec (remote ex
 -- Version 0.1
 -- Created 11/02/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-require 'brute'
-require 'shortport'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

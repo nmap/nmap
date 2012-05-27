@@ -1,3 +1,10 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local tab = require "tab"
+local table = require "table"
+
 description=[[
 Gets a list of Git projects, owners and descriptions from a gitweb.
 ]]
@@ -25,9 +32,6 @@ author = "riemann"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local http      = require 'http'
-local shortport = require 'shortport'
-local tab       = require 'tab'
 
 portrule = shortport.http
 

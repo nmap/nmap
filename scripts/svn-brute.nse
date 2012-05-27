@@ -1,3 +1,10 @@
+local brute = require "brute"
+local creds = require "creds"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Performs brute force password auditing against Subversion source code control servers.
 ]]
@@ -30,9 +37,6 @@ Performs brute force password auditing against Subversion source code control se
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
-require 'shortport'
-require 'brute'
-require 'creds'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

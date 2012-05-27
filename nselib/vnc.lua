@@ -29,8 +29,13 @@
 
 -- Created 07/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
-module(... or "vnc", package.seeall)
-require "bin"
+local bin = require "bin"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("vnc", stdnse.seeall)
 
 local HAVE_SSL = false
 
@@ -386,3 +391,5 @@ VNCSocket =
 		return self.Socket:send( data )
 	end,
 }
+
+return _ENV;

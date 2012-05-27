@@ -1,3 +1,11 @@
+local http = require "http"
+local httpspider = require "httpspider"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local url = require "url"
+
 description = [[
 Spiders a website and attempts to identify open redirects. Open
 redirects are handlers which commonly take a URL as a parameter and
@@ -32,14 +40,11 @@ author = "Martin Holst Swende"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require 'httpspider'
-require 'shortport'
-require 'url'
 
 portrule = shortport.http
 
 local function dbg(str,...)
-	stdnse.print_debug(2,"http-open-redirect:"..str, unpack(arg))
+	stdnse.print_debug(2,"http-open-redirect:"..str, table.unpack(arg))
 end
 local function dbgt(tbl)
 	for k,v in pairs(tbl) do

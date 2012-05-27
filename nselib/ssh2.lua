@@ -4,12 +4,13 @@
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "ssh2",package.seeall)
-
-require "bin"
-require "base64"
-require "openssl"
-require "stdnse"
+local base64 = require "base64"
+local bin = require "bin"
+local nmap = require "nmap"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local string = require "string"
+_ENV = stdnse.module("ssh2", stdnse.seeall)
 
 -- table holding transport layer functions
 transport = {}
@@ -238,3 +239,5 @@ SSH2 = {
   SSH_MSG_KEXDH_REPLY = 31,
 }
 
+
+return _ENV;

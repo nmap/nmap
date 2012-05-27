@@ -30,10 +30,15 @@ parse_query and build_query added For nmap (Eddie Bell <ejlbell@gmail.com>)
 -----------------------------------------------------------------------------
 -- Declare module
 -----------------------------------------------------------------------------
-local string = require("string")
+
+local _G = require "_G"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
 local base = _G
-local table = require("table")
-module(... or "url",package.seeall)
+
+
+_ENV = stdnse.module("url", stdnse.seeall)
 
 _VERSION = "URL 1.0"
 
@@ -366,3 +371,5 @@ function build_query(query)
 	end
 	return string.sub(qstr, 0, #qstr-1)
 end	
+
+return _ENV;

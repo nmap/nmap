@@ -1,3 +1,8 @@
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it
 supports.
@@ -19,7 +24,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}
 
-require "shortport"
 
 portrule = shortport.ssl
 

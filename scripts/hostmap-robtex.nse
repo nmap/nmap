@@ -1,3 +1,9 @@
+local http = require "http"
+local ipOps = require "ipOps"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Tries to find hostnames that resolve to the target's IP address by querying the Robtex service at http://www.robtex.com/dns/.
 ]];
@@ -24,9 +30,6 @@ categories = {
   "external"
 };
 
-require "http";
-require "ipOps"
-require "shortport";
 
 --- Scrape domains sharing target host ip from robtex website
 -- @param data string containing the retrieved web page

@@ -1,3 +1,11 @@
+local http = require "http"
+local io = require "io"
+local json = require "json"
+local openssl = require "openssl"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Checks whether a file has been determined as malware by virustotal. Virustotal
 is a service that provides the capability to scan a file or check a checksum
@@ -85,10 +93,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories={"safe", "malware", "external"}
 
-local http = require 'http'
-local json = require 'json'
-local openssl = require 'openssl'
-local tab = require 'tab'
 
 local arg_apiKey = stdnse.get_script_args(SCRIPT_NAME .. ".apikey")
 local arg_upload = stdnse.get_script_args(SCRIPT_NAME .. ".upload") or false

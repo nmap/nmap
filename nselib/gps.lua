@@ -1,3 +1,10 @@
+local bit = require "bit"
+local os = require "os"
+local package = require "package"
+local stdnse = require "stdnse"
+local string = require "string"
+_ENV = stdnse.module("gps", stdnse.seeall)
+
 ---
 -- A smallish gps parsing module.
 -- Currently does GPRMC NMEA decoding
@@ -5,10 +12,6 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 --
-
-module(... or "gps", package.seeall)
-
-local bit = require('bit')
 
 NMEA = { 
 

@@ -191,10 +191,15 @@
 --                             as password per default, as suggested by the
 --                             documentation.
 
-module(... or "brute", package.seeall)
-require 'unpwdb'
-require 'datafiles'
-require 'creds'
+local coroutine = require "coroutine"
+local creds = require "creds"
+local io = require "io"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local table = require "table"
+local unpwdb = require "unpwdb"
+_ENV = stdnse.module("brute", stdnse.seeall)
 
 -- Engine options that can be set by scripts
 -- Supported options are:
@@ -911,3 +916,5 @@ Iterators = {
 	end,
 	
 }
+
+return _ENV;

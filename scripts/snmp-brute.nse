@@ -1,3 +1,14 @@
+local coroutine = require "coroutine"
+local creds = require "creds"
+local io = require "io"
+local nmap = require "nmap"
+local packet = require "packet"
+local shortport = require "shortport"
+local snmp = require "snmp"
+local stdnse = require "stdnse"
+local string = require "string"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to find an SNMP community string by brute force guessing.
 
@@ -43,12 +54,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
-require "shortport"
-require "snmp"
-require "creds"
-require "unpwdb"
-require "nmap"
-require "packet"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 

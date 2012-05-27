@@ -1,3 +1,13 @@
+local bit = require "bit"
+local math = require "math"
+local msrpc = require "msrpc"
+local nmap = require "nmap"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+local unpwdb = require "unpwdb"
+
 description = [[
 Attempts to guess username/password combinations over SMB, storing discovered combinations 
 for use in other scripts. Every attempt will be made to get a valid list of users and to 
@@ -98,10 +108,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "brute"}
 
-require 'msrpc'
-require 'smb'
-require 'stdnse'
-require 'unpwdb'
 
 ---The maximum number of usernames to check (can be modified with smblimit argument)
 -- The limit exists because domains may have hundreds of thousands of accounts,

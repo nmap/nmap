@@ -1,3 +1,7 @@
+local ipp = require "ipp"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
 description = [[
 Lists currently queued print jobs of the remote CUPS service grouped by
 printer.
@@ -27,9 +31,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
-local http      = require('http')
-local shortport = require('shortport')
-local ipp       = require('ipp')
 
 portrule = shortport.port_or_service(631, "ipp", "tcp", "open")
 

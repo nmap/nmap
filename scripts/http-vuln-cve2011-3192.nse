@@ -1,3 +1,8 @@
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local vulns = require "vulns"
+
 description = [[
 Detects a denial of service vulnerability in the way the Apache web server
 handles requests for multiple overlapping/simple ranges of a page.
@@ -47,9 +52,6 @@ author = "Duarte Silva <duarte.silva@serializing.me>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "safe"}
 
-require "shortport"
-require "http"
-require "vulns"
 
 portrule =  shortport.http
 

@@ -31,10 +31,14 @@
 -- Revised 07/22/2011 - v0.2 - Added TagProcessors and two new auth mechs:
 --								CRAM-MD5 and LOGIN <patrik@cqure.net>
 
-module(... or "xmpp", package.seeall)
+local base64 = require "base64"
+local nmap = require "nmap"
+local sasl = require "sasl"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("xmpp", stdnse.seeall)
 
-require 'base64'
-require 'sasl'
 
 XML = {
 	
@@ -43,7 +47,7 @@ XML = {
 	-- stream handshake.  If you see stanzas with uncommon symbols, feel
 	-- free to enhance these regexps.
 	parse_tag = function(s)
-	    local _, _, contents, empty, name = string.find(s, "([^<]*)\<(/?)([?:%w-]+)")
+	    local _, _, contents, empty, name = string.find(s, "([^<]*)<(/?)([?:%w-]+)")
 	    local attrs = {}
 	    if not name then
 	        return
@@ -251,7 +255,7 @@ XMPP = {
 		
 		if ( mech == "PLAIN" ) then
 			local mech_params = { username, password }
-			local auth_data = sasl.Helper:new(mech):encode(unpack(mech_params))
+			local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
 			auth = ("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' " ..
 							"mechanism='%s'>%s</auth>"):format(mech, base64.enc(auth_data))
 
@@ -303,7 +307,7 @@ XMPP = {
 				end
 			else
 				local mech_params = { username, password, chall, "xmpp", "xmpp/" .. self.servername  }
-				local auth_data = sasl.Helper:new(mech):encode(unpack(mech_params))
+				local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
 				auth_data = "<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" ..
 				base64.enc(auth_data) .. "</response>"
 
@@ -415,3 +419,5 @@ Helper = {
 	end,
 	
 }
+
+return _ENV;

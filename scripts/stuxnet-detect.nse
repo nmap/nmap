@@ -1,3 +1,9 @@
+local io = require "io"
+local msrpc = require "msrpc"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
 
@@ -27,9 +33,6 @@ author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
-require("msrpc")
-require("smb")
-require("stdnse")
 
 local STUXNET_PATHS = {"\\\\browser", "\\\\ntsvcs", "\\\\pipe\\browser", "\\\\pipe\\ntsvcs"}
 local STUXNET_UUID = string.char(0xe1, 0x04, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46)

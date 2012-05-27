@@ -1,3 +1,9 @@
+local bit = require "bit"
+local smb = require "smb"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Returns information about the SMB security level determined by SMB.
 
@@ -31,8 +37,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"smb-brute"}
 
-require 'smb'
-require 'stdnse'
 
 -- Check whether or not this script should be run.
 hostrule = function(host)

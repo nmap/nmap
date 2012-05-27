@@ -16,9 +16,15 @@
 -- Revised 10/30/2011 - v0.6 - Added support for the ldap extensibleMatch filter type for searches
 --                             
 
-module("ldap", package.seeall)
-
-require("asn1")
+local asn1 = require "asn1"
+local bin = require "bin"
+local io = require "io"
+local nmap = require "nmap"
+local os = require "os"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+_ENV = stdnse.module("ldap", stdnse.seeall)
 
 local ldapMessageId = 1
 
@@ -538,9 +544,9 @@ function searchResultToTable( searchEntries )
 						local _, o1, o2, o3, o4, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of = bin.unpack("C16", attrib[i] )
 						table.insert( attribs, string.format( "%s: %x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x", attrib[1], o4, o3, o2, o1, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of ) )
 					elseif ( attrib[1] == "lastLogon" or attrib[1] == "lastLogonTimestamp" or attrib[1] == "pwdLastSet" or attrib[1] == "accountExpires" or attrib[1] == "badPasswordTime"  ) then
-						table.insert( attribs, string.format( "%s: %s", attrib[1], ldap.convertADTimeStamp(attrib[i]) ) )
+						table.insert( attribs, string.format( "%s: %s", attrib[1], convertADTimeStamp(attrib[i]) ) )
 					elseif ( attrib[1] == "whenChanged" or attrib[1] == "whenCreated" or attrib[1] == "dSCorePropagationData" ) then
-						table.insert( attribs, string.format( "%s: %s", attrib[1], ldap.convertZuluTimeStamp(attrib[i]) ) )
+						table.insert( attribs, string.format( "%s: %s", attrib[1], convertZuluTimeStamp(attrib[i]) ) )
 					else
 						table.insert( attribs, string.format( "%s: %s", attrib[1], attrib[i] ) )
 					end
@@ -623,10 +629,10 @@ function searchResultToFile( searchEntries, filename )
 						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] =  string.format( "%x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x", o4, o3, o2, o1, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of )
 					
 					elseif ( attrib[1] == "lastLogon" or attrib[1] == "lastLogonTimestamp" or attrib[1] == "pwdLastSet" or attrib[1] == "accountExpires" or attrib[1] == "badPasswordTime" ) then
-						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = ldap.convertADTimeStamp(attrib[i])
+						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = convertADTimeStamp(attrib[i])
 					
 					elseif ( attrib[1] == "whenChanged" or attrib[1] == "whenCreated" or attrib[1] == "dSCorePropagationData" ) then
-						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = ldap.convertZuluTimeStamp(attrib[i])
+						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = convertZuluTimeStamp(attrib[i])
 					
 					else
 						host_table[v.objectName].attributes[attrib[1]] = string.format( "%s", attrib[i] )
@@ -756,3 +762,5 @@ function copyTable(targetTable)
   end
   return setmetatable(temp, getmetatable(targetTable))
 end
+
+return _ENV;

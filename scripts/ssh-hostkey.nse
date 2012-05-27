@@ -1,3 +1,13 @@
+local ipOps = require "ipOps"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local ssh1 = require "ssh1"
+local ssh2 = require "ssh2"
+local stdnse = require "stdnse"
+local table = require "table"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Shows SSH hostkeys.
 
@@ -54,12 +64,6 @@ author = "Sven Klemm"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
-require("ipOps")
-require("shortport")
-require("stdnse")
-stdnse.silent_require("openssl")
-require("ssh1")
-require("ssh2")
 
 portrule = shortport.port_or_service(22, "ssh")
 

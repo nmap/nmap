@@ -1,13 +1,18 @@
+local bin = require "bin"
+local http = require "http"
+local nmap = require "nmap"
+local os = require "os"
+local package = require "package"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+_ENV = stdnse.module("ipp", stdnse.seeall)
+
 ---
 --
 -- A small CUPS ipp library implementation
 --
 --
-
-module(... or "ipp", package.seeall)
-
-local bin = require('bin')
-local tba = require('tab')
 
 -- The IPP layer
 IPP = {
@@ -252,9 +257,9 @@ IPP = {
 										
 					if ( group ) then
 						table.insert(resp.attrib_groups, group)
-						group = ipp.IPP.AttributeGroup:new(tag)
+						group = IPP.AttributeGroup:new(tag)
 					else
-						group = ipp.IPP.AttributeGroup:new(tag)
+						group = IPP.AttributeGroup:new(tag)
 					end
 				else
 					pos = pos - 1
@@ -291,7 +296,7 @@ HTTP = {
 			return false, "Unexpected response from server"
 		end
 
-		local response = ipp.IPP.Response.parse(http_resp.body)
+		local response = IPP.Response.parse(http_resp.body)
 		if ( not(response) ) then
 			return false, "Failed to parse response"
 		end
@@ -320,11 +325,11 @@ Helper = {
 	getPrinters = function(self)
 
 		local attribs = {
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en"),
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en"),
 		}
 
-		local ag = IPP.AttributeGroup:new(ipp.IPP.Attribute.IPP_TAG_OPERATION, attribs)
+		local ag = IPP.AttributeGroup:new(IPP.Attribute.IPP_TAG_OPERATION, attribs)
 		local request = IPP.Request:new(IPP.OperationID.CUPS_GET_PRINTERS, 1)
 		request:addAttributeGroup(ag)
 
@@ -335,7 +340,7 @@ Helper = {
 
 		local printers = {}
 		
-		for _, ag in ipairs(response:getAttributeGroups(ipp.IPP.Attribute.IPP_TAG_PRINTER)) do
+		for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_PRINTER)) do
 			local attrib = { 
 				["printer-name"] = "name", 
 				["printer-location"] = "location",
@@ -360,26 +365,26 @@ Helper = {
 		local uri = uri or ("ipp://%s/"):format(self.host.ip)
 	
 		local attribs = {
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en-us"),
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_URI, "printer-uri", uri),
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_KEYWORD, "requested-attributes", {
-				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-host-name"},
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "com.apple.print.JobInfo.PMJobName"},
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "com.apple.print.JobInfo.PMJobOwner"},
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-id" },
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-k-octets" },
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-name" },
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-state" },
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "printer-uri" },
-				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
-				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-state-message" },
-				-- { tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-uri" },
-				{ tag = ipp.IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
-			IPP.Attribute:new(ipp.IPP.Attribute.IPP_TAG_KEYWORD, "which-jobs", "not-completed" )
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en-us"),
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_URI, "printer-uri", uri),
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_KEYWORD, "requested-attributes", {
+				-- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-host-name"},
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "com.apple.print.JobInfo.PMJobName"},
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "com.apple.print.JobInfo.PMJobOwner"},
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-id" },
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-k-octets" },
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-name" },
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-state" },
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "printer-uri" },
+				-- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-originating-user-name" },
+				-- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-state-message" },
+				-- { tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "job-printer-uri" },
+				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
+			IPP.Attribute:new(IPP.Attribute.IPP_TAG_KEYWORD, "which-jobs", "not-completed" )
 		}
 	
-		local ag = IPP.AttributeGroup:new(ipp.IPP.Attribute.IPP_TAG_OPERATION, attribs)
+		local ag = IPP.AttributeGroup:new(IPP.Attribute.IPP_TAG_OPERATION, attribs)
 		local request = IPP.Request:new(IPP.OperationID.IPP_GET_JOBS, 1)
 		request:addAttributeGroup(ag)
 	
@@ -389,7 +394,7 @@ Helper = {
 		end
 		
 		local results = {}
-		for _, ag in ipairs(response:getAttributeGroups(ipp.IPP.Attribute.IPP_TAG_JOB)) do
+		for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_JOB)) do
 			local uri = ag:getAttributeValue("printer-uri")
 			local printer = uri:match(".*/(.*)$") or "Unknown"
 			-- some jobs have mutlitple state attributes, so far the ENUM ones have been correct

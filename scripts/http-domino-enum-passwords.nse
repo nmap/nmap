@@ -1,3 +1,10 @@
+local http = require "http"
+local io = require "io"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Attempts to enumerate the hashed Domino Internet Passwords that are
 (by default) accessible by all authenticated users. This script can
@@ -82,8 +89,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 dependencies = {"http-brute", "http-form-brute"}
 
-require 'shortport'
-require 'http'
 
 portrule = shortport.port_or_service({80, 443}, {"http","https"}, "tcp", "open")
 

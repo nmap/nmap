@@ -39,6 +39,8 @@
 
 -- DEPENDENCIES --
 
+local stdnse = require "stdnse"
+local table = require "table"
 local getmetatable = getmetatable;
 local setmetatable = setmetatable;
 local type = type;
@@ -47,8 +49,7 @@ local ipairs = ipairs;
 local pairs = pairs;
 local concat = table.concat;
 
-
-module(... or "strbuf");
+_ENV = stdnse.module("strbuf", stdnse.seeall)
 
 -- String buffer functions. Concatenation is not efficient in 
 -- lua as strings are immutable. If a large amount of '..' sequential
@@ -136,3 +137,5 @@ local mt = {
 function new(...)
   return setmetatable({...}, mt);
 end
+
+return _ENV;

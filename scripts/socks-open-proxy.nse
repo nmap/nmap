@@ -1,3 +1,9 @@
+local proxy = require "proxy"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local url = require "url"
+
 description=[[
 Checks if an open socks proxy is running on the target.
 
@@ -26,10 +32,6 @@ author = "Joao Correa"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "safe"}
 
-require "shortport"
-require "stdnse"
-require "url"
-require "proxy"
 
 --- Performs the custom test, with user's arguments 
 -- @param host The host table

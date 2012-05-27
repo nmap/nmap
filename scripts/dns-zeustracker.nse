@@ -1,3 +1,9 @@
+local dns = require "dns"
+local ipOps = require "ipOps"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local table = require "table"
+
 description = [[
 Checks if the target IP range is part of a Zeus botnet by querying ZTDNS @ abuse.ch.
 Please review the following information before you start to scan:
@@ -18,10 +24,6 @@ author = "Mikael Keri"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery", "external", "malware"}
  
-require "dns"
-require "ipOps"
-require "stdnse"
-require "tab"
 
 
 hostrule = function(host) return not(ipOps.isPrivate(host.ip)) end
@@ -50,7 +52,7 @@ action = function(host)
 		"Files Online", "Date added")
 	for _, record in ipairs(result) do
 		local name, ip, sbl, asn, country, status, level, files_online, 
-			dateadded = unpack(stdnse.strsplit("| ", record))
+			dateadded = table.unpack(stdnse.strsplit("| ", record))
 		level = levels[tonumber(level)] or "Unknown"
 		tab.addrow(output, name, ip, sbl, asn, country, status, level, files_online, dateadded)
 	end

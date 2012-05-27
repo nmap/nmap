@@ -1,3 +1,13 @@
+local bin = require "bin"
+local brute = require "brute"
+local creds = require "creds"
+local math = require "math"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local openssl = stdnse.silent_require "openssl"
+
 description = [[
 Performs brute force password auditing against an Nping Echo service.
 
@@ -21,13 +31,6 @@ author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"brute", "intrusive"}
 
-require("bin")
-require("nmap")
-require("brute")
-require("stdnse")
-stdnse.silent_require "openssl"
-require("shortport")
-require("creds")
 
 portrule = shortport.port_or_service(9929, "nping-echo")
 

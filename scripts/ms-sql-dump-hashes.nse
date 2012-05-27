@@ -1,3 +1,9 @@
+local io = require "io"
+local mssql = require "mssql"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Dumps the password hashes from an MS-SQL server in a format suitable for
 cracking by tools such as John-the-ripper. In order to do so the user
@@ -29,9 +35,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "discovery", "safe"}
 
-require 'shortport'
-require 'stdnse'
-require 'mssql'
 
 dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 

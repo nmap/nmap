@@ -1,3 +1,12 @@
+local http = require "http"
+local io = require "io"
+local nmap = require "nmap"
+local pcre = require "pcre"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
+
 description = [[
 Enumerates the installed Drupal modules by using a list of known modules.
 
@@ -44,10 +53,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive"}
 
-require 'http'
-require 'stdnse'
-require 'shortport'
-require 'pcre'
 
 portrule = shortport.service("http")
 

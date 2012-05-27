@@ -1,5 +1,5 @@
 /*
-** $Id: lundump.c,v 2.7.1.2 2008/01/18 16:39:11 roberto Exp $
+** $Id: lundump.c,v 1.71 2011/12/07 10:39:12 lhf Exp $
 ** load precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
@@ -27,29 +27,24 @@ typedef struct {
  const char* name;
 } LoadState;
 
-#ifdef LUAC_TRUST_BINARIES
-#define IF(c,s)
-#define error(S,s)
-#else
-#define IF(c,s)		if (c) error(S,s)
-
 static void error(LoadState* S, const char* why)
 {
- luaO_pushfstring(S->L,"%s: %s in precompiled chunk",S->name,why);
+ luaO_pushfstring(S->L,"%s: %s precompiled chunk",S->name,why);
  luaD_throw(S->L,LUA_ERRSYNTAX);
 }
-#endif
 
 #define LoadMem(S,b,n,size)	LoadBlock(S,b,(n)*(size))
-#define	LoadByte(S)		(lu_byte)LoadChar(S)
+#define LoadByte(S)		(lu_byte)LoadChar(S)
 #define LoadVar(S,x)		LoadMem(S,&x,1,sizeof(x))
 #define LoadVector(S,b,n,size)	LoadMem(S,b,n,size)
 
+#if !defined(luai_verifycode)
+#define luai_verifycode(L,b,f)	(f)
+#endif
+
 static void LoadBlock(LoadState* S, void* b, size_t size)
 {
- size_t r=luaZ_read(S->Z,b,size);
- UNUSED(r);
- IF (r!=0, "unexpected end");
+ if (luaZ_read(S->Z,b,size)!=0) error(S,"truncated");
 }
 
 static int LoadChar(LoadState* S)
@@ -63,7 +58,7 @@ static int LoadInt(LoadState* S)
 {
  int x;
  LoadVar(S,x);
- IF (x<0, "bad integer");
+ if (x<0) error(S,"corrupted");
  return x;
 }
 
@@ -83,7 +78,7 @@ static TString* LoadString(LoadState* S)
  else
  {
   char* s=luaZ_openspace(S->L,S->b,size);
-  LoadBlock(S,s,size);
+  LoadBlock(S,s,size*sizeof(char));
   return luaS_newlstr(S->L,s,size-1);		/* remove trailing '\0' */
  }
 }
@@ -96,7 +91,7 @@ static void LoadCode(LoadState* S, Proto* f)
  LoadVector(S,f->code,n,sizeof(Instruction));
 }
 
-static Proto* LoadFunction(LoadState* S, TString* p);
+static Proto* LoadFunction(LoadState* S);
 
 static void LoadConstants(LoadState* S, Proto* f)
 {
@@ -112,10 +107,10 @@ static void LoadConstants(LoadState* S, Proto* f)
   switch (t)
   {
    case LUA_TNIL:
-   	setnilvalue(o);
+	setnilvalue(o);
 	break;
    case LUA_TBOOLEAN:
-   	setbvalue(o,LoadChar(S));
+	setbvalue(o,LoadChar(S));
 	break;
    case LUA_TNUMBER:
 	setnvalue(o,LoadNumber(S));
@@ -123,21 +118,33 @@ static void LoadConstants(LoadState* S, Proto* f)
    case LUA_TSTRING:
 	setsvalue2n(S->L,o,LoadString(S));
 	break;
-   default:
-	error(S,"bad constant");
-	break;
   }
  }
  n=LoadInt(S);
  f->p=luaM_newvector(S->L,n,Proto*);
  f->sizep=n;
  for (i=0; i<n; i++) f->p[i]=NULL;
- for (i=0; i<n; i++) f->p[i]=LoadFunction(S,f->source);
+ for (i=0; i<n; i++) f->p[i]=LoadFunction(S);
+}
+
+static void LoadUpvalues(LoadState* S, Proto* f)
+{
+ int i,n;
+ n=LoadInt(S);
+ f->upvalues=luaM_newvector(S->L,n,Upvaldesc);
+ f->sizeupvalues=n;
+ for (i=0; i<n; i++) f->upvalues[i].name=NULL;
+ for (i=0; i<n; i++)
+ {
+  f->upvalues[i].instack=LoadByte(S);
+  f->upvalues[i].idx=LoadByte(S);
+ }
 }
 
 static void LoadDebug(LoadState* S, Proto* f)
 {
  int i,n;
+ f->source=LoadString(S);
  n=LoadInt(S);
  f->lineinfo=luaM_newvector(S->L,n,int);
  f->sizelineinfo=n;
@@ -153,38 +160,43 @@ static void LoadDebug(LoadState* S, Proto* f)
   f->locvars[i].endpc=LoadInt(S);
  }
  n=LoadInt(S);
- f->upvalues=luaM_newvector(S->L,n,TString*);
- f->sizeupvalues=n;
- for (i=0; i<n; i++) f->upvalues[i]=NULL;
- for (i=0; i<n; i++) f->upvalues[i]=LoadString(S);
+ for (i=0; i<n; i++) f->upvalues[i].name=LoadString(S);
 }
 
-static Proto* LoadFunction(LoadState* S, TString* p)
+static Proto* LoadFunction(LoadState* S)
 {
  Proto* f=luaF_newproto(S->L);
  setptvalue2s(S->L,S->L->top,f); incr_top(S->L);
- f->source=LoadString(S); if (f->source==NULL) f->source=p;
  f->linedefined=LoadInt(S);
  f->lastlinedefined=LoadInt(S);
- f->nups=LoadByte(S);
  f->numparams=LoadByte(S);
  f->is_vararg=LoadByte(S);
  f->maxstacksize=LoadByte(S);
  LoadCode(S,f);
  LoadConstants(S,f);
+ LoadUpvalues(S,f);
  LoadDebug(S,f);
- IF (!luaG_checkcode(f), "bad code");
  S->L->top--;
  return f;
 }
 
+/* the code below must be consistent with the code in luaU_header */
+#define N0	LUAC_HEADERSIZE
+#define N1	(sizeof(LUA_SIGNATURE)-sizeof(char))
+#define N2	N1+2
+#define N3	N2+6
+
 static void LoadHeader(LoadState* S)
 {
- char h[LUAC_HEADERSIZE];
- char s[LUAC_HEADERSIZE];
+ lu_byte h[LUAC_HEADERSIZE];
+ lu_byte s[LUAC_HEADERSIZE];
  luaU_header(h);
- LoadBlock(S,s,LUAC_HEADERSIZE);
- IF (memcmp(h,s,LUAC_HEADERSIZE)!=0, "bad header");
+ memcpy(s,h,sizeof(char));			/* first char already read */
+ LoadBlock(S,s+sizeof(char),LUAC_HEADERSIZE-sizeof(char));
+ if (memcmp(h,s,N0)==0) return;
+ if (memcmp(h,s,N1)!=0) error(S,"not a");
+ if (memcmp(h,s,N2)!=0) error(S,"version mismatch in");
+ if (memcmp(h,s,N3)!=0) error(S,"incompatible"); else error(S,"corrupted");
 }
 
 /*
@@ -203,23 +215,30 @@ Proto* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char* name)
  S.Z=Z;
  S.b=buff;
  LoadHeader(&S);
- return LoadFunction(&S,luaS_newliteral(L,"=?"));
+ return luai_verifycode(L,buff,LoadFunction(&S));
 }
 
+#define MYINT(s)	(s[0]-'0')
+#define VERSION		MYINT(LUA_VERSION_MAJOR)*16+MYINT(LUA_VERSION_MINOR)
+#define FORMAT		0		/* this is the official format */
+
 /*
-* make header
+* make header for precompiled chunks
+* if you change the code below be sure to update LoadHeader and FORMAT above
+* and LUAC_HEADERSIZE in lundump.h
 */
-void luaU_header (char* h)
+void luaU_header (lu_byte* h)
 {
  int x=1;
- memcpy(h,LUA_SIGNATURE,sizeof(LUA_SIGNATURE)-1);
- h+=sizeof(LUA_SIGNATURE)-1;
- *h++=(char)LUAC_VERSION;
- *h++=(char)LUAC_FORMAT;
- *h++=(char)*(char*)&x;				/* endianness */
- *h++=(char)sizeof(int);
- *h++=(char)sizeof(size_t);
- *h++=(char)sizeof(Instruction);
- *h++=(char)sizeof(lua_Number);
- *h++=(char)(((lua_Number)0.5)==0);		/* is lua_Number integral? */
+ memcpy(h,LUA_SIGNATURE,sizeof(LUA_SIGNATURE)-sizeof(char));
+ h+=sizeof(LUA_SIGNATURE)-sizeof(char);
+ *h++=cast_byte(VERSION);
+ *h++=cast_byte(FORMAT);
+ *h++=cast_byte(*(char*)&x);			/* endianness */
+ *h++=cast_byte(sizeof(int));
+ *h++=cast_byte(sizeof(size_t));
+ *h++=cast_byte(sizeof(Instruction));
+ *h++=cast_byte(sizeof(lua_Number));
+ *h++=cast_byte(((lua_Number)0.5)==0);		/* is lua_Number integral? */
+ memcpy(h,LUAC_TAIL,sizeof(LUAC_TAIL)-sizeof(char));
 }

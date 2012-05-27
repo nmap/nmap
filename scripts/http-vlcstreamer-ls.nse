@@ -1,3 +1,9 @@
+local http = require "http"
+local json = require "json"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+
 description = [[
 Connects to the VLC Streamer helper service and lists directory contents. The
 VLC Streamer helper service is used by the iOS VLC Streamer application to
@@ -43,9 +49,6 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local http		= require('http')
-local json		= require('json')
-local shortport = require('shortport')
 
 portrule = shortport.port_or_service(54340, "vlcstreamer", "tcp")
 
