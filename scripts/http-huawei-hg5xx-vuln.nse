@@ -1,11 +1,15 @@
 description = [[
-Detects Huawei modems models HG530x, HG520x, HG510x and possibly others that are vulnerable to a remote credential and information disclosure vulnerability. It also extracts the PPPoE credentials 
+Detects Huawei modems models HG530x, HG520x, HG510x (and possibly others...) vulnerable to a remote credential and information disclosure vulnerability. It also extracts the PPPoE credentials 
 and other interesting configuration values. 
 
 Attackers can query the URIs "/Listadeparametros.html" and "/wanfun.js" to extract sensitive information 
 including PPPoE credentials, firmware version, model, gateway, dns servers and active connections among other values.
 
-This vulnerability was discovered and reported by Adiaz from Comunidad Underground de Mexico (http://underground.org.mx).
+This script exploits two vulnerabilities. One was discovered and reported by Adiaz from Comunidad Underground de Mexico (http://underground.org.mx) and it allows attackers to extract the pppoe password. The configuration disclosure vulnerability was discovered by Pedro Joaquin (http://hakim.ws).
+
+References:
+*http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure
+*http://routerpwn.com/#huawei
 ]]
 
 ---
@@ -40,7 +44,8 @@ This vulnerability was discovered and reported by Adiaz from Comunidad Undergrou
 -- |   PPPoE username:xxx
 -- |   PPPoE password:xxx
 -- |     References:
--- |_      http://routerpwn.com/#huawei
+-- |       http://routerpwn.com/#huawei
+-- |_      http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure
 ---
 
 author = "Paulino Calderon <calderon () websec mx>"
@@ -62,7 +67,8 @@ Modems Huawei 530x, 520x and possibly others are vulnerable to remote credential
 Attackers can query the URIs "/Listadeparametros.html" and "/wanfun.js" to extract sensitive information 
 including PPPoE credentials, firmware version, model, gateway, dns servers and active connections among other values.]],
        references = {
-           'http://routerpwn.com/#huawei'
+           'http://routerpwn.com/#huawei',
+           'http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure'
        },
        dates = {
            disclosure = {year = '2011', month = '01', day = '1'},
