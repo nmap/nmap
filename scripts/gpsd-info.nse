@@ -77,7 +77,7 @@ action = function(host, port)
 	
 	repeat
 		local entry
-		status, line = socket:receive_buf("\r\n")
+		status, line = socket:receive_buf("\r\n", false)
 		if ( status ) then
 			status, entry = gps.NMEA.parse(line)
 			if ( status ) then

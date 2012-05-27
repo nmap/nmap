@@ -58,7 +58,7 @@ action = function(host, port)
 	local srvinfo
 	
 	repeat
-		local status, data = socket:receive_buf("\r\n")
+		local status, data = socket:receive_buf("\r\n", false)
 		if ( not(status) ) then
 			return fail("Failed to read response from server")
 		elseif ( data:match("^5") ) then

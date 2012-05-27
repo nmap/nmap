@@ -97,7 +97,7 @@ action = function(host, port)
 			return fail("Failed to send request to server")
 		end
 		
-		local status, resp = socket:receive_buf("\r\n\r\n")
+		local status, resp = socket:receive_buf("\r\n\r\n", false)
 		if ( not(status) ) then
 			return fail("Failed to receive response from server")
 		end

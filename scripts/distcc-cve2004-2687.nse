@@ -95,7 +95,7 @@ earlier. The vulnerability is the consequence of weak service configuration.
 		end
 	end
 	
-	local status, data = socket:receive_buf("DOTO00000000")
+	local status, data = socket:receive_buf("DOTO00000000", false)
 
 	if ( status ) then
 		local output = data:match("SOUT%w%w%w%w%w%w%w%w(.*)")

@@ -236,7 +236,7 @@ Comm = {
 	-- @return response containing a response instance
 	--         err string containing an error message, if status is false
 	recv = function(self)	
-		local status, hdr_data = self.socket:receive_buf(match.numbytes(Header.size))
+		local status, hdr_data = self.socket:receive_buf(match.numbytes(Header.size), false)
 		if ( not(status) ) then
 			return false, "Failed to receive response from server"
 		end
@@ -246,7 +246,7 @@ Comm = {
 			return false, "Failed to parse response header"
 		end
 		
-		local status, data = self.socket:receive_buf(match.numbytes(header.length))
+		local status, data = self.socket:receive_buf(match.numbytes(header.length), false)
 		if ( header.type == MessageType.BINDING_RESPONSE ) then
 			local resp = Response.Bind.parse(hdr_data .. data)
 			return true, resp

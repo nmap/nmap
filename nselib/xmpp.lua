@@ -139,7 +139,7 @@ XMPP = {
 		-- previous message.
 		self.socket:set_timeout(1)
 		repeat
-			local status = self.socket:receive_buf("\0")
+			local status = self.socket:receive_buf("\0", false)
 		until(not(status))
 		self.socket:set_timeout(self.options.timeout * 1000)
 	

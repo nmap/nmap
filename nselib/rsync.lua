@@ -39,7 +39,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, err
 		end
-		local status, data = self.socket:receive_buf("\n")
+		local status, data = self.socket:receive_buf("\n", false)
 		if( not(status) ) then
 			return false, err
 		end
@@ -119,7 +119,7 @@ Helper = {
 		
 		local modules = {}
 		while(true) do
-			status, data = self.socket:receive_buf("\n")
+			status, data = self.socket:receive_buf("\n", false)
 			if (not(status)) then
 				return false, data
 			end
@@ -152,13 +152,13 @@ Helper = {
 			return false, data
 		end
 
-		status, data = self.socket:receive_buf(match.numbytes(4))
+		status, data = self.socket:receive_buf(match.numbytes(4), false)
 		if ( not(status) ) then
 			return false, data
 		end
 		
 		local pos, len = bin.unpack("<S", data)
-		status, data = self.socket:receive_buf(match.numbytes(len))
+		status, data = self.socket:receive_buf(match.numbytes(len), false)
 		if ( not(status) ) then
 			return false, data
 		end

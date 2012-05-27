@@ -73,7 +73,7 @@ end
 local function recvResponse(socket)	
 	local kvs = {}
 	repeat
-		local status, response = socket:receive_buf("\r\n")
+		local status, response = socket:receive_buf("\r\n", false)
 		if ( not(status) ) then
 			return false, "Failed to receive response from server"
 		end

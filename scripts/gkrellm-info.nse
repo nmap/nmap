@@ -159,11 +159,11 @@ action = function(host, port)
 	end
 	
 	-- If there's an error we get a response back, and only then
-	local status, data = socket:receive_buf("\n")
+	local status, data = socket:receive_buf("\n", false)
 	if( status and data ~= "<error>" ) then
 		return fail("An unknown error occured, aborting ...")
 	elseif ( status ) then
-		status, data = socket:receive_buf("\n")
+		status, data = socket:receive_buf("\n", false)
 		if ( status ) then
 			return fail(data)
 		else
@@ -176,7 +176,7 @@ action = function(host, port)
 	end
 
 	local tags = {}
-	local status, tag = socket:receive_buf("\n")
+	local status, tag = socket:receive_buf("\n", false)
 	while(true) do
 		if ( not(status) ) then
 			break
@@ -194,7 +194,7 @@ action = function(host, port)
 		
 		while(true) do
 			local data
-			status, data = socket:receive_buf("\n")
+			status, data = socket:receive_buf("\n", false)
 			if ( not(status) ) then
 				break
 			end
