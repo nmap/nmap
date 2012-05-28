@@ -409,8 +409,7 @@ static int l_reconnect_ssl (lua_State *L)
   nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
 
 #ifndef HAVE_OPENSSL
-  if (1)
-    return nseU_safeerror(L, "sorry, you don't have OpenSSL");
+  return nseU_safeerror(L, "sorry, you don't have OpenSSL");
 #endif
 
   nsock_reconnect_ssl(nsp, nu->nsiod, callback, nu->timeout,
