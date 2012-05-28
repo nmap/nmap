@@ -157,6 +157,10 @@ o Revive the Nmap Public Source License project (need to find an open
 
 o Nmap Network Scanning, 2nd Edition work [placeholder]
 
+o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
+  up to 512x512). Here is a screenshot of the current 48x48 icon on
+  GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
+
 o Update more web content in real time (or near real-time, or at least
   on an automated basis rather than requiring manual checkin and
   update).  In particular:
