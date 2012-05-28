@@ -362,7 +362,7 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, int open)
 
   if (open && nu->nsiod == NULL) {
     /* The socket hasn't been connected or setup yet. Try doing a setup, or
-       throw and error if that's not possible. */
+       throw an error if that's not possible. */
     if (nu->proto == IPPROTO_UDP) {
       nsock_pool nsp;
 
