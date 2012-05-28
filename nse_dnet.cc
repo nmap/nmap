@@ -268,7 +268,7 @@ static int ip_send (lua_State *L)
     memcpy(eth.dstmac, dstmac, sizeof(eth.dstmac));
 
     /* close any current ethernet associated with this userdata */
-    lua_pushcfunction(L, ethernet_close);
+    lua_getfield(L, 1, "ethernet_close");
     lua_pushvalue(L, 1);
     lua_call(L, 1, 0);
 
@@ -294,10 +294,10 @@ static int gc (lua_State *L)
 {
   nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
 
-  lua_pushcfunction(L, ip_close);
+  lua_getfield(L, 1, "ip_close");
   lua_pushvalue(L, 1);
   lua_call(L, 1, 0);
-  lua_pushcfunction(L, ethernet_close);
+  lua_getfield(L, 1, "ethernet_close");
   lua_pushvalue(L, 1);
   lua_call(L, 1, 0);
 
