@@ -52,6 +52,7 @@ _ENV = stdnse.module("rmi", stdnse.seeall)
 -- Some lazy shortcuts
 
 local function dbg(str,...)
+	local arg={...}
 	stdnse.print_debug(3,"RMI:"..str, table.unpack(arg))
 end
 -- Convenience function to both print an error message and return <false, msg>
@@ -60,6 +61,7 @@ end
 -- 	return doh("Foo should be gazonk but was %s", foo)
 -- end
 local function doh(str,...)
+	local arg={...}
 	stdnse.print_debug("RMI-ERR:"..tostring(str), table.unpack(arg))
 	return false, str
 end
@@ -103,6 +105,7 @@ BufferedWriter = {
 	end,
 	-- Convenience function, wraps bin
 	pack = function(self, fmt, ... )
+		local arg={...}
 		self.writeBuffer = self.writeBuffer .. bin.pack( fmt, table.unpack(arg))
 	end,
 	
@@ -294,6 +297,7 @@ JavaDOS = {
 		return self:pack('>P', text)
 	end,
 	pack = function(self, ...)
+		local arg={...}
 		return self.bWriter:pack(table.unpack(arg))
 	end,
 	write = function(self, data)
@@ -1477,6 +1481,9 @@ Arguments = {
 	addString = function(self, str)
 		self.dos:writeByte(TC.TC_STRING)
 		self.dos:writeUTF(str)
+	end,
+	addRaw = function(self, str)
+		self.dos:write(str)
 	end,
 	getData = function(self)
 		local _, res = self.dos:flush()

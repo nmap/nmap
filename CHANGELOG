@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added rmi-vuln-classloader which scans for machines vulnerable to
+  remote class loading. [Aleksandar Nikolic]
+
 o [NSE] Rewrote mysql-brute to use brute library [Aleksandar Nikolic]
 
 o Fixed the greppable output of hosts that time-out (when --host-timeout was
