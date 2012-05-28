@@ -709,7 +709,7 @@ SSL *nse_nsock_get_ssl (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
 
-  if (!nsi_checkssl(nu->nsiod))
+  if (nu->nsiod == NULL || !nsi_checkssl(nu->nsiod))
     luaL_argerror(L, 1, "not a SSL socket");
 
   return (SSL *) nsi_getssl(nu->nsiod);
