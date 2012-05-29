@@ -505,20 +505,20 @@ local GeoIP = {
 		start_pos = start_pos + 1
 		local end_pos = 0
 		
-		end_pos = record_buf:find("%z",start_pos)
+		end_pos = record_buf:find("\0",start_pos)
 		if start_pos ~= end_pos then 
 			record.region_name = record_buf:sub(start_pos, end_pos-1)
 		end
 		start_pos = end_pos + 1
 		
-		end_pos = record_buf:find("%z",start_pos)
+		end_pos = record_buf:find("\0",start_pos)
 		if start_pos ~= end_pos then 
 			record.city = record_buf:sub(start_pos, end_pos-1)
 		end
 		start_pos = end_pos + 1
 		
 		
-		end_pos = record_buf:find("%z",start_pos)
+		end_pos = record_buf:find("\0",start_pos)
 		if start_pos ~= end_pos then 
 			record.postal_code = record_buf:sub(start_pos, end_pos-1)
 		end

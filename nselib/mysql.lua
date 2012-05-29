@@ -565,11 +565,11 @@ function formatResultset(rs, options)
 	
 	if ( not(options.noheaders) ) then
 		for _, col in ipairs(rs.cols) do table.insert(colnames, col.name) end
-		tab.addrow(restab, unpack(colnames))
+		tab.addrow(restab, table.unpack(colnames))
 	end
 	
 	for _, row in ipairs(rs.rows) do
-		tab.addrow(restab, unpack(row))
+		tab.addrow(restab, table.unpack(row))
 	end
 	
 	return tab.dump(restab)

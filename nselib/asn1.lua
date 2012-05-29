@@ -203,7 +203,7 @@ ASN1Decoder = {
 	   if pos <= last then
 	      oid._snmp = '06'
 	      pos, octet = bin.unpack("C", encStr, pos)
-	      oid[2] = math.mod(octet, 40)
+	      oid[2] = math.fmod(octet, 40)
 	      octet = octet - oid[2]
 	      oid[1] = octet/40
 	   end
@@ -376,7 +376,7 @@ ASN1Encoder = {
 	   if val > 0 then
 	      local valStr = ""
 	      while (val > 0) do
-		 lsb = math.mod(val, 256)
+		 lsb = math.fmod(val, 256)
 		 valStr = valStr .. bin.pack("C", lsb)
 		 val = math.floor(val/256)
 	      end
@@ -394,7 +394,7 @@ ASN1Encoder = {
 	      end
 	      local valStr = ""
 	      while (tcval > 0) do
-		 lsb = math.mod(tcval, 256)
+		 lsb = math.fmod(tcval, 256)
 		 valStr = valStr .. bin.pack("C", lsb)
 		 tcval = math.floor(tcval/256)
 	      end

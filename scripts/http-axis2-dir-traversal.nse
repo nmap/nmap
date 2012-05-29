@@ -70,7 +70,7 @@ end
 -- @return Table containing the names and paths of the available services
 local function get_available_services(body) 
  local services = {}
- for service in string.gfind(body, '<h4>Service%sDescription%s:%s<font%scolor="black">(.-)</font></h4>') do
+ for service in string.gmatch(body, '<h4>Service%sDescription%s:%s<font%scolor="black">(.-)</font></h4>') do
     table.insert(services, service)
   end
 

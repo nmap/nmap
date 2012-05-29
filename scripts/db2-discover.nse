@@ -79,7 +79,7 @@ action = function(host, port)
 		return
 	end
 		
-	local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)%z")
+	local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)\0")
 
 	if ( status ) then
 		table.insert( result, ("Host: %s"):format(srvname) )

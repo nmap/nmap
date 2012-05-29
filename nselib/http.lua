@@ -174,7 +174,7 @@ end
 -- @return the token.
 local function get_token(s, offset)
   -- All characters except CTL and separators.
-  local _, i, token = s:find("^([^()<>@,;:\\\"/%[%]?={} %z\001-\031\127]+)", offset)
+  local _, i, token = s:find("^([^()<>@,;:\\\"/%[%]?={} \0\001-\031\127]+)", offset)
   if i then
     return i + 1, token
   else
@@ -218,7 +218,7 @@ local function get_quoted_string(s, offset, crlf)
       -- depending on whether it's in a header field or not. This function does
       -- not allow CRLF.
       c = s:sub(i, i)
-      if c ~= "\t" and c:match("^[%z\001-\031\127]$") then
+      if c ~= "\t" and c:match("^[\0\001-\031\127]$") then
         error(string.format("Unexpected control character in quoted-string: 0x%02X.", c:byte(1)))
       end
     end
@@ -1676,7 +1676,7 @@ local function read_token(s, pos)
 
   pos = skip_space(s, pos)
   -- 1*<any CHAR except CTLs or separators>. CHAR is only byte values 0-127.
-  _, pos, token = string.find(s, "^([^%z\001-\031()<>@,;:\\\"/?={} \t%[%]\127-\255]+)", pos)
+  _, pos, token = string.find(s, "^([^\0\001-\031()<>@,;:\\\"/?={} \t%[%]\127-\255]+)", pos)
 
   if token then
     return pos + 1, token

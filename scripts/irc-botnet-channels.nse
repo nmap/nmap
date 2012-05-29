@@ -145,7 +145,7 @@ local function irc_compose_message(prefix, command, ...)
 
 	params = {...}
 	for i, param in ipairs(params) do
-		if not string.match(param, "^[^%z\r\n :][^%z\r\n ]*$") then
+		if not string.match(param, "^[^\0\r\n :][^\0\r\n ]*$") then
 			if i < #params then
 				return nil, "Bad format for param."
 			else

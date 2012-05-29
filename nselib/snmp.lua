@@ -181,7 +181,7 @@ end
 function buildGetRequest(options, ...)
    if not options then options = {} end
 
-   if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
+   if not options.reqId then options.reqId = math.fmod(nmap.clock_ms(), 65000) end
    if not options.err then options.err = 0 end
    if not options.errIdx then options.errIdx = 0 end
 
@@ -216,7 +216,7 @@ end
 function buildGetNextRequest(options, ...)
    if not options then options = {} end
 
-   if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
+   if not options.reqId then options.reqId = math.fmod(nmap.clock_ms(), 65000) end
    if not options.err then options.err = 0 end
    if not options.errIdx then options.errIdx = 0 end
 
@@ -254,7 +254,7 @@ end
 function buildSetRequest(options, oid, value)
    if not options then options = {} end
 
-	 if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
+	 if not options.reqId then options.reqId = math.fmod(nmap.clock_ms(), 65000) end
    if not options.err then options.err = 0 end
    if not options.errIdx then options.errIdx = 0 end
 
@@ -323,7 +323,7 @@ function buildGetResponse(options, oid, value)
    if not options then options = {} end
 
    -- if really a response, should use reqId of request!
-   if not options.reqId then options.reqId = math.mod(nmap.clock_ms(), 65000) end
+   if not options.reqId then options.reqId = math.fmod(nmap.clock_ms(), 65000) end
    if not options.err then options.err = 0 end
    if not options.errIdx then options.errIdx = 0 end
 

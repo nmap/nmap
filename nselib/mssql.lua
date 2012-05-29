@@ -2742,7 +2742,9 @@ Util =
 		
 		if ( with_headers and tbl.rows and #tbl.rows > 0 ) then
 			local headers
-			table.foreach( tbl.colinfo, function( k, v ) table.insert( col_names, v.text) end)
+			for k, v in pairs( tbl.colinfo ) do
+				table.insert( col_names, v.text)
+			end
 			headers = stdnse.strjoin("\t", col_names)
 			table.insert( new_tbl, headers)
 			headers = headers:gsub("[^%s]", "=")

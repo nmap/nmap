@@ -60,7 +60,7 @@ action = function(host, port)
 		return
 	end
 
-	if  not string.match(result, "^....[%z]+\002") then
+	if  not string.match(result, "^....[\0]+\002") then
 		socket:close()
 		return
 	end

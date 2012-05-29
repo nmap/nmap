@@ -109,7 +109,7 @@ end
 
 -- Escape some potentially unsafe characters in a string meant to be a filename.
 function filename_escape(s)
-  return string.gsub(s, "[%z/=]", function(c)
+  return string.gsub(s, "[\0/=]", function(c)
     return string.format("=%02X", string.byte(c))
   end)
 end

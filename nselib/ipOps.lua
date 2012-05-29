@@ -180,7 +180,7 @@ end
 -- @usage
 -- local a, b, c, d;
 -- local t, err = ipOps.get_parts_as_number( "139.104.32.123" )
--- if t then a, b, c, d = unpack( t ) end
+-- if t then a, b, c, d = table.unpack( t ) end
 -- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
 -- is permitted.
 -- @return   Array of numbers for each part of the supplied IP address (or

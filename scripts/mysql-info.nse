@@ -33,7 +33,7 @@ categories = { "default", "discovery", "safe" }
 --@param orig Start of the string
 --@return The NUL-terminated string
 local getstring = function(orig)
-    return orig:match("^([^%z]*)");
+    return orig:match("^([^\0]*)");
 end
 
 --- Converts two bytes into a number

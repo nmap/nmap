@@ -3362,8 +3362,8 @@ Util =
   -- @return the amount of pad needed to be divideable by 4
   CalcFillBytes = function(length)
       -- calculate fill bytes
-    if math.mod( length, 4 ) ~= 0 then
-      return (4 - math.mod( length, 4))
+    if math.fmod( length, 4 ) ~= 0 then
+      return (4 - math.fmod( length, 4))
     else
       return 0
     end

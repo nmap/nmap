@@ -69,7 +69,7 @@ action = function()
 		status, data = socket:receive()
 		if( not(status) ) then break end
 		
-		local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)%z")
+		local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)\0")
 		local _, ip
 		status, _, _, ip, _ = socket:get_info()
 		if ( not(status) ) then return end
