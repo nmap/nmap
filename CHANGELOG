@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script eppc-enum-processes that enumerates active
+  applications, their PID and the UID under which they run through the Apple
+  Remote Event protocol. [Patrik Karlsson]
+
 o [NSE] Added the Internet Storage Name Service (iSNS) library and the
   isns-info script that lists information about portals and iSCSI devices.
   [Patrik Karlsson]
