@@ -1729,7 +1729,7 @@ match nntp m|^200 Lotus Domino NNTP Server for ([-./\w]+) \(Release (\d[-.\w]+),
 match nntp m|^200 Lotus Domino NNTP Server for ([-./\w]+) \(Release (\d[-.\w]+), .*\) - OK to post\r\n$| p/Lotus Domino nntpd/ v/$2/ i/posting ok/ o/$1/
 
 # Windows NT 4.0 SP5-SP6
-match nntp m|^20[01] Microsoft Exchange Internet News Service Version (\d\.\d\.[\d.]+) \((.*)\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/$2/ o/Windows/ cpe:/o:microsoft:windows/a
+match nntp m|^20[01] Microsoft Exchange Internet News Service Version (\d\.\d\.[\d.]+) \((.*)\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/$2/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 match nntp m|^20. ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w ]+) ready \(posting ok\)\.\r\n| p/InterNetNews (INN)/ v/$2/ i/posting ok/ h/$1/
 match nntp m|^20. ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w ]+) ready \(no posting\)\.\r\n| p/InterNetNews (INN)/ v/$2/ i/no posting/ h/$1/
 match nntp m|^200 ArGoSoft News Server for WinNT/2000/XP v ([\d.]+) ready\r\n| p/ArGoSoft nntpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -1899,27 +1899,27 @@ match pop3 m|^\+OK POP3 ([-\w_.]+) \[cppop (\d[^]]+)\] at \[| p/cppop pop3d/ v/$
 match pop3 m|^\+OK Gpop ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gmail pop3d/ i/$1/
 
 # MS Exchange
-match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 server version ([\d.]+) \(([-\w_.]+)\) ready\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange 2000 POP3 server version (\S+).* ready\.\r\n| p/MS Exchange 2000 pop3d/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange POP3 server version (\S+) ready\r\n| p/MS Exchange pop3d/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange POP3 server version ([\d.]+) ready  <[\d.]+@([-\w_.]+)>\r\n| p/MS Exchange pop3d/ v/$1/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Der Microsoft Exchange POP3-Server \(Version ([\d\.]+)\) ist betriebsbereit\.\r\n| p/MS Exchange pop3d/ v/$1/ i/German/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Der Microsoft Exchange Server 2003 POP3-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/German/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/MS Exchange 2003 pop3d/ v/$1/ i/Chinese/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/MS Exchange 2003 pop3d/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange POP3-server versie ([\d.]+) is gereed\.\r\n| p/MS Exchange pop3d/ v/$1/ i/Dutch/
-match pop3 m|^\+OK \xd1\xe5\xf0\xe2\xe5\xf0 Microsoft Exchange POP3 \xe2\xe5\xf0\xf1\xe8\xe8 ([\d.]+)  \xe3\xee\xf2\xee\xe2\r\n| p/MS Exchange pop3d/ v/$1/ i/Unknown language/
-match pop3 m|^\+OK Microsoft Exchange POP3 kiszolg\xe1l\xf3 verzi\xf3 ([\d.]+) k\xe9sz\r\n| p/MS Exchange pop3d/ v/$1/ i/Hungarian/
-match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange Server 2003 version ([\d.]+) \(([-\w_.]+)\) est pr\xeat\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/French/ h/$2/
-match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange version ([\d.]+) est pr\xeat\r\n| p/MS Exchange pop3d/ v/$1/ i/French/
-match pop3 m|^\+OK Microsoft Exchange POP3 server verze ([\d.]+) je p\xf8ipraven\.\r\n| p/MS Exchange pop3d/ v/$1/ i/Czech/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xa6\xf8\xaaA\xbe\xb9\xaa\xa9\xa5\xbb ([\d.]+) \(([-\w_.]+)\) \xa5i\xa5H\xa8\xcf\xa5\xce\xa1C\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/Taiwanese?/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Servidor POP3 de Microsoft Exchange Server 2003 versi\xf3n ([\d.]+) \(([\w._-]+)\) listo\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/Spanish/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Server POP3 di Microsoft Exchange Server 2003 versione ([\w._-]+) \(([\w._-]+)\) pronto\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ i/Italian/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 server version ([\d.]+) \(([-\w_.]+)\) ready\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003/
+match pop3 m|^\+OK Microsoft Exchange 2000 POP3 server version (\S+).* ready\.\r\n| p/Microsoft Exchange 2000 pop3d/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2000/
+match pop3 m|^\+OK Microsoft Exchange POP3 server version (\S+) ready\r\n| p/Microsoft Exchange pop3d/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match pop3 m|^\+OK Microsoft Exchange POP3 server version ([\d.]+) ready  <[\d.]+@([-\w_.]+)>\r\n| p/Microsoft Exchange pop3d/ v/$1/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match pop3 m|^\+OK Der Microsoft Exchange POP3-Server \(Version ([\d\.]+)\) ist betriebsbereit\.\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/German/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server::::de/
+match pop3 m|^\+OK Der Microsoft Exchange Server 2003 POP3-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/German/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::de/
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Chinese/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::zh/
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::ko/
+match pop3 m|^\+OK Microsoft Exchange POP3-server versie ([\d.]+) is gereed\.\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/Dutch/ cpe:/a:microsoft:exchange_server::::nl/
+match pop3 m|^\+OK \xd1\xe5\xf0\xe2\xe5\xf0 Microsoft Exchange POP3 \xe2\xe5\xf0\xf1\xe8\xe8 ([\d.]+)  \xe3\xee\xf2\xee\xe2\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/Russian/ cpe:/a:microsoft:exchange_server::::ru/
+match pop3 m|^\+OK Microsoft Exchange POP3 kiszolg\xe1l\xf3 verzi\xf3 ([\d.]+) k\xe9sz\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/Hungarian/ cpe:/a:microsoft:exchange_server::::hu/
+match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange Server 2003 version ([\d.]+) \(([-\w_.]+)\) est pr\xeat\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/French/ h/$2/ cpe:/a:microsoft:exchange_server:2003:::fr/
+match pop3 m|^\+OK Le serveur POP3 Microsoft Exchange version ([\d.]+) est pr\xeat\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/French/ cpe:/a:microsoft:exchange_server::::fr/
+match pop3 m|^\+OK Microsoft Exchange POP3 server verze ([\d.]+) je p\xf8ipraven\.\r\n| p/Microsoft Exchange pop3d/ v/$1/ i/Czech/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server::::cs/
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xa6\xf8\xaaA\xbe\xb9\xaa\xa9\xa5\xbb ([\d.]+) \(([-\w_.]+)\) \xa5i\xa5H\xa8\xcf\xa5\xce\xa1C\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Taiwanese/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::zh_tw/
+match pop3 m|^\+OK Servidor POP3 de Microsoft Exchange Server 2003 versi\xf3n ([\d.]+) \(([\w._-]+)\) listo\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Spanish/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::es/
+match pop3 m|^\+OK Server POP3 di Microsoft Exchange Server 2003 versione ([\w._-]+) \(([\w._-]+)\) pronto\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Italian/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::it/
+match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 service ready\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
+match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 HIROC service ready\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
+match pop3 m|^\+OK The Microsoft Exchange POP3 service is ready\.\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
 
-match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 service ready\r\n| p/MS Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 HIROC service ready\r\n| p/MS Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK The Microsoft Exchange POP3 service is ready\.\r\n| p/MS Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK QPOP \(version ([^)]+)\) at .*starting\.| p/Qpop pop3d/ v/$1/
 match pop3 m|^\+OK QPOP Modified by Compaq \(version ([^)]+)\) at .*starting\.| p/QPop pop3d/ v/$1/
 match pop3 m|^\+OK Qpopper .*\(version ([^)]+)\) at .*starting\.| p/Qpopper pop3d/ v/$1/
@@ -2044,7 +2044,7 @@ match pop3 m|^\+OK ready  <[\d.]+@([-\w_.]+)>\r\n| p/qpopper/ h/$1/
 match pop3 m|^\+OK Scalix POP3 interface ready on: ([-\w_.]+)\r\n| p/Scalix pop3d/ h/$1/
 match pop3 m|^\+OK ([-\w_.]+) .* GoMail V([\d.]+) POP3| p/GoMail mass mailing plugin pop3d/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match pop3 m|^\+OK POP3 Welcome to ([-\w_.]+) using the Internet Anywhere Mail Server Version: ([\d.]+)\. Build: (\d+) by True North Software, Inc\.| p/True North Internet Anywhere pop3d/ v/$2 build $3/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match pop3 m|^\+OK Authorized Users Only! \(([-\w_.]+)\)\r\n| p/Microsoft Exchange pop3d/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
+match pop3 m|^\+OK Authorized Users Only! \(([-\w_.]+)\)\r\n| p/Microsoft Exchange pop3d/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 match pop3 m|^\+OK Welcome to mpopd V([\d.]+)\.\.\.\. :\)\r\n| p/mpopd perl pop3d/ v/$1/
 match pop3 m|^\+OK POP3 thats cool man\r\n| p/Mozilla Thunderbird webmail plugin pop3d/
 match pop3 m|^\+OK [-\w_.]+ Welcome to the mail server\.\r\n| p/Ipswitch IMail pop3d/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -2348,11 +2348,11 @@ match smtp m|^220 X1 NT-ESMTP Server ([-.+\w]+) \(IMail ([^)]+)\)\r\n| p/IMail N
 match smtp m|^421  Insufficient System Storage\.\(IMail ([\d.]+)\)\r\n| p/IMail smtpd/ v/$1/ i/Storage full/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220-([-.+\w]+) Microsoft SMTP MAIL ready at.*Version: ([-\w.]+)\r\n| p/Microsoft SMTP/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 \[?([-.+\w]+)\]? Microsoft ESMTP MAIL Service, Version: ([-\w.]+) ready| p/Microsoft ESMTP/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp m|^220 ([-\w_.]+) Microsoft ESMTP MAIL Service ready at| p/Microsoft Exchange ESMTP/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp m|^220 ([\w._-]+) Microsoft ESMTP MAIL Service Version: ([\w._-]+)\r\n| p/Microsoft Exchange 2010 smtpd/ v/$2/ h/$1/
-match smtp m|^220 ([-.+\w]+) ESMTP Server \(Microsoft Exchange Internet Mail Service ([-\w.]+)\) ready| p/Microsoft Exchange/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp m|^220 ([-\w_.]+) Microsoft Exchange Internet Mail Service ([-\w_.]+) ready\r\n| p/Microsoft Exchange/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp m|^220 \+OK Microsoft Exchange SMTP server version ([\d.]+)| p/Microsoft Exchange/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
+match smtp m|^220 ([-\w_.]+) Microsoft ESMTP MAIL Service ready at| p/Microsoft Exchange smtpd/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match smtp m|^220 ([\w._-]+) Microsoft ESMTP MAIL Service Version: ([\w._-]+)\r\n| p/Microsoft Exchange 2010 smtpd/ v/$2/ h/$1/ cpe:/a:microsoft:exchange_server:2010/
+match smtp m|^220 ([-.+\w]+) ESMTP Server \(Microsoft Exchange Internet Mail Service ([-\w.]+)\) ready| p/Microsoft Exchange smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match smtp m|^220 ([-\w_.]+) Microsoft Exchange Internet Mail Service ([-\w_.]+) ready\r\n| p/Microsoft Exchange smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match smtp m|^220 \+OK Microsoft Exchange SMTP server version ([\d.]+)| p/Microsoft Exchange smtpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 match smtp m|^421 [\d.]+ Service not available, closing transmission channel\r\n| p/Microsoft Exchange smtpd/ i/disabled/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220[\s-](\S+) E?SMTP Sendmail (\d[^; ]+)| p/Sendmail/ v/$2/ o/Unix/ h/$1/ cpe:/a:sendmail:sendmail:$2/
 match smtp m|^220[\s-](\S+) E?SMTP Sendmail ready | p/Sendmail/ o/Unix/ h/$1/ cpe:/a:sendmail:sendmail/
@@ -2608,7 +2608,7 @@ match smtp m|^220 Service ready M052 smtpd\r\n| p/Konica Minolta C360 printer sm
 match smtp m|^220 ([\w._-]+) running IBM VM SMTP Level (\d+) on | p/IBM VM smtpd/ v/Level $2/ h/$1/
 match smtp m|^220 DavMail SMTP ready at | p/DavMail smtpd/
 match smtp m|^220 DavMail ([\w._-]+) SMTP ready at | p/DavMail smtpd/ v/$1/
-match smtp m|^421 4\.3\.2 Service not available\r\n| p/Microsoft Exchange 2010 smtpd/ i/not available/
+match smtp m|^421 4\.3\.2 Service not available\r\n| p/Microsoft Exchange 2010 smtpd/ i/not available/ cpe:/a:microsoft:exchange_server:2010/
 match smtp m|^220 ([\w._-]+) InSciTek OIS Ready here ESMTP\r\n| p/Allworx 6x VoIP phone smtpd/ d/VoIP phone/ h/$1/
 match smtp m|^220 ([-\w_.]+)\s+ESMTP IdeaSmtpServer ([^\s]+) ready\.\r\n| p/IdeaSmtpServer smtpd/ v/$2/ h/$1/
 match smtp m|^220 ([\w._-]+) M\+ Extreme Email Engine ESMTP ready ([\w._-]+)\r\n| p/Messaging Architects M+ Extreme Email Engine smtpd/ v/$2/ h/$1/
@@ -7891,8 +7891,8 @@ match imap m|^\* OK .*\r\nGET BAD Error in IMAP command received by server\.\r\n
 # Too general -- also matches Cyrus imapd 2.3.9.
 # match imap m|^\* OK .*\r\nGET BAD Please login first\r\n| p/Dovecot imapd/ i/auth required/ cpe:/a:dovecot:dovecot/
 match imap m|^\* OK IMAP4 IMAP4rev1 Server\r\nGET BAD Unrecognised Command\r\n| p/Floosietek FTgate imapd/
-match imap m|^\* OK IMAP4r1 server \[([-\w_.]+)\] ready\r\nGET BAD Protocol Error: \"Unidentifiable command specified\"\.\r\n\* BAD Protocol Error: \"Tag not found in command\"\.\r\n| p/Microsoft Exchange imapd/ i/Version masked/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d?\d:\d\d:\d\d\r\nGET BAD UNKNOWN Command\r\n\r\n BAD UNKNOWN Command\r\n| p/MailEnable imapd/ o/Windows/ cpe:/o:microsoft:windows/a
+match imap m|^\* OK IMAP4r1 server \[([-\w_.]+)\] ready\r\nGET BAD Protocol Error: \"Unidentifiable command specified\"\.\r\n\* BAD Protocol Error: \"Tag not found in command\"\.\r\n| p/Microsoft Exchange imapd/ i/Version masked/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d?\d:\d\d:\d\d\r\nGET BAD UNKNOWN Command\r\n\r\n BAD UNKNOWN Command\r\n| p/MailEnable imapd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 match imap m|^\* OK IMAP4rev1 server ready\r\nGET BAD Unknown command '/'\r\n BAD Unknown command ''\r\n| p/Kerio imapd/
 match imap m|^\* OK Gimap ready for requests from [\d\.]+ ([\w\d]+)| p/Google Gmail imapd/ i/$1/
 match imap m|^\* OK .*IMAP4rev1 Server Completed\r\nGET BAD Protocol Error: Invalid IMAP command specified\r\n| p/Cisco imapd/
