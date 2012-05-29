@@ -1223,20 +1223,21 @@ match imap m|^\* OK \[CAPABILITY IMAP4rev1 CHILDREN NAMESPACE\] Freemail ready -
 match imap m|^\* OK AVM KEN!4 IMAP Server ready\r\n| p/AVM KEN! imapd/
 
 # MS Exchange
-match imap m|^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) | p/Microsoft Exchange imapd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n| p/Microsoft Exchange 2000 imapd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match imap m|^\* BYE Connection refused\r\n| p/Microsoft Exchange imapd/ i/refused/ o/Windows/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Microsoft Exchange Server ([\d]+) IMAP4rev1 server version (\d[-.\w]+) \(([-.\w]+)\) ready\.\r\n| p/Microsoft Exchange Server $1 imapd/ v/$2/ o/Windows/ h/$3/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Der Microsoft Exchange Server \(IMAP4rev1, Version (\d[-.\w]+) \([-.\w]+\)\) steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2000 imapd/ v/$1/ i/German/ o/Windows/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Der Microsoft Exchange Server 2003 IMAP4rev1-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2003 imapd/ v/$1/ i/German/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Microsoft Exchange IMAP4rev1 kiszolg\xe1l\xf3 verzi\xf3 (\d[-.\w]+) \(([-.\w]+)\) k\xe9sz\r\n| p/Microsoft Exchange Server imapd/ v/$1/ i/Hungarian/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Server Microsoft Exchange IMAP4rev1 verze ([\d.]+) \(([-\w_.]+)\) je p\xf8ipraven\.\r\n| p/Microsoft Exchange Server imapd/ v/$1/ i/Czech/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK La version ([\d.]+) \(([-\w_.]+)\) du serveur IMAP4rev1 Microsoft Exchange est pr\xeate\r\n| p/Microsoft Exchange Server imapd/ v/$1/ i/French/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Servidor IMAP4rev1de Microsoft Exchange Server 2003 versi\xf3n ([\w._-]+) \(([\w._-]+)\) listo\.\r\n| p/Microsoft Exchange Server 2003 imapd/ v/$1/ i/Spanish/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/ cpe:/o:microsoft:windows/a
-match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007-2008 imapd/ o/Windows/ cpe:/o:microsoft:windows/a
+match imap m|^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) | p/Microsoft Exchange imapd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match imap m|^\* OK Microsoft Exchange 2000 IMAP4rev1 server version (\d[-.\w]+) \([-.\w]+\) ready\.\r\n| p/Microsoft Exchange 2000 imapd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2000/
+match imap m|^\* BYE Connection refused\r\n| p/Microsoft Exchange imapd/ i/refused/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match imap m|^\* OK Microsoft Exchange Server ([\d]+) IMAP4rev1 server version (\d[-.\w]+) \(([-.\w]+)\) ready\.\r\n| p/Microsoft Exchange Server $1 imapd/ v/$2/ o/Windows/ h/$3/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:$1/
+match imap m|^\* OK Der Microsoft Exchange Server \(IMAP4rev1, Version (\d[-.\w]+) \([-.\w]+\)\) steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2000 imapd/ v/$1/ i/German/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2000:::de/
+match imap m|^\* OK Der Microsoft Exchange Server 2003 IMAP4rev1-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/Microsoft Exchange 2003 imapd/ v/$1/ i/German/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2000:::de/
+match imap m|^\* OK Microsoft Exchange IMAP4rev1 kiszolg\xe1l\xf3 verzi\xf3 (\d[-.\w]+) \(([-.\w]+)\) k\xe9sz\r\n| p/Microsoft Exchange Server imapd/ v/$1/ i/Hungarian/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server::::hu/
+match imap m|^\* OK Server Microsoft Exchange IMAP4rev1 verze ([\d.]+) \(([-\w_.]+)\) je p\xf8ipraven\.\r\n| p/Microsoft Exchange Server imapd/ v/$1/ i/Czech/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server::::cs/
+match imap m|^\* OK La version ([\d.]+) \(([-\w_.]+)\) du serveur IMAP4rev1 Microsoft Exchange est pr\xeate\r\n| p/Microsoft Exchange Server imapd/ v/$1/ i/French/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server::::fr/
+match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::ko/
+match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::ko/
+match imap m|^\* OK Servidor IMAP4rev1de Microsoft Exchange Server 2003 versi\xf3n ([\w._-]+) \(([\w._-]+)\) listo\.\r\n| p/Microsoft Exchange Server 2003 imapd/ v/$1/ i/Spanish/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::es/
+match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
+match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007-2008 imapd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+
 match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w._-]+)\) ready\r\n| p/DeskNow imapd/ v/$1/
 
 match imap m|^\* OK \[CAPABILITY (?:IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| p/UW imapd/ v/$1/
