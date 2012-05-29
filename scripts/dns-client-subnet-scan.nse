@@ -64,11 +64,11 @@ prerule = function()
 	return true
 end
 
-portrule = function()
+portrule = function(host, port)
 	if ( nmap.address_family() ~= "inet" ) then
 		return false
 	else
-		return shortport.port_or_service(53, "domain", {"tcp", "udp"})
+		return shortport.port_or_service(53, "domain", {"tcp", "udp"})(host, port)
 	end
 end
 
