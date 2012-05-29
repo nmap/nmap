@@ -1,3 +1,5 @@
+local table = require "table"
+
 ---HTTP Fingerprint files, compiled by Ron Bowes with a special thanks to...
 -- o Kevin Johnson (@secureideas) for the fingerprints that come with Yokoso
 --   http://yokoso.inguardians.com

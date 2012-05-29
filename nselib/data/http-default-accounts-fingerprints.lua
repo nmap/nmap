@@ -1,3 +1,7 @@
+local http = require "http"
+local table = require "table"
+local url = require "url"
+
 ---
 -- http-default-accounts-fingerprints.lua
 -- This file contains fingerprint data for http-default-accounts.nse

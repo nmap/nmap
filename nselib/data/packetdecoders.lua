@@ -1,3 +1,9 @@
+local bin = require "bin"
+local packet = require "packet"
+local stdnse = require "stdnse"
+local tab = require "tab"
+local target = require "target"
+
 --- The following file contains a list of decoders used by the
 -- broadcast-listener script. A decoder can be either "ethernet" based or IP
 -- based. As we're only monitoring broadcast traffic (ie. traffic not
