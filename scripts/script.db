@@ -166,7 +166,7 @@ Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "ex
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
-Entry { filename = "http-traceroute.nse", categories = {"discovery", "safe", } }
+Entry { filename = "http-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-unsafe-output-escaping.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
@@ -203,6 +203,7 @@ Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "exploit", "intrusive", "malware", "vuln", } }
 Entry { filename = "iscsi-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iscsi-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "isns-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "jdwp-version.nse", categories = { "version", } }
 Entry { filename = "krb5-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ldap-brute.nse", categories = { "brute", "intrusive", } }
@@ -289,6 +290,7 @@ Entry { filename = "rexec-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "riak-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rlogin-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "rmi-vuln-classloader.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "rpcap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rpcap-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }

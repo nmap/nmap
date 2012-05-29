@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the Internet Storage Name Service (iSNS) library and the
+  isns-info script that lists information about portals and iSCSI devices.
+  [Patrik Karlsson]
+
 o [NSE] Added rmi-vuln-classloader which scans for machines vulnerable to
   remote class loading. [Aleksandar Nikolic]
 
