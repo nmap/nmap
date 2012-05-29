@@ -47,7 +47,10 @@
 -- Created 07/25/2011 - v0.1 - created by Patrik Karlsson
 --         02/12/2012 - v.02 - added support for EIGRP - Tom Sellers
 
-require 'target'
+local bin    = require 'bin'
+local target = require 'target'
+local tab    = require 'tab'
+local packet = require 'packet'
 
 Decoders = {
 
