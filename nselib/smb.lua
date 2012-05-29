@@ -319,16 +319,16 @@ end
 -- doesn't have to call smb.stop(). 
 --
 --@param host               The host object. 
---@param negotiate_protocol [optional] If 'true', send the protocol negotiation. Default: false. 
---@param start_session      [optional] If 'true', start the session. Default: false. 
---@param tree_connect       [optional] The tree to connect to, if given (eg. "IPC$" or "C$"). If not given, 
+--@param bool_negotiate_protocol [optional] If 'true', send the protocol negotiation. Default: false. 
+--@param bool_start_session      [optional] If 'true', start the session. Default: false. 
+--@param str_tree_connect       [optional] The tree to connect to, if given (eg. "IPC$" or "C$"). If not given, 
 --                          packet isn't sent. 
---@param create_file        [optional] The path and name of the file (or pipe) that's created, if given. If 
+--@param str_create_file        [optional] The path and name of the file (or pipe) that's created, if given. If 
 --                          not given, packet isn't sent. 
 --@param overrides          [optional] A table of overrides (for, for example, username, password, etc.) to pass 
 --                          to all functions. 
---@param disable_extended   [optional] If set to true, disables extended security negotiations. 
-function start_ex(host, negotiate_protocol, start_session, tree_connect, create_file, disable_extended, overrides)
+--@param bool_disable_extended   [optional] If set to true, disables extended security negotiations. 
+function start_ex(host, bool_negotiate_protocol, bool_start_session, str_tree_connect, str_create_file, bool_disable_extended, overrides)
 	local smbstate
 	local status, err
 
@@ -342,11 +342,11 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 	end
 
 	-- Disable extended security if it was requested
-	if(disable_extended == true) then
+	if(bool_disable_extended == true) then
 		disable_extended(smbstate)
 	end
 
-	if(negotiate_protocol == true) then
+	if(bool_negotiate_protocol == true) then
 		-- Negotiate the protocol
 		status, err = negotiate_protocol(smbstate, overrides)
 		if(status == false) then
@@ -354,7 +354,7 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 			return false, err
 		end
 
-		if(start_session == true) then	
+		if(bool_start_session == true) then	
 			-- Start up a session
 			status, err = start_session(smbstate, overrides)
 			if(status == false) then
@@ -362,17 +362,17 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 				return false, err
 			end
 
-			if(tree_connect ~= nil) then
+			if(str_tree_connect ~= nil) then
 				-- Connect to share
-				status, err = tree_connect(smbstate, tree_connect, overrides)
+				status, err = tree_connect(smbstate, str_tree_connect, overrides)
 				if(status == false) then
 					stop(smbstate)
 					return false, err
 				end
 
-				if(create_file ~= nil) then
+				if(str_create_file ~= nil) then
 					-- Try to connect to requested pipe
-					status, err = create_file(smbstate, create_file, overrides)
+					status, err = create_file(smbstate, str_create_file, overrides)
 					if(status == false) then
 						stop(smbstate)
 						return false, err
@@ -3841,9 +3841,9 @@ namedpipes =
 
 			stdnse.print_debug( 2, "%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
 			local status, result, errorMessage
-			local negotiate_protocol, start_session, disable_extended = true, true, false
-			status, result = start_ex( self._host, negotiate_protocol, start_session,
-				"IPC$", self._pipeSubPath, disable_extended, self._overrides )
+			local bool_negotiate_protocol, bool_start_session, bool_disable_extended = true, true, false
+			status, result = start_ex( self._host, bool_negotiate_protocol, bool_start_session,
+				"IPC$", self._pipeSubPath, bool_disable_extended, self._overrides )
 
 			if status then
 				self._smbstate = result
