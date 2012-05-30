@@ -46,10 +46,6 @@ o The message "nexthost: failed to determine route to ..." is now a
 o [NSE] Added the script http-drupal-modules, which enumerates the installed
   Drupal modules using drupal-modules.lst. [Hani Benhabiles]
 
-o [NSE] Added http-vuln-cve2012-1823.nse, which checks for PHP CGI
-  installations with a remote code execution vulnerability. [Paulino
-  Calderon]
-
 o [NSE] Added the script dict-info, which retrieves information from a
   DICT server, by issuing the SHOW SERVER command. [Patrik Karlsson]
 
@@ -67,21 +63,6 @@ o [NSE] Added the script broadcast-tellstick-discover, which discovers Telldus
 
 o [NSE] Added the Apache JServer Protocol (AJP) library and the scripts
   ajp-methods, ajp-headers and ajp-auth. [Patrik Karlsson]
-
-o In XML output, <osclass> elements are now child elements of the
-  <osmatch> they belong to. Old output was thus:
-    <os><osclass/><osclass/>...<osmatch/><osmatch/>...</os>
-  New output is:
-    <os><osmatch><osclass/><osclass/>...</osmatch>...</os>
-  The option --deprecated-xml-osclass restores the old output, in case
-  you use an Nmap XML parser that doesn't understand the new
-  structure. The xmloutputversion has been increased to 1.04.
-
-o Added a new <target> element to XML output that indicates when a
-  target specification was ignored, perhaps because of a syntax error
-  or DNS failure. It looks like this:
-    <target specification="1.2.3.4.5" status="skipped" reason="invalid"/>
-  [David Fifield]
 
 o Nmap's development pace has increased because Google (again)
   sponsored 5 full-time college and graduate student programmer
@@ -101,9 +82,6 @@ o [NSE] Added the script cups-queue-info that lists the contents of a remote
 
 o [NSE] Added the script ip-forwarding that detects devices that have IP
   forwarding enabled (acting as routers). [Patrik Karlsson]
-
-o [NSE] Added the script samba-vuln-cve-2012-1182 which detects the SAMBA CVE
-  2012-1182 vulnerability. [Aleksandar Nikolic]
 
 o [NSE] Added the script dns-check-zone that checks DNS configuration against
   best practices including RFC 1912. [Patrik Karlsson]
@@ -131,15 +109,8 @@ o [NSE] Added gps library and the gpsd-info script that collects GPS data
 o [NSE] Ported the pop3-brute script to use the brute library.
   [Piotr Olma]
 
-o Fixed a compilation problem on Solaris 9 caused by a missing
-  definition of IPV6_V6ONLY. Reported by Dagobert Michelsen.
-
-o Upgraded included libpcap to version 1.2.1.
-
 o [NSE] Added hostmap-robtex.nse by Arturo Busleiman, which finds other
   domain names sharing the IP address of the target.
-
-o [NSE] Renamed hostmap.nse to hostmap-bfk.nse.
 
 o [NSE] Added http-robtex-shared-ns by Arturo Busleiman, finding
   domain names that share the same name server as the target.
@@ -147,15 +118,9 @@ o [NSE] Added http-robtex-shared-ns by Arturo Busleiman, finding
 o [NSE] Added the script http-vlcstreamer-ls which queries the VLC Streamer
   helper service for a list of files in a given directory. [Patrik Karlsson]
 
-o [NSE] Added the script targets-ipv6-mld that sends a malformed ICMP6 MLD
-  Query to discover IPv6 enabled hosts on the LAN. [Niteesh Kumar]
-
 o [NSE] Added script http-virustotal that allows checking files, or hashes
   of previously scanned files, against the major antivirus engines. [Patrik
   Karlsson]
-
-o Setting --min-parallelism by itself no longer forces the maximum
-  parallelism to the same value. [Chris Woodbury, David Fifield]
 
 o [NSE] Added an error message indicating script failure, when Nmap is being
   run in non verbose/debug mode. [Patrik Karlsson]
@@ -167,6 +132,73 @@ o Service-scan information is now included in XML and grepable output
 o [NSE] Added the script dns-ip6-arpa-scan which uses a very efficient
   technique to scan the ip6.arpa zone for PTR records. [Patrik Karlsson]
 
+o [NSE] Added new script http-drupal-users-enum, which enumerates all available
+  Drupal user accounts by exploiting a vulnerability in the Views module.
+  [Hani Benhabiles]
+
+o [NSE] Added new script broadcast-ataoe-discover, which discovers ATA over
+  Ethernet capable devices through LAN ethernet broadcasts. [Patrik Karlsson]
+
+Nmap 6.00 [2012-05-21]
+
+o Most important release since Nmap 5.00 in July 2009! For a list of
+  the most significant improvements and new features, see the
+  announcement at: http://nmap.org/6
+
+o In XML output, <osclass> elements are now child elements of the
+  <osmatch> they belong to. Old output was thus:
+    <os><osclass/><osclass/>...<osmatch/><osmatch/>...</os>
+  New output is:
+    <os><osmatch><osclass/><osclass/>...</osmatch>...</os>
+  The option --deprecated-xml-osclass restores the old output, in case
+  you use an Nmap XML parser that doesn't understand the new
+  structure. The xmloutputversion has been increased to 1.04.
+
+o Added a new <target> element to XML output that indicates when a
+  target specification was ignored, perhaps because of a syntax error
+  or DNS failure. It looks like this:
+    <target specification="1.2.3.4.5" status="skipped" reason="invalid"/>
+  [David Fifield]
+
+o [NSE] Added the script samba-vuln-cve-2012-1182 which detects the
+  SAMBA pre-auth remote root vulnerability (CVE-2012-1182).
+  [Aleksandar Nikolic]
+
+o [NSE] Added http-vuln-cve2012-1823.nse, which checks for PHP CGI
+  installations with a remote code execution vulnerability. [Paulino
+  Calderon]
+
+o [NSE] Added script targets-ipv6-mld that sends a malformed ICMP6 MLD Query
+  to discover IPv6 enabled hosts on the LAN. [Niteesh Kumar]
+
+o [NSE] Added rdp-vuln-ms12-020.nse by Aleksandar Nikolic. This tests
+  for two Remote Desktop vulnerabilities, including one allowing
+  remote code execution, that were fixed in the MS12-020 advisory.
+
+o [NSE] Added a stun library and the scripts stun-version and stun-info, which
+  extract version information and the external NAT:ed address.
+  [Patrik Karlsson]
+
+o [NSE] Added the script duplicates which attempts to determine duplicate
+  hosts by analyzing information collected by other scripts. [Patrik Karlsson]
+
+o Fixed the routing table loop on OS X so that on-link routes appear.
+  Previously, they were ignored so that things like ARP scan didn't
+  work. [Patrik Karlsson, David Fifield]
+
+o Upgraded included libpcap to version 1.2.1.
+
+o [NSE] Added ciphers from RFC 5932 and Fortezza-based ciphers to
+  ssl-enum-ciphers.nse. The patch was submitted by Darren McDonald.
+
+o [NSE] Renamed hostmap.nse to hostmap-bfk.nse.
+
+o Fixed a compilation problem on Solaris 9 caused by a missing
+  definition of IPV6_V6ONLY. Reported by Dagobert Michelsen.
+
+o Setting --min-parallelism by itself no longer forces the maximum
+  parallelism to the same value. [Chris Woodbury, David Fifield]
+
 o Changed XML output to show the "service" element whenever a tunnel
   is discovered for a port, even if the service behind it was unknown.
   [Matt Foster]
@@ -176,48 +208,26 @@ o [Zenmap] Fixed a crash that would happen in the profile editor when
   Miller.
 
 o [Zenmap] It is now possible to compare scans having the same name or
-  command line. [Jah, David Fifield]
-
-o [NSE] Added rdp-vuln-ms12-020.nse by Aleksandar Nikolic. This tests
-  for two Remote Desktop vulnerabilities, including one allowing
-  remote code execution, that were fixed in the MS12-020 advisory.
+  command line parameters. [Jah, David Fifield]
 
 o Fixed an error that could occur with ICMPv6 probes and -d4 debugging:
   "Unexpected probespec2ascii type encountered" [David Fifield]
-
-o Fixed the routing table loop on OS X so that on-link routes appear.
-  Previously, they were ignored so that things like ARP scan didn't
-  work. [Patrik Karlsson, David Fifield]
 
 o [NSE] Added new script http-chrono, which measures min, max and average
   response times of web servers. [Ange Gutek]
 
 o Applied a workaround to make pcap captures work better on Solaris
   10. This involves peeking at the pcap buffer to ensure that captures
-  are not being lost. A symptom of behavior before this fix was that,
+  are not being lost. A symptom of the previous behavior was that,
   when doing ARP host discovery against two targets, only one would be
-  reported up. [David Fifield]
-
-o Added ciphers from RFC 5932 and Fortezza-based ciphers to
-  ssl-enum-ciphers.nse. The patch was submitted by Darren McDonald.
-
-o [NSE] Added new script http-drupal-users-enum, which enumerates all available
-  Drupal user accounts by exploiting a vulnerability in the Views module.
-  [Hani Benhabiles]
-
-o [NSE] Added new script broadcast-ataoe-discover, which discovers ATA over
-  Ethernet capable devices through LAN ethernet broadcasts. [Patrik Karlsson]
+  reported as up. [David Fifield]
 
 o Fixed a bug that could cause Nsock timers to fire too early. This
   could happen for the timed probes in IPv6 OS detection, causing an
   incorrect measurement of the TCP_ISR feature. [David Fifield]
 
-o [NSE] Added a stun library and the scripts stun-version and stun-info, which
-  extract version information and the external NAT:ed address.
-  [Patrik Karlsson]
-
-o [NSE] Added the script duplicates which attempts to determine duplicate
-  hosts by analyzing information collected by other scripts. [Patrik Karlsson]
+o [Zenmap] We now build on Windows with a newer version of PyGTK, so
+  copy and paste should work again.
 
 o Changed the way timeout calculations are made in the IPv6 OS engine.
   In rare cases a certain interleaving of probes and responses would
