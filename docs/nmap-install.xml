@@ -1048,32 +1048,16 @@ on other platforms once a proper build environment is in place.</para>
 <title>Compile Nmap from source code</title>
 
 <para>Compiling Nmap on Mac OS X requires
-<ulink url="http://developer.apple.com/tools/xcode/">Xcode</ulink>,<indexterm><primary>Xcode</primary></indexterm>
+<ulink url="https://developer.apple.com/xcode/">Xcode</ulink>,<indexterm><primary>Xcode</primary></indexterm>
 Apple's developer tools that include GCC and the rest of the usual build
 system. Xcode is not installed by default, but is available as an
 optional install on the Mac OS X installation discs. If you do not have
-the installation discs or if you want a newer version, you can download
-Xcode free of charge by following these steps.</para>
+the installation discs or if you want a newer version, you can <ulink url="https://developer.apple.com/xcode/">download
+Xcode free of charge</ulink>.
 
-<orderedlist>
-<listitem><para>Apple restricts downloads of Xcode to members of the
-Apple Developer Connection.<indexterm><primary>Apple Developer Connection</primary></indexterm>
-Browse to
-<ulink url="http://connect.apple.com" /> and fill out some forms to
-create an account. Skip to the next step if you already have an
-account.</para></listitem>
-<listitem><para>Return to <ulink url="http://connect.apple.com" /> and
-log in with your account credentials.</para></listitem>
-<listitem><para>Hit the <literal>Download</literal> link and then choose
-<literal>Developer Tools</literal>.</para></listitem>
-<listitem><para>Download and install the most recent
-<literal>Xcode</literal>.</para></listitem>
-</orderedlist>
+<para>Xcode installations don't always include the command line tools.  You can install them by opening Xcode from the Applications folder, opening Preferencechoosing the <literal>Download</literal> header icon and clicking the <literal>Install</literal> button next to <quote>Command Line Tools</quote>.
 
-<para>These exact steps may change, but it is hoped that this general
-approach will continue to work.</para>
-
-<para>Once you have installed Xcode, follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>.</para>
+<para>Once you have installed Xcode and the command-line tools, follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>.</para>
 </sect3>
 
 <sect3>
