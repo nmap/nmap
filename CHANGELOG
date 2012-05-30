@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added Italian translation by Francesco Tombolini.
+
 o [NSE] Added the script eppc-enum-processes that enumerates active
   applications, their PID and the UID under which they run through the Apple
   Remote Event protocol. [Patrik Karlsson]
