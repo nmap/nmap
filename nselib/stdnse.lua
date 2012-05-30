@@ -3,6 +3,8 @@
 -- functions that are too small to justify modules of their own.
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @class module
+-- @name stdnse
 
 local _G = require "_G"
 local math = require "math"
