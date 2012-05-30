@@ -45692,6 +45692,24 @@ T7(R=N)
 U1(DF=N%T=7A-84%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7A-84%TG=80%CD=Z)
 
+# Windows 2008 Server R2 Standard
+Fingerprint Microsoft Windows Server 2008 R2
+Class Microsoft | Windows | 2008 | general purpose
+CPE cpe:/o:microsoft:windows_server_2008:r2
+SEQ(SP=FC-10C%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=7)
+OPS(O1=M564NW8ST11%O2=M564NW8ST11%O3=M564NW8NNT11%O4=M564NW8ST11%O5=M564NW8ST11%O6=M564ST11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=Y%T=7B-85%TG=80%W=2000%O=M564NW8NNS%CC=N%Q=)
+T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=7B-85%TG=80%CD=Z)
+
 # version 6.1 (Build 7601: Service Pack 1)
 Fingerprint Microsoft Windows Server 2008 SP1
 Class Microsoft | Windows | 2008 | general purpose
@@ -45982,24 +46000,6 @@ T6(R=Y%DF=Y%T=7A-84%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=N)
 U1(DF=N%T=7A-84%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7A-84%TG=80%CD=Z)
-
-# Windows 2008 Server R2 Standard
-Fingerprint Microsoft Windows Server 2008 R2
-Class Microsoft | Windows | 2008 | general purpose
-CPE cpe:/o:microsoft:windows_server_2008:r2
-SEQ(SP=FC-10C%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=7)
-OPS(O1=M564NW8ST11%O2=M564NW8ST11%O3=M564NW8NNT11%O4=M564NW8ST11%O5=M564NW8ST11%O6=M564ST11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=Y%T=7B-85%TG=80%W=2000%O=M564NW8NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=N)
-T5(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=N)
-T7(R=N)
-U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=7B-85%TG=80%CD=Z)
 
 # Windows 3.1 with Trumpet WinSock 3.0D running in DOSBox 0.73 MB5
 Fingerprint Microsoft Windows 3.1 with Trumpet WinSock
@@ -55775,29 +55775,6 @@ T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=S)
 
-# Neware 6.5 with SP5
-# Novell NetWare 6.0 Support Pack 5 on x86
-# Novell NetWare 6.5 SP5 CPR Release, Server Version 5.70.05
-# Novell Netware 6.5 German
-# Novell Netware 6 Support Pack Revision 05, Server Version 5.60.05 May 27, 2004
-Fingerprint Novell NetWare 6.0 SP5 or 6.5 SP5
-Class Novell | NetWare | 6.X | general purpose
-CPE cpe:/o:novell:netware:6.0:sp5
-CPE cpe:/o:novell:netware:6.5:sp5
-SEQ(SP=F5-10D%GCD=1-6%ISR=9A-111%TI=BI|RD|RI%II=BI|RI%SS=S%TS=U)
-OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
-WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
-ECN(R=Y%DF=Y%T=7B-85%TG=80%W=1800%O=M5B4W0NSNN%CC=N%Q=)
-T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=O|S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
-T4(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=7B-85%TG=80%CD=S)
-
 # novell netware 6.0
 # Novell Open Enterprise Server, Netware 6.5, Support Pack Revision 07
 Fingerprint Novell NetWare 6.0 or 6.5 SP5 - SP7
@@ -55813,6 +55790,29 @@ OPS(O1=M5B4W1NSNN%O2=M578W1NSNN%O3=M280W1N%O4=M5B4W1NSNN%O5=M218W1NSNN%O6=M109SN
 WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
 ECN(R=Y%DF=Y%T=7B-85%TG=80%W=1800%O=M5B4W1NSNN%CC=N%Q=)
 T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
+T4(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=7B-85%TG=80%CD=S)
+
+# Neware 6.5 with SP5
+# Novell NetWare 6.0 Support Pack 5 on x86
+# Novell NetWare 6.5 SP5 CPR Release, Server Version 5.70.05
+# Novell Netware 6.5 German
+# Novell Netware 6 Support Pack Revision 05, Server Version 5.60.05 May 27, 2004
+Fingerprint Novell NetWare 6.0 SP5 or 6.5 SP5
+Class Novell | NetWare | 6.X | general purpose
+CPE cpe:/o:novell:netware:6.0:sp5
+CPE cpe:/o:novell:netware:6.5:sp5
+SEQ(SP=F5-10D%GCD=1-6%ISR=9A-111%TI=BI|RD|RI%II=BI|RI%SS=S%TS=U)
+OPS(O1=M5B4W0NSNN%O2=M578W0NSNN%O3=M280W0N%O4=M5B4W0NSNN%O5=M218W0NSNN%O6=M109SNN)
+WIN(W1=1800%W2=1800%W3=1800%W4=1800%W5=1800%W6=1800)
+ECN(R=Y%DF=Y%T=7B-85%TG=80%W=1800%O=M5B4W0NSNN%CC=N%Q=)
+T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=O|S+%F=AS%RD=0%Q=)
 T2(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 T3(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
 T4(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
