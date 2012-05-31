@@ -46,8 +46,8 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
 1. Install MacPorts.
 	export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 	export PREFIX=$HOME/macports-10.5
-	tar xzvf MacPorts-2.0.3.tar.gz
-	cd MacPorts-2.0.3
+	tar xzvf MacPorts-2.1.1.tar.gz
+	cd MacPorts-2.1.1
 	./configure --with-no-root-privileges --prefix=$PREFIX --with-tclpackage=$PREFIX/Library/Tcl --with-applications-dir=$PREFIX/Applications
 	make
 	make install
@@ -62,7 +62,7 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
 	cd $PREFIX
 	mkdir ports
 	ln -s var/macports/sources/rsync.macports.org/release/tarballs/ports ports.orig
-	for x in devel/atk devel/gettext devel/glib2 gnome/gtk2 graphics/fontconfig perl/p5-locale-gettext python/py26-gobject python/py27-libxml2 textproc/help2man textproc/libxml2 textproc/libxslt; do
+	for x in archivers/xz devel/apr-util devel/atk devel/gettext devel/glib2 gnome/gtk2 graphics/fontconfig graphics/gdk-pixbuf2 perl/p5-locale-gettext python/py26-gobject python/py27-libxml2 textproc/help2man textproc/libxml2 textproc/libxslt x11/pango; do
 		mkdir -v -p ports/$x;
 		cp -R ports.orig/$x ports/$(dirname $x);
 	done
@@ -75,7 +75,7 @@ with MacPorts 2.0.3 on Mac OS X 10.6.8.
 	file:///Users/user/macports-10.5/ports
    above the rsync line. (Replace "user" with your user name.)
 7. Install the dependencies of Zenmap.
-	$PREFIX/bin/port install py26-gtk py26-py2app
+	$PREFIX/bin/port install py26-gtk py26-py2app apr apr-util
 
 Here are instructions for updating the patch to keep up with MacPorts
 changes. First, sync the original ports tree.
