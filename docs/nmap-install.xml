@@ -990,10 +990,7 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 <indexterm class="startofrange" id="inst-macosx-indexterm"><primary>Mac OS X</primary></indexterm>
 <indexterm><primary>Apple Mac OS X</primary><see>Mac OS X</see></indexterm>
 
-<para>Thanks to several people graciously donating shell accounts on
-their Mac OS X boxes, Nmap usually compiles on that platform without
-problems. Because not everyone has the development tools necessary to
-compile from source, there is an executable installer as well.  Nmap
+<para>Nmap has supported Mac OS X since 2001, and our support has only improved over time.  While Mac users can compile Nmap themselves, we also offer an executable installer.  Nmap
 is also available through systems such as MacPorts and Fink which
 package Unix software for Mac OS X.</para>
 
@@ -1032,9 +1029,9 @@ the trash.</para></listitem>
 <para>See the instructions in <xref linkend="inst-macosx-exec"/> for
 help on running Nmap and Zenmap after they are installed.</para>
 
-<para>The programs installed by the installer will run on Mac OS X 10.5
+<para>The programs installed by the installer will run on Intel Mac OS X 10.5
 (Leopard) or later. Users of earlier versions will have to compile from
-source or use a third-party package.</para>
+source or use a third-party package.  Instructions for PowerPC (PPC) Mac systems (which Apple ceased selling in 2006) are <ulink url="https://secwiki.org/w/Nmap/Mac_OSX_PPC">available on our wiki</ulink>.</para>
 </sect2>
 
 <sect2 id="inst-macosx-source">
@@ -1053,9 +1050,9 @@ Apple's developer tools that include GCC and the rest of the usual build
 system. Xcode is not installed by default, but is available as an
 optional install on the Mac OS X installation discs. If you do not have
 the installation discs or if you want a newer version, you can <ulink url="https://developer.apple.com/xcode/">download
-Xcode free of charge</ulink>.
+Xcode free of charge</ulink>.</para>
 
-<para>Xcode installations don't always include the command line tools.  You can install them by opening Xcode from the Applications folder, opening Preferencechoosing the <literal>Download</literal> header icon and clicking the <literal>Install</literal> button next to <quote>Command Line Tools</quote>.
+<para>Xcode installations don't always include the command line tools.  You can install them by opening Xcode from the Applications folder, opening Preferencechoosing the <literal>Download</literal> header icon and clicking the <literal>Install</literal> button next to <quote>Command Line Tools</quote>.</para>
 
 <para>Once you have installed Xcode and the command-line tools, follow the compilation instructions found in <xref linkend="inst-source" />.  Note that on some older versions of Mac OS X, you may have to replace the command <command>./configure</command> with <command>./configure CPP=/usr/bin/cpp</command>.</para>
 </sect3>
