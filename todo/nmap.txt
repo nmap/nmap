@@ -1,5 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Fix get_srcaddr error happening on Windows XP
+
+o Zenmap hang on OS X 10.7
+
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
