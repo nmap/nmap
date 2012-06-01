@@ -392,7 +392,7 @@ function Packet:set_icmpv6_option(opt_type,msg)
 	return string.char(opt_type, (#msg+2)/8) .. msg
 end
 
---- Build an IPv6 packet.
+--- Build an IPv4 packet.
 -- @param src 4-byte string of the source IP address.
 -- @param dst 4-byte string of the destination IP address.
 -- @param payload string containing the IP payload
