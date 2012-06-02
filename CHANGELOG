@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that caused Nmap to fail to find any network interface when
+  at least one of them is in the monitor mode. The fix was to define the
+  ARP_HRD_IEEE80211_RADIOTAP 802.11 radiotap header identifier in the
+  libdnet-stripped code. Network interfaces that are in this mode are used
+  by radiotap for 802.11 frame injection and reception. The bug was
+  reported by Tom Eichstaedt and Henri Doreau.
+  http://seclists.org/nmap-dev/2012/q2/449
+  http://seclists.org/nmap-dev/2012/q2/478
+  [Djalal Harouni, Henri Doreau]
+
 o [Zenmap] Added Italian translation by Francesco Tombolini.
 
 o [NSE] Added the script eppc-enum-processes that enumerates active

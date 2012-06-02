@@ -318,6 +318,7 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 #endif
 	case AF_UNSPEC:
 	case ARP_HRD_ETH:	/* XXX- Linux arp(7) */
+	case ARP_HRD_IEEE80211_RADIOTAP: /* IEEE 802.11 + radiotap header */
 		a->addr_type = ADDR_TYPE_ETH;
 		a->addr_bits = ETH_ADDR_BITS;
 		memcpy(&a->addr_eth, sa->sa_data, ETH_ADDR_LEN);
