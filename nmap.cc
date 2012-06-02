@@ -351,6 +351,20 @@ printf("%s %s ( %s )\n"
   exit(rc);
 }
 
+#ifdef WIN32
+static void check_setugid(void) {
+}
+#else
+/* Show a warning when running setuid or setgid, as this allows code execution
+   (for example NSE scripts) as the owner/group. */
+static void check_setugid(void) {
+  if (getuid() != geteuid())
+    error("WARNING: Running Nmap setuid, as you are doing, is a major security risk.\n");
+  if (getgid() != getegid())
+    error("WARNING: Running Nmap setgid, as you are doing, is a major security risk.\n");
+}
+#endif
+
 static void insert_port_into_merge_list(unsigned short *mlist,
                                         int *merged_port_count,
                                         unsigned short p) {
@@ -1453,6 +1467,9 @@ void  apply_delayed_options() {
     if (o.sendpref != PACKET_SEND_IP_STRONG)
       o.sendpref = PACKET_SEND_ETH_STRONG;
   }
+
+  /* Warn if setuid/setgid. */
+  check_setugid();
 
   /* By now, we've got our port lists.  Give the user a warning if no
    * ports are specified for the type of scan being requested.  Other things
