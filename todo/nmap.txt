@@ -12,6 +12,8 @@ o We should add fields to the service submitter
     reported by Maxim Rupp (@mmrupp).  The risk is low, if any, since
     we don't give authentication cookies for bad guys to steal, but is
     still better to properly escape.
+    o If we get a chance, would be interesting to run our XSS-testing
+      NSE scripts against this and see if they locate the problems.
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
