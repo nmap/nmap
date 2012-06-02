@@ -7,6 +7,11 @@ o Zenmap hang on OS X 10.7
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
+  o We also need to ensure all fields of /cgi-bin/submit.cgi have
+    proper escapting to prevent possible reflected XSS attacks
+    reported by Maxim Rupp (@mmrupp).  The risk is low, if any, since
+    we don't give authentication cookies for bad guys to steal, but is
+    still better to properly escape.
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
