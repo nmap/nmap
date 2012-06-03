@@ -43,10 +43,6 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
     doesn't seem to happen when you do ICMP host discovery first (-PE),
     so it probably relates to the ACK packet that Nmap sends to port 80
     on the target by default. [James and Fyodor?]
-  o We should probably remove the intl.dll mv command from
-    zenmap/install_scripts/windows/copy_and_compile.bat for the reasons
-    described at http://seclists.org/nmap-dev/2012/q1/430. [Sean and
-    David?]
   o Make Nmap from a clean start (e.g. after make clean or whatever,
     so it compiles everything) and research all the compile warnings to
     see which ones can be fixed/removed.  Of course caution is needed to
