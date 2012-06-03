@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script smb-ls that lists files on SMB shares and produces
+  output similar to the dir command on Windows. [Patrik Karlsson]
+
 o Fixed a bug that caused Nmap to fail to find any network interface when
   at least one of them is in the monitor mode. The fix was to define the
   ARP_HRD_IEEE80211_RADIOTAP 802.11 radiotap header identifier in the

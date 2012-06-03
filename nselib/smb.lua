@@ -2010,6 +2010,111 @@ function delete_file(smb, path, overrides)
 	return true
 end
 
+---
+-- Implements SMB_COM_TRANSACTION2 to support the find_files function
+-- This function has not been extensively tested
+--
+--@param smb                  The SMB object associated with the connection
+--@param sub_command          The SMB_COM_TRANSACTION2 sub command
+--@param function_parameters  The parameter data to pass to the function. This is untested, since none of the
+--                            transactions I've done have required parameters. 
+--@param function_data        The data to send with the packet. This is basically the next protocol layer
+--@param overrides            The overrides table
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table 
+--        containing 'parameters' and 'data', representing the parameters and data returned by the server. 
+local function send_transaction2(smb, sub_command, function_parameters, function_data, overrides)
+	overrides = overrides or {}
+	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
+	local header, parameters, data
+	local parameter_offset = 0
+	local parameter_size   = 0
+	local data_offset      = 0
+	local data_size        = 0
+	local total_word_count, total_data_count, reserved1, parameter_count, parameter_displacement, data_count, data_displacement, setup_count, reserved2
+	local response = {}
+
+	-- Header is 0x20 bytes long (not counting NetBIOS header).
+	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION2'], overrides) -- 0x32 = SMB_COM_TRANSACTION2
+
+	if(function_parameters) then
+		parameter_offset = 0x44
+		parameter_size = #function_parameters
+		data_offset = #function_parameters + 33 + 32
+	end
+	
+	-- Parameters are 0x20 bytes long. 
+	parameters = bin.pack("<SSSSCCSISSSSSCCS",
+					parameter_size,                  -- Total parameter count. 
+					data_size,                       -- Total data count. 
+					0x000a,                          -- Max parameter count.
+					0x3984,                          -- Max data count.
+					0x00,                            -- Max setup count.
+					0x00,                            -- Reserved.
+					0x0000,                          -- Flags (0x0000 = 2-way transaction, don't disconnect TIDs).
+					0x00001388,                      -- Timeout (0x00000000 = return immediately).
+					0x0000,                          -- Reserved.
+					parameter_size,                  -- Parameter bytes.
+					parameter_offset,                -- Parameter offset.
+					data_size,                       -- Data bytes.
+					data_offset,                     -- Data offset.
+					0x01,                            -- Setup Count
+					0x00,                            -- Reserved
+					sub_command                      -- Sub command
+	)
+
+	local data = "\0\0\0" .. (function_parameters or '')
+	data = data .. (function_data or '')
+
+	-- Send the transaction request
+	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION2")
+	local result, err = smb_send(smb, header, parameters, data, overrides)
+	if(result == false) then
+		return false, err
+	end
+
+	-- Read the result
+	status, header, parameters, data = smb_read(smb)
+	if(status ~= true) then
+		return false, header
+	end
+
+	-- Check if it worked
+    local uid, tid, pos
+	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	if(header1 == nil or mid == nil) then
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [29]"
+	end
+	if(status ~= 0) then
+		if(status_names[status] == nil) then
+			return false, string.format("Unknown SMB error: 0x%08x\n", status)
+		else
+			return false, status_names[status]
+		end
+	end
+
+	-- Parse the parameters
+	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
+	if(total_word_count == nil or reserved2 == nil) then
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [30]"
+	end
+
+	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
+	-- - 0x20 for the header, - 0x01 for the length. 
+	parameter_offset = parameter_offset - 0x20 - 0x01 - #parameters - 0x02;
+	-- - 0x20 for the header, - 0x01 for parameter length, the parameter length, and - 0x02 for the data length. 
+	data_offset = data_offset - 0x20 - 0x01 - #parameters - 0x02;
+
+	-- I'm not sure I entirely understand why the '+1' is here, but I think it has to do with the string starting at '1' and not '0'.
+	function_parameters = string.sub(data, parameter_offset + 1, parameter_offset + parameter_count)
+	function_data       = string.sub(data, data_offset      + 1, data_offset      + data_count)
+
+	response['parameters'] = function_parameters
+	response['data']       = function_data
+
+	return true, response
+end
+
+
 ---This is the core of making MSRPC calls. It sends out a MSRPC packet with the given parameters and data. 
 -- Don't confuse these parameters and data with SMB's concepts of parameters and data -- they are completely
 -- different. In fact, these parameters and data are both sent in the SMB packet's 'data' section.
@@ -2482,6 +2587,112 @@ function file_delete(host, share, remotefile)
 	stop(smbstate)
 
 	return true
+end
+
+---
+-- List files based on a pattern withing a given share and directory
+--
+-- @param smbstate the SMB object associated with the connection
+-- @param fname filename to search for, relative to share path
+-- @param options table containing none or more of the following
+--        <code>srch_attrs</code> table containing one or more of the following boolean attributes:
+--              <code>ro</code> - find read only files
+--              <code>hidden</code> - find hidden files
+--              <code>system</code> - find system files
+--              <code>volid</code> - include volume ids in result
+--              <code>dir</code> - find directories
+--              <code>archive</code> - find archived files
+-- @return iterator function retreiving the next result
+function find_files(smbstate, fname, options)
+	local TRANS2_FIND_FIRST2, TRANS2_FIND_NEXT2 = 1, 2
+	options = options or {}
+
+	if (not(options.srch_attrs)) then
+		options.srch_attrs = { ro = true, hidden = true, system = true, dir = true}
+	end
+	
+	local nattrs = ( options.srch_attrs.ro and 1 or 0 ) + ( options.srch_attrs.hidden and 2 or 0 ) +
+			( options.srch_attrs.hidden and 2 or 0 ) + ( options.srch_attrs.system and 4 or 0 ) +
+			( options.srch_attrs.volid and 8 or 0 ) + ( options.srch_attrs.dir and 16 or 0 ) +
+			( options.srch_attrs.archive and 32 or 0 )
+
+	if ( not(fname) ) then
+		fname = '\\*'
+	elseif( fname:sub(1,1) ~= '\\' ) then
+		fname = '\\' .. fname
+	end
+		
+	local srch_count = 173 -- picked up by wireshark
+	local flags = 6 -- Return RESUME keys, close search if END OF SEARCH is reached
+	local loi   = 260 -- Level of interest, return SMB_FIND_FILE_BOTH_DIRECTORY_INFO
+	local storage_type = 0 -- despite the documentation of having to be either 0x01 or 0x40, wireshark reports 0
+		
+	local function_parameters = bin.pack("<SSSSIA", nattrs, srch_count, flags, loi, storage_type, fname)
+	
+	-- SMB header: 32
+	-- trans2 header: 36
+	-- FIND_FIRST2 parameters: #function_parameters
+	local pad = ( 32 + 36 + #function_parameters ) % 4
+	if ( pad > 0 ) then
+		for i=1, ( 4-pad ) do
+			function_parameters = function_parameters .. "\0"
+		end
+	end
+
+	local function next_item()
+
+		local status, response = send_transaction2(smbstate, TRANS2_FIND_FIRST2, function_parameters, "")
+		if ( not(status) ) then
+			coroutine.yield()
+		end
+	
+		local srch_id = select(2, bin.unpack("<S", response.parameters))
+		local stop_loop = ( select(2, bin.unpack(">S", response.parameters, 5)) ~= 0 )
+		local first = true
+	
+		local last_name
+		repeat
+			local pos = 1	
+	
+			if ( not(first) ) then
+				local function_parameters = bin.pack("<SSSISA", srch_id, srch_count, loi, 0, flags, last_name)
+				status, response = send_transaction2(smbstate, TRANS2_FIND_NEXT2, function_parameters, "")
+
+				if ( not(status) ) then
+					coroutine.yield()
+				end
+
+				-- check whether END-OF-SEARCH was set
+				stop_loop = ( select(2, bin.unpack(">S", response.parameters, 3)) ~= 0 )
+			end
+	
+			-- parse response, based on LOI == 260
+			repeat
+				local fe, last_pos, ne, f_len, ea_len, sf_len, _ = {}, pos
+		
+				pos, ne, fe.fi, fe.created, fe.accessed, fe.write, fe.change,
+				fe.eof, fe.alloc_size, fe.attrs, f_len, ea_len, sf_len, _ = bin.unpack("<IILLLLLLIIICC", response.data, pos)
+				pos, fe.s_fname = bin.unpack("A24", response.data, pos)
+
+				local time = fe.created
+				time = (time / 10000000) - 11644473600
+				fe.created = os.date("%Y-%m-%d %H:%M:%S", time)
+
+				-- TODO: cleanup fe.s_fname
+				pos, fe.fname = bin.unpack("A" .. f_len, response.data, pos)
+				pos = last_pos + ne
+			
+				-- removing trailing zero bytes from file name
+				fe.fname = fe.fname:sub(1, -2)
+				last_name = fe.fname
+				
+				coroutine.yield(fe)
+			until ( ne == 0 )
+			first = false
+		until(stop_loop)
+		return			
+	end
+	return coroutine.wrap(next_item)
 end
 
 ---Determine whether or not the anonymous user has write access on the share. This is done by creating then 
