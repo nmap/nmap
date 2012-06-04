@@ -33,9 +33,9 @@ Performs brute force password auditing against http basic authentication.
 --   x The Driver class contains the driver implementation used by the brute
 --     library
 --
--- @args http-brute.path points to the path protected by authentication (default: <code>/</code>.
+-- @args http-brute.path points to the path protected by authentication (default: <code>/</code>)
 -- @args http-brute.hostname sets the host header in case of virtual hosting
--- @args http-brute.method sets the HTTP method to use (default <code>GET</code>)
+-- @args http-brute.method sets the HTTP method to use (default: <code>GET</code>)
 
 --
 -- Version 0.1
