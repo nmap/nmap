@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Changed http-brute so that it works against the root path
+  ("/") by default rather than always requiring the http-brute.path
+  script argument. [Fyodor]
+
 o [NSE] Applied patch from Daniel Miller that fixes bug in several scripts and
   libraries http://seclists.org/nmap-dev/2012/q2/593 [Daniel Miller]
 

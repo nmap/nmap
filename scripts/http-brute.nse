@@ -5,6 +5,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local string = require "string"
 local table = require "table"
+local stdnse = require "stdnse"
 
 description = [[
 Performs brute force password auditing against http basic authentication.
@@ -32,7 +33,7 @@ Performs brute force password auditing against http basic authentication.
 --   x The Driver class contains the driver implementation used by the brute
 --     library
 --
--- @args http-brute.path points to the path protected by authentication
+-- @args http-brute.path points to the path protected by authentication (default: <code>/</code>.
 -- @args http-brute.hostname sets the host header in case of virtual hosting
 -- @args http-brute.method sets the HTTP method to use (default <code>GET</code>)
 
@@ -54,9 +55,9 @@ Driver = {
 		local o = {}
        	setmetatable(o, self)
         self.__index = self
-		o.host = nmap.registry.args['http-brute.hostname'] or host
+		o.host = stdnse.get_script_args("http-brute.hostname") or host
 		o.port = port
-		o.path = nmap.registry.args['http-brute.path']
+		o.path = stdnse.get_script_args("http-brute.path") or "/"
 		o.method = method
 		return o
 	end,
@@ -107,8 +108,8 @@ Driver = {
 
 action = function( host, port )
 	local status, result 
-	local path = nmap.registry.args['http-brute.path']
-	local method = string.upper(nmap.registry.args['http-brute.method'] or "GET")
+	local path = stdnse.get_script_args("http-brute.path") or "/"
+	local method = string.upper(stdnse.get_script_args("http-brute.method") or "GET")
 	local engine = brute.Engine:new(Driver, host, port, method )
 	engine.options.script_name = SCRIPT_NAME
 	
