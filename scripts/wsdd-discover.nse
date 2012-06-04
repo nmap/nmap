@@ -50,12 +50,8 @@ discoverThread = function( funcname, host, port, results )
 	local helper = wsdd.Helper:new(host, port)
 	helper:setTimeout(timeout)
 	
-	if ( func ) then
-		local status, result = helper[funcname](helper)
-		if ( status ) then table.insert(results, result) end
-	else
-		stdnse.print_debug("ERROR: Failed to call function: %s", funcname)
-	end
+	local status, result = helper[funcname](helper)
+	if ( status ) then table.insert(results, result) end
 	condvar("broadcast")
 end
 

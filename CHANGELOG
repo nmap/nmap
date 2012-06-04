@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch from Daniel Miller that fixes bug in several scripts and
+  libraries http://seclists.org/nmap-dev/2012/q2/593 [Daniel Miller]
+
 o [NSE] Added the script smb-ls that lists files on SMB shares and produces
   output similar to the dir command on Windows. [Patrik Karlsson]
 

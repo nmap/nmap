@@ -4,6 +4,7 @@ local json = require "json"
 local stdnse = require "stdnse"
 local tab = require "tab"
 local table = require "table"
+local ipOps = require "ipOps"
 
 description = [[
 Lists the geographic locations of each hop in a traceroute and optionally
@@ -97,7 +98,7 @@ action = function(host)
 				name = ("%s"):format(hop.ip)
 			end
 			local rtt = tonumber(hop.times.srtt) * 1000
-			if ( not(ipops.isPrivate(hop.ip) ) ) then
+			if ( not(ipOps.isPrivate(hop.ip) ) ) then
 				local lat, lon, reg, ctry = geoLookup(hop.ip)
 				table.insert(coordinates, { hop = count, lat = lat, lon = lon })
 				tab.addrow( output, count, ("%.2f"):format(rtt), name, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg) )

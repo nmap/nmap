@@ -746,7 +746,7 @@ end
 -- @param fqdn containing the fully qualified domain name
 -- @return encQ containing the encoded value
 local function encodeFQDN(fqdn)
-    if ( not(fqdn) or #fqdn == 0 ) then return end
+    if ( not(fqdn) or #fqdn == 0 ) then return string.char(0) end
 
     local parts = stdnse.strsplit("%.", fqdn)
     local encQ = ""
