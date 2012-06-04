@@ -436,3 +436,5 @@ Helper = {
 		return self.socket:close()
 	end,
 }
+
+return _ENV;
