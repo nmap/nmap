@@ -62,7 +62,7 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 action = function(host)
 	local status, smbstate = smb.start_ex(host, true, true, arg_share, nil, nil, nil)
 	if ( not(status) ) then
-		return fail("Failed to authenticate to server")
+		return fail("Failed to authenticate to server (" .. smbstate .. ")")
 	end	
 	
 	-- remove leading slash
