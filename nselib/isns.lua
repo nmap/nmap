@@ -8,8 +8,10 @@ local bin    = require('bin')
 local bit    = require('bit')
 local ipops  = require('ipOps')
 local match  = require('match')
+local nmap = require('nmap')
 local stdnse = require('stdnse')
 local tab    = require('tab')
+local table = require('table')
 _ENV = stdnse.module("isns", stdnse.seeall);
 
 iSCSI = {

@@ -2,6 +2,7 @@ local bit    = require 'bit'
 local smb    = require 'smb'
 local stdnse = require 'stdnse'
 local tab    = require 'tab'
+local table = require "table"
 local openssl= require 'openssl'
 
 description = [[

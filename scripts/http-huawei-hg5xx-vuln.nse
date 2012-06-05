@@ -1,3 +1,9 @@
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+local vulns = require "vulns"
+
 description = [[
 Detects Huawei modems models HG530x, HG520x, HG510x (and possibly others...) vulnerable to a remote credential and information disclosure vulnerability. It also extracts the PPPoE credentials 
 and other interesting configuration values. 
@@ -51,10 +57,6 @@ References:
 author = "Paulino Calderon <calderon () websec mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","version","vuln"}
-
-local shortport = require "shortport"
-local http = require "http"
-local vulns = require "vulns"
 
 portrule = shortport.http
 

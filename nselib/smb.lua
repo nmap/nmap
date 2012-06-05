@@ -123,6 +123,7 @@
 -----------------------------------------------------------------------
 local bin = require "bin"
 local bit = require "bit"
+local coroutine = require "coroutine"
 local io = require "io"
 local math = require "math"
 local netbios = require "netbios"

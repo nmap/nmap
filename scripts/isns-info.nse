@@ -2,6 +2,7 @@ local stdnse    = require "stdnse"
 local shortport = require "shortport"
 local isns      = require "isns"
 local tab       = require "tab"
+local table     = require "table"
 
 description = [[
 Lists portals and iSCSI nodes registered with the Internet Storage Name
