@@ -109,7 +109,7 @@ static int Lpcre_comp(lua_State *L)
 	const char *error;
 	int erroffset;
 	pcre2 *ud;
-	char *pattern = strdup(luaL_checkstring(L, 1));
+	const char *pattern = luaL_checkstring(L, 1);
 	int cflags = luaL_optint(L, 2, 0);
 	const unsigned char *tables = NULL;
 
