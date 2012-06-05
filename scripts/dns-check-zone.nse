@@ -1,6 +1,7 @@
 local dns = require "dns"
 local stdnse = require "stdnse"
 local table = require "table"
+local ipOps = require "ipOps"
 
 description = [[
 Checks DNS zone configuration against best practices, including RFC 1912.
@@ -130,7 +131,7 @@ local dns_checks = {
 						return false, ("Failed to retrieve IP for DNS: %s"):format(srv)
 					end
 					for _, ip in ipairs(res) do
-						if ( ipops.isPrivate(ip) ) then
+						if ( ipOps.isPrivate(ip) ) then
 							table.insert(result, ip)
 						end
 					end

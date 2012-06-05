@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
 local string = require "string"
+local ipOps = require "ipOps"
 
 description = [[
 Detects whether the remote device has ip forwarding or "Internet connection
@@ -92,7 +93,7 @@ action = function(host)
 		return fail("Failed to determine the network interface name")
 	end
 
-	local target = ipops.ip_to_bin(arg_target)
+	local target = ipOps.ip_to_bin(arg_target)
 	if ( not(target) ) then
 		local status
 		status, target = dns.query(arg_target, { dtype='A' })
