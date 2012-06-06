@@ -743,6 +743,12 @@ function Packet:ip_set_len(len)
 	self:set_u16(self.ip_offset + 2, len)
 	self.ip_len = len
 end
+--- Set the packet identification field.
+-- @param id packet ID.
+function Packet:ip_set_id(id)
+	self:set_u16(self.ip_offset + 4, id)
+	self.ip_id = id 
+end
 --- Set the TTL.
 -- @param ttl TTL.
 function Packet:ip_set_ttl(ttl)
