@@ -94,13 +94,13 @@ portrule = shortport.port_or_service(3306, "mysql")
 local TEMPLATE_NAME, ADMIN_ACCOUNTS = "", ""
 
 local function loadAuditRulebase( filename )
+	local rules = {}
 
 	local env = setmetatable({
 		test = function(t) table.insert(rules, t) end;
 	}, {__index = _G})
 
 	local file, err = loadfile(filename, "t", env)
-	local rules = {}
 
 	if ( not(file) ) then
 		return false, ("ERROR: Failed to load rulebase:\n%s"):format(err)
