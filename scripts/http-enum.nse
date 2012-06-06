@@ -238,26 +238,21 @@ local function get_fingerprints(fingerprint_file, category)
 			end
 		end
 
-		-- Ensure that there's a 'matches' field
-		if(not(fingerprint.matches)) then
-			return false, "'matches' field has to be an array for path " .. path
-		end
-
 		-- Ensure that matches is an array
 		if(type(fingerprint.matches) ~= 'table') then
-			return false, "'matches' field has to be a table for path " .. path
+			return false, "'matches' field has to be a table"
 		end
 
 		-- Loop through the matches
 		for i, match in pairs(fingerprint.matches) do
 			-- Make sure we have a valid index
 			if(type(i) ~= 'number') then
-				return false, "The 'path' table is an array, not a table; all indexes should be numeric"
+				return false, "The 'matches' table is an array, not a table; all indexes should be numeric"
 			end
 
 			-- Check that every element in the table is an array
 			if(type(match) ~= 'table') then
-				return false, "Every element of 'matches' field has to be a table for path " .. path
+				return false, "Every element of 'matches' field has to be a table"
 			end
 
 			-- Check the output field
@@ -278,14 +273,14 @@ local function get_fingerprints(fingerprint_file, category)
 
 		-- Make sure the severity is an integer between 1 and 4. Default it to 1. 
 		if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
-			return false, "The 'severity' field has to be an integer between 1 and 4 for path " .. path
+			return false, "The 'severity' field has to be an integer between 1 and 4"
 		else
 			fingerprint.severity = 1
 		end
 
 		-- Make sure ignore_404 is a boolean. Default it to false. 
 		if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
-			return false, "The 'ignore_404' field has to be a boolean for path " .. path
+			return false, "The 'ignore_404' field has to be a boolean"
 		else
 			fingerprint.ignore_404 = false
 		end
