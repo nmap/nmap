@@ -37,12 +37,6 @@ prerule = function()
 	return nmap.is_privileged()
 end
 
-catch = function()
-	dnet:ethernet_close()
-	pcap:pcap_close()
-end
-try = nmap.new_try(catch)
-
 --- Build an IPv6 invalid extension header.
 -- @param nxt_hdr integer that stands for next header's type
 local function build_invalid_extension_header(nxt_hdr)
@@ -109,6 +103,12 @@ local function single_interface_broadcast(if_nfo, results)
 
 	local dnet = nmap.new_dnet()
 	local pcap = nmap.new_socket()
+
+    local function catch ()
+	  dnet:ethernet_close()
+	  pcap:pcap_close()
+    end
+    local try = nmap.new_try(catch)
 
 	try(dnet:ethernet_open(if_nfo.device))
 	pcap:pcap_open(if_nfo.device, 128, false, "icmp6 and ip6[6:1] = 58 and ip6[40:1] = 4")
