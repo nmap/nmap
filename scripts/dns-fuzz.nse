@@ -58,7 +58,7 @@ recursiveServer = "scanme.nmap.org"
 -- @param port  The servers port
 -- @return      Bool, true if and only if the server is alive
 function pingServer (host, port, attempts)
-     local status, response
+     local status, response, result
      -- If the server doesn't respond to the first in a multiattempt probe, slow down
      local slowDown = 1
      if not recursiveOnly then
@@ -84,7 +84,7 @@ function pingServer (host, port, attempts)
      else
           -- just do a vanilla recursive lookup of scanme.nmap.org
           for i = 1, attempts do
-               status, respons = dns.query(recursiveServer, {host=host.ip, port=port.number, tries=1, timeout=math.pow(DNStimeout,slowDown)})
+               status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, tries=1, timeout=math.pow(DNStimeout,slowDown)})
                if status then
                     return true
                end

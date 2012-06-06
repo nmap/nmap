@@ -187,7 +187,7 @@ function customDataFormatter(className, customData)
 	for k,v in ipairs(customData) do
 		if v:find("file:/") == 1 then
 			-- This is a classpath
-			cp = split(v, "; ") -- Splits into table
+			local cp = split(v, "; ") -- Splits into table
 			table.insert(retData, "Classpath")
 			table.insert(retData, cp)
 		else

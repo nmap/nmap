@@ -41,6 +41,7 @@ portrule = shortport.http
 ---
 get_owner = function(res)
 	local result=res
+	local _
 	if ( res:match('<span') ) then
 		_,_,result=string.find(res,'title="(.-)"')
 	end

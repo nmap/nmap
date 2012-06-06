@@ -189,7 +189,7 @@ local function process_instance( instance )
 	
 				for k, v in pairs(dbs.rows) do
 					if ( not( table_contains( done_dbs, v[1] ) ) ) then
-						query = [[ SELECT so.name 'table', sc.name 'column', st.name 'type', sc.length 
+						local query = [[ SELECT so.name 'table', sc.name 'column', st.name 'type', sc.length 
 									FROM %s..syscolumns sc, %s..sysobjects so, %s..systypes st
 									WHERE so.id = sc.id AND sc.xtype=st.xtype AND
 									so.id IN (SELECT %s id FROM %s..sysobjects WHERE xtype='U') %s ORDER BY so.name, sc.name, st.name]]
@@ -218,7 +218,7 @@ local function process_instance( instance )
 		local restrict_tbl = {}
 		
 		if ( stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } ) ) then
-			tmp = stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } )
+			local tmp = stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } )
 			if ( type(tmp) == 'table' ) then
 				tmp = stdnse.strjoin(',', tmp)
 			end

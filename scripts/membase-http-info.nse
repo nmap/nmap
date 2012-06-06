@@ -123,7 +123,7 @@ action = function(host, port)
 
 	local urls = { "/pools/default/buckets", "/pools" }
 	
-	local result
+	local status, result
 	for _, u in ipairs(urls) do
 		status, result = cmdReq(host, port, u, result)
 	end

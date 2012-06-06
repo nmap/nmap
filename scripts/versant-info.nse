@@ -66,6 +66,7 @@ action = function(host, port)
 		return fail("Failed to connect to server")
 	end
 
+  local result
 	status, result = v:getVODInfo()
 	if ( not(status) ) then
 		return fail("Failed to get VOD information")

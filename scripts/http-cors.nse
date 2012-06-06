@@ -48,7 +48,7 @@ local function origin_ok(raw, origin)
 	if raw == "null" then
 		return false
 	end
-	allowed = stdnse.strsplit(" ", raw)
+	local allowed = stdnse.strsplit(" ", raw)
 	for _, ao in ipairs(allowed) do
 		if origin == ao then
 			return true
@@ -73,7 +73,7 @@ local function method_ok(raw, method)
 end
 
 local function test(host, port, method, origin)
-	header = {
+	local header = {
 		["Origin"] = origin,
 		["Access-Control-Request-Method"] = method,
 	}

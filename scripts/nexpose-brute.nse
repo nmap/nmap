@@ -65,7 +65,7 @@ Driver =
 			stdnse.print_debug(1, "nexpose-brute: Good login: %s/%s", username, password)
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
-		stdnse.print_debug(1, "nexpose-brute: WARNING: Unhandled response: %s", body)
+		stdnse.print_debug(1, "nexpose-brute: WARNING: Unhandled response: %s", response.body)
 		return false, brute.Error:new( "incorrect response from server" )
 	end,
 
@@ -76,6 +76,6 @@ action = function(host, port)
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.max_guesses = tonumber(stdnse.get_script_args('brute.guesses')) or 3
-	status, result = engine:start()
+	local status, result = engine:start()
 	return result
 end

@@ -27,6 +27,8 @@ categories = {"broadcast", "safe"}
 
 prerule = function() return ( nmap.address_family() == 'inet' ) end
 
+local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+
 action = function()
 	local socket = nmap.new_socket("udp")
 	local host, port = { ip = "255.255.255.255" }, { number = 30303, protocol = "udp" }

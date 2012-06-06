@@ -89,7 +89,7 @@ action = function(host, port)
 	
 	-- check that body was received
 	if not data.body or data.body == "" then
-		local msg = ("%s did not respond with any data."):format(hostrgetname or host.ip )
+		local msg = ("%s did not respond with any data."):format(host.targetname or host.ip )
 		dbg( msg ) 
 		return  msg
 	end

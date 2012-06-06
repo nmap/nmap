@@ -68,6 +68,7 @@ function getLibraryName( host, port )
 	pos = string.find(response.body, "minm")
 
 	if pos > 0 then
+	  local len
 		pos = pos + 4
 		pos, len = bin.unpack( ">I", response.body, pos )
 		pos, libname = bin.unpack( "A" .. len, response.body, pos )
@@ -88,6 +89,7 @@ local function getAttributeAsInt( data, name )
 	
 	if pos and pos > 0 then
 		pos = pos + 4
+		local len
 		pos, len = bin.unpack( ">I", data, pos )
 		
 		if ( len ~= 4 ) then

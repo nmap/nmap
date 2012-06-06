@@ -129,7 +129,8 @@ action = function(host, port)
 		
 	local engine = brute.Engine:new(Driver, host, port)
 	
-	engine.options.script_name = SCRIPT_NAME	
+	engine.options.script_name = SCRIPT_NAME
+	local result
 	status, result = engine:start()
 	
 	for _, sock in pairs(ConnectionPool) do sock:close() end

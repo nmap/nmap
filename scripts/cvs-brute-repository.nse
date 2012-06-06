@@ -102,7 +102,7 @@ action = function(host, port)
 		end
 	end
 
-	repository_iterator = function()
+	local repository_iterator = function()
 		local function next_repo()
 			for line in f:lines() do
 				if ( not(line:match("#!comment")) ) then

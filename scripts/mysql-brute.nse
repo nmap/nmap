@@ -49,7 +49,7 @@ Driver = {
 
 	connect = function( self )
 		self.socket = nmap.new_socket()
-		status, err = self.socket:connect(self.host, self.port)
+		local status, err = self.socket:connect(self.host, self.port)
 		self.socket:set_timeout(tonumber(arg_timeout) * 1000)
 		if(not(status)) then
 			return false, brute.Error:new( "Couldn't connect to host: " .. err )
@@ -58,7 +58,7 @@ Driver = {
 	end,
 
 	login = function (self, user, pass)
-		status, response = mysql.receiveGreeting(self.socket)
+		local status, response = mysql.receiveGreeting(self.socket)
 		if(not(status)) then
 			return false,brute.Error:new(response)
 		end

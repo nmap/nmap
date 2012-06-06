@@ -95,7 +95,7 @@ local function test_credentials( instance, helper, username, password )
 	if ( passwordIsGood ) then
 		local loginResultMessage = "Login Success"
 		if loginErrorCode then
-			loginResultMessage = mssql.LoginErrorMessage[ errorCode ] or "unknown error"
+			loginResultMessage = mssql.LoginErrorMessage[ loginErrorCode ] or "unknown error"
 		end
 		table.insert( instance.ms_sql_empty, string.format( "%s:%s => %s", username, password:len()>0 and password or "<empty>", loginResultMessage ) )
 		

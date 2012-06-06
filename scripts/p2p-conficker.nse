@@ -498,8 +498,7 @@ local function conficker_check(ip, port, protocol)
 
 	-- If it's TCP, get the length and make sure we have the full packet
 	if(protocol == "tcp") then
-		local length
-		_, length = bin.unpack("<S", response, 1)
+		local _, length = bin.unpack("<S", response, 1)
 
 		while length > (#response - 2) do
 			local response2
@@ -577,6 +576,7 @@ action = function(host)
 	-- Reverse the IP's endianness
 	ip = ipOps.todword(ip)
 	ip = bin.pack(">I", ip)
+	local _
 	_, ip = bin.unpack("<I", ip)
 
 	-- Generate the ports

@@ -75,7 +75,7 @@ action = function()
 	end	    
 	stdnse.print_debug(1, "iface: %s", iface.device)
 
-	timeout = 10 * 1000
+	local timeout = 10 * 1000
 	if arg_timeout then
 		timeout = arg_timeout * 1000
 	end

@@ -454,6 +454,7 @@ local function record_read(buffer, i)
 	elseif h["type"] == "handshake" then
 		-- Parse body.
 		j, b["type"] = bin.unpack("C", buffer, j)
+		local _
 		j, _ = bin.unpack("A3", buffer, j)
 
 		-- Convert to human-readable form.
@@ -799,7 +800,7 @@ local filltable = function(filename,table)
 
 		-- Comments takes up a whole line
 		if not l:match("#!comment:") then
-			lsplit=stdnse.strsplit("%s+", l)
+			local lsplit=stdnse.strsplit("%s+", l)
 			if cipherstrength[lsplit[2]] then
 				table[lsplit[1]] = lsplit[2]
 			else

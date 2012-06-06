@@ -46,6 +46,8 @@ dependencies = {"snmp-brute"}
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
+local try
+
 local function sendrequest(socket, oid, setparam)
 	local payload
 	local options = {}
@@ -72,16 +74,15 @@ action = function(host, port)
 		return "ERROR: tftproot needs to end with slash"
 	end
 
-   	-- create the socket used for our connection
+  -- create the socket used for our connection
 	local socket = nmap.new_socket()
-	
+
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
-	
-	-- do some exception handling / cleanup
-	catch = function() socket:close() end
-	
-	try = nmap.new_try(catch)
+
+  -- do some exception handling / cleanup
+  local catch = function() socket:close() end
+  try = nmap.new_try(catch)
 	
 	-- connect to the potential SNMP system
 	try(socket:connect(host.ip, port.number, "udp"))

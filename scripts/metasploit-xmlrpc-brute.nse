@@ -93,7 +93,7 @@ action = function(host, port)
 	local engine = brute.Engine:new(Driver, host, port, opts)
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
-	status, result = engine:start()
+	local status, result = engine:start()
 	return result
 end
 

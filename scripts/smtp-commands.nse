@@ -121,7 +121,7 @@ action = function(host, port)
         return result
     else
         if #result > 0 then
-            final = {}
+            local final = {}
             for index, test in ipairs(result) do
                 table.insert(final, test)
             end

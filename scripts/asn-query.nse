@@ -404,6 +404,7 @@ function get_assignment( ip, prefix )
   local hostbits = string.sub( some_ip, prefix + 1 )
   hostbits = string.gsub( hostbits, "1", "0" )
   local first = string.sub( some_ip, 1, prefix ) .. hostbits
+  local last
   err = {}
   first, err[#err+1] = ipOps.bin_to_ip( first )
   last, err[#err+1] = ipOps.get_last_ip( ip, prefix )

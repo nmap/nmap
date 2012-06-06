@@ -719,13 +719,13 @@ local function get_config(host, config)
 	-- Get information about the socket; it's a bit out of place here, but it should go before the mod loop
 	status, config.lhost, config.lport, config.rhost, config.rport, config.lmac = smb.get_socket_info(host)
 	if(status == false) then
-		return false, "Couldn't get socket information: " .. lhost
+		return false, "Couldn't get socket information: " .. config.lhost
 	end
 
 	-- Get the names of the files we're going to need
 	status, config.service_name, config.service_file, config.temp_output_file, config.output_file = get_service_files(host)
 	if(not(status)) then
-		return false, service_name
+		return false, config.service_name
 	end
 
 	-- Make sure the modules loaded properly
@@ -1001,6 +1001,7 @@ local function upload_everything(host, config)
 
 	-- Upload the service file
 	stdnse.print_debug(1, "smb-psexec: Uploading: %s => \\\\%s\\%s", config.local_service_file, config.share, config.service_file)
+	local status, err
 	status, err = smb.file_upload(host, config.local_service_file, config.share, "\\" .. config.service_file, overrides, is_xor_encoded)
 	if(status == false) then
 		cleanup(host, config)
@@ -1052,7 +1053,7 @@ end
 --@return status true or false
 --@return err    An error message if status is false. 
 local function create_service(host, config)
-	status, err = msrpc.service_create(host, config.service_name, config.path .. "\\" .. config.service_file)
+	local status, err = msrpc.service_create(host, config.service_name, config.path .. "\\" .. config.service_file)
 	if(status == false) then
 		stdnse.print_debug(1, "smb-psexec: Couldn't create the service: %s", err)
 		cleanup(host, config)
@@ -1109,7 +1110,7 @@ end
 --@return status true or false
 --@return err    An error message if status is false. 
 local function start_service(host, config, params)
-	status, err = msrpc.service_start(host, config.service_name, params)
+	local status, err = msrpc.service_start(host, config.service_name, params)
 	if(status == false) then
 		stdnse.print_debug(1, "smb-psexec: Couldn't start the service: %s", err)
 		return false, string.format("Couldn't start the service on the remote machine: %s", err)
@@ -1434,9 +1435,10 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
 	end
 
 	-- Build the output into a nice table
+	local response
 	status, response = parse_output(config, result)
 	if(status == false) then
-		return stdnse.format_output(false, "Couldn't parse output: " .. results)
+		return stdnse.format_output(false, "Couldn't parse output: " .. response)
 	end
 
 	-- Add a warning if nothing was enabled

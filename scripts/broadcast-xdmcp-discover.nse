@@ -39,7 +39,7 @@ action = function()
 	local req = xdmcp.Packet[xdmcp.OpCode.BCAST_QUERY]:new(nil)
 	local status, err = helper:send(req)
 	if ( not(status) ) then
-		return false, response
+		return false, err
 	end
 	
 	local timeout = arg_timeout or 5

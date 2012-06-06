@@ -198,9 +198,9 @@ action = function(host, port)
 	status, response = socket:receive_bytes(0) -- recieve another attach user confirm
 	pos,user2 = bin.unpack(">S",response:sub(10,11)) -- second user's channel - 1001
 	user2 = user2+1001 -- second user's channel
-	data4 = bin.pack(">SS",user1,user2)
-	data5 = bin.pack("H","0300000c02f08038") -- channel join request TPDU
-	channelJoinRequest = data5 .. data4
+	local data4 = bin.pack(">SS",user1,user2)
+	local data5 = bin.pack("H","0300000c02f08038") -- channel join request TPDU
+	local channelJoinRequest = data5 .. data4
 	status, err = socket:send(channelJoinRequest) -- bogus channel join request user1 requests channel of user2
 	status, response = socket:receive_bytes(0)
 	if response:sub(8,9) == bin.pack("H","3e00") then

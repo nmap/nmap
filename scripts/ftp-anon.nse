@@ -48,12 +48,12 @@ local function list(socket, target, max_lines)
 
 	-- ask the server for a Passive Mode: it should give us a port to
 	-- listen to, where it will dump the directory listing
-	buffer = stdnse.make_buffer(socket, "\r?\n")
+	local buffer = stdnse.make_buffer(socket, "\r?\n")
 	status, err = socket:send("PASV\r\n")
 	if not status then
 		return status, err
 	end
-	code, message = ftp.read_reply(buffer)
+	local code, message = ftp.read_reply(buffer)
 
 	-- Compute the PASV port as given by the server
 	-- The server should answer with something like
@@ -120,7 +120,7 @@ action = function(host, port)
 	local try = nmap.new_try(err_catch)
 
 	try(socket:connect(host, port))
-	buffer = stdnse.make_buffer(socket, "\r?\n")
+	local buffer = stdnse.make_buffer(socket, "\r?\n")
 
 	-- Read banner.
 	code, message = ftp.read_reply(buffer)

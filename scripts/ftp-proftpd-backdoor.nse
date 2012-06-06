@@ -68,7 +68,7 @@ action = function(host, port)
 	end
 
 	-- Read banner.
-	buffer = stdnse.make_buffer(sock, "\r?\n")
+	local buffer = stdnse.make_buffer(sock, "\r?\n")
 	local code, message = ftp.read_reply(buffer)
 	if not code then
 		stdnse.print_debug(1, "Can't read banner: %s", message)

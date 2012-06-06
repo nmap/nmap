@@ -1174,6 +1174,7 @@ function get_assignment( ip, prefix )
   local first = string.sub( some_ip, 1, prefix ) .. hostbits
   err = {}
   first, err[#err+1] = ipOps.bin_to_ip( first )
+  local last
   last, err[#err+1] = ipOps.get_last_ip( ip, prefix )
   if #err > 0 then return nil, table.concat( err, " " ) end
 

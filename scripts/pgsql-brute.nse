@@ -61,7 +61,7 @@ local function connectSocket(host, port, ssl)
 
 	-- let's be responsible and avoid sending communication in the clear
 	if ( ssl ) then
-		status = pgsql.requestSSL(socket)
+		local status = pgsql.requestSSL(socket)
 		if ( status ) then
 			socket:reconnect_ssl()
 		end
@@ -88,7 +88,8 @@ action = function( host, port )
 	else
 		pg = pgsql.detectVersion(host, port )
 	end
-	
+
+	local usernames, passwords
  	status, usernames = unpwdb.usernames()
 	if ( not(status) ) then	return end
 
@@ -105,7 +106,7 @@ action = function( host, port )
 		ssl_enable = not(nossl)
 		for password in passwords do
 			stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
-			socket = connectSocket( host, port, ssl_enable )
+			local socket = connectSocket( host, port, ssl_enable )
 			status, response = pg.sendStartup(socket, username, username)
 			
 			-- if nossl is enforced by the user, we're done

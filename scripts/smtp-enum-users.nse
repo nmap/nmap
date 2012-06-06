@@ -214,6 +214,7 @@ issued_from = false
 -- @param domain Domain to use in the command
 -- @return Status and depending on the code, a error message
 function do_rcpt(socket, username, domain)
+    local status, response
     if not issued_from then
     -- Lets try to issue MAIL FROM command.
     status, response = smtp.query(socket, "MAIL",

@@ -223,7 +223,7 @@ end
 local function BOunpack(packet)
 	local pos, magic = bin.unpack("A8",packet)
 
-	if magic ~= MAGICSTRING then return nul,TYPE.ERROR end  --received non-BO packet
+	if magic ~= MAGICSTRING then return nil,TYPE.ERROR end  --received non-BO packet
 
 	local packetsize, packetid, type_packet, data
 	pos, packetsize, packetid, type_packet = bin.unpack("<IIC",packet,pos)
@@ -262,7 +262,7 @@ action = function( host, port )
 	local initial_seed = stdnse.get_script_args( SCRIPT_NAME .. ".seed" )
 	local password = stdnse.get_script_args(SCRIPT_NAME .. ".password")
 	local socket = nmap.new_socket("udp")
-	try = nmap.new_try(function() socket:close() end)
+	local try = nmap.new_try(function() socket:close() end)
 	socket:set_timeout(5000)
 
 	local output_all={}

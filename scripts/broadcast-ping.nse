@@ -126,7 +126,7 @@ local icmp_packet = function(srcIP, dstIP, ttl, data_length, mtu, seqNo, icmp_id
 	local icmp_bin = bin.pack(">AA",ip_bin, icmp_msg)
 	
 	--Packet
-	icmp = packet.Packet:new(icmp_bin,#icmp_bin)
+	local icmp = packet.Packet:new(icmp_bin,#icmp_bin)
 	assert(icmp,"Mistake during ICMP packet parsing")
 	
 	icmp:ip_set_bin_src(packet.iptobin(srcIP))
@@ -153,7 +153,7 @@ local broadcast_if = function(if_table,icmp_responders)
 
 	-- raw IPv4 socket 
 	local dnet = nmap.new_dnet()
-	try = nmap.new_try()
+	local try = nmap.new_try()
 	try = nmap.new_try(function() dnet:ethernet_close() end)
 	
 	-- raw sniffing socket (icmp echoreply style)

@@ -105,7 +105,7 @@ end
 local extract_slave_id = function(response)
     local byte_count = string.byte(response, 9)
     if ( byte_count == nil or byte_count == 0) then return nil end
-    offset, slave_id = bin.unpack("A"..byte_count, response, 10)
+    local offset, slave_id = bin.unpack("A"..byte_count, response, 10)
     return slave_id
 end
 
@@ -130,7 +130,7 @@ action = function(host, port)
 
     for sid = 1, 246 do
         stdnse.print_debug(3, "Sending command with sid = %d", sid)
-        rsid = form_rsid(sid, 0x11, "")
+        local rsid = form_rsid(sid, 0x11, "")
 
         local status, result = comm.exchange(host, port, rsid, opts)
         if ( status and (#result >= 8) ) then

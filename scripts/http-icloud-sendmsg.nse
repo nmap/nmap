@@ -58,6 +58,8 @@ local function decodeString(str)
 	return str:gsub("\226\128\153", "'")
 end
 
+local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+
 local function listDevices(mm)
 	local status, devices = mm:getDevices()
 	if ( not(status) ) then
@@ -76,7 +78,6 @@ local function listDevices(mm)
 	end
 end
 
-local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function()
 	if ( not(arg_username) or not(arg_password) ) then

@@ -42,8 +42,8 @@ action = function(host, port)
 	table.insert(capstrings, cap)
      end
      return stdnse.strjoin(" ", capstrings)
-  elseif type(err) == "string" then
-     stdnse.print_debug(1, "%s: '%s' for %s", SCRIPT_NAME, err, host.ip)
+  elseif type(capa) == "string" then
+     stdnse.print_debug(1, "%s: '%s' for %s", SCRIPT_NAME, capa, host.ip)
      return
   else
      return "server doesn't support CAPABILITIES"

@@ -106,7 +106,7 @@ action = function (host, port)
     -- 0x51 : Returndata
     return false, "No return data received from server";
   end
-  data = registry.out.dis.bReader.readBuffer;
+  local data = registry.out.dis.bReader.readBuffer;
 
   if string.find(data, "RMI class loader disabled") == nil then
     rmi_vuln.state = vulns.STATE.VULN;

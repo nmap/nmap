@@ -143,7 +143,7 @@ local send_snmp_queries = function(socket, result, nextcommunity)
 
 	local request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0")
 
-	local payload, status, response
+	local payload, status, response, err
 	local community = nextcommunity()
 
 	while community do

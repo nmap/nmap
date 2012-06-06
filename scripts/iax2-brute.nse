@@ -71,6 +71,6 @@ Driver = {
 action = function(host, port)
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.script_name = SCRIPT_NAME
-	status, result = engine:start()
+	local status, result = engine:start()
 	return result
 end

@@ -63,6 +63,7 @@ Driver = {
 		local srcport = math.random(513, 1024)
 		self.socket:bind(nil, srcport)
 		self.socket:set_timeout(self.timeout)
+		local err
 		status, err = self.socket:connect(self.host, self.port)
 
 		if ( status ) then
@@ -153,6 +154,6 @@ action = function(host, port)
 
 	local engine = brute.Engine:new(Driver, host, port, options)
 	engine.options.script_name = SCRIPT_NAME
-	status, result = engine:start()
+	local status, result = engine:start()
 	return result
 end

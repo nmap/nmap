@@ -95,7 +95,7 @@ local function parsefields(data)
 end
 
 local function parsename(data)
-	parts = stdnse.strsplit('"', data)
+	local parts = stdnse.strsplit('"', data)
 	if #parts ~= 3 then
 		return nil
 	end

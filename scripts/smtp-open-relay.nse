@@ -269,7 +269,7 @@ action = function(host, port)
         -- will print all the successful tests. Otherwise it will only
         -- print the conclusion.
         if #result > 0 then
-            final = {}
+            local final = {}
             table.insert(final,
                         string.format("Server is an open relay (%i/16 tests)",
                         (#result)))

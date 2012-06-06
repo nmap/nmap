@@ -53,7 +53,7 @@ Driver = {
 
 	login = function( self, username, password )
 		self.helper:setCredentials(username, password)
-		status, err = self.helper:register()
+		local status, err = self.helper:register()
 		if ( not(status) ) then
 			-- The 3CX System has an anti-hacking option that triggers after
 			-- a certain amount of guesses. This protection basically prevents

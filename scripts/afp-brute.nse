@@ -50,6 +50,7 @@ action = function( host, port )
 	local result, response, status = {}, nil, nil
 	local valid_accounts, found_users = {}, {}
 	local helper
+	local usernames, passwords
 	
  	status, usernames = unpwdb.usernames()
 	if not status then return end

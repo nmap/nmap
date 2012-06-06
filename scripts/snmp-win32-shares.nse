@@ -83,6 +83,7 @@ action = function(host, port)
 	local try = nmap.new_try(catch)	
 	local data, snmpoid = nil, "1.3.6.1.4.1.77.1.2.27"
 	local shares = {}
+	local status
 
 	socket:set_timeout(5000)
 	try(socket:connect(host, port))

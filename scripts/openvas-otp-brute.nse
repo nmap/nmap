@@ -81,6 +81,7 @@ Driver =
 		end
 
 		-- Create a buffer and receive the first line
+		local line
 		status, line = self.socket:receive_buf("\r?\n", false)
 
 		if (line == nil or string.match(line,"Bad login")) then
@@ -105,7 +106,7 @@ action = function(host, port)
 	local engine = brute.Engine:new(Driver, host, port)
 	engine:setMaxThreads(1)
 	engine.options.script_name = SCRIPT_NAME
-	status, result = engine:start()
+	local status, result = engine:start()
 	return result
 end
 

@@ -64,7 +64,7 @@ action = function()
 	local magnet = stdnse.get_script_args(SCRIPT_NAME..".magnet")
 	local include_nodes = stdnse.get_script_args(SCRIPT_NAME..".include-nodes")
 	
-	t = bittorrent.Torrent:new()
+	local t = bittorrent.Torrent:new()
 	if filename then
 		t:load_from_file(filename)
 	elseif magnet then

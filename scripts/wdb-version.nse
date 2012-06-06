@@ -53,6 +53,7 @@ local WDB_Procedure = {
 local function checksum(data)
 	local sum = 0
 	local p = 0
+	local _
 	p, _ = bin.unpack(">I", data)
 	while p < data:len() do
 		local c
@@ -80,6 +81,7 @@ local function decode_reply(data, pos)
 	local wdberr, len
 	local done = data:len()
 	local info = {}
+	local _
 	pos, _ = rpc.Util.unmarshall_uint32(data, pos)
 	pos, _ = rpc.Util.unmarshall_uint32(data, pos)
 	pos, wdberr = rpc.Util.unmarshall_uint32(data, pos)

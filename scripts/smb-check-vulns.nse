@@ -259,6 +259,7 @@ function check_conficker(host)
 	end
 
 	-- Try checking a valid string to find Conficker.D
+	local netpathcanonicalize_result, error_result
 	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\")
 	if(status == true and netpathcanonicalize_result['can_path'] == 0x5c45005c) then
 		msrpc.stop_smb(smbstate)
@@ -266,7 +267,6 @@ function check_conficker(host)
 	end
 
 	-- Try checking an illegal string ("\..\") to find Conficker.C and earlier
-	local error_result
 	status, netpathcanonicalize_result, error_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\..\\")
 
 	if(status == false) then
@@ -309,6 +309,7 @@ function check_winreg_Enum_crash(host)
 
 	local i, j
 	local elements = {}
+	local status, bind_result, smbstate
 
 	-- Create the SMB session
 	status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
@@ -323,6 +324,7 @@ function check_winreg_Enum_crash(host)
 		return false, bind_result
 	end
 
+  local openhku_result
 	status, openhku_result = msrpc.winreg_openhku(smbstate)
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
@@ -330,6 +332,7 @@ function check_winreg_Enum_crash(host)
 	end
 
 	-- Loop through the keys under HKEY_USERS and grab the names
+	local enumkey_result
 	status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], 0, nil)
 	msrpc.stop_smb(smbstate)
 

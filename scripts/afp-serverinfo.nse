@@ -71,7 +71,7 @@ action = function(host, port)
   try( socket:connect(host, port) )
 
   -- get our data
-  afp_proto = afp.Proto:new( { socket=socket } )
+  local afp_proto = afp.Proto:new( { socket=socket } )
 
   local response = afp_proto:fp_get_server_info( socket )
   response = response.result

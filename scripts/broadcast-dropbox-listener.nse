@@ -58,7 +58,7 @@ action = function()
 	local ids = {}
 
 	-- Initialize the output table.
-	results = tab.new(6)
+	local results = tab.new(6)
 	tab.addrow(
 		results,
 		'displayname',

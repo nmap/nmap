@@ -41,7 +41,7 @@ prerule = function()
 end
 
 action = function(host, port)
-	local asns, whois_server, whois_port, err, status
+	local asns, whois_server, whois_port, err, status, newtargets
 	local results = {}
 
 	asns = stdnse.get_script_args('targets-asn.asn') or stdnse.get_script_args('asn-to-prefix.asn')

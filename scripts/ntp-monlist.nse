@@ -617,7 +617,7 @@ function parse_monlist_1(pkt, recs)
     if #recs + #recs.peerlist >= MAX_RECORDS then
       return remaining
     end
-    pos = off + isize * (i-1) -- beginning of item
+    local pos = off + isize * (i-1) -- beginning of item
     local t = {}
 
     -- src and dst addresses
@@ -685,7 +685,7 @@ function parse_peerlist(pkt, recs)
     if #recs + #recs.peerlist >= MAX_RECORDS then
       return remaining
     end
-    pos = off + (i * isize) -- beginning of item
+    local pos = off + (i * isize) -- beginning of item
     local t = {}
 
     -- src address
@@ -1069,7 +1069,7 @@ function output_ips(t)
   local i = 1
   local limit = #t['6']
   while i <= limit do
-    work = {}
+    local work = {}
     local len = 0
     local j = i
     repeat

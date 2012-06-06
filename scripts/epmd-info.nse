@@ -45,9 +45,9 @@ action = function(host, port)
 		data = data .. tmp
 		status, tmp = socket:receive()
 	end
-	pos, realport = bin.unpack(">I", data)
-	nodestring = string.sub(data, pos, -2)
-	nodes = stdnse.strsplit("\n", nodestring)
+	local pos, realport = bin.unpack(">I", data)
+	local nodestring = string.sub(data, pos, -2)
+	local nodes = stdnse.strsplit("\n", nodestring)
 	local response = {}
 	table.insert(response, 'epmd running on port ' .. realport)
 	for _, node in ipairs(nodes) do

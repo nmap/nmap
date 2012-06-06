@@ -104,7 +104,8 @@ action = function(host, port)
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	engine.options:setOption( "passonly", true )
-	
+
+	local result
 	status, result = engine:start()
 	return result
 end

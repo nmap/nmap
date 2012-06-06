@@ -112,6 +112,7 @@ function default_test(host, port)
   local hostname = "www.google.com"
   local pattern  = "^server: gws"
   get_status, get_r1, get_cstatus = proxy.test_get(host, port, "http", test_url, hostname, pattern)
+  local _
   head_status, _, head_cstatus = proxy.test_head(host, port, "http", test_url, hostname, pattern)
   conn_status = proxy.test_connect(host, port, "http", hostname)
 

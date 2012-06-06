@@ -65,7 +65,7 @@ Driver = {
 		local status, response = self.helper:get(arg_url, headers)
 		
 		if ( not(status) ) then
-			local err = brute.Error:new( data )
+			local err = brute.Error:new( response )
 			err:setRetry( true )
 			return false, err
 		elseif( response.status ~= 401 ) then

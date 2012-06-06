@@ -115,6 +115,7 @@ action = function(host, port)
 			return
 		end
 
+    local vols
 		status, vols = afpHelper:ListShares()
 
 		if status then

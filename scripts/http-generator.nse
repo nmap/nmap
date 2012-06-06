@@ -54,7 +54,7 @@ local follow_redirects = function(host, port, path, n)
 
    while (response['status-line'] or ""):match(pattern) and n > 0 do
       n = n - 1
-      loc = response.header['location']
+      local loc = response.header['location']
       response = http.get_url(loc)
    end
 

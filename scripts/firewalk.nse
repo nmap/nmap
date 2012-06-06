@@ -931,6 +931,7 @@ local function send_next_probes(scanner)
   -- this prevents sending too much probes at the same time
   while #scanner.active_probes < MaxActiveProbes do
 
+    local probe
     -- perform resends
     if #scanner.pending_resends > 0 then
 

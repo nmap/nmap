@@ -213,7 +213,7 @@ local dns_checks = {
 				end
 
 				if ( 0 < #result ) then
-					output = ("The following servers were found in the zone, but not in the parent: %s"):format(stdnse.strjoin(", ", result))
+					local output = ("The following servers were found in the zone, but not in the parent: %s"):format(stdnse.strjoin(", ", result))
 					return true, { status = Status.FAIL, output = output }
 				end
 				
@@ -261,7 +261,7 @@ local dns_checks = {
 				end
 
 				if ( 0 < #result ) then
-					output = ("The following servers were found in the parent, but not in the zone: %s"):format(stdnse.strjoin(", ", result))
+					local output = ("The following servers were found in the parent, but not in the zone: %s"):format(stdnse.strjoin(", ", result))
 					return true, { status = Status.FAIL, output = output }
 				end
 				

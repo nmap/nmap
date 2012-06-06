@@ -122,7 +122,7 @@ RIPv2 = {
 			tab.addrow(routes, "ip", "netmask", "nexthop", "metric")
 			
 			while( #data - pos >= 20 ) do
-				local family, address, metric, _
+				local family, address, metric, _, netmask, nexthop
 				pos, family, _, address, netmask, nexthop,
 						metric = bin.unpack(">SS<III>I", data, pos)
 				

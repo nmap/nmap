@@ -51,7 +51,7 @@ function process_pa_response(response)
     end
 
     -- the list of published applications starts at offset 40
-    offset = 41
+    local offset = 41
 
     while offset < packet_len do
         pos, app_name = bin.unpack("z", response:sub(offset))
@@ -119,7 +119,7 @@ action = function(host, port)
 	local socket = nmap.new_socket()
 	socket:set_timeout(5000)
 
-	try = nmap.new_try(function() socket:close() end)
+	local try = nmap.new_try(function() socket:close() end)
 
 	try( socket:connect(host, port) )
 

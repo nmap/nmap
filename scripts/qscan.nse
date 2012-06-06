@@ -248,7 +248,7 @@ local report = function(stats)
 	tab.add(outtab, 4, "STDDEV")
 	tab.add(outtab, 5, "LOSS (%)")
 	tab.nextrow(outtab)
-
+  local port, fam, mean, stddev, loss
 	for _, j in pairs(stats) do
 		port = tostring(j.port)
 		fam = tostring(j.fam)

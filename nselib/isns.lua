@@ -413,6 +413,7 @@ Session = {
 		local hdr = Header.parse(buf_hdr)
 				
 		-- receive the data
+		local buf_data = nil
 		status, buf_data = self.socket:receive_buf(match.numbytes(hdr.pdu_len), true)
 		if ( not(status) ) then
 			return status, buf_data

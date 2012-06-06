@@ -52,9 +52,10 @@ action = function(host, port)
 
 	local socket = nmap.new_socket()
 	socket:set_timeout(15000)
-	try = nmap.new_try(function() socket:close() end)
+	local try = nmap.new_try(function() socket:close() end)
 	try(socket:connect(host, port))
 	try(socket:send(statusmsg))		--this block gets the current display status
+	local data
 	response,data=socket:receive()  
 	if not response then			--send an initial probe. If no response, send nothing further. 
 		socket:close()

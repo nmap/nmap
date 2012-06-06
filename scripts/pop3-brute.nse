@@ -47,7 +47,7 @@ Driver = {
 
     self.socket = nmap.new_socket()
     local opts = {timeout=10000, recv_before=true}
-    local best_opt, line
+    local best_opt, line, _
     self.socket, _, best_opt, line = comm.tryssl(self.host, self.port, "" , opts)
 
     if not self.socket then
@@ -106,6 +106,7 @@ action = function(host, port)
 
   --determine function we will use to login to server
   local is_apop = false
+  local login_function
   if (pMeth == "USER") then
     login_function = pop3.login_user
   elseif (pMeth == "SASL-PLAIN") then
@@ -123,6 +124,6 @@ action = function(host, port)
 
   local engine = brute.Engine:new(Driver, host, port, login_function, is_apop)
   engine.options.script_name = SCRIPT_NAME
-  status, accounts = engine:start()
+  local status, accounts = engine:start()
   return accounts
 end

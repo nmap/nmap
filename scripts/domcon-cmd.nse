@@ -111,7 +111,7 @@ action = function(host, port)
 	cmds = stdnse.strsplit(";%s*", cmd)
 
 	socket:set_timeout(10000)
-	status = socket:connect( host.ip, port.number, "tcp")
+	local status = socket:connect( host.ip, port.number, "tcp")
 	if ( status ) then
 		socket:reconnect_ssl()
 	end

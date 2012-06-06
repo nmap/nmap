@@ -322,6 +322,7 @@ local function check_login(hostinfo, username, password, logintype)
 	end
 
 	-- Determine if we have a password hash or a password
+	local status, err
 	if(#password == 32 or #password == 64 or #password == 65) then
 		-- It's a hash (note: we always use NTLM hashes)
 		status, err	  = smb.start_session(smbstate, smb.get_overrides(username, domain, nil, password, "ntlm"), false)
@@ -580,6 +581,7 @@ local function initialize(host)
 
 	-- Attempt to enumerate users
 	stdnse.print_debug(1, "smb-brute: Trying to get user list from server")
+	local _
 	hostinfo['have_user_list'], _, hostinfo['user_list'] = msrpc.get_user_list(host)
 	hostinfo['user_list_index'] = 1
 	if(hostinfo['have_user_list'] and #hostinfo['user_list'] == 0) then
@@ -604,6 +606,7 @@ local function initialize(host)
 
 	-- Start the SMB session
 	stdnse.print_debug(1, "smb-brute: Starting the initial SMB session")
+	local err
 	status, err = restart_session(hostinfo)
 	if(status == false) then
 		stop_session(hostinfo)
@@ -700,6 +703,7 @@ local function get_next_username(hostinfo)
 	
 			username = hostinfo['user_list'][index]
 			if(username ~= nil) then
+			  local _
 				_, username = split_domain(username)
 			end
 	
@@ -771,6 +775,7 @@ function test_lockouts(hostinfo)
 			stdnse.print_debug(1, "smb-brute: Detecting server lockout on '%s' with %d canaries", username, canaries)
 		end
 
+    local result
 		for i=1, canaries, 1 do
 			result = check_login(hostinfo, username, get_random_string(8), "ntlm")
 		end
@@ -938,6 +943,7 @@ function found_account(hostinfo, username, password, result)
 		if(hostinfo['have_user_list'] == false) then
 			-- Attempt to enumerate users
 			stdnse.print_debug(1, "smb-brute: Trying to get user list from server using newly discovered account")
+			local _
 			hostinfo['have_user_list'], _, hostinfo['user_list'] = msrpc.get_user_list(hostinfo['host'])
 			hostinfo['user_list_index'] = 1
 			if(hostinfo['have_user_list'] and #hostinfo['user_list'] == 0) then
@@ -1046,6 +1052,7 @@ local function go(host)
 				end
 
 				-- Find the case of the password, unless it's a hash
+				local case_password
 				if(not(#password == 32 or #password == 64 or #password == 65)) then
 					stdnse.print_debug(1, "smb-brute: Determining password's case (%s)", format_result(username, password))
 					case_password = find_password_case(hostinfo, username, password, result)
@@ -1082,6 +1089,7 @@ action = function(host)
 	local usernames = {}
 	local locked = {}
 	local i
+	local locked_result
 
 	status, result, locked_result = go(host)
 	if(status == false) then

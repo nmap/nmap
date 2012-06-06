@@ -131,7 +131,8 @@ action = function(host, port)
 	end
 	
 	local engine = brute.Engine:new(Driver, host, port, options)
-	engine.options.script_name = SCRIPT_NAME	
+	engine.options.script_name = SCRIPT_NAME
+	local result
 	status, result = engine:start()
 		
 	return result

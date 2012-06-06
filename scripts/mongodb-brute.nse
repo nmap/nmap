@@ -51,7 +51,7 @@ Driver = {
 		if ( status ) then
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		elseif ( resp ~= "Authentication failed" ) then
-			local err = brute.Error:new( err )
+			local err = brute.Error:new( resp )
 			err:setRetry( true )
 			return false, err					
 		end
@@ -100,7 +100,7 @@ action = function(host, port)
 	
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
-	status, result = engine:start()
+	local status, result = engine:start()
 
 	return result
 end

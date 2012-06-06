@@ -60,7 +60,7 @@ Driver = {
 
 	login = function(self, _, password)
 		local msg = ("PASS %s\r\nNICK nmap_brute\r\nUSER anonymous 0 * :Nmap brute\r\n"):format(password)
-		local status = self.socket:send(msg)
+		local status, data = self.socket:send(msg)
 		local success = false
 		
 		if ( not(status) ) then
@@ -136,6 +136,7 @@ action = function(host, port)
 	engine.options.script_name = SCRIPT_NAME	
     engine.options.firstonly = true
     engine.options.passonly = true
+  local result
 	status, result = engine:start()
 
 	return result

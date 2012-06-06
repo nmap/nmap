@@ -167,7 +167,6 @@ function read_db2_packet(socket)
 	local header_len = 41
 	local total_len = 0
 	local buf
-	local endian
 
 	local DATA_LENGTH_OFFSET = 38
 	local ENDIANESS_OFFSET = 23
@@ -188,7 +187,7 @@ function read_db2_packet(socket)
 	
 		stdnse.print_debug("db2-das-info: Got DB2DAS packet")
 
-		_, endian = bin.unpack( "A2", packet.header.raw, ENDIANESS_OFFSET )		
+		local _, endian = bin.unpack( "A2", packet.header.raw, ENDIANESS_OFFSET )		
 
 		if endian == "9z" then
 			_, packet.header.data_len = bin.unpack("I", packet.header.raw, DATA_LENGTH_OFFSET )
@@ -381,6 +380,7 @@ action = function(host, port)
 	socket:close()
 	
 	-- The next block of code is essentially the version extraction code from db2-info.nse
+	local server_version
 	if string.sub(db2response.version,1,3) == "SQL" then
 		local major_version = string.sub(db2response.version,4,5)
 

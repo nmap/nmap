@@ -79,6 +79,7 @@ local function processURL(host, port, url_iter, result)
 			break
 		end
 
+    local response
 		status, response = helper:describe(url)
 		if ( not(status) ) then
 			stdnse.print_debug(2, "ERROR: Sending DESCRIBE request to url: %s", url)

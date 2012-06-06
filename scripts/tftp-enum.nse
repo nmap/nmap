@@ -209,7 +209,7 @@ action = function(host, port)
   nmap.set_port_state(host, port, "open")
 
   local results = {}
-  filenames = generate_filenames(host)
+  local filenames = generate_filenames(host)
 
   for i, filename in ipairs(filenames) do
     local request_status = check_file_present(host, port, filename)

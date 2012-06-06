@@ -91,6 +91,7 @@ action = function( host, port )
 	status, data = helper:Login(user, pass)
 	if ( not(status) ) then	return stdnse.format_output(status, data) end
 
+  local databases
 	status, databases = helper:GetDatabases()
 	if ( not(status) ) then
 		return "  \n  ERROR: Failed to retrieve a list of databases"

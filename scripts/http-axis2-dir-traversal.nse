@@ -152,7 +152,7 @@ action = function(host, port)
     --if body is empty something wrong could have happened...
     if string.len(req.body) <= 0 then
       if nmap.verbosity() >= 2 then
-        print_debug(1, "%s:Response was empty. The file does not exists or the web server does not have sufficient permissions", SCRIPT_NAME)
+        stdnse.print_debug(1, "%s:Response was empty. The file does not exists or the web server does not have sufficient permissions", SCRIPT_NAME)
       end
       return
     end

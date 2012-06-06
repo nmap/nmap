@@ -172,9 +172,11 @@ action = function(host, port)
         get_agent(host, xport, output)
 
         -- Check if any other service tags are registered and enumerate them
+        local svctags_list
         status, svctags_list = get_svctag_list(host, xport, output)
         if status then
-            svctags = {}
+            local svctags = {}
+            local tag
             for _, svctag in ipairs(svctags_list) do
                 svctags['name'] = "Service Tags"
                 status, tag = get_svctag(host, port, svctag)

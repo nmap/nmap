@@ -159,7 +159,7 @@ action = function(host, port)
 
 	stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is not password protected, continuing...")
 
-	response = get_response(host, port, "/")
+	local response = get_response(host, port, "/")
 	if(response.status == 501) then
 		-- WebDAV is disabled
 		stdnse.print_debug(1, "http-iis-webdav-vuln: WebDAV is DISABLED (PROPFIND failed).")

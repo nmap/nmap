@@ -96,7 +96,7 @@ action = function(host, port)
 	for _, path in ipairs(paths) do
 
 		-- Retrieve file
-  	data = http.get(host, port, tostring(path))
+  	local data = http.get(host, port, tostring(path))
   	if data and data.status then
 
 			-- Check if file exists

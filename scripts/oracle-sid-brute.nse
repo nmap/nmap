@@ -116,6 +116,7 @@ local function process_tns_packet( packet )
 	local tnspacket = {}
 	
 	-- just pull out the bare minimum to be able to match
+	local _
 	_, tnspacket.Length, tnspacket.Checksum, tnspacket.Type = bin.unpack(">SSC", packet)
 	
 	return tnspacket
@@ -134,7 +135,7 @@ action = function(host, port)
 	socket:set_timeout(5000)
 
 	-- open the sid file specified by the user or fallback to the default oracle-sids file
-	sidfilename = nmap.registry.args.oraclesids or nmap.fetchfile("nselib/data/oracle-sids")
+	local sidfilename = nmap.registry.args.oraclesids or nmap.fetchfile("nselib/data/oracle-sids")
 	
 	sidfile = io.open(sidfilename)
 	

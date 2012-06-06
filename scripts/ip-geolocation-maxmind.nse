@@ -410,7 +410,7 @@ local GeoIP = {
 		o._filehandle:seek("end",-3)
 		
 		for i=1,MaxmindDef.STRUCTURE_INFO_MAX_SIZE do
-			delim = o._filehandle:read(3)
+			local delim = o._filehandle:read(3)
 			
 			if delim == '\255\255\255' then
 				o._databaseType = o._filehandle:read(1):byte()

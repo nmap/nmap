@@ -56,6 +56,8 @@ local function filter_out(t, filter)
 	return result
 end
 
+local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
+
 action = function(host, port)
 
 	local helper = ajp.Helper:new(host, port)

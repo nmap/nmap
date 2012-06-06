@@ -157,7 +157,7 @@ action = function(host, port)
 	end
 
 	-- Get the current time so we can measure the delay
-	time = os.time(os.date('*t'))
+	local time = os.time(os.date('*t'))
 	socket:set_timeout((delay + 5) * 1000)
 
 	-- Accumulate the response in the 'data' string

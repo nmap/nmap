@@ -102,7 +102,7 @@ local function send_queries(host)
 
 	dnet = nmap.new_dnet()
 	dnet:ip_open()
-	p = build_ni_query(host.bin_ip_src, host.bin_ip, QTYPE_NODEADDRESSES)
+	local p = build_ni_query(host.bin_ip_src, host.bin_ip, QTYPE_NODEADDRESSES)
 	dnet:ip_send(p)
 	p = build_ni_query(host.bin_ip_src, host.bin_ip, QTYPE_NODENAME)
 	dnet:ip_send(p)

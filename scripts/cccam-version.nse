@@ -46,9 +46,9 @@ end
 -- splitbits("abc", 5) --> {"01100", "00101", "10001", "00110"}
 -- Any short final group is omitted.
 local function splitbits(s, n)
-	local bits, seq
+	local seq
 
-	_, bits = bin.unpack("B" .. #s, s)
+	local _, bits = bin.unpack("B" .. #s, s)
 	seq = {}
 	for i = 1, #bits - n, n do
 		seq[#seq + 1] = bits:sub(i, i + n - 1)

@@ -311,7 +311,7 @@ local function check_exim(smtp_opts)
   local heap_cve, priv_cve = 'CVE-2010-4344', 'CVE-2010-4345'
   local heap_str = "Exim heap overflow vulnerability ("..heap_cve.."):"
   local priv_str = "Exim privileges escalation vulnerability ("..priv_cve.."):"
-  local exip_heap_result, exip_priv_result = "", ""
+  local exim_heap_result, exim_priv_result = "", ""
 
   local socket, ret = smtp.connect(smtp_opts.host,
                           smtp_opts.port,

@@ -147,7 +147,7 @@ action = function(host, port)
 
 	-- the nessus service doesn't appear to do very well with multiple threads
 	engine:setMaxThreads(1)
-	status, result = engine:start()
+	local status, result = engine:start()
 
 	return result
 end

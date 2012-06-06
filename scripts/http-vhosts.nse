@@ -482,7 +482,7 @@ local HOSTNAMES = {
 defineDomain = function(host)
   if stdnse.get_script_args("http-vhosts.domain") then return stdnse.get_script_args("http-vhosts.domain") end
 
-  name = stdnse.get_hostname(host)
+  local name = stdnse.get_hostname(host)
   if name and name ~= host.ip then
     local pos = string.find (name, ".",1,true)
     if not pos then return name end

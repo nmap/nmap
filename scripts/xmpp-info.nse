@@ -542,7 +542,7 @@ action = function(host, port)
 
     local r = {}
 
-    format_block = format_block_12
+    local format_block = format_block_12
     if not id_tls then
         format_block = format_block_1
         if starttls_failed then table.insert(r, "STARTTLS Failed") end

@@ -96,7 +96,8 @@ function action(host,port)
 	
 	local status, packet = mongodb.serverStatusQuery()
 	if not status then return packet end
-	
+
+	local statQResult, buildQResult
 	status,statQResult = mongodb.query(socket, packet)
 	
 	if not status then return statQResult end
