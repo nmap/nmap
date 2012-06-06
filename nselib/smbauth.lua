@@ -667,10 +667,10 @@ function get_password_response(ip, username, domain, password, password_hash, ha
 	return lm_response, ntlm_response, mac_key
 end
 
-function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type, flags)
+function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type)
 	local pos = 1
 	local new_blob
-	local flags = flags or 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
+	local flags = 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
 
 	if(security_blob == nil) then
 		-- If security_blob is nil, this is the initial packet
@@ -684,8 +684,10 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 
 		return true, new_blob, "", ""
 	else
+		local identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved
+
 		-- Parse the old security blob
-		local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
+		pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
 
 		-- Get the information for the current login
         local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)

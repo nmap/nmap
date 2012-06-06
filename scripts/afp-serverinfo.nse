@@ -73,7 +73,7 @@ action = function(host, port)
   -- get our data
   afp_proto = afp.Proto:new( { socket=socket } )
 
-  local response = afp_proto:fp_get_server_info( socket )
+  response = afp_proto:fp_get_server_info( socket )
   response = response.result
   
   -- all the server information is output in the order it occurs in the server
