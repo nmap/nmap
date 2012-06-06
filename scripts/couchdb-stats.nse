@@ -51,7 +51,7 @@ categories = {"discovery", "safe"}
 portrule = shortport.port_or_service({5984})
 -- Some lazy shortcuts
 local function dbg(str,...)
-	stdnse.print_debug("couchdb-stats:"..str, table.unpack(arg))
+	stdnse.print_debug("couchdb-stats:"..str, ...)
 end
 
 

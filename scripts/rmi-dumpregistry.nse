@@ -155,11 +155,11 @@ portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"jav
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug(3,"RMI-DUMPREG:"..str, table.unpack(arg))
+	stdnse.print_debug(3,"RMI-DUMPREG:"..str, ...)
 end
 
 local function dbg_err(str, ... )
-	stdnse.print_debug("RMI-DUMPREG-ERR:"..str, table.unpack(arg))
+	stdnse.print_debug("RMI-DUMPREG-ERR:"..str, ...)
 end
 
 -- Function to split a string

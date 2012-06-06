@@ -44,7 +44,7 @@ categories = {"discovery", "intrusive"}
 portrule = shortport.http
 
 local function dbg(str,...)
-	stdnse.print_debug(2,"http-open-redirect:"..str, table.unpack(arg))
+	stdnse.print_debug(2,"http-open-redirect:"..str, ...)
 end
 local function dbgt(tbl)
 	for k,v in pairs(tbl) do

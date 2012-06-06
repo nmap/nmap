@@ -28,7 +28,7 @@ local arg_DB = stdnse.get_script_args("mongodb.db")
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug(3, "MngoDb:"..str, table.unpack(arg))
+	stdnse.print_debug(3, "MngoDb:"..str, ...)
 end
 --local dbg =stdnse.print_debug
 
@@ -55,7 +55,7 @@ local err =stdnse.print_debug
 --module("bson", package.seeall)
 --require("bin")
 local function dbg_err(str,...)
-	stdnse.print_debug("Bson-ERR:"..str, table.unpack(arg))
+	stdnse.print_debug("Bson-ERR:"..str, ...)
 end
 --local err =stdnse.log_error
 

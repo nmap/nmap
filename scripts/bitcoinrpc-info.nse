@@ -64,7 +64,7 @@ function ServiceProxy:new(host, port, path, options)
 	self.options = options
 	self.__index = function(_, method)
 		return function(...)
-			return self:call(method, arg)
+			return self:call(method, table.pack(...))
 		end
 	end
 	return o
