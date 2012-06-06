@@ -56,7 +56,7 @@ Driver = {
 			"+OK" ) then
 			return true, brute.Account:new( "", password, creds.State.VALID)
 		else 
-			local err = brute.Error:new( err )
+			local err = brute.Error:new( response )
 			err:setRetry( true )
 			return false, err
 		end
