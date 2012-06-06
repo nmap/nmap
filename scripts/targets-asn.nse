@@ -10,9 +10,7 @@ This script uses a whois server database operated by the Shadowserver
 Foundation.  We thank them for granting us permission to use this in
 Nmap.
 
-Output is in CIDR notation. If the <code>newtargets</code> script
-argument is given, all discovered prefixes will be added to the Nmap
-target list for scanning.
+Output is in CIDR notation. 
 
 http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 ]]
@@ -21,7 +19,6 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 -- @args targets-asn.asn The ASN to search.
 -- @args targets-asn.whois_server The whois server to use. Default: asn.shadowserver.org.
 -- @args targets-asn.whois_port The whois port to use. Default: 43.
--- @args newtargets Add discovered targets to Nmap scan queue.
 --
 -- @usage
 -- nmap --script targets-asn --script-args targets-asn.asn=32
@@ -50,7 +47,6 @@ action = function(host, port)
 	asns = stdnse.get_script_args('targets-asn.asn') or stdnse.get_script_args('asn-to-prefix.asn')
 	whois_server = stdnse.get_script_args('targets-asn.whois_server') or stdnse.get_script_args('asn-to-prefix.whois_server')
 	whois_port = stdnse.get_script_args('targets-asn.whois_port') or stdnse.get_script_args('asn-to-prefix.whois_port')
-	newtargets = stdnse.get_script_args('targets-asn.newtargets') or stdnse.get_script_args('asn-to-prefix.newtargets')
 
 	if not asns then
 		return stdnse.format_output(true, "targets-asn.asn is a mandatory parameter")
