@@ -32,18 +32,18 @@ _ENV = stdnse.module("json", stdnse.seeall)
 
 --Some local shortcuts
 local function dbg(str,...)
-	stdnse.print_debug("Json:"..str, table.unpack(arg))
+	stdnse.print_debug("Json:"..str, ...)
 end
 local function d4(str,...)
-	if nmap.debugging() > 3 then dbg(str,table.unpack(arg)) end
+	if nmap.debugging() > 3 then dbg(str,...) end
 end
 local function d3(str,...)
-	if nmap.debugging() > 2 then dbg(str,table.unpack(arg)) end
+	if nmap.debugging() > 2 then dbg(str,...) end
 end
 
 --local dbg =stdnse.print_debug
 local function dbg_err(str,...)
-	stdnse.print_debug("json-ERR:"..str, table.unpack(arg))
+	stdnse.print_debug("json-ERR:"..str, ...)
 end
 
  -- Javascript null representation, see explanation above

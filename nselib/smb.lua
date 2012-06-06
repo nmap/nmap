@@ -121,6 +121,7 @@
 -- @author Ron Bowes <ron@skullsecurity.net>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
+local asn1 = require "asn1"
 local bin = require "bin"
 local bit = require "bit"
 local coroutine = require "coroutine"
@@ -1029,6 +1030,9 @@ function negotiate_protocol(smb, overrides)
 	if(smb['key_length'] == nil) then
 		smb['key_length'] = 0
 	end
+	if(smb['byte_count'] == nil) then
+		smb['byte_count'] = 0
+	end
 
 	-- Convert the time and timezone to more useful values
 	smb['time'] = (smb['time'] / 10000000) - 11644473600
@@ -1052,6 +1056,11 @@ function negotiate_protocol(smb, overrides)
 		pos, smb['server_guid'] = bin.unpack("<A16", data, pos)
 		if(smb['server_guid'] == nil) then
 			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
+		end
+
+		-- do we have a security blob?
+		if ( #data - pos > 0 ) then
+			pos, smb['security_blob'] = bin.unpack("<A" .. #data - pos, data, pos )
 		end
 	else
 		pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
@@ -1278,7 +1287,14 @@ local function start_session_extended(smb, log_errors, overrides)
 			return result, username
 		end
 	end
-
+	
+	-- check what kind of security blob we were given in the negotiate protocol request
+	local sp_nego = false
+	if ( smb['security_blob'] and #smb['security_blob'] > 11 ) then
+		local pos, oid = bin.unpack(">A6", smb['security_blob'], 5)
+		sp_nego = ( oid == "\x2b\x06\x01\x05\x05\x02" ) -- check for SPNEGO OID 1.3.6.1.5.5.2
+	end
+	
 	while result ~= false do
 		-- These are loop variables
 		local security_blob = nil
@@ -1287,7 +1303,42 @@ local function start_session_extended(smb, log_errors, overrides)
 		-- This loop takes care of the multiple packets that "extended security" requires
 		repeat
 			-- Get the new security blob, passing the old security blob as a parameter. If there was no previous security blob, then nil is passed, which creates a new one
-			status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type)
+			if ( not(security_blob) ) then
+				status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
+
+				if ( sp_nego ) then
+					local enc = asn1.ASN1Encoder:new()
+					local mechtype = enc:encode( { type = 'A0', value = enc:encode( { type = '30', value = enc:encode( { type = '06', value = bin.pack("H", "2b06010401823702020a") } ) } ) } )					
+					local oid = enc:encode( { type = '06', value = bin.pack("H", "2b0601050502") } )
+					
+					security_blob = enc:encode(security_blob)
+					security_blob = enc:encode( { type = 'A2', value = security_blob } )
+					security_blob = mechtype .. security_blob
+					security_blob = enc:encode( { type = '30', value = security_blob } )
+					security_blob = enc:encode( { type = 'A0', value = security_blob } )
+					security_blob = oid .. security_blob
+					security_blob = enc:encode( { type = '60', value = security_blob } )
+					
+				end
+			else
+				if ( sp_nego ) then
+					if ( smb['domain'] or smb['server'] and ( not(domain) or #domain == 0 ) ) then
+						domain = smb['domain'] or smb['server']
+					end
+					hash_type = "v2"
+				end
+				
+				status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
+				
+				if ( sp_nego ) then
+					local enc = asn1.ASN1Encoder:new()
+					security_blob = enc:encode(security_blob)
+					security_blob = enc:encode( { type = 'A2', value = security_blob } )
+					security_blob = enc:encode( { type = '30', value = security_blob } )
+					security_blob = enc:encode( { type = 'A1', value = security_blob } )
+				end
+				
+			end
 
 			-- There was an error processing the security blob	
 			if(status == false) then
@@ -1351,6 +1402,12 @@ local function start_session_extended(smb, log_errors, overrides)
 		
 				-- Parse the data
 				pos, security_blob, os, lanmanager = bin.unpack(string.format("<A%dzz", security_blob_length), data)
+
+				if ( status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED" and sp_nego ) then
+					local start = security_blob:find("NTLMSSP")
+					security_blob = security_blob:sub(start)
+				end
+				
 				if(security_blob == nil or lanmanager == nil) then
 					return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
 				end
@@ -2682,7 +2739,7 @@ function find_files(smbstate, fname, options)
 				-- TODO: cleanup fe.s_fname
 				pos, fe.fname = bin.unpack("A" .. f_len, response.data, pos)
 				pos = last_pos + ne
-			
+
 				-- removing trailing zero bytes from file name
 				fe.fname = fe.fname:sub(1, -2)
 				last_name = fe.fname
