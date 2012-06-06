@@ -5,8 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Retrieves the authentication scheme and realm of an AJP service that requires
-authentication.
+Retrieves the authentication scheme and realm of an AJP service (Apache JServ Protocol) that requires authentication.
 ]]
 
 ---

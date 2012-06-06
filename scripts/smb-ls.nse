@@ -6,7 +6,7 @@ local table = require "table"
 local openssl= require 'openssl'
 
 description = [[
-Attempts to get useful information about files from SMB volumes.
+Attempts to retrieve useful information about files shared on SMB volumes.
 The output is intended to resemble the output of <code>ls</code>.
 ]]
 

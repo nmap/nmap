@@ -4,7 +4,7 @@ local stdnse = require "stdnse"
 
 description = [[
 Performs a HEAD or GET request against either the root directory or any
-optional directory and returns the server response headers.
+optional directory of an Apache JServe Protocol server and returns the server response headers.
 ]]
 
 ---

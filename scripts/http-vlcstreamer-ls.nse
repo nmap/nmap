@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Connects to the VLC Streamer helper service and lists directory contents. The
+Connects to a VLC Streamer helper service and lists directory contents. The
 VLC Streamer helper service is used by the iOS VLC Streamer application to
 enable streaming of multimedia content from the remote server to the device.
 ]]

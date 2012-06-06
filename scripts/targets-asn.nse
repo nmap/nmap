@@ -4,7 +4,7 @@ local table = require "table"
 local target = require "target"
 
 description = [[
-Produces a list of IP prefixes for a given AS number (ASN).
+Produces a list of IP prefixes for a given routing AS number (ASN).
 
 This script uses a whois server database operated by the Shadowserver
 Foundation.  We thank them for granting us permission to use this in

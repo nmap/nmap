@@ -4,7 +4,7 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Finds up to 100 domain names that use the same name server as the target by querying the Robtex service at http://www.robtex.com/dns/.
+Finds up to 100 domain names which use the same name server as the target by querying the Robtex service at http://www.robtex.com/dns/.
 
 The target must be specified by DNS name, not IP address.
 ]];

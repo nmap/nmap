@@ -5,8 +5,10 @@ local string = require "string"
 local vulns = require "vulns"
 
 description = [[
-Detects Huawei modems models HG530x, HG520x, HG510x (and possibly others...) vulnerable to a remote credential and information disclosure vulnerability. It also extracts the PPPoE credentials 
-and other interesting configuration values. 
+Detects Huawei modems models HG530x, HG520x, HG510x (and possibly
+others...) vulnerable to a remote credential and information
+disclosure vulnerability. It also extracts the PPPoE credentials and
+other interesting configuration values.
 
 Attackers can query the URIs "/Listadeparametros.html" and "/wanfun.js" to extract sensitive information 
 including PPPoE credentials, firmware version, model, gateway, dns servers and active connections among other values.

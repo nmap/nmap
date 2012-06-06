@@ -6,12 +6,12 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Performs a domain lookup using the edns-client-subnet option that adds
-support for adding subnet information to the query describing where the
-query is originating. The script uses this option to supply a number of
-geographically distributed locations in an attempt to enumerate as many
-different address records as possible. The script also supports requests using
-a given subnet.
+Performs a domain lookup using the edns-client-subnet option which
+allows clients to specify the subnet that queries supposedly originate
+from.  The script uses this option to supply a number of
+geographically distributed locations in an attempt to enumerate as
+many different address records as possible. The script also supports
+requests using a given subnet.
 
 * http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-00
 ]]

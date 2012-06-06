@@ -4,8 +4,8 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Connects to a dictionary server using the DICT protocol and runs the SHOW
-SERVER command and displays the result. The DICT protocol is defined in RFC
+Connects to a dictionary server using the DICT protocol, runs the SHOW
+SERVER command, and displays the result. The DICT protocol is defined in RFC
 2229 and is a protocol which allows a client to query a dictionary server for
 definitions from a set of natural language dictionary databases.
 

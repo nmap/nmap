@@ -6,8 +6,9 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Enumerates the authentication methods offered by an EAP authenticator for a
-given identity or for the anonymous identity if no argument is passed.
+Enumerates the authentication methods offered by an EAP (Extensible
+Authentication Protocol) authenticator for a given identity or for the
+anonymous identity if no argument is passed.
 ]]
 
 ---

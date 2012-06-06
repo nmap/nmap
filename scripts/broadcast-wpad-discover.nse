@@ -8,7 +8,7 @@ local table = require "table"
 local url = require "url"
 
 description = [[
-Retrieves a list of proxy servers on the LAN using the Web Proxy
+Retrieves a list of proxy servers on a LAN using the Web Proxy
 Autodiscovery Protocol (WPAD).  It implements both the DHCP and DNS
 methods of doing so and starts by querying DHCP to get the address.
 DHCP discovery requires nmap to be running in privileged mode and will

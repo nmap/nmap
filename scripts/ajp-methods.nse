@@ -4,8 +4,9 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Finds out what options are supported by the AJP server by sending an OPTIONS
-request and lists potentially risky methods.
+Discovers which options are supported by the AJP (Apache JServ
+Protocol) server by sending an OPTIONS request and lists potentially
+risky methods.
 
 In this script, "potentially risky" methods are anything except GET,
 HEAD, POST, and OPTIONS. If the script reports potentially risky

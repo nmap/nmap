@@ -4,10 +4,10 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Tries a list of known ICAP service names and prints information about the ones
-it detects. The Internet Content Adaptation Protocol (ICAP) is used to extend
-transparent proxy server and is generally used for content filtering and
-antivirus scanning.
+Tests a list of known ICAP service names and prints information about
+any it detects. The Internet Content Adaptation Protocol (ICAP) is
+used to extend transparent proxy servers and is generally used for
+content filtering and antivirus scanning.
 ]]
 
 ---

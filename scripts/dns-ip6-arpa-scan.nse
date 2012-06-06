@@ -7,9 +7,8 @@ local tab = require "tab"
 local table = require "table"
 
 description = [[
-Performs IPv6 a quick reverse lookup of an IPv6 network using a technique
-that allows reducing the amount of queries by analyzing DNS server response
-codes.
+Performs a quick reverse DNS lookup of an IPv6 network using a technique
+which analyzes DNS server response codes to dramatically reduce the number of queries needed to enumerate large networks.
 
 The technique essentially works by adding an octet to a given IPv6 prefix
 and resolving it. If the added octet is correct, the server will return

@@ -7,8 +7,7 @@ local table = require "table"
 
 description = [[
 Discovers hosts and routing information from devices running RIPng on the
-LAN by sending a RIPng Request command and collecting the responses
-from all responsive devices.
+LAN by sending a broadcast RIPng Request command and collecting any responses.
 ]]
 
 ---

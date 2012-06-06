@@ -3,7 +3,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Discovers Versant object databases using the srvloc protocol.
+Discovers Versant object databases using the broadcast srvloc protocol.
 ]]
 
 ---

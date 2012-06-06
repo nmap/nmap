@@ -6,7 +6,7 @@ local stdnse = require "stdnse"
 
 description = [[
 Performs brute force password auditing against the RPA Tech Mobile Mouse
-Server. 
+servers. 
 
 The Mobile Mouse server runs on OS X, Windows and Linux and enables remote
 control of the keyboard and mouse from an iOS device. For more information:

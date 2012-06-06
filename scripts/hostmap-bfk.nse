@@ -7,7 +7,7 @@ local string = require "string"
 local target = require "target"
 
 description = [[
-Tries to find hostnames that resolve to the target's IP address by querying the online database at http://www.bfk.de/bfk_dnslogger.html.
+Discovers hostnames that resolve to the target's IP address by querying the online database at http://www.bfk.de/bfk_dnslogger.html.
 
 The script is in the "external" category because it sends target IPs to a third party in order to query their database.
 

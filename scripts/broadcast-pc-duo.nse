@@ -6,7 +6,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a special UDP probe.
+Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a special broadcast UDP probe.
 ]]
 
 ---
