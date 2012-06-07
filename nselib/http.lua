@@ -748,12 +748,21 @@ local function parse_set_cookie(s)
         if string.sub(s, pos, pos) == "\"" then
           pos, value = get_quoted_string(s, pos)
         else
-          if string.lower(name) == "expires" then
+          -- account for the possibility of the expires attribute being empty or improperly formatted
+          local last_pos = pos
+ 
+         if string.lower(name) == "expires" then
             -- For version 0 cookies we must allow one comma for "expires".
             _, pos, value = string.find(s, "([^,]*,[^;,]*)[ \t]*", pos)
           else
             _, pos, value = string.find(s, "([^;,]*)[ \t]*", pos)
           end
+
+          -- account for the possibility of the expires attribute being empty or improperly formatted
+          if ( not(pos) ) then
+            _, pos, value = s:find("([^;]*)", last_pos)
+          end
+
           pos = pos + 1
         end
         if not value then
