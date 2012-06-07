@@ -41,6 +41,12 @@ o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
 
+o We should probably sort script output (for port output and host
+  output) by script name or something so that it comes in a
+  deterministic order.  If the same three scripts produce output in
+  two different scans, they should be listed in the same order.  Right
+  now the order can vary, at least for host output.
+
 o FEATURE CREEPERS!  We have two talented GSoC students for summer
   2012.  Here are some ideas that they could do, though anyone else is
   welcome to take a stab at them too:
