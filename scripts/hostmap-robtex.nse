@@ -5,7 +5,7 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Tries to find hostnames that resolve to the target's IP address by querying the Robtex service at http://www.robtex.com/dns/.
+Discovers hostnames that resolve to the target's IP address by querying the Robtex service at http://www.robtex.com/dns/.
 ]];
 
 ---

@@ -6,7 +6,7 @@ local tab = require "tab"
 local table = require "table"
 
 description=[[
-Gets a list of Git projects, owners and descriptions from a gitweb.
+Retrieves a list of Git projects, owners and descriptions from a gitweb (web interface to the Git revision control system).
 ]]
 
 ---
