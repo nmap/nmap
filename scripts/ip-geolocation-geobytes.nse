@@ -57,6 +57,10 @@ local geobytes = function(ip)
 			return nil
 		end
 		-- Process output
+		-- an empty table is returned when latitude and longitude can not be determined
+		if ( "table" == type(loc.latitude) or "table" == type(loc.longitude) ) then
+			return { "Could not determine location for IP" }
+		end		
 		table.insert(output, "coordinates (lat,lon): " .. loc.latitude .. "," .. loc.longitude)
 		table.insert(output,"city: ".. loc.city..", ".. loc.region..", ".. loc.country)
 		return output
