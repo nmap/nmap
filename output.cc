@@ -746,7 +746,7 @@ void printportoutput(Target *currenths, PortList *plist) {
         // Well, a reasonably clean way would be backslash escapes
         // such as \/ and \\ .  // But that makes it harder to pick
         // out fields with awk, cut, and such.  So I'm gonna use the
-        // ugly hat (fitting to grepable output) or replacing the '/'
+        // ugly hack (fitting to grepable output) of replacing the '/'
         // character with '|' in the version field.
         Strncpy(grepvers, fullversion, sizeof(grepvers) / sizeof(*grepvers));
         p = grepvers;
