@@ -3293,7 +3293,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     /* But the source address we want to use is the target address. */
     if (!spoofss) {
       if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
-        return 0;
+        rnfo->srcaddr = ifaces[i].addr;
     }
 
     return 1;
@@ -3318,7 +3318,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
       sockaddr_equal(&routes[i].gw, dst));
     if (!spoofss) {
       if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
-        return 0;
+        rnfo->srcaddr = ifaces[i].addr;
     }
     rnfo->nexthop = routes[i].gw;
 
@@ -3336,7 +3336,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     rnfo->direct_connect = 1;
     if (!spoofss) {
       if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
-        return 0;
+        rnfo->srcaddr = ifaces[i].addr;
     }
 
     return 1;
