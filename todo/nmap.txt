@@ -3,8 +3,13 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 o Make Nmap 6.01 release containing (among possibly other little
 fixes)
  - get_srcaddr fix (when we finish it)
+ - Python upgrade 
  - Zenmap 10.7 hang fix (done in trunk)
  - Zenmap crash when filtering hosts (done in trunk)
+
+o Upgrade Python on build machines to try and resolve Python 2.7
+  security warning (it doesn't affect us, but can worry users).  See
+  this thread: http://seclists.org/nmap-dev/2012/q2/621
 
 o Fix get_srcaddr error happening on Windows XP
 
