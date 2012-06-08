@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an error that occurred when scanning certain addresses like
+  192.168.0.0 on Windows XP:
+    get_srcaddr: can't connect socket: The requested address is not valid in its context.
+    nexthost: failed to determine route to 10.80.0.0
+  [David Fifield]
+
 o [NSE] Changed http-brute so that it works against the root path
   ("/") by default rather than always requiring the http-brute.path
   script argument. [Fyodor]
