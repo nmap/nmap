@@ -277,11 +277,12 @@ ASN1Decoder = {
 --
 ASN1Encoder = {
 
-	new = function(self,o)
-            o = o or {}
-            setmetatable(o, self)
-            self.__index = self
-            return o
+	new = function(self)
+		local o = {}
+		setmetatable(o, self)
+		self.__index = self
+		o:registerBaseEncoders()
+		return o
     end,
 
 	---
@@ -330,6 +331,14 @@ ASN1Encoder = {
 			else 
 	    		return bin.pack('H', '01 01 00')
 			end
+		end
+		
+		-- Table encoder
+		self.encoder['table'] = function( self, val )
+			assert('table' == type(val), "val is not a table")
+			assert(#val.type > 0, "Table is missing the type field")
+			assert(val.value ~= nil, "Table is missing the value field")
+			return bin.pack("HAA", val.type, self.encodeLength(#val.value), val.value)
 		end
 		
 		-- Integer encoder
