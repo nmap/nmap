@@ -75,6 +75,7 @@ Entry { filename = "dns-client-subnet-scan.nse", categories = { "discovery", "sa
 Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "dns-ip6-arpa-scan.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsec-enum.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "dns-nsec3-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-nsid.nse", categories = { "default", "discovery", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
