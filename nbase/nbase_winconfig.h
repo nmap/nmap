@@ -96,7 +96,7 @@
 
 #ifndef NBASE_WINCONFIG_H
 #define NBASE_WINCONFIG_H
-
+#pragma warning(disable : 4800)
 /* It doesn't really have strucct IP, but we use a different one instead
 	of the one that comes with Nmap */
 #define HAVE_STRUCT_IP 1
