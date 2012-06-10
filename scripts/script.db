@@ -141,6 +141,7 @@ Entry { filename = "http-email-harvest.nse", categories = { "discovery", "safe",
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-form-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "http-form-fuzzer.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "http-frontpage-login.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-generator.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-gitweb-projects-enum.nse", categories = { "discovery", "safe", } }
