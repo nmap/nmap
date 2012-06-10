@@ -74,7 +74,8 @@ action = function(host)
 	
 	local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
 	local depth, path, output, dirs = 0, arg_path, {}, {}
-		
+	local file_count, dir_count, total_bytes = 0, 0, 0
+	
 	repeat
 		local lstab = tab.new((arg_checksum and 4 or 3))
 			
@@ -92,8 +93,14 @@ action = function(host)
 				break
 			end
 		
-			if ( is_dir(fe) and fe.fname ~= '.' and fe.fname ~= '..' ) then
-				table.insert(dirs, { depth = depth + 1, path = path .. '\\' .. fe.fname } )
+			if ( is_dir(fe) ) then
+				dir_count = dir_count + 1
+				if ( fe.fname ~= '.' and fe.fname ~= '..' ) then
+					table.insert(dirs, { depth = depth + 1, path = path .. '\\' .. fe.fname } )
+				end
+			else
+				total_bytes = total_bytes + fe.eof
+				file_count = file_count + 1
 			end
 		end
 		table.insert(output, { name = ("Directory of %s"):format( '\\\\' .. stdnse.get_hostname(host) .. '\\' .. arg_share .. path), tab.dump(lstab) })
@@ -110,5 +117,12 @@ action = function(host)
 	until(not(path) or arg_maxfiles == 0)
 	
 	smb.stop(smbstate)
+	
+	local summary = { name = "Total Files Listed:", 
+		("%8d File(s)\t%d bytes"):format(file_count, total_bytes),
+		("%8d Dir(s)"):format(dir_count) }
+	table.insert(output, "")
+	table.insert(output, summary)
+
 	return stdnse.format_output(true, output)	
 end

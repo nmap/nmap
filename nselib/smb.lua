@@ -127,6 +127,7 @@ local bit = require "bit"
 local coroutine = require "coroutine"
 local io = require "io"
 local math = require "math"
+local match = require "match"
 local netbios = require "netbios"
 local nmap = require "nmap"
 local os = require "os"
@@ -554,7 +555,7 @@ function start_netbios(host, port, name)
 	
 		-- Receive the session response
 		stdnse.print_debug(3, "SMB: Receiving NetBIOS session response")
-		status, result = socket:receive_bytes(4);
+		status, result = socket:receive_buf(match.numbytes(4), true);
 		if(status == false) then
 			socket:close()
 			return false, "SMB: Failed to close socket: " .. result
@@ -812,7 +813,7 @@ end
 --        removed). If status is false, header contains an error message and parameters/
 --        data are undefined. 
 function smb_read(smb, read_data)
-	local status, result
+	local status
 	local pos, netbios_length, length, header, parameter_length, parameters, data_length, data
 	local attempts = 5
 
@@ -821,19 +822,21 @@ function smb_read(smb, read_data)
 	-- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
 	smb['socket']:set_timeout(TIMEOUT)
 
+	-- perform 5 attempt to read the Netbios header
+	local netbios
 	repeat
 		attempts = attempts - 1
-		status, result = smb['socket']:receive_bytes(4);
+		status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
 	until(status or (attempts == 0))
 
 	-- Make sure the connection is still alive
 	if(status ~= true) then
-		return false, "SMB: Failed to receive bytes after 5 attempts: " .. result
+		return false, "SMB: Failed to receive bytes after 5 attempts: " .. netbios_data
 	end
 
 	-- The length of the packet is 4 bytes of big endian (for our purposes).
 	-- The NetBIOS header is 24 bits, big endian
-	pos, netbios_length   = bin.unpack(">I", result)
+	pos, netbios_length   = bin.unpack(">I", netbios_data)
 	if(netbios_length == nil) then
 		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
 	end
@@ -843,27 +846,19 @@ function smb_read(smb, read_data)
 	-- The total length is the netbios_length, plus 4 (for the length itself)
 	length = netbios_length + 4
 
-	-- If we haven't received enough bytes, try and get the rest (fragmentation!)
-	if(#result < length) then
-		local new_result
-		local attempts = 5
-		stdnse.print_debug(1, "SMB: Received a fragmented packet, attempting to receive the rest of it (got %d bytes, need %d)", #result, length)
+	local attempts = 5
+	local smb_data
+	repeat
+		attempts = attempts - 1
+		status, smb_data = smb['socket']:receive_buf(match.numbytes(netbios_length), true)
+	until(status or (attempts == 0))
 
-		repeat
-			attempts = attempts - 1
-			status, new_result = smb['socket']:receive_bytes(netbios_length - #result)
-		until(status or (attempts == 0))
-
-		-- Make sure the connection is still alive
-		if(status ~= true) then
-			return false, "SMB: Failed to receive bytes after 5 attempts: " .. result
-		end
-
-		-- Append the new data to the old stuff
-		result = result .. new_result
-		stdnse.print_debug(1, "SMB: Finished receiving fragmented packet (got %d bytes, needed %d)", #result, length)
+	-- Make sure the connection is still alive
+	if(status ~= true) then
+		return false, "SMB: Failed to receive bytes after 5 attempts: " .. smb_data
 	end
-
+	
+	local result = netbios_data .. smb_data
 	if(#result ~= length) then
 		stdnse.print_debug(1, "SMB: ERROR: Received wrong number of bytes, there will likely be issues (recieved %d, expected %d)", #result, length)
 		return false, string.format("SMB: ERROR: Didn't receive the expected number of bytes; recieved %d, expected %d. This will almost certainly cause some errors.", #result, length)
@@ -2130,15 +2125,19 @@ local function send_transaction2(smb, sub_command, function_parameters, function
 		return false, err
 	end
 
+	return true
+end
+
+local function receive_transaction2(smb)
+	
 	-- Read the result
-	status, header, parameters, data = smb_read(smb)
+	local status, header, parameters, data = smb_read(smb)
 	if(status ~= true) then
 		return false, header
 	end
 
 	-- Check if it worked
-    local uid, tid, pos
-	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+	local pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [29]"
 	end
@@ -2151,7 +2150,7 @@ local function send_transaction2(smb, sub_command, function_parameters, function
 	end
 
 	-- Parse the parameters
-	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
+	local pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
 	if(total_word_count == nil or reserved2 == nil) then
 		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [30]"
 	end
@@ -2166,11 +2165,13 @@ local function send_transaction2(smb, sub_command, function_parameters, function
 	function_parameters = string.sub(data, parameter_offset + 1, parameter_offset + parameter_count)
 	function_data       = string.sub(data, data_offset      + 1, data_offset      + data_count)
 
+	local response = {}
 	response['parameters'] = function_parameters
 	response['data']       = function_data
-
-	return true, response
+	
+	return true, response	
 end
+	
 
 
 ---This is the core of making MSRPC calls. It sends out a MSRPC packet with the given parameters and data. 
@@ -2679,7 +2680,42 @@ function find_files(smbstate, fname, options)
 	elseif( fname:sub(1,1) ~= '\\' ) then
 		fname = '\\' .. fname
 	end
+	
+	fname = fname .. '\0'
+			
+	-- Sends the request and takes care of short/fragmented responses
+	local function send_and_receive_find_request(smbstate, trans_type, function_parameters)
 		
+		local status, err = send_transaction2(smbstate, trans_type, function_parameters, "")
+		if ( not(status) ) then
+			return false, "Failed to send data to server: send_transaction2"
+		end
+				
+		local status, response = receive_transaction2(smbstate)
+		if ( not(status) ) then
+			return false, "Failed to receive data from server: receive_transaction2"
+		end
+	
+		local pos = ( TRANS2_FIND_FIRST2 == trans_type and 9 or 7 )
+		local last_name_offset = select(2, bin.unpack("<S", response.parameters, pos))
+
+		if ( not(last_name_offset) ) then
+			return false, "Could not determine last_name_offset"
+		end
+
+		-- check if we need more packets to reassemble this transaction
+		local NE_UP_TO_FNAME_SIZE = 94
+		while ( last_name_offset > ( #response.data - NE_UP_TO_FNAME_SIZE ) ) do
+			local status, tmp = receive_transaction2(smbstate)
+			if ( not(status) ) then
+				return false, "Failed to receive data from receive_transaction2"
+			end
+			response.data = response.data .. tmp.data			
+		end
+		
+		return true, response
+	end
+
 	local srch_count = 173 -- picked up by wireshark
 	local flags = 6 -- Return RESUME keys, close search if END OF SEARCH is reached
 	local loi   = 260 -- Level of interest, return SMB_FIND_FILE_BOTH_DIRECTORY_INFO
@@ -2696,28 +2732,27 @@ function find_files(smbstate, fname, options)
 			function_parameters = function_parameters .. "\0"
 		end
 	end
+	
 
 	local function next_item()
 
-		local status, response = send_transaction2(smbstate, TRANS2_FIND_FIRST2, function_parameters, "")
+		local status, response = send_and_receive_find_request(smbstate, TRANS2_FIND_FIRST2, function_parameters)
 		if ( not(status) ) then
-			coroutine.yield()
+			return
 		end
-	
+		
 		local srch_id = select(2, bin.unpack("<S", response.parameters))
-		local stop_loop = ( select(2, bin.unpack(">S", response.parameters, 5)) ~= 0 )
+		local stop_loop = ( select(2, bin.unpack("<S", response.parameters, 5)) ~= 0 )
 		local first = true
-	
 		local last_name
+
 		repeat
 			local pos = 1	
-	
 			if ( not(first) ) then
-				local function_parameters = bin.pack("<SSSISA", srch_id, srch_count, loi, 0, flags, last_name)
-				status, response = send_transaction2(smbstate, TRANS2_FIND_NEXT2, function_parameters, "")
-
+				local function_parameters = bin.pack("<SSSISA", srch_id, srch_count, loi, 0, flags, last_name .. "\0")
+				status, response = send_and_receive_find_request(smbstate, TRANS2_FIND_NEXT2, function_parameters)
 				if ( not(status) ) then
-					coroutine.yield()
+					return
 				end
 
 				-- check whether END-OF-SEARCH was set
@@ -2727,7 +2762,7 @@ function find_files(smbstate, fname, options)
 			-- parse response, based on LOI == 260
 			repeat
 				local fe, last_pos, ne, f_len, ea_len, sf_len, _ = {}, pos
-		
+				
 				pos, ne, fe.fi, fe.created, fe.accessed, fe.write, fe.change,
 				fe.eof, fe.alloc_size, fe.attrs, f_len, ea_len, sf_len, _ = bin.unpack("<IILLLLLLIIICC", response.data, pos)
 				pos, fe.s_fname = bin.unpack("A24", response.data, pos)
@@ -2743,7 +2778,7 @@ function find_files(smbstate, fname, options)
 				-- removing trailing zero bytes from file name
 				fe.fname = fe.fname:sub(1, -2)
 				last_name = fe.fname
-				
+
 				coroutine.yield(fe)
 			until ( ne == 0 )
 			first = false

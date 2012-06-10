@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] More Windows 7 and Windows 2008 fixes for the smb library and smb-ls
+  scripts. [Patrik Karlsson]
+
 o [NSE] Added SPNEGO authentication supporting Windows 7 and Windows 2008 to
   the smb library. [Patrik Karlsson]
 
