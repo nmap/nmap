@@ -168,6 +168,7 @@
 #define munmap(ptr, len) win32_munmap(ptr, len)
 
 /* Windows error message names */
+#undef  ECONNABORTED
 #define ECONNABORTED    WSAECONNABORTED
 #define ECONNRESET      WSAECONNRESET
 #define ECONNREFUSED    WSAECONNREFUSED
