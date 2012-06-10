@@ -96,6 +96,7 @@
 
 #ifndef NBASE_WINCONFIG_H
 #define NBASE_WINCONFIG_H
+//This disables the warning 4800 http://msdn.microsoft.com/en-us/library/b6801kcy(v=vs.71).aspx
 #pragma warning(disable : 4800)
 /* It doesn't really have strucct IP, but we use a different one instead
 	of the one that comes with Nmap */
