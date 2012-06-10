@@ -1736,6 +1736,89 @@ local function read_token_or_quoted_string(s, pos)
   end
 end
 
+---
+-- Finds forms in html code
+-- returns table of found forms, in plaintext.
+-- @param body A <code>response.body</code> in which to search for forms
+-- @return A list of forms.
+function grab_forms(body)
+  local forms = {}
+  local form_start_expr = '<%s*[Ff][Oo][Rr][Mm]'
+  local form_end_expr = '</%s*[Ff][Oo][Rr][Mm]>'
+  
+  local form_opening = string.find(body, form_start_expr)
+  local forms = {}
+  
+  while form_opening do
+    form_closing = string.find(body, form_end_expr, form_opening+1)
+    if form_closing == nil then --html code contains errors
+      break
+    end
+    forms[#forms+1] = string.sub(body, form_opening, form_closing-1)
+    if form_closing+1 <= #body then
+      form_opening = string.find(body, form_start_expr, form_closing+1)
+    else
+      break
+    end
+  end
+  return forms
+end
+
+---
+-- Parses a form, that is, finds its action and fields.
+-- @param form A plaintext representation of form
+-- @return A dictionary with keys: <code>action</action>,
+-- <code>method</code> if one is specified, <code>fields</code>
+-- which is a list of fields found in the form each of which has a
+-- <code>name</code> attribute and <code>type</code> if specified.
+function parse_form(form)
+  local parsed = {}
+  local fields = {}
+  local form_action = string.match(form, '[Aa][Cc][Tt][Ii][Oo][Nn]="(.-)"')
+  if form_action then
+    parsed["action"] = form_action
+  else
+    return nil
+  end
+  
+  -- determine if the form is using get or post
+  local form_method = string.match(form, '[Mm][Ee][Tt][Hh][Oo][Dd]="(.-)"')
+  if form_method then
+    parsed["method"] = string.lower(form_method)
+  end
+
+  -- now identify the fields
+  local input_type
+  local input_name
+
+  -- first find regular inputs
+  for f in string.gmatch(form, '<%s*[Ii][Nn][Pp][Uu][Tt].->') do
+    input_type = string.match(f, '[Tt][Yy][Pp][Ee]="(.-)"')
+    input_name = string.match(f, '[Nn][Aa][Mm][Ee]="(.-)"')
+    local next_field_index = #fields+1
+    if input_name then
+      fields[next_field_index] = {}
+      fields[next_field_index]["name"] = string.lower(input_name)
+      if input_type then
+        fields[next_field_index]["type"] = string.lower(input_type)
+      end
+    end
+  end
+
+  -- now search for textareas
+  for f in string.gmatch(form, '<%s*[Tt][Ee][Xx][Tt][Aa][Rr][Ee][Aa].->') do
+    input_name = string.match(f, '[Nn][Aa][Mm][Ee]="(.-)"')
+    local next_field_index = #fields+1
+    if input_name then
+      fields[next_field_index] = {}
+      fields[next_field_index]["name"] = string.lower(input_name)
+      fields[next_field_index]["type"] = "textarea"
+    end
+  end
+  parsed["fields"] = fields
+  return parsed
+end
+
 local MONTH_MAP = {
   Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
   Jul = 7, Aug = 8, Sep = 9, Oct = 10, Nov = 11, Dec = 12
