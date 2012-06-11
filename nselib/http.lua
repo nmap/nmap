@@ -1798,7 +1798,7 @@ function parse_form(form)
     local next_field_index = #fields+1
     if input_name then
       fields[next_field_index] = {}
-      fields[next_field_index]["name"] = string.lower(input_name)
+      fields[next_field_index]["name"] = input_name
       if input_type then
         fields[next_field_index]["type"] = string.lower(input_type)
       end
