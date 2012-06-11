@@ -1750,7 +1750,7 @@ function grab_forms(body)
   local forms = {}
   
   while form_opening do
-    form_closing = string.find(body, form_end_expr, form_opening+1)
+    local form_closing = string.find(body, form_end_expr, form_opening+1)
     if form_closing == nil then --html code contains errors
       break
     end
