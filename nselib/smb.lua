@@ -2162,8 +2162,8 @@ local function receive_transaction2(smb)
 	data_offset = data_offset - 0x20 - 0x01 - #parameters - 0x02;
 
 	-- I'm not sure I entirely understand why the '+1' is here, but I think it has to do with the string starting at '1' and not '0'.
-	function_parameters = string.sub(data, parameter_offset + 1, parameter_offset + parameter_count)
-	function_data       = string.sub(data, data_offset      + 1, data_offset      + data_count)
+	local function_parameters = string.sub(data, parameter_offset + 1, parameter_offset + parameter_count)
+	local function_data       = string.sub(data, data_offset      + 1, data_offset      + data_count)
 
 	local response = {}
 	response['parameters'] = function_parameters
