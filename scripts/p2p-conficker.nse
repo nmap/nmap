@@ -102,6 +102,9 @@ local mode_flags =
 
 ---For a hostrule, simply use the 'smb' ports as an indicator, unless the user overrides it
 hostrule = function(host)
+	if ( nmap.address_family() ~= 'inet' ) then
+		return false
+	end
 	if(smb.get_port(host) ~= nil) then
 		return true
 	elseif(nmap.registry.args.checkall == "true" or nmap.registry.args.checkall == "1") then
