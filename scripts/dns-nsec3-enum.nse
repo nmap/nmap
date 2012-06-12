@@ -44,7 +44,7 @@ References:
 ]]
 ---
 -- @usage
---nmap.exe  -sU -p 53 <target> --script=dns-nsec3-enum --script-args dns-nsec3-enum.domains=example.com 
+-- nmap  -sU -p 53 <target> --script=dns-nsec3-enum --script-args dns-nsec3-enum.domains=example.com 
 ---
 -- @args dns-nsec3-enum.domains The domain or list of domains to
 -- enumerate. If not provided, the script will make a guess based on the

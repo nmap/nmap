@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-frontpage-login script which tries to detect anonymous
+  login vulnerability in Frontpage Extensions. [Aleksandar Nikolic]
+
+o [NSE] Added dns-nsec3-enum script which which abuses NSEC3 to enumerate
+  all domains on a DNS server. [Aleksandar Nikolic]
+  
 o [NSE] Added the script http-waf-fingerprint which tries to detect the presence of
   a web application firewall and its type and version. [Hani Benhabiles]
 

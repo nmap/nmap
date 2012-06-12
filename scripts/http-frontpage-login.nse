@@ -16,7 +16,7 @@ remote user to login anonymously which may lead to server compromise.
 
 ---
 -- @usage
--- nmap.exe <target> -p 80 --script=http-frontpage-login
+-- nmap <target> -p 80 --script=http-frontpage-login
 --
 -- @args http-frontpage-login.path Path prefix to Frontpage directories. Defaults
 -- to root ("/").
