@@ -1161,11 +1161,11 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
         target->getTargetSockAddr(&dst, &dstlen);
         assert(dst.ss_family == AF_INET);
         if( o.issetMTU() == true )
-            res = send_frag_ip_packet(rawfd, NULL, (struct sockaddr_in *) &dst, pkt, pktLen, o.getMTU() ); //res should always be -1
+            res = send_frag_ip_packet(rawfd, NULL, (struct sockaddr_in *) &dst, pkt, pktLen, o.getMTU() );
         else
             res = send_ip_packet_sd(rawfd, (struct sockaddr_in *) &dst, pkt, pktLen);
-        	/*send_ip_packet_sd calls Sendto which returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
-            if (res == -1) return OP_FAILURE;
+        /*send_ip_packet_sd calls Sendto which returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
+        if (res == -1) return OP_FAILURE;
     }
   }
   return OP_SUCCESS;
