@@ -58,7 +58,7 @@ function action(host, port)
 	end
 
 	-- So much for version 2.2. If the response to GET was 501, then we may
-	-- have a version 3.0.
+	-- have a version 3.0 or 3.0.1.
 	if not (response.status == 501) then
 		return
 	end
