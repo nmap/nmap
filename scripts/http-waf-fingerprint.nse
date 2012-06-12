@@ -9,6 +9,8 @@ Tries to detect the presence of web application firewall and its type and versio
 
 This works by sending a number of requests and looking in the responses for known behavior and fingerprints
 such as Server header, cookies and headers values.
+
+Credit to wafw00f and w3af for some fingerprints. 
 ]]
 
 ---
@@ -30,7 +32,7 @@ categories = {"discovery", "intrusive"}
 
 --
 -- Version 0.1:
--- - Initial version based on work done with wafw00f.
+-- - Initial version based on work done with wafw00f and w3af.
 -- - Removed many false positives.
 -- - Added fingeprints for WAFs such as Incapsula WAF, Cloudflare, USP-SES ,Cisco ACE XML Gateway and ModSecurity.
 -- - Added fingerprints and version detection for Webknight and BinarySec, Citrix Netscaler and ModSecurity
