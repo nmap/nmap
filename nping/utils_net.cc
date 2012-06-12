@@ -1151,6 +1151,8 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
          s6.sin6_port=0;
 
         res = Sendto("send_packet", rawfd, pkt, pktLen, 0, (struct sockaddr *)&s6, (int) sizeof(struct sockaddr_in6));
+        /*Sendto returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
+        if (res == -1) return OP_FAILURE;
     }else{ /* IPv4 */
         struct sockaddr_storage dst;
         size_t dstlen;
@@ -1159,9 +1161,11 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
         target->getTargetSockAddr(&dst, &dstlen);
         assert(dst.ss_family == AF_INET);
         if( o.issetMTU() == true )
-            res = send_frag_ip_packet(rawfd, NULL, (struct sockaddr_in *) &dst, pkt, pktLen, o.getMTU() );
+            res = send_frag_ip_packet(rawfd, NULL, (struct sockaddr_in *) &dst, pkt, pktLen, o.getMTU() ); //res should always be -1
         else
             res = send_ip_packet_sd(rawfd, (struct sockaddr_in *) &dst, pkt, pktLen);
+        	/*send_ip_packet_sd calls Sendto which returns errors as -1 according to netutil.cc so lets catch that and return OP_FAILURE*/
+            if (res == -1) return OP_FAILURE;
     }
   }
   return OP_SUCCESS;
