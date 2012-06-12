@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-waf-fingerprint which tries to detect the presence of
+  a web application firewall and its type and version. [Hani Benhabiles]
+
 o [NSE] More Windows 7 and Windows 2008 fixes for the smb library and smb-ls
   scripts. [Patrik Karlsson]
 
