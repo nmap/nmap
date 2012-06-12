@@ -170,6 +170,7 @@
 /* Windows error message names */
 #undef  ECONNABORTED
 #define ECONNABORTED    WSAECONNABORTED
+#undef ECONNRESET
 #define ECONNRESET      WSAECONNRESET
 #define ECONNREFUSED    WSAECONNREFUSED
 #undef  EAGAIN
