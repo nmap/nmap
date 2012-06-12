@@ -130,6 +130,7 @@
 #define _INC_ERRNO  /* suppress errno.h */
 #define _ERRNO_H_ /* Also for errno.h suppresion */
 #define _SYSTEM_ERROR_
+#undef _HAS_CPP0X
 #define _HAS_CPP0X 0
 
 /* Suppress winsock.h */
@@ -172,16 +173,25 @@
 #define ECONNABORTED    WSAECONNABORTED
 #undef ECONNRESET
 #define ECONNRESET      WSAECONNRESET
+#undef ECONNREFUSED
 #define ECONNREFUSED    WSAECONNREFUSED
 #undef  EAGAIN
 #define EAGAIN		WSAEWOULDBLOCK
+#undef EWOULDBLOCK
 #define EWOULDBLOCK	WSAEWOULDBLOCK
+#undef EHOSTUNREACH
 #define EHOSTUNREACH	WSAEHOSTUNREACH
+#undef ENETDOWN
 #define ENETDOWN	WSAENETDOWN
+#undef ENETUNREACH
 #define ENETUNREACH	WSAENETUNREACH
+#undef ENETRESET
 #define ENETRESET	WSAENETRESET
+#undef ETIMEDOUT
 #define ETIMEDOUT	WSAETIMEDOUT
+#undef EHOSTDOWN
 #define EHOSTDOWN	WSAEHOSTDOWN
+#undef EINPROGRESS
 #define EINPROGRESS	WSAEINPROGRESS
 #undef  EINVAL
 #define EINVAL          WSAEINVAL      /* Invalid argument */
@@ -191,7 +201,9 @@
 #define EACCES          WSAEACCES     /* Operation not permitted */
 #undef  EINTR
 #define EINTR           WSAEINTR      /* Interrupted system call */
+#undef ENOBUFS
 #define ENOBUFS         WSAENOBUFS     /* No buffer space available */
+#undef EMSGSIZE
 #define EMSGSIZE        WSAEMSGSIZE    /* Message too long */
 #undef  ENOMEM
 #define ENOMEM          WSAENOBUFS
