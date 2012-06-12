@@ -28,7 +28,6 @@ For more information about Ganglia, see:
 --		   Set the timeout in seconds. The default value is 60.
 --		   This should be enough for a grid of more than 100 hosts at 200Kb/s.
 --		   About 5KB-10KB of data is returned for each host in the cluster.
-
 -- @args ganglia-info.bytes
 --		   Set the number of bytes to retrieve. The default value is 1000000.
 --		   This should be enough for a grid of more than 100 hosts.
