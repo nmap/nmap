@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added mysql-vuln-cve2012-2122 script which exploits an authentication 
+  bypass vulnerability in MySQL/MariaDB to dump usernames and password hashes. 
+  (CVE2012-2122) [Paulino Calderon]
+
 o [NSE] Added http-frontpage-login script which tries to detect anonymous
   login vulnerability in Frontpage Extensions. [Aleksandar Nikolic]
 
