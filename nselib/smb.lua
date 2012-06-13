@@ -2971,12 +2971,17 @@ end
 -- bad, because it means we cannot tell whether or not a share exists). 
 --
 --@param host     The host object
+--@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
 --        true if the file was successfully written, false if it was not. 
-function share_host_returns_proper_error(host)
+function share_host_returns_proper_error(host, use_anonymous)
 	local status, smbstate, err
 	local share = "nmap-share-test"
-	local overrides = get_overrides_anonymous()
+	local overrides
+	
+	if ( use_anonymous ) then
+		overrides = get_overrides_anonymous()
+	end
 
 	-- Begin the SMB session
 	status, smbstate = start(host)
@@ -3047,11 +3052,10 @@ function share_get_details(host, share)
 	-- Check if the anonymous reader can read the share
 	stdnse.print_debug(1, "SMB: Checking if share %s can be read by the anonymous user", share)
 	status, result = share_anonymous_can_read(host, share)
-	if(status == false) then
-		return false, result
+	if(status == true) then
+		details['anonymous_can_read'] = result
 	end
-	details['anonymous_can_read'] = result
-
+	
 	-- Check if the current user can write to the share
 	stdnse.print_debug(1, "SMB: Checking if share %s can be written by the current user", share)
 	status, result = share_user_can_write(host, share)
@@ -3067,15 +3071,11 @@ function share_get_details(host, share)
 	-- Check if the anonymous user can write to the share
 	stdnse.print_debug(1, "SMB: Checking if share %s can be written by the anonymous user", share)
 	status, result = share_anonymous_can_write(host, share)
-	if(status == false) then
-		if(result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
-			details['anonymous_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
-		else
-			return false, result
-		end
+	if(status == false and result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+		details['anonymous_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
+	elseif( status == true ) then
+		details['anonymous_can_write'] = result
 	end
-	details['anonymous_can_write'] = result
-
 
 	-- Try and get full details about the share
 	status, result = msrpc.get_share_info(host, share)
@@ -3144,14 +3144,19 @@ function share_get_list(host)
 	table.sort(shares)
 
 	-- Ensure that the server returns the proper error message
-	status, result = share_host_returns_proper_error(host)
+	-- first try anonymously, then using a user account (in case anonymous connections are not supported)
+	for _, anon in ipairs({true, false}) do
+		status, result = share_host_returns_proper_error(host)
+	
+		if(status == true and result == false) then
+			return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
+		end
+	end
+	
 	if(status == false) then
 		return false, result
 	end
-	if(status == true and result == false) then
-		return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
-	end
-
+	
 	-- Get more information on each share
 	for i = 1, #shares, 1 do
 		local status, result
