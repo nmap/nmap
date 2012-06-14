@@ -23,7 +23,7 @@ Credit to wafw00f and w3af for some fingerprints.
 --PORT   STATE SERVICE REASON
 --80/tcp open  http    syn-ack
 --| http-waf-fingerprint: 
---|   Detected firewalls
+--|   Detected WAF
 --|_    BinarySec version 3.2.2
 
 author = "Hani Benhabiles"
