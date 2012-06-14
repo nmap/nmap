@@ -14,7 +14,7 @@ GTK+ All-in-one bundle
   o Tested: gtk+-bundle_2.22.1-20101227_win32.zip
 Python
   o http://www.python.org/download
-  o Tested: python-2.7.1.msi
+  o Tested: python-2.7.3.msi
 GTK+, PyGTK, PyGObject, PyCairo
   o http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
   o Tested: 2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi

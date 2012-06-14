@@ -126,6 +126,14 @@ o Nmap's development pace has increased because Google (again)
   Thanks, Google Open Source Department!  We're delighted to introduce
   the team: http://seclists.org/nmap-dev/2012/q2/204
 
+o [Zenmap] Updated the version of Python used to build the Windows
+  release from 2.7.1 to 2.7.3 to remove a false-positive security
+  alarm flagged by tools such as Secunia PSI. There was a minor
+  vulnerability in certain Python27.dll web functionality (which Nmap
+  doesn't use anyway) and Secunia was flagging all software which
+  includes that version of Python27.dll. This update should prevent
+  the false alarm.
+
 o [NSE] Added the script mmouse-exec that connects to a Mobile Mouse server,
   starts an application, and sends a sequence of keystrokes to it. [Patrik
   Karlsson]
