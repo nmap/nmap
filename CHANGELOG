@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a hang that would occur on Mac OS X 10.7. A symptom
+  of the hang was this message in the system console:
+  "Couldn't recognize the image file format for file
+  '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'".
+  [David Fifield]
+
+o [Zenmap] Fixed a crash that happened when activating the host filter.
+      File "zenmapCore\SearchResult.pyo", line 155, in match_os
+    KeyError: 'osmatches'
+  [jah]
+
 o [NSE] Added mysql-vuln-cve2012-2122 script which exploits an authentication 
   bypass vulnerability in MySQL/MariaDB to dump usernames and password hashes. 
   (CVE2012-2122) [Paulino Calderon]
