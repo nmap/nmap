@@ -216,16 +216,19 @@ local function query_for_hashes(host,subdomain,domain)
 	local result
 	local ranges = {}
 	status, result = dns.query(subdomain, {host = host.ip, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
-	for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
-		h1 = string.lower(remove_suffix(nsec3.dname,domain))
-		h2 = string.lower(nsec3.hash.base32)
-		if not table_contains(all_results,"nexthash " .. h1 .. " " .. h2) then
-			table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
-			stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
+	if status then 
+		for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
+			h1 = string.lower(remove_suffix(nsec3.dname,domain))
+			h2 = string.lower(nsec3.hash.base32)
+			if not table_contains(all_results,"nexthash " .. h1 .. " " .. h2) then
+				table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
+				stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
+			end
+			ranges[h1] = h2
 		end
-		ranges[h1] = h2
-	end
-	
+	else 
+		stdnse.print_debug(1, "DNS error: %s", result)
+	end 
 	return ranges
 end
 
