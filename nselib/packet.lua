@@ -733,7 +733,7 @@ function Packet:ipv6_ext_header_parse(force_continue)
 end
 --- Set the payload length field.
 -- @param plen Payload length.
-function Packet:ip6_set_len(plen)
+function Packet:ip6_set_plen(plen)
 	self:set_u16(self.ip6_offset + 4, plen)
 	self.ip6_plen = plen
 end
