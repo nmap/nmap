@@ -11,6 +11,9 @@ o [Zenmap] Fixed a crash that happened when activating the host filter.
     KeyError: 'osmatches'
   [jah]
 
+o [NSE] Added http-rfi-spider script that spiders webservers in search of
+  remote file inclusion vulnerabilities. [Piotr Olma]
+
 o [NSE] Added mysql-vuln-cve2012-2122 script which exploits an authentication 
   bypass vulnerability in MySQL/MariaDB to dump usernames and password hashes. 
   (CVE2012-2122) [Paulino Calderon]
