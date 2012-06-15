@@ -731,6 +731,12 @@ function Packet:ipv6_ext_header_parse(force_continue)
 	self.ip6_data_offset = self.ip6_data_offset + ext_hdr_len
 	self.ip6_nhdr = self:u8(self.ip6_data_offset)
 end
+--- Set the payload length field.
+-- @param plen Payload length.
+function Packet:ip6_set_len(plen)
+	self:set_u16(self.ip6_offset + 4, plen)
+	self.ip6_plen = plen
+end
 --- Set the header length field.
 function Packet:ip_set_hl(len)
 	self:set_u8(self.ip_offset + 0, bit.bor(bit.lshift(self.ip_v, 4), bit.band(len, 0x0F)))
