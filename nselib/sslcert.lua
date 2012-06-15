@@ -200,6 +200,9 @@ function getCertificate(host, port)
 		end
     end 
     local cert = socket:get_ssl_certificate()
+	if ( cert == nil ) then
+		return false, "Unable to get cert"
+	end
 	
 	host.registry["ssl-cert"] = host.registry["ssl-cert"] or {}
 	host.registry["ssl-cert"][port.number] = host.registry["ssl-cert"][port.number] or {}

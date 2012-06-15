@@ -1334,6 +1334,9 @@ local function parse_redirect(host, port, path, response)
     u.host, u.port = stdnse.get_hostname(host), port.number
     u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
   end
+  if ( not(u.path) ) then
+    u.path = "/"
+  end
   if ( u.query ) then
     u.path = ("%s?%s"):format( u.path, u.query )
   end
