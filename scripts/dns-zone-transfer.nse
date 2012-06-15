@@ -10,6 +10,7 @@ local string = require "string"
 local tab = require "tab"
 local table = require "table"
 local target = require "target"
+local packet = require "packet"
 
 description = [[
 Requests a zone transfer (AXFR) from a DNS server.
@@ -241,48 +242,96 @@ function build_domain(host)
 end
 
 --- Retrieve type specific data (rdata) from dns packets
+local RD = {
+  A = function(data, offset)
+      return offset+4, packet.toip(data:sub(offset, offset+3))
+  end,
+  NS = parse_domain,
+  -- MD, MF,
+  CNAME = parse_domain,
+  SOA = function(data, offset)
+      local field, info
+      info = strbuf.new()
+      -- name server
+      offset, field = parse_domain(data, offset)
+      info = info .. field;
+      -- mail box
+      offset, field = parse_domain(data, offset)
+      info = info .. field;
+      -- ignore other values
+      offset = offset + 20
+      return offset, strbuf.dump(info, ' ')
+    end,
+  -- MB, MG, MR, NULL, WKS, 
+  PTR = parse_domain,
+  -- HINFO, MINFO
+  MX = function(data, offset)
+      local field
+      -- mail server
+      offset = offset + 2
+      offset, field = parse_domain(data, offset)
+      return offset, field
+    end,
+  TXT = function(data, offset)
+    local field, len
+    len = string.byte(data, offset)
+    offset = offset + 1
+    offset, field = bin.unpack("A" .. len, data, offset)
+    return offset, field
+  end,
+  --RP AFSDB X25 ISDN RT NSAP NSAP-PTR SIG KEY PX GPOS
+  AAAA = function(data, offset)
+    return offset+16, packet.toipv6(data:sub(offset, offset+15))
+  end,
+  LOC = function(data, offset)
+    local version, siz, hp, vp, lat, lon, alt
+    version = string.byte(data, offset)
+    if version ~= 0 then
+      stdnse.print_debug(2, "Unknown LOC RR version: %d", version)
+      return offset, ''
+    end
+    siz = string.byte(data, offset+1)
+    siz = bit.rshift(siz,4) * 10 ^ bit.band(siz, 0x0f) / 100
+    hp = string.byte(data, offset+2)
+    hp = bit.rshift(hp,4) * 10 ^ bit.band(hp, 0x0f) / 100
+    vp = string.byte(data, offset+3)
+    vp = bit.rshift(vp,4) * 10 ^ bit.band(vp, 0x0f) / 100
+    offset = offset + 4
+    offset, lat, lon, alt = bin.unpack(">III", data, offset)
+    lat = (lat-2^31)/3600000 --degrees
+    latd = 'N'
+    if lat < 0 then
+      latd = 'S'
+      lat = 0-lat
+    end
+    lon = (lon-2^31)/3600000 --degrees
+    lond = 'E'
+    if lon < 0 then
+      lond = 'W'
+      lon = 0-lon
+    end
+    return offset, string.format("%f %s %f %s %dm %0.1fm %0.1fm %0.1fm",
+        lat, latd, lon, lond, alt/100 - 100000, siz, hp, vp)
+  end,
+  --NXT EID NIMLOC 
+  SRV = function(data, offset)
+    local priority, weight, port, info
+    offset, priority, weight, port = bin.unpack(">SSS", data, offset)
+    offset, info = parse_domain(data, offset)
+    return offset, string.format("%d %d %d %s", priority, weight, port, info)
+  end,
+  --ATMA NAPTR KX CERT A6 DNAME SINK OPT TSIG IXFR AXFR MAILB MAILA ANY ZXFR
+}
+
 function get_rdata(data, offset, ttype)
-    local field, info, i
-
-    info = strbuf.new()
-    info = info .. ''
-
     if typetab[ttype] == nil then
         return offset, ''
-
-    elseif typetab[ttype] == 'SOA' then
-        -- name server
-        offset, field = parse_domain(data, offset)
-        info = info .. field;
-        -- mail box
-        offset, field = parse_domain(data, offset)
-        info = info .. field;
-        -- ignore other values
-        offset = offset + 20
-
-    elseif typetab[ttype] == 'MX' then
-        -- mail server
-        offset = offset + 2
-        offset, field = parse_domain(data, offset)
-        info = info .. field
-
-    elseif typetab[ttype] == 'A' then
-        -- ip address
-        info = info ..
-        string.byte(data, offset) .. '.' ..
-        string.byte(data, offset+1) .. '.' ..
-        string.byte(data, offset+2) .. '.' ..
-        string.byte(data, offset+3)
-        offset = offset + 4
-
-    elseif typetab[ttype] == 'PTR' or typetab[ttype] == 'NS' or
-            typetab[ttype] == 'CNAME' then
-        -- domain/domain server name
-        offset, field = parse_domain(data, offset)
-        info = info .. field;
+    elseif RD[typetab[ttype]] then
+      return RD[typetab[ttype]](data, offset)
+    else
+      offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
+      return offset, ("hex: %s"):format(stdnse.tohex(field))
     end
-
-    return offset, strbuf.dump(info, ' ')
 end
 
 --- Get a single answer record from the current offset
