@@ -20,7 +20,7 @@ References:
 
 ---
 -- @usage
--- nmap nmap --script=rmi-vuln-classloader -p 1099 <target>
+-- nmap --script=rmi-vuln-classloader -p 1099 <target>
 --
 -- @output
 -- PORT     STATE SERVICE

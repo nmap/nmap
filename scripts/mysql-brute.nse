@@ -13,7 +13,7 @@ Performs password guessing against MySQL.
 
 ---
 -- @usage
--- nmap nmap --script=rmi-vuln-classloader
+-- nmap --script=mysql-brute <target>
 --
 -- @output
 -- 3306/tcp open  mysql
