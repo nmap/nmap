@@ -1798,7 +1798,7 @@ match papouch-tme m|^\*B1E1([\+-]\d\d\d\.\d)\r$| p/Papouch TME Ethernet thermome
 match partimage m|^([\d.]+) SSL(?: LOG)?\0            +\0$| p/Partimage+SSL/ v/$1/ o/Linux/ cpe:/o:linux:kernel/a
 
 match patrol m|^\0\0\0\r..Who are you\?\n\0|s p/BMC Patrol Agent/ o/Unix/
-match pcanywheredata m|^\0X\x08\0\}\x08\r\n\0\.\x08.*\.\.\.\r\n|s p/PCAnywhere/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:symantec:pcanywhere/
+match pcanywheredata m|^\0X\x08\0\}\x08\r\n\0\.\x08.*\.\.\.\r\n|s p/Symantec pcAnywhere/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:symantec:pcanywhere/
 match pbmasterd m|^pbmasterd(\d[-.\w]+)@[-.+\w]+: | p/Symark Power Broker pbmasterd/ v/$1/ i/privilege separation software/
 match pblocald m|^pblocald(\d[-.\w]+)@[-.+\w]+: | p/Symark Power Broker pblocald/ v/$1/ i/privilege separation software/
 match p4d m|^..\0\0\0xfiles\0\x01\0\0\x005\0server\0\x01\0\0\x003\0server2\0\x02\0\0\x00..\0|s p/Perforce configuration daemon/
