@@ -573,22 +573,29 @@ Crawler = {
 	-- Adds a default blacklist blocking binary files such as images,
 	-- compressed archives and executable files
 	addDefaultBlacklist = function(self)
-	
+		local extensions = {
+			image_extensions = {"png","jpg","jpeg","gif","bmp"},
+			doc_extensions = {"pdf", "doc", "docx", "docm", "xls", "xlsx", "xlsm",
+				"ppt", "pptx", "pptm", "odf", "ods", "odp", "ps", "xps"},
+			archive_extensions = {"zip", "tar.gz", "gz", "rar", "7z", "sit", "sitx",
+				"tgz", "tar.bz", "tar", "iso"},
+			exe_extensions = {"exe", "com", "msi", "bin"}
+		}
+		local blacklist = {}
+		for _, cat in pairs(extensions) do
+			for _, ext in ipairs(cat) do
+				table.insert(blacklist, string.format(".%s$", ext))
+			end
+		end
+
 		self.options:addBlacklist( function(url)
-			local image_extensions = {"png","jpg","jpeg","gif","bmp"}
-			local archive_extensions = {"zip", "tar.gz", "gz", "rar", "7z", "sit", "sitx"}
-			local exe_extensions = {"exe", "com"}
-			local extensions = { image_extensions, archive_extensions, exe_extensions }
-			
-			for _, cat in ipairs(extensions) do
-				for _, ext in ipairs(cat) do
-					if ( url:getPath():match(ext.."$") ) then
-						return true
-					end
+			local p = url:getPath():lower()
+			for _, pat in ipairs(blacklist) do
+				if ( p:match(pat) ) then
+					return true
 				end
 			end
-	  	end )
-	
+		end )
 	end,
 	
 	-- does the heavy crawling
