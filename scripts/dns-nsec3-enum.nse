@@ -5,6 +5,10 @@ local base32 = require "base32"
 local openssl = require "openssl"
 local msrpc = require "msrpc" -- just for random string generation
 local math = require "math"
+local bin = require "bin"
+local nmap = require "nmap"
+local string = require "string"
+local table = require "table"
 
 description = [[
 Tries to enumerate domain names from the DNS server that supports DNSSEC
