@@ -2,6 +2,7 @@ local http = require "http"
 local stdnse = require "stdnse"
 local shortport = require "shortport"
 local string = require "string"
+local table = require "table"
 local url = require "url"
 
 description = [[

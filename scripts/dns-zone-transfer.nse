@@ -1,3 +1,4 @@
+local bin = require "bin"
 local bit = require "bit"
 local dns = require "dns"
 local ipOps = require "ipOps"
@@ -299,13 +300,13 @@ local RD = {
     offset = offset + 4
     offset, lat, lon, alt = bin.unpack(">III", data, offset)
     lat = (lat-2^31)/3600000 --degrees
-    latd = 'N'
+    local latd = 'N'
     if lat < 0 then
       latd = 'S'
       lat = 0-lat
     end
     lon = (lon-2^31)/3600000 --degrees
-    lond = 'E'
+    local lond = 'E'
     if lon < 0 then
       lond = 'W'
       lon = 0-lon
@@ -329,6 +330,7 @@ function get_rdata(data, offset, ttype)
     elseif RD[typetab[ttype]] then
       return RD[typetab[ttype]](data, offset)
     else
+	  local field
       offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
       return offset, ("hex: %s"):format(stdnse.tohex(field))
     end

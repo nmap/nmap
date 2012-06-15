@@ -814,7 +814,7 @@ end
 --        data are undefined. 
 function smb_read(smb, read_data)
 	local status
-	local pos, netbios_length, length, header, parameter_length, parameters, data_length, data
+	local pos, netbios_data, netbios_length, length, header, parameter_length, parameters, data_length, data
 	local attempts = 5
 
 	stdnse.print_debug(3, "SMB: Receiving SMB packet")

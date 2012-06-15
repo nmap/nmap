@@ -64,10 +64,10 @@ Default installations of older versions of frontpage extensions allow anonymous 
 
 	if data and data.status and data.status == 200 then
 		--server does support frontpage extensions
-		fp_version = string.match(data.body,"FPVersion=\"[%d%.]*\"")
+		local fp_version = string.match(data.body,"FPVersion=\"[%d%.]*\"")
 		if fp_version then
 			-- do post request http://msdn.microsoft.com/en-us/library/ms446353
-			postdata = "method=open+service:".. fp_version .."&service_name=/"
+			local postdata = "method=open+service:".. fp_version .."&service_name=/"
 			data = http.post(host,port,path .. "/_vti_bin/_vti_aut/author.dll",nil,nil,postdata)
 			if data and data.status then
 				if data.status == 200  then

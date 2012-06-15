@@ -238,7 +238,7 @@ Decoders = {
 					elseif ( route_type == 259 ) then
 					  -- external route, from a different routing protocol
 						pos, size, nexthop = bin.unpack(">Si", data, pos)
-						local orig_rtr_oct1, orig_rtr_oct2, orig_rtr_oct3, orig_rtr_oct4
+						local orig_rtr_oct1, orig_rtr_oct2, orig_rtr_oct3, orig_rtr_oct4, ext_proto_id, ext_metric
 						pos, orig_rtr_oct1, orig_rtr_oct2, orig_rtr_oct3, orig_rtr_oct4 = bin.unpack(">CCCC", data, pos)
 						orig_router = orig_rtr_oct1 .. '.' .. orig_rtr_oct2 .. '.' .. orig_rtr_oct3 .. '.' .. orig_rtr_oct4
 						pos, orig_as, arbtag, ext_metric = bin.unpack(">iii", data, pos)
