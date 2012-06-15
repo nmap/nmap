@@ -278,11 +278,20 @@ function start(host)
 	end
 
 	-- Store the name of the server
-	status, result = netbios.get_server_name(host.ip)
-	if(status == true) then
-		state['name'] = result
+	local nbcache_mutex = nmap.mutex("Netbios lookup mutex")
+	nbcache_mutex "lock"
+	if ( not(host.registry['netbios_name']) ) then
+		status, result = netbios.get_server_name(host.ip)
+		if(status == true) then
+			host.registry['netbios_name'] = result
+			state['name'] = result
+		end
+	else
+		stdnse.print_debug(2, "SMB: Resolved netbios name from cache")
+		state['name'] = host.registry['netbios_name']
 	end
-
+	nbcache_mutex "done"
+	
 	stdnse.print_debug(2, "SMB: Starting SMB session for %s (%s)", host.name, host.ip)
 
 	if(port == nil) then
