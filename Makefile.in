@@ -150,7 +150,8 @@ lua_build: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
 
 liblinear_build: $(LIBLINEARDIR)/Makefile
-	@echo Compiling liblinear; cd $(LIBLINEARDIR) && $(MAKE) liblinear.a CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)"
+# -Wno-uninitialized avoids the warning "'Gnorm1_init' may be used uninitialized in this function"
+	@echo Compiling liblinear; cd $(LIBLINEARDIR) && $(MAKE) liblinear.a CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS) -Wno-uninitialized"
 
 build-nmap-update: nmap-update/default_channel.h
 
