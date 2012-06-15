@@ -439,6 +439,9 @@ o [NCAT] Drop privileges once it has started up, bound the ports it
 
 o [NCAT] Work as a SOCKS4a/SOCKSv5 proxy.
 
+o [NCAT] Resolve names through the proxy when possible.
+  http://seclists.org/nmap-dev/2012/q2/768
+
 o [NSE] Script writing contest (something to think about)
 
 o We should document an official way to compile/test refguide.xml so
