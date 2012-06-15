@@ -952,8 +952,11 @@ function Packet:tcp_parse(force_continue)
 	self.tcp_options	= self:parse_options(self.tcp_opt_offset, ((self.tcp_hl*4)-20))
 	self.tcp_data_offset	= self.tcp_offset + self.tcp_hl*4
 
-	local plen = self.ip_len or self.ip6_plen
-	self.tcp_data_length	= plen - self.tcp_offset - self.tcp_hl*4
+	if self.ip_len then
+	    self.tcp_data_length = self.ip_len - self.tcp_offset - self.tcp_hl*4
+	else
+	    self.tcp_data_length = self.ip6_plen - self.tcp_hl*4
+	end
 	self:tcp_parse_options()
 	return true
 end
