@@ -1,16 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [Zenmap] Fixed a hang that would occur on Mac OS X 10.7. A symptom
-  of the hang was this message in the system console:
-  "Couldn't recognize the image file format for file
-  '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'".
-  [David Fifield]
-
-o [Zenmap] Fixed a crash that happened when activating the host filter.
-      File "zenmapCore\SearchResult.pyo", line 155, in match_os
-    KeyError: 'osmatches'
-  [jah]
-
 o [NSE] Added http-rfi-spider script that spiders webservers in search of
   remote file inclusion vulnerabilities. [Piotr Olma]
 
@@ -33,12 +22,6 @@ o [NSE] More Windows 7 and Windows 2008 fixes for the smb library and smb-ls
 o [NSE] Added SPNEGO authentication supporting Windows 7 and Windows 2008 to
   the smb library. [Patrik Karlsson]
 
-o Fixed an error that occurred when scanning certain addresses like
-  192.168.0.0 on Windows XP:
-    get_srcaddr: can't connect socket: The requested address is not valid in its context.
-    nexthost: failed to determine route to 10.80.0.0
-  [David Fifield]
-
 o [NSE] Changed http-brute so that it works against the root path
   ("/") by default rather than always requiring the http-brute.path
   script argument. [Fyodor]
@@ -48,16 +31,6 @@ o [NSE] Applied patch from Daniel Miller that fixes bug in several scripts and
 
 o [NSE] Added the script smb-ls that lists files on SMB shares and produces
   output similar to the dir command on Windows. [Patrik Karlsson]
-
-o Fixed a bug that caused Nmap to fail to find any network interface when
-  at least one of them is in the monitor mode. The fix was to define the
-  ARP_HRD_IEEE80211_RADIOTAP 802.11 radiotap header identifier in the
-  libdnet-stripped code. Network interfaces that are in this mode are used
-  by radiotap for 802.11 frame injection and reception. The bug was
-  reported by Tom Eichstaedt and Henri Doreau.
-  http://seclists.org/nmap-dev/2012/q2/449
-  http://seclists.org/nmap-dev/2012/q2/478
-  [Djalal Harouni, Henri Doreau]
 
 o [Zenmap] Added Italian translation by Francesco Tombolini.
 
@@ -73,10 +46,6 @@ o [NSE] Added rmi-vuln-classloader which scans for machines vulnerable to
   remote class loading. [Aleksandar Nikolic]
 
 o [NSE] Rewrote mysql-brute to use brute library [Aleksandar Nikolic]
-
-o Fixed the greppable output of hosts that time-out (when --host-timeout was
-  used and the host timed-out after something was received from that host).
-  This issue was reported by Matthew Morgan. [jah]
 
 o [Zenmap] Added Japanese translation by Yuji Tounai.
 
@@ -128,14 +97,6 @@ o Nmap's development pace has increased because Google (again)
   interns this summer as part of their Summer of Code program!
   Thanks, Google Open Source Department!  We're delighted to introduce
   the team: http://seclists.org/nmap-dev/2012/q2/204
-
-o [Zenmap] Updated the version of Python used to build the Windows
-  release from 2.7.1 to 2.7.3 to remove a false-positive security
-  alarm flagged by tools such as Secunia PSI. There was a minor
-  vulnerability in certain Python27.dll web functionality (which Nmap
-  doesn't use anyway) and Secunia was flagging all software which
-  includes that version of Python27.dll. This update should prevent
-  the false alarm.
 
 o [NSE] Added the script mmouse-exec that connects to a Mobile Mouse server,
   starts an application, and sends a sequence of keystrokes to it. [Patrik
@@ -205,6 +166,47 @@ o [NSE] Added new script http-drupal-users-enum, which enumerates all available
 
 o [NSE] Added new script broadcast-ataoe-discover, which discovers ATA over
   Ethernet capable devices through LAN ethernet broadcasts. [Patrik Karlsson]
+
+Nmap 6.01 [2012-06-16]
+
+o [Zenmap] Fixed a hang that would occur on Mac OS X 10.7. A symptom
+  of the hang was this message in the system console:
+  "Couldn't recognize the image file format for file
+  '/Applications/Zenmap.app/Contents/MacOS/../Resources/share/zenmap/pixmaps/radialnet/padlock.png'".
+  [David Fifield]
+
+o [Zenmap] Fixed a crash that happened when activating the host filter.
+      File "zenmapCore\SearchResult.pyo", line 155, in match_os
+    KeyError: 'osmatches'
+  [jah]
+
+o Fixed an error that occurred when scanning certain addresses like
+  192.168.0.0 on Windows XP:
+    get_srcaddr: can't connect socket: The requested address is not valid in its context.
+    nexthost: failed to determine route to 10.80.0.0
+  [David Fifield]
+
+o Fixed a bug that caused Nmap to fail to find any network interface when
+  at least one of them is in the monitor mode. The fix was to define the
+  ARP_HRD_IEEE80211_RADIOTAP 802.11 radiotap header identifier in the
+  libdnet-stripped code. Network interfaces that are in this mode are used
+  by radiotap for 802.11 frame injection and reception. The bug was
+  reported by Tom Eichstaedt and Henri Doreau.
+  http://seclists.org/nmap-dev/2012/q2/449
+  http://seclists.org/nmap-dev/2012/q2/478
+  [Djalal Harouni, Henri Doreau]
+
+o Fixed the greppable output of hosts that time-out (when --host-timeout was
+  used and the host timed-out after something was received from that host).
+  This issue was reported by Matthew Morgan. [jah]
+
+o [Zenmap] Updated the version of Python used to build the Windows
+  release from 2.7.1 to 2.7.3 to remove a false-positive security
+  alarm flagged by tools such as Secunia PSI. There was a minor
+  vulnerability in certain Python27.dll web functionality (which Nmap
+  doesn't use anyway) and Secunia was flagging all software which
+  includes that version of Python27.dll. This update should prevent
+  the false alarm.
 
 Nmap 6.00 [2012-05-21]
 
