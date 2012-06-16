@@ -1,5 +1,5 @@
 /*
-** $Id: ldblib.c,v 1.131 2011/10/24 14:54:05 roberto Exp $
+** $Id: ldblib.c,v 1.132 2012/01/19 20:14:44 roberto Exp $
 ** Interface from Lua to its debug API
 ** See Copyright Notice in lua.h
 */
@@ -253,14 +253,15 @@ static int db_upvaluejoin (lua_State *L) {
 }
 
 
-#define gethooktable(L)	luaL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY);
+#define gethooktable(L)	luaL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)
 
 
 static void hookf (lua_State *L, lua_Debug *ar) {
   static const char *const hooknames[] =
     {"call", "return", "line", "count", "tail call"};
   gethooktable(L);
-  lua_rawgetp(L, -1, L);
+  lua_pushthread(L);
+  lua_rawget(L, -2);
   if (lua_isfunction(L, -1)) {
     lua_pushstring(L, hooknames[(int)ar->event]);
     if (ar->currentline >= 0)
@@ -306,10 +307,15 @@ static int db_sethook (lua_State *L) {
     count = luaL_optint(L, arg+3, 0);
     func = hookf; mask = makemask(smask, count);
   }
-  gethooktable(L);
+  if (gethooktable(L) == 0) {  /* creating hook table? */
+    lua_pushstring(L, "k");
+    lua_setfield(L, -2, "__mode");  /** hooktable.__mode = "k" */
+    lua_pushvalue(L, -1);
+    lua_setmetatable(L, -2);  /* setmetatable(hooktable) = hooktable */
+  }
+  lua_pushthread(L1); lua_xmove(L1, L, 1);
   lua_pushvalue(L, arg+1);
-  lua_rawsetp(L, -2, L1);  /* set new hook */
-  lua_pop(L, 1);  /* remove hook table */
+  lua_rawset(L, -3);  /* set new hook */
   lua_sethook(L1, func, mask, count);  /* set hooks */
   return 0;
 }
@@ -325,7 +331,8 @@ static int db_gethook (lua_State *L) {
     lua_pushliteral(L, "external hook");
   else {
     gethooktable(L);
-    lua_rawgetp(L, -1, L1);   /* get hook */
+    lua_pushthread(L1); lua_xmove(L1, L, 1);
+    lua_rawget(L, -2);   /* get hook */
     lua_remove(L, -2);  /* remove hook table */
   }
   lua_pushstring(L, unmakemask(mask, buff));

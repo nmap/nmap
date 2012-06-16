@@ -1,5 +1,5 @@
 /*
-** $Id: ltable.c,v 2.67 2011/11/30 12:41:45 roberto Exp $
+** $Id: ltable.c,v 2.71 2012/05/23 15:37:09 roberto Exp $
 ** Lua tables (hash)
 ** See Copyright Notice in lua.h
 */
@@ -48,10 +48,10 @@
 #define MAXASIZE	(1 << MAXBITS)
 
 
-#define hashpow2(t,n)      (gnode(t, lmod((n), sizenode(t))))
+#define hashpow2(t,n)		(gnode(t, lmod((n), sizenode(t))))
 
-#define hashstr(t,str)  hashpow2(t, (str)->tsv.hash)
-#define hashboolean(t,p)        hashpow2(t, p)
+#define hashstr(t,str)		hashpow2(t, (str)->tsv.hash)
+#define hashboolean(t,p)	hashpow2(t, p)
 
 
 /*
@@ -98,7 +98,15 @@ static Node *mainposition (const Table *t, const TValue *key) {
   switch (ttype(key)) {
     case LUA_TNUMBER:
       return hashnum(t, nvalue(key));
-    case LUA_TSTRING:
+    case LUA_TLNGSTR: {
+      TString *s = rawtsvalue(key);
+      if (s->tsv.extra == 0) {  /* no hash? */
+        s->tsv.hash = luaS_hash(getstr(s), s->tsv.len, s->tsv.hash);
+        s->tsv.extra = 1;  /* now it has its hash */
+      }
+      return hashstr(t, rawtsvalue(key));
+    }
+    case LUA_TSHRSTR:
       return hashstr(t, rawtsvalue(key));
     case LUA_TBOOLEAN:
       return hashboolean(t, bvalue(key));
@@ -453,12 +461,13 @@ const TValue *luaH_getint (Table *t, int key) {
 
 
 /*
-** search function for strings
+** search function for short strings
 */
 const TValue *luaH_getstr (Table *t, TString *key) {
   Node *n = hashstr(t, key);
+  lua_assert(key->tsv.tt == LUA_TSHRSTR);
   do {  /* check whether `key' is somewhere in the chain */
-    if (ttisstring(gkey(n)) && eqstr(rawtsvalue(gkey(n)), key))
+    if (ttisshrstring(gkey(n)) && eqshrstr(rawtsvalue(gkey(n)), key))
       return gval(n);  /* that's it */
     else n = gnext(n);
   } while (n);
@@ -470,9 +479,9 @@ const TValue *luaH_getstr (Table *t, TString *key) {
 ** main search function
 */
 const TValue *luaH_get (Table *t, const TValue *key) {
-  switch (ttypenv(key)) {
+  switch (ttype(key)) {
     case LUA_TNIL: return luaO_nilobject;
-    case LUA_TSTRING: return luaH_getstr(t, rawtsvalue(key));
+    case LUA_TSHRSTR: return luaH_getstr(t, rawtsvalue(key));
     case LUA_TNUMBER: {
       int k;
       lua_Number n = nvalue(key);

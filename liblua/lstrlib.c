@@ -1,5 +1,5 @@
 /*
-** $Id: lstrlib.c,v 1.173 2011/11/30 18:24:56 roberto Exp $
+** $Id: lstrlib.c,v 1.176 2012/05/23 15:37:09 roberto Exp $
 ** Standard library for string operations and pattern-matching
 ** See Copyright Notice in lua.h
 */
@@ -30,7 +30,7 @@
 
 
 /* macro to `unsign' a character */
-#define uchar(c)        ((unsigned char)(c))
+#define uchar(c)	((unsigned char)(c))
 
 
 
@@ -119,7 +119,9 @@ static int str_rep (lua_State *L) {
     char *p = luaL_buffinitsize(L, &b, totallen);
     while (n-- > 1) {  /* first n-1 copies (followed by separator) */
       memcpy(p, s, l * sizeof(char)); p += l;
-      memcpy(p, sep, lsep * sizeof(char)); p += lsep;
+      if (lsep > 0) {  /* avoid empty 'memcpy' (may be expensive) */
+        memcpy(p, sep, lsep * sizeof(char)); p += lsep;
+      }
     }
     memcpy(p, s, l * sizeof(char));  /* last copy (not followed by separator) */
     luaL_pushresultsize(&b, totallen);
@@ -745,20 +747,17 @@ static int str_gsub (lua_State *L) {
 #if !defined(LUA_INTFRMLEN)	/* { */
 #if defined(LUA_USE_LONGLONG)
 
-#define LUA_INTFRMLEN           "ll"
-#define LUA_INTFRM_T            long long
+#define LUA_INTFRMLEN		"ll"
+#define LUA_INTFRM_T		long long
 
 #else
 
-#define LUA_INTFRMLEN           "l"
-#define LUA_INTFRM_T            long
+#define LUA_INTFRMLEN		"l"
+#define LUA_INTFRM_T		long
 
 #endif
 #endif				/* } */
 
-#define MAX_UINTFRM	((lua_Number)(~(unsigned LUA_INTFRM_T)0))
-#define MAX_INTFRM	((lua_Number)((~(unsigned LUA_INTFRM_T)0)/2))
-#define MIN_INTFRM	(-(lua_Number)((~(unsigned LUA_INTFRM_T)0)/2) - 1)
 
 /*
 ** LUA_FLTFRMLEN is the length modifier for float conversions in
@@ -767,8 +766,8 @@ static int str_gsub (lua_State *L) {
 */
 #if !defined(LUA_FLTFRMLEN)
 
-#define LUA_FLTFRMLEN           ""
-#define LUA_FLTFRM_T            double
+#define LUA_FLTFRMLEN		""
+#define LUA_FLTFRM_T		double
 
 #endif
 
@@ -870,18 +869,22 @@ static int str_format (lua_State *L) {
         }
         case 'd':  case 'i': {
           lua_Number n = luaL_checknumber(L, arg);
-          luaL_argcheck(L, (MIN_INTFRM - 1) < n && n < (MAX_INTFRM + 1), arg,
+          LUA_INTFRM_T ni = (LUA_INTFRM_T)n;
+          lua_Number diff = n - (lua_Number)ni;
+          luaL_argcheck(L, -1 < diff && diff < 1, arg,
                         "not a number in proper range");
           addlenmod(form, LUA_INTFRMLEN);
-          nb = sprintf(buff, form, (LUA_INTFRM_T)n);
+          nb = sprintf(buff, form, ni);
           break;
         }
         case 'o':  case 'u':  case 'x':  case 'X': {
           lua_Number n = luaL_checknumber(L, arg);
-          luaL_argcheck(L, 0 <= n && n < (MAX_UINTFRM + 1), arg,
+          unsigned LUA_INTFRM_T ni = (unsigned LUA_INTFRM_T)n;
+          lua_Number diff = n - (lua_Number)ni;
+          luaL_argcheck(L, -1 < diff && diff < 1, arg,
                         "not a non-negative number in proper range");
           addlenmod(form, LUA_INTFRMLEN);
-          nb = sprintf(buff, form, (unsigned LUA_INTFRM_T)n);
+          nb = sprintf(buff, form, ni);
           break;
         }
         case 'e':  case 'E': case 'f':

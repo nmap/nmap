@@ -1,5 +1,5 @@
 /*
-** $Id: lbaselib.c,v 1.273 2011/11/30 13:03:24 roberto Exp $
+** $Id: lbaselib.c,v 1.274 2012/04/27 14:13:19 roberto Exp $
 ** Basic library
 ** See Copyright Notice in lua.h
 */
@@ -293,6 +293,7 @@ static const char *generic_reader (lua_State *L, void *ud, size_t *size) {
   lua_pushvalue(L, 1);  /* get function */
   lua_call(L, 0, 1);  /* call it */
   if (lua_isnil(L, -1)) {
+    lua_pop(L, 1);  /* pop result */
     *size = 0;
     return NULL;
   }

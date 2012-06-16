@@ -1,5 +1,5 @@
 /*
-** $Id: loadlib.c,v 1.108 2011/12/12 16:34:03 roberto Exp $
+** $Id: loadlib.c,v 1.111 2012/05/30 12:33:44 roberto Exp $
 ** Dynamic library loader for Lua
 ** See Copyright Notice in lua.h
 **
@@ -92,9 +92,9 @@
 #define LUA_OFSEP	"_"
 
 
-#define LIBPREFIX	"LOADLIB: "
+/* table (in the registry) that keeps handles for all loaded C libraries */
+#define CLIBS		"_CLIBS"
 
-#define POF		LUA_POF
 #define LIB_FAIL	"open"
 
 
@@ -248,48 +248,54 @@ static lua_CFunction ll_sym (lua_State *L, void *lib, const char *sym) {
 #endif
 
 
-
-static void **ll_register (lua_State *L, const char *path) {
-  void **plib;
-  lua_pushfstring(L, "%s%s", LIBPREFIX, path);
-  lua_gettable(L, LUA_REGISTRYINDEX);  /* check library in registry? */
-  if (!lua_isnil(L, -1))  /* is there an entry? */
-    plib = (void **)lua_touserdata(L, -1);
-  else {  /* no entry yet; create one */
-    lua_pop(L, 1);  /* remove result from gettable */
-    plib = (void **)lua_newuserdata(L, sizeof(const void *));
-    *plib = NULL;
-    luaL_setmetatable(L, "_LOADLIB");
-    lua_pushfstring(L, "%s%s", LIBPREFIX, path);
-    lua_pushvalue(L, -2);
-    lua_settable(L, LUA_REGISTRYINDEX);
-  }
+static void *ll_checkclib (lua_State *L, const char *path) {
+  void *plib;
+  lua_getfield(L, LUA_REGISTRYINDEX, CLIBS);
+  lua_getfield(L, -1, path);
+  plib = lua_touserdata(L, -1);  /* plib = CLIBS[path] */
+  lua_pop(L, 2);  /* pop CLIBS table and 'plib' */
   return plib;
 }
 
 
+static void ll_addtoclib (lua_State *L, const char *path, void *plib) {
+  lua_getfield(L, LUA_REGISTRYINDEX, CLIBS);
+  lua_pushlightuserdata(L, plib);
+  lua_pushvalue(L, -1);
+  lua_setfield(L, -3, path);  /* CLIBS[path] = plib */
+  lua_rawseti(L, -2, luaL_len(L, -2) + 1);  /* CLIBS[#CLIBS + 1] = plib */
+  lua_pop(L, 1);  /* pop CLIBS table */
+}
+
+
 /*
-** __gc tag method: calls library's `ll_unloadlib' function with the lib
-** handle
+** __gc tag method for CLIBS table: calls 'll_unloadlib' for all lib
+** handles in list CLIBS
 */
 static int gctm (lua_State *L) {
-  void **lib = (void **)luaL_checkudata(L, 1, "_LOADLIB");
-  if (*lib) ll_unloadlib(*lib);
-  *lib = NULL;  /* mark library as closed */
+  int n = luaL_len(L, 1);
+  for (; n >= 1; n--) {  /* for each handle, in reverse order */
+    lua_rawgeti(L, 1, n);  /* get handle CLIBS[n] */
+    ll_unloadlib(lua_touserdata(L, -1));
+    lua_pop(L, 1);  /* pop handle */
+  }
   return 0;
 }
 
 
 static int ll_loadfunc (lua_State *L, const char *path, const char *sym) {
-  void **reg = ll_register(L, path);
-  if (*reg == NULL) *reg = ll_load(L, path, *sym == '*');
-  if (*reg == NULL) return ERRLIB;  /* unable to load library */
+  void *reg = ll_checkclib(L, path);  /* check loaded C libraries */
+  if (reg == NULL) {  /* must load library? */
+    reg = ll_load(L, path, *sym == '*');
+    if (reg == NULL) return ERRLIB;  /* unable to load library */
+    ll_addtoclib(L, path, reg);
+  }
   if (*sym == '*') {  /* loading only library (no function)? */
     lua_pushboolean(L, 1);  /* return 'true' */
     return 0;  /* no errors */
   }
   else {
-    lua_CFunction f = ll_sym(L, *reg, sym);
+    lua_CFunction f = ll_sym(L, reg, sym);
     if (f == NULL)
       return ERRFUNC;  /* unable to find function */
     lua_pushcfunction(L, f);  /* else create new function */
@@ -418,12 +424,12 @@ static int loadfunc (lua_State *L, const char *filename, const char *modname) {
   if (mark) {
     int stat;
     funcname = lua_pushlstring(L, modname, mark - modname);
-    funcname = lua_pushfstring(L, POF"%s", funcname);
+    funcname = lua_pushfstring(L, LUA_POF"%s", funcname);
     stat = ll_loadfunc(L, filename, funcname);
     if (stat != ERRFUNC) return stat;
     modname = mark + 1;  /* else go ahead and try old-style name */
   }
-  funcname = lua_pushfstring(L, POF"%s", modname);
+  funcname = lua_pushfstring(L, LUA_POF"%s", modname);
   return ll_loadfunc(L, filename, funcname);
 }
 
@@ -476,9 +482,9 @@ static void findloader (lua_State *L, const char *name) {
   lua_getfield(L, lua_upvalueindex(1), "searchers");  /* will be at index 3 */
   if (!lua_istable(L, 3))
     luaL_error(L, LUA_QL("package.searchers") " must be a table");
-  /*  iterate over available seachers to find a loader */
+  /*  iterate over available searchers to find a loader */
   for (i = 1; ; i++) {
-    lua_rawgeti(L, 3, i);  /* get a seacher */
+    lua_rawgeti(L, 3, i);  /* get a searcher */
     if (lua_isnil(L, -1)) {  /* no more searchers? */
       lua_pop(L, 1);  /* remove nil */
       luaL_pushresult(&msg);  /* create error message */
@@ -666,18 +672,10 @@ static const luaL_Reg ll_funcs[] = {
 };
 
 
-static const lua_CFunction searchers[] =
-  {searcher_preload, searcher_Lua, searcher_C, searcher_Croot, NULL};
-
-
-LUAMOD_API int luaopen_package (lua_State *L) {
+static void createsearcherstable (lua_State *L) {
+  static const lua_CFunction searchers[] =
+    {searcher_preload, searcher_Lua, searcher_C, searcher_Croot, NULL};
   int i;
-  /* create new type _LOADLIB */
-  luaL_newmetatable(L, "_LOADLIB");
-  lua_pushcfunction(L, gctm);
-  lua_setfield(L, -2, "__gc");
-  /* create `package' table */
-  luaL_newlib(L, pk_funcs);
   /* create 'searchers' table */
   lua_createtable(L, sizeof(searchers)/sizeof(searchers[0]) - 1, 0);
   /* fill it with pre-defined searchers */
@@ -686,6 +684,19 @@ LUAMOD_API int luaopen_package (lua_State *L) {
     lua_pushcclosure(L, searchers[i], 1);
     lua_rawseti(L, -2, i+1);
   }
+}
+
+
+LUAMOD_API int luaopen_package (lua_State *L) {
+  /* create table CLIBS to keep track of loaded C libraries */
+  luaL_getsubtable(L, LUA_REGISTRYINDEX, CLIBS);
+  lua_createtable(L, 0, 1);  /* metatable for CLIBS */
+  lua_pushcfunction(L, gctm);
+  lua_setfield(L, -2, "__gc");  /* set finalizer for CLIBS table */
+  lua_setmetatable(L, -2);
+  /* create `package' table */
+  luaL_newlib(L, pk_funcs);
+  createsearcherstable(L);
 #if defined(LUA_COMPAT_LOADERS)
   lua_pushvalue(L, -1);  /* make a copy of 'searchers' table */
   lua_setfield(L, -3, "loaders");  /* put it in field `loaders' */

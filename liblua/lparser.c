@@ -1,5 +1,5 @@
 /*
-** $Id: lparser.c,v 2.124 2011/12/02 13:23:56 roberto Exp $
+** $Id: lparser.c,v 2.128 2012/05/20 14:51:23 roberto Exp $
 ** Lua Parser
 ** See Copyright Notice in lua.h
 */
@@ -222,7 +222,7 @@ static int searchupvalue (FuncState *fs, TString *name) {
   int i;
   Upvaldesc *up = fs->f->upvalues;
   for (i = 0; i < fs->nups; i++) {
-    if (eqstr(up[i].name, name)) return i;
+    if (luaS_eqstr(up[i].name, name)) return i;
   }
   return -1;  /* not found */
 }
@@ -246,7 +246,7 @@ static int newupvalue (FuncState *fs, TString *name, expdesc *v) {
 static int searchvar (FuncState *fs, TString *n) {
   int i;
   for (i=fs->nactvar-1; i >= 0; i--) {
-    if (eqstr(n, getlocvar(fs, i)->varname))
+    if (luaS_eqstr(n, getlocvar(fs, i)->varname))
       return i;
   }
   return -1;  /* not found */
@@ -342,7 +342,7 @@ static void closegoto (LexState *ls, int g, Labeldesc *label) {
   FuncState *fs = ls->fs;
   Labellist *gl = &ls->dyd->gt;
   Labeldesc *gt = &gl->arr[g];
-  lua_assert(eqstr(gt->name, label->name));
+  lua_assert(luaS_eqstr(gt->name, label->name));
   if (gt->nactvar < label->nactvar) {
     TString *vname = getlocvar(fs, gt->nactvar)->varname;
     const char *msg = luaO_pushfstring(ls->L,
@@ -369,7 +369,7 @@ static int findlabel (LexState *ls, int g) {
   /* check labels in current block for a match */
   for (i = bl->firstlabel; i < dyd->label.n; i++) {
     Labeldesc *lb = &dyd->label.arr[i];
-    if (eqstr(lb->name, gt->name)) {  /* correct label? */
+    if (luaS_eqstr(lb->name, gt->name)) {  /* correct label? */
       if (gt->nactvar > lb->nactvar &&
           (bl->upval || dyd->label.n > bl->firstlabel))
         luaK_patchclose(ls->fs, gt->pc, lb->nactvar);
@@ -403,7 +403,7 @@ static void findgotos (LexState *ls, Labeldesc *lb) {
   Labellist *gl = &ls->dyd->gt;
   int i = ls->fs->bl->firstgoto;
   while (i < gl->n) {
-    if (eqstr(gl->arr[i].name, lb->name))
+    if (luaS_eqstr(gl->arr[i].name, lb->name))
       closegoto(ls, i, lb);
     else
       i++;
@@ -461,7 +461,7 @@ static void breaklabel (LexState *ls) {
 ** message when label name is a reserved word (which can only be 'break')
 */
 static l_noret undefgoto (LexState *ls, Labeldesc *gt) {
-  const char *msg = (gt->name->tsv.reserved > 0)
+  const char *msg = isreserved(gt->name)
                     ? "<%s> at line %d not inside a loop"
                     : "no visible label " LUA_QS " for <goto> at line %d";
   msg = luaO_pushfstring(ls->L, msg, getstr(gt->name), gt->line);
@@ -493,21 +493,30 @@ static void leaveblock (FuncState *fs) {
 
 
 /*
-** adds prototype being created into its parent list of prototypes
-** and codes instruction to create new closure
+** adds a new prototype into list of prototypes
 */
-static void codeclosure (LexState *ls, Proto *clp, expdesc *v) {
-  FuncState *fs = ls->fs->prev;
-  Proto *f = fs->f;  /* prototype of function creating new closure */
+static Proto *addprototype (LexState *ls) {
+  Proto *clp;
+  lua_State *L = ls->L;
+  FuncState *fs = ls->fs;
+  Proto *f = fs->f;  /* prototype of current function */
   if (fs->np >= f->sizep) {
     int oldsize = f->sizep;
-    luaM_growvector(ls->L, f->p, fs->np, f->sizep, Proto *,
-                    MAXARG_Bx, "functions");
+    luaM_growvector(L, f->p, fs->np, f->sizep, Proto *, MAXARG_Bx, "functions");
     while (oldsize < f->sizep) f->p[oldsize++] = NULL;
   }
-  f->p[fs->np++] = clp;
-  luaC_objbarrier(ls->L, f, clp);
-  init_exp(v, VRELOCABLE, luaK_codeABx(fs, OP_CLOSURE, 0, fs->np-1));
+  f->p[fs->np++] = clp = luaF_newproto(L);
+  luaC_objbarrier(L, f, clp);
+  return clp;
+}
+
+
+/*
+** codes instruction to create new closure in parent function
+*/
+static void codeclosure (LexState *ls, expdesc *v) {
+  FuncState *fs = ls->fs->prev;
+  init_exp(v, VRELOCABLE, luaK_codeABx(fs, OP_CLOSURE, 0, fs->np - 1));
   luaK_exp2nextreg(fs, v);  /* fix it at stack top (for GC) */
 }
 
@@ -529,13 +538,9 @@ static void open_func (LexState *ls, FuncState *fs, BlockCnt *bl) {
   fs->nactvar = 0;
   fs->firstlocal = ls->dyd->actvar.n;
   fs->bl = NULL;
-  f = luaF_newproto(L);
-  fs->f = f;
+  f = fs->f;
   f->source = ls->source;
   f->maxstacksize = 2;  /* registers 0/1 are always valid */
-  /* anchor prototype (to avoid being collected) */
-  setptvalue2s(L, L->top, f);
-  incr_top(L);
   fs->h = luaH_new(L);
   /* anchor table of constants (to avoid being collected) */
   sethvalue2s(L, L->top, fs->h);
@@ -568,20 +573,6 @@ static void close_func (LexState *ls) {
   anchor_token(ls);
   L->top--;  /* pop table of constants */
   luaC_checkGC(L);
-  L->top--;  /* pop prototype (after possible collection) */
-}
-
-
-/*
-** opens the main function, which is a regular vararg function with an
-** upvalue named LUA_ENV
-*/
-static void open_mainfunc (LexState *ls, FuncState *fs, BlockCnt *bl) {
-  expdesc v;
-  open_func(ls, fs, bl);
-  fs->f->is_vararg = 1;  /* main function is always vararg */
-  init_exp(&v, VLOCAL, 0);
-  newupvalue(fs, ls->envn, &v);  /* create environment upvalue */
 }
 
 
@@ -795,8 +786,9 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
   /* body ->  `(' parlist `)' block END */
   FuncState new_fs;
   BlockCnt bl;
-  open_func(ls, &new_fs, &bl);
+  new_fs.f = addprototype(ls);
   new_fs.f->linedefined = line;
+  open_func(ls, &new_fs, &bl);
   checknext(ls, '(');
   if (ismethod) {
     new_localvarliteral(ls, "self");  /* create 'self' parameter */
@@ -807,7 +799,7 @@ static void body (LexState *ls, expdesc *e, int ismethod, int line) {
   statlist(ls);
   new_fs.f->lastlinedefined = ls->linenumber;
   check_match(ls, TK_END, TK_FUNCTION, line);
-  codeclosure(ls, new_fs.f, e);
+  codeclosure(ls, e);
   close_func(ls);
 }
 
@@ -879,8 +871,8 @@ static void funcargs (LexState *ls, expdesc *f, int line) {
 */
 
 
-static void prefixexp (LexState *ls, expdesc *v) {
-  /* prefixexp -> NAME | '(' expr ')' */
+static void primaryexp (LexState *ls, expdesc *v) {
+  /* primaryexp -> NAME | '(' expr ')' */
   switch (ls->t.token) {
     case '(': {
       int line = ls->linenumber;
@@ -901,12 +893,12 @@ static void prefixexp (LexState *ls, expdesc *v) {
 }
 
 
-static void primaryexp (LexState *ls, expdesc *v) {
-  /* primaryexp ->
-        prefixexp { `.' NAME | `[' exp `]' | `:' NAME funcargs | funcargs } */
+static void suffixedexp (LexState *ls, expdesc *v) {
+  /* suffixedexp ->
+       primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
-  prefixexp(ls, v);
+  primaryexp(ls, v);
   for (;;) {
     switch (ls->t.token) {
       case '.': {  /* fieldsel */
@@ -941,7 +933,7 @@ static void primaryexp (LexState *ls, expdesc *v) {
 
 static void simpleexp (LexState *ls, expdesc *v) {
   /* simpleexp -> NUMBER | STRING | NIL | TRUE | FALSE | ... |
-                  constructor | FUNCTION body | primaryexp */
+                  constructor | FUNCTION body | suffixedexp */
   switch (ls->t.token) {
     case TK_NUMBER: {
       init_exp(v, VKNUM, 0);
@@ -981,7 +973,7 @@ static void simpleexp (LexState *ls, expdesc *v) {
       return;
     }
     default: {
-      primaryexp(ls, v);
+      suffixedexp(ls, v);
       return;
     }
   }
@@ -1141,10 +1133,10 @@ static void check_conflict (LexState *ls, struct LHS_assign *lh, expdesc *v) {
 static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   expdesc e;
   check_condition(ls, vkisvar(lh->v.k), "syntax error");
-  if (testnext(ls, ',')) {  /* assignment -> `,' primaryexp assignment */
+  if (testnext(ls, ',')) {  /* assignment -> ',' suffixedexp assignment */
     struct LHS_assign nv;
     nv.prev = lh;
-    primaryexp(ls, &nv.v);
+    suffixedexp(ls, &nv.v);
     if (nv.v.k != VINDEXED)
       check_conflict(ls, lh, &nv.v);
     checklimit(ls->fs, nvars + ls->L->nCcalls, LUAI_MAXCCALLS,
@@ -1200,13 +1192,20 @@ static void gotostat (LexState *ls, int pc) {
 static void checkrepeated (FuncState *fs, Labellist *ll, TString *label) {
   int i;
   for (i = fs->bl->firstlabel; i < ll->n; i++) {
-    if (eqstr(label, ll->arr[i].name)) {
+    if (luaS_eqstr(label, ll->arr[i].name)) {
       const char *msg = luaO_pushfstring(fs->ls->L,
                           "label " LUA_QS " already defined on line %d",
                           getstr(label), ll->arr[i].line);
       semerror(fs->ls, msg);
     }
   }
+}
+
+
+/* skip no-op statements */
+static void skipnoopstat (LexState *ls) {
+  while (ls->t.token == ';' || ls->t.token == TK_DBCOLON)
+    statement(ls);
 }
 
 
@@ -1219,9 +1218,7 @@ static void labelstat (LexState *ls, TString *label, int line) {
   checknext(ls, TK_DBCOLON);  /* skip double colon */
   /* create new entry for this label */
   l = newlabelentry(ls, ll, label, line, fs->pc);
-  /* skip other no-op statements */
-  while (ls->t.token == ';' || ls->t.token == TK_DBCOLON)
-    statement(ls);
+  skipnoopstat(ls);  /* skip other no-op statements */
   if (block_follow(ls, 0)) {  /* label is last no-op statement in the block? */
     /* assume that locals are already out of scope */
     ll->arr[l].nactvar = fs->bl->nactvar;
@@ -1384,6 +1381,7 @@ static void test_then_block (LexState *ls, int *escapelist) {
     luaK_goiffalse(ls->fs, &v);  /* will jump to label if condition is true */
     enterblock(fs, &bl, 0);  /* must enter block before 'goto' */
     gotostat(ls, v.t);  /* handle goto/break */
+    skipnoopstat(ls);  /* skip other no-op statements */
     if (block_follow(ls, 0)) {  /* 'goto' is the entire block? */
       leaveblock(fs);
       return;  /* and that is it */
@@ -1480,12 +1478,14 @@ static void exprstat (LexState *ls) {
   /* stat -> func | assignment */
   FuncState *fs = ls->fs;
   struct LHS_assign v;
-  primaryexp(ls, &v.v);
-  if (v.v.k == VCALL)  /* stat -> func */
-    SETARG_C(getcode(fs, &v.v), 1);  /* call statement uses no results */
-  else {  /* stat -> assignment */
+  suffixedexp(ls, &v.v);
+  if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
     assignment(ls, &v, 1);
+  }
+  else {  /* stat -> func */
+    check_condition(ls, v.v.k == VCALL, "syntax error");
+    SETARG_C(getcode(fs, &v.v), 1);  /* call statement uses no results */
   }
 }
 
@@ -1594,27 +1594,42 @@ static void statement (LexState *ls) {
 /* }====================================================================== */
 
 
-Proto *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
-                    Dyndata *dyd, const char *name, int firstchar) {
+/*
+** compiles the main function, which is a regular vararg function with an
+** upvalue named LUA_ENV
+*/
+static void mainfunc (LexState *ls, FuncState *fs) {
+  BlockCnt bl;
+  expdesc v;
+  open_func(ls, fs, &bl);
+  fs->f->is_vararg = 1;  /* main function is always vararg */
+  init_exp(&v, VLOCAL, 0);  /* create and... */
+  newupvalue(fs, ls->envn, &v);  /* ...set environment upvalue */
+  luaX_next(ls);  /* read first token */
+  statlist(ls);  /* parse main body */
+  check(ls, TK_EOS);
+  close_func(ls);
+}
+
+
+Closure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
+                      Dyndata *dyd, const char *name, int firstchar) {
   LexState lexstate;
   FuncState funcstate;
-  BlockCnt bl;
-  TString *tname = luaS_new(L, name);
-  setsvalue2s(L, L->top, tname);  /* push name to protect it */
+  Closure *cl = luaF_newLclosure(L, 1);  /* create main closure */
+  /* anchor closure (to avoid being collected) */
+  setclLvalue(L, L->top, cl);
   incr_top(L);
+  funcstate.f = cl->l.p = luaF_newproto(L);
+  funcstate.f->source = luaS_new(L, name);  /* create and anchor TString */
   lexstate.buff = buff;
   lexstate.dyd = dyd;
   dyd->actvar.n = dyd->gt.n = dyd->label.n = 0;
-  luaX_setinput(L, &lexstate, z, tname, firstchar);
-  open_mainfunc(&lexstate, &funcstate, &bl);
-  luaX_next(&lexstate);  /* read first token */
-  statlist(&lexstate);  /* main body */
-  check(&lexstate, TK_EOS);
-  close_func(&lexstate);
-  L->top--;  /* pop name */
+  luaX_setinput(L, &lexstate, z, funcstate.f->source, firstchar);
+  mainfunc(&lexstate, &funcstate);
   lua_assert(!funcstate.prev && funcstate.nups == 1 && !lexstate.fs);
   /* all scopes should be correctly finished */
   lua_assert(dyd->actvar.n == 0 && dyd->gt.n == 0 && dyd->label.n == 0);
-  return funcstate.f;
+  return cl;  /* it's on the stack too */
 }
 

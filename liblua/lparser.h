@@ -1,5 +1,5 @@
 /*
-** $Id: lparser.h,v 1.69 2011/07/27 18:09:01 roberto Exp $
+** $Id: lparser.h,v 1.70 2012/05/08 13:53:33 roberto Exp $
 ** Lua Parser
 ** See Copyright Notice in lua.h
 */
@@ -112,8 +112,8 @@ typedef struct FuncState {
 } FuncState;
 
 
-LUAI_FUNC Proto *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
-                              Dyndata *dyd, const char *name, int firstchar);
+LUAI_FUNC Closure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
+                                Dyndata *dyd, const char *name, int firstchar);
 
 
 #endif

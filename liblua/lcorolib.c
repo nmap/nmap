@@ -1,5 +1,5 @@
 /*
-** $Id: lcorolib.c,v 1.3 2011/08/23 17:24:34 roberto Exp $
+** $Id: lcorolib.c,v 1.4 2012/04/27 18:59:04 roberto Exp $
 ** Coroutine Library
 ** See Copyright Notice in lua.h
 */
@@ -80,8 +80,9 @@ static int luaB_auxwrap (lua_State *L) {
 
 
 static int luaB_cocreate (lua_State *L) {
-  lua_State *NL = lua_newthread(L);
+  lua_State *NL;
   luaL_checktype(L, 1, LUA_TFUNCTION);
+  NL = lua_newthread(L);
   lua_pushvalue(L, 1);  /* move function to top */
   lua_xmove(L, NL, 1);  /* move function from L to NL */
   return 1;

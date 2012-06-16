@@ -1,11 +1,12 @@
 /*
-** $Id: lstate.c,v 2.92 2011/10/03 17:54:25 roberto Exp $
+** $Id: lstate.c,v 2.98 2012/05/30 12:33:44 roberto Exp $
 ** Global State
 ** See Copyright Notice in lua.h
 */
 
 
 #include <stddef.h>
+#include <string.h>
 
 #define lstate_c
 #define LUA_CORE
@@ -38,7 +39,18 @@
 #endif
 
 
-#define MEMERRMSG       "not enough memory"
+#define MEMERRMSG	"not enough memory"
+
+
+/*
+** a macro to help the creation of a unique random seed when a state is
+** created; the seed is used to randomize hashes.
+*/
+#if !defined(luai_makeseed)
+#include <time.h>
+#define luai_makeseed()		cast(size_t, time(NULL))
+#endif
+
 
 
 /*
@@ -63,6 +75,28 @@ typedef struct LG {
 
 
 #define fromstate(L)	(cast(LX *, cast(lu_byte *, (L)) - offsetof(LX, l)))
+
+
+/*
+** Compute an initial seed as random as possible. In ANSI, rely on
+** Address Space Layout Randomization (if present) to increase
+** randomness..
+*/
+#define addbuff(b,p,e) \
+  { size_t t = cast(size_t, e); \
+    memcpy(buff + p, &t, sizeof(t)); p += sizeof(t); }
+
+static unsigned int makeseed (lua_State *L) {
+  char buff[4 * sizeof(size_t)];
+  unsigned int h = luai_makeseed();
+  int p = 0;
+  addbuff(buff, p, L);  /* heap variable */
+  addbuff(buff, p, &h);  /* local variable */
+  addbuff(buff, p, luaO_nilobject);  /* global variable */
+  addbuff(buff, p, &lua_newstate);  /* public function */
+  lua_assert(p == sizeof(buff));
+  return luaS_hash(buff, p, h);
+}
 
 
 /*
@@ -242,10 +276,11 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->frealloc = f;
   g->ud = ud;
   g->mainthread = L;
+  g->seed = makeseed(L);
   g->uvhead.u.l.prev = &g->uvhead;
   g->uvhead.u.l.next = &g->uvhead;
   g->gcrunning = 0;  /* no GC while building state */
-  g->lastmajormem = 0;
+  g->GCestimate = 0;
   g->strt.size = 0;
   g->strt.nuse = 0;
   g->strt.hash = NULL;
@@ -257,6 +292,7 @@ LUA_API lua_State *lua_newstate (lua_Alloc f, void *ud) {
   g->allgc = NULL;
   g->finobj = NULL;
   g->tobefnz = NULL;
+  g->sweepgc = g->sweepfin = NULL;
   g->gray = g->grayagain = NULL;
   g->weak = g->ephemeron = g->allweak = NULL;
   g->totalbytes = sizeof(LG);

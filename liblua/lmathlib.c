@@ -1,5 +1,5 @@
 /*
-** $Id: lmathlib.c,v 1.80 2011/07/05 12:49:35 roberto Exp $
+** $Id: lmathlib.c,v 1.81 2012/05/18 17:47:53 roberto Exp $
 ** Standard mathematical library
 ** See Copyright Notice in lua.h
 */
@@ -17,15 +17,15 @@
 #include "lualib.h"
 
 
-#undef PI
-#define PI (3.14159265358979323846)
-#define RADIANS_PER_DEGREE (PI/180.0)
-
-
 /* macro 'l_tg' allows the addition of an 'l' or 'f' to all math operations */
 #if !defined(l_tg)
 #define l_tg(x)		(x)
 #endif
+
+
+#undef PI
+#define PI (l_tg(3.1415926535897932384626433832795))
+#define RADIANS_PER_DEGREE (PI/180.0)
 
 
 

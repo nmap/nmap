@@ -1,5 +1,5 @@
 /*
-** $Id: lfunc.c,v 2.27 2010/06/30 14:11:17 roberto Exp $
+** $Id: lfunc.c,v 2.29 2012/05/08 13:53:33 roberto Exp $
 ** Auxiliary functions to manipulate prototypes and closures
 ** See Copyright Notice in lua.h
 */
@@ -21,18 +21,15 @@
 
 
 Closure *luaF_newCclosure (lua_State *L, int n) {
-  Closure *c = &luaC_newobj(L, LUA_TFUNCTION, sizeCclosure(n), NULL, 0)->cl;
-  c->c.isC = 1;
+  Closure *c = &luaC_newobj(L, LUA_TCCL, sizeCclosure(n), NULL, 0)->cl;
   c->c.nupvalues = cast_byte(n);
   return c;
 }
 
 
-Closure *luaF_newLclosure (lua_State *L, Proto *p) {
-  int n = p->sizeupvalues;
-  Closure *c = &luaC_newobj(L, LUA_TFUNCTION, sizeLclosure(n), NULL, 0)->cl;
-  c->l.isC = 0;
-  c->l.p = p;
+Closure *luaF_newLclosure (lua_State *L, int n) {
+  Closure *c = &luaC_newobj(L, LUA_TLCL, sizeLclosure(n), NULL, 0)->cl;
+  c->l.p = NULL;
   c->l.nupvalues = cast_byte(n);
   while (n--) c->l.upvals[n] = NULL;
   return c;
@@ -143,13 +140,6 @@ void luaF_freeproto (lua_State *L, Proto *f) {
   luaM_freearray(L, f->locvars, f->sizelocvars);
   luaM_freearray(L, f->upvalues, f->sizeupvalues);
   luaM_free(L, f);
-}
-
-
-void luaF_freeclosure (lua_State *L, Closure *c) {
-  int size = (c->c.isC) ? sizeCclosure(c->c.nupvalues) :
-                          sizeLclosure(c->l.nupvalues);
-  luaM_freemem(L, c, size);
 }
 
 

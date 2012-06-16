@@ -1,5 +1,5 @@
 /*
-** $Id: lauxlib.c,v 1.240 2011/12/06 16:33:55 roberto Exp $
+** $Id: lauxlib.c,v 1.244 2012/05/31 20:28:45 roberto Exp $
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
@@ -520,11 +520,11 @@ LUALIB_API char *luaL_buffinitsize (lua_State *L, luaL_Buffer *B, size_t sz) {
 
 LUALIB_API int luaL_ref (lua_State *L, int t) {
   int ref;
-  t = lua_absindex(L, t);
   if (lua_isnil(L, -1)) {
     lua_pop(L, 1);  /* remove from stack */
     return LUA_REFNIL;  /* `nil' has a unique fixed reference */
   }
+  t = lua_absindex(L, t);
   lua_rawgeti(L, t, freelist);  /* get first free element */
   ref = (int)lua_tointeger(L, -1);  /* ref = t[freelist] */
   lua_pop(L, 1);  /* remove it from stack */
@@ -616,8 +616,10 @@ static int skipBOM (LoadF *lf) {
 static int skipcomment (LoadF *lf, int *cp) {
   int c = *cp = skipBOM(lf);
   if (c == '#') {  /* first line is a comment (Unix exec. file)? */
-    while ((c = getc(lf->f)) != EOF && c != '\n') ;  /* skip first line */
-    *cp = getc(lf->f);  /* skip end-of-line */
+    do {  /* skip first line */
+      c = getc(lf->f);
+    } while (c != EOF && c != '\n') ;
+    *cp = getc(lf->f);  /* skip end-of-line, if present */
     return 1;  /* there was a comment */
   }
   else return 0;  /* no comment */
@@ -843,6 +845,7 @@ LUALIB_API void luaL_openlib (lua_State *L, const char *libname,
 ** Returns with only the table at the stack.
 */
 LUALIB_API void luaL_setfuncs (lua_State *L, const luaL_Reg *l, int nup) {
+  luaL_checkversion(L);
   luaL_checkstack(L, nup, "too many upvalues");
   for (; l->name != NULL; l++) {  /* fill the table with given functions */
     int i;
@@ -863,8 +866,8 @@ LUALIB_API int luaL_getsubtable (lua_State *L, int idx, const char *fname) {
   lua_getfield(L, idx, fname);
   if (lua_istable(L, -1)) return 1;  /* table already there */
   else {
-    idx = lua_absindex(L, idx);
     lua_pop(L, 1);  /* remove previous result */
+    idx = lua_absindex(L, idx);
     lua_newtable(L);
     lua_pushvalue(L, -1);  /* copy to be left at top */
     lua_setfield(L, idx, fname);  /* assign new table to field */
@@ -889,10 +892,8 @@ LUALIB_API void luaL_requiref (lua_State *L, const char *modname,
   lua_setfield(L, -2, modname);  /* _LOADED[modname] = module */
   lua_pop(L, 1);  /* remove _LOADED table */
   if (glb) {
-    lua_pushglobaltable(L);
-    lua_pushvalue(L, -2);  /* copy of 'mod' */
-    lua_setfield(L, -2, modname);  /* _G[modname] = module */
-    lua_pop(L, 1);  /* remove _G table */
+    lua_pushvalue(L, -1);  /* copy of 'mod' */
+    lua_setglobal(L, modname);  /* _G[modname] = module */
   }
 }
 

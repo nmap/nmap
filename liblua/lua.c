@@ -1,5 +1,5 @@
 /*
-** $Id: lua.c,v 1.203 2011/12/12 16:34:03 roberto Exp $
+** $Id: lua.c,v 1.205 2012/05/23 15:37:09 roberto Exp $
 ** Lua stand-alone interpreter
 ** See Copyright Notice in lua.h
 */
@@ -45,13 +45,13 @@
 */
 #if defined(LUA_USE_ISATTY)
 #include <unistd.h>
-#define lua_stdin_is_tty()      isatty(0)
+#define lua_stdin_is_tty()	isatty(0)
 #elif defined(LUA_WIN)
 #include <io.h>
 #include <stdio.h>
-#define lua_stdin_is_tty()      _isatty(_fileno(stdin))
+#define lua_stdin_is_tty()	_isatty(_fileno(stdin))
 #else
-#define lua_stdin_is_tty()      1  /* assume stdin is a tty */
+#define lua_stdin_is_tty()	1  /* assume stdin is a tty */
 #endif
 
 
@@ -66,19 +66,19 @@
 #include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#define lua_readline(L,b,p)     ((void)L, ((b)=readline(p)) != NULL)
+#define lua_readline(L,b,p)	((void)L, ((b)=readline(p)) != NULL)
 #define lua_saveline(L,idx) \
         if (lua_rawlen(L,idx) > 0)  /* non-empty line? */ \
           add_history(lua_tostring(L, idx));  /* add it to history */
-#define lua_freeline(L,b)       ((void)L, free(b))
+#define lua_freeline(L,b)	((void)L, free(b))
 
 #elif !defined(lua_readline)
 
-#define lua_readline(L,b,p)     \
+#define lua_readline(L,b,p) \
         ((void)L, fputs(p, stdout), fflush(stdout),  /* show prompt */ \
         fgets(b, LUA_MAXINPUT, stdin) != NULL)  /* get line */
-#define lua_saveline(L,idx)     { (void)L; (void)idx; }
-#define lua_freeline(L,b)       { (void)L; (void)b; }
+#define lua_saveline(L,idx)	{ (void)L; (void)idx; }
+#define lua_freeline(L,b)	{ (void)L; (void)b; }
 
 #endif
 
@@ -223,16 +223,11 @@ static int dostring (lua_State *L, const char *s, const char *name) {
 
 static int dolibrary (lua_State *L, const char *name) {
   int status;
-  lua_pushglobaltable(L);
-  lua_getfield(L, -1, "require");
+  lua_getglobal(L, "require");
   lua_pushstring(L, name);
-  status = docall(L, 1, 1);
-  if (status == LUA_OK) {
-    lua_setfield(L, -2, name);  /* global[name] = require return */
-    lua_pop(L, 1);  /* remove global table */
-  }
-  else
-    lua_remove(L, -2);  /* remove global table (below error msg.) */
+  status = docall(L, 1, 1);  /* call 'require(name)' */
+  if (status == LUA_OK)
+    lua_setglobal(L, name);  /* global[name] = require return */
   return report(L, status);
 }
 

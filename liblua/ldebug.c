@@ -1,5 +1,5 @@
 /*
-** $Id: ldebug.c,v 2.88 2011/11/30 12:43:51 roberto Exp $
+** $Id: ldebug.c,v 2.89 2012/01/20 22:05:50 roberto Exp $
 ** Debug Interface
 ** See Copyright Notice in lua.h
 */
@@ -28,6 +28,9 @@
 #include "ltm.h"
 #include "lvm.h"
 
+
+
+#define noLuaClosure(f)		((f) == NULL || (f)->c.tt == LUA_TCCL)
 
 
 static const char *getfuncname (lua_State *L, CallInfo *ci, const char **name);
@@ -173,7 +176,7 @@ LUA_API const char *lua_setlocal (lua_State *L, const lua_Debug *ar, int n) {
 
 
 static void funcinfo (lua_Debug *ar, Closure *cl) {
-  if (cl == NULL || cl->c.isC) {
+  if (noLuaClosure(cl)) {
     ar->source = "=[C]";
     ar->linedefined = -1;
     ar->lastlinedefined = -1;
@@ -191,7 +194,7 @@ static void funcinfo (lua_Debug *ar, Closure *cl) {
 
 
 static void collectvalidlines (lua_State *L, Closure *f) {
-  if (f == NULL || f->c.isC) {
+  if (noLuaClosure(f)) {
     setnilvalue(L->top);
     incr_top(L);
   }
@@ -210,7 +213,7 @@ static void collectvalidlines (lua_State *L, Closure *f) {
 
 
 static int auxgetinfo (lua_State *L, const char *what, lua_Debug *ar,
-                    Closure *f, CallInfo *ci) {
+                       Closure *f, CallInfo *ci) {
   int status = 1;
   for (; *what; what++) {
     switch (*what) {
@@ -224,7 +227,7 @@ static int auxgetinfo (lua_State *L, const char *what, lua_Debug *ar,
       }
       case 'u': {
         ar->nups = (f == NULL) ? 0 : f->c.nupvalues;
-        if (f == NULL || f->c.isC) {
+        if (noLuaClosure(f)) {
           ar->isvararg = 1;
           ar->nparams = 0;
         }

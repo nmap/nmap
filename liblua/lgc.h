@@ -1,5 +1,5 @@
 /*
-** $Id: lgc.h,v 2.52 2011/10/03 17:54:25 roberto Exp $
+** $Id: lgc.h,v 2.56 2012/05/23 15:43:14 roberto Exp $
 ** Garbage Collector
 ** See Copyright Notice in lua.h
 */
@@ -23,6 +23,14 @@
 ** the collection cycle. These lists have no meaning when the invariant
 ** is not being enforced (e.g., sweep phase).
 */
+
+
+
+/* how much to allocate before next GC step */
+#if !defined(GCSTEPSIZE)
+/* ~100 small strings */
+#define GCSTEPSIZE	(cast_int(100 * sizeof(TString)))
+#endif
 
 
 /*

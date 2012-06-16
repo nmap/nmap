@@ -1,5 +1,5 @@
 /*
-** $Id: lapi.c,v 2.159 2011/11/30 12:32:05 roberto Exp $
+** $Id: lapi.c,v 2.164 2012/06/08 15:14:04 roberto Exp $
 ** Lua API
 ** See Copyright Notice in lua.h
 */
@@ -950,7 +950,7 @@ LUA_API int lua_pcallk (lua_State *L, int nargs, int nresults, int errfunc,
     ci->u.c.k = k;  /* save continuation */
     ci->u.c.ctx = ctx;  /* save context */
     /* save information for error recovery */
-    ci->u.c.extra = savestack(L, c.func);
+    ci->extra = savestack(L, c.func);
     ci->u.c.old_allowhook = L->allowhook;
     ci->u.c.old_errfunc = L->errfunc;
     L->errfunc = func;
@@ -1045,17 +1045,17 @@ LUA_API int lua_gc (lua_State *L, int what, int data) {
     }
     case LUA_GCSTEP: {
       if (g->gckind == KGC_GEN) {  /* generational mode? */
-        res = (g->lastmajormem == 0);  /* 1 if will do major collection */
+        res = (g->GCestimate == 0);  /* true if it will do major collection */
         luaC_forcestep(L);  /* do a single step */
       }
       else {
-        while (data-- >= 0) {
-          luaC_forcestep(L);
-          if (g->gcstate == GCSpause) {  /* end of cycle? */
-            res = 1;  /* signal it */
-            break;
-          }
-        }
+       lu_mem debt = cast(lu_mem, data) * 1024 - GCSTEPSIZE;
+       if (g->gcrunning)
+         debt += g->GCdebt;  /* include current debt */
+       luaE_setdebt(g, debt);
+       luaC_forcestep(L);
+       if (g->gcstate == GCSpause)  /* end of cycle? */
+         res = 1;  /* signal it */
       }
       break;
     }
