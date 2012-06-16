@@ -399,12 +399,12 @@ action = function(host, port)
 	local _
 	local current_count = 0
 	if port.version.version ~= nil then
-		_, current_count = string.gsub(port.version.version, "%.", "%.")
+		_, current_count = string.gsub(port.version.version, "%.", ".")
 	end	
 
 	local new_count = 0
 	if server_version ~= nil then
-		_, new_count = string.gsub(server_version, "%.", "%.")
+		_, new_count = string.gsub(server_version, "%.", ".")
 	end
 	
 	if current_count < new_count then
