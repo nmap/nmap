@@ -18,7 +18,7 @@ sessions. Currently only the SIP server Asterisk is supported.
 
 ---
 -- @usage
--- nmap -sU -p 5060 <target> --script=sip-brute
+-- nmap -sU -p 5060 <target> --script=sip-enum-users
 --
 -- PORT     STATE         SERVICE
 -- 5060/udp open|filtered sip
