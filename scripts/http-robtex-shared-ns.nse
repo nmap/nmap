@@ -41,7 +41,7 @@ categories = {
 function parse_robtex_response (data)
   local result = {};
 
-  for linkhref, ns, domain in string.gmatch(data, "<a href=\"(.-)%.html#shared\" title=\"using ns (.-)\">(.-)</a>") do
+  for linkhref, ns, domain in string.gmatch(data, "<a href=\"(.-)%.html#shared\"%s*title=\"using ns (.-)\">(.-)</a>") do
     if not table.contains(result, domain) then
       table.insert(result, domain);
     end
