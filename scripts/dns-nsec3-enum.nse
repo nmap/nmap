@@ -189,7 +189,7 @@ end
 
 -- convenience function , returns size of a table 
 local function table_size(tbl)
-	numItems = 0
+	local numItems = 0
 	for k,v in pairs(tbl) do
 		numItems = numItems + 1
 	end
@@ -222,8 +222,8 @@ local function query_for_hashes(host,subdomain,domain)
 	status, result = dns.query(subdomain, {host = host.ip, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
 	if status then 
 		for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
-			h1 = string.lower(remove_suffix(nsec3.dname,domain))
-			h2 = string.lower(nsec3.hash.base32)
+			local h1 = string.lower(remove_suffix(nsec3.dname,domain))
+			local h2 = string.lower(nsec3.hash.base32)
 			if not table_contains(all_results,"nexthash " .. h1 .. " " .. h2) then
 				table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
 				stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
@@ -260,8 +260,8 @@ local function enum(host, port, domain)
 			dnssec = true 
 			iter = nsec3.iterations
 			salt = nsec3.salt.hex
-			h1 = string.lower(remove_suffix(nsec3.dname,domain))
-			h2 = string.lower(nsec3.hash.base32)
+			local h1 = string.lower(remove_suffix(nsec3.dname,domain))
+			local h2 = string.lower(nsec3.hash.base32)
 			if table_size(todo) == 0 then 
 				table.insert(all_results, "domain " .. domain)
 				stdnse.print_debug("domain " .. domain)
@@ -311,8 +311,9 @@ local function enum(host, port, domain)
 
 	-- find hash that falls into one of the ranges and query for it
 	while table_size(todo) > 0 and nmap.clock_ms() < end_time do
+		local hash
 		hash, subdomain  = generate_hash(domain,iter,salt)
-		queried = false
+		local queried = false
 		for a,b in pairs(todo) do 
 			if a == b then
 				todo[a] = nil
@@ -321,9 +322,9 @@ local function enum(host, port, domain)
 			if a < b then -- [] range
 				if hash > a and hash < b then
 					-- do the query
-					hash_pairs = query_for_hashes(host,subdomain,domain)
+					local hash_pairs = query_for_hashes(host,subdomain,domain)
 					queried = true
-					changed = false
+					local changed = false
 					for h1,h2 in pairs(hash_pairs) do
 						if h1 == a and h2 == b then -- h1:a h2:b case
 							todo[a] = nil
@@ -353,9 +354,9 @@ local function enum(host, port, domain)
 				end
 			elseif a > b then -- ][ range
 				if hash > a or hash < b then
-					hash_pairs = query_for_hashes(host,subdomain,domain)
+					local hash_pairs = query_for_hashes(host,subdomain,domain)
 					queried = true
-					changed = false
+					local changed = false
 					for h1,h2 in pairs(hash_pairs) do
 						if h1 == a  and h2 == b then -- h2:b  a:h1 case
 							todo[a] = nil
