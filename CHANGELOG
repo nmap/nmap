@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added pcanywhere-brute script which bruteforces pcAnywhere server
+  for valid logins. [Aleksandar Nikolic]
+
 o [NSE] Added http-rfi-spider script that spiders webservers in search of
   remote file inclusion vulnerabilities. [Piotr Olma]
 
