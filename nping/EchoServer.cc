@@ -1492,6 +1492,11 @@ int EchoServer::start() {
     /* Sleep for a second until we check again for incoming connection requests */
     nsock_timer_create(nsp, empty_handler, 1000, NULL);
     loopret=nsock_loop(nsp, 1000);
+    //If something went wrong in nsock_loop, let's just bail out.
+    if (loopret == NSOCK_LOOP_ERROR) {
+        outFatal(QT_3, "Unexpected nsock_loop error.\n");
+        return OP_FAILURE;
+    }
   }
   return OP_SUCCESS;
 } /* End of start() */
