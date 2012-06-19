@@ -44,6 +44,7 @@ o We should probably sort script output (for port output and host
   deterministic order.  If the same three scripts produce output in
   two different scans, they should be listed in the same order.  Right
   now the order can vary, at least for host output.
+  [Sean]
 
 o FEATURE CREEPERS!  We have two talented GSoC students for summer
   2012.  Here are some ideas that they could do, though anyone else is
