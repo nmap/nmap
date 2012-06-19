@@ -656,8 +656,13 @@ static int ncat_listen_dgram(int proto)
              * We just peek so we can get the client connection details without
              * removing anything from the queue. Sigh.
              */
-            nbytes = Recvfrom(socket_n, buf, sizeof(buf), MSG_PEEK,
+            nbytes = recvfrom(socket_n, buf, sizeof(buf), MSG_PEEK,
                               &remotess.sockaddr, &sslen);
+            if (nbytes < 0) {
+                loguser("%s.\n", socket_strerror(socket_errno()));
+                close(socket_n);
+                return 1;
+            }
 
             /* Check conditions that might cause us to deny the connection. */
             conn_count = get_conn_count();
