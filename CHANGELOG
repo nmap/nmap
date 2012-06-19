@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] --output logging now works in UDP mode. Thanks to Michal
+  Hlavinka for reporting the bug. [David Fifield]
+
 o [NSE] Added pcanywhere-brute script which bruteforces pcAnywhere server
   for valid logins. [Aleksandar Nikolic]
 

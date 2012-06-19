@@ -673,7 +673,8 @@ static int ncat_listen_dgram(int proto)
             }
 
             /* Dump the current datagram */
-            Recv(socket_n, buf, sizeof(buf), 0);
+            nbytes = Recv(socket_n, buf, sizeof(buf), 0);
+            ncat_log_recv(buf, nbytes);
         }
 
         if (o.debug > 1)
@@ -732,6 +733,7 @@ static int ncat_listen_dgram(int proto)
                         send(socket_n, tempbuf, nbytes, 0);
                     else
                         send(socket_n, buf, nbytes, 0);
+                    ncat_log_send(buf, nbytes);
                 }
                 if (tempbuf != NULL) {
                     free(tempbuf);
@@ -745,6 +747,7 @@ static int ncat_listen_dgram(int proto)
                     close(socket_n);
                     return 1;
                 }
+                ncat_log_recv(buf, nbytes);
                 if (!o.sendonly)
                     Write(STDOUT_FILENO, buf, nbytes);
             }
