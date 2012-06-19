@@ -480,7 +480,7 @@ or type the nmap command you would like to execute."),
             command_execution.run_scan()
         except Exception, e:
             text = str(e)
-            if type(e) == OSError:
+            if isinstance(e, OSError):
                 # Handle ENOENT specially.
                 if e.errno == errno.ENOENT:
                     # nmap_command_path comes from zenmapCore.NmapCommand.
