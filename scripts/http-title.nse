@@ -17,10 +17,10 @@ original target.
 
 ---
 --@output
--- Interesting ports on scanme.nmap.org (64.13.134.52):
+-- Nmap scan report for scanme.nmap.org (74.207.244.221)
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- |_ http-title.nse: Go ahead and ScanMe!
+-- |_http-title: Go ahead and ScanMe!
 
 author = "Diman Todorov"
 
