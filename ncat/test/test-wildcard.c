@@ -156,7 +156,7 @@ end:
     X509_free(cert);
     EVP_PKEY_free(key);
 
-    BIO_destroy_bio_pair(server_bio);
+    (void) BIO_destroy_bio_pair(server_bio);
 
     SSL_CTX_free(server_ctx);
     SSL_CTX_free(client_ctx);
