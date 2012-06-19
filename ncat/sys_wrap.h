@@ -135,7 +135,6 @@ int Dup2(int oldfd, int newfd);
 int Listen(int s, int backlog);
 int Open(const char *pathname, int flags, mode_t mode);
 ssize_t Read(int fd, void *buf, size_t count);
-ssize_t Recv(int s, void *buf, size_t len, int flags);
 ssize_t Recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *from, socklen_t *fromlen);
 int Setsockopt(int s, int level, int optname, const void *optval, socklen_t optlen);
 sighandler_t Signal(int signum, sighandler_t handler);

@@ -673,7 +673,7 @@ static int ncat_listen_dgram(int proto)
             }
 
             /* Dump the current datagram */
-            nbytes = Recv(socket_n, buf, sizeof(buf), 0);
+            nbytes = recv(socket_n, buf, sizeof(buf), 0);
             if (nbytes < 0) {
                 loguser("%s.\n", socket_strerror(socket_errno()));
                 close(socket_n);

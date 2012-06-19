@@ -166,17 +166,6 @@ ssize_t Read(int fd, void *buf, size_t count)
     return ret;
 }
 
-ssize_t Recv(int s, void *buf, size_t len, int flags)
-{
-    ssize_t ret;
-
-    ret = recv(s, (char *) buf, len, flags);
-    if (ret < 0)
-        die("recv");
-
-    return ret;
-}
-
 ssize_t Recvfrom(int s, void *buf, size_t len, int flags,
                     struct sockaddr *from, socklen_t *fromlen)
 {
