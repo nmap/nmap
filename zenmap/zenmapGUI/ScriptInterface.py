@@ -200,7 +200,6 @@ class ScriptInterface:
         self.current_arguments = []
         self.set_help_texts()
         self.prev_script_spec = None
-        self.script_expr = re.compile(r"^NSE: Loaded '(.*)'")
         self.focussedentry = None
 
         self.liststore = gtk.ListStore(str, "gboolean", object)
