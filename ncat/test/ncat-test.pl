@@ -655,6 +655,28 @@ sub {
 };
 kill_children;
 
+server_client_test_all "Messages are logged to output file",
+["--output", "server.log"], ["--output", "client.log"], sub {
+
+	syswrite($c_in, "abc\n");
+	close($c_in);
+	sleep 1;
+	syswrite($s_in, "def\n");
+	close($s_in);
+	sleep 1;
+	open(FH, "server.log");
+	my $contents = join("", <FH>);
+	close(FH);
+	$contents eq "abc\ndef\n" or die "Server logged " . d($contents);
+	open(FH, "client.log");
+	$contents = join("", <FH>);
+	close(FH);
+	$contents eq "abc\ndef\n" or die "Client logged " . d($contents);
+};
+unlink "server.log";
+unlink "client.log";
+kill_children;
+
 server_client_test_tcp_sctp_ssl "Debug messages go to stderr",
 ["-vvv"], ["-vvv"], sub {
 	my $resp;
