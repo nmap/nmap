@@ -549,7 +549,7 @@ static int ncat_listen_dgram(int proto)
 {
     int sockfd[NUM_LISTEN_ADDRS];
     int i, fdn = -1;
-    int fdmax, nbytes, fds_ready;
+    int fdmax, nbytes, n, fds_ready;
     char buf[DEFAULT_UDP_BUF_LEN] = { 0 };
     char *tempbuf = NULL;
     fd_set read_fds;
@@ -674,6 +674,11 @@ static int ncat_listen_dgram(int proto)
 
             /* Dump the current datagram */
             nbytes = Recv(socket_n, buf, sizeof(buf), 0);
+            if (nbytes < 0) {
+                loguser("%s.\n", socket_strerror(socket_errno()));
+                close(socket_n);
+                return 1;
+            }
             ncat_log_recv(buf, nbytes);
         }
 
@@ -730,9 +735,14 @@ static int ncat_listen_dgram(int proto)
                     fix_line_endings((char *) buf, &nbytes, &tempbuf, &crlf_state);
                 if (!o.recvonly) {
                     if (tempbuf != NULL)
-                        send(socket_n, tempbuf, nbytes, 0);
+                        n = send(socket_n, tempbuf, nbytes, 0);
                     else
-                        send(socket_n, buf, nbytes, 0);
+                        n = send(socket_n, buf, nbytes, 0);
+                    if (n < nbytes) {
+                        loguser("%s.\n", socket_strerror(socket_errno()));
+                        close(socket_n);
+                        return 1;
+                    }
                     ncat_log_send(buf, nbytes);
                 }
                 if (tempbuf != NULL) {
