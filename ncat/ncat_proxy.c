@@ -104,7 +104,8 @@
 /* SIG_CHLD handler */
 static void proxyreaper(int signo)
 {
-    while (waitpid(-1, NULL, WNOHANG) > 0);
+    while (waitpid(-1, NULL, WNOHANG) > 0)
+        ;
 }
 #endif
 
@@ -209,7 +210,7 @@ int ncat_http_server(void)
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
 
-        for (i = 0; i <= listen_fdlist.fdmax && fds_ready >0; i++) {
+        for (i = 0; i <= listen_fdlist.fdmax && fds_ready > 0; i++) {
             /* Loop through descriptors until there is something ready */
             if (!FD_ISSET(i, &read_fds))
                 continue;
@@ -231,7 +232,7 @@ int ncat_http_server(void)
                         continue;
                     }
                     if (o.debug > 1)
-                            logdebug("forking handler for %d\n", i);
+                        logdebug("forking handler for %d\n", i);
                     fork_handler(i, c);
                 }
             }

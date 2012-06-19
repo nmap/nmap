@@ -190,12 +190,12 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
     }
 
     if (o.sslcert != NULL && o.sslkey != NULL) {
-      if (SSL_CTX_use_certificate_file(ctx, o.sslcert, SSL_FILETYPE_PEM) != 1)
+        if (SSL_CTX_use_certificate_file(ctx, o.sslcert, SSL_FILETYPE_PEM) != 1)
             bye("SSL_CTX_use_certificate_file(): %s.", ERR_error_string(ERR_get_error(), NULL));
-      if (SSL_CTX_use_PrivateKey_file(ctx, o.sslkey, SSL_FILETYPE_PEM) != 1)
+        if (SSL_CTX_use_PrivateKey_file(ctx, o.sslkey, SSL_FILETYPE_PEM) != 1)
             bye("SSL_CTX_use_Privatekey_file(): %s.", ERR_error_string(ERR_get_error(), NULL));
     } else {
-      if ((o.sslcert == NULL)!= (o.sslkey == NULL))
+        if ((o.sslcert == NULL) != (o.sslkey == NULL))
             bye("The --ssl-key and --ssl-cert options must be used together.");
     }
 }
@@ -458,7 +458,8 @@ bail:
     return -1;
 }
 
-int ncat_connect(void) {
+int ncat_connect(void)
+{
     nsock_pool mypool;
     int rc;
 
@@ -474,7 +475,7 @@ int ncat_connect(void) {
     nsp_setbroadcast(mypool, 1);
 
 #ifdef HAVE_OPENSSL
-    set_ssl_ctx_options((SSL_CTX *)nsp_ssl_init(mypool));
+    set_ssl_ctx_options((SSL_CTX *) nsp_ssl_init(mypool));
 #endif
 
     if (httpconnect.storage.ss_family == AF_UNSPEC
@@ -649,7 +650,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     if (nsi_checkssl(cs.sock_nsi)) {
         /* Check the domain name. ssl_post_connect_check prints an
            error message if appropriate. */
-        if (!ssl_post_connect_check((SSL *)nsi_getssl(cs.sock_nsi), o.target))
+        if (!ssl_post_connect_check((SSL *) nsi_getssl(cs.sock_nsi), o.target))
             bye("Certificate verification error.");
     }
 #endif
@@ -677,7 +678,7 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
 #endif
         /* Convert Nsock's non-blocking socket to an ordinary blocking one. It's
            possible for a program to write fast enough that it will get an
-           EAGAIN on write on a non-blocking socket.*/
+           EAGAIN on write on a non-blocking socket. */
         block_socket(info.fd);
         netexec(&info, o.cmdexec);
     }

@@ -197,7 +197,8 @@ extern void set_pseudo_sigchld_handler(void (*handler)(void))
 /* Run a command and redirect its input and output handles to a pair of
    anonymous pipes.  The process handle and pipe handles are returned in the
    info struct. Returns the PID of the new process, or -1 on error. */
-static int run_command_redirected(char *cmdexec, struct subprocess_info *info) {
+static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
+{
     /* Each named pipe we create has to have a unique name. */
     static int pipe_serial_no = 0;
     char pipe_name[32];
@@ -361,7 +362,8 @@ static int start_subprocess(char *cmdexec, struct subprocess_info *info)
    called directly to simulate exec. It frees the subprocess_info struct and
    closes the socket and pipe handles before returning. Returns the exit code
    of the subprocess. */
-static DWORD WINAPI subprocess_thread_func(void *data) {
+static DWORD WINAPI subprocess_thread_func(void *data)
+{
     struct subprocess_info *info;
     char pipe_buffer[BUFSIZ];
     OVERLAPPED overlap = { 0 };

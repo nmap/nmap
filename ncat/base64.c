@@ -140,7 +140,7 @@ char *b64enc(const unsigned char *data, int len)
     char *dest;
 
     /* malloc enough space to do something useful */
-    dest = (char*)safe_malloc(4 * len / 3 + 4);
+    dest = (char *) safe_malloc(4 * len / 3 + 4);
 
     dest[0] = '\0';
 

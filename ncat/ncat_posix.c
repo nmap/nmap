@@ -186,7 +186,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
             execv(cmdargs[0], cmdargs);
         }
 
-        /* exec failed.*/
+        /* exec failed. */
         die("exec");
     }
 
@@ -276,34 +276,41 @@ char **cmdline_split(const char *cmdexec)
     ptr = cmdexec;
     while (*ptr) {
         // Find the start of the token
-        while (('\0' != *ptr) && isspace((int) (unsigned char) *ptr)) ptr++;
-        if ('\0' == *ptr)     break;
+        while (('\0' != *ptr) && isspace((int) (unsigned char) *ptr))
+            ptr++;
+        if ('\0' == *ptr)
+            break;
         max_tokens++;
         // Find the start of the whitespace again
-        while (('\0' != *ptr) && !isspace((int) (unsigned char) *ptr)) ptr++;
+        while (('\0' != *ptr) && !isspace((int) (unsigned char) *ptr))
+            ptr++;
     }
 
     /* The line is not empty so we've got something to deal with */
-    cmd_args = (char**)safe_malloc(sizeof(char*) * (max_tokens + 1));
-    cur_arg = (char*)Calloc(sizeof(char), strlen(cmdexec));
+    cmd_args = (char **) safe_malloc(sizeof(char *) * (max_tokens + 1));
+    cur_arg = (char *) Calloc(sizeof(char), strlen(cmdexec));
 
     /* Get and copy the tokens */
     ptr = cmdexec;
     while (*ptr) {
-        while (('\0' != *ptr) && isspace((int) (unsigned char) *ptr)) ptr++;
-        if ('\0' == *ptr)     break;
+        while (('\0' != *ptr) && isspace((int) (unsigned char) *ptr))
+            ptr++;
+        if ('\0' == *ptr)
+            break;
 
         while (('\0' != *ptr) && !isspace((int) (unsigned char) *ptr)) {
             if ('\\' == *ptr) {
                 ptr++;
-                if ('\0' == *ptr)   break;
+                if ('\0' == *ptr)
+                    break;
 
                 cur_arg[ptr_idx] = *ptr;
                 ptr_idx++;
                 ptr++;
 
                 if ('\\' != *(ptr - 1)) {
-                    while (('\0' != *ptr) && isspace((int) (unsigned char) *ptr)) ptr++;
+                    while (('\0' != *ptr) && isspace((int) (unsigned char) *ptr))
+                        ptr++;
                 }
             } else {
                 cur_arg[ptr_idx] = *ptr;

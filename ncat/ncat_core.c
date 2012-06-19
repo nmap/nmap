@@ -130,7 +130,8 @@ struct options o;
 struct timeval start_time;
 
 /* Initializes global options to their default values. */
-void options_init(void) {
+void options_init(void)
+{
     o.verbose = 0;
     o.debug = 0;
     o.target = NULL;
@@ -384,7 +385,7 @@ int ncat_delay_timer(int delayval)
  * Return the open file descriptor. */
 int ncat_openlog(const char *logfile, int append)
 {
-    if(append)
+    if (append)
         return Open(logfile, O_WRONLY | O_CREAT | O_APPEND, 0664);
     else
         return Open(logfile, O_WRONLY | O_CREAT | O_TRUNC, 0664);
@@ -423,7 +424,7 @@ static int ncat_hexdump(int logfd, const char *data, int len)
     for (i = 1; i <= len; i++) {
         if (i % 16 == 1) {
             /* Hex address output */
-            Snprintf(addrstr, sizeof(addrstr), "%.4x", (u_int)(p - data));
+            Snprintf(addrstr, sizeof(addrstr), "%.4x", (u_int) (p - data));
         }
 
         c = *p;

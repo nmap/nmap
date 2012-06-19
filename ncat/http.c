@@ -280,7 +280,7 @@ static int str_cmp_i(const char *a, const char *b)
         ca = tolower((int) (unsigned char) *a);
         cb = tolower((int) (unsigned char) *b);
         if (ca != cb)
-                return ca - cb;
+            return ca - cb;
         a++;
         b++;
     }

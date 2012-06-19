@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
         case 'c':
             o.cmdexec = optarg;
             o.shellexec = 1;
-	    break;
+            break;
         case 'e':
             o.cmdexec = optarg;
             break;
@@ -394,83 +394,54 @@ int main(int argc, char *argv[])
             if (strcmp(long_options[option_index].name, "version") == 0) {
                 print_banner();
                 exit(EXIT_SUCCESS);
-            }
-            else if (strcmp(long_options[option_index].name, "proxy") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "proxy") == 0) {
                 if (proxyaddr)
                     bye("You can't specify more than one --proxy.");
                 proxyaddr = Strdup(optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "proxy-type") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "proxy-type") == 0) {
                 if (o.proxytype)
-                        bye("You can't specify more than one --proxy-type.");
+                    bye("You can't specify more than one --proxy-type.");
                 o.proxytype = Strdup(optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "proxy-auth") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "proxy-auth") == 0) {
                 if (o.proxy_auth)
-                        bye("You can't specify more than one --proxy-auth.");
+                    bye("You can't specify more than one --proxy-auth.");
                 o.proxy_auth = Strdup(optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "nsock-engine") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "nsock-engine") == 0) {
                 nsock_set_default_engine(optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "broker") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "broker") == 0) {
                 o.broker = 1;
                 /* --broker implies --listen. */
                 o.listen = 1;
-            }
-            else if (strcmp(long_options[option_index].name, "chat") == 0
-                     || strcmp(long_options[option_index].name, "talk") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "chat") == 0
+                       || strcmp(long_options[option_index].name, "talk") == 0) {
                 /* --talk is an older name for --chat. */
                 o.chat = 1;
                 /* --chat implies --broker. */
                 o.broker = 1;
-            }
-            else if (strcmp(long_options[option_index].name, "allow") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "allow") == 0) {
                 o.allow = 1;
                 host_list_add_spec(&allow_host_list, optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "allowfile") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "allowfile") == 0) {
                 o.allow = 1;
                 host_list_add_filename(&allow_host_list, optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "deny") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "deny") == 0) {
                 host_list_add_spec(&deny_host_list, optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "denyfile") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "denyfile") == 0) {
                 host_list_add_filename(&deny_host_list, optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "append-output") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "append-output") == 0) {
                 o.append = 1;
             }
 #ifdef HAVE_OPENSSL
-            else if (strcmp(long_options[option_index].name, "ssl-cert") == 0)
-            {
+            else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
                 o.ssl = 1;
                 o.sslcert = Strdup(optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "ssl-key") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "ssl-key") == 0) {
                 o.ssl = 1;
                 o.sslkey = Strdup(optarg);
-            }
-            else if (strcmp(long_options[option_index].name, "ssl-verify") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "ssl-verify") == 0) {
                 o.sslverify = 1;
                 o.ssl = 1;
-            }
-            else if (strcmp(long_options[option_index].name, "ssl-trustfile") == 0)
-            {
+            } else if (strcmp(long_options[option_index].name, "ssl-trustfile") == 0) {
                 o.ssl = 1;
                 if (o.ssltrustfile != NULL)
                     bye("The --ssl-trustfile option may be given only once.");
@@ -569,34 +540,34 @@ int main(int argc, char *argv[])
     }
 
     if (proxyaddr) {
-      if (!o.proxytype)
-          o.proxytype = Strdup("http");
+        if (!o.proxytype)
+            o.proxytype = Strdup("http");
 
-      if (!strcmp(o.proxytype, "http")) {
-          /* Parse HTTP proxy address and temporarily store it in httpconnect.  If
-           * the proxy server is given as an IPv6 address (not hostname), the port
-           * number MUST be specified as well or parsing will break (due to the
-           * colons in the IPv6 address and host:port separator).
-           */
+        if (!strcmp(o.proxytype, "http")) {
+            /* Parse HTTP proxy address and temporarily store it in httpconnect.  If
+             * the proxy server is given as an IPv6 address (not hostname), the port
+             * number MUST be specified as well or parsing will break (due to the
+             * colons in the IPv6 address and host:port separator).
+             */
 
-          parseproxy(proxyaddr, &httpconnect.storage, DEFAULT_PROXY_PORT);
-      } else if (!strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4")) {
-          /* Parse SOCKS proxy address and temporarily store it in socksconnect */
+            parseproxy(proxyaddr, &httpconnect.storage, DEFAULT_PROXY_PORT);
+        } else if (!strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4")) {
+            /* Parse SOCKS proxy address and temporarily store it in socksconnect */
 
-          parseproxy(proxyaddr, &socksconnect.storage, DEFAULT_SOCKS4_PORT);
-      } else {
-          bye("Invalid proxy type \"%s\".", o.proxytype);
-      }
+            parseproxy(proxyaddr, &socksconnect.storage, DEFAULT_SOCKS4_PORT);
+        } else {
+            bye("Invalid proxy type \"%s\".", o.proxytype);
+        }
 
-      free(o.proxytype);
-      free(proxyaddr);
+        free(o.proxytype);
+        free(proxyaddr);
     } else {
-      if (o.proxytype) {
-        if (!o.listen)
-          bye("Proxy type (--proxy-type) specified without proxy address (--proxy).");
-        if (strcmp(o.proxytype, "http"))
-          bye("Invalid proxy type \"%s\".", o.proxytype);
-      }
+        if (o.proxytype) {
+            if (!o.listen)
+                bye("Proxy type (--proxy-type) specified without proxy address (--proxy).");
+            if (strcmp(o.proxytype, "http"))
+                bye("Invalid proxy type \"%s\".", o.proxytype);
+        }
     }
 
     /* Default port */
@@ -723,7 +694,8 @@ connection brokering should work.");
 }
 
 /* connect error handling and operations. */
-static int ncat_connect_mode(void) {
+static int ncat_connect_mode(void)
+{
     /*
      * allow/deny commands with connect make no sense. If you don't want to
      * connect to a host, don't try to.
@@ -744,7 +716,8 @@ static int ncat_connect_mode(void) {
     return ncat_connect();
 }
 
-static int ncat_listen_mode(void) {
+static int ncat_listen_mode(void)
+{
     /* Can't 'listen' AND 'connect' to a proxy server at the same time. */
     if (httpconnect.storage.ss_family != AF_UNSPEC || socksconnect.storage.ss_family != AF_UNSPEC)
         bye("Invalid option combination: --proxy and -l.");
@@ -779,7 +752,7 @@ static int ncat_listen_mode(void) {
         int rc;
 
         /* No command-line address. Listen on IPv4 or IPv6 or both. */
-	/* Try to bind to IPv6 first; on AIX a bound IPv4 socket blocks an IPv6
+        /* Try to bind to IPv6 first; on AIX a bound IPv4 socket blocks an IPv6
            socket on the same port, despite IPV6_V6ONLY. */
 #ifdef HAVE_IPV6
         if (o.af == AF_INET6 || o.af == AF_UNSPEC) {
