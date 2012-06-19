@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made the various Makefiles' treatment of makefile.dep uniform:
+  "make clean" keeps the file and "make distclean" deletes it.
+  [Michael McTernan]
+
 o [Ncat] --output logging now works in UDP mode. Thanks to Michal
   Hlavinka for reporting the bug. [David Fifield]
 

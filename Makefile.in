@@ -186,7 +186,7 @@ web:
 clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@ @NMAP_UPDATE_CLEAN@
 
 my_clean:
-	rm -f dependencies.mk makefile.dep
+	rm -f dependencies.mk
 	rm -f $(OBJS) $(TARGET) config.cache
 
 clean-%:

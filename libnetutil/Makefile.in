@@ -28,7 +28,7 @@ clean:
 	rm -f $(OBJS) $(TARGET) 
 
 distclean: clean
-	rm -rf Makefile
+	rm -rf Makefile makefile.dep
 
 Makefile: Makefile.in
 	cd $(top_srcdir) && ./config.status

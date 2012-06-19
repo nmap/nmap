@@ -47,10 +47,10 @@ $(NBASEDIR)/libnbase.a: $(NBASEDIR)/Makefile
 	cd $(NBASEDIR) && $(MAKE)
 
 clean:
-	rm -f $(OBJS) $(TARGET) makefile.dep
+	rm -f $(OBJS) $(TARGET)
 
 distclean: clean
-	rm -f Makefile config.log config.status nsock_config.h
+	rm -f Makefile makefile.dep config.log config.status nsock_config.h
 
 depend:
 	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)

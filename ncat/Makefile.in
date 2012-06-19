@@ -156,12 +156,12 @@ uninstall:
 	$(RM) -rf $(DESTDIR)$(pkgdatadir)/
 
 ncat_clean:
-	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS) makefile.dep
+	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS)
 
 clean: ncat_clean
 
 distclean: clean
-	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f Makefile makefile.dep $(CONFIG_CLEAN_FILES)
 
 TESTS = ./test-addrset.sh ./test-cmdline-split ./test-uri
 ifneq ($(HAVE_OPENSSL),)

@@ -46,10 +46,10 @@ uninstall:
 	$(RM) -f $(DESTDIR)$(bindir)/nmap-update
 
 clean:
-	rm -f nmap-update *.o makefile.dep
+	rm -f nmap-update *.o
 
 distclean: clean
-	rm -f Makefile
+	rm -f Makefile makefile.dep
 
 Makefile: Makefile.in
 	./config.status

@@ -112,7 +112,7 @@ web:
 clean: my_clean 
 
 my_clean:
-	rm -f dependencies.mk makefile.dep
+	rm -f dependencies.mk
 	rm -f $(OBJS) $(TARGET) config.cache
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
