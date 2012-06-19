@@ -6,7 +6,7 @@ bindir = @bindir@
 mandir = @mandir@
 
 CC = @CC@
-CFLAGS = @CFLAGS@
+CFLAGS = @CFLAGS@ -Wno-deprecated-declarations
 CPPFLAGS = @CPPFLAGS@ $(DEFS) -I$(NBASEDIR)
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@ $(NBASELIB)
