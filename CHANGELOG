@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash in the profile editor that would happen when
+  the nmap binary couldn't be found. [David Fifield]
+
 o Made the various Makefiles' treatment of makefile.dep uniform:
   "make clean" keeps the file and "make distclean" deletes it.
   [Michael McTernan]
