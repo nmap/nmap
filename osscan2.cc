@@ -761,7 +761,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
       memcpy(&(hsi->target->seq), &hsi->hss->si, sizeof(struct seq_info));
       if (roundNum > 0) {
         if (o.verbose)
-          log_write(LOG_STDOUT, "WARNING:  OS didn't match until try #%d\n", roundNum + 1);
+          log_write(LOG_STDOUT, "WARNING: OS didn't match until try #%d\n", roundNum + 1);
       }
       match_fingerprint(hsi->FPR->FPs[roundNum], hsi->FPR,
                         o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
@@ -2554,7 +2554,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
 
   if ((tcp->th_flags & TH_RST)) {
     if (hss->si.responses == 0) {
-      error("WARNING:  RST from %s port %d -- is this port really open?",
+      error("WARNING: RST from %s port %d -- is this port really open?",
               hss->target->targetipstr(), hss->openTCPPort);
     }
     return false;

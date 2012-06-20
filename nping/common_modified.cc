@@ -701,7 +701,7 @@ void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int *portwarning)
     while(rangestart <= rangeend) {
       if (porttbl[rangestart]) {
         if (!(*portwarning)) {
-	        error("WARNING:  Duplicate port number(s) specified.  Are you alert enough to be using Nping?  Have some coffee or grab a RedBull(tm).");
+	        error("WARNING: Duplicate port number(s) specified.  Are you alert enough to be using Nping?  Have some coffee or grab a RedBull(tm).");
             (*portwarning)++;
 	    }
       } else {

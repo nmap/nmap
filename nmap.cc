@@ -1682,7 +1682,7 @@ int nmap_main(int argc, char *argv[]) {
 #endif
 
   if (o.max_parallelism && (i = max_sd()) && i < o.max_parallelism) {
-    error("WARNING:  Your specified max_parallel_sockets of %d, but your system says it might only give us %d.  Trying anyway", o.max_parallelism, i);
+    error("WARNING: Your specified max_parallel_sockets of %d, but your system says it might only give us %d.  Trying anyway", o.max_parallelism, i);
   }
 
   if (o.debugging > 1) log_write(LOG_STDOUT, "The max # of sockets we are using is: %d\n", o.max_parallelism);
@@ -1869,7 +1869,7 @@ int nmap_main(int argc, char *argv[]) {
             o.setSourceSockAddr(&ss, sslen);
             currenths->setSourceSockAddr(&ss, sslen);
             if (! sourceaddrwarning) {
-              error("WARNING:  We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.",
+              error("WARNING: We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.",
                   inet_socktop(&ss));
                 sourceaddrwarning = 1;
             }
@@ -2200,7 +2200,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   nmap_arg_buffer[21 + q-p] = '\0';
 
   if (strstr(nmap_arg_buffer, "--randomize-hosts") != NULL) {
-    error("WARNING:  You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch may be missed and others may be repeated once");
+    error("WARNING: You are attempting to resume a scan which used --randomize-hosts.  Some hosts in the last randomized batch may be missed and others may be repeated once");
   }
 
   *myargc = arg_parse(nmap_arg_buffer, myargv);
@@ -2574,7 +2574,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
     while(rangestart <= rangeend) {
       if (porttbl[rangestart] & range_type) {
         if (!(*portwarning)) {
-	  error("WARNING:  Duplicate port number(s) specified.  Are you alert enough to be using Nmap?  Have some coffee or Jolt(tm).");
+	  error("WARNING: Duplicate port number(s) specified.  Are you alert enough to be using Nmap?  Have some coffee or Jolt(tm).");
           (*portwarning)++;
 	} 
       } else {      
