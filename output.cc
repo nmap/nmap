@@ -1075,25 +1075,20 @@ int log_open(int logt, int append, char *filename) {
    rangelist to the log stream given (such as LOG_MACHINE or LOG_XML) */
 static void output_rangelist_given_ports(int logt, unsigned short *ports,
                                          int numports) {
-  int i, previous_port = -2, range_start = -2, port;
-  char outpbuf[128];
+  int start, end;
 
-  for (i = 0; i <= numports; i++) {
-    port = (i < numports) ? ports[i] : 0xABCDE;
-    if (port != previous_port + 1) {
-      outpbuf[0] = '\0';
-      if (range_start != previous_port && range_start != -2)
-        sprintf(outpbuf, "-%hu", previous_port);
-      if (port != 0xABCDE) {
-        if (range_start != -2)
-          strcat(outpbuf, ",");
-        sprintf(outpbuf + strlen(outpbuf), "%hu", port);
-      }
-      if (*outpbuf)
-        log_write(logt, "%s", outpbuf);
-      range_start = port;
-    }
-    previous_port = port;
+  start = 0;
+  while (start < numports) {
+    end = start;
+    while (end + 1 < numports && ports[end + 1] == ports[end] + 1)
+      end++;
+    if (start > 0)
+      log_write(logt, ",");
+    if (start == end)
+      log_write(logt, "%hu", ports[start]);
+    else
+      log_write(logt, "%hu-%hu", ports[start], ports[end]);
+    start = end + 1;
   }
 }
 
