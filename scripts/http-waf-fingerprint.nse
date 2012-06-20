@@ -6,19 +6,25 @@ local table = require "table"
 local url = require "url"
 
 description = [[
-Tries to detect the presence of web application firewall and its type and version.
+Tries to detect the presence of a web application firewall and its type and
+version.
 
-This works by sending a number of requests and looking in the responses for known behavior and fingerprints
-such as Server header, cookies and headers values.
+This works by sending a number of requests and looking in the responses for
+known behavior and fingerprints such as Server header, cookies and headers
+values. Intensive mode works by sending additional WAF specific requests to
+detect certain behaviour.
 
-Credit to wafw00f and w3af for some fingerprints. 
+Credit to wafw00f and w3af for some fingerprints.
 ]]
 
 ---
 -- @args http-waf-fingerprint.root The base path. Defaults to <code>/</code>.
+-- @args http-waf-fingerprint.intensive If set, will add WAF specific scans,
+-- which takes more time. Off by default.
 --
 -- @usage
 -- nmap --script=http-waf-fingerprint <targets>
+-- nmap --script=http-waf-fingerprint --script-args http-waf-fingerprint.intensive=1 <targets>
 --
 --@output
 --PORT   STATE SERVICE REASON
@@ -35,12 +41,16 @@ categories = {"discovery", "intrusive"}
 -- Version 0.1:
 -- - Initial version based on work done with wafw00f and w3af.
 -- - Removed many false positives.
--- - Added fingeprints for WAFs such as Incapsula WAF, Cloudflare, USP-SES ,Cisco ACE XML Gateway and ModSecurity.
--- - Added fingerprints and version detection for Webknight and BinarySec, Citrix Netscaler and ModSecurity
+-- - Added fingeprints for WAFs such as Incapsula WAF, Cloudflare, USP-SES,
+--   Cisco ACE XML Gateway and ModSecurity.
+-- - Added fingerprints and version detection for Webknight and BinarySec,
+--   Citrix Netscaler and ModSecurity
 --
+-- Version 0.2:
+-- - Added intensive mode.
+-- - Added fingerprints for Naxsi waf in intensive mode.
 --
 -- TODO:    Fingerprints for other WAFs
---          Add intensive mode (WAF specific requests)
 --
 
 portrule = shortport.service("http")
@@ -87,6 +97,8 @@ bigip = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local webknight
@@ -108,6 +120,8 @@ webknight = {
                 webknight.detected = true
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -132,6 +146,8 @@ isaserver = {
                 end
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -160,6 +176,8 @@ airlock = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local barracuda
@@ -178,6 +196,8 @@ barracuda = {
                 end
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -198,6 +218,8 @@ denyall = {
                 end
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -226,6 +248,8 @@ f5trafficshield = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local teros 
@@ -244,6 +268,8 @@ teros = {
                 end
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -266,6 +292,8 @@ binarysec = {
                 binarysec.detected = true
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -290,6 +318,8 @@ profense = {
                 end
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -331,6 +361,8 @@ netscaler = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local dotdefender
@@ -348,6 +380,8 @@ dotdefender = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local ibmdatapower
@@ -364,6 +398,8 @@ ibmdatapower = {
                 return
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -389,6 +425,8 @@ cloudflare = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local incapsula
@@ -408,6 +446,8 @@ incapsula = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local uspses 
@@ -425,6 +465,8 @@ uspses = {
             end
         end
     end,
+    intensive = function(host, port, root, responses)
+    end,
 }
 
 local ciscoacexml
@@ -441,6 +483,8 @@ ciscoacexml = {
                 return
             end
         end
+    end,
+    intensive = function(host, port, root, responses)
     end,
 }
 
@@ -477,6 +521,29 @@ modsecurity = {
             end 
         end 
     end,
+    intensive = function(host, port, root, responses)
+    end,
+}
+
+local naxsi
+naxsi = { 
+    name = "Naxsi",
+    detected = false,
+    version = nil,
+
+    match = function(responses)
+    end,
+    intensive = function(host, port, root, responses)
+	-- Credit to Henri Doreau
+	local response = http.get(host, port, root .. "?a=[") -- This shouldn't trigget the rules
+	local response2 = http.get(host, port, root .. "?a=[[[]]]][[[]") -- This should trigger the score based rules
+
+	if response.status ~= response2.status then
+                stdnse.print_debug("%s Naxsi detected through intensive scan.", SCRIPT_NAME)
+                naxsi.detected = true
+	end
+	return
+    end,
 }
 
 
@@ -502,6 +569,7 @@ local wafs = {
     uspses = uspses,
     ciscoacexml = ciscoacexml,
     modsecurity = modsecurity,
+    naxsi = naxsi,
 --  netcontinuum = netcontinuum,
 --  secureiis = secureiis,
 --  urlscan = urlscan,
@@ -510,7 +578,6 @@ local wafs = {
 --  websecurity = websecurity,
 --  imperva = imperva,
 --  ibmwas = ibmwas,
---  naxsi = naxsi,
 --  nevisProxy = nevisProxy,
 --  genericwaf = genericwaf,
 }
@@ -582,7 +649,8 @@ end
 
 action = function(host, port)
     local root = stdnse.get_script_args(SCRIPT_NAME .. '.root') or "/"
-    local result = {"Detected firewalls", {}}
+    local intensive = stdnse.get_script_args(SCRIPT_NAME .. '.intensive')
+    local result = {"Detected WAF", {}}
 
     -- We send requests
     local responses = send_requests(host, port, root)
@@ -594,6 +662,7 @@ action = function(host, port)
     -- the presence of any fingerprints.
     for _, waf in pairs(wafs) do
         waf.match(responses)
+	if intensive then waf.intensive(host, port, root, responses) end
         if waf.detected then
             if waf.version then
                 table.insert(result[2], waf.name .. " version " .. waf.version)
