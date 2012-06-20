@@ -4,6 +4,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local tab = require "tab"
 local table = require "table"
+local nmap = require "nmap"
 
 description = [[
 Attempts to get useful information about files from NFS exports.
@@ -55,8 +56,7 @@ These access permissions are shown only with NFSv3:
 -- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34   symlink
 --
 -- @args nfs-ls.maxfiles If set, limits the amount of files returned by
---       the script when using the <code>nfs-ls.dirlist</code> argument.
---       If set to 0
+--       the script. If set to 0
 --       or less, all files are shown. The default value is 10.
 -- @args nfs-ls.human If set to <code>1</code> or <code>true</code>,
 --       shows file sizes in a human readable format with suffixes like
@@ -88,19 +88,57 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 
+local mountport = nil
+local nfsport = nil
+hostrule = function(host)
+  for _,proto in ipairs({"tcp","udp"}) do
+    local port = nmap.get_ports(host, nil, proto, "open")
+    while port do
+      if port.version then
+        if port.service == "mountd" then
+          mountport = port
+        elseif port.service == "nfs" then
+          nfsport = port
+        end
+      end
+      if mountport and nfsport then break end
+      port = nmap.get_ports(host, port, proto, "open")
+    end
+    if mountport and nfsport then break end
+  end
+  if nfsport == nil then return false end
+  if nfsport.version.rpc_highver == 4 and nfsport.version.rpc_lowver <= 3 then
+    nfsport.version.rpc_goodver = 3
+  else
+    nfsport.version.rpc_goodver = nfsport.version.rpc_highver
+  end
+  return (mountport and nfsport)
+end
+
+local procedures = { }
+
 local function table_attributes(nfs, mount, attr)
   local file = {}
 
-  file.type = rpc.Util.FtypeToChar(attr.mode)
-  file.mode = rpc.Util.FpermToString(attr.mode)
-  file.uid = tostring(attr.uid)
-  file.gid = tostring(attr.gid)
-  if nfs.human then
-    file.size = rpc.Util.SizeToHuman(attr.size)
+  if attr.mode then
+    file.type = rpc.Util.FtypeToChar(attr.mode)
+    file.mode = rpc.Util.FpermToString(attr.mode)
+    file.uid = tostring(attr.uid)
+    file.gid = tostring(attr.gid)
+    if nfs.human then
+      file.size = rpc.Util.SizeToHuman(attr.size)
+    else
+      file.size = tostring(attr.size)
+    end
+    file.time = rpc.Util.TimeToString(attr[nfs.time].seconds)
   else
-    file.size = tostring(attr.size)
+    file.type = '?'
+    file.mode = '?????????'
+    file.uid = '?'
+    file.gid = '?'
+    file.size = '?'
+    file.time = '?'
   end
-  file.time = rpc.Util.TimeToString(attr[nfs.time].seconds)
   file.filename = mount
 
   return file
@@ -145,12 +183,12 @@ local function nfs_ls(nfs, mount, results, access)
   local nfsobj = rpc.NFS:new()
   local mnt_comm, nfs_comm, fhandle
 
-  mnt_comm, fhandle = rpc.Helper.MountPath(nfs.host, nfs.port, mount)
+  mnt_comm, fhandle = procedures.MountPath(nfs.host, mount)
   if mnt_comm == nil then
     return false, fhandle
   end
 
-  local nfs_comm, status = rpc.Helper.NfsOpen(nfs.host, nfs.port)
+  local nfs_comm, status = procedures.NfsOpen(nfs.host)
   if nfs_comm == nil then
     rpc.Helper.UnmountPath(mnt_comm, mount)
     return false, status
@@ -243,12 +281,11 @@ local function report(nfs, table)
   return tab.dump(outtab)
 end
 
-action = function(host, port)
+local mainaction = function(host)
   local o, results, mounts, status = {}, {}, {}
   local nfs_info =
   {
     host      = host,
-    port      = port,
     --recurs    = tonumber(nmap.registry.args['nfs-ls.recurs']) or 1,
   }
 
@@ -275,9 +312,13 @@ action = function(host, port)
     table.insert(o, args)
   end
 
-  status, mounts = rpc.Helper.ShowMounts(nfs_info.host, nfs_info.port)
+  status, mounts = procedures.ShowMounts(nfs_info.host)
   if not status or mounts == nil then
-    return stdnse.format_output(false, mounts)
+    if mounts then
+      return stdnse.format_output(false, mounts)
+    else
+      return stdnse.format_output(false, "Mount error")
+    end
   end
 
   for _, v in ipairs(mounts) do
@@ -298,3 +339,85 @@ action = function(host, port)
 
   return stdnse.format_output(true, o)
 end
+
+hostaction = function(host)
+  procedures = {
+    ShowMounts = function(ahost)
+      local mnt_comm, status, result, mounts
+      local mnt = rpc.Mount:new()
+      mnt_comm = rpc.Comm:new('mountd', mountport.version.rpc_highver)
+      status, result = mnt_comm:Connect(ahost, mountport)
+      if ( not(status) ) then
+        stdnse.print_debug(4, "ShowMounts: %s", result)
+        return false, result
+      end
+      status, mounts = mnt:Export(mnt_comm)
+      mnt_comm:Disconnect()
+      if ( not(status) ) then
+        stdnse.print_debug(4, "ShowMounts: %s", mounts)
+      end
+      return status, mounts
+    end,
+
+    MountPath = function(ahost, path)
+      local fhandle, status, err
+      local mountd, mnt_comm
+      local mnt = rpc.Mount:new()
+
+      mnt_comm = rpc.Comm:new("mountd", mountport.version.rpc_highver)
+
+      status, err = mnt_comm:Connect(host, mountport)
+      if not status then
+        stdnse.print_debug(4, "MountPath: %s", err)
+        return nil, err
+      end
+
+      status, fhandle = mnt:Mount(mnt_comm, path)
+      if not status then
+        mnt_comm:Disconnect()
+        stdnse.print_debug(4, "MountPath: %s", fhandle)
+        return nil, fhandle
+      end
+
+      return mnt_comm, fhandle
+    end,
+
+    NfsOpen = function(ahost)
+      local nfs_comm, status, err
+
+      nfs_comm = rpc.Comm:new('nfs', nfsport.version.rpc_goodver)
+      status, err = nfs_comm:Connect(host, nfsport)
+      if not status then
+        stdnse.print_debug(4, "NfsOpen: %s", err)
+        return nil, err
+      end
+
+      return nfs_comm, nil
+    end,
+  }
+  return mainaction(host)
+end
+
+portaction = function(host, port)
+  procedures = {
+    ShowMounts = function(ahost)
+      return rpc.Helper.ShowMounts(ahost, port)
+    end,
+    MountPath = function(ahost, path)
+      return rpc.Helper.MountPath(ahost, port, path)
+    end,
+    NfsOpen = function(ahost)
+      return rpc.Helper.NfsOpen(ahost, port)
+    end,
+  }
+  return mainaction(host)
+end
+
+local ActionsTable = {
+  -- portrule: use rpcbind service
+  portrule = portaction,
+  -- hostrule: Talk to services directly
+  hostrule = hostaction
+}
+
+action = function(...) return ActionsTable[SCRIPT_TYPE](...) end

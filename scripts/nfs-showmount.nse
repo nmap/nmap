@@ -32,14 +32,34 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 
-portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
+portrule = shortport.port_or_service(111, {"rpcbind", "mountd"}, {"tcp", "udp"} )
+
+local function get_exports(host, port)
+  local mnt = rpc.Mount:new()
+  mnt_comm = rpc.Comm:new('mountd', port.version.rpc_highver)
+  status, result = mnt_comm:Connect(host, port)
+  if ( not(status) ) then
+    stdnse.print_debug(4, "get_exports: %s", result)
+    return false, result
+  end
+  status, mounts = mnt:Export(mnt_comm)
+  mnt_comm:Disconnect()
+  if ( not(status) ) then
+    stdnse.print_debug(4, "get_exports: %s", mounts)
+  end
+  return status, mounts
+end
 
 action = function(host, port)
 
     local status, mounts, proto 
     local result = {}
     
-    status, mounts = rpc.Helper.ShowMounts( host, port )
+    if port.service == "mountd" then
+      status, mounts = get_exports( host, port )
+    else
+      status, mounts = rpc.Helper.ShowMounts( host, port )
+    end
 
     if not status or mounts == nil then
         return stdnse.format_output(false, mounts)

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added AUTH_UNIX support to the rpc library and nfs scripts.
+  [Daniel Miller]
+
 o [Zenmap] Fixed a crash in the profile editor that would happen when
   the nmap binary couldn't be found. [David Fifield]
 

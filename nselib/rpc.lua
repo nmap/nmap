@@ -164,9 +164,25 @@ Comm = {
       end
       if ( port.protocol == "tcp" ) then
         socket = nmap.new_socket()
-        status, err = socket:connect(host, port)
+        if nmap.is_privileged() then
+          -- Try to bind to a reserved port
+          for resvport = 600, 1024, 1 do
+            status, err = socket:bind(nil, 1000)
+            if status then 
+              status, err = socket:connect(host, port)
+              if status then break end
+            end
+          end
+        end
       else
         socket = nmap.new_socket("udp")
+        if nmap.is_privileged() then
+          -- Try to bind to a reserved port
+          for resvport = 600, 1024, 1 do
+            status, err = socket:bind(nil, 1000)
+            if status then break end
+          end
+        end
       end
       if (not(status)) then
         return status, string.format("%s connect error: %s",
@@ -273,14 +289,30 @@ Comm = {
       end
       if not auth then
         return false, "Comm.CreateHeader: No authentication specified"
-      elseif auth.type ~= Portmap.AuthType.NULL then
-        return false, "Comm.CreateHeader: invalid authentication type specified"
       end
 
       packet = bin.pack( ">IIIIII", xid, Portmap.MessageType.CALL, RPC_VERSION,
                     self.program_id, self.version, procedure )
       if auth.type == Portmap.AuthType.NULL then
         packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
+      elseif auth.type == Portmap.AuthType.UNIX then
+        packet = packet .. Util.marshall_int32(auth.type)
+        local blob = Util.marshall_int32(nmap.clock()) --time
+        blob = blob .. Util.marshall_vopaque(auth.hostname or 'localhost')
+        blob = blob .. Util.marshall_int32(auth.uid or 0)
+        blob = blob .. Util.marshall_int32(auth.gid or 0)
+        if auth.gids then --len prefix gid list
+          blob = blob .. Util.marshall_int32(#auth.gids)
+          for _,gid in ipairs(auth.gids) do
+            blob = blob .. Util.marshall_int32(gid)
+          end
+        else
+          blob = blob .. Util.marshall_int32(0)
+        end
+        packet = packet .. Util.marshall_vopaque(blob)
+        packet = packet .. bin.pack( "II", 0, 0 ) --AUTH_NULL verf
+      else
+        return false, "Comm.CreateHeader: invalid authentication type specified"
       end
       return true, packet
     end,
@@ -450,7 +482,8 @@ Portmap =
   -- TODO: add more Authentication Protocols
   AuthType =
   {
-    NULL = 0
+    NULL = 0,
+    UNIX = 1,
   },
 
   -- TODO: complete Authentication stats and error messages
@@ -828,7 +861,7 @@ Mount = {
     end
 
     packet = comm:EncodePacket(nil, Mount.Procedure.EXPORT,
-                              { type=Portmap.AuthType.NULL }, nil )
+                              { type=Portmap.AuthType.UNIX }, nil )
     if (not(comm:SendPacket( packet ))) then
       return false, "Mount.Export: Failed to send data"
     end
@@ -965,7 +998,7 @@ Mount = {
 
     data = Util.marshall_vopaque(path)
 
-    packet = comm:EncodePacket( nil, Mount.Procedure.MOUNT, { type=Portmap.AuthType.NULL }, data )
+    packet = comm:EncodePacket( nil, Mount.Procedure.MOUNT, { type=Portmap.AuthType.UNIX }, data )
     if (not(comm:SendPacket(packet))) then
       return false, "Mount: Failed to send data"
     end
@@ -1055,7 +1088,7 @@ Mount = {
 
     data = Util.marshall_vopaque(path)
 
-    packet = comm:EncodePacket( nil, Mount.Procedure.UMNT, { type=Portmap.AuthType.NULL }, data )
+    packet = comm:EncodePacket( nil, Mount.Procedure.UMNT, { type=Portmap.AuthType.UNIX }, data )
     if (not(comm:SendPacket(packet))) then
       return false, "Unmount: Failed to send data"
     end
@@ -1493,7 +1526,7 @@ NFS = {
       data = bin.pack("A>I>I", file_handle, cookie, count)
     end
     packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].READDIR,
-                              { type=Portmap.AuthType.NULL }, data )
+                              { type=Portmap.AuthType.UNIX }, data )
     if(not(comm:SendPacket( packet ))) then
       return false, "ReadDir: Failed to send data"
     end
@@ -1613,7 +1646,7 @@ NFS = {
 
     data = Util.marshall_opaque(dir_handle) .. Util.marshall_vopaque(file)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].LOOKUP,
-                              {type=Portmap.AuthType.NULL}, data)
+                              {type=Portmap.AuthType.UNIX}, data)
     if(not(comm:SendPacket(packet))) then
       return false, "LookUp: Failed to send data"
     end
@@ -1790,7 +1823,7 @@ NFS = {
                     opaque_data, dircount, maxcount)
 
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].READDIRPLUS,
-                              {type = Portmap.AuthType.NULL }, data)
+                              {type = Portmap.AuthType.UNIX }, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "ReadDirPlus: Failed to send data"
@@ -1869,7 +1902,7 @@ NFS = {
 
     data = bin.pack("A", file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSSTAT,
-                              {type = Portmap.AuthType.NULL}, data)
+                              {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "FsStat: Failed to send data"
@@ -1951,7 +1984,7 @@ NFS = {
 
     data = Util.marshall_opaque(file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSINFO,
-                               {type = Portmap.AuthType.NULL}, data)
+                               {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "FsInfo: Failed to send data"
@@ -2030,7 +2063,7 @@ NFS = {
 
     data = Util.marshall_opaque(file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].PATHCONF,
-                               {type = Portmap.AuthType.NULL}, data)
+                               {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "PathConf: Failed to send data"
@@ -2107,7 +2140,7 @@ NFS = {
 
     data = Util.marshall_opaque(file_handle) .. Util.marshall_uint32(access)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].ACCESS,
-                               {type = Portmap.AuthType.NULL}, data)
+                               {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "Access: Failed to send data"
@@ -2155,7 +2188,7 @@ NFS = {
     end
 
     data = Util.marshall_opaque(file_handle)
-    packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].STATFS, { type=Portmap.AuthType.NULL }, data )
+    packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].STATFS, { type=Portmap.AuthType.UNIX }, data )
     if (not(comm:SendPacket( packet ))) then
       return false, "StatFS: Failed to send data"
     end
@@ -2235,7 +2268,7 @@ NFS = {
     local data, packet, status, attribs, pos, header
 
     data = Util.marshall_opaque(file_handle)
-    packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].GETATTR, { type=Portmap.AuthType.NULL }, data )
+    packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].GETATTR, { type=Portmap.AuthType.UNIX }, data )
     if(not(comm:SendPacket(packet))) then
       return false, "GetAttr: Failed to send data"
     end
