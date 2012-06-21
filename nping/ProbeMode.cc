@@ -179,7 +179,6 @@ int ProbeMode::start(){
   char *filterstring;              /**< Stores BFP filter spec string        */
   char *auxpnt=NULL;               /**< Aux str pointer                      */
   int rawipsd=-1;                  /**< Descriptor for raw IP socket         */
-  nsock_event_id ev;               /**< Stores returned event IDs            */
   enum nsock_loopstatus loopret;   /**< Stores nsock_loop returned status    */
   nsock_iod pcap_nsi;              /**< Stores Pcap IOD                      */
   u32 packetno=0;                  /**< Total packet count                   */
@@ -233,11 +232,11 @@ int ProbeMode::start(){
 
                 /* Schedule a TCP Connect attempt */
                 if( first_time ){
-                    ev=nsock_timer_create(nsp, tcpconnect_event_handler, 1, &pkts2send[pc]);
+                    nsock_timer_create(nsp, tcpconnect_event_handler, 1, &pkts2send[pc]);
                     first_time=false;
                     loopret=nsock_loop(nsp, 2);
                 }else{
-                    ev=nsock_timer_create(nsp, tcpconnect_event_handler, o.getDelay()+1, &pkts2send[pc]);
+                    nsock_timer_create(nsp, tcpconnect_event_handler, o.getDelay()+1, &pkts2send[pc]);
                     loopret=nsock_loop(nsp, o.getDelay()+1);
                 }
             }
@@ -281,11 +280,11 @@ int ProbeMode::start(){
 
                 /* Schedule a UDP attempt */
                 if( first_time ){
-                    ev=nsock_timer_create(nsp, udpunpriv_event_handler, 1, &pkts2send[pc]);
+                    nsock_timer_create(nsp, udpunpriv_event_handler, 1, &pkts2send[pc]);
                     first_time=false;
                     loopret=nsock_loop(nsp, 2);
                 }else{
-                    ev=nsock_timer_create(nsp, udpunpriv_event_handler, o.getDelay(), &pkts2send[pc]);
+                    nsock_timer_create(nsp, udpunpriv_event_handler, o.getDelay(), &pkts2send[pc]);
                     loopret=nsock_loop(nsp, o.getDelay());
                 }
             }
@@ -385,17 +384,17 @@ int ProbeMode::start(){
                         /* Tell nsock we expect one reply. Actually we schedule 2 pcap events just in case
                          * we get more than one response. */
                         if(!o.disablePacketCapture()){
-                            ev=nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
-                            ev=nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
+                            nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
+                            nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
                         }
 
                           /* Let nsock handle probe transmission and inter-probe delay */
                         if( first_time ){
-                            ev=nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
+                            nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
                             first_time=false;
                             loopret=nsock_loop(nsp, 2);
                         }else{
-                            ev=nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
+                            nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
                             loopret=nsock_loop(nsp, o.getDelay()+1);
                         }
                     }
@@ -431,17 +430,17 @@ int ProbeMode::start(){
                     /* Tell nsock we expect one reply. Actually we schedule 2 pcap events just in case
                      * we get more than one response. */
                     if(!o.disablePacketCapture()){
-                        ev=nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
-                        ev=nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
+                        nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
+                        nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, o.getDelay(), NULL);
                     }
 
                     /* Let nsock handle probe transmission and inter-probe delay */
                     if( first_time ){
-                        ev=nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
+                        nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
                         first_time=false;
                         loopret=nsock_loop(nsp, 2);
                     }else{
-                        ev=nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
+                        nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
                         loopret=nsock_loop(nsp, o.getDelay()+1);
                     }
                 }
@@ -452,8 +451,8 @@ int ProbeMode::start(){
 
     o.stats.stopTxClock();
     if(!o.disablePacketCapture()){
-        ev=nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES, NULL);
-        ev=nsock_timer_create(nsp, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES,NULL);
+        nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES, NULL);
+        nsock_timer_create(nsp, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES,NULL);
         loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
         o.stats.stopRxClock();
     }
