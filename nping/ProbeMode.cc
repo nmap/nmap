@@ -235,9 +235,13 @@ int ProbeMode::start(){
                     nsock_timer_create(nsp, tcpconnect_event_handler, 1, &pkts2send[pc]);
                     first_time=false;
                     loopret=nsock_loop(nsp, 2);
+                    if (loopret == NSOCK_LOOP_ERROR)
+                        outFatal(QT_3, "Unexpected nsock_loop error.\n");
                 }else{
                     nsock_timer_create(nsp, tcpconnect_event_handler, o.getDelay()+1, &pkts2send[pc]);
                     loopret=nsock_loop(nsp, o.getDelay()+1);
+                    if (loopret == NSOCK_LOOP_ERROR)
+                        outFatal(QT_3, "Unexpected nsock_loop error.\n");
                 }
             }
         }
@@ -246,6 +250,8 @@ int ProbeMode::start(){
     /* If there are some events pending, we'll wait for DEFAULT_WAIT_AFTER_PROBES ms,
      * otherwise nsock_loop() will return inmediatly */
     loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
+    if (loopret == NSOCK_LOOP_ERROR)
+        outFatal(QT_3, "Unexpected nsock_loop error.\n");
     o.stats.stopRxClock();
     return OP_SUCCESS;
   break; /* case TCP_CONNECT */
@@ -283,9 +289,13 @@ int ProbeMode::start(){
                     nsock_timer_create(nsp, udpunpriv_event_handler, 1, &pkts2send[pc]);
                     first_time=false;
                     loopret=nsock_loop(nsp, 2);
+                    if (loopret == NSOCK_LOOP_ERROR)
+                        outFatal(QT_3, "Unexpected nsock_loop error.\n");
                 }else{
                     nsock_timer_create(nsp, udpunpriv_event_handler, o.getDelay(), &pkts2send[pc]);
                     loopret=nsock_loop(nsp, o.getDelay());
+                    if (loopret == NSOCK_LOOP_ERROR)
+                        outFatal(QT_3, "Unexpected nsock_loop error.\n");
                 }
             }
         }
@@ -295,6 +305,8 @@ int ProbeMode::start(){
      * otherwise nsock_loop() will return inmediatly */
     if(!o.disablePacketCapture()){
         loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
+        if (loopret == NSOCK_LOOP_ERROR)
+            outFatal(QT_3, "Unexpected nsock_loop error.\n");
     }
     o.stats.stopRxClock();
     return OP_SUCCESS;
@@ -393,9 +405,13 @@ int ProbeMode::start(){
                             nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
                             first_time=false;
                             loopret=nsock_loop(nsp, 2);
+                            if (loopret == NSOCK_LOOP_ERROR)
+                                outFatal(QT_3, "Unexpected nsock_loop error.\n");
                         }else{
                             nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
                             loopret=nsock_loop(nsp, o.getDelay()+1);
+                            if (loopret == NSOCK_LOOP_ERROR)
+                                outFatal(QT_3, "Unexpected nsock_loop error.\n");
                         }
                     }
                 }
@@ -439,9 +455,13 @@ int ProbeMode::start(){
                         nsock_timer_create(nsp, nping_event_handler, 1, &pkts2send[pc]);
                         first_time=false;
                         loopret=nsock_loop(nsp, 2);
+                        if (loopret == NSOCK_LOOP_ERROR)
+                            outFatal(QT_3, "Unexpected nsock_loop error.\n");
                     }else{
                         nsock_timer_create(nsp, nping_event_handler, o.getDelay(), &pkts2send[pc]);
                         loopret=nsock_loop(nsp, o.getDelay()+1);
+                        if (loopret == NSOCK_LOOP_ERROR)
+                            outFatal(QT_3, "Unexpected nsock_loop error.\n");
                     }
                 }
             }
@@ -454,6 +474,8 @@ int ProbeMode::start(){
         nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES, NULL);
         nsock_timer_create(nsp, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES,NULL);
         loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
+        if (loopret == NSOCK_LOOP_ERROR)
+           outFatal(QT_3, "Unexpected nsock_loop error.\n");
         o.stats.stopRxClock();
     }
    /* Close opened descriptors */
