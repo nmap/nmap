@@ -578,7 +578,17 @@ There was an error while parsing the XML file generated from the scan:
             parsed.unsaved = True
 
             self.scan_result.refresh_nmap_output()
-            self.inventory.add_scan(parsed)
+            try:
+                self.inventory.add_scan(parsed)
+            except Exception, e:
+                warn_dialog = HIGAlertDialog(message_format = _("Cannot merge scan"),
+                    secondary_text = _(u"""\
+There was an error while merging the new scan's XML:
+
+%s\
+""") % str(e), type = gtk.MESSAGE_ERROR)
+                warn_dialog.run()
+                warn_dialog.destroy()
         parsed.set_xml_is_temp(command.xml_is_temp)
         self.collect_umit_info(command, parsed)
         parsed.nmap_output = command.get_output()
