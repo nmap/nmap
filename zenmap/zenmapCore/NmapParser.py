@@ -668,8 +668,11 @@ in epoch format!")
         #Create a dict of port -> protocol for all ports scanned
         ports = {}
         for scaninfo in self.scaninfo:
-            services_string = scaninfo['services']
-            services_array = services_string.split(',')
+            services_string = scaninfo['services'].strip()
+            if services_string == "":
+                services_array = []
+            else:
+                services_array = services_string.split(',')
             for item in services_array:
                 if item.find('-') == -1:
                     if int(item) not in ports:
