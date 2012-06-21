@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Calling methods of unconnected sockets now causes the usual
+  error code return value, instead of raising a Lua error. The problem
+  was noticed by Daniel Miller. [David Fifield]
+
 o [NSE] Added AUTH_UNIX support to the rpc library and nfs scripts.
   [Daniel Miller]
 

@@ -356,11 +356,13 @@ static int yield (lua_State *L, nse_nsock_udata *nu, const char *action,
   return nse_yield(L, ctx, k);
 }
 
-static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, int open)
+/* In the case of unconnected UDP sockets, this function will call
+   nsock_setup_udp on your behalf before returning true. */
+static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx)
 {
   nse_nsock_udata *nu = (nse_nsock_udata *) nseU_checkudata(L, idx, NSOCK_SOCKET, "nsock");
 
-  if (open && nu->nsiod == NULL) {
+  if (nu->nsiod == NULL) {
     /* The socket hasn't been connected or setup yet. Try doing a setup, or
        throw an error if that's not possible. */
     if (nu->proto == IPPROTO_UDP) {
@@ -383,13 +385,19 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, int open)
         luaL_error(L, "Error in setup of iod with proto %d and af %d: %s (%d)",
           nu->proto, nu->af, socket_strerror(socket_errno()), socket_errno());
       }
-    } else {
-      luaL_error(L, "socket must be connected\n");
     }
   }
 
   return nu;
 }
+
+/* If the socket udata nu is not open, return from the enclosing function with
+   an error. */
+#define NSOCK_UDATA_ENSURE_OPEN(L, nu) \
+do { \
+  if (nu->nsiod == NULL) \
+    return nseU_safeerror(L, "socket must be connected"); \
+} while (0)
 
 static int l_loop (lua_State *L)
 {
@@ -406,7 +414,8 @@ static int l_loop (lua_State *L)
 static int l_reconnect_ssl (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
 
 #ifndef HAVE_OPENSSL
   return nseU_safeerror(L, "sorry, you don't have OpenSSL");
@@ -424,7 +433,7 @@ static int l_connect (lua_State *L)
   static const char * const op[] = {"tcp", "udp", "ssl", NULL};
 
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
   const char *addr, *targetname; nseU_checktarget(L, 2, &addr, &targetname);
   const char *default_proto = NULL;
   unsigned short port = nseU_checkport(L, 3, &default_proto);
@@ -506,7 +515,8 @@ static int l_connect (lua_State *L)
 static int l_send (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   size_t size;
   const char *string = luaL_checklstring(L, 2, &size);
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
@@ -517,7 +527,8 @@ static int l_send (lua_State *L)
 static int l_sendto (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   size_t size;
   const char *addr, *targetname; nseU_checktarget(L, 2, &addr, &targetname);
   const char *default_proto = NULL;
@@ -560,7 +571,8 @@ static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
 static int l_receive (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_read(nsp, nu->nsiod, receive_callback, nu->timeout, nu);
   return yield(L, nu, "RECEIVE", FROM, 0, NULL);
 }
@@ -568,7 +580,8 @@ static int l_receive (lua_State *L)
 static int l_receive_lines (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readlines(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkint(L, 2));
   return yield(L, nu, "RECEIVE LINES", FROM, 0, NULL);
@@ -577,7 +590,8 @@ static int l_receive_lines (lua_State *L)
 static int l_receive_bytes (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nsock_readbytes(nsp, nu->nsiod, receive_callback, nu->timeout, nu,
       luaL_checkint(L, 2));
   return yield(L, nu, "RECEIVE BYTES", FROM, 0, NULL);
@@ -586,7 +600,8 @@ static int l_receive_bytes (lua_State *L)
 static int l_receive_buf (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1); /* 1 */
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   if (!(lua_type(L, 2) == LUA_TFUNCTION || lua_type(L, 2) == LUA_TSTRING))
     nseU_typeerror(L, 2, "function/string");
   luaL_checktype(L, 3, LUA_TBOOLEAN); /* 3 */
@@ -652,7 +667,8 @@ static int l_receive_buf (lua_State *L)
 
 static int l_get_info (lua_State *L)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   int protocol;                                  // tcp or udp
   int af;                                        // address family
   struct sockaddr_storage local;
@@ -674,7 +690,7 @@ static int l_get_info (lua_State *L)
 
 static int l_set_timeout (lua_State *L)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
   nu->timeout = luaL_checkint(L, 2);
   if ((int) nu->timeout < -1) /* -1 is no timeout */
     return luaL_error(L, "Negative timeout: %d", nu->timeout);
@@ -707,7 +723,7 @@ static int l_sleep (lua_State *L)
 #if HAVE_OPENSSL
 SSL *nse_nsock_get_ssl (lua_State *L)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
 
   if (nu->nsiod == NULL || !nsi_checkssl(nu->nsiod))
     luaL_argerror(L, 1, "not a SSL socket");
@@ -728,7 +744,7 @@ int l_get_ssl_certificate (lua_State *L)
    or nil, that part of the address will be left unspecified. */
 static int l_bind (lua_State *L)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
   struct addrinfo hints = { 0 };
   struct addrinfo *results;
   const char *addr_str = luaL_optstring(L, 2, NULL);
@@ -818,7 +834,7 @@ static int l_new (lua_State *L)
 
 static int l_close (lua_State *L)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
   if (nu->nsiod == NULL)
     return nseU_safeerror(L, "socket already closed");
   trace(nu->nsiod, "CLOSE", TO);
@@ -834,7 +850,7 @@ static int l_close (lua_State *L)
 
 static int nsock_gc (lua_State *L)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
   if (nu->nsiod)
     return l_close(L);
   return 0;
@@ -874,7 +890,7 @@ static int pcap_gc (lua_State *L)
 static int l_pcap_open (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
   const char *device = luaL_checkstring(L, 2);
   int snaplen = luaL_checkint(L, 3);
   luaL_checktype(L, 4, LUA_TBOOLEAN); /* promiscuous */
@@ -947,7 +963,8 @@ static void pcap_receive_handler (nsock_pool nsp, nsock_event nse, void *ud)
 static int l_pcap_receive (lua_State *L)
 {
   nsock_pool nsp = get_pool(L);
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  NSOCK_UDATA_ENSURE_OPEN(L, nu);
   nu->nseid = nsock_pcap_read_packet(nsp, nu->nsiod, pcap_receive_handler,
       nu->timeout, nu);
   return yield(L, nu, "PCAP RECEIVE", FROM, 0, NULL);
