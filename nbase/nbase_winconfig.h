@@ -156,6 +156,7 @@ typedef signed __int64 int64_t;
 #define _CRT_SECURE_NO_WARNINGS 1
 #endif 
 #pragma warning(disable: 4996)
+#pragma warning(disable: 4146)
 
 #ifdef __GNUC__
 #define bzero(addr, num) __builtin_memset (addr, '\0', num)
