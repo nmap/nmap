@@ -1494,7 +1494,7 @@ int EchoServer::start() {
     loopret=nsock_loop(nsp, 1000);
     //If something went wrong in nsock_loop, let's just bail out.
     if (loopret == NSOCK_LOOP_ERROR) {
-        outFatal(QT_3, "Unexpected nsock_loop error.\n");
+        outError(QT_3, "Unexpected nsock_loop error.\n");
         return OP_FAILURE;
     }
   }
