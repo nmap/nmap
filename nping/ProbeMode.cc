@@ -2183,6 +2183,9 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
     case NSE_TYPE_READ:
         /* Do an actual read() of the recv data */
         readbuff=nse_readbuf(nse, &readbytes);
+        if(readbuff==NULL){
+            outFatal(QT_3, "Error: nse_readbuff failed to read in the from the probe");
+        }
         /* Determine which target are we dealing with */
         nsi_getlastcommunicationinfo(nsi, NULL, &family, NULL, (struct sockaddr*)&peer, sizeof(struct sockaddr_storage) );
         if(family==AF_INET6){
