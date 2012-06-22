@@ -27,7 +27,7 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 -- |   Statistics
 -- |_    Performed 510 guesses in 610 seconds, average tps: 0
 --
--- @args timeout the amount of secounds to wait for a response on the socket.
+-- @args timeout the amount of seconds to wait for a response on the socket.
 --       Lowering this value may result in a higher throughput for servers
 --       having a delayed response on incorrect login attempts. (default: 5)
 
