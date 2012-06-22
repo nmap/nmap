@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added default values for Expires, Call-ID, Allow and Content-Length
+  headers in SIP requests and removed redundant code sip library.
+  [Hani Benhabiles]
+
 o [NSE] Calling methods of unconnected sockets now causes the usual
   error code return value, instead of raising a Lua error. The problem
   was noticed by Daniel Miller. [David Fifield]

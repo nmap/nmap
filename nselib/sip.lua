@@ -185,7 +185,6 @@ Session = {
 	-- @param uri
 	invite = function(self, uri)
 		local request = Request:new(Method.INVITE)
-		local callid = Util.get_random_string(20)
 
 		local lhost, _ = self.sessdata:getClient()
 		local tm = os.time()
@@ -195,7 +194,6 @@ Session = {
 		
 		request:setUri(uri)
 		request:setSessionData(self.sessdata)
-		request:setCallId(callid)
 
 		local data = {}
 		table.insert(data, "v=0")
@@ -295,15 +293,10 @@ Session = {
 	-- @return msg string containing the error message (if status is false)
 	register = function(self)
 		local request = Request:new(Method.REGISTER)
-		local callid = Util.get_random_string(20)
 		
 		request:setUri("sip:" .. self.sessdata:getServer())
 		request:setSessionData(self.sessdata)
-		request:setCallId(callid)
 		request:setExpires(self.expires)
-		request:setAllow({"PRACK","INVITE","ACK","BYE","CANCEL","UPDATE",
-							"SUBSCRIBE","NOTIFY","REFER","MESSAGE","OPTIONS"})
-		request:setContentLength(0)
 				
 		local status, response = self:exch(request)
 		if (not(status)) then return false, response end
@@ -331,21 +324,17 @@ Session = {
 	
 	--- Sends an option request to the server and handles the response
 	-- @return status true on success, false on failure
-	-- @return msg string containing the error message (if status is false)
+	-- @return response if status is true, msg string containing the error
+	-- message if status is false
 	options = function(self)
 		local req = Request:new(Method.OPTIONS)
-		local callid = Util.get_random_string(20)
 		req:setUri("sip:" .. self.sessdata:getServer())
 		req:setSessionData(self.sessdata)
-		req:setCallId(callid)
 		req:setExpires(self.expires)
-		req:setAllow({"PRACK","INVITE","ACK","BYE","CANCEL","UPDATE",
-			"SUBSCRIBE","NOTIFY","REFER","MESSAGE","OPTIONS"})
 		req:addHeader("Accept", "application/sdp")
-		req:setContentLength(0)
 
 		local status, response = self:exch(req)
-		if (not(status)) then return false, response end
+		if (status) then return true, response end
 
 		local errcode = response:getErrorCode()
 		local errmsg = response:getErrorMessage()
@@ -494,8 +483,14 @@ Request = {
       	
 		o.ua = "Nmap NSE"
 		o.protocol = "UDP"
+		o.expires = 0
+		o.allow = "PRACK, INVITE ,ACK, BYE, CANCEL, UPDATE, SUBSCRIBE"
+			  .. ",NOTIFY, REFER, MESSAGE, OPTIONS"
+
 		o.maxfwd = 70
 		o.method = method
+		o.length = 0
+		o.cid = Util.get_random_string(60)
 		return o
 	end,
 	
@@ -529,7 +524,7 @@ Request = {
 	setCseq = function(self, seq) self.cseq = seq end,
 	
 	--- Sets the allow header
-	-- @param allow string containing all of the allowed SIP methods
+	-- @param allow table containing all of the allowed SIP methods
 	setAllow = function(self, allow) self.allow = stdnse.strjoin(", ", allow) end,
 	
 	--- Sets the request content data
