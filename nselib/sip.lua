@@ -429,7 +429,9 @@ Response = {
 	getHeader = function(self,name)
 		for _, line in ipairs(self.tbl) do
 			local header, value = line:match("^(.-): (.*)$")
-			if ( header == name ) then return value end
+			if ( header and header:lower() == name:lower() ) then
+			    return value 
+			end
 		end
 	end,
 	
