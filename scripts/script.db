@@ -169,6 +169,7 @@ Entry { filename = "http-rfi-spider.nse", categories = { "intrusive", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-traceroute.nse", categories = { "discovery", "safe", } }
@@ -350,7 +351,6 @@ Entry { filename = "snmp-win32-users.nse", categories = { "auth", "default", "sa
 Entry { filename = "socks-auth-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "socks-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
-Entry { filename = "sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
