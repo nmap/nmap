@@ -66,6 +66,7 @@ Error = {
 	OK = 200,
 	UNAUTHORIZED = 401,
 	FORBIDDEN = 403,
+	NOTFOUND = 404,
 	PROXY_AUTH_REQUIRED = 407,
 }
 
@@ -78,6 +79,7 @@ SessionData = {
 		local o = o or {}
 		setmetatable(o, self)
         self.__index = self
+		o.user = "user"
 		return o
 	end,
 	
