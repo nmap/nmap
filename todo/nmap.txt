@@ -1,17 +1,6 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Make Nmap 6.01 release containing (among possibly other little
-fixes)
- - Python upgrade 
- - [done] Zenmap 10.7 hang fix (done in trunk)
- - [done] Zenmap crash when filtering hosts (done in trunk)
- - [done] get_srcaddr fix (done in trunk)
-
-o Upgrade Python on build machines to try and resolve Python 2.7
-  security warning (it doesn't affect us, but can worry users).  See
-  this thread: http://seclists.org/nmap-dev/2012/q2/621
-
-o We should add fields to the service submitter
+o We should add fields to the service submitter [James is working on this]
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
   o We also need to ensure all fields of /cgi-bin/submit.cgi have
@@ -21,6 +10,9 @@ o We should add fields to the service submitter
     still better to properly escape.
     o If we get a chance, would be interesting to run our XSS-testing
       NSE scripts against this and see if they locate the problems.
+ o Also, need to change the font family in there from "Lucida Grand"
+   to "Lucida Grande"?  Just a typo.  And fix "WIkipedai".  We should
+   just spell-check all the output
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
@@ -54,7 +46,7 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
     out what is going on here and then how to fix it.  Note that this
     doesn't seem to happen when you do ICMP host discovery first (-PE),
     so it probably relates to the ACK packet that Nmap sends to port 80
-    on the target by default. [James and Fyodor?]
+    on the target by default.
   o Make Nmap from a clean start (e.g. after make clean or whatever,
     so it compiles everything) and research all the compile warnings to
     see which ones can be fixed/removed.  Of course caution is needed to
@@ -142,6 +134,12 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
 
 o Maybe we should rename dns-brute to dns-brute-enum since it is so different
   from our traditional brute force authentication cracking -brute scripts?
+
+o Investigate WinPcap support for NDIS 6.
+  - Preferably the CACE/WinPcap folks will do this
+  - We need to retain support for Windows back to Windows XP SP3 --
+    I'm not sure what Windows releases support NDIS 6 or what the
+    backward compatability is like.
 
 o NSE WORK (potential work for the NSE GSoC folks -- note that this is
   mostly infrastructure because script ideas are generally put on the
@@ -791,6 +789,17 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Make Nmap 6.01 release containing (among possibly other little
+fixes)
+ - Python upgrade 
+ - [done] Zenmap 10.7 hang fix (done in trunk)
+ - [done] Zenmap crash when filtering hosts (done in trunk)
+ - [done] get_srcaddr fix (done in trunk)
+
+o Upgrade Python on build machines to try and resolve Python 2.7
+  security warning (it doesn't affect us, but can worry users).  See
+  this thread: http://seclists.org/nmap-dev/2012/q2/621
 
 o Fix get_srcaddr error happening on Windows XP
 
