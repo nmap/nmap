@@ -549,6 +549,19 @@ Crawler = {
 		if ( not(o.options.noblacklist) ) then
 			o:addDefaultBlacklist()
 		end
+
+    if ( o.options.useheadfornonwebfiles ) then
+      -- Load web files extensitons from a file in nselib/data folder.
+      -- For more information on individual file formats, see
+      -- http://en.wikipedia.org/wiki/List_of_file_formats.
+      o.web_files_extensions = {}
+      local f = nmap.fetchfile("nselib/data/http-web-files-extensions.lst")
+      if f then
+        for l in io.lines(f) do
+          table.insert(o.web_files_extensions, l)
+        end
+      end
+    end
 		
 		stdnse.print_debug(2, "%s: %s", LIBRARY_NAME, o:getLimitations())
 		
@@ -645,17 +658,42 @@ Crawler = {
 				condvar "signal"
 				return
 			end
-		
+		  
 			if ( self.options.maxpagecount ) then
 				stdnse.print_debug(2, "%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
 			else
 				stdnse.print_debug(2, "%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
 			end
-
-			-- fetch the url, and then push it to the processed table
-			local response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok } )
+      
+      local response
+      -- in case we want to use HEAD rather than GET for files with certain extensions
+      if ( self.options.useheadfornonwebfiles ) then
+        local is_web_file = false
+        local file = url:getPath():lower()
+        -- check if we are at a URL with 'no extension', for example: nmap.org/6
+        if string.match(file,".*(/[^/%.]*)$") or string.match(file, "/$") then is_web_file = true end
+        if not is_web_file then
+          for _,v in pairs(self.web_files_extensions) do
+            if string.match(file, "%."..v.."$") then
+              is_web_file = true
+              break
+            end
+          end
+        end
+        if is_web_file then
+          stdnse.print_debug(2, "%s: Using GET: %s", LIBRARY_NAME, file)
+          response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok } )
+        else
+          stdnse.print_debug(2, "%s: Using HEAD: %s", LIBRARY_NAME, file)
+          response = http.head(url:getHost(), url:getPort(), url:getFile())
+        end
+      else
+			  -- fetch the url, and then push it to the processed table
+			  response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok } )
+			end
+      
 			self.processed[tostring(url)] = true
-
+      
 			if ( response ) then
 				-- were we redirected?
 				if ( response.location ) then
@@ -712,6 +750,9 @@ Crawler = {
 		if ( nil == self.options.noblacklist ) then
 			self.options.noblacklist = stdnse.get_script_args(sn .. ".noblacklist")
 		end
+	  if ( nil == self.options.useheadfornonwebfiles ) then
+			self.options.useheadfornonwebfiles = stdnse.get_script_args(sn .. ".useheadfornonwebfiles")
+		end
 	end,
 	
 	-- Loads the argument on a library level
@@ -735,6 +776,9 @@ Crawler = {
 		end
 		if ( nil == self.options.noblacklist ) then
 			self.options.noblacklist = stdnse.get_script_args(ln .. ".noblacklist")
+		end
+	  if ( nil == self.options.useheadfornonwebfiles ) then
+			self.options.useheadfornonwebfiles = stdnse.get_script_args(ln .. ".useheadfornonwebfiles")
 		end
 	end,
 	
@@ -764,7 +808,8 @@ Crawler = {
 		-- fixup some booleans to make sure they're actually booleans
 		self.options.withinhost = tobool(self.options.withinhost)
 		self.options.withindomain = tobool(self.options.withindomain)
-		self.options.noblacklist = tobool(self.options.noblacklist)	
+		self.options.noblacklist = tobool(self.options.noblacklist)
+		self.options.useheadfornonwebfiles = tobool(self.options.useheadfornonwebfiles)
 
 		if ( self.options.withinhost == nil ) then
 			if ( self.options.withindomain ~= true ) then
