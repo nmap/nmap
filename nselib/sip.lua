@@ -326,8 +326,7 @@ Session = {
 	
 	--- Sends an option request to the server and handles the response
 	-- @return status true on success, false on failure
-	-- @return response if status is true, msg string containing the error
-	-- message if status is false
+	-- @return response if status is true, nil else.
 	options = function(self)
 		local req = Request:new(Method.OPTIONS)
 		req:setUri("sip:" .. self.sessdata:getServer())
@@ -336,12 +335,9 @@ Session = {
 		req:addHeader("Accept", "application/sdp")
 
 		local status, response = self:exch(req)
-		if (status) then return true, response end
+		if status then return true, response end
 
-		local errcode = response:getErrorCode()
-		local errmsg = response:getErrorMessage()
-		local msg = ( errcode and ( errcode .. " " .. errmsg ) )
-		return ( not(errcode) or errcode == 200), msg 
+		return false, nil
 	end,
 
 }
