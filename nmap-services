@@ -8751,6 +8751,7 @@ unknown	21192/udp	0.000654
 unknown	21193/udp	0.000654
 unknown	21194/udp	0.000654
 unknown	21195/udp	0.000654
+memcachedb	21201/tcp	0.000076
 unknown	21201/udp	0.000654
 unknown	21202/udp	0.000654
 unknown	21204/udp	0.000654
