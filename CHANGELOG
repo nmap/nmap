@@ -96,7 +96,7 @@ o Improved the mysql library to handle multiple columns with the same name,
 
 o The message "nexthost: failed to determine route to ..." is now a
   warning rather than a fatal error. Addresses that are skipped in
-  this way are recorded in the XML output as <target> elements. [David
+  this way are recorded in the XML output as "target" elements. [David
   Fifield]
 
 o [NSE] Added the script http-drupal-modules, which enumerates the installed
@@ -242,19 +242,22 @@ o Most important release since Nmap 5.00 in July 2009! For a list of
   the most significant improvements and new features, see the
   announcement at: http://nmap.org/6
 
-o In XML output, <osclass> elements are now child elements of the
-  <osmatch> they belong to. Old output was thus:
-    <os><osclass/><osclass/>...<osmatch/><osmatch/>...</os>
+o In XML output, "osclass" elements are now child elements of the
+  "osmatch" they belong to. Old output was thus (we're using square
+  brackets instead of angle brackets in this CHANGELOG entry to avoid
+  html escaping problems:
+    [os][osclass/][osclass/]...[osmatch/][osmatch/]...[/os]
   New output is:
-    <os><osmatch><osclass/><osclass/>...</osmatch>...</os>
+    [os][osmatch][osclass/][osclass/]...[/osmatch]...[/os]
   The option --deprecated-xml-osclass restores the old output, in case
   you use an Nmap XML parser that doesn't understand the new
   structure. The xmloutputversion has been increased to 1.04.
 
-o Added a new <target> element to XML output that indicates when a
+o Added a new "target" element to XML output that indicates when a
   target specification was ignored, perhaps because of a syntax error
-  or DNS failure. It looks like this:
-    <target specification="1.2.3.4.5" status="skipped" reason="invalid"/>
+  or DNS failure. It looks like this (except with angle brackets
+  rather than square):
+    [target specification="1.2.3.4.5" status="skipped" reason="invalid"/]
   [David Fifield]
 
 o [NSE] Added the script samba-vuln-cve-2012-1182 which detects the
@@ -750,7 +753,7 @@ o [NSE] Added 51(!) NSE scripts, bringing the total up to 297.  They
     server [Patrik Karlsson]
 
   + bitcoinrpc-info obtains information from a Bitcoin server by
-    calling <code>getinfo</code> on its JSON-RPC interface. [Toni
+    calling getinfo on its JSON-RPC interface. [Toni
     Ruottu]
 
   + broadcast-pc-anywhere sends a special broadcast probe to discover
@@ -937,7 +940,7 @@ o Nmap now includes a nmap-update program for obtaining the latest
   currently only available to a few developers for testing, but we
   hope to enable a larger set of beta testers soon. [David]
 
-o On Windows, the directory <HOME>\AppData\Roaming\nmap is now
+o On Windows, the directory [HOME]\AppData\Roaming\nmap is now
   searched for data files. This is the equivalent of $HOME/.nmap on
   POSIX. [David]
 
@@ -2419,7 +2422,7 @@ o [NSE] Added prerule support to the dns-zone-transfer script,
   arguments. [Djalal]
 
 o Changed the name of libdnet's sctp_chunkhdr to avoid a conflict with
-  a struct of the same name in <netinet/sctp.h>. This caused a
+  a struct of the same name in netinet/sctp.h. This caused a
   compilation error when Nmap was compiled with an OpenSSL that had
   SCTP support. [Olli Hauer, Daniel Roethlisberger]
 
