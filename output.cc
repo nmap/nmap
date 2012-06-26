@@ -662,8 +662,11 @@ void printportoutput(Target *currenths, PortList *plist) {
         xml_attribute("state", "%s", state);
         xml_attribute("reason", "%s", reason_str(current->reason.reason_id, SINGULAR));
         xml_attribute("reason_ttl", "%d", current->reason.ttl);
-        if (current->reason.ip_addr.ss_family != AF_UNSPEC)
-          xml_attribute("reason_ip", "%s", inet_ntop_ez(&current->reason.ip_addr, sizeof(current->reason.ip_addr)));
+        if (current->reason.ip_addr.sockaddr.sa_family != AF_UNSPEC) {
+          struct sockaddr_storage ss;
+          memcpy(&ss, &current->reason.ip_addr, sizeof(current->reason.ip_addr));
+          xml_attribute("reason_ip", "%s", inet_ntop_ez(&ss, sizeof(ss)));
+        }
         xml_close_empty_tag();
 
         if (proto && proto->p_name && *proto->p_name) {
@@ -774,8 +777,11 @@ void printportoutput(Target *currenths, PortList *plist) {
         xml_attribute("state", "%s", state);
         xml_attribute("reason", "%s", reason_str(current->reason.reason_id, SINGULAR));
         xml_attribute("reason_ttl", "%d", current->reason.ttl);
-        if (current->reason.ip_addr.ss_family != AF_UNSPEC)
-          xml_attribute("reason_ip", "%s", inet_ntop_ez(&current->reason.ip_addr, sizeof(current->reason.ip_addr)));
+        if (current->reason.ip_addr.sockaddr.sa_family != AF_UNSPEC) {
+          struct sockaddr_storage ss;
+          memcpy(&ss, &current->reason.ip_addr, sizeof(current->reason.ip_addr));
+          xml_attribute("reason_ip", "%s", inet_ntop_ez(&ss, sizeof(ss)));
+        }
         xml_close_empty_tag();
 
         if (sd.name || sd.service_fp || sd.service_tunnel != SERVICE_TUNNEL_NONE)

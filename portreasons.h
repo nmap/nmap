@@ -128,8 +128,14 @@ public:
  * why a port is in a specific state */
 typedef struct port_reason {
 	reason_t reason_id;
-	struct sockaddr_storage ip_addr;
+	union {
+		struct sockaddr_in in;
+		struct sockaddr_in6 in6;
+		struct sockaddr sockaddr;
+	} ip_addr;
 	unsigned short ttl;
+
+	int set_ip_addr(const struct sockaddr_storage *ss);
 } state_reason_t;
 
 /* used to calculate state reason summaries.

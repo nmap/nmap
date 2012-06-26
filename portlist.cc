@@ -928,9 +928,9 @@ int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl,
     /* set new reason and increment its count */
     answer->reason.reason_id = reason;
     if (ip_addr == NULL)
-      answer->reason.ip_addr.ss_family = AF_UNSPEC;
+      answer->reason.ip_addr.sockaddr.sa_family = AF_UNSPEC;
     else
-      answer->reason.ip_addr = *ip_addr;
+      answer->reason.set_ip_addr(ip_addr);
 	answer->reason.ttl = ttl;
     return 0;
 }

@@ -5381,7 +5381,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       hss->target->reason.reason_id = current_reason;
       hss->target->reason.ttl = hdr.ttl;
       if (sockaddr_storage_cmp(&hdr.src, &target_dst) != 0) {
-        hss->target->reason.ip_addr = hdr.src;
+        hss->target->reason.set_ip_addr(&hdr.src);
       }
     }
   }

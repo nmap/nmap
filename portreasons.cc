@@ -108,6 +108,21 @@
 extern NmapOps o;
 class PortList;
 
+/* Set the ip_addr union to the AF_INET or AF_INET6 value stored in *ss as
+   appropriate. Returns 0 on success or -1 if the address family of *ss is not
+   known. */
+int port_reason::set_ip_addr(const struct sockaddr_storage *ss) {
+  if (ss->ss_family == AF_INET) {
+    this->ip_addr.in = *(struct sockaddr_in *) ss;
+    return 0;
+  } else if (ss->ss_family == AF_INET6) {
+    this->ip_addr.in6 = *(struct sockaddr_in6 *) ss;
+    return 0;
+  } else {
+    return -1;
+  }
+}
+
 /* reason_string initializer */
 reason_string::reason_string(){
     this->plural = "unknown";
@@ -430,7 +445,7 @@ const char *reason_str(reason_t reason_code, unsigned int number) {
 
 void state_reason_init(state_reason_t *reason) {
 	reason->reason_id = ER_UNKNOWN;
-	reason->ip_addr.ss_family = AF_UNSPEC;
+	reason->ip_addr.sockaddr.sa_family = AF_UNSPEC;
 	reason->ttl = 0;
 }
 
@@ -506,8 +521,13 @@ char *target_reason_str(Target *t) {
 char *port_reason_str(state_reason_t r) {
 	static char reason[128];
 	memset(reason,'\0', 128);
-	Snprintf(reason, 128, "%s%s%s", reason_str(r.reason_id, SINGULAR),
-            (r.ip_addr.ss_family==AF_UNSPEC)?"":" from ",
-            (r.ip_addr.ss_family==AF_UNSPEC)?"":inet_ntop_ez(&r.ip_addr, sizeof(r.ip_addr)));
+	if (r.ip_addr.sockaddr.sa_family == AF_UNSPEC) {
+		Snprintf(reason, sizeof(reason), "%s", reason_str(r.reason_id, SINGULAR));
+	} else {
+		struct sockaddr_storage ss;
+		memcpy(&ss, &r.ip_addr, sizeof(r.ip_addr));
+		Snprintf(reason, sizeof(reason), "%s from %s", reason_str(r.reason_id, SINGULAR),
+			inet_ntop_ez(&ss, sizeof(ss)));
+	}
 	return reason;
 }
