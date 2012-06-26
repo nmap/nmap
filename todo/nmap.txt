@@ -141,6 +141,9 @@ o Investigate WinPcap support for NDIS 6.
     I'm not sure what Windows releases support NDIS 6 or what the
     backward compatability is like.
 
+o Consider including OpenSSL in our Nmap tarball
+ - Need to check the size, etc.
+
 o NSE WORK (potential work for the NSE GSoC folks -- note that this is
   mostly infrastructure because script ideas are generally put on the
   script ideas page instead: https://secwiki.org/w/Nmap_Script_Ideas)
