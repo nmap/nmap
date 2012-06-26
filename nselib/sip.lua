@@ -63,6 +63,7 @@ Method = {
 Error = {
 	TRYING = 100,
 	RING = 180,
+	TIMEOUT = 408,
 	BUSY = 486,
 	DECLINE = 603,
 	OK = 200,
