@@ -5,7 +5,7 @@ o Reduced the size of Port structures by about a third (from 176 to 64
   should during the IPv6 code merge. [David Fifield]
 
 o [NSE] Added default values for Expires, Call-ID, Allow and Content-Length
-  headers in SIP requests and removed redundant code sip library.
+  headers in SIP requests and removed redundant code in sip library.
   [Hani Benhabiles]
 
 o [NSE] Calling methods of unconnected sockets now causes the usual
