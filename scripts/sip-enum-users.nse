@@ -35,26 +35,21 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "auth"}
 
 
-portrule = shortport.port_or_service(5060, "sip", "udp")
+portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 
 -- Send a register request to the server and returned the unparsed response
 -- @param session instance of Session class
 -- @param username string containing the name of the user
+-- @param Used protocol, could be "UDP" or "TCP"
 -- @return status true on success false on failure
 -- @return response instance of sip.Response (on success)
 -- @return err string containing the error message (on failure)
-local function register(session, username)
-	local request = sip.Request:new(sip.Method.REGISTER)
-	local callid = sip.Util.get_random_string(20)
+local function register(session, username, protocol)
+	local request = sip.Request:new(sip.Method.REGISTER, protocol)
 
 	session.sessdata:setUsername(username)
 	request:setUri("sip:" .. session.sessdata:getServer() )
 	request:setSessionData(session.sessdata)
-	request:setCallId(callid)
-	request:setExpires(0)
-	request:setAllow({"PRACK","INVITE","ACK","BYE","CANCEL","UPDATE",
-						"SUBSCRIBE","NOTIFY","REFER","MESSAGE","OPTIONS"})
-	request:setContentLength(0)
 	
 	local status, response = session:exch(request)
 	if (not(status)) then return false, response end
@@ -78,7 +73,7 @@ local function confirmServer(host, port)
 	end
 
 	local response
-	status, response = register(session, user)
+	status, response = register(session, user, port.protocol:upper())
 	if ( status ) then
 		return true, ( 
 				response:getHeader("User-Agent") or 
@@ -92,10 +87,11 @@ end
 -- Asterisk specific function used to check for valid usernames
 -- @param session instance of SIP Session
 -- @param username string containing the SIP username
+-- @param Used protocol, could be "UDP" or "TCP"
 -- @return status true on success, false on failure
 -- @return err on failure
-local function checkAsteriskUsername(session, username)
-	local status, response = register(session, username)
+local function checkAsteriskUsername(session, username, protocol)
+	local status, response = register(session, username, protocol)
 	if ( status and response:getErrorCode() == 401 ) then
 		return true, "SUCCESS"
 	end
@@ -136,7 +132,7 @@ action = function(host, port)
 			return "ERROR: Failed to connect to the SIP server"
 		end
 	
-		local status, err = checkUsername( session, username )
+		local status, err = checkUsername( session, username, port.protocol:upper() )
 		if ( status ) then table.insert( accounts, username ) end
 		
 		session:close()
