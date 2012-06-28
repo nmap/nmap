@@ -154,6 +154,7 @@ Session = {
 		local o = {}
 		setmetatable(o, self)
         self.__index = self
+		o.protocol = port.protocol:upper()
 		o.expires = (options and options.expires) or 300
 		o.conn = Connection:new(host,port)
 		o.cseq = (options and options.cseq) or 1234
@@ -189,7 +190,7 @@ Session = {
 	--- Sends and SIP invite
 	-- @param uri
 	invite = function(self, uri)
-		local request = Request:new(Method.INVITE)
+		local request = Request:new(Method.INVITE, self.protocol)
 
 		local lhost, _ = self.sessdata:getClient()
 		local tm = os.time()
@@ -297,7 +298,7 @@ Session = {
 	-- @return status true on success, false on failure
 	-- @return msg string containing the error message (if status is false)
 	register = function(self)
-		local request = Request:new(Method.REGISTER)
+		local request = Request:new(Method.REGISTER, self.protocol)
 		
 		request:setUri("sip:" .. self.sessdata:getServer())
 		request:setSessionData(self.sessdata)
@@ -331,7 +332,7 @@ Session = {
 	-- @return status true on success, false on failure
 	-- @return response if status is true, nil else.
 	options = function(self)
-		local req = Request:new(Method.OPTIONS)
+		local req = Request:new(Method.OPTIONS, self.protocol)
 		req:setUri("sip:" .. self.sessdata:getServer())
 		req:setSessionData(self.sessdata)
 		req:setExpires(self.expires)
@@ -478,14 +479,15 @@ Request = {
 	
 	--- Creates a new Request instance
 	-- @param method string containing the request method to use
+	-- @param proto Used protocol, could be "UDP" or "TCP"
 	-- @return o containing a new Request instance
-	new = function(self, method)
+	new = function(self, method, proto)
 		local o = {}
 		setmetatable(o, self)
         self.__index = self
       	
 		o.ua = "Nmap NSE"
-		o.protocol = "UDP"
+		o.protocol = proto or "UDP"
 		o.expires = 0
 		o.allow = "PRACK, INVITE ,ACK, BYE, CANCEL, UPDATE, SUBSCRIBE"
 			  .. ",NOTIFY, REFER, MESSAGE, OPTIONS"
