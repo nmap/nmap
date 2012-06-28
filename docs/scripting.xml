@@ -104,7 +104,7 @@
     <para>
       Scripts are written in the
       embedded
-      <ulink url="http://www.lua.org/">Lua programming language</ulink>.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
+      <ulink url="http://www.lua.org/">Lua programming language</ulink>, version 5.2.<indexterm><primary>Lua programming language</primary><seealso>Nmap Scripting Engine</seealso></indexterm>
       The language itself is well documented in the books 
 <web>
       <citetitle><ulink url="http://www.amazon.com/dp/8590379825?tag=secbks-20">Programming
@@ -117,8 +117,8 @@
       <citetitle>Lua 5.1 Reference Manual</citetitle>.  
 </print>
 
-The reference manual is also 
-      <ulink url="http://www.lua.org/manual/5.1/">freely available
+The reference manual, updated for Lua 5.2, is also 
+      <ulink url="http://www.lua.org/manual/5.2/">freely available
 	online</ulink>, as is the 
       <ulink url="http://www.lua.org/pil/">first edition of <citetitle>Programming in
 	Lua</citetitle></ulink>. Given the availability of these excellent general
@@ -893,7 +893,7 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
       <literal>and</literal>, <literal>or</literal>, and
       <literal>not</literal> operators to build Boolean expressions. The
       operators have the same
-      <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#2.5.3">precedence</ulink>
+      <ulink role="hidepdf" url="http://www.lua.org/manual/5.2/manual.html#3.4.7">precedence</ulink>
       as in Lua: <literal>not</literal> is the highest, followed by
       <literal>and</literal> and then <literal>or</literal>. You can
       alter precedence by using parentheses. Because expressions contain
@@ -1458,7 +1458,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
 	  is installed in the configured Nmap data directory. Scripts need only 
-      <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require"><literal>require</literal></ulink> the default libraries in order to use them.
+      <ulink url="http://www.lua.org/manual/5.2/manual.html#pdf-require"><literal>require</literal></ulink> the default libraries in order to use them.
 	  </para>
 
       <sect2 id="nse-library-list">
@@ -1513,10 +1513,10 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <print><citetitle>Programming in Lua, Second Edition</citetitle>,</print>
       so this is a short summary. C modules consist of functions that
       follow the protocol of the
-      <ulink url="http://www.lua.org/manual/5.1/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
+      <ulink url="http://www.lua.org/manual/5.2/manual.html#lua_CFunction"><type>lua_CFunction</type></ulink>
       type. The functions are registered with Lua and assembled into a
       library by calling the
-      <function>luaL_register</function><indexterm><primary><function>luaL_register</function></primary></indexterm>
+      <function>luaL_newlib</function><indexterm><primary><function>luaL_newlib</function></primary></indexterm>
       function. A special initialization function provides the interface
       between the module and the rest of the NSE code. By convention the
       initialization function is named in the form
@@ -1550,24 +1550,24 @@ static int l_md5(lua_State *L);
       does not have to be visible to other compiled code.  Only an address is required
       to register it with Lua. Later in the file,
       <function>l_md5</function> is entered into an array of type
-      <type>luaL_reg</type> and associated with the name
+      <type>luaL_Reg</type> and associated with the name
       <function>md5</function>:</para>
 <programlisting>
-static const struct luaL_reg openssllib[] = {
+static const struct luaL_Reg openssllib[] = {
   { "md5", l_md5 },
   { NULL, NULL }
 };
 </programlisting>
 
  <para>This function will now be known as <function>md5</function> to NSE.  Next the library is registered with a call to
-      <function>luaL_register</function> inside the initialization
+      <function>luaL_newlib</function> inside the initialization
       function <function>luaopen_openssl</function>, as shown
       next. Some lines relating to the registration of
       OpenSSL <type>BIGNUM</type> types have been omitted:</para>
 
 <programlisting>
 LUALIB_API int luaopen_openssl(lua_State *L) {
-  luaL_register(L, OPENSSLLIBNAME, openssllib);
+  luaL_newlib(L, openssllib);
   return 1;
 }
 </programlisting>
@@ -3027,7 +3027,7 @@ mutexfn = nmap.mutex(object)
         The <literal>mutexfn</literal> returned is a function which works as a
         mutex for the <literal>object</literal> passed in.  This object can be
         any <ulink role="hidepdf"
-        url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
+        url="http://www.lua.org/manual/5.2/manual.html#2.1">Lua data
         type</ulink> except <literal>nil</literal>,
         Boolean, and number.  The
         returned function allows you to lock, try to lock, and release the
@@ -3153,7 +3153,7 @@ end
         <literal>condvarfn</literal> returned is a function which works as a
         condition variable for the <literal>object</literal> passed in. This
         object can be any <ulink role="hidepdf"
-        url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
+        url="http://www.lua.org/manual/5.2/manual.html#2.1">Lua data
         type</ulink> except <literal>nil</literal>,
         Boolean, and number.  The
         returned function allows you to wait, signal, and broadcast on the
@@ -3577,7 +3577,7 @@ end
       It then loads the standard Lua libraries and compiled NSE libraries.
       The standard Lua libraries are
       documented in the <ulink
-      url="http://www.lua.org/manual/5.1/manual.html">Lua Reference
+      url="http://www.lua.org/manual/5.2/manual.html">Lua Reference
       Manual</ulink>. The standard Lua libraries available to NSE are
       <literal>debug</literal>,
       <literal>io</literal>,
