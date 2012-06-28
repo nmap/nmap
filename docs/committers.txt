@@ -91,3 +91,8 @@ djalal     - Djalal Harouni focuses on the Nmap Scripting Engine.  In
 martin     - Martin Holst Swende has written many great NSE scripts as
              well as improvements to the NSE infrastructure (such as
              the --script-help feature).
+
+dmiller - Dan Miller has made many important improvements to Nmap,
+          from bug fixes to new features.  He has improved many NSE
+          scripts and libraries and also continues to improve Nmap's
+          XML output support.
