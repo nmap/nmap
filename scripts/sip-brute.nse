@@ -29,7 +29,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
-portrule = shortport.port_or_service(5060, "sip", "udp")
+portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 
 Driver = {
 	
