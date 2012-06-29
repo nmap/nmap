@@ -11246,7 +11246,7 @@ match couchbase-tap m|^\x81\x10..\0\0\0\0\0\0\0.....\0\0\0\0\0\0\0\0ep_version([
 Probe TCP epmd q|\0\x01\x6e|
 rarity 8
 ports 4369
-match epmd m|^\0\0\x11\x11.*| p/Erlang Port Mapper Daemon/
+match epmd m|^\0\0\x11\x11| p/Erlang Port Mapper Daemon/
 
 ##############################NEXT PROBE##############################
 # Voldemort Native Protocol Version 3 connect probe
