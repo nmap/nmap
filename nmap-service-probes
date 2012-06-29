@@ -11261,3 +11261,12 @@ Probe TCP kumo-server q|\x94\0\xcd\xef\xd1\x61\x91\x03|
 ports 19800,19700
 match kumo-server m|^\x94\x01\xcd\xef\xd1\xc0\xda\0.([^\s]*)|s p/Kumofs/ v/$1/
 match kumo-manager m|^\x94\x01\xcd\xef\xd1\x05\xc0$| p/Kumofs/
+
+##############################NEXT PROBE##############################
+# Metasploit msgpack-based RPC. https://community.rapid7.com/docs/DOC-1516
+Probe TCP metasploit-msgrpc q|GET /api HTTP/1.0\r\n\r\n|
+rarity 9
+# http://seclists.org/nmap-dev/2012/q2/971
+ports 50505,55552
+sslports 3790
+match metasploit-msgrpc m|^HTTP/1\.1 200 OK\r\nContent-Type: binary/message-pack\r\nConnection: close\r\nServer: Rex\r\nContent-Length: 1084\r\n\r\n\x85\xa5error\xc3\xaberror_class\xadArgumentError\xacerror_string\xbdInvalid Request Verb: '\"GET\"'\xaferror_backtrace\xdc\x00\x12\xda\x000lib/msf/core/rpc/v10/service\.rb:107:in `process'\xda\x006lib/msf/core/rpc/v10/service\.rb:88:in `on_request_uri'\xda\x006lib/msf/core/rpc/v10/service\.rb:70:in `block in start'\xda\x00/lib/rex/proto/http/handler/proc\.rb:37:in `call'\xda\x005lib/rex/proto/http/handler/proc\.rb:37:in `on_request'\xda\x00| p/Metasploit Remote API/ v/4.4.0-dev/
