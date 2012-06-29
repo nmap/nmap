@@ -11259,5 +11259,5 @@ match vp3 m|^ok$| p/Voldemort/
 # Kumofs kumo-server version probe
 Probe TCP kumo-server q|\x94\0\xcd\xef\xd1\x61\x91\x03|
 ports 19800,19700
-match kumo-server m|^\x94\x01\xcd\xef\xd1\xc0\xda\0.([^\s]*)| p/Kumofs/ v/$1/
+match kumo-server m|^\x94\x01\xcd\xef\xd1\xc0\xda\0.([^\s]*)|s p/Kumofs/ v/$1/
 match kumo-manager m|^\x94\x01\xcd\xef\xd1\x05\xc0$| p/Kumofs/
