@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a brute script for new Metasploit RPC interface as 
+  metasploit-msgrpc-brute. [Aleksandar Nikolic]
+
 o [NSE] Added the script firewall-bypass which detects a vulnerability in
   netfilter and other firewalls that use helpers to dynamically open ports for
   protocols such as ftp and sip.  [Hani Benhabiles]

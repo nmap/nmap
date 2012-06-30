@@ -97,7 +97,7 @@ Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe
 Entry { filename = "eppc-enum-processes.nse", categories = { "discovery", "safe", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
-Entry { filename = "firewall-bypass.nse", categories = { "vuln", "intrusive", } }
+Entry { filename = "firewall-bypass.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "ftp-bounce.nse", categories = { "default", "safe", } }
 Entry { filename = "ftp-brute.nse", categories = { "brute", "intrusive", } }
@@ -221,9 +221,11 @@ Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lltd-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "maxdb-info.nse", categories = { "default", "version", } }
+Entry { filename = "mcafee-epo-agent.nse", categories = { "safe", "version", } }
 Entry { filename = "membase-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "membase-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "memcached-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "metasploit-msgrpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "metasploit-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mmouse-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mmouse-exec.nse", categories = { "intrusive", } }
