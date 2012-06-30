@@ -113,12 +113,8 @@ void fatal(const char *fmt, ...) {
   timep = time(NULL);
 
   va_start(ap, fmt);
-  log_vwrite(LOG_STDERR, fmt, ap);
+  log_vwrite(LOG_NORMAL|LOG_STDERR, fmt, ap);
   va_end(ap);
-  va_start(ap, fmt);
-  log_vwrite(LOG_NORMAL, fmt, ap);
-  va_end(ap);
-
   log_write(LOG_NORMAL|LOG_STDERR, "\nQUITTING!\n");
 
   if (xml_tag_open())
@@ -160,11 +156,8 @@ void error(const char *fmt, ...) {
   va_list  ap;
 
   va_start(ap, fmt);
-  log_vwrite(LOG_STDERR, fmt, ap);
+  log_vwrite(LOG_NORMAL|LOG_STDERR, fmt, ap);
   va_end(ap);
-  va_start(ap, fmt);
-    log_vwrite(LOG_NORMAL, fmt, ap);
-    va_end(ap);
   log_write(LOG_NORMAL|LOG_STDERR , "\n");
   return;
 }
@@ -249,11 +242,8 @@ void gh_perror(const char *fmt, ...) {
 #endif
   
   va_start(ap, fmt);
-  log_vwrite(LOG_STDERR, fmt, ap);
+  log_vwrite(LOG_NORMAL|LOG_STDERR, fmt, ap);
   va_end(ap);
-  va_start(ap, fmt);
-      log_vwrite(LOG_NORMAL, fmt, ap);
-      va_end(ap);
   log_write(LOG_NORMAL|LOG_STDERR, ": %s (%d)\n",
     strerror_s, error_number);
 
