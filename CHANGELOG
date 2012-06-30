@@ -4,9 +4,9 @@ o Removed the log_errors variable. (Treating it as true everywhere). This change
 did not effect the support for older scripts that still call it. However nmap --log-errors
 now does nothing. Also updated the documentation to reflect this change
 
-o Reduced the size of Port structures by about a third (from 176 to 64
-  bytes on x86_64). They had accidentally been made bigger than they
-  should during the IPv6 code merge. [David Fifield]
+o Reduced the size of Port structures by about two thirds (from 176 to
+  64 bytes on x86_64). They had accidentally been made bigger than
+  they should during the IPv6 code merge. [David Fifield]
 
 o [NSE] Added default values for Expires, Call-ID, Allow and Content-Length
   headers in SIP requests and removed redundant code in sip library.
