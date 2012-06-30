@@ -12796,4 +12796,10 @@ o Changed the makefile 'all' target to use install-sh rather than
 
 o Documentation updated and clarified slightly.
 
-o Added this CHANGELOG file to the distribution.
+o Added this CHANGELOG file to the distribution. 
+
+o Removed the log_errors variable. (Treating it as true everywhere). This change 
+did not effect the support for older scripts that still call it. However nmap --log-errors 
+now does nothing. Also updated the documentation to reflect this change 
+
+
