@@ -115,12 +115,11 @@ void fatal(const char *fmt, ...) {
   va_start(ap, fmt);
   log_vwrite(LOG_STDERR, fmt, ap);
   va_end(ap);
-  if (o.log_errors) {
-    va_start(ap, fmt);
-    log_vwrite(LOG_NORMAL, fmt, ap);
-    va_end(ap);
-  }
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\nQUITTING!\n");
+  va_start(ap, fmt);
+  log_vwrite(LOG_NORMAL, fmt, ap);
+  va_end(ap);
+
+  log_write(LOG_NORMAL|LOG_STDERR, "\nQUITTING!\n");
 
   if (xml_tag_open())
     xml_close_start_tag();
@@ -163,13 +162,10 @@ void error(const char *fmt, ...) {
   va_start(ap, fmt);
   log_vwrite(LOG_STDERR, fmt, ap);
   va_end(ap);
-  
-  if (o.log_errors) {
-    va_start(ap, fmt);
+  va_start(ap, fmt);
     log_vwrite(LOG_NORMAL, fmt, ap);
     va_end(ap);
-  }
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\n");
+  log_write(LOG_NORMAL|LOG_STDERR , "\n");
   return;
 }
 
@@ -197,7 +193,7 @@ void pfatal(const char *fmt, ...) {
   Vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
   va_end(ap);
 
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "%s: %s (%d)\n", 
+  log_write(LOG_NORMAL|LOG_STDERR, "%s: %s (%d)\n",
 	    errbuf, strerror_s, error_number);
 
   if (xml_tag_open())
@@ -230,7 +226,7 @@ void pfatal(const char *fmt, ...) {
   HeapFree(GetProcessHeap(), 0, strerror_s);
 #endif
 
-  if (o.log_errors) log_flush(LOG_NORMAL);
+  log_flush(LOG_NORMAL);
   fflush(stderr);
   exit(1);
 }
@@ -255,19 +251,17 @@ void gh_perror(const char *fmt, ...) {
   va_start(ap, fmt);
   log_vwrite(LOG_STDERR, fmt, ap);
   va_end(ap);
-  if (o.log_errors) {
-      va_start(ap, fmt);
+  va_start(ap, fmt);
       log_vwrite(LOG_NORMAL, fmt, ap);
       va_end(ap);
-  }
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n",
+  log_write(LOG_NORMAL|LOG_STDERR, ": %s (%d)\n",
     strerror_s, error_number);
 
 #ifdef WIN32
   HeapFree(GetProcessHeap(), 0, strerror_s);
 #endif
 
-  if (o.log_errors) log_flush(LOG_NORMAL);
+  log_flush(LOG_NORMAL);
   fflush(stderr);
   return;
 }

@@ -316,7 +316,6 @@ void NmapOps::Initialize() {
   xsl_stylesheet = NULL;
   spoof_mac_set = false;
   mass_dns = true;
-  log_errors = false;
   deprecated_xml_osclass = false;
   resolve_all = 0;
   dns_servers = NULL;

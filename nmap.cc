@@ -847,7 +847,6 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "dns-servers") == 0) {
         o.dns_servers = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
-        o.log_errors = 1;
       } else if (optcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
         o.deprecated_xml_osclass = true;
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {

@@ -3872,36 +3872,7 @@ hosts with at least one
         by Nmap.  This is useful for debugging routing problems or
         device mischaracterization (such as Nmap treating a PPP
         connection as ethernet).</para> </listitem> </varlistentry>
-
-      <varlistentry>
-        <term>
-          <option>--log-errors</option> (Log errors/warnings to normal mode output file)
-          <indexterm significance="preferred"><primary><option>--log-errors</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Warnings and errors printed by Nmap usually go only to
-          the screen (interactive output), leaving any normal-format
-          output files (usually specified with <option>-oN</option>)
-          uncluttered.  When you do want to see those messages in the
-          normal output file you specified, add this option. It is
-          useful when you aren't watching the interactive output or
-          when you want to record errors while debugging a problem.
-          The error and warning messages will still appear in
-          interactive mode too.  This won't work for most errors
-          related to bad command-line arguments because Nmap may not
-          have initialized its output files yet.  In addition, some
-          Nmap error and warning messages use a different system which
-          does not yet support this option.</para>
-
-          <para>An alternative to <option>--log-errors</option> is
-          redirecting interactive output (including the standard error
-          stream) to a file.  Most Unix shells make this
-          approach easy, though it can be difficult on Windows.</para>
-
-        </listitem>
-      </varlistentry>
-
+   
    </variablelist>
 
    <variablelist><title>Miscellaneous output options</title>
