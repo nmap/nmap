@@ -1,5 +1,6 @@
 local http = require "http"
 local httpspider = require "httpspider"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -27,15 +28,21 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
 ---
--- @args sql-injection.maxpagecount the maximum amount of pages to visit.
+-- @args http-sql-injection.maxpagecount the maximum amount of pages to visit.
 --       A negative value disables the limit (default: 20)
--- @args sql-injection.url the url to start spidering. This is a URL
+-- @args http-sql-injection.url the url to start spidering. This is a URL
 --       relative to the scanned host eg. /default.html (default: /)
--- @args sql-injection.withinhost only spider URLs within the same host.
+-- @args http-sql-injection.withinhost only spider URLs within the same host.
 --       (default: true)
--- @args sql-injection.withindomain only spider URLs within the same
+-- @args http-sql-injection.withindomain only spider URLs within the same
 --       domain. This widens the scope from <code>withinhost</code> and can
 --       not be used in combination. (default: false)
+-- @args http-sql-injection.errorstrings a path to a file containing the error
+--       strings to search for (one per line, lines started with # are treated as
+--       comments). The default file is nselib/data/http-sql-errors.lst
+--       which was taken from fuzzdb project, for more info, see http://code.google.com/p/fuzzdb/.
+--       If someone detects some strings in that file causing a lot of false positives,
+--       then please report them to nmap-dev@insecure.org.
 --
 -- @output
 -- PORT   STATE SERVICE
@@ -58,17 +65,24 @@ Pattern match response from a submitted injection query to see
 if it is vulnerable
 --]]
 
+local errorstrings = {}
 local function check_injection_response(response)
-
+  
   local body = string.lower(response.body)
-
+  
   if not (response.status == 200 or response.status ~= 500) then
     return false 
   end
-
-  return (string.find(body, "invalid query") or
-	  string.find(body, "sql syntax") or
-	  string.find(body, "odbc drivers error"))
+  
+  if errorstrings then
+    for _,e in ipairs(errorstrings) do
+      if string.find(body, e) then
+        stdnse.print_debug(2, "%s: error string matched: %s", SCRIPT_NAME, e)
+        return true
+      end
+    end
+  end
+  return false
 end
 
 --[[
@@ -191,14 +205,31 @@ local function check_form(form, host, port, path)
   return vulnerable_fields
 end
 
+-- load error strings to the errorstrings table
+local function get_error_strings(path)
+  local f = nmap.fetchfile(path)
+  if f then
+    for e in io.lines(f) do
+      if not string.match(e, "^#") then
+        table.insert(errorstrings, e:lower())
+      end
+    end
+  end
+  -- check if we loaded something
+  if #errorstrings == 0 then
+    -- if not, then load some default values
+    errorstrings = {"invalid query", "sql syntax", "odbc drivers error"}
+  end
+end
 
 action = function(host, port)
-
+  local error_strings_path = stdnse.get_script_args('http-sql-injection.errorstrings') or 'nselib/data/http-sql-errors.lst'
+  get_error_strings(error_strings_path)
   -- crawl to find injectable urls
   local crawler = httpspider.Crawler:new(host, port, nil, {scriptname = SCRIPT_NAME})
   local injectable = {}
   local results_forms = {name="Possible sqli for forms:"}
-
+  
   while(true) do
     local status, r = crawler:crawl()
     if (not(status)) then
@@ -208,7 +239,7 @@ action = function(host, port)
         break
       end
     end
-
+    
     -- first we try sqli on forms
 	  if r.response and r.response.body and r.response.status==200 then
       local all_forms = http.grab_forms(r.response.body)
@@ -232,7 +263,7 @@ action = function(host, port)
       end
     end
   end
-
+  
   -- try to inject
   local results_queries = {}
   if #injectable > 0 then
