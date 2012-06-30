@@ -97,6 +97,7 @@ Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe
 Entry { filename = "eppc-enum-processes.nse", categories = { "discovery", "safe", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
+Entry { filename = "firewall-bypass.nse", categories = { "vuln", "intrusive", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "ftp-bounce.nse", categories = { "default", "safe", } }
 Entry { filename = "ftp-brute.nse", categories = { "brute", "intrusive", } }
