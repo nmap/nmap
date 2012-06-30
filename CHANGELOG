@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed the log_errors variable. (Treating it as true everywhere). This change
+did not effect the support for older scripts that still call it. However nmap --log-errors
+now does nothing. Also updated the documentation to reflect this change
+
 o Reduced the size of Port structures by about a third (from 176 to 64
   bytes on x86_64). They had accidentally been made bigger than they
   should during the IPv6 code merge. [David Fifield]
@@ -12797,9 +12801,5 @@ o Changed the makefile 'all' target to use install-sh rather than
 o Documentation updated and clarified slightly.
 
 o Added this CHANGELOG file to the distribution. 
-
-o Removed the log_errors variable. (Treating it as true everywhere). This change 
-did not effect the support for older scripts that still call it. However nmap --log-errors 
-now does nothing. Also updated the documentation to reflect this change 
 
 
