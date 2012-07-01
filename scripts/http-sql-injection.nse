@@ -1,5 +1,6 @@
 local http = require "http"
 local httpspider = require "httpspider"
+local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
