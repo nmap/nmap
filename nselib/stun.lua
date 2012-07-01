@@ -1,6 +1,7 @@
 ---
--- A library that implements the basics of the STUN protocol per RFC3489
--- and RFC5389.
+-- A library that implements the basics of the STUN protocol (Session
+-- Traversal Utilities for NAT) per RFC3489 and RFC5389. A protocol
+-- overview is available at http://en.wikipedia.org/wiki/STUN.
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
