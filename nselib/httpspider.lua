@@ -57,6 +57,7 @@
 
 local coroutine = require "coroutine"
 local http = require "http"
+local io = require "io"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
