@@ -1,6 +1,8 @@
 ---
--- A tiny Versant library allowing some basic information enumeration.
--- The code is entirely based on packet dumps captured when using the Versant
+-- A tiny library allowing some basic information enumeration from
+-- Versant object database software (see
+-- http://en.wikipedia.org/wiki/Versant_Corporation).  The code is
+-- entirely based on packet dumps captured when using the Versant
 -- Management Center administration application.
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
