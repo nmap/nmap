@@ -1,4 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Added handling for the unexpected error WSAENETRESET (10052). This error is currently wrapped in the ifdef for WIN32 as there error appears to be unique to windows [Sean Rivera]
 
 o [NSE] Added http-sitemap-generator script which spiders a web server
   and displays its directory structure along with number and types
@@ -13,7 +14,7 @@ o [NSE] Added the script firewall-bypass which detects a vulnerability in
 
 o Removed the log_errors variable. (Treating it as true everywhere). This change
 did not effect the support for older scripts that still call it. However nmap --log-errors
-now does nothing. Also updated the documentation to reflect this change
+now does nothing. Also updated the documentation to reflect this change[Sean Rivera]
 
 o Reduced the size of Port structures by about two thirds (from 176 to
   64 bytes on x86_64). They had accidentally been made bigger than
