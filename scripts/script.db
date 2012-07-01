@@ -170,6 +170,7 @@ Entry { filename = "http-rfi-spider.nse", categories = { "intrusive", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "http-sitemap-generator.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }

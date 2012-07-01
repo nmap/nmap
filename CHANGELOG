@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-sitemap-generator script which spiders a web server
+  and displays its directory structure along with number and types
+  of files in each folder. [Piotr Olma]
+
 o [NSE] Added a brute script for new Metasploit RPC interface as 
   metasploit-msgrpc-brute. [Aleksandar Nikolic]
 
