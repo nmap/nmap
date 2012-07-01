@@ -2488,6 +2488,12 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       break;
 #ifndef WIN32
     case EPIPE:
+
+    case ENETRESET:
+    //This error (same as WSAENETRESET according to nbase_winunix) is  Microsoft only error, where the connected host crashes and then resets during the communication
+    //More information can be found at http://www.sockets.com/err_lst1.htm#WSAENETRESET.
+    //I assume that we shouldn't bother doing anything beyond catching it, and then going on to the next probe.
+
 #endif
 #ifdef EPROTO
     case EPROTO:
