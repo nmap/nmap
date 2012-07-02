@@ -10,7 +10,7 @@ _ENV = stdnse.module("ipp", stdnse.seeall)
 
 ---
 --
--- A small CUPS ipp library implementation
+-- A small CUPS ipp (Internet Printing Protocol) library implementation
 --
 --
 
