@@ -1236,7 +1236,7 @@ match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc
 match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ i/Korean/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::ko/
 match imap m|^\* OK Servidor IMAP4rev1de Microsoft Exchange Server 2003 versi\xf3n ([\w._-]+) \(([\w._-]+)\) listo\.\r\n| p/Microsoft Exchange Server 2003 imapd/ v/$1/ i/Spanish/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::es/
 match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
-match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007-2008 imapd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
+match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007-2010 imapd/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 
 match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w._-]+)\) ready\r\n| p/DeskNow imapd/ v/$1/
 
@@ -1918,7 +1918,7 @@ match pop3 m|^\+OK Servidor POP3 de Microsoft Exchange Server 2003 versi\xf3n ([
 match pop3 m|^\+OK Server POP3 di Microsoft Exchange Server 2003 versione ([\w._-]+) \(([\w._-]+)\) pronto\.\r\n| p/Microsoft Exchange 2003 pop3d/ v/$1/ i/Italian/ o/Windows/ h/$2/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2003:::it/
 match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 service ready\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
 match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 HIROC service ready\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
-match pop3 m|^\+OK The Microsoft Exchange POP3 service is ready\.\r\n| p/Microsoft Exchange 2007 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server:2007/
+match pop3 m|^\+OK The Microsoft Exchange POP3 service is ready\.\r\n| p/Microsoft Exchange 2007-2010 pop3d/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:microsoft:exchange_server/
 
 match pop3 m|^\+OK QPOP \(version ([^)]+)\) at .*starting\.| p/Qpop pop3d/ v/$1/
 match pop3 m|^\+OK QPOP Modified by Compaq \(version ([^)]+)\) at .*starting\.| p/QPop pop3d/ v/$1/
