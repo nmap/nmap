@@ -913,11 +913,9 @@ char *logfilename(const char *str, struct tm *tm) {
 }
 
 /* This is the workhorse of the logging functions.  Usually it is
-   called through log_write(), but it can be called directly if you
-   are dealing with a vfprintf-style va_list.  Unlike log_write, YOU
-   CAN ONLY CALL THIS WITH ONE LOG TYPE (not a bitmask full of them).
-   In addition, YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL BETWEEN
-   va_start() AND va_end() calls. */
+   called through log_write(), but it can be called directly if you are dealing
+   with a vfprintf-style va_list. YOU MUST SANDWHICH EACH EXECUTION IF THIS CALL
+   BETWEEN va_start() AND va_end() calls. */
 void log_vwrite(int logt, const char *fmt, va_list ap) {
   char *writebuf;
   bool skid_noxlate = false;
@@ -925,51 +923,61 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
   int len;
   int fileidx = 0;
   int l;
+  int logtype;
   va_list apcopy;
 
-  if (logt == LOG_SKID_NOXLT) {
-    logt = LOG_SKID;
-    skid_noxlate = true;
-  }
+  for (logtype = 1; logtype <= LOG_MAX; logtype <<= 1) {
 
-  switch (logt) {
-  case LOG_STDOUT:
-    vfprintf(o.nmap_stdout, fmt, ap);
-    break;
+    if (!(logt & logtype))
+      continue;
 
-  case LOG_STDERR:
-    fflush(stdout); // Otherwise some systems will print stderr out of order
-    vfprintf(stderr, fmt, ap);
-    break;
+    switch (logtype) {
+      case LOG_STDOUT:
+        vfprintf(o.nmap_stdout, fmt, ap);
+        break;
 
-  case LOG_NORMAL:
-  case LOG_MACHINE:
-  case LOG_SKID:
-  case LOG_XML:
-    len = alloc_vsprintf(&writebuf, fmt, ap);
-    if (writebuf == NULL)
-      fatal("%s: alloc_vsprintf failed.", __func__);
-    l = logt;
-    fileidx = 0;
-    while ((l & 1) == 0) {
-      fileidx++;
-      l >>= 1;
+      case LOG_STDERR:
+        fflush(stdout); // Otherwise some systems will print stderr out of order
+        vfprintf(stderr, fmt, ap);
+        break;
+
+      case LOG_SKID_NOXLT:
+        skid_noxlate = true;
+        /* no break */
+      case LOG_NORMAL:
+      case LOG_MACHINE:
+      case LOG_SKID:
+      case LOG_XML:
+        len = alloc_vsprintf(&writebuf, fmt, ap);
+        if (writebuf == NULL)
+          fatal("%s: alloc_vsprintf failed.", __func__);
+        l = logtype;
+        fileidx = 0;
+        while ((l & 1) == 0) {
+          fileidx++;
+          l >>= 1;
+        }
+        assert(fileidx < LOG_NUM_FILES);
+        if (o.logfd[fileidx]) {
+          if ((logtype & (LOG_SKID|LOG_SKID_NOXLT)) && !skid_noxlate)
+            skid_output(writebuf);
+
+          rc = fwrite(writebuf, len, 1, o.logfd[fileidx]);
+          if (rc != 1) {
+            fatal("Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.", len, logtype, rc);
+          }
+          va_end(apcopy);
+        }
+        free(writebuf);
+        break;
+  
+      default:
+        /* Unknown log type.
+         * ---
+         * Note that we're not calling fatal() here to avoid infinite call loop
+         * between fatal() and this log_vwrite() function. */
+        assert(0); /* We want people to report it. */
     }
-    assert(fileidx < LOG_NUM_FILES);
-    if (o.logfd[fileidx]) {
-      if (logt == LOG_SKID && !skid_noxlate)
-        skid_output(writebuf);
-      rc = fwrite(writebuf, len, 1, o.logfd[fileidx]);
-      if (rc != 1) {
-        fatal("Failed to write %d bytes of data to (logt==%d) stream. fwrite returned %d.  Quitting.", len, logt, rc);
-      }
-      va_end(apcopy);
-    }
-    free(writebuf);
-    break;
-
-  default:
-    fatal("%s(): Passed unknown log type (%d).  Note that this function, unlike log_write, can only handle one log type at a time (no bitmasks)", __func__, logt);
   }
 
   return;
