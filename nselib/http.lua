@@ -82,7 +82,7 @@
 --   end
 --   </code>
 --  
--- @args http-max-cache-size The maximum memory size (in bytes) of the cache.
+-- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
 -- @args http.useragent The value of the User-Agent header field sent with
 -- requests. By default it is
