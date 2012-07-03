@@ -235,7 +235,7 @@ int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
 }
 
 int epoll_loop(mspool *nsp, int msec_timeout) {
-  int results_left;
+  int results_left = 0;
   int event_msecs; /* msecs before an event goes off */
   int combined_msecs;
   int sock_err = 0;
