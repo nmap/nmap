@@ -2795,6 +2795,7 @@ match ssh m|^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r?\n| p/Bitvis
 match ssh m|^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD\r?\n| p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/ cpe:/a:bitvise:winsshd/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: sshlibSrSshServer ([\w._-]+)\r\n| p/SrSshServer/ v/$3/ i/sshlib $2; protocol $1/
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: GlobalScape\r?\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
+match ssh m|^SSH-([\d.]+)-([\w.-]+)_sshlib GlobalSCAPE\r\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: EdmzSshDaemon ([\w._-]+)\r\n| p/EdmzSshDaemon/ v/$3/ i/sshlib $2; protocol $1/
 match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+)\r\n| p/Bitvise WinSSHD/ v/$3/ i/FlowSsh $2; protocol $1/ o/Windows/ cpe:/a:bitvise:winsshd:$3/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+): free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ v/$3/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/ cpe:/a:bitvise:winsshd:$3/ cpe:/o:microsoft:windows/a
@@ -6426,7 +6427,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<title>HP 
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: BarracudaHTTP ([\d.]+)\r\n| p/BarracudaHTTP/ v/$1/ i/Barracuda Networks Load Balancer http config/ d/load balancer/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: BarracudaHTTP ([\d.]+)\r\n| p/BarracudaHTTP/ v/$1/ i/Barracuda Networks Spam & Virus Firewall http config/ d/firewall/
 # Looks like Apache. --Ed.
-match http m|^HTTP/1\.1 \d\d\d .*Server: BarracudaHTTP ([\w._-]+)/([\w._-]+) \(Unix\) ([^\r]+)\r\n.*Location: https?://([\w._-]+)/cgi-mod/index\.cgi\r\n|s p/Apache/ v/$2/ i/Barracuda firewall http config; BarracudaHTTP $1; $3/ d/firewall/ o/Unix/ h/$4/ cpe:/a:apache:http_server:$2/
+match http m|^HTTP/1\.1 \d\d\d .*Server: BarracudaHTTP ([\w._-]+)/([\w._-]+) \(Unix\) ([^\r]+)\r\n.*Location: https?://([\w._-]+)|s p/Apache/ v/$2/ i/Barracuda firewall http config; BarracudaHTTP $1; $3/ d/firewall/ o/Unix/ h/$4/ cpe:/a:apache:http_server:$2/
 match http m|^HTTP/1\.0 \d\d\d .*Server: WindWeb/([\d.]+)\r\n.*WWW-Authenticate: Basic realm=\"i\.LON\"\r\n|s p/WindWeb/ v/$1/ i/i.LON 100e2 Internet Server http config/ d/remote management/
 match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: BASIC realm=\"Administrator or User\"\r\n\r\nPassword Error\. $| p/D-Link DCS-900 webcam http config/ d/webcam/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Yaws/([-\w_.]+) Yet Another Web Server\r\n.*Set-Cookie: SMSESSION=logout; .*Set-Cookie: nortelxnetid=logout;|s p/Nortel VPN Gateway http config/ i/YAWS httpd $1/ d/security-misc/
@@ -6923,6 +6924,7 @@ match http m|^HTTP/1\.1 401 Authorization Required\nDate: .*\r\nWWW-Authenticate
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: NAShttpd\r\n.*WWW-Authenticate: Basic realm=\"Default ([\w._-]+:[\w._-]+)\"\r\n|s p/NAShttpd/ i/default login: $1/
 match http m|^HTTP/1\.1 200 OK\r\n.*if \(needToConfirm\) {\r\n return \"Leaving this page will end the remote help session\";\r\n} else {\r\nneedToConfirm = true;\r\n}\r\n}\r\n</script>|s p/SimpleHelp remote desktop httpd/
 match http m|^HTTP/1\.0 302 Object Moved\r\n.*Location: /\+CSCOE\+/logon\.html\r\nSet-Cookie: tg=; expires=Thu, 01 Jan 1970 22:00:00 GMT; path=/; secure\r\n|s p/Cisco ASA firewall http config/ d/firewall/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n.*\r\nSet-Cookie: tg=; expires=Thu, 01 Jan 1970 22:00:00 GMT; path=/; secure\r\nSet-Cookie: webvpn=;.*/\+CSCOE\+/logon\.html|s p/Cisco ASA firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\n.*Server: Mbedthis-Appweb/([\d.]+)\r\n.*Set-Cookie: _appwebSessionId_=|s p/Mbedthis-Appweb/ v/$1/ i/Iomega StorCenter ix2 NAS device/ d/storage-misc/ cpe:/a:mbedthis:appweb:$1/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nContent-Type: text/html\r\nLocation: /EnterpriseController\r\n| p/GoogleMini search appliance httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\n.*WWW-Authenticate: Basic realm=\"Huawei SmartAX (\w+)\"\r\n|s p/micro_httpd/ i/Huawei SmartAX $1 ADSL router http config/ d/broadband router/ cpe:/a:acme:micro_httpd/
@@ -7035,6 +7037,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\n.*Server: ASSP/([^\r\n]+)\n|s p/ASSP (
 match http m|^HTTP/1\.0 302 Found\r\n.*Location: https://([\w._-]+)/[^\r\n]*\r\n.*<TITLE>Novell iChain</TITLE>|s p/Novell iChain http admin/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
 match http m|^HTTP/1\.0 200 OK\r\n.*Connection: Keep-Alive\r\nKeep-Alive: timeout=5, max=100\r\n.*<HTML>\r\n<HEAD>\r\n<TITLE></TITLE>\r\n<SCRIPT ID=clientEventHandlersJS LANGUAGE=javascript>\r\n<!--\r\nfunction loadpasswd\(\)\r\n{\r\n\ttop\.location = \"index\.htm\"\r\n}\r\nsetTimeout\(\"loadpasswd\(\)\",1\);\r\n//-->\r\n</SCRIPT>\r\n</HEAD>\r\n<BODY>\r\n</BODY>\r\n</HTML>\r\n$|s p/GoldStar iPECS 50B PBX http config/ d/PBX/
 match http m|^HTTP/1\.1 200 OK\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure\r\n.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
+match http m|^HTTP/1\.1 200 OK\r\ncache-control: no-cache\r\nContent-Length: [0-9]+\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
 match http m|^HTTP/1\.1 403 Forbidden\r\nServer: Norman Security/([\d.]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: 90\r\n\r\n<html><title>Norman Security Error</title><body><br><h2>403 - Forbidden</h2></body></html>$| p/Norman Security Endpoint Protection httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Norman Security/([\d.]+)\r\n.*<html><title>Norman Security Error</title><body><br><h2>401 - Unauthorized</h2></body></html>$|s p/Norman Security Endpoint Protection httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*<!-- \$Header: index\.html 115\.2 2003/03/18 21:32:39 hfux ship \$ -->.*<TITLE>Oracle Applications Rapid Install</TITLE>|s p/Oracle Rapid Install httpd/
@@ -7574,6 +7577,8 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nContent-Length: 0\r\n\r\n
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nServer: eCos Embedded Web Server\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n\xef\xbb\xbf<html>\n<head>\n<title>Danfoss Solar Inverters</title>\n<meta http-equiv=\"refresh\" content=\"0;url=/cgi-bin/login_page\.tcl\">\n</head>\n<body>\n</body>\n</html>\n$| p/eCos Embedded Web Server/ i/IBC SOLAR inverter http config/ d/power-misc/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Aperio ImageServer v([\w._: -]+)\r\nSpectrumPlus: 0\r\nContent-Length: \d+\r\nContent-Type: text/plain\r\n\r\n| p/Aperio ImageServer httpd/ v/$1/
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nMime-Version: 1\.0\r\nDate: [^\r\n]* (\w+)\r\n.*Via: 1\.0 ([\w._-]+):\d+ \(IronPort-WSA/([\w._-]+)\)|s p/Cisco IronPort Web Security Appliance http config/ v/$3/ i/time zone: $1/ d/firewall/ h/$2/
+match http m|^HTTP/1\.1 404 Not Found\r\n.*\r\nServer: Bomgar\r\n|s p/Bomgar Remote Access Portal/
+match http m|^HTTP/1\.1 404 Not Found\r\nServer: SQLAnywhere/([\d.]+)\r\n| p/Sybase SQLAnywhere httpd/ v/$1/
 
 #(insert http)
 
