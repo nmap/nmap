@@ -951,7 +951,10 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
         len = alloc_vsprintf(&writebuf, fmt, ap);
         if (writebuf == NULL)
           fatal("%s: alloc_vsprintf failed.", __func__);
-        l = logtype;
+        if (logtype == LOG_SKID_NOXLT)
+            l = LOG_SKID;
+        else
+            l = logtype;
         fileidx = 0;
         while ((l & 1) == 0) {
           fileidx++;
