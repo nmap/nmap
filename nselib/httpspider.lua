@@ -53,6 +53,10 @@
 --       domain. This widens the scope from <code>withinhost</code> and can
 --       not be used in combination. (default: false)
 -- @args httpspider.noblacklist if set, doesn't load the default blacklist
+-- @args httpspider.useheadfornonwebfiles if set, the crawler would use
+--       HEAD instead of GET for files that do not have extensions indicating
+--       that they are webpages (the list of webpage extensions is located in
+--       nselib/data/http-web-files-extensions.lst)
 --
 
 local coroutine = require "coroutine"
@@ -81,6 +85,7 @@ Options = {
 		o.timeout  = options.timeout or 10000
 		o.whitelist = o.whitelist or {}
 		o.blacklist = o.blacklist or {}
+    local removewww = function(url) string.gsub(url, "^www%.", "") end
 		
 		if ( o.withinhost == true or o.withindomain == true ) then
 			-- set up the appropriate matching functions
@@ -94,7 +99,8 @@ Options = {
 						end
 					elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
 						return false
-					elseif ( parsed_u.host == nil or parsed_u.host:lower() ~= o.base_url:getHost():lower() ) then
+				  -- if urls don't match only on the "www" prefix, then they are probably the same
+					elseif ( parsed_u.host == nil or removewww(parsed_u.host:lower()) ~= removewww(o.base_url:getHost():lower()) ) then
 						return false
 					end
 					return true
