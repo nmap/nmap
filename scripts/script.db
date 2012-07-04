@@ -173,6 +173,7 @@ Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "ext
 Entry { filename = "http-sitemap-generator.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-tplink-dir-traversal.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-unsafe-output-escaping.nse", categories = { "discovery", "intrusive", } }
