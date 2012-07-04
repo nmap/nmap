@@ -2152,10 +2152,12 @@ function identify_404(host, port)
         return false, "Failed while testing for extra 404 error messages"
       end
 
-      -- Check if the return code became something other than 200
+      -- Check if the return code became something other than 200.
+      -- Status code: -1 represents unknown.
+      -- If the status is nil or the string "unknown" we switch to -1. 
       if(data2.status ~= 200) then
-        if(data2.status == nil) then
-          data2.status = "<unknown>"
+        if(type(data2.status) ~= "number") then
+          data2.status = -1
         end
         stdnse.print_debug(1, "HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
         return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
@@ -2163,8 +2165,8 @@ function identify_404(host, port)
 
       -- Check if the return code became something other than 200
       if(data3.status ~= 200) then
-        if(data3.status == nil) then
-          data3.status = "<unknown>"
+        if(type(data3.status) ~= "number") then
+          data3.status = -1
         end
         stdnse.print_debug(1, "HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
         return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
