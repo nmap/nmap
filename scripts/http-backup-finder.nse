@@ -102,6 +102,11 @@ action = function(host, port)
 
 		-- parse the returned url
 		local parsed = url.parse(tostring(r.url))
+    
+		-- handle case where only hostname was provided
+		if ( parsed.path == nil ) then
+			parsed.path = '/'
+		end
 		
 		-- only pursue links that have something looking as a file
 		if ( parsed.path:match(".*%.*.$") ) then
