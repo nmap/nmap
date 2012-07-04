@@ -8484,6 +8484,9 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnec
 
 match vnc-http m|^HTTP/1\.1 200\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nSet-Cookie: UBRWID=[A-F0-9]+\r\nAccess-Control-Allow-Origin: \*\r\nConnection: Keep-Alive\r\n\r\n\xef\xbb\xbf<!DOCTYPE html>\r\n<html>\r\n<head>\r\n<title>ThinVNC</title>\r\n| p/ThinVNC/
 
+match http m|^HTTP/1\.0 405 Method Not Allowed\r\nServer: Membase Server ([\w-.]+)\r\nPragma:| p/Membase Admin httpd/ v/$1/
+match http m|^HTTP/1\.0 405 Method Not Allowed\r\nServer: Couchbase Server ([\w-.]+)\r\nPragma:| p/Couchbase Admin httpd/ v/$1/
+
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
 rarity 5
