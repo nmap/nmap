@@ -1,10 +1,3 @@
-local http = require "http"
-local nmap = require "nmap"
-local shortport = require "shortport"
-local stdnse = require "stdnse"
-
-local openssl = stdnse.silent_require "openssl"
-
 description = [[
 Obtains the CakePHP version of a web application built with the CakePHP framework by fingerprinting default files shipped with the CakePHP framework.
 
@@ -32,6 +25,12 @@ author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","safe"}
 
+local http = require "http"
+local nmap = require "nmap"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+
+local openssl = stdnse.silent_require "openssl"
 
 portrule = shortport.http
 
@@ -59,7 +58,13 @@ action = function(host, port)
 	local icon_hash, stylesheet_hash
 	local output_lines
 	local installation_version
-	
+
+        local _, http_status, _ = http.identify_404( host.ip,port)
+        if ( http_status == 200 ) then
+          stdnse.print_debug(1, "%s:HTTP server always return status 200. Exiting to avoid false positives", SCRIPT_NAME)
+          return false
+        end
+
         -- Are the default icons there?
 	png_icon_response = http.get(host, port, PNG_ICON_QUERY)
 	gif_icon_response = http.get(host, port, GIF_ICON_QUERY)
