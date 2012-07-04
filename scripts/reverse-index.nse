@@ -136,6 +136,10 @@ end
 
 postaction = function()
 	local db = nmap.registry[SCRIPT_NAME]
+	if ( db == nil ) then
+		return false
+	end
+  
 	local results
 	local mode = stdnse.get_script_args("reverse-index.mode") or "horizontal"
 	
