@@ -33,7 +33,7 @@ application.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"discovery", "safe", "external"}
 
 
 local arg_username    = stdnse.get_script_args(SCRIPT_NAME .. ".username")
