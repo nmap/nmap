@@ -81,7 +81,7 @@ local order = {
 local function cmdReq(host, port, url, result)
 	local response = http.get(host, port, url)
 	
-	if ( 200 ~= response.status ) then
+	if ( 200 ~= response.status ) or ( response.header['server'] == nil ) then
 		return false
 	end
 	
@@ -120,6 +120,12 @@ local function cmdReq(host, port, url, result)
 end
 
 action = function(host, port)
+  
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local _, http_status, _ = http.identify_404( host.ip,port)
+  if ( http_status == 200 ) then
+    return false
+  end
 
 	local urls = { "/pools/default/buckets", "/pools" }
 	
