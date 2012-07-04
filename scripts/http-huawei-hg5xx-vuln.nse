@@ -78,6 +78,13 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
            disclosure = {year = '2011', month = '01', day = '1'},
        },
      }
+     
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local _, http_status, _ = http.identify_404( host.ip,port)
+  if ( http_status == 200 ) then
+    return false
+  end
+  
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
   local open_session = http.get(host.ip, port, "/Listadeparametros.html")
   if open_session and open_session.status == 200 then
