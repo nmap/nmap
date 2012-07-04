@@ -86,7 +86,7 @@ local function cmdReq(host, port, url, result)
 	end
 	
 	if ( response.header['server'] and
-		 not(response.header['server']:match("^Membase Server")) ) then
+		 not( response.header['server']:match("^Couchbase Server") or response.header['server']:match("^Membase Server")  ) ) then
 		return false
 	end
 	
