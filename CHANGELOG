@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [NSOCK] Fixed an epoll-engine-specific bug. The engine didn't recognized FDs
+  that were internally closed and replaced by other ones. This happened during
+  reconnect attempts. [Henri Doreau]
+
 o Added support for log type bitmasks in log_vwrite(). Also replaced a fatal()
   statement by an assert(0) to get rid of a possible infinite call loop when
   passed an invalid log type. [Henri Doreau]

@@ -230,7 +230,16 @@ int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
     epev.events |= EPOLL_X_FLAGS;
 
   sd = nsi_getsd(iod);
-  epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev);
+  if (epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev) < 0) {
+    if (errno == ENOENT) {
+      /* This IOD is registered but its associated fd is not in the epoll set.
+       * It was probably closed and another one was open (e.g.: reconnect operation).
+       * We therefore want to add the new one. */
+      epoll_ctl(einfo->epfd, EPOLL_CTL_ADD, sd, &epev);
+    } else {
+      fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
+    }
+  }
   return 1;
 }
 
