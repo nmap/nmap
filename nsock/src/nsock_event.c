@@ -258,7 +258,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
   }
 
   if (nsp->tracelevel > 0)
-    nsock_trace(nsp, "msevent_cancel() on event #%li (type %s)", nse->id, nse_type2str(nse->type));
+    nsock_trace(nsp, "msevent_cancel on event #%li (type %s)", nse->id, nse_type2str(nse->type));
 
   /* Now that we found the event... we go through the motions of cleanly
    * cancelling it */
