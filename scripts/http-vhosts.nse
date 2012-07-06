@@ -496,10 +496,17 @@ end
 -- @param domain string
 -- @return string
 local makeTargetName = function(name,domain)
-  if name == "" and domain == "" then return nil end
-  if name == "" then return domain end
-  if domain == "" then return name end
-  return name .. "." .. domain
+  if name and name ~= "" then
+    if domain and domain ~= "" then
+      return name .. "." .. domain
+    else
+      return name
+    end
+  elseif domain and domain ~= "" then
+    return domain
+  else
+    return nil
+  end
 end
 
 
