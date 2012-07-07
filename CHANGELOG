@@ -1,4 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o [NSE] Added tls-nextprotoneg script which enumerates a TLS server's supported
+  protocols by using the next protocol negotiation extension.
+  [Hani Benhabiles]
+
 o [NSOCK] Fixed an epoll-engine-specific bug. The engine didn't recognized FDs
   that were internally closed and replaced by other ones. This happened during
   reconnect attempts. [Henri Doreau]
