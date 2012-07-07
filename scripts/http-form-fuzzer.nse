@@ -157,7 +157,7 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
   if form["method"]=="post" then
     sending_function = function(data) return http.post(host, port, form_submission_path, nil, nil, data) end
   else
-    sending_function = function(data) return http.get(host, port, form_submission_path..generate_get_string(data)) end
+    sending_function = function(data) return http.get(host, port, form_submission_path..generate_get_string(data), {no_cache=true, bypass_cache=true}) end
   end
   
   for _,field in ipairs(form["fields"]) do
