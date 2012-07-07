@@ -96,3 +96,9 @@ dmiller - Dan Miller has made many important improvements to Nmap,
           from bug fixes to new features.  He has improved many NSE
           scripts and libraries and also continues to improve Nmap's
           XML output support.
+
+henri - Henri Doreau has contributed to many parts of Nmap, from NSE
+        scripts to bug fixes.  He also designed and implemented the
+        nsock-engines feature, which allows Nmap to use more efficient
+        platform-specific APIs for its underlying socket networking
+        requests.
