@@ -122,6 +122,7 @@ local check_npn = function(response)
 	"spdy/2",
 	"spdy/1",
 	"http/1.1",
+	"http1.1",
 	}
 
     if not response then
