@@ -2,6 +2,7 @@ local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local sslcert = require "sslcert"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :
@@ -31,7 +32,7 @@ include with Nmap) list.
 
 author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe", "discovery", "vuln"}
+categories = {"safe", "discovery", "vuln", "default"}
 
 
 local FINGERPRINT_FILE = "ssl-fingerprints"
@@ -112,17 +113,11 @@ action = function(host, port)
 	end
 	local fingerprints = result
 
-	-- Connect to host.
-	local sock = nmap.new_socket()
-	local status, err = sock:connect(host, port, "ssl")
-	if not status then
-		stdnse.print_debug(1, "Failed to connect: %s", err)
-		return
-	end
-
 	-- Get SSL certificate.
-	local cert = sock:get_ssl_certificate()
-	sock:close()
+	local status, cert = sslcert.getCertificate(host, port)
+  if not status then
+    stdnse.print_debug(2, "sslcert.getCertificate error: %s", cert)
+  end
 	if not cert:digest("sha1") then
 		stdnse.print_debug(2, "Certificate does not have a SHA-1 fingerprint.")
 		return
