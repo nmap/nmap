@@ -121,11 +121,12 @@ end
 
 action = function(host, port)
   
-  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
-  local _, http_status, _ = http.identify_404( host.ip,port)
-  if ( http_status == 200 ) then
-    return false
-  end
+	-- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+	local _, http_status, _ = http.identify_404(host,port)
+	if ( http_status == 200 ) then
+		stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
+		return false
+	end
 
 	local urls = { "/pools/default/buckets", "/pools" }
 	

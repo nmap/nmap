@@ -226,6 +226,13 @@ action = function(host, port)
   local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
   local output_lns = {}
 
+  -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+  local _, http_status, _ = http.identify_404(host,port)
+  if ( http_status == 200 ) then
+    stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
+    return false
+  end
+  
   --Load fingerprint data or abort 
   status, fingerprints = load_fingerprints(fingerprint_filename, category)
   if(not(status)) then

@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [NSOCK] Modified multiple scripts that operated against HTTP based services
+  so as to remove false positives that were generated when the target service 
+  answers with a 200 response to all requests. [Tom Sellers]
 
 o [NSE] Added metasploit-info script which uses Metasploit RPC service to get
   information about the remote system. [Aleksandar Nikolic]

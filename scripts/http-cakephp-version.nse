@@ -59,13 +59,14 @@ action = function(host, port)
 	local output_lines
 	local installation_version
 
-        local _, http_status, _ = http.identify_404( host.ip,port)
-        if ( http_status == 200 ) then
-          stdnse.print_debug(1, "%s:HTTP server always return status 200. Exiting to avoid false positives", SCRIPT_NAME)
-          return false
-        end
+	-- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
+	local _, http_status, _ = http.identify_404(host,port)
+	if ( http_status == 200 ) then
+		stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
+		return false
+	end
 
-        -- Are the default icons there?
+	-- Are the default icons there?
 	png_icon_response = http.get(host, port, PNG_ICON_QUERY)
 	gif_icon_response = http.get(host, port, GIF_ICON_QUERY)
 	if png_icon_response.body and png_icon_response.status == 200 then
