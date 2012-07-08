@@ -228,6 +228,7 @@ Entry { filename = "mcafee-epo-agent.nse", categories = { "safe", "version", } }
 Entry { filename = "membase-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "membase-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "memcached-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "metasploit-info.nse", categories = { "intrusive", "safe", } }
 Entry { filename = "metasploit-msgrpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "metasploit-xmlrpc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mmouse-brute.nse", categories = { "brute", "intrusive", } }
@@ -363,7 +364,7 @@ Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-cert.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "external", "safe", } }
-Entry { filename = "ssl-known-key.nse", categories = { "discovery", "safe", "vuln", } }
+Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "stun-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "stun-version.nse", categories = { "version", } }
@@ -379,7 +380,7 @@ Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe",
 Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "tls-nextprotoneg.nse", categories = { "discovery", "safe", "default", } }
+Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "traceroute-geolocation.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added metasploit-info script which uses Metasploit RPC service to get
+  information about the remote system. [Aleksandar Nikolic]
+
 o [NSE] Added tls-nextprotoneg script which enumerates a TLS server's supported
   protocols by using the next protocol negotiation extension.
   [Hani Benhabiles]
