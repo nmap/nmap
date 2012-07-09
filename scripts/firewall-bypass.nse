@@ -33,7 +33,7 @@ For more information, see:
 --
 -- @output
 -- Host script results:
--- | firewall-bypass: 
+-- | firewall-bypass:
 -- |_  Firewall vulnerable to bypass through ftp helper. (IPv4)
 
 author = "Hani Benhabiles"
@@ -126,7 +126,7 @@ ftp_helper = {
             -- Spoof packet
             -- 1. Invert ethernet addresses
             f.frame_buf = f.mac_src .. f.mac_dst .. ethertype
- 
+
             -- 2. Modify packet payload
             p.buf = string.sub(p.buf, 1, p.tcp_data_offset) ..  payload
             -- 3. Increment IP ID field (IPv4 packets)
@@ -173,14 +173,15 @@ ftp_helper = {
 
         -- wait packet spoofing thread to finish
         stdnse.sleep(1.5)
-        socket:close() 
+        socket:close()
         return
     end,
 }
 
 -- List of helpers
-local helpers = { ftp = ftp_helper, -- FTP (IPv4 and IPv6)
-                }
+local helpers = {
+    ftp = ftp_helper, -- FTP (IPv4 and IPv6)
+}
 
 local helper
 
@@ -224,7 +225,7 @@ action = function(host, port)
         end
         testsock:close()
     else
-        -- If not target port specified, we try to get a filtered port, 
+        -- If not target port specified, we try to get a filtered port,
 	-- which would be more likely blocked by a firewall before looking for a closed one.
         local port = nmap.get_ports(host, nil, "tcp", "filtered") or nmap.get_ports(host, nil, "tcp", "closed")
         if port then
@@ -238,7 +239,7 @@ action = function(host, port)
     end
     -- If helper chosen by user
     if helper then
-        if helpers[helper].should_run(host, helperport) then 
+        if helpers[helper].should_run(host, helperport) then
             helpers[helper].attack(host, helperport, targetport)
         else
             return
