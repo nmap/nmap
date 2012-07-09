@@ -211,6 +211,7 @@ Entry { filename = "ipv6-node-info.nse", categories = { "default", "discovery", 
 Entry { filename = "irc-botnet-channels.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "irc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "irc-sasl-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "exploit", "intrusive", "malware", "vuln", } }
 Entry { filename = "iscsi-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iscsi-info.nse", categories = { "default", "discovery", "safe", } }
@@ -319,7 +320,7 @@ Entry { filename = "servicetags.nse", categories = { "default", "discovery", "sa
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "sip-call-spoof.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sip-enum-users.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "sip-methods.nse", categories = { "default", "safe", "discovery" } }
+Entry { filename = "sip-methods.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
 Entry { filename = "smb-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smb-check-vulns.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }

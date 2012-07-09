@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [NSE] Added irc-sasl-brute script which performs brute force password auditing
+  against IRC (Internet Relay Chat) servers supporting SASL authentication.
+  [Piotr Olma]
+
 o [NSE] Added sip-methods script which enumerates a SIP server's allowed
   methods. [Hani Benhabiles]
 
