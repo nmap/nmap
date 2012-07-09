@@ -1296,7 +1296,7 @@ match imap m|^\* OK ([-\w_.]+) running Eudora Internet Mail Server X ([\d.]+)\r\
 match imap m|^\* OK ([-\w_.]+) running EIMS X ([\w.]+)\r\n| p/Eudora Internet Mail Server X imapd/ v/$2/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/a
 match imap m|^\* OK MERCUR IMAP4-Server \(v([\w.]+) \w+\) for Windows ready| p/Atrium Software's Mercur imapd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap m|^\* OK WebSTAR Mail ready\r\n| p/WebSTAR imapd/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
-match imap m|^\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE AUTH=PLAIN ACL ACL2=UNION\] Atmail IMAP4 Server ready\. See COPYING for distribution information\.\r\n| p/Atmail imapd/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1[\w+= -]*\] Atmail IMAP4 Server ready\. See COPYING for distribution information\.\r\n| p/Atmail imapd/
 match imap m|^\* OK Dovecot DA ready\.\r\n| p/Dovecot DirectAdmin imapd/
 match imap m|^\* OK AXIGEN ([\w._-]+) \(Linux/i686\) IMAP4rev1 service is ready\r\n| p/Axigen imapd/ v/$1/ i|Linux/i686| o/Linux/ cpe:/o:linux:kernel/a
 match imap m|^\* BYE Hi This is the IMAP SSL Redirect\r\n| p/Lotus Domino secure imapd/ i/SSL redirect/
