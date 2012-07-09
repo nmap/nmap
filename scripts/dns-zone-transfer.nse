@@ -207,7 +207,7 @@ end
 function parse_domain(data, offset)
     local offset, domain = dns.decStr(data, offset)
     domain = domain or "<parse error>"
-    return offset, domain
+    return offset, string.format("%s.", domain)
 end
 
 --- Build RFC 1035 root domain name from the name of the DNS server
@@ -242,13 +242,29 @@ function build_domain(host)
     return strbuf.dump(buf)
 end
 
+local function parse_num_domain(data, offset)
+      local number, domain
+      number = bto16(data, offset)
+      offset, domain = parse_domain(data, offset+2)
+      return offset, string.format("%d %s", number, domain)
+end
+
+local function parse_txt(data, offset)
+  local field, len
+  len = string.byte(data, offset)
+  offset = offset + 1
+  offset, field = bin.unpack("A" .. len, data, offset)
+  return offset, string.format('"%s"', field)
+end
+
 --- Retrieve type specific data (rdata) from dns packets
 local RD = {
   A = function(data, offset)
       return offset+4, packet.toip(data:sub(offset, offset+3))
   end,
   NS = parse_domain,
-  -- MD, MF,
+  MD = parse_domain, -- obsolete per rfc1035, use MX
+  MF = parse_domain, -- obsolete per rfc1035, use MX
   CNAME = parse_domain,
   SOA = function(data, offset)
       local field, info
@@ -263,24 +279,58 @@ local RD = {
       offset = offset + 20
       return offset, strbuf.dump(info, ' ')
     end,
-  -- MB, MG, MR, NULL, WKS, 
-  PTR = parse_domain,
-  -- HINFO, MINFO
-  MX = function(data, offset)
-      local field
-      -- mail server
-      offset = offset + 2
-      offset, field = parse_domain(data, offset)
-      return offset, field
-    end,
-  TXT = function(data, offset)
-    local field, len
-    len = string.byte(data, offset)
-    offset = offset + 1
-    offset, field = bin.unpack("A" .. len, data, offset)
-    return offset, field
+  MB = parse_domain, -- experimental per RFC 1035
+  MG = parse_domain, -- experimental per RFC 1035
+  MR = parse_domain, -- experimental per RFC 1035
+  --NULL -- RFC 1035 says anything can go in this field. Hex dump is good.
+  WKS = function(data, offset) -- RFC 1035, but untested!
+    local len, ip, proto, svcs
+    len = bto16(data, offset-2) - 5 -- length of bit field
+    ip = packet.toip(data:sub(offset, offset+3))
+    proto = string.byte(data, offset+4)
+    svcs = {}
+    local p = 0
+    for i=1, len do
+      local n = string.byte(data, offset + i)
+      for j=0, 7 do
+        if bit.band(128, n) then table.insert(svcs, p) end
+        p = p + 1
+        n = bit.lshift(n, 1)
+      end
+    end
+    return offset + len, string.format("%s %d (%s)", ip, proto, table.concat(svcs, ","))
   end,
-  --RP AFSDB X25 ISDN RT NSAP NSAP-PTR SIG KEY PX GPOS
+  PTR = parse_domain,
+  HINFO = function(data, offset)
+    local cpu, os -- See RFC 1010 for standard values for these
+    offset, cpu = parse_txt(data, offset)
+    offset, os = parse_txt(data, offset)
+    return offset, string.format("%s %s", cpu, os)
+  end,
+  MINFO = function(data, offset)
+    local rmailbx, emailbx
+    offset, rmailbx = parse_domain(data, offset)
+    offset, emailbx = parse_domain(data, offset)
+    return offset, string.format("%s %s", rmailbx, emailbx)
+  end,
+  MX = parse_num_domain,
+  TXT = parse_txt,
+  RP = function(data, offset)
+    local mbox_dname, txt_dname
+    offset, mbox_dname = parse_domain(data, offset)
+    offset, txt_dname = parse_domain(data, offset)
+    return offset, string.format("%s %s", mbox_dname, txt_dname)
+  end,
+  AFSDB = parse_num_domain,
+  X25 = parse_txt,
+  ISDN = function(data, offset)
+    local addr, sa
+    offset, addr = parse_txt(data, offset)
+    offset, sa = parse_txt(data, offset)
+    return offset, string.format("%s %s", addr, sa)
+  end,
+  RT = parse_num_domain,
+  --NSAP NSAP-PTR SIG KEY PX GPOS
   AAAA = function(data, offset)
     return offset+16, packet.toipv6(data:sub(offset, offset+15))
   end,
@@ -321,7 +371,19 @@ local RD = {
     offset, info = parse_domain(data, offset)
     return offset, string.format("%d %d %d %s", priority, weight, port, info)
   end,
-  --ATMA NAPTR KX CERT A6 DNAME SINK OPT TSIG IXFR AXFR MAILB MAILA ANY ZXFR
+  --ATMA
+  NAPTR = function(data, offset)
+    local order, preference, flags, service, regexp, replacement
+    order = bto16(data, offset)
+    preference = bto16(data, offset+2)
+    offset, flags = parse_txt(data, offset+4)
+    offset, service = parse_txt(data, offset)
+    offset, regexp = parse_txt(data, offset)
+    offset, replacement = parse_domain(data, offset)
+    return offset, string.format('%d %d %s %s %s %s',
+      order, preference, flags, service, regexp, replacement)
+  end,
+  --KX CERT A6 DNAME SINK OPT TSIG IXFR AXFR MAILB MAILA ANY ZXFR
 }
 
 function get_rdata(data, offset, ttype)
