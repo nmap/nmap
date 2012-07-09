@@ -208,8 +208,10 @@ int select_iod_unregister(mspool *nsp, msiod *iod) {
     {
       CHECKED_FD_CLR(iod->sd, &sinfo->fds_master_r);
       CHECKED_FD_CLR(iod->sd, &sinfo->fds_master_w);
+      CHECKED_FD_CLR(iod->sd, &sinfo->fds_master_x);
       CHECKED_FD_CLR(iod->sd, &sinfo->fds_results_r);
       CHECKED_FD_CLR(iod->sd, &sinfo->fds_results_w);
+      CHECKED_FD_CLR(iod->sd, &sinfo->fds_results_x);
     }
 
     if (sinfo->max_sd == iod->sd)

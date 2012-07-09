@@ -462,6 +462,8 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         socket_count_write_inc(iod);
         update_events(iod, ms, EV_WRITE, EV_NONE);
       } else if (!(options & SSL_OP_NO_SSLv2)) {
+        int saved_ev;
+
         /* SSLv3-only and TLSv1-only servers can't be connected to when the
          * SSL_OP_NO_SSLv2 option is not set, which is the case when the pool
          * was initialized with nsp_ssl_init_max_speed. Try reconnecting with
@@ -469,8 +471,13 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
          * might use SSLv2. */
         if (ms->tracelevel > 0)
           nsock_trace(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
+
+        saved_ev = iod->watched_events;
+        ms->engine->iod_unregister(ms, iod);
         close(iod->sd);
         nsock_connect_internal(ms, nse, iod->lastproto, &iod->peer, iod->peerlen, nsi_peerport(iod));
+        ms->engine->iod_register(ms, iod, saved_ev);
+
         SSL_clear(iod->ssl);
         if(!SSL_clear(iod->ssl))
            fatal("SSL_clear failed: %s", ERR_error_string(ERR_get_error(), NULL));

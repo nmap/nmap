@@ -121,6 +121,8 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
   nsi->userdata = userdata;
   nsi->nsp = (mspool *)nsockp;
 
+  nsi->_flags = 0;
+
   nsi->read_count = 0;
   nsi->write_count = 0;
 

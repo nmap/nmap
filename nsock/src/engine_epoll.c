@@ -207,6 +207,7 @@ int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
   struct epoll_engine_info *einfo = (struct epoll_engine_info *)nsp->engine_data;
 
   assert((ev_set & ev_clr) == 0);
+  assert(IOD_PROPGET(iod, IOD_REGISTERED));
 
   memset(&epev, 0x00, sizeof(struct epoll_event));
   epev.events = EPOLLET;
@@ -230,16 +231,10 @@ int epoll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
     epev.events |= EPOLL_X_FLAGS;
 
   sd = nsi_getsd(iod);
-  if (epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev) < 0) {
-    if (errno == ENOENT) {
-      /* This IOD is registered but its associated fd is not in the epoll set.
-       * It was probably closed and another one was open (e.g.: reconnect operation).
-       * We therefore want to add the new one. */
-      epoll_ctl(einfo->epfd, EPOLL_CTL_ADD, sd, &epev);
-    } else {
-      fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
-    }
-  }
+
+  if (epoll_ctl(einfo->epfd, EPOLL_CTL_MOD, sd, &epev) < 0)
+    fatal("Unable to update events for IOD #%lu: %s", iod->id, strerror(errno));
+
   return 1;
 }
 
