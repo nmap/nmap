@@ -36,20 +36,27 @@ your proposals.  List members are often very willing to help.  You
 might want to subscribe to that mailing list as well -- send a blank
 email to nmap-dev-subscribe@insecure.org .  While you are at it, you
 might also want to subscribe to nmap-hackers via the same mechanism.
-Web archives of those lists are at http://lists.insecure.org .
+Web archives of those lists are at http://seclists.org .
 
 Some ideas of useful contributions/projects
 -------------------------------------------
 
 Of course, you are welcome to work on whatever suits your fancy.  But
-here are some ideas of contributions that might be particularly
-useful:
+some ideas of contributions that might be particularly useful are listed in
+the todo file, available in todo/nmap.txt or online at
+https://svn.nmap.org/nmap/todo/nmap.txt
+
+o Script ideas page. Writing NSE scripts is an excellent way to contribute to
+  the project. You can add your script ideas to our wiki page, or pick one and
+  implement it. See: https://secwiki.org/w/Nmap_Script_Ideas
 
 o Nmap GUI improvements -- Zenmap is the Nmap GUI. If you have
   enhancement ideas, give it a shot!  Alternatively, consider
-  contributing to the NmapGUI and Umit projects available at
-  http://sourceforge.net/projects/nmapgui/ and
-  http://umit.sourceforge.net/ , respectively.
+  contributing to the NmapSI and Umit projects available at
+  http://www.nmapsi4.org and http://umit.sourceforge.net respectively.
+  There are also other satellite projects, with different level of activity,
+  such as NmapGUI (http://sourceforge.net/projects/nmapgui) or Nmap::parser
+  (http://rubynmap.sourceforge.net).
 
 One of the best ways to help is to join the nmap-dev list
 ( http://cgi.insecure.org/mailman/listinfo/nmap-dev ).  Requests for
@@ -59,37 +66,20 @@ How to make code contributions
 ------------------------------
 
 The preferred mechanism for submitted changes is unified diffs against
-the latest development release version of Nmap.  Please send them to
-nmap-dev@insecure.org .  
+the latest SVN trunk.  Please send them to nmap-dev@insecure.org .
 
-To make a unified diff, please follow these instructions:
+Get a local copy of the SVN trunk:
 
-1. Remove temporary files:
-    make clean
+  svn co https://svn.nmap.org/nmap
 
-2. Rename your source tree:
-    cd ..
-    mv nmap-5.21 nmap-5.21-snazzy-feature
+Make your changes.
 
-3. Unpack the original Nmap source alongside it:
-    tar xzf nmap-5.21.tgz
+Then make a unified diff, by issuing the following command:
 
-4. Generate the diffs:
-   diff -urNb nmap-5.21 nmap-5.21-snazzy-feature > nmap.patch
+  svn diff > nmap.patch
 
-5. Check the patch and remove any unnecessary patches from the file.
-
-6. If you've added several features, it's best to send them as
-   several independent patches if you can.
-
-If you have just patched one or two files, then making patches is even
-easier. For each file, just do:
-
-  cp file.c file.c.orig
-  [Make changes to file.c ...]
-  diff -u file.c.orig file.c > file.c.patch
-
-and just send us the patch: file.c.patch.
+If you've added several features, it's best to send them as several independent
+patches if you can.
 
 Style
 -----
