@@ -8,7 +8,8 @@
 -- helper function can be used to parse and retrieve a full URL. 
 --
 -- These functions return a table of values, including:
--- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK"
+-- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK". In case of an error, a description will be provided in this line.
+-- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
 -- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present. 
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
 -- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>. 
@@ -46,10 +47,9 @@
 -- <code>can_use_head</code>, and <code>save_path</code>. See the appropriate documentation
 -- for them. 
 --
--- The response to each function is typically a table on success or nil on failure. If
--- a table is returned, the following keys will exist:
--- <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline)
--- <code>status</code>: The HTTP status value; for example, "200"
+-- The response to each function is typically a table with the following keys:
+-- <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline). In case of an error, a description will be provided in this line.
+-- <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
 -- <code>header</code>: A table of header values, where the keys are lowercase and the values are exactly what the server sent
 -- <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
 -- <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below). 
@@ -984,6 +984,12 @@ local function lookup_cache (method, host, port, path, options)
 end
 
 local function response_is_cacheable(response)
+  -- if response.status is nil, then an error must have occured during the request
+  -- and we probably don't want to cache the response
+  if not response.status then
+    return false
+  end
+  
   -- 206 Partial Content. RFC 2616, 1.34: "...a cache that does not support the
   -- Range and Content-Range headers MUST NOT cache 206 (Partial Content)
   -- responses."
@@ -1046,8 +1052,19 @@ end
 -- The format of the return value is a table with the following structure:
 -- {status = 200, status-line = "HTTP/1.1 200 OK", header = {}, rawheader = {}, body ="<html>...</html>"}
 -- The header table has an entry for each received header with the header name
--- being the key the table also has an entry named "status" which contains the
--- http status code of the request in case of an error status is nil.
+-- being the key. The table also has an entry named "status" which contains the
+-- http status code of the request.
+-- In case of an error, the status is nil and status-line describes the problem.
+
+local function http_error(status_line)
+  return {
+    status = nil,
+    ["status-line"] = status_line,
+    header = {},
+    rawheader = {},
+    body = nil,
+  }
+end
 
 --- Build an HTTP request from parameters and return it as a string.
 --
@@ -1135,11 +1152,11 @@ end
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>.
--- @return A table as described in the module description.
+-- @return A response table, see module documentation for description.
 -- @see generic_request
 local function request(host, port, data, options)
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   local method
   local header
@@ -1150,24 +1167,22 @@ local function request(host, port, data, options)
   if type(port) == 'table' then
     if port.protocol and port.protocol ~= 'tcp' then
       stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
-      return nil
+      return http_error("Unsupported protocol.")
     end
   end
-
-  local error_response = {status=nil,["status-line"]=nil,header={},body=""}
 
   method = string.match(data, "^(%S+)")
 
   local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
 
   if not socket then
-    return error_response
+    return http_error("Error creating socket.")
   end
 
   repeat
     response, partial = next_response(socket, method, partial)
     if not response then
-      return error_response
+      return http_error("There was an error in next_response function.")
     end
     -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
     -- Sometimes a server will tell us to "go ahead" with a POST body before
@@ -1195,11 +1210,11 @@ end
 -- @param method The method to use; for example, 'GET', 'HEAD', etc.
 -- @param path The path to retrieve.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
--- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @return A response table, see module documentation for description.
 -- @see request
 function generic_request(host, port, method, path, options)
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   return request(host, port, build_request(host, port, method, path, options), options)
 end
@@ -1212,14 +1227,14 @@ end
 -- @param path The path to retrieve.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
 -- @param putdata The contents of the file to upload
--- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function put(host, port, path, options, putdata)
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   if ( not(putdata) ) then
-	return nil
+    return http_error("No file to PUT.")
   end
   local mod_options = {
     content = putdata,
@@ -1385,11 +1400,11 @@ end
 -- @param port The port to connect to.
 -- @param path The path to retrieve.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
--- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function get(host, port, path, options)
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
@@ -1416,11 +1431,11 @@ end
 --
 -- @param u The URL of the host.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
--- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @return A response table, see module documentation for description.
 -- @see http.get
 function get_url( u, options )
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   local parsed = url.parse( u )
   local port = {}
@@ -1463,11 +1478,11 @@ end
 -- @param port The port to connect to.
 -- @param path The path to retrieve.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
--- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function head(host, port, path, options)
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   local redir_check = get_redirect_ok(host, port, options)
   local response, state, location
@@ -1499,11 +1514,11 @@ end
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
 -- @param ignored Ignored for backwards compatibility.
 -- @param postdata A string or a table of data to be posted. If a table, the keys and values must be strings, and they will be encoded into an application/x-www-form-encoded form submission.
--- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function post( host, port, path, options, ignored, postdata )
   if(not(validate_options(options))) then
-    return nil
+    return http_error("Options failed to validate.")
   end
   local mod_options = {
     content = postdata,
