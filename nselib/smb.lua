@@ -3386,7 +3386,7 @@ end
 ---Determines, as accurately as possible, whether or not an account is an administrator. If there is an error, 
 -- 'false' is simply returned. 
 function is_admin(host, username, domain, password, password_hash, hash_type)
-	local msrpc = require "msrpc"
+	local msrpc = require "msrpc" -- avoid require cycle
 	local status, smbstate, err, result
 	local overrides = get_overrides(username, domain, password, password_hash, hash_type)
 
