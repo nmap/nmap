@@ -152,8 +152,12 @@ local typetab = { 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG', 'MR',
  'NULL', 'WKS', 'PTR', 'HINFO', 'MINFO', 'MX', 'TXT', 'RP', 'AFSDB', 'X25',
  'ISDN', 'RT', 'NSAP', 'NSAP-PTR', 'SIG', 'KEY', 'PX', 'GPOS', 'AAAA', 'LOC',
  'NXT', 'EID', 'NIMLOC', 'SRV', 'ATMA', 'NAPTR', 'KX', 'CERT', 'A6', 'DNAME',
- 'SINK', 'OPT', [250]='TSIG', [251]='IXFR', [252]='AXFR', [253]='MAILB',
- [254]='MAILA', [255]='ANY', [256]='ZXFR'
+ 'SINK', 'OPT', 'APL', 'DS', 'SSHFP', 'IPSECKEY', 'RRSIG', 'NSEC', 'DNSKEY',
+ 'DHCID', 'NSEC3', 'NSEC3PARAM', 'TLSA', [55]='HIP', [56]='NINFO', [57]='RKEY',
+ [58]='TALINK', [59]='CDS', [99]='SPF', [100]='UINFO', [101]='UID', [102]='GID',
+ [103]='UNSPEC', [249]='TKEY', [250]='TSIG', [251]='IXFR', [252]='AXFR',
+ [253]='MAILB', [254]='MAILA', [255]='ANY', [256]='ZXFR', [257]='CAA',
+ [32768]='TA', [32769]='DLV',
 }
 
 --- Whitelist of TLDs. Only way to reliably determine the root of a domain
@@ -243,10 +247,10 @@ function build_domain(host)
 end
 
 local function parse_num_domain(data, offset)
-      local number, domain
-      number = bto16(data, offset)
-      offset, domain = parse_domain(data, offset+2)
-      return offset, string.format("%d %s", number, domain)
+  local number, domain
+  number = bto16(data, offset)
+  offset, domain = parse_domain(data, offset+2)
+  return offset, string.format("%d %s", number, domain)
 end
 
 local function parse_txt(data, offset)
@@ -283,16 +287,17 @@ local RD = {
   MG = parse_domain, -- experimental per RFC 1035
   MR = parse_domain, -- experimental per RFC 1035
   --NULL -- RFC 1035 says anything can go in this field. Hex dump is good.
-  WKS = function(data, offset) -- RFC 1035, but untested!
+  WKS = function(data, offset)
     local len, ip, proto, svcs
     len = bto16(data, offset-2) - 5 -- length of bit field
     ip = packet.toip(data:sub(offset, offset+3))
     proto = string.byte(data, offset+4)
+    offset = offset + 5
     svcs = {}
     local p = 0
     local bits = {128, 64, 32, 16, 8, 4, 2, 1}
-    for i=1, len do
-      local n = string.byte(data, offset + i + 4)
+    for i=0, len-1 do
+      local n = string.byte(data, offset + i)
       for _, v in ipairs(bits) do
         if bit.band(v, n) > 0 then table.insert(svcs, p) end
         p = p + 1
@@ -335,7 +340,27 @@ local RD = {
     return offset, string.format("%s %s", addr, sa)
   end,
   RT = parse_num_domain,
-  --NSAP NSAP-PTR SIG KEY PX GPOS
+  NSAP = function(data, offset)
+    local field
+    offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
+    return offset, ("0x%s"):format(stdnse.tohex(field))
+  end,
+  ["NSAP-PTR"] = parse_domain,
+  --SIG KEY --obsolete RRs relating to DNSSEC
+  PX = function(data, offset)
+    local preference, map822, mapx400
+    preference = bto16(data, offset)
+    offset, map822 = parse_domain(data, offset+2)
+    offset, mapx400 = parse_domain(data, offset)
+    return offset, string.format("%d %s %s", preference, map822, mapx400)
+  end,
+  GPOS = function(data, offset)
+    local lat, long, alt
+    offset, lat = parse_txt(data, offset)
+    offset, long = parse_txt(data, offset)
+    offset, alt = parse_txt(data, offset)
+    return offset, string.format("%s %s %s", lat, long, alt)
+  end,
   AAAA = function(data, offset)
     return offset+16, packet.toipv6(data:sub(offset, offset+15))
   end,
@@ -369,14 +394,20 @@ local RD = {
     return offset, string.format("%f %s %f %s %dm %0.1fm %0.1fm %0.1fm",
         lat, latd, lon, lond, alt/100 - 100000, siz, hp, vp)
   end,
-  --NXT EID NIMLOC 
+  --NXT --obsolete RR relating to DNSSEC
+  --EID NIMLOC --related to Nimrod DARPA project (Patton1995)
   SRV = function(data, offset)
     local priority, weight, port, info
     offset, priority, weight, port = bin.unpack(">SSS", data, offset)
     offset, info = parse_domain(data, offset)
     return offset, string.format("%d %d %d %s", priority, weight, port, info)
   end,
-  --ATMA
+  ATMA = function(data, offset) --http://www.broadband-forum.org/ftp/pub/approved-specs/af-saa-0069.000.pdf
+    local format, address
+    format = string.byte(data, offset) -- 0 or 1
+    offset, address = parse_txt(data, offset+1)
+    return offset, string.format("%d %s", format, address)
+  end,
   NAPTR = function(data, offset)
     local order, preference, flags, service, regexp, replacement
     order = bto16(data, offset)
@@ -388,7 +419,37 @@ local RD = {
     return offset, string.format('%d %d %s %s %s %s',
       order, preference, flags, service, regexp, replacement)
   end,
-  --KX CERT A6 DNAME SINK OPT TSIG IXFR AXFR MAILB MAILA ANY ZXFR
+  KX = parse_num_domain,
+  --CERT
+  A6 = function(data, offset) -- obsoleted by AAAA
+    local prefix, addr, name
+    prefix = string.byte(data, offset)
+    local pbytes = bit.rshift(prefix,3)
+    addr = packet.toipv6(string.rep("\000", pbytes) .. data:sub(offset+1, 16-pbytes))
+    offset, name = parse_domain(data, offset + 17 - pbytes)
+    return offset, string.format("%d %s %s", prefix, addr, name)
+  end,
+  DNAME = parse_domain,
+  SINK = function(data, offset) -- http://bgp.potaroo.net/ietf/all-ids/draft-eastlake-kitchen-sink-02.txt
+    local coding, subcoding
+    coding = string.byte(data, offset)
+    subcoding = string.byte(data, offset+1)
+    offset, field = bin.unpack("A" .. (bto16(data, offset-2)-2), data, offset+2)
+    return offset, string.format("%d %d %s", coding, subcoding, stdnse.tohex(field))
+  end,
+  --OPT APL DS 
+  SSHFP = function(data, offset)
+    local algorithm, fptype, fplen, fingerprint
+    algorithm = string.byte(data, offset)
+    fptype = string.byte(data, offset+1)
+    fplen = bto16(data, offset-2) - 2
+    offset = offset + 2
+    fingerprint = stdnse.tohex(data:sub(offset, offset+fplen-1))
+    return offset + fplen, string.format("%d %d %s", algorithm, fptype, fingerprint)
+  end,
+  --IPSECKEY RRSIG NSEC DNSKEY DHCID NSEC3 NSEC3PARAM TLSA HIP NINFO RKEY TALINK CDS
+  SPF = parse_txt,
+  --UINFO UID GID UNSPEC TKEY TSIG IXFR AXFR
 }
 
 function get_rdata(data, offset, ttype)
