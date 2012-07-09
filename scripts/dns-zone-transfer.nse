@@ -290,15 +290,20 @@ local RD = {
     proto = string.byte(data, offset+4)
     svcs = {}
     local p = 0
+    local bits = {128, 64, 32, 16, 8, 4, 2, 1}
     for i=1, len do
-      local n = string.byte(data, offset + i)
-      for j=0, 7 do
-        if bit.band(128, n) then table.insert(svcs, p) end
+      local n = string.byte(data, offset + i + 4)
+      for _, v in ipairs(bits) do
+        if bit.band(v, n) > 0 then table.insert(svcs, p) end
         p = p + 1
-        n = bit.lshift(n, 1)
       end
     end
-    return offset + len, string.format("%s %d (%s)", ip, proto, table.concat(svcs, ","))
+    if proto == 6 then
+      proto = "TCP"
+    elseif proto == 17 then
+      proto = "UDP"
+    end
+    return offset + len, string.format("%s %s %s", ip, proto, table.concat(svcs, " "))
   end,
   PTR = parse_domain,
   HINFO = function(data, offset)
