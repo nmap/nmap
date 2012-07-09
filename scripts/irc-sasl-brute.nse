@@ -6,6 +6,7 @@ local sasl = require "sasl"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description=[[
 Performs brute force password auditing against IRC (Internet Relay Chat) servers supporting SASL authentication.
@@ -69,7 +70,7 @@ Driver = {
     end
     local status, _ = s:send("CAP END\r\n")
     if not status then return false, "Send failed." end
-    local reponse
+    local response
     repeat
       status, response = s:receive_lines(1)
       if not status then return false, "Receive failed." end
