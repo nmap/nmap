@@ -1,5 +1,16 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Add a function such as --disable-arp-ping which prevents hosts from
+  being automatically detected as 'up' just because they responded to
+  ARP.  Instead, Nmap will actually send the requested host discovery
+  probes (ICMP ping packets, SYN packets, etc.) and only mark the host
+  as up if it responds on an IP level.  This is how machines are
+  already treated if they're not on the local network (e.g. if ARP
+  discovery is unavailable).  This technique is a bit slower and more
+  likely to miss hosts (e.g. if they're heavily firewalled) than ARP
+  discovery, but the option is needed to handle local networks which use
+  proxy ARP, which would otherwise cause all IPs to appear to be up.
+
 o We should add fields to the service submitter [James is working on this]
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
