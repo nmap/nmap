@@ -29,7 +29,7 @@ to the reported port in order to verify whether it's accessible or not.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "discovery", "safe"}
+categories = {"discovery", "safe"}
 
 hostrule = function(host)
 	if ( mssql.Helper.WasDiscoveryPerformed( host ) ) then
@@ -51,8 +51,23 @@ local function checkPort(host, port)
 	return status
 end
 
+local function discoverDAC(host, name, result)
+	local condvar = nmap.condvar(result)
+	stdnse.print_debug(2, "Discovering DAC port on instance: %s", name)
+	local port = mssql.Helper.DiscoverDACPort( host, name )
+	if ( port ) then
+		if ( checkPort(host, port) ) then
+			table.insert(result, ("Instance: %s; DAC port: %s"):format(name, port))
+		else
+			table.insert(result, ("Instance: %s; DAC port: %s (connection failed)"):format(name, port))
+		end
+	end
+	condvar "signal"
+end
+
 action = function( host )
-	local result = {}
+	local result, threads = {}, {}
+	local condvar = nmap.condvar(result)
 	
 	local status, instanceList = mssql.Helper.GetTargetInstances( host )
 	-- if no instances were targeted, then display info on all
@@ -66,15 +81,17 @@ action = function( host )
 	for _, instance in ipairs(instanceList) do
 		local name = instance:GetName():match("^[^\\]*\\(.*)$")
 		if ( name ) then
-			stdnse.print_debug(2, "Discovering DAC port on instance: %s", name)
-			local port = mssql.Helper.DiscoverDACPort( host, name )
-			if ( port ) then
-				if ( checkPort(host, port) ) then
-					table.insert(result, ("Instance: %s; DAC port: %s"):format(name, port))
-				else
-					table.insert(result, ("Instance: %s; DAC port: %s (connection failed)"):format(name, port))
-				end
-			end
+			local co = stdnse.new_thread(discoverDAC, host, name, result)
+			threads[co] = true
+		end
+	end
+
+	while(next(threads)) do
+		for t in pairs(threads) do
+			threads[t] = ( coroutine.status(t) ~= "dead" ) and true or nil
+		end
+		if ( next(threads) ) then
+			condvar "wait"
 		end
 	end
 	
