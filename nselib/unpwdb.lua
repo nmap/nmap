@@ -291,36 +291,37 @@ end
 -- @param iter1 First iterator to concatenate.
 -- @param iter2 Second iterator to concatenate.
 -- @return function The concatenated iterators.
-concat_iterators = function(iter1, iter2)
-s	return function(cmd)
-			if cmd == "reset" then
-				iter1("reset")
-				iter2("reset")
-				return 
-			end
-			local v1 = {iter1(cmd)}
-			if not (next(v1) == nil) then
-				return table.unpack(v1)
-			end
-			local v2 = {iter2(cmd)}
-			if not (next(v2) == nil) then
-				return table.unpack(v2)
-			end
-			return iter1(cmd)
-	end
-end
+function concat_iterators (iter1, iter2)
+  local function helper (next_iterator, command, first, ...)
+    if first ~= nil then
+      return first, ...
+    elseif next_iterator ~= nil then
+      return helper(nil, command, next_iterator(command))
+    end
+  end
+  local function iterator (command)
+    if command == "reset" then
+      iter1 "reset"
+      iter2 "reset"
+    else
+      return helper(iter2, command, iter1(command))
+    end
+  end
+ end
 
 --- Returns a new iterator that filters it's results based on the filter.
 -- @param iterator Iterator that needs to be filtered
 -- @param filter Function that returns bool, which serves as a filter
 -- @return function The filtered iterator.
-filter_iterator = function(iterator, filter)
-	return function(cmd)
-		local result = {iterator(cmd)}
-		if filter(table.unpack(result)) then
-			return result
-		end
-	end
-end
+function filter_iterator (iterator, filter)
+  local function helper (...)
+    if filter(...) then
+      return ...
+    end
+  end
+  local function filter (command)
+    return helper(iterator(command))
+  end
+ end
 
 return _ENV;
