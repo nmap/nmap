@@ -596,11 +596,13 @@ Crawler = {
 	addDefaultBlacklist = function(self)
 		local extensions = {
 			image_extensions = {"png","jpg","jpeg","gif","bmp"},
+			video_extensions = {"avi","flv","ogg","mp4","wmv"},
+			audio_extensions = {"aac","m4a","mp3","wav"},
 			doc_extensions = {"pdf", "doc", "docx", "docm", "xls", "xlsx", "xlsm",
 				"ppt", "pptx", "pptm", "odf", "ods", "odp", "ps", "xps"},
 			archive_extensions = {"zip", "tar.gz", "gz", "rar", "7z", "sit", "sitx",
 				"tgz", "tar.bz", "tar", "iso"},
-			exe_extensions = {"exe", "com", "msi", "bin"}
+			exe_extensions = {"exe", "com", "msi", "bin","dmg"}
 		}
 		local blacklist = {}
 		for _, cat in pairs(extensions) do
