@@ -307,6 +307,7 @@ function concat_iterators (iter1, iter2)
       return helper(iter2, command, iter1(command))
     end
   end
+  return iterator
  end
 
 --- Returns a new iterator that filters it's results based on the filter.
@@ -322,6 +323,7 @@ function filter_iterator (iterator, filter)
   local function filter (command)
     return helper(iterator(command))
   end
+  return filter
  end
 
 return _ENV;
