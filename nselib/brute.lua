@@ -409,7 +409,9 @@ Engine =
 			counter = 0,
 			threads = {},
 			tps = {},
-			iterators = {},
+			iterator = nil ,
+			usernames = usernames_iterator(),
+			passwords = passwords_iterator(),
 			found_accounts = {},
 			account_guesses = {},
 			options = Options:new(),
@@ -420,11 +422,18 @@ Engine =
 		return o
 	end,
 
-	--- Adds an iterator to the list
-	--
-	-- @param iterator function to add to the list
-	addIterator = function( self, iterator )
-		table.insert( self.iterators, iterator )
+	--- Sets the username iterator 
+	-- 
+	-- @param usernameIterator function to set as a username iterator
+	setUsernameIterator = function(self,usernameIterator)
+		self.usernames = usernameIterator
+	end,
+	
+	--- Sets the password iterator 
+	-- 
+	-- @param passwordIterator function to set as a password iterator
+	setPasswordIterator = function(self,passwordIterator)
+		self.passwords = passwordIterator
 	end,
 	
 	--- Limit the number of worker threads
@@ -464,15 +473,12 @@ Engine =
 	-- @return iterator function
 	get_next_credential = function( self )
 		local function next_credential ()
-			-- iterate over all credential iterators
-			for _, iter in ipairs( self.iterators ) do
-				for user, pass in iter do
-					-- makes sure the credentials have not been tested before
-					self.used_creds = self.used_creds or {}
-					if ( not(self.used_creds[user..pass]) ) then
-						self.used_creds[user..pass] = true
-						coroutine.yield( user, pass )
-					end
+			for user, pass in self.iterator do
+				-- makes sure the credentials have not been tested before
+				self.used_creds = self.used_creds or {}
+				if ( not(self.used_creds[user..pass]) ) then
+					self.used_creds[user..pass] = true
+					coroutine.yield( user, pass )
 				end
 			end
 			while true do coroutine.yield(nil, nil) end
@@ -641,13 +647,9 @@ Engine =
 			if( not(status) ) then return false, response end
 		end
 		
-		local status, usernames = unpwdb.usernames()
-		if ( not(status) ) then	return false, "Failed to load usernames" end
+		local usernames = self.usernames
+		local passwords = self.passwords
 
-		-- make sure we have a valid pw file
-		local status, passwords = unpwdb.passwords()
-		if ( not(status) ) then	return false, "Failed to load passwords" end
-	
 		local mode = self.options.mode or stdnse.get_script_args("brute.mode")
 	
 		-- if no mode was given, but a credfile is present, assume creds mode
@@ -666,8 +668,8 @@ Engine =
 				return coroutine.wrap(next_user)
 			end
 			-- only add this iterator if no other iterator was specified
-			if ( #self.iterators == 0 ) then
-				table.insert( self.iterators, Iterators.user_pw_iterator( single_user_iter(), passwords ) )
+			if self.iterator == nil  then
+				self.iterator = Iterators.user_pw_iterator( single_user_iter(), passwords ) 
 			end
 		elseif ( mode == 'creds' ) then
 			local credfile = stdnse.get_script_args("brute.credfile")
@@ -680,22 +682,22 @@ Engine =
 				return false, ("Failed to open credfile (%s)"):format(credfile)
 			end
 		
-			table.insert( self.iterators, Iterators.credential_iterator( f ) )
+			self.iterator = Iterators.credential_iterator( f ) 
 		elseif ( mode and mode == 'user' ) then
-			table.insert( self.iterators, Iterators.user_pw_iterator( usernames, passwords ) )
+			self.iterator = Iterators.user_pw_iterator( usernames, passwords ) 
 		elseif( mode and mode == 'pass' ) then
-			table.insert( self.iterators, Iterators.pw_user_iterator( usernames, passwords ) )
+			self.iterator = Iterators.pw_user_iterator( usernames, passwords ) 
 		elseif ( mode ) then
 			return false, ("Unsupported mode: %s"):format(mode)
 		-- Default to the pw_user_iterator in case no iterator was specified
-		elseif ( 0 == #self.iterators ) then
-			table.insert( self.iterators, Iterators.pw_user_iterator( usernames, passwords ) )
+		elseif ( self.iterator == nil ) then
+			self.iterator = Iterators.pw_user_iterator( usernames, passwords )
 		end
 
 		if ( ( not(mode) or mode == 'user' or mode == 'pass' ) and self.options.useraspass ) then
 			-- if we're only guessing passwords, this doesn't make sense
 			if ( not(self.options.passonly) ) then
-				table.insert( self.iterators, 1, Iterators.pw_same_as_user_iterator(usernames, "lower"))
+				self.iterator = unpwdb.concat_iterators(Iterators.pw_same_as_user_iterator(usernames, "lower"),self.iterator)
 			end
 		end
 		
@@ -706,7 +708,7 @@ Engine =
 				end
 				return coroutine.wrap(next_pass)
 			end
-			table.insert( self.iterators, 1, Iterators.account_iterator(usernames, empty_pass_iter(), mode or "pass"))
+			self.iterator = Iterators.account_iterator(usernames, empty_pass_iter(), mode or "pass")
 		end
 			 
 
@@ -775,6 +777,22 @@ Engine =
 	
 }
 
+--- Default username iterator that uses unpwdb 
+--
+usernames_iterator = function()
+	local status, usernames = unpwdb.usernames()
+	if ( not(status) ) then	return "Failed to load usernames" end
+	return usernames
+end
+
+--- Default password iterator that uses unpwdb 
+-- 
+passwords_iterator = function()
+	local status, passwords = unpwdb.passwords()
+	if ( not(status) ) then	return "Failed to load passwords" end
+	return passwords
+end
+
 Iterators = {
 
 	--- Iterates over each user and password
@@ -787,7 +805,13 @@ Iterators = {
 	account_iterator = function(users, pass, mode)		
 		local function next_credential ()
 			local outer, inner
-
+			if "table" == type(users) then
+				users = unpwdb.table_iterator(users)
+			end
+			if "table" == type(pass) then
+				pass = unpwdb.table_iterator(pass)
+			end
+			
 			if ( mode == 'pass' ) then
 				outer, inner = pass, users
 			elseif ( mode == 'user' ) then
@@ -796,27 +820,15 @@ Iterators = {
 				return
 			end
 
-			if ( 'table' == type(users) and 'table' == type(pass) ) then
-				for _, o in ipairs(outer) do
-					for _, i in ipairs(inner) do
-						if ( mode == 'pass' ) then
-							coroutine.yield( i, o )
-						else
-							coroutine.yield( o, i )
-						end
+			for o in outer do
+				for i in inner do
+					if ( mode == 'pass' ) then
+						coroutine.yield( i, o )
+					else
+						coroutine.yield( o, i )
 					end
 				end
-			elseif ( 'function' == type(users) and 'function' == type(pass) ) then
-				for o in outer do
-					for i in inner do
-						if ( mode == 'pass' ) then
-							coroutine.yield( i, o )
-						else
-							coroutine.yield( o, i )
-						end
-					end
-					inner("reset")
-				end
+				inner("reset")
 			end
 			while true do coroutine.yield(nil, nil) end
 		end

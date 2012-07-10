@@ -57,6 +57,8 @@ result in a large number of accounts being locked out on the database server.
 --                             changed code to use ConnectionPool
 -- Revised 03/13/2012 - v0.4 - revised by László Tóth
 --                             added support for SYSDBA accounts
+-- Revised 08/07/2012 - v0.5 - revised to suit the changes in brute
+-- 							   library [Aleksandar Nikolic]
 
 --
 -- Summary
@@ -213,7 +215,7 @@ action = function(host, port)
 			return ("\n  ERROR: Failed to open %s"):format(DEFAULT_ACCOUNTS)
 		end
 
-		engine:addIterator(brute.Iterators.credential_iterator(f))
+		engine.iterator = brute.Iterators.credential_iterator(f)
 	end
 	
 	engine.options.script_name = SCRIPT_NAME

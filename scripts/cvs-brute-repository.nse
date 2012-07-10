@@ -31,8 +31,10 @@ With knowledge of the correct repository name, usernames and passwords can be gu
 -- @args cvs-brute-repository.repofile a file containing a list of repositories
 --       to guess
 
--- Version 0.1
+-- Version 0.2
 -- Created 07/13/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Revised 08/07/2012 - v0.2 - revised to suit the changes in brute
+-- 							   library [Aleksandar Nikolic]
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -102,7 +104,7 @@ action = function(host, port)
 		end
 	end
 
-	local repository_iterator = function()
+	repository_iterator = function()
 		local function next_repo()
 			for line in f:lines() do
 				if ( not(line:match("#!comment")) ) then
@@ -119,8 +121,8 @@ action = function(host, port)
 	engine.options.passonly = true
 	engine.options.firstonly = false
 	engine.options.nostore = true
-	engine:addIterator(brute.Iterators.account_iterator({""}, repos, "user"))
-	if ( repofile ) then engine:addIterator(repository_iterator()) end
+	engine.iterator = brute.Iterators.account_iterator({""}, repos, "user")
+	if ( repofile ) then engine.iterator = unpwdb.concat_iterators(engine.iterator,repository_iterator()) end
 	status, result = engine:start()
 
 	return result

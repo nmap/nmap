@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added changes to brute and unpwdb libraries to allow more flexible iterator
+  specification and control. [Aleksandar Nikolic]
+
 o [NSE] Added ms-sql-dac script which queries the Microsoft SQL Browser service
   for the DAC (Dedicated Admin Connection) port. [Patrik Karlsson]
 
