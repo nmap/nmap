@@ -105,6 +105,7 @@
 local bin = require "bin"
 local bit = require "bit"
 local math = require "math"
+local match = require "match"
 local nmap = require "nmap"
 local openssl = require "openssl"
 local os = require "os"
@@ -2588,6 +2589,39 @@ Helper =
 		end
 	end,
 	
+	--- Queries the SQL Browser service for the DAC port of the specified instance
+	--  The DAC (Dedicated Admin Connection) port allows DBA's to connect to
+	--  the database when normal connection attempts fail, for example, when
+	--  the server is hanging, out of memory or other bad states.
+	--
+	--	@param host Host table as received by the script action function
+	--  @param instanceName the instance name to probe for a DAC port
+	--  @return number containing the DAC port on success or nil on failure
+	DiscoverDACPort = function(host, instanceName)
+		local socket = nmap.new_socket()
+		socket:set_timeout(5000)
+
+		if ( not(socket:connect(host, 1434, "udp")) ) then
+			return false, "Failed to connect to sqlbrowser service"
+		end
+		
+		if ( not(socket:send(bin.pack("Hz", "0F01", instanceName))) ) then
+			socket:close()
+			return false, "Failed to send request to sqlbrowser service"
+		end
+		
+		local status, data = socket:receive_buf(match.numbytes(6), true)
+		if ( not(status) ) then
+			socket:close()
+			return nil
+		end
+		socket:close()
+
+		if ( #data < 6 ) then
+			return nil
+		end
+		return select(2, bin.unpack("<S", data, 5))
+	end,
 	
 	---	Returns a hostrule for standard SQL Server scripts, which will return
 	--	true if one or more instances have been targeted with the <code>mssql.instance</code>
