@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a false positive in http-vuln-cve2011-3192.nse, which detected
+  Apache 2.2.22 as vulnerable. [Michael Meyer]
+
 o [NSE] Added changes to brute and unpwdb libraries to allow more flexible iterator
   specification and control. [Aleksandar Nikolic]
 

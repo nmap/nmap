@@ -107,7 +107,7 @@ overlapping byte ranges are requested.]],
         -- than allowed).
         -- Vulnerable servers will reply with another code 206 response. Patched
         -- ones will return a code 200.
-        request_opts.header.Range = "bytes=0-0,1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10"
+        request_opts.header.Range = "bytes=1-0,0-0,1-1,2-2,3-3,4-4,5-5,6-6,7-7,8-8,9-9,10-10"
 
         response = http.head(host, port, path, request_opts)
 
