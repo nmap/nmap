@@ -382,6 +382,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
        ncat_exec_win.c, for --exec and --sh-exec. inheritable_socket is from
        nbase. */
     sock = inheritable_socket(srcaddr_u->storage.ss_family, type, proto);
+    if (sock < 0)
+      bye("socket: %s", socket_strerror(socket_errno()));
 
     Setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &option_on, sizeof(int));
 
