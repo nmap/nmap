@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [NSE] Added support for decoding OSPF Hello packets to broadcast-listener.
+  [Hani Benhabiles]
+
 o [NSE] Added ospf library which handles OSPFv2 packets.
   [Patrik Karlsson]
 
