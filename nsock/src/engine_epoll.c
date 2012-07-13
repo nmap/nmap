@@ -376,7 +376,7 @@ void iterate_through_event_lists(mspool *nsp, int evcount) {
 
   /* cull timeouts amongst the non active IODs */
   while (current != NULL && GH_LIST_ELEM_PREV(current) != last) {
-    msiod *nsi = (msiod *)GH_LIST_ELEM_DATA(current);
+    nsi = (msiod *)GH_LIST_ELEM_DATA(current);
 
     if (nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
       process_iod_events(nsp, nsi, EV_NONE);
