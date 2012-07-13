@@ -8,8 +8,7 @@ description = [[
 Enumerates a TLS server's supported protocols by using the next protocol negotiation extension.
 
 This works by adding the next protocol negotiation extension in the client hello 
-packet and looking for the presence of certain protocols in the server hello's
-NPN extension data.
+packet and parsing the returned server hello's NPN extension data.
 
 For more information , see:
     * https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-03
@@ -114,16 +113,7 @@ end
 --@return results List of found protocols.
 local check_npn = function(response)
     local results = {}
-    local shlength
-    -- List of protocols supported by TLS NPN extension
-    -- https://tools.ietf.org/html/draft-agl-tls-nextprotoneg-03#section-7
-    local protocols = {
-	"spdy/3",
-	"spdy/2",
-	"spdy/1",
-	"http/1.1",
-	"http1.1",
-	}
+    local shlength, npndata, protocol
 
     if not response then
 	stdnse.print_debug(SCRIPT_NAME .. ": Didn't get response.")
@@ -145,17 +135,28 @@ local check_npn = function(response)
     local serverhello = string.sub(response, 6, 6 + shlength)
 
     -- If server didn't return TLS NPN extension
-    if not string.find(serverhello, string.char(0x33) .. string.char(0x74)) then
+    local npnextension, _ = string.find(serverhello, string.char(0x33) .. string.char(0x74))
+    if not npnextension then
 	stdnse.print_debug(SCRIPT_NAME .. ": Server doesn't support TLS NPN extension.")
 	return results
     end
 
-    -- Search for protocols in serverhello
-    for _, protocol in pairs(protocols) do
-	if string.find(serverhello, protocol) then
-	    table.insert(results, protocol)
-	end
+    -- Get NPN data length
+    local _, npnlen = bin.unpack(">S", serverhello:sub(npnextension + 2, npnextension + 3))
+    if not npnlen then
+	return results
     end
+
+    npndata = serverhello:sub(npnextension + 4, npnextension + 4 + npnlen)
+    -- Parse data
+    local i, len = 1
+    while i < #npndata do
+	len = npndata:byte(i)
+	protocol = npndata:sub(i+1, i+len)
+	table.insert(results, protocol)
+	i = i + len + 1
+    end
+
     return results
 end
 
