@@ -115,9 +115,9 @@ action = function(host, port)
 
 	-- Get SSL certificate.
 	local status, cert = sslcert.getCertificate(host, port)
-  if not status then
-    stdnse.print_debug(2, "sslcert.getCertificate error: %s", cert)
-  end
+	if not status then
+		stdnse.print_debug(2, "sslcert.getCertificate error: %s", cert)
+	end
 	if not cert:digest("sha1") then
 		stdnse.print_debug(2, "Certificate does not have a SHA-1 fingerprint.")
 		return
