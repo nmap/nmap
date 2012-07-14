@@ -821,6 +821,8 @@ local function run (threads_iter, hosts)
     };
     setmetatable(thread, thread_mt);
     total, all[co], pending[co] = total+1, thread, thread;
+    num_threads = num_threads + 1;
+    thread:start(timeouts);
     local function info ()
       return status(co), rawget(thread, "error");
     end
