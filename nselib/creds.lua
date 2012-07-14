@@ -332,9 +332,17 @@ Credentials = {
 			local svc = ("%s/%s"):format(v.port,v.service)
 			local c
 			if ( v.user and #v.user > 0 ) then
-				c = ("%s:%s - %s"):format(v.user, v.pass, StateMsg[v.state] or "Unknown state")
+				if StateMsg[v.state] then
+				        c = ("%s:%s - %s"):format(v.user, v.pass, StateMsg[v.state])
+				else
+				        c = ("%s:%s"):format(v.user, v.pass)
+				end
 			else
-				c = ("%s - %s"):format(v.pass, StateMsg[v.state] or "Unknown state")
+				if StateMsg[v.state] then
+					c = ("%s - %s"):format(v.pass, StateMsg[v.state])
+				else
+					c = ("%s"):format(v.pass)
+				end
 			end
 			local script = v.scriptname
 			assert(type(h)=="string", "Could not determine a valid host")
