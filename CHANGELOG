@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-slowloris script which performes a slowloris DoS attack
+  against a Web server and reports if it's vulnerable or not. [Aleksandar Nikolic]
+
 o Added a new --disable-arp-ping option. This option prevents Nmap
   from implicitly using ARP or ND host discovery for directly
   connected Ethernet targets. This is useful in networks using proxy
