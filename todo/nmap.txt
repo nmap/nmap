@@ -1,30 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Add a function such as --disable-arp-ping which prevents hosts from
-  being automatically detected as 'up' just because they responded to
-  ARP.  Instead, Nmap will actually send the requested host discovery
-  probes (ICMP ping packets, SYN packets, etc.) and only mark the host
-  as up if it responds on an IP level.  This is how machines are
-  already treated if they're not on the local network (e.g. if ARP
-  discovery is unavailable).  This technique is a bit slower and more
-  likely to miss hosts (e.g. if they're heavily firewalled) than ARP
-  discovery, but the option is needed to handle local networks which use
-  proxy ARP, which would otherwise cause all IPs to appear to be up.
-
-o We should add fields to the service submitter [James is working on this]
-  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
-  application name and version.
-  o We also need to ensure all fields of /cgi-bin/submit.cgi have
-    proper escapting to prevent possible reflected XSS attacks
-    reported by Maxim Rupp (@mmrupp).  The risk is low, if any, since
-    we don't give authentication cookies for bad guys to steal, but is
-    still better to properly escape.
-    o If we get a chance, would be interesting to run our XSS-testing
-      NSE scripts against this and see if they locate the problems.
- o Also, need to change the font family in there from "Lucida Grand"
-   to "Lucida Grande"?  Just a typo.  And fix "WIkipedai".  We should
-   just spell-check all the output
-
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
   o Maybe start with svn server, since we've had reports of our
@@ -41,13 +16,6 @@ o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
-
-o We should probably sort script output (for port output and host
-  output) by script name or something so that it comes in a
-  deterministic order.  If the same three scripts produce output in
-  two different scans, they should be listed in the same order.  Right
-  now the order can vary, at least for host output.
-  [Sean]
 
 o FEATURE CREEPERS!  We have two talented GSoC students for summer
   2012.  Here are some ideas that they could do, though anyone else is
@@ -79,13 +47,9 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
         p/micro_httpd/ i/Foobar 2000 ADSL router/
     o [Done] Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
     [Sean and David?]
-  o Remove Nmap's --log-errors feature and make its behavior the
-    default.  A few notes:
-    - Nmap should just ignore --log-errors if it sees it
-    - Remember to remove it from the documentation
   o Investigate increasing FD_SETSIZE on Windows to allow us to
     multiplex more sockets.  See Henri's email:
-    http://seclists.org/nmap-dev/2012/q1/267 [James and Fyodor?]
+    http://seclists.org/nmap-dev/2012/q1/267
   o Add IPv6 subnet/pattern support like we offer for IPv4.
    o Obviously we can't go scanning a /48 in IPv6, but small subnets
      do make sense in some cases.  For example, the VPS hosting
@@ -143,6 +107,19 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
     (http://seclists.org/nmap-dev/2011/q2/1003). We also have examples
     of crafting some of these in FPEngine.cc. [Sean and David]
 
+o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
+  up to 512x512). Here is a screenshot of the current 48x48 icon on
+  GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
+
+o Update more web content in real time (or near real-time, or at least
+  on an automated basis rather than requiring manual checkin and
+  update).  In particular:
+  o NSEDoc generation
+  o SVN dir (http://nmap.org/svn/) should be removed and a redirect
+    added to https svn server.
+  o Maybe Nmap book building
+  o Maybe the generated files in nmap.org/data/
+
 o Maybe we should rename dns-brute to dns-brute-enum since it is so different
   from our traditional brute force authentication cracking -brute scripts?
 
@@ -195,19 +172,6 @@ o Revive the Nmap Public Source License project (need to find an open
     http://mpl.mozilla.org/scope/
 
 o Nmap Network Scanning, 2nd Edition work [placeholder]
-
-o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
-  up to 512x512). Here is a screenshot of the current 48x48 icon on
-  GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
-
-o Update more web content in real time (or near real-time, or at least
-  on an automated basis rather than requiring manual checkin and
-  update).  In particular:
-  o NSEDoc generation
-  o SVN dir (http://nmap.org/svn/) should be removed and a redirect
-    added to https svn server.
-  o Maybe Nmap book building
-  o Maybe the generated files in nmap.org/data/
 
 o Implement some improvements to dns-ip6-arpa.nse, as describe at
   http://seclists.org/nmap-dev/2012/q2/45.
@@ -313,7 +277,6 @@ o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
  o Daniel Miller is working on an implementation:
    http://seclists.org/nmap-dev/2011/q2/263.
-
 
 o [Zenmap] should actually parse and use script results. See
    http://seclists.org/nmap-dev/2010/q1/1108
@@ -803,6 +766,43 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Remove Nmap's --log-errors feature and make its behavior the
+  default.  A few notes:
+  - Nmap should just ignore --log-errors if it sees it
+  - Remember to remove it from the documentation
+
+o We should probably sort script output (for port output and host
+  output) by script name or something so that it comes in a
+  deterministic order.  If the same three scripts produce output in
+  two different scans, they should be listed in the same order.  Right
+  now the order can vary, at least for host output.
+  [Sean]
+
+o Add a function such as --disable-arp-ping which prevents hosts from
+  being automatically detected as 'up' just because they responded to
+  ARP.  Instead, Nmap will actually send the requested host discovery
+  probes (ICMP ping packets, SYN packets, etc.) and only mark the host
+  as up if it responds on an IP level.  This is how machines are
+  already treated if they're not on the local network (e.g. if ARP
+  discovery is unavailable).  This technique is a bit slower and more
+  likely to miss hosts (e.g. if they're heavily firewalled) than ARP
+  discovery, but the option is needed to handle local networks which use
+  proxy ARP, which would otherwise cause all IPs to appear to be up.
+
+o We should add fields to the service submitter [James is working on this]
+  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
+  application name and version.
+  o We also need to ensure all fields of /cgi-bin/submit.cgi have
+    proper escapting to prevent possible reflected XSS attacks
+    reported by Maxim Rupp (@mmrupp).  The risk is low, if any, since
+    we don't give authentication cookies for bad guys to steal, but is
+    still better to properly escape.
+    o If we get a chance, would be interesting to run our XSS-testing
+      NSE scripts against this and see if they locate the problems.
+ o Also, need to change the font family in there from "Lucida Grand"
+   to "Lucida Grande"?  Just a typo.  And fix "WIkipedai".  We should
+   just spell-check all the output
 
 o Make Nmap 6.01 release containing (among possibly other little
 fixes)
