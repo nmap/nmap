@@ -665,6 +665,8 @@ void parse_options(int argc, char **argv) {
       {"adler32", no_argument, 0, 0},
       {"stats_every", required_argument, 0, 0},
       {"stats-every", required_argument, 0, 0},
+      {"disable_arp_ping", no_argument, 0, 0},
+      {"disable-arp-ping", no_argument, 0, 0},
       {"route_dst", required_argument, 0, 0},
       {"route-dst", required_argument, 0, 0},
       {0, 0, 0, 0}
@@ -935,6 +937,8 @@ void parse_options(int argc, char **argv) {
         if (d < 0)
           fatal("Argument to --stats-every cannot be negative.");
         o.stats_interval = d;
+      } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
+	o.implicitARPPing = false;
       } else if (optcmp(long_options[option_index].name, "route-dst") == 0) {
         struct sockaddr_storage ss;
         struct route_nfo rnfo;

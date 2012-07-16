@@ -508,7 +508,7 @@ you would expect.</para>
           
           <para>For machines on a local ethernet network, ARP
           scanning will still be performed (unless
-          <option>--send-ip</option> is specified) because Nmap needs
+          <option>--disable-arp-ping</option> or <option>--send-ip</option> is specified) because Nmap needs
           MAC addresses to further scan target hosts. In previous
           versions of Nmap, <option>-Pn</option> was
           <option>-P0</option><indexterm><primary><option>-P0</option></primary><seealso><option>-Pn</option></seealso></indexterm>
@@ -865,11 +865,33 @@ you would expect.</para>
           <option>-PS</option>) are specified, Nmap uses ARP instead
           for any of the targets which are on the same LAN.  If you
           absolutely don't want to do an ARP scan, specify
-          <option>--send-ip</option>.</para>
+          <option>--disable-arp-ping</option>.</para>
           
           <para>For IPv6 (-6 option), <option>-PR</option> uses ICMPv6
           Neighbor Discovery instead of ARP. Neighbor Discovery, defined
           in RFC 4861, can be seen as the IPv6 equivalent of ARP.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--disable-arp-ping</option> (No ARP or ND Ping)
+          <indexterm><primary><option>--disable-arp-ping</option></primary></indexterm>
+        </term>
+        <listitem>
+
+	  <para>Nmap normally does ARP or IPv6 Neighbor Discovery (ND)
+	  discovery of locally connected ethernet hosts, even if other
+	  host discovery options such as <option>-Pn</option> or
+	  <option>-PE</option> are used. To disable this implicit
+	  behavior, use the <option>--disable-arp-ping</option>
+	  option.</para>
+
+	  <para>The default behavior is normally faster, but this option
+	  is useful on networks using proxy ARP, in which a router
+	  speculatively replies to all ARP requests, making every target
+	  appear to be up according to ARP scan.</para>
 
         </listitem>
       </varlistentry>

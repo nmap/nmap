@@ -1,4 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Added a new --disable-arp-ping option. This option prevents Nmap
+  from implicitly using ARP or ND host discovery for directly
+  connected Ethernet targets. This is useful in networks using proxy
+  ARP, which make all addresses appear to be up using ARP scan. The
+  previously recommended workaround for this situation, --send-ip,
+  didn't work on Windows because there are not raw sockets on Windows.
+  [David Fifield]
+
 o [NSE] Added support for decoding OSPF Hello packets to broadcast-listener.
   [Hani Benhabiles]
 
