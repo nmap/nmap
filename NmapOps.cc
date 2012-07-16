@@ -319,6 +319,7 @@ void NmapOps::Initialize() {
   deprecated_xml_osclass = false;
   resolve_all = 0;
   dns_servers = NULL;
+  implicitARPPing = true;
   numhosts_scanned = 0;
   numhosts_up = 0;
   numhosts_scanning = 0;

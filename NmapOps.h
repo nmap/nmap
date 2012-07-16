@@ -321,6 +321,13 @@ class NmapOps {
   int resolve_all;
   char *dns_servers;
 
+  /* Do IPv4 ARP or IPv6 ND scan of directly connected Ethernet hosts, even if
+     non-ARP host discovery options are used? This is normally more efficient,
+     not only because ARP/ND scan is faster, but because we need the MAC
+     addresses provided by ARP or ND scan in order to do IP-based host discovery
+     anyway. But when a network uses proxy ARP, all hosts will appear to be up
+     unless you do an IP host discovery on them. This option is true by default. */
+  bool implicitARPPing;
 
   // If true, write <os><osclass/><osmatch/></os> as in xmloutputversion 1.03
   // rather than <os><osmatch><osclass/></osmatch></os> as in 1.04 and later.

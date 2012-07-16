@@ -440,7 +440,8 @@ batchfull:
   if (hs->hostbatch[0]->ifType() == devt_ethernet && 
       hs->hostbatch[0]->af() == AF_INET &&
       hs->hostbatch[0]->directlyConnected() && 
-      o.sendpref != PACKET_SEND_IP_STRONG) {
+      o.sendpref != PACKET_SEND_IP_STRONG &&
+      o.implicitARPPing) {
     arpping(hs->hostbatch, hs->current_batch_sz);
     arpping_done = true;
   }
@@ -450,7 +451,8 @@ batchfull:
   if (hs->hostbatch[0]->ifType() == devt_ethernet &&
       hs->hostbatch[0]->af() == AF_INET6 &&
       hs->hostbatch[0]->directlyConnected() &&
-      o.sendpref != PACKET_SEND_IP_STRONG) {
+      o.sendpref != PACKET_SEND_IP_STRONG &&
+      o.implicitARPPing) {
     arpping(hs->hostbatch, hs->current_batch_sz);
     arpping_done = true;
   }
@@ -469,8 +471,6 @@ batchfull:
     }
   }
 
-  /* TODO: Maybe I should allow real ping scan of directly connected
-     ethernet hosts? */
   /* Then we do the mass ping (if required - IP-level pings) */
   if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
     for (i=0; i < hs->current_batch_sz; i++) {
