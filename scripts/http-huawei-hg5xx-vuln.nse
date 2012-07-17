@@ -52,7 +52,7 @@ References:
 
 author = "Paulino Calderon <calderon () websec mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"exploit","version","vuln"}
+categories = {"exploit","vuln"}
 
 local http = require "http"
 local nmap = require "nmap"
