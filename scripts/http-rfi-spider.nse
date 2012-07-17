@@ -213,11 +213,13 @@ function action(host, port)
     -- now try inclusion by parameters
     local injectable = {}
     -- search for injectable links (as in sql-injection.nse)
-    local links = httpspider.LinkExtractor:new(r.url, r.response.body, crawler.options):getLinks()
-    for _,u in ipairs(links) do
-      local url_parsed = url.parse(u)
-      if url_parsed.query then
-        table.insert(injectable, u)
+    if r.response.status and r.response.body then
+      local links = httpspider.LinkExtractor:new(r.url, r.response.body, crawler.options):getLinks()
+      for _,u in ipairs(links) do
+        local url_parsed = url.parse(u)
+        if url_parsed.query then
+          table.insert(injectable, u)
+        end
       end
     end
     if #injectable > 0 then
