@@ -256,8 +256,10 @@ action = function(host, port)
         end
       end --for
 	  end --if
-
-    local links = httpspider.LinkExtractor:new(r.url, r.response.body, crawler.options):getLinks()
+    local links = {}
+    if r.response.status and r.response.body then
+      links = httpspider.LinkExtractor:new(r.url, r.response.body, crawler.options):getLinks()
+    end
     for _,u in ipairs(links) do
       if url.parse(u).query then
         table.insert(injectable, u)
