@@ -120,6 +120,12 @@ o Update more web content in real time (or near real-time, or at least
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
 
+o [INFRASTRUCTURE] Improve our main web server http configuration to
+  better handle high load situations and DoS attacks.  As part of
+  this, we may have to raise the max client limits.  But then there is
+  a risk of running out of RAM, which can be even worse.  So we need
+  to figure out a good balance.
+
 o Maybe we should rename dns-brute to dns-brute-enum since it is so different
   from our traditional brute force authentication cracking -brute scripts?
 
