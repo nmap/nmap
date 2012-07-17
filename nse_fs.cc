@@ -1,7 +1,44 @@
+/*
+** Note: this is a port of LuaFileSystem for the
+** Nmap project (http://nmap.org).
+** Many functions have been removed, because we only really
+** need: dir, mkdir, rmdir and possibly link.
+ */
+
+/*
+ * LuaFileSystem library:
+ * by Roberto Ierusalimschy, Andre Carregal and Tomas Guisasola
+ * as part of the Kepler Project.
+ * LuaFileSystem is currently maintained by Fabio Mascarenhas.
+ *
+ * Copyright Kepler Project 2003 (http://www.keplerproject.org/luafilesystem)
+ *
+ * LuaFileSystem is a Lua library developed to complement the set
+ * of functions related to file systems offered by the standard
+ * Lua distribution.
+ * LuaFileSystem offers a portable way to access the underlying
+ * directory structure and file attributes.
+ *
+ * LuaFileSystem is free software and uses the same license as Lua 5.1.
+ *
+ * the most recent copy can be found at
+ * http://www.keplerproject.org/luafilesystem/
+ *
+ **/
+
+#ifndef _WIN32
+#ifndef _AIX
+#define _FILE_OFFSET_BITS 64 /* Linux, Solaris and HP-UX */
+#else
+#define _LARGE_FILES 1 /* AIX */
+#endif
+#endif
+
+#define _LARGEFILE64_SOURCE
 
 extern "C" {
-  #include "lua.h"
   #include "lauxlib.h"
+  #include "lua.h"
 }
 
 #include "nmap.h"
@@ -10,6 +47,7 @@ extern "C" {
 #include "nmap_error.h"
 #include "NmapOps.h"
 
+#include <utime.h>
 #include <errno.h>
 #include <string.h>
 
@@ -23,176 +61,159 @@ enum {
 #include "dirent.h"
 #endif
 
-#ifndef MAXPATHLEN
-#   define MAXPATHLEN 2048
+#ifndef MAX_PATH
+#define MAX_PATH 2048
 #endif
 
-#ifndef MAX_DIR_LENGTH
-#   define MAX_DIR_LENGTH 1024
+/*
+ * ** compatibility with Lua 5.2
+ * */
+#if (LUA_VERSION_NUM == 502)
+#undef luaL_register
+#define luaL_register(L,n,f) \
+	        { if ((n) == NULL) luaL_setfuncs(L,f,0); else luaL_newlib(L,f); }
 #endif
 
+/* Define 'strerror' for systems that do not implement it */
+#ifdef NO_STRERROR
+#define strerror(_)	"System unable to describe the error"
+#endif
+
+#define DIR_METATABLE "directory metatable"
 typedef struct dir_data {
   int  closed;
-#ifdef WIN32
+#ifdef _WIN32
   long hFile;
-  char pattern[MAX_DIR_LENGTH+1];
+  char pattern[MAX_PATH+1];
 #else
   DIR *dir;
 #endif
 } dir_data;
 
-extern NmapOps o;
+/*
+** Utility functions
+*/
+static int pusherror(lua_State *L, const char *info)
+{
+	lua_pushnil(L);
+	if (info==NULL)
+		lua_pushstring(L, strerror(errno));
+	else
+		lua_pushfstring(L, "%s: %s", info, strerror(errno));
+	lua_pushinteger(L, errno);
+	return 3;
+}
 
-static bool filename_is_absolute(const char *file) {
-  if (file[0] == '/')
-    return true;
-#ifdef WIN32
-  if ((file[0] != '\0' && file[1] == ':') || file[0] == '\\')
-    return true;
+static int pushresult(lua_State *L, int i, const char *info)
+{
+	if (i==-1)
+		return pusherror(L, info);
+	lua_pushboolean(L, true);
+	return 1;
+}
+
+/*
+** Creates a link.
+** @param #1 Object to link to.
+** @param #2 Name of link.
+** @param #3 True if link is symbolic (optional).
+*/
+static int make_link(lua_State *L)
+{
+#ifndef _WIN32
+	const char *oldpath = luaL_checkstring(L, 1);
+	const char *newpath = luaL_checkstring(L, 2);
+	return pushresult(L,
+		(lua_toboolean(L,3) ? symlink : link)(oldpath, newpath), NULL);
+#else
+        pusherror(L, "make_link is not supported on Windows");
 #endif
-  return false;
 }
 
-/* This is a modification of nmap_fetchfile specialized to look for files
- * in the scripts subdirectory. If the path is absolute, it is always tried
- * verbatim. Otherwise, the file is looked for under scripts/, and then finally
- * in the current directory.
- */
-static int nse_fetchscript(char *path, size_t path_len, const char *file) {
-  std::string scripts_path = std::string(SCRIPT_ENGINE_LUA_DIR) + std::string(file);
-  int type;
+/*
+** Creates a directory.
+** @param #1 Directory path.
+*/
+static int make_dir (lua_State *L) {
+	const char *path = luaL_checkstring (L, 1);
+	int fail;
+#ifdef _WIN32
+	fail = _mkdir (path);
+#else
+	fail =  mkdir (path, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP |
+	                     S_IWGRP | S_IXGRP | S_IROTH | S_IXOTH );
+#endif
+	if (fail) {
+		lua_pushnil (L);
+        lua_pushfstring (L, "%s", strerror(errno));
+		return 2;
+	}
+	lua_pushboolean (L, 1);
+	return 1;
+}
 
-  if (filename_is_absolute(file)) {
-    if (o.debugging > 1)
-      log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
-    Strncpy(path, file, path_len);
-    return nmap_fileexistsandisreadable(file);
+/*
+** Removes a directory.
+** @param #1 Directory path.
+*/
+static int remove_dir (lua_State *L) {
+  const char *path = luaL_checkstring (L, 1);
+  int fail;
+
+  fail = rmdir (path);
+
+  if (fail) {
+    lua_pushnil (L);
+    lua_pushfstring (L, "%s", strerror(errno));
+    return 2;
   }
-
-  // lets look in <path>/scripts
-  type = nmap_fetchfile(path, path_len, scripts_path.c_str());
-
-  if (type == 0) {
-    // current directory
-    Strncpy(path, file, path_len);
-    return nmap_fileexistsandisreadable(file);
-  }
-
-  return type;
+  lua_pushboolean (L, 1);
+  return 1;
 }
-
-/* This is a modification of nmap_fetchfile that first looks for an
- * absolute file name.
- */
-static int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
-  if (filename_is_absolute(file)) {
-    if (o.debugging > 1)
-      log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
-    Strncpy(path, file, path_len);
-    return nmap_fileexistsandisreadable(file);
-  }
-
-  return nmap_fetchfile(path, path_len, file);
-}
-
-static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
-{
-  char path[MAXPATHLEN];
-  switch (fetch(path, sizeof(path), luaL_checkstring(L, 1)))
-  {
-    case 0: // no such path
-      lua_pushnil(L);
-      lua_pushfstring(L, "no path to file/directory: %s", lua_tostring(L, 1));
-      break;
-    case 1: // file returned
-      lua_pushliteral(L, "file");
-      lua_pushstring(L, path);
-      break;
-    case 2: // directory returned
-      lua_pushliteral(L, "directory");
-      lua_pushstring(L, path);
-      break;
-    default:
-      return luaL_error(L, "nse_fetch returned bad code");
-  }
-  return 2;
-}
-
-static int l_fetchscript (lua_State *L)
-{
-  return nse_fetch(L, nse_fetchscript);
-}
-
-static int l_fetchfile_absolute (lua_State *L)
-{
-  return nse_fetch(L, nse_fetchfile_absolute);
-}
-
-
-/* LuaFileSystem directory iterator port.
- * 
- * LuaFileSystem library:
- * by Roberto Ierusalimschy, Andre Carregal and Tomas Guisasola
- * as part of the Kepler Project.
- * LuaFileSystem is currently maintained by Fabio Mascarenhas.
- * 
- * LuaFileSystem is a Lua library developed to complement the set
- * of functions related to file systems offered by the standard
- * Lua distribution.
- * LuaFileSystem offers a portable way to access the underlying
- * directory structure and file attributes.
- *
- * LuaFileSystem is free software and uses the same license as Lua 5.1.
- * 
- * the most recent copy can be found at
- * http://www.keplerproject.org/luafilesystem/
- *
- * Note: this is a port of the LuaFileSystem directory iterator for the
- * Nmap project http://nmap.org
- **/
 
 /*
 ** Directory iterator
 */
 static int dir_iter (lua_State *L) {
-#ifdef WIN32
+#ifdef _WIN32
   struct _finddata_t c_file;
 #else
   struct dirent *entry;
 #endif
-  dir_data *d = (dir_data *) nseU_checkudata(L, 1, DIR_METATABLE, "directory");
-  luaL_argcheck(L, !d->closed, 1, "closed directory");
-#ifdef WIN32
-  if (d->hFile == 0L) { /* first entry */
-    if ((d->hFile = _findfirst(d->pattern, &c_file)) == -1L) {
-        lua_pushnil(L);
-        lua_pushstring(L, strerror (errno));
-        return 2;
-    } else {
-	lua_pushstring(L, c_file.name);
-	return 1;
-    }
-  } else { /* next entry */
-    if (_findnext(d->hFile, &c_file) == -1L) {
-      /* no more entries => close directory */
-      _findclose(d->hFile);
-      d->closed = 1;
-      return 0;
-    } else {
-        lua_pushstring(L, c_file.name);
-        return 1;
-    }
-  }
+	dir_data *d = (dir_data *)luaL_checkudata (L, 1, DIR_METATABLE);
+	luaL_argcheck (L, d->closed == 0, 1, "closed directory");
+#ifdef _WIN32
+	if (d->hFile == 0L) { /* first entry */
+		if ((d->hFile = _findfirst (d->pattern, &c_file)) == -1L) {
+			lua_pushnil (L);
+			lua_pushstring (L, strerror (errno));
+			d->closed = 1;
+			return 2;
+		} else {
+			lua_pushstring (L, c_file.name);
+			return 1;
+		}
+	} else { /* next entry */
+		if (_findnext (d->hFile, &c_file) == -1L) {
+			/* no more entries => close directory */
+			_findclose (d->hFile);
+			d->closed = 1;
+			return 0;
+		} else {
+			lua_pushstring (L, c_file.name);
+			return 1;
+		}
+	}
 #else
-  if ((entry = readdir(d->dir)) != NULL) {
-    lua_pushstring(L, entry->d_name);
-    return 1;
-  } else {
-    /* no more entries => close directory */
-    closedir(d->dir);
-    d->closed = 1;
-    return 0;
-  }
+	if ((entry = readdir (d->dir)) != NULL) {
+		lua_pushstring (L, entry->d_name);
+		return 1;
+	} else {
+		/* no more entries => close directory */
+		closedir (d->dir);
+		d->closed = 1;
+		return 0;
+	}
 #endif
 }
 
@@ -200,79 +221,103 @@ static int dir_iter (lua_State *L) {
 ** Closes directory iterators
 */
 static int dir_close (lua_State *L) {
-  dir_data *d = (dir_data *) nseU_checkudata(L, 1, DIR_METATABLE, "directory");
-#ifdef WIN32
+  dir_data *d = (dir_data *)lua_touserdata (L, 1);
+#ifdef _WIN32
   if (!d->closed && d->hFile) {
     _findclose(d->hFile);
-    d->closed = 1;
   }
 #else
   if (!d->closed && d->dir) {
     closedir(d->dir);
-    d->closed = 1;
   }
 #endif
+  d->closed = 1;
   return 0;
 }
 
 /*
 ** Factory of directory iterators
 */
-static int l_readdir (lua_State *L) {
-  const char *dirname = luaL_checkstring(L, 1);
-  dir_data *d;
-  lua_pushvalue(L, lua_upvalueindex(2)); /* dir_iter */
-  d = (dir_data *)lua_newuserdata(L, sizeof(dir_data));
-  lua_pushvalue(L, DIR_METATABLE);
-  lua_setmetatable(L, -2);
-  d->closed = 0;
-#ifdef  WIN32
-  d->hFile = 0L;
-  if (strlen(dirname) > MAX_DIR_LENGTH)
-    luaL_error(L, "%s: Path too long '%s'.", SCRIPT_ENGINE, dirname);
-  else
-    Snprintf(d->pattern, MAX_DIR_LENGTH, "%s/*", dirname);
+static int dir_iter_factory (lua_State *L) {
+	const char *path = luaL_checkstring (L, 1);
+	dir_data *d;
+	lua_pushcfunction (L, dir_iter);
+	d = (dir_data *) lua_newuserdata (L, sizeof(dir_data));
+	luaL_getmetatable (L, DIR_METATABLE);
+	lua_setmetatable (L, -2);
+	d->closed = 0;
+#ifdef _WIN32
+	d->hFile = 0L;
+	if (strlen(path) > MAX_PATH-2)
+	  luaL_error (L, "path too long: %s", path);
+	else
+	  sprintf (d->pattern, "%s/*", path);
 #else
-  d->dir = opendir(dirname);
-  if (d->dir == NULL)
-    luaL_error(L, "%s: Could not open directory '%s'.", SCRIPT_ENGINE, dirname);
+	d->dir = opendir (path);
+	if (d->dir == NULL)
+          luaL_error (L, "cannot open %s: %s", path, strerror (errno));
 #endif
-  return 2;
+ return 2;
 }
 
-LUALIB_API int luaopen_fs(lua_State *L)
-{
-  static const luaL_Reg metatable_index[] = {
-    {"next", dir_iter},
-    {"close", dir_close},
-    {NULL, NULL}
-  };
 
-  static const luaL_Reg lib[] = {
-    {"fetchscript", l_fetchscript},
-    {"fetchfile_absolute", l_fetchfile_absolute},
-    {"readdir", nseU_placeholder},
-    {NULL, NULL}
-  };
+/*
+** Creates directory metatable.
+*/
+static int dir_create_meta (lua_State *L) {
+	luaL_newmetatable (L, DIR_METATABLE);
 
-  int top = lua_gettop(L);
-  lua_newtable(L); /* DIR_METATABLE */
+        /* Method table */
+	lua_newtable(L);
+	lua_pushcfunction (L, dir_iter);
+	lua_setfield(L, -2, "next");
+	lua_pushcfunction (L, dir_close);
+	lua_setfield(L, -2, "close");
 
-  luaL_newlibtable(L, metatable_index);
-  lua_pushvalue(L, top+1);
-  luaL_setfuncs(L, metatable_index, 1);
-  lua_getfield(L, -1, "close");
-  lua_setfield(L, top+1, "__gc");
-  lua_setfield(L, top+1, "__index");
+        /* Metamethods */
+	lua_setfield(L, -2, "__index");
+	lua_pushcfunction (L, dir_close);
+	lua_setfield (L, -2, "__gc");
+	return 1;
+}
 
-  luaL_newlibtable(L, lib);
-  lua_pushvalue(L, top+1);
-  luaL_setfuncs(L, lib, 1);
-  lua_pushvalue(L, top+1);
-  lua_pushvalue(L, top+1);
-  lua_pushcclosure(L, dir_iter, 1);
-  lua_pushcclosure(L, l_readdir, 2);
-  lua_setfield(L, -2, "readdir");
+/*
+** Assumes the table is on top of the stack.
+*/
+static void set_info (lua_State *L) {
+	lua_pushliteral (L, "_COPYRIGHT");
+	lua_pushliteral (L, "Copyright (C) 2003-2009 Kepler Project");
+	lua_settable (L, -3);
+	lua_pushliteral (L, "_DESCRIPTION");
+	lua_pushliteral (L, "LuaFileSystem is a Lua library developed to complement the set of functions related to file systems offered by the standard Lua distribution");
+	lua_settable (L, -3);
+	lua_pushliteral (L, "_VERSION");
+	lua_pushliteral (L, "LuaFileSystem 1.5.0");
+	lua_settable (L, -3);
+}
 
+static int get_path_separator(lua_State *L){
+#ifdef WIN32
+  lua_pushstring(L, "\\");
+#else
+  lua_pushstring(L, "/");
+#endif
   return 1;
 }
+
+static const struct luaL_Reg fslib[] = {
+	{"dir", dir_iter_factory},
+  {"link", make_link},
+	{"mkdir", make_dir},
+	{"rmdir", remove_dir},
+	{"get_path_separator", get_path_separator},
+	{NULL, NULL},
+};
+
+LUALIB_API int luaopen_lfs(lua_State *L) {
+	dir_create_meta (L);
+	luaL_register (L, "lfs", fslib);
+	set_info (L);
+	return 1;
+}
+

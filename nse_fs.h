@@ -1,6 +1,7 @@
 #ifndef NSE_FS
 #define NSE_FS
 
-LUALIB_API int luaopen_fs (lua_State *L);
+#define LFSLIBNAME "lfs"
+LUALIB_API int luaopen_lfs (lua_State *L);
 
 #endif

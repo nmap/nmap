@@ -236,9 +236,96 @@ static int l_xml_newline(lua_State *L)
   return 0;
 }
 
+static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
+{
+  char path[MAXPATHLEN];
+  switch (fetch(path, sizeof(path), luaL_checkstring(L, 1)))
+  {
+    case 0: // no such path
+      lua_pushnil(L);
+      lua_pushfstring(L, "no path to file/directory: %s", lua_tostring(L, 1));
+      break;
+    case 1: // file returned
+      lua_pushliteral(L, "file");
+      lua_pushstring(L, path);
+      break;
+    case 2: // directory returned
+      lua_pushliteral(L, "directory");
+      lua_pushstring(L, path);
+      break;
+    default:
+      return luaL_error(L, "nse_fetch returned bad code");
+  }
+  return 2;
+}
+
+static bool filename_is_absolute(const char *file) {
+  if (file[0] == '/')
+    return true;
+#ifdef WIN32
+  if ((file[0] != '\0' && file[1] == ':') || file[0] == '\\')
+    return true;
+#endif
+  return false;
+}
+
+/* This is a modification of nmap_fetchfile that first looks for an
+ * absolute file name.
+ */
+static int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
+  if (filename_is_absolute(file)) {
+    if (o.debugging > 1)
+      log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
+    Strncpy(path, file, path_len);
+    return nmap_fileexistsandisreadable(file);
+  }
+
+  return nmap_fetchfile(path, path_len, file);
+}
+
+/* This is a modification of nmap_fetchfile specialized to look for files
+ * in the scripts subdirectory. If the path is absolute, it is always tried
+ * verbatim. Otherwise, the file is looked for under scripts/, and then finally
+ * in the current directory.
+ */
+static int nse_fetchscript(char *path, size_t path_len, const char *file) {
+  std::string scripts_path = std::string(SCRIPT_ENGINE_LUA_DIR) + std::string(file);
+  int type;
+
+  if (filename_is_absolute(file)) {
+    if (o.debugging > 1)
+      log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
+    Strncpy(path, file, path_len);
+    return nmap_fileexistsandisreadable(file);
+  }
+
+  // lets look in <path>/scripts
+  type = nmap_fetchfile(path, path_len, scripts_path.c_str());
+
+  if (type == 0) {
+    // current directory
+    Strncpy(path, file, path_len);
+    return nmap_fileexistsandisreadable(file);
+  }
+
+  return type;
+}
+
+static int fetchscript (lua_State *L)
+{
+  return nse_fetch(L, nse_fetchscript);
+}
+
+static int fetchfile_absolute (lua_State *L)
+{
+  return nse_fetch(L, nse_fetchfile_absolute);
+}
+
 static void open_cnse (lua_State *L)
 {
   static const luaL_Reg nse[] = {
+    {"fetchfile_absolute", fetchfile_absolute},
+    {"fetchscript", fetchscript},
     {"key_was_pressed", key_was_pressed},
     {"scan_progress_meter", scan_progress_meter},
     {"timedOut", timedOut},
@@ -267,8 +354,6 @@ static void open_cnse (lua_State *L)
   nseU_setsfield(L, -1, "scriptargsfile", o.scriptargsfile);
   nseU_setsfield(L, -1, "NMAP_URL", NMAP_URL);
 
-  luaL_requiref(L, "fs", luaopen_fs, 0);
-  lua_setfield(L, -2, "fs");
 }
 
 void ScriptResult::set_output (const char *out)
@@ -314,6 +399,7 @@ static void set_nmap_libraries (lua_State *L)
     {NSE_NMAPLIBNAME, luaopen_nmap},
     {NSE_BINLIBNAME, luaopen_binlib},
     {BITLIBNAME, luaopen_bit},
+    {LFSLIBNAME, luaopen_lfs},
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl},
 #endif

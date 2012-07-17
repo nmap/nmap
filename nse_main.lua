@@ -119,7 +119,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   local function loader (lib)
     lib = lib:gsub("%.", "/"); -- change Lua "module seperator" to directory separator
     local name = "nselib/"..lib..".lua";
-    local type, path = cnse.fs.fetchfile_absolute(name);
+    local type, path = cnse.fetchfile_absolute(name);
     if type == "file" then
       return loadfile(path);
     else
@@ -130,6 +130,7 @@ do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
 end
 
 local nmap = require "nmap";
+local lfs = require "lfs";
 
 local socket = require "nmap.socket";
 local loop = socket.loop;
@@ -141,7 +142,7 @@ assert(_ENV == _G);
 strict(_ENV);
 
 local script_database_type, script_database_path =
-    cnse.fs.fetchfile_absolute(cnse.script_dbpath);
+    cnse.fetchfile_absolute(cnse.script_dbpath);
 local script_database_update = cnse.scriptupdatedb;
 local script_help = cnse.scripthelp;
 
@@ -660,7 +661,7 @@ local function get_chosen_scripts (rules)
       if found then 
         used_rules[rule_table.original_rule] = true;
         script_params.forced = not not forced_rules[rule_table.original_rule];
-        local t, path = cnse.fs.fetchscript(filename);
+        local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
             local script = Script.new(path, script_params)
@@ -683,9 +684,9 @@ local function get_chosen_scripts (rules)
     if not loaded then -- attempt to load the file/directory
       local script_params = {};
       script_params.forced = not not forced_rules[rule];
-      local t, path = cnse.fs.fetchscript(rule);
+      local t, path = cnse.fetchscript(rule);
       if t == nil then -- perhaps omitted the extension?
-        t, path = cnse.fs.fetchscript(rule..".nse");
+        t, path = cnse.fetchscript(rule..".nse");
       end
       if t == nil then
         error("'"..rule.."' did not match a category, filename, or directory");
@@ -696,7 +697,7 @@ local function get_chosen_scripts (rules)
         chosen_scripts[#chosen_scripts+1] = script;
         files_loaded[path] = true;
       elseif t == "directory" then
-        for f in cnse.fs.readdir(path) do
+        for f in lfs.dir(path) do
           local file = path .."/".. f
           if find(f, "%.nse$") and not files_loaded[file] then
             script_params.selection = "directory";
@@ -977,9 +978,9 @@ local function script_help_xml(chosen_scripts)
   cnse.xml_newline();
 
   local t, scripts_dir, nselib_dir
-  t, scripts_dir = cnse.fs.fetchfile_absolute("scripts/")
+  t, scripts_dir = cnse.fetchfile_absolute("scripts/")
   assert(t == 'directory', 'could not locate scripts directory');
-  t, nselib_dir = cnse.fs.fetchfile_absolute("nselib/")
+  t, nselib_dir = cnse.fetchfile_absolute("nselib/")
   assert(t == 'directory', 'could not locate nselib directory');
   cnse.xml_start_tag("directory", { name = "scripts", path = scripts_dir });
   cnse.xml_end_tag();
@@ -1079,7 +1080,7 @@ do -- Load script arguments (--script-args)
   nmap.registry.args = parse_table("{"..args.."}", 1);
   -- Check if user wants to read scriptargs from a file
   if cnse.scriptargsfile ~= nil then --scriptargsfile path/to/file
-    local t, path = cnse.fs.fetchfile_absolute(cnse.scriptargsfile)
+    local t, path = cnse.fetchfile_absolute(cnse.scriptargsfile)
     assert(t == 'file', format("%s is not a file", path))
     local argfile = assert(open(path, 'r'));
     local argstring = argfile:read("*a")
@@ -1100,12 +1101,12 @@ end
 
 if script_database_update then
   log_write("stdout", "Updating rule database.");
-  local t, path = cnse.fs.fetchfile_absolute('scripts/'); -- fetch script directory
+  local t, path = cnse.fetchfile_absolute('scripts/'); -- fetch script directory
   assert(t == 'directory', 'could not locate scripts directory');
   script_database_path = path.."script.db";
   local db = assert(open(script_database_path, 'w'));
   local scripts = {};
-  for f in cnse.fs.readdir(path) do
+  for f in lfs.dir(path) do
     if match(f, '%.nse$') then
       scripts[#scripts+1] = path.."/"..f;
     end

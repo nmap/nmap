@@ -1,0 +1,47 @@
+-- The <code>lfs</code> module provides Nmap with a portable interface to file
+-- system functions that are missing in the standard Lua libraries. The module
+-- is a port of the LuaFileSystem module which was written as part of the
+-- Kepler Project.
+--
+
+module "lfs"
+
+--- Returns a directory iterator listing the contents of the given path
+-- Each time the iterator is called with dir_obj it returns a directory entry's
+-- name as a string, or nil if there are no more entries. 
+--
+-- @param path string containing the directory to list
+-- @return iterator function returning the next file or nil when done
+-- @usage for f in lfs.dir("/tmp") do print("file:", f) end
+function dir(path)
+
+--- Creates a hard or symbolic link to a file
+--
+-- @param filepath string containing the object to link to
+-- @param linkname string containing the name of the link
+-- @param symbolic [optional] boolean true if link is symbolic
+-- @return Status (true or false)
+-- @return Error string (if status is false).
+function link(filepath, linkname, symbolic)
+
+--- Creates a new directory.
+-- The parent directory has to exist otherwise the operation will fail
+--
+-- @param path string containing the directory name to create
+-- @return Status (true or false)
+-- @return Error string (if status is false).
+function mkdir(path)
+
+--- Removes an existing directory.
+-- The directory has to be empty, otherwise the operation will fail
+--
+-- @param path string containing the directory name to remove
+-- @return Status (true or false)
+-- @return Error string (if status is false).
+function rmdir(path)
+
+--- Returns the OS specific directory path separator.
+--
+-- @return sep string containing the path separator
+function get_path_separator()
+
