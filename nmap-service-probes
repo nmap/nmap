@@ -1495,7 +1495,7 @@ match jmond m|^cpu: *[\d.]+ mem: *[\d.]+ swp: *[\d.]+\0| p/jmond unix resource m
 
 match jtag m|^\0%\rJTAG Server\r\n\0\0\0\x08\0\0\0\xf0| p/Altera Quartus JTAG service/
 
-match junoscript m|^<\?xml version=\"1\.0\"[^<]+<junoscript.*release=\"([^\"]+)\" hostname=\"([^\"]+)\"| p/Junoscript XML Interface/ v/Release $1/ d/router/ o/JUNOS $1/ h/$2/
+match junoscript m|^<\?xml version=\"1\.0\"[^<]+<junoscript.*release=\"([^\"]+)\" hostname=\"([^\"]+)\"| p/Junoscript XML Interface/ v/$1/ d/router/ o/JUNOS/ h/$2/
 
 match kguard m|^inv2W\x04\x0f\0\0\0\x01\0\t\0\0\x00| p/Kguard Security DVR/ d/webcam/
 
@@ -4751,7 +4751,7 @@ match finger m|^That user does not want to be fingered\.\n$| p/ffingerd/
 # OpenBSD 2.3
 match finger m|^finger: GET: no such user\.\nfinger: /: no such user\.\nfinger: HTTP/1\.0: no such user\.\n$| p|BSD/Linux fingerd|
 # Linux port of in.fingerd from OpenBSD network tools - started with -w to show welcome banner
-match finger m|^\r\nWelcome to Linux version (\d[-.\w]+) at ([-.\w]+) !\r\n\n.*\n\r\nfinger: GET: no such user\.|s p/OpenBSD fingerd/ i/ported to Linux; $2 users logged in; Linux version $1/ o/Linux/ h/$2/ cpe:/o:linux:kernel/a
+match finger m|^\r\nWelcome to Linux version (\d[-.\w]+) at ([-.\w]+) !\r\n\n.*\n\r\nfinger: GET: no such user\.|s p/OpenBSD fingerd/ i/ported to Linux/ o/Linux $1/ h/$2/ cpe:/o:linux:kernel:$1/
 # Redhat Linux from finger-server-0.17-9 RPM
 match finger m|^finger: GET: no such user.\r\nfinger: /: no such user.\r\nfinger: HTTP/1.0: no such user.\r\n$| p/Linux fingerd/ o/Linux/ cpe:/o:linux:kernel/a
 # NetBSD 1.6ZA (berkeley fingerd 8.1 sibling)
@@ -5430,8 +5430,8 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Mi
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\nMIME-version: 1\.0\r\nWWW-Authenticate: Basic realm=\"surgemail| p/Surgemail webmail/ i/DNews based/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DManager\r\n| p/DNews Web Based Manager/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IDS-Server/([\d.]+)\r\n| p/IDS-Server httpd/ v/$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: keep-alive\r\nContent-Type: text/HTML\r\nContent-Length: \d+\r\nServer: Indy/([\d.]+)\r\nSet-Cookie: .*\r\n\r\n<!-- header\.html -->.*TeamSpeak|s p/Indy httpd/ v/$1/ i/TeamSpeak 1.X admin httpd/ cpe:/a:indy:httpd:$1/ cpe:/a:indy:httpd:$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: keep-alive\r\nContent-Type: text/HTML\r\nContent-Length: \d+\r\nServer: Indy/([\d.]+)\r\nSet-Cookie: .*<title>TeamSpeak 2 - Server-Administration</title>|s p/Indy httpd/ v/$1/ i/TeamSpeak 2.X admin httpd/ cpe:/a:indy:httpd:$1/ cpe:/a:indy:httpd:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: keep-alive\r\nContent-Type: text/HTML\r\nContent-Length: \d+\r\nServer: Indy/([\d.]+)\r\nSet-Cookie: .*\r\n\r\n<!-- header\.html -->.*TeamSpeak|s p/Indy httpd/ v/$1/ i/TeamSpeak 1.X admin httpd/ cpe:/a:indy:httpd:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: keep-alive\r\nContent-Type: text/HTML\r\nContent-Length: \d+\r\nServer: Indy/([\d.]+)\r\nSet-Cookie: .*<title>TeamSpeak 2 - Server-Administration</title>|s p/Indy httpd/ v/$1/ i/TeamSpeak 2.X admin httpd/ cpe:/a:indy:httpd:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nContent-Type: text/plain\r\nServer: Indy/([\d.]+)\r\n\r\n| p/Indy httpd/ v/$1/ i/TiVo Home Media Option httpd/ cpe:/a:indy:httpd:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\nDate: .*\nServer: FrontPage-PWS32/([\d.]+)\n| p/FrontPage Personal Webserver/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WindWeb/([\d.]+)\r\nConnection: close\r\nContent-Type: text/html\r\nWWW-Authenticate: Basic realm=\"Home Gateway\"\r\n\r\n<html>\r\n\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n<meta name=\"GENERATOR\" content=\"Microsoft FrontPage 4\.0\">\r\n<meta name=\"ProgId\" content=\"FrontPage\.Editor\.Document\">\r\n<title>Pirelli Smart Gate</title>\r\n\r\n| p/WindWeb/ v/$1/ i/Pirelli Smartgate Ethernet DSL router web config/ d/router/
@@ -6016,7 +6016,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: CPWS\r\n| p/Connectr
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Agranat-EmWeb/R([-\w_.]+)\r\nWWW-Authenticate: Basic realm=\"Efficient Networks Web User Interface\"\r\n\r\n| p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ i/Efficient Networks router http config/ d/router/ cpe:/a:agranat:emweb:$SUBST(1,"_",".")/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Niagara Web Server/([\d.]+)\r\nNiagara-Release: ([-\w_.]+)\r\n|s p/Sun Niagara httpd/ v/$1/ i/Niagara release $2/
 #The following two lines are for the Tridium Niagara embedded device httpd, NOT the Sun (now Oracle) Solaris httpd - Tom
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nNiagara-Platform: ([^\r\n]+).*Server: Niagara Web Server/([\d.]+)\r\n|is p/Tridium Niagara httpd/ v/$2/ i/Platform: $1/ d/specialized/ o/$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nNiagara-Platform: ([^\r\n]+).*Server: Niagara Web Server/([\d.]+)\r\n|is p/Tridium Niagara httpd/ v/$2/ i/Platform: $1/ d/specialized/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Niagara Web Server/([\d.]+)\r\n|is p/Tridium Niagara httpd/ v/$1/ d/specialized/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: The Knopflerfish HTTP Server\r\n|s p/Knopflerfish httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: HTTP\r\n.*<title>Inventel</title>|s p/Inventel router http config/ d/router/
