@@ -2785,7 +2785,7 @@ match ssh m|^SSH-(\d[\d.]*)-(Server-V)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]*)-(Server-VI)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/ cpe:/a:akamai:ssh:$2/
 match ssh m|^SSH-(\d[\d.]*)-(Server-VII)\r?\n| p/Akamai SSH/ v/$2/ i/protocol $1/ cpe:/a:akamai:ssh:$2/
 match ssh m|^SSH-(\d[\d.]+)-Cisco-(\d[\d.]+)\r?\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/ cpe:/a:cisco:ssh:$2/ cpe:/o:cisco:ios/a
-match ssh m|^SSH-(\d[\d.]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/ cpe:/a:cisco:ssh:$2/ cpe:/o:cisco:ios/a
+match ssh m|^SSH-(\d[\d.]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; IOS XA/ o/IOS/ cpe:/a:cisco:ssh:$2/ cpe:/o:cisco:ios/a
 match ssh m|^\r\nDestination server does not have Ssh activated\.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh\.\r\n| p/Cisco CSS SSH/ i/Unlicensed/ cpe:/a:cisco:ssh/
 match ssh m|^SSH-(\d[\d.]+)-VShell_(\d[_\d.]+) VShell\r?\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
 match ssh m|^SSH-2\.0-0\.0 \r?\n| p/VanDyke VShell sshd/ i/version info hidden; protocol 2.0/
@@ -4908,7 +4908,7 @@ match http m=^GIF89a\xa8\0-\0\xf7\0\0\x03\x03\x03\x83\x83\x83\xc4\xc4\xc4\xfe\x0
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nExpires: .*\r\nLast-Modified: .*\r\nPragma: no-cache\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n<HTML>\n<!--Copyright \(c\) Xerox Corporation | i/Xerox printer http admin/ p/Allegro RomPager/ v/$1/ d/printer/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nExpires: .*\r\nLast-Modified: .*\r\nPragma: no-cache\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n\r\n<html>\n<head>\n<title>\nHome - \nPhaser (\w+)</title>\n|s i/Xerox printer http admin; printer $2/ p/Allegro RomPager/ v/$1/ d/printer/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"CentreWare_IS_Admin\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/([\d.]+)\r\n\r\n| p/Allegro RomPager/ v/$1/ i/Xerox Phaser http admin/ d/printer/ cpe:/a:allegro:rompager:$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nContent-Type: text/html\r\nDate: .*Server: Allegro-Software-RomPager/([\d.]+)\r\n\r\n<html>\n<head>\n<title>\nAccueil - \nPhaser (\w+)</title>|s i/Xerox printer webadmin; printer $2; French/ p/Allegro RomPager/ v/$1/ d/printer/ cpe:/a:allegro:rompager:$1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nContent-Type: text/html\r\nDate: .*Server: Allegro-Software-RomPager/([\d.]+)\r\n\r\n<html>\n<head>\n<title>\nAccueil - \nPhaser (\w+)</title>|s i/Xerox printer webadmin; printer $2; French/ p/Allegro RomPager/ v/$1/ d/printer/ cpe:/a:allegro:rompager:$1:::fr/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nserver: IronPort httpd/(\d[-.\w]+)\r\n| p/IronPort mail appliance admin websever/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R(\d[-.\w]+)\r\nContent-Type: text/html\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n\n<html>\n<head><title>(CopperJet [-.+\w ]+)</title>| p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/Allied Data CopperJet ADSL modem; $2/ d/broadband router/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\nServer: dhttpd/(\d[-.\w]+)\r\n| p/dhttpd/ v/$1/
@@ -6273,7 +6273,7 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: qHTTPs\r\nMIME-version: 1\
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<html>\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<title>8 Port Gigabit Switch</title>\r\n| p/Longshine LCS-GS8208-A switch http config/ d/switch/
 match http m|^<html>\r\n<head>\r\n<meta http-equiv=\"Content-Language\" content=\"it\">\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n<meta http-equiv=\"Refresh\" content=\"10\">\r\n<title>UPS web page</title>\r\n| p/Netman UPS monitor http config/ d/power-device/
 match http m|^HTTP/1\.1 200 Ok\r\nServer: NAE Server\r\nContent-Length: 73\r\nConnection: close\r\n\r\n<html><center><h1>NAE Server Health Check Succeeded\.</h1></center></html>| p/Ingrian i3xx health monitor httpd/ d/security-misc/
-match http m|^HTTP/1\.1 302 Tempor\xe4r verschoben\r\nConnection: close\r\nContent-Type: text/html\r\nServer: Indy/([\d.]+)\r\nLocation: /Wikipedia/\r\n\r\n| p/Indy httpd/ v/$1/ i/German Wikipedia DVD browser/ cpe:/a:indy:httpd:$1/
+match http m|^HTTP/1\.1 302 Tempor\xe4r verschoben\r\nConnection: close\r\nContent-Type: text/html\r\nServer: Indy/([\d.]+)\r\nLocation: /Wikipedia/\r\n\r\n| p/Indy httpd/ v/$1/ i/German Wikipedia DVD browser/ cpe:/a:indy:httpd:$1:::de/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\n.*\n<title>HP Media Vault: [^<]*</title>|s p/HP Media Vault http config/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>(\w+) System Control Center</title>\n| p/WindWeb/ v/$1/ i/Hughes $2 satellite modem http config/
 # auther??
