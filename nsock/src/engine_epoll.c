@@ -109,7 +109,9 @@ static void iterate_through_event_lists(mspool *nsp, int evcount);
 void process_iod_events(mspool *nsp, msiod *nsi, int ev);
 void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev);
 #if HAVE_PCAP
+#ifndef PCAP_CAN_DO_SELECT
 int pcap_read_on_nonselect(mspool *nsp);
+#endif
 #endif
 
 /* defined in nsock_event.c */
@@ -280,11 +282,13 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
     combined_msecs = MIN((unsigned)event_msecs, (unsigned)msec_timeout);
 
 #if HAVE_PCAP
+#ifndef PCAP_CAN_DO_SELECT
     /* do non-blocking read on pcap devices that doesn't support select()
      * If there is anything read, just leave this loop. */
     if (pcap_read_on_nonselect(nsp)) {
       /* okay, something was read. */
     } else
+#endif
 #endif
     {
       if (einfo->evlen)
