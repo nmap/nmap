@@ -3,28 +3,29 @@ local stdnse = require "stdnse"
 local http = require "http"
 
 description = [[
-Tests a webserver against the Slowloris DoS attack, as it was described at
-Defcon 17 by RSnake
-(see http://ha.ckers.org/slowloris/)
+Tests a web server for vulnerability to the Slowloris DoS attack.
 
-This script opens and maintains numerous 'half-http' connections until the 
-webserver runs out of ressources, leading to a denial of service.
-When the DoS condition is met the script then stops the attack and returns 
-the payload datas as they could be usefull to tweak further filtering rules:
-- Time taken until DoS
-- Number of sockets used
-- Number of queries sent
+Slowloris was described at Defcon 17 by RSnake
+(see http://ha.ckers.org/slowloris/).
+
+This script opens and maintains numerous 'half-HTTP' connections until
+the server runs out of ressources, leading to a denial of service. When
+a successful DoS is detected, the script stops the attack and returns
+these pieces of information (which may be useful to tweak further
+filtering rules):
+* Time taken until DoS
+* Number of sockets used
+* Number of queries sent
 By default the script runs for 30 minutes if DoS is not achieved. 
 
-Please note that the number of concurrent connexions must be defined with the
-<code>--max-parallelism</code> option (default is 20, suggested is 400 or more)
-Also, be advised that in some cases this attack can bring the whole webserver
-definitively down, and not just while the attack holds the ressources
-(ie: stopping the attack will not bring the server up again).
+Please note that the number of concurrent connexions must be defined
+with the <code>--max-parallelism</code> option (default is 20, suggested
+is 400 or more) Also, be advised that in some cases this attack can
+bring the web server down for good, not only while the attack is
+running.
 
-Also, due to Windows limitations, the attack is unlikely to work 
-when ran from a Windows machine.
-
+Also, due to OS limitations, the script is unlikely to work 
+when run from Windows.
 ]]
 
 ---
