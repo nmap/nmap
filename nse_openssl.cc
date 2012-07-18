@@ -5,17 +5,17 @@
  * bignum and rand_bytes functions added by Sven Klemm <sven@c3d2.de>
  */
 
-#include <openssl/crypto.h>
 #include <openssl/bn.h>
-#include <openssl/rand.h>
+#include <openssl/crypto.h>
+#include <openssl/des.h>
+#include <openssl/err.h>
+#include <openssl/evp.h>
+#include <openssl/hmac.h>
 #include <openssl/md4.h>
 #include <openssl/md5.h>
-#include <openssl/sha.h>
+#include <openssl/rand.h>
 #include <openssl/ripemd.h>
-#include <openssl/hmac.h>
-#include <openssl/des.h>
-#include <openssl/evp.h>
-#include <openssl/err.h>
+#include <openssl/sha.h>
 
 extern "C" {
   #include "lua.h"
