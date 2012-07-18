@@ -1,4 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Added protocol specific payloads for IPv6 hop-by-hop (0x00), routing (0x2b),
+fragment (0x2c), and destination (0x3c). [Sean Rivera] 
 
 o [NSE] Added http-slowloris script which performes a slowloris DoS attack
   against a Web server and reports if it's vulnerable or not. [Aleksandar Nikolic]
