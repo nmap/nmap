@@ -187,7 +187,7 @@ o Implement some improvements to dns-ip6-arpa.nse, as describe at
   inaccuracy (missed hosts) by flooding the network.
 
 o [NPING] Nping should probably give you an error or warning when you
-  do: "nmap -p80 google.com" since it is ignoring the port specifier.
+  do: "nping -p80 google.com" since it is ignoring the port specifier.
   The user probably wants to add --tcp.
 
 o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
