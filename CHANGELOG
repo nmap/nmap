@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] lltd-discovery scripts now parses for hostnames and outputs network
+  card manufacturer. [Hani Benhabiles]
+
 o [NSE] Complete change to sip-enum-users script which now uses brute.lua for
   enumeration and supports iterating over custom username lists and numeric
   ranges. [Hani Benhabiles]

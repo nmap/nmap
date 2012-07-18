@@ -1,3 +1,4 @@
+local datafiles = require "datafiles"
 local bin = require "bin"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
@@ -24,12 +25,20 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 --
 -- @output
 -- | lltd-discovery: 
--- |   IP: 192.168.56.101    MAC: 08:00:27:cc:fe:36  IPv6: fe80:0000:0000:0000:c152:9853:f921:9b82
--- |   IP: 192.168.56.102    MAC: 08:00:27:11:04:a9  IPv6: fe80:0000:0000:0000:a5cb:ae6f:1b5f:0595
+-- |   192.168.1.64
+-- |     Hostname: acer-PC
+-- |     Mac: 18:f4:6a:4f:de:a2 (Hon Hai Precision Ind. Co.)
+-- |     IPv6: fe80:0000:0000:0000:0000:0000:c0a8:0134
+-- |   192.168.1.33
+-- |     Hostname: winxp-2b2955502
+-- |     Mac: 08:00:27:79:fd:d2 (Cadmus Computer Systems)
+-- |   192.168.1.22
+-- |     Hostname: core
+-- |     Mac: 08:00:27:57:30:7f (Cadmus Computer Systems)
 -- |_  Use the newtargets script-arg to add the results as targets
 --
 
-author = "Gorjan Petrovski"
+author = "Gorjan Petrovski, Hani Benhabiles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"broadcast","discovery","safe"}
 
@@ -50,6 +59,28 @@ prerule = function()
 	end
 	
 	return true
+end
+
+--- Converts a 6 byte string into the familiar MAC address formatting
+-- @param mac string containing the MAC address
+-- @return formatted string suitable for printing
+local function get_mac_addr( mac )
+	local catch = function() return end
+	local try = nmap.new_try(catch)
+	-- Build the MAC prefix lookup table
+	if not nmap.registry.lltd_discovery then
+		-- Create the table in the registry so we can share between script instances
+		nmap.registry.lltd_discovery = {}
+		nmap.registry.lltd_discovery.mac_prefixes = try(datafiles.parse_mac_prefixes())
+	end
+	
+	if mac:len() ~= 6 then
+		return "Unknown"
+	else
+		local prefix = string.upper(string.format("%02x%02x%02x", mac:byte(1), mac:byte(2), mac:byte(3)))
+		local manuf = nmap.registry.lltd_discovery.mac_prefixes[prefix] or "Unknown"
+		return string.format("%02x:%02x:%02x:%02x:%02x:%02x (%s)", mac:byte(1), mac:byte(2), mac:byte(3), mac:byte(4), mac:byte(5), mac:byte(6), manuf )
+	end
 end
 
 --- Gets a raw ethernet buffer with LLTD information and returns the responding host's IP and MAC
@@ -76,6 +107,7 @@ local parseHello = function(data)
 	local mac = nil
 	local ipv4 = nil
 	local ipv6 = nil
+	local hostname = nil
 	
 	local pos = 1
 	pos = pos + 6
@@ -105,8 +137,7 @@ local parseHello = function(data)
 			
 			if t == 0x01 then 
 				-- Host ID (MAC Address)
-				mac = string.format( "%02x:%02x:%02x:%02x:%02x:%02x", v:byte(1), v:byte(2), v:byte(3),
-					v:byte(4), v:byte(5), v:byte(6) )
+				mac = get_mac_addr(v:sub(1,6))
 			elseif t == 0x08 then
 				ipv6 = string.format(
 					"%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
@@ -117,23 +148,31 @@ local parseHello = function(data)
 			elseif t == 0x07 then
 				-- IPv4 address
 				ipv4 = string.format("%d.%d.%d.%d",v:byte(1),v:byte(2),v:byte(3),v:byte(4)), mac
+
+			-- Machine Name (Hostname)
+			elseif t == 0x0f then
+			    hostname = ''
+			    -- Hostname is returned in unicode, but Lua doesn't support that,
+			    -- so we skip 00 values.
+			    for i=1, #v-1, 2 do
+				hostname = hostname .. string.char(v:byte(i))
+			    end
 			end
 
 			p = p + l
 
-			if ipv4 and ipv6 and mac then
+			if ipv4 and ipv6 and mac and hostname then
 				break
 			end
 		end	
 	end
 	 
-	return ipv4, mac, ipv6 
+	return ipv4, mac, ipv6, hostname 
 end
 
 --- Creates an LLTD Quick Discovery packet with the source MAC address
 -- @param mac_src - six byte long binary string
 local QuickDiscoveryPacket = function(mac_src)
-	local quick_discovery
 	local ethernet_hdr, demultiplex_hdr, base_hdr, discover_up_lev_hdr
 
 	-- set up ethernet header = [ mac_dst, mac_src, protocol ]
@@ -163,11 +202,8 @@ local QuickDiscoveryPacket = function(mac_src)
 	
 	discover_up_lev_hdr = bin.pack("AHH", generation_number, number_of_stations, station_list)
 
-	-- put them all together
-	
-	quick_discovery = bin.pack("AAAA", ethernet_hdr, demultiplex_hdr, base_hdr, discover_up_lev_hdr)
-	
-	return quick_discovery
+	-- put them all together and return
+	return bin.pack("AAAA", ethernet_hdr, demultiplex_hdr, base_hdr, discover_up_lev_hdr)
 end
 
 --- Runs a thread which discovers LLTD Responders on a certain interface
@@ -180,7 +216,7 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 	local dnet = nmap.new_dnet()
 	local try = nmap.new_try(function() dnet:ethernet_close() pcap:close() end)
 	
-	pcap:pcap_open(if_table.device, 104, false, "")
+	pcap:pcap_open(if_table.device, 256, false, "")
 	try(dnet:ethernet_open(if_table.device))
 
 	local packet = QuickDiscoveryPacket(if_table.mac)
@@ -197,11 +233,12 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 			if stdnse.tohex(packet:sub(13,14)) == "88d9" then
 				start_s = os.time()
 				
-				local ipv4, mac, ipv6 = parseHello(packet)
+				local ipv4, mac, ipv6, hostname = parseHello(packet)
 				
 				if ipv4 then
 					if not lltd_responders[ipv4] then
 						lltd_responders[ipv4] = {}
+						lltd_responders[ipv4].hostname = hostname
 						lltd_responders[ipv4].mac = mac
 						lltd_responders[ipv4].ipv6 = ipv6
 					end
@@ -284,27 +321,25 @@ action = function()
 	
 	-- generate output
 	local output = {}
-	if target.ALLOW_NEW_TARGETS then
-		for ip_addr, info in pairs(lltd_responders) do
-			target.add(ip_addr)
-			local s = "IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..info.mac
-			if info.ipv6 then	
-				s = s.." IPv6: ".. info.ipv6
-			end
-			table.insert(output,s)
-		end
-	else
-		for ip_addr, info in pairs(lltd_responders) do
-			local s ="IP: "..ip_addr..string.rep(" ",15-#ip_addr).."   MAC: "..info.mac
-			if info.ipv6 then	
-				s = s .. "  IPv6: ".. info.ipv6
-			end
-			table.insert(output,s)
-		end
-		if #output>0 then
-			table.insert(output,"Use the newtargets script-arg to add the results as targets")
-		end
+	for ip_addr, info in pairs(lltd_responders) do
+	    if target.ALLOW_NEW_TARGETS then target.add(ip_addr) end
+
+	    local s = {}
+	    s.name = ip_addr
+	    if info.hostname then	
+		table.insert(s, "Hostname: " .. info.hostname)
+	    end
+	    if info.mac then	
+		table.insert(s, "Mac: " .. info.mac)
+	    end
+	    if info.ipv6 then	
+		table.insert(s, "IPv6: " .. info.ipv6)
+	    end
+	    table.insert(output,s)
 	end
-	
+
+	if #output>0 and not target.ALLOW_NEW_TARGETS then
+	    table.insert(output,"Use the newtargets script-arg to add the results as targets")
+	end
 	return stdnse.format_output( (#output>0), output )
 end
