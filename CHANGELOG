@@ -46,7 +46,7 @@ o [NSE] Added sip-methods script which enumerates a SIP server's allowed
 o [NSE] Added sip-call-spoof script which spoofs a call to a SIP phone and
   detects the action taken by the target. [Hani Benhabiles]
 
-o [NSOCK] Modified multiple scripts that operated against HTTP based services
+o [NSE] Modified multiple scripts that operated against HTTP based services
   so as to remove false positives that were generated when the target service 
   answers with a 200 response to all requests. [Tom Sellers]
 
