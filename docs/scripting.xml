@@ -1173,7 +1173,13 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 <para>The Nmap license is similar to the GNU GPL.  Script authors may
 use a BSD-style license (no advertising clause) instead if they prefer
-that.</para>
+that.  For a BSD-style license, please include this line:
+
+<programlisting>
+license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
+</programlisting>
+
+</para>
 
     </sect2>
 
