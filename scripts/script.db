@@ -149,7 +149,7 @@ Entry { filename = "http-gitweb-projects-enum.nse", categories = { "discovery", 
 Entry { filename = "http-google-malware.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "http-grep.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
-Entry { filename = "http-huawei-hg5xx-vuln.nse", categories = { "exploit", "version", "vuln", } }
+Entry { filename = "http-huawei-hg5xx-vuln.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-icloud-findmyiphone.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-icloud-sendmsg.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
