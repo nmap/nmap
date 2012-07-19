@@ -14,6 +14,7 @@
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 #include <openssl/rand.h>
+#include <openssl/rc4.h>
 #include <openssl/ripemd.h>
 #include <openssl/sha.h>
 
@@ -472,6 +473,38 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
   return 1;
 }
 
+static int l_rc4_options (lua_State *L)
+{
+  lua_pushstring(L, RC4_options());
+  return 1;
+}
+
+static int l_rc4_encrypt (lua_State *L)
+{
+  RC4_KEY *key = (RC4_KEY *) lua_touserdata(L, lua_upvalueindex(1));
+  size_t len;
+  const char *indata = luaL_checklstring(L, 1, &len);
+  unsigned char *outdata = (unsigned char *) lua_newuserdata(L, sizeof(unsigned char)*len);
+
+  RC4(key, len, (const unsigned char *)indata, outdata);
+  lua_pushlstring(L, (const char *)outdata, len);
+
+  return 1;
+}
+
+static int l_rc4 (lua_State *L)
+{
+  size_t len;
+  const char *data = luaL_checklstring(L, 1, &len);
+
+  lua_newuserdata(L, sizeof(RC4_KEY));
+  RC4_set_key((RC4_KEY *)lua_touserdata(L, -1), (int)len, (const unsigned char *)data);
+
+  lua_pushcclosure(L, l_rc4_encrypt, 1);
+
+  return 1;
+}
+
 static const struct luaL_Reg bignum_methods[] = {
   { "num_bits", l_bignum_num_bits },
   { "num_bytes", l_bignum_num_bytes },
@@ -515,6 +548,8 @@ static const struct luaL_Reg openssllib[] = {
   { "DES_string_to_key", l_DES_string_to_key },
   { "supported_digests", l_supported_digests },
   { "supported_ciphers", l_supported_ciphers },
+  { "rc4_options", l_rc4_options },
+  { "rc4", l_rc4 },
   { NULL, NULL }
 };
 

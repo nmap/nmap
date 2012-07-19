@@ -177,3 +177,12 @@ function supported_digests()
 -- @param data A 7-byte string.
 -- @return An 8-byte string.
 function DES_string_to_key(data)
+
+--- Returns options for RC4.
+-- @return Option string.
+function rc4_options()
+
+--- Function which generates an RC4 cipher function with the given key.
+-- @param key_data The key for the cipher.
+-- @return A function which performs the RC4 stream cipher on an input string and returns the result.
+function rc4(key_data)
