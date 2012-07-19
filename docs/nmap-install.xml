@@ -1334,6 +1334,14 @@ $ <userinput>gcc -print-prog-name=as</userinput>
 </screen>
 
 <para>
+If you see the output <computeroutput>/usr/bin/as</computeroutput>, then
+you must disable the system <filename>as</filename> with a command like
+<command>mv /usr/bin/as /usr/bin/as.backup</command>. If you see the
+output <computeroutput>as</computeroutput>, then no other changes should
+be required.
+</para>
+
+<para>
 Now follow the instructions in <xref linkend="inst-source"/>.
 </para>
 </sect2>
