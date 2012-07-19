@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-get by Alex Weber. This script looks for a .git
+  repository directory accesible over HTTP and extracts useful
+  information from it.
+
 o [NSE] Fixed some bugs in snmp-interfaces which prevented the script from
   outputting discovered interface info and caused it to abort in the
   pre-scanning phase. [jah]

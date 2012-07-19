@@ -145,6 +145,7 @@ Entry { filename = "http-form-brute.nse", categories = { "brute", "intrusive", }
 Entry { filename = "http-form-fuzzer.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "http-frontpage-login.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-generator.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-git.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "http-gitweb-projects-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-google-malware.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "http-grep.nse", categories = { "discovery", "safe", } }
