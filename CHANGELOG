@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed some bugs in snmp-interfaces which prevented the script from
+  outputting discovered interface info and caused it to abort in the
+  pre-scanning phase. [jah]
+
 o [NSE] lltd-discovery scripts now parses for hostnames and outputs network
   card manufacturer. [Hani Benhabiles]
 
