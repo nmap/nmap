@@ -1,6 +1,7 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local http = require "http"
+local comm = require "comm"
 
 description = [[
 Tests a web server for vulnerability to the Slowloris DoS attack.
@@ -80,9 +81,9 @@ local doHalfhttp = function(host,port,obj)
 	end
 	
 	-- create socket
-	local slowloris = nmap.new_socket()
+	local opts = {timeout=200 * 1000}
+	local slowloris , line, best_opt = comm.tryssl(host,port,"GET / \r\n\r\n",opts)
 	thread_count = thread_count + 1 
-	slowloris:set_timeout(200 * 1000) -- set a long timeout so our socked doesn't timeout while it's waiting
 	local catch = function()
 		-- this connection is now dead
 		thread_count = thread_count - 1
@@ -93,7 +94,7 @@ local doHalfhttp = function(host,port,obj)
 	end
  
 	local try = nmap.new_try(catch)
-	try(slowloris:connect(host.ip, port))
+	try(slowloris:connect(host.ip, port,best_opt))
 
 	-- Build a half-http header.
 	local half_http =   "POST /"..get_uri.." HTTP/1.1\r\n"
@@ -134,18 +135,20 @@ local doMonitor = function(host,port)
 	stdnse.print_debug("MONITOR: Monitoring " ..host.ip.. " started")
 	local request = "GET / HTTP/1.1\r\nHost: "..host.ip 
 		  .."\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.503l3; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n\r\n"
-	
+	local monitor, line, bestopt
+
 	local catch = function()
 		stdnse.print_debug("MONITOR: " .. " (monitor on ".. host.ip .. "): Monitoring has shut down due to lack of response from the webserver. Server could be down completly." )
 		monitor:close()
 		request_faults = request_faults +1
 		stop_all = true
 	end
-	
+	local opts = {}
+
 	while not stop_all do
-		monitor = nmap.new_socket()
+		monitor, line, bestopt = comm.tryssl(host,port,"GET / \r\n\r\n",opts) 
 		monitoring = nmap.new_try(catch)
-		monitoring(monitor:connect(host.ip, port))		
+		monitoring(monitor:connect(host.ip, port,bestopt))		
 		monitoring(monitor:send(request))
 		local status, data = monitor:receive_lines(1)
 		if not status then
