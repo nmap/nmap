@@ -160,7 +160,6 @@ function action(host, port)
       -- indicate the access method - I know about SSH, HTTP, and Smart HTTP
       local access1, access2, reponame = string.match(
         config, "([@/])"..url.."([:/])([%w._-]+/?[%w._-]+)[%s$]")
-      ap(config)
       if reponame then
         -- Try and cut off the '.git' extension
         reponame = string.match(reponame, "(.+)%.git") or reponame
