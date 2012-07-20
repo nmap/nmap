@@ -1272,6 +1272,7 @@ static void write_xml_initial_hostinfo(Target *currenths,
   xml_open_start_tag("status");
   xml_attribute("state", "%s", status);
   xml_attribute("reason", "%s", reason_str(currenths->reason.reason_id, SINGULAR));
+  xml_attribute("reason_ttl", "%d", currenths->reason.ttl);
   xml_close_empty_tag();
   xml_newline();
   xml_open_start_tag("address");
