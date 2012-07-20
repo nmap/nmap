@@ -106,9 +106,15 @@ def get_locales():
         if val:
             locales = val.split(":")
             break
-    loc, enc = locale.getdefaultlocale()
-    if loc is not None:
-        locales.append(loc)
+    try:
+        loc, enc = locale.getdefaultlocale()
+        if loc is not None:
+            locales.append(loc)
+    except ValueError:
+        # locale.getdefaultlocale can fail with ValueError on certain locale
+        # names; it has been seen with at least en_NG.
+        # http://bugs.python.org/issue6895
+        pass
     return locales
 
 def install_gettext(locale_dir):
