@@ -389,7 +389,7 @@ class FPHost {
   struct timeval begin_time;
 
   FPHost();
-  ~FPHost();
+  virtual ~FPHost();
   virtual bool done() = 0;
   virtual int schedule() = 0;
   virtual int callback(const u8 *pkt, size_t pkt_len, const struct timeval *tv) = 0;
