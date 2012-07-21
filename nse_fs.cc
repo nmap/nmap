@@ -36,32 +36,6 @@
 
 #define _LARGEFILE64_SOURCE
 
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/stat.h>
-
-#ifdef _WIN32
-#include <direct.h>
-#include <windows.h>
-#include <io.h>
-#include <sys/locking.h>
-#ifdef __BORLANDC__
- #include <utime.h>
-#else
- #include <sys/utime.h>
-#endif
-#include <fcntl.h>
-#else
-#include <unistd.h>
-#include <dirent.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <utime.h>
-#endif
-
 extern "C" {
   #include "lauxlib.h"
   #include "lua.h"
@@ -73,7 +47,20 @@ extern "C" {
 #include "nmap_error.h"
 #include "NmapOps.h"
 
+#ifdef _WIN32
+#include <direct.h>
+#include <sys/utime.h>
+#else
+#include <dirent.h>
+#include <utime.h>
+#endif
+
+#include <errno.h>
+#include <string.h>
+
 #include <string>
+
+#define DIR_METATABLE "directory metatable"
 
 #ifndef MAX_PATH
 #define MAX_PATH 2048
@@ -93,7 +80,6 @@ extern "C" {
 #define strerror(_)  "System unable to describe the error"
 #endif
 
-#define DIR_METATABLE "directory metatable"
 typedef struct dir_data {
   int  closed;
 #ifdef _WIN32
