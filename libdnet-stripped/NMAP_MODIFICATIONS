@@ -1096,3 +1096,32 @@ Index: libdnet-stripped/src/addr.c
  		a->addr_type = ADDR_TYPE_ETH;
  		a->addr_bits = ETH_ADDR_BITS;
  		memcpy(&a->addr_eth, sa->sa_data, ETH_ADDR_LEN);
+
+o Added addr_ston support for ARPHRD_VOID devices.
+
+diff --git libdnet-stripped/include/dnet/arp.h libdnet-stripped/include/dnet/arp.h
+index 2f3d0bf..ec020b4 100644
+--- libdnet-stripped/include/dnet/arp.h
++++ libdnet-stripped/include/dnet/arp.h
+@@ -40,6 +40,7 @@ struct arp_hdr {
+ #define ARP_HRD_IEEE802	0x0006	/* IEEE 802 hardware */
+ 
+ #define ARP_HRD_IEEE80211_RADIOTAP 0x0323  /* IEEE 802.11 + radiotap header */
++#define ARP_HRD_VOID 0xFFFF			/* Void type, nothing is known */
+ 
+ /*
+  * Protocol address format
+diff --git libdnet-stripped/src/addr.c libdnet-stripped/src/addr.c
+index 392d44f..bf3e9e7 100644
+--- libdnet-stripped/src/addr.c
++++ libdnet-stripped/src/addr.c
+@@ -343,6 +343,9 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
+ 		a->addr_bits = IP_ADDR_BITS;
+ 		a->addr_ip = so->sin.sin_addr.s_addr;
+ 		break;
++	case ARP_HRD_VOID:
++		memset(&a->addr_eth, 0, ETH_ADDR_LEN);
++		break;
+ 	default:
+ 		errno = EINVAL;
+ 		return (-1);

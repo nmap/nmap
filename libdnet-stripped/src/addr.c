@@ -343,6 +343,9 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 		a->addr_bits = IP_ADDR_BITS;
 		a->addr_ip = so->sin.sin_addr.s_addr;
 		break;
+	case ARP_HRD_VOID:
+		memset(&a->addr_eth, 0, ETH_ADDR_LEN);
+		break;
 	default:
 		errno = EINVAL;
 		return (-1);

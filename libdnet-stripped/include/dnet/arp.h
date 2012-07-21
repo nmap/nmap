@@ -40,6 +40,7 @@ struct arp_hdr {
 #define ARP_HRD_IEEE802	0x0006	/* IEEE 802 hardware */
 
 #define ARP_HRD_IEEE80211_RADIOTAP 0x0323  /* IEEE 802.11 + radiotap header */
+#define ARP_HRD_VOID 0xFFFF			/* Void type, nothing is known */
 
 /*
  * Protocol address format

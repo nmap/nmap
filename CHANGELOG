@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that prevented Nmap from finding any interfaces when any
+  interface had the type ARPHRD_VOID; this was the case for OpenVZ
+  venet interfaces. [Djalal Harouni, David Fifield]
+
 o [Zenmap] Fixed a crash when using the en_NG locale: "ValueError:
   unknown locale: en_NG" [David Fifield]
 
