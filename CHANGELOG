@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added flume-master-info by John Bond. This script gets info
+  from Apache Flume, which is a log collection service.
+
 o Fixed a bug that prevented Nmap from finding any interfaces when any
   interface had the type ARPHRD_VOID; this was the case for OpenVZ
   venet interfaces. [Djalal Harouni, David Fifield]
