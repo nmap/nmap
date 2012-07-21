@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added rdp library and the script rdp-enum-encryption that enumerates
+  both the Security Layer and Encryption level of the RDP service. [Patrik
+  Karlsson]
+
 o [NSE] Added flume-master-info by John Bond. This script gets info
   from Apache Flume, which is a log collection service.
 

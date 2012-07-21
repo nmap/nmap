@@ -301,6 +301,7 @@ Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "quake3-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "quake3-master-getservers.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "rdp-enum-encryption.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rdp-vuln-ms12-020.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "redis-brute.nse", categories = { "brute", "intrusive", } }
