@@ -282,7 +282,7 @@ o Nscan work [placeholder]
 o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
  o Daniel Miller is working on an implementation:
-   http://seclists.org/nmap-dev/2011/q2/263.
+   https://secwiki.org/w/Nmap/Structured_Script_Output
 
 o [Zenmap] should actually parse and use script results. See
    http://seclists.org/nmap-dev/2010/q1/1108
