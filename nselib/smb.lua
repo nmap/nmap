@@ -628,7 +628,7 @@ end
 --@param command The command to use.
 --@param overrides The overrides table. Keep in mind that overriding things like flags is generally a very bad idea, unless you know what you're doing. 
 --@return A binary string containing the packed packet header. 
-local function smb_encode_header(smb, command, overrides)
+function smb_encode_header(smb, command, overrides)
 	-- Make sure we have an overrides array
 	overrides = overrides or {}
 

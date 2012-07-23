@@ -343,6 +343,7 @@ Entry { filename = "smb-psexec.nse", categories = { "intrusive", } }
 Entry { filename = "smb-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-system-info.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "smb-vuln-ms10-054.nse", categories = { "dos", "intrusive", "vuln", } }
 Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
 Entry { filename = "smtp-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
