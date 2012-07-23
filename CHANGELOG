@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added smb-vuln-ms10-054 script which chech the target system for MS10-054
+o [NSE] Added smb-vuln-ms10-054 script which check the target system for MS10-054
   vulnerability in SMB. [Aleksandar] 
 
 o [NSE] Added rdp library and the script rdp-enum-encryption that enumerates
