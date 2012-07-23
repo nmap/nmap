@@ -90,9 +90,11 @@
 -- A value of the empty string disables sending the User-Agent header field.
 --
 -- @args http.pipeline If set, it represents the number of HTTP requests that'll be
--- pipelined (ie, sent in a single request). This can be set low to make
--- debugging easier, or it can be set high to test how a server reacts (its
--- chosen max is ignored).
+-- sent on one connection. This can be set low to make debugging easier, or it 
+-- can be set high to test how a server reacts (its chosen max is ignored).
+-- @args http.max-pipeline If set, it represents the number of outstanding  HTTP requests
+-- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
+-- <code>getPipelineMax</code> function returns.
 --
 -- TODO
 -- Implement cache system for http pipelines
@@ -1624,14 +1626,16 @@ function pipeline_go(host, port, all_requests)
 
   table.insert(responses, response)
 
-  local limit = getPipelineMax(response)
+  local limit = getPipelineMax(response) -- how many requests to send on one connection
+  limit = limit > #all_requests and #all_requests or limit
+  local max_pipeline = stdnse.get_script_args("http.max-pipeline") or limit -- how many requests should be pipelined
   local count = 1
   stdnse.print_debug(1, "Number of requests allowed by pipeline: " .. limit)
 
   while #responses < #all_requests do
     local j, batch_end
-    -- we build a big string with many requests, upper limited by the var "limit"
-    local requests = ""
+    -- we build a table with many requests, upper limited by the var "limit"
+    local requests = {}
 
     if #responses + limit < #all_requests then
       batch_end = #responses + limit
@@ -1644,27 +1648,57 @@ function pipeline_go(host, port, all_requests)
       if j == batch_end then
         all_requests[j].options.header["Connection"] = "close"
       end
-
-      requests = requests .. build_request(host, port, all_requests[j].method, all_requests[j].path, all_requests[j].options)
+      if j~= batch_end and all_requests[j].options.header["Connection"] ~= 'keep-alive' then
+        all_requests[j].options.header["Connection"] = 'keep-alive'
+      end
+      table.insert(requests, build_request(host, port, all_requests[j].method, all_requests[j].path, all_requests[j].options))
+      -- to avoid calling build_request more then one time on the same request,
+      -- we might want to build all the requests once, above the main while loop
       j = j + 1
     end
 
-    -- Connect to host and send all the requests at once!
     if count >= limit or not socket:get_info() then
       socket:connect(host, port, bopt)
       partial = ""
       count = 0
     end
     socket:set_timeout(10000)
-    socket:send(requests)
-
-    while #responses < #all_requests do
-      response, partial = next_response(socket, all_requests[#responses + 1].method, partial)
-      if not response then
-        break
+    
+    local start = 1
+    local len = #requests
+    local req_sent = 0
+    -- start sending the requests and pipeline them in batches of max_pipeline elements
+    while start <= len do
+      stdnse.print_debug(2, "HTTP pipeline: number of requests in current batch: %d, already sent: %d, responses from current batch: %d, all responses received: %d",len,start-1,count,#responses)
+      local req = {}
+      if max_pipeline == limit then
+        req = requests
+      else
+        for i=start,start+max_pipeline-1,1 do
+          table.insert(req, requests[i])
+        end
       end
-      count = count + 1
-      responses[#responses + 1] = response
+      local num_req = #req
+      req = table.concat(req, "")
+      start = start + max_pipeline
+      socket:send(req)
+      req_sent = req_sent + num_req
+      local inner_count = 0
+      local fail = false
+      -- collect responses for the last batch
+      while inner_count < num_req and #responses < #all_requests do
+        response, partial = next_response(socket, all_requests[#responses + 1].method, partial)
+        if not response then
+          stdnse.print_debug("HTTP pipeline: there was a problem while receiving responses.")
+          stdnse.print_debug(3, "The request was:\n%s",req)
+          fail = true
+          break
+        end
+        count = count + 1
+        inner_count = inner_count + 1
+        responses[#responses + 1] = response
+      end
+      if fail then break end
     end
 
     socket:close()
@@ -1672,8 +1706,8 @@ function pipeline_go(host, port, all_requests)
     if count == 0 then
       stdnse.print_debug("Received 0 of %d expected responses.\nGiving up on pipeline.", limit);
       break
-    elseif count < limit then
-      stdnse.print_debug("Received only %d of %d expected responses.\nDecreasing max pipelined requests to %d.", count, limit, count)
+    elseif count < req_sent then
+      stdnse.print_debug("Received only %d of %d expected responses.\nDecreasing max pipelined requests to %d.", count, req_sent, count)
       limit = count
     end
   end
