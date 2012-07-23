@@ -91,7 +91,7 @@ action = function(host, port)
 		local matches = {}
 		local body = r.response.body
 		-- try to match the url and body
-		if ( body:match( match ) or tostring(r.url):match(match) ) then
+		if body and ( body:match( match ) or tostring(r.url):match(match) ) then
 			local count = select(2, body:gsub(match, match))
 			for match in body:gmatch(match) do
 				table.insert(matches, "+ " .. shortenMatch(match))

@@ -67,9 +67,11 @@ function action(host, port)
 		end
 		
 		-- Collect each e-mail address and build a unique index of them
-   		for email in r.response.body:gmatch(EMAIL_PATTERN) do
-      		emails[email] = true
-		end
+    if r.response.body then
+      for email in r.response.body:gmatch(EMAIL_PATTERN) do
+        emails[email] = true
+      end
+    end
 	end
 
 	-- if no email addresses were collected abort

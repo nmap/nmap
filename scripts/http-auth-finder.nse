@@ -100,7 +100,7 @@ action = function(host, port)
 			end
 			nmap.registry.auth_urls[r.url] = "HTTP"
 		-- FORM-based authentication
-		else
+		elseif r.response.body then
 			-- attempt to detect a password input form field
 			if ( r.response.body:match("<[Ii][Nn][Pp][Uu][Tt].-[Tt][Yy][Pp][Ee]%s*=\"*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]") ) then
 				tab.addrow(auth_urls, r.url, "FORM")

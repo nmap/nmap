@@ -66,7 +66,7 @@ local function getReflected(parsed, r)
 	local q = url.parse_query(parsed.query)
 	-- Check the values (and keys) and see if they are reflected in the page
 	for k,v in pairs(q) do
-		if r.response.body:find(v, 1, true) then
+		if r.response.body and r.response.body:find(v, 1, true) then
 			dbg("Reflected content %s=%s", k,v)
 			reflected_values[k] = v
 			count = count +1

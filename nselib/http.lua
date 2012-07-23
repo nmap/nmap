@@ -1795,6 +1795,7 @@ end
 -- @return A list of forms.
 function grab_forms(body)
   local forms = {}
+  if not body then return forms end
   local form_start_expr = '<%s*[Ff][Oo][Rr][Mm]'
   local form_end_expr = '</%s*[Ff][Oo][Rr][Mm]>'
   
