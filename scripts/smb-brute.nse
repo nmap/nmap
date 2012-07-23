@@ -530,13 +530,13 @@ local function bad_lockout_policy(host)
 
 	local status, result = msrpc.get_domains(host)
 	if(not(status)) then
-		stdnse.print_debug(1, "smb-brute: Couldn't detect lockout policy: %s\n", result)
+		stdnse.print_debug(1, "smb-brute: Couldn't detect lockout policy: %s", result)
 		return false, "Couldn't retrieve lockout policy: " .. result
 	end
 
 	for domain, data in pairs(result) do
 		if(data and data.lockout_threshold) then
-			stdnse.print_debug(1, "smb-brute: Server's lockout policy: lock out after %d attempts\n", data.lockout_threshold)
+			stdnse.print_debug(1, "smb-brute: Server's lockout policy: lock out after %d attempts", data.lockout_threshold)
 			return true, true
 		end
 	end
