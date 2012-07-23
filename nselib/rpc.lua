@@ -337,7 +337,7 @@ Comm = {
       status, tmp = self:GetAdditionalBytes( data, pos, HEADER_LEN - ( data:len() - pos ) )
       if not status then
         stdnse.print_debug(4,
-            string.format("Comm.ReceivePacket: failed to call GetAdditionalBytes"))
+            string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
         return -1, nil
       end
       data = data .. tmp
@@ -357,7 +357,7 @@ Comm = {
       status, data = self:GetAdditionalBytes( data, pos, header.verifier.length - 8 )
       if not status then
         stdnse.print_debug(4,
-            string.format("Comm.ReceivePacket: failed to call GetAdditionalBytes"))
+            string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
         return -1, nil
       end
       pos, header.verifier.data = bin.unpack("A" .. header.verifier.length - 8, data, pos )
