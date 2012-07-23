@@ -120,6 +120,10 @@ o Update more web content in real time (or near real-time, or at least
   o Maybe Nmap book building
   o Maybe the generated files in nmap.org/data/
 
+o If it is trivial to add, it would be nice if the "New VA Module
+  Alert Service" also gave the Author field for NSE scripts so everyone
+  knows which hero(es) wrote it.
+
 o [INFRASTRUCTURE] Improve our main web server http configuration to
   better handle high load situations and DoS attacks.  As part of
   this, we may have to raise the max client limits.  But then there is
