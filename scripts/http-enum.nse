@@ -373,14 +373,24 @@ action = function(host, port)
 			basepath = '/' .. basepath
 		end
 	end
-
+  
+  local results_nopipeline = {}
 	-- Loop through the fingerprints
 	stdnse.print_debug(1, "http-enum: Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
 	for i = 1, #fingerprints, 1 do
 		-- Add each path. The order very much matters here. 
 		for j = 1, #fingerprints[i].probes, 1 do
-			all = http.pipeline_add(basepath .. fingerprints[i].probes[j].path, nil, all, fingerprints[i].probes[j].method or 'GET')
-		end
+      if fingerprints[i].probes[j].nopipeline then
+        local res = http.generic_request(host, port, fingerprints[i].probes[j].method or 'GET', basepath .. fingerprints[i].probes[j].path, nil)
+        if res.status then
+          table.insert(results_nopipeline, res)
+        else
+          table.insert(results_nopipeline, false)
+        end
+      else
+        all = http.pipeline_add(basepath .. fingerprints[i].probes[j].path, nil, all, fingerprints[i].probes[j].method or 'GET')
+      end
+    end
 	end
 
 	-- Perform all the requests. 
@@ -394,14 +404,20 @@ action = function(host, port)
 
 	-- Loop through the fingerprints. Note that for each fingerprint, we may have multiple results
 	local j = 1
+  local j_nopipeline = 1
 	for i, fingerprint in ipairs(fingerprints) do
 
 		-- Loop through the paths for each fingerprint in the same order we did the requests. Each of these will
 		-- have one result, so increment the result value at each iteration
 		for _, probe in ipairs(fingerprint.probes) do
-			local result = results[j]
-			j = j + 1
-
+      local result
+      if probe.nopipeline then
+        result = results_nopipeline[j_nopipeline]
+        j_nopipeline = j_nopipeline + 1
+      else
+        result = results[j]
+        j = j + 1
+      end
 			if(result) then
 				local path = basepath .. probe['path']
 				local good = true
