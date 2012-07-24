@@ -1883,7 +1883,7 @@ dmispd		805306368	# Sun Solstice Enterprise DMI Service Provider
 sql_disp	805310465	# GNU SQL Server
 rdict		805898569	# "Internetworking with TCP/IP Vol 3"
 piktc_svc	806422610	# PIKT: Problem Informant/Killer Tool
-		822084608	# OLD - Inter-Language Unification (ILU)
+ilu		822084608	# OLD - Inter-Language Unification (ILU)
 #
 # LIGO Global Diagnostics System (GDS) - Diagnostics Test Tool (DTT)
 #
