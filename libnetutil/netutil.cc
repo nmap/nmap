@@ -3093,6 +3093,10 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
     netutil_fatal("%s: wrong size reply in recvmsg", __func__);
   len -= NLMSG_LENGTH(sizeof(*nlmsg));
 
+  /* See rtnetlink(7). Anything matching this route is actually unroutable. */
+  if (rtmsg->rtm_type == RTN_UNREACHABLE)
+    return 0;
+
   /* Default values to be possibly overridden. */
   rnfo->direct_connect = 1;
   rnfo->nexthop.ss_family = AF_UNSPEC;
