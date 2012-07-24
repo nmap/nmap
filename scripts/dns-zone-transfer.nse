@@ -431,7 +431,7 @@ local RD = {
   end,
   DNAME = parse_domain,
   SINK = function(data, offset) -- http://bgp.potaroo.net/ietf/all-ids/draft-eastlake-kitchen-sink-02.txt
-    local coding, subcoding
+    local coding, subcoding, field
     coding = string.byte(data, offset)
     subcoding = string.byte(data, offset+1)
     offset, field = bin.unpack("A" .. (bto16(data, offset-2)-2), data, offset+2)

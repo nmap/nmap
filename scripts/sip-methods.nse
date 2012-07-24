@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local shortport = require "shortport"
 local sip = require "sip"
 local stdnse = require "stdnse"

@@ -49,6 +49,8 @@ local shortport = require 'shortport'
 local url = require 'url'
 local stdnse = require 'stdnse'
 local vulns = require 'vulns'
+local string = require 'string'
+local table = require 'table'
 
 portrule = shortport.http
 

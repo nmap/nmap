@@ -6,6 +6,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local unpwdb = require "unpwdb"
 
 description = [[
 Attempts to guess the name of the CVS repositories hosted on the remote server.
@@ -104,7 +105,7 @@ action = function(host, port)
 		end
 	end
 
-	repository_iterator = function()
+	local function repository_iterator()
 		local function next_repo()
 			for line in f:lines() do
 				if ( not(line:match("#!comment")) ) then

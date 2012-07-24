@@ -8,6 +8,7 @@
 --
 
 local bin = require("bin")
+local nmap = require("nmap")
 local stdnse = require("stdnse")
 _ENV = stdnse.module("rdp", stdnse.seeall)
 

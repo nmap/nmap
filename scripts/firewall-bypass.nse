@@ -96,6 +96,7 @@ ftp_helper = {
 
 	    -- Until we get adequate packet
             while (nmap.clock_ms() - start) < timeout do
+                local _
                 status, _, l2data, l3data = sniffer:pcap_receive()
                 if status and string.find(l3data, "220 ") then
                     break
@@ -261,7 +262,7 @@ action = function(host, port)
     end
 
     -- Then we check if target port is now open.
-    testsock = nmap.new_socket()
+    local testsock = nmap.new_socket()
     testsock:set_timeout(1000)
     local status, _ = testsock:connect(host.ip, targetport)
     testsock:close()

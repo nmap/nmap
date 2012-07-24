@@ -36,13 +36,13 @@ portrule = shortport.port_or_service(111, {"rpcbind", "mountd"}, {"tcp", "udp"} 
 
 local function get_exports(host, port)
   local mnt = rpc.Mount:new()
-  mnt_comm = rpc.Comm:new('mountd', port.version.rpc_highver)
-  status, result = mnt_comm:Connect(host, port)
+  local mnt_comm = rpc.Comm:new('mountd', port.version.rpc_highver)
+  local status, result = mnt_comm:Connect(host, port)
   if ( not(status) ) then
     stdnse.print_debug(4, "get_exports: %s", result)
     return false, result
   end
-  status, mounts = mnt:Export(mnt_comm)
+  local status, mounts = mnt:Export(mnt_comm)
   mnt_comm:Disconnect()
   if ( not(status) ) then
     stdnse.print_debug(4, "get_exports: %s", mounts)

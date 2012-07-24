@@ -1,3 +1,5 @@
+local nmap = require "nmap"
+local string = require "string"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -131,7 +133,8 @@ local check_npn = function(response)
     end
 
     -- Get the server hello length
-    _, shlength = bin.unpack(">S", response, 4)
+    local _
+		_, shlength = bin.unpack(">S", response, 4)
     local serverhello = string.sub(response, 6, 6 + shlength)
 
     -- If server didn't return TLS NPN extension

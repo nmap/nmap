@@ -1,3 +1,7 @@
+local coroutine = require "coroutine"
+local math = require "math"
+local nmap = require "nmap"
+local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local http = require "http"
@@ -165,7 +169,7 @@ local doMonitor = function(host,port)
 					break 
 				end
 			end
-			status, data = monitor:receive_lines(1)
+			local status, data = monitor:receive_lines(1)
 			if not status then
 				stdnse.print_debug("MONITOR: Didn't get a reply from " .. host.ip  .. "." )
 				monitor:close()
@@ -214,7 +218,6 @@ local worker_schedluer = function(host, port)
 		for thread in pairs(threads) do
 			if coroutine.status(thread) == "dead" then 
 				threads[thread] = nil 
-
 			end
 		end
 		stdnse.print_debug("starting new thread")

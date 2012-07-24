@@ -26,6 +26,8 @@ categories = {"version", "safe"}
 
 local http = require "http"
 local nmap = require "nmap"
+local stdnse = require "stdnse"
+local string = require "string"
 
 portrule = function(host, port)
   if port.version ~= nil and port.version.product ~= nil then

@@ -1,3 +1,4 @@
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -223,7 +224,7 @@ end
 -- write command and read result helper
 local write_read_console = function(host,port,token, console_id,command)
 	if write_console(host,port,token,console_id, command) then 
-		read_data = read_console(host,port,token,console_id)
+		local read_data = read_console(host,port,token,console_id)
 		if read_data then
 			read_data = string.sub(read_data,string.find(read_data,"\n")+1) -- skip command echo
 			return read_data

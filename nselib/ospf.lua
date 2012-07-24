@@ -7,7 +7,11 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
+local bin = require "bin"
+local bit = require "bit"
+local math = require "math"
 local stdnse = require "stdnse"
+local table = require "table"
 local ipOps = require "ipOps"
 local packet = require "packet"
 _ENV = stdnse.module("ospf", stdnse.seeall)
@@ -61,6 +65,7 @@ OSPF = {
 		pos, header.auth_data.password = bin.unpack(">A8", data, pos)
 	    -- MD5 hash authentication
 	    elseif header.auth_type == 0x02 then
+			local _
 		_, header.auth_data.keyid = bin.unpack(">C", data, pos+2)
 		_, header.auth_data.length = bin.unpack(">C", data, pos+3)
 		_, header.auth_data.seq = bin.unpack(">C", data, pos+4)

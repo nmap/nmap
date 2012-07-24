@@ -29,6 +29,9 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 
+local bin = require("bin")
+local nmap = require("nmap")
+local table = require("table")
 local shortport = require("shortport")
 local rdp = require("rdp")
 local stdnse = require("stdnse")
@@ -60,7 +63,7 @@ local function enum_protocols(host, port)
 			return false, "ERROR: Failed to connect to server"
 		end
 		local cr = rdp.Request.ConnectionRequest:new(v)
-		status, response = comm:exch(cr)
+		local status, response = comm:exch(cr)
 		comm:close()
 		if ( not(status) ) then
 			return false, response
@@ -102,7 +105,7 @@ local function enum_ciphers(host, port)
 	local res_ciphers = {}
 	
 	local function get_ordered_ciphers()
-		i = 0
+		local i = 0
 		return function()
 			i = i + 1
 			if ( not(CIPHERS[i]) ) then	return end
@@ -119,7 +122,7 @@ local function enum_ciphers(host, port)
 		end
 	
 		local cr = rdp.Request.ConnectionRequest:new()
-		status, response = comm:exch(cr)
+		local status, response = comm:exch(cr)
 		if ( not(status) ) then
 			break
 		end

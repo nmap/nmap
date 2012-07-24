@@ -1,3 +1,6 @@
+local io = require "io"
+local nmap = require "nmap"
+local string = require "string"
 local shortport = require "shortport"
 local sip = require "sip"
 local stdnse = require "stdnse"
@@ -121,7 +124,7 @@ local useriterator = function(list)
     end
     f = io.open(f)
     if ( not(f) ) then
-	return false, ("\n  ERROR: Failed to open %s"):format(DEFAULT_ACCOUNTS)
+	return false, ("\n  ERROR: Failed to open %s"):format(list)
     end
     return function()
 	for line in f:lines() do
@@ -171,7 +174,7 @@ Driver = {
 	self.session = sip.Session:new(self.host, self.port)
 	local status = self.session:connect()
 	if ( not(status) ) then
-	    return false, brute.Error:new( "Couldn't connect to host: " .. err )
+	    return false, brute.Error:new( "Couldn't connect to host" )
 	end
 	return true
     end,
@@ -247,7 +250,7 @@ action = function(host, port)
 
     local iterator = numiterator(minext, maxext, padding)
     if users then
-	usernames, err = useriterator(usersfile)
+	local usernames, err = useriterator(usersfile)
 	if not usernames then
 	    return err
 	end

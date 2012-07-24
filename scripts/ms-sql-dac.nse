@@ -1,3 +1,4 @@
+local coroutine = require "coroutine"
 local mssql = require "mssql"
 local nmap = require "nmap"
 local stdnse = require "stdnse"

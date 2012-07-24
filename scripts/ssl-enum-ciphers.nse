@@ -917,6 +917,7 @@ local function try_protocol(host, port, protocol, upresults)
 	compressors = find_compressors(host, port, protocol, ciphers[1])
 
   -- Add rankings to ciphers
+	local cipherstr
   for i, name in ipairs(ciphers) do
     if rankedciphersfilename and rankedciphers[name] then
       cipherstr=rankedciphers[name]

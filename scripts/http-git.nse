@@ -20,6 +20,8 @@
 local http = require("http")
 local shortport = require("shortport")
 local stdnse = require("stdnse")
+local string = require("string")
+local table  = require("table")
 
 description = [[
 Checks for a Git repository found in a website's document root (GET /.git/<something> HTTP/1.1)
@@ -155,7 +157,7 @@ function action(host, port)
     -- This function will take a Git hosting service URL or a service
     -- the allows deployment via Git and find out if there is an entry
     -- for it in the configuration file
-    function lookforremote(config, url, service, success_string)
+    local function lookforremote(config, url, service, success_string)
       -- Different combinations of separating characters in the remote can
       -- indicate the access method - I know about SSH, HTTP, and Smart HTTP
       local access1, access2, reponame = string.match(
