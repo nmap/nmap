@@ -352,6 +352,10 @@ Helper = {
 			end
 		end
 		
+		if ( not(result) and not(self.cache) ) then
+			return false, "Server returned no response"
+		end
+		
 		return status, result
 	end,
 	
@@ -359,9 +363,14 @@ Helper = {
 	-- @return status true on success, false on failure
 	-- @return version string containing the server product and version
 	getVersion = function(self)
+		local status, response = false, nil
 		-- check if the server version was cached
 		if ( not(self.cache) or not(self.cache.version) ) then
-			self:getExternalAddress()
+			local status, response = self:getExternalAddress()
+			if ( status ) then
+				return true, (self.cache and self.cache.server or "")
+			end
+			return false, response
 		end
 		return true, (self.cache and self.cache.server or "")
 	end,
