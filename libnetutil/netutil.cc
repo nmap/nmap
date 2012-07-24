@@ -3112,7 +3112,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
     if (rtattr->rta_type == RTA_GATEWAY) {
       rc = set_sockaddr(&rnfo->nexthop, rtmsg->rtm_family, RTA_DATA(rtattr));
       assert(rc != -1);
-      /* Don't consider it directly connected if nexthop == dst. */
+      /* Don't consider it directly connected if nexthop != dst. */
       if (!sockaddr_storage_equal(dst, &rnfo->nexthop))
         rnfo->direct_connect = 0;
     } else if (rtattr->rta_type == RTA_OIF && ii == NULL) {
