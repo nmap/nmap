@@ -4,9 +4,12 @@ local snmp = require "snmp"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local target = require "target"
 
 description = [[
-Attempts to query SNMP for a netstat like output.
+Attempts to query SNMP for a netstat like output. The script can be used to
+identify and automatically add new targets to the scan by supplying the
+newtargets script argument.
 ]]
 
 ---
@@ -29,9 +32,10 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"snmp-brute"}
 
--- Version 0.2
+-- Version 0.3
 -- Created 01/19/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
+-- Revised 07/26/2012 - v0.3 - added newtargets support
 
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
@@ -39,43 +43,60 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 --- Processes the table and creates the script output
 --
 -- @param tbl table containing <code>oid</code> and <code>value</code>
--- @param prefix string containing either "UDP" or "TCP"
 -- @param base_oid string containing the value of the base_oid of the walk
--- @return table suitable for <code>stdnse.format_output</code>
-function process_answer( tbl, prefix, base_oid )
-
-	local new_tab = {}
-
+-- @return table
+local function process_answer( tbl, base_oid )
+	local result = {}
 	for _, v in ipairs( tbl ) do
 		local lip = v.oid:match( "^" .. base_oid .. "%.(%d+%.%d+%.%d+%.%d+)") or ""
 		local lport = v.oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.(%d+)")
 		local fip = v.oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.%d+%.(%d+%.%d+%.%d+%.%d+)") or "*:*"
 		local fport = v.oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.(%d+)")
-		local value
-		
-		if lport and lport ~= "0" then
-			lip = lip .. ":" .. lport
+		local left = (lport and (lip .. ":" .. lport) or lip)
+		local right= (fport and (fip .. ":" .. fport) or fip)
+		if ( right or left ) then
+			table.insert(result, { left = left, right = right })
 		end
-		
-		if fport and fport ~= "0" then
-			fip = fip .. ":" .. fport
-		end
-		
-		
-		value = string.format("%-20s %s", lip, fip )
-		table.insert( new_tab, string.format( "%-4s %s", prefix, value ) )
 	end
-		
-	return new_tab
-	
+	return result
 end
 
-function table_merge( t1, t2 )
+local function format_output(tbl, prefix)
+	local result = {}
+	for _, v in ipairs(tbl)	 do
+		local value = string.format("%-20s %s", v.left, v.right )
+		table.insert( result, string.format( "%-4s %s", prefix, value ) )
+	end
+	return result
+end
+
+local function table_merge( t1, t2 )
 	for _, v in ipairs(t2) do
 		table.insert(t1, v)
 	end
-
 	return t1
+end
+
+local function add_targets(tbl)
+	if ( not(target.ALLOW_NEW_TARGETS) ) then
+		return
+	end
+	
+	-- get a list of local IPs
+	local local_ips = {}
+	for _, v in ipairs(tbl) do
+		local ip = ((v.left and v.left:match("^(.-):")) and v.left:match("^(.-):") or v.left)
+		local_ips[ip] = true
+	end
+
+	-- identify remote IPs
+	local remote_ips = {}
+	for _, v in ipairs(tbl) do
+		local ip = ((v.right and v.right:match("^(.-):")) and v.right:match("^(.-):") or v.right)
+		if ( not(remote_ips[ip]) and not(local_ips[ip]) and ip ~= "*" ) then
+			target.add(ip)
+		end
+	end
 end
 
 action = function(host, port)
@@ -102,8 +123,14 @@ action = function(host, port)
 		return
 	end
 	
-	tcp = process_answer(tcp, "TCP", tcp_oid)
-	udp = process_answer(udp, "UDP", udp_oid)
+	tcp = process_answer(tcp, tcp_oid)
+	add_targets(tcp)
+	tcp = format_output(tcp, "TCP")
+	
+	udp = process_answer(udp, udp_oid)
+	add_targets(udp)
+	udp = format_output(udp, "UDP")
+		
 	netstat = table_merge( tcp, udp )
 	
 	nmap.set_port_state(host, port, "open")
