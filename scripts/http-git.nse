@@ -227,6 +227,11 @@ function action(host, port)
       if ok(".git/config") then
         local config = replies[".git/config"].body
 
+        -- Try to extract URLs of all remotes.
+        for url in string.gmatch(config, "\n%s*url%s*=%s*(%S*/%S*)") do
+          out:insert("Remote: " .. url)
+        end
+
         -- These are some popular / well-known Git hosting services and/or hosting services
         -- that allow deployment via 'git push'
         local popular_remotes = {
