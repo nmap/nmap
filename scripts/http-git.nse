@@ -179,46 +179,6 @@ function action(host, port)
         append_short_version("Repository description", replies[".git/description"].body)
       end
 
-      -- This function will take a Git hosting service URL or a service
-      -- the allows deployment via Git and find out if there is an entry
-      -- for it in the configuration file
-      function lookforremote(config, url, service, success_string)
-        -- Different combinations of separating characters in the remote can
-        -- indicate the access method - I know about SSH, HTTP, and Smart HTTP
-        local access1, access2, reponame = string.match(
-          config, "([@/])"..url.."([:/])([%w._-]+/?[%w._-]+)[%s$]")
-        if reponame then
-          -- Try and cut off the '.git' extension
-          reponame = string.match(reponame, "(.+)%.git") or reponame
-          s = strbuf.new()
-          s = (((s .. service) .. " remote: ") .. reponame)
-          -- git@github:Username... = SSH,  https://github.com/Username... = HTTP{S}
-          --    ^      ^    We match on these      ^          ^
-          if access1 == "@" and access2 == "/" then
-            -- Smart HTTP uses regular HTTP urls, but includes 'username@github.com...'
-            s = s .. " (accessed over Smart HTTP)"
-          elseif access1 == "@" and access2 == ":" then
-            -- SSH syntax is like 'git@github.com:User/repo.git'
-            s = s .. " (accessed over SSH)"
-          elseif access1 == "/" and access2 == "/" then
-            -- 'Dumb' HTTP is read-only, looks like "https://github.com/User/repo.git"
-            s = s .. " (accessed over HTTP, pull-only)"
-          else
-            -- Not sure what / and : could be... perhaps regular, unencrypted Git protocol?
-            s = s .. " (can't determine access method)"
-          end
-          out:insert(strbuf.dump(s))
-          -- If we did find an entry for this service in the configuration, that might
-          -- mean something special (example - Heroku remotes might be deployed somewhere)
-          -- We replace '<repo>' with the reponame, <url> with the URL, etc
-          if success_string then
-            local replace = { reponame = reponame, url = url, service = service }
-            local val =  " -> " .. string.gsub(success_string, "<(.-)>", replace)
-            out:insert(val)
-          end
-        end
-      end
-
       -- If we got /.git/config, we might find out things like the user's GitHub name,
       -- if they have a Heroku remote, whether this is a bare repository or not (if it
       -- is bare, that means it's likely a remote for other people), and in future
@@ -226,23 +186,30 @@ function action(host, port)
       -- display that too.
       if ok(".git/config") then
         local config = replies[".git/config"].body
+        local remotes = {}
 
         -- Try to extract URLs of all remotes.
         for url in string.gmatch(config, "\n%s*url%s*=%s*(%S*/%S*)") do
-          out:insert("Remote: " .. url)
+          table.insert(remotes, url)
         end
 
         -- These are some popular / well-known Git hosting services and/or hosting services
         -- that allow deployment via 'git push'
         local popular_remotes = {
-          { "github%.com",    "GitHub",    "Source might be at https://github.com/<reponame>" },
-          { "gitorious%.com", "Gitorious", "Source might be at https://gitorious.com/<reponame>" },
-          { "bitbucket%.org", "BitBucket", "Source might be at https://bitbucket.org/<reponame>" },
-          { "heroku%.com",     "Heroku",   "App might be deployed to http://<reponame>.herokuapp.com" },
+          ["github.com"] =    "Source might be at https://github.com/<reponame>",
+          ["gitorious.com"] = "Source might be at https://gitorious.com/<reponame>",
+          ["bitbucket.org"] = "Source might be at https://bitbucket.org/<reponame>",
+          ["heroku.com"] =    "App might be deployed to http://<reponame>.herokuapp.com",
         }
-        -- Go through all of the popular remotes and look for it in the config file
-        for _, remote in ipairs(popular_remotes) do
-          lookforremote(config, remote[1], remote[2], remote[3])
+        for _, url in ipairs(remotes) do
+          out:insert("Remote: " .. url)
+          local domain, reponame = string.match(url, "[@/]([%w._-]+)[:/]([%w._-]+/?[%w._-]+)")
+          local extrainfo = popular_remotes[domain]
+          -- Try and cut off the '.git' extension
+          reponame = string.match(reponame, "(.+)%.git") or reponame
+          if extrainfo then
+            out:insert(" -> " .. string.gsub(extrainfo, "<reponame>", reponame))
+          end
         end
       end
 
