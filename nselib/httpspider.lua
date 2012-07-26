@@ -275,6 +275,7 @@ LinkExtractor = {
 
 		-- check the url against our whitelist
 		if ( #self.options.whitelist > 0 ) then
+			valid = false
 			for _, func in ipairs(self.options.whitelist) do
 				if ( func(url) ) then
 					stdnse.print_debug(2, "%s: Whitelist match: %s", LIBRARY_NAME, tostring(url))
