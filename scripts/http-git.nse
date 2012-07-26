@@ -225,6 +225,8 @@ function action(host, port)
       -- versions of Git when there are more than one repo format version, we will
       -- display that too.
       if ok(".git/config") then
+        local config = replies[".git/config"].body
+
         -- These are some popular / well-known Git hosting services and/or hosting services
         -- that allow deployment via 'git push'
         local popular_remotes = {
@@ -235,7 +237,7 @@ function action(host, port)
         }
         -- Go through all of the popular remotes and look for it in the config file
         for _, remote in ipairs(popular_remotes) do
-          lookforremote(replies[".git/config"].body, remote[1], remote[2], remote[3])
+          lookforremote(config, remote[1], remote[2], remote[3])
         end
       end
 
