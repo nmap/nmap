@@ -100,18 +100,13 @@ action = function(host)
 		return stdnse.format_output(false, user_name)
 	end
 
-	-- Build the MAC prefix lookup table
-	if not nmap.registry.nbstat then
-		-- Create the table in the registry so we can share between script instances
-		nmap.registry.nbstat = {}
-		nmap.registry.nbstat.mac_prefixes = try(datafiles.parse_mac_prefixes())
-	end
+  local mac_prefixes = try(datafiles.parse_mac_prefixes())
 	
 	-- Format the Mac address in the standard way
 	if(#statistics >= 6) then
 		-- MAC prefixes are matched on the first three bytes, all uppercase
 		prefix = string.upper(string.format("%02x%02x%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3)))
-		manuf = nmap.registry.nbstat.mac_prefixes[prefix]
+		manuf = mac_prefixes[prefix]
 		if manuf == nil then
 			manuf = "unknown"
 		end

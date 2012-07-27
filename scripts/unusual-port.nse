@@ -22,7 +22,17 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "safe" }
 
 
-portrule = function() return true end
+local svc_table
+
+portrule = function()
+  local status
+  status, svc_table = datafiles.parse_services()
+  if not status then
+    return false --Can't check if we don't have a table!
+  end
+  return true
+end
+
 hostrule = function() return true end
 
 -- the hostrule is only needed to warn 
@@ -85,7 +95,7 @@ servicechecks = {
 	['ncacn_http'] = function(host, port) return true end,
 }
 
-local function checkService(host, port)
+portaction = function(host, port)
 	local ok = false
 
 	if ( port.version.name_confidence <= 3 ) then
@@ -98,32 +108,14 @@ local function checkService(host, port)
 		ok = servicechecks[port.service](host, port)
 	end
 	if ( not(ok) and port.service and 
-		( port.service == nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number] or
-		  "unknown" == nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number] or
-		  not(nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number]) ) ) then
+		( port.service == svc_table[port.protocol][port.number] or
+		  "unknown" == svc_table[port.protocol][port.number] or
+		  not(svc_table[port.protocol][port.number]) ) ) then
 		ok = true
 	end	
 	if ( not(ok) ) then
 		return ("%s unexpected on port %s/%d"):format(port.service, port.protocol, port.number)
 	end
-end
-
-local function loadTables()
-	for _, proto in ipairs({"tcp","udp"}) do
-		if ( not(nmap.registry[SCRIPT_NAME]['services'][proto]) ) then
-			local status, svc_table = datafiles.parse_services(proto)
-			if ( status ) then
-				nmap.registry[SCRIPT_NAME]['services'][proto] = svc_table
-			end	
-		end
-	end
-end
-
-portaction = function(host, port)
-	nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
-	nmap.registry[SCRIPT_NAME]['services'] = nmap.registry[SCRIPT_NAME]['services'] or {}
-	loadTables()
-	return checkService(host, port)
 end
 
 local Actions = {

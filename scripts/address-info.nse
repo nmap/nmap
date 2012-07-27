@@ -99,16 +99,11 @@ local function matches(addr, pattern)
 end
 
 local function get_manuf(mac)
-	if not nmap.registry.mac then
-		local catch = function() return end
-		local try = nmap.new_try(catch)
-		-- Create the table in the registry so we can share between scripts
-		nmap.registry.mac = {}
-		nmap.registry.mac.prefixes = try(datafiles.parse_mac_prefixes())
-	end
+  local catch = function() return "Unknown" end
+  local try = nmap.new_try(catch)
+	local mac_prefixes = try(datafiles.parse_mac_prefixes())
 	local prefix = string.upper(string.format("%02x%02x%02x", mac[1], mac[2], mac[3]))
-	local manuf = nmap.registry.mac.prefixes[prefix] or "Unknown"
-	return manuf
+	return mac_prefixes[prefix] or "Unknown"
 end
 
 local function format_mac(mac)

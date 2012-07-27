@@ -67,18 +67,13 @@ end
 local function get_mac_addr( mac )
 	local catch = function() return end
 	local try = nmap.new_try(catch)
-	-- Build the MAC prefix lookup table
-	if not nmap.registry.lltd_discovery then
-		-- Create the table in the registry so we can share between script instances
-		nmap.registry.lltd_discovery = {}
-		nmap.registry.lltd_discovery.mac_prefixes = try(datafiles.parse_mac_prefixes())
-	end
+	local mac_prefixes = try(datafiles.parse_mac_prefixes())
 	
 	if mac:len() ~= 6 then
 		return "Unknown"
 	else
 		local prefix = string.upper(string.format("%02x%02x%02x", mac:byte(1), mac:byte(2), mac:byte(3)))
-		local manuf = nmap.registry.lltd_discovery.mac_prefixes[prefix] or "Unknown"
+		local manuf = mac_prefixes[prefix] or "Unknown"
 		return string.format("%02x:%02x:%02x:%02x:%02x:%02x (%s)", mac:byte(1), mac:byte(2), mac:byte(3), mac:byte(4), mac:byte(5), mac:byte(6), manuf )
 	end
 end

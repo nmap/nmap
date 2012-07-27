@@ -32,6 +32,20 @@ local common_files = {
 
 }
 
+-- Helper for parse_* functions
+local parse_and_cache = function(filename)
+  nmap.registry.datafiles = nmap.registry.datafiles or {}
+  if not nmap.registry.datafiles[filename] then
+    local status
+    status, nmap.registry.datafiles[filename] = parse_file(filename)
+    if not status then
+      return false, string.format("Error parsing %s", filename)
+    end
+  end
+
+  return true, nmap.registry.datafiles[filename]
+end
+
 
 ---
 -- Read and parse <code>nmap-protocols</code>.
@@ -42,12 +56,7 @@ local common_files = {
 -- @return Table (if status is true) or error string (if status is false).
 -- @see parse_file
 parse_protocols = function()
-  local status, protocols_table = parse_file("nmap-protocols")
-  if not status then
-    return false, "Error parsing nmap-protocols"
-  end
-
-  return true, protocols_table
+  return parse_and_cache("nmap-protocols")
 end
 
 
@@ -59,12 +68,7 @@ end
 -- @return Table (if status is true) or error string (if status is false).
 -- @see parse_file
 parse_rpc = function()
-  local status, rpc_table = parse_file("nmap-rpc")
-  if not status then
-    return false, "Error parsing nmap-rpc"
-  end
-
-  return true, rpc_table
+  return parse_and_cache("nmap-rpc")
 end
 
 
@@ -86,9 +90,25 @@ parse_services = function(protocol)
     return false, "Bad protocol for nmap-services: use tcp or udp"
   end
 
-  local status, services_table = parse_file("nmap-services", protocol)
-  if not status then
-    return false, "Error parsing nmap-services"
+  local services_table
+  nmap.registry.datafiles = nmap.registry.datafiles or {}
+  nmap.registry.datafiles.services = nmap.registry.datafiles.services or {}
+  if protocol then
+    if not nmap.registry.datafiles.services[protocol] then
+      local status
+      status, nmap.registry.datafiles.services[protocol] = parse_file("nmap-services", protocol)
+      if not status then
+        return false, "Error parsing nmap-services"
+      end
+    end
+    services_table = nmap.registry.datafiles.services[protocol]
+  else
+    local status
+    status, nmap.registry.datafiles.services = parse_file("nmap-services")
+    if not status then
+      return false, "Error parsing nmap-services"
+    end
+    services_table = nmap.registry.datafiles.services
   end
 
   return true, services_table
@@ -103,12 +123,7 @@ end
 -- @return Table (if status is true) or error string (if status is false).
 -- @see parse_file
 parse_mac_prefixes = function()
-  local status, mac_prefixes_table = parse_file("nmap-mac-prefixes")
-  if not status then
-    return false, "Error parsing nmap-mac-prefixes"
-  end
-
-  return true, mac_prefixes_table
+  return parse_and_cache("nmap-mac-prefixes")
 end
 
 
