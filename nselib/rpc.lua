@@ -167,19 +167,21 @@ Comm = {
         if nmap.is_privileged() then
           -- Try to bind to a reserved port
           for resvport = 600, 1024, 1 do
-            status, err = socket:bind(nil, 1000)
+            status, err = socket:bind(nil, resvport)
             if status then 
               status, err = socket:connect(host, port)
               if status then break end
             end
           end
+        else
+          status, err = socket:connect(host, port)
         end
       else
         socket = nmap.new_socket("udp")
         if nmap.is_privileged() then
           -- Try to bind to a reserved port
           for resvport = 600, 1024, 1 do
-            status, err = socket:bind(nil, 1000)
+            status, err = socket:bind(nil, resvport)
             if status then break end
           end
         end
