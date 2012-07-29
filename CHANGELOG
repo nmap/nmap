@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Reduced the number of names tried by http-vhosts by default.
+  [Vlatko Kosturjak]
+
 o Linux unreachable routes are now properly ignored. [David Fifield]
 
 o [NSE] Added smb-vuln-ms10-054 script which check the target system for MS10-054
