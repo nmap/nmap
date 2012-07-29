@@ -21,6 +21,7 @@ local http = require("http")
 local shortport = require("shortport")
 local stdnse = require("stdnse")
 local strbuf = require("strbuf")
+local string = require("string")
 local table = require("table")
 description = [[ Checks for a Git repository found in a website's document root (GET /.git/<something> HTTP/1.1)
 Gets as much information about the repository as possible, including language/framework, Github
@@ -157,7 +158,7 @@ function action(host, port)
         local short = string.sub(original_string, 1, 60) -- trim the string first, in case it is huge
         -- We try to cut off the newline if we can
         local no_newline = string.match(short, "(.-)\r?\n") -- we don't want such an open-ended regex on a potentially huge string
-        s = no_newline or short
+        local s = no_newline or short
         if #original_string > #s then
           -- If we cut off something, we want to put an ellipsis on the end
           s = description .. ": " .. s .. "..."
