@@ -1,7 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added spoolss functions and constrants to msrpc.lua
-  [Aleksandar Nikolic]
+o [NSE] Added smb-vuln-ms10-61 script which checks the target system for MS10-061
+  vulenrability in spoolss service in a safe way. [Aleksandar Nikolic]
+
+o [NSE] Added spoolss functions and constrants to msrpc.lua. [Aleksandar Nikolic]
 
 o [NSE] Reduced the number of names tried by http-vhosts by default.
   [Vlatko Kosturjak]
