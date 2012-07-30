@@ -188,6 +188,9 @@ action = function(host, port)
         end
     end
 
+    port.name = "servicetags"
+    nmap.set_port_version(host, port)
+
     return stdnse.format_output(true, output)
 end
 
