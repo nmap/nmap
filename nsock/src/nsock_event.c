@@ -475,7 +475,7 @@ void msevent_delete(mspool *nsp, msevent *nse) {
   if (nse->type == NSE_TYPE_PCAP_READ) {
     fs_free(&nse->iobuf);
     if (nsp->tracelevel > 5)
-      nsock_trace(nsp, "PCAP removed %lu\n",nse->id);
+      nsock_trace(nsp, "PCAP removed %lu",nse->id);
   }
   #endif
 
