@@ -44,6 +44,8 @@
 -- if it is, please talk to me and I'll make arrangements to re-license this or to 
 -- remove references to Samba. 
 --
+-- Revised 07/25/2012 - added Printer Spooler Service (spoolss) RPC functions and
+-- 						constants [Aleksandar Nikolic]
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
@@ -69,6 +71,11 @@ SAMR_VERSION    = 0x01
 SRVSVC_PATH     = "\\srvsvc"
 SRVSVC_UUID     = string.char(0xc8, 0x4f, 0x32, 0x4b, 0x70, 0x16, 0xd3, 0x01, 0x12, 0x78, 0x5a, 0x47, 0xbf, 0x6e, 0xe1, 0x88)
 SRVSVC_VERSION  = 0x03
+
+-- The path, UUID, and version for SPOOLSS
+SPOOLSS_PATH    = "\\spoolss"
+SPOOLSS_UUID	= string.char(0x78, 0x56, 0x34, 0x12, 0x34, 0x12, 0xcd, 0xab, 0xef, 0x00, 0x01, 0x23, 0x45, 0x67, 0x89, 0xab)
+SPOOLSS_VERSION = 0x01
 
 -- The path, UUID, and version for LSA
 LSA_PATH        = "\\lsarpc"
@@ -316,7 +323,7 @@ function call_function(smbstate, opnum, arguments)
 				0x18 + #arguments, -- Frag length (0x18 = the size of this data)
 				0x0000,      -- Auth length
 				0x41414141,  -- Call ID (I use 'AAAA' because it's easy to recognize)
-				0x00000038,  -- Alloc hint
+				#arguments,  -- Alloc hint
 				0x0000,      -- Context ID
 				opnum,       -- Opnum
 				arguments
@@ -943,7 +950,134 @@ function srvsvc_netpathcanonicalize(smbstate, server, path)
 end
 
 
+---Call the RpcOpenPrinterEx() function whose opnum  is 69. 
+--
+-- http://msdn.microsoft.com/en-us/library/cc244809%28v=prot.13%29.aspx
+--@param smbstate  The SMB state table
+--@param printer    Printer share name
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a printer handle. 
+function spoolss_open_printer(smbstate,printer)
+	local machine = msrpctypes.marshall_unicode_ptr("",true)
+	local user = msrpctypes.marshall_unicode_ptr("",true)
+	
+	local arguments = msrpctypes.marshall_unicode_ptr(printer,true)
+	arguments = arguments .. msrpctypes.marshall_int32(0)
+	--devmod containter
+	arguments = arguments .. msrpctypes.marshall_int32(0)
+	arguments = arguments .. msrpctypes.marshall_int32(0)
+	--access we require
+	arguments = arguments .. msrpctypes.marshall_int32(0x02020000)
+	-- spool client containter
+	arguments = arguments .. msrpctypes.marshall_int32(1)
+	arguments = arguments .. msrpctypes.marshall_int32(1)
+	arguments = arguments .. msrpctypes.marshall_int32(12345135)
 
+	local arguments2 =  string.sub(machine,1,4)
+	arguments2 = arguments2 ..  string.sub(user,1,4)
+	arguments2 = arguments2 .. msrpctypes.marshall_int32(7600)
+	arguments2 = arguments2 .. msrpctypes.marshall_int32(3)
+	arguments2 = arguments2 .. msrpctypes.marshall_int32(0)
+	arguments2 = arguments2 .. msrpctypes.marshall_int32(9)
+	arguments2 = arguments2 .. string.sub(machine,5,#machine)
+	arguments2 = arguments2 .. string.sub(user,5,#user)
+	arguments2 = msrpctypes.marshall_int32(#arguments2+4) .. arguments2 
+
+	arguments = arguments .. arguments2
+	
+	local status, result = call_function(smbstate, 69, arguments)
+	if not status then
+		stdnse.print_debug("MSRPC spoolss_open_printer(): %s ",result)
+	end
+	return status,result
+	
+end
+
+---Call the RpcStartDocPrinter() function whose opnum  is 17. 
+--
+-- http://msdn.microsoft.com/en-us/library/cc244828%28v=prot.10%29.aspx
+--@param smbstate  		   The SMB state table
+--@param printer_handle    Printer handle returned by spoolss_open_printer()
+--@param filename    	   Name of the file to print to
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a print job id. 
+function spoolss_start_doc_printer(smbstate,printer_handle,filename)
+	local arguments = printer_handle
+	local document_name = msrpctypes.marshall_unicode_ptr("nmap_test",true) 
+	local fname = msrpctypes.marshall_unicode_ptr(filename,true)
+	local dtype = msrpctypes.marshall_int32(0)
+	local document_container = msrpctypes.marshall_int32(1)
+	
+	arguments = arguments .. msrpctypes.marshall_int32(1)
+	
+	document_container = document_container .. msrpctypes.marshall_int32(12332131)
+	document_container = document_container .. string.sub(document_name,1,4)
+	document_container = document_container .. string.sub(fname,1,4)
+	document_container = document_container .. string.sub(dtype,1,4)
+	document_container = document_container .. string.sub(document_name,5,#document_name)
+	document_container = document_container .. string.sub(fname,5,#fname)
+	document_container = document_container .. string.sub(dtype,5,#dtype)
+	
+	arguments = arguments .. document_container
+	
+	local status, result = call_function(smbstate, 17, arguments)
+	if not status then 
+		stdnse.print_debug("MSRPC spoolss_start_doc_printer(): %s",result)
+	end
+	return status,result
+end
+
+---Call the RpcWritePrinter() function whose opnum  is 19. 
+--
+-- http://msdn.microsoft.com/en-us/library/cc244831%28v=prot.10%29
+--@param smbstate  		   The SMB state table
+--@param printer_handle    Printer handle returned by spoolss_open_printer()
+--@param data    	   	   Actuall data to write to a file
+--@return (status, result) If status is false, result is an error message. Otherwise, result is number of bytes written. 
+function spoolss_write_printer(smbstate,printer_handle,data)
+	stdnse.print_debug("len %d", #data)
+	local padding_len = 4 - math.fmod(#data,4)
+	local data_padding = nil
+	if not (padding_len == 4) then
+		data_padding = string.rep(bin.pack("H","00"),padding_len)
+	end
+	local arguments = printer_handle ..  msrpctypes.marshall_int32(#data)
+	--arguments = arguments ..  msrpctypes.marshall_int32(#data)	
+	arguments = arguments .. data
+	if data_padding then arguments = arguments .. data_padding end
+	arguments = arguments ..  msrpctypes.marshall_int32(#data)
+	local status,result = call_function(smbstate, 19, arguments)
+	if not status then 
+		stdnse.print_debug("MSRPC spoolss_write_printer(): %s",result)
+	end
+	return status,result	
+end
+
+---Call the EndDocPrinter() function whose opnum  is 23. 
+--
+-- http://msdn.microsoft.com/en-us/library/cc244783%28v=prot.10%29
+--@param smbstate  		   The SMB state table
+--@param printer_handle    Printer handle returned by spoolss_open_printer()
+--@return (status, result) If status is false, result is an error message.
+function spoolss_end_doc_printer(smbstate,printer_handle)
+	local status,result = call_function(smbstate,23,printer_handle)
+	if not status then
+		stdnse.print_debug("MSRPC spoolss_end_doc_printer(): %s",result)
+	end
+	return status,result
+end
+
+---Call the RpcAbortPrinter() function whose opnum  is 21. 
+--
+-- http://msdn.microsoft.com/en-us/library/cc244757%28v=prot.13%29
+--@param smbstate  		   The SMB state table
+--@param printer_handle    Printer handle returned by spoolss_open_printer()
+--@return (status, result) If status is false, result is an error message.
+function spoolss_abort_printer(smbstate,printer_handle)
+	local status,result = call_function(smbstate,21,printer_handle)
+	if not status then
+		stdnse.print_debug("MSRPC spoolss_abort_printer(): %s",result)
+	end
+	return status,result
+end
 
 
 ---A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an english string. 

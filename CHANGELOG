@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added spoolss functions and constrants to msrpc.lua
+  [Aleksandar Nikolic]
+
 o [NSE] Reduced the number of names tried by http-vhosts by default.
   [Vlatko Kosturjak]
 
