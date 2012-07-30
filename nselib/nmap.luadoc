@@ -431,10 +431,10 @@ function bind(addr, port)
 -- <code>"tcp"</code>.
 --
 -- If <code>host</code> is a host table, it must contain at least one of the
--- keys <code>addr</code> or <code>targetname</code>. If <code>targetname</code>
+-- keys <code>ip</code> or <code>name</code>. If <code>name</code>
 -- is given, it is used to request the correct certificate in SSL connections.
--- Passing a string instead of a host table acts like <code>host.addr</code> and
--- <code>host.targetname</code> were set to the same value. If <code>port</code>
+-- Passing a string instead of a host table acts like <code>host.ip</code> and
+-- <code>host.name</code> were set to the same value. If <code>port</code>
 -- is a table, it must contain the <code>number</code> key.
 --
 -- On success the function returns a true value. On failure it returns a false
