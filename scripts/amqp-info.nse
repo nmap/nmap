@@ -56,7 +56,7 @@ action = function(host, port)
   port.version.product = cli:getServerProduct()
   port.version.extrainfo = cli:getProtocolVersion()
   port.version.version = cli:getServerVersion()
-  nmap.set_port_version(host, port, "hardmatched")
+  nmap.set_port_version(host, port)
 
   return stdnse.format_output(status, cli:getServerProperties())
 end

@@ -386,7 +386,7 @@ local scan = function(host, port, server_name, tls, n)
                     port.state = "open"
                     port.version.product = hint
                     port.version.name_confidence = 100
-                    nmap.set_port_version(host, port, "hardmatched")
+                    nmap.set_port_version(host, port)
                 end
 
                 -- Funny situation: we have a hash of server capabilities list,
@@ -443,7 +443,7 @@ local server_info = function(host, port, id1, id2)
                 port.version.product = v.name
                 stdnse.print_debug("  " .. v.name)
                 port.version.name_confidence = 60
-                nmap.set_port_version(host, port, "hardmatched")
+                nmap.set_port_version(host, port)
                 break
             end
         end

@@ -150,7 +150,7 @@ action = function( host, port )
 			stdnse.print_debug(1, ("%s: Log Files %s"):format(SCRIPT_NAME,logfiles))
 			table.insert(result, ("Log Files: %s"):format(logfiles))
 		end
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		local tasktrackers = get_tasktrackers (host, port)
 		if next(tasktrackers) then
 			table.insert(result, "Tasktrackers: ")

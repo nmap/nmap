@@ -98,7 +98,7 @@ local function getservers(host, port, q3protocol)
 	end
 
 	port.version.name = "quake3-master"
-        nmap.set_port_version(host, port, "hardmatched")
+        nmap.set_port_version(host, port)
 
 	local EOT = bin.pack("ACCC", "EOT", 0, 0, 0)
 	local pieces = stdnse.strsplit("\\", data)

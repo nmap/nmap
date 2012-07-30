@@ -212,7 +212,7 @@ function action(host,port, args)
 	-- It's definitely RMI!
 	port.version.name ='java-rmi'
 	port.version.product='Java RMI Registry'
-	nmap.set_port_version(host,port,'hardmatched')
+	nmap.set_port_version(host,port)
 	
 	-- Monkey patch the java-class in rmi, to set our own custom data formatter 
 	-- for classpaths

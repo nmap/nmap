@@ -90,7 +90,7 @@ action = function( host, port )
 				end
 			end
 		end
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		return stdnse.format_output(true, result)
 	end
 end

@@ -120,7 +120,7 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
     end
     if firmware_version and model then
       port.version.product = string.format("Huawei aDSL modem %s (%s)", model, firmware_version)
-      nmap.set_port_version(host, port, "hardmatched")
+      nmap.set_port_version(host, port)
     end
     vuln.extra_info = info
     return vuln_report:make_output(vuln)

@@ -74,7 +74,7 @@ action = function( host, port )
 			stdnse.print_debug(1, ("%s: Logs %s"):format(SCRIPT_NAME,logs))
 			table.insert(result, ("Logs: %s"):format(logs))
 		end
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		return stdnse.format_output(true, result)
 	end
 end

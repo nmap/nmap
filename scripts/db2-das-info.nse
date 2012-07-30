@@ -423,7 +423,7 @@ action = function(host, port)
 		port.version.name = "ibm-db2"
 		port.version.product = "IBM DB2 Database Server"
 		port.version.name_confidence = 100
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		nmap.set_port_state(host, port, "open")
 	end
 	

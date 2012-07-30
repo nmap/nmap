@@ -170,7 +170,7 @@ action = function(host, port)
 	port.version.product = "SAP MaxDB"
 	port.version.version = version_info.VERSION
 	port.version.ostype = version_info.SYSNAME
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 	
 	return stdnse.format_output(true, result)
 end

@@ -83,7 +83,7 @@ action = function(host, port)
 	
 	port.version.product = "Versant Database"
 	port.version.name = "versant"
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 
 	-- the script may fail after this part, but we want to report at least
 	-- the above information if that's the case.

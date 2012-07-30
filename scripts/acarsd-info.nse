@@ -107,7 +107,7 @@ action = function(host, port)
 	end
 	port.version.name = "acarsd"
 	port.version.product = "ACARS Decoder"
-	nmap.set_port_version(host, port, "hardmatched")        
+	nmap.set_port_version(host, port)        
 
 	-- Return results
 	return stdnse.format_output(true, result)

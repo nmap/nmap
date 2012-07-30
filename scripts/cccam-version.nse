@@ -135,5 +135,5 @@ function action(host, port)
 
 	port.version.name = "cccam"
 	port.version.version = "CCcam DVR card sharing system"
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 end

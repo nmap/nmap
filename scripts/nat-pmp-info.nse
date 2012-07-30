@@ -31,7 +31,7 @@ action = function(host, port)
 	if ( status ) then
 		nmap.set_port_state(host, port, "open")
 		port.version.name = "nat-pmp"
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		
 		return stdnse.format_output(true, ("WAN IP: %s"):format(response.ip))
 	end

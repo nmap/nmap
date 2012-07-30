@@ -46,7 +46,7 @@ action = function(host, port)
                 -- Detected
                 port.version.name = "skype2"
                 port.version.product = "Skype"
-                nmap.set_port_version(host, port, "hardmatched")
+                nmap.set_port_version(host, port)
                 return  
         end
         return

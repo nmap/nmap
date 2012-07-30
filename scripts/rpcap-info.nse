@@ -63,7 +63,7 @@ local function getInfo(host, port, username, password)
 	
 	port.version.name = "rpcap"
 	port.version.product = "WinPcap remote packet capture daemon"
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 	
 	return true, resp
 end

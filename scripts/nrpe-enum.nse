@@ -242,7 +242,7 @@ action = function(host, port)
 	-- Record service description.
 	port.version.name = "nrpe"
 	port.version.product = "Nagios Remote Plugin Executor"
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 
 	-- Format table, without trailing newline.
 	results = tab.dump(results)

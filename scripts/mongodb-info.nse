@@ -105,7 +105,7 @@ function action(host,port)
 	port.version.name ='mongodb'
 	port.version.product='MongoDB'
 	port.version.name_confidence = 100
-	nmap.set_port_version(host,port,'hardmatched')
+	nmap.set_port_version(host,port)
 
 	status, packet = mongodb.buildInfoQuery()
 	if not status then return packet end
@@ -119,7 +119,7 @@ function action(host,port)
 
 	local versionNumber = buildQResult['version']
 	port.version.product='MongoDB '..versionNumber
-	nmap.set_port_version(host,port,'hardmatched')
+	nmap.set_port_version(host,port)
 
 	local stat_out = mongodb.queryResultToTable(statQResult)
 	local build_out = mongodb.queryResultToTable(buildQResult)

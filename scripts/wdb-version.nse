@@ -187,7 +187,7 @@ action = function(host, port)
 	if (port.version.ostype ~= nil) then
 		port.version.ostype = "VxWorks " .. info["rt_vers"]
 	end
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 	local o = {}
 	table.insert(o, "VULNERABLE: Wind River Systems VxWorks debug service enabled. See http://www.kb.cert.org/vuls/id/362332")
 	if (info.agent_ver) then

@@ -103,7 +103,7 @@ action = function( host, port )
 	nmap.set_port_state(host, port, "open")
 	if response.srvclass ~= nil then port.version.extrainfo = response.srvclass   end
 	
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 	
 	-- Generate results
 	table.insert( results, ("Server Platform: %s"):format( response.srvclass ) )

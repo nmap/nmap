@@ -45,7 +45,7 @@ action = function(host, port)
                 if (string.match(result,"^JDWP%-Handshake\0.*\128") ~= nil) then
                     port.version.name="jdwp"
                     port.version.product="unknown"
-                    nmap.set_port_version(host, port, "hardmatched")
+                    nmap.set_port_version(host, port)
                 end
                 return
         end
@@ -53,6 +53,6 @@ action = function(host, port)
         port.version.product = match[1]
         port.version.version = match[3]
         -- port.version.extrainfo = match[2] .. "\n" .. match[4]
-        nmap.set_port_version(host, port, "hardmatched")
+        nmap.set_port_version(host, port)
         return
 end

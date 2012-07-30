@@ -43,7 +43,7 @@ local function set_port_version(host, port, version, server)
 			port.version.extrainfo = string.format("BaseHTTP %s; Python SimpleXMLRPCServer; Python %s", basehttp, python)
 		end
 	end
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 end
 
 function action(host, port)

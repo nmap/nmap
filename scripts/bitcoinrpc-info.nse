@@ -140,7 +140,7 @@ action = function(host, port)
 			if info.version then
 				port.version.version = decode_bitcoin_version(info.version)
 			end
-			nmap.set_port_version(host, port, "hardmatched")
+			nmap.set_port_version(host, port)
 		end
 	end
 

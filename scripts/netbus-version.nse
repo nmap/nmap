@@ -43,7 +43,7 @@ action = function( host, port )
 	port.version.product = "NetBuster"
 	port.version.extrainfo = "honeypot"
 	port.version.version = nil
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 	return
 end
 

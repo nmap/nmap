@@ -139,7 +139,7 @@ action = function( host, port )
 			table.insert(result,"Total\tUsed (DFS)\tUsed (Non DFS)\tRemaining")
 			table.insert(result, ("%s\t%s\t%s\t%s"):format(capacity[3],capacity[4],capacity[5],capacity[6]))
 		end
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		local datanodes_live = get_datanodes(host,port, "LIVE")
 		if next(datanodes_live) then
 			table.insert(result, "Datanodes (Live): ")

@@ -88,7 +88,7 @@ action = function(host, port)
 	-- Here we know it is a couchdb
 	port.version.name ='httpd'
 	port.version.product='Apache CouchDB'
-	nmap.set_port_version(host,port,'hardmatched')
+	nmap.set_port_version(host,port)
 	
 	-- We have a valid table in result containing the parsed json
 	-- now, get all the interesting bits		

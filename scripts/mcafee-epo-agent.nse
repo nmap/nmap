@@ -66,7 +66,7 @@ action = function(host, port)
       port.version.name = 'http'
       port.version.product = 'McAfee ePolicy Orchestrator Agent'
       port.version.extrainfo = string.format('ePOServerName: %s, AgentGuid: %s', epoServerName, agentGUID)
-      nmap.set_port_version(host, port, 'hardmatched')
+      nmap.set_port_version(host, port)
       return nil
     end
   end

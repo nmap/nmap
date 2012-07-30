@@ -37,5 +37,5 @@ action = function(host, port)
 	port.version.name = "stun"
 	port.version.product = result
 	nmap.set_port_state(host, port, "open")
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 end

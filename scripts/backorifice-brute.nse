@@ -229,7 +229,7 @@ local backorifice =
 		end
 		self.port.version.hostname = BOhostname
 		if not self.port.version.ostype then self.port.version.ostype = "Windows" end
-		nmap.set_port_version(self.host, self.port, "hardmatched")
+		nmap.set_port_version(self.host, self.port)
 		nmap.set_port_state(self.host,self.port,"open")
 	end
 }

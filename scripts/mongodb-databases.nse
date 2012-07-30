@@ -88,7 +88,7 @@ function action(host,port)
 	
 	port.version.name ='mongodb'
 	port.version.product='MongoDB'
-	nmap.set_port_version(host,port,'hardmatched')
+	nmap.set_port_version(host,port)
 
 	local output = mongodb.queryResultToTable(result)
 	if err ~= nil then 

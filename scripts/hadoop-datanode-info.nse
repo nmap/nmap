@@ -50,7 +50,7 @@ action = function( host, port )
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		port.version.name = "hadoop-datanode"
 		port.version.product = "Apache Hadoop"
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		local body = response['body']:gsub("%%","%%%%")
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
 		 if body:match("([^][\"]+)\">Log") then

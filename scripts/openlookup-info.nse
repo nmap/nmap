@@ -252,7 +252,7 @@ action = function(host, port)
 	if version then
 		port.version.version = version
 	end
-	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_version(host, port)
 	if #options < 1 then
 		return
 	end

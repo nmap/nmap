@@ -163,7 +163,7 @@ action = function(host, port)
     if ( #results > 0 ) then
         port.state = "open"
         port.version.name = "modbus"
-        nmap.set_port_version(host, port, "hardmatched")
+        nmap.set_port_version(host, port)
     end
 
     return stdnse.format_output(true, results)

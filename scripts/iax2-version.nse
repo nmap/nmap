@@ -46,7 +46,7 @@ action = function(host, port)
 		then
 		    nmap.set_port_state(host, port, "open")
 		    port.version.name = "iax2"
-		    nmap.set_port_version(host, port, "hardmatched")
+		    nmap.set_port_version(host, port)
 		end
 
 	end

@@ -127,7 +127,7 @@ action = function( host, port )
 				end
 			end
 		end
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 		if next(region_servers) then
 			table.insert(result,"Region Servers:")
 			table.insert(result,region_servers)

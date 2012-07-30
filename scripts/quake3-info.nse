@@ -238,7 +238,7 @@ action = function(host, port)
 		if string.find(osline, "win") then
 			port.version.ostype = "Windows"
 		end
-		nmap.set_port_version(host, port, "hardmatched")
+		nmap.set_port_version(host, port)
 	end
 
 	local fraglimit = fields["fraglimit"]
