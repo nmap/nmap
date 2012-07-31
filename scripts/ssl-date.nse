@@ -5,12 +5,14 @@ local bin = require "bin"
 local os = require "os"
 local string = require "string"
 description = [[
-Script gets remote hosts time from ssl ServerHello response.
-The first four bytes of server random are gmt_unix_time.
+Gets the remote host's time from its TLS ServerHello response.
+
+In many TLS implementations, the first four bytes of server randomness
+are a Unix timestamp.
 
 Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
-	- https://github.com/ioerror/TeaTime
-	- https://github.com/ioerror/tlsdate
+* https://github.com/ioerror/TeaTime
+* https://github.com/ioerror/tlsdate
 ]]
 
 author = "Aleksandar Nikolic"
@@ -25,7 +27,7 @@ portrule = shortport.ssl
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- |_ssl-date: Server time 2012-07-30 09:46:07 GMT; 0s from the local time.
+-- |_ssl-date: Server time 2012-07-30 09:46:07 GMT; 0s from local time.
 --
 
 --
@@ -139,7 +141,7 @@ action = function(host, port)
 		local result
 		status, result = extract_time(response)
 		if status then
-			return string.format("Server time %s GMT; %s from the local time.", 
+			return string.format("Server time %s GMT; %s from local time.",
 										os.date("%Y-%m-%d %H:%M:%S",result),
 										stdnse.format_difftime(os.date("!*t",result),os.date("!*t")))
 			end
