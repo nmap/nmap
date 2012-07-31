@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ssl-date script which gets server's time from SSL ServerHello
+  reply server random part. [Aleksandar Nikolic]
+
 o [NSE] Added smb-vuln-ms10-61 script which checks the target system for MS10-061
   vulenrability in spoolss service in a safe way. [Aleksandar Nikolic]
 

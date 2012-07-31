@@ -373,6 +373,7 @@ Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "sa
 Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-cert.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ssl-date.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
