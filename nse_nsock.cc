@@ -913,6 +913,7 @@ static int l_pcap_open (lua_State *L)
   nsock_iod *nsiod = (nsock_iod *) lua_touserdata(L, -1);
   if (nsiod == NULL) /* does not exist */
   {
+    lua_pop(L, 1); /* the nonexistant socket */
     nsiod = (nsock_iod *) lua_newuserdata(L, sizeof(nsock_iod));
     lua_pushvalue(L, PCAP_SOCKET);
     lua_setmetatable(L, -2);
@@ -920,16 +921,15 @@ static int l_pcap_open (lua_State *L)
     lua_pushvalue(L, 7); /* the pcap socket key */
     lua_pushvalue(L, -2); /* the pcap socket nsiod */
     lua_rawset(L, KEY_PCAP); /* KEY_PCAP["dev|snap|promis|bpf"] = pcap_nsiod */
-    lua_getuservalue(L, 1); /* the socket user value */
-    lua_pushvalue(L, -2); /* the pcap socket nsiod */
-    lua_pushboolean(L, 1); /* dummy variable */
-    lua_rawset(L, -3);
-    lua_pop(L, 1); /* the socket user value */
     char *e = nsock_pcap_open(nsp, *nsiod, lua_tostring(L, 6), snaplen,
         lua_toboolean(L, 4), bpf);
     if (e)
       luaL_error(L, "%s", e);
   }
+  lua_getuservalue(L, 1); /* the socket user value */
+  lua_pushvalue(L, -2); /* the pcap socket nsiod */
+  lua_pushboolean(L, 1); /* dummy variable */
+  lua_rawset(L, -3);
   nu->nsiod = *nsiod;
   nu->is_pcap = 1;
   return 0;
