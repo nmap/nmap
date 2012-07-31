@@ -27,7 +27,7 @@ portrule = shortport.ssl
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- |_ssl-date: Server time 2012-07-30 09:46:07 GMT; 0s from local time.
+-- |_ssl-date: 2012-07-30 09:46:07 GMT; 0s from local time.
 --
 
 --
@@ -141,7 +141,7 @@ action = function(host, port)
 		local result
 		status, result = extract_time(response)
 		if status then
-			return string.format("Server time %s GMT; %s from local time.",
+			return string.format("%s GMT; %s from local time.",
 										os.date("%Y-%m-%d %H:%M:%S",result),
 										stdnse.format_difftime(os.date("!*t",result),os.date("!*t")))
 			end
