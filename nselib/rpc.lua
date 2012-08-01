@@ -142,6 +142,7 @@ Comm = {
       self.__index = self
       o.program = program
       o.program_id = Util.ProgNameToNumber(program)
+      o.checkprogver = true
       o:SetVersion(version)
       return o
     end,
@@ -242,13 +243,25 @@ Comm = {
     --
     -- @return status boolean true
     SetVersion = function(self, version)
-      if (RPC_version[self.program] and RPC_args[self.program] and 
-      nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
-        self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
-      elseif (not(self.version) and version) then
-        self.version = version
-      end
-      return true, nil
+	if self.checkprogver then
+	    if (RPC_version[self.program] and RPC_args[self.program] and 
+		nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
+		self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
+	    elseif (not(self.version) and version) then
+		self.version = version
+	    end
+	else
+	    self.version = version
+	end
+	return true, nil
+    end,
+
+    SetCheckProgVer = function(self, check)
+	self.checkprogver = check	
+    end,
+
+    SetProgID = function(self, progid)
+	self.program_id = progid
     end,
 
     --- Checks if data contains enough bytes to read the <code>needed</code> amount
@@ -286,12 +299,9 @@ Comm = {
       local RPC_VERSION = 2
       local packet
 
-      if not(xid) then
-        xid = math.random(1234567890)
-      end
-      if not auth then
-        return false, "Comm.CreateHeader: No authentication specified"
-      end
+      local auth = auth or {type = Portmap.AuthType.NULL}
+      local xid = xid or math.random(1234567890)
+      local procedure = procedure or 0
 
       packet = bin.pack( ">IIIIII", xid, Portmap.MessageType.CALL, RPC_VERSION,
                     self.program_id, self.version, procedure )
