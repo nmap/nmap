@@ -2264,7 +2264,7 @@ end
 --
 -- @param data The data returned by the HTTP request
 -- @param result_404 The status code to expect for non-existent pages. This is returned by <code>identify_404</code>.
--- @param known_404 The 404 page itself, if <code>result_404</code> is 200. If <code>result_404</code> is something else, this parameter is ignored and can be set to <code>nil</code>. This is returned by <code>identfy_404</code>.
+-- @param known_404 The 404 page itself, if <code>result_404</code> is 200. If <code>result_404</code> is something else, this parameter is ignored and can be set to <code>nil</code>. This is returned by <code>identify_404</code>.
 -- @param page The page being requested (used in error messages).
 -- @param displayall [optional] If set to true, don't exclude non-404 errors (such as 500). 
 -- @return A boolean value: true if the page appears to exist, and false if it does not.
