@@ -8601,7 +8601,11 @@ match lanrev-agent m|^\x01\0\0\x03\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01| p/LANrev rem
 
 match mxie m|^\x80\x00\x00\x0c\x72\xfe\x1d\x13\x00\x00\x00\x01\x00\x00\x00\x02$| p/Zultys MXIE VoIP presence server/
 
-match sybase-backup m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase backup server/
+# tcp/5000: Adaptive Server
+# tcp/5001: Backup Server
+# tcp/5002: Monitor Server
+match sybase-adaptive m|^\0\x01\0\x08\0\0\x00\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:adaptive_server/
+match sybase-backup m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Backup Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:backup_server/
 
 match syncsort-cmagent m=^\x80\0\0J\x0f\x02\x02\x06\t\x1d\x02\x11m\x04\x15\x17\x01\x06c\|sww{t\x1b{uwOn\x04\x0f\x1d\x19wE\x0f\x13\x15\x08\x13g\x06\x03\x15\x04\x08\x0f\x13e\x18fm~ug\x10\0\x1dl\x01\x0f\ne\x0f\x04\nm\x17qkzdn}qG$= p/Syncsort Backup Express cmagent/
 
@@ -8988,7 +8992,7 @@ match qcheck m|^.*\$Id: //ral_depot/products/current/ENDPOINT/CODE/client\.c|s p
 
 match qmqp m|^58:Dnetstring format error while receiving QMQP packet header,| p/Postfix qmqpd/
 
-match sybase-adaptiveserver m|^\x04\x01\0\(\0\0\0\0\xaa\0\x14\0\0\x0f\xa2\x01\x0eLogin failed\.\n\xfd\0\x02\0\x02\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a
+match sybase-adaptive m|^\x04\x01\0\(\0\0\0\0\xaa\0\x14\0\0\x0f\xa2\x01\x0eLogin failed\.\n\xfd\0\x02\0\x02\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:adaptive_server/
 
 match telecom-misc m|^\0\x1e\x02\x06\x01\0\0\0\0\0\0\xf1\0| p/Radio IP MTG gateway/ d/telecom-misc/
 
@@ -10324,6 +10328,8 @@ match ms-wbt-server-proxy m|^nmproxy: Procotol byte is not 8\n$| p/nmproxy NetMe
 # possible up to 1536.
 match rtmp m|^\x03.{899,1536}$|s p/Real-Time Messaging Protocol/
 
+match sybase-monitor m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Monitor Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:monitor_server/
+
 match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o/Windows/ cpe:/o:microsoft:windows/a
 
 # Netware Create Connection Service request
@@ -11127,7 +11133,10 @@ match apple-iphoto m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nDPAP-Server: iPhoto/(.*)\r
 # GetClassName called on an empty string.
 Probe TCP ZendJavaBridge q|\0\0\0\x1f\0\0\0\0\0\0\0\x0cGetClassName\0\0\0\x02\x04\0\0\0\0\x01\0|
 rarity 9
-ports 10001
+ports 5000,5001,5002,10001
+
+match sybase-adaptive m|^\x04\x01\0\x28\0\0\0\0\xaa\x14\0\xa2\x0f\0\0\x01\x0eLogin failed\.\n\xfd\x02\0\x02\0\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:adaptive_server/
+match sybase-monitor m|^\x04\x01\0\x1a\0\0\0\0\xaa\x01\x0eLogin failed\.\n\xfd$| p/Sybase Monitor Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:monitor_server/
 
 match zend-java-bridge m|^\0\0\0\x15\x04\0\0\0\x10java\.lang\.String$|
 
