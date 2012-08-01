@@ -256,10 +256,15 @@ Comm = {
 	return true, nil
     end,
 
+    --- Sets the verification of the specified program and version support
+    -- before trying to connecting.
+    -- @param check boolean to enable or disable checking of program and version support.
     SetCheckProgVer = function(self, check)
 	self.checkprogver = check	
     end,
 
+    --- Sets the RPC program ID to use.
+    -- @param progid number Program ID to set.
     SetProgID = function(self, progid)
 	self.program_id = progid
     end,
@@ -290,15 +295,15 @@ Comm = {
 
     --- Creates a RPC header
     --
-    -- @param xid number
-    -- @param procedure number containing the procedure to call
-    -- @param auth table containing the authentication data to use
+    -- @param xid number. If no xid was provided, a random one will be used.
+    -- @param procedure number containing the procedure to call. Defaults to <code>0</code>.
+    -- @param auth table containing the authentication data to use. Defaults to NULL authentication.
     -- @return status boolean true on success, false on failure
     -- @return string of bytes on success, error message on failure
     CreateHeader = function( self, xid, procedure, auth )
       local RPC_VERSION = 2
       local packet
-
+      -- Defaulting to NULL Authentication
       local auth = auth or {type = Portmap.AuthType.NULL}
       local xid = xid or math.random(1234567890)
       local procedure = procedure or 0
