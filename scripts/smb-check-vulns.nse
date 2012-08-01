@@ -129,7 +129,7 @@ local NOTRUN     = 4
 local INFECTED   = 5
 local INFECTED2  = 6
 local CLEAN      = 7
-local NOTUP		 = 8
+local NOTUP      = 8
 
 ---Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an 
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
