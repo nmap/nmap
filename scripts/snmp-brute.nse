@@ -276,7 +276,11 @@ action = function(host, port)
 		if creds_iter then
 			local account = creds_iter()
 			if account then
-				nmap.registry.snmpcommunity = account.pass
+				if account.pass == "<empty>" then
+					nmap.registry.snmpcommunity = ""
+				else
+					nmap.registry.snmpcommunity = account.pass
+				end
 			end
 		end
 
