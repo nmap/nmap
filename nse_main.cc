@@ -617,6 +617,7 @@ void nse_gettarget (lua_State *L, int index)
   lua_replace(L, -2);
 }
 
+/* Global persistent Lua state used by the engine. */
 static lua_State *L_NSE = NULL;
 
 void open_nse (void)
