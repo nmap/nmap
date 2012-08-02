@@ -1,4 +1,6 @@
+local coroutine = require "coroutine"
 local http = require "http"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -61,10 +63,13 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = { "discovery", "intrusive" }
 
--- Defines domain to use, first from user and then from host
-defineDomain = function(host)
-  if stdnse.get_script_args(SCRIPT_NAME..".domain") then return stdnse.get_script_args(SCRIPT_NAME..".domain") end
+local arg_domain = stdnse.get_script_args(SCRIPT_NAME..".domain")
+local arg_path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
+local arg_filelist = stdnse.get_script_args(SCRIPT_NAME..'filelist')
+local arg_collapse = tonumber(stdnse.get_script_args(SCRIPT_NAME..".collapse")) or 10
 
+-- Defines domain to use, first from user and then from host
+local defineDomain = function(host)
   local name = stdnse.get_hostname(host)
   if name and name ~= host.ip then
     local pos = string.find (name, ".",1,true)
@@ -87,8 +92,6 @@ local makeTargetName = function(name,domain)
     end
   elseif domain and domain ~= "" then
     return domain
-  else
-    return nil
   end
 end
 
@@ -100,17 +103,38 @@ end
 -- @return string
 local collapse = function(result) 
   local collapsed = {""}
-  local limit = tonumber(stdnse.get_script_args(SCRIPT_NAME..".collapse")) or 10
   for code, group in next, result do
-    if  #group > limit then
-      collapsed[#collapsed + 1] =  #group .. " names had status " ..  code
+    if  #group > arg_collapse then
+      table.insert(collapsed, ("%d names had status %s"):format(#group, code))
     else 
       for _,name in ipairs(group) do
-        collapsed[#collapsed + 1] = name 
+        table.insert(collapsed, name)
       end
     end
   end
   return table.concat(collapsed,"\n")
+end
+
+local testThread = function(result, host, port, name)
+  local condvar = nmap.condvar(result)
+  local targetname = makeTargetName(name , arg_domain)
+  if targetname ~= nil then
+		local http_response = http.generic_request(host, port, "HEAD", arg_path, {header={Host=targetname}})
+
+    if not http_response.status  then
+      result["ERROR"] = result["ERROR"] or {}
+      table.insert(result["ERROR"], targetname)
+    else
+      local status = tostring(http_response.status)
+      result[status] = result[status] or {}
+      if ( 300 <= http_response.status and http_response.status < 400 ) then
+        table.insert(result[status], ("%s : %s -> %s"):format(targetname, status, (http_response.header.location or "(no Location provided)")))
+      else 
+        table.insert(result[status], ("%s : %s"):format(targetname, status))
+      end
+    end
+  end
+  condvar "signal"
 end
 
 portrule = shortport.http
@@ -120,45 +144,29 @@ portrule = shortport.http
 -- @param host table
 -- @param port table
 action = function(host, port)
-  local service = "http"
-  local domain = defineDomain(host)
-  local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
-  local result = {}
+  local result, threads = {}, {}
+  local condvar = nmap.condvar(result)
 
-  local filelist = stdnse.get_script_args(SCRIPT_NAME..'filelist')
-  local status, HOSTNAMES = datafiles.parse_file(filelist or "nselib/data/vhosts-default.lst" , {})
+  local status, hostnames = datafiles.parse_file(arg_filelist or "nselib/data/vhosts-default.lst" , {})
   if not status then
     stdnse.print_debug(1, "Can not open file with vhosts file names list")
-    return {}
+    return
   end
 
-  for _,name in ipairs(HOSTNAMES) do
-    local http_response
-    local targetname
+  arg_domain = arg_domain or defineDomain(host)
+  for _,name in ipairs(hostnames) do
+    local co = stdnse.new_thread(testThread, result, host, port, name)
+    threads[co] = true
+  end
 
-    targetname = makeTargetName(name , domain)
-
-    if targetname ~= nil then
-
-      http_response = http.head(host, port, path, {header={Host=targetname}, bypass_cache=true, redirect_ok = false})
-
-      if not http_response.status  then
-        if not http_response["ERROR"] then
-          result["ERROR"]={}
-        end
-        result["ERROR"][#result["ERROR"] + 1] = targetname
-      else
-        local status = tostring(http_response.status)
-        if not result[status] then
-          result[status]={}
-        end
-        if 300 <= http_response.status and http_response.status < 400 then
-          result[status][#result[status] + 1] = targetname .. " : " .. status .. " -> " .. (http_response.header.location or "(no Location provided)")
-        else 
-          result[status][#result[status] + 1] = targetname .. " : " .. status
-        end
-      end
+  while(next(threads)) do
+    for t in pairs(threads) do
+      threads[t] = ( coroutine.status(t) ~= "dead" ) and true or nil
+    end
+    if ( next(threads) ) then
+      condvar "wait"
     end
   end
+
   return collapse(result)
 end
