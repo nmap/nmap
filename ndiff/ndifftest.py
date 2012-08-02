@@ -3,12 +3,20 @@
 # Unit tests for Ndiff.
 
 import subprocess
+import sys
 import unittest
 import xml.dom.minidom
 import StringIO
 
-# The ndiff.py symlink exists so we can do this.
-from ndiff import *
+import imp
+dont_write_bytecode = sys.dont_write_bytecode
+sys.dont_write_bytecode = True
+ndiff = imp.load_source("ndiff", "ndiff")
+for x in dir(ndiff):
+    if not x.startswith("_"):
+        globals()[x] = getattr(ndiff, x)
+sys.dont_write_bytecode = dont_write_bytecode
+del dont_write_bytecode
 
 class scan_test(unittest.TestCase):
     """Test the Scan class."""
