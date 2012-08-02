@@ -2,6 +2,7 @@ local dns = require "dns"
 local http = require "http"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
+local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
 local url = require "url"
@@ -29,20 +30,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 
-portrule = function(host, port)
-    local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
-                ssl = { ["https"] = 1, ["https-alt"] = 1 } }
-    if port.protocol ~= 'tcp'
-    or not ( svc.std[port.service] or svc.ssl[port.service] ) then
-        return false
-    end
-    -- Don't bother running on SSL ports if we don't have SSL.
-    if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl')
-    and not nmap.have_ssl() then
-        return false
-    end
-    return true
-end
+portrule = shortport.http
 
 action = function(host, port)
   local resp, redirect_url, title
