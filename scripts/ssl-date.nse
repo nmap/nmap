@@ -2,6 +2,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"
+local nmap = require "nmap"
 local os = require "os"
 local string = require "string"
 description = [[
@@ -105,7 +106,7 @@ end
 -- extract time from ServerHello response
 local extract_time = function(response)
     local result
-    local shlength, npndata, protocol
+    local shlength, npndata, protocol, _
 
     if not response then
 	stdnse.print_debug(SCRIPT_NAME .. ": Didn't get response.")

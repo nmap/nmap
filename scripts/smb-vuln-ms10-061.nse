@@ -117,7 +117,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
 		local data = lanman_result.data
 		local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
 		pos = 0
-		local share_type 
+		local share_type, name, _
 		for i = 1, entry_count, 1 do
 			_,share_type = bin.unpack(">s",data,pos+14)
 			pos, name = bin.unpack("<z", data, pos)

@@ -32,6 +32,8 @@ local stdnse = require 'stdnse'
 local httpspider = require 'httpspider'
 local string = require 'string'
 local bin = require 'bin'
+local bit = require 'bit'
+local table = require 'table'
 
 -- These definitions are copied/pasted/reformatted from the jhead-2.96 sourcecode
 -- (the code is effectively public domain, but credit where credit's due!)
@@ -351,7 +353,7 @@ local function process_gps(data, pos, endian, result)
 
   -- Loop through the entries to find the fun stuff
   for i=1, num_entries do
-    pos, tag, format, components, value = bin.unpack(endian .. "SSII", data, pos)
+    local pos, tag, format, components, value = bin.unpack(endian .. "SSII", data, pos)
 
     if(tag == GPS_TAG_LATITUDE or tag == GPS_TAG_LONGITUDE) then
       local dummy, gps, h, m, s
@@ -396,13 +398,13 @@ local function parse_exif(exif_data)
   local sig, marker, size
   local tag, format, components, byte_count, value, offset, dummy, data
   local status, result
-  local header1, header2, tiff_header_1, first_offset
+  local tiff_header_1, first_offset
 
   -- Initialize the result table
   result = {}
 
   -- Read the verify the EXIF header
-  pos, header1, header2, endian = bin.unpack(">ISS", exif_data, 1)
+  local pos, header1, header2, endian = bin.unpack(">ISS", exif_data, 1)
   if(header1 ~= 0x45786966 or header2 ~= 0x0000) then
     return false, "Invalid EXIF header"
   end
