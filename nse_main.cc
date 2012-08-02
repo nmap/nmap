@@ -381,6 +381,14 @@ ScriptResults *get_script_scan_results_obj (void)
   return &script_scan_results;
 }
 
+void ScriptResult::write_xml() const
+{
+  xml_open_start_tag("script");
+  xml_attribute("id", "%s", get_id());
+  xml_attribute("output", "%s", get_output());
+  xml_close_empty_tag();
+}
+
 /* int panic (lua_State *L)
  *
  * Panic function set via lua_atpanic().

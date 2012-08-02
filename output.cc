@@ -795,10 +795,7 @@ void printportoutput(Target *currenths, PortList *plist) {
           current->scriptResults.sort(comparescriptids);
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
-            xml_open_start_tag("script");
-            xml_attribute("id", "%s", ssr_iter->get_id());
-            xml_attribute("output", "%s", ssr_iter->get_output());
-            xml_close_empty_tag();
+            ssr_iter->write_xml();
 
             char *script_output = formatScriptOutput((*ssr_iter));
             Tbl->addItem(rowno, 0, true, true, script_output);
@@ -2198,10 +2195,8 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
     for (iter = scriptResults->begin();
          iter != scriptResults->end();
          iter++) {
-      xml_open_start_tag("script");
-      xml_attribute("id", "%s", iter->get_id());
-      xml_attribute("output", "%s", iter->get_output());
-      xml_close_empty_tag();
+      iter->write_xml();
+
       script_output = formatScriptOutput((*iter));
       log_write(LOG_PLAIN, "%s\n", script_output);
       free(script_output);
@@ -2222,10 +2217,8 @@ void printhostscriptresults(Target *currenths) {
     for (iter = currenths->scriptResults.begin();
          iter != currenths->scriptResults.end();
          iter++) {
-      xml_open_start_tag("script");
-      xml_attribute("id", "%s", iter->get_id());
-      xml_attribute("output", "%s", iter->get_output());
-      xml_close_empty_tag();
+      iter->write_xml();
+
       script_output = formatScriptOutput((*iter));
       log_write(LOG_PLAIN, "%s\n", script_output);
       free(script_output);

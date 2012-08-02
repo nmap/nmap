@@ -26,6 +26,7 @@ class ScriptResult
     const char *get_output (void) const;
     void set_id (const char *);
     const char *get_id (void) const;
+    void write_xml() const;
 };
 
 typedef std::list<ScriptResult> ScriptResults;
