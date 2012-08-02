@@ -9,6 +9,7 @@
 -- * <code>authority</code>
 -- * <code>userinfo</code>
 -- * <code>path</code>
+-- * <code>port</code>
 -- * <code>password</code>
 -- These correspond to these parts of a URL (some may be <code>nil</code>):
 -- <code>
