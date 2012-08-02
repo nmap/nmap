@@ -45,42 +45,41 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
+  local resp, redirect_url, title
 
-  local data, result, redir, title
-
-  data = http.get( host, port, '/' )
+  resp = http.get( host, port, '/' )
 
   -- check for a redirect
-  if data.location then
-    if data.status and tostring( data.status ):match( "30%d" ) then
-      redir = ("Did not follow redirect to %s"):format( data.location[#data.location] )
-    else
-      redir = ("Requested resource was %s"):format( data.location[#data.location] )
+  if resp.location then
+    redirect_url = resp.location[#resp.location]
+    if resp.status and tostring( resp.status ):match( "30%d" ) then
+      return ("Did not follow redirect to %s"):format( redirect_url )
     end
-  end
-
-  -- check that body was received
-  if data.body and data.body ~= "" then
-    result = data.body
-  else
-    -- debug msg and no output; or no debug msg and some output if we were redirected.
-    if not redir then stdnse.print_debug( "http-title.nse: %s did not respond with any data.", host.targetname or host.ip ) end
-    return (redir and ("%s and no page was returned."):format( redir )) or nil
   end
 
   -- try and match title tags
-  title = string.match(result, "<[Tt][Ii][Tt][Ll][Ee][^>]*>([^<]*)</[Tt][Ii][Tt][Ll][Ee]>")
+  title = string.match(resp.body, "<[Tt][Ii][Tt][Ll][Ee][^>]*>([^<]*)</[Tt][Ii][Tt][Ll][Ee]>")
 
-  if title and title ~= "" then
-    result = string.gsub(title , "[\n\r\t]", "")
-    if #title > 65 then
-      stdnse.print_debug("http-title.nse: (%s) Title got truncated!", host.targetname or host.ip );
-      result = string.sub(result, 1, 62) .. "..."
+  local display_title = title
+
+  if display_title and display_title ~= "" then
+    display_title = string.gsub(display_title , "[\n\r\t]", "")
+    if #display_title > 65 then
+      display_title = string.sub(display_title, 1, 62) .. "..."
     end
   else
-    result = ("Site doesn't have a title%s"):format( ( data.header and data.header["content-type"] and (" (%s)."):format( data.header["content-type"] ) ) or ".")
+    display_title = "Site doesn't have a title"
+    if ( resp.header and resp.header["content-type"] ) then
+      display_title = display_title .. (" (%s)."):format( resp.header["content-type"] )
+    else
+      display_title = display_title .. "."
+    end
   end
 
-  return (redir and ("%s\n%s"):format( result, redir )) or result
+  local output_str = display_title
+  if redirect_url then
+    output_str = output_str .. "\n" .. ("Requested resource was %s"):format( redirect_url )
+  end
 
+  return output_str
 end
