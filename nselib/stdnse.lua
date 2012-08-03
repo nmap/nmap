@@ -41,10 +41,11 @@ local EMPTY = {}; -- Empty constant table
 
 _ENV = require "strict" {};
 
---- (Deprecated Alias) Sleeps for a given amount of time.
+--- Sleeps for a given amount of time.
 --
--- Please use nmap.sleep instead.
---
+-- This causes the program to yield control and not regain it until the time
+-- period has elapsed. The time may have a fractional part. Internally, the
+-- timer provides millisecond resolution.
 -- @name sleep
 -- @class function
 -- @param t Time to sleep, in seconds.

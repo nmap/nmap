@@ -795,14 +795,3 @@ function ip_close()
 -- debugging level.
 -- @see stdnse.print_debug
 function log_write(file, string)
-
---- Sleeps for a given amount of time.
---
--- This causes the program to yield control and not regain it until the time
--- period has elapsed. The time may have a fractional part. Internally, the
--- timer provides millisecond resolution.
--- @name sleep
--- @class function
--- @param t Time to sleep, in seconds.
--- @usage stdnse.sleep(1.5)
-function sleep (t)

@@ -936,10 +936,10 @@ int luaopen_nmap (lua_State *L)
     {"list_interfaces", l_list_interfaces},
     {"get_ttl", l_get_ttl},
     {"get_payload_length",l_get_payload_length},
-    {"new_dnet", nseU_placeholder}, /* deprecated, placeholder */
-    {"get_interface_info", nseU_placeholder}, /* deprecated, placeholder */
-    {"new_socket", nseU_placeholder}, /* deprecated, placeholder */
-    {"sleep", nseU_placeholder}, /* placeholder */
+    {"new_dnet", nseU_placeholder}, /* imported from nmap.dnet */
+    {"get_interface_info", nseU_placeholder}, /* imported from nmap.dnet */
+    {"new_socket", nseU_placeholder}, /* imported from nmap.socket */
+    {"sleep", nseU_placeholder}, /* imported from nmap.socket */
     {"mutex", nseU_placeholder}, /* placeholder */
     {"condvar", nseU_placeholder}, /* placeholder */
     {NULL, NULL}
@@ -959,18 +959,26 @@ int luaopen_nmap (lua_State *L)
   lua_newtable(L);
   lua_setfield(L, nmap_idx, "registry");
 
+  /* Pull out some functions from the nmap.socket and nmap.dnet libraries.
+     http://seclists.org/nmap-dev/2012/q1/299. */
   luaL_requiref(L, "nmap.socket", luaopen_nsock, 0);
+  /* nmap.socket.new -> nmap.new_socket. */
   lua_getfield(L, -1, "new");
-  lua_setfield(L, nmap_idx, "new_socket"); /* deprecated alias */
+  lua_setfield(L, nmap_idx, "new_socket");
+  /* nmap.socket.sleep -> nmap.sleep. */
   lua_getfield(L, -1, "sleep");
-  lua_setfield(L, nmap_idx, "sleep"); /* permanent alias */
+  lua_setfield(L, nmap_idx, "sleep");
+  /* Store nmap.socket; used by nse_main.lua. */
   lua_setfield(L, nmap_idx, "socket");
 
   luaL_requiref(L, "nmap.dnet", luaopen_dnet, 0);
+  /* nmap.dnet.new -> nmap.new_dnet. */
   lua_getfield(L, -1, "new");
-  lua_setfield(L, nmap_idx, "new_dnet"); /* deprecated alias */
+  lua_setfield(L, nmap_idx, "new_dnet");
+  /* nmap.dnet.get_interface_info -> nmap.get_interface_info. */
   lua_getfield(L, -1, "get_interface_info");
-  lua_setfield(L, nmap_idx, "get_interface_info"); /* deprecated alias */
+  lua_setfield(L, nmap_idx, "get_interface_info");
+  /* Store nmap.socket. */
   lua_setfield(L, nmap_idx, "dnet");
 
   lua_settop(L, nmap_idx);
