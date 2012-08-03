@@ -85,7 +85,7 @@ Options = {
 		o.timeout  = options.timeout or 10000
 		o.whitelist = o.whitelist or {}
 		o.blacklist = o.blacklist or {}
-    local removewww = function(url) string.gsub(url, "^www%.", "") end
+    local removewww = function(url) return string.gsub(url, "^www%.", "") end
 		
 		if ( o.withinhost == true or o.withindomain == true ) then
 			-- set up the appropriate matching functions
