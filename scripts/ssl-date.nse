@@ -5,8 +5,11 @@ local bin = require "bin"
 local nmap = require "nmap"
 local os = require "os"
 local string = require "string"
+local sslcert = require "sslcert"
+
 description = [[
 Gets the remote host's time from its TLS ServerHello response.
+
 
 In many TLS implementations, the first four bytes of server randomness
 are a Unix timestamp.
@@ -19,7 +22,11 @@ Original idea by Jacob Appelbaum and his TeaTime and tlsdate tools:
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
-portrule = shortport.ssl
+
+portrule = function(host, port)
+    return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+end
+
 
 ---
 -- @usage
@@ -27,8 +34,8 @@ portrule = shortport.ssl
 --
 -- @output
 -- PORT    STATE SERVICE REASON
--- 443/tcp open  https   syn-ack
--- |_ssl-date: 2012-07-30 09:46:07 GMT; 0s from local time.
+-- 5222/tcp open  xmpp-client syn-ack
+-- |_ssl-date: Server time 2012-08-02 18:29:31 GMT; +4s from the local time.
 --
 
 --
@@ -75,14 +82,24 @@ local client_hello = function(host, port)
     -- Compression Methods: null
     cli_h = cli_h .. bin.pack(">C", 0x00)
     -- Connect to the target server
-    sock = nmap.new_socket()
-    sock:set_timeout(5000)
-    status, err = sock:connect(host, port)
-    if not status then
-	sock:close()
-	stdnse.print_debug("Can't send: %s", err)
-	return false
-    end
+	local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
+	
+	if not specialized_function then
+		sock = nmap.new_socket()
+		sock:set_timeout(5000)
+		status, err = sock:connect(host, port)
+		if not status then
+			sock:close()
+			stdnse.print_debug("Can't send: %s", err)
+			return false
+		end
+	else 
+		status,sock = specialized_function(host,port)
+		if not status then
+			return false
+		end
+	end
+
 
     -- Send Client Hello to the target server
     status, err = sock:send(cli_h)
