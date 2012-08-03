@@ -242,6 +242,7 @@ Entry { filename = "modbus-discover.nse", categories = { "discovery", "intrusive
 Entry { filename = "mongodb-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "mrinfo.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "ms-sql-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-dac.nse", categories = { "discovery", "safe", } }

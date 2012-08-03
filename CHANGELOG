@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added mrinfo script whiches queries a target router for multicast
+  information. [Hani Benhabiles]
+
 o [NSE] Added ssl-date script which gets server's time from SSL ServerHello
   reply server random part. [Aleksandar Nikolic]
 
