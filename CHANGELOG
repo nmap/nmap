@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added smb-print-text script which prints specified text using SMB 
+  shared printer. [Aleksandar Nikolic]
+
 o [NSE] Added mrinfo script whiches queries a target router for multicast
   information. [Hani Benhabiles]
 

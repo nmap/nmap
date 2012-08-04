@@ -341,6 +341,7 @@ Entry { filename = "smb-flood.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "smb-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb-mbenum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb-os-discovery.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "smb-print-text.nse", categories = { "intrusive", } }
 Entry { filename = "smb-psexec.nse", categories = { "intrusive", } }
 Entry { filename = "smb-security-mode.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusive", } }
