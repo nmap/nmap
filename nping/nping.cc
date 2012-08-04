@@ -167,7 +167,7 @@ int main(int argc, char *argv[] ){
    * we should alert the user that their port command is going to be ignored
    * I choose to print out a Fatal error since the scan doesn't make sense.
    */
-  if(o.issetTargetPorts() && (o.getMode() != TCP || o.getMode() != UDP || o.getMode !=UDP_PRIV))
+  if(o.issetTargetPorts() && !o.scan_mode_uses_target_ports(o.getMode()))
       outFatal(QT_3, "You cannot use -p (explicit port selection) in your current scan mode.\n(Perhaps you meant to use --tcp or --udp");
 
 
@@ -228,7 +228,7 @@ int do_safe_checks(){
   test_stuff(); /* Little function that is called quite early to test some misc stuff. */
   return OP_SUCCESS;
 } /* End of do_safe_checks() */
-
+//
 
 
 /** Use this function whenever you have some code that you want to test, but

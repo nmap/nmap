@@ -1537,6 +1537,10 @@ bool NpingOps::issetTargetPorts(){
   return this->target_ports_set;
 } /* End of issetTargetPorts() */
 
+/*Returns true if the scan type can use the -p option*/
+bool NpingOps::scan_mode_uses_target_ports(int mode){
+    return (mode==TCP_CONNECT || mode==TCP || mode == UDP || mode == UDP_UNPRIV);
+} /*End of scan_mode_uses_target_ports*/
 
 /** Sets TCP/UPD source port. Supplied parameter must be an integer >=0 &&
  * <=65535
