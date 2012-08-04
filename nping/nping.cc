@@ -163,6 +163,15 @@ int main(int argc, char *argv[] ){
     outFatal(QT_3,"Unable to properly format time");
   outPrint(QT_1, "\nStarting %s %s ( %s ) at %s", NPING_NAME, NPING_VERSION, NPING_URL, tbuf);
 
+  /*If nping is called on something that doesn't take port scanning
+   * we should alert the user that their port command is going to be ignored
+   * I choose to print out a Fatal error since the scan doesn't make sense.
+   */
+  if(o.isRoot() && o.issetTargetPorts() && (o.getMode() != TCP || o.getMode() != UDP))
+      outFatal(QT_3, "You cannot use -p (explicit port selection) in your current scan mode.\n(Perhaps you meant to use --tcp or --udp");
+
+
+
   /* Resolve and cache target specs */
   outPrint(DBG_2,"Resolving specified targets...");
   o.targets.processSpecs();
