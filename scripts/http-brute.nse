@@ -40,9 +40,11 @@ Performs brute force password auditing against http basic authentication.
 --
 -- Version 0.1
 -- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Version 0.2
+-- 07/26/2012 - v0.2 - added digest auth support (Piotr Olma)
 --
 
-author = "Patrik Karlsson"
+author = "Patrik Karlsson, Piotr Olma"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
@@ -50,17 +52,14 @@ categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 Driver = {
-	
-	new = function(self, host, port, method)
-		local o = {}
-       	setmetatable(o, self)
-        self.__index = self
-		o.host = stdnse.get_script_args("http-brute.hostname") or host
-		o.port = port
-		o.path = stdnse.get_script_args("http-brute.path") or "/"
-		o.method = method
-		return o
-	end,
+  
+  new = function(self, host, port, opts)
+    local o = {port=port, path=opts.path, method=opts.method, digestauth=opts.digestauth}
+    setmetatable(o, self)
+    self.__index = self
+    o.host = stdnse.get_script_args("http-brute.hostname") or host
+    return o
+  end,
 	
 	connect = function( self )
 		-- This will cause problems, as ther is no way for us to "reserve"
@@ -69,11 +68,24 @@ Driver = {
 		return true
 	end,
 	
-	login = function( self, username, password )
-		-- we need to supply the no_cache directive, or else the http library
-		-- incorrectly tells us that the authentication was successfull
-		local response = http.generic_request( self.host, self.port, self.method, self.path, { auth = { username = username, password = password }, no_cache = true })
-
+  login = function( self, username, password )
+    local response
+    local opts_table
+    if not self.digestauth then
+    -- we need to supply the no_cache directive, or else the http library
+    -- incorrectly tells us that the authentication was successful
+      opts_table = { auth = { username = username, password = password }, no_cache = true }
+    else
+      opts_table = { auth = { username = username, password = password, digest = true }, no_cache = true }
+    end
+    response = http.generic_request( self.host, self.port, self.method, self.path, opts_table)
+    
+    if not response.status then
+      local err = brute.Error:new(response["status-line"])
+      err:setRetry(true)
+      return false, err
+    end
+    
 		-- Checking for ~= 401 *should* work to
 		-- but gave me a number of false positives last time I tried.
 		-- We decided to change it to ~= 4xx.
@@ -95,12 +107,7 @@ Driver = {
 	end,
 	
 	check = function( self )
-		local response = http.generic_request( self.host, self.port, self.method, self.path, { no_cache = true } )
-		
-		if ( response.status == 401 ) then
-			return true
-		end
-		return false
+    return true
 	end,
 	
 }
@@ -110,8 +117,6 @@ action = function( host, port )
 	local status, result 
 	local path = stdnse.get_script_args("http-brute.path") or "/"
 	local method = string.upper(stdnse.get_script_args("http-brute.method") or "GET")
-	local engine = brute.Engine:new(Driver, host, port, method )
-	engine.options.script_name = SCRIPT_NAME
 	
 	if ( not(path) ) then
 		return "  \n  ERROR: No path was specified (see http-brute.path)"
@@ -122,9 +127,21 @@ action = function( host, port )
 	if ( response.status ~= 401 ) then
 		return ("  \n  Path \"%s\" does not require authentication"):format(path)
 	end
-	
+  
+  -- check if digest auth is required
+  local digestauth = false
+  local h = response.header['www-authenticate']
+  if h then
+    h = h:lower()
+    if string.find(h, 'digest.-realm') then
+      digestauth = true
+    end
+  end
 
-	status, result = engine:start()
-	
-	return result
+  local engine = brute.Engine:new(Driver, host, port, {method=method, path=path, digestauth=digestauth})
+  engine.options.script_name = SCRIPT_NAME
+  
+  status, result = engine:start()
+  
+  return result
 end

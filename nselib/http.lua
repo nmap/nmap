@@ -65,7 +65,8 @@
 -- ** <code>name</code>
 -- ** <code>value</code>
 -- ** <code>path</code>
--- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication
+-- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication.
+--   If a server requires HTTP Digest authentication, then there must also be a key <code>digest</code>, with value <code>true</code>.
 -- * <code>bypass_cache</code>: Do not perform a lookup in the local HTTP cache.
 -- * <code>no_cache</code>: Do not save the result of this request to the local HTTP cache.
 -- * <code>no_cache_body</code>: Do not save the body of the response to the local HTTP cache.
@@ -106,6 +107,7 @@ local comm = require "comm"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
 local os = require "os"
+local sasl = require "sasl"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -327,6 +329,20 @@ local function validate_options(options)
       else
         stdnse.print_debug(1, "http: options.auth should be a table")
         bad = true
+      end
+    elseif (key == 'digestauth') then
+      if(type(value) == 'table') then
+        local req_keys = {"username","realm","nonce","digest-uri","response"}
+        for _,k in ipairs(req_keys) do
+          if not value[k] then
+            stdnse.print_debug(1, "http: options.digestauth missing key: %s",k)
+            bad = true
+            break
+          end
+        end
+      else
+        bad = true
+        stdnse.print_debug(1, "http: options.digestauth should be a table")
       end
     elseif(key == 'bypass_cache' or key == 'no_cache' or key == 'no_cache_body') then
       if(type(value) ~= 'boolean') then
@@ -1101,11 +1117,33 @@ local function build_request(host, port, method, path, options)
       mod_options.header["Cookie"] = cookies
     end
   end
-  -- Only Basic authentication is supported.
-  if options.auth then
+
+  if options.auth and not options.auth.digest then
     local username = options.auth.username
     local password = options.auth.password
     local credentials = "Basic " .. base64.enc(username .. ":" .. password)
+    mod_options.header["Authorization"] = credentials
+  end
+
+  if options.digestauth then
+    local order = {"username", "realm", "nonce", "digest-uri", "algorithm", "response", "qop", "nc", "cnonce"}
+    local no_quote = {algorithm=true, qop=true, nc=true}
+    local creds = {}
+    for _,k in ipairs(order) do
+      local v = options.digestauth[k]
+      if v then
+        if no_quote[k] then
+          table.insert(creds, ("%s=%s"):format(k,v))
+        else
+          if k == "digest-uri" then
+            table.insert(creds, ('%s="%s"'):format("uri",v))
+          else
+            table.insert(creds, ('%s="%s"'):format(k,v))
+          end
+        end
+      end
+    end
+    local credentials = "Digest "..table.concat(creds, ", ")
     mod_options.header["Authorization"] = credentials
   end
 
@@ -1217,6 +1255,30 @@ function generic_request(host, port, method, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
+  
+  local digest_auth = options and options.auth and options.auth.digest
+
+  if digest_auth and not have_ssl then
+    stdnse.print_debug("http: digest auth requires openssl.")
+  end
+
+  if digest_auth and have_ssl then
+    -- If we want to do digest authentication, we have to make an initial
+    -- request to get realm, nonce and other fields.
+    local options_with_auth_removed = tcopy(options)
+    options_with_auth_removed["auth"] = nil
+    local r = generic_request(host, port, method, path, options_with_auth_removed)
+    local h = r.header['www-authenticate']
+    if not r.status or (h and not string.find(h:lower(), "digest.-realm")) then
+      stdnse.print_debug("http: the target doesn't support digest auth or there was an error during request.")
+      return http_error("The target doesn't support digest auth or there was an error during request.")
+    end
+    -- Compute the response hash
+    local dmd5 = sasl.DigestMD5:new(h, options.auth.username, options.auth.password, method, path)
+    local _, digest_table = dmd5:calcDigest()
+    options.digestauth = digest_table
+  end
+
   return request(host, port, build_request(host, port, method, path, options), options)
 end
 

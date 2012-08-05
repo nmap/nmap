@@ -56,79 +56,117 @@ end
 local MECHANISMS = { }
 
 if HAVE_SSL then 
-	-- Calculates a DIGEST MD5 response
-	DigestMD5 = {
+  -- Calculates a DIGEST MD5 response
+  DigestMD5 = {
 
-		--- Instantiates DigestMD5
-		--
-		-- @param chall string containing the base64 decoded challenge
-		-- @return a new instance of DigestMD5
-		new = function(self, chall, username, password, method, uri, service, realm)
-			local o = { nc = 0, 
-				chall = chall, 
-				challnvs = {},
-				username = username,
-				password = password,
-				method = method,
-				uri = uri,
-				service = service,
-				realm = realm }
-	       	setmetatable(o, self)
-	        self.__index = self
-			o:parseChallenge()
-			return o
-		end,
+  --- Instantiates DigestMD5
+  --
+  -- @param chall string containing the base64 decoded challenge
+  -- @return a new instance of DigestMD5
+    new = function(self, chall, username, password, method, uri, service, realm)
+      local o = { nc = 0, 
+        chall = chall, 
+        challnvs = {},
+        username = username,
+        password = password,
+        method = method,
+        uri = uri,
+        service = service,
+        realm = realm }
+          setmetatable(o, self)
+          self.__index = self
+      o:parseChallenge()
+      return o
+    end,
 
-		-- parses a challenge received from the server
-		-- takes care of both quoted and unqoted identifiers
-		-- regardless of what RFC says
-		parseChallenge = function(self)
-			local results = {}
-			local start, stop = 0,0
-			while(true) do
-				local name, value
-				start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
-				if ( not(start) ) then break end
-				if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
-					start, stop, value = self.chall:find("(.-)\"", stop + 2)
-				else
-					start, stop, value = self.chall:find("([^,]*)", stop + 1)
-				end
-				self.challnvs[name:lower()] = value
-				start, stop = self.chall:find("%s*,%s*", stop + 1)
-				if ( not(start) ) then break end
-			end
-		end,
+    -- parses a challenge received from the server
+    -- takes care of both quoted and unqoted identifiers
+    -- regardless of what RFC says
+    parseChallenge = function(self)
+      local results = {}
+      local start, stop = 0,0
+      while(true) do
+        local name, value
+        start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
+        if ( not(start) ) then break end
+        if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
+          start, stop, value = self.chall:find("(.-)\"", stop + 2)
+        else
+          start, stop, value = self.chall:find("([^,]*)", stop + 1)
+        end
+        name = name:lower()
+        if name == "digest realm" then name="realm" end
+        self.challnvs[name] = value
+        start, stop = self.chall:find("%s*,%s*", stop + 1)
+        if ( not(start) ) then break end
+      end
+    end,
 
-		--- Calculates the digest 
-		calcDigest = function( self )
-			local uri = self.uri or ("%s/%s"):format(self.service, "localhost")
-			local realm = self.realm or self.challnvs.realm or ""
-			local cnonce = stdnse.tohex(openssl.rand_bytes( 8 ))
-			local qop = "auth"
-			self.nc = self.nc + 1
-			local A1_part1 = openssl.md5(self.username .. ":" .. (self.challnvs.realm or "") .. ":" .. self.password)
-			local A1 = stdnse.tohex(openssl.md5(A1_part1 .. ":" .. self.challnvs.nonce .. ':' .. cnonce))
-			local A2 = stdnse.tohex(openssl.md5(("%s:%s"):format(self.method, uri)))
-			local digest = stdnse.tohex(openssl.md5(A1 .. ":" .. self.challnvs.nonce .. ":" ..
-						("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" ..
-						qop .. ":" .. A2))
+    --- Calculates the digest
+    calcDigest = function( self )
+      local uri = self.uri or ("%s/%s"):format(self.service, "localhost")
+      local realm = self.realm or self.challnvs.realm or ""
+      local cnonce = stdnse.tohex(openssl.rand_bytes( 8 ))
+      local qop = "auth"
+      local qop_not_specified
+      if self.challnvs.qop then
+        qop_not_specified = false
+      else
+        qop_not_specified = true
+      end
+      self.nc = self.nc + 1
+      local A1_part1 = openssl.md5(self.username .. ":" .. (self.challnvs.realm or "") .. ":" .. self.password)
+      local A1 = stdnse.tohex(openssl.md5(A1_part1 .. ":" .. self.challnvs.nonce .. ':' .. cnonce))
+      local A2 = stdnse.tohex(openssl.md5(("%s:%s"):format(self.method, uri)))
+      local digest = stdnse.tohex(openssl.md5(A1 .. ":" .. self.challnvs.nonce .. ":" ..
+            ("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" ..
+            qop .. ":" .. A2))
 
-			local response = "username=\"" .. self.username .. "\""
-			response = response .. (",%s=\"%s\""):format("realm", realm)
-			response = response .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
-			response = response .. (",%s=\"%s\""):format("cnonce", cnonce)
-			response = response .. (",%s=%08d"):format("nc", self.nc)
-			response = response .. (",%s=%s"):format("qop", "auth")
-			response = response .. (",%s=\"%s\""):format("digest-uri", uri)
-			response = response .. (",%s=%s"):format("response", digest)
-			response = response .. (",%s=%s"):format("charset", "utf-8")
+      local b1
+      if not self.challnvs.algorithm or self.challnvs.algorithm == "MD5" then
+        b1 = stdnse.tohex(openssl.md5(self.username..":"..(self.challnvs.realm or "")..":"..self.password))
+      else
+        b1 = A1
+      end
+      -- should we make it work when qop == "auth-int" (we would need entity-body here, which
+      -- might be complicated)?
 
-			return response
-		end,
+      local digest_http
+      if not qop_not_specified then
+        digest_http =  stdnse.tohex(openssl.md5(b1 .. ":" .. self.challnvs.nonce .. ":" ..
+                        ("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" .. qop .. ":" .. A2))
+      else
+        digest_http =  stdnse.tohex(openssl.md5(b1 .. ":" .. self.challnvs.nonce .. ":" .. A2))
+      end
 
+      local response = "username=\"" .. self.username .. "\""
+      response = response .. (",%s=\"%s\""):format("realm", realm)
+      response = response .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
+      response = response .. (",%s=\"%s\""):format("cnonce", cnonce)
+      response = response .. (",%s=%08d"):format("nc", self.nc)
+      response = response .. (",%s=%s"):format("qop", "auth")
+      response = response .. (",%s=\"%s\""):format("digest-uri", uri)
+      response = response .. (",%s=%s"):format("response", digest)
+      response = response .. (",%s=%s"):format("charset", "utf-8")
+      
+      -- response_table is used in http library because the request should
+      -- be a little bit different then the string generated above
+      local response_table = {
+        username = self.username,
+        realm = realm,
+        nonce = self.challnvs.nonce,
+        cnonce = cnonce,
+        nc = ("%08d"):format(self.nc),
+        qop = qop,
+        ["digest-uri"] = uri,
+        algorithm = self.challnvs.algorithm,
+        response = digest_http
+      }
+      
+      return response, response_table
+    end,
 
-	}
+  }
 
 	-- The NTLM class handling NTLM challenge response authentication
 	NTLM = {
