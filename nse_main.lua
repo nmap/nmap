@@ -252,8 +252,7 @@ rawset(stdnse, "silent_require", function (...)
   local status, mod = pcall(require, ...);
   if not status then
     print_debug(1, "%s", traceback(mod));
-    yield(REQUIRE_ERROR); -- use script yield
-    error(mod);
+    error(REQUIRE_ERROR)
   else
     return mod;
   end
@@ -457,12 +456,13 @@ do
     local co = create(script_closure); -- Create a garbage thread
     local status, e = resume(co); -- Get the globals it loads in env
     if not status then
-      log_error("Failed to load %s:\n%s", filename, traceback(co, e));
-      error("could not load script");
-    end
-    if quiet_errors[e] then
-      print_verbose(1, "Failed to load '%s'.", filename);
-      return nil;
+      if quiet_errors[e] then
+        print_verbose(1, "Failed to load '%s'.", filename);
+        return nil;
+      else
+        log_error("Failed to load %s:\n%s", filename, traceback(co, e));
+        error("could not load script");
+      end
     end
     -- Check that all the required fields were set
     for f, t in pairs(required_fields) do
