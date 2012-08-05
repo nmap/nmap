@@ -184,7 +184,6 @@ OSPF = {
 	    end
 
 	    local neighbor_count = ( hello.header.length - pos + 1 ) / 4
-	    print("neighCount"..neighbor_count)
 	    local neighbor
 
 	    hello.neighbors = {}
