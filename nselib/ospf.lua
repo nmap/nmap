@@ -99,7 +99,7 @@ OSPF = {
 
 	__tostring = function(self)
 	    local hdr = bin.pack(">CCS", self.ver, self.type, self.length )
-	    hdr = hdr .. bin.pack(">IISS", self.router_id, self.area_id, self.chksum, self.auth_type)
+	    hdr = hdr .. bin.pack(">IISS", ipOps.todword(self.router_id), self.area_id, self.chksum, self.auth_type)
 	    if self.auth_type == 0x00 then
 		hdr = hdr .. bin.pack(">L", 0x00)
 	    elseif self.auth_type == 0x01 then
@@ -153,7 +153,7 @@ OSPF = {
 	__tostring = function(self)
 	    self.neighbors = self.neighbors or {}
 	    local function tostr()
-		local data = bin.pack(">ISCCIII", self.netmask, self.interval, self.options, self.prio, self.router_dead_interval, self.DR, self.BDR)
+		local data = bin.pack(">ISCCIII", ipOps.todword(self.netmask), self.interval, self.options, self.prio, self.router_dead_interval, ipOps.todword(self.DR), ipOps.todword(self.BDR))
 		for _, n in ipairs(self.neighbors) do
 		    data = data .. bin.pack("<I", n)
 		end
@@ -183,7 +183,8 @@ OSPF = {
 		return
 	    end
 
-	    local neighbor_count = ( #data - pos + 1 ) / 4
+	    local neighbor_count = ( hello.header.length - pos + 1 ) / 4
+	    print("neighCount"..neighbor_count)
 	    local neighbor
 
 	    hello.neighbors = {}
