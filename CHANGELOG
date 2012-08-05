@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a BJNP library and the scripts broadcast-bjnp-discover and
+  bjnp-discover. [Patrik Karlsson]
+
 o [NPING] Nping now prints out an error and exists when the user tries to use
   the -p flag for a scan option where that is meaningless. [Sean Rivera] 
 

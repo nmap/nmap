@@ -21,8 +21,10 @@ Entry { filename = "bitcoin-getaddr.nse", categories = { "discovery", "safe", } 
 Entry { filename = "bitcoin-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "bitcoinrpc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "bittorrent-discovery.nse", categories = { "discovery", "safe", } }
+Entry { filename = "bjnp-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "broadcast-ataoe-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-avahi-dos.nse", categories = { "broadcast", "dos", "intrusive", "vuln", } }
+Entry { filename = "broadcast-bjnp-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-db2-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dhcp-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dhcp6-discover.nse", categories = { "broadcast", "safe", } }
