@@ -159,7 +159,7 @@ OSPF = {
 		return tostring(self.header) .. data
 	    end
 	    local data = tostr()
-	    self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(19))
+	    self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
 	    return tostr()
 	end,
 
@@ -244,7 +244,7 @@ OSPF = {
 		return tostring(self.header) .. data
 	    end
 	    local data = tostr()
-	    self.header.chksum = packet.in_cksum(data:sub(1,16) .. data:sub(19))
+	    self.header.chksum = packet.in_cksum(data:sub(1,12) .. data:sub(25))
 	    return tostr()
 	end,
 
