@@ -1,4 +1,5 @@
 local bin = require "bin"
+local io = require "io"
 local msrpc = require "msrpc"
 local smb = require "smb"
 local string = require "string"
@@ -87,7 +88,7 @@ action = function(host,port)
 		local data = lanman_result.data
 		local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
 		pos = 0
-		local share_type 
+		local share_type, name, _
 		for i = 1, entry_count, 1 do
 			_,share_type = bin.unpack(">s",data,pos+14)
 			pos, name = bin.unpack("<z", data, pos)

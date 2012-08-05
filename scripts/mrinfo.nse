@@ -3,6 +3,7 @@ local packet = require "packet"
 local ipOps = require "ipOps"
 local bin = require "bin"
 local stdnse = require "stdnse"
+local string = require "string"
 local target = require "target"
 local table = require "table"
 
@@ -107,7 +108,7 @@ local mrinfoListen = function(interface, host, timeout, results)
     local condvar = nmap.condvar(results)
     local start = nmap.clock_ms()
     local listener = nmap.new_socket()
-    local p, mrinfo_raw, status, l3data, response
+    local p, mrinfo_raw, status, l3data, response, _
     -- IGMP packets that are sent from the target host to our host.
     local filter = 'ip proto 2 and src host ' .. host.ip .. ' and dst host ' .. interface.address
 
