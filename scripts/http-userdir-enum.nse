@@ -3,7 +3,6 @@ local bin = require "bin"
 local datafiles = require "datafiles"
 local http = require "http"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
@@ -158,7 +157,8 @@ end
 
 function randomstring()
   local rnd, s, l, _
-  if pcall(require, "openssl") then
+  local status, openssl = pcall(require, "openssl")
+  if status then
     rnd = openssl.rand_pseudo_bytes
   end
   s = rnd and rnd(8) or tostring( os.time() )

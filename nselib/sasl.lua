@@ -43,206 +43,201 @@
 
 local bin = require "bin"
 local bit = require "bit"
-local openssl = require "openssl"
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 _ENV = stdnse.module("sasl", stdnse.seeall)
 
-local HAVE_SSL = false
-
+local HAVE_SSL, openssl = pcall(require, 'openssl')
+if ( not(HAVE_SSL) ) then
+	 stdnse.print_debug(1,
+	    "sasl.lua: OpenSSL not present, SASL support limited.")
+end
 local MECHANISMS = { }
 
--- Calculates a DIGEST MD5 response
-DigestMD5 = {
-	
-	--- Instantiates DigestMD5
-	--
-	-- @param chall string containing the base64 decoded challenge
-	-- @return a new instance of DigestMD5
-	new = function(self, chall, username, password, method, uri, service, realm)
-		local o = { nc = 0, 
-			chall = chall, 
-			challnvs = {},
-			username = username,
-			password = password,
-			method = method,
-			uri = uri,
-			service = service,
-			realm = realm }
-       	setmetatable(o, self)
-        self.__index = self
-		o:parseChallenge()
-		return o
-	end,
-	
-	-- parses a challenge received from the server
-	-- takes care of both quoted and unqoted identifiers
-	-- regardless of what RFC says
-	parseChallenge = function(self)
-		local results = {}
-		local start, stop = 0,0
-		while(true) do
-			local name, value
-			start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
-			if ( not(start) ) then break end
-			if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
-				start, stop, value = self.chall:find("(.-)\"", stop + 2)
-			else
-				start, stop, value = self.chall:find("([^,]*)", stop + 1)
-			end
-			self.challnvs[name:lower()] = value
-			start, stop = self.chall:find("%s*,%s*", stop + 1)
-			if ( not(start) ) then break end
-		end
-	end,
-	
-	--- Calculates the digest 
-	calcDigest = function( self )
-		local uri = self.uri or ("%s/%s"):format(self.service, "localhost")
-		local realm = self.realm or self.challnvs.realm or ""
-		local cnonce = stdnse.tohex(openssl.rand_bytes( 8 ))
-		local qop = "auth"
-		self.nc = self.nc + 1
-		local A1_part1 = openssl.md5(self.username .. ":" .. (self.challnvs.realm or "") .. ":" .. self.password)
-		local A1 = stdnse.tohex(openssl.md5(A1_part1 .. ":" .. self.challnvs.nonce .. ':' .. cnonce))
-		local A2 = stdnse.tohex(openssl.md5(("%s:%s"):format(self.method, uri)))
-		local digest = stdnse.tohex(openssl.md5(A1 .. ":" .. self.challnvs.nonce .. ":" ..
-					("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" ..
-					qop .. ":" .. A2))
-		
-		local response = "username=\"" .. self.username .. "\""
-		response = response .. (",%s=\"%s\""):format("realm", realm)
-		response = response .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
-		response = response .. (",%s=\"%s\""):format("cnonce", cnonce)
-		response = response .. (",%s=%08d"):format("nc", self.nc)
-		response = response .. (",%s=%s"):format("qop", "auth")
-		response = response .. (",%s=\"%s\""):format("digest-uri", uri)
-		response = response .. (",%s=%s"):format("response", digest)
-		response = response .. (",%s=%s"):format("charset", "utf-8")
-						
-		return response
-	end,
-	
-	
-}
-
--- The NTLM class handling NTLM challenge response authentication
-NTLM = {
-	
-	--- Creates a new instance of the NTLM class
-	--
-	-- @param chall string containing the challenge received from the server
-	-- @param username string containing the username
-	-- @param password string containing the password
-	-- @return new instance of NTML
-	new = function(self, chall, username, password)
-		local o = { nc = 0, 
-			chall = chall, 
-			username = username,
-			password = password}
-       	setmetatable(o, self)
-        self.__index = self
-		o:parseChallenge()
-		return o
-	end,
-	
-	--- Converst str to "unicode" (adds null bytes for every other byte)
-	-- @param str containing string to convert
-	-- @return unicode string containing the unicoded str
-	to_unicode = function(str)
-		local unicode = ""
-		for i = 1, #str, 1 do
-			unicode = unicode .. bin.pack("<S", string.byte(str, i))
-		end
-		return unicode
-	end,
-	
-	--- Parses the NTLM challenge as received from the server
-	parseChallenge = function(self)
-		local NTLM_NegotiateUnicode 			= 0x00000001
-		local NTLM_NegotiateExtendedSecurity 	= 0x00080000
-		local pos, _, message_type
-				
-		pos, _, message_type, _, _, 
-		_, self.flags, self.chall, _, 
-		_, _, _	 = bin.unpack("<A8ISSIIA8LSSI", self.chall)
-		
-		if ( message_type ~= 0x02 ) then
-			error("NTLM parseChallenge expected message type: 0x02")
-		end
-		
-		self.is_extended = ( bit.band(self.flags, NTLM_NegotiateExtendedSecurity) == NTLM_NegotiateExtendedSecurity )
-		local is_unicode  = ( bit.band(self.flags, NTLM_NegotiateUnicode) == NTLM_NegotiateUnicode )
-		
-		self.workstation = "NMAP-HOST"
-		self.domain = self.username:match("^(.-)\\(.*)$") or "DOMAIN"
-		
-		if ( is_unicode ) then
-			self.workstation = self.to_unicode(self.workstation)
-			self.username = self.to_unicode(self.username)
-			self.domain = self.to_unicode(self.domain)
-		end	
-	end,
-	
-	--- Calculates the response
-	calcResponse = function(self)
-		local ntlm, lm = smbauth.get_password_response(nil, self.username, self.domain, self.password, nil, "v1", self.chall, self.is_extended)
-		local msg_type = 3
-		local response
-		local BASE_OFFSET = 72
-		local offset
-		local encrypted_random_sesskey = ""
-		local flags = 0xa2888205  -- (NTLM_NegotiateUnicode | \
-		                    		-- NTLM_RequestTarget | \
-				                    -- NTLM_NegotiateNTLM | \
-				                    -- NTLM_NegotiateAlwaysSign | \
-				                    -- NTLM_NegotiateExtendedSecurity | \
-				                    -- NTLM_NegotiateTargetInfo | \
-				                    -- NTLM_NegotiateVersion | \
-				                    -- NTLM_Negotiate128 | \
-				                    -- NTLM_Negotiate56)
-		
-		response = bin.pack("<AI", "NTLMSSP\0", msg_type)
-
-		offset = BASE_OFFSET + #self.workstation + #self.username + #self.domain
-		response = response .. bin.pack("<SSI", #lm, #lm, offset)
-
-		offset = offset + #lm
-		response = response .. bin.pack("<SSI", #ntlm, #ntlm, offset)
-
-		offset = BASE_OFFSET
-		response = response .. bin.pack("<SSI", #self.domain, #self.domain, offset)
-		
-		offset = BASE_OFFSET + #self.domain
-		response = response .. bin.pack("<SSI", #self.username, #self.username, offset)
-		
-		offset = BASE_OFFSET + #self.domain + #self.username
-		response = response .. bin.pack("<SSI", #self.workstation, #self.workstation, offset)
-		
-		offset = offset + #self.workstation + #lm + #ntlm
-		response = response .. bin.pack("<SSI", #encrypted_random_sesskey, #encrypted_random_sesskey, offset)
-	
-		response = response .. bin.pack("<I", flags)
-
-		-- add version info (major 5, minor 1, build 2600, reserved(1-3) 0,
-		-- NTLM Revision 15)
-		response = response .. bin.pack("<CCSCCCC", 5, 1, 2600, 0, 0, 0, 15)
-		response = response .. self.domain .. self.username .. self.workstation .. ntlm .. lm .. encrypted_random_sesskey
-	
-		return response
-	end
-	
-}
-
-if pcall(require, 'openssl') then
-  HAVE_SSL = true
-else
-  stdnse.print_debug(1,
-    "sasl.lua: OpenSSL not present, SASL support limited.")
-end
-
 if HAVE_SSL then 
+	-- Calculates a DIGEST MD5 response
+	DigestMD5 = {
+
+		--- Instantiates DigestMD5
+		--
+		-- @param chall string containing the base64 decoded challenge
+		-- @return a new instance of DigestMD5
+		new = function(self, chall, username, password, method, uri, service, realm)
+			local o = { nc = 0, 
+				chall = chall, 
+				challnvs = {},
+				username = username,
+				password = password,
+				method = method,
+				uri = uri,
+				service = service,
+				realm = realm }
+	       	setmetatable(o, self)
+	        self.__index = self
+			o:parseChallenge()
+			return o
+		end,
+
+		-- parses a challenge received from the server
+		-- takes care of both quoted and unqoted identifiers
+		-- regardless of what RFC says
+		parseChallenge = function(self)
+			local results = {}
+			local start, stop = 0,0
+			while(true) do
+				local name, value
+				start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
+				if ( not(start) ) then break end
+				if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
+					start, stop, value = self.chall:find("(.-)\"", stop + 2)
+				else
+					start, stop, value = self.chall:find("([^,]*)", stop + 1)
+				end
+				self.challnvs[name:lower()] = value
+				start, stop = self.chall:find("%s*,%s*", stop + 1)
+				if ( not(start) ) then break end
+			end
+		end,
+
+		--- Calculates the digest 
+		calcDigest = function( self )
+			local uri = self.uri or ("%s/%s"):format(self.service, "localhost")
+			local realm = self.realm or self.challnvs.realm or ""
+			local cnonce = stdnse.tohex(openssl.rand_bytes( 8 ))
+			local qop = "auth"
+			self.nc = self.nc + 1
+			local A1_part1 = openssl.md5(self.username .. ":" .. (self.challnvs.realm or "") .. ":" .. self.password)
+			local A1 = stdnse.tohex(openssl.md5(A1_part1 .. ":" .. self.challnvs.nonce .. ':' .. cnonce))
+			local A2 = stdnse.tohex(openssl.md5(("%s:%s"):format(self.method, uri)))
+			local digest = stdnse.tohex(openssl.md5(A1 .. ":" .. self.challnvs.nonce .. ":" ..
+						("%08d"):format(self.nc)  .. ":" .. cnonce .. ":" ..
+						qop .. ":" .. A2))
+
+			local response = "username=\"" .. self.username .. "\""
+			response = response .. (",%s=\"%s\""):format("realm", realm)
+			response = response .. (",%s=\"%s\""):format("nonce", self.challnvs.nonce)
+			response = response .. (",%s=\"%s\""):format("cnonce", cnonce)
+			response = response .. (",%s=%08d"):format("nc", self.nc)
+			response = response .. (",%s=%s"):format("qop", "auth")
+			response = response .. (",%s=\"%s\""):format("digest-uri", uri)
+			response = response .. (",%s=%s"):format("response", digest)
+			response = response .. (",%s=%s"):format("charset", "utf-8")
+
+			return response
+		end,
+
+
+	}
+
+	-- The NTLM class handling NTLM challenge response authentication
+	NTLM = {
+
+		--- Creates a new instance of the NTLM class
+		--
+		-- @param chall string containing the challenge received from the server
+		-- @param username string containing the username
+		-- @param password string containing the password
+		-- @return new instance of NTML
+		new = function(self, chall, username, password)
+			local o = { nc = 0, 
+				chall = chall, 
+				username = username,
+				password = password}
+	       	setmetatable(o, self)
+	        self.__index = self
+			o:parseChallenge()
+			return o
+		end,
+
+		--- Converst str to "unicode" (adds null bytes for every other byte)
+		-- @param str containing string to convert
+		-- @return unicode string containing the unicoded str
+		to_unicode = function(str)
+			local unicode = ""
+			for i = 1, #str, 1 do
+				unicode = unicode .. bin.pack("<S", string.byte(str, i))
+			end
+			return unicode
+		end,
+
+		--- Parses the NTLM challenge as received from the server
+		parseChallenge = function(self)
+			local NTLM_NegotiateUnicode 			= 0x00000001
+			local NTLM_NegotiateExtendedSecurity 	= 0x00080000
+			local pos, _, message_type
+
+			pos, _, message_type, _, _, 
+			_, self.flags, self.chall, _, 
+			_, _, _	 = bin.unpack("<A8ISSIIA8LSSI", self.chall)
+
+			if ( message_type ~= 0x02 ) then
+				error("NTLM parseChallenge expected message type: 0x02")
+			end
+
+			self.is_extended = ( bit.band(self.flags, NTLM_NegotiateExtendedSecurity) == NTLM_NegotiateExtendedSecurity )
+			local is_unicode  = ( bit.band(self.flags, NTLM_NegotiateUnicode) == NTLM_NegotiateUnicode )
+
+			self.workstation = "NMAP-HOST"
+			self.domain = self.username:match("^(.-)\\(.*)$") or "DOMAIN"
+
+			if ( is_unicode ) then
+				self.workstation = self.to_unicode(self.workstation)
+				self.username = self.to_unicode(self.username)
+				self.domain = self.to_unicode(self.domain)
+			end	
+		end,
+
+		--- Calculates the response
+		calcResponse = function(self)
+			local ntlm, lm = smbauth.get_password_response(nil, self.username, self.domain, self.password, nil, "v1", self.chall, self.is_extended)
+			local msg_type = 3
+			local response
+			local BASE_OFFSET = 72
+			local offset
+			local encrypted_random_sesskey = ""
+			local flags = 0xa2888205  -- (NTLM_NegotiateUnicode | \
+			                    		-- NTLM_RequestTarget | \
+					                    -- NTLM_NegotiateNTLM | \
+					                    -- NTLM_NegotiateAlwaysSign | \
+					                    -- NTLM_NegotiateExtendedSecurity | \
+					                    -- NTLM_NegotiateTargetInfo | \
+					                    -- NTLM_NegotiateVersion | \
+					                    -- NTLM_Negotiate128 | \
+					                    -- NTLM_Negotiate56)
+
+			response = bin.pack("<AI", "NTLMSSP\0", msg_type)
+
+			offset = BASE_OFFSET + #self.workstation + #self.username + #self.domain
+			response = response .. bin.pack("<SSI", #lm, #lm, offset)
+
+			offset = offset + #lm
+			response = response .. bin.pack("<SSI", #ntlm, #ntlm, offset)
+
+			offset = BASE_OFFSET
+			response = response .. bin.pack("<SSI", #self.domain, #self.domain, offset)
+
+			offset = BASE_OFFSET + #self.domain
+			response = response .. bin.pack("<SSI", #self.username, #self.username, offset)
+
+			offset = BASE_OFFSET + #self.domain + #self.username
+			response = response .. bin.pack("<SSI", #self.workstation, #self.workstation, offset)
+
+			offset = offset + #self.workstation + #lm + #ntlm
+			response = response .. bin.pack("<SSI", #encrypted_random_sesskey, #encrypted_random_sesskey, offset)
+
+			response = response .. bin.pack("<I", flags)
+
+			-- add version info (major 5, minor 1, build 2600, reserved(1-3) 0,
+			-- NTLM Revision 15)
+			response = response .. bin.pack("<CCSCCCC", 5, 1, 2600, 0, 0, 0, 15)
+			response = response .. self.domain .. self.username .. self.workstation .. ntlm .. lm .. encrypted_random_sesskey
+
+			return response
+		end
+
+	}
+	
   --- Encodes the parameters using the <code>CRAM-MD5</code> mechanism.
   --
   -- @param username string.

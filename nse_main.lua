@@ -1114,13 +1114,15 @@ if script_database_update then
   sort(scripts);
   for i, script in ipairs(scripts) do
     script = Script.new(script);
-    sort(script.categories);
-    db:write('Entry { filename = "', script.basename, '", ');
-    db:write('categories = {');
-    for j, category in ipairs(script.categories) do
-      db:write(' "', lower(category), '",');
+    if ( script ) then
+      sort(script.categories);
+      db:write('Entry { filename = "', script.basename, '", ');
+      db:write('categories = {');
+      for j, category in ipairs(script.categories) do
+        db:write(' "', lower(category), '",');
+      end
+      db:write(' } }\n');
     end
-    db:write(' } }\n');
   end
   db:close();
   log_write("stdout", "Script Database updated successfully.");

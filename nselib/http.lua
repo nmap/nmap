@@ -105,7 +105,6 @@ local base64 = require "base64"
 local comm = require "comm"
 local coroutine = require "coroutine"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -114,7 +113,7 @@ local url = require "url"
 _ENV = stdnse.module("http", stdnse.seeall)
 
 ---Use ssl if we have it
-local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
+local have_ssl, openssl = pcall(require,'openssl')
 
 local USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
 local MAX_REDIRECT_COUNT = 5

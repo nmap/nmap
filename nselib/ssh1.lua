@@ -10,8 +10,8 @@ local bin = require "bin"
 local bit = require "bit"
 local math = require "math"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
+local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh1", stdnse.seeall)
 
 --- Retrieve the size of the packet that is being received

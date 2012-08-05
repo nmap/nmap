@@ -1,8 +1,8 @@
 local http = require "http"
 local io = require "io"
 local json = require "json"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
+local openssl = stdnse.silent_require "openssl"
 local tab = require "tab"
 local table = require "table"
 

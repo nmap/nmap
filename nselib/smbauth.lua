@@ -82,13 +82,12 @@
 
 local bin = require "bin"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("smbauth", stdnse.seeall)
 
-have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
+local openssl, have_ssl = pcall(require, "openssl")
 
 -- Constants
 local NTLMSSP_NEGOTIATE = 0x00000001

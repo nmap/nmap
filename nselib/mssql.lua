@@ -107,7 +107,6 @@ local bit = require "bit"
 local math = require "math"
 local match = require "match"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local os = require "os"
 local shortport = require "shortport"
 local smb = require "smb"
@@ -132,7 +131,7 @@ _ENV = stdnse.module("mssql", stdnse.seeall)
 --
 --								(Patrik Karlsson, Chris Woodbury)
 
-HAVE_SSL = (nmap.have_ssl() and pcall(require, "openssl"))
+local openssl, HAVE_SSL = pcall(require, "openssl")
 
 do
   namedpipes = smb.namedpipes

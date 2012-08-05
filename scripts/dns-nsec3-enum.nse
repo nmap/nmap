@@ -2,13 +2,14 @@ local stdnse = require "stdnse"
 local shortport = require "shortport"
 local dns = require "dns"
 local base32 = require "base32"
-local openssl = require "openssl"
 local msrpc = require "msrpc" -- just for random string generation
 local math = require "math"
 local bin = require "bin"
 local nmap = require "nmap"
 local string = require "string"
 local table = require "table"
+
+local openssl = stdnse.silent_require "openssl"
 
 description = [[
 Tries to enumerate domain names from the DNS server that supports DNSSEC

@@ -34,17 +34,12 @@
 
 local bin = require "bin"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
 local table = require "table"
 local target = require "target"
 _ENV = stdnse.module("wsdd", stdnse.seeall)
 
-local HAVE_SSL = false
-
-if pcall(require,'openssl') then
-  HAVE_SSL = true
-end
+local HAVE_SSL, openssl = pcall(require,'openssl')
 
 -- The different probes
 local probes = {

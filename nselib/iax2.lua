@@ -9,9 +9,9 @@ local bin = require "bin"
 local bit = require "bit"
 local math = require "math"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local os = require "os"
 local stdnse = require "stdnse"
+local openssl = stdnse.silent_require "openssl"
 local table = require "table"
 _ENV = stdnse.module("iax2", stdnse.seeall)
 

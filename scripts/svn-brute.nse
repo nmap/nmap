@@ -1,9 +1,9 @@
 local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local openssl = stdnse.silent_require "openssl"
 
 description = [[
 Performs brute force password auditing against Subversion source code control servers.

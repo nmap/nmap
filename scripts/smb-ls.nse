@@ -3,7 +3,7 @@ local smb    = require 'smb'
 local stdnse = require 'stdnse'
 local tab    = require 'tab'
 local table = require "table"
-local openssl= require 'openssl'
+local openssl= stdnse.silent_require 'openssl'
 
 description = [[
 Attempts to retrieve useful information about files shared on SMB volumes.

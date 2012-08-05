@@ -31,17 +31,12 @@
 
 local bin = require "bin"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("vnc", stdnse.seeall)
 
-local HAVE_SSL = false
-
-if pcall(require,'openssl') then
-  HAVE_SSL = true
-end
+local HAVE_SSL, openssl = pcall(require,'openssl')
 
 VNC = {
 

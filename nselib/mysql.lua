@@ -10,7 +10,6 @@
 local bin = require "bin"
 local bit = require "bit"
 local nmap = require "nmap"
-local openssl = require "openssl"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -26,11 +25,7 @@ _ENV = stdnse.module("mysql", stdnse.seeall)
 
 local tab = require('tab')
 
-local HAVE_SSL = false
-
-if pcall(require,'openssl') then
-  HAVE_SSL = true
-end
+local HAVE_SSL, openssl = pcall(require,'openssl')
 
 Capabilities = 
 {
