@@ -23,7 +23,7 @@ which you can specify trough smb library arguments <code>smbuser</code> and
 
 ]]
 ---
--- @usage nmap  -p 445 <target> --script=smb-print-text 
+-- @usage nmap  -p 445 <target> --script=smb-print-text  --script-args="text=0wn3d"
 --
 -- @output 
 -- |_smb-print-text: Printer job started using MyPrinter printer share.
