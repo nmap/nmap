@@ -6,6 +6,10 @@ local string = require "string"
 local table = require "table"
 local unpwdb = require "unpwdb"
 
+-- we dont really need openssl here, but let's attempt to load it as a way
+-- to simply prevent the script from running, in case we don't have it
+local openssl = stdnse.silent_require("openssl")
+
 description = [[
 Performs password guessing against Apple Filing Protocol (AFP).
 ]]

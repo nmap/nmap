@@ -886,12 +886,16 @@ Proto = {
 		local status, response
 
 		if not HAVE_SSL then
-			return false, "OpenSSL not available, aborting ..."
+			response = Response:new()
+			response:setErrorMessage("OpenSSL not available, aborting ...")
+			return response
 		end
 		
 		-- currently we only support AFP3.3
 		if afp_version == nil or ( afp_version ~= "AFP3.3" and afp_version ~= "AFP3.2" and afp_version ~= "AFP3.1" ) then
-			return false, "Incorrect AFP version"
+			response = Response:new()
+			response:setErrorMessage("Incorrect AFP version")
+			return response
 		end
 
 		if ( uam == "No User Authent" ) then
@@ -1120,8 +1124,6 @@ Proto = {
 		local pad = 0
 		local response, fork = {}, {}
 		
-		print("volume_id" .. volume_id)
-
 		local data = bin.pack( "CC>S>I>S>S", COMMAND.FPOpenFork, flag, volume_id, did, file_bitmap, access_mode )
 
 		if path.type == PATH_TYPE.LongName then
