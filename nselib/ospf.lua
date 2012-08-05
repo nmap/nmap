@@ -100,7 +100,9 @@ OSPF = {
 	__tostring = function(self)
 	    local hdr = bin.pack(">CCS", self.ver, self.type, self.length )
 	    hdr = hdr .. bin.pack(">IISS", self.router_id, self.area_id, self.chksum, self.auth_type)
-	    if self.auth_type == 0x01 then
+	    if self.auth_type == 0x00 then
+		hdr = hdr .. bin.pack(">L", 0x00)
+	    elseif self.auth_type == 0x01 then
 		hdr = hdr .. bin.pack(">A8", self.auth_data.password)
 	    elseif self.auth_type == 0x02 then
 		hdr = hdr .. bin.pack(">A".. self.auth_data.length, self.auth_data.hash)
