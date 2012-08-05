@@ -472,7 +472,6 @@ int ProbeMode::start(){
     o.stats.stopTxClock();
     if(!o.disablePacketCapture()){
         nsock_pcap_read_packet(nsp, pcap_nsi, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES, NULL);
-        nsock_timer_create(nsp, nping_event_handler, DEFAULT_WAIT_AFTER_PROBES,NULL);
         loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
         if (loopret == NSOCK_LOOP_ERROR)
            outFatal(QT_3, "Unexpected nsock_loop error.\n");
