@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NPING] Nping now prints out an error and exists when the user tries to use
+  the -p flag for a scan option where that is meaningless. [Sean Rivera] 
+
 o [NSE] Added smb-print-text script which prints specified text using SMB 
   shared printer. [Aleksandar Nikolic]
 
