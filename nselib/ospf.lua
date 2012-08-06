@@ -88,7 +88,7 @@ OSPF = {
 	--- Sets the OSPF Router ID
 	-- @param router_id Router ID.
 	setRouterId = function(self, router_id)
-	    self.router_id = ipOps.todword(router_id)
+	    self.router_id = router_id
 	end,
 
 	--- Sets the OSPF Packet length
@@ -119,7 +119,10 @@ OSPF = {
 		options = 0x02,
 		prio = 0,
 		interval = 10,
-		router_dead_interval = 40
+		router_dead_interval = 40,
+		neighbors = {},
+		DR = "0.0.0.0",
+		BDR = "0.0.0.0",
 	    }
 	    setmetatable(o, self)
 	    self.__index = self
@@ -129,25 +132,31 @@ OSPF = {
 	--- Adds a neighbor to the list of neighbors.
 	-- @param neighbor IP Address of the neighbor.
 	addNeighbor = function(self, neighbor)
-	    table.insert(self.neighbors, bin.pack("<I", ipOps.todword(neighbor)))
+	    table.insert(self.neighbors, neighbor)
 	end,
 
 	--- Sets the OSPF netmask.
 	-- @param netmask Netmask in A.B.C.D
 	setNetmask = function(self, netmask)
-	    self.netmask = ipOps.todword(netmask)
+	    if netmask then
+		self.netmask = netmask
+	    end
 	end,
 
 	--- Sets the OSPF designated Router.
 	-- @param router IP address of the designated router.
 	setDesignatedRouter = function(self, router)
-	    self.DR = ipOps.todword(router)
+	    if router then
+		self.DR = router
+	    end
 	end,
 
 	--- Sets the OSPF backup Router.
 	-- @param router IP Address of the backup router.
 	setBackupRouter = function(self, router)
-	    self.BDR = ipOps.todword(router)
+	    if router then
+		self.BDR = router
+	    end
 	end,
 
 	__tostring = function(self)
@@ -155,7 +164,7 @@ OSPF = {
 	    local function tostr()
 		local data = bin.pack(">ISCCIII", ipOps.todword(self.netmask), self.interval, self.options, self.prio, self.router_dead_interval, ipOps.todword(self.DR), ipOps.todword(self.BDR))
 		for _, n in ipairs(self.neighbors) do
-		    data = data .. bin.pack("<I", n)
+		    data = data .. bin.pack(">I", ipOps.todword(n))
 		end
 		self.header:setLength(#data)
 		return tostring(self.header) .. data
