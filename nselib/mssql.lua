@@ -131,7 +131,7 @@ _ENV = stdnse.module("mssql", stdnse.seeall)
 --
 --								(Patrik Karlsson, Chris Woodbury)
 
-local openssl, HAVE_SSL = pcall(require, "openssl")
+local HAVE_SSL, openssl = pcall(require, "openssl")
 
 do
   namedpipes = smb.namedpipes

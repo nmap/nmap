@@ -87,7 +87,7 @@ local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("smbauth", stdnse.seeall)
 
-local openssl, have_ssl = pcall(require, "openssl")
+local have_ssl, openssl = pcall(require, "openssl")
 
 -- Constants
 local NTLMSSP_NEGOTIATE = 0x00000001
