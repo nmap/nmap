@@ -939,7 +939,6 @@ int luaopen_nmap (lua_State *L)
     {"new_dnet", nseU_placeholder}, /* imported from nmap.dnet */
     {"get_interface_info", nseU_placeholder}, /* imported from nmap.dnet */
     {"new_socket", nseU_placeholder}, /* imported from nmap.socket */
-    {"sleep", nseU_placeholder}, /* imported from nmap.socket */
     {"mutex", nseU_placeholder}, /* placeholder */
     {"condvar", nseU_placeholder}, /* placeholder */
     {NULL, NULL}
@@ -965,9 +964,6 @@ int luaopen_nmap (lua_State *L)
   /* nmap.socket.new -> nmap.new_socket. */
   lua_getfield(L, -1, "new");
   lua_setfield(L, nmap_idx, "new_socket");
-  /* nmap.socket.sleep -> nmap.sleep. */
-  lua_getfield(L, -1, "sleep");
-  lua_setfield(L, nmap_idx, "sleep");
   /* Store nmap.socket; used by nse_main.lua. */
   lua_setfield(L, nmap_idx, "socket");
 

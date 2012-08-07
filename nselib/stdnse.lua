@@ -50,7 +50,7 @@ _ENV = require "strict" {};
 -- @class function
 -- @param t Time to sleep, in seconds.
 -- @usage stdnse.sleep(1.5)
-_ENV.sleep = nmap.sleep;
+_ENV.sleep = nmap.sleep.socket;
 
 ---
 -- Prints a formatted debug message if the current debugging level is greater
