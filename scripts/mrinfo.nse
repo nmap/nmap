@@ -13,7 +13,7 @@ Queries a target router for multicast information.
 
 This works by sending a DVMRP Ask Neighbors 2 request to the target and
 listening for the DVMRP Neighbors 2 response that contains local addresses and
-the multicast neighbors on each one.
+the multicast neighbors on each one.  It is similar to the mrinfo utility included with Windows (Linux/UNIX versions are also available).
 
 ]]
 
