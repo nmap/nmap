@@ -2,7 +2,6 @@
 #define NSE_NMAPLIB
 
 #define NSE_NMAPLIBNAME  "nmap"
-#define NSE_STDNSELIBNAME  "stdnse.c"
 
 class Target;
 class Port;

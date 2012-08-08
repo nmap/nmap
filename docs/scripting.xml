@@ -3597,9 +3597,8 @@ end
       <literal>nmap</literal>,
       <literal>pcre</literal>,
       <literal>bin</literal>,
-      <literal>bit</literal>,
-      <literal>openssl</literal> (if available), and
-      <literal>stdnse.c</literal> (C functions for the <literal>stdnse</literal> library).
+      <literal>bit</literal>, and
+      <literal>openssl</literal> (if available).
       </para>
  
       <para>
