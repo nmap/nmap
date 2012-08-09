@@ -533,9 +533,10 @@ CIPHERS = {
 }
 
 cipherstrength = {
-	["weak"]	= 0,
-	["unknown strength"]	= 1,
-	["strong"]	= 2
+	["broken"] = 0,
+	["weak"]	= 1,
+	["unknown strength"]	= 2,
+	["strong"]	= 3
 }
 
 local rankedciphers={}
