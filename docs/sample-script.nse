@@ -75,7 +75,7 @@ categories = { "safe", "intrusive" } -- TODO: remove one or the other.
 -- NSELib libraries should be included here.
 local stdnse = require "stdnse"
 --local shortport = require 'shortport' -- Uncomment if you want to use the 'shortport' rule.
---local nsedebug = require 'nsedebug' -- Uncomment while you are debuggint to access debug functions.
+--local nsedebug = require 'nsedebug' -- Uncomment while you are debugging to access debug functions.
 
 -- The next section is rules that will cause the script to execute. These can
 -- be any one or more of:
