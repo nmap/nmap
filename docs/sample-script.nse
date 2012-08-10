@@ -72,14 +72,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- * vuln: Scripts that check for specific, known vulnerabilities should be in the 'vuln' category.
 categories = { "safe", "intrusive" } -- TODO: remove one or the other.
 
--- NSELib libraries should be included here. Note that the declaration to import libraries changed after the upgrade to Lua 5.2
--- 
--- Format for Nmap versions <=6:
--- require 'stdnse'
---require 'shortport' -- Uncomment if you want to use the 'shortport' rule.
---require 'nsedebug' -- Uncomment while you are debuggint to access debug functions.
---
--- Format for Nmap versions >= 6.01:
+-- NSELib libraries should be included here.
 local stdnse = require "stdnse"
 --local shortport = require 'shortport' -- Uncomment if you want to use the 'shortport' rule.
 --local nsedebug = require 'nsedebug' -- Uncomment while you are debuggint to access debug functions.
