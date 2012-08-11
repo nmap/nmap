@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Copyright (c) 2011 Patrick Joseph Donnelly
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+DIRECTORY=$(dirname "$0") # directory of executable
+
+ARGUMENTS='--options i,h --long in-place,help --name lua-format'
+IN_PLACE=0
+
+NEW_ARGUMENTS=$(getopt $ARGUMENTS -- "$@")
+
+function usage {
+  echo "$0 [--in-place] file1 [file2 [...]]"
+}
+
+if [ $? -ne 0 ]; then
+  usage
+  exit 1
+fi
+
+eval set -- "$NEW_ARGUMENTS"
+
+while [ $# -ge 0 ]; do
+  case "$1" in
+    -i|--in-place)
+      IN_PLACE=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit
+      ;;
+    --)
+      shift
+      break
+      ;;
+  esac
+done
+
+set -e
+
+# batrick@batbytes:~$ luac -l -p -
+# foo = function () end
+#
+# main <stdin:0,0> (3 instructions, 12 bytes at 0x172c230)
+# 0+ params, 2 slots, 0 upvalues, 0 locals, 1 constant, 1 function
+#         1       [1]     CLOSURE         0 0     ; 0x172c410
+#         2       [1]     SETGLOBAL       0 -1    ; foo
+#         3       [1]     RETURN          0 1
+#
+# function <stdin:1,1> (1 instruction, 4 bytes at 0x172c410)
+# 0 params, 2 slots, 0 upvalues, 0 locals, 0 constants, 0 functions
+#        1       [1]     RETURN          0 1
+#
+# We filter out everything but the opcodes and the lines specifying the
+# function statistics (# of parameters, upvalues, etc.). We also remove CLOSURE
+# opcodes because they include a runtime pointer address which changes across
+# luac invocations.
+
+function filter {
+  grep --invert-match -E "^function|main" | grep --invert-match "^[[:space:]]*$" | grep --invert-match CLOSURE | cut -f 2,4-
+}
+
+for file do
+  out="${file}.out"
+  echo Formatting "$file" >&2
+  lua "$DIRECTORY/lua-format.lua" < "$file" > "$out"
+  diff -Naur <(luac -l -p "$file" | filter) <(luac -l -p "$out" | filter) >&2
+  if [ $IN_PLACE -eq 1 ]; then
+    mv -f "$out" "$file"
+  fi
+done
