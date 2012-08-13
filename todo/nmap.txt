@@ -1,5 +1,10 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Investigate/fix potential routing-related issue.  See emails from
+  Djalal and others: http://seclists.org/nmap-dev/2012/q3/116,
+  http://seclists.org/nmap-dev/2012/q3/4,
+  http://seclists.org/nmap-dev/2012/q2/449
+
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
   o Maybe start with svn server, since we've had reports of our
@@ -35,21 +40,6 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
   o We should document Ron's sample script
     (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
     so that new script writers know about it. [James and Fyodor?]
-  o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
-    o Check for the same reference (like $1) being used in unrelated fields
-      (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
-      (o, cpe:)).
-      For example if we have v/$1/ h/$1/ it is a bug.
-    o Check a list of common product names that should only appear in p//,
-      not in i//. We still have entries that are like this:
-        p/Foobar 2000 ADSL router/ i/micro_httpd web server/
-      that should rather be written this way:
-        p/micro_httpd/ i/Foobar 2000 ADSL router/
-    o [Done] Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
-    [Sean and David?]
-  o Investigate increasing FD_SETSIZE on Windows to allow us to
-    multiplex more sockets.  See Henri's email:
-    http://seclists.org/nmap-dev/2012/q1/267
   o Add IPv6 subnet/pattern support like we offer for IPv4.
    o Obviously we can't go scanning a /48 in IPv6, but small subnets
      do make sense in some cases.  For example, the VPS hosting
@@ -98,18 +88,11 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
     be a principled or automatic way to build this hierarchy, but I
     suspect playing it by ear will be sufficient. Talk to David for
     more of his thinking on this topic.
-  o Add real headers for more protocol types in -6 -sO scan. Dario
-    Ciccarone provided some packet captures for
-      0x00: hop-by-hop
-      0x2b: routing
-      0x2c: fragment
-      0x3c: destination
-    (http://seclists.org/nmap-dev/2011/q2/1003). We also have examples
-    of crafting some of these in FPEngine.cc. [Sean and David]
-
 o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
   up to 512x512). Here is a screenshot of the current 48x48 icon on
   GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
+  o Sean did Windows and Linux icons, and David is going to do the Mac
+    one.
 
 o Update more web content in real time (or near real-time, or at least
   on an automated basis rather than requiring manual checkin and
@@ -776,6 +759,37 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add real headers for more protocol types in -6 -sO scan. Dario
+  Ciccarone provided some packet captures for
+      0x00: hop-by-hop
+      0x2b: routing
+      0x2c: fragment
+      0x3c: destination
+  (http://seclists.org/nmap-dev/2011/q2/1003). We also have examples
+   of crafting some of these in FPEngine.cc. [Sean and David]
+
+
+o Investigate increasing FD_SETSIZE on Windows to allow us to
+  multiplex more sockets.  See Henri's email:
+  http://seclists.org/nmap-dev/2012/q1/267 
+  [James Rogers did some investigative work on this in July 2012, but
+  we weren't able to find a great solution.  Maybe we should
+  investigate this more in the future, and also investigate other
+  Windows socket APIs such as completion ports. ]
+
+o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
+    o Check for the same reference (like $1) being used in unrelated fields
+      (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
+      (o, cpe:)).
+      For example if we have v/$1/ h/$1/ it is a bug.
+    o Check a list of common product names that should only appear in p//,
+      not in i//. We still have entries that are like this:
+        p/Foobar 2000 ADSL router/ i/micro_httpd web server/
+      that should rather be written this way:
+        p/micro_httpd/ i/Foobar 2000 ADSL router/
+    o [Done] Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
+    [Sean and David?]
 
 o Remove Nmap's --log-errors feature and make its behavior the
   default.  A few notes:
