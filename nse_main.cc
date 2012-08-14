@@ -759,6 +759,13 @@ void open_nse (void)
      */
     srand(get_random_uint());
 
+    const lua_Number *version = lua_version(NULL);
+    double major = (*version) / 100.0;
+    double minor = fmod(*version, 10.0);
+    if (o.debugging >= 1)
+      log_write(LOG_STDOUT, "%s: Using Lua %.0f.%.0f.\n", SCRIPT_ENGINE, major, minor);
+    if (*version < 502)
+      fatal("%s: This version of NSE only works with Lua 5.2 or greater.", SCRIPT_ENGINE);
     if ((L_NSE = luaL_newstate()) == NULL)
       fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
     lua_atpanic(L_NSE, panic);

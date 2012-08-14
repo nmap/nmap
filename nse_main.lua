@@ -30,6 +30,12 @@
 --    cause the system to stall through improper use.
 --  - Of course the os and io library can cause the system to also break.
 
+local _VERSION = _VERSION;
+local MAJOR, MINOR = assert(_VERSION:match "^Lua (%d+).(%d+)$");
+if tonumber(MAJOR.."."..MINOR) < 5.2 then
+  error "NSE requires Lua 5.2 or newer. It looks like you're using an older version of nmap."
+end
+
 local NAME = "NSE";
 
 -- Script Scan phases.
