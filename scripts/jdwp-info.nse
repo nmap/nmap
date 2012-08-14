@@ -59,6 +59,7 @@ action = function(host, port)
 	local status,socket = jdwp.connect(host,port) -- initialize the connection
 	if not status then
 		stdnse.print_debug("error, %s",socket)
+		return nil
 	end
 
 	-- read .class file 
@@ -68,21 +69,29 @@ action = function(host, port)
 	-- inject the class
 	local injectedClass
 	status,injectedClass = jdwp.injectClass(socket,class_bytes)
+	if not status then
+		stdnse.print_debug(1, "%s: Failed to inject class", SCRIPT_NAME)
+		return stdnse.format_output(false, "Failed to inject class")
+	end
 	-- find injected class method
 	local runMethodID = jdwp.findMethod(socket,injectedClass.id,"run",false)
 	
 	if runMethodID == nil then
-		stdnse.print_debug("Couldn't find run method.")
-		return false
+		stdnse.print_debug(1, "%s: Couldn't find run method", SCRIPT_NAME)
+		return stdnse.format_output(false, "Couldn't find run method.")
 	end	
 	
 	-- invoke run method
 	local result 	
 	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil) 
+	if not status then
+		stdnse.print_debug(1, "%s: Couldn't invoke run method", SCRIPT_NAME)
+		return stdnse.format_output(false, result)
+	end
 	-- get the result string
 	local _,_,stringID = bin.unpack(">CL",result)
 	status,result = jdwp.readString(socket,0,stringID)	
 	-- parse results 
-	return stdnse.format_output(true,result)	
+	return stdnse.format_output(status,result)	
 end
 
