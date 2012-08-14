@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Scripts can now return a structured name-value table so that results
+  are queryable from XML output. Scripts can return a string as before,
+  or a table, or a table and a string. In this last case, the table will
+  go to XML output and the string will go to screen output.
+  [Daniel Miller, David Fifield, Patrick Donnelly]
+
 o [NSE] Added JDWP library, jdwp-info, jdwp-exec and jdwp-inject scripts and
   needed classes. [Aleksandar Nikolic]
 
