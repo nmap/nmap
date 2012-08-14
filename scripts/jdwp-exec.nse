@@ -1,3 +1,5 @@
+local bin = require "bin"
+local io = require "io"
 local jdwp = require "jdwp"
 local stdnse = require "stdnse"
 local nmap = require "nmap"
@@ -78,8 +80,7 @@ action = function(host, port)
 	local result 	
 	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,1,runArgs) 
 	-- get the result string
-	local stringID
-	_,_,stringID = bin.unpack(">CL",result)
+	local _,_,stringID = bin.unpack(">CL",result)
 	status,result = jdwp.readString(socket,0,stringID)	
 	return stdnse.format_output(true,result)	
 end

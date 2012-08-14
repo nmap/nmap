@@ -38,6 +38,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local bin = require "bin"
 local table = require "table"
+local nmap = require "nmap"
 
 _ENV = stdnse.module("jdwp", stdnse.seeall)
 
@@ -615,6 +616,7 @@ function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,
 	-- parse data
 	stdnse.print_debug("newClassInstance data: %s",stdnse.tohex(data))
 	local pos, tag = bin.unpack(">C",data)
+	local objectID
 	pos, objectID = bin.unpack(">L",data,pos)
 	return true,objectID
 end
@@ -896,9 +898,8 @@ end
 -- @param methodName	Name of the method.
 -- @param skipFirst		Skip first found method.
 function findMethod(socket,class,methodName,skipFirst)
-	local methods 
 	local methodID
-	status, methods = getMethodsWithGeneric(socket,0,class)
+	local status, methods = getMethodsWithGeneric(socket,0,class)
 	if not status then
 		return false
 	end
@@ -1023,7 +1024,7 @@ function injectClass(socket,class_bytes)
 	end
 	-- to trigger the singlestep event, VM must be resumed
 	stdnse.print_debug("Resuming VM and waiting for single step event from main thread...")		
-	status, _ = resumeVM(socket,0)
+	local status, _ = resumeVM(socket,0)
 	-- clear singlestep since we need to run our code in this thread and we don't want it to stop after each instruction
 	clearThreadSinglestep(socket,0,eventID)
 	stdnse.print_debug("Cleared singlesteping from main thread.")			
@@ -1083,7 +1084,7 @@ function injectClass(socket,class_bytes)
 	if not status then
 		return false, injectedClassInstance
 	end
-	injected_class = {
+	local injected_class = {
 		id = injectedClassID,
 		instance = injectedClassInstance,
 		thread = main_thread
