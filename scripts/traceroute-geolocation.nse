@@ -94,11 +94,11 @@ local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
 			label = ("%s"):format(ip)
 		end
 		if lat then
-			table.insert(output_structured, { hop = count, ip = ip, hostname = name, lat = lat, lon = lon, region = reg, country = ctry })
+			table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon, region = reg, country = ctry })
 			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
 			table.insert(coordinates, { hop = count, lat = lat, lon = lon })
 		else
-			table.insert(output_structured, { hop = count, ip = ip, hostname = name })
+			table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt) })
 			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%s,%s"):format("- ", "- "))
 		end
 	else
