@@ -294,6 +294,8 @@ do
       tab, str = r1, r2;
     elseif type(r1) == "string" then
       tab, str = nil, r1;
+    elseif r1 == nil then
+      return
     else
       tab, str = r1, nil;
     end
