@@ -29,7 +29,7 @@
 -- * http://docs.oracle.com/javase/6/docs/technotes/guides/jpda/jdwp-spec.html
 -- 
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
---@author Aleksandar Nikolic <patrik@cqure.net>
+--@author Aleksandar Nikolic
 --
 -- Version 0.1
 -- Created 08/10/2012 - v0.1 - Created by Aleksandar Nikolic
