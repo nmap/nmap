@@ -28,6 +28,39 @@ saves the results to a KML file, plottable on Google earth and maps.
 -- |   8    157.85  212.162.64.146                                        42,12 Italy (Unknown)
 -- |   9    ...
 -- |_  10   ...
+-- @xmloutput
+-- <table>
+--   <elem key="hop">1</elem>
+-- </table>
+-- <table>
+--   <elem key="hop">2</elem>
+-- </table>
+-- <table>
+--   <elem key="hop">3</elem>
+-- </table>
+-- <table>
+--   <elem key="hop">4</elem>
+-- </table>
+-- <table>
+--   <elem key="hop">5</elem>
+--   <elem key="rtt">16.76</elem>
+--   <elem key="ip">194.68.128.104</elem>
+--   <elem key="hostname">e4-0.barleymow.stk.router.colt.net</elem>
+--   <elem key="lat">62</elem>
+--   <elem key="lon">15</elem>
+--   <elem key="country">Sweden</elem>
+--   <elem key="region">Unknown</elem>
+-- </table>
+-- <table>
+--   <elem key="hop">6</elem>
+--   <elem key="rtt">48.61</elem>
+--   <elem key="ip">212.74.65.49</elem>
+--   <elem key="hostname">te0-0-2-0-crs1.FRA.router.colt.net</elem>
+--   <elem key="lat">54</elem>
+--   <elem key="lon">-2</elem>
+--   <elem key="country">United Kingdom</elem>
+--   <elem key="region">Unknown</elem>
+-- </table>
 --
 -- @args traceroute-geolocation.kmlfile full path and name of file to write KML
 --       data to. The KML file can be used in Google earth or maps to plot the
