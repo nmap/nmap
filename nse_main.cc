@@ -36,6 +36,9 @@
 #define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
 #define NSE_CURRENT_HOSTS "NSE_CURRENT_HOSTS"
 
+#define NSE_FORMAT_TABLE "NSE_FORMAT_TABLE"
+#define NSE_FORMAT_XML "NSE_FORMAT_XML"
+
 #ifndef MAXPATHLEN
 #  define MAXPATHLEN 2048
 #endif
@@ -113,7 +116,9 @@ static int script_set_output (lua_State *L)
 {
   ScriptResult sr;
   sr.set_id(luaL_checkstring(L, 1));
-  sr.set_output(luaL_checkstring(L, 2));
+  sr.set_output_tab(L, 2);
+  if (!lua_isnil(L, 3))
+    sr.set_output_str(luaL_checkstring(L, 3));
   script_scan_results.push_back(sr);
   return 0;
 }
@@ -123,7 +128,9 @@ static int host_set_output (lua_State *L)
   ScriptResult sr;
   Target *target = nseU_gettarget(L, 1);
   sr.set_id(luaL_checkstring(L, 2));
-  sr.set_output(luaL_checkstring(L, 3));
+  sr.set_output_tab(L, 3);
+  if (!lua_isnil(L, 4))
+    sr.set_output_str(luaL_checkstring(L, 4));
   target->scriptResults.push_back(sr);
   return 0;
 }
@@ -136,7 +143,9 @@ static int port_set_output (lua_State *L)
   Target *target = nseU_gettarget(L, 1);
   p = nseU_getport(L, target, &port, 2);
   sr.set_id(luaL_checkstring(L, 3));
-  sr.set_output(luaL_checkstring(L, 4));
+  sr.set_output_tab(L, 4);
+  if (!lua_isnil(L, 5))
+    sr.set_output_str(luaL_checkstring(L, 5));
   target->ports.addScriptResult(p->portno, p->proto, sr);
   target->ports.numscriptresults++;
   return 0;
@@ -234,6 +243,19 @@ static int l_xml_newline(lua_State *L)
   xml_newline();
 
   return 0;
+}
+
+static int l_protect_xml(lua_State *L)
+{
+  const char *text;
+  size_t len;
+  std::string output;
+
+  text = luaL_checklstring(L, 1, &len);
+  output = protect_xml(std::string(text, len));
+  lua_pushlstring(L, output.c_str(), output.size());
+
+  return 1;
 }
 
 static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
@@ -340,6 +362,7 @@ static void open_cnse (lua_State *L)
     {"xml_end_tag", l_xml_end_tag},
     {"xml_write_escaped", l_xml_write_escaped},
     {"xml_newline", l_xml_newline},
+    {"protect_xml", l_protect_xml},
     {NULL, NULL}
   };
 
@@ -356,14 +379,76 @@ static void open_cnse (lua_State *L)
 
 }
 
-void ScriptResult::set_output (const char *out)
+/* Global persistent Lua state used by the engine. */
+static lua_State *L_NSE = NULL;
+
+void ScriptResult::clear (void)
 {
-  output = std::string(out);
+  if (o.debugging > 3)
+    log_write(LOG_STDOUT, "ScriptResult::clear %d id %s\n", output_ref, get_id());
+  luaL_unref(L_NSE, LUA_REGISTRYINDEX, output_ref);
+  output_ref = LUA_NOREF;
 }
 
-const char *ScriptResult::get_output (void) const
+void ScriptResult::set_output_tab (lua_State *L, int pos)
 {
-  return output.c_str();
+  clear();
+  lua_pushvalue(L, pos);
+  output_ref = luaL_ref(L_NSE, LUA_REGISTRYINDEX);
+  if (o.debugging > 3)
+    log_write(LOG_STDOUT, "ScriptResult::set_output_tab %d id %s\n", output_ref, get_id());
+}
+
+void ScriptResult::set_output_str (const char *out)
+{
+  output_str = std::string(out);
+}
+
+static std::string format_obj(lua_State *L, int pos)
+{
+  std::string output;
+
+  pos = lua_absindex(L, pos);
+
+  /* Look up the FORMAT_TABLE function from nse_main.lua and call it. */
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_FORMAT_TABLE);
+  if (lua_isnil(L, -1)) {
+    log_write(LOG_STDOUT, "%s: Cannot find function _R[\"%s\"] that should be in nse_main.lua\n",
+      SCRIPT_ENGINE, NSE_FORMAT_TABLE);
+    lua_pop(L, 1);
+    return output;
+  }
+
+  lua_pushvalue(L, pos);
+  if (lua_pcall(L, 1, 1, 0) != 0) {
+    if (o.debugging)
+      log_write(LOG_STDOUT, "%s: Error in FORMAT_TABLE: %s\n", SCRIPT_ENGINE, lua_tostring(L, -1));
+    lua_pop(L, 1);
+    return output;
+  }
+
+  output = std::string(lua_tostring(L, -1));
+  lua_pop(L, 1);
+
+  return output;
+}
+
+std::string ScriptResult::get_output_str (void) const
+{
+  std::string output;
+
+  /* Explicit string output? */
+  if (!output_str.empty())
+    return output_str;
+
+  /* Auto-formatted table output? */
+  lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
+  if (!lua_isnil(L_NSE, -1))
+    output = format_obj(L_NSE, -1);
+
+  lua_pop(L_NSE, 1);
+
+  return output;
 }
 
 void ScriptResult::set_id (const char *ident)
@@ -381,12 +466,50 @@ ScriptResults *get_script_scan_results_obj (void)
   return &script_scan_results;
 }
 
+static void format_xml(lua_State *L, int pos)
+{
+  pos = lua_absindex(L, pos);
+
+  /* Look up the FORMAT_XML function from nse_main.lua and call it. */
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_FORMAT_XML);
+  if (lua_isnil(L, -1)) {
+    log_write(LOG_STDOUT, "%s: Cannot find function _R[\"%s\"] that should be in nse_main.lua\n",
+      SCRIPT_ENGINE, NSE_FORMAT_XML);
+    lua_pop(L, 1);
+    return;
+  }
+
+  lua_pushvalue(L, pos);
+  if (lua_pcall(L, 1, 1, 0) != 0) {
+    if (o.debugging)
+      log_write(LOG_STDOUT, "%s: Error in FORMAT_XML: %s\n", SCRIPT_ENGINE, lua_tostring(L, -1));
+    lua_pop(L, 1);
+    return;
+  }
+}
+
 void ScriptResult::write_xml() const
 {
+  std::string output_str;
+
   xml_open_start_tag("script");
   xml_attribute("id", "%s", get_id());
-  xml_attribute("output", "%s", get_output());
-  xml_close_empty_tag();
+
+  output_str = get_output_str();
+  if (!output_str.empty())
+    xml_attribute("output", "%s", protect_xml(output_str).c_str());
+
+  /* Any table output? */
+  lua_rawgeti(L_NSE, LUA_REGISTRYINDEX, output_ref);
+  if (!lua_isnil(L_NSE, -1)) {
+    xml_close_start_tag();
+    format_xml(L_NSE, -1);
+    xml_end_tag();
+  } else {
+    xml_close_empty_tag();
+  }
+
+  lua_pop(L_NSE, 1);
 }
 
 /* int panic (lua_State *L)
@@ -624,9 +747,6 @@ void nse_gettarget (lua_State *L, int index)
   lua_rawget(L, -2);
   lua_replace(L, -2);
 }
-
-/* Global persistent Lua state used by the engine. */
-static lua_State *L_NSE = NULL;
 
 void open_nse (void)
 {

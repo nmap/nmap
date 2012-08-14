@@ -230,10 +230,20 @@
 
 <!ELEMENT cpe (#PCDATA)>
 
-<!ELEMENT script	EMPTY >
+<!ELEMENT script	(table|elem)* >
 <!ATTLIST script	
 	id	CDATA	#REQUIRED
 	output	CDATA	#REQUIRED
+>
+
+<!ELEMENT table	(table|elem)* >
+<!ATTLIST table
+    key CDATA #IMPLIED
+>
+
+<!ELEMENT elem	(#PCDATA)>
+<!ATTLIST elem
+    key CDATA #IMPLIED
 >
 
 <!ELEMENT os		( portused* , osmatch*, osfingerprint* ) >

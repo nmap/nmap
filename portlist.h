@@ -181,6 +181,7 @@ class Port {
  public:
   Port();
   void freeService(bool del_service);
+  void freeScriptResults(void);
   void getNmapServiceName(char *namebuf, int buflen, const char *rpcinfo) const;
 
   u16 portno;

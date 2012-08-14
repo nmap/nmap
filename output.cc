@@ -425,16 +425,46 @@ int print_iflist(void) {
 }
 
 #ifndef NOLUA
+/* Escape control characters to make a string safe to display on a terminal. */
+static std::string escape_for_screen(const std::string s) {
+  std::string r;
+
+  for (unsigned int i = 0; i < s.size(); i++) {
+    char buf[5];
+    unsigned char c = s[i];
+    if (c == '\t' || c == '\r' || c == '\n' || (0x20 <= c && c <= 0x7e)) {
+      r += c;
+    } else {
+      Snprintf(buf, sizeof(buf), "\\x%02X", c);
+      r += buf;
+    }
+  }
+
+  return r;
+}
+
+/* Do something to protect characters that can't appear in XML. This is not a
+   reversible transform, more a last-ditch effort to write readable XML with
+   characters that shouldn't be part of regular output anyway. The escaping that
+   xml_write_escaped is not enough; some characters are not allowed to appear in
+   XML, not even escaped. */
+std::string protect_xml(const std::string s) {
+  /* escape_for_screen is good enough. */
+  return escape_for_screen(s);
+}
+
 static char *formatScriptOutput(ScriptResult sr) {
   std::vector<std::string> lines;
 
-  const char *c_output;
+  std::string c_output;
   const char *p, *q;
   std::string result;
   unsigned int i;
 
-  c_output = sr.get_output();
-  p = c_output;
+  c_output = escape_for_screen(sr.get_output_str());
+  if (c_output.empty())
+    return NULL;
+  p = c_output.c_str();
 
   while (*p != '\0') {
     q = strchr(p, '\n');
@@ -798,8 +828,10 @@ void printportoutput(Target *currenths, PortList *plist) {
             ssr_iter->write_xml();
 
             char *script_output = formatScriptOutput((*ssr_iter));
-            Tbl->addItem(rowno, 0, true, true, script_output);
-            free(script_output);
+            if (script_output != NULL) {
+              Tbl->addItem(rowno, 0, true, true, script_output);
+              free(script_output);
+            }
             rowno++;
           }
 
@@ -2198,8 +2230,10 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
       iter->write_xml();
 
       script_output = formatScriptOutput((*iter));
-      log_write(LOG_PLAIN, "%s\n", script_output);
-      free(script_output);
+      if (script_output != NULL) {
+        log_write(LOG_PLAIN, "%s\n", script_output);
+        free(script_output);
+      }
     }
     xml_end_tag();
   }
@@ -2220,8 +2254,10 @@ void printhostscriptresults(Target *currenths) {
       iter->write_xml();
 
       script_output = formatScriptOutput((*iter));
-      log_write(LOG_PLAIN, "%s\n", script_output);
-      free(script_output);
+      if (script_output != NULL) {
+        log_write(LOG_PLAIN, "%s\n", script_output);
+        free(script_output);
+      }
     }
     xml_end_tag();
   }

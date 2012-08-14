@@ -43,6 +43,8 @@ local BASE = "NSE_BASE";
 local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
 local DESTRUCTOR = "NSE_DESTRUCTOR";
 local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
+local FORMAT_TABLE = "NSE_FORMAT_TABLE";
+local FORMAT_XML = "NSE_FORMAT_XML";
 
 -- This is a limit on the number of script instance threads running at once. It
 -- exists only to limit memory use when there are many open ports. It doesn't
@@ -283,14 +285,25 @@ do
     print_debug(1, fmt, ...);
   end
 
-  -- Sets scripts output. Variable result is a string.
-  function Thread:set_output(result)
+  -- Sets script output. r1 and r2 are the (as many as two) return values.
+  function Thread:set_output(r1, r2)
+    -- Structure table and unstructured string outputs.
+    local tab, str
+
+    if r2 then
+      tab, str = r1, r2;
+    elseif type(r1) == "string" then
+      tab, str = nil, r1;
+    else
+      tab, str = r1, nil;
+    end
+
     if self.type == "prerule" or self.type == "postrule" then
-      cnse.script_set_output(self.id, result);
+      cnse.script_set_output(self.id, tab, str);
     elseif self.type == "hostrule" then
-      cnse.host_set_output(self.host, self.id, result);
+      cnse.host_set_output(self.host, self.id, tab, str);
     elseif self.type == "portrule" then
-      cnse.port_set_output(self.host, self.port, self.id, result);
+      cnse.port_set_output(self.host, self.port, self.id, tab, str);
     end
   end
 
@@ -902,18 +915,19 @@ local function run (threads_iter, hosts)
       current, running[co] = thread, nil;
       thread:start_time_out_clock();
 
-      local s, result = resume(co, unpack(thread.args, 1, thread.args.n));
+      -- Threads may have zero, one, or two return values.
+      local s, r1, r2 = resume(co, unpack(thread.args, 1, thread.args.n));
       if not s then -- script error...
         all[co], num_threads = nil, num_threads-1;
         if debugging() > 0 then
           thread:d("%THREAD_AGAINST threw an error!\n%s\n",
-              traceback(co, tostring(result)));
+              traceback(co, tostring(r1)));
         else
           thread:set_output("ERROR: Script execution failed (use -d to debug)");
         end
-        thread:close(timeouts, result);
+        thread:close(timeouts, r1);
       elseif status(co) == "suspended" then
-        if result == NSE_YIELD_VALUE then
+        if r1 == NSE_YIELD_VALUE then
           waiting[co] = thread;
         else
           all[co], num_threads = nil, num_threads-1;
@@ -922,15 +936,7 @@ local function run (threads_iter, hosts)
         end
       elseif status(co) == "dead" then
         all[co], num_threads = nil, num_threads-1;
-        if type(result) == "string" then
-          -- Escape any character outside the range 32-126 except for tab,
-          -- carriage return, and line feed. This makes the string safe for
-          -- screen display as well as XML (see section 2.2 of the XML spec).
-          result = gsub(result, "[^\t\r\n\032-\126]", function(a)
-            return format("\\x%02X", byte(a));
-          end);
-          thread:set_output(result);
-        end
+        thread:set_output(r1, r2);
         thread:d("Finished %THREAD_AGAINST.");
         thread:close(timeouts);
       end
@@ -948,6 +954,75 @@ local function run (threads_iter, hosts)
 
   progress "endTask";
 end
+
+-- This function does the automatic formatting of Lua objects into strings, for
+-- normal output and for the XML @output attribute. Each nested table is
+-- indented by two spaces. Tables having a __tostring metamethod are converted
+-- using tostring. Otherwise, integer keys are listed first and only their
+-- value is shown; then string keys are shown prefixed by the key and a colon.
+-- Any other kinds of keys. Anything that is not a table is converted to a
+-- string with tostring.
+local function format_table(obj, indent)
+  indent = indent or "  ";
+  if type(obj) == "table" then
+    local mt = getmetatable(obj)
+    if mt and mt["__tostring"] then
+      -- Table obeys tostring, so use that.
+      return tostring(obj)
+    end
+
+    local lines = {};
+    -- Do integer keys.
+    for _, v in ipairs(obj) do
+      lines[#lines + 1] = indent .. format_table(v, indent .. "  ");
+    end
+    -- Do string keys.
+    for k, v in pairs(obj) do
+      if type(k) == "string" then
+        lines[#lines + 1] = indent .. k .. ": " .. format_table(v, indent .. "  ");
+      end
+    end
+    return "\n" .. concat(lines, "\n");
+  else
+    return tostring(obj);
+  end
+end
+_R[FORMAT_TABLE] = format_table
+
+local format_xml
+local function format_xml_elem(obj, key)
+  if key then
+    key = cnse.protect_xml(tostring(key));
+  end
+  if type(obj) == "table" then
+    cnse.xml_start_tag("table", {key=key});
+    cnse.xml_newline();
+  else
+    cnse.xml_start_tag("elem", {key=key});
+  end
+  format_xml(obj);
+  cnse.xml_end_tag();
+  cnse.xml_newline();
+end
+
+-- This function writes an XML representation of a Lua object to the XML stream.
+function format_xml(obj, key)
+  if type(obj) == "table" then
+    -- Do integer keys.
+    for _, v in ipairs(obj) do
+      format_xml_elem(v);
+    end
+    -- Do string keys.
+    for k, v in pairs(obj) do
+      if type(k) == "string" then
+        format_xml_elem(v, k);
+      end
+    end
+  else
+    cnse.xml_write_escaped(cnse.protect_xml(tostring(obj)));
+  end
+end
+_R[FORMAT_XML] = format_xml
 
 -- Format NSEDoc markup (e.g., including bullet lists and <code> sections) into
 -- a display string at the given indentation level. Currently this only indents

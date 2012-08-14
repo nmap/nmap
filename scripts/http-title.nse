@@ -22,6 +22,12 @@ original target.
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
 -- |_http-title: Go ahead and ScanMe!
+--
+-- @xmloutput
+-- <elem key="title">Go ahead and ScanMe!</elem>
+-- @xmloutput
+-- <elem key="title">Wikipedia, the free encyclopedia</elem>
+-- <elem key="redirect_url">http://en.wikipedia.org/wiki/Main_Page</elem>
 
 author = "Diman Todorov"
 
@@ -41,7 +47,7 @@ action = function(host, port)
   if resp.location then
     redirect_url = resp.location[#resp.location]
     if resp.status and tostring( resp.status ):match( "30%d" ) then
-      return ("Did not follow redirect to %s"):format( redirect_url )
+      return {redirect_url = redirect_url}, ("Did not follow redirect to %s"):format( redirect_url )
     end
   end
 
@@ -64,10 +70,14 @@ action = function(host, port)
     end
   end
 
+  local output_tab = stdnse.output_table()
+  output_tab.title = title
+  output_tab.redirect_url = redirect_url
+
   local output_str = display_title
   if redirect_url then
     output_str = output_str .. "\n" .. ("Requested resource was %s"):format( redirect_url )
   end
 
-  return output_str
+  return output_tab, output_str
 end

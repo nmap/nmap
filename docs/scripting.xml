@@ -1302,9 +1302,18 @@ NSE: Script Scanning completed.
 The action is the heart of an NSE script. It contains all of the
 instructions to be executed when the script's prerule, portrule, hostrule or postrule
 triggers. It is a Lua function which accepts the same arguments as the
-rule and can return either <literal>nil</literal> or a string. If a string is returned by a service script, the string and script's filename are printed in the Nmap port table output.  A string returned by a host script is printed below the port table.  No output is produced if the
-script returns <literal>nil</literal>.  For an example of an NSE
-action refer to <xref linkend="nse-tutorial-action"/>.
+rule. The return value of the action value may be a table of
+name&ndash;value pairs, a string, or <code>nil</code>. For an example of
+an NSE action refer to <xref linkend="nse-tutorial-action"/>.
+      </para>
+      <para>
+If the output of the action is a table, it is automatically formatted in
+a structured fashion for inclusion in the normal (<option>-oN</option>)
+and XML (<option>-oX</option>) output formats. If a string, the text is
+displayed directly in normal output, and written as an XML attribute in
+XML output, No output is produced if the script returns
+<literal>nil</literal>. See <xref linkend="nse-structured-output"/> for
+details of how different return values are handled.
       </para>
     </sect2>
 
@@ -2165,6 +2174,140 @@ socket:close()
 
 	</sect3>
 	</sect2>
+
+    <sect2 id="nse-structured-output">
+      <title>Structured and Unstructured Output</title>
+      <indexterm>structured script output</indexterm>
+
+      <para>
+        NSE scripts should usually return a table representing their
+        output, one that is nicely organized and has thoughtfully chosen
+        keys. Such a table will be automatically formatted for screen
+        output and will be stored as nested elements in XML output.
+        Having XML output broken down logically into keys and values
+        makes it easier for other tools to make use of script output.
+        It is possible for a script to return only a string, but doing
+        so is deprecated. In the past, scripts could only return a
+        string, and their output was simply copied to the XML as a blob
+        of text&ndash;this is now known as <quote>unstructured
+        output</quote>.
+      </para>
+
+      <para>
+        Suppose a script called <filename>user-list</filename> returns a
+        table as shown in this code sample. The following paragraphs
+        show how it appears in normal and XML output.
+      </para>
+
+<programlisting>
+local output = stdnse.output_table()
+output.hostname = "slimer"
+output.users = {}
+output.users[#output.users + 1] = "root"
+output.users[#output.users + 1] = "foo"
+output.users[#output.users + 1] = "bar"
+return output
+</programlisting>
+
+      <para>
+        A Lua table is converted to a string for normal output. The way
+        this works is: each nested table gets a new level of
+        indentation. Table entries with string keys are preceded by the
+        key and a colon; entries with integer keys simply appear in
+        order.
+        Unlike normal Lua tables, which are unordered, a table that
+        comes from <code>stdnse.output_table</code> will keep its keys in
+        the order they were inserted.
+        <xref linkend="nse-normal-structured-output"/> shows how the
+        example table appears in normal output.
+      </para>
+
+      <example id="nse-normal-structured-output">
+        <title>Automatic formatting of NSE structured output</title>
+<screen>
+PORT     STATE SERVICE
+1123/tcp open  unknown
+| user-list:
+|   hostname: slimer
+|   users:
+|     root
+|     foo
+|_    bar
+</screen>
+      </example>
+
+      <para>
+        The XML representation of a Lua table is constructed as follows.
+        Nested table become <code>table</code> elements. Entries of
+        tables that are not themselves tables become <code>elem</code>
+        elements. Entries (whether <code>table</code> or
+        <code>elem</code>) with string keys get a <code>key</code>
+        attribute (e.g.
+        <code>&lt;elem key="username"&gt;foo&lt;/elem&gt;</code>);
+        entries with integer keys have no <code>key</code> element and
+        their key is implicit in the order in which they appear.
+      </para>
+      <para>
+        In addition to the above, whatever normal output the script
+        produces (even if automatically generated) is copied to the
+        <code>output</code> attribute of the <code>script</code>
+        element. Newlines and other special characters will be encoded
+        as XML character entities, for example <code>&amp;#xa;</code>.
+        <xref linkend="nse-xml-structured-output"/> shows how the example
+        table appears in XML.
+      </para>
+
+      <example id="nse-xml-structured-output">
+        <title>NSE structured output in XML</title>
+<screen><![CDATA[<script id="t" output="&#xa;hostname: slimer&#xa;users: &#xa;  root&#xa;  foo&#xa;  bar">
+  <elem key="hostname">slimer</elem>
+  <table key="users">
+    <elem>root</elem>
+    <elem>foo</elem>
+    <elem>bar</elem>
+  </table>
+</script>
+]]></screen>
+      </example>
+
+      <para>
+        Some scripts need more control their normal output. This is the
+        case, for example, with scripts that need to display complex
+        tables. For complete control over the output, these scripts may
+        do either of these things:
+        <simplelist>
+          <member>return a string as second return value, or</member>
+          <member>set the <code>__tostring</code> metamethod on the
+          returned table.</member>
+        </simplelist>
+        The resulting string will be used in normal output, and the
+        table will be used in XML as usual. The formatted string may
+        contain newline characters to appear as multiple lines.
+      </para>
+      <para>
+        If the above code example were modified in this way to return a
+        formatted string,
+<programlisting>
+local output = stdnse.output_table()
+output.hostname = "slimer"
+output.users = {}
+output.users[#output.users + 1] = "root"
+output.users[#output.users + 1] = "foo"
+output.users[#output.users + 1] = "bar"
+local output_str = string.format("hostname: %s\n", output.hostname)
+output_str = output_str .. "\n" .. stdnse.strjoin(", ", output.users)
+return output, output_str
+</programlisting>
+        then the normal output would appear as follows:
+<screen>
+PORT     STATE SERVICE
+1123/tcp open  unknown
+| user-list:
+|   hostname: slimer
+|_  users: root, foo, bar
+</screen>
+      </para>
+    </sect2>
 
     <sect2 id="nse-exceptions">
       <title>Exception Handling</title>

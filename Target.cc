@@ -162,6 +162,10 @@ void Target::Recycle() {
 
 Target::~Target() {
   FreeInternal();
+  while (!scriptResults.empty()) {
+    scriptResults.front().clear();
+    scriptResults.pop_front();
+  }
 }
 
 void Target::FreeInternal() {

@@ -7,6 +7,7 @@
 -- @name stdnse
 
 local _G = require "_G"
+local coroutine = require "coroutine"
 local math = require "math"
 local nmap = require "nmap"
 local os = require "os"
@@ -17,6 +18,7 @@ local error = error;
 local getmetatable = getmetatable;
 local ipairs = ipairs
 local pairs = pairs
+local rawset = rawset
 local require = require;
 local select = select
 local setmetatable = setmetatable;
@@ -1030,6 +1032,52 @@ function seeall (env)
   local m = getmetatable(env) or {};
   m.__index = _G;
   setmetatable(env, m);
+end
+
+--- Return a table that keeps elements in order of insertion.
+--
+-- The pairs function, called on a table returned by this function, will yield
+-- elements in the order they were inserted. This function is meant to be used
+-- to construct output tables returned by scripts.
+--
+-- Reinserting a key that is already in the table does not change its position
+-- in the order. However, removing a key by assigning to <code>nil</code> and
+-- then doing another assignment will move the key to the end of the order.
+--
+-- @return An ordered table.
+function output_table ()
+  local t = {}
+  local reverse = {}
+  local order = {}
+  local function iterator ()
+    for i, key in ipairs(order) do
+      coroutine.yield(key, t[key])
+    end
+  end
+  local mt = {
+    __newindex = function (_, k, v)
+      if reverse[k] then
+        rawset(t, k, v)
+        if v == nil then
+          table.remove(order, reverse[k])
+          reverse[k] = nil
+        end
+      else
+        if v ~= nil then
+          table.insert(order, k)
+          reverse[k] = #order
+        end
+        rawset(t, k, v)
+      end
+    end,
+    __index = function (_, k)
+      return t[k]
+    end,
+    __pairs = function (_)
+      return coroutine.wrap(iterator)
+    end,
+  }
+  return setmetatable({}, mt)
 end
 
 return _ENV;

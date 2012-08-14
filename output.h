@@ -220,6 +220,8 @@ void printosscanoutput(Target *currenths);
 void printserviceinfooutput(Target *currenths);
 
 #ifndef NOLUA
+std::string protect_xml(const std::string s);
+
 /* Use this function to report NSE_PRE_SCAN and NSE_POST_SCAN results */
 void printscriptresults(ScriptResults *scriptResults, stype scantype);
 

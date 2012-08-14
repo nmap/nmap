@@ -38,6 +38,11 @@ Additionally, you can use:
 -- | sample-script: 
 -- |   This is some output
 -- |_    Some more output
+-- @xmloutput
+-- <elem>This is some output</elem>
+-- <table>
+--   <elem>Some more output</elem>
+-- </table>
 --
 -- @args sample-script.arg1 Here, we document each argument, how it's used, and
 --                          necessary, the default value.
@@ -171,23 +176,45 @@ action = function( host, port )
     target.add('192.168.1.1')
   end
 
-  -- If your response is more complicated, you can build a table, potentially
-  -- with subtables, and pass it to stdnse.format_output(). Each table can have
-  -- a list of output values, numerically, which will be displayed in order.
-  -- Additionally, they can have the 'name' key, which will be displayed at the
-  -- top, and the 'warning' key, which will only be displayed if debugging is
-  -- enabled. For more information and examples, see the documentation for
-  -- stdnse.format_output().
+  -- Construct a table representing what the script has to report.
+  local output_tab = stdnse.output_table()
+  output_tab.name1 = 'value1'
+  output_tab.name2 = 'value2'
+  output_tab.subtable = { 'sub1', 'sub2', 'sub3' }
+
+  -- Returning this table will produce output like this:
+  -- | sample-script:
+  -- |   name1: value1
+  -- |   name2: value2
+  -- |   subtable:
+  -- |     sub1
+  -- |     sub2
+  -- |_    sub3
+  --
+  -- If you need more control over output formatting, you can return a string in
+  -- addition to the table. stdnse.format_output() is a formatting function used
+  -- to make string output. Each table can have a list of output values,
+  -- numerically, which will be displayed in order. Additionally, they can have
+  -- the 'name' key, which will be displayed at the top, and the 'warning' key,
+  -- which will only be displayed if debugging is enabled. For more information
+  -- and examples, see the documentation for stdnse.format_output().
   --
   -- The following will display:
   -- | sample-script:
-  -- |   value1
-  -- |   value2
+  -- |   Name 1: value1
+  -- |   Name 2: value2
   -- |   This is a subtable
-  -- |     subtable1
-  -- |_    subtable2
-  local response = {'value1', 'value2', {name="This is a subtable", 'subtable1', 'subtable2'}}
-  return stdnse.format_output(true, response)
+  -- |     sub1
+  -- |     sub2
+  -- |_    sub3
+
+  output_str = stdnse.format_output(true, {
+    'Name 1: ' .. 'value1',
+    'Name 2: ' .. 'value2',
+    { name='This is a subtable', 'sub1', 'sub2', 'sub3' }
+  })
+
+  return output_tab, output_str
 end
 
 

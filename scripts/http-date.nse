@@ -13,9 +13,13 @@ sent, so the difference includes at least the duration of one RTT.
 ---
 -- @output
 -- 80/tcp open  http
--- |_ http-date: Thu, 23 Jul 2009 23:15:57 GMT; -6s from local time.
+-- |_http-date: Thu, 02 Aug 2012 22:11:03 GMT; 0s from local time.
 -- 80/tcp open  http
--- |_ http-date: Wed, 17 Jan 2007 09:29:10 GMT; -2y187d13h46m53s from local time.
+-- |_http-date: Thu, 02 Aug 2012 22:07:12 GMT; -3m51s from local time.
+--
+-- @xmloutput
+-- <elem key="date">2012-08-02T23:07:12Z</elem>
+-- <elem key="delta">-231</elem>
 
 author = "David Fifield"
 
@@ -39,9 +43,13 @@ action = function(host, port)
 		return
 	end
 
-	-- Should account for estimated RTT too.
-	local diff = stdnse.format_difftime(response_date, request_date)
+	local output_tab = stdnse.output_table()
+	-- ISO 8601 date and time.
+	output_tab.date = os.date("%Y-%m-%dT%H:%M:%SZ", os.time(response_date))
+	output_tab.delta = os.difftime(os.time(response_date), os.time(request_date))
 
-	return string.format("%s; %s from local time.",
-		response.header["date"], diff)
+	local output_str = string.format("%s; %s from local time.",
+		response.header["date"], stdnse.format_difftime(response_date, request_date))
+
+	return output_tab, output_str
 end

@@ -1758,7 +1758,10 @@ int nmap_main(int argc, char *argv[]) {
     script_scan_results = get_script_scan_results_obj();
     script_scan(Targets, SCRIPT_PRE_SCAN);
     printscriptresults(script_scan_results, SCRIPT_PRE_SCAN);
-    script_scan_results->clear();
+    while (!script_scan_results->empty()) {
+      script_scan_results->front().clear();
+      script_scan_results->pop_front();
+    }
   }
 #endif
 
@@ -2055,7 +2058,10 @@ int nmap_main(int argc, char *argv[]) {
   if (o.script) {
     script_scan(Targets, SCRIPT_POST_SCAN);
     printscriptresults(script_scan_results, SCRIPT_POST_SCAN);
-    script_scan_results->clear();
+    while (!script_scan_results->empty()) {
+      script_scan_results->front().clear();
+      script_scan_results->pop_front();
+    }
     delete new_targets;
     new_targets = NULL;
   }

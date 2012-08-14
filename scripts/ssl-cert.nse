@@ -13,24 +13,26 @@ organizationName, stateOrProvinceName, and countryName of the subject.
 
 <code>
 443/tcp open  https
-|  ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
 /stateOrProvinceName=California/countryName=US
-|  Not valid before: 2009-05-28 00:00:00
-|_ Not valid after:  2010-05-01 23:59:59
+| Not valid before: 2011-03-23 00:00:00
+|_Not valid after:  2013-04-01 23:59:59
 </code>
 
 With <code>-v</code> it adds the issuer name and fingerprints.
 
 <code>
 443/tcp open  https
-|  ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
 /stateOrProvinceName=California/countryName=US
-|  Issuer: commonName=VeriSign Class 3 Extended Validation SSL CA\
+| Issuer: commonName=VeriSign Class 3 Extended Validation SSL CA\
 /organizationName=VeriSign, Inc./countryName=US
-|  Not valid before: 2009-05-28 00:00:00
-|  Not valid after:  2010-05-01 23:59:59
-|  MD5:   c5b8 7ddd ccc7 537f 8861 b476 078d e8fd
-|_ SHA-1: dc5a cb8b 9eb9 b5de 7117 c536 8c15 0e75 ba88 702e
+| Public Key type: rsa
+| Public Key bits: 2048
+| Not valid before: 2011-03-23 00:00:00
+| Not valid after:  2013-04-01 23:59:59
+| MD5:   bf47 ceca d861 efa7 7d14 88ad 4a73 cb5b
+|_SHA-1: d846 5221 467a 0d15 3df0 9f2e af6d 4390 0213 9a68
 </code>
 
 With <code>-vv</code> it adds the PEM-encoded contents of the entire
@@ -38,32 +40,73 @@ certificate.
 
 <code>
 443/tcp open  https
-|  ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
-/stateOrProvinceName=California/countryName=US/serialNumber=3014267\
-/1.3.6.1.4.1.311.60.2.1.3=US/streetAddress=2211 N 1st St\
-/1.3.6.1.4.1.311.60.2.1.2=Delaware/postalCode=95131-2021\
-/localityName=San Jose/organizationalUnitName=Information Systems\
-/2.5.4.15=V1.0, Clause 5.(b)
-|  Issuer: commonName=VeriSign Class 3 Extended Validation SSL CA\
+| ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+/stateOrProvinceName=California/countryName=US/1.3.6.1.4.1.311.60.2.1.2=Delaware\
+/postalCode=95131-2021/localityName=San Jose/serialNumber=3014267\
+/streetAddress=2211 N 1st St/1.3.6.1.4.1.311.60.2.1.3=US\
+/organizationalUnitName=PayPal Production/businessCategory=Private Organization
+| Issuer: commonName=VeriSign Class 3 Extended Validation SSL CA\
 /organizationName=VeriSign, Inc./countryName=US\
 /organizationalUnitName=Terms of use at https://www.verisign.com/rpa (c)06
-|  Not valid before: 2009-05-28 00:00:00
-|  Not valid after:  2010-05-01 23:59:59
-|  MD5:   c5b8 7ddd ccc7 537f 8861 b476 078d e8fd
-|  SHA-1: dc5a cb8b 9eb9 b5de 7117 c536 8c15 0e75 ba88 702e
-|  -----BEGIN CERTIFICATE-----
-|  MIIFxzCCBK+gAwIBAgIQX02QuADDB7CVjZdooVge+zANBgkqhkiG9w0BAQUFADCB
+| Public Key type: rsa
+| Public Key bits: 2048
+| Not valid before: 2011-03-23 00:00:00
+| Not valid after:  2013-04-01 23:59:59
+| MD5:   bf47 ceca d861 efa7 7d14 88ad 4a73 cb5b
+| SHA-1: d846 5221 467a 0d15 3df0 9f2e af6d 4390 0213 9a68
+| -----BEGIN CERTIFICATE-----
+| MIIGSzCCBTOgAwIBAgIQLjOHT2/i1B7T//819qTJGDANBgkqhkiG9w0BAQUFADCB
 ...
+| 9YDR12XLZeQjO1uiunCsJkDIf9/5Mqpu57pw8v1QNA==
+|_-----END CERTIFICATE-----
 </code>
 ]]
 
 ---
 -- @output
 -- 443/tcp open  https
--- |  ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
+-- | ssl-cert: Subject: commonName=www.paypal.com/organizationName=PayPal, Inc.\
 -- /stateOrProvinceName=California/countryName=US
--- |  Not valid before: 2009-05-28 00:00:00
--- |_ Not valid after:  2010-05-01 23:59:59
+-- | Not valid before: 2011-03-23 00:00:00
+-- |_Not valid after:  2013-04-01 23:59:59
+--
+-- @xmloutput
+-- <table key="subject">
+--   <elem key="1.3.6.1.4.1.311.60.2.1.2">Delaware</elem>
+--   <elem key="1.3.6.1.4.1.311.60.2.1.3">US</elem>
+--   <elem key="postalCode">95131-2021</elem>
+--   <elem key="localityName">San Jose</elem>
+--   <elem key="serialNumber">3014267</elem>
+--   <elem key="countryName">US</elem>
+--   <elem key="stateOrProvinceName">California</elem>
+--   <elem key="streetAddress">2211 N 1st St</elem>
+--   <elem key="organizationalUnitName">PayPal Production</elem>
+--   <elem key="commonName">www.paypal.com</elem>
+--   <elem key="organizationName">PayPal, Inc.</elem>
+--   <elem key="businessCategory">Private Organization</elem>
+-- </table>
+-- <table key="issuer">
+--   <elem key="organizationalUnitName">Terms of use at https://www.verisign.com/rpa (c)06</elem>
+--   <elem key="organizationName">VeriSign, Inc.</elem>
+--   <elem key="commonName">VeriSign Class 3 Extended Validation SSL CA</elem>
+--   <elem key="countryName">US</elem>
+-- </table>
+-- <table key="pubkey">
+--   <elem key="type">rsa</elem>
+--   <elem key="bits">2048</elem>
+-- </table>
+-- <table key="validity">
+--   <elem key="notBefore">2011-03-23T00:00:00Z</elem>
+--   <elem key="notAfter">2013-04-01T23:59:59Z</elem>
+-- </table>
+-- <elem key="md5">bf47cecad861efa77d1488ad4a73cb5b</elem>
+-- <elem key="sha1">d8465221467a0d153df09f2eaf6d439002139a68</elem>
+-- <elem key="pem">-----BEGIN CERTIFICATE-----
+-- MIIGSzCCBTOgAwIBAgIQLjOHT2/i1B7T//819qTJGDANBgkqhkiG9w0BAQUFADCB
+-- ...
+-- 9YDR12XLZeQjO1uiunCsJkDIf9/5Mqpu57pw8v1QNA==
+-- -----END CERTIFICATE-----
+-- </elem>
 
 author = "David Fifield"
 
@@ -129,7 +172,37 @@ function stringify_name(name)
     return stdnse.strjoin("/", fields)
 end
 
-local function parseCertificate(cert)
+local function name_to_table(name)
+  local output = {}
+  for k, v in pairs(name) do
+    if type(k) == "table" then
+      k = stdnse.strjoin(".", k)
+    end
+    output[k] = v
+  end
+  return output
+end
+
+local function format_time(t)
+    return os.date("%Y-%m-%dT%H:%M:%SZ", os.time(t))
+end
+
+local function output_tab(cert)
+    local o = stdnse.output_table()
+    o.subject = name_to_table(cert.subject)
+    o.issuer = name_to_table(cert.issuer)
+    o.pubkey = cert.pubkey
+    o.validity = {}
+    for k, v in pairs(cert.validity) do
+      o.validity[k] = format_time(v)
+    end
+    o.md5 = stdnse.tohex(cert:digest("md5"))
+    o.sha1 = stdnse.tohex(cert:digest("sha1"))
+    o.pem = cert.pem
+    return o
+end
+
+local function output_str(cert)
 	local lines = {}
 
 	lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
@@ -156,7 +229,7 @@ local function parseCertificate(cert)
     if nmap.verbosity() > 1 then
         lines[#lines + 1] = cert.pem
     end
-	return lines
+	return stdnse.strjoin("\n", lines)
 end
 
 action = function(host, port)
@@ -164,10 +237,8 @@ action = function(host, port)
 	if ( not(status) ) then
 		return
 	end
-	
-	local lines = parseCertificate(cert)
 
-    return stdnse.strjoin("\n", lines)
+    return output_tab(cert), output_str(cert)
 end
 
 
