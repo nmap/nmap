@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added broadcast-igmp-discovery script which discovers and outputs
+  interesting information from targets that have multicast groups memberships.
+  [Hani Benhabiles]
+
 o Scripts can now return a structured name-value table so that results
   are queryable from XML output. Scripts can return a string as before,
   or a table, or a table and a string. In this last case, the table will
@@ -18,7 +22,7 @@ o [NPING] Nping now prints out an error and exists when the user tries to use
 o [NSE] Added smb-print-text script which prints specified text using SMB 
   shared printer. [Aleksandar Nikolic]
 
-o [NSE] Added mrinfo script whiches queries a target router for multicast
+o [NSE] Added mrinfo script which queries a target router for multicast
   information. [Hani Benhabiles]
 
 o [NSE] Added ssl-date script which gets server's time from SSL ServerHello

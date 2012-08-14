@@ -30,6 +30,7 @@ Entry { filename = "broadcast-dhcp-discover.nse", categories = { "broadcast", "s
 Entry { filename = "broadcast-dhcp6-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-igmp-discovery.nse", categories = { "discovery", "safe", "broadcast", } }
 Entry { filename = "broadcast-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-netbios-master-browser.nse", categories = { "broadcast", "safe", } }
