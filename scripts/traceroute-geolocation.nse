@@ -80,44 +80,59 @@ local function createKMLFile(filename, coords)
 	return true
 end
 
-action = function(host)
+-- Tables used to accumulate output.
+local output_structured = {}
+local output = tab.new(4)
+local coordinates = {}
 
-	local output = tab.new(4)
-	local coordinates = {}
-	
+local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
+	if ip then
+		local label
+		if name then
+			label = ("%s (%s)"):format(name or "", ip)
+		else
+			label = ("%s"):format(ip)
+		end
+		if lat then
+			table.insert(output_structured, { hop = count, ip = ip, hostname = name, lat = lat, lon = lon, region = reg, country = ctry })
+			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
+			table.insert(coordinates, { hop = count, lat = lat, lon = lon })
+		else
+			table.insert(output_structured, { hop = count, ip = ip, hostname = name })
+			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%s,%s"):format("- ", "- "))
+		end
+	else
+		table.insert(output_structured, { hop = count })
+		tab.addrow(output, count, "...")
+	end
+end
+
+action = function(host)
 	tab.addrow(output, "HOP", "RTT", "ADDRESS", "GEOLOCATION")
 	for count = 1, #host.traceroute do
 		local hop = host.traceroute[count]
 		-- avoid timedout hops, marked as empty entries
 		-- do not add the current scanned host.ip
 		if hop.ip then
-			local name = ""
-			if ( hop.name ) then
-				name = ("%s (%s)"):format(hop.name or "", hop.ip)
-			else
-				name = ("%s"):format(hop.ip)
-			end
 			local rtt = tonumber(hop.times.srtt) * 1000
 			if ( not(ipOps.isPrivate(hop.ip) ) ) then
 				local lat, lon, reg, ctry = geoLookup(hop.ip)
-				table.insert(coordinates, { hop = count, lat = lat, lon = lon })
-				tab.addrow( output, count, ("%.2f"):format(rtt), name, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg) )
+				output_hop(count, hop.ip, hop.name, rtt, lat, lon, ctry, reg)
 			else
-				tab.addrow( output, count, ("%.2f"):format(rtt), name, ("%s,%s"):format("- ", "- "))
+				output_hop(count, hop.ip, hop.name, rtt)
 			end
 		else
-			tab.addrow( output, count, "...")
+			output_hop(count)
 		end
 	end
   
-	if ( #output > 1 ) then
+	if (#output_structured > 0) then
 		output = tab.dump(output)
 		if ( arg_kmlfile ) then
 			if ( not(createKMLFile(arg_kmlfile, coordinates)) ) then
 				output = output .. ("\n\nERROR: Failed to write KML to file: %s"):format(arg_kmlfile)
 			end
 		end
-		return stdnse.format_output(true, output)
+		return output_structured, stdnse.format_output(true, output)
 	end
-
 end
