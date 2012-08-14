@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added JDWP library, jdwp-info, jdwp-exec and jdwp-inject scripts and
+  needed classes. [Aleksandar Nikolic]
+
 o [NSE] Added a BJNP library and the scripts broadcast-bjnp-discover and
   bjnp-discover. [Patrik Karlsson]
 

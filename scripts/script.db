@@ -222,6 +222,9 @@ Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "exploit", "int
 Entry { filename = "iscsi-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iscsi-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "isns-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "jdwp-exec.nse", categories = { "discovery", "safe", } }
+Entry { filename = "jdwp-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "jdwp-inject.nse", categories = { "discovery", "safe", } }
 Entry { filename = "jdwp-version.nse", categories = { "version", } }
 Entry { filename = "krb5-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ldap-brute.nse", categories = { "brute", "intrusive", } }
