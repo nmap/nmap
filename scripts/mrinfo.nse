@@ -3,50 +3,79 @@ local packet = require "packet"
 local ipOps = require "ipOps"
 local bin = require "bin"
 local stdnse = require "stdnse"
-local string = require "string"
 local target = require "target"
 local table = require "table"
 
 
 description = [[
-Queries a target router for multicast information.
+Queries targets for multicast routing information.
 
 This works by sending a DVMRP Ask Neighbors 2 request to the target and
-listening for the DVMRP Neighbors 2 response that contains local addresses and
-the multicast neighbors on each one.  It is similar to the mrinfo utility included with Windows (Linux/UNIX versions are also available).
+listening for DVMRP Neighbors 2 responses that are sent back and which contain
+local addresses and the multicast neighbors on each interface of the target. If
+no specific target is specified, the request will be sent to the 224.0.0.1 All
+Hosts multicast address.
 
+This script is similar somehow to the mrinfo utility included with Windows and
+Cisco IOS.  
 ]]
 
-
 ---
--- @args mrinfo.timeout Time to wait for a response in seconds.
+-- @args mrinfo.target Host to which the request is sent. If not set, the
+-- request will be sent to <code>224.0.0.1</code>.
+--
+-- @args mrinfo.timeout Time to wait for responses in seconds.
 -- Defaults to <code>5</code> seconds.
 --
 --@usage
--- nmap --script mrinfo <target>
+-- nmap --script mrinfo
+-- nmap --script mrinfo -e eth1
+-- nmap --script mrinfo --script-args 'mrinfo.target=172.16.0.4'
 --
 --@output
--- Host script results:
+-- Pre-scan script results:
 -- | mrinfo: 
--- |   Version 12.4
--- |   Local address: 192.168.2.2
--- |     Neighbor: 192.168.2.4
--- |     Neighbor: 192.168.2.3
--- |   Local address: 192.168.13.1
--- |     Neighbor: 192.168.13.3
--- |_  Use the newtargets script-arg to add the results as targets
+-- |   Source: 224.0.0.1
+-- |     Version 12.4
+-- |     Local address: 172.16.0.2
+-- |       Neighbor: 172.16.0.4
+-- |       Neighbor: 172.16.0.3
+-- |     Local address: 172.17.0.1
+-- |       Neighbor: 172.17.0.2
+-- |     Local address: 172.18.0.1
+-- |       Neighbor: 172.18.0.2
+-- |   Source: 224.0.0.1
+-- |     Version 12.4
+-- |     Local address: 172.16.0.4
+-- |       Neighbor: 172.16.0.3
+-- |       Neighbor: 172.16.0.2
+-- |     Local address: 172.17.0.2
+-- |       Neighbor: 172.17.0.1
+-- |   Source: 224.0.0.1
+-- |     Version 12.4
+-- |     Local address: 172.16.0.3
+-- |       Neighbor: 172.16.0.4
+-- |       Neighbor: 172.16.0.2
+-- |     Local address: 172.18.0.2
+-- |       Neighbor: 172.18.0.1
+-- |_  Use the newtargets script-arg to add the responses as targets
+--
 
 
 author = "Hani Benhabiles"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery", "safe"}
+categories = {"discovery", "safe", "broadcast"}
 
 
-hostrule = function(host) 
+prerule = function() 
     if nmap.address_family() ~= 'inet' then
 	stdnse.print_verbose("%s is IPv4 only.", SCRIPT_NAME)
+	return false
+    end
+    if not nmap.is_privileged() then
+	stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
 	return false
     end
     return true
@@ -56,11 +85,11 @@ end
 -- a structured response.
 -- @param data raw data.
 local mrinfoParse = function(data)
-    local index, interface, neighbor
+    local index, address, neighbor
     local response = {}
 
-    -- first byte should be IGMP type == 0x013 (DVMRP)
-    if data:byte(1) ~= 0x013 then return end
+    -- first byte should be IGMP type == 0x13 (DVMRP)
+    if data:byte(1) ~= 0x13 then return end
 
     -- DVMRP Code
     index, response.code = bin.unpack(">C", data, 2)
@@ -71,49 +100,47 @@ local mrinfoParse = function(data)
     -- Major and minor version
     index, response.minver = bin.unpack(">C", data, index)
     index, response.majver = bin.unpack(">C", data, index)
-    response.interfaces = {}
+    response.addresses = {}
     -- Iterate over target local addresses (interfaces)
     while index < #data do
 	if data:byte(index) == 0x00 then break end
-	interface = {}
+	address = {}
 	-- Local address
-	index, interface.address = bin.unpack("<I", data, index)
-	interface.address = ipOps.fromdword(interface.address)
+	index, address.ip = bin.unpack("<I", data, index)
+	address.ip = ipOps.fromdword(address.ip)
 	-- Link metric
-	index, interface.metric = bin.unpack(">C", data, index)
+	index, address.metric = bin.unpack(">C", data, index)
 	-- Treshold
-	index, interface.treshold= bin.unpack(">C", data, index)
+	index, address.treshold= bin.unpack(">C", data, index)
 	-- Flags
-	index, interface.flags = bin.unpack(">C", data, index)
+	index, address.flags = bin.unpack(">C", data, index)
 	-- Number of neighbors 
-	index, interface.ncount = bin.unpack(">C", data, index)
+	index, address.ncount = bin.unpack(">C", data, index)
 
-	interface.neighbors = {}
+	address.neighbors = {}
 	-- Iterate over neighbors
-	for i = 1, interface.ncount do
+	for i = 1, address.ncount do
 	    index, neighbor = bin.unpack("<I", data, index)
-	    table.insert(interface.neighbors, ipOps.fromdword(neighbor))
+	    table.insert(address.neighbors, ipOps.fromdword(neighbor))
 	end
-	table.insert(response.interfaces, interface)
+	table.insert(response.addresses, address)
     end
     return response
 end
 
 -- Listens for DVMRP Ask Neighbors 2 responses
 --@param interface Network interface to listen on.
---@param host Host table as commonly used in Nmap.
 --@param timeout Time to listen for a response.
---@param results table to put response into.
-local mrinfoListen = function(interface, host, timeout, results)
-    local condvar = nmap.condvar(results)
+--@param responses table to insert responses into.
+local mrinfoListen = function(interface, timeout, responses)
+    local condvar = nmap.condvar(responses)
     local start = nmap.clock_ms()
     local listener = nmap.new_socket()
-    local p, mrinfo_raw, status, l3data, response, _
-    -- IGMP packets that are sent from the target host to our host.
-    local filter = 'ip proto 2 and src host ' .. host.ip .. ' and dst host ' .. interface.address
+    local p, mrinfo_raw, status, l3data, response
 
+    -- IGMP packets that are sent to our host
+    local filter = 'ip proto 2 and dst host ' .. interface.address
     listener:set_timeout(100)
-    -- IP proto 0x02 == IGMP
     listener:pcap_open(interface.device, 1024, true, filter)
 
     while (nmap.clock_ms() - start) < timeout do
@@ -126,8 +153,8 @@ local mrinfoListen = function(interface, host, timeout, results)
 		if mrinfo_raw:byte(1) == 0x13 and mrinfo_raw:byte(2) == 0x06 then
 		    response = mrinfoParse(mrinfo_raw)
 		    if response then 
-			table.insert(results, response)
-			break
+			response.srcip = p.ip_src
+			table.insert(responses, response)
 		    end
 		end
 	    end
@@ -158,57 +185,105 @@ local mrinfoRaw = function()
 end
 
 -- Function that sends a DVMRP query.
---@param mrinfo_raw Raw DVMRP packet.
---@param scrip Source IP of the packet.
+--@param interface Network interface to use.
 --@param dstip Destination IP to send to.
-local mrinfoQuery = function(mrinfo_raw, srcip, dstip)
+local mrinfoQuery = function(interface, dstip)
+    local mrinfo_packet, sock, eth_hdr
+    local srcip = interface.address
 
-    local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw -- Less ugly way to do it ?
-    local mrinfo_packet = packet.Packet:new(ip_raw, ip_raw:len())
+    local mrinfo_raw = mrinfoRaw()
+    local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw 
+    mrinfo_packet = packet.Packet:new(ip_raw, ip_raw:len())
     mrinfo_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
     mrinfo_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))
     mrinfo_packet:ip_set_len(ip_raw:len())
+    if dstip == "224.0.0.1" then
+	-- Doesn't affect results, but we should respect RFC 3171 :)
+	mrinfo_packet:ip_set_ttl(1)
+    end
+    mrinfo_packet:ip_count_checksum()
 
-    local sock = nmap.new_dnet()
-    sock:ip_open()
-    sock:ip_send(mrinfo_packet.buf)
-    sock:ip_close()
+    sock = nmap.new_dnet()
+    if dstip == "224.0.0.1" then
+	sock:ethernet_open(interface.device)
+	-- Ethernet IPv4 multicast, our ethernet address and packet type IP
+	eth_hdr = bin.pack("HAH", "01 00 5e 00 00 01", interface.mac, "08 00")
+	sock:ethernet_send(eth_hdr .. mrinfo_packet.buf)
+	sock:ethernet_close()
+    else
+	sock:ip_open()
+	sock:ip_send(mrinfo_packet.buf)
+	sock:ip_close()
+    end
 end
 
+-- Returns the network interface used to send packets to a target host.
+--@param target host to which the interface is used.
+--@return interface Network interface used for target host.
+local getInterface = function(target)
+    -- First, create dummy UDP connection to get interface
+    local sock = nmap.new_socket()
+    local status, err = sock:connect(target, "12345", "udp")
+    if not status then
+	stdnse.print_verbose("%s: %s", SCRIPT_NAME, err)
+	return
+    end
+    local status, address, _, _, _ = sock:get_info()
+    if not status then
+	stdnse.print_verbose("%s: %s", SCRIPT_NAME, err)
+	return
+    end
+    for _, interface in pairs(nmap.list_interfaces()) do
+	if interface.address == address then
+	    return interface
+	end
+    end
+end
 
-action = function(host)
+action = function()
     local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 5
-    local mrinfo_raw, dstip, srcip, interface
-    local results = {}
-
+    local target = stdnse.get_script_args(SCRIPT_NAME .. ".target") or "224.0.0.1"
+    local responses = {}
+    local interface, result
     timeout = timeout * 1000
 
-    dstip = host.ip
-    interface = nmap.get_interface_info(host.interface)
-    srcip = interface.address
+    interface = nmap.get_interface() 
+    if interface then
+	interface = nmap.get_interface_info(interface) 
+    else
+	interface = getInterface(target)
+    end
+    if not interface then
+	return ("\n ERROR: Couldn't get interface for %s"):format(target)
+    end
+
+    stdnse.print_debug("%s: will send to %s via %s interface.", SCRIPT_NAME, target, interface.shortname)
 
     -- Thread that listens for responses
-    stdnse.new_thread(mrinfoListen, interface, host, timeout, results)
+    stdnse.new_thread(mrinfoListen, interface, timeout, responses)
 
-    -- Send request
-    stdnse.sleep(0.5)
-    mrinfo_raw = mrinfoRaw()
-    mrinfoQuery(mrinfo_raw, srcip, dstip)
-    local condvar = nmap.condvar(results)
+    -- Send request after small wait to let Listener start
+    stdnse.sleep(0.1)
+    mrinfoQuery(interface, target)
+    local condvar = nmap.condvar(responses)
     condvar("wait")
 
-    if #results > 0 then
+    if #responses > 0 then
 	local output, ifoutput = {}
-	local response = results[1]
-	table.insert(output, ("Version %s.%s"):format(response.majver, response.minver))
-	for _, interface in pairs(response.interfaces) do
-	    ifoutput = {}
-	    ifoutput.name = "Local address: " .. interface.address
-	    for _, neighbor in pairs(interface.neighbors) do
-		if target.ALLOW_NEW_TARGETS then target.add(neighbor) end
-		table.insert(ifoutput, "Neighbor: " .. neighbor)
+	for _, response in pairs(responses) do
+	    result = {}
+	    result.name = "Source: " .. response.srcip
+	    table.insert(result, ("Version %s.%s"):format(response.majver, response.minver))
+	    for _, address in pairs(response.addresses) do
+		ifoutput = {}
+		ifoutput.name = "Local address: " .. address.ip
+		for _, neighbor in pairs(address.neighbors) do
+		    if target.ALLOW_NEW_TARGETS then target.add(neighbor) end
+		    table.insert(ifoutput, "Neighbor: " .. neighbor)
+		end
+		table.insert(result, ifoutput)
 	    end
-	    table.insert(output, ifoutput)
+	    table.insert(output, result)
 	end
 	if not target.ALLOW_NEW_TARGETS then
 	    table.insert(output,"Use the newtargets script-arg to add the results as targets")
