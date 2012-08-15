@@ -89,13 +89,11 @@ function add_to_output(output_table, label, value, value_if_nil)
 		value = value_if_nil
 	end
 	
-	if (value ~= nil) then
-		table.insert(output_table, string.format("%s: %s", label, value) )
-	end
+	output_table[label] = value
 end
 
 action = function(host)
-	local response = {}
+	local response = stdnse.output_table()
 	local status, result = smb.get_os(host)
 
 	if(status == false) then
@@ -140,7 +138,7 @@ action = function(host)
 	
 	add_to_output( response, "System time", time_string, "Unknown" )
 
-	return stdnse.format_output(true, response)
+	return response
 end
 
 
