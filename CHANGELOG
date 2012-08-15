@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added eigrp.lua library which supports parsing and generating a small subset
+  of Cisco's EIGRP packets. [Hani Benhabiles]
+
 o [NSE] Added llmnr-resolve script which resolves a hostname by using the LLMNR
   (Link-Local Multicast Name Resolution) protocol.  [Hani Benhabiles]
 
