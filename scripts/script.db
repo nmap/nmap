@@ -39,6 +39,7 @@ Entry { filename = "broadcast-networker-discover.nse", categories = { "broadcast
 Entry { filename = "broadcast-novell-locate.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-pc-anywhere.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-pc-duo.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-pim-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-ping.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-pppoe-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-rip-discover.nse", categories = { "broadcast", "safe", } }

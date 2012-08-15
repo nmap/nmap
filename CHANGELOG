@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added broadcast-pim-discovery script which discovers routers that are
+  running PIM (Protocol Independant Multicast).  [Hani Benhabiles]
+
 o [NSE] Added mtrace script which queries for the multicast path from a source
   to a destination host. [Hani Benhabiles]
 
