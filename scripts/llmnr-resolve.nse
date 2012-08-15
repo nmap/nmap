@@ -31,7 +31,8 @@ For more information, see:
 --@output
 -- Pre-scan script results:
 -- | llmnr-query: 
--- |_  acer-PC : 192.168.1.4
+-- |   acer-PC : 192.168.1.4
+-- |_  Use the newtargets script-arg to add the results as targets
 --
 
 prerule = function()
@@ -200,11 +201,12 @@ action = function()
     -- Check responses
     if #result > 0 then
 	for _, response in pairs(result) do
-	    if target.ALLOW_NEW_TARGETS then target.add(response.address) end
 	    table.insert(output, response.hostname.. " : " .. response.address) 
 	end
-	if not target.ALLOW_NEW_TARGETS then
-	    table.insert(result,"Use the newtargets script-arg to add the results as targets")
+	if target.ALLOW_NEW_TARGETS then 
+	    target.add(response.address)
+	else
+	    table.insert(output,"Use the newtargets script-arg to add the results as targets")
 	end
 	return stdnse.format_output(true, output)
     end
