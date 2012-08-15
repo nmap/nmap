@@ -48,8 +48,6 @@ saves the results to a KML file, plottable on Google earth and maps.
 --   <elem key="hostname">e4-0.barleymow.stk.router.colt.net</elem>
 --   <elem key="lat">62</elem>
 --   <elem key="lon">15</elem>
---   <elem key="country">Sweden</elem>
---   <elem key="region">Unknown</elem>
 -- </table>
 -- <table>
 --   <elem key="hop">6</elem>
@@ -58,8 +56,6 @@ saves the results to a KML file, plottable on Google earth and maps.
 --   <elem key="hostname">te0-0-2-0-crs1.FRA.router.colt.net</elem>
 --   <elem key="lat">54</elem>
 --   <elem key="lon">-2</elem>
---   <elem key="country">United Kingdom</elem>
---   <elem key="region">Unknown</elem>
 -- </table>
 --
 -- @args traceroute-geolocation.kmlfile full path and name of file to write KML
@@ -127,7 +123,7 @@ local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
 			label = ("%s"):format(ip)
 		end
 		if lat then
-			table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon, region = reg, country = ctry })
+			table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon })
 			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
 			table.insert(coordinates, { hop = count, lat = lat, lon = lon })
 		else
