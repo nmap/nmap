@@ -990,7 +990,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
           l >>= 1;
         }
         assert(fileidx < LOG_NUM_FILES);
-        if (o.logfd[fileidx]) {
+        if (o.logfd[fileidx] && len) {
           if ((logtype & (LOG_SKID|LOG_SKID_NOXLT)) && !skid_noxlate)
             skid_output(writebuf);
 
