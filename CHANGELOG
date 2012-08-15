@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added mtrace script which queries for the multicast path from a source
+  to a destination host. [Hani Benhabiles]
+
 o [NSE] Added broadcast-eigrp-discovery script which does network discovery and
   information gathering through Cisco's EIGRP protocol. [Hani Benhabiles]
 
