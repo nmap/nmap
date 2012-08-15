@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added broadcast-eigrp-discovery script which does network discovery and
+  information gathering through Cisco's EIGRP protocol. [Hani Benhabiles]
+
 o [NSE] Added eigrp.lua library which supports parsing and generating a small subset
   of Cisco's EIGRP packets. [Hani Benhabiles]
 
