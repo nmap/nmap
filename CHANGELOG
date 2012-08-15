@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added llmnr-resolve script which resolves a hostname by using the LLMNR
+  (Link-Local Multicast Name Resolution) protocol.  [Hani Benhabiles]
+
 o [NSE] Added broadcast-igmp-discovery script which discovers and outputs
   interesting information from targets that have multicast groups memberships.
   [Hani Benhabiles]
