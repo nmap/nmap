@@ -83,6 +83,7 @@ end
 --@param port nmap port table of the currently probed port
 local function portaction(host, port)
   local output = {}
+  local output_tab = {}
   local keys = {}
   local _,key
   local format = nmap.registry.args.ssh_hostkey or "hex"
@@ -99,6 +100,12 @@ local function portaction(host, port)
 
   for _, key in ipairs( keys ) do
     add_key_to_registry( host, key )
+    table.insert(output_tab, {
+      fingerprint=stdnse.tohex(key.fingerprint,{separator=":"}),
+      algorithm=key.algorithm,
+      bits=key.bits,
+      key=key.full_key
+    })
     if format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
     end
@@ -117,7 +124,7 @@ local function portaction(host, port)
   end
 
   if #output > 0 then
-    return table.concat( output, '\n' )
+    return output_tab, table.concat( output, '\n' )
   end
 end
 
@@ -138,6 +145,8 @@ end
 local function postaction()
   local hostkeys = {}
   local output = {}
+  local output_tab = {}
+  local revmap = {}
 
   -- create a reverse mapping key_fingerprint -> host(s)
   for ip, keys in pairs(nmap.registry.sshhostkey) do
@@ -145,6 +154,11 @@ local function postaction()
       local fp = ssh1.fingerprint_hex(key.fingerprint, key.algorithm, key.bits)
       if not hostkeys[fp] then
         hostkeys[fp] = {}
+        revmap[fp] = {
+          fingerprint=stdnse.tohex(key.fingerprint,{separator=":"}),
+          algorithm=key.algorithm,
+          bits=key.bits
+        }
       end
       -- discard duplicate IPs
       if not contains(hostkeys[fp], ip) then
@@ -158,15 +172,18 @@ local function postaction()
     if #hostkeys[key] > 1 then
       table.sort(hostkeys[key], function(a, b) return ipOps.compare_ip(a, "lt", b) end)
       local str = 'Key ' .. key .. ' used by:'
+      local tab = {key=revmap[key], hosts={}}
       for _, host in ipairs(hostkeys[key]) do
         str = str .. '\n  ' .. host
+        table.insert(tab.hosts, host)
       end
       table.insert(output, str)
+      table.insert(output_tab, tab)
     end
   end
 
   if #output > 0 then
-    return 'Possible duplicate hosts\n' .. table.concat(output, '\n')
+    return output_tab, 'Possible duplicate hosts\n' .. table.concat(output, '\n')
   end
 end
 
