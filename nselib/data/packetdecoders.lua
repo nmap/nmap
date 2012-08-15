@@ -95,10 +95,10 @@ Decoders = {
 					tab.addrow(self.results, 'sender ip', 'sender mac', 'target ip')
 				end
 
-				if ( not(self.dups[("%d:%s"):format(sender.ip,sender.mac)]) ) then
+				if ( not(self.dups[("%u:%s"):format(sender.ip,sender.mac)]) ) then
 					if ( target.ALLOW_NEW_TARGETS ) then target.add(sender.ip) end
 					local mac = sender.mac:gsub("(..)(..)(..)(..)(..)(..)","%1:%2:%3:%4:%5:%6")
-					self.dups[("%d:%s"):format(sender.ip,sender.mac)] = true
+					self.dups[("%u:%s"):format(sender.ip,sender.mac)] = true
 					tab.addrow(self.results, ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
 				end
 				
