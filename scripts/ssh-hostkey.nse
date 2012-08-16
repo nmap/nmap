@@ -60,46 +60,42 @@ The script also includes a postrule that check for duplicate hosts using the gat
 -- |_  192.168.1.2
 --
 --@xmloutput
--- <script id="ssh-hostkey" output="...">
---   <table>
---     <elem key="key">ssh-dss AAAAB3NzaC1kc3MAAACBANraqxAILTygMTgFu/0snrJck8BkhOpBbN61DAZENgeulLMaJdmNFWZpvhLOJVXSqHt2TCrspbMyvpBH4Fnv7Kb+QBAhXyzeCNnOQ7OVBfqNzkfezoFrQJgOQZSEenP6sCVDqcW2j0KVumnYdPU7FGa8SLfNqA+hUOR2HSSluynFAAAAFQDWKNq4PVbpDA7UExE8JSHnWxv4AwAAAIAWEDdNu5mWfTz52IdxELNjsmn5FvKRmnhPqq/PrTkYqAADL5WYazg7POQZ4yI2nqTq++47ONDK87Wke3qbeIhMrV13Mrgf2JuCUSNqrfEmvzZ2l9x3QyZrj+bJRPRuhwYq8rFup01qaANJ0p4WS/7voNbRhh+l57FkJF+XAJRRTAAAAIEAts1Se+u+hV9ZedXopzfXv1I5ZOSONxZanM10wjM2GRWygCYsHqDM315swBPkzhmB73oBesnhDW3bq0dmW3wvk4gzQZ2E2SHhzVGjlgDpjEahlQ+XGpDZsvqqFGGGx8lvKYFUxBR+UkqMRGmjkHw5sK5ydO1n4R3XJ4FfQFqmoyU=</elem>
---     <elem key="bits">1024</elem>
---     <elem key="fingerprint">18:78:2f:d3:be:71:78:a3:8e:58:4b:5a:83:bd:60:a8</elem>
---     <elem key="algorithm">DSA</elem>
---   </table>
---   <table>
---     <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
---     <elem key="bits">2048</elem>
---     <elem key="fingerprint">f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11</elem>
---     <elem key="algorithm">RSA</elem>
---   </table>
--- </script>
+-- <table>
+--   <elem key="key">ssh-dss AAAAB3NzaC1kc3MAAACBANraqxAILTygMTgFu/0snrJck8BkhOpBbN61DAZENgeulLMaJdmNFWZpvhLOJVXSqHt2TCrspbMyvpBH4Fnv7Kb+QBAhXyzeCNnOQ7OVBfqNzkfezoFrQJgOQZSEenP6sCVDqcW2j0KVumnYdPU7FGa8SLfNqA+hUOR2HSSluynFAAAAFQDWKNq4PVbpDA7UExE8JSHnWxv4AwAAAIAWEDdNu5mWfTz52IdxELNjsmn5FvKRmnhPqq/PrTkYqAADL5WYazg7POQZ4yI2nqTq++47ONDK87Wke3qbeIhMrV13Mrgf2JuCUSNqrfEmvzZ2l9x3QyZrj+bJRPRuhwYq8rFup01qaANJ0p4WS/7voNbRhh+l57FkJF+XAJRRTAAAAIEAts1Se+u+hV9ZedXopzfXv1I5ZOSONxZanM10wjM2GRWygCYsHqDM315swBPkzhmB73oBesnhDW3bq0dmW3wvk4gzQZ2E2SHhzVGjlgDpjEahlQ+XGpDZsvqqFGGGx8lvKYFUxBR+UkqMRGmjkHw5sK5ydO1n4R3XJ4FfQFqmoyU=</elem>
+--   <elem key="bits">1024</elem>
+--   <elem key="fingerprint">18:78:2f:d3:be:71:78:a3:8e:58:4b:5a:83:bd:60:a8</elem>
+--   <elem key="algorithm">DSA</elem>
+-- </table>
+-- <table>
+--   <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
+--   <elem key="bits">2048</elem>
+--   <elem key="fingerprint">f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11</elem>
+--   <elem key="algorithm">RSA</elem>
+-- </table>
 --
 --@xmloutput
--- <script id="ssh-hostkey" output="...">
---   <table>
---     <table key="hosts">
---       <elem>192.168.1.1</elem>
---       <elem>192.168.1.2</elem>
---     </table>
---     <table key="key">
---       <elem key="fingerprint">2c:22:75:60:4b:c3:3b:18:a2:97:2c:96:7e:28:dc:dd</elem>
---       <elem key="bits">2048</elem>
---       <elem key="algorithm">RSA</elem>
---     </table>
+-- <table>
+--   <table key="hosts">
+--     <elem>192.168.1.1</elem>
+--     <elem>192.168.1.2</elem>
 --   </table>
---   <table>
---     <table key="hosts">
---       <elem>192.168.1.1</elem>
---       <elem>192.168.1.2</elem>
---     </table>
---     <table key="key">
---       <elem key="fingerprint">60:ac:4d:51:b1:cd:85:09:12:16:92:76:1d:5d:27:6e</elem>
---       <elem key="bits">1024</elem>
---       <elem key="algorithm">DSA</elem>
---     </table>
+--   <table key="key">
+--     <elem key="fingerprint">2c:22:75:60:4b:c3:3b:18:a2:97:2c:96:7e:28:dc:dd</elem>
+--     <elem key="bits">2048</elem>
+--     <elem key="algorithm">RSA</elem>
 --   </table>
--- </script>
+-- </table>
+-- <table>
+--   <table key="hosts">
+--     <elem>192.168.1.1</elem>
+--     <elem>192.168.1.2</elem>
+--   </table>
+--   <table key="key">
+--     <elem key="fingerprint">60:ac:4d:51:b1:cd:85:09:12:16:92:76:1d:5d:27:6e</elem>
+--     <elem key="bits">1024</elem>
+--     <elem key="algorithm">DSA</elem>
+--   </table>
+-- </table>
 
 author = "Sven Klemm"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -31,12 +31,10 @@ include with Nmap) list.
 -- |_ssl-known-key: Found in Little Black Box 0.1 (certificate hash: 00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96)
 --
 -- @xmloutput
--- <script id="ssl-known-key" output="...">
---   <table>
---     <elem key="section">Little Black Box 0.1</elem>
---     <elem key="fingerprint">00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96</elem>
---   </table>
--- </script>
+-- <table>
+--   <elem key="section">Little Black Box 0.1</elem>
+--   <elem key="fingerprint">00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96</elem>
+-- </table>
 
 author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

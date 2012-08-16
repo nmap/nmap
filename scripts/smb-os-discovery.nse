@@ -58,16 +58,14 @@ will speed up the script on targets that do not allow guest access.
 -- |_  System time: 2011-04-20 13:34:06 UTC-5
 --
 --@xmloutput
--- <script id="smb-os-discovery" output="...">
---   <elem key="OS">Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)</elem>
---   <elem key="Computer name">Sql2008</elem>
---   <elem key="Domain name">lab.test.local</elem>
---   <elem key="Forest name">test.local</elem>
---   <elem key="FQDN">Sql2008.lab.test.local</elem>
---   <elem key="NetBIOS computer name">SQL2008</elem>
---   <elem key="NetBIOS domain name">LAB</elem>
---   <elem key="System time">2011-04-20 13:34:06 UTC-5</elem>
--- </script>
+-- <elem key="OS">Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)</elem>
+-- <elem key="Computer name">Sql2008</elem>
+-- <elem key="Domain name">lab.test.local</elem>
+-- <elem key="Forest name">test.local</elem>
+-- <elem key="FQDN">Sql2008.lab.test.local</elem>
+-- <elem key="NetBIOS computer name">SQL2008</elem>
+-- <elem key="NetBIOS domain name">LAB</elem>
+-- <elem key="System time">2011-04-20 13:34:06 UTC-5</elem>
 
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
