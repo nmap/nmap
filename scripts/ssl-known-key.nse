@@ -125,10 +125,6 @@ action = function(host, port)
 		stdnse.print_debug(2, "sslcert.getCertificate error: %s", cert)
 	end
 	local fingerprint = cert:digest("sha1")
-	if not fingerprint then
-		stdnse.print_debug(2, "Certificate does not have a SHA-1 fingerprint.")
-		return
-	end
 	local fingerprint_fmt = stdnse.tohex(fingerprint, {separator=" ", group=4})
 
 	-- Check SSL fingerprint against database.
