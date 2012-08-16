@@ -35,8 +35,11 @@ end
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 5222/tcp open  xmpp-client syn-ack
--- |_ssl-date: Server time 2012-08-02 18:29:31 GMT; +4s from the local time.
+-- |_ssl-date: Server time 2012-08-02T18:29:31 UTC; +4s from the local time.
 --
+-- @xmloutput
+-- <elem key="date">2012-08-02T18:29:31</elem>
+-- <elem key="offset">+4s</elem>
 
 --
 -- most of the code snatched from tls-nextprotoneg until we decide if we want a separate library
@@ -150,18 +153,20 @@ local extract_time = function(response)
 end
 
 action = function(host, port)
-    local status, response
+	local status, response
 
-    -- Send crafted client hello
-    status, response = client_hello(host, port)
-    if status and response then
+	-- Send crafted client hello
+	status, response = client_hello(host, port)
+	if status and response then
 		-- extract time from response
 		local result
 		status, result = extract_time(response)
 		if status then
-			return string.format("%s GMT; %s from local time.",
-										os.date("%Y-%m-%d %H:%M:%S",result),
-										stdnse.format_difftime(os.date("!*t",result),os.date("!*t")))
-			end
+			local output = {
+				date = os.date("%Y-%m-%dT%H:%M:%S",result),
+				offset = stdnse.format_difftime(os.date("!*t",result),os.date("!*t")),
+			}
+			return output, string.format("%s UTC; %s from local time.", output.date, output.offset)
 		end
+	end
 end
