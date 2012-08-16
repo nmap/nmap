@@ -28,7 +28,15 @@ include with Nmap) list.
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- |_ssl-known-key: 00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96 is in the database with reason Little Black Box 0.1.
+-- |_ssl-known-key: Found in Little Black Box 0.1 (certificate hash: 00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96)
+--
+-- @xmloutput
+-- <script id="ssl-known-key" output="...">
+--   <table>
+--     <elem key="section">Little Black Box 0.1</elem>
+--     <elem key="fingerprint">00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96</elem>
+--   </table>
+-- </script>
 
 author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -131,5 +139,5 @@ action = function(host, port)
 		return
 	end
 
-	return "Found in " .. section .. " (certificate hash: " .. fingerprint .. ")"
+	return {section=section, fingerprint=fingerprint}, "Found in " .. section .. " (certificate hash: " .. fingerprint .. ")"
 end
