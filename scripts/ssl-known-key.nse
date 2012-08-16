@@ -28,7 +28,7 @@ include with Nmap) list.
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- |_ssl-known-key: Found in Little Black Box 0.1 (certificate hash: 00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96)
+-- |_ssl-known-key: Found in Little Black Box 0.1 (SHA-1: 0028 e7d4 9cfa 4aa5 984f e497 eb73 4856 0787 e496)
 --
 -- @xmloutput
 -- <table>
@@ -129,7 +129,7 @@ action = function(host, port)
 		stdnse.print_debug(2, "Certificate does not have a SHA-1 fingerprint.")
 		return
 	end
-	local fingerprint_fmt = stdnse.tohex(fingerprint, {separator=":", group=2}):upper()
+	local fingerprint_fmt = stdnse.tohex(fingerprint, {separator=" ", group=4})
 
 	-- Check SSL fingerprint against database.
 	local key = stdnse.tohex(fingerprint, {separator=":", group=2}):upper()
@@ -139,5 +139,5 @@ action = function(host, port)
 		return
 	end
 
-	return {section=section, fingerprint=stdnse.tohex(fingerprint)}, "Found in " .. section .. " (certificate hash: " .. fingerprint_fmt  .. ")"
+	return {section=section, fingerprint=stdnse.tohex(fingerprint)}, "Found in " .. section .. " (SHA-1: " .. fingerprint_fmt  .. ")"
 end
