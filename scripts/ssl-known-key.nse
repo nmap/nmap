@@ -33,7 +33,7 @@ include with Nmap) list.
 -- @xmloutput
 -- <table>
 --   <elem key="section">Little Black Box 0.1</elem>
---   <elem key="fingerprint">0028e7d49cfa4aa5984fe497eb7348560787e496</elem>
+--   <elem key="sha1">0028e7d49cfa4aa5984fe497eb7348560787e496</elem>
 -- </table>
 
 author = "Mak Kolybabi"
@@ -139,5 +139,5 @@ action = function(host, port)
 		return
 	end
 
-	return {section=section, fingerprint=stdnse.tohex(fingerprint)}, "Found in " .. section .. " (SHA-1: " .. fingerprint_fmt  .. ")"
+	return {section=section, sha1=stdnse.tohex(fingerprint)}, "Found in " .. section .. " (SHA-1: " .. fingerprint_fmt  .. ")"
 end
