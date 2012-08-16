@@ -5,6 +5,7 @@ local ssh1 = require "ssh1"
 local ssh2 = require "ssh2"
 local stdnse = require "stdnse"
 local table = require "table"
+local base64 = require "base64"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -141,7 +142,7 @@ local function portaction(host, port)
       fingerprint=stdnse.tohex(key.fingerprint),
       type=key.key_type,
       bits=key.bits,
-      key=key.full_key
+      key=base64.enc(key.full_key),
     })
     if format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
