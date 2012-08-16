@@ -64,13 +64,13 @@ The script also includes a postrule that check for duplicate hosts using the gat
 --   <elem key="key">ssh-dss AAAAB3NzaC1kc3MAAACBANraqxAILTygMTgFu/0snrJck8BkhOpBbN61DAZENgeulLMaJdmNFWZpvhLOJVXSqHt2TCrspbMyvpBH4Fnv7Kb+QBAhXyzeCNnOQ7OVBfqNzkfezoFrQJgOQZSEenP6sCVDqcW2j0KVumnYdPU7FGa8SLfNqA+hUOR2HSSluynFAAAAFQDWKNq4PVbpDA7UExE8JSHnWxv4AwAAAIAWEDdNu5mWfTz52IdxELNjsmn5FvKRmnhPqq/PrTkYqAADL5WYazg7POQZ4yI2nqTq++47ONDK87Wke3qbeIhMrV13Mrgf2JuCUSNqrfEmvzZ2l9x3QyZrj+bJRPRuhwYq8rFup01qaANJ0p4WS/7voNbRhh+l57FkJF+XAJRRTAAAAIEAts1Se+u+hV9ZedXopzfXv1I5ZOSONxZanM10wjM2GRWygCYsHqDM315swBPkzhmB73oBesnhDW3bq0dmW3wvk4gzQZ2E2SHhzVGjlgDpjEahlQ+XGpDZsvqqFGGGx8lvKYFUxBR+UkqMRGmjkHw5sK5ydO1n4R3XJ4FfQFqmoyU=</elem>
 --   <elem key="bits">1024</elem>
 --   <elem key="fingerprint">18782fd3be7178a38e584b5a83bd60a8</elem>
---   <elem key="algorithm">DSA</elem>
+--   <elem key="type">ssh-dss</elem>
 -- </table>
 -- <table>
 --   <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
 --   <elem key="bits">2048</elem>
 --   <elem key="fingerprint">f058cef4aaa4591c8edd4d0744c82511</elem>
---   <elem key="algorithm">RSA</elem>
+--   <elem key="type">ssh-rsa</elem>
 -- </table>
 --
 --@xmloutput
@@ -82,7 +82,7 @@ The script also includes a postrule that check for duplicate hosts using the gat
 --   <table key="key">
 --     <elem key="fingerprint">2c2275604bc33b18a2972c967e28dcdd</elem>
 --     <elem key="bits">2048</elem>
---     <elem key="algorithm">RSA</elem>
+--     <elem key="type">ssh-rsa</elem>
 --   </table>
 -- </table>
 -- <table>
@@ -93,7 +93,7 @@ The script also includes a postrule that check for duplicate hosts using the gat
 --   <table key="key">
 --     <elem key="fingerprint">60ac4d51b1cd8509121692761d5d276e</elem>
 --     <elem key="bits">1024</elem>
---     <elem key="algorithm">DSA</elem>
+--     <elem key="type">ssh-dss</elem>
 --   </table>
 -- </table>
 
@@ -139,7 +139,7 @@ local function portaction(host, port)
     add_key_to_registry( host, key )
     table.insert(output_tab, {
       fingerprint=stdnse.tohex(key.fingerprint),
-      algorithm=key.algorithm,
+      type=key.key_type,
       bits=key.bits,
       key=key.full_key
     })
@@ -193,7 +193,7 @@ local function postaction()
         hostkeys[fp] = {}
         revmap[fp] = {
           fingerprint=stdnse.tohex(key.fingerprint,{separator=":"}),
-          algorithm=key.algorithm,
+          type=key.key_type,
           bits=key.bits
         }
       end
