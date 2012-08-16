@@ -124,7 +124,7 @@ action = function(host)
 		os_string = string.format( "%s (%s)", get_windows_version( result['os'] ), result['lanmanager'] )
 	end
 	if (result['date'] and result['timezone_str']) then
-		time_string = string.format("%s %s", result['date'], result['timezone_str'])
+		time_string = string.format("%s%+03d%02d", os.date("%Y-%m-%dT%H:%M:%S", result.time), result.timezone, math.abs(math.fmod(result.timezone, 1)) * 60)
 	end
 	
 	

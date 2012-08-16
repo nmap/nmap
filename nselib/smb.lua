@@ -3266,7 +3266,9 @@ function get_os(host)
 	response['domain']       = smbstate['domain']
 	response['server']       = smbstate['server']
 	response['date']         = smbstate['date']
+	response['time']         = smbstate['time']
 	response['timezone_str'] = smbstate['timezone_str']
+	response['timezone']     = smbstate['timezone']
 	
     -- Kill SMB
     stop(smbstate)
