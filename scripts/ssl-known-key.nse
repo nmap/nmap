@@ -33,7 +33,7 @@ include with Nmap) list.
 -- @xmloutput
 -- <table>
 --   <elem key="section">Little Black Box 0.1</elem>
---   <elem key="fingerprint">00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96</elem>
+--   <elem key="fingerprint">0028e7d49cfa4aa5984fe497eb7348560787e496</elem>
 -- </table>
 
 author = "Mak Kolybabi"
@@ -124,18 +124,20 @@ action = function(host, port)
 	if not status then
 		stdnse.print_debug(2, "sslcert.getCertificate error: %s", cert)
 	end
-	if not cert:digest("sha1") then
+	local fingerprint = cert:digest("sha1")
+	if not fingerprint then
 		stdnse.print_debug(2, "Certificate does not have a SHA-1 fingerprint.")
 		return
 	end
+	local fingerprint_fmt = stdnse.tohex(fingerprint, {separator=":", group=2}):upper()
 
 	-- Check SSL fingerprint against database.
-	local fingerprint = stdnse.tohex(cert:digest("sha1"), {separator=":", group=2}):upper()
-	local section = fingerprints[fingerprint]
+	local key = stdnse.tohex(fingerprint, {separator=":", group=2}):upper()
+	local section = fingerprints[key]
 	if not section then
-		stdnse.print_debug(2, "%s was not in the database.", fingerprint)
+		stdnse.print_debug(2, "%s was not in the database.", fingerprint_fmt)
 		return
 	end
 
-	return {section=section, fingerprint=fingerprint}, "Found in " .. section .. " (certificate hash: " .. fingerprint .. ")"
+	return {section=section, fingerprint=stdnse.tohex(fingerprint)}, "Found in " .. section .. " (certificate hash: " .. fingerprint_fmt  .. ")"
 end
