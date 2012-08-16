@@ -2771,8 +2771,8 @@ local localip, localport = try(client_service:get_info())
     <literal>@copyright</literal> belong in the variables
     <varname>author</varname> and <varname>license</varname> instead.
     NSEDoc knows about these variables and will use them in preference
-    to fields in the comments. Scripts should also have an
-    <varname>@output</varname> tag showing sample output, as well as <varname>@args</varname> and <varname>@usage</varname> where appropriate.
+    to fields in the comments. Scripts should also have
+    <varname>@output</varname> and <varname>@xmloutput</varname> tags showing sample output, as well as <varname>@args</varname> and <varname>@usage</varname> where appropriate.
     <xref linkend="nsedoc-script" xrefstyle="select: label nopage"/>
     shows proper form for script-level documentation, using a
     combination of documentation comments and NSE variables.
@@ -2936,6 +2936,19 @@ categories = {"discovery", "external", "safe"}
             <para>
               This tag, which is exclusive to
               script-level comments, shows sample output from a script.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><option>@xmloutput</option></term>
+          <listitem>
+            <para>
+	      Shows what the script's
+	      <xref linkend="nse-structured-output">structured output</xref>
+	      looks like when written to XML. The XML sample should not include
+	      the enclosing <literal>&lt;script&gt;</literal> and
+	      <literal>&lt;/script&gt;</literal> tags and should be indented to
+	      show hierarchy.
             </para>
           </listitem>
         </varlistentry>
