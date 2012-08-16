@@ -44,16 +44,6 @@ categories = {"safe", "discovery", "vuln", "default"}
 local FINGERPRINT_FILE = "ssl-fingerprints"
 
 local get_fingerprints = function(path)
-	local pretty = function(key)
-		local s = key:sub(1, 2)
-
-		for i = 3, 40, 2 do
-			s = s .. ":" .. key:sub(i, i + 1)
-		end
-
-		return s:upper()
-	end
-
 	-- Check registry for cached fingerprints.
 	if nmap.registry.ssl_fingerprints then
 		stdnse.print_debug(2, "Using cached SSL fingerprints.")
@@ -88,12 +78,16 @@ local get_fingerprints = function(path)
 				section = line
 			elseif section ~= nil then
 				-- Add fingerprint to section.
-				line = pretty(line)
-				stdnse.print_debug(4, "Added key %s to database.", line)
-				fingerprints[line] = section
+				local fingerprint = bin.pack("H", line)
+				if #fingerprint == 20 then
+					fingerprints[fingerprint] = section
+					stdnse.print_debug(4, "Added key %s to database.", line)
+				else
+					stdnse.print_debug(0, "Cannot parse presumed fingerprint %q in section %q.", line, section)
+				end
 			else
 				-- Key found outside of section.
-				stdnse.print_debug(1, "Key %s is not in a section.", pretty(line))
+				stdnse.print_debug(1, "Key %s is not in a section.", line)
 			end
 		end
 	end
@@ -128,8 +122,7 @@ action = function(host, port)
 	local fingerprint_fmt = stdnse.tohex(fingerprint, {separator=" ", group=4})
 
 	-- Check SSL fingerprint against database.
-	local key = stdnse.tohex(fingerprint, {separator=":", group=2}):upper()
-	local section = fingerprints[key]
+	local section = fingerprints[fingerprint]
 	if not section then
 		stdnse.print_debug(2, "%s was not in the database.", fingerprint_fmt)
 		return
