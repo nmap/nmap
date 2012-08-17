@@ -105,7 +105,6 @@
 #include "MACLookup.h"
 #include "portreasons.h"
 #include "protocols.h"
-#include "nmap_rpc.h"
 #include "Target.h"
 #include "utils.h"
 #include "xml.h"
@@ -233,13 +232,6 @@ static void print_xml_service(const struct serviceDeductions *sd) {
     xml_attribute("tunnel", "ssl");
   xml_attribute("method", "%s", (sd->dtype == SERVICE_DETECTION_TABLE) ? "table" : "probed");
   xml_attribute("conf", "%i", sd->name_confidence);
-
-  if (sd->rpc_status == RPC_STATUS_GOOD_PROG) {
-    xml_attribute("rpcnum", "%li", sd->rpc_program);
-    xml_attribute("lowver", "%i", sd->rpc_lowver);
-    xml_attribute("highver", "%i", sd->rpc_highver);
-    xml_attribute("proto", "rpc");
-  }
 
   if (sd->cpe.empty()) {
     xml_close_empty_tag();
@@ -501,14 +493,11 @@ static char *formatScriptOutput(ScriptResult sr) {
    should write helper functions to handle the table creation */
 void printportoutput(Target *currenths, PortList *plist) {
   char protocol[MAX_IPPROTOSTRLEN + 1];
-  char rpcinfo[64];
-  char rpcmachineinfo[64];
   char portinfo[64];
   char grepvers[256];
   char *p;
   const char *state;
   char serviceinfo[64];
-  char *name = NULL;
   int i;
   int first = 1;
   struct protoent *proto;
@@ -729,41 +718,7 @@ void printportoutput(Target *currenths, PortList *plist) {
         if (sd.service_fp && saved_servicefps.size() <= 8)
           saved_servicefps.push_back(sd.service_fp);
 
-        switch (sd.rpc_status) {
-        case RPC_STATUS_UNTESTED:
-          rpcinfo[0] = '\0';
-          strcpy(rpcmachineinfo, "");
-          break;
-        case RPC_STATUS_UNKNOWN:
-          strcpy(rpcinfo, "(RPC (Unknown Prog #))");
-          strcpy(rpcmachineinfo, "R");
-          break;
-        case RPC_STATUS_NOT_RPC:
-          rpcinfo[0] = '\0';
-          strcpy(rpcmachineinfo, "N");
-          break;
-        case RPC_STATUS_GOOD_PROG:
-          name = nmap_getrpcnamebynum(sd.rpc_program);
-          Snprintf(rpcmachineinfo, sizeof(rpcmachineinfo),
-                   "(%s:%li*%i-%i)", (name) ? name : "", sd.rpc_program,
-                   sd.rpc_lowver, sd.rpc_highver);
-          if (!name) {
-            Snprintf(rpcinfo, sizeof(rpcinfo), "(#%li (unknown) V%i-%i)",
-                     sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
-          } else {
-            if (sd.rpc_lowver == sd.rpc_highver) {
-              Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i)", name,
-                       sd.rpc_lowver);
-            } else
-              Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i-%i)", name,
-                       sd.rpc_lowver, sd.rpc_highver);
-          }
-          break;
-        default:
-          fatal("Unknown rpc_status %d", sd.rpc_status);
-          break;
-        }
-        current->getNmapServiceName(serviceinfo, sizeof(serviceinfo), rpcinfo);
+        current->getNmapServiceName(serviceinfo, sizeof(serviceinfo));
 
         Tbl->addItem(rowno, portcol, true, portinfo);
         Tbl->addItem(rowno, statecol, false, state);
@@ -796,8 +751,8 @@ void printportoutput(Target *currenths, PortList *plist) {
             p++;
           }
         }
-        log_write(LOG_MACHINE, "%d/%s/%s//%s/%s/%s/", current->portno,
-                  state, protocol, serviceinfo, rpcmachineinfo, grepvers);
+        log_write(LOG_MACHINE, "%d/%s/%s//%s/%s/", current->portno,
+                  state, protocol, serviceinfo, grepvers);
 
         xml_open_start_tag("port");
         xml_attribute("protocol", "%s", protocol);

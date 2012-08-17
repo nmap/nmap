@@ -163,16 +163,6 @@ struct serviceDeductions {
   // if we should give the user a service fingerprint to submit, here it is.  Otherwise NULL.
   char *service_fp; 
   enum service_detection_type dtype; // definition above
-  int rpc_status; /* RPC_STATUS_UNTESTED means we haven't checked
-		    RPC_STATUS_UNKNOWN means the port appears to be RPC
-		    but we couldn't find a match
-		    RPC_STATUS_GOOD_PROG means rpc_program gives the prog #
-		    RPC_STATUS_NOT_RPC means the port doesn't appear to 
-		    be RPC */
-  unsigned long rpc_program; /* Only valid if rpc_state == RPC_STATUS_GOOD_PROG */
-  unsigned int rpc_lowver;
-  unsigned int rpc_highver;
-
 };
 
 class Port {
@@ -182,7 +172,7 @@ class Port {
   Port();
   void freeService(bool del_service);
   void freeScriptResults(void);
-  void getNmapServiceName(char *namebuf, int buflen, const char *rpcinfo) const;
+  void getNmapServiceName(char *namebuf, int buflen) const;
 
   u16 portno;
   u8 proto;
@@ -194,9 +184,8 @@ class Port {
 #endif
 
  private:
-  /* This is allocated only on demand by PortList::setServiceProbeResults or
-     PortList::setRPCProbeResults, to save memory for the many closed or
-     filtered ports that don't need it. */
+  /* This is allocated only on demand by PortList::setServiceProbeResults
+     Pto save memory for the many closed or filtered ports that don't need it. */
   serviceDeductions *service;
 };
 
@@ -277,13 +266,6 @@ class PortList {
   // you don't have to free any internal ptrs.  See the serviceDeductions definition for
   // the fields that are populated.  Returns 0 if at least a name is available.
   void getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const;
-
-  /* Sets the results of an RPC scan.  if rpc_status is not
-   RPC_STATUS_GOOD_PROGRAM, pass 0 for the other args. This function
-   takes care of setting the port's service and version
-   appropriately. */
-  void setRPCProbeResults(u16 portno, int proto, int rpc_status, unsigned long rpc_program, 
-			  unsigned int rpc_lowver, unsigned int rpc_highver);
 
 #ifndef NOLUA
   void addScriptResult(u16 portno, int protocol, ScriptResult& sr);
