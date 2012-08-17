@@ -1976,15 +1976,6 @@ int nmap_main(int argc, char *argv[]) {
 
         service_scan(Targets);
       }
-
-      if (o.servicescan) {
-        /* This scantype must be after any TCP or UDP scans since it
-         * get's it's port scan list from the open port list of the current
-         * host rather than port list the user specified.
-         */
-        for(targetno = 0; targetno < Targets.size(); targetno++)
-          pos_scan(Targets[targetno], NULL, 0, RPC_SCAN);
-      }
     }
 
     if (o.osscan){
@@ -2716,7 +2707,6 @@ const char *scantype2str(stype scantype) {
   case WINDOW_SCAN: return "Window Scan"; break;
   case SCTP_INIT_SCAN: return "SCTP INIT Scan"; break;
   case SCTP_COOKIE_ECHO_SCAN: return "SCTP COOKIE-ECHO Scan"; break;
-  case RPC_SCAN: return "RPCGrind Scan"; break;
   case MAIMON_SCAN: return "Maimon Scan"; break;
   case IPPROT_SCAN: return "IPProto Scan"; break;
   case PING_SCAN: return "Ping Scan"; break;
