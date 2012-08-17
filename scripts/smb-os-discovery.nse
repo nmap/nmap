@@ -2,6 +2,8 @@ local smb = require "smb"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local math = require "math"
+local os = require "os"
 
 description = [[
 Attempts to determine the operating system, computer name, domain, workgroup, and current

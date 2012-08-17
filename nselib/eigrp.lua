@@ -5,6 +5,8 @@
 -- Version 0.1
 --  19/07/2012 - First version.
 
+local bin = require "bin"
+local table = require "table"
 local stdnse = require "stdnse"
 local ipOps = require "ipOps"
 local packet = require "packet"

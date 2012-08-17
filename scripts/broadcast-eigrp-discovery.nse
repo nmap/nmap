@@ -7,6 +7,8 @@ local bin = require "bin"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
+local coroutine = require "coroutine"
+local string = require "string"
 
 description = [[
 Network discovery and routing information gathering through Cisco's EIGRP.
@@ -114,7 +116,7 @@ end
 local eigrpListener = function(interface, timeout, responses)
     local condvar = nmap.condvar(responses)
     local routers = {}
-    local status, l3data, response, p, eigrp_raw
+    local status, l3data, response, p, eigrp_raw, _
     local start = nmap.clock_ms()
     -- Filter for EIGRP packets that are sent either to us or to multicast
     local filter =  "ip proto 88 and (ip dst host " .. interface.address .. " or 224.0.0.10)"
@@ -162,7 +164,7 @@ end
 --@param astab Table to put result into.
 local asListener = function(interface, timeout, astab)
     local condvar = nmap.condvar(astab)
-    local status, l3data, p, eigrp_raw, eigrp_hello
+    local status, l3data, p, eigrp_raw, eigrp_hello, _
     local start = nmap.clock_ms()
     local filter =  "ip proto 88 and ip dst host 224.0.0.10"
     local listener = nmap.new_socket()

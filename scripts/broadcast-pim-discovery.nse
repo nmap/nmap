@@ -5,6 +5,8 @@ local bin = require "bin"
 local stdnse = require "stdnse"
 local target = require "target"
 local table = require "table"
+local math = require "math"
+local string = require "string"
 
 description = [[
 Discovers routers that are running PIM (Protocol Independant Multicast).
@@ -104,7 +106,7 @@ local helloListen = function(interface, timeout, responses)
     local condvar = nmap.condvar(responses)
     local start = nmap.clock_ms()
     local listener = nmap.new_socket()
-    local p, hello_raw, status, l3data
+    local p, hello_raw, status, l3data, _
 
     -- PIM packets that are sent to 224.0.0.13 and not coming from our host
     local filter = 'ip proto 103 and dst host 224.0.0.13 and src host not ' .. interface.address

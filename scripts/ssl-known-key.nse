@@ -3,6 +3,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local sslcert = require "sslcert"
+local bin = require "bin"
 
 -- -*- mode: lua -*-
 -- vim: set filetype=lua :

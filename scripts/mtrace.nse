@@ -4,6 +4,8 @@ local ipOps = require "ipOps"
 local bin = require "bin"
 local stdnse = require "stdnse"
 local table = require "table"
+local math = require "math"
+local string = require "string"
 
 description = [[
 Queries for the multicast path from a source to a destination host.
@@ -155,7 +157,7 @@ local traceSend = function(interface, destination, trace_raw)
     if destination == "224.0.0.2" then
 	sock:ethernet_open(interface.device)
 	-- Ethernet IPv4 multicast, our ethernet address and packet type IP
-	eth_hdr = bin.pack("HAH", "01 00 5e 00 00 02", interface.mac, "08 00")
+	local eth_hdr = bin.pack("HAH", "01 00 5e 00 00 02", interface.mac, "08 00")
 	sock:ethernet_send(eth_hdr .. trace_packet.buf)
 	sock:ethernet_close()
     else
@@ -266,7 +268,7 @@ local traceListener = function(interface, timeout, responses)
     local condvar = nmap.condvar(responses)
     local start = nmap.clock_ms()
     local listener = nmap.new_socket()
-    local p, trace_raw, status, l3data, response
+    local p, trace_raw, status, l3data, response, _
 
     -- IGMP packets that are sent to our host
     local filter = 'ip proto 2 and dst host ' .. interface.address

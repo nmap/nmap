@@ -5,6 +5,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
+local table  = require "table"
 local url = require "url"
 
 description = [[
@@ -38,11 +39,9 @@ categories = {"default", "discovery", "safe"}
 
 portrule = shortport.http
 
-action = function(host, port)
-  local resp, redirect_url, title
-
-  resp = http.get( host, port, '/' )
-
+local function getTitle(host, port, path)
+  local resp = http.get( host, port, path )
+  local redirect_url
   -- check for a redirect
   if resp.location then
     redirect_url = resp.location[#resp.location]
@@ -52,10 +51,14 @@ action = function(host, port)
   end
 
   -- try and match title tags
-  title = string.match(resp.body, "<[Tt][Ii][Tt][Ll][Ee][^>]*>([^<]*)</[Tt][Ii][Tt][Ll][Ee]>")
+  local title
+  if ( resp.body ) then
+    title = string.match(resp.body, "<[Tt][Ii][Tt][Ll][Ee][^>]*>([^<]*)</[Tt][Ii][Tt][Ll][Ee]>")
+  else
+    title = "No reponse received from server"
+  end
 
   local display_title = title
-
   if display_title and display_title ~= "" then
     display_title = string.gsub(display_title , "[\n\r\t]", "")
     if #display_title > 65 then
@@ -70,14 +73,25 @@ action = function(host, port)
     end
   end
 
-  local output_tab = stdnse.output_table()
-  output_tab.title = title
-  output_tab.redirect_url = redirect_url
+  return title, display_title, redirect_url
+end
 
-  local output_str = display_title
-  if redirect_url then
-    output_str = output_str .. "\n" .. ("Requested resource was %s"):format( redirect_url )
+action = function(host, port)
+  local path = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
+  local str_res, xml_res = {}, stdnse.output_table()
+  
+  for _, p in ipairs(stdnse.strsplit(",", path)) do
+    local title, display_title, redirect_url = getTitle(host, port, p)
+    
+    local result_part = { ("%s: %s"):format(p, display_title) }
+    if redirect_url then
+      table.insert(result_part, { ("Requested resource was %s"):format( redirect_url ) })
+    end
+    table.insert(str_res, result_part)
+
+    xml_res.urls = xml_res.urls or {}
+    table.insert(xml_res.urls, { path = p, title = title, redirect_url = redirect_url })
   end
 
-  return output_tab, output_str
+  return xml_res, stdnse.format_output(true, str_res)
 end

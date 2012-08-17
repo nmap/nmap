@@ -5,6 +5,8 @@ local bin = require "bin"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
+local coroutine = require "coroutine"
+local string = require "string"
 
 description = [[
 Discovers targets that have IGMP Multicast memberships and grabs interesting information.
@@ -142,7 +144,7 @@ local igmpListener = function(interface, timeout, responses)
     local condvar = nmap.condvar(responses)
     local start = nmap.clock_ms()
     local listener = nmap.new_socket()
-    local p, igmp_raw, status, l3data, response
+    local p, igmp_raw, status, l3data, response, _
     local devices = {}
     listener:set_timeout(100)
     listener:pcap_open(interface.device, 1024, true, 'ip proto 2')

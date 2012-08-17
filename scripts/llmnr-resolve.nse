@@ -6,6 +6,8 @@ local bit = require "bit"
 local packet = require "packet"
 local ipOps = require "ipOps"
 local target = require "target"
+local math = require "math"
+local string = require "string"
 
 description = [[
 Resolves a hostname by using the LLMNR (Link-Local Multicast Name Resolution) protocol.
@@ -88,7 +90,7 @@ local llmnrListen = function(interface, timeout, result)
     local condvar = nmap.condvar(result)
     local start = nmap.clock_ms()
     local listener = nmap.new_socket()
-    local status, l3data
+    local status, l3data, _
 
     -- packets that are sent to our UDP port number 5355
     local filter = 'dst host ' .. interface.address .. ' and udp src port 5355'
@@ -200,14 +202,15 @@ action = function()
 
     -- Check responses
     if #result > 0 then
-	for _, response in pairs(result) do
-	    table.insert(output, response.hostname.. " : " .. response.address) 
-	end
-	if target.ALLOW_NEW_TARGETS then 
-	    target.add(response.address)
-	else
-	    table.insert(output,"Use the newtargets script-arg to add the results as targets")
-	end
-	return stdnse.format_output(true, output)
+      for _, response in pairs(result) do
+        table.insert(output, response.hostname.. " : " .. response.address) 
+        if target.ALLOW_NEW_TARGETS then 
+          target.add(response.address)
+        end 
+      end
+      if ( not(target.ALLOW_NEW_TARGETS) ) then
+        table.insert(output,"Use the newtargets script-arg to add the results as targets")
+      end
+      return stdnse.format_output(true, output)
     end
 end
