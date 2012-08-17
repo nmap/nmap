@@ -1,8 +1,8 @@
 
 /***************************************************************************
  * scan_engine.cc -- Includes much of the "engine" functions for scanning, *
- * such as pos_scan and ultra_scan.  It also includes dependant functions  *
- * such as those for collecting SYN/connect scan responses.                *
+ * such as ultra_scan.  It also includes dependant functions such as those *
+ * for collecting SYN/connect scan responses.				   *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -103,7 +103,6 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "nmap_tty.h"
-#include "nmap_rpc.h"
 #include "payload.h"
 #include "Target.h"
 #include "targets.h"
@@ -1684,7 +1683,7 @@ unsigned int UltraScanInfo::numProbesPerHost() {
       numprobes += ports->proto_ping_count;
     if (ptech.connecttcpscan)
       numprobes += ports->syn_ping_count;
-  } else assert(0); /* TODO: RPC scan */
+  } else assert(0);
 
   return numprobes;
 }
@@ -3581,7 +3580,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     hss->probeSent(packetlen);
     send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
     free(packet);
-  } else assert(0); /* TODO:  Maybe RPC scan and the like */
+  } else assert(0); 
 
   /* Now that the probe has been sent, add it to the Queue for this host */
   hss->probes_outstanding.push_back(probe);
@@ -3701,8 +3700,6 @@ static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
     sendArpScanProbe(USI, hss, 0, hss->nextPingSeq(true));
   } else if (hss->target->pingprobe.type == PS_ND) {
     sendNDScanProbe(USI, hss, 0, hss->nextPingSeq(true));
-  } else if (USI->scantype == RPC_SCAN) {
-    assert(0); /* TODO: fill out */
   } else {
     assert(0);
   }
@@ -5412,7 +5409,7 @@ static void waitForResponses(UltraScanInfo *USI) {
       gotone = get_pcap_result(USI, &stime);
     } else if (USI->scantype == CONNECT_SCAN) {
       gotone = do_one_select_round(USI, &stime);
-    } else assert(0); /* TODO: Must fill this out for maybe rpc scan, etc. */
+    } else assert(0); 
   } while (gotone && USI->gstats->num_probes_active > 0);
 
   gettimeofday(&USI->now, NULL);
@@ -5903,337 +5900,5 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
   if (o.debugging || o.verbose)
     log_write(LOG_STDOUT, "Scanned %d ports in %ld seconds via the Bounce scan.\n",
               numports, (long) time(NULL) - starttime);
-  return;
-}
-
-/* I want to reverse the order of all PORT_TESTING entries in
-   the scan list -- this way if an intermediate router along the
-   way got overloaded and dropped the last X packets, they are
-   likely to get through (and flag us a problem if responsive)
-   if we let them go first in the next round */
-static void reverse_testing_order(struct portinfolist *pil, struct portinfo *scanarray) {
-  int nextidx;
-  struct portinfo *current;
-
-  current = pil->testinglist;
-
-  if (current == NULL || current->state != PORT_TESTING)
-    return;
-
-  while (1) {
-    nextidx = current->next;
-    /* current->state is always PORT_TESTING here */
-    current->next = current->prev; // special case 1st node dealt w/later
-    current->prev = nextidx; // special last TESTING node case dealt w/later
-    if (nextidx == -1) {
-      // Every node was in TESTING state
-      current->prev = -1; // New head of list
-      pil->testinglist->next = -1;
-      pil->testinglist = current;
-      break;
-    } else if (scanarray[nextidx].state != PORT_TESTING) {
-      current->prev = -1; // New head of list
-      pil->testinglist->next = nextidx;
-      scanarray[nextidx].prev = pil->testinglist - scanarray;
-      pil->testinglist = current;
-      break;
-    }
-    current = scanarray + nextidx;
-  }
-}
-
-
-/* Used to handle all the "positive-response" scans (where we get a
-   response telling us that the port is open based on the probe.  This
-   includes SYN Scan, Connect Scan, RPC scan, Window Scan, and ACK
-   scan.  Now ultra_scan() does all of those, except for RPC scan,
-   which is the only pos_scan now supported.  */
-void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
-  o.current_scantype = scantype;
-
-  struct scanstats ss;
-  int senddelay = 0;
-  int rpcportsscanned = 0;
-  struct timeval starttm;
-  struct portinfo *scan = NULL,  *current, *next;
-  struct portinfolist pil;
-  struct timeval now;
-  struct rpcscaninfo rsi;
-  unsigned long j;
-  struct serviceDeductions sd;
-  bool doingOpenFiltered = false;
-  Port port;
-
-  ScanProgressMeter *SPM = NULL;
-
-  if (target->timedOut(NULL))
-    return;
-
-  if (scantype != RPC_SCAN)
-    fatal("%s now handles only rpc scan", __func__);
-
-  if (target->ports.getStateCounts(PORT_OPEN) == 0 &&
-      (o.servicescan || target->ports.getStateCounts(PORT_OPENFILTERED) == 0))
-    return; // RPC Scan only works against already known-open ports
-
-  if (o.debugging)
-    log_write(LOG_STDOUT, "Starting RPC scan against %s\n", target->NameIP());
-
-  gettimeofday(&starttm, NULL);
-  target->startTimeOutClock(&starttm);
-
-  ss.packet_incr = 4;
-  ss.initial_packet_width = (scantype == RPC_SCAN) ? 2 : 30;
-  ss.fallback_percent = 0.7;
-  ss.numqueries_outstanding = 0;
-  ss.ports_left = numports;
-  ss.alreadydecreasedqueries = 0;
-
-  memset(&pil, 0, sizeof(pil));
-
-  ss.min_width = o.min_parallelism ? o.min_parallelism : 1;
-  ss.max_width = MAX(ss.min_width, o.max_parallelism ? o.max_parallelism : 150);
-
-  ss.initial_packet_width = box(ss.min_width, ss.max_width, ss.initial_packet_width);
-  ss.numqueries_ideal = ss.initial_packet_width;
-
-  get_rpc_procs(&(rsi.rpc_progs), &(rsi.rpc_number));
-  scan = (struct portinfo *) safe_malloc(rsi.rpc_number * sizeof(struct portinfo));
-  for (j = 0; j < rsi.rpc_number; j++) {
-    scan[j].state = PORT_FRESH;
-    scan[j].portno = rsi.rpc_progs[j];
-    scan[j].trynum = 0;
-    scan[j].prev = j - 1;
-    scan[j].sd[0] = scan[j].sd[1] = scan[j].sd[2] = -1;
-    if (j < rsi.rpc_number - 1 )
-      scan[j].next = j + 1;
-    else
-      scan[j].next = -1;
-  }
-  current = pil.testinglist = &scan[0];
-  rsi.rpc_current_port = NULL;
-
-  do {
-    ss.changed = 0;
-
-    if (senddelay > 200000) {
-      ss.max_width = MIN(ss.max_width, 5);
-      ss.numqueries_ideal = MIN(ss.max_width, ss.numqueries_ideal);
-    }
-
-    if (target->timedOut(NULL))
-      goto posscan_timedout;
-
-    /* Make sure we have ports left to scan */
-    while (1) {
-      if (doingOpenFiltered) {
-        rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port,
-                               &port, TCPANDUDPANDSCTP,
-                               PORT_OPENFILTERED);
-      } else {
-        rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port,
-                               &port, TCPANDUDPANDSCTP,
-                               PORT_OPEN);
-        if (!rsi.rpc_current_port && !o.servicescan) {
-          doingOpenFiltered = true;
-          continue;
-        }
-      }
-      // When service scan is in use, we only want to scan ports that have already
-      // been determined to be RPC
-
-      if (!rsi.rpc_current_port)
-        break; // done!
-      target->ports.getServiceDeductions(rsi.rpc_current_port->portno, rsi.rpc_current_port->proto, &sd);
-      if (sd.name && sd.service_tunnel == SERVICE_TUNNEL_NONE &&
-          strcmp(sd.name, "rpcbind") == 0)
-        break; // Good - an RPC port for us to scan.
-    }
-
-    if (!rsi.rpc_current_port)
-      break;  /* Woop!  Done! */
-
-    /* Reinit our testinglist so we try each RPC prog */
-    pil.testinglist = &scan[0];
-    rsi.valid_responses_this_port = 0;
-    rsi.rpc_status = RPC_STATUS_UNKNOWN;
-    rpcportsscanned++;
-
-
-    // This initial message is way down here because we don't want to print it if
-    // no RPC ports need scanning.
-    if (!SPM) {
-      char scanname[48];
-      Snprintf(scanname, sizeof(scanname), "%s against %s", scantype2str(scantype), target->NameIP());
-      scanname[sizeof(scanname) - 1] = '\0';
-      SPM = new ScanProgressMeter(scanname);
-    }
-
-    while (pil.testinglist != NULL) { /* While we have live queries or more ports to scan */
-
-      if (keyWasPressed()) {
-        // We can print out some status here if we want
-      }
-
-      /* Check the possible retransmissions first */
-      gettimeofday(&now, NULL);
-
-      /* Insure we haven't overrun our allotted time ... */
-      if (target->timedOut(&now))
-        goto posscan_timedout;
-
-      for ( current = pil.testinglist; current ; current = next) {
-        /* For each port or RPC program */
-        next = (current->next > -1) ? &scan[current->next] : NULL;
-        if (current->state == PORT_TESTING) {
-          if ( TIMEVAL_SUBTRACT(now, current->sent[current->trynum]) > target->to.timeout) {
-            if (current->trynum > 1) {
-              /* No responses !#$!#@$ firewalled? */
-
-              if (rsi.valid_responses_this_port == 0) {
-                if (o.debugging) {
-                  log_write(LOG_STDOUT, "RPC Scan giving up on port %hu proto %d due to repeated lack of response\n", rsi.rpc_current_port->portno,  rsi.rpc_current_port->proto);
-                }
-                rsi.rpc_status = RPC_STATUS_NOT_RPC;
-                ss.numqueries_outstanding = 0;
-                break;
-              } else {
-                /* I think I am going to slow down a little */
-                target->to.rttvar = MIN(2000000, (int) (target->to.rttvar * 1.2));
-              }
-
-              if (o.debugging > 2) {
-                log_write(LOG_STDOUT, "Moving port or prog %lu to the potentially firewalled list\n", (unsigned long) current->portno);
-              }
-              current->state = PORT_FILTERED; /* For various reasons */
-              /* First delete from old list */
-              if (current->next > -1)
-                scan[current->next].prev = current->prev;
-              if (current->prev > -1)
-                scan[current->prev].next = current->next;
-              if (current == pil.testinglist)
-                pil.testinglist = (current->next >= 0) ?  &scan[current->next] : NULL;
-              current->next = -1;
-              current->prev = -1;
-              /* Now move into new list */
-
-              ss.numqueries_outstanding--;
-            } else {  /* timeout ... we've got to resend */
-              if (o.scan_delay)
-                enforce_scan_delay(NULL);
-              if (o.debugging > 2)
-                log_write(LOG_STDOUT, "Timeout, resending to portno/progno %lu\n", current->portno);
-              current->trynum++;
-              gettimeofday(&current->sent[current->trynum], NULL);
-              now = current->sent[current->trynum];
-              if (send_rpc_query(target, rsi.rpc_current_port->portno,
-                                 rsi.rpc_current_port->proto,
-                                 current->portno, current - scan,
-                                 current->trynum) == -1) {
-                /* Futz, I'll give up on this guy ... */
-                rsi.rpc_status = RPC_STATUS_NOT_RPC;
-                break;
-              }
-
-              if (senddelay)
-                usleep(senddelay);
-            }
-          }
-        } else {
-          if (current->state != PORT_FRESH)
-            fatal("State mismatch!!@ %d", current->state);
-          /* current->state == PORT_FRESH */
-          /* OK, now we have gone through our list of in-transit queries, so now
-             we try to send off new queries if we can ... */
-          if (ss.numqueries_outstanding >= (int) ss.numqueries_ideal)
-            break;
-          if (o.scan_delay)
-            enforce_scan_delay(NULL);
-          if (o.debugging > 2)
-            log_write(LOG_STDOUT, "Sending initial query to port/prog %lu\n", current->portno);
-          /* Otherwise lets send a packet! */
-          current->state = PORT_TESTING;
-          current->trynum = 0;
-          /*	if (!testinglist) testinglist = current; */
-          ss.numqueries_outstanding++;
-          gettimeofday(&current->sent[0], NULL);
-          if (send_rpc_query(target,
-                             rsi.rpc_current_port->portno,
-                             rsi.rpc_current_port->proto, current->portno,
-                             current - scan, current->trynum) == -1) {
-            /* Futz, I'll give up on this guy ... */
-            rsi.rpc_status = RPC_STATUS_NOT_RPC;
-            break;
-          }
-          if (senddelay)
-            usleep(senddelay);
-        }
-      }
-      if (o.debugging > 1) {
-        log_write(LOG_STDOUT, "Ideal number of queries: %d outstanding: %d max %d ports_left %d timeout %d senddelay: %dus\n",
-          (int) ss.numqueries_ideal, ss.numqueries_outstanding, ss.max_width, ss.ports_left, target->to.timeout, senddelay);
-      }
-
-      /* Now that we have sent the packets we wait for responses */
-      ss.alreadydecreasedqueries = 0;
-      /* We only bother worrying about responses if we haven't reached
-         a conclusion yet */
-      if (rsi.rpc_status == RPC_STATUS_UNKNOWN) {
-        get_rpc_results(target, scan, &ss, &pil, &rsi);
-      }
-      if (rsi.rpc_status != RPC_STATUS_UNKNOWN)
-        break;
-
-      /* I want to reverse the order of all PORT_TESTING entries in
-               the list -- this way if an intermediate router along the
-               way got overloaded and dropped the last X packets, they are
-               likely to get through (and flag us a problem if responsive)
-               if we let them go first in the next round */
-      reverse_testing_order(&pil, scan);
-
-      /* If we timed out while trying to get results -- we're outta here! */
-      if (target->timedOut(NULL))
-        goto posscan_timedout;
-    }
-
-    /* Now we figure out the results of the port we just RPC scanned */
-
-    target->ports.setRPCProbeResults(rsi.rpc_current_port->portno, rsi.rpc_current_port->proto,
-                                     rsi.rpc_status, rsi.rpc_program,
-                                     rsi.rpc_lowver, rsi.rpc_highver);
-
-    /* Time to put our RPC program scan list back together for the
-       next port ... */
-    for (j = 0; j < rsi.rpc_number; j++) {
-      scan[j].state = PORT_FRESH;
-      scan[j].trynum = 0;
-      scan[j].prev = j - 1;
-      if (j < rsi.rpc_number - 1)
-        scan[j].next = j + 1;
-      else scan[j].next = -1;
-    }
-    current = pil.testinglist = &scan[0];
-    pil.firewalled = NULL;
-
-    if (o.debugging) {
-      log_write(LOG_STDOUT, "Finished round. Current stats: numqueries_ideal: %d; min_width: %d; max_width: %d; packet_incr: %d; senddelay: %dus; fallback: %.f%%\n", (int) ss.numqueries_ideal, ss.min_width, ss.max_width, ss.packet_incr, senddelay, floor(100 * ss.fallback_percent));
-    }
-    ss.numqueries_ideal = ss.initial_packet_width;
-  } while (pil.testinglist);
-
-  numports = rpcportsscanned;
-  if (SPM && o.verbose && (numports > 0)) {
-    char scannedportsstr[14];
-    Snprintf(scannedportsstr, sizeof(scannedportsstr), "%d %s", numports, (numports > 1) ? "ports" : "port");
-    SPM->endTask(NULL, scannedportsstr);
-  }
-posscan_timedout:
-  target->stopTimeOutClock(NULL);
-  free(scan);
-  close_rpc_query_sockets();
-  if (SPM) {
-    delete SPM;
-    SPM = NULL;
-  }
   return;
 }

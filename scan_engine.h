@@ -1,8 +1,8 @@
 
 /***************************************************************************
  * scan_engine.h -- Includes much of the "engine" functions for scanning,  *
- * such as pos_scan and ultra_scan.  It also includes dependant functions  *
- * such as those for collecting SYN/connect scan responses.                *
+ * such as ultra_scan.  It also includes dependant functions such as       *
+ * those for collecting SYN/connect scan responses.                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -157,11 +157,6 @@ typedef struct probespec {
 /* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
 void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports, 
 		stype scantype, struct timeout_info *to = NULL);
-
-/* Handles the "positive-response" scans (where we get a response
-   telling us that the port is open based on the probe.  This includes
-   SYN Scan, Connect Scan, RPC scan, Window Scan, and ACK scan */
-void pos_scan(Target *target, u16 *portarray, int numports, stype scantype);
 
 /* FTP bounce attack scan.  This function is rather lame and should be
    rewritten.  But I don't think it is used much anyway.  If I'm going to
