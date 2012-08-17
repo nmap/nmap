@@ -14,7 +14,6 @@ extern "C" {
 #include "TargetGroup.h"
 #include "portlist.h"
 #include "service_scan.h"
-#include "nmap_rpc.h"
 #include "nmap_dns.h"
 #include "osscan.h"
 #include "protocols.h"
@@ -49,19 +48,6 @@ void set_version (lua_State *L, const struct serviceDeductions *sd)
       sd->dtype == SERVICE_DETECTION_TABLE ? "table" :
       sd->dtype == SERVICE_DETECTION_PROBED ? "probed" :
       NULL);
-  nseU_setsfield(L, -1, "rpc_status",
-      sd->rpc_status == RPC_STATUS_UNTESTED ? "untested" :
-      sd->rpc_status == RPC_STATUS_UNKNOWN ? "unknown" :
-      sd->rpc_status == RPC_STATUS_GOOD_PROG ? "good_prog" :
-      sd->rpc_status == RPC_STATUS_NOT_RPC ? "not_rpc" :
-      NULL);
-  if (sd->rpc_status == RPC_STATUS_GOOD_PROG)
-  {
-    nseU_setnfield(L, -1, "rpc_program", sd->rpc_program);
-    nseU_setnfield(L, -1, "rpc_lowver", sd->rpc_lowver);
-    nseU_setnfield(L, -1, "rpc_highver", sd->rpc_highver);
-  }
-
   lua_newtable(L);
   for (size_t i = 0; i < sd->cpe.size(); i++) {
     lua_pushstring(L, sd->cpe[i]);
