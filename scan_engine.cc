@@ -202,7 +202,7 @@ class UltraProbe {
 public:
   UltraProbe();
   ~UltraProbe();
-  enum UPType { UP_UNSET, UP_IP, UP_CONNECT, UP_RPC, UP_ARP, UP_ND } type; /* The type of probe this is */
+  enum UPType { UP_UNSET, UP_IP, UP_CONNECT, UP_ARP, UP_ND } type; /* The type of probe this is */
 
   /* Sets this UltraProbe as type UP_IP and creates & initializes the
      internal IPProbe.  The relevent probespec is necessary for setIP
