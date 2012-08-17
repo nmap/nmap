@@ -63,6 +63,55 @@ and therefore is quite noisy.
 -- |     Compressors (1)
 -- |       uncompressed
 -- |_  Least strength = unknown strength
+--
+-- @xmloutput
+-- <table key="SSLv3">
+--   <table key="ciphers">
+--     <table>
+--       <elem key="strength">strong</elem>
+--       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
+--     </table>
+--     <table>
+--       <elem key="strength">weak</elem>
+--       <elem key="name">TLS_RSA_WITH_DES_CBC_SHA</elem>
+--     </table>
+--     <table>
+--       <elem key="strength">strong</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--     </table>
+--     <table>
+--       <elem key="strength">strong</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--     </table>
+--   </table>
+--   <table key="compressors">
+--     <elem>NULL</elem>
+--   </table>
+-- </table>
+-- <table key="TLSv1.0">
+--   <table key="ciphers">
+--     <table>
+--       <elem key="strength">strong</elem>
+--       <elem key="name">TLS_RSA_WITH_3DES_EDE_CBC_SHA</elem>
+--     </table>
+--     <table>
+--       <elem key="strength">weak</elem>
+--       <elem key="name">TLS_RSA_WITH_DES_CBC_SHA</elem>
+--     </table>
+--     <table>
+--       <elem key="strength">strong</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_MD5</elem>
+--     </table>
+--     <table>
+--       <elem key="strength">strong</elem>
+--       <elem key="name">TLS_RSA_WITH_RC4_128_SHA</elem>
+--     </table>
+--   </table>
+--   <table key="compressors">
+--     <elem>NULL</elem>
+--   </table>
+-- </table>
+-- <elem key="least strength">weak</elem>
 
 author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
@@ -540,7 +589,7 @@ cipherstrength = {
 }
 
 local rankedciphers={}
-local mincipherstrength=2
+local mincipherstrength=3
 local rankedciphersfilename=false
 local policy=true
 
@@ -906,7 +955,7 @@ local function try_protocol(host, port, protocol, upresults)
 	local ciphers, compressors, results
   local condvar = nmap.condvar(upresults)
 
-	results = {}
+	results = stdnse.output_table()
 
 	-- Find all valid ciphers.
 	ciphers = find_ciphers(host, port, protocol)
@@ -930,23 +979,22 @@ local function try_protocol(host, port, protocol, upresults)
       stdnse.print_debug(2, "Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
       mincipherstrength=cipherstrength[cipherstr]
     end
-    ciphers[i]=name.." - "..cipherstr
+    local outcipher = {name=name, strength=cipherstr}
+    setmetatable(outcipher,{
+      __tostring=function(t) return string.format("%s - %s", t.name, t.strength) end
+    })
+    ciphers[i]=outcipher
   end
 
 	-- Format the cipher table.
-	table.sort(ciphers)
-	ciphers["name"] = "Ciphers (" .. #ciphers .. ")"
-	table.insert(results, ciphers)
+	table.sort(ciphers, function(a, b) return a["name"] < b["name"] end)
+  results["ciphers"] = ciphers
 
 	-- Format the compressor table.
 	table.sort(compressors)
-	compressors["name"] = "Compressors (" .. #compressors .. ")"
-	table.insert(results, compressors)
+  results["compressors"] = compressors
 
-  if #results > 0 then
-    results["name"] = protocol
-    table.insert(upresults, results)
-  end
+  upresults[protocol] = results
   condvar "signal"
   return nil
 end
@@ -988,6 +1036,27 @@ end
 
 portrule = shortport.ssl
 
+--- Return a table that yields elements sorted by key when iterated over with pairs()
+--  Should probably put this in a formatting library later.
+--  Depends on keys() function defined above.
+--@param  t    The table whose data should be used
+--@return out  A table that can be passed to pairs() to get sorted results
+function sorted_by_key(t)
+  local out = {}
+  setmetatable(out, {
+    __pairs = function(_)
+      local order = keys(t)
+      table.sort(order)
+      return coroutine.wrap(function()
+        for i,k in ipairs(order) do
+          coroutine.yield(k, t[k])
+        end
+      end)
+    end
+  })
+  return out
+end
+
 action = function(host, port)
 	local name, result, results
 
@@ -1020,15 +1089,14 @@ action = function(host, port)
     end
   until next(threads) == nil
 
-	-- Sort protocol results by name.
-	table.sort(results, function(a, b) return a["name"] < b["name"] end)
 	if rankedciphersfilename then
 		for k, v in pairs(cipherstrength) do
 			if v == mincipherstrength then
-				table.insert(results, "Least strength = " .. k)
+				-- Should sort before or after SSLv3, TLSv*
+				results["least strength"] = k
 			end
 		end
 	end
 
-	return stdnse.format_output(true, results)
+	return sorted_by_key(results)
 end
