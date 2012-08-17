@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed pos_scan scan engine as the old implementation of RPC grind was the
+  last scan type to use it. [Hani Benhabiles] 
+
+o [NSE] Replaced old rpc grind implementation with a new NSE based implementation
+  for easier maintainability and improved performance. [Hani Benhabiles] 
+
 o [NSE] Added broadcast-pim-discovery script which discovers routers that are
   running PIM (Protocol Independant Multicast).  [Hani Benhabiles]
 

@@ -325,6 +325,7 @@ Entry { filename = "riak-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rlogin-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rmi-vuln-classloader.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "rpc-grind.nse", categories = { "version", } }
 Entry { filename = "rpcap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rpcap-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
