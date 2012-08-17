@@ -141,7 +141,6 @@
     <ClCompile Include="..\nmap.cc" />
     <ClCompile Include="..\nmap_dns.cc" />
     <ClCompile Include="..\nmap_error.cc" />
-    <ClCompile Include="..\nmap_rpc.cc" />
     <ClCompile Include="..\nmap_tty.cc" />
     <ClCompile Include="..\NmapOps.cc" />
     <ClCompile Include="..\NmapOutputTable.cc" />
@@ -193,7 +192,6 @@
     <ClInclude Include="..\nmap.h" />
     <ClInclude Include="..\nmap_dns.h" />
     <ClInclude Include="..\nmap_error.h" />
-    <ClInclude Include="..\nmap_rpc.h" />
     <ClInclude Include="..\nmap_tty.h" />
     <ClInclude Include="..\nmap_winconfig.h" />
     <ClInclude Include="..\NmapOps.h" />
