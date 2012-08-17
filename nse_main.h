@@ -32,6 +32,7 @@ class ScriptResult
     void clear (void);
     void set_output_tab (lua_State *, int);
     void set_output_str (const char *);
+    void set_output_str (const char *, size_t);
     std::string get_output_str (void) const;
     void set_id (const char *);
     const char *get_id (void) const;

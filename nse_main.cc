@@ -117,8 +117,10 @@ static int script_set_output (lua_State *L)
   ScriptResult sr;
   sr.set_id(luaL_checkstring(L, 1));
   sr.set_output_tab(L, 2);
-  if (!lua_isnil(L, 3))
-    sr.set_output_str(luaL_checkstring(L, 3));
+  if (!lua_isnil(L, 3)) {
+    lua_len(L, 3);
+    sr.set_output_str(luaL_checkstring(L, 3), luaL_checkint(L,-1));
+  }
   script_scan_results.push_back(sr);
   return 0;
 }
@@ -129,8 +131,10 @@ static int host_set_output (lua_State *L)
   Target *target = nseU_gettarget(L, 1);
   sr.set_id(luaL_checkstring(L, 2));
   sr.set_output_tab(L, 3);
-  if (!lua_isnil(L, 4))
-    sr.set_output_str(luaL_checkstring(L, 4));
+  if (!lua_isnil(L, 4)) {
+    lua_len(L, 4);
+    sr.set_output_str(luaL_checkstring(L, 4), luaL_checkint(L,-1));
+  }
   target->scriptResults.push_back(sr);
   return 0;
 }
@@ -144,8 +148,10 @@ static int port_set_output (lua_State *L)
   p = nseU_getport(L, target, &port, 2);
   sr.set_id(luaL_checkstring(L, 3));
   sr.set_output_tab(L, 4);
-  if (!lua_isnil(L, 5))
-    sr.set_output_str(luaL_checkstring(L, 5));
+  if (!lua_isnil(L, 5)) {
+    lua_len(L, 5);
+    sr.set_output_str(luaL_checkstring(L, 5), luaL_checkint(L,-1));
+  }
   target->ports.addScriptResult(p->portno, p->proto, sr);
   target->ports.numscriptresults++;
   return 0;
@@ -404,6 +410,11 @@ void ScriptResult::set_output_str (const char *out)
   output_str = std::string(out);
 }
 
+void ScriptResult::set_output_str (const char *out, size_t len)
+{
+  output_str = std::string(out, len);
+}
+
 static std::string format_obj(lua_State *L, int pos)
 {
   std::string output;
@@ -427,7 +438,8 @@ static std::string format_obj(lua_State *L, int pos)
     return output;
   }
 
-  output = std::string(lua_tostring(L, -1));
+  lua_len(L, -1);
+  output = std::string(lua_tostring(L, -2), luaL_checkint(L, -1));
   lua_pop(L, 1);
 
   return output;
