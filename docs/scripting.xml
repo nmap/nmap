@@ -1982,26 +1982,6 @@ host.os = {
    </row>
 
    <row>
-    <entry align="left"><literal>rpc_status</literal></entry>
-
-    <entry>Contains a string value of <literal>good_prog</literal> if
-    we were able to determine the program number of an RPC service
-    listening on the port, <literal>unknown</literal> if the port
-    appears to be RPC but we couldn't determine the program
-    number, <literal>not_rpc</literal> if the port doesn't appear be
-    RPC, or <literal>untested</literal> if we haven't checked for RPC
-    status.</entry>
-   </row>
-
-   <row>
-    <entry align="left"><literal>rpc_program</literal>, <literal>rpc_lowver</literal>, <literal>rpc_highver</literal></entry>
-    <entry>The detected RPC program number and the range of version
-    numbers supported by that program.  These will be
-    <literal>nil</literal> if <literal>rpc_status</literal> is
-    anything other than <literal>good_prog</literal>.</entry>
-   </row>
-
-   <row>
     <entry align="left"><literal>cpe</literal></entry>
 
     <entry>List of CPE codes for the detected service. As described in the
