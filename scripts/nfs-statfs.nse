@@ -37,13 +37,19 @@ the version used is NFSv3.
 author = "Patrik Karlsson, Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
+dependencies = {"rpc-grind"}
 
 
 portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 
-local mountport = nil
-local nfsport = nil
 hostrule = function(host)
+  local mountport, nfsport
+  if host.registry.nfs then
+    mountport = host.registry.nfs.mountport
+    nfsport = host.registry.nfs.nfsport
+  else
+    host.registry.nfs = {}
+  end
   for _,proto in ipairs({"tcp","udp"}) do
     local port = nmap.get_ports(host, nil, proto, "open")
     while port do
@@ -60,11 +66,33 @@ hostrule = function(host)
     if mountport and nfsport then break end
   end
   if nfsport == nil then return false end
-  if nfsport.version.rpc_highver == 4 and nfsport.version.rpc_lowver <= 3 then
-    nfsport.version.rpc_goodver = 3
-  else
-    nfsport.version.rpc_goodver = nfsport.version.rpc_highver
+  if host.registry.nfs.nfsver == nil then
+    local low, high = string.match(nfsport.version.version, "(%d)-(%d)")
+    if high == nil then
+      high = tonumber(nfsport.version.version)
+      if high == 4 then
+        return false --Can't support version 4
+      else
+        host.registry.nfs.nfsver = high
+      end
+    else
+      if high == "4" then
+        host.registry.nfs.nfsver = 3
+      else
+        host.registry.nfs.nfsver = tonumber(low)
+      end
+    end
   end
+  if host.registry.nfs.mountver == nil then
+    local low, high = string.match(mountport.version.version, "(%d)-(%d)")
+    if high == nil then
+      host.registry.nfs.mountver = tonumber(mountport.version.version)
+    else
+      host.registry.nfs.mountver = tonumber(high)
+    end
+  end
+  host.registry.nfs.mountport = mountport
+  host.registry.nfs.nfsport = nfsport
   return (mountport and nfsport)
 end
 
@@ -239,8 +267,8 @@ hostaction = function(host)
     ShowMounts = function(ahost)
       local mnt_comm, status, result, mounts
       local mnt = rpc.Mount:new()
-      mnt_comm = rpc.Comm:new('mountd', mountport.version.rpc_highver)
-      status, result = mnt_comm:Connect(ahost, mountport)
+      mnt_comm = rpc.Comm:new('mountd', host.registry.nfs.mountver)
+      status, result = mnt_comm:Connect(ahost, host.registry.nfs.mountport)
       if ( not(status) ) then
         stdnse.print_debug(4, "ShowMounts: %s", result)
         return false, result
@@ -258,9 +286,9 @@ hostaction = function(host)
       local mountd, mnt_comm
       local mnt = rpc.Mount:new()
 
-      mnt_comm = rpc.Comm:new("mountd", mountport.version.rpc_highver)
+      mnt_comm = rpc.Comm:new("mountd", host.registry.nfs.mountver)
 
-      status, err = mnt_comm:Connect(host, mountport)
+      status, err = mnt_comm:Connect(host, host.registry.nfs.mountport)
       if not status then
         stdnse.print_debug(4, "MountPath: %s", err)
         return nil, err
@@ -279,8 +307,8 @@ hostaction = function(host)
     NfsOpen = function(ahost)
       local nfs_comm, status, err
 
-      nfs_comm = rpc.Comm:new('nfs', nfsport.version.rpc_goodver)
-      status, err = nfs_comm:Connect(host, nfsport)
+      nfs_comm = rpc.Comm:new('nfs', host.registry.nfs.nfsver)
+      status, err = nfs_comm:Connect(host, host.registry.nfs.nfsport)
       if not status then
         stdnse.print_debug(4, "NfsOpen: %s", err)
         return nil, err

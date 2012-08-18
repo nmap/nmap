@@ -30,18 +30,35 @@ Shows NFS exports, like the <code>showmount -e</code> command.
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
+dependencies = {"rpc-grind"}
 
 
 portrule = shortport.port_or_service(111, {"rpcbind", "mountd"}, {"tcp", "udp"} )
 
 local function get_exports(host, port)
   local mnt = rpc.Mount:new()
-  local mnt_comm = rpc.Comm:new('mountd', port.version.rpc_highver)
+  local mountver
+  if host.registry.nfs then
+    mountver = host.registry.nfs.mountver
+  else
+    host.registry.nfs = {}
+  end
+  if mountver == nil then
+    local low, high = string.match(port.version.version, "(%d)-(%d)")
+    if high == nil then
+      mountver = tonumber(port.version.version)
+    else
+      mountver = tonumber(high)
+    end
+  end
+  local mnt_comm = rpc.Comm:new('mountd', mountver)
   local status, result = mnt_comm:Connect(host, port)
   if ( not(status) ) then
     stdnse.print_debug(4, "get_exports: %s", result)
     return false, result
   end
+  host.registry.nfs.mountver = mountver
+  host.registry.nfs.mountport = port
   local status, mounts = mnt:Export(mnt_comm)
   mnt_comm:Disconnect()
   if ( not(status) ) then
