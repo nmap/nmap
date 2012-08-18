@@ -2,6 +2,7 @@ local rpc = require "rpc"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
+local string = require "string"
 
 description = [[
 Shows NFS exports, like the <code>showmount -e</code> command.

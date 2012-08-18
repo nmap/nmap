@@ -5,6 +5,8 @@ local datafiles = require "datafiles"
 local bin = require "bin"
 local math = require "math"
 local io = require "io"
+local coroutine = require "coroutine"
+local table = require "table"
 
 description = [[
 Fingerprints the target RPC port to extract the target service, RPC number and version.
@@ -64,7 +66,7 @@ local isRPC = function(host, port)
         -- this check is important if we didn't run the scan with -sV.
         -- If we run the scan with -sV, this check shouldn't return true as it is pretty much similar
         -- to the "rpcbind" service probe in nmap-service-probes.
-        local rpcConn, status, err, data, rxid, msgtype
+        local rpcConn, status, err, data, rxid, msgtype, _
 
         -- Create new socket
         -- rpcbind is not really important, we could have used another protocol from rpc.lua
@@ -151,7 +153,7 @@ end
 -- @param result table to put result into.
 local rpcGrinder = function(host, port, iterator, result)
     local condvar = nmap.condvar(result)
-    local rpcConn, version, xid, status, response, packet, err, data
+    local rpcConn, version, xid, status, response, packet, err, data, _
 
     xid = math.random(123456789)
       -- We use a random, most likely unsupported version so that
