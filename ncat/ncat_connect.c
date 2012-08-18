@@ -458,10 +458,30 @@ bail:
     return -1;
 }
 
+#if defined(LINUX)
+static int stdin_is_reg(void) {
+  struct stat buf;
+
+  if (fstat(STDIN_FILENO, &buf) < 0)
+    fatal("fstat(): %s", strerror(errno));
+
+  return S_ISREG(buf.st_mode);
+}
+#endif
+
 int ncat_connect(void)
 {
     nsock_pool mypool;
     int rc;
+
+#if defined(LINUX)
+    /* -- Hack!!
+     * epoll(7) doesn't support regular files (e.g.: ncat < file.c)
+     * If we detect that STDIN is a regular file, then we enforce
+     * the use of the select-based engine. */
+    if (stdin_is_reg())
+      nsock_set_default_engine("select");
+#endif
 
     /* Create an nsock pool */
     if ((mypool = nsp_new(NULL)) == NULL)
