@@ -231,6 +231,7 @@ Comm = {
     -- @return status boolean true on success, false on failure
     -- @return string containing error message (if status is false)
     ChkVersion = function(self)
+      if not self.checkprogver then return true end
       if ( self.version > RPC_version[self.program].max or
       self.version < RPC_version[self.program].min ) then
         return false, string.format("RPC library does not support: %s version %d",

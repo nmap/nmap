@@ -41,7 +41,7 @@ categories = {"version"}
 
 
 portrule = function(host, port)
-    if port.service ~= nil and port.service ~= 'rpcbind' then
+    if port.service ~= nil and port.version.service_dtype ~= "table" and port.service ~= 'rpcbind' then
         -- Exclude services that have already been detected as something
         -- different than rpcbind.
         return false
@@ -157,9 +157,8 @@ local rpcGrinder = function(host, port, iterator, result)
       -- We use a random, most likely unsupported version so that
     -- we also trigger min and max version disclosure for the target service.
     version = math.random(12345, 123456789)
-    rpcConn = rpc.Comm:new()
+    rpcConn = rpc.Comm:new("rpcbind", version)
     rpcConn:SetCheckProgVer(false)
-    rpcConn:SetVersion(version)
     status, err = rpcConn:Connect(host, port)
 
     if not status then
