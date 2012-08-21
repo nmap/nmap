@@ -444,7 +444,7 @@ get_ips_from_range = function( range )
   if range:match( "/" ) then
     first, prefix = range:match( "([%x%d:%.]+)/(%d+)" )
   elseif range:match( "-" ) then
-    first, last = range:match( "([%x%d:%.]+)%s*%.%s*([%x%d:%.]+)" )
+    first, last = range:match( "([%x%d:%.]+)%s*%-%s*([%x%d:%.]+)" )
   end
 
   local err = {}
