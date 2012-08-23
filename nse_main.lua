@@ -297,7 +297,7 @@ do
     local tab, str
 
     if r2 then
-      tab, str = r1, r2;
+      tab, str = r1, tostring(r2);
     elseif type(r1) == "string" then
       tab, str = nil, r1;
     elseif r1 == nil then
