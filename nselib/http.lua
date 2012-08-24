@@ -117,7 +117,7 @@ _ENV = stdnse.module("http", stdnse.seeall)
 ---Use ssl if we have it
 local have_ssl, openssl = pcall(require,'openssl')
 
-local USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+USER_AGENT = stdnse.get_script_args('http.useragent') or "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
 local MAX_REDIRECT_COUNT = 5
 
 -- Recursively copy a table.

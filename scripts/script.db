@@ -30,8 +30,8 @@ Entry { filename = "broadcast-dhcp-discover.nse", categories = { "broadcast", "s
 Entry { filename = "broadcast-dhcp6-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
-Entry { filename = "broadcast-eigrp-discovery.nse", categories = { "discovery", "broadcast", "safe", } }
-Entry { filename = "broadcast-igmp-discovery.nse", categories = { "discovery", "safe", "broadcast", } }
+Entry { filename = "broadcast-eigrp-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-igmp-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "broadcast-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-netbios-master-browser.nse", categories = { "broadcast", "safe", } }
@@ -180,6 +180,7 @@ Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery",
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-sitemap-generator.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-slowloris-check.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-slowloris.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
@@ -251,8 +252,8 @@ Entry { filename = "modbus-discover.nse", categories = { "discovery", "intrusive
 Entry { filename = "mongodb-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "mrinfo.nse", categories = { "discovery", "safe", "broadcast"} }
-Entry { filename = "mtrace.nse", categories = { "discovery", "safe", "broadcast"} }
+Entry { filename = "mrinfo.nse", categories = { "broadcast", "discovery", "safe", } }
+
 Entry { filename = "ms-sql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "ms-sql-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-dac.nse", categories = { "discovery", "safe", } }
@@ -263,6 +264,7 @@ Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "sa
 Entry { filename = "ms-sql-query.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
+Entry { filename = "mtrace.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "mysql-audit.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mysql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mysql-databases.nse", categories = { "discovery", "intrusive", } }
