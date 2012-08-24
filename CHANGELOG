@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Updated mssql.lua library to support additional data types, enchanced
+  some of the existing data types, added the DoneProc response token, and
+	reordered code for maintainability. [Tom Sellers]
+
 o [NSE] Added http-slowloris-check script which checks if the server is vulnerable
   to a Slowloris DoS attack in a safe way. [Aleksandar Nikolic]
 

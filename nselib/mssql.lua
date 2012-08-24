@@ -130,6 +130,11 @@ _ENV = stdnse.module("mssql", stdnse.seeall)
 --								* added support for integrated NTLMv1 authentication
 --
 --								(Patrik Karlsson, Chris Woodbury)
+-- Revised 08/19/2012 - v0.6 - added multiple data types
+-- 								* added detection and handling of null values when processing query responses from the server
+--								* added DoneProc response token support
+--
+--								(Tom Sellers)
 
 local HAVE_SSL, openssl = pcall(require, "openssl")
 
@@ -674,30 +679,42 @@ PacketType =
 -- TDS response token types
 TokenType = 
 {
-	ReturnStatus = 0x79,
-	TDS7Results = 0x81,
-	ErrorMessage = 0xAA,
-	InformationMessage = 0xAB,
+	ReturnStatus         = 0x79,
+	TDS7Results          = 0x81,
+	ErrorMessage         = 0xAA,
+	InformationMessage   = 0xAB,
 	LoginAcknowledgement = 0xAD,
-	Row = 0xD1,
-	OrderBy = 0xA9,
-	EnvironmentChange = 0xE3,
-	NTLMSSP_CHALLENGE = 0xed,
-	Done = 0xFD,
-	DoneInProc = 0xFF,
+	Row                  = 0xD1,
+	OrderBy              = 0xA9,
+	EnvironmentChange    = 0xE3,
+	NTLMSSP_CHALLENGE    = 0xed,
+	Done                 = 0xFD,
+	DoneProc             = 0xFE,
+	DoneInProc           = 0xFF,
 }
 
 -- SQL Server/Sybase data types
 DataTypes = 
 {
-	SYBINTN = 0x26,
-	SYBINT2 = 0x34,
-	SYBINT4 = 0x38,
-	SYBDATETIME = 0x3D,
-	SYBDATETIMN = 0x6F,
+	SQLTEXT       = 0x23,
+	GUIDTYPE      = 0x24,
+	SYBINTN       = 0x26,
+	SYBINT2       = 0x34,
+	SYBINT4       = 0x38,
+	SYBDATETIME   = 0x3D,
+	NTEXTTYPE     = 0x63,
+	BITNTYPE      = 0x68,
+	DECIMALNTYPE  = 0x6A,
+	NUMERICNTYPE  = 0x6C,
+	FLTNTYPE      = 0x6D,
+	MONEYNTYPE    = 0x6E,
+	SYBDATETIMN   = 0x6F,
 	XSYBVARBINARY = 0xA5,
-	XSYBVARCHAR = 0xA7,
-	XSYBNVARCHAR = 0xE7,
+	XSYBVARCHAR   = 0xA7,
+	BIGBINARYTYPE = 0xAD,
+	BIGCHARTYPE   = 0xAF,
+	XSYBNVARCHAR  = 0xE7,
+	SQLNCHAR      = 0xEF,
 }
 
 -- SQL Server login error codes
@@ -728,22 +745,27 @@ ColumnInfo =
 
 	Parse =
 	{
-		[DataTypes.XSYBNVARCHAR] = function( data, pos )
+
+		[DataTypes.SQLTEXT] = function( data, pos )
 			local colinfo = {}
 			local tmp
 			
-			pos, colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset, 
-			colinfo.msglen = bin.unpack("<SSSCC", data, pos )
+			pos, colinfo.unknown, colinfo.codepage, colinfo.flags, colinfo.charset = bin.unpack("<ISSC", data, pos )
+
+			pos, colinfo.tablenamelen = bin.unpack("s", data, pos )
+			pos, colinfo.tablename		= bin.unpack("A" .. (colinfo.tablenamelen * 2), data, pos)
+			pos, colinfo.msglen			  = bin.unpack("<C", data, pos )
 			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
+
 			colinfo.text = Util.FromWideChar(tmp)
-		
+
 			return pos, colinfo
 		end,
-		
-		[DataTypes.SYBINT2] = function( data, pos )
-			return ColumnInfo.Parse[DataTypes.SYBDATETIME](data, pos)
+
+		[DataTypes.GUIDTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.SYBINTN](data, pos)
 		end,
-		
+
 		[DataTypes.SYBINTN] = function( data, pos )
 			local colinfo = {}
 			local tmp
@@ -751,25 +773,18 @@ ColumnInfo =
 			pos, colinfo.unknown, colinfo.msglen = bin.unpack("<CC", data, pos)
 			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
 			colinfo.text = Util.FromWideChar(tmp)
-			
+
 			return pos, colinfo
 		end,
-		
+
+		[DataTypes.SYBINT2] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.SYBDATETIME](data, pos)
+		end,
+
 		[DataTypes.SYBINT4] = function( data, pos )
 			return ColumnInfo.Parse[DataTypes.SYBDATETIME](data, pos)
 		end,
-		
-		[DataTypes.XSYBVARBINARY] = function( data, pos )
-			local colinfo = {}
-			local tmp
 
-			pos, colinfo.lts, colinfo.msglen = bin.unpack("<SC", data, pos)
-			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
-			colinfo.text = Util.FromWideChar(tmp)
-			
-			return pos, colinfo
-		end,
-		
 		[DataTypes.SYBDATETIME] = function( data, pos )
 			local colinfo = {}
 			local tmp
@@ -780,15 +795,82 @@ ColumnInfo =
 	
 			return pos, colinfo
 		end,
-		
+
+		[DataTypes.NTEXTTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.SQLTEXT](data, pos)
+		end,
+
+		[DataTypes.BITNTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.SYBINTN](data, pos)
+		end,
+
+		[DataTypes.DECIMALNTYPE] = function( data, pos )
+			local colinfo = {}
+			local tmp
+
+			pos, colinfo.unknown, colinfo.precision, colinfo.scale = bin.unpack("<CCC", data, pos)
+			pos, colinfo.msglen = bin.unpack("<C",data,pos)
+			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
+			colinfo.text = Util.FromWideChar(tmp)
+
+			return pos, colinfo
+		end,
+
+		[DataTypes.NUMERICNTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.DECIMALNTYPE](data, pos)
+		end,
+
+		[DataTypes.FLTNTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.SYBINTN](data, pos)
+		end,
+
+		[DataTypes.MONEYNTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.SYBINTN](data, pos)
+		end,
+
 		[DataTypes.SYBDATETIMN] = function( data, pos )
 			return ColumnInfo.Parse[DataTypes.SYBINTN](data, pos)
 		end,
-		
+
+		[DataTypes.XSYBVARBINARY] = function( data, pos )
+			local colinfo = {}
+			local tmp
+
+			pos, colinfo.lts, colinfo.msglen = bin.unpack("<SC", data, pos)
+			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
+			colinfo.text = Util.FromWideChar(tmp)
+			
+			return pos, colinfo
+		end,
+
 		[DataTypes.XSYBVARCHAR] = function( data, pos )
 			return ColumnInfo.Parse[DataTypes.XSYBNVARCHAR](data, pos)
 		end,
-			
+
+		[DataTypes.BIGBINARYTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.XSYBVARBINARY](data, pos)
+		end,
+
+		[DataTypes.BIGCHARTYPE] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.XSYBNVARCHAR](data, pos)
+		end,
+
+		[DataTypes.XSYBNVARCHAR] = function( data, pos )
+			local colinfo = {}
+			local tmp
+
+			pos, colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset, 
+			colinfo.msglen = bin.unpack("<SSSCC", data, pos )
+			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
+			colinfo.text = Util.FromWideChar(tmp)
+
+			return pos, colinfo
+		end,
+
+		[DataTypes.SQLNCHAR] = function( data, pos )
+			return ColumnInfo.Parse[DataTypes.XSYBNVARCHAR](data, pos)
+		end,
+  
 	}
 	
 }
@@ -797,32 +879,92 @@ ColumnInfo =
 ColumnData = 
 {
 	Parse = {
-		
-		[DataTypes.XSYBNVARCHAR] = function( data, pos )
-			local size, coldata
-			
-			pos, size = bin.unpack( "<S", data, pos )
-			pos, coldata = bin.unpack( "A"..size, data, pos )
 
-			return pos, Util.FromWideChar(coldata)
-		end,
-		
-		[DataTypes.XSYBVARCHAR] = function( data, pos )
-			local size, coldata
+		[DataTypes.SQLTEXT] = function( data, pos )
+			local len, coldata
 			
-			pos, size = bin.unpack( "<S", data, pos )
-			pos, coldata = bin.unpack( "A"..size, data, pos )
+			-- The first len value is the size of the meta data block
+			-- for non-null values this seems to be 0x10 / 16 bytes
+			pos, len = bin.unpack( "<C", data, pos )
+
+			if ( len == 0 ) then
+				return pos, 'Null'
+			end
+
+			-- Skip over the text update time and date values, we don't need them
+			-- We may come back add parsing for this information.
+			pos = pos + len 
+
+			-- skip a label, should be 'dummyTS'
+			pos = pos + 8
+
+			-- extract the actual data
+			pos, len = bin.unpack( "<I", data, pos )
+			pos, coldata = bin.unpack( "A"..len, data, pos )
 
 			return pos, coldata
 		end,
 
-		[DataTypes.XSYBVARBINARY] = function( data, pos )
-			local coldata, size
-
-			pos, size = bin.unpack( "<S", data, pos )
-			pos, coldata = bin.unpack( "A"..size, data, pos )
+		[DataTypes.GUIDTYPE] = function( data, pos )
+			local len, coldata, index, nextdata
+			local hex = {}
+			pos, len = bin.unpack("C", data, pos)
 			
-			return pos, "0x" .. select(2, bin.unpack("H"..coldata:len(), coldata ) )
+			if ( len == 0 ) then
+				return pos, 'Null'
+				
+			elseif ( len == 16 ) then
+				
+				-- Return the first 8 bytes
+				for index=1, 8 do
+					pos, hex[index] = bin.unpack("H", data, pos)
+				end
+				
+				-- reorder the bytes
+				coldata = hex[4] .. hex[3] .. hex[2] .. hex[1]
+				coldata = coldata .. '-' .. hex[6] .. hex[5]
+				coldata = coldata .. '-' .. hex[8] .. hex[7]
+				
+				pos, nextdata = bin.unpack("H2", data, pos)
+				coldata = coldata .. '-' .. nextdata		 
+				
+				pos, nextdata = bin.unpack("H6", data, pos)
+				coldata = coldata .. '-' .. nextdata
+			 
+			else
+				 stdnse.print_debug("Unhandled length (%d) for GUIDTYPE", len)
+				return pos + len, 'Unsupported Data'
+			end	
+
+			return pos, coldata
+		end,	
+		
+		[DataTypes.SYBINTN] = function( data, pos )
+			local len, num
+			pos, len = bin.unpack("C", data, pos)
+
+      if ( len == 0 ) then
+        return pos, 'Null'
+			elseif ( len == 1 ) then
+				return bin.unpack("C", data, pos)
+			elseif ( len == 2 ) then
+				return bin.unpack("<s", data, pos)
+			elseif ( len == 4 ) then
+				return bin.unpack("<i", data, pos)
+			elseif ( len == 8 ) then
+				return bin.unpack("<l", data, pos)
+			else
+				return -1, ("Unhandled length (%d) for SYBINTN"):format(len)
+			end
+
+			return -1, "Error"
+		end,
+		
+		[DataTypes.SYBINT2] = function( data, pos )
+			local num
+			pos, num = bin.unpack("<S", data, pos)
+			
+			return pos, num
 		end,
 		
 		[DataTypes.SYBINT4] = function( data, pos )
@@ -832,45 +974,257 @@ ColumnData =
 			return pos, num
 		end,
 
-		[DataTypes.SYBINT2] = function( data, pos )
-			local num
-			pos, num = bin.unpack("<S", data, pos)
+		[DataTypes.SYBDATETIME] = function( data, pos )
+			local hi, lo, result_seconds, result
+			local tds_epoch, system_epoch, tds_offset_seconds
+
+			pos, hi, lo = bin.unpack("<iI", data, pos)
+
+			tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
+			-- determine the offset between the tds_epoch and the local system epoch
+			system_epoch       = os.time( os.date("*t", 0))
+			tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
+ 
+			result_seconds = (hi*24*60*60) + (lo/300)
+
+			result = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
+			return pos, result
+		end,
+ 
+		[DataTypes.NTEXTTYPE] = function( data, pos )
+			local len, coldata
+
+			-- The first len value is the size of the meta data block
+			pos, len = bin.unpack( "<C", data, pos )
+
+			if ( len == 0 ) then
+				return pos, 'Null'
+			end
+
+			-- Skip over the text update time and date values, we don't need them
+			-- We may come back add parsing for this information.
+			pos = pos + len 
+
+			-- skip a label, should be 'dummyTS'
+			pos = pos + 8
+
+			-- extract the actual data
+			pos, len = bin.unpack( "<I", data, pos )
+			pos, coldata = bin.unpack( "A"..len, data, pos )
+
+			return pos, Util.FromWideChar(coldata)
+		end,
+   
+		[DataTypes.BITNTYPE] = function( data, pos )
+			return ColumnData.Parse[DataTypes.SYBINTN](data, pos)
+		end,
+
+		[DataTypes.DECIMALNTYPE] = function( precision, scale, data, pos )
+			local len, sign, format_string, coldata
+
+			pos, len = bin.unpack("<C", data, pos)
+
+			if ( len == 0 ) then
+				return pos, 'Null'
+			end
+
+			pos, sign = bin.unpack("<C", data, pos)
+
+			-- subtract 1 from data len to account for sign byte
+			len = len - 1
+
+			if ( len == 2 ) then
+				pos, coldata = bin.unpack("<S", data, pos)
+			elseif ( len == 4 ) then
+				pos, coldata =	bin.unpack("<I", data, pos)
+			elseif ( len == 8 ) then
+				pos, coldata =	bin.unpack("<L", data, pos)
+			else
+				stdnse.print_debug("Unhandled length (%d) for DECIMALNTYPE", len)
+				return pos + len, 'Unsupported Data'
+			end
+
+			if ( sign == 0 ) then
+				coldata = coldata * -1
+			end
 			
-			return pos, num
+			coldata = coldata * (10^-scale)
+			-- format the return information to reduce truncation by lua
+			format_string = string.format("%%.%if", scale)
+			coldata = string.format(format_string,coldata)
+			
+			return pos, coldata
 		end,
 		
-		[DataTypes.SYBINTN] = function( data, pos )
-			local len, num
+		[DataTypes.NUMERICNTYPE] = function( precision, scale, data, pos )
+			return ColumnData.Parse[DataTypes.DECIMALNTYPE]( precision, scale, data, pos )
+		end,
+ 
+		[DataTypes.SYBDATETIME] = function( data, pos )
+			local hi, lo, result_seconds, result
+			local tds_epoch, system_epoch, tds_offset_seconds
+
+			pos, hi, lo = bin.unpack("<iI", data, pos)
+
+			tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
+			-- determine the offset between the tds_epoch and the local system epoch
+			system_epoch       = os.time( os.date("*t", 0))
+			tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
+ 
+			result_seconds = (hi*24*60*60) + (lo/300)
+
+			result = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
+			return pos, result
+		end,
+ 
+		[DataTypes.BITNTYPE] = function( data, pos )
+			return ColumnData.Parse[DataTypes.SYBINTN](data, pos)
+		end,
+
+		[DataTypes.NTEXTTYPE] = function( data, pos )
+		local len, coldata
+
+			-- The first len value is the size of the meta data block
+			pos, len = bin.unpack( "<C", data, pos )
+
+			if ( len == 0 ) then
+				return pos, 'Null'
+			end
+
+			-- Skip over the text update time and date values, we don't need them
+			-- We may come back add parsing for this information.
+			pos = pos + len 
+
+			-- skip a label, should be 'dummyTS'
+			pos = pos + 8
+
+			-- extract the actual data
+			pos, len = bin.unpack( "<I", data, pos )
+			pos, coldata = bin.unpack( "A"..len, data, pos )
+
+			return pos, Util.FromWideChar(coldata)
+		end,
+
+		[DataTypes.FLTNTYPE] = function( data, pos )
+			local len, coldata
+			pos, len = bin.unpack("<C", data, pos)
+
+			if ( len == 0 ) then
+				return pos, 'Null'
+			elseif ( len == 4 ) then
+				pos, coldata = bin.unpack("f", data, pos)
+			elseif ( len == 8 ) then
+				pos, coldata = bin.unpack("<d", data, pos)
+			end
+
+			return pos, coldata
+		end,
+
+		[DataTypes.MONEYNTYPE] = function( data, pos )
+			local len, value, coldata, hi, lo
 			pos, len = bin.unpack("C", data, pos)
 
-			if ( len == 1 ) then
-				return bin.unpack("C", data, pos)
-			elseif ( len == 2 ) then
-				return bin.unpack("<S", data, pos)
-			elseif ( len == 4 ) then
-				return bin.unpack("<I", data, pos)
+			if ( len == 0 ) then
+				return pos, 'Null'
+			elseif (	len == 4 ) then
+				--type smallmoney
+				pos, value =	bin.unpack("<i", data, pos)
 			elseif ( len == 8 ) then
-				return bin.unpack("<L", data, pos)
+				-- type money
+				pos, hi,lo = bin.unpack("<II", data, pos)
+				value = ( hi * 4294967296 ) + lo
 			else
-				return -1, ("Unhandled length (%d) for SYBINTN"):format(len)
+				return -1, ("Unhandled length (%d) for MONEYNTYPE"):format(len)
+			end
+
+			-- the datatype allows for 4 decimal places after the period to support various currency types.
+			-- forcing to string to avoid truncation
+			coldata = string.format("%.4f",value/10000)
+
+			return pos, coldata
+		end,
+
+		[DataTypes.SYBDATETIMN] = function( data, pos )
+			local len, coldata
+
+			pos, len = bin.unpack( "<C", data, pos )
+
+			if ( len == 0 ) then
+				return pos, 'Null'
+			elseif ( len == 4 ) then
+				-- format is smalldatetime
+				local days, mins
+				pos, days, mins = bin.unpack("<SS", data, pos)
+				
+				tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
+				-- determine the offset between the tds_epoch and the local system epoch
+				system_epoch			 = os.time( os.date("*t", 0))
+				tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
+
+				result_seconds = (days*24*60*60) + (mins*60)
+				coldata = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
+				
+				return pos,coldata
+				
+			elseif ( len == 8 ) then
+				-- format is datetime
+				return ColumnData.Parse[DataTypes.SYBDATETIME](data, pos)
+			else
+				return -1, ("Unhandled length (%d) for SYBDATETIMN"):format(len)
+			end
+		 
+		end,
+
+		[DataTypes.XSYBVARBINARY] = function( data, pos )
+			local len, coldata
+
+			pos, len = bin.unpack( "<S", data, pos )
+
+			if ( len == 65535 ) then
+				return pos, 'Null'
+			else
+				pos, coldata = bin.unpack( "A"..len, data, pos )
+				return pos, "0x" .. select(2, bin.unpack("H"..coldata:len(), coldata ) )
 			end
 
 			return -1, "Error"
 		end,
-		
-		[DataTypes.SYBDATETIME] = function( data, pos )
-			local hi, lo, dt, result
-			pos, hi, lo = bin.unpack("<II", data, pos)
+  
+		[DataTypes.XSYBVARCHAR] = function( data, pos )
+			local len, coldata
 
-			-- CET 01/01/1900
-			dt = -2208996000
-			result = os.date("%x %X", dt + (hi*24*60*60) + (lo/300) )
-			
-			return pos, result
+			pos, len = bin.unpack( "<S", data, pos )
+			if ( len == 65535 ) then
+				return pos, 'Null'
+			end
+
+			pos, coldata = bin.unpack( "A"..len, data, pos )
+
+			return pos, coldata
 		end,
 
-		[DataTypes.SYBDATETIMN] = function( data, pos )
-			return ColumnData.Parse[DataTypes.SYBINTN]( data, pos )
+		[DataTypes.BIGBINARYTYPE] = function( data, pos )
+			return ColumnData.Parse[DataTypes.XSYBVARBINARY](data, pos)
+		end,
+
+		[DataTypes.BIGCHARTYPE] = function( data, pos )
+			return ColumnData.Parse[DataTypes.XSYBVARCHAR](data, pos)
+		end,
+
+		[DataTypes.XSYBNVARCHAR] = function( data, pos )
+			local len, coldata
+
+			pos, len = bin.unpack( "<S", data, pos )
+			if ( len == 65535 ) then
+				return pos, 'Null'
+			end
+			pos, coldata = bin.unpack( "A"..len, data, pos )
+
+			return pos, Util.FromWideChar(coldata)
+		end,
+
+		[DataTypes.SQLNCHAR] = function( data, pos )
+			return ColumnData.Parse[DataTypes.XSYBNVARCHAR](data, pos)
 		end,
 
 	}
@@ -967,6 +1321,21 @@ Token =
 			
 			return pos, token
 		end,
+
+		--- Parses a DoneProc token recieved after executing a SP
+		--
+		-- @param data string containing "raw" data
+		-- @param pos number containing offset into data
+		-- @return pos number containing new offset after parse
+		-- @return token table containing token specific fields				
+		[TokenType.DoneProc] = function( data, pos )
+			local token
+			pos, token = Token.Parse[TokenType.Done]( data, pos )
+			token.type = TokenType.DoneProc
+			
+			return pos, token
+		end,
+
 		
 		--- Parses a DoneInProc token recieved after executing a SP
 		--
@@ -1020,22 +1389,21 @@ Token =
 		[TokenType.TDS7Results] = function( data, pos )
 			local token = {}
 			local _
-			
+
 			token.type = TokenType.TDS7Results
 			pos, token.count = bin.unpack( "<S", data, pos )
 			token.colinfo = {}
-			
+
 			for i=1, token.count do
 				local colinfo = {}
 				local usertype, flags, ttype
-				
+
 				pos, usertype, flags, ttype = bin.unpack("<SSC", data, pos )
 				if ( not(ColumnInfo.Parse[ttype]) ) then
 					return -1, ("Unhandled data type: 0x%X"):format(ttype)
 				end
-								
+
 				pos, colinfo = ColumnInfo.Parse[ttype]( data, pos )
-				
 				colinfo.usertype = usertype
 				colinfo.flags = flags
 				colinfo.type = ttype
@@ -2423,7 +2791,13 @@ Helper =
 					local val
 				
 					if ( ColumnData.Parse[colinfo[i].type] ) then
-						pos, val = ColumnData.Parse[colinfo[i].type](data, pos)
+						if not ( colinfo[i].type == 106 or colinfo[i].type == 108) then
+							pos, val = ColumnData.Parse[colinfo[i].type](data, pos)
+						else
+							-- decimal / numeric types need precision and scale passed.
+							pos, val = ColumnData.Parse[colinfo[i].type]( colinfo[i].precision,  colinfo[i].scale, data, pos)
+						end
+
 						if ( -1 == pos ) then
 							return false, val
 						end
