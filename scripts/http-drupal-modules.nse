@@ -80,7 +80,7 @@ end
 
 action = function(host, port)
   local root = stdnse.get_script_args(SCRIPT_NAME .. '.root') or "/"
-  local result = {}
+  local result = stdnse.output_table()
   local all = {}
   local requests = {}
   local count = 0
@@ -138,5 +138,5 @@ action = function(host, port)
     end
   end
 
-  return stdnse.format_output(true,result)
+  return result
 end
