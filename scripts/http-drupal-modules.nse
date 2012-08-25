@@ -10,9 +10,12 @@ local table = require "table"
 description = [[
 Enumerates the installed Drupal modules by using a list of known modules.
 
-The script works by requesting /sites/all/modules/MODULE_NAME/LICENSE.txt.
-If the response status code is 200, it means that the module is installed.
-By default, the script checks for the top 100 modules (by downloads), given the huge number of existing modules (~10k).
+The script works by iterating over module names and requesting
+MODULES_PATH/MODULE_NAME/LICENSE.txt.  MODULES_PATH is either provied by the
+user, grepped for in the html body or defaulting to sites/all/modules/. If the
+response status code is 200, it means that the module is installed.  By
+default, the script checks for the top 100 modules (by downloads), given the
+huge number of existing modules (~10k).
 ]]
 
 ---
