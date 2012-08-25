@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Updated mssql.lua library to support additional data types, enchanced
+o [NSE] Updated mssql.lua library to support additional data types, enhanced
   some of the existing data types, added the DoneProc response token, and
 	reordered code for maintainability. [Tom Sellers]
 
