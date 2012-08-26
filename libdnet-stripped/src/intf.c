@@ -954,9 +954,11 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 			;
 		else
 			return (-1);
+#ifdef IFF_IPMP
 		if (lifr->lifr_flags & IFF_IPMP) {
 			continue;
 		}
+#endif
 		
 		if (_intf_get_noalias(intf, entry) < 0)
 			return (-1);
