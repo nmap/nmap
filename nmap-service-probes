@@ -861,7 +861,7 @@ match ftp m|^220 RICOH Aficio SP C811DN FTP server \(([-\w_.]+)\) ready\.\r\n| p
 match ftp m|^220 HIOKI ftp service v([\d.]+)\r\n| p/Hioki HiCorder 8855 ftpd/ v/$1/ d/specialized/
 match ftp m|^220 Treck FTP server ready\.\r\n| p/Treck Embedded ftpd/
 match ftp m|^220 Microtest SuperCD-cdserver FTP server \(Version V([\w._-]+)\) ready\.\r\n| p/Axonix SuperCD ftpd/ v/$1/ d/media device/
-match ftp m|^220 FTP service \(Ftpd ([\d.]+)\) ready on ([\w._-]+) at| p/Minix ftpd/ v/$1/ o/Minix/ h/$2/
+match ftp m|^220 FTP service \(Ftpd ([\d.]+)\) ready on ([\w._-]+) at| p/Minix ftpd/ v/$1/ o/Minix/ h/$2/ cpe:/a:minix:ftpd:$1/
 match ftp m|^220 Cube Station FTP server at ([\w._-]+) ready\.\r\n| p/Synology CubeStation ftpd/ h/$1/
 match ftp m|^220 Xerox Phaser (\w+)\r\n421 Service not available, closing control connection\r\n| p/Xerox Phaser $1 ftpd/ d/printer/
 match ftp m|^220 CrossFTP Server ready for new user\.\r\n| p/CrossFTP java ftpd/
@@ -3472,7 +3472,7 @@ match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\nZyXEL Corporation Embedded Telnet Se
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\nHGW EC506 login: | p/Huawei EC506 WAP telnetd/ d/WAP/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\n\*\*\* Lantronix Universal Device Server \*\*\*\r\0\nSerial Number (\d+)  MAC address (\w+)\n\r\0Software version V([\w._-]+) | p/Lantronix UDS10 ethernet-serial telnetd/ v/$3/ i/serial $1; MAC $2/ d/specialized/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\*\*\* Lantronix UDS1100 Device Server \*\*\*\r\0\nMAC address (\w+)\n\r\0Software version V([\w._-]+) \((\d+)\) \r\0\nPassword :| p/Lantronix UDS1100 ethernet-serial telnetd/ v/$2 $3/ i/MAC $1/ d/specialized/
-match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\0\xff\xfd\0\xff\xfb\x01\r\nMinix  (.*)\r\n\r\n([\w._-]+) login:| p/Minix telnetd/ v/$1/ o/Minix/ h/$2/
+match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\0\xff\xfd\0\xff\xfb\x01\r\nMinix  (.*)\r\n\r\n([\w._-]+) login:| p/Minix telnetd/ v/$1/ o/Minix/ h/$2/ cpe:/a:minix:telnetd:$1/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03(BCM\w+) ADSL Router\r\n| p/Broadcom $1 ADSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03(BCM\w+) ADSL Router version ([\w._-]+ \([\w._-]+\))\r\nLogin: | p/Broadcom $1 ADSL router telnetd/ v/$2/ d/broadband router/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03DSL Router\.  Welcome!\r\nLogin: | p/Broadcom BCM96345 ADSL router telnetd/ d/broadband router/
@@ -6552,7 +6552,7 @@ match http m|^<html>\n<title>DES-2108 +</title>| p/D-Link DES-2108 switch http c
 match http m|^HTTP/1\.1 \d\d\d .*<title>MD Evol Web</title>|s p/Ericsson MD Evolution PBX http config/ d/PBX/
 match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w._-]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\r\n<head>\r\n<title>On Board Remote Management</title>| p/NetPort httpd/ v/$1/ i/Dell PowerVault 124T http config/ d/storage-misc/
 match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\nServer: AV-TECH (AV\w+) Video Web Server\n| p|Gadspot/Avtech $1 webcam http config| d/webcam/
-match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Minix httpd ([\w._-]+)\r\n| p/Minix httpd/ v/$1/ o/Minix/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Minix httpd ([\w._-]+)\r\n| p/Minix httpd/ v/$1/ o/Minix/ cpe:/a:minix:httpd:$1/
 match http m|^HTTP/1\.1 200 Ok\r\nServer: micro_httpd\r\n.*<title>ADSL Router</title>\r\n\r\n\r\n<script language=\"javascript\">\r\n<!--\r\nvar ModemVer='(DSL-[\w._+-]+)';|s p/D-Link $1 http config/ d/broadband router/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>HTML-Konfiguration</TITLE>\n<SCRIPT language=\"JavaScript\" src=\"/cgi-bin/webcm\?getpage=\.\./html/js_top\.txt\"|s p/T-Com Speedport W 501V http config/ i/German/ d/broadband router/
 match http m|^HTTP/1\.0 200 OK\r\n.*Mime-Version: 1\.0\r\n.*<TITLE>HTML-Konfiguration</TITLE>\n<SCRIPT type=\"text/javascript\" src=\"/html/dom\.js\">|s p/T-Com Speedport W 101V http config/ i/German/ d/WAP/
