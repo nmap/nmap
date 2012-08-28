@@ -205,7 +205,7 @@ end
 getInterfaces = function(link, up)
 	if( not(nmap.list_interfaces) ) then return end
 	local interfaces, err = nmap.list_interfaces()
-	local result
+	local result = {}
 	if ( not(err) ) then
 		for _, iface in ipairs(interfaces) do
 			if ( iface.link == link and 
@@ -214,7 +214,6 @@ getInterfaces = function(link, up)
 				
 				-- exclude ipv6 addresses for now
 				if ( not(iface.address:match(":")) ) then
-					result = result or {}
 					table.insert(result, { name = iface.device, 
 										address = iface.address } )
 				end
