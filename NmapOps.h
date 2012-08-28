@@ -191,7 +191,7 @@ class NmapOps {
   int generate_random_ips; /* -iR option */
   FingerPrintDB *reference_FPs; /* Used in the new OS scan system. */
   std::vector<FingerMatch> os_labels_ipv6;
-  u16 magic_port;
+  u16 magic_port; /* The source port set by -g or --source-port. */
   bool magic_port_set; /* Was this set by user? */
 
   /* Scan timing/politeness issues */
