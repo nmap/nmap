@@ -118,6 +118,45 @@ using namespace std;
 extern NmapOps o;
 class UltraScanInfo;
 
+/* We encode per-probe information like the tryno and pingseq in the source
+   port, for protocols that use ports. (Except when o.magic_port_set is
+   true--then we honor the requested source port.) The tryno and pingseq are
+   encoded as offsets from base_port, a base source port number (see
+   sport_encode and sport_decode). To avoid interpreting a late response from a
+   previous invocation of ultra_scan as a response for the same port in the
+   current invocation, we increase base_port by a healthy amount designed to be
+   greater than any offset likely to be used by a probe, each time ultra_scan is
+   run.
+
+   If we don't increase the base port, then there is the risk of something like
+   the following happening:
+     1. Nmap sends an ICMP echo and a TCP ACK probe to port 80 for host discovery.
+     2. Nmap receives an ICMP echo reply and marks the host up.
+     3. Nmap sends a TCP SYN probe to port 80 for port scanning.
+     4. Nmap finally receives a delayed TCP RST in response to its earlier ACK
+        probe, and wrongly marks port 80 as closed. */
+static u16 base_port;
+/* Clamp n to the range [min, max) in a modular fashion. */
+static int mod_offset(int n, int min, int max) {
+  assert(min < max);
+  n = (n - min) % (max - min);
+  if (n < 0)
+    n += max - min;
+  return n + min;
+}
+/* Change base_port to a new number in a safe port range that is unlikely to
+   conflict with nearby past or future invocations of ultra_scan. */
+static void increment_base_port() {
+  static bool initialized = false;
+
+  if (!initialized) {
+    base_port = mod_offset(get_random_uint(), 33000, 65536 - 256);
+    initialized = true;
+  } else {
+    base_port = mod_offset(base_port + 256, 33000, 65536 - 256);
+  }
+}
+
 /* A few extra performance tuning parameters specific to ultra_scan. */
 struct ultra_scan_performance_vars : public scan_performance_vars {
   /* When a successful ping response comes back, it counts as this many
@@ -2479,7 +2518,7 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
               || seq32_decode(USI, ntohl(tcp->th_seq), &tryno, &pingseq);
   } else {
     /* Get the values from the destination port (our source port). */
-    sport_decode(USI, o.magic_port, ntohs(tcp->th_dport), &tryno, &pingseq);
+    sport_decode(USI, base_port, ntohs(tcp->th_dport), &tryno, &pingseq);
     goodseq = true;
   }
 
@@ -3359,7 +3398,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   if (o.magic_port_set)
     sport = o.magic_port;
   else
-    sport = sport_encode(USI, o.magic_port, tryno, pingseq);
+    sport = sport_encode(USI, base_port, tryno, pingseq);
 
   probe->tryno = tryno;
   probe->pingseq = pingseq;
@@ -5264,7 +5303,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         if (o.magic_port_set) {
           trynum = probe->tryno;
         } else {
-          sport_decode(USI, o.magic_port, ntohs(udp->uh_dport), &trynum, NULL);
+          sport_decode(USI, base_port, ntohs(udp->uh_dport), &trynum, NULL);
         }
 
         /* Sometimes we get false results when scanning localhost with
@@ -5677,6 +5716,8 @@ static void startTimeOutClocks(vector<Target *> &Targets) {
 void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
                 stype scantype, struct timeout_info *to) {
   o.current_scantype = scantype;
+
+  increment_base_port();
 
   init_payloads(); /* Load up _all_ payloads into a mapped table */
 
