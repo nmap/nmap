@@ -1057,7 +1057,7 @@ void parse_options(int argc, char **argv) {
     case 'f': o.fragscan += 8; break;
     case 'g':
       o.magic_port = atoi(optarg);
-      o.magic_port_set = 1;
+      o.magic_port_set = true;
       if (o.magic_port == 0) error("WARNING: a source port of zero may not work on all systems.");
       break;
     case 'h': printusage(0); break;

@@ -263,7 +263,7 @@ void NmapOps::Initialize() {
   generate_random_ips = 0;
   reference_FPs = NULL;
   magic_port = 33000 + (get_random_uint() % 31000);
-  magic_port_set = 0;
+  magic_port_set = false;
   timing_level = 3;
   max_parallelism = 0;
   min_parallelism = 0;

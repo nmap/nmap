@@ -192,7 +192,7 @@ class NmapOps {
   FingerPrintDB *reference_FPs; /* Used in the new OS scan system. */
   std::vector<FingerMatch> os_labels_ipv6;
   u16 magic_port;
-  unsigned short magic_port_set; /* Was this set by user? */
+  bool magic_port_set; /* Was this set by user? */
 
   /* Scan timing/politeness issues */
   int timing_level; // 0-5, corresponding to Paranoid, Sneaky, Polite, Normal, Aggressive, Insane
