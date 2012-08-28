@@ -145,11 +145,11 @@ struct idle_proxy_info {
    you'll have to do that yourself.   Probes_sent is set to the number
    of probe packets sent during execution */
 static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
-		     int *probes_rcvd) {
+                            int *probes_rcvd) {
   struct timeval tv_end;
   int tries = 0;
   int trynum;
-  int sent=0, rcvd=0;
+  int sent = 0, rcvd = 0;
   int maxtries = 3; /* The maximum number of tries before we give up */
   struct timeval tv_sent[3], rcvdtime;
   int ipid = -1;
@@ -175,57 +175,56 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 
     /* Time to send the pr0be!*/
     send_tcp_raw(proxy->rawsd, proxy->ethptr,
-    		proxy->host.v4sourceip(), proxy->host.v4hostip(),
-    		o.ttl, false,
-    		o.ipoptions, o.ipoptionslen,
-    		base_port + tries, proxy->probe_port,
-		seq_base + (packet_send_count++ * 500) + 1, ack, 0, TH_SYN|TH_ACK, 0, 0,
-		(u8 *) "\x02\x04\x05\xb4", 4,
-		NULL, 0);
+                 proxy->host.v4sourceip(), proxy->host.v4hostip(),
+                 o.ttl, false,
+                 o.ipoptions, o.ipoptionslen,
+                 base_port + tries, proxy->probe_port,
+                 seq_base + (packet_send_count++ * 500) + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
+                 (u8 *) "\x02\x04\x05\xb4", 4,
+                 NULL, 0);
     sent++;
     tries++;
 
     /* Now it is time to wait for the response ... */
     to_usec = proxy->host.to.timeout;
     gettimeofday(&tv_end, NULL);
-    while((ipid == -1 || sent > rcvd) && to_usec > 0) {
+    while ((ipid == -1 || sent > rcvd) && to_usec > 0) {
 
-      to_usec = proxy->host.to.timeout - TIMEVAL_SUBTRACT(tv_end, tv_sent[tries-1]);
+      to_usec = proxy->host.to.timeout - TIMEVAL_SUBTRACT(tv_end, tv_sent[tries - 1]);
       if (to_usec < 0) to_usec = 0; // Final no-block poll
-      ip = (struct ip *) readipv4_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);      
+      ip = (struct ip *) readipv4_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
       gettimeofday(&tv_end, NULL);
       if (ip) {
-	if (bytes < ( 4 * ip->ip_hl) + 14U)
-	  continue;
+        if (bytes < ( 4 * ip->ip_hl) + 14U)
+          continue;
 
-	if (ip->ip_p == IPPROTO_TCP) {
+        if (ip->ip_p == IPPROTO_TCP) {
 
-	  tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
-	  if (ntohs(tcp->th_dport) < base_port || ntohs(tcp->th_dport) - base_port >= tries  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
-	    if (ntohs(tcp->th_dport) > o.magic_port && ntohs(tcp->th_dport) < (o.magic_port + 260)) {
-	      if (o.debugging) {
-		error("Received IP ID zombie probe response which probably came from an earlier prober instance ... increasing rttvar from %d to %d", 
-		      proxy->host.to.rttvar, (int) (proxy->host.to.rttvar * 1.2));
-	      }
-	      proxy->host.to.rttvar = (int) (proxy->host.to.rttvar * 1.2);
-	      rcvd++;
-	    }
-	    else if (o.debugging > 1) {
-	      error("Received unexpected response packet from %s during IP ID zombie probing:", inet_ntoa(ip->ip_src));
-	      readtcppacket( (unsigned char *) ip,MIN(ntohs(ip->ip_len), bytes));
-	    }
-	    continue;
-	  }
-	  
-	  trynum = ntohs(tcp->th_dport) - base_port;
-	  rcvd++;
+          tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
+          if (ntohs(tcp->th_dport) < base_port || ntohs(tcp->th_dport) - base_port >= tries  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
+            if (ntohs(tcp->th_dport) > o.magic_port && ntohs(tcp->th_dport) < (o.magic_port + 260)) {
+              if (o.debugging) {
+                error("Received IP ID zombie probe response which probably came from an earlier prober instance ... increasing rttvar from %d to %d",
+                      proxy->host.to.rttvar, (int) (proxy->host.to.rttvar * 1.2));
+              }
+              proxy->host.to.rttvar = (int) (proxy->host.to.rttvar * 1.2);
+              rcvd++;
+            } else if (o.debugging > 1) {
+              error("Received unexpected response packet from %s during IP ID zombie probing:", inet_ntoa(ip->ip_src));
+              readtcppacket( (unsigned char *) ip, MIN(ntohs(ip->ip_len), bytes));
+            }
+            continue;
+          }
 
-	  ipid = ntohs(ip->ip_id);
-	  adjust_timeouts2(&(tv_sent[trynum]), &rcvdtime, &(proxy->host.to));
-	}
+          trynum = ntohs(tcp->th_dport) - base_port;
+          rcvd++;
+
+          ipid = ntohs(ip->ip_id);
+          adjust_timeouts2(&(tv_sent[trynum]), &rcvdtime, &(proxy->host.to));
+        }
       }
     }
-  } while(ipid == -1 && tries < maxtries);
+  } while (ipid == -1 && tries < maxtries);
 
   if (probes_sent) *probes_sent = sent;
   if (probes_rcvd) *probes_rcvd = rcvd;
@@ -241,7 +240,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 static int ipid_distance(int seqclass , u16 startid, u16 endid) {
   if (seqclass == IPID_SEQ_INCR)
     return endid - startid;
-  
+
   if (seqclass == IPID_SEQ_BROKEN_INCR) {
     /* Convert to network byte order */
     startid = htons(startid);
@@ -257,7 +256,7 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
   proxy->seqclass = proxy->latestid = proxy->probe_port = 0;
   proxy->max_groupsz = proxy->min_groupsz = 0;
   proxy->current_groupsz = 0;
-  proxy->senddelay = 0; 
+  proxy->senddelay = 0;
   proxy->max_senddelay = 0;
   proxy->pd = NULL;
   proxy->rawsd = -1;
@@ -270,7 +269,7 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
    the program */
 #define NUM_IPID_PROBES 6
 static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
-			  const struct in_addr *first_target, const struct scan_lists * ports) {
+                                 const struct in_addr *first_target, const struct scan_lists *ports) {
   int probes_sent = 0, probes_returned = 0;
   int hardtimeout = 9000000; /* Generally don't wait more than 9 secs total */
   unsigned int bytes, to_usec;
@@ -291,7 +290,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   struct ip *ip;
   struct tcp_hdr *tcp;
   int distance;
-  int ipids[NUM_IPID_PROBES]; 
+  int ipids[NUM_IPID_PROBES];
   u8 probe_returned[NUM_IPID_PROBES];
   struct route_nfo rnfo;
   assert(proxy);
@@ -299,7 +298,8 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   ack = get_random_u32();
 
-  for(i=0; i < NUM_IPID_PROBES; i++) probe_returned[i] = 0;
+  for (i = 0; i < NUM_IPID_PROBES; i++)
+    probe_returned[i] = 0;
 
   initialize_proxy_struct(proxy);
   initialize_timeout_info(&proxy->host.to);
@@ -313,7 +313,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   if (q) {
     *q++ = '\0';
     proxy->probe_port = strtoul(q, &endptr, 10);
-    if (*q==0 || !endptr || *endptr != '\0' || !proxy->probe_port) {
+    if (*q == 0 || !endptr || *endptr != '\0' || !proxy->probe_port) {
       fatal("Invalid port number given in IP ID zombie specification: %s", proxyName);
     }
   } else {
@@ -337,13 +337,13 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     fatal("Could not resolve idle scan zombie host: %s", name);
   }
   proxy->host.setTargetSockAddr(&ss, sslen);
-  
+
   /* Lets figure out the appropriate source address to use when sending
      the pr0bez */
   proxy->host.TargetSockAddr(&ss, &sslen);
   if (!nmap_route_dst(&ss, &rnfo))
     fatal("Unable to find appropriate source address and device interface to use when sending packets to %s", proxyName);
-  
+
   if (o.spoofsource) {
     o.SourceSockAddr(&ss, &sslen);
     proxy->host.setSourceSockAddr(&ss, sslen);
@@ -356,19 +356,17 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->host.setDirectlyConnected(true);
   } else {
     proxy->host.setDirectlyConnected(false);
-    proxy->host.setNextHop(&rnfo.nexthop, 
-			   sizeof(rnfo.nexthop));
+    proxy->host.setNextHop(&rnfo.nexthop, sizeof(rnfo.nexthop));
   }
   proxy->host.setIfType(rnfo.ii.device_type);
   if (rnfo.ii.device_type == devt_ethernet)
     proxy->host.setSrcMACAddress(rnfo.ii.mac);
-  
+
   /* Now lets send some probes to check IP ID algorithm ... */
   /* First we need a raw socket ... */
   if ((o.sendpref & PACKET_SEND_ETH) &&  proxy->host.ifType() == devt_ethernet) {
     if (!setTargetNextHopMAC(&proxy->host))
-      fatal("%s: Failed to determine dst MAC address for Idle proxy", 
-	    __func__);
+      fatal("%s: Failed to determine dst MAC address for Idle proxy", __func__);
     memcpy(proxy->eth.srcmac, proxy->host.SrcMACAddress(), 6);
     memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
     proxy->eth.ethsd = eth_open_cached(proxy->host.deviceName());
@@ -380,7 +378,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 #ifdef WIN32
     win32_fatal_raw_sockets(proxy->host.deviceName());
 #endif
-    if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+    if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
       pfatal("socket troubles in %s", __func__);
     unblock_socket(proxy->rawsd);
     broadcast_socket(proxy->rawsd);
@@ -391,29 +389,29 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->ethptr = NULL;
   }
 
-/* Now for the pcap opening nonsense ... */
- /* Note that the snaplen is 152 = 64 byte max IPhdr + 24 byte max link_layer
-  * header + 64 byte max TCP header. */
-  if((proxy->pd=my_pcap_open_live(proxy->host.deviceName(), 152,  (o.spoofsource)? 1 : 0, 50))==NULL)
+  /* Now for the pcap opening nonsense ... */
+  /* Note that the snaplen is 152 = 64 byte max IPhdr + 24 byte max link_layer
+   * header + 64 byte max TCP header. */
+  if ((proxy->pd = my_pcap_open_live(proxy->host.deviceName(), 152,  (o.spoofsource) ? 1 : 0, 50)) == NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
 
 
   p = strdup(proxy->host.targetipstr());
   q = strdup(inet_ntoa(proxy->host.v4source()));
   Snprintf(filter, sizeof(filter), "tcp and src host %s and dst host %s and src port %hu", p, q, proxy->probe_port);
- free(p); 
- free(q);
- set_pcap_filter(proxy->host.deviceFullName(), proxy->pd,  filter);
- if (o.debugging)
-   log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", proxy->host.deviceFullName(), filter);
-/* Windows nonsense -- I am not sure why this is needed, but I should
-   get rid of it at sometime */
+  free(p);
+  free(q);
+  set_pcap_filter(proxy->host.deviceFullName(), proxy->pd,  filter);
+  if (o.debugging)
+    log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", proxy->host.deviceFullName(), filter);
+  /* Windows nonsense -- I am not sure why this is needed, but I should
+     get rid of it at sometime */
 
- sequence_base = get_random_u32();
+  sequence_base = get_random_u32();
 
- /* Yahoo!  It is finally time to send our pr0beZ! */
+  /* Yahoo!  It is finally time to send our pr0beZ! */
 
-  while(probes_sent < NUM_IPID_PROBES) {
+  while (probes_sent < NUM_IPID_PROBES) {
     if (o.scan_delay) enforce_scan_delay(NULL);
     else if (probes_sent) usleep(30000);
 
@@ -424,81 +422,80 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
        think I'll use TH_SYN, although it is a tough call. */
     /* We can't use decoys 'cause that would screw up the IP IDs */
     send_tcp_raw(proxy->rawsd, proxy->ethptr,
-    		proxy->host.v4sourceip(), proxy->host.v4hostip(),
-    		o.ttl, false,
-    		o.ipoptions, o.ipoptionslen,
-		 o.magic_port + probes_sent + 1, proxy->probe_port, 
-		sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 0, 0,
-		(u8 *) "\x02\x04\x05\xb4",4,
-		NULL, 0);
+                 proxy->host.v4sourceip(), proxy->host.v4hostip(),
+                 o.ttl, false,
+                 o.ipoptions, o.ipoptionslen,
+                 o.magic_port + probes_sent + 1, proxy->probe_port,
+                 sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
+                 (u8 *) "\x02\x04\x05\xb4", 4,
+                 NULL, 0);
     gettimeofday(&probe_send_times[probes_sent], NULL);
     probes_sent++;
 
     /* Time to collect any replies */
-    while(probes_returned < probes_sent && !timedout) {
+    while (probes_returned < probes_sent && !timedout) {
 
-      to_usec = (probes_sent == NUM_IPID_PROBES)? hardtimeout : 1000;
+      to_usec = (probes_sent == NUM_IPID_PROBES) ? hardtimeout : 1000;
       ip = (struct ip *) readipv4_pcap(proxy->pd, &bytes, to_usec, &rcvdtime, NULL, true);
 
       gettimeofday(&tmptv, NULL);
-      
+
       if (!ip) {
-	if (probes_sent < NUM_IPID_PROBES)
-	  break;
-	if (TIMEVAL_SUBTRACT(tmptv, probe_send_times[probes_sent - 1]) >= hardtimeout) {
-	  timedout = 1;
-	}
-	continue;
-      } else if (TIMEVAL_SUBTRACT(tmptv, probe_send_times[probes_sent - 1]) >=
-		 hardtimeout)  {      
-	timedout = 1;
+        if (probes_sent < NUM_IPID_PROBES)
+          break;
+        if (TIMEVAL_SUBTRACT(tmptv, probe_send_times[probes_sent - 1]) >= hardtimeout) {
+          timedout = 1;
+        }
+        continue;
+      } else if (TIMEVAL_SUBTRACT(tmptv, probe_send_times[probes_sent - 1]) >= hardtimeout)  {
+        timedout = 1;
       }
 
       if (lastipid != 0 && ip->ip_id == lastipid) {
-	continue; /* probably a duplicate */
+        continue; /* probably a duplicate */
       }
       lastipid = ip->ip_id;
 
       if (bytes < ( 4 * ip->ip_hl) + 14U)
-	continue;
+        continue;
 
       if (ip->ip_p == IPPROTO_TCP) {
-	tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
-	if (ntohs(tcp->th_dport) < (o.magic_port+1) || ntohs(tcp->th_dport) - o.magic_port > NUM_IPID_PROBES  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
-	  if (o.debugging > 1) error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip->ip_src));
-	  continue;
-	}
-	
-	seq_response_num = probes_returned;
+        tcp = ((struct tcp_hdr *) (((char *) ip) + 4 * ip->ip_hl));
+        if (ntohs(tcp->th_dport) < (o.magic_port + 1) || ntohs(tcp->th_dport) - o.magic_port > NUM_IPID_PROBES  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
+          if (o.debugging > 1) error("Received unexpected response packet from %s during initial IP ID zombie testing", inet_ntoa(ip->ip_src));
+          continue;
+        }
 
-	/* The stuff below only works when we send SYN packets instead of
-	   SYN|ACK, but then are slightly less stealthy and have less chance
-	   of sneaking through the firewall.  Plus SYN|ACK is what they will
-	   be receiving back from the target */
-	probes_returned++;
-	ipids[seq_response_num] = (u16) ntohs(ip->ip_id);
-	probe_returned[seq_response_num] = 1;
-	adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
+        seq_response_num = probes_returned;
+
+        /* The stuff below only works when we send SYN packets instead of
+           SYN|ACK, but then are slightly less stealthy and have less chance
+           of sneaking through the firewall.  Plus SYN|ACK is what they will
+           be receiving back from the target */
+        probes_returned++;
+        ipids[seq_response_num] = (u16) ntohs(ip->ip_id);
+        probe_returned[seq_response_num] = 1;
+        adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
       }
     }
   }
 
   /* Yeah!  We're done sending/receiving probes ... now lets ensure all of our responses are adjacent in the array */
-  for(i=0,probes_returned=0; i < NUM_IPID_PROBES; i++) {
-    if (probe_returned[i]) {    
+  for (i = 0, probes_returned = 0; i < NUM_IPID_PROBES; i++) {
+    if (probe_returned[i]) {
       if (i > probes_returned)
-	ipids[probes_returned] = ipids[i];
+        ipids[probes_returned] = ipids[i];
       probes_returned++;
     }
   }
 
   if (probes_returned == 0)
-    fatal("Idle scan zombie %s (%s) port %hu cannot be used because it has not returned any of our probes -- perhaps it is down or firewalled.", 
-	  proxy->host.HostName(), proxy->host.targetipstr(), 
-	  proxy->probe_port);
+    fatal("Idle scan zombie %s (%s) port %hu cannot be used because it has not returned any of our probes -- perhaps it is down or firewalled.",
+          proxy->host.HostName(), proxy->host.targetipstr(),
+          proxy->probe_port);
 
   proxy->seqclass = get_ipid_sequence(probes_returned, ipids, 0);
-  switch(proxy->seqclass) {
+  switch (proxy->seqclass) {
   case IPID_SEQ_INCR:
   case IPID_SEQ_BROKEN_INCR:
     log_write(LOG_PLAIN, "Idle scan using zombie %s (%s:%hu); Class: %s\n", proxy->host.HostName(), proxy->host.targetipstr(), proxy->probe_port, ipidclass2ascii(proxy->seqclass));
@@ -530,17 +527,17 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
    changed.  This will also catch the case where the Nmap user is
    behind an egress filter or other measure that prevents this sort of
    sp00fery */
-  if (first_target) {  
-    for (probes_sent = 0; probes_sent < 4; probes_sent++) {  
+  if (first_target) {
+    for (probes_sent = 0; probes_sent < 4; probes_sent++) {
       if (probes_sent) usleep(50000);
       send_tcp_raw(proxy->rawsd, proxy->ethptr,
-      		first_target, proxy->host.v4hostip(), 
-		o.ttl, false,
-		o.ipoptions, o.ipoptionslen,
-		o.magic_port, proxy->probe_port, 
-		sequence_base + probes_sent + 1, ack, 0, TH_SYN|TH_ACK, 0, 0,
-		(u8 *) "\x02\x04\x05\xb4",
-		4, NULL, 0);
+                   first_target, proxy->host.v4hostip(),
+                   o.ttl, false,
+                   o.ipoptions, o.ipoptionslen,
+                   o.magic_port, proxy->probe_port,
+                   sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
+                   (u8 *) "\x02\x04\x05\xb4",
+                   4, NULL, 0);
 
     }
 
@@ -551,7 +548,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
       newipid = ipid_proxy_probe(proxy, NULL, NULL); /* OK, we'll give it one more try */
 
     if (newipid < 0) fatal("Your IP ID Zombie (%s; %s) is behaving strangely -- suddenly cannot obtain IP ID", proxy->host.HostName(), proxy->host.targetipstr());
-      
+
     distance = ipid_distance(proxy->seqclass, proxy->latestid, newipid);
     if (distance <= 0) {
       fatal("Your IP ID Zombie (%s; %s) is behaving strangely -- suddenly cannot obtain valid IP ID distance.", proxy->host.HostName(), proxy->host.targetipstr());
@@ -563,7 +560,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     }
     proxy->latestid = newipid;
   }
-  
+
 }
 
 
@@ -573,56 +570,56 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
    count of 'testcount' while the 'realcount' is as given.  If the
    testcount was correct, timing is made more aggressive, while it is
    slowed down in the case of an error */
-static void adjust_idle_timing(struct idle_proxy_info *proxy, 
-			Target *target, int testcount, 
-			int realcount) {
+static void adjust_idle_timing(struct idle_proxy_info *proxy,
+                               Target *target, int testcount,
+                               int realcount) {
 
   static int notidlewarning = 0;
 
-  if (o.debugging > 1)
-    log_write(LOG_STDOUT, 
-	  "%s: tested/true %d/%d -- old grpsz/delay: %f/%d ",
-	  __func__, testcount, realcount, proxy->current_groupsz, proxy->senddelay);
-  else if (o.debugging && testcount != realcount) {
-    error("%s: testcount: %d  realcount: %d -- old grpsz/delay: %f/%d", __func__, testcount, realcount, proxy->current_groupsz, proxy->senddelay);
+  if (o.debugging > 1) {
+    log_write(LOG_STDOUT, "%s: tested/true %d/%d -- old grpsz/delay: %f/%d ",
+              __func__, testcount, realcount, proxy->current_groupsz, proxy->senddelay);
+  } else if (o.debugging && testcount != realcount) {
+    error("%s: testcount: %d  realcount: %d -- old grpsz/delay: %f/%d",
+          __func__, testcount, realcount, proxy->current_groupsz, proxy->senddelay);
   }
 
-    if (testcount < realcount) {
-      /* We must have missed a port -- our probe could have been
-	 dropped, the response to proxy could have been dropped, or we
-	 didn't wait long enough before probing the proxy IP ID.  The
-	 third case is covered elsewhere in the scan, so we worry most
-	 about the first two.  The solution is to decrease our group
-	 size and add a sending delay */
+  if (testcount < realcount) {
+    /* We must have missed a port -- our probe could have been
+    dropped, the response to proxy could have been dropped, or we
+    didn't wait long enough before probing the proxy IP ID.  The
+    third case is covered elsewhere in the scan, so we worry most
+    about the first two.  The solution is to decrease our group
+    size and add a sending delay */
 
-/* packets could be dropped because too many sent at once */
-      proxy->current_groupsz = MAX(proxy->min_groupsz, proxy->current_groupsz * 0.8);
-      proxy->senddelay += 10000;
-      proxy->senddelay = MIN(proxy->max_senddelay, proxy->senddelay);
-       /* No group size should be greater than .5s of send delays */
-      proxy->current_groupsz = MAX(proxy->min_groupsz, MIN(proxy->current_groupsz, 500000 / (proxy->senddelay + 1)));
+    /* packets could be dropped because too many sent at once */
+    proxy->current_groupsz = MAX(proxy->min_groupsz, proxy->current_groupsz * 0.8);
+    proxy->senddelay += 10000;
+    proxy->senddelay = MIN(proxy->max_senddelay, proxy->senddelay);
+    /* No group size should be greater than .5s of send delays */
+    proxy->current_groupsz = MAX(proxy->min_groupsz, MIN(proxy->current_groupsz, 500000 / (proxy->senddelay + 1)));
 
-    } else if (testcount > realcount) {
-      /* Perhaps the proxy host is not really idle ... */
-      /* I guess all I can do is decrease the group size, so that if the proxy is not really idle, at least we may be able to scan cnunks more quickly in between outside packets */
-      proxy->current_groupsz = MAX(proxy->min_groupsz, proxy->current_groupsz * 0.8);
+  } else if (testcount > realcount) {
+    /* Perhaps the proxy host is not really idle ... */
+    /* I guess all I can do is decrease the group size, so that if the proxy is not really idle, at least we may be able to scan cnunks more quickly in between outside packets */
+    proxy->current_groupsz = MAX(proxy->min_groupsz, proxy->current_groupsz * 0.8);
 
-      if (!notidlewarning && o.verbose) {
-	notidlewarning = 1;
-	error("WARNING: idle scan has erroneously detected phantom ports -- is the proxy %s (%s) really idle?", proxy->host.HostName(), proxy->host.targetipstr());
-      }
-    } else {
-      /* W00p We got a perfect match.  That means we get a slight increase
-	 in allowed group size and we can lightly decrease the senddelay */
-
-      proxy->senddelay = (int) (proxy->senddelay * 0.9);
-      if (proxy->senddelay < 500) proxy->senddelay = 0;
-      proxy->current_groupsz = MIN(proxy->current_groupsz * 1.1, 500000 / (proxy->senddelay + 1));
-      proxy->current_groupsz = MIN(proxy->max_groupsz, proxy->current_groupsz);
-
+    if (!notidlewarning && o.verbose) {
+      notidlewarning = 1;
+      error("WARNING: idle scan has erroneously detected phantom ports -- is the proxy %s (%s) really idle?", proxy->host.HostName(), proxy->host.targetipstr());
     }
-    if (o.debugging > 1)
-      log_write(LOG_STDOUT, "-> %f/%d\n", proxy->current_groupsz, proxy->senddelay);
+  } else {
+    /* W00p We got a perfect match.  That means we get a slight increase
+    in allowed group size and we can lightly decrease the senddelay */
+
+    proxy->senddelay = (int) (proxy->senddelay * 0.9);
+    if (proxy->senddelay < 500) proxy->senddelay = 0;
+    proxy->current_groupsz = MIN(proxy->current_groupsz * 1.1, 500000 / (proxy->senddelay + 1));
+    proxy->current_groupsz = MIN(proxy->max_groupsz, proxy->current_groupsz);
+
+  }
+  if (o.debugging > 1)
+    log_write(LOG_STDOUT, "-> %f/%d\n", proxy->current_groupsz, proxy->senddelay);
 }
 
 
@@ -635,14 +632,13 @@ static void adjust_idle_timing(struct idle_proxy_info *proxy,
    They can be NULL if you don't want to use them.  The purpose is for
    timing adjustments if the numbers turn out to be accurate */
 
-static int idlescan_countopen2(struct idle_proxy_info *proxy, 
-			Target *target, u16 *ports, int numports,
-			struct timeval *sent_time, struct timeval *rcv_time) 
-{
+static int idlescan_countopen2(struct idle_proxy_info *proxy,
+                               Target *target, u16 *ports, int numports,
+                               struct timeval *sent_time, struct timeval *rcv_time) {
 
 #if 0 /* Testing code */
   int i;
-  for(i=0; i < numports; i++)
+  for (i = 0; i < numports; i++)
     if (ports[i] == 22)
       return 1;
   return 0;
@@ -650,7 +646,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
   int openports;
   int tries;
-  int proxyprobes_sent = 0; /* diff. from tries 'cause sometimes we 
+  int proxyprobes_sent = 0; /* diff. from tries 'cause sometimes we
 			       skip tries */
   int proxyprobes_rcvd = 0; /* To determine if packets were dr0pped */
   int sent, rcvd;
@@ -675,8 +671,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 
   if (proxy->rawsd < 0) {
     if (!setTargetNextHopMAC(target))
-      fatal("%s: Failed to determine dst MAC address for Idle proxy", 
-	    __func__);
+      fatal("%s: Failed to determine dst MAC address for Idle proxy", __func__);
     memcpy(eth.srcmac, target->SrcMACAddress(), 6);
     memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
     eth.ethsd = eth_open_cached(target->deviceName());
@@ -685,7 +680,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   } else eth.ethsd = NULL;
 
   /* I start by sending out the SYN pr0bez */
-  for(pr0be = 0; pr0be < numports; pr0be++) {
+  for (pr0be = 0; pr0be < numports; pr0be++) {
     if (o.scan_delay) enforce_scan_delay(NULL);
     else if (proxy->senddelay && pr0be > 0) usleep(proxy->senddelay);
 
@@ -693,24 +688,24 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
        but doing it the straightforward way (using the same decoys as
        we use in probing the proxy box is risky.  I'll have to think
        about this more. */
-    send_tcp_raw(proxy->rawsd, eth.ethsd? &eth : NULL,
-    		proxy->host.v4hostip(), target->v4hostip(),
-		o.ttl, false,
-		o.ipoptions, o.ipoptionslen,
-		proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
-		(u8 *) "\x02\x04\x05\xb4", 4,
-		o.extra_payload, o.extra_payload_length);
+    send_tcp_raw(proxy->rawsd, eth.ethsd ? &eth : NULL,
+                 proxy->host.v4hostip(), target->v4hostip(),
+                 o.ttl, false,
+                 o.ipoptions, o.ipoptionslen,
+                 proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
+                 (u8 *) "\x02\x04\x05\xb4", 4,
+                 o.extra_payload, o.extra_payload_length);
   }
   gettimeofday(&end, NULL);
 
   openports = -1;
   tries = 0;
-  TIMEVAL_MSEC_ADD(probe_times[0], start, MAX(50, (target->to.srtt * 3/4) / 1000));
+  TIMEVAL_MSEC_ADD(probe_times[0], start, MAX(50, (target->to.srtt * 3 / 4) / 1000));
   TIMEVAL_MSEC_ADD(probe_times[1], start, target->to.srtt / 1000 );
-  TIMEVAL_MSEC_ADD(probe_times[2], end, MAX(75, (2 * target->to.srtt + 
-						   target->to.rttvar) / 1000));
-  TIMEVAL_MSEC_ADD(probe_times[3], end, MIN(4000, (2 * target->to.srtt + 
-						     (target->to.rttvar << 2 )) / 1000));
+  TIMEVAL_MSEC_ADD(probe_times[2], end, MAX(75, (2 * target->to.srtt +
+                   target->to.rttvar) / 1000));
+  TIMEVAL_MSEC_ADD(probe_times[3], end, MIN(4000, (2 * target->to.srtt +
+                   (target->to.rttvar << 2 )) / 1000));
 
   do {
     if (tries == 2) dotry3 = (get_random_u8() > 200);
@@ -737,28 +732,28 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
     if (newipid > 0) {
       ipid_dist = ipid_distance(proxy->seqclass, proxy->latestid, newipid);
       /* I used to only do this if ipid_sit >= proxyprobes_sent, but I'd
-	 rather have a negative number in that case */
+      rather have a negative number in that case */
       if (ipid_dist < proxyprobes_sent) {
-	if (o.debugging) 
-           error("%s: Must have lost a sent packet because ipid_dist is %d while proxyprobes_sent is %d.", __func__, ipid_dist, proxyprobes_sent);
-	/* I no longer whack timing here ... done at bottom */
+        if (o.debugging)
+          error("%s: Must have lost a sent packet because ipid_dist is %d while proxyprobes_sent is %d.", __func__, ipid_dist, proxyprobes_sent);
+        /* I no longer whack timing here ... done at bottom */
       }
       ipid_dist -= proxyprobes_sent;
       if (ipid_dist > openports) {
-	openports = ipid_dist;
-	gettimeofday(&latestchange, NULL);
+        openports = ipid_dist;
+        gettimeofday(&latestchange, NULL);
       } else if (ipid_dist < openports && ipid_dist >= 0) {
-	/* Uh-oh.  Perhaps I dropped a packet this time */
-	if (o.debugging > 1) {
-	  error("%s: Counted %d open ports in try #%d, but counted %d earlier ... probably a proxy_probe problem", __func__, ipid_dist, tries, openports);
-	}	
-	/* I no longer whack timing here ... done at bottom */
+        /* Uh-oh.  Perhaps I dropped a packet this time */
+        if (o.debugging > 1) {
+          error("%s: Counted %d open ports in try #%d, but counted %d earlier ... probably a proxy_probe problem", __func__, ipid_dist, tries, openports);
+        }
+        /* I no longer whack timing here ... done at bottom */
       }
     }
-    
-    if (openports > numports || (numports <= 2 && (openports == numports))) 
-      break;    
-  } while(tries++ < 3);
+
+    if (openports > numports || (numports <= 2 && (openports == numports)))
+      break;
+  } while (tries++ < 3);
 
   if (proxyprobes_sent > proxyprobes_rcvd) {
     /* Uh-oh.  It looks like we lost at least one proxy probe packet */
@@ -768,13 +763,13 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
     proxy->senddelay += 5000;
     proxy->senddelay = MIN(proxy->max_senddelay, proxy->senddelay);
     /* No group size should be greater than .5s of send delays */
-    proxy->current_groupsz = MAX(proxy->min_groupsz, MIN(proxy->current_groupsz, 500000 / (proxy->senddelay+1)));
+    proxy->current_groupsz = MAX(proxy->min_groupsz, MIN(proxy->current_groupsz, 500000 / (proxy->senddelay + 1)));
   } else {
-    /* Yeah, we got as many responses as we sent probes.  This calls for a 
+    /* Yeah, we got as many responses as we sent probes.  This calls for a
        very light timing acceleration ... */
     proxy->senddelay = (int) (proxy->senddelay * 0.95);
     if (proxy->senddelay < 500) proxy->senddelay = 0;
-    proxy->current_groupsz = MAX(proxy->min_groupsz, MIN(proxy->current_groupsz, 500000 / (proxy->senddelay+1)));
+    proxy->current_groupsz = MAX(proxy->min_groupsz, MIN(proxy->current_groupsz, 500000 / (proxy->senddelay + 1)));
   }
 
   if ((openports > 0) && (openports <= numports)) {
@@ -784,7 +779,9 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
     if (rcv_time) *rcv_time = latestchange;
   }
   if (newipid > 0) proxy->latestid = newipid;
-  if (eth.ethsd) { eth.ethsd = NULL; } /* don't need to close it due to caching */
+  if (eth.ethsd) {
+    eth.ethsd = NULL;  /* don't need to close it due to caching */
+  }
   return openports;
 }
 
@@ -793,23 +790,22 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
 /* The job of this function is to use the idle scan technique to count
    the number of open ports in the given list.  Under the covers, this
    function just farms out the hard work to another function */
-static int idlescan_countopen(struct idle_proxy_info *proxy, 
-		       Target *target, u16 *ports, int numports,
-		       struct timeval *sent_time, struct timeval *rcv_time) {
+static int idlescan_countopen(struct idle_proxy_info *proxy,
+                              Target *target, u16 *ports, int numports,
+                              struct timeval *sent_time, struct timeval *rcv_time) {
   int tries = 0;
   int openports;
 
   do {
-    openports = idlescan_countopen2(proxy, target, ports, numports, sent_time,
-				    rcv_time);
+    openports = idlescan_countopen2(proxy, target, ports, numports, sent_time, rcv_time);
     tries++;
     if (tries == 6 || (openports >= 0 && openports <= numports))
       break;
-    
+
     if (o.debugging) {
       error("%s: In try #%d, counted %d open ports out of %d.  Retrying", __func__, tries, openports, numports);
     }
-    /* Sleep for a little while -- maybe proxy host had brief birst of 
+    /* Sleep for a little while -- maybe proxy host had brief birst of
        traffic or similar problem */
     sleep(tries * tries);
     if (tries == 5)
@@ -818,12 +814,12 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
     /* Since the host may have received packets while we were sleeping,
        lets update our proxy IP ID counter */
     proxy->latestid = ipid_proxy_probe(proxy, NULL, NULL);
-  } while(1);
+  } while (1);
 
   if (openports < 0 || openports > numports ) {
     /* Oh f*ck!!!! */
-    fatal("Idle scan is unable to obtain meaningful results from proxy %s (%s).  I'm sorry it didn't work out.", proxy->host.HostName(), 
-	  proxy->host.targetipstr());
+    fatal("Idle scan is unable to obtain meaningful results from proxy %s (%s).  I'm sorry it didn't work out.", proxy->host.HostName(),
+          proxy->host.targetipstr());
   }
 
   if (o.debugging > 2) error("%s: %d ports found open out of %d, starting with %hu", __func__, openports, numports, ports[0]);
@@ -835,9 +831,9 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
    divide-and-conquer strategy to find the open one(s) */
 
 static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
-		 u16 *ports, int numports, int expectedopen) {
+                         u16 *ports, int numports, int expectedopen) {
 
-  int firstHalfSz = (numports + 1)/2;
+  int firstHalfSz = (numports + 1) / 2;
   int secondHalfSz = numports - firstHalfSz;
   int flatcount1, flatcount2;
   int deepcount1 = -1, deepcount2 = -1;
@@ -846,18 +842,17 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
   int totalfound = 0;
   /* Scan the first half of the range */
 
-  if (o.debugging > 1) {  
+  if (o.debugging > 1) {
     error("%s: Called against %s with %d ports, starting with %hu. expectedopen: %d", __func__, target->targetipstr(), numports, ports[0], expectedopen);
     error("IDLE SCAN TIMING: grpsz: %.3f delay: %d srtt: %d rttvar: %d",
-	  proxy->current_groupsz, proxy->senddelay, target->to.srtt,
-	  target->to.rttvar);
+          proxy->current_groupsz, proxy->senddelay, target->to.srtt,
+          target->to.rttvar);
   }
 
-  flatcount1 = idlescan_countopen(proxy, target, ports, firstHalfSz, 
-				  &sentTime1, &rcvTime1);
-  
+  flatcount1 = idlescan_countopen(proxy, target, ports, firstHalfSz, &sentTime1, &rcvTime1);
 
-  
+
+
   if (firstHalfSz > 1 && flatcount1 > 0) {
     /* A port appears open!  We dig down deeper to find it ... */
     deepcount1 = idle_treescan(proxy, target, ports, firstHalfSz, flatcount1);
@@ -868,100 +863,97 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
 
   /* I guess we had better do the second half too ... */
 
-  flatcount2 = idlescan_countopen(proxy, target, ports + firstHalfSz, 
-				  secondHalfSz, &sentTime2, &rcvTime2);
-  
+  flatcount2 = idlescan_countopen(proxy, target, ports + firstHalfSz, secondHalfSz, &sentTime2, &rcvTime2);
+
   if ((secondHalfSz) > 1 && flatcount2 > 0) {
     /* A port appears open!  We dig down deeper to find it ... */
-    deepcount2 = idle_treescan(proxy, target, ports + firstHalfSz, 
-			       secondHalfSz, flatcount2);
+    deepcount2 = idle_treescan(proxy, target, ports + firstHalfSz,
+                               secondHalfSz, flatcount2);
     /* Now we assume deepcount1 is right, and adjust timing if flatcount1 was
        wrong */
     adjust_idle_timing(proxy, target, flatcount2, deepcount2);
   }
 
-  totalfound = (deepcount1 == -1)? flatcount1 : deepcount1;
-  totalfound += (deepcount2 == -1)? flatcount2 : deepcount2;
+  totalfound = (deepcount1 == -1) ? flatcount1 : deepcount1;
+  totalfound += (deepcount2 == -1) ? flatcount2 : deepcount2;
 
-  if ((flatcount1 + flatcount2 == totalfound) && 
+  if ((flatcount1 + flatcount2 == totalfound) &&
       (expectedopen == totalfound || expectedopen == -1)) {
-    
-    if (flatcount1 > 0) {    
+
+    if (flatcount1 > 0) {
       if (o.debugging > 1) {
-	error("Adjusting timing -- idlescan_countopen correctly found %d open ports (out of %d, starting with %hu)", flatcount1, firstHalfSz, ports[0]);
+        error("Adjusting timing -- idlescan_countopen correctly found %d open ports (out of %d, starting with %hu)", flatcount1, firstHalfSz, ports[0]);
       }
       adjust_timeouts2(&sentTime1, &rcvTime1, &(target->to));
     }
-    
-    if (flatcount2 > 0) {    
+
+    if (flatcount2 > 0) {
       if (o.debugging > 2) {
-	error("Adjusting timing -- idlescan_countopen correctly found %d open ports (out of %d, starting with %hu)", flatcount2, secondHalfSz, 
-	      ports[firstHalfSz]);
+        error("Adjusting timing -- idlescan_countopen correctly found %d open ports (out of %d, starting with %hu)", flatcount2, secondHalfSz,
+              ports[firstHalfSz]);
       }
       adjust_timeouts2(&sentTime2, &rcvTime2, &(target->to));
     }
   }
-  
-  if (totalfound != expectedopen) {  
-    if (deepcount1 == -1) {
-      retrycount = idlescan_countopen(proxy, target, ports, firstHalfSz, NULL,
-				      NULL);
-      if (retrycount != flatcount1) {      
-	/* We have to do a deep count if new ports were found and
-	   there are more than 1 total */
-	if (firstHalfSz > 1 && retrycount > 0) {	
-	  retry2 = retrycount;
-	  retrycount = idle_treescan(proxy, target, ports, firstHalfSz, 
-				     retrycount);
-	  adjust_idle_timing(proxy, target, retry2, retrycount);
-	} else {
-	  if (o.debugging)
-	    error("Adjusting timing because my first scan of %d ports, starting with %hu found %d open, while second scan yielded %d", firstHalfSz, ports[0], flatcount1, retrycount);
-	  adjust_idle_timing(proxy, target, flatcount1, retrycount);
-	}
-	totalfound += retrycount - flatcount1;
-	flatcount1 = retrycount;
 
-	/* If our first count erroneously found and added an open port,
-	   we must delete it */
-	if (firstHalfSz == 1 && flatcount1 == 1 && retrycount == 0)
-	  target->ports.forgetPort(ports[0], IPPROTO_TCP);
+  if (totalfound != expectedopen) {
+    if (deepcount1 == -1) {
+      retrycount = idlescan_countopen(proxy, target, ports, firstHalfSz, NULL, NULL);
+      if (retrycount != flatcount1) {
+        /* We have to do a deep count if new ports were found and
+           there are more than 1 total */
+        if (firstHalfSz > 1 && retrycount > 0) {
+          retry2 = retrycount;
+          retrycount = idle_treescan(proxy, target, ports, firstHalfSz,
+                                     retrycount);
+          adjust_idle_timing(proxy, target, retry2, retrycount);
+        } else {
+          if (o.debugging)
+            error("Adjusting timing because my first scan of %d ports, starting with %hu found %d open, while second scan yielded %d", firstHalfSz, ports[0], flatcount1, retrycount);
+          adjust_idle_timing(proxy, target, flatcount1, retrycount);
+        }
+        totalfound += retrycount - flatcount1;
+        flatcount1 = retrycount;
+
+        /* If our first count erroneously found and added an open port,
+           we must delete it */
+        if (firstHalfSz == 1 && flatcount1 == 1 && retrycount == 0)
+          target->ports.forgetPort(ports[0], IPPROTO_TCP);
 
       }
     }
-    
+
     if (deepcount2 == -1) {
-      retrycount = idlescan_countopen(proxy, target, ports + firstHalfSz, 
-				      secondHalfSz, NULL, NULL);
+      retrycount = idlescan_countopen(proxy, target, ports + firstHalfSz, secondHalfSz, NULL, NULL);
       if (retrycount != flatcount2) {
-	if (secondHalfSz > 1 && retrycount > 0) {	
-	  retry2 = retrycount;
-	  retrycount = idle_treescan(proxy, target, ports + firstHalfSz, 
-				     secondHalfSz, retrycount);
-	  adjust_idle_timing(proxy, target, retry2, retrycount);
-	} else {
-	  if (o.debugging)
-	    error("Adjusting timing because my first scan of %d ports, starting with %hu found %d open, while second scan yeilded %d", secondHalfSz, ports[firstHalfSz], flatcount2, retrycount);
-	  adjust_idle_timing(proxy, target, flatcount2, retrycount);
-	}
+        if (secondHalfSz > 1 && retrycount > 0) {
+          retry2 = retrycount;
+          retrycount = idle_treescan(proxy, target, ports + firstHalfSz,
+                                     secondHalfSz, retrycount);
+          adjust_idle_timing(proxy, target, retry2, retrycount);
+        } else {
+          if (o.debugging)
+            error("Adjusting timing because my first scan of %d ports, starting with %hu found %d open, while second scan yeilded %d", secondHalfSz, ports[firstHalfSz], flatcount2, retrycount);
+          adjust_idle_timing(proxy, target, flatcount2, retrycount);
+        }
 
-	totalfound += retrycount - flatcount2;
-	flatcount2 = retrycount;
+        totalfound += retrycount - flatcount2;
+        flatcount2 = retrycount;
 
-	/* If our first count erroneously found and added an open port,
-	   we must delete it */
-	if (secondHalfSz == 1 && flatcount2 == 1 && retrycount == 0)
-	  target->ports.forgetPort(ports[firstHalfSz], IPPROTO_TCP);
+        /* If our first count erroneously found and added an open port,
+           we must delete it */
+        if (secondHalfSz == 1 && flatcount2 == 1 && retrycount == 0)
+          target->ports.forgetPort(ports[firstHalfSz], IPPROTO_TCP);
 
 
       }
     }
   }
 
-  if (firstHalfSz == 1 && flatcount1 == 1) 
+  if (firstHalfSz == 1 && flatcount1 == 1)
     target->ports.setPortState(ports[0], IPPROTO_TCP, PORT_OPEN);
-  
-  if ((secondHalfSz == 1) && flatcount2 == 1) 
+
+  if ((secondHalfSz == 1) && flatcount2 == 1)
     target->ports.setPortState(ports[firstHalfSz], IPPROTO_TCP, PORT_OPEN);
   return totalfound;
 
@@ -973,7 +965,7 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
    host using the given proxy -- the proxy is cached so that you can keep
    calling this function with different targets */
 void idle_scan(Target *target, u16 *portarray, int numports,
-	       char *proxyName, const struct scan_lists * ports) {
+               char *proxyName, const struct scan_lists *ports) {
 
   static char lastproxy[MAXHOSTNAMELEN + 1] = ""; /* The proxy used in any previous call */
   static struct idle_proxy_info proxy;
@@ -1007,10 +999,10 @@ void idle_scan(Target *target, u16 *portarray, int numports,
     strncpy(lastproxy, proxyName, sizeof(lastproxy));
   }
 
-  /* If we don't have timing infoz for the new target, we'll use values 
+  /* If we don't have timing infoz for the new target, we'll use values
      derived from the proxy */
   if (target->to.srtt == -1 && target->to.rttvar == -1) {
-    target->to.srtt = MAX(200000,2 * proxy.host.to.srtt);
+    target->to.srtt = MAX(200000, 2 * proxy.host.to.srtt);
     target->to.rttvar = MAX(10000, MIN(proxy.host.to.rttvar, 2000000));
     target->to.timeout = target->to.srtt + (target->to.rttvar << 2);
   } else {
@@ -1024,7 +1016,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
      it up and drill down in subscans of the group), we split the port
      space into smaller groups and then call a recursive
      divide-and-counquer function to find the open ports */
-  while(portidx < numports) {
+  while (portidx < numports) {
     portsleft = numports - portidx;
     /* current_groupsz is doubled below because idle_subscan cuts in half */
     groupsz = MIN(portsleft, (int) (proxy.current_groupsz * 2));
@@ -1039,12 +1031,13 @@ void idle_scan(Target *target, u16 *portarray, int numports,
 
   /* Now we go through the ports which were scanned but not determined
      to be open, and add them in the "closed|filtered" state */
-  for(portidx = 0; portidx < numports; portidx++) {
+  for (portidx = 0; portidx < numports; portidx++) {
     if (target->ports.portIsDefault(portarray[portidx], IPPROTO_TCP)) {
       target->ports.setPortState(portarray[portidx], IPPROTO_TCP, PORT_CLOSEDFILTERED);
       target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, NULL);
-    } else 
+    } else {
       target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_IPIDCHANGE, 0, NULL);
+    }
   }
 
   target->stopTimeOutClock(NULL);

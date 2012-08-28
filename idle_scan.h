@@ -110,6 +110,6 @@ class Target;
    port is received (those scans are in pos_scan).  Super_scan
    includes scans such as FIN/XMAS/NULL/Maimon/UDP and IP Proto scans */
 void idle_scan(Target *target, u16 *portarray, int numports,
-	       char *proxy, const struct scan_lists * ports);
+               char *proxy, const struct scan_lists *ports);
 
 #endif /* IDLE_SCAN_H */
