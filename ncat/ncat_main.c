@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
         case 'd':
             o.linedelay = tval2msecs(optarg);
             if (o.linedelay <= 0)
-                bye("Invalid -d delay (must be greater than 0).", optarg);
+                bye("Invalid -d delay \"%s\" (must be greater than 0).", optarg);
             if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
                 bye("Since April 2010, the default unit for -d is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.linedelay / 1000.0 / 60, optarg, o.linedelay / 1000.0);
             break;

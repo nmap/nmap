@@ -915,7 +915,7 @@ static int chat_announce_connect(int fd, const union sockaddr_u *su)
             continue;
 
         if (getpeername(i, &su.sockaddr, &len) == -1)
-            bye("getpeername for sd %d failed: %s.", strerror(errno));
+            bye("getpeername for sd %d failed: %s.", i, strerror(errno));
 
         if (count > 0)
             strbuf_sprintf(&buf, &size, &offset, ", ");

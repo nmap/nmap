@@ -310,8 +310,8 @@ int addr_is_local(const union sockaddr_u *su)
         if (addr->ai_family != su->storage.ss_family)
             continue;
         if (addr->ai_addrlen > sizeof(addr_su)) {
-            bye("getaddrinfo returned oversized address (%u > %u)",
-                addr->ai_addrlen, sizeof(addr_su));
+            bye("getaddrinfo returned oversized address (%lu > %lu)",
+                (unsigned long) addr->ai_addrlen, (unsigned long) sizeof(addr_su));
         }
         memcpy(&addr_su, addr->ai_addr, addr->ai_addrlen);
         if (su->storage.ss_family == AF_INET) {

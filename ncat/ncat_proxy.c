@@ -460,7 +460,7 @@ static int handle_connect(struct socket_buffer *client_sock,
     line = socket_buffer_remainder(client_sock, &len);
     if (send(s, line, len, 0) < 0) {
         if (o.debug)
-            logdebug("Error sending %u leftover bytes: %s.\n", len, strerror(errno));
+            logdebug("Error sending %lu leftover bytes: %s.\n", (unsigned long) len, strerror(errno));
         Close(s);
         return 0;
     }
