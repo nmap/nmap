@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made source port numbers (used to encode probe metadata) increment
+  so as not to overlap between different scanning phases. Previously
+  it was possible for an RST response to an ACK probe from host
+  discovery to be misinterpreted as a reply to a SYN probe from port
+  scanning. [Sean Rivera, David Fifield]
+
 o [NSE] Updated mssql.lua library to support additional data types, enhanced
   some of the existing data types, added the DoneProc response token, and
 	reordered code for maintainability. [Tom Sellers]
