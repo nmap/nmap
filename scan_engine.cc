@@ -2392,11 +2392,14 @@ static bool seq32_decode(const UltraScanInfo *USI, u32 seq,
    number. This returns a new port number that contains a try number or ping
    sequence number encoded into the given port number. trynum and pingseq may
    not both be non-zero. Decoding is done by sport_decode. */
-static u16 sport_encode(UltraScanInfo *USI, u16 portno, unsigned int trynum,
+static u16 sport_encode(UltraScanInfo *USI, u16 base_portno, unsigned int trynum,
                         unsigned int pingseq) {
+  u16 portno;
+
   /* trynum and pingseq both being non-zero is not currently supported. */
   assert(trynum == 0 || pingseq == 0);
 
+  portno = base_portno;
   if (pingseq > 0) {
     /* Encode the pingseq. trynum = 0. */
     portno += USI->perf.tryno_cap + pingseq;
@@ -2409,14 +2412,14 @@ static u16 sport_encode(UltraScanInfo *USI, u16 portno, unsigned int trynum,
 }
 
 /* Undoes sport_encode. This extracts a try number and ping sequence number from
-   a port number given a "magic" original port number (the one given to
+   a port number given a "base" port number (the one given to
    sport_encode). Returns true if the decoded values seem reasonable, false
    otherwise. */
-static bool sport_decode(const UltraScanInfo *USI, u16 magic_portno, u16 portno,
+static bool sport_decode(const UltraScanInfo *USI, u16 base_portno, u16 portno,
                          unsigned int *trynum, unsigned int *pingseq) {
   int t;
 
-  t = portno - magic_portno;
+  t = portno - base_portno;
   if (t > USI->perf.tryno_cap + 256) {
     return false;
   } else if (t > USI->perf.tryno_cap) {
