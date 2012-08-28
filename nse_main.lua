@@ -418,6 +418,7 @@ do
     return nil;
   end
 
+  -- Script.new provides defaults for some of these.
   local required_fields = {
     action = "function",
     categories = "table",
@@ -469,6 +470,7 @@ do
     local env = {
       SCRIPT_PATH = filename,
       SCRIPT_NAME = short_basename,
+      categories = {},
       dependencies = {},
     };
     setmetatable(env, {__index = _G});
