@@ -635,15 +635,6 @@ static void adjust_idle_timing(struct idle_proxy_info *proxy,
 static int idlescan_countopen2(struct idle_proxy_info *proxy,
                                Target *target, u16 *ports, int numports,
                                struct timeval *sent_time, struct timeval *rcv_time) {
-
-#if 0 /* Testing code */
-  int i;
-  for (i = 0; i < numports; i++)
-    if (ports[i] == 22)
-      return 1;
-  return 0;
-#endif
-
   int openports;
   int tries;
   int proxyprobes_sent = 0; /* diff. from tries 'cause sometimes we

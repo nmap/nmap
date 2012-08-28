@@ -1299,13 +1299,7 @@ HostOsScan::~HostOsScan() {
     pcap_close(pd);
     pd = NULL;
   }
-  /*
-   * No need to close ethsd due to caching
-   * if (ethsd) {
-   *   eth_close(ethsd);
-   *   ethsd = NULL;
-   * }
-   */
+  /* No need to close ethsd due to caching. */
   delete stats;
 }
 
