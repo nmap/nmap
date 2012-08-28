@@ -5673,7 +5673,6 @@ static void startTimeOutClocks(vector<Target *> &Targets) {
    NULL (its default value), a default timeout_info will be used. */
 void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
                 stype scantype, struct timeout_info *to) {
-  UltraScanInfo *USI = NULL;
   o.current_scantype = scantype;
 
   init_payloads(); /* Load up _all_ payloads into a mapped table */
@@ -5693,11 +5692,11 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
   o.numhosts_scanning = Targets.size();
 
   startTimeOutClocks(Targets);
-  USI = new UltraScanInfo(Targets, ports, scantype);
+  UltraScanInfo USI(Targets, ports, scantype);
 
   /* Use the requested timeouts. */
   if (to != NULL)
-    USI->gstats->to = *to;
+    USI.gstats->to = *to;
 
   if (o.verbose) {
     char targetstr[128];
@@ -5705,69 +5704,66 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
     if (!plural) {
       (*(Targets.begin()))->NameIP(targetstr, sizeof(targetstr));
     } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) Targets.size());
-    log_write(LOG_STDOUT, "Scanning %s [%d port%s%s]\n", targetstr, USI->gstats->numprobes, (USI->gstats->numprobes != 1) ? "s" : "", plural ? "/host" : "");
+    log_write(LOG_STDOUT, "Scanning %s [%d port%s%s]\n", targetstr, USI.gstats->numprobes, (USI.gstats->numprobes != 1) ? "s" : "", plural ? "/host" : "");
   }
 
-  begin_sniffer(USI, Targets);
-  while (!USI->incompleteHostsEmpty()) {
-    doAnyPings(USI);
-    doAnyOutstandingRetransmits(USI); // Retransmits from probes_outstanding
+  begin_sniffer(&USI, Targets);
+  while (!USI.incompleteHostsEmpty()) {
+    doAnyPings(&USI);
+    doAnyOutstandingRetransmits(&USI); // Retransmits from probes_outstanding
     /* Retransmits from retry_stack -- goes after OutstandingRetransmits for
        memory consumption reasons */
-    doAnyRetryStackRetransmits(USI);
-    doAnyNewProbes(USI);
-    gettimeofday(&USI->now, NULL);
-    // printf("TRACE: Finished doAnyNewProbes() at %.4fs\n", o.TimeSinceStartMS(&USI->now) / 1000.0);
-    printAnyStats(USI);
-    waitForResponses(USI);
-    gettimeofday(&USI->now, NULL);
-    // printf("TRACE: Finished waitForResponses() at %.4fs\n", o.TimeSinceStartMS(&USI->now) / 1000.0);
-    processData(USI);
+    doAnyRetryStackRetransmits(&USI);
+    doAnyNewProbes(&USI);
+    gettimeofday(&USI.now, NULL);
+    // printf("TRACE: Finished doAnyNewProbes() at %.4fs\n", o.TimeSinceStartMS(&USI.now) / 1000.0);
+    printAnyStats(&USI);
+    waitForResponses(&USI);
+    gettimeofday(&USI.now, NULL);
+    // printf("TRACE: Finished waitForResponses() at %.4fs\n", o.TimeSinceStartMS(&USI.now) / 1000.0);
+    processData(&USI);
 
     if (keyWasPressed()) {
       // This prints something like
       // SYN Stealth Scan Timing: About 1.14% done; ETC: 15:01 (0:43:23 remaining);
-      USI->SPM->printStats(USI->getCompletionFraction(), NULL);
+      USI.SPM->printStats(USI.getCompletionFraction(), NULL);
       if (o.debugging) {
         /* Don't update when getting the current rates, otherwise we can get
            anomalies (rates are too low) from having just done a potentially
            long waitForResponses without sending any packets. */
-        USI->log_current_rates(LOG_STDOUT, false);
+        USI.log_current_rates(LOG_STDOUT, false);
       }
 
       log_flush(LOG_STDOUT);
     }
   }
 
-  USI->send_rate_meter.stop(&USI->now);
+  USI.send_rate_meter.stop(&USI.now);
 
   /* Save the computed timeouts. */
   if (to != NULL)
-    *to = USI->gstats->to;
+    *to = USI.gstats->to;
 
   if (o.verbose) {
     char additional_info[128];
-    if (USI->gstats->num_hosts_timedout == 0)
-      if (USI->ping_scan) {
+    if (USI.gstats->num_hosts_timedout == 0)
+      if (USI.ping_scan) {
         Snprintf(additional_info, sizeof(additional_info), "%lu total hosts",
                  (unsigned long) Targets.size());
       } else {
         Snprintf(additional_info, sizeof(additional_info), "%lu total ports",
-                 (unsigned long) USI->gstats->numprobes * Targets.size());
+                 (unsigned long) USI.gstats->numprobes * Targets.size());
       }
     else Snprintf(additional_info, sizeof(additional_info), "%d %s timed out",
-                    USI->gstats->num_hosts_timedout,
-                    (USI->gstats->num_hosts_timedout == 1) ? "host" : "hosts");
-    USI->SPM->endTask(NULL, additional_info);
+                    USI.gstats->num_hosts_timedout,
+                    (USI.gstats->num_hosts_timedout == 1) ? "host" : "hosts");
+    USI.SPM->endTask(NULL, additional_info);
   }
   if (o.debugging)
-    USI->log_overall_rates(LOG_STDOUT);
+    USI.log_overall_rates(LOG_STDOUT);
 
-  if (o.debugging > 2 && USI->pd != NULL)
-    pcap_print_stats(LOG_PLAIN, USI->pd);
-
-  delete USI;
-  USI = NULL;
+  if (o.debugging > 2 && USI.pd != NULL)
+    pcap_print_stats(LOG_PLAIN, USI.pd);
 }
 
 /* FTP bounce attack scan.  This function is rather lame and should be
