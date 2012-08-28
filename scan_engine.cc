@@ -2523,15 +2523,10 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
   }
 
   if (!goodseq) {
-    /* TODO: I need to do some testing and find out how often this happens
-       and whether other techniques such as the response seq should be
-       used in those cases where it happens. Then I should make this just
-       a debugging > X statement. */
+    /* Connection info matches, but there was a nonsensical tryno/pingseq. */
     if (o.debugging)
       log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntop_ez(src, sizeof(*src)));
-    /* I'll just assume it is a response to this (most recent) probe. */
-    tryno = probe->tryno;
-    pingseq = probe->pingseq;
+    return false;
   }
 
   /* Make sure that trynum and pingseq match the values in the probe. */
