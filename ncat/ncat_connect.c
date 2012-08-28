@@ -463,7 +463,7 @@ static int stdin_is_reg(void) {
   struct stat buf;
 
   if (fstat(STDIN_FILENO, &buf) < 0)
-    fatal("fstat(): %s", strerror(errno));
+    bye("fstat(): %s", strerror(errno));
 
   return S_ISREG(buf.st_mode);
 }
