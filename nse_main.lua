@@ -419,7 +419,6 @@ do
   end
 
   local required_fields = {
-    description = "string",
     action = "function",
     categories = "table",
     dependencies = "table",
@@ -1052,7 +1051,9 @@ local function script_help_normal(chosen_scripts)
     log_write_raw("stdout", format("%s\n", script.id));
     log_write_raw("stdout", format("Categories: %s\n", concat(script.categories, " ")));
     log_write_raw("stdout", format("%s\n", nsedoc_url(script.id)));
-    log_write_raw("stdout", format_nsedoc(script.description, "  "));
+    if script.description then
+      log_write_raw("stdout", format_nsedoc(script.description, "  "));
+    end
   end
 end
 
@@ -1085,10 +1086,12 @@ local function script_help_xml(chosen_scripts)
     cnse.xml_end_tag();
     cnse.xml_newline();
 
-    cnse.xml_start_tag("description");
-    cnse.xml_write_escaped(script.description);
-    cnse.xml_end_tag();
-    cnse.xml_newline();
+    if script.description then
+      cnse.xml_start_tag("description");
+      cnse.xml_write_escaped(script.description);
+      cnse.xml_end_tag();
+      cnse.xml_newline();
+    end
 
     -- script
     cnse.xml_end_tag();
