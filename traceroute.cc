@@ -273,7 +273,7 @@ private:
   /* This is incremented with each instantiated probe. */
   static u16 token_counter;
 
-  int num_resends;
+  unsigned int num_resends;
 
 public:
   HostState *host;

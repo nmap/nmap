@@ -166,7 +166,7 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
   /* Try to send a scanping if no response has been received from a target host
      in this many usecs */
   int pingtime;
-  int tryno_cap; /* The maximum trynumber (starts at zero) allowed */
+  unsigned int tryno_cap; /* The maximum trynumber (starts at zero) allowed */
 
   void init() {
     scan_performance_vars::init();
@@ -1395,7 +1395,7 @@ unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) {
 
   /* TODO: This should perhaps differ by scan type. */
   maxval = MAX(1, max_successful_tryno + 1);
-  if (maxval > (unsigned int) USI->perf.tryno_cap) {
+  if (maxval > USI->perf.tryno_cap) {
     if (capped)
       *capped = true;
     maxval = USI->perf.tryno_cap;
@@ -2456,7 +2456,7 @@ static u16 sport_encode(UltraScanInfo *USI, u16 base_portno, unsigned int trynum
    otherwise. */
 static bool sport_decode(const UltraScanInfo *USI, u16 base_portno, u16 portno,
                          unsigned int *trynum, unsigned int *pingseq) {
-  int t;
+  unsigned int t;
 
   t = portno - base_portno;
   if (t > USI->perf.tryno_cap + 256) {
