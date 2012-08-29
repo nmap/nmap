@@ -119,6 +119,7 @@ so, it starves the http server's resources causing Denial Of Service.
 	local report = vulns.Report:new(SCRIPT_NAME, host, port)
 	slowloris.state = vulns.STATE.NOT_VULN
 
+	local _
 	_, _, Bestopt = comm.tryssl(host, port, "GET / \r\n\r\n", {}) -- first determine if we need ssl
 	HalfHTTP = "POST /" .. tostring(math.random(100000, 900000)) .. " HTTP/1.1\r\n" ..
 	                  "Host: " .. host.ip .. "\r\n" ..

@@ -1156,12 +1156,12 @@ ColumnData =
 				local days, mins
 				pos, days, mins = bin.unpack("<SS", data, pos)
 				
-				tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
+				local tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
 				-- determine the offset between the tds_epoch and the local system epoch
-				system_epoch			 = os.time( os.date("*t", 0))
-				tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
+				local system_epoch			 = os.time( os.date("*t", 0))
+				local tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
 
-				result_seconds = (days*24*60*60) + (mins*60)
+				local result_seconds = (days*24*60*60) + (mins*60)
 				coldata = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
 				
 				return pos,coldata
