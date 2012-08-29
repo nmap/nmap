@@ -75,10 +75,12 @@ action = function(host, port)
 	local done
 	-- wait for all threads to finish
 	while( not(done) ) do
-		condvar("wait")
 		done = true
 		for thread in pairs(threads) do
 			if (coroutine.status(thread) ~= "dead") then done = false end
+		end
+		if ( not(done) ) then
+			condvar("wait")
 		end
 	end
 

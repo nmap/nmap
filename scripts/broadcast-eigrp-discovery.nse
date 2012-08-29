@@ -251,10 +251,12 @@ action = function()
 	local condvar = nmap.condvar(astab)
 	-- Wait for the listening threads to finish
 	repeat
-	    condvar("wait")
-	    for thread in pairs(lthreads) do
-		if coroutine.status(thread) == "dead" then lthreads[thread] = nil end
-	    end
+		for thread in pairs(lthreads) do
+			if coroutine.status(thread) == "dead" then lthreads[thread] = nil end
+	  end
+		if ( next(lthreads) ) then
+			condvar("wait")
+		end
 	until next(lthreads) == nil;
 
 	if #astab > 0 then

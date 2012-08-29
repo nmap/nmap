@@ -237,11 +237,13 @@ action = function(host, port)
 
     local condvar = nmap.condvar(result)
     repeat
-        condvar "wait";
         for thread in pairs(lthreads) do
             if coroutine.status(thread) == "dead" then
                 lthreads[thread] = nil
             end
+        end
+        if ( next(lthreads) ) then
+            condvar "wait";
         end
     until next(lthreads) == nil;
 

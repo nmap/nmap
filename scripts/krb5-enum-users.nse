@@ -389,9 +389,11 @@ action = function( host, port )
 	
 	-- wait for all threads to finish up
 	repeat
-		condvar "wait"
 		for t in pairs(threads) do
 			if ( coroutine.status(t) == "dead" ) then threads[t] = nil end
+		end
+		if ( next(threads) ) then
+			condvar "wait"
 		end
 	until( next(threads) == nil )
 	

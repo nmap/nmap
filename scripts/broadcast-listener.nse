@@ -265,11 +265,13 @@ action = function()
 	
 	-- wait for all threads to finish sniffing
     repeat
-		condvar "wait"
 		for thread in pairs(threads) do
 			if coroutine.status(thread) == "dead" then
 				threads[thread] = nil
 			end
+		end
+		if ( next(threads) ) then
+			condvar "wait"
 		end
 	until next(threads) == nil
 

@@ -239,7 +239,6 @@ local function worker_scheduler(host, port)
 	while not DOSed and not StopAll do
 		-- keep creating new threads, in case we want to run the attack indefinitely
 		repeat
-			condvar("wait")
 			if StopAll then
 				return
 			end
@@ -252,6 +251,9 @@ local function worker_scheduler(host, port)
 			stdnse.print_debug(SCRIPT_NAME .. " [SCHEDULER]: starting new thread")
 			local co = stdnse.new_thread(do_half_http, host, port, obj)
 			Threads[co] = true
+			if ( next(Threads) ) then
+				condvar("wait")
+			end
 		until next(Threads) == nil;
 	end
 end
