@@ -117,7 +117,8 @@ action = function(host, port)
 	-- Get SSL certificate.
 	local status, cert = sslcert.getCertificate(host, port)
 	if not status then
-		stdnse.print_debug(2, "sslcert.getCertificate error: %s", cert)
+		stdnse.print_debug(1, "sslcert.getCertificate error: %s", cert)
+		return
 	end
 	local fingerprint = cert:digest("sha1")
 	local fingerprint_fmt = stdnse.tohex(fingerprint, {separator=" ", group=4})
