@@ -79,7 +79,7 @@ action = function( host )
 		instanceList = mssql.Helper.GetDiscoveredInstances( host )
 	end
 	
-	for _, instance in ipairs(instanceList) do
+	for _, instance in ipairs(instanceList or {}) do
 		local name = instance:GetName():match("^[^\\]*\\(.*)$")
 		if ( name ) then
 			local co = stdnse.new_thread(discoverDAC, host, name, result)
