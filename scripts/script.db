@@ -253,7 +253,6 @@ Entry { filename = "mongodb-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mrinfo.nse", categories = { "broadcast", "discovery", "safe", } }
-
 Entry { filename = "ms-sql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "ms-sql-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-dac.nse", categories = { "discovery", "safe", } }
@@ -264,6 +263,7 @@ Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "sa
 Entry { filename = "ms-sql-query.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
+Entry { filename = "msrpc-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mtrace.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "mysql-audit.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mysql-brute.nse", categories = { "brute", "intrusive", } }

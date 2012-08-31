@@ -97,6 +97,13 @@ ATSVC_PATH     = "\\atsvc"
 ATSVC_UUID     = string.char(0x82, 0x06, 0xf7, 0x1f, 0x51, 0x0a, 0xe8, 0x30, 0x07, 0x6d, 0x74, 0x0b, 0xe8, 0xce, 0xe9, 0x8b)
 ATSVC_VERSION  = 1
 
+
+-- UUID and version for epmapper e1af8308-5d1f-11c9-91a4-08002b14a0fa v3.0
+EPMAPPER_PATH 	  = "\\epmapper"
+EPMAPPER_UUID     = string.char(0x08, 0x83, 0xaf, 0xe1, 0x1f, 0x5d, 0xc9, 0x11, 0x91, 0xa4, 0x08, 0x00, 0x2b, 0x14, 0xa0, 0xfa)
+EPMAPPER_VERSION  = 3
+
+
 -- This is the only transfer syntax I've seen in the wild, not that I've looked hard. It seems to work well. 
 TRANSFER_SYNTAX = string.char(0x04, 0x5d, 0x88, 0x8a, 0xeb, 0x1c, 0xc9, 0x11, 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60)
 
@@ -122,6 +129,55 @@ local LSA_GROUPSIZE  = 20
 -- <code>LSA_MINEMPTY</code> groups of <code>LSA_GROUPSIZE</code> users come back empty, we give
 -- up. Raising this could find more users, but at the expense of more packets. 
 local LSA_MINEMPTY = 10
+
+---Mapping between well known MSRPC UUIDs and coresponding exe/service
+local UUID2EXE = {
+	["1ff70682-0a51-30e8-076d-740be8cee98b"] = "mstask.exe atsvc interface (Scheduler service)",
+	["3faf4738-3a21-4307-b46c-fdda9bb8c0d5"] = "AudioSrv AudioSrv interface (Windows Audio service)",
+	["6bffd098-a112-3610-9833-012892020162"] = "Browser browser interface (Computer Browser service)",
+	["91ae6020-9e3c-11cf-8d7c-00aa00c091be"] = "certsrv.exe ICertPassage interface (Certificate services)",
+	["5ca4a760-ebb1-11cf-8611-00a0245420ed"] = "termsrv.exe winstation_rpc interface",
+	["c8cb7687-e6d3-11d2-a958-00c04f682e16"] = "WebClient davclntrpc interface (WebDAV client service)",
+	["50abc2a4-574d-40b3-9d66-ee4fd5fba076"] = "dns.exe DnsServer interface (DNS Server service)",
+	["e1af8308-5d1f-11c9-91a4-08002b14a0fa"] = "RpcSs epmp interface (RPC endpoint mapper)",
+	["82273fdc-e32a-18c3-3f78-827929dc23ea"] = "Eventlog eventlog interface (Eventlog service)",
+	["3d267954-eeb7-11d1-b94e-00c04fa3080d"] = "lserver.exe Terminal Server Licensing",
+	["894de0c0-0d55-11d3-a322-00c04fa321a1"] = "winlogon.exe InitShutdown interface",
+	["8d0ffe72-d252-11d0-bf8f-00c04fd9126b"] = "CryptSvc IKeySvc interface (Cryptographic services)",
+	["0d72a7d4-6148-11d1-b4aa-00c04fb66ea0"] = "CryptSvc ICertProtect interface (Cryptographic services)",
+	["d6d70ef0-0e3b-11cb-acc3-08002b1d29c4"] = "locator.exe NsiS interface (RPC Locator service)",
+	["342cfd40-3c6c-11ce-a893-08002b2e9c6d"] = "llssrv.exe llsrpc interface (Licensing Logging service)",
+	["12345778-1234-abcd-ef00-0123456789ab"] = "lsass.exe lsarpc interface",
+	["3919286a-b10c-11d0-9ba8-00c04fd92ef5"] = "lsass.exe dssetup interface",
+	["5a7b91f8-ff00-11d0-a9b2-00c04fb6e6fc"] = "messenger msgsvcsend interface (Messenger service)",
+	["2f5f3220-c126-1076-b549-074d078619da"] = "netdde.exe nddeapi interface (NetDDE service)",
+	["4fc742e0-4a10-11cf-8273-00aa004ae673"] = "Dfssvc netdfs interface (Distributed File System service)",
+	["12345678-1234-abcd-ef00-01234567cffb"] = "Netlogon netlogon interface (Net Logon service)",
+	["8d9f4e40-a03d-11ce-8f69-08003e30051b"] = "PlugPlay pnp interface (Plug and Play service)",
+--	["8d9f4e40-a03d-11ce-8f69-08003e30051b"] = "PlugPlay pnp interface (Plug and Play Windows Vista service)",
+	["d335b8f6-cb31-11d0-b0f9-006097ba4e54"] = "PolicyAgent PolicyAgent interface (IPSEC Policy Agent (Windows 2000))",
+--	["12345678-1234-abcd-ef00-0123456789ab"] = "PolicyAgent winipsec interface (IPsec Services)",
+	["369ce4f0-0fdc-11d3-bde8-00c04f8eee78"] = "winlogon.exe pmapapi interface",
+	["c9378ff1-16f7-11d0-a0b2-00aa0061426a"] = "lsass.exe IPStoreProv interface (Protected Storage)",
+	["8f09f000-b7ed-11ce-bbd2-00001a181cad"] = "mprdim.dll Remote Access",
+	["12345778-1234-abcd-ef00-0123456789ac"] = "lsass.exe samr interface",
+	["93149ca2-973b-11d1-8c39-00c04fb984f9"] = "services.exe SceSvc",
+	["12b81e99-f207-4a4c-85d3-77b42f76fd14"] = "seclogon ISeclogon interface (Secondary logon service)",
+	["83da7c00-e84f-11d2-9807-00c04f8ec850"] = "winlogon.exe sfcapi interface (Windows File Protection)",
+--	["12345678-1234-abcd-ef00-0123456789ab"] = "spoolsv.exe spoolss interface (Spooler service)",
+	["4b324fc8-1670-01d3-1278-5a47bf6ee188"] = "services.exe (w2k) or svchost.exe (wxp and w2k3) srvsvc interface (Server service)",
+	["4b112204-0e19-11d3-b42b-0000f81feb9f"] = "ssdpsrv ssdpsrv interface (SSDP service)",
+	["367aeb81-9844-35f1-ad32-98f038001003"] = "services.exe svcctl interface (Services control manager)",
+	["2f5f6520-ca46-1067-b319-00dd010662da"] = "Tapisrv tapsrv interface (Telephony service)",
+	["300f3532-38cc-11d0-a3f0-0020af6b0add"] = "Trkwks trkwks interface (Distributed Link Tracking Client)",
+	["8fb6d884-2388-11d0-8c35-00c04fda2795"] = "w32time w32time interface (Windows Time)",
+--	["8fb6d884-2388-11d0-8c35-00c04fda2795"] = "w32time w32time interface (Windows Time (Windows Server 2003, Windows Vista))",
+	["a002b3a0-c9b7-11d1-ae88-0080c75e4ec1"] = "winlogon.exe GetUserToken interface",
+	["338cd001-2244-31f1-aaaa-900038001003"] = "RemoteRegistry winreg interface (Remote registry service)",
+	["45f52c28-7f9f-101a-b52b-08002b2efabe"] = "wins.exe winsif interface (WINS service)",
+	["6bffd098-a112-3610-9833-46c3f87e345a"] = "services.exe (w2k) or svchost.exe (wxp and w2k3) wkssvc interface (Workstation service)"
+}
+
 
 --- This is a wrapper around the SMB class, designed to get SMB going quickly for MSRPC calls. This will
 --  connect to the SMB server, negotiate the protocol, open a session, connect to the IPC$ share, and
@@ -1079,6 +1135,150 @@ function spoolss_abort_printer(smbstate,printer_handle)
 	return status,result
 end
 
+
+---Helper function to convert binary UUID representation to usual string.
+--
+--@param uuid			UUID byte string
+--@return UUID converted to string representation
+function uuid_to_string(uuid)
+	local pos, i1,s1,s2,c1,c2,c3,c4,c5,c6,c7,c8 = bin.unpack("<ISSCCCCCCCC",uuid)
+	return string.format("%02x-%02x-%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",i1,s1,s2,c1,c2,c3,c4,c5,c6,c7,c8)
+end
+
+--- Helper function that maps known UUIDs to coresponding exe/services.
+--
+--@param uuid
+--@return Coresponding service and description as a string or nil. 
+function string_uuid_to_exe(uuid)
+	return UUID2EXE[uuid]
+end
+
+--- Lookup endpoint mapper for endpoints
+--	
+-- Queries the remote endpoint mapper and parses data into a table with following values:
+-- *'new_handle'
+-- *'annotation'
+-- *'uuid'
+-- *'exe'
+-- *'tcp_port'
+-- *'udp_port'
+-- *'ip_addr'
+-- *'ncalrpc'
+-- *'ncacn_np'
+-- *'netbios'
+-- *'ncacn_http'
+--@param smbstate The SMB state table.
+--@param handle   Handle to use for query.
+--@return (status,lookup_result) If status is false, lookup_result contains an error string, otherwise it's a lookup response table.
+function epmapper_lookup(smbstate,handle)
+	if handle == nil then -- if it's a first request, send a null handle
+		handle = bin.pack("H","0000000000000000000000000000000000000000")
+	end
+    -- void ept_lookup(
+        -- [in]            handle_t            h,
+        -- [in]            unsigned32          inquiry_type,
+        -- [in]            uuid_p_t            object,
+        -- [in]            rpc_if_id_p_t       interface_id,
+        -- [in]            unsigned32          vers_option,
+        -- [in, out]       ept_lookup_handle_t *entry_handle,
+        -- [in]            unsigned32          max_ents,
+        -- [out]           unsigned32          *num_ents,
+        -- [out, length_is(*num_ents), size_is(max_ents)]  
+                        -- ept_entry_t         entries[],    
+        -- [out]           error_status_t      *status
+    -- );
+	local params = msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0)
+	params = params .. handle .. msrpctypes.marshall_int32(1)
+
+	local status,result = call_function(smbstate,2,params)
+	if not status then
+		stdnse.print_debug("MSRPC epmapper_lookup(): %s",result)
+	end
+
+	local data = result.data
+	-- parse data 
+	-- skip 24 bytes of common DCE header
+	local pos
+	local lookup_response = {
+		new_handle = nil,
+		annotation  = nil,
+		uuid  = nil,
+		exe = nil,
+		tcp_port = nil,
+		udp_port = nil,
+		ip_addr = nil,
+		ncalrpc = nil,
+		ncacn_np = nil,
+		netbios = nil,
+		ncacn_http = nil
+	}
+	--stdnse.set_tostring(lookup_response,stdnse.format_generator({key_order = {"new_handle,annotation,uuid,exe,tcp_port,udp_port,ip_addr,ncalrpc,ncacn_np,netbios,ncacn_http"}}))
+	
+	lookup_response.new_handle = string.sub(data,25,44)
+
+--	stdnse.print_debug("new_handle: %s", stdnse.tohex(new_handle))
+
+	local num_entries
+	pos,  num_entries = bin.unpack("<I",data,45)
+	if num_entries == 0 then
+		return false, "finished"
+	end
+	--skip max count, offset, actual count
+	pos = pos + 12
+	--skip object , 
+	pos = pos + 16
+	pos = pos + 8
+	pos,annotation_length = bin.unpack("<I",data,pos)
+	if annotation_length > 1 then
+		lookup_response.annotation = string.sub(data,pos,pos+annotation_length-2)
+	end
+	local padding = (4-(annotation_length%4))
+	if padding == 4 then padding = 0 end
+	pos = pos + annotation_length + padding
+	--skip lengths
+	pos = pos + 8
+	local num_floors,floor_len,uuid, address_type,address_len,tcp_port,udp_port,ip_addr,saved_pos,ncalrpc,ncacn_np,netbios,ncacn_http
+	pos, num_floors = bin.unpack("<S",data,pos)
+
+	for i = 1, num_floors do 
+		saved_pos = pos
+		pos, floor_len = bin.unpack("<S",data,pos)
+		
+		if i == 1 then
+			uuid = string.sub(data,pos+1,pos+16)
+			lookup_response.uuid = uuid_to_string(uuid)
+			lookup_response.exe = string_uuid_to_exe(lookup_response.uuid)
+		else
+			if not (i == 2) and not (i == 3) then				-- just skip floor 2 and 3
+				pos,address_type,address_len = bin.unpack("<CS",data,pos)
+				if address_type == 0x07 then
+					pos,lookup_response.tcp_port = bin.unpack(">S",data,pos)
+				elseif address_type == 0x08 then
+					pos,lookup_response.udp_port = bin.unpack(">S",data,pos)
+				elseif address_type == 0x09 then
+					local i1,i2,i3,i4
+					pos,i1,i2,i3,i4 = bin.unpack("CCCC",data,pos)
+					lookup_response.ip_addr = string.format("%d.%d.%d.%d",i1,i2,i3,i4)
+				elseif address_type == 0x0f then
+					lookup_response.ncacn_np = string.sub(data,pos,pos+address_len-2)
+					floor_len = floor_len + address_len - 2
+				elseif address_type == 0x10 then
+					lookup_response.ncalrpc = string.sub(data,pos,pos+address_len-2)
+					floor_len = floor_len + address_len - 2 
+				elseif address_type == 0x11 then
+					lookup_response.netbios = string.sub(data,pos,pos+address_len-2)
+					floor_len = floor_len + address_len - 2 
+				elseif address_type == 0x1f then
+					pos, lookup_response.ncacn_http = bin.unpack(">S",data,pos)
+				else
+					stdnse.print_debug("unknown address type %x",address_type)					
+				end
+			end
+		end
+		pos = saved_pos + floor_len + 6
+	end
+	return status,lookup_response
+end
 
 ---A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an english string. 
 -- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>

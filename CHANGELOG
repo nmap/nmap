@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added msrpc-enum script which queries MSRPC endpoint mapper for 
+  available services and their information. [Aleksandar Nikolic]
+
 o Made source port numbers (used to encode probe metadata) increment
   so as not to overlap between different scanning phases. Previously
   it was possible for an RST response to an ACK probe from host
