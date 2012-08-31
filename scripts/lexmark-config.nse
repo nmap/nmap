@@ -54,17 +54,16 @@ categories = {"discovery", "safe"}
 portrule = shortport.portnumber({5353,9100}, "udp")
 
 action = function( host, port )
-			
-	
-	local catch = function()
-		stdnse.print_debug("lexmark-config failed to retrieve configuration")
-	end
-
-	local try = nmap.new_try(catch)
 
 	local result = {}	
-	local response = try( dns.query( "", { port = port.number, host = host.ip, dtype="PTR", retPkt=true} ) )
-	local txtrecords = try( dns.findNiceAnswer( dns.types.TXT, response, true ) )
+	local status, response = dns.query( "", { port = port.number, host = host.ip, dtype="PTR", retPkt=true} )
+	if ( not(status) ) then
+		return
+	end
+	local status, txtrecords = dns.findNiceAnswer( dns.types.TXT, response, true )
+	if ( not(status) ) then
+		return
+	end
 	
 	for _, v in ipairs( txtrecords ) do
 		if ( v:len() > 0 ) then
