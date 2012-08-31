@@ -1228,6 +1228,7 @@ function epmapper_lookup(smbstate,handle)
 	--skip object , 
 	pos = pos + 16
 	pos = pos + 8
+	local annotation_length
 	pos,annotation_length = bin.unpack("<I",data,pos)
 	if annotation_length > 1 then
 		lookup_response.annotation = string.sub(data,pos,pos+annotation_length-2)
