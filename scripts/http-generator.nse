@@ -78,6 +78,7 @@ action = function(host, port)
              end)
 
    response = follow_redirects(host, port, path, redirects)
-   return response.body:match(pattern)
-
+   if ( response and response.body ) then
+     return response.body:match(pattern)
+   end
 end

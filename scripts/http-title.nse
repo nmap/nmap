@@ -51,6 +51,10 @@ action = function(host, port)
     end
   end
 
+  if ( not(resp.body) ) then
+    return
+  end
+
   -- try and match title tags
   title = string.match(resp.body, "<[Tt][Ii][Tt][Ll][Ee][^>]*>([^<]*)</[Tt][Ii][Tt][Ll][Ee]>")
 

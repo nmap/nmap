@@ -91,6 +91,10 @@ portaction = function(host, port)
 	local url_path = stdnse.get_script_args("http-affiliate-id.url-path") or "/"
 	local body = http.get(host, port, url_path).body
 
+	if ( not(body) ) then
+		return
+	end
+
 	-- Here goes affiliate matching
 	for name, re in pairs(AFFILIATE_PATTERNS) do
 		local regex = pcre.new(re, 0, "C")

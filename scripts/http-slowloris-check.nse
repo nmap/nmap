@@ -65,6 +65,10 @@ local TimeWith 	  -- time with additional headers
 
 -- does a half http request and waits until timeout 
 local function slowThread1(host,port)
+	-- if no response was received when determining SSL
+	if ( Bestopt == "none" ) then
+		return
+	end
 	local socket,status
 	local catch = function()
 		TimeWithout = nmap.clock()
@@ -81,6 +85,10 @@ end
 -- does a half http request but sends another 
 -- header value after 10 seconds
 local function slowThread2(host,port)
+	-- if no response was received when determining SSL
+	if ( Bestopt == "none" ) then
+		return
+	end
 	local socket,status
 	local catch = function()
 		-- note the time the socket timedout
@@ -135,6 +143,9 @@ so, it starves the http server's resources causing Denial Of Service.
 		stdnse.sleep(1)
 	end
 	-- compare times
+	if ( not(TimeWith) or not(TimeWithout) ) then
+		return
+	end
 	local diff = TimeWith - TimeWithout 
 	stdnse.print_debug("Time difference is: %d",diff)
 	-- if second connection died 10 or more seconds after the first 

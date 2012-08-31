@@ -37,7 +37,9 @@ portrule = shortport.http
 --@param response_headers The HTTP response headers 
 local validate = function(response, response_headers)
   local output_lines = {}
-
+  if ( not(response) ) then
+    return
+  end
   if not(response:match("HTTP/1.[01] 200") or response:match("TRACE / HTTP/1.[01]")) then
     return
   else

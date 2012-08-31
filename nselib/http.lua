@@ -2173,6 +2173,10 @@ end
 --
 -- @param body The body of the page.
 function clean_404(body)
+  if ( not(body) ) then
+    return
+  end
+
   -- Remove anything that looks like time
   body = string.gsub(body, '%d?%d:%d%d:%d%d', "")
   body = string.gsub(body, '%d%d:%d%d', "")
