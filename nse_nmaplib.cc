@@ -863,7 +863,7 @@ static int l_list_interfaces (lua_State *L)
       nseU_setnfield(L, -1, "mtu", iflist[i].mtu);
       
       /* After setting the fields, add the interface table to the base table */
-      lua_rawseti(L, -2, i);
+      lua_rawseti(L, -2, i + 1);
     }
   }
   return 1;
