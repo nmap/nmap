@@ -206,8 +206,6 @@ Helper = {
 			return false, "Failed to parse response from router"
 		end
 
-		print(response.privport, response.pubport, response.lifetime)
-		
 		return true, response
 	end,
 	
