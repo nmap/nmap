@@ -1,15 +1,3 @@
-dnl aclocal.m4 generated automatically by aclocal 1.4
-
-dnl Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-dnl This program is distributed in the hope that it will be useful,
-dnl but WITHOUT ANY WARRANTY, to the extent permitted by law; without
-dnl even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-dnl PARTICULAR PURPOSE.
-
 # ===========================================================================
 #       http://www.gnu.org/software/autoconf-archive/ax_have_epoll.html
 # ===========================================================================
@@ -114,4 +102,3 @@ rc = epoll_pwait(fd, &ev, 1, 0, (sigset_t const *)(0));])],
 $1],[AC_MSG_RESULT([no])
 $2])
 ])dnl
-
