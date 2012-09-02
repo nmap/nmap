@@ -3270,7 +3270,7 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
     case IPPROTO_TCP:
       packet = build_tcp_raw(&src_in->sin_addr, &dst_in->sin_addr,
                              o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
-                             sport, o.magic_port, get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0, NULL, 0,
+                             sport, DEFAULT_TCP_PROBE_PORT, get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0, NULL, 0,
                              o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_ICMP:
@@ -3288,7 +3288,7 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
     case IPPROTO_UDP:
       packet = build_udp_raw(&src_in->sin_addr, &dst_in->sin_addr,
                              o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
-                             sport, o.magic_port,
+                             sport, DEFAULT_UDP_PROBE_PORT,
                              o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_SCTP: {
@@ -3298,7 +3298,7 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
                               get_random_u32() /*itag*/, 32768, 10, 2048, get_random_u32() /*itsn*/);
       packet = build_sctp_raw(&src_in->sin_addr, &dst_in->sin_addr,
                               o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
-                              sport, o.magic_port, 0UL, (char*) &chunk, sizeof(chunk),
+                              sport, DEFAULT_SCTP_PROBE_PORT, 0UL, (char*) &chunk, sizeof(chunk),
                               o.extra_payload, o.extra_payload_length, packetlen);
     }
     break;
@@ -3319,7 +3319,7 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
     case IPPROTO_TCP:
       packet = build_tcp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
                                   0, ipid, o.ttl,
-                                  sport, o.magic_port, get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0, NULL, 0,
+                                  sport, DEFAULT_TCP_PROBE_PORT, get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0, NULL, 0,
                                   o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_ICMPV6:
@@ -3331,7 +3331,7 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
     case IPPROTO_UDP:
       packet = build_udp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
                                   0, ipid, o.ttl,
-                                  sport, o.magic_port,
+                                  sport, DEFAULT_UDP_PROBE_PORT,
                                   o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_SCTP: {
@@ -3340,7 +3340,7 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
                               get_random_u32() /*itag*/, 32768, 10, 2048, get_random_u32() /*itsn*/);
       packet = build_sctp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
                                    0, ipid, o.ttl,
-                                   sport, o.magic_port, 0UL, (char*) &chunk, sizeof(chunk),
+                                   sport, DEFAULT_SCTP_PROBE_PORT, 0UL, (char*) &chunk, sizeof(chunk),
                                    o.extra_payload, o.extra_payload_length, packetlen);
     }
     break;

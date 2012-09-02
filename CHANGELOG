@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Protocol scan (-sO) probes for TCP, UDP, and SCTP now go to ports
+  80, 40125, and 80 respectively, instead of being randomly generated
+  or going to the same port as the source port. [David Fifield]
+
 o [NSE] Added msrpc-enum script which queries MSRPC endpoint mapper for 
   available services and their information. [Aleksandar Nikolic]
 
