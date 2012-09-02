@@ -256,14 +256,18 @@ void *realloc();
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts 
 				      in a row before we decide the host is 
 				      dead? */
-#define DEFAULT_TCP_PROBE_PORT_SPEC "80" /* The ports TCP ping probes go to if
-                                            unspecified by user -- uber hackers
-                                            change this to 113 */
-#define DEFAULT_UDP_PROBE_PORT_SPEC "40125" /* The port UDP ping probes go to
-                                               if unspecified by user */
-#define DEFAULT_SCTP_PROBE_PORT_SPEC "80" /* The port SCTP probes go to
-                                             if unspecified by
-                                             user */
+#define STR(X) #X
+#define DEFAULT_TCP_PROBE_PORT 80 /* The ports TCP ping probes go to if
+                                     unspecified by user -- uber hackers
+                                     change this to 113 */
+#define DEFAULT_TCP_PROBE_PORT_SPEC STR(DEFAULT_TCP_PROBE_PORT)
+#define DEFAULT_UDP_PROBE_PORT 40125 /* The port UDP ping probes go to
+                                          if unspecified by user */
+#define DEFAULT_UDP_PROBE_PORT_SPEC STR(DEFAULT_UDP_PROBE_PORT)
+#define DEFAULT_SCTP_PROBE_PORT 80 /* The port SCTP probes go to
+                                      if unspecified by
+                                      user */
+#define DEFAULT_SCTP_PROBE_PORT_SPEC STR(DEFAULT_SCTP_PROBE_PORT)
 #define DEFAULT_PROTO_PROBE_PORT_SPEC "1,2,4" /* The IPProto ping probes to use
                                                  if unspecified by user */
 
