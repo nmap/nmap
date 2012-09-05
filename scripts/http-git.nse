@@ -106,7 +106,7 @@ function action(host, port)
       end
 
       for i, reply in ipairs(replies) do
-       count.tried = count.tried + 1
+        count.tried = count.tried + 1
         -- We want this to be indexed by filename, not an integer, so we convert it
         -- We added to the pipeline in the same order as the filenames, so this is safe
         replies[repo[i]] = reply -- create index by filename
