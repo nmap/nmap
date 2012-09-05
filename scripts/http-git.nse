@@ -100,6 +100,11 @@ function action(host, port)
       end
       -- do the requests
       replies = http.pipeline_go(host, port, prequests)
+      if replies == nil then
+        stdnse.print_debug("%s: pipeline_go() error. Aborting.", SCRIPT_NAME)
+        return nil
+      end
+
       for i, reply in ipairs(replies) do
        count.tried = count.tried + 1
         -- We want this to be indexed by filename, not an integer, so we convert it
