@@ -349,6 +349,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
       case EHOSTDOWN:
       case ECONNRESET:
 #ifdef WIN32
+      case WSAEADDRINUSE:
       case WSAEADDRNOTAVAIL:
 #endif
 #ifndef WIN32
