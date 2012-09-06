@@ -315,7 +315,7 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
     int i, ret;
 
     if (o.recvonly)
-        return 0;
+        return size;
 
     ret = 0;
     for (i = 0; i <= fdlist->fdmax; i++) {
