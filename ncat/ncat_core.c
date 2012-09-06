@@ -291,6 +291,22 @@ int fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
     return send(fdn->fd, buf, size, 0);
 }
 
+/* If we are sending a large amount of data, we might momentarily run out of send
+   space and get an EAGAIN when we send. Temporarily convert a socket to
+   blocking more, do the send, and unblock it again. Assumes that the socket was
+   in nonblocking mode to begin with; it has the side effect of leaving the
+   socket nonblocking on return. */
+static int blocking_fdinfo_send(struct fdinfo *fdn, const char *buf, size_t size)
+{
+    int ret;
+
+    block_socket(fdn->fd);
+    ret = fdinfo_send(fdn, buf, size);
+    unblock_socket(fdn->fd);
+
+    return ret;
+}
+
 int ncat_send(struct fdinfo *fdn, const char *buf, size_t size)
 {
     int n;
@@ -298,7 +314,7 @@ int ncat_send(struct fdinfo *fdn, const char *buf, size_t size)
     if (o.recvonly)
         return size;
 
-    n = fdinfo_send(fdn, buf, size);
+    n = blocking_fdinfo_send(fdn, buf, size);
     if (n <= 0)
         return n;
 
@@ -323,7 +339,7 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
             continue;
 
         fdn = get_fdinfo(fdlist, i);
-        if (fdinfo_send(fdn, msg, size) <= 0) {
+        if (blocking_fdinfo_send(fdn, msg, size) <= 0) {
             if (o.debug > 1)
                 logdebug("Error sending to fd %d: %s.\n", i, socket_strerror(socket_errno()));
             ret = -1;
