@@ -1263,7 +1263,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
   nsi = nse->iod;
 
   if (nse->status == NSE_STATUS_ERROR)
-    Snprintf(errstr, sizeof(errstr), "[%s (%d)] ", strerror(nse->errnum), nse->errnum);
+    Snprintf(errstr, sizeof(errstr), "[%s (%d)] ", socket_strerror(nse->errnum), nse->errnum);
   else
     errstr[0] = '\0';
 
