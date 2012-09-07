@@ -157,6 +157,7 @@ action = function(host, port)
 
 	-- Send crafted client hello
 	status, response = client_hello(host, port)
+	local now = os.time()
 	if status and response then
 		-- extract time from response
 		local result
@@ -164,9 +165,10 @@ action = function(host, port)
 		if status then
 			local output = {
 				date = os.date("!%Y-%m-%dT%H:%M:%SZ",result),
-				delta = os.difftime(result, os.time()),
+				delta = os.difftime(result, now),
 			}
-			return output, string.format("%s; %s from local time.", output.date, output.delta)
+			return output, string.format("%s; %s from local time.", output.date,
+					stdnse.format_difftime(os.date("!*t",result),os.date("!*t", now)))
 		end
 	end
 end
