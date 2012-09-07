@@ -1,82 +1,168 @@
-local http = require "http"
-local shortport = require "shortport"
-local stdnse = require "stdnse"
-local table = require "table"
-
 description = [[
-Tests whether a JBoss target is vulnerable to jmx console authentication bypass (CVE-2010-0738).
+Attempts to bypass password protected resources (HTTP 401 status) by performing HTTP verb tampering. 
+If an array of paths to check is not set, it will crawl the web server and perform the check against any 
+password protected resource that it finds.
 
-It works by checking if the target paths require authentication or redirect to a login page that could be
-bypassed via a HEAD request. RFC 2616 specifies that the HEAD request should be treated exactly like GET but
-with no returned response body. The script also detects if the URL does not require authentication at all.
+The script determines if the protected URI is vulnerable by performing HTTP verb tampering and monitoring
+ the status codes. First, it uses a HEAD request, then a POST request and finally a random generated string 
+( This last one is useful when web servers treat unknown request methods as a GET request. This is the case
+ for PHP servers ).
 
-For more information, see:
-* CVE-2010-0738 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-0738
+If the table <code>paths</code> is set, it will attempt to access the given URIs. Otherwise, a web crawler 
+is initiated to try to find protected resources. Note that in a PHP environment with .htacess files you need to specify a 
+path to a file rather than a directory to find misconfigured .htaccess files.
+
+References:
 * http://www.imperva.com/resources/glossary/http_verb_tampering.html
 * https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29
-
+* http://www.mkit.com.ar/labs/htexploit/
+* http://capec.mitre.org/data/definitions/274.html
 ]]
 
 ---
--- @usage
--- nmap --script=http-method-tamper --script-args 'http-method-tamper.paths={/path1/,/path2/}' <target>
+-- @usage nmap -sV --script http-method-tamper <target>
+-- @usage nmap -p80 --script http-method-tamper --script-args 'http-method-tamper.paths={/protected/db.php,/protected/index.php}' <target>
 --
 -- @output
--- PORT   STATE SERVICE
--- 80/tcp open  http
+-- PORT   STATE SERVICE REASON
+-- 80/tcp open  http    syn-ack
 -- | http-method-tamper: 
--- |_  /jmx-console/: Authentication bypass.
+-- |   VULNERABLE:
+-- |   Authentication bypass by HTTP verb tampering
+-- |     State: VULNERABLE (Exploitable)
+-- |     Description:
+-- |       This web server contains password protected resources vulnerable to authentication bypass 
+-- |       vulnerabilities via HTTP verb tampering. This is often found in web servers that only limit access to the
+-- |        common HTTP methods and in misconfigured .htaccess files.
+-- |              
+-- |     Extra information:
+-- |       
+-- |   URIs suspected to be vulnerable to HTTP verb tampering:
+-- |     /method-tamper/protected/pass.txt [POST]
+-- |   
+-- |     References:
+-- |       http://www.imperva.com/resources/glossary/http_verb_tampering.html
+-- |       http://www.mkit.com.ar/labs/htexploit/
+-- |       http://capec.mitre.org/data/definitions/274.html
+-- |_      https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29
 --
--- @args http-method-tamper.path Array of paths to check. Defaults 
--- to <code>{"/jmx-console/"}</code>.
+-- @args http-method-tamper.uri Base URI to crawl. Not aplicable if <code>http-method-tamper.paths</code> is set.
+-- @args http-method-tamper.paths Array of paths to check. If not set, the script will crawl the web server.
+-- @args http-method-tamper.timeout Web crawler timeout. Default: 10000ms
+---
 
-author = "Hani Benhabiles"
+author = "Paulino Calderon <calderon()websec.mx>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "auth", "vuln"}
 
+local http = require "http"
+local shortport = require "shortport"
+local stdnse = require "stdnse"
+local table = require "table"
+local httpspider = require "httpspider"
+local vulns = require "vulns"
+local url = require "url"
 
 portrule = shortport.http
 
+--
+-- Checks if the web server does not return status 401 when requesting with other HTTP verbs.
+-- First, it tries with HEAD, POST and then with a random string.
+--
+local function probe_http_verbs(host, port, uri)
+  stdnse.print_debug(2, "%s:Tampering HTTP verbs %s", SCRIPT_NAME, uri)
+  local head_req = http.head(host, port, uri)
+  if head_req and head_req.status ~= 401 then
+    return true, "HEAD"
+  end 
+  local post_req = http.post(host, port, uri)
+  if post_req and post_req.status ~= 401 then
+    return true, "POST"
+  end 
+  --With a random generated verb we also look for "invalid method" status 501 
+  local random_verb_req = http.generic_request(host, port, stdnse.generate_random_string(4), uri)
+  if random_verb_req and random_verb_req.status ~= 401 and random_verb_req.status ~= 501 then
+    return true, "GENERIC"
+  end 
+  
+  return false
+end
+
 action = function(host, port)
-	local paths = stdnse.get_script_args("http-method-tamper.paths")
-    local result = {}
+  local vuln_uris = {}
+  local paths = stdnse.get_script_args(SCRIPT_NAME..".paths")
+  local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/"
+  local timeout = stdnse.get_script_args(SCRIPT_NAME..".timeout") or 10000
+  local vuln = {
+       title = 'Authentication bypass by HTTP verb tampering',
+       state = vulns.STATE.NOT_VULN,
+       description = [[
+This web server contains password protected resources vulnerable to authentication bypass 
+vulnerabilities via HTTP verb tampering. This is often found in web servers that only limit access to the
+ common HTTP methods and in misconfigured .htaccess files.
+       ]],
+       references = {
+            'http://www.mkit.com.ar/labs/htexploit/',
+            'http://www.imperva.com/resources/glossary/http_verb_tampering.html',
+            'https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29',
+            'http://capec.mitre.org/data/definitions/274.html'
+       }
+     }
+  local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
-	-- convert single string entry to table
-	if ( "string" == type(paths) ) then
-		paths = { paths }
-	end
-	
-	-- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
-	local _, http_status, _ = http.identify_404(host,port)
-	if ( http_status == 200 ) then
-		stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
-		return false
-	end
-    
-	-- fallback to jmx-console
-	paths = paths or {"/jmx-console/"}
+  -- If paths is not set, crawl the web server looking for http 401 status
+  if not(paths) then
+    local crawler = httpspider.Crawler:new(host, port, uri, { scriptname = SCRIPT_NAME } )
+    crawler:set_timeout(timeout)
 
-    for _, path in ipairs(paths) do
-        local getstatus = http.get(host, port, path).status
-
-        -- Checks if HTTP authentication or a redirection to a login page is applied.
-        if getstatus == 401 or getstatus == 302 then
-            local headstatus = http.head(host, port, path).status
-            if headstatus == 500 and path == "/jmx-console/" then
-                -- JBoss authentication bypass.
-                table.insert(result, ("%s: Vulnerable to CVE-2010-0738."):format(path))
-            elseif headstatus == 200 then
-                -- Vulnerable to authentication bypass.
-				table.insert(result, ("%s: Authentication bypass possible"):format(path))
-            end
-        -- Checks if no authentication is required for Jmx console
-        -- which is default configuration and common.
-        elseif getstatus == 200 then
-			table.insert(result, ("%s: Authentication was not required"):format(path))
+   while(true) do
+      local status, r = crawler:crawl()
+        if ( not(status) ) then
+          if ( r.err ) then
+            return stdnse.format_output(true, "ERROR: %s", r.reason)
+           else
+            break
+          end
         end
+      if r.response.status == 401 then
+        stdnse.print_debug(2, "%s:%s is protected! Let's try some verb tampering...", SCRIPT_NAME, tostring(r.url))
+        local parsed = url.parse(tostring(r.url))
+        local probe_status, probe_type = probe_http_verbs(host, port, parsed.path)
+        if probe_status then
+          stdnse.print_debug(1, "%s:Vulnerable URI %s", SCRIPT_NAME, uri)
+          table.insert(vuln_uris, parsed.path..string.format(" [%s]", probe_type))
+        end
+      end
     end
+  else 
+  -- Paths were set, check them and exit. No crawling here.
+
+    -- convert single string entry to table
+    if ( type(paths) == "string" ) then
+      paths = { paths }
+    end
+    -- iterate through given paths/files
+    for _, path in ipairs(paths) do
+      local path_req = http.get(host, port, path)
+
+      if path_req.status == 401 then
+        local probe_status, probe_type = probe_http_verbs(host, port, path)
+         if probe_status then
+          stdnse.print_debug(1, "%s:Vulnerable URI %s", SCRIPT_NAME, path)
+          table.insert(vuln_uris, path..string.format(" [%s]", probe_type))
+         end
+      end
     
-    return stdnse.format_output(true, result)
+    end
+  end
+
+  if ( #vuln_uris > 0 ) then
+    vuln.state = vulns.STATE.EXPLOIT
+    vuln_uris.name = "URIs suspected to be vulnerable to HTTP verb tampering:"
+    vuln.extra_info = stdnse.format_output(true, vuln_uris)
+  end
+
+  return vuln_report:make_output(vuln)
 end

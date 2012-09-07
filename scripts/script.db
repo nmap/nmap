@@ -194,6 +194,7 @@ Entry { filename = "http-virustotal.nse", categories = { "external", "malware", 
 Entry { filename = "http-vlcstreamer-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2009-3960.nse", categories = { "exploit", "intrusive", } }
+Entry { filename = "http-vuln-cve2010-0738.nse", categories = { "auth", "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2010-2861.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2011-3368.nse", categories = { "intrusive", "vuln", } }
