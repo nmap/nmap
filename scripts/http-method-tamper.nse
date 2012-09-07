@@ -55,7 +55,7 @@ author = "Paulino Calderon <calderon()websec.mx>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"safe", "auth", "vuln"}
+categories = {"auth", "vuln"}
 
 local http = require "http"
 local shortport = require "shortport"

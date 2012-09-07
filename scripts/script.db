@@ -165,7 +165,7 @@ Entry { filename = "http-joomla-brute.nse", categories = { "brute", "intrusive",
 Entry { filename = "http-litespeed-sourcecode-download.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-majordomo2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
-Entry { filename = "http-method-tamper.nse", categories = { "auth", "safe", "vuln", } }
+Entry { filename = "http-method-tamper.nse", categories = { "auth", "vuln", } }
 Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "http-open-redirect.nse", categories = { "discovery", "intrusive", } }
