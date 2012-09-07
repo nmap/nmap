@@ -35,7 +35,7 @@ end
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 5222/tcp open  xmpp-client syn-ack
--- |_ssl-date: 2012-08-02T18:29:31Z; 4 from local time.
+-- |_ssl-date: 2012-08-02T18:29:31Z; +4s from local time.
 --
 -- @xmloutput
 -- <elem key="date">2012-08-02T18:29:31Z</elem>
