@@ -394,6 +394,49 @@ function date_to_timestamp(date, offset)
   return os.time(date) + utc_offset(os.time(date)) - offset
 end
 
+local function format_tz(offset)
+  local sign, hh, mm
+
+  if not offset then
+    return ""
+  end
+  if offset < 0 then
+    sign = "-"
+    offset = -offset
+  else
+    sign = "+"
+  end
+  -- Truncate to minutes.
+  offset = math.floor(offset / 60)
+  hh = math.floor(offset / 60)
+  mm = math.floor(math.fmod(offset, 60))
+
+  return string.format("%s%02d:%02d", sign, hh, mm)
+end
+--- Format a date and time (and optional time zone) for structured output.
+--
+-- Formatting is done according to RFC 3339 (a profile of ISO 8601), except
+-- that a time zone may be omitted to signify an unspecified local time zone.
+-- Time zones are given as an integer number of seconds from UTC. Use
+-- <code>0</code> to mark UTC itself. Formatted strings with a time zone look
+-- like this:
+-- <code>
+-- format_timestamp(os.time(), 0)       --> "2012-09-07T23:37:42+00:00"
+-- format_timestamp(os.time(), 2*60*60) --> "2012-09-07T23:37:42+02:00"
+-- </code>
+-- Without a time zone they look like this:
+-- <code>
+-- format_timestamp(os.time())          --> "2012-09-07T23:37:42"
+-- </code>
+--
+-- This function should be used for all dates emitted as part of NSE structured
+-- output.
+function format_timestamp(t, offset)
+  local tz_string tz_string = format_tz(offset)
+  offset = offset or 0
+  return os.date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
+end
+
 --- Format the difference between times <code>t2</code> and <code>t1</code>
 -- into a string in one of the forms (signs may vary):
 -- * 0s
