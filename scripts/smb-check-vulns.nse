@@ -152,6 +152,9 @@ function check_ms08_067(host)
 	if(nmap.registry.args.safe ~= nil) then
 		return true, NOTRUN
 	end
+	if(nmap.registry.args.unsafe == nil) then
+		return true, NOTRUN
+	end
 	local status, smbstate
 	local bind_result, netpathcompare_result
 
@@ -585,7 +588,7 @@ action = function(host)
 		elseif(result == UNKNOWN) then
 			table.insert(response, get_response("MS08-067", "LIKELY VULNERABLE", "host stopped responding",         1)) -- TODO: this isn't very accurate
 		elseif(result == NOTRUN) then
-			table.insert(response, get_response("MS08-067", "CHECK DISABLED",    "remove 'safe=1' argument to run", 1))
+			table.insert(response, get_response("MS08-067", "CHECK DISABLED",    "add '--script-args=unsafe=1' to run", 1))
 		elseif(result == INFECTED) then
 			table.insert(response, get_response("MS08-067", "NOT VULNERABLE",    "likely by Conficker",             0))
 		else
@@ -650,7 +653,7 @@ action = function(host)
         if(result == VULNERABLE) then
 			table.insert(response, get_response("MS06-025", "VULNERABLE", nil, 0))
         elseif(result == NOTRUN) then
-			table.insert(response, get_response("MS06-025", "CHECK DISABLED", "remove 'safe=1' argument to run", 1))
+			table.insert(response, get_response("MS06-025", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1))
         elseif(result == NOTUP) then
 			table.insert(response, get_response("MS06-025", "NO SERVICE", "the Ras RPC service is inactive", 1))
         else
@@ -670,7 +673,7 @@ action = function(host)
         if(result == VULNERABLE) then
 			table.insert(response, get_response("MS07-029", "VULNERABLE", nil, 0))
         elseif(result == NOTRUN) then
-			table.insert(response, get_response("MS07-029", "CHECK DISABLED", "remove 'safe=1' argument to run", 1))
+			table.insert(response, get_response("MS07-029", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1))
         else
 			table.insert(response, get_response("MS07-029", "NOT VULNERABLE", nil, 1))
         end
