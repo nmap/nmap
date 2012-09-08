@@ -96,8 +96,8 @@ certificate.
 --   <elem key="bits">2048</elem>
 -- </table>
 -- <table key="validity">
---   <elem key="notBefore">2011-03-23T00:00:00Z</elem>
---   <elem key="notAfter">2013-04-01T23:59:59Z</elem>
+--   <elem key="notBefore">2011-03-23T00:00:00+00:00</elem>
+--   <elem key="notAfter">2013-04-01T23:59:59+00:00</elem>
 -- </table>
 -- <elem key="md5">bf47cecad861efa77d1488ad4a73cb5b</elem>
 -- <elem key="sha1">d8465221467a0d153df09f2eaf6d439002139a68</elem>
@@ -183,10 +183,6 @@ local function name_to_table(name)
   return output
 end
 
-local function format_time(t)
-    return os.date("%Y-%m-%dT%H:%M:%SZ", os.time(t))
-end
-
 local function output_tab(cert)
     local o = stdnse.output_table()
     o.subject = name_to_table(cert.subject)
@@ -194,7 +190,7 @@ local function output_tab(cert)
     o.pubkey = cert.pubkey
     o.validity = {}
     for k, v in pairs(cert.validity) do
-      o.validity[k] = format_time(v)
+      o.validity[k] = stdnse.format_timestamp(stdnse.date_to_timestamp(v, 0), 0)
     end
     o.md5 = stdnse.tohex(cert:digest("md5"))
     o.sha1 = stdnse.tohex(cert:digest("sha1"))

@@ -38,7 +38,7 @@ end
 -- |_ssl-date: 2012-08-02T18:29:31Z; +4s from local time.
 --
 -- @xmloutput
--- <elem key="date">2012-08-02T18:29:31Z</elem>
+-- <elem key="date">2012-08-02T18:29:31+00:00</elem>
 -- <elem key="delta">4</elem>
 
 --
@@ -164,7 +164,7 @@ action = function(host, port)
 		status, result = extract_time(response)
 		if status then
 			local output = {
-				date = os.date("!%Y-%m-%dT%H:%M:%SZ",result),
+				date = stdnse.format_timestamp(result, 0),
 				delta = os.difftime(result, now),
 			}
 			return output, string.format("%s; %s from local time.", output.date,

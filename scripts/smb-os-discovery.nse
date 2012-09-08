@@ -57,7 +57,7 @@ will speed up the script on targets that do not allow guest access.
 -- |   FQDN: Sql2008.lab.test.local
 -- |   NetBIOS computer name: SQL2008
 -- |   NetBIOS domain name: LAB
--- |_  System time: 2011-04-20 13:34:06 UTC-5
+-- |_  System time: 2011-04-20T13:34:06-05:00
 --
 --@xmloutput
 -- <elem key="OS">Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)</elem>
@@ -67,7 +67,7 @@ will speed up the script on targets that do not allow guest access.
 -- <elem key="FQDN">Sql2008.lab.test.local</elem>
 -- <elem key="NetBIOS computer name">SQL2008</elem>
 -- <elem key="NetBIOS domain name">LAB</elem>
--- <elem key="System time">2011-04-20 13:34:06 UTC-5</elem>
+-- <elem key="System time">2011-04-20T13:34:06-05:00</elem>
 
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -125,8 +125,8 @@ action = function(host)
 	if (result['os'] and result['lanmanager']) then
 		os_string = string.format( "%s (%s)", get_windows_version( result['os'] ), result['lanmanager'] )
 	end
-	if (result['date'] and result['timezone_str']) then
-		time_string = string.format("%s%+03d%02d", os.date("%Y-%m-%dT%H:%M:%S", result.time), result.timezone, math.abs(math.fmod(result.timezone, 1)) * 60)
+	if (result['time'] and result['timezone']) then
+		time_string = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
 	end
 	
 	
