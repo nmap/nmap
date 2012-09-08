@@ -2301,6 +2301,11 @@ PORT     STATE SERVICE
         represented as strings.
         </para>
         <para>
+        Long hexadecimal strings such as public key fingerprints should
+        be written using lower-case alphabetical characters and without
+        separators such as colons.
+        </para>
+        <para>
         Dates and times are formatted according to
         <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc3339.txt">RFC
         3339</ulink><indexterm><primary>RFC 3339</primary></indexterm>.
