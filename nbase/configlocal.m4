@@ -36,12 +36,12 @@ int main(void) {
     hints.ai_socktype = SOCK_STREAM;
     error = getaddrinfo("127.0.0.1", NULL, &hints, &ai);
     if (error) {
-        exit(1);
+        return 1;
     }
     if (ai->ai_addr->sa_family != AF_INET) {
-        exit(1);
+        return 1;
     }
-    exit(0);
+    return 0;
 }
 ],[
   ac_cv_working_getaddrinfo="yes"
