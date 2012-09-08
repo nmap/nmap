@@ -41,12 +41,12 @@ int main() {
   int major, minor1, minor2;
   sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
   if (major > 0) 
-    exit(0);
+    return 0;
   if (minor1 < 9)
-    exit(1);
+    return 1;
   if (minor2 < 4)
-    exit(1);
-  exit(0);
+    return 1;
+  return 0;
 }
   ], [
     AC_TRY_RUN([
