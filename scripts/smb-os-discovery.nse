@@ -52,22 +52,22 @@ will speed up the script on targets that do not allow guest access.
 -- | smb-os-discovery:
 -- |   OS: Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)
 -- |   Computer name: Sql2008
+-- |   NetBIOS computer name: SQL2008
 -- |   Domain name: lab.test.local
 -- |   Forest name: test.local
 -- |   FQDN: Sql2008.lab.test.local
--- |   NetBIOS computer name: SQL2008
 -- |   NetBIOS domain name: LAB
 -- |_  System time: 2011-04-20T13:34:06-05:00
 --
 --@xmloutput
--- <elem key="OS">Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)</elem>
--- <elem key="Computer name">Sql2008</elem>
--- <elem key="Domain name">lab.test.local</elem>
--- <elem key="Forest name">test.local</elem>
--- <elem key="FQDN">Sql2008.lab.test.local</elem>
--- <elem key="NetBIOS computer name">SQL2008</elem>
--- <elem key="NetBIOS domain name">LAB</elem>
--- <elem key="System time">2011-04-20T13:34:06-05:00</elem>
+-- <elem key="os">Windows Server (R) 2008 Standard 6001 Service Pack 1</elem>
+-- <elem key="lanmanager">Windows Server (R) 2008 Standard 6.0</elem>
+-- <elem key="domain">LAB</elem>
+-- <elem key="server">SQL2008</elem>
+-- <elem key="date">2011-04-20T13:34:06-05:00</elem>
+-- <elem key="fqdn">Sql2008.lab.test.local</elem>
+-- <elem key="domain_dns">lab.test.local</elem>
+-- <elem key="forest_dns">test.local</elem>
 
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -95,12 +95,10 @@ function get_windows_version(os)
 
 end
 
-function add_to_output(output_table, label, value, value_if_nil)
-	if (value == nil and value_if_nil ~= nil) then
-		value = value_if_nil
+function add_to_output(output_table, label, value)
+	if value then
+		table.insert(output_table, string.format("%s: %s", label, value))
 	end
-	
-	output_table[label] = value
 end
 
 action = function(host)
@@ -111,45 +109,43 @@ action = function(host)
 		return stdnse.format_output(false, result)
 	end
 	
-	local hostname_dns, is_domain_member, os_string, time_string
-	if (result[ "fqdn" ]) then
-		-- Pull the first part of the FQDN as the computer name
-		hostname_dns = string.match( result[ "fqdn" ], "^([^.]+)%.?" )
-		
-		if (result[ "domain_dns" ]) then
-			-- If the computer name doesn't match the domain name, the target is a domain member
-			is_domain_member = ( result[ "fqdn" ] ~= result[ "domain_dns" ] )
-		end
+	-- Collect results.
+	response.os = result.os
+	response.lanmanager = result.lanmanager
+	response.domain = result.domain
+	response.server = result.server
+	if result.time and result.timezone then
+		response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
 	end
+	response.fqdn = result.fqdn
+	response.domain_dns = result.domain_dns
+	response.forest_dns = result.forest_dns
+	response.workgroup = result.workgroup
 	
-	if (result['os'] and result['lanmanager']) then
-		os_string = string.format( "%s (%s)", get_windows_version( result['os'] ), result['lanmanager'] )
-	end
-	if (result['time'] and result['timezone']) then
-		time_string = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
-	end
-	
-	
-	add_to_output( response, "OS", os_string, "Unknown" )
-	add_to_output( response, "Computer name", hostname_dns )
-	
-	if ( is_domain_member ) then
-		add_to_output( response, "Domain name", result[ "domain_dns" ] )
-		add_to_output( response, "Forest name", result[ "forest_dns" ] )
-		add_to_output( response, "FQDN", result[ "fqdn" ] )
-	end
-	
-	add_to_output( response, "NetBIOS computer name", result[ "server" ] )
-	
-	if ( is_domain_member ) then
-		add_to_output( response, "NetBIOS domain name", result[ "domain" ] )
+	-- Build normal output.
+	local output_lines = {}
+	if response.os and response.lanmanager then
+		add_to_output(output_lines, "OS", string.format("%s (%s)", get_windows_version(response.os), response.lanmanager))
 	else
-		add_to_output( response, "Workgroup", result[ "workgroup" ], result[ "domain" ] )
+		add_to_output(output_lines, "OS", "Unknown")
 	end
-	
-	add_to_output( response, "System time", time_string, "Unknown" )
+	if response.fqdn then
+		-- Pull the first part of the FQDN as the computer name.
+		add_to_output(output_lines, "Computer name", string.match(response.fqdn, "^([^.]+)%.?"))
+	end
+	add_to_output(output_lines, "NetBIOS computer name", result.server)
+	if response.fqdn and response.domain_dns and response.fqdn ~= response.domain_dns then
+		-- If the FQDN doesn't match the domain name, the target is a domain member.
+		add_to_output(output_lines, "Domain name", response.domain_dns)
+		add_to_output(output_lines, "Forest name", response.forest_dns)
+		add_to_output(output_lines, "FQDN", response.fqdn)
+		add_to_output(output_lines, "NetBIOS domain name", response.domain)
+	else
+		add_to_output(output_lines, "Workgroup", response.workgroup or response.domain)
+	end
+	add_to_output(output_lines, "System time", response.date or "Unknown")
 
-	return response
+	return response, stdnse.format_output(true, output_lines)
 end
 
 
