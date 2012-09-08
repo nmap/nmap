@@ -3242,6 +3242,21 @@ end
 ---Retrieve information about the host's operating system. This should always be possible to call, as long as there isn't already
 -- a SMB session established. 
 --
+-- The returned table has the following keys (shown here with sample values).
+-- * <code>os</code>: <code>"Windows 7 Professional 7601 Service Pack 1"</code>
+-- * <code>lanmanager</code>: <code>"Windows 7 Professional 6.1"</code>
+-- * <code>domain</code>: <code>"WORKGROUP"</code>
+-- * <code>server</code>: <code>"COMPUTERNAME"</code>
+-- * <code>time</code>: <code>1347121470.0462</code>
+-- * <code>date</code>: <code>"2012-09-08 09:24:30"</code>
+-- * <code>timezone</code>: <code>-7</code>
+-- * <code>timezone_str</code>: <code>UTC-7</code>
+-- The table may also contain these additional keys:
+-- * <code>fqdn</code>: <code>"Sql2008.lab.test.local"</code>
+-- * <code>domain_dns</code>: <code>"lab.test.local"</code>
+-- * <code>forest_dns</code>: <code>"test.local"</code>
+-- * <code>workgroup</code>
+--
 --@param host The host object
 --@return (status, data) If status is true, data is a table of values; otherwise, data is an error message. 
 function get_os(host)
