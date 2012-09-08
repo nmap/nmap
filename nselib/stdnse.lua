@@ -362,6 +362,38 @@ function parse_timespec(timespec)
   return t * m
 end
 
+-- Find the offset in seconds between local time and UTC. That is, if we
+-- interpret a UTC date table as a local date table by passing it to os.time,
+-- how much must be added to the resulting integer timestamp to make it
+-- correct?
+local function utc_offset(t)
+  -- What does the calendar say locally?
+  local localtime = os.date("*t", t)
+  -- What does the calendar say in UTC?
+  local gmtime = os.date("!*t", t)
+  -- Interpret both as local calendar dates and find the difference.
+  return difftime(os.time(localtime), os.time(gmtime))
+end
+--- Convert a date table into an integer timestamp. Unlike os.time, this does
+-- not assume that the date table represents a local time. Rather, it takes an
+-- optional offset number of seconds representing the time zone, and returns
+-- the timestamp that would result using that time zone as local time. If the
+-- offset is omitted or 0, the date table is interpreted as a UTC date. For
+-- example, 4:00 UTC is the same as 5:00 UTC+1:
+-- <code>
+-- date_to_timestamp({year=1970,month=1,day=1,hour=4,min=0,sec=0})          --> 14400
+-- date_to_timestamp({year=1970,month=1,day=1,hour=4,min=0,sec=0}, 0)       --> 14400
+-- date_to_timestamp({year=1970,month=1,day=1,hour=5,min=0,sec=0}, 1*60*60) --> 14400
+-- </code>
+-- And 4:00 UTC+1 is an earlier time:
+-- <code>
+-- date_to_timestamp({year=1970,month=1,day=1,hour=4,min=0,sec=0}, 1*60*60) --> 10800
+-- </code>
+function date_to_timestamp(date, offset)
+  offset = offset or 0
+  return os.time(date) + utc_offset(os.time(date)) - offset
+end
+
 --- Format the difference between times <code>t2</code> and <code>t1</code>
 -- into a string in one of the forms (signs may vary):
 -- * 0s
