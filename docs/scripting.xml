@@ -2287,6 +2287,44 @@ PORT     STATE SERVICE
 |_  users: root, foo, bar
 </screen>
       </para>
+
+      <sect3 id="nse-structured-output-conventions">
+        <para>
+        There are conventions regarding the formatting of certain kinds
+        of data in structured output. Users of NSE output benefit by
+        being able to assume that some kinds of data, for instance dates
+        and times, are formatted the same way, even in different
+        scripts.
+        </para>
+        <para>
+        Network addresses, for example IPv4, IPv6, and MAC, are
+        represented as strings.
+        </para>
+        <para>
+        Dates and times are formatted according to
+        <ulink role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc3339.txt">RFC
+        3339</ulink><indexterm><primary>RFC 3339</primary></indexterm>.
+        If the time zone offset is known, they should appear like these
+        examples:
+<screen>
+2012-09-07T23:37:42+00:00
+2012-09-07T23:37:42+02:00
+</screen>
+        If the time zone offset is not known (representing some
+        unspecified local time), leave off the offset part:
+<screen>
+2012-09-07T23:37:42
+</screen>
+        The standard library function
+        <code>stdnse.format_timestamp</code> code exists to format times
+        for structured output. It takes an optional time zone offset in
+        seconds and automatically shifts the date to be correct within
+        that offset.
+<screen>
+stdnse.format_timestamp(os.time(), 0) --> "2012-09-07T23:37:42+00:00"
+</screen>
+        </para>
+      </sect3>
     </sect2>
 
     <sect2 id="nse-exceptions">
