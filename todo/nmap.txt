@@ -5,6 +5,24 @@ o Investigate/fix potential routing-related issue.  See emails from
   http://seclists.org/nmap-dev/2012/q3/4,
   http://seclists.org/nmap-dev/2012/q2/449
 
+o Clean up the Nmap repo to remove some bloat we've allowed to creep
+  in.  Should do a more thorough search, but for now here are two
+  obvious candidates:
+  - Create publicly readable /nmap-mswin32-aux in svn
+  - Files not needed for compiling Nmap itself (e.g. only needed for
+    creating or including in Nmap packages), particularly including the
+    vcredist files, should be moved to new /nmap-mswin32-aux
+  - The /nmap-mswin32-aux files won't be included in Nmap tarballs
+    either
+  - Add the gtk, glib, etc. Windows dependencies to /nmap-mswin32-aux
+    so users don't have to all install those in order to compile Zenmap
+    and make Nmap packages.
+  - move the nmap-private-dev/mswin32 stuff into /nmap-mswin32-aux
+  - Update nmap-install.xml for new changes.  Such as noting need to
+    checkout this new directory for building packages, removing the
+    need to install your own gtk, glib, etc.
+  - [done] Remove the 5MB of XSL in nping/docs/xsl
+
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
   o Maybe start with svn server, since we've had reports of our
@@ -17,36 +35,27 @@ o Add CPE entries to OS fingerpting DB entries which still lack them
  - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
    fingerprints.
 
+o Update our mswin32/OpenSSL to newest version (previous update was
+  September 2010 to 1.0.0a).
+
 o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
 
-o FEATURE CREEPERS!  We have two talented GSoC students for summer
-  2012.  Here are some ideas that they could do, though anyone else is
-  welcome to take a stab at them too:
-  o Solve "spurious closed port detection" issue discovered by David:
-    http://seclists.org/nmap-dev/2012/q1/62 .  So we need to figure
-    out what is going on here and then how to fix it.  Note that this
-    doesn't seem to happen when you do ICMP host discovery first (-PE),
-    so it probably relates to the ACK packet that Nmap sends to port 80
-    on the target by default.
-  o Make Nmap from a clean start (e.g. after make clean or whatever,
-    so it compiles everything) and research all the compile warnings to
-    see which ones can be fixed/removed.  Of course caution is needed to
-    make sure we don't cause problems.  For example, an unused variable
-    on one platform might not be unused on another, so we can't just
-    remove it.  May have to surround it by ifdefs though.
-  o We should document Ron's sample script
-    (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
-    so that new script writers know about it. [James and Fyodor?]
-  o Add IPv6 subnet/pattern support like we offer for IPv4.
-   o Obviously we can't go scanning a /48 in IPv6, but small subnets
-     do make sense in some cases.  For example, the VPS hosting
-     company Linode assigns only one IPv6 address per user (unless
-     they pay) and you can find many Linode machines by scanning
-     certain /112's.  And patterns might be useful because people
-     assigned /64's might still put their machines at ::1, ::2, etc.
+o We should document Ron's sample script
+  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
+  so that new script writers know about it.
+
+o Nmap Network Scanning, 2nd Edition work [placeholder]
+
+o Add IPv6 subnet/pattern support like we offer for IPv4.
+  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
+    make sense in some cases.  For example, the VPS hosting company
+    Linode assigns only one IPv6 address per user (unless they pay)
+    and you can find many Linode machines by scanning certain /112's.
+    And patterns might be useful because people assigned /64's might
+    still put their machines at ::1, ::2, etc.
      o David says: "We need to design a new way to iterate over host
        specifications (i.e., different than nexthost). Because the new
        host discovery code is sometimes going to want whole netblocks
@@ -55,39 +64,40 @@ o FEATURE CREEPERS!  We have two talented GSoC students for summer
        like AAAA::1/48, and then it can decide whether to further
        iterate that into individual addresses, or pass the block off
        to some specialized discovery routine."
-    [Sean and David?]
-  o Investigate ways to limit Winpcap privileges so that only
-    administrative users or a certain accounts can sniff.  Maybe there
-    is a solution people use for Wireshark or does it always cause
-    this issue (allowing any user to sniff the network) when it is
-    installed?  - CACE says they will add a feature to do this.  See
-    this thread: http://seclists.org/nmap-dev/2010/q3/826 
-    [ This might be a good one for Sean or James if they feel that
-    they have the low-level Windows driver programming experience.
-    The idea is to produce a patch that we can then try to convince
-    the WinPcap folks to apply ]
-  o Test a hierarchical classifier for IPv6 OS detection. Our
-    classifier currently treats, for example, some localhost Linux
-    fingerprints as separate classes from remote Linux fingerprints,
-    simply because we lose precision if we lump them together (for
-    example TCP window size differs across certain Linux versions when
-    measured remotely, but not on localhost). This leads to the linear
-    classifier having to use narrow margins between fingerprints that
-    are really very similar. I want to try a tree of classification
-    where each non-leaf node is a separately trained classifier and
-    each leaf node is a final classification. The first layer of the
-    hierarchy would be something like
+
+o Investigate ways to limit Winpcap privileges so that only
+  administrative users or a certain accounts can sniff.  Maybe there
+  is a solution people use for Wireshark or does it always cause this
+  issue (allowing any user to sniff the network) when it is installed?
+  - CACE says they will add a feature to do this.  See this thread:
+  http://seclists.org/nmap-dev/2010/q3/826 [ This might be a good one
+  for Sean or James if they feel that they have the low-level Windows
+  driver programming experience.  The idea is to produce a patch that
+  we can then try to convince the WinPcap folks to apply ]
+
+o Test a hierarchical classifier for IPv6 OS detection. Our classifier
+  currently treats, for example, some localhost Linux fingerprints as
+  separate classes from remote Linux fingerprints, simply because we
+  lose precision if we lump them together (for example TCP window size
+  differs across certain Linux versions when measured remotely, but
+  not on localhost). This leads to the linear classifier having to use
+  narrow margins between fingerprints that are really very similar. I
+  want to try a tree of classification where each non-leaf node is a
+  separately trained classifier and each leaf node is a final
+  classification. The first layer of the hierarchy would be something
+  like
       (linux windows solaris aix ... other)
-    where "linux" would contain *all* the Linux fingerprints in a
-    single class. Lower levels would be like
+  where "linux" would contain *all* the Linux fingerprints in a single
+  class. Lower levels would be like
       (linux-2.4 linux-2.6)
       (windows-xp windows-vista windows-7)
-    Lower levels will include only those fingerprints in their parent
-    class, so we don't even think about Windows when classifying
-    Linux. Probably three or four levels will be sufficient. There may
-    be a principled or automatic way to build this hierarchy, but I
-    suspect playing it by ear will be sufficient. Talk to David for
-    more of his thinking on this topic.
+  Lower levels will include only those fingerprints in their parent
+  class, so we don't even think about Windows when classifying
+  Linux. Probably three or four levels will be sufficient. There may
+  be a principled or automatic way to build this hierarchy, but I
+  suspect playing it by ear will be sufficient. Talk to David for more
+  of his thinking on this topic.
+
 o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
   up to 512x512). Here is a screenshot of the current 48x48 icon on
   GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
@@ -125,9 +135,9 @@ o Investigate WinPcap support for NDIS 6.
 o Consider including OpenSSL in our Nmap tarball
  - Need to check the size, etc.
 
-o NSE WORK (potential work for the NSE GSoC folks -- note that this is
-  mostly infrastructure because script ideas are generally put on the
-  script ideas page instead: https://secwiki.org/w/Nmap_Script_Ideas)
+o NSE WORK (note that this is mostly infrastructure because script
+  ideas are generally put on the script ideas page instead:
+  https://secwiki.org/w/Nmap_Script_Ideas)
   o Change the interface of nmap.send_ip to take an explicit
     destination address. It currently extracts the destination from
     the packet buffer, which does not have enough information to
@@ -136,35 +146,10 @@ o NSE WORK (potential work for the NSE GSoC folks -- note that this is
   o Review NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307. [Henri and Hani?]
 
-o Investigate why http pipelining so often doesn't work in NSE
-  scripts, and often NSE ends up reverting to one request at a time.
-  Scripts may not be using it correctly, and also we wish it were more
-  transparent and there wasn't this big API divide between pipeline
-  and non-pipeline.  We just want it send requests as fast as it can,
-  and get a callback when there's a response.  Maybe the http library
-  buffers them, or pipelines them, or blocks the http.get call until
-  there's more room.  It just seems to always degenerate to 1 request
-  at a time.  For example:
-  sudo nmap --script=http-enum bamsoftware.com -p80 -d2
-  quickly (within a few seconds) gives:
-    NSE: http-enum: Searching for entries under path '' (change with 'http-enum.basepath' argument)
-    NSE: Total number of pipelined requests: 2081
-    NSE: Number of requests allowed by pipeline: 100
-    NSE: Received only 41 of 100 expected responses.
-    Decreasing max pipelined requests to 41.
-    NSE: Received only 1 of 41 expected responses.
-    Decreasing max pipelined requests to 1.
-  100 may a wildly high number of requests to attempt to pipeline.
-  And then something else probably goes wrong after it decides 41 is okay.
-  - Related: Does caching work with pipeleined requests?  We should
-    make sure it does.
-
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Implement some improvements to dns-ip6-arpa.nse, as describe at
   http://seclists.org/nmap-dev/2012/q2/45.
@@ -172,22 +157,6 @@ o Implement some improvements to dns-ip6-arpa.nse, as describe at
   the queries that we know we have to make, and then read any replies
   that may happen to come back. (but still try not to introduce
   inaccuracy (missed hosts) by flooding the network.
-
-o [NPING] Nping should probably give you an error or warning when you
-  do: "nping -p80 google.com" since it is ignoring the port specifier.
-  The user probably wants to add --tcp.
-
-o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
-  killed: Resource temporarily unavailable" with some commands.
-  Example:
-  # nping --tcp -p80 -c1 scanme.nmap.org
-
-  Starting Nping 0.5.61TEST4 ( http://nmap.org/nping ) at 2012-02-16 17:52 PST
-  SENT (0.3307s) TCP 192.168.0.5:42005 > 74.207.244.221:80 S ttl=64 id=23109 iplen=40  seq=1015357225 win=1480
-  RCVD (0.3524s) TCP 74.207.244.221:80 > 192.168.0.5:42005 SA ttl=51 id=0 iplen=44  seq=3197025741 win=14600 <mss 1460>
-  nping_event_handler(): READ-PCAP killed: Resource temporarily unavailable
-  nping_event_handler(): TIMER killed: Resource temporarily unavailable
-  [...]
 
 o Consider making a version of Nmap for Apple's official Mac App
   Store.  A particular concern with the downloadable Mac version of
@@ -198,18 +167,6 @@ o Consider making a version of Nmap for Apple's official Mac App
   requirement for App Store apps starting June 2012.  Will Nmap be
   able to request all the permissions it needs?  Ignoring the
   technical challenges for the moment, what will users prefer?
-
-o Clean up the Nmap repo to remove some bloat we've allowed to creep
-  in.  Should do a more thorough search, but for now here are two
-  obvious candidates:
-  - /nmap/mswin32 should be moved outside of /nmap so that people just
-    wanting to review Nmap source code or compile on UNIX don't get
-    saddled with this.  Of course we'll then have to update the
-    Windows build config/scripts and also the Windows build instructions
-    in install chapter to match the change.  This may also enable us
-    to check in GTK, Glib, etc. so that building on Windows doesn't
-    require installing so many other packages first.
-  - [done] Remove the 5MB of XSL in nping/docs/xsl
 
 o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
@@ -759,6 +716,65 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
+  killed: Resource temporarily unavailable" with some commands.
+  Example:
+  # nping --tcp -p80 -c1 scanme.nmap.org
+
+  Starting Nping 0.5.61TEST4 ( http://nmap.org/nping ) at 2012-02-16 17:52 PST
+  SENT (0.3307s) TCP 192.168.0.5:42005 > 74.207.244.221:80 S ttl=64 id=23109 iplen=40  seq=1015357225 win=1480
+  RCVD (0.3524s) TCP 74.207.244.221:80 > 192.168.0.5:42005 SA ttl=51 id=0 iplen=44  seq=3197025741 win=14600 <mss 1460>
+  nping_event_handler(): READ-PCAP killed: Resource temporarily unavailable
+  nping_event_handler(): TIMER killed: Resource temporarily unavailable
+  [...]
+
+o [NPING] Nping should probably give you an error or warning when you
+  do: "nping -p80 google.com" since it is ignoring the port specifier.
+  The user probably wants to add --tcp.
+
+o Investigate why http pipelining so often doesn't work in NSE
+  scripts, and often NSE ends up reverting to one request at a time.
+  Scripts may not be using it correctly, and also we wish it were more
+  transparent and there wasn't this big API divide between pipeline
+  and non-pipeline.  We just want it send requests as fast as it can,
+  and get a callback when there's a response.  Maybe the http library
+  buffers them, or pipelines them, or blocks the http.get call until
+  there's more room.  It just seems to always degenerate to 1 request
+  at a time.  For example:
+  sudo nmap --script=http-enum bamsoftware.com -p80 -d2
+  quickly (within a few seconds) gives:
+    NSE: http-enum: Searching for entries under path '' (change with 'http-enum.basepath' argument)
+    NSE: Total number of pipelined requests: 2081
+    NSE: Number of requests allowed by pipeline: 100
+    NSE: Received only 41 of 100 expected responses.
+    Decreasing max pipelined requests to 41.
+    NSE: Received only 1 of 41 expected responses.
+    Decreasing max pipelined requests to 1.
+  100 may a wildly high number of requests to attempt to pipeline.
+  And then something else probably goes wrong after it decides 41 is okay.
+  - Related: Does caching work with pipeleined requests?  We should
+    make sure it does.
+ [ OK, the main part of this todo item is done.  Though there is a
+  patch pending from Piotr which changes how pipelining works that
+  is worth considering.  We did fix the underlying pipelining bug, but
+  (just as with most browsers), it isn't enabled by default.  Also, it
+  doesn't support caching. See
+  http://seclists.org/nmap-dev/2012/q3/616. ]
+
+o Make Nmap from a clean start (e.g. after make clean or whatever, so
+  it compiles everything) and research all the compile warnings to see
+  which ones can be fixed/removed.  Of course caution is needed to
+  make sure we don't cause problems.  For example, an unused variable
+  on one platform might not be unused on another, so we can't just
+  remove it.  May have to surround it by ifdefs though.
+
+o Solve "spurious closed port detection" issue discovered by David:
+  http://seclists.org/nmap-dev/2012/q1/62 .  So we need to figure out
+  what is going on here and then how to fix it.  Note that this
+  doesn't seem to happen when you do ICMP host discovery first (-PE),
+  so it probably relates to the ACK packet that Nmap sends to port 80
+  on the target by default.
 
 o Add real headers for more protocol types in -6 -sO scan. Dario
   Ciccarone provided some packet captures for
