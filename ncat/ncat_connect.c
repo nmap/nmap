@@ -113,6 +113,14 @@
 #include <openssl/err.h>
 #endif
 
+#ifdef WIN32
+/* Define missing constant for shutdown(2).
+ * See:
+ * http://msdn.microsoft.com/en-us/library/windows/desktop/ms740481%28v=vs.85%29.aspx
+ */
+#define SHUT_WR SD_SEND
+#endif
+
 struct conn_state {
     nsock_iod sock_nsi;
     nsock_iod stdin_nsi;
@@ -733,6 +741,8 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
         if (o.sendonly) {
             /* In --send-only mode, exit after EOF on stdin. */
             nsock_loop_quit(nsp);
+        } else {
+          shutdown(nsi_getsd(cs.sock_nsi), SHUT_WR);
         }
         return;
     } else if (status == NSE_STATUS_ERROR) {

@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Close connection endpoint when receiving EOF on stdin. [Michal Hlavinka].
+
 o Fixed interface listing on NetBSD. The bug was first noticed by
   Fredrik Pettai and diagnosed by Jan Schaumann. [David Fifield]
 
