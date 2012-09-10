@@ -88,6 +88,8 @@
  *                                                                         *
  ***************************************************************************/
 
+/* $Id$ */
+
 /* The code in this file has tests in the file ncat/tests/test-addrset.sh. Run that
    program after making any big changes. Also, please add tests for any new
    features. */

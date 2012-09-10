@@ -23,6 +23,8 @@
  *  DEALINGS IN THE SOFTWARE.
  */
 
+/* $Id$ */
+
 #ifndef MY_GETOPT_H_INCLUDED
 #define MY_GETOPT_H_INCLUDED
 
