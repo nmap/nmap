@@ -21,7 +21,7 @@ the target to retrieve a web page from www.google.com.
 -- PORT     STATE SERVICE
 -- 8080/tcp open  http-proxy
 -- |  proxy-open-http: Potentially OPEN proxy.
--- |_ Methods succesfully tested: GET HEAD CONNECT
+-- |_ Methods successfully tested: GET HEAD CONNECT
 
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
 -- Changelog: Added explode() function. Header-only matching now works.
@@ -190,7 +190,7 @@ end
 portrule = shortport.port_or_service({8123,3128,8000,8080},{'polipo','squid-http','http-proxy'})
 
 action = function(host, port)
-  local supported_methods = "\nMethods succesfully tested: "
+  local supported_methods = "\nMethods successfully tested: "
   local fstatus = false
   local def_test = true
   local test_url, pattern
