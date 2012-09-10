@@ -98,12 +98,6 @@ o Test a hierarchical classifier for IPv6 OS detection. Our classifier
   suspect playing it by ear will be sufficient. Talk to David for more
   of his thinking on this topic.
 
-o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
-  up to 512x512). Here is a screenshot of the current 48x48 icon on
-  GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
-  o Sean did Windows and Linux icons, and David is going to do the Mac
-    one.
-
 o Update more web content in real time (or near real-time, or at least
   on an automated basis rather than requiring manual checkin and
   update).  In particular:
@@ -716,6 +710,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
+  up to 512x512). Here is a screenshot of the current 48x48 icon on
+  GNOME 3: http://seclists.org/nmap-dev/2012/q2/395.
+  o Sean did Windows and Linux icons, and David did the Mac
+    one.
+
 
 o [NPING] At least on my (Fyodor) system, I get errors like "READ-PCAP
   killed: Resource temporarily unavailable" with some commands.
