@@ -16,7 +16,7 @@ do some tricky escaping and substitution of configuration files.
 
 == zenmap.icns
 The icon file for the bundle. It was created using the Icon Composer
-utility (open -s "Icon Composer").
+utility (open -a "Icon Composer").
 
 == zenmap_auth.c
 This is a simple wrapper program that attempts to run zenmap_wrapper.py
