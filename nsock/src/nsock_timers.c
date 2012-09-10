@@ -1,5 +1,5 @@
 /***************************************************************************
- * nsock_read.c -- This contains the functions for requesting timers       *
+ * nsock_timers.c -- This contains the functions for requesting timers     *
  * from the nsock parallel socket event library                            *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
