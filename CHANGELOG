@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed interface listing on NetBSD. The bug was first noticed by
+  Fredrik Pettai and diagnosed by Jan Schaumann. [David Fifield]
+
 o [Ncat] Applied a blocking-socket workaround for a bug that could
   prevent some sends from working in listen mode. The problem was
   reported by Jonas Wielicki. [Alex Weber, David Fifield]

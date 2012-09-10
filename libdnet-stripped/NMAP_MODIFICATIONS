@@ -1177,3 +1177,25 @@ index 6a32958..973f16c 100644
  	}
  	if (best.base + 2 + best.len == IP6_ADDR_LEN) {
  		*p = '\0';
+
+o Fixed interface listing on platforms where ifr_addr does not take up
+  the whole of struct ifreq.
+
+diff --git libdnet-stripped/src/intf.c libdnet-stripped/src/intf.c
+index 865e500..4fe059c 100644
+--- libdnet-stripped/src/intf.c
++++ libdnet-stripped/src/intf.c
+@@ -64,9 +64,10 @@
+ #endif
+ 
+ #ifdef HAVE_SOCKADDR_SA_LEN
+-# define NEXTIFR(i)	((struct ifreq *)((u_char *)&i->ifr_addr + \
+-				(i->ifr_addr.sa_len ? i->ifr_addr.sa_len : \
+-				 sizeof(i->ifr_addr))))
++# define max(a, b) ((a) > (b) ? (a) : (b))
++# define NEXTIFR(i)	((struct ifreq *) \
++				max((u_char *)i + sizeof(struct ifreq), \
++				(u_char *)&i->ifr_addr + i->ifr_addr.sa_len))
+ #else
+ # define NEXTIFR(i)	(i + 1)
+ #endif
