@@ -130,6 +130,7 @@ hostrule = function(host)
       end
     end
   end
+  if mountport == nil then return false end
   if host.registry.nfs.mountver == nil then
     local low, high = string.match(mountport.version.version, "(%d)-(%d)")
     if high == nil then
