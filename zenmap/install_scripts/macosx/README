@@ -16,8 +16,7 @@ do some tricky escaping and substitution of configuration files.
 
 == zenmap.icns
 The icon file for the bundle. It was created using the Icon Composer
-utility as described at
-http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCTutorial/08Configuring/08Configuring.html
+utility (open -s "Icon Composer").
 
 == zenmap_auth.c
 This is a simple wrapper program that attempts to run zenmap_wrapper.py
