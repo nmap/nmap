@@ -3093,6 +3093,10 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
 
   /* Add rtattrs for destination address and interface. */
   add_rtattr_addr(nlmsg, &rtattr, &len, RTA_DST, dst);
+  if (spoofss != NULL) {
+    /* Add rtattrs for source address and interface. */
+    add_rtattr_addr(nlmsg, &rtattr, &len, RTA_SRC, spoofss);
+  }
 
   iov.iov_base = nlmsg;
   iov.iov_len = nlmsg->nlmsg_len;
