@@ -472,14 +472,11 @@ struct ftpinfo ftp = { FTPUSER, FTPPASS, "", { 0 }, 21, 0};
 
 struct scan_lists ports = { 0 };
 
-/* struct delayed_options is used as a temporary storage place in which options
-   that can't be correctly parsed and interpreted without having full knowledge
-   of all other user supplied command line arguments like -S and -6. Trying to
-   set the source address without knowing the address family first would result
-   in a failure if you pass an ipv6 address and the address family is still ipv4
-   since the ipv6 argument hasn't been read yet and thus you would be forced
-   to put -6 before -S. This is why we use delayed_options and delayed parsing
-   and interpretation of such options in apply_delayed_options(). */
+/* This struct is used is a temporary storage place that holds options that
+   can't be correctly parsed and interpreted before the entire command line has
+   been read. Examples are -6 and -S. Trying to set the source address without
+   knowing the address family first could result in a failure if you pass an
+   IPv6 address and the address family is still IPv4. */
 static struct delayed_options {
 public:
   delayed_options() {
