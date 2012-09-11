@@ -470,6 +470,9 @@ struct ftpinfo ftp = { FTPUSER, FTPPASS, "",  { { { 0 } } } , 21, 0};
 struct ftpinfo ftp = { FTPUSER, FTPPASS, "", { 0 }, 21, 0};
 #endif
 
+/* A list of targets to be displayed by the --route-dst debugging option. */
+static std::vector<std::string> route_dst_hosts;
+
 struct scan_lists ports = { 0 };
 
 /* This struct is used is a temporary storage place that holds options that
@@ -927,26 +930,9 @@ void parse_options(int argc, char **argv) {
         } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
           o.implicitARPPing = false;
         } else if (optcmp(long_options[option_index].name, "route-dst") == 0) {
-          struct sockaddr_storage ss;
-          struct route_nfo rnfo;
-          size_t sslen;
-
-          if (!resolve(optarg, 0, 0, &ss, &sslen, 0))
-            fatal("Can't resolve %s.", optarg);
-
-          printf("%s\n", inet_ntop_ez(&ss, sslen));
-
-          if (!route_dst(&ss, &rnfo, o.device, o.SourceSockAddr())) {
-            printf("Can't route %s (%s).", optarg, inet_ntop_ez(&ss, sslen));
-          } else {
-            printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
-            printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
-            if (rnfo.direct_connect)
-              printf(" direct");
-            else
-              printf(" nexthop %s", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
-          }
-          printf("\n");
+	  /* The --route-dst debugging option: push these on a list to be
+	     resolved later after options like -6 and -S have been parsed. */
+          route_dst_hosts.push_back(optarg);
         } else {
           fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
         }
@@ -1639,6 +1625,30 @@ int nmap_main(int argc, char *argv[]) {
 #ifdef WIN32
   win_init();
 #endif
+
+  for (unsigned int i = 0; i < route_dst_hosts.size(); i++) {
+    struct sockaddr_storage ss;
+    struct route_nfo rnfo;
+    size_t sslen;
+
+    if (!resolve(route_dst_hosts[i].c_str(), 0, 0, &ss, &sslen, o.af()))
+      fatal("Can't resolve %s.", optarg);
+
+    printf("%s\n", inet_ntop_ez(&ss, sslen));
+
+    if (!route_dst(&ss, &rnfo, o.device, o.SourceSockAddr())) {
+      printf("Can't route %s (%s).", optarg, inet_ntop_ez(&ss, sslen));
+    } else {
+      printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
+      printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
+      if (rnfo.direct_connect)
+	printf(" direct");
+      else
+	printf(" nexthop %s", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
+    }
+    printf("\n");
+  }
+  route_dst_hosts.clear();
 
   if (delayed_options.iflist) {
     print_iflist();
