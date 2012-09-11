@@ -2990,6 +2990,66 @@ static int set_sockaddr(struct sockaddr_storage *ss, int af, void *data) {
   return 0;
 }
 
+/* Add rtattrs to a netlink message specifying a source or destination address.
+   rta_type must be RTA_SRC or RTA_DST. This function adds either 1 or 2
+   rtattrs: it always adds either an RTA_SRC or RTA_DST, depending on rta_type.
+   It also adds either RTA_IIF or RTA_OIF if the address family is AF_INET6 and
+   the sockaddr_in6 has a non-zero sin6_scope_id. */
+static void add_rtattr_addr(struct nlmsghdr *nlmsg,
+                            struct rtattr **rtattr, unsigned int *len,
+                            unsigned char rta_type,
+                            const struct sockaddr_storage *ss) {
+  struct rtmsg *rtmsg;
+  const void *addr;
+  size_t addrlen;
+  int ifindex;
+
+  assert(rta_type == RTA_SRC || rta_type == RTA_DST);
+
+  ifindex = 0;
+
+  if (ss->ss_family == AF_INET) {
+    addr = &((struct sockaddr_in *) ss)->sin_addr.s_addr;
+    addrlen = IP_ADDR_LEN;
+  } else if (ss->ss_family == AF_INET6) {
+    const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
+
+    addr = sin6->sin6_addr.s6_addr;
+    addrlen = IP6_ADDR_LEN;
+    ifindex = sin6->sin6_scope_id;
+  } else {
+    netutil_fatal("%s: unknown address family %d", __func__, ss->ss_family);
+  }
+
+  rtmsg = (struct rtmsg *) (nlmsg + 1);
+  if (rta_type == RTA_SRC)
+    rtmsg->rtm_src_len = addrlen * 8;
+  else
+    rtmsg->rtm_dst_len = addrlen * 8;
+
+  /* Add an rtattr for the address. */
+  (*rtattr)->rta_type = rta_type;
+  (*rtattr)->rta_len = RTA_LENGTH(addrlen);
+  assert(RTA_OK(*rtattr, *len));
+  memcpy(RTA_DATA(*rtattr), addr, addrlen);
+  nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + (*rtattr)->rta_len;
+  *rtattr = RTA_NEXT(*rtattr, len);
+
+  /* Specific interface (sin6_scope_id) requested? */
+  if (ifindex > 0) {
+    /* Add an rtattr for the interface. */
+    if (rta_type == RTA_SRC)
+      (*rtattr)->rta_type = RTA_IIF;
+    else
+      (*rtattr)->rta_type = RTA_OIF;
+    (*rtattr)->rta_len = RTA_LENGTH(sizeof(uint32_t));
+    assert(RTA_OK(*rtattr, *len));
+    *(uint32_t *) RTA_DATA(*rtattr) = ifindex;
+    nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + (*rtattr)->rta_len;
+    *rtattr = RTA_NEXT(*rtattr, len);
+  }
+}
+
 /* Does route_dst using the Linux-specific rtnetlink interface. See rtnetlink(3)
    and rtnetlink(7). */
 static int route_dst_netlink(const struct sockaddr_storage *dst,
@@ -3002,25 +3062,8 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   struct rtmsg *rtmsg;
   struct rtattr *rtattr;
   unsigned char buf[512];
-  const void *addr;
-  size_t addrlen;
-  int ifindex;
-  int fd, rc, len;
-
-  ifindex = 0;
-
-  if (dst->ss_family == AF_INET) {
-    addr = &((struct sockaddr_in *) dst)->sin_addr.s_addr;
-    addrlen = IP_ADDR_LEN;
-  } else if (dst->ss_family == AF_INET6) {
-    const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) dst;
-
-    addr = sin6->sin6_addr.s6_addr;
-    addrlen = IP6_ADDR_LEN;
-    ifindex = sin6->sin6_scope_id;
-  } else {
-    netutil_fatal("%s: unknown address family %d", __func__, dst->ss_family);
-  }
+  unsigned int len;
+  int fd, rc;
 
   fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
   if (fd == -1)
@@ -3044,28 +3087,12 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
 
   rtmsg = (struct rtmsg *) (nlmsg + 1);
   rtmsg->rtm_family = dst->ss_family;
-  rtmsg->rtm_dst_len = addrlen * 8;
 
   rtattr = RTM_RTA(rtmsg);
-  len = sizeof(buf) - ((unsigned char *) rtattr - buf);
+  len = sizeof(buf) - ((unsigned char *) RTM_RTA(rtmsg) - buf);
 
-  /* Add an rtattr for destination address. */
-  rtattr->rta_type = RTA_DST;
-  rtattr->rta_len = RTA_LENGTH(addrlen);
-  assert(RTA_OK(rtattr, len));
-  memcpy(RTA_DATA(rtattr), addr, addrlen);
-  nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + rtattr->rta_len;
-
-  /* Specific interface (sin6_scope_id) requested? */
-  if (ifindex > 0) {
-    /* Add an rtattr for outgoing interface. */
-    rtattr = RTA_NEXT(rtattr, len);
-    rtattr->rta_type = RTA_OIF;
-    rtattr->rta_len = RTA_LENGTH(sizeof(uint32_t));
-    assert(RTA_OK(rtattr, len));
-    *(uint32_t *) RTA_DATA(rtattr) = ifindex;
-    nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + rtattr->rta_len;
-  }
+  /* Add rtattrs for destination address and interface. */
+  add_rtattr_addr(nlmsg, &rtattr, &len, RTA_DST, dst);
 
   iov.iov_base = nlmsg;
   iov.iov_len = nlmsg->nlmsg_len;
