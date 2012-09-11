@@ -3138,14 +3138,14 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   struct interface_info *ii;
   ii = NULL;
   if (device != NULL && device[0] != '\0') {
-    ii = getInterfaceByName(device, rtmsg->rtm_family);
+    ii = getInterfaceByName(device, dst->ss_family);
     if (ii == NULL)
       netutil_fatal("Could not find interface %s which was specified by -e", device);
   }
 
   for (rtattr = RTM_RTA(rtmsg); RTA_OK(rtattr, len); rtattr = RTA_NEXT(rtattr, len)) {
     if (rtattr->rta_type == RTA_GATEWAY) {
-      rc = set_sockaddr(&rnfo->nexthop, rtmsg->rtm_family, RTA_DATA(rtattr));
+      rc = set_sockaddr(&rnfo->nexthop, dst->ss_family, RTA_DATA(rtattr));
       assert(rc != -1);
       /* Don't consider it directly connected if nexthop != dst. */
       if (!sockaddr_storage_equal(dst, &rnfo->nexthop))
@@ -3158,11 +3158,11 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
       intf_index = *(int *) RTA_DATA(rtattr);
       p = if_indextoname(intf_index, namebuf);
       assert(p != NULL);
-      ii = getInterfaceByName(namebuf, rtmsg->rtm_family);
+      ii = getInterfaceByName(namebuf, dst->ss_family);
       if (ii == NULL)
         netutil_fatal("%s: can't find interface \"%s\"", __func__, namebuf);
     } else if (rtattr->rta_type == RTA_PREFSRC && rnfo->srcaddr.ss_family == AF_UNSPEC) {
-      rc = set_sockaddr(&rnfo->srcaddr, rtmsg->rtm_family, RTA_DATA(rtattr));
+      rc = set_sockaddr(&rnfo->srcaddr, dst->ss_family, RTA_DATA(rtattr));
       assert(rc != -1);
     }
   }
