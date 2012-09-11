@@ -88,8 +88,8 @@ local isRPC = function(host, port)
         end
 
         -- And check response
-        _, data = rpcConn:ReceivePacket()
-        if not data then
+        status, data = rpcConn:ReceivePacket()
+        if not status then
             stdnse.print_debug("%s: isRPC didn't receive response.", SCRIPT_NAME)
             return
         else

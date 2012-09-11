@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug in rpc-grind.nse that would cause unresponsive UDP
+  ports to be wrongly marked open. This was reported by Christopher
+  Clements. [David Fifield]
+
 o [Ncat] Close connection endpoint when receiving EOF on stdin. [Michal Hlavinka].
 
 o Fixed interface listing on NetBSD. The bug was first noticed by
