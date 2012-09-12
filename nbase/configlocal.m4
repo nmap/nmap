@@ -97,9 +97,9 @@ int main(void) {
                         hbuf, 256, NULL, 0,
                         NI_NUMERICHOST);
     if (error) {
-        exit(1);
+        return 1;
     } else {
-        exit(0);
+        return 0;
     }
 }
 ],[
