@@ -200,7 +200,6 @@ action = function(host, port)
 
   if (not (check_open_tftp(host, port))) then
     stdnse.print_debug(1, "tftp seems not active")
-    nmap.set_port_state(host, port, "closed")
     return
   end
 
