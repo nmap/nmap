@@ -80,6 +80,9 @@ AC_DEFUN(APR_CHECK_WORKING_GETNAMEINFO,[
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
 
 int main(void) {
     struct sockaddr_in sa;
