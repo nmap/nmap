@@ -149,6 +149,11 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+
+#if HAVE_SYS_SELECT_H
+#include <sys/select.h>
+#endif
+
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif

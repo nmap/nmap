@@ -3685,7 +3685,7 @@ fi
 done
 
 
-for ac_header in string.h getopt.h strings.h sys/param.h sys/time.h unistd.h errno.h sys/types.h sys/socket.h netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h fcntl.h sys/resource.h inttypes.h mach-o/dyld.h
+for ac_header in string.h getopt.h strings.h sys/param.h sys/time.h unistd.h errno.h sys/select.h sys/types.h sys/socket.h netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h fcntl.h sys/resource.h inttypes.h mach-o/dyld.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"

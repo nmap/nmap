@@ -70,7 +70,7 @@ esac
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS( string.h getopt.h strings.h sys/param.h sys/time.h unistd.h errno.h sys/types.h sys/socket.h netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h fcntl.h sys/resource.h inttypes.h mach-o/dyld.h)
+AC_CHECK_HEADERS( string.h getopt.h strings.h sys/param.h sys/time.h unistd.h errno.h sys/select.h sys/types.h sys/socket.h netinet/in.h arpa/inet.h sys/stat.h netdb.h sys/wait.h fcntl.h sys/resource.h inttypes.h mach-o/dyld.h)
 AC_HEADER_TIME
 dnl A special check required for <net/if.h> on Darwin. See
 dnl http://www.gnu.org/software/autoconf/manual/html_node/Header-Portability.html.

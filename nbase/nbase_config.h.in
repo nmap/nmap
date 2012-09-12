@@ -138,6 +138,8 @@
 
 #undef HAVE_SYS_PARAM_H
 
+#undef HAVE_SYS_SELECT_H
+
 #undef HAVE_SYS_SOCKIO_H
 
 #undef HAVE_SYS_SOCKET_H
