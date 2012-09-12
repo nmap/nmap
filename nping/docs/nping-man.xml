@@ -3104,7 +3104,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
            are sent in one round. So if you specify <option>-c 100</option>, Nping will
            loop over the different target hosts and ports 100 times, sending
            a total of 256&thinsp;&times;&thinsp;2&thinsp;&times;&thinsp;100&nbsp;=&nbsp;51200 packets. By default Nping runs for
-           5 rounds. If a value of 0 is specified, Nping will run for 2<superscript>32</superscript> rounds.
+           5 rounds. If a value of 0 is specified, Nping will run continuously.
         </para>
         </listitem>
       </varlistentry>
