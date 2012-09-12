@@ -180,6 +180,11 @@ o Install some sort of svnview webapp for svn.nmap.org which is
 
 o Process Nmap survey and send out results [Fyodor]
 
+o Nping (we think) will stop after 2^32 rounds even when "-c 0" is
+  given.  We should probably make this a 64-bit integrer so that "-c
+  0" will go essentially forever and so that users can give values
+  higher than 4 billion.
+
 o Add CPE entries to the service detection DB entries which don't yet
   have them.
 
