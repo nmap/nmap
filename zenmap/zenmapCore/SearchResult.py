@@ -547,27 +547,3 @@ class SearchResultTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-#    s = SearchDir("/home/adriano/umit/test", ["usr", "xml"])
-#    for result in s.search(\
-#                             keyword="",
-                             #profile="",
-                             #option="",
-                             #started="1121737119",
-                             #finished="1121737192",
-                             #target="10.0.0.100-180",
-                             #mac=":",
-                             #ipv4="10.0.0.150",
-                             #ipv6="",
-                             #uptime=209980,
-                             # lastboot="", MUST BE REMOVED FROM THE UI!
-                             #port=["22", "80"],
-                             #port_open="",
-                             #port_filtered="",
-                             #port_closed="",
-                             #service="",
-                             #osmatch="gentoo",
-                             #product="Apache"\
-#                           ):
-
-#        print "Ports:", result.hosts[-1].ports
-
