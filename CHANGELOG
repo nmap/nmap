@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added http fingerprints for Sitecore CMS. [Jesper Kückelhahn]
+
 o Increased portability of configure scripts on systems using a libc
   other than Glibc. Several problems were reported by John Spencer.
 

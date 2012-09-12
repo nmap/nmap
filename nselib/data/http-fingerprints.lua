@@ -2559,6 +2559,14 @@ table.insert(fingerprints, {
       {
         path = '/admin_cp.asp',
         method = 'HEAD'
+      },
+      {
+      	path = '/sitecore/admin/',
+      	method = 'HEAD'
+      },
+      {
+      	path = '/sitecore/login/admin/',
+      	method = 'HEAD'
       }
     },
     matches = {
@@ -11410,3 +11418,30 @@ table.insert(fingerprints, {
     }
   });
 
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/sitecore/shell/sitecore.version.xml',
+        method = 'GET'
+      },
+      {
+      	path = '/sitecore/login/default.aspx',
+      	method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '<major>([^<]*)</major>.*<minor>([^<]*)</minor>.*<build>([^<]*)</build>.*<revision>([^<]*)</revision>',
+        output = '\\1.\\2.\\3 (rev. \\4)'
+      },
+      {
+      	match = 'class="SystemInformationDivider">.*Sitecore.NET ([^<]*)</div>',
+      	output = '\\1'
+      },
+      {
+      	match = '<hr/>.*Sitecore version ([^<]*)</div>',
+      	output = '\\1'
+      }
+    }
+  });
