@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Increased portability of configure scripts on systems using a libc
+  other than Glibc. Several problems were reported by John Spencer.
+
 o [NSE] Fixed a bug in rpc-grind.nse that would cause unresponsive UDP
   ports to be wrongly marked open. This was reported by Christopher
   Clements. [David Fifield]
