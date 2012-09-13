@@ -405,6 +405,10 @@ Makefile: Makefile.in config.status
 config.status: configure
 	./config.status --recheck
 
+# Run the lua-format program to fix formatting of NSE files.
+lua-format:
+	./docs/style/lua-format -i scripts/*.nse
+
 makefile.dep:
 	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
 include makefile.dep
@@ -426,3 +430,5 @@ smb-serverstats smb-systeminfo SMTPcommands SMTP_openrelay_test \
 smtp-check-vulns SNMPcommunitybrute SNMPsysdescr SQLInject SSH-hostkey \
 SSHv1-support SSLv2-support strangeSMTPport UPnP-info xamppDefaultPass \
 zoneTrans db2-info db2-brute html-title robots.txt xmpp sql-injection)
+
+.PHONY: lua-format
