@@ -5,6 +5,13 @@ o Investigate/fix potential routing-related issue.  See emails from
   http://seclists.org/nmap-dev/2012/q3/4,
   http://seclists.org/nmap-dev/2012/q2/449
 
+o Even without the --osscan-guess flag, Nmap should show the closest
+  matches (if they pass our threshold) in the XML output.  We omit
+  them from the normal output in large part to encourage people to
+  submit fingerprints, but that argument doesn't apply so well to XML
+  output users.  Normal output users who really want to see the Nmap
+  guesses could still use --osscan-guess as before.
+
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
   obvious candidates:
