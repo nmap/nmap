@@ -200,7 +200,11 @@ class SearchResult(object):
         """A helper function that calls the matching function for the given
         operator and each of its arguments."""
         for arg in args:
-            if not self.__getattribute__("match_%s" % operator)(arg):
+            positive = True
+            if arg != "" and arg[0] == "!":
+                arg = arg[1:]
+                positive = False
+            if positive != self.__getattribute__("match_%s" % operator)(arg):
                 # No match for this operator
                 return False
         else:
