@@ -137,7 +137,7 @@ function date_to_string(date)
     if type(date) == "string" then
         return string.format("Can't parse; string is \"%s\"", date)
     else
-        return os.date("%Y-%m-%d %H:%M:%S", os.time(date))
+        return stdnse.format_timestamp(stdnse.date_to_timestamp(date, 0), 0)
     end
 end
 
@@ -190,7 +190,11 @@ local function output_tab(cert)
     o.pubkey = cert.pubkey
     o.validity = {}
     for k, v in pairs(cert.validity) do
-      o.validity[k] = stdnse.format_timestamp(stdnse.date_to_timestamp(v, 0), 0)
+      if type(v)=="string" then
+        o.validity[k] = v
+      else
+        o.validity[k] = stdnse.format_timestamp(stdnse.date_to_timestamp(v, 0), 0)
+      end
     end
     o.md5 = stdnse.tohex(cert:digest("md5"))
     o.sha1 = stdnse.tohex(cert:digest("sha1"))
