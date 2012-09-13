@@ -43,6 +43,10 @@ o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
 
+o NSE digest auth should use the more robust parsing from
+  http.parse_www_authenticate as described at
+  http://seclists.org/nmap-dev/2012/q3/868
+ 
 o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
   so that new script writers know about it.
