@@ -106,7 +106,7 @@ from zenmapCore.UmitLogging import log
 class HostSearch(object):
     @staticmethod
     def match_target(host, name):
-        addrs = []
+        name = name.lower()
         mac = host.get_mac()
         ip = host.get_ip()
         ipv6 = host.get_ipv6()
@@ -123,6 +123,7 @@ class HostSearch(object):
         return False
     @staticmethod
     def match_hostname(host, hostname):
+        hostname = hostname.lower()
         hostnames = host.get_hostnames()
         for hn in hostnames:
             if hostname in hn['hostname'].lower():
@@ -146,19 +147,18 @@ class HostSearch(object):
     @staticmethod
     def match_os(host, os):
         os = os.lower()
-        os_str = ""
 
         osmatches = host.get_osmatches()
 
         for osmatch in osmatches:
-            os_str += osmatch['name'].lower()
+            os_str = osmatch['name'].lower()
             for osclass in osmatch['osclasses']:
-                os_str += osclass['vendor'].lower() + " " +\
+                os_str += " " + osclass['vendor'].lower() + " " +\
                           osclass['osfamily'].lower() + " " +\
                           osclass['type'].lower()
+            if os in os_str:
+                return True
 
-        if os in os_str:
-            return True
         return False
     @staticmethod
     def match_port(host_ports, port, port_state):
@@ -169,8 +169,8 @@ class HostSearch(object):
         for hp in host_ports:
             if hp['portid'] == port and hp['port_state'] == port_state:
                 return True
-        else:
-            return False
+
+        return False
 
 class SearchResult(object):
     def __init__(self):
@@ -325,7 +325,6 @@ class SearchResult(object):
         # search just greps through the nmap output, while this function iterates
         # through all parsed OS-related values for every host in every scan!
         hosts = self.parsed_scan.get_hosts()
-        os = os.lower()
         for host in hosts:
             if HostSearch.match_os(host, os):
                 return True
@@ -346,7 +345,7 @@ class SearchResult(object):
         # Make a list of all scanned ports
         services = []
         for scaninfo in self.parsed_scan.get_scaninfo():
-            services = services + scaninfo["services"].split(",")
+            services.append( scaninfo["services"].split(",") )
 
         # These two loops iterate over search ports and over scanned ports. As soon as
         # the search finds a given port among the scanned ports, it breaks from the services
@@ -404,7 +403,6 @@ class SearchResult(object):
         if sversion == "" or sversion == "*":
             return True
 
-        versions = []
         for host in self.parsed_scan.get_hosts():
             if HostSearch.match_service(host, sversion):
                 return True
@@ -414,6 +412,7 @@ class SearchResult(object):
     def match_in_route(self, host):
         if host == "" or host == "*":
             return True
+        host = host.lower()
 
         # Since the parser doesn't parse traceroute output, we need to cheat and look
         # the host up in the Nmap output, in the Traceroute section of the scan.
@@ -429,7 +428,7 @@ class SearchResult(object):
                 traceroutes.append(nmap_out[tr_pos:tr_end_pos])
 
         for tr in traceroutes:
-            if host.lower() in tr.lower():
+            if host in tr.lower():
                 return True
         else:
             return False
