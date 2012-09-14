@@ -729,13 +729,13 @@ void parse_options(int argc, char **argv) {
           if (o.scanflags < 0) {
             fatal("--scanflags option must be a number between 0 and 255 (inclusive) or a string like \"URGPSHFIN\".");
           }
-        } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
+        } else if (strcmp(long_options[option_index].name, "iflist") == 0) {
           delayed_options.iflist = true;
-        } else if (strcmp(long_options[option_index].name, "nogcc") == 0 ) {
+        } else if (strcmp(long_options[option_index].name, "nogcc") == 0) {
           o.nogcc = 1;
-        } else if (optcmp(long_options[option_index].name, "release-memory") == 0 ) {
+        } else if (optcmp(long_options[option_index].name, "release-memory") == 0) {
           o.release_memory = true;
-        } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {
+        } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0) {
           o.min_parallelism = atoi(optarg);
           if (o.min_parallelism < 1)
             fatal("Argument to --min-parallelism must be at least 1!");
@@ -822,7 +822,7 @@ void parse_options(int argc, char **argv) {
           o.extra_payload_length = (int)strtol(optarg, NULL, 10);
           if (o.extra_payload_length < 0 || o.extra_payload_length > MAX_PAYLOAD_ALLOWED)
             fatal("data-length must be between 0 and %d", MAX_PAYLOAD_ALLOWED);
-          if (o.extra_payload_length > 1400 ) /* 1500 - IP with opts - TCP with opts. */
+          if (o.extra_payload_length > 1400) /* 1500 - IP with opts - TCP with opts. */
             error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
           o.extra_payload = (char *) safe_malloc(MAX(o.extra_payload_length, 1));
           get_random_bytes(o.extra_payload, o.extra_payload_length);
@@ -904,7 +904,7 @@ void parse_options(int argc, char **argv) {
             fatal("--top-ports should be an integer 1 or greater");
         } else if (optcmp(long_options[option_index].name, "ip-options") == 0) {
           o.ipoptions    = (u8*) safe_malloc(4 * 10 + 1);
-          if ( (o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4 * 10 + 1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr))) == OP_FAILURE )
+          if ( (o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4 * 10 + 1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr))) == OP_FAILURE)
             fatal("%s", errstr);
           if (o.ipoptionslen > 4 * 10)
             fatal("Ip options can't be more than 40 bytes long");
@@ -956,7 +956,7 @@ void parse_options(int argc, char **argv) {
       break;
     case 'b':
       o.bouncescan++;
-      if (parse_bounce_argument(&ftp, optarg) < 0 ) {
+      if (parse_bounce_argument(&ftp, optarg) < 0) {
         fatal("Your argument to -b is b0rked. Use the normal url style:  user:pass@server:port or just use server and use default anon login\n  Use -h for help");
       }
       break;
@@ -996,7 +996,7 @@ void parse_options(int argc, char **argv) {
           /* Try to resolve it */
           struct sockaddr_in decoytemp;
           size_t decoytemplen = sizeof(struct sockaddr_in);
-          if ( resolve(p, 0, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET) == 1 ) {
+          if ( resolve(p, 0, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET) == 1) {
             o.decoys[o.numdecoys] = decoytemp.sin_addr;
             o.numdecoys++;
           } else {
@@ -1417,7 +1417,7 @@ void  apply_delayed_options() {
   log_write(LOG_STDOUT | LOG_SKID, "\nStarting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
   if (o.verbose) {
     if (local_time->tm_mon == 8 && local_time->tm_mday == 1) {
-      log_write(LOG_STDOUT | LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", local_time->tm_year - 97, local_time->tm_year + 3 );
+      log_write(LOG_STDOUT | LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", local_time->tm_year - 97, local_time->tm_year + 3);
     } else if (local_time->tm_mon == 11 && local_time->tm_mday == 25) {
       log_write(LOG_STDOUT | LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
     }
@@ -2906,7 +2906,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   sock.sin_addr.s_addr = ftp->server.s_addr;
   sock.sin_port = htons(ftp->port);
   res = connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in));
-  if (res < 0 )
+  if (res < 0)
     fatal("Your FTP bounce proxy server won't talk to us!");
   if (o.verbose || o.debugging)
     log_write(LOG_STDOUT, "Connected:");
