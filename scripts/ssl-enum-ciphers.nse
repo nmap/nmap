@@ -589,7 +589,7 @@ cipherstrength = {
 }
 
 local rankedciphers={}
-local mincipherstrength=3
+local mincipherstrength=9999 --artificial "highest value"
 local rankedciphersfilename=false
 local policy=true
 
@@ -892,8 +892,9 @@ local function find_ciphers(host, port, protocol)
 				table.insert(results, name)
 			end
 		end
-    if protocol_worked == nil then break end
+    if protocol_worked == nil then return nil end
   end
+  if not protocol_worked then return nil end
 
   return results
 end
@@ -959,10 +960,20 @@ local function try_protocol(host, port, protocol, upresults)
 
 	-- Find all valid ciphers.
 	ciphers = find_ciphers(host, port, protocol)
-	if #ciphers == 0 then
+	if ciphers == nil then
+		condvar "signal"
+		return nil
+	end
+  
+  if #ciphers == 0 then
+    results = {ciphers={},compressors={}}
+    setmetatable(results,{
+      __tostring=function(t) return "No supported ciphers found" end
+    })
+    upresults[protocol] = results
     condvar "signal"
     return nil
-	end
+  end
 	-- Find all valid compression methods.
 	compressors = find_compressors(host, port, protocol, ciphers[1])
 
@@ -1088,6 +1099,10 @@ action = function(host, port)
       condvar "wait"
     end
   until next(threads) == nil
+
+  if #( keys(results) ) == 0 then
+    return nil
+  end
 
 	if rankedciphersfilename then
 		for k, v in pairs(cipherstrength) do
