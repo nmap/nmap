@@ -773,7 +773,7 @@ function ethernet_close()
 -- @usage dnet:ip_open()
 function ip_open()
 
---- Sends a raw IPv4 packet.
+--- Sends a raw IPv4 or IPv6 packet.
 --
 -- The dnet object must be associated with a previously opened socket. The
 -- packet must begin with an IP header. If there was no previous valid call
