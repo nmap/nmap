@@ -3035,7 +3035,7 @@ static void add_rtattr_addr(struct nlmsghdr *nlmsg,
   assert(RTA_OK(*rtattr, *len));
   memcpy(RTA_DATA(*rtattr), addr, addrlen);
   nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + (*rtattr)->rta_len;
-  *rtattr = RTA_NEXT(*rtattr, len);
+  *rtattr = RTA_NEXT(*rtattr, *len);
 
   /* Specific interface (sin6_scope_id) requested? */
   if (ifindex > 0) {
@@ -3048,7 +3048,7 @@ static void add_rtattr_addr(struct nlmsghdr *nlmsg,
     assert(RTA_OK(*rtattr, *len));
     *(uint32_t *) RTA_DATA(*rtattr) = ifindex;
     nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + (*rtattr)->rta_len;
-    *rtattr = RTA_NEXT(*rtattr, len);
+    *rtattr = RTA_NEXT(*rtattr, *len);
   }
 }
 
