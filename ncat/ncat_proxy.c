@@ -425,7 +425,7 @@ static int handle_connect(struct socket_buffer *client_sock,
 {
     union sockaddr_u su;
     size_t sslen = sizeof(su.storage);
-    int maxfd, s;
+    int maxfd, s, rc;
     char *line;
     size_t len;
     fd_set m, r;
@@ -438,9 +438,12 @@ static int handle_connect(struct socket_buffer *client_sock,
     if (o.debug > 1)
         logdebug("CONNECT to %s:%hu.\n", request->uri.host, request->uri.port);
 
-    if (resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af) != 0) {
-        if (o.debug)
-            logdebug("Can't resolve name %s.\n", request->uri.host);
+    rc = resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af);
+    if (rc != 0) {
+        if (o.debug) {
+            logdebug("Can't resolve name \"%s\": %s.\n",
+		request->uri.host, gai_strerror(rc));
+	}
         return 504;
     }
 
@@ -530,7 +533,7 @@ static int handle_method(struct socket_buffer *client_sock,
     union sockaddr_u su;
     size_t sslen = sizeof(su.storage);
     int code;
-    int s;
+    int s, rc;
 
     if (strcmp(request->uri.scheme, "http") != 0) {
         if (o.verbose)
@@ -543,9 +546,12 @@ static int handle_method(struct socket_buffer *client_sock,
         return 400;
     }
 
-    if (resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af) != 0) {
-        if (o.debug)
-            logdebug("Can't resolve name %s:%d.\n", request->uri.host, request->uri.port);
+    rc = resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af);
+    if (rc != 0) {
+        if (o.debug) {
+            logdebug("Can't resolve name %s:%d: %s.\n",
+                request->uri.host, request->uri.port, gai_strerror(rc));
+        }
         return 504;
     }
 

@@ -125,6 +125,7 @@ static void parseproxy(char *str, struct sockaddr_storage *ss, unsigned short de
     int httpproxy = (defport == DEFAULT_PROXY_PORT);
     unsigned short portno;
     size_t sslen;
+    int rc;
 
     ptr = str;
 
@@ -136,8 +137,9 @@ static void parseproxy(char *str, struct sockaddr_storage *ss, unsigned short de
     else
         portno = defport;
 
-    if (resolve(ptr, portno, ss, &sslen, o.af) != 0) {
-        loguser("Could not resolve proxy \"%s\".\n", ptr);
+    rc = resolve(ptr, portno, ss, &sslen, o.af);
+    if (rc != 0) {
+        loguser("Could not resolve proxy \"%s\": %s.\n", ptr, gai_strerror(rc));
         if (o.af == AF_INET6 && httpproxy)
             loguser("Did you specify the port number? It's required for IPv6.\n");
         exit(EXIT_FAILURE);
@@ -317,8 +319,13 @@ int main(int argc, char *argv[])
             do {
                 union sockaddr_u addr;
                 size_t sslen;
-                if (resolve(a, 0, &addr.storage, &sslen, AF_INET) != 0)
-                    bye("Sorry, could not resolve source route hop %s.", a);
+                int rc;
+
+                rc = resolve(a, 0, &addr.storage, &sslen, AF_INET);
+                if (rc != 0) {
+                    bye("Sorry, could not resolve source route hop \"%s\": %s.",
+                    a, gai_strerror(rc));
+                }
                 o.srcrtes[o.numsrcrtes] = addr.in.sin_addr;
             } while (o.numsrcrtes++ <= 8 && (a = strtok(NULL, ",")));
             if (o.numsrcrtes > 8)
@@ -575,11 +582,14 @@ int main(int argc, char *argv[])
 
     /* Resolve the given source address */
     if (source) {
+        int rc;
+
         if (o.listen)
             bye("-l and -s are incompatible.  Specify the address and port to bind to like you would a host to connect to.");
 
-        if (resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af) != 0)
-            bye("Could not resolve source address %s.", source);
+        rc = resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af);
+        if (rc != 0)
+            bye("Could not resolve source address \"%s\": %s.", source, gai_strerror(rc));
     }
 
     host_list_to_set(&o.allowset, allow_host_list);
@@ -594,10 +604,13 @@ int main(int argc, char *argv[])
     } else {
         /* Resolve hostname if we're given one */
         if (strspn(argv[optind], "0123456789") != strlen(argv[optind])) {
+            int rc;
+
             o.target = argv[optind];
             /* resolve hostname */
-            if (resolve(o.target, 0, &targetss.storage, &targetsslen, o.af) != 0)
-                bye("Could not resolve hostname %s.", o.target);
+            rc = resolve(o.target, 0, &targetss.storage, &targetsslen, o.af);
+            if (rc != 0)
+                bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
             optind++;
         } else {
             if (!o.listen)
@@ -759,7 +772,7 @@ static int ncat_listen_mode(void)
             ss_len = sizeof(listenaddrs[num_listenaddrs]);
             rc = resolve("::", o.portno, &listenaddrs[num_listenaddrs].storage, &ss_len, AF_INET6);
             if (rc != 0)
-                bye("Failed to resolve default IPv6 address.");
+                bye("Failed to resolve default IPv6 address: %s.", gai_strerror(rc));
             num_listenaddrs++;
         }
 #endif
@@ -767,7 +780,7 @@ static int ncat_listen_mode(void)
             ss_len = sizeof(listenaddrs[num_listenaddrs]);
             rc = resolve("0.0.0.0", o.portno, &listenaddrs[num_listenaddrs].storage, &ss_len, AF_INET);
             if (rc != 0)
-                bye("Failed to resolve default IPv4 address.");
+                bye("Failed to resolve default IPv4 address: %s.", gai_strerror(rc));
             num_listenaddrs++;
         }
     }

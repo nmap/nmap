@@ -996,12 +996,11 @@ void parse_options(int argc, char **argv) {
           /* Try to resolve it */
           struct sockaddr_in decoytemp;
           size_t decoytemplen = sizeof(struct sockaddr_in);
-          if (resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET) == 0) {
-            o.decoys[o.numdecoys] = decoytemp.sin_addr;
-            o.numdecoys++;
-          } else {
-            fatal("Failed to resolve decoy host: %s (must be hostname or IP address)", p);
-          }
+          int rc = resolve(p, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET);
+          if (rc != 0)
+            fatal("Failed to resolve decoy host \"%s\": %s", p, gai_strerror(rc));
+          o.decoys[o.numdecoys] = decoytemp.sin_addr;
+          o.numdecoys++;
         }
         if (q) {
           *q = ',';
@@ -1338,8 +1337,12 @@ void  apply_delayed_options() {
   size_t sslen;
 
   if (o.spoofsource) {
-    if (resolve(delayed_options.spoofSource, 0, &ss, &sslen, o.af()) != 0)
-      fatal("Failed to resolve/decode supposed %s source address %s.", (o.af() == AF_INET) ? "IPv4" : "IPv6", delayed_options.spoofSource);
+    int rc = resolve(delayed_options.spoofSource, 0, &ss, &sslen, o.af());
+    if (rc != 0) {
+      fatal("Failed to resolve/decode supposed %s source address \"%s\": %s",
+        (o.af() == AF_INET) ? "IPv4" : "IPv6", delayed_options.spoofSource,
+        gai_strerror(rc));
+    }
     o.setSourceSockAddr(&ss, sslen);
   }
   // After the arguments are fully processed we now make any of the timing
@@ -1631,10 +1634,12 @@ int nmap_main(int argc, char *argv[]) {
     struct sockaddr_storage ss;
     struct route_nfo rnfo;
     size_t sslen;
+    int rc;
 
     dst = route_dst_hosts[i].c_str();
-    if (resolve(dst, 0, &ss, &sslen, o.af()) != 0)
-      fatal("Can't resolve %s.", dst);
+    rc = resolve(dst, 0, &ss, &sslen, o.af());
+    if (rc != 0)
+      fatal("Can't resolve %s: %s.", dst, gai_strerror(rc));
 
     printf("%s\n", inet_ntop_ez(&ss, sslen));
 
