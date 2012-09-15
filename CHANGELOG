@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The nmap.ip_send function now takes a second argument, the
+  destination to send to. Previously the destination address was taken
+  from the packet buffer, but this failed for IPv6 link-local
+  addresses, because the scope ID is not part of the packet. Calling
+  ip_send without a destination address will continue to use the old
+  behavior, but this practice is deprecated.
+
 o Added http fingerprints for Sitecore CMS. [Jesper Kückelhahn]
 
 o Increased portability of configure scripts on systems using a libc

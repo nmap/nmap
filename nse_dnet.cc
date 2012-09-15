@@ -211,8 +211,10 @@ static int ip_close (lua_State *L)
 static int ip_send (lua_State *L)
 {
   struct abstract_ip_hdr hdr;
+  struct sockaddr_storage dst;
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
   const char *packet;
+  const char *addr, *targetname;
   size_t packetlen;
   unsigned int payloadlen;
   char dev[16];
@@ -222,13 +224,24 @@ static int ip_send (lua_State *L)
     return luaL_error(L, "raw socket not open to send");
 
   packet = luaL_checklstring(L, 2, &packetlen);
+  nseU_opttarget(L, 3, &addr, &targetname);
 
-  /* Extract src and dst from packet contents. */
-  /* TODO: This doesn't work for link-local IPv6 addresses; there's no way to
-     recover the scope_id from the packet contents. */
   payloadlen = packetlen;
   if (ip_get_data_any(packet, &payloadlen, &hdr) == NULL)
     return luaL_error(L, "can't parse ip packet");
+
+  if (addr == NULL) {
+    /* Extract dst from packet contents. This is deprecated because it doesn't
+       work for link-local IPv6 addresses; there's no way to recover the
+       scope_id from the packet contents. */
+    dst = hdr.dst;
+  } else {
+    /* Resolve hostname or numeric IP. */
+    size_t dstlen;
+    int rc = resolve(addr, 0, &dst, &dstlen, AF_UNSPEC);
+    if (rc != 0)
+      return nseU_safeerror(L, gai_strerror(rc));
+  }
 
   *dev = '\0';
 
@@ -239,7 +252,7 @@ static int ip_send (lua_State *L)
     u8 dstmac[6];
     eth_nfo eth;
 
-    if (!nmap_route_dst(&hdr.dst, &route))
+    if (!nmap_route_dst(&dst, &route))
       goto usesock;
 
     Strncpy(dev, route.ii.devname, sizeof(dev));
@@ -252,7 +265,7 @@ static int ip_send (lua_State *L)
      */
 
     if (route.direct_connect)
-      nexthop = &hdr.dst;
+      nexthop = &dst;
     else
       nexthop = &route.nexthop;
 
@@ -274,14 +287,14 @@ static int ip_send (lua_State *L)
 
     udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
 
-    ret = send_ip_packet(udata->sock, &eth, &hdr.dst, (u8 *) packet, lua_rawlen(L, 2));
+    ret = send_ip_packet(udata->sock, &eth, &dst, (u8 *) packet, lua_rawlen(L, 2));
   } else {
 usesock:
 #ifdef WIN32
     if (strlen(dev) > 0)
       win32_fatal_raw_sockets(dev);
 #endif
-    ret = send_ip_packet(udata->sock, NULL, &hdr.dst, (u8 *) packet, lua_rawlen(L, 2));
+    ret = send_ip_packet(udata->sock, NULL, &dst, (u8 *) packet, lua_rawlen(L, 2));
   }
   if (ret == -1)
     return nseU_safeerror(L, "error while sending: %s (errno %d)",
