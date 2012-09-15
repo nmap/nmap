@@ -162,7 +162,7 @@ local traceSend = function(interface, destination, trace_raw)
 	sock:ethernet_close()
     else
 	sock:ip_open()
-	sock:ip_send(trace_packet.buf)
+	sock:ip_send(trace_packet.buf, destination)
 	sock:ip_close()
     end
 end

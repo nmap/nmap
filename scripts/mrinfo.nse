@@ -213,7 +213,7 @@ local mrinfoQuery = function(interface, dstip)
 	sock:ethernet_close()
     else
 	sock:ip_open()
-	sock:ip_send(mrinfo_packet.buf)
+	sock:ip_send(mrinfo_packet.buf, dstip)
 	sock:ip_close()
     end
 end

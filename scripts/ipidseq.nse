@@ -221,7 +221,7 @@ action = function(host)
 	local tcp = genericpkt(host, ipidseqport)
 
 	while i <= NUMPROBES do
-		try(sock:ip_send(tcp.buf))
+		try(sock:ip_send(tcp.buf, host))
 
 		local status, len, _, layer3 = pcap:pcap_receive()
 		local test = bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)

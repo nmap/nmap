@@ -444,7 +444,7 @@ action = function(host)
 
 			start = stdnse.clock_us()
 
-			try(sock:ip_send(tcp.buf))
+			try(sock:ip_send(tcp.buf, host))
 
 			stats[j].sent = stats[j].sent + 1
 

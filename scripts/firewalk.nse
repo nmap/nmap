@@ -916,7 +916,7 @@ local function send_probe(scanner, probe)
   -- craft the raw packet
   local pkt = proto_vtable[probe.proto].getprobe(scanner.target, probe.portno, probe.ttl)
 
-  try(scanner.sock:ip_send(pkt.buf))
+  try(scanner.sock:ip_send(pkt.buf, scanner.target))
 
   -- update probe informations
   probe.retry = probe.retry + 1
