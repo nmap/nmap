@@ -188,7 +188,7 @@ static int resolve_internal(const char *hostname, unsigned short port,
     struct addrinfo hints;
     struct addrinfo *result;
     char portbuf[16];
-    size_t rc=0;
+    int rc;
 
     assert(hostname);
     assert(ss);
@@ -201,7 +201,7 @@ static int resolve_internal(const char *hostname, unsigned short port,
 
     /* Make the port number a string to give to getaddrinfo. */
     rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
-    assert(rc >= 0 && rc < sizeof(portbuf));
+    assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
 
     rc = getaddrinfo(hostname, portbuf, &hints, &result);
     if (rc != 0)
@@ -212,6 +212,7 @@ static int resolve_internal(const char *hostname, unsigned short port,
     *sslen = result->ai_addrlen;
     memcpy(ss, result->ai_addr, *sslen);
     freeaddrinfo(result);
+
     return 0;
 }
 

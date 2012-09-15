@@ -164,11 +164,13 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
    is first depends on the system configuration. Returns 0 on success, or a
    getaddrinfo return code (suitable for passing to gai_strerror) on failure.
    *ss and *sslen are always defined when this function returns 0. */
-int resolve(const char *hostname, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af);
+int resolve(const char *hostname, unsigned short port,
+  struct sockaddr_storage *ss, size_t *sslen, int af);
 
 /* As resolve, but do not do DNS resolution of hostnames; the first argument
    must be the string representation of a numeric IP address. */
-int resolve_numeric(const char *ip, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af);
+int resolve_numeric(const char *ip, unsigned short port,
+  struct sockaddr_storage *ss, size_t *sslen, int af);
 
 /*
  * Returns 1 if this is a reserved IP address, where "reserved" means

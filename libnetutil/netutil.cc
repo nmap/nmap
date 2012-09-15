@@ -376,12 +376,12 @@ after:
 
 /* Internal helper for resolve and resolve_numeric. addl_flags is ored into
    hints.ai_flags, so you can add AI_NUMERICHOST. */
-static int resolve_internal(const char *hostname, u16 port,
+static int resolve_internal(const char *hostname, unsigned short port,
   struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags) {
   struct addrinfo hints;
   struct addrinfo *result;
   char portbuf[16];
-  size_t rc=0;
+  int rc;
 
   assert(hostname);
   assert(ss);
@@ -394,7 +394,7 @@ static int resolve_internal(const char *hostname, u16 port,
 
   /* Make the port number a string to give to getaddrinfo. */
   rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
-  assert(rc >= 0 && rc < sizeof(portbuf));
+  assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
 
   rc = getaddrinfo(hostname, portbuf, &hints, &result);
   if (rc != 0)
@@ -405,6 +405,7 @@ static int resolve_internal(const char *hostname, u16 port,
   *sslen = result->ai_addrlen;
   memcpy(ss, result->ai_addr, *sslen);
   freeaddrinfo(result);
+
   return 0;
 }
 
@@ -415,13 +416,15 @@ static int resolve_internal(const char *hostname, u16 port,
    is first depends on the system configuration. Returns 0 on success, or a
    getaddrinfo return code (suitable for passing to gai_strerror) on failure.
    *ss and *sslen are always defined when this function returns 0. */
-int resolve(const char *hostname, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af) {
+int resolve(const char *hostname, unsigned short port,
+  struct sockaddr_storage *ss, size_t *sslen, int af) {
   return resolve_internal(hostname, port, ss, sslen, af, 0);
 }
 
 /* As resolve, but do not do DNS resolution of hostnames; the first argument
    must be the string representation of a numeric IP address. */
-int resolve_numeric(const char *ip, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af) {
+int resolve_numeric(const char *ip, unsigned short port,
+  struct sockaddr_storage *ss, size_t *sslen, int af) {
   return resolve_internal(ip, port, ss, sslen, af, AI_NUMERICHOST);
 }
 
