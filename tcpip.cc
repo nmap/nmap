@@ -1894,11 +1894,9 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
    have already been called on target before this.  The target device
    and src mac address should also already be set.  */
 bool setTargetNextHopMAC(Target *target) {
-  struct sockaddr_storage targetss, srcss;
+  struct sockaddr_storage targetss;
   size_t sslen;
-  arp_t *a;
   u8 mac[6];
-  struct arp_entry ae;
 
   if (target->ifType() != devt_ethernet)
     return false; /* Duh. */
@@ -1920,42 +1918,10 @@ bool setTargetNextHopMAC(Target *target) {
       fatal("%s: Failed to determine nextHop to target", __func__);
   }
 
-  /* First, let us check the Nmap arp cache ... */
-  if (mac_cache_get(&targetss, mac)) {
+  if (getNextHopMAC(target->deviceFullName(), target->SrcMACAddress(), target->SourceSockAddr(), &targetss, mac)) {
     target->setNextHopMACAddress(mac);
     return true;
   }
-
-  /* Maybe the system ARP cache will be more helpful */
-  a = arp_open();
-  addr_ston((sockaddr *) & targetss, &ae.arp_pa);
-  if (arp_get(a, &ae) == 0) {
-    mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
-    target->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
-    arp_close(a);
-    return true;
-  }
-  arp_close(a);
-
-  /* OK, the last choice is to send our own damn ARP request (and
-     retransmissions if necessary) to determine the MAC */
-  target->SourceSockAddr(&srcss, NULL);
-  if (target->af() == AF_INET) {
-    if (doArp(target->deviceFullName(), target->SrcMACAddress(),
-              &srcss, &targetss, mac, PacketTrace::traceArp)) {
-      mac_cache_set(&targetss, mac);
-      target->setNextHopMACAddress(mac);
-      return true;
-    }
-  } else if (target->af() == AF_INET6) {
-    if (doND(target->deviceFullName(), target->SrcMACAddress(),
-             &srcss, &targetss, mac, PacketTrace::traceND)) {
-      mac_cache_set(&targetss, mac);
-      target->setNextHopMACAddress(mac);
-      return true;
-    }
-  }
-
 
   /* I'm afraid that we couldn't find it!  Maybe it doesn't exist? */
   return false;
