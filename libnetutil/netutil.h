@@ -157,15 +157,18 @@ int netutil_error(const char *str, ...)
    contain a newline character at the end. */
 int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, int* lasthopoff, char *errstr, size_t errstrlen);
 
-/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   - Parameter "hostname" is the name to be resolved.
-   - Parameter "port" sets the port in each returned address structure
-     (you can safely pass 0 for the port if you don't care)
-   - Parameter "nodns": If set, it means that the supplied hostname is actually a
-     numeric IP address. The flag prevents any type of name resolution service
-     from being called. In 99% of the cases this should be 0.
-   Returns 0 on success, or a getaddrinfo return code on failure. */
-int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *ss, size_t *sslen, int af);
+/* Resolves the given hostname or IP address with getaddrinfo, and stores the
+   first result (if any) in *ss and *sslen. The value of port will be set in the
+   appropriate place in *ss; set to 0 if you don't care. af may be AF_UNSPEC, in
+   which case getaddrinfo may return e.g. both IPv4 and IPv6 results; which one
+   is first depends on the system configuration. Returns 0 on success, or a
+   getaddrinfo return code (suitable for passing to gai_strerror) on failure.
+   *ss and *sslen are always defined when this function returns 0. */
+int resolve(const char *hostname, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af);
+
+/* As resolve, but do not do DNS resolution of hostnames; the first argument
+   must be the string representation of a numeric IP address. */
+int resolve_numeric(const char *ip, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af);
 
 /*
  * Returns 1 if this is a reserved IP address, where "reserved" means

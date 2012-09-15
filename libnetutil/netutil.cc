@@ -374,15 +374,10 @@ after:
   return(d - data);
 }
 
-/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   - Parameter "hostname" is the name to be resolved.
-   - Parameter "port" sets the port in each returned address structure
-     (you can safely pass 0 for the port if you don't care)
-   - Parameter "nodns": If set, it means that the supplied hostname is actually a
-     numeric IP address. The flag prevents any type of name resolution service
-     from being called. In 99% of the cases this should be 0.
-   Returns 0 on success, or a getaddrinfo return code on failure. */
-int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *ss, size_t *sslen, int af){
+/* Internal helper for resolve and resolve_numeric. addl_flags is ored into
+   hints.ai_flags, so you can add AI_NUMERICHOST. */
+static int resolve_internal(const char *hostname, u16 port,
+  struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags) {
   struct addrinfo hints;
   struct addrinfo *result;
   char portbuf[16];
@@ -395,8 +390,7 @@ int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = af;
   hints.ai_socktype = SOCK_DGRAM;
-  if (nodns)
-    hints.ai_flags |= AI_NUMERICHOST;
+  hints.ai_flags |= addl_flags;
 
   /* Make the port number a string to give to getaddrinfo. */
   rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
@@ -412,6 +406,23 @@ int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *
   memcpy(ss, result->ai_addr, *sslen);
   freeaddrinfo(result);
   return 0;
+}
+
+/* Resolves the given hostname or IP address with getaddrinfo, and stores the
+   first result (if any) in *ss and *sslen. The value of port will be set in the
+   appropriate place in *ss; set to 0 if you don't care. af may be AF_UNSPEC, in
+   which case getaddrinfo may return e.g. both IPv4 and IPv6 results; which one
+   is first depends on the system configuration. Returns 0 on success, or a
+   getaddrinfo return code (suitable for passing to gai_strerror) on failure.
+   *ss and *sslen are always defined when this function returns 0. */
+int resolve(const char *hostname, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af) {
+  return resolve_internal(hostname, port, ss, sslen, af, 0);
+}
+
+/* As resolve, but do not do DNS resolution of hostnames; the first argument
+   must be the string representation of a numeric IP address. */
+int resolve_numeric(const char *ip, u16 port, struct sockaddr_storage *ss, size_t *sslen, int af) {
+  return resolve_internal(ip, port, ss, sslen, af, AI_NUMERICHOST);
 }
 
 /*

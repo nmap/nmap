@@ -180,25 +180,24 @@ void options_init(void)
 #endif
 }
 
-/* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   Pass 0 for the port if you don't care. Returns 0 on success, or a getaddrinfo
-   return code on error. */
-int resolve(char *hostname, unsigned short port,
-            struct sockaddr_storage *ss, size_t *sslen, int af)
+/* Internal helper for resolve and resolve_numeric. addl_flags is ored into
+   hints.ai_flags, so you can add AI_NUMERICHOST. */
+static int resolve_internal(const char *hostname, unsigned short port,
+    struct sockaddr_storage *ss, size_t *sslen, int af, int addl_flags)
 {
     struct addrinfo hints;
     struct addrinfo *result;
     char portbuf[16];
-    int rc;
+    size_t rc=0;
 
+    assert(hostname);
     assert(ss);
     assert(sslen);
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = af;
     hints.ai_socktype = SOCK_DGRAM;
-    if (o.nodns)
-        hints.ai_flags |= AI_NUMERICHOST;
+    hints.ai_flags |= addl_flags;
 
     /* Make the port number a string to give to getaddrinfo. */
     rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
@@ -214,6 +213,27 @@ int resolve(char *hostname, unsigned short port,
     memcpy(ss, result->ai_addr, *sslen);
     freeaddrinfo(result);
     return 0;
+}
+
+/* Resolves the given hostname or IP address with getaddrinfo, and stores the
+   first result (if any) in *ss and *sslen. The value of port will be set in the
+   appropriate place in *ss; set to 0 if you don't care. af may be AF_UNSPEC, in
+   which case getaddrinfo may return e.g. both IPv4 and IPv6 results; which one
+   is first depends on the system configuration. Returns 0 on success, or a
+   getaddrinfo return code (suitable for passing to gai_strerror) on failure.
+   *ss and *sslen are always defined when this function returns 0.
+
+   If the global o.nodns is true, then do not resolve any names with DNS. */
+int resolve(const char *hostname, unsigned short port,
+    struct sockaddr_storage *ss, size_t *sslen, int af)
+{
+    int flags;
+
+    flags = 0;
+    if (o.nodns)
+        flags |= AI_NUMERICHOST;
+
+    return resolve_internal(hostname, port, ss, sslen, af, flags);
 }
 
 int fdinfo_close(struct fdinfo *fdn)

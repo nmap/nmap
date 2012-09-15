@@ -106,7 +106,7 @@ extern NpingOps o;
 int atoIP(const char *hostname, struct in_addr *dst){
   struct sockaddr_in i;
   unsigned int stlen=0;
-  if ( resolve(hostname, 0, 0, (sockaddr_storage*)&i, (size_t *)&stlen , PF_INET) != 0 )
+  if ( resolve(hostname, 0, (sockaddr_storage*)&i, (size_t *)&stlen , PF_INET) != 0 )
     return OP_FAILURE;
   *dst=i.sin_addr;
   return OP_SUCCESS;
@@ -118,7 +118,7 @@ int atoIP(const char *hostname, struct sockaddr_storage *ss, int family){
     return OP_FAILURE;
   if(family!=AF_INET && family!=AF_INET6)
     return OP_FAILURE;
-  if ( resolve(hostname, 0, 0, ss, &stlen , family) != 0 )
+  if ( resolve(hostname, 0, ss, &stlen , family) != 0 )
     return OP_FAILURE;
   return OP_SUCCESS;
 } /* End of atoIP */
@@ -556,7 +556,7 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
   misses++;
   outPrint(DBG_4, "resolveCached(): Cache miss %d for %s\n", misses, host);
 
-  if( (result=resolve(host, 0, 0, ss, sslen, pf)) == 0 ){
+  if( (result=resolve(host, 0, ss, sslen, pf)) == 0 ){
 	
 	  /* Increment count */
 	  if( cached_count < MAX_CACHED_HOSTS )
