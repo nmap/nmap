@@ -1339,7 +1339,7 @@ void  apply_delayed_options() {
 
   if (o.spoofsource) {
     if (resolve(delayed_options.spoofSource, 0, 0, &ss, &sslen, o.af()) == 0)
-      fatal("Failed to resolve/decode supposed %s source address %s.", (o.af() == AF_INET) ? "IPv4" : "IPv6", optarg);
+      fatal("Failed to resolve/decode supposed %s source address %s.", (o.af() == AF_INET) ? "IPv4" : "IPv6", delayed_options.spoofSource);
     o.setSourceSockAddr(&ss, sslen);
   }
   // After the arguments are fully processed we now make any of the timing
@@ -1627,17 +1627,19 @@ int nmap_main(int argc, char *argv[]) {
 #endif
 
   for (unsigned int i = 0; i < route_dst_hosts.size(); i++) {
+    const char *dst;
     struct sockaddr_storage ss;
     struct route_nfo rnfo;
     size_t sslen;
 
-    if (!resolve(route_dst_hosts[i].c_str(), 0, 0, &ss, &sslen, o.af()))
-      fatal("Can't resolve %s.", optarg);
+    dst = route_dst_hosts[i].c_str();
+    if (!resolve(dst, 0, 0, &ss, &sslen, o.af()))
+      fatal("Can't resolve %s.", dst);
 
     printf("%s\n", inet_ntop_ez(&ss, sslen));
 
     if (!route_dst(&ss, &rnfo, o.device, o.SourceSockAddr())) {
-      printf("Can't route %s (%s).", optarg, inet_ntop_ez(&ss, sslen));
+      printf("Can't route %s (%s).", dst, inet_ntop_ez(&ss, sslen));
     } else {
       printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
       printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
