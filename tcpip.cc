@@ -1967,11 +1967,11 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
   arp_t *a;
   struct arp_entry ae;
 
-  /* Nmap's ARP cache */
+  /* First, let us check the Nmap arp cache ... */
   if (mac_cache_get(dstss, dstmac))
     return true;
 
-  /* System ARP cache */
+  /* Maybe the system ARP cache will be more helpful */
   a = arp_open();
   addr_ston((sockaddr *) dstss, &ae.arp_pa);
   if (arp_get(a, &ae) == 0) {
@@ -1982,10 +1982,18 @@ bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_st
   }
   arp_close(a);
 
-  /* Send ARP */
-  if (doArp(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceArp)) {
-    mac_cache_set(dstss, dstmac);
-    return true;
+  /* OK, the last choice is to send our own damn ARP request (and
+     retransmissions if necessary) to determine the MAC */
+  if (dstss->ss_family == AF_INET) {
+    if (doArp(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceArp)) {
+      mac_cache_set(dstss, dstmac);
+      return true;
+    }
+  } else if (dstss->ss_family == AF_INET6) {
+    if (doND(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceND)) {
+      mac_cache_set(dstss, dstmac);
+      return true;
+    }
   }
 
   return false;
