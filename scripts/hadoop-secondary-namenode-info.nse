@@ -59,7 +59,7 @@ action = function( host, port )
 	local result = {}
 	local uri = "/status.jsp"
 	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
-	local response = http.get( host.targetname or host.ip, port.number, uri )
+	local response = http.get( host, port, uri )
 	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Resposne"))
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		local body = response['body']:gsub("%%","%%%%")

@@ -63,7 +63,7 @@ get_userhistory = function( host, port )
 	local results = {}
 	local uri = "/jobhistory.jsp?pageno=-1&search="
 	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
-	local response = http.get( host.targetname or host.ip, port.number, uri )
+	local response = http.get( host, port, uri )
 	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		local body = response['body']:gsub("%%","%%%%")
@@ -84,7 +84,7 @@ get_tasktrackers = function( host, port )
 	local results = {}
 	local uri = "/machines.jsp?type=active"
 	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
-	local response = http.get( host.targetname or host.ip, port.number, uri )
+	local response = http.get( host, port, uri )
 	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,response['body']))
@@ -111,7 +111,7 @@ action = function( host, port )
 	local result = {}
 	local uri = "/jobtracker.jsp"
 	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
-	local response = http.get( host.targetname or host.ip, port.number, uri )
+	local response = http.get( host, port, uri )
 	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,response['body']))
