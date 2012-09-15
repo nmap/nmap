@@ -779,13 +779,9 @@ function ip_open()
 -- packet must begin with an IP header. If there was no previous valid call
 -- to <code>ip_open</code> an error is thrown.
 -- @param packet An IP packet to send.
--- @param dst A destination address, as a host table or string. If omitted, the
--- destination address is read from the packet; however this is deprecated, because
--- the packet does not contain the scope ID required to send to certain IPv6
--- addresses.
 -- @see new_dnet
--- @usage dnet:ip_send(packet, dst)
-function ip_send(packet, dst)
+-- @usage dnet:ip_send(packet)
+function ip_send(packet)
 
 --- Closes a raw IPv4 socket.
 -- @see new_dnet, ip_open
