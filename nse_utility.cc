@@ -121,6 +121,17 @@ void nseU_checktarget (lua_State *L, int idx, const char **address, const char *
   }
 }
 
+void nseU_opttarget (lua_State *L, int idx, const char **address, const char **targetname)
+{
+  if (lua_isnoneornil(L, idx)) {
+    *address = NULL;
+    *targetname = NULL;
+    return;
+  } else {
+    return nseU_checktarget(L, idx, address, targetname);
+  }
+}
+
 uint16_t nseU_checkport (lua_State *L, int idx, const char **protocol)
 {
   uint16_t port;

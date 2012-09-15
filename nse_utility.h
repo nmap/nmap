@@ -108,6 +108,15 @@ void *nseU_checkudata (lua_State *L, int idx, int upvalue, const char *name);
  */
 void nseU_checktarget (lua_State *L, int idx, const char **address, const char **targetname);
 
+/* void nseU_opttarget (lua_State *L, int idx,           [-0, +0, v]
+ *                      const char **address,
+ *                      const char **targetname)
+ *
+ * Like nseU_checktarget, but sets *address and *targetname to NULL and returns
+ * success if the argument at idx is none or nil.
+ */
+void nseU_opttarget (lua_State *L, int idx, const char **address, const char **targetname);
+
 /* uint16_t nseU_checkport (lua_State *L, int idx,         [-0, +0, v]
  *                          const char **protocol)
  *
