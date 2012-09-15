@@ -181,8 +181,8 @@ void options_init(void)
 }
 
 /* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   Pass 0 for the port if you don't care. Returns 0 if hostname cannot be
-   resolved. */
+   Pass 0 for the port if you don't care. Returns 0 on success, or a getaddrinfo
+   return code on error. */
 int resolve(char *hostname, unsigned short port,
             struct sockaddr_storage *ss, size_t *sslen, int af)
 {
@@ -205,13 +205,15 @@ int resolve(char *hostname, unsigned short port,
     assert(rc >= 0 && rc < sizeof(portbuf));
 
     rc = getaddrinfo(hostname, portbuf, &hints, &result);
-    if (rc != 0 || result == NULL)
-        return 0;
+    if (rc != 0)
+        return rc;
+    if (result == NULL)
+        return EAI_NONAME;
     assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
     *sslen = result->ai_addrlen;
     memcpy(ss, result->ai_addr, *sslen);
     freeaddrinfo(result);
-    return 1;
+    return 0;
 }
 
 int fdinfo_close(struct fdinfo *fdn)

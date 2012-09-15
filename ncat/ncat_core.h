@@ -173,8 +173,8 @@ extern struct timeval start_time;
 void options_init(void);
 
 /* Tries to resolve the given name (or literal IP) into a sockaddr structure.
-   Pass 0 for the port if you don't care. Returns 0 if hostname cannot be
-   resolved. */
+   Pass 0 for the port if you don't care. Returns 0 on success, or a getaddrinfo
+   return code on error. */
 int resolve(char *hostname, unsigned short port,
             struct sockaddr_storage *ss, size_t *sslen, int af);
 

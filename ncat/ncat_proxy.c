@@ -438,7 +438,7 @@ static int handle_connect(struct socket_buffer *client_sock,
     if (o.debug > 1)
         logdebug("CONNECT to %s:%hu.\n", request->uri.host, request->uri.port);
 
-    if (!resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af)) {
+    if (resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af) != 0) {
         if (o.debug)
             logdebug("Can't resolve name %s.\n", request->uri.host);
         return 504;
@@ -543,7 +543,7 @@ static int handle_method(struct socket_buffer *client_sock,
         return 400;
     }
 
-    if (!resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af)) {
+    if (resolve(request->uri.host, request->uri.port, &su.storage, &sslen, o.af) != 0) {
         if (o.debug)
             logdebug("Can't resolve name %s:%d.\n", request->uri.host, request->uri.port);
         return 504;

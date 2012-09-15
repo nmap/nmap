@@ -339,7 +339,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   }
 
   proxy->host.setHostName(name);
-  if (resolve(name, 0, 0, &ss, &sslen, o.pf()) == 0) {
+  if (resolve(name, 0, 0, &ss, &sslen, o.pf()) != 0) {
     fatal("Could not resolve idle scan zombie host: %s", name);
   }
   proxy->host.setTargetSockAddr(&ss, sslen);

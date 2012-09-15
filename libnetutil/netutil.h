@@ -164,7 +164,7 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
    - Parameter "nodns": If set, it means that the supplied hostname is actually a
      numeric IP address. The flag prevents any type of name resolution service
      from being called. In 99% of the cases this should be 0.
-   Returns 1 on success or 0 if hostname could not be resolved. */
+   Returns 0 on success, or a getaddrinfo return code on failure. */
 int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *ss, size_t *sslen, int af);
 
 /*

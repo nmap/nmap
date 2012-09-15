@@ -381,7 +381,7 @@ after:
    - Parameter "nodns": If set, it means that the supplied hostname is actually a
      numeric IP address. The flag prevents any type of name resolution service
      from being called. In 99% of the cases this should be 0.
-   Returns 1 on success or 0 if hostname could not be resolved. */
+   Returns 0 on success, or a getaddrinfo return code on failure. */
 int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *ss, size_t *sslen, int af){
   struct addrinfo hints;
   struct addrinfo *result;
@@ -396,20 +396,22 @@ int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *
   hints.ai_family = af;
   hints.ai_socktype = SOCK_DGRAM;
   if (nodns)
-     hints.ai_flags |= AI_NUMERICHOST;
+    hints.ai_flags |= AI_NUMERICHOST;
 
   /* Make the port number a string to give to getaddrinfo. */
   rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
   assert(rc >= 0 && rc < sizeof(portbuf));
 
   rc = getaddrinfo(hostname, portbuf, &hints, &result);
-  if (rc != 0 || result == NULL)
-      return 0;
+  if (rc != 0)
+    return rc;
+  if (result == NULL)
+    return EAI_NONAME;
   assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
   *sslen = result->ai_addrlen;
   memcpy(ss, result->ai_addr, *sslen);
   freeaddrinfo(result);
-  return 1;
+  return 0;
 }
 
 /*

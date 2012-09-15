@@ -136,7 +136,7 @@ static void parseproxy(char *str, struct sockaddr_storage *ss, unsigned short de
     else
         portno = defport;
 
-    if (!resolve(ptr, portno, ss, &sslen, o.af)) {
+    if (resolve(ptr, portno, ss, &sslen, o.af) != 0) {
         loguser("Could not resolve proxy \"%s\".\n", ptr);
         if (o.af == AF_INET6 && httpproxy)
             loguser("Did you specify the port number? It's required for IPv6.\n");
@@ -317,7 +317,7 @@ int main(int argc, char *argv[])
             do {
                 union sockaddr_u addr;
                 size_t sslen;
-                if (!resolve(a, 0, &addr.storage, &sslen, AF_INET))
+                if (resolve(a, 0, &addr.storage, &sslen, AF_INET) != 0)
                     bye("Sorry, could not resolve source route hop %s.", a);
                 o.srcrtes[o.numsrcrtes] = addr.in.sin_addr;
             } while (o.numsrcrtes++ <= 8 && (a = strtok(NULL, ",")));
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
         if (o.listen)
             bye("-l and -s are incompatible.  Specify the address and port to bind to like you would a host to connect to.");
 
-        if (!resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af))
+        if (resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af) != 0)
             bye("Could not resolve source address %s.", source);
     }
 
@@ -596,7 +596,7 @@ int main(int argc, char *argv[])
         if (strspn(argv[optind], "0123456789") != strlen(argv[optind])) {
             o.target = argv[optind];
             /* resolve hostname */
-            if (!resolve(o.target, 0, &targetss.storage, &targetsslen, o.af))
+            if (resolve(o.target, 0, &targetss.storage, &targetsslen, o.af) != 0)
                 bye("Could not resolve hostname %s.", o.target);
             optind++;
         } else {
@@ -758,7 +758,7 @@ static int ncat_listen_mode(void)
         if (o.af == AF_INET6 || o.af == AF_UNSPEC) {
             ss_len = sizeof(listenaddrs[num_listenaddrs]);
             rc = resolve("::", o.portno, &listenaddrs[num_listenaddrs].storage, &ss_len, AF_INET6);
-            if (!rc)
+            if (rc != 0)
                 bye("Failed to resolve default IPv6 address.");
             num_listenaddrs++;
         }
@@ -766,7 +766,7 @@ static int ncat_listen_mode(void)
         if (o.af == AF_INET || o.af == AF_UNSPEC) {
             ss_len = sizeof(listenaddrs[num_listenaddrs]);
             rc = resolve("0.0.0.0", o.portno, &listenaddrs[num_listenaddrs].storage, &ss_len, AF_INET);
-            if (!rc)
+            if (rc != 0)
                 bye("Failed to resolve default IPv4 address.");
             num_listenaddrs++;
         }
