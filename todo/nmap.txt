@@ -143,7 +143,7 @@ o Consider including OpenSSL in our Nmap tarball
 o NSE WORK (note that this is mostly infrastructure because script
   ideas are generally put on the script ideas page instead:
   https://secwiki.org/w/Nmap_Script_Ideas)
-  o Change the interface of nmap.send_ip to take an explicit
+  o Change the interface of nmap.ip_send to take an explicit
     destination address. It currently extracts the destination from
     the packet buffer, which does not have enough information to
     reconstruct link-local addresses. See r26621 for a similar change
