@@ -30,6 +30,9 @@ o Clean up the Nmap repo to remove some bloat we've allowed to creep
     need to install your own gtk, glib, etc.
   - [done] Remove the 5MB of XSL in nping/docs/xsl
 
+o Update our mswin32/OpenSSL to newest version (previous update was
+  September 2010 to 1.0.0a).
+
 o Update web.insecure.org so that rather than requiring us to build
   nsedoc on other machines, check it into svn, and then update svn on
   web, it is done by a script on web which could be run through cron
@@ -48,8 +51,7 @@ o Add CPE entries to OS fingerpting DB entries which still lack them
  - As of 3/21/12, it seems that we have entries for 2,601 of the 3,572
    fingerprints.
 
-o Update our mswin32/OpenSSL to newest version (previous update was
-  September 2010 to 1.0.0a).
+o Do an Nmap dev release.  Last release was Nmap 6.01 June 22.
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
