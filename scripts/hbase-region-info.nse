@@ -53,7 +53,9 @@ action = function( host, port )
 
 	local result = {}
 	local region_servers = {}
-	local uri = "/regionserver.jsp"
+	-- uri was previously "/regionserver.jsp". See
+	-- http://seclists.org/nmap-dev/2012/q3/903.
+	local uri = "/rs-status"
 	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
 	local response = http.get( host, port, uri )
 	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
