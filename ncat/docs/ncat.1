@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 06/16/2012
+.\"      Date: 09/18/2012
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "06/16/2012" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "09/18/2012" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -563,3 +563,78 @@ The original Netcat was written by *Hobbit*
 hobbit@avian\&.org\&. While Ncat isn\*(Aqt built on any code from the
 \(lqtraditional\(rq
 Netcat (or any other implementation), Ncat is most definitely based on Netcat in spirit and functionality\&.
+.SH "LEGAL NOTICES"
+.SS "Ncat Copyright and Licensing"
+.\" copyright
+.\" GNU General Public License
+.PP
+Ncat is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is distributed as free and open source software under the same license terms as our Nmap software\&. Precise terms and further details are available
+from \m[blue]\fB\%http://nmap.org/man/man-legal.html\fR\m[]\&.
+.SS "Creative Commons License for this Ncat Guide"
+.PP
+This
+Ncat Reference Guide
+is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[1]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Ncap itself (discussed previously)\&.
+.SS "Source Code Availability and Community Contributions"
+.PP
+Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
+.PP
+Source code also allows you to port Nmap (which includes Ncat) to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
+nmap\-dev@insecure\&.org
+for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project (Insecure\&.Com LLC) the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,.\" open source
+but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed in the Nmap man page\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
+.SS "No Warranty.\" warranty (lack of)"
+.PP
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&. See the GNU General Public License v2\&.0 for more details at
+\m[blue]\fB\%http://www.gnu.org/licenses/gpl-2.0.html\fR\m[], or in the
+COPYING
+file included with Nmap\&.
+.SS "Inappropriate Usage"
+.PP
+Ncat should never be installed with special privileges (e\&.g\&. suid root)\&..\" suid
+That would open up a major security vulnerability as other users on the system (or attackers) could use it for privilege escalation\&.
+.SS "Third\-Party Software"
+.PP
+This product includes software developed by the
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[2]\d\s+2\&. A modified version of the
+\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[3]\d\s+2.\" libpcap
+is distributed along with Ncat\&. The Windows version of Ncat utilized the Libpcap\-derived
+\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[4]\d\s+2.\" WinPcap
+instead\&. Certain raw networking functions use the
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[5]\d\s+2.\" libdnet
+networking library, which was written by Dug Song\&..\" Song, Dug
+A modified version is distributed with Ncat\&. Ncat can optionally link with the
+\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[6]\d\s+2.\" OpenSSL
+for SSL version detection support\&. All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
+.SH "NOTES"
+.IP " 1." 4
+Creative Commons Attribution License
+.RS 4
+\%http://creativecommons.org/licenses/by/3.0/
+.RE
+.IP " 2." 4
+Apache Software Foundation
+.RS 4
+\%http://www.apache.org
+.RE
+.IP " 3." 4
+Libpcap portable packet capture library
+.RS 4
+\%http://www.tcpdump.org
+.RE
+.IP " 4." 4
+WinPcap library
+.RS 4
+\%http://www.winpcap.org
+.RE
+.IP " 5." 4
+Libdnet
+.RS 4
+\%http://libdnet.sourceforge.net
+.RE
+.IP " 6." 4
+OpenSSL cryptography toolkit
+.RS 4
+\%http://www.openssl.org
+.RE

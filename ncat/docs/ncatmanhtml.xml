@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+          "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"
+[
+<!ENTITY refguide SYSTEM "ncat.xml">
+]>
+<article id="ncatman">
+<artheader>
+<title>Ncat Reference Guide (Man Page)</title>
+</artheader>
+&refguide;
+</article>

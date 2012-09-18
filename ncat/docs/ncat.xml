@@ -878,5 +878,101 @@
     other implementation), Ncat is most definitely based on Netcat in spirit
     and functionality.</para>
   </refsect1>
+
+  <refsect1 id='ncat-man-legal'>
+  <title>Legal Notices</title>
+
+<refsect2 id="ncat-copyright">
+  <title>Ncat Copyright and Licensing</title>
+  <indexterm><primary>copyright</primary></indexterm>
+  <indexterm><primary>GNU General Public License</primary></indexterm>
+
+
+  <para>Ncat is (C) 2005&ndash;2012 Insecure.Com LLC. It is distributed
+  as free and open source software under the same license terms as our
+  Nmap software.  Precise terms and further details are available 
+  <man>from <ulink url="http://nmap.org/man/man-legal.html"/>.</man>
+  <notman>in <xref linkend="nmap-copyright"/>.</notman></para>
+</refsect2>
+
+<refsect2 id="ncat-man-copyright">
+  <title>Creative Commons License for this Ncat Guide</title>
+  <para>This <citetitle>Ncat Reference Guide</citetitle> is (C) 2005&ndash;2012 Insecure.Com LLC. It is
+   hereby placed under version 3.0 of the <ulink
+   url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
+   Attribution License</ulink>.  This allows you redistribute and modify
+   the work as you desire, as long as you credit the original source.
+   Alternatively, you may choose to treat this document as falling under
+   the same license as Ncap itself (discussed previously).</para>
+</refsect2>
+
+<refsect2 id="ncat-source-contrib">
+  <title>Source Code Availability and Community Contributions</title>
+
+<para>Source is provided to this software because we believe users
+have a right to know exactly what a program is going to do before they
+run it. This also allows you to audit the software for security holes
+(none have been found so far).</para>
+
+<para>Source code also allows you to port Nmap (which includes Ncat)
+to new platforms, fix bugs, and add new features.  You are highly
+encouraged to send your changes to
+<email>nmap-dev@insecure.org</email> for possible incorporation into
+the main distribution.  By sending these changes to Fyodor or one of
+the Insecure.Org development mailing lists, it is assumed that you are
+offering the Nmap Project (Insecure.Com LLC) the unlimited,
+non-exclusive right to reuse, modify, and relicense the code.  Nmap
+will always be available open source,<indexterm><primary>open
+source</primary></indexterm> but this is important because the
+inability to relicense code has caused devastating problems for other
+Free Software projects (such as KDE and NASM).  We also occasionally
+relicense the code to third parties as discussed in the Nmap man page.
+If you wish to specify special license conditions of your
+contributions, just say so when you send them.</para>
+
+</refsect2>
+
+<refsect2 id="ncat-no-warranty"><title>No Warranty<indexterm><primary>warranty (lack of)</primary></indexterm></title>
+
+<para>This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License v2.0 for more details at <ulink
+url="http://www.gnu.org/licenses/gpl-2.0.html" />, or in the <filename>COPYING</filename> file
+included with Nmap.</para>
+</refsect2>
+
+<refsect2 id="ncat-inappropriate-usage"><title>Inappropriate Usage</title>
+<para>Ncat should never be installed with special privileges
+(e.g. suid root).<indexterm><primary>suid</primary><see>setuid</see></indexterm>
+That would open up a major security vulnerability as other users on the
+system (or attackers) could use it for privilege escalation.
+</para>
+</refsect2>
+
+<refsect2 id="ncat-third-party-soft"><title>Third-Party Software</title>
+
+<para>This product includes software developed by
+the <ulink role="hidepdf" url="http://www.apache.org">Apache Software
+Foundation</ulink>.  A modified version of the <ulink role="hidepdf"
+url="http://www.tcpdump.org">Libpcap portable packet capture
+library</ulink><indexterm><primary>libpcap</primary></indexterm>
+is distributed along with Ncat.
+The Windows version of Ncat utilized the Libpcap-derived
+<ulink role="hidepdf" url="http://www.winpcap.org">WinPcap library</ulink><indexterm><primary>WinPcap</primary></indexterm>
+instead.
+Certain raw networking functions use the
+<ulink role="hidepdf" url="http://libdnet.sourceforge.net">Libdnet</ulink><indexterm><primary>libdnet</primary></indexterm>
+networking library, which was written by Dug Song.<indexterm><primary>Song, Dug</primary></indexterm>
+A modified version is distributed with Ncat.
+Ncat can optionally link with the
+<ulink role="hidepdf" url="http://www.openssl.org">OpenSSL
+cryptography toolkit</ulink><indexterm><primary>OpenSSL</primary></indexterm>
+for SSL version detection support.
+All of the third-party software described in this paragraph is freely
+redistributable under BSD-style software licenses.</para>
+</refsect2>
+</refsect1>
+
 </refentry>
 
