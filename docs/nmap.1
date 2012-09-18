@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 06/16/2012
+.\"      Date: 09/18/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "06/16/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "09/18/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -418,6 +418,8 @@ port scan, while still allowing NSE to run, use the two options
 together\&.
 .sp
 For machines on a local ethernet network, ARP scanning will still be performed (unless
+\fB\-\-disable\-arp\-ping\fR
+or
 \fB\-\-send\-ip\fR
 is specified) because Nmap needs MAC addresses to further scan target hosts\&. In previous versions of Nmap,
 \fB\-Pn\fR
@@ -583,11 +585,24 @@ ARP scan puts Nmap and its optimized algorithms in charge of ARP requests\&. And
 \fB\-PE\fR
 or
 \fB\-PS\fR) are specified, Nmap uses ARP instead for any of the targets which are on the same LAN\&. If you absolutely don\*(Aqt want to do an ARP scan, specify
-\fB\-\-send\-ip\fR\&.
+\fB\-\-disable\-arp\-ping\fR\&.
 .sp
 For IPv6 (\-6 option),
 \fB\-PR\fR
 uses ICMPv6 Neighbor Discovery instead of ARP\&. Neighbor Discovery, defined in RFC 4861, can be seen as the IPv6 equivalent of ARP\&.
+.RE
+.PP
+\fB\-\-disable\-arp\-ping\fR (No ARP or ND Ping) .\" --disable-arp-ping
+.RS 4
+Nmap normally does ARP or IPv6 Neighbor Discovery (ND) discovery of locally connected ethernet hosts, even if other host discovery options such as
+\fB\-Pn\fR
+or
+\fB\-PE\fR
+are used\&. To disable this implicit behavior, use the
+\fB\-\-disable\-arp\-ping\fR
+option\&.
+.sp
+The default behavior is normally faster, but this option is useful on networks using proxy ARP, in which a router speculatively replies to all ARP requests, making every target appear to be up according to ARP scan\&.
 .RE
 .PP
 \fB\-\-traceroute\fR (Trace path to host) .\" --traceroute .\" traceroute
@@ -2100,16 +2115,6 @@ may be condensed into counts if there are an overwhelming number of them\&.
 Prints the interface list and system routes as detected by Nmap\&. This is useful for debugging routing problems or device mischaracterization (such as Nmap treating a PPP connection as ethernet)\&.
 .RE
 .PP
-\fB\-\-log\-errors\fR (Log errors/warnings to normal mode output file) .\" --log-errors
-.RS 4
-Warnings and errors printed by Nmap usually go only to the screen (interactive output), leaving any normal\-format output files (usually specified with
-\fB\-oN\fR) uncluttered\&. When you do want to see those messages in the normal output file you specified, add this option\&. It is useful when you aren\*(Aqt watching the interactive output or when you want to record errors while debugging a problem\&. The error and warning messages will still appear in interactive mode too\&. This won\*(Aqt work for most errors related to bad command\-line arguments because Nmap may not have initialized its output files yet\&. In addition, some Nmap error and warning messages use a different system which does not yet support this option\&.
-.sp
-An alternative to
-\fB\-\-log\-errors\fR
-is redirecting interactive output (including the standard error stream) to a file\&. Most Unix shells make this approach easy, though it can be difficult on Windows\&.
-.RE
-.PP
 \fBMiscellaneous output options\fR
 .PP
 \fB\-\-append\-output\fR (Append to rather than clobber output files) .\" --append-output
@@ -2429,7 +2434,7 @@ file which is distributed with Nmap and also available from
 .\" copyright
 .\" GNU General Public License
 .PP
-The Nmap Security Scanner is (C) 1996\(en2011 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
+The Nmap Security Scanner is (C) 1996\(en2012 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
 sales@insecure\&.com)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
 .PP
 Note that the GPL places important restrictions on
@@ -2513,7 +2518,7 @@ If you received these files with a written license agreement or contract stating
 .PP
 This
 Nmap Reference Guide
-is (C) 2005\(en2011 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
+is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[19]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
