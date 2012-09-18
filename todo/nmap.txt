@@ -159,11 +159,6 @@ o Consider including OpenSSL in our Nmap tarball
 o NSE WORK (note that this is mostly infrastructure because script
   ideas are generally put on the script ideas page instead:
   https://secwiki.org/w/Nmap_Script_Ideas)
-  o Change the interface of nmap.ip_send to take an explicit
-    destination address. It currently extracts the destination from
-    the packet buffer, which does not have enough information to
-    reconstruct link-local addresses. See r26621 for a similar change
-    that was made to Nmap internals.
   o Review NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307. [Henri and Hani?]
 
@@ -742,6 +737,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Change the interface of nmap.ip_send to take an explicit
+  destination address. It currently extracts the destination from
+  the packet buffer, which does not have enough information to
+  reconstruct link-local addresses. See r26621 for a similar change
+  that was made to Nmap internals.
 
 o [Zenmap] Install higher-resolution icons (at least 64x64 and maybe
   up to 512x512). Here is a screenshot of the current 48x48 icon on
