@@ -6,6 +6,8 @@ AC_INIT(ncat_main.c)
 
 AM_CONFIG_HEADER(config.h)
 
+m4_include([../acinclude.m4])
+
 AC_CANONICAL_HOST
 
 use_openssl="yes"
