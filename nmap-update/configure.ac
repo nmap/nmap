@@ -14,7 +14,9 @@ AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
 # GCC-specific flags
 if test -n "$GCC"; then
-  CFLAGS="$CFLAGS -Wall"
+  # -Wno-deprecated-declarations is because we use an older version of the
+  # Subversion API for compatibility.
+  CFLAGS="$CFLAGS -Wall -Wno-deprecated-declarations"
 fi
 
 APR_FIND_APR(, , 1, 1)
