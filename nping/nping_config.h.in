@@ -1,5 +1,5 @@
 /***************************************************************************
- * nmap_config.h.in -- Autoconf uses this template, combined with the      *
+ * nping_config.h.in -- Autoconf uses this template, combined with the     *
  * configure script knowledge about system capabilities, to build this     *
  * include file that lets nmap better understand system particulars.       *
  *                                                                         *
@@ -91,7 +91,7 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id: nmap_config.h.in 12955 2009-04-15 00:37:03Z fyodor $ */
+/* $Id: $ */
 
 #ifndef CONFIG_H
 #define CONFIG_H
