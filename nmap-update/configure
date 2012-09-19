@@ -3028,6 +3028,11 @@ else
 fi
 
 
+# GCC-specific flags
+if test -n "$GCC"; then
+  CFLAGS="$CFLAGS -Wall"
+fi
+
 
   apr_found="no"
 

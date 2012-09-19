@@ -12,6 +12,11 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 
+# GCC-specific flags
+if test -n "$GCC"; then
+  CFLAGS="$CFLAGS -Wall"
+fi
+
 APR_FIND_APR(, , 1, 1)
 if test "$apr_found" = "no"; then
   AC_MSG_ERROR([libapr is required to build nmap-update.])
