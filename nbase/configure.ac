@@ -12,7 +12,7 @@ dnl # $Id$
 AC_PREREQ(2.13)
 
 # Include my own macros
-sinclude(configlocal.m4)
+m4_include([acinclude.m4])
 
 AC_INIT(nbase.h)
 
