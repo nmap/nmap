@@ -1,9 +1,6 @@
 # Require autoconf 2.13 -*- mode: fundamental; -*-
 AC_PREREQ(2.13)
 
-# Include macros in Nbase
-sinclude(nbase/configlocal.m4)
-
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(nping.cc)
 
