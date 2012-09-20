@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added cassandra-brute and cassandra-info by Vlatko Kosturjak,
+  scripts for the Apache Cassandra database.
+
 o [NSE] Added ipv6-ra-flood script by Adam Števko. This script sends a
   flood of router advertisements, which can DoS certain operating
   systems including Windows.

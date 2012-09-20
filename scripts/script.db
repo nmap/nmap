@@ -52,6 +52,8 @@ Entry { filename = "broadcast-wake-on-lan.nse", categories = { "broadcast", "saf
 Entry { filename = "broadcast-wpad-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-xdmcp-discover.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "cassandra-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "cassandra-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "cccam-version.nse", categories = { "version", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
