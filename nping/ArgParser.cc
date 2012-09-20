@@ -1031,8 +1031,9 @@ char errstr[256];
             /* Set user supplied address (if we manage to resolve it) */
             else if ( atoIP(optarg, &sourceaddr, PF_INET6) != OP_SUCCESS){
                 outFatal(QT_3, "Could not resolve source IPv6 address.");
-            }      
-            ipv6addr = source6->sin6_addr;            
+            }else{  
+              ipv6addr = source6->sin6_addr;
+            }
             o.setIPv6SourceAddress(ipv6addr);
             o.setSpoofSource();           
         }
