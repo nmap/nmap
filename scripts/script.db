@@ -219,6 +219,7 @@ Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "e
 Entry { filename = "ip-geolocation-maxmind.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ipv6-node-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ipv6-ra-flood.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "irc-botnet-channels.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "irc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
