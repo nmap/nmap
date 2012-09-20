@@ -7632,8 +7632,8 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\n.*X-Powered-By: Zope \(www\.zope\.org\),
 match http m|^HTTP/1\.0 \d\d\d .*Server: lighttpd/([\w._-]+).*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Optenet Web Server\r\n| p/Optenet httpd/
-match http m|^HTTP/1\.0 \d\d\d .*\n.*Server: uClinux-httpd ([\w._-]+)\n|s p/uClinux-httpd/ v/$1/ o/Linux/ cpe:/o:linux:kernel/a
-match http m|^HTTP/1\.0 \d\d\d .*[^\r]\n.*Server: uc-httpd/([\w._-]+)\r\n|s p/uc-httpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*Server: uClinux-httpd ([\w._-]+)\n|s p/uClinux-httpd/ v/$1/ o/Linux/ cpe:/o:linux:kernel/a
+match http m|^HTTP/1\.0 \d\d\d .*Server: uc-httpd/([\w._-]+)\r\n|s p/uc-httpd/ v/$1/
 match http m|^HTTP/1\.1 200 Document follows\r\nServer: Micro-Web\r\n| p/Micro-Web/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Indy/([\w._-]+)\r\n|s p/Indy/ v/$1/
 
