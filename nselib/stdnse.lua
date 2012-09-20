@@ -1122,7 +1122,6 @@ end
 -- @return An ordered table.
 function output_table ()
   local t = {}
-  local reverse = {}
   local order = {}
   local function iterator ()
     for i, key in ipairs(order) do
@@ -1131,19 +1130,19 @@ function output_table ()
   end
   local mt = {
     __newindex = function (_, k, v)
-      if reverse[k] then
-        rawset(t, k, v)
-        if v == nil then
-          table.remove(order, reverse[k])
-          reverse[k] = nil
+      if t[k] == nil then
+        -- New key?
+        table.insert(order, k)
+      elseif v == nil then
+        -- Deleting an existing key?
+        for i, key in ipairs(order) do
+          if key == k then
+            table.remove(order, i)
+            break
+          end
         end
-      else
-        if v ~= nil then
-          table.insert(order, k)
-          reverse[k] = #order
-        end
-        rawset(t, k, v)
       end
+      rawset(t, k, v)
     end,
     __index = function (_, k)
       return t[k]
