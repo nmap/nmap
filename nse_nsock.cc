@@ -427,6 +427,8 @@ static int l_reconnect_ssl (lua_State *L)
   return yield(L, nu, "SSL RECONNECT", TO, 0, NULL);
 }
 
+static void close_internal (lua_State *L, nse_nsock_udata *nu);
+
 static int l_connect (lua_State *L)
 {
   enum type {TCP, UDP, SSL};
@@ -469,6 +471,8 @@ static int l_connect (lua_State *L)
   if (dest == NULL)
     return nseU_safeerror(L, "getaddrinfo returned success but no addresses");
 
+  if (nu->nsiod != NULL)
+    close_internal(L, nu);
   nu->nsiod = nsi_new(nsp, NULL);
   if (nu->source_addr.ss_family != AF_UNSPEC) {
     nsi_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
@@ -833,18 +837,28 @@ static int l_new (lua_State *L)
   return 1;
 }
 
-static int l_close (lua_State *L)
+/* Common subfunction to l_close and l_connect. l_connect calls this when a
+   socket when a second attempt is made to connect a socket that has already had
+   a connection attempt. */
+static void close_internal (lua_State *L, nse_nsock_udata *nu)
 {
-  nse_nsock_udata *nu = check_nsock_udata(L, 1);
-  if (nu->nsiod == NULL)
-    return nseU_safeerror(L, "socket already closed");
   trace(nu->nsiod, "CLOSE", TO);
 #ifdef HAVE_OPENSSL
   if (nu->ssl_session)
     SSL_SESSION_free((SSL_SESSION *) nu->ssl_session);
 #endif
-  if (!nu->is_pcap) /* pcap sockets are closed by pcap_gc */
+  if (!nu->is_pcap) { /* pcap sockets are closed by pcap_gc */
     nsi_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
+    nu->nsiod = NULL;
+  }
+}
+
+static int l_close (lua_State *L)
+{
+  nse_nsock_udata *nu = check_nsock_udata(L, 1);
+  if (nu->nsiod == NULL)
+    return nseU_safeerror(L, "socket already closed");
+  close_internal(L, nu);
   initialize(L, 1, nu, nu->proto, nu->af);
   return nseU_success(L);
 }
