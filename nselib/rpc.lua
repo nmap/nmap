@@ -166,27 +166,32 @@ Comm = {
       if ( port.protocol == "tcp" ) then
         if nmap.is_privileged() then
           -- Try to bind to a reserved port
-          for resvport = 600, 1024, 1 do
+          for i = 1, 10, 1 do
+            resvport = math.random(1, 1024)
             socket = nmap.new_socket()
             status, err = socket:bind(nil, resvport)
             if status then 
               status, err = socket:connect(host, port)
-              if status then break end
+              if status or err == "TIMEOUT" then break end
               socket:close()
             end
           end
         else
+          socket = nmap.new_socket()
           status, err = socket:connect(host, port)
         end
       else
         if nmap.is_privileged() then
           -- Try to bind to a reserved port
-          for resvport = 600, 1024, 1 do
+          for i = 1, 10, 1 do
+            resvport = math.random(1, 1024)
             socket = nmap.new_socket("udp")
             status, err = socket:bind(nil, resvport)
             if status then break end
             socket:close()
           end
+        else
+          socket = nmap.new_socket("udp")
         end
       end
       if (not(status)) then
