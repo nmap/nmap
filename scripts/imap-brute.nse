@@ -33,7 +33,7 @@ Performs brute force password auditing against IMAP servers using either LOGIN, 
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service({143,993}, {"imap","imaps"})
 

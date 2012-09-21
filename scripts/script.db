@@ -55,7 +55,7 @@ Entry { filename = "broadcast-xdmcp-discover.nse", categories = { "broadcast", "
 Entry { filename = "cassandra-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "cassandra-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "cccam-version.nse", categories = { "version", } }
-Entry { filename = "citrix-brute-xml.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "citrix-brute-xml.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers-xml.nse", categories = { "discovery", "safe", } }
@@ -209,7 +209,7 @@ Entry { filename = "http-wordpress-plugins.nse", categories = { "discovery", "in
 Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "icap-info.nse", categories = { "discovery", "safe", } }
-Entry { filename = "imap-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "imap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
 Entry { filename = "informix-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "informix-query.nse", categories = { "auth", "intrusive", } }

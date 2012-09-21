@@ -35,7 +35,7 @@ accounts will be locked.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 
 portrule = shortport.portnumber({8080,80,443}, "tcp")
