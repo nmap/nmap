@@ -175,7 +175,10 @@ void telnet_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
     if (nsi_checkssl(nsi)) {
       printf("SSL %s failed: %s\n", nse_type2str(type), ERR_error_string(ERR_get_error(), NULL));
     } else {
-      printf("%s failed: %s\n", nse_type2str(type), strerror(socket_errno()));
+      int err;
+
+      err = nse_errorcode(nse);
+      printf("%s failed: (%d) %s\n", nse_type2str(type), err, strerror(err));
     }
   }
   return;
