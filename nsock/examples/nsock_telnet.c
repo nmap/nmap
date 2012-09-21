@@ -78,6 +78,7 @@ int socket_errno();
 
 
 extern char *optarg;
+
 extern int optind;
 
 struct telnet_state {
@@ -94,13 +95,13 @@ struct telnet_state {
 int resolve(char *hostname, struct in_addr *ip) {
   struct hostent *h;
 
-  if (!hostname || !*hostname) {  
+  if (!hostname || !*hostname) {
     fprintf(stderr, "NULL or zero-length hostname passed to resolve().  Quitting.\n");
     exit(1);
   }
 
   if (inet_aton(hostname, ip))
-    return 1; /* damn, that was easy ;) */
+    return 1;                   /* damn, that was easy ;) */
   if ((h = gethostbyname(hostname))) {
     memcpy(ip, h->h_addr_list[0], sizeof(struct in_addr));
     return 1;
@@ -109,83 +110,79 @@ int resolve(char *hostname, struct in_addr *ip) {
 }
 
 void telnet_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
+  nsock_iod nsi = nse_iod(nse);
+  enum nse_status status = nse_status(nse);
+  enum nse_type type = nse_type(nse);
+  struct sockaddr_in peer;
+  struct telnet_state *ts;
+  int nbytes;
+  char *str;
+  int read_timeout = -1;
+  int write_timeout = 2000;
+  ts = (struct telnet_state *)mydata;
 
-nsock_iod nsi = nse_iod(nse);
-enum nse_status status = nse_status(nse);
-enum nse_type type = nse_type(nse);
-struct sockaddr_in peer;
-struct telnet_state *ts;
-int nbytes;
-char *str;
-int read_timeout = -1;
-int write_timeout = 2000;
+  printf("telnet_event_handler: Received callback of type %s with status %s\n", nse_type2str(type), nse_status2str(status));
 
- ts = (struct telnet_state *) mydata; 
+  if (status == NSE_STATUS_SUCCESS) {
+    switch (type) {
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      nsi_getlastcommunicationinfo(nsi, NULL, NULL, NULL, (struct sockaddr *)&peer, sizeof peer);
+      printf("Successfully connected %sto %s:%hu -- start typing lines\n", (type == NSE_TYPE_CONNECT_SSL) ? "(SSL!) " : "", inet_ntoa(peer.sin_addr), peer.sin_port);
+      /* First of all, lets add STDIN to our list of watched filehandles */
+      if ((ts->stdin_nsi = nsi_new2(nsp, STDIN_FILENO, NULL)) == NULL) {
+        fprintf(stderr, "Failed to create stdin msi\n");
+        exit(1);
+      }
 
- printf("telnet_event_handler: Received callback of type %s with status %s\n",
-	 nse_type2str(type), nse_status2str(status));
-
- if (status == NSE_STATUS_SUCCESS ) { 
-   switch(type) {
-   case NSE_TYPE_CONNECT:
-   case NSE_TYPE_CONNECT_SSL:
-     nsi_getlastcommunicationinfo(nsi, NULL, NULL, NULL, (struct sockaddr*)&peer, sizeof peer);
-     printf("Successfully connected %sto %s:%hu -- start typing lines\n", (type == NSE_TYPE_CONNECT_SSL)? "(SSL!) " : "", inet_ntoa(peer.sin_addr), peer.sin_port);
-     /* First of all, lets add STDIN to our list of watched filehandles */
-     if ((ts->stdin_nsi = nsi_new2(nsp, STDIN_FILENO, NULL)) == NULL) {
-       fprintf(stderr, "Failed to create stdin msi\n");
-       exit(1);
-     }
-
-     /* Now lets read from stdin and the network, line buffered (by nsock) */
-     ts->latest_readtcpev = nsock_readlines(nsp, ts->tcp_nsi, telnet_event_handler, read_timeout, ts, 1);
-     ts->latest_readstdinev = nsock_readlines(nsp, ts->stdin_nsi, telnet_event_handler, read_timeout, ts, 1);
-     break;     
-   case NSE_TYPE_READ:
-     str = nse_readbuf(nse, &nbytes);
-     if (nsi == ts->tcp_nsi) {
-       printf("%s", str);
-       /*       printf("Read from tcp socket (%d bytes):\n%s", nbytes, str); */
-       ts->latest_readtcpev = nsock_readlines(nsp, ts->tcp_nsi, telnet_event_handler, read_timeout, ts, 1);
-     } else {
-       /*       printf("Read from  stdin (%d bytes):\n%s", nbytes, str); */
-       nsock_write(nsp, ts->tcp_nsi, telnet_event_handler, write_timeout, ts, str, nbytes);
-       ts->latest_readstdinev = nsock_readlines(nsp, ts->stdin_nsi, telnet_event_handler, read_timeout, ts, 1);
-     }
-     break;
-   case NSE_TYPE_WRITE:
-     /* Nothing to do, really */
-     break;
-   case NSE_TYPE_TIMER:
-     break;
-   default:
-     fprintf(stderr, "telnet_event_handler: Got bogus type -- quitting\n");
-     exit(1);
-     break;
-   }
- } else if (status == NSE_STATUS_EOF) {
-   printf("Got EOF from %s\nCancelling outstanding readevents.\n", (nsi == ts->tcp_nsi)? "tcp socket" : "stdin");
-   /* One of these is the event I am currently handling!  But I wanted to
-      be evil when testing this out... */
-   if (nsock_event_cancel(nsp, ts->latest_readtcpev, 1) != 0) {
-     printf("Cancelled tcp event: %li\n", ts->latest_readtcpev);
-   }
-   if (nsock_event_cancel(nsp, ts->latest_readstdinev, 1) != 0) {
-     printf("Cancelled stdin event: %li\n", ts->latest_readstdinev);
-   }
- } else if (status == NSE_STATUS_ERROR) {
-   if (nsi_checkssl(nsi)) {
-     printf("SSL %s failed: %s\n", nse_type2str(type), ERR_error_string(ERR_get_error(), NULL));
-   } else {
-     printf("%s failed: %s\n", nse_type2str(type), strerror(socket_errno()));
-   }
- }
- return;
+      /* Now lets read from stdin and the network, line buffered (by nsock) */
+      ts->latest_readtcpev = nsock_readlines(nsp, ts->tcp_nsi, telnet_event_handler, read_timeout, ts, 1);
+      ts->latest_readstdinev = nsock_readlines(nsp, ts->stdin_nsi, telnet_event_handler, read_timeout, ts, 1);
+      break;
+    case NSE_TYPE_READ:
+      str = nse_readbuf(nse, &nbytes);
+      if (nsi == ts->tcp_nsi) {
+        printf("%s", str);
+        /*       printf("Read from tcp socket (%d bytes):\n%s", nbytes, str); */
+        ts->latest_readtcpev = nsock_readlines(nsp, ts->tcp_nsi, telnet_event_handler, read_timeout, ts, 1);
+      } else {
+        /*       printf("Read from  stdin (%d bytes):\n%s", nbytes, str); */
+        nsock_write(nsp, ts->tcp_nsi, telnet_event_handler, write_timeout, ts, str, nbytes);
+        ts->latest_readstdinev = nsock_readlines(nsp, ts->stdin_nsi, telnet_event_handler, read_timeout, ts, 1);
+      }
+      break;
+    case NSE_TYPE_WRITE:
+      /* Nothing to do, really */
+      break;
+    case NSE_TYPE_TIMER:
+      break;
+    default:
+      fprintf(stderr, "telnet_event_handler: Got bogus type -- quitting\n");
+      exit(1);
+      break;
+    }
+  } else if (status == NSE_STATUS_EOF) {
+    printf("Got EOF from %s\nCancelling outstanding readevents.\n", (nsi == ts->tcp_nsi) ? "tcp socket" : "stdin");
+    /* One of these is the event I am currently handling!  But I wanted to
+       be evil when testing this out... */
+    if (nsock_event_cancel(nsp, ts->latest_readtcpev, 1) != 0) {
+      printf("Cancelled tcp event: %li\n", ts->latest_readtcpev);
+    }
+    if (nsock_event_cancel(nsp, ts->latest_readstdinev, 1) != 0) {
+      printf("Cancelled stdin event: %li\n", ts->latest_readstdinev);
+    }
+  } else if (status == NSE_STATUS_ERROR) {
+    if (nsi_checkssl(nsi)) {
+      printf("SSL %s failed: %s\n", nse_type2str(type), ERR_error_string(ERR_get_error(), NULL));
+    } else {
+      printf("%s failed: %s\n", nse_type2str(type), strerror(socket_errno()));
+    }
+  }
+  return;
 }
 
 void usage() {
-  fprintf(stderr, "\nUsage: nsock_telnet [-s] [-t tracelevel] <hostnameorip> [portnum]\n"
-	  "       Where -s enables SSL for the connection\n\n");
+  fprintf(stderr, "\nUsage: nsock_telnet [-s] [-t tracelevel] <hostnameorip> [portnum]\n" "       Where -s enables SSL for the connection\n\n");
   exit(1);
 }
 
@@ -204,8 +201,8 @@ int main(int argc, char *argv[]) {
 
   ts.stdin_nsi = NULL;
 
-  while((c = getopt(argc, argv, "st:")) != -1) {
-    switch(c) {
+  while ((c = getopt(argc, argv, "st:")) != -1) {
+    switch (c) {
     case 's':
       usessl = 1;
       break;
@@ -214,7 +211,8 @@ int main(int argc, char *argv[]) {
       assert(tracelevel >= 0);
       break;
     default:
-      usage(); break;
+      usage();
+      break;
     }
   }
 
@@ -230,7 +228,8 @@ int main(int argc, char *argv[]) {
 
   if (optind < argc)
     portno = atoi(argv[optind]);
-  else portno = 23;
+  else
+    portno = 23;
 
   /* OK, we start with creating a p00l */
   if ((nsp = nsp_new(NULL)) == NULL) {
@@ -251,12 +250,10 @@ int main(int argc, char *argv[]) {
   taddr.sin_addr = target;
   taddr.sin_port = portno;
 
-  if (usessl)
-  {
+  if (usessl) {
     ts.ssl_session = NULL;
     ev = nsock_connect_ssl(nsp, ts.tcp_nsi, telnet_event_handler, 10000, &ts, (struct sockaddr *)&taddr, sizeof taddr, IPPROTO_TCP, portno, ts.ssl_session);
-  }
-  else
+  } else
     ev = nsock_connect_tcp(nsp, ts.tcp_nsi, telnet_event_handler, 10000, &ts, (struct sockaddr *)&taddr, sizeof taddr, portno);
 
   printf("The event id is %lu -- initiating l00p\n", ev);
@@ -264,7 +261,7 @@ int main(int argc, char *argv[]) {
   /* Now lets get this party started right! */
   loopret = nsock_loop(nsp, -1);
 
-  printf("nsock_loop returned %d\n", (int) loopret);
+  printf("nsock_loop returned %d\n", (int)loopret);
 
   return 0;
 }

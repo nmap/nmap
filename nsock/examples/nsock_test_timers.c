@@ -68,73 +68,71 @@
 #include <assert.h>
 
 nsock_event_id ev_ids[2048];
+
 int num_ids = 0;
 
-nsock_event_id request_timer(nsock_pool nsp, nsock_ev_handler handler,
-		       int timeout_msecs, void *userdata) {
-
+nsock_event_id request_timer(nsock_pool nsp, nsock_ev_handler handler, int timeout_msecs, void *userdata) {
   nsock_event_id id;
 
   id = nsock_timer_create(nsp, handler, timeout_msecs, userdata);
-  printf("%ld: Created timer ID %li for %d ms from now\n", time(NULL), id,
-	 timeout_msecs);
+  printf("%ld: Created timer ID %li for %d ms from now\n", time(NULL), id, timeout_msecs);
 
   return id;
 
 }
 
-int try_cancel_timer(nsock_pool *nsp, int idx, int notify) {
+int try_cancel_timer(nsock_pool * nsp, int idx, int notify) {
   int res;
-  
-  printf("%ld:Attempting to cancel id %li (idx %d) %s notify.\n",
-	 time(NULL), ev_ids[idx], idx, ((notify)? "WITH" : "WITHOUT"));
+
+  printf("%ld:Attempting to cancel id %li (idx %d) %s notify.\n", time(NULL), ev_ids[idx], idx, ((notify) ? "WITH" : "WITHOUT"));
   res = nsock_event_cancel(nsp, ev_ids[idx], notify);
-  printf("Kill of %li %s\n", ev_ids[idx], (res == 0)? "FAILED" : "SUCCEEDED");
+  printf("Kill of %li %s\n", ev_ids[idx], (res == 0) ? "FAILED" : "SUCCEEDED");
   return res;
 }
 
 void timer_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
-enum nse_status status = nse_status(nse);
-enum nse_type type = nse_type(nse);
-int rnd, rnd2;
-printf("%ld:timer_handler: Received callback of type %s; status %s; id %li\n",
-	 time(NULL), nse_type2str(type), nse_status2str(status), nse_id(nse));
+  enum nse_status status = nse_status(nse);
+  enum nse_type type = nse_type(nse);
+  int rnd, rnd2;
 
- rnd = rand() % num_ids;
- rnd2 = rand() % 3;
+  printf("%ld:timer_handler: Received callback of type %s; status %s; id %li\n", time(NULL), nse_type2str(type), nse_status2str(status), nse_id(nse));
 
- if (num_ids > (sizeof(ev_ids) / sizeof(nsock_event_id)) - 3) {
-   printf("\n\nSUCCEEDED DUE TO CREATING ENOUGH EVENTS THAT IT WAS GOING TO OVERFLOW MY BUFFER :)\n\n");
-   exit(0);
- }
+  rnd = rand() % num_ids;
+  rnd2 = rand() % 3;
 
- if (status == NSE_STATUS_SUCCESS) { 
-   switch(rnd2) {
-   case 0:
-     /* do nothing */
-     /* Actually I think I'll create two timers :) */
-     ev_ids[num_ids++] = request_timer(nsp, timer_handler, rand() % 3000, NULL);
-     ev_ids[num_ids++] = request_timer(nsp, timer_handler, rand() % 3000, NULL);
-     break;
-   case 1:
-     /* Kill another id (which may or may not be active */
-     try_cancel_timer(nsp, rnd, rand() % 2);
-     break;
-   case 2:
-     /* Create a new timer */
-     ev_ids[num_ids++] = request_timer(nsp, timer_handler, rand() % 3000, NULL);
-     break;
-   default:
-     assert(0);
-   }
- }
+  if (num_ids > (sizeof(ev_ids) / sizeof(nsock_event_id)) - 3) {
+    printf("\n\nSUCCEEDED DUE TO CREATING ENOUGH EVENTS THAT IT WAS GOING TO OVERFLOW MY BUFFER :)\n\n");
+    exit(0);
+  }
+
+  if (status == NSE_STATUS_SUCCESS) {
+    switch (rnd2) {
+    case 0:
+      /* do nothing */
+      /* Actually I think I'll create two timers :) */
+      ev_ids[num_ids++] = request_timer(nsp, timer_handler, rand() % 3000, NULL);
+      ev_ids[num_ids++] = request_timer(nsp, timer_handler, rand() % 3000, NULL);
+      break;
+    case 1:
+      /* Kill another id (which may or may not be active */
+      try_cancel_timer(nsp, rnd, rand() % 2);
+      break;
+    case 2:
+      /* Create a new timer */
+      ev_ids[num_ids++] = request_timer(nsp, timer_handler, rand() % 3000, NULL);
+      break;
+    default:
+      assert(0);
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
- nsock_pool nsp;
- enum nsock_loopstatus loopret;
- int num_loops = 0;
- srand(time(NULL));
+  nsock_pool nsp;
+  enum nsock_loopstatus loopret;
+  int num_loops = 0;
+
+  srand(time(NULL));
   /* OK, we start with creating a p00l */
   if ((nsp = nsp_new(NULL)) == NULL) {
     fprintf(stderr, "Failed to create new pool.  QUITTING.\n");
@@ -150,7 +148,7 @@ int main(int argc, char *argv[]) {
   ev_ids[num_ids++] = request_timer(nsp, timer_handler, 100, NULL);
 
   /* Now lets get this party started right! */
-  while(num_loops++ < 5) {
+  while (num_loops++ < 5) {
     loopret = nsock_loop(nsp, 1500);
     if (loopret == NSOCK_LOOP_TIMEOUT)
       printf("Finished l00p #%d due to l00p timeout :)  I may do another\n", num_loops);
@@ -168,4 +166,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-
