@@ -15,9 +15,6 @@ description = [[ Generates a flood of Router Adverisments (RA) with randomized s
 -- @usage
 -- nmap -6 --script ipv6-ra-flood.nse
 -- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>'
---
--- @output
--- n/a
 
 author = "Adam Števko"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
