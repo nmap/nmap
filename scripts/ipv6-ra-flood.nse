@@ -132,7 +132,7 @@ local function broadcast_on_interface(iface)
 	-- packet counter
 	local counter = 0
 
-	local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME..".timeout")) or 30
+	local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout") or "30s")
 
 	local dnet = nmap.new_dnet()
 
