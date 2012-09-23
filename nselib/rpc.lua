@@ -2929,7 +2929,7 @@ Util =
           if Util.FileType[code] then
             return Util.FileType[code].char
           else
-            stdnse.print_debug(1,"FtypeToChar: Unkown file type, mode: %o", mode)
+            stdnse.print_debug(1,"FtypeToChar: Unknown file type, mode: %o", mode)
             return ""
           end
         end,
