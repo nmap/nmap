@@ -790,7 +790,7 @@ local function run (threads_iter, hosts)
     return NSE_YIELD_VALUE; -- return NSE_YIELD_VALUE
   end
   _R[BASE] = function ()
-    return current.co;
+    return current and current.co;
   end
   -- _R[WAITING_TO_RUNNING] is called by nse_restore in nse_main.cc
   _R[WAITING_TO_RUNNING] = function (co, ...)
@@ -823,6 +823,9 @@ local function run (threads_iter, hosts)
   end
   rawset(stdnse, "new_thread", function (main, ...)
     assert(type(main) == "function", "function expected");
+    if current == nil then
+      error "stdnse.new_thread can only be run from an active script"
+    end
     local co = create(function(...) main(...) end); -- do not return results
     print_debug(2, "%s spawning new thread (%s).",
         current.parent.info, tostring(co));
@@ -852,7 +855,7 @@ local function run (threads_iter, hosts)
     return co, info;
   end);
   rawset(stdnse, "base", function ()
-    return current.co;
+    return current and current.co;
   end);
 
   while threads_iter and num_threads < CONCURRENCY_LIMIT do
@@ -1284,6 +1287,10 @@ local function main (hosts, scantype)
   elseif scantype == NSE_POST_SCAN then
     print_verbose(1, "Script Post-scanning.");
   end
+
+  -- These functions do not exist until we are executing action functions.
+  rawset(stdnse, "new_thread", nil)
+  rawset(stdnse, "base", nil)
 
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
