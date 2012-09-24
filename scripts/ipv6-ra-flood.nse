@@ -9,12 +9,12 @@ description = [[ Generates a flood of Router Adverisments (RA) with random sourc
 will start to compute IPv6 suffix and update their routing table to reflect the accepted annoucement. This will cause 100% CPU usage, thus preventing to process other application requests.
 
 Vulnerable platforms:
-  * All Cisco IOS ASA with firmware < November 2010
-  * All Netscreen versions supporting IPv6
-  * Windows 2000/XP/2003/Vista/7/2008/8/2012 
-  * All FreeBSD versions
-  * All NetBSD versions
-  * All Solaris/Illumos versions 
+* All Cisco IOS ASA with firmware < November 2010
+* All Netscreen versions supporting IPv6
+* Windows 2000/XP/2003/Vista/7/2008/8/2012 
+* All FreeBSD versions
+* All NetBSD versions
+* All Solaris/Illumos versions 
 
 Security advisory: http://www.mh-sec.de/downloads/mh-RA_flooding_CVE-2010-multiple.txt
 
@@ -26,14 +26,13 @@ Additional documents: https://tools.ietf.org/rfc/rfc6104.txt
 ]]
 
 ---
--- @args
--- ipv6-ra-flood.interface defines interface we should broadcast on
--- ipv6-ra-flood.timeout runs the script until the timeout (in seconds) is reached (default: 30s). If timeout is zero, the script will run forever.
+-- @args ipv6-ra-flood.interface defines interface we should broadcast on
+-- @args ipv6-ra-flood.timeout runs the script until the timeout (in seconds) is reached (default: 30s). If timeout is zero, the script will run forever.
 --
 -- @usage
 -- nmap -6 --script ipv6-ra-flood.nse
 -- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>'
--- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>,timeout=10'
+-- nmap -6 --script ipv6-ra-flood.nse --script-args 'interface=<interface>,timeout=10s'
 
 author = "Adam Števko"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -54,7 +53,7 @@ prerule = function()
 		return false 
 	end
 
-	if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") then
+	if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
 		stdnse.print_debug("No interface was selected, aborting...", SCRIPT_NAME)	
 		return false 
 	end
@@ -63,7 +62,7 @@ prerule = function()
 end
 
 local function get_interface()
-	local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
+	local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
 
 	local if_table = nmap.get_interface_info(arg_interface)
 	
