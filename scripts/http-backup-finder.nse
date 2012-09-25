@@ -87,6 +87,12 @@ action = function(host, port)
 	local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
 	crawler:set_timeout(10000)
 
+	local res, res404, known404 = http.identify_404(host, port)
+	if not res then
+		stdnse.print_debug("%s: Can't identify 404 pages", SCRIPT_NAME)
+		return nil
+	end
+
 	local backups = {}
 	while(true) do
 		local status, r = crawler:crawl()
@@ -127,7 +133,7 @@ action = function(host, port)
 
 				-- attempt a HEAD-request against each of the backup files
 				local response = http.head(host, port, escaped_link)
-				if ( response.status == 200 ) then
+				if http.page_exists(response, res404, known404, escaped_link, true) then
 					if ( not(parsed.port) ) then
 						table.insert(backups, 
 							("%s://%s%s"):format(parsed.scheme, host, link))
