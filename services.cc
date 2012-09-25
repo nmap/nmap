@@ -106,7 +106,7 @@
 /* This structure is the key for looking up services in the
    port/proto -> service map. */
 struct port_spec {
-  int portno; /* Network byte order */
+  int portno;
   std::string proto;
 
   /* Sort in the usual nmap-services order. */
@@ -234,8 +234,6 @@ static int nmap_services_init() {
       continue;
     }
 
-    portno = htons(portno);
-
     port_spec ps;
     ps.portno = portno;
     ps.proto = proto;
@@ -245,7 +243,7 @@ static int nmap_services_init() {
     i = service_table.find(ps);
     if (i != service_table.end()) {
       if (o.debugging)
-        error("Port %d proto %s is duplicated in services file %s", ntohs(portno), proto, filename);
+        error("Port %d proto %s is duplicated in services file %s", portno, proto, filename);
       continue;
     }
 
@@ -314,15 +312,15 @@ int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
     service_node& current = i->second;
     if (wildtest(mask, current.s_name)) {
       if ((range_type & SCAN_TCP_PORT) && strcmp(current.s_proto, "tcp") == 0) {
-        porttbl[ntohs(current.s_port)] |= SCAN_TCP_PORT;
+        porttbl[current.s_port] |= SCAN_TCP_PORT;
         t++;
       }
       if ((range_type & SCAN_UDP_PORT) && strcmp(current.s_proto, "udp") == 0) {
-        porttbl[ntohs(current.s_port)] |= SCAN_UDP_PORT;
+        porttbl[current.s_port] |= SCAN_UDP_PORT;
         t++;
       }
       if ((range_type & SCAN_SCTP_PORT) && strcmp(current.s_proto, "sctp") == 0) {
-        porttbl[ntohs(current.s_port)] |= SCAN_SCTP_PORT;
+        porttbl[current.s_port] |= SCAN_SCTP_PORT;
         t++;
       }
     }
@@ -333,7 +331,6 @@ int addportsfromservmask(char *mask, u8 *porttbl, int range_type) {
 
 
 
-/* Port must be in network byte order. */
 struct servent *nmap_getservbyport(int port, const char *proto) {
   std::map<port_spec, service_node>::iterator i;
   port_spec ps;
@@ -371,15 +368,15 @@ static bool is_port_member(const struct scan_lists *ptsdata, const struct servic
 
   if (strcmp(serv->s_proto, "tcp") == 0) {
     for (i=0; i<ptsdata->tcp_count; i++)
-      if (ntohs(serv->s_port) == ptsdata->tcp_ports[i])
+      if (serv->s_port == ptsdata->tcp_ports[i])
         return true;
   } else if (strcmp(serv->s_proto, "udp") == 0) {
     for (i=0; i<ptsdata->udp_count; i++)
-      if (ntohs(serv->s_port) == ptsdata->udp_ports[i])
+      if (serv->s_port == ptsdata->udp_ports[i])
         return true;
   } else if (strcmp(serv->s_proto, "sctp") == 0) {
     for (i=0; i<ptsdata->sctp_count; i++)
-      if (ntohs(serv->s_port) == ptsdata->sctp_ports[i])
+      if (serv->s_port == ptsdata->sctp_ports[i])
         return true;
   }
 
@@ -473,11 +470,11 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports) {
         continue;
       if (current->ratio >= level) {
         if (o.TCPScan() && strcmp(current->s_proto, "tcp") == 0)
-          ports->tcp_ports[ti++] = ntohs(current->s_port);
+          ports->tcp_ports[ti++] = current->s_port;
         else if (o.UDPScan() && strcmp(current->s_proto, "udp") == 0)
-          ports->udp_ports[ui++] = ntohs(current->s_port);
+          ports->udp_ports[ui++] = current->s_port;
         else if (o.SCTPScan() && strcmp(current->s_proto, "sctp") == 0)
-          ports->sctp_ports[si++] = ntohs(current->s_port);
+          ports->sctp_ports[si++] = current->s_port;
       } else {
         break;
       }
@@ -506,11 +503,11 @@ void gettoppts(double level, char *portlist, struct scan_lists * ports) {
       if (ptsdata_initialized && !is_port_member(&ptsdata, current))
         continue;
       if (o.TCPScan() && strcmp(current->s_proto, "tcp") == 0 && ti < ports->tcp_count)
-        ports->tcp_ports[ti++] = ntohs(current->s_port);
+        ports->tcp_ports[ti++] = current->s_port;
       else if (o.UDPScan() && strcmp(current->s_proto, "udp") == 0 && ui < ports->udp_count)
-        ports->udp_ports[ui++] = ntohs(current->s_port);
+        ports->udp_ports[ui++] = current->s_port;
       else if (o.SCTPScan() && strcmp(current->s_proto, "sctp") == 0 && si < ports->sctp_count)
-        ports->sctp_ports[si++] = ntohs(current->s_port);
+        ports->sctp_ports[si++] = current->s_port;
     }
 
     if (ti < ports->tcp_count) ports->tcp_count = ti;

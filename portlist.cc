@@ -173,7 +173,7 @@ void Port::getNmapServiceName(char *namebuf, int buflen) const {
   } else {
     struct servent *service;
 
-    service = nmap_getservbyport(htons(portno), IPPROTO2STR(proto));
+    service = nmap_getservbyport(portno, IPPROTO2STR(proto));
     if (service != NULL)
       service_name = service->s_name;
     else
@@ -293,7 +293,7 @@ void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDedu
 
     /* Look up the service name. */
     *sd = serviceDeductions();
-    service = nmap_getservbyport(htons(portno), IPPROTO2STR(protocol));
+    service = nmap_getservbyport(portno, IPPROTO2STR(protocol));
     if (service != NULL)
       sd->name = service->s_name;
     else
@@ -360,7 +360,7 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
        Just look up the service name if none is provided. */
     if (sname == NULL) {
       struct servent *service;
-      service = nmap_getservbyport(htons(portno), IPPROTO2STR(protocol));
+      service = nmap_getservbyport(portno, IPPROTO2STR(protocol));
       if (service != NULL)
         sname = service->s_name;
     }
