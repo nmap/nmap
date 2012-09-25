@@ -142,10 +142,9 @@ static int nmap_protocols_init() {
     res = sscanf(line, "%127s %hu", protocolname, &protno);
     if (res !=2)
       continue;
-    protno = htons(protno);
 
     /* Now we make sure our protocols don't have duplicates */
-    for(current = protocol_table[0], previous = NULL;
+    for(current = protocol_table[protno % PROTOCOL_TABLE_SIZE], previous = NULL;
 	current; current = current->next) {
       if (protno == current->protoent->p_proto) {
 	if (o.debugging) {
@@ -164,7 +163,7 @@ static int nmap_protocols_init() {
     current->protoent = (struct protoent *) cp_alloc(sizeof(struct protoent));
     current->next = NULL;
     if (previous == NULL) {
-      protocol_table[protno] = current;
+      protocol_table[protno % PROTOCOL_TABLE_SIZE] = current;
     } else {
       previous->next = current;
     }

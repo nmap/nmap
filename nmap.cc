@@ -2673,7 +2673,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
             porttbl[rangestart] |= SCAN_SCTP_PORT;
           }
           if ((range_type & SCAN_PROTOCOLS) &&
-              nmap_getprotbynum(htons(rangestart))) {
+              nmap_getprotbynum(rangestart)) {
             porttbl[rangestart] |= SCAN_PROTOCOLS;
           }
         } else {

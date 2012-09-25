@@ -666,7 +666,7 @@ void printportoutput(Target *currenths, PortList *plist) {
         if (o.reason)
           Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
         state = statenum2str(current->state);
-        proto = nmap_getprotbynum(htons(current->portno));
+        proto = nmap_getprotbynum(current->portno);
         Snprintf(portinfo, sizeof(portinfo), "%s", proto ? proto->p_name : "unknown");
         Tbl->addItemFormatted(rowno, portcol, false, "%d", current->portno);
         Tbl->addItem(rowno, statecol, true, state);
@@ -2244,7 +2244,7 @@ static void printtraceroute_normal(Target *currenths) {
     log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
               probe.pd.sctp.dport, proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_ICMPV6 || probe.type == PS_PROTO) {
-    struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
+    struct protoent *proto = nmap_getprotbynum(probe.proto);
     log_write(LOG_PLAIN, "TRACEROUTE (using proto %d/%s)\n",
               probe.proto, proto ? proto->p_name : "unknown");
   } else if (probe.type == PS_NONE) {
@@ -2351,7 +2351,7 @@ static void printtraceroute_xml(Target *currenths) {
     xml_attribute("port", "%d", probe.pd.sctp.dport);
     xml_attribute("proto", "%s", proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
-    struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
+    struct protoent *proto = nmap_getprotbynum(probe.proto);
     if (proto == NULL)
       xml_attribute("proto", "%d", probe.proto);
     else
