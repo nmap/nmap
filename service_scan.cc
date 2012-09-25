@@ -2296,7 +2296,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
   SG = (ServiceGroup *) nsp_getud(nsp);
   nsi = nse_iod(nse);
 
-  // Check if a status message was requsted
+  // Check if a status message was requested
   if (keyWasPressed()) {
      SG->SPM->printStats(SG->services_finished.size() /
                          ((double)SG->services_remaining.size() + SG->services_in_progress.size() + 
