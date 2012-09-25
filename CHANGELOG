@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed protocol number-to-name mapping. A patch was contributed by
+  hejianet.
+
 o [NSE] Added cassandra-brute and cassandra-info by Vlatko Kosturjak,
   scripts for the Apache Cassandra database.
 
