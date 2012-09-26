@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that prevented Nmap from finding any interfaces when one
+  of them had the type ARPHDR_IEEE80211; this was the case for wireless
+  interfaces operating in access point mode. This bug was reported by
+  Sebastiaan Vileijn. [Djalal Harouni]
+
 o Fixed protocol number-to-name mapping. A patch was contributed by
   hejianet.
 
