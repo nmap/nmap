@@ -1,6 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
 o Fixed a bug that prevented Nmap from finding any interfaces when one
+  of them had the type ARPHDR_INFINIBAND; this was the case for
+  IP-over-InfiniBand interfaces. However, This support is not complete
+  since IPoIB interfaces use 20 bytes for the hardware address, and
+  currently we only report and handle 6 bytes.
+  Nmap IP level scans should work without any problem, please refer to
+  the '--send-ip' switch and to the following thread:
+  http://seclists.org/nmap-dev/2012/q3/642
+  This bug was reported by starlight.2012q3. [Djalal Harouni]
+
+o Fixed a bug that prevented Nmap from finding any interfaces when one
   of them had the type ARPHDR_IEEE80211; this was the case for wireless
   interfaces operating in access point mode. This bug was reported by
   Sebastiaan Vileijn. [Djalal Harouni]
