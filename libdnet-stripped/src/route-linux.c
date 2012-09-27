@@ -220,7 +220,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		uint32_t mask;
 		
 		while (fgets(buf, sizeof(buf), fp) != NULL) {
-			i = sscanf(buf, "%16s %X %X %X %d %d %d %X %d %d %d\n",
+			i = sscanf(buf, "%15s %X %X %X %d %d %d %X %d %d %d\n",
 			    ifbuf, &entry.route_dst.addr_ip,
 			    &entry.route_gw.addr_ip, &iflags, &refcnt, &use,
 			    &metric, &mask, &mss, &win, &irtt);
