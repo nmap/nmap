@@ -255,6 +255,10 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    &dlen, s, &slen,
 			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
 			    &iflags, ifbuf);
+			
+			if (i < 21 || !(iflags & RTF_UP))
+				continue;
+
 			snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
 			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
 			    dlen);
@@ -263,9 +267,6 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
 			    IP6_ADDR_BITS);
 			addr_aton(buf, &entry.route_gw);
-			
-			if (i < 21 || !(iflags & RTF_UP))
-				continue;
 			
 			if ((ret = callback(&entry, arg)) != 0)
 				break;
