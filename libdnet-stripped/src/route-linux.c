@@ -225,7 +225,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    &entry.route_gw.addr_ip, &iflags, &refcnt, &use,
 			    &metric, &mask, &mss, &win, &irtt);
 			
-			if (i < 10 || !(iflags & RTF_UP))
+			if (i < 11 || !(iflags & RTF_UP))
 				continue;
 		
 			entry.route_dst.addr_type = entry.route_gw.addr_type =
