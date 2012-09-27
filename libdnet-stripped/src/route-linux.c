@@ -212,10 +212,10 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	FILE *fp;
 	struct route_entry entry;
 	char buf[BUFSIZ];
+	char ifbuf[16];
 	int ret = 0;
 
 	if ((fp = fopen(PROC_ROUTE_FILE, "r")) != NULL) {
-		char ifbuf[16];
 		int i, iflags, refcnt, use, metric, mss, win, irtt;
 		uint32_t mask;
 		
@@ -244,14 +244,17 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	}
 	if (ret == 0 && (fp = fopen(PROC_IPV6_ROUTE_FILE, "r")) != NULL) {
 		char s[33], d[8][5], n[8][5];
+		int i, iflags;
 		u_int slen, dlen;
 		
 		while (fgets(buf, sizeof(buf), fp) != NULL) {
-			sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x "
-			    "%32s %02x %04s%04s%04s%04s%04s%04s%04s%04s ",
+			i = sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x "
+			    "%32s %02x %04s%04s%04s%04s%04s%04s%04s%04s "
+			    "%*x %*x %*x %x %15s",
 			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
 			    &dlen, s, &slen,
-			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7]);
+			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
+			    &iflags, ifbuf);
 			snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
 			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
 			    dlen);
@@ -260,6 +263,9 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
 			    IP6_ADDR_BITS);
 			addr_aton(buf, &entry.route_gw);
+			
+			if (i < 21 || !(iflags & RTF_UP))
+				continue;
 			
 			if ((ret = callback(&entry, arg)) != 0)
 				break;
