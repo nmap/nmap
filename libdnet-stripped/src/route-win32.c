@@ -99,6 +99,8 @@ route_get(route_t *route, struct route_entry *entry)
 {
 	MIB_IPFORWARDROW ipfrow;
 	DWORD mask;
+	intf_t *intf;
+	struct intf_entry intf_entry;
 
 	if (entry->route_dst.addr_type != ADDR_TYPE_IP ||
 	    GetBestRoute(entry->route_dst.addr_ip,
@@ -115,10 +117,17 @@ route_get(route_t *route, struct route_entry *entry)
 	}
 	addr_btom(entry->route_dst.addr_bits, &mask, IP_ADDR_LEN);
 	
-	entry->intf_name[0] = '\0';
 	entry->route_gw.addr_type = ADDR_TYPE_IP;
 	entry->route_gw.addr_bits = IP_ADDR_BITS;
 	entry->route_gw.addr_ip = ipfrow.dwForwardNextHop;
+
+	entry->intf_name[0] = '\0';
+	intf = intf_open();
+	if (intf_get_index(intf, &intf_entry,
+	    AF_INET, ipfrow.dwForwardIfIndex) == 0) {
+		strlcpy(entry->intf_name, intf_entry.intf_name, sizeof(entry->intf_name));
+	}
+	intf_close(intf);
 	
 	return (0);
 }
@@ -127,6 +136,7 @@ static int
 route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 {
  	struct route_entry entry;
+	intf_t *intf;
 	ULONG len;
 	int i, ret;
  	
@@ -140,9 +150,12 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 		else if (ret != ERROR_INSUFFICIENT_BUFFER)
 			return (-1);
 	}
+
+	intf = intf_open();
 	
+	ret = 0;
 	for (i = 0; i < (int)r->ipftable->dwNumEntries; i++) {
-		entry.intf_name[0] = '\0';
+		struct intf_entry intf_entry;
 
 		entry.route_dst.addr_type = ADDR_TYPE_IP;
 		entry.route_dst.addr_bits = IP_ADDR_BITS;
@@ -155,11 +168,22 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 		    &entry.route_dst.addr_bits);
 		entry.route_gw.addr_ip =
 		    r->ipftable->table[i].dwForwardNextHop;
+
+		/* Look up the interface name. */
+		entry.intf_name[0] = '\0';
+		intf_entry.intf_len = sizeof(intf_entry);
+		if (intf_get_index(intf, &intf_entry,
+		    AF_INET, r->ipftable->table[i].dwForwardIfIndex) == 0) {
+			strlcpy(entry.intf_name, intf_entry.intf_name, sizeof(entry.intf_name));
+		}
 		
 		if ((ret = (*callback)(&entry, arg)) != 0)
-			return (ret);
+			break;
 	}
-	return (0);
+
+	intf_close(intf);
+
+	return ret;
 }
 
 static int
@@ -167,6 +191,7 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
 	route_t *r, route_handler callback, void *arg)
 {
 	struct route_entry entry;
+	intf_t *intf;
 	ULONG i;
 	int ret;
 	
@@ -174,19 +199,34 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
 	if (ret != NO_ERROR)
 		return (-1);
 
+	intf = intf_open();
+
+	ret = 0;
 	for (i = 0; i < r->ipftable2->NumEntries; i++) {
+		struct intf_entry intf_entry;
 		MIB_IPFORWARD_ROW2 *row;
 
 		row = &r->ipftable2->Table[i];
-		entry.intf_name[0] = '\0';
 		addr_ston((struct sockaddr *) &row->DestinationPrefix.Prefix, &entry.route_dst);
 		entry.route_dst.addr_bits = row->DestinationPrefix.PrefixLength;
 		addr_ston((struct sockaddr *) &row->NextHop, &entry.route_gw);
+
+		/* Look up the interface name. */
+		entry.intf_name[0] = '\0';
+		intf_entry.intf_len = sizeof(intf_entry);
+		if (intf_get_index(intf, &intf_entry,
+		    row->DestinationPrefix.Prefix.si_family,
+		    row->InterfaceIndex) == 0) {
+			strlcpy(entry.intf_name, intf_entry.intf_name, sizeof(entry.intf_name));
+		}
 		
 		if ((ret = (*callback)(&entry, arg)) != 0)
-			return (ret);
+			break;
 	}
-	return (0);
+
+	intf_close(intf);
+
+	return ret;
 }
 
 int
