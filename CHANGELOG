@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed libdnet's routing interface to return an interface name for
+  each route on the most common operating systems. This is used to
+  improve the quality of Nmap's matching of routes to interfaces,
+  which was previously done by matching routes to interface addresses.
+  [Djalal Harouni, David Fifield]
+
 o Fixed a bug that prevented Nmap from finding any interfaces when one
   of them had the type ARPHDR_INFINIBAND; this was the case for
   IP-over-InfiniBand interfaces. However, This support is not complete
