@@ -35,6 +35,7 @@
 #define route_t	oroute_t	/* XXX - unixware */
 #include <net/route.h>
 #undef route_t
+#include <net/if.h>
 #include <netinet/in.h>
 
 #include <errno.h>
@@ -76,7 +77,7 @@ route_msg_print(struct rt_msghdr *rtm)
 #endif
 
 static int
-route_msg(route_t *r, int type, struct addr *dst, struct addr *gw)
+route_msg(route_t *r, int type, char intf_name[INTF_NAME_LEN], struct addr *dst, struct addr *gw)
 {
 	struct addr net;
 	struct rt_msghdr *rtm;
@@ -153,6 +154,16 @@ route_msg(route_t *r, int type, struct addr *dst, struct addr *gw)
 			errno = ESRCH;
 			return (-1);
 		}
+
+		if (intf_name != NULL) {
+			char namebuf[IF_NAMESIZE];
+
+			if (if_indextoname(rtm->rtm_index, namebuf) == NULL) {
+				errno = ESRCH;
+				return (-1);
+			}
+			strlcpy(intf_name, namebuf, sizeof(intf_name));
+		}
 	}
 	return (0);
 }
@@ -185,7 +196,7 @@ route_add(route_t *r, const struct route_entry *entry)
 	
 	memcpy(&rtent, entry, sizeof(rtent));
 	
-	if (route_msg(r, RTM_ADD, &rtent.route_dst, &rtent.route_gw) < 0)
+	if (route_msg(r, RTM_ADD, NULL, &rtent.route_dst, &rtent.route_gw) < 0)
 		return (-1);
 	
 	return (0);
@@ -201,7 +212,7 @@ route_delete(route_t *r, const struct route_entry *entry)
 	if (route_get(r, &rtent) < 0)
 		return (-1);
 	
-	if (route_msg(r, RTM_DELETE, &rtent.route_dst, &rtent.route_gw) < 0)
+	if (route_msg(r, RTM_DELETE, NULL, &rtent.route_dst, &rtent.route_gw) < 0)
 		return (-1);
 	
 	return (0);
@@ -210,7 +221,7 @@ route_delete(route_t *r, const struct route_entry *entry)
 int
 route_get(route_t *r, struct route_entry *entry)
 {
-	if (route_msg(r, RTM_GET, &entry->route_dst, &entry->route_gw) < 0)
+	if (route_msg(r, RTM_GET, entry->intf_name, &entry->route_dst, &entry->route_gw) < 0)
 		return (-1);
 	entry->intf_name[0] = '\0';
 	
@@ -316,10 +327,13 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	 * values, 1, 2, and 4 respectively. Cf. Unix Network Programming,
 	 * p. 494, function get_rtaddrs. */
 	for (ret = 0; next < lim; next += rtm->rtm_msglen) {
+		char namebuf[IF_NAMESIZE];
 		rtm = (struct rt_msghdr *)next;
 		sa = (struct sockaddr *)(rtm + 1);
 
-		entry.intf_name[0] = '\0';
+		if (if_indextoname(rtm->rtm_index, namebuf) == NULL)
+			continue;
+		strlcpy(entry.intf_name, namebuf, sizeof(entry.intf_name));
 
 		if ((rtm->rtm_addrs & RTA_DST) == 0)
 			/* Need a destination. */
