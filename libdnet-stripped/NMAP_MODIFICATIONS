@@ -1260,3 +1260,354 @@ Index: libdnet-stripped/src/addr.c
  	case ARP_HDR_IEEE80211: /* IEEE 802.11 */
  	case ARP_HRD_IEEE80211_RADIOTAP: /* IEEE 802.11 + radiotap header */
  		a->addr_type = ADDR_TYPE_ETH;
+
+o Added the interface name to struct route_entry, and caused it to be
+  filled in on Linux, Windows, and OS X.
+
+diff --git a/libdnet-stripped/include/dnet/route.h b/libdnet-stripped/include/dnet/route.h
+index 3807b45..7969772 100644
+--- a/libdnet-stripped/include/dnet/route.h
++++ b/libdnet-stripped/include/dnet/route.h
+@@ -15,6 +15,7 @@
+  * Routing table entry
+  */
+ struct route_entry {
++	char		intf_name[INTF_NAME_LEN];	/* interface name */
+ 	struct addr	route_dst;	/* destination address */
+ 	struct addr	route_gw;	/* gateway address */
+ };
+diff --git a/libdnet-stripped/src/route-bsd.c b/libdnet-stripped/src/route-bsd.c
+index 9bfd58d..33f2985 100644
+--- a/libdnet-stripped/src/route-bsd.c
++++ b/libdnet-stripped/src/route-bsd.c
+@@ -35,6 +35,7 @@
+ #define route_t	oroute_t	/* XXX - unixware */
+ #include <net/route.h>
+ #undef route_t
++#include <net/if.h>
+ #include <netinet/in.h>
+ 
+ #include <errno.h>
+@@ -76,7 +77,7 @@ route_msg_print(struct rt_msghdr *rtm)
+ #endif
+ 
+ static int
+-route_msg(route_t *r, int type, struct addr *dst, struct addr *gw)
++route_msg(route_t *r, int type, char intf_name[INTF_NAME_LEN], struct addr *dst, struct addr *gw)
+ {
+ 	struct addr net;
+ 	struct rt_msghdr *rtm;
+@@ -153,6 +154,16 @@ route_msg(route_t *r, int type, struct addr *dst, struct addr *gw)
+ 			errno = ESRCH;
+ 			return (-1);
+ 		}
++
++		if (intf_name != NULL) {
++			char namebuf[IF_NAMESIZE];
++
++			if (if_indextoname(rtm->rtm_index, namebuf) == NULL) {
++				errno = ESRCH;
++				return (-1);
++			}
++			strlcpy(intf_name, namebuf, sizeof(intf_name));
++		}
+ 	}
+ 	return (0);
+ }
+@@ -185,7 +196,7 @@ route_add(route_t *r, const struct route_entry *entry)
+ 	
+ 	memcpy(&rtent, entry, sizeof(rtent));
+ 	
+-	if (route_msg(r, RTM_ADD, &rtent.route_dst, &rtent.route_gw) < 0)
++	if (route_msg(r, RTM_ADD, NULL, &rtent.route_dst, &rtent.route_gw) < 0)
+ 		return (-1);
+ 	
+ 	return (0);
+@@ -201,7 +212,7 @@ route_delete(route_t *r, const struct route_entry *entry)
+ 	if (route_get(r, &rtent) < 0)
+ 		return (-1);
+ 	
+-	if (route_msg(r, RTM_DELETE, &rtent.route_dst, &rtent.route_gw) < 0)
++	if (route_msg(r, RTM_DELETE, NULL, &rtent.route_dst, &rtent.route_gw) < 0)
+ 		return (-1);
+ 	
+ 	return (0);
+@@ -210,8 +221,9 @@ route_delete(route_t *r, const struct route_entry *entry)
+ int
+ route_get(route_t *r, struct route_entry *entry)
+ {
+-	if (route_msg(r, RTM_GET, &entry->route_dst, &entry->route_gw) < 0)
++	if (route_msg(r, RTM_GET, entry->intf_name, &entry->route_dst, &entry->route_gw) < 0)
+ 		return (-1);
++	entry->intf_name[0] = '\0';
+ 	
+ 	return (0);
+ }
+@@ -315,9 +327,14 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 	 * values, 1, 2, and 4 respectively. Cf. Unix Network Programming,
+ 	 * p. 494, function get_rtaddrs. */
+ 	for (ret = 0; next < lim; next += rtm->rtm_msglen) {
++		char namebuf[IF_NAMESIZE];
+ 		rtm = (struct rt_msghdr *)next;
+ 		sa = (struct sockaddr *)(rtm + 1);
+ 
++		if (if_indextoname(rtm->rtm_index, namebuf) == NULL)
++			continue;
++		strlcpy(entry.intf_name, namebuf, sizeof(entry.intf_name));
++
+ 		if ((rtm->rtm_addrs & RTA_DST) == 0)
+ 			/* Need a destination. */
+ 			continue;
+@@ -443,6 +460,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 				    rt->ipRouteNextHop == IP_ADDR_ANY)
+ 					continue;
+ 				
++				entry.intf_name[0] = '\0';
++
+ 				sin.sin_addr.s_addr = rt->ipRouteNextHop;
+ 				addr_ston((struct sockaddr *)&sin,
+ 				    &entry.route_gw);
+@@ -535,6 +554,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 				    memcmp(&rt->ipv6RouteNextHop, IP6_ADDR_UNSPEC, IP6_ADDR_LEN) == 0)
+ 					continue;
+ 				
++				entry.intf_name[0] = '\0';
++
+ 				sin6.sin6_addr = rt->ipv6RouteNextHop;
+ 				addr_ston((struct sockaddr *)&sin6,
+ 				    &entry.route_gw);
+@@ -576,6 +597,7 @@ _radix_walk(int fd, struct radix_node *rn, route_handler callback, void *arg)
+ 	_kread(fd, rn, &rnode, sizeof(rnode));
+ 	if (rnode.rn_b < 0) {
+ 		if (!(rnode.rn_flags & RNF_ROOT)) {
++			entry.intf_name[0] = '\0';
+ 			_kread(fd, rn, &rt, sizeof(rt));
+ 			_kread(fd, rt_key(&rt), &sin, sizeof(sin));
+ 			addr_ston((struct sockaddr *)&sin, &entry.route_dst);
+diff --git a/libdnet-stripped/src/route-hpux.c b/libdnet-stripped/src/route-hpux.c
+index a22efdf..a542347 100644
+--- a/libdnet-stripped/src/route-hpux.c
++++ b/libdnet-stripped/src/route-hpux.c
+@@ -116,6 +116,7 @@ route_get(route_t *r, struct route_entry *entry)
+ 		errno = ESRCH;
+ 		return (-1);
+ 	}
++	entry->intf_name[0] = '\0';
+ 	entry->route_gw.addr_type = ADDR_TYPE_IP;
+ 	entry->route_gw.addr_bits = IP_ADDR_BITS;
+ 	memcpy(&entry->route_gw.addr_ip, &rtr.rtr_gwayaddr, IP_ADDR_LEN);
+@@ -147,8 +148,6 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 	}
+ 	close_mib(fd);
+ 
+-	entry.route_dst.addr_type = entry.route_gw.addr_type = ADDR_TYPE_IP;
+-	entry.route_dst.addr_bits = entry.route_gw.addr_bits = IP_ADDR_BITS;
+ 	n /= sizeof(*rtentries);
+ 	ret = 0;
+ 	
+@@ -157,6 +156,9 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 		    rtentries[i].Type != NMREMOTE)
+ 			continue;
+ 		
++		entry.intf_name[0] = '\0';
++		entry.route_dst.addr_type = entry.route_gw.addr_type = ADDR_TYPE_IP;
++		entry.route_dst.addr_bits = entry.route_gw.addr_bits = IP_ADDR_BITS;
+ 		entry.route_dst.addr_ip = rtentries[i].Dest;
+ 		addr_mtob(&rtentries[i].Mask, IP_ADDR_LEN,
+ 		    &entry.route_dst.addr_bits);
+diff --git a/libdnet-stripped/src/route-linux.c b/libdnet-stripped/src/route-linux.c
+index bc788d6..a80b71b 100644
+--- a/libdnet-stripped/src/route-linux.c
++++ b/libdnet-stripped/src/route-linux.c
+@@ -14,6 +14,7 @@
+ #include <sys/uio.h>
+ 
+ #include <asm/types.h>
++#include <net/if.h>
+ #include <netinet/in.h>
+ #include <linux/netlink.h>
+ #include <linux/rtnetlink.h>
+@@ -192,18 +193,31 @@ route_get(route_t *r, struct route_entry *entry)
+ 	
+ 	i -= NLMSG_LENGTH(sizeof(*nmsg));
+ 	
+-	while (RTA_OK(rta, i)) {
++	entry->route_gw.addr_type = ADDR_TYPE_NONE;
++	entry->intf_name[0] = '\0';
++	for (rta = RTM_RTA(rmsg); RTA_OK(rta, i); rta = RTA_NEXT(rta, i)) {
+ 		if (rta->rta_type == RTA_GATEWAY) {
+ 			entry->route_gw.addr_type = entry->route_dst.addr_type;
+ 			memcpy(entry->route_gw.addr_data8, RTA_DATA(rta), alen);
+ 			entry->route_gw.addr_bits = alen * 8;
+-			return (0);
++		} else if (rta->rta_type == RTA_OIF) {
++			char ifbuf[IFNAMSIZ];
++			char *p;
++			int intf_index;
++
++			intf_index = *(int *) RTA_DATA(rta);
++			p = if_indextoname(intf_index, ifbuf);
++			if (p == NULL)
++				return (-1);
++			strlcpy(entry->intf_name, ifbuf, sizeof(entry->intf_name));
+ 		}
+-		rta = RTA_NEXT(rta, i);
+ 	}
+-	errno = ESRCH;
++	if (entry->route_gw.addr_type == ADDR_TYPE_NONE) {
++		errno = ESRCH;
++		return (-1);
++	}
+ 	
+-	return (-1);
++	return (0);
+ }
+ 
+ int
+@@ -228,6 +242,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 			if (i < 11 || !(iflags & RTF_UP))
+ 				continue;
+ 		
++			strlcpy(entry.intf_name, ifbuf, sizeof(entry.intf_name));
++
+ 			entry.route_dst.addr_type = entry.route_gw.addr_type =
+ 			    ADDR_TYPE_IP;
+ 		
+@@ -259,6 +275,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
+ 			if (i < 21 || !(iflags & RTF_UP))
+ 				continue;
+ 
++			strlcpy(entry.intf_name, ifbuf, sizeof(entry.intf_name));
++
+ 			snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
+ 			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
+ 			    dlen);
+diff --git a/libdnet-stripped/src/route-win32.c b/libdnet-stripped/src/route-win32.c
+index f12c8f7..ff86851 100644
+--- a/libdnet-stripped/src/route-win32.c
++++ b/libdnet-stripped/src/route-win32.c
+@@ -99,6 +99,8 @@ route_get(route_t *route, struct route_entry *entry)
+ {
+ 	MIB_IPFORWARDROW ipfrow;
+ 	DWORD mask;
++	intf_t *intf;
++	struct intf_entry intf_entry;
+ 
+ 	if (entry->route_dst.addr_type != ADDR_TYPE_IP ||
+ 	    GetBestRoute(entry->route_dst.addr_ip,
+@@ -118,6 +120,14 @@ route_get(route_t *route, struct route_entry *entry)
+ 	entry->route_gw.addr_type = ADDR_TYPE_IP;
+ 	entry->route_gw.addr_bits = IP_ADDR_BITS;
+ 	entry->route_gw.addr_ip = ipfrow.dwForwardNextHop;
++
++	entry->intf_name[0] = '\0';
++	intf = intf_open();
++	if (intf_get_index(intf, &intf_entry,
++	    AF_INET, ipfrow.dwForwardIfIndex) == 0) {
++		strlcpy(entry->intf_name, intf_entry.intf_name, sizeof(entry->intf_name));
++	}
++	intf_close(intf);
+ 	
+ 	return (0);
+ }
+@@ -126,6 +136,7 @@ static int
+ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
+ {
+  	struct route_entry entry;
++	intf_t *intf;
+ 	ULONG len;
+ 	int i, ret;
+  	
+@@ -139,23 +150,40 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
+ 		else if (ret != ERROR_INSUFFICIENT_BUFFER)
+ 			return (-1);
+ 	}
+-	entry.route_dst.addr_type = ADDR_TYPE_IP;
+-	entry.route_dst.addr_bits = IP_ADDR_BITS;
+-	
+-	entry.route_gw.addr_type = ADDR_TYPE_IP;
+-	entry.route_gw.addr_bits = IP_ADDR_BITS;
++
++	intf = intf_open();
+ 	
++	ret = 0;
+ 	for (i = 0; i < (int)r->ipftable->dwNumEntries; i++) {
++		struct intf_entry intf_entry;
++
++		entry.route_dst.addr_type = ADDR_TYPE_IP;
++		entry.route_dst.addr_bits = IP_ADDR_BITS;
++
++		entry.route_gw.addr_type = ADDR_TYPE_IP;
++		entry.route_gw.addr_bits = IP_ADDR_BITS;
++
+ 		entry.route_dst.addr_ip = r->ipftable->table[i].dwForwardDest;
+ 		addr_mtob(&r->ipftable->table[i].dwForwardMask, IP_ADDR_LEN,
+ 		    &entry.route_dst.addr_bits);
+ 		entry.route_gw.addr_ip =
+ 		    r->ipftable->table[i].dwForwardNextHop;
++
++		/* Look up the interface name. */
++		entry.intf_name[0] = '\0';
++		intf_entry.intf_len = sizeof(intf_entry);
++		if (intf_get_index(intf, &intf_entry,
++		    AF_INET, r->ipftable->table[i].dwForwardIfIndex) == 0) {
++			strlcpy(entry.intf_name, intf_entry.intf_name, sizeof(entry.intf_name));
++		}
+ 		
+ 		if ((ret = (*callback)(&entry, arg)) != 0)
+-			return (ret);
++			break;
+ 	}
+-	return (0);
++
++	intf_close(intf);
++
++	return ret;
+ }
+ 
+ static int
+@@ -163,6 +191,7 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
+ 	route_t *r, route_handler callback, void *arg)
+ {
+ 	struct route_entry entry;
++	intf_t *intf;
+ 	ULONG i;
+ 	int ret;
+ 	
+@@ -170,18 +199,34 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
+ 	if (ret != NO_ERROR)
+ 		return (-1);
+ 
++	intf = intf_open();
++
++	ret = 0;
+ 	for (i = 0; i < r->ipftable2->NumEntries; i++) {
++		struct intf_entry intf_entry;
+ 		MIB_IPFORWARD_ROW2 *row;
+ 
+ 		row = &r->ipftable2->Table[i];
+ 		addr_ston((struct sockaddr *) &row->DestinationPrefix.Prefix, &entry.route_dst);
+ 		entry.route_dst.addr_bits = row->DestinationPrefix.PrefixLength;
+ 		addr_ston((struct sockaddr *) &row->NextHop, &entry.route_gw);
++
++		/* Look up the interface name. */
++		entry.intf_name[0] = '\0';
++		intf_entry.intf_len = sizeof(intf_entry);
++		if (intf_get_index(intf, &intf_entry,
++		    row->DestinationPrefix.Prefix.si_family,
++		    row->InterfaceIndex) == 0) {
++			strlcpy(entry.intf_name, intf_entry.intf_name, sizeof(entry.intf_name));
++		}
+ 		
+ 		if ((ret = (*callback)(&entry, arg)) != 0)
+-			return (ret);
++			break;
+ 	}
+-	return (0);
++
++	intf_close(intf);
++
++	return ret;
+ }
+ 
+ int
