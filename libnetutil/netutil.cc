@@ -1539,12 +1539,21 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
     if (dcrn->routes[i].device != NULL)
       continue;
 
-    /* First we match up routes whose gateway address directly matches the
-       address of an interface. */
+    /* First we match up routes whose gateway or destination address
+       directly matches the address of an interface. */
+    struct sys_route *route = &dcrn->routes[i];
+    struct sockaddr_storage *routeaddr;
+
+    /* First see if the gateway was set */
+    if (sockaddr_equal_zero(&route->gw))
+      routeaddr = &dcrn->routes[i].dest;
+    else
+      routeaddr = &dcrn->routes[i].gw;
+
     for (j = 0; j < numifaces; j++) {
       if (!ifaces[j].device_up)
         continue;
-      if (sockaddr_equal_netmask(&ifaces[j].addr, &dcrn->routes[i].gw, ifaces[j].netmask_bits)) {
+      if (sockaddr_equal_netmask(&ifaces[j].addr, routeaddr, ifaces[j].netmask_bits)) {
         dcrn->routes[i].device = &ifaces[j];
         break;
       }
