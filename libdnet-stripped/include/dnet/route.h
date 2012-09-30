@@ -15,6 +15,7 @@
  * Routing table entry
  */
 struct route_entry {
+	char		intf_name[INTF_NAME_LEN];	/* interface name */
 	struct addr	route_dst;	/* destination address */
 	struct addr	route_gw;	/* gateway address */
 };

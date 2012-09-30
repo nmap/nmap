@@ -212,6 +212,7 @@ route_get(route_t *r, struct route_entry *entry)
 {
 	if (route_msg(r, RTM_GET, &entry->route_dst, &entry->route_gw) < 0)
 		return (-1);
+	entry->intf_name[0] = '\0';
 	
 	return (0);
 }
@@ -317,6 +318,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	for (ret = 0; next < lim; next += rtm->rtm_msglen) {
 		rtm = (struct rt_msghdr *)next;
 		sa = (struct sockaddr *)(rtm + 1);
+
+		entry.intf_name[0] = '\0';
 
 		if ((rtm->rtm_addrs & RTA_DST) == 0)
 			/* Need a destination. */
@@ -443,6 +446,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 				    rt->ipRouteNextHop == IP_ADDR_ANY)
 					continue;
 				
+				entry.intf_name[0] = '\0';
+
 				sin.sin_addr.s_addr = rt->ipRouteNextHop;
 				addr_ston((struct sockaddr *)&sin,
 				    &entry.route_gw);
@@ -535,6 +540,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 				    memcmp(&rt->ipv6RouteNextHop, IP6_ADDR_UNSPEC, IP6_ADDR_LEN) == 0)
 					continue;
 				
+				entry.intf_name[0] = '\0';
+
 				sin6.sin6_addr = rt->ipv6RouteNextHop;
 				addr_ston((struct sockaddr *)&sin6,
 				    &entry.route_gw);
@@ -576,6 +583,7 @@ _radix_walk(int fd, struct radix_node *rn, route_handler callback, void *arg)
 	_kread(fd, rn, &rnode, sizeof(rnode));
 	if (rnode.rn_b < 0) {
 		if (!(rnode.rn_flags & RNF_ROOT)) {
+			entry.intf_name[0] = '\0';
 			_kread(fd, rn, &rt, sizeof(rt));
 			_kread(fd, rt_key(&rt), &sin, sizeof(sin));
 			addr_ston((struct sockaddr *)&sin, &entry.route_dst);

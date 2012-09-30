@@ -116,6 +116,7 @@ route_get(route_t *r, struct route_entry *entry)
 		errno = ESRCH;
 		return (-1);
 	}
+	entry->intf_name[0] = '\0';
 	entry->route_gw.addr_type = ADDR_TYPE_IP;
 	entry->route_gw.addr_bits = IP_ADDR_BITS;
 	memcpy(&entry->route_gw.addr_ip, &rtr.rtr_gwayaddr, IP_ADDR_LEN);
@@ -147,8 +148,6 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	}
 	close_mib(fd);
 
-	entry.route_dst.addr_type = entry.route_gw.addr_type = ADDR_TYPE_IP;
-	entry.route_dst.addr_bits = entry.route_gw.addr_bits = IP_ADDR_BITS;
 	n /= sizeof(*rtentries);
 	ret = 0;
 	
@@ -157,6 +156,9 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		    rtentries[i].Type != NMREMOTE)
 			continue;
 		
+		entry.intf_name[0] = '\0';
+		entry.route_dst.addr_type = entry.route_gw.addr_type = ADDR_TYPE_IP;
+		entry.route_dst.addr_bits = entry.route_gw.addr_bits = IP_ADDR_BITS;
 		entry.route_dst.addr_ip = rtentries[i].Dest;
 		addr_mtob(&rtentries[i].Mask, IP_ADDR_LEN,
 		    &entry.route_dst.addr_bits);

@@ -194,6 +194,7 @@ route_get(route_t *r, struct route_entry *entry)
 	
 	while (RTA_OK(rta, i)) {
 		if (rta->rta_type == RTA_GATEWAY) {
+			entry->intf_name[0] = '\0';
 			entry->route_gw.addr_type = entry->route_dst.addr_type;
 			memcpy(entry->route_gw.addr_data8, RTA_DATA(rta), alen);
 			entry->route_gw.addr_bits = alen * 8;
@@ -228,6 +229,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			if (i < 11 || !(iflags & RTF_UP))
 				continue;
 		
+			entry.intf_name[0] = '\0';
+
 			entry.route_dst.addr_type = entry.route_gw.addr_type =
 			    ADDR_TYPE_IP;
 		
@@ -258,6 +261,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			
 			if (i < 21 || !(iflags & RTF_UP))
 				continue;
+
+			entry.intf_name[0] = '\0';
 
 			snprintf(buf, sizeof(buf), "%s:%s:%s:%s:%s:%s:%s:%s/%d",
 			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
