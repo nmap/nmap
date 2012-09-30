@@ -1536,6 +1536,9 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
   if( (ifaces=getinterfaces(&numifaces, NULL, 0))==NULL )
     return NULL;
   for (i = 0; i < dcrn->numroutes; i++) {
+    if (dcrn->routes[i].device != NULL)
+      continue;
+
     /* First we match up routes whose gateway address directly matches the
        address of an interface. */
     for (j = 0; j < numifaces; j++) {
@@ -1608,10 +1611,10 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   }
 
   /* Now for the important business */
-  dcrn->routes[dcrn->numroutes].device = NULL;
   addr_ntos(&entry->route_dst, (struct sockaddr *) &dcrn->routes[dcrn->numroutes].dest);
   dcrn->routes[dcrn->numroutes].netmask_bits = entry->route_dst.addr_bits;
   addr_ntos(&entry->route_gw, (struct sockaddr *) &dcrn->routes[dcrn->numroutes].gw);
+  dcrn->routes[dcrn->numroutes].device = getInterfaceByName(entry->intf_name, dcrn->routes[dcrn->numroutes].dest.ss_family);
   dcrn->numroutes++;
 
   return 0;
