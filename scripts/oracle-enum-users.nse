@@ -106,7 +106,7 @@ action = function( host, port )
 	local usernames
 	
 	if ( not( nmap.registry.args['oracle-enum-users.sid'] ) and not( nmap.registry.args['tns.sid'] ) ) then
-		return "ERROR: Oracle instance not set (see oracle-brute.sid or tns.sid)"
+		return "ERROR: Oracle instance not set (see oracle-enum-users.sid or tns.sid)"
 	end
 	
 	status, usernames = unpwdb.usernames()
