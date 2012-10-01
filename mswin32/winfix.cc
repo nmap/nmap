@@ -251,7 +251,7 @@ void win_init()
 		ULONG len = sizeof(pcaplist);
 
 		o.have_pcap = true;
-		if(o.debugging > 2) printf("***WinIP***  trying to initialize WinPcap\n");
+		if(o.debugging > 2) printf("Trying to initialize WinPcap\n");
 		PacketGetAdapterNames(pcaplist, &len);
 
 #ifdef _MSC_VER
