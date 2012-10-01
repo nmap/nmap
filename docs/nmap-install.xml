@@ -740,7 +740,7 @@ instead.</para></listitem>
 </itemizedlist>
 
 <indexterm><primary>Windows</primary><secondary>performance of</secondary></indexterm>
-<para>Scans speeds on Windows are generally comparable to those on
+<para>Scan speeds on Windows are generally comparable to those on
 Unix, though the latter often has a slight performance edge.  One
 exception to this is connect scan (<option>-sT</option>), which is
 often much slower on Windows because of deficiencies in the Windows
