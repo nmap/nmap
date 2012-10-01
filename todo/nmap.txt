@@ -1,10 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Investigate/fix potential routing-related issue.  See emails from
-  Djalal and others: http://seclists.org/nmap-dev/2012/q3/116,
-  http://seclists.org/nmap-dev/2012/q3/4,
-  http://seclists.org/nmap-dev/2012/q2/449
-
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
   obvious candidates:
@@ -26,14 +21,6 @@ o Clean up the Nmap repo to remove some bloat we've allowed to creep
 o Update our mswin32/OpenSSL to newest version (previous update was
   September 2010 to 1.0.0a).
 
-o Update web.insecure.org so that rather than requiring us to build
-  nsedoc on other machines, check it into svn, and then update svn on
-  web, it is done by a script on web which could be run through cron
-  (and potentially from a simple svn commit hook) to build them on the
-  web server directly.
-  - There are other similar things we might want to automate later,
-    such as book rebuilding when the XML files are changed.
-
 o Process latest Nmap OS submissions and corrections (IPv4 and IPv6).
   Last done (for IPv4 anyway) in February 2012.
 
@@ -46,14 +33,9 @@ o Add CPE entries to OS fingerpting DB entries which still lack them
 
 o Do an Nmap dev release.  Last release was Nmap 6.01 June 22.
 
-o Update more web content in real time (or near real-time, or at least
-  on an automated basis rather than requiring manual checkin and
-  update).  In particular:
-  o NSEDoc generation
-  o [done] SVN dir (http://nmap.org/svn/) should be removed and a redirect
-    added to https svn server.
-  o Maybe Nmap book building
-  o Maybe the generated files in nmap.org/data/
+o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
+  as well as testing usage of our normal builds (which we currently
+  build on 10.6).
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
@@ -236,11 +218,6 @@ o Investigate report of Nmap ARP discovery using the wrong target MAC
 
 o Nscan work [placeholder]
  - Hosted Nmap system
-
-o Nmap should have a better way to handle XML script output.
- o We currently just stick the current script output text into an XML tag.
- o Daniel Miller is working on an implementation:
-   https://secwiki.org/w/Nmap/Structured_Script_Output
 
 o [Zenmap] should actually parse and use script results. See
    http://seclists.org/nmap-dev/2010/q1/1108
@@ -730,6 +707,34 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Nmap should have a better way to handle XML script output.
+ o done: http://nmap.org/book/nse-api.html#nse-structured-output
+ o We currently just stick the current script output text into an XML tag.
+ o Daniel Miller is working on an implementation:
+   https://secwiki.org/w/Nmap/Structured_Script_Output
+
+o Update more web content in real time (or near real-time, or at least
+  on an automated basis rather than requiring manual checkin and
+  update).  In particular:
+  o NSEDoc generation
+  o [done] SVN dir (http://nmap.org/svn/) should be removed and a redirect
+    added to https svn server.
+  o Maybe Nmap book building
+  o Maybe the generated files in nmap.org/data/
+
+o Update web.insecure.org so that rather than requiring us to build
+  nsedoc on other machines, check it into svn, and then update svn on
+  web, it is done by a script on web which could be run through cron
+  (and potentially from a simple svn commit hook) to build them on the
+  web server directly.
+  - There are other similar things we might want to automate later,
+    such as book rebuilding when the XML files are changed.
+
+o Investigate/fix potential routing-related issue.  See emails from
+  Djalal and others: http://seclists.org/nmap-dev/2012/q3/116,
+  http://seclists.org/nmap-dev/2012/q3/4,
+  http://seclists.org/nmap-dev/2012/q2/449
 
 o Even without the --osscan-guess flag, Nmap should show the closest
   matches (if they pass our threshold) in the XML output.  We omit
