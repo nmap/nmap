@@ -40,8 +40,8 @@ winbuild:
 	cd Release && cp -r ../../docs/licenses ../nmap-$(NMAP_VERSION)/
 	rm -rf nmap-$(NMAP_VERSION)/licenses/.svn
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
-	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
-	cp vcredist2008_x86.exe nmap-$(NMAP_VERSION)
+	cp $(NMAP_MSWIN32_AUX)/vcredist_x86.exe nmap-$(NMAP_VERSION)
+	cp $(NMAP_MSWIN32_AUX)/vcredist2008_x86.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ca-bundle.crt nmap-$(NMAP_VERSION)
 	cp ../nping/Release/nping.exe nmap-$(NMAP_VERSION)

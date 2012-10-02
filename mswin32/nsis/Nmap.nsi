@@ -310,7 +310,7 @@ Function vcredist2010installer
   ;If VC++ 2010 runtimes are not installed...
   vcredist_silent_install:
     DetailPrint "Installing Microsoft Visual C++ 2010 Redistributable"
-    File ..\vcredist_x86.exe
+    File ..\nmap-${VERSION}\vcredist_x86.exe
     ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
     ;Check for successful installation of our vcredist_x86.exe...
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
@@ -338,7 +338,7 @@ Function vcredist2008installer
   ;If VC++ 2008 runtimes are not installed...
   vcredist2008_silent_install:
     DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
-    File ..\vcredist2008_x86.exe
+    File ..\nmap-${VERSION}\vcredist2008_x86.exe
     ExecWait '"$INSTDIR\vcredist2008_x86.exe" /q' $0
     ;Check for successful installation of our 2008 version of vcredist_x86.exe...
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{86CE85E6-DBAC-3FFD-B977-E4B79F83C909}" "DisplayName"
