@@ -61,7 +61,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\nbase;..\mswin32\OpenSSL\lib;..\..\nmap-private-dev\nmap-mswin32\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\nmap-private-dev\nmap-mswin32\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>crypt32.lib;mswsock.lib;rpcrt4.lib;ws2_32.lib;nbase.lib;apr-1.lib;apriconv-1.lib;aprutil-1.lib;libneon.lib;libsvn_fs_fs-1.lib;libsvn_fs_util-1.lib;libsvn_ra_local-1.lib;libsvn_ra_neon-1.lib;libsvn_ra_svn-1.lib;libsvn_client-1.lib;libsvn_delta-1.lib;libsvn_diff-1.lib;libsvn_fs-1.lib;libsvn_ra-1.lib;libsvn_repos-1.lib;libsvn_subr-1.lib;libsvn_wc-1.lib;libeay32.lib;ssleay32.lib;xml.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -81,7 +81,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\nbase;..\mswin32\OpenSSL\lib;..\..\nmap-private-dev\nmap-mswin32\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;..\..\nmap-private-dev\nmap-mswin32\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>crypt32.lib;mswsock.lib;rpcrt4.lib;ws2_32.lib;nbase.lib;apr-1.lib;apriconv-1.lib;aprutil-1.lib;libneon.lib;libsvn_fs_fs-1.lib;libsvn_fs_util-1.lib;libsvn_ra_local-1.lib;libsvn_ra_neon-1.lib;libsvn_ra_svn-1.lib;libsvn_client-1.lib;libsvn_delta-1.lib;libsvn_diff-1.lib;libsvn_fs-1.lib;libsvn_ra-1.lib;libsvn_repos-1.lib;libsvn_subr-1.lib;libsvn_wc-1.lib;libeay32.lib;ssleay32.lib;xml.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

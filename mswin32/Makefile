@@ -5,6 +5,7 @@ export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION'
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
 LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
+NMAP_MSWIN32_AUX = ../../nmap-mswin32-aux
 
 winbuild:
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
@@ -27,7 +28,7 @@ winbuild:
 # Use "cmd /c copy" rather than "cp" to preserve Windows ACLs. Using
 # "cp" means that the copied DLLs don't have the same ACL and cause an
 # error on startup: 0xc0000022.
-	cmd /c copy OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
+	cmd /c copy $(subst /,\\,$(NMAP_MSWIN32_AUX))\\OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	cd Release && for f in `find nselib -name .svn -prune -o -type d -print`; do \

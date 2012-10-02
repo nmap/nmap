@@ -26,10 +26,9 @@ On all platforms, Nmap is normally linked with:
    http://www.lua.org/
  o OpenSSL: Cryptographic library. OpenSSL is used by service detection
    and by NSE to connect to SSL services. NSE also provides access to
-   OpenSSL functions such as encryption and digest calculation. A binary
-   copy of the OpenSSL library for Windows is distributed with Nmap in
-   the subdirectory mswin32/OpenSSL. OpenSSL can be disabled by
-   configuring with the --without-openssl configuration directive.
+   OpenSSL functions such as encryption and digest calculation. OpenSSL
+   can be disabled by configuring with the --without-openssl
+   configuration directive.
    http://www.openssl.org/
  o LIBLINEAR. Used for IPv6 OS classifiction.
    http://www.csie.ntu.edu.tw/~cjlin/liblinear/
