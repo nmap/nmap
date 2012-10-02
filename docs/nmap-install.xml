@@ -864,7 +864,27 @@ but compilation from source code is an option, particularly if you plan to help 
 Microsoft Visual C++ 2010, which is part of their commercial Visual Studio suite.  Any of the Visual Studio 2010 editions should work, including the free <ulink
 url="http://www.microsoft.com/express/Windows/">Visual C++ 2010 Express SP1</ulink>.</para>
 
+<para>
+Some of Nmap's dependencies on Windows are inconvenient to build. For
+this reason, precompiled binaries of the dependencies are stored in
+Subversion, in the directory <filename>/nmap-mswin32-aux</filename>.
+When building from source, whether from a source code release or from
+Subversion, check out <filename>/nmap-mswin32-aux</filename> as
+described below.
+</para>
+
 <orderedlist id="nmap-install-windows-compile-from-source"><title>Compiling Nmap on Windows from Source</title>
+
+<listitem>
+<para>
+Download the Windows dependencies from Subversion with the command
+<command>svn checkout https://svn.nmap.org/nmap-mswin32-aux</command>.
+The build files are configured to look for dependencies in this
+checked-out directory. If you want to build the dependencies yourself
+instead, you will have to reconfigure the Visual Studio project files to
+point to the alternate directory.
+</para>
+</listitem>
 
 <listitem><para>Decide whether to obtain the Nmap source code by downloading the latest release from nmap.org, or using a Subversion client to retrieve even newer (but less tested) code from our repository.  These instructions are for the web download approach, but using Subversion instead is straightforward (see <xref linkend="inst-svn"/>).</para></listitem>
 
@@ -872,7 +892,10 @@ url="http://www.microsoft.com/express/Windows/">Visual C++ 2010 Express SP1</uli
 <filename>nmap-<replaceable>version</replaceable>.tar.bz2</filename> or
 <filename>nmap-<replaceable>version</replaceable>.tgz</filename>.  Those are the same tar file compressed using bzip2 or gzip, respectively.  The bzip2-compressed version is smaller.</para></listitem>
 
-<listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress these files.</para></listitem>
+<listitem><para>Uncompress the source code file you just downloaded. The
+source code directory and the <filename>nmap-mswin32-aux</filename> must
+be in the same parent directory.
+Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress these files.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file (<filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
 
