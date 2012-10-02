@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded the included OpenSSL to version 1.0.1c. [David Fifield]
+
 o Moved some Windows dependencies, including OpenSSL, libsvn, and the
   vcredist files, into a new public Subversion directory
   /nmap-mswin32-aux. This reduces the size of source code
