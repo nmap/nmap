@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Moved some Windows dependencies, including OpenSSL, libsvn, and the
+  vcredist files, into a new public Subversion directory
+  /nmap-mswin32-aux. This reduces the size of source code
+  distributions for users who don't need these files. Those who build
+  on Windows will need to check out /nmap-mswin32-aux in parallel to
+  their nmap checkout as described at
+  http://nmap.org/book/inst-windows.html#inst-win-source.
+
 o Changed libdnet's routing interface to return an interface name for
   each route on the most common operating systems. This is used to
   improve the quality of Nmap's matching of routes to interfaces,
