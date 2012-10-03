@@ -281,6 +281,18 @@ int block_socket(int sd) {
   return 1;
 }
 
+/* Use the SO_BINDTODEVICE sockopt to bind with a specific interface (Linux
+   only). Pass NULL or an empty string to remove device binding. */
+int socket_bindtodevice(int sd, const char *device) {
+#ifdef SO_BINDTODEVICE
+  /* Linux-specific sockopt asking to use a specific interface. See socket(7). */
+  if (setsockopt(sd, SOL_SOCKET, SO_BINDTODEVICE, device, strlen(device) + 1) < 0)
+    return 0;
+#endif
+
+  return 1;
+}
+
 /* Convert a time specification into a count of seconds. A time specification is
  * a non-negative real number, possibly followed by a units suffix. The suffixes
  * are "ms" for milliseconds, "s" for seconds, "m" for minutes, or "h" for

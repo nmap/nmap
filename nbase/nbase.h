@@ -459,6 +459,7 @@ int inheritable_socket(int af, int style, int protocol);
 int dup_socket(int sd);
 int unblock_socket(int sd);
 int block_socket(int sd);
+int socket_bindtodevice(int sd, const char *device);
 
 /* CRC32 Cyclic Redundancy Check */
 unsigned long nbase_crc32(unsigned char *buf, int len);
