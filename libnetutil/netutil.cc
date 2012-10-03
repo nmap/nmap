@@ -3190,6 +3190,8 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
       assert(p != NULL);
       ii = getInterfaceByName(namebuf, dst->ss_family);
       if (ii == NULL)
+        ii = getInterfaceByName(namebuf, AF_UNSPEC);
+      if (ii == NULL)
         netutil_fatal("%s: can't find interface \"%s\"", __func__, namebuf);
     } else if (rtattr->rta_type == RTA_PREFSRC && rnfo->srcaddr.ss_family == AF_UNSPEC) {
       rc = set_sockaddr(&rnfo->srcaddr, dst->ss_family, RTA_DATA(rtattr));
