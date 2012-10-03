@@ -4,67 +4,39 @@
 
 I. ZENMAP BUILD DEPENDENCIES
 
-Here are the build dependencies for Zenmap and where to get them.  The
-latest known tested versions are listed here, but I usually start by
-grabbing the latest version available on the sites rather than these
-known-good versions.
+The dependencies of Zenmap are stored in Subversion in the directory
+/nmap-mswin32-aux. See the file Python-upgrade.txt there for more
+information.
 
-GTK+ All-in-one bundle
-  o http://www.gtk.org/download-windows.html
-  o Tested: gtk+-bundle_2.22.1-20101227_win32.zip
-Python
-  o http://www.python.org/download
-  o Tested: python-2.7.3.msi
-GTK+, PyGTK, PyGObject, PyCairo
-  o http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
-  o Tested: 2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
-Py2exe (0.6.9) - http://www.sourceforge.net/projects/py2exe/files/
-  o Tested: py2exe-0.6.9.win32-py2.7.exe
-
-The GTK all-in-one bundle is a zip file.  Unzip it into the directory
-c:\GTK.  The other components have installers-using the default
-install directories is important, especially for Python (C:\Python27)
-and GTK (C:\GTK).  See Section IV if you must change the directories.
-
-You may need to set your Windows $PATH so that it can find the GTK
-DLLs while py2exe is doing its thing.  On Windows 7 x64, I did this as
-follows:
- o Open control panel, search for "environment variables", click on
-   "Edit the system environment variables", which opens the "System
-   Properties" dialogue.  Select the "Advanced" tab then click the
-   "Environment Variables" button.  Add ";C:\GTK\bin" to the end of
-   the user PATH variable.
 
 II. OTHER REQUIREMENTS
 
 You'll need Microsoft Visual C++ 2010 for compilation.
 Directions for obtaining that are at:
-http://nmap.org/install/inst-windows.html#inst-win-source
+http://nmap.org/install/inst-windows.html#inst-win-source.
 
-You'll also need Cygwin installed in order to build the Nmap installer (not
-required for normal compiling).  You'll find it at http://www.cygwin.com
+You'll also need Cygwin installed in order to build the Nmap installer
+(not required for normal compiling).  You'll find it at
+http://www.cygwin.com/.
 
-And last, you'll need the Nullsoft Scriptable Install System installed.  You
-can download if from http://nsis.sourceforge.net/Download  (Version
+And last, you'll need the Nullsoft Scriptable Install System installed.
+You can download if from http://nsis.sourceforge.net/Download  (Version
 2.46 tested). Install in "C:\Program Files\NSIS" even if it offers
 "C:\Program Files (x86)\NSIS".
 
 
 III. BUILDING
 
-With all of the requirements and dependencies installed, open up a Cygwin
-shell and go to the mswin32 directory in the Nmap directory and type "make".
-This may take several minutes, and will create an executable installer and a
-zip archive (nmap-<version>-setup.exe and nmap-<version>-win32.zip).
+With all of the requirements and dependencies installed, open up a
+Cygwin shell and go to the mswin32 directory in the Nmap directory and
+type "make". This may take several minutes, and will create an
+executable installer and a zip archive (nmap-<version>-setup.exe and
+nmap-<version>-win32.zip).
 
 
 IV. INSTALLATION PATHS / PROBLEMS
 
-If you have Python installed to a directory other than the default mentioned
-above, then you need to edit the copy_and_compile.bat file under
-zenmap/install_scripts/windows and change the "set PythonEXE" line with your
-installed directory.
-
-If you have GTK installed to a different directory, follow the same directions
-as for Python, but edit the "set GTKDir" line.
+If you have the dependencies of Zenmap installed in a directory other
+than nmap-mswin32-aux, then you need to edit the copy_and_compile.bat
+file under zenmap/install_scripts/windows and change the path variables.
 
