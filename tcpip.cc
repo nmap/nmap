@@ -142,11 +142,13 @@ static PacketCounter PktCt;
     * Emit a fatal error on Windows.
     * Set SO_BROADCAST.
     * Set IP_HDRINCL.
+    * Bind to an interface with SO_BINDTODEVICE (if o.device is set).
    The socket is created with address family AF_INET, but may be usable for
    AF_INET6, depending on the operating system.
 
    The argument warning_device_name is used *only* in the Windows fatal error
-   message, and does not affect any socket characteristics. */
+   message, and does not affect any socket characteristics. The global o.device
+   controls which interface to bind to with SO_BINDTODEVICE. */
 int nmap_raw_socket(const char *warning_device_name) {
   int rawsd;
 
@@ -159,6 +161,7 @@ int nmap_raw_socket(const char *warning_device_name) {
 #ifndef WIN32
   sethdrinclude(rawsd);
 #endif
+  socket_bindtodevice(rawsd, o.device);
 
   return rawsd;
 }
