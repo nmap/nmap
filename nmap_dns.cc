@@ -1210,6 +1210,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   if ((dnspool = nsp_new(NULL)) == NULL)
     fatal("Unable to create nsock pool in %s()", __func__);
+  nsp_setdevice(dnspool, o.device);
 
   if ((lasttrace = o.packetTrace()))
     nsp_settrace(dnspool, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());

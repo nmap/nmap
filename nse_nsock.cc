@@ -80,6 +80,7 @@ static nsock_pool new_pool (lua_State *L)
 {
   nsock_pool nsp = nsp_new(NULL);
   nsock_pool *nspp;
+  nsp_setdevice(nsp, o.device);
   nsp_setbroadcast(nsp, true);
   nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
   *nspp = nsp;

@@ -158,6 +158,7 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   /* Create a new nsock pool */
   if ((this->nsp = nsp_new(NULL)) == NULL)
     fatal("Unable to obtain an Nsock pool");
+  nsp_setdevice(nsp, o.device);
 
   /* Set Trace level */
   if (o.packetTrace()) {

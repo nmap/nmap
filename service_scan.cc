@@ -2682,6 +2682,7 @@ int service_scan(vector<Target *> &Targets) {
   if ((nsp = nsp_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
+  nsp_setdevice(nsp, o.device);
 
   if (o.versionTrace()) {
     nsp_settrace(nsp, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());

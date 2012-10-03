@@ -122,6 +122,7 @@ int ProbeMode::init_nsock(){
       /* Create a new nsock pool */
       if ((nsp = nsp_new(NULL)) == NULL)
         outFatal(QT_3, "Failed to create new pool.  QUITTING.\n");
+      nsp_setdevice(nsp, o.getDevice());
 
       /* Allow broadcast addresses */
       nsp_setbroadcast(nsp, 1);
