@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Scans that use OS sockets (including TCP connect scan, version
+  detection, and script scan) now use the SO_BINDTODEVICE sockopt on
+  Linux, so that the -e option is honored. [David Fifield]
+
 o Upgraded the included OpenSSL to version 1.0.1c. [David Fifield]
 
 o Moved some Windows dependencies, including OpenSSL, libsvn, and the
