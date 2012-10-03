@@ -183,6 +183,9 @@ void nsp_settrace(nsock_pool nsp, FILE *file, int level, const struct timeval *b
  * sockets (value of optval will be used directly in the setsockopt() call). */
 void nsp_setbroadcast(nsock_pool nsp, int optval);
 
+/* Sets the name of the interface for new sockets to bind to. */
+void nsp_setdevice(nsock_pool nsp, const char *device);
+
 /* Initializes an Nsock pool to create SSL connections. This sets an internal
  * SSL_CTX, which is like a template that sets options for all connections that
  * are made from it. Returns the SSL_CTX so you can set your own options. */

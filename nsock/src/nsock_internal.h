@@ -205,6 +205,9 @@ typedef struct {
   /* If true, new sockets will have SO_BROADCAST set */
   int broadcast;
 
+  /* Interface to bind to; only supported on Linux with SO_BINDTODEVICE sockopt. */
+  const char *device;
+
   /* If true, exit the next iteration of nsock_loop with a status of
    * NSOCK_LOOP_QUIT. */
   int quit;
