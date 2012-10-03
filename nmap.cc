@@ -2908,6 +2908,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
     gh_perror("Couldn't create %s socket", __func__);
     return 0;
   }
+  socket_bindtodevice(sd, o.device);
 
   sock.sin_family = AF_INET;
   sock.sin_addr.s_addr = ftp->server.s_addr;
