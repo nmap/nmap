@@ -17,7 +17,7 @@ if not exist "%PROG%" (
 	exit /B 1
 )
 
-set PATH=%PATH%;C:\Python26;C:\Python25;C:\Python24
+set PATH=%PATH%;C:\Python27;C:\Python26;C:\Python25;C:\Python24
 for %%P in ( python.exe ) do set PYTHON=%%~f$PATH:P
 
 if not exist "%PYTHON%" (
