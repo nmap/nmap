@@ -1,7 +1,7 @@
 @echo off
 
 echo Setting installation variables...
-set PythonDir=C:\Python27
+set PythonDir=..\..\nmap-mswin32-aux\Python
 set PythonEXE=%PythonDir%\python.exe
 set DistDir=dist
 set LibraryDir=%DistDir%\py2exe
