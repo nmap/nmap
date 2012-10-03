@@ -2978,7 +2978,8 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
 
 /* Set the socket lingering so we will RST connections instead of wasting
-   bandwidth with the four-step close. Set the source address if needed. */
+   bandwidth with the four-step close. Set the source address if needed. Bind to
+   a specific interface if needed. */
 static void init_socket(int sd) {
   static int bind_failed = 0;
   struct linger l;
@@ -2998,6 +2999,14 @@ static void init_socket(int sd) {
       error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
       perror("bind");
       bind_failed = 1;
+    }
+  }
+  errno = 0;
+  if (!socket_bindtodevice(sd, o.device)) {
+    /* EPERM is expected when not running as root. */
+    if (errno != EPERM) {
+      error("Problem binding to interface %s, errno: %d", o.device, socket_errno());
+      perror("socket_bindtodevice");
     }
   }
 }
