@@ -138,6 +138,30 @@ static PacketCounter PktCt;
 
 
 
+/* Create a raw socket and do things that always apply to raw sockets:
+    * Emit a fatal error on Windows.
+    * Set SO_BROADCAST.
+    * Set IP_HDRINCL.
+   The socket is created with address family AF_INET, but may be usable for
+   AF_INET6, depending on the operating system.
+
+   The argument warning_device_name is used *only* in the Windows fatal error
+   message, and does not affect any socket characteristics. */
+int nmap_raw_socket(const char *warning_device_name) {
+  int rawsd;
+
+#ifdef WIN32
+  win32_fatal_raw_sockets(Targets[0]->deviceName());
+#endif
+  if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+    pfatal("socket troubles in %s", __func__);
+  broadcast_socket(rawsd);
+#ifndef WIN32
+  sethdrinclude(rawsd);
+#endif
+
+  return rawsd;
+}
 
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.

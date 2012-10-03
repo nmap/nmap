@@ -1662,20 +1662,11 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
         fatal("dnet: Failed to open device %s", Targets[0]->deviceName());
       rawsd = -1;
     } else {
-      /* Initialize a raw socket */
-#ifdef WIN32
-      win32_fatal_raw_sockets(Targets[0]->deviceName());
-#endif
-      if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-        pfatal("socket troubles in %s", __func__);
+      rawsd = nmap_raw_socket(Targets[0]->deviceName());
       /* We do not wan't to unblock the socket since we want to wait
       if kernel send buffers fill up rather than get ENOBUF, and
       we won't be receiving on the socket anyway
       unblock_socket(rawsd);*/
-      broadcast_socket(rawsd);
-#ifndef WIN32
-      sethdrinclude(rawsd);
-#endif
       ethsd = NULL;
     }
   }

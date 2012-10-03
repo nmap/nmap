@@ -851,16 +851,7 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
       fatal("dnet: failed to open device %s", targets[0]->deviceName());
     rawsd = -1;
   } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(targets[0]->deviceName());
-#endif
-    rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
-    if (rawsd == -1)
-      pfatal("traceroute: socket troubles");
-    broadcast_socket(rawsd);
-#ifndef WIN32
-    sethdrinclude(rawsd);
-#endif
+    rawsd = nmap_raw_socket(targets[0]->deviceName());
     ethsd = NULL;
   }
 

@@ -382,16 +382,8 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->rawsd = -1;
     proxy->ethptr = &proxy->eth;
   } else {
-#ifdef WIN32
-    win32_fatal_raw_sockets(proxy->host.deviceName());
-#endif
-    if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
-      pfatal("socket troubles in %s", __func__);
+    proxy->rawsd = nmap_raw_socket(proxy->host.deviceName());
     unblock_socket(proxy->rawsd);
-    broadcast_socket(proxy->rawsd);
-#ifndef WIN32
-    sethdrinclude(proxy->rawsd);
-#endif
     proxy->eth.ethsd = NULL;
     proxy->ethptr = NULL;
   }
