@@ -1158,6 +1158,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Aastra A150 telephone system.
 Fingerprint Aastra A510 VoIP phone
 Class Aastra | embedded || VoIP phone
+CPE cpe:/h:aastra:a510 auto
 SEQ(SP=0-5%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=94-9E%TI=I%CI=I%II=I%SS=O|S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -1720,6 +1721,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Alcatel 4035 IP Phone
 Fingerprint Alcatel 4035 VoIP phone
 Class Alcatel | embedded || VoIP phone
+CPE cpe:/h:alcatel:4035 auto
 SEQ(SP=F4-10A%GCD=1-6%ISR=FE-110%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -2230,6 +2232,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Allworx 9212 phone
 Fingerprint Allworx 9212 VoIP phone
 Class Allworx | embedded || VoIP phone
+CPE cpe:/h:allworx:9212 auto
 SEQ(SP=EC-FC%GCD=1-6%ISR=F4-100%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5BCNW0NNT11%O2=M5BCNW0NNT11%O3=M5BCNW0NNT11%O4=M5BCNW0NNT11%O5=M5BCNW0NNT11%O6=M5BCNNT11)
 WIN(W1=4380%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -5783,6 +5786,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # ATCOM AT-320 Ethernet Phone. Uses the PalmMicro PA168S chipset. H.323 firmware of version 1.53 from PalmMicro.
 Fingerprint Atcom AT-320 VoIP phone
 Class Atcom | embedded || VoIP phone
+CPE cpe:/h:atcom:at-320 auto
 SEQ(SP=F4-102%GCD=1-6%ISR=FD-117%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=514%W2=514%W3=514%W4=514%W5=514%W6=514)
@@ -8509,6 +8513,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 # 3Com Corporation HiPer Access Router, Dialup-MODEM concentrador
 Fingerprint Cabletron ELS100-24TXM switch
 Class Cabletron | embedded || switch
+CPE cpe:/h:cabletron:els100-24txm auto
 SEQ(SP=0-87%GCD=9C4|1388|1D4C|2710|30D4%ISR=8A-B0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -13359,6 +13364,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Comtrend CT-800 SIP gateway
 Fingerprint Comtrend CT-800 VoIP gateway
 Class Comtrend | embedded || VoIP adapter
+CPE cpe:/h:comtrend:ct-800 auto
 SEQ(SP=14-1E%GCD=7A00|F400|16E00|1E800|26200%ISR=91-9B%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -14090,6 +14096,7 @@ IE(DFI=S%T=FB-105%TG=FF%CD=S)
 # D-Link VoIP Gateway DVG-4022S
 Fingerprint D-Link DVG-4022S VoIP gateway
 Class D-Link | embedded || VoIP adapter
+CPE cpe:/h:dlink:dvg-4022s auto
 SEQ(SP=8F-99%GCD=1-6%ISR=92-9C%TI=I%II=RI%SS=O%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -14125,6 +14132,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 # D-Link DPH-150S VoIP phone
 Fingerprint D-Link DPH-150S VoIP phone
 Class D-Link | embedded || VoIP phone
+CPE cpe:/h:dlink:dph-150s auto
 SEQ(CI=Z)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -16653,6 +16661,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # ESI Estech Systems Inc Network Services Processor (NSP) ESI 100 Communications Server
 Fingerprint ESI ESI-100 VoIP gateway
 Class ESI | embedded || VoIP adapter
+CPE cpe:/h:esi:esi-100 auto
 SEQ(SP=0-5%GCD=1-6%ISR=15-1F%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -20259,6 +20268,7 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=Z)
 # Grandstream GXP2000, Program-- 1.1.4.18    Bootloader-- 1.1.4.6
 Fingerprint Grandstream GXP2000 VoIP phone
 Class Grandstream | embedded || VoIP phone
+CPE cpe:/h:grandstream:gxp2000 auto
 SEQ(SP=4A-62%GCD=1-6%ISR=88-92%TI=I%TS=U)
 OPS(O1=M584%O2=M584%O3=M584%O4=M584%O5=M584%O6=M584)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -20276,6 +20286,7 @@ IE(DFI=S%T=1B-25|3B-45%TG=20|40%CD=S)
 # Grandstream voip phone 2020
 Fingerprint Grandstream GXP2020 VoIP phone
 Class Grandstream | embedded || VoIP phone
+CPE cpe:/h:grandstream:gxp2020 auto
 SEQ(SP=2C-8C%GCD=1-6%ISR=AB-B5%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5AC%O2=M5AC%O3=M5AC%O4=M5AC%O5=M5AC%O6=M5AC)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -20293,6 +20304,7 @@ IE(DFI=S%T=1B-25|3B-45%TG=20|40%CD=S)
 # emmbed Linux on the VoIP phone "grandstream gxv3000"
 Fingerprint Grandstream GXV3000 VoIP phone
 Class Grandstream | embedded || VoIP phone
+CPE cpe:/h:grandstream:gxv3000 auto
 SEQ(SP=17-63%GCD=1-6%ISR=6F-79%TI=I%CI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5AC%O2=M578%O3=M280%O4=M5AC%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -25141,6 +25153,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Telnet Banner: Network Printer Server Version 7.0.9.6
 Fingerprint IBM 6400 printer (software version 7.0.9.6)
 Class IBM | embedded || printer
+CPE cpe:/h:ibm:6400 auto
 SEQ(SP=0-15%GCD=1-6%ISR=0-D%TI=I%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M1AE%O5=M218%O6=M109)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -26157,6 +26170,7 @@ IE(R=N)
 # Interbell IB305 (VoIP phone)
 Fingerprint Interbell IB-305 VoIP phone
 Class Interbell | embedded || VoIP phone
+CPE cpe:/h:interbell:ib-305 auto
 SEQ(SP=0-16%GCD=FA|1F4|2EE|3E8|4E2|6590|CB20|130B0|19640|1FBD0%ISR=8A-94%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=3180%W2=3180%W3=3180%W4=3180%W5=3180%W6=3180)
@@ -50854,9 +50868,9 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Windows Embedded Standard Microsoft Windows Version 5.1 (Build 2600.xpsp_sp3_qfe.090804-1456 : Service Pack 3)
 Fingerprint Microsoft Windows XP SP2 or SP3, or Windows Embedded Standard 2009
 Class Microsoft | Windows | XP | general purpose
+CPE cpe:/o:microsoft:windows_xp::sp3:embedded
 CPE cpe:/o:microsoft:windows_xp::sp2 auto
 CPE cpe:/o:microsoft:windows_xp::sp3 auto
-CPE cpe:/o:microsoft:windows_xp::sp3:embedded
 SEQ(SP=F8-10C%GCD=1-6%ISR=101-115%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O2=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O3=M5B4NW1NNT00|M5B4NW2NNT00|M5B4NW3NNT00|M5B4NW4NNT00|M5B4NW6NNT00|M5B4NW8NNT00%O4=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O5=M5B4NW1NNT00NNS|M5B4NW2NNT00NNS|M5B4NW3NNT00NNS|M5B4NW4NNT00NNS|M5B4NW6NNT00NNS|M5B4NW8NNT00NNS%O6=|M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -54396,6 +54410,7 @@ IE(DFI=S%T=3B-3D%TG=40%CD=S)
 # Netcomm V300 VOIP ATA running software version A007-S9210NGT-C00_00
 Fingerprint Netcomm V300 VoIP gateway
 Class Netcomm | embedded || VoIP adapter
+CPE cpe:/h:netcomm:v300 auto
 SEQ(SP=14-1E%GCD=7A00|F400|16E00|1E800|26200%ISR=91-9B%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M550NW0NNT11%O2=M550NW0NNT11%O3=M550NW0NNT11%O4=M550NW0NNT11%O5=M550NW0NNT11%O6=M550NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -56055,6 +56070,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Obihai OBi110 Firmware version: 1.1.0 (Build: 1890)
 Fingerprint Obihai OBi110 VoIP adapter
 Class Obihai | embedded || VoIP adapter
+CPE cpe:/h:obihai:obi110 auto
 SEQ(SP=F3-10D%GCD=1-6%ISR=103-111%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5AC%O2=M5AC%O3=M5AC%O4=M5AC%O5=M5AC%O6=M5AC)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -57324,6 +57340,7 @@ IE(DFI=Y%T=73-7D%TG=80%CD=Z)
 # 8x8 (Packet8) VoIP phone BPA430
 Fingerprint Packet8 BPA430 VoIP adapter
 Class Packet8 | embedded || VoIP adapter
+CPE cpe:/h:packet8:bpa430 auto
 SEQ(SP=C-16%GCD=9C4|1388|1D4C|2710|30D4%ISR=5D-67%TI=I%CI=I%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=578%W2=578%W3=578%W4=578%W5=578%W6=578)
@@ -57671,6 +57688,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # PerfectOne IP-301 VOIP Phone.
 Fingerprint Perfectone IP-301 VoIP phone
 Class Perfectone | embedded || VoIP phone
+CPE cpe:/h:perfectone:ip-301 auto
 SEQ(R=N)
 OPS(O1=WANM5B4T10S%O2=M578W0ST10L%O3=T10NNW5NM280%O4=ST10WAL%O5=M218ST10WAL%O6=M109ST10)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -57870,6 +57888,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=Z)
 # Pirelli DP10 GSM/VOIP Phone
 Fingerprint Pirelli DP-10 VoIP phone
 Class Pirelli | embedded || VoIP phone
+CPE cpe:/h:pirelli:dp-10 auto
 SEQ(SP=E8-10A%GCD=1-6%ISR=106-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -57904,6 +57923,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 # Planet VoIP adapter, ATA-150S
 Fingerprint Planet ATA-150S VoIP adapter
 Class Planet | embedded || VoIP adapter
+CPE cpe:/h:planet:ata-150s auto
 SEQ(SP=BE-C8%GCD=1-6%ISR=BF-C9%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M55CST11NW0%O2=M55CST11NW0%O3=M55CNNT11NW0%O4=M55CST11NW0%O5=M55CST11NW0%O6=M55CST11)
 WIN(W1=1540%W2=1540%W3=1540%W4=1540%W5=1540%W6=1540)
@@ -57921,6 +57941,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Planet VIP-550PT VoIP Phone
 Fingerprint Planet VIP-550PT VoIP phone
 Class Planet | embedded || VoIP phone
+CPE cpe:/h:planet:vip-550pt auto
 SEQ(SP=96-A0%GCD=1-6%ISR=9C-A6%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -59582,6 +59603,7 @@ IE(DFI=N%T=3B-3D%TG=40%CD=Z)
 # Samsung i5220 internet phone firmware version 1.43
 Fingerprint Samsung SMT-i5220 VoIP phone
 Class Samsung | embedded || VoIP phone
+CPE cpe:/h:samsung:smt-i5220 auto
 SEQ(SP=8C-AE%GCD=1-6%ISR=97-AB%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=NNM5A0SNW0%O2=NNM5A0SNW0%O3=M5A0NW0%O4=NNM5A0SNW0%O5=NNM5A0SNW0%O6=NNM5A0S)
 WIN(W1=2710%W2=2710%W3=2710%W4=2710%W5=2710%W6=2710)
@@ -61299,6 +61321,7 @@ IE(DFI=N|S%T=3B-45%TG=40%CD=Z)
 # Snom360 VoIP phone
 Fingerprint Snom 360 VoIP phone
 Class Snom | embedded || VoIP phone
+CPE cpe:/h:snom:360 auto
 SEQ(SP=C1-CB%GCD=1-6%ISR=C7-D1%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M558ST11NW0%O2=M558ST11NW0%O3=M558NNT11NW0%O4=M558ST11NW0%O5=M558ST11NW0%O6=M558ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -65509,6 +65532,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Welltech ATA-171 h323 VoIP Gateway SIP build-in NAT Firmware Version: s1_105
 Fingerprint Welltech ATA-171 VoIP gateway
 Class Welltech | embedded || VoIP adapter
+CPE cpe:/h:welltech:ata-171 auto
 SEQ(R=N)
 OPS(O1=M5B4%O2=M578W0ST10L%O3=M280|T10NNW5NM280%O4=M5B4|ST10WAL%O5=M218|M218ST10WAL%O6=M109|M109ST10)
 WIN(W1=3180%W2=0%W3=0|3180%W4=0|3180%W5=0|3180%W6=0|3180)
