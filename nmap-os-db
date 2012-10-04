@@ -9989,6 +9989,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # CISCO IP PHONE 303 (SPA303) SW.version: 7.4.8a
 Fingerprint Cisco SPA 303 VoIP phone, Nortel 5520 Ethernet Routing Switch, or Sun StorageTek 6140 NAS device
 Class Cisco | embedded || switch
+CPE cpe:/h:cisco:spa303_3-line_ip_phone_with_2-port_switch
 Class Nortel | embedded || switch
 Class Sun | embedded || storage-misc
 SEQ(SP=95-9F%GCD=1-6%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
@@ -28656,6 +28657,9 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # Linksys SPA941 with the latest firmware from 2005
 Fingerprint Linksys SPA901, SPA921, or SPA 941 SIP VoIP phone
 Class Linksys | embedded || VoIP phone
+CPE cpe:/h:linksys:spa901_1-line_ip_phone
+CPE cpe:/h:linksys:spa921_1-line_ip_phone_with_1-port_ethernet
+CPE cpe:/h:linksys:spa941_4-line_ip_phone_with_1-port_ethernet
 SEQ(SP=F8-108%GCD=1-6%ISR=106-112%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -28673,6 +28677,7 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # Linksys SPA942 phone.
 Fingerprint Linksys SPA942 VoIP phone
 Class Linksys | embedded || VoIP phone
+CPE cpe:/h:linksys:spa942_4-line_ip_phone_with_2-port_switch
 SEQ(SP=F3-10B%GCD=1-6%ISR=105-10F%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M550%O2=M550%O3=M550%O4=M550%O5=M550%O6=M550)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -28695,8 +28700,15 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # Linksys SPA962 Version 5.2.8
 Fingerprint Linksys SPA942, SPA962, or SPA9000 VoIP phone; SPA3102 VoIP gateway; or Sipura SPA-2100-series VoIP adapter
 Class Linksys | embedded || VoIP phone
+CPE cpe:/h:linksys:spa942_4-line_ip_phone_with_2-port_switch
+CPE cpe:/h:linksys:spa962_6-line_ip_phone_with_2-port_switch
+CPE cpe:/h:linksys:spa9000
 Class Linksys | embedded || VoIP adapter
+CPE cpe:/h:linksys:spa3102_voice_gateway_with_router:-
+CPE cpe:/o:linksys:spa3102_voice_gateway_with_router_firmware
 Class Sipura | embedded || VoIP adapter
+CPE cpe:/h:sipura:spa2102_phone_adapter_with_router:-
+CPE cpe:/o:sipura:spa2102_phone_adapter_with_router_firmware
 SEQ(SP=FC-10A%GCD=1-6%ISR=104-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5A8%O2=M5A8%O3=M5A8%O4=M5A8%O5=M5A8%O6=M5A8)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -60824,6 +60836,8 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # LinkSys/Sipura SPA3000, software version 3.1.10(GWd), hardware version 2.0.1(1448).
 Fingerprint Sipura SPA-3000 VoIP adapter
 Class Sipura | embedded || VoIP adapter
+CPE cpe:/h:sipura:spa3000_voice_gateway_with_router:-
+CPE cpe:/o:sipura:spa3000_voice_gateway_with_router_firmware
 SEQ(SP=103-10D%GCD=1-6%ISR=101-111%TI=RD%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
