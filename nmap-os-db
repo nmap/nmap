@@ -8507,7 +8507,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 
 # Cabletron ELS100-24TXM
 # 3Com Corporation HiPer Access Router, Dialup-MODEM concentrador
-Fingerprint Cabletron ELS100-24TXM Switch
+Fingerprint Cabletron ELS100-24TXM switch
 Class Cabletron | embedded || switch
 SEQ(SP=0-87%GCD=9C4|1388|1D4C|2710|30D4%ISR=8A-B0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
@@ -25138,7 +25138,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # IBM 6400 Printer - version: 7.0.9.6
 # Telnet Banner: Network Printer Server Version 7.0.9.6
-Fingerprint IBM 6400 Printer (software version 7.0.9.6)
+Fingerprint IBM 6400 printer (software version 7.0.9.6)
 Class IBM | embedded || printer
 SEQ(SP=0-15%GCD=1-6%ISR=0-D%TI=I%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M1AE%O5=M218%O6=M109)
@@ -28066,7 +28066,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Lexmark Optra S 1855 Printer with Firmware Version 1.10.17 and Ethernet 10/100 MarkNet S Module
 # Lexmark Optra Se3455 with internal Lexmark network card.  Ethernet 10/100 MarkNet S print server firmware version 1.10.194
-Fingerprint Lexmark Optra S 1855 or Se3455 Printer
+Fingerprint Lexmark Optra S 1855 or Se3455 printer
 Class Lexmark | embedded || printer
 SEQ(SP=E-18%GCD=1393|2726|3AB9|4E4C|61DF|7572%ISR=8A-94%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M280%O5=M218%O6=M218)
@@ -28083,7 +28083,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=I%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 
 # Lexmark Optra T612 Printer
-Fingerprint Lexmark Optra T612 Printer
+Fingerprint Lexmark Optra T612 printer
 Class Lexmark | embedded || printer
 SEQ(SP=8D-A4%GCD=1-6%ISR=93-A7%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
