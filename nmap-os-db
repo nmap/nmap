@@ -48,7 +48,7 @@ IE(R=50%DFI=40%T=15%TG=15%CD=100)
 
 # 4-port GSM-SIP gateway PORTech MV-374
 # 2FXS VoIP gateway K-3288W
-Fingerprint 2FXS K-3288W or PORTech MV-374 GSM-SIP VoIP gateway
+Fingerprint 2FXS K-3288W or PORTech MV-374 GSM-SIP VoIP adapter
 Class 2FXS | embedded || VoIP adapter
 Class PORTech | embedded || VoIP adapter
 CPE cpe:/h:portech:mv-374
@@ -997,7 +997,7 @@ U1(DF=N|Y%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N|O|S|Y%T=3B-45%TG=40%CD=Z)
 
 # 3Com NBX 100. VxWorks: http://www.3com.com/products/en_US/detail.jsp?tab=features&pathtype=purchase&sku=WEBBNGNBX100COMSYS
-Fingerprint 3Com NBX 100 VoIP gateway (VxWorks)
+Fingerprint 3Com NBX 100 VoIP adapter (VxWorks)
 Class 3Com | VxWorks || VoIP adapter
 CPE cpe:/h:3com:nbx_100
 CPE cpe:/o:3com:vxworks auto
@@ -5802,7 +5802,7 @@ U1(R=N)
 IE(DFI=N%T=7B-85%TG=80%CD=Z)
 
 # AudioCodes Mediant 1000
-Fingerprint AudioCodes Mediant 1000 VoIP gateway
+Fingerprint AudioCodes Mediant 1000 VoIP adapter
 Class AudioCodes | embedded || VoIP adapter
 SEQ(SP=C-16%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW1NNSNNT11%O2=M578NW1NNSNNT11%O3=M280NW1NNT11%O4=M5B4NW1NNSNNT11%O5=M218NW1NNSNNT11%O6=M109NNSNNT11)
@@ -5820,7 +5820,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Audiocodes MP-118-4FXS4FXO VoIP Gate
 # Audiocodes MP-114 FXO
-Fingerprint Audiocodes MP-114 or MP-118 VoIP gateway
+Fingerprint Audiocodes MP-114 or MP-118 VoIP adapter
 Class AudioCodes | embedded || VoIP adapter
 SEQ(SP=C-16%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9F-A9%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
@@ -5939,7 +5939,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Avaya G360 Media Gateway running software version 26.36.0
-Fingerprint Avaya G350 Media Gateway (VoIP gateway)
+Fingerprint Avaya G350 Media Gateway VoIP adapter
 Class Avaya | embedded || VoIP adapter
 SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M550%O2=M550%O3=M550%O4=M550%O5=M550%O6=M550)
@@ -5956,7 +5956,7 @@ U1(R=N)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Avaya IP Office IP403
-Fingerprint Avaya Office IP403 VoIP gateway
+Fingerprint Avaya Office IP403 VoIP adapter
 Class Avaya | embedded || VoIP adapter
 SEQ(SP=11-2D%GCD=10000|20000|30000|40000|50000%ISR=CA-D4%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
@@ -5974,7 +5974,7 @@ IE(DFI=S%T=23-3D%TG=40%CD=S)
 
 # Avaya IP500, Firmware 4.1 (9)
 # avaya IP Office 500 . mixed-type PABX (analog + voip)
-Fingerprint Avaya Office IP500 VoIP gateway
+Fingerprint Avaya Office IP500 VoIP adapter
 Class Avaya | embedded || VoIP adapter
 SEQ(SP=0-13%GCD=10000|20000|30000|40000|50000|650000|CA0000|12F0000|1940000|1F90000%ISR=CB-D5%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
@@ -5991,7 +5991,7 @@ U1(DF=N%T=5E-68%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=20-3C%TG=40%CD=S)
 
 # Avaya IP Office500
-Fingerprint Avaya Office IP500 VoIP gateway
+Fingerprint Avaya Office IP500 VoIP adapter
 Class Avaya | embedded || VoIP adapter
 SEQ(SP=17-35%GCD=10000|20000|30000|40000|50000%ISR=CB-D5%TI=I%CI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
@@ -10030,7 +10030,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Cisco ATA 188 (SIP), S/W Version     3.02.01(050616A), Firmware        ATA030201SIP050616A.zup
-Fingerprint Cisco ATA 188 VoIP gateway
+Fingerprint Cisco ATA 188 VoIP adapter
 Class Cisco | embedded || VoIP adapter
 CPE cpe:/h:cisco:ata_188_voip_gateway
 SEQ(CI=I%II=I)
@@ -10048,7 +10048,7 @@ U1(DF=N%T=F5-FF%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 
 # Cisco Communications Manager 7.1.1
-Fingerprint Cisco Unified Communications Manager VoIP gateway
+Fingerprint Cisco Unified Communications Manager VoIP adapter
 Class Cisco | embedded || VoIP adapter
 CPE cpe:/a:cisco:unified_communications_manager:7.1.1
 SEQ(SP=FE-10A%GCD=1-6%ISR=104-112%TI=Z%CI=RD%II=I%TS=A)
@@ -10067,7 +10067,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Cisco Unified Call Manager 7.1.3.32900-4
 # UNITY Connection
-Fingerprint Cisco Unified Communications Manager VoIP gateway
+Fingerprint Cisco Unified Communications Manager VoIP adapter
 Class Cisco | embedded || VoIP adapter
 CPE cpe:/h:cisco:unified_call_manager
 SEQ(SP=C6-D0%GCD=1-6%ISR=C9-D3%TI=Z%II=I%TS=A)
@@ -11340,7 +11340,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco IOS Software, C1250 Software (C1250-K9W7-M), Version 12.4(10b)JA1, RELEASE SOFTWARE (fc2)
 # Cisco Aironet 1240AG Series Access Point
 # Cisco VG 224 Analog Phone Gateway
-Fingerprint Cisco Aironet 1240AG or 1250 WAP, 1811 or 2800 router, or VG 224 VoIP gateway (IOS 12.4)
+Fingerprint Cisco Aironet 1240AG or 1250 WAP, 1811 or 2800 router, or VG 224 VoIP adapter (IOS 12.4)
 Class Cisco | IOS | 12.X | router
 CPE cpe:/h:cisco:1811_router
 CPE cpe:/h:cisco:2800_router
@@ -13362,7 +13362,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Comtrend CT-800 SIP gateway
-Fingerprint Comtrend CT-800 VoIP gateway
+Fingerprint Comtrend CT-800 VoIP adapter
 Class Comtrend | embedded || VoIP adapter
 CPE cpe:/h:comtrend:ct-800 auto
 SEQ(SP=14-1E%GCD=7A00|F400|16E00|1E800|26200%ISR=91-9B%TI=I%II=I%SS=S%TS=1)
@@ -14094,7 +14094,7 @@ U1(DF=N%T=1A-24%TG=20%IPL=38%UN=128%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FB-105%TG=FF%CD=S)
 
 # D-Link VoIP Gateway DVG-4022S
-Fingerprint D-Link DVG-4022S VoIP gateway
+Fingerprint D-Link DVG-4022S VoIP adapter
 Class D-Link | embedded || VoIP adapter
 CPE cpe:/h:dlink:dvg-4022s auto
 SEQ(SP=8F-99%GCD=1-6%ISR=92-9C%TI=I%II=RI%SS=O%TS=1)
@@ -14113,7 +14113,7 @@ IE(DFI=S%T=19-23%TG=20%CD=S)
 
 # D-Link VoIP Router DVG-5112S, Firmware Version: GE_1.00
 # D-Link DVG-6004S FXO VoIP Router Software Version No. [1.02.38.28]
-Fingerprint D-Link DVG-5112S or DVG-6004S VoIP gateway
+Fingerprint D-Link DVG-5112S or DVG-6004S VoIP adapter
 Class D-Link | embedded || VoIP adapter
 SEQ(SP=BF-DB%GCD=1-6%ISR=CB-D5%TI=Z%CI=Z%II=RI%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
@@ -16659,7 +16659,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # ESI Estech Systems Inc Network Services Processor (NSP) ESI 100 Communications Server
-Fingerprint ESI ESI-100 VoIP gateway
+Fingerprint ESI ESI-100 VoIP adapter
 Class ESI | embedded || VoIP adapter
 CPE cpe:/h:esi:esi-100 auto
 SEQ(SP=0-5%GCD=1-6%ISR=15-1F%TI=I%CI=I%II=I%SS=S%TS=U)
@@ -28712,7 +28712,7 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # Sipura SPA-2100, Software Version: 2.0.5(a), Hardware Version: 1.0.0(3226)
 # Sipura SPA-2102
 # Linksys SPA962 Version 5.2.8
-Fingerprint Linksys SPA942, SPA962, or SPA9000 VoIP phone; SPA3102 VoIP gateway; or Sipura SPA-2100-series VoIP adapter
+Fingerprint Linksys SPA942, SPA962, or SPA9000 VoIP phone; SPA3102 VoIP adapter; or Sipura SPA-2100-series VoIP adapter
 Class Linksys | embedded || VoIP phone
 CPE cpe:/h:linksys:spa942_4-line_ip_phone_with_2-port_switch
 CPE cpe:/h:linksys:spa962_6-line_ip_phone_with_2-port_switch
@@ -54408,7 +54408,7 @@ U1(DF=N%T=3B-3D%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-3D%TG=40%CD=S)
 
 # Netcomm V300 VOIP ATA running software version A007-S9210NGT-C00_00
-Fingerprint Netcomm V300 VoIP gateway
+Fingerprint Netcomm V300 VoIP adapter
 Class Netcomm | embedded || VoIP adapter
 CPE cpe:/h:netcomm:v300 auto
 SEQ(SP=14-1E%GCD=7A00|F400|16E00|1E800|26200%ISR=91-9B%TI=I%II=I%SS=S%TS=1)
@@ -57616,7 +57616,7 @@ U1(DF=Y%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Patton/Inalp (www.patton.com) Smartnode 4960 VoIP Gateway. OS is Smartware 4.2.
-Fingerprint Patton SmartNode 4960 VoIP gateway (SmartWare 4.2)
+Fingerprint Patton SmartNode 4960 VoIP adapter (SmartWare 4.2)
 Class Patton | SmartWare | 4.X | VoIP adapter
 CPE cpe:/o:patton:smartware:4 auto
 SEQ(SP=0-1D%GCD=0|8000|10000|18000|20000|28000%ISR=0-FB%TI=I%II=I%SS=S%TS=U)
@@ -58327,7 +58327,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Portech GSM VoIP GSM:900/1800MHz v6.0 gateway
-Fingerprint PORTech GSM VoIP gateway
+Fingerprint PORTech GSM VoIP adapter
 Class PORTech | embedded || VoIP adapter
 SEQ(SP=0-16%GCD=FA|1F4|2EE|3E8|4E2|61A8|C350|124F8|186A0|1E848%ISR=8A-94%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
@@ -58344,7 +58344,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # VoIP GSM Gateway model: MV-370
-Fingerprint PORTech MV-370 GSM VoIP gateway
+Fingerprint PORTech MV-370 GSM VoIP adapter
 Class PORTech | embedded || VoIP adapter
 SEQ(SP=A-14%GCD=FA|1F4|2EE|3E8|4E2%ISR=8A-94%TI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4|WANM5B4T10S%O2=M578|M578W0ST10L%O3=M280|T10NNW5NM280%O4=M5B4|ST10WAL%O5=M218|M218ST10WAL%O6=M109ST10)
@@ -59584,7 +59584,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Samsung Office Serve 7200 Phone System
-Fingerprint Samsung OfficeServ 7200 VoIP gateway
+Fingerprint Samsung OfficeServ 7200 VoIP adapter
 Class Samsung | embedded || VoIP adapter
 SEQ(SP=100-10A%GCD=1-6%ISR=106-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -60716,7 +60716,7 @@ U1(DF=N%T=6B-75%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=5F6E%RUD=G)
 IE(DFI=N%T=6B-75%TG=80%CD=Z)
 
 # Central Telephone server HI-PATH4000
-Fingerprint Siemens HiPath 4000 VoIP gateway
+Fingerprint Siemens HiPath 4000 VoIP adapter
 Class Siemens | embedded || VoIP adapter
 SEQ(SP=AE-B8%GCD=1-6%ISR=B4-BE%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -65303,7 +65303,7 @@ U1(DF=N%T=FE%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FE%TG=FF%CD=S)
 
 # Vonage V-Portal device.
-Fingerprint Vonage V-Portal VoIP gateway
+Fingerprint Vonage V-Portal VoIP adapter
 Class Vonage | embedded || VoIP adapter
 SEQ(SP=101-10B%GCD=1-6%ISR=103-10D%TI=I%TS=7)
 OPS(O1=M5ACNW0NNT11%O2=M5ACNW0NNT11%O3=M5ACNW0NNT11%O4=M5ACNW0NNT11%O5=M5ACNW0NNT11%O6=M5ACNNT11)
@@ -65530,7 +65530,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Welltech ATA-171 h323 VoIP Gateway SIP build-in NAT Firmware Version: s1_105
-Fingerprint Welltech ATA-171 VoIP gateway
+Fingerprint Welltech ATA-171 VoIP adapter
 Class Welltech | embedded || VoIP adapter
 CPE cpe:/h:welltech:ata-171 auto
 SEQ(R=N)
