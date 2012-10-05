@@ -1752,9 +1752,13 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # Samsung SCX-6x22 Series printer
 Fingerprint Alcatel OmniStack 6024 or Enterasys Vertical Horizon VH-2402S2 switch, or Dell 1815dn or Samsung SCX-6x22 printer
 Class Alcatel | embedded || switch
+CPE cpe:/h:alcatel:omnistack_6024
 Class Enterasys | embedded || switch
+CPE cpe:/h:enterasys:vh-2402s2
 Class Dell | embedded || printer
+CPE cpe:/h:dell:1815dn
 Class Samsung | embedded || printer
+CPE cpe:/h:samsung:scx-6x22
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -1983,9 +1987,19 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # DELL POWECONNECT 2824 Switch
 Fingerprint Allied Telesis AT-8000S; Dell PowerConnect 2824, 3448, 5316M, or 5324; Linksys SFE2000P, SRW2024, SRW2048, or SRW224G4; or TP-Link TL-SL3428 switch
 Class Allied Telesis | embedded || switch
+CPE cpe:/h:alliedtelesis:at-8000s
 Class Dell | embedded || switch
+CPE cpe:/h:dell:powerconnect_2824
+CPE cpe:/h:dell:powerconnect_3448
+CPE cpe:/h:dell:powerconnect_5316m
+CPE cpe:/h:dell:powerconnect_5324
 Class Linksys | embedded || switch
+CPE cpe:/h:linksys:sfe2000p
+CPE cpe:/h:linksys:srw2024
+CPE cpe:/h:linksys:srw2048
+CPE cpe:/h:linksys:srw224g4
 Class TP-Link | embedded || switch
+CPE cpe:/h:tp-link:tl-sl3428
 SEQ(SP=F4-10A%GCD=1-6%ISR=FA-10E%TI=RD%CI=RD%II=RI%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=200%W2=200%W3=200%W4=200%W5=200%W6=200)
@@ -15138,7 +15152,10 @@ IE(DFI=N%T=F9-103%TG=FF%CD=S)
 # Lexmark E352dn
 Fingerprint Dell 1720dn, or Lexmark E250dn or E352dn printer
 Class Dell | embedded || printer
+CPE cpe:/h:dell:1720dn
 Class Lexmark | embedded || printer
+CPE cpe:/h:lexmark:e250dn auto
+CPE cpe:/h:lexmark:e352dn auto
 SEQ(SP=AE-D2%GCD=1-6%ISR=C1-D7%TI=Z%CI=I%II=I%TS=A)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
 WIN(W1=B50%W2=B50%W3=B50%W4=B50%W5=B50%W6=B50)
@@ -15233,7 +15250,11 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell MFP Laser 3115cn
 Fingerprint Dell 3100cn-series or Xerox Phaser 6180DN printer
 Class Dell | embedded || printer
+CPE cpe:/h:dell:3100cn
+CPE cpe:/h:dell:3110cn
+CPE cpe:/h:dell:3115cn
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:phaser_6180dn
 SEQ(SP=0-16%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3000%W2=3000%W3=3000%W4=3000%W5=3000%W6=3000)
@@ -15285,7 +15306,12 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Lexmark C530, Firmware Version: NSF.NP.N016
 Fingerprint Dell 5210n or Lexmark C530-series, T640, T642, or T644 printer
 Class Dell | embedded || printer
+CPE cpe:/h:dell:5210n
 Class Lexmark | embedded || printer
+CPE cpe:/h:lexmark:c530
+CPE cpe:/h:lexmark:t640
+CPE cpe:/h:lexmark:t642
+CPE cpe:/h:lexmark:t644
 SEQ(SP=BA-D1%GCD=1-6%ISR=CB-D5%TI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=B50%W2=B50%W3=B50%W4=B50%W5=B50%W6=B50)
@@ -15304,6 +15330,8 @@ IE(DFI=N%T=FE%TG=FF%CD=S)
 # Remote Access Controller (RAC) Version 3.38
 Fingerprint Dell Embedded Remote Access (ERA) Controller 3.38 or 4/I
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:3.38
+CPE cpe:/h:dell:remote_access_card:4
 SEQ(SP=FD-109%GCD=1-6%ISR=FF-10D%TI=RD|RI%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15322,6 +15350,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell Remote Access Controller 4/I (DRAC 4/I) Version 1.33 (Build 08.04)
 Fingerprint Dell Embedded Remote Access (ERA) Controller 4/I
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:4
 SEQ(SP=F9-10A%GCD=1-6%ISR=102-110%TI=RD|RI%CI=RD|RI%II=RI%SS=S%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15339,6 +15368,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell Remote access Controller (DRAC) 5.0
 Fingerprint Dell Integrated Remote Access Controller (iDRAC5)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:5
 SEQ(SP=BE-C8%GCD=1-6%ISR=C5-CF%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M578ST11NW0%O2=M578ST11NW0%O3=M578NNT11NW0%O4=M578ST11NW0%O5=M578ST11NW0%O6=M578ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15356,6 +15386,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Dell iDRAC6 Express remote access controller firmware revision 1.20 (Probably Linux --Ed.)
 Fingerprint Dell Integrated Remote Access Controller (iDRAC6)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:6
 SEQ(SP=B5-E1%GCD=1-6%ISR=C7-DD%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M45FST11NW2%O2=M45FST11NW2%O3=M45FNNT11NW2%O4=M45FST11NW2%O5=M45FST11NW2%O6=M45FST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15373,6 +15404,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # PowerEdge 2650
 Fingerprint Dell PowerEdge 2650 server Embedded Remote Access (ERA)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:poweredge_2650
 SEQ(SP=F8-108%GCD=1-6%ISR=FC-110%TI=RD|RI%II=RI%SS=O|S%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15390,6 +15422,7 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # Dell Remote Access Controller 5 (DRAC 5), Firmware Version 1.40 (Build 08.08.22)
 Fingerprint Dell Remote Access Controller (DRAC 5)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:6
 SEQ(SP=C4-CE%GCD=1-6%ISR=C5-CF%TI=Z%CI=RD%II=I%TS=7)
 OPS(O1=M578ST11NW0%O2=M578ST11NW0%O3=M578NNT11NW0%O4=M578ST11NW0%O5=M578ST11NW0%O6=M578ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15407,6 +15440,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Integrated Dell Remote Access Controller 6 - Enterprise"
 Fingerprint Dell Remote Access Controller (DRAC 6)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:6
 SEQ(SP=CF-105%GCD=1-6%ISR=DB-103%TI=Z%II=I%TS=7|9)
 OPS(O1=M564NNT11NW2%O2=M564NNT11NW2%O3=M564NNT11NW2%O4=M564NNT11NW2%O5=M564NNT11NW2%O6=M564NNT11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15425,6 +15459,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Dell Remote Access Controller 4/I
 Fingerprint Dell Remote Access Controller 4 (DRAC 4)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:4
 SEQ(SP=102-10C%GCD=1-6%ISR=100-10E%TI=RD|RI%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15442,6 +15477,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell Remote Access Controller 4/I, on a PowerEdge 2850 server.
 Fingerprint Dell Remote Access Controller 4/I
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:4
 SEQ(SP=FC-108%GCD=1-6%ISR=FA-10E%TI=RD|RI%II=RI%SS=O|S%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15459,6 +15495,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # DRAC 4
 Fingerprint Dell Remote Access Controller 4/I
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:4
 SEQ(SP=FE-108%GCD=1-6%ISR=107-111%TI=RD|RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15476,6 +15513,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell Remote Access Controller 5, Hardware Version A03, Firmware Version 1.40 (08.08.22) (Probably Linux --Ed.)
 Fingerprint Dell Remote Access Controller 5 (DRAC 5)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:5
 SEQ(SP=F1-10B%GCD=1-6%ISR=FF-111%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M57EST11NW0%O2=M578ST11NW0%O3=M280NNT11NW0%O4=M22CST11NW0%O5=M218ST11NW0%O6=M109ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15493,6 +15531,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Dell DRAC 5/i remote management card
 Fingerprint Dell Remote Access Controller 5/I (DRAC 5/I)
 Class Dell | embedded || remote management
+CPE cpe:/h:dell:remote_access_card:5
 SEQ(SP=B9-C9%GCD=1-6%ISR=C4-D0%TI=Z%II=I%TS=7)
 OPS(O1=M56CST11NW0%O2=M56CST11NW0%O3=M56CNNT11NW0%O4=M56CST11NW0%O5=M56CST11NW0%O6=M56CST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15511,6 +15550,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # PS3000 SAN
 Fingerprint Dell EqualLogic PeerStorage PS3000 or PS4000 NAS device
 Class Dell | embedded || storage-misc
+CPE cpe:/h:dell:equallogic_ps3000
+CPE cpe:/h:dell:equallogic_ps4000
 SEQ(SP=CE-DE%GCD=1-6%ISR=E0-EA%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT01%O2=M578NW0NNT01%O3=M280NW0NNT01%O4=M5B4NW0NNT01%O5=M218NW0NNT01%O6=M109NNT01)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -15528,6 +15569,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell Equallogic PS4000X iSCSI storage controller
 Fingerprint Dell EqualLogic PeerStorage PS4000X NAS device
 Class Dell | embedded || storage-misc
+CPE cpe:/h:dell:equallogic_ps4000x
 SEQ(SP=C5-D3%GCD=1-6%ISR=E4-EE%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW5NNT01%O2=M578NW5NNT01%O3=M280NW5NNT01%O4=M2300NW5NNT01%O5=M218NW5NNT01%O6=M109NNT01)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -15546,6 +15588,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell PowerVault 124T (LTO3 tape device with autoloader)
 Fingerprint Dell PowerVault 124T LTO-3 tape autoloader
 Class Dell | embedded || storage-misc
+CPE cpe:/h:dell:powervault_124t
 SEQ(SP=C-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -15563,6 +15606,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 # Dell Powervault 132T tape library
 Fingerprint Dell PowerVault 132T tape library
 Class Dell | embedded || storage-misc
+CPE cpe:/h:dell:powervault_132t
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=578%W2=578%W3=578%W4=578%W5=578%W6=578)
@@ -15580,6 +15624,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Dell PowerVault 705N (NAS Appliance)
 Fingerprint Dell PowerVault 705N NAS appliance
 Class Dell | embedded || storage-misc
+CPE cpe:/h:dell:powervault_705n
 SEQ(SP=C-16%GCD=3200|6400|9600|C800|FA00%ISR=97-A1%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=2238%W3=2238%W4=2238%W5=2238%W6=2238)
@@ -15598,7 +15643,9 @@ IE(R=N)
 # TP-Link TL-WR340GD router 4.3.3 Build 090812 Rel.61475n
 Fingerprint Dell PowerVault MD3000i NAS appliance or TP-Link TL-WR340GD WAP
 Class Dell | embedded || storage-misc
+CPE cpe:/h:dell:powervault_md3000i
 Class TP-Link | embedded || WAP
+CPE cpe:/h:tp-link:tl-wr340gd
 SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%CI=I%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -15641,8 +15688,14 @@ IE(DFI=S%T=1B-25|3B-45%TG=20|40%CD=S)
 # FS728TP Smart Switch
 Fingerprint Dell PowerConnect 2748, Linksys SLM2024, SLM2048, or SLM224P, or Netgear FS728TP or GS724TP switch
 Class Dell | embedded || switch
+CPE cpe:/h:dell:powerconnect_2748
 Class Linksys | embedded || switch
+CPE cpe:/h:linksys:slm2024
+CPE cpe:/h:linksys:slm2048
+CPE cpe:/h:linksys:slm224p
 Class Netgear | embedded || switch
+CPE cpe:/h:netgear:fs728tp
+CPE cpe:/h:netgear:gs724tp
 SEQ(SP=FB-10D%GCD=1-6%ISR=103-113%TI=RD%II=RI%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15787,6 +15840,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # PowerConnect 6200 series
 Fingerprint Dell PowerConnect 6200-series switch
 Class Dell | embedded || switch
+CPE cpe:/h:dell:powerconnect_6200
 SEQ(SP=8A-94%GCD=1-6%ISR=97-A1%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15807,7 +15861,10 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Dell Powerconnect 6248 Firmware 3.2.0.7
 Fingerprint Dell PowerConnect 6248, or Enterasys B3 BG3124 or D2 D2G124 switch
 Class Dell | embedded || switch
+CPE cpe:/h:dell:powerconnect_6248
 Class Enterasys | embedded || switch
+CPE cpe:/h:enterasys:bg3124
+CPE cpe:/h:enterasys:d2g124
 SEQ(SP=0-B8%GCD=1-7|FA01|1F402|2EE03|3E804|4E205%ISR=96-AE%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=NNM5B4SNW0%O2=NNM5B4SNW0%O3=M5B4NW0%O4=NNM5B4SNW0%O5=NNM5B4SNW0%O6=NNM5B4S)
 WIN(W1=2710%W2=2710%W3=2710%W4=2710%W5=2710%W6=2710)
