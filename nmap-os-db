@@ -2355,6 +2355,8 @@ IE(R=N)
 Fingerprint Ambit DOCSIS 2.0 cable modem, or Xerox Phaser 6250N or 6350DT printer
 Class Ambit | embedded || broadband router
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:phaser_6250n
+CPE cpe:/h:xerox:phaser_6350dt
 SEQ(SP=E-52%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=98-C4%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -6473,8 +6475,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Axis 211A, 2.6.20
 Fingerprint AXIS 211A Network Camera (Linux 2.6.20)
 Class AXIS | Linux | 2.6.X | webcam
-CPE cpe:/o:axis:linux:2.6 auto
 CPE cpe:/h:axis:211a_network_camera
+CPE cpe:/o:axis:linux:2.6 auto
 SEQ(CI=Z%II=I)
 OPS(R=N)
 WIN(R=N)
@@ -6564,6 +6566,7 @@ IE(DFI=S%T=24-39%TG=40%CD=S)
 Fingerprint Bay Networks Annex Ethernet-to-serial bridge or Xerox DocuPrint N32 printer
 Class Bay Networks | embedded || bridge
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:docuprint_n32
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%II=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -7478,6 +7481,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Brother NC-130h Node OS
 Fingerprint Brother NC-130h print server
 Class Brother | embedded || print server
+CPE cpe:/h:brother:nc-130h auto
 SEQ(SP=C5-CF%GCD=1-6%ISR=D3-DD%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -7495,6 +7499,7 @@ IE(DFI=N%T=79%TG=80%CD=Z)
 # External 10/100BASE-TX Print Server NC-2100p
 Fingerprint Brother NC-2100p print server
 Class Brother | embedded || print server
+CPE cpe:/h:brother:nc-2100p auto
 SEQ(SP=0-5%GCD=0%ISR=0-5%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=80%W2=80%W3=80%W4=80%W5=80%W6=80)
@@ -7512,6 +7517,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Multiprotocol Print Server NC-3100h, Firmware Version: 3.20
 Fingerprint Brother NC-3100h print server
 Class Brother | embedded || print server
+CPE cpe:/h:brother:nc-3100h auto
 SEQ(SP=C5-CF%GCD=1-6%ISR=D5-DF%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M200%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -7529,6 +7535,7 @@ IE(DFI=N%T=71%TG=80%CD=Z)
 # Brother NC-3100h, Firmware Ver.3.20 (00.08.31)
 Fingerprint Brother NC-3100h print server
 Class Brother | embedded || print server
+CPE cpe:/h:brother:nc-3100h auto
 SEQ(SP=C8-D2%GCD=1-6%ISR=D5-DF%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M200%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -7634,8 +7641,9 @@ U1(DF=N%T=7A-7C%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=8705%RUD=G)
 IE(DFI=N%T=7A-7C%TG=80%CD=Z)
 
 # Brother HL-2070N
-Fingerprint Brother HL-2070N
+Fingerprint Brother HL-2070N printer
 Class Brother | embedded || printer
+CPE cpe:/h:brother:hl-2070n auto
 SEQ(SP=C3-CD%GCD=1-6%ISR=D6-E0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M200%O5=M218%O6=M109)
 WIN(W1=111C%W2=111C%W3=111C%W4=111C%W5=111C%W6=111C)
@@ -20569,6 +20577,7 @@ IE(DFI=N%T=F9-103%TG=FF%CD=Z)
 # Hawking Technologies PN7127P 10/100 Print Server
 Fingerprint Hawking PN7127P print server
 Class Hawking | embedded || print server
+CPE cpe:/h:hawking:pn7127p auto
 SEQ(SP=0-5%GCD=60000|C0000|120000|180000|1E0000%ISR=AA-B4%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=B68%W2=B68%W3=B68%W4=B68%W5=B68%W6=B68)
@@ -27821,6 +27830,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # This is a lantronix ETS4P device server.
 Fingerprint Lantronix ETS4P print server
 Class Lantronix | embedded || print server
+CPE cpe:/h:lantronix:ets4p auto
 SEQ(SP=70-7E%GCD=1-6%ISR=90-9A%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -28081,6 +28091,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Level One FPS-1032 Print Server
 Fingerprint LevelOne FPS-1032 print server
 Class LevelOne | embedded || print server
+CPE cpe:/h:levelone:fps-1032 auto
 SEQ(SP=7-3B%GCD=3000|6000|9000|C000|F000%ISR=A8-B2%II=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=B68%W2=B68%W3=B68%W4=B68%W5=B68%W6=B68)
@@ -54816,6 +54827,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # NETGEAR PrintServer PS105
 Fingerprint Netgear PS105 print server
 Class Netgear | embedded || print server
+CPE cpe:/h:netgear:ps105 auto
 SEQ(R=N)
 OPS(O1=M400%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=400%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -55481,6 +55493,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Nintendo DS running DSFTP FTP server. (Sometimes reported by Nmap as a Xerox printer.)
 Fingerprint Nintendo DS game console
 Class Nintendo | embedded || game console
+CPE cpe:/h:nintendo:ds
 SEQ(SP=C1-DF%GCD=40|80|C0|100|140%ISR=FC-116%TI=BI|RD%II=BI%SS=S%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=578%W2=0|578%W3=578%W4=0|578%W5=0|578%W6=0|578)
@@ -55498,6 +55511,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # Nintendo Wii, loaded the homebrew TCP loader on port 8080 to get an open port.
 Fingerprint Nintendo Wii game console
 Class Nintendo | embedded || game console
+CPE cpe:/h:nintendo:wii
 SEQ(SP=F8-108%GCD=1-6%ISR=105-111%II=I%TS=U)
 OPS(O1=M5B4NNS%O2=M578NNS%O3=M280NNS%O4=M218NNS%O5=M218NNS%O6=M109NNS)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -55516,6 +55530,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Firmware 4.0U
 Fingerprint Nintendo Wii game console
 Class Nintendo | embedded || game console
+CPE cpe:/h:nintendo:wii
 SEQ(SP=F8-108%GCD=1-6%ISR=105-111%II=I%TS=U)
 OPS(O1=M5B4NNS%O2=M578NNS%O3=M280NNS%O4=M218NNS%O5=M218NNS%O6=M109NNS)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -55533,6 +55548,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Wii System Update 4.1U
 Fingerprint Nintendo Wii game console
 Class Nintendo | embedded || game console
+CPE cpe:/h:nintendo:wii
 SEQ(CI=I%II=I%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -55834,7 +55850,9 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 # Xerox Phaser 8560DT
 Fingerprint Nortel CS1000M VoIP PBX or Xerox Phaser 8560DT printer
 Class Nortel | embedded || PBX
+CPE cpe:/h:nortel:cs1000m
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:phaser_8560dt
 SEQ(SP=FF-109%GCD=1-6%ISR=102-110%TI=I%TS=6)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -59668,7 +59686,10 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Pinter model 6110
 Fingerprint Samsung CLP-310N or CLX-3175RW, or Xerox Phaser 6110 printer
 Class Samsung | embedded || printer
+CPE cpe:/h:samsung:clp-310n
+CPE cpe:/h:samsung:clx-3175rw
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:phaser_6110
 SEQ(SP=0-18%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=94-9E%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -59744,7 +59765,12 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Samsung ML3312-ND printer
 Fingerprint Samsung CLX-3185, CLX-6220FX, ML-2580N, or ML-3312ND; or Xerox Phaser 3300MFP printer
 Class Samsung | embedded || printer
+CPE cpe:/h:samsung:clx-3185
+CPE cpe:/h:samsung:clx-6220fx
+CPE cpe:/h:samsung:ml-2580n
+CPE cpe:/h:samsung:ml-3312nd
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:phaser_3300
 SEQ(SP=0-5%GCD=FA01|1F402|2EE03|3E804|4E205%ISR=95-9F%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=NNM5A0SNW0%O2=NNM5A0SNW0%O3=M5A0NW0%O4=NNM5A0SNW0%O5=NNM5A0SNW0%O6=NNM5A0S)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -64614,6 +64640,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # TL-PS110U Network Print Server Firmware Version: 9.08.47T 0016  (2010/03/22 17:47:37)
 Fingerprint TP-Link TL-PS110U print server
 Class TP-Link | embedded || print server
+CPE cpe:/h:tp-link:tl-ps110u auto
 SEQ(SP=13-3B%GCD=1-6%ISR=68-72%TI=Z%CI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=2800%W2=2800%W3=2800%W4=2800%W5=2800%W6=2800)
@@ -64631,6 +64658,7 @@ IE(DFI=S%T=2B-3F%TG=40%CD=S)
 # TP-Link TL-WPS510U single-port print server
 Fingerprint TP-Link TL-WPS510U print server
 Class TP-Link | embedded || print server
+CPE cpe:/h:tp-link:tl-wps510u auto
 SEQ(SP=0-52%GCD=1-6|C19E|C1AA|1833C|18354|244DA|244FE|30678|306A8|3C816|3C852%ISR=92-9C%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -66386,6 +66414,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Fuji-XEROX DocuPrint C525 A
 Fingerprint Xerox DocuPrint C525 A printer
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:docuprint_c525_a
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=3000%W2=3000%W3=3000%W4=3000%W5=3000%W6=3000)
@@ -66477,6 +66506,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Xerox Phaser 8200N
 Fingerprint Xerox Phaser 860N or 8200N printer
 Class Xerox | embedded || printer
+CPE cpe:/h:xerox:phaser_860n
+CPE cpe:/h:xerox:phaser_8200n
 SEQ(SP=0-5%GCD=186A0|30D40|493E0|61A80|7A120|927C0%ISR=9A-A4%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=B68%W2=AF0%W3=F00%W4=EA8%W5=EA8%W6=F87)
