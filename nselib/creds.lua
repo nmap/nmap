@@ -114,6 +114,7 @@ State = {
 	HOST_RESTRICTED = 128,
 	LOCKED_VALID = 256,
 	DISABLED_VALID = 512,
+	HASHED = 1024,
 }
 
 StateMsg = {
@@ -127,6 +128,7 @@ StateMsg = {
 	[State.HOST_RESTRICTED] = 'Valid credentials, account cannot log in from current host',
 	[State.LOCKED_VALID]    = 'Valid credentials, account locked',
 	[State.DISABLED_VALID]  = 'Valid credentials, account disabled',
+	[State.HASHED]  = 'Hashed valid or invalid credentials',
 }
 
 
