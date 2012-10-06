@@ -1754,27 +1754,6 @@ Helper = {
 		self.auth_session = data["AUTH_SESSION_ID"]
 		return true
 	end,
-
-	--- Steal auth data from database
-	-- @param user containing the Oracle user name
-	-- @param pass containing the Oracle user password
-	-- @return true on success, false on failure
-	-- @return err containing error message when status is false
-	StealthLogin = function( self, user, password )
-		local data, packet, status, tns, parser
-		local sesskey_enc, auth_pass, auth
-		local auth_options = AuthOptions:new()
-
-		status, auth = self.comm:exchTNSPacket( Packet.PreAuth:new( user, auth_options, self.os ) )
-		if ( not(status) ) then
-			return false, auth
-		end
-		if ( auth["AUTH_SESSKEY"] ) then
-			return true, auth
-		else
-			return false
-		end
-	end,
 	
 	--- Queries the database
 	--

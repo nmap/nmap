@@ -264,12 +264,27 @@ function do_nbstat(host)
 	local socket = nmap.new_socket()
 	local encoded_name = name_encode("*")
 	local statistics
+	local reg
+	if type(host) == "string" then --ip
+		stdnse.print_debug(3, "Performing nbstat on host '%s'", host)
+		nmap.registry.netbios = nmap.registry.netbios or {}
+		nmap.registry.netbios[host] = nmap.registry.netbios[host] or {}
+		reg = nmap.registry.netbios[host]
+	else
+		stdnse.print_debug(3, "Performing nbstat on host '%s'", host.ip)
+		if host.registry.netbios == nil and
+				nmap.registry.netbios ~= nil and
+				nmap.registry.netbios[host.ip] ~= nil then
+			host.registry.netbios = nmap.registry.netbios[host.ip]
+		end
+		host.registry.netbios = host.registry.netbios or {}
+		reg = host.registry.netbios
+	end
 
-	stdnse.print_debug(3, "Performing nbstat on host '%s'", host)
-	-- Check if it's cased in the registry for this host
-	if(nmap.registry["nbstat_names_" .. host] ~= nil) then
+	-- Check if it's cached in the registry for this host
+	if(reg["nbstat_names"] ~= nil) then
 		stdnse.print_debug(3, " |_ [using cached value]")
-		return true, nmap.registry["nbstat_names_" .. host], nmap.registry["nbstat_statistics_" .. host]
+		return true, reg["nbstat_names"], reg["nbstat_statistics"]
 	end
 
 	-- Create the query header
@@ -369,8 +384,8 @@ function do_nbstat(host)
 		pos, statistics = bin.unpack(string.format(">A%d", rrlength), result, pos)
 
 		-- Put it in the registry, in case anybody else needs it
-		nmap.registry["nbstat_names_"      .. host] = names
-		nmap.registry["nbstat_statistics_" .. host] = statistics
+		reg["nbstat_names"] = names
+		reg["nbstat_statistics"] = statistics
 
 		return true, names, statistics
 
