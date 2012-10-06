@@ -416,8 +416,8 @@ Engine =
 			account_guesses = {},
 			options = Options:new(),
 		}
-       	setmetatable(o, self)
-        self.__index = self
+		setmetatable(o, self)
+		self.__index = self
 		o.max_threads = stdnse.get_script_args("brute.threads") or 10
 		return o
 	end,
@@ -476,6 +476,7 @@ Engine =
 			for user, pass in self.iterator do
 				-- makes sure the credentials have not been tested before
 				self.used_creds = self.used_creds or {}
+				pass = pass or "nil"
 				if ( not(self.used_creds[user..pass]) ) then
 					self.used_creds[user..pass] = true
 					coroutine.yield( user, pass )
@@ -684,9 +685,9 @@ Engine =
 		
 			self.iterator = Iterators.credential_iterator( f ) 
 		elseif ( mode and mode == 'user' ) then
-			self.iterator = Iterators.user_pw_iterator( usernames, passwords ) 
+			self.iterator = self.iterator or Iterators.user_pw_iterator( usernames, passwords ) 
 		elseif( mode and mode == 'pass' ) then
-			self.iterator = Iterators.pw_user_iterator( usernames, passwords ) 
+			self.iterator = self.iterator or Iterators.pw_user_iterator( usernames, passwords ) 
 		elseif ( mode ) then
 			return false, ("Unsupported mode: %s"):format(mode)
 		-- Default to the pw_user_iterator in case no iterator was specified

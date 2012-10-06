@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added oracle-brute-stealth which exploits CVE-2012-3137, a weakness
+  in the Oracle O5LOGIN authentication scheme. [Dhiru Kholia]
+
 o Scans that use OS sockets (including TCP connect scan, version
   detection, and script scan) now use the SO_BINDTODEVICE sockopt on
   Linux, so that the -e option is honored. [David Fifield]
