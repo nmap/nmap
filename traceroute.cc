@@ -972,7 +972,7 @@ void traceroute_hop_cache_clear() {
    and that differences aren't meaningful. (This has the same effect as if we
    were to send probes strictly serially, because then there would be no parent
    hops to potentially conflict, even if in fact they would if traced to
-   completion. */
+   completion.) */
 static Hop *merge_hops(const struct sockaddr_storage *tag, Hop *a, Hop *b) {
   Hop head, *p;
 
