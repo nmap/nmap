@@ -59,7 +59,7 @@
 --
 -- Therefore TCP is the preferred method of communication and the library
 -- always attempts to connect to the TCP port of the RPC program first.
--- This behaviour can be overrided by setting the rpc.protocol argument.
+-- This behaviour can be overridden by setting the rpc.protocol argument.
 -- The portmap service is always queried over the protocol specified in the
 -- port information used to call the Helper function from the script.
 --
@@ -896,7 +896,7 @@ Mount = {
       return false, "Mount.Export: Failed to read data from socket"
     end
 
-    -- make sure we have atleast 24 bytes to unpack the header
+    -- make sure we have at least 24 bytes to unpack the header
     status, data = comm:GetAdditionalBytes( data, pos, 24 )
     if (not(status)) then
       return false, "Mount.Export: Failed to call GetAdditionalBytes"
@@ -3417,7 +3417,7 @@ Util =
   --
   -- Calculates the number of fill bytes needed
   -- @param length contains the length of the string
-  -- @return the amount of pad needed to be divideable by 4
+  -- @return the amount of pad needed to be dividable by 4
   CalcFillBytes = function(length)
       -- calculate fill bytes
     if math.fmod( length, 4 ) ~= 0 then
