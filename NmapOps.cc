@@ -421,8 +421,8 @@ dialog where you can start NPF if you have administrator privileges.";
    fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire)");
  }
 
- if ((pingtype & PINGTYPE_SCTP_INIT) && (!isr00t || af() != AF_INET)) {
-   fatal("Sorry, SCTP INIT Ping (-PY) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
+ if ((pingtype & PINGTYPE_SCTP_INIT) && (!isr00t)) {
+   fatal("Sorry, SCTP INIT Ping (-PY) only works if you are root (because we need to read raw responses off the wire)");
   }
 
  if ((pingtype & PINGTYPE_PROTO) && (!isr00t || af() != AF_INET)) {
