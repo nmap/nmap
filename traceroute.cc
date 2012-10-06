@@ -555,10 +555,13 @@ struct probespec HostState::get_probe(const Target *target) {
   struct probespec probe;
 
   probe = target->pingprobe;
-  if (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_ICMP ||
-      probe.type == PS_SCTP || probe.type == PS_ICMPV6) {
+  if (target->af() == AF_INET &&
+      (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_SCTP || probe.type == PS_ICMP)) {
     /* Nothing needed. */
-  } else if (probe.type == PS_PROTO) {
+  } else if (target->af() == AF_INET6 &&
+      (probe.type == PS_TCP || probe.type == PS_ICMPV6)) {
+    /* Nothing needed. */
+  } else if (target->af() == AF_INET && probe.type == PS_PROTO) {
     /* If this is an IP protocol probe, fill in some fields for some common
        protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
        ICMP-specific fields. */
