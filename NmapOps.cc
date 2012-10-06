@@ -425,8 +425,8 @@ dialog where you can start NPF if you have administrator privileges.";
    fatal("Sorry, SCTP INIT Ping (-PY) only works if you are root (because we need to read raw responses off the wire)");
   }
 
- if ((pingtype & PINGTYPE_PROTO) && (!isr00t || af() != AF_INET)) {
-   fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire) and only for IPv4");
+ if ((pingtype & PINGTYPE_PROTO) && (!isr00t)) {
+   fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire)");
  }
 
  if (ipprotscan && (TCPScan() || UDPScan() || SCTPScan())) {
