@@ -559,7 +559,7 @@ struct probespec HostState::get_probe(const Target *target) {
       (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_SCTP || probe.type == PS_ICMP)) {
     /* Nothing needed. */
   } else if (target->af() == AF_INET6 &&
-      (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_ICMPV6)) {
+      (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_SCTP || probe.type == PS_ICMPV6)) {
     /* Nothing needed. */
   } else if (target->af() == AF_INET && probe.type == PS_PROTO) {
     /* If this is an IP protocol probe, fill in some fields for some common
@@ -774,18 +774,27 @@ public:
   }
   unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
     struct sctp_chunkhdr_init chunk;
-    const struct sockaddr_in *sin;
-
-    assert(source->ss_family == AF_INET);
-    sin = (struct sockaddr_in *) source;
 
     sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0, sizeof(chunk),
       get_random_u32() /*itag*/, 32768, 10, 2048, get_random_u32() /*itsn*/);
-    return build_sctp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
-      get_random_u16(), get_random_u8(), false, NULL, 0,
-      token ^ global_id, pspec.pd.sctp.dport, 0UL,
-      (char *) &chunk, sizeof(chunk),
-      o.extra_payload, o.extra_payload_length, len);
+
+    if (source->ss_family == AF_INET) {
+      const struct sockaddr_in *sin = (struct sockaddr_in *) source;
+      return build_sctp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
+        get_random_u16(), get_random_u8(), false, NULL, 0,
+        token ^ global_id, pspec.pd.sctp.dport, 0UL,
+        (char *) &chunk, sizeof(chunk),
+        o.extra_payload, o.extra_payload_length, len);
+    } else if (source->ss_family == AF_INET6) {
+      const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) source;
+      return build_sctp_raw_ipv6(&sin6->sin6_addr, host->target->v6hostip(),
+        0, 0, ttl,
+        token ^ global_id, pspec.pd.sctp.dport, 0UL,
+        (char *) &chunk, sizeof(chunk),
+        o.extra_payload, o.extra_payload_length, len);
+    } else {
+      fatal("Unknown address family %u in %s.", source->ss_family, __func__);
+    }
   }
 };
 
