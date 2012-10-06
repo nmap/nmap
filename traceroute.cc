@@ -1191,7 +1191,7 @@ static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
       const struct icmpv6_msg_echo *echo;
 
       if (len < sizeof(*icmpv6) + 4)
-	return false;
+        return false;
       echo = (struct icmpv6_msg_echo *) ((char *) icmpv6 + sizeof(*icmpv6));
       if (ntohs(echo->icmpv6_id) != global_id)
         return false;
