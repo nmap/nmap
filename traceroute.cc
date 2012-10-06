@@ -729,9 +729,6 @@ public:
     } else {
       fatal("Unknown address family %u in %s.", source->ss_family, __func__);
     }
-
-    /* This should not be reached. Just in case. */
-    assert(0);
   }
 };
 
