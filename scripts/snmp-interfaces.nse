@@ -45,7 +45,6 @@ dependencies = {"snmp-brute"}
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 -- Revised 08/10/2010 - v0.3 - prerule; add interface addresses to Nmap's target list (Kris Katterjohn)
 -- Revised 05/27/2011 - v0.4 - action; add MAC addresses to nmap.registry[host.ip]["mac-geolocation"] (Gorjan Petrovski)
--- Revised 07/31/2012 - v0.5 - action; remove mac-geolocation changes (script removed from trunk)
 
 
 
@@ -420,6 +419,14 @@ action = function(host, port)
 		srvport = port.number
 	end
 
+	-- table for mac-geolocation.nse
+	if not nmap.registry[srvhost] then 
+		nmap.registry[srvhost] = {}
+		nmap.registry[srvhost]["mac-geolocation"] = {}
+	elseif not nmap.registry[srvhost]["mac-geolocation"] then
+		nmap.registry[srvhost]["mac-geolocation"] = {}
+	end
+
 	socket:set_timeout(5000)
 	try(socket:connect(srvhost, srvport, "udp"))
 	
@@ -446,6 +453,14 @@ action = function(host, port)
 	end
 
 	local output = stdnse.format_output( true, build_results(interfaces) )
+
+	-- insert the MAC addresses into the mac-geolocation table
+	for _,item in ipairs(interfaces) do
+		if item.phys_addr then
+		table.insert(nmap.registry[srvhost]["mac-geolocation"], item.phys_addr:match("^(%x+:%x+:%x+:%x+:%x+:%x+)"))
+		end
+	end
+	-- wtf is this? table.insert(nmap.registry[srvhost]["mac-geolocation"], "00:23:69:2a:b1:27")
 	
 	if SCRIPT_TYPE == "prerule" and target.ALLOW_NEW_TARGETS then
 		local sum = 0

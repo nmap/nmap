@@ -80,22 +80,22 @@ action = function(host)
 	
 
 	-- Get the list of NetBIOS names
-	status, names, statistics = netbios.do_nbstat(host)
-	status, names, statistics = netbios.do_nbstat(host)
-	status, names, statistics = netbios.do_nbstat(host)
-	status, names, statistics = netbios.do_nbstat(host)
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	status, names, statistics = netbios.do_nbstat(host.ip)
+	status, names, statistics = netbios.do_nbstat(host.ip)
 	if(status == false) then
 		return stdnse.format_output(false, names)
 	end
 
 	-- Get the server name
-	status, server_name = netbios.get_server_name(host, names)
+	status, server_name = netbios.get_server_name(host.ip, names)
 	if(status == false) then
 		return stdnse.format_output(false, server_name)
 	end
 
 	-- Get the logged in user
-	status, user_name = netbios.get_user_name(host, names)
+	status, user_name = netbios.get_user_name(host.ip, names)
 	if(status == false) then
 		return stdnse.format_output(false, user_name)
 	end

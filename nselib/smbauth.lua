@@ -105,11 +105,11 @@ local ACCOUNT_TYPES = {
 }
 
 local function account_exists(host, username, domain)
-	if(host.registry['smbaccounts'] == nil) then
+	if(nmap.registry[host.ip] == nil or nmap.registry[host.ip]['smbaccounts'] == nil) then
 		return false
 	end
 
-	for i, j in pairs(host.registry['smbaccounts']) do
+	for i, j in pairs(nmap.registry[host.ip]['smbaccounts']) do
 		if(j['username'] == username and j['domain'] == domain) then
 			return true
 		end
@@ -120,13 +120,13 @@ end
 
 function next_account(host, num)
 	if(num == nil) then
-		if(host.registry['smbindex'] == nil) then
-			host.registry['smbindex'] = 1
+		if(nmap.registry[host.ip]['smbindex'] == nil) then
+			nmap.registry[host.ip]['smbindex'] = 1
 		else
-			host.registry['smbindex'] = host.registry['smbindex'] + 1
+			nmap.registry[host.ip]['smbindex'] = nmap.registry[host.ip]['smbindex'] + 1
 		end
 	else
-		host.registry['smbindex'] = num
+		nmap.registry[host.ip]['smbindex'] = num
 	end
 end
 
@@ -165,8 +165,11 @@ function add_account(host, username, domain, password, password_hash, hash_type,
 		return
 	end
 
-	if(host.registry['smbaccounts'] == nil) then
-		host.registry['smbaccounts'] = {}
+	if(nmap.registry[host.ip] == nil) then
+		nmap.registry[host.ip] = {}
+	end
+	if(nmap.registry[host.ip]['smbaccounts'] == nil) then
+		nmap.registry[host.ip]['smbaccounts'] = {}
 	end
 
 	-- Determine the type of account, if it wasn't given
@@ -201,10 +204,10 @@ function add_account(host, username, domain, password, password_hash, hash_type,
 	new_entry['account_type']  = account_type
 
 	-- Insert the new entry into the table
-	table.insert(host.registry['smbaccounts'], new_entry)
+	table.insert(nmap.registry[host.ip]['smbaccounts'], new_entry)
 
 	-- Sort the table based on the account type (we want anonymous at the end, administrator at the front)
-	table.sort(host.registry['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
+	table.sort(nmap.registry[host.ip]['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
 
 	-- Print a debug message
 	stdnse.print_debug(1, "SMB: Added account '%s' to account list", username)
@@ -212,7 +215,7 @@ function add_account(host, username, domain, password, password_hash, hash_type,
 	-- Reset the credentials
 	next_account(host, 1)
 
---	io.write("\n\n" .. nsedebug.tostr(host.registry['smbaccounts']) .. "\n\n")
+--	io.write("\n\n" .. nsedebug.tostr(nmap.registry[host.ip]['smbaccounts']) .. "\n\n")
 end
 
 ---Retrieve the current set of credentials set in the registry. If these fail, <code>next_credentials</code> should be
@@ -222,12 +225,12 @@ end
 --@return (result, username, domain, password, password_hash, hash_type) If result is false, username is an error message. Otherwise, username and password are
 --        the current username and password that should be used. 
 function get_account(host)
-	if(host.registry['smbindex'] == nil) then
-		host.registry['smbindex'] = 1
+	if(nmap.registry[host.ip]['smbindex'] == nil) then
+		nmap.registry[host.ip]['smbindex'] = 1
 	end
 
-	local index = host.registry['smbindex']
-	local account = host.registry['smbaccounts'][index]
+	local index = nmap.registry[host.ip]['smbindex']
+	local account = nmap.registry[host.ip]['smbaccounts'][index]
 
 	if(account == nil) then
 		return false, "No accounts left to try"
@@ -241,13 +244,18 @@ end
 --
 --@param host The host object. 
 function init_account(host)
+	-- Create the key if it exists
+	if(nmap.registry[host.ip] == nil) then
+		nmap.registry[host.ip] = {}
+	end
+
 	-- Don't run this more than once for each host
-	if(host.registry['smbaccounts'] ~= nil) then
+	if(nmap.registry[host.ip]['smbaccounts'] ~= nil) then
 		return
 	end
 
 	-- Create the list
-	host.registry['smbaccounts'] = {}
+	nmap.registry[host.ip]['smbaccounts'] = {}
 
 	-- Add the anonymous/guest accounts
 	add_account(host, '',      '', '', nil, 'none')

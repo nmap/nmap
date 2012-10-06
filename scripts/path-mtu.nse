@@ -261,7 +261,10 @@ end
 
 -- Sets necessary probe data in registry
 local setreg = function(host, proto, port)
-	host.registry['pathmtuprobe'] = {
+	if not nmap.registry[host.ip] then
+		nmap.registry[host.ip] = {}
+	end
+	nmap.registry[host.ip]['pathmtuprobe'] = {
 		['proto'] = proto,
 		['port'] = port
 	}
@@ -298,8 +301,8 @@ action = function(host)
 	local mtuset
 	local sock = nmap.new_dnet()
 	local pcap = nmap.new_socket()
-	local proto = host.registry['pathmtuprobe']['proto']
-	local port = host.registry['pathmtuprobe']['port']
+	local proto = nmap.registry[host.ip]['pathmtuprobe']['proto']
+	local port = nmap.registry[host.ip]['pathmtuprobe']['port']
 	local saddr = packet.toip(host.bin_ip_src)
 	local daddr = packet.toip(host.bin_ip)
 	local try = nmap.new_try()

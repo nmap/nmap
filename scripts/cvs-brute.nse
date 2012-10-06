@@ -79,11 +79,14 @@ Driver =
 
 local function getDiscoveredRepos(host)
 
-	if ( not(host.registry.cvs_repos)) then 
+	if ( not(nmap.registry.cvs) or 
+		 not(nmap.registry.cvs[host.ip]) or
+		 not(nmap.registry.cvs[host.ip].repos)
+		) then 
 		return
 	end
 		
-	return host.registry.cvs_repos
+	return nmap.registry.cvs[host.ip].repos
 end
 
 action = function(host, port)
