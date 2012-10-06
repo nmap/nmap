@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
+  (Next Header) probes. [David Fifield]
+
 o Fixed an assertion failure with IPv6 traceroute trying to use an
   unsupported protocol:
     nmap: traceroute.cc:749: virtual unsigned char*
