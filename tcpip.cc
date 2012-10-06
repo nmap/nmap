@@ -658,7 +658,7 @@ u8 *build_ip_raw(const struct in_addr *source,
 u8 *build_ipv6_raw(const struct in6_addr *source,
                    const struct in6_addr *victim, u8 tc, u32 flowlabel,
                    u8 nextheader, int hoplimit,
-                   char *data, u16 datalen, u32 *outpacketlen) {
+                   const char *data, u16 datalen, u32 *outpacketlen) {
   u8 *packet;
 
   assert(source != NULL);
@@ -682,7 +682,7 @@ u8 *build_ipv6_raw(const struct in6_addr *source,
 static u8 *build_tcp(u16 sport, u16 dport, u32 seq, u32 ack, u8 reserved,
                      u8 flags, u16 window, u16 urp,
                      const u8 *tcpopt, int tcpoptlen,
-                     char *data, u16 datalen, u32 *packetlen) {
+                     const char *data, u16 datalen, u32 *packetlen) {
   struct tcp_hdr *tcp;
   u8 *packet;
 
@@ -741,7 +741,7 @@ u8 *build_tcp_raw(const struct in_addr *source,
                   const struct in_addr *victim, int ttl, u16 ipid, u8 tos,
                   bool df, const u8 *ipopt, int ipoptlen, u16 sport, u16 dport,
                   u32 seq, u32 ack, u8 reserved, u8 flags, u16 window,
-                  u16 urp, const u8 *tcpopt, int tcpoptlen, char *data,
+                  u16 urp, const u8 *tcpopt, int tcpoptlen, const char *data,
                   u16 datalen, u32 *packetlen) {
   struct tcp_hdr *tcp;
   u32 tcplen;
@@ -767,7 +767,7 @@ u8 *build_tcp_raw_ipv6(const struct in6_addr *source,
                        const struct in6_addr *victim, u8 tc, u32 flowlabel,
                        u8 hoplimit, u16 sport, u16 dport, u32 seq, u32 ack,
                        u8 reserved, u8 flags, u16 window, u16 urp,
-                       const u8 *tcpopt, int tcpoptlen, char *data,
+                       const u8 *tcpopt, int tcpoptlen, const char *data,
                        u16 datalen, u32 *packetlen) {
   struct tcp_hdr *tcp;
   u32 tcplen;
@@ -789,7 +789,7 @@ int send_tcp_raw(int sd, const struct eth_nfo *eth,
                  const struct in_addr *victim, int ttl, bool df,
                  u8 *ipops, int ipoptlen, u16 sport, u16 dport, u32 seq,
                  u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
-                 u8 *options, int optlen, char *data, u16 datalen) {
+                 u8 *options, int optlen, const char *data, u16 datalen) {
   struct sockaddr_storage dst;
   struct sockaddr_in *dst_in;
   unsigned int packetlen;
@@ -821,7 +821,7 @@ int send_tcp_raw_decoys(int sd, const struct eth_nfo *eth,
                         u16 sport, u16 dport,
                         u32 seq, u32 ack, u8 reserved, u8 flags,
                         u16 window, u16 urp, u8 *options, int optlen,
-                        char *data, u16 datalen) {
+                        const char *data, u16 datalen) {
   int decoy;
 
   for (decoy = 0; decoy < o.numdecoys; decoy++)
@@ -895,7 +895,7 @@ u8 *build_udp_raw(const struct in_addr *source, const struct in_addr *victim,
 u8 *build_udp_raw_ipv6(const struct in6_addr *source,
                        const struct in6_addr *victim, u8 tc, u32 flowlabel,
                        u8 hoplimit, u16 sport, u16 dport,
-                       char *data, u16 datalen, u32 *packetlen) {
+                       const char *data, u16 datalen, u32 *packetlen) {
   struct udp_hdr *udp;
   u32 udplen;
   u8 *ipv6;
@@ -913,7 +913,7 @@ int send_udp_raw(int sd, const struct eth_nfo *eth,
                  struct in_addr *source, const struct in_addr *victim,
                  int ttl, u16 ipid,
                  u8 *ipopt, int ipoptlen,
-                 u16 sport, u16 dport, char *data, u16 datalen) {
+                 u16 sport, u16 dport, const char *data, u16 datalen) {
   struct sockaddr_storage dst;
   struct sockaddr_in *dst_in;
   unsigned int packetlen;
@@ -939,7 +939,7 @@ int send_udp_raw_decoys(int sd, const struct eth_nfo *eth,
                         const struct in_addr *victim,
                         int ttl, u16 ipid,
                         u8 *ipops, int ipoptlen,
-                        u16 sport, u16 dport, char *data, u16 datalen) {
+                        u16 sport, u16 dport, const char *data, u16 datalen) {
   int decoy;
 
   for (decoy = 0; decoy < o.numdecoys; decoy++)
@@ -999,7 +999,7 @@ u8 *build_sctp_raw(const struct in_addr *source,
                    const struct in_addr *victim, int ttl, u16 ipid,
                    u8 tos, bool df, u8 *ipopt, int ipoptlen, u16 sport,
                    u16 dport, u32 vtag, char *chunks, int chunkslen,
-                   char *data, u16 datalen, u32 *packetlen) {
+                   const char *data, u16 datalen, u32 *packetlen) {
   u8 *ip, *sctp;
   u32 sctplen;
 
@@ -1014,7 +1014,7 @@ u8 *build_sctp_raw(const struct in_addr *source,
 u8 *build_sctp_raw_ipv6(const struct in6_addr *source,
                         const struct in6_addr *victim, u8 tc, u32 flowlabel,
                         u8 hoplimit, u16 sport, u16 dport, u32 vtag,
-                        char *chunks, int chunkslen, char *data, u16 datalen,
+                        char *chunks, int chunkslen, const char *data, u16 datalen,
                         u32 *packetlen) {
   u8 *ipv6, *sctp;
   u32 sctplen;
@@ -1038,7 +1038,7 @@ u8 *build_sctp_raw_ipv6(const struct in6_addr *source,
 u8 *build_icmp_raw(const struct in_addr *source,
                    const struct in_addr *victim, int ttl, u16 ipid,
                    u8 tos, bool df, u8 *ipopt, int ipoptlen, u16 seq,
-                   unsigned short id, u8 ptype, u8 pcode, char *data,
+                   unsigned short id, u8 ptype, u8 pcode, const char *data,
                    u16 datalen, u32 *packetlen) {
   struct ppkt {
     u8 type;
@@ -1105,7 +1105,7 @@ u8 *build_icmp_raw(const struct in_addr *source,
 u8 *build_icmpv6_raw(const struct in6_addr *source,
                      const struct in6_addr *victim, u8 tc, u32 flowlabel,
                      u8 hoplimit, u16 seq, u16 id, u8 ptype, u8 pcode,
-                     char *data, u16 datalen, u32 *packetlen) {
+                     const char *data, u16 datalen, u32 *packetlen) {
   char *packet;
   struct icmpv6_hdr *icmpv6;
   union icmpv6_msg *msg;
@@ -1152,7 +1152,7 @@ u8 *build_icmpv6_raw(const struct in6_addr *source,
 u8 *build_igmp_raw(const struct in_addr *source,
                    const struct in_addr *victim, int ttl, u16 ipid,
                    u8 tos, bool df, u8 *ipopt, int ipoptlen, u8 ptype,
-                   u8 pcode, char *data, u16 datalen, u32 *packetlen) {
+                   u8 pcode, const char *data, u16 datalen, u32 *packetlen) {
   struct {
     u8 igmp_type;
     u8 igmp_code;
