@@ -561,7 +561,7 @@ struct probespec HostState::get_probe(const Target *target) {
   } else if (target->af() == AF_INET6 &&
       (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_SCTP || probe.type == PS_ICMPV6)) {
     /* Nothing needed. */
-  } else if (target->af() == AF_INET && probe.type == PS_PROTO) {
+  } else if (probe.type == PS_PROTO) {
     /* If this is an IP protocol probe, fill in some fields for some common
        protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
        ICMP-specific fields. */
@@ -574,6 +574,10 @@ struct probespec HostState::get_probe(const Target *target) {
       probe.pd.sctp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_ICMP) {
       probe.pd.icmp.type = ICMP_ECHO;
+    } else if (probe.proto == IPPROTO_ICMPV6) {
+      probe.pd.icmp.type = ICMPV6_ECHO;
+    } else {
+      fatal("Unknown protocol %d", probe.proto);
     }
   } else {
     /* No responsive probe known? The user probably skipped both ping and
@@ -805,13 +809,20 @@ public:
   : Probe(host, pspec, ttl) {
   }
   unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
-    const struct sockaddr_in *sin;
-    assert(source->ss_family == AF_INET);
-    sin = (struct sockaddr_in *) source;
-    /* For IP proto scan the token is put in the IP ID. */
-    return build_ip_raw(&sin->sin_addr, host->target->v4hostip(), pspec.proto, ttl,
-      token ^ global_id, get_random_u8(), false, NULL, 0,
-      o.extra_payload, o.extra_payload_length, len);
+    /* For IP proto scan the token is put in the IP ID or flow label. */
+    if (source->ss_family == AF_INET) {
+      const struct sockaddr_in *sin = (struct sockaddr_in *) source;
+      return build_ip_raw(&sin->sin_addr, host->target->v4hostip(), pspec.proto, ttl,
+        token ^ global_id, get_random_u8(), false, NULL, 0,
+        o.extra_payload, o.extra_payload_length, len);
+    } else if (source->ss_family == AF_INET6) {
+      const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) source;
+      return build_ipv6_raw(&sin6->sin6_addr, host->target->v6hostip(),
+        0, token ^ global_id, pspec.proto, ttl,
+        o.extra_payload, o.extra_payload_length, len);
+    } else {
+      fatal("Unknown address family %u in %s.", source->ss_family, __func__);
+    }
   }
 };
 
