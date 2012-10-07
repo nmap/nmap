@@ -153,7 +153,7 @@ int nmap_raw_socket(const char *warning_device_name) {
   int rawsd;
 
 #ifdef WIN32
-  win32_fatal_raw_sockets(Targets[0]->deviceName());
+  win32_fatal_raw_sockets(warning_device_name);
 #endif
   if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
     pfatal("socket troubles in %s", __func__);
