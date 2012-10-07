@@ -836,6 +836,11 @@ function smb_read(smb, read_data)
 	repeat
 		attempts = attempts - 1
 		status, netbios_data = smb['socket']:receive_buf(match.numbytes(4), true);
+		
+		if ( not(status) and netbios_data == "EOF" ) then
+			stdnse.print_debug(1, "SMB: ERROR: Server disconnected the connection")
+			return false, "SMB: ERROR: Server disconnected the connection"
+		end
 	until(status or (attempts == 0))
 
 	-- Make sure the connection is still alive
@@ -1312,7 +1317,7 @@ local function start_session_extended(smb, log_errors, overrides)
 
 				if ( sp_nego ) then
 					local enc = asn1.ASN1Encoder:new()
-					local mechtype = enc:encode( { type = 'A0', value = enc:encode( { type = '30', value = enc:encode( { type = '06', value = bin.pack("H", "2b06010401823702020a") } ) } ) } )					
+					local mechtype = enc:encode( { type = 'A0', value = enc:encode( { type = '30', value = enc:encode( { type = '06', value = bin.pack("H", "2b06010401823702020a") } ) } ) } )
 					local oid = enc:encode( { type = '06', value = bin.pack("H", "2b0601050502") } )
 					
 					security_blob = enc:encode(security_blob)
@@ -1322,14 +1327,13 @@ local function start_session_extended(smb, log_errors, overrides)
 					security_blob = enc:encode( { type = 'A0', value = security_blob } )
 					security_blob = oid .. security_blob
 					security_blob = enc:encode( { type = '60', value = security_blob } )
-					
 				end
 			else
 				if ( sp_nego ) then
 					if ( smb['domain'] or smb['server'] and ( not(domain) or #domain == 0 ) ) then
 						domain = smb['domain'] or smb['server']
 					end
-					hash_type = "v2"
+					hash_type = "ntlm"
 				end
 				
 				status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type, (sp_nego and 0x00088215))
@@ -1350,28 +1354,29 @@ local function start_session_extended(smb, log_errors, overrides)
 			end
 	
 			header     = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
+
+			-- Data is a list of strings, terminated by a blank one. 
+			data = bin.pack("<Azzz", 
+						security_blob,         -- Security blob
+						"Nmap",                -- OS
+						"Native Lanman",       -- Native LAN Manager
+						""                     -- Primary domain
+			)
+	
 			-- Parameters
 			parameters = bin.pack("<CCSSSSISII", 
 						0xFF,               -- ANDX -- no further commands
 						0x00,               -- ANDX -- Reserved (0)
-						0x0000,             -- ANDX -- next offset
+						#data + 24 + #header + 3, -- ANDX -- next offset
 						0xFFFF,             -- Max buffer size
 						0x0001,             -- Max multiplexes
 						0x0001,             -- Virtual circuit num
 						smb['session_key'], -- The session key
 						#security_blob,     -- Security blob length
 						0x00000000,         -- Reserved
-		                0x80000050          -- Capabilities
+						0x80000050          -- Capabilities
 					)
-		
-			-- Data is a list of strings, terminated by a blank one. 
-			data       = bin.pack("<Azzz", 
-						security_blob,         -- Security blob
-						"Nmap",                -- OS
-						"Native Lanman",       -- Native LAN Manager
-						""                     -- Primary domain
-					)
-	
+			
 			-- Send the session setup request
 			stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
 			result, err = smb_send(smb, header, parameters, data, overrides)

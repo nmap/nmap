@@ -677,39 +677,51 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 	else
 		-- Parse the old security blob
 		local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
-
-		-- Get the information for the current login
-        local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
+   	local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
 
 		-- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
 		username = to_unicode(username)
-		domain   = to_unicode(domain)
+		hostname = to_unicode("nmap")
+		domain   = (#username > 0 ) and to_unicode(domain) or ""
+		ntlm     = (#username > 0 ) and ntlm or ""
+		lanman   = (#username > 0 ) and lanman or string.char(0)
 
-		new_blob = bin.pack("<zISSISSISSISSISSISSII", 
-					"NTLMSSP",            -- Identifier
-					NTLMSSP_AUTH,         -- Type
-					#lanman,              -- Lanman (length, max, offset)
-					#lanman,              -- 
-					0x40,                 -- 
-					#ntlm,                -- NTLM (length, max, offset)
-					#ntlm,                -- 
-					0x40 + #lanman,       -- 
-					#domain,              -- Domain (length, max, offset)
-					#domain,              --
-					0x40 + #lanman + #ntlm,--
-					#username,            -- Username (length, max, offset)
-					#username,            -- 
-					0x40 + #lanman + #ntlm + #domain,
-					#domain,              -- Hostname (length, max, offset)
-					#domain,              --
-					0x40 + #lanman + #ntlm + #domain + #username,
-					#session_key,         -- Session key (length, max, offset)
-					#session_key,         --
-					0x40 + #lanman + #ntlm + #domain + #username + #domain,
-					flags                 -- Flags
-				)
+		local domain_offset = 0x40
+		local username_offset = domain_offset + #domain
+		local hostname_offset = username_offset + #username
+		local lanman_offset = hostname_offset + #hostname
+		local ntlm_offset = lanman_offset + #lanman
+		local sessionkey_offset = ntlm_offset + #ntlm
 
-		new_blob = new_blob .. bin.pack("AAAAAA", lanman, ntlm, domain, username, domain, session_key)
+		new_blob = bin.pack("<zISSISSISSISSISSISSIIAAAAAA",
+			"NTLMSSP",
+			NTLMSSP_AUTH,
+			#lanman,
+			#lanman,
+			lanman_offset,
+			( #ntlm > 0 and #ntlm - 16 or 0 ),
+			( #ntlm > 0 and #ntlm - 16 or 0 ),
+			ntlm_offset,
+			#domain,
+			#domain,
+			domain_offset,
+			#username,
+			#username,
+			username_offset,
+			#hostname,
+			#hostname,
+			hostname_offset,
+			#session_key,
+			#session_key,
+			sessionkey_offset,
+			flags,
+			domain,
+			username,
+			hostname,
+			lanman,
+			ntlm,
+			session_key)
+	
 		return true, new_blob, mac_key
 	end
 
