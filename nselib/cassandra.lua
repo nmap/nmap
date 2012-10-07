@@ -91,9 +91,10 @@ function sendcmd (socket, command, cnt)
   if ( not(status) ) then
           return false, "error receiving length"
   end
-  _,size = bin.unpack(">I",response,1)
+  local  _,size = bin.unpack(">I",response,1)
 
   if (string.len(response) < size+4 ) then
+    local resp2
     status, resp2 = socket:receive_bytes(size+4 - string.len(response))
     if ( not(status) ) then
             return false, "error receiving payload"
@@ -116,7 +117,6 @@ end
 --@return result : value if status ok, error msg if bad
 function describe_cluster_name (socket,cnt) 
   local cname = "describe_cluster_name"
-  local size
   local status,resp = sendcmd(socket,cname,cnt)
   
   if (not(status)) then
@@ -126,8 +126,8 @@ function describe_cluster_name (socket,cnt)
 
   -- grab the size
   -- pktlen(4) + CASSANDRARESP(4) + lencmd(4) + lencmd(v) + params(7) + next byte position
-  position = 12+string.len(cname)+7+1
-  _,size = bin.unpack(">I",resp,position)
+  local position = 12+string.len(cname)+7+1
+  local _,size = bin.unpack(">I",resp,position)
 
   -- read the string after the size
   local value = string.sub(resp,position+4,position+4+size-1)
@@ -141,7 +141,6 @@ end
 --@return result : value if status ok, error msg if bad
 function describe_version (socket,cnt) 
   local cname = "describe_version"
-  local size
   local status,resp = sendcmd(socket,cname,cnt)
   
   if (not(status)) then
@@ -151,8 +150,8 @@ function describe_version (socket,cnt)
 
   -- grab the size
   -- pktlen(4) + CASSANDRARESP(4) + lencmd(4) + lencmd(v) + params(7) + next byte position
-  position = 12+string.len(cname)+7+1
-  _,size = bin.unpack(">I",resp,position)
+  local position = 12+string.len(cname)+7+1
+  local _,size = bin.unpack(">I",resp,position)
 
   -- read the string after the size
   local value = string.sub(resp,position+4,position+4+size-1)
@@ -182,19 +181,20 @@ function login (socket,username,password)
           return false, err
   end
 
+  local response
   status, response = socket:receive_bytes(22)
   if ( not(status) ) then
           stdnse.print_debug(3, "Receive packet for "..combo)
           return false, err
   end
-  _, size = bin.unpack(">I", response, 1)
+  local _, size = bin.unpack(">I", response, 1)
 
   loginresp = string.sub(response,5,17)
   if (loginresp ~= CASSANDRARESP..pack4str("login")) then  
     return false, "protocol error"
   end
 
-  magic = string.sub(response,18,22)
+  local magic = string.sub(response,18,22)
   stdnse.print_debug(3, "packet for "..combo)
   stdnse.print_debug(3, "packet hex: %s", stdnse.tohex(response) )
   stdnse.print_debug(3, "size packet hex: %s", stdnse.tohex(size) )
