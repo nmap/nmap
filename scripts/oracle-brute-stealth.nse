@@ -5,6 +5,7 @@ local io = require "io"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local tns = require "tns"
 local unpwdb = require "unpwdb"
 
@@ -118,7 +119,7 @@ Driver =
 		local status, data = self.helper:StealthLogin( username, password )
 
 		if ( data["AUTH_VFR_DATA"] ) then
-			hash = string.format("$o5logon$%s*%s", data["AUTH_SESSKEY"], data["AUTH_VFR_DATA"])
+			local hash = string.format("$o5logon$%s*%s", data["AUTH_SESSKEY"], data["AUTH_VFR_DATA"])
 			if ( johnfile ) then
 				johnfile:write(("%s:%s\n"):format(username,hash))
 			end

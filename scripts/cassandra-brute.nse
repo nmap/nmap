@@ -1,8 +1,10 @@
+local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local cassandra = require "cassandra"
 
 description = [[
@@ -47,7 +49,7 @@ Driver = {
 
         -- bit faster login function than in cassandra library (no protocol error checks)
 	login = function(self, username, password)
-		local response, magic, size
+		local response, magic, size, _
 		local loginstr = cassandra.loginstr (username, password)
 
 		local status, err = self.socket:send(bin.pack(">I",string.len(loginstr)))

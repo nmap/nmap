@@ -64,6 +64,7 @@ local table = require "table"
 local httpspider = require "httpspider"
 local vulns = require "vulns"
 local url = require "url"
+local string = require "string"
 
 portrule = shortport.http
 

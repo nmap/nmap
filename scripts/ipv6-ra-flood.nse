@@ -185,7 +185,7 @@ local function broadcast_on_interface(iface)
 end
 
 function action()
-	interface = get_interface()
+	local interface = get_interface()
 	
 	broadcast_on_interface(interface)
 end

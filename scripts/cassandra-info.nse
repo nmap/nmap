@@ -4,6 +4,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 local bin = require "bin"
 local string = require "string"
+local table = require "table"
 
 local cassandra = stdnse.silent_require "cassandra"
 

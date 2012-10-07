@@ -189,7 +189,7 @@ function login (socket,username,password)
   end
   local _, size = bin.unpack(">I", response, 1)
 
-  loginresp = string.sub(response,5,17)
+  local loginresp = string.sub(response,5,17)
   if (loginresp ~= CASSANDRARESP..pack4str("login")) then  
     return false, "protocol error"
   end
