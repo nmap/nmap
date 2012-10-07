@@ -61,7 +61,7 @@ local function checkAccount( host, port, user )
 	-- A bit ugly, the helper should probably provide a getSocket function
 	tnscomm = tns.Comm:new( helper.tnssocket )
 	
-	status, auth = tnscomm:exchTNSPacket( tns.Packet.PreAuth:new( user, auth_options ) )
+	status, auth = tnscomm:exchTNSPacket( tns.Packet.PreAuth:new( user, auth_options, helper.os ) )
 	if ( not(status) ) then
 		return false, auth
 	end
