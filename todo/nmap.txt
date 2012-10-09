@@ -1,26 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Clean up the Nmap repo to remove some bloat we've allowed to creep
-  in.  Should do a more thorough search, but for now here are two
-  obvious candidates:
-  - Create publicly readable /nmap-mswin32-aux in svn
-  - Files not needed for compiling Nmap itself (e.g. only needed for
-    creating or including in Nmap packages), particularly including the
-    vcredist files, should be moved to new /nmap-mswin32-aux
-  - The /nmap-mswin32-aux files won't be included in Nmap tarballs
-    either
-  - Add the gtk, glib, etc. Windows dependencies to /nmap-mswin32-aux
-    so users don't have to all install those in order to compile Zenmap
-    and make Nmap packages.
-  - move the nmap-private-dev/mswin32 stuff into /nmap-mswin32-aux
-  - Update nmap-install.xml for new changes.  Such as noting need to
-    checkout this new directory for building packages, removing the
-    need to install your own gtk, glib, etc.
-  - [done] Remove the 5MB of XSL in nping/docs/xsl
-
-o Update our mswin32/OpenSSL to newest version (previous update was
-  September 2010 to 1.0.0a).
-
 o Process latest Nmap OS submissions and corrections (IPv4 and IPv6).
   Last done (for IPv4 anyway) in February 2012.
 
@@ -707,6 +686,27 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Clean up the Nmap repo to remove some bloat we've allowed to creep
+  in.  Should do a more thorough search, but for now here are two
+  obvious candidates:
+  - Create publicly readable /nmap-mswin32-aux in svn
+  - Files not needed for compiling Nmap itself (e.g. only needed for
+    creating or including in Nmap packages), particularly including the
+    vcredist files, should be moved to new /nmap-mswin32-aux
+  - The /nmap-mswin32-aux files won't be included in Nmap tarballs
+    either
+  - Add the gtk, glib, etc. Windows dependencies to /nmap-mswin32-aux
+    so users don't have to all install those in order to compile Zenmap
+    and make Nmap packages.
+  - move the nmap-private-dev/mswin32 stuff into /nmap-mswin32-aux
+  - Update nmap-install.xml for new changes.  Such as noting need to
+    checkout this new directory for building packages, removing the
+    need to install your own gtk, glib, etc.
+  - [done] Remove the 5MB of XSL in nping/docs/xsl
+
+o Update our mswin32/OpenSSL to newest version (previous update was
+  September 2010 to 1.0.0a).
 
 o Nmap should have a better way to handle XML script output.
  o done: http://nmap.org/book/nse-api.html#nse-structured-output
