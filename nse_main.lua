@@ -266,9 +266,19 @@ rawset(stdnse, "silent_require", function (...)
   end
 end);
 
-local Script = {}; -- The Script Class, its constructor is Script.new.
-local Thread = {}; -- The Thread Class, its constructor is Script:new_thread.
+-- The Script Class, its constructor is Script.new.
+local Script = {};
+-- The Thread Class, its constructor is Script:new_thread.
+local Thread = {};
+-- The Worker Class, it's a subclass of Thread. Its constructor is
+-- Thread:new_worker. It (currently) has no methods.
+local Worker = {};
 do
+  -- Workers reference data from parent thread.
+  function Worker:__index (key)
+    return Worker[key] or self.parent[key]
+  end
+
   -- Thread:d()
   -- Outputs debug information at level 1 or higher.
   -- Changes "%THREAD" with an appropriate identifier for the debug level
@@ -293,25 +303,27 @@ do
 
   -- Sets script output. r1 and r2 are the (as many as two) return values.
   function Thread:set_output(r1, r2)
-    -- Structure table and unstructured string outputs.
-    local tab, str
-
-    if r2 then
-      tab, str = r1, tostring(r2);
-    elseif type(r1) == "string" then
-      tab, str = nil, r1;
-    elseif r1 == nil then
-      return
-    else
-      tab, str = r1, nil;
-    end
-
-    if self.type == "prerule" or self.type == "postrule" then
-      cnse.script_set_output(self.id, tab, str);
-    elseif self.type == "hostrule" then
-      cnse.host_set_output(self.host, self.id, tab, str);
-    elseif self.type == "portrule" then
-      cnse.port_set_output(self.host, self.port, self.id, tab, str);
+    if not self.worker then
+      -- Structure table and unstructured string outputs.
+      local tab, str
+  
+      if r2 then
+        tab, str = r1, tostring(r2);
+      elseif type(r1) == "string" then
+        tab, str = nil, r1;
+      elseif r1 == nil then
+        return
+      else
+        tab, str = r1, nil;
+      end
+  
+      if self.type == "prerule" or self.type == "postrule" then
+        cnse.script_set_output(self.id, tab, str);
+      elseif self.type == "hostrule" then
+        cnse.host_set_output(self.host, self.id, tab, str);
+      elseif self.type == "portrule" then
+        cnse.port_set_output(self.host, self.port, self.id, tab, str);
+      end
     end
   end
 
@@ -398,24 +410,50 @@ do
           self.filename, rule, traceback(co));
     elseif s and (rule_return or self.forced_to_run) then
       local thread = {
+        close_handlers = {},
         co = co,
         env = env,
         identifier = tostring(co),
         info = format("'%s' (%s)", self.short_basename, tostring(co));
+        parent = nil, -- placeholder
+        script = self,
         type = script_type,
-        close_handlers = {},
+        worker = false,
       };
-      setmetatable(thread, {
-        __metatable = Thread,
-        __index = function (thread, k) return Thread[k] or self[k] end
-      }); -- Access to the parent Script
-      thread.parent = thread; -- itself
+      thread.parent = thread;
+      setmetatable(thread, Thread)
       return thread;
     elseif not s then
       log_error("A thread for %s failed to load in %s function:\n%s\n",
           self.filename, rule, traceback(co, tostring(value)));
     end
     return nil;
+  end
+
+  function Thread:new_worker (main, ...)
+    local co = create(main);
+    print_debug(2, "%s spawning new thread (%s).", self.parent.info, tostring(co));
+    local thread = {
+      args = {n = select("#", ...), ...},
+      close_handlers = {},
+      co = co,
+      info = format("'%s' worker (%s)", self.short_basename, tostring(co));
+      parent = self,
+      worker = true,
+    };
+    setmetatable(thread, Worker)
+    local function info ()
+      return status(co), rawget(thread, "error");
+    end
+    return thread, info;
+  end
+
+  function Thread:resume ()
+    return resume(self.co, unpack(self.args, 1, self.args.n));
+  end
+
+  function Thread:__index (key)
+    return Thread[key] or self.script[key]
   end
 
   -- Script.new provides defaults for some of these.
@@ -541,8 +579,10 @@ do
       selected_by_name = not not script_params.verbosity,
       forced_to_run = not not script_params.forced,
     };
-    return setmetatable(script, {__index = Script, __metatable = Script});
+    return setmetatable(script, Script)
   end
+
+  Script.__index = Script;
 end
 
 -- check_rules(rules)
@@ -826,34 +866,12 @@ local function run (threads_iter, hosts)
     if current == nil then
       error "stdnse.new_thread can only be run from an active script"
     end
-    local co = create(function(...) main(...) end); -- do not return results
-    print_debug(2, "%s spawning new thread (%s).",
-        current.parent.info, tostring(co));
-    local thread = {
-      co = co,
-      id = current.id,
-      args = {n = select("#", ...), ...},
-      host = current.host,
-      port = current.port,
-      type = current.type,
-      parent = current.parent,
-      info = format("'%s' worker (%s)", current.short_basename, tostring(co));
-      close_handlers = {},
-      -- d = function(...) end, -- output no debug information
-    };
-    local thread_mt = {
-      __metatable = Thread,
-      __index = current,
-    };
-    setmetatable(thread, thread_mt);
-    total, all[co], pending[co] = total+1, thread, thread;
-    num_threads = num_threads + 1;
-    thread:start(timeouts);
-    local function info ()
-      return status(co), rawget(thread, "error");
-    end
-    return co, info;
+    local worker, info = current:new_worker(main, ...);
+    total, all[worker.co], pending[worker.co], num_threads = total+1, worker, worker, num_threads+1;
+    worker:start(timeouts);
+    return worker.co, info;
   end);
+
   rawset(stdnse, "base", function ()
     return current and current.co;
   end);
@@ -928,12 +946,11 @@ local function run (threads_iter, hosts)
       thread:start_time_out_clock();
 
       -- Threads may have zero, one, or two return values.
-      local s, r1, r2 = resume(co, unpack(thread.args, 1, thread.args.n));
+      local s, r1, r2 = thread:resume();
       if not s then -- script error...
         all[co], num_threads = nil, num_threads-1;
         if debugging() > 0 then
-          thread:d("%THREAD_AGAINST threw an error!\n%s\n",
-              traceback(co, tostring(r1)));
+          thread:d("%THREAD_AGAINST threw an error!\n%s\n", traceback(co, tostring(r1)));
         else
           thread:set_output("ERROR: Script execution failed (use -d to debug)");
         end
