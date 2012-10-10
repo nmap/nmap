@@ -424,7 +424,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
     if (iod->ssl_session) {
       rc = SSL_set_session(iod->ssl, iod->ssl_session);
       if (rc == 0)
-        printf("Uh-oh: SSL_set_session() failed - please tell Fyodor\n");
+        fprintf(stderr, "Uh-oh: SSL_set_session() failed - please tell Fyodor\n");
       iod->ssl_session = NULL; /* No need for this any more */
     }
 
