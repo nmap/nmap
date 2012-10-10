@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added some additional CPE entries to nmap-service-probes.
+  [Dillon Graham]
+
 o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
   (Next Header) probes. [David Fifield]
 
