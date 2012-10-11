@@ -864,7 +864,7 @@ static int expireUnmatchedHosts(OsScanInfo *OSI, list<HostOsScanInfo *> *unMatch
 
     int max_tries = o.maxOSTries(); /* The amt. if print is suitable for submission */
     if (HOS->target->FPR->OmitSubmissionFP())
-      max_tries = min(max_tries, STANDARD_OS2_TRIES);
+      max_tries = MIN(max_tries, STANDARD_OS2_TRIES);
 
     if (HOS->FPR->numFPs >= max_tries) {
       /* We've done all the OS2 tries we're going to do ... move this
