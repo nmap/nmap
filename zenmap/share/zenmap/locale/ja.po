@@ -220,7 +220,7 @@ msgstr ""
 "\n"
 "%s\n"
 "\n"
-"スキャンプロファイルなど情報を保存するために%sディレクトリが必要です。ディレクトリを確認して再度試してみてください。"
+"%s がスキャンプロファイルなど情報を保存するためにこのディレクトリが必要です。ディレクトリへのアクセス権限を確認して再度試してみてください。"
 
 #: zenmapGUI/App.py:259
 msgid "Error parsing the configuration file"
@@ -235,11 +235,11 @@ msgid ""
 "\n"
 "%s can continue without this file but any information in it will be ignored until it is repaired."
 msgstr ""
-"設定ファイル %s を開けません。.エラーは以下の通り\n"
+"設定ファイル %s を開けません。エラーは以下の通り\n"
 "\n"
 "%s\n"
 "\n"
-"%s のファイルなしでも継続できますが、修復されるまでどの情報も無視されます"
+"%s はこのファイルなしでも継続できますが、修復されるまでどの情報も無視されます"
 
 #: zenmapGUI/App.py:324
 #, python-format
@@ -250,7 +250,7 @@ msgid ""
 msgstr ""
 "rootでないユーザーで %s を使おうとしています\n"
 "\n"
-"いくつかのオプション %s ではルート権限が必要になります"
+"いくつかの %s オプションではルート権限が必要になります"
 
 #: zenmapGUI/App.py:327
 msgid "Non-root user"
@@ -311,7 +311,7 @@ msgstr "スキャンプロファイルが削除されます。OKをクリック�
 
 #: zenmapGUI/MainWindow.py:209
 msgid "Sc_an"
-msgstr "スキャン(_C)"
+msgstr "スキャン(_A)"
 
 #: zenmapGUI/MainWindow.py:213
 msgid "_Save Scan"
@@ -339,7 +339,7 @@ msgstr "以前のスキャン結果を開く"
 
 #: zenmapGUI/MainWindow.py:234
 msgid "_Open Scan in This Window"
-msgstr "このウインドウにスキャン結果を開く"
+msgstr "このウインドウにスキャン結果を開く(_O)"
 
 #: zenmapGUI/MainWindow.py:236
 msgid "Append a saved scan to the list of scans in this window."
@@ -367,7 +367,7 @@ msgstr "スキャンウインドウを閉じる"
 
 #: zenmapGUI/MainWindow.py:258
 msgid "Print..."
-msgstr "印刷"
+msgstr "印刷..."
 
 #: zenmapGUI/MainWindow.py:260
 msgid "Print the current scan"
@@ -610,7 +610,7 @@ msgstr "拡張子"
 
 #: zenmapGUI/FileChoosers.py:199
 msgid "Nmap XML format (.xml)"
-msgstr "Nmap XML フォーマット(%s)"
+msgstr "Nmap XML フォーマット(.xml)"
 
 #: zenmapGUI/FileChoosers.py:200
 msgid "Nmap text format (.nmap)"
@@ -714,7 +714,7 @@ msgstr "%s はネットワーク調査とセキュリティ監査用途に使わ
 #: zenmapGUI/About.py:178
 #, python-format
 msgid "%s is a multi-platform graphical %s frontend and results viewer. It was originally derived from %s."
-msgstr "%s はマルチプラットフォームかつグラフィカルなl %s のフロントエンド、そして結果を表示するソフトウェアです。%s によってデザインされました。"
+msgstr "%s はマルチプラットフォームかつグラフィカルなl %s のフロントエンド、そして結果を表示するソフトウェアです。元は %s から派生したものです。"
 
 #: zenmapGUI/About.py:184
 #, python-format
@@ -1666,7 +1666,7 @@ msgstr "ウインドウスキャン"
 
 #: share/zenmap/misc/profile_editor.xml:27
 msgid "Send probes with the FIN, PSH, and URG flags set, lighting the packets up like a Christmas tree. Xmas tree scan can differentiate \"closed\" and \"open|filtered\" ports on some systems."
-msgstr "FIN、PSH、ARGのフラグをセットしたパケットを送信します。クリスマスツリーに点火したようなスキャンです。クリスマスツリースキャンはシステムによって \"closed\" と\"open|filtered\" が判別されます。"
+msgstr "FIN、PSH、URGのフラグをセットしたパケットを送信します。クリスマスツリーに点火したようなスキャンです。クリスマスツリースキャンはシステムによって \"closed\" と\"open|filtered\" が判別されます。"
 
 #: share/zenmap/misc/profile_editor.xml:27
 msgid "Xmas Tree scan"
@@ -1702,7 +1702,7 @@ msgstr "リストスキャン"
 
 #: share/zenmap/misc/profile_editor.xml:34
 msgid "Skip the port scanning phase. Other phases (host discovery, script scan, traceroute) may still run."
-msgstr "ポートスキャンのフェーズをスキップします。ホストの探索、スクリプトスキャン、trracerouteなど他のフェーズは引き続き行われます。"
+msgstr "ポートスキャンのフェーズをスキップします。ホストの探索、スクリプトスキャン、tracerouteなど他のフェーズは引き続き行われます。"
 
 #: share/zenmap/misc/profile_editor.xml:34
 msgid "No port scan"
@@ -1743,7 +1743,7 @@ msgstr "こそこそスキャン"
 
 #: share/zenmap/misc/profile_editor.xml:43
 msgid "Set the timing template to slow down the scan to use less bandwidth and target machine resources."
-msgstr "ネットワーク帯域とターゲットのマシンリソースををあまり使わないよう、スキャンするタイミングをゆっくりに設定します。"
+msgstr "ネットワーク帯域とターゲットのマシンリソースをあまり使わないよう、スキャンするタイミングをゆっくりに設定します。"
 
 #: share/zenmap/misc/profile_editor.xml:43
 msgid "Polite"
@@ -1775,7 +1775,7 @@ msgstr "きちがいスキャン"
 
 #: share/zenmap/misc/profile_editor.xml:48
 msgid "Enable OS detection (-O), version detection (-sV), script scanning (-sC), and traceroute (--traceroute)."
-msgstr "OS判別(-O)、バージョン判別(-sV)、スクリプトスキャン(-sC)、トレースルート(-traceroute)"
+msgstr "OS判別(-O)、バージョン判別(-sV)、スクリプトスキャン(-sC)、トレースルート(--traceroute)"
 
 #: share/zenmap/misc/profile_editor.xml:48
 msgid "Enable all advanced/aggressive options"

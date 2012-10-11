@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Corrected some typos in the Japanese translation.
+  [OKANO Takayoshi]
+
 o Changed the CPE for Linux from cpe:/o:linux:kernel to
   cpe:/o:linux:linux_kernel to reflect deprecation in the official CPE
   dictionary.
