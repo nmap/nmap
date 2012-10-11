@@ -106,15 +106,15 @@
 #include "nmap_tty.h"
 #include "utils.h"
 #include "xml.h"
-using namespace std;
+
 extern NmapOps o;
 
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
 static void arpping(Target *hostbatch[], int num_hosts) {
-  /* First I change hostbatch into a vector<Target *>, which is what ultra_scan
+  /* First I change hostbatch into a std::vector<Target *>, which is what ultra_scan
      takes.  I remove hosts that cannot be ARP scanned (such as localhost) */
-  vector<Target *> targets;
+  std::vector<Target *> targets;
   int targetno;
   targets.reserve(num_hosts);
 

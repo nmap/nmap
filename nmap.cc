@@ -135,8 +135,6 @@
 #endif
 #define DNET_VERSION VERSION
 
-using namespace std;
-
 /* global options */
 extern char *optarg;
 extern int optind;
@@ -1569,7 +1567,7 @@ void  apply_delayed_options() {
 
 int nmap_main(int argc, char *argv[]) {
   int i;
-  vector<Target *> Targets;
+  std::vector<Target *> Targets;
   time_t now;
   struct hostent *target = NULL;
   time_t timep;

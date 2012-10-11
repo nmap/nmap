@@ -118,10 +118,6 @@
 #include <list>
 #include <sstream>
 
-/* Workaround for lack of namespace std on HP-UX 11.00 */
-namespace std {};
-using namespace std;
-
 extern NmapOps o;
 static const char *logtypes[LOG_NUM_FILES] = LOG_NAMES;
 
@@ -273,8 +269,8 @@ void win32_fatal_raw_sockets(const char *devname) {
 static void print_iflist_pcap_mapping(const struct interface_info *iflist,
                                       int numifs) {
   pcap_if_t *pcap_ifs;
-  list<const pcap_if_t *> leftover_pcap_ifs;
-  list<const pcap_if_t *>::iterator leftover_p;
+  std::list<const pcap_if_t *> leftover_pcap_ifs;
+  std::list<const pcap_if_t *>::iterator leftover_p;
   int i;
 
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
@@ -295,7 +291,7 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
 
       if (DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name))) {
         /* We got a name. Remove it from the list of leftovers. */
-        list<const pcap_if_t *>::iterator next;
+        std::list<const pcap_if_t *>::iterator next;
         for (leftover_p = leftover_pcap_ifs.begin();
              leftover_p != leftover_pcap_ifs.end(); leftover_p = next) {
           next = leftover_p;
@@ -523,7 +519,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   int numignoredports = plist->numIgnoredPorts();
   int numports = plist->numPorts();
 
-  vector<const char *> saved_servicefps;
+  std::vector<const char *> saved_servicefps;
 
   if (o.noportscan)
     return;
@@ -1141,7 +1137,7 @@ static void doscanflags() {
   };
 
   if (o.scanflags != -1) {
-    string flagstring;
+    std::string flagstring;
 
     for (unsigned int i = 0; i < sizeof(flags) / sizeof(flags[0]); i++) {
       if (o.scanflags & flags[i].flag)
@@ -2230,7 +2226,7 @@ static void printtraceroute_normal(Target *currenths) {
   static const int HOP_COL = 0, RTT_COL = 1, HOST_COL = 2;
   NmapOutputTable Tbl(currenths->traceroute_hops.size() + 1, 3);
   struct probespec probe;
-  list<TracerouteHop>::iterator it;
+  std::list<TracerouteHop>::iterator it;
   int row;
 
   /* No trace, must be localhost. */
@@ -2337,7 +2333,7 @@ static void printtraceroute_normal(Target *currenths) {
 
 static void printtraceroute_xml(Target *currenths) {
   struct probespec probe;
-  list<TracerouteHop>::iterator it;
+  std::list<TracerouteHop>::iterator it;
 
   /* No trace, must be localhost. */
   if (currenths->traceroute_hops.size() == 0)

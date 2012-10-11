@@ -114,7 +114,6 @@
 #include <list>
 #include <map>
 
-using namespace std;
 extern NmapOps o;
 class UltraScanInfo;
 
@@ -499,7 +498,7 @@ public:
 
   /* Removes a probe from probes_outstanding, adjusts HSS and USS
      active probe stats accordingly, then deletes the probe. */
-  void destroyOutstandingProbe(list<UltraProbe *>::iterator probeI);
+  void destroyOutstandingProbe(std::list<UltraProbe *>::iterator probeI);
 
   /* Removes all probes from probes_outstanding using
      destroyOutstandingProbe. This is used in ping scan to quit waiting
@@ -509,7 +508,7 @@ public:
 
   /* Mark an outstanding probe as timedout.  Adjusts stats
      accordingly.  For connect scans, this closes the socket. */
-  void markProbeTimedout(list<UltraProbe *>::iterator probeI);
+  void markProbeTimedout(std::list<UltraProbe *>::iterator probeI);
 
   /* New (active) probes are appended to the end of this list.  When a
      host times out, it will be marked as such, but may hang around on
@@ -518,7 +517,7 @@ public:
      are outstanding.  Probes on the bench (reached the current
      maximum tryno and expired) are not counted in
      probes_outstanding.  */
-  list<UltraProbe *> probes_outstanding;
+  std::list<UltraProbe *> probes_outstanding;
   /* The number of probes in probes_outstanding, minus the inactive (timed out) ones */
   unsigned int num_probes_active;
   /* Probes timed out but not yet retransmitted because of congestion
@@ -537,20 +536,20 @@ public:
      tryno of benh members is bench_tryno.  If the maximum tryno
      increases, everyone on the bench is moved to the retry_stack.
    */
-  vector<probespec> probe_bench;
+  std::vector<probespec> probe_bench;
   unsigned int bench_tryno; /* # tryno of probes on the bench */
   /* The retry_stack are probespecs that were on the bench but are now
      slated to be retried.  It is kept sorted such that probes with highest
      retry counts are on top, ready to be taken first. */
-  vector<probespec> retry_stack;
+  std::vector<probespec> retry_stack;
   /* retry_stack_tries MUST BE KEPT IN SYNC WITH retry_stack.
      retry_stack_tries[i] is the number of completed retries for the
      probe in retry_stack[i] */
-  vector<u8> retry_stack_tries;
+  std::vector<u8> retry_stack_tries;
   /* tryno of probes on the retry queue */
   /* Moves the given probe from the probes_outstanding list, to
      probe_bench, and decrements num_probes_waiting_retransmit accordingly */
-  void moveProbeToBench(list<UltraProbe *>::iterator probeI);
+  void moveProbeToBench(std::list<UltraProbe *>::iterator probeI);
   /* Dismiss all probe attempts on bench -- the ports are marked
      'filtered' or whatever is appropriate for having no response */
   void dismissBench();
@@ -623,12 +622,12 @@ private:
 class UltraScanInfo {
 public:
   UltraScanInfo();
-  UltraScanInfo(vector<Target *> &Targets, struct scan_lists *pts, stype scantype) {
+  UltraScanInfo(std::vector<Target *> &Targets, struct scan_lists *pts, stype scantype) {
     Init(Targets, pts, scantype);
   }
   ~UltraScanInfo();
   /* Must call Init if you create object with default constructor */
-  void Init(vector<Target *> &Targets, struct scan_lists *pts, stype scantp);
+  void Init(std::vector<Target *> &Targets, struct scan_lists *pts, stype scantp);
 
   unsigned int numProbesPerHost();
 
@@ -705,11 +704,11 @@ public:
 
   /* Any function which messes with (removes elements from)
      incompleteHosts may have to manipulate nextI */
-  list<HostScanStats *> incompleteHosts;
+  std::list<HostScanStats *> incompleteHosts;
   /* Hosts are moved from incompleteHosts to completedHosts as they are
      completed. We keep them around because sometimes responses come back very
      late, after we consider a host completed. */
-  list<HostScanStats *> completedHosts;
+  std::list<HostScanStats *> completedHosts;
   /* How long (in msecs) we keep a host in completedHosts */
   unsigned int completedHostLifetime;
   /* The last time we went through completedHosts to remove hosts */
@@ -726,7 +725,7 @@ public:
 private:
 
   unsigned int numInitialTargets;
-  list<HostScanStats *>::iterator nextI;
+  std::list<HostScanStats *>::iterator nextI;
 
 };
 
@@ -1203,7 +1202,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
 }
 
 HostScanStats::~HostScanStats() {
-  list<UltraProbe *>::iterator probeI, next;
+  std::list<UltraProbe *>::iterator probeI, next;
 
   /* Move any hosts from the bench to probes_outstanding for easier deletion  */
   for (probeI = probes_outstanding.begin(); probeI != probes_outstanding.end();
@@ -1261,7 +1260,7 @@ unsigned long HostScanStats::probeExpireTime(const UltraProbe *probe) {
    true. */
 bool HostScanStats::sendOK(struct timeval *when) {
   struct ultra_timing_vals tmng;
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   struct timeval probe_to, earliest_to, sendTime;
   long tdiff;
 
@@ -1355,7 +1354,7 @@ bool HostScanStats::sendOK(struct timeval *when) {
    puts now in when. */
 bool HostScanStats::nextTimeout(struct timeval *when) {
   struct timeval probe_to, earliest_to;
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   bool firstgood = true;
 
   assert(when);
@@ -1388,7 +1387,7 @@ bool HostScanStats::nextTimeout(struct timeval *when) {
    the allowedTryno may increase again.  If it is false, any probes
    which have reached the given limit may be dealth with. */
 unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) {
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
   bool allfinished = true;
   unsigned int maxval = 0;
@@ -1485,7 +1484,7 @@ HostScanStats *UltraScanInfo::nextIncompleteHost() {
 /* Return a number between 0.0 and 1.0 inclusive indicating how much of the scan
    is done. */
 double UltraScanInfo::getCompletionFraction() {
-  list<HostScanStats *>::iterator hostI;
+  std::list<HostScanStats *>::iterator hostI;
   double total;
 
   /* Add 1 for each completed host. */
@@ -1510,8 +1509,8 @@ double UltraScanInfo::getCompletionFraction() {
 
 /* Initialize the state for ports that don't receive a response in all the
    targets. */
-static void set_default_port_state(vector<Target *> &targets, stype scantype) {
-  vector<Target *>::iterator target;
+static void set_default_port_state(std::vector<Target *> &targets, stype scantype) {
+  std::vector<Target *>::iterator target;
 
   for (target = targets.begin(); target != targets.end(); target++) {
     switch (scantype) {
@@ -1551,7 +1550,7 @@ static void set_default_port_state(vector<Target *> &targets, stype scantype) {
 
 /* Order of initializations in this function CAN BE IMPORTANT, so be careful
  mucking with it. */
-void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, stype scantp) {
+void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts, stype scantp) {
   unsigned int targetno = 0;
   HostScanStats *hss;
   int num_timedout = 0;
@@ -1728,7 +1727,7 @@ unsigned int UltraScanInfo::numProbesPerHost() {
 bool UltraScanInfo::sendOK(struct timeval *when) {
   struct timeval lowhtime = {0};
   struct timeval tmptv;
-  list<HostScanStats *>::iterator host;
+  std::list<HostScanStats *>::iterator host;
   bool ggood = false;
   bool thisHostGood = false;
   bool foundgood = false;
@@ -1786,7 +1785,7 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
 /* Find a HostScanStats by its IP address in the incomplete and completed lists.
    Returns NULL if none are found. */
 HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
-  list<HostScanStats *>::iterator hss;
+  std::list<HostScanStats *>::iterator hss;
   struct sockaddr_storage target_addr;
   size_t target_addr_len;
 
@@ -1833,7 +1832,7 @@ static bool pingprobe_is_better(const probespec *new_probe, int new_state,
    list, and remove any hosts from completedHosts which have exceeded their
    lifetime.  Returns the number of hosts removed. */
 int UltraScanInfo::removeCompletedHosts() {
-  list<HostScanStats *>::iterator hostI, nxt;
+  std::list<HostScanStats *>::iterator hostI, nxt;
   HostScanStats *hss = NULL;
   int hostsRemoved = 0;
   bool timedout = false;
@@ -2216,7 +2215,7 @@ int HostScanStats::freshPortsLeft() {
 
 /* Removes a probe from probes_outstanding, adjusts HSS and USS
    active probe stats accordingly, then deletes the probe. */
-void HostScanStats::destroyOutstandingProbe(list<UltraProbe *>::iterator probeI) {
+void HostScanStats::destroyOutstandingProbe(std::list<UltraProbe *>::iterator probeI) {
   UltraProbe *probe = *probeI;
   assert(!probes_outstanding.empty());
   if (!probe->timedout) {
@@ -2336,7 +2335,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
 
 /* Mark an outstanding probe as timedout.  Adjusts stats
     accordingly.  For connect scans, this closes the socket. */
-void HostScanStats::markProbeTimedout(list<UltraProbe *>::iterator probeI) {
+void HostScanStats::markProbeTimedout(std::list<UltraProbe *>::iterator probeI) {
   UltraProbe *probe = *probeI;
   assert(!probe->timedout);
   assert(!probe->retransmitted);
@@ -2774,7 +2773,7 @@ void HostScanStats::retransmitBench() {
 /* Moves the given probe from the probes_outstanding list, to
     probe_bench, and decrements num_probes_waiting_retransmit
     accordingly */
-void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
+void HostScanStats::moveProbeToBench(std::list<UltraProbe *>::iterator probeI) {
   UltraProbe *probe = *probeI;
   if (!probe_bench.empty())
     assert(bench_tryno == probe->tryno);
@@ -2791,7 +2790,7 @@ void HostScanStats::moveProbeToBench(list<UltraProbe *>::iterator probeI) {
 /* Called when a ping response is discovered. If adjust_timing is false, timing
    stats are not updated. */
 static void ultrascan_ping_update(UltraScanInfo *USI, HostScanStats *hss,
-                                  list<UltraProbe *>::iterator probeI,
+                                  std::list<UltraProbe *>::iterator probeI,
                                   struct timeval *rcvdtime,
                                   bool adjust_timing = true) {
   ultrascan_adjust_timeouts(USI, hss, *probeI, rcvdtime);
@@ -2834,7 +2833,7 @@ static bool ultrascan_host_pspec_update(UltraScanInfo *USI, HostScanStats *hss,
    timing information and other stats as appropriate. If
    adjust_timing_hint is false, packet stats are not updated. */
 static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
-                                        list<UltraProbe *>::iterator probeI,
+                                        std::list<UltraProbe *>::iterator probeI,
                                         int newstate, struct timeval *rcvdtime,
                                         bool adjust_timing_hint = true) {
   UltraProbe *probe = *probeI;
@@ -2897,7 +2896,7 @@ static void ultrascan_host_probe_update(UltraScanInfo *USI, HostScanStats *hss,
    instead. If adjust_timing_hint is false, packet stats are not
    updated. */
 static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
-                                        list<UltraProbe *>::iterator probeI,
+                                        std::list<UltraProbe *>::iterator probeI,
                                         int newstate, struct timeval *rcvdtime,
                                         bool adjust_timing_hint = true) {
   UltraProbe *probe = *probeI;
@@ -3017,7 +3016,7 @@ static UltraProbe *sendConnectScanProbe(UltraScanInfo *USI, HostScanStats *hss,
                                         u16 destport, u8 tryno, u8 pingseq) {
 
   UltraProbe *probe = new UltraProbe();
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   static bool connecterror = false;
   int rc;
   int connect_errno = 0;
@@ -3758,7 +3757,7 @@ static void sendGlobalPingProbe(UltraScanInfo *USI) {
 }
 
 static void doAnyPings(UltraScanInfo *USI) {
-  list<HostScanStats *>::iterator hostI;
+  std::list<HostScanStats *>::iterator hostI;
   HostScanStats *hss = NULL;
 
   gettimeofday(&USI->now, NULL);
@@ -3833,11 +3832,11 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
 /* Go through the ProbeQueue of each host, identify any
    timed out probes, then try to retransmit them as appropriate */
 static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
-  list<HostScanStats *>::iterator hostI;
-  list<UltraProbe *>::iterator probeI;
+  std::list<HostScanStats *>::iterator hostI;
+  std::list<UltraProbe *>::iterator probeI;
   /* A cache of the last processed probe from each host, to avoid re-examining a
      bunch of probes to find the next one that needs to be retransmitted. */
-  std::map<HostScanStats *, list<UltraProbe *>::iterator> probe_cache;
+  std::map<HostScanStats *, std::list<UltraProbe *>::iterator> probe_cache;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   int retrans = 0; /* Number of retransmissions during a loop */
@@ -3914,7 +3913,7 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
    debugging information */
 static void printAnyStats(UltraScanInfo *USI) {
 
-  list<HostScanStats *>::iterator hostI;
+  std::list<HostScanStats *>::iterator hostI;
   HostScanStats *hss;
   struct ultra_timing_vals hosttm;
 
@@ -3962,9 +3961,9 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int timeleft;
   ConnectScanInfo *CSI = USI->gstats->CSI;
   int sd;
-  list<HostScanStats *>::iterator hostI;
+  std::list<HostScanStats *>::iterator hostI;
   HostScanStats *host;
-  list<UltraProbe *>::iterator probeI, nextProbeI;
+  std::list<UltraProbe *>::iterator probeI, nextProbeI;
   UltraProbe *probe = NULL;
   unsigned int listsz;
   unsigned int probenum;
@@ -4016,7 +4015,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
      and find the relevant ones. Note the peculiar structure of the loop--we
      iterate through both incompleteHosts and completedHosts, because global
      timing pings are sent to hosts in completedHosts. */
-  list<HostScanStats *>::iterator incompleteHostI, completedHostI;
+  std::list<HostScanStats *>::iterator incompleteHostI, completedHostI;
   incompleteHostI = USI->incompleteHosts.begin();
   completedHostI = USI->completedHosts.begin();
   while ((incompleteHostI != USI->incompleteHosts.end()
@@ -4202,7 +4201,7 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
   bool timedout = false;
   struct sockaddr_in sin;
   HostScanStats *hss = NULL;
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   int gotone = 0;
 
   gettimeofday(&USI->now, NULL);
@@ -4273,7 +4272,7 @@ static bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
   bool has_mac = false;
   struct sockaddr_in6 sin6;
   HostScanStats *hss = NULL;
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   int gotone = 0;
 
   gettimeofday(&USI->now, NULL);
@@ -4351,7 +4350,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   unsigned int bytes;
   long to_usec;
   HostScanStats *hss = NULL;
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
   int newstate = PORT_UNKNOWN;
   unsigned int probenum;
@@ -4960,7 +4959,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   } *ping;
   long to_usec;
   HostScanStats *hss = NULL;
-  list<UltraProbe *>::iterator probeI;
+  std::list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
   unsigned int trynum = 0;
   int newstate = HOST_UNKNOWN;
@@ -5455,10 +5454,10 @@ static void waitForResponses(UltraScanInfo *USI) {
 
 /* Initiate libpcap or some other sniffer as appropriate to be able to catch
    responses */
-static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
-  string pcap_filter = "";
+static void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
+  std::string pcap_filter = "";
   /* 20 IPv6 addresses is max (45 byte addy + 14 (" or src host ")) * 20 == 1180 */
-  string dst_hosts = "";
+  std::string dst_hosts = "";
   unsigned int len = 0;
   unsigned int targetno;
   bool doIndividual = Targets.size() <= 20; // Don't bother IP limits if scanning huge # of hosts
@@ -5557,8 +5556,8 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
 /* Go through the data structures, making appropriate changes (such as expiring
    probes, noting when hosts are complete, etc. */
 static void processData(UltraScanInfo *USI) {
-  list<HostScanStats *>::iterator hostI;
-  list<UltraProbe *>::iterator probeI, nextProbeI;
+  std::list<HostScanStats *>::iterator hostI;
+  std::list<UltraProbe *>::iterator probeI, nextProbeI;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   unsigned int maxtries = 0;
@@ -5691,9 +5690,9 @@ static void processData(UltraScanInfo *USI) {
 }
 
 /* Start the timeout clocks of any targets that aren't already timedout */
-static void startTimeOutClocks(vector<Target *> &Targets) {
+static void startTimeOutClocks(std::vector<Target *> &Targets) {
   struct timeval tv;
-  vector<Target *>::iterator hostI;
+  std::vector<Target *>::iterator hostI;
 
   gettimeofday(&tv, NULL);
   for (hostI = Targets.begin(); hostI != Targets.end(); hostI++) {
@@ -5708,7 +5707,7 @@ static void startTimeOutClocks(vector<Target *> &Targets) {
    changed timing information will be stored in it when the function returns. It
    exists so timing can be shared across invocations of this function. If to is
    NULL (its default value), a default timeout_info will be used. */
-void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
+void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
                 stype scantype, struct timeout_info *to) {
   o.current_scantype = scantype;
 

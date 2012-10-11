@@ -130,10 +130,6 @@
 #include <algorithm>
 #include <list>
 
-/* Workaround for lack of namespace std on HP-UX 11.00 */
-namespace std {};
-using namespace std;
-
 extern NmapOps o;
 
 // Details on a particular service (open port) we are trying to match
@@ -217,7 +213,7 @@ private:
   void addServiceChar(char c, int wrapat);
   // Like addServiceChar, but for a whole zero-terminated string
   void addServiceString(const char *s, int wrapat);
-  vector<ServiceProbe *>::iterator current_probe;
+  std::vector<ServiceProbe *>::iterator current_probe;
   u8 *currentresp;
   int currentresplen;
   char *servicefp;
@@ -228,11 +224,11 @@ private:
 // This holds the service information for a group of Targets being service scanned.
 class ServiceGroup {
 public:
-  ServiceGroup(vector<Target *> &Targets, AllProbes *AP);
+  ServiceGroup(std::vector<Target *> &Targets, AllProbes *AP);
   ~ServiceGroup();
-  list<ServiceNFO *> services_finished; // Services finished (discovered or not)
-  list<ServiceNFO *> services_in_progress; // Services currently being probed
-  list<ServiceNFO *> services_remaining; // Probes not started yet
+  std::list<ServiceNFO *> services_finished; // Services finished (discovered or not)
+  std::list<ServiceNFO *> services_in_progress; // Services currently being probed
+  std::list<ServiceNFO *> services_remaining; // Probes not started yet
   unsigned int ideal_parallelism; // Max (and desired) number of probes out at once.
   ScanProgressMeter *SPM;
   int num_hosts_timedout; // # of hosts timed out during (or before) scan
@@ -1039,7 +1035,7 @@ ServiceProbe::ServiceProbe() {
 }
 
 ServiceProbe::~ServiceProbe() {
-  vector<ServiceProbeMatch *>::iterator vi;
+  std::vector<ServiceProbeMatch *>::iterator vi;
 
   if (probename) free(probename);
   if (probestring) free(probestring);
@@ -1106,7 +1102,7 @@ void ServiceProbe::setProbeString(const u8 *ps, int stringlen) {
   } else probestring = NULL;
 }
 
-void ServiceProbe::setPortVector(vector<u16> *portv, const char *portstr, 
+void ServiceProbe::setPortVector(std::vector<u16> *portv, const char *portstr, 
 				 int lineno) {
   const char *current_range;
   char *endptr;
@@ -1184,7 +1180,7 @@ void ServiceProbe::setProbablePorts(enum service_tunnel_type tunnel,
      ports for this probe and tunnel type.  Use a tunnel of
      SERVICE_TUNNEL_SSL or SERVICE_TUNNEL_NONE as appropriate */
 bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
-  vector<u16> *portv;
+  std::vector<u16> *portv;
 
   portv = (tunnel == SERVICE_TUNNEL_SSL)? &probablesslports : &probableports;
   
@@ -1196,7 +1192,7 @@ bool ServiceProbe::portIsProbable(enum service_tunnel_type tunnel, u16 portno) {
  // Returns true if the passed in service name is among those that can
   // be detected by the matches in this probe;
 bool ServiceProbe::serviceIsPossible(const char *sname) {
-  vector<const char *>::iterator vi;
+  std::vector<const char *>::iterator vi;
 
   for(vi = detectedServices.begin(); vi != detectedServices.end(); vi++) {
     if (strcmp(*vi, sname) == 0)
@@ -1387,7 +1383,7 @@ int AllProbes::check_excluded_port(unsigned short portno, int proto)
 // no version matched, that field will be NULL. This function may
 // return NULL if there are no match lines at all in this probe.
 const struct MatchDetails *ServiceProbe::testMatch(const u8 *buf, int buflen, int n = 0) {
-  vector<ServiceProbeMatch *>::iterator vi;
+  std::vector<ServiceProbeMatch *>::iterator vi;
   const struct MatchDetails *MD;
 
   for(vi = matches.begin(); vi != matches.end(); vi++) {
@@ -1409,7 +1405,7 @@ AllProbes::AllProbes() {
 }
 
 AllProbes::~AllProbes() {
-  vector<ServiceProbe *>::iterator vi;
+  std::vector<ServiceProbe *>::iterator vi;
 
   // Delete all the ServiceProbe's inside the probes vector
   for(vi = probes.begin(); vi != probes.end(); vi++) {
@@ -1423,7 +1419,7 @@ AllProbes::~AllProbes() {
   // Tries to find the probe in this AllProbes class which have the
   // given name and protocol.  It can return the NULL probe.
 ServiceProbe *AllProbes::getProbeByName(const char *name, int proto) {
-  vector<ServiceProbe *>::iterator vi;
+  std::vector<ServiceProbe *>::iterator vi;
 
   if (proto == IPPROTO_TCP && nullProbe && strcmp(nullProbe->getName(), name) == 0)
     return nullProbe;
@@ -1480,7 +1476,7 @@ int AllProbes::isExcluded(unsigned short port, int proto) {
 // back to probes later in the file. This function also free()s all the
 // fallbackStrs.
 void AllProbes::compileFallbacks() {
-  vector<ServiceProbe *>::iterator curr;
+  std::vector<ServiceProbe *>::iterator curr;
   char *tp;
   int i;
 
@@ -1832,7 +1828,7 @@ u8 *ServiceNFO::getcurrentproberesponse(int *respstrlen) {
 }
 
 
-ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
+ServiceGroup::ServiceGroup(std::vector<Target *> &Targets, AllProbes *AP) {
   unsigned int targetno;
   ServiceNFO *svc;
   Port *nxtport;
@@ -1887,7 +1883,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
 }
 
 ServiceGroup::~ServiceGroup() {
-  list<ServiceNFO *>::iterator i;
+  std::list<ServiceNFO *>::iterator i;
 
   for(i = services_finished.begin(); i != services_finished.end(); i++)
     delete *i;
@@ -2101,7 +2097,7 @@ static void considerPrintingStats(ServiceGroup *SG) {
 /* Check if target is done (no more probes remaining for it in service group),
    and responds appropriately if so */
 static void handleHostIfDone(ServiceGroup *SG, Target *target) {
-  list<ServiceNFO *>::iterator svcI;
+  std::list<ServiceNFO *>::iterator svcI;
   bool found = false;
 
   for(svcI = SG->services_in_progress.begin(); 
@@ -2132,7 +2128,7 @@ static void handleHostIfDone(ServiceGroup *SG, Target *target) {
 // set it to the given probe_state pass NULL for nsi if you don't want
 // it to be deleted (for example, if you already have done so).
 static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, ServiceGroup *SG, ServiceNFO *svc, nsock_iod nsi) {
-  list<ServiceNFO *>::iterator member;
+  std::list<ServiceNFO *>::iterator member;
   Target *target = svc->target;
 
   svc->probe_state = probe_state;
@@ -2544,11 +2540,11 @@ static int shouldWePrintFingerprint(ServiceNFO *svc) {
 // Nmap to output later.
 
 static void processResults(ServiceGroup *SG) {
-list<ServiceNFO *>::iterator svc;
+std::list<ServiceNFO *>::iterator svc;
 
  for(svc = SG->services_finished.begin(); svc != SG->services_finished.end(); svc++) {
    if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
-     vector<const char *> cpe;
+     std::vector<const char *> cpe;
 
      if (*(*svc)->cpe_a_matched)
        cpe.push_back((*svc)->cpe_a_matched);
@@ -2583,7 +2579,7 @@ list<ServiceNFO *>::iterator svc;
    that this is called before any probes have been launched (so they
    are all in services_remaining */
 static void startTimeOutClocks(ServiceGroup *SG) {
-  list<ServiceNFO *>::iterator svcI;
+  std::list<ServiceNFO *>::iterator svcI;
   Target *target = NULL;
   struct timeval tv;
 
@@ -2602,7 +2598,7 @@ static void startTimeOutClocks(ServiceGroup *SG) {
 // pairs that are excluded. We use AP->isExcluded() to determine which ports
 // are excluded.
 static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
-  list<ServiceNFO *>::iterator i, nxt;
+  std::list<ServiceNFO *>::iterator i, nxt;
   ServiceNFO *svc;
 
   for(i = SG->services_remaining.begin(); i != SG->services_remaining.end(); i=nxt) {
@@ -2631,7 +2627,7 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
 
 /* Execute a service fingerprinting scan against all open ports of the
    Targets specified. */
-int service_scan(vector<Target *> &Targets) {
+int service_scan(std::vector<Target *> &Targets) {
   // int service_scan(Target *targets[], int num_targets)
   AllProbes *AP;
   ServiceGroup *SG;

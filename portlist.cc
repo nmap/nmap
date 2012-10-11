@@ -102,8 +102,6 @@
 #include "tcpip.h"
 #include "libnetutil/netutil.h"
 
-using namespace std;
-
 #if HAVE_STRINGS_H
 #include <strings.h>
 #endif /* HAVE_STRINGS_H */
