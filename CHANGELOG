@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that caused an incorrect source address to be set when
+  scanning certain addresses (apparently those ending in .0) on
+  Windows XP. The symptom of this bug was the messages
+    get_srcaddr: can't connect socket: The requested address is not valid in its context.
+    Failed to convert source address to presentation format!?!  Error: Unknown error
+  Thanks to Robert Washam and Jorge Hernandez for reports and help
+  debugging. [David Fifield]
+
 o Added some additional CPE entries to nmap-service-probes.
   [Dillon Graham]
 
