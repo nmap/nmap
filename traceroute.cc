@@ -166,23 +166,6 @@ struct Hop;
 class HostState;
 class Probe;
 
-/* A global random token used to distinguish this traceroute's probes from
-   those of other traceroutes possibly running on the same machine. */
-static u16 global_id;
-/* A global cache of known hops, indexed by TTL and address. */
-static std::map<struct HopIdent, Hop *> hop_cache;
-/* A list of timedout hops, which are not kept in hop_cache, so we can delete
-   all hops on occasion. */
-static std::list<Hop *> timedout_hops;
-/* The TTL at which we start sending probes if we don't have a distance
-   estimate. This is updated after each host group on the assumption that hosts
-   across groups will not differ much in distance. Having this closer to the
-   true distance makes the trace faster but is not needed for accuracy. */
-static u8 initial_ttl = 10;
-
-static struct timeval get_now(struct timeval *now = NULL);
-static const char *ss_to_string(const struct sockaddr_storage *ss);
-
 /* An object of this class is a (TTL, address) pair that uniquely identifies a
    hop. Hops in the hop_cache are indexed by this type. */
 struct HopIdent {
@@ -203,6 +186,23 @@ struct HopIdent {
       return sockaddr_storage_cmp(&addr, &other.addr) < 0;
   }
 };
+
+/* A global random token used to distinguish this traceroute's probes from
+   those of other traceroutes possibly running on the same machine. */
+static u16 global_id;
+/* A global cache of known hops, indexed by TTL and address. */
+static std::map<struct HopIdent, Hop *> hop_cache;
+/* A list of timedout hops, which are not kept in hop_cache, so we can delete
+   all hops on occasion. */
+static std::list<Hop *> timedout_hops;
+/* The TTL at which we start sending probes if we don't have a distance
+   estimate. This is updated after each host group on the assumption that hosts
+   across groups will not differ much in distance. Having this closer to the
+   true distance makes the trace faster but is not needed for accuracy. */
+static u8 initial_ttl = 10;
+
+static struct timeval get_now(struct timeval *now = NULL);
+static const char *ss_to_string(const struct sockaddr_storage *ss);
 
 struct Hop {
   Hop *parent;
