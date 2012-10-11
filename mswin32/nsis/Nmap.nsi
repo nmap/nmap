@@ -49,8 +49,8 @@ SetCompressor /SOLID /FINAL lzma
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "5.61TEST3"  
-  VIProductVersion "5.61.0.3"
+  !define VERSION "6.02"  
+  VIProductVersion "6.02.0.1"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -302,19 +302,28 @@ Function vcredist2010installer
   StrCmp $vcredist2010set "" 0 vcredist_done
   StrCpy $vcredist2010set "true"
   ;Check if VC++ 2010 runtimes are already installed.
-  ;NOTE VC++ 2010 appears to use a single UID even after installing security updates such as MS11-025.
-  ;However, please check whenever the Redistributable package is upgraded as both the UID in the registry key and the DisplayName string must be updated here (and below)
-  ;whenever the Redistributable package is upgraded:
-  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
-  StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" vcredist_done vcredist_silent_install
+  ;This version creates a registry key that makes it easy to check whether a version (not necessarily the 
+  ;one we may be about to install) of the VC++ 2010 redistributables have been installed. On x64 systems we need to check
+  ;the Wow6432Node registry key instead.
+  ;Only run our installer if a version isn't already present, to prevent installing older versions resulting in error messages.
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+  StrCmp $0 "1" vcredist_done vcredist_check_wow6432node
+  vcredist_check_wow6432node:
+    ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+    StrCmp $0 "1" vcredist_done vcredist_silent_install
+
   ;If VC++ 2010 runtimes are not installed...
   vcredist_silent_install:
     DetailPrint "Installing Microsoft Visual C++ 2010 Redistributable"
     File ..\nmap-${VERSION}\vcredist_x86.exe
     ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
     ;Check for successful installation of our vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" vcredist_success vcredist_not_present
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+    StrCmp $0 "1" vcredist_success vcredist_not_present_check_wow6432node
+    vcredist_not_present_check_wow6432node:
+      ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x86" "Installed"
+      StrCmp $0 "1" vcredist_success vcredist_not_present
+
     vcredist_not_present:
       DetailPrint "Microsoft Visual C++ 2010 Redistributable failed to install"
       IfSilent vcredist_done vcredist_messagebox
@@ -333,16 +342,23 @@ Function vcredist2008installer
   ;Check if VC++ 2008 runtimes are already installed.
   ;NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
   ;whenever the Redistributable package is upgraded:
-  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{86CE85E6-DBAC-3FFD-B977-E4B79F83C909}" "DisplayName"
-  StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - KB2467174 - x86 9.0.30729.5570" vcredist2008_done vcredist2008_silent_install
+  ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
+  StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_done vcredist2008_check_wow6432node
+  ;On x64 systems we need to check the Wow6432Node registry key instead
+  vcredist2008_check_wow6432node:
+    ReadRegStr $0 HKLM "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_done vcredist2008_silent_install
   ;If VC++ 2008 runtimes are not installed...
   vcredist2008_silent_install:
     DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
     File ..\nmap-${VERSION}\vcredist2008_x86.exe
     ExecWait '"$INSTDIR\vcredist2008_x86.exe" /q' $0
     ;Check for successful installation of our 2008 version of vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{86CE85E6-DBAC-3FFD-B977-E4B79F83C909}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - KB2467174 - x86 9.0.30729.5570" vcredist2008_success vcredist2008_not_present
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_success vcredist2008_not_present_check_wow6432node
+    vcredist2008_not_present_check_wow6432node:
+      ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9BE518E6-ECC6-35A9-88E4-87755C07200F}" "DisplayName"
+      StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.6161" vcredist2008_success vcredist2008_not_present
     vcredist2008_not_present:
       DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
       IfSilent vcredist2008_done vcredist2008_messagebox
