@@ -113,7 +113,7 @@ PORT     STATE    SERVICE     VERSION
 9929/tcp open     nping-echo  Nping echo
 Device type: general purpose
 Running: Linux 2.6.X
-OS CPE: cpe:/o:linux:kernel:2.6.39
+OS CPE: cpe:/o:linux:linux_kernel:2.6.39
 OS details: Linux 2.6.39
 Network Distance: 11 hops
 Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
@@ -2065,7 +2065,7 @@ way.</para>
     etc). Most fingerprints also have a Common Platform Enumeration
     (CPE)<indexterm><primary>Common Platform Enumeration</primary><secondary>operating system</secondary></indexterm>
     representation, like
-    <literal>cpe:/o:linux:kernel:2.6</literal>.</para>
+    <literal>cpe:/o:linux:linux_kernel:2.6</literal>.</para>
 
     <para>If Nmap is unable to guess the OS of a machine, and
     conditions are good (e.g. at least one open port and one closed

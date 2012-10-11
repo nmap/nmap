@@ -1701,9 +1701,9 @@ host.os = {
 <programlisting>
 Fingerprint Linux 2.6.32 - 3.2
 Class Linux | Linux | 2.6.X | general purpose
-CPE cpe:/o:linux:kernel:2.6
+CPE cpe:/o:linux:linux_kernel:2.6
 Class Linux | Linux | 3.X | general purpose
-CPE cpe:/o:linux:kernel:3
+CPE cpe:/o:linux:linux_kernel:3
 </programlisting>
 
               <para>
@@ -1720,14 +1720,14 @@ host.os = {
         osfamily = "Linux",
         osgen = "2.6.X",
         type = "general purpose",
-        cpe = { "cpe:/o:linux:kernel:2.6" }
+        cpe = { "cpe:/o:linux:linux_kernel:2.6" }
       },
       {
         vendor = "Linux",
         osfamily = "Linux",
         osgen = "3.X",
         type = "general purpose",
-        cpe = { "cpe:/o:linux:kernel:3" }
+        cpe = { "cpe:/o:linux:linux_kernel:3" }
       }
     },
   }

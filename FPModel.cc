@@ -2248,12 +2248,12 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.38 - 3.2.0";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:3");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:3");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2264,7 +2264,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.39";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6.39");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6.39");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2308,7 +2308,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Vyatta Core 6.3 (Linux 2.6.37)";
 		{
 			OS_Classification osclass = {"Vyatta", "Linux", "2.6.X", "router"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6.37");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6.37");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2330,7 +2330,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.11 - 2.6.15";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2385,7 +2385,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.4.21";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.4.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.4.21");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.4.21");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2460,7 +2460,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "OpenWrt (Linux 2.6.32)";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "broadband router"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6.32");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6.32");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2604,7 +2604,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.23 - 2.6.33 (embedded)";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2616,7 +2616,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		{
 			OS_Classification osclass = {"Thecus", "Linux", "2.6.X", "storage-misc"};
 			osclass.cpe.push_back("cpe:/h:thecus:n4100pro");
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6.33");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6.33");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2752,7 +2752,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.18 - 2.6.34";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2763,7 +2763,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.23 - 2.6.32";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2829,7 +2829,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.32 - 2.6.36";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2840,12 +2840,12 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.16 - 3.2.0";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:3");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:3");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2856,12 +2856,12 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.32 - 3.2.0";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:3");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:3");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2872,12 +2872,12 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.OS_name = (char *) "Linux 2.6.32 - 3.0.0";
 		{
 			OS_Classification osclass = {"Linux", "Linux", "2.6.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:2.6");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:2.6");
 			match.OS_class.push_back(osclass);
 		}
 		{
 			OS_Classification osclass = {"Linux", "Linux", "3.X", "general purpose"};
-			osclass.cpe.push_back("cpe:/o:linux:kernel:3");
+			osclass.cpe.push_back("cpe:/o:linux:linux_kernel:3");
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);

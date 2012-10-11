@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed the CPE for Linux from cpe:/o:linux:kernel to
+  cpe:/o:linux:linux_kernel to reflect deprecation in the official CPE
+  dictionary.
+
 o Fixed a bug that caused an incorrect source address to be set when
   scanning certain addresses (apparently those ending in .0) on
   Windows XP. The symptom of this bug was the messages
