@@ -43,6 +43,10 @@ categories = {"version"}
 
 
 portrule = function(host, port)
+    -- Do not run for excluded ports
+    if (nmap.port_is_excluded(port.number, port.protocol)) then
+	return false
+    end
     if port.service ~= nil and port.version.service_dtype ~= "table" and port.service ~= 'rpcbind' then
         -- Exclude services that have already been detected as something
         -- different than rpcbind.
