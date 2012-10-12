@@ -82,9 +82,14 @@ local function probe_http_verbs(host, port, uri)
   if post_req and post_req.status ~= 401 then
     return true, "POST"
   end 
-  --With a random generated verb we also look for "invalid method" status 501 
+  --With a random generated verb we look for 400 and 501 status
   local random_verb_req = http.generic_request(host, port, stdnse.generate_random_string(4), uri)
-  if random_verb_req and random_verb_req.status ~= 401 and random_verb_req.status ~= 501 then
+  local retcodes = {
+      [400] = true, -- Bad Request
+      [401] = true, -- Authentication needed
+      [501] = true, -- Invalid method
+  }
+  if random_verb_req and not retcodes[random_verb_req.status] then
     return true, "GENERIC"
   end 
   
