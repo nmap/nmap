@@ -3000,12 +3000,15 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=>0%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # iPhone OS 4.3.3
-Fingerprint Apple iOS 4.2 - 4.3.4
+# Darwin 11.3.0 Darwin Kernel Version 11.3.0
+Fingerprint Apple Mac OS X 10.7.3 (Lion) (Darwin 11.3.0) or iOS 4.2 - 4.3.4
 Class Apple | iOS | 4.X | media device
 CPE cpe:/o:apple:iphone_os:4 auto
 Class Apple | iOS | 4.X | phone
 CPE cpe:/o:apple:iphone_os:4 auto
-SEQ(SP=EF-103%GCD=1-6%ISR=F7-103%TI=RD%CI=RD%II=RI%TS=A)
+Class Apple | Mac OS X | 10.7.X | general purpose
+CPE cpe:/o:apple:mac_os_x:10.7.3
+SEQ(SP=EF-107%GCD=1-6%ISR=F7-10D%TI=RD%CI=RD|RI%II=RI%TS=A)
 OPS(O1=M553NW2NNT11SLL%O2=M553NW2NNT11SLL%O3=M553NW2NNT11%O4=M553NW2NNT11SLL%O5=M553NW2NNT11SLL%O6=M553NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M553NW2SLL%CC=N)
@@ -3073,7 +3076,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # ipad 2, ios 5.1 (9b176)
 # iPad 2 (WiFi-only, no GSM) running iOS 5.1 (release 9B176)
 # AppleTV2 running Apple TV Software v4.4.4 (3330)
-Fingerprint Apple iOS 4.4.2 - 5.1 (Darwin 11.0.0)
+Fingerprint Apple iOS 4.4.2 - 5.1.1 (Darwin 11.0.0)
 Class Apple | iOS | 4.X | media device
 CPE cpe:/o:apple:iphone_os:4
 CPE cpe:/a:apple:apple_tv:4
@@ -5285,6 +5288,24 @@ T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
+# Darwin 11.3.0 Darwin Kernel Version 11.3.0: Thu Jan 12 18:47:41 PST 2012; root:xnu-1699.24.23~1/RELEASE_X86_64 x86_64
+Fingerprint Apple Mac OS X 10.7.3 (Lion) (Darwin 11.3.0)
+Class Apple | Mac OS X | 10.7.X | general purpose
+CPE cpe:/o:apple:mac_os_x:10.7
+SEQ(SP=F2-108%GCD=1-6%ISR=FF-113%TI=RD%CI=RD%II=RI%TS=A)
+OPS(O1=M3FD8NW3NNT11SLL%O2=M3FD8NW3NNT11SLL%O3=M3FD8NW3NNT11%O4=M3FD8NW3NNT11SLL%O5=M3FD8NW3NNT11SLL%O6=M3FD8NNT11SLL)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M3FD8NW3SLL%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
 # Darwin 11.0.0 Darwin Kernel Version 11.0.0: <<date>; username:xnu-1699.22.64~1/RELEASE_x86_64 x86_64
 # Darwin 11.1.0 Darwin Kernel Version 11.1.0: Tue Jul 26 16:07:11 PDT 2011; root:xnu-1699.22.81~1/RELEASE_X86_64 x86_64
 # Darwin 11.2.0 Darwin Kernel Version 11.2.0: Tue Aug  9 20:54:00 PDT 2011; root:xnu-1699.24.8~1/RELEASE_X86_64 x86_64
@@ -5402,6 +5423,24 @@ T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
 T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
+# Darwin Kernel Version 11.2.0: Tue Aug  9 20:54:00 PDT 2011; root:xnu-1699.24.8~1/RELEASE_X86_64 x86_64
+Fingerprint Apple Mac OS X 10.7.2 (Lion) (Darwin 11.2.0)
+Class Apple | Mac OS X | 10.7.X | general purpose
+CPE cpe:/o:apple:mac_os_x:10.7 auto
+SEQ(SP=BE-C8%GCD=1-6%ISR=C6-D0%TI=Z%CI=RD%II=RI%TS=U)
+OPS(O1=M598NNS%O2=M578NNS%O3=M280%O4=M218NNS%O5=M218NNS%O6=M109NNS)
+WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M598NNS%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%S=O%A=O|S+%F=A|AS%O=|M109NNS%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Darwin 11.2.0
@@ -6236,6 +6275,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # AVM FRITZ!Box Fon 7170
 Fingerprint AVM FRITZ!Box Fon 7170 ADSL modem
 Class AVM | embedded || broadband router
+CPE cpe:/h:avm:fritz%21box_fon_7170
 SEQ(SP=FE-10E%GCD=1-6%ISR=108-112%TI=Z%II=RI%TS=7)
 OPS(O1=M5A6ST11NW1%O2=M578ST11NW1%O3=M280NNT11NW1%O4=M22CST11NW1%O5=M218ST11NW1%O6=M109ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -6257,8 +6297,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Linksys WAG200G firmware: 1.01.05
 Fingerprint AVM FRITZ!Box FON WLAN 7050, Linksys WAG200G, or Netgear DG834GT wireless broadband router
 Class AVM | embedded || WAP
-Class Netgear | embedded || WAP
+CPE cpe:/h:avm:fritz%21box_fon_wlan_7050
 Class Linksys | embedded || WAP
+CPE cpe:/h:linksys:wag200g
+Class Netgear | embedded || WAP
+CPE cpe:/h:netgear:dg834gt
 SEQ(SP=B6-CE%GCD=1-6%ISR=C7-D3%TI=Z%II=I%TS=7|8|9)
 OPS(O1=NNT11|M5B4ST11NW0%O2=NNT11|M5B4ST11NW0%O3=NNT11|M5B4NNT11NW0%O4=NNT11|M5B4ST11NW0%O5=NNT11|M5B4ST11NW0%O6=NNT11|M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -6276,6 +6319,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # AVM Fritzbox Fon WLAN 7170
 Fingerprint AVM FRITZ!Box FON WLAN 7170 WAP
 Class AVM | embedded || WAP
+CPE cpe:/h:avm:fritz%21box_fon_wlan_7170
 SEQ(SP=BF-D1%GCD=1-6%ISR=C0-D8%TI=Z%II=I%TS=7)
 OPS(O1=M578ST11NW1%O2=M578ST11NW1%O3=M578NNT11NW1%O4=M578ST11NW1%O5=M578ST11NW1%O6=M578ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -6287,6 +6331,24 @@ T4(R=N)
 T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=N)
 T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Fritz!Box 7240.
+Fingerprint AVM FRITZ!Box FON WLAN 7240 WAP
+Class AVM | embedded || WAP
+CPE cpe:/h:avm:fritz%21box_fon_wlan_7240
+SEQ(SP=B9-C3%GCD=1-6%ISR=C7-D1%TI=Z%CI=Z%II=I%TS=6|7|8)
+OPS(O1=NNT11|M55EST11NW1%O2=NNT11|M55EST11NW1%O3=NNT11|M55ENNT11NW1%O4=NNT11|M55EST11NW1%O5=NNT11|M55EST11NW1%O6=NNT11|M55EST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=|M55ENNSNW1%CC=N|Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=O|S+%F=A|AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=16A0%S=O%A=O|S+%F=A|AS%O=NNT11|M55EST11NW1%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
 U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
@@ -6309,9 +6371,14 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # DSR2020 Application     03.07.01.18
 # Avocent AutoView 3100/3200
-Fingerprint Avocent AutoView or DSR2020 KVM switch
+# Model DSR8020 02-DA-E3 Application  03.07.01.09
+Fingerprint Avocent AutoView, DSR2020, or DSR8020 KVM switch
 Class Avocent | embedded || remote management
-SEQ(SP=C0-D0%GCD=1-6%ISR=C6-D2%TI=Z%CI=Z%II=I%TS=U)
+CPE cpe:/h:avocent:autoview_3100
+CPE cpe:/h:avocent:autoview_3200
+CPE cpe:/h:avocent:dsr2020
+CPE cpe:/h:avocent:dsr8020
+SEQ(SP=C0-D0%GCD=1-6%ISR=C6-D4%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M58CNW0%O2=M58CNW0%O3=M58CNW0%O4=M58CNW0%O5=M58CNW0%O6=M58C)
 WIN(W1=1630%W2=1630%W3=1630%W4=1630%W5=1630%W6=1630)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=1630%O=M58CNW0%CC=N%Q=)
@@ -6609,6 +6676,23 @@ T6(R=Y%DF=N%T=34-3E%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=N)
 U1(DF=N%T=34-3E%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=34-3E%TG=40%CD=S)
+
+# Web Application Firewall 460
+Fingerprint Barracuda Web Application Firewall 460
+Class Barracuda Networks | embedded || firewall
+SEQ(SP=C6-D0%GCD=1-6%ISR=CC-D6%TI=Z%II=I%TS=8)
+OPS(O1=M546ST11NW7%O2=M546ST11NW7%O3=M546NNT11NW7%O4=M546ST11NW7%O5=M546ST11NW7%O6=M546ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M546NNSNW7%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Barracuda 340 Load Balancer
 Fingerprint Barracuda 340 load balancer
@@ -7164,6 +7248,23 @@ T7(R=Y%DF=N%T=3A-44%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
 U1(DF=N%T=3A-44%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=3A-44%TG=40%CD=S)
 
+# Bluecoat CF-5000
+Fingerprint Blue Coat CacheFlow 5000 proxy server
+Class Blue Coat | embedded || proxy server
+SEQ(SP=FF-10B%GCD=1-6%ISR=102-10C%TI=RI%CI=RI%II=RI%SS=S%TS=A)
+OPS(O1=M5B4NW6ST11LLLL%O2=M5B4NW6ST11LLLL%O3=M5B4NW6NNT11%O4=M5B4NW6ST11LLLL%O5=M5B4NW6ST11LLLL%O6=M5B4ST11LLLL)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=FFFF%O=M5B4NW6SLL%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=N%T=3B-45%TG=40%W=FFFF%S=O%A=S+%F=AS%O=M5B4NW6ST11LLLL%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
 # Blue Coat proxy server running SGOS 3.2.4.8
 Fingerprint Blue Coat proxy server (SGOS 3.2.4.8)
 Class Blue Coat | SGOS | 3.X | proxy server
@@ -7387,7 +7488,8 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Blue Coat running SGOS 6.2.5.1 Proxy Edition
-Fingerprint Blue Coat proxy server (SGOS 6.2.5.1)
+# SGOS 6.2.8.1
+Fingerprint Blue Coat proxy server (SGOS 6.2.5.1 - 6.2.8.1)
 Class Blue Coat | SGOS | 6.X | proxy server
 CPE cpe:/o:bluecoat:sgos:6 auto
 SEQ(SP=FD-107%GCD=1-6%ISR=100-112%TI=I%CI=I%II=I%SS=S%TS=A)
@@ -8940,8 +9042,13 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # Canon iR2270 Laser Printer
 # Canon iR4570 Laser Printer
 # ReactOS Operating System, version 0.3.11-20091212-r44553
-Fingerprint Canon imageRUNNER 2270, 4570, or 6570 laser printer
+Fingerprint Canon imageRUNNER 2270, 4570, or 6570 laser printer (VxWorks)
 Class Canon | embedded || printer
+CPE cpe:/h:canon:imagerunner_2270
+CPE cpe:/h:canon:imagerunner_4570
+CPE cpe:/h:canon:imagerunner_6570
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=97-A1%GCD=1-6%ISR=9D-A7%TI=I%TS=1|2)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -9934,10 +10041,11 @@ U1(DF=N%T=7B-85%TG=80%IPL=38%UN=A05|41CF|41D1|5108|D8A5%RIPL=G%RID=G%RIPCK=G%RUC
 IE(DFI=S%T=7B-85%TG=80%CD=S)
 
 # Cisco VPN Concentrator, software revision: "Cisco Systems, Inc./VPN 3000 Concentrator Version 4.7.2.D Dec 20 2005 15:26:54"
-Fingerprint Cisco VPN 3000 Concentrator VPN platform (software version 4.7.2.D)
+# VPN Concentrator Type: 3005 Cisco Systems, Inc./VPN 3000 Concentrator Version 4.7.Rel Mar 10 2005 14:58:16
+Fingerprint Cisco VPN 3000 Concentrator VPN platform (software version 4.7)
 Class Cisco | embedded || proxy server
-CPE cpe:/h:cisco:vpn_3000_concentrator:4.7.2.d
-SEQ(SP=D0-DA%GCD=1-6%ISR=DA-E4%TI=I%II=RI%SS=O|S%TS=1|2)
+CPE cpe:/h:cisco:vpn_3000_concentrator:4.7
+SEQ(SP=CC-DA%GCD=1-6%ISR=CC-E4%TI=I%CI=I%II=RI%SS=O|S%TS=1|2)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
 ECN(R=Y%DF=N%T=7B-85%TG=80%W=2000%O=M5B4NW0%CC=N%Q=)
@@ -11164,12 +11272,15 @@ IE(DFI=S%T=FB-105%TG=FF%CD=S)
 # Cisco 2821 ISR which is running Call Manager Express
 # Cisco 7206 Series VXR router.
 # IOS (tm) s72033_rp Software (s72033_rp-IPSERVICESK9-M), Version 12.2(18)SXF6, cisco WS-C6506 (R7000) processor
-Fingerprint Cisco 2821, 6506, or 7206VXR router (IOS 12.2)
+# Cisco IOS Software, C870 Software (C870-ADVIPSERVICESK9-M), Version 15.1(4)M2, RELEASE SOFTWARE (fc1)
+Fingerprint Cisco 870, 2821, 6506, or 7206VXR router (IOS 12.2 - 15.1)
 Class Cisco | IOS | 12.X | router
+CPE cpe:/h:cisco:870_router
 CPE cpe:/h:cisco:2821_router
 CPE cpe:/h:cisco:6506_router
 CPE cpe:/h:cisco:7206vxr_router
-CPE cpe:/o:cisco:ios:12.2
+CPE cpe:/o:cisco:ios:12
+CPE cpe:/o:cisco:ios:15
 SEQ(SP=F5-109%GCD=1-6%ISR=FD-10F%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -13112,10 +13223,12 @@ U1(DF=N%T=3B-45%TG=40%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Cisco RV042 Router
+# Cisco RV042 with firmware v4.0.4.02-tm (Jul 4 2011 13:30:56)
 Fingerprint Cisco RV042 WAP (Linux 2.6)
 Class Cisco | Linux | 2.6.X | WAP
+CPE cpe:/h:cisco:rv042
 CPE cpe:/o:cisco:linux:2.6 auto
-SEQ(SP=C2-CC%GCD=1-6%ISR=C7-D1%TI=Z%CI=Z%II=I%TS=A)
+SEQ(SP=C2-D0%GCD=1-6%ISR=C7-D5%TI=Z%CI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW2%O2=M5B4ST11NW2%O3=M5B4NNT11NW2%O4=M5B4ST11NW2%O5=M5B4ST11NW2%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW2%CC=N)
@@ -15642,12 +15755,9 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Dell MFP Laser 3115cn, Firmware Version 200809190845
 # Enterasys Networks, Inc. A2H124-24 Rev 02.01.03.0005
 # VxWorks? --Ed.
-Fingerprint Dell 3115cn printer, Enterasys switch, HP Integrity iLO 2 remote management interface, Mitel 3300 PBX controller, or Nortel 5520 switch
-Class Dell | embedded || printer
-Class Enterasys | embedded || switch
-Class HP | iLO || remote management
-CPE cpe:/o:hp:ilo auto
-Class Mitel | embedded || PBX
+Fingerprint VxWorks
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=93-9D%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=O|S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -16096,10 +16206,11 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # SG300-10 10 Port Gigabit PoE Managed Switch Firmware Ver. 1.1.1.8
+# Cisco SG 300
 Fingerprint Cisco SG 300-10 switch
 Class Cisco | embedded || switch
 CPE cpe:/h:cisco:sg_300-10
-SEQ(SP=F6-100%GCD=1-6%ISR=10C-116%TI=RD%CI=RD|RI%II=RI%TS=U)
+SEQ(SP=F6-10C%GCD=1-6%ISR=104-116%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M596%O2=M596%O3=M596%O4=M596%O5=M596%O6=M596)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
 ECN(R=Y%DF=N%T=3B-45%TG=40%W=1000%O=M596%CC=N)
@@ -17067,10 +17178,15 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Enterasys C3G124-24
 # netgear GSM7358Sv2 ethernet switch
-Fingerprint Enterasys C3 C3G124 or Netgear GSM7328Sv2 switch
+# PowerConnect 6248
+Fingerprint Dell PowerConnect 6248, Enterasys C3 C3G124 or Netgear GSM7328Sv2 switch
 Class Enterasys | embedded || switch
+CPE cpe:/h:enterasys:c3_c3g124
 Class Netgear | embedded || switch
-SEQ(SP=0-13B%GCD=1-6|FA01|1F402|2EE03|3E804|4E205%ISR=95-A3%TI=I%CI=I%II=I%SS=S%TS=U)
+CPE cpe:/h:netgear:gsm7328sv2
+Class Dell | embedded || switch
+CPE cpe:/h:dell:powerconnect_6248
+SEQ(SP=0-13B%GCD=1-7|FA01|1F402|2EE03|3E804|4E205%ISR=95-A3%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=NNM5B4SNW0%O2=NNM5B4SNW0%O3=M5B4NW0%O4=NNM5B4SNW0%O5=NNM5B4SNW0%O6=NNM5B4S)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
 ECN(R=Y%DF=N%T=3B-45%TG=40%W=1000%O=NNM5B4SNW0%CC=N%Q=)
@@ -17123,9 +17239,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # It's an Enterasys E1 router switch Matrix 1G587-09
 # Enterasys E1 1H582-51  Rev 03.07.31 0000 08/21/2008--17:21 ofc
-Fingerprint Enterasys Matrix E1 switch
+Fingerprint Enterasys Matrix E1 switch (VxWorks)
 Class Enterasys | embedded || switch
 CPE cpe:/h:enterasys:matrix_e1 auto
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=93-9F%GCD=1-6%ISR=9C-A6%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -19928,9 +20046,9 @@ CPE cpe:/o:freebsd:freebsd:7 auto
 Class FreeBSD | FreeBSD | 8.X | general purpose
 CPE cpe:/o:freebsd:freebsd:8 auto
 SEQ(SP=E7-113%GCD=1-6%ISR=FF-117%TI=I%CI=I%II=I%SS=S%TS=20|21|22)
-OPS(O1=M5B4NW3ST11%O2=M578NW3ST11%O3=M280NW3NNT11%O4=M5B4NW3ST11%O5=M218NW3ST11%O6=M109ST11)
-WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW3SLL%CC=N%Q=)
+OPS(O1=M5B4NW3ST11|M5B4NW6ST11%O2=M578NW3ST11|M578NW6ST11%O3=M280NW3NNT11|M280NW6NNT11%O4=M5B4NW3ST11|M5B4NW6ST11%O5=M218NW3ST11|M218NW6ST11%O6=M109ST11)
+WIN(W1=FFFF%W2=FFFF%W3|W6=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW3SLL|M5B4NW6SLL%CC=N%Q=)
 T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
 T2(R=N)
 T3(R=N)
@@ -21118,6 +21236,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Railswitch Release L2E-03\.0\.01
 Fingerprint Hirschmann L2E Rail switch
 Class Hirschmann | embedded || switch
+CPE cpe:/h:hirschmann:l2e auto
 SEQ(SP=7E-88%GCD=1-6%ISR=96-A0%TI=I%CI=I%TS=3)
 OPS(R=N)
 WIN(R=N)
@@ -21135,6 +21254,7 @@ IE(R=N)
 # RS2 16M 2MM SC, SW Version 9.03 May 25 2005 11:15:10
 Fingerprint Hirschmann RS2-16M 2MM SC switch
 Class Hirschmann | embedded || switch
+CPE cpe:/h:hirschmann:rs2-16m auto
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -21150,9 +21270,11 @@ U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=S)
 
 # Hirshcmann RS20-0800T1T1SDAEHH03.0.01
-Fingerprint Hirschmann RS20 switch
+Fingerprint Hirschmann RS20 switch (VxWorks)
 Class Hirschmann | embedded || switch
 CPE cpe:/h:hirschmann:rs20 auto
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=9D-A7%GCD=1-6%ISR=9E-A8%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -21365,7 +21487,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP Jetdirect that resides in a HP Laserjet 2200dn.
 Fingerprint HP LaserJet 2200DN printer
-Class HP | embedded || print server
+Class HP | embedded || printer
 CPE cpe:/h:hp:laserjet_2200dn auto
 SEQ(SP=77-85%GCD=1-6%ISR=97-A1%TI=I%II=I%SS=S)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -21701,6 +21823,24 @@ T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=FA-104%TG=FF%CD=S)
+
+# HP LaserJet Professional P1606dn
+Fingerprint HP LaserJet P1606dn printer
+Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_p1606dn
+SEQ(SP=B0-BA%GCD=1-6%ISR=AC-B6%TS=A)
+OPS(O1=M5B4NNSNNT11%O2=M578NNSNNT11%O3=M280NNT11%O4=M5B4NNSNNT11%O5=M218NNSNNT11%O6=M109NNSNNT11)
+WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=2238%O=M5B4NNS%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=N)
 U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
@@ -23016,9 +23156,9 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # hp MSA2324sa (msa2000 series). http-server identifies itself as "WindRiver-WebServer/4.4".
-Fingerprint HP MSA2324sa NAS device
-Class HP | embedded || storage-misc
-CPE cpe:/h:hp:msa2324sa auto
+Fingerprint VxWorks
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=96-A0%GCD=1-6%ISR=9C-A6%TI=I%CI=I%II=I%SS=O|S%TS=1|3)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -23613,6 +23753,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # HP 5406-zl switch: Oct 20 2010 16:19:41 K.15.02.0005
 # HP Switch E3500yl-48G(J8693A) K.15.06.0006, ROM K.15.19
+# HP Switch software version K.15.03.0007
 Fingerprint HP E3500yl or ProCurve 5406zl switch
 Class HP | embedded || switch
 CPE cpe:/h:hp:switch_e3500yl
@@ -23680,9 +23821,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Thomson VoIP phone  ST2030
 # ProCurve J8164A Switch 2626-PWR, Software revision H.10.38
 # Thomson ST 2022 VoIP phone
-Fingerprint HP ProCurve switch (2500-, 2600-, 2800-, or 5300xl-series), or Thomson ST 2020 or 2030 VoIP phone
-Class HP | embedded || switch
-Class Thomson | embedded || VoIP phone
+Fingerprint VxWorks
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=95-A1%GCD=1-6%ISR=9B-A6%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -25728,7 +25869,7 @@ Class IBM | AIX | 5.X | general purpose
 CPE cpe:/o:ibm:aix:5 auto
 Class IBM | AIX | 6.X | general purpose
 CPE cpe:/o:ibm:aix:6 auto
-SEQ(SP=F7-109%GCD=1-6%ISR=100-10F%TI=I%CI=I%II=I%SS=S%TS=U)
+SEQ(SP=F7-109%GCD=1-6%ISR=100-10F%TI=I%CI=I%II=I%SS=O|S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-3D%TG=40%W=FFFF%O=M5B4%CC=N%Q=)
@@ -26072,6 +26213,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint IBM DS4800 NAS device or TP-Link TL-WA5200G WAP
 Class IBM | embedded || storage-misc
 Class TP-Link | embedded || WAP
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=94-9E%GCD=1-6%ISR=9A-A4%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -26596,6 +26739,24 @@ T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=S%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# version 1.12
+Fingerprint IBM z/OS 1.12
+Class IBM | z/OS | 1.12.X | general purpose
+CPE cpe:/o:ibm:zos:1.12 auto
+SEQ(SP=FF-109%GCD=1-6%ISR=102-10C%TS=A)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
+ECN(R=Y%DF=N%T=3C-46%TG=40%W=8000%O=M5B4NW0%CC=N)
+T1(R=Y%DF=N%T=3C-46%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=Y%DF=N%T=3C-46%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+T3(R=Y%DF=N%T=3C-46%TG=40%W=8000%S=O%A=S+%F=AS%O=M5B4NW0NNT11%RD=0)
+T4(R=Y%DF=N%T=3C-46%TG=40%W=0%S=A%A=S%F=R%RD=0)
+T5(R=Y%DF=N%T=3C-46%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3C-46%TG=40%W=0%S=A%A=S%F=R%RD=0)
+T7(R=Y%DF=N%T=3C-46%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3C-46%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3C-46%TG=40%CD=S)
 
 # IBM z/OS 1.4.2
 Fingerprint IBM z/OS 1.4.2
@@ -28074,9 +28235,11 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # KONICA MINOLTA magicolor 2430 DL
-Fingerprint Konica Minolta MagiColor 2430 printer
+Fingerprint Konica Minolta MagiColor 2430 printer (VxWorks)
 Class Konica Minolta | embedded || printer
 CPE cpe:/h:konicaminolta:magicolor_2430 auto
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=96-A0%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=S%TS=1|2)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=1%W2=1%W3=1%W4=1%W5=1%W6=1)
@@ -29625,6 +29788,25 @@ T4(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=A%A=Z%F=RF%O=%RD=0%Q=)
 T5(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=Z%A=S+%F=ARF%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=A%A=Z%F=RF%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=Z%A=S%F=ARF%O=%RD=0%Q=)
+U1(DF=N%T=F5-FF%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=F5-FF%TG=FF%CD=S)
+
+# Linksys SPA-3102 Software Version: 3.3.6(GW)
+Fingerprint Linksys SPA3102 VoIP adapter
+Class Linksys | embedded || VoIP adapter
+CPE cpe:/h:linksys:spa3102_voice_gateway_with_router:-
+CPE cpe:/o:linksys:spa3102_voice_gateway_with_router_firmware
+SEQ(SP=F8-10A%GCD=1-6%ISR=106-110%TI=I%CI=I%II=I%SS=S%TS=U)
+OPS(O1=M5A8%O2=M5A8%O3=M5A8%O4=M5A8%O5=M5A8%O6=M5A8)
+WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
+ECN(R=Y%DF=N%T=F5-FF%TG=FF%W=3E80%O=M5A8%CC=N)
+T1(R=Y%DF=N%T=F5-FF%TG=FF%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=A%A=Z%F=RF%RD=0)
+T5(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=Z%A=S+%F=ARF%RD=0)
+T6(R=Y%DF=N%T=F5-FF%TG=FF%W=0%S=A%A=Z%F=RF%RD=0)
+T7(R=N)
 U1(DF=N%T=F5-FF%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 
@@ -31690,10 +31872,11 @@ U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linux 2.6.34.7-svn15501 #1512 Tue Nov 9 10:23:43 CET 2010 mips unknown
+# DD-WRT running on a Buffalo router.
 Fingerprint DD-WRT (Linux 2.6.34)
 Class Linux | Linux | 2.6.X | broadband router
 CPE cpe:/o:linux:linux_kernel:2.6 auto
-SEQ(SP=C8-D2%GCD=1-6%ISR=C7-D1%TI=Z%CI=Z%II=I%TS=7)
+SEQ(SP=C8-D2%GCD=1-6%ISR=C7-D5%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW1%CC=Y%Q=)
@@ -31729,10 +31912,11 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # OpenWRT /trunk/ svn tree (r28458), Linux 2.6.39.4 #1 Sat Oct 15 19:14:17 EDT 2011 mips GNU/Linux
 # Linux 2.6.39.4 mips GNU/Linux, OpenWrt ar71xx trunk r29704
+# Open WRT ATTITUDE ADJUSTMENT (bleeding edge, r29839)
 Fingerprint OpenWRT (Linux 2.6.39)
 Class Linux | Linux | 2.6.X | broadband router
 CPE cpe:/o:linux:linux_kernel:2.6 auto
-SEQ(SP=C3-CD%GCD=1-6%ISR=C9-D3%TI=Z%CI=Z%II=I%TS=U)
+SEQ(SP=C3-CD%GCD=1-6%ISR=C7-D3%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW1|M5B4NNSNW2%O2=M5B4NNSNW1|M5B4NNSNW2%O3=M5B4NW1|M5B4NW2%O4=M5B4NNSNW1|M5B4NNSNW2%O5=M5B4NNSNW1|M5B4NNSNW2%O6=M5B4NNS)
 WIN(W1=3908%W2=3908%W3=3908%W4=3908%W5=3908%W6=3908)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=3908%O=M5B4NNSNW1|M5B4NNSNW2%CC=N)
@@ -31765,10 +31949,11 @@ U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linux 2.6.37.1 #1 Tue Mar 1 13:20:43 CET 2011 mips GNU/Linux, netgear wndr3700 v2 router running openwrt 10.03 backfire
-Fingerprint OpenWrt Backfire 10.03 (Linux 2.6.32)
+# Linux OpenWrt 2.6.37.6 #4 Thu Apr 5 22:16:48 CEST 2012 mips GNU/Linux  Openwrt/Attitude Adjustment(trunk)
+Fingerprint OpenWrt Backfire 10.03 (Linux 2.6.32 - 2.6.37)
 Class Linux | Linux | 2.6.X | broadband router
 CPE cpe:/o:linux:linux_kernel:2.6 auto
-SEQ(SP=C4-CE%GCD=1-6%ISR=CB-D5%TI=Z%CI=Z%II=I%TS=U)
+SEQ(SP=C4-CE%GCD=1-6%ISR=C1-D5%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW1%O2=M5B4NNSNW1%O3=M5B4NW1%O4=M5B4NNSNW1%O5=M5B4NNSNW1%O6=M5B4NNS)
 WIN(W1=111C%W2=111C%W3=111C%W4=111C%W5=111C%W6=111C)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=111C%O=M5B4NNSNW1%CC=N%Q=)
@@ -35012,10 +35197,12 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux 2.6.22.1 #9 Mon Sep 3 18:59:04 MST 2007 mips unknown (Actiontec GT701 ADSL modem running the ARM port of OpenWRT Kamikaze version 7.07)
 # Linux 2.6.22-14-generic #1 SMP Tue Dec 18 05:28:27 UTC 2007 x86_64 GNU/Linux Ubuntu 7.10
 # Linux sheeva 2.6.22.18 #1 Thu Mar 19 14:46:22 IST 2009 armv5tejl GNU/Linux (Marvell SheevaPlug running stock Ubuntu)
-Fingerprint Linux 2.6.22
+# Linux 2.6.18-308.1.1.el5 #1 SMP Wed Mar 7 04:16:51 EST 2012 x86_64 x86_64 x86_64 GNU/Linux
+# Linux 2.6.32.54-0.3-default #1 SMP 2012-01-27 17:38:56 +0100 x86_64 x86_64 x86_64 GNU/Linux / SLES 11 sp1
+Fingerprint Linux 2.6.18 - 2.6.32
 Class Linux | Linux | 2.6.X | general purpose
-CPE cpe:/o:linux:linux_kernel:2.6.22
-SEQ(SP=B2-100%GCD=1-6%ISR=EA-FE%TI=Z%II=I%TS=U)
+CPE cpe:/o:linux:linux_kernel:2.6
+SEQ(SP=B2-110%GCD=1-6%ISR=EA-114%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW1|M5B4NNSNW5|M5B4NNSNW7%O2=M5B4NNSNW1|M5B4NNSNW5|M5B4NNSNW7%O3=M5B4NW1|M5B4NW5|M5B4NW7%O4=M5B4NNSNW1|M5B4NNSNW5|M5B4NNSNW7%O5=M5B4NNSNW1|M5B4NNSNW5|M5B4NNSNW7%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW1|M5B4NNSNW5|M5B4NNSNW7%CC=N%Q=)
@@ -35487,7 +35674,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint Linux 2.6.22 (embedded, ARM)
 Class Linux | Linux | 2.6.X | general purpose
 CPE cpe:/o:linux:linux_kernel:2.6.22
-SEQ(SP=C4-126%GCD=1-6%ISR=E8-100%TI=Z%CI=Z%II=I%TS=7)
+SEQ(SP=C4-126%GCD=1-6%ISR=DE-100%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW2|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6%O2=M5B4ST11NW2|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6%O3=M5B4NNT11NW2|M5B4NNT11NW4|M5B4NNT11NW5|M5B4NNT11NW6%O4=M5B4ST11NW2|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6%O5=M5B4ST11NW2|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW2|M5B4NNSNW4|M5B4NNSNW5|M5B4NNSNW6%CC=N%Q=)
@@ -39612,7 +39799,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint Linux 2.6.36 - 2.6.37
 Class Linux | Linux | 2.6.X | general purpose
 CPE cpe:/o:linux:linux_kernel:2.6 auto
-SEQ(SP=BC-CE%GCD=1-6%ISR=BB-D7%TI=Z%CI=Z%II=I%TS=7|8)
+SEQ(SP=BC-D0%GCD=1-6%ISR=BB-D7%TI=Z%CI=Z%II=I%TS=7|8)
 OPS(O1=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O2=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O3=M5B4NNT11NW2|M5B4NNT11NW3|M5B4NNT11NW4|M5B4NNT11NW5|M5B4NNT11NW6|M5B4NNT11NW7|M5B4NNT11NW8|M5B4NNT11NW9%O4=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O5=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O6=M5B4ST11)
 WIN(W1=10F8%W2=10F8%W3=10F8%W4=10F8%W5=10F8%W6=10F8)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=111C%O=M5B4NNSNW2|M5B4NNSNW3|M5B4NNSNW4|M5B4NNSNW5|M5B4NNSNW6|M5B4NNSNW7|M5B4NNSNW8|M5B4NNSNW9%CC=Y%Q=)
@@ -40124,7 +40311,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint Linux 2.6.38 - 2.6.39
 Class Linux | Linux | 2.6.X | general purpose
 CPE cpe:/o:linux:linux_kernel:2.6 auto
-SEQ(SP=CA-D4%GCD=1-6%ISR=C7-D1%TI=Z%CI=Z%II=I%TS=8)
+SEQ(SP=C8-D4%GCD=1-6%ISR=C7-D3%TI=Z%CI=Z%II=I%TS=8|A)
 OPS(O1=M558ST11NW4|M558ST11NW5|M558ST11NW6|M558ST11NW7%O2=M558ST11NW4|M558ST11NW5|M558ST11NW6|M558ST11NW7%O3=M558NNT11NW4|M558NNT11NW5|M558NNT11NW6|M558NNT11NW7%O4=M558ST11NW4|M558ST11NW5|M558ST11NW6|M558ST11NW7%O5=M558ST11NW4|M558ST11NW5|M558ST11NW6|M558ST11NW7%O6=M558ST11)
 WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=3908%O=M558NNSNW4|M558NNSNW5|M558NNSNW6|M558NNSNW7%CC=Y)
@@ -41918,6 +42105,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # FRITZ!Box Fon WLAN 7170 (UI) Firmware-Version 29.04.87
 Fingerprint AVM FRITZ!Box FON WLAN 7170 WAP (Linux 2.6)
 Class Linux | Linux | 2.6.X | WAP
+CPE cpe:/h:avm:fritz%21box_fon_wlan_7170
 CPE cpe:/o:linux:linux_kernel:2.6
 SEQ(SP=C7-D1%GCD=1-6%ISR=CF-D9%TI=Z%II=RI%TS=7)
 OPS(O1=M5ACST11NW1%O2=M5ACST11NW1%O3=M5ACNNT11NW1%O4=M5ACST11NW1%O5=M5ACST11NW1%O6=M5ACST11)
@@ -41936,6 +42124,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Linux fritz.fonwlan.box 2.6.13.1-ohio #1 Wed Jan 27 13:20:43 CET 2010 mips unknown, AVM FRITZ!Box WLAN 7170 29.04.80 (Jan 27 2010) - LAN
 Fingerprint AVM FRITZ!Box FON WLAN 7170 WAP (Linux 2.6.13)
 Class Linux | Linux | 2.6.X | WAP
+CPE cpe:/h:avm:fritz%21box_fon_wlan_7170
 CPE cpe:/o:linux:linux_kernel:2.6.13
 SEQ(SP=C5-CF%GCD=1-6%ISR=CF-D9%TI=Z%CI=RD|RI%II=RI%TS=7|9|A)
 OPS(O1=M5ACST11NW1%O2=M5ACST11NW1%O3=M5ACNNT11NW1%O4=M5ACST11NW1%O5=M5ACST11NW1%O6=M5ACST11)
@@ -42219,7 +42408,26 @@ T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
 U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
+# Linux OpenWrt 3.3.6
+Fingerprint OpenWRT (Linux 3.3)
+Class Linux | Linux | 3.X | broadband router
+CPE cpe:/o:linux:linux_kernel:3 auto
+SEQ(SP=FA-104%GCD=1-6%ISR=101-10B%TI=Z%CI=Z%II=I%TS=U)
+OPS(O1=M400CNNSNW4%O2=M400CNNSNW4%O3=M400CNW4%O4=M400CNNSNW4%O5=M400CNNSNW4%O6=M400CNNS)
+WIN(W1=8018%W2=8018%W3=8018%W4=8018%W5=8018%W6=8018)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=8018%O=M400CNNSNW4%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
 # Linux 3.2.5 mips GNU/Linux, OpenWrt ar71xx trunk r30513
+# Ethernet for Mark IV hak5.org Wifi Pineapple, a customized AP from ALFA, running Jasager on OpenWRT (modifications and tweaks made to the stock OpenWRT to make it a Jasager/Pineapple) version 2
 Fingerprint OpenWRT (Linux 3.2)
 Class Linux | Linux | 3.X | broadband router
 CPE cpe:/o:linux:linux_kernel:3 auto
@@ -42329,7 +42537,8 @@ U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(R=N)
 
 # Fedora 15 Linux 2.6.40.6-0.fc15.x86_64 #1 SMP Tue Oct 4 00:39:50 UTC 2011 x86_64 x86_64 x86_64 GNU/Linux
-Fingerprint Linux 3.0
+# Linux 3.2.12-gentoo #4 SMP Sun May 6 13:29:44 MDT 2012 x86_64 Intel(R) Core(TM) i5-2540M CPU @ 2.60GHz GenuineIntel GNU/Linux
+Fingerprint Linux 3.0 - 3.2
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
 SEQ(SP=FC-10A%GCD=1-6%ISR=101-10B%TI=Z%CI=Z%II=I%TS=A)
@@ -44299,7 +44508,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 Fingerprint Microsoft Windows 2000 SP4
 Class Microsoft | Windows | 2000 | general purpose
 CPE cpe:/o:microsoft:windows_2000::sp4
-SEQ(SP=85-8F%GCD=1-6%ISR=97-A1%TI=I%CI=I%II=I%SS=S%TS=0)
+SEQ(SP=75-8F%GCD=1-6%ISR=97-A1%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=N%T=7B-85%TG=80%W=0%O=%CC=N%Q=)
@@ -45477,7 +45686,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
 CPE cpe:/o:microsoft:windows_server_2003::sp2
-SEQ(SP=FA-10C%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=0)
+SEQ(SP=FA-10C%GCD=1-6%ISR=104-112%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M550NW0NNT00NNS%O2=M550NW0NNT00NNS%O3=M550NW0NNT00%O4=M550NW0NNT00NNS%O5=M550NW0NNT00NNS%O6=M550NNT00NNS)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
 ECN(R=Y%DF=N%T=7B-85%TG=80%W=4000%O=M550NW0NNS%CC=N%Q=)
@@ -46218,10 +46427,12 @@ U1(DF=N%T=3B-45%TG=40%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=Z)
 
 # Version 5.2 (Build 3790.srv03_sp2_gdr.100216-1301 : Service Pack 2)
+# Version 5.2 R2 (Build 3790.srv03_sp2_gdr.120411-0334 : Service Pack 2)
+# Windows XP 64bit edition
 Fingerprint Microsoft Windows Server 2003 SP2
 Class Microsoft | Windows | 2003 | general purpose
 CPE cpe:/o:microsoft:windows_server_2003::sp2
-SEQ(SP=102-10C%GCD=1-6%ISR=101-10B%TI=I|RD%CI=I%II=I%SS=S%TS=0)
+SEQ(SP=FE-10C%GCD=1-6%ISR=101-10B%TI=I|RD%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=N%T=7B-85%TG=80%W=FFFF%O=M5B4NW0NNS%CC=N%Q=)
@@ -46995,8 +47206,10 @@ U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=Z)
 
 # Microsoft Windows Server Version 6.0 (Build: 6002 Service pack 2)
-Fingerprint Microsoft Windows Server 2008 SP2
+# windows 7, ver 6.1 build 7601 sp1
+Fingerprint Microsoft Windows 7 SP1 or Windows Server 2008 SP2
 Class Microsoft | Windows | 2008 | general purpose
+CPE cpe:/o:microsoft:windows_7::sp1
 CPE cpe:/o:microsoft:windows_server_2008::sp2
 SEQ(SP=102-10C%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4ST11%O2=M5B4ST11%O3=M5B4NNT11%O4=M5B4ST11%O5=M5B4ST11%O6=M5B4ST11)
@@ -47017,7 +47230,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 Fingerprint Microsoft Windows Server 2008 SP2
 Class Microsoft | Windows | 2008 | general purpose
 CPE cpe:/o:microsoft:windows_server_2008::sp2
-SEQ(SP=F3-103%GCD=1-6%ISR=10B-115%TI=RD|RI%CI=RD|RI%II=RI%SS=S%TS=7)
+SEQ(SP=F3-103%GCD=1-6%ISR=FF-115%TI=RD|RI%CI=RD|RI%II=RI%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
 ECN(R=Y%DF=Y%T=7B-85%TG=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)
@@ -55743,9 +55956,11 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Netgear GSM7224 switch, firmware version 6.2.0.14
-Fingerprint Netgear GSM7224 switch
+Fingerprint Netgear GSM7224 switch (VxWorks)
 Class Netgear | embedded || switch
 CPE cpe:/h:netgear:gsm7224 auto
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=96-A0%GCD=1-6%ISR=9C-A6%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -56857,7 +57072,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Sprint branded, Novatel MiFi 2200. WiFi to 3G modem. AP 11.43.7, Router 012, Modem 133
 # Novatel Wireless MiFi2200 VZW Version: AP: 11.43.2
-Fingerprint Novatel MiFi 2200 3G WAP
+# iDirect X1 modem running iDS 13.0.0.0 / iDX 3.1.0.0, on embedded MicroC OS.
+Fingerprint Novatel MiFi 2200 3G WAP or iDirect Evolution X1 satellite router
+Class iDirect | embedded || WAP
 Class Novatel | embedded || WAP
 SEQ(SP=C1-EB%GCD=1-6%ISR=D9-E9%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
@@ -58320,7 +58537,8 @@ IE(R=N)
 # OpenBSD 4.9 GENERIC.MP#794 i386
 # OpenBSD 5.0 GENERIC#53 amd64
 # OpenBSD 4.9 i386, GeNUGate 7.1 Patchlevel 0
-Fingerprint OpenBSD 4.9 - 5.0
+# OpenBSD 5.1 guest on VMware Workstation 7.1.5
+Fingerprint OpenBSD 4.9 - 5.1
 Class OpenBSD | OpenBSD | 4.X | general purpose
 CPE cpe:/o:openbsd:openbsd:4
 Class OpenBSD | OpenBSD | 5.X | general purpose
@@ -60256,8 +60474,10 @@ U1(DF=N%T=6D-77%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=83F6%RUD=G)
 IE(DFI=N%T=6D-77%TG=80%CD=Z)
 
 # Ricoh Aficio SP C311N
-Fingerprint Ricoh Aficio SP C311N printer
+Fingerprint Ricoh Aficio SP C311N printer (VxWorks)
 Class Ricoh | embedded || printer
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=94-9E%GCD=1-6%ISR=9A-A4%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -63076,6 +63296,7 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 # Sony PlayStation 2 game console
 Fingerprint Sony PlayStation 2 game console
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_2
 SEQ(SP=12-40%GCD=1-6%ISR=5F-8B%TI=I%CI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -63093,6 +63314,7 @@ IE(DFI=S%T=20-3A%TG=40%CD=S)
 # this is the ps2 linux kit cony released, 2.2.1(ps2-linux)
 Fingerprint Sony PlayStation 2 game console test kit 2.2.1
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_2
 SEQ(SP=BA-C4%GCD=1-6%ISR=CA-D4%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4ST10NW0%O2=M578ST10NW0%O3=M280NNT10NW0%O4=M218ST10NW0%O5=M218ST10NW0%O6=M109ST10)
 WIN(W1=7D78%W2=7DC8%W3=7F80%W4=7FB8%W5=7FB8%W6=7F53)
@@ -63110,6 +63332,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Sony PlayStation 3
 Fingerprint Sony PlayStation 3 game console
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_3
 SEQ(SP=F7-101%GCD=1-6%ISR=FC-106%TI=RD%TS=21)
 OPS(O1=M5B4NNSNW1NNT11%O2=M5B4NNSNW1NNT11%O3=M5B4NW1NNT11%O4=M5B4NNSNW1NNT11%O5=M5B4NNSNW1NNT11%O6=M5B4NNSNNT11)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -63127,6 +63350,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Jailbroken PS3 With firmware 3.31
 Fingerprint Sony PlayStation 3 game console
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_3
 SEQ(CI=RD%II=RI)
 OPS(R=N)
 WIN(R=N)
@@ -63144,6 +63368,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Playstation 3 version 3.55
 Fingerprint Sony PlayStation 3 game console
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_3
 SEQ(SP=D4-DE%GCD=1-6%ISR=DA-E4%TI=RD%CI=RD|RI%II=RI%TS=0)
 OPS(O1=M5B4NW0NNT01SNN%O2=M5B4NW0NNT01SNN%O3=M5B4NW0NNT01%O4=M5B4NW0NNT01SNN%O5=M5B4NW0NNT01SNN%O6=M5B4NNT01SNN)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -63161,6 +63386,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Sony PS3 Test Kit
 Fingerprint Sony PlayStation 3 game console test kit
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_3
 SEQ(SP=D2-DC%GCD=1-6%ISR=DA-E4%TI=RD%II=RI%TS=0)
 OPS(O1=M5B4NW0NNT01%O2=M5B4NW0NNT01%O3=M5B4NW0NNT01%O4=M5B4NW0NNT01%O5=M5B4NW0NNT01%O6=M5B4NNT01)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -63180,6 +63406,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Sony PSP, 5.50 GEN-D (Full), hacked version of the m33 (Dark-Alex) firmware, running PSP FTPd
 Fingerprint Sony PSP game console (modified, running Custom Firmware 3.90 - 5.50)
 Class Sony | embedded || game console
+CPE cpe:/h:sony:playstation_portable
 SEQ(SP=C9-D9%GCD=1-6%ISR=D8-E2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -63199,6 +63426,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Sony BDP-S570
 Fingerprint Sony BDP-S370 or BDP-S570 Blu-ray player
 Class Sony | embedded || media device
+CPE cpe:/h:sony:bdp-s370
+CPE cpe:/h:sony:bdp-s570
 SEQ(SP=84-9E%GCD=1-6%ISR=94-9E%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0NNS%O2=M578NW0NNS%O3=M280NW0%O4=M218NW0NNS%O5=M218NW0NNS%O6=M109NNS)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -63214,8 +63443,9 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=Z)
 
 # Sony Bravia BE2 LCD TV (KDL-40X4500)
-Fingerprint Sony Bravia BE2 LCD TV
+Fingerprint Sony Bravia KDL-40X4500 TV
 Class Sony | embedded || media device
+CPE cpe:/h:sony:bravia_kdl-40x4500
 SEQ(SP=CA-D6%GCD=1-6%ISR=D6-E0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -63233,6 +63463,7 @@ IE(DFI=N%T=72%TG=80%CD=Z)
 # Bravia KDL-32V5500 TV
 Fingerprint Sony Bravia KDL-32V5500 TV
 Class Sony | embedded || media device
+CPE cpe:/h:sony:bravia_kdl-32v5500
 SEQ(SP=C8-D2%GCD=1-6%ISR=D5-DF%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -63250,6 +63481,7 @@ IE(DFI=N%T=6A-74%TG=80%CD=Z)
 # Sony Bravia 52" LCD-TV KDL-52W5500
 Fingerprint Sony Bravia KDL-32W5500 TV
 Class Sony | embedded || media device
+CPE cpe:/h:sony:bravia_kdl-32w5500
 SEQ(SP=CA-D4%GCD=4|8|C|10|14%ISR=D7-E1%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -63264,8 +63496,26 @@ T7(R=Y%DF=N%T=6D-77%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=6D-77%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=1550%RUD=G)
 IE(DFI=N%T=6D-77%TG=80%CD=Z)
 
+# DLNA on Sony BRAVIA KDL-32W5500 TV set
+Fingerprint Sony Bravia KDL-32W5500 TV
+Class Sony | embedded || media device
+CPE cpe:/h:sony:bravia_kdl-32w5500
+SEQ(SP=CC-D6%GCD=1-6%ISR=D3-DD%TI=I%CI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B4W3L%O2=M5B4W3L%O3=M5B4W3L%O4=M5B4W3L%O5=M5B4W3L%O6=M5B4)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=71-7B%TG=80%W=FFFF%O=M5B4W3L%CC=N)
+T1(R=Y%DF=Y%T=71-7B%TG=80%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=71-7B%TG=80%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=71-7B%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=71-7B%TG=80%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=71-7B%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=71-7B%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=84FB%RUD=G)
+IE(DFI=N%T=71-7B%TG=80%CD=Z)
+
 # Television Sony Bravia embedded OS (Applicast enabled), port 52323: Server: RTOS/1.0 UPnP/1.0 KDL-32W5500/1.7
-Fingerprint Sony Bravia LCD TV
+Fingerprint Sony Bravia KDL-32W550 TV
 Class Sony | embedded || media device
 SEQ(SP=CD-D7%GCD=1-6%ISR=D5-DF%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W3L%O2=M5B4W3L%O3=M5B4W3L%O4=M5B4W3L%O5=M5B4W3L%O6=M5B4)
@@ -63284,6 +63534,7 @@ IE(DFI=N%T=75-7F%TG=80%CD=Z)
 # FWD-40LX2F, embedded card inside a LCD/Projector/etc. Used as a part of sonys embedded signage system called Zirius.
 Fingerprint Sony FWD-40LX2F display card
 Class Sony | embedded || specialized
+CPE cpe:/h:sony:fwd-40lx2f
 SEQ(SP=C9-D3%GCD=1-6%ISR=D7-E1%TI=I%II=I%SS=O|S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -63301,6 +63552,7 @@ IE(DFI=N%T=73-7D%TG=80%CD=Z)
 # This is a Sony PCS-TL30 Video Conferencing Unit
 Fingerprint Sony PCS-TL30 video conferencing system
 Class Sony | embedded || webcam
+CPE cpe:/h:sony:pcs-tl30
 SEQ(SP=0-5%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9C-A6%TI=I%II=I%SS=O|S%TS=U)
 OPS(O1=|M5B4NW4%O2=|M578NW4%O3=|M280NW4%O4=|M5B4NW4%O5=%O6=)
 WIN(W1=8052|FFFF%W2=802C|FFFF%W3=8020|FFFF%W4=8052|FFFF%W5=0%W6=0)
@@ -67135,19 +67387,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Philips SOPHO iS3000 PBX system
 # [Sun ALOM is VxWorks for sure. --Ed.]
 Fingerprint VxWorks
-Class Wind River | VxWorks || printer
-CPE cpe:/o:windriver:vxworks auto
-Class Wind River | VxWorks || WAP
-CPE cpe:/o:windriver:vxworks auto
-Class Wind River | VxWorks || storage-misc
-CPE cpe:/o:windriver:vxworks auto
-Class Wind River | VxWorks || VoIP phone
-CPE cpe:/o:windriver:vxworks auto
-Class Wind River | VxWorks || media device
-CPE cpe:/o:windriver:vxworks auto
-Class Wind River | VxWorks || remote management
-CPE cpe:/o:windriver:vxworks auto
-Class Wind River | VxWorks || switch
+Class Wind River | VxWorks || general purpose
 CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=96-A0%GCD=1-6%ISR=9B-BF%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -68523,7 +68763,8 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=Z)
 
 # Apple iOS v. 5.0.1 (9A405)
-Fingerprint Apple iOS 5.0.1
+# Version 5.1.1
+Fingerprint Apple iOS 5.0.1 - 5.1.1
 Class Apple | iOS | 5.X | media device
 CPE cpe:/o:apple:iphone_os:5
 SEQ(SP=FF-109%GCD=1-6%ISR=FF-109%TI=RD%II=RI%TS=8|A)
@@ -69338,13 +69579,14 @@ IE(DFI=N%T=7C-86%TG=80%CD=Z)
 
 # Linux 3.3.0-rc3 #1 SMP Mon Feb 13 19:20:58 EST 2012 x86_64 Intel(R) Core(TM) i3 CPU M 350 @ 2.27GHz GenuineIntel GNU/Linux / Gentoo
 # Linux 3.3.0-4.fc16.x86_64 #1 SMP Tue Mar 20 18:05:40 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux
-Fingerprint Linux 3.3
+# Linux 3.4.0-1-ARCH #1 SMP PREEMPT Mon May 21 08:46:31 UTC 2012 i686 GNU/Linu
+Fingerprint Linux 3.3 - 3.4
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
-SEQ(SP=F6-108%GCD=1-6%ISR=104-112%TI=Z%CI=Z%II=I%TS=8|A)
+SEQ(SP=F6-108%GCD=1-6%ISR=102-112%TI=Z%CI=Z%II=I%TS=8|A)
 OPS(O1=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW8|M400CST11NW9%O2=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW8|M400CST11NW9%O3=M400CNNT11NW1|M400CNNT11NW2|M400CNNT11NW3|M400CNNT11NW4|M400CNNT11NW5|M400CNNT11NW6|M400CNNT11NW7|M400CNNT11NW8|M400CNNT11NW9%O4=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW8|M400CST11NW9%O5=M400CST11NW1|M400CST11NW2|M400CST11NW3|M400CST11NW4|M400CST11NW5|M400CST11NW6|M400CST11NW7|M400CST11NW8|M400CST11NW9%O6=M400CST11)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=8018%O=M400CNNSNW1|M400CNNSNW2|M400CNNSNW3|M400CNNSNW4|M400CNNSNW5|M400CNNSNW6|M400CNNSNW7|M400CNNSNW8|M400CNNSNW9%CC=Y)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=8018%O=M400CNNSNW1|M400CNNSNW2|M400CNNSNW3|M400CNNSNW4|M400CNNSNW5|M400CNNSNW6|M400CNNSNW7|M400CNNSNW8|M400CNNSNW9%CC=N|Y)
 T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
 T2(R=N)
 T3(R=N)
@@ -69359,7 +69601,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint Linux 3.3
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
-SEQ(SP=FD-107%GCD=1-6%ISR=10A-114%TI=Z%CI=Z%II=I%TS=A)
+SEQ(SP=FB-107%GCD=1-6%ISR=104-114%TI=Z%CI=Z%II=I%TS=8|A)
 OPS(O1=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O2=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O3=M5B4NNT11NW1|M5B4NNT11NW2|M5B4NNT11NW3|M5B4NNT11NW4|M5B4NNT11NW5|M5B4NNT11NW6|M5B4NNT11NW7|M5B4NNT11NW8|M5B4NNT11NW9%O4=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O5=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O6=M5B4ST11)
 WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=3908%O=M5B4NNSNW1|M5B4NNSNW2|M5B4NNSNW3|M5B4NNSNW4|M5B4NNSNW5|M5B4NNSNW6|M5B4NNSNW7|M5B4NNSNW8|M5B4NNSNW9%CC=Y)
@@ -69987,14 +70229,15 @@ U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linux 3.0.0-17-generic #30-Ubuntu SMP Thu Mar 8 17:34:21 UTC 2012 i686 i686 i386 GNU/Linux
-Fingerprint Linux 3.0
+# Linux 3.2.0-23-generic #36-Ubuntu SMP Tue Apr 10 20:41:14 UTC 2012 i686 i686 i386 GNU/Linux
+Fingerprint Linux 3.0 - 3.2
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
 SEQ(SP=FE-108%GCD=1-6%ISR=103-10D%TI=Z%II=I%TS=8|9)
-OPS(O1=NNT11|M5B4ST11NW2%O2=NNT11|M5B4ST11NW2%O3=NNT11|M5B4NNT11NW2%O4=NNT11|M5B4ST11NW2%O5=NNT11|M5B4ST11NW2%O6=NNT11|M5B4ST11)
+OPS(O1=M5B4ST11NW2%O2=M5B4ST11NW2%O3=M5B4NNT11NW2%O4=M5B4ST11NW2%O5=M5B4ST11NW2%O6=M5B4ST11)
 WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)
-ECN(R=Y%DF=Y%T=7B-85%TG=80%W=3908%O=|M5B4NNSNW2%CC=N|Y)
-T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=O|S+%F=A|AS%RD=0)
+ECN(R=Y%DF=Y%T=7B-85%TG=80%W=3908%O=M5B4NNSNW2%CC=N|Y)
+T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0)
 T2(R=N)
 T3(R=N)
 T4(R=N)
@@ -70003,3 +70246,581 @@ T6(R=N)
 T7(R=N)
 U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=S)
+
+# LaCie 5big Network 2, firmware 2.2.3 (linux 2.6.31.14_marvell_5.0.3-2.1.8)
+Fingerprint LaCie 5big Network 2 NAS device (Linux 2.6.31)
+Class LaCie | Linux | 2.6.X | storage-misc
+CPE cpe:/o:lacie:linux_kernel:2.6
+CPE cpe:/h:lacie:5big_network_2
+SEQ(SP=C6-D0%GCD=1-6%ISR=CB-D5%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5B4ST11NW5%O2=M5B4ST11NW5%O3=M5B4NNT11NW5%O4=M5B4ST11NW5%O5=M5B4ST11NW5%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW5%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=O|S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=16A0%S=O%A=O|S+%F=AS%O=M5B4ST11NW5%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A|O%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=O|S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=O%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=O%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# OS name is "RSX-11M-PLUS"
+Fingerprint DEC RSX-11M-Plus
+Class DEC | RSX-11 | M-Plus | general purpose
+CPE cpe:/o:dec:rsx-11m-plus
+SEQ(SP=0-1D%GCD=10001|20002|30003|40004|50005%ISR=A8-B2%TI=BI%CI=BI%II=BI%SS=S%TS=U)
+OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
+WIN(W1=FDD%W2=FDD%W3=FDD%W4=FDD%W5=FDD%W6=FDD)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=FDD%O=M5B4%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+T3(R=Y%DF=N%T=3B-45%TG=40%W=FDD%S=O%A=S+%F=AS%O=M109%RD=0)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=S%F=AR%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=S%F=AR%RD=0)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=FA-104%TG=FF%CD=Z)
+
+# FreeBSD 8.0-RELEASE FreeBSD 8.0-RELEASE
+Fingerprint FreeBSD 8.0-RELEASE
+Class FreeBSD | FreeBSD | 8.X | general purpose
+CPE cpe:/o:freebsd:freebsd:8 auto
+SEQ(SP=F9-107%GCD=1-6%ISR=107-111%TI=I%II=I%SS=S%TS=21|22)
+OPS(O1=M564NW3NNT11%O2=M564NW3NNT11%O3=M280NW3NNT11%O4=M564NW3NNT11%O5=M218NW3NNT11%O6=M109NNT11)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M564NW3%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=O%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=Z)
+
+# Phone's About... box says it is S60 (a Symbian version?).
+Fingerprint Nokia S60 mobile phone (Symbian OS 9.3)
+Class Nokia | Symbian OS | 9.X | phone
+CPE cpe:/o:nokia:symbian_os:9 auto
+SEQ(SP=A9-B3%GCD=1-6%ISR=AE-B8%TI=I%CI=I%II=I%SS=S%TS=14)
+OPS(O1=M5B4NNT11NW0NNS%O2=M5B4NNT11NW0NNS%O3=M5B4NNT11NW0%O4=M5B4NNT11NW0NNS%O5=M5B4NNT11NW0NNS%O6=M5B4NNT11NNS)
+WIN(W1=BC34%W2=BC34%W3=BC34%W4=BC34%W5=BC34%W6=BC34)
+ECN(R=Y%DF=Y%T=40-4A%TG=80%W=BC34%O=M5B4NW0NNS%CC=N)
+T1(R=Y%DF=Y%T=40-4A%TG=80%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=40-4A%TG=80%W=BC34%S=O%A=O|S+%F=AS%O=M5B4NNT11NW0NNS%RD=0)
+T4(R=Y%DF=N%T=40-4A%TG=80%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=40-4A%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=40-4A%TG=80%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=40-4A%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=40-4A%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=40-4A%TG=80%CD=S)
+
+# cisco Nexus5548 Chassis ("O2 32X10GE/Modular Universal Platform Supervisor") System version: 5.1(3)N1(1)
+Fingerprint Cisco Nexus 5548P switch (NX-OS 5.1)
+Class Cisco | NX-OS | 5.X | switch
+CPE cpe:/o:cisco:nexus_5548p
+CPE cpe:/o:cisco:nx_os:5 auto
+SEQ(SP=FC-106%GCD=1-6%ISR=103-10F%TI=I%II=RI%SS=O%TS=3)
+OPS(O1=M218NNT11%O2=M218NNT11%O3=M218NNT11%O4=M218NNT11%O5=M218NNT11%O6=M109NNT11)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=FFFF%O=M218%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=N)
+T6(R=N)
+T7(R=N)
+U1(R=N)
+IE(DFI=S%T=FA-104%TG=FF%CD=S)
+
+# Linux 2.6.32-40-server #87-Ubuntu SMP Tue Mar 6 02:10:02 UTC 2012 x86_64 GNU/Linux
+Fingerprint Linux 2.6.32
+Class Linux | Linux | 2.6.X | general purpose
+CPE cpe:/o:linux:linux_kernel:2.6 auto
+SEQ(SP=FE-108%GCD=1-6%ISR=104-10E%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11NW7%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW7%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Buffalo Link Station LS-WXL 926 1TB SAN
+Fingerprint Buffalo LS-WXL NAS device
+Class Buffalo | embedded || storage-misc
+SEQ(SP=AD-103%GCD=1-6%ISR=E9-FF%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=MFCCST11NW2%O2=MFCCST11NW2%O3=MFCCNNT11NW2%O4=MFCCST11NW2%O5=MFCCST11NW2%O6=MFCCST11)
+WIN(W1=2F40%W2=2F40%W3=2F40%W4=2F40%W5=2F40%W6=2F40)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=2F64%O=MFCCNNSNW2%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Linux 2.6.32-41-generic #88-Ubuntu SMP [DATE] x86_64 GNU/Linux
+Fingerprint Linux 2.6.32
+Class Linux | Linux | 2.6.X | general purpose
+CPE cpe:/o:linux:linux_kernel:2.6 auto
+SEQ(SP=FC-106%GCD=1-6%ISR=105-10F%TI=I%CI=Z%II=I%SS=S%TS=7)
+OPS(O1=M400CST11NW7%O2=M400CST11NW7%O3=M400CNNT11NW7%O4=M400CST11NW7%O5=M400CST11NW7%O6=M400CST11)
+WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=8018%O=M400CNNSNW7%CC=Y)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=N%T=3B-45%TG=40%W=8000%S=O%A=S+%F=AS%O=M400CST11NW7%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# hp LaserJet 1320 series
+Fingerprint HP LaserJet 1320 printer
+Class HP | embedded || print server
+CPE cpe:/h:hp:laserjet_1320
+SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%CI=I%II=I%SS=S%TS=1)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=I%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
+# Linux 2.6.32-220.7.1.el6.x86_64 #1 SMP Wed Mar 7 00:52:02 GMT 2012 x86_64 x86_64 x86_64 GNU/Linux (Red Hat Enterprise Linux 6 Update 2)
+Fingerprint Linux 2.6.32
+Class Linux | Linux | 2.6.X | general purpose
+CPE cpe:/o:linux:linux_kernel:2.6 auto
+SEQ(SP=FD-107%GCD=1-6%ISR=108-112%TI=Z%CI=Z%II=I%TS=U)
+OPS(O1=M5B4NNSNW9%O2=M5B4NNSNW9%O3=M5B4NW9%O4=M5B4NNSNW9%O5=M5B4NNSNW9%O6=M5B4NNS)
+WIN(W1=3908%W2=3908%W3=3908%W4=3908%W5=3908%W6=3908)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=3908%O=M5B4NNSNW9%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# CSS11501 Software v.8.20.3.03
+Fingerprint Cisco CSS 11501 switch
+Class Cisco | embedded || switch
+CPE cpe:/h:cisco:css_11501 auto
+SEQ(CI=RD%II=I)
+OPS()
+WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=0%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=Z%A=S+%F=AR%RD=0)
+T2(R=Y%DF=N%T=3E-48%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+T3(R=Y%DF=N%T=3E-48%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T4(R=Y%DF=N%T=3E-48%TG=40%W=0%S=A%A=S%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3E-48%TG=40%W=0%S=A%A=S%F=R%RD=0)
+T7(R=Y%DF=N%T=3E-48%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
+IE(DFI=N%T=7A-84%TG=80%CD=Z)
+
+# SunOS  5.11 11.0 i86pc i386 i86pc
+Fingerprint Sun Solaris 11
+Class Sun | Solaris | 11 | general purpose
+CPE cpe:/o:sun:sunos:5.11 auto
+SEQ(SP=FD-109%GCD=1-6%ISR=101-111%TI=I%CI=RD%II=I%SS=S%TS=7)
+OPS(O1=ST11M564NW1%O2=ST11M564NW1%O3=NNT11M564NW1%O4=ST11M564NW1%O5=ST11M564NW1%O6=ST11M564)
+WIN(W1=FB28%W2=FB28%W3=FA38%W4=FABE%W5=FABE%W6=FFF7)
+ECN(R=Y%DF=Y%T=37-41%TG=40%W=FAAA%O=M564NNSNW1%CC=Y)
+T1(R=Y%DF=Y%T=37-41%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=Y%DF=Y%T=24-3F%TG=40%W=80%S=A%A=S%F=AR%O=WANM109T10S%RD=0)
+T3(R=Y%DF=N%T=22-3D%TG=40%W=100%S=A%A=S%F=AR%O=WANM109T10S%RD=0)
+T4(R=Y%DF=Y%T=20-3E%TG=40%W=400%S=A%A=S%F=AR%O=WANM109T10S%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=O%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=26-3F%TG=40%W=8000%S=A%A=S%F=AR%O=WANM109T10S%RD=0)
+T7(R=Y%DF=N%T=25-3F%TG=40%W=FFFF%S=A%A=S%F=AR%O=WFNM109T10S%RD=0)
+U1(DF=N%T=FA-104%TG=FF%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=Y%T=FA-104%TG=FF%CD=S)
+
+# Zworld Rabbit microprocessor running a program written in Dynamic C v8.
+Fingerprint Rabbit microcontroller
+Class Rabbit | embedded || specialized
+SEQ(SP=63-83%GCD=10000|20000|30000|40000|50000%ISR=10B-115%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M230%O2=M230%O3=M230%O4=M218%O5=M218%O6=M109)
+WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=800%O=M230%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=S%F=AR%RD=0)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# WGA54G v.2.00 running firmware version 1.13 (2005/01/13)
+Fingerprint Linksys WGA54G WAP
+Class Linksys | embedded || WAP
+CPE cpe:/h:linksys:wga54g
+SEQ(SP=32-3C%GCD=1-6%ISR=72-7C%TI=I|RD%II=I%SS=S%TS=U)
+OPS(O1=M5B4%O2=M578%O3=M280%O6=M109)
+WIN(W1=6000%W2=6000%W3=6000%W4=6000%W5=6000%W6=6000)
+ECN(R=Y%DF=N%T=1B-25%TG=20%W=0|6000%O=|M5B4%CC=N)
+T1(R=Y%DF=N%T=1B-25%TG=20%S=O%A=O|S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=N%T=1B-25%TG=20%W=0|6000%S=O|Z%A=O|S+%F=AR|AS%O=|M109%RD=0)
+T4(R=N)
+T5(R=Y%DF=N%T=1B-25%TG=20%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=1B-25%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=1B-25%TG=20%CD=S)
+
+# NAS-200 Firmware Version: V3.4R62
+Fingerprint Linksys NAS200 NAS device
+Class Linksys | embedded || storage-misc
+CPE cpe:/h:linksys:nas200 auto
+SEQ(SP=C4-CE%GCD=1-6%ISR=C8-D2%TI=Z%II=I%TS=7)
+OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3A-44%TG=40%W=16D0%O=M5B4NNSNW1%CC=N)
+T1(R=Y%DF=Y%T=3A-44%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3A-44%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW1%RD=0)
+T4(R=N)
+T5(R=N)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3A-44%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3A-44%TG=40%CD=S)
+
+# Linux 3.1.5-hardened #2 SMP 2012 x86_64 Intel(R) Celeron(R) CPU E1400 @ 2.00GHz GenuineIntel GNU/Linux
+Fingerprint Linux 3.1
+Class Linux | Linux | 3.X | general purpose
+CPE cpe:/o:linux:linux_kernel:3 auto
+SEQ(SP=100-10A%GCD=1-6%ISR=108-112%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M400CST11NW4%O2=M400CST11NW4%O3=M400CNNT11NW4%O4=M400CST11NW4%O5=M400CST11NW4%O6=M400CST11)
+WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=8018%O=M400CNNSNW4%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=8000%S=O%A=S+%F=AS%O=M400CST11NW4%RD=0)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Linux 2.6.32-5-orion5x #1 Sun May 6 21:27:49 UTC 2012 armv5tel GNU/Linux / Debian GNU/Linux 6.0.5 (squeeze) QNAP TS-109
+Fingerprint QNAP TS-109 NAS device (Linux 2.6.32)
+Class QNAP | embedded || storage-misc
+CPE cpe:/h:qnap:ts-109 auto
+SEQ(SP=104-10E%GCD=1-6%ISR=104-10E%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5ACST11NW4%O2=M5ACST11NW4%O3=M5ACNNT11NW4%O4=M5ACST11NW4%O5=M5ACST11NW4%O6=M5ACST11)
+WIN(W1=1680%W2=1680%W3=1680%W4=1680%W5=1680%W6=1680)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16B0%O=M5ACNNSNW4%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=1680%S=O%A=S+%F=AS%O=M5ACST11NW4%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Sony KDL-46hx720 TV (European model).
+Fingerprint Sony Bravia KDL-46HS720 TV
+Class Sony | embedded || media device
+CPE cpe:/h:sony:bravia_kdl-46hs720
+SEQ(SP=C5-CF%GCD=1-6%ISR=C8-D2%TI=Z%II=I%TS=7|8|A)
+OPS(O1=NNT11|M5B4ST11%O2=NNT11|M5B4ST11%O3=NNT11|M5B4NNT11%O4=NNT11|M5B4ST11%O5=NNT11|M5B4ST11%O6=NNT11|M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=|M5B4NNS%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=O|S+%F=A|AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=16A0%S=O%A=O|S+%F=A|AS%O=NNT11|M5B4ST11%RD=0)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Raspberry PI single board computer running armv6l v3.1.9.12+ ARMv6 compatible CPU rev 7 BCM2703 GNU/Linux
+# 3.1.9-12+ #5 Sat Apr 28 04:49:38 UTC 2012 armv6l ARMv6-compatible processor rev 7 (v6l) BCM2708 GNU/Linux/Arch
+Fingerprint Raspberry Pi (Linux 3.1)
+Class Raspberry Pi Foundation | Linux | 3.X | general purpose
+CPE cpe:/o:raspberrypifoundation:linux:3 auto
+SEQ(SP=100-10A%GCD=1-6%ISR=107-111%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5A8ST11NW1%O2=M5A8ST11NW1%O3=M5A8NNT11NW1%O4=M5A8ST11NW1%O5=M5A8ST11NW1%O6=M5A8ST11)
+WIN(W1=3818%W2=3818%W3=3818%W4=3818%W5=3818%W6=3818)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=3890%O=M5A8NNSNW1%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=3818%S=O%A=S+%F=AS%O=M5A8ST11NW1%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# 2.6.32-131.17.1.el6-0.11.smp.gcc4.4.x86_64 (SMP)  Openfiler 2.99 NAS/SAN OpenFiler, a SAN linux distribution.
+Fingerprint Linux 2.6.32
+Class Linux | Linux | 2.6.X | storage-misc
+CPE cpe:/o:linux:linux_kernel:2.6 auto
+SEQ(SP=BD-C7%GCD=1-6%ISR=C3-CD%TI=Z%CI=Z%II=I%TS=A)
+OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11NW7%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW7%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# HP LaserJet 400 color M451dn
+Fingerprint HP LaserJet M451dn
+Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_m451dn
+SEQ(SP=FF-109%GCD=1-6%ISR=107-111%CI=RI%TS=A)
+OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
+WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
+ECN(R=Y%DF=Y%T=3C-46%TG=40%W=2238%O=M5B4NW0NNS%CC=N)
+T1(R=Y%DF=Y%T=3C-46%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3C-46%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3C-46%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3C-46%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=3C-46%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=FB-105%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=FB-105%TG=FF%CD=S)
+
+# FreeBSD 9.0-RELEASE-p1 FreeBSD 9.0-RELEASE-p1 #3: Wed May  9 23:42:27 CEST 2012
+Fingerprint FreeBSD 9.0-RELEASE
+Class FreeBSD | FreeBSD | 9.X | general purpose
+CPE cpe:/o:freebsd:freebsd:9 auto
+SEQ(SP=FA-10C%GCD=1-6%ISR=100-110%TI=RD%II=RI%TS=20|21|22)
+OPS(O1=M5B4NW6ST11%O2=M578NW6ST11%O3=M280NW6NNT11%O4=M5B4NW6ST11%O5=M218NW6ST11%O6=M109ST11)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=FFFF%O=M5B4NW6SLL%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4D2A|D623|DDD0|E800|FFAF%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Microsoft Windows Version 6.1
+Fingerprint Microsoft Windows 7
+Class Microsoft | Windows | 7 | general purpose
+CPE cpe:/o:microsoft:windows_7 auto
+SEQ(SP=100-10A%GCD=1-6%ISR=109-113%TI=I%CI=I%II=I%SS=S%TS=7)
+OPS(O1=M4ECNW8ST11%O2=M4ECNW8ST11%O3=M4ECNW8NNT11%O4=M4ECNW8ST11%O5=M4ECNW8ST11%O6=M4ECST11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=Y%T=7B-85%TG=80%W=2000%O=M4ECNW8NNS%CC=N)
+T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=O%F=AR%RD=0)
+T4(R=N)
+T5(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=O%F=R%RD=0)
+T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=7B-85%TG=80%CD=Z)
+
+# Cisco CP 8945 Phone
+Fingerprint Cisco CP 8945
+Class Cisco | embedded || VoIP phone
+SEQ(SP=C1-CB%GCD=1-6%ISR=C1-CB%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5B0ST11NW2%O2=M5B0ST11NW2%O3=M5B0NNT11NW2%O4=M5B0ST11NW2%O5=M5B0ST11NW2%O6=M5B0ST11)
+WIN(W1=1690%W2=1690%W3=1690%W4=1690%W5=1690%W6=1690)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16C0%O=M5B0NNSNW2%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=1690%S=O%A=S+%F=AS%O=M5B0ST11NW2%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# FreeBSD 9.0-RELEASE-p1 FreeBSD 9.0-RELEASE-p1 #0: Tue May  8 20:55:56 PDT 2012     i386
+Fingerprint FreeBSD 9.0-RELEASE
+Class FreeBSD | FreeBSD | 9.X | general purpose
+CPE cpe:/o:freebsd:freebsd:9 auto
+SEQ(SP=101-10B%GCD=2|4|6|8|A%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=21|22)
+OPS(O1=M5B4NW6ST11%O2=M578NW6ST11%O3=M280NW6NNT11%O4=M5B4NW6ST11%O5=M218NW6ST11%O6=M109ST11)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW6SLL%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=S%F=AR%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=S%F=AR%RD=0)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
+# Linux vyatta 3.0.23-1-586-vyatta
+Fingerprint Vyatta (Linux 3.0.23)
+Class Linux | Linux | 2.6.X | broadband router
+CPE cpe:/o:linux:linux_kernel:2.6 auto
+SEQ(SP=104-10E%GCD=1-6%ISR=108-112%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5B4ST11NW6%O2=M5B4ST11NW6%O3=M5B4NNT11NW6%O4=M5B4ST11NW6%O5=M5B4ST11NW6%O6=M5B4ST11)
+WIN(W1=3890%W2=3890%W3=3890%W4=3890%W5=3890%W6=3890)
+ECN(R=Y%DF=Y%T=FA-104%TG=FF%W=3908%O=M5B4NNSNW6%CC=Y)
+T1(R=Y%DF=Y%T=FA-104%TG=FF%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=FA-104%TG=FF%W=3890%S=O%A=S+%F=AS%O=M5B4ST11NW6%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Gaia http://www.checkpoint.com/gaia/index.html
+Fingerprint Check Point GAiA (Linux 2.6)
+Class Check Point | Linux | 2.6.X | firewall
+CPE cpe:/o:checkpoint:linux:2.6 auto
+SEQ(SP=FC-106%GCD=1-6%ISR=102-10C%TI=Z%II=I%TS=A)
+OPS(O1=M5B4ST11NW3%O2=M5B4ST11NW3%O3=M5B4NNT11NW3%O4=M5B4ST11NW3%O5=M5B4ST11NW3%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW3%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW3%RD=0)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# VxWorks Version 5.5.1 for IBM PowerPC Running on embedded system (Allied Telesis, Inc. (ATI) iMAP 9700)
+Fingerprint VxWorks 5.5.1
+Class Wind River | VxWorks | 5.X | general purpose
+CPE cpe:/o:windriver:vxworks:5 auto
+SEQ(SP=95-9F%GCD=1-6%ISR=9C-A6%CI=I%II=I%TS=1)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=64%W2=64%W3=64%W4=64%W5=64%W6=64)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=64%O=M5B4NW0%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=64%S=O%A=S+%F=AS%O=M5B4NW0NNT11%RD=0)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=64%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
+# UC320W, Cisco SMB Wireless ADSL Router with integrated ASTERISK and POTS
+Fingerprint Cisco UC320W PBX (Linux 2.6)
+Class Cisco | Linux | 2.6.X | PBX
+CPE cpe:/o:cisco:linux:2.6 auto
+SEQ(SP=F8-102%GCD=1-6%ISR=F5-FF%TI=Z%II=I%TS=A)
+OPS(O1=M5B4ST11NW2%O2=M5B4ST11NW2%O3=M5B4NNT11NW2%O4=M5B4ST11NW2%O5=M5B4ST11NW2%O6=M5B4ST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NNSNW2%CC=N)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Westell WireSpeed B90-220030-04 DSL Modem powered by WindRiver software (embedded)
+Fingerprint Westell WireSpeed B90-220030-04 DSL router (VxWorks)
+Class Westell | embedded || broadband router
+CPE cpe:/h:westell:wirespeed_b90-220030-04
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
+SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=N)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
+# Linux 3.0.0-17-generic-pae #30-Ubuntu SMP Thu Mar 8 17:53:35 UTC 2012 i686 i686 i386 GNU/Linux
+Fingerprint Linux 3.0.0
+Class Linux | Linux | 3.X | general purpose
+CPE cpe:/o:linux:linux_kernel:3 auto
+SEQ(SP=C9-D3%GCD=1-6%ISR=CD-D7%TI=Z%CI=Z%II=I%TS=8)
+OPS(O1=M550ST11NW6%O2=M550ST11NW6%O3=M550NNT11NW6%O4=M550ST11NW6%O5=M550ST11NW6%O6=M550ST11)
+WIN(W1=34A8%W2=34A8%W3=34A8%W4=34A8%W5=34A8%W6=34A8)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=3520%O=M550NNSNW6%CC=Y)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=34A8%S=O%A=S+%F=AS%O=M550ST11NW6%RD=0)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Linux 2.6.32-41-server #89-Ubuntu SMP Fri Apr 27 22:33:31 UTC 2012 x86_64 GNU/Linux Ubuntu 10.04
+Fingerprint Linux 2.6.32
+Class Linux | Linux | 2.6.X | general purpose
+CPE cpe:/o:linux:linux_kernel:2.6 auto
+SEQ(SP=103-10D%GCD=1-6%ISR=107-111%TI=Z%CI=Z%II=I%TS=7)
+OPS(O1=M5ACST11NW7%O2=M5ACST11NW7%O3=M5ACNNT11NW7%O4=M5ACST11NW7%O5=M5ACST11NW7%O6=M5ACST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3C-46%TG=40%W=16D0%O=M5ACNNSNW7%CC=Y)
+T1(R=Y%DF=Y%T=3C-46%TG=40%S=O%A=S+%F=AS%RD=0)
+T2(R=N)
+T3(R=Y%DF=Y%T=3C-46%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5ACST11NW7%RD=0)
+T4(R=Y%DF=Y%T=3C-46%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T5(R=Y%DF=Y%T=3C-46%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+T6(R=Y%DF=Y%T=3C-46%TG=40%W=0%S=A%A=Z%F=R%RD=0)
+T7(R=Y%DF=Y%T=3C-46%TG=40%W=0%S=Z%A=S+%F=AR%RD=0)
+U1(DF=N%T=3C-46%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3C-46%TG=40%CD=S)
