@@ -1968,9 +1968,10 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
 
             if (hss->distance != -1) {
                 /* We've gotten response for the UDP probe and thus have
-                   the "true" hop count. Add the received TTL to the hop
-                   count to get the initial TTL. */
-                it->value = string_pool_sprintf("%hX", ttl + hss->distance);
+                   the "true" hop count. Add the number of hops between
+                   us and the target (hss->distance - 1) to the received
+                   TTL to get the initial TTL. */
+                it->value = string_pool_sprintf("%hX", ttl + hss->distance - 1);
             } else {
                 /* Guess the initial TTL value */
                 it->attribute = "TG";
