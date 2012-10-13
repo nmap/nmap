@@ -192,7 +192,7 @@ match bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x55\0\0\0\x90\x7e\0\0\x01\0\0
 
 softmatch bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x55\0\0\0..\0\0\x01\0\0\0\0\0\0\0........\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff......\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff..............\0....$|s p/Bitcoin digital currency server/ cpe:/a:bitcoin:bitcoind/
 
-match bitcoin-jsonrpc m|^HTTP/1\.0 401 Authorization Required\r\n.*Server: bitcoin-json-rpc/([\w._-]+)\r\n|s p/Bitcoin JSON-RPC/ v/$1/ cpe:/a:bitcoin:bitcoind/
+match bitcoin-jsonrpc m|^HTTP/1\.0 401 Authorization Required\r\n.*Server: bitcoin-json-rpc/([\w._-]+)\r\n|s p/Bitcoin JSON-RPC/ v/$1/ cpe:/a:bitcoin:bitcoind:$1/
 match bitcoin-jsonrpc m|^HTTP/1\.0 401 Authorization Required\r\n.*Server: bitcoin-json-rpc\r\n|s p/Bitcoin JSON-RPC/ cpe:/a:bitcoin:bitcoind/
 
 # Bittorrent Client 3.2.1b on Linux 2.4.X
@@ -2568,7 +2568,7 @@ match smtp m|^220  DP-3510\r\n| p/Panasonic DP-3500 smtpd/
 match smtp m|^220 ([-\w_.]+) Axigen ESMTP ready\r\n| p/Axigen smtpd/ o/Unix/ h/$1/
 match smtp m|^421 Unexpected log failure, please try later\r\n| p/Postfix smtpd/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) DynFX ESMTP Server ([-\w_.]+) \(| p/DynFX smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp m|^220 ;; ESMTP connection timed out; no servers could be reached Sendmail ([-\w_.]+)/| p/Sendmail/ v/$1/ i/broken/ cpe:/a:sendmail:sendmail/
+match smtp m|^220 ;; ESMTP connection timed out; no servers could be reached Sendmail ([-\w_.]+)/| p/Sendmail/ v/$1/ i/broken/ cpe:/a:sendmail:sendmail:$1/
 match smtp m|^554 ([-\w_.]+) ESMTP not accepting messages\r\n| p/Sendmail/ i/Not accepting mail/ h/$1/ cpe:/a:sendmail:sendmail/
 match smtp m|^220 ([-\w_.]+) L-Soft HDMail SMTP Service Version: ([-\w_.()]+) ready| p/L-Soft HDMail smtpd/ v/$2/ o/Linux/ h/$1/ cpe:/o:linux:linux_kernel/a
 match smtp m|^220 ([-\w_.]+) Synchronet SMTP Server ([\d.]+)-Win32 Ready\r\n| p/Synchronet smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
@@ -3550,7 +3550,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n 
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03                        =======================\r\n                               DSL-500B       \r\n                        =======================\r\nLogin:| p/D-Link DSL-500B telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\n\r\nAG 5000\r\n\r\n\r\nLogin: | p/Nomadix AG 5000 telnetd/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nWelcome to Linux \(ZEM500\) for MIPS\r\n\rKernel ([\w._-]+) \w+ on an MIPS\r\n\rZEM500 login: | p/ZKSoftware ZEM500 fingerprint reader telnetd/ i/Linux $1; MIPS/ d/security-misc/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match telnet m|^\xff\xfb\x01\xff\xfe\x01Connected\r\n\n\rAironet BR500E V([\w._-]+)                Main Menu| p/Cisco Aironet BR500E telnetd/ v/$1/ d/WAP/ cpe:/a:cisco:telnet/ cpe:/h:cisco:aironet_br500e/
+match telnet m|^\xff\xfb\x01\xff\xfe\x01Connected\r\n\n\rAironet BR500E V([\w._-]+)                Main Menu| p/Cisco Aironet BR500E telnetd/ v/$1/ d/WAP/ cpe:/a:cisco:telnet:$1/ cpe:/h:cisco:aironet_br500e/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03login: | p/D-Link 524, DIR-300, or WBR-1310 WAP telnetd/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03TrioLink \(ADSL IAD\)\r\nLogin: | p/Nortel-LG VoIP IAD telnetd/ d/PBX/
 match telnet m|^Linux ([\w._-]+) \[INSTALL: [\d-]+\]\nLASTPATCH: [\d:-]+\n| p/Netkit-telnetd/ i/Linux $1/ o/Linux/ cpe:/o:linux:linux_kernel/a
@@ -4195,7 +4195,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nConnection: close\r\nCont
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-type: text/html; charset:UTF-8\r\n\r\n.*<TITLE>SQLite Book</TITLE>|s p/SQLite Book database frontend/
 
 # Some web servers don't give a 'Server: ' line for the Get request, but do for this probe.
-match http m|^HTTP/1\.1 400 .*\r\nServer: Microsoft-IIS/(\d[-.\w]+)\r\n| p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:iis/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 400 .*\r\nServer: Microsoft-IIS/(\d[-.\w]+)\r\n| p/Microsoft IIS httpd/ v/$1/ o/Windows/ cpe:/a:microsoft:iis:$1/ cpe:/o:microsoft:windows/a
 # Icecast version: 1.9+2.0alphasn
 match http m|^HTTP/1\.0 401 Authentication Required\r\nWWW-Authenticate: Basic realm=\"Icecast2 Server\"\r\n\r\nYou need to authenticate\r\n| p/Icecast streaming media server/
 # Network Flight Recorder v3.2 on Solaris 8 (sparc)
@@ -4924,7 +4924,7 @@ match http m|^HTTP/1\.0 302 Found\r\nLocation: http://[-.+\w]+:32\d\d\d/\r\n\r\n
 # Cyclades PR2000 Router
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PR2000 - Login\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n.*</H1>This object on the Cyclades PR2000 - RomPager server is protected|s p/Allegro RomPager/ v/$1/ i/Cyclades PR2000 router http admin/ d/router/ cpe:/a:allegro:rompager:$1/
 # 3Com OfficeConnect 812 Router telnetd
-match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"OCR-([-.\w]+)\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n| p/Allegro RomPager/ v/$2/ i/3Com OfficeConnect Router http admin; OfficeConnect OCR-$1/ d/router/ cpe:/a:allegro:rompager:$1/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"OCR-([-.\w]+)\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/(\d[-.\w]+)\r\n| p/Allegro RomPager/ v/$2/ i/3Com OfficeConnect Router http admin; OfficeConnect OCR-$1/ d/router/ cpe:/a:allegro:rompager:$2/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"APC Management Card\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n| p/Allegro RomPager/ v/$1/ i/APC Management Web Server/ d/power-device/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PDU\"\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Protected Object</TITLE>\n</HEAD>\n<BODY BGCOLOR=\"WHITE\">\n<H1>Protected Object</H1>\nThis object on the MasterSwitch Web Server is protected\.| p/Allegro RomPager/ v/$1/ i/APC masterswitch http config/ d/power-device/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"MasterSwitch Plus\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Protected Object</TITLE>.*This object on the APC Management Web Server is protected\.|s p/Allegro RomPager/ v/$1/ i/APC masterswitch http config/ d/power-device/ cpe:/a:allegro:rompager:$1/
@@ -5671,7 +5671,7 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<!-- Begin
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*\n\n<title></title>\n\n\n\n\n<script language=\"JavaScript1\.1\">\n<!-- Begin Hiding\n netscapeVersion =|s p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i|HP PhotoSmart/Deskjet printer http config| d/printer/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a
 match http m|^HTTP/1\.0 200 OK\r\nServer: Sun_Ray_Admin_Server/([\d.]+)\r\n| p/SunRay http config/ v/$1/ o/Solaris/ cpe:/o:sun:sunos/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: WatchGuard Firewall\r\nwww-authenticate: Digest realm=\"WatchGuard SOHO (.+) Configuration\"| p/WatchGuard SOHO $1 http config/ d/firewall/
-match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\d.]+)\r\nConnection: close\r\n.*\r\n<title>Cisco Web Accessible Phone Settings</title>\r\n|s p/WindWeb/ v/$1/ i/Cisco 7935 IP Phone Conference Station http config/ d/VoIP phone/ cpe:/a:windriver:windweb/
+match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\d.]+)\r\nConnection: close\r\n.*\r\n<title>Cisco Web Accessible Phone Settings</title>\r\n|s p/WindWeb/ v/$1/ i/Cisco 7935 IP Phone Conference Station http config/ d/VoIP phone/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NETGEAR (D\w+)\"\r\n| p/Netgear $1 router http config/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NETGEAR (DG[-\w+]+) \"| p/Netgear $1 router http config/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NETGEAR DG\w+  \"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\n<head>\n\n<meta name=\"description\" content=\"DG(\w+) FR \d+\">\n| p/Netgear DG$1 FR WAP http config/ i/French/ d/WAP/
@@ -5721,7 +5721,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\nDate: .*\r\nWWW-Authenti
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Plan9\r\n|s p/Plan 9 httpd/ o/Plan 9/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: IceWarp WebSrv/([\d.]+)\r\n| p/IceWarp webmail httpd/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: IceWarp/([\d.]+)\r\n| p/IceWarp webmail httpd/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: \r\n\r\n<html>\n<head>\n<title>DW([\d]+) System Control Center</title>| p/WindWeb/ v/$1/ i/Hughes DirecWay $2 satellite router http config/ d/router/ cpe:/a:windriver:windweb/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: \r\n\r\n<html>\n<head>\n<title>DW([\d]+) System Control Center</title>| p/WindWeb/ v/$1/ i/Hughes DirecWay $2 satellite router http config/ d/router/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\nDate: .*\nServer: BBIagent\.Net/([\d.]+) Powered by HKSP\.COM\n| p/BBIagent.Net httpd/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 200 Ok\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nExpires: 0\r\nSet-Cookie: hpRibSession=;| p/HP Remote Lights-Out Edition II http config/ d/remote management/ cpe:/a:hp:integrated_lights-out/
 match http m|^HTTP/1\.1 200 Ok\r\n.*Copyright 2001,2003 Hewlett-Packard Development Company.*<title>\r\nData Frame - Browser not HTTP 1\.1 compatible\r\n</title>|s p/HP Remote Lights-Out http config/ d/remote management/
@@ -5753,7 +5753,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\n<TITLE>KONICA MINOLTA PageScope Web Connect
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: Embperl/([\w.]+) Apache/([\w.]+) \(Fedora\)\r\n| p/Apache httpd/ v/$2/ i/Embperl $1; Fedora/ o/Linux/ cpe:/a:apache:http_server:$2/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: Embperl/([\w.]+) Apache/([\w.]+) \(Debian GNU/Linux\) (.*)\r\n| p/Apache httpd/ v/$2/ i/Embperl $1; Debian; $3/ o/Linux/ cpe:/a:apache:http_server:$2/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: Embperl/([\w.]+) Apache/([\w.]+) \(Debian GNU/Linux\)\r\n| p/Apache httpd/ v/$2/ i/Embperl $1; Debian/ o/Linux/ cpe:/a:apache:http_server:$2/ cpe:/o:linux:linux_kernel/a
-match http m|^.*<address>Apache/([\d.]+) \([^)]+\) ?(.*) Server at ([-\w_.]+) Port \d+</address>\n</body></html>\n|si p/Apache httpd/ v/$1/ i/$2/ h/$3/ cpe:/a:apache:http_server:$2/
+match http m|^.*<address>Apache/([\d.]+) \([^)]+\) ?(.*) Server at ([-\w_.]+) Port \d+</address>\n</body></html>\n|si p/Apache httpd/ v/$1/ i/$2/ h/$3/ cpe:/a:apache:http_server:$1/
 match http m|^.*<address>Apache/([\d.]+) \([^)]+\) Server at ([-\w_.]+) Port \d+</address>\n</body></html>\n|si p/Apache httpd/ v/$1/ h/$2/ cpe:/a:apache:http_server:$1/
 match http m|^.*<address>Apache/([\d.]+) Server at ([-\w_.]+) Port \d+</address>\n</body></html>\n|si p/Apache httpd/ v/$1/ h/$2/ cpe:/a:apache:http_server:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: SiteScope/([\d.]+) .*\r\n| p/Mercury SiteScope Application Managment httpd/ v/$1/
@@ -5858,7 +5858,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Ares ([\d.]+)\r\nConnection: Keep-A
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Paws/([\d.]+)\r\n.*<title>ParaSoft LicenseServer  ([\d.]+)</title>|s p/Paws/ v/$1/ i/ParaSoft LicenseServer $2/
 match http m|^HTTP/1\.1 ERROR\r\nServer: Server: Paws/([^\r\n]+)\r\nDate: \d.*\r\nExpires: .*\r\nContent-type: text/html\r\nContent-length: 2\r\n\r\n\r\n$| p/Paws/ v/$1/ i/ParaSoft Concerto software development platform/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/plain\r\n\r\nNode: \d+\n| p/DSpy D2OL statistics httpd/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: text/html\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Horizon Monitor  HTML</TITLE>\n| p/WindWeb/ v/$1/ i/Sun Tape Library http config/ d/storage-misc/ cpe:/a:windriver:windweb/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: text/html\r\n\r\n<HTML>\n<HEAD>\n<TITLE>Horizon Monitor  HTML</TITLE>\n| p/WindWeb/ v/$1/ i/Sun Tape Library http config/ d/storage-misc/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: monit ([\d.]+)\r\n| p/monit httpd/ v/$1/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Red Carpet Daemon/([\d.]+)\r\n\r\n| p/Red Carpet httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: CL-HTTP/([\d.]+) \(LispWorks; ([\d.]+)\)\r\n| p/CL-HTTPd/ v/$1/ i/LispWorks $2/
@@ -6275,7 +6275,7 @@ match http m|^<html>\r\n<head>\r\n<meta http-equiv=\"Content-Language\" content=
 match http m|^HTTP/1\.1 200 Ok\r\nServer: NAE Server\r\nContent-Length: 73\r\nConnection: close\r\n\r\n<html><center><h1>NAE Server Health Check Succeeded\.</h1></center></html>| p/Ingrian i3xx health monitor httpd/ d/security-misc/
 match http m|^HTTP/1\.1 302 Tempor\xe4r verschoben\r\nConnection: close\r\nContent-Type: text/html\r\nServer: Indy/([\d.]+)\r\nLocation: /Wikipedia/\r\n\r\n| p/Indy httpd/ v/$1/ i/German Wikipedia DVD browser/ cpe:/a:indy:httpd:$1:::de/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\n.*\n<title>HP Media Vault: [^<]*</title>|s p/HP Media Vault http config/ d/media device/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>(\w+) System Control Center</title>\n| p/WindWeb/ v/$1/ i/Hughes $2 satellite modem http config/ cpe:/a:windriver:windweb/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: WindWeb/([\d.]+)\r\nDate: .*\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>(\w+) System Control Center</title>\n| p/WindWeb/ v/$1/ i/Hughes $2 satellite modem http config/ cpe:/a:windriver:windweb:$1/
 # auther??
 match http m|^HTTP/1\.0 200 OK\r\nServer: Camera Web Server/([\d.]+)\r\nAuther: Steven Wu\r\n| p|D-Link/Airlink IP webcam http config| v/$1/ d/webcam/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Web Server/([\d.]+)\r\nAuther: Steven Wu\r\n| p/D-Link print server http config/ v/$1/ d/print server/
@@ -6357,7 +6357,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: RapidLogic/([\d.]+)\r\nMIME-version
 match http m|^HTTP/1\.1 \d\d\d\r\nContent-Length:\d+\r\nContent-Type: text/html\r\n\r\n<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"/viawarp\.css\" />| p/Nova viaWARP httpd/ o/Windows/ cpe:/o:microsoft:windows/a
 # Looks more general than a media device
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Type: text/html\r\nServer: wizd ([^\r\n]+)\r\n| p/wizd media viewer httpd/ v/$1/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: XES WindWeb/([\d.]+)\r\n| p/Windweb/ v/$1/ i/XES Synergix printer http config/ d/printer/ cpe:/a:windriver:windweb/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: XES WindWeb/([\d.]+)\r\n| p/Windweb/ v/$1/ i/XES Synergix printer http config/ d/printer/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.0 200 OK\r\nPragma:no-cache\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>INTERMEC ([\d+/]+); IP| p/Intermec $1 print server http config/ d/print server/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nServer: GoAhead-Webs\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"CameraServer\"\r\n| p/GoAhead httpd/ i/AirLink 101 SkyIPCam http config/ d/webcam/ cpe:/a:goahead:goahead_webserver/
 match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\n.*<title>BVA8055 Web Configuration Pages</title>|s p/Leadtek BVA8055 VoIP adapter http config/ d/VoIP adapter/
@@ -6570,7 +6570,7 @@ match http m%^HTTP/1\.0 200 Ok\r\nServer: micro_httpd\r\n.*\r\nvar isRouter\t='1
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Close\r\nDate: .*\r\nServer: Eye-Fi Agent/([\w._-]+) \(Windows| p/Eye-Fi Manager httpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"U\.S\. Robotics ADSL Gateway\"\r\n| p/micro_httpd/ i/USRobotics ADSL router http config/ d/broadband router/ cpe:/a:acme:micro_httpd/
 match http m|^HTTP/1\.0 401 Unauthorized\n.*\r\nWWW-Authenticate: Basic realm=\"3Com AirProtect Sentry\"\r\n|s p/3Com AirProtect Sentry http config/ d/security-misc/
-match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\w._-]+)\r\n.*<SCRIPT LANGUAGE=\"JavaScript\">\r\n<!--\r\n  function change_Time\(\) {\r\n    window\.location = '\./cgi/mts_login\.cgi'\r\n|s p/WindWeb/ v/$1/ i/Iwatsu ADIX PBX http config/ d/PBX/ cpe:/a:windriver:windweb/
+match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\w._-]+)\r\n.*<SCRIPT LANGUAGE=\"JavaScript\">\r\n<!--\r\n  function change_Time\(\) {\r\n    window\.location = '\./cgi/mts_login\.cgi'\r\n|s p/WindWeb/ v/$1/ i/Iwatsu ADIX PBX http config/ d/PBX/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nServer: WindWeb/([\w._-]+)\r\n.*<title>TrueTime - NTS-200 Web Interface -|s p/WindWeb/ v/$1/ i/TrueTime NTS-200 http config/ d/specialized/ cpe:/a:windriver:windweb:$1/
 match http m|^HTTP/1\.1 302 Found\r\nConnection: Keep-Alive\r\nServer: \r\n.*<!-- this page must have 520 bytes or more, ie is a wonderfull program -->.*<html>\r\n<head>\r\n<title>302-Found</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n</head>\r\n<body>\r\n<h1>302-Found</h1>\r\n<a href='/login\.html\?id=\d+'>/login\.html</a>|s p|Siemens Gigaset PBX/TARGA DIP VoIP phone http config|
 match http m|^HTTP/1\.1 302 Found\r\nConnection: Close\r\nServer: \r\n.*<!-- this page must have 520 bytes or more, ie is a wonderfull program -->.*<html>\r\n<head>\r\n<title>302-Found</title>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n</head>\r\n<body>\r\n<h1>302-Found</h1>\r\n<a href='/login\.html\?id=\d+'>/login\.html</a>|s p/Siemens Gigaset A580 or S450 VoIP phone http config/ d/VoIP phone/
@@ -7002,7 +7002,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Server: KM-MFP-http/(V[\d.]+)\r\n.*document\
 match http m|^HTTP/1\.0 200 OK\r\n.*Last-Modified: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*Server: dcs-lig-httpd\r\n|s p/D-Link DCS-2121 webcam http config/ d/webcam/
 match http m|^HTTP/1\.0 200 OK\r\n.*Date: \d\d\d\d-\d\d-\d\d [^\r\n]*\r\n.*Server: IWeb/([\d.]+)\r\n.*<title>VisionWEB</title>.*<meta name=\"AUTHOR\" content=\"Insignis Technologies\" />.*<meta name=\"DESCRIPTION\" content=\"Linearis VisionWEB\. Cieffe srl, manufactures and markets CCTV digital video recorders and Remote Surveillance products for the security market\" />|s p/IWeb/ v/$1/ i/March Networks VisionWEB webcam http config/ d/webcam/
 match http m|^HTTP/1\.1 401 Not Authorized\r\nWWW-Authenticate: Basic realm=\"Communicator Jablotron (\w+)\"\r\n\r\n| p/Jablotron $1 alarm http control/ d/security-misc/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(ES-\w+) at [^"]*\"\r\n.*Server: Allegro-Software-RomPager/([\w.]+)\r\n|s p/Allegro RomPager/ v/$2/ i/ZyXEL $1 switch http config/ d/switch/ cpe:/a:allegro:rompager:$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(ES-\w+) at [^"]*\"\r\n.*Server: Allegro-Software-RomPager/([\w.]+)\r\n|s p/Allegro RomPager/ v/$2/ i/ZyXEL $1 switch http config/ d/switch/ cpe:/a:allegro:rompager:$2/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: uhttpd/([\d.]+).*WWW-Authenticate: Basic realm=\"NETGEAR (\w+)\"\r\n|s p/uhttpd/ v/$1/ i/Netgear $2 WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 HTTP OK\r\nServer: Serv-U/([\d.]+)\r\n| p/Serv-U httpd/ v/$1/
 match http m|^HTTP/1\.1 302 Redirection\r\nServer: BlueIris-HTTP/([\d.]+)\r\n| p/BlueIris/ v/$1/
@@ -7072,7 +7072,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ZNC - http://znc\.in\r\n|s p/ZNC IR
 match http m|^HTTP/1\.0 403 Access Denied\r\n\r\nWeb Access is not enabled\.\r\n$| p/ZNC IRC bouncer http config/ i/not enabled/
 match http m|^HTTP/1\.0 404 <no description>\r\nDate: .*\r\nServer: XMLD HTTPServer/([\d.]+)\r\n\r\n$| p/XMLD HTTPServer/ v/$1/ i/Citrix XML Service/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Mono\.WebServer2/([\w._-]+) Unix\r\nX-AspNet-Version: ([\d.]+)\r\n|s p/Mono.WebServer2/ v/$1/ i/MonoDoc httpd; ASP.NET $2/ o/Unix/
-match http m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Cayman-([\w]+)\"\r\n.*Server: Allegro-Software-RomPager/([\d.]+)\r\n| p/Allegro RomPager/ v/$2/ i/Cayman $1 DSL router/ d/broadband router/ cpe:/a:allegro:rompager:$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Cayman-([\w]+)\"\r\n.*Server: Allegro-Software-RomPager/([\d.]+)\r\n| p/Allegro RomPager/ v/$2/ i/Cayman $1 DSL router/ d/broadband router/ cpe:/a:allegro:rompager:$2/
 match http m|^HTTP/1\.1 200 OK\r\n.*Expires: Thu, 26 Oct 1995 00:00:00 GMT\r\n.*Server: Allegro-Software-RomPager/([\w._-]+)\r\n.*<PRE>\*{60}<BR>\* WARNING ALERT: AUTHORIZED USERS ONLY! +\*<BR>\* +\*<BR>\* All activities conducted on this system may be monitored \*<BR>|s p/Allegro RomPager/ v/$1/ i/NetIron XMR 4000 router http config/ d/router/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\n.*Server: 2NAS_LIGHT\r\n|s p/2NAS_LIGHT/
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: sfcHttpd\r\nContent-Length: 0\r\n\r\n$| p/sfcHttpd/ i/VMware Studio VAMI CIM broker/
@@ -7529,7 +7529,7 @@ match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nExpires: .*\r\nCache-control: priv
 match http m|^HTTP/1\.1 401 Unauthorized\nWWW-Authenticate: Basic realm='unRAID SMU'\n$| p/Lime Technology unRAID Server httpd/ v/4.X/ d/storage-misc/ cpe:/o:lime_technology:unraid_server:4/
 # http://code.google.com/p/unraid-unmenu/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: Close\r\nPragma: no-cache\r\nCache-Control: private, max-age=0\r\nDate: .*\r\nExpires: -1\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\nRefresh: 60; URL=\r\n\r\n[0-9a-f]+\r\n<HTML><title>([\w._-]+) unRAID Server</title>| p/Lime Technology unRAID Server Unmenu http config/ d/storage-misc/ h/$1/ cpe:/o:lime_technology:unraid_server:4/
-match http m|^\0\0\0\0\x81HTTP/1\.0 403 Forbidden\r\nServer: ServletExecAS/([\w._-]+)\r\nContent-type: text/html\r\n\r\nRequests from [\d.]+ are not allowed\.$| p/New Atlanta ServletExec/ v/$1/ cpe:/a:newatlanta:servletexec/
+match http m|^\0\0\0\0\x81HTTP/1\.0 403 Forbidden\r\nServer: ServletExecAS/([\w._-]+)\r\nContent-type: text/html\r\n\r\nRequests from [\d.]+ are not allowed\.$| p/New Atlanta ServletExec/ v/$1/ cpe:/a:newatlanta:servletexec:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"\"\r\n\r\n$| p/Z-World Rabbit microcontroller httpd/ i/Redline AN-50 wireless bridge http config/ cpe:/h:redline:an-50/
 match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nConnection: Close\r\n\r\n<HTML>\n<HEAD>\n<TITLE>ZyXEL ZyAIR ([\w._-]+)</TITLE>| p/ZyXEL ZyAIR $1 WAP http config/ d/WAP/ cpe:/h:zyxel:$1/
 match http m|^HTTP/1\.1 200\r\nContent-type: text/html\r\nConnection: close\r\nCONTENT-LENGTH: 81\r\n\r\n<head>\r\n<meta http-equiv=\"refresh\" content=\"0; URL=get\.cgi&index\.cgi\">\r\n</head>\r\n$| p/SolarLog 400e power monitor httpd/ d/power-misc/ cpe:/h:solarlog:400e/
