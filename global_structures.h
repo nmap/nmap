@@ -192,8 +192,6 @@ struct FingerMatch {
 struct FingerTest {
   const char *name;
   std::vector<struct AVal> results;
-  const struct AVal *getattrbyname(const char *name) const;
-
   bool operator<(const FingerTest& other) const {
     return strcmp(name, other.name) < 0;
   }
@@ -202,7 +200,6 @@ struct FingerTest {
 struct FingerPrint {
   FingerMatch match;
   std::vector<FingerTest> tests;
-  const FingerTest *gettestbyname(const char *name) const;
   FingerPrint();
   void sort();
 };
