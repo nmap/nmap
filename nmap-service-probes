@@ -6404,7 +6404,7 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nConnection: Close\r\nServer: Synch
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (DCS-\w+)\r\n|s p/D-Link $1 webcam http config/ d/webcam/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(DCS-\w+)\"\r\n| p/D-Link $1 webcam http config/ d/webcam/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: Slinger/([-\w_.]+)\r\n| p/Panasonic DVR slinger http config/ v/$1/ d/media device/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nDate: .*Server: lighttpd/([\d.]+)\r\n\r\n\n<html>\n<head>\n<title>Shared Storage Manager</title>\n\n|s p/lighttpd/ v/$1/ i/Western Digital My Book http config/ d/storage-misc/ o/Linux/ cpe:/o:linux:linux_kernel/a cpe:/a:lighttpd:lighttpd:$1/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nDate: .*Server: lighttpd/([\d.]+)\r\n\r\n\n<html>\n<head>\n<title>Shared Storage Manager</title>\n\n|s p/lighttpd/ v/$1/ i/Western Digital My Book http config/ d/storage-misc/ o/Linux/ cpe:/a:lighttpd:lighttpd:$1/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: mini_httpd/([-\w_.]+)/astlinux (\w+)\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\n| p/mini_httpd/ v/$1/ i/Pointca PBX http config; astlinux $2/ d/PBX/ o/Linux/ cpe:/a:acme:mini_httpd:$1/ cpe:/o:linux:linux_kernel:$2/
 match http m|^HTTP/1\.1  200 OK\r\n.*<p:DeviceName>D-Link (DIR-[-\w_.+]+)</p:DeviceName>.*<p:FirmwareVersion>([^<]+)</p:FirmwareVersion>|s p/D-Link $1 WAP http config/ i/FW $2/ d/WAP/
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .*\r\nServer: RoamAbout Switch Manager Services ([^\r\n]+)\r\nContent-length: 0\r\n\r\n| p/Enterasys RoamAbout Switch Manager http config/ v/$1/
@@ -6728,7 +6728,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nCache-Control: no-cache\r\nConnection: close\r\nPragma: no-cache\r\nLocation: /TopAccess/default\.htm\r\nServer: TOSHIBA TEC CORPORATION\r\n| p/Toshiba Tec printer http config/ d/printer/
 match http m|^HTTP/1\.0 303 See Other\r\nLocation: http://[\w._-]+:8080\r\n\0 .*\rContent-Length: 0\r\n\r\n| p|Toshiba e-STUDIO 233 copier/printer/fax http config| d/printer/
 match http m|^HTTP/1\.0 200 OK\r\nServer: InterNiche Technologies WebServer ([\w._-]+)\r\n| p/InterNiche Technologies httpd/ v/$1/
-match http m|^HTTP/1\.1 302 Redirect\r\nServer: GoAhead-Webs\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://[\w._-]+/index\.asp\r\n\r\n<html><head></head><body>\r\n\t\tThis document has moved to a new| p/GoAhead-Webs/ i/Dell PowerConnect 3024 switch http config/ d/switch/ cpe:/h:dell:powerconnect_3024/ cpe:/a:goahead:goahead_webserver/
+match http m|^HTTP/1\.1 302 Redirect\r\nServer: GoAhead-Webs\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://[\w._-]+/index\.asp\r\n\r\n<html><head></head><body>\r\n\t\tThis document has moved to a new| p/GoAhead-Webs/ i/Dell PowerConnect 3024 switch http config/ d/switch/ cpe:/a:goahead:goahead_webserver/ cpe:/h:dell:powerconnect_3024/
 match http m|^HTTP/1\.0 302 Redirect\r\nServer: GoAhead-Webs\r\nDate: .*\r\nConnection: Close\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://\xee{64}/index\.html\r\n\r\n<html><head></head><body>\r\n\t\tThis document has moved to a new| p/GoAhead-Webs/ i/Allen-Bradley ControlLogix 1769-L35E automation controller http config/ d/specialized/ cpe:/a:goahead:goahead_webserver/
 match http m|^HTTP/1\.1 200 OK\n\n<html>\n<head>\n<title>Touchstone Status</title>| p/Arris Touchstone cable modem http config/ d/broadband router/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"ROTAL Wireless ADSL2\+ Router\"\r\n| p/micro_httpd/ i|ROTAL/Dynalink WAP http config| d/WAP/ cpe:/a:acme:micro_httpd/
@@ -7380,7 +7380,7 @@ match http m|^HTTP/1\.0 302 Found\r\n.*Location: /index\.ds\r\n.*Server: DrWebAV
 match http m|^HTTP/1\.0 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*Server: vdradmind/([\w._-]+)\r\n|s p/VDR-Admin httpd/ v/$1/
 match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: unknown\r\nLocation: https?://([\w._-]+)/workplace/access/home\r\n| p/SonicWALL SSL-VPN http proxy auth/ h/$1/
 match http m|^HTTP/1\.0 200 OK\r\nServer: webserver/([\w._-]+)\r\n.*<TITLE>OSCAM ([\w._-]+ build #\d+)</TITLE>|s p/webserver/ v/$1/ i/OSCAM $2 card sharing system/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Server: AvatronHTTP \(com\.avatron\.AirSharingHD,([\w._-]+)\)\r\n\r\n|s p/lighttpd/ i/Avatron Air Sharing HD $1/ d/media device/ o/iOS/ cpe:/h:apple:ipad/ cpe:/h:apple:iphone/ cpe:/o:apple:iphone_os/ cpe:/a:lighttpd:lighttpd/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Server: AvatronHTTP \(com\.avatron\.AirSharingHD,([\w._-]+)\)\r\n\r\n|s p/lighttpd/ i/Avatron Air Sharing HD $1/ d/media device/ o/iOS/ cpe:/a:lighttpd:lighttpd/ cpe:/h:apple:ipad/ cpe:/h:apple:iphone/ cpe:/o:apple:iphone_os/
 match http m|^HTTP/1\.1 302 Found\r\nLocation: http:///home\.htm\r\nContent-Length: 0\r\nWebServer:\r\n\r\n$| p/APC SmartUPS http config/ d/power-device/
 match http m|^HTTP/1\.0 404 Error\r\nContent-Length: 138\r\nContent-Type:text/html\r\nServer: Ipswitch ([\w._-]+)\r\nConnection: close\r\nCache-Control: private\r\nDate: .*\r\n\r\n<html><head><title>404 Page Not Found</title></head>\r\n<body>404 Page Not Found<br>The system cannot find the file specified\.</body></html>| p/Ipswitch WS_FTP http config/ v/$1/
 match http m|^HTTP/1\.1 403 Forbidden\r\nServer: ZenAgent\r\nContent-Length: 0\r\n\r\n| p/Novell ZENworks Configuration Management/
@@ -8604,8 +8604,8 @@ match mxie m|^\x80\x00\x00\x0c\x72\xfe\x1d\x13\x00\x00\x00\x01\x00\x00\x00\x02$|
 # tcp/5000: Adaptive Server
 # tcp/5001: Backup Server
 # tcp/5002: Monitor Server
-match sybase-adaptive m|^\0\x01\0\x08\0\0\x00\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:adaptive_server/
-match sybase-backup m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Backup Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:backup_server/
+match sybase-adaptive m|^\0\x01\0\x08\0\0\x00\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/a:sybase:adaptive_server/ cpe:/o:microsoft:windows/a
+match sybase-backup m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Backup Server/ o/Windows/ cpe:/a:sybase:backup_server/ cpe:/o:microsoft:windows/a
 
 match syncsort-cmagent m=^\x80\0\0J\x0f\x02\x02\x06\t\x1d\x02\x11m\x04\x15\x17\x01\x06c\|sww{t\x1b{uwOn\x04\x0f\x1d\x19wE\x0f\x13\x15\x08\x13g\x06\x03\x15\x04\x08\x0f\x13e\x18fm~ug\x10\0\x1dl\x01\x0f\ne\x0f\x04\nm\x17qkzdn}qG$= p/Syncsort Backup Express cmagent/
 
@@ -8992,7 +8992,7 @@ match qcheck m|^.*\$Id: //ral_depot/products/current/ENDPOINT/CODE/client\.c|s p
 
 match qmqp m|^58:Dnetstring format error while receiving QMQP packet header,| p/Postfix qmqpd/
 
-match sybase-adaptive m|^\x04\x01\0\(\0\0\0\0\xaa\0\x14\0\0\x0f\xa2\x01\x0eLogin failed\.\n\xfd\0\x02\0\x02\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:adaptive_server/
+match sybase-adaptive m|^\x04\x01\0\(\0\0\0\0\xaa\0\x14\0\0\x0f\xa2\x01\x0eLogin failed\.\n\xfd\0\x02\0\x02\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/a:sybase:adaptive_server/ cpe:/o:microsoft:windows/a
 
 match telecom-misc m|^\0\x1e\x02\x06\x01\0\0\0\0\0\0\xf1\0| p/Radio IP MTG gateway/ d/telecom-misc/
 
@@ -10328,7 +10328,7 @@ match ms-wbt-server-proxy m|^nmproxy: Procotol byte is not 8\n$| p/nmproxy NetMe
 # possible up to 1536.
 match rtmp m|^\x03.{899,1536}$|s p/Real-Time Messaging Protocol/
 
-match sybase-monitor m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Monitor Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:monitor_server/
+match sybase-monitor m|^\0\x01\0\x08\0\0\x01\0$| p/Sybase Monitor Server/ o/Windows/ cpe:/a:sybase:monitor_server/ cpe:/o:microsoft:windows/a
 
 match trillian m|^.\0\x01.....\0([^\0]+)\0|s p/Trillian MSN Module/ i/Name $1/ o/Windows/ cpe:/o:microsoft:windows/a
 
@@ -11135,8 +11135,8 @@ Probe TCP ZendJavaBridge q|\0\0\0\x1f\0\0\0\0\0\0\0\x0cGetClassName\0\0\0\x02\x0
 rarity 9
 ports 5000,5001,5002,10001
 
-match sybase-adaptive m|^\x04\x01\0\x28\0\0\0\0\xaa\x14\0\xa2\x0f\0\0\x01\x0eLogin failed\.\n\xfd\x02\0\x02\0\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:adaptive_server/
-match sybase-monitor m|^\x04\x01\0\x1a\0\0\0\0\xaa\x01\x0eLogin failed\.\n\xfd$| p/Sybase Monitor Server/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:sybase:monitor_server/
+match sybase-adaptive m|^\x04\x01\0\x28\0\0\0\0\xaa\x14\0\xa2\x0f\0\0\x01\x0eLogin failed\.\n\xfd\x02\0\x02\0\0\0\0\0$| p/Sybase Adaptive Server/ o/Windows/ cpe:/a:sybase:adaptive_server/ cpe:/o:microsoft:windows/a
+match sybase-monitor m|^\x04\x01\0\x1a\0\0\0\0\xaa\x01\x0eLogin failed\.\n\xfd$| p/Sybase Monitor Server/ o/Windows/ cpe:/a:sybase:monitor_server/ cpe:/o:microsoft:windows/a
 
 match zend-java-bridge m|^\0\0\0\x15\x04\0\0\0\x10java\.lang\.String$|
 
