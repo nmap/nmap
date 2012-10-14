@@ -17,19 +17,15 @@
 --   o VNC
 --		- This class contains the core functions needed to communicate with VNC
 --
---	 o VNCSocket
---		- This is a copy of the DB2Socket class which provides fundamental buffering
---
---
 
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 
 -- Version 0.1
-
 -- Created 07/07/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
 local bin = require "bin"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -88,31 +84,28 @@ VNC = {
 	},
 	
 	new = function(self, host, port)
-		local o = {}
-       	setmetatable(o, self)
-        self.__index = self
-		o.host = host
-		o.port = port
-		o.vncsocket = VNCSocket:new()
-		o.cli_version = nmap.registry.args['vnc-brute.version'] or "RFB 003.889\n"
+		local o = {
+			host = host,
+			port = port,
+			socket = nmap.new_socket(),
+			cli_version = nmap.registry.args['vnc-brute.version'] or "RFB 003.889\n"
+		}
+		setmetatable(o, self)
+		self.__index = self
 		return o
 	end,
 	
 	--- Connects the VNC socket
 	connect = function(self)
-		local data, status, msg
-		
 		if ( not(HAVE_SSL) ) then
 			return false, "The VNC module requires OpenSSL support"
 		end
-		
-		status, msg = self.vncsocket:connect(self.host, self.port, "tcp")
-		return status, msg
+		return self.socket:connect(self.host, self.port, "tcp")
 	end,
 	
 	--- Disconnects the VNC socket
 	disconnect = function(self)
-		self.vncsocket:close()
+		return self.socket:close()
 	end,
 	
 	--- Performs the VNC handshake and determines
@@ -122,9 +115,11 @@ VNC = {
 	-- @return status, true on success, false on failure
 	-- @return error string containing error message if status is false
 	handshake = function(self)
-		local status, data = self.vncsocket:recv( 12 )
-		local vncsec = {}
-		local tmp
+		local status, data = self.socket:receive_buf(match.numbytes(12), true)
+		local vncsec = {
+			count = 1,
+			types = {}
+		}
 		
 		if ( not(status) ) then
 			return status, "ERROR: VNC:handshake failed to receive protocol version"
@@ -136,17 +131,27 @@ VNC = {
 			return false, ("Unsupported version (%s)"):format(data:sub(1,11))
 		end
 			
-		status = self.vncsocket:send( self.cli_version )
+		status = self.socket:send( self.cli_version )
 		if ( not(status) ) then
 			stdnse.print_debug("ERROR: VNC:handshake failed to send client version")
 			return false, "ERROR: VNC:handshake failed"
 		end
-	
+
+		local function process_error()
+			local status, tmp = self.socket:receive_buf(match.numbytes(4), true)
+			if( not(status) ) then
+				return false, "VNC:handshake failed to retrieve error message"
+			end
+			local len = select(2, bin.unpack(">I", tmp))
+			local status, err = self.socket:receive_buf(match.numbytes(len), true)
+			if( not(status) ) then
+				return false, "VNC:handshake failed to retrieve error message"
+			end
+			return false, err
+		end
+
 		if ( self.protover == "3.3" ) then
-			vncsec.count = 1
-			vncsec.types = {}
-			
-			status, tmp = self.vncsocket:recv(4)
+			local status, tmp = self.socket:receive_buf(match.numbytes(4), true)
 			if( not(status) ) then
 				return false, "VNC:handshake failed to receive security data"
 			end
@@ -157,22 +162,10 @@ VNC = {
 			-- do we have an invalid security type, if so we need to handle an
 			-- error condition
 			if ( vncsec.types[1] == 0 ) then
-				local len, err
-				
-				status, tmp = self.vncsocket:recv(4)
-				if( not(status) ) then
-					return false, "VNC:handshake failed to retrieve error message"
-				end
-				len = select(2, bin.unpack(">I", tmp) )
-				status, err = self.vncsocket:recv(len)
-				if( not(status) ) then
-					return false, "VNC:handshake failed to retrieve error message"
-				end
-				
-				return false, err
+				return process_error()
 			end
 		else
-			status, tmp = self.vncsocket:recv(1)
+			local status, tmp = self.socket:receive_buf(match.numbytes(1), true)
 			if ( not(status) ) then
 				stdnse.print_debug("ERROR: VNC:handshake failed to receive security data")
 				return false, "ERROR: VNC:handshake failed to receive security data"
@@ -180,32 +173,18 @@ VNC = {
 
 			vncsec.count = select(2, bin.unpack("C", tmp))
 			if ( vncsec.count == 0 ) then
-				local len, err
-				status, tmp = self.vncsocket:recv(4)
-				if( not(status) ) then
-					return false, "VNC:handshake failed to retrieve error message"
-				end
-				len = select(2, bin.unpack(">I", tmp) )
-				status, err = self.vncsocket:recv(len)
-				if( not(status) ) then
-					return false, "VNC:handshake failed to retrieve error message"
-				end
-				
-				return false, err
+				return process_error()
 			end
-			
-			status, tmp = self.vncsocket:recv(vncsec.count)
+			status, tmp = self.socket:receive_buf(match.numbytes(vncsec.count), true)
 
 			if ( not(status) ) then
 				stdnse.print_debug("ERROR: VNC:handshake failed to receive security data")
 				return false, "ERROR: VNC:handshake failed to receive security data"
 			end
 
-			vncsec.types = {}
 			for i=1, vncsec.count do
 				table.insert( vncsec.types, select(2, bin.unpack("C", tmp, i) ) )
 			end
-
 			self.vncsec = vncsec
 		end
 		
@@ -217,20 +196,17 @@ VNC = {
 	-- @param password string containing the password to process
 	-- @return password string containing the processed password
 	createVNCDESKey = function( self, password )
-		local _, bitstr
-		local newpass = ""
-		
 		if ( #password < 8 ) then
 			for i=1, (8 - #password) do
 				password = password .. string.char(0x00)
 			end
 		end
 		
+		local newpass = ""
 		for i=1, 8 do
-			_, bitstr = bin.unpack("B", password, i)
+			local _, bitstr = bin.unpack("B", password, i)
 			newpass = newpass .. bin.pack("B", bitstr:reverse())
 		end
-			
 		return newpass
 	end,
 	
@@ -242,9 +218,6 @@ VNC = {
 	-- @return status true on success, false on failure
 	-- @return err string containing error message when status is false
 	login = function( self, username, password )
-		local status, result
-		local chall, resp, key
-	
 		if ( not(password) ) then
 			return false, "No password was supplied"
 		end
@@ -254,25 +227,25 @@ VNC = {
 		end
 	
 		-- Announce that we support VNC Authentication
-		status = self.vncsocket:send( bin.pack("C", VNC.sectypes.VNCAUTH) )
+		local status = self.socket:send( bin.pack("C", VNC.sectypes.VNCAUTH) )
 		if ( not(status) ) then
 			return false, "Failed to select authentication type"
 		end
 	
-		status, chall = self.vncsocket:recv( 16 )
+		local status, chall = self.socket:receive_buf(match.numbytes(16), true)
 		if ( not(status) ) then
 			return false, "Failed to receive authentication challenge"
 		end
 
-		key = self:createVNCDESKey(password)
-		resp = openssl.encrypt("des-ecb", key, nil, chall, false )
+		local key = self:createVNCDESKey(password)
+		local resp = openssl.encrypt("des-ecb", key, nil, chall, false )
 
-		status = self.vncsocket:send( resp )
+		status = self.socket:send( resp )
 		if ( not(status) ) then
 			return false, "Failed to send authentication response to server"
 		end
 		
-		status, result = self.vncsocket:recv(4)
+		local status, result = self.socket:receive_buf(match.numbytes(4), true)
 		if ( not(status) ) then
 			return false, "Failed to retrieve authentication status from server"
 		end
@@ -280,7 +253,6 @@ VNC = {
 		if ( select(2, bin.unpack("I", result) ) ~= 0 ) then
 			return false, ("Authentication failed with password %s"):format(password)
 		end
-		
 		return true, ""
 	end,
 	
@@ -315,76 +287,6 @@ VNC = {
 		return self.protover
 	end,
 	
-}
-
-VNCSocket =
-{	
-	retries = 3,
-	
-	new = function(self)
-		local o = {}
-       	setmetatable(o, self)
-        self.__index = self
-		o.Socket = nmap.new_socket()
-		o.Buffer = nil
-		return o
-	end,
-	
-
-	--- Establishes a connection.
-	--
-	-- @param hostid Hostname or IP address.
-	-- @param port Port number.
-	-- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
-	-- @return Status (true or false).
-	-- @return Error code (if status is false).
-	connect = function( self, hostid, port, protocol )
-		-- VNC servers sometimes take a long time to respond 10seconds seems ok
-		self.Socket:set_timeout(10000)
-		return self.Socket:connect( hostid, port, protocol )
-	end,
-	
-	--- Closes an open connection.
-	--
-	-- @return Status (true or false).
-	-- @return Error code (if status is false).
-	close = function( self )
-		return self.Socket:close()
-	end,
-	
-	--- Opposed to the <code>socket:receive_bytes</code> function, that returns
-	-- at least x bytes, this function returns the amount of bytes requested.
-	--
-	-- @param count of bytes to read
-	-- @return true on success, false on failure
-	-- @return data containing bytes read from the socket
-	-- 		   err containing error message if status is false
-	recv = function( self, count )
-		local status, data
-	
-		self.Buffer = self.Buffer or ""
-	
-		if ( #self.Buffer < count ) then
-			status, data = self.Socket:receive_bytes( count - #self.Buffer )
-			if ( not(status) or #data < count - #self.Buffer ) then
-				return false, data
-			end
-			self.Buffer = self.Buffer .. data
-		end
-			
-		data = self.Buffer:sub( 1, count )
-		self.Buffer = self.Buffer:sub( count + 1)
-	
-		return true, data	
-	end,
-	
-	--- Sends data over the socket
-	--
-	-- @return Status (true or false).
-	-- @return Error code (if status is false).
-	send = function( self, data )
-		return self.Socket:send( data )
-	end,
 }
 
 return _ENV;
