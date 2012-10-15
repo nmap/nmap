@@ -88,10 +88,6 @@ o Test a hierarchical classifier for IPv6 OS detection. Our classifier
   suspect playing it by ear will be sufficient. Talk to David for more
   of his thinking on this topic.
 
-o If it is trivial to add, it would be nice if the "New VA Module
-  Alert Service" also gave the Author field for NSE scripts so everyone
-  knows which hero(es) wrote it.
-
 o [INFRASTRUCTURE] Improve our main web server http configuration to
   better handle high load situations and DoS attacks.  As part of
   this, we may have to raise the max client limits.  But then there is
@@ -686,6 +682,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o If it is trivial to add, it would be nice if the "New VA Module
+  Alert Service" also gave the Author field for NSE scripts so everyone
+  knows which hero(es) wrote it.
 
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
