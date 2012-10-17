@@ -839,8 +839,8 @@ static int l_new (lua_State *L)
 }
 
 /* Common subfunction to l_close and l_connect. l_connect calls this when a
-   socket when a second attempt is made to connect a socket that has already had
-   a connection attempt. */
+   second attempt is made to connect a socket that has already had a connection
+   attempt. */
 static void close_internal (lua_State *L, nse_nsock_udata *nu)
 {
   trace(nu->nsiod, "CLOSE", TO);
