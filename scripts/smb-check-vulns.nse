@@ -182,7 +182,7 @@ function check_ms08_067(host)
 	msrpc.stop_smb(smbstate)
 
 	if(status == false) then
-		if(string.find(netpathcompare_result, "UNKNOWN_57") ~= nil) then
+		if(string.find(netpathcompare_result, "WERR_INVALID_PARAMETER") ~= nil) then
 			return true, INFECTED
 		elseif(string.find(netpathcompare_result, "INVALID_NAME") ~= nil) then
 			return true, PATCHED
@@ -276,7 +276,7 @@ function check_conficker(host)
 		if(string.find(netpathcanonicalize_result, "INVALID_NAME")) then
 			msrpc.stop_smb(smbstate)
 			return true, CLEAN
-		elseif(string.find(netpathcanonicalize_result, "UNKNOWN_57") ~= nil) then
+		elseif(string.find(netpathcanonicalize_result, "WERR_INVALID_PARAMETER") ~= nil) then
 			msrpc.stop_smb(smbstate)
 			return true, INFECTED
 		else
