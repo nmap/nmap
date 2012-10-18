@@ -500,7 +500,6 @@ do
 
     print_debug(2, "Script %s was selected by %s%s.",
         basename,
-        script_params.selection and
         script_params.selection or "(unknown)",
         script_params.forced and " and forced to run" or "");
     local script_closure_generator = loadscript(filename);
