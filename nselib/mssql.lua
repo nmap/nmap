@@ -2,7 +2,7 @@
 -- MSSQL Library supporting a very limited subset of operations.
 --
 -- The library was designed and tested against Microsoft SQL Server 2005.
--- However, it should work with versions 7.0, 2000, 2005 and 2008. 
+-- However, it should work with versions 7.0, 2000, 2005, 2008 and 2012. 
 -- Only a minimal amount of parsers have been added for tokens, column types
 -- and column data in order to support the first scripts.
 -- 
@@ -135,6 +135,7 @@ _ENV = stdnse.module("mssql", stdnse.seeall)
 --								* added DoneProc response token support
 --
 --								(Tom Sellers)
+-- Updated 10/01/2012 - v0.7 - added support for 2012 and later service packs for 2005, 2008 and 2008 R2 (Rob Nicholls)
 
 local HAVE_SSL, openssl = pcall(require, "openssl")
 
@@ -317,7 +318,7 @@ SqlServerVersionInfo =
 		local VERSION_LOOKUP_TABLE = {
 			["^6%.0"] = "6.0", ["^6%.5"] = "6.5", ["^7%.0"] = "7.0", 
 			["^8%.0"] = "2000",	["^9%.0"] = "2005",	["^10%.0"] = "2008",
-			["^10%.50"] = "2008 R2", ["^11%.0"] = "2011",
+			["^10%.50"] = "2008 R2", ["^11%.0"] = "2012",
 		}
 		
 		local product = ""
@@ -354,11 +355,13 @@ SqlServerVersionInfo =
 		local SP_LOOKUP_TABLE_2000 = { {194, "RTM"}, {384, "SP1"}, {532, "SP2"}, {534, "SP2"}, {760, "SP3"},
 			{766, "SP3a"}, {767, "SP3/SP3a"}, {2039, "SP4"}, }
 		
-		local SP_LOOKUP_TABLE_2005 = { {1399, "RTM"}, {2047, "SP1"}, {3042, "SP2"}, {4035, "SP3"}, }
+		local SP_LOOKUP_TABLE_2005 = { {1399, "RTM"}, {2047, "SP1"}, {3042, "SP2"}, {4035, "SP3"}, {5000, "SP4"}, }
 		
-		local SP_LOOKUP_TABLE_2008 = { {1600, "RTM"}, {2531, "SP1"}, {4000, "SP2"}, }
+		local SP_LOOKUP_TABLE_2008 = { {1600, "RTM"}, {2531, "SP1"}, {4000, "SP2"}, {5500, "SP3"}, }
 		
-		local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, }
+		local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, {4000, "SP2"}, }
+
+		local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, }
 	
 	
 		if ( not self.brandedVersion ) then
@@ -372,6 +375,7 @@ SqlServerVersionInfo =
 			elseif self.brandedVersion == "2005" then spLookupTable = SP_LOOKUP_TABLE_2005
 			elseif self.brandedVersion == "2008" then spLookupTable = SP_LOOKUP_TABLE_2008
 			elseif self.brandedVersion == "2008 R2" then spLookupTable = SP_LOOKUP_TABLE_2008R2
+			elseif self.brandedVersion == "2012" then spLookupTable = SP_LOOKUP_TABLE_2012
 		end
 		
 		return spLookupTable
