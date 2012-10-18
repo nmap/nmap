@@ -373,7 +373,7 @@ local function check_smbv2_dos(host)
 	            string.char(0x4d, 0x20, 0x30, 0x2e, 0x31, 0x32, 0x00, 0x02, 0x53, 0x4d, 0x42, 0x20, 0x32, 0x2e) ..
 	            string.char(0x30, 0x30, 0x32, 0x00)
 
-	local socket = nmap:new_socket()
+	local socket = nmap.new_socket()
 	if(socket == nil) then
 		return false, "Couldn't create socket"
 	end
@@ -398,7 +398,7 @@ local function check_smbv2_dos(host)
 	stdnse.sleep(5)
 
 	-- Create a new socket
-	socket = nmap:new_socket()
+	socket = nmap.new_socket()
 	if(socket == nil) then
 		return false, "Couldn't create socket"
 	end
