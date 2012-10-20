@@ -408,7 +408,12 @@ Comm = {
       local tmp, lastfragment, length
       local data, pos = "", 1
 
+      -- Maximum number of allowed attempts to parse the received bytes. This
+      -- prevents the code from looping endlessly on invalid content.
+      local retries = 400
+
       repeat
+        retries = retries - 1
         lastfragment = false
         status, data = self:GetAdditionalBytes( data, pos, 4 )
         if ( not(status) ) then
@@ -453,7 +458,11 @@ Comm = {
 
         pos = pos + length
         data = bufcopy
-      until lastfragment == true
+      until (lastfragment == true) or (retries == 0)
+
+      if retries == 0 then
+        return false, "Aborted after too many retries"
+      end
       return true, data
     end
   end,
