@@ -2968,11 +2968,6 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
 }
 
 
-
-int nmap_fileexistsandisreadable(const char* pathname) {
-  return fileexistsandisreadable(pathname);
-}
-
 static char *executable_dir(const char *argv0) {
   char *path, *dir;
 
@@ -3034,7 +3029,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
        name. Return a positive result even if the file doesn't exist or is not
        readable. It is the caller's responsibility to report the error if the
        file can't be accessed. */
-    return fileexistsandisreadable(filename_returned) || 1;
+    return file_is_readable(filename_returned) || 1;
   }
 
   /* Try updates directory first. */
@@ -3059,7 +3054,7 @@ static int nmap_fetchfile_userdir(char *buf, size_t buflen, const char *file) {
   if (res <= 0 || res >= buflen)
     return 0;
 
-  return fileexistsandisreadable(buf);
+  return file_is_readable(buf);
 }
 #else
 static int nmap_fetchfile_userdir_uid(char *buf, size_t buflen, const char *file, int uid) {
@@ -3073,7 +3068,7 @@ static int nmap_fetchfile_userdir_uid(char *buf, size_t buflen, const char *file
   if (res <= 0 || (size_t) res >= buflen)
     return 0;
 
-  return fileexistsandisreadable(buf);
+  return file_is_readable(buf);
 }
 
 static int nmap_fetchfile_userdir(char *buf, size_t buflen, const char *file) {
@@ -3103,14 +3098,14 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
   if (o.datadir) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", o.datadir, file);
     if (res > 0 && res < bufferlen) {
-      foundsomething = fileexistsandisreadable(filename_returned);
+      foundsomething = file_is_readable(filename_returned);
     }
   }
 
   if (!foundsomething && (dirptr = getenv("NMAPDIR"))) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", dirptr, file);
     if (res > 0 && res < bufferlen) {
-      foundsomething = fileexistsandisreadable(filename_returned);
+      foundsomething = file_is_readable(filename_returned);
     }
   }
 
@@ -3128,14 +3123,14 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
     if (!foundsomething) { /* Try the nMap directory */
       res = Snprintf(filename_returned, bufferlen, "%s/%s", dir, file);
       if (res > 0 && res < bufferlen) {
-        foundsomething = fileexistsandisreadable(filename_returned);
+        foundsomething = file_is_readable(filename_returned);
       }
     }
 #ifndef WIN32
     if (!foundsomething) {
       res = Snprintf(filename_returned, bufferlen, "%s/../share/nmap/%s", dir, file);
       if (res > 0 && res < bufferlen) {
-        foundsomething = fileexistsandisreadable(filename_returned);
+        foundsomething = file_is_readable(filename_returned);
       }
     }
 #endif
@@ -3145,14 +3140,14 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
   if (!foundsomething) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
     if (res > 0 && res < bufferlen) {
-      foundsomething = fileexistsandisreadable(filename_returned);
+      foundsomething = file_is_readable(filename_returned);
     }
   }
 
   if (foundsomething && (*filename_returned != '.')) {
     res = Snprintf(dot_buffer, sizeof(dot_buffer), "./%s", file);
     if (res > 0 && res < bufferlen) {
-      if (fileexistsandisreadable(dot_buffer) && !same_file(filename_returned, dot_buffer)) {
+      if (file_is_readable(dot_buffer) && !same_file(filename_returned, dot_buffer)) {
 #ifdef WIN32
         if (warningcount++ < 1 && o.debugging)
 #else

@@ -427,7 +427,7 @@ void replacenonprintable(char *str, int strlength, char replchar);
 /* Returns one if the file pathname given exists, is not a directory and
  * is readable by the executing process.  Returns two if it is readable
  * and is a directory.  Otherwise returns 0. */
-int fileexistsandisreadable(const char *pathname);
+int file_is_readable(const char *pathname);
 
 /* Portable, incompatible replacements for dirname and basename. */
 char *path_get_dirname(const char *path);

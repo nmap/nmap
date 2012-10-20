@@ -834,7 +834,7 @@ char errstr[256];
         if ( o.issetPayloadFilename() ) {
             outFatal(QT_3,"Only one payload input filename allowed");
         }else {
-            int tmp = fileexistsandisreadable(optarg);
+            int tmp = file_is_readable(optarg);
             if ( tmp == 1 )
                 o.setPayloadFilename(optarg);
             else if ( tmp==2)

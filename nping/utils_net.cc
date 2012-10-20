@@ -1517,7 +1517,7 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
     outFatal(QT_3,"getinterfaces_inet6_linux() NULL values supplied");
  
   /* TODO: Do we fatal() or should we just error and return OP_FAILURE? */
-  if ( !fileexistsandisreadable(PATH_PROC_IFINET6) )
+  if ( !file_is_readable(PATH_PROC_IFINET6) )
     outFatal(QT_3, "Couldn't get IPv6 interface information. File %s does not exist or you don't have read permissions.", PATH_PROC_IFINET6);
   if( (if6file=fopen(PATH_PROC_IFINET6, "r"))==NULL )
     outFatal(QT_3, "Failed to open %s.", PATH_PROC_IFINET6);
@@ -1711,7 +1711,7 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
     outFatal(QT_3,"getroutes_inet6_linux() NULL values supplied");
  
   /* TODO: Do we fatal() or should we just error and return OP_FAILURE? */
-  if ( !fileexistsandisreadable(PATH_PROC_IPV6ROUTE) )
+  if ( !file_is_readable(PATH_PROC_IPV6ROUTE) )
     outFatal(QT_3, "Couldn't get IPv6 route information. File %s does not exist or you don't have read permissions.", PATH_PROC_IPV6ROUTE);
   if( (route6file=fopen(PATH_PROC_IPV6ROUTE, "r"))==NULL )
     outFatal(QT_3, "Failed to open %s.", PATH_PROC_IPV6ROUTE);

@@ -305,7 +305,7 @@ static int nse_fetchfile_absolute(char *path, size_t path_len, const char *file)
     if (o.debugging > 1)
       log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
     Strncpy(path, file, path_len);
-    return nmap_fileexistsandisreadable(file);
+    return file_is_readable(file);
   }
 
   return nmap_fetchfile(path, path_len, file);
@@ -324,7 +324,7 @@ static int nse_fetchscript(char *path, size_t path_len, const char *file) {
     if (o.debugging > 1)
       log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
     Strncpy(path, file, path_len);
-    return nmap_fileexistsandisreadable(file);
+    return file_is_readable(file);
   }
 
   // lets look in <path>/scripts
@@ -333,7 +333,7 @@ static int nse_fetchscript(char *path, size_t path_len, const char *file) {
   if (type == 0) {
     // current directory
     Strncpy(path, file, path_len);
-    return nmap_fileexistsandisreadable(file);
+    return file_is_readable(file);
   }
 
   return type;

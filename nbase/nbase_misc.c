@@ -741,7 +741,7 @@ int optcmp(const char *a, const char *b) {
 /* Returns one if the file pathname given exists, is not a directory and
  * is readable by the executing process.  Returns two if it is readable
  * and is a directory.  Otherwise returns 0. */
-int fileexistsandisreadable(const char *pathname) {
+int file_is_readable(const char *pathname) {
 	char *pathname_buf = strdup(pathname);
 	int status = 0;
 	struct stat st;
