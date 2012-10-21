@@ -204,6 +204,9 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool);
  * Pass NULL to reset to default (use most efficient engine available). */
 void nsock_set_default_engine(char *engine);
 
+/* Get a comma-separated list of available engines. */
+const char *nsock_list_engines(void);
+
 /* And here is how you create an nsock_pool.  This allocates, initializes, and
  * returns an nsock_pool event aggregator.  In the case of error, NULL will be
  * returned.  If you do not wish to immediately associate any userdata, pass in
