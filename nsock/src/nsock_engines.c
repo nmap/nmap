@@ -111,9 +111,20 @@ void nsock_set_default_engine(char *engine) {
   if (engine_hint)
     free(engine_hint);
 
-  if (engine)
-    engine_hint = strdup(engine);
-  else
+  if (engine) {
+    int i;
+
+    for (i = 0; available_engines[i] != NULL; i++) {
+      if (strcmp(engine, available_engines[i]->name) == 0) {
+        engine_hint = strdup(engine);
+        return;
+      }
+    }
+    fatal("Unknown or non-available IO engine: %s\n", engine);
+  } else {
+    /* having engine = NULL is fine. This is actually the
+     * way to tell nsock to use the default engine again. */
     engine_hint = NULL;
+  }
 }
 
