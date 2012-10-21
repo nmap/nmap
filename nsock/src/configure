@@ -3577,6 +3577,55 @@ $as_echo "no" >&6; }
 
 fi
 
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for poll(2)" >&5
+$as_echo_n "checking for poll(2)... " >&6; }
+  if ${ax_cv_have_poll+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+      #include <poll.h>
+int
+main ()
+{
+int rc; rc = poll((struct pollfd *)(0), 0, 0);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ax_cv_have_poll=yes
+else
+  ax_cv_have_poll=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+
+  if test "${ax_cv_have_poll}" = "yes"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+$as_echo "#define HAVE_POLL 1" >>confdefs.h
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+fi
+
+for ac_func in kqueue kevent
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+ $as_echo "#define HAVE_KQUEUE 1" >>confdefs.h
+
+fi
+done
+
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
