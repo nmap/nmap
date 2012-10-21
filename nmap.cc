@@ -802,7 +802,8 @@ void parse_options(int argc, char **argv) {
           o.randomize_hosts = 1;
           o.ping_group_sz = PING_GROUP_SZ * 4;
         } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
-          nsock_set_default_engine(optarg);
+          if (nsock_set_default_engine(optarg) < 0)
+            fatal("Unknown or non-available engine: %s", optarg);
         } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = 1;
         } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0

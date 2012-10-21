@@ -201,8 +201,10 @@ nsock_ssl_ctx nsp_ssl_init_max_speed(nsock_pool ms_pool);
  * strup()'ed by the library. No validity check is performed by this function,
  * beware nsp_new() will fatal() if an invalid/unavailable engine name was
  * supplied before.
- * Pass NULL to reset to default (use most efficient engine available). */
-void nsock_set_default_engine(char *engine);
+ * Pass NULL to reset to default (use most efficient engine available).
+ *
+ * Function returns 0 on success and -1 on error. */
+int nsock_set_default_engine(char *engine);
 
 /* Get a comma-separated list of available engines. */
 const char *nsock_list_engines(void);
