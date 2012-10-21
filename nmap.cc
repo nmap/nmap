@@ -3253,4 +3253,5 @@ static void display_nmap_version() {
   for (i = 0; i < without.size(); i++)
     log_write(LOG_STDOUT, " %s", without[i].c_str());
   log_write(LOG_STDOUT, "\n");
+  log_write(LOG_STDOUT, "Available nsock engines: %s\n", nsock_list_engines());
 }
