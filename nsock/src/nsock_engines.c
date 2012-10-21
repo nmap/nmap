@@ -131,7 +131,7 @@ int nsock_set_default_engine(char *engine) {
 const char *nsock_list_engines(void) {
   return
 #if HAVE_EPOLL
-  "epoll,"
+  "epoll "
 #endif
   "select";
 }
