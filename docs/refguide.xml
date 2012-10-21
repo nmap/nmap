@@ -2884,7 +2884,7 @@ worth the extra time.</para>
 
       <varlistentry>
         <term><option>--nsock-engine
-        epoll|select</option>
+        epoll|kqueue|poll|select</option>
         <indexterm><primary><option>--nsock-engine</option></primary></indexterm>
         <indexterm><primary>Nsock IO engine</primary></indexterm>
         </term>
@@ -2894,7 +2894,9 @@ worth the extra time.</para>
 <literal>select(2)</literal>-based fallback engine is guaranteed to be
 available on your system.  Engines are named after the name of the IO
 management facility they leverage.  Engines currenty implemented are
-<literal>epoll</literal> and <literal>select</literal>.</para>
+<literal>epoll</literal>, <literal>kqueue</literal>, <literal>poll</literal>,
+and <literal>select</literal>, but not all will be present on any platform.
+Use <command>nmap -V</command> to see which engines are supported.</para>
 
         </listitem>
       </varlistentry>

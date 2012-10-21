@@ -97,5 +97,6 @@
 #define HAVE_PCAP 1
 #endif
 
+#define HAVE_POLL 1
 
 #endif /* NSOCK_WINCONFIG_H */

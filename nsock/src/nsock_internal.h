@@ -268,6 +268,7 @@ typedef struct {
   gh_list_elem *entry_in_nsp_active_iods;
 
 #define IOD_REGISTERED  0x01
+#define IOD_PROCESSED   0x02    /* internally used by engine_kqueue.c */
 
 #define IOD_PROPSET(iod, flag)  ((iod)->_flags |= (flag))
 #define IOD_PROPCLR(iod, flag)  ((iod)->_flags &= ~(flag))

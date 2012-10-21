@@ -183,6 +183,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\engine_epoll.c" />
+    <ClCompile Include="src\engine_kqueue.c" />
+    <ClCompile Include="src\engine_poll.c" />
     <ClCompile Include="src\engine_select.c" />
     <ClCompile Include="src\error.c" />
     <ClCompile Include="src\filespace.c" />

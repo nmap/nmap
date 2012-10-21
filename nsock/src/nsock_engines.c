@@ -71,6 +71,20 @@
   #define ENGINE_EPOLL
 #endif /* HAVE_EPOLL */
 
+#if HAVE_KQUEUE
+  extern struct io_engine engine_kqueue;
+  #define ENGINE_KQUEUE &engine_kqueue,
+#else
+  #define ENGINE_KQUEUE
+#endif /* HAVE_KQUEUE */
+
+#if HAVE_POLL
+  extern struct io_engine engine_poll;
+  #define ENGINE_POLL &engine_poll,
+#else
+  #define ENGINE_POLL
+#endif /* HAVE_POLL */
+
 /* select() based engine is the fallback engine, we assume it's always available */
 extern struct io_engine engine_select;
 #define ENGINE_SELECT &engine_select,
@@ -79,6 +93,8 @@ extern struct io_engine engine_select;
  * available on your system. Engines must be sorted by order of preference */
 static struct io_engine *available_engines[] = {
   ENGINE_EPOLL
+  ENGINE_KQUEUE
+  ENGINE_POLL
   ENGINE_SELECT
   NULL
 };
@@ -132,6 +148,12 @@ const char *nsock_list_engines(void) {
   return
 #if HAVE_EPOLL
   "epoll "
+#endif
+#if HAVE_KQUEUE
+  "kqueue "
+#endif
+#if HAVE_POLL
+  "poll "
 #endif
   "select";
 }

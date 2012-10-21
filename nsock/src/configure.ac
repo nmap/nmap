@@ -113,6 +113,8 @@ if test "$pcap_enabled" != "no"; then
 fi
 
 AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL)], )
+AX_HAVE_POLL([AC_DEFINE(HAVE_POLL)], )
+AC_CHECK_FUNCS(kqueue kevent, [AC_DEFINE(HAVE_KQUEUE)], )
 
 dnl Checks for programs.
 AC_PROG_CC
