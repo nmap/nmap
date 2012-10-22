@@ -93,11 +93,11 @@ static nsock_pool new_pool (lua_State *L)
 
 static nsock_pool get_pool (lua_State *L)
 {
-  nsock_pool *nsp;
-  nsp = (nsock_pool *) lua_touserdata(L, NSOCK_POOL);
-  assert(nsp != NULL);
-  assert(*nsp != NULL);
-  return *nsp;
+  nsock_pool *nspp;
+  nspp = (nsock_pool *) lua_touserdata(L, NSOCK_POOL);
+  assert(nspp != NULL);
+  assert(*nspp != NULL);
+  return *nspp;
 }
 
 static std::string hexify (const unsigned char *str, size_t len)
