@@ -61,6 +61,8 @@
 
 #ifdef HAVE_CONFIG_H
 #include "nsock_config.h"
+#elif WIN32
+#include "nsock_winconfig.h"
 #endif
 
 #if HAVE_POLL
