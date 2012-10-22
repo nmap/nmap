@@ -89,7 +89,12 @@
   #define POLLFD  struct pollfd
 #endif
 
-#define POLL_R_FLAGS (POLLIN | POLLPRI)
+#ifdef WIN32
+  #define POLL_R_FLAGS (POLLIN)
+#else
+  #define POLL_R_FLAGS (POLLIN | POLLPRI)
+#endif /* WIN32 */
+
 #define POLL_W_FLAGS POLLOUT
 #ifdef POLLRDHUP
   #define POLL_X_FLAGS (POLLERR | POLLHUP | POLLRDHUP)
@@ -97,6 +102,7 @@
   /* POLLRDHUP was introduced later and might be unavailable on older systems. */
   #define POLL_X_FLAGS (POLLERR | POLLHUP)
 #endif /* POLLRDHUP */
+
 
 #define LOWER_MAX_FD(pinfo) \
   do {  \
@@ -221,8 +227,10 @@ int poll_iod_register(mspool *nsp, msiod *iod, int ev) {
     pinfo->events[sd].events |= POLL_R_FLAGS;
   if (ev & EV_WRITE)
     pinfo->events[sd].events |= POLL_W_FLAGS;
+#ifndef WIN32
   if (ev & EV_EXCEPT)
     pinfo->events[sd].events |= POLL_X_FLAGS;
+#endif
 
   IOD_PROPSET(iod, IOD_REGISTERED);
   return 1;
@@ -278,8 +286,10 @@ int poll_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
     pinfo->events[sd].events |= POLL_R_FLAGS;
   if (iod->watched_events & EV_WRITE)
     pinfo->events[sd].events |= POLL_W_FLAGS;
+#ifndef WIN32
   if (iod->watched_events & EV_EXCEPT)
     pinfo->events[sd].events |= POLL_X_FLAGS;
+#endif
 
   return 1;
 }
