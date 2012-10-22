@@ -95,6 +95,7 @@ static nsock_pool get_pool (lua_State *L)
 {
   nsock_pool *nsp;
   nsp = (nsock_pool *) lua_touserdata(L, NSOCK_POOL);
+  assert(nsp != NULL);
   assert(*nsp != NULL);
   return *nsp;
 }
