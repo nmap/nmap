@@ -199,7 +199,7 @@ Section "Nmap Core Files" SecCore
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
   File ..\..\docs\3rd-party-licenses.txt
-  File /r ..\..\docs\licenses
+  File /r /x .svn ..\..\docs\licenses
   File libeay32.dll
   File ssleay32.dll
   File /r /x mswin32 /x .svn /x ncat ..\..\scripts
