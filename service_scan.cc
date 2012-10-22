@@ -2504,7 +2504,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       break;
     default:
       fatal("Unexpected error in NSE_TYPE_READ callback.  Error code: %d (%s)", err,
-	    strerror(err));
+	    socket_strerror(err));
     }
   } else if (status == NSE_STATUS_KILL) {
     /* User probablby specified host_timeout and so the service scan is 
@@ -2699,7 +2699,7 @@ int service_scan(std::vector<Target *> &Targets) {
   looprc = nsock_loop(nsp, timeout);
   if (looprc == NSOCK_LOOP_ERROR) {
     int err = nsp_geterrorcode(nsp);
-    fatal("Unexpected nsock_loop error.  Error code %d (%s)", err, strerror(err));
+    fatal("Unexpected nsock_loop error.  Error code %d (%s)", err, socket_strerror(err));
   }
 
   nsp_delete(nsp);
