@@ -68,7 +68,6 @@
 
 #ifdef WIN32
 #include "nbase_winconfig.h"
-#include "nbase_winunix.h"
 #include <Winsock2.h>
 #endif
 

@@ -69,7 +69,9 @@
 
 #ifndef WIN32
 #include <poll.h>
-#endif
+#else
+#include <Winsock2.h>
+#endif /* ^WIN32 */
 
 #include "nsock_internal.h"
 
