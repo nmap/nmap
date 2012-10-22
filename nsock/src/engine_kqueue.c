@@ -299,7 +299,7 @@ int kqueue_loop(mspool *nsp, int msec_timeout) {
 
 /* ---- INTERNAL FUNCTIONS ---- */
 
-static int get_nsock_event(msiod *nsi, const struct kevent *kev) {
+static inline int get_evmask(msiod *nsi, const struct kevent *kev) {
   int evmask = EV_NONE;
 
   /* generate the corresponding event mask with nsock event flags */
@@ -343,13 +343,11 @@ void iterate_through_event_lists(mspool *nsp, int evcount) {
 
   for (n = 0; n < evcount; n++) {
     struct kevent *kev = &kinfo->events[n];
-    int evmask;
 
     nsi = (msiod *)kev->udata;
 
     /* process all the pending events for this IOD */
-    evmask = get_nsock_event(nsi, kev);
-    process_iod_events(nsp, nsi, evmask);
+    process_iod_events(nsp, nsi, get_evmask(nsi, kev));
 
     IOD_PROPSET(nsi, IOD_PROCESSED);
   }

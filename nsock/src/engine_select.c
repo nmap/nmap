@@ -355,7 +355,7 @@ int select_loop(mspool *nsp, int msec_timeout) {
 
 /* ---- INTERNAL FUNCTIONS ---- */
 
-static int get_evmask(const mspool *nsp, const msiod *nsi) {
+static inline int get_evmask(const mspool *nsp, const msiod *nsi) {
   struct select_engine_info *sinfo = (struct select_engine_info *)nsp->engine_data;
   int sd, evmask;
 

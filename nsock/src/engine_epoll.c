@@ -316,6 +316,18 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
 
 
 /* ---- INTERNAL FUNCTIONS ---- */
+static inline int get_evmask(struct epoll_engine_info *einfo, int n) {
+  int evmask = EV_NONE;
+
+  if (einfo->events[n].events & EPOLL_R_FLAGS)
+    evmask |= EV_READ;
+  if (einfo->events[n].events & EPOLL_W_FLAGS)
+    evmask |= EV_WRITE;
+  if (einfo->events[n].events & EPOLL_X_FLAGS)
+    evmask |= (EV_READ | EV_WRITE | EV_EXCEPT);
+
+  return evmask;
+}
 
 /* Iterate through all the event lists (such as connect_events, read_events,
  * timer_events, etc) and take action for those that have completed (due to
@@ -336,24 +348,14 @@ void iterate_through_event_lists(mspool *nsp, int evcount) {
   initial_iod_count = GH_LIST_COUNT(&nsp->active_iods);
 
   for (n = 0; n < evcount; n++) {
-    int evmask = EV_NONE;
-
     nsi = (msiod *)einfo->events[n].data.ptr;
     assert(nsi);
 
     if (nsi->entry_in_nsp_active_iods == last)
       last = GH_LIST_ELEM_PREV(nsi->entry_in_nsp_active_iods);
 
-    /* generate the corresponding event mask with nsock event flags */
-    if (einfo->events[n].events & EPOLL_R_FLAGS)
-      evmask |= EV_READ;
-    if (einfo->events[n].events & EPOLL_W_FLAGS)
-      evmask |= EV_WRITE;
-    if (einfo->events[n].events & EPOLL_X_FLAGS)
-      evmask |= (EV_READ | EV_WRITE | EV_EXCEPT);
-
     /* process all the pending events for this IOD */
-    process_iod_events(nsp, nsi, evmask);
+    process_iod_events(nsp, nsi, get_evmask(einfo, n));
 
     if (nsi->state != NSIOD_STATE_DELETED) {
       gh_list_move_front(&nsp->active_iods, nsi->entry_in_nsp_active_iods);
