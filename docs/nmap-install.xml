@@ -1070,10 +1070,13 @@ on other platforms once a proper build environment is in place.</para>
 <para>Compiling Nmap on Mac OS X requires
 <ulink url="https://developer.apple.com/xcode/">Xcode</ulink>,<indexterm><primary>Xcode</primary></indexterm>
 Apple's developer tools that include GCC and the rest of the usual build
-system. Xcode is not installed by default, but is available as an
-optional install on the Mac OS X installation discs. If you do not have
-the installation discs or if you want a newer version, you can <ulink url="https://developer.apple.com/xcode/">download
-Xcode free of charge</ulink>.</para>
+system. Xcode is not installed by default, but can be downloaded free of
+charge from the <ulink url="https://developer.apple.com/xcode/">Mac App
+Store</ulink>. After installing Xcode, open
+<guimenuitem>Preferences</guimenuitem>, select the
+<guibutton>Downloads</guibutton> tab, and click the
+<guibutton>Install</guibutton> next to <guilabel>Command Line
+Tools</guilabel>.</para>
 
 <para>Xcode installations don't always include the command line tools.  You can install them by opening Xcode from the Applications folder, opening Preferencechoosing the <literal>Download</literal> header icon and clicking the <literal>Install</literal> button next to <quote>Command Line Tools</quote>.</para>
 
