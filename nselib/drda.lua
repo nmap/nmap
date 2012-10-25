@@ -75,14 +75,14 @@ CodePoint = {
 	ACCSEC		= 0x106d,
 	SECCHK		= 0x106e,
 	EXCSAT 		= 0x1041,
-	PRDID		= 0x112e,
+	PRDID			= 0x112e,
 	SRVCLSNM 	= 0x1147,
 	SVRCOD		= 0x1149,
 	SYNERRCD	= 0x114a,
 	SRVRLSLV 	= 0x115a,
 	EXTNAM 		= 0x115e,
 	SRVNAM 		= 0x116d,
-	USRID		= 0x11a0,
+	USRID			= 0x11a0,
 	PASSWORD	= 0x11a1,
 	SECMEC		= 0x11a2,
 	SECCHKCD	= 0x11a4,
@@ -225,14 +225,12 @@ DRDA = {
 	--
 	-- @return data containing the object instance		
 	__tostring = function(self)
-		local data
-		
 		if ( not(self.DDM) ) then
 			stdnse.print_debug("drda.DRDA.toString: DDM cannot be nil")
 			return nil
 		end
 		
-		data = bin.pack(">SCCSSS", self.DDM.Length, self.DDM.Magic, self.DDM.Format, self.DDM.CorelId, self.DDM.Length2, self.DDM.CodePoint )
+		local data = bin.pack(">SCCSSS", self.DDM.Length, self.DDM.Magic, self.DDM.Format, self.DDM.CorelId, self.DDM.Length2, self.DDM.CodePoint )
 		for k,v in ipairs(self.Parameters) do
 			data = data .. tostring(v)
 		end
@@ -255,17 +253,16 @@ DRDA = {
 	-- @return Data (if status is true) or error string (if status is false).	
 	receive = function( self, db2socket )
 		local DDM_SIZE = 10
-		local status, data, ddm, param
 		local pos = 1
 		
 		-- first read atleast enough so that we can populate the DDM
-		status, data = db2socket:receive_buf( match.numbytes(DDM_SIZE), true )
+		local status, data = db2socket:receive_buf( match.numbytes(DDM_SIZE), true )
 		if ( not(status) ) then
 			stdnse.print_debug("drda.DRDA.receive: %s", data)
 			return false, ("Failed to read at least %d bytes from socket"):format(DDM_SIZE)
 		end
 		
-		ddm = DDM:new()
+		local ddm = DDM:new()
 		ddm:fromString( data )
 		self:setDDM( ddm )
 		
@@ -276,7 +273,7 @@ DRDA = {
 
 		-- add parameters until pos reaches the "end"
 		repeat
-			param = DRDAParameter:new()
+			local param = DRDAParameter:new()
 			pos = param:fromString( data, pos )
 			self:addParameter( param )
 		until ( #data <= pos )
@@ -309,8 +306,7 @@ DRDAParameter = {
 	--
 	-- @return data string containing the DRDA Parameter
 	__tostring = function( self )
-		local data = bin.pack(">SS", self.Length, self.CodePoint )
-		
+		local data = bin.pack(">SS", self.Length, self.CodePoint )	
 		if ( self.Data ) then
 			data = data .. bin.pack("A", self.Data)
 		end
@@ -557,12 +553,12 @@ Helper = {
 	getServerInfo = function( self )
 		local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
 		local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
-		local drda, response, param, status, err, packet
+		local response, param, err
 	
-		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat } ) )
+		local status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat } ) )
 		if ( not(status) ) then	return false, err end
 	
-		drda = packet:getDRDAByCodePoint( CodePoint.EXCSATRD )
+		local drda = packet:getDRDAByCodePoint( CodePoint.EXCSATRD )
 		if ( drda ) then
 			response = {}
 			param = drda:getParameter( CodePoint.EXTNAM )
@@ -596,9 +592,6 @@ Helper = {
 	-- @return Status (true or false)
 	-- @return err message (if status if false)
 	login = function( self, database, username, password )
-		local drda = {}
-		local packet, data, param, status, err, _
-		
 		local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
 		local secmec, prdid = "\00\03", "JCC03010"
 		local tdovr = bin.pack("H", "0006119c04b80006119d04b00006119e04b8")
@@ -609,7 +602,7 @@ Helper = {
 		local drda_secchk = Command.SECCHK( secmec, database, username, password )
 		local drda_accrdb = Command.ACCRDB( database, string.char(0x24,0x07), "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
 				
-		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
+		local status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
 		if( not(status) ) then return false, packet end
 		
 		if ( packet:getDRDAByCodePoint( CodePoint.RDBNFNRM ) or
@@ -618,12 +611,12 @@ Helper = {
 			return false, "ERROR: Database not found"
 		end
 		
-		drda = packet:getDRDAByCodePoint( CodePoint.ACCSECRD )
+		local drda = packet:getDRDAByCodePoint( CodePoint.ACCSECRD )
 		if ( not(drda) ) then
 			return false, "ERROR: Response did not contain any valid security mechanisms"
 		end
 		
-		param = drda:getParameter( CodePoint.SECMEC )
+		local param = drda:getParameter( CodePoint.SECMEC )
 		if ( not(param) ) then
 			stdnse.print_debug("drda.Helper.login: ERROR: Response did not contain any valid security mechanisms")
 			return false, "ERROR: Response did not contain any valid security mechanisms"
@@ -662,9 +655,7 @@ Helper = {
 			 packet:getDRDAByCodePoint( CodePoint.RDBAFLRM ) ) then
 			return false, "ERROR: Database not found"
 		end
-
 		return false, "ERROR: Login failed"
-		
 	end,
 	
 }
@@ -692,18 +683,16 @@ Comm = {
 	end,
 	
 	recvDRDA = function( self )
-		local status, err
 		local drda_tbl = {}
 		
 		repeat
 			local drda = DRDA:new()
-			status, err = drda:receive( self.socket )
+			local status, err = drda:receive( self.socket )
 			if ( not(status) ) then
 				return false, err
 			end
 			table.insert(drda_tbl, drda)
 		until ( not(drda.DDM:isChained()) )
-			
 		return true, drda_tbl
 	end,
 	
@@ -726,9 +715,7 @@ Comm = {
 			stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", drda )
 			return false, ("ERROR: DB2Socket error: %s"):format( drda )
 		end
-		
 		return true, DRDAPacket:new( drda )
-	
 	end
 	
 }
@@ -764,10 +751,10 @@ StringUtil =
 	-- @param ascii string containing the ASCII value
 	-- @return string containing the EBCDIC value
 	toEBCDIC = function( ascii )
-		local val, ret = 0, ""
+		local ret = ""
 
 		for i=1, #ascii do
-			val = ascii.byte(ascii,i) + 1
+			local val = ascii.byte(ascii,i) + 1
 			ret = ret .. a2e_tbl:sub(val, val)
 		end
 		return ret
@@ -778,10 +765,10 @@ StringUtil =
 	-- @param ebcdic string containing EBCDIC value
 	-- @return string containing ASCII value
 	toASCII = function( ebcdic )
-		local val, ret = 0, ""
+		local ret = ""
 		
 		for i=1, #ebcdic do
-			val = ebcdic.byte(ebcdic,i) + 1
+			local val = ebcdic.byte(ebcdic,i) + 1
 			ret = ret .. e2a_tbl:sub(val, val)
 		end
 		return ret
