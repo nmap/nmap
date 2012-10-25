@@ -606,8 +606,7 @@
           <indexterm><primary><option>-x</option> (Ncat option)</primary><see><option>--hex-dump</option></see></indexterm>
         </term>
         <listitem>
-          <para>Dump session data in hex to a file. This can be used to
-          <quote>replay</quote> sessions.</para>
+          <para>Dump session data in hex to a file.</para>
         </listitem>
       </varlistentry>
 
