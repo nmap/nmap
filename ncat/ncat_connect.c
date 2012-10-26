@@ -489,6 +489,13 @@ int ncat_connect(void)
      * the use of the select-based engine. */
     if (stdin_is_reg())
       nsock_set_default_engine("select");
+#elif defined(WIN32)
+    /* -- Hack!!
+     * Unconditionally use the select engine on windows.
+     * The poll engine (WSAPoll) is currently unable to handle
+     * read events on stdin.
+     */
+    nsock_set_default_engine("select");
 #endif
 
     /* Create an nsock pool */
