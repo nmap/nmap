@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Added new poll and kqueue engines. [Henri Doreau]
+
 o [Zenmap] Corrected some typos in the Japanese translation.
   [OKANO Takayoshi]
 
