@@ -63238,7 +63238,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=Z)
 
 # Sipura SPA-1001 VoIP adapter; Software Version 2.0.10(e); Hardware Version 2.0.1(9799)
 # Sipura SPA-3000 VoIP adapter
-Fingerprint Sipura SPA-1001 or SPA-3000 VoIP adapter
+Fingerprint Sipura SPA1001 or SPA3000 VoIP adapter
 Class Sipura | embedded || VoIP adapter
 SEQ(SP=E7-107%GCD=1-6%ISR=105-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -63255,7 +63255,7 @@ U1(DF=N%T=F5-FF%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 
 # LinkSys/Sipura SPA3000, software version 3.1.10(GWd), hardware version 2.0.1(1448).
-Fingerprint Sipura SPA-3000 VoIP adapter
+Fingerprint Sipura SPA3000 VoIP adapter
 Class Sipura | embedded || VoIP adapter
 CPE cpe:/h:sipura:spa3000_voice_gateway_with_router:-
 CPE cpe:/o:sipura:spa3000_voice_gateway_with_router_firmware
