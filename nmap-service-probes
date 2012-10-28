@@ -1583,6 +1583,7 @@ match meetingmaker m|^\xc1,$| p/Meeting Maker calendaring/
 match melange m|^\+\+\+Online\r\n>> Melange Chat Server \(Version (\d[-.\w]+)\), Apr-25-1999\r\n\nWelcome | p/Melange Chat Server/ v/$1/
 match metasploit m|^\n.*=\[ msf v([^\r\n]+)\r?\n.*\d+ exploits.*\d+ payloads.*\d+ encoders.*\d+ nops.*msf > $|s p/Metasploit Framework msfd/ v/$1/
 match midas m|^MIDASd v([\w.]+) connection accepted\n\xff| p/midasd/ v/$1/
+match millennium m|^\x01\0\0\0\x1a\0\0\0Millennium Process Server\0$| p/Millennium Process Server/
 match minecraft m|^\xff\0\x17Took too long to log in$| p/Minecraft game server/
 match misys-loaniq m|^Loan IQ %1 Request Server - Ready for Request\0| p/Misys Loan IQ/
 
@@ -3398,7 +3399,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nD
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT v([^\r\n]+)\r\n| p/DD-WRT telnetd/ v/$1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT (v\d+)[^\r\n]*\r\nRelease: ([^\r\n]+)\r\n\xff\r\ngateway login: | p/DD-WRT telnetd/ v/$2/ i/DD-WRT $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03DD-WRT (v[^\r\n]+)\r\n| p/DD-WRT telnetd/ i/DD-WRT $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v24-sp2) std \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+) \(SVN revision: (\d+)\)\r\n\r\noffice login: | p/DD-WRT telnetd/ i/DD-WRT $1 $2 r$3/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match telnet m=^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT (v24-sp2 (?:mini|std)) \(c\) \d\d\d\d NewMedia-NET GmbH\r\nRelease: ([\d/]+) \(SVN revision: (\d+)\)\r\n\r\n([\w._-]+) login: = p/DD-WRT telnetd/ i/DD-WRT $1 $2 r$3/ d/WAP/ o/Linux/ h/$4/ cpe:/o:linux:linux_kernel/a
 match telnet m|^\xff\xfd\x18\xff\xfd \xff\xfd#\xff\xfd\x1f\xff\xfd'\xff\xfd\$$| p/Siemens HiPath PBX telnetd/ d/PBX/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to Network Camera telnet daemon\r\n\r\nPassword:| p/Vivotek 3102 Camera telnetd/ d/webcam/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\n\r\nU\.S\. Robotics\r\nTotal Control \(tm\) NETServer 8/16\r\n\r\nlogin: | p|USRobotics TotalControl NetServer 8/16 telnetd|
@@ -5210,7 +5211,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WebLogic WebLogic Server (\d[-.\
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WebLogic ([\d.]+) Service Pack (\d+) [^\r\n]+\r\n|s p/WebLogic applications server/ v/$1/ i/Service Pack $2/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: WebLogic Server ([\d.]+ SP\d+) | p/WebLogic httpd/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*<META NAME=\"GENERATOR\" CONTENT=\"WebLogic Server\">\n|s p/WebLogic httpd/
-match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nDate: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nLast-Modified: .*\r\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n\r\n| p/Oracle WebLogic Server/ i/Servlet $1; JSP $2/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nDate: .*\nX-Powered-By: Servlet/([\w._-]+) JSP/([\w._-]+)\r\n|s p/Oracle WebLogic Server/ i/Servlet $1; JSP $2/
 # Samba 3.0.0rc4-Debian
 match http m|^HTTP/1\.0 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"SWAT\"\r\n| p/Samba SWAT administration server/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nDate: .*\n<TITLE>Samba Web Administration Tool</TITLE>|s p/Samba SWAT administration server/
@@ -5239,7 +5240,7 @@ match http m|^HTTP/1\.[01].*Server: Apache/([\d\.\w-]+)\s*\r?\n|s p/Apache httpd
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Apache/(\d[-.\w]+)\r\n.*X-Powered-By: ([^\r\n]+)\r\n|s p/Apache httpd/ v/$1/ i/$2/ cpe:/a:apache:http_server:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Apache/(\d[-.\w]+)\r\n|s p/Apache httpd/ v/$1/ cpe:/a:apache:http_server:$1/
 # apache 1.3.26-0woody3 or Apache 2.0.45
-match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache\r\n| p/Apache httpd/ cpe:/a:apache:http_server/
+match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: Apache\r\n| p/Apache httpd/ cpe:/a:apache:http_server/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nConnection: .*\r\nDate: .*\r\nServer: Apache\r\n| p/Apache httpd/ cpe:/a:apache:http_server/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache +\(([^\r\n\)]+)\)\r\n| p/Apache httpd/ i/$1/ cpe:/a:apache:http_server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Apache (\d+\.\d+\.[-.\w]+)\r\nX-Powered-By: ([^\r\n]+)\r\n| p/Apache httpd/ v/$1/ i/$2/ cpe:/a:apache:http_server:$1/
@@ -5396,7 +5397,8 @@ match http m|^HTTP/1\.1 404 Not Found\r\nContent-Type: text/html\r\nContent-Leng
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: WebSphere Application Server/([-\w_.]+)\r\n|s p/IBM WebSphere Application Server/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: JRun Web Server/([\d.]+)\r\n|s p/JRun Web Server/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: JRun Web Server\r\n|s p/JRun Web Server/
-match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-length: 0\r\n\r\n| p/Microsoft IIS 5.0 WebDAV/ i/access denied/ o/Windows/ cpe:/a:microsoft:iis:5.0/ cpe:/o:microsoft:windows/a
+match http m|^401 Access denied\r\nWWW-Authenticate: Negotiate \r\nContent-length: 0\r\n\r\n| p/Microsoft IIS WebDAV/ v/5.0/ i/access denied/ o/Windows/ cpe:/a:microsoft:iis:5.0/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Type: text/html\r\nWWW-Authenticate: Negotiate\r\nWWW-Authenticate: NTLM\r\nX-Powered-By: ASP\.NET\r\n| p/Microsoft IIS WebDAV/ o/Windows/ cpe:/a:microsoft:iis/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: RomPager/([-.\w/ ]+)\r\n|s p/Allegro RomPager/ v/$1/ i/ZyXEL ZyWALL 2/ cpe:/a:allegro:rompager:$1/
 
 match http m|^HTTP/1\.0 200 OK\r\nServer: Gordian Embedded([\d.]+)\r\n.*<title>IQeye3|s p/Gordian httpd/ v/$1/ i/IQinVision IQeye3 webcam http config/ d/webcam/
@@ -5731,6 +5733,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: GeoHttpServer\r\n| p/GeoVision GeoH
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ATR/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"ATI Switch\"\r\n| p/ATR httpd/ v/$1/ i/Allied Telesyn Rapier switch http config/ d/switch/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ATR-HTTP-Server/([\d.]+)\r\nContent-Type: text/html\r\nWWW-Authenticate: Basic realm=\"Allied Telesyn Rapier (\w+)\"\r\n| p/ATR httpd/ v/$1/ i/Allied Telesyn Rapier $2 switch http config/ d/switch/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: UPS_Server/([\d.]+)\r\n.*\r\n<TITLE>ConnectUPS Web/SNMP Card</TITLE>|s p/UPS_Server httpd/ v/$1/ i|Powerware ConnectUPS WEB/SNMP Card http config| d/power-device/
+match http m|^HTTP/1\.0 401 ;unauthorized\r\nServer: UPS_Server/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nSet-Cookie: ups=\d+\r\nWWW-Authenticate: Basic realm=\"UPS Web Card\"\r\n| p/UPS_Server httpd/ v/$1/ i/Eaton 9355 UPS http config/ d/power-misc/
 match http m|^HTTP/1\.0 200 ;OK\r\nServer: UPS_Server/([\w._-]+)\r\nContent-Type: text/html\r\nConnection: Close\r\n\r\n<html>\n<head>\n<title>UPS Properties</title>\n| p/MGE UPS_Server httpd/ v/$1/ d/power-device/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: PortWise mVPN \(www\.portwise\.com\)\r\n|s p/PortWise mVPN httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: WYM/([\d.]+)\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"Camera Server\"\r\n| p/WYM httpd/ v/$1/ i/IP-Video embedded camera http config/ d/webcam/
@@ -6657,6 +6660,7 @@ match http m|^HTTP/1\.1 200 .*\r\nServer: Agranat-EmWeb/R([\d_]+)\r\n.*<SCRIPT L
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w._-]+)\r\nMIME-version: [\d.]+\r\n.*md5\(document\.logonForm\.username\.value \+ \":\" \+ document\.logonForm\.password\.value \+ \":\" \+ \"\w+\"\);  // sets the hidden field value to whatever md5 returns\.\r\n|s p/RapidLogic httpd/ v/$1/ i/Thomson ST2030 VoIP phone http config/ d/VoIP phone/ cpe:/a:rapidlogic:httpd:$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: BCReport/([\w._-]+)\r\n| p/Blue Coat Reporter httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Blue Coat Reporter\r\n.*<title>Blue Coat Reporter ([\d.]+)</title>|s p/Blue Coat Reporter httpd/ v/$1/
+match http m|^HTTP/1\.1 401 Authentication Required\r\nConnection: close\r\n\r\n$| p/Blue Coat Reporter httpd/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nX-Powered-By: ASP\.NET\r\n| p/Microsoft IIS httpd/ o/Windows/ cpe:/a:microsoft:iis/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WYM/([\w._-]+)\r\n.*<META NAME=\"Author\" CONTENT=\"ChenXiaohui\">\r\n<meta http-equiv='Relfresh' content='5' />|s p/WYM httpd/ v/$1/ i/Gadspot NC1000-L10 webcam http config/ d/webcam/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WYM/([\w._-]+)\r\n.*<TITLE>Video Server \(V([\w._-]+)\)</TITLE>\n<META NAME=\"Author\" CONTENT=\"ChenXiaohui\">\n<!-- Get Server or DVR-->|s p/WYM httpd/ v/$1/ i/Gadspot Video Server $2 http config/ d/media device/
@@ -6984,7 +6988,7 @@ match http m|^HTTP/1\.1 200 OK\nContent-type: text/html; charset=utf-8\r\nServer
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nDate: .*\r\nServer: HTTP/1\.1 compliant\r\n.*<!--\n \*\n \* File: index\.html\n \*\n \* Rajat Hingad rhingad@cisco\.com\n \*\n \* Copyright \(c\) 2001, 2002, 2003, 2004 by Cisco Systems, Inc\.\n \* All rights reserved\.\n \*\n \* This file calls the idm\.jnlp of the PDM\.\n \*\n \*-->\n\n<html>\n<head>\n <meta http-equiv=\"Refresh\" content=\"1; URL=idm/index\.html\">\n</head>\n$|s p/Cisco IPS Device Manager (IDM)/ d/security-misc/
 match http m|^HTTP/1\.0  401 Unauthorized \r\nContent-type: text/html \r\nWWW-Authenticate: Basic realm=\"ULTAMUS RAID manager\"\r\n\r\n| p/Overland Storage Ultamus RAID manager/ d/storage-misc/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n.*background:url\(data:image/gif;base64,R0lGODdhAQAeAIQeAJub/5yc/6Cf/6Oj/6am/6qq/66u/7Gx/7S0/7i4/7u8/7\+//8LD/8bG/8nK/83N/9HQ/9TU/9fX/9va/97e/\+Lh/\+Xl/\+no/\+3t//Dw//Pz//b3//v7//7\+/////////ywAAAAAAQAeAAAFGCAQCANRGAeSKAvTOA8USRNVWReWaRvXhQA7\)|s p/streamdev VDR plugin/
-match http m|^HTTP/1\.0 200 OK\r\n.*Server: Tntnet/([\d.]+)\r\n.*Set-Cookie: tntnet\.=\"[0-9a-f]+\"; Path=\"/\"; Version=\"1\"\r\n\r\n.*<title>VDR-Live - Anmelden</title>|s p/Tntnet/ v/$1/ i/LIVE VDR http config/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: Tntnet/([\w._-]+)\r\n.*<title>VDR-Live - Anmelden</title>|s p/Tntnet/ v/$1/ i/LIVE VDR http config/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Conexant-EmWeb/R([\d_]+)\r\n| p/Conexant-EmWeb/ v/$SUBST(1,"_",".")/ cpe:/a:conexant:emweb:$SUBST(1,"_",".")/a
 match http m|^HTTP/1\.0 200 OK\r\nExpires: 0\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\n<title>Login</title>\n.*<font class=tdBigTitle>Connect to 192\.168\.0\.200</font>\n|s p/D-Link DGS-1224T switch http config/ d/switch/
 match http m|^HTTP/1\.1 200 OK\r\n.*<meta name=\"Author\" content=\"FireBrick Ltd\">\n<meta name=\"Description\" content=\"FireBrick (\d+) Control pages\">|s p/FireBrick $1 firewall http config/ d/firewall/
@@ -7071,6 +7075,7 @@ match http m|^HTTP/1\.0 200 Ok\r\nServer: micro_httpd\r\n.*<title>Linksys Cable 
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-type: text/html\r\nWWW-Authenticate: Basic realm=\"Netgear\"\r\nConnection: close\r\nPragma: no-cache\r\n\r\n<html><head><title>401 Unauthorized</title>.*<form name=\"RgAuthentication\" action=\"/goform/RgAuthentication\" method=\"POST\">|s p/Netgear CVG834G cable modem http config/ d/broadband router/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\nConnection: close\r\n\r\n.*<title>Hollis</title>.*<td id=b>Indoor</td><td id=c bgcolor=green>([\d.]+)</td><td id=b>&deg;F</td></tr><tr><td id=b>Indoor Set Temp\.</td><td id=c><input type=text name=setTemp size=10 maxlength=10 value=([\d.]+)></td><td id=b>&deg;F&nbsp;<input type=submit name=7 value=\"Apply\"></td></tr><tr><td id=b>Outdoor temp</td><td id=c bgcolor=green>([\d.]+)</td><td id=b>&deg;F</td></tr></table></form></body></html>$| p/ControlByWeb httpd/ i/Temperature (F): indoor $1 (set to $2), outdoor $3/ d/specialized/
 match http m|^HTTP/1\.0 200 OK\r\n.*Expires: Thu, 26 Oct 1995 00:00:00 GMT\r\n.*Server: IPC@CHIP\r\n.*<TITLE>IPC@CHIP&reg; Main Page</TITLE>|s p/Beck IPC@CHIP embedded httpd/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: IPC@CHIP\r\n.*<title>Start</title>|s p/Beck IPC@CHIP embedded httpd/ i/SolarLog 200 power monitor httpd/ d/power-misc/ cpe:/h:solarlog:200/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Z-World Rabbit\r\n.*<TITLE>EC3 332 \(Rev\. (\d+)\) Web Configuration and Monitoring</TITLE>|s p/Emerson EC3 332 coldroom controller rev. $1 http config/ d/specialized/
 match http m|^HTTP/1\.0 200 OK\r\nServer: http server/everfocus\r\n.*<meta http-equiv=\"refresh\" content=\"0;url=/login\.html\?1600&1\">|s p/Everfocus webcam http config/ d/webcam/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Netwave IP Camera\r\n| p/Netwave IP camera http config/ d/webcam/
@@ -7254,9 +7259,9 @@ match http m|^HTTP/1\.1 200 OK\r\n\r\n<html><head><title>File Share</title></hea
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\n.*<title>VoIP Gateway</title>.*<frame name=\"contents\" target=\"main\" src=\"otgw\.cgi\?PAGE=USER\" scrolling=\"auto\" noresize>|s p/D-Link DVS-4088S, DVS-5088S, or DVG-7062S VoIP gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.0 200 OK\r\nServer: BEJY V([\w._-]+)  HTTP ([\w._-]+) \r\n| p/BEJY httpd/ v/$2/ i/BEJY $1/
 match http m|^HTTP/1\.0 404 Not Found\r\nServer: Xfire\r\nConnection: close\r\n\r\n\r\n$| p/Xfire httpd/
-match http m|^HTTP/1\.0 302 Found\r\nLocation: http://guide\.[\w._-]*opendns\.com/\?url=\r\nContent-type: text/html\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: OpenDNS Guide\r\n\r\n$| p/OpenDNS Guide/
-match http m|^HTTP/1\.0 302 Found\r\nLocation: http://guide\.[\w._-]*opendns\.com/\?url=\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: OpenDNS Guide\r\n\r\n$| p/OpenDNS Guide/
-match http m|^HTTP/1\.0 303 See Other\r\nLocation: http://guide\.[\w._-]*opendns\.com/\?url=\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: OpenDNS Guide\r\n\r\n$| p/OpenDNS Guide/
+match http m|^HTTP/1\.0 302 Found\r\nLocation: http://guide(?:test)?\.[\w._-]*opendns\.com/\?url=\r\nContent-type: text/html\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: OpenDNS Guide\r\n\r\n$| p/OpenDNS Guide/
+match http m|^HTTP/1\.0 302 Found\r\nLocation: http://guide(?:test)?\.[\w._-]*opendns\.com/\?url=\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: OpenDNS Guide\r\n\r\n$| p/OpenDNS Guide/
+match http m|^HTTP/1\.0 303 See Other\r\nLocation: http://guide(?:test)?\.[\w._-]*opendns\.com/\?url=\r\nContent-Length: 0\r\nConnection: close\r\nDate: .*\r\nServer: OpenDNS Guide\r\n\r\n$| p/OpenDNS Guide/
 match http m|^HTTP/1\.0 200 OK\r\nCache-Control: no-cache\r\nConnection: close\r\nContent-Language: en\r\n.*Content-Location: /default\.html\r\n.*ExpertAssist/([\w._-]+)\r\nSet-Cookie: RASID=\w+; path=/\r\n\r\n <html> <head> <title>ExpertAssist</title>|s p/ExpertAssist/ v/$1/ i/ScriptLogic Remote Desktop/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Frameset//EN\">\r\n<!-- Copyright \(c\) 2000-2002, Fuji Xerox Co\., Ltd\. All Rights Reserved\. -->\r\n<HTML>\r\n<HEAD>\r\n<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\">\r\n<TITLE>\r\n(DocuPrint [\w._-]+) - ([\w._-]+)\r\n</TITLE>| p/Fuji Xerox $1 printer http config/ d/printer/ h/$2/
 match http m|^HTTP/1\.1 502 Bad Gateway\r\nContent-Type: text/html\r\nContent-Length: 487\r\n\r\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n<title>\nContent Server Message\n</title>\n</head>\n<body>\nNetwork message format error\. Unable to parse browser environment or content item\. Unable to parse properties\. Name-value pairs are missing an '='\.\n<!---\nStatusCode=-1\nStatusMessage=Network message format error\. Unable to parse browser environment or content item\. Unable to parse properties\. Name-value pairs are missing an '='\.\n---!>\n</body></html>$| p/Oracle Universal Content Management httpd/
@@ -7315,7 +7320,7 @@ match http m|^HTTP/1\.1 302 \(Found\)\r\nConnection: close\r\nLocation: .*\r\nSe
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Java PseudoHttpd/([\w._-]+)\r\n.*<title>CSP Status</title>|s p/Java PseudoHttpd/ v/$1/ i/Card Server Proxy (CSP) http config/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>XBMC</title> \n<link type=\"text/css\" rel=\"stylesheet\" href=\"basic\.css\">\n</head>\n<body>\n<h1>XBMC Webinterface</h1>|s p/XBMC http interface/ d/media device/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>XBMC</title>\r\n\t\t<meta http-equiv=\"Content-Language\" content=\"EN\" />.*<!-- <link rel=\"search\" href=\"/provider\.xml\" type=\"application/opensearchdescription\+xml\" title=\"XBMC Library\" /> -->|s p/XBMC http interface/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
-match http m|^HTTP/1\.0 200 OK\r\n.*<title>XBMC</title>\n\t\t<meta http-equiv=\"Content-Language\" content=\"EN\" />.*<!-- <link rel=\"search\" href=\"/provider\.xml\" type=\"application/opensearchdescription\+xml\" title=\"XBMC Library\" /> -->|s p/XBMC http interface/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
+match http m|^HTTP/1\.[01] 200 OK\r\n.*<title>XBMC</title>\s*<meta http-equiv=\"Content-Language\" content=\"EN\" />.*<!-- <link rel=\"search\" href=\"/?provider\.xml\" type=\"application/opensearchdescription\+xml\" title=\"XBMC Library\" /> -->|s p/XBMC http interface/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 134\r\nExpires: .*\r\nContent-Type: text/html\r\nDate: .*\r\n\r\n<html>\n<head>\n<title>XBMC Web Media Manager</title> \n<meta HTTP-EQUIV=\"REFRESH\" content=\"0; url=\./movies/index\.html\">\n</head>\n</html>\n$| p/XBMC Web Media Manager/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nConnection: close\r\nWWW-Authenticate: Basic realm=XBMC\r\nDate: .* GMT\r\n\r\n$| p/XBMC Web Media Manager/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nLocation:http://([\w._-]+)/index\.htm\r\nContent-Type: text/plain\r\nContent-Length:2.\r\n\r\nhttp://[\w._-]+/index\.htm$| p/Lanier IS100e image scanner httpd config/ h/$1/
@@ -7356,7 +7361,8 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: ShellHTTPD/([\w._-]+)\r\n.*<title>Da
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: Thu, 01 Jan 1970 00:00:00 GMT\r\nnServer: avtech/([\w._-]+)\.\.Expires: 0\r\nPragma:  no-cache\r\nCache-Control:  no-cache\r\nConnection: close\r\nContent-type: text/html;charset=ISO-8859-1\r\nWWW-Authenticate: Basic realm=server\r\nContent-Length: 163\r\n| p/avtech httpd/ v/$1/ i/Postef-8840 ADSL router/ d/broadband router/
 match http m|^HTTP/1\.0 200 Script output follows\r\nServer: shinGETsu/([\w._-]+) \(Saku/([\w._-]+)\) Python/([\w._-]+)\r\n| p/Saku/ v/$2/ i/client for shinGETsu $1 BBS; Python $3/
 match http m|^HTTP/1\.1 503 HTTP is not licensed\.<p>To set up this filer, use <a href=/api>/api</a> \.\r\nServer: Data ONTAP/([\w._-]+)\r\n| p/NetApp http vFiler/ o/Data ONTAP $1/
-match http m|^HTTP/1\.1 503 HTTP is not licensed\.<p>To administer this filer, use <a href=/na_admin/>/na_admin/</a> \.\r\nServer: NetApp//([\w._-]+)\r\n| p/NetApp http vFiler/ o/Data ONTAP $1/
+match http m|^HTTP/1\.1 503 HTTP is not licensed\.<p>To administer this filer, use <a href=/na_admin/>/na_admin/</a> \.\r\nServer: NetApp//([\w._-]+)\r\n| p/NetApp http vFiler/ v/$1/ o/Data ONTAP/
+match http m|^HTTP/1\.1 503 HTTP is not enabled \(the value of option httpd\.enable is off\)\.<p>To administer this filer, use <a href=/na_admin/>/na_admin/</a> \.\r\nServer: NetApp//([\w._-]+)\r\n| p/NetApp http vFiler/ v/$1/ o/Data ONTAP/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n\r\n<html>\n<head><title>401 Unauthorized</title></head>\n<body>\n<h3>401 Unauthorized</h3>\nAuthorization required\.\n</body>\n</html>\n| p/m0n0wall FreeBSD firewall web interface/ d/firewall/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n\r\n<html>\n<head><title>401 Unauthorized</title></head>\n<body>\n<h3>401 Unauthorized</h3>\nAuthorization required\. HuaCheng Technologies\n</body>\n</html>\n| p/HuaCheng firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n\r\n<html>\n<head><title>501 Not Implemented</title></head>\n<body>\n<h3>501 Not Implemented</h3>\nThat method is not implemented\.\n</body>\n</html>\n$| p/Western Digital My Book http config/ d/storage-misc/
@@ -7516,6 +7522,7 @@ match http m|^HTTP/1\.0 303 See Other\r\nLocation: http://[\d.]+:\d+\r\n\0.* GMT
 match http m|^HTTP/1\.1 \d\d\d .*Server: Firefly/([\w._-]+)\r\n|s p/Firefly/ v/$1/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: libzapid-httpd\r\nContent-Type: text/html\r\nContent-Length: 86\r\nDate: .*\r\n\r\n<HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD><BODY><H1>Not Found</H1></BODY></HTML>\n| p/libzapid-httpd/ i/NetApp DFM http config/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nAccept-Ranges: none\r\n.*<title>Citrix Access Gateway</title>|s p/Citrix Access Gateway firewall http config/ d/firewall/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.0 200 OK\r\nConneccept-Ranges: none\r\n.*<title>Citrix Access Portal</title>|s p/Citrix Access Gateway firewall http config/ d/firewall/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 302 Object Moved\r\nLocation: /vpn/index\.html\r\nConnection: close\r\n| p/Citrix Access Gateway firewall http config/ d/firewall/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nConnection: close\r\nCache-Control: no-cache\r\nExpires: Thu,01 Jan 1970 00:00:00 GMT\r\nContent-Type: text/html\r\n\r\n<html><head><meta http-equiv=\"refresh\" content=\"0;url=/_top\.html\">\n<title></title></head><body></body></html>\0$| p/Canon imageRUNNER 2500-series printer http config/ d/printer/ cpe:/h:canon:imagerunner_2500/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nServer: Hiawatha v([\w._-]+)\r\nConnection: close\r\nWWW-Authenticate: Digest realm=\"Private page\", nonce=\"[0-9A-F]+\", algorithm=MD5, stale=false\r\nContent-Length: 404\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01//EN\" \"http://www\.w3\.org/TR/html4/strict\.dtd\">\n<html>\n<head>\n<title>401 - Unauthorized</title>\n<style type=\"text/css\">BODY { color:#ffffff ; background-color:#00000a }\nDIV { font-family:sans-serif ; font-size:30px ; letter-spacing:20px ; text-align:center ; position:relative ; top:250px }\n</style>\n</head>\n<body>\n<div>401 - Unauthorized</div>\n</body>\n</html>\n$| p/Hiawatha/ v/$1/ i/Echostar ViP 722k satellite receiver/
@@ -7665,6 +7672,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nContent-Length: 0\r\n\r\n
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nServer: eCos Embedded Web Server\r\nConnection: keep-alive\r\nContent-Type: text/html\r\n\r\n\xef\xbb\xbf<html>\n<head>\n<title>Danfoss Solar Inverters</title>\n<meta http-equiv=\"refresh\" content=\"0;url=/cgi-bin/login_page\.tcl\">\n</head>\n<body>\n</body>\n</html>\n$| p/eCos Embedded Web Server/ i/IBC SOLAR inverter http config/ d/power-misc/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Aperio ImageServer v([\w._: -]+)\r\nSpectrumPlus: 0\r\nContent-Length: \d+\r\nContent-Type: text/plain\r\n\r\n| p/Aperio ImageServer httpd/ v/$1/
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nMime-Version: 1\.0\r\nDate: [^\r\n]* (\w+)\r\n.*Via: 1\.0 ([\w._-]+):\d+ \(IronPort-WSA/([\w._-]+)\)|s p/Cisco IronPort Web Security Appliance http config/ v/$3/ i/time zone: $1/ d/firewall/ h/$2/
+match http m|^HTTP/1\.0 504 Gateway Timeout\r\nMime-Version: 1\.0\r\nDate: .* CEST\r\nContent-Type: text/html\r\nConnection: close\r\n| p/IronPort WSA firewall http admin/ d/firewall/
 match http m|^HTTP/1\.1 404 Not Found\r\n.*\r\nServer: Bomgar\r\n|s p/Bomgar Remote Access Portal/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: SQLAnywhere/([\d.]+)\r\n| p/Sybase SQLAnywhere httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Etag: ([\w._ -]+)\r\n.*\xef\xbb\xbf<!DOCTYPE html .*<title>AirDroid</title>|s p/AirDroid httpd/ v/$1/ d/phone/ o/Android/ cpe:/a:airdroid:airdroid:$1/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
@@ -7733,17 +7741,37 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: TAC/Xenta(\w+) ([\w._-]+)\r\n| p/TAC X
 match http m|^HTTP/1\.0 200 OK\r\nCache-control: no-cache\r\nConnection: Close\r\n\r\n<html>\r\n<head>\r\n\r\n<script type=\"text/javascript\" src=\"LocalizeString30\.js\"></script>\r\n\r\n<script type=\"text/javascript\">\r\n| p/Monoprice MS NU62P11 print server http config/ d/print server/ cpe:/h:monoprice:ms_nu62p11/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nCache-Control: no-cache\nPragma: no-cache\nContent-Type: text/html\n\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n.*<title>(KX-\w+)</title>|s p/thttpd/ i/Panasonic $1 printer http config/ d/printer/ cpe:/a:acme:thttpd/ cpe:/h:panasonic:$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*<title>(PowerGrid [\w._-]+) Web Configuration - Main Page</title>|s p/Comtrend $1 Ethernet adapter http config/ d/bridge/ cpe:/h:comtrend:$1/
+match http m|^HTTP/1\.0 200 OK\r\n.*Expires: \"Mon, 06 Jan 1990 00:00:01 GMT\"\r\n.*<title>(PowerGrid [\w._-]+)  Web Configuration - Authentication</title>|s p/Comtrend $1 Ethernet adapter http config/ d/bridge/ cpe:/h:comtrend:$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Content-Type: text/html\r\nDate: .* GMT\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\"\n     \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\">\n<head>\n\t<title>AWX</title>|s p/XBMC AWX http interface/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\n.*Set-Cookie: pilot_session_test_cookie=; path=/; secure\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\">\n  <head>\n    <title>Riverbed Technology :: Cascade Shark</title>|s p/Riverbed Cascade Shark security appliance http interface/ d/security-misc/ cpe:/h:riverbed:cascade_shark/
 match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<meta http-equiv=\"content-type\" content=\"text/css;charset=UTF-8\">\n<meta http-equiv=\"Cache-Control\" content=\"no-cache\">\n<meta http-equiv=\"Expires\" content=\"0\">\n<title>prelogin</title>| p/Belkin Encore 3G router http config/ d/WAP/
 match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Alphanetworks,Inc\.\r\nDate: .* GMT\r\nCache-Control: no-cache,no-store\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\n\r\n$| p/Western Digital WD TV Live media player http config/ d/media device/
 match http m|^HTTP/1\.1 403\r\nServer: Zervit ([\w._-]+)\r\n| p/Zervit/ v/$1/
+# http://radiothermostat.com/documents/RTCOAWiFIAPIV1_3.pdf
 match http m|^HTTP/1\.1 505 HTTP Version Not Supported\r\nServer: Marvell 8688WM\r\nConnection: close\r\nTransfer-Encoding: chunked\r\nContent-Type: text/plain\r\n\r\n22\r\nHTTP/1\.0 clients are not supported\r\n0\r\n\r\n$| p/3M Filtrete 3M-50 thermostat http config/ d/specialized/
 match http m|^HTTP/1\.1 200 OK\r\nCache-control: no-store\r\nContent-type: text/html\r\n.*<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01//EN\" \"http://www\.w3\.org/TR/html4/strict\.dtd\"><html><head><title>(X-[\w._-]+)</title>|s p/Control By Web $1 remote management http interface/ d/remote management/ cpe:/h:controlbyweb:$1/
 # http://hackingteam.it/index.php/remote-control-system
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-length: 131\r\n\r\n<!DOCTYPE HTML>\n<html>\n<head>\n    <meta http-equiv=\"refresh\" content=\"0;url=http://www\.google\.com\">\n</head>\n<body>\n\n</body>\n</html>$| p/Hacking Team Remote Control System command and control httpd/
 match http m|^HTTP/1\.1 404 NotFound\r\nConnection: close\r\nContent-Type: application/json\r\nContent-length: 16\r\n\r\n\"File not found\"$| p/Hacking Team Remote Control System Adobe Air command and control httpd/
 match http m|^HTTP/1\.1 200 OK\r\nPragma: no-cache\r\nExpires: -1\r\nCache-Control: no-cache\r\nContent-Length: 132\r\nDate: .* GMT\r\nConnection: close\r\nServer:  \r\n\r\n<html><head><meta http-equiv='Refresh' content='0;url=https?://([\w._-]+):\d+/director\.jsp'></head><body></body></html>$| p/RSA enVision httpd/ h/$1/ cpe:/a:rsa:envision/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n.*<TITLE>\r\nXerox WorkCentre ([\w._/-]+) -|s p/Xerox WorkCentre $1 printer http config/ d/printer/ cpe:/h:xerox:workcentre_$1/
+match http m|^HTTP/1\.1 200 OK\r\nConnection: keep-alive\r\n.*<title>XCP ([\w._-]+)</title>|s p/Xen Cloud Platform httpd/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nServer: HttpSvr/([\w._-]+)\r\nDate: .* GMT\r\nContent-type: text/html\r\n.*<title>Welcome To Commtech Messenger</title>|s p/Commtech Messenger Service httpd/ v/$1/
+match http m|^HTTP/1\.1 403 Forbidden\.\r\nContent-Type: application/json; charset=UTF-8\r\nDate: .* GMT\r\nConnection: close\r\nContent-Length: 90\r\n\r\n{\"status\": {\n  \"code\": 403,\n  \"commandResult\": 1,\n  \"msg\": \"Forbidden\.\",\n  \"query\": \"/\"\n}}$| p/DirecTV JSON RPC/ d/media device/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .* GMT\r\nServer: Linux/2\.x UPnP/([\w._-]+) Avtech/([\w._-]+)\r\nConnection: close\r\n| p/Avtech AVN801 network camera/ v/$2/ i/UPnP $1/ d/webcam/ cpe:/h:avtech:avn801/
+match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nExpires: Thu, 3 Oct 1968 12:00:00 GMT\r\nConnection: close\r\nPragma: no-cache\r\n.*<title>Super Hub \x7c GUI</title>|s p/Virgin Super Hub media player http config/ d/media device/
+match http m|^HTTP/1\.1 400 Bad Request\r\nServer: COLIB_ASYNC_HTTP_SERVER/([\w._-]+)\r\n| p/COLIB_ASYNC_HTTP_SERVER/ v/$1/ i/Cotendo content delivery network/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nLocation: https?://([\w._-]+):\d+/sabnzbd\r\nContent-Length: 0\r\nContent-Type: text/plain\r\n| p/SABnzbd newsreader http interface/ h/$1/
+match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\nSet-Cookie: rg_cookie_session_id=[0-9A-F]+; path=/; expires=Fri, 01 Jan 2038 00:00:00 GMT; HttpOnly\r\nCache-Control: no-cache,no-store\r\nPragma: no-cache\r\n.*<!--- Page\(page_login\)=\[Zaloguj si\xc4\x99 \] --->|s p/Vtech ARX168 WAP/ d/WAP/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .* GMT\r\nLast-Modified: .* GMT\r\nETag: .*\r\nAccept-Ranges: bytes\r\n| p/Fortinet FortiGate 50B firewall http config/ d/firewall/ cpe:/h:fortinet:fortigate:50b/
+match http m|^HTTP/1\.0 302 Redirection\r\nServer: TCSJH-WebServer\r\nDate: .* GMT\r\nLocation: http://[\w._-]+:\d+/index\.htm\r\n\r\n$| p/TCS John Huxley Gaming Floor Live httpd/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Date: .* 197\d \d+:\d+:\d+ GMT\r\nExpires: 0\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3c\.org/TR/1999/REC-html401-19991224/loose\.dtd\">\r\n<HTML><HEAD><TITLE>Firepro Wireless</TITLE>|s p/FirePro Router WAP http config/ v/5.4/ d/WAP/
+match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Length: \d+\r\nAccess-Control-Allow-Origin:\*\r\nCache-Control:no-cache\r\nContent-Type:application/json; charset=utf-8\r\nPragma:no-cache\r\n\r\n{\"error\": { \"type\": \"4110\", \"message\": \"No user logged in\" }, \"version\": 9, \"client_version\": \"([\w._-]+)\", \"running\": false}$| p/Spotify Web Helper/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nCACHE-CONTROL: no-cache\r\nDate: .* GMT\r\nContent-Type: text/html\r\n.*<META http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n<link rel=\"icon\" type=\"image/icon\" href=\"/favicon\.ico\"/>\n<title>Login</title>|s p/Huawei HG532c ADSL router http config/ d/broadband router/ cpe:/h:huawei:hg532c/
+match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Mon, 28 Nov 2011 10:20:48 GMT\r\n.*Server: fs\r\n\r\n<!--\n  Licensed to the Apache Software Foundation \(ASF\) under one or more\n  contributor license agreements\.|s p/Apache Tomcat/ v/6.0.35/ cpe:/a:apache:tomcat:6.0.35/
+match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Wed, 09 Mar 2011 18:57:19 GMT\r\n.*Server: Apache\r\n\r\n<!--\n  Licensed to the Apache Software Foundation \(ASF\) under one or more\n  contributor license agreements\.|s p/Apache Tomcat/ v/6.0.29/ cpe:/a:apache:tomcat:6.0.29/
+match http m|^HTTP/1\.0 307 Temporary Redirect\r\nAccess-Control-Allow-Origin: \*\r\nContent-Length: 0\r\nContent-Type: text/html\r\nLocation: en/index\.html\r\nConnection: close\r\nDate: .* 197\d \d+:\d+:\d+ GMT\r\nServer: gen5th/([\w._-]+)\r\n\r\n$| p/Sony SNC-CH120 webcam http config/ v/$1/ d/webcam/ cpe:/h:sony:snc-ch120/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*<link rel=\"stylesheet\" type=\"text/css\" href=\"/dude/style\.css\" />|s p/Miktotik Dude network monitor/
 
 #(insert http)
 
@@ -7771,7 +7799,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: GoAhead-Webs\r\n| p/GoAhead-Webs
 match http m|^HTTP/1\.0 200 OK\r\nServer: SimpleHTTP/([\d.]+) Python/([\d.]+)\r\n| p/SimpleHTTPServer/ v/$1/ i/Python $2/
 match http m|^HTTP/1\.0 \d\d\d .*Server: Mbedthis-App[Ww]eb/([\d.]+)\r\n|s p/Mbedthis-Appweb/ v/$1/ cpe:/a:mbedthis:appweb:$1/
 match http m|^UnknownMethod 404 Not Found\r\n.*Server: Mbedthis-Appweb/([\w._-]+)\r\n|s p/Mbedthis-Appweb/ v/$1/ cpe:/a:mbedthis:appweb:$1/
-match http m|^HTTP/1\.0 302 moved temporarily\r\n.*Server: Tntnet/([\w._-]+)\r\n|s p/Tntnet/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Tntnet/([\w._-]+)\r\n|s p/Tntnet/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PasteWSGIServer/([-\w_+.]+) Python/([-\w_+.]+)\r\n| p/PasteWSGIServer/ v/$1/ i/Python $2/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Quickserve/([\w._-]+)\r\n| p/Quickserve httpd/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Allegro-Software-RomPager/([\d.]+)\r\n|s p/Allegro RomPager/ v/$1/ cpe:/a:allegro:rompager:$1/
@@ -7801,6 +7829,7 @@ match http m|^HTTP/1\.0 \d\d\d .*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"
 match http m|^HTTP/1\.1 \d\d\d .*Server: Optenet Web Server\r\n| p/Optenet httpd/
 match http m|^HTTP/1\.0 \d\d\d .*Server: uClinux-httpd ([\w._-]+)\n|s p/uClinux-httpd/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 \d\d\d .*Server: uc-httpd/([\w._-]+)\r\n|s p/uc-httpd/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*Server: uc-httpd ([\w._-]+)\n|s p/uc-httpd/ v/$1/
 match http m|^HTTP/1\.1 200 Document follows\r\nServer: Micro-Web\r\n| p/Micro-Web/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Indy/([\w._-]+)\r\n|s p/Indy/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\w._-]+)\r\n| p/WindWeb/ v/$1/ cpe:/a:windriver:windweb:$1/
@@ -7840,7 +7869,7 @@ match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: tinyproxy/(\d[-.\w]+)\r\n| p/
 # Privoxy 3.0.0 Filtering Web Proxy - http://www.privoxy.org
 match http-proxy m|^HTTP/1\.0 400 Invalid header received from browser\r\n\r\n$| p|Junkbuster/Privoxy webproxy|
 match http-proxy m|^HTTP/1\.0 400 Invalid header received from browser\n\n| p/Junkbuster webproxy/
-match http-proxy m|^HTTP/1\.0 400 Invalid header received from client\r\nProxy-Agent: Privoxy ([\w._-]+)\r\n| p/Privoxy http proxy/ v/$1/
+match http-proxy m|^HTTP/1\.[01] 400 Invalid header received from client\r\nProxy-Agent: Privoxy ([\w._-]+)\r\n| p/Privoxy http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*Server: NetCache \(NetApp/(\d[-.\w]+)\)\r\n|s p/NetApp NetCache http proxy/ v/$1/
 # Not sure if the [-\w_.]+ is a hostname, it was netcache02
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nServer: NetCache appliance \(NetApp/([-\w_.]+)\)\r\n| p/NetApp NetCache http proxy/ v/$1/
@@ -7876,6 +7905,7 @@ match http-proxy m|^HTTP/1\.1 404 Not found\r\nConnection: close\r\nCache-Contro
 match http-proxy m|^HTTP/1\.0 401 Unauthorized\r\nServer: Telkonet Communications\r\n| p/Telkonet Communications http proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*X-Squid-Error: ERR_INVALID_|s p/Squid http proxy/ cpe:/a:squid-cache:squid/
 match http-proxy m|^HTTP/1\.0 503 Service Unavailable\r\n.*X-Squid-Error: ERR_CONNECT_FAIL 111\r\n|s p/Squid http proxy/ cpe:/a:squid-cache:squid/
+match http-proxy m|^HTTP/1\.1 504 Gateway Time-out\r\n.*X-Squid-Error: ERR_CONNECT_FAIL 111\r\n|s p/Squid http proxy/ cpe:/a:squid-cache:squid/
 match http-proxy m|^HTTP/1\.0 403 Access Forbidden\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>407 Proxy Authentication Required</TITLE></HEAD><BODY><H1>Proxy Authentication Required</H1><H4>Unable to complete request<P>Access denied due to authentication failure\.</H4><HR></BODY></HTML>\n\n\0| p/CA eTrust SCM http proxy/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: FreeProxy/([\d.]+)\r\n| p/FreeProxy http proxy/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 403 Forbidden\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nConnection: Close\r\n\r\n<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>La solution mat\xc3\xa9rielle-logicielle WebShield&reg;| p/WebShield http proxy/ i/French/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -8638,6 +8668,7 @@ match http m|^HTTP/1\.1 200 OK\r\nDate: .* GMT\r\nServer:  \r\nAllow: GET,HEAD,P
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nContent-Length: 0\r\nConnection: close\r\nAllow: GET, POST\r\nContent-Type: text/html\r\n\r\n$| p|Siemens 315-2PN/DP programmable logic controller http admin| d/specialized/ cpe:|h:siemens:315-2pn/dp|
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Arecont Vision\"\r\n\r\n| p/Arecont Vision surveillance camera httpd/ d/webcam/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: \r\nContent-Type: text/html\r\nContent-Length: 57\r\n\r\nHTTP/1\.0 400 Bad Request: Invalid or unsupported method\r\n\r\n\r\n$| p|Alcatel/Thomson SpeedTouch ADSL http config| d/broadband router/
+match http m|^HTTP/1\.1 501 Not Implemented\r\nDate: .* GMT\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 54\r\n\r\n<HTML><BODY><H1>501 Not Implemented</H1></BODY></HTML>$| p/VMware ESXi 4.1 Server httpd/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
@@ -10267,6 +10298,7 @@ match http m|^HTTP/1\.1 400 ERROR\r\nConnection: keep-alive\r\nContent-Length: 1
 match http m|^HTTP/1\.0 404 Not Found ?\r\nDate: .*\r\nServer: ZWorld Rabbit\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD><BODY>404 Not Found</BODY></HTML>\r\n\r\n$| p/Z-World Rabbit microcontroller httpd/
 match http m|^HTTP/1\.0 200 OK\nContent-Type: text/html\n\n<head><title>File not found</title></head><h1><tt><font color=red>404 / OOPS!</font></tt></h1>\n<i>'File not found'</i>,<br>\nHow dare they say!<br>\nI am here,<br>\njust out of the way\.<br>\n<br>\nHow was I found\?<br>\nA typo\? A mistake\?<br>\nOr were you snooping\?!<br>\n<br>\nNonetheless, we meet at last\.<br>\nI am found - hip hip hooray!<br>\nNevermore can they say:<br>\n<i>'File not found! <a href=index>Back to main page!</a>'</i><br>\n<br>\n<a href=index><img src=\"puretraclogo\.png\" border=0></a>$| p/PureChoice Nose environmental monitor http config/ cpe:/h:purechoice:nose/
 match http m|^HTTP/1\.0 200 OK\r\n.*<link rel=\"stylesheet\" type=\"text/css\" href=\"/gsa-style\.css\">\n<!--\[if IE 6\]>\n      \n        <link rel=\"stylesheet\" type=\"text/css\" href=\"IE6fixes\.css\"/>\n        <link rel=\"stylesheet\" type=\"text/css\" href=\"\.\./IE6fixes\.css\"/>\n    <!\[endif\]--><link rel=\"icon\" href=\"/favicon\.gif\" type=\"image/x-icon\">\n<title>Greenbone Security Assistant</title>\n|s p/Greenbone Security Assistant/ cpe:/a:greenbone:greenbone_security_assistant/
+match http m|^HTTP/1\.1 200 OK\r\n.*<link rel=\"stylesheet\" type=\"text/css\" href=\"/gsa-style\.css\">\n<!--\[if IE 6\]>\n      \n        <link rel=\"stylesheet\" type=\"text/css\" href=\"IE6fixes\.css\"/>\n        <link rel=\"stylesheet\" type=\"text/css\" href=\"\.\./IE6fixes\.css\"/>\n    <!\[endif\]--><link rel=\"icon\" href=\"/favicon\.gif\" type=\"image/x-icon\">\n<title>Greenbone Security Assistant</title>\n|s p/Greenbone Security Assistant/ v/2.0.1/ cpe:/a:greenbone:greenbone_security_assistant:2.0.1/
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nCache-Control: public\r\nPragma: cache\r\nExpires: .* GMT\r\nDate: .* GMT\r\nLast-Modified: Fri, 12 Aug 2011 00:00:00 GMT\r\nAccept-Ranges: bytes\r\nConnection: close\r\n\r\n<html>\n<head>\n  <title>404 Not Found</title>\n</head>\n<body bgcolor=\"ffffff\">\n  <h2>404 Not Found<h2>\n  <p>\n  \n</body>\n</html>\n$| p/Orange Livebox WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nCache-Control: private, max-age=0, no-cache\r\nContent-Length: 188\r\nContent-Type: text/html\r\n\r\n<P align=\"center\"><STRONG><FONT color=\"#ff3333\">GSCSERVER DEFAULT HANDLER - FILE NOT FOUND</P><BR><P align=\"center\">REQUESTED FILE = nice%20ports%2C/tri%6eity\.txt%2ebak</FONT></STRONG></P>$| p/Geutebrueck GeViControl video surveillance http admin/ d/security-misc/
 
@@ -10366,6 +10398,7 @@ match atalla m|^<00#020035#0101##>\r\n<00#020035#0101##>\r\n<00#020035#0101##>\r
 
 match http m|^SIP/2\.0 501 Not Implemented\r\nServer: Embedded HTTP Server ([\d.]+)\r\n| p/Embedded HTTP Server/ v/$1/
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nServer: Catwalk/([\d.]+)\r\n| p/Catwalk/ v/$1/ i/Canon imageRUNNER C5000-series printer http config/ d/printer/ cpe:/h:canon:imagerunner_c5000/
+match http m|^HTTP/1\.1 500 Internal Server Error\r\nServer: Catwalk\r\n| p/Catwalk/ i/Canon imageRUNNER C5000-series printer http config/ d/printer/ cpe:/h:canon:imagerunner_c5000/
 match http m|^HTTP/1\.0 404 Resource not found\r\nServer: Opera/([\w._-]+)\r\n.*Set-Cookie: unite-session-id=[0-9a-f]+; Max-Age=2073600; path=/\r\n|s p/Opera Unite httpd/ v/$1/
 match http m|^HTTP/1\.0 302 Found\r\nLocation: ([\w:/.-]*)sip:nm\r\nServer: BigIP\r\nConnection: close\r\nContent-Length: 0\r\n\r\n$| p/F5 BIG-IP load balancer httpd/ i/redirecting to $1/ d/load balancer/
 match http m|^HTTP/1\.1 401 Access Denied\r\n.*Set-Cookie: logintheme=cpanel; path=/; secure; port=\d+\r\n.*Server: cpsrvd/([\w._-]+)\r\n|s p/cPanel httpd/ v/$1/
