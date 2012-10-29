@@ -956,8 +956,8 @@ char errstr[256];
         if( o.issetDisablePacketCapture() && o.disablePacketCapture()==true )
             outError(QT_2, "Warning: There is no point on specifying a BPF filter if you disable packet capture. BPF filter will be ignored.");
     } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0){
-        nsock_set_default_engine(optarg);
-
+        if (nsock_set_default_engine(optarg) < 0)
+          outFatal(QT_3, "Unknown or non-available engine: %s", optarg);
     /* Output Options */
     } else if (optcmp(long_options[option_index].name, "quiet") == 0 ){
             o.setVerbosity(-4);

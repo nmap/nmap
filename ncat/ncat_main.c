@@ -414,7 +414,8 @@ int main(int argc, char *argv[])
                     bye("You can't specify more than one --proxy-auth.");
                 o.proxy_auth = Strdup(optarg);
             } else if (strcmp(long_options[option_index].name, "nsock-engine") == 0) {
-                nsock_set_default_engine(optarg);
+                if (nsock_set_default_engine(optarg) < 0)
+                    bye("Unknown or non-available engine: %s.", optarg);
             } else if (strcmp(long_options[option_index].name, "broker") == 0) {
                 o.broker = 1;
                 /* --broker implies --listen. */
