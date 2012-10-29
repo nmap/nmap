@@ -1012,6 +1012,7 @@ match ftp m|^550 Permission denied ,please check access control list\r\nPermissi
 match ftp m|^220 RIEDEL Artist FTP Server\r\n| p/Riedel Artist intercom system ftpd/ cpe:/h:riedel:artist/
 match ftp m|^220 (ZXDSL [\w._-]+) FTP version ([\w._-]+) ready at .*\r\n| p/ZyXEL $1 ADSL modem telnetd/ v/$2/ d/broadband router/ cpe:/h:zyxel:$1/
 match ftp m|^ - error: no valid servers configured\n - Fatal: error processing configuration file '/etc/proftpd/proftpd\.conf'\n$| p/ProFTPD/ cpe:/a:proftpd:proftpd/
+match ftp m|^220 SoftDataCable ([\w._-]+) ready\r\n| p/Software Data Cable ftpd/ v/$1/
 
 #(insert ftp)
 
@@ -1337,6 +1338,7 @@ match imap m|^\* OK MERCUR IMAP4-Server \(v([\w.]+) \w+\) for Windows ready| p/A
 match imap m|^\* OK WebSTAR Mail ready\r\n| p/WebSTAR imapd/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match imap m|^\* OK \[CAPABILITY IMAP4rev1[\w+= -]*\] Atmail IMAP4 Server ready\. See COPYING for distribution information\.\r\n| p/Atmail imapd/
 match imap m|^\* OK Dovecot DA ready\.\r\n| p/Dovecot DirectAdmin imapd/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 LITERAL\+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE AUTH=PLAIN\] Dovecot DA ready\.\r\n| p/Dovecot DirectAdmin imapd/
 match imap m|^\* OK AXIGEN ([\w._-]+) \(Linux/i686\) IMAP4rev1 service is ready\r\n| p/Axigen imapd/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match imap m|^\* OK Axigen-([\w._-]+) \(Linux/x64\) IMAP4rev1 service is ready\r\n| p/Axigen imapd/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match imap m|^\* BYE Hi This is the IMAP SSL Redirect\r\n| p/Lotus Domino secure imapd/ i/SSL redirect/
@@ -1595,6 +1597,7 @@ match metasploit m|^\n.*=\[ msf v([^\r\n]+)\r?\n.*\d+ exploits.*\d+ payloads.*\d
 match midas m|^MIDASd v([\w.]+) connection accepted\n\xff| p/midasd/ v/$1/
 match millennium m|^\x01\0\0\0\x1a\0\0\0Millennium Process Server\0$| p/Millennium Process Server/
 match minecraft m|^\xff\0\x17Took too long to log in$| p/Minecraft game server/
+match minecraft-votifier m|^VOTIFIER ([\w._-]+)\n$| p/Votifier plugin for Minecraft game/ v/$1/
 match misys-loaniq m|^Loan IQ %1 Request Server - Ready for Request\0| p/Misys Loan IQ/
 
 match moo m|^Type 'connect <player name>' to log in\.\r\n| p/LambdaMOO/
@@ -2833,6 +2836,7 @@ match ssh m|^SSH-([\d.]+)-Nortel\r?\n| p/Nortel SSH/ i/protocol $1/ d/switch/ cp
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w_.-]+) DragonFly-\d+\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/DragonFlyBSD/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w_.-]+) FIPS\n| p/OpenSSH/ v/$2/ i/protocol $1; Imperva SecureSphere firewall/ d/firewall/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w_.-]+) NCSA_GSSAPI_GPT_([-\w_.]+) GSI\n| p/OpenSSH/ v/$2/ i/protocol $1; NCSA GSSAPI authentication patch $3/ cpe:/a:openbsd:openssh:$2/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) \.\n| p/OpenSSH/ v/$2/ i/protocol $1/ cpe:/a:openbsd:openssh:$2/
 
 # Choose your destiny:
 # 1) Match all OpenSSHs:
@@ -2841,9 +2845,10 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w_.-]+) NCSA_GSSAPI_GPT_([-\w_.]+) GSI\n| p
 match ssh m|^SSH-([\d.]+)-OpenSSH[_-]([\w.]+)\r?\n|i p/OpenSSH/ v/$2/ i/protocol $1/ cpe:/a:openbsd:openssh:$2/
 
 # Are these randomly generated or what?
-match ssh m|^SSH-2\.0-Tc6l51-sD1m-m_\n| p/Fortinet FortiWifi 60C firewall sshd/ d/firewall/ cpe:/h:fortinet:fortiwifi:60c/
 match ssh m|^SSH-2\.0--Oxv-\n| p/Fortinet FortiGate 50B firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:50b/
 match ssh m|^SSH-2\.0-7Jcq2\n| p/Fortinet FortiGate 60B firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:60b/
+match ssh m|^SSH-2\.0-Tc6l51-sD1m-m_\n| p/Fortinet FortiWifi 60C firewall sshd/ d/firewall/ cpe:/h:fortinet:fortiwifi:60c/
+match ssh m|^SSH-2\.0-mpsa57B_3A\n| p/Fortinet FortiGate 60C firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:60c/
 match ssh m|^SSH-2\.0-Fq6T1B\n| p/Fortinet FortiGate 310B firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:310b/
 match ssh m|^SSH-2\.0-cA2G3\n| p/Fortinet FortiGate 620B firewall sshd/ d/firewall/ cpe:/h:fortinet:fortigate:620b/
 
@@ -2938,6 +2943,7 @@ match ssh m|^Could not load host key\. Closing connection\.\.\.$| p/Cisco switch
 match ssh m|^SSH-([\d.]+)-WS_FTP-SSH_([\w._-]+)(?: FIPS)?\r\n| p/WS_FTP sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/a:ipswitch:ws_ftp:$2/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-http://www\.sshtools\.com J2SSH \[SERVER\]\r\n| p/SSHTools J2SSH/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n\n\rNo connection is available now\. Try again later!$| p/DrayTek Vigor 2820 ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/
+match ssh m|^SSH-([\d.]+)-DraySSH_([\w._-]+)\n| p/DrayTek Vigor 2820n ADSL router sshd/ v/$2/ i/protocol $1/ d/broadband router/
 match ssh m|^SSH-([\d.]+)-Pragma FortressSSH ([\d.]+)\n| p/Pragma FortessSSH/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-SysaxSSH_([\d.]+)\r\n| p/Sysax Multi Server sshd/ v/$2/ i/protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ssh m|^SSH-([\d.]+)-1\.00\r\n$| p/Cisco IP Phone CP-7900G-series sshd/ i/protocol $1/ d/VoIP phone/
@@ -2951,6 +2957,8 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)-HipServ\n| p/Seagate GoFlex NAS dev
 match ssh m|^SSH-([\d.]+)-xlightftpd_release_([\w._-]+)\r\n| p/Xlight FTP Server sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-Serv-U_([\w._-]+)\r\n| p/Serv-U SSH Server/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-CerberusFTPServer_([\w._-]+)\r\n| p/Cerberus FTP Server sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-SSH_v2\.0@force10networks\.com\r\n| p/Force10 switch sshd/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-Data ONTAP SSH ([\w._-]+)\n| p/NetApp Data ONTAP sshd/ v/$2/ i/protocol $1/
 
 softmatch ssh m|^SSH-([\d.]+)-| i/protocol $1/
 
@@ -3341,6 +3349,7 @@ match telnet m|^\xff\xfd\x03\xff\xfb\x01\x1b\[2J\x1b\[1;1H\x1b\[0m\x1b\[\?3l\x1b
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x05SpeedStream Telnet Server\r\n\r\n\r\nlogin: | p/Efficient Networks Speedstream router telnetd/ d/router/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\| LANCOM ([\w._+-]+) ADSL/ISDN\r\n\| Ver\. ([\d.]+) /= p|Lancom $1 DSL/ISDN router telnetd| v/$2/ d/router/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\| LANCOM ([\w._+-]+)\r\n\| Ver\. ([\w._-]+ / \d\d\.\d\d\.\d\d\d\d)\r\n\| SN\.  (\d+)\r\n\| Copyright \(c\) LANCOM Systems\r\n\r\nLC\w+, Connection No\.: \d+ \(WAN\)\r\n\r\nUsername: = p/Lancom $1 VPN router telnetd/ v/$2/ i/serial number: $3/ d/router/ cpe:/h:lancom:$1/
+match telnet m|^\xff\xfd\x18\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\x7c LANCOM ([\w._+-]+) VPN\r\n\x7c Ver\. ([\w._-]+ / \d\d\.\d\d\.\d\d\d\d / [\w._/-]+)\r\n\x7c SN\.  (\d+)\r\n| p/Lancom $1 VPN router telnetd/ v/$2/ i/serial number: $3/ d/router/ cpe:/h:lancom:$1/
 match telnet m|^\xff\xfb\x01\n\rno data rcvd for version string\n\rrecv version id unsuccessful\n\rSSH Session task 0x\w+: Version Exchange Failed\n\r| p/Cisco Aironet 1200 router telnetd/ cpe:/a:cisco:telnet/ cpe:/h:cisco:aironet_1200/
 match telnet m|^\xff\xfe\x01Foxconn VoIP TRIO 3C| p/Foxconn VoIP TRIO 3C telnetd/
 match telnet m|^Sorry telnet connections not permitted\.\n$| p/Aruba router telnetd/ d/router/
@@ -3825,6 +3834,8 @@ match telnet m|^\xff\xfb\x01\r\nNetDVRDVS:| p/UTT Hiper 2610 router telnetd/ d/r
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nWelcome to Oqus Command Interface\n\r\n\r\r\nlogin: \r\nWelcome to Oqus Command Interface\n\r\n\r\r\nlogin: | p/Qualisys Oqus 300 camera telnetd/ d/webcam/
 match telnet m|^13C1C8055524\r\n>| p/Roku 2 XDS media player telnetd/ d/media device/
 match telnet m|^Username: \r\r\nUsername: \r\r\nUsername: | p/Sanyo VCC-HD2300 webcam telnetd/ d/webcam/ cpe:/h:sanyo:vcc-hd2300/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x03\r\n\r\n\r\nWelcome to (RS\w+) version V\.([\w._-]+) Rev\. ([\w._-]+) \(Patch ([\w._-]+)\) IPSec from \d\d\d\d/\d\d/\d\d 00:00:00\r\nsystemname is ([\w._ -]+), location (.*)\r\n\r\n\r\nLogin: | p/bintec $1 ADSL router telnetd/ v/$2 rev $3 patch $4/ i/location: $6/ h/$5/ cpe:/h:bintec:$1/
+match telnet m|^\xff\xfd\x03\xff\xfb\x03\xff\xfd\x01\xff\xfb\x01\r\n\r\x1b\[2J\x1b\[0;0H\x1b\[K\x1b\[1;0H\x1b\[K\x1b\[2;0H\x1b\[K\x1b\[3;0H\x1b\[K\x1b\[4;0H\x1b\[K\x1b\[5;0H\x1b\[K\x1b\[6;0H\x1b\[K\x1b\[7;0H\x1b\[K\x1b\[8;0H\x1b\[K\x1b\[9;0H\x1b\[K\x1b\[10;0H\x1b\[K\x1b\[11;0H\x1b\[K\x1b\[12;0H\x1b\[K\x1b\[13;0H\x1b\[K\x1b\[14;0H\x1b\[K\x1b\[15;0H\x1b\[K\x1b\[16;0H\x1b\[K\x1b\[17;0H\x1b\[K\x1b\[18;0H\x1b\[K\x1b\[19;0H\x1b\[K\x1b\[20;0H\x1b\[K\x1b\[21;0H\x1b\[K\x1b\[22;0H\x1b\[K\x1b\[23;0HArrowKey/TAB/BACK=Move  SPACE=Toggle  ENTER=Select  ESC=Back| p/Linksys SRW2024 switch telnetd/ d/switch/ cpe:/o:linksys:srw2024/
 
 #(insert telnet)
 
@@ -6919,6 +6930,7 @@ match http m|^HTTP/1\.0 200 Document follows\r\nServer: ADH-Web\r\n.*<meta name=
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"FR114W\"\r\nContent-type: text/html\r\n\r\n401 Unauthorized| p/NetGear FR114W WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200 .*\r\nServer: Mbedthis-Appweb/([\w._-]+)\r\n.*<title>Openstage IP Phone User</title>.*<meta name='author' content='Siemens AG,|s p/Mbedthis-Appweb/ v/$1/ i/Siemens Openstage VoIP phone http config/ d/VoIP phone/ cpe:/a:mbedthis:appweb:$1/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: Splunkd\r\n| p/Splunkd httpd/
+match http m|^HTTP/1\.1 200 OK\r\n.*Server: Splunkd\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<!--This is to override browser formatting; see server\.conf\[httpServer\] to disable\.|s p/Splunkd httpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*<!-- General javascripts -->.*var path='http://www\.axis\.com/cgi-bin/prodhelp\?prod=axis_([\w._-]+)&ver=([\w._-]+)&|s p/AXIS $1 print server http config/ v/$2/ d/print server/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nServer: Indy/([\w._-]+)\r\nWWW-Authenticate: Basic realm=\"KutinSoft Reboot Service\"\r\n| p/Indy httpd/ v/$1/ i/KutinSoft reboot service http config/ o/Windows/ cpe:/a:indy:httpd:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 200 OK\r\n.*VMware Server provides a virtual machine platform, which can be managed by VMware VirtualCenter Server\.\">\r\n\r\n<title>VMware Server 2</title>|s p/VMware Server http config/ v/2/
@@ -7172,6 +7184,7 @@ match http m|^HTTP/1\.0 503 Directory unavailable\r\n\r\n| p/Tor directory/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nContent-Type: text/html\r\nContent-Encoding: identity\r\nContent-Length: \d+\r\nExpires: .*\r\n\r\n| p/Tor directory/
 match http m|^HTTP/1\.1 401 Unauthorized\r\n.*Server: Zarafa iCal Gateway ([^\r\n]+)\r\n|s p/Zarafa iCal Gateway httpd/ v/$1/
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nLocation: https?://([\w._-]+):(\d+)/symantec\.html\r\nContent-Length: 0\r\n| p/Symantec Endpoint Protection httpd/ i/redirect to port $2/ h/$1/
+match http m|^HTTP/1\.1 200 OK\r\nSet-Cookie: JSESSIONID=\w+; Path=/; Secure; HttpOnly\r\n.*<title>Symantec Endpoint Protection Manager</title>|s p/Symantec Endpoint Protection httpd/
 match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>3Com Log On</title>|s p/3Com X5 Unified Security Platform IPS http config/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On</title>\r\n<meta http-equiv=\"Cache-Control\" content=\"no-store\" />.*<!--\r\n////////////////////////////////////////////\r\n// Copyright TippingPoint 2002, 2003, 2004 and 2005\r\n|s p/HP TippingPoint 110 or 1200E IPS http config/ d/firewall/
 match http m|^HTTP/1\.0 200 OK\r\nServer: UOS\r\n.*<title>TippingPoint Log On</title>\n<meta http-equiv=\"Cache-Control\" content=\"no-store\" />.*<!--\n////////////////////////////////////////////\n// Copyright TippingPoint 2002, 2003, 2004 and 2005\n|s p/HP TippingPoint 1200E or 5000E IPS http config/ d/firewall/
@@ -7359,6 +7372,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: CANON HTTP Server\r\nCo
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nDate: Sat, 01 Jan 2000 00:37:25 GMT\r\nLast-Modified: Sat, 01 Jan 2000 00:01:28 GMT\r\nContent-Type: text/html\r\nContent-Length: 635\r\n.*<title>VoIP Gateway</title>|s p/D-Link DVG-2032S VoIP gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\n.*Server: httpd\r\nContent-type: text/html\r\nETag: \"232c8e4-74d-0\"\r\nContent-length: 0\r\nConnection: close\r\nLocation: https://:443/start\.html\r\n\r\n|s p/Dell Remote Access Controller 6 http interface/ d/remote management/
 match http m|^HTTP/1\.0 302 Found\r\nCache-Control: no-cache\r\nConnection: Close\r\nContent-Length: 0\r\nContent-Type: application/octet-stream\r\n.*Location: /nonauth/login\.php\r\nPragma: no-cache\r\nServer: Kerio Clientless SSL-VPN\r\n\r\n|s p/Kerio Clientless SSL-VPN/
+match http m|^HTTP/1\.0 200 OK\r\n.*Last-Modified: Tue, 31 Jan 2012 01:17:22 GMT\r\nETag: \"413_83_4f274122\"\r\n.*Content-Length: 131\r\n.*location=\"/remote/login\";\n</script></html>\n|s p/Fortinet FortiGate SSL VPN remote http login/
 match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Tue, 03 Oct 2006 19:21:12 GMT\r\nETag: \"85f_52_4522b828\"\r\n.*Content-Length: 82\r\n.*location=\"/remote/index\";\n\n</script>\n</html>\n\0{605}$|s p/Fortinet FortiGate-5001 SSL VPN remote http login/
 match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Wed, 11 Jan 2012 03:34:20 GMT\r\nETag: \"610_4f_4f0d033c\"\r\n.*Content-Length: 79\r\n.*location=\"/login\";\n\n</script>\n</html>\n|s p/Fortinet FortiGate firewall http proxy admin/ d/firewall/
 match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Fri, 21 Apr 2000 00:53:33 GMT\r\nETag: W/\"685_4f_4d082ec4\"\r\n.*Content-Length: 79\r\n.*location=\"/login\";\n\n</script>\n</html>\n|s p/Fortinet FortiGate firewall http proxy admin/ d/firewall/
@@ -7532,7 +7546,7 @@ match http m|^HTTP/1\.0 200 cyberoam authentication response\r\nServer: awarrenh
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nDate: .* UTC\r\nConnection: close\r\nLocation: /admin/public/index\.html\r\n\r\n$| p/Cisco ASA 5510 firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .*\r\nServer: Mbedthis-Appweb/([\w._-]+)\r\nContent-length: 0\r\nConnection: close\r\nLocation: http://([\w._-]+):\d+/index\.html\r\n\r\n$| p/Mbedthis-Appweb/ v/$1/ i/Iomega StorCenter sohoclient/ o/Windows/ h/$2/ cpe:/a:mbedthis:appweb:$1/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/2\.0 302 Found\r\nServer: SmarterTools/([\w._-]+)\r\n.*X-AspNet-Version: ([\w._-]+)\r\n.*Location: /Login\.aspx\r\n|s p/SmarterTools httpd/ v/$1/ i/ASP.NET $2/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.1 200 OK\r\n.*Set-Cookie: _sonar_session=[\w+%-]+; path=/; HttpOnly\r\n|s p/Sonar code quality management httpd/
+match http m|^HTTP/1\.1 200 OK\r\n.*Set-Cookie: _sonar_session=[\w+%-]+|s p/Sonar code quality management httpd/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/html\r\nConnection: close\r\nServer: OpenEJB/\?\?\? \(unknown os\)\r\n\r\n$| p/OpenEJB httpd/
 match http m|^HTTP/1\.0 302 Found\r\n.*Location: /index\.ds\r\n.*Server: DrWebAV-DeskServer/(REL-500-[\w._-]+) Linux/i686 Lua/([\w._-]+) OpenSSL/([\w._-]+)\r\n\r\n$|s p/Dr. Web AV-Desk httpd/ v/$1/ i/i686; Lua $2; OpenSSL $3/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*Server: vdradmind/([\w._-]+)\r\n|s p/VDR-Admin httpd/ v/$1/
@@ -7743,6 +7757,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nServer: eCos Embedded W
 match http m|^HTTP/1\.1 200 OK\r\nServer: Aperio ImageServer v([\w._: -]+)\r\nSpectrumPlus: 0\r\nContent-Length: \d+\r\nContent-Type: text/plain\r\n\r\n| p/Aperio ImageServer httpd/ v/$1/
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nMime-Version: 1\.0\r\nDate: [^\r\n]* (\w+)\r\n.*Via: 1\.0 ([\w._-]+):\d+ \(IronPort-WSA/([\w._-]+)\)|s p/Cisco IronPort Web Security Appliance http config/ v/$3/ i/time zone: $1/ d/firewall/ h/$2/
 match http m|^HTTP/1\.0 504 Gateway Timeout\r\nMime-Version: 1\.0\r\nDate: .* CEST\r\nContent-Type: text/html\r\nConnection: close\r\n| p/IronPort WSA firewall http admin/ d/firewall/
+match http m|^HTTP/1\.0 403 Forbidden\r\nMime-Version: 1\.0\r\nDate: .* CEST\r\nContent-Type: text/html\r\nConnection: close\r\n| p/IronPort WSA firewall http admin/ d/firewall/
 match http m|^HTTP/1\.1 404 Not Found\r\n.*\r\nServer: Bomgar\r\n|s p/Bomgar Remote Access Portal/
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: SQLAnywhere/([\d.]+)\r\n| p/Sybase SQLAnywhere httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Etag: ([\w._ -]+)\r\n.*\xef\xbb\xbf<!DOCTYPE html .*<title>AirDroid</title>|s p/AirDroid httpd/ v/$1/ d/phone/ o/Android/ cpe:/a:airdroid:airdroid:$1/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
@@ -7864,6 +7879,11 @@ match http m|^HTTP/1\.0 200 OK\r\nDate: .* GMT\r\nContent-Type: text/plain\r\nSe
 match http m|^HTTP/1\.1 401 ERROR\r\nWWW-Authenticate: Digest qop=\"auth\", realm=\"Modem@AirLink\.com\", nonce=\"[0-9a-f]+\"\r\nContent-Length: 0\r\n\r\n| p/Sierra Wireless Raven XE V2221E-V 3G WAP http admin/ d/WAP/ cpe:/h:sierrawireless:raven_xe_v2221e-v/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length:165\r\nContent-Type:text/html\r\n\r\n<HTML><TITLE>NetTalk, Inc\.</TITLE><FRAMESET COLS=\"100%\" ROWS=\"140,\*\" frameborder=0><FRAME NAME=\"t\" SRC=\"t\.htm\"><FRAME NAME=\"login\" SRC=\"login\.cgi\"></FRAMESET></HTML>$| p/netTALK Duo http config/ d/phone/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"(TEW-\w+)\(ANNEX A\)\"\r\n|s p/TRENDnet $1 WAP http config/ d/WAP/ cpe:/h:trendnet:$1/
+match http m|^HTTP/1\.0 200 Ok\r\nContent-type: text/html; charset=\"UTF-8\"\r\nConnection: close\r\nAccept-Ranges: none\r\nServer: Sockso\r\nCache-Control: private\r\n| p/Sockso music server/
+match http m|^HTTP/1\.1 403 Forbidden\r\nCache-Control: no-cache\r\nContent-type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>Error 403</TITLE></HEAD><BODY><H1>Error 403</H1><P>Forbidden</P></BODY></HTML>$| p/Sonos Play:5 streaming media server/ cpe:/h:sonos:play%3a5/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"home\", \r\nContent-Type: text/html\r\nCache-Control: public\r\nPragma: cache\r\n.*<html>\n<head>\n  <title>401 Unauthorized</title>\n</head>\n<body bgcolor=\"ffffff\">\n  <h2>401 Unauthorized<h2>\n  <p>\n  \n</body>\n</html>\n|s p/Sagem F@st 2764 WAP http config/ d/WAP/
+match http m|^HTTP/1\.1 401 Authorization Required\r\nServer: Lotus Mobile Connect\r\nWWW-Authenticate: Basic realm=\"Lotus Mobile Connect\"\r\nConnection: close\r\nSet-Cookie: WgSessionKey=; expires=Wed, 31 Dec 1969 23:00:00 GMT; Path=/; Domain=([\w._-]+); HttpOnly\r\nContent-Type: text/html; charset=utf-8\r\n\r\n| i/Lotus Mobile Connect/ h/$1/
+match http m|^HTTP/1\.1 200 OK\r\nPragma: No-cache\r\nCache-Control: no-cache\r\nExpires: Thu, 01 Jan 19\d\d .* (\w+)\r\n.*Server: CS-MARS\r\n|s p/Cisco MARS firewall http config/ i/time zone: $1/
 
 #(insert http)
 
@@ -10593,6 +10613,7 @@ match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Aastra (MX-ONE) SN/([\w._-]+)\r\n|
 match sip m|^SIP/2\.0 504 Server time-out\r\nms-user-logon-data: RemoteUser\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nContent-Length: 0\r\n\r\n$| p/Microsoft Outlook Web Access SIP/
 match sip m|^SIP/2\.0 481 Call Leg/Transaction Does Not Exist\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=0-\w+-\w+-\w+-\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;received=[\d.]+;branch=foo\r\nContent-Length: 0\r\n\r\n$| p/Sony PCS-TL50 videoconferencing SIP/ cpe:/h:sony:pcs-tl50/
 match sip m|^SIP/2\.0 404 Not found\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=local-tag\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nContact: <sip:nm@nm>\r\nContent-Length: 0\r\n\r\n$| p/Edgewater Networks Edgemarc 4500 series VoIP gateway SIP/ d/VoIP adapter/
+match sip m|^SIP/2\.0 504 Server time-out\r\nms-user-logon-data: RemoteUser\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>;tag=\w+\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nVia: SIP/2\.0/TCP nm;branch=foo\r\nServer: RTC/4\.0\r\nContent-Length: 0\r\n\r\n| p/Microsoft Lync SIP/
 
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX ([\w._+-]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
@@ -10816,6 +10837,8 @@ match radmin m|^\x01\x00\x00\x00\x09\x00\x00\x10\x4f\x2f\x10\x00\x00\x04\x00\x00
 
 softmatch radmin m|^\x01\x00\x00\x00\x25.\x00..\x08.\x00..|s p/Famatech Radmin/ o/Windows/ cpe:/a:famatech:radmin/ cpe:/o:microsoft:windows/a
 
+match srcds m|^\n\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/srcds game server/
+
 ##############################NEXT PROBE##############################
 Probe UDP Sqlping q|\x02|
 rarity 6
@@ -10910,48 +10933,58 @@ match H.323-gatekeeper-discovery m|^8\x02\x01\x10\0$| p/GNU Gatekeeper discovery
 # Enterprise numbers as used in SNMP engine IDs are here:
 # http://www.iana.org/assignments/enterprise-numbers
 
-# Cisco - SNMP Engine ID 9 (CiscoSystems) = \x00 \x09 = pattern \0\t
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0\t|s p/Cisco SNMP service/
+# Reserved - SNMP Engine ID 0 \x00\x00
+# Netgear GS748TS V5.0.0.23
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x00\x00|s
 
-# Cisco - SNMP Engine ID 99 (SNMP Research) = \x00 \x63 = pattern \0c
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0c|s p/Cisco SNMP service/
+# Cisco - SNMP Engine ID 9 (CiscoSystems) = \x00\x09
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x00\x09|s p/Cisco SNMP service/
 
-# Brocade - SNMP Engine ID 1588 (Brocade Communications Systems, Inc.) = \x06 \x34
+# Cisco - SNMP Engine ID 99 (SNMP Research) = \x00\x63
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x00\x63|s p/Cisco SNMP service/
+
+# Xerox - SNMP Engine ID 253 (Xerox) = \x00\xfd
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x00\xfd|s p/Xerox SNMP service/
+
+# Scientific Atlanta - SNMP Engine ID 1429 = \x05\x95
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x05\x95|s p/Scientific Atlanta SNMP service/
+
+# Brocade - SNMP Engine ID 1588 (Brocade Communications Systems, Inc.) = \x06\x34
 match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x06\x34|s p/Brocade SNMP service/
 
-# QLogic - SNMP Engine ID 1663 (Ancor Communications) = \x06 \x7f = pattern \x06\x7f
+# QLogic - SNMP Engine ID 1663 (Ancor Communications) = \x06\x7f
 match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x06\x7f|s p/QLogic SNMP service/
 
-# IBM - SNMP Engine ID 1104 (First Virtual Holdins Incorporated) = \x04 \x50 = pattern \x04P
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x04P|s p/IBM SNMP service/
+# IBM - SNMP Engine ID 1104 (First Virtual Holdins Incorporated) = \x04\x50
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x04\x50|s p/IBM SNMP service/
 
-# Canon - SNMP Engine ID 4976 (Agent++) = \x13 \x70 = pattern \x13p
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x13p|s p/Canon SNMP service/
-
-# Lexmark - SNMP Engine ID 2021 (Engine Enterprise ID: U.C. Davis, ECE Dept. Tom) = \x07 \xe5 = pattern \x07\xe5
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x07\xe5|s p/Lexmark SNMP service/
-
-# Xerox - SNMP Engine ID 253 (Xerox) = \x00 \xfd = pattern \0\xfd
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\0\xfd|s p/Xerox SNMP service/
-
-# Blue Coat - SNMP Engine ID 3417 (CacheFlow Inc.) = \x0d \x59
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x0d\x59|s p/Blue Coat SNMP service/
-
-# net-snmp (net-snmp.org) - SNMP Engine ID 8072 (net-snmp) = \x1f \x88
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x1f\x88|s p/net-snmp/
-
-# Huawei - SNMP Engine ID 2011 (HUAWEI Technology Co.,Ltd) = \x07 \xdb
+# Huawei - SNMP Engine ID 2011 (HUAWEI Technology Co.,Ltd) = \x07\xdb
 match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x07\xdb|s p/Huawei SNMP service/
 
-# Aruba Networks - SNMP Engine ID 14823 = \x39 \xe7
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x39\xe7|s p/Aruba Networks SNMP service/
+# Lexmark - SNMP Engine ID 2021 (Engine Enterprise ID: U.C. Davis, ECE Dept. Tom) = \x07\xe5
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x07\xe5|s p/Lexmark SNMP service/
 
-# Scientific Atlanta - SNMP Engine ID 1429 = \x05 \x95
-match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x05\x95|s p/Scientific Atlanta SNMP service/
+# Thomson Inc. - SNMP Engine ID 2863 (Thomson Inc.) = \x0b\x2f
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x0b\x2f|s p/Thomson SNMP service/
+
+# Blue Coat - SNMP Engine ID 3417 (CacheFlow Inc.) = \x0d\x59
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x0d\x59|s p/Blue Coat SNMP service/
+
+# Canon - SNMP Engine ID 4976 (Agent++) = \x13\x70
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x13\x70|s p/Canon SNMP service/
+
+# net-snmp (net-snmp.org) - SNMP Engine ID 8072 (net-snmp) = \x1f\x88
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x1f\x88|s p/net-snmp/
 
 # Fortigate-310B v4.0,build0324,110520 (MR2 Patch 7)
 # Fortinet, Inc. - SNMP Engine ID 12356 = \x30\x44
 match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\x80\0\x30\x44|s p/Fortinet SNMP service/ d/firewall/
+
+# Aruba Networks - SNMP Engine ID 14823 = \x39\xe7
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x39\xe7|s p/Aruba Networks SNMP service/
+
+# OpenBSD Project - SNMP Engine ID 30155 = \x75\xcb
+match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\0\x75\xcb|s p/OpenBSD SNMP service/
 
 # Wireshark says <MISSING> for the SNMP Engine ID.
 match snmp m|^..\x02\x01\x030.\x02\x02Ji\x02.{3,4}\x04\x01.\x02\x01\x03\x04.{5,6}\x01\0\x02\x03|s p/MikroTik router SNMP service/ d/router/
