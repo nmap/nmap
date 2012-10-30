@@ -245,6 +245,9 @@ match chargen m|^The quick brown fox jumps over the lazy dog\. 1234567890\r\n| p
 match chat m|^WebStart Chat Service Established\.\.\.\r\n\(C\) 2000-\d+ R Gabriel all Rights Reserved\r\n| p/WebStart Chat Service/
 match chat m|^\*\x01..\0\x04\0\0\0\x01$|s p/AIM or ICQ server/
 match chat-ctrl m|^InfoChat Server v([\d.]+) Remote Control ready\n\r| p/InfoChat Remote Control/ v/$1/
+
+match check_mk m|^<<<check_mk>>>\nVersion: ([\w._-]+)\n| p/check_mk extension for Nagios/ v/$1/
+
 match chess m=^\n\r             _       __     __                             __      \n\r            \| \|     / /__  / /________  ____ ___  ___     / /_____ \n\r            \| \| /\| / / _ \\/ / ___/ __ \\/ __ `__ \\/ _ \\   / __/ __ \\\n\r= p/Lasker Internet Chess server/
 
 match chilliworx m|^ChilliSVC ([\d.]+)\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/ChilliWorx management console/ v/$1/ d/remote management/
@@ -415,6 +418,8 @@ match exec m|^\x01Where are you\?\n$| p/netkit-rsh rexecd/ o/Linux/ cpe:/o:linux
 # \x04 is the length, \x07\x08 is the command, following two bytes are an
 # offset into an XOR code book. http://titanfiesta.googlecode.com/svn/trunk/TitanFiesta/Common/XorTable.h.
 match fiesta-online m|^\x04\x07\x08..$| p/Fiesta Online game server/
+
+match filemaker-xdbc m|^2\0TY\xb8\xd5\xbbH:x\x03\^v\xd5\xdf\x15Rgc\xd7\x1a\x067\(/\xbf\xc73\t\?3\x85\x9d\x92ne\x0bh\xbe\x8a\]\xdf!\x14xA\xbc\xb6\xe9_| p/FileMaker xDBC/
 
 match finger m|\r\n {4}Line {5,8}User {6,8}Host\(s\) {13,18}Idle +Location\r\n| p/Cisco fingerd/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
 match finger m|^OpenLDAP Finger Service\.\.\.\r\n| p/OpenLDAP fingerd/
@@ -1374,6 +1379,7 @@ match imap-proxy m|^\* OK imapfront ready\. \+ stunnel\r\n| p/Mailfront imapfron
 match imap-proxy m|^\* OK avast! IMAP Proxy\r\n| p/Avast! anti-virus imap proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap-proxy m|^\* OK \[CAPABILITY IMAP4rev1\] SpamPal for Windows\r\n| p/SpamPal imap proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match imap-proxy m|^\* OK Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/Unix/
+match imap-proxy m|^\* OK \[CAPABILITY IMAP4rev1 LITERAL\+ AUTH=PLAIN\] Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/Unix/
 match imap-proxy m|\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE ACL ACL2=UNION\] Courier-IMAP ready\. Copyright 1998-2008 Double Precision, Inc\. See COPYING for distribution information\.\r\n| p/imapproxy/
 
 softmatch imap m|^\* OK ([-.\w]+) [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i h/$1/
@@ -4066,6 +4072,7 @@ match vtp m|^220 Welcome to Video Disk Recorder \(VTP\)\r\n| p/VTP control for V
 
 match warcraft m|^\x00\x06\xec\x01....$|s p/World of Warcraft world server/
 # Also www.getmangos.com: free, open source World of Warcraft server.
+# Also Trinity World of Warcraft Server (for 3.3.5)
 match warcraft m|^\x00\x2a\xec\x01....|s p/World of Warcraft world server/
 match warcraft m|^\x00\x27\x00\x34.....................................$|s p/World of Warcraft world server/
 
@@ -4804,8 +4811,8 @@ match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: ([\w._-]+) \d+/Service Pack (
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: Windows/([\w._-]+\.2600)/Service Pack (\d+), UPnP/([\d.]+), TVersity Media Server/([\w._-]+)\r\n| p/TVersity Media Server UPnP/ v/$4/ i/UPnP $3; Windows build $1/ o/Windows XP/ cpe:/o:microsoft:windows_xp::sp$2/a
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: Windows/([\w._-]+)\.6001/Service Pack (\d+), UPnP/([\d.]+), TVersity Media Server/([\w._-]+)\r\n| p/TVersity Media Server UPnP/ v/$4/ i/UPnP $3; Windows build $1/ o/Windows Vista/ cpe:/o:microsoft:windows_vista::sp$2/
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: ([\w._-]+) 2/, UPnP/([\w._-]+), TVersity Media Server\r\n|s p/TVersity Media Server UPnP/ v/$1/ i/UPnP $2/ o/Windows/ cpe:/o:microsoft:windows/a
-match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p|Belkin/Linksys wireless router UPnP| i/Linux $1; UPnP $2; BRCM400 $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) ZyXEL-UPnP/([\w._-]+)\r\n| p|ZyXEL wireless router UPnP| i/Linux $1; UPnP $2; ZyXEL-UPnP $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p|Belkin/Linksys wireless router UPnP| i/UPnP $2; BRCM400 $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) ZyXEL-UPnP/([\w._-]+)\r\n| p/ZyXEL wireless router UPnP/ i/UPnP $2; ZyXEL-UPnP $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Symbian/([\w._-]+) UPnP/([\d.]+)\r\nContent-Length: 151\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html><head>\n<title>400 Bad Request</title>\n</head><body>\n<h1>Bad Request</h1>\n<hr />\n</body></html>$| p/Nokia N85 media share/ i/SymbianOS $1; UPnP $2/ d/phone/ o/SymbianOS/
 
 match uptime-agent m|^ERR\n$| p/up.time server monitor/
@@ -4893,6 +4900,7 @@ match bluecoat-logd m|^\x03\0\0\x01$| p/Blue Coat Reporter log server/
 match brio m|^com\.sqribe\.null\0java\.lang\.String\0com\.sqribe\.transformer\.TransformerException\0java\.lang\.String\0TRCP version mismatch: Current version: (\d+) Client version: unknown\0$| p/Brio 8 business intelligence tool/ v/$1/
 
 match caldav m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: negotiate \r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n|s p/TwistedWeb httpd/ v/$2/ i/Apple iCal Server; Twisted $1/
+match caldav m|^HTTP/1\.1 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm=\"Zarafa CalDav Gateway\"\r\nContent-Length: 0\r\nServer: Zarafa\r\n| p/Zarafa CalDav Gateway/
 
 match csta m|^<HTML>\r\n<HEAD>\r\n<TITLE>CSTA-Mono Server Home Page </TITLE>\r\n| p/Alcatel OmniPCX Enterprise/ d/PBX/
 
@@ -7457,7 +7465,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*<title>XBMC</title> \n<link type=\"text/css\
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>XBMC</title>\r\n\t\t<meta http-equiv=\"Content-Language\" content=\"EN\" />.*<!-- <link rel=\"search\" href=\"/provider\.xml\" type=\"application/opensearchdescription\+xml\" title=\"XBMC Library\" /> -->|s p/XBMC http interface/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.[01] 200 OK\r\n.*<title>XBMC</title>\s*<meta http-equiv=\"Content-Language\" content=\"EN\" />.*<!-- <link rel=\"search\" href=\"/?provider\.xml\" type=\"application/opensearchdescription\+xml\" title=\"XBMC Library\" /> -->|s p/XBMC http interface/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 134\r\nExpires: .*\r\nContent-Type: text/html\r\nDate: .*\r\n\r\n<html>\n<head>\n<title>XBMC Web Media Manager</title> \n<meta HTTP-EQUIV=\"REFRESH\" content=\"0; url=\./movies/index\.html\">\n</head>\n</html>\n$| p/XBMC Web Media Manager/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\nConnection: close\r\nWWW-Authenticate: Basic realm=XBMC\r\nDate: .* GMT\r\n\r\n$| p/XBMC Web Media Manager/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 0\r\n.*WWW-Authenticate: Basic realm=XBMC\r\n|s p/XBMC Web Media Manager/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nLocation:http://([\w._-]+)/index\.htm\r\nContent-Type: text/plain\r\nContent-Length:2.\r\n\r\nhttp://[\w._-]+/index\.htm$| p/Lanier IS100e image scanner httpd config/ h/$1/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n.*<TITLE>Start</TITLE>\n</HEAD>\n<FRAMESET border=0 frameSpacing=0 rows=30,8,\* frameBorder=0>\n<FRAME name=bar src=\"CgiTagMenu\?page=Top&Language=0\" scrolling=no NORESIZE>\n<FRAME name=hrbar src=\"BarFoot\.html\" scrolling=no NORESIZE>|s p/thttpd/ i/Panasonic Network Camera http config/ cpe:/a:acme:thttpd/
 match http m|^HTTP/1\.0 200 OK\r\n.*Last-Modified: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*\xef\xbb\xbf<html>\r\n<head>\r\n.*<META NAME=\"Expired\" CONTENT=\"01-jan-1900 00:00:00\" />\r\n.*<title>NAS</title>.*<title></title>|s p/BusyBox httpd/ i/Hitachi SimpleNET NAS http config/ d/storage-misc/ o/Linux/ cpe:/a:busybox:httpd/ cpe:/o:linux:linux_kernel/a
@@ -7761,7 +7769,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\nWWW-Authenticate: Basic realm='unRAID 
 match http m|^HTTP/1\.1 200 OK\r\nConnection: Close\r\nPragma: no-cache\r\nCache-Control: private, max-age=0\r\nDate: .*\r\nExpires: -1\r\nContent-Type: text/html\r\nTransfer-Encoding: chunked\r\nRefresh: 60; URL=\r\n\r\n[0-9a-f]+\r\n<HTML><title>([\w._-]+) unRAID Server</title>| p/Lime Technology unRAID Server Unmenu http config/ d/storage-misc/ h/$1/ cpe:/o:lime_technology:unraid_server:4/
 match http m|^\0\0\0\0\x81HTTP/1\.0 403 Forbidden\r\nServer: ServletExecAS/([\w._-]+)\r\nContent-type: text/html\r\n\r\nRequests from [\d.]+ are not allowed\.$| p/New Atlanta ServletExec/ v/$1/ cpe:/a:newatlanta:servletexec:$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"\"\r\n\r\n$| p/Z-World Rabbit microcontroller httpd/ i/Redline AN-50 wireless bridge http config/ cpe:/h:redline:an-50/
-match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nConnection: Close\r\n\r\n<HTML>\n<HEAD>\n<TITLE>ZyXEL ZyAIR ([\w._-]+)</TITLE>| p/ZyXEL ZyAIR $1 WAP http config/ d/WAP/ cpe:/h:zyxel:$1/
+match http m|^HTTP/1\.1 200 OK\r\nContent-type: text/html\r\nConnection: Close\r\n\r\n<HTML>\n<HEAD>\n<TITLE>ZyXEL (ZyAIR [\w._-]+)</TITLE>| p/ZyXEL $1 WAP http config/ d/WAP/ cpe:/h:zyxel:$1/
 match http m|^HTTP/1\.1 200\r\nContent-type: text/html\r\nConnection: close\r\nCONTENT-LENGTH: 81\r\n\r\n<head>\r\n<meta http-equiv=\"refresh\" content=\"0; URL=get\.cgi&index\.cgi\">\r\n</head>\r\n$| p/SolarLog 400e power monitor httpd/ d/power-misc/ cpe:/h:solarlog:400e/
 match http m|^HTTP/1\.1 200 OK\r\naccept-ranges: none\r\ncache-control: no-cache\r\ncontent-type: text/html; charset=utf-8\r\ndate: .*\r\nexpires: 0\r\nserver: Ocsigen\r\n\r\n| p/Ocsigen/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nSet-Cookie: Netio\w+=\w+; path=/\r\n\r\n<html>\n<head>\n<title>(NETIO-\w+) WebControl</title>\n| p/Koukaam $1 power controller http config/ d/power-device/ cpe:/h:koukaam:$1/
@@ -7943,6 +7951,9 @@ match http m|^HTTP/1\.1 302 Found\r\n.*Server: SouthRiver/([\w._-]+)\r\n.*X-AspN
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: TMeter\r\n.*<Version>([\w._-]+) Unicode</Version>\r\n\t<CaptureStatus>In capture</CaptureStatus>\r\n\t<XmlTrafficReport>([^<]*)</XmlTrafficReport>\r\n|s p/TMeter/ v/$1/ i/report dir: $2/ o/Windows/ cpe:/o:microsoft:windows/
 match http m|^HTTP/1\.0 200 OK\nServer: Integrity\nContent-type: text/html\n\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html>\n<head>\n<title>Welcome to INTEGRITY</title>| p/Hay Systems HSL 2.75G Femtocell http config/ d/WAP/ cpe:/o:hay_systems:hsl_2.75g_femtocell/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: application/octet-stream\r\nCache-Control: no-cache\r\n\r\n$| p/Samsung UE55D7000 TV http config/ d/media device/ cpe:/h:samsung:ue55d7000/
+match http m|^HTTP/1\.0 200 OK \r\nContent-Type: text/html\r\nDate: .* GMT\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" lang=\"en\">\n<head>\n<title>Wuala  - Secure Online Storage</title>| p/Wuala cloud storage client http status/
+match http m|^HTTP/1\.1 200 OK\r\nServer: X10 Control ([\w._-]+)\r\n| p/X10 ActivePhone remote control httpd/ v/$1/ d/phone/
+match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><head><title>Page Not Found</title></head><body>Not here :\(</body></html>$| p/Prosody XMPP BOSH/
 
 #(insert http)
 
@@ -8534,9 +8545,9 @@ match upnp m|^HTTP/1\.0 200 .*\r\n.*Server: Linux/([\w_.-]+), UPnP/([\w_.-]+), F
 match upnp m|^HTTP/1\.0 200 OK\r\n.*Server: Linux/([\w_.-]+), UPnP/([\w_.-]+), Free UPnP Entertainment Service/([^\r\n]+)\r\n|s p/FUPPES UPnP media server/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.0 200 OK\r\n.*Server: FreeBSD/([\w_.-]+), UPnP/([\w_.-]+), Free UPnP Entertainment Service/([^\r\n]+)\r\n|s p/FUPPES UPnP media server/ v/$3/ i/FreeBSD $1; UPnP $2/ o/FreeBSD/ cpe:/o:freebsd:freebsd:$1/
 
-match upnp m|^HTTP/1\.1 500 Internal Server Error\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipUPnP/([\d.]+)\r\n| p/D-Link WAP dynamic DNS UPnP/ i/ipOS $1; UPnP $2; ipUPnP $3/ d/WAP/
-match upnp m|^HTTP/1\.1 400 Bad Request\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipGENADevice/([\d.]+)\r\n| p/D-Link DGL-4300 gaming router UPnP/ i/ipOS $1; UPnP $2; ipGENADevice $3/ d/broadband router/
-match upnp m%^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) +UPnP/([\d.]+) (?:ADSL2\+ Router )?(TL-\w+|TD-\w+)/([\w._/-]+)\r\n% i/TP-LINK $3 WAP; UPnP $2/ p/ipOS/ v/$4/ d/WAP/
+match upnp m|^HTTP/1\.1 500 Internal Server Error\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipUPnP/([\d.]+)\r\n| p/ipOS/ v/$1/ i/D-Link WAP dynamic DNS; UPnP $2; ipUPnP $3/ d/WAP/
+match upnp m|^HTTP/1\.1 400 Bad Request\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipGENADevice/([\d.]+)\r\n| p/ipOS/ v/$1/ i/D-Link DGL-4300 gaming router; UPnP $2; ipGENADevice $3/ d/broadband router/
+match upnp m=^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) +UPnP/([\d.]+) (?:ADSL2\+ Router )?(TL-\w+|TD-\w+)/([\w._/-]+)\r\n= p/ipOS/ v/$1/ i/TP-LINK $3 WAP $4; UPnP $2/ d/WAP/
 
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._+-]+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._+-]+) UPnP/([\d.]+) DLNADOC/([\d.]+) Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$4/ i/Linux $1; DLNADOC $3; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
@@ -10437,6 +10448,7 @@ match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*Silicon Graphics|s p/SGI IRIX X server
 
 match X11 m|^\x01\0\x0b\0\0.......\0\0..\xff\xff.\0\0\x01\0\0.\0\xff\xff......\x08\xff....Colin Harrison\0|s p/Xming X server/ o/Windows/ cpe:/o:microsoft:windows/a
 match X11 m|^\x01\0\x0b\0\0.......\0\0..\xff\xff.\0\0\x01\0\0.\0\xff\xff......\x08\xff....The Xming Project\0| p/Xming X server/ o/Windows/ cpe:/o:microsoft:windows/a
+match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*Open source\0|s p/Android X Server/ d/phone/ o/Android/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
 
 # Strange one... X.Org Group?
 match X11 m|^\x01\0\x0b\0\0.....\0\0\0\0.*The X\.Org Group\0|s p|Xvnc X11/VNC proxy|
@@ -10536,7 +10548,7 @@ match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: AirTunes/([\w._-]+)\r\n\r\n$|
 match scifinder m|^\0\[T /nic$| p/CAS SciFinder/
 
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\n.*SERVER: Linux/([\w._+-]+), UPnP/([\d.]+), Intel UPnP SDK/([\w._~-]+)\r\n|s p/Portable SDK for UPnP devices/ v/$3/ i/kernel $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m%^HTTP/1\.0 \d\d\d .*\r\nSERVER: (?:TP-LINK )?Wireless (?:Router|AP) ([\w._/-]+)(?:http://www\.tp-link\.com)?, UPnP/([\d.]+)\r\n% p/TP-LINK $1 WAP upnp/ i/UPnP $2/ d/WAP/
+match upnp m=^HTTP/1\.0 \d\d\d .*\r\nSERVER: (?:TP-LINK )?Wireless (?:Router|AP) ([\w._/-]+)(?:http://www\.tp-link\.com)?, UPnP/([\d.]+)\r\n= p/TP-LINK $1 WAP upnp/ i/UPnP $2/ d/WAP/
 
 ##############################NEXT PROBE##############################
 # ftp://ftp.rfc-editor.org/in-notes/rfc1179.txt
@@ -10781,6 +10793,9 @@ rarity 6
 ports 515,1028,1068,1503,1720,1935,2040,3389
 
 match activefax m|^ActiveFax Server: Es befinden sich insgesamt| p/ActFax Communication ActiveFax/ i/German/
+
+# Cisco video conference device port 1720
+match H.323/Q.931 m|^\x03\0\0\x10\x08\x02\x80\0}\x08\x02\x80\xe2\x14\x01\0|
 
 match lineage-ii m|^\x03\0\x84$| p/l2emurt Lineage II game server/
 match lineage-ii m|^\x03\0\x26$| p/Lineage II game server/
