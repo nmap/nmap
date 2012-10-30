@@ -83,7 +83,7 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
 #if HAVE_IPV6
     sin6->sin6_port = htons(port);
 #else
-    fatal("IPv6 address passed to nsock_connect_* call, but nsock was not compiled w/IPv6 support");
+    fatal("IPv6 address passed to %s call, but nsock was not compiled w/IPv6 support", __func__);
 #endif
   }
 
