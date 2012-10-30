@@ -1056,6 +1056,8 @@ match ftp-proxy m|^220 server ready - login please\r\n| p/Squid ftp proxy/ cpe:/
 match ftp-proxy m|^421 Proxy is closed \(unknown user location\)\r\n$| p/Zscaler ftp proxy/
 match ftp-proxy m|^220 Cleo VLProxy/([\w._-]+) FTP server ready\.\r\n$| p/Cleo VLProxy ftp proxy/ v/$1/
 
+match varnish-cli m|^200 206     \n-----------------------------\nVarnish Cache CLI ([\w._-]+)\n-----------------------------\nLinux,([\w._-]+),([^\n]*)\n\nType 'help' for command list\.\nType 'quit' to close CLI session\.\n\n| p/Varnish Cache CLI/ v/$1/ i/$3/ o/Linux $2/ cpe:/o:linux:linux_kernel:$2/
+
 # TODO kerio?
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
 match vdr m|^220 (\S+) SVDRP VideoDiskRecorder (\d[^\;]+);| p/VDR/ v/$2/ d/media device/ h/$1/
@@ -3606,6 +3608,7 @@ match telnet m|^\r\nSorry, this system is engaged by a rlogin session\.\r\nHost 
 match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfb\x03\xff\xfb\x01.*\r\n\r\nUser Access Verification\r\n\r\nUsername: |s p/Cisco ASA firewall telnetd/ d/firewall/ cpe:/a:cisco:telnet/
 match telnet m|^Connected\r\nUse log command to LOGON\r\n$| p/IBM 2218 Link Level Converter telnetd/ d/specialized/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Grandstream ([\w-]+) Command Shell\r\nPassword: | p/Grandstream $1 VoIP phone telnetd/ d/VoIP phone/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03Grandstream (HT[\w._-]+) Command Shell| p/Grandstream $1 VoIP phone telnetd/ d/VoIP phone/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Grandstream ([\w-]+)  V([\w.]+) Command Shell| p/Grandstream $1 VoIP router telnetd/ v/$2/ d/VoIP adapter/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Grandstream ([\w._-]+) Command Shell Copyright [\d-]+\r\nPassword: | p/Grandstream $1 VoIP phone telnetd/ d/VoIP phone/
 match telnet m|^Welcome to LDK-300 system\. Press enter\.\r\nYour address is| p/LG Aria LDK-300 PBX telnetd/ d/PBX/
@@ -4774,6 +4777,7 @@ match upnp m|^ 501 Not Implemented\r\n.*Server: (RT-\w+) UPnP/([\w.]+) MiniUPnPd
 match upnp m|^ 501 Not Implemented\r\n.*Server: DrayTek/Vigor([\w._-]+) UPnP/([\w.]+) miniupnpd/([\w.]+)\r\n|s p/MiniUPnP/ v/$3/ i/DrayTek Vigor $1 router; UPnP $2/ d/router/
 match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/kamikaze UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/OpenWrt Kamikaze; UPnP $1/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWRT/Backfire__(r\d+)_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/OpenWrt Backfire $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/OpenWRT/Attitude_Adjustment__(r\d+)_ UPnP/([\w._-]+) MiniUPnPd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$3/ i/OpenWrt Attitude Adjustment $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^ 501 Not Implemented\r\n.*Server: Netgear/[\w._-]+ UPnP/([\w._-]+) miniupnpd/([\w._-]+)\r\n|s p/MiniUPnP/ v/$2/ i/Netgear DG834G or WNDR3300 WAP; UPnP $1/ d/WAP/ cpe:/h:netgear:dg834g/ cpe:/h:netgear:wndr3300/
 
 # MiniDLNA
@@ -4800,7 +4804,8 @@ match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: ([\w._-]+) \d+/Service Pack (
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: Windows/([\w._-]+\.2600)/Service Pack (\d+), UPnP/([\d.]+), TVersity Media Server/([\w._-]+)\r\n| p/TVersity Media Server UPnP/ v/$4/ i/UPnP $3; Windows build $1/ o/Windows XP/ cpe:/o:microsoft:windows_xp::sp$2/a
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: Windows/([\w._-]+)\.6001/Service Pack (\d+), UPnP/([\d.]+), TVersity Media Server/([\w._-]+)\r\n| p/TVersity Media Server UPnP/ v/$4/ i/UPnP $3; Windows build $1/ o/Windows Vista/ cpe:/o:microsoft:windows_vista::sp$2/
 match upnp m|^HTTP/0\.0 400 Bad Request\r\nServer: ([\w._-]+) 2/, UPnP/([\w._-]+), TVersity Media Server\r\n|s p/TVersity Media Server UPnP/ v/$1/ i/UPnP $2/ o/Windows/ cpe:/o:microsoft:windows/a
-match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\d.]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p|Belkin/Linksys wireless router UPnP| i/Linux $1; UPnP $2; BRCM400 $3/ d/router/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) BRCM400/([\d.]+)\r\n| p|Belkin/Linksys wireless router UPnP| i/Linux $1; UPnP $2; BRCM400 $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nDATE: .*\r\nConnection: Keep-Alive\r\nServer: LINUX/([\w._-]+) UPnP/([\d.]+) ZyXEL-UPnP/([\w._-]+)\r\n| p|ZyXEL wireless router UPnP| i/Linux $1; UPnP $2; ZyXEL-UPnP $3/ d/router/ o/Linux $1/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Symbian/([\w._-]+) UPnP/([\d.]+)\r\nContent-Length: 151\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">\n<html><head>\n<title>400 Bad Request</title>\n</head><body>\n<h1>Bad Request</h1>\n<hr />\n</body></html>$| p/Nokia N85 media share/ i/SymbianOS $1; UPnP $2/ d/phone/ o/SymbianOS/
 
 match uptime-agent m|^ERR\n$| p/up.time server monitor/
@@ -7246,8 +7251,10 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\n.*Server: AppleIDiskServer-([\w._-]+
 match http m|^HTTP/1\.1 401 Unauthorized\n.*Server: ASSP/([^\r\n]+)\n|s p/ASSP (Anti-Spam SMTP Proxy) httpd/ v/$1/
 match http m|^HTTP/1\.0 302 Found\r\n.*Location: https://([\w._-]+)/[^\r\n]*\r\n.*<TITLE>Novell iChain</TITLE>|s p/Novell iChain http admin/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
 match http m|^HTTP/1\.0 200 OK\r\n.*Connection: Keep-Alive\r\nKeep-Alive: timeout=5, max=100\r\n.*<HTML>\r\n<HEAD>\r\n<TITLE></TITLE>\r\n<SCRIPT ID=clientEventHandlersJS LANGUAGE=javascript>\r\n<!--\r\nfunction loadpasswd\(\)\r\n{\r\n\ttop\.location = \"index\.htm\"\r\n}\r\nsetTimeout\(\"loadpasswd\(\)\",1\);\r\n//-->\r\n</SCRIPT>\r\n</HEAD>\r\n<BODY>\r\n</BODY>\r\n</HTML>\r\n$|s p/GoldStar iPECS 50B PBX http config/ d/PBX/
-match http m|^HTTP/1\.1 200 OK\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure\r\n.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
-match http m|^HTTP/1\.1 200 OK\r\ncache-control: no-cache\r\nContent-Length: [0-9]+\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
+match http m|^HTTP/1\.1 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure\r\n.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
+match http m|^HTTP/1\.1 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure; HttpOnly\r\n.*<title>VMwareView Portal</title>|s p/VMware View Manager httpd/
+match http m|^HTTP/1\.1 200 OK\r\ncache-control: no-cache\r\nContent-Length: \d+\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
+match http m|^HTTP/1\.1 404 Not Found\r\nDate: .* GMT\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<html>\r\n<head>\r\n<title>VMware View</title>| p/VMware View Manager httpd/
 match http m|^HTTP/1\.1 403 Forbidden\r\nServer: Norman Security/([\d.]+)\r\nContent-Type: text/html\r\nConnection: Close\r\nContent-Length: 90\r\n\r\n<html><title>Norman Security Error</title><body><br><h2>403 - Forbidden</h2></body></html>$| p/Norman Security Endpoint Protection httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Norman Security/([\d.]+)\r\n.*<html><title>Norman Security Error</title><body><br><h2>401 - Unauthorized</h2></body></html>$|s p/Norman Security Endpoint Protection httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*<!-- \$Header: index\.html 115\.2 2003/03/18 21:32:39 hfux ship \$ -->.*<TITLE>Oracle Applications Rapid Install</TITLE>|s p/Oracle Rapid Install httpd/
@@ -7823,6 +7830,7 @@ match http m|^HTTP/1\.1 200 OK\r\nX-Powered-By: Express\r\nServer: Etherpad-Lite
 match http m|^HTTP/1\.1 200 OK\r\nX-Powered-By: Express\r\nServer: Etherpad-Lite ([0-9a-f]+) \(http://j\.mp/ep-lite\)\r\n| p/Etherpad lite/ v/$1/
 match http m|^HTTP/1\.1 500 Server Error\r\nContent-Length: 0\r\nServer: HBHTTP POGOBASIC - ([\w._-]+) - Linux\r\n| p/Pogoplug HBHTTP/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.1 404 Not Found\r\nContent-Length: 0\r\nServer: HBHTTP POGOBASIC - ([\w._-]+) - Linux\r\n| p/Pogoplug HBHTTP/ v/$1/ o/Linux/ cpe:/o:linux:linux_kernel/
+# VMware vSphere (VMware workstation 8.0.2 build-591240)
 match http m|^HTTP/1\.1 403 Forbidden\r\nDate: .* GMT\r\nConnection: close\r\nContent-Type: text; charset=plain\r\nContent-Length: 0\r\n\r\n$| p/VMware VirtualCenter Web service/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html; charset=UTF-8\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nExpires: 0\r\nDate: .* GMT\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\">\n<html>\n<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n<link href=\"/manimg/sirius/main\.css| p/ISPManager billing system httpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"realm\"\r\nContent-Length: 0\r\n\r\n$| p/PoolServerJ http config/
@@ -8513,13 +8521,14 @@ match tor-info m|^HTTP/1\.0 503 Directory busy, try again later\r\n\r\n$| p/Tor 
 match utsessiond m|^ERR/InvalidCommand\n$| p/Sun Ray utsessiond/
 match utsvc m|^protocolErrorInf error=Missing\\040hw\\040string\\040from\\040:\\040null\.\\040Check\\040hardware state=disconnected\n| p/Sun Ray utsvcd/
 
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-([\w_.-]+), UPnP/([\d.]+), PMS/([\d.]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_XP-([\w_.-]+), UPnP/([\d.]+), PMS/([\w._-]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows XP $1; UPnP $2/ d/media device/ o/Windows XP/ cpe:/o:microsoft:windows_xp/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_Vista-x86-([\w._-]+), UPnP/([\d.]+), PMS/([\w._-]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows Vista $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x32/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_Vista-x86_64-([\w._-]+), UPnP/([\d.]+), PMS/([\w._-]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows Vista $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x64/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_7-x86-([\w._-]+), UPnP/([\d.]+), PMS/([\w._-]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows 7 $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x32/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_7-x86_64-([\w._-]+), UPnP/([\d.]+), PMS/([\w._-]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows 7 $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x64/
-match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Mac_OS_X-x86_64-([\w_.-]+), UPnP/([\d.]+), PMS/([\w._-]+)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Mac OS X $1; UPnP $2/ d/media device/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-amd64-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Linux-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Linux $1; UPnP $2/ d/media device/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_XP-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows XP $1; UPnP $2/ d/media device/ o/Windows XP/ cpe:/o:microsoft:windows_xp/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_Vista-x86-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows Vista $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x32/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_Vista-x86_64-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows Vista $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x64/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_7-x86-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows 7 $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x32/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Windows_7-x86_64-([\w._-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Windows 7 $1; UPnP $2/ d/media device/ o/Windows 7/ cpe:/o:microsoft:windows_7:$1::x64/
+match upnp m|^HTTP/1\.[01] 200 OK\r\n.*Server: Mac_OS_X-x86_64-([\w_.-]+), UPnP/([\d.]+), PMS/(.*?)\r\n|s p/PS3 Media Server UPnP/ v/$3/ i/Mac OS X $1; UPnP $2/ d/media device/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 
 match upnp m|^HTTP/1\.0 200 .*\r\n.*Server: Linux/([\w_.-]+), UPnP/([\w_.-]+), Free UPnP Entertainment Service/ReadyNAS\r\n|s p/FUPPES UPnP media server/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.0 200 OK\r\n.*Server: Linux/([\w_.-]+), UPnP/([\w_.-]+), Free UPnP Entertainment Service/([^\r\n]+)\r\n|s p/FUPPES UPnP media server/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
@@ -8527,17 +8536,17 @@ match upnp m|^HTTP/1\.0 200 OK\r\n.*Server: FreeBSD/([\w_.-]+), UPnP/([\w_.-]+),
 
 match upnp m|^HTTP/1\.1 500 Internal Server Error\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipUPnP/([\d.]+)\r\n| p/D-Link WAP dynamic DNS UPnP/ i/ipOS $1; UPnP $2; ipUPnP $3/ d/WAP/
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nSERVER: ipOS/([\d.]+) UPnP/([\d.]+) ipGENADevice/([\d.]+)\r\n| p/D-Link DGL-4300 gaming router UPnP/ i/ipOS $1; UPnP $2; ipGENADevice $3/ d/broadband router/
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\d.]+) UPnP/([\d.]+) (TL-\w+)/([\w._/-]+)\r\n| p/TP-LINK $3 WAP UPnP/ v/$4/ i/ipos $1; UPnP $2/ d/WAP/
+match upnp m%^HTTP/1\.0 \d\d\d .*\r\nSERVER: ipos/([\w._-]+) +UPnP/([\d.]+) (?:ADSL2\+ Router )?(TL-\w+|TD-\w+)/([\w._/-]+)\r\n% i/TP-LINK $3 WAP; UPnP $2/ p/ipOS/ v/$4/ d/WAP/
 
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._-]+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._-]+) UPnP/([\d.]+) DLNADOC/([\d.]+) Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$4/ i/Linux $1; DLNADOC $3; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: Linux/([\w._-]+) DLNADOC/([\d.]+) UPnP/([\d.]+) MiniDLNA/([\w._-]+)\r\n|s p/MiniDLNA/ v/$4/ i/Linux $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._+-]+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._+-]+) UPnP/([\d.]+) DLNADOC/([\d.]+) Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$4/ i/Linux $1; DLNADOC $3; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\nServer: Linux/([\w._+-]+) DLNADOC/([\d.]+) UPnP/([\d.]+) MiniDLNA/([\w._-]+)\r\n|s p/MiniDLNA/ v/$4/ i/Linux $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 
-match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/([-\w_.]+), UPnP/([\d.]+), Intel SDK for UPnP devices ?/([\w._~-]+)\r\n|s p/Intel UPnP reference SDK/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/([-\w_.]+) UPnP/([\d.]+) DLNADOC/([\w._-]+) Intel_SDK_for_UPnP_devices/([\w._~-]+)\r\n|s p/Intel UPnP reference SDK/ v/$4/ i/Linux $1; UPnP $2; DLNADOC $3/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/([-+\w_.]+), UPnP/([\d.]+), Intel SDK for UPnP devices ?/([\w._~-]+)\r\n|s p/Intel UPnP reference SDK/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux/([-+\w_.]+) UPnP/([\d.]+) DLNADOC/([\w._-]+) Intel_SDK_for_UPnP_devices/([\w._~-]+)\r\n|s p/Intel UPnP reference SDK/ v/$4/ i/Linux $1; UPnP $2; DLNADOC $3/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Linux, UPnP/([\d.]+), Intel SDK for UPnP devices ?/([\w._~-]+)\r\n| p/Intel UPnP reference SDK/ v/$2/ i/UPnP $1/ o/Linux/ cpe:/o:linux:linux_kernel/a
-match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Darwin/([\w._-]+), UPnP/([\w._-]+), Portable SDK for UPnP devices/([\w._-]+)\r\n| p/Intel UPnP reference SDK/ v/$3/ i/Mac OS X $1; UPnP $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
-match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Windows2000/0\.0 UPnP/([\w._-]+) PhilipsIntelSDK/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/Philips Intel UPnP SDK/ v/$2/ i/Philips Smart TV; UPnP $1; DLNADOC $3/ d/media device/
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Darwin/([\w._+-]+), UPnP/([\w._-]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Intel UPnP reference SDK/ v/$3/ i/Mac OS X $1; UPnP $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
+match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Windows2000/0\.0 UPnP/([\w._+-]+) PhilipsIntelSDK/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/Philips Intel UPnP SDK/ v/$2/ i/Philips Smart TV; UPnP $1; DLNADOC $3/ d/media device/
 
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nCONTENT-TYPE: text/xml\r\nContent-Length: .*<modelName>Xbox 360</modelName>.*<serialNumber>(\w+)</serialNumber>|s p/XBox 360 XML UPnP/ i/Serial number $1/ d/game console/
 match upnp m|^HTTP/1.1 400 Bad Request\r\n\r\n$| p/Microsoft Windows UPnP/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -8567,7 +8576,8 @@ match upnp m|^HTTP/1\.[01] 404 Not Found\r\n.*Server: Netgem/([\d.]+) \(NeufboxT
 match upnp m|^HTTP/1\.1 200 OK\r\n.*Server: WINDOWS, UPnP/([\d.]+), Intel MicroStack/([\d.]+)\r\n.*<dlna:X_DLNADOC xmlns:dlna=\"urn:schemas-dlna-org:device-1-0\">(DMS-[\d.]+)</dlna:X_DLNADOC>.*<friendlyName>([\w._-]+): MediaServer</friendlyName>.*<manufacturer>Wistron</manufacturer>.*<modelDescription>WiDMS</modelDescription>|s p/Intel MicroStack UPnP/ v/$2/ i/Wistron Digital Media Server $3; UPnP $1/ o/Windows/ h/$4/ cpe:/o:microsoft:windows/a
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nServer: Linux, UPnP/([\d.]+), (DIR-[\w+]+) Ver ([\d.]+)\r\n| p/D-Link $2 WAP UPnP/ v/$3/ i/UPnP $1/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: FAST Router (\w+) Router, UPnP/([\w.]+)\r\n| p/FAST $1 router UPnP $2/ d/router/
-match upnp m|^HTTP/1\.0 200 OK\r\nCONTENT-TYPE: text/xml\r\nCONTENT-LENGTH: 0\r\n.*SERVER: Linux/([\w._-]+)_mvl21-malta-mips_fp_le UPnP/([\w._-]+) myigd/([\w._-]+)\r\n|s p/myigd/ v/$3/ i/Linksys WAG354G router; MontaVista Linux $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel/a
+match upnp m|^HTTP/1\.0 \d\d\d .*SERVER: Linux/([\w._-]+) UPnP/([\w._-]+) myigd/([\w._-]+)\r\n|s p/myigd/ v/$3/ i/Linksys WAG354G router; Linux $1; UPnP $2/ d/WAP/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/1\.0 \d\d\d .*SERVER: Linux/([\w._-]+), UPnP/([\w._-]+), Everest/([\w._-]+)\r\n|s p/Everest/ v/$3/ i/Pelco Spectra Mini IP webcam; Linux $1; UPnP $2/ d/webcam/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 404 Bad Request\r\nCONTENT-LENGTH: 0\r\nCONTENT-TYPE: text/html\r\n\r\n$| p/SuperMicro IPMI UPnP/
 match upnp m|^HTTP/1\.1 404 Not Found\r\nDate: .*\r\nServer: Unknown/0\.0 UPnP/([\d.]+) Virata-EmWeb/([-.\w]+)\r\n| p/Virata-EmWeb/ v/$SUBST(2,"_",".")/ i/ReplayTV UPnP; UPnP $1/ cpe:/a:virata:emweb:$SUBST(2,"_",".")/a
 match upnp m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n.*Server: RomPager/([\w.]+) UPnP/([\w.]+)\r\n\r\n\n<html><head>.*<title>ZyXEL Prestige Router</title>|s p/Allegro RomPager/ v/$1/ i/ZyXEL Prestige router UPnP; UPnP $2/ d/router/ cpe:/a:allegro:rompager:$1/
@@ -8611,6 +8621,7 @@ match upnp m|^HTTP/1\.1 404 Not Found\r\nConnection: close\r\nDate: .* GMT\r\nSe
 match upnp m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: \r\nContent-Length: 0\r\nConnection: close\r\n\r\n| p/AllShare UPnP/ d/phone/ o/Bada/ cpe:/o:samsung:bada:1.2/
 match upnp m|^HTTP/1\.1 \d\d\d .*\r\nSERVER: Linux/([\w._-]+) UPnP/([\w._-]+) DLNADOC/([\w._-]+) INTEL_NMPR/([\w._-]+) LGE_DLNA_SDK/([\w._-]+)\r\n| p/LG LW5700 TV upnp/ i/UPnP $2; DLNADOC $3; INTEL_NMPR $4; LGE_DLNA_SDK $5/ o/Linux $1/ cpe:/h:lg:lw5700/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 500 Internal server error\r\nDATE: .* GMT\r\nSERVER: OpenRG/([\w._-]+) UPnP/([\w._-]+) Actiontec/RG_VERSION\r\nCONNECTION: close\r\n\r\n$| p/Jungo OpenRG upnp/ v/$1/ i/UPnP $2/
+match upnp m|^HTTP/1\.1 404 Not Found\r\nServer: NFLC/([\w._-]+) UPnP/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/NFLC/ v/$1/ i/UPnP $2; DLNADOC $3/
 
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
@@ -8671,6 +8682,7 @@ match vnc-http m|^HTTP/1\.0 200 OK\n.*<HTML><HEAD><TITLE>(.*)'s desktop</TITLE><
 match vnc-http m|^HTTP/1\.0 200 OK\n\n.*<TITLE>eSVNC Desktop \[([\w._-]+)\]</TITLE>.*<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>.*<PARAM NAME=PORT VALUE=(\d+)>|s p/eSVNC/ i/Resolution $2x$3; VNC TCP port $4/ h/$1/
 match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>\n([\w._-]+)'s [\w._:-]+ desktop \([\w._:-]+\)\n</TITLE>\n<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar\n        WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>\n<param name=\"Open New Window\" value=yes>\n</APPLET>\n<BR>\n<A href=\"http://www\.tightvnc\.com/\">|s p/X11VNC/ i/User $1; Resolution $2x$3; VNC TCP port: $4/
 match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>TightVNC desktop \[([\w._-]+)\]</TITLE>.*<APPLET ARCHIVE=\"VncViewer\.jar\" CODE=VncViewer WIDTH=1 HEIGHT=1>\n      <PARAM NAME=\"PORT\" VALUE=\"(\d+)\">\n      <PARAM NAME=\"Open new window\" VALUE=\"YES\">\n\n    </APPLET><BR>\n    <A HREF=\"http://www\.tightvnc\.com/\">|s p/TightVNC/ i/User $1; VNC TCP port: $2/
+match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>TightVNC desktop \[([\w._-]+)\]</TITLE>.*<APPLET ARCHIVE=\"tightvnc-jviewer\.jar\" CODE=\"com\.glavsoft\.viewer\.Viewer\" WIDTH=1 HEIGHT=1>\n      <PARAM NAME=\"PORT\" VALUE=\"(\d+)\">\n      <PARAM NAME=\"OpenNewWindow\" VALUE=\"YES\">\n\n    </APPLET><BR>\n    <A HREF=\"http://www\.tightvnc\.com/\">|s p/TightVNC/ i/User $1; VNC TCP port: $2/
 match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML>\n<TITLE>VNC desktop \[[\d.]+\]</TITLE>\n<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>\n</APPLET>\n</HTML>\n| p/Wyse Winterm 1200 LE terminal/ i/Resolution $1x$2; VNC TCP port $3/ d/terminal/
 match vnc-http m|^HTTP/1\.1 404 Not Found\r\nServer: TigerVNC/([\w._-]+)\r\n| p/TigerVNC/ v/$1/
 match vnc-http m|^HTTP/1\.0 404 Not found\r\n\r\n<html><head><title>File Not Found</title></head>\n<body><h1>File Not Found</h1></body></html\n$| p/x11vnc/
@@ -8887,6 +8899,9 @@ match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnec
 
 match vnc-http m|^HTTP/1\.1 200\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nSet-Cookie: UBRWID=[A-F0-9]+\r\nAccess-Control-Allow-Origin: \*\r\nConnection: Keep-Alive\r\n\r\n\xef\xbb\xbf<!DOCTYPE html>\r\n<html>\r\n<head>\r\n<title>ThinVNC</title>\r\n| p/ThinVNC/
 
+# https://github.com/kanaka/websockify
+match websocket m|^HTTP/1\.0 501 Unsupported method \('OPTIONS'\)\r\nServer: SimpleHTTP/([\w._-]+) Python/([\w._+-]+)\r\nDate: .* GMT\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 501\.\n<p>Message: Unsupported method \('OPTIONS'\)\.\n<p>Error code explanation: 501 = Server does not support this operation\.\n</body>\n$| p/websockify/ i/SimpleHTTP $1; Python $2/
+
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
 rarity 5
@@ -9064,8 +9079,8 @@ match sarad m|^NO LOGIN\0$| p/British National Corpud sarad/
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nConnection: close\r\nContent-Type: text; charset=plain\r\nContent-Length: 16\r\n\r\ninvalid value 0 $| p/VMware hostd httpd/
 match http m|^HTTP/1\.0 400 Bad Request\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>400 Bad Request \(ERR_INVALID_REQ\)</TITLE></HEAD><BODY><H1>400 Bad Request</H1><BR>ERR_INVALID_REQ<HR><B>Webserver</B>| p/AVM FRITZ!Box WLAN 7170 WAP http config/ d/WAP/
 
-match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Linux/([\w._-]+), UPnP/([\w.]+), Intel SDK for UPnP devices ?/([\w._~-]+)\r\n| p/Intel UPnP reference SDK/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Linux/([\w._-]+), UPnP/([\w.]+), Portable SDK for UPnP devices ?/([\w._~-]+)\r\n| p/Portable SDK for UPnP/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Linux/([\w._+-]+), UPnP/([\w.]+), Intel SDK for UPnP devices ?/([\w._~-]+)\r\n| p/Intel UPnP reference SDK/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m|^HTTP/0\.0 400 Bad Request\r\nSERVER: Linux/([\w._+-]+), UPnP/([\w.]+), Portable SDK for UPnP devices ?/([\w._~-]+)\r\n| p/Portable SDK for UPnP/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 
 match virtualgl m|^VGL\x02\x01$| p/VirtualGL/
 
@@ -9244,7 +9259,7 @@ match symantec-av m|^\0\x06\x01\x01\0\x10..........$|s p/Symantec rtvscan antivi
 
 match tunnel-test m|^\0\x06\x01\0\0\x02\0\0\0\0\0\0$| p/Check Point tunnel_test/
 
-match unreal m|^.[\x40\xc0].[\x20\x23\x32\x38].[\x40\xc0].[\x20\x23\x32\x38]$|s p/Unreal Tournament 2004 game server/
+match unreal m|^.[\x40\xc0].[\x20\x23\x32\x38].[\x40\xc0].[\x20\x23\x32\x38]|s p/Unreal Tournament 2004 game server/
 
 ##############################NEXT PROBE##############################
 Probe TCP DNSVersionBindReq q|\0\x1E\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
@@ -10511,6 +10526,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*<link rel=\"stylesheet\" type=\"text/css\" h
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nCache-Control: public\r\nPragma: cache\r\nExpires: .* GMT\r\nDate: .* GMT\r\nLast-Modified: Fri, 12 Aug 2011 00:00:00 GMT\r\nAccept-Ranges: bytes\r\nConnection: close\r\n\r\n<html>\n<head>\n  <title>404 Not Found</title>\n</head>\n<body bgcolor=\"ffffff\">\n  <h2>404 Not Found<h2>\n  <p>\n  \n</body>\n</html>\n$| p/Orange Livebox WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nCache-Control: private, max-age=0, no-cache\r\nContent-Length: 188\r\nContent-Type: text/html\r\n\r\n<P align=\"center\"><STRONG><FONT color=\"#ff3333\">GSCSERVER DEFAULT HANDLER - FILE NOT FOUND</P><BR><P align=\"center\">REQUESTED FILE = nice%20ports%2C/tri%6eity\.txt%2ebak</FONT></STRONG></P>$| p/Geutebrueck GeViControl video surveillance http admin/ d/security-misc/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nServer: Apache\r\nContent-Length: 43\r\n\r\n<h3>No site configured at this address</h3>$| p/Metasploit reverse_http stager/
+match http m|^HTTP/1\.1 404 Not Found\r\n.*Expires: Thu, 01-Jan-1970 00:00:00 GMT\r\n.*<title>VMware vCloud Director</title>|s p/VMware vCloud Director/
 
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/
@@ -10519,9 +10535,8 @@ match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: AirTunes/([\w._-]+)\r\n\r\n$|
 
 match scifinder m|^\0\[T /nic$| p/CAS SciFinder/
 
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: Linux/([\w._-]+), UPnP/([\d.]+), Portable SDK for UPnP devices/([\w._~-]+)\r\n| p/Portable SDK for UPnP devices/ v/$3/ i/kernel $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.1 \d\d\d .*\r\n.*SERVER: Linux/([\w._-]+), UPnP/([\d.]+), Intel UPnP SDK/([\w._~-]+)\r\n|s p/Portable SDK for UPnP devices/ v/$3/ i/kernel $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
-match upnp m|^HTTP/1\.0 \d\d\d .*\r\nSERVER: TP-LINK Wireless Router ([\w._/-]+)(?:http://www\.tp-link\.com)?, UPnP/([\d.]+)\r\n| p/TP-LINK $1 WAP upnp/ i/UPnP $2/ d/WAP/
+match upnp m|^HTTP/1\.1 \d\d\d .*\r\n.*SERVER: Linux/([\w._+-]+), UPnP/([\d.]+), Intel UPnP SDK/([\w._~-]+)\r\n|s p/Portable SDK for UPnP devices/ v/$3/ i/kernel $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
+match upnp m%^HTTP/1\.0 \d\d\d .*\r\nSERVER: (?:TP-LINK )?Wireless (?:Router|AP) ([\w._/-]+)(?:http://www\.tp-link\.com)?, UPnP/([\d.]+)\r\n% p/TP-LINK $1 WAP upnp/ i/UPnP $2/ d/WAP/
 
 ##############################NEXT PROBE##############################
 # ftp://ftp.rfc-editor.org/in-notes/rfc1179.txt
