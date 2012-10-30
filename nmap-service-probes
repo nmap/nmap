@@ -555,7 +555,7 @@ match ftp m|^220 ProFTP-Server auf ([-\w_.]+)\r\n| p/ProFTPD/ i/German/ o/Unix/ 
 match ftp m|^220.*\r\n220 ProFTPD ([\w._-]+) Server \(ProFTPD\)|s p/ProFTPD/ v/$1/ o/Unix/ cpe:/a:proftpd:proftpd:$1/a
 # Hope these aren't too general -Doug
 match ftp m|^220 ([-\w_.]+) FTP server ready!\r\n| p/ProFTPD/ o/Unix/ h/$1/ cpe:/a:proftpd:proftpd/a
-match ftp m|^220 FTP Server ready\.\r\n$| p/ProFTPD/ o/Unix/ cpe:/a:proftpd:proftpd/a
+match ftp m|^220 FTP Server ready\.\r\n$| p/ProFTPD or KnFTPD/ o/Unix/
 
 match ftp m|^220.*NcFTPd Server | p/NcFTPd/ o/Unix/
 match ftp m|^220 ([-\w_.]+) FTP server \(SunOS 5\.([789])\) ready| p/Sun Solaris $2 ftpd/ o/Solaris/ h/$1/ cpe:/o:sun:sunos/a
@@ -3834,6 +3834,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03Grandstream GXV(\w+) \( Boot:([\w._-]+) 
 match telnet m|^Local Time \w+, \d\d/\d\d/\d\d \d\d:\d\d:\d\d Mac Address ([0-9A-F:]+)\n\rITW Mini/([\w._-]+) II Version ([\w._-]+)\n\rlogin:| p/ITW MiniGoose XP II environmental monitor telnetd/ i/MAC: $1/ o|Mini/$2 II $3|
 match telnet m|^\xff\xfe\x01\r\n\r\n\*{59}\r\n\*\s*DVTel (DVT-\w+) - ([\w._-]+)\s*\*\r\n\*{59}\r\nMain Menu\r\n| p/DVTel $1 security camera telnetd/ v/$2/ d/webcam/ cpe:/h:dvtel:$1/
 match telnet m|^\xff\xfb\x01Comau (\w+) Telnet \(Version:([\w._ -]+)\) (\d\d-\d\d-\d\d) ready\.\r\n\nUser: | p/Comau $1 robot control unit telnetd/ v/$2 $3/ d/specialized/
+# Also Goip SMS gateway.
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nLogin:| p/Green Packet DX230 WAP telnetd/ d/WAP/ cpe:/h:green_packet:dx230/
 match telnet m|^\xff\xfb\x01\xff\xfd\x01\xff\xfb\x03\xff\xfd\x03\xff\xfb\x05\xff\xfd\x05Welcome to InterNiche Telnet Server ([\w._-]+)\r\n\r\n\r\nlogin: | p/InterNiche telnetd/ v/$1/ o|uC/OS-III|
 match telnet m|^\r\r\n This service will offer one user to use it\. \r\r\n The Current User is \[IP:([\d.]+)\]\r\r\n| p/E-Tech PSU101 print server telnetd/ i/in use by $1/ d/print server/ cpe:/h:e-tech:psu101/
@@ -5456,10 +5457,12 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Aut
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NETWORK HDD\"\r\n| p/Argosy Research HD363N Network HDD http config/ d/storage-misc/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"SimpleShare \(default user name is admin and password is simple\)\"\r\n| p/SimpleShare WAP http config/ d/WAP/
 
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Alcatel Lucent ([\w._-]+) ([\w._-]+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n$| p/Alcatel-Lucent $1 WAP http config/ v/$2/ d/WAP/ cpe:/h:alcatel-lucent:$1/
 # This might be too general, but this is probably the most common device
 # this will match. I'm leaving it -Doug
 # Also matches Mapower KC31N NAS device http config.
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"([^"]+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/Linksys wireless-G WAP http config/ i/Name $1/ d/WAP/
+
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Insight Manager (\d)\r\n\r\n|s p/Compaq Insight Manager/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store, must-revalidate\r\nExpires: 0\r\nContent-Type: text/html\r\n\r\n| p/GNU Httptunnel/
 # Blue Coat Port 80 Security Appliance Model: Blue Coat SG400 Software Version: SGOS 2.1.6044 Software Release id: 19480 Service Pack 4
@@ -7163,7 +7166,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\n\r\n<head><meta htt
 match http m|^HTTP/1\.1 200 OK\r\n.*Set-Cookie: sessionId=.*<HTML>\n<HEAD>\n\n<TITLE>Cisco Systems Login</TITLE>\n|s p/Cisco 4400 wireless LAN controller httpd/ d/remote management/
 match http m|^HTTP/1\.0 200 OK\r\n.*<title>:: ThinStation ::</title>.*<h2>Thinstation ([\w._-]+) on ([\w._-]+) :: Main page</h2>|s p/ThinStation http admin/ v/$1/ o/Linux/ h/$2/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"ADSL Router \(ANNEX B\)\"\r\n.*<meta HTTP-EQUIV=\"Expires\" CONTENT=\"Mon, 06 Jan 1990 00:00:01 GMT\">.*<meta name=\"description\" content=\"806GA M 2073\">|s p/Allnet ALL0277DSL ADSL router http config/ d/broadband router/
-match http m|^HTTP/1\.1 301 Moved Permanently\r\nDate: .*\r\nLocation: https://([\w._-]+)/\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<HTML><BODY><H1>301 Moved Permanently</H1></BODY></HTML>$| p/VMware ESXi 4.0 Server httpd/ h/$1/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nDate: .*\r\nLocation: https://([\w._-]+)/\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 56\r\n\r\n<HTML><BODY><H1>301 Moved Permanently</H1></BODY></HTML>$| p/VMware ESXi Server httpd/ h/$1/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PCS-1 Web Control\"\r\n.*Server: Allegro-Software-RomPager/([\d.]+)\r\n|s p/Allegro RomPager/ v/$1/ i/Sony PCS-1 video conferencing http config/ d/webcam/ cpe:/a:allegro:rompager:$1/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Ubicom/([\d.]+)\r\n.*<title>D-Link Gaming Router :\r\n\t\t Login\r\n\t</title>|s p/Ubicom/ v/$1/ i/D-Link DGL-4500 WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 307 Temporary Redirect\r\nConnection: keep-alive,close\r\n.*Location: http://([\w._-]+)/servlet/StartServlet\r\nServer: PEWG/([\d.]+)\r\n|s p/PEWG/ v/$2/ i/OCE print server/ d/print server/ h/$1/

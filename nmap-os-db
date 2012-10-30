@@ -24780,9 +24780,12 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # HP iLO 3 firmware 1.26 on an HP ProLiant DL380 G7
 # HP ILO3 Card for firmware 1.26
-Fingerprint HP iLO 3 remote management interface
+# HP ProLiant ML 350e G8 that hosts an HP iLO 4
+Fingerprint HP iLO 3 or iLO 4 remote management interface
 Class HP | iLO | 3.X | remote management
 CPE cpe:/o:hp:ilo:3 auto
+Class HP | iLO | 4.X | remote management
+CPE cpe:/o:hp:ilo:4 auto
 SEQ(SP=EE-104%GCD=1-6%ISR=ED-FD%TI=I%CI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=8218%W2=8220%W3=8204%W4=8218%W5=80F4%W6=807A)
