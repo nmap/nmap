@@ -215,6 +215,15 @@ fetch_host_key = function( host, port, key_type )
     local n
     _, _, _, n = bin.unpack( ">aaa", public_host_key )
     bits = openssl.bignum_bin2bn( n ):num_bits()
+  elseif key_type == 'ecdsa-sha2-nistp256' then
+    algorithm = "ECDSA"
+    bits = "256"
+  elseif key_type == 'ecdsa-sha2-nistp384' then
+    algorithm = "ECDSA"
+    bits = "384"
+  elseif key_type == 'ecdsa-sha2-nistp521' then
+    algorithm = "ECDSA"
+    bits = "521"
   else
     stdnse.print_debug( "Unsupported key type: %s", key_type )
   end

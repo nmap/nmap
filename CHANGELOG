@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support for ECDSA keys to ssh-hostkey.nse. [Adam Števko]
+
 o [Nsock] Added new poll and kqueue engines. [Henri Doreau]
 
 o [Zenmap] Corrected some typos in the Japanese translation.

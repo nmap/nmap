@@ -136,6 +136,15 @@ local function portaction(host, port)
   key = ssh2.fetch_host_key( host, port, "ssh-rsa" )
   if key then table.insert( keys, key ) end
 
+  key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp256" )
+  if key then table.insert( keys, key ) end
+
+  key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp384" )
+  if key then table.insert( keys, key ) end
+
+  key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp521" )
+  if key then table.insert( keys, key ) end
+
   for _, key in ipairs( keys ) do
     add_key_to_registry( host, key )
     table.insert(output_tab, {
