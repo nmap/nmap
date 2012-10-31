@@ -248,7 +248,7 @@ static void print_xml_service(const struct serviceDeductions *sd) {
 /* Show a fatal error explaining that an interface is not Ethernet and won't
    work on Windows. Do nothing if --send-ip (PACKET_SEND_IP_STRONG) was used. */
 void win32_fatal_raw_sockets(const char *devname) {
-  if ((o.sendpref & PACKET_SEND_IP_STRONG) == 0)
+  if ((o.sendpref & PACKET_SEND_IP_STRONG) != 0)
     return;
 
   if (devname != NULL) {
