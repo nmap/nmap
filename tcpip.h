@@ -200,7 +200,7 @@ extern "C" {
 #define INET_ADDRSTRLEN 16
 #endif
 
-int nmap_raw_socket(const char *warning_device_name);
+int nmap_raw_socket();
 
 /* Used for tracing all packets sent or received (eg the
    --packet-trace option) */

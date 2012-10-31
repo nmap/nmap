@@ -187,7 +187,7 @@ static int ethernet_send (lua_State *L)
 static int ip_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) nseU_checkudata(L, 1, DNET_METATABLE, "dnet");
-  udata->sock = nmap_raw_socket(NULL);
+  udata->sock = nmap_raw_socket();
   if (udata->sock == -1)
     return luaL_error(L, "failed to open raw socket: %s (errno %d)",
         socket_strerror(socket_errno()), socket_errno());

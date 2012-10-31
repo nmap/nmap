@@ -139,22 +139,14 @@ static PacketCounter PktCt;
 
 
 /* Create a raw socket and do things that always apply to raw sockets:
-    * Emit a fatal error on Windows.
     * Set SO_BROADCAST.
     * Set IP_HDRINCL.
     * Bind to an interface with SO_BINDTODEVICE (if o.device is set).
    The socket is created with address family AF_INET, but may be usable for
-   AF_INET6, depending on the operating system.
-
-   The argument warning_device_name is used *only* in the Windows fatal error
-   message, and does not affect any socket characteristics. The global o.device
-   controls which interface to bind to with SO_BINDTODEVICE. */
-int nmap_raw_socket(const char *warning_device_name) {
+   AF_INET6, depending on the operating system. */
+int nmap_raw_socket() {
   int rawsd;
 
-#ifdef WIN32
-  win32_fatal_raw_sockets(warning_device_name);
-#endif
   rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
   if (rawsd < 0)
     return rawsd;

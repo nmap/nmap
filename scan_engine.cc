@@ -1661,7 +1661,10 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
         fatal("dnet: Failed to open device %s", Targets[0]->deviceName());
       rawsd = -1;
     } else {
-      rawsd = nmap_raw_socket(Targets[0]->deviceName());
+#ifdef WIN32
+      win32_fatal_raw_sockets(Targets[0]->deviceName());
+#endif
+      rawsd = nmap_raw_socket();
       if (rawsd < 0)
         pfatal("socket troubles in %s", __func__);
       /* We do not wan't to unblock the socket since we want to wait

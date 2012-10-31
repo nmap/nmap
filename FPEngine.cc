@@ -184,9 +184,12 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
       fatal("dnet: failed to open device %s", ifname);
     this->rawsd = -1;
   } else {
+#ifdef WIN32
+    win32_fatal_raw_sockets(ifname);
+#endif
     if (this->rawsd >= 0)
       close(this->rawsd);
-    rawsd = nmap_raw_socket(ifname);
+    rawsd = nmap_raw_socket();
     if (rawsd < 0)
       pfatal("Couldn't obtain raw socket in %s", __func__);
   }

@@ -1267,7 +1267,10 @@ HostOsScan::HostOsScan(Target *t) {
       fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
     rawsd = -1;
   } else {
-    rawsd = nmap_raw_socket(t->deviceName());
+#ifdef WIN32
+    win32_fatal_raw_sockets(t->deviceName());
+#endif
+    rawsd = nmap_raw_socket();
     if (rawsd < 0)
       pfatal("socket troubles in %s", __func__);
     unblock_socket(rawsd);
