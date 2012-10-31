@@ -73,4 +73,4 @@ LICENSE: ../COPYING
 
 clean:
 	"$(VCEXPRESS)" nmap.sln /clean
-	rm -rf Debug Release nmapbuild.log nmap.rc nsis/Nmap.nsi
+	rm -rf Debug Release nmapbuild.log nmap.rc nsis/Nmap.nsi LICENSE
