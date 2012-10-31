@@ -1662,6 +1662,8 @@ void UltraScanInfo::Init(std::vector<Target *> &Targets, struct scan_lists *pts,
       rawsd = -1;
     } else {
       rawsd = nmap_raw_socket(Targets[0]->deviceName());
+      if (rawsd < 0)
+        pfatal("socket troubles in %s", __func__);
       /* We do not wan't to unblock the socket since we want to wait
       if kernel send buffers fill up rather than get ENOBUF, and
       we won't be receiving on the socket anyway

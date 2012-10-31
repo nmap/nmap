@@ -1268,6 +1268,8 @@ HostOsScan::HostOsScan(Target *t) {
     rawsd = -1;
   } else {
     rawsd = nmap_raw_socket(t->deviceName());
+    if (rawsd < 0)
+      pfatal("socket troubles in %s", __func__);
     unblock_socket(rawsd);
     ethsd = NULL;
   }

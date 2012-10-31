@@ -879,6 +879,8 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
     rawsd = -1;
   } else {
     rawsd = nmap_raw_socket(targets[0]->deviceName());
+    if (rawsd < 0)
+      pfatal("traceroute: socket troubles");
     ethsd = NULL;
   }
 

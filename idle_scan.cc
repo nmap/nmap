@@ -383,6 +383,8 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->ethptr = &proxy->eth;
   } else {
     proxy->rawsd = nmap_raw_socket(proxy->host.deviceName());
+    if (proxy->rawsd < 0)
+      pfatal("socket troubles in %s", __func__);
     unblock_socket(proxy->rawsd);
     proxy->eth.ethsd = NULL;
     proxy->ethptr = NULL;

@@ -155,8 +155,9 @@ int nmap_raw_socket(const char *warning_device_name) {
 #ifdef WIN32
   win32_fatal_raw_sockets(warning_device_name);
 #endif
-  if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-    pfatal("socket troubles in %s", __func__);
+  rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+  if (rawsd < 0)
+    return rawsd;
   broadcast_socket(rawsd);
 #ifndef WIN32
   sethdrinclude(rawsd);

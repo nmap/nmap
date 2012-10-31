@@ -187,6 +187,8 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
     if (this->rawsd >= 0)
       close(this->rawsd);
     rawsd = nmap_raw_socket(ifname);
+    if (rawsd < 0)
+      pfatal("Couldn't obtain raw socket in %s", __func__);
   }
 
   /* De-register existing callers */
