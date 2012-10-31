@@ -7,15 +7,9 @@ LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
 NMAP_MSWIN32_AUX = ../../nmap-mswin32-aux
 
-winbuild:
+winbuild: nmap.rc nsis/Nmap.nsi
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
 
-	@echo "Setting version: $(NMAP_VERSION) ($(NMAP_NUM_VERSION))"
-	@cat ./nmap.rc | sed 's/VALUE "FileVersion", .*"/VALUE "FileVersion", "$(NMAP_VERSION)\\0"/' > ./nmap.rc.tmp
-	@cat ./nmap.rc.tmp | sed 's/FILEVERSION .*,.*,.*,.*/FILEVERSION $(COMMA_VERSION)/' > ./nmap.rc
-	@cat ./nsis/Nmap.nsi | sed 's/VIProductVersion ".*"/VIProductVersion "$(NMAP_NUM_VERSION)"/' > ./nmap.nsi.tmp
-	@cat ./nmap.nsi.tmp | sed 's/!define VERSION ".*"/!define VERSION "$(NMAP_VERSION)"/' > ./nsis/Nmap.nsi
-	@rm ./nmap.nsi.tmp ./nmap.rc.tmp
 	@./license-format/licformat.sh ../COPYING > LICENSE
 
 	"$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC)
@@ -61,6 +55,18 @@ winbuild:
 	$(MAKENSIS) nmap-$(NMAP_VERSION)/Nmap.nsi
 	mv nmap-$(NMAP_VERSION)/NmapInstaller.exe nmap-$(NMAP_VERSION)-setup.exe
 
+nmap.rc: nmap.rc.in
+	@sed -e '1i// Automatically generated from $<.' \
+	     -e 's/@@FILEVERSION@@/"$(NMAP_VERSION)\\0"/' \
+	     -e 's/@@COMMAVERSION@@/$(COMMA_VERSION)/' \
+	     "$<" > "$@"
+
+nsis/Nmap.nsi: nsis/Nmap.nsi.in
+	@sed -e '1i; Automatically generated from $<.' \
+	     -e 's/@@VIPRODUCTVERSION@@/"$(NMAP_NUM_VERSION)"/' \
+	     -e 's/@@VERSION@@/"$(NMAP_VERSION)"/' \
+	     "$<" > "$@"
+
 clean:
 	"$(VCEXPRESS)" nmap.sln /clean
-	rm -rf Debug Release nmapbuild.log
+	rm -rf Debug Release nmapbuild.log nmap.rc nsis/Nmap.nsi
