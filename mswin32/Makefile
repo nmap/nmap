@@ -57,13 +57,13 @@ winbuild: nmap.rc nsis/Nmap.nsi LICENSE
 	mv nmap-$(NMAP_VERSION)/NmapInstaller.exe nmap-$(NMAP_VERSION)-setup.exe
 
 nmap.rc: nmap.rc.in
-	@sed -e '1i// Automatically generated from $<.' \
+	sed -e '1i// Automatically generated from $<.' \
 	     -e 's/@@FILEVERSION@@/"$(NMAP_VERSION)\\0"/' \
 	     -e 's/@@COMMAVERSION@@/$(COMMA_VERSION)/' \
 	     "$<" > "$@"
 
 nsis/Nmap.nsi: nsis/Nmap.nsi.in
-	@sed -e '1i; Automatically generated from $<.' \
+	sed -e '1i; Automatically generated from $<.' \
 	     -e 's/@@VIPRODUCTVERSION@@/"$(NMAP_NUM_VERSION)"/' \
 	     -e 's/@@VERSION@@/"$(NMAP_VERSION)"/' \
 	     "$<" > "$@"
