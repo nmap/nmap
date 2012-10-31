@@ -7,10 +7,8 @@ LOGLOC=c:nmapbuild.log
 NSE_FILES = scripts/script.db scripts/*.nse
 NMAP_MSWIN32_AUX = ../../nmap-mswin32-aux
 
-winbuild: nmap.rc nsis/Nmap.nsi
+winbuild: nmap.rc nsis/Nmap.nsi LICENSE
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
-
-	@./license-format/licformat.sh ../COPYING > LICENSE
 
 # MSBUILDDISABLENODEREUSE prevents zombie msbuild.exe processes that
 # break subsequent builds.
@@ -69,6 +67,9 @@ nsis/Nmap.nsi: nsis/Nmap.nsi.in
 	     -e 's/@@VIPRODUCTVERSION@@/"$(NMAP_NUM_VERSION)"/' \
 	     -e 's/@@VERSION@@/"$(NMAP_VERSION)"/' \
 	     "$<" > "$@"
+
+LICENSE: ../COPYING
+	./license-format/licformat.sh "$<" > "$@"
 
 clean:
 	"$(VCEXPRESS)" nmap.sln /clean
