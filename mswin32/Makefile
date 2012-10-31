@@ -12,6 +12,9 @@ winbuild: nmap.rc nsis/Nmap.nsi
 
 	@./license-format/licformat.sh ../COPYING > LICENSE
 
+# MSBUILDDISABLENODEREUSE prevents zombie msbuild.exe processes that
+# break subsequent builds.
+	@export MSBUILDDISABLENODEREUSE=1
 	"$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC)
 	"$(VCEXPRESS)" nmap.sln /build release /project nmap-update /log $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
