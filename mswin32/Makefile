@@ -14,9 +14,9 @@ winbuild: nmap.rc nsis/Nmap.nsi
 
 # MSBUILDDISABLENODEREUSE prevents zombie msbuild.exe processes that
 # break subsequent builds.
-	@export MSBUILDDISABLENODEREUSE=1
-	"$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC)
-	"$(VCEXPRESS)" nmap.sln /build release /project nmap-update /log $(LOGLOC)
+	MSBUILDDISABLENODEREUSE=1 \
+	&& "$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC) \
+	&& "$(VCEXPRESS)" nmap.sln /build release /project nmap-update /log $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
 	rm -f nmap-$(NMAP_VERSION)-win32.zip
