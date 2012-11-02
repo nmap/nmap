@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Fixed compilation on Windows XP by restricting the use
+  of the poll engine to Vista and later. [Gisle Vanem]
+
 o [NSE] Added support for ECDSA keys to ssh-hostkey.nse. [Adam Števko]
 
 o [Nsock] Added new poll and kqueue engines. [Henri Doreau]

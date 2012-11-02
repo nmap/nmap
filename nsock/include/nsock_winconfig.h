@@ -97,6 +97,9 @@
 #define HAVE_PCAP 1
 #endif
 
+ /* WSAPoll() isn't available before Vista */
+#if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0600)
 #define HAVE_POLL 1
+#endif
 
 #endif /* NSOCK_WINCONFIG_H */
