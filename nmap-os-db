@@ -43532,11 +43532,9 @@ IE(DFI=S%T=21-3E%TG=40%CD=S)
 # M0n0wall 1.23b1 Flash Image on Wrap-1e203 (www.pcengines.ch)
 # m0n0wall FreeBSD 4.X firewall v1.22
 # Firewall - http://m0n0.ch/ version 1.22, FreeBSD 4.11-RELEASE-p16
-Fingerprint m0n0wall FreeBSD-based embedded firewall version 1.22 - 1.23b1
+Fingerprint m0n0wall 1.22 - 1.23b1 firewall (FreeBSD 4.11)
 Class m0n0wall | FreeBSD | 4.X | firewall
 CPE cpe:/o:m0n0wall:freebsd:4 auto
-Class m0n0wall | FreeBSD | 5.X | firewall
-CPE cpe:/o:m0n0wall:freebsd:5 auto
 SEQ(SP=F0-10A%GCD=1-6%ISR=FE-110%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=E000%W2=E000%W3=E000%W4=E000%W5=E000%W6=E000)
@@ -71767,7 +71765,7 @@ U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=Z)
 
 # Cisco CP 8945 Phone
-Fingerprint Cisco CP 8945
+Fingerprint Cisco CP 8945 VoIP phone
 Class Cisco | embedded || VoIP phone
 SEQ(SP=C1-CB%GCD=1-6%ISR=C1-CB%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B0ST11NW2%O2=M5B0ST11NW2%O3=M5B0NNT11NW2%O4=M5B0ST11NW2%O5=M5B0ST11NW2%O6=M5B0ST11)
@@ -73491,6 +73489,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # SMP N-200 media device Software version: M10.R.0624
 Fingerprint Sony SMP-N200 media player
 Class Sony | embedded || media device
+CPE cpe:/o:sony:smp-n200
 SEQ(SP=C2-CC%GCD=1-6%ISR=C8-D2%TI=Z%CI=Z%II=I%TS=A)
 OPS(O1=ST11M5B4NW3%O2=ST11M5B4NW3%O3=NNT11M5B4NW3%O4=ST11M5B4NW3%O5=ST11M5B4NW3%O6=ST11M5B4)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
