@@ -6046,10 +6046,10 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # DI-524, HW Rev: G2
 # ASUS  RT-N11 EZ Wireless N Router
 # Level One FBR-1415TX Firmware: R1.94p0v
-Fingerprint ASUS RT-N11 EZ or D-Link DI-524 WAP, or Level One FBR-1415TX router
+Fingerprint ASUS RT-N11 EZ or D-Link DI-524 WAP, or LevelOne FBR-1415TX router
 Class Asus | embedded || WAP
 Class D-Link | embedded || WAP
-Class Level One | embedded || router
+Class LevelOne | embedded || router
 SEQ(SP=0-1D%GCD=14|28|3C|50|64%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
