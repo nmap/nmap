@@ -4069,6 +4069,7 @@ netxms-sync	4702/udp	0.000330	# NetXMS Server Synchronization
 unknown	4706/udp	0.000330
 unknown	4709/udp	0.000330
 unknown	4712/tcp	0.000076
+pulseaudio	4713/tcp	0.000076	# Pulse Audio UNIX sound framework
 unknown	4713/udp	0.000330
 a26-fap-fgw	4726/udp	0.000330	# A26 (FAP-FGW)
 unknown	4734/udp	0.000330
@@ -4637,6 +4638,8 @@ ncd-pref-tcp	5977/tcp	0.000075	# NCD preferences tcp port
 ncd-diag-tcp	5978/tcp	0.000050	# NCD diagnostic tcp port
 unknown	5981/tcp	0.000152
 unknown	5981/udp	0.000330
+wsman	5985/tcp	0.000076	# WBEM WS-Management HTTP
+wsmans	5986/tcp	0.000076	# WBEM WS-Management HTTP over TLS/SSL
 wbem-rmi	5987/tcp	0.000380	# WBEM RMI
 wbem-http	5988/tcp	0.000380	# WBEM CIM-XML (HTTP)
 wbem-https	5989/tcp	0.000380	# WBEM CIM-XML (HTTPS)
