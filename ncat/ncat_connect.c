@@ -749,7 +749,7 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
             /* In --send-only mode, exit after EOF on stdin. */
             nsock_loop_quit(nsp);
         } else {
-          shutdown(nsi_getsd(cs.sock_nsi), SHUT_WR);
+            shutdown(nsi_getsd(cs.sock_nsi), SHUT_WR);
         }
         return;
     } else if (status == NSE_STATUS_ERROR) {
