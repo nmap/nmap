@@ -659,11 +659,10 @@ server_client_test_all "Messages are logged to output file",
 ["--output", "server.log"], ["--output", "client.log"], sub {
 
 	syswrite($c_in, "abc\n");
-	close($c_in);
 	sleep 1;
 	syswrite($s_in, "def\n");
-	close($s_in);
 	sleep 1;
+	close($c_in);
 	open(FH, "server.log");
 	my $contents = join("", <FH>);
 	close(FH);
@@ -682,11 +681,11 @@ server_client_test_tcp_sctp_ssl "Debug messages go to stderr",
 	my $resp;
 
 	syswrite($c_in, "abc\n");
-	close($c_in);
 	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 	syswrite($s_in, "abc\n");
 	close($s_in);
+	close($c_in);
 	$resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
@@ -709,6 +708,21 @@ server_client_test_tcp_sctp_ssl "Server sends EOF after client disconnect",
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 	$resp = timeout_read($s_out);
 	!defined($resp) or die "Server didn't send EOF";
+};
+kill_children;
+
+server_client_test "Shutdown() connection when reading EOF",
+[], [], sub {
+	my $resp;
+
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+
+	close($c_in);
+
+	$resp = timeout_read($s_out);
+	!defined($resp) or die "Server didn't send EOF (got \"$resp\")";
 };
 kill_children;
 
