@@ -377,6 +377,7 @@ Entry { filename = "smtp-vuln-cve2011-1720.nse", categories = { "intrusive", "vu
 Entry { filename = "smtp-vuln-cve2011-1764.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "snmp-hh3c-logins.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-interfaces.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-ios-config.nse", categories = { "intrusive", } }
 Entry { filename = "snmp-netstat.nse", categories = { "default", "discovery", "safe", } }
