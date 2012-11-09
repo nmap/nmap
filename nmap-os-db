@@ -72660,6 +72660,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Vendor: "Chauvin Arnoux" or "Metrix", device: Scopix III oscilloscope http://www.chauvin-arnoux.com/scopix/en/le-produit/gamme-scopix.aspx
 Fingerprint Metrix Scopix III oscilloscope
 Class Metrix | embedded || specialized
+CPE cpe:/h:metrix:scopix_iii
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -72730,6 +72731,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Logilink Product: Gigabit LASN NAS Server, 2 Bays OS: Embedded Linux 2.6.x
 Fingerprint LogiLink Gigabit NAS device
 Class LogiLink | embedded || storage-misc
+CPE cpe:/h:logilink:gigabit
 SEQ(SP=C7-D1%GCD=1-6%ISR=CB-D5%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M1CD2ST11NW1%O2=M1CD2ST11NW1%O3=M1CD2NNT11NW1%O4=M1CD2ST11NW1%O5=M1CD2ST11NW1%O6=M1CD2ST11)
 WIN(W1=398C%W2=398C%W3=398C%W4=398C%W5=398C%W6=398C)
@@ -72891,6 +72893,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # MACH Rugged Switch Release L2P-07.1.01
 Fingerprint Hirschmann MACH switch
 Class Hirschmann | embedded || switch
+CPE cpe:/h:hirschmann:mach
 SEQ(SP=FD-107%GCD=1-6%ISR=101-10B%TI=I%CI=I%II=I%SS=S%TS=8)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -73243,6 +73246,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Epson TM-TMV printer Model M244A
 Fingerprint Epson TM-T88V M244A printer
 Class Epson | embedded || printer
+CPE cpe:/h:epson:tm-t88v_m244a
 SEQ(SP=C5-CF%GCD=3|6|9|C|F%ISR=D4-DE%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -73587,6 +73591,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # OpenBox S10 STB - http://www.wydvb.com
 Fingerprint OpenBox S10 set-top box
 Class OpenBox | embedded || media device
+CPE cpe:/h:openbox:s10
 SEQ(SP=4C-6A%GCD=1-6%ISR=B7-C1%TI=I%CI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -73602,8 +73607,9 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=128%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # APC Silcon DP320E
-Fingerprint APC Silicon 320E UPS
+Fingerprint APC Silicon DP320E UPS
 Class APC | embedded || power-device
+CPE cpe:/h:apc:silicon_dp320e
 SEQ(SP=28-32%GCD=30D4|61A8|927C|C350|F424%ISR=9F-A9%TI=I%CI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNT11%O2=M578NW0NNT11%O3=M280NW0NNT11%O4=M5B4NW0NNT11%O5=M218NW0NNT11%O6=M109NNT11)
 WIN(W1=10F8%W2=1044%W3=112C%W4=10F8%W5=1060%W6=10CD)
@@ -73621,6 +73627,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Adtran Total Access 5000, Adtran Operating System
 Fingerprint Adtran Total Access 5000 router
 Class Adtran | embedded || router
+CPE cpe:/h:adtran:total_access_5000
 SEQ(SP=13-1D%GCD=1F4|3E8|5DC|7D0|9C4%ISR=8A-94%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -73908,6 +73915,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Trinzic 1410
 Fingerprint Infoblox Trinzic network control appliance
 Class Infoblox | embedded || specialized
+CPE cpe:/h:infoblox:trinzic
 SEQ(SP=C0-CA%GCD=1-6%ISR=C2-CC%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW8%O2=M5B4ST11NW8%O3=M5B4NNT11NW8%O4=M5B4ST11NW8%O5=M5B4ST11NW8%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -74179,6 +74187,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Gopro camera wifi-Bacpac
 Fingerprint GoPro Wifi-Bacpac camera
 Class GoPro | embedded || webcam
+CPE cpe:/h:gopro:wifi-bacpac
 SEQ(SP=FE-108%GCD=1-6%ISR=101-10B%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
