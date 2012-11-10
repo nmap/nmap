@@ -1120,7 +1120,9 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Mapower KC 31N, usb/nas diskbox
 Fingerprint A-Tec MS347S or Mapower KC31N NAS device
 Class A-Tec | embedded || storage-misc
+CPE cpe:/h:a-tec:ms347s
 Class Mapower | embedded || storage-misc
+CPE cpe:/h:mapower:kc31n auto
 SEQ(SP=0-19%GCD=1-6%ISR=57-63%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -1378,6 +1380,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # "Snap! Server" model 100
 Fingerprint Adaptec Snap Server 100 NAS device
 Class Adaptec | embedded || storage-misc
+CPE cpe:/h:adaptec:snap_server_100 auto
 SEQ(SP=C-16%GCD=3200|6400|9600|C800|FA00%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=2238%W3=2238%W4=2238%W5=2238%W6=2238)
@@ -1395,6 +1398,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Snap Appliance Snap Server 1100
 Fingerprint Adaptec Snap Server 100 NAS device
 Class Adaptec | embedded || storage-misc
+CPE cpe:/h:adaptec:snap_server_100 auto
 SEQ(SP=D-17%GCD=3200|6400|9600|C800|FA00%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=2238%W3=2238%W4=2238%W5=2238%W6=2238)
@@ -1465,6 +1469,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # Adtran Total Access 624
 Fingerprint Adtran Total Access 624 router
 Class Adtran | embedded || router
+CPE cpe:/h:adtran:total_access_624 auto
 SEQ(SP=0-5%GCD=388|710|A98|E20|11A8%ISR=64-6E%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M3F1%O2=M3F1%O3=M3EE%O4=M5B4%O5=M3EE%O6=M3ED)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -1482,6 +1487,7 @@ IE(DFI=N%T=FE%TG=FF%CD=Z)
 # Adtran Total Access 904 (Router)
 Fingerprint Adtran Total Access 904 router
 Class Adtran | embedded || router
+CPE cpe:/h:adtran:total_access_904 auto
 SEQ(II=I)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -1594,9 +1600,14 @@ IE(DFI=N%T=1B-25%TG=20%CD=S)
 # Airlive WT-2000R
 Fingerprint AirLive WT-2000R, D-Link DI-524 or DI-604, SMC SMC7004VBR, or ZyXEL Prestige 320W broadband router
 Class AirLive | embedded || WAP
+CPE cpe:/h:airlive:wt-2000r
 Class D-Link | embedded || WAP
+CPE cpe:/h:dlink:di-524
+CPE cpe:/h:dlink:di-604
 Class SMC | embedded || broadband router
+CPE cpe:/h:smc:smc7004vbr
 Class ZyXEL | embedded || broadband router
+CPE cpe:/h:zyxel:prestige_320w auto
 SEQ(SP=0-5D%GCD=32|64|96|C8|FA%ISR=4B-6F%TI=BI%CI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -2279,7 +2290,9 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Allied Telesyn AT-GS950/8 switch.
 Fingerprint Allied Telesyn AT-GS950 or D-Link DES-3226L switch
 Class Allied Telesyn | embedded || switch
+CPE cpe:/h:alliedtelesyn:at-gs950
 Class D-Link | embedded || switch
+CPE cpe:/h:dlink:des-3226l auto
 SEQ(SP=0-DA%GCD=1-6|80|100|180|200|280|C581|18B02|25083|31604|3DB85%ISR=93-A5%TI=I%II=RI%SS=O%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -2337,9 +2350,13 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Linux 2.4.24 #1 Mon Jan 3 15:37:16 EET 2005 i686 unknown, Debian GNU/Linux 3.0
 Fingerprint Allnet 2210 webcam, Cisco MDS 9124 or 9216i switch (SAN-OS 3.1 - 3.2), or Nortel IP Phone 1535
 Class Allnet | embedded || webcam
+CPE cpe:/h:allnet:2210 auto
 Class Cisco | SAN-OS | 3.X | switch
+CPE cpe:/h:cisco:mds_9124
+CPE cpe:/h:cisco:mds_9216i
 CPE cpe:/o:cisco:san_os:3 auto
 Class Nortel | embedded || VoIP phone
+CPE cpe:/h:nortel:ip_phone_1535
 SEQ(SP=B4-CF%GCD=1-6%ISR=BE-D4%TI=I%CI=Z%II=I%SS=S%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -6010,7 +6027,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # ARUBA Wireless Networks Model 800
 # Aruba Mobility Controller A800, Software: ArubaOS 3.3.1.16 (Linux-based)
 Fingerprint Aruba A800 wireless LAN switch
-Class Aruba | embedded || switch
+Class Aruba | ArubaOS | 3.X | remote management
+CPE cpe:/o:aruba:arubaos:3 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=107-111%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -6029,7 +6047,9 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Model: Asus RX3041 Firmware: Runtime Code V2.1.2.114, Boot Code V0.1.5.24
 Fingerprint Asus RX4031 or TRENDnet TW100-S4W1CA router
 Class Asus | embedded || router
+CPE cpe:/h:asus:rx4031
 Class TRENDnet | embedded || router
+CPE cpe:/h:trendnet:tw100-s4w1ca auto
 SEQ(SP=8D-9F%GCD=1-6%ISR=98-A2%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5A8NW0NNT11%O2=M5A8NW0NNT11%O3=M5A8NW0NNT11%O4=M5A8NW0NNT11%O5=M5A8NW0NNT11%O6=M5A8NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=43E0%W5=4180%W6=403D)
@@ -6049,8 +6069,11 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Level One FBR-1415TX Firmware: R1.94p0v
 Fingerprint ASUS RT-N11 EZ or D-Link DI-524 WAP, or LevelOne FBR-1415TX router
 Class Asus | embedded || WAP
+CPE cpe:/h:asus:rt-n11_ez
 Class D-Link | embedded || WAP
+CPE cpe:/h:dlink:di-524 auto
 Class LevelOne | embedded || router
+CPE cpe:/h:levelone:fbr-1415tx
 SEQ(SP=0-1D%GCD=14|28|3C|50|64%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -6304,6 +6327,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Avaya Cajun Switch Agent v5.4.2 on P580 model
 Fingerprint Avaya P580 switch running Cajun Switch Agent v5.4.2
 Class Avaya | embedded || switch
+CPE cpe:/h:avaya:p580 auto
 SEQ(SP=0-92%GCD=9C4|1388|1D4C|2710|30D4|3A98|61A8|C350|124F8|186A0|1E848|249F0%ISR=8B-BB%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -6321,6 +6345,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 # Lucent Technologies Cajun Switch Agent v5.3.2 on P880 model
 Fingerprint Avaya P880 switch running Cajun Switch Agent v5.3.2
 Class Avaya | embedded || switch
+CPE cpe:/h:avaya:p880 auto
 SEQ(SP=0-95%GCD=9C4|1388|1D4C|2710|30D4|3A98%ISR=8B-BB%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -7161,7 +7186,9 @@ IE(DFI=N|S|Y%T=3B-45%TG=40%CD=Z)
 # Belkin Surf WAP Hardware Model F7D2301 Firmware Version 1.00.16 (Jul 2 2010 14:36:56)
 Fingerprint Belkin F7D2301 WAP or Philips CIA6720NB ADSL modem
 Class Belkin | embedded || WAP
+CPE cpe:/h:belkin:f7d2301 auto
 Class Philips | embedded || broadband router
+CPE cpe:/h:philips:cia6720nb auto
 SEQ(SP=41-4B%GCD=1-6%ISR=49-53%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=1770%W2=1770%W3=1770%W4=1770%W5=1770%W6=1770)
@@ -7290,7 +7317,9 @@ IE(R=N)
 # TeraCom Broadband modem ADSL
 Fingerprint Billion 7404VGO-M or Zoom X6 DSL router
 Class Billion | embedded || broadband router
+CPE cpe:/h:billion:7474vgo-m
 Class Zoom | embedded || broadband router
+CPE cpe:/h:zoom:x6 auto
 SEQ(SP=74-86%GCD=1-6%ISR=78-8E%TI=I%CI=I%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -9165,7 +9194,9 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # IC-7800 radio, Ver 2.20
 Fingerprint Cabletron ELS100-24TXM Switch or Icom IC-7800 radio transceiver
 Class Cabletron | embedded || switch
+CPE cpe:/h:cabletron:els100-24txm auto
 Class Icom | embedded || specialized
+CPE cpe:/h:icom:ic-7800
 SEQ(SP=0-63%GCD=61A8|C350|124F8|186A0|1E848|249F0%ISR=8A-B0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -9261,8 +9292,12 @@ IE(DFI=S%T=FA-104%TG=FF%CD=Z)
 # SMC2804WBR router of SMC
 Fingerprint Linksys WAP11 WAP; or Cameo SOHO-IS104A or SMC SMCWBR14-G or SMC2804WBR broadband router
 Class Cameo | embedded || WAP
+CPE cpe:/h:cameo:soho-is104a
 Class Linksys | embedded || WAP
+CPE cpe:/h:linksys:wap11 auto
 Class SMC | embedded || broadband router
+CPE cpe:/h:smc:smcwbr14-g
+CPE cpe:/h:smc:smc2804wbr
 SEQ(SP=92-9C%GCD=1-6%ISR=96-A0%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2000%W5=2180%W6=2017)
@@ -9319,6 +9354,7 @@ Fingerprint Canon imageRUNNER 2020 or Kyocera FS-4000DN printer
 Class Canon | embedded || printer
 CPE cpe:/h:canon:imagerunner_2020
 Class Kyocera | embedded || printer
+CPE cpe:/h:kyocera:fs-4000dn
 SEQ(SP=0-5%GCD=10001|20002|30003|40004|50005%ISR=96-A0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -9363,6 +9399,7 @@ Fingerprint Canon imageRUNNER 3300 printer or Motorola SURFboard SBG900 wireless
 Class Canon | embedded || printer
 CPE cpe:/h:canon:imagerunner_3300
 Class Motorola | embedded || WAP
+CPE cpe:/h:motorola:surfboard_sbg900 auto
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M200NW0%O2=M200NW0%O3=M200NW0%O4=M200NW0%O5=M200NW0%O6=M200)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -10238,11 +10275,15 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Tektronix os.350 on a XP350
 Fingerprint Cisco Micro Webserver 200, HP WP110 print server, Tektronix TDS3034B oscilloscope or XP350 terminal, or Xerox Document Centre 405 printer
 Class Cisco | embedded || general purpose
+CPE cpe:/h:micro_webserver_200
 Class HP | embedded || print server
+CPE cpe:/h:hp:wp110 auto
 Class Tektronix | os.350 || specialized
-CPE cpe:/o:tektronix:os_350 auto
+CPE cpe:/h:tektronix:tds3034b
+CPE cpe:/o:tektronix:os_350
 Class Tektronix | os.350 || terminal
-CPE cpe:/o:tektronix:os_350 auto
+CPE cpe:/h:tektronix:xp350
+CPE cpe:/o:tektronix:os_350
 Class Xerox | embedded || printer
 CPE cpe:/h:xerox:document_centre_405
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
@@ -10647,6 +10688,7 @@ Fingerprint Cisco SLM2008 or HP ProCurve 1800 switch
 Class Cisco | embedded || switch
 CPE cpe:/h:cisco:slm2008
 Class HP | embedded || switch
+CPE cpe:/h:hp:procurve_1800 auto
 SEQ(SP=C-16%GCD=A|14|1E|28|32%ISR=1E-28%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=600%W2=600%W3=600%W4=600%W5=600%W6=600)
@@ -10689,7 +10731,9 @@ Fingerprint Cisco SPA 303 VoIP phone, Nortel 5520 Ethernet Routing Switch, or Su
 Class Cisco | embedded || switch
 CPE cpe:/h:cisco:spa303_3-line_ip_phone_with_2-port_switch
 Class Nortel | embedded || switch
+CPE cpe:/h:nortel:ethernet_routing_switch_5520
 Class Sun | embedded || storage-misc
+CPE cpe:/h:sun:storagetek_6140 auto
 SEQ(SP=95-9F%GCD=1-6%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -14546,6 +14590,7 @@ IE(R=N)
 # Cymphonix EX 550, XLi Operating System Version 9 http://www.cymphonix.com/XLiVersion9.html
 Fingerprint Cymphonix EX550 firewall
 Class Cymphonix | embedded || firewall
+CPE cpe:/h:cymphonix:ex550 auto
 SEQ(SP=C9-D3%GCD=1-6%ISR=D1-DB%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNS%O2=M5B4NNS%O3=M5B4%O4=M5B4NNS%O5=M5B4NNS%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -14584,6 +14629,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # D-Link DIR-100 Router with switch firmware 2.00_b5_sw
 Fingerprint D-Link DIR-100 DSL router or Motorola Canopy cluster management module 2.2
 Class D-Link | embedded || broadband router
+CPE cpe:/h:dlink:dir-100 auto
 Class Motorola | embedded || specialized
 SEQ(SP=8B-99%GCD=1-6%ISR=97-A3%TI=I%II=I%SS=S%TS=1|2)
 OPS(O1=M5A8NW0NNT11%O2=M5A8NW0NNT11%O3=M5A8NW0NNT11%O4=M5A8NW0NNT11%O5=M5A8NW0NNT11%O6=M5A8NNT11)
@@ -14676,6 +14722,7 @@ IE(R=N)
 # D-Link DFL-200 firmware v1.34.0
 Fingerprint D-Link DFL-200 firewall
 Class D-Link | embedded || firewall
+CPE cpe:/h:dlink:dfl-200 auto
 SEQ(SP=FE-10A%GCD=1-6%ISR=105-10F%TI=RD%CI=RI%II=RI%TS=U)
 OPS(O1=M5AC%O2=M5AC%O3=M5AC%O4=M5AC%O5=M5AC%O6=M5AC)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -14693,6 +14740,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # D-Link DFL 700 Router/Firewall
 Fingerprint D-Link DFL-700 firewall
 Class D-Link | embedded || firewall
+CPE cpe:/h:dlink:dfl-700 auto
 SEQ(SP=102-10C%GCD=1-6%ISR=104-10E%TI=RD%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -14728,7 +14776,10 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Hamlet HPS01UU USB Print Server
 Fingerprint D-Link DP-300U, DP-G310, or Hamlet HPS01UU print server
 Class D-Link | embedded || print server
+CPE cpe:/h:dlink:dp-300u
+CPE cpe:/h:dlink:dp-g310
 Class Hamlet | embedded || print server
+CPE cpe:/h:hamlet:hps01uu auto
 SEQ(SP=0-1D%GCD=37|6E|A5|DC|113%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=B68%W2=B68%W3=B68%W4=B68%W5=B68%W6=B68)
@@ -14754,7 +14805,15 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # DIR-628 Router
 Fingerprint D-Link DPR-1260 print server; or DGL-4300, DGL-4500, DIR-615, DIR-625, DIR-628, DIR-655, or DIR-855 WAP
 Class D-Link | embedded || print server
+CPE cpe:/h:dlink:dpr-1260
 Class D-Link | embedded || WAP
+CPE cpe:/h:dlink:dgl-4300
+CPE cpe:/h:dlink:dgl-4500
+CPE cpe:/h:dlink:dir-615
+CPE cpe:/h:dlink:dir-625
+CPE cpe:/h:dlink:dir-628
+CPE cpe:/h:dlink:dir-655
+CPE cpe:/h:dlink:dir-855
 SEQ(SP=95-B5%GCD=1-6%ISR=A9-BB%TI=I%II=I%SS=S%TS=U)
 OPS(O1=|M5B4%O2=|M5B4%O3=|M5B4%O4=|M5B4%O5=|M5B4%O6=|M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -15357,10 +15416,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linksys WRT54GL running DD-WRT v23 SP2 VPN edition.
 # Model: PePLink Balance 30, Firmware: v4.1.1 build 1089
 # Linux DD-WRT 2.4.37 #7585
-Fingerprint D-Link DSA-3100 or Linksys WRT54GL (DD-WRT v23) WAP, or Peplink Balance 30 router
-Class D-Link | embedded || WAP
-Class Linksys | embedded || WAP
-Class Peplink | embedded || router
+Fingerprint DD-WRT v23 (Linux 2.4.37)
+Class Linux | Linux | 2.4.X | WAP
+CPE cpe:/o:linux:linux_kernel:2.4 auto
 SEQ(SP=BE-D2%GCD=1-6%ISR=C5-D3%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -15417,7 +15475,10 @@ IE(R=N)
 # D-Link DWL-2000AP, firmware 3.13, 16 Jun 2004
 Fingerprint D-Link DWL-624+ or DWL-2000AP, or TRENDnet TEW-432BRP WAP
 Class D-Link | embedded || WAP
+CPE cpe:/h:dlink:dwl-624%2b
+CPE cpe:/h:dlink:dwl-2000ap
 Class TRENDnet | embedded || WAP
+CPE cpe:/h:trendnet:tew-432brp auto
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -15455,8 +15516,11 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # PLANET WAP-1966
 Fingerprint D-Link DWL-900AP+, Planet WAP-1966, or USRobotics USR5450 WAP
 Class D-Link | embedded || WAP
+CPE cpe:/h:dlink:dwl-9000ap%2b
 Class Planet | embedded || WAP
+CPE cpe:/h:planet:wap-1966
 Class USRobotics | embedded || WAP
+CPE cpe:/h:usrobotics:usr5450 auto
 SEQ(SP=B-15%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B|5DEFA%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -15599,9 +15663,11 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linksys BEFSR41 V3 Cable/DSL Router (Firmware Version: 1.05.00)
 # it is actually a DCS-6620G wireless IP camera
-Fingerprint Linksys BEFSR41 EtherFast router or D-Link DCS-6620G webcam
+Fingerprint D-Link DCS-6620G webcam or Linksys BEFSR41 EtherFast router
 Class D-Link | embedded || webcam
+CPE cpe:/h:dlink:dcs-6620g auto
 Class Linksys | embedded || router
+CPE cpe:/h:linksys:befsr41
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -15655,7 +15721,9 @@ Fingerprint D-Link DSL-G624T wireless ADSL router (MontaVista embedded Linux 2.4
 Class D-Link | Linux | 2.4.X | WAP
 CPE cpe:/o:dlink:linux:2.4 auto
 Class Netgear | embedded || broadband router
+CPE cpe:/h:netgear:dg834bv3 auto
 Class Netgear | embedded || WAP
+CPE cpe:/h:netgear:dg834bv3 auto
 SEQ(SP=C4-CE%GCD=1-6%ISR=C9-D3%TI=Z%II=I%TS=7|8|9)
 OPS(O1=NNT11|M5B4ST11NW0%O2=NNT11|M5B4ST11NW0%O3=NNT11|M5B4NNT11NW0%O4=NNT11|M5B4ST11NW0%O5=NNT11|M5B4ST11NW0%O6=NNT11|M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -17767,7 +17835,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Enterasys Networks, Inc. Matrix C1 C1H124-48 Rev 02.00.19 04/28/2005--09:00 ofc
 Fingerprint Enterasys Matrix C1 switch or HP LaserJet 3600 printer
 Class Enterasys | embedded || switch
+CPE cpe:/h:enterasys:matrix_c1 auto
 Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_3600 auto
 SEQ(SP=93-9D%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=S%TS=1|2)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -18349,6 +18419,7 @@ IE(DFI=Y%T=FA-104%TG=FF%CD=S)
 # http://www.firebrick.co.uk/products_2700.php
 Fingerprint FireBrick FB2700 firewall
 Class FireBrick | embedded || firewall
+CPE cpe:/h:firebrick:fb2700 auto
 SEQ(SP=6F-9D%GCD=5|A|F|14|19%ISR=E5-EF%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -18366,6 +18437,7 @@ IE(R=N)
 # Firebrick 2700 manufactured by Firebrick http://www.firebrick.co.uk/products_2700.php
 Fingerprint FireBrick FB2700 firewall
 Class FireBrick | embedded || firewall
+CPE cpe:/h:firebrick:fb2700 auto
 SEQ(SP=104-10E%GCD=1-6%ISR=103-10F%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -18545,8 +18617,11 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Foundry ServerIron GT EGx2 load balancer, SW: Version 11.0.00aTD2 Copyright (c) 1996-2007 Foundry Networks, Inc.
 Fingerprint Foundry Networks FES2402 switch, ServerIron 4G proxy server, or ServerIron GT EGx2 load balancer
 Class Foundry | embedded || switch
+CPE cpe:/h:foundrynet:networks_fes2402
 Class Foundry | embedded || proxy server
+CPE cpe:/h:foundrynet:serveriron_4g
 Class Foundry | embedded || load balancer
+CPE cpe:/h:foundrynet:serveriron_gt_egx2
 SEQ(SP=79-95%GCD=1-6%ISR=79-91%TI=I%CI=I%II=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -18564,6 +18639,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # ServerIron Switch SW: Version 07.5.00bT12 Copyright (c) 1996-2002 Foundry Networks, Inc.
 Fingerprint Foundry Networks ServerIron switch
 Class Foundry | embedded || switch
+CPE cpe:/h:foundrynet:serveriron
 SEQ(SP=6F-97%GCD=1-6%ISR=7C-96%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M528%O2=M528%O3=M528%O4=M528%O5=M528%O6=M528)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -21254,7 +21330,7 @@ IE(DFI=N%T=3C-46%TG=40%CD=Z)
 # BS2000/OSD (mainframe OS made by Fujitsu Siemens, running on SPARC hardware)
 Fingerprint Fujitsu Siemens BS2000/OSD
 Class Fujitsu Siemens | BS2000/OSD || general purpose
-CPE cpe:/o:fujitsusiemens:bs2000_osd auto
+CPE cpe:/o:fujitsu:bs2000_osd auto
 SEQ(SP=13-69%GCD=1-6%ISR=7A-84%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M58CNNSNW5%O2=M58CNNSNW5%O3=M58CNW5%O4=M58CNNSNW5%O5=M58CNNSNW5%O6=M58CNNS)
 WIN(W1=111C%W2=111C%W3=B18%W4=B18%W5=B18%W6=B18)
@@ -21323,7 +21399,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # ReliantUNIX-N aka. SINIX-N running on RM400 machine (SVR4 derivative made by Fujitsu Siemens, running on MIPS R4000 hardware)
 Fingerprint Fujitsu Siemens ReliantUNIX-N (SINIX-N) on RM400
 Class Fujitsu Siemens | ReliantUNIX || general purpose
-CPE cpe:/o:fujitsusiemens:reliantunix auto
+CPE cpe:/o:fujitsu:reliantunix auto
 SEQ(SP=91-9B%GCD=1-6%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=7FFF%W2=7FFF%W3=7FFF%W4=7FFF%W5=7FFF%W6=7FFF)
@@ -21341,7 +21417,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # FujitsuSiemens PocketLoox 750, Windows Mobile 5
 Fingerprint Fujitsu Siemens Pocket LOOX 750 GPS device (Windows Mobile 5)
 Class Fujitsu Siemens | Windows | PocketPC/CE | PDA
-CPE cpe:/o:fujitsusiemens:windows_ce auto
+CPE cpe:/o:fujitsu:windows_ce auto
 SEQ(SP=72-7C%GCD=1-6%ISR=92-9C%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M1F4ANW0NNT00NNS%O2=M1F4ANW0NNT00NNS%O3=M1F4ANW0NNT00%O4=M1F4ANW0NNT00NNS%O5=M1F4ANW0NNT00NNS%O6=M1F4ANNT00NNS)
 WIN(W1=832C%W2=8340%W3=8200%W4=81D0%W5=81D0%W6=805C)
@@ -21421,7 +21497,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Comtrend 96348GW-11, 1.0.37-5.17, A101-221JAZ-C01_R02.A2pB017l.d15h
 Fingerprint Gemtek P360 WAP or Siemens Gigaset SE515dsl wireless broadband router
 Class Gemtek | embedded || WAP
+CPE cpe:/h:gemtek:p360 auto
 Class Siemens | embedded || WAP
+CPE cpe:/h:siemens:gigaset_se515dsl auto
 SEQ(SP=BB-D3%GCD=1-6%ISR=CB-D5%TI=Z%CI=Z%II=I%TS=8)
 OPS(R=N)
 WIN(R=N)
@@ -21494,8 +21572,11 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Router Globespan Virata GS8100 (IPM DataCom SpeedWeb Ethernet)
 Fingerprint GlobespanVirata GS8100, Huawei MT880, or Solwise SAR 100 ADSL modem
 Class GlobespanVirata | embedded || broadband router
+CPE cpe:/h:globespanvirate:gs8100
 Class Huawei | embedded || broadband router
+CPE cpe:/h:huawei:mt880
 Class Solwise | embedded || broadband router
+CPE cpe:/h:solwise:sar_100
 SEQ(SP=FA-10C%GCD=1-6%ISR=100-112%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M58C%O2=M58C%O3=M58C%O4=M58C%O5=M58C%O6=M58C)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -21807,8 +21888,11 @@ IE(DFI=N%T=1B-25%TG=20%CD=S)
 # Repotec RP-1805B-V2 print server, firmware version 3.41.10
 Fingerprint Hawking PS12U, Repotech RP-1805B-V2, or TRENDnet TE100 P2U1P print server
 Class Hawking | embedded || print server
+CPE cpe:/h:hawking:ps12u
 Class Repotech | embedded || print server
+CPE cpe:/h:repotech:rp-1805b-v2
 Class TRENDnet | embedded || print server
+CPE cpe:/h:trendnet:te100_p2u1p auto
 SEQ(SP=0-5%GCD=64000|C8000|12C000|190000|1F4000%ISR=AB-B5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=B68%W2=B68%W3=B68%W4=B68%W5=B68%W6=B68)
@@ -21826,6 +21910,7 @@ IE(DFI=N%T=1B-25%TG=20%CD=S)
 # HID ES400 Solo (Probably Linux 2.4 --Ed.)
 Fingerprint HID EdgePlus Solo ES400 firewall
 Class HID | embedded || firewall
+CPE cpe:/h:hid:edgeplus_solo_es400 auto
 SEQ(SP=C3-CD%GCD=1-6%ISR=CA-D4%TI=Z%CI=Z%TS=9)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -21981,7 +22066,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP JETDIRECT J3113A FIRMWARE G.08.49 DATE MANUFACTURED 09/1999
 Fingerprint HP 170X print server or Inkjet 3000 printer
 Class HP | embedded || print server
+CPE cpe:/h:hp:jetdirect_170x
 Class HP | embedded || printer
+CPE cpe:/h:hp:inkjet_3000
 SEQ(SP=0-5%GCD=1-6%ISR=15-1F%TI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -22051,10 +22138,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP Digital Sender (Scan to Email Device) Model 9100C (Older) running a JetDirect Card as Network Interface
 # HP Jetdirect 175X, J6035G, Firmware Version:    M.25.54
-Fingerprint HP JetDirect 175x print server (J6035G) or 9100c Digital Sender printer
+Fingerprint HP JetDirect 175x print server or 9100c Digital Sender printer
 Class HP | embedded || print server
 CPE cpe:/h:hp:jetdirect_175x
 Class HP | embedded || printer
+CPE cpe:/h:hp:9100c_digital_sender
 SEQ(SP=96-A0%GCD=1-6%ISR=9B-A5%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -22169,8 +22257,9 @@ U1(DF=N%T=3B-3D%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=3B-3D%TG=40%CD=S)
 
 # HP Color Laserjet 3600, J7973E, Firmware Version: V.30.31.BA
-Fingerprint HP Color LaserJet 3600 (J7973E)
+Fingerprint HP LaserJet 3600 printer
 Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_3600 auto
 SEQ(SP=7A-B0%GCD=1-6|B|16|21|2C|37%ISR=9E-A8%TI=I%II=I%SS=S%TS=1|2)
 OPS(O1=M558NW0NNT11%O2=M558NW0NNT11%O3=M558NW0NNT11%O4=M558NW0NNT11%O5=M558NW0NNT11%O6=M558NNT11)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -22186,8 +22275,9 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # hp color LaserJet 5550 with Model Number: J7934A
-Fingerprint HP Color LaserJet 5550 (J7934A)
+Fingerprint HP LaserJet 5550 printer
 Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_5550 auto
 SEQ(SP=94-9E%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2DA0%W2=2DA0%W3=2DA0%W4=2DA0%W5=2DA0%W6=2DA0)
@@ -22203,8 +22293,9 @@ U1(DF=N%T=41%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=41%TG=40%CD=S)
 
 # HP Color LaserJet CM6040 MFP Series / Q3939A
-Fingerprint HP Color LaserJet CM6040 printer
+Fingerprint HP LaserJet CM6040 printer
 Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_cm6040 auto
 SEQ(SP=FD-10B%GCD=1-6%ISR=104-112%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -22220,8 +22311,9 @@ U1(DF=N%T=3B-45%TG=40%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=I%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP Color LaserJet CM6040 MFP Series printer.
-Fingerprint HP Color LaserJet CM6040 printer
+Fingerprint HP LaserJet CM6040 printer
 Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_cm6040 auto
 SEQ(SP=F5-10D%GCD=1-6%ISR=100-10C%TI=RD%II=RI%TS=7)
 OPS(O1=M538NW0NNT11%O2=M538NW0NNT11%O3=M538NW0NNT11%O4=M538NW0NNT11%O5=M538NW0NNT11%O6=M538NNT11)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -22238,9 +22330,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP Color LaserJet CP2025dn
 # HP Color Laserjet CP2025N
-Fingerprint HP CP2025dn printer
+Fingerprint HP LaserJet CP2025dn printer
 Class HP | embedded || printer
-CPE cpe:/h:hp:cp2025dn auto
+CPE cpe:/h:hp:laserjet_cp2025dn auto
 SEQ(SP=A8-F0%GCD=1-6%ISR=A5-E3%TI=RI%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
@@ -23699,10 +23791,15 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # PLANET ADSL MODEM ROUTER ADE-4110
 Fingerprint Kaiomy AL-2014PW, Planet ADE-4110, or Siemens C-110 ADSL modem; HP LaserJet 2420 printer; or IBM DF-4000 ProFibre Storage Array
 Class HP | embedded || printer
+CPE cpe:/h:hp:laserjet_2420 auto
 Class IBM | embedded || storage-misc
+CPE cpe:/h:ibm:df-4000
 Class Kaiomy | embedded || WAP
+CPE cpe:/h:kaiomy:al-2014pw
 Class Planet | embedded || broadband router
+CPE cpe:/h:planet:ade-4110
 Class Siemens | embedded || broadband router
+CPE cpe:/h:siemens:c-110 auto
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -23760,7 +23857,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # HP Network Storage Router, model E1200. Firmware 5.4.25, BIOS "BIOS 4.23", Booter "BOOTER 4.11"
 Fingerprint HP E1200 Network Storage Router NAS device or SonicWALL SOHO3 firewall
 Class HP | embedded || storage-misc
+CPE cpe:/h:hp:e1200
 Class SonicWALL | embedded || firewall
+CPE cpe:/h:sonicwall:soho3 auto
 SEQ(SP=87-9F%GCD=1-6%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -24029,7 +24128,7 @@ Fingerprint Cisco SG 200-08 or HP ProCurve 1810G switch
 Class Cisco | embedded || switch
 CPE cpe:/h:cisco:sg_200-08
 Class HP | embedded || switch
-CPE cpe:/h:hp:procurve_switch_1810g auto
+CPE cpe:/h:hp:procurve_switch_1810g
 SEQ(SP=F5-109%GCD=1-6%ISR=F7-111%TI=I%CI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=10F8%W2=1044%W3=112C%W4=1194%W5=1060%W6=10CD)
@@ -24087,7 +24186,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # HP J4813A Procurve 2524
-Fingerprint HP ProCurve 2524 switch (J4813A)
+Fingerprint HP ProCurve 2524 switch
 Class HP | embedded || switch
 CPE cpe:/h:hp:procurve_switch_2524 auto
 SEQ(SP=95-9F%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=S%TS=U)
@@ -24105,7 +24204,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Procurve 2524 Release F.05.50
-Fingerprint HP ProCurve 2524 switch (J4813A)
+Fingerprint HP ProCurve 2524 switch
 Class HP | embedded || switch
 CPE cpe:/h:hp:procurve_switch_2524 auto
 SEQ(SP=92-9C%GCD=1-6%ISR=9B-A5%TI=I%CI=I%II=I%SS=S%TS=U)
@@ -24123,7 +24222,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP J4813A ProCurve Switch 2524 Firmware revision  : F.05.50
-Fingerprint HP ProCurve 2524 switch (J4813A)
+Fingerprint HP ProCurve 2524 switch
 Class HP | embedded || switch
 CPE cpe:/h:hp:procurve_switch_2524 auto
 SEQ(SP=96-A0%GCD=1-6%ISR=9B-A5%TI=I%CI=I%II=I%SS=S%TS=U)
@@ -24144,8 +24243,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP ProCurve Switch 2524
 Fingerprint HP ProCurve 2524 switch or 9100c Digital Sender printer
 Class HP | embedded || switch
-CPE cpe:/h:hp:procurve_switch_2524 auto
+CPE cpe:/h:hp:procurve_switch_2524
 Class HP | embedded || printer
+CPE cpe:/h:hp:9100c_digital_sender
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -24167,9 +24267,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Symmetricon NTS 150
 Fingerprint HP ProCurve 2524 switch, HP JetDirect 175x print server, or Symmetricon NTS-150 time server
 Class HP | embedded || switch
-CPE cpe:/h:hp:procurve_switch_2524 auto
+CPE cpe:/h:hp:procurve_switch_2524
 Class HP | embedded || printer
+CPE cpe:/h:hp:jetdirect_175x
 Class Symmetricon | embedded || specialized
+CPE cpe:/h:symmetricon:nts-150
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=99-A3%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -24203,7 +24305,7 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP Procurve Switch J4899A (2650) SW-Version H.07.50
-Fingerprint HP ProCurve 2650 switch (J4899A)
+Fingerprint HP ProCurve 2650 switch
 Class HP | embedded || switch
 CPE cpe:/h:hp:procurve_switch_2650 auto
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=O|S%TS=U)
@@ -25739,9 +25841,13 @@ IE(DFI=N%T=F9-103%TG=FF%CD=S)
 # Huawei MT-800 ADSL router.
 Fingerprint Huawei MT-800, Tenda TED8620R, Zoom X5, or ZTE ZXDSL 831 ADSL modem
 Class Huawei | embedded || broadband router
+CPE cpe:/h:huawei:mt-800
 Class Tenda | embedded || broadband router
+CPE cpe:/h:tenda:ted8620r
 Class Zoom | embedded || broadband router
+CPE cpe:/h:zoom:x5
 Class ZTE | embedded || broadband router
+CPE cpe:/h:zte:zxdsl_831
 SEQ(SP=FA-10A%GCD=1-6%ISR=103-10D%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M58C%O2=M58C%O3=M58C%O4=M58C%O5=M58C%O6=M58C)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -25797,12 +25903,17 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Prestige model 650HW-31; UPnP/1.0
 # Nexsan ATAboy2X network-capable fibre-channel disk array
 # Zyxel P660HW-D1 ZyNOS F/W Version: V3.40(AHF.0)b12 | 7/30/2007
-Fingerprint Huawei SmartAX MT800u-T ADSL router, NexStor Nexsan ATABoy2x NAS device, ZyXEL ES-4024A switch, or ZyXEL Prestige ADSL router
+Fingerprint Huawei SmartAX MT800u-T ADSL router, NexStor Nexsan ATABoy2x NAS device, ZyXEL ES-4024A switch, or ZyXEL Prestige 650HW or 660HW ADSL router
 Class Huawei | embedded || broadband router
+CPE cpe:/h:huawei:smartax_mt800u-t
 Class NexStor | embedded || storage-misc
+CPE cpe:/h:nexstor:nexsan_ataboy2x
 Class ZyXEL | ZyNOS | 3.X | switch
+CPE cpe:/h:zyxel:es-4024a
 CPE cpe:/o:zyxel:zynos:3 auto
 Class ZyXEL | ZyNOS | 3.X | broadband router
+CPE cpe:/h:zyxel:prestige_650hw
+CPE cpe:/h:zyxel:prestige_660hw
 CPE cpe:/o:zyxel:zynos:3 auto
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
@@ -26922,7 +27033,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Storage FujitsuSiemens Externus DX80
 Fingerprint Fujitsu Externus DX80 or IBM DCS9900 NAS device
 Class IBM | embedded || storage-misc
+CPE cpe:/h:ibm:dcs9900 auto
 Class Fujitsu Siemens | embedded || storage-misc
+CPE cpe:/h:fujitsu:externus_dx80
 SEQ(SP=FD-10B%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=6)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -26983,9 +27096,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # TP-Link TL-WA500G" Wireless Access Point Hardware Version: "1.3 081520C2" Software Version: "4.2.3 Build 090707 Rel.37067n"
 Fingerprint IBM DS4800 NAS device or TP-Link TL-WA5200G WAP
 Class IBM | embedded || storage-misc
+CPE cpe:/h:ibm:ds4800 auto
 Class TP-Link | embedded || WAP
-Class Wind River | VxWorks || general purpose
-CPE cpe:/o:windriver:vxworks auto
+CPE cpe:/h:tp-link:tl-wa5200g auto
 SEQ(SP=94-9E%GCD=1-6%ISR=9A-A4%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -28348,6 +28461,7 @@ IE(DFI=S%T=25-40%TG=40%CD=S)
 # Juniper SSG-20-WLAN, Firmware: 5.4.0r3a.0 (Firewall+VPN)
 Fingerprint Juniper Networks SSG 20 firewall
 Class Juniper | embedded || firewall
+CPE cpe:/h:juniper:networks_ssg_20 auto
 SEQ(SP=FC-106%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -28509,6 +28623,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # SRX100
 Fingerprint Juniper SRX100 firewall
 Class Juniper | embedded || firewall
+CPE cpe:/h:juniper:srx100 auto
 SEQ(SP=100-10A%GCD=1-6%ISR=103-10F%TS=A)
 OPS(O1=M23AANW0NNT11SLL%O2=M23AANW0NNT11SLL%O3=M23AANW0NNT11%O4=M23AANW0NNT11SLL%O5=M23AANW0NNT11SLL%O6=M23AANNT11SLL)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -29421,12 +29536,22 @@ IE(DFI=N%T=38-42%TG=40%CD=S)
 # Ricoh Afficio 2020
 Fingerprint NetBSD 1.4.2 - 1.5.2; Lanier LS232c, NRG DSc428, Ricoh Aficio 2020, Ricoh NRG MP 161, or Savin 8055 printer; or Panasonic Network Camera (BB-HCM331, BB-HCM381, BCL-30A, BL-C1CE, or BL-C10CE)
 Class Lanier | embedded || printer
+CPE cpe:/h:lanier:ls232c
 Class NetBSD | NetBSD | 1.X | general purpose
 CPE cpe:/o:netbsd:netbsd:1 auto
 Class NRG | embedded || printer
+CPE cpe:/h:nrg:dsc428
 Class Panasonic | embedded || webcam
+CPE cpe:/h:panasonic:bb-hcm331
+CPE cpe:/h:panasonic:bb-hcm381
+CPE cpe:/h:panasonic:bcl-30a
+CPE cpe:/h:panasonic:bl-c1ce
+CPE cpe:/h:panasonic:bl-c10ce
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_2020
+CPE cpe:/h:ricoh:nrg_mp_161
 Class Savin | embedded || printer
+CPE cpe:/h:savin:8055
 SEQ(SP=C5-DD%GCD=1-6%ISR=D6-E0%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -30761,7 +30886,9 @@ IE(DFI=N|S%T=3B-45%TG=40%CD=Z)
 # BEFSR41
 Fingerprint Linksys BEFSR41 router or WRK54G WAP
 Class Linksys | embedded || WAP
+CPE cpe:/h:linksys:befsr41
 Class Linksys | embedded || router
+CPE cpe:/h:linksys:wrk54g
 SEQ(SP=0-1C%GCD=A|14|1E|28|32|5A|B4|10E|168|1C2%ISR=49-53%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -30890,7 +31017,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Tranzeo TR-CPQ-19f wireless radio. http://support.tranzeo.com/files2.php
 Fingerprint Linksys WET54GS5 WAP, Tranzeo TR-CPQ-19f WAP, or Xerox WorkCentre Pro 265 printer
 Class Linksys | embedded || WAP
+CPE cpe:/h:linksys:wet54gs5 auto
 Class Tranzeo | embedded || WAP
+CPE cpe:/h:tranzeo:tr-cpq-19f auto
 Class Xerox | embedded || printer
 CPE cpe:/h:xerox:workcentre_pro_265
 SEQ(SP=B7-CF%GCD=1-6%ISR=C7-D5%TI=Z%CI=I%II=I%TS=7)
@@ -30989,7 +31118,9 @@ IE(R=N)
 # Linksys WRT54GC with Firmware Version: v1.03.0
 Fingerprint Linksys WRT54GC or TRENDnet TEW-431BRP wireless broadband router
 Class Linksys | embedded || WAP
+CPE cpe:/h:linksys:wrt54gc
 Class TRENDnet | embedded || WAP
+CPE cpe:/h:trendnet:tew-431brp
 SEQ(SP=0-1D%GCD=80|100|180|200|280|300%ISR=4D-57%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M564%O3=M5B4%O4=M5B4%O5=M204%O6=MF5)
 WIN(W1=C00%W2=C00%W3=C00%W4=C00%W5=C00%W6=C00)
@@ -31494,7 +31625,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linux 2.4.36 #310 Sun Jul 27 16:25:32 CEST 2008 mips unknown
 Fingerprint DD-WRT v24-sp1 (Linux 2.4.36)
-Class Linux | Linux | 2.4.X | general purpose
+Class Linux | Linux | 2.4.X | WAP
 CPE cpe:/o:linux:linux_kernel:2.4 auto
 SEQ(SP=BC-C6%GCD=1-6%ISR=C7-D1%TI=Z%II=I%TS=7)
 OPS(O1=M528ST11NW0%O2=M528ST11NW0%O3=M528NNT11NW0%O4=M528ST11NW0%O5=M528ST11NW0%O6=M528ST11)
@@ -31512,7 +31643,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # DD-WRT v24-sp1 (07/27/08) mini
 Fingerprint DD-WRT v24-sp1 (Linux 2.4.36)
-Class Linux | Linux | 2.4.X | general purpose
+Class Linux | Linux | 2.4.X | WAP
 CPE cpe:/o:linux:linux_kernel:2.4 auto
 SEQ(SP=C6-D0%GCD=1-6%ISR=CC-D6%TI=Z%CI=Z%II=I%TS=7|8)
 OPS(O1=NNT11|M5ACST11NW0%O2=NNT11|M5ACST11NW0%O3=NNT11|M5ACNNT11NW0%O4=NNT11|M5ACST11NW0%O5=NNT11|M5ACST11NW0%O6=NNT11|M5ACST11)
@@ -55590,6 +55721,7 @@ IE(DFI=S%T=24-3F%TG=40%CD=S)
 # Motorola PTP-600 (Wireless Ethernet Bridge), Software Version 54600-05-04, Hardware Version D05-R01-C
 Fingerprint Motorola PTP 600 wireless Ethernet bridge
 Class Motorola | embedded || bridge
+CPE cpe:/h:motorola:ptp_600
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -55624,8 +55756,9 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Motorola SBV6120 Broadband DOCSIS 3.0 Modem
 # Motorola SURFboard Model SB6120 Firmware Name: SB_KOMODO-1.0.6.6-SCM00-NOSH
-Fingerprint Motorola SBV6120 SURFboard cable modem
+Fingerprint Motorola SURFboard SBV6120 cable modem
 Class Motorola | embedded || broadband router
+CPE cpe:/h:motorola:surfboard_sbv6120 auto
 SEQ(SP=C5-CF%GCD=1-6%ISR=C6-D4%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW3%O2=M5B4ST11NW3%O3=M5B4NNT11NW3%O4=M5B4ST11NW3%O5=M5B4ST11NW3%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -55772,6 +55905,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Motorola QIP2500 IPTV set-top box for Verizon FIOS
 Fingerprint Motorola QIP2500 set top box
 Class Motorola | embedded || media device
+CPE cpe:/h:motorola:qip2500 auto
 SEQ(SP=7D-87%GCD=1-6%ISR=A1-AB%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M58CNW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M58CNW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=B00%W2=AD8%W3=9D0%W4=B00%W5=830%W6=8E5)
@@ -55789,6 +55923,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Motorola QIP-2500 P3 Set Top Box, Release 1.8, Build Number 02.54
 Fingerprint Motorola QIP2500 set top box
 Class Motorola | embedded || media device
+CPE cpe:/h:motorola:qip2500 auto
 SEQ(SP=7F-8B%GCD=1-6%ISR=A1-AB%TI=RI%TS=A)
 OPS(O1=M58CNW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M58CNW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=4D00%W2=4BE8%W3=4998%W4=4D00%W5=49B0%W6=4825)
@@ -55807,6 +55942,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Motorola QIP2500 set top box (Verizon FIOS) Release 1.8, Build Number 02.54
 Fingerprint Motorola QIP2500 set top box
 Class Motorola | embedded || media device
+CPE cpe:/h:motorola:qip2500 auto
 SEQ(SP=AB-C3%GCD=1-6%ISR=AC-BE%TI=RI%TS=A)
 OPS(O1=M58CNW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M58CNW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=4D00%W2=4BE8%W3=4998%W4=4D00%W5=49B0%W6=4825)
@@ -55824,6 +55960,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Verizon FIOS STB, Motorola QIP 2500-3, running VxWorks? 17185/udp open|filtered wdbrpc - wdbrpc is a debug interface used by VxWorks.
 Fingerprint Motorola QIP2500-3 set top box
 Class Motorola | embedded || media device
+CPE cpe:/h:motorola:qip2500-3 auto
 SEQ(SP=A2-AC%GCD=1-6%ISR=A4-AE%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M58CNW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M58CNW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=4780%W2=467C%W3=44B0%W4=4780%W5=4598%W6=4431)
@@ -55841,6 +55978,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Motorola HD/DVR QIP6416-2, Verizon FIOS service.
 Fingerprint Motorola QIP6416-2 set top box
 Class Motorola | embedded || media device
+CPE cpe:/h:motorola:qip6416-2 auto
 SEQ(SP=E9-F3%GCD=1-6%ISR=E7-F1%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=4988%W2=467C%W3=44B0%W4=4988%W5=4598%W6=4431)
@@ -55934,7 +56072,9 @@ IE(R=N)
 # SMC 8014
 Fingerprint Motorola SURFboard SBG900 WAP or SMC SMC8014 cable modem
 Class Motorola | embedded || WAP
+CPE cpe:/h:motorola:surfboard_sbg900 auto
 Class SMC | embedded || broadband router
+CPE cpe:/h:smc:smc8014 auto
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -56251,8 +56391,9 @@ U1(DF=N%T=1A-24%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=1A-24%TG=20%CD=S)
 
 # Nashuatec Aficio MP C3000
-Fingerprint Nashuatec Aficion MP C3000 printer
+Fingerprint Nashuatec Aficio MP C3000 printer
 Class Nashuatec | embedded || printer
+CPE cpe:/h:nashuatec:aficio_mp_c3000 auto
 SEQ(SP=CA-DC%GCD=1-6%ISR=D8-E2%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M557NW0NNT11%O2=M557NW0NNT11%O3=M557NW0NNT11%O4=M557NW0NNT11%O5=M557NW0NNT11%O6=M557NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -56562,6 +56703,7 @@ IE(R=N)
 # NetASQ U70 firewall device with some version 8 firmware
 Fingerprint Netasq U70 firewall
 Class Netasq | embedded || firewall
+CPE cpe:/h:netasq:u70 auto
 SEQ(SP=F6-10A%GCD=1-6%ISR=105-10F%II=I%TS=A)
 OPS(O1=M5B4NW1NNT11SLL%O2=M5B4NW1NNT11SLL%O3=M5B4NW1NNT11%O4=M5B4NW1NNT11SLL%O5=M5B4NW1NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -57103,8 +57245,11 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Ubee DVW3201B
 Fingerprint Netgear CG814WG v2, Thomson TWG870U, or Ubee DVW3201B wireless cable modem
 Class Netgear | embedded || WAP
+CPE cpe:/h:netgear:cg814wg
 Class Thomson | embedded || WAP
+CPE cpe:/h:thomson:twg870u
 Class Ubee | embedded || WAP
+CPE cpe:/h:ubee:dvw3201b
 SEQ(SP=E7-107%GCD=1-6%ISR=EF-10B%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -57123,7 +57268,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # WD TV Live Firmware 1.04.17_v
 Fingerprint Netgear DG834G WAP or Western Digital WD TV media player
 Class Netgear | embedded || WAP
+CPE cpe:/h:netgear:dg834g auto
 Class Western Digital | embedded || media device
+CPE cpe:/o:westerndigital:wd_tv
 SEQ(II=I)
 OPS(R=N)
 WIN(R=N)
@@ -57160,6 +57307,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Linux 2.6.32-24-generic-pae #43-Ubuntu SMP Thu Sep 16 15:30:27 UTC 2010 i686 GNU/Linux
 Fingerprint Netgear ProSafe WG302 v2 WAP
 Class Netgear | embedded || WAP
+CPE cpe:/h:netgear:prosafe_wg302_v2 auto
 SEQ(SP=B6-CC%GCD=1-6%ISR=C6-D0%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5C8ST11NW0%O2=M5C8ST11NW0%O3=M5C8NNT11NW0%O4=M5C8ST11NW0%O5=M5C8ST11NW0%O6=M5C8ST11)
 WIN(W1=1134%W2=1134%W3=1134%W4=1134%W5=1134%W6=1134)
@@ -57550,6 +57698,7 @@ IE(R=N)
 # Foxconn VoIP TRIO 3C, F01L010.00_LDCOM/V1.6.19_AV225165 Build V060419 MAC:000E9B8BB948
 Fingerprint Neuf Box Trio 3C DSL modem
 Class Neuf | embedded || broadband router
+CPE cpe:/h:neuf:trio_3c
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -57567,6 +57716,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # "NeufBox Trio3d" DSL Modem/router/Voip/Tv   firmware V1.7.19_AV225165
 Fingerprint Neuf Box Trio 3D DSL modem
 Class Neuf | embedded || broadband router
+CPE cpe:/h:neuf:trio_3d
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -58055,8 +58205,8 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 # symbian s60 3rd edition ...nokia 81, test behind cisco asa in different vlan without acl
 Fingerprint Nokia N81 mobile phone (Symbian OS)
 Class Nokia | Symbian OS || phone
-CPE cpe:/o:nokia:symbian_os auto
 CPE cpe:/h:nokia:n81
+CPE cpe:/o:nokia:symbian_os auto
 SEQ(SP=EE-10A%GCD=1-6%ISR=EC-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
 WIN(W1=BC34%W2=BC34%W3=BC34%W4=BC34%W5=BC34%W6=BC34)
@@ -58095,6 +58245,7 @@ IE(DFI=S%T=5F-69%TG=80%CD=S)
 # Nortel Ethernet Routing Switch 5530-24TFD, BOSS 4.2, HW:32  FW:4.2.0.12  SW:v4.2.0.002
 Fingerprint Nortel 5530 Ethernet Routing Switch
 Class Nortel | embedded || router
+CPE cpe:/h:nortel:ethernet_routing_switch_5530
 SEQ(SP=94-A2%GCD=1-6%ISR=9F-A9%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -58144,9 +58295,9 @@ U1(R=N)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Nortel 5510-48T
-Fingerprint Nortel ERS 5510 switch
+Fingerprint Nortel Ethernet Routing Switch 5510
 Class Nortel | embedded || switch
-CPE cpe:/h:nortel:ers_5510 auto
+CPE cpe:/h:nortel:ethernet_routing_switch_5510
 SEQ(SP=95-9F%GCD=1-6%ISR=9A-A4%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M514NW0NNT11%O2=M514NW0NNT11%O3=M514NW0NNT11%O4=M514NW0NNT11%O5=M514NW0NNT11%O6=M514NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -58163,8 +58314,10 @@ IE(DFI=S%T=3A-44%TG=40%CD=S)
 
 # ERS-8606 (5.1.1.1)
 # Ethernet Routing Switch 8010 Software Release 4.1.2.0
-Fingerprint Nortel ERS 8010 or 8606 switch
+Fingerprint Nortel Ethernet Routing Switch 8010 or 8606
 Class Nortel | embedded || switch
+CPE cpe:/h:nortel:ethernet_routing_switch_8010
+CPE cpe:/h:nortel:ethernet_routing_switch_8606
 SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%CI=I%II=RI%SS=O|S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -58182,6 +58335,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Nortel Ethernet Routing Switch 4550T-PWR, v5.1.4.008
 Fingerprint Nortel Ethernet Routing Switch 4550T-PWR
 Class Nortel | embedded || switch
+CPE cpe:/h:nortel:ethernet_routing_switch_4550t-pwr
 SEQ(SP=102-10C%GCD=1-6%ISR=105-10F%TI=I%CI=RD|RI%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -58199,6 +58353,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Ethernet Switch 470-24T-PWR 24 10/100BaseTX plus 2 GBIC slots
 Fingerprint Nortel Ethernet Routing Switch 470-24T-PWR
 Class Nortel | embedded || switch
+CPE cpe:/h:nortel:ethernet_routing_switch_470-24t-pwr
 SEQ(SP=97-A1%GCD=1-6%ISR=9C-A6%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -58219,6 +58374,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 Fingerprint Novatel MiFi 2200 3G WAP or iDirect Evolution X1 satellite router
 Class iDirect | embedded || WAP
 Class Novatel | embedded || WAP
+CPE cpe:/h:novatel:mifi_2200_3g auto
 SEQ(SP=C1-EB%GCD=1-6%ISR=D9-E9%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -58236,6 +58392,7 @@ IE(DFI=N%T=6F-79%TG=80%CD=Z)
 # Novetel's MiFi 2200 device issued on Verizon's network, from WLAN interface
 Fingerprint Novatel MiFi 2200 3G WAP
 Class Novatel | embedded || WAP
+CPE cpe:/h:novatel:mifi_2200_3g auto
 SEQ(SP=CE-D8%GCD=1-6%ISR=D5-DF%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -59870,6 +60027,7 @@ IE(R=N)
 # BlueCoat PacketShaper 7500, 8.6.4g1.
 Fingerprint Packeteer PacketShaper 7500 firewall
 Class Packeteer | embedded || firewall
+CPE cpe:/h:packeteer:packetshaper_7500 auto
 SEQ(SP=E-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M5B0%O3=M5B0%O4=M5B0%O5=M5B0%O6=M5B0)
 WIN(W1=5B0%W2=5B0%W3=5B0%W4=5B0%W5=5B0%W6=5B0)
@@ -59921,6 +60079,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # PacketFront DRG Ease DRG601-Access
 Fingerprint PacketFront DRG Ease DRG601-Access switch
 Class PacketFront | embedded || switch
+CPE cpe:/h:packetfront:drg_ease_drg601-access auto
 SEQ(SP=9-13%GCD=9C4|1388|1D4C|2710|30D4%ISR=5A-6C%TI=I%CI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=BB8%W2=BB8%W3=BB8%W4=BB8%W5=BB8%W6=BB8)
@@ -60645,6 +60804,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Polycom IP-301  Firmware Version:          Mon Jul 9 10:11:39 2007
 Fingerprint Polycom SoundPoint IP 301 VoIP phone
 Class Polycom | embedded || VoIP phone
+CPE cpe:/h:polycom:soundpoint_ip_301 auto
 SEQ(SP=0-5%GCD=3E8|7D0|BB8|FA0|1388%ISR=8A-94%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4|WANM5B4T10S%O2=M578|M578W0ST10L%O3=M280|T10NNW5NM280%O4=M5B4|ST10WAL%O5=M218ST10WAL%O6=M109ST10)
 WIN(W1=0|3180%W2=0|3180%W3=0|3180%W4=0|3180%W5=0%W6=0)
@@ -60662,6 +60822,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # PolyCom IP-301 VoIP Desktop Phone, I believe the polycom phones run embedded VxWorks OS.
 Fingerprint Polycom SoundPoint IP 301 VoIP phone
 Class Polycom | embedded || VoIP phone
+CPE cpe:/h:polycom:soundpoint_ip_301 auto
 SEQ(SP=97-A1%GCD=1-6%ISR=9C-A6%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -60679,6 +60840,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Polycom IP 430 SIP VoIP Phone
 Fingerprint Polycom SoundPoint IP 430 VoIP phone
 Class Polycom | embedded || VoIP phone
+CPE cpe:/h:polycom:soundpoint_ip_430 auto
 SEQ(SP=95-9F%GCD=1-6%ISR=9B-A5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -60713,6 +60875,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Polycom ViewStation 4000 PRI T1 MP Release 6.0.5 FX
 Fingerprint Polycom ViewStation 4000 video conferencing system
 Class Polycom | embedded || webcam
+CPE cpe:/h:polycom:viewstation_4000 auto
 SEQ(SP=0-16%GCD=0|6257C2|C4AF84|1270746|1895F08|1EBB6CA%ISR=0-C2%TI=I%CI=I%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=5B40%W2=5B40%W3=5B40%W4=5B40%W5=5B40%W6=5B40)
@@ -60766,6 +60929,7 @@ IE(DFI=S%T=3B-3D%TG=40%CD=Z)
 # Polycom VS4000 Video conference codec.
 Fingerprint Polycom VS4000 video conferencing system
 Class Polycom | embedded || webcam
+CPE cpe:/h:polycom:vs4000 auto
 SEQ(SP=C-16%GCD=284D455|509A8AA|78E7CFF|A135154|C9825A9%ISR=CE-D8%TI=I%II=I%SS=S%TS=U)
 OPS(O1=|M5B4%O2=|M5B4%O3=|M5B4%O4=|M5B4%O5=|M5B4%O6=|M5B4)
 WIN(W1=0|5B40%W2=0|5B40%W3=0|5B40%W4=0|5B40%W5=0|5B40%W6=0|5B40)
@@ -60783,6 +60947,7 @@ IE(DFI=S%T=3B-3D%TG=40%CD=Z)
 # Polycom VSFX4, Release 6.0.5 FX - 08 Jun 2005
 Fingerprint Polycom VSFX4 video conferencing system
 Class Polycom | embedded || webcam
+CPE cpe:/h:polycom:vsfx4 auto
 SEQ(SP=0-16%GCD=8497DA1|1092FB42|18DC78E3|2125F684|296F7425%ISR=0-E5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=5B40%W2=5B40%W3=5B40%W4=5B40%W5=5B40%W6=5B40)
@@ -60800,6 +60965,7 @@ IE(DFI=S%T=3B-3D%TG=40%CD=Z)
 # Polycom Video Conferencing Device VSX 7000a, Release 8.5.3.2 - 17Apr2007 15:09
 Fingerprint Polycom VSX 7000a video conferencing system
 Class Polycom | embedded || webcam
+CPE cpe:/h:polycom:vsx_7000a auto
 SEQ(SP=3-7F%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=96-E6%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5A2%O2=M578%O3=M280%O4=M5A2%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -60835,6 +61001,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 # Polycom VSX 8000 embedded OS.
 Fingerprint Polycom VSX 8000 video conferencing system
 Class Polycom | embedded || webcam
+CPE cpe:/h:polycom:vsx_8000 auto
 SEQ(SP=C-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%II=I%TS=U)
 OPS(O1=M5A2%O2=M578%O3=M280%O4=M5A2%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -61427,6 +61594,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Ricoh Aficio 1022
 Fingerprint Ricoh Aficio 1022 copier
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_1022 auto
 SEQ(SP=9C-A6%GCD=1-6%ISR=A7-B1%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -61444,6 +61612,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # RICOH Aficio 1060 - version 3.53.3, network control service version 3.74
 Fingerprint Ricoh Aficio 1060 copier
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_1060 auto
 SEQ(SP=9D-A7%GCD=1-6%ISR=A7-B1%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -61533,6 +61702,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # RICOH Aficio MP C2550
 Fingerprint Ricoh Aficio MP C2550 printer
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_mp_c2550 auto
 SEQ(SP=C7-D9%GCD=1-6%ISR=D7-E1%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT01%O2=M5B4NW0NNT01%O3=M5B4NW0NNT01%O4=M5B4NW0NNT01%O5=M5B4NW0NNT01%O6=M5B4NNT01)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -61568,6 +61738,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # RICOH Aficio SP 4100N, Network Control Service Ver. 6.06
 Fingerprint Ricoh Aficio SP 4100N printer
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_sp_4100n auto
 SEQ(SP=CA-D8%GCD=1-6%ISR=D8-E2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -61585,6 +61756,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Ricoh SF210C Color Laser Printer
 Fingerprint Ricoh Aficio SP C210SF printer
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_sp_c210sf auto
 SEQ(SP=F9-103%GCD=1-6%ISR=F1-FB%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M200%O5=M218%O6=M109)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -61602,6 +61774,7 @@ IE(DFI=N%T=76-80%TG=80%CD=Z)
 # Ricoh SP C210SF branded printer made by Brother for Ricoh
 Fingerprint Ricoh Aficio SP C210SF printer
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_sp_c210sf auto
 SEQ(TI=I%CI=I%II=I%SS=O|S%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -61619,6 +61792,7 @@ IE(DFI=N%T=6D-77%TG=80%CD=Z)
 # Ricoh Aficio SP C311N
 Fingerprint Ricoh Aficio SP C311N printer (VxWorks)
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_sp_c311n auto
 Class Wind River | VxWorks || general purpose
 CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=94-9E%GCD=1-6%ISR=9A-A4%TI=I%CI=I%II=I%SS=S%TS=1)
@@ -61638,6 +61812,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # RICOH Aficio SP C420DN printer
 Fingerprint Ricoh Aficio SP C420DN printer
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_sp_c420dn auto
 SEQ(SP=C0-E4%GCD=1-6%ISR=D8-E2%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT01%O2=M5B4NW0NNT01%O3=M5B4NW0NNT01%O4=M5B4NW0NNT01%O5=M5B4NW0NNT01%O6=M5B4NNT01)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -61653,8 +61828,9 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # RICOH Aficio SP 4100N printer
-Fingerprint Ricoh Aficion SP 4100N printer
+Fingerprint Ricoh Aficio SP 4100N printer
 Class Ricoh | embedded || printer
+CPE cpe:/h:ricoh:aficio_sp_4100n auto
 SEQ(SP=D0-DA%GCD=1-6%ISR=D6-E0%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -63268,7 +63444,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # SpeadStream 4200-series Firmware Part #:  004-D241-A0U
 Fingerprint Siemens Gigaset SE567 WAP or SpeedStream 4200 ADSL modem
 Class Siemens | embedded || broadband router
+CPE cpe:/h:siemens:speedstream_4200
 Class Siemens | embedded || WAP
+CPE cpe:/h:siemens:gigaset_se567
 SEQ(SP=F4-10A%GCD=1-6%ISR=EB-101%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5AC%O2=M5AC%O3=M5AC%O4=M5AC%O5=M5AC%O6=M5AC)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63407,6 +63585,7 @@ IE(DFI=Y%T=3B-45%TG=40%CD=S)
 # HiPath optiPoint 400 Standard HFA
 Fingerprint Siemens HiPath optiPoint 400 VoIP phone
 Class Siemens | embedded || VoIP phone
+CPE cpe:/h:siemens:hipath_optipoint_400 auto
 SEQ(SP=12-1C%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M200%O2=M200%O3=M200%O4=M200%O5=M200%O6=M200)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63552,7 +63731,9 @@ IE(DFI=N%T=FA%TG=FF%CD=S)
 # ZyXEL AIR B-3000
 Fingerprint Sitecom WL-174 wireless ADSL router or ZyXEL B-3000 WAP
 Class Sitecom | embedded || WAP
+CPE cpe:/h:sitecom:wl-174 auto
 Class ZyXEL | embedded || WAP
+CPE cpe:/h:zyxel:b-3000 auto
 SEQ(R=N)
 OPS(O1=M200%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=400%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -63872,6 +64053,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # SMC TigerStack III 10/100 - 6824M Managed 24+2 Stackable Switch
 Fingerprint SMC TigerStack III 6824M switch
 Class SMC | embedded || switch
+CPE cpe:/h:smc:tigerstack_iii_6824m auto
 SEQ(SP=8C-96%GCD=1-6%ISR=92-9C%TI=I%CI=I%II=RI%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63890,8 +64072,10 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Belkin F5D7230-4 router
 # Belkin Wireless G Router F5D7230-4
 Fingerprint Belkin F5D7230-4 WAP or SMC SMC7008ABR router
-Class SMC | embedded || WAP
+Class Belkin | embedded || WAP
+CPE cpe:/h:belkin:f5d7230-4 auto
 Class SMC | embedded || router
+CPE cpe:/h:smc:smc7008abr auto
 SEQ(SP=0-16%GCD=1-6|A|14|1E|28|32%ISR=30-3A%TI=I%II=I%SS=O%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=1770%W2=1770%W3=1770%W4=1770%W5=1770%W6=1770)
@@ -63946,7 +64130,9 @@ IE(DFI=N|O|Y%T=3B-45%TG=40%CD=Z)
 # SMC, device model: SMC7904WBRA
 Fingerprint SMC SMC7904WBRA wireless ADSL router or T-Home Speedport W 700V WAP
 Class SMC | embedded || WAP
+CPE cpe:/h:smc:smc7904wbra
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_700v
 SEQ(SP=0-1C%GCD=1-6|64|C8|12C|190|1F4%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=5000%W2=5000%W3=5000%W4=5000%W5=5000%W6=5000)
@@ -64300,6 +64486,7 @@ IE(DFI=N%T=41%TG=40%CD=S)
 # Sonus GSX 9000 HD SIP Server. A carrier-level SIP proxy.
 Fingerprint Sonus GSX9000 VoIP proxy
 Class Sonus | embedded || VoIP adapter
+CPE cpe:/h:sonus:gsx9000 auto
 SEQ(SP=B2-BC%GCD=1-6%ISR=C7-D1%CI=I%TS=U)
 OPS(O1=M5AC%O2=M5AC%O3=M5AC%O4=M5AC%O5=M5AC%O6=M5AC)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -64452,8 +64639,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sony Ericsson M600i Symbian OS 9.1 UIQ 3.0 firmware R9A002
 Fingerprint Sony Ericsson M600i mobile phone (Symbian OS 9.1)
 Class Sony Ericsson | Symbian OS | 9.X | phone
-CPE cpe:/o:sonyericsson:symbian_os:9 auto
 CPE cpe:/h:sonyericsson:m600i
+CPE cpe:/o:sonyericsson:symbian_os:9 auto
 SEQ(SP=A6-B0%GCD=1-6%ISR=AB-B5%TI=I%II=I%SS=S%TS=14)
 OPS(O1=|M5ACT11W0SL%O2=|M5ACT11W0SL%O3=|M5ACT11W0LLL%O4=|M5ACT11W0SL%O5=|M5ACT11W0SL%O6=|M5ACT11S)
 WIN(W1=0|BB2C%W2=0|BB2C%W3=0|BB2C%W4=0|BB2C%W5=0|BB2C%W6=0|BB2C)
@@ -64471,8 +64658,8 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 # Sony Ericsson P1i handheld. OS is Symbian OS v9.1 UIQ3
 Fingerprint Sony Ericsson P1i mobile phone (Symbian OS 9.1)
 Class Sony Ericsson | Symbian OS | 9.X | phone
-CPE cpe:/o:sonyericsson:symbian_os:9 auto
 CPE cpe:/h:sonyericsson:p1i
+CPE cpe:/o:sonyericsson:symbian_os:9 auto
 SEQ(SP=A1-B1%GCD=1-6%ISR=A8-B2%TI=I%II=I%SS=S%TS=14)
 OPS(O1=|M5ACT11W0SL%O2=|M5ACT11W0SL%O3=|M5ACT11W0LLL%O4=|M5ACT11W0SL%O5=|M5ACT11W0SL%O6=|M5ACT11S)
 WIN(W1=0|BB2C%W2=0|BB2C%W3=0|BB2C%W4=0|BB2C%W5=0|BB2C%W6=0|BB2C)
@@ -64782,6 +64969,7 @@ IE(DFI=N%T=FE%TG=FF%CD=S)
 # Specialix JETSTREAM 8500 RS232 Network Access Server, Version 2.2.7
 Fingerprint Specialix JetStream 8500 RS232 remote access server
 Class Specialix | embedded || terminal server
+CPE cpe:/h:specialix:jetstream_8500
 SEQ(SP=E-18%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=9A-A4%TI=I%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -64800,6 +64988,7 @@ IE(DFI=Y%T=FA-104%TG=FF%CD=S)
 # Sphairon Turbolink IAD ADSL-Modem/VoIP-Gateway (distributed by the German ISP "Alice")
 Fingerprint Sphairon Turbolink IAD DSL modem
 Class Sphairon | embedded || broadband router
+CPE cpe:/h:sphairon:turbolink_iad
 SEQ(SP=C9-D3%GCD=1-6%ISR=C9-D3%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -64817,6 +65006,7 @@ IE(DFI=N%T=38-42%TG=40%CD=S)
 # Star Micronics TSP100 (small thermal receipt printer)
 Fingerprint Star Micronics TSP100 receipt printer
 Class Star Micronics | embedded || printer
+CPE cpe:/h:starmicronics:tsp100
 SEQ(SP=0-5%GCD=388|710|A98|E20|11A8%ISR=64-6E%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -64869,6 +65059,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Virtual Technician Module of Stratus ftServer, It runs something from RMC - Server: RMC Webserver 2.0
 Fingerprint Stratus ftServer Virtual Technician Module
 Class Stratus | embedded || remote management
+CPE cpe:/h:stratus:ftserver_virtual_technician_module
 SEQ(SP=C-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B0%O2=M578%O3=M280%O4=M5B0%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -64886,6 +65077,7 @@ IE(DFI=N%T=19-23%TG=20%CD=S)
 # Sun ILOM running SP Firmware Version 3.0.6.15.c
 Fingerprint Sun Integrated Lights-Out Manager
 Class Sun | embedded || remote management
+CPE cpe:/a:sun:embedded_lights_out_manager
 SEQ(SP=F6-10A%GCD=1-6%ISR=F2-10E%TI=Z%II=I%TS=7)
 OPS(O1=M564ST11NW1%O2=M564ST11NW1%O3=M564NNT11NW1%O4=M564ST11NW1%O5=M564ST11NW1%O6=M564ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -64957,6 +65149,7 @@ IE(DFI=Y%T=FA-104%TG=FF%CD=S)
 # Sun StoreEdge 3310 disk array. firmware version 4.13B
 Fingerprint Sun StorEdge 3310 FC storage array
 Class Sun | embedded || storage-misc
+CPE cpe:/h:sun:storedge_3310_fc_array
 SEQ(SP=6C-82%GCD=1-6%ISR=AB-B5%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M5B4NNSLLLL%O2=M5B4NNSLLLL%O3=M5B4NNSLLLL%O4=M5B4NNSLLLL%O5=M5B4NNSLLLL%O6=M5B4NNSLLLL)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -64974,6 +65167,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=Z)
 # Sun StorEdge 3510 FC
 Fingerprint Sun StorEdge 3510 FC storage array
 Class Sun | embedded || storage-misc
+CPE cpe:/h:sun:storedge_3510_fc_array
 SEQ(SP=C-16%GCD=1-6%ISR=2B-35%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NNSLLLL%O2=M5B4NNSLLLL%O3=M5B4NNSLLLL%O4=M5B4NNSLLLL%O5=M5B4NNSLLLL%O6=M5B4NNSLLLL)
 WIN(W1=5C8%W2=5C8%W3=5C8%W4=5C8%W5=5C8%W6=5C8)
@@ -66200,6 +66394,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Symantec Firewall/VPN 200, Firmware-Version V1 Rel 4I
 Fingerprint Symantec Firewall/VPN 100 or 200
 Class Symantec | embedded || firewall
+CPE cpe:/h:symantec:firewall_vpn_appliance_100
+CPE cpe:/h:symantec:firewall_vpn_appliance_200
 SEQ(SP=1F-43%GCD=1000|2000|3000|4000|5000%ISR=85-A3%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4T11NN%O2=M5B4%O3=M5B4T11NN%O4=M5B4T11NN%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -66215,8 +66411,9 @@ U1(DF=N%T=3B-3D%TG=40%IPL=70%UN=5DC%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-3D%TG=40%CD=Z)
 
 # Symantec Security Gateway 5620 Firewall
-Fingerprint Symantec Security Gateway 5620 firewall
+Fingerprint Symantec Gateway Security 5620 firewall
 Class Symantec | embedded || firewall
+CPE cpe:/h:symantec:gateway_security_5620
 SEQ(SP=FF-109%GCD=1-6%ISR=FC-106%TI=Z%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M5B4NNSNW0%O3=M5B4NW0%O4=M5B4NNSNW0%O5=M5B4NNSNW0%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -66234,6 +66431,8 @@ IE(R=N)
 # Symantec VelociRaptor 1.5
 Fingerprint Symantec VelociRaptor 1.5 firewall
 Class Symantec | embedded || firewall
+CPE cpe:/h:symantec:velociraptor_1.5
+CPE cpe:/a:symantec:velociraptor
 SEQ(SP=FE-10A%GCD=1-6%ISR=106-110%TI=I%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M578NNSNW0%O3=M280NW0%O4=M218NNSNW0%O5=M218NNSNW0%O6=M109NNS)
 WIN(W1=7D78%W2=7DC8%W3=7F80%W4=7FB8%W5=7FB8%W6=7F53)
@@ -66676,6 +66875,9 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Tandberg T1000 portable video conference codec
 Fingerprint Tandberg video conferencing system (1000, 2500, or 990 MXP)
 Class Tandberg | embedded || webcam
+CPE cpe:/h:tandberg:1000
+CPE cpe:/h:tandberg:2500
+CPE cpe:/h:tandberg:990_mxp
 SEQ(SP=FD-109%GCD=1-6%ISR=101-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -66729,6 +66931,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Technisat Digicoder HD S2, sat receiver
 Fingerprint TechniSat Digicorder HD S2 satellite receiver
 Class TechniSat | embedded || media device
+CPE cpe:/h:technisat:digicorder_hd_s2
 SEQ(SP=C5-D9%GCD=1-6%ISR=D7-E1%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -66744,8 +66947,9 @@ U1(DF=N%T=6E-78%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=82A0%RUD=G)
 IE(DFI=N%T=6E-78%TG=80%CD=Z)
 
 # Tektronix Phaser 8200DP, firmware: OS 3.106 laser printer
-Fingerprint Tektronix Phaser 8200DP laser printer
+Fingerprint Tektronix Phaser 8200DP printer
 Class Tektronix | embedded || printer
+CPE cpe:/h:tektronix:phaser_8200dp
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -66781,6 +66985,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=Z)
 # Cisco ISB7031 running WinCE/5.0.1400
 Fingerprint Telekom Media Receiver MR 303
 Class Telekom | embedded || media device
+CPE cpe:/h:telekom:mr_303
 SEQ(SP=6E-A0%GCD=1-6%ISR=94-9E%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B2NW2NNT00NNS%O2=M5B2NW2NNT00NNS%O3=M5B2NW2NNT00%O4=M5B2NW2NNT00NNS%O5=M5B2NW2NNT00NNS%O6=M5B2NNT00NNS)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -66835,6 +67040,7 @@ IE(DFI=N%T=FE%TG=FF%CD=S)
 # TELEX IP-223  Radio over IP interface device
 Fingerprint Telex IP-223 radio IP adapter
 Class Telex | embedded || bridge
+CPE cpe:/h:telex:ip-223
 SEQ(SP=CE-D8%GCD=1-6%ISR=D4-DE%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -66852,6 +67058,7 @@ IE(DFI=N%T=6C-76%TG=80%CD=Z)
 # Telsey Videostation provided by an italian internet provider called Fastweb. It runs on a 2.4.19 linux kernel customized by Fastweb.
 Fingerprint Telsey IP Video Station media server
 Class Telsey | embedded || media device
+CPE cpe:/h:telsey:ip_video_station
 SEQ(SP=C-16%GCD=9C4|1388|1D4C|2710|30D4%ISR=5D-67%TI=I%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
 WIN(W1=578%W2=578%W3=578%W4=578%W5=578%W6=578)
@@ -66869,6 +67076,7 @@ IE(R=N)
 # Teltronics NET-PATH <http://www.teltronics.com/products_services/ism/text.asp?id=SEBNETPATH> OS Version: 3.0.1.1047 Application Version: 3.1.1.1057
 Fingerprint Teltronics NET-PATH intrusion detection system
 Class Teltronics | embedded || firewall
+CPE cpe:/h:teltronics:net-path
 SEQ(SP=46-95%GCD=FA|1F4|2EE|3E8|4E2%ISR=8C-BA%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5A2%O2=M5A2%O3=M5A2%O4=M5A2%O5=M5A2%O6=M5A2)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -66905,6 +67113,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Thecus N5500 NAS System Linux n5500 2.6.33N7700 #5 SMP Wed Jan 26 12:14:33 CST 2011 i686 unknown
 Fingerprint Thecus 4200 or N5500 NAS device (Linux 2.6.33)
 Class Thecus | embedded || storage-misc
+CPE cpe:/h:thecus:4200
+CPE cpe:/h:thecus:n5500
 SEQ(SP=C6-D0%GCD=1-6%ISR=C8-D2%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=|M5B4NNS%O2=|M5B4NNS%O3=|M5B4%O4=|M5B4NNS%O5=|M5B4NNS%O6=|M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -68469,6 +68679,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Watchguard Firebox x5 firewall version  7.5.2  Boot ROM  7.2.1
 Fingerprint WatchGuard Firebox X5w firewall/WAP
 Class WatchGuard | embedded || firewall
+CPE cpe:/h:watchguard:firebox_x5w auto
 Class WatchGuard | embedded || WAP
 CPE cpe:/h:watchguard:firebox_x5w
 SEQ(SP=EA-FC%GCD=1-6%ISR=FE-112%TI=RD%II=RI%TS=U)
