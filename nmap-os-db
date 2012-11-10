@@ -960,6 +960,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # 3com OfficeConnect wirless router 3CRWER100-75 firmware 1.2.0
 Fingerprint 3Com OfficeConnect 3CRWER100-75 wireless router
 Class 3Com | embedded || WAP
+CPE cpe:/h:3com:officeconnect_3crwer100-75 auto
 SEQ(SP=B1-BB%GCD=1-6%ISR=C4-CE%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11%O2=M5B4ST11%O3=M5B4NNT11%O4=M5B4ST11%O5=M5B4ST11%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -21998,6 +21999,7 @@ IE(DFI=N%T=3B-3D%TG=40%CD=Z)
 # HP USB G Wireless Print Server model 2101nw
 Fingerprint HP 2101nw wireless print server
 Class HP | embedded || print server
+CPE cpe:/h:hp:2101nw auto
 SEQ(SP=0-8B%GCD=1-6%ISR=41-61%TI=I%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -43512,7 +43514,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux 2.6.32-5-amd64 #1 SMP Mon Oct 3 03:59:20 UTC 2011 x86_64 GNU/Linux Debian
 Fingerprint Linux 2.6.32 - 3.2
 Class Linux | Linux | 2.6.X | general purpose
-CPE cpe:/o:linux:linux_kernel:2 auto
+CPE cpe:/o:linux:linux_kernel:2.6 auto
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
 SEQ(SP=F9-10B%GCD=1-6%ISR=108-112%TI=Z%CI=Z%II=I%TS=U)
@@ -55912,6 +55914,7 @@ IE(R=N)
 # Motorola RFS6000 RF Switch, firmware 4.0.1.0-005R
 Fingerprint Motorola RFS 6000 wireless switch
 Class Motorola | embedded || WAP
+CPE cpe:/h:motorola:rfs_6000 auto
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -58034,6 +58037,7 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 # Sony Ericsson U8i Vivaz Pro Cellphone
 Fingerprint Sony Ericsson U8i Vivaz mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:u8i_vivaz
 SEQ(CI=I%II=I)
 OPS(R=N)
 WIN(R=N)
@@ -58052,6 +58056,7 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 Fingerprint Nokia N81 mobile phone (Symbian OS)
 Class Nokia | Symbian OS || phone
 CPE cpe:/o:nokia:symbian_os auto
+CPE cpe:/h:nokia:n81
 SEQ(SP=EE-10A%GCD=1-6%ISR=EC-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
 WIN(W1=BC34%W2=BC34%W3=BC34%W4=BC34%W5=BC34%W6=BC34)
@@ -64312,6 +64317,7 @@ IE(R=N)
 # Sony Ericsson AINO  mobile phone on wlan network
 Fingerprint Sony Ericsson Aino mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:aino
 SEQ(SP=F1-FB%GCD=1-6%ISR=104-10E%TI=I%CI=RD%II=I%SS=S%TS=9)
 OPS(O1=M5ACSW0NT11%O2=M5ACSW0NT11%O3=M5ACSW0NT11%O4=M5ACSW0NT11%O5=M5ACSW0NT11%O6=M5ACST11)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -64331,6 +64337,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sony Ericsson Z780i GSM/UMTS phone
 Fingerprint Sony Ericsson C902, W910i, or Z780i mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:c902
+CPE cpe:/h:sonyericsson:w910i
+CPE cpe:/h:sonyericsson:z780i
 SEQ(SP=F3-10F%GCD=1-6%ISR=104-112%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4SW0NT11%O2=M5B4SW0NT11%O3=M5B4SW0NT11%O4=M5B4SW0NT11%O5=M5B4SW0NT11%O6=M5B4ST11)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -64348,6 +64357,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sony Ericsson G900. I believe it is running Symbian OS.
 Fingerprint Sony Ericsson G900 mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:g900
 SEQ(SP=A7-B5%GCD=1-6%ISR=AE-B8%TI=I%II=I%SS=S%TS=14)
 OPS(O1=M5ACT11W0SL%O2=M5ACT11W0SL%O3=M5ACT11W0LLL%O4=M5ACT11W0SL%O5=M5ACT11W0SL%O6=M5ACT11S)
 WIN(W1=BB2C%W2=BB2C%W3=BB2C%W4=BB2C%W5=BB2C%W6=BB2C)
@@ -64366,6 +64376,8 @@ IE(DFI=N%T=45%TG=80%CD=S)
 # Sony Ericsson Hazel (j20)
 Fingerprint Sony Ericsson Hazel (J10, J20) or Elm mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:j20
+CPE cpe:/h:sonyericsson:j20i
 SEQ(SP=FE-10A%GCD=1-6%ISR=107-111%TI=I%CI=RD|RI%II=I%SS=S%TS=9|A)
 OPS(O1=M5ACSW1NT11%O2=M5ACSW1NT11%O3=M5ACSW1NT11%O4=M5ACSW1NT11%O5=M5ACSW1NT11%O6=M5ACST11)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -64383,6 +64395,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sony Ericsson K850i, Version 1200-4398 R1CA037 071012 SonyEricsson
 Fingerprint Sony Ericsson K850i mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:k850i
 SEQ(SP=102-10C%GCD=1-6%ISR=106-110%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4SW0NT11%O2=M5B4SW0NT11%O3=M5B4SW0NT11%O4=M5B4SW0NT11%O5=M5B4SW0NT11%O6=M5B4ST11)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -64401,6 +64414,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Sony Ericsson W705
 Fingerprint Sony Ericsson W705 or W715 Walkman mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:w705
+CPE cpe:/h:sonyericsson:w715
 SEQ(CI=RD%II=I)
 OPS(R=N)
 WIN(R=N)
@@ -64419,6 +64434,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sony Ericsson W705 Walkman mobile phone
 Fingerprint Sony Ericsson W705 or W995 Walkman mobile phone
 Class Sony Ericsson | embedded || phone
+CPE cpe:/h:sonyericsson:w705
 SEQ(SP=101-10B%GCD=1-6%ISR=101-113%TI=I%CI=RD%II=I%SS=S%TS=A)
 OPS(O1=M5ACSW0NT11%O2=M5ACSW0NT11%O3=M5ACSW0NT11%O4=M5ACSW0NT11%O5=M5ACSW0NT11%O6=M5ACST11)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
@@ -64437,6 +64453,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint Sony Ericsson M600i mobile phone (Symbian OS 9.1)
 Class Sony Ericsson | Symbian OS | 9.X | phone
 CPE cpe:/o:sonyericsson:symbian_os:9 auto
+CPE cpe:/h:sonyericsson:m600i
 SEQ(SP=A6-B0%GCD=1-6%ISR=AB-B5%TI=I%II=I%SS=S%TS=14)
 OPS(O1=|M5ACT11W0SL%O2=|M5ACT11W0SL%O3=|M5ACT11W0LLL%O4=|M5ACT11W0SL%O5=|M5ACT11W0SL%O6=|M5ACT11S)
 WIN(W1=0|BB2C%W2=0|BB2C%W3=0|BB2C%W4=0|BB2C%W5=0|BB2C%W6=0|BB2C)
@@ -64455,6 +64472,7 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 Fingerprint Sony Ericsson P1i mobile phone (Symbian OS 9.1)
 Class Sony Ericsson | Symbian OS | 9.X | phone
 CPE cpe:/o:sonyericsson:symbian_os:9 auto
+CPE cpe:/h:sonyericsson:p1i
 SEQ(SP=A1-B1%GCD=1-6%ISR=A8-B2%TI=I%II=I%SS=S%TS=14)
 OPS(O1=|M5ACT11W0SL%O2=|M5ACT11W0SL%O3=|M5ACT11W0LLL%O4=|M5ACT11W0SL%O5=|M5ACT11W0SL%O6=|M5ACT11S)
 WIN(W1=0|BB2C%W2=0|BB2C%W3=0|BB2C%W4=0|BB2C%W5=0|BB2C%W6=0|BB2C)
@@ -66304,8 +66322,9 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Symbol Spectrum24 4131 Access Point
 # Model AP-4131; AP firmware: 03.70-72; RF firmware: F3.70-32
-Fingerprint Symbol Spectrum24 4131 Access Point
+Fingerprint Symbol Spectrum24 4131 WAP
 Class Symbol | embedded || WAP
+CPE cpe:/h:symbol:spectrum24_4131 auto
 SEQ(SP=B-15%GCD=32|64|96|C8|FA|12C%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=|M514%O2=|M514%O3=|M514%O4=|M514%O5=|M514%O6=|M514)
 WIN(W1=1|16D0%W2=3F|16D0%W3=4|16D0%W4=4|16D0%W5=10|16D0%W6=200|16D0)
@@ -66323,6 +66342,7 @@ IE(DFI=N%T=41%TG=40%CD=S)
 # Symbol WS500 Wireless Switch
 Fingerprint Symbol WS500 wireless switch
 Class Symbol | embedded || WAP
+CPE cpe:/h:symbol:ws500 auto
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4470%W2=41A0%W3=4100%W4=4000%W5=40E8%W6=402E)
@@ -66341,6 +66361,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Software 1.4.3.0-012R, firmware 2.2 (7/9/02)
 Fingerprint Symbol WS5000 wireless switch
 Class Symbol | embedded || WAP
+CPE cpe:/h:symbol:ws5000 auto
 SEQ(SP=5-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4204%W2=4204%W3=4100%W4=4000%W5=40E8%W6=402E)
@@ -66358,6 +66379,7 @@ IE(DFI=S%T=FC-106%TG=FF%CD=S)
 # Symbol WS5000 Wireless Switch
 Fingerprint Symbol WS5000 wireless switch
 Class Symbol | embedded || WAP
+CPE cpe:/h:symbol:ws5000 auto
 SEQ(SP=0-15%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=4470%W2=41A0%W3=4100%W4=4000%W5=40E8%W6=402E)
@@ -66431,6 +66453,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Speedport W504V
 Fingerprint T-Home Speedport W 504V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_504v
 SEQ(SP=0-1D%GCD=1-6|64|C8|12C|190|1F4%ISR=4B-55%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=5000%W2=5000%W3=5000%W4=5000%W5=5000%W6=5000)
@@ -66448,6 +66471,7 @@ IE(DFI=N|S|Y%T=3B-45%TG=40%CD=Z)
 # Speedport W 504V DSL Router + WAP
 Fingerprint T-Home Speedport W 504V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_504v
 SEQ(SP=0-1A%GCD=1-6|64|C8|12C|190|1F4%ISR=4B-55%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5AC%O2=M578%O3=M280%O4=M5AC%O5=M218%O6=M109)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -66466,6 +66490,7 @@ IE(DFI=O|S%T=3B-45%TG=40%CD=Z)
 # T-Com Speedport w700V Router,ADSL-Modem,ADSL2-Modem,WAP
 Fingerprint T-Home Speedport W 700V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_700v
 SEQ(SP=0-5%GCD=68|6C|D0|D8|138|144|1A0|1B0|208|21C%ISR=4B-55%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=5000%W2=5000%W3=5000%W4=5000%W5=5000%W6=5000)
@@ -66483,6 +66508,7 @@ IE(DFI=N|O|S|Y%T=3B-45%TG=40%CD=Z)
 # Arcadyan Router W700V (Deutsche Telekom)
 Fingerprint T-Home Speedport W 700V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_700v
 SEQ(SP=18-22%GCD=1-6%ISR=4B-55%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=5000%W2=5000%W3=5000%W4=5000%W5=5000%W6=5000)
@@ -66500,6 +66526,7 @@ IE(DFI=N|S%T=3B-45%TG=40%CD=Z)
 # Speedport W700V Integrated ADSL2 Modem
 Fingerprint T-Home Speedport W 700V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_700v
 SEQ(SP=0-5%GCD=65|CA|12F|194|1F9%ISR=4B-55%TI=I|RD%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=5000%W2=5000%W3=5000%W4=5000%W5=5000%W6=5000)
@@ -66517,6 +66544,7 @@ IE(DFI=O|S%T=3B-45%TG=40%CD=Z)
 # Speedport W 723V Typ B
 Fingerprint T-Home Speedport W 723V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_723v
 SEQ(SP=0-5%GCD=64|C8|12C|190|1F4%ISR=4B-55%TI=I|RD%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5AC%O2=M578%O3=M280%O4=M5AC%O5=M218%O6=M109)
 WIN(W1=A000%W2=A000%W3=A000%W4=A000%W5=A000%W6=A000)
@@ -66534,6 +66562,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Speedport W723V from Telekom Germany(T-Online)
 Fingerprint T-Home Speedport W 723V WAP
 Class T-Home | embedded || WAP
+CPE cpe:/h:t-home:speedport_w_723v
 SEQ(SP=0-1D%GCD=1-6|64|C8|12C|190|1F4%ISR=4B-55%TI=I%CI=I%TS=U)
 OPS(O1=M5AC%O2=M578%O3=M280%O4=M5AC%O5=M218%O6=M109)
 WIN(W1=5000%W2=5000%W3=5000%W4=5000%W5=5000%W6=5000)
@@ -66570,6 +66599,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Tahoe 8216 - Remote Power Management System. http://www.tahoe.pl/tahoe_8216.php
 Fingerprint Tahoe 8216 power management system
 Class Tahoe | embedded || power-device
+CPE cpe:/h:tahoe:8216
 SEQ(SP=9F-E9%GCD=3|6|9|C|F%ISR=A7-D3%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M240%O2=M240%O3=M240%O4=M240%O5=M218%O6=M109)
 WIN(W1=C00%W2=C00%W3=C00%W4=C00%W5=C00%W6=C00)
@@ -66587,6 +66617,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # Tandberg TT1222 satellite receiver
 Fingerprint Tandberg TT 1122 video receiver
 Class Tandberg | embedded || media device
+CPE cpe:/h:tandberg:tt_1122
 SEQ(SP=0-19%GCD=1-6|58|B0|108|160|1B8%ISR=49-53%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5DC%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -66604,6 +66635,7 @@ IE(DFI=S%T=27-40%TG=40%CD=S)
 # Tandberg C60 running firmware versions TC4.0.1.240265
 Fingerprint Tandberg Codec C60 video conferencing system
 Class Tandberg | embedded || webcam
+CPE cpe:/h:tandberg:codec_c60
 SEQ(SP=100-10A%GCD=1-6%ISR=101-10B%TI=I%CI=Z%II=I%SS=O%TS=U)
 OPS(O1=M5B4SLL%O2=M5B4SLL%O3=M5B4%O4=M5B4SLL%O5=M5B4SLL%O6=M5B4SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -66984,6 +67016,10 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # SpeedTouch 510 ADSL modem/router Firmware version 4.2.7.16.0
 Fingerprint Thomson SpeedTouch 510/510i/530/580 DSL modem
 Class Thomson | embedded || broadband router
+CPE cpe:/h:thomson:speedtouch_510
+CPE cpe:/h:thomson:speedtouch_510i
+CPE cpe:/h:thomson:speedtouch_530
+CPE cpe:/h:thomson:speedtouch_580
 SEQ(SP=FD-109%GCD=1-6%ISR=105-10F%TI=I%CI=I%II=I%SS=S%TS=1)
 OPS(O1=M200NW0NNT11%O2=M200NW0NNT11%O3=M200NW0NNT11%O4=M200NW0NNT11%O5=M200NW0NNT11%O6=M200NNT11)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -67095,6 +67131,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Topfield TF600PVR
 Fingerprint Topfield TF6000PVR set top box
 Class Topfield | embedded || media device
+CPE cpe:/h:topfield:tf6000pvr
 SEQ(SP=0-5F%GCD=1-6|7FC|FF8|17F4|1FF0|27EC%ISR=56-94%TI=Z%CI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=4E20%W2=4E20%W3=4E20%W4=4E20%W5=4E20%W6=4E20)
@@ -67112,6 +67149,7 @@ IE(DFI=S%T=20-3F%TG=40%CD=S)
 # QNX TMS5 (Terminal Management System 5) System from Toptech Systems, Inc.
 Fingerprint Toptech TMS5 terminal management
 Class Toptech | embedded || terminal server
+CPE cpe:/h:toptech:tms5
 SEQ(SP=EF-F9%GCD=2|4|6|8|A%ISR=FC-106%TI=I|RD%II=I%SS=S%TS=U)
 OPS(O1=M200%O2=M200%O3=M200%O4=M200%O5=M200%O6=M200)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=1F0E)
@@ -67129,6 +67167,7 @@ IE(DFI=S%T=F8-102%TG=FF%CD=S)
 # Toshiba Digital television set (REGZA series)
 Fingerprint Toshiba REGZA TV
 Class Toshiba | embedded || media device
+CPE cpe:/h:toshiba:regza
 SEQ(SP=BE-C8%GCD=1-6%ISR=C4-CE%TI=Z%II=I%TS=A|C)
 OPS(O1=NNT11|M5B4ST11NW1%O2=NNT11|M5B4ST11NW1%O3=NNT11|M5B4NNT11NW1%O4=NNT11|M5B4ST11NW1%O5=NNT11|M5B4ST11NW1%O6=NNT11|M5B4ST11)
 WIN(W1=10F8%W2=10F8%W3=10F8%W4=10F8%W5=10F8%W6=10F8)
@@ -67146,6 +67185,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Toshiba e-Studio20 printer, ROM Version 6.19 TA
 Fingerprint Toshiba e-STUDIO 20 printer
 Class Toshiba | embedded || printer
+CPE cpe:/h:toshibatec:e-studio-20
 SEQ(R=N)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -67163,6 +67203,7 @@ IE(DFI=S%T=3B-3D%TG=40%CD=S)
 # Toshiba e-STUDIO280 (network copier/printer)
 Fingerprint Toshiba e-STUDIO 280 printer
 Class Toshiba | embedded || printer
+CPE cpe:/h:toshibatec:e-studio-280
 SEQ(SP=CB-13B%GCD=1-6%ISR=D7-11D%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M200%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -67180,6 +67221,7 @@ IE(DFI=N%T=71-7B%TG=80%CD=Z)
 # TOSHIBA e-STUDIO 4511
 Fingerprint Toshiba e-STUDIO 4511 printer
 Class Toshiba | embedded || printer
+CPE cpe:/h:toshibatec:e-studio-4511
 SEQ(SP=C9-135%GCD=1-6%ISR=D6-120%TI=I%II=I%SS=O|S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M200%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -67197,7 +67239,8 @@ IE(DFI=N%T=72-7C%TG=80%CD=Z)
 # Toshiba Magnia SG10, Linux toshiba.toshiba.loc 2.4.18-3custom #3 Tue Aug 13 15:10:18 PDT 2002 i686 unknown
 Fingerprint Toshiba Magnia SG10 server appliance (Linux 2.4.18)
 Class Toshiba | Linux | 2.4.X | general purpose
-CPE cpe:/o:toshiba:linux:2.4 auto
+CPE cpe:/o:toshiba:linux:2.4
+CPE cpe:/h:toshiba:magnia_sg10
 SEQ(SP=C9-D3%GCD=1-6%ISR=CD-D7%TI=Z%II=I%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -67285,8 +67328,9 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=ECA7%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=Z)
 
 # TRENDnet TV-IP100 Internet camera
-Fingerprint TRENDnet TV-IP100 Internet camera
+Fingerprint TRENDnet TV-IP100 webcam
 Class TRENDnet | embedded || webcam
+CPE cpe:/h:trendnet:tv-ip100 auto
 SEQ(SP=C-16%GCD=37|6E|A5|DC|113%ISR=4B-55%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -67306,6 +67350,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # TrippLite model:PDUMV30HVNET
 Fingerprint Tripp Lite SMART1500SLT UPS or PDUMV30HVNET power distribution unit
 Class Tripp Lite | embedded || power-device
+CPE cpe:/h:tripplite:smart1500slt
+CPE cpe:/h:tripplite:pdumv30hvnet
 SEQ(SP=CC-F4%GCD=1-6%ISR=D5-E7%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -67323,6 +67369,7 @@ IE(DFI=N%T=74-7E%TG=80%CD=Z)
 # TUT Systems SMS2000
 Fingerprint Tut Systems SMS2000 subscriber management system
 Class Tut Systems | embedded || router
+CPE cpe:/h:tutsystems:sms2000
 SEQ(SP=FD-107%GCD=1-6%ISR=10A-114%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=7FE0%W2=7FE0%W3=7FE0%W4=7FE0%W5=7FE0%W6=7FE0)
@@ -67430,6 +67477,7 @@ IE(DFI=N%T=7A-84%TG=80%CD=S)
 # vantage digital 7100s satellite decoder with software version 2.44.
 Fingerprint Vantage HD7100S satellite receiver
 Class Vantage | embedded || media device
+CPE cpe:/h:vantage:hd7100s
 SEQ(SP=C-16%GCD=7D00|FA00|17700|1F400|27100%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -67447,6 +67495,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # System Description VBrick Systems Inc., Model 4300. This is a network based video encoder.
 Fingerprint VBrick 4300 video encoder
 Class VBrick | embedded || media device
+CPE cpe:/h:vbrick:4300
 SEQ(SP=97-A1%GCD=1-6%ISR=9D-A7%II=I%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -67518,6 +67567,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # fingerprint identification device VIRDI 3000 Virditech Co.
 Fingerprint Virdi 3000 fingerprint access controller
 Class Virdi | embedded || security-misc
+CPE cpe:/h:virdi:3000
 SEQ(SP=0-5%GCD=64000|C8000|12C000|190000|1F4000%ISR=AB-B5%TI=I%CI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4T11W0LLL%O2=M5B4T11W0LLL%O3=M5B4T11W0LLL%O4=M5B4T11W0LLL%O5=M5B4T11W0LLL%O6=M5B4T11W0LLL)
 WIN(W1=1FFE%W2=1FFE%W3=1FFE%W4=1FFE%W5=1FFE%W6=1FFE)
@@ -68198,6 +68248,7 @@ IE(R=N)
 # Vodavi XTS-IP PBX (it's Vodavi's newer class of PBX's)
 Fingerprint Vodavi XTS-IP PBX
 Class Vodavi | embedded || PBX
+CPE cpe:/h:vodavi:xts-ip
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -68215,6 +68266,7 @@ IE(DFI=N%T=FE%TG=FF%CD=S)
 # Vonage V-Portal device.
 Fingerprint Vonage V-Portal VoIP adapter
 Class Vonage | embedded || VoIP adapter
+CPE cpe:/h:vonage:v-portal
 SEQ(SP=101-10B%GCD=1-6%ISR=103-10D%TI=I%TS=7)
 OPS(O1=M5ACNW0NNT11%O2=M5ACNW0NNT11%O3=M5ACNW0NNT11%O4=M5ACNW0NNT11%O5=M5ACNW0NNT11%O6=M5ACNNT11)
 WIN(W1=4380%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -68232,6 +68284,7 @@ IE(R=N)
 # Wiesemann & Theis GmbH (WuT) COM-Server
 Fingerprint W&T Ethernet-to-serial bridge
 Class W&T | embedded || bridge
+CPE cpe:/h:w%26t:com-server
 SEQ(SP=0-5%GCD=1-6%ISR=16-20%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M230%O2=M230%O3=M230%O4=M230%O5=M230%O6=M230)
 WIN(W1=230%W2=230%W3=230%W4=230%W5=230%W6=230)
@@ -68249,6 +68302,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # W&T Web-Thermometer #57101
 Fingerprint W&T Web-IO Thermometer model 57101
 Class W&T | embedded || specialized
+CPE cpe:/h:w%26t:web-thermometer
 SEQ(SP=0-5%GCD=1-6%ISR=16-20%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M200%O2=M200%O3=M200%O4=M200%O5=M200%O6=M200)
 WIN(W1=200%W2=200%W3=200%W4=200%W5=200%W6=200)
@@ -68267,6 +68321,7 @@ IE(DFI=S%T=2C-40%TG=40%CD=S)
 # Device: W&T Web-Thermo-Hygrobarograph PoE #57613 Firmware: 1.71
 Fingerprint W&T Web-Thermo-Hygrobarograph firmware 1.59 - 1.71
 Class W&T | embedded || specialized
+CPE cpe:/h:w%26t:web-thermo-hygrobarograph
 SEQ(SP=87-B7%GCD=1-6%ISR=87-B7%TI=I|RD%CI=I%II=I%TS=U)
 OPS(O1=|M230%O2=|M230%O3=|M230%O4=|M230%O5=|M230%O6=|M230)
 WIN(W1=230%W2=230%W3=230%W4=0|230%W5=230%W6=0|230)
@@ -68284,6 +68339,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # W&T Web-Thermograph NTC, 10/100BT, 12-24V, firmware version '1.50/1.30'
 Fingerprint W&T Web-Thermograph NTC
 Class W&T | embedded || specialized
+CPE cpe:/h:w%26t:web-thermograph_ntc
 SEQ(SP=70-7A%GCD=2|4|6|8|A%ISR=69-73%TI=I|RD%CI=I%II=I%SS=O%TS=U)
 OPS(O1=M200%O2=M200%O3=M200%O4=M200%O5=M200%O6=)
 WIN(W1=200%W2=200%W3=200%W4=200%W5=200%W6=0)
@@ -68302,6 +68358,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # W&T Web-Thermograph NTC#57609 Firmware: 1.53
 Fingerprint W&T Web-Thermograph NTC firmware 1.53
 Class W&T | embedded || specialized
+CPE cpe:/h:w%26t:web-thermograph_ntc
 SEQ(SP=84-90%GCD=1-6%ISR=83-93%TI=I|RD%CI=I%II=I%SS=O%TS=U)
 OPS(O1=M230%O2=M230%O3=M230%O4=M230%O5=M230%O6=)
 WIN(W1=230%W2=230%W3=230%W4=230%W5=230%W6=0)
@@ -68319,6 +68376,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # W&T Web-Thermo-Hygrobarograph PoE #57613 Firmware: 1.60
 Fingerprint W&T Web-Thermograph NTC firmware 1.60
 Class W&T | embedded || specialized
+CPE cpe:/h:w%26t:web-thermograph_ntc
 SEQ(SP=6D-77%GCD=1-6%ISR=68-72%TI=I|RD%CI=I%II=I%SS=O%TS=U)
 OPS(O1=M230%O2=M230%O3=M230%O4=M230%O5=M230)
 WIN(W1=230%W2=230%W3=230%W4=230%W5=230%W6=0)
@@ -68336,6 +68394,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # WAGO IO System 750 Ethernet fieldbus coupler. Firmware revision 02.02.00(04)
 Fingerprint WAGO-I/O-SYSTEM 750 automation system
 Class WAGO | embedded || specialized
+CPE cpe:/h:wago:wago-i%2f-system_750
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4LLW1NT11%O2=M5B4LLW1NT11%O3=M5B4LLW1NT11%O4=M5B4LLW1NT11%O5=M5B4LLW1NT11%O6=M5B4NNT11)
 WIN(W1=5DC%W2=5DC%W3=5DC%W4=5DC%W5=5DC%W6=5DC)
@@ -68353,6 +68412,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Watchguard Firebox II 500
 Fingerprint WatchGuard FireBox 500 firewall
 Class WatchGuard | embedded || firewall
+CPE cpe:/h:watchguard:firebox_500
 SEQ(SP=101-10B%GCD=1-6%ISR=106-110%TI=I%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -68371,6 +68431,8 @@ IE(R=N)
 # WatchGuard Firebox X700, OS Fireware 7.5
 Fingerprint WatchGuard FireBox 700 or X700 firewall
 Class WatchGuard | embedded || firewall
+CPE cpe:/h:watchguard:firebox_700
+CPE cpe:/h:watchguard:firebox_x700
 SEQ(SP=EF-10F%GCD=1-6%ISR=108-112%TI=I%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=3FE0%W2=3FE0%W3=3FE0%W4=3FE0%W5=3FE0%W6=3FE0)
@@ -68388,6 +68450,7 @@ IE(R=N)
 # Watchguard Firebox x1250e Core
 Fingerprint WatchGuard FireBox X1250e firewall
 Class WatchGuard | embedded || firewall
+CPE cpe:/h:watchguard:firebox_x1250e
 SEQ(SP=C6-D0%GCD=1-6%ISR=D1-DB%TI=Z%CI=Z%II=I%TS=8)
 OPS(O1=M578ST11NW5%O2=M578ST11NW5%O3=M578NNT11NW5%O4=M578ST11NW5%O5=M578ST11NW5%O6=M578ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -68407,6 +68470,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint WatchGuard Firebox X5w firewall/WAP
 Class WatchGuard | embedded || firewall
 Class WatchGuard | embedded || WAP
+CPE cpe:/h:watchguard:firebox_x5w
 SEQ(SP=EA-FC%GCD=1-6%ISR=FE-112%TI=RD%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -68478,6 +68542,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Westell WireSpeed Dual Connect 6100 DSL Modem
 Fingerprint Westell WireSpeed Dual Connect 6100 DSL router
 Class Westell | embedded || broadband router
+CPE cpe:/h:westell:wirespeed_6100
 SEQ(SP=95-9F%GCD=1-6%ISR=9C-A6%TI=I%CI=I%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -68495,6 +68560,7 @@ IE(R=N)
 # Westermo EDW-100 Ethernet Serial Controller
 Fingerprint Westermo EDW-100 Ethernet-to-serial bridge
 Class Westermo | embedded || bridge
+CPE cpe:/h:westermo:edw-100
 SEQ(SP=CE-D8%GCD=1-6%ISR=D5-DF%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -68513,6 +68579,8 @@ IE(DFI=N%T=6D-77%TG=80%CD=Z)
 # WD TV Live HD media player Firmware Release 1.05.04 (5/12/2011)
 Fingerprint Western Digital WD TV media player
 Class Western Digital | embedded || media device
+CPE cpe:/o:westerndigital:wd_tv
+CPE cpe:/o:westerndigital:linux:2.6 auto
 SEQ(SP=C2-E0%GCD=1-6%ISR=C3-DB%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW5%O2=M5B4ST11NW5%O3=M5B4NNT11NW5%O4=M5B4ST11NW5%O5=M5B4ST11NW5%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -68781,6 +68849,7 @@ IE(R=N)
 # WowWee Rovio UI v3.97 | Evo v4.72b.201 http://www.wowwee.com/en/support/rovio, runs eCos on a 200MHz ARM9 processor, according to coverage on DeviceGuru
 Fingerprint WowWee Rovio mobile webcam
 Class WowWee | embedded || webcam
+CPE cpe:/h:wowwee:rovio
 SEQ(SP=92-A0%GCD=1-6%ISR=98-A4%II=I%TS=1)
 OPS(O1=M5A8NW0NNT11%O2=M5A8NW0NNT11%O3=M5A8NW0NNT11%O4=M5A8NW0NNT11%O5=M5A8NW0NNT11%O6=M5A8NNT11)
 WIN(W1=9310%W2=9264%W3=90BC%W4=9310%W5=9154%W6=904A)
@@ -68798,6 +68867,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # WowWee Rovio robot/webcam, running modified centos
 Fingerprint WowWee Rovio mobile webcam
 Class WowWee | embedded || webcam
+CPE cpe:/h:wowwee:rovio
 SEQ(SP=93-CD%GCD=1-6%ISR=9A-C4%TI=I|RD%CI=I%II=I%SS=S%TS=1|3)
 OPS(O1=M198NW0NNT11%O2=M198NW0NNT11%O3=M198NW0NNT11%O4=M198NW0NNT11%O5=M198NW0NNT11%O6=M198NNT11)
 WIN(W1=9108%W2=9108%W3=9108%W4=9108%W5=9108%W6=904A)
@@ -68816,6 +68886,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Wyse 1200LE running Wyse "Thin OS" (Blazer) firmware version 5.2.0_39
 Fingerprint Wyse V10L or 1200LE thin client
 Class Wyse | embedded || terminal
+CPE cpe:/h:wyse:v10l
+CPE cpe:/h:wyse:v1200le
 SEQ(SP=E-18%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=9A-A4%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NNLL%O2=M5B4NNLL%O3=M5B4NNLL%O4=M5B4NNLL%O5=M5B4NNLL%O6=M5B4NNLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -68833,6 +68905,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 # Wyse V10L Thin Client running Wyse Thin OS
 Fingerprint Wyse V10L thin client
 Class Wyse | embedded || terminal
+CPE cpe:/h:wyse:v10l
 SEQ(SP=8E-98%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NNLL%O2=M5B4NNLL%O3=M5B4NNLL%O4=M5B4NNLL%O5=M5B4NNLL%O6=M5B4NNLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -68943,8 +69016,9 @@ U1(DF=N%T=19-23%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(R=N)
 
 # Device Vendor: XAVi Technologies Corporation Model Number: X7721r+ Device: DSL router
-Fingerprint XAVi Technologies X7721r+ DSL router
+Fingerprint XAVi X7721r+ DSL router
 Class XAVi | embedded || broadband router
+CPE cpe:/h:xavi:x7721r%2b auto
 SEQ(SP=75-8B%GCD=1-6%ISR=7F-8F%TI=I%TS=U)
 OPS(O1=M58C%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -69220,6 +69294,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # XMOS (www.xmos.com) XC-2 development card for their XS1G4 multicore multithreaded processor.
 Fingerprint XMOS XC-2 development card
 Class XMOS | embedded || specialized
+CPE cpe:/h:xmos:xc-2
 SEQ(SP=0-29%GCD=1-6|BC|CC|178|198|234|264|2F0|330|3AC|3FC%ISR=52-5C%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M80%O2=M80%O3=M80%O4=M80%O5=M80%O6=M80)
 WIN(W1=1C0%W2=1C0%W3=1C0%W4=1C0%W5=1C0%W6=1C0)
@@ -69255,6 +69330,7 @@ IE(DFI=S%T=1B-25%TG=20%CD=S)
 # Xylan OmniStack! Version 3.2.5
 Fingerprint Xylan OmniStack switch (version 3.2.5)
 Class Xylan | embedded || switch
+CPE cpe:/h:xylan:omnistack
 SEQ(SP=FF-109%GCD=1-6%ISR=104-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
@@ -69272,6 +69348,7 @@ IE(DFI=S%T=1B-25%TG=20%CD=S)
 # Xylan OmniStack! Version 3.4.7
 Fingerprint Xylan OmniStack switch (version 3.4.7)
 Class Xylan | embedded || switch
+CPE cpe:/h:xylan:omnistack
 SEQ(SP=FF-109%GCD=1-6%ISR=104-10E%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
@@ -69289,6 +69366,7 @@ IE(DFI=S%T=1B-25%TG=20%CD=S)
 # AV-Receiver RX-V2065
 Fingerprint Yamaha RX-V2065 audio/video receiver
 Class Yamaha | embedded || media device
+CPE cpe:/h:yamaha:rx-v2065
 SEQ(SP=F1-103%GCD=1-6%ISR=FE-10A%TI=Z%CI=Z%II=RI%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=E998%W2=E998%W3=E998%W4=E998%W5=E998%W6=E998)
@@ -69382,6 +69460,7 @@ IE(DFI=N%T=38-42%TG=40%CD=Z)
 # Zebra LP 2844-Z Label Printer with integrated ethernet, F/W Version: 7.02 (3111A)
 Fingerprint Zebra LP 2844-Z label printer
 Class Zebra | embedded || printer
+CPE cpe:/h:zebra:lp_2844-z
 SEQ(SP=0-5%GCD=0%ISR=0-5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M218)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -69417,6 +69496,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # (ADSL Router) ZHONE Firmware: 03.01.08 Product Name: 6211-I3-xxx, Software Version: 3-10-02-2100.A2pB024k1.d20h
 Fingerprint Zhone 6211-I3 series ADSL2+ modem
 Class Zhone | embedded || broadband router
+CPE cpe:/h:zhone:6211-i3
 SEQ(SP=CA-D4%GCD=1-6%ISR=C8-D2%TI=Z%II=I%TS=8)
 OPS(O1=M5ACST11NW7%O2=M5ACST11NW7%O3=M5ACNNT11NW7%O4=M5ACST11NW7%O5=M5ACST11NW7%O6=M5ACST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -69471,6 +69551,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Zyfer GSync 391-1XX:Rb, 1U GPSDO with a rubidium oscillator. http://zyfer.com/gsync.htm.
 Fingerprint Zyfer GSync 391 clock
 Class Zyfer | embedded || specialized
+CPE cpe:/h:zyfer:gsync_391
 SEQ(SP=0-5%GCD=FA01|1F402|2EE03|3E804|4E205%ISR=95-9F%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M578NW0%O3=M280NW0%O4=M218NW0%O5=M218NW0%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -70926,7 +71007,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # 2.6.32-279.5.2.el6.x86_64 x86_64 x86_64 x86_64 GNU/Linux
 Fingerprint Linux 2.6.32 - 3.6
 Class Linux | Linux | 2.6.X | general purpose
-CPE cpe:/o:linux:linux_kernel:2 auto
+CPE cpe:/o:linux:linux_kernel:2.6 auto
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
 SEQ(SP=F5-10B%GCD=1-6%ISR=FE-114%TI=Z%CI=Z%II=I%TS=7|8|A|B)
@@ -70946,7 +71027,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux 2.6.32-279.el6.i686 #1 SMP Fri Jun 22 10:59:55 UTC 2012 i686 i686 i386 GNU/Linux
 Fingerprint Linux 2.6.32 - 3.6
 Class Linux | Linux | 2.6.X | general purpose
-CPE cpe:/o:linux:linux_kernel:2 auto
+CPE cpe:/o:linux:linux_kernel:2.6 auto
 Class Linux | Linux | 3.X | general purpose
 CPE cpe:/o:linux:linux_kernel:3 auto
 SEQ(SP=101-10B%GCD=1-6%ISR=108-112%TI=Z%CI=Z%II=I%TS=A)
@@ -71042,6 +71123,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # belkin router running   1.00.09 (Jul 4 2011) Model is a Belkin N600 DB
 Fingerprint Belkin N600 DB WAP
 Class Belkin | embedded || WAP
+CPE cpe:/h:belkin:n600_db
 SEQ(SP=CF-123%GCD=1-6%ISR=EA-100%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -71496,6 +71578,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Tadiran Coral Flexset 280s.
 Fingerprint Tadiran FlexSet-IP 280S VoIP phone
 Class Tadiran | embedded || VoIP phone
+CPE cpe:/h:tadiran:flexset-ip_280s
 SEQ(SP=F6-100%GCD=1-6%ISR=FB-105%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS()
 WIN(W1=111C%W2=111C%W3=111C%W4=111C%W5=111C%W6=111C)
@@ -71786,6 +71869,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Buffalo Link Station LS-WXL 926 1TB SAN
 Fingerprint Buffalo LS-WXL NAS device
 Class Buffalo | embedded || storage-misc
+CPE cpe:/h:buffalo:ls-wxl
 SEQ(SP=AD-103%GCD=1-6%ISR=E9-FF%TI=Z%CI=Z%II=I%TS=7)
 OPS(O1=MFCCST11NW2%O2=MFCCST11NW2%O3=MFCCNNT11NW2%O4=MFCCST11NW2%O5=MFCCST11NW2%O6=MFCCST11)
 WIN(W1=2F40%W2=2F40%W3=2F40%W4=2F40%W5=2F40%W6=2F40)
@@ -72515,6 +72599,7 @@ IE(DFI=N%T=70-7A%TG=80%CD=Z)
 # Qualisys Oqus 300 cameras, which are part of a motion capture system [Looks like ELK-M1EXP --Ed.]
 Fingerprint Qualisys Oqus 300 camera
 Class Qualisys | embedded || webcam
+CPE cpe:/h:qualisys:oqus_300
 SEQ(SP=C5-CF%GCD=1-6%ISR=D6-E0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
