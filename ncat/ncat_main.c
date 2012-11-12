@@ -642,9 +642,13 @@ int main(int argc, char *argv[])
     if (targetss.storage.ss_family == AF_INET)
         targetss.in.sin_port = htons(o.portno);
 #ifdef HAVE_IPV6
-    else
+    else if (targetss.storage.ss_family == AF_INET6)
         targetss.in6.sin6_port = htons(o.portno);
 #endif
+    else if (targetss.storage.ss_family == AF_UNSPEC)
+	; /* Leave unspecified. */
+    else
+	bye("Unknown address family %d.", targetss.storage.ss_family);
 
     if (srcport != -1) {
         if (o.listen) {
