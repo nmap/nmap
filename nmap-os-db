@@ -61902,6 +61902,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Riverbed Steelhead 200
 Fingerprint Riverbed Steelhead 200 proxy server
 Class Riverbed | embedded || proxy server
+CPE cpe:/h:riverbed:steelhead_200
 SEQ(SP=C9-D3%GCD=1-6%ISR=C7-D1%TI=Z%II=I%TS=A)
 OPS(O1=M550ST11NW2%O2=M550ST11NW2%O3=M550NNT11NW2%O4=M550ST11NW2%O5=M550ST11NW2%O6=M550ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -61919,6 +61920,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Roberts Stream 202 internet radio
 Fingerprint Roberts STREAM 202 Internet radio
 Class Roberts | embedded || media device
+CPE cpe:/h:roberts:stream_202
 SEQ(SP=0-61%GCD=1-6|DB8D3|DB8D6|1B71A6|1B71AC|292A79|292A82|36E34C|36E358|449C1F|449C2E%ISR=B4-BE%TI=I%CI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -61936,6 +61938,7 @@ IE(DFI=S%T=28-40%TG=40%CD=S)
 # Rockwell Automation 1761-NET-ENI EtherNet/IP to RS-232-C Interface Module
 Fingerprint Rockwell Automation 1761-NET-ENI Ethernet-to-RS-232-C interface module
 Class Rockwell Automation | embedded || specialized
+CPE cpe:/h:rockwellautomation:1761-net-eni
 SEQ(R=N)
 OPS(O1=M400%O2=M400%O3=M400%O4=%O5=%O6=)
 WIN(W1=FF%W2=FF%W3=FF%W4=0%W5=0%W6=0)
@@ -61953,6 +61956,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Rockwell Automation 1761-NET-ENI
 Fingerprint Rockwell Automation 1761-NET-ENI Ethernet-to-RS-232-C interface module
 Class Rockwell Automation | embedded || specialized
+CPE cpe:/h:rockwellautomation:1761-net-eni
 SEQ(SP=35-3F%GCD=100|200|300|400|500%ISR=8B-95%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=FF%W2=FF%W3=FF%W4=FF%W5=FF%W6=FF)
@@ -61970,6 +61974,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Rockwell 1769-L23E-QB1 PLC
 Fingerprint Rockwell Automation 1769-L23E-QB1 PLC
 Class Rockwell Automation | embedded || specialized
+CPE cpe:/h:rockwellautomation:1769-l23e-qb1
 SEQ(SP=96-A0%GCD=1-6%ISR=9C-A6%TI=I|RD%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -61987,6 +61992,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Roku HD1500 high definition network streaming appliance.
 Fingerprint Roku HD1500 media player
 Class Roku | embedded || media device
+CPE cpe:/h:roku:soundbridge_m1500
 SEQ(SP=BB-C5%GCD=1-6%ISR=BE-C8%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -62004,6 +62010,7 @@ IE(DFI=N%T=100%TG=FF%CD=S)
 # Roku SoundBridge 1001, running software version 3.0.44
 Fingerprint Roku SoundBridge M1001 music player
 Class Roku | embedded || media device
+CPE cpe:/h:roku:soundbridge_m1001
 SEQ(SP=10-1A%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=99-A3%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M108)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -62023,6 +62030,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Roku Soundbridge model M1000 firmware 3.0.44
 Fingerprint Roku SoundBridge M500 or M1000 music player
 Class Roku | embedded || media device
+CPE cpe:/h:roku:soundbridge_m500
+CPE cpe:/h:roku:soundbridge_m1000
 SEQ(SP=F-89%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=99-DB%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M108)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -62040,6 +62049,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # RSA SecurID Appliance
 Fingerprint RSA SecurID authentication appliance
 Class RSA | embedded || specialized
+CPE cpe:/h:rsa:securid
 SEQ(SP=C6-D0%GCD=1-6%ISR=C9-D3%TI=RD%CI=Z%II=I%TS=U)
 OPS(O1=M514NW0NNS%O2=M514NW0NNS%O3=M514NW0NNS%O4=M514NW0NNS%O5=M514NW0NNS%O6=M514NNS)
 WIN(W1=AC8|16D0%W2=AC8|16D0%W3=AC8|16D0%W4=AC8|16D0%W5=AC8|16D0%W6=AC8|16D0)
@@ -62144,6 +62154,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Samsung LE32B651 LCD TV with embedded lan card
 Fingerprint Samsung LE32B651 TV
 Class Samsung | embedded || media device
+CPE cpe:/h:samsung:le32b651
 SEQ(SP=FA-104%GCD=1-6%ISR=103-10D%TI=I%CI=Z%II=I%SS=O%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -62429,6 +62440,7 @@ IE(DFI=N%T=40-4A%TG=80%CD=S)
 # Sanyo PLC-XU88 network-attached video projector.
 Fingerprint Sanyo PLC-XU88 digital video projector
 Class Sanyo | embedded || media device
+CPE cpe:/h:sanyo:plc-xu88
 SEQ(SP=0-93%GCD=1000|2000|3000|4000|5000%ISR=36-EA%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=80%W2=80%W3=80%W4=80%W5=80%W6=80)
@@ -62446,6 +62458,7 @@ IE(R=N)
 # Satel ETHM-2 module
 Fingerprint Satel ETHM-2 intruder alarm
 Class Satel | embedded || security-misc
+CPE cpe:/h:satel:ethm-2
 SEQ(SP=0-BF%GCD=1-6|>1000000%ISR=E3-ED%TI=Z%CI=Z%II=RI%TS=U)
 OPS(R=N)
 WIN(R=N)
@@ -62481,6 +62494,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # TSX ETY PORT Web Server made by Schneider Electric.
 Fingerprint Schneider Electric TSX ETY programmable logic controller
 Class Schneider Electric | embedded || specialized
+CPE cpe:/h:schneiderelectric:tsx_ety
 SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%CI=I%II=I%TS=U)
 OPS(O1=M200NW0%O2=M200NW0%O3=M200NW0%O4=M200NW0%O5=M200NW0%O6=M200)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -62515,6 +62529,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # SEL-2701 ethernet add on card
 Fingerprint Schweitzer Engineering SEL-2701 Ethernet processor
 Class Schweitzer Engineering | embedded || specialized
+CPE cpe:/h:schweitzerengineering:sel-2701
 SEQ(R=N)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=0%W2=0%W3=0%W4=0%W5=0%W6=0)
@@ -62918,6 +62933,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Seiko Instruments NS2232 (terminal server) Firmware version 2.0B2
 Fingerprint Seiko NS-2232 serial-to-IP bridge
 Class Seiko | embedded || bridge
+CPE cpe:/h:seiko:ns-2232
 SEQ(SP=20-B0%GCD=1-6%ISR=7B-85%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -62935,6 +62951,7 @@ IE(DFI=N%T=3B-3D%TG=40%CD=S)
 # Senao NL-2611CB3 Plus Deluxe, firmware version 2.0.2
 Fingerprint Senao NL-2611CB3 PLUS WAP
 Class Senao | embedded || WAP
+CPE cpe:/h:senao:nl-2611cb3_plus
 SEQ(SP=A5-AF%GCD=1-6%ISR=AB-B5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -62952,6 +62969,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=Z)
 # The device is a Sensatronics Temperature Monitor, model E4.
 Fingerprint Sensatronics E4 temperature monitor
 Class Sensatronics | embedded || specialized
+CPE cpe:/h:sensatronics:e4
 SEQ(SP=43-B7%GCD=200|400|600|800|A00|10000|20000|30000|40000|50000%ISR=10B-115%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -62969,6 +62987,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sensatronics Model: EM1 Firmware Version: 5.3
 Fingerprint Sensatronics EM1 environmental monitor
 Class Sensatronics | embedded || specialized
+CPE cpe:/h:sensatronics:em1
 SEQ(SP=6A-7A%GCD=10000|20000|30000|40000|50000%ISR=10A-114%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M230%O2=M230%O3=M230%O4=M218%O5=M218%O6=M109)
 WIN(W1=400%W2=400%W3=400%W4=400%W5=400%W6=400)
@@ -63352,6 +63371,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Sharp AR-C260M copier/printer
 Fingerprint Sharp AR-C260M or AR-M351N printer
 Class Sharp | embedded || printer
+CPE cpe:/h:sharp:ar-c260m
+CPE cpe:/h:sharp:ar-m351n
 SEQ(SP=0-5A%GCD=1-6|10001|20002|30003|40004|50005|60006%ISR=94-9E%TI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=C00%W2=C00%W3=C00%W4=C00%W5=C00%W6=C00)
@@ -63405,6 +63426,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # ShoteTel ShoteGear T1
 Fingerprint ShoreTel ShoreGear-T1 VoIP switch
 Class ShoreTel | embedded || VoIP adapter
+CPE cpe:/h:shoretel:shoregear-t1
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -63482,6 +63504,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # HiPath 3000 PABX
 Fingerprint Siemens HiPath 3000 PBX
 Class Siemens | embedded || PBX
+CPE cpe:/h:siemens:hipath_3000
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M4B0NW0NNT11%O2=M4B0NW0NNT11%O3=M4B0NW0NNT11%O4=M4B0NW0NNT11%O5=M4B0NW0NNT11%O6=M4B0NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63499,6 +63522,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # AEM100 Version V3.6/6(010418)SIE
 Fingerprint Siemens AEM100 remote management unit
 Class Siemens | embedded || remote management
+CPE cpe:/h:siemens:aem100
 SEQ(SP=73-7D%GCD=1-6%ISR=90-9A%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=E00%W2=E00%W3=E00%W4=E00%W5=E00%W6=E00)
@@ -63516,6 +63540,7 @@ IE(DFI=N%T=3B-3D%TG=40%CD=Z)
 # SIMATIC 300 PLC
 Fingerprint Siemens Simatic 300 programmable logic controller
 Class Siemens | embedded || specialized
+CPE cpe:/h:siemens:simatic_300
 SEQ(SP=F9-10D%GCD=1-6%ISR=106-110%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M200%O4=M200%O5=M218%O6=M109)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -63533,6 +63558,7 @@ IE(DFI=N%T=73-7D%TG=80%CD=Z)
 # Simatic TDC
 Fingerprint Siemens Simatic TDC control system
 Class Siemens | embedded || specialized
+CPE cpe:/h:siemens:simatic_tdc
 SEQ(SP=C-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%II=I%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63550,6 +63576,7 @@ IE(DFI=N%T=1A-24%TG=20%CD=S)
 # Siemens SPS system
 Fingerprint Siemens SPS programmable logic controller
 Class Siemens | embedded || specialized
+CPE cpe:/h:siemens:sps
 SEQ(SP=FC-10A%GCD=1-6%ISR=105-10F%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M200%O4=M200%O5=M218%O6=M109)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -63676,6 +63703,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # SiliconDust HD Homerun dual-atsc network attached tv tuner
 Fingerprint Silicondust HDHomeRun set top box
 Class Silicondust | embedded || media device
+CPE cpe:/h:silicondust:hdhomerun
 SEQ(SP=A3-B1%GCD=1-6%ISR=A8-B8%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
@@ -63694,6 +63722,10 @@ IE(DFI=N%T=3B-45%TG=40%CD=Z)
 # Sipura SPA-3000 VoIP adapter
 Fingerprint Sipura SPA1001 or SPA3000 VoIP adapter
 Class Sipura | embedded || VoIP adapter
+CPE cpe:/h:sipura:spa1001_voice_gateway_with_router:-
+CPE cpe:/o:sipura:spa1001_voice_gateway_with_router_firmware
+CPE cpe:/h:sipura:spa3000_voice_gateway_with_router:-
+CPE cpe:/o:sipura:spa3000_voice_gateway_with_router_firmware
 SEQ(SP=E7-107%GCD=1-6%ISR=105-111%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -63769,6 +63801,7 @@ IE(DFI=Y%T=3B-45%TG=40%CD=Z)
 # Slingbox Classic
 Fingerprint Slingbox Classic TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_classic
 SEQ(SP=0-5%GCD=1F400|3E800|5DC00|7D000|9C400%ISR=9D-A7%TI=I%CI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=%O6=)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=0%W6=0)
@@ -63786,6 +63819,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Slingbox Classic Firmware 1.0.89
 Fingerprint Slingbox Classic TV over IP gateway (Firmware 1.0.89)
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_classic
 SEQ(SP=0%GCD=1F400|3E800|5DC00|7D000|9C400|BB800%ISR=9D-A7%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M5AC%O2=M578%O3=M280%O4=M5AC%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63803,6 +63837,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Slingbox PRO
 Fingerprint Slingbox PRO TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_pro
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=9D-A7%TI=I%CI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M5B4SNN%O2=M578SNN%O3=M280%O4=M5B4SNN%O5=M218SNN%O6=M109SNN)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63820,6 +63855,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # This is a SlingBrox Pro
 Fingerprint Slingbox Pro TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_pro
 SEQ(SP=0-5%GCD=1F400|3E800|5DC00|7D000|9C400%ISR=9D-A7%TI=I%CI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=%O6=)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=0%W6=0)
@@ -63838,6 +63874,8 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Slingbox Pro
 Fingerprint Slingbox SOLO or PRO TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_solo
+CPE cpe:/h:slingmedia:slingbox_pro
 SEQ(SP=0-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=9D-A7%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M5B4SNN%O2=M578SNN%O3=M280%O4=M5B4SNN%O5=M218SNN%O6=M109SNN)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63855,6 +63893,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Slingbox Tuner - Latest firmware (as of 10/25/2008).
 Fingerprint Slingbox Tuner TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_tuner
 SEQ(SP=0-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=9E-A8%TI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4SNN%O2=M578SNN%O3=M280%O4=M5B4SNN%O5=M218SNN%O6=M109SNN)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63875,6 +63914,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Mango DSP, Board Info Raven-M 720Mhz, Application 2.0.2.12 built Sep 16 2009, 14:20:08
 Fingerprint Slingbox TV over IP gateway (Firmware 1.2.9 - 1.3.80)
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox
 SEQ(SP=0-5%GCD=1F400|3E800|5DC00|7D000|9C400%ISR=9D-A7%TI=I%CI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -63892,6 +63932,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Slingmedia Slingbox AV Hardware 1.2.0 Firmware 1.0.1
 Fingerprint Slingmedia Slingbox AV TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_av
 SEQ(SP=E-18%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=9E-A8%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=|M5AC%O2=|M578%O3=|M280%O4=|M5AC%O5=%O6=)
 WIN(W1=0|2000%W2=0|2000%W3=0|2000%W4=0|2000%W5=0%W6=0)
@@ -63909,6 +63950,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Original (1st edition) Slingbox
 Fingerprint Slingmedia Slingbox AV TV over IP gateway
 Class Sling | embedded || media device
+CPE cpe:/h:slingmedia:slingbox_av
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=9E-A8%TI=I%CI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=0)
@@ -64036,6 +64078,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # SMC TigerSwitch 10/100 - SMC6750L2
 Fingerprint SMC SMC6750L2 or SMC7724M/VSW switch
 Class SMC | embedded || switch
+CPE cpe:/h:smc:smc6750l2
+CPE cpe:/h:smc:smc7724m%2fvsw
 SEQ(SP=8C-96%GCD=1-6%ISR=91-9B%TI=I%II=RI%SS=O%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -64168,6 +64212,7 @@ IE(DFI=N|S%T=3B-45%TG=40%CD=Z)
 # SMCWBR14-G2 EU Barricade g Wireless Broadband Router
 Fingerprint SMC SMCWBR14-G2 EU Barricade g WAP
 Class SMC | embedded || WAP
+CPE cpe:/h:smc:smbwbr14-g2
 SEQ(SP=0-1A%GCD=1-6|B|16|21|2C|37%ISR=30-3A%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=1770%W2=1770%W3=1770%W4=1770%W5=1770%W6=1770)
@@ -64185,6 +64230,7 @@ IE(DFI=N|S%T=3B-45%TG=40%CD=Z)
 # SMC Barricade broadband router.The product code is SMCWBR14-G2.
 Fingerprint SMC SMCWBR14-G2 Barricade g WAP
 Class SMC | embedded || WAP
+CPE cpe:/h:smc:smbwbr14-g2
 SEQ(SP=0-5%GCD=A|14|1E|28|32%ISR=30-3A%TI=I%CI=I%II=I%SS=O%TS=U)
 OPS(O1=M578%O2=M578%O3=M280%O4=M578%O5=M218%O6=M109)
 WIN(W1=1770%W2=1770%W3=1770%W4=1770%W5=1770%W6=1770)
@@ -64220,6 +64266,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Aventail EX-1500 SSL VPN Appliance, Version: 8.6.1-192
 Fingerprint SonicWALL Aventail EX-1500 SSL VPN appliance
 Class SonicWALL | embedded || firewall
+CPE cpe:/o:sonicwall:aventail_ex-1500
 SEQ(SP=C2-CC%GCD=1-6%ISR=CA-D4%TI=Z%II=I%TS=A)
 OPS(O1=M564ST11NW2%O2=M564ST11NW2%O3=M564NNT11NW2%O4=M564ST11NW2%O5=M564ST11NW2%O6=M564ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -64237,6 +64284,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Sonicwall TZ 170 Unlimited (Firmware unknown)
 Fingerprint SonicWALL TZ 170 Unlimited firewall (SonicOS)
 Class SonicWALL | embedded || firewall
+CPE cpe:/o:sonicwall:tz_170
 SEQ(SP=90-9E%GCD=1-6%ISR=96-A2%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -64254,6 +64302,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Aventail EX-6000 v9.0 Firmware
 Fingerprint SonicWALL Aventail EX-6000 VPN appliance
 Class SonicWALL | embedded || proxy server
+CPE cpe:/o:sonicwall:aventail_ex-6000
 SEQ(SP=C6-D0%GCD=1-6%ISR=CE-D8%TI=Z%CI=Z%TS=8)
 OPS(O1=M5B4ST11NW2%O2=M5B4ST11NW2%O3=M5B4NNT11NW2%O4=M5B4ST11NW2%O5=M5B4ST11NW2%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -64469,6 +64518,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Sonos ZonePlayer version 2.6 (build 9166130) m16: 1.0-12170 r8: 0.8-16
 Fingerprint Sonos ZonePlayer audio distribution unit
 Class Sonos | embedded || media device
+CPE cpe:/h:sonos:zoneplayer
 SEQ(SP=C7-D1%GCD=1-6%ISR=CD-D7%TI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11NW7%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -64898,6 +64948,7 @@ IE(DFI=N%T=71-7B%TG=80%CD=Z)
 # Television Sony Bravia embedded OS (Applicast enabled), port 52323: Server: RTOS/1.0 UPnP/1.0 KDL-32W5500/1.7
 Fingerprint Sony Bravia KDL-32W550 TV
 Class Sony | embedded || media device
+CPE cpe:/h:sony:bravia_kdl-32w550
 SEQ(SP=CD-D7%GCD=1-6%ISR=D5-DF%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W3L%O2=M5B4W3L%O3=M5B4W3L%O4=M5B4W3L%O5=M5B4W3L%O6=M5B4)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -74085,6 +74136,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 # 2N VOIP doorbell
 Fingerprint 2N Helios IP VoIP doorbell
 Class 2N | embedded || specialized
+CPE cpe:/h:2n:helios
 SEQ(SP=0-5%GCD=51E80C|A3D018|F5B824|147A030|199883C%ISR=C8-D2%TI=I|RD%CI=I%II=RI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)
@@ -74844,6 +74896,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Universal Devices: Model: ISY 99i 1024 IR. Platform: ISY-C-99. Version: 3.2.5. http://www.universal-devices.com/99i.htm
 Fingerprint Universal Devices ISY-99i IR receiver
 Class Universal Devices | embedded || media device
+CPE cpe:/h:universaldevices:isy-99i
 SEQ(SP=66-70%GCD=1-6%ISR=9E-A8%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4SNL%O2=M5B4SNL%O3=M5B4SNL%O4=M5B4SNL%O5=M5B4SNL%O6=M5B4SNL)
 WIN(W1=81D6%W2=81D5%W3=81D4%W4=81D3%W5=81D2%W6=81D1)
