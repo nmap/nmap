@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Added support for Unix domain sockets. The new -U and
+  --unixsock options activate this mode. [Tomas Hozza]
+
 o [NSE] Added snmp-hh3c-logins by Kurt Grutzmacher. This script uses a
   weakness in the SNMP of certain modems to retrieve a list of
   usernames and passwords.
