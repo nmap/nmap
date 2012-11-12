@@ -100,7 +100,7 @@ function process_answer( tbl )
 			local password = get_value_from_table( tbl, oldobjid )
 
 			if ( password == nil ) or ( #password == 0 ) then
-				newobjid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserPassword)
+				local newobjid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserPassword)
 				password = get_value_from_table( tbl, newobjid )
 			end
 
@@ -108,7 +108,7 @@ function process_answer( tbl )
 			local level = get_value_from_table( tbl, oldobjid )
 
 			if ( level == nil ) then
-				newobjoid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserLevel)
+				local newobjoid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserLevel)
 				level = get_value_from_table( tbl, oldobjid )
 			end
 
