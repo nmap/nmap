@@ -83,6 +83,9 @@
 #if HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#if HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
 
 static int netutils_debugging = 0;
 
@@ -134,3 +137,35 @@ int maximize_fdlimit(void) {
   return 0;
 }
 
+#if HAVE_SYS_UN_H
+/* Get the UNIX domain socket path or empty string if the address family != AF_UNIX. */
+const char *get_unixsock_path(struct sockaddr_storage *addr)
+{
+  if (!addr || addr->ss_family != AF_UNIX)
+    return "";
+
+  struct sockaddr_un *su = (struct sockaddr_un *)addr;
+  return (const char *)su->sun_path;
+}
+#endif
+
+/* Get the peer/host address string.
+ * In case we have support for UNIX domain sockets, function returns
+ * string containing path to UNIX socket if the address family is AF_UNIX,
+ * otherwise it returns string containing "<address>:<port>". */
+char *get_hostaddr_string(struct sockaddr_storage *addr, size_t len, unsigned short port)
+{
+  static char buffer[PEER_STR_LEN];
+
+  if (!addr)
+    return "";
+
+#if HAVE_SYS_UN_H
+  if (addr->ss_family == AF_UNIX)
+    sprintf(buffer, "%s", get_unixsock_path(addr));
+  else
+#endif
+    sprintf(buffer, "%s:%hu", inet_ntop_ez(addr, len), port);
+
+  return buffer;
+}

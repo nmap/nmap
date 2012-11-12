@@ -67,9 +67,9 @@
  * broadcast flag. Trying to change these functions after making this call will
  * not have an effect. This function needs to be called before you try to read
  * or write on the iod. */
-static int nsock_make_socket(mspool *ms, msiod *iod, int family, int proto) {
+static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int proto) {
   /* inheritable_socket is from nbase */
-  iod->sd = (int)inheritable_socket(family, (proto == IPPROTO_UDP) ? SOCK_DGRAM : SOCK_STREAM, proto);
+  iod->sd = (int)inheritable_socket(family, type, proto);
   if (iod->sd == -1) {
     perror("Socket troubles");
     return -1;
@@ -84,9 +84,17 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int proto) {
 
     setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
     if (bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen) == -1) {
-      if (ms->tracelevel > 0)
-        nsock_trace(ms, "Bind to %s failed (IOD #%li)",
-                    inet_ntop_ez(&iod->local, iod->locallen), iod->id);
+      if (ms->tracelevel > 0) {
+        const char *addrstr = NULL;
+#if HAVE_SYS_UN_H
+        if (iod->local.ss_family == AF_UNIX)
+          addrstr = get_unixsock_path(&iod->local);
+        else
+#endif
+          addrstr = inet_ntop_ez(&iod->local, iod->locallen);
+
+        nsock_trace(ms, "Bind to %s failed (IOD #%li)", addrstr, iod->id);
+      }
     }
   }
   if (iod->ipoptslen && family == AF_INET) {
@@ -122,7 +130,7 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
   if (ms->tracelevel > 0)
     nsock_trace(ms, "UDP unconnected socket (IOD #%li)", nsi->id);
 
-  if (nsock_make_socket(ms, nsi, af, IPPROTO_UDP) == -1)
+  if (nsock_make_socket(ms, nsi, af, SOCK_DGRAM, IPPROTO_UDP) == -1)
     return -1;
 
   return nsi->sd;
@@ -130,7 +138,7 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
 
 /* This does the actual logistics of requesting a TCP connection.  It is shared
  * by nsock_connect_tcp and nsock_connect_ssl */
-void nsock_connect_internal(mspool *ms, msevent *nse, int proto, struct sockaddr_storage *ss, size_t sslen,
+void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen,
                             unsigned short port) {
 
   struct sockaddr_in *sin = (struct sockaddr_in *)ss;
@@ -140,15 +148,19 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int proto, struct sockaddr
   msiod *iod = nse->iod;
 
   /* Now it is time to actually attempt the connection */
-  if (nsock_make_socket(ms, iod, ss->ss_family, proto) == -1) {
+  if (nsock_make_socket(ms, iod, ss->ss_family, type, proto) == -1) {
     nse->event_done = 1;
     nse->status = NSE_STATUS_ERROR;
     nse->errnum = socket_errno();
   } else {
-    if (sin->sin_family == AF_INET) {
+    if (ss->ss_family == AF_INET) {
       sin->sin_port = htons(port);
+#if HAVE_SYS_UN_H
+    } else if (ss->ss_family == AF_INET6) {
+#else
     } else {
-      assert(sin->sin_family == AF_INET6);
+#endif
+      assert(ss->ss_family == AF_INET6);
 #if HAVE_IPV6
       sin6->sin6_port = htons(port);
 #else
@@ -174,6 +186,62 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int proto, struct sockaddr
   }
 }
 
+#if HAVE_SYS_UN_H
+
+/* Request a UNIX domain sockets connection to the same system (by path to socket).
+ * This function connects to the socket of type SOCK_STREAM.  ss should be a
+ * sockaddr_storage, sockaddr_un as appropriate (just like what you would pass to
+ * connect).  sslen should be the sizeof the structure you are passing in. */
+nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs,
+                                             void *userdata, struct sockaddr *saddr, size_t sslen) {
+  msiod *nsi = (msiod *)nsiod;
+  mspool *ms = (mspool *)nsp;
+  msevent *nse;
+  struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
+
+  assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
+
+  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
+  assert(nse);
+
+  if (ms->tracelevel > 0)
+    nsock_trace(ms, "UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
+                get_unixsock_path(ss), nsi->id, nse->id);
+
+  nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, 0);
+  nsp_add_event(ms, nse);
+
+  return nse->id;
+
+}
+
+/* Request a UNIX domain sockets connection to the same system (by path to socket).
+ * This function connects to the socket of type SOCK_DGRAM.  ss should be a
+ * sockaddr_storage, sockaddr_un as appropriate (just like what you would pass to
+ * connect).  sslen should be the sizeof the structure you are passing in. */
+nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
+                                               void *userdata, struct sockaddr *saddr, size_t sslen) {
+  msiod *nsi = (msiod *)nsiod;
+  mspool *ms = (mspool *)nsp;
+  msevent *nse;
+  struct sockaddr_storage *ss = (struct sockaddr_storage *)saddr;
+
+  assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
+
+  nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
+  assert(nse);
+
+  if (ms->tracelevel > 0)
+    nsock_trace(ms, "UNIX domain socket (DGRAM) connection requested to %s (IOD #%li) EID %li",
+                get_unixsock_path(ss), nsi->id, nse->id);
+
+  nsock_connect_internal(ms, nse, SOCK_DGRAM, 0, ss, sslen, 0);
+  nsp_add_event(ms, nse);
+
+  return nse->id;
+}
+
+#endif  /* HAVE_SYS_UN_H */
 
 /* Request a TCP connection to another system (by IP address).  The in_addr is
  * normal network byte order, but the port number should be given in HOST BYTE
@@ -198,7 +266,7 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   /* Do the actual connect() */
-  nsock_connect_internal(ms, nse, IPPROTO_TCP, ss, sslen, port);
+  nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, ss, sslen, port);
   nsp_add_event(ms, nse);
 
   return nse->id;
@@ -227,7 +295,7 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   /* Do the actual connect() */
-  nsock_connect_internal(ms, nse, IPPROTO_SCTP, ss, sslen, port);
+  nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_SCTP, ss, sslen, port);
   nsp_add_event(ms, nse);
 
   return nse->id;
@@ -269,7 +337,7 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
                 inet_ntop_ez(ss, sslen), port, (proto == IPPROTO_TCP ? "tcp" : "sctp"), nsi->id, nse->id);
 
   /* Do the actual connect() */
-  nsock_connect_internal(ms, nse, proto, ss, sslen, port);
+  nsock_connect_internal(ms, nse, SOCK_STREAM, proto, ss, sslen, port);
   nsp_add_event(ms, nse);
 
   return nse->id;
@@ -342,7 +410,7 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   if (ms->tracelevel > 0)
     nsock_trace(ms, "UDP connection requested to %s:%hu (IOD #%li) EID %li", inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
-  nsock_connect_internal(ms, nse, IPPROTO_UDP, ss, sslen, port);
+  nsock_connect_internal(ms, nse, SOCK_DGRAM, IPPROTO_UDP, ss, sslen, port);
   nsp_add_event(ms, nse);
 
   return nse->id;
@@ -378,7 +446,7 @@ int nsi_getlastcommunicationinfo(nsock_iod ms_iod, int *protocol, int *af, struc
       if (*protocol == -1) res = 0;
     }
     if (af) {
-      *af = ((struct sockaddr_in *)&nsi->peer)->sin_family;
+      *af = nsi->peer.ss_family;
     }
     if (local) {
       if (nsi->sd >= 0) {

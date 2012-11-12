@@ -97,6 +97,9 @@
 #if HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#if HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
 
 #ifndef IPPROTO_SCTP
 #define IPPROTO_SCTP 132
@@ -255,7 +258,8 @@ typedef struct {
   struct sockaddr_storage local;
 
   /* The length of peer/local actually used (sizeof(sockaddr_in) or
-   * sizeof(sockaddr_in6), or 0 if peer/local has not been filled in */
+   * sizeof(sockaddr_in6), SUN_LEN(sockaddr_un), or 0 if peer/local
+   * has not been filled in */
   size_t locallen;
   size_t peerlen;
 
@@ -424,7 +428,7 @@ void msevent_delete(mspool *nsp, msevent *nse);
  * etc. */
 void nsp_add_event(mspool *nsp, msevent *nse);
 
-void nsock_connect_internal(mspool *ms, msevent *nse, int proto, struct sockaddr_storage *ss, size_t sslen, unsigned short port);
+void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen, unsigned short port);
 
 /* Comments on using the following handle_*_result functions are available in nsock_core.c */
 

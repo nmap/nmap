@@ -75,6 +75,9 @@
 #undef HAVE_NET_BPF_H
 #undef HAVE_SYS_IOCTL_H
 
+/* Define to 1 if you have the <sys/un.h> header file. */
+#undef HAVE_SYS_UN_H
+
 #undef HAVE_SSL_SET_TLSEXT_HOST_NAME
 
 #undef HAVE_EPOLL

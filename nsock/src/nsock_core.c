@@ -476,7 +476,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         saved_ev = iod->watched_events;
         ms->engine->iod_unregister(ms, iod);
         close(iod->sd);
-        nsock_connect_internal(ms, nse, iod->lastproto, &iod->peer, iod->peerlen, nsi_peerport(iod));
+        nsock_connect_internal(ms, nse, SOCK_STREAM, iod->lastproto, &iod->peer, iod->peerlen, nsi_peerport(iod));
         ms->engine->iod_register(ms, iod, saved_ev);
 
         SSL_clear(iod->ssl);
@@ -1272,18 +1272,19 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
   switch(nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
-      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%d]",
-                  nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                  nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen), nsi_peerport(nsi));
+      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
+                  nse_type2str(nse->type), nse_status2str(nse->status),
+                  errstr, nse->id, get_hostaddr_string(&nsi->peer,
+                  nsi->peerlen, (unsigned short)nsi_peerport(nsi)));
       break;
 
     case NSE_TYPE_READ:
       if (nse->status != NSE_STATUS_SUCCESS) {
         if (nsi->peerlen > 0) {
-           nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%d]",
-                       nse_type2str(nse->type), nse_status2str(nse->status),
-                       errstr, nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
-                       nsi_peerport(nsi));
+          nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
+                      nse_type2str(nse->type), nse_status2str(nse->status),
+                      errstr, nse->id, get_hostaddr_string(&nsi->peer,
+                      nsi->peerlen, (unsigned short)nsi_peerport(nsi)));
         } else {
           nsock_trace(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
                       nse_type2str(nse->type), nse_status2str(nse->status),
@@ -1301,11 +1302,11 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
         }
 
         if (nsi->peerlen > 0) {
-          nsock_trace(ms, "Callback: %s %s for EID %li [%s:%d] %s(%d bytes)%s",
+          nsock_trace(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
                       nse_type2str(nse->type), nse_status2str(nse->status),
-                      nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
-                      nsi_peerport(nsi), nse_eof(nse)? "[EOF]" : "", strlength,
-                      displaystr);
+                      nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen,
+                      (unsigned short)nsi_peerport(nsi)),
+                      nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
         } else {
           nsock_trace(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
                       nse_type2str(nse->type), nse_status2str(nse->status),
@@ -1315,10 +1316,10 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
       break;
 
     case NSE_TYPE_WRITE:
-      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s:%d]",
+      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
                   nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                  nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen),
-                  nsi_peerport(nsi));
+                  nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen,
+                  (unsigned short)nsi_peerport(nsi)));
       break;
 
     case NSE_TYPE_TIMER:

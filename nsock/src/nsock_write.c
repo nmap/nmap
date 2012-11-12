@@ -76,10 +76,14 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
   nse = msevent_new(nsp, NSE_TYPE_WRITE, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (sin->sin_family == AF_INET) {
+  if (saddr->sa_family == AF_INET) {
     sin->sin_port = htons(port);
+#if HAVE_SYS_UN_H
+  } else if (saddr->sa_family == AF_INET6) {
+#else
   } else {
-      assert(sin->sin_family == AF_INET6);
+#endif
+    assert(saddr->sa_family == AF_INET6);
 #if HAVE_IPV6
     sin6->sin6_port = htons(port);
 #else
@@ -107,9 +111,9 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
     } else {
       displaystr[0] = '\0';
     }
-    nsock_trace(nsp, "Sendto request for %d bytes to IOD #%li EID %li [%s:%hu]%s",
+    nsock_trace(nsp, "Sendto request for %d bytes to IOD #%li EID %li [%s]%s",
                 datalen, nsi->id, nse->id,
-                inet_ntop_ez(&nse->writeinfo.dest, nse->writeinfo.destlen), port,
+                get_hostaddr_string(&nse->writeinfo.dest, nse->writeinfo.destlen, port),
                 displaystr);
   }
 
@@ -147,8 +151,9 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
       replacenonprintable(displaystr + 2, datalen, '.');
     } else displaystr[0] = '\0';
     if (nsi->peerlen > 0)
-      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s:%d]%s", datalen, nsi->id,
-                  nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen), nsi_peerport(nsi), displaystr);
+      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s", datalen, nsi->id,
+                  nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen, (unsigned short)nsi_peerport(nsi)),
+                  displaystr);
     else
       nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s", datalen,
                   nsi->id, nse->id, displaystr);
@@ -220,8 +225,9 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
       displaystr[0] = '\0';
     }
     if (nsi->peerlen > 0)
-      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s:%d]%s", strlength, nsi->id,
-                  nse->id, inet_ntop_ez(&nsi->peer, nsi->peerlen), nsi_peerport(nsi), displaystr);
+      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s", strlength, nsi->id,
+                  nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen, (unsigned short)nsi_peerport(nsi)),
+                  displaystr);
     else
       nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s", strlength,
                   nsi->id, nse->id, displaystr);

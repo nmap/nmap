@@ -63,10 +63,24 @@
 #include "nbase_config.h"
 #endif
 
+#if HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
 #ifdef WIN32
 #include "nbase_winconfig.h"
 /* nbase_winunix.h somehow reason.h to get included */
 #include "nbase_winunix.h"
+#endif
+
+#if HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
+
+#if HAVE_SYS_UN_H
+  #define PEER_STR_LEN sizeof(((struct sockaddr_un *) 0)->sun_path)
+#else
+  #define PEER_STR_LEN sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255:xxxxx")
 #endif
 
 /* Maximize the number of file descriptors (including sockets) allowed for this
@@ -74,6 +88,17 @@
  * this many -- stdin, stdout, other files opened by libraries you use, etc. all
  * count toward this limit.  Leave a little slack */
 int maximize_fdlimit(void);
+
+#if HAVE_SYS_UN_H
+/* Get the UNIX domain socket path or NULL if the socket family != AF_UNIX. */
+const char *get_unixsock_path(struct sockaddr_storage *addr);
+#endif
+
+/* Get the peer/host address string.
+ * In case we have support for UNIX domain sockets, function returns
+ * string containing path to UNIX socket if the address family is AF_UNIX,
+ * otherwise it returns string containing "<address>:<port>". */
+char *get_hostaddr_string(struct sockaddr_storage *addr, size_t len, unsigned short port);
 
 #endif /* NETUTILS_H */
 
