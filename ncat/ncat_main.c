@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
         o.portno = (unsigned short) long_port;
     }
 
-    if (o.af == AF_INET)
+    if (targetss.storage.ss_family == AF_INET)
         targetss.in.sin_port = htons(o.portno);
 #ifdef HAVE_IPV6
     else
