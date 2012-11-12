@@ -57,6 +57,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "netutils.h"
 
 #include <nbase.h>
 #include <stdarg.h>
@@ -113,7 +114,7 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
     }
     nsock_trace(nsp, "Sendto request for %d bytes to IOD #%li EID %li [%s]%s",
                 datalen, nsi->id, nse->id,
-                get_hostaddr_string(&nse->writeinfo.dest, nse->writeinfo.destlen, port),
+                get_peeraddr_string(nse->iod),
                 displaystr);
   }
 
@@ -152,7 +153,7 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
     } else displaystr[0] = '\0';
     if (nsi->peerlen > 0)
       nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s", datalen, nsi->id,
-                  nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen, (unsigned short)nsi_peerport(nsi)),
+                  nse->id, get_peeraddr_string(nsi),
                   displaystr);
     else
       nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s", datalen,
@@ -226,7 +227,7 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
     }
     if (nsi->peerlen > 0)
       nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s", strlength, nsi->id,
-                  nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen, (unsigned short)nsi_peerport(nsi)),
+                  nse->id, get_peeraddr_string(nsi),
                   displaystr);
     else
       nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s", strlength,

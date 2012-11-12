@@ -1274,8 +1274,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
     case NSE_TYPE_CONNECT_SSL:
       nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
                   nse_type2str(nse->type), nse_status2str(nse->status),
-                  errstr, nse->id, get_hostaddr_string(&nsi->peer,
-                  nsi->peerlen, (unsigned short)nsi_peerport(nsi)));
+                  errstr, nse->id, get_peeraddr_string(nsi));
       break;
 
     case NSE_TYPE_READ:
@@ -1283,8 +1282,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
         if (nsi->peerlen > 0) {
           nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
                       nse_type2str(nse->type), nse_status2str(nse->status),
-                      errstr, nse->id, get_hostaddr_string(&nsi->peer,
-                      nsi->peerlen, (unsigned short)nsi_peerport(nsi)));
+                      errstr, nse->id, get_peeraddr_string(nsi));
         } else {
           nsock_trace(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
                       nse_type2str(nse->type), nse_status2str(nse->status),
@@ -1304,8 +1302,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
         if (nsi->peerlen > 0) {
           nsock_trace(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
                       nse_type2str(nse->type), nse_status2str(nse->status),
-                      nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen,
-                      (unsigned short)nsi_peerport(nsi)),
+                      nse->id, get_peeraddr_string(nsi),
                       nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
         } else {
           nsock_trace(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
@@ -1318,8 +1315,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
     case NSE_TYPE_WRITE:
       nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
                   nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                  nse->id, get_hostaddr_string(&nsi->peer, nsi->peerlen,
-                  (unsigned short)nsi_peerport(nsi)));
+                  nse->id, get_peeraddr_string(nsi));
       break;
 
     case NSE_TYPE_TIMER:

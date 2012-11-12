@@ -138,8 +138,14 @@ int maximize_fdlimit(void) {
 }
 
 #if HAVE_SYS_UN_H
+  #define PEER_STR_LEN sizeof(((struct sockaddr_un *) 0)->sun_path)
+#else
+  #define PEER_STR_LEN sizeof("[ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255]:xxxxx")
+#endif
+
+#if HAVE_SYS_UN_H
 /* Get the UNIX domain socket path or empty string if the address family != AF_UNIX. */
-const char *get_unixsock_path(struct sockaddr_storage *addr)
+const char *get_unixsock_path(const struct sockaddr_storage *addr)
 {
   if (!addr || addr->ss_family != AF_UNIX)
     return "";
@@ -153,19 +159,17 @@ const char *get_unixsock_path(struct sockaddr_storage *addr)
  * In case we have support for UNIX domain sockets, function returns
  * string containing path to UNIX socket if the address family is AF_UNIX,
  * otherwise it returns string containing "<address>:<port>". */
-char *get_hostaddr_string(struct sockaddr_storage *addr, size_t len, unsigned short port)
+char *get_peeraddr_string(const msiod *iod)
 {
   static char buffer[PEER_STR_LEN];
 
-  if (!addr)
-    return "";
-
 #if HAVE_SYS_UN_H
-  if (addr->ss_family == AF_UNIX)
-    sprintf(buffer, "%s", get_unixsock_path(addr));
-  else
+  if (iod->peer.ss_family == AF_UNIX) {
+    sprintf(buffer, "%s", get_unixsock_path(&iod->peer));
+    return buffer;
+  }
 #endif
-    sprintf(buffer, "%s:%hu", inet_ntop_ez(addr, len), port);
 
+  sprintf(buffer, "%s:%d", inet_ntop_ez(&iod->peer, iod->peerlen), nsi_peerport((msiod *) iod));
   return buffer;
 }
