@@ -21,6 +21,8 @@ my $HOST = "localhost";
 my $IPV6_ADDR = "::1";
 my $PORT = 40000;
 my $PROXY_PORT = 40001;
+my $UNIXSOCK = "ncat.unixsock";
+my $UNIXSOCK_TMP = "ncat.unixsock_tmp";
 
 my $BUFSIZ = 1024;
 
@@ -530,6 +532,36 @@ sub {
 	!$resp or die "Server got \"$resp\", not \"\" from ::1";
 };
 kill_children;
+
+# Test UNIX domain sockets listening
+($s_pid, $s_out, $s_in) = ncat("-l", "-U", $UNIXSOCK);
+test "Server UNIX socket listen on $UNIXSOCK (STREAM)",
+sub {
+	my $resp;
+
+	unlink($UNIXSOCK);
+	my ($c_pid, $c_out, $c_in) = ncat("-U", $UNIXSOCK);
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
+};
+kill_children;
+unlink($UNIXSOCK);
+
+($s_pid, $s_out, $s_in) = ncat("-l", "-U", "--udp", $UNIXSOCK);
+test "Server UNIX socket listen on $UNIXSOCK --udp (DGRAM)",
+sub {
+	my $resp;
+
+	unlink($UNIXSOCK);
+	my ($c_pid, $c_out, $c_in) = ncat("-U", "--udp", $UNIXSOCK);
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
+};
+kill_children;
+unlink($UNIXSOCK);
+
 
 server_client_test "Connect success exit code",
 [], ["--send-only"], sub {
@@ -1230,6 +1262,33 @@ sub {
 	$port == 1234 or die "Client connected to prosy with source port $port, not 1234";
 };
 kill_children;
+
+# Test connecting to UNIX datagram socket with -s
+test "Connect to UNIX datagram socket with -s",
+sub {
+	my ($pid, $code);
+	local $SIG{CHLD} = sub { };
+	local *SOCK;
+	my $buff;
+
+	unlink($UNIXSOCK);
+	unlink($UNIXSOCK_TMP);
+
+	socket(SOCK, AF_UNIX, SOCK_DGRAM, 0) or die;
+	bind(SOCK, sockaddr_un($UNIXSOCK)) or die;
+
+	my ($c_pid, $c_out, $c_in) = ncat("-U", "--udp", "-s", $UNIXSOCK_TMP, $UNIXSOCK);
+	syswrite($c_in, "abc\n");
+	close($c_in);
+
+	my $peeraddr = recv(SOCK, $buff, 4, 0) or die;
+	my ($path) = sockaddr_un($peeraddr);
+	$path eq $UNIXSOCK_TMP or die "Client connected to prosy with source socket path $path, not $UNIXSOCK_TMP";
+};
+kill_children;
+unlink($UNIXSOCK);
+unlink($UNIXSOCK_TMP);
+
 
 # HTTP proxy tests.
 
