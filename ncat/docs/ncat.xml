@@ -508,7 +508,7 @@
           <para>Issue Ncat with a list of hosts that will not be allowed to connect
           to the listening Ncat process. Specified hosts will have their session
           silently terminated if they try to connect.
-          be disconnected. In case of a conflict between
+          In case of a conflict between
           <option>--allow</option> and <option>--deny</option>,
           <option>--allow</option> takes precedence. Host
           specifications follow the same syntax used by Nmap.</para>
