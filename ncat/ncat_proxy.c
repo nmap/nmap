@@ -442,8 +442,8 @@ static int handle_connect(struct socket_buffer *client_sock,
     if (rc != 0) {
         if (o.debug) {
             logdebug("Can't resolve name \"%s\": %s.\n",
-		request->uri.host, gai_strerror(rc));
-	}
+                request->uri.host, gai_strerror(rc));
+        }
         return 504;
     }
 
