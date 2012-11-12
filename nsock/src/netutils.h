@@ -80,7 +80,7 @@
 #if HAVE_SYS_UN_H
   #define PEER_STR_LEN sizeof(((struct sockaddr_un *) 0)->sun_path)
 #else
-  #define PEER_STR_LEN sizeof("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255:xxxxx")
+  #define PEER_STR_LEN sizeof("[ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255]:xxxxx")
 #endif
 
 /* Maximize the number of file descriptors (including sockets) allowed for this
