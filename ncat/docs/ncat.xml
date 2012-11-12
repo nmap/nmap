@@ -117,6 +117,22 @@
 
       <varlistentry>
         <term>
+          <option>-U</option>,
+          <option>--unixsock</option> (Use Unix domain sockets)
+          <indexterm><primary><option>--unixsock</option> (Ncat option)</primary><see><option>-U</option></see></indexterm>
+          <indexterm><primary><option>-U</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Use Unix domain sockets rather than network sockets.
+          This option may be used on its own for stream sockets, or
+          combined with <option>--udp</option> for datagram sockets.
+          A description of <option>-U</option> mode is in
+          <xref linkend="ncat-man-unixsock"/>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>-u</option>,
           <option>--udp</option> (Use UDP)
           <indexterm><primary><option>-u</option> (Ncat option)</primary><see><option>--udp</option></see></indexterm>
@@ -725,6 +741,39 @@
       </varlistentry>
 
     </variablelist>
+  </refsect1>
+
+  <refsect1 id="ncat-man-unixsock">
+    <title>Unix Domain Sockets</title>
+
+    <para>
+    The <option>-U</option> option (same as <option>--unixsock</option>)
+    causes Ncat to use Unix domain sockets rather than network sockets.
+    Unix domain sockets exist as an entry in the filesystem. You must
+    give the name of a socket to connect to or to listen on. For
+    example, to make a connection,
+    </para>
+    <para><command>ncat -U ~/unixsock</command></para>
+    <para>
+    To listen on a socket:
+    </para>
+    <para><command>ncat -l -U ~/unixsock</command></para>
+    <para>
+    Listen mode will create the socket if it doesn't exist. The socket
+    will continue to exist after the program ends.
+    </para>
+
+    <para>
+    Both stream and datagram domain sockets are supported. Use
+    <option>-U</option> on its own for stream sockets, or
+    combine it with <option>--udp</option> for datagram sockets.
+    Datagram sockets require a source socket to connect from. By
+    default, a source socket with a random filename will be created as
+    needed, and deleted when the program ends. Use the
+    <option>--source</option> with a path to use a source socket with a
+    specific name.
+    </para>
+
   </refsect1>
 
   <refsect1 id="ncat-man-examples">
