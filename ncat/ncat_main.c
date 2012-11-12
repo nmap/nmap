@@ -229,6 +229,9 @@ int main(int argc, char *argv[])
     struct option long_options[] = {
         {"4",               no_argument,        NULL,         '4'},
         {"6",               no_argument,        NULL,         '6'},
+#if HAVE_SYS_UN_H
+        {"unixsock",        no_argument,        NULL,         'U'},
+#endif
         {"crlf",            no_argument,        NULL,         'C'},
         {"g",               required_argument,  NULL,         'g'},
         {"G",               required_argument,  NULL,         'G'},
@@ -286,7 +289,7 @@ int main(int argc, char *argv[])
     while (1) {
         /* handle command line arguments */
         int option_index;
-        int c = getopt_long(argc, argv, "46Cc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n",
+        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n",
                             long_options, &option_index);
 
         /* That's the end of the options. */
@@ -304,6 +307,11 @@ int main(int argc, char *argv[])
             bye("-6 chosen when IPv6 wasn't compiled in.");
 #endif
             break;
+#if HAVE_SYS_UN_H
+        case 'U':
+            o.af = AF_UNIX;
+            break;
+#endif
         case 'C':
             o.crlf = 1;
             break;
@@ -469,6 +477,9 @@ int main(int argc, char *argv[])
 "'s' for seconds, 'm' for minutes, or 'h' for hours (e.g. 500ms).\n"
 "  -4                         Use IPv4 only\n"
 "  -6                         Use IPv6 only\n"
+#if HAVE_SYS_UN_H
+"  -U, --unixsock             Use Unix domain sockets only\n"
+#endif
 "  -C, --crlf                 Use CRLF for EOL sequence\n"
 "  -c, --sh-exec <command>    Executes the given command via /bin/sh\n"
 "  -e, --exec <command>       Executes the given command\n"
@@ -536,7 +547,25 @@ int main(int argc, char *argv[])
     else
         nbase_set_log(loguser, NULL);
 
-    /* Will be AF_INET or AF_INET6 when valid */
+#if HAVE_SYS_UN_H
+    /* Using Unix domain sockets, so do the checks now */
+    if (o.af == AF_UNIX) {
+        if (proxyaddr || o.proxytype)
+            bye("Proxy option not supported when using Unix domain sockets.");
+#ifdef HAVE_OPENSSL
+        if (o.ssl)
+            bye("SSL option not supported when using Unix domain sockets.");
+#endif
+        if (o.broker)
+            bye("Connection brokering not supported when using Unix domain sockets.");
+        if (srcport != -1)
+            bye("Specifying source port when using Unix domain sockets doesn't make sense.");
+        if (o.numsrcrtes > 0)
+            bye("Loose source routing not allowed when using Unix domain sockets.");
+    }
+#endif  /* HAVE_SYS_UN_H */
+
+    /* Will be AF_INET or AF_INET6 or AF_UNIX when valid */
     memset(&targetss.storage, 0, sizeof(targetss.storage));
     targetss.storage.ss_family = AF_UNSPEC;
     httpconnect.storage = socksconnect.storage = srcaddr.storage = targetss.storage;
@@ -583,12 +612,26 @@ int main(int argc, char *argv[])
 
     /* Resolve the given source address */
     if (source) {
-        int rc;
+        int rc = 0;
 
         if (o.listen)
             bye("-l and -s are incompatible.  Specify the address and port to bind to like you would a host to connect to.");
 
-        rc = resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af);
+#if HAVE_SYS_UN_H
+        /* if using UNIX sockets just copy the path.
+         * If it's not valid, it will fail later! */
+        if (o.af == AF_UNIX) {
+            if (o.udp) {
+                srcaddr.un.sun_family = AF_UNIX;
+                strncpy(srcaddr.un.sun_path, source, sizeof(srcaddr.un.sun_path));
+                srcaddrlen = SUN_LEN(&srcaddr.un);
+            }
+            else
+                if (o.verbose)
+                    loguser("Specifying source socket for other than DATAGRAM Unix domain sockets have no effect.\n");
+        } else
+#endif
+            rc = resolve(source, 0, &srcaddr.storage, &srcaddrlen, o.af);
         if (rc != 0)
             bye("Could not resolve source address \"%s\": %s.", source, gai_strerror(rc));
     }
@@ -599,10 +642,28 @@ int main(int argc, char *argv[])
     host_list_free(deny_host_list);
 
     if (optind == argc) {
+#if HAVE_SYS_UN_H
+        if (o.af == AF_UNIX) {
+            if (!o.listen)
+                bye("You have to specify path to a socket to connect to.");
+            else
+                bye("You have to specify path to a socket to listen on.");
+        }
+#endif
         /* Listen defaults to any address and DEFAULT_NCAT_PORT */
         if (!o.listen)
             bye("You must specify a host to connect to.");
     } else {
+#if HAVE_SYS_UN_H
+        if (o.af == AF_UNIX) {
+            memset(&targetss.storage, 0, sizeof(struct sockaddr_un));
+            targetss.un.sun_family = AF_UNIX;
+            strncpy(targetss.un.sun_path, argv[optind], sizeof(targetss.un.sun_path));
+            targetsslen = SUN_LEN(&targetss.un);
+            o.target = argv[optind];
+            optind++;
+        } else
+#endif
         /* Resolve hostname if we're given one */
         if (strspn(argv[optind], "0123456789") != strlen(argv[optind])) {
             int rc;
@@ -620,6 +681,12 @@ int main(int argc, char *argv[])
     }
 
     /* Whatever's left is the port number; there should be at most one. */
+#if HAVE_SYS_UN_H
+    /* We do not use ports with Unix domain sockets. */
+    if (o.af == AF_UNIX && optind > argc)
+        bye("Using Unix domain sockets and specifying port doesn't make sense.");
+#endif
+
     if (optind + 1 < argc || (o.listen && srcport != -1 && optind + 1 == argc)) {
         loguser("Got more than one port specification:");
         if (o.listen && srcport != -1)
@@ -644,6 +711,11 @@ int main(int argc, char *argv[])
 #ifdef HAVE_IPV6
     else if (targetss.storage.ss_family == AF_INET6)
         targetss.in6.sin6_port = htons(o.portno);
+#endif
+#if HAVE_SYS_UN_H
+    /* If we use Unix domain sockets, we have to count with them. */
+    else if (targetss.storage.ss_family == AF_UNIX)
+        ; /* Do nothing. */
 #endif
     else if (targetss.storage.ss_family == AF_UNSPEC)
 	; /* Leave unspecified. */

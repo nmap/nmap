@@ -110,6 +110,10 @@
 #include <fcntl.h>
 #endif
 
+#if HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
+
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -354,8 +358,10 @@ static void handle_connection(int socket_accept)
     int conn_count;
 
     zmem(&s, sizeof(s));
+    zmem(&remoteaddr, sizeof(remoteaddr.storage));
 
     ss_len = sizeof(remoteaddr.storage);
+
     errno = 0;
     s.fd = accept(socket_accept, &remoteaddr.sockaddr, &ss_len);
 
@@ -368,6 +374,11 @@ static void handle_connection(int socket_accept)
     }
 
     if (o.verbose) {
+#if HAVE_SYS_UN_H
+        if (remoteaddr.sockaddr.sa_family == AF_UNIX)
+            loguser("Connection from a client on Unix domain socket.\n");
+        else
+#endif
         if (o.chat)
             loguser("Connection from %s on file descriptor %d.\n", inet_socktop(&remoteaddr), s.fd);
         else
@@ -383,8 +394,14 @@ static void handle_connection(int socket_accept)
         }
     }
 
-    if (o.verbose)
-        loguser("Connection from %s:%hu.\n", inet_socktop(&remoteaddr), inet_port(&remoteaddr));
+    if (o.verbose) {
+#if HAVE_SYS_UN_H
+        if (remoteaddr.sockaddr.sa_family == AF_UNIX)
+            loguser("Connection from %s.\n", remoteaddr.un.sun_path);
+        else
+#endif
+            loguser("Connection from %s:%hu.\n", inet_socktop(&remoteaddr), inet_port(&remoteaddr));
+    }
 
     /* Check conditions that might cause us to deny the connection. */
     conn_count = get_conn_count();
@@ -776,6 +793,14 @@ static int ncat_listen_dgram(int proto)
 
 int ncat_listen()
 {
+#if HAVE_SYS_UN_H
+    if (o.af == AF_UNIX)
+        if (o.udp)
+            return ncat_listen_dgram(0);
+        else
+            return ncat_listen_stream(0);
+    else
+#endif
     if (o.httpserver)
         return ncat_http_server();
     else if (o.udp)

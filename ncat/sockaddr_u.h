@@ -91,11 +91,16 @@
 
 /* $Id:$ */
 
+#include "ncat_config.h"
+
 #ifndef SOCKADDR_U_H_
 #define SOCKADDR_U_H_
 
 union sockaddr_u {
     struct sockaddr_storage storage;
+#ifdef HAVE_SYS_UN_H
+    struct sockaddr_un un;
+#endif
     struct sockaddr_in in;
     struct sockaddr_in6 in6;
     struct sockaddr sockaddr;

@@ -406,21 +406,39 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
 #endif
 #endif
 
-#ifdef HAVE_SOCKADDR_SA_LEN
-    sa_len = srcaddr_u->sockaddr.sa_len;
-#else
-    sa_len = sizeof(*srcaddr_u);
+#ifdef HAVE_SYS_UN_H
+    if (srcaddr_u->storage.ss_family == AF_UNIX)
+        sa_len = SUN_LEN(&srcaddr_u->un);
+    else
 #endif
+#ifdef HAVE_SOCKADDR_SA_LEN
+        sa_len = srcaddr_u->sockaddr.sa_len;
+#else
+        sa_len = sizeof(*srcaddr_u);
+#endif
+
     if (bind(sock, &srcaddr_u->sockaddr, sa_len) < 0) {
-        bye("bind to %s:%hu: %s.", inet_socktop(srcaddr_u),
-            inet_port(srcaddr_u), socket_strerror(socket_errno()));
+#ifdef HAVE_SYS_UN_H
+        if (srcaddr_u->storage.ss_family == AF_UNIX)
+            bye("bind to %s: %s.", srcaddr_u->un.sun_path,
+                socket_strerror(socket_errno()));
+        else
+#endif
+            bye("bind to %s:%hu: %s.", inet_socktop(srcaddr_u),
+                inet_port(srcaddr_u), socket_strerror(socket_errno()));
     }
 
     if (type == SOCK_STREAM)
         Listen(sock, BACKLOG);
 
-    if (o.verbose)
-        loguser("Listening on %s:%hu\n", inet_socktop(srcaddr_u), inet_port(srcaddr_u));
+    if (o.verbose) {
+#ifdef HAVE_SYS_UN_H
+        if (srcaddr_u->storage.ss_family == AF_UNIX)
+            loguser("Listening on %s\n", srcaddr_u->un.sun_path);
+        else
+#endif
+            loguser("Listening on %s:%hu\n", inet_socktop(srcaddr_u), inet_port(srcaddr_u));
+    }
 
     return sock;
 }

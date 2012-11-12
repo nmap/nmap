@@ -101,6 +101,10 @@
 #include <netinet/in.h>
 #endif
 
+#if HAVE_SYS_UN_H
+#include <sys/un.h>
+#endif
+
 #ifdef HAVE_OPENSSL
 #include <openssl/ssl.h>
 #endif

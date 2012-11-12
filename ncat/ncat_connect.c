@@ -213,6 +213,7 @@ static void set_ssl_ctx_options(SSL_CTX *ctx)
 static void connect_report(nsock_iod nsi)
 {
     union sockaddr_u peer;
+    zmem(&peer, sizeof(peer.storage));
 
     nsi_getlastcommunicationinfo(nsi, NULL, NULL, NULL,
         &peer.sockaddr, sizeof(peer.storage));
@@ -244,10 +245,20 @@ static void connect_report(nsock_iod nsi)
             assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
             loguser("SHA-1 fingerprint: %s\n", digest_buf);
         } else {
-            loguser("Connected to %s:%hu.\n", inet_socktop(&peer), nsi_peerport(nsi));
+#if HAVE_SYS_UN_H
+            if (peer.sockaddr.sa_family == AF_UNIX)
+                loguser("Connected to %s.\n", peer.un.sun_path);
+            else
+#endif
+                loguser("Connected to %s:%hu.\n", inet_socktop(&peer), nsi_peerport(nsi));
         }
 #else
-        loguser("Connected to %s:%hu.\n", inet_socktop(&peer), nsi_peerport(nsi));
+#if HAVE_SYS_UN_H
+        if (peer.sockaddr.sa_family == AF_UNIX)
+            loguser("Connected to %s.\n", peer.un.sun_path);
+        else
+#endif
+            loguser("Connected to %s:%hu.\n", inet_socktop(&peer), nsi_peerport(nsi));
 #endif
     }
 }
@@ -523,6 +534,30 @@ int ncat_connect(void)
         if (nsi_set_hostname(cs.sock_nsi, o.target) == -1)
             bye("Failed to set hostname on iod.");
 
+#if HAVE_SYS_UN_H
+        /* For DGRAM UNIX socket we have to use source socket */
+        if (o.af == AF_UNIX && o.udp)
+        {
+            if (srcaddr.storage.ss_family == AF_UNIX) {
+                nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+            } else {
+                char *tmp_name = NULL;
+                /* If no source socket was specified, we have to create temporary one. */
+                if ((tmp_name = tempnam(NULL, "ncat.")) == NULL)
+                    bye("Failed to create name for temporary DGRAM source Unix domain socket (tempnam).");
+
+                srcaddr.un.sun_family = AF_UNIX;
+                strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
+                free (tmp_name);
+
+                nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+            }
+
+            if (o.verbose)
+                loguser("[%s] used as source DGRAM Unix domain socket.\n", srcaddr.un.sun_path);
+        }
+        else
+#endif
         if (srcaddr.storage.ss_family != AF_UNSPEC)
             nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, sizeof(srcaddr.storage));
 
@@ -538,6 +573,19 @@ int ncat_connect(void)
             free(ipopts); /* Nsock has its own copy */
         }
 
+#if HAVE_SYS_UN_H
+        if (o.af == AF_UNIX) {
+            if (o.udp) {
+                nsock_connect_unixsock_datagram(mypool, cs.sock_nsi, connect_handler, NULL,
+                                                &targetss.sockaddr,
+                                                SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
+            } else {
+                nsock_connect_unixsock_stream(mypool, cs.sock_nsi, connect_handler, o.conntimeout,
+                                              NULL, &targetss.sockaddr,
+                                              SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
+            }
+        } else
+#endif
         if (o.udp) {
             nsock_connect_udp(mypool, cs.sock_nsi, connect_handler,
                               NULL, &targetss.sockaddr, targetsslen,
@@ -658,6 +706,11 @@ int ncat_connect(void)
             nsi_get_write_count(cs.sock_nsi),
             nsi_get_read_count(cs.sock_nsi), time);
     }
+
+#if HAVE_SYS_UN_H
+    if (o.af == AF_UNIX && o.udp)
+        unlink(srcaddr.un.sun_path);
+#endif
 
     nsp_delete(mypool);
 
