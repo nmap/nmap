@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Use the fallback nsock engine by default in order to maximize
+  compatibility between systems and use cases. [Henri Doreau]
+
 o [Ncat] Added support for Unix domain sockets. The new -U and
   --unixsock options activate this mode. [Tomas Hozza]
 

@@ -160,6 +160,8 @@ void options_init(void)
     addrset_init(&o.denyset);
     o.httpserver = 0;
 
+    o.nsock_engine = 0;
+
     o.numsrcrtes = 0;
     o.srcrteptr = 4;
 

@@ -142,6 +142,7 @@ struct options {
     struct addrset allowset;
     struct addrset denyset;
     int httpserver;
+    int nsock_engine;
 
     /* Loose source-routing stuff */
     struct in_addr srcrtes[8];
