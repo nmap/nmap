@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Add summer of code results.
+
 o [Ncat] Use the fallback nsock engine by default in order to maximize
   compatibility between systems and use cases. [Henri Doreau]
 
@@ -31,6 +33,375 @@ o Fixed a bug that caused an incorrect source address to be set when
     Failed to convert source address to presentation format!?!  Error: Unknown error
   Thanks to Robert Washam and Jorge Hernandez for reports and help
   debugging. [David Fifield]
+
+o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
+  are all listed at http://nmap.org/nsedoc/, and the summaries are
+  below (authors are listed in brackets):
+
+  + ajp-auth retrieves the authentication scheme and realm of an AJP
+    service (Apache JServ Protocol) that requires authentication. The
+    Apache JServ Protocol is commonly used by web servers to
+    communicate with back-end Java application server
+    containers. [Patrik Karlsson]
+
+  + ajp-brute performs brute force passwords auditing against the
+    Apache JServ protocol. [Patrik Karlsson]
+
+  + ajp-headers performs a HEAD or GET request against either the root
+    directory or any optional directory of an Apache JServe Protocol
+    server and returns the server response headers. [Patrik Karlsson]
+
+  + ajp-methods discovers which options are supported by the AJP
+    (Apache JServ Protocol) server by sending an OPTIONS request and
+    lists potentially risky methods. [Patrik Karlsson]
+
+  + ajp-request requests a URI over the Apache JServe Protocol and
+    displays the result (or stores it in a file). Different AJP
+    methods such as; GET, HEAD, TRACE, PUT or DELETE may be
+    used. [Patrik Karlsson]
+
+  + bjnp-discover retrievs printer or scanner information from a
+    remote device supporting the BJNP protocol. The protocol is known
+    to be supported by network based Canon devices. [Patrik Karlsson]
+
+  + broadcast-ataoe-discover discovers servers supporting the ATA over
+    Ethernet protocol. ATA over Ethernet is an ethernet protocol
+    developed by the Brantley Coile Company and allows for simple,
+    high-performance access to SATA drives over Ethernet. [Patrik
+    Karlsson]
+
+  + broadcast-bjnp-discover attempts to discover Canon devices
+    (Printers/Scanners) supporting the BJNP protocol by sending BJNP
+    Discover requests to the network broadcast address for both ports
+    associated with the protocol. [Patrik Karlsson]
+
+  + broadcast-eigrp-discovery performs network discovery and routing
+    information gathering through Cisco's EIGRP protocol. [Hani
+    Benhabiles]
+
+  + broadcast-igmp-discovery discovers targets that have IGMP
+    Multicast memberships and grabs interesting information. [Hani
+    Benhabiles]
+
+  + broadcast-pim-discovery discovers routers that are running PIM
+    (Protocol Independant Multicast). [Hani Benhabiles]
+
+  + broadcast-tellstick-discover discovers Telldus Technologies
+    TellStickNet devices on the LAN. The Telldus TellStick is used to
+    wirelessly control electric devices such as lights, dimmers and
+    electric outlets. [Patrik Karlsson]
+
+  + cassandra-brute performs brute force password auditing against the
+    Cassandra database. [Vlatko Kosturjak]
+
+  + cassandra-info attempts to get basic info and server status from a
+    Cassandra database. [Vlatko Kosturjak]
+
+  + cups-info lists printers managed by the CUPS printing
+    service. [Patrik Karlsson]
+
+  + cups-queue-info Lists currently queued print jobs of the remote
+    CUPS service grouped by printer. [Patrik Karlsson]
+
+  + dict-info Connects to a dictionary server using the DICT protocol,
+    runs the SHOW SERVER command, and displays the result. [Patrik
+    Karlsson]
+
+  + distcc-cve2004-2687 detects and exploits a remote code execution
+    vulnerability in the distributed compiler daemon distcc. [Patrik
+    Karlsson]
+
+  + dns-check-zone checks DNS zone configuration against best
+    practices, including RFC 1912.  The configuration checks are
+    divided into categories which each have a number of different
+    tests. [Patrik Karlsson]
+
+  + dns-ip6-arpa-scan performs a quick reverse DNS lookup of an IPv6
+    network using a technique which analyzes DNS server response codes
+    to dramatically reduce the number of queries needed to enumerate
+    large networks. [Patrik Karlsson]
+
+  + dns-nsec3-enum tries to enumerate domain names from the DNS server
+    that supports DNSSEC NSEC3 records. [Aleksandar Nikolic, John
+    Bond]
+
+  + eppc-enum-processes attempts to enumerate process info over the
+    Apple Remote Event protocol.  When accessing an application over
+    the Apple Remote Event protocol the service responds with the uid
+    and pid of the application, if it is running, prior to requesting
+    authentication. [Patrik Karlsson]
+
+  + firewall-bypass detects a vulnerability in netfilter and other
+    firewalls that use helpers to dynamically open ports for protocols
+    such as ftp and sip. [Hani Benhabiles]
+
+  + flume-master-info retrieves information from Flume master HTTP
+    pages. [John R. Bond]
+
+  + gkrellm-info queries a GKRellM service for monitoring
+    information. A single round of collection is made, showing a
+    snapshot of information at the time of the request. [Patrik
+    Karlsson]
+
+  + gpsd-info retrieves GPS time, coordinates and speed from the GPSD
+    network daemon. [Patrik Karlsson]
+
+  + hostmap-robtex discovers hostnames that resolve to the target's IP
+    address by querying the Robtex service at
+    http://www.robtex.com/dns/. [Arturo Busleiman]
+
+  + http-drupal-enum-users enumerates Drupal users by exploiting a an
+    information disclosure vulnerability in Views, Drupal's most
+    popular module. [Hani Benhabiles]
+
+  + http-drupal-modules enumerates the installed Drupal modules by
+    using a list of known modules. [Hani Benhabiles]
+
+  + http-exif-spider spiders a site's images looking for interesting
+    exif data embedded in .jpg files. Displays the make and model of
+    the camera, the date the photo was taken, and the embedded geotag
+    information. [Ron Bowes]
+
+  + http-form-fuzzer performs a simple form fuzzing against forms
+    found on websites.  Tries strings and numbers of increasing length
+    and attempts to determine if the fuzzing was successful. [Piotr
+    Olma]
+
+  + http-frontpage-login checks whether target machines are vulnerable
+    to anonymous Frontpage login. [Aleksandar Nikolic]
+
+  + http-git checks for a Git repository found in a website's document
+    root (/.git/<something>) then retrieves as much repo
+    information as possible, including language/framework, Github
+    username, last commit message, and repository description. [Alex
+    Weber]
+
+  + http-gitweb-projects-enum retrieves a list of Git projects, owners
+    and descriptions from a gitweb (web interface to the Git revision
+    control system). [riemann]
+
+  + http-huawei-hg5xx-vuln detects Huawei modems models HG530x,
+    HG520x, HG510x (and possibly others...) vulnerable to a remote
+    credential and information disclosure vulnerability. It also
+    extracts the PPPoE credentials and other interesting configuration
+    values. [Paulino Calderon]
+
+  + http-icloud-findmyiphone retrieves the locations of all "Find my
+    iPhone" enabled iOS devices by querying the MobileMe web service
+    (authentication required). [Patrik Karlsson]
+
+  + http-icloud-sendmsg sends a message to a iOS device throught the
+    Apple MobileMe web service. The device has to be registered with
+    an Apple ID using the Find My Iphone application. [Patrik
+    Karlsson]
+
+  + http-phpself-xss crawls a web server and attempts to find PHP
+    files vulnerable to reflected cross site scripting via the
+    variable $_SERVER["PHP_SELF"].  [Paulino Calderon]
+
+  + http-rfi-spider crawls webservers in search of RFI (remote file
+    inclusion) vulnerabilities. It tests every form field it finds and
+    every parameter of a URL containing a query. [Piotr Olma]
+
+  + http-robtex-shared-ns Finds up to 100 domain names which use the
+    same name server as the target by querying the Robtex service at
+    http://www.robtex.com/dns/. [Arturo Busleiman]
+
+  + http-sitemap-generator spiders a web server and displays its
+    directory structure along with number and types of files in each
+    folder. Note that files listed as having an 'Other' extension are
+    ones that have no extension or that are a root document. [Piotr
+    Olma]
+
+  + http-slowloris-check tests a web server for vulnerability to the
+    Slowloris DoS attack without actually launching a DoS
+    attack. [Aleksandar Nikolic]
+
+  + http-slowloris tests a web server for vulnerability to the
+    Slowloris DoS attack by launching a Slowlaris attack. [Aleksandar
+    Nikolic, Ange Gutek]
+
+  + http-tplink-dir-traversal exploits a directory traversal
+    vulnerability existing in several TP-Link wireless
+    routers. Attackers may exploit this vulnerability to read any of
+    the configuration and password files remotely and without
+    authentication. [Paulino Calderon]
+
+  + http-traceroute exploits the Max-Forwards HTTP header to detect
+    the presence of reverse proxies. [Hani Benhabiles]
+
+  + http-virustotal checks whether a file has been determined as
+    malware by virustotal. Virustotal is a service that provides the
+    capability to scan a file or check a checksum against a number of
+    the major AntiVirus vendors. [Patrik Karlsson]
+
+  + http-vlcstreamer-ls connects to a VLC Streamer helper service and
+    lists directory contents. The VLC Streamer helper service is used
+    by the iOS VLC Streamer application to enable streaming of
+    multimedia content from the remote server to the device. [Patrik
+    Karlsson]
+
+  + http-vuln-cve2010-0738 tests whether a JBoss target is vulnerable
+    to jmx console authentication bypass (CVE-2010-0738). [Hani
+    Benhabiles]
+
+  + http-waf-fingerprint Tries to detect the presence of a web
+    application firewall and its type and version. [Hani Benhabiles]
+
+  + icap-info tests a list of known ICAP service names and prints
+    information about any it detects. The Internet Content Adaptation
+    Protocol (ICAP) is used to extend transparent proxy servers and is
+    generally used for content filtering and antivirus
+    scanning. [Patrik Karlsson]
+
+  + ip-forwarding detects whether the remote device has ip forwarding
+    or "Internet connection sharing" enabled, by sending an ICMP echo
+    request to a given target using the scanned host as default
+    gateway. [Patrik Karlsson]
+
+  + ipv6-ra-flood generates a flood of Router Adverisments (RA) with
+    random source MAC addresses and IPv6 prefixes. Computers, which
+    have stateless autoconfiguration enabled by default (every major
+    OS), will start to compute IPv6 suffix and update their routing
+    table to reflect the accepted annoucement. This will cause 100%
+    CPU usage on Windows and platforms, preventing to process other
+    application requests. [Adam Stevko]
+
+  + irc-sasl-brute performs brute force password auditing against IRC
+    (Internet Relay Chat) servers supporting SASL
+    authentication. [Piotr Olma]
+
+  + isns-info lists portals and iSCSI nodes registered with the
+    Internet Storage Name Service (iSNS). [Patrik Karlsson]
+
+  + jdwp-exec attempts to exploit java's remote debugging port. When
+    remote debugging port is left open, it is possible to inject java
+    bytecode and achieve remote code execution.  This script abuses
+    this to inject and execute a Java class file that executes the
+    supplied shell command and returns its output. [Aleksandar
+    Nikolic]
+
+  + jdwp-info attempts to exploit java's remote debugging port.  When
+    remote debugging port is left open, it is possible to inject java
+    bytecode and achieve remote code execution.  This script injects
+    and execute a Java class file that returns remote system
+    information. [Aleksandar Nikolic]
+
+  + jdwp-inject attempts to exploit java's remote debugging port.
+    When remote debugging port is left open, it is possible to inject
+    java bytecode and achieve remote code execution.  This script
+    allows injection of arbitrary class files. [Aleksandar Nikolic]
+
+  + llmnr-resolve resolves a hostname by using the LLMNR (Link-Local
+    Multicast Name Resolution) protocol. [Hani Benhabiles]
+
+  + mcafee-epo-agent check if ePO agent is running on port 8081 or
+    port identified as ePO Agent port. [Didier Stevens and Daniel
+    Miller]
+
+  + metasploit-info gathers info from the Metasploit rpc service.  It
+    requires a valid login pair. After authentication it tries to
+    determine Metasploit version and deduce the OS type.  Then it
+    creates a new console and executes few commands to get additional
+    info. [Aleksandar Nikolic]
+
+  + metasploit-msgrpc-brute performs brute force username and password
+    auditing against Metasploit msgrpc interface. [Aleksandar Nikolic]
+
+  + mmouse-brute performs brute force password auditing against the
+    RPA Tech Mobile Mouse servers. [Patrik Karlsson]
+
+  + mmouse-exec connects to an RPA Tech Mobile Mouse server, starts an
+    application and sends a sequence of keys to it. Any application
+    that the user has access to can be started and the key sequence is
+    sent to the application after it has been started. [Patrik
+    Karlsson]
+
+  + mrinfo queries targets for multicast routing information. [Hani
+    Benhabiles]
+
+  + msrpc-enum queries an MSRPC endpoint mapper for a list of mapped
+    services and displays the gathered information. [Aleksandar
+    Nikolic]
+
+  + ms-sql-dac qeries the Microsoft SQL Browser service for the DAC
+    (Dedicated Admin Connection) port of a given (or all) SQL Server
+    instance. The DAC port is used to connect to the database instance
+    when normal connection attempts fail, for example, when server is
+    hanging, out of memory or in other bad states. [Patrik Karlsson]
+
+  + mtrace queries for the multicast path from a source to a
+    destination host. [Hani Benhabiles]
+
+  + mysql-dump-hashes dumps the password hashes from an MySQL server
+    in a format suitable for cracking by tools such as John the
+    Ripper.  Appropriate DB privileges (root) are required. [Patrik
+    Karlsson]
+
+  + mysql-query runs a query against a MySQL database and returns the
+    results as a table. [Patrik Karlsson]
+
+  + mysql-vuln-cve2012-2122 attempts to bypass authentication in MySQL
+    and MariaDB servers by exploiting CVE2012-2122. If its vulnerable,
+    it will also attempt to dump the MySQL usernames and password
+    hashes. [Paulino Calderon]
+
+  + oracle-brute-stealth exploits the CVE-2012-3137 vulnerability, a
+    weaknes in Oracle's O5LOGIN authentication scheme.  The
+    vulnerability exists in Oracle 11g R1/R2 and allows linking the
+    session key to a password hash. [Dhiru Kholia]
+
+  + pcanywhere-brute performs brute force password auditing against
+    the pcAnywhere remote access protocol. [Aleksandar Nikolic]
+
+  + rdp-enum-encryption determines which Security layer and Encryption
+    level is supported by the RDP service. It does so by cycling
+    through all existing protocols and ciphers. [Patrik Karlsson]
+
+  + rmi-vuln-classloader tests whether Java rmiregistry allows class
+    loading.  The default configuration of rmiregistry allows loading
+    classes from remote URLs, which can lead to remote code
+    execution. The vendor (Oracle/Sun) classifies this as a design
+    feature. [Aleksandar Nikolic]
+
+  + rpc-grind fingerprints the target RPC port to extract the target
+    service, RPC number and version. [Hani Benhabiles]
+
+  + sip-call-spoof spoofs a call to a SIP phone and detects the action
+    taken by the target (busy, declined, hung up, etc.) [Hani
+    Benhabiles]
+
+  + sip-methods enumerates a SIP Server's allowed methods (INVITE,
+    OPTIONS, SUBSCRIBE, etc.) [Hani Benhabiles]
+
+  + smb-ls attempts to retrieve useful information about files shared
+    on SMB volumes.  The output is intended to resemble the output of
+    the UNIX <code>ls</code> command. [Patrik Karlsson]
+
+  + smb-print-text attempts to print text on a shared printer by
+    calling Print Spooler Service RPC functions. [Aleksandar Nikolic]
+
+  + smb-vuln-ms10-054 tests whether target machines are vulnerable to
+    the ms10-054 SMB remote memory corruption
+    vulnerability. [Aleksandar Nikolic]
+
+  + smb-vuln-ms10-061 tests whether target machines are vulnerable to
+    ms10-061 Printer Spooler impersonation vulnerability. [Aleksandar
+    Nikolic]
+
+  + snmp-hh3c-logins attempts to enumerate Huawei / HP/H3C Locally
+    Defined Users through the hh3c-user.mib OID [Kurt Grutzmacher]
+
+  + ssl-date retrieves a target host's time and date from its TLS
+    ServerHello response. [Aleksandar Nikolic]
+
+  + tls-nextprotoneg enumerates a TLS server's supported protocols by
+    using the next protocol negotiation extension. [Hani Benhabiles]
+
+  + traceroute-geolocation lists the geographic locations of each hop
+    in a traceroute and optionally saves the results to a KML file,
+    plottable on Google earth and maps. [Patrik Karlsson]
+
 
 o Added some additional CPE entries to nmap-service-probes.
   [Dillon Graham]
