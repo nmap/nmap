@@ -26,6 +26,7 @@ devices.
 --
 
 categories = {"safe", "discovery"}
+author = "Patrik Karlsson"
 
 local bjnp = require("bjnp")
 local shortport = require("shortport")
