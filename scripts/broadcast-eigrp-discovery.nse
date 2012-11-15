@@ -11,7 +11,8 @@ local coroutine = require "coroutine"
 local string = require "string"
 
 description = [[
-Network discovery and routing information gathering through Cisco's EIGRP.
+Performs network discovery and routing information gathering through
+Cisco's EIGRP protocol.
 
 The script works by sending an EIGRP Hello packet with the specified Autonomous
 System value to the 224.0.0.10 multicast address and listening for EIGRP Update

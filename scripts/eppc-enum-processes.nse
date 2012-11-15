@@ -5,7 +5,7 @@ local stdnse    = require('stdnse')
 local tab       = require('tab')
 
 description = [[
-Attempt to enumerate process info over the Apple Remote Event protocol.
+Attempts to enumerate process info over the Apple Remote Event protocol.
 When accessing an application over the Apple Remote Event protocol the
 service responds with the uid and pid of the application, if it is running,
 prior to requesting authentication.

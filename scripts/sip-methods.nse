@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Enumerates a SIP Server's allowed methods.
+Enumerates a SIP Server's allowed methods (INVITE, OPTIONS, SUBSCRIBE, etc.)
 
 The script works by sending an OPTION request to the server and checking for
 the value of the Allow header in the response.

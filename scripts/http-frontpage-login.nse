@@ -7,7 +7,7 @@ local vulns = require "vulns"
 
 
 description = [[
-Check if target machines are vulnerable to anonymous Frontpage login.
+Checks whether target machines are vulnerable to anonymous Frontpage login.
 
 Older, default configurations of Frontpage extensions allow
 remote user to login anonymously which may lead to server compromise.

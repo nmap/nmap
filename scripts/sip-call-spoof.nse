@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Spoofs a call to a SIP phone and detects the action taken by the target.
+Spoofs a call to a SIP phone and detects the action taken by the target (busy, declined, hung up, etc.)
 
 This works by sending a fake sip invite request to the target phone and checking
 the responses. A response with status code 180 means that the phone is ringing.

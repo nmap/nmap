@@ -1,5 +1,5 @@
 description = [[
-Determines what Security layer and Encryption level that is supported by the
+Determines which Security layer and Encryption level is supported by the
 RDP service. It does so by cycling through all existing protocols and ciphers.
 When run in debug mode, the script also returns the protocols and ciphers that
 fail and any errors that were reported.

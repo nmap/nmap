@@ -6,8 +6,7 @@ local string = require "string"
 local stdnse = require "stdnse"
 
 description = [[
-Script calls Print Spooler Service RPC functions to a shared printer 
-to make it print text.
+Attempts to print text on a shared printer by calling Print Spooler Service RPC functions. 
 
 In order to use the script, at least one printer needs to be shared 
 over SMB. If no printer is specified, script tries to enumerate existing 

@@ -9,7 +9,7 @@
 --   2012/06/20: new portrule by Daniel Miller
 
 description = [[
-Check if ePO agent is running on port 8081 or port identified as ePO Agent port
+Check if ePO agent is running on port 8081 or port identified as ePO Agent port.
 ]]
 
 ---

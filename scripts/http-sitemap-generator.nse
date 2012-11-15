@@ -1,7 +1,8 @@
 description = [[
-Spiders a web server and displays its directory structure along with number and types
-of files in each folder. Note that files listed as having an 'Other' extension are ones
-that have no extension or that are a root document.
+Spiders a web server and displays its directory structure along with
+number and types of files in each folder. Note that files listed as
+having an 'Other' extension are ones that have no extension or that
+are a root document.
 ]]
 
 ---

@@ -7,7 +7,7 @@ local bin = require "bin"
 local creds = require "creds"
 
 description = [[
-Performs brute force username and password guessing against 
+Performs brute force username and password auditing against 
 Metasploit msgrpc interface.
 
 ]]

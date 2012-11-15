@@ -6,17 +6,21 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Queries the Microsoft SQL Browser service for the DAC (Dedicated Admin Connection) port
-of a given, or all SQL Server instances. The DAC port is used to connect to the database 
-instance when normal connection attempts fail, for example, when server is hanging, out 
-of memory or in other bad states. In addition, the DAC port provides an admin with
-access to system objects otherwise not accessible over normal connections.
+Queries the Microsoft SQL Browser service for the DAC (Dedicated Admin
+Connection) port of a given (or all) SQL Server instance. The DAC port
+is used to connect to the database instance when normal connection
+attempts fail, for example, when server is hanging, out of memory or
+in other bad states. In addition, the DAC port provides an admin with
+access to system objects otherwise not accessible over normal
+connections.
 
-The DAC feature is accessible on the loopback adapter per default, but can be activated
-for remote access by setting the 'remote admin connection' configuration value to 1. In
-some cases, when DAC has been remotely enabled but later disabled, the sql browser 
-service may incorrectly report it as available. The script therefore attempts to connect 
-to the reported port in order to verify whether it's accessible or not.
+The DAC feature is accessible on the loopback adapter per default, but
+can be activated for remote access by setting the 'remote admin
+connection' configuration value to 1. In some cases, when DAC has been
+remotely enabled but later disabled, the sql browser service may
+incorrectly report it as available. The script therefore attempts to
+connect to the reported port in order to verify whether it's
+accessible or not.
 ]]
 
 ---

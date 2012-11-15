@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Script queries MSRPC endpoint mapper for a list of mapped 
+Queries an MSRPC endpoint mapper for a list of mapped 
 services and displays the gathered information.
 
 As it is using smb library, you can specify optional

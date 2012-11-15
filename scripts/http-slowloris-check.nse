@@ -9,7 +9,7 @@ local http = require "http"
 
 
 description = [[
-Tests a web server for vulnerability to the Slowloris DoS attack.
+Tests a web server for vulnerability to the Slowloris DoS attack without actually launching a DoS attack.
 
 Slowloris was described at Defcon 17 by RSnake
 (see http://ha.ckers.org/slowloris/).

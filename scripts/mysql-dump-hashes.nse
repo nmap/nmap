@@ -5,8 +5,7 @@ local stdnse = require "stdnse"
 
 description = [[
 Dumps the password hashes from an MySQL server in a format suitable for
-cracking by tools such as John-the-ripper. In order to do so the user
-needs to have the appropriate DB privileges (root).
+cracking by tools such as John the Ripper.  Appropriate DB privileges (root) are required.
 
 The <code>username</code> and <code>password</code> arguments take precedence
 over credentials discovered by the mysql-brute and mysql-empty-password

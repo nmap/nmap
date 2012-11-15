@@ -7,13 +7,10 @@ local shortport = require "shortport"
 local string = require "string"
 
 description = [[
-Script to exploit java's remote debugging port. 
-
-When remote debugging port is left open, it is possible to inject 
-java bytecode and achieve remote code execution.
-
-Script abuses this to inject and execute Java class file that 
-returns remote system information.
+Attempts to exploit java's remote debugging port.  When remote
+debugging port is left open, it is possible to inject java bytecode
+and achieve remote code execution.  This script injects and execute a
+Java class file that returns remote system information.
 ]]
 
 author = "Aleksandar Nikolic" 

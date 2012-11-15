@@ -12,11 +12,14 @@ local unpwdb = require "unpwdb"
 local openssl = stdnse.silent_require "openssl"
 
 description = [[
-Exploits the CVE-2012-3137 vulnerability, a weaknes in Oracle's O5LOGIN authentication scheme.
-The vulnerability exists in Oracle 11g R1,R2 and allows linking the session key to a password hash.
-When initiating an authentication attempt as a valid user the server will respond with a session key and salt.
-Once received the script will disconnect the connection thereby not recording the login attempt.
-The session key and salt can then be used to brute force the users password.
+Exploits the CVE-2012-3137 vulnerability, a weaknes in Oracle's
+O5LOGIN authentication scheme.  The vulnerability exists in Oracle 11g
+R1/R2 and allows linking the session key to a password hash.  When
+initiating an authentication attempt as a valid user the server will
+respond with a session key and salt.  Once received the script will
+disconnect the connection thereby not recording the login attempt.
+The session key and salt can then be used to brute force the users
+password.
 ]]
 
 ---

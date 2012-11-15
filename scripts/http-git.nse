@@ -23,9 +23,7 @@ local stdnse = require("stdnse")
 local strbuf = require("strbuf")
 local string = require("string")
 local table = require("table")
-description = [[ Checks for a Git repository found in a website's document root (GET /.git/<something> HTTP/1.1)
-Gets as much information about the repository as possible, including language/framework, Github
-username, last commit message, and repository description.
+description = [[ Checks for a Git repository found in a website's document root (/.git/<something>) then retrieves as much repo information as possible, including language/framework, Github username, last commit message, and repository description.
 ]]
 
 categories = { "safe", "vuln", "default" }

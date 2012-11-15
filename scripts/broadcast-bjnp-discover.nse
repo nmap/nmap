@@ -1,7 +1,7 @@
 description = [[
-Attempts to discover Canon devices (Printers/Scanners) supporting the BJNP
-protocol. Discovery is performed by sending BJNP Discover requests to the
-network broadcast address for both ports associated with the protocol.
+Attempts to discover Canon devices (Printers/Scanners) supporting the
+BJNP protocol by sending BJNP Discover requests to the network
+broadcast address for both ports associated with the protocol.
 
 The script then attempts to retrieve the model, version and some additional
 information for all discovered devices.

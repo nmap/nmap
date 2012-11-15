@@ -6,11 +6,11 @@ local string = require "string"
 local vulns = require "vulns"
 
 description = [[
-Checks if rmiregistry allows class loading.
+Tests whether Java rmiregistry allows class loading.  The default
+configuration of rmiregistry allows loading classes from remote URLs,
+which can lead to remote code execution. The vendor (Oracle/Sun)
+classifies this as a design feature.
 
-The default configuration of rmiregistry allows loading classes from remote
-URLs which can lead to remote code execution. This is considered as "by
-design".
 
 Based on original Metasploit module by mihi.
 

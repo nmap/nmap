@@ -6,17 +6,19 @@ local vulns = require "vulns"
 local stdnse = require "stdnse"
 
 description = [[
-Checks if target machines are vulnerable to ms10-061 Printer Spooler impersonation vulnerability.
+Tests whether target machines are vulnerable to ms10-061 Printer Spooler impersonation vulnerability.
 
-This vulnerability was used in Stuxnet worm.
-The script checks for the vuln in a safe way without a possibility of crashing the remote system
-as this is not a memory corruption vulnerability.  
-In order for the check to work it needs access to at least one shared printer on the remote system.
-By default it tries to enumerate printers by using LANMAN API which on some systems is not 
-available by default. In that case user should specify printer share name as printer script argument.
-To find a printer share, smb-enum-shares can be used.
-Also, on some systems, accessing shares requires valid credentials which can be specified with
-smb library arguments smbuser and smbpassword.
+This vulnerability was used in Stuxnet worm.  The script checks for
+the vuln in a safe way without a possibility of crashing the remote
+system as this is not a memory corruption vulnerability.  In order for
+the check to work it needs access to at least one shared printer on
+the remote system.  By default it tries to enumerate printers by using
+LANMAN API which on some systems is not available by default. In that
+case user should specify printer share name as printer script
+argument.  To find a printer share, smb-enum-shares can be used.
+Also, on some systems, accessing shares requires valid credentials
+which can be specified with smb library arguments smbuser and
+smbpassword.
 
 References: 
 	- http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2729

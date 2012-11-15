@@ -6,7 +6,7 @@ local string = require "string"
 local os = require "os"
 
 description = [[ Generates a flood of Router Adverisments (RA) with random source MAC addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration enabled by default (every major OS), 
-will start to compute IPv6 suffix and update their routing table to reflect the accepted annoucement. This will cause 100% CPU usage, thus preventing to process other application requests.
+will start to compute IPv6 suffix and update their routing table to reflect the accepted annoucement. This will cause 100% CPU usage on Windows and platforms, preventing to process other application requests.
 
 Vulnerable platforms:
 * All Cisco IOS ASA with firmware < November 2010

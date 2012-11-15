@@ -8,7 +8,7 @@ local string = require "string"
 local sslcert = require "sslcert"
 
 description = [[
-Gets the remote host's time from its TLS ServerHello response.
+Retrieves a target host's time and date from its TLS ServerHello response.
 
 
 In many TLS implementations, the first four bytes of server randomness

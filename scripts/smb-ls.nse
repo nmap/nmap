@@ -7,7 +7,7 @@ local openssl= stdnse.silent_require 'openssl'
 
 description = [[
 Attempts to retrieve useful information about files shared on SMB volumes.
-The output is intended to resemble the output of <code>ls</code>.
+The output is intended to resemble the output of the UNIX <code>ls</code> command.
 ]]
 
 ---

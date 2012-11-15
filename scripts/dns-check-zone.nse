@@ -5,7 +5,7 @@ local ipOps = require "ipOps"
 
 description = [[
 Checks DNS zone configuration against best practices, including RFC 1912.
-The configuration checks are divided into categories that each have a number
+The configuration checks are divided into categories which each have a number
 of different tests. 
 ]]
 

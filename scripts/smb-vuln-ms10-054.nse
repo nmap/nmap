@@ -6,7 +6,7 @@ local vulns = require "vulns"
 local stdnse = require "stdnse"
 
 description = [[
-Checks if target machines are vulnerable to the ms10-054 SMB remote memory 
+Tests whether target machines are vulnerable to the ms10-054 SMB remote memory 
 corruption vulnerability.
 
 The vulnerable machine will crash with BSOD. 
