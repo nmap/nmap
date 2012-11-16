@@ -24,7 +24,7 @@ o [Nsock] Fixed compilation on Windows XP by restricting the use
   of the poll engine to Vista and later. [Gisle Vanem]
 
 o [Ncat] Added support for Unix domain sockets. The new -U and
-  --unixsock options activate this mode.  These provide compatability
+  --unixsock options activate this mode.  These provide compatibility
   with Hobbit's original Netcat. [Tomas Hozza]
 
 o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
