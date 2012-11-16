@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 6.20BETA1 [2012-11-15]
+Nmap 6.20BETA1 [2012-11-16]
 
 o Integrated all of your IPv4 OS fingerprint submissions since January
   (more than 3,000 of them).  Added 373 fingerprints, bringing the new
@@ -459,6 +459,10 @@ o Scans that use OS sockets (including TCP connect scan, version
   detection, and script scan) now use the SO_BINDTODEVICE sockopt on
   Linux, so that the -e option is honored. [David Fifield]
 
+o [Zenmap] Host filters can now do negative matching, for example you
+  could use "os:!linux" to match hosts NOT detectes as Linux. [Daniel
+  Miller]
+
 o Fixed a bug that caused an incorrect source address to be set when
   scanning certain addresses (apparently those ending in .0) on
   Windows XP. The symptom of this bug was the messages
@@ -496,6 +500,9 @@ o Fixed a bug that prevented Nmap from finding any interfaces when one
   of them had the type ARPHDR_IEEE80211; this was the case for wireless
   interfaces operating in access point mode. This bug was reported by
   Sebastiaan Vileijn. [Djalal Harouni]
+
+o Updated the Zenmap desktop icons on Windows, Linux, and Mac with higher
+  resolution ones. [Sean Rivera, David Fifield]
 
 o [NSE] Script results for a host or service are now sorted
   alphabetically by script name. [Sean Rivera]
@@ -653,6 +660,9 @@ o [Zenmap] Fixed a crash in the profile editor that would happen when
 o Made the various Makefiles' treatment of makefile.dep uniform:
   "make clean" keeps the file and "make distclean" deletes it.
   [Michael McTernan]
+
+o [NSE] Fixed dozens of scripts and libraries to work better on
+  system which don't have OpenSSL available. [Patrik Karlsson]
 
 o [Ncat] --output logging now works in UDP mode. Thanks to Michal
   Hlavinka for reporting the bug. [David Fifield]
