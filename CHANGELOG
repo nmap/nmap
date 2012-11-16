@@ -1,38 +1,42 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Add summer of code results.
+Nmap 6.20BETA1 [2012-11-15]
+
+o Scripts can now return a structured name-value table so that results
+  are queryable from XML output. Scripts can return a string as before,
+  or a table, or a table and a string. In this last case, the table will
+  go to XML output and the string will go to screen output.
+  [Daniel Miller, David Fifield, Patrick Donnelly]
+
+o Many of the great features in this release were created by college
+  and grad students generously sponsored by Google's Summer of Code
+  program.  Thanks, Google Open Source Department!  This year's team
+  of five developers is introduced at
+  http://seclists.org/nmap-dev/2012/q2/204 and their successes
+  documented at http://seclists.org/nmap-dev/2012/q4/138
+
+o [Nsock] Added new poll and kqueue engines. [Henri Doreau]
 
 o [Ncat] Use the fallback nsock engine by default in order to maximize
   compatibility between systems and use cases. [Henri Doreau]
 
-o [Ncat] Added support for Unix domain sockets. The new -U and
-  --unixsock options activate this mode. [Tomas Hozza]
-
-o [NSE] Added snmp-hh3c-logins by Kurt Grutzmacher. This script uses a
-  weakness in the SNMP of certain modems to retrieve a list of
-  usernames and passwords.
-
 o [Nsock] Fixed compilation on Windows XP by restricting the use
   of the poll engine to Vista and later. [Gisle Vanem]
 
-o [NSE] Added support for ECDSA keys to ssh-hostkey.nse. [Adam Števko]
+o [Ncat] Added support for Unix domain sockets. The new -U and
+  --unixsock options activate this mode.  These provide compatability
+  with Hobbit's original Netcat. [Tomas Hozza]
 
-o [Nsock] Added new poll and kqueue engines. [Henri Doreau]
+o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
+  (Next Header) probes. [David Fifield]
 
-o [Zenmap] Corrected some typos in the Japanese translation.
-  [OKANO Takayoshi]
-
-o Changed the CPE for Linux from cpe:/o:linux:kernel to
-  cpe:/o:linux:linux_kernel to reflect deprecation in the official CPE
-  dictionary.
-
-o Fixed a bug that caused an incorrect source address to be set when
-  scanning certain addresses (apparently those ending in .0) on
-  Windows XP. The symptom of this bug was the messages
-    get_srcaddr: can't connect socket: The requested address is not valid in its context.
-    Failed to convert source address to presentation format!?!  Error: Unknown error
-  Thanks to Robert Washam and Jorge Hernandez for reports and help
-  debugging. [David Fifield]
+o Moved some Windows dependencies, including OpenSSL, libsvn, and the
+  vcredist files, into a new public Subversion directory
+  /nmap-mswin32-aux. This reduces the size of source code
+  distributions for users who don't need these files. Those who build
+  on Windows will need to check out /nmap-mswin32-aux in parallel to
+  their nmap checkout as described at
+  http://nmap.org/book/inst-windows.html#inst-win-source.
 
 o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
   are all listed at http://nmap.org/nsedoc/, and the summaries are
@@ -402,12 +406,22 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     in a traceroute and optionally saves the results to a KML file,
     plottable on Google earth and maps. [Patrik Karlsson]
 
+o [NSE] Added support for ECDSA keys to ssh-hostkey.nse. [Adam Števko]
+
+o Changed the CPE for Linux from cpe:/o:linux:kernel to
+  cpe:/o:linux:linux_kernel to reflect deprecation in the official CPE
+  dictionary.
+
+o Fixed a bug that caused an incorrect source address to be set when
+  scanning certain addresses (apparently those ending in .0) on
+  Windows XP. The symptom of this bug was the messages
+    get_srcaddr: can't connect socket: The requested address is not valid in its context.
+    Failed to convert source address to presentation format!?!  Error: Unknown error
+  Thanks to Robert Washam and Jorge Hernandez for reports and help
+  debugging. [David Fifield]
 
 o Added some additional CPE entries to nmap-service-probes.
   [Dillon Graham]
-
-o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
-  (Next Header) probes. [David Fifield]
 
 o Fixed an assertion failure with IPv6 traceroute trying to use an
   unsupported protocol:
@@ -416,22 +430,11 @@ o Fixed an assertion failure with IPv6 traceroute trying to use an
     `source->ss_family == 2' failed.
   This was reported by Pierre Emeriaud. [David Fifield]
 
-o [NSE] Added oracle-brute-stealth which exploits CVE-2012-3137, a weakness
-  in the Oracle O5LOGIN authentication scheme. [Dhiru Kholia]
-
 o Scans that use OS sockets (including TCP connect scan, version
   detection, and script scan) now use the SO_BINDTODEVICE sockopt on
   Linux, so that the -e option is honored. [David Fifield]
 
 o Upgraded the included OpenSSL to version 1.0.1c. [David Fifield]
-
-o Moved some Windows dependencies, including OpenSSL, libsvn, and the
-  vcredist files, into a new public Subversion directory
-  /nmap-mswin32-aux. This reduces the size of source code
-  distributions for users who don't need these files. Those who build
-  on Windows will need to check out /nmap-mswin32-aux in parallel to
-  their nmap checkout as described at
-  http://nmap.org/book/inst-windows.html#inst-win-source.
 
 o Changed libdnet's routing interface to return an interface name for
   each route on the most common operating systems. This is used to
@@ -457,21 +460,12 @@ o Fixed a bug that prevented Nmap from finding any interfaces when one
 o Fixed protocol number-to-name mapping. A patch was contributed by
   hejianet.
 
-o [NSE] Added cassandra-brute and cassandra-info by Vlatko Kosturjak,
-  scripts for the Apache Cassandra database.
-
-o [NSE] Added ipv6-ra-flood script by Adam Števko. This script sends a
-  flood of router advertisements, which can DoS certain operating
-  systems including Windows.
-
 o [NSE] The nmap.ip_send function now takes a second argument, the
   destination to send to. Previously the destination address was taken
   from the packet buffer, but this failed for IPv6 link-local
   addresses, because the scope ID is not part of the packet. Calling
   ip_send without a destination address will continue to use the old
   behavior, but this practice is deprecated.
-
-o Added http fingerprints for Sitecore CMS. [Jesper Kückelhahn]
 
 o Increased portability of configure scripts on systems using a libc
   other than Glibc. Several problems were reported by John Spencer.
@@ -480,7 +474,8 @@ o [NSE] Fixed a bug in rpc-grind.nse that would cause unresponsive UDP
   ports to be wrongly marked open. This was reported by Christopher
   Clements. [David Fifield]
 
-o [Ncat] Close connection endpoint when receiving EOF on stdin. [Michal Hlavinka].
+o [Ncat] Close connection endpoint when receiving EOF on
+  stdin. [Michal Hlavinka].
 
 o Fixed interface listing on NetBSD. The bug was first noticed by
   Fredrik Pettai and diagnosed by Jan Schaumann. [David Fifield]
@@ -493,73 +488,29 @@ o Protocol scan (-sO) probes for TCP, UDP, and SCTP now go to ports
   80, 40125, and 80 respectively, instead of being randomly generated
   or going to the same port as the source port. [David Fifield]
 
-o [NSE] Added msrpc-enum script which queries MSRPC endpoint mapper for 
-  available services and their information. [Aleksandar Nikolic]
-
 o Made source port numbers (used to encode probe metadata) increment
   so as not to overlap between different scanning phases. Previously
   it was possible for an RST response to an ACK probe from host
   discovery to be misinterpreted as a reply to a SYN probe from port
   scanning. [Sean Rivera, David Fifield]
 
-o [NSE] Updated mssql.lua library to support additional data types, enhanced
-  some of the existing data types, added the DoneProc response token, and
-	reordered code for maintainability. [Tom Sellers]
-
-o [NSE] Added http-slowloris-check script which checks if the server is vulnerable
-  to a Slowloris DoS attack in a safe way. [Aleksandar Nikolic]
+o [NSE] Updated mssql.lua library to support additional data types,
+  enhanced some of the existing data types, added the DoneProc
+  response token, and reordered code for maintainability. [Tom
+  Sellers]
 
 o Removed pos_scan scan engine as the old implementation of RPC grind was the
   last scan type to use it. [Hani Benhabiles] 
 
-o [NSE] Replaced old rpc grind implementation with a new NSE based implementation
-  for easier maintainability and improved performance. [Hani Benhabiles] 
+o [NSE] Replaced old rpc grind implementation with a new NSE based
+  implementation for easier maintainability and improved
+  performance. [Hani Benhabiles]
 
-o [NSE] Added broadcast-pim-discovery script which discovers routers that are
-  running PIM (Protocol Independant Multicast).  [Hani Benhabiles]
-
-o [NSE] Added mtrace script which queries for the multicast path from a source
-  to a destination host. [Hani Benhabiles]
-
-o [NSE] Added broadcast-eigrp-discovery script which does network discovery and
-  information gathering through Cisco's EIGRP protocol. [Hani Benhabiles]
-
-o [NSE] Added eigrp.lua library which supports parsing and generating a small subset
-  of Cisco's EIGRP packets. [Hani Benhabiles]
-
-o [NSE] Added llmnr-resolve script which resolves a hostname by using the LLMNR
-  (Link-Local Multicast Name Resolution) protocol.  [Hani Benhabiles]
-
-o [NSE] Added broadcast-igmp-discovery script which discovers and outputs
-  interesting information from targets that have multicast groups memberships.
-  [Hani Benhabiles]
-
-o Scripts can now return a structured name-value table so that results
-  are queryable from XML output. Scripts can return a string as before,
-  or a table, or a table and a string. In this last case, the table will
-  go to XML output and the string will go to screen output.
-  [Daniel Miller, David Fifield, Patrick Donnelly]
-
-o [NSE] Added JDWP library, jdwp-info, jdwp-exec and jdwp-inject scripts and
-  needed classes. [Aleksandar Nikolic]
-
-o [NSE] Added a BJNP library and the scripts broadcast-bjnp-discover and
-  bjnp-discover. [Patrik Karlsson]
+o [NSE] Added eigrp.lua library which supports parsing and generating
+  a small subset of Cisco's EIGRP packets. [Hani Benhabiles]
 
 o [NPING] Nping now prints out an error and exists when the user tries to use
   the -p flag for a scan option where that is meaningless. [Sean Rivera] 
-
-o [NSE] Added smb-print-text script which prints specified text using SMB 
-  shared printer. [Aleksandar Nikolic]
-
-o [NSE] Added mrinfo script which queries a target router for multicast
-  information. [Hani Benhabiles]
-
-o [NSE] Added ssl-date script which gets server's time from SSL ServerHello
-  reply server random part. [Aleksandar Nikolic]
-
-o [NSE] Added smb-vuln-ms10-61 script which checks the target system for MS10-061
-  vulenrability in spoolss service in a safe way. [Aleksandar Nikolic]
 
 o [NSE] Added spoolss functions and constrants to msrpc.lua. [Aleksandar Nikolic]
 
@@ -568,26 +519,12 @@ o [NSE] Reduced the number of names tried by http-vhosts by default.
 
 o Linux unreachable routes are now properly ignored. [David Fifield]
 
-o [NSE] Added smb-vuln-ms10-054 script which check the target system for MS10-054
-  vulnerability in SMB. [Aleksandar] 
-
-o [NSE] Added rdp library and the script rdp-enum-encryption that enumerates
-  both the Security Layer and Encryption level of the RDP service. [Patrik
-  Karlsson]
-
-o [NSE] Added flume-master-info by John Bond. This script gets info
-  from Apache Flume, which is a log collection service.
-
 o Fixed a bug that prevented Nmap from finding any interfaces when any
   interface had the type ARPHRD_VOID; this was the case for OpenVZ
   venet interfaces. [Djalal Harouni, David Fifield]
 
 o [Zenmap] Fixed a crash when using the en_NG locale: "ValueError:
   unknown locale: en_NG" [David Fifield]
-
-o [NSE] Added http-get by Alex Weber. This script looks for a .git
-  repository directory accesible over HTTP and extracts useful
-  information from it.
 
 o [NSE] Fixed some bugs in snmp-interfaces which prevented the script from
   outputting discovered interface info and caused it to abort in the
@@ -596,15 +533,8 @@ o [NSE] Fixed some bugs in snmp-interfaces which prevented the script from
 o [NSE] lltd-discovery scripts now parses for hostnames and outputs network
   card manufacturer. [Hani Benhabiles]
 
-o [NSE] Complete change to sip-enum-users script which now uses brute.lua for
-  enumeration and supports iterating over custom username lists and numeric
-  ranges. [Hani Benhabiles]
-
 o Added protocol specific payloads for IPv6 hop-by-hop (0x00), routing (0x2b),
   fragment (0x2c), and destination (0x3c). [Sean Rivera] 
-
-o [NSE] Added http-slowloris script which performes a slowloris DoS attack
-  against a Web server and reports if it's vulnerable or not. [Aleksandar Nikolic]
 
 o Added a new --disable-arp-ping option. This option prevents Nmap
   from implicitly using ARP or ND host discovery for directly
@@ -623,32 +553,12 @@ o [NSE] Added ospf library which handles OSPFv2 packets.
 o [NSE] Fixed a false positive in http-vuln-cve2011-3192.nse, which detected
   Apache 2.2.22 as vulnerable. [Michael Meyer]
 
-o [NSE] Added changes to brute and unpwdb libraries to allow more flexible iterator
-  specification and control. [Aleksandar Nikolic]
-
-o [NSE] Added ms-sql-dac script which queries the Microsoft SQL Browser service
-  for the DAC (Dedicated Admin Connection) port. [Patrik Karlsson]
-
-o [NSE] Added irc-sasl-brute script which performs brute force password
-  auditing against IRC (Internet Relay Chat) servers supporting SASL 
-  authentication. [Piotr Olma]
-
-o [NSE] Added sip-methods script which enumerates a SIP server's allowed
-  methods. [Hani Benhabiles]
-
-o [NSE] Added sip-call-spoof script which spoofs a call to a SIP phone and
-  detects the action taken by the target. [Hani Benhabiles]
+o [NSE] Added changes to brute and unpwdb libraries to allow more
+  flexible iterator specification and control. [Aleksandar Nikolic]
 
 o [NSE] Modified multiple scripts that operated against HTTP based services
   so as to remove false positives that were generated when the target service 
   answers with a 200 response to all requests. [Tom Sellers]
-
-o [NSE] Added metasploit-info script which uses Metasploit RPC service to get
-  information about the remote system. [Aleksandar Nikolic]
-
-o [NSE] Added tls-nextprotoneg script which enumerates a TLS server's supported
-  protocols by using the next protocol negotiation extension.
-  [Hani Benhabiles]
 
 o [NSOCK] Fixed an epoll-engine-specific bug. The engine didn't recognized FDs
   that were internally closed and replaced by other ones. This happened during
@@ -662,17 +572,6 @@ o Added support for log type bitmasks in log_vwrite(). Also replaced a fatal()
 o Added handling for the unexpected error WSAENETRESET (10052). This error is
   currently wrapped in the ifdef for WIN32 as there error appears to be unique
   to windows [Sean Rivera]
-
-o [NSE] Added http-sitemap-generator script which spiders a web server
-  and displays its directory structure along with number and types
-  of files in each folder. [Piotr Olma]
-
-o [NSE] Added a brute script for new Metasploit RPC interface as 
-  metasploit-msgrpc-brute. [Aleksandar Nikolic]
-
-o [NSE] Added the script firewall-bypass which detects a vulnerability in
-  netfilter and other firewalls that use helpers to dynamically open ports for
-  protocols such as ftp and sip.  [Hani Benhabiles]
 
 o Removed the log_errors variable. (Treating it as true everywhere). This
   change did not effect the support for older scripts that still call it.
@@ -704,25 +603,6 @@ o Made the various Makefiles' treatment of makefile.dep uniform:
 o [Ncat] --output logging now works in UDP mode. Thanks to Michal
   Hlavinka for reporting the bug. [David Fifield]
 
-o [NSE] Added pcanywhere-brute script which bruteforces pcAnywhere server
-  for valid logins. [Aleksandar Nikolic]
-
-o [NSE] Added http-rfi-spider script that spiders webservers in search of
-  remote file inclusion vulnerabilities. [Piotr Olma]
-
-o [NSE] Added mysql-vuln-cve2012-2122 script which exploits an authentication 
-  bypass vulnerability in MySQL/MariaDB to dump usernames and password hashes. 
-  (CVE2012-2122) [Paulino Calderon]
-
-o [NSE] Added http-frontpage-login script which tries to detect anonymous
-  login vulnerability in Frontpage Extensions. [Aleksandar Nikolic]
-
-o [NSE] Added dns-nsec3-enum script which which abuses NSEC3 to enumerate
-  all domains on a DNS server. [Aleksandar Nikolic]
-  
-o [NSE] Added the script http-waf-fingerprint which tries to detect the presence of
-  a web application firewall and its type and version. [Hani Benhabiles]
-
 o [NSE] More Windows 7 and Windows 2008 fixes for the smb library and smb-ls
   scripts. [Patrik Karlsson]
 
@@ -736,38 +616,11 @@ o [NSE] Changed http-brute so that it works against the root path
 o [NSE] Applied patch from Daniel Miller that fixes bug in several scripts and
   libraries http://seclists.org/nmap-dev/2012/q2/593 [Daniel Miller]
 
-o [NSE] Added the script smb-ls that lists files on SMB shares and produces
-  output similar to the dir command on Windows. [Patrik Karlsson]
-
-o [Zenmap] Added Italian translation by Francesco Tombolini.
-
-o [NSE] Added the script eppc-enum-processes that enumerates active
-  applications, their PID and the UID under which they run through the Apple
-  Remote Event protocol. [Patrik Karlsson]
-
-o [NSE] Added the Internet Storage Name Service (iSNS) library and the
-  isns-info script that lists information about portals and iSCSI devices.
-  [Patrik Karlsson]
-
-o [NSE] Added rmi-vuln-classloader which scans for machines vulnerable to
-  remote class loading. [Aleksandar Nikolic]
+o [Zenmap] Added Italian translation by Francesco Tombolini and
+  Japanese translation b Yujiy Tounai.  Some typos in the Japanese
+  translation were corrected by OKANO Takayoshi.
 
 o [NSE] Rewrote mysql-brute to use brute library [Aleksandar Nikolic]
-
-o [Zenmap] Added Japanese translation by Yuji Tounai.
-
-o [NSE] Added the script icap-info, which tries to identify common ICAP
-  service names and list service and tag information. [Patrik Karlsson]
-
-o [NSE] Added the script http-traceroute, which exploits the
-  Max-Forwards HTTP header to detect reverse proxies. [Hani Benhabiles]
-
-o Added the script distcc-CVE-2004-2687 that checks and exploits a remote
-  command execution vulnerability in distcc. [Patrik Karlsson]
-
-o Added two new scripts mysql-query and mysql-dump-hashes, which add support
-  for performing custom MySQL queries and dump MySQL password hashes. [Patrik
-  Karlsson]
 
 o Improved the mysql library to handle multiple columns with the same name,
   added a formatResultset function to format a query response to a table
@@ -778,84 +631,11 @@ o The message "nexthost: failed to determine route to ..." is now a
   this way are recorded in the XML output as "target" elements. [David
   Fifield]
 
-o [NSE] Added the script http-drupal-modules, which enumerates the installed
-  Drupal modules using drupal-modules.lst. [Hani Benhabiles]
-
-o [NSE] Added the script dict-info, which retrieves information from a
-  DICT server, by issuing the SHOW SERVER command. [Patrik Karlsson]
-
-o [NSE] Added the script gkrellm-info, which displays information retrieved
-  from the GKRellm monitoring service. [Patrik Karlsson]
-
-o [NSE] Added the script ajp-request, which adds support for creating custom
-  Apache JServer Protocol requests. [Patrik Karlsson]
-
-o [NSE] Added the script ajp-brute, which enables password brute force auditing
-  against the Apache JServ Protocol service. [Patrik Karlsson]
-
-o [NSE] Added the script broadcast-tellstick-discover, which discovers Telldus
-  Technologies TellStickNet devices on the LAN. [Patrik Karlsson]
-
-o [NSE] Added the Apache JServer Protocol (AJP) library and the scripts
-  ajp-methods, ajp-headers and ajp-auth. [Patrik Karlsson]
-
-o Nmap's development pace has increased because Google (again)
-  sponsored 5 full-time college and graduate student programmer
-  interns this summer as part of their Summer of Code program!
-  Thanks, Google Open Source Department!  We're delighted to introduce
-  the team: http://seclists.org/nmap-dev/2012/q2/204
-
-o [NSE] Added the script mmouse-exec that connects to a Mobile Mouse server,
-  starts an application, and sends a sequence of keystrokes to it. [Patrik
-  Karlsson]
-
-o [NSE] Added the script mmouse-brute that performs brute force password
-  auditing against the Mobile Mouse service. [Patrik Karlsson]
-
-o [NSE] Added the script cups-queue-info that lists the contents of a remote
-  CUPS printer queue. [Patrik Karlsson]
-
-o [NSE] Added the script ip-forwarding that detects devices that have IP
-  forwarding enabled (acting as routers). [Patrik Karlsson]
-
-o [NSE] Added the script dns-check-zone that checks DNS configuration against
-  best practices including RFC 1912. [Patrik Karlsson]
-
-o [NSE] Added the http-gitweb-projects-enum that queries a gitweb for a list
-  of Git projects, their authors and descriptions. [riemann]
-
 o [NSE] targets-sniffer now is capable of sniffing IPv6 addresses.
   [Daniel Miller]
 
-o [NSE] Added the script traceroute-geolocation that queries geographic
-  locations of each traceroute hop and allows to export the results to KLM,
-  allowing the hops to be plotted on a map. [Patrik Karlsson]
-
-o [NSE] Added the ipp library and the script cups-info that lists available
-  printers by querying the cups network daemon. [Patrik Karlsson]
-
-o [NSE] Added the mobilme library and the scripts http-icloud-findmyiphone and
-  http-icloud-sendmsg, that finds the location of iOS devices and provides
-  functionality to send them messages. [Patrik Karlsson]
-
-o [NSE] Added gps library and the gpsd-info script that collects GPS data
-  from the gpsd daemon. [Patrik Karlsson]
-
 o [NSE] Ported the pop3-brute script to use the brute library.
   [Piotr Olma]
-
-o [NSE] Added hostmap-robtex.nse by Arturo Busleiman, which finds other
-  domain names sharing the IP address of the target.
-
-o [NSE] Added http-robtex-shared-ns by Arturo Busleiman, finding
-  domain names that share the same name server as the target.
-
-o [NSE] Added the script http-vlcstreamer-ls which queries the VLC Streamer
-  helper service for a list of files in a given directory. [Patrik Karlsson]
-
-o [NSE] Added script http-virustotal that allows checking files, or hashes
-  of previously scanned files, against the major antivirus engines. [Patrik
-  Karlsson]
 
 o [NSE] Added an error message indicating script failure, when Nmap is being
   run in non verbose/debug mode. [Patrik Karlsson]
@@ -863,16 +643,6 @@ o [NSE] Added an error message indicating script failure, when Nmap is being
 o Service-scan information is now included in XML and grepable output
   even if -sV wasn't used. This information can be set by scripts in the
   absence of -sV. [Daniel Miller]
-
-o [NSE] Added the script dns-ip6-arpa-scan which uses a very efficient
-  technique to scan the ip6.arpa zone for PTR records. [Patrik Karlsson]
-
-o [NSE] Added new script http-drupal-users-enum, which enumerates all available
-  Drupal user accounts by exploiting a vulnerability in the Views module.
-  [Hani Benhabiles]
-
-o [NSE] Added new script broadcast-ataoe-discover, which discovers ATA over
-  Ethernet capable devices through LAN ethernet broadcasts. [Patrik Karlsson]
 
 Nmap 6.01 [2012-06-16]
 
