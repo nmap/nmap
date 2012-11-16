@@ -12,6 +12,7 @@ _ENV = stdnse.module("ipp", stdnse.seeall)
 --
 -- A small CUPS ipp (Internet Printing Protocol) library implementation
 --
+-- @author Patrik Karlsson
 --
 
 -- The IPP layer
