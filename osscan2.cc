@@ -2407,7 +2407,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     if (lastboot != 0.0 && (hss->seq_send_times[0].tv_sec - lastboot > 63072000)) {
       /* Up 2 years?  Perhaps, but they're probably lying. */
       if (o.debugging) {
-        log_write(LOG_STDOUT, "Ignoring claimed %s uptime of %lu days",
+        log_write(LOG_STDOUT, "Ignoring claimed %s uptime of %lu days\n",
         hss->target->targetipstr(), (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
       }
       lastboot = 0;
