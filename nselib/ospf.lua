@@ -1,5 +1,5 @@
 ---
--- A minimalistic OSPF library, currently supporting IPv4 and the following
+-- A minimalistic OSPF (Open Shortest Path First routing protocol) library, currently supporting IPv4 and the following
 -- OSPF message types: HELLO
 --
 -- The library consists of an OSPF class that contains code to handle OSPFv2 packets.
