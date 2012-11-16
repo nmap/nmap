@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 09/18/2012
+.\"      Date: 11/15/2012
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "09/18/2012" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "11/15/2012" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -45,13 +45,14 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 6\&.02 ( http://nmap\&.org/ncat )
+Ncat 6\&.20BETA1 ( http://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
 \*(Aqs\*(Aq for seconds, \*(Aqm\*(Aq for minutes, or \*(Aqh\*(Aq for hours (e\&.g\&. 500ms)\&.
   \-4                         Use IPv4 only
   \-6                         Use IPv6 only
+  \-U, \-\-unixsock             Use Unix domain sockets only
   \-C, \-\-crlf                 Use CRLF for EOL sequence
   \-c, \-\-sh\-exec <command>    Executes the given command via /bin/sh
   \-e, \-\-exec <command>       Executes the given command
@@ -135,6 +136,16 @@ Force the use of IPv4 only\&.
 \fB\-6\fR (IPv6 only) .\" -6 (Ncat option)
 .RS 4
 Force the use of IPv6 only\&.
+.RE
+.PP
+\fB\-U\fR, \fB\-\-unixsock\fR (Use Unix domain sockets) .\" --unixsock (Ncat option) .\" -U (Ncat option)
+.RS 4
+Use Unix domain sockets rather than network sockets\&. This option may be used on its own for stream sockets, or combined with
+\fB\-\-udp\fR
+for datagram sockets\&. A description of
+\fB\-U\fR
+mode is in
+the section called \(lqUNIX DOMAIN SOCKETS\(rq\&.
 .RE
 .PP
 \fB\-u\fR, \fB\-\-udp\fR (Use UDP) .\" -u (Ncat option) .\" --udp (Ncat option)
@@ -325,7 +336,7 @@ This has the same functionality as
 .PP
 \fB\-\-deny \fR\fB\fIhost\fR\fR\fB[,\fIhost\fR,\&.\&.\&.]\fR (Deny connections) .\" --deny (Ncat option)
 .RS 4
-Issue Ncat with a list of hosts that will not be allowed to connect to the listening Ncat process\&. Specified hosts will have their session silently terminated if they try to connect\&. be disconnected\&. In case of a conflict between
+Issue Ncat with a list of hosts that will not be allowed to connect to the listening Ncat process\&. Specified hosts will have their session silently terminated if they try to connect\&. In case of a conflict between
 \fB\-\-allow\fR
 and
 \fB\-\-deny\fR,
@@ -374,9 +385,7 @@ Dump session data to a file
 .PP
 \fB\-x \fR\fB\fIfile\fR\fR, \fB\-\-hex\-dump \fR\fB\fIfile\fR\fR (Save session data in hex) .\" --hex-dump (Ncat option) .\" -x (Ncat option)
 .RS 4
-Dump session data in hex to a file\&. This can be used to
-\(lqreplay\(rq
-sessions\&.
+Dump session data in hex to a file\&.
 .RE
 .PP
 \fB\-\-append\-output\fR (Append output) .\" --append-output (Ncat option)
@@ -433,6 +442,28 @@ Handle DO/DONT WILL/WONT Telnet negotiations\&. This makes it possible to script
 .RS 4
 Displays the Ncat version number and exits\&.
 .RE
+.SH "UNIX DOMAIN SOCKETS"
+.PP
+The
+\fB\-U\fR
+option (same as
+\fB\-\-unixsock\fR) causes Ncat to use Unix domain sockets rather than network sockets\&. Unix domain sockets exist as an entry in the filesystem\&. You must give the name of a socket to connect to or to listen on\&. For example, to make a connection,
+.PP
+\fBncat \-U ~/unixsock\fR
+.PP
+To listen on a socket:
+.PP
+\fBncat \-l \-U ~/unixsock\fR
+.PP
+Listen mode will create the socket if it doesn\*(Aqt exist\&. The socket will continue to exist after the program ends\&.
+.PP
+Both stream and datagram domain sockets are supported\&. Use
+\fB\-U\fR
+on its own for stream sockets, or combine it with
+\fB\-\-udp\fR
+for datagram sockets\&. Datagram sockets require the use of the
+\fB\-\-source\fR
+option to specify a source socket to connect from\&.
 .SH "EXAMPLES"
 .PP
 Connect to example\&.org on TCP port 8080\&.

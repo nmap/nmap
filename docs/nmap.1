@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 09/18/2012
+.\"      Date: 11/15/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "09/18/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/15/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -92,7 +92,7 @@ PORT     STATE    SERVICE     VERSION
 9929/tcp open     nping\-echo  Nping echo
 Device type: general purpose
 Running: Linux 2\&.6\&.X
-OS CPE: cpe:/o:linux:kernel:2\&.6\&.39
+OS CPE: cpe:/o:linux:linux_kernel:2\&.6\&.39
 OS details: Linux 2\&.6\&.39
 Network Distance: 11 hops
 Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
@@ -123,7 +123,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 6\&.02 ( http://nmap\&.org )
+Nmap 6\&.20BETA1 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -1156,7 +1156,7 @@ One of Nmap\*(Aqs best\-known features is remote OS detection using TCP/IP stack
 nmap\-os\-db.\" nmap-os-db
 database of more than 2,600 known OS fingerprints and prints out the OS details if there is a match\&. Each fingerprint includes a freeform textual description of the OS, and a classification which provides the vendor name (e\&.g\&. Sun), underlying OS (e\&.g\&. Solaris), OS generation (e\&.g\&. 10), and device type (general purpose, router, switch, game console, etc)\&. Most fingerprints also have a Common Platform Enumeration (CPE).\" Common Platform Enumeration: operating system
 representation, like
-cpe:/o:linux:kernel:2\&.6\&.
+cpe:/o:linux:linux_kernel:2\&.6\&.
 .PP
 If Nmap is unable to guess the OS of a machine, and conditions are good (e\&.g\&. at least one open port and one closed port were found), Nmap will provide a URL you can use to submit the fingerprint if you know (for sure) the OS running on the machine\&. By doing this you contribute to the pool of operating systems known to Nmap and thus it will be more accurate for everyone\&.
 .PP
@@ -1594,13 +1594,16 @@ filtered
 ports isn\*(Aqt worth the extra time\&.
 .RE
 .PP
-\fB\-\-nsock\-engine epoll|select\fR .\" --nsock-engine .\" Nsock IO engine
+\fB\-\-nsock\-engine epoll|kqueue|poll|select\fR .\" --nsock-engine .\" Nsock IO engine
 .RS 4
 Enforce use of a given nsock IO multiplexing engine\&. Only the
 select(2)\-based fallback engine is guaranteed to be available on your system\&. Engines are named after the name of the IO management facility they leverage\&. Engines currenty implemented are
-epoll
-and
-select\&.
+epoll,
+kqueue,
+poll, and
+select, but not all will be present on any platform\&. Use
+\fBnmap \-V\fR
+to see which engines are supported\&.
 .RE
 .PP
 \fB\-T paranoid|sneaky|polite|normal|aggressive|insane\fR (Set a timing template) .\" -T .\" timing templates
