@@ -1,14 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Process latest Nmap OS submissions and corrections (IPv4 and IPv6).
-  Last done (for IPv4 anyway) in February 2012.
-
-o Review and consider integrating Tomas Hozza's UNIX-domain socket
-  support patch for nsock/ncat: http://seclists.org/nmap-dev/2012/q4/24.
-
-o Improve CPE coverage in OS detection DB from 84% to 90% (see CPE
-  entry a ways down for more on this).
-
 o Update the Nmap CHANGELOG for latest improvements
 
 o Do an Nmap dev release.  Last release was Nmap 6.01 June 22.
@@ -17,15 +8,6 @@ o Do an Nmap dev release.  Last release was Nmap 6.01 June 22.
 o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
   as well as testing usage of our normal builds (which we currently
   build on 10.6).
-
-o Add CPE entries to OS fingerpting DB entries which still lack them.
-  This is a gradual process since almost all of the missing ones
-  aren't in the official CPE dictionary either and it can take a lot
-  of research to decide on an appropriate entry.  Milestones so far:
-  - 3/21/12: We have entries for 2,601 of 3,572 fingerprints (971
-    missing; 73% coverage)
-  - 11/5/12: We have entries for 3,285 of 3,907 fingerpritns (622
-    missing; 84% coverage)
 
 o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
   6, since Linode doesn't currently offer ScientificLinux images).
@@ -204,6 +186,17 @@ o Investigate report of Nmap ARP discovery using the wrong target MAC
 
 o Nscan work [placeholder]
  - Hosted Nmap system
+
+o Add CPE entries to OS fingerpting DB entries which still lack them.
+  This is a gradual process since almost all of the missing ones
+  aren't in the official CPE dictionary either and it can take a lot
+  of research to decide on an appropriate entry.  Milestones so far:
+  - 3/21/12: We have entries for 2,601 of 3,572 fingerprints (971
+    missing; 73% coverage)
+  - 11/5/12: We have entries for 3,285 of 3,907 fingerpritns (622
+    missing; 84% coverage)
+  - 11/12/12: We have entries for 3,558 of 3,946 fingerprints (388
+    missing; 90% coverage).
 
 o [Zenmap] should actually parse and use script results. See
    http://seclists.org/nmap-dev/2010/q1/1108
@@ -693,6 +686,15 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Process latest Nmap OS submissions and corrections (IPv4 and IPv6).
+  Last done (for IPv4 anyway) in February 2012.
+
+o Review and consider integrating Tomas Hozza's UNIX-domain socket
+  support patch for nsock/ncat: http://seclists.org/nmap-dev/2012/q4/24.
+
+o Improve CPE coverage in OS detection DB from 84% to 90% (see CPE
+  entry a ways down for more on this).
 
 o Process latest service detection submissions.  They were last done
   in February 2012.
