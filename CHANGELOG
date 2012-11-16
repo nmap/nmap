@@ -6,11 +6,11 @@ o Integrated all of your IPv4 OS fingerprint submissions since January
   (more than 3,000 of them).  Added 373 fingerprints, bringing the new
   total to 3,946.  Additions include Linux 3.6, Windows 8, Windows
   Server 2012, Mac OS X 10.8, and a ton of new WAPs, printers,
-  routers, and other devices--including our first doorbell!  Many
-  existing fingerprints were improved. [David Fifield]
+  routers, and other devices--including our first IP-enabled doorbell!
+  Many existing fingerprints were improved. [David Fifield]
 
 o Integrated all of your service/version detection fingerprints
-  submitted since January--more than 1,500 of them!  Our signature
+  submitted since January (more than 1,500)!  Our signature
   count jumped by more than 400 to 8,645.  We now detect 897
   protocols, from extremely popular ones like http, ssh, smtp and imap
   to the more obscure airdroid, gopher-proxy, and
@@ -22,15 +22,15 @@ o Integrated your latest IPv6 OS submissions and corrections. We're
   new fingerprints (if Nmap doesn't find a good match) and corrections
   (if Nmap guesses wrong) are useful.
 
+o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
+  (Next Header) probes. [David Fifield]
+
 o Scripts can now return a structured name-value table so that results
   are query-able from XML output. Scripts can return a string as
   before, or a table, or a table and a string. In this last case, the
   table will go to XML output and the string will go to screen output.
   See http://nmap.org/book/nse-api.html#nse-structured-output [Daniel
   Miller, David Fifield, Patrick Donnelly]
-
-o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
-  (Next Header) probes. [David Fifield]
 
 o [Nsock] Added new poll and kqueue I/O engines for improved
   performance on Windows and BSD-based systems including Mac OS X.
@@ -435,8 +435,8 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     in a traceroute and optionally saves the results to a KML file,
     plottable on Google earth and maps. [Patrik Karlsson]
 
-o [NSE] Added 12 new protocol libraries, bring our total to 105! They were all written by
-  Patrik Karlsson, except for the EAP library by Riccardo Cecolin:
+o [NSE] Added 12 new protocol libraries, bring our total to 105!  Here
+  they are, with authors enclosed in brackets:
   + ajp (Apache JServ Protocol) [Patrik Karlsson]
   + base32 (Base32 encoding/decoding - RFC 4648) [Philip Pickering]
   + bjnp (Canon BJNP printer/scanner discovery protocol) [Patrik Karlsson]
@@ -457,10 +457,11 @@ o Added Common Platform Enumeration (CPE) identifiers to nearly 1,000
 
 o Scans that use OS sockets (including TCP connect scan, version
   detection, and script scan) now use the SO_BINDTODEVICE sockopt on
-  Linux, so that the -e option is honored. [David Fifield]
+  Linux, so that the -e (select network device) option is
+  honored. [David Fifield]
 
 o [Zenmap] Host filters can now do negative matching, for example you
-  could use "os:!linux" to match hosts NOT detected as Linux. [Daniel
+  can use "os:!linux" to match hosts NOT detected as Linux. [Daniel
   Miller]
 
 o Fixed a bug that caused an incorrect source address to be set when
