@@ -9,7 +9,7 @@ local math = require "math"
 local string = require "string"
 
 description = [[
-Discovers routers that are running PIM (Protocol Independant Multicast).
+Discovers routers that are running PIM (Protocol Independent Multicast).
 
 This works by sending a PIM Hello message to the PIM multicast address
 224.0.0.13 and listening for Hello messages from other routers.

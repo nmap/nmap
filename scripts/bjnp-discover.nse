@@ -1,5 +1,5 @@
 description = [[
-Retrievs printer or scanner information from a remote device supporting the
+Retrieves printer or scanner information from a remote device supporting the
 BJNP protocol. The protocol is known to be supported by network based Canon
 devices.
 ]]

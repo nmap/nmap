@@ -3,7 +3,7 @@ local stdnse = require "stdnse"
 local tab = require "tab"
 
 description = [[
-Sends a message to a iOS device throught the Apple MobileMe web service. The
+Sends a message to a iOS device through the Apple MobileMe web service. The
 device has to be registered with an Apple ID using the Find My Iphone
 application.
 ]]

@@ -8,7 +8,7 @@ local http = require "http"
 local comm = require "comm"
 
 description = [[
-Tests a web server for vulnerability to the Slowloris DoS attack by launching a Slowlaris attack.
+Tests a web server for vulnerability to the Slowloris DoS attack by launching a Slowloris attack.
 
 Slowloris was described at Defcon 17 by RSnake
 (see http://ha.ckers.org/slowloris/).

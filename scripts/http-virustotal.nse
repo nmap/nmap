@@ -7,9 +7,9 @@ local tab = require "tab"
 local table = require "table"
 
 description = [[
-Checks whether a file has been determined as malware by virustotal. Virustotal
+Checks whether a file has been determined as malware by Virustotal. Virustotal
 is a service that provides the capability to scan a file or check a checksum
-against a number of the major AntiVirus vendors. The script uses the public
+against a number of the major antivirus vendors. The script uses the public
 API which requires a valid API key and has a limit on 4 queries per minute.
 A key can be acquired by registering as a user on the virustotal web page:
 * http://www.virustotal.com
