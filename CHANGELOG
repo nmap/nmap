@@ -2,11 +2,53 @@
 
 Nmap 6.20BETA1 [2012-11-15]
 
+o Integrated all of your IPv4 OS fingerprint submissions since January
+  (more than 3,000 of them).  Added 373 fingerprints, bringing the new
+  total to 3,946.  Additions include Linux 3.6, Windows 8, Windows
+  Server 2012, Mac OS X 10.8, and a ton of new WAPs, printers,
+  routers, and other devices--including our first doorbell!  Many
+  existing fingerprints were improved. [David Fifield]
+
+o Integrated all of your service/version detection fingerprints
+  submitted since January--more than 1,500 of them!  Our signature
+  count jumped by more than 400 to 8,645.  We now detect 897
+  protocols, from extremely popular ones like http, ssh, smtp and imap
+  to the more obscure airdroid, gopher-proxy, and
+  enemyterritory. [David Fifield]
+
+o Integrated your latest IPv6 OS submissions and corrections. We're
+  still low on IPv6 fingerprints, so please scan any IPv6 systems you
+  own or administer and submit them to http://nmap.org/submit/.  Both
+  new fingerprints (if Nmap doesn't find a good match) and corrections
+  (if Nmap guesses wrong) are useful.
+
 o Scripts can now return a structured name-value table so that results
-  are queryable from XML output. Scripts can return a string as before,
-  or a table, or a table and a string. In this last case, the table will
-  go to XML output and the string will go to screen output.
-  [Daniel Miller, David Fifield, Patrick Donnelly]
+  are queryable from XML output. Scripts can return a string as
+  before, or a table, or a table and a string. In this last case, the
+  table will go to XML output and the string will go to screen output.
+  See http://nmap.org/book/nse-api.html#nse-structured-output [Daniel
+  Miller, David Fifield, Patrick Donnelly]
+
+o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
+  (Next Header) probes. [David Fifield]
+
+o [Nsock] Added new poll and kqueue I/O engines for improved
+  performance on Windows and BSD-based systems including Mac OS X.
+  These are in addition to the epoll engine (used on Linux) and the
+  classic select engine fallback for other system.  [Henri Doreau]
+
+o [Ncat] Added support for Unix domain sockets. The new -U and
+  --unixsock options activate this mode.  These provide compatibility
+  with Hobbit's original Netcat. [Tomas Hozza]
+
+o Moved some Windows dependencies, including OpenSSL, libsvn, and the
+  vcredist files, into a new public Subversion directory
+  /nmap-mswin32-aux and moved it out of the source tarball. This
+  reduces the compressed tarball size from 22 MB to 8 MB and similarly
+  reduces the bandwidth and storage required for an svn checkout.
+  Folks who build Nmap on Windows will need to check out
+  /nmap-mswin32-aux along with /nmap as described at
+  http://nmap.org/book/inst-windows.html#inst-win-source.
 
 o Many of the great features in this release were created by college
   and grad students generously sponsored by Google's Summer of Code
@@ -15,28 +57,15 @@ o Many of the great features in this release were created by college
   http://seclists.org/nmap-dev/2012/q2/204 and their successes
   documented at http://seclists.org/nmap-dev/2012/q4/138
 
-o [Nsock] Added new poll and kqueue engines. [Henri Doreau]
+o [NSE] Replaced old rpc grinder (rpc enumeration, performed as part
+  of version detection when a port seems to run a SunRPC service) with
+  a faster and easier to maintain NSE-based implementation.  This also
+  allowed us to remove the crufty old pos_scan scan engine. [Hani
+  Benhabiles]
 
-o [Ncat] Use the fallback nsock engine by default in order to maximize
-  compatibility between systems and use cases. [Henri Doreau]
-
-o [Nsock] Fixed compilation on Windows XP by restricting the use
-  of the poll engine to Vista and later. [Gisle Vanem]
-
-o [Ncat] Added support for Unix domain sockets. The new -U and
-  --unixsock options activate this mode.  These provide compatibility
-  with Hobbit's original Netcat. [Tomas Hozza]
-
-o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
-  (Next Header) probes. [David Fifield]
-
-o Moved some Windows dependencies, including OpenSSL, libsvn, and the
-  vcredist files, into a new public Subversion directory
-  /nmap-mswin32-aux. This reduces the size of source code
-  distributions for users who don't need these files. Those who build
-  on Windows will need to check out /nmap-mswin32-aux in parallel to
-  their nmap checkout as described at
-  http://nmap.org/book/inst-windows.html#inst-win-source.
+o Updated our Nmap Scripting Engine to use Lua 5.2 (and then 5.2.1)
+  rather than 5.1. See http://seclists.org/nmap-dev/2012/q2/34 for
+  details. [Patrick Donnelly]
 
 o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
   are all listed at http://nmap.org/nsedoc/, and the summaries are
@@ -406,11 +435,29 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     in a traceroute and optionally saves the results to a KML file,
     plottable on Google earth and maps. [Patrik Karlsson]
 
-o [NSE] Added support for ECDSA keys to ssh-hostkey.nse. [Adam Števko]
+o [NSE] Added 12 new protocol libraries, bring our total to 105! They were all written by
+  Patrik Karlsson, except for the EAP library by Riccardo Cecolin:
+  + ajp (Apache JServ Protocol) [Patrik Karlsson]
+  + base32 (Base32 encoding/decoding - RFC 4648) [Philip Pickering]
+  + bjnp (Canon BJNP printer/scanner discovery protocol) [Patrik Karlsson]
+  + cassandra (Cassandra database protocol) [Vlatko Kosturjak]
+  + eigrp (Cisco Enhanced Interior Gateway Routing Protocol) [Hani Benhabiles]
+  + gps (Global Positioning System - does GPRMC NMEA decoding) [Patrik Karlsson]
+  + ipp (CUPS Internet Printing Protocol) [Patrik Karlsson]
+  + isns (Internet Storage Name Service) [Patrik Karlsson]
+  + jdwp (Java Debug Wire Protocol) [Aleksandar Nikolic]
+  + mobileme (a service for managing Apple/Mac devices) [Patrik Karlsson]
+  + ospf (Open Shortest Path First routing protocol) [Patrik Karlsson]
+  + rdp (Remote Desktop Protocol) [Patrik Karlsson]
 
-o Changed the CPE for Linux from cpe:/o:linux:kernel to
-  cpe:/o:linux:linux_kernel to reflect deprecation in the official CPE
-  dictionary.
+o Added Common Platform Enumeration (CPE) identifiers to nearly 1,000
+  more OS detection signatures.  Nmap 6.01 had them for 2,608 of 3,572
+  fingerprints (73%) and now we have them for 3,558 out of 3,946
+  (90%). [David Fifield]
+
+o Scans that use OS sockets (including TCP connect scan, version
+  detection, and script scan) now use the SO_BINDTODEVICE sockopt on
+  Linux, so that the -e option is honored. [David Fifield]
 
 o Fixed a bug that caused an incorrect source address to be set when
   scanning certain addresses (apparently those ending in .0) on
@@ -420,21 +467,14 @@ o Fixed a bug that caused an incorrect source address to be set when
   Thanks to Robert Washam and Jorge Hernandez for reports and help
   debugging. [David Fifield]
 
-o Added some additional CPE entries to nmap-service-probes.
-  [Dillon Graham]
-
-o Fixed an assertion failure with IPv6 traceroute trying to use an
-  unsupported protocol:
-    nmap: traceroute.cc:749: virtual unsigned char*
-    UDPProbe::build_packet(const sockaddr_storage*, u32*) const: Assertion
-    `source->ss_family == 2' failed.
-  This was reported by Pierre Emeriaud. [David Fifield]
-
-o Scans that use OS sockets (including TCP connect scan, version
-  detection, and script scan) now use the SO_BINDTODEVICE sockopt on
-  Linux, so that the -e option is honored. [David Fifield]
-
 o Upgraded the included OpenSSL to version 1.0.1c. [David Fifield]
+
+o [NSE] Added changes to brute and unpwdb libraries to allow more
+  flexible iterator specification and control. [Aleksandar Nikolic]
+
+o Tested that our WinPcap installer works on Windows 8 and Windows
+  Server 2012 build 8400.  Updated to installer text to recommend that
+  users select the option to start 'NPF' at startup. [Rob Nicholls]
 
 o Changed libdnet's routing interface to return an interface name for
   each route on the most common operating systems. This is used to
@@ -456,6 +496,69 @@ o Fixed a bug that prevented Nmap from finding any interfaces when one
   of them had the type ARPHDR_IEEE80211; this was the case for wireless
   interfaces operating in access point mode. This bug was reported by
   Sebastiaan Vileijn. [Djalal Harouni]
+
+o [NSE] Script results for a host or service are now sorted
+  alphabetically by script name. [Sean Rivera]
+
+o Fixed a bug that prevented Nmap from finding any interfaces when any
+  interface had the type ARPHRD_VOID; this was the case for OpenVZ
+  venet interfaces. [Djalal Harouni, David Fifield]
+
+o Linux unreachable routes are now properly ignored. [David Fifield]
+
+o Added Dan Miller as an Nmap committer.  He has done a ton of great
+  work on Nmap, as you can see by searching for him in this CHANGELOG
+  or reading the Nmap committers list at
+  https://svn.nmap.org/nmap/docs/committers.txt.
+
+o Added a new --disable-arp-ping option. This option prevents Nmap
+  from implicitly using ARP or ND host discovery for discovering
+  directly connected Ethernet targets. This is useful in networks
+  using proxy ARP, which make all addresses appear to be up using ARP
+  scan. The previously recommended workaround for this situation,
+  --send-ip, didn't work on Windows because that lame excuse for an
+  operating system is still missing raw socket support.  [David
+  Fifield (editorializing added by Fyodor)]
+
+o Protocol scan (-sO) probes for TCP, UDP, and SCTP now go to ports
+  80, 40125, and 80 respectively, instead of being randomly generated
+  or going to the same port as the source port. [David Fifield]
+
+o The Nmap --log-errors functionality (including errors and warnings
+  in the normal-format output file) is now always true, whether you
+  pass that option or not. [Sean Rivera]
+
+o [NSE] Rewrote ftp-brute script to use the brute library for
+  performing password auditing. [Aleksandar Nikolic]
+
+o Reduced the size of Port structures by about two thirds (from 176 to
+  64 bytes on x86_64). They had accidentally grown during the IPv6
+  code merge. [David Fifield]
+
+o Made source port numbers (used to encode probe metadata) increment
+  so as not to overlap between different scanning phases. Previously
+  it was possible for an RST response to an ACK probe from host
+  discovery to be misinterpreted as a reply to a SYN probe from port
+  scanning. [Sean Rivera, David Fifield]
+
+o [NSE] Added support for ECDSA keys to ssh-hostkey.nse. [Adam Števko]
+
+o Changed the CPE for Linux from cpe:/o:linux:kernel to
+  cpe:/o:linux:linux_kernel to reflect deprecation in the official CPE
+  dictionary.
+
+o Added some additional CPE entries to nmap-service-probes.
+  [Dillon Graham]
+
+o Fixed an assertion failure with IPv6 traceroute trying to use an
+  unsupported protocol:
+    nmap: traceroute.cc:749: virtual unsigned char*
+    UDPProbe::build_packet(const sockaddr_storage*, u32*) const: Assertion
+    `source->ss_family == 2' failed.
+  This was reported by Pierre Emeriaud. [David Fifield]
+
+o Added version detection signatures for half a dozen new or changed
+  products. [Tom Sellers]
 
 o Fixed protocol number-to-name mapping. A patch was contributed by
   hejianet.
@@ -484,30 +587,10 @@ o [Ncat] Applied a blocking-socket workaround for a bug that could
   prevent some sends from working in listen mode. The problem was
   reported by Jonas Wielicki. [Alex Weber, David Fifield]
 
-o Protocol scan (-sO) probes for TCP, UDP, and SCTP now go to ports
-  80, 40125, and 80 respectively, instead of being randomly generated
-  or going to the same port as the source port. [David Fifield]
-
-o Made source port numbers (used to encode probe metadata) increment
-  so as not to overlap between different scanning phases. Previously
-  it was possible for an RST response to an ACK probe from host
-  discovery to be misinterpreted as a reply to a SYN probe from port
-  scanning. [Sean Rivera, David Fifield]
-
 o [NSE] Updated mssql.lua library to support additional data types,
   enhanced some of the existing data types, added the DoneProc
   response token, and reordered code for maintainability. [Tom
   Sellers]
-
-o Removed pos_scan scan engine as the old implementation of RPC grind was the
-  last scan type to use it. [Hani Benhabiles] 
-
-o [NSE] Replaced old rpc grind implementation with a new NSE based
-  implementation for easier maintainability and improved
-  performance. [Hani Benhabiles]
-
-o [NSE] Added eigrp.lua library which supports parsing and generating
-  a small subset of Cisco's EIGRP packets. [Hani Benhabiles]
 
 o [NPING] Nping now prints out an error and exists when the user tries to use
   the -p flag for a scan option where that is meaningless. [Sean Rivera] 
@@ -516,12 +599,6 @@ o [NSE] Added spoolss functions and constrants to msrpc.lua. [Aleksandar Nikolic
 
 o [NSE] Reduced the number of names tried by http-vhosts by default.
   [Vlatko Kosturjak]
-
-o Linux unreachable routes are now properly ignored. [David Fifield]
-
-o Fixed a bug that prevented Nmap from finding any interfaces when any
-  interface had the type ARPHRD_VOID; this was the case for OpenVZ
-  venet interfaces. [Djalal Harouni, David Fifield]
 
 o [Zenmap] Fixed a crash when using the en_NG locale: "ValueError:
   unknown locale: en_NG" [David Fifield]
@@ -536,25 +613,11 @@ o [NSE] lltd-discovery scripts now parses for hostnames and outputs network
 o Added protocol specific payloads for IPv6 hop-by-hop (0x00), routing (0x2b),
   fragment (0x2c), and destination (0x3c). [Sean Rivera] 
 
-o Added a new --disable-arp-ping option. This option prevents Nmap
-  from implicitly using ARP or ND host discovery for directly
-  connected Ethernet targets. This is useful in networks using proxy
-  ARP, which make all addresses appear to be up using ARP scan. The
-  previously recommended workaround for this situation, --send-ip,
-  didn't work on Windows because there are not raw sockets on Windows.
-  [David Fifield]
-
 o [NSE] Added support for decoding OSPF Hello packets to broadcast-listener.
   [Hani Benhabiles]
 
-o [NSE] Added ospf library which handles OSPFv2 packets.
-  [Patrik Karlsson]
-
 o [NSE] Fixed a false positive in http-vuln-cve2011-3192.nse, which detected
   Apache 2.2.22 as vulnerable. [Michael Meyer]
-
-o [NSE] Added changes to brute and unpwdb libraries to allow more
-  flexible iterator specification and control. [Aleksandar Nikolic]
 
 o [NSE] Modified multiple scripts that operated against HTTP based services
   so as to remove false positives that were generated when the target service 
@@ -572,15 +635,6 @@ o Added support for log type bitmasks in log_vwrite(). Also replaced a fatal()
 o Added handling for the unexpected error WSAENETRESET (10052). This error is
   currently wrapped in the ifdef for WIN32 as there error appears to be unique
   to windows [Sean Rivera]
-
-o Removed the log_errors variable. (Treating it as true everywhere). This
-  change did not effect the support for older scripts that still call it.
-  However nmap --log-errors now does nothing. Also updated the documentation to
-  reflect this change[Sean Rivera]
-
-o Reduced the size of Port structures by about two thirds (from 176 to
-  64 bytes on x86_64). They had accidentally been made bigger than
-  they should during the IPv6 code merge. [David Fifield]
 
 o [NSE] Added default values for Expires, Call-ID, Allow and Content-Length
   headers in SIP requests and removed redundant code in sip library.
@@ -617,7 +671,7 @@ o [NSE] Applied patch from Daniel Miller that fixes bug in several scripts and
   libraries http://seclists.org/nmap-dev/2012/q2/593 [Daniel Miller]
 
 o [Zenmap] Added Italian translation by Francesco Tombolini and
-  Japanese translation b Yujiy Tounai.  Some typos in the Japanese
+  Japanese translation by Yujiy Tounai.  Some typos in the Japanese
   translation were corrected by OKANO Takayoshi.
 
 o [NSE] Rewrote mysql-brute to use brute library [Aleksandar Nikolic]
