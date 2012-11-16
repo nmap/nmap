@@ -6,7 +6,7 @@ local http = require "http"
 local bin = require "bin"
 
 description = [[
-	Script gathers info from the Metasploit rpc service.
+Gathers info from the Metasploit rpc service.
 It requires a valid login pair. After authentication it 
 tries to determine Metasploit version and deduce the OS type.
 Then it creates a new console and executes few commands

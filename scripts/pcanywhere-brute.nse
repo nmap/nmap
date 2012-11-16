@@ -8,7 +8,7 @@ local bit = require "bit"
 local bin = require "bin"
 local table = require "table"
 description = [[
-Performs password guessing against pcAnywhere.
+Performs brute force password auditing against the pcAnywhere remote access protocol.
 
 Due to certain limitations of the protocol, bruteforcing
 is limited to single thread at a time.

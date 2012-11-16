@@ -5,7 +5,7 @@ local tab = require "tab"
 
 description = [[
 Retrieves the locations of all "Find my iPhone" enabled iOS devices by querying
-the MobileMe web service.
+the MobileMe web service (authentication required).
 ]]
 
 ---
