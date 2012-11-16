@@ -4,7 +4,7 @@ local shortport = require "shortport"
 local stdnse = require "stdnse"
 
 description = [[
-Requests a URI over the Apache JServe Protocol and displays the result
+Requests a URI over the Apache JServ Protocol and displays the result
 (or stores it in a file). Different AJP methods such as; GET, HEAD,
 TRACE, PUT or DELETE may be used.
 
