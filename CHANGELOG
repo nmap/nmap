@@ -23,7 +23,7 @@ o Integrated your latest IPv6 OS submissions and corrections. We're
   (if Nmap guesses wrong) are useful.
 
 o Scripts can now return a structured name-value table so that results
-  are queryable from XML output. Scripts can return a string as
+  are query-able from XML output. Scripts can return a string as
   before, or a table, or a table and a string. In this last case, the
   table will go to XML output and the string will go to screen output.
   See http://nmap.org/book/nse-api.html#nse-structured-output [Daniel
@@ -57,7 +57,7 @@ o Many of the great features in this release were created by college
   http://seclists.org/nmap-dev/2012/q2/204 and their successes
   documented at http://seclists.org/nmap-dev/2012/q4/138
 
-o [NSE] Replaced old rpc grinder (rpc enumeration, performed as part
+o [NSE] Replaced old RPC grinder (RPC enumeration, performed as part
   of version detection when a port seems to run a SunRPC service) with
   a faster and easier to maintain NSE-based implementation.  This also
   allowed us to remove the crufty old pos_scan scan engine. [Hani
@@ -81,19 +81,19 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     Apache JServ protocol. [Patrik Karlsson]
 
   + ajp-headers performs a HEAD or GET request against either the root
-    directory or any optional directory of an Apache JServe Protocol
+    directory or any optional directory of an Apache JServ Protocol
     server and returns the server response headers. [Patrik Karlsson]
 
   + ajp-methods discovers which options are supported by the AJP
     (Apache JServ Protocol) server by sending an OPTIONS request and
     lists potentially risky methods. [Patrik Karlsson]
 
-  + ajp-request requests a URI over the Apache JServe Protocol and
+  + ajp-request requests a URI over the Apache JServ Protocol and
     displays the result (or stores it in a file). Different AJP
     methods such as; GET, HEAD, TRACE, PUT or DELETE may be
     used. [Patrik Karlsson]
 
-  + bjnp-discover retrievs printer or scanner information from a
+  + bjnp-discover retrieves printer or scanner information from a
     remote device supporting the BJNP protocol. The protocol is known
     to be supported by network based Canon devices. [Patrik Karlsson]
 
@@ -117,7 +117,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     Benhabiles]
 
   + broadcast-pim-discovery discovers routers that are running PIM
-    (Protocol Independant Multicast). [Hani Benhabiles]
+    (Protocol Independent Multicast). [Hani Benhabiles]
 
   + broadcast-tellstick-discover discovers Telldus Technologies
     TellStickNet devices on the LAN. The Telldus TellStick is used to
@@ -164,7 +164,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     and pid of the application, if it is running, prior to requesting
     authentication. [Patrik Karlsson]
 
-  + firewall-bypass detects a vulnerability in netfilter and other
+  + firewall-bypass detects a vulnerability in Netfilter and other
     firewalls that use helpers to dynamically open ports for protocols
     such as ftp and sip. [Hani Benhabiles]
 
@@ -223,9 +223,9 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     iPhone" enabled iOS devices by querying the MobileMe web service
     (authentication required). [Patrik Karlsson]
 
-  + http-icloud-sendmsg sends a message to a iOS device throught the
+  + http-icloud-sendmsg sends a message to a iOS device through the
     Apple MobileMe web service. The device has to be registered with
-    an Apple ID using the Find My Iphone application. [Patrik
+    an Apple ID using the Find My iPhone application. [Patrik
     Karlsson]
 
   + http-phpself-xss crawls a web server and attempts to find PHP
@@ -251,7 +251,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     attack. [Aleksandar Nikolic]
 
   + http-slowloris tests a web server for vulnerability to the
-    Slowloris DoS attack by launching a Slowlaris attack. [Aleksandar
+    Slowloris DoS attack by launching a Slowloris attack. [Aleksandar
     Nikolic, Ange Gutek]
 
   + http-tplink-dir-traversal exploits a directory traversal
@@ -266,7 +266,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
   + http-virustotal checks whether a file has been determined as
     malware by virustotal. Virustotal is a service that provides the
     capability to scan a file or check a checksum against a number of
-    the major AntiVirus vendors. [Patrik Karlsson]
+    the major antivirus vendors. [Patrik Karlsson]
 
   + http-vlcstreamer-ls connects to a VLC Streamer helper service and
     lists directory contents. The VLC Streamer helper service is used
@@ -292,11 +292,11 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     request to a given target using the scanned host as default
     gateway. [Patrik Karlsson]
 
-  + ipv6-ra-flood generates a flood of Router Adverisments (RA) with
+  + ipv6-ra-flood generates a flood of Router Advertisements (RA) with
     random source MAC addresses and IPv6 prefixes. Computers, which
     have stateless autoconfiguration enabled by default (every major
     OS), will start to compute IPv6 suffix and update their routing
-    table to reflect the accepted annoucement. This will cause 100%
+    table to reflect the accepted announcement. This will cause 100%
     CPU usage on Windows and platforms, preventing to process other
     application requests. [Adam Stevko]
 
@@ -332,7 +332,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     port identified as ePO Agent port. [Didier Stevens and Daniel
     Miller]
 
-  + metasploit-info gathers info from the Metasploit rpc service.  It
+  + metasploit-info gathers info from the Metasploit RPC service.  It
     requires a valid login pair. After authentication it tries to
     determine Metasploit version and deduce the OS type.  Then it
     creates a new console and executes few commands to get additional
@@ -357,7 +357,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     services and displays the gathered information. [Aleksandar
     Nikolic]
 
-  + ms-sql-dac qeries the Microsoft SQL Browser service for the DAC
+  + ms-sql-dac queries the Microsoft SQL Browser service for the DAC
     (Dedicated Admin Connection) port of a given (or all) SQL Server
     instance. The DAC port is used to connect to the database instance
     when normal connection attempts fail, for example, when server is
@@ -380,7 +380,7 @@ o [NSE] Added 85(!) NSE scripts, bringing the total up to 433.  They
     hashes. [Paulino Calderon]
 
   + oracle-brute-stealth exploits the CVE-2012-3137 vulnerability, a
-    weaknes in Oracle's O5LOGIN authentication scheme.  The
+    weakness in Oracle's O5LOGIN authentication scheme.  The
     vulnerability exists in Oracle 11g R1/R2 and allows linking the
     session key to a password hash. [Dhiru Kholia]
 
@@ -460,7 +460,7 @@ o Scans that use OS sockets (including TCP connect scan, version
   Linux, so that the -e option is honored. [David Fifield]
 
 o [Zenmap] Host filters can now do negative matching, for example you
-  could use "os:!linux" to match hosts NOT detectes as Linux. [Daniel
+  could use "os:!linux" to match hosts NOT detected as Linux. [Daniel
   Miller]
 
 o Fixed a bug that caused an incorrect source address to be set when
@@ -599,10 +599,10 @@ o [NSE] Updated mssql.lua library to support additional data types,
   response token, and reordered code for maintainability. [Tom
   Sellers]
 
-o [NPING] Nping now prints out an error and exists when the user tries to use
+o [Nping] Nping now prints out an error and exists when the user tries to use
   the -p flag for a scan option where that is meaningless. [Sean Rivera] 
 
-o [NSE] Added spoolss functions and constrants to msrpc.lua. [Aleksandar Nikolic]
+o [NSE] Added spoolss functions and constants to msrpc.lua. [Aleksandar Nikolic]
 
 o [NSE] Reduced the number of names tried by http-vhosts by default.
   [Vlatko Kosturjak]
@@ -651,7 +651,7 @@ o [NSE] Calling methods of unconnected sockets now causes the usual
   error code return value, instead of raising a Lua error. The problem
   was noticed by Daniel Miller. [David Fifield]
 
-o [NSE] Added AUTH_UNIX support to the rpc library and nfs scripts.
+o [NSE] Added AUTH_UNIX support to the rpc library and NFS scripts.
   [Daniel Miller]
 
 o [Zenmap] Fixed a crash in the profile editor that would happen when
@@ -13310,5 +13310,4 @@ o Changed the makefile 'all' target to use install-sh rather than
 o Documentation updated and clarified slightly.
 
 o Added this CHANGELOG file to the distribution. 
-
 
