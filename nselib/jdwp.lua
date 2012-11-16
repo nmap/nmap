@@ -1,4 +1,4 @@
---- JDWP library implementing a set of commands needed to 
+--- JDWP (Java Debug Wire Protocol) library implementing a set of commands needed to 
 --  use remote debugging port and inject java bytecode. 
 --
 -- There are two basic packet types in JDWP protool. 
