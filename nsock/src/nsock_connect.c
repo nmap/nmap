@@ -108,7 +108,7 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
     errno = 0;
     if (setsockopt(iod->sd, SOL_SOCKET, SO_BINDTODEVICE, ms->device, strlen(ms->device) + 1) == -1) {
       if ((errno != EPERM && ms->tracelevel > 0) || ms->tracelevel > 5)
-        nsock_trace(ms, "Setting of SO_BROADCAST failed (IOD #%li)", iod->id);
+        nsock_trace(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li)", iod->id);
     }
 #endif
   }
