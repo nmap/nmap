@@ -1,5 +1,5 @@
 ---
--- A minimal RDP library. Currently has functionality to determine encryption
+-- A minimal RDP (Remote Desktop Protocol) library. Currently has functionality to determine encryption
 -- and cipher support.
 -- 
 --
