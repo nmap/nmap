@@ -12,7 +12,7 @@ local string = require "string"
 
 description = [[
 Performs network discovery and routing information gathering through
-Cisco's EIGRP protocol.
+Cisco's Enhanced Interior Gateway Routing Protocol (EIGRP).
 
 The script works by sending an EIGRP Hello packet with the specified Autonomous
 System value to the 224.0.0.10 multicast address and listening for EIGRP Update
