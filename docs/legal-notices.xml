@@ -149,14 +149,25 @@ which is open-source software, written by Philip Hazel.<indexterm><primary>Hazel
 Certain raw networking functions use the
 <ulink role="hidepdf" url="http://libdnet.sourceforge.net">Libdnet</ulink><indexterm><primary>libdnet</primary></indexterm>
 networking library, which was written by Dug Song.<indexterm><primary>Song, Dug</primary></indexterm>
-A modified version is distributed with Nmap.
+A modified version is distributed with Nma.p
 Nmap can optionally link with the
 <ulink role="hidepdf" url="http://www.openssl.org">OpenSSL
 cryptography toolkit</ulink><indexterm><primary>OpenSSL</primary></indexterm>
 for SSL version detection support.
 The Nmap Scripting Engine uses an embedded version of
 the <ulink role="hidepdf" url="http://www.lua.org">Lua programming
-language</ulink>.<indexterm><primary>Lua programming language</primary></indexterm>
+language</ulink>.<indexterm><primary>Lua programming
+language</primary></indexterm>  The <ulink role="hidepdf" url="http://www.csie.ntu.edu.tw/~cjlin/liblinear/">Liblinear
+linear classification library</ulink> is used for our 
+<man>
+<ulink
+url="http://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6">IPv6
+OS detection machine learning techniques</ulink>.
+</man>
+<notman>
+IPv6 OS detection machine
+learning techniques (see <xref linkend="osdetect-guess-ipv6"/>).
+</notman>
 All of the third-party software described in this paragraph is freely
 redistributable under BSD-style software licenses.</para>
 
