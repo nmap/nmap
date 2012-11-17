@@ -2561,10 +2561,15 @@ which is open\-source software, written by Philip Hazel\&..\" Hazel, Philip
 Certain raw networking functions use the
 \m[blue]\fBLibdnet\fR\m[]\&\s-2\u[24]\d\s+2.\" libdnet
 networking library, which was written by Dug Song\&..\" Song, Dug
-A modified version is distributed with Nmap\&. Nmap can optionally link with the
+A modified version is distributed with Nma\&.p Nmap can optionally link with the
 \m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[25]\d\s+2.\" OpenSSL
 for SSL version detection support\&. The Nmap Scripting Engine uses an embedded version of the
 \m[blue]\fBLua programming language\fR\m[]\&\s-2\u[26]\d\s+2\&..\" Lua programming language
+The
+\m[blue]\fBLiblinear linear classification library\fR\m[]\&\s-2\u[27]\d\s+2
+is used for our
+\m[blue]\fBIPv6 OS detection machine learning techniques\fR\m[]\&\s-2\u[28]\d\s+2\&.
+
 All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
 .PP
 Binary packages for Windows and Mac OS X include support libraries necessary to run Zenmap and Ndiff with Python and PyGTK\&. (Unix platforms commonly make these libraries easy to install, so they are not part of the packages\&.) A listing of these support libraries and their licenses is included in the
@@ -2572,20 +2577,20 @@ LICENSES
 files\&.
 .PP
 This software was supported in part through the
-\m[blue]\fBGoogle Summer of Code\fR\m[]\&\s-2\u[27]\d\s+2
+\m[blue]\fBGoogle Summer of Code\fR\m[]\&\s-2\u[29]\d\s+2
 and the
-\m[blue]\fBDARPA CINDER program\fR\m[]\&\s-2\u[28]\d\s+2
+\m[blue]\fBDARPA CINDER program\fR\m[]\&\s-2\u[30]\d\s+2
 (DARPA\-BAA\-10\-84)\&.
 .SS "United States Export Control.\" export control"
 .PP
 Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, Insecure\&.Com LLC believes that Nmap is not subject to U\&.S\&.
-\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[29]\d\s+2
+\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[31]\d\s+2
 export control\&. As such, there is no applicable ECCN (export control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
 When compiled with OpenSSL support or distributed as source code, Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN
-\m[blue]\fB5D002\fR\m[]\&\s-2\u[30]\d\s+2
+\m[blue]\fB5D002\fR\m[]\&\s-2\u[32]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
-\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[31]\d\s+2\&.
+\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[33]\d\s+2\&.
 .SH "NOTES"
 .IP " 1." 4
 Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning
@@ -2718,26 +2723,36 @@ Lua programming language
 \%http://www.lua.org
 .RE
 .IP "27." 4
+Liblinear linear classification library
+.RS 4
+\%http://www.csie.ntu.edu.tw/~cjlin/liblinear/
+.RE
+.IP "28." 4
+IPv6 OS detection machine learning techniques
+.RS 4
+\%http://nmap.org/book/osdetect-guess.html#osdetect-guess-ipv6
+.RE
+.IP "29." 4
 Google Summer of Code
 .RS 4
 \%http://nmap.org/soc/
 .RE
-.IP "28." 4
+.IP "30." 4
 DARPA CINDER program
 .RS 4
 \%https://www.fbo.gov/index?s=opportunity&mode=form&id=585e02a51f77af5cb3c9e06b9cc82c48&tab=core&_cview=1
 .RE
-.IP "29." 4
+.IP "31." 4
 Export Administration Regulations (EAR)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/ear_data.html
 .RE
-.IP "30." 4
+.IP "32." 4
 5D002
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/ccl5-pt2.pdf
 .RE
-.IP "31." 4
+.IP "33." 4
 EAR 740.13(e)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/740.pdf
