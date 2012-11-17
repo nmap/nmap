@@ -5,8 +5,9 @@
 I. ZENMAP BUILD DEPENDENCIES
 
 The dependencies of Zenmap are stored in Subversion in the directory
-/nmap-mswin32-aux. See the file Python-upgrade.txt there for more
-information.
+/nmap-mswin32-aux. This should be checked out in a sibling directory
+to the 'nmap' source code directory you wish to build.  See the file
+Python-upgrade.txt there for more information.
 
 
 II. OTHER REQUIREMENTS
