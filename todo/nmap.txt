@@ -1,21 +1,19 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Update the Nmap CHANGELOG for latest improvements
-
-o Do an Nmap dev release.  Last release was Nmap 6.01 June 22.
-  o Update Nmap version number and auto-generated files for release.
-
 o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
   as well as testing usage of our normal builds (which we currently
   build on 10.6).
 
-o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
-  6, since Linode doesn't currently offer ScientificLinux images).
-  o Maybe start with svn server, since we've had reports of our
-    current one giving people unexpected password prompts.  There is a
-    thread about that at http://seclists.org/nmap-dev/2012/q2/17
-    o UPDATE on this - adding read-only rights (rather than no rights)
-      to the root of the svn repo seems to have solved this problem.
+o Complete migration away from Syn colocated machine
+ - Move submission CGIs to web
+   - Make sure notification still works
+ - Mailman
+   - Install mailman software on web, including CGIs
+   - Migrate mailing lists to web
+
+o Make a branch from the 6.20BETA1 release (r30266) for new stable
+  release, apply any important bugfix patches from the meantime and then
+  release it after Thanksgiving as new Stable release.
 
 o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
@@ -96,9 +94,6 @@ o Investigate WinPcap support for NDIS 6.
     I'm not sure what Windows releases support NDIS 6 or what the
     backward compatability is like.
 
-o Consider including OpenSSL in our Nmap tarball
- - Need to check the size, etc.
-
 o NSE WORK (note that this is mostly infrastructure because script
   ideas are generally put on the script ideas page instead:
   https://secwiki.org/w/Nmap_Script_Ideas)
@@ -127,16 +122,20 @@ o Consider making a version of Nmap for Apple's official Mac App
   able to request all the permissions it needs?  Ignoring the
   technical challenges for the moment, what will users prefer?
 
+o Migrate web.insecure.org to a RHEL-6 derived distro (probably CENTOS
+  6, since Linode doesn't currently offer ScientificLinux images).
+  o Actually, if we can wait until "second half of 2013", we might be
+    able to jump straight to RHEL 7.  And RHEL 5 support looks like it
+    will go on for many more years for critical/security patches.
+  o Maybe start with svn server, since we've had reports of our
+    current one giving people unexpected password prompts.  There is a
+    thread about that at http://seclists.org/nmap-dev/2012/q2/17
+    o UPDATE on this - adding read-only rights (rather than no rights)
+      to the root of the svn repo seems to have solved this problem.
+
 o Maybe we should add an analysis or reporting or intelligence (or
   different name) for our NSE scripts which don't send any packets, but
   simply analyze Nmap's existing data and report when useful.
-
-o Make sure we update everywhere relevant (e.g. refguide, etc.) to
-  note the addition in Nmap of the Liblinear library for large linear
-  classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). It
-  uses a three-clause BSD license:
-  http://www.csie.ntu.edu.tw/~cjlin/liblinear/COPYRIGHT
-  - David has added it to 3rd-party-licenses.txt
 
 o Install some sort of svnview webapp for svn.nmap.org which is
   wrapped in Insecure chrome, allows people to click link for direct
@@ -316,11 +315,6 @@ o Create new default username list:
     list like "root", "admin", "administrator", "web", "user", "test",
     and also a general list which we obtain from spidering from
     emails, etc.
-
-o Add IPv6 support to Nping, including raw packet mode (hopefully
-  sharing as much code with Nmap as possible, though Nping's packet code
-  is a bit different), and also including echo mode server and client
-  support.
 
 o [NCAT] Send one line at a time when --delay is in effect. This is
   cumbersome to do until Nsock supports buffered reading.
@@ -532,15 +526,6 @@ o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   in error.  For some inspiration/ideas, look at Diman's NSE
   debugger (http://seclists.org/nmap-dev/2008/q1/0228.html).
 
-o [NSE] We may want to consider a better exception handling method --
-  one which doesn't require wrapping every I/O line in its own try
-  function call.  David says "Lua has an internal "exception handling"
-  mechanism based on a function called pcall, which is implemented
-  with setjmp/longjmp.  You can wrap a function call in it and the
-  function will return there whenever there's an unhandled error.
-  Something based on that would be better [than the current system], I
-  think."
-
 o [NSE] Support routing http requests through proxies.
 
 o Consider offering a way to link Winpcap DLLs so that they start the
@@ -686,6 +671,42 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] We may want to consider a better exception handling method --
+  one which doesn't require wrapping every I/O line in its own try
+  function call.  David says "Lua has an internal "exception handling"
+  mechanism based on a function called pcall, which is implemented
+  with setjmp/longjmp.  You can wrap a function call in it and the
+  function will return there whenever there's an unhandled error.
+  Something based on that would be better [than the current system], I
+  think."
+  - This one is obsolete as the Lua 5.2 now lets you do a Lua yield
+    across C function calls.
+
+o Add IPv6 support to Nping, including raw packet mode (hopefully
+  sharing as much code with Nmap as possible, though Nping's packet code
+  is a bit different), and also including echo mode server and client
+  support.
+
+o Make sure we update everywhere relevant (e.g. refguide, etc.) to
+  note the addition in Nmap of the Liblinear library for large linear
+  classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). It
+  uses a three-clause BSD license:
+  http://www.csie.ntu.edu.tw/~cjlin/liblinear/COPYRIGHT
+  - David has added it to 3rd-party-licenses.txt
+  - Fyodor moved it into the refguide
+
+o Consider including OpenSSL in our Nmap tarball
+ - Need to check the size, etc.
+ - OK, we're counting this as done because we took all the Win
+   binaries out of the tarball and put them in an nmap-mswin32-aux svn
+   directory which users check out to compile Nmap on Windows, and
+   OpenSSL is included in this.
+
+o Update the Nmap CHANGELOG for latest improvements
+
+o Do an Nmap dev release.  Last release was Nmap 6.01 June 22.
+  o Update Nmap version number and auto-generated files for release.
 
 o Process latest Nmap OS submissions and corrections (IPv4 and IPv6).
   Last done (for IPv4 anyway) in February 2012.
