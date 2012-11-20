@@ -59,8 +59,6 @@
 #define _GNU_SOURCE
 #endif
 
-#include <errno.h>
-
 #ifdef HAVE_CONFIG_H
 #include "nsock_config.h"
 #elif WIN32
@@ -68,6 +66,8 @@
 #endif
 
 #if HAVE_POLL
+
+#include <errno.h>
 
 #ifndef WIN32
 #include <poll.h>
