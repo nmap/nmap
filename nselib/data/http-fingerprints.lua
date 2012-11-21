@@ -2561,12 +2561,12 @@ table.insert(fingerprints, {
         method = 'HEAD'
       },
       {
-      	path = '/sitecore/admin/',
-      	method = 'HEAD'
+        path = '/sitecore/admin/',
+        method = 'HEAD'
       },
       {
-      	path = '/sitecore/login/admin/',
-      	method = 'HEAD'
+        path = '/sitecore/login/admin/',
+        method = 'HEAD'
       }
     },
     matches = {
@@ -11619,8 +11619,8 @@ table.insert(fingerprints, {
         method = 'GET'
       },
       {
-      	path = '/sitecore/login/default.aspx',
-      	method = 'GET'
+        path = '/sitecore/login/default.aspx',
+        method = 'GET'
       }
     },
     matches = {
@@ -11629,12 +11629,12 @@ table.insert(fingerprints, {
         output = '\\1.\\2.\\3 (rev. \\4)'
       },
       {
-      	match = 'class="SystemInformationDivider">.*Sitecore.NET ([^<]*)</div>',
-      	output = '\\1'
+        match = 'class="SystemInformationDivider">.*Sitecore.NET ([^<]*)</div>',
+        output = '\\1'
       },
       {
-      	match = '<hr/>.*Sitecore version ([^<]*)</div>',
-      	output = '\\1'
+        match = '<hr/>.*Sitecore version ([^<]*)</div>',
+        output = '\\1'
       },
       {
         match = '',
