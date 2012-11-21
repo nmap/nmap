@@ -7946,6 +7946,165 @@ table.insert(fingerprints, {
     }
   });
 
+-- Moodle
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/pix/moodlelogo.gif',
+        method = 'HEAD'
+      },
+      {
+        path = '/admin/environment.xml',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Moodle files'
+      }
+    }
+  });
+
+-- typo3
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/typo3/index.php',
+        method = 'GET'
+      },
+      {
+        path = '/typo3/README.txt',
+        method = 'GET'
+      },
+      {
+        path = '/t3lib/README.txt',
+        method = 'GET'
+      },
+      {
+        path = '/typo3/sysext/t3skin/images/login/typo3logo-white-greyback.gif',
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = 'Login to the TYPO3',
+        output = 'Typo3 login page'
+      },
+      {
+        match = 'TYPO3 Backend Administration',
+        output = 'Typo3 readme file'
+      },
+      {
+        match = 'TYPO3 Library',
+        output = 'Typo3 Library readme'
+      },
+      {
+        match = '',
+        output = 'Typo3 Installation'
+      },
+    }
+  });
+
+------------------------------------------------
+----                 MAIL                   ----
+------------------------------------------------
+
+-- SquirrelMail
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/squirrelmail/src/login.php',  -- Might return login page with version info
+        method = 'GET'
+      },
+      {
+        path = '/webmail/src/login.php',  -- Might return login page with version info
+        method = 'GET'
+      },
+      {
+        path = '/src/login.php',  -- Might return login page with version info
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '<small>([^<]*)<br />',  -- version extraction (squirrelMail)
+        output = '\\1'
+      },
+      {
+        match = 'squirrelmail',
+        output = 'SquirrelMail'
+      }
+    }
+  });
+
+-- SquirrelMail files
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/squirrelmail/images/sm_logo.png',  -- Standard logo file
+        method = 'HEAD'
+      },
+      {
+        path = '/webmail/images/sm_logo.png',   -- Standard logo file
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'SquirrelMail'
+      }
+    }
+  });
+
+-- RoundCube
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/',
+        method = 'GET'
+      },
+      {
+        path = '/program/',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '<title>Index of /program</title>',
+        output = 'RoundCube (Directory listing)'
+      },
+      {
+        match = 'rcube_webmail', -- RoundCube
+        output = 'RoundCube'
+      },
+    }
+  });
+
+-- RoundCube file
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
+        path = '/skins/default/images/roundcube_logo.png',  -- Standard logo file
+        method = 'HEAD'
+      }
+    },
+    matches = {
+      {
+        match = '',
+        output = 'RoundCube'
+      }
+    }
+  });
+
+
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
 ------------------------------------------------
@@ -8030,12 +8189,45 @@ table.insert(fingerprints, {
 ----    MISCELLANEOUS ITEMS OF INTEREST     ----
 ------------------------------------------------
 
+-- Moodle files
+table.insert(fingerprints, {
+    category = 'miscellaneous',
+    probes = {
+      {
+        path = '/lib/db/install.xml'
+      },
+      {
+        path = '/lib/thirdpartylibs.xml'
+      },
+      {
+        path = '/local/readme.txt'
+      }
+    },
+    matches = {
+      {
+        match = 'XMLDB file for core Moodle tables',
+        output = 'Moodle db installation file'
+      },
+      {
+        match = '<libraries>',
+        output = 'Moodle thirdpartylibs.xml'
+      },
+      {
+        match = 'This file is part of Moodle',
+        output = 'Moodle local/readme.txt'
+      }
+    }
+  });
+
 -- interesting README  files
 table.insert(fingerprints, {
     category = 'miscellaneous',
     probes = {
       {
         path = '/README'
+      },
+      {
+        path = '/README.txt'
       },
       {
         path = '/xoda/README'
@@ -11418,8 +11610,9 @@ table.insert(fingerprints, {
     }
   });
 
+-- Sitecore Version
 table.insert(fingerprints, {
-    category = 'general',
+    category = 'cms',
     probes = {
       {
         path = '/sitecore/shell/sitecore.version.xml',
@@ -11442,6 +11635,60 @@ table.insert(fingerprints, {
       {
       	match = '<hr/>.*Sitecore version ([^<]*)</div>',
       	output = '\\1'
+      },
+      {
+        match = '',
+        output = 'Sitecore.NET login page'
       }
     }
+  });
+
+-- Sitecore
+table.insert(fingerprints, {
+    category = 'cms',
+    probes = {
+      {
+        path = '/sitecore/admin/stats.aspx', -- Removed in version 6.3.1 (rev. 110112)
+        method = 'HEAD'
+      },
+      {
+        path = '/sitecore/admin/unlock_admin.aspx', -- disabled per default in 6.2.0 (rev.100507) 
+        method = 'HEAD'
+      },
+      {
+        path = '/sitecore/shell/Applications/shell.xml',
+        method = 'HEAD'
+      },
+      {
+        path = '/sitecore/admin/ShowConfig.aspx',
+        method = 'HEAD'
+      },
+      {
+        path = '/App_Config/Security/Domains.config.xml',
+        method = 'HEAD'
+      },
+      {
+        path = '/App_Config/Security/GlobalRoles.config.xml',
+        method = 'HEAD'
+      },
+      {
+        path = '/sitecore%20modules/staging/service/api.asmx',
+        method = 'HEAD'
+      },
+      {
+        path = '/sitecore%20modules/staging/workdir',
+        method = 'HEAD'
+      },
+      {
+        path = '/sitecore/system/Settings/Security/Profiles',
+        method = 'HEAD'
+      },
+
+    },
+    matches = {
+      {
+        match = '',
+        output = 'Sitecore.NET (CMS)'
+      }
+    },
   });
