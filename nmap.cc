@@ -2336,7 +2336,9 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
 
   /* Ensure the log file ends with a newline */
   filestr[filelen - 1] = '\n';
-  munmap(filestr, filelen);
+  if (munmap(filestr, filelen) != 0)
+    gh_perror("%s: error in munmap(%p, %u)", __func__, filestr, filelen);
+
   return 0;
 }
 
