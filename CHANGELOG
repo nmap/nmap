@@ -1,8 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 6.20BETA1 [2012-11-16]
-
 o Added some new checks for failed library calls. [Bill Parker]
+
+Nmap 6.20BETA1 [2012-11-16]
 
 o Integrated all of your IPv4 OS fingerprint submissions since January
   (more than 3,000 of them).  Added 373 fingerprints, bringing the new
