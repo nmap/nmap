@@ -35,6 +35,8 @@ route_open(void)
 	route_t *r;
 
 	r = calloc(1, sizeof(route_t));
+	if (r == NULL)
+		return NULL;
 	r->iphlpapi = GetModuleHandle("iphlpapi.dll");
 
 	return r;
@@ -144,6 +146,8 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
 		if (r->ipftable)
 			free(r->ipftable);
 		r->ipftable = malloc(len);
+		if (r->ipftable == NULL)
+			return (-1);
 		ret = GetIpForwardTable(r->ipftable, &len, FALSE);
 		if (ret == NO_ERROR)
 			break;

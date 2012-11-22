@@ -1611,3 +1611,50 @@ index f12c8f7..ff86851 100644
  }
  
  int
+
+o Add some checks for allocation functions returning NULL.
+
+commit 5b8a67e968aff12df2bc3cf189b96c16eec6ae3f
+Author: David Fifield <david@bamsoftware.com>
+Date:   Wed Nov 21 16:47:21 2012 -0800
+
+    Check some libdnet mallocs for failure.
+    
+    Patch based on one by Bill Parker.
+    http://seclists.org/nmap-dev/2012/q4/261
+
+diff --git a/libdnet-stripped/src/arp-win32.c b/libdnet-stripped/src/arp-win32.c
+index 98b01c5..4434804 100644
+--- a/libdnet-stripped/src/arp-win32.c
++++ b/libdnet-stripped/src/arp-win32.c
+@@ -108,6 +108,8 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
+ 		if (arp->iptable)
+ 			free(arp->iptable);
+ 		arp->iptable = malloc(len);
++		if (arp->iptable == NULL)
++			return (-1);
+ 		ret = GetIpNetTable(arp->iptable, &len, FALSE);
+ 		if (ret == NO_ERROR)
+ 			break;
+diff --git a/libdnet-stripped/src/route-win32.c b/libdnet-stripped/src/route-win32.c
+index ff86851..b4536b3 100644
+--- a/libdnet-stripped/src/route-win32.c
++++ b/libdnet-stripped/src/route-win32.c
+@@ -35,6 +35,8 @@ route_open(void)
+ 	route_t *r;
+ 
+ 	r = calloc(1, sizeof(route_t));
++	if (r == NULL)
++		return NULL;
+ 	r->iphlpapi = GetModuleHandle("iphlpapi.dll");
+ 
+ 	return r;
+@@ -144,6 +146,8 @@ route_loop_getipforwardtable(route_t *r, route_handler callback, void *arg)
+ 		if (r->ipftable)
+ 			free(r->ipftable);
+ 		r->ipftable = malloc(len);
++		if (r->ipftable == NULL)
++			return (-1);
+ 		ret = GetIpForwardTable(r->ipftable, &len, FALSE);
+ 		if (ret == NO_ERROR)
+ 			break;

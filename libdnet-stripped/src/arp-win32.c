@@ -108,6 +108,8 @@ arp_loop(arp_t *arp, arp_handler callback, void *arg)
 		if (arp->iptable)
 			free(arp->iptable);
 		arp->iptable = malloc(len);
+		if (arp->iptable == NULL)
+			return (-1);
 		ret = GetIpNetTable(arp->iptable, &len, FALSE);
 		if (ret == NO_ERROR)
 			break;
