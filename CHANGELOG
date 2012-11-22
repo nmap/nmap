@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Removed a crashing error that could happen when canceling a
+  "Print to File" on Windows:
+  Traceback (most recent call last):
+    File "zenmapGUI\MainWindow.pyo", line 831, in _print_cb
+    File "zenmapGUI\Print.pyo", line 156, in run_print_operation
+  GError: Error from StartDoc
+  This bug was reported by Imre Adácsi. [David Fifield]
+
 o [NSE] Added new fingerprints for http-enum: Sitecore, Moodle, typo3,
   SquirrelMail, RoundCube. [Jesper Kückelhahn]
 

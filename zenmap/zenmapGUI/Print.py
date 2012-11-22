@@ -103,6 +103,7 @@
 # else. This might go in a separate Print Setup dialog.
 
 import gtk
+import gobject
 import pango
 
 MONOSPACE_FONT_DESC = pango.FontDescription("Monospace 12")
@@ -153,4 +154,10 @@ def run_print_operation(inventory, entry):
     state = PrintState(inventory, entry)
     op.connect("begin-print", state.begin_print)
     op.connect("draw-page", state.draw_page)
-    op.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, None)
+    try:
+        op.run(gtk.PRINT_OPERATION_ACTION_PRINT_DIALOG, None)
+    except gobject.GError:
+        # Canceling the print operation can result in the error
+        #   GError: Error from StartDoc
+        # http://seclists.org/nmap-dev/2012/q4/161
+        pass
