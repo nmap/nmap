@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added new fingerprints for http-enum: Sitecore, Moodle, typo3,
+  SquirrelMail, RoundCube. [Jesper Kückelhahn]
+
 o Added some new checks for failed library calls. [Bill Parker]
 
 Nmap 6.20BETA1 [2012-11-16]
