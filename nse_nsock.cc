@@ -704,6 +704,20 @@ static int l_set_timeout (lua_State *L)
   return nseU_success(L);
 }
 
+static int sleep_destructor (lua_State *L)
+{
+  nsock_pool nsp = get_pool(L);
+  nsock_event_id *neidp = (nsock_event_id *) lua_touserdata(L, 2);
+  if (o.debugging >= 2)
+    log_write(LOG_STDERR, "Destroying sleep callback.\n");
+  assert(neidp);
+  int success = nsock_event_cancel(nsp, *neidp, 0);
+  if (success)
+    return nseU_success(L);
+  else
+    return nseU_safeerror(L, "could not cancel event");
+}
+
 static void sleep_callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
   lua_State *L = (lua_State *) ud;
@@ -720,9 +734,15 @@ static int l_sleep (lua_State *L)
 
   if (secs < 0)
     luaL_error(L, "argument to sleep (%f) must not be negative\n", secs);
+
   /* Convert to milliseconds for nsock_timer_create. */
   msecs = (int) (secs * 1000 + 0.5);
-  nsock_timer_create(nsp, sleep_callback, msecs, L);
+
+  nsock_event_id *neidp = (nsock_event_id *) lua_newuserdata(L, sizeof(nsock_event_id *));
+  *neidp = nsock_timer_create(nsp, sleep_callback, msecs, L);
+  lua_pushvalue(L, NSOCK_POOL);
+  lua_pushcclosure(L, sleep_destructor, 1);
+  nse_destructor(L, 'a');
 
   return nse_yield(L, 0, NULL);
 }
