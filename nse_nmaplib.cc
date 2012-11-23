@@ -604,6 +604,12 @@ static int l_log_write (lua_State *L)
   return 0;
 }
 
+static int finalize_cleanup (lua_State *L)
+{
+  lua_settop(L, 2);
+  return lua_error(L);
+}
+
 static int new_try_finalize (lua_State *L)
 {
   if (!(lua_isboolean(L, 1) || lua_isnoneornil(L, 1)))
@@ -614,10 +620,9 @@ static int new_try_finalize (lua_State *L)
     if (!lua_isnil(L, lua_upvalueindex(1)))
     {
       lua_pushvalue(L, lua_upvalueindex(1));
-      lua_call(L, 0, 0);
+      lua_callk(L, 0, 0, 0, finalize_cleanup);
     }
-    lua_settop(L, 2);
-    lua_error(L);
+    return finalize_cleanup(L);
   }
   return lua_gettop(L)-1; /* omit first boolean argument */
 }
