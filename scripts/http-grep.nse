@@ -70,7 +70,7 @@ action = function(host, port)
 		return stdnse.format_output(true, "ERROR: Argument http-grep.match was not set")
 	end
 	
-	local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
+	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
 	local results = {}
 
 	-- set timeout to 10 seconds
