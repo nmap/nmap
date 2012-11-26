@@ -570,7 +570,8 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
       }
     }
 
-    nse->iod->write_count+= res;
+    if (res >= 0)
+      nse->iod->write_count += res;
   }
 
   if (nse->event_done && nse->iod->sd != -1) {
