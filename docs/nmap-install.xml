@@ -1040,7 +1040,45 @@ file, it may be opened automatically.)</para></listitem>
 <listitem><para>The contents of the disk image will be displayed. One of
 the files will be a Mac meta-package file named
 <filename>nmap-<replaceable>version</replaceable>.mpkg</filename>.
-Double-click it to start the installer.</para></listitem>
+Open it to start the installer.
+</para>
+<!-- Apple support page on Gatekeeper: https://support.apple.com/kb/HT5290 -->
+<para>
+<indexterm><primary>Gatekeeper</primary><see>Apple Gatekeeper</see></indexterm>
+<indexterm><primary>Apple Gatekeeper</primary></indexterm>
+On OS X 10.8 and later, you may see a dialog like
+<xref linkend="fig-mac-gatekeeper-blocked" xrefstyle="select: label nopage"/>.
+<figure id="fig-mac-gatekeeper-blocked"><title>Apple Gatekeeper block screen</title>
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="images/apple-gatekeeper-blocked.png"/>
+  </imageobject>
+</mediaobject>
+</figure>
+If this happens, it is necessary to right-click or control-click on the
+<filename>.mpkg</filename> and select <guimenuitem>Open</guimenuitem>,
+as shown in
+<xref linkend="fig-mac-gatekeeper-open" xrefstyle="select: label nopage"/>.
+<figure id="fig-mac-gatekeeper-open"><title>Apple Gatekeeper Open menu</title>
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="images/apple-gatekeeper-open.png"/>
+  </imageobject>
+</mediaobject>
+</figure>
+A dialog similar to the first will appear, this time having an
+<guibutton>Open</guibutton> button (shown in
+<xref linkend="fig-mac-gatekeeper-allowed" xrefstyle="select: label nopage"/>).
+Click the button to continue.
+<figure id="fig-mac-gatekeeper-allowed"><title>Apple Gatekeeper Open screen</title>
+<mediaobject>
+  <imageobject>
+    <imagedata fileref="images/apple-gatekeeper-allowed.png"/>
+  </imageobject>
+</mediaobject>
+</figure>
+</para>
+</listitem>
 <listitem><para>Follow the instructions in the
 installer. You will be asked for your password since Nmap installs in a system directory.</para></listitem>
 <listitem><para>Once the installer is finished, eject the disk image by
