@@ -153,17 +153,18 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struc
   } else {
     if (ss->ss_family == AF_INET) {
       sin->sin_port = htons(port);
-#if HAVE_SYS_UN_H
-    } else if (ss->ss_family == AF_INET6) {
-#else
-    } else {
-#endif
-      assert(ss->ss_family == AF_INET6);
+    }
 #if HAVE_IPV6
+    else if (ss->ss_family == AF_INET6) {
       sin6->sin6_port = htons(port);
-#else
-      fatal("IPv6 address passed to nsock_connect_* call, but nsock was not compiled w/IPv6 support");
+    }
 #endif
+#if HAVE_SYS_UN_H
+    else if (ss->ss_family == AF_UNIX) {
+    }
+#endif
+    else {
+      fatal("Unknown address family %d\n", ss->ss_family);
     }
 
     assert(sslen <= sizeof(iod->peer));
