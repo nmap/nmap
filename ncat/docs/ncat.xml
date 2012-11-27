@@ -767,8 +767,11 @@
     Both stream and datagram domain sockets are supported. Use
     <option>-U</option> on its own for stream sockets, or
     combine it with <option>--udp</option> for datagram sockets.
-    Datagram sockets require the use of the <option>--source</option>
-    option to specify a source socket to connect from.
+    Datagram sockets require a source socket to connect from. By
+    default, a source socket with a random filename will be created as
+    needed, and deleted when the program ends. Use the
+    <option>--source</option> with a path to use a source socket with a
+    specific name.
     </para>
 
   </refsect1>

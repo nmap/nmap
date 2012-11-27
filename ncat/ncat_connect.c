@@ -519,10 +519,19 @@ int ncat_connect(void)
         if (o.af == AF_UNIX && o.udp)
         {
             if (srcaddr.storage.ss_family != AF_UNIX) {
-		bye("A source socket filename (--source) is required when using\n"
-		    "Unix domain sockets in --udp mode.");
+                char *tmp_name = NULL;
+                /* If no source socket was specified, we have to create temporary one. */
+                if ((tmp_name = tempnam(NULL, "ncat.")) == NULL)
+                    bye("Failed to create name for temporary DGRAM source Unix domain socket (tempnam).");
+
+                srcaddr.un.sun_family = AF_UNIX;
+                strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));
+                free (tmp_name);
             }
             nsi_set_localaddr(cs.sock_nsi, &srcaddr.storage, SUN_LEN((struct sockaddr_un *)&srcaddr.storage));
+
+            if (o.verbose)
+                loguser("[%s] used as source DGRAM Unix domain socket.\n", srcaddr.un.sun_path);
         }
         else
 #endif
@@ -674,6 +683,14 @@ int ncat_connect(void)
             nsi_get_write_count(cs.sock_nsi),
             nsi_get_read_count(cs.sock_nsi), time);
     }
+
+#if HAVE_SYS_UN_H
+    if (o.af == AF_UNIX && o.udp) {
+        if (o.verbose)
+            loguser("Deleting source DGRAM Unix domain socket. [%s]\n", srcaddr.un.sun_path);
+        unlink(srcaddr.un.sun_path);
+    }
+#endif
 
     nsp_delete(mypool);
 

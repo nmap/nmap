@@ -548,6 +548,19 @@ sub {
 kill_children;
 unlink($UNIXSOCK);
 
+($s_pid, $s_out, $s_in) = ncat("-l", "-U", "--udp", $UNIXSOCK);
+test "Server UNIX socket listen on $UNIXSOCK --udp (DGRAM)",
+sub {
+	my $resp;
+
+	unlink($UNIXSOCK);
+	my ($c_pid, $c_out, $c_in) = ncat("-U", "--udp", $UNIXSOCK);
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from client";
+};
+kill_children;
+unlink($UNIXSOCK);
 
 server_client_test "Connect success exit code",
 [], ["--send-only"], sub {
