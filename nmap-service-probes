@@ -1291,7 +1291,7 @@ match imap m|^\* OK \[CAPABILITY (?:IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus imapd/ v/$2/ i/RedHat/ o/Linux/ h/$1/ cpe:/o:redhat:linux/
-match imap m|^\* OK ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-Debian| p/Cyrus imapd/ v/$2/ i|Debian/Ubuntu| o/Unix/ h/$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match imap m|^\* OK ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-Debian| p/Cyrus imapd/ v/$2/ i|Debian/Ubuntu| o/Linux/ h/$1/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\r\n| p/Cyrus imapd/ v/$2/ i/Mac OS X $3/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/a
 match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus imapd/ v/$2/ i/Mac OS X $3/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/a
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus Murder imapd/ v/$2/ h/$1/
@@ -1811,7 +1811,7 @@ match nntp m|^200 Leafnode NNTP daemon, version ([\w.]+) at ([-\w_.]+) \r\n| p/L
 match nntp m|^\nLeafnode must have a fully-qualified and globally unique domain name,\nnot just \"([-\w_.]+)\"\.\n| p/Leadnode nntpd/ i/misconfigured/ h/$1/
 match nntp m|^20\d ([\w.-_]+) NNTPCache server V([\d.]+) \[see www\.nntpcache\.org\]| p/NNTPCache/ v/$2/ h/$1/
 match nntp m|^502 access denied <[-\w_.]+@[-\w_.]+>, you do not have connect permissions in the nntpcache\.access file\.\r\n| p/NNTPCache/ i/Access denied/
-match nntp m|^200 ([-\w_.]+) InterNetNews NNRP server INN ([\d.]+) .* \(Debian\) ready \(posting ok\)\.\r\n| p/INN nntpd/ v/$2/ i/on Debian; posting ok/ o/Unix/ h/$1/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match nntp m|^200 ([-\w_.]+) InterNetNews NNRP server INN ([\d.]+) .* \(Debian\) ready \(posting ok\)\.\r\n| p/INN nntpd/ v/$2/ i/on Debian; posting ok/ o/Linux/ h/$1/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match nntp m|^200 ([-\w_.]+) InterNetNews (?:NNRP )?server INN ([\d.]+) .* ready \(posting ok\)\.\r\n| p/INN nntpd/ v/$2/ i/posting ok/ h/$1/
 match nntp m|^201 ([-\w_.]+) InterNetNews (?:NNRP )?server INN ([\d.]+) .* ready \(no posting\)\.\r\n| p/INN nntpd/ v/$2/ i/no posting/ h/$1/
 match nntp m|^200 ([-\w_.]+) InterNetNews (?:NNRP )?server INN ([\d.]+) .* ready\r\n| p/INN nntpd/ v/$2/ h/$1/
@@ -1966,7 +1966,7 @@ match pop3 m|^\+OK ([-.\w]+) POP3 service \(Netscape Messaging Server (\d[^(]+) 
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+) server ready <| p/Cyrus pop3d/ v/$2/ h/$1/
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-Red Hat [-\d.]+ server ready <| p/Cyrus pop3d/ v/$2/ i/Red Hat/ o/Linux/ h/$1/ cpe:/o:linux:linux_kernel/a
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-OS X ([\d.]+) server ready <| p/Cyrus pop3d/ v/$2/ i/Mac OS X $3/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/a
-match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+Debian\S+) server ready| p/Cyrus pop3d/ v/$2/ i/Debian/ o/Unix/ h/$1/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+Debian\S+) server ready| p/Cyrus pop3d/ v/$2/ i/Debian/ o/Linux/ h/$1/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match pop3 m|^\+OK <[\d.]+@([\w._-]+)> [\w._-]+ Cyrus POP3 v([\w._-]+) server ready\r\n| p/Cyrus pop3d/ v/$2/ h/$1/
 match pop3 m|^\+OK X1 NT-POP3 Server ([-\w.]+) \(IMail ([^)]+)\)\r\n| p/IMail pop3d/ v/$2/ h/$1/
 match pop3 m|^\+OK POP3 \[cppop (\d[^]]+)\] at \[| p/cppop pop3d/ v/$1/
@@ -2326,7 +2326,7 @@ match scanager m|^\*\*\* ITSO_DB_FAIL \*\*\* invalid request\r\n| p/Indiana Univ
 # http://www.ietf.org/internet-drafts/draft-martin-managesieve-04.txt
 match sieve m|^NO Fatal error: Error initializing actions\r\n$| p/Cyrus timsieved/ i|included w/cyrus imap|
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\w._-]+-Red Hat[- ][\w._+-]+)\"\r\n| p/Cyrus timsieved/ v/$1/ i/Red Hat/ o/Linux/ cpe:/o:redhat:linux/
-match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\w._-]+-Debian[- ][\w._+-]+)\"\r\n| p/Cyrus timsieved/ v/$1/ i/Debian/ o/Unix/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\w._-]+-Debian[- ][\w._+-]+)\"\r\n| p/Cyrus timsieved/ v/$1/ i/Debian/ o/Linux/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved \(Murder\) v([-.\w]+)\"\r\n| p/Cyrus timsieved Murder/ v/$1/
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v([\w_.]+)-OS X ([^"]+)\"\r\n| p/Cyrus timsieved/ v/$1/ o/Mac OS X $2/
 match sieve m|^\"IMPLEMENTATION\" \"Cyrus timsieved v(\d[-.\w]+)\"\r\n| p/Cyrus timsieved/ v/$1/ i|included w/cyrus imap|
@@ -2548,9 +2548,9 @@ match smtp m|^220-([-\w_.]+) Stalker Internet Mail Server V\.([\w.]+) is ready\.
 match smtp m|^220 ([-\w_.]+) ESMTP MailMax ([\d.]+) [A-Z][a-z][a-z].*\r\n| p/MailMax smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-\w_.]+) Mailmax version ([\d. ]+) ESMTP Mail Server Ready \r\n| p/MailMax smtpd/ v/$2/ h/$1/
 match smtp m|^220 ([-\w_.]+) running IBM MVS SMTP CS V2R10 on .*\r\n| p/IBM MVS smtpd/ o/MVS/ h/$1/
-match smtp m|^220 [-\w_]+ ESMTP ([-\w_.]+) \(Debian/GNU\)\r\n| p/Postfix smtpd/ i/Debian/ o/Unix/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
-match smtp m|^220 ESMTP \(Debian/GNU Mewwwwwww\)\r\n| p/Postfix smtpd/ i/Debian/ o/Unix/ cpe:/a:postfix:postfix/a cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
-match smtp m|^220 ([\w._-]+) [\w._-]+ ESMTP Postfix \(Debian/GNU\)| p/Postfix smtpd/ i/Debian/ o/Unix/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match smtp m|^220 [-\w_]+ ESMTP ([-\w_.]+) \(Debian/GNU\)\r\n| p/Postfix smtpd/ i/Debian/ o/Linux/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
+match smtp m|^220 ESMTP \(Debian/GNU Mewwwwwww\)\r\n| p/Postfix smtpd/ i/Debian/ o/Linux/ cpe:/a:postfix:postfix/a cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
+match smtp m|^220 ([\w._-]+) [\w._-]+ ESMTP Postfix \(Debian/GNU\)| p/Postfix smtpd/ i/Debian/ o/Linux/ h/$1/ cpe:/a:postfix:postfix/a cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match smtp m|^220 ([-\w_.]+) ESMTP postfix NO UCE\r\n| p/Postfix smtpd/ i/whoson patch/ h/$1/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) SMTPD Server - Postfix\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) ESMTP PostFix ([\d.]+)\r\n| p/Postfix smtpd/ v/$2/ h/$1/ cpe:/a:postfix:postfix:$2/a
@@ -2816,7 +2816,7 @@ match ssh m|^SSH-([\d.]+)-(\d+\.\d+\.[-.\w]+)| p/SCS sshd/ v/$2/ i/protocol $1/
 # OpenSSH
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Debian-(\S*maemo\S*)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/Nokia Maemo tablet; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_](.*ubuntu.*)\r\n| p/OpenSSH/ v/$2 Debian $3/ i/Ubuntu Linux; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:canonical:ubuntu_linux/ cpe:/o:linux:linux_kernel/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Unix/ cpe:/a:openbsd:openssh:$2/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_[\w.]+-FC-([\w.-]+)\.fc(\d+)\r\n| p/OpenSSH/ v/$2 Fedora/ i/Fedora Core $3; protocol $1/ o/Linux/ cpe:/a:openbsd:openssh:$2/ cpe:/o:fedoraproject:fedora_core/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:freebsd:freebsd/a
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD localisations (\d+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/ cpe:/a:openbsd:openssh:$2/ cpe:/o:freebsd:freebsd/a
@@ -3673,7 +3673,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nWelcome to Dinion-IP-NWC [\d.]+ 
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to the Agilent PNA Network Analyzer at ([\w._-]+)\r\n\r\nSCPI> | p/Agilent PNA Network Analyzer SCPI telnetd/ d/specialized/ h/$1/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\| ELSA LANCOM DSL/([\w._-]+) Office\r\n\| Ver\. ([\w._-]+) / ([\w._-]+)\r\n\| SN\.  (\w+)\r\n\| Copyright \(c\) ELSA AG, Aachen\r\n\r\n= p|ELSA Lancom DSL/$1 Office router telnetd| v/$2 $3/ i/Serial $4/ d/router/
 match telnet m|^\n\rCMI SEC\n\rProgram: +\d+\n\rMajor\.Minor\.Rel:  ([\w._-]+)\n\rMAC Address:      ([\w:]+)\n\r\n\rPress <ENTER> to go into setup mode\.| p/ADP IP Timeclock telnetd/ v/$1/ i/MAC $2/ d/specialized/
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfe\x01\xff\xfd\0\r\nser2net port \d+ device (/dev/[-\w_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/ser2net telnetd/ i/Debian; serial port $1/ o/Unix/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfe\x01\xff\xfd\0\r\nser2net port \d+ device (/dev/[-\w_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/ser2net telnetd/ i/Debian; serial port $1/ o/Linux/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match telnet m|^Port's device already in use\n\r$| p/ser2net telnetd/ i/device in use/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rTerminal shell v1\.0\n\r\rCopyright \xa9\d+ Netopia, Inc\.  All rights reserved\.\n\r\rNetopia Model ([\w-]+) Wireless DSL Ethernet Switch\n\rRunning Netopia SOC OS version ([\d.]+ \(build \w+\))\n| p/Netopia $1 wireless ADSL router telnetd/ i/SOC OS $2/ d/WAP/ o/SOC OS/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rTerminal shell v1\.0\n\r\rCopyright \xa92008 Motorola, Inc\.  All rights reserved\.\n\r\rNetopia Model ([\d-]+)(?: AnnexA)? High-Power Wireless DSL Ethernet Managed Switch\n\rRunning Netopia SOC OS version ([\w.-]+ \(build \w+\))\n| p/Netopia $1 wireless ADSL router telnetd/ i/SOC OS $2/ d/WAP/ o/SOC OS/
@@ -4228,7 +4228,7 @@ match finger m|^Gathering system data\.\.\.\nUsername Real name                 
 match finger m|^Punix version ([\d./()]+) - Current Time \(since boot\) \d+:\d\d:\d\d\r\nName        pid    stat   pc       cpusec    stack    pr/sy   idle    tty\r\n| p/Lantronix ETS16 fingerd/ i/Punix $1/ d/terminal server/ o/Punix/
 match finger m|^Finger online user list request denied\.\r\n| p/SLMail fingerd/ o/Windows/ cpe:/o:microsoft:windows/a
 match finger m|^Username Real name                      Idletime TTY Remote console location\n| p/Configurable Finger-Query Daemon/ o/Unix/
-match finger m|^Login     Name       Tty      Idle  Login Time   Office     Office Phone\r\n| p/Debian fingerd/ o/Unix/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match finger m|^Login     Name       Tty      Idle  Login Time   Office     Office Phone\r\n| p/Debian fingerd/ o/Linux/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match finger m|^\r\nIntegrated port\r\nPrinter Type: Dell Laser Printer ([-\w+.]+)\r\nPrint Job Status: (.*)\r\n| p/Dell $1 laser printer fingerd/ i/Status: $2/ d/printer/
 match finger m|^\r\nIntegrated port\r\nPrinter Type: Dell ([-\w+.]+) Laser Printer\r\nPrint Job Status: (.*)\r\n| p/Dell $1 laser printer fingerd/ i/Status: $2/ d/printer/
 match finger m|^This is finger server\r\n\r\nPlease use username@domain format\.\r\n| p/ArGoSoft Mail fingerd/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -4790,7 +4790,7 @@ match upnp m|^ 501 Not Implemented\r\n.*Server: Netgear/[\w._-]+ UPnP/([\w._-]+)
 
 # MiniDLNA
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n| p/MiniDLNA/
-match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Debian/([\w._/-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Debian $1; DLNADOC $2; UPnP $3/ o/Unix/ cpe:/o:debian:debian_kfreebsd:$1/ cpe:/o:debian:debian_linux:$1/ cpe:/o:linux:linux_kernel/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Debian/([\w._/-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Debian $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:debian:debian_linux:$1/ cpe:/o:linux:linux_kernel/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Fedora/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Fedora $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:fedoraproject:fedora:$1/ cpe:/o:linux:linux_kernel/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: RAIDiator/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/RAIDiator $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Ubuntu/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Ubuntu $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:canonical:ubuntu_linux:$1/
@@ -5746,8 +5746,8 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><ME
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PRINT_SERVER WEB ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"NeedPassword\"\r\nContent-type: text/html\r\n| p/PRINT_SERVER WEB/ v/$1/ i/Netgear Mini print server http config/ d/print server/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PRINT_SERVER WEB ([\d.]+)\r\nContent-type: text/html\r\n\r\n<html><head><title>NETGEAR Setup</title>| p/PRINT_SERVER WEB/ v/$1/ i/Netgear print server http config/ d/print server/
 match http m|^HTTP/1\.0 401 Password Required\r\nWWW-Authenticate: Basic realm= StarVoice\r\nServer: GoAhead-Webs\r\n| p/GoAhead httpd/ i/Aethra Starvoice DSL router http config/ d/router/ cpe:/a:goahead:goahead_webserver/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian/[\w/]+ \([^)]+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Unix/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian \(\w+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Unix/ cpe:/o:debian:debian_kfreebsd/ cpe:/o:debian:debian_linux/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian/[\w/]+ \([^)]+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Linux/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian \(\w+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Linux/ cpe:/o:debian:debian_linux/ cpe:/o:linux:linux_kernel/a
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/zlib $2/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: FileMakerPro/([\w.]+) WebCompanion/([\w.]+)\r\n| p/WebCompanion httpd $2/ i/FileMakerPro $1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FileMakerPro/([\d.]+)\r\n|s p/FileMakerPro httpd/ v/$1/
@@ -8909,7 +8909,7 @@ match stingray m|^\x02\x004ComDU2\0\0\0\0\0\0\0\0\0ON\0\x08OPTIONS \0\0\0\0<\x9e
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match upnp m|^HTTP/1\.1 405 METHOD NOT ALLOWED\r\nCache-Control: no-cache\r\nLast-Modified: .*\r\nX-User-Agent: DVArchive\r\nServer: Unknown/0\.0 UPnP/([\d.]+) Virata-EmWeb/R([\d_]+)\r\n| p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ i/DVArchive UPnP; UPnP $2/ o/Linux/ cpe:/a:virata:emweb:$SUBST(1,"_",".")/a cpe:/o:linux:linux_kernel/a
-match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Debian/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Debian $1; DLNADOC $2; UPnP $3/ o/Unix/ cpe:/o:debian:debian_kfreebsd:$1/ cpe:/o:debian:debian_linux:$1/
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Debian/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Debian $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:debian:debian_linux:$1/ cpe:/o:linux:linux_kernel/a
 
 match vnc-http m|^HTTP/1\.1 200\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nSet-Cookie: UBRWID=[A-F0-9]+\r\nAccess-Control-Allow-Origin: \*\r\nConnection: Keep-Alive\r\n\r\n\xef\xbb\xbf<!DOCTYPE html>\r\n<html>\r\n<head>\r\n<title>ThinVNC</title>\r\n| p/ThinVNC/
 
