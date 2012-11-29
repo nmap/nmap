@@ -51,6 +51,7 @@ will speed up the script on targets that do not allow guest access.
 -- Host script results:
 -- | smb-os-discovery:
 -- |   OS: Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)
+-- |   OS CPE: cpe:/o:microsoft:windows_2008::sp1
 -- |   Computer name: Sql2008
 -- |   NetBIOS computer name: SQL2008
 -- |   Domain name: lab.test.local
@@ -61,6 +62,7 @@ will speed up the script on targets that do not allow guest access.
 --
 --@xmloutput
 -- <elem key="os">Windows Server (R) 2008 Standard 6001 Service Pack 1</elem>
+-- <elem key="cpe">cpe:/o:microsoft:windows_2008::sp1</elem>
 -- <elem key="lanmanager">Windows Server (R) 2008 Standard 6.0</elem>
 -- <elem key="domain">LAB</elem>
 -- <elem key="server">SQL2008</elem>
@@ -78,6 +80,10 @@ dependencies = {"smb-brute"}
 --- Check whether or not this script should be run.
 hostrule = function(host)
 	return smb.get_port(host) ~= nil
+end
+
+function make_cpe(result)
+	return nil
 end
 
 function add_to_output(output_table, label, value)
@@ -106,6 +112,7 @@ action = function(host)
 	response.domain_dns = result.domain_dns
 	response.forest_dns = result.forest_dns
 	response.workgroup = result.workgroup
+	response.cpe = make_cpe(result)
 	
 	-- Build normal output.
 	local output_lines = {}
@@ -114,6 +121,7 @@ action = function(host)
 	else
 		add_to_output(output_lines, "OS", "Unknown")
 	end
+	add_to_output(output_lines, "OS CPE", response.cpe)
 	if response.fqdn then
 		-- Pull the first part of the FQDN as the computer name.
 		add_to_output(output_lines, "Computer name", string.match(response.fqdn, "^([^.]+)%.?"))
