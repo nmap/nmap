@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added multicast group name output to
+  broadcast-igmp-discovery.nse. [Vasily Kulikov]
+
 o [Ncat] Fixed the printing of warning messages for large arguments to
   the -i and -w options. [Michal Hlavinka]
 

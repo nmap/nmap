@@ -32,6 +32,8 @@ interfaces.
 --
 -- @args broadcast-igmp-discovery.interface Network interface to use.
 --
+-- @args broadcast-igmp-discovery.mgroupnamesdb Database with multicast group names
+--
 --@usage
 -- nmap --script broadcast-igmp-discovery
 -- nmap --script broadcast-igmp-discovery -e wlan0
@@ -46,22 +48,42 @@ interfaces.
 -- |     Version: 3
 -- |     Group: 239.1.1.1
 -- |       Mode: EXCLUDE
+-- |       Description: Organization-Local Scope (rfc2365)
 -- |     Group: 239.1.1.2
 -- |       Mode: EXCLUDE
+-- |       Description: Organization-Local Scope (rfc2365)
 -- |     Group: 239.1.1.44
 -- |       Mode: INCLUDE
+-- |       Description: Organization-Local Scope (rfc2365)
 -- |       Sources:
 -- |           192.168.31.1
 -- |   192.168.1.3
 -- |     Interface: wlan0
 -- |     Version: 2
 -- |     Group: 239.255.255.250
+-- |     Description: Organization-Local Scope (rfc2365)
 -- |   192.168.1.3
 -- |     Interface: wlan0
 -- |     Version: 2
 -- |     Group: 239.255.255.253
+-- |     Description: Organization-Local Scope (rfc2365)
 -- |_  Use the newtargets script-arg to add the results as targets
 --
+
+-- 
+-- The Multicast Group names DB can be created by the following script:
+-- 
+-- #!/usr/bin/awk -f
+-- BEGIN { FS="<|>"; }
+-- /<record/ { r=1; addr1=""; addr2=""; rfc=""; }
+-- /<addr>.*-.*<\/addr>/ { T=$3; FS="-"; $0=T; addr1=$1; addr2=$2; FS="<|>"; }
+-- /<addr>[^-]*<\/addr>/ { addr1=$3; addr2=$3; }
+-- /<description>/ { desc=$3; }
+-- /<xref type=\"rfc\"/ { T=$2; FS="\""; $0=T; rfc=" ("  $4  ")"; FS="<|>"; }
+-- /<\/record/ { r=0; if (addr1) { print addr1 "\t" addr2 "\t" desc rfc; } }
+--
+-- wget -O- http://www.iana.org/assignments/multicast-addresses/multicast-addresses.xml | \
+--      ./extract-mg-names >nselib/data/mgroupnames.db
 
 
 prerule = function()
@@ -262,6 +284,36 @@ local respCompare = function(a,b)
 	   < ipOps.todword(b.src) + b.type + (b.ngroups or ipOps.todword(b.group))
 end
 
+local mgroup_names_fetch = function(filename)
+    local groupnames_db = {}
+
+    local file = io.open(filename, "r")
+    if not file then
+	return false
+    end
+
+    for l in file:lines() do
+	groupnames_db[#groupnames_db + 1] = stdnse.strsplit("\t", l)
+    end
+
+    file:close()
+    return groupnames_db
+end
+
+local mgroup_name_identify = function(db, ip)
+    --stdnse.print_debug("%s: '%s'", SCRIPT_NAME, ip)
+    for _, mg in ipairs(db) do
+        local ip1 = mg[1]
+        local ip2 = mg[2]
+        local desc = mg[3]
+        --stdnse.print_debug("%s: try: %s <= %s <= %s (%s)", SCRIPT_NAME, ip1, ip, ip2, desc)
+        if (not ipOps.compare_ip(ip, "lt", ip1) and not ipOps.compare_ip(ip2, "lt", ip)) then
+            --stdnse.print_debug("%s: found! %s <= %s <= %s (%s)", SCRIPT_NAME, ip1, ip, ip2, desc)
+            return desc
+        end
+    end
+    return false
+end
 
 action = function(host, port)
     local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 7
@@ -274,6 +326,10 @@ action = function(host, port)
 
     local responses, results, interfaces, lthreads = {}, {}, {}, {}
     local result, grouptable, sourcetable
+
+    local group_names_fname = stdnse.get_script_args(SCRIPT_NAME .. ".mgroupnamesdb") or
+        nmap.fetchfile("nselib/data/mgroupnames.db")
+    local mg_names_db = group_names_fname and mgroup_names_fetch(group_names_fname)
 
     -- Check the interface
     interface = interface or nmap.get_interface()
@@ -335,6 +391,10 @@ action = function(host, port)
 	    elseif response.type == 0x16 then
 		table.insert(result, "Version: 2")
 		table.insert(result, "Group: ".. response.group)
+		local mg_desc = mgroup_name_identify(mg_names_db, response.group)
+		if mg_desc then
+		    table.insert(result, "Description: ".. mg_desc)
+		end
 	    elseif response.type == 0x22 then
 		table.insert(result, "Version: 3")
 		for _, group in pairs(response.groups) do
@@ -344,6 +404,10 @@ action = function(host, port)
 			table.insert(grouptable, "Mode: INCLUDE")
 		    elseif group.mode == 0x02 then
 			table.insert(grouptable, "Mode: EXCLUDE")
+		    end
+		    local mg_desc = mgroup_name_identify(mg_names_db, group.address)
+		    if mg_desc then
+			table.insert(grouptable, "Description: ".. mg_desc)
 		    end
 		    if group.nsrc > 0 then
 			sourcetable = {}
