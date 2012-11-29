@@ -80,21 +80,6 @@ hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
---- Converts numbered Windows version strings (<code>"Windows 5.0"</code>, <code>"Windows 5.1"</code>) to names (<code>"Windows 2000"</code>, <code>"Windows XP"</code>). 
---@param os The numbered OS version.
---@return The actual name of the OS (or the same as the <code>os</code> parameter if no match was found).
-function get_windows_version(os)
-
-	if(os == "Windows 5.0") then
-		return "Windows 2000"
-	elseif(os == "Windows 5.1")then
-		return "Windows XP"
-	end
-
-	return os
-
-end
-
 function add_to_output(output_table, label, value)
 	if value then
 		table.insert(output_table, string.format("%s: %s", label, value))
@@ -125,7 +110,7 @@ action = function(host)
 	-- Build normal output.
 	local output_lines = {}
 	if response.os and response.lanmanager then
-		add_to_output(output_lines, "OS", string.format("%s (%s)", get_windows_version(response.os), response.lanmanager))
+		add_to_output(output_lines, "OS", string.format("%s (%s)", smb.get_windows_version(response.os), response.lanmanager))
 	else
 		add_to_output(output_lines, "OS", "Unknown")
 	end
