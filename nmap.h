@@ -231,8 +231,8 @@ void *realloc();
 #ifndef NMAP_VERSION
 /* Edit this definition only within the quotes, because it is read from this
    file by the makefiles. */
-#define NMAP_VERSION "6.20BETA1"
-#define NMAP_NUM_VERSION "6.0.20.1"
+#define NMAP_VERSION "6.26SVN"
+#define NMAP_NUM_VERSION "6.0.26.0"
 #endif
 /* The version number of updates retrieved by the nmap-update
    program. It can be different (but should always be the same or

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 11/16/2012
+.\"      Date: 11/29/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/16/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/29/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -123,7 +123,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 6\&.20BETA1 ( http://nmap\&.org )
+Nmap 6\&.26SVN ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -986,10 +986,15 @@ This option specifies which ports you want to scan and overrides the default\&. 
 to scan ports from 1 through 65535\&. Scanning port zero.\" port zero
 is allowed if you specify it explicitly\&. For IP protocol scanning (\fB\-sO\fR), this option specifies the protocol numbers you wish to scan for (0\(en255)\&.
 .sp
-When scanning both TCP and UDP ports, you can specify a particular protocol by preceding the port numbers by
+When scanning a combination of protocols (e\&.g\&. TCP and UDP), you can specify a particular protocol by preceding the port numbers by
 T:
-or
-U:\&. The qualifier lasts until you specify another qualifier\&. For example, the argument
+for TCP,
+U:
+for UDP,
+S:
+for SCTP, or
+P:
+for IP Protocol\&. The qualifier lasts until you specify another qualifier\&. For example, the argument
 \fB\-p U:53,111,137,T:21\-25,80,139,8080\fR
 would scan UDP ports 53, 111,and 137, as well as the listed TCP ports\&. Note that to scan both UDP and TCP, you have to specify
 \fB\-sU\fR

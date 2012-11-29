@@ -3,10 +3,12 @@
 o [NSE] Added multicast group name output to
   broadcast-igmp-discovery.nse. [Vasily Kulikov]
 
-o [Ncat] Fixed the printing of warning messages for large arguments to
-  the -i and -w options. [Michal Hlavinka]
+Nmap 6.25 [2012-11-29]
 
 o [NSE] Added CPE to smb-os-discovery output.
+
+o [Ncat] Fixed the printing of warning messages for large arguments to
+  the -i and -w options. [Michal Hlavinka]
 
 o [Ncat] Shut down the write part of connected sockets in listen mode
   when stdin hits EOF, just as was already done in connect mode.

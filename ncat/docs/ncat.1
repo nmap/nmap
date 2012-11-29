@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 11/16/2012
+.\"      Date: 11/29/2012
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "11/16/2012" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "11/29/2012" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -45,7 +45,7 @@ Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats tog
 .RS 4
 .\}
 .nf
-Ncat 6\&.20BETA1 ( http://nmap\&.org/ncat )
+Ncat 6\&.26SVN ( http://nmap\&.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
@@ -461,9 +461,9 @@ Both stream and datagram domain sockets are supported\&. Use
 \fB\-U\fR
 on its own for stream sockets, or combine it with
 \fB\-\-udp\fR
-for datagram sockets\&. Datagram sockets require the use of the
+for datagram sockets\&. Datagram sockets require a source socket to connect from\&. By default, a source socket with a random filename will be created as needed, and deleted when the program ends\&. Use the
 \fB\-\-source\fR
-option to specify a source socket to connect from\&.
+with a path to use a source socket with a specific name\&.
 .SH "EXAMPLES"
 .PP
 Connect to example\&.org on TCP port 8080\&.
