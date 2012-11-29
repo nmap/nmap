@@ -119,6 +119,14 @@
 #include <openssl/err.h>
 #endif
 
+#ifdef WIN32
+/* Define missing constant for shutdown(2).
+ * See:
+ * http://msdn.microsoft.com/en-us/library/windows/desktop/ms740481%28v=vs.85%29.aspx
+ */
+#define SHUT_WR SD_SEND
+#endif
+
 /* read_fds is the clients we are accepting data from. broadcast_fds is the
    clients were are sending data to. broadcast_fds doesn't include the listening
    socket and stdin. Network clients are not added to read_fds when --send-only
