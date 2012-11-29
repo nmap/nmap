@@ -146,6 +146,7 @@ static int read_stdin(void);
 static int read_socket(int recv_fd);
 static void post_handle_connection(struct fdinfo sinfo);
 static void read_and_broadcast(int recv_socket);
+static void shutdown_sockets(int how);
 static int chat_announce_connect(int fd, const union sockaddr_u *su);
 static int chat_announce_disconnect(int fd);
 static char *chat_filter(char *buf, size_t size, int fd, int *nwritten);
@@ -515,20 +516,6 @@ int read_stdin(void)
     }
 
     return nbytes;
-}
-
-void shutdown_sockets(int how)
-{
-    struct fdinfo *fdn;
-    int i;
-
-    for (i = 0; i <= broadcast_fdlist.fdmax; i++) {
-        if (!FD_ISSET(i, &master_broadcastfds))
-            continue;
-
-        fdn = get_fdinfo(&broadcast_fdlist, i);
-        shutdown(fdn->fd, how);
-    }
 }
 
 /* Read from a client socket and write to stdout. Return the number of bytes
@@ -936,6 +923,20 @@ static void read_and_broadcast(int recv_fd)
         free(tempbuf);
         tempbuf = NULL;
     } while (pending);
+}
+
+static void shutdown_sockets(int how)
+{
+    struct fdinfo *fdn;
+    int i;
+
+    for (i = 0; i <= broadcast_fdlist.fdmax; i++) {
+        if (!FD_ISSET(i, &master_broadcastfds))
+            continue;
+
+        fdn = get_fdinfo(&broadcast_fdlist, i);
+        shutdown(fdn->fd, how);
+    }
 }
 
 /* Announce the new connection and who is already connected. */
