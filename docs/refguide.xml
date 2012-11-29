@@ -1738,9 +1738,11 @@ way.</para>
           specifies the protocol numbers you wish to scan for
           (0&ndash;255).</para>
 
-          <para>When scanning both TCP and UDP ports, you can specify
-          a particular protocol by preceding the port numbers by <literal>T:</literal>
-          or <literal>U:</literal>. The qualifier lasts until you specify another
+          <para>When scanning a combination of protocols (e.g. TCP and UDP), you can
+          specify a particular protocol by preceding the port numbers by
+          <literal>T:</literal> for TCP, <literal>U:</literal> for UDP,
+          <literal>S:</literal> for SCTP, or <literal>P:</literal> for IP Protocol.
+          The qualifier lasts until you specify another
           qualifier. For example, the argument <option>-p
           U:53,111,137,T:21-25,80,139,8080</option> would scan UDP
           ports 53, 111,and 137, as well as the listed TCP ports. Note
