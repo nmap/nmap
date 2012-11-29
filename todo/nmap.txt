@@ -4,6 +4,9 @@ o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
   as well as testing usage of our normal builds (which we currently
   build on 10.6).
 
+o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
+  use that any more.
+
 o Complete migration away from Syn colocated machine
  - Move submission CGIs to web
    - Make sure notification still works
