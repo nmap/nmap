@@ -108,7 +108,7 @@ def start_x11():
         return
     system_xinitrc_filename = "/usr/X11R6/lib/X11/xinit/xinitrc"
     home_xinitrc_filename = os.path.join(HOME, ".xinitrc")
-    if not os.path.exists(home_xinitrc_filename):
+    if os.path.exists(system_xinitrc_filename) and not os.path.exists(home_xinitrc_filename):
         hack_xinitrc(system_xinitrc_filename, home_xinitrc_filename)
     os.system("open -a X11")
     os.environ["DISPLAY"] = ":0"
