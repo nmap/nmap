@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed the printing of warning messages for large arguments to
+  the -i and -w options. [Michal Hlavinka]
+
 o [NSE] Added CPE to smb-os-discovery output.
 
 o [Ncat] Shut down the write part of connected sockets in listen mode

@@ -373,8 +373,8 @@ int main(int argc, char *argv[])
             o.idletimeout = tval2msecs(optarg);
             if (o.idletimeout <= 0)
                 bye("Invalid -i timeout (must be greater than 0).");
-            if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
-                bye("Since April 2010, the default unit for -i is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.linedelay / 1000.0 / 60, optarg, o.linedelay / 1000.0);
+            if (o.idletimeout >= 100 * 1000 && tval_unit(optarg) == NULL)
+                bye("Since April 2010, the default unit for -i is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.idletimeout / 1000.0 / 60, optarg, o.idletimeout / 1000.0);
             break;
         case 's':
             source = optarg;
@@ -399,8 +399,8 @@ int main(int argc, char *argv[])
             o.conntimeout = tval2msecs(optarg);
             if (o.conntimeout <= 0)
                 bye("Invalid -w timeout (must be greater than 0).");
-            if (o.linedelay >= 100 * 1000 && tval_unit(optarg) == NULL)
-                bye("Since April 2010, the default unit for -w is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.linedelay / 1000.0 / 60, optarg, o.linedelay / 1000.0);
+            if (o.conntimeout >= 100 * 1000 && tval_unit(optarg) == NULL)
+                bye("Since April 2010, the default unit for -w is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, o.conntimeout / 1000.0 / 60, optarg, o.conntimeout / 1000.0);
             break;
         case 't':
             o.telnet = 1;
