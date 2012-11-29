@@ -94,6 +94,11 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
           addrstr = inet_ntop_ez(&iod->local, iod->locallen);
 
         nsock_trace(ms, "Bind to %s failed (IOD #%li)", addrstr, iod->id);
+#if HAVE_SYS_UN_H
+        /* Failure to bind an AF_UNIX socket is an unrecoverable error. */
+        if (iod->local.ss_family == AF_UNIX)
+          return -1;
+#endif
       }
     }
   }
