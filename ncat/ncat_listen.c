@@ -322,10 +322,14 @@ static int ncat_listen_stream(int proto)
                 } else {
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin();
-                    if (rc == 0 && o.sendonly)
-                        /* There will be nothing more to send. If we're not
-                           receiving anything, we can quit here. */
-                        return 0;
+                    if (rc == 0) {
+                        if (o.sendonly) {
+                            /* There will be nothing more to send. If we're not
+                               receiving anything, we can quit here. */
+                            return 0;
+                        }
+                        shutdown_sockets(SHUT_WR);
+                    }
                     if (rc < 0)
                         return 1;
                 }
@@ -511,6 +515,20 @@ int read_stdin(void)
     }
 
     return nbytes;
+}
+
+void shutdown_sockets(int how)
+{
+    struct fdinfo *fdn;
+    int i;
+
+    for (i = 0; i <= broadcast_fdlist.fdmax; i++) {
+        if (!FD_ISSET(i, &master_broadcastfds))
+            continue;
+
+        fdn = get_fdinfo(&broadcast_fdlist, i);
+        shutdown(fdn->fd, how);
+    }
 }
 
 /* Read from a client socket and write to stdout. Return the number of bytes

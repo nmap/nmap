@@ -742,7 +742,7 @@ server_client_test_tcp_sctp_ssl "Server sends EOF after client disconnect",
 };
 kill_children;
 
-server_client_test "Shutdown() connection when reading EOF",
+server_client_test "Client shutdown()s connection when reading EOF",
 [], [], sub {
 	my $resp;
 
@@ -753,7 +753,22 @@ server_client_test "Shutdown() connection when reading EOF",
 	close($c_in);
 
 	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't send EOF (got \"$resp\")";
+	!defined($resp) or die "Server didn't get EOF (got \"$resp\")";
+};
+kill_children;
+
+server_client_test "Server shutdown()s connection when reading EOF",
+[], [], sub {
+	my $resp;
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
+
+	close($s_in);
+
+	$resp = timeout_read($c_out);
+	!defined($resp) or die "Client didn't get EOF (got \"$resp\")";
 };
 kill_children;
 

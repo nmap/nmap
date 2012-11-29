@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Shut down the write part of connected sockets in listen mode
+  when stdin hits EOF, just as was already done in connect mode.
+  [Michal Hlavinka]
+
 o [Zenmap] Removed a crashing error that could happen when canceling a
   "Print to File" on Windows:
   Traceback (most recent call last):
