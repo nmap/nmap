@@ -48795,7 +48795,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Professional version 6.1 build 7600  64Bit IA64
 Fingerprint Microsoft Windows 7 Professional
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7::professional
+CPE cpe:/o:microsoft:windows_7::-:professional
 SEQ(SP=FF-109%GCD=1-6%ISR=104-10E%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48813,7 +48813,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Professional Version 6.1 Build 7600
 Fingerprint Microsoft Windows 7 Professional
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7::professional
+CPE cpe:/o:microsoft:windows_7::-:professional
 SEQ(SP=FC-106%GCD=1-6%ISR=108-112%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48831,7 +48831,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
 Fingerprint Microsoft Windows 7 Professional SP1
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7::sp1 auto
+CPE cpe:/o:microsoft:windows_7::sp1:professional
 SEQ(SP=101-10B%GCD=1-6%ISR=102-10C%TI=RD%CI=RD%II=I%TS=7|8)
 OPS(O1=M5B8NW8ST11%O2=M5B8NW8ST11%O3=M5B8NW8NNT11%O4=M5B8NW8ST11%O5=M5B8NW8ST11%O6=M5B8ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48921,7 +48921,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Version 6.1 (Build 7600), Windows 7 Ultimate, x64
 Fingerprint Microsoft Windows 7 Ultimate
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7:::ultimate
+CPE cpe:/o:microsoft:windows_7::-:ultimate
 SEQ(SP=100-10A%GCD=1-6%ISR=105-10F%TI=I%CI=I%II=I%SS=S%TS=7)
 OPS(O1=M2300NW8ST11%O2=M2300NW8ST11%O3=M2300NW8NNT11%O4=M2300NW8ST11%O5=M2300NW8ST11%O6=M2300ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48941,7 +48941,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows Server 2012 Version 6.2 Build 9200
 Fingerprint Microsoft Windows 7 or Windows Server 2012
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7:::ultimate
+CPE cpe:/o:microsoft:windows_7::-:ultimate
 Class Microsoft | Windows | 2012 | general purpose
 CPE cpe:/o:microsoft:windows_2012
 SEQ(SP=FA-104%GCD=1-6%ISR=101-10F%TI=I%CI=I|RD%II=I%SS=S%TS=7)
@@ -48980,7 +48980,7 @@ IE(R=N)
 # Microsoft Windows Storage Server Version 6.0 (Build 6002: Service Pack 2)
 Fingerprint Microsoft Windows 7 Ultimate
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7:::ultimate
+CPE cpe:/o:microsoft:windows_7::-:ultimate
 SEQ(SP=FD-10B%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=7)
 OPS(O1=MFC2NW8ST11%O2=MFC2NW8ST11%O3=MFC2NW8NNT11%O4=MFC2NW8ST11%O5=MFC2NW8ST11%O6=MFC2ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -48998,7 +48998,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # 7600         Microsoft Windows 7 Ultimate  1252     64-bit          1033        18      6.1.7600
 Fingerprint Microsoft Windows 7 Ultimate
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7:::ultimate
+CPE cpe:/o:microsoft:windows_7::-:ultimate
 SEQ(SP=FF-109%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=6)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -49016,7 +49016,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Ultimate - Microsoft Windows Version 6.1 (Build 7000)
 Fingerprint Microsoft Windows 7 Ultimate Beta (build 7000)
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7 auto
+CPE cpe:/o:microsoft:windows_7::-:ultimate
 SEQ(SP=FF-109%GCD=1-6%ISR=109-113%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -49038,8 +49038,8 @@ Fingerprint Microsoft Windows Vista SP2 or Windows 7 Ultimate SP0 - SP1
 Class Microsoft | Windows | Vista | general purpose
 CPE cpe:/o:microsoft:windows_vista::sp2
 Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7::-
-CPE cpe:/o:microsoft:windows_7::sp1
+CPE cpe:/o:microsoft:windows_7::-:ultimate
+CPE cpe:/o:microsoft:windows_7::sp1:ultimate
 SEQ(SP=F6-10C%GCD=1-6%ISR=107-111%TI=I%CI=I%II=I%SS=O|S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
