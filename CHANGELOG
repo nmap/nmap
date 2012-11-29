@@ -50,7 +50,8 @@ o Integrated your latest IPv6 OS submissions and corrections. We're
   (if Nmap guesses wrong) are useful.
 
 o Enabled support for IPv6 traceroute using UDP, SCTP, and IPProto
-  (Next Header) probes. [David Fifield]
+  (Next Header) probes.  Previously, only TCP and ICMP were
+  supported.  [David Fifield]
 
 o Scripts can now return a structured name-value table so that results
   are query-able from XML output. Scripts can return a string as
