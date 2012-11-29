@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added CPE to smb-os-discovery output.
+
 o [Ncat] Shut down the write part of connected sockets in listen mode
   when stdin hits EOF, just as was already done in connect mode.
   [Michal Hlavinka]

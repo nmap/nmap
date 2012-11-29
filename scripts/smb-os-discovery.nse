@@ -82,8 +82,52 @@ hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
+-- Some observed OS strings:
+--   "Windows 5.0" (is Windows 2000)
+--   "Windows 5.1" (is Windows XP)
+--   "Windows Server 2003 3790 Service Pack 2"
+--   "Windows Vista (TM) Ultimate 6000"
+--   "Windows Server (R) 2008 Standard 6001 Service Pack 1"
+--   "Windows 7 Professional 7601 Service Pack 1"
+-- http://msdn.microsoft.com/en-us/library/cc246806%28v=prot.20%29.aspx has a
+-- list of strings that don't quite match these.
 function make_cpe(result)
-	return nil
+	local os = result.os
+	local parts = {}
+
+	if string.match(os, "^Windows 5%.0") then
+		parts = {"o", "microsoft", "windows_2000"}
+	elseif string.match(os, "^Windows 5%.1") then
+		parts = {"o", "microsoft", "windows_xp"}
+	elseif string.match(os, "^Windows Server.*2003") then
+		parts = {"o", "microsoft", "windows_server_2003"}
+	elseif string.match(os, "^Windows Vista") then
+		parts = {"o", "microsoft", "windows_vista"}
+	elseif string.match(os, "^Windows Server.*2008") then
+		parts = {"o", "microsoft", "windows_server_2008"}
+	elseif string.match(os, "^Windows 7") then
+		parts = {"o", "microsoft", "windows_7"}
+	elseif string.match(os, "^Windows Server.*2012") then
+		parts = {"o", "microsoft", "windows_server_2012"}
+	end
+
+	if parts[1] == "o" and parts[2] == "microsoft"
+		and string.match(parts[3], "^windows") then
+		parts[4] = ""
+		local sp = string.match(os, "Service Pack (%d+)")
+		if sp then
+			parts[5] = "sp" .. tostring(sp)
+		else
+			parts[5] = "-"
+		end
+		if string.match(os, "Professional") then
+			parts[6] = "professional"
+		end
+	end
+
+	if #parts > 0 then
+		return "cpe:/" .. stdnse.strjoin(":", parts)
+	end
 end
 
 function add_to_output(output_table, label, value)
