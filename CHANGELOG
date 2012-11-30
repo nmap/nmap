@@ -3,6 +3,9 @@
 o [NSE] Added multicast group name output to
   broadcast-igmp-discovery.nse. [Vasily Kulikov]
 
+o [NSE] Added new fingerprints for http-enum: Sitecore, Moodle, typo3,
+  SquirrelMail, RoundCube. [Jesper Kückelhahn]
+
 Nmap 6.25 [2012-11-29]
 
 o [NSE] Added CPE to smb-os-discovery output.
@@ -21,9 +24,6 @@ o [Zenmap] Removed a crashing error that could happen when canceling a
     File "zenmapGUI\Print.pyo", line 156, in run_print_operation
   GError: Error from StartDoc
   This bug was reported by Imre Adácsi. [David Fifield]
-
-o [NSE] Added new fingerprints for http-enum: Sitecore, Moodle, typo3,
-  SquirrelMail, RoundCube. [Jesper Kückelhahn]
 
 o Added some new checks for failed library calls. [Bill Parker]
 
