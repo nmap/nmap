@@ -560,14 +560,17 @@ unsigned long nbase_crc32(unsigned char *buf, int len)
 
 /*
  * CRC-32C (Castagnoli) Cyclic Redundancy Check.
- * Taken straight from RFC 4960 (SCTP).
+ * Taken straight from Appendix C of RFC 4960 (SCTP), with the difference that
+ * the remainder register (crc32) is initialized to 0xffffffffL rather than ~0L,
+ * for correct operation on platforms where unisigned long is longer than 32
+ * bits.
  */
 
 /* Return the CRC-32C of the bytes buf[0..len-1] */
 unsigned long nbase_crc32c(unsigned char *buf, int len)
 {
   int i;
-  unsigned long crc32 = ~0L;
+  unsigned long crc32 = 0xffffffffL;
   unsigned long result;
   unsigned char byte0, byte1, byte2, byte3;
 

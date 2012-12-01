@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed CRC32c calculation (as used in SCTP scans) on 64-bit
+  platforms. [Pontus Andersson]
+
 o [NSE] Added multicast group name output to
   broadcast-igmp-discovery.nse. [Vasily Kulikov]
 
