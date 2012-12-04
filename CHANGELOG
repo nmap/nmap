@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed compilation with --without-liblua. The bug was reported by
+  Rick Farina, Nikos Chantziaras, and Alex Turbov. [David Fifield]
+
 o Fixed CRC32c calculation (as used in SCTP scans) on 64-bit
   platforms. [Pontus Andersson]
 
