@@ -447,6 +447,19 @@ std::string protect_xml(const std::string s) {
   return escape_for_screen(s);
 }
 
+/* This is a helper function to determine the ordering of the script results
+   based on their id. */
+static bool comparescriptids(ScriptResult first, ScriptResult second) {
+    //Pull the two id fields out for comparison
+    std::string firstid(first.get_id());
+    std::string secondid(second.get_id());
+
+    if (firstid < secondid)
+        return true;
+    else
+        return false;
+}
+
 static char *formatScriptOutput(ScriptResult sr) {
   std::vector<std::string> lines;
 
@@ -2612,18 +2625,3 @@ void printdatafilepaths() {
     }
   }
 }
-
-/*This is a helper function to determine the ordering of the script results
-  based on their id */
-bool comparescriptids(ScriptResult first, ScriptResult second){
-    //Pull the two id fields out for comparison
-    std::string firstid(first.get_id());
-    std::string secondid(second.get_id());
-
-    if (firstid < secondid)
-        return true;
-    else
-        return false;
-}
-
-

@@ -253,8 +253,4 @@ void printfinaloutput();
    were found. */
 void printdatafilepaths();
 
-/*This is a helper function to determine the ordering of the script results
-  based on their id */
-bool comparescriptids(ScriptResult first, ScriptResult second);
-
 #endif /* OUTPUT_H */
