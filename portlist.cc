@@ -147,10 +147,10 @@ void Port::freeService(bool del_service) {
 void Port::freeScriptResults(void)
 {
 #ifndef NOLUA
-    while (!scriptResults.empty()) {
-        scriptResults.front().clear();
-        scriptResults.pop_front();
-    }
+  while (!scriptResults.empty()) {
+    scriptResults.front().clear();
+    scriptResults.pop_front();
+  }
 #endif
 }
 
