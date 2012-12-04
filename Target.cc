@@ -162,10 +162,12 @@ void Target::Recycle() {
 
 Target::~Target() {
   FreeInternal();
+#ifndef NOLUA
   while (!scriptResults.empty()) {
     scriptResults.front().clear();
     scriptResults.pop_front();
   }
+#endif
 }
 
 void Target::FreeInternal() {
