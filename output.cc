@@ -449,15 +449,8 @@ std::string protect_xml(const std::string s) {
 
 /* This is a helper function to determine the ordering of the script results
    based on their id. */
-static bool comparescriptids(ScriptResult first, ScriptResult second) {
-    //Pull the two id fields out for comparison
-    std::string firstid(first.get_id());
-    std::string secondid(second.get_id());
-
-    if (firstid < secondid)
-        return true;
-    else
-        return false;
+static bool scriptid_lessthan(ScriptResult a, ScriptResult b) {
+  return a.get_id() < b.get_id();
 }
 
 static char *formatScriptOutput(ScriptResult sr) {
@@ -792,7 +785,7 @@ void printportoutput(Target *currenths, PortList *plist) {
         if (o.script) {
           ScriptResults::const_iterator ssr_iter;
           //Sort the results before outputing them on the screen
-          current->scriptResults.sort(comparescriptids);
+          current->scriptResults.sort(scriptid_lessthan);
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
             ssr_iter->write_xml();
@@ -2184,7 +2177,7 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
 
   if (scriptResults->size() > 0) {
       // No sense sorting if we don't need too
-      scriptResults->sort(comparescriptids);
+      scriptResults->sort(scriptid_lessthan);
       if (scantype == SCRIPT_PRE_SCAN) {
       xml_start_tag("prescript");
       log_write(LOG_PLAIN, "Pre-scan script results:\n");
@@ -2215,7 +2208,7 @@ void printhostscriptresults(Target *currenths) {
 
   if (currenths->scriptResults.size() > 0) {
     //no point sorting an empty list
-    currenths->scriptResults.sort(comparescriptids);
+    currenths->scriptResults.sort(scriptid_lessthan);
     xml_start_tag("hostscript");
     log_write(LOG_PLAIN, "\nHost script results:\n");
     for (iter = currenths->scriptResults.begin();
