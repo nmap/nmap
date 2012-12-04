@@ -146,10 +146,12 @@ void Port::freeService(bool del_service) {
 
 void Port::freeScriptResults(void)
 {
+#ifndef NOLUA
     while (!scriptResults.empty()) {
         scriptResults.front().clear();
         scriptResults.pop_front();
     }
+#endif
 }
 
 /* Fills in namebuf (as long as there is space in buflen) with the
@@ -456,9 +458,7 @@ PortList::~PortList() {
       for(i=0; i < port_list_count[proto]; i++) { // free every Port
         if(port_list[proto][i]) {
           port_list[proto][i]->freeService(true);
-#ifndef NOLUA
           port_list[proto][i]->freeScriptResults();
-#endif
           delete port_list[proto][i];
         }
       }
