@@ -1,22 +1,18 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
-  as well as testing usage of our normal builds (which we currently
-  build on 10.6).
+o We should document Ron's sample script
+  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
+  so that new script writers know about it.
 
 o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
   use that any more.
 
 o Complete migration away from Syn colocated machine
- - Move submission CGIs to web
+ - [Done - actually was already on web] Move submission CGIs to web
    - Make sure notification still works
  - Mailman
-   - Install mailman software on web, including CGIs
+   - [Done] Install mailman software on web, including CGIs
    - Migrate mailing lists to web
-
-o Make a branch from the 6.20BETA1 release (r30266) for new stable
-  release, apply any important bugfix patches from the meantime and then
-  release it after Thanksgiving as new Stable release.
 
 o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
@@ -27,10 +23,6 @@ o NSE digest auth should use the more robust parsing from
   http.parse_www_authenticate as described at
   http://seclists.org/nmap-dev/2012/q3/868
  
-o We should document Ron's sample script
-  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
-  so that new script writers know about it.
-
 o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
@@ -674,6 +666,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
+  as well as testing usage of our normal builds (which we currently
+  build on 10.6).
+
+o Make a branch from the 6.20BETA1 release (r30266) for new stable
+  release, apply any important bugfix patches from the meantime and then
+  release it after Thanksgiving as new Stable release.
 
 o [NSE] We may want to consider a better exception handling method --
   one which doesn't require wrapping every I/O line in its own try
