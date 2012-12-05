@@ -3540,7 +3540,7 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
     those sent to Fyodor directly.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
     through more quickly.  Subscribe at
-    <ulink url="http://cgi.insecure.org/mailman/listinfo/nmap-dev"/>.</para>
+    <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
 
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are

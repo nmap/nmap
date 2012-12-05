@@ -4484,7 +4484,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     <email>nmap-dev@insecure.org</email> are far more likely to be answered than
     those sent to Fyodor directly.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
-    through more quickly.  Subscribe at <ulink url="http://cgi.insecure.org/mailman/listinfo/nmap-dev"/>.</para>
+    through more quickly.  Subscribe at <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
 
     <para>Code patches to fix bugs are even better than bug reports.
     Basic instructions for creating patch files with your changes are

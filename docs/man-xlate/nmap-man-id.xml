@@ -3973,7 +3973,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
     <email>nmap-dev@insecure.org</email> akan lebih mungkin dijawab daripada yang dikirimkan
     secara langsung ke Fyodor.  Jika anda berlangganan ke list nmap-dev
     sebelum posting, pesan anda akan melewati moderasi dan akan lewat dengan lebih cepat.
-    Berlangganan di <ulink url="http://cgi.insecure.org/mailman/listinfo/nmap-dev"/>.</para>
+    Berlangganan di <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
 
     <para>Patch code untuk memperbaiki bug adalah lebih baik daripada laporan kesalahan.
     Instruksi dasar untuk membuat file patch dengan perubahan anda tersedia di

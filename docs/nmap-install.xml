@@ -271,7 +271,7 @@ location to the <citetitle>nmap-dev</citetitle> mailing list.</para>
 <para>If you would like real-time (or digested) notification and diffs by email when any
 changes are made to Nmap, sign up for the nmap-svn mailing
 list at <ulink
-url="http://cgi.insecure.org/mailman/listinfo/nmap-svn"/>.</para>
+url="http://nmap.org/mailman/listinfo/svn"/>.</para>
 
 </sect2>
 </sect1>

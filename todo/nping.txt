@@ -41,7 +41,7 @@
 
   Questions, comments and patches should be sent to the Nmap development
   mailing list (nmap-dev). To suscribe:
-  <http://insecure.org/mailman/listinfo/nmap-dev>
+  <http://nmap.org/mailman/listinfo/dev>
 
 
 /*****************************************************************************

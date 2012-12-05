@@ -4337,7 +4337,7 @@ beantwortet, wenn sie an <email>nmap-dev@insecure.org</email> geschickt
 werden statt direkt an Fyodor. Wenn Sie sich erst auf der nmap-dev-Liste 
 eintragen, bevor Sie Ihre E-Mail schicken, entgeht Ihre Nachricht auch 
 der Moderation und kommt schneller an. Eintragen können Sie sich unter 
-<ulink url="http://cgi.insecure.org/mailman/listinfo/nmap-dev"/>.</para>
+<ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
 
 <para>Code-Patches zur Behebung von Fehlern sind noch besser als 
 Fehlerberichte. Eine einfache Anweisung für die Erstellung von Patch-Dateien 

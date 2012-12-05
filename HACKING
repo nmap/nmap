@@ -59,7 +59,7 @@ o Nmap GUI improvements -- Zenmap is the Nmap GUI. If you have
   (http://rubynmap.sourceforge.net).
 
 One of the best ways to help is to join the nmap-dev list
-( http://cgi.insecure.org/mailman/listinfo/nmap-dev ).  Requests for
+( http://nmap.org/mailman/listinfo/dev ).  Requests for
 assistance and new Nmap-related projects are often posted there.
 
 How to make code contributions
