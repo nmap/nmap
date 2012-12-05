@@ -14,15 +14,15 @@ o Complete migration away from Syn colocated machine
    - [Done] Install mailman software on web, including CGIs
    - Migrate mailing lists to web
 
+o NSE digest auth should use the more robust parsing from
+  http.parse_www_authenticate as described at
+  http://seclists.org/nmap-dev/2012/q3/868
+ 
 o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
   pages aren't really updated any more).
 
-o NSE digest auth should use the more robust parsing from
-  http.parse_www_authenticate as described at
-  http://seclists.org/nmap-dev/2012/q3/868
- 
 o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
