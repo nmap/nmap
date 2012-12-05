@@ -5,6 +5,9 @@
 # and checks that the output is what is expected.
 
 ADDRSET=./addrset
+TESTS=0
+TEST_PASS=0
+TEST_FAIL=0
 
 # Takes as arguments a whitespace-separated list of host specifications
 # and a space-separated list of expected matching addresses. Tests hosts
@@ -16,13 +19,17 @@ function test_addrset() {
 	ret=$?
 	# Change newlines to spaces.
 	result=$(echo $result)
+	let TESTS++;
 	if [ "$ret" != "0" ]; then
 		echo "FAIL $ADDRSET returned $ret."
+		let TEST_FAIL++
 	elif [ "$result" != "$expected" ]; then
 		echo "FAIL \"$result\" !="
 		echo "     \"$expected\"."
+		let TEST_FAIL++
 	else
 		echo "PASS $specs"
+		let TEST_PASS++
 	fi
 }
 
@@ -32,10 +39,13 @@ function expect_fail() {
 	specs=$1
 	$ADDRSET $specs < /dev/null 2> /dev/null
 	ret=$?
+	let TESTS++
 	if [ "$ret" == "0" ]; then
 		echo "FAIL $ADDRSET $specs was expected to fail, but didn't."
+		let TEST_FAIL++
 	else
 		echo "PASS $specs"
+		let TEST_PASS++
 	fi
 }
 
@@ -296,3 +306,9 @@ expect_fail "FF::FF/129"
 # 1.2.0.3
 # 1.2.3.4
 # EOF
+
+if [ "$TEST_FAIL" -gt 0 ]; then
+	echo "$TEST_PASS / $TESTS passed, $TEST_FAIL failed"
+	exit 1
+fi
+echo "$TEST_PASS / $TESTS passed"

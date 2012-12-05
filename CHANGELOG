@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Made test-addrset.sh exit with nonzero status if any tests
+  fail. This in turn causes "make check" to fail if any tests fail.
+  [Andreas Stieger]
+
 o Fixed compilation with --without-liblua. The bug was reported by
   Rick Farina, Nikos Chantziaras, and Alex Turbov. [David Fifield]
 
