@@ -52120,6 +52120,28 @@ T7(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7C-86%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7C-86%TG=80%CD=Z)
 
+# Version 6.1 (Build 7600), Windows 7 Ultimate
+# Windows Server 2012 Release Candidate Datacenter, 6.2 Build 8400
+# Windows Server 2012 Version 6.2 Build 9200
+Fingerprint Microsoft Windows 7 or Windows Server 2012
+Class Microsoft | Windows | 7 | general purpose
+CPE cpe:/o:microsoft:windows_7::-:ultimate
+Class Microsoft | Windows | 2012 | general purpose
+CPE cpe:/o:microsoft:windows_2012
+SEQ(SP=FA-104%GCD=1-6%ISR=101-10F%TI=I%CI=I|RD%II=I%SS=S%TS=7)
+OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=Y%T=7C-86%TG=80%W=2000%O=M5B4NW8NNS%CC=Y%Q=)
+T1(R=Y%DF=Y%T=7C-86%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
+T4(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=7C-86%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=7C-86%TG=80%CD=Z)
+
 # Windows 7 Professional version 6.1 build 7600  64Bit IA64
 Fingerprint Microsoft Windows 7 Professional
 Class Microsoft | Windows | 7 | general purpose
@@ -52462,28 +52484,6 @@ T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=Z)
 
-# Version 6.1 (Build 7600), Windows 7 Ultimate
-# Windows Server 2012 Release Candidate Datacenter, 6.2 Build 8400
-# Windows Server 2012 Version 6.2 Build 9200
-Fingerprint Microsoft Windows 7 or Windows Server 2012
-Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7::-:ultimate
-Class Microsoft | Windows | 2012 | general purpose
-CPE cpe:/o:microsoft:windows_2012
-SEQ(SP=FA-104%GCD=1-6%ISR=101-10F%TI=I%CI=I|RD%II=I%SS=S%TS=7)
-OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=Y%T=7C-86%TG=80%W=2000%O=M5B4NW8NNS%CC=Y%Q=)
-T1(R=Y%DF=Y%T=7C-86%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
-T4(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=Y%T=7C-86%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=7C-86%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=7C-86%TG=80%CD=Z)
-
 # Windows 7 Ultimate
 Fingerprint Microsoft Windows 7 Ultimate
 Class Microsoft | Windows | 7 | general purpose
@@ -52556,29 +52556,6 @@ T6(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
-
-# Windows 7 Ultimate 6.1 Build 7600
-# Windows 7 Ultimate 6.1 Build 7601: Service Pack 1
-# Version 6.0 (Build 6002: Service Pack 2)
-Fingerprint Microsoft Windows Vista SP2 or Windows 7 Ultimate SP0 - SP1
-Class Microsoft | Windows | Vista | general purpose
-CPE cpe:/o:microsoft:windows_vista::sp2
-Class Microsoft | Windows | 7 | general purpose
-CPE cpe:/o:microsoft:windows_7::-:ultimate
-CPE cpe:/o:microsoft:windows_7::sp1:ultimate
-SEQ(SP=F6-10C%GCD=1-6%ISR=107-111%TI=I%CI=I%II=I%SS=O|S%TS=7)
-OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=2000%O=M5B4NW8NNS%CC=Y%Q=)
-T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
-T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=3B-45%TG=40%CD=Z)
 
 # Microsoft Windows 95
 Fingerprint Microsoft Windows 95
@@ -54406,6 +54383,29 @@ T6(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=Y%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=Z)
+
+# Windows 7 Ultimate 6.1 Build 7600
+# Windows 7 Ultimate 6.1 Build 7601: Service Pack 1
+# Version 6.0 (Build 6002: Service Pack 2)
+Fingerprint Microsoft Windows Vista SP2 or Windows 7 Ultimate SP0 - SP1
+Class Microsoft | Windows | Vista | general purpose
+CPE cpe:/o:microsoft:windows_vista::sp2
+Class Microsoft | Windows | 7 | general purpose
+CPE cpe:/o:microsoft:windows_7::-:ultimate
+CPE cpe:/o:microsoft:windows_7::sp1:ultimate
+SEQ(SP=F6-10C%GCD=1-6%ISR=107-111%TI=I%CI=I%II=I%SS=O|S%TS=7)
+OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=2000%O=M5B4NW8NNS%CC=Y%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=O%F=AR%O=%RD=0%Q=)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=Z)
 
 # Windows 7 Ultimate 6.1 Build 7600
 # Windows 7 Ultimate 6.1 Build 7601: Service Pack 1
