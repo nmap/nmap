@@ -62,8 +62,8 @@
 #!comment:  *                                                                         *
 #!comment:  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
 #!comment:  * and add new features.  You are highly encouraged to send your changes   *
-#!comment:  * to nmap-dev@insecure.org for possible incorporation into the main       *
-#!comment:  * distribution.  By sending these changes to Fyodor or one of the         *
+#!comment:  * to the dev@nmap.org mailing list for possible incorporation into the    *
+#!comment:  * main distribution.  By sending these changes to Fyodor or one of the    *
 #!comment:  * Insecure.Org development mailing lists, it is assumed that you are      *
 #!comment:  * offering the Nmap Project (Insecure.Com LLC) the unlimited,             *
 #!comment:  * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *

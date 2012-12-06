@@ -69,8 +69,8 @@
  *                                                                         *
  * Source code also allows you to port Nmap to new platforms, fix bugs,    *
  * and add new features.  You are highly encouraged to send your changes   *
- * to nmap-dev@insecure.org for possible incorporation into the main       *
- * distribution.  By sending these changes to Fyodor or one of the         *
+ * to the dev@nmap.org mailing list for possible incorporation into the    *
+ * main distribution.  By sending these changes to Fyodor or one of the    *
  * Insecure.Org development mailing lists, it is assumed that you are      *
  * offering the Nmap Project (Insecure.Com LLC) the unlimited,             *
  * non-exclusive right to reuse, modify, and relicense the code.  Nmap     *
