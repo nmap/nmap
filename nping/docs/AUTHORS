@@ -9,7 +9,7 @@ Further development was done in the Google Summer of Code 2010 by Luis
 once again mentored by Fyodor. 
 
 Many helpful comments, suggestions and other useful information were taken from 
-the nmap-dev list (@insecure.org) as well as other contributors via email.
+the dev@nmap.org list as well as other contributors via email.
 
 Nping shares the Nmap infrastructure libraries (Nsock and Nbase) which were
 originally written by Fyodor.
