@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #this code is bassed off of the debian su-to-root command
 #Joost Witteveen <joostje@debian.org>
 #Morten Brix Pedersen
