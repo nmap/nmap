@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Automated tests for the addrset functions in ncat_hostmatch.c. This
 # program runs various addresses against different host specifications
@@ -12,45 +12,45 @@ TEST_FAIL=0
 # Takes as arguments a whitespace-separated list of host specifications
 # and a space-separated list of expected matching addresses. Tests hosts
 # are passed in stdin.
-function test_addrset() {
+test_addrset() {
 	specs=$1
 	expected=$2
 	result=$($ADDRSET $specs)
 	ret=$?
 	# Change newlines to spaces.
 	result=$(echo $result)
-	let TESTS++;
+	TESTS=$((TESTS + 1));
 	if [ "$ret" != "0" ]; then
 		echo "FAIL $ADDRSET returned $ret."
-		let TEST_FAIL++
+		TEST_FAIL=$((TEST_FAIL + 1))
 	elif [ "$result" != "$expected" ]; then
 		echo "FAIL \"$result\" !="
 		echo "     \"$expected\"."
-		let TEST_FAIL++
+		TEST_FAIL=$((TEST_FAIL + 1))
 	else
 		echo "PASS $specs"
-		let TEST_PASS++
+		TEST_PASS=$((TEST_PASS + 1))
 	fi
 }
 
 # Takes as an argument a host specification with invalid syntax. The
 # test passes if addrset returns with a non-zero exit code.
-function expect_fail() {
+expect_fail() {
 	specs=$1
 	$ADDRSET $specs < /dev/null 2> /dev/null
 	ret=$?
-	let TESTS++
-	if [ "$ret" == "0" ]; then
+	TESTS=$((TESTS + 1))
+	if [ "$ret" = "0" ]; then
 		echo "FAIL $ADDRSET $specs was expected to fail, but didn't."
-		let TEST_FAIL++
+		TEST_FAIL=$((TEST_FAIL + 1))
 	else
 		echo "PASS $specs"
-		let TEST_PASS++
+		TEST_PASS=$((TEST_PASS + 1))
 	fi
 }
 
 # seq replacement for systems without seq.
-function seq() {
+seq() {
 	low=$1
 	high=$2
 	while [ $low -le $high ]; do
