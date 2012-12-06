@@ -3275,11 +3275,11 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
               messaggio di errore o sfogliare l'archivio Nmap-dev. Leggi
               inoltre tutta questa pagina di manuale. Se nulla di questo
               riguarda il tuo caso, manda una segnalazione di bug a
-              <email>nmap-dev@insecure.org</email>. Accertati di includere
+              <email>dev@nmap.org</email>. Accertati di includere
               ogni cosa che sei riuscito a sapere sul problema, la versione di
               Nmap che stai usando e su quale sistema operativo la stai
               usando. Segnalazioni di problemi ed eventuali domande sull'uso
-              di Nmap inviate a nmap-dev@insecure.org hanno piu` probabilita
+              di Nmap inviate a dev@nmap.org hanno piu` probabilita
               di avere risposta di quelle inviate a Fyodor
               direttamente.</para>
 

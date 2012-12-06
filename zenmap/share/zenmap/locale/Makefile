@@ -6,7 +6,7 @@ SOURCEDIRS = zenmapCore zenmapGUI radialnet
 PROFILE_EDITOR_XML = share/zenmap/misc/profile_editor.xml
 
 XGETTEXT = xgettext
-MSGID_BUGS_ADDRESS = nmap-dev@insecure.org
+MSGID_BUGS_ADDRESS = dev@nmap.org
 
 ZENMAP_POT = zenmap.pot
 TMP_POT = tmp.pot

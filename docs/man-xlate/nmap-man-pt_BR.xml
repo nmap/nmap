@@ -3794,7 +3794,7 @@ EXAMPLES:
       Tente procurar no Google pela mensagem de erro ou navegar nos arquivos
       da Nmap-dev em <ulink url="http://seclists.org/" />. Se não encontrar
       nada, envie uma mensagem com um relatório do erro para
-      <email>nmap-dev@insecure.org</email>. Por favor, inclua tudo o que
+      <email>dev@nmap.org</email>. Por favor, inclua tudo o que
       souber sobre o problema, bem como a versão do Nmap que você está
       executando e em qual versão e sistema operacional você está
       rodando-o.</para>

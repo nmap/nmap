@@ -2821,10 +2821,10 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 	s vyrazom chybovej spravy alebo prehladajte archivy Nmap-dev na adrese
     <ulink url="http://seclists.org/"/>.  Precitajte si aj tento plny manual.
 	Ak nenajdete nic podobne, poslite mail o bugu na adresu 
-    <email>nmap-dev@insecure.org</email>.  Zahrnte vsetko, co ste sa dozvedeli
+    <email>dev@nmap.org</email>.  Zahrnte vsetko, co ste sa dozvedeli
 	o probleme spolu s verziou Nmapu a operacnym systemom. Spravy o problemoch
 	a otazky na pouzivanie Nmapu budu ovela pravdepodobnejsie zodpovedane, ak budu odoslane
-	na nmap-dev@insecure.org namiesto odosielania priamo Fyodorovi.</para>
+	na dev@nmap.org namiesto odosielania priamo Fyodorovi.</para>
 
     <para>Patche s kodom na opravu bugov su este lepsie ako samotne spravy o bugoch. Zakladne
 	instrukcie na tvorbu suborov patchov s vasimi zmenami su dostupne na 

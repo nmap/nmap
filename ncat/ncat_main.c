@@ -768,7 +768,7 @@ int main(int argc, char *argv[])
             bye("UDP mode does not support the -k or --keep-open options, except with --exec or --sh-exec.");
         if (o.broker)
             bye("UDP mode does not support connection brokering.\n\
-If this feature is important to you, write nmap-dev@insecure.org with a\n\
+If this feature is important to you, write dev@nmap.org with a\n\
 description of how you intend to use it, as an aid to deciding how UDP\n\
 connection brokering should work.");
     }

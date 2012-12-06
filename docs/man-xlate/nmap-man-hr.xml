@@ -2420,9 +2420,9 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
     <ulink url="http://www.insecure.org/nmap/"></ulink>. Ukoliko je problem i dalje tu, istražite da li je već
     otkriven i prijavljen. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap-dev arhive na
     <ulink url="http://seclists.org/"></ulink>. Također pročitajte i kompletan manual. Ukoliko ništa od toga ne
-    pomogne, pošaljite izvještaj o grešci na <email>nmap-dev@insecure.org</email>. Molim Vas napišite sve što ste do
+    pomogne, pošaljite izvještaj o grešci na <email>dev@nmap.org</email>. Molim Vas napišite sve što ste do
     tad otkrili o problemu, te koju verziju Nmap- imate i koju verziju OS-a imate. Izvještaji o prijavljenim
-    problemima i upiti o korištenju Nmap-a koji su poslani na nmap-dev@insecure.org imaju više šansi da budu
+    problemima i upiti o korištenju Nmap-a koji su poslani na dev@nmap.org imaju više šansi da budu
     odgovoreni nego oni poslani direktno Fyodor-u.</para>
 
     <para>Patchevi za otklanjanje bugova su još i bolji od samih prijava. Osnovne upute za kreiranje patch datoteka s

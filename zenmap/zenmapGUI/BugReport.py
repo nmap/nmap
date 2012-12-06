@@ -131,10 +131,10 @@ some research to determine whether it has already been discovered and \
 addressed. Try Googling the error message or browsing the nmap-dev \
 archives at http://seclists.org/. Read the full manual page as well. If \
 nothing comes of this, mail a bug report to \
-<b>&lt;nmap-dev@insecure.org&gt;</b>. Please include everything you have \
+<b>&lt;dev@nmap.org&gt;</b>. Please include everything you have \
 learned about the problem, as well as what version of Nmap you are \
 running and what operating system version it is running on. Problem \
-reports and %(nmap)s usage questions sent to nmap-dev@insecure.org are \
+reports and %(nmap)s usage questions sent to dev@nmap.org are \
 far more likely to be answered than those sent to Fyodor directly.
 
 Code patches to fix bugs are even better than bug reports. Basic \

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: nmap-dev@insecure.org\n"
+"Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2012-05-22 12:52-0700\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Yuji Tounai <bogus@bogus.jp>\n"
@@ -102,12 +102,12 @@ msgstr "クラッシュを報告"
 
 #: zenmapGUI/CrashReport.py:130
 #, python-format
-msgid "An unexpected error has crashed %(app_name)s. Please copy the stack trace below and send it to the <a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a> mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list.</a>) The developers will see your report and try to fix the problem."
-msgstr "予期しないエラーが発生しました。%(app_name)s. スタックトレースをコピーして以下の宛先のメーリングリストに送信してください。<a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a>  (<a href=\"http://seclists.org/nmap-dev/\">このメーリングリストについて</a>) 開発者たちはレポートを見て問題解決に取り組みます。"
+msgid "An unexpected error has crashed %(app_name)s. Please copy the stack trace below and send it to the <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list.</a>) The developers will see your report and try to fix the problem."
+msgstr "予期しないエラーが発生しました。%(app_name)s. スタックトレースをコピーして以下の宛先のメーリングリストに送信してください。<a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>  (<a href=\"http://seclists.org/nmap-dev/\">このメーリングリストについて</a>) 開発者たちはレポートを見て問題解決に取り組みます。"
 
 #: zenmapGUI/CrashReport.py:138
-msgid "<b>Copy and email to <a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a>:</b>"
-msgstr "<b>コピーして、<a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a>:にメールを送ってください。</b>"
+msgid "<b>Copy and email to <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
+msgstr "<b>コピーして、<a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:にメールを送ってください。</b>"
 
 #: zenmapGUI/OptionBuilder.py:258
 msgid "Choose file"
@@ -790,13 +790,13 @@ msgstr "バグレポート方法"
 msgid ""
 "<big><b>How to report a bug</b></big>\n"
 "\n"
-"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;nmap-dev@insecure.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to nmap-dev@insecure.org are far more likely to be answered than those sent to Fyodor directly.\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;dev@nmap.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to dev@nmap.org are far more likely to be answered than those sent to Fyodor directly.\n"
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at http://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) or to Fyodor directly.\n"
 msgstr ""
 "<big><b>バグレポートの送り方</b></big>\n"
 "\n"
-"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;nmap-dev@insecure.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to nmap-dev@insecure.org are far more likely to be answered than those sent to Fyodor directly.\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;dev@nmap.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to dev@nmap.org are far more likely to be answered than those sent to Fyodor directly.\n"
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at http://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) or to Fyodor directly.\n"
 

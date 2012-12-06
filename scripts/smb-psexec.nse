@@ -293,7 +293,7 @@ files are deleted.
 
 And that's how it works! 
 
-Please post any questions, or suggestions for better modules, to nmap-dev@insecure.org. 
+Please post any questions, or suggestions for better modules, to dev@nmap.org. 
 
 And, as usual, since this tool can be dangerous and can easily be viewed as a malicious 
 tool -- use this responsibly, and don't break any laws with it. 
@@ -1279,9 +1279,9 @@ local function parse_output(config, data)
 				-- Go to the next module, and make sure it exists
 				mod = config.enabled_modules[module_num + 1]
 				if(mod == nil) then
-					stdnse.print_debug(1, "Server's response wasn't formatted properly (mod %d); if you can reproduce, place report to nmap-dev@insecure.org", module_num)
+					stdnse.print_debug(1, "Server's response wasn't formatted properly (mod %d); if you can reproduce, place report to dev@nmap.org", module_num)
 					stdnse.print_debug(1, "--\n" .. string.gsub("%%", "%%", data) .. "\n--")
-					return false, "Server's response wasn't formatted properly; if you can reproduce, place report to nmap-dev@insecure.org"
+					return false, "Server's response wasn't formatted properly; if you can reproduce, place report to dev@nmap.org"
 				end
 
 				-- Save this result

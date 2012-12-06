@@ -3477,9 +3477,9 @@ rttvar: 14987 to: 100000</computeroutput>. Если вы не понимаете
     Попробуйте поискать сообщения об ошибках на нашей странице поиска <ulink url="http://insecure.org/search.html"/> 
     или в Google. Также попробуйте просмотреть <citetitle>nmap-dev</citetitle> архивы на <ulink url="http://seclists.org/"/>.<indexterm significance="normal"><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
     Также прочитайте полностью страницу руководства. Если ничего не помогло, отправьте сообщение об ошибке на 
-    <email>nmap-dev@insecure.org</email>. Пожалуйста, включите всю известную вам информацию об ошибке, какую версию 
+    <email>dev@nmap.org</email>. Пожалуйста, включите всю известную вам информацию об ошибке, какую версию 
     Nmap вы используете, и на какой операционной системы вы запускаете Nmap. Сообщения о проблемах и вопросы по 
-    использованию Nmap отправленные на <email>nmap-dev@insecure.org</email> имеют больше шансов на ответ, чем если бы 
+    использованию Nmap отправленные на <email>dev@nmap.org</email> имеют больше шансов на ответ, чем если бы 
     вы послали их непосредственно Fyodor'у. Если вы подпишитесь на рассылку nmap-dev перед отправкой сообщения, 
     то ваше сообщение будет обработано быстрее. Подпишитесь на рассылку на <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
 

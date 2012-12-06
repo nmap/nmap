@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Zenmap\n"
-"Report-Msgid-Bugs-To: nmap-dev@insecure.org\n"
+"Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2012-05-22 12:52-0700\n"
 "PO-Revision-Date: 2012-05-30 05:00+0100\n"
 "MIME-Version: 1.0\n"
@@ -101,12 +101,12 @@ msgstr "Rapporto di crash"
 
 #: zenmapGUI/CrashReport.py:130
 #, python-format
-msgid "An unexpected error has crashed %(app_name)s. Please copy the stack trace below and send it to the <a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a> mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list.</a>) The developers will see your report and try to fix the problem."
-msgstr "Un errore inaspettato ha mandato in crash %(app_name)s. Siete pregati di copiare lo stack trace sottostante ed inviarlo alla <a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a> mailing list. (<a href=\"http://seclists.org/nmap-dev/\">Per saperne di più sulla lista.</a>) Gli sviluppatori vedranno il tuo rapporto e proveranno a risolvere il problema."
+msgid "An unexpected error has crashed %(app_name)s. Please copy the stack trace below and send it to the <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> mailing list. (<a href=\"http://seclists.org/nmap-dev/\">More about the list.</a>) The developers will see your report and try to fix the problem."
+msgstr "Un errore inaspettato ha mandato in crash %(app_name)s. Siete pregati di copiare lo stack trace sottostante ed inviarlo alla <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a> mailing list. (<a href=\"http://seclists.org/nmap-dev/\">Per saperne di più sulla lista.</a>) Gli sviluppatori vedranno il tuo rapporto e proveranno a risolvere il problema."
 
 #: zenmapGUI/CrashReport.py:138
-msgid "<b>Copy and email to <a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a>:</b>"
-msgstr "<b>Copia e spedisci via email a <a href=\"mailto:nmap-dev@insecure.org\">nmap-dev@insecure.org</a>:</b>"
+msgid "<b>Copy and email to <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
+msgstr "<b>Copia e spedisci via email a <a href=\"mailto:dev@nmap.org\">dev@nmap.org</a>:</b>"
 
 #: zenmapGUI/OptionBuilder.py:258
 msgid "Choose file"
@@ -789,13 +789,13 @@ msgstr "Come segnalare un errore"
 msgid ""
 "<big><b>How to report a bug</b></big>\n"
 "\n"
-"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;nmap-dev@insecure.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to nmap-dev@insecure.org are far more likely to be answered than those sent to Fyodor directly.\n"
+"Like their author, %(nmap)s and %(app)s aren't perfect. But you can help make it better by sending bug reports or even writing patches. If %(nmap)s doesn't behave the way you expect, first upgrade to the latest version available from <b>%(nmap_web)s</b>. If the problem persists, do some research to determine whether it has already been discovered and addressed. Try Googling the error message or browsing the nmap-dev archives at http://seclists.org/. Read the full manual page as well. If nothing comes of this, mail a bug report to <b>&lt;dev@nmap.org&gt;</b>. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on. Problem reports and %(nmap)s usage questions sent to dev@nmap.org are far more likely to be answered than those sent to Fyodor directly.\n"
 "\n"
 "Code patches to fix bugs are even better than bug reports. Basic instructions for creating patch files with your changes are available at http://nmap.org/data/HACKING. Patches may be sent to nmap-dev (recommended) or to Fyodor directly.\n"
 msgstr ""
 "<big><b>Come segnalare un errore</b></big>\n"
 "\n"
-"Come il loro autore, %(nmap)s e %(app)s non sono perfetti. Ma potete aiutare a renderli migliori inviando segnalazioni d'errore o persino scrivendo patches. Se %(nmap)s non si comporta nel modo che vi aspettate, per prima cosa aggiornatelo all'ultima versione disponibile da <b>%(nmap_web)s</b>. Se il problema persiste, fate qualche ricerca per determinare se è stato già scoperto e risolto. Provate a cercare su Google il messaggio di errore o sfogliate gli archivi di nmap-dev su http://seclists.org/. Leggete anche il manuale completo. Se non ne ricavate nulla, scrivete un email con la segnalazione d'errore a <b>&lt;nmap-dev@insecure.org&gt;</b>. Siete pregati di includere ogni cosa appresa sul problema, assieme alla versione di Nmap che state eseguendo e su quale versione di sistema operativo gira. Segnalazioni di errore e domande sull'uso di %(nmap)s inviate a nmap-dev@insecure.org otterranno una risposta più facilmente di quelle inviate direttamente a Fyodor.\n"
+"Come il loro autore, %(nmap)s e %(app)s non sono perfetti. Ma potete aiutare a renderli migliori inviando segnalazioni d'errore o persino scrivendo patches. Se %(nmap)s non si comporta nel modo che vi aspettate, per prima cosa aggiornatelo all'ultima versione disponibile da <b>%(nmap_web)s</b>. Se il problema persiste, fate qualche ricerca per determinare se è stato già scoperto e risolto. Provate a cercare su Google il messaggio di errore o sfogliate gli archivi di nmap-dev su http://seclists.org/. Leggete anche il manuale completo. Se non ne ricavate nulla, scrivete un email con la segnalazione d'errore a <b>&lt;dev@nmap.org&gt;</b>. Siete pregati di includere ogni cosa appresa sul problema, assieme alla versione di Nmap che state eseguendo e su quale versione di sistema operativo gira. Segnalazioni di errore e domande sull'uso di %(nmap)s inviate a dev@nmap.org otterranno una risposta più facilmente di quelle inviate direttamente a Fyodor.\n"
 "\n"
 "Patches di codice per risolvere errori sono anche meglio delle segnalazioni. Semplici informazioni su come creare un file patch files con i vostri cambiamenti sono disponibili su http://nmap.org/data/HACKING. Le patches possono essere inviate direttamente a nmap-dev (raccomandato) o a Fyodor.\n"
 

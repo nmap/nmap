@@ -373,7 +373,7 @@ ln -sf scan-$date.xml scan-prev.xml
     <title>Bugs</title>
     <para>
     Report bugs to the <citetitle>nmap-dev</citetitle> mailing list at
-    <email>nmap-dev@insecure.org</email>.
+    <email>dev@nmap.org</email>.
     </para>
   </refsect1>
 

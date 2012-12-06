@@ -2957,10 +2957,10 @@
       eroare sau navigand prin arhivele Nmap-dev la
       <ulink url="http://seclists.org/"></ulink>. Cititi acest manual in
       intregime de asemenea. Daca nimic nu se rezolva, trimiteti un mail la
-      <email>nmap-dev@insecure.org</email>. Va rog sa includeti tot ce ati
+      <email>dev@nmap.org</email>. Va rog sa includeti tot ce ati
       aflat despre problema, precum si versiunea de Nmap pe care o folositi si
       sistemul de operare. Problemele si intrebarile legate de utilizarea
-      Nmapului trimise la nmap-dev@insecure.org au sanse mult mai mari de a li
+      Nmapului trimise la dev@nmap.org au sanse mult mai mari de a li
       se raspunde decat cele trimise direct la Fyodor.</para>
       <para>Patchurile de rezolvare a problemelor sunt si mai bune decat
       rapoartele despre problema in sine. Instructiuni de baza pentru crearea

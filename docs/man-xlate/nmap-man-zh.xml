@@ -2324,9 +2324,9 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
     升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否
     已经被解决。在<ulink url="http://seclists.org/"/>尝试搜索出错消息或
     浏览Nmap-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送
-    Bug报告至<email>nmap-dev@insecure.org</email>。在报告中包含所有
+    Bug报告至<email>dev@nmap.org</email>。在报告中包含所有
     有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及
-    Nmap的使用问题发送给nmap-dev@insecure.org比直接发送给Gyodor能更好回答。</para>
+    Nmap的使用问题发送给dev@nmap.org比直接发送给Gyodor能更好回答。</para>
 
     <para>解决Bug的代码补丁比Bug报告更受欢迎，在<ulink url="http://www.insecure.org/nmap/data/HACKING"/>
     可获得建立补丁文件的基本指令。补丁可发送给nmap-dev(建议)

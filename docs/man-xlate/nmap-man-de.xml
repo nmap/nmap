@@ -4329,11 +4329,11 @@ Sie in den <citetitle>nmap-dev</citetitle>-Archiven unter
 <ulink url="http://seclists.org/" />.<indexterm><primary><citetitle>nmap-dev</citetitle> Mailingliste</primary></indexterm> 
 Lesen Sie auch diese Manpage vollständig. Wenn Sie keine Lösung finden, 
 schicken Sie einen Fehlerbericht per E-Mail an 
-<email>nmap-dev@insecure.org</email>. Beschreiben Sie darin bitte alles, 
+<email>dev@nmap.org</email>. Beschreiben Sie darin bitte alles, 
 was Sie über das Problem wissen, inklusive der Nmap-Version und der 
 Betriebssystemversion, unter der Sie Nmap einsetzen. Berichte von Problemen 
 und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher 
-beantwortet, wenn sie an <email>nmap-dev@insecure.org</email> geschickt 
+beantwortet, wenn sie an <email>dev@nmap.org</email> geschickt 
 werden statt direkt an Fyodor. Wenn Sie sich erst auf der nmap-dev-Liste 
 eintragen, bevor Sie Ihre E-Mail schicken, entgeht Ihre Nachricht auch 
 der Moderation und kommt schneller an. Eintragen können Sie sich unter 

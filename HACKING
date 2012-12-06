@@ -12,7 +12,7 @@ it.  This also allows you to audit the software for security holes
 
 Source code also allows you to port Nmap to new platforms, fix bugs,
 and add new features.  You are highly encouraged to send your changes
-to nmap-dev@insecure.org for possible incorporation into the main
+to dev@nmap.org for possible incorporation into the main
 distribution.  By sending these changes to Fyodor or one of the
 Insecure.Org development mailing lists, it is assumed that you are
 offering the Nmap Project (Insecure.Com LLC) unlimited, non-exclusive
@@ -31,10 +31,10 @@ down and patch a problem, bug reports are always welcome.
 
 Hackers interested in something more major, such as a new feature, are
 encouraged to send a mail describing their plans to
-nmap-dev@insecure.org .  This is a good way to solicit feedback on
+dev@nmap.org .  This is a good way to solicit feedback on
 your proposals.  List members are often very willing to help.  You
 might want to subscribe to that mailing list as well -- send a blank
-email to nmap-dev-subscribe@insecure.org .  While you are at it, you
+email to dev-subscribe@nmap.org .  While you are at it, you
 might also want to subscribe to nmap-hackers via the same mechanism.
 Web archives of those lists are at http://seclists.org .
 
@@ -66,7 +66,7 @@ How to make code contributions
 ------------------------------
 
 The preferred mechanism for submitted changes is unified diffs against
-the latest SVN trunk.  Please send them to nmap-dev@insecure.org .
+the latest SVN trunk.  Please send them to dev@nmap.org .
 
 Get a local copy of the SVN trunk:
 

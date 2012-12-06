@@ -3532,11 +3532,11 @@ NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<con
     <primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
     Read this full manual page as
     well.  If nothing comes out of this, mail a bug report to
-    <email>nmap-dev@insecure.org</email>.  Please include everything
+    <email>dev@nmap.org</email>.  Please include everything
     you have learned about the problem, as well as what version of
     Nping you are running and what operating system version it is
     running on.  Problem reports and Nping usage questions sent to
-    <email>nmap-dev@insecure.org</email> are far more likely to be answered than
+    <email>dev@nmap.org</email> are far more likely to be answered than
     those sent to Fyodor directly.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
     through more quickly.  Subscribe at

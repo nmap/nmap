@@ -83,7 +83,7 @@ run it. This also allows you to audit the software for security holes
 
 <para>Source code also allows you to port Nmap to new platforms, fix bugs,
 and add new features.  You are highly encouraged to send your changes
-to <email>nmap-dev@insecure.org</email> for possible incorporation
+to <email>dev@nmap.org</email> for possible incorporation
 into the main distribution.  By sending these changes to Fyodor or one
 of the Insecure.Org development mailing lists, it is assumed that you
 are offering the Nmap Project (Insecure.Com LLC) the unlimited,

@@ -2279,11 +2279,11 @@ le temps supplémentaire que cela suppose.</para>
 						signalé. Essayez pour cela de mettre l'erreur en argument sur Google
 						ou parcourez les archives de Nmap-dev sur <ulink url="http://seclists.org/" />. Lisez ce manuel en entier quoiqu'il en
 						soit. Si rien ne semble fonctionner, envoyez un rapport de bogue à
-						<email>nmap-dev@insecure.org</email>. Veillez à inclure tout ce que vous avez
+						<email>dev@nmap.org</email>. Veillez à inclure tout ce que vous avez
 						appris au sujet de ce bogue ainsi que la version de Nmap concernée
 						et le système d'exploitation que vous utilisez.
 						Les rapports de problèmes et les questions sur l'utilisation de Nmap envoyés à
-						nmap-dev@insecure.org ont plus de chance de trouver une réponse que ceux
+						dev@nmap.org ont plus de chance de trouver une réponse que ceux
 						envoyés à Fyodor directement.</para>
       <para>Les codes de programmes de correction destinés à régler des bogues sont encore meilleurs que les rapports de bogues.
 						Les instructions de base pour créer des fichiers de programmes de correction avec vos modifications

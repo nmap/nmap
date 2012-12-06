@@ -9250,7 +9250,7 @@ o The write buffer length increased in 4.03 was increased even further
   "log_vwrite: write buffer not large enough -- need to increase"
 
 o Added a note to the Nmap configure dragon that people sick of him
-  can submit their own ASCII art to nmap-dev@insecure.org .  If you
+  can submit their own ASCII art to dev@nmap.org .  If you
   are wondering WTF I am talking about, it is probably because only
   most elite Nmap users -- the ones who compile from source on UNIX --
   get to see the 'l33t ASCII Art.

@@ -64,7 +64,7 @@ local table = require "table"
 -- captures can be used with \1, \2, etc.
 --
 --
--- If you have any questions, feel free to email nmap-dev@insecure.org or contact Ron Bowes!
+-- If you have any questions, feel free to email dev@nmap.org or contact Ron Bowes!
 --
 -- CHANGELOG:
 -- Added 120 new signatures taken from exploit-db.com archives from July 2009 to July 2011 [Paulino Calderon]

@@ -3576,12 +3576,12 @@ medida que se incrementa el nivel de depuración.</para>
     archivos de Nmap-dev en <ulink
     url="http://seclists.org/"/>. También deberías leer este manual
     completo. Si esto no te ayuda, envía un informe de error en inglés
-    a <email>nmap-dev@insecure.org</email>.  Por favor, incluya todo
+    a <email>dev@nmap.org</email>.  Por favor, incluya todo
     lo que haya visto del problema, así como qué versión de Nmap
     está utilizando y sobre qué versión del sistema operativo está
     trabajando. Hay muchas más probabilidades de que un informe de
     fallo o una pregunta sobre el uso de Nmap se contesten si se
-    envían a nmap-dev@insecure.org que si se envían directamente a
+    envían a dev@nmap.org que si se envían directamente a
     Fyodor.</para>
 
     <para>Es mejor enviar parches para arreglar el código que un

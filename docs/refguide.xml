@@ -4477,11 +4477,11 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
     url="http://seclists.org/" />.<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
     Read this full manual page as
     well.  If nothing comes of this, mail a bug report to
-    <email>nmap-dev@insecure.org</email>.  Please include everything
+    <email>dev@nmap.org</email>.  Please include everything
     you have learned about the problem, as well as what version of
     Nmap you are running and what operating system version it is
     running on.  Problem reports and Nmap usage questions sent to
-    <email>nmap-dev@insecure.org</email> are far more likely to be answered than
+    <email>dev@nmap.org</email> are far more likely to be answered than
     those sent to Fyodor directly.  If you subscribe to the nmap-dev
     list before posting, your message will bypass moderation and get
     through more quickly.  Subscribe at <ulink url="http://nmap.org/mailman/listinfo/dev"/>.</para>
