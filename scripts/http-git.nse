@@ -260,6 +260,6 @@ function action(host, port)
   end
 
   -- Replace non-printing characters with asterisks
-  if #out > 0 then return string.gsub(stdnse.format_output(true, out), "[^%w%p%s]", "*")
+  if #out > 0 then return stdnse.format_output(true, out)
   else return nil end
 end
