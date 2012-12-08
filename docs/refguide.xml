@@ -1624,7 +1624,7 @@ Gerhard Rieger<indexterm><primary>Rieger, Gerhard</primary></indexterm>
 conceived the idea, wrote an excellent patch implementing it,
 and sent it to the
 <citetitle>announce</citetitle> mailing list<indexterm><primary><citetitle>announce</citetitle> mailing list</primary></indexterm>
-(then called <citetitle>nmap-hackers</citetitle>).<indexterm><primary><citetitle>nmap-hackers</citetitle> mailing list</primary><see><citetitle>announce</citetitle> mailing list</indexterm>
+(then called <citetitle>nmap-hackers</citetitle>).<indexterm><primary><citetitle>nmap-hackers</citetitle> mailing list</primary><see><citetitle>announce</citetitle> mailing list</see></indexterm>
 I incorporated that patch into the Nmap tree and released a new
 version the next day.  Few pieces of commercial software have users
 enthusiastic enough to design and contribute their own
