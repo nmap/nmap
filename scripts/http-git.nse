@@ -234,7 +234,7 @@ function action(host, port)
         { "wp%-%*%.php", "WordPress site" },
         { "app/config/database%.php", "CakePHP web application" },
         { "sites/default/settings%.php", "Drupal site" },
-        { "local_settings.py", "Django web application" },
+        { "local_settings%.py", "Django web application" },
         { "/%.bundle", "Ruby on Rails web application" }, -- More specific matches (MyFaces > JSF > Java) on top
         { "%.py[dco]", "Python application" },
         { "%.jsp", "JSP web application" },
