@@ -42,7 +42,7 @@ eth_open(const char *device)
 	sa.sndd_8022_family = AF_NDD;
         sa.sndd_8022_len = sizeof(sa);
 	sa.sndd_8022_filtertype = NS_ETHERTYPE;
-	sa.sndd_8022_ethertype = ETH_TYPE_IP;
+	sa.sndd_8022_ethertype = 0;
 	sa.sndd_8022_filterlen = sizeof(struct ns_8022);
 	strlcpy(sa.sndd_8022_nddname, device, sizeof(sa.sndd_8022_nddname));
 	
