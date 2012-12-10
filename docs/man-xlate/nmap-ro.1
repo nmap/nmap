@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 02/16/2010
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 12/08/2012
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "02/16/2010" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "12/08/2012" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -124,7 +133,7 @@ Usage: nmap [Scan
         ORDER: \-p <port ranges>: Only scan specified ports Ex: \-p22;
         \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080 \-F: Fast \- Scan only the
         ports listed in the nmap\-services file) \-r: Scan ports consecutively \-
-        don\'t randomize SERVICE/VERSION DETECTION: \-sV: Probe open ports to
+        don\*(Aqt randomize SERVICE/VERSION DETECTION: \-sV: Probe open ports to
         determine service/version info \-\-version\-light: Limit to most likely
         probes for faster identification \-\-version\-all: Try every single probe
         for version detection \-\-version\-trace: Show detailed version scan
@@ -1280,7 +1289,7 @@ Realizeaza un transfer de zona DNS pentru a gasi toate hosturile din company\&.c
 Asemeni autorului, Nmap nu este perfect\&. Dar ilputeti face mai bun trimitand rapoarte despre problemele aparute si chiar scriind patchuri\&. daca Nmap nu se comporta in modul in care va asteptati, faceti upgradeul la ultima versiune disponibila la
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Daca problema persista, faceti munca de cercetare pentru a vedea daca problema a fost descoperita si discutata\&. Incercati cautarea in Google a mesajului de eroare sau navigand prin arhivele Nmap\-dev la
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Cititi acest manual in intregime de asemenea\&. Daca nimic nu se rezolva, trimiteti un mail la
-nmap\-dev@insecure\&.org\&. Va rog sa includeti tot ce ati aflat despre problema, precum si versiunea de Nmap pe care o folositi si sistemul de operare\&. Problemele si intrebarile legate de utilizarea Nmapului trimise la nmap\-dev@insecure\&.org au sanse mult mai mari de a li se raspunde decat cele trimise direct la Fyodor\&.
+dev@nmap\&.org\&. Va rog sa includeti tot ce ati aflat despre problema, precum si versiunea de Nmap pe care o folositi si sistemul de operare\&. Problemele si intrebarile legate de utilizarea Nmapului trimise la dev@nmap\&.org au sanse mult mai mari de a li se raspunde decat cele trimise direct la Fyodor\&.
 .PP
 Patchurile de rezolvare a problemelor sunt si mai bune decat rapoartele despre problema in sine\&. Instructiuni de baza pentru crearea patchurilor sunt disponibile la
 \m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Patchurile pot fi trimise la nmap\-dev (recomandat) sau direct la Fyodor\&.

@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 11/29/2012
+.\"      Date: 12/09/2012
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/29/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "12/09/2012" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -937,8 +937,10 @@ option to select scanned protocol numbers, reports its results within the normal
 .sp
 Besides being useful in its own right, protocol scan demonstrates the power of open\-source software\&. While the fundamental idea is pretty simple, I had not thought to add it nor received any requests for such functionality\&. Then in the summer of 2000, Gerhard Rieger.\" Rieger, Gerhard
 conceived the idea, wrote an excellent patch implementing it, and sent it to the
-nmap\-hackers
-mailing list\&..\" nmap-hackers mailing list
+announce
+mailing list.\" announce mailing list
+(then called
+nmap\-hackers)\&..\" nmap-hackers mailing list
 I incorporated that patch into the Nmap tree and released a new version the next day\&. Few pieces of commercial software have users enthusiastic enough to design and contribute their own improvements!
 .sp
 Protocol scan works in a similar fashion to UDP scan\&. Instead of iterating through the port number field of a UDP packet, it sends IP packet headers and iterates through the eight\-bit IP protocol field\&. The headers are usually empty, containing no data and not even the proper header for the claimed protocol\&. The exceptions are TCP, UDP, ICMP, SCTP, and IGMP\&. A proper protocol header for those is included since some systems won\*(Aqt send them otherwise and because Nmap already has functions to create them\&. Instead of watching for ICMP port unreachable messages, protocol scan is on the lookout for ICMP
@@ -2416,8 +2418,8 @@ nmap\-dev
 archives at
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&..\" nmap-dev mailing list
 Read this full manual page as well\&. If nothing comes of this, mail a bug report to
-nmap\-dev@insecure\&.org\&. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on\&. Problem reports and Nmap usage questions sent to
-nmap\-dev@insecure\&.org
+dev@nmap\&.org\&. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on\&. Problem reports and Nmap usage questions sent to
+dev@nmap\&.org
 are far more likely to be answered than those sent to Fyodor directly\&. If you subscribe to the nmap\-dev list before posting, your message will bypass moderation and get through more quickly\&. Subscribe at
 \m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
@@ -2430,7 +2432,7 @@ nmap\-dev
 Gordon
 \(lqFyodor\(rq
 Lyon
-fyodor@insecure\&.org
+fyodor@nmap\&.org
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Hundreds of people have made valuable contributions to Nmap over the years\&. These are detailed in the
@@ -2533,7 +2535,7 @@ is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
 .PP
 Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
-nmap\-dev@insecure\&.org
+dev@nmap\&.org
 for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project (Insecure\&.Com LLC) the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,.\" open source
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed above\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty.\" warranty (lack of)"
