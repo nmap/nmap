@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * nbase_str.c -- string related functings in the nbase library.  These    *
- * were written by fyodor@insecure.org .                                   *
+ * were written by fyodor@nmap.org .                                   *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

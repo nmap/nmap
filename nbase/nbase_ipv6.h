@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * nbase_ipv6.h -- IPv6 portability classes and structures These were      *
- * written by fyodor@insecure.org .                                        *
+ * written by fyodor@nmap.org .                                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

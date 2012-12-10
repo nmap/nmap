@@ -4,7 +4,7 @@
  * allocation.  Right now they are just safe_ versions of well known calls *
  * like malloc that quit if the allocation fails (so you don't have to     *
  * have a bunch of ugly checks in your code.  These were written by        *
- * fyodor@insecure.org .                                                   *
+ * fyodor@nmap.org .                                                   *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *

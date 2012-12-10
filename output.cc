@@ -1965,7 +1965,7 @@ void printosscanoutput(Target *currenths) {
     p = numlst;
     for (i = 0; i < currenths->seq.responses; i++) {
       if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3877 -- please report to fyodor@insecure.org\n");
+        fatal("STRANGE ERROR #3877 -- please report to fyodor@nmap.org\n");
       if (p != numlst)
         *p++ = ',';
       sprintf(p, "%X", currenths->seq.seqs[i]);
@@ -1989,7 +1989,7 @@ void printosscanoutput(Target *currenths) {
     p = numlst;
     for (i = 0; i < currenths->seq.responses; i++) {
       if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3876 -- please report to fyodor@insecure.org\n");
+        fatal("STRANGE ERROR #3876 -- please report to fyodor@nmap.org\n");
       if (p != numlst)
         *p++ = ',';
       sprintf(p, "%hX", currenths->seq.ipids[i]);
@@ -2010,7 +2010,7 @@ void printosscanoutput(Target *currenths) {
     p = numlst;
     for (i = 0; i < currenths->seq.responses; i++) {
       if (p - numlst > (int) (sizeof(numlst) - 15))
-        fatal("STRANGE ERROR #3877 -- please report to fyodor@insecure.org\n");
+        fatal("STRANGE ERROR #3878 -- please report to fyodor@nmap.org\n");
       if (p != numlst)
         *p++ = ',';
       sprintf(p, "%X", currenths->seq.timestamps[i]);

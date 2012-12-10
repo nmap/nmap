@@ -55,7 +55,7 @@ struct ip {
 #define HAVE_STRUCT_IP
 
 /* From Linux glibc, which apparently borrowed it from
-   BSD code.  Slightly modified for portability --fyodor@insecure.org */
+   BSD code.  Slightly modified for portability --fyodor@nmap.org */
 /*
  * Structure of an internet header, naked of options.
  */
