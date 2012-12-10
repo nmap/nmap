@@ -3293,7 +3293,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
             <refsect1 id="man-author">
               <title>Autore</title>
 
-              <para>Fyodor <email>fyodor@insecure.org</email>( <ulink
+              <para>Fyodor <email>fyodor@nmap.org</email>( <ulink
               url="http://www.insecure.org" />)</para>
 
               <title>Traduzione</title>
@@ -3433,7 +3433,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
                 <para>Il codice sorgente permette anche di rendere Nmap
                 portabile a nuove architetture, correggere i bugs e aggiungere
                 nuove funzioni. Si e` molto incoraggiati a mandare le proprie
-                modifiche a <email>fyodor@insecure.org</email> per possibili
+                modifiche a <email>fyodor@nmap.org</email> per possibili
                 inclusioni nella distribuzione principale. Mandando le
                 modifiche a Fyodor o altri della mailing list di Insecure.Org,
                 si assume che si sta offrendo a Fyodor e Insecure.Com LLC il

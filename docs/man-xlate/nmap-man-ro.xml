@@ -2972,7 +2972,7 @@
     <refsect1 id="man-author">
       <title>Autor</title>
       <para>Fyodor
-      <email>fyodor@insecure.org</email>(
+      <email>fyodor@nmap.org</email>(
       <ulink url="http://www.insecure.org"></ulink>)</para>
       <para>Sute de oameni au facut contributii importante la Nmap de-a lungul
       timpului. Ei sunt mentionati in fisierul
@@ -3094,7 +3094,7 @@
         <para>Codul sursa permite portarea Nmap pe noi platforme, rezolvarea
         problemelor si adaugarea de noi functionalitati. Sunteti incurajati sa
         trimiteti modificarile dumneavoastra la
-        <email>fyodor@insecure.org</email>pentru o posibila incorporare in
+        <email>fyodor@nmap.org</email>pentru o posibila incorporare in
         distributia principala. Prin trimiterea acestor modificari catre Fyodor
         sau la una din listele de dezvoltare de la Insecure.Org, se presupune
         ca oferiti lui Fyodor si Insecure.Com LLC dreptul neliitat, neexclusiv

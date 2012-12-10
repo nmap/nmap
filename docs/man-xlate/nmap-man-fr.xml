@@ -2293,7 +2293,7 @@ le temps supplémentaire que cela suppose.</para>
     <refsect1 id="man-author" >
       <title>Auteur</title>
       <para>Fyodor 
-						<email>fyodor@insecure.org</email>
+						<email>fyodor@nmap.org</email>
 						(<ulink url="http://www.insecure.org" />)
 					</para>
       <para>Traduction française :</para>
@@ -2400,7 +2400,7 @@ le temps supplémentaire que cela suppose.</para>
 							(aucune n'a été trouvée à ce jour).</para>
         <para>Le code source vous permet aussi d'utiliser Nmap sur de nouvelles plateformes, de régler
 							des bogues et d'ajouter de nouvelles fonctionnalités. Vous êtes fortement encouragés à présenter
-							vos modifications à <email>fyodor@insecure.org</email> dans le but de les intégrer dans la distribution principale. Lorsque vous envoyez ces changements à
+							vos modifications à <email>fyodor@nmap.org</email> dans le but de les intégrer dans la distribution principale. Lorsque vous envoyez ces changements à
 							Fyodor ou à l'une des listes de développement d'Insecure.Org,
 							il est recommandé que vous cédiez à Fyodor et à Insecure.Com LLC le droit illimité
 							et non exclusif de réutiliser, de modifier et de concéder de nouveau une licence pour le code. Nmap sera toujours disponible en Open Source et ce, principalement en raison de l'impossibilité de concéder de nouveau une licence pour le code, ce qui a occasionné des problèmes dévastateurs

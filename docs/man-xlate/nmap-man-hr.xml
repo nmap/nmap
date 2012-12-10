@@ -2433,7 +2433,7 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
   <refsect1 id="man-author">
     <title>Author</title>
     <para>Fyodor 
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://www.insecure.org"></ulink>)
     </para>
 
@@ -2519,7 +2519,7 @@ prije nego će ga pokrenuti. To Vam isto tako omogućava provjeru softvera na si
 niti jedna).</para>
 
 <para>Izvorni Vam kod isto tako omogućava prijenos Nmap-a na nove platforme, popravljanje grešaka i dodavanje novih
-mogućnosti. Potaknuti ste da promjene pošaljete na <email>fyodor@insecure.org</email> kako bi eventualno bile
+mogućnosti. Potaknuti ste da promjene pošaljete na <email>fyodor@nmap.org</email> kako bi eventualno bile
 inkorporirane u buduće verzije glavne distribucije. Slanjem promjena Fyodoru ili nekom na Insecure.Org mailing listi
 developera, podrazumijeva se da Fyodoru i Insecure.Org-u dajete puna prava na korištenje, modificiranje i
 relicenciranje koda. Nmap će uvijek biti dostupan kao open source, ali to je bitno jer je nemogućnost relicenciranja

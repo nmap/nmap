@@ -2835,7 +2835,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
   <refsect1 id="man-author">
     <title>Autor</title>
     <para>Fyodor 
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://www.insecure.org"/>)
     </para>
 
@@ -2958,7 +2958,7 @@ skumat software kvoli bezpecnostnym dieram, aj ked zatial neboli ziadne najdene.
 <para>Zdrojovy kod vam tiez dovoluje portovat Nmap na nove platformy, opravovat bugy,
 a pridavat nove funkcie. Ste vrelo podporovani zasielat vase modifikacie pre pripadne zaclenenie
 do hlavnej distribucie na adresu
-<email>fyodor@insecure.org</email>. Zaslatim tychto zmien Fyodorovi alebo na niektory
+<email>fyodor@nmap.org</email>. Zaslatim tychto zmien Fyodorovi alebo na niektory
 z vyvojarskych mailing listov  Insecure.Org sa predpoklada, ze poskytujete Fyodorovi
 a firme Insecure.Com LLC nelimitovane, nevylucne pravo na pouzivanie, modifikaciu a opatovne
 licencovanie kodu. Nmap bude vzdy dostupnym Open Source programom, ale tato zmienka je dolezita,

@@ -3984,7 +3984,7 @@ banyaknya permintaan.  Berikan <option>--open</option> untuk hanya melihat port
   <refsect1 id="man-author">
     <title>Penulis</title>
     <para>Fyodor 
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://insecure.org"/>)
     </para>
 
@@ -4102,7 +4102,7 @@ run it. This also allows you to audit the software for security holes
 
 <para>Source code also allows you to port Nmap to new platforms, fix
 bugs, and add new features. You are highly encouraged to send your
-changes to <email>fyodor@insecure.org</email> for possible
+changes to <email>fyodor@nmap.org</email> for possible
 incorporation into the main distribution. By sending these changes to
 Fyodor or one of the Insecure.Org development mailing lists, it is
 assumed that you are offering Fyodor and Insecure.Com LLC the

@@ -3676,7 +3676,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
   <refsect1 id="man-author">
     <title>Szerző</title>
     <para>Fyodor 
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://insecure.org"></ulink>)
     </para>
 
@@ -3808,7 +3808,7 @@ nem találtak egyet sem).</para>
 
 <para>A forráskód segítségével az Nmap átvihető új rendszerekre, kijavíthatók a 
 hibák és új képességekkel is bővíthető a program. Bátorítunk mindenkit, hogy az 
-általa készített változtatásokat küldje el a <email>fyodor@insecure.org</email> 
+általa készített változtatásokat küldje el a <email>fyodor@nmap.org</email> 
 címre, hogy azok bekerülhessenek a fő terjesztésbe. Azzal, hogy ezeket a módosításokat 
 elküldi Fyodornak vagy valamely Insecure.Org fejlesztői listának, Ön korlátozás 
 nélküli, nem-kizárólagos jogot biztosít Fyodornak és az Insecure.Com LLC-nek a kód 

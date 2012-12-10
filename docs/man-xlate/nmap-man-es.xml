@@ -3596,7 +3596,7 @@ medida que se incrementa el nivel de depuración.</para>
   <refsect1 id="man-author">
     <title>Autor</title>
     <para>Fyodor 
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://www.insecure.org"/>)
     </para>
 
@@ -3755,7 +3755,7 @@ de seguridad (no se ha encontrado ninguno aún).</para>
 
 <para>El código fuente le permite migrar Nmap a otras plataformas, arreglar
 erratas y añadir nuevas funciones. Le pedimos encarecidamente que envíe sus
-cambios a <email>fyodor@insecure.org</email> para que puedan incorporarse en la
+cambios a <email>fyodor@nmap.org</email> para que puedan incorporarse en la
 distribución principal. Al enviar estos cambios a Fyodor o cualquiera de las
 listas de correo de desarrollo en Insecure.Org se asume que está ofreciendo a
 Fyodor y a Insecure.Com LLC derechos ilimitados y no exclusivos para

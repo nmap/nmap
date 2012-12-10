@@ -2336,7 +2336,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
   <refsect1 id="man-author">
     <title>作者</title>
     <para>Fyodor 
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://www.insecure.org"/>)
     </para>
     <para>译者：Fei Yang 
@@ -2436,7 +2436,7 @@ GPL产品。
 </para>
 
 <para>源代码还允许被移植到新的平台、修改Bug以及增加新功能。鼓励用户
-向<email>fyodor@insecure.org</email> 发送更新，以并入正式的发布中。
+向<email>fyodor@nmap.org</email> 发送更新，以并入正式的发布中。
 发送这些更新至Fyodor或Insecure.Org开发列表，表明允许Fyodor和Insecure.Com LLC
 具有无限止的、非独有的权限来使用、修改和重新定义这些代码的许可证。
 Nmap将一直以开放代码的方式提供，由于无法进行代码的许可证重新定义从而可能

@@ -3808,7 +3808,7 @@ EXAMPLES:
     <refsect1 id="man-author">
       <title>Autor</title>
 
-      <para>Fyodor <email>fyodor@insecure.org</email> (<ulink
+      <para>Fyodor <email>fyodor@nmap.org</email> (<ulink
       url="http://insecure.org" />)</para>
 
       <para>Centenas de pessoas fizeram contribuições valiosas para o Nmap ao
@@ -3986,7 +3986,7 @@ EXAMPLES:
         <para>O código fonte também permite que você porte o Nmap para novas
         plataformas, conserte problemas e adicione novas características. Você
         é altamente encorajado a enviar suas alterações para
-        <email>fyodor@insecure.org</email> para uma possível incorporação na
+        <email>fyodor@nmap.org</email> para uma possível incorporação na
         distribuição principal. Enviar essas alterações para Fyodor ou para
         alguém da lista de mensagens de desenvolvimento da Insecure.Org,
         pressupõe que você está oferecendo a Fyodor e à Insecure.Com LLC o
