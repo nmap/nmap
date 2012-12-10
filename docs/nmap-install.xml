@@ -142,7 +142,7 @@ linkend="ex-check-gpg-keys" xrefstyle="select: label nopage"/>.</para>
 flog~&gt; <userinput>gpg --fingerprint nmap fyodor</userinput>
 pub 1024D/33599B5F 2005-04-24
     Key fingerprint = BB61 D057 C0D7 DCEF E730 996C 1AF6 EC50 3359 9B5F
-uid                Fyodor &lt;fyodor@insecure.org&gt;
+uid                Fyodor &lt;fyodor@nmap.org&gt;
 sub 2048g/D3C2241C 2005-04-24
 
 pub 1024D/6B9355D0 2005-04-24

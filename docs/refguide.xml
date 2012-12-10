@@ -4497,7 +4497,7 @@ Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
   <refsect1 id='man-author'>
     <title>Author</title>
     <para>Gordon <quote>Fyodor</quote> Lyon
-    <email>fyodor@insecure.org</email>
+    <email>fyodor@nmap.org</email>
     (<ulink url="http://insecure.org" />)
     </para>
 
