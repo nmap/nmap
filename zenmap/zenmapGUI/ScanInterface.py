@@ -431,7 +431,7 @@ or type the nmap command you would like to execute."),
             if entry.running:
                 self.cancel_scan(entry.command)
             try:
-                # Remove it from the inentory if present.
+                # Remove it from the inventory if present.
                 self.inventory.remove_scan(entry.parsed)
             except ValueError:
                 pass
