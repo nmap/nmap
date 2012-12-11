@@ -25,6 +25,8 @@ affect the UDP probe used by this script.
 It is possible to get a corrupt user count (usually +1) when doing a
 TCP service scan due to previous service probe connections affecting
 the server.
+
+See http://mumble.sourceforge.net/Protocol.
 ]]
 
 -- @output
