@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash that could be caused by opening the About
+  dialog, using the window manager to close it, and opening it again.
+  This was reported by Yashartha Chaturvedi and Jordan Schroeder.
+  [David Fifield]
+
 o [Ncat] Made test-addrset.sh exit with nonzero status if any tests
   fail. This in turn causes "make check" to fail if any tests fail.
   [Andreas Stieger]

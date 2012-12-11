@@ -665,10 +665,16 @@ This scan has not been run yet. Start the scan with the "Scan" button first.'))
             self._save_all(self.scan_interface, dir_chooser.get_filename())
         dir_chooser.destroy()
 
+    def _about_cb_response(self, dialog, response_id):
+        if response_id == gtk.RESPONSE_DELETE_EVENT:
+            self._about_dialog = None
+        else:
+            self._about_dialog.hide()
+
     def _show_about_cb(self, widget):
         if self._about_dialog is None:
             self._about_dialog = About()
-            self._about_dialog.connect("response", lambda dialog, response: dialog.hide())
+            self._about_dialog.connect("response", self._about_cb_response)
         self._about_dialog.present()
 
     def _save_all(self, scan_interface, directory):
