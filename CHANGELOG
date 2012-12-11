@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added murmur-version by Marin Maržić. This gets teh server
+  version and other information for Murmur, the server for the Mumble
+  VoIP system.
+
 o [Zenmap] Fixed a crash that could be caused by opening the About
   dialog, using the window manager to close it, and opening it again.
   This was reported by Yashartha Chaturvedi and Jordan Schroeder.

@@ -269,6 +269,7 @@ Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
 Entry { filename = "msrpc-enum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mtrace.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "murmur-version.nse", categories = { "version", } }
 Entry { filename = "mysql-audit.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mysql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mysql-databases.nse", categories = { "discovery", "intrusive", } }
