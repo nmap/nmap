@@ -27,6 +27,17 @@ o Move advanced IPv6 host discovery features from NSE into core Nmap.
 o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
   use that any more.
 
+o Nping/Nmap should probably show ICMP ping sequence values by default
+  in packet trace mode.  This would be nice for Nping since that is
+  the default ping it sends and is the main way to distinguish the
+  packets since the IPIDs are the same.
+
+o We should figure out why (at least with Nping) raw ethernet frame
+  sends seem to be taking significantly longer than raw socket sends
+  (e.g. using --send-ip or the OS-provided ping utility).  This has
+  been reproduced on Linux and Windows.  Here's a thread:
+  http://seclists.org/nmap-dev/2012/q4/424
+
 o Complete migration away from Syn colocated machine
  - [Done - actually was already on web] Move submission CGIs to web
    - Make sure notification still works
