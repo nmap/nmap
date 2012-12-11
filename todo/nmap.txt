@@ -1,30 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o We should document Ron's sample script
-  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
-  so that new script writers know about it.
-
-o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
-  use that any more.
-
-o Complete migration away from Syn colocated machine
- - [Done - actually was already on web] Move submission CGIs to web
-   - Make sure notification still works
- - Mailman
-   - [Done] Install mailman software on web, including CGIs
-   - Migrate mailing lists to web
-
-o NSE digest auth should use the more robust parsing from
-  http.parse_www_authenticate as described at
-  http://seclists.org/nmap-dev/2012/q3/868
- 
-o We should probably redo the Nmap header (e.g. on http://nmap.org) to
-  make it more attractive.  Or, at a minimum we should update the
-  screenshots and think about which links we really need (some of those
-  pages aren't really updated any more).
-
-o Nmap Network Scanning, 2nd Edition work [placeholder]
-
 o Add IPv6 subnet/pattern support like we offer for IPv4.
   o Obviously we can't go scanning a /48 in IPv6, but small subnets do
     make sense in some cases.  For example, the VPS hosting company
@@ -40,6 +15,35 @@ o Add IPv6 subnet/pattern support like we offer for IPv4.
        like AAAA::1/48, and then it can decide whether to further
        iterate that into individual addresses, or pass the block off
        to some specialized discovery routine."
+
+o Move advanced IPv6 host discovery features from NSE into core Nmap.
+  We'll probably add the functionality of
+  targets-ipv6-multicast-invalid-dst, targets-ipv6-multicast-echo, and
+  maybe targets-ipv6-multicast-slaac.
+  - The idea is that Nmap does them automatically if it gets a large
+    target specification and sees that it is local so can be multicast
+    pinged.
+
+o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
+  use that any more.
+
+o Complete migration away from Syn colocated machine
+ - [Done - actually was already on web] Move submission CGIs to web
+   - Make sure notification still works
+ - [Done] Mailman
+   - [Done] Install mailman software on web, including CGIs
+   - Migrate mailing lists to web
+
+o NSE digest auth should use the more robust parsing from
+  http.parse_www_authenticate as described at
+  http://seclists.org/nmap-dev/2012/q3/868
+ 
+o We should probably redo the Nmap header (e.g. on http://nmap.org) to
+  make it more attractive.  Or, at a minimum we should update the
+  screenshots and think about which links we really need (some of those
+  pages aren't really updated any more).
+
+o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
@@ -146,14 +150,6 @@ o Nping (we think) will stop after 2^32 rounds even when "-c 0" is
 
 o Add CPE entries to the service detection DB entries which don't yet
   have them.
-
-o Move advanced IPv6 host discovery features from NSE into core Nmap.
-  We'll probably add the functionality of
-  targets-ipv6-multicast-invalid-dst, targets-ipv6-multicast-echo, and
-  maybe targets-ipv6-multicast-slaac.
-  - The idea is that Nmap does them automatically if it gets a large
-    target specification and sees that it is local so can be multicast
-    pinged.
 
 o [UPDATER] Create a way to send an error message to the user
   (e.g. "your account has expired" or "updates denied due to
@@ -666,6 +662,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should document Ron's sample script
+  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml
+  so that new script writers know about it.
+  - Decided to remove it instead.  Justification: "It is a great idea,
+    but nobody seems to use it (for example, there were no replies to
+    usage inquiry here: http://seclists.org/nmap-dev/2012/q4/379).  I
+    think there are two main uses for this script, both of which are
+    being served by other resources.  1) as a template for new
+    scripts.  Users instead seem to pick a script that is most similar
+    to the one they want to write and start with that.  2) As a way to
+    learn more about the format of an NSE script.  Users instead seem
+    to use our documentation
+    (http://nmap.org/book/nse-script-format.html).  So I'm deleting it
+    for now.  But if folks miss it, they're welcome and encouraged to
+    say so on dev@nmap.org and we could consider putting it back
+    and/or improving it"
 
 o Upgrade Mac Mini to Mac OS X 10.8 (Mountain Lion) and test building
   as well as testing usage of our normal builds (which we currently
