@@ -29,8 +29,8 @@ the server.
 
 -- @output
 -- PORT      STATE SERVICE VERSION
--- 64740/tcp open  murmur  Murmur 1.2.4 (Voice comm. server for Mumble (control port) (users: 35, max. users: 100, bandwidth: 72000 bit/s))
--- 64740/udp open  murmur  Murmur 1.2.4 (Voice comm. server for Mumble (voice port) (users: 35, max. users: 100, bandwidth: 72000 bit/s))
+-- 64740/tcp open  murmur  Murmur 1.2.4 (control port; users: 35; max. users: 100; bandwidth: 72000 b/s)
+-- 64740/udp open  murmur  Murmur 1.2.4 (voice port; users: 35; max. users: 100; bandwidth: 72000 b/s)
 
 author = "Marin Maržić"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -63,14 +63,14 @@ action = function(host, port)
     port.version.version = v_a .. "." .. v_b .. "." .. v_c
     -- Set extra info depending on protocol and set port state to "open" if UDP
     if port.protocol == "tcp" then
-        portinfo = "control"
+        portinfo = "control port"
     else
-        portinfo = "voice"
+        portinfo = "voice port"
         nmap.set_port_state(host, port, "open")
     end
-    port.version.extrainfo = "Voice comm. server for Mumble (" .. portinfo ..
-        " port) (users: " .. users .. ", max. users: " .. maxusers ..
-        ", bandwidth: " .. bandwidth .. " bit/s)"
+    port.version.extrainfo = portinfo ..
+        "; users: " .. users .. "; max. users: " .. maxusers ..
+        "; bandwidth: " .. bandwidth .. " b/s"
 
     nmap.set_port_version(host, port, "hardmatched")
 
