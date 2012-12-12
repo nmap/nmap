@@ -208,3 +208,8 @@ udp 27910,27911,27912,27913,27914 "\xff\xff\xff\xffstatus"
 # 30720-30724: Tremulous
 # 44400: Warsow
 udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724,44400 "\xff\xff\xff\xffgetstatus"
+
+# Murmur 1.2.X (Mumble server)
+# UDP ping. "abcdefgh" is an identifier. See
+# http://mumble.sourceforge.net/Protocol.
+udp 64738 "\x00\x00\x00\x00abcdefgh"
