@@ -66,6 +66,10 @@ o Investigate ways to limit Winpcap privileges so that only
   driver programming experience.  The idea is to produce a patch that
   we can then try to convince the WinPcap folks to apply ]
 
+o Consider using a binary decision diagram for --exclude list to make
+  it more efficient for large exclude lists.  See
+  http://seclists.org/nmap-dev/2012/q4/420.
+
 o Test a hierarchical classifier for IPv6 OS detection. Our classifier
   currently treats, for example, some localhost Linux fingerprints as
   separate classes from remote Linux fingerprints, simply because we
