@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added structured output to http-git.nse. [Alex Weber]
+
 o [NSE] Added murmur-version by Marin Maržić. This gets teh server
   version and other information for Murmur, the server for the Mumble
   VoIP system.
