@@ -367,8 +367,8 @@ int do_actual_pcap_read(msevent *nse) {
 
   memset(&npp, 0, sizeof(nsock_pcap));
 
-  nsock_log_debug_all(nse->iod->nsp, "PCAP do_actual_pcap_read TEST (IOD #%li) (EID #%li)",
-                      nse->iod->id, nse->id);
+  nsock_log_debug_all(nse->iod->nsp, "PCAP %s TEST (IOD #%li) (EID #%li)",
+                      __func__, nse->iod->id, nse->id);
 
   assert( FILESPACE_LENGTH(&(nse->iobuf)) == 0 );
 
@@ -390,8 +390,8 @@ int do_actual_pcap_read(msevent *nse) {
       n = (nsock_pcap *)FILESPACE_STR(&(nse->iobuf));
       n->packet = (unsigned char *)FILESPACE_STR(&(nse->iobuf)) + sizeof(npp);
 
-      nsock_log_debug_all(nse->iod->nsp, "PCAP do_actual_pcap_read READ (IOD #%li) (EID #%li) size=%i",
-                          nse->iod->id, nse->id, pkt_header->caplen);
+      nsock_log_debug_all(nse->iod->nsp, "PCAP %s READ (IOD #%li) (EID #%li) size=%i",
+                          __func__, nse->iod->id, nse->id, pkt_header->caplen);
       return(1);
 
     case 0: /* timeout */
