@@ -57,6 +57,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include "netutils.h"
 
 #include <sys/types.h>
@@ -85,41 +86,33 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
 
     setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
     if (bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen) == -1) {
-      if (ms->tracelevel > 0) {
-        const char *addrstr = NULL;
+      const char *addrstr = NULL;
 #if HAVE_SYS_UN_H
-        if (iod->local.ss_family == AF_UNIX)
-          addrstr = get_unixsock_path(&iod->local);
-        else
+      if (iod->local.ss_family == AF_UNIX)
+        addrstr = get_unixsock_path(&iod->local);
+      else
 #endif
-          addrstr = inet_ntop_ez(&iod->local, iod->locallen);
+        addrstr = inet_ntop_ez(&iod->local, iod->locallen);
 
-        nsock_trace(ms, "Bind to %s failed (IOD #%li)", addrstr, iod->id);
-#if HAVE_SYS_UN_H
-        /* Failure to bind an AF_UNIX socket is an unrecoverable error. */
-        if (iod->local.ss_family == AF_UNIX)
-          return -1;
-#endif
-      }
+      nsock_log_error(ms, "Bind to %s failed (IOD #%li)", addrstr, iod->id);
     }
   }
   if (iod->ipoptslen && family == AF_INET) {
-    if (setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts, iod->ipoptslen) == -1) {
-      if (ms->tracelevel > 0)
-        nsock_trace(ms, "Setting of IP options failed (IOD #%li)", iod->id);
-    }
+    if (setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts, iod->ipoptslen) == -1)
+      nsock_log_error(ms, "Setting of IP options failed (IOD #%li)", iod->id);
   }
   if (ms->device) {
     errno = 0;
     if (!socket_bindtodevice(iod->sd, ms->device)) {
-      if ((errno != EPERM && ms->tracelevel > 0) || ms->tracelevel > 5)
-        nsock_trace(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li)", iod->id);
+      if (errno != EPERM)
+        nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li)", iod->id);
+      else
+        nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li)", iod->id);
     }
   }
   if (ms->broadcast) {
     if (setsockopt(iod->sd, SOL_SOCKET, SO_BROADCAST, (const char *)&(ms->broadcast), sizeof(int)) == -1) {
-      if (ms->tracelevel > 0)
-        nsock_trace(ms, "Setting of SO_BROADCAST failed (IOD #%li)", iod->id);
+      nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li)", iod->id);
     }
   }
   return iod->sd;
@@ -131,8 +124,7 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
 
   assert(nsi->state == NSIOD_STATE_INITIAL || nsi->state == NSIOD_STATE_UNKNOWN);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "UDP unconnected socket (IOD #%li)", nsi->id);
+  nsock_log_info(ms, "UDP unconnected socket (IOD #%li)", nsi->id);
 
   if (nsock_make_socket(ms, nsi, af, SOCK_DGRAM, IPPROTO_UDP) == -1)
     return -1;
@@ -209,9 +201,8 @@ nsock_event_id nsock_connect_unixsock_stream(nsock_pool nsp, nsock_iod nsiod, ns
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
-                get_unixsock_path(ss), nsi->id, nse->id);
+  nsock_log_info(ms, "UNIX domain socket (STREAM) connection requested to %s (IOD #%li) EID %li",
+                 get_unixsock_path(ss), nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_STREAM, 0, ss, sslen, 0);
   nsp_add_event(ms, nse);
@@ -236,9 +227,8 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "UNIX domain socket (DGRAM) connection requested to %s (IOD #%li) EID %li",
-                get_unixsock_path(ss), nsi->id, nse->id);
+  nsock_log_info(ms, "UNIX domain socket (DGRAM) connection requested to %s (IOD #%li) EID %li",
+                 get_unixsock_path(ss), nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_DGRAM, 0, ss, sslen, 0);
   nsp_add_event(ms, nse);
@@ -266,9 +256,8 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "TCP connection requested to %s:%hu (IOD #%li) EID %li",
-                inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info(ms, "TCP connection requested to %s:%hu (IOD #%li) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_TCP, ss, sslen, port);
@@ -295,9 +284,8 @@ nsock_event_id nsock_connect_sctp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_han
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "SCTP association requested to %s:%hu (IOD #%li) EID %li",
-                inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info(ms, "SCTP association requested to %s:%hu (IOD #%li) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, IPPROTO_SCTP, ss, sslen, port);
@@ -337,9 +325,9 @@ nsock_event_id nsock_connect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
   nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "SSL connection requested to %s:%hu/%s (IOD #%li) EID %li",
-                inet_ntop_ez(ss, sslen), port, (proto == IPPROTO_TCP ? "tcp" : "sctp"), nsi->id, nse->id);
+  nsock_log_info(ms, "SSL connection requested to %s:%hu/%s (IOD #%li) EID %li",
+                 inet_ntop_ez(ss, sslen), port, (proto == IPPROTO_TCP ? "tcp" : "sctp"),
+                 nsi->id, nse->id);
 
   /* Do the actual connect() */
   nsock_connect_internal(ms, nse, SOCK_STREAM, proto, ss, sslen, port);
@@ -373,8 +361,8 @@ nsock_event_id nsock_reconnect_ssl(nsock_pool nsp, nsock_iod nsiod, nsock_ev_han
   /* Set our SSL_SESSION so we can benefit from session-id reuse. */
   nsi_set_ssl_session(nsi, (SSL_SESSION *)ssl_session);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "SSL reconnection requested (IOD #%li) EID %li", nsi->id, nse->id);
+  nsock_log_info(ms, "SSL reconnection requested (IOD #%li) EID %li",
+                 nsi->id, nse->id);
 
   /* Do the actual connect() */
   nse->event_done = 0;
@@ -412,8 +400,8 @@ nsock_event_id nsock_connect_udp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handl
   nse = msevent_new(ms, NSE_TYPE_CONNECT, nsi, -1, handler, userdata);
   assert(nse);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "UDP connection requested to %s:%hu (IOD #%li) EID %li", inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
+  nsock_log_info(ms, "UDP connection requested to %s:%hu (IOD #%li) EID %li",
+                 inet_ntop_ez(ss, sslen), port, nsi->id, nse->id);
 
   nsock_connect_internal(ms, nse, SOCK_DGRAM, IPPROTO_UDP, ss, sslen, port);
   nsp_add_event(ms, nse);

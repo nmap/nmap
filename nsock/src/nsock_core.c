@@ -59,6 +59,7 @@
 #include "nsock_internal.h"
 #include "gh_list.h"
 #include "filespace.h"
+#include "nsock_log.h"
 
 #include <assert.h>
 #if HAVE_ERRNO_H
@@ -425,7 +426,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
     if (iod->ssl_session) {
       rc = SSL_set_session(iod->ssl, iod->ssl_session);
       if (rc == 0)
-        fprintf(stderr, "Uh-oh: SSL_set_session() failed - please tell Fyodor\n");
+        nsock_log_error(ms, "Uh-oh: SSL_set_session() failed - please tell nmap-dev@insecure.org\n");
       iod->ssl_session = NULL; /* No need for this any more */
     }
 
@@ -446,9 +447,8 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
       if (nsi_ssl_post_connect_verify(iod)) {
         nse->status = NSE_STATUS_SUCCESS;
       } else {
-        if (ms->tracelevel > 0)
-          nsock_trace(ms, "certificate verification error for EID %li: %s",
-                      nse->id, ERR_error_string(ERR_get_error(), NULL));
+        nsock_log_error(ms, "certificate verification error for EID %li: %s",
+                        nse->id, ERR_error_string(ERR_get_error(), NULL));
         nse->status = NSE_STATUS_ERROR;
       }
     } else {
@@ -471,8 +471,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
          * was initialized with nsp_ssl_init_max_speed. Try reconnecting with
          * SSL_OP_NO_SSLv2. Never downgrade a NO_SSLv2 connection to one that
          * might use SSLv2. */
-        if (ms->tracelevel > 0)
-          nsock_trace(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
+        nsock_log_info(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
 
         saved_ev = iod->watched_events;
         ms->engine->iod_unregister(ms, iod);
@@ -490,8 +489,8 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         update_events(iod, ms, EV_READ|EV_WRITE, EV_NONE);
         nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
       } else {
-        if (ms->tracelevel > 0)
-          nsock_trace(ms, "EID %li %s", nse->id, ERR_error_string(ERR_get_error(), NULL));
+        nsock_log_info(ms, "EID %li %s",
+                       nse->id, ERR_error_string(ERR_get_error(), NULL));
         nse->event_done = 1;
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = EIO;
@@ -706,9 +705,8 @@ static int do_actual_read(mspool *ms, msevent *nse) {
         nse->event_done = 1;
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = EIO;
-        if (ms->tracelevel > 2)
-          nsock_trace(ms, "SSL_read() failed for reason %s on NSI %li",
-                      ERR_reason_error_string(err), iod->id);
+        nsock_log_info(ms, "SSL_read() failed for reason %s on NSI %li",
+                       ERR_reason_error_string(err), iod->id);
         return -1;
       }
     }
@@ -884,14 +882,12 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
   TIMEVAL_MSEC_ADD(loop_timeout, nsock_tod, msec_timeout);
   msecs_left = msec_timeout;
 
-  if (ms->tracelevel > 2) {
-    if (msec_timeout >= 0)
-      nsock_trace(ms, "nsock_loop() started (timeout=%dms). %d events pending",
-                  msec_timeout, ms->events_pending);
-    else
-      nsock_trace(ms, "nsock_loop() started (no timeout). %d events pending",
-                  ms->events_pending);
-  }
+  if (msec_timeout >= 0)
+    nsock_log_debug(ms, "nsock_loop() started (timeout=%dms). %d events pending",
+                    msec_timeout, ms->events_pending);
+  else
+    nsock_log_debug(ms, "nsock_loop() started (no timeout). %d events pending",
+                    ms->events_pending);
 
   while (1) {
     if (ms->quit) {
@@ -935,8 +931,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
   int desire_r = 0, desire_w = 0;
 #endif
 
-  if (nsp->tracelevel > 7)
-    nsock_trace(nsp, "Processing event %lu", nse->id);
+  nsock_log_debug_all(nsp, "Processing event %lu", nse->id);
 
   if (!nse->event_done) {
     switch(nse->type) {
@@ -989,8 +984,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
 
 #if HAVE_PCAP
       case NSE_TYPE_PCAP_READ:{
-        if (nsp->tracelevel > 5)
-          nsock_trace(nsp, "PCAP iterating %lu", nse->id);
+        nsock_log_debug_all(nsp, "PCAP iterating %lu", nse->id);
 
         if (ev & EV_READ) {
           /* buffer empty? check it! */
@@ -1017,14 +1011,12 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
           update_first_events(nse);
           gh_list_remove(&nsp->pcap_read_events, nse);
 
-          if (nsp->tracelevel > 8)
-            nsock_trace(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
+          nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
         }
         if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && nse->event_done && evlist == &nsp->pcap_read_events) {
           update_first_events(nse);
           gh_list_remove(&nsp->read_events, nse);
-          if (nsp->tracelevel > 8)
-            nsock_trace(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
+          nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
         }
         #endif
         break;
@@ -1040,8 +1032,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
     if (nse->type == NSE_TYPE_CONNECT_SSL && nse->status == NSE_STATUS_SUCCESS)
       assert(nse->iod->ssl != NULL);
 
-    if (nsp->tracelevel > 8)
-      nsock_trace(nsp, "NSE #%lu: Sending event", nse->id);
+    nsock_log_debug_all(nsp, "NSE #%lu: Sending event", nse->id);
 
     /* WooHoo!  The event is ready to be sent */
     msevent_dispatch_and_delete(nsp, nse, 1);
@@ -1141,8 +1132,7 @@ const struct timeval *nsock_gettimeofday() {
  * adjusting the descriptor select/poll lists, registering the timeout value,
  * etc. */
 void nsp_add_event(mspool *nsp, msevent *nse) {
-  if (nsp->tracelevel > 5)
-    nsock_trace(nsp, "NSE #%lu: Adding event", nse->id);
+    nsock_log_debug(nsp, "NSE #%lu: Adding event", nse->id);
 
   /* First lets do the event-type independent stuff, starting with timeouts */
   if (nse->event_done) {
@@ -1211,20 +1201,17 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
           socket_count_readpcap_inc(nse->iod);
           update_events(nse->iod, nsp, EV_READ, EV_NONE);
         }
-        if (nsp->tracelevel > 8)
-          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to READ_EVENTS", nse->id);
+        nsock_log_debug_all(nsp, "PCAP NSE #%lu: Adding event to READ_EVENTS", nse->id);
 
         #if PCAP_BSD_SELECT_HACK
         /* when using BSD hack we must do pcap_next() after select().
          * Let's insert this pcap to bot queues, to selectable and nonselectable.
          * This will result in doing pcap_next_ex() just before select() */
-        if (nsp->tracelevel > 8)
-          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
+        nsock_log_debug_all(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
         #endif
       } else {
         /* pcap isn't selectable. Add it to pcap-specific queue. */
-        if (nsp->tracelevel > 8)
-          nsock_trace(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
+        nsock_log_debug_all(nsp, "PCAP NSE #%lu: Adding event to PCAP_READ_EVENTS", nse->id);
       }
       iod_add_event(nse->iod, nse);
       break;
@@ -1237,20 +1224,6 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
   }
 }
 
-void nsock_trace(mspool *ms, char *fmt, ...) {
-  va_list  ap;
-  int elapsed_time_ms;
-
-  assert(ms->tracefile != NULL);
-  elapsed_time_ms = TIMEVAL_MSEC_SUBTRACT(nsock_tod, ms->tracebasetime);
-  va_start(ap, fmt);
-  fflush(ms->tracefile);
-  fprintf(ms->tracefile, "NSOCK (%.4fs) ", elapsed_time_ms / 1000.0);
-  vfprintf(ms->tracefile, fmt, ap);
-  fprintf(ms->tracefile, "\n");
-  va_end(ap);
-}
-
 /* An event has been completed and the handler is about to be called. This
  * function writes out tracing data about the event if necessary */
 void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
@@ -1260,7 +1233,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
   char displaystr[256];
   char errstr[256];
 
-  if (ms->tracelevel == 0)
+  if (ms->loglevel > NSOCK_LOG_INFO)
     return;
 
   nsi = nse->iod;
@@ -1274,25 +1247,25 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
   switch(nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
-      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
-                  nse_type2str(nse->type), nse_status2str(nse->status),
-                  errstr, nse->id, get_peeraddr_string(nsi));
+      nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
+                     nse_type2str(nse->type), nse_status2str(nse->status),
+                     errstr, nse->id, get_peeraddr_string(nsi));
       break;
 
     case NSE_TYPE_READ:
       if (nse->status != NSE_STATUS_SUCCESS) {
         if (nsi->peerlen > 0) {
-          nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
-                      nse_type2str(nse->type), nse_status2str(nse->status),
-                      errstr, nse->id, get_peeraddr_string(nsi));
+          nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
+                         nse_type2str(nse->type), nse_status2str(nse->status),
+                         errstr, nse->id, get_peeraddr_string(nsi));
         } else {
-          nsock_trace(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
-                      nse_type2str(nse->type), nse_status2str(nse->status),
-                      errstr, nse->id);
+          nsock_log_info(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
+                         nse_type2str(nse->type), nse_status2str(nse->status),
+                         errstr, nse->id);
         }
       } else {
         str = nse_readbuf(nse, &strlength);
-        if (ms->tracelevel > 1 && strlength < 80) {
+        if (strlength < 80) {
           memcpy(displaystr, ": ", 2);
           memcpy(displaystr + 2, str, strlength);
           displaystr[2 + strlength] = '\0';
@@ -1302,35 +1275,35 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
         }
 
         if (nsi->peerlen > 0) {
-          nsock_trace(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
-                      nse_type2str(nse->type), nse_status2str(nse->status),
-                      nse->id, get_peeraddr_string(nsi),
-                      nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
+          nsock_log_info(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
+                         nse_type2str(nse->type), nse_status2str(nse->status),
+                         nse->id, get_peeraddr_string(nsi),
+                         nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
         } else {
-          nsock_trace(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
-                      nse_type2str(nse->type), nse_status2str(nse->status),
-                      nse->id, nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
+          nsock_log_info(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
+                         nse_type2str(nse->type), nse_status2str(nse->status),
+                         nse->id, nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
         }
       }
       break;
 
     case NSE_TYPE_WRITE:
-      nsock_trace(ms, "Callback: %s %s %sfor EID %li [%s]",
-                  nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                  nse->id, get_peeraddr_string(nsi));
+      nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
+                     nse_type2str(nse->type), nse_status2str(nse->status), errstr,
+                     nse->id, get_peeraddr_string(nsi));
       break;
 
     case NSE_TYPE_TIMER:
-      nsock_trace(ms, "Callback: %s %s %sfor EID %li",
-                  nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                  nse->id);
+      nsock_log_info(ms, "Callback: %s %s %sfor EID %li",
+                     nse_type2str(nse->type), nse_status2str(nse->status), errstr,
+                     nse->id);
       break;
 
 #if HAVE_PCAP
     case NSE_TYPE_PCAP_READ:
-      nsock_trace(ms, "Callback: %s %s %sfor EID %li ",
-                  nse_type2str(nse->type), nse_status2str(nse->status),
-                  errstr, nse->id);
+      nsock_log_info(ms, "Callback: %s %s %sfor EID %li ",
+                     nse_type2str(nse->type), nse_status2str(nse->status),
+                     errstr, nse->id);
       break;
 #endif
 

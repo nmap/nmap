@@ -58,6 +58,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include "netutils.h"
 
 #include <nbase.h>
@@ -104,20 +105,16 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
   if (datalen < 0)
     datalen = (int) strlen(data);
 
-  if (nsp->tracelevel > 0) {
-    if (nsp->tracelevel > 1 && datalen < 80) {
-      memcpy(displaystr, ": ", 2);
-      memcpy(displaystr + 2, data, datalen);
-      displaystr[2 + datalen] = '\0';
-      replacenonprintable(displaystr + 2, datalen, '.');
-    } else {
-      displaystr[0] = '\0';
-    }
-    nsock_trace(nsp, "Sendto request for %d bytes to IOD #%li EID %li [%s]%s",
-                datalen, nsi->id, nse->id,
-                get_peeraddr_string(nse->iod),
-                displaystr);
+  if (nsp->loglevel == NSOCK_LOG_DBG_ALL && datalen < 80) {
+    memcpy(displaystr, ": ", 2);
+    memcpy(displaystr + 2, data, datalen);
+    displaystr[2 + datalen] = '\0';
+    replacenonprintable(displaystr + 2, datalen, '.');
+  } else {
+    displaystr[0] = '\0';
   }
+  nsock_log_debug(nsp, "Sendto request for %d bytes to IOD #%li EID %li [%s]%s",
+                  datalen, nsi->id, nse->id, get_peeraddr_string(nse->iod), displaystr);
 
   fscat(&nse->iobuf, data, datalen);
 
@@ -143,23 +140,22 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
   nse->writeinfo.dest.ss_family = AF_UNSPEC;
 
   if (datalen < 0)
-    datalen = (int) strlen(data);
+    datalen = (int)strlen(data);
 
-  if (nsp->tracelevel > 0) {
-    if (nsp->tracelevel > 1 && datalen < 80) {
+    if (nsp->loglevel == NSOCK_LOG_DBG_ALL && datalen < 80) {
       memcpy(displaystr, ": ", 2);
       memcpy(displaystr + 2, data, datalen);
       displaystr[2 + datalen] = '\0';
       replacenonprintable(displaystr + 2, datalen, '.');
-    } else displaystr[0] = '\0';
+    } else {
+      displaystr[0] = '\0';
+    }
     if (nsi->peerlen > 0)
-      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s", datalen, nsi->id,
-                  nse->id, get_peeraddr_string(nsi),
-                  displaystr);
+      nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s",
+                      datalen, nsi->id, nse->id, get_peeraddr_string(nsi), displaystr);
     else
-      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s", datalen,
-                  nsi->id, nse->id, displaystr);
-  }
+      nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s",
+                      datalen, nsi->id, nse->id, displaystr);
 
   fscat(&nse->iobuf, data, datalen);
 
@@ -217,23 +213,20 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
     }
   }
 
-  if (nsp->tracelevel > 0) {
-    if (nsp->tracelevel > 1 && nse->status != NSE_STATUS_ERROR && strlength < 80) {
-      memcpy(displaystr, ": ", 2);
-      memcpy(displaystr + 2, buf2, strlength);
-      displaystr[2 + strlength] = '\0';
-      replacenonprintable(displaystr + 2, strlength, '.');
-    } else {
-      displaystr[0] = '\0';
-    }
-    if (nsi->peerlen > 0)
-      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s", strlength, nsi->id,
-                  nse->id, get_peeraddr_string(nsi),
-                  displaystr);
-    else
-      nsock_trace(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s", strlength,
-                  nsi->id, nse->id, displaystr);
+  if (nsp->loglevel == NSOCK_LOG_DBG_ALL && nse->status != NSE_STATUS_ERROR && strlength < 80) {
+    memcpy(displaystr, ": ", 2);
+    memcpy(displaystr + 2, buf2, strlength);
+    displaystr[2 + strlength] = '\0';
+    replacenonprintable(displaystr + 2, strlength, '.');
+  } else {
+    displaystr[0] = '\0';
   }
+  if (nsi->peerlen > 0)
+    nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s",
+                    strlength, nsi->id, nse->id, get_peeraddr_string(nsi), displaystr);
+  else
+    nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s",
+                    strlength, nsi->id, nse->id, displaystr);
 
   if (buf2 != buf)
     free(buf2);

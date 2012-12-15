@@ -60,6 +60,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include "gh_list.h"
 #include "netutils.h"
 
@@ -143,8 +144,7 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
   /* The nsp keeps track of active msiods so it can delete them if it is deleted */
   nsi->entry_in_nsp_active_iods = gh_list_append(&nsp->active_iods, nsi);
 
-  if (nsp->tracelevel > 1)
-    nsock_trace(nsp, "nsi_new (IOD #%lu)", nsi->id);
+  nsock_log_info(nsp, "nsi_new (IOD #%lu)", nsi->id);
 
   return (nsock_iod)nsi;
 }
@@ -175,8 +175,7 @@ void nsi_delete(nsock_iod nsockiod, int pending_response) {
     return;
   }
 
-  if (nsi->nsp->tracelevel > 1)
-    nsock_trace(nsi->nsp, "nsi_delete (IOD #%lu)", nsi->id);
+  nsock_log_info(nsi->nsp, "nsi_delete (IOD #%lu)", nsi->id);
 
   if (nsi->events_pending > 0) {
     /* shit -- they killed the msiod while an event was still pending on it.
@@ -232,10 +231,8 @@ void nsi_delete(nsock_iod nsockiod, int pending_response) {
 #endif
 
     if (SSL_shutdown(nsi->ssl) == -1) {
-
-      if (nsi->nsp->tracelevel > 1)
-        nsock_trace(nsi->nsp, "nsi_delete: SSL shutdown failed (%s) on NSI %li",
-                    ERR_reason_error_string(SSL_get_error(nsi->ssl, -1)), nsi->id);
+      nsock_log_info(nsi->nsp, "nsi_delete: SSL shutdown failed (%s) on NSI %li",
+                     ERR_reason_error_string(SSL_get_error(nsi->ssl, -1)), nsi->id);
     }
 
     /* I don't really care if the SSL_shutdown() succeeded politely. I could

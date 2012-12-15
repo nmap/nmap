@@ -132,7 +132,7 @@
 #define HAVE_GETNAMEINFO 1
 
 #define HAVE_SNPRINTF 1
-#define HAVE_VASPRINTF 1
+// #undef HAVE_VASPRINTF
 #define HAVE_VSNPRINTF 1
 
 typedef unsigned __int8 uint8_t;

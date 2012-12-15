@@ -58,6 +58,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 
 #include <limits.h>
 #if HAVE_SYS_IOCTL_H
@@ -133,10 +134,9 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
   }
   va_end(ap);
 
-  if (ms->tracelevel > 0)
-      nsock_trace(ms,
-                  "PCAP requested on device '%s' with berkeley filter '%s' (promisc=%i snaplen=%i to_ms=%i) (IOD #%li)",
-                  pcap_device,bpf, promisc, snaplen, to_ms, nsi->id);
+  nsock_log_info(ms,
+                 "PCAP requested on device '%s' with berkeley filter '%s' (promisc=%i snaplen=%i to_ms=%i) (IOD #%li)",
+                 pcap_device,bpf, promisc, snaplen, to_ms, nsi->id);
 
   failed = 0;
   do {
@@ -221,22 +221,28 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
             pcap_device, err0r);
   }
 
-  if (ms->tracelevel > 0)
-      nsock_trace(ms, "PCAP created successfully on device '%s' (pcap_desc=%i bsd_hack=%i to_valid=%i l3_offset=%i) (IOD #%li)",
-      pcap_device,
-      mp->pcap_desc,
-#if PCAP_BSD_SELECT_HACK
-      1,
-#else
-      0,
-#endif
-#if PCAP_RECV_TIMEVAL_VALID
-      1,
-#else
-      0,
-#endif
-      mp->l3_offset,
-      nsi->id);
+  if (ms->loglevel <= NSOCK_LOG_INFO) {
+    #if PCAP_BSD_SELECT_HACK
+      int bsd_select_hack = 1;
+    #else
+      int bsd_select_hack = 0;
+    #endif
+
+    #if PCAP_RECV_TIMEVAL_VALID
+      int recv_timeval_valid = 1;
+    #else
+      int recv_timeval_valid = 0;
+    #endif
+
+    nsock_log_info(ms, "PCAP created successfully on device '%s'"
+                   " (pcap_desc=%i bsd_hack=%i to_valid=%i l3_offset=%i) (IOD #%li)",
+                   pcap_device,
+                   mp->pcap_desc,
+                   bsd_select_hack,
+                   recv_timeval_valid,
+                   mp->l3_offset,
+                   nsi->id);
+  }
 
   return NULL;
 }
@@ -343,9 +349,7 @@ nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod,
   nse = msevent_new(ms, NSE_TYPE_PCAP_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (ms->tracelevel > 0)
-    nsock_trace(ms, "Pcap read request from IOD #%li  EID %li",
-                nsi->id, nse->id);
+  nsock_log_info(ms, "Pcap read request from IOD #%li  EID %li", nsi->id, nse->id);
 
   nsp_add_event(ms, nse);
 
@@ -363,9 +367,8 @@ int do_actual_pcap_read(msevent *nse) {
 
   memset(&npp, 0, sizeof(nsock_pcap));
 
-  if (nse->iod->nsp->tracelevel > 2)
-    nsock_trace(nse->iod->nsp, "PCAP do_actual_pcap_read TEST (IOD #%li) (EID #%li)",
-                nse->iod->id, nse->id);
+  nsock_log_debug_all(nse->iod->nsp, "PCAP do_actual_pcap_read TEST (IOD #%li) (EID #%li)",
+                      nse->iod->id, nse->id);
 
   assert( FILESPACE_LENGTH(&(nse->iobuf)) == 0 );
 
@@ -387,9 +390,8 @@ int do_actual_pcap_read(msevent *nse) {
       n = (nsock_pcap *)FILESPACE_STR(&(nse->iobuf));
       n->packet = (unsigned char *)FILESPACE_STR(&(nse->iobuf)) + sizeof(npp);
 
-      if (nse->iod->nsp->tracelevel > 2)
-        nsock_trace(nse->iod->nsp, "PCAP do_actual_pcap_read READ (IOD #%li) (EID #%li) size=%i",
-                    nse->iod->id, nse->id, pkt_header->caplen);
+      nsock_log_debug_all(nse->iod->nsp, "PCAP do_actual_pcap_read READ (IOD #%li) (EID #%li) size=%i",
+                          nse->iod->id, nse->id, pkt_header->caplen);
       return(1);
 
     case 0: /* timeout */

@@ -157,12 +157,11 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
   /* Create a new nsock pool */
   if ((this->nsp = nsp_new(NULL)) == NULL)
     fatal("Unable to obtain an Nsock pool");
-  nsp_setdevice(nsp, o.device);
 
-  /* Set Trace level */
-  if (o.packetTrace()) {
-    nsp_settrace(this->nsp, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
-  }
+  nsock_set_log_function(this->nsp, nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(this->nsp, o.packetTrace());
+
+  nsp_setdevice(nsp, o.device);
 
   /* Allow broadcast addresses */
   nsp_setbroadcast(this->nsp, 1);
@@ -384,6 +383,7 @@ int FPNetworkControl::setup_sniffer(const char *iface, const char *bpf_filter) {
 /* This method makes the controller process pending events (like packet
  * transmissions or packet captures). */
 void FPNetworkControl::handle_events() {
+  nmap_adjust_loglevel(nsp, o.packetTrace());
   nsock_loop(nsp, 50);
 }
 

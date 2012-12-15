@@ -199,12 +199,9 @@ typedef struct {
    * error (errnum fashion) */
   int errnum;
 
-  /* Trace/debug level - set by nsp_settrace. If positive, trace logs are
-   * printted to tracefile. */
-  int tracelevel;
-  FILE *tracefile;
-  /* This time is subtracted from the current time for trace reports */
-  struct timeval tracebasetime;
+  /* Logging information. */
+  nsock_logger_t logger;
+  nsock_loglevel_t loglevel;
 
   /* If true, new sockets will have SO_BROADCAST set */
   int broadcast;

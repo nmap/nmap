@@ -2617,3 +2617,43 @@ void printdatafilepaths() {
     }
   }
 }
+
+static inline const char *nslog2str(nsock_loglevel_t loglevel) {
+  switch(loglevel) {
+    case NSOCK_LOG_DBG_ALL:
+      return "DEBUG FULL";
+    case NSOCK_LOG_DBG:
+      return "DEBUG";
+    case NSOCK_LOG_INFO:
+      return "INFO";
+    case NSOCK_LOG_ERROR:
+      return "ERROR";
+    default:
+      return "???";
+  };
+}
+
+void nmap_adjust_loglevel(nsock_pool nsp, bool trace) {
+  nsock_loglevel_t nsock_loglevel;
+
+  if (o.debugging >= 7)
+    nsock_loglevel = NSOCK_LOG_DBG_ALL;
+  else if (o.debugging >= 4)
+    nsock_loglevel = NSOCK_LOG_DBG;
+  else if (trace || o.debugging >= 2)
+    nsock_loglevel = NSOCK_LOG_INFO;
+  else
+    nsock_loglevel = NSOCK_LOG_ERROR;
+
+  nsock_set_loglevel(nsp, nsock_loglevel);
+}
+
+void nmap_nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec) {
+  int elapsed_time;
+
+  elapsed_time = TIMEVAL_MSEC_SUBTRACT(rec->time, *(o.getStartTime()));
+
+  log_write(LOG_STDERR, "NSOCK %s [%.4fs] %s(): %s\n", nslog2str(rec->level),
+            elapsed_time/1000.0, rec->func, rec->msg);
+}
+

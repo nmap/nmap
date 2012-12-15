@@ -112,6 +112,7 @@
     <ClCompile Include="nbase_str.c" />
     <ClCompile Include="nbase_time.c" />
     <ClCompile Include="nbase_winunix.c" />
+    <ClCompile Include="snprintf.c" />
     <ClCompile Include="strcasecmp.c" />
   </ItemGroup>
   <ItemGroup>

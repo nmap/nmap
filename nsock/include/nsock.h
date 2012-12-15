@@ -75,6 +75,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/time.h>
+#else
+#include <winsock2.h>   /* for struct timeval... */
 #endif
 
 #if HAVE_SYS_UN_H
@@ -128,6 +130,35 @@ typedef unsigned long nsock_event_id;
 typedef void *nsock_ssl_session;
 typedef void *nsock_ssl_ctx;
 typedef void *nsock_ssl;
+
+
+/* Logging-related data structures */
+typedef enum {
+  NSOCK_LOG_DBG_ALL,
+  NSOCK_LOG_DBG,
+  NSOCK_LOG_INFO,
+  NSOCK_LOG_ERROR
+} nsock_loglevel_t;
+
+struct nsock_log_rec {
+  /* Message emission time */
+  struct timeval time;
+  /* Message log level */
+  nsock_loglevel_t level;
+  /* Source file */
+  const char *file;
+  /* Statement line in nsock source */
+  int line;
+  /* Function that emitted the message */
+  const char *func;
+  /* Actual log message */
+  char *msg;
+};
+
+/* Nsock logging function. This function receives all nsock log records whose
+ * level is greater than or equal to nsp loglevel. The rec structure is
+ * allocated and freed by nsock. */
+typedef void (*nsock_logger_t)(nsock_pool nsp, const struct nsock_log_rec *rec);
 
 
 /* ------------------- PROTOTYPES ------------------- */
@@ -231,6 +262,14 @@ nsock_pool nsp_new(void *userdata);
  * longer be used.  Any pending events are sent an NSE_STATUS_KILL callback and
  * all outstanding iods are deleted. */
 void nsp_delete(nsock_pool nsp);
+
+/* Logging subsystem: set custom logging function.
+ * (See nsock_logger_t type definition). */
+void nsock_set_log_function(nsock_pool nsp, nsock_logger_t logger);
+
+nsock_loglevel_t nsock_get_loglevel(nsock_pool nsp);
+void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel);
+
 
 /* nsock_event handles a single event.  Its ID is generally returned when the
  * event is created, and the event itself is included in callbacks

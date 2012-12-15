@@ -80,8 +80,14 @@ static nsock_pool new_pool (lua_State *L)
 {
   nsock_pool nsp = nsp_new(NULL);
   nsock_pool *nspp;
+
+  /* configure logging */
+  nsock_set_log_function(nsp, nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(nsp, o.scriptTrace());
+
   nsp_setdevice(nsp, o.device);
   nsp_setbroadcast(nsp, true);
+  
   nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
   *nspp = nsp;
   lua_newtable(L);
@@ -408,6 +414,7 @@ static int l_loop (lua_State *L)
 
   socket_unlock(L); /* clean up old socket locks */
 
+  nmap_adjust_loglevel(nsp, o.scriptTrace());
   if (nsock_loop(nsp, tout) == NSOCK_LOOP_ERROR)
     return luaL_error(L, "a fatal error occurred in nsock_loop");
   return 0;
@@ -1077,8 +1084,6 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   nse_nsock_init_ssl_cert(L);
 #endif
 
-  if (o.scriptTrace())
-    nsp_settrace(nsp, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
 #if HAVE_OPENSSL
   /* Value speed over security in SSL connections. */
   nsp_ssl_init_max_speed(nsp);

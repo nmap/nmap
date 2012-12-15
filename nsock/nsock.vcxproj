@@ -195,6 +195,7 @@
     <ClCompile Include="src\nsock_engines.c" />
     <ClCompile Include="src\nsock_event.c" />
     <ClCompile Include="src\nsock_iod.c" />
+    <ClCompile Include="src\nsock_log.c" />
     <ClCompile Include="src\nsock_pcap.c" />
     <ClCompile Include="src\nsock_pool.c" />
     <ClCompile Include="src\nsock_read.c" />
@@ -209,6 +210,7 @@
     <ClInclude Include="src\netutils.h" />
     <ClInclude Include="include\nsock.h" />
     <ClInclude Include="src\nsock_internal.h" />
+    <ClInclude Include="src\nsock_log.h" />
     <ClInclude Include="src\nsock_pcap.h" />
     <ClInclude Include="src\nsock_ssl.h" />
     <ClInclude Include="include\nsock_winconfig.h" />

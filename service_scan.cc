@@ -2077,9 +2077,10 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 }
 
 /* Prints completion estimates and the like when appropriate */
-static void considerPrintingStats(ServiceGroup *SG) {
+static void considerPrintingStats(nsock_pool nsp, ServiceGroup *SG) {
    /* Check for status requests */
    if (keyWasPressed()) {
+      nmap_adjust_loglevel(nsp, o.versionTrace());
       SG->SPM->printStats(SG->services_finished.size() /
                           ((double)SG->services_remaining.size() + SG->services_in_progress.size() + 
                            SG->services_finished.size()), nsock_gettimeofday());
@@ -2148,7 +2149,7 @@ static void end_svcprobe(nsock_pool nsp, enum serviceprobestate probe_state, Ser
 
   SG->services_finished.push_back(svc);
 
-  considerPrintingStats(SG);
+  considerPrintingStats(nsp, SG);
 
   if (nsi) {
     nsi_delete(nsi, NSOCK_PENDING_SILENT);
@@ -2677,11 +2678,10 @@ int service_scan(std::vector<Target *> &Targets) {
   if ((nsp = nsp_new(SG)) == NULL) {
     fatal("%s() failed to create new nsock pool.", __func__);
   }
-  nsp_setdevice(nsp, o.device);
+  nsock_set_log_function(nsp, nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(nsp, o.versionTrace());
 
-  if (o.versionTrace()) {
-    nsp_settrace(nsp, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
-  }
+  nsp_setdevice(nsp, o.device);
 
 #if HAVE_OPENSSL
   /* We don't care about connection security in version detection. */

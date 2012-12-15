@@ -129,9 +129,9 @@ int ProbeMode::init_nsock(){
       /* Set nsock trace level */
       gettimeofday(&now, NULL);
       if( o.getDebugging() == DBG_5)
-        nsp_settrace(nsp, NULL, 1 , &now);
+        nsock_set_loglevel(nsp, NSOCK_LOG_INFO);
       else if( o.getDebugging() > DBG_5 )
-        nsp_settrace(nsp, NULL, 10 , &now);
+        nsock_set_loglevel(nsp, NSOCK_LOG_DBG_ALL);
       /* Flag it as already inited so we don't do it again */
       nsock_init=true;
   }

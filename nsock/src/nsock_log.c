@@ -1,6 +1,5 @@
 /***************************************************************************
- * nsock_timers.c -- This contains the functions for requesting timers     *
- * from the nsock parallel socket event library                            *
+ * nsock_log.c -- nsock logging infrastructure.                            *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
@@ -56,26 +55,66 @@
 
 /* $Id$ */
 
+
+#define _GNU_SOURCE
+#include <stdio.h>
+
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <assert.h>
+
 #include "nsock_internal.h"
 #include "nsock_log.h"
 
 extern struct timeval nsock_tod;
 
-/* Send back an NSE_TYPE_TIMER after the number of milliseconds specified.  Of
- * course it can also return due to error, cancellation, etc. */
-nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
-                                  int timeout_msecs, void *userdata) {
-  mspool *nsp = (mspool *)ms_pool;
-  msevent *nse;
 
-  nse = msevent_new(nsp, NSE_TYPE_TIMER, NULL, timeout_msecs, handler, userdata);
-  assert(nse);
+void nsock_set_log_function(nsock_pool nsp, nsock_logger_t logger) {
+  mspool *ms = (mspool *)nsp;
 
-  nsock_log_info(nsp, "Timer created - %dms from now.  EID %li", timeout_msecs,
-                 nse->id);
+  ms->logger = logger;
+  nsock_log_debug(ms, "Registered external logging function: %p", logger);
+}
 
-  nsp_add_event(nsp, nse);
-  
-  return nse->id;
+nsock_loglevel_t nsock_get_loglevel(nsock_pool nsp) {
+  mspool *ms = (mspool *)nsp;
+
+  return ms->loglevel;
+}
+
+void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel) {
+  mspool *ms = (mspool *)nsp;
+
+  ms->loglevel = loglevel;
+}
+
+void nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec) {
+  fprintf(stderr, "libnsock %s(): %s\n", rec->func, rec->msg);
+}
+
+void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
+                          const char *file, int line, const char *func,
+                          const char *format, ...) {
+  struct nsock_log_rec rec;
+  va_list args;
+  int rc;
+
+  va_start(args, format);
+
+  rec.level = loglevel;
+  rec.time = nsock_tod;
+  rec.file = file;
+  rec.line = line;
+  rec.func = func;
+
+  rc = vasprintf(&rec.msg, format, args);
+  if (rc >= 0) {
+    mspool *ms = (mspool *)nsp;
+
+    ms->logger(nsp, &rec);
+    free(rec.msg);
+  }
+  va_end(args);
 }
 

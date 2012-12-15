@@ -60,6 +60,7 @@
 /* $Id$ */
 
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include "gh_list.h"
 
 #if HAVE_PCAP
@@ -187,9 +188,7 @@ int nsock_event_cancel(nsock_pool ms_pool, nsock_event_id id, int notify ) {
   assert(nsp);
 
   type = get_event_id_type(id);
-  if (nsp->tracelevel > 0) {
-    nsock_trace(nsp, "Event #%li (type %s) cancelled", id, nse_type2str(type));
-  }
+  nsock_log_info(nsp, "Event #%li (type %s) cancelled", id, nse_type2str(type));
 
   /* First we figure out what list it is in */
   switch(type) {
@@ -258,8 +257,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
     return 0;
   }
 
-  if (nsp->tracelevel > 0)
-    nsock_trace(nsp, "msevent_cancel on event #%li (type %s)", nse->id, nse_type2str(nse->type));
+  nsock_log_info(nsp, "msevent_cancel on event #%li (type %s)", nse->id, nse_type2str(nse->type));
 
   /* Now that we found the event... we go through the motions of cleanly
    * cancelling it */
@@ -295,16 +293,14 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
   update_first_events(nse);
   gh_list_remove_elem(event_list, elem);
 
-  if (nsp->tracelevel > 8)
-    nsock_trace(nsp, "NSE #%lu: Removing event from list", nse->id);
+  nsock_log_debug_all(nsp, "NSE #%lu: Removing event from list", nse->id);
 
 #if HAVE_PCAP
 #if PCAP_BSD_SELECT_HACK
   if (nse->type == NSE_TYPE_PCAP_READ) {
-    if (nsp->tracelevel > 8)
-      nsock_trace(nsp, "PCAP NSE #%lu: CANCEL TEST pcap=%p read=%p curr=%p sd=%i",
-                  nse->id, &nsp->pcap_read_events, &nsp->read_events,
-                  event_list,((mspcap *)nse->iod->pcap)->pcap_desc);
+    nsock_log_debug_all(nsp, "PCAP NSE #%lu: CANCEL TEST pcap=%p read=%p curr=%p sd=%i",
+                        nse->id, &nsp->pcap_read_events, &nsp->read_events,
+                        event_list,((mspcap *)nse->iod->pcap)->pcap_desc);
 
     /* If event occurred, and we're in BSD_HACK mode, then this event was added to
      * two queues. read_event and pcap_read_event Of course we should
@@ -314,8 +310,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
       /* event is done, list is read_events and we're in BSD_HACK mode. So unlink
        * event from pcap_read_events */
       gh_list_remove(&nsp->pcap_read_events, nse);
-      if (nsp->tracelevel > 8)
-        nsock_trace(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
+      nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
     }
 
     if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && event_list == &nsp->pcap_read_events) {
@@ -323,8 +318,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
        * So unlink event from read_events */
       gh_list_remove(&nsp->read_events, nse);
 
-      if (nsp->tracelevel > 8)
-        nsock_trace(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
+      nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
     }
   }
 #endif
@@ -446,12 +440,10 @@ msevent *msevent_new(mspool *nsp, enum nse_type type, msiod *msiod, int timeout_
   nse->userdata = userdata;
   nse->time_created = nsock_tod;
 
-  if (nsp->tracelevel > 3) {
     if (nse->iod == NULL)
-      nsock_trace(nsp, "msevent_new (IOD #NULL) (EID #%li)", nse->id);
+      nsock_log_debug(nsp, "msevent_new (IOD #NULL) (EID #%li)", nse->id);
     else
-      nsock_trace(nsp, "msevent_new (IOD #%li) (EID #%li)", nse->iod->id, nse->id);
-  }
+      nsock_log_debug(nsp, "msevent_new (IOD #%li) (EID #%li)", nse->iod->id, nse->id);
   return nse;
 }
 
@@ -461,12 +453,10 @@ msevent *msevent_new(mspool *nsp, enum nse_type type, msiod *msiod, int timeout_
  * remember to do this if you call msevent_delete() directly */
 void msevent_delete(mspool *nsp, msevent *nse) {
 
-  if (nsp->tracelevel > 3) {
-    if (nse->iod == NULL)
-      nsock_trace(nsp, "msevent_delete (IOD #NULL) (EID #%li)", nse->id);
-    else
-      nsock_trace(nsp, "msevent_delete (IOD #%li) (EID #%li)", nse->iod->id, nse->id);
-  }
+  if (nse->iod == NULL)
+    nsock_log_debug(nsp, "msevent_delete (IOD #NULL) (EID #%li)", nse->id);
+  else
+    nsock_log_debug(nsp, "msevent_delete (IOD #%li) (EID #%li)", nse->iod->id, nse->id);
 
   /* First free the IOBuf inside it if neccessary */
   if (nse->type == NSE_TYPE_READ || nse->type ==  NSE_TYPE_WRITE) {
@@ -475,8 +465,7 @@ void msevent_delete(mspool *nsp, msevent *nse) {
   #if HAVE_PCAP
   if (nse->type == NSE_TYPE_PCAP_READ) {
     fs_free(&nse->iobuf);
-    if (nsp->tracelevel > 5)
-      nsock_trace(nsp, "PCAP removed %lu",nse->id);
+    nsock_log_debug_all(nsp, "PCAP removed %lu", nse->id);
   }
   #endif
 

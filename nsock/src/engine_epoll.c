@@ -65,6 +65,7 @@
 #include <errno.h>
 
 #include "nsock_internal.h"
+#include "nsock_log.h"
 
 #if HAVE_PCAP
 #include "nsock_pcap.h"
@@ -260,8 +261,7 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
   }
 
   do {
-    if (nsp->tracelevel > 6)
-      nsock_trace(nsp, "wait_for_events");
+    nsock_log_debug_all(nsp, "wait_for_events");
 
     if (nsp->next_ev.tv_sec == 0)
       event_msecs = -1; /* None of the events specified a timeout */
@@ -305,7 +305,7 @@ int epoll_loop(mspool *nsp, int msec_timeout) {
   } while (results_left == -1 && sock_err == EINTR); /* repeat only if signal occurred */
 
   if (results_left == -1 && sock_err != EINTR) {
-    nsock_trace(nsp, "nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
+    nsock_log_error(nsp, "nsock_loop error %d: %s", sock_err, socket_strerror(sock_err));
     nsp->errnum = sock_err;
     return -1;
   }

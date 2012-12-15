@@ -134,6 +134,7 @@
 #include "portlist.h"
 #include "nmap.h"
 #include "global_structures.h"
+#include <nsock.h>
 
 #include <string>
 
@@ -251,5 +252,9 @@ void printfinaloutput();
 /* Prints the names of data files that were loaded and the paths at which they
    were found. */
 void printdatafilepaths();
+
+/* nsock logging interface */
+void nmap_adjust_loglevel(nsock_pool nsp, bool trace);
+void nmap_nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec);
 
 #endif /* OUTPUT_H */

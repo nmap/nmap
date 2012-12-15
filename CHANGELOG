@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Reworked the logging infrastructure to make it more flexible
+  and consistent. Updated nmap, nping and ncat accordingly. Nsock log level
+  can now be adjusted at runtime by pressing d/D in nmap.
+  [Henri Doreau, David Fifield]
+
 o [NSE] Fixed scripts using unconnected UDP sockets. The bug was
   reported by Dhiru Kholia. [David Fifield]
 

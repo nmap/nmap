@@ -1164,7 +1164,6 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   int timeout;
   char *tpname;
   int i;
-  bool lasttrace = false;
   char spmobuf[1024];
 
   // If necessary, set up the dns server list
@@ -1209,10 +1208,11 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   if ((dnspool = nsp_new(NULL)) == NULL)
     fatal("Unable to create nsock pool in %s()", __func__);
-  nsp_setdevice(dnspool, o.device);
 
-  if ((lasttrace = o.packetTrace()))
-    nsp_settrace(dnspool, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
+  nsock_set_log_function(dnspool, nmap_nsock_stderr_logger);
+  nmap_adjust_loglevel(dnspool, o.packetTrace());
+
+  nsp_setdevice(dnspool, o.device);
 
   connect_dns_servers();
 
@@ -1231,12 +1231,8 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     if (total_reqs <= 0) break;
 
     /* Because this can change with runtime interaction */
-    if (o.packetTrace() != lasttrace) {
-      lasttrace = !lasttrace;
-      if (lasttrace)
-	nsp_settrace(dnspool, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
-      else nsp_settrace(dnspool, NULL, 0, o.getStartTime());
-    }
+    nmap_adjust_loglevel(dnspool, o.packetTrace());
+
     nsock_loop(dnspool, timeout);
   }
 

@@ -492,9 +492,14 @@ int ncat_connect(void)
     if ((mypool = nsp_new(NULL)) == NULL)
         bye("Failed to create nsock_pool.");
 
-    if (o.debug > 1)
-        /* A trace level of 1 still gives you an awful lot. */
-        nsp_settrace(mypool, stderr, 1, nsock_gettimeofday());
+    if (o.debug >= 6)
+        nsock_set_loglevel(mypool, NSOCK_LOG_DBG_ALL);
+    else if (o.debug >= 3)
+        nsock_set_loglevel(mypool, NSOCK_LOG_DBG);
+    else if (o.debug >= 1)
+        nsock_set_loglevel(mypool, NSOCK_LOG_INFO);
+    else
+        nsock_set_loglevel(mypool, NSOCK_LOG_ERROR);
 
     /* Allow connections to broadcast addresses. */
     nsp_setbroadcast(mypool, 1);

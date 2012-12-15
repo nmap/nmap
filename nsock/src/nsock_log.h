@@ -1,6 +1,5 @@
 /***************************************************************************
- * nsock_timers.c -- This contains the functions for requesting timers     *
- * from the nsock parallel socket event library                            *
+ * nsock_log.c -- nsock logging infrastructure.                            *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
@@ -56,26 +55,49 @@
 
 /* $Id$ */
 
-#include "nsock_internal.h"
-#include "nsock_log.h"
 
-extern struct timeval nsock_tod;
+#ifndef NSOCK_LOG_H
+#define NSOCK_LOG_H
 
-/* Send back an NSE_TYPE_TIMER after the number of milliseconds specified.  Of
- * course it can also return due to error, cancellation, etc. */
-nsock_event_id nsock_timer_create(nsock_pool ms_pool, nsock_ev_handler handler,
-                                  int timeout_msecs, void *userdata) {
-  mspool *nsp = (mspool *)ms_pool;
-  msevent *nse;
+#include "nsock.h"
 
-  nse = msevent_new(nsp, NSE_TYPE_TIMER, NULL, timeout_msecs, handler, userdata);
-  assert(nse);
 
-  nsock_log_info(nsp, "Timer created - %dms from now.  EID %li", timeout_msecs,
-                 nse->id);
+#define NSOCK_LOG_WRAP(nsp, lvl, ...)  \
+    do { \
+        if ((nsp)->logger && (lvl) >= (nsp)->loglevel) { \
+            __nsock_log_internal((nsp), (lvl), __FILE__, __LINE__, __func__, __VA_ARGS__); \
+        } \
+    } while (0)
 
-  nsp_add_event(nsp, nse);
-  
-  return nse->id;
-}
+
+/* -- Internal logging macros -- */
+/**
+ * Most detailed debug messages, like allocating or moving objects.
+ */
+#define nsock_log_debug_all(nsp, ...) NSOCK_LOG_WRAP(nsp, NSOCK_LOG_DBG_ALL, __VA_ARGS__)
+
+/**
+ * Detailed debug messages, describing internal operations.
+ */
+#define nsock_log_debug(nsp, ...)     NSOCK_LOG_WRAP(nsp, NSOCK_LOG_DBG, __VA_ARGS__)
+
+/**
+ * High level debug messages, describing top level operations and external
+ * requests.
+ */
+#define nsock_log_info(nsp, ...)      NSOCK_LOG_WRAP(nsp, NSOCK_LOG_INFO, __VA_ARGS__)
+
+/**
+ * Error messages.
+ */
+#define nsock_log_error(nsp, ...)     NSOCK_LOG_WRAP(nsp, NSOCK_LOG_ERROR, __VA_ARGS__)
+
+
+void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
+                          const char *file, int line, const char *func,
+                          const char *format, ...);
+
+void nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec);
+
+#endif /* NSOCK_LOG_H */
 
