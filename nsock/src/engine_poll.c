@@ -311,7 +311,7 @@ int poll_loop(mspool *nsp, int msec_timeout) {
     return 0; /* No need to wait on 0 events ... */
 
   do {
-    nsock_log_debug_all(nsp, "wait_for_events");
+    nsock_log_debug_all(nsp, "wait for events");
 
     if (nsp->next_ev.tv_sec == 0)
       event_msecs = -1; /* None of the events specified a timeout */
