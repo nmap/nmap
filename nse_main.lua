@@ -648,6 +648,8 @@ local function get_chosen_scripts (rules)
     local forced, rule = is_forced_set(rule);
     used_rules[rule] = false; -- has not been used yet
     forced_rules[rule] = forced;
+    -- Here we escape backslashes which might appear in Windows filenames.
+    rule = gsub(rule, "\\([^\\])", "\\\\%1");
     -- Globalize all `names`, all visible characters not ',', '(', ')', and ';'
     local globalized_rule =
         gsub(rule, "[\033-\039\042-\043\045-\058\060-\126]+", globalize);
