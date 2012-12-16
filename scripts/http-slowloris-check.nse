@@ -53,7 +53,7 @@ Idea from Qualys blogpost:
 
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"vuln", "intrusive"}
+categories = {"vuln", "safe"}
 
 
 portrule = shortport.http

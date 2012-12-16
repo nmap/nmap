@@ -182,7 +182,7 @@ Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery",
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-robtex-shared-ns.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-sitemap-generator.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "http-slowloris-check.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-slowloris-check.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-slowloris.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
