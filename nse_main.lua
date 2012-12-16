@@ -224,7 +224,8 @@ local function loadscript (filename)
   local function ld ()
     -- header for scripts to allow setting the environment
     yield [[return function (_ENV) return function (...)]];
-    for line in lines(filename, "*L") do
+    -- actual script
+    for line in lines(filename, 2^15) do
       yield(line);
     end
     -- footer...
