@@ -651,6 +651,13 @@ Engine =
 		local usernames = self.usernames
 		local passwords = self.passwords
 
+		if ( "function" ~= type(usernames) ) then
+			return false, "Invalid usernames iterator"
+		end
+		if ( "function" ~= type(passwords) ) then
+			return false, "Invalid passwords iterator"
+		end
+
 		local mode = self.options.mode or stdnse.get_script_args("brute.mode")
 	
 		-- if no mode was given, but a credfile is present, assume creds mode
