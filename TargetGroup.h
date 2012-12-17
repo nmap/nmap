@@ -147,8 +147,7 @@ public:
   int get_namedhost() {
     return namedhost;
   };
-  /* Skip an octet in the range array */
-  int skip_range(_octet_nums octet);
+
 private:
   enum _targets_types targets_type;
   void Initialize();

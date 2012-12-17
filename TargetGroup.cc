@@ -335,66 +335,6 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
   return 0;
 }
 
-/* For ranges, skip all hosts in an octet,                  (mdmcl)
- * get_next_host should be used for skipping the last octet :-)
- * returns: number of hosts skipped */
-int TargetGroup::skip_range(_octet_nums octet) {
-  unsigned long hosts_skipped = 0, /* number of hosts skipped */
-                oct = 0;           /* octect number */
-  int i = 0;                 /* simple lcv */
-
-  /* This function is only supported for RANGES! */
-  if (targets_type != IPV4_RANGES)
-    return -1;
-
-  /* The decision to skip a range was based on the address that came immediately
-     before what our current array contains now. For example, if we have just
-     handed out 0.0.0.0 from the the range 0-5.0.0.0, and we're asked to skip
-     the first octet, we want to advance to 1.0.0.0. But 1.0.0.0 is what is in
-     the current array right now, because TargetGroup::get_next_host advances
-     the array after returning an address. If we didn't step back we would
-     erroneously skip ahead to 2.0.0.0. */
-  return_last_host();
-
-  switch (octet) {
-  case FIRST_OCTET:
-    oct = 0;
-    hosts_skipped = (last[1] + 1) * (last[2] + 1) * (last[3] + 1);
-    break;
-  case SECOND_OCTET:
-    oct = 1;
-    hosts_skipped = (last[2] + 1) * (last[3] + 1);
-    break;
-  case THIRD_OCTET:
-    oct = 2;
-    hosts_skipped = (last[3] + 1);
-    break;
-  default:  /* Hmm, how'd you do that */
-    return -1;
-  }
-
-  /* catch if we try to take more than are left */
-  assert(ipsleft + 1 >= hosts_skipped);
-
-  /* increment the next octect that we can above us */
-  for (i = oct; i >= 0; i--) {
-    if (current[i] < last[i]) {
-      current[i]++;
-      break;
-    } else
-      current[i] = 0;
-  }
-
-  /* reset all the ones below us to zero */
-  for (i = oct + 1; i <= 3; i++) {
-    current[i] = 0;
-  }
-
-  ipsleft -= hosts_skipped;
-
-  return hosts_skipped;
-}
-
 /* Get the sin6_scope_id member of a sockaddr_in6, based on a device name. This
    is used to assign scope to all addresses that otherwise lack a scope id when
    the -e option is used. */
