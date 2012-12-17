@@ -84,6 +84,10 @@ action = function()
 
 			-- Check if we've already seen this ID.
 			if ids[info.host_int] then
+				-- We can stop now, since we've seen the same ID twice
+				-- If ever a host sends a broadcast twice in a row, this will
+				-- artificially stop the listener. I can't think of a workaround
+				-- for now, so this will have to do.
 				break
 			end
 			ids[info.host_int] = true
@@ -118,7 +122,7 @@ action = function()
 	sock:close()
 
 	-- If no broadcasts received, don't output anything.
-	if #ids == 0 then
+	if not next(ids) then
 		 return
 	end
 
