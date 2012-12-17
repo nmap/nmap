@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added mysql-enum script which enumerates valid mysql server
+  usernames [Aleksandar Nikolic]
+
 o [Nsock] Reworked the logging infrastructure to make it more flexible
   and consistent. Updated nmap, nping and ncat accordingly. Nsock log level
   can now be adjusted at runtime by pressing d/D in nmap.

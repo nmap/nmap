@@ -275,6 +275,7 @@ Entry { filename = "mysql-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mysql-databases.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mysql-dump-hashes.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "mysql-empty-password.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "mysql-enum.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mysql-query.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "mysql-users.nse", categories = { "auth", "intrusive", } }
