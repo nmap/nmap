@@ -166,9 +166,9 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
     } else
       netmask = 32;
     resolvedname = hostexp;
-    for(i=0; *(hostexp + i); i++) 
-      if (isupper((int) (unsigned char) *(hostexp +i)) ||
-          islower((int) (unsigned char) *(hostexp +i))) {
+    for(i=0; hostexp[i] != '\0'; i++) 
+      if (isupper((int) (unsigned char) hostexp[i]) ||
+          islower((int) (unsigned char) hostexp[i])) {
         namedhost = 1;
         break;
       }
