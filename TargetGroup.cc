@@ -118,14 +118,14 @@ void TargetGroup::Initialize() {
   ipsleft = 0;
 }
 
- /* Initializes (or reinitializes) the object with a new expression, such
-    as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .  
-    Returns 0 for success */  
+/* Initializes (or reinitializes) the object with a new expression, such
+   as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
+   Returns 0 for success */
 int TargetGroup::parse_expr(const char *target_expr, int af) {
 
-  int i=0,j=0,k=0;
+  int i = 0, j = 0, k = 0;
   int start, end;
-  char *r,*s, *target_net;
+  char *r, *s, *target_net;
   char *addy[5];
   char *hostexp = strdup(target_expr);
   namedhost = 0;
@@ -154,19 +154,19 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
     if (s) {
       char *tail;
       long netmask_long;
-      
+
       *s = '\0';  /* Make sure target_net is terminated before the /## */
       s++;        /* Point s at the netmask */
       netmask_long = parse_long(s, (char**) &tail);
       if (*tail != '\0' || tail == s || netmask_long < 0 || netmask_long > 32) {
         error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
-          netmask = 32;
+        netmask = 32;
       } else
-          netmask = (u32) netmask_long;
+        netmask = (u32) netmask_long;
     } else
       netmask = 32;
     resolvedname = hostexp;
-    for(i=0; hostexp[i] != '\0'; i++) 
+    for (i = 0; hostexp[i]; i++)
       if (isupper((int) (unsigned char) hostexp[i]) ||
           islower((int) (unsigned char) hostexp[i])) {
         namedhost = 1;
@@ -205,8 +205,8 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
       if (netmask) {
         struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
         unsigned long longtmp = ntohl(sin->sin_addr.s_addr);
-        startaddr.s_addr = longtmp & (unsigned long) (0 - (1<<(32 - netmask)));
-        endaddr.s_addr = longtmp | (unsigned long)  ((1<<(32 - netmask)) - 1);
+        startaddr.s_addr = longtmp & (unsigned long) (0 - (1 << (32 - netmask)));
+        endaddr.s_addr = longtmp | (unsigned long)  ((1 << (32 - netmask)) - 1);
       } else {
         /* The above calculations don't work for a /0 netmask, though at first
          * glance it appears that they would
@@ -215,25 +215,23 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
         endaddr.s_addr = 0xffffffff;
       }
       currentaddr = startaddr;
-      if (startaddr.s_addr <= endaddr.s_addr) { 
+      if (startaddr.s_addr <= endaddr.s_addr) {
         ipsleft = ((unsigned long long) (endaddr.s_addr - startaddr.s_addr)) + 1;
-        free(hostexp); 
-        return 0; 
+        free(hostexp);
+        return 0;
       }
       fprintf(stderr, "Host specification invalid");
       free(hostexp);
       return 1;
-    }
-    else {
+    } else {
       targets_type = IPV4_RANGES;
-      i=0;
+      i = 0;
 
-      while(*r) {
+      while (*r) {
         if (*r == '.' && ++i < 4) {
           *r = '\0';
           addy[i] = r + 1;
-        }
-        else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) {
+        } else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) {
           error("Invalid character in host specification: %s.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.", target_expr);
           return 1;
         }
@@ -243,25 +241,26 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
         error("Invalid target host specification: %s", target_expr);
         return 1;
       }
-      
-      for(i=0; i < 4; i++) {
-        j=0;
+
+      for (i = 0; i < 4; i++) {
+        j = 0;
         do {
-          s = strchr(addy[i],',');
+          s = strchr(addy[i], ',');
           if (s) *s = '\0';
-          if (*addy[i] == '*') { start = 0; end = 255; } 
-          else if (*addy[i] == '-') {
+          if (*addy[i] == '*') {
+            start = 0;
+            end = 255;
+          } else if (*addy[i] == '-') {
             start = 0;
             if (*(addy[i] + 1) == '\0') end = 255;
-            else end = atoi(addy[i]+ 1);
-          }
-          else {
+            else end = atoi(addy[i] + 1);
+          } else {
             start = end = atoi(addy[i]);
-            if ((r = strchr(addy[i],'-')) && *(r+1) ) end = atoi(r + 1);
-            else if (r && !*(r+1)) end = 255;
+            if ((r = strchr(addy[i], '-')) && *(r + 1) ) end = atoi(r + 1);
+            else if (r && !*(r + 1)) end = 255;
           }
-       /* if (o.debugging > 2)
-        *   log_write(LOG_STDOUT, "The first host is %d, and the last one is %d\n", start, end); */
+          /* if (o.debugging > 2)
+           *   log_write(LOG_STDOUT, "The first host is %d, and the last one is %d\n", start, end); */
           if (start < 0 || start > end || start > 255 || end > 255) {
             error("Your host specifications are illegal!");
             return 1;
@@ -270,9 +269,9 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
             error("Your host specifications are illegal!");
             return 1;
           }
-          for(k=start; k <= end; k++)
+          for (k = start; k <= end; k++)
             addresses[i][j++] = k;
-          last[i] = j-1;
+          last[i] = j - 1;
           if (s) addy[i] = s + 1;
         } while (s);
       }
@@ -282,8 +281,7 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
               (unsigned long long) (last[1] + 1) *
               (unsigned long long) (last[2] + 1) *
               (unsigned long long) (last[3] + 1);
-    }
-  else {
+  } else {
 #if HAVE_IPV6
     struct addrinfo *addrs, *addr;
     struct sockaddr_storage ss;
@@ -338,12 +336,12 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
 }
 
 /* For ranges, skip all hosts in an octet,                  (mdmcl)
- * get_next_host should be used for skipping the last octet :-) 
+ * get_next_host should be used for skipping the last octet :-)
  * returns: number of hosts skipped */
 int TargetGroup::skip_range(_octet_nums octet) {
   unsigned long hosts_skipped = 0, /* number of hosts skipped */
-      oct = 0;           /* octect number */
-      int i = 0;                 /* simple lcv */
+                oct = 0;           /* octect number */
+  int i = 0;                 /* simple lcv */
 
   /* This function is only supported for RANGES! */
   if (targets_type != IPV4_RANGES)
@@ -359,42 +357,41 @@ int TargetGroup::skip_range(_octet_nums octet) {
   return_last_host();
 
   switch (octet) {
-    case FIRST_OCTET:
-      oct = 0;
-      hosts_skipped = (last[1] + 1) * (last[2] + 1) * (last[3] + 1);
-      break;
-    case SECOND_OCTET:
-      oct = 1;
-      hosts_skipped = (last[2] + 1) * (last[3] + 1);
-      break;
-    case THIRD_OCTET:
-      oct = 2;
-      hosts_skipped = (last[3] + 1);
-      break;
-    default:  /* Hmm, how'd you do that */
-      return -1;
+  case FIRST_OCTET:
+    oct = 0;
+    hosts_skipped = (last[1] + 1) * (last[2] + 1) * (last[3] + 1);
+    break;
+  case SECOND_OCTET:
+    oct = 1;
+    hosts_skipped = (last[2] + 1) * (last[3] + 1);
+    break;
+  case THIRD_OCTET:
+    oct = 2;
+    hosts_skipped = (last[3] + 1);
+    break;
+  default:  /* Hmm, how'd you do that */
+    return -1;
   }
 
   /* catch if we try to take more than are left */
-  assert(ipsleft + 1>= hosts_skipped);
+  assert(ipsleft + 1 >= hosts_skipped);
 
   /* increment the next octect that we can above us */
   for (i = oct; i >= 0; i--) {
     if (current[i] < last[i]) {
       current[i]++;
       break;
-    }
-    else
+    } else
       current[i] = 0;
   }
 
   /* reset all the ones below us to zero */
-  for (i = oct+1; i <= 3; i++) {
+  for (i = oct + 1; i <= 3; i++) {
     current[i] = 0;
   }
 
   ipsleft -= hosts_skipped;
- 
+
   return hosts_skipped;
 }
 
@@ -413,24 +410,24 @@ static int get_scope_id(const char *devname) {
     return 0;
 }
 
- /* Grab the next host from this expression (if any) and updates its internal
-    state to reflect that the IP was given out.  Returns 0 and
-    fills in ss if successful.  ss must point to a pre-allocated
-    sockaddr_storage structure */
+/* Grab the next host from this expression (if any) and updates its internal
+   state to reflect that the IP was given out.  Returns 0 and
+   fills in ss if successful.  ss must point to a pre-allocated
+   sockaddr_storage structure */
 int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
 
   int octet;
   struct sockaddr_in *sin = (struct sockaddr_in *) ss;
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) ss;
-  startover: /* to handle nmap --resume where I have already
-              * scanned many of the IPs */  
+startover: /* to handle nmap --resume where I have already
+              * scanned many of the IPs */
   assert(ss);
   assert(sslen);
 
 
   if (ipsleft == 0)
     return -1;
-  
+
   if (targets_type == IPV4_NETMASK) {
     memset(sin, 0, sizeof(struct sockaddr_in));
     sin->sin_family = AF_INET;
@@ -438,7 +435,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
 #if HAVE_SOCKADDR_SA_LEN
     sin->sin_len = *sslen;
 #endif
-    
+
     if (currentaddr.s_addr <= endaddr.s_addr) {
       sin->sin_addr.s_addr = htonl(currentaddr.s_addr++);
     } else {
@@ -446,8 +443,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
       ipsleft = 0;
       return -1;
     }
-  }
-  else if (targets_type == IPV4_RANGES) {
+  } else if (targets_type == IPV4_RANGES) {
     memset(sin, 0, sizeof(struct sockaddr_in));
     sin->sin_family = AF_INET;
     *sslen = sizeof(struct sockaddr_in);
@@ -455,16 +451,16 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     sin->sin_len = *sslen;
 #endif
     if (o.debugging > 2) {
-      log_write(LOG_STDOUT, "doing %d.%d.%d.%d = %d.%d.%d.%d\n", current[0], current[1], current[2], current[3], addresses[0][current[0]],addresses[1][current[1]],addresses[2][current[2]],addresses[3][current[3]]);
+      log_write(LOG_STDOUT, "doing %d.%d.%d.%d = %d.%d.%d.%d\n", current[0], current[1], current[2], current[3], addresses[0][current[0]], addresses[1][current[1]], addresses[2][current[2]], addresses[3][current[3]]);
     }
     /* Set the IP to the current value of everything */
-    sin->sin_addr.s_addr = htonl(addresses[0][current[0]] << 24 | 
+    sin->sin_addr.s_addr = htonl(addresses[0][current[0]] << 24 |
                                  addresses[1][current[1]] << 16 |
-                                 addresses[2][current[2]] <<  8 | 
+                                 addresses[2][current[2]] <<  8 |
                                  addresses[3][current[3]]);
-    
+
     /* Now we nudge up to the next IP */
-    for(octet = 3; octet >= 0; octet--) {
+    for (octet = 3; octet >= 0; octet--) {
       if (current[octet] < last[octet]) {
         /* OK, this is the column I have room to nudge upwards */
         current[octet]++;
@@ -479,8 +475,10 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
       assert(ipsleft == 1);
       /* So I set current to last with the very final octet up one ... */
       /* Note that this may make current[3] == 256 */
-      current[0] = last[0]; current[1] = last[1];
-      current[2] = last[2]; current[3] = last[3] + 1;
+      current[0] = last[0];
+      current[1] = last[1];
+      current[2] = last[2];
+      current[3] = last[3] + 1;
     } else {
       assert(ipsleft > 1); /* There must be at least one more IP left */
     }
@@ -504,7 +502,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
 #endif // HAVE_IPV6
   }
   ipsleft--;
-  
+
   /* If we are resuming from a previous scan, we have already finished
      scans up to o.resume_ip.  */
   if (sin->sin_family == AF_INET && o.resume_ip.s_addr) {
@@ -528,7 +526,7 @@ int TargetGroup::return_last_host() {
     assert(currentaddr.s_addr > startaddr.s_addr);
     currentaddr.s_addr--;
   } else if (targets_type == IPV4_RANGES) {
-    for(octet = 3; octet >= 0; octet--) {
+    for (octet = 3; octet >= 0; octet--) {
       if (current[octet] > 0) {
         /* OK, this is the column I have room to nudge downwards */
         current[octet]--;
@@ -541,7 +539,7 @@ int TargetGroup::return_last_host() {
     assert(octet != -1);
   } else {
     assert(targets_type == IPV6_ADDRESS);
-    assert(ipsleft == 1);    
+    assert(ipsleft == 1);
   }
   return 0;
 }
@@ -549,8 +547,7 @@ int TargetGroup::return_last_host() {
 /* Returns true iff the given address is the one that was resolved to create
    this target group; i.e., not one of the addresses derived from it with a
    netmask. */
-bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
-{
+bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss) {
   struct sockaddr_storage resolvedaddr;
 
   if (resolvedaddrs.empty())
@@ -565,15 +562,13 @@ bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
 }
 
 /* Return a string of the name or address that was resolved for this group. */
-const char *TargetGroup::get_resolved_name(void)
-{
+const char *TargetGroup::get_resolved_name(void) {
   return resolvedname.c_str();
 }
 
 /* Return the list of addresses that the name for this group resolved to, if
    it came from a name resolution. */
-const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void)
-{
+const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void) {
   return resolvedaddrs;
 }
 
@@ -591,7 +586,7 @@ NewTargets::NewTargets (void) {
 
 void NewTargets::Initialize (void) {
   history.clear();
-  while(!queue.empty())
+  while (!queue.empty())
     queue.pop();
 }
 
@@ -611,12 +606,10 @@ unsigned long NewTargets::push (const char *target) {
       queue.push(tg);
 
       if (o.debugging > 2)
-        log_write(LOG_PLAIN, "New Targets: target %s pushed onto the queue.\n",
-          tg.c_str());
+        log_write(LOG_PLAIN, "New Targets: target %s pushed onto the queue.\n", tg.c_str());
     } else {
       if (o.debugging > 2)
-        log_write(LOG_PLAIN, "New Targets: target %s is already in the queue.\n",
-          tg.c_str());
+        log_write(LOG_PLAIN, "New Targets: target %s is already in the queue.\n", tg.c_str());
       /* Return 1 when the target is already in the history cache,
        * this will prevent returning 0 when the target queue is
        * empty since no target was added. */
@@ -686,7 +679,7 @@ unsigned long NewTargets::insert (const char *target) {
    The target_expressions array MUST REMAIN VALID IN MEMORY as long as
    this class instance is used -- the array is NOT copied.
  */
-HostGroupState::HostGroupState(int lookahead, int rnd, 
+HostGroupState::HostGroupState(int lookahead, int rnd,
                                char *expr[], int numexpr) {
   assert(lookahead > 0);
   hostbatch = (Target **) safe_zalloc(sizeof(Target *) * lookahead);

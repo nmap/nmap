@@ -105,17 +105,17 @@
 #include "nmap.h"
 
 class TargetGroup {
- public:
+public:
   /* used by get_target_types */
   enum _targets_types { TYPE_NONE, IPV4_NETMASK, IPV4_RANGES, IPV6_ADDRESS };
   /* used as input to skip range */
   enum _octet_nums { FIRST_OCTET, SECOND_OCTET, THIRD_OCTET };
   TargetGroup();
 
- /* Initializes (or reinitializes) the object with a new expression,
-    such as 192.168.0.0/16 , 10.1.0-5.1-254 , or
-    fe80::202:e3ff:fe14:1102 .  The af parameter is AF_INET or
-    AF_INET6 Returns 0 for success */
+  /* Initializes (or reinitializes) the object with a new expression,
+     such as 192.168.0.0/16 , 10.1.0-5.1-254 , or
+     fe80::202:e3ff:fe14:1102 .  The af parameter is AF_INET or
+     AF_INET6 Returns 0 for success */
   int parse_expr(const char *target_expr, int af);
   /* Grab the next host from this expression (if any).  Returns 0 and
      fills in ss if successful.  ss must point to a pre-allocated
@@ -136,14 +136,20 @@ class TargetGroup {
      it came from a name resolution. */
   const std::list<struct sockaddr_storage> &get_resolved_addrs(void);
   /* return the target type */
-  char get_targets_type() {return targets_type;};
+  char get_targets_type() {
+    return targets_type;
+  };
   /* get the netmask */
-  int get_mask() {return netmask;};
+  int get_mask() {
+    return netmask;
+  };
   /* is the current expression a named host */
-  int get_namedhost() {return namedhost;};
+  int get_namedhost() {
+    return namedhost;
+  };
   /* Skip an octet in the range array */
   int skip_range(_octet_nums octet);
- private:
+private:
   enum _targets_types targets_type;
   void Initialize();
 
@@ -153,7 +159,7 @@ class TargetGroup {
 
   std::list<struct sockaddr_storage> resolvedaddrs;
 
-  /* These are used for the '/mask' style of specifying target 
+  /* These are used for the '/mask' style of specifying target
      net (IPV4_NETMASK) */
   u32 netmask;
   std::string resolvedname;
@@ -164,19 +170,19 @@ class TargetGroup {
   // These three are for the '138.1-7,16,91-95,200-.12.1' style (IPV4_RANGES)
   u8 addresses[4][256];
   unsigned int current[4];
-  u8 last[4];  
+  u8 last[4];
 
-/* Number of IPs left in this structure -- set to 0 if 
-		  the fields are not valid */
-  unsigned long long ipsleft; 
+  /* Number of IPs left in this structure -- set to 0 if the fields are not
+     valid */
+  unsigned long long ipsleft;
 
-  // is the current target expression a named host
+  /* is the current target expression a named host? */
   int namedhost;
 };
 
 /* Adding new targets is for NSE scripts */
 class NewTargets {
- public:
+public:
   NewTargets();
 
   /* return a previous inserted target */
@@ -199,7 +205,7 @@ class NewTargets {
 
   /* insert targets to the new_targets_queue */
   static unsigned long insert (const char *target);
- private:
+private:
   /* unsigned long mex_new_targets; */
 
   /* A queue to push new targets that were discovered by NSE scripts.
@@ -214,28 +220,28 @@ class NewTargets {
 
   /* Save new targets onto the queue */
   unsigned long push (const char *target);
- protected:
+protected:
   static NewTargets *new_targets;
 };
 
 class HostGroupState {
- public:
+public:
   HostGroupState(int lookahead, int randomize, char *target_expressions[],
-		 int num_expressions);
+                 int num_expressions);
   ~HostGroupState();
   Target **hostbatch;
   int max_batch_sz; /* The size of the hostbatch[] array */
   int current_batch_sz; /* The number of VALID members of hostbatch[] */
-  int next_batch_no; /* The index of the next hostbatch[] member to be given 
+  int next_batch_no; /* The index of the next hostbatch[] member to be given
 			back to the user */
-  int randomize; /* Whether each batch should be "shuffled" prior to the ping 
+  int randomize; /* Whether each batch should be "shuffled" prior to the ping
 		    scan (they will also be out of order when given back one
 		    at a time to the client program */
   char **target_expressions; /* An array of target expression strings, passed
 				to us by the client (client is also in charge
-				of deleting it AFTER it is done with the 
+				of deleting it AFTER it is done with the
 				hostgroup_state */
-  int num_expressions;       /* The number of valid expressions in 
+  int num_expressions;       /* The number of valid expressions in
 				target_expressions member above */
   int next_expression;   /* The index of the next expression we have
 			    to handle */
