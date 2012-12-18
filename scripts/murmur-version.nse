@@ -36,7 +36,7 @@ See http://mumble.sourceforge.net/Protocol.
 -- 64740/tcp open  murmur  Murmur 1.2.4 (control port; users: 35; max. users: 100; bandwidth: 72000 b/s)
 -- 64740/udp open  murmur  Murmur 1.2.4 (voice port; users: 35; max. users: 100; bandwidth: 72000 b/s)
 
-author = "Marin Marzic"
+author = "Marin Maržić"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "version" }
 
