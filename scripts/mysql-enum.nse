@@ -1,9 +1,11 @@
+local bin = require "bin"
 local brute = require "brute"
 local creds = require "creds"
 local mysql = require "mysql"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 
 local openssl = stdnse.silent_require "openssl"
 
@@ -75,6 +77,7 @@ Driver = {
 		end
 		stdnse.print_debug( "Trying %s ...", pass)
 		local auth_string = bin.pack("H","0000018d00000000") .. pass .. bin.pack("H","00504e5f5155454d4500"); -- old authentication method 
+		local err
 		status, err = self.socket:send(bin.pack("c",string.len(auth_string)-3) .. auth_string) --send initial auth
 		status, response = self.socket:receive_bytes(0)
 		if not status then

@@ -1,6 +1,8 @@
 local bin = require "bin"
 local comm = require "comm"
+local nmap = require "nmap"
 local shortport = require "shortport"
+local string = require "string"
 
 description = [[
 Detects the Murmur service (server for the Mumble voice communication
@@ -34,7 +36,7 @@ See http://mumble.sourceforge.net/Protocol.
 -- 64740/tcp open  murmur  Murmur 1.2.4 (control port; users: 35; max. users: 100; bandwidth: 72000 b/s)
 -- 64740/udp open  murmur  Murmur 1.2.4 (voice port; users: 35; max. users: 100; bandwidth: 72000 b/s)
 
-author = "Marin Maržić"
+author = "Marin Marzic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "version" }
 
@@ -64,6 +66,7 @@ action = function(host, port)
     port.version.product = "Murmur"
     port.version.version = v_a .. "." .. v_b .. "." .. v_c
     -- Set extra info depending on protocol and set port state to "open" if UDP
+    local portinfo
     if port.protocol == "tcp" then
         portinfo = "control port"
     else

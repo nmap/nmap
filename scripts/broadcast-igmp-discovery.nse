@@ -7,6 +7,7 @@ local ipOps = require "ipOps"
 local target = require "target"
 local coroutine = require "coroutine"
 local string = require "string"
+local io = require "io"
 
 description = [[
 Discovers targets that have IGMP Multicast memberships and grabs interesting information.
