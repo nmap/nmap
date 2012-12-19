@@ -115,7 +115,60 @@ void TargetGroup::Initialize() {
   memset(addresses, 0, sizeof(addresses));
   memset(current, 0, sizeof(current));
   memset(last, 0, sizeof(last));
-  ipsleft = 0;
+  exhausted = true;
+}
+
+/* Return a newly allocated string containing the part of expr up to the last
+   '/' (or a copy of the whole string if there is no slash). *bits will contain
+   the number after the slash, or -1 if there was no slash. In case of error
+   return NULL; *bits is then undefined. */
+static char *split_netmask(const char *expr, int *bits) {
+  const char *slash;
+
+  slash = strrchr(expr, '/');
+  if (slash != NULL) {
+    long l;
+    char *tail;
+
+    l = parse_long(slash + 1, &tail);
+    if (tail == slash + 1 || *tail != '\0' || l < 0 || l > INT_MAX)
+      return NULL;
+    *bits = (int) l;
+  } else {
+    slash = expr + strlen(expr);
+    *bits = -1;
+  }
+
+  return mkstr(expr, slash);
+}
+
+/* Fill in an in6_addr with a CIDR-style netmask with the given number of bits. */
+static void make_ipv6_netmask(struct in6_addr *mask, int bits) {
+  unsigned int i;
+
+  memset(mask, 0, sizeof(*mask));
+
+  if (bits < 0)
+    bits = 0;
+  else if (bits > 128)
+    bits = 128;
+
+  if (bits == 0)
+    return;
+
+  i = 0;
+  /* 0 < bits <= 128, so this loop goes at most 15 times. */
+  for ( ; bits > 8; bits -= 8)
+    mask->s6_addr[i++] = 0xFF;
+  mask->s6_addr[i] = 0xFF << (8 - bits);
+}
+
+/* a = (a & mask) | (b & ~mask) */
+static void ipv6_or_mask(struct in6_addr *a, const struct in6_addr *mask, const struct in6_addr *b) {
+  unsigned int i;
+
+  for (i = 0; i < sizeof(a->s6_addr) / sizeof(*a->s6_addr); i++)
+    a->s6_addr[i] = (a->s6_addr[i] & mask->s6_addr[i]) | (b->s6_addr[i] & ~mask->s6_addr[i]);
 }
 
 /* Initializes (or reinitializes) the object with a new expression, such
@@ -125,46 +178,44 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
 
   int i = 0, j = 0, k = 0;
   int start, end;
-  char *r, *s, *target_net;
+  char *r, *s;
   char *addy[5];
-  char *hostexp = strdup(target_expr);
+  char *hostexp;
+  int bits;
   namedhost = 0;
 
   if (targets_type != TYPE_NONE)
     Initialize();
 
-  ipsleft = 0;
-
   resolvedaddrs.clear();
+
+  hostexp = split_netmask(target_expr, &bits);
+  if (hostexp == NULL) {
+    error("Unable to split netmask from target expression: \"%s\"", target_expr);
+    goto bail;
+  }
 
   if (af == AF_INET) {
 
     if (strchr(hostexp, ':')) {
       error("Invalid host expression: %s -- colons only allowed in IPv6 addresses, and then you need the -6 switch", hostexp);
-      return 1;
+      goto bail;
     }
 
     /*struct in_addr current_in;*/
     addy[0] = addy[1] = addy[2] = addy[3] = addy[4] = NULL;
     addy[0] = r = hostexp;
-    /* First we break the expression up into the four parts of the IP address
-       + the optional '/mask' */
-    target_net = hostexp;
-    s = strchr(hostexp, '/'); /* Find the slash if there is one */
-    if (s) {
-      char *tail;
-      long netmask_long;
 
-      *s = '\0';  /* Make sure target_net is terminated before the /## */
-      s++;        /* Point s at the netmask */
-      netmask_long = parse_long(s, (char**) &tail);
-      if (*tail != '\0' || tail == s || netmask_long < 0 || netmask_long > 32) {
-        error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
-        netmask = 32;
-      } else
-        netmask = (u32) netmask_long;
-    } else
+    /* Check the netmask. */
+    if (bits == -1) {
       netmask = 32;
+    } else if (0 <= bits && bits <= 32) {
+      netmask = bits;
+    } else {
+      error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
+      netmask = 32;
+    }
+
     resolvedname = hostexp;
     for (i = 0; hostexp[i]; i++)
       if (isupper((int) (unsigned char) hostexp[i]) ||
@@ -178,7 +229,7 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
       size_t sslen;
 
       targets_type = IPV4_NETMASK;
-      addrs = resolve_all(target_net, AF_INET);
+      addrs = resolve_all(hostexp, AF_INET);
       for (addr = addrs; addr != NULL; addr = addr->ai_next) {
         if (addr->ai_family != AF_INET)
           continue;
@@ -191,16 +242,15 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
         freeaddrinfo(addrs);
 
       if (resolvedaddrs.empty()) {
-        error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges. If the machine only has an IPv6 address, add the Nmap -6 flag to scan that.", target_net);
-        free(hostexp);
-        return 1;
+        error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges. If the machine only has an IPv6 address, add the Nmap -6 flag to scan that.", hostexp);
+        goto bail;
       } else {
         ss = *resolvedaddrs.begin();
         sslen = sizeof(ss);
       }
 
       if (resolvedaddrs.size() > 1 && o.verbose > 1)
-        error("Warning: Hostname %s resolves to %lu IPs. Using %s.", target_net, (unsigned long)resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
+        error("Warning: Hostname %s resolves to %lu IPs. Using %s.", hostexp, (unsigned long)resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
 
       if (netmask) {
         struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
@@ -215,14 +265,10 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
         endaddr.s_addr = 0xffffffff;
       }
       currentaddr = startaddr;
-      if (startaddr.s_addr <= endaddr.s_addr) {
-        ipsleft = ((unsigned long long) (endaddr.s_addr - startaddr.s_addr)) + 1;
-        free(hostexp);
-        return 0;
-      }
+      if (startaddr.s_addr <= endaddr.s_addr)
+        goto done;
       fprintf(stderr, "Host specification invalid");
-      free(hostexp);
-      return 1;
+      goto bail;
     } else {
       targets_type = IPV4_RANGES;
       i = 0;
@@ -232,14 +278,14 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
           *r = '\0';
           addy[i] = r + 1;
         } else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) {
-          error("Invalid character in host specification: %s.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.", target_expr);
-          return 1;
+          error("Invalid character in host specification: %s.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.", hostexp);
+          goto bail;
         }
         r++;
       }
       if (i != 3) {
-        error("Invalid target host specification: %s", target_expr);
-        return 1;
+        error("Invalid target host specification: %s", hostexp);
+        goto bail;
       }
 
       for (i = 0; i < 4; i++) {
@@ -263,11 +309,11 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
            *   log_write(LOG_STDOUT, "The first host is %d, and the last one is %d\n", start, end); */
           if (start < 0 || start > end || start > 255 || end > 255) {
             error("Your host specifications are illegal!");
-            return 1;
+            goto bail;
           }
           if (j + (end - start) > 255) {
             error("Your host specifications are illegal!");
-            return 1;
+            goto bail;
           }
           for (k = start; k <= end; k++)
             addresses[i][j++] = k;
@@ -277,10 +323,6 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
       }
     }
     memset((char *)current, 0, sizeof(current));
-    ipsleft = (unsigned long long) (last[0] + 1) *
-              (unsigned long long) (last[1] + 1) *
-              (unsigned long long) (last[2] + 1) *
-              (unsigned long long) (last[3] + 1);
   } else {
 #if HAVE_IPV6
     struct addrinfo *addrs, *addr;
@@ -288,16 +330,21 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
     size_t sslen;
 
     assert(af == AF_INET6);
-    if (strchr(hostexp, '/')) {
-      error("Invalid host expression: %s -- slash not allowed.  IPv6 addresses can currently only be specified individually", hostexp);
-      free(hostexp);
-      return 1;
+
+    /* Check the netmask. */
+    if (bits == -1) {
+      netmask = 128;
+    } else if (0 <= bits && bits <= 128) {
+      netmask = bits;
+    } else {
+      error("Illegal netmask value, must be /0 - /128 .  Assuming /128 (one host)");
+      netmask = 128;
     }
     resolvedname = hostexp;
     if (strchr(hostexp, ':') == NULL)
       namedhost = 1;
 
-    targets_type = IPV6_ADDRESS;
+    targets_type = IPV6_NETMASK;
     addrs = resolve_all(hostexp, AF_INET6);
     for (addr = addrs; addr != NULL; addr = addr->ai_next) {
       if (addr->ai_family != AF_INET6)
@@ -312,8 +359,7 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
 
     if (resolvedaddrs.empty()) {
       error("Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.", hostexp);
-      free(hostexp);
-      return 1;
+      goto bail;
     } else {
       ss = *resolvedaddrs.begin();
       sslen = sizeof(ss);
@@ -325,14 +371,32 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
     assert(sizeof(ip6) <= sslen);
     memcpy(&ip6, &ss, sizeof(ip6));
 
-    ipsleft = 1;
+    const struct in6_addr zeros = { { { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} } };
+    const struct in6_addr ones = { { { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff} } };
+
+    struct in6_addr mask;
+    make_ipv6_netmask(&mask, netmask);
+
+    startaddr6 = ((struct sockaddr_in6 *) &ss)->sin6_addr;
+    ipv6_or_mask(&startaddr6, &mask, &zeros);
+    endaddr6 = ((struct sockaddr_in6 *) &ss)->sin6_addr;
+    ipv6_or_mask(&endaddr6, &mask, &ones);
+
+    currentaddr6 = startaddr6;
 #else // HAVE_IPV6
     fatal("IPv6 not supported on your platform");
 #endif // HAVE_IPV6
   }
 
+done:
   free(hostexp);
+  exhausted = false;
   return 0;
+
+bail:
+  free(hostexp);
+  exhausted = true;
+  return 1;
 }
 
 /* Get the sin6_scope_id member of a sockaddr_in6, based on a device name. This
@@ -365,7 +429,7 @@ startover: /* to handle nmap --resume where I have already
   assert(sslen);
 
 
-  if (ipsleft == 0)
+  if (exhausted)
     return -1;
 
   if (targets_type == IPV4_NETMASK) {
@@ -376,11 +440,13 @@ startover: /* to handle nmap --resume where I have already
     sin->sin_len = *sslen;
 #endif
 
+    if (currentaddr.s_addr == endaddr.s_addr)
+      exhausted = true;
     if (currentaddr.s_addr <= endaddr.s_addr) {
       sin->sin_addr.s_addr = htonl(currentaddr.s_addr++);
     } else {
       error("Bogus target structure passed to %s", __func__);
-      ipsleft = 0;
+      exhausted = true;
       return -1;
     }
   } else if (targets_type == IPV4_RANGES) {
@@ -412,7 +478,7 @@ startover: /* to handle nmap --resume where I have already
     }
     if (octet == -1) {
       /* It didn't find anything to bump up, I must have taken the last IP */
-      assert(ipsleft == 1);
+      exhausted = true;
       /* So I set current to last with the very final octet up one ... */
       /* Note that this may make current[3] == 256 */
       current[0] = last[0];
@@ -420,11 +486,10 @@ startover: /* to handle nmap --resume where I have already
       current[2] = last[2];
       current[3] = last[3] + 1;
     } else {
-      assert(ipsleft > 1); /* There must be at least one more IP left */
+      assert(!exhausted); /* There must be at least one more IP left */
     }
   } else {
-    assert(targets_type == IPV6_ADDRESS);
-    assert(ipsleft == 1);
+    assert(targets_type == IPV6_NETMASK);
 #if HAVE_IPV6
     *sslen = sizeof(struct sockaddr_in6);
     memset(sin6, 0, *sslen);
@@ -432,16 +497,26 @@ startover: /* to handle nmap --resume where I have already
 #ifdef SIN_LEN
     sin6->sin6_len = *sslen;
 #endif /* SIN_LEN */
-    memcpy(sin6->sin6_addr.s6_addr, ip6.sin6_addr.s6_addr, 16);
+
+    if (memcmp(currentaddr6.s6_addr, endaddr6.s6_addr, 16) == 0)
+      exhausted = true;
+
+    sin6->sin6_addr = currentaddr6;
     if (ip6.sin6_scope_id == 0)
       sin6->sin6_scope_id = get_scope_id(o.device);
     else
       sin6->sin6_scope_id = ip6.sin6_scope_id;
+
+    /* Increment current address. */
+    for (int i = 15; i >= 0; i--) {
+      currentaddr6.s6_addr[i]++;
+      if (currentaddr6.s6_addr[i] > 0)
+	break;
+    }
 #else
     fatal("IPV6 not supported on this platform");
 #endif // HAVE_IPV6
   }
-  ipsleft--;
 
   /* If we are resuming from a previous scan, we have already finished
      scans up to o.resume_ip.  */
@@ -461,7 +536,7 @@ startover: /* to handle nmap --resume where I have already
 int TargetGroup::return_last_host() {
   int octet;
 
-  ipsleft++;
+  exhausted = false;
   if (targets_type == IPV4_NETMASK) {
     assert(currentaddr.s_addr > startaddr.s_addr);
     currentaddr.s_addr--;
@@ -478,8 +553,7 @@ int TargetGroup::return_last_host() {
     }
     assert(octet != -1);
   } else {
-    assert(targets_type == IPV6_ADDRESS);
-    assert(ipsleft == 1);
+    assert(targets_type == IPV6_NETMASK);
   }
   return 0;
 }
@@ -494,7 +568,7 @@ bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss) {
     return false;
   /* We only have a single distinguished address for these target types.
      IPV4_RANGES doesn't, for example. */
-  if (!(targets_type == IPV4_NETMASK || targets_type == IPV6_ADDRESS))
+  if (!(targets_type == IPV4_NETMASK || targets_type == IPV6_NETMASK))
     return false;
   resolvedaddr = *resolvedaddrs.begin();
 

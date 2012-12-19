@@ -93,6 +93,7 @@
 /* $Id$ */
 
 #include "nbase.h"
+#include <assert.h>
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -162,6 +163,18 @@ int Snprintf(char *s, size_t n, const char *fmt, ...)
 	va_end(ap);
 
 	return ret;
+}
+
+/* Make a new allocated null-terminated string from the bytes [start, end). */
+char *mkstr(const char *start, const char *end) {
+  char *s;
+
+  assert(end >= start);
+  s = (char *) safe_malloc(end - start + 1);
+  memcpy(s, start, end - start);
+  s[end - start] = '\0';
+
+  return s;
 }
 
 /* vsprintf into a dynamically allocated buffer, similar to asprintf in

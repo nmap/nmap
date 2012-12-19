@@ -142,8 +142,6 @@ int strbuf_append_str(char **buf, size_t *size, size_t *offset, const char *s);
 int strbuf_sprintf(char **buf, size_t *size, size_t *offset, const char *fmt, ...)
      __attribute__ ((format (printf, 4, 5)));
 
-char *mkstr(const char *start, const char *end);
-
 int addr_is_local(const union sockaddr_u *su);
 
 const char *inet_socktop(const union sockaddr_u *su);

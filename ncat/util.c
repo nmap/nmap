@@ -263,19 +263,6 @@ int strbuf_sprintf(char **buf, size_t *size, size_t *offset, const char *fmt, ..
     return n;
 }
 
-/* Make a new allocated null-terminated string from the bytes [start, end). */
-char *mkstr(const char *start, const char *end)
-{
-    char *s;
-
-    assert(end >= start);
-    s = (char *) safe_malloc(end - start + 1);
-    memcpy(s, start, end - start);
-    s[end - start] = '\0';
-
-    return s;
-}
-
 /* Return true if the given address is a local one. */
 int addr_is_local(const union sockaddr_u *su)
 {

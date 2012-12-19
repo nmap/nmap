@@ -399,6 +399,8 @@ int Vsnprintf(char *, size_t, const char *, va_list)
 int Snprintf(char *, size_t, const char *, ...)
      __attribute__ ((format (printf, 3, 4)));
 
+char *mkstr(const char *start, const char *end);
+
 int alloc_vsprintf(char **strp, const char *fmt, va_list va)
      __attribute__ ((format (printf, 2, 0)));
 

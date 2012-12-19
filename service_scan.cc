@@ -290,19 +290,6 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   matchops_anchor = -1;
 }
 
-/* Make a new allocated null-terminated string from the bytes [start, end). */
-static char *mkstr(const char *start, const char *end)
-{
-    char *s;
-
-    assert(end >= start);
-    s = (char *) safe_malloc(end - start + 1);
-    memcpy(s, start, end - start);
-    s[end - start] = '\0';
-
-    return s;
-}
-
 /* Realloc a malloc-allocated string and put a given prefix at the front. */
 static char *string_prefix(char *string, const char *prefix)
 {

@@ -107,7 +107,7 @@
 class TargetGroup {
 public:
   /* used by get_target_types */
-  enum _targets_types { TYPE_NONE, IPV4_NETMASK, IPV4_RANGES, IPV6_ADDRESS };
+  enum _targets_types { TYPE_NONE, IPV4_NETMASK, IPV4_RANGES, IPV6_NETMASK };
   /* used as input to skip range */
   enum _octet_nums { FIRST_OCTET, SECOND_OCTET, THIRD_OCTET };
   TargetGroup();
@@ -152,16 +152,13 @@ private:
   enum _targets_types targets_type;
   void Initialize();
 
-#if HAVE_IPV6
-  struct sockaddr_in6 ip6;
-#endif
-
   std::list<struct sockaddr_storage> resolvedaddrs;
+
+  u32 netmask;
+  std::string resolvedname;
 
   /* These are used for the '/mask' style of specifying target
      net (IPV4_NETMASK) */
-  u32 netmask;
-  std::string resolvedname;
   struct in_addr startaddr;
   struct in_addr currentaddr;
   struct in_addr endaddr;
@@ -171,9 +168,18 @@ private:
   unsigned int current[4];
   u8 last[4];
 
-  /* Number of IPs left in this structure -- set to 0 if the fields are not
-     valid */
-  unsigned long long ipsleft;
+#if HAVE_IPV6
+  /* These are used for the '/mask' style of specifying target
+     net (IPV6_NETMASK) */
+  struct sockaddr_in6 ip6;
+  struct in6_addr startaddr6;
+  struct in6_addr currentaddr6;
+  struct in6_addr endaddr6;
+#endif
+
+  /* Is set to true iff all the addresses in this group have already been
+     returned. */
+  bool exhausted;
 
   /* is the current target expression a named host? */
   int namedhost;
