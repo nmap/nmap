@@ -70,6 +70,8 @@
  * not have an effect. This function needs to be called before you try to read
  * or write on the iod. */
 static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int proto) {
+  int rc;
+
   /* inheritable_socket is from nbase */
   iod->sd = (int)inheritable_socket(family, type, proto);
   if (iod->sd == -1) {
@@ -84,9 +86,15 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
   if (iod->locallen) {
     int one = 1;
 
-    setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
-    if (bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen) == -1) {
+    rc = setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
+    if (rc == -1)
+      nsock_log_error(ms, "Setting of SO_REUSEADDR failed (#%d): %s", iod->id,
+                      strerror(errno));
+
+    rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
+    if (rc == -1) {
       const char *addrstr = NULL;
+
 #if HAVE_SYS_UN_H
       if (iod->local.ss_family == AF_UNIX)
         addrstr = get_unixsock_path(&iod->local);
@@ -94,26 +102,34 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
 #endif
         addrstr = inet_ntop_ez(&iod->local, iod->locallen);
 
-      nsock_log_error(ms, "Bind to %s failed (IOD #%li)", addrstr, iod->id);
+      nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s", addrstr, iod->id,
+                      strerror(errno));
     }
   }
   if (iod->ipoptslen && family == AF_INET) {
-    if (setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts, iod->ipoptslen) == -1)
-      nsock_log_error(ms, "Setting of IP options failed (IOD #%li)", iod->id);
+    rc = setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts,
+                    iod->ipoptslen);
+    if (rc == -1)
+      nsock_log_error(ms, "Setting of IP options failed (IOD #%li): %s", iod->id,
+                      strerror(errno));
   }
   if (ms->device) {
     errno = 0;
     if (!socket_bindtodevice(iod->sd, ms->device)) {
       if (errno != EPERM)
-        nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li)", iod->id);
+        nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s",
+                        iod->id, strerror(errno));
       else
-        nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li)", iod->id);
+        nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s",
+                            iod->id, strerror(errno));
     }
   }
   if (ms->broadcast) {
-    if (setsockopt(iod->sd, SOL_SOCKET, SO_BROADCAST, (const char *)&(ms->broadcast), sizeof(int)) == -1) {
-      nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li)", iod->id);
-    }
+    rc = setsockopt(iod->sd, SOL_SOCKET, SO_BROADCAST,
+                    (const char *)&(ms->broadcast), sizeof(int));
+    if (rc == -1)
+      nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li): %s",
+                      iod->id, strerror(errno));
   }
   return iod->sd;
 }
