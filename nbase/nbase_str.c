@@ -100,69 +100,76 @@
 
 #ifndef HAVE_STRCASESTR
 char *strcasestr(const char *haystack, const char *pneedle) {
-char buf[512];
-unsigned int needlelen;
-const char *p;
-char *needle, *q, *foundto;
+  char buf[512];
+  unsigned int needlelen;
+  const char *p;
+  char *needle, *q, *foundto;
 
-/* Should crash if !pneedle -- this is OK */
-if (!*pneedle) return (char *) haystack;
-if (!haystack) return NULL;
+  /* Should crash if !pneedle -- this is OK */
+  if (!*pneedle)
+    return (char *)haystack;
+  if (!haystack)
+    return NULL;
 
-needlelen = (unsigned int) strlen(pneedle);
- if (needlelen >= sizeof(buf)) {
-   needle = (char *) safe_malloc(needlelen + 1);
- } else needle = buf;
- p = pneedle; q = needle;
- while((*q++ = tolower((int) (unsigned char) *p++)))
-   ;
- p = haystack - 1; foundto = needle;
- while(*++p) {
-   if(tolower((int) (unsigned char) *p) == *foundto) {
-     if(!*++foundto) {
-       /* Yeah, we found it */
-       if (needlelen >= sizeof(buf))
-         free(needle);
-       return (char *) (p - needlelen + 1);
-     }
-   } else foundto = needle;
- }
- if (needlelen >= sizeof(buf))
-   free(needle);
- return NULL;
+  needlelen = (unsigned int)strlen(pneedle);
+  if (needlelen >= sizeof(buf))
+    needle = (char *)safe_malloc(needlelen + 1);
+  else
+    needle = buf;
+
+  p = pneedle;
+  q = needle;
+
+  while ((*q++ = tolower((int)(unsigned char)*p++)))
+    ;
+
+  p = haystack - 1;
+  foundto = needle;
+  while (*++p) {
+    if (tolower((int)(unsigned char)*p) == *foundto) {
+      if (!*++foundto) {
+        /* Yeah, we found it */
+        if (needlelen >= sizeof(buf))
+          free(needle);
+        return (char *)(p - needlelen + 1);
+      }
+    } else
+      foundto = needle;
+  }
+  if (needlelen >= sizeof(buf))
+    free(needle);
+  return NULL;
 }
 #endif
 
 int Strncpy(char *dest, const char *src, size_t n) {
   strncpy(dest, src, n);
-  if (dest[n-1] == '\0')
+  if (dest[n - 1] == '\0')
     return 0;
-  dest[n-1] = '\0';
+  dest[n - 1] = '\0';
   return -1;
 }
 
-int Vsnprintf(char *s, size_t n, const char *fmt, va_list ap)
-{
-	int ret;
+int Vsnprintf(char *s, size_t n, const char *fmt, va_list ap) {
+  int ret;
 
-	ret = vsnprintf(s, n, fmt, ap);
+  ret = vsnprintf(s, n, fmt, ap);
 
-	if (ret < 0 || (unsigned) ret >= n)
-		s[n - 1] = '\0';
+  if (ret < 0 || (unsigned)ret >= n)
+    s[n - 1] = '\0';
 
-	return ret;
+  return ret;
 }
 
-int Snprintf(char *s, size_t n, const char *fmt, ...)
-{
-	va_list ap;
-	int ret;
+int Snprintf(char *s, size_t n, const char *fmt, ...) {
+  va_list ap;
+  int ret;
 
-	va_start(ap, fmt);
-	ret = Vsnprintf(s, n, fmt, ap);
-	va_end(ap);
+  va_start(ap, fmt);
+  ret = Vsnprintf(s, n, fmt, ap);
+  va_end(ap);
 
-	return ret;
+  return ret;
 }
 
 /* Make a new allocated null-terminated string from the bytes [start, end). */
@@ -170,7 +177,7 @@ char *mkstr(const char *start, const char *end) {
   char *s;
 
   assert(end >= start);
-  s = (char *) safe_malloc(end - start + 1);
+  s = (char *)safe_malloc(end - start + 1);
   memcpy(s, start, end - start);
   s[end - start] = '\0';
 
@@ -188,7 +195,7 @@ int alloc_vsprintf(char **strp, const char *fmt, va_list va) {
   s = NULL;
   size = 32;
   for (;;) {
-    s = (char *) safe_realloc(s, size);
+    s = (char *)safe_realloc(s, size);
 
 #ifdef WIN32
     va_tmp = va;
@@ -213,8 +220,9 @@ int alloc_vsprintf(char **strp, const char *fmt, va_list va) {
    printable (as defined by isprint()) */
 int stringisprintable(const char *str, int strlength) {
   int i;
-  for(i=0; i < strlength; i++)
-    if (!isprint((int) (unsigned char) str[i]))
+
+  for (i = 0; i < strlength; i++)
+    if (!isprint((int)(unsigned char)str[i]))
       return 0;
 
   return 1;
@@ -223,8 +231,9 @@ int stringisprintable(const char *str, int strlength) {
 /* Convert non-printable characters to replchar in the string */
 void replacenonprintable(char *str, int strlength, char replchar) {
   int i;
-  for(i=0; i < strlength; i++)
-    if (!isprint((int) (unsigned char) str[i]))
+
+  for (i = 0; i < strlength; i++)
+    if (!isprint((int)(unsigned char)str[i]))
       str[i] = replchar;
 
   return;
@@ -264,7 +273,7 @@ char *path_get_dirname(const char *path) {
   if (i == 0)
     return strdup("/");
 
-  result = (char *) safe_malloc(i + 1);
+  result = (char *)safe_malloc(i + 1);
   strncpy(result, path, i);
   result[i] = '\0';
 
