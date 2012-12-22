@@ -126,6 +126,13 @@ void logdebug(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
 
 /* handle errors */
+
+#define ncat_assert(expr) \
+do { \
+        if (!(expr)) \
+                bye("assertion failed: %s", #expr); \
+} while (0)
+
 void die(char *);
 
 void bye(const char *, ...)
