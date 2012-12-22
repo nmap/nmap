@@ -512,8 +512,8 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
     nse->event_done = 1;
     nse->status = status;
   } else if (status == NSE_STATUS_SUCCESS) {
-    str = FILESPACE_STR(&nse->iobuf) + nse->writeinfo.written_so_far;
-    bytesleft = FILESPACE_LENGTH(&nse->iobuf) - nse->writeinfo.written_so_far;
+    str = fs_str(&nse->iobuf) + nse->writeinfo.written_so_far;
+    bytesleft = fs_length(&nse->iobuf) - nse->writeinfo.written_so_far;
     if (nse->writeinfo.written_so_far > 0)
       assert(bytesleft > 0);
 #if HAVE_OPENSSL
@@ -601,7 +601,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
   msiod *iod = nse->iod;
   int err = 0;
   int max_chunk = NSOCK_READ_CHUNK_SIZE;
-  int startlen = FILESPACE_LENGTH(&nse->iobuf);
+  int startlen = fs_length(&nse->iobuf);
 
   if (nse->readinfo.read_type == NSOCK_READBYTES)
     max_chunk = nse->readinfo.num;
@@ -634,7 +634,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
         iod->peerlen = peerlen;
       }
       if (buflen > 0) {
-        if (fscat(&nse->iobuf, buf, buflen) == -1) {
+        if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
           nse->event_done = 1;
           nse->status = NSE_STATUS_ERROR;
           nse->errnum = ENOMEM;
@@ -644,8 +644,8 @@ static int do_actual_read(mspool *ms, msevent *nse) {
         /* Sometimes a service just spews and spews data.  So we return after a
          * somewhat large amount to avoid monopolizing resources and avoid DOS
          * attacks. */
-        if (FILESPACE_LENGTH(&nse->iobuf) > max_chunk)
-          return FILESPACE_LENGTH(&nse->iobuf) - startlen;
+        if (fs_length(&nse->iobuf) > max_chunk)
+          return fs_length(&nse->iobuf) - startlen;
 
         /* No good reason to read again if we we were successful in the read but
          * didn't fill up the buffer.  Especially for UDP, where we want to
@@ -653,7 +653,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
          * assignment of iod->peer depends on not consolidating more than one
          * UDP read buffer. */
         if (buflen > 0 && buflen < sizeof(buf))
-          return FILESPACE_LENGTH(&nse->iobuf) - startlen;
+          return fs_length(&nse->iobuf) - startlen;
       }
     } while (buflen > 0 || (buflen == -1 && err == EINTR));
 
@@ -670,7 +670,7 @@ static int do_actual_read(mspool *ms, msevent *nse) {
     /* OpenSSL read */
     while ((buflen = SSL_read(iod->ssl, buf, sizeof(buf))) > 0) {
 
-      if (fscat(&nse->iobuf, buf, buflen) == -1) {
+      if (fs_cat(&nse->iobuf, buf, buflen) == -1) {
         nse->event_done = 1;
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = ENOMEM;
@@ -680,8 +680,8 @@ static int do_actual_read(mspool *ms, msevent *nse) {
       /* Sometimes a service just spews and spews data.  So we return
        * after a somewhat large amount to avoid monopolizing resources
        * and avoid DOS attacks. */
-      if (FILESPACE_LENGTH(&nse->iobuf) > max_chunk)
-        return FILESPACE_LENGTH(&nse->iobuf) - startlen;
+      if (fs_length(&nse->iobuf) > max_chunk)
+        return fs_length(&nse->iobuf) - startlen;
     }
 
     if (buflen == -1) {
@@ -716,16 +716,16 @@ static int do_actual_read(mspool *ms, msevent *nse) {
   if (buflen == 0) {
     nse->event_done = 1;
     nse->eof = 1;
-    if (FILESPACE_LENGTH(&nse->iobuf) > 0) {
+    if (fs_length(&nse->iobuf) > 0) {
       nse->status = NSE_STATUS_SUCCESS;
-      return FILESPACE_LENGTH(&nse->iobuf) - startlen;
+      return fs_length(&nse->iobuf) - startlen;
     } else {
       nse->status = NSE_STATUS_EOF;
       return 0;
     }
   }
 
-  return FILESPACE_LENGTH(&nse->iobuf) - startlen;
+  return fs_length(&nse->iobuf) - startlen;
 }
 
 
@@ -737,7 +737,7 @@ void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
 
   if (status == NSE_STATUS_TIMEOUT) {
     nse->event_done = 1;
-    if (FILESPACE_LENGTH(&nse->iobuf) > 0)
+    if (fs_length(&nse->iobuf) > 0)
       nse->status = NSE_STATUS_SUCCESS;
     else
       nse->status = NSE_STATUS_TIMEOUT;
@@ -756,7 +756,7 @@ void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
           nse->event_done = 1;
           break;
         case NSOCK_READBYTES:
-          if (FILESPACE_LENGTH(&nse->iobuf) >= nse->readinfo.num) {
+          if (fs_length(&nse->iobuf) >= nse->readinfo.num) {
             nse->status = NSE_STATUS_SUCCESS;
             nse->event_done = 1;
           }
@@ -765,8 +765,8 @@ void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
         case NSOCK_READLINES:
           /* Lets count the number of lines we have ... */
           count = 0;
-          len = FILESPACE_LENGTH(&nse->iobuf) -1;
-          str = FILESPACE_STR(&nse->iobuf);
+          len = fs_length(&nse->iobuf) -1;
+          str = fs_str(&nse->iobuf);
           for (count=0; len >= 0; len--) {
             if (str[len] == '\n') {
               count++;
@@ -817,7 +817,7 @@ void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status) {
     nse->event_done = 1;
   } else if (status == NSE_STATUS_SUCCESS) {
     /* check if we already have something read */
-    if (FILESPACE_LENGTH(&(nse->iobuf)) == 0) {
+    if (fs_length(&(nse->iobuf)) == 0) {
       nse->status = NSE_STATUS_TIMEOUT;
       nse->event_done = 0;
     } else {
@@ -988,12 +988,12 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
 
         if (ev & EV_READ) {
           /* buffer empty? check it! */
-          if (FILESPACE_LENGTH(&(nse->iobuf)) == 0)
+          if (fs_length(&(nse->iobuf)) == 0)
             do_actual_pcap_read(nse);
         }
 
         /* if already received smth */
-        if (FILESPACE_LENGTH(&(nse->iobuf)) > 0)
+        if (fs_length(&(nse->iobuf)) > 0)
           handle_pcap_read_result(nsp, nse, NSE_STATUS_SUCCESS);
 
         if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))

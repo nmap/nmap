@@ -78,17 +78,31 @@ int filespace_init(struct filespace *fs, int initial_size) {
   return 0;
 }
 
-/* Prepend an n-char string to a filespace */
-int fs_prepend(char *str, int len, struct filespace *fs){
-  char *tmpstr;
+int fs_free(struct filespace *fs) {
+  if (fs->str)
+    free(fs->str);
 
+  fs->current_alloc = fs->current_size = 0;
+  fs->pos = fs->str = NULL;
+  return 0;
+}
+
+/* Concatenate a string to the end of a filespace */
+int fs_cat(struct filespace *fs, const char *str, int len) {
   if (len < 0)
     return -1;
 
   if (len == 0)
     return 0;
 
+  /*
+  printf("fscat: current_alloc=%d; current_size=%d; len=%d\n",
+         fs->current_alloc, fs->current_size, len);
+  */
+
   if (fs->current_alloc - fs->current_size < len + 2) {
+    char *tmpstr;
+
     fs->current_alloc = (int)(fs->current_alloc * 1.4 + 1);
     fs->current_alloc += 100 + len;
 
@@ -96,35 +110,16 @@ int fs_prepend(char *str, int len, struct filespace *fs){
     memcpy(tmpstr, fs->str, fs->current_size);
 
     fs->pos = (fs->pos - fs->str) + tmpstr;
+
     if (fs->str)
       free(fs->str);
 
     fs->str = tmpstr;
   }
-  if (fs->current_size > 0)
-    memmove(fs->str + len, fs->str, fs->current_size);
-  memcpy(fs->str, str, len);
+  memcpy(fs->str + fs->current_size, str, len);
 
   fs->current_size += len;
   fs->str[fs->current_size] = '\0';
-  return 0;
-}
-
-/* Used when you want to start over with a filespace you have been using (it
- * sets the length to zero and the pointers to the beginning of memory , etc */
-int fs_clear(struct filespace *fs) {
-  fs->current_size = 0;
-  fs->pos = fs->str;
-  fs->str[0] = '\0'; /* Not necessary, possible help with debugging */
-  return 0;
-}
-
-int fs_free(struct filespace *fs) {
-  if (fs->str)
-    free(fs->str);
-
-  fs->current_alloc = fs->current_size = 0;
-  fs->pos = fs->str = NULL;
   return 0;
 }
 

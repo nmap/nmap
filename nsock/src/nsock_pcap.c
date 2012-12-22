@@ -370,7 +370,7 @@ int do_actual_pcap_read(msevent *nse) {
   nsock_log_debug_all(nse->iod->nsp, "PCAP %s TEST (IOD #%li) (EID #%li)",
                       __func__, nse->iod->id, nse->id);
 
-  assert( FILESPACE_LENGTH(&(nse->iobuf)) == 0 );
+  assert(fs_length(&(nse->iobuf)) == 0);
 
   rc = pcap_next_ex(mp->pt, &pkt_header, &pkt_data);
   switch(rc) {
@@ -385,10 +385,10 @@ int do_actual_pcap_read(msevent *nse) {
       npp.caplen = pkt_header->caplen;
       npp.packet = pkt_data;
 
-      fscat(&(nse->iobuf), (char *)&npp, sizeof(npp));
-      fscat(&(nse->iobuf), (char *)pkt_data, npp.caplen);
-      n = (nsock_pcap *)FILESPACE_STR(&(nse->iobuf));
-      n->packet = (unsigned char *)FILESPACE_STR(&(nse->iobuf)) + sizeof(npp);
+      fs_cat(&(nse->iobuf), (char *)&npp, sizeof(npp));
+      fs_cat(&(nse->iobuf), (char *)pkt_data, npp.caplen);
+      n = (nsock_pcap *)fs_str(&(nse->iobuf));
+      n->packet = (unsigned char *)fs_str(&(nse->iobuf)) + sizeof(npp);
 
       nsock_log_debug_all(nse->iod->nsp, "PCAP %s READ (IOD #%li) (EID #%li) size=%i",
                           __func__, nse->iod->id, nse->id, pkt_header->caplen);
@@ -416,8 +416,8 @@ void nse_readpcap(nsock_event nsee, const unsigned char **l2_data, size_t *l2_le
   size_t l2l;
   size_t l3l;
 
-  nsock_pcap *n = (nsock_pcap *)FILESPACE_STR(&(nse->iobuf));
-  if (FILESPACE_LENGTH(&(nse->iobuf)) < sizeof(nsock_pcap)) {
+  nsock_pcap *n = (nsock_pcap *)fs_str(&(nse->iobuf));
+  if (fs_length(&(nse->iobuf)) < sizeof(nsock_pcap)) {
     if (l2_data)
       *l2_data = NULL;
     if (l2_len)

@@ -115,8 +115,8 @@ char *nse_readbuf(nsock_event nse, int *nbytes) {
   msevent *me = (msevent *)nse;
 
   if (nbytes)
-    *nbytes = FILESPACE_LENGTH(&(me->iobuf));
-  return FILESPACE_STR(&(me->iobuf));
+    *nbytes = fs_length(&(me->iobuf));
+  return fs_str(&(me->iobuf));
 }
 
 static void first_ev_next(msevent *nse, gh_list_elem **first) {

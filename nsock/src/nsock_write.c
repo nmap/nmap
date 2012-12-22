@@ -116,7 +116,7 @@ nsock_event_id nsock_sendto(nsock_pool ms_pool, nsock_iod ms_iod, nsock_ev_handl
   nsock_log_debug(nsp, "Sendto request for %d bytes to IOD #%li EID %li [%s]%s",
                   datalen, nsi->id, nse->id, get_peeraddr_string(nse->iod), displaystr);
 
-  fscat(&nse->iobuf, data, datalen);
+  fs_cat(&nse->iobuf, data, datalen);
 
   nsp_add_event(nsp, nse);
 
@@ -157,7 +157,7 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
       nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s",
                       datalen, nsi->id, nse->id, displaystr);
 
-  fscat(&nse->iobuf, data, datalen);
+  fs_cat(&nse->iobuf, data, datalen);
 
   nsp_add_event(nsp, nse);
 
@@ -209,7 +209,7 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
       nse->event_done = 1;
       nse->status = NSE_STATUS_SUCCESS;
     } else {
-      fscat(&nse->iobuf, buf2, strlength);
+      fs_cat(&nse->iobuf, buf2, strlength);
     }
   }
 
