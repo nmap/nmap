@@ -628,8 +628,8 @@ Port *PortList::nextPort(const Port *cur, Port *next,
 }
 
 /* Convert portno and protocol into the internal indices used to index
-   port_list. Returns false on error, true otherwise. */
-bool PortList::mapPort(u16 *portno, u8 *protocol) const {
+   port_list. */
+void PortList::mapPort(u16 *portno, u8 *protocol) const {
   int mapped_portno, mapped_protocol;
 
   mapped_protocol = INPROTO2PORTLISTPROTO(*protocol);
@@ -637,7 +637,6 @@ bool PortList::mapPort(u16 *portno, u8 *protocol) const {
   if (*protocol == IPPROTO_IP)
     assert(*portno < 256);
   if(port_map[mapped_protocol]==NULL || port_list[mapped_protocol]==NULL) {
-    assert(0);
     fatal("%s(%i,%i): you're trying to access uninitialized protocol", __func__, *portno, *protocol);
   }
   mapped_portno = port_map[mapped_protocol][*portno];
@@ -647,14 +646,10 @@ bool PortList::mapPort(u16 *portno, u8 *protocol) const {
 
   *portno = mapped_portno;
   *protocol = mapped_protocol;
-
-  return true;
 }
 
 const Port *PortList::lookupPort(u16 portno, u8 protocol) const {
-  if (!mapPort(&portno, &protocol))
-    return NULL;
-
+  mapPort(&portno, &protocol);
   return port_list[protocol][portno];
 }
 
@@ -666,8 +661,7 @@ Port *PortList::createPort(u16 portno, u8 protocol) {
 
   mapped_portno = portno;
   mapped_protocol = protocol;
-  if (!mapPort(&mapped_portno, &mapped_protocol))
-    return NULL;
+  mapPort(&mapped_portno, &mapped_protocol);
 
   p = port_list[mapped_protocol][mapped_portno];
   if (p == NULL) {
@@ -687,8 +681,7 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
 
   log_write(LOG_PLAIN, "Removed %d\n", portno);
 
-  if (!mapPort(&portno, &protocol))
-    return -1;
+  mapPort(&portno, &protocol);
 
   answer = port_list[protocol][portno];
   if (answer == NULL)

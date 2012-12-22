@@ -289,7 +289,7 @@ class PortList {
   bool hasOpenPorts() const;
 
  private:
-  bool mapPort(u16 *portno, u8 *protocol) const;
+  void mapPort(u16 *portno, u8 *protocol) const;
   /* Get Port structure from PortList structure.*/
   const Port *lookupPort(u16 portno, u8 protocol) const;
   Port *createPort(u16 portno, u8 protocol);
