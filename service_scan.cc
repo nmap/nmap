@@ -190,7 +190,7 @@ public:
   // Number of milliseconds left to complete the present probe, or 0 if
   // the probe is already expired.  Timeval can omitted, it is just there 
   // as an optimization in case you have it handy.
-  int currentprobe_timemsleft(const struct timeval *now = NULL);
+  int probe_timemsleft(const ServiceProbe *probe, const struct timeval *now = NULL);
   enum serviceprobestate probe_state; // defined in portlist.h
   nsock_iod niod; // The IO Descriptor being used in this probe (or NULL)
   u16 portno; // in host byte order
@@ -1785,7 +1785,7 @@ void ServiceNFO::resetProbes(bool freefp) {
 }
 
 
-int ServiceNFO::currentprobe_timemsleft(const struct timeval *now) {
+int ServiceNFO::probe_timemsleft(const ServiceProbe *probe, const struct timeval *now) {
   int timeused, timeleft;
 
   if (now)
@@ -1796,7 +1796,11 @@ int ServiceNFO::currentprobe_timemsleft(const struct timeval *now) {
     timeused = TIMEVAL_MSEC_SUBTRACT(tv, currentprobe_exec_time);
   }
 
-  timeleft = currentProbe()->totalwaitms - timeused;
+  // Historically this function was always called with the assumption that
+  // probe == currentProbe(). Check that this remains the case.
+  assert(probe == currentProbe());
+
+  timeleft = probe->totalwaitms - timeused;
   return (timeleft < 0)? 0 : timeleft;
 }
 
@@ -1927,7 +1931,7 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
     probestring = probe->getProbeString(&probestringlen);
     assert(probestringlen > 0);
     // Now we write the string to the IOD
-    nsock_write(nsp, nsi, servicescan_write_handler, svc->currentprobe_timemsleft(), svc,
+    nsock_write(nsp, nsi, servicescan_write_handler, svc->probe_timemsleft(probe), svc,
 		(const char *) probestring, probestringlen);
     return 0;
   }
@@ -1953,7 +1957,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
       svc->currentprobe_exec_time = *nsock_gettimeofday();
       send_probe_text(nsp, nsi, svc, probe);
       nsock_read(nsp, nsi, servicescan_read_handler, 
-		 svc->currentprobe_timemsleft(nsock_gettimeofday()), svc);
+		 svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
     } else {
       // Should only happen if someone has a highly perverse nmap-service-probes
       // file.  Null scan should generally never be the only probe.
@@ -2002,7 +2006,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 	send_probe_text(nsp, nsi, svc, probe);
 	// Now let us read any results
 	nsock_read(nsp, nsi, servicescan_read_handler, 
-		   svc->currentprobe_timemsleft(nsock_gettimeofday()), svc);
+		   svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
       }
     } else {
       // No more probes remaining!  Failed to match
@@ -2248,7 +2252,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
     svc->currentprobe_exec_time = *nsock_gettimeofday();
     send_probe_text(nsp, nsi, svc, probe);
     // Now let us read any results
-    nsock_read(nsp, nsi, servicescan_read_handler, svc->currentprobe_timemsleft(nsock_gettimeofday()), svc);
+    nsock_read(nsp, nsi, servicescan_read_handler, svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
   } else if (status == NSE_STATUS_TIMEOUT || status == NSE_STATUS_ERROR) {
       // This is not good.  The connect() really shouldn't generally
       // be timing out like that.  We'll mark this svc as incomplete
@@ -2408,13 +2412,12 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // to timeout.  For now I'll limit it to 4096 bytes just to
       // avoid reading megs from services like chargen.  But better
       // approach is needed.
-      if (svc->currentprobe_timemsleft() > 0 && readstrlen < 4096) { 
-	nsock_read(nsp, nsi, servicescan_read_handler, svc->currentprobe_timemsleft(), svc);
+      if (svc->probe_timemsleft(probe) > 0 && readstrlen < 4096) { 
+	nsock_read(nsp, nsi, servicescan_read_handler, svc->probe_timemsleft(probe), svc);
       } else {
 	// Failed -- lets go to the next probe.
 	if (readstrlen > 0)
-	  svc->addToServiceFingerprint(svc->currentProbe()->getName(), readstr, 
-				       readstrlen);
+	  svc->addToServiceFingerprint(probe->getName(), readstr, readstrlen);
 	startNextProbe(nsp, nsi, SG, svc, false);
       }
     }
