@@ -292,6 +292,7 @@ static int ncat_listen_stream(int proto)
                 FD_CLR(i, &master_readfds);
                 FD_CLR(i, &master_writefds);
                 fdi = get_fdinfo(&client_fdlist, i);
+                ncat_assert(fdi != NULL);
                 switch (ssl_handshake(fdi)) {
                 case NCAT_SSL_HANDSHAKE_COMPLETED:
                     /* Clear from sslpending_fds once ssl is established */
@@ -534,7 +535,7 @@ int read_socket(int recv_fd)
     int nbytes, pending;
 
     fdn = get_fdinfo(&client_fdlist, recv_fd);
-    assert(fdn != NULL);
+    ncat_assert(fdn != NULL);
 
     nbytes = 0;
     do {
@@ -837,7 +838,7 @@ static void read_and_broadcast(int recv_fd)
     int pending;
 
     fdn = get_fdinfo(&client_fdlist, recv_fd);
-    assert(fdn);
+    ncat_assert(fdn != NULL);
 
     /* Loop while ncat_recv indicates data is pending. */
     do {
@@ -942,6 +943,7 @@ static void shutdown_sockets(int how)
             continue;
 
         fdn = get_fdinfo(&broadcast_fdlist, i);
+        ncat_assert(fdn != NULL);
         shutdown(fdn->fd, how);
     }
 }

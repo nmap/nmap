@@ -363,6 +363,7 @@ int ncat_broadcast(fd_set *fds, const fd_list_t *fdlist, const char *msg, size_t
             continue;
 
         fdn = get_fdinfo(fdlist, i);
+        ncat_assert(fdn != NULL);
         if (blocking_fdinfo_send(fdn, msg, size) <= 0) {
             if (o.debug > 1)
                 logdebug("Error sending to fd %d: %s.\n", i, socket_strerror(socket_errno()));
