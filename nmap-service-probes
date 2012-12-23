@@ -2982,8 +2982,8 @@ match synchroedit m|^SynchroEdit ([\d.]+) running on ([\w._-]+)\n$| p/SynchroEdi
 
 match sysinfo m|^\* OK SSP MagniComp SysInfo Server ([\w._-]+)\n$| p/MagniComp SysInfo asset management/ v/$1/
 
-match teamspeak m|^TS3\n\r$| p/TeamSpeak voice communication/ v/3/
-match teamspeak m|^TS3\n\rWelcome to the TeamSpeak 3 ServerQuery interface, type \"help\" for a list of commands and \"help <command>\" for information on a specific command\.\n\r$| p/TeamSpeak voice communication/ v/3/
+match teamspeak-serverquery m|^TS3\n\rWelcome to the TeamSpeak 3 ServerQuery interface, type \"help\" for a list of commands and \"help <command>\" for information on a specific command\.\n\r$| p/TeamSpeak 3 ServerQuery/
+match teamspeak-serverquery m|^TS3\n\r| p/TeamSpeak 3 ServerQuery/
 
 match teamviewer m|^\x17\x24\x0a\x20\x00....\x08\x13\x80\0\0\0\0\0\x01\0\0\0\x11\x80\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/TeamViewer/
 match teamviewer m|^\x17\x24\x0a\x20\x00....\x88\x13\x80\0\0\0\0\0\x01\0\0\0\x11\x80\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/TeamViewer/ v/5/
@@ -3011,6 +3011,9 @@ match systat m|^  PID  PGRP SID PRI STATE   BLK  SIZE COMMAND\n| p/QNX systat/ o
 match tcpwrapped m|^You are not welcome to use (\w+) from [\w._-]+\.\n$| p/BSD TCP Wrappers/ i/$1/
 
 match tdm m|^\x01\0\0\0\x03$| p/Turbine Download Manager/
+
+# TeamSpeak 2 "TCPQuery" port.
+match teamspeak-tcpquery m|^\[TS\]\r\n| p/TeamSpeak 2 TCPQuery/
 
 match teamtalk m|^welcome userid=\d+ servername=\"([^"]+)\" motd=\"\" forwarding=\d+ channels=\d+ operators=\d+ maxusers=\d+ protocol=\"([\w._-]+)\"\r\n| p/Bearware TeamTalk/ i/Server Name $1; protocol $2/
 match teamtalk m|^welcome userid=\d+ servername=\"([^"]+)\" userrights=\d+ maxusers=\d+ usertimeout=\d+ protocol=\"([\w._-]+)\"\r\n| p/Bearware TeamTalk/ i/Server Name $1; protocol $2/
@@ -3282,7 +3285,6 @@ match telnet m|^\xff\xfb\x01\xff\xfe\x01\xff\xfd\x03\xff\xfb\x03\x1b\[0;1H\x1b\[
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n                 Welcome to Quidway A8010 Expert Multiservice Access Switch\r\n| p/Huawei Quidway A8010 remote access telnetd/ d/remote management/
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[0m\x1b\[2J\x1b\[0m\x1b\[2J\x1b\[1;1H\x1b\[0m-.*Enter case-sensitive username\. No username is assigned by default\.|s p/Intel 460T Standalone switch telnetd/ d/switch/
 match telnet m|^\r\nEfficient 5851 SDSL \[ATM\] Router \(5851-\d+\) v([-\d.]+) Ready\r\n\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfe\x01Login: | p/Efficient 5851 DSL router telnetd/ v/$1/ d/router/
-match telnet m|^\[TS\]\r\n$| p/Teamspeak VoIP Information telnetd/
 match telnet m|^\xff\xfb\x01\r\n\r\*+\n\r\r\* Copyright \(c\) \d+ Nortel Networks, Inc\.  \*\n\r\r\* All Rights Reserved +\*\n\r\r\* Passport 8010 +\*\n\r\r\* Software Release ([\d.]+) | p/Nortel Passport 8010 router telnetd/ v/$1/ d/router/
 match telnet m|^Rapture Runtime Environment v([\d.]+) -- \(c\) \d+ -- Iron Realms Entertainment\r\n| p/Rapture-based MUD telnetd/ v/$1/
 match telnet m|^NPC Telnet permit one connection\.\r\n But One connection\(\) already keep alive\.\r\nGood Bye !! \r\n| p/Samsung printer telnetd/ d/printer/
