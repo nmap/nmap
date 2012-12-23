@@ -1177,9 +1177,8 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def _start_status(self, name, attrs):
         assert self.parent_element() == u"host"
         assert self.current_host is not None
-        try:
-            state = attrs[u"state"]
-        except KeyError:
+        state = attrs.get(u"state")
+        if state is None:
             warn(u"%s element of host %s is missing the \"state\" attribute; assuming \"unknown\"." % (name, self.current_host.format_name()))
             return
         self.current_host.state = state
@@ -1187,9 +1186,8 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def _start_address(self, name, attrs):
         assert self.parent_element() == u"host"
         assert self.current_host is not None
-        try:
-            addr = attrs[u"addr"]
-        except KeyError:
+        addr = attrs.get(u"addr")
+        if addr is None:
             warn(u"%s element of host %s is missing the \"addr\" attribute; skipping." % (name, self.current_host.format_name()))
             return
         addrtype = attrs.get(u"addrtype", u"ipv4")
@@ -1198,9 +1196,8 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def _start_hostname(self, name, attrs):
         assert self.parent_element() == u"hostnames"
         assert self.current_host is not None
-        try:
-            hostname = attrs[u"name"]
-        except KeyError:
+        hostname = attrs.get(u"name")
+        if hostname is None:
             warn(u"%s element of host %s is missing the \"name\" attribute; skipping." % (name, self.current_host.format_name()))
             return
         self.current_host.add_hostname(hostname)
@@ -1208,29 +1205,30 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
     def _start_extraports(self, name, attrs):
         assert self.parent_element() == u"ports"
         assert self.current_host is not None
-        try:
-            state = attrs[u"state"]
-        except KeyError:
+        state = attrs.get(u"state")
+        if state is None:
             warn(u"%s element of host %s is missing the \"state\" attribute; assuming \"unknown\"." % (name, self.current_host.format_name()))
             state = None
         if state in self.current_host.extraports:
             warn(u"Duplicate extraports state \"%s\" in host %s." % (state, self.current_host.format_name()))
-        try:
-            count = int(attrs[u"count"])
-        except KeyError:
+
+        count = attrs.get(u"count")
+        if count is None:
             warn(u"%s element of host %s is missing the \"count\" attribute; assuming 0." % (name, self.current_host.format_name()))
             count = 0
-        except ValueError:
-            warn(u"Can't convert extraports count \"%s\" to an integer in host %s; assuming 0." % (attrs[u"count"], self.current_host.format_name()))
-            count = 0
+        else:
+            try:
+              count = int(count)
+            except ValueError:
+                warn(u"Can't convert extraports count \"%s\" to an integer in host %s; assuming 0." % (attrs[u"count"], self.current_host.format_name()))
+                count = 0
         self.current_host.extraports[state] = count
 
     def _start_port(self, name, attrs):
         assert self.parent_element() == u"ports"
         assert self.current_host is not None
-        try:
-            portid_str = attrs[u"portid"]
-        except KeyError:
+        portid_str = attrs.get(u"portid")
+        if portid_str is None:
             warn(u"%s element of host %s missing the \"portid\" attribute; skipping." % (name, self.current_host.format_name()))
             return
         try:
@@ -1238,9 +1236,8 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         except ValueError:
             warn(u"Can't convert portid \"%s\" to an integer in host %s; skipping port." % (portid_str, self.current_host.format_name()))
             return
-        try:
-            protocol = attrs[u"protocol"]
-        except KeyError:
+        protocol = attrs.get(u"protocol")
+        if protocol is None:
             warn(u"%s element of host %s missing the \"protocol\" attribute; skipping." % (name, self.current_host.format_name()))
             return
         self.current_port = Port((portid, protocol))
@@ -1269,14 +1266,13 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
 
     def _start_script(self, name, attrs):
         result = ScriptResult()
-        try:
-            result.id = attrs[u"id"]
-        except KeyError:
+        result.id = attrs.get(u"id")
+        if result.id is None:
             warn(u"%s element missing the \"id\" attribute; skipping." % name)
             return
-        try:
-            result.output = attrs[u"output"]
-        except KeyError:
+
+        result.output = attrs.get(u"output")
+        if result.output is None:
             warn(u"%s element missing the \"output\" attribute; skipping." % name)
             return
         if self.parent_element() == u"prescript":
