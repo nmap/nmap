@@ -84,8 +84,8 @@
 
 #ifndef SUN_LEN
 #include <string.h>
-# define SUN_LEN(ptr) (sizeof(*(ptr)) - sizeof((ptr)->sun_path))     \
-                      + strlen ((ptr)->sun_path))
+#define SUN_LEN(ptr) ((sizeof(*(ptr)) - sizeof((ptr)->sun_path))    \
+                      + strlen((ptr)->sun_path))
 #endif
 #endif  /* HAVE_SYS_UN_H */
 
