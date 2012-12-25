@@ -64,7 +64,7 @@ USE_NLS = @USE_NLS@
 # A space-separated list of language codes supported (for man page
 # installation). The user can install a subset of these with the LINGUAS
 # environment variable or none of them with --disable-nls.
-ALL_LINGUAS = de es fr hr hu it jp pl pt_BR pt_PT ro ru sk zh
+ALL_LINGUAS = de es fr hr hu it ja pl pt_BR pt_PT ro ru sk zh
 # A space-separated list of language codes requested by the user.
 LINGUAS ?= $(ALL_LINGUAS)
 

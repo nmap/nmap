@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Moved the Japanese man page from man1/jp to man1/ja. jp is a country
+  code while ja is a language code. Reported by Christian Neukirchen.
+
 o [NSE] Added mysql-enum script which enumerates valid mysql server
   usernames [Aleksandar Nikolic]
 
