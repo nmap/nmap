@@ -13,7 +13,8 @@ increased indentation.
 The NSEC response record in DNSSEC is used to give negative answers to
 queries, but it has the side effect of allowing enumeration of all
 names, much like a zone transfer. This script doesn't work against
-servers that use NSEC3 rather than NSEC.
+servers that use NSEC3 rather than NSEC; for that, see
+<code>dns-nsec3-enum</code>.
 ]]
 
 ---

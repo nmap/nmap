@@ -44,6 +44,9 @@ k7i4ekvi22ebrim5b6celtaniknd6ilj vulpix.example.com.
 found 2 private NSEC3 names (25%) using 35017190 hash computations
 </code>
 
+Use the <code>dns-nsec-enum</code> script to handle servers that use NSEC
+rather than NSEC3.
+
 References:
 * http://dnscurve.org/nsec3walker.html
 ]]
