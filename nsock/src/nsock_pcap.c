@@ -140,7 +140,7 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
 
   failed = 0;
   do {
-    mp->pt = pcap_open_live((char* )pcap_device, snaplen, promisc, to_ms, err0r);
+    mp->pt = pcap_open_live((char *)pcap_device, snaplen, promisc, to_ms, err0r);
     if (mp->pt)  /* okay, opened!*/
       break;
 

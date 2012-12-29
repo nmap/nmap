@@ -464,7 +464,7 @@ int nsi_getlastcommunicationinfo(nsock_iod ms_iod, int *protocol, int *af, struc
           memset(local, 0, socklen);
           ret = 0;
         } else {
-          assert(slen > 0 );
+          assert(slen > 0);
           memcpy(local, &sock, MIN((unsigned)slen, socklen));
         }
       } else {

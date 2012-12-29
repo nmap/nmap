@@ -178,7 +178,7 @@ void update_first_events(msevent *nse) {
  * it is the one which created it), in which case 0 can be passed to skip the
  * step.  This function returns zero if the event is not found, nonzero
  * otherwise. */
-int nsock_event_cancel(nsock_pool ms_pool, nsock_event_id id, int notify ) {
+int nsock_event_cancel(nsock_pool ms_pool, nsock_event_id id, int notify) {
   mspool *nsp = (mspool *)ms_pool;
   enum nse_type type;
   gh_list *event_list = NULL, *event_list2 = NULL;
@@ -371,8 +371,8 @@ nsock_event_id get_new_event_id(mspool *ms, enum nse_type type) {
   assert(type < NSE_TYPE_MAX);
 
   shiftbits = sizeof(nsock_event_id) * 8 - TYPE_CODE_NUM_BITS;
-  max_serial_allowed = ( 1 << shiftbits ) - 1;
-  if (serial == max_serial_allowed ) {
+  max_serial_allowed = (1 << shiftbits) - 1;
+  if (serial == max_serial_allowed) {
     /* then the next serial will be one because 0 is forbidden */
     ms->next_event_serial = 1;
   }

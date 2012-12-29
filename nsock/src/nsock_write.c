@@ -166,7 +166,7 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
 
 /* Same as nsock_write except you can use a printf-style format and you can only use this for ASCII strings */
 nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
-          nsock_ev_handler handler, int timeout_msecs, void *userdata, char *format, ... ) {
+          nsock_ev_handler handler, int timeout_msecs, void *userdata, char *format, ...) {
   mspool *nsp = (mspool *)ms_pool;
   msiod *nsi = (msiod *)ms_iod;
   msevent *nse;
