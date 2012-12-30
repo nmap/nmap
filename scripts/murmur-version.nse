@@ -40,12 +40,7 @@ author = "Marin Maržić"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "version" }
 
-portrule = function(host, port)
-    return (port.service == nil or port.service == "" or
-            port.service == "unknown")
-        and (port.state == "open" or port.state == "open|filtered")
-        and not shortport.port_is_excluded(port.number, "udp")
-end
+portrule = shortport.version_port_or_service({64738, 64739, 64740, 64741, 64742}, "murmur", "udp")
 
 action = function(host, port)
     local status, result = comm.exchange(
