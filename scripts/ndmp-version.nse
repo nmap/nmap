@@ -24,7 +24,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 
-portrule = shortport.port_or_service(10000, "ndmp", "tcp")
+portrule = shortport.version_port_or_service(10000, "ndmp", "tcp")
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 

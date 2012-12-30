@@ -42,7 +42,7 @@ categories = {"default", "version", "discovery", "vuln"}
 -- Metasploit scanner module
 -- http://www.metasploit.com/redmine/projects/framework/repository/entry/lib/msf/core/exploit/wdbrpc.rb
 
-portrule = shortport.port_or_service(17185, "wdbrpc", {"udp"} )
+portrule = shortport.version_port_or_service(17185, "wdbrpc", {"udp"} )
 
 rpc.RPC_version["wdb"] = { min=1, max=1 }
 

@@ -31,7 +31,7 @@ author = "David Fifield"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 
-portrule = shortport.port_or_service({8899})
+portrule = shortport.version_port_or_service({8899})
 
 local function set_port_version(host, port, version, server)
 	port.version.name = "ovs-agent"

@@ -18,7 +18,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 
-portrule = shortport.port_or_service(3478, "stun", "udp")
+portrule = shortport.version_port_or_service(3478, "stun", "udp")
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
