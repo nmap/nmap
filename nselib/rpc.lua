@@ -187,11 +187,15 @@ Comm = {
             local resvport = math.random(1, 1024)
             socket = nmap.new_socket("udp")
             status, err = socket:bind(nil, resvport)
-            if status then break end
-            socket:close()
+            if status then
+              status, err = socket:connect(host, port)
+              if status or err == "TIMEOUT" then break end
+              socket:close()
+            end
           end
         else
           socket = nmap.new_socket("udp")
+          status, err = socket:connect(host, port)
         end
       end
       if (not(status)) then
