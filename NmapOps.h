@@ -337,7 +337,6 @@ class NmapOps {
   bool adler32;
   FILE *excludefd;
   char *exclude_spec;
-  int quashargv;
   FILE *inputfd;
   char *portlist; /* Ports list specified by user */
 

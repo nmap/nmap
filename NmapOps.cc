@@ -343,7 +343,6 @@ void NmapOps::Initialize() {
   sourcesocklen = 0;
   excludefd = NULL;
   exclude_spec = NULL;
-  quashargv = 0;
   inputfd = NULL;
   idleProxy = NULL;
   portlist = NULL;

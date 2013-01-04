@@ -1178,9 +1178,6 @@ void parse_options(int argc, char **argv) {
         fatal("Only 1 -p option allowed, separate multiple ranges with commas.");
       o.portlist = strdup(optarg);
       break;
-    case 'q':
-      o.quashargv++;
-      break;
     case 'R':
       o.resolve_all++;
       break;
@@ -1658,17 +1655,6 @@ int nmap_main(int argc, char *argv[]) {
   if (delayed_options.iflist) {
     print_iflist();
     exit(0);
-  }
-
-  /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
-  if (o.quashargv) {
-    size_t fakeargvlen = strlen(FAKE_ARGV), argvlen = strlen(argv[0]);
-    if (argvlen < fakeargvlen)
-      fatal("If you want me to fake your argv, you need to call the program with a longer name.  Try the full pathname, or rename it fyodorssuperdedouperportscanner");
-    strncpy(argv[0], FAKE_ARGV, fakeargvlen);
-    memset(&argv[0][fakeargvlen], '\0', strlen(&argv[0][fakeargvlen]));
-    for (i = 1; i < argc; i++)
-      memset(argv[i], '\0', strlen(argv[i]));
   }
 
   /* If he wants to bounce off of an FTP site, that site better damn well be reachable! */

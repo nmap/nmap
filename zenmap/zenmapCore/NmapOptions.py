@@ -1321,7 +1321,6 @@ class NmapOptionsTest(unittest.TestCase):
         # The following options are present in the Nmap source but are not
         # tested for because they are deprecated or not document or whatever.
         # "-I",
-        # "-q",
         # "--noninteractive",
         # "--thc",
         # "--nogcc",

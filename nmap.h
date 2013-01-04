@@ -246,7 +246,6 @@ void *realloc();
    sockets.  Can also adjust with the -M command line option.  */
 #define MAX_SOCKETS 36 
 
-#define FAKE_ARGV "pine" /* What ps and w should show if you use -q */
 /* How do we want to log into ftp sites for */ 
 #define FTPUSER "anonymous"
 #define FTPPASS "-wwwuser@"

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed the undocumented -q option, which renamed the nmap process
+  to something like "pine".
+
 o Moved the Japanese man page from man1/jp to man1/ja. jp is a country
   code while ja is a language code. Reported by Christian Neukirchen.
 
