@@ -95,7 +95,6 @@
 #include "nsock.h"
 #include "ncat.h"
 
-#include <assert.h>
 #include <stdio.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -160,7 +159,7 @@ SSL_CTX *setup_ssl_listen(void)
         if (ssl_gen_cert(&cert, &key) == 0)
             bye("ssl_gen_cert(): %s.", ERR_error_string(ERR_get_error(), NULL));
         if (o.verbose) {
-            assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
+            ncat_assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
             loguser("SHA-1 fingerprint: %s\n", digest_buf);
         }
         if (SSL_CTX_use_certificate(sslctx, cert) != 1)
@@ -562,7 +561,7 @@ char *ssl_cert_fp_str_sha1(const X509 *cert, char *strbuf, size_t len)
         Snprintf(p, 3, "%02X", binbuf[i]);
         p += 2;
     }
-    assert(p - strbuf <= len);
+    ncat_assert(p - strbuf <= len);
     *p = '\0';
 
     return strbuf;

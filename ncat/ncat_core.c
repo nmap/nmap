@@ -107,7 +107,6 @@
 #include <fcntl.h>
 #include <ctype.h>
 #include <time.h>
-#include <assert.h>
 
 /* Only two for now because we might have to listen on IPV4 and IPV6 */
 union sockaddr_u listenaddrs[NUM_LISTEN_ADDRS];
@@ -191,9 +190,9 @@ static int resolve_internal(const char *hostname, unsigned short port,
     char portbuf[16];
     int rc;
 
-    assert(hostname);
-    assert(ss);
-    assert(sslen);
+    ncat_assert(hostname != NULL);
+    ncat_assert(ss != NULL);
+    ncat_assert(sslen != NULL);
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = af;
@@ -202,14 +201,14 @@ static int resolve_internal(const char *hostname, unsigned short port,
 
     /* Make the port number a string to give to getaddrinfo. */
     rc = Snprintf(portbuf, sizeof(portbuf), "%hu", port);
-    assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
+    ncat_assert(rc >= 0 && (size_t) rc < sizeof(portbuf));
 
     rc = getaddrinfo(hostname, portbuf, &hints, &result);
     if (rc != 0)
         return rc;
     if (result == NULL)
         return EAI_NONAME;
-    assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
+    ncat_assert(result->ai_addrlen > 0 && result->ai_addrlen <= (int) sizeof(struct sockaddr_storage));
     *sslen = result->ai_addrlen;
     memcpy(ss, result->ai_addr, *sslen);
     freeaddrinfo(result);

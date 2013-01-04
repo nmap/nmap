@@ -91,7 +91,6 @@
 
 #include "ncat.h"
 
-#include <assert.h>
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
@@ -183,7 +182,7 @@ static int get_conn_count(void)
         conn_dec_changed = 0;
         count = conn_inc - conn_dec;
     } while (conn_dec_changed);
-    assert(count <= INT_MAX);
+    ncat_assert(count <= INT_MAX);
 
     return count;
 }

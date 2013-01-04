@@ -102,7 +102,6 @@
 #include <unistd.h>
 #include <netdb.h>
 #endif
-#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -164,7 +163,7 @@ static int verify_callback(int ok, X509_STORE_CTX *store)
         X509_NAME_print_ex_fp(stderr, X509_get_issuer_name(cert), 0, XN_FLAG_COMPAT);
         loguser_noprefix("\n");
 
-        assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
+        ncat_assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
         loguser("SHA-1 fingerprint: %s\n", digest_buf);
     }
 
@@ -227,7 +226,7 @@ static void connect_report(nsock_iod nsi)
             loguser("SSL connection to %s:%hu.", inet_socktop(&peer), nsi_peerport(nsi));
 
             cert = SSL_get_peer_certificate((SSL *) nsi_getssl(nsi));
-            assert(cert != NULL);
+            ncat_assert(cert != NULL);
 
             subject = X509_get_subject_name(cert);
             if (subject != NULL) {
@@ -241,7 +240,7 @@ static void connect_report(nsock_iod nsi)
 
             loguser_noprefix("\n");
 
-            assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
+            ncat_assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
             loguser("SHA-1 fingerprint: %s\n", digest_buf);
         } else {
 #if HAVE_SYS_UN_H
@@ -706,7 +705,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
 
-    assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
+    ncat_assert(type == NSE_TYPE_CONNECT || type == NSE_TYPE_CONNECT_SSL);
 
     if (status == NSE_STATUS_ERROR) {
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
@@ -715,7 +714,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data)
         loguser("%s.\n", socket_strerror(ETIMEDOUT));
         exit(1);
     } else {
-        assert(status == NSE_STATUS_SUCCESS);
+        ncat_assert(status == NSE_STATUS_SUCCESS);
     }
 
 #ifdef HAVE_OPENSSL
@@ -779,7 +778,7 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
     char *buf, *tmp = NULL;
     int nbytes;
 
-    assert(type == NSE_TYPE_READ);
+    ncat_assert(type == NSE_TYPE_READ);
 
     if (status == NSE_STATUS_EOF) {
         if (o.sendonly) {
@@ -798,7 +797,7 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
     } else {
-        assert(status == NSE_STATUS_SUCCESS);
+        ncat_assert(status == NSE_STATUS_SUCCESS);
     }
 
     buf = nse_readbuf(evt, &nbytes);
@@ -828,7 +827,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     char *buf;
     int nbytes;
 
-    assert(type == NSE_TYPE_READ);
+    ncat_assert(type == NSE_TYPE_READ);
 
     if (status == NSE_STATUS_EOF) {
         nsock_loop_quit(nsp);
@@ -842,7 +841,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
     } else {
-        assert(status == NSE_STATUS_SUCCESS);
+        ncat_assert(status == NSE_STATUS_SUCCESS);
     }
 
     buf = nse_readbuf(evt, &nbytes);
@@ -867,7 +866,7 @@ static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
 
-    assert(type == NSE_TYPE_WRITE);
+    ncat_assert(type == NSE_TYPE_WRITE);
 
     if (status == NSE_STATUS_ERROR) {
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
@@ -878,7 +877,7 @@ static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
         return;
     } else {
-        assert(status == NSE_STATUS_SUCCESS);
+        ncat_assert(status == NSE_STATUS_SUCCESS);
     }
 
     /* The write to the socket was successful. Allow reading more from stdin
@@ -891,12 +890,12 @@ static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data)
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
 
-    assert(type == NSE_TYPE_TIMER);
+    ncat_assert(type == NSE_TYPE_TIMER);
 
     if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL)
         return;
 
-    assert(status == NSE_STATUS_SUCCESS);
+    ncat_assert(status == NSE_STATUS_SUCCESS);
 
     loguser("Idle timeout expired (%d ms).\n", o.idletimeout);
 

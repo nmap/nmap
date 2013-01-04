@@ -95,7 +95,6 @@
 #include "nbase.h"
 #include "sockaddr_u.h"
 
-#include <assert.h>
 #include <stdio.h>
 #ifdef WIN32
 #include <iphlpapi.h>
@@ -212,7 +211,7 @@ void zmem(void *mem, size_t n)
    buffer and updates the variables to make room if necessary. */
 int strbuf_append(char **buf, size_t *size, size_t *offset, const char *s, size_t n)
 {
-    assert(*offset <= *size);
+    ncat_assert(*offset <= *size);
 
     if (n >= *size - *offset) {
         *size += n + 1;
@@ -239,7 +238,7 @@ int strbuf_sprintf(char **buf, size_t *size, size_t *offset, const char *fmt, ..
     va_list va;
     int n;
 
-    assert(*offset <= *size);
+    ncat_assert(*offset <= *size);
 
     if (*buf == NULL) {
         *size = 1;

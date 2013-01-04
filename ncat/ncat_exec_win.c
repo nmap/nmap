@@ -89,8 +89,6 @@
 
 /* $Id$ */
 
-#include <assert.h>
-
 #include "ncat.h"
 
 /* This structure holds information about a subprocess with redirected input
@@ -186,11 +184,11 @@ extern void set_pseudo_sigchld_handler(void (*handler)(void))
 {
     if (pseudo_sigchld_mutex == NULL) {
         pseudo_sigchld_mutex = CreateMutex(NULL, FALSE, NULL);
-        assert(pseudo_sigchld_mutex != NULL);
+        ncat_assert(pseudo_sigchld_mutex != NULL);
     }
-    assert(WaitForSingleObject(pseudo_sigchld_mutex, INFINITE) == WAIT_OBJECT_0);
+    ncat_assert(WaitForSingleObject(pseudo_sigchld_mutex, INFINITE) == WAIT_OBJECT_0);
     pseudo_sigchld_handler = handler;
-    assert(ReleaseMutex(pseudo_sigchld_mutex) != 0);
+    ncat_assert(ReleaseMutex(pseudo_sigchld_mutex) != 0);
 }
 
 /* Run a command and redirect its input and output handles to a pair of
@@ -450,7 +448,7 @@ loop_end:
 
     WSACloseEvent(events[0]);
 
-    assert(unregister_subprocess(info->proc) != -1);
+    ncat_assert(unregister_subprocess(info->proc) != -1);
 
     GetExitCodeProcess(info->proc, &ret);
     if (ret == STILL_ACTIVE) {
@@ -472,10 +470,10 @@ loop_end:
     subprocess_info_close(info);
     free(info);
 
-    assert(WaitForSingleObject(pseudo_sigchld_mutex, INFINITE) == WAIT_OBJECT_0);
+    ncat_assert(WaitForSingleObject(pseudo_sigchld_mutex, INFINITE) == WAIT_OBJECT_0);
     if (pseudo_sigchld_handler != NULL)
         pseudo_sigchld_handler();
-    assert(ReleaseMutex(pseudo_sigchld_mutex) != 0);
+    ncat_assert(ReleaseMutex(pseudo_sigchld_mutex) != 0);
 
     return ret;
 }
@@ -488,7 +486,7 @@ static int get_subprocess_slot(void)
 {
     int i, free_index, max_index;
 
-    assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
 
     free_index = -1;
     max_index = 0;
@@ -508,7 +506,7 @@ static int get_subprocess_slot(void)
         free_index = max_index++;
     subprocess_max_index = max_index;
 
-    assert(ReleaseMutex(subprocesses_mutex) != 0);
+    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
 
     return free_index;
 }
@@ -523,14 +521,14 @@ static int register_subprocess(HANDLE proc)
 
     if (subprocesses_mutex == NULL) {
         subprocesses_mutex = CreateMutex(NULL, FALSE, NULL);
-        assert(subprocesses_mutex != NULL);
+        ncat_assert(subprocesses_mutex != NULL);
     }
     if (pseudo_sigchld_mutex == NULL) {
         pseudo_sigchld_mutex = CreateMutex(NULL, FALSE, NULL);
-        assert(pseudo_sigchld_mutex != NULL);
+        ncat_assert(pseudo_sigchld_mutex != NULL);
     }
 
-    assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
 
     i = get_subprocess_slot();
     if (i == -1) {
@@ -551,7 +549,7 @@ static int register_subprocess(HANDLE proc)
         }
     }
 
-    assert(ReleaseMutex(subprocesses_mutex) != 0);
+    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
 
     return i;
 }
@@ -562,7 +560,7 @@ static int unregister_subprocess(HANDLE proc)
 {
     int i;
 
-    assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
 
     for (i = 0; i < subprocess_max_index; i++) {
         if (proc == subprocesses[i])
@@ -576,7 +574,7 @@ static int unregister_subprocess(HANDLE proc)
         i = -1;
     }
 
-    assert(ReleaseMutex(subprocesses_mutex) != 0);
+    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
 
     return i;
 }
@@ -588,7 +586,7 @@ static void terminate_subprocesses(void)
     if (o.debug)
         logdebug("Terminating subprocesses\n");
 
-    assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
 
     if (o.debug > 1)
         logdebug("max_index %d\n", subprocess_max_index);
@@ -607,7 +605,7 @@ static void terminate_subprocesses(void)
         subprocesses[i] = NULL;
     }
 
-    assert(ReleaseMutex(subprocesses_mutex) != 0);
+    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
 }
 
 static void sigint_handler(int s)

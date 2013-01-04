@@ -89,7 +89,6 @@
 
 /* $Id$ */
 
-#include <assert.h>
 #include <string.h>
 
 #include "base64.h"
@@ -528,7 +527,7 @@ static const char *skip_crlf(const char *s)
     else if (*s == '\r' && *(s + 1) == '\n')
         return s + 2;
 
-    assert(0);
+    ncat_assert(0);
     return NULL;
 }
 

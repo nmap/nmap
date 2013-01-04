@@ -7,7 +7,6 @@ dNSNames, then checks that matching names are accepted and non-matching names
 are rejected. The SSL transactions happen over OpenSSL BIO pairs.
 */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -68,28 +67,28 @@ static int test(const struct lstr commonNames[], const struct lstr dNSNames[],
 
     tests_run++;
 
-    assert(gen_cert(&cert, &key, commonNames, dNSNames) == 1);
+    ncat_assert(gen_cert(&cert, &key, commonNames, dNSNames) == 1);
 
-    assert(BIO_new_bio_pair(&server_bio, 0, &client_bio, 0) == 1);
+    ncat_assert(BIO_new_bio_pair(&server_bio, 0, &client_bio, 0) == 1);
 
     server_ctx = SSL_CTX_new(SSLv23_server_method());
-    assert(server_ctx != NULL);
+    ncat_assert(server_ctx != NULL);
 
     client_ctx = SSL_CTX_new(SSLv23_client_method());
-    assert(client_ctx != NULL);
+    ncat_assert(client_ctx != NULL);
     SSL_CTX_set_verify(client_ctx, SSL_VERIFY_PEER, NULL);
     SSL_CTX_set_verify_depth(client_ctx, 1);
     ssl_ctx_trust_cert(client_ctx, cert);
 
     server_ssl = SSL_new(server_ctx);
-    assert(server_ssl != NULL);
+    ncat_assert(server_ssl != NULL);
     SSL_set_accept_state(server_ssl);
     SSL_set_bio(server_ssl, server_bio, server_bio);
-    assert(SSL_use_certificate(server_ssl, cert) == 1);
-    assert(SSL_use_PrivateKey(server_ssl, key) == 1);
+    ncat_assert(SSL_use_certificate(server_ssl, cert) == 1);
+    ncat_assert(SSL_use_PrivateKey(server_ssl, key) == 1);
 
     client_ssl = SSL_new(client_ctx);
-    assert(client_ssl != NULL);
+    ncat_assert(client_ssl != NULL);
     SSL_set_connect_state(client_ssl);
     SSL_set_bio(client_ssl, client_bio, client_bio);
 
@@ -530,7 +529,7 @@ void test_specificity(const struct lstr patterns[],
 
     for (i = 0; i < ARR_LEN && !is_sentinel(&patterns[i]); i++)
         scratch[i] = patterns[i];
-    assert(i < ARR_LEN);
+    ncat_assert(i < ARR_LEN);
     scratch[i] = lstr_sentinel;
 
     test(scratch, NULL, test_names, expected_forward);
