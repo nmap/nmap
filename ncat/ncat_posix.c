@@ -348,7 +348,8 @@ int ssl_load_default_ca_certs(SSL_CTX *ctx)
         logdebug("Using system default trusted CA certificates and those in %s.\n", NCAT_CA_CERTS_PATH);
 
     /* Load distribution-provided defaults, if any. */
-    ncat_assert(SSL_CTX_set_default_verify_paths(ctx) > 0);
+    rc = SSL_CTX_set_default_verify_paths(ctx);
+    ncat_assert(rc > 0);
 
     /* Also load the trusted certificates we ship. */
     rc = SSL_CTX_load_verify_locations(ctx, NCAT_CA_CERTS_PATH, NULL);

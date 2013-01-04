@@ -159,7 +159,9 @@ SSL_CTX *setup_ssl_listen(void)
         if (ssl_gen_cert(&cert, &key) == 0)
             bye("ssl_gen_cert(): %s.", ERR_error_string(ERR_get_error(), NULL));
         if (o.verbose) {
-            ncat_assert(ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf)) != NULL);
+            char *fp;
+            fp = ssl_cert_fp_str_sha1(cert, digest_buf, sizeof(digest_buf));
+            ncat_assert(fp == digest_buf);
             loguser("SHA-1 fingerprint: %s\n", digest_buf);
         }
         if (SSL_CTX_use_certificate(sslctx, cert) != 1)

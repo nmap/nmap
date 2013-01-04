@@ -182,13 +182,17 @@ void netexec(struct fdinfo *fdn, char *cmdexec)
    child process dies. This is only used on Windows. */
 extern void set_pseudo_sigchld_handler(void (*handler)(void))
 {
+    DWORD rc;
+
     if (pseudo_sigchld_mutex == NULL) {
         pseudo_sigchld_mutex = CreateMutex(NULL, FALSE, NULL);
         ncat_assert(pseudo_sigchld_mutex != NULL);
     }
-    ncat_assert(WaitForSingleObject(pseudo_sigchld_mutex, INFINITE) == WAIT_OBJECT_0);
+    rc = WaitForSingleObject(pseudo_sigchld_mutex, INFINITE);
+    ncat_assert(rc == WAIT_OBJECT_0);
     pseudo_sigchld_handler = handler;
-    ncat_assert(ReleaseMutex(pseudo_sigchld_mutex) != 0);
+    rc = ReleaseMutex(pseudo_sigchld_mutex);
+    ncat_assert(rc != 0);
 }
 
 /* Run a command and redirect its input and output handles to a pair of
@@ -365,7 +369,7 @@ static DWORD WINAPI subprocess_thread_func(void *data)
     char pipe_buffer[BUFSIZ];
     OVERLAPPED overlap = { 0 };
     HANDLE events[3];
-    DWORD ret;
+    DWORD ret, rc;
     int crlf_state = 0;
 
     info = (struct subprocess_info *) data;
@@ -448,12 +452,11 @@ loop_end:
 
     WSACloseEvent(events[0]);
 
-    ncat_assert(unregister_subprocess(info->proc) != -1);
+    rc = unregister_subprocess(info->proc);
+    ncat_assert(rc != -1);
 
     GetExitCodeProcess(info->proc, &ret);
     if (ret == STILL_ACTIVE) {
-        DWORD rc;
-
         if (o.debug > 1)
             logdebug("Subprocess still running, terminating it.\n");
         rc = TerminateProcess(info->proc, 0);
@@ -470,10 +473,12 @@ loop_end:
     subprocess_info_close(info);
     free(info);
 
-    ncat_assert(WaitForSingleObject(pseudo_sigchld_mutex, INFINITE) == WAIT_OBJECT_0);
+    rc = WaitForSingleObject(pseudo_sigchld_mutex, INFINITE);
+    ncat_assert(rc == WAIT_OBJECT_0);
     if (pseudo_sigchld_handler != NULL)
         pseudo_sigchld_handler();
-    ncat_assert(ReleaseMutex(pseudo_sigchld_mutex) != 0);
+    rc = ReleaseMutex(pseudo_sigchld_mutex);
+    ncat_assert(rc != 0);
 
     return ret;
 }
@@ -485,14 +490,15 @@ loop_end:
 static int get_subprocess_slot(void)
 {
     int i, free_index, max_index;
+    DWORD rc;
 
-    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    rc = WaitForSingleObject(subprocesses_mutex, INFINITE);
+    ncat_assert(rc == WAIT_OBJECT_0);
 
     free_index = -1;
     max_index = 0;
     for (i = 0; i < subprocess_max_index; i++) {
         HANDLE proc = subprocesses[i];
-        DWORD ret;
 
         if (proc == NULL) {
             if (free_index == -1)
@@ -506,7 +512,8 @@ static int get_subprocess_slot(void)
         free_index = max_index++;
     subprocess_max_index = max_index;
 
-    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
+    rc = ReleaseMutex(subprocesses_mutex);
+    ncat_assert(rc != 0);
 
     return free_index;
 }
@@ -517,7 +524,8 @@ static int get_subprocess_slot(void)
    error. */
 static int register_subprocess(HANDLE proc)
 {
-    int i, rc;
+    int i;
+    DWORD rc;
 
     if (subprocesses_mutex == NULL) {
         subprocesses_mutex = CreateMutex(NULL, FALSE, NULL);
@@ -528,7 +536,8 @@ static int register_subprocess(HANDLE proc)
         ncat_assert(pseudo_sigchld_mutex != NULL);
     }
 
-    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    rc = WaitForSingleObject(subprocesses_mutex, INFINITE);
+    ncat_assert(rc == WAIT_OBJECT_0);
 
     i = get_subprocess_slot();
     if (i == -1) {
@@ -549,7 +558,8 @@ static int register_subprocess(HANDLE proc)
         }
     }
 
-    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
+    rc = ReleaseMutex(subprocesses_mutex);
+    ncat_assert(rc != 0);
 
     return i;
 }
@@ -559,8 +569,10 @@ static int register_subprocess(HANDLE proc)
 static int unregister_subprocess(HANDLE proc)
 {
     int i;
+    DWORD rc;
 
-    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    rc = WaitForSingleObject(subprocesses_mutex, INFINITE);
+    ncat_assert(rc == WAIT_OBJECT_0);
 
     for (i = 0; i < subprocess_max_index; i++) {
         if (proc == subprocesses[i])
@@ -574,7 +586,8 @@ static int unregister_subprocess(HANDLE proc)
         i = -1;
     }
 
-    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
+    rc = ReleaseMutex(subprocesses_mutex);
+    ncat_assert(rc != 0);
 
     return i;
 }
@@ -582,11 +595,13 @@ static int unregister_subprocess(HANDLE proc)
 static void terminate_subprocesses(void)
 {
     int i;
+    DWORD rc;
 
     if (o.debug)
         logdebug("Terminating subprocesses\n");
 
-    ncat_assert(WaitForSingleObject(subprocesses_mutex, INFINITE) == WAIT_OBJECT_0);
+    rc = WaitForSingleObject(subprocesses_mutex, INFINITE);
+    ncat_assert(rc == WAIT_OBJECT_0);
 
     if (o.debug > 1)
         logdebug("max_index %d\n", subprocess_max_index);
@@ -605,7 +620,8 @@ static void terminate_subprocesses(void)
         subprocesses[i] = NULL;
     }
 
-    ncat_assert(ReleaseMutex(subprocesses_mutex) != 0);
+    rc = ReleaseMutex(subprocesses_mutex);
+    ncat_assert(rc != 0);
 }
 
 static void sigint_handler(int s)
