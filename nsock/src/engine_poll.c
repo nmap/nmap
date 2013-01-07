@@ -108,12 +108,6 @@
 #endif /* POLLRDHUP */
 
 
-#define LOWER_MAX_FD(pinfo) \
-  do {  \
-    pinfo->max_fd--;  \
-  } while (pinfo->max_fd >= 0 && pinfo->events[pinfo->max_fd].fd == -1)
-
-
 /* --- ENGINE INTERFACE PROTOTYPES --- */
 static int poll_init(mspool *nsp);
 static void poll_destroy(mspool *nsp);
@@ -164,6 +158,15 @@ struct poll_engine_info {
   POLLFD *events;
 };
 
+
+
+static inline int lower_max_fd(struct poll_engine_info *pinfo) {
+  do {
+    pinfo->max_fd--;
+  } while (pinfo->max_fd >= 0 && pinfo->events[pinfo->max_fd].fd == -1);
+
+  return pinfo->max_fd;
+}
 
 static inline int evlist_grow(struct poll_engine_info *pinfo) {
   int i;
@@ -254,9 +257,8 @@ int poll_iod_unregister(mspool *nsp, msiod *iod) {
     pinfo->events[sd].events = 0;
     pinfo->events[sd].revents = 0;
 
-    if (pinfo->max_fd == sd) {
-      LOWER_MAX_FD(pinfo);
-    }
+    if (pinfo->max_fd == sd)
+      lower_max_fd(pinfo);
 
     IOD_PROPCLR(iod, IOD_REGISTERED);
   }
