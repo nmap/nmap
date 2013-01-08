@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
     }
     myargc = arg_parse(command, &myargv);
     if (myargc < 1) {
-      fatal("NMAP_ARG variable could not be parsed");
+      fatal("NMAP_ARGS variable could not be parsed");
     }
     ret = nmap_main(myargc, myargv);
     arg_parse_free(myargv);
