@@ -139,7 +139,7 @@ void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
 {
     const size_t num_bitvector = sizeof(octet_bitvector) / sizeof(bitvector_t);
     int i; 
-	size_t j;
+    size_t j;
 
     if (elem->type == ADDRSET_TYPE_IPV4_BITVECTOR) {
         for (i = 0; i < 4; i++) {
