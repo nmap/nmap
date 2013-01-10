@@ -95,7 +95,7 @@
 
 void __nsock_log_internal(nsock_pool nsp, nsock_loglevel_t loglevel,
                           const char *file, int line, const char *func,
-                          const char *format, ...);
+                          const char *format, ...) __attribute__((format (printf, 6, 7)));
 
 void nsock_stderr_logger(nsock_pool nsp, const struct nsock_log_rec *rec);
 
