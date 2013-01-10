@@ -35,13 +35,6 @@ o We should figure out why (at least with Nping) raw ethernet frame
   been reproduced on Linux and Windows.  Here's a thread:
   http://seclists.org/nmap-dev/2012/q4/424
 
-o Complete migration away from Syn colocated machine
- - [Done - actually was already on web] Move submission CGIs to web
-   - Make sure notification still works
- - [Done] Mailman
-   - [Done] Install mailman software on web, including CGIs
-   - Migrate mailing lists to web
-
 o NSE digest auth should use the more robust parsing from
   http.parse_www_authenticate as described at
   http://seclists.org/nmap-dev/2012/q3/868
@@ -674,6 +667,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Complete migration away from Syn colocated machine
+ - [Done - actually was already on web] Move submission CGIs to web
+   - Make sure notification still works
+ - [Done] Mailman
+   - [Done] Install mailman software on web, including CGIs
+   - Migrate mailing lists to web
 
 o Remove the -q/FAKE_ARGV stuff from Nmap, since I don't think people
   use that any more.
