@@ -9,9 +9,6 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 
-author = "jah"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
 description = [[
 Attempts to enumerate valid usernames on web servers running with the mod_userdir
 module or similar enabled.
@@ -39,6 +36,9 @@ CVE-2001-1013: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013.
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.9
 -- |_ apache-userdir-enum: Potential Users: root (403), user (200), test (200)
 
+author = "jah"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"auth", "intrusive"}
 
 
 
