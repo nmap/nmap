@@ -1570,8 +1570,8 @@ void ServiceNFO::addServiceString(const char *s, int wrapat) {
     addServiceChar(*s++, wrapat);
 }
 
-// If a service response to a given probeName, this function adds the
-// resonse the the fingerprint for that service.  The fingerprint can
+// If a service responds to a given probeName, this function adds the
+// response to the fingerprint for that service.  The fingerprint can
 // be printed when nothing matches the service.  You can obtain the
 // fingerprint (if any) via getServiceFingerprint();
 void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp, 

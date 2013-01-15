@@ -32,7 +32,7 @@ end
 
 action = function(host, port)
         -- make sure we get at least one more packet after the JDWP-Handshake
-        -- response even if there is some delay; the handshake resonse has 14
+        -- response even if there is some delay; the handshake response has 14
         -- bytes, so wait for 18 bytes here.
         local status, result = comm.exchange(host, port, "JDWP-Handshake\0\0\0\11\0\0\0\1\0\1\1", {proto="tcp", bytes=18})
         if (not status) then
