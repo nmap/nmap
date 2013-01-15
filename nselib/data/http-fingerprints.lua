@@ -3415,6 +3415,31 @@ table.insert(fingerprints, {
     category = 'general',
     probes = {
       {
+        path = '/appServer/jvmReport.jsf?instanceName=server&pageTitle=JVM%20Report',
+        method = 'HEAD'
+      },
+      {
+        path = '/common/appServer/jvmReport.jsf?pageTitle=JVM%20Report',
+        method = 'HEAD'
+      },
+      {
+        path = '/common/appServer/jvmReport.jsf?reportType=summary&instanceName=server',
+        method = 'HEAD'
+      }
+   },
+    matches = {
+      {
+        match = '',
+        output = 'Oracle GlashFish Server Information'
+      }
+    }
+  });
+
+
+table.insert(fingerprints, {
+    category = 'general',
+    probes = {
+      {
         path = '/login_img.jpg',
         method = 'HEAD'
       }
