@@ -15,12 +15,12 @@ port with the same port number (fixed to 3784 in the free version, otherwise
 configurable). This script activates on both a TCP and UDP port version scan.
 In both cases probe data is sent only to the UDP port because it allows for a
 simple and informative status command as implemented by the
-"ventrilo_status.exe" executable which has shipped alongside the Windows server
+<code>ventrilo_status.exe</code> executable which has shipped alongside the Windows server
 package since version 2.1.2 when the UDP status service was implemented.
 
-When ran as a version detection script (-sV), the script will report on the
-server version, name, uptime, authentication scheme, and OS.  When ran
-explicitly (--script ventrilo-info), the script will additionaly report on the
+When run as a version detection script (<code>-sV</code>), the script will report on the
+server version, name, uptime, authentication scheme, and OS.  When run
+explicitly (<code>--script ventrilo-info</code>), the script will additionally report on the
 server name phonetic pronounciation string, the server comment, maximum number
 of clients, voice codec, voice format, channel and client counts, and details
 about channels and currently connected clients.
