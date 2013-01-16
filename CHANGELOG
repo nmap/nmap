@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ventrilo-info by Marin Maržić. This gets information
+  from a Ventrilo VoIP server.
+
 o Removed the undocumented -q option, which renamed the nmap process
   to something like "pine".
 
