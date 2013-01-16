@@ -23,14 +23,14 @@ various names of the form <name>.example.com are tried.
 ---
 -- @usage 
 -- nmap --script http-vhosts -p 80,8080,443 <target>
-
+--
 -- @arg http-vhosts.domain The domain that hostnames will be prepended to, for
 -- example <code>example.com</code> yields www.example.com, www2.example.com,
 -- etc. If not provided, a guess is made based on the hostname.
 -- @arg http-vhosts.path The path to try to retrieve. Default <code>/</code>.
 -- @arg http-vhosts.collapse The limit to start collapsing results by status code. Default <code>20</code>
 -- @arg http-vhosts.filelist file with the vhosts to try. Default <code>nselib/data/vhosts-default.lst</code>
-
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
