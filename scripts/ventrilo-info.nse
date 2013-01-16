@@ -519,15 +519,7 @@ local o_str = function(info)
     return strbuf.dump(buf, "")
 end
 
-portrule = function(host, port)
-    -- run if no service other than 'ventrilo' detected on port
-    return (port.service == nil or port.service == "" or
-            port.service == "unknown" or port.service == "tcpwrapped" or
-            port.service == "ventrilo" or port.number == 3784 or
-            port.state == "open|filtered")
-        and (port.state == "open" or port.state == "open|filtered")
-        and not shortport.port_is_excluded(port.number, "udp")
-end
+portrule = shortport.version_port_or_service({3784}, "ventrilo", {"tcp", "udp"})
 
 action = function(host, port)
     local socket = nmap.new_socket()
