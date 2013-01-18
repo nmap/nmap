@@ -121,16 +121,6 @@
 
 class HostGroupState;
 
-/**************************STRUCTURES******************************/
-struct pingtech {
-  unsigned int rawicmpscan: 1,
-    connecttcpscan: 1,
-    rawtcpscan: 1,
-    rawudpscan: 1,
-    rawsctpscan: 1,
-    rawprotoscan: 1;
-};
-
 /* Ports is the list of ports the user asked to be scanned (0 terminated),
    you can just pass NULL (it is only a stupid optimization that needs it) */
 Target *nexthost(HostGroupState *hs,const addrset *exclude_group, 

@@ -650,7 +650,14 @@ public:
   /* If ping_scan is true (unless ping_scan_arp is also true), this is the set
      of ping techniques to use (ICMP, raw ICMP, TCP connect, raw TCP, or raw
      UDP). */
-  struct pingtech ptech;
+  struct {
+    unsigned int rawicmpscan: 1,
+      connecttcpscan: 1,
+      rawtcpscan: 1,
+      rawudpscan: 1,
+      rawsctpscan: 1,
+      rawprotoscan: 1;
+  } ptech;
 
   bool isRawScan();
 
