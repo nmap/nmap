@@ -122,31 +122,6 @@
 class HostGroupState;
 
 /**************************STRUCTURES******************************/
-struct pingtune {
-  int up_this_block;
-  int down_this_block;
-  int block_tries;
-  int block_unaccounted;
-  int max_tries;
-  int num_responses;
-  int dropthistry;
-  double group_size;
-  int min_group_size; /* The group size must never go below this value */
-  int group_start;
-  int group_end;
-  u16 seq_offset; // For distinguishing between received packets from this 
-                  // execution vs. concurrent nmaps
-};
-
-struct tcpqueryinfo {
-  int *sockets[MAX_PROBE_PORTS];
-  int maxsd;
-  fd_set fds_r;
-  fd_set fds_w;
-  fd_set fds_x;
-  int sockets_out;
-};
-
 struct pingtech {
   unsigned int rawicmpscan: 1,
     connecttcpscan: 1,
