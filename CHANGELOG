@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made the vulnerability library able to preserve vulnerability
+  information across multiple ports of the same host. The bug was
+  reported by iphelix. [Djalal Harouni]
+
 o [NSE] Added ventrilo-info by Marin Maržić. This gets information
   from a Ventrilo VoIP server.
 

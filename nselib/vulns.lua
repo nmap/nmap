@@ -643,6 +643,22 @@ local l_add_id_type = function(fid_table, id_type)
   fid_table[string_upper(id_type)] = fid_table[id_type] or {}
 end
 
+--- Get simple "targetname:port_number" keys
+local l_get_host_port_key = function(vuln_table)
+  local target = ""
+
+  if vuln_table.host and next(vuln_table.host) then
+    target = stdnse.get_hostname(vuln_table.host)
+
+    if vuln_table.port and next(vuln_table.port) then
+      target = target..string_format(":%d", vuln_table.port.number)
+    end
+
+  end
+
+  return target
+end
+
 --- Update the FILTER ID table references.
 --
 -- When a new vulnerability table is stored in the registry in the
@@ -673,17 +689,9 @@ local l_update_id = function(fid_table, id_type, id, vuln_table)
   local push_table = fid_table[id_type][id]['ENTRIES']
 
   if vuln_table.host and next(vuln_table.host) then
-    local targetname = ""
     local host_info = string_format(" (host:%s", vuln_table.host.ip)
-    if vuln_table.host.targetname then
-      targetname = vuln_table.host.targetname
-      if targetname ~= vuln_table.host.ip then
-        host_info = host_info..string_format(" %s", targetname)
-      end
-    else
-      targetname = vuln_table.host.ip
-    end
-    host_info = host_info..")"
+    local target_key = l_get_host_port_key(vuln_table)
+    host_info = host_info..string_format(" %s)", target_key)
 
     print_debug(5,
       "vulns.lua: Updating VULNS.FILTERS_IDS{} with '%s' ID:%s:%s %s",
@@ -691,8 +699,8 @@ local l_update_id = function(fid_table, id_type, id, vuln_table)
     push_table.HOSTS = push_table.HOSTS or {}
     push_table.HOSTS[vuln_table.host.ip] =
         push_table.HOSTS[vuln_table.host.ip] or {}
-    push_table.HOSTS[vuln_table.host.ip][targetname] = vuln_table
-    return push_table.HOSTS[vuln_table.host.ip][targetname]
+    push_table.HOSTS[vuln_table.host.ip][target_key] = vuln_table
+    return push_table.HOSTS[vuln_table.host.ip][target_key]
   else
     print_debug(5,
       "vulns.lua: Updating VULNS.FILTERS_IDS{} with '%s' ID:%s:%s",
@@ -996,18 +1004,12 @@ local l_add = function(vulndb, vuln_table)
   -- vulnerability entry that was already saved in the registry.
   local ids_found = 0
 
-  local host_info, targetname = "", ""
-  if vuln_table.host then
+  local host_info, target_key = "", ""
+  if vuln_table.host and next(vuln_table.host) then
     host_info = string_format(" (host:%s", vuln_table.host.ip)
-    if vuln_table.host.targetname then
-      targetname = vuln_table.host.targetname
-      if targetname ~= vuln_table.host.ip then
-        host_info = host_info..string_format(" %s", targetname)
-      end
-    else
-      targetname = vuln_table.host.ip
-    end
-    host_info = host_info..")"
+
+    target_key = l_get_host_port_key(vuln_table)
+    host_info = host_info..string_format(" %s)", target_key)
   end
 
   -- Search the Filters IDS for the vulnerability
@@ -1033,16 +1035,9 @@ local l_add = function(vulndb, vuln_table)
           local old_vuln_list = db.ENTRIES.HOSTS[vuln_table.host.ip]
 
           if old_vuln_list then
-            local tmp_vuln = nil
-
             -- Host IP is already affected by this vulnerability.
-            -- Check the targetname now
-            for host_id, old_vuln in pairs(old_vuln_list) do
-              if host_id == targetname then
-                tmp_vuln = old_vuln
-                break
-              end
-            end
+            -- Check the couple "targetname:port" now
+            local tmp_vuln = old_vuln_list[target_key]
 
             if tmp_vuln then
               print_debug(5,
