@@ -969,8 +969,10 @@ bool ConnectScanInfo::watchSD(int sd) {
     numSDs++;
     if (sd > maxValidSD)
       maxValidSD = sd;
-  } else return false;
-  return true;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /* Clear SD from the fd_sets and maxValidSD.  Returns true if the SD
@@ -986,8 +988,10 @@ bool ConnectScanInfo::clearSD(int sd) {
     numSDs--;
     if (sd == maxValidSD)
       maxValidSD--;
-  } else return false;
-  return true;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
