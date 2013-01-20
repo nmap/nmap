@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed the --webxml XSL stylesheet to point to the new location of
+  nmap.xsl in the new respository,
+    https://svn.nmap.org/nmap/docs/nmap.xsl
+  This was noticed by Simon John.
+
 o [NSE] Made the vulnerability library able to preserve vulnerability
   information across multiple ports of the same host. The bug was
   reported by iphelix. [Djalal Harouni]

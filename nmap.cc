@@ -843,7 +843,7 @@ void parse_options(int argc, char **argv) {
         } else if (optcmp(long_options[option_index].name, "deprecated-xml-osclass") == 0) {
           o.deprecated_xml_osclass = true;
         } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
-          o.setXSLStyleSheet("http://nmap.org/svn/docs/nmap.xsl");
+          o.setXSLStyleSheet("https://svn.nmap.org/nmap/docs/nmap.xsl");
         } else if (strcmp(long_options[option_index].name, "oN") == 0) {
           delayed_options.normalfilename = logfilename(optarg, local_time);
         } else if (strcmp(long_options[option_index].name, "oG") == 0
