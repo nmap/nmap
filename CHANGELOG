@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added nmap-fo.xsl, contributed by Tilik Ammon. This converts Nmap
+  XML into XSL-FO, which can be converted into PDF using Apache FOP.
+
 o Increased the numberof slack file descriptors not used during connect
   scan. Previously, the calculation did not consider the descriptors
   used by various open log files. [David]
