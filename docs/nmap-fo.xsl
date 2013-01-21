@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- =========================================================================
 		nmap_fo.xls stylesheet version 1.010
+		https://github.com/tilikammon/nmap-to-fo
 		last change: 2013-01-20
 		Gustave Walzer
 
