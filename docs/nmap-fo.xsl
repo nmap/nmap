@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- =========================================================================
+		nmap_fo.xls stylesheet version 1.010
+		last change: 2013-01-20
+		Gustave Walzer
+
+		Usage
+		==============
+
+		* Run nmap with -oX flag for xml output:
+		      $  nmap -oX ./nmap.scan.xml localhost
+
+
+		* Convert output xml to pdf using the above xsl file with fop:
+		       $ fop -xml nmap.scan.xml -xsl nmap_fo.xsl -pdf nmap.scan.pdf
+
+========================================================================== -->
+
+<!-- =========================================================================
             nmap.xsl stylesheet version 0.9c
             last change: 2010-12-28
             Benjamin Erb, http://www.benjamin-erb.de
@@ -28,23 +45,6 @@
     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-========================================================================== -->
-
-<!-- =========================================================================
-		nmap_fo.xls stylesheet version 1.010
-		last change: 2013-01-20
-		Gustave Walzer
-
-		Usage
-		==============
-
-		* Run nmap with -oX flag for xml output:
-		      $  nmap -oX ./nmap.scan.xml localhost
-
-
-		* Convert output xml to pdf using the above xsl file with fop:
-		       $ fop -xml nmap.scan.xml -xsl nmap_fo.xsl -pdf nmap.scan.pdf
-
 ========================================================================== -->
 
 
