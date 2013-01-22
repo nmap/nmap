@@ -1576,12 +1576,8 @@ int nmap_main(int argc, char *argv[]) {
   /* Pre-Scan and Post-Scan script results datastructure */
   ScriptResults *script_scan_results = NULL;
 #endif
-  char **host_exp_group;
-  int num_host_exp_groups;
-  HostGroupState *hstate = NULL;
   unsigned int ideal_scan_group_sz = 0;
   Target *currenths;
-  char *host_spec = NULL;
   char myname[MAXHOSTNAMELEN + 1];
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
                                 source addresses? */
@@ -1818,61 +1814,15 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
-  /* Time to create a hostgroup state object filled with all the requested
-     machines. The list is initially empty. It is refilled inside the loop
-     whenever it is empty. */
-  host_exp_group = (char **) safe_malloc(o.ping_group_sz * sizeof(char *));
-  num_host_exp_groups = 0;
-
-  hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,
-                              host_exp_group, num_host_exp_groups);
+  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) fakeargv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
     while (Targets.size() < ideal_scan_group_sz) {
       o.current_scantype = HOST_DISCOVERY;
-      currenths = nexthost(hstate, &exclude_group, &ports, o.pingtype);
-      if (!currenths) {
-        /* Try to refill with any remaining expressions */
-        /* First free the old ones */
-        for (i = 0; i < num_host_exp_groups; i++)
-          free(host_exp_group[i]);
-        num_host_exp_groups = 0;
-        /* Now grab any new expressions */
-        while (num_host_exp_groups < o.ping_group_sz &&
-               (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + (int) Targets.size() + num_host_exp_groups) &&
-               (host_spec = grab_next_host_spec(o.inputfd, o.generate_random_ips, argc, fakeargv))) {
-          // For purposes of random scan
-          host_exp_group[num_host_exp_groups++] = strdup(host_spec);
-        }
-#ifndef NOLUA
-        /* Add the new NSE discovered targets to the scan queue */
-        if (o.script) {
-          if (new_targets != NULL) {
-            while (new_targets->get_queued() > 0 && num_host_exp_groups < o.ping_group_sz) {
-              std::string target_spec = new_targets->read();
-              if (target_spec.length())
-                host_exp_group[num_host_exp_groups++] = strdup(target_spec.c_str());
-            }
-
-            if (o.debugging > 3)
-              log_write(LOG_PLAIN,
-                        "New targets in the scanned cache: %ld, pending ones: %ld.\n",
-                        new_targets->get_scanned(), new_targets->get_queued());
-          }
-        }
-#endif
-        if (num_host_exp_groups == 0)
-          break;
-        delete hstate;
-        hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts, host_exp_group,
-                                    num_host_exp_groups);
-
-        /* Try one last time -- with new expressions */
-        currenths = nexthost(hstate, &exclude_group, &ports, o.pingtype);
-        if (!currenths)
-          break;
-      }
+      currenths = nexthost(&hstate, &exclude_group, &ports, o.pingtype);
+      if (!currenths)
+        break;
 
       if (currenths->flags & HOST_UP && !o.listscan)
         o.numhosts_up++;
@@ -1945,7 +1895,7 @@ int nmap_main(int argc, char *argv[]) {
            the next group if necessary. See target_needs_new_hostgroup for the
            details of when we need to split. */
         if (target_needs_new_hostgroup(Targets, currenths)) {
-          returnhost(hstate);
+          returnhost(&hstate);
           o.numhosts_up--;
           break;
         }
@@ -2111,16 +2061,7 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
-  delete hstate;
-
   addrset_free(&exclude_group);
-  hstate = NULL;
-
-  /* Free host expressions */
-  for (i = 0; i < num_host_exp_groups; i++)
-    free(host_exp_group[i]);
-  num_host_exp_groups = 0;
-  free(host_exp_group);
 
   if (o.inputfd != NULL)
     fclose(o.inputfd);

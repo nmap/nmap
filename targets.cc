@@ -309,6 +309,147 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
   return false;
 }
 
+/* Initializes (or reinitializes) the object with a new expression, such
+   as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .
+   Returns 0 for success */
+int TargetGroup::parse_expr(const char *target_expr, int af) {
+  if (this->netblock != NULL)
+    delete this->netblock;
+  this->netblock = NetBlock::parse_expr(target_expr, af);
+  if (this->netblock != NULL)
+    return 0;
+  else
+    return 1;
+}
+
+/* Grab the next host from this expression (if any) and updates its internal
+   state to reflect that the IP was given out.  Returns 0 and
+   fills in ss if successful.  ss must point to a pre-allocated
+   sockaddr_storage structure */
+int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
+  if (this->pushback.ss_family != AF_UNSPEC) {
+    *ss = this->pushback;
+    *sslen = sizeof(*ss);
+    this->pushback.ss_family = AF_UNSPEC;
+    return 0;
+  }
+
+  if (this->netblock == NULL)
+    return -1;
+
+  /* If all we have at this point is a hostname and netmask, resolve into
+     something where we know the address. If we ever have to use strictly the
+     hostname, without doing local DNS resolution (like with a proxy scan), this
+     has to be made conditional (and perhaps an error if the netmask doesn't
+     limit it to exactly one address). */
+  NetBlockHostname *netblock_hostname;
+  netblock_hostname = dynamic_cast<NetBlockHostname *>(this->netblock);
+  if (netblock_hostname != NULL) {
+    this->netblock = netblock_hostname->resolve();
+    if (this->netblock == NULL) {
+      error("Failed to resolve \"%s\".", netblock_hostname->hostname.c_str());
+      return -1;
+    }
+    delete netblock_hostname;
+  }
+
+  *sslen = sizeof(*ss);
+  if (this->netblock->next(ss))
+    return 0;
+  else
+    return -1;
+}
+
+/* Returns the given host, so that it will be given the next time
+   get_next_host is called. Does nothing if ss is NULL. */
+void TargetGroup::return_host(const struct sockaddr_storage *ss) {
+  if (ss == NULL)
+    return;
+  assert(this->pushback.ss_family == AF_UNSPEC);
+  this->pushback = *ss;
+}
+
+/* Returns true iff the given address is the one that was resolved to create
+   this target group; i.e., not one of the addresses derived from it with a
+   netmask. */
+bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss) const {
+  return this->netblock->is_resolved_address(ss);
+}
+
+/* Return a string of the name or address that was resolved for this group. */
+const char *TargetGroup::get_resolved_name(void) const {
+  if (this->netblock->hostname.empty())
+    return NULL;
+  else
+    return this->netblock->hostname.c_str();
+}
+
+/* Return the list of addresses that the name for this group resolved to, if
+   it came from a name resolution. */
+const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void) const {
+  return this->netblock->resolvedaddrs;
+}
+
+/* is the current expression a named host */
+int TargetGroup::get_namedhost() const {
+  return this->get_resolved_name() != NULL;
+};
+
+/* Lookahead is the number of hosts that can be
+   checked (such as ping scanned) in advance.  Randomize causes each
+   group of up to lookahead hosts to be internally shuffled around.
+   The target_expressions array MUST REMAIN VALID IN MEMORY as long as
+   this class instance is used -- the array is NOT copied.
+ */
+HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **argv) {
+  assert(lookahead > 0);
+  this->argc = argc;
+  this->argv = argv;
+  hostbatch = (Target **) safe_zalloc(sizeof(Target *) * lookahead);
+  max_batch_sz = lookahead;
+  current_batch_sz = 0;
+  next_batch_no = 0;
+  randomize = rnd;
+}
+
+HostGroupState::~HostGroupState() {
+  free(hostbatch);
+}
+
+const char *HostGroupState::next_expression() {
+  static char buf[1024];
+
+  if (o.max_ips_to_scan == 0 || o.numhosts_scanned + this->current_batch_sz < o.max_ips_to_scan) {
+    const char *expr;
+    expr = grab_next_host_spec(o.inputfd, o.generate_random_ips, this->argc, this->argv);
+    if (expr != NULL)
+      return expr;
+  }
+
+#ifndef NOLUA
+  /* Add any new NSE discovered targets to the scan queue */
+
+  NewTargets *new_targets = NewTargets::get();
+  if (o.script && new_targets != NULL) {
+    if (new_targets->get_queued() > 0) {
+      std::string expr_string;
+      expr_string = new_targets->read().c_str();
+      if (o.debugging > 3) {
+        log_write(LOG_PLAIN,
+                  "New targets in the scanned cache: %ld, pending ones: %ld.\n",
+                  new_targets->get_scanned(), new_targets->get_queued());
+      }
+      if (!expr_string.empty()) {
+        Strncpy(buf, expr_string.c_str(), sizeof(buf));
+        return buf;
+      }
+    }
+  }
+#endif
+
+  return NULL;
+}
+
 /* Add a <target> element to the XML stating that a target specification was
    ignored. This can be because of, for example, a DNS resolution failure, or a
    syntax error. */
@@ -321,12 +462,75 @@ static void log_bogus_target(const char *expr) {
   xml_newline();
 }
 
+/* Returns a newly allocated Target with the given address. Handles all the
+   details like setting the Target's address and next hop. */
+static Target *setup_target(const HostGroupState *hs,
+                            const struct sockaddr_storage *ss, size_t sslen,
+                            int pingtype) {
+  struct route_nfo rnfo;
+  Target *t;
+
+  t = new Target();
+
+  t->setTargetSockAddr(ss, sslen);
+
+  /* Special handling for the resolved address (for example whatever
+     scanme.nmap.org resolves to in scanme.nmap.org/24). */
+  if (hs->current_group.is_resolved_address(ss)) {
+    if (hs->current_group.get_namedhost())
+      t->setTargetName(hs->current_group.get_resolved_name());
+    t->resolved_addrs = hs->current_group.get_resolved_addrs();
+  }
+
+  /* We figure out the source IP/device IFF
+     1) We are r00t AND
+     2) We are doing tcp or udp pingscan OR
+     3) We are doing a raw-mode portscan or osscan or traceroute OR
+     4) We are on windows and doing ICMP ping */
+  if (o.isr00t &&
+      ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
+#ifdef WIN32
+       || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
+#endif // WIN32
+      )) {
+    if (!nmap_route_dst(ss, &rnfo)) {
+      log_bogus_target(inet_ntop_ez(ss, sslen));
+      error("%s: failed to determine route to %s", __func__, t->NameIP());
+      goto bail;
+    }
+    if (rnfo.direct_connect) {
+      t->setDirectlyConnected(true);
+    } else {
+      t->setDirectlyConnected(false);
+      t->setNextHop(&rnfo.nexthop, sizeof(rnfo.nexthop));
+    }
+    t->setIfType(rnfo.ii.device_type);
+    if (rnfo.ii.device_type == devt_ethernet) {
+      if (o.spoofMACAddress())
+        t->setSrcMACAddress(o.spoofMACAddress());
+      else
+        t->setSrcMACAddress(rnfo.ii.mac);
+    }
+    t->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
+    if (hs->current_batch_sz == 0) /* Because later ones can have different src addy and be cut off group */
+      o.decoys[o.decoyturn] = t->v4source();
+    t->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+    t->setMTU(rnfo.ii.mtu);
+    // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", t->NameIP(), t->directlyConnected()? "IS" : "IS NOT", t->deviceName(), (t->ifType() == devt_ethernet)? "IS" : "IS NOT");
+  }
+
+  return t;
+
+bail:
+  delete t;
+  return NULL;
+}
+
 Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
                  struct scan_lists *ports, int pingtype) {
   int i;
   struct sockaddr_storage ss;
   size_t sslen;
-  struct route_nfo rnfo;
   bool arpping_done = false;
   struct timeval now;
 
@@ -334,73 +538,35 @@ Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
     /* Woop!  This is easy -- we just pass back the next host struct */
     return hs->hostbatch[hs->next_batch_no++];
   }
-  /* Doh, we need to refresh our array */
-  /* for (i=0; i < hs->max_batch_sz; i++) hs->hostbatch[i] = new Target(); */
 
+  /* Doh, we need to refresh our array */
   hs->current_batch_sz = hs->next_batch_no = 0;
-  do {
-    /* Grab anything we have in our current_expression */
+  for (;;) {
+    /* Grab anything we have in our current_group */
     while (hs->current_batch_sz < hs->max_batch_sz && 
-        hs->current_expression.get_next_host(&ss, &sslen) == 0) {
+        hs->current_group.get_next_host(&ss, &sslen) == 0) {
       Target *t;
+
+      /* If we are resuming from a previous scan, we have already finished
+         scans up to o.resume_ip.  */
+      if (ss.ss_family == AF_INET && o.resume_ip.s_addr) {
+        if (o.resume_ip.s_addr == ((struct sockaddr_in *) &ss)->sin_addr.s_addr)
+          o.resume_ip.s_addr = 0; /* So that we will KEEP the next one */
+        continue; /* Try again */
+      }
 
       if (hostInExclude((struct sockaddr *)&ss, sslen, exclude_group)) {
         continue; /* Skip any hosts the user asked to exclude */
       }
-      t = new Target();
-      t->setTargetSockAddr(&ss, sslen);
-
-      /* Special handling for the resolved address (for example whatever
-         scanme.nmap.org resolves to in scanme.nmap.org/24). */
-      if (hs->current_expression.is_resolved_address(&ss)) {
-        if (hs->current_expression.get_namedhost())
-          t->setTargetName(hs->current_expression.get_resolved_name());
-        t->resolved_addrs = hs->current_expression.get_resolved_addrs();
-      }
-
-      /* We figure out the source IP/device IFF
-         1) We are r00t AND
-         2) We are doing tcp or udp pingscan OR
-         3) We are doing a raw-mode portscan or osscan or traceroute OR
-         4) We are on windows and doing ICMP ping */
-      if (o.isr00t && 
-          ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
-#ifdef WIN32
-           || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
-#endif // WIN32
-          )) {
-        t->TargetSockAddr(&ss, &sslen);
-        if (!nmap_route_dst(&ss, &rnfo)) {
-          log_bogus_target(inet_ntop_ez(&ss, sslen));
-          error("%s: failed to determine route to %s", __func__, t->NameIP());
-          continue;
-        }
-        if (rnfo.direct_connect) {
-          t->setDirectlyConnected(true);
-        } else {
-          t->setDirectlyConnected(false);
-          t->setNextHop(&rnfo.nexthop, sizeof(rnfo.nexthop));
-        }
-        t->setIfType(rnfo.ii.device_type);
-        if (rnfo.ii.device_type == devt_ethernet) {
-          if (o.spoofMACAddress())
-            t->setSrcMACAddress(o.spoofMACAddress());
-          else
-            t->setSrcMACAddress(rnfo.ii.mac);
-        }
-        t->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
-        if (hs->current_batch_sz == 0) /* Because later ones can have different src addy and be cut off group */
-          o.decoys[o.decoyturn] = t->v4source();
-        t->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
-        t->setMTU(rnfo.ii.mtu);
-        // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", t->NameIP(), t->directlyConnected()? "IS" : "IS NOT", t->deviceName(), (t->ifType() == devt_ethernet)? "IS" : "IS NOT");
-      }
+      t = setup_target(hs, &ss, sslen, pingtype);
+      if (t == NULL)
+        continue;
 
       /* Does this target need to go in a separate host group? */
       if (target_needs_new_hostgroup(hs, t)) {
         /* Cancel everything!  This guy must go in the next group and we are
            out of here */
-        hs->current_expression.return_last_host();
+        hs->current_group.return_host(t->TargetSockAddr());
         delete t;
         goto batchfull;
       }
@@ -408,19 +574,20 @@ Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
       hs->hostbatch[hs->current_batch_sz++] = t;
     }
 
-    if (hs->current_batch_sz < hs->max_batch_sz &&
-        hs->next_expression < hs->num_expressions) {
+    if (hs->current_batch_sz < hs->max_batch_sz) {
+      const char *expr;
       /* We are going to have to pop in another expression. */
-      while (hs->next_expression < hs->num_expressions) {
-        const char *expr;
-        expr = hs->target_expressions[hs->next_expression++];
-        if (hs->current_expression.parse_expr(expr, o.af()) != 0)
+      for (;;) {
+        expr = hs->next_expression();
+        if (expr == NULL)
+          goto batchfull;
+        if (hs->current_group.parse_expr(expr, o.af()) != 0)
           log_bogus_target(expr);
         else
           break;
       }
     } else break;
-  } while(1);
+  }
 
 batchfull:
 

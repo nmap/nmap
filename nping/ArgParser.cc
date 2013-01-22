@@ -1176,9 +1176,9 @@ char errstr[256];
   * class NpingTargets, that stores the specs and will provide the targets
   * through calls to getNextTarget();
   * */
-  char *next_spec=NULL;
-  while ( (next_spec= grab_next_host_spec(NULL, false, argc, argv)) != NULL )
-       o.targets.addSpec( next_spec );
+  const char *next_spec=NULL;
+  while ( (next_spec= grab_next_host_spec(NULL, false, argc, (const char **) argv)) != NULL )
+       o.targets.addSpec( (char *) next_spec );
 
  return OP_SUCCESS;
 } /* End of parseArguments() */

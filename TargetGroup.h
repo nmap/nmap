@@ -97,6 +97,8 @@
 #ifndef TARGETGROUP_H
 #define TARGETGROUP_H
 
+#include <limits.h>
+
 #include <list>
 #include <queue>
 #include <set>
@@ -104,85 +106,70 @@
 
 #include "nmap.h"
 
-class TargetGroup {
+/* We use bit vectors to represent what values are allowed in an IPv4 octet.
+   Each vector is built up of an array of bitvector_t (any convenient integer
+   type). */
+typedef unsigned long bitvector_t;
+/* A 256-element bit vector, representing legal values for one octet. */
+typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
+
+class NetBlock {
 public:
-  /* used by get_target_types */
-  enum _targets_types { TYPE_NONE, IPV4_NETMASK, IPV4_RANGES, IPV6_NETMASK };
-  /* used as input to skip range */
-  enum _octet_nums { FIRST_OCTET, SECOND_OCTET, THIRD_OCTET };
-  TargetGroup();
-
-  /* Initializes (or reinitializes) the object with a new expression,
-     such as 192.168.0.0/16 , 10.1.0-5.1-254 , or
-     fe80::202:e3ff:fe14:1102 .  The af parameter is AF_INET or
-     AF_INET6 Returns 0 for success */
-  int parse_expr(const char *target_expr, int af);
-  /* Grab the next host from this expression (if any).  Returns 0 and
-     fills in ss if successful.  ss must point to a pre-allocated
-     sockaddr_storage structure */
-  int get_next_host(struct sockaddr_storage *ss, size_t *sslen);
-  /* Returns the last given host, so that it will be given again next
-     time get_next_host is called.  Obviously, you should only call
-     this if you have fetched at least 1 host since parse_expr() was
-     called */
-  int return_last_host();
-  /* Returns true iff the given address is the one that was resolved to create
-     this target group; i.e., not one of the addresses derived from it with a
-     netmask. */
-  bool is_resolved_address(const struct sockaddr_storage *ss);
-  /* Return a string of the name or address that was resolved for this group. */
-  const char *get_resolved_name(void);
-  /* Return the list of addresses that the name for this group resolved to, if
-     it came from a name resolution. */
-  const std::list<struct sockaddr_storage> &get_resolved_addrs(void);
-  /* return the target type */
-  char get_targets_type() {
-    return targets_type;
-  };
-  /* get the netmask */
-  int get_mask() {
-    return netmask;
-  };
-  /* is the current expression a named host */
-  int get_namedhost() {
-    return namedhost;
-  };
-
-private:
-  enum _targets_types targets_type;
-  void Initialize();
-
+  virtual ~NetBlock() {}
+  std::string hostname;
   std::list<struct sockaddr_storage> resolvedaddrs;
 
-  u32 netmask;
-  std::string resolvedname;
+  /* Parses an expression such as 192.168.0.0/16, 10.1.0-5.1-254, or
+     fe80::202:e3ff:fe14:1102/112 and returns a newly allocated NetBlock. The af
+     parameter is AF_INET or AF_INET6. Returns NULL in case of error. */
+  static NetBlock *parse_expr(const char *target_expr, int af);
 
-  /* These are used for the '/mask' style of specifying target
-     net (IPV4_NETMASK) */
-  struct in_addr startaddr;
-  struct in_addr currentaddr;
-  struct in_addr endaddr;
+  bool is_resolved_address(const struct sockaddr_storage *ss) const;
 
-  // These three are for the '138.1-7,16,91-95,200-.12.1' style (IPV4_RANGES)
-  u8 addresses[4][256];
-  unsigned int current[4];
-  u8 last[4];
+  virtual bool next(struct sockaddr_storage *ss) = 0;
+  virtual void apply_netmask(int bits) = 0;
+  virtual std::string str() const = 0;
+};
 
-#if HAVE_IPV6
-  /* These are used for the '/mask' style of specifying target
-     net (IPV6_NETMASK) */
-  struct sockaddr_in6 ip6;
-  struct in6_addr startaddr6;
-  struct in6_addr currentaddr6;
-  struct in6_addr endaddr6;
-#endif
+class NetBlockIPv4Ranges : public NetBlock {
+public:
+  octet_bitvector octets[4];
 
-  /* Is set to true iff all the addresses in this group have already been
-     returned. */
+  bool next(struct sockaddr_storage *ss);
+  void apply_netmask(int bits);
+  std::string str() const;
+
+private:
+  unsigned int counter[4];
+};
+
+class NetBlockIPv6Netmask : public NetBlock {
+public:
+  void set_addr(const struct sockaddr_in6 *addr);
+
+  bool next(struct sockaddr_storage *ss);
+  void apply_netmask(int bits);
+  std::string str() const;
+
+private:
   bool exhausted;
+  struct sockaddr_in6 addr;
+  struct in6_addr start;
+  struct in6_addr cur;
+  struct in6_addr end;
+};
 
-  /* is the current target expression a named host? */
-  int namedhost;
+class NetBlockHostname : public NetBlock {
+public:
+  NetBlockHostname(const char *hostname, int af);
+  int af;
+  int bits;
+
+  NetBlock *resolve() const;
+
+  bool next(struct sockaddr_storage *ss);
+  void apply_netmask(int bits);
+  std::string str() const;
 };
 
 /* Adding new targets is for NSE scripts */
@@ -227,30 +214,6 @@ private:
   unsigned long push (const char *target);
 protected:
   static NewTargets *new_targets;
-};
-
-class HostGroupState {
-public:
-  HostGroupState(int lookahead, int randomize, char *target_expressions[],
-                 int num_expressions);
-  ~HostGroupState();
-  Target **hostbatch;
-  int max_batch_sz; /* The size of the hostbatch[] array */
-  int current_batch_sz; /* The number of VALID members of hostbatch[] */
-  int next_batch_no; /* The index of the next hostbatch[] member to be given
-			back to the user */
-  int randomize; /* Whether each batch should be "shuffled" prior to the ping
-		    scan (they will also be out of order when given back one
-		    at a time to the client program */
-  char **target_expressions; /* An array of target expression strings, passed
-				to us by the client (client is also in charge
-				of deleting it AFTER it is done with the
-				hostgroup_state */
-  int num_expressions;       /* The number of valid expressions in
-				target_expressions member above */
-  int next_expression;   /* The index of the next expression we have
-			    to handle */
-  TargetGroup current_expression; /* For batch chunking -- targets in queue */
 };
 
 #endif /* TARGETGROUP_H */
