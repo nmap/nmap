@@ -211,15 +211,6 @@ void nsp_setud(nsock_pool nsp, void *data);
  * retrieve that data ... */
 void *nsp_getud(nsock_pool nsp);
 
-/* Sets a trace/debug level and stream.  A level of 0 (the default) turns
- * tracing off, while higher numbers are more verbose.  If the stream given is
- * NULL, it defaults to stdout.  This is generally only used for debugging
- * purposes. A level of 1 or 2 is usually sufficient, but 10 will ensure you get
- * everything.  The basetime can be NULL to print trace lines with the current
- * time, otherwise the difference between the current time and basetime will be
- * used (the time program execution starts would be a good candidate) */
-void nsp_settrace(nsock_pool nsp, FILE *file, int level, const struct timeval *basetime);
-
 /* Turns on or off broadcast support on new sockets. Default is off (0, false)
  * set in nsp_new(). Any non-zero (true) value sets SO_BROADCAST on all new
  * sockets (value of optval will be used directly in the setsockopt() call). */

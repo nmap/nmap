@@ -140,8 +140,6 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  nsp_settrace(nsp, NULL, 10, NULL);
-
   ev_ids[num_ids++] = request_timer(nsp, timer_handler, 1800, NULL);
   ev_ids[num_ids++] = request_timer(nsp, timer_handler, 800, NULL);
   ev_ids[num_ids++] = request_timer(nsp, timer_handler, 1300, NULL);

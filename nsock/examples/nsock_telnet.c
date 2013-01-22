@@ -186,7 +186,7 @@ void telnet_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
 }
 
 void usage() {
-  fprintf(stderr, "\nUsage: nsock_telnet [-s] [-t tracelevel] <hostnameorip> [portnum]\n" "       Where -s enables SSL for the connection\n\n");
+  fprintf(stderr, "\nUsage: nsock_telnet [-s] <hostnameorip> [portnum]\n" "       Where -s enables SSL for the connection\n\n");
   exit(1);
 }
 
@@ -199,20 +199,15 @@ int main(int argc, char *argv[]) {
   struct telnet_state ts;
   int c;
   int usessl = 0;
-  int tracelevel = 0;
   struct timeval now;
   struct sockaddr_in taddr;
 
   ts.stdin_nsi = NULL;
 
-  while ((c = getopt(argc, argv, "st:")) != -1) {
+  while ((c = getopt(argc, argv, "s")) != -1) {
     switch (c) {
     case 's':
       usessl = 1;
-      break;
-    case 't':
-      tracelevel = atoi(optarg);
-      assert(tracelevel >= 0);
       break;
     default:
       usage();
@@ -242,8 +237,6 @@ int main(int argc, char *argv[]) {
   }
 
   gettimeofday(&now, NULL);
-
-  nsp_settrace(nsp, NULL, tracelevel, &now);
 
   if ((ts.tcp_nsi = nsi_new(nsp, NULL)) == NULL) {
     fprintf(stderr, "Failed to create new nsock_iod.  QUITTING.\n");

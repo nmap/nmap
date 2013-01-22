@@ -274,9 +274,6 @@ void *realloc();
 
 #define MAXFALLBACKS 20 /* How many comma separated fallbacks are allowed in the service-probes file? */
 
-/* The trace level to give to nsp_settrace with --packet-trace et al. */
-#define NSOCK_TRACE_LEVEL 2
-
 /* Default maximum send delay between probes to the same host */
 #ifndef MAX_TCP_SCAN_DELAY
 #define MAX_TCP_SCAN_DELAY 1000
