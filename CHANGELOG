@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o It's now possible to mix IPv4 range notation with CIDR netmasks in
+  target specifications. For example, 192.168-170.4-100,200.5/16 is
+  effectively the same as 192.168.168-170.0-255.0-255. [David Fifield]
+
 o Added nmap-fo.xsl, contributed by Tilik Ammon. This converts Nmap
   XML into XSL-FO, which can be converted into PDF using Apache FOP.
 
