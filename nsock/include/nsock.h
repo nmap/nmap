@@ -133,11 +133,19 @@ typedef void *nsock_ssl;
 
 
 /* Logging-related data structures */
+
 typedef enum {
+  /* --
+   * Actual message priority values */
   NSOCK_LOG_DBG_ALL,
   NSOCK_LOG_DBG,
   NSOCK_LOG_INFO,
-  NSOCK_LOG_ERROR
+  NSOCK_LOG_ERROR,
+  /* --
+   * No messages are issued by nsock with this value.
+   * Users can therefore set loglevel to NSOCK_LOG_NONE
+   * to disable logging */
+  NSOCK_LOG_NONE
 } nsock_loglevel_t;
 
 struct nsock_log_rec {
