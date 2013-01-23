@@ -29,11 +29,30 @@ o Nping/Nmap should probably show ICMP ping sequence values by default
   the default ping it sends and is the main way to distinguish the
   packets since the IPIDs are the same.
 
+o Nping in ICMP mode (default) must not be checking the icmp IDs or
+  returned packets or something, because if I have two separate 'nping
+  scanme.nmap.org' running at the same time, each nping sees the replies
+  from the other nping (as well as its own) and it screws up the timing
+  stats too.
+
+o [Nping] In '-q' mode, Nping should keep the line giving the min/max/avg rtt
+  times.  That way people can avoid seeing each individual packet but
+  still see the stats which are similar to what normal ping gives
+  them.
+
+o [Nping] Remove the lines starting with 'Tx time' and 'Rx time' by
+  default (and of course quieter modes), but leave them for cases at
+  least one level of -v.
+
 o We should figure out why (at least with Nping) raw ethernet frame
   sends seem to be taking significantly longer than raw socket sends
   (e.g. using --send-ip or the OS-provided ping utility).  This has
   been reproduced on Linux and Windows.  Here's a thread:
   http://seclists.org/nmap-dev/2012/q4/424
+  o Note that David and I tried to reproduce this on his machine and
+  on 'web' and 'research' machines and could not reproduce.  Still
+  happens with Fyodor's machine connected with WiFi.  Fyodor should
+  test on the same machine using wired and see if that changes anything.
 
 o NSE digest auth should use the more robust parsing from
   http.parse_www_authenticate as described at
