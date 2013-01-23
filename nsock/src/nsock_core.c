@@ -114,7 +114,7 @@ int socket_count_zero(msiod *iod, mspool *ms) {
 #if HAVE_PCAP
   iod->readpcapsd_count = 0;
 #endif
-  return ms->engine->iod_unregister(ms, iod);
+  return nsock_engine_iod_unregister(ms, iod);
 }
 
 static int socket_count_read_inc(msiod *iod) {
@@ -205,9 +205,9 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
 
   if (!IOD_PROPGET(iod, IOD_REGISTERED)) {
     assert(clrmask == EV_NONE);
-    ms->engine->iod_register(ms, iod, setmask);
+    nsock_engine_iod_register(ms, iod, setmask);
   } else {
-    ms->engine->iod_modify(ms, iod, setmask, clrmask);
+    nsock_engine_iod_modify(ms, iod, setmask, clrmask);
   }
 }
 
@@ -474,10 +474,10 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         nsock_log_info(ms, "EID %li reconnecting with SSL_OP_NO_SSLv2", nse->id);
 
         saved_ev = iod->watched_events;
-        ms->engine->iod_unregister(ms, iod);
+        nsock_engine_iod_unregister(ms, iod);
         close(iod->sd);
         nsock_connect_internal(ms, nse, SOCK_STREAM, iod->lastproto, &iod->peer, iod->peerlen, nsi_peerport(iod));
-        ms->engine->iod_register(ms, iod, saved_ev);
+        nsock_engine_iod_register(ms, iod, saved_ev);
 
         SSL_clear(iod->ssl);
         if(!SSL_clear(iod->ssl))
@@ -912,7 +912,7 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
       }
     }
 
-    if (ms->engine->loop(ms, msecs_left) == -1) {
+    if (nsock_engine_loop(ms, msecs_left) == -1) {
       quitstatus = NSOCK_LOOP_ERROR;
       break;
     }

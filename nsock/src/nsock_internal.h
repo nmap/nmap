@@ -386,6 +386,31 @@ struct io_engine {
   int (*loop)(mspool *nsp, int msec_timeout);
 };
 
+/* ----------- NSOCK I/O ENGINE CONVENIENCE WRAPPERS ------------ */
+static inline int nsock_engine_init(mspool *nsp) {
+  return nsp->engine->init(nsp);
+}
+
+static inline void nsock_engine_destroy(mspool *nsp) {
+  nsp->engine->destroy(nsp);
+  return;
+}
+
+static inline int nsock_engine_iod_register(mspool *nsp, msiod *iod, int ev) {
+  return nsp->engine->iod_register(nsp, iod, ev);
+}
+
+static inline int nsock_engine_iod_unregister(mspool *nsp, msiod *iod) {
+  return nsp->engine->iod_unregister(nsp, iod);
+}
+
+static inline int nsock_engine_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
+  return nsp->engine->iod_modify(nsp, iod, ev_set, ev_clr);
+}
+
+static inline int nsock_engine_loop(mspool *nsp, int msec_timeout) {
+  return nsp->engine->loop(nsp, msec_timeout);
+}
 
 /* ------------------- PROTOTYPES ------------------- */
 

@@ -158,7 +158,7 @@ nsock_pool nsp_new(void *userdata) {
   nsp->userdata = userdata;
 
   nsp->engine = get_io_engine();
-  nsp->engine->init(nsp);
+  nsock_engine_init(nsp);
 
   /* initialize IO events lists */
   gh_list_init(&nsp->connect_events);
@@ -252,7 +252,7 @@ void nsp_delete(nsock_pool ms_pool) {
   gh_list_free(&nsp->free_iods);
   gh_list_free(&nsp->free_events);
 
-  nsp->engine->destroy(nsp);
+  nsock_engine_destroy(nsp);
 
 #if HAVE_OPENSSL
   if (nsp->sslctx != NULL)
