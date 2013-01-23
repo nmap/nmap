@@ -444,8 +444,6 @@ void handle_timer_result(mspool *ms, msevent *nse, enum nse_status status);
 void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status);
 #endif
 
-void nsock_trace(mspool *ms, char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
-
 /* An event has been completed and the handler is about to be called.  This
  * function writes out tracing data about the event if necessary */
 void nsock_trace_handler_callback(mspool *ms, msevent *nse);
