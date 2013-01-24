@@ -16,20 +16,20 @@ You can specify your own .class file to inject by <code>filename</code> argument
 See nselib/data/jdwp-class/README for more.
 ]]
 
-author = "Aleksandar Nikolic" 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe","discovery"}
-
 ---
 -- @usage nmap -sT <target> -p <port> --script=+jdwp-inject --script-args filename=HelloWorld.class
 --
--- @args filename	Java .class file to inject.
+-- @args jdwp-inject.filename	Java <code>.class</code> file to inject.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 2010/tcp open  search  syn-ack
 -- | jdwp-inject:
 -- |_  Hello world from the remote machine!
---
+
+author = "Aleksandar Nikolic"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"safe","discovery"}
+
 portrule = function(host, port)
         -- JDWP will close the port if there is no valid handshake within 2
 	-- seconds, Service detection's NULL probe detects it as tcpwrapped.

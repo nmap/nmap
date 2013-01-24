@@ -14,7 +14,7 @@ services (.NET 4.0 or later).
 
 ---
 -- @usage
--- sudo ./nmap --script broadcast-wsdd-discover 
+-- sudo ./nmap --script wsdd-discover
 --
 -- @output
 -- PORT     STATE         SERVICE

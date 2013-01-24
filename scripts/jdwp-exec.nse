@@ -19,14 +19,10 @@ accepts a shell command as its argument.
 
 ]]
 
-author = "Aleksandar Nikolic" 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe","discovery"}
-
 ---
 -- @usage nmap -sT <target> -p <port> --script=+jdwp-exec --script-args cmd="date"
 --
--- @args cmd 	Command to execute on the remote system.
+-- @args jdwp-exec.cmd 	Command to execute on the remote system.
 --
 -- @output 
 -- PORT     STATE SERVICE REASON
@@ -35,6 +31,10 @@ categories = {"safe","discovery"}
 -- |   date output:
 -- |   Sat Aug 11 15:27:21 Central European Daylight Time 2012
 -- |_
+
+author = "Aleksandar Nikolic"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"safe","discovery"}
 
 portrule = function(host, port)
         -- JDWP will close the port if there is no valid handshake within 2

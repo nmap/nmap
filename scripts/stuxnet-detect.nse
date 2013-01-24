@@ -19,7 +19,7 @@ for the filename is given on the command line.
 -- nmap --script stuxnet-detect -p 445 <host>
 --
 -- @args stuxnet-detect.save Path to save Stuxnet executable under, with
---       <code>%h/code> replaced by the host's IP address, and <code>%v</code>
+--       <code>%h</code> replaced by the host's IP address, and <code>%v</code>
 --       replaced by the version of Stuxnet.
 --
 -- @output

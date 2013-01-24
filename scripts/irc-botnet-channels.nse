@@ -40,6 +40,8 @@ categories = {"discovery", "vuln", "safe"}
 -- @usage
 -- nmap -p 6667 --script=irc-botnet-channels --script-args 'irc-botnet-channels.channels={chan1,chan2,chan3}' <target>
 --
+-- @args irc-botnet-channels.channels a list of channel names to check for.
+--
 -- @output
 -- | irc-botnet-channels:
 -- |   #loic
