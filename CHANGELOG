@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed various NSEDoc bugs found by David Matousek.
+
 o [Zenmap] Zenmap now understands the NMAP_PRIVILEGED and
   NMAP_UNPRIVILEGED environment variables. [Tyler Wagner]
 
