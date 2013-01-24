@@ -24,13 +24,11 @@ to be on the LAN.
 -- @usage
 -- sudo nmap -sn <target> --script ip-forwarding --script-args='target=www.example.com'
 --
--- @args ip-forwarding.target the host to which to attempt forwarding (required).
---
 -- @output
 -- | ip-forwarding: 
 -- |_  The host has ip forwarding enabled, tried ping against (www.example.com)
 --
--- @param ip-forwarding.target a LAN or routed target responding to ICMP echo
+-- @args ip-forwarding.target a LAN or routed target responding to ICMP echo
 --        requests (ping).
 --
 
