@@ -168,7 +168,12 @@ def main_is_frozen():
             or imp.is_frozen("__main__")) # tools/freeze
 
 def is_root():
-    return sys.platform == "win32" or os.getuid() == 0 or is_maemo()
+    if 'NMAP_PRIVILEGED' in os.environ:
+        return True
+    elif 'NMAP_UNPRIVILEGED' in os.environ:
+        return False
+    else:
+        return sys.platform == "win32" or os.getuid() == 0 or is_maemo()
 
 def install_excepthook():
     # This will catch exceptions and send them to bugzilla

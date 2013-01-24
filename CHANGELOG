@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Zenmap now understands the NMAP_PRIVILEGED and
+  NMAP_UNPRIVILEGED environment variables. [Tyler Wagner]
+
 o It's now possible to mix IPv4 range notation with CIDR netmasks in
   target specifications. For example, 192.168-170.4-100,200.5/16 is
   effectively the same as 192.168.168-170.0-255.0-255. [David Fifield]
