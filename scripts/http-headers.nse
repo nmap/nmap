@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Performs a GET request for the root folder ("/") of a web server and displays the HTTP headers returned. 
+Performs a HEAD request for the root folder ("/") of a web server and displays the HTTP headers returned.
 ]]
 
 ---
