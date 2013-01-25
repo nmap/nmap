@@ -239,11 +239,11 @@ static int read_timeouts[][4] = {
 
 //------------------- Internal Structures ---------------------
 
-typedef struct dns_server_s dns_server;
-typedef struct request_s request;
-typedef struct host_elem_s host_elem;
+struct dns_server;
+struct request;
+struct host_elem;
 
-struct dns_server_s {
+struct dns_server {
   char *hostname;
   sockaddr_storage addr;
   size_t addr_len;
@@ -256,7 +256,7 @@ struct dns_server_s {
   std::list<request *> in_process;
 };
 
-struct request_s {
+struct request {
   Target *targ;
   struct timeval timeout;
   int tries;
@@ -266,7 +266,7 @@ struct request_s {
   u16 id;
 };
 
-struct host_elem_s {
+struct host_elem {
   char *name;
   u32 addr;
   u8 cache_hits;
