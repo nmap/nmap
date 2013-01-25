@@ -1585,7 +1585,6 @@ int nmap_main(int argc, char *argv[]) {
   char hostname[MAXHOSTNAMELEN + 1] = "";
   struct sockaddr_storage ss;
   size_t sslen;
-  char **fakeargv = NULL;
 
   now = time(NULL);
   local_time = localtime(&now);
@@ -1598,19 +1597,12 @@ int nmap_main(int argc, char *argv[]) {
   if (argc < 2)
     printusage(-1);
 
-  /* argv faking silliness */
-  fakeargv = (char **) safe_malloc(sizeof(char *) * (argc + 1));
-  for (i = 0; i < argc; i++) {
-    fakeargv[i] = strdup(argv[i]);
-  }
-  fakeargv[argc] = NULL;
-
   Targets.reserve(100);
 #ifdef WIN32
   win_pre_init();
 #endif
 
-  parse_options(argc, fakeargv);
+  parse_options(argc, argv);
 
   tty_init(); // Put the keyboard in raw mode
 
@@ -1687,14 +1679,14 @@ int nmap_main(int argc, char *argv[]) {
 
   std::string command;
   if (argc > 0)
-    command += fakeargv[0];
+    command += argv[0];
   for (i = 1; i < argc; i++) {
     command += " ";
-    command += fakeargv[i];
+    command += argv[i];
   }
 
   xml_start_comment();
-  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(fakeargv, argc).c_str());
+  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(argv, argc).c_str());
   xml_end_comment();
   xml_newline();
 
@@ -1705,7 +1697,7 @@ int nmap_main(int argc, char *argv[]) {
 
   xml_open_start_tag("nmaprun");
   xml_attribute("scanner", "nmap");
-  xml_attribute("args", "%s", join_quoted(fakeargv, argc).c_str());
+  xml_attribute("args", "%s", join_quoted(argv, argc).c_str());
   xml_attribute("start", "%lu", (unsigned long) timep);
   xml_attribute("startstr", "%s", mytime);
   xml_attribute("version", "%s", NMAP_VERSION);
@@ -1814,7 +1806,7 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
-  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) fakeargv);
+  HostGroupState hstate(o.ping_group_sz, o.randomize_hosts, argc, (const char **) argv);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
@@ -2075,11 +2067,6 @@ int nmap_main(int argc, char *argv[]) {
   eth_close_cached();
 
   if (o.release_memory) {
-    /* Free fake argv */
-    for (i = 0; i < argc; i++)
-      free(fakeargv[i]);
-    free(fakeargv);
-
     nmap_free_mem();
   }
   return 0;
