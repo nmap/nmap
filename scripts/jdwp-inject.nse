@@ -28,7 +28,7 @@ See nselib/data/jdwp-class/README for more.
 
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe","discovery"}
+categories = {"exploit","intrusive"}
 
 portrule = function(host, port)
         -- JDWP will close the port if there is no valid handshake within 2
