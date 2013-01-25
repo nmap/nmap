@@ -10,20 +10,17 @@ Performs a HEAD request for the root folder ("/") of a web server and displays t
 
 ---
 -- @output
--- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT   STATE SERVICE
--- 80/tcp open  http    syn-ack
--- |  http-headers:  
--- |  |  HTTP/1.1 200 OK
--- |  |  Date: Tue, 10 Nov 2009 01:25:11 GMT
--- |  |  Server: Apache/2.2.9 (Unix) PHP/5.2.10
--- |  |  Last-Modified: Sat, 11 Oct 2008 15:22:21 GMT
--- |  |  ETag: "90013-e3d-458fbd508c540"
--- |  |  Accept-Ranges: bytes
--- |  |  Content-Length: 3645
--- |  |  Connection: close
--- |  |  Content-Type: text/html
--- |_ |_ (Request type: HEAD)
+-- 80/tcp open  http
+-- | http-headers:
+-- |   Date: Fri, 25 Jan 2013 17:39:08 GMT
+-- |   Server: Apache/2.2.14 (Ubuntu)
+-- |   Accept-Ranges: bytes
+-- |   Vary: Accept-Encoding
+-- |   Connection: close
+-- |   Content-Type: text/html
+-- |
+-- |_  (Request type: HEAD)
 -- 
 --@args path The path to request, such as <code>/index.php</code>. Default <code>/</code>. 
 --@args useget Set to force GET requests instead of HEAD. 
