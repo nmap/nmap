@@ -348,7 +348,7 @@ const struct in6_addr *Target::v6sourceip() const {
 
   /* You can set to NULL to erase a name or if it failed to resolve -- or 
      just don't call this if it fails to resolve */
-void Target::setHostName(char *name) {
+void Target::setHostName(const char *name) {
   char *p;
   if (hostname) {
     free(hostname);

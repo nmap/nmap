@@ -244,7 +244,7 @@ struct request;
 struct host_elem;
 
 struct dns_server {
-  char *hostname;
+  std::string hostname;
   sockaddr_storage addr;
   size_t addr_len;
   nsock_iod nsd;
@@ -267,7 +267,7 @@ struct request {
 };
 
 struct host_elem {
-  char *name;
+  std::string name;
   u32 addr;
   u8 cache_hits;
 };
@@ -275,14 +275,14 @@ struct host_elem {
 
 //------------------- Globals ---------------------
 
-static std::list<dns_server *> servs;
+static std::list<dns_server> servs;
 static std::list<request *> new_reqs;
 static std::list<request *> cname_reqs;
 static int total_reqs;
 static nsock_pool dnspool=NULL;
 
 /* The DNS cache, not just for entries from /etc/hosts. */
-static std::list<host_elem *> etchosts[HASH_TABLE_SIZE];
+static std::list<host_elem> etchosts[HASH_TABLE_SIZE];
 
 static int stat_actual, stat_ok, stat_nx, stat_sf, stat_trans, stat_dropped, stat_cname;
 static struct timeval starttv;
@@ -296,7 +296,7 @@ static ScanProgressMeter *SPM;
 //------------------- Prototypes and macros ---------------------
 
 static void put_dns_packet_on_wire(request *req);
-static char *lookup_etchosts(u32 ip);
+static const char *lookup_etchosts(u32 ip);
 static void addto_etchosts(u32 ip, const char *hname);
 
 #define ACTION_FINISHED 0
@@ -321,19 +321,19 @@ static void output_summary() {
 static void check_capacities(dns_server *tpserv) {
   if (tpserv->capacity < CAPACITY_MIN) tpserv->capacity = CAPACITY_MIN;
   if (tpserv->capacity > CAPACITY_MAX) tpserv->capacity = CAPACITY_MAX;
-  if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "CAPACITY <%s> = %d\n", tpserv->hostname, tpserv->capacity);
+  if (o.debugging >= TRACE_DEBUG_LEVEL) log_write(LOG_STDOUT, "CAPACITY <%s> = %d\n", tpserv->hostname.c_str(), tpserv->capacity);
 }
 
 // Closes all nsis created in connect_dns_servers()
 static void close_dns_servers() {
-  std::list<dns_server *>::iterator serverI;
+  std::list<dns_server>::iterator serverI;
 
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    if ((*serverI)->connected) {
-      nsi_delete((*serverI)->nsd, NSOCK_PENDING_SILENT);
-      (*serverI)->connected = 0;
-      (*serverI)->to_process.clear();
-      (*serverI)->in_process.clear();
+    if (serverI->connected) {
+      nsi_delete(serverI->nsd, NSOCK_PENDING_SILENT);
+      serverI->connected = 0;
+      serverI->to_process.clear();
+      serverI->in_process.clear();
     }
   }
 }
@@ -355,27 +355,24 @@ static int add_integer_to_dns_packet(char *packet, int c) {
 
 // Puts as many packets on the line as capacity will allow
 static void do_possible_writes() {
-  std::list<dns_server *>::iterator servI;
-  dns_server *tpserv;
+  std::list<dns_server>::iterator servI;
   request *tpreq;
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
-    tpserv = *servI;
-
-    if (tpserv->write_busy == 0 && tpserv->reqs_on_wire < tpserv->capacity) {
+    if (servI->write_busy == 0 && servI->reqs_on_wire < servI->capacity) {
       tpreq = NULL;
-      if (!tpserv->to_process.empty()) {
-        tpreq = tpserv->to_process.front();
-        tpserv->to_process.pop_front();
+      if (!servI->to_process.empty()) {
+        tpreq = servI->to_process.front();
+        servI->to_process.pop_front();
       } else if (!new_reqs.empty()) {
         tpreq = new_reqs.front();
-        tpreq->first_server = tpreq->curr_server = tpserv;
+        tpreq->first_server = tpreq->curr_server = &*servI;
         new_reqs.pop_front();
       }
 
       if (tpreq) {
         if (o.debugging >= TRACE_DEBUG_LEVEL)
-	   log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , tpserv->hostname);
+	   log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , servI->hostname.c_str());
         stat_trans++;
         put_dns_packet_on_wire(tpreq);
       }
@@ -433,11 +430,10 @@ static void put_dns_packet_on_wire(request *req) {
 // Processes DNS packets that have timed out
 // Returns time until next read timeout
 static int deal_with_timedout_reads() {
-  std::list<dns_server *>::iterator servI;
-  std::list<dns_server *>::iterator servItemp;
+  std::list<dns_server>::iterator servI;
+  std::list<dns_server>::iterator servItemp;
   std::list<request *>::iterator reqI;
   std::list<request *>::iterator nextI;
-  dns_server *tpserv;
   request *tpreq;
   struct timeval now;
   int tp, min_timeout = INT_MAX;
@@ -448,10 +444,8 @@ static int deal_with_timedout_reads() {
     SPM->printStats((double) (stat_ok + stat_nx + stat_dropped) / stat_actual, &now);
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
-    tpserv = *servI;
-
-    nextI = tpserv->in_process.begin();
-    if (nextI == tpserv->in_process.end()) continue;
+    nextI = servI->in_process.begin();
+    if (nextI == servI->in_process.end()) continue;
 
     do {
       reqI = nextI++;
@@ -461,22 +455,22 @@ static int deal_with_timedout_reads() {
       if (tp > 0 && tp < min_timeout) min_timeout = tp;
 
       if (tp <= 0) {
-        tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MINOR_DOWN_SCALE);
-        check_capacities(tpserv);
-        tpserv->in_process.erase(reqI);
-        tpserv->reqs_on_wire--;
+        servI->capacity = (int) (servI->capacity * CAPACITY_MINOR_DOWN_SCALE);
+        check_capacities(&*servI);
+        servI->in_process.erase(reqI);
+        servI->reqs_on_wire--;
 
         // If we've tried this server enough times, move to the next one
         if (read_timeouts[read_timeout_index][tpreq->tries] == -1) {
-          tpserv->capacity = (int) (tpserv->capacity * CAPACITY_MAJOR_DOWN_SCALE);
-          check_capacities(tpserv);
+          servI->capacity = (int) (servI->capacity * CAPACITY_MAJOR_DOWN_SCALE);
+          check_capacities(&*servI);
 
           servItemp = servI;
           servItemp++;
 
           if (servItemp == servs.end()) servItemp = servs.begin();
 
-          tpreq->curr_server = *servItemp;
+          tpreq->curr_server = &*servItemp;
           tpreq->tries = 0;
           tpreq->servers_tried++;
 
@@ -495,17 +489,17 @@ static int deal_with_timedout_reads() {
             delete tpreq;
 
             // **** OR We start at the back of this server's queue
-            //(*servItemp)->to_process.push_back(tpreq);
+            //servItemp->to_process.push_back(tpreq);
           } else {
-            (*servItemp)->to_process.push_back(tpreq);
+            servItemp->to_process.push_back(tpreq);
           }
         } else {
-          tpserv->to_process.push_back(tpreq);
+          servI->to_process.push_back(tpreq);
         }
 
     }
 
-    } while (nextI != tpserv->in_process.end());
+    } while (nextI != servI->in_process.end());
 
   }
 
@@ -518,15 +512,12 @@ static int deal_with_timedout_reads() {
 // looking for and update their results as necessary.
 // Returns non-zero if this matches a query we're looking for
 static int process_result(u32 ia, char *result, int action, u16 id) {
-  std::list<dns_server *>::iterator servI;
+  std::list<dns_server>::iterator servI;
   std::list<request *>::iterator reqI;
-  dns_server *tpserv;
   request *tpreq;
 
   for(servI = servs.begin(); servI != servs.end(); servI++) {
-    tpserv = *servI;
-
-    for(reqI = tpserv->in_process.begin(); reqI != tpserv->in_process.end(); reqI++) {
+    for(reqI = servI->in_process.begin(); reqI != servI->in_process.end(); reqI++) {
       tpreq = *reqI;
 
       if (id == tpreq->id) {
@@ -535,16 +526,16 @@ static int process_result(u32 ia, char *result, int action, u16 id) {
           continue;
 
         if (action == ACTION_CNAME_LIST || action == ACTION_FINISHED) {
-        tpserv->capacity += CAPACITY_UP_STEP;
-        check_capacities(tpserv);
+        servI->capacity += CAPACITY_UP_STEP;
+        check_capacities(&*servI);
 
         if (result) {
           tpreq->targ->setHostName(result);
           addto_etchosts(tpreq->targ->v4hostip()->s_addr, result);
         }
 
-        tpserv->in_process.remove(tpreq);
-        tpserv->reqs_on_wire--;
+        servI->in_process.remove(tpreq);
+        servI->reqs_on_wire--;
 
         total_reqs--;
 
@@ -811,8 +802,7 @@ static void connect_evt_handler(nsock_pool nsp, nsock_event evt, void *servers) 
 // Adds DNS servers to the dns_server list. They can be separated by
 // commas or spaces - NOTE this doesn't actually do any connecting!
 static void add_dns_server(char *ipaddrs) {
-  std::list<dns_server *>::iterator servI;
-  dns_server *tpserv;
+  std::list<dns_server>::iterator servI;
   char *hostname;
   struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
@@ -823,19 +813,17 @@ static void add_dns_server(char *ipaddrs) {
       continue;
 
     for(servI = servs.begin(); servI != servs.end(); servI++) {
-      tpserv = *servI;
-
       // Already added!
-      if (memcmp(&addr, &tpserv->addr, sizeof(addr)) == 0) break;
+      if (memcmp(&addr, &servI->addr, sizeof(addr)) == 0) break;
     }
 
     // If it hasn't already been added, add it!
     if (servI == servs.end()) {
-      tpserv = new dns_server;
+      dns_server tpserv;
 
-      tpserv->hostname = strdup(hostname);
-      memcpy(&tpserv->addr, &addr, sizeof(addr));
-      tpserv->addr_len = addr_len;
+      tpserv.hostname = hostname;
+      memcpy(&tpserv.addr, &addr, sizeof(addr));
+      tpserv.addr_len = addr_len;
 
       servs.push_front(tpserv);
 
@@ -846,46 +834,26 @@ static void add_dns_server(char *ipaddrs) {
 
 }
 
-void free_dns_servers() {
-  std::list<dns_server *>::iterator servI;
-  dns_server *tpserv;
-
-  for(servI = servs.begin(); servI != servs.end();servI++){
-    tpserv = *servI;
-    if(tpserv){
-      if(tpserv->hostname)
-        free(tpserv->hostname);
-      delete tpserv;
-    }
-  }
-  servs.clear();
-}
-
-
 // Creates a new nsi for each DNS server
 static void connect_dns_servers() {
-  std::list<dns_server *>::iterator serverI;
-  dns_server *s;
-
+  std::list<dns_server>::iterator serverI;
   for(serverI = servs.begin(); serverI != servs.end(); serverI++) {
-    s = *serverI;
-
-    s->nsd = nsi_new(dnspool, NULL);
+    serverI->nsd = nsi_new(dnspool, NULL);
     if (o.spoofsource) {
       struct sockaddr_storage ss;
       size_t sslen;
       o.SourceSockAddr(&ss, &sslen);
-      nsi_set_localaddr(s->nsd, &ss, sslen);
+      nsi_set_localaddr(serverI->nsd, &ss, sslen);
     }
     if (o.ipoptionslen)
-      nsi_set_ipoptions(s->nsd, o.ipoptions, o.ipoptionslen);
-    s->reqs_on_wire = 0;
-    s->capacity = CAPACITY_MIN;
-    s->write_busy = 0;
+      nsi_set_ipoptions(serverI->nsd, o.ipoptions, o.ipoptionslen);
+    serverI->reqs_on_wire = 0;
+    serverI->capacity = CAPACITY_MIN;
+    serverI->write_busy = 0;
 
-    nsock_connect_udp(dnspool, s->nsd, connect_evt_handler, NULL, (struct sockaddr *) &s->addr, s->addr_len, 53);
-    nsock_read(dnspool, s->nsd, read_evt_handler, -1, NULL);
-    s->connected = 1;
+    nsock_connect_udp(dnspool, serverI->nsd, connect_evt_handler, NULL, (struct sockaddr *) &serverI->addr, serverI->addr_len, 53);
+    nsock_read(dnspool, serverI->nsd, read_evt_handler, -1, NULL);
+    serverI->connected = 1;
   }
 
 }
@@ -1016,28 +984,11 @@ static void parse_etchosts(const char *fname) {
   fclose(fp);
 }
 
-void free_etchosts() {
-  host_elem *he;
-  std::list<host_elem *>::iterator hi;
-  int i;
-
-  for(i=0; i < HASH_TABLE_SIZE; i++){
-    for(hi = etchosts[i].begin(); hi != etchosts[i].end(); hi++) {
-      he = *hi;
-      if(he) {
-        free(he->name);
-        delete he;
-      }
-    }
-    etchosts[i].clear();
-  }
-}
-
 /* Executed when the DNS cache is full, ages entries
  * and removes any with a cache hit of 0 (the least used) */
-bool remove_and_age(host_elem *host) {
-  if(host->cache_hits) {
-     host->cache_hits /=2;
+bool remove_and_age(host_elem &host) {
+  if(host.cache_hits) {
+     host.cache_hits /=2;
      return false;
   } else
      return true;
@@ -1048,8 +999,8 @@ bool remove_and_age(host_elem *host) {
  * make more space. */
 static void addto_etchosts(u32 ip, const char *hname) {
   static u16 total_size = 0;
-  std::list<host_elem*>::iterator it;
-  host_elem *he;
+  std::list<host_elem>::iterator it;
+  host_elem he;
   int i;
 
   if(lookup_etchosts(ip) != NULL)
@@ -1066,26 +1017,23 @@ static void addto_etchosts(u32 ip, const char *hname) {
       }
     }
   }
-  he = new host_elem;
-  he->name = strdup(hname);
-  he->addr = ip;
-  he->cache_hits = 0;
+  he.name = hname;
+  he.addr = ip;
+  he.cache_hits = 0;
   etchosts[IP_HASH(ip)].push_back(he);
   total_size++;
 }
 
 /* Search for a hostname in the cache and increment
  * its cache hit counter if found */
-static char *lookup_etchosts(u32 ip) {
-  std::list<host_elem *>::iterator hostI;
-  host_elem *tpelem;
+static const char *lookup_etchosts(u32 ip) {
+  std::list<host_elem>::iterator hostI;
   int localIP_Hash = IP_HASH(ip);
   for(hostI = etchosts[localIP_Hash].begin(); hostI != etchosts[localIP_Hash].end(); hostI++) {
-    tpelem = *hostI;
-    if (tpelem->addr == ip) {
-      if(tpelem->cache_hits < UCHAR_MAX)
-        tpelem->cache_hits++;
-      return tpelem->name;
+    if (hostI->addr == ip) {
+      if(hostI->cache_hits < UCHAR_MAX)
+        hostI->cache_hits++;
+      return hostI->name.c_str();
     }
   }
   return NULL;
@@ -1162,7 +1110,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
   std::list<request *>::iterator reqI;
   request *tpreq;
   int timeout;
-  char *tpname;
+  const char *tpname;
   int i;
   char spmobuf[1024];
 
@@ -1372,10 +1320,10 @@ std::list<std::string> get_dns_servers() {
   // of servers.
   assert(o.mass_dns || servs.empty());
 
-  std::list<dns_server *>::iterator servI;
+  std::list<dns_server>::iterator servI;
   std::list<std::string> serverList;
   for(servI = servs.begin(); servI != servs.end(); servI++) {
-    serverList.push_back(inet_socktop((struct sockaddr_storage *) &(*servI)->addr));
+    serverList.push_back(inet_socktop((struct sockaddr_storage *) &servI->addr));
   }
   return serverList;
 }

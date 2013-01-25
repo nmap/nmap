@@ -2128,8 +2128,6 @@ static bool target_needs_new_hostgroup(std::vector<Target *> &targets, const Tar
 void nmap_free_mem() {
   PortList::freePortMap();
   cp_free();
-  free_dns_servers();
-  free_etchosts();
   free_services();
   AllProbes::service_scan_free();
   traceroute_hop_cache_clear();

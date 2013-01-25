@@ -199,7 +199,7 @@ class Target {
      away when you setTargetSockAddr(), so make sure you do these in proper
      order
   */
-  void setHostName(char *name);
+  void setHostName(const char *name);
   /* Generates a printable string consisting of the host's IP
      address and hostname (if available).  Eg "www.insecure.org
      (64.71.184.53)" or "fe80::202:e3ff:fe14:1102".  The name is
