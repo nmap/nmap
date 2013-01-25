@@ -21,9 +21,9 @@ Performs a HEAD request for the root folder ("/") of a web server and displays t
 -- |   Content-Type: text/html
 -- |
 -- |_  (Request type: HEAD)
--- 
---@args path The path to request, such as <code>/index.php</code>. Default <code>/</code>. 
---@args useget Set to force GET requests instead of HEAD. 
+--
+--@args path The path to request, such as <code>/index.php</code>. Default <code>/</code>.
+--@args useget Set to force GET requests instead of HEAD.
 
 author = "Ron Bowes"
 
@@ -31,12 +31,11 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
-
 portrule = shortport.http
 
 action = function(host, port)
 	local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
-  local useget = stdnse.get_script_args(SCRIPT_NAME..".useget")
+	local useget = stdnse.get_script_args(SCRIPT_NAME..".useget")
 	local request_type = "HEAD"
 	local status = false
 	local result
@@ -71,7 +70,6 @@ action = function(host, port)
 	end
 
 	table.insert(result.rawheader, "(Request type: " .. request_type .. ")")
-	
+
 	return stdnse.format_output(true, result.rawheader)
 end
-
