@@ -295,6 +295,7 @@ bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss) {
   }
 
   /* Assign the returned address based on current counters. */
+  memset(ss, 0, sizeof(*ss));
   sin = (struct sockaddr_in *) ss;
   sin->sin_family = AF_INET;
   sin->sin_port = 0;
@@ -456,9 +457,8 @@ bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss) {
   if (this->exhausted)
     return false;
 
+  memset(ss, 0, sizeof(*ss));
   sin6 = (struct sockaddr_in6 *) ss;
-  memset(sin6, 0, sizeof(*sin6));
-
   sin6->sin6_family = AF_INET6;
 #ifdef SIN_LEN
   sin6->sin6_len = sizeof(*sin6);
