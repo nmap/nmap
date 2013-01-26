@@ -353,8 +353,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     delete netblock_hostname;
   }
 
-  *sslen = sizeof(*ss);
-  if (this->netblock->next(ss))
+  if (this->netblock->next(ss, sslen))
     return 0;
   else
     return -1;

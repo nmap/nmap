@@ -126,7 +126,7 @@ public:
 
   bool is_resolved_address(const struct sockaddr_storage *ss) const;
 
-  virtual bool next(struct sockaddr_storage *ss) = 0;
+  virtual bool next(struct sockaddr_storage *ss, size_t *sslen) = 0;
   virtual void apply_netmask(int bits) = 0;
   virtual std::string str() const = 0;
 };
@@ -137,7 +137,7 @@ public:
 
   NetBlockIPv4Ranges();
 
-  bool next(struct sockaddr_storage *ss);
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);
   std::string str() const;
 
@@ -149,7 +149,7 @@ class NetBlockIPv6Netmask : public NetBlock {
 public:
   void set_addr(const struct sockaddr_in6 *addr);
 
-  bool next(struct sockaddr_storage *ss);
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);
   std::string str() const;
 
@@ -169,7 +169,7 @@ public:
 
   NetBlock *resolve() const;
 
-  bool next(struct sockaddr_storage *ss);
+  bool next(struct sockaddr_storage *ss, size_t *sslen);
   void apply_netmask(int bits);
   std::string str() const;
 };

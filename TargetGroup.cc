@@ -278,7 +278,7 @@ NetBlockIPv4Ranges::NetBlockIPv4Ranges() {
   }
 }
 
-bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss) {
+bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss, size_t *sslen) {
   struct sockaddr_in *sin;
   unsigned int i;
 
@@ -303,6 +303,7 @@ bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss) {
   sin->sin_len = sizeof(*sin);
 #endif
   sin->sin_addr.s_addr = htonl((this->counter[0] << 24) | (this->counter[1] << 16) | (this->counter[2] << 8) | this->counter[3]);
+  *sslen = sizeof(*sin);
 
   for (i = 0; i < 4; i++) {
     bool carry;
@@ -451,7 +452,7 @@ static bool ipv6_equal(const struct in6_addr *a, const struct in6_addr *b) {
   return memcmp(a->s6_addr, b->s6_addr, 16) == 0;
 }
 
-bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss) {
+bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss, size_t *sslen) {
   struct sockaddr_in6 *sin6;
 
   if (this->exhausted)
@@ -463,6 +464,7 @@ bool NetBlockIPv6Netmask::next(struct sockaddr_storage *ss) {
 #ifdef SIN_LEN
   sin6->sin6_len = sizeof(*sin6);
 #endif
+  *sslen = sizeof(*sin6);
 
   if (this->addr.sin6_scope_id != 0)
     sin6->sin6_scope_id = this->addr.sin6_scope_id;
@@ -631,7 +633,7 @@ NetBlockHostname::NetBlockHostname(const char *hostname, int af) {
   this->bits = -1;
 }
 
-bool NetBlockHostname::next(struct sockaddr_storage *ss) {
+bool NetBlockHostname::next(struct sockaddr_storage *ss, size_t *sslen) {
   assert(false);
   return false;
 }
