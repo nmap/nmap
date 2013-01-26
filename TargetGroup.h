@@ -135,6 +135,8 @@ class NetBlockIPv4Ranges : public NetBlock {
 public:
   octet_bitvector octets[4];
 
+  NetBlockIPv4Ranges();
+
   bool next(struct sockaddr_storage *ss);
   void apply_netmask(int bits);
   std::string str() const;

@@ -269,6 +269,15 @@ bool NetBlock::is_resolved_address(const struct sockaddr_storage *ss) const {
   return sockaddr_storage_equal(&*this->resolvedaddrs.begin(), ss);
 }
 
+NetBlockIPv4Ranges::NetBlockIPv4Ranges() {
+  unsigned int i;
+
+  for (i = 0; i < 4; i++) {
+    memset(this->octets, 0, sizeof(this->octets));
+    this->counter[i] = 0;
+  }
+}
+
 bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss) {
   struct sockaddr_in *sin;
   unsigned int i;
