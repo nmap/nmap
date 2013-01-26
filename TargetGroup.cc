@@ -428,9 +428,10 @@ std::string NetBlockIPv4Ranges::str() const {
 
 void NetBlockIPv6Netmask::set_addr(const struct sockaddr_in6 *addr) {
   this->exhausted = false;
-  this->start = addr->sin6_addr;
-  this->cur = addr->sin6_addr;
-  this->end = addr->sin6_addr;
+  this->addr = *addr;
+  this->start = this->addr.sin6_addr;
+  this->cur = this->addr.sin6_addr;
+  this->end = this->addr.sin6_addr;
 }
 
 /* Get the sin6_scope_id member of a sockaddr_in6, based on a device name. This
