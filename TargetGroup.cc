@@ -300,7 +300,7 @@ bool NetBlockIPv4Ranges::next(struct sockaddr_storage *ss) {
   sin->sin_family = AF_INET;
   sin->sin_port = 0;
 #if HAVE_SOCKADDR_SA_LEN
-  sin->sin_len = sizeof(*ss);
+  sin->sin_len = sizeof(*sin);
 #endif
   sin->sin_addr.s_addr = htonl((this->counter[0] << 24) | (this->counter[1] << 16) | (this->counter[2] << 8) | this->counter[3]);
 
