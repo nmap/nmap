@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ike-version and a new ike library by Jesper Kückelhahn. Thanks
+  also go to Roy Hills, who allowed the use of the signature database from
+  the ike-scan tool.
+
 o [NSE] Fixed various NSEDoc bugs found by David Matousek.
 
 o [Zenmap] Zenmap now understands the NMAP_PRIVILEGED and
