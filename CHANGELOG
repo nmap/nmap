@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Packet trace of ICMP packets now include the ICMP ID and sequence
+  number by default. [David Fifield]
+
 o [NSE] Added ike-version and a new ike library by Jesper Kückelhahn. Thanks
   also go to Roy Hills, who allowed the use of the signature database from
   the ike-scan tool.

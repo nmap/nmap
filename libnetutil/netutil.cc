@@ -2965,13 +2965,8 @@ icmpbad:
       else
         strncpy(icmpinfo,"type=?/code=?", sizeof(icmpinfo));
 
-      if (detail == LOW_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s %s (%s) %s",
-          srchost, dsthost, icmptype, icmpinfo, ipinfo);
-      } else {
-        Snprintf(protoinfo, sizeof(protoinfo), "ICMP [%s > %s %s (%s) %s] IP [%s]",
-          srchost, dsthost, icmptype, icmpinfo, icmpfields, ipinfo);
-      }
+      Snprintf(protoinfo, sizeof(protoinfo), "ICMP [%s > %s %s (%s) %s] IP [%s]",
+        srchost, dsthost, icmptype, icmpinfo, icmpfields, ipinfo);
     }
 
     /* UNKNOWN PROTOCOL **********************************************************/
