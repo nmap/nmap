@@ -37,7 +37,7 @@ table.insert(fingerprints, {
 	vendor = 'Avaya',
 	version = nil,
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^4485152d18b6bbcc0be8a8469579ddcc'
 });
@@ -52,7 +52,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = '4.1 Base',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f00000001000000020000000000000000........'
 });
@@ -62,7 +62,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = '4.1 SP1',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f00000001000000030000000000000000........'
 });
@@ -72,7 +72,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = '4.1 SP2-SP6',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f0000000100000fa20000000000000000........'
 });
@@ -82,7 +82,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NG Base',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f00000001000013880000000000000000........'
 });
@@ -92,7 +92,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NG FP1',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f00000001000013890000000000000000........'
 });
@@ -102,7 +102,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NG FP2',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f000000010000138a0000000000000000........'
 });
@@ -112,7 +112,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NG FP3',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f000000010000138b0000000000000000........'
 });
@@ -122,7 +122,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NG AI R54',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f000000010000138c0000000000000000........'
 });
@@ -132,7 +132,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NG AI R55',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f000000010000138d0000000000000000........'
 });
@@ -142,7 +142,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = 'NGX',
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f000000010000138d........00000000........'
 });
@@ -153,7 +153,7 @@ table.insert(fingerprints, {
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
 	version = nil,
 	ostype = nil,
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   nil,
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f'
 });
@@ -168,7 +168,7 @@ table.insert(fingerprints, {
 	vendor = 'Cisco VPN Concentrator 3000',
 	version = '3.0.0',
 	ostype = 'pSOS+',
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe = 'cpe:/h:cisco:concentrator',
 	fingerprint = '^1f07f70eaa6514d3b0fa96542a500300'
 });
@@ -178,7 +178,7 @@ table.insert(fingerprints, {
 	vendor = 'Cisco VPN Concentrator 3000',
 	version = '3.0.1',
 	ostype = 'pSOS+',
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   'cpe:/h:cisco:concentrator',
 	fingerprint = '^1f07f70eaa6514d3b0fa96542a500301'
 });
@@ -188,7 +188,7 @@ table.insert(fingerprints, {
 	vendor = 'Cisco VPN Concentrator 3000',
 	version = '3.0.5',
 	ostype = 'pSOS+',
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   'cpe:/h:cisco:concentrator',
 	fingerprint = '^1f07f70eaa6514d3b0fa96542a500305'
 });
@@ -198,7 +198,7 @@ table.insert(fingerprints, {
 	vendor = 'Cisco VPN Concentrator 3000',
 	version = '4.0.7',
 	ostype = 'pSOS+',
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   'cpe:/h:cisco:concentrator',
 	fingerprint = '^1f07f70eaa6514d3b0fa96542a500407'
 });
@@ -208,7 +208,7 @@ table.insert(fingerprints, {
 	vendor = 'Cisco VPN Concentrator 3000',
 	version = nil,
 	ostype = 'pSOS+',
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   'cpe:/h:cisco:concentrator',
 	fingerprint = '^1f07f70eaa6514d3b0fa96542a......'
 });
@@ -218,7 +218,7 @@ table.insert(fingerprints, {
 	vendor = 'Cisco',
 	version = nil,
 	ostype = 'IOS',
-	devicetype = 'VPN',
+	devicetype = 'security-misc',
 	cpe =   'cpe:/h:cisco',
 	fingerprint = '^3e984048'
 });
