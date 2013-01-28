@@ -2896,13 +2896,13 @@ void NpingOps::displayStatistics(){
 #endif
 
       /* Transmission times & rates */
-      outPrint(QT_1|NO_NEWLINE,"Tx time: %.5lfs ", this->stats.elapsedTx() );
-      outPrint(QT_1|NO_NEWLINE,"| Tx bytes/s: %.2lf ", this->stats.getOverallTxByteRate() );
-      outPrint(QT_1,"| Tx pkts/s: %.2lf", this->stats.getOverallTxPacketRate() );
+      outPrint(VB_1|NO_NEWLINE,"Tx time: %.5lfs ", this->stats.elapsedTx() );
+      outPrint(VB_1|NO_NEWLINE,"| Tx bytes/s: %.2lf ", this->stats.getOverallTxByteRate() );
+      outPrint(VB_1,"| Tx pkts/s: %.2lf", this->stats.getOverallTxPacketRate() );
 
-      outPrint(QT_1|NO_NEWLINE,"Rx time: %.5lfs ", this->stats.elapsedRx() );
-      outPrint(QT_1|NO_NEWLINE,"| Rx bytes/s: %.2lf ", this->stats.getOverallRxByteRate() );
-      outPrint(QT_1,"| Rx pkts/s: %.2lf", this->stats.getOverallRxPacketRate() );
+      outPrint(VB_1|NO_NEWLINE,"Rx time: %.5lfs ", this->stats.elapsedRx() );
+      outPrint(VB_1|NO_NEWLINE,"| Rx bytes/s: %.2lf ", this->stats.getOverallRxByteRate() );
+      outPrint(VB_1,"| Rx pkts/s: %.2lf", this->stats.getOverallRxPacketRate() );
 } /* End of displayStatistics() */
 
 
