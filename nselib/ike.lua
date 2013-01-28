@@ -1,6 +1,8 @@
 local _G = require "_G"
+local bin = require "bin"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local math = require "math"
 local io = require "io"
@@ -91,7 +93,7 @@ local function load_fingerprints()
 
 	-- Check there are fingerprints to use
 	if(#fingerprints == 0 ) then
-		return false, "No fingerprints were loaded after processing ".. filename
+		return false, "No fingerprints were loaded after processing ".. filename_full
 	end
 
 	return true, fingerprints
@@ -135,7 +137,7 @@ local function extract_payloads(packet)
 
 	-- loop over packet
 	while payloads[np] ~= "None" and index <= packet:len() do
-		payload_length = tonumber("0x"..packet:sub(index, index+3)) * 2
+		local payload_length = tonumber("0x"..packet:sub(index, index+3)) * 2
 		payload = string.lower(packet:sub(index+4, index+payload_length-5))
 
 		-- debug
@@ -325,7 +327,7 @@ end
 function send_request( host, port, packet )
 	
 	local socket = nmap.new_socket()
-	local s_status, r_status, data, i, hexstring
+	local s_status, r_status, data, i, hexstring, _
 
 	-- send the request packet
 	socket:set_timeout(1000)
@@ -395,7 +397,7 @@ end
 --	Currently only DES, 3DES and AES encryption is supported 
 --
 local function generate_transform(auth, encryption, hash, group, number, total)
-	local key_length, trans_length, aes_enc, sep
+	local key_length, trans_length, aes_enc, sep, enc
 	local next_payload, payload_number
 	
 	-- handle special case of aes
@@ -403,7 +405,7 @@ local function generate_transform(auth, encryption, hash, group, number, total)
 		trans_length = "0028"
 		aes_enc = enc_methods[encryption]
 		sep = aes_enc:find("/")
-		enc 		= aes_enc:sub(1,sep-1)
+		enc = aes_enc:sub(1,sep-1)
 		key_length	= aes_enc:sub(sep+1, aes_enc:len())
 	else
 		trans_length = "0024"
