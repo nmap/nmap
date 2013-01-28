@@ -1058,17 +1058,17 @@ void NpingTarget::printCounts(){
 /* Print round trip times */
 void NpingTarget::printRTTs(){
   if( max_rtt_set )
-    outPrint(VB_0|NO_NEWLINE,"Max rtt: %.3lfms ", this->max_rtt/1000.0 );
+    outPrint(QT_1|NO_NEWLINE,"Max rtt: %.3lfms ", this->max_rtt/1000.0 );
   else
-    outPrint(VB_0|NO_NEWLINE,"Max rtt: N/A ");
+    outPrint(QT_1|NO_NEWLINE,"Max rtt: N/A ");
 
   if( min_rtt_set )  
-    outPrint(VB_0|NO_NEWLINE,"| Min rtt: %.3lfms ", this->min_rtt/1000.0 );
+    outPrint(QT_1|NO_NEWLINE,"| Min rtt: %.3lfms ", this->min_rtt/1000.0 );
   else
-    outPrint(VB_0|NO_NEWLINE,"| Min rtt: N/A " );
+    outPrint(QT_1|NO_NEWLINE,"| Min rtt: N/A " );
 
   if( avg_rtt_set)  
-    outPrint(VB_0,"| Avg rtt: %.3lfms", this->avg_rtt/1000.0 );
+    outPrint(QT_1,"| Avg rtt: %.3lfms", this->avg_rtt/1000.0 );
   else
-    outPrint(VB_0,"| Avg rtt: N/A" );
+    outPrint(QT_1,"| Avg rtt: N/A" );
 } /* End of printRTTs() */
