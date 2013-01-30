@@ -227,8 +227,7 @@ ip6_ntop(const ip6_addr_t *ip6, char *dst, size_t len)
 			    len - (p - dst)) == NULL)
 				return (NULL);
 			return (dst);
-		} else p += sprintf(p, "%x:",
-		    ntohs(data[i / 2]));
+		} else p += sprintf(p, "%x:", data[i / 2]);
 	}
 	if (best.base + 2 + best.len == IP6_ADDR_LEN) {
 		*p = '\0';
