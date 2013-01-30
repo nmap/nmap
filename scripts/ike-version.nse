@@ -9,7 +9,7 @@ description=[[
 	Get information from an IKE service.
 	Tests the service with both Main and Aggressive Mode. 
 	Sends multiple transforms in a single request, so currently, 
-	only two packets are sent to the host.
+	only four packets are sent to the host.
 ]]
 
 

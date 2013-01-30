@@ -36,11 +36,20 @@ author = "Jesper Kueckelhahn"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local authentication= { ["psk"]="80030001", ["rsa"] ="80030003", ["Hybrid"] = "8003FADD", ["XAUTH"] = "8003FDE9"}
-local enc_methods	= { ["des"]="80010001", ["3des"]="80010005", ["aes/128"]="80010007/800E0080", ["aes/192"]="80010007/800E00C0", ["aes/256"]="80010007/800E0100" }
-local hash_algo		= { ["md5"]="80020001", ["sha1"]="80020002"}
-local group_desc	= { ["768"]="80040001", ["1024"]="80040002", ["1536"]="80040005"}
-local exchange_mode = { ["Main"] = "02", ["Aggressive"]= "04"}
+local enc_methods	= { 
+	["des"]    = 0x80010001, 
+	["3des"]   = 0x80010005, 
+	["aes/128"]= { 0x80010007, 0x800E0080 }, 
+	["aes/192"]= { 0x80010007, 0x800E00C0 }, 
+	["aes/256"]= { 0x80010007, 0x800E0100 } 
+}
+
+
+local authentication= { ["psk"] = 0x80030001, ["rsa"] = 0x80030003, ["Hybrid"] = 0x8003FADD, ["XAUTH"] = 0x8003FDE9}
+
+local hash_algo		= { ["md5"] = 0x80020001, ["sha1"] = 0x80020002}
+local group_desc	= { ["768"] = 0x80040001, ["1024"] = 0x80040002, ["1536"]= 0x80040005}
+local exchange_mode = { ["Main"] = 0x02, ["Aggressive"]= 0x04}
 local protocol_ids	= { ["tcp"]  = "06", ["udp"]= "11"}
 
 
@@ -333,7 +342,7 @@ function send_request( host, port, packet )
 	socket:set_timeout(1000)
 	socket:bind(nil, port.number)
 	socket:connect(host, port, "udp")
-	s_status,_ = socket:send(bin.pack("H", packet))
+	s_status,_ = socket:send(packet)
 
 	-- receive answer
 	if s_status then	
@@ -371,24 +380,25 @@ local function generate_aggressive(port, protocol, id, diffie)
 	end 
 
 
-	return "" ..
+	return bin.pack(">SHHSSHSHCHHH",
 		-- Key Exchange
-		"0a00"								.. -- Next payload (Nonce)
-		string.format("%04X", key_length+4)	.. -- Length (132-bit)
-		generate_random(key_length) 		.. -- Random key data
+		0x0a00								, -- Next payload (Nonce)
+		string.format("%04X", key_length+4)	, -- Length (132-bit)
+		generate_random(key_length) 		, -- Random key data
 
 		-- Nonce
-		"0500"				.. -- Next payload (Identification)
-		"0018"				.. -- Length (24)
-		generate_random(20)	.. -- Nonce data
+		0x0500				, -- Next payload (Identification)
+		0x0018				, -- Length (24)
+		generate_random(20)	, -- Nonce data
 
 		-- Identification	
-		"0000"				.. -- Next Payload (None)
-		id_len				.. -- Payload length (id + 8)
-		"03"				.. -- ID Type (USER_FQDN)
-		hex_prot			.. -- Protocol ID (UDP)
-		hex_port			.. -- Port (500)
+		0x0000				, -- Next Payload (None)
+		id_len				, -- Payload length (id + 8)
+		0x03				, -- ID Type (USER_FQDN)
+		hex_prot			, -- Protocol ID (UDP)
+		hex_port			, -- Port (500)
 		convert_to_hex(id)	   -- Id Data (as hex)
+	)
 end
 
 
@@ -402,40 +412,47 @@ local function generate_transform(auth, encryption, hash, group, number, total)
 	
 	-- handle special case of aes
 	if encryption:sub(1,3) == "aes" then
-		trans_length = "0028"
-		aes_enc = enc_methods[encryption]
-		sep = aes_enc:find("/")
-		enc = aes_enc:sub(1,sep-1)
-		key_length	= aes_enc:sub(sep+1, aes_enc:len())
+		trans_length = 0x0028
+		enc = enc_methods[encryption][1]
+		key_length	= enc_methods[encryption][2]
 	else
-		trans_length = "0024"
-		key_length = ""
+		trans_length = 0x0024
 		enc = enc_methods[encryption]
+		key_length = nil
 	end
 
 	-- check if there are more transforms
 	if number == total then
-		next_payload = "0000" -- none
+		next_payload = 0x0000 -- none
 	else
-		next_payload = "0300" -- transform
+		next_payload = 0x0300 -- transform
 	end
 
 	-- set the payload number
 	payload_number = string.format("%.2X", number)
 
-	return ""				.. 
-		next_payload		.. -- Next payload
-		trans_length		.. -- Transform length (36-bit)
-		payload_number		.. -- Transform number
-		"01"				.. -- Transform ID (IKE)
-		"0000"				.. -- spacers ?
-		enc					.. -- Encryption algorithm
-		hash_algo[hash]		.. -- Hash algorithm
-		authentication[auth].. -- Authentication method
-		group_desc[group]	.. -- Group Description
-		key_length			.. -- only set for aes
-		"800b0001"			.. -- Life type (seconds)
-		"000c000400007080"	   -- Life duration (28800)
+	local trans = bin.pack(">SSHCSIIII", 
+		next_payload		, -- Next payload
+		trans_length		, -- Transform length
+		payload_number		, -- Transform number
+		0x01				, -- Transform ID (IKE)
+		0x0000				, -- spacers ?
+		enc					, -- Encryption algorithm
+		hash_algo[hash]		, -- Hash algorithm
+		authentication[auth], -- Authentication method
+		group_desc[group]	 -- Group Description
+	)
+	
+	if key_length ~= nil then
+		trans = trans .. bin.pack(">I", key_length) -- only set for aes
+	end
+
+	trans = trans .. bin.pack(">IL",
+		0x800b0001			, -- Life type (seconds)
+		0x000c000400007080	   -- Life duration (28800)
+	)
+
+	return trans
 end
 
 
@@ -443,7 +460,7 @@ end
 -- 	Input nust be a table of complete transforms
 --
 local function generate_transforms(transform_table)
-	local transforms = ""
+	local transforms = ''
 
 	for i,t in pairs(transform_table) do
 		transforms = transforms .. generate_transform(t.auth, t.encryption, t.hash, t.group, i, #transform_table)
@@ -465,51 +482,52 @@ function request(port, proto, mode, transforms, diffie, id)
 	number_transforms = string.format("%.2X", #transforms)
 
 	-- check for aggressive vs Main mode 
-	if mode == "Aggressive" then
-		str_aggressive = generate_aggressive(port, proto, id, diffie)		
-		payload_after_sa = "0400"
+	if mode == "Aggressive" then	
+		str_aggressive = generate_aggressive(port, proto, id, diffie)	
+		payload_after_sa = 0x0400
 	else
 		str_aggressive = ""
-		payload_after_sa = "0000"
+		payload_after_sa = 0x0000
 	end
 
-	-- calculate lengths
-	l		= string.format("%.8X", 48 + transform_string:len()/2 + str_aggressive:len()/2)
-	l_sa	= string.format("%.4X", 20 + transform_string:len()/2)
-	l_pro	= string.format("%.4X", 8 + transform_string:len()/2)
 
+	-- calculate lengths
+	l		= string.format("%.8X", 48 + transform_string:len() + str_aggressive:len())
+	l_sa	= string.format("%.4X", 20 + transform_string:len())
+	l_pro	= string.format("%.4X", 8 + transform_string:len())
 
 	-- Build the packet
-	local packet = "" .. 
-		generate_random(8)	.. -- Initiator cookie
-		"0000000000000000"	.. -- Responder cookie
-		"01"				.. -- Next payload (SA)
-		"10"				.. -- Version
-		exchange_mode[mode]	.. -- Exchange type
-		"00"				.. -- Flags
-		"00000000"			.. -- Message id
-		l					.. -- packet length
+	local packet = bin.pack(">HLCCCCIHSHIISHCCCH", 
+		generate_random(8)	, -- Initiator cookie
+		0x0000000000000000	, -- Responder cookie
+		0x01				, -- Next payload (SA)
+		0x10				, -- Version
+		exchange_mode[mode]	, -- Exchange type
+		0x00				, -- Flags
+		0x00000000			, -- Message id
+		l					, -- packet length
 
 
 		--# Security Association
-		payload_after_sa	.. -- Next payload (Key exchange, if aggressive mode)
-		l_sa				.. -- Length (56-bit)
-		"00000001"			.. -- IPSEC
-		"00000001"			.. -- Situation
+		payload_after_sa	, -- Next payload (Key exchange, if aggressive mode)
+		l_sa				, -- Length
+		0x00000001			, -- IPSEC
+		0x00000001			, -- Situation
 
 		--## Proposal
-		"0000"				.. -- Next payload (None)
-		l_pro				.. -- Payload length
-		"01"				.. -- Proposal number
-		"01"				.. -- Protocol ID (ISAKMP)
-		"00"				.. -- SPI Size
-		number_transforms	.. -- Proposal transforms
+		0x0000				, -- Next payload (None)
+		l_pro				, -- Payload length
+		0x01				, -- Proposal number
+		0x01				, -- Protocol ID (ISAKMP)
+		0x00				, -- SPI Size
+		number_transforms	  -- Proposal transforms
+	)
 
-		--### Transform 
-		transform_string	.. -- transform
-	
-		-- Aggressive mode 
-		str_aggressive
+	packet = packet .. transform_string	 -- transform
+
+	if mode == 'Aggressive' then
+		packet = packet .. str_aggressive
+	end
 
 	return packet
 end
