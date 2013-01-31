@@ -4305,6 +4305,22 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
     category = 'security',
     probes = {
+    {
+        path = '/CSS/Miniweb.css',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = 'ad_header_form_sprachauswahl',
+        output = 'SCADA Siemens SIMATIC S7'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'security',
+    probes = {
       {
         path = '/S7Web.css',
         method = 'GET'
