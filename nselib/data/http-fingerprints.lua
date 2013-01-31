@@ -4306,6 +4306,30 @@ table.insert(fingerprints, {
     category = 'security',
     probes = {
       {
+        path = '/S7Web.css',
+        method = 'GET'
+      },
+      {
+        path = '/Portal0000.htm',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '<td class="Title_Area_Name">(.-)</td>',
+        output = 'SCADA Siemens PCS7: \\1'
+      },
+      {
+        match = '',
+        output = 'SCADA Siemens PCS7'
+      }
+    }
+  });
+
+table.insert(fingerprints, {
+    category = 'security',
+    probes = {
+      {
         path = '/arcsight/',
         method = 'HEAD'
       },
