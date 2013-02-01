@@ -1199,13 +1199,18 @@ void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 
 
 
-/* A trivial function used with qsort to sort the routes by netmask */
-static int nmaskcmp(const void *a, const void *b) {
+/* A trivial function used with qsort to sort the routes by metric and netmask */
+static int routecmp(const void *a, const void *b) {
   struct sys_route *r1 = (struct sys_route *) a;
   struct sys_route *r2 = (struct sys_route *) b;
   if (r1->dest.ss_family < r2->dest.ss_family)
     return -1;
   else if (r1->dest.ss_family > r2->dest.ss_family)
+    return 1;
+
+  if (r1->metric < r2->metric)
+    return -1;
+  else if (r1->metric > r2->metric)
     return 1;
 
   if (r1->netmask_bits < r2->netmask_bits)
@@ -1692,8 +1697,8 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
     return NULL;
   }else{
     numroutes = *howmany;
-    /* Ensure that the route array is sorted by netmask */
-    qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
+    /* Ensure that the route array is sorted by metric and netmask */
+    qsort(routes, numroutes, sizeof(routes[0]), routecmp);
   }
   return routes;
 }
