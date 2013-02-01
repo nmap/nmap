@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Routes are now sorted to prefer those with a lower metric. Retrieval
+  of metrics is supported only on Linux and Windows. [David Fifield]
+
 o Packet trace of ICMP packets now include the ICMP ID and sequence
   number by default. [David Fifield]
 
