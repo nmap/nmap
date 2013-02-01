@@ -1622,6 +1622,7 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   addr_ntos(&entry->route_dst, (struct sockaddr *) &dcrn->routes[dcrn->numroutes].dest);
   dcrn->routes[dcrn->numroutes].netmask_bits = entry->route_dst.addr_bits;
   addr_ntos(&entry->route_gw, (struct sockaddr *) &dcrn->routes[dcrn->numroutes].gw);
+  dcrn->routes[dcrn->numroutes].metric = entry->metric;
   dcrn->routes[dcrn->numroutes].device = getInterfaceByName(entry->intf_name, dcrn->routes[dcrn->numroutes].dest.ss_family);
   dcrn->numroutes++;
 

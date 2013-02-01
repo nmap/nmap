@@ -299,6 +299,7 @@ struct sys_route {
   struct sockaddr_storage dest;
   u16 netmask_bits;
   struct sockaddr_storage gw; /* gateway - 0 if none */
+  int metric;
 };
 
 struct eth_nfo {
