@@ -8565,7 +8565,6 @@ match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Darwin/([\w._+-]+), UPnP/([\w._-
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nSERVER: Windows2000/0\.0 UPnP/([\w._+-]+) PhilipsIntelSDK/([\w._-]+) DLNADOC/([\w._-]+)\r\n| p/Philips Intel UPnP SDK/ v/$2/ i/Philips Smart TV; UPnP $1; DLNADOC $3/ d/media device/
 
 match upnp m|^HTTP/1\.[01] \d\d\d .*\r\nCONTENT-TYPE: text/xml\r\nContent-Length: .*<modelName>Xbox 360</modelName>.*<serialNumber>(\w+)</serialNumber>|s p/XBox 360 XML UPnP/ i/Serial number $1/ d/game console/
-match upnp m|^HTTP/1.1 400 Bad Request\r\n\r\n$| p/Microsoft Windows UPnP/ o/Windows/ cpe:/o:microsoft:windows/a
 match upnp m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-Windows-NT/(\d[-.\w]+) UPnP/(\d[-.\w]+) UPnP-Device-Host/(\d[-.\w]+)\r\n| p/Microsoft Windows UPnP/ v/$2/ i/UPnP Device Host: $3/ o/Windows NT $1/ cpe:/o:microsoft:windows_nt:$1/
 match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Linux/([\w._+-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/Linux $1; UPnP $2/ o/Linux/ cpe:/o:linux:linux_kernel:$1/
 match upnp m|^HTTP/1\.1 200 .*\r\nSERVER: Darwin/([\w._-]+), UPnP/([\d.]+), MediaTomb/([\w._-]+)\r\n|s p/MediaTomb UPnP/ v/$3/ i/Darwin $1; UPnP $2/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
