@@ -224,6 +224,7 @@ route_get(route_t *r, struct route_entry *entry)
 	if (route_msg(r, RTM_GET, entry->intf_name, &entry->route_dst, &entry->route_gw) < 0)
 		return (-1);
 	entry->intf_name[0] = '\0';
+	entry->metric = 0;
 	
 	return (0);
 }
@@ -359,6 +360,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 				continue;
 		}
 
+		entry.metric = 0;
+
 		if ((ret = callback(&entry, arg)) != 0)
 			break;
 	}
@@ -473,6 +476,8 @@ route_loop(route_t *r, route_handler callback, void *arg)
 				sin.sin_addr.s_addr = rt->ipRouteMask;
 				addr_stob((struct sockaddr *)&sin,
 				    &entry.route_dst.addr_bits);
+
+				entry.metric = 0;
 				
 				if ((ret = callback(&entry, arg)) != 0)
 					return (ret);
@@ -608,6 +613,7 @@ _radix_walk(int fd, struct radix_node *rn, route_handler callback, void *arg)
 			}
 			_kread(fd, rt.rt_gateway, &sin, sizeof(sin));
 			addr_ston((struct sockaddr *)&sin, &entry.route_gw);
+			entry.metric = 0;
 			if ((ret = callback(&entry, arg)) != 0)
 				return (ret);
 		}

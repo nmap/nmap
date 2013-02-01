@@ -120,6 +120,7 @@ route_get(route_t *r, struct route_entry *entry)
 	entry->route_gw.addr_type = ADDR_TYPE_IP;
 	entry->route_gw.addr_bits = IP_ADDR_BITS;
 	memcpy(&entry->route_gw.addr_ip, &rtr.rtr_gwayaddr, IP_ADDR_LEN);
+	entry->metric = 0;
 	
 	return (0);
 }
@@ -163,6 +164,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		addr_mtob(&rtentries[i].Mask, IP_ADDR_LEN,
 		    &entry.route_dst.addr_bits);
 		entry.route_gw.addr_ip = rtentries[i].NextHop;
+		entry.metric = 0;
 
 		if ((ret = callback(&entry, arg)) != 0)
 			break;

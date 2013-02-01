@@ -252,6 +252,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 				continue;
 			
 			entry.route_gw.addr_bits = IP_ADDR_BITS;
+			entry.metric = metric;
 			
 			if ((ret = callback(&entry, arg)) != 0)
 				break;
@@ -260,17 +261,17 @@ route_loop(route_t *r, route_handler callback, void *arg)
 	}
 	if (ret == 0 && (fp = fopen(PROC_IPV6_ROUTE_FILE, "r")) != NULL) {
 		char s[33], d[8][5], n[8][5];
-		int i, iflags;
+		int i, iflags, metric;
 		u_int slen, dlen;
 		
 		while (fgets(buf, sizeof(buf), fp) != NULL) {
 			i = sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x "
 			    "%32s %02x %04s%04s%04s%04s%04s%04s%04s%04s "
-			    "%*x %*x %*x %x %15s",
+			    "%x %*x %*x %x %15s",
 			    d[0], d[1], d[2], d[3], d[4], d[5], d[6], d[7],
 			    &dlen, s, &slen,
 			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
-			    &iflags, ifbuf);
+			    &metric, &iflags, ifbuf);
 			
 			if (i < 21 || !(iflags & RTF_UP))
 				continue;
@@ -285,6 +286,7 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			    n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7],
 			    IP6_ADDR_BITS);
 			addr_aton(buf, &entry.route_gw);
+			entry.metric = metric;
 			
 			if ((ret = callback(&entry, arg)) != 0)
 				break;
