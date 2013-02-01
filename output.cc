@@ -396,16 +396,18 @@ int print_iflist(void) {
     if (o.debugging)
       log_write(LOG_STDOUT, "Reason: %s\n", errstr);
   } else {
-    int dstcol = 0, devcol = 1, gwcol = 2;
-    Tbl = new NmapOutputTable(numroutes + 1, 3);
+    int dstcol = 0, devcol = 1, metcol = 2, gwcol = 3;
+    Tbl = new NmapOutputTable(numroutes + 1, 4);
     Tbl->addItem(0, dstcol, false, "DST/MASK", 8);
     Tbl->addItem(0, devcol, false, "DEV", 3);
+    Tbl->addItem(0, metcol, false, "METRIC", 6);
     Tbl->addItem(0, gwcol, false, "GATEWAY", 7);
     for (i = 0; i < numroutes; i++) {
       nbits = routes[i].netmask_bits;
       Tbl->addItemFormatted(i + 1, dstcol, false, "%s/%d",
       	inet_ntop_ez(&routes[i].dest, sizeof(routes[i].dest)), nbits);
       Tbl->addItem(i + 1, devcol, false, routes[i].device->devfullname);
+      Tbl->addItemFormatted(i + 1, metcol, false, "%d", routes[i].metric);
       if (!sockaddr_equal_zero(&routes[i].gw))
         Tbl->addItem(i + 1, gwcol, true, inet_ntop_ez(&routes[i].gw, sizeof(routes[i].gw)));
     }
