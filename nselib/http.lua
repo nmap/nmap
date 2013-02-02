@@ -1448,7 +1448,7 @@ end
 ---Fetches a resource with a GET request and returns the result as a table. This is a simple
 -- wraper around <code>generic_request</code>, with the added benefit of having local caching
 -- and support for HTTP redirects. Redirects are followed only if they pass all the
--- validation rules of the redirect_ok function. This function may be overrided by supplying
+-- validation rules of the redirect_ok function. This function may be overridden by supplying
 -- a custom function in the <code>redirect_ok</code> field of the options array. The default
 -- function redirects the request if the destination is:
 -- * Within the same host or domain
@@ -1526,7 +1526,7 @@ end
 -- wrapper around <code>generic_request</code> with response caching. This function
 -- also has support for HTTP redirects. Redirects are followed only if they pass
 -- all the validation rules of the redirect_ok function. This function may be
--- overrided by supplying a custom function in the <code>redirect_ok</code> field
+-- overridden by supplying a custom function in the <code>redirect_ok</code> field
 -- of the options array. The default function redirects the request if the
 -- destination is:
 -- * Within the same host or domain
