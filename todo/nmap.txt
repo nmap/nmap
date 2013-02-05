@@ -40,6 +40,11 @@ o We should figure out why (at least with Nping) raw ethernet frame
   happens with Fyodor's machine connected with WiFi.  Fyodor should
   test on the same machine using wired and see if that changes anything.
 
+o Our http library should allow the client to specify a max size in
+  advance and should probably enforce some sort of maximum by default
+  (unless turned off by the script).  That way sites can't DoS Nmap by
+  feeding enormous files.
+
 o NSE digest auth should use the more robust parsing from
   http.parse_www_authenticate as described at
   http://seclists.org/nmap-dev/2012/q3/868
