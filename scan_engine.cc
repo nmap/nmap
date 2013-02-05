@@ -3994,13 +3994,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int numGoodSD = 0;
   int err = 0;
   reason_t current_reason = ER_NORESPONSE;
-#ifdef LINUX
-  struct sockaddr_storage sin, sout;
-  struct sockaddr_in *s_in;
-  struct sockaddr_in6 *s_in6;
-  recvfrom6_t sinlen = sizeof(sin);
-  recvfrom6_t soutlen = sizeof(sout);
-#endif
 
   do {
     timeleft = TIMEVAL_MSEC_SUBTRACT(*stime, USI->now);
@@ -4073,57 +4066,9 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
           optval = socket_errno(); /* Stupid Solaris ... */
         switch (optval) {
         case 0:
-#ifdef LINUX
-          if (!FD_ISSET(sd, &fds_rtmp)) {
-            u16 pport = probe->pspec()->pd.tcp.dport;
-
-            if (getpeername(sd, (struct sockaddr *) &sin, &sinlen) < 0) {
-              pfatal("error in getpeername of connect_results for port %hu", (u16) pport);
-            } else {
-              u16 sinport;
-
-              s_in = (struct sockaddr_in *) &sin;
-              s_in6 = (struct sockaddr_in6 *) &sin;
-
-              if (o.af() == AF_INET)
-                sinport = ntohs(s_in->sin_port);
-#ifdef HAVE_IPV6
-              else if (o.af() == AF_INET6)
-                sinport = ntohs(s_in6->sin6_port);
-#endif
-              else
-                assert(0);
-              if (pport != sinport)
-                error("Mismatch!!!! we think we have port %hu but we really have %hu", (u16) pport, sinport);
-            }
-
-            if (getsockname(sd, (struct sockaddr *) &sout, &soutlen) < 0) {
-              pfatal("error in getsockname for port %hu", (u16) pport);
-            }
-            s_in = (struct sockaddr_in *) &sout;
-            s_in6 = (struct sockaddr_in6 *) &sout;
-            if ((o.af() == AF_INET && htons(s_in->sin_port) == pport)
-#ifdef HAVE_IPV6
-                || (o.af() == AF_INET6 && htons(s_in6->sin6_port) == pport)
-#endif
-               ) {
-              /* Linux 2.2 bug can lead to bogus successful connect()ions
-                 in this case -- we treat the port as bogus even though it
-                 is POSSIBLE that this is a real connection */
-              newportstate = PORT_CLOSED;
-            } else {
-              newhoststate = HOST_UP;
-              newportstate = PORT_OPEN;
-            }
-          } else {
-            newhoststate = HOST_UP;
-            newportstate = PORT_OPEN;
-          }
-#else
           newhoststate = HOST_UP;
           newportstate = PORT_OPEN;
-#endif
-          current_reason = (newportstate == PORT_OPEN) ? ER_CONACCEPT : ER_CONREFUSED;
+          current_reason = ER_CONACCEPT;
           break;
         case EACCES:
           /* Apparently this can be caused by dest unreachable admin
