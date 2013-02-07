@@ -184,7 +184,7 @@ function parse(url, default)
     authority = string.gsub(authority,"^([^@]*)@",
         function(u) parsed.userinfo = u; return "" end)
     authority = string.gsub(authority, ":([0-9]*)$",
-        function(p) parsed.port = p; return "" end)
+        function(p) if p ~= "" then parsed.port = p end; return "" end)
     if authority ~= "" then parsed.host = authority end
     local userinfo = parsed.userinfo
     if not userinfo then return parsed end
