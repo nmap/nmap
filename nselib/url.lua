@@ -159,9 +159,9 @@ function parse(url, default)
         parsed.fragment = f
         return ""
     end)
-    -- get scheme
+    -- get scheme. Lower-case according to RFC 3986 section 3.1.
     url = string.gsub(url, "^([%w][%w%+%-%.]*)%:",
-        function(s) parsed.scheme = s; return "" end)
+        function(s) parsed.scheme = string.lower(s); return "" end)
     -- get authority
     url = string.gsub(url, "^//([^/]*)", function(n)
         parsed.authority = n
