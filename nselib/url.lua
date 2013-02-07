@@ -178,7 +178,7 @@ function parse(url, default)
         return ""
     end)
     -- path is whatever was left
-    if url ~= "" then parsed.path = url end
+    parsed.path = url
     local authority = parsed.authority
     if not authority then return parsed end
     authority = string.gsub(authority,"^([^@]*)@",
