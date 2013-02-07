@@ -1407,21 +1407,22 @@ local function parse_redirect(host, port, path, response)
   end
   port = ( "number" == type(port) ) and { number = port } or port
   local u = url.parse(response.header.location)
-  if ( not(u.host) and not(u.scheme) ) then
+  if ( not(u.host) ) then
     -- we're dealing with a relative url
-    u.host, u.port = stdnse.get_hostname(host), port.number
+    u.host = stdnse.get_hostname(host)
     u.path = ((u.path:sub(1,1) == "/" and "" ) or "/" ) .. u.path -- ensuring leading slash
+  end
+  -- do port fixup
+  if ( not(u.port) ) then
+    if ( u.scheme == "http" ) then u.port = 80
+    elseif ( u.scheme == "https") then u.port = 443
+    else u.port = port.number end
   end
   if ( not(u.path) ) then
     u.path = "/"
   end
   if ( u.query ) then
     u.path = ("%s?%s"):format( u.path, u.query )
-  end
-  -- do port fixup
-  if ( not(u.port) ) then
-    if ( u.scheme == "http" ) then u.port = 80 end
-    if ( u.scheme == "https") then u.port = 443 end
   end
   return u
 end
