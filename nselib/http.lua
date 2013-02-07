@@ -1414,8 +1414,8 @@ local function parse_redirect(host, port, path, response)
   end
   -- do port fixup
   if ( not(u.port) ) then
-    if ( u.scheme == "http" ) then u.port = 80
-    elseif ( u.scheme == "https") then u.port = 443
+    if ( string.lower(u.scheme) == "http" ) then u.port = 80
+    elseif ( string.lower(u.scheme) == "https") then u.port = 443
     else u.port = port.number end
   end
   if ( not(u.path) ) then
