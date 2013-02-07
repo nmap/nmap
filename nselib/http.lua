@@ -1400,7 +1400,7 @@ end
 -- @return url table as returned by <code>url.parse</code> or nil if there's no
 --         redirect taking place
 local function parse_redirect(host, port, path, response)
-  if ( not(tostring(response.status):match("^30[127]$")) or 
+  if ( not(tostring(response.status):match("^30[01237]$")) or
        not(response.header) or
        not(response.header.location) ) then
     return nil
