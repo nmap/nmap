@@ -267,6 +267,36 @@ rawset(stdnse, "silent_require", function (...)
   end
 end);
 
+-- Gets a string containing as much of a host's name, IP, and port as are
+-- available.
+local function against_name(host, port)
+  local targetname, ip, portno, ipport, against;
+  if host then
+    targetname = host.targetname;
+    ip = host.ip;
+  end
+  if port then
+    portno = port.number;
+  end
+  if ip and portno then
+    ipport = ip..":"..portno;
+  elseif ip then
+    ipport = ip;
+  end
+  if targetname and ipport then
+    against = targetname.." ("..ipport..")";
+  elseif targetname then
+    against = targetname;
+  elseif ipport then
+    against = ipport;
+  end
+  if against then
+    return " against "..against
+  else
+    return ""
+  end
+end
+
 -- The Script Class, its constructor is Script.new.
 local Script = {};
 -- The Thread Class, its constructor is Script:new_thread.
@@ -284,14 +314,7 @@ do
   -- Outputs debug information at level 1 or higher.
   -- Changes "%THREAD" with an appropriate identifier for the debug level
   function Thread:d (fmt, ...)
-    local against;
-    if self.host and self.port then
-      against = " against "..self.host.ip..":"..self.port.number;
-    elseif self.host then
-      against = " against "..self.host.ip;
-    else
-      against = "";
-    end
+    local against = against_name(self.host, self.port);
     if debugging() > 1 then
       fmt = gsub(fmt, "%%THREAD_AGAINST", self.info..against);
       fmt = gsub(fmt, "%%THREAD", self.info);
