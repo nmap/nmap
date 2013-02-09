@@ -3344,8 +3344,6 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
 
     if (!sockaddr_equal(dst, &ifaces[i].addr))
       continue;
-    if (iface != NULL && strcmp(ifaces[i].devname, iface->devname) != 0)
-      continue;
 
     if (ifaces[i].device_type == devt_loopback)
       loopback = &ifaces[i];
@@ -3354,6 +3352,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     if (loopback == NULL)
       /* Hmmm ... no localhost -- move on to the routing table. */
       break;
+
+    if (iface != NULL && strcmp(loopback->devname, iface->devname) != 0)
+      continue;
 
     rnfo->ii = *loopback;
     rnfo->direct_connect = 1;
