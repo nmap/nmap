@@ -3,7 +3,9 @@
 
 #include "portlist.h"
 
+#if HAVE_STDINT_H
 #include <stdint.h>
+#endif
 
 /* int nseU_traceback (lua_State *L)
  *
