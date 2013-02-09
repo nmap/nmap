@@ -174,29 +174,6 @@
     <ClInclude Include="utils_net.h" />
     <ClInclude Include="winclude.h" />
     <ClInclude Include="winfix.h" />
-    <ClInclude Include="..\mswin32\pcap-include\bittypes.h" />
-    <ClInclude Include="..\mswin32\pcap-include\bucket_lookup.h" />
-    <ClInclude Include="..\mswin32\pcap-include\count_packets.h" />
-    <ClInclude Include="..\mswin32\pcap-include\Devioctl.h" />
-    <ClInclude Include="..\mswin32\pcap-include\Gnuc.h" />
-    <ClInclude Include="..\mswin32\pcap-include\ip6_misc.h" />
-    <ClInclude Include="..\mswin32\pcap-include\memory_t.h" />
-    <ClInclude Include="..\mswin32\pcap-include\normal_lookup.h" />
-    <ClInclude Include="..\mswin32\pcap-include\Ntddndis.h" />
-    <ClInclude Include="..\mswin32\pcap-include\Ntddpack.h" />
-    <ClInclude Include="..\mswin32\pcap-include\Packet32.h" />
-    <ClInclude Include="..\mswin32\pcap-include\pcap-bpf.h" />
-    <ClInclude Include="..\mswin32\pcap-include\pcap-int.h" />
-    <ClInclude Include="..\mswin32\pcap-include\pcap-stdinc.h" />
-    <ClInclude Include="..\mswin32\pcap-include\pcap.h" />
-    <ClInclude Include="..\mswin32\pcap-include\pthread.h" />
-    <ClInclude Include="..\mswin32\pcap-include\remote-ext.h" />
-    <ClInclude Include="..\mswin32\pcap-include\sched.h" />
-    <ClInclude Include="..\mswin32\pcap-include\semaphore.h" />
-    <ClInclude Include="..\mswin32\pcap-include\tcp_session.h" />
-    <ClInclude Include="..\mswin32\pcap-include\time_calls.h" />
-    <ClInclude Include="..\mswin32\pcap-include\tme.h" />
-    <ClInclude Include="..\mswin32\pcap-include\Win32-Extensions.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libdnet-stripped\libdnet-stripped.vcxproj">
