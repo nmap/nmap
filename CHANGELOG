@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now keeps running in connect mode after receiving EOF
+  from the remote socket, unless --recv-only is in effect.
+  [Tomas Hozza]
+
 o Routes are now sorted to prefer those with a lower metric. Retrieval
   of metrics is supported only on Linux and Windows. [David Fifield]
 
