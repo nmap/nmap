@@ -277,7 +277,13 @@ int NpingTargets::processSpecs(){
 			delete mytarget;
 			continue;
 		  }
-
+#ifdef WIN32
+		  if (rnfo.ii.device_type == devt_loopback){
+			outError(QT_2, "Skipping %s because Windows does not allow localhost scans (try --unprivileged).", mytarget->getTargetIPstr() );
+			delete mytarget;
+			continue;
+		  }
+#endif
 		   /* Determine next hop */
 		  if( rnfo.direct_connect ){
 			mytarget->setDirectlyConnected(true);

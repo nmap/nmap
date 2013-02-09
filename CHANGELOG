@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nping] Nping now skips localhost targets for privileged pings (with
+  an error message) because those generally don't work.
+  [David Fifield]
+
 o [Ncat] Ncat now keeps running in connect mode after receiving EOF
   from the remote socket, unless --recv-only is in effect.
   [Tomas Hozza]
