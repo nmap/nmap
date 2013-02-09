@@ -722,27 +722,7 @@ server_client_test_tcp_sctp_ssl "Debug messages go to stderr",
 };
 kill_children;
 
-# Test that the server closes its output stream after a client disconnects.
-# This is for uses like
-#   ncat -l | tar xzvf -
-#   tar czf - <files> | ncat localhost --send-only
-# where tar on the listening side could be any program that potentially buffers
-# its input. The listener must close its standard output so the program knows
-# to stop reading and process what remains in its buffer.
-server_client_test_tcp_sctp_ssl "Server sends EOF after client disconnect",
-[], ["--send-only"], sub {
-	my $resp;
-
-	syswrite($c_in, "abc\n");
-	close($c_in);
-	$resp = timeout_read($s_out) or die "Read timeout";
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
-	$resp = timeout_read($s_out);
-	!defined($resp) or die "Server didn't send EOF";
-};
-kill_children;
-
-server_client_test "Client shutdown()s connection when reading EOF",
+server_client_test_tcp_ssl "Client closes socket write and keeps running after stdin EOF",
 [], [], sub {
 	my $resp;
 
@@ -754,10 +734,29 @@ server_client_test "Client shutdown()s connection when reading EOF",
 
 	$resp = timeout_read($s_out);
 	!defined($resp) or die "Server didn't get EOF (got \"$resp\")";
+	sleep 1;
+	waitpid($c_pid, WNOHANG) != -1 or die "Client stopped running";
 };
 kill_children;
 
-server_client_test "Server shutdown()s connection when reading EOF",
+server_client_test_tcp_ssl "--send-only client closes socket write and stops running after stdin EOF",
+[], ["--send-only"], sub {
+	my $resp;
+
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+
+	close($c_in);
+
+	$resp = timeout_read($s_out);
+	!defined($resp) or die "Server didn't get EOF (got \"$resp\")";
+	sleep 1;
+	waitpid($c_pid, WNOHANG) == -1 or die "Client still running";
+};
+kill_children;
+
+server_client_test_tcp_ssl "Server closes socket write and keeps running after stdin EOF",
 [], [], sub {
 	my $resp;
 
@@ -769,6 +768,100 @@ server_client_test "Server shutdown()s connection when reading EOF",
 
 	$resp = timeout_read($c_out);
 	!defined($resp) or die "Client didn't get EOF (got \"$resp\")";
+	sleep 1;
+	waitpid($s_pid, WNOHANG) != -1 or die "Server stopped running";
+};
+kill_children;
+
+server_client_test_tcp_ssl "--send-only server closes socket write and stops running after stdin EOF",
+["--send-only"], [], sub {
+	my $resp;
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
+
+	close($s_in);
+
+	$resp = timeout_read($c_out);
+	!defined($resp) or die "Client didn't get EOF (got \"$resp\")";
+	sleep 1;
+	waitpid($s_pid, WNOHANG) == -1 or die "Server still running";
+};
+kill_children;
+
+server_client_test_tcp_sctp_ssl "Client closes stdout and keeps running after socket EOF",
+[], [], sub {
+	my $resp;
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
+
+	close($s_in);
+
+	$resp = timeout_read($c_out);
+	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
+	sleep 1;
+	waitpid($c_pid, WNOHANG) != -1 or die "Client stopped running";
+};
+kill_children;
+
+server_client_test_tcp_sctp_ssl "--recv-only client closes stdout and stops running after socket EOF",
+[], ["--recv-only"], sub {
+	my $resp;
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
+
+	close($s_in);
+
+	$resp = timeout_read($c_out);
+	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
+	sleep 1;
+	waitpid($c_pid, WNOHANG) == -1 or die "Client still running";
+};
+kill_children;
+
+# Test that the server closes its output stream after a client disconnects.
+# This is for uses like
+#   ncat -l | tar xzvf -
+#   tar czf - <files> | ncat localhost --send-only
+# where tar on the listening side could be any program that potentially buffers
+# its input. The listener must close its standard output so the program knows
+# to stop reading and process what remains in its buffer.
+server_client_test_tcp_sctp_ssl "Server closes stdout and keeps running after socket EOF",
+[], [], sub {
+	my $resp;
+
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+
+	close($c_in);
+
+	$resp = timeout_read($s_out);
+	!defined($resp) or die "Server didn't send EOF";
+	sleep 1;
+	waitpid($s_pid, WNOHANG) != -1 or die "Server stopped running";
+};
+kill_children;
+
+server_client_test_tcp_sctp_ssl "--recv-only server closes stdout and stops running after socket EOF",
+["--recv-only"], [], sub {
+	my $resp;
+
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+
+	close($c_in);
+
+	$resp = timeout_read($s_out);
+	!defined($resp) or die "Server didn't send EOF";
+	sleep 1;
+	waitpid($s_pid, WNOHANG) == -1 or die "Server still running";
 };
 kill_children;
 
