@@ -832,6 +832,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     ncat_assert(type == NSE_TYPE_READ);
 
     if (status == NSE_STATUS_EOF) {
+        Close(STDOUT_FILENO);
         /* In --recv-only mode, exit after EOF on the socket. */
         if (o.recvonly)
             nsock_loop_quit(nsp);
