@@ -472,7 +472,7 @@ test "Server default listen address --udp IPV6",
 sub {
 	my $resp;
 
-    my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
+	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
@@ -486,12 +486,12 @@ test "Server default listen address --udp IPV4 + IPV6",
 sub {
 	my $resp;
 
-    my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
+	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
 
-    my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
+	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
@@ -509,7 +509,7 @@ sub {
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\", not \"\" from localhost";
 
-    my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
+	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from ::1";
@@ -526,7 +526,7 @@ sub {
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
 
-    my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
+	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\", not \"\" from ::1";
@@ -574,7 +574,7 @@ server_client_test "Connect success exit code",
 	} while ($pid > 0 && $pid != $c_pid);
 	$pid == $c_pid or die;
 	$code = $? >> 8;
-        $code == 0 or die "Exit code was $code, not 0";
+	$code == 0 or die "Exit code was $code, not 0";
 };
 kill_children;
 
@@ -591,7 +591,7 @@ sub {
 	} while ($pid > 0 && $pid != $c_pid);
 	$pid == $c_pid or die;
 	$code = $? >> 8;
-        $code == 1 or die "Exit code was $code, not 1";
+	$code == 1 or die "Exit code was $code, not 1";
 };
 kill_children;
 
@@ -619,7 +619,7 @@ sub {
 	} while ($pid > 0 && $pid != $c_pid);
 	$pid == $c_pid or die;
 	$code = $? >> 8;
-        $code == 1 or die "Exit code was $code, not 1";
+	$code == 1 or die "Exit code was $code, not 1";
 };
 kill_children;
 
@@ -635,7 +635,7 @@ server_client_test "Listen success exit code",
 	} while ($pid > 0 && $pid != $s_pid);
 	$pid == $s_pid or die "$pid != $s_pid";
 	$code = $? >> 8;
-        $code == 0 or die "Exit code was $code, not 0";
+	$code == 0 or die "Exit code was $code, not 0";
 };
 kill_children;
 
@@ -659,7 +659,7 @@ sub {
 	} while ($pid > 0 && $pid != $s_pid);
 	$pid == $s_pid or die;
 	$code = $? >> 8;
-        $code == 1 or die "Exit code was $code, not 1";
+	$code == 1 or die "Exit code was $code, not 1";
 };
 kill_children;
 
@@ -674,7 +674,7 @@ sub {
 	} while ($pid > 0 && $pid != $c_pid);
 	$pid == $c_pid or die;
 	$code = $? >> 8;
-        $code == 2 or die "Exit code was $code, not 2";
+	$code == 2 or die "Exit code was $code, not 2";
 
 	my ($s_pid, $s_out, $s_in) = ncat_server("--baffle");
 	do {
@@ -682,7 +682,7 @@ sub {
 	} while ($pid > 0 && $pid != $s_pid);
 	$pid == $s_pid or die;
 	$code = $? >> 8;
-        $code == 2 or die "Exit code was $code, not 2";
+	$code == 2 or die "Exit code was $code, not 2";
 };
 kill_children;
 
@@ -842,7 +842,7 @@ sub {
 	my ($c1_pid, $c1_out, $c1_in) = ncat_client();
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 
-    sleep 1;
+	sleep 1;
 
 	waitpid($c2_pid, WNOHANG) == -1 or die "A second client could connect to the server";
 
@@ -1127,72 +1127,72 @@ kill_children;
 ($s_pid, $s_out, $s_in) = ncat_server("--broker");
 test "--broker mode (tcp)",
 sub {
-    my $resp;
+	my $resp;
 
 	my ($c1_pid, $c1_out, $c1_in) = ncat_client();
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client();
 
-    syswrite($c2_in, "abc\n");
-    $resp = timeout_read($c1_out);
-    $resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
+	syswrite($c2_in, "abc\n");
+	$resp = timeout_read($c1_out);
+	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
-    syswrite($c1_in, "abc\n");
-    $resp = timeout_read($c2_out);
-    $resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
+	syswrite($c1_in, "abc\n");
+	$resp = timeout_read($c2_out);
+	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
 
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--sctp");
 test "--broker mode (sctp)",
 sub {
-    my $resp;
+	my $resp;
 
 	my ($c1_pid, $c1_out, $c1_in) = ncat_client("--sctp");
 	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--sctp");
 
-    syswrite($c2_in, "abc\n");
-    $resp = timeout_read($c1_out);
-    $resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
+	syswrite($c2_in, "abc\n");
+	$resp = timeout_read($c1_out);
+	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
-    syswrite($c1_in, "abc\n");
-    $resp = timeout_read($c2_out);
-    $resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
+	syswrite($c1_in, "abc\n");
+	$resp = timeout_read($c2_out);
+	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
 
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--ssl");
 test "--broker mode (tcp ssl)",
 sub {
-    my $resp;
+	my $resp;
 
-    my ($c1_pid, $c1_out, $c1_in) = ncat_client("--ssl");
-    my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
+	my ($c1_pid, $c1_out, $c1_in) = ncat_client("--ssl");
+	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
 
-    syswrite($c2_in, "abc\n");
-    $resp = timeout_read($c1_out);
-    $resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
+	syswrite($c2_in, "abc\n");
+	$resp = timeout_read($c1_out);
+	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
-    syswrite($c1_in, "abc\n");
-    $resp = timeout_read($c2_out);
-    $resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
+	syswrite($c1_in, "abc\n");
+	$resp = timeout_read($c2_out);
+	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
 
 ($s_pid, $s_out, $s_in) = ncat_server("--broker", "--sctp", "--ssl");
 test "--broker mode (sctp ssl)",
 sub {
-    my $resp;
+	my $resp;
 
-    my ($c1_pid, $c1_out, $c1_in) = ncat_client("--sctp", "--ssl");
-    my ($c2_pid, $c2_out, $c2_in) = ncat_client("--sctp", "--ssl");
+	my ($c1_pid, $c1_out, $c1_in) = ncat_client("--sctp", "--ssl");
+	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--sctp", "--ssl");
 
-    syswrite($c2_in, "abc\n");
-    $resp = timeout_read($c1_out);
-    $resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
+	syswrite($c2_in, "abc\n");
+	$resp = timeout_read($c1_out);
+	$resp eq "abc\n" or die "Client 1 received \"$resp\", not abc";
 
-    syswrite($c1_in, "abc\n");
-    $resp = timeout_read($c2_out);
-    $resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
+	syswrite($c1_in, "abc\n");
+	$resp = timeout_read($c2_out);
+	$resp eq "abc\n" or die "Client 2 received \"$resp\", not abc";
 };
 kill_children;
 
@@ -1200,14 +1200,14 @@ kill_children;
 test "IPV4 and IPV6 clients can talk to each other in broker mode",
 sub {
 	my $resp;
-    sleep 1;
+	sleep 1;
 	my ($c1_pid, $c1_out, $c1_in) = ncat("-6","::1");
 	my ($c2_pid, $c2_out, $c2_in) = ncat("localhost");
 
-    syswrite($c2_in, "abc\n");
+	syswrite($c2_in, "abc\n");
 	$resp = timeout_read($c1_out, 2);
 	$resp eq "abc\n" or die "IPV6 Client received \"$resp\", not abc";
-    
+
 	syswrite($c1_in, "abc\n");
 	$resp = timeout_read($c2_out, 2);
 	$resp eq "abc\n" or die "IPV4 Client received \"$resp\", not abc";
@@ -2464,17 +2464,17 @@ kill_children;
 ($s_pid, $s_out, $s_in) = ncat_server("--ssl", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem", "--broker", "--max-conns", "1");
 test "SSL --broker server keeps connection count properly.",
 sub {
-    my $resp;
+	my $resp;
 
-    my ($c1_pid, $c1_out, $c1_in) = ncat_client();
-    syswrite($c1_in, "abc\n");
-    kill "TERM", $c1_pid;
-    waitpid $c1_pid, 0;
+	my ($c1_pid, $c1_out, $c1_in) = ncat_client();
+	syswrite($c1_in, "abc\n");
+	kill "TERM", $c1_pid;
+	waitpid $c1_pid, 0;
 
-    my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
-    syswrite($s_in, "abc\n");
-    $resp = timeout_read($c2_out);
-    $resp eq "abc\n" or die "Second client got \"$resp\", not \"abc\\n\"";
+	my ($c2_pid, $c2_out, $c2_in) = ncat_client("--ssl");
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c2_out);
+	$resp eq "abc\n" or die "Second client got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
 
