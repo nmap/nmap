@@ -122,9 +122,5 @@
 #include "RoutingHeader.h"
 #include "PacketParser.h"
 
-void npacket_debug(const char *str, ...)
-     __attribute__ ((noreturn))
-     __attribute__ ((format (printf, 1, 2)));
-
 #endif	/* __NPACKET_H__ */
 

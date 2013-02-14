@@ -14,8 +14,8 @@ LIBPCAPDIR = @libpcapdir@
 
 TARGET = libnetutil.a
 
-SRCS = $(srcdir)/netutil.cc $(srcdir)/PacketElement.cc $(srcdir)/NetworkLayerElement.cc $(srcdir)/ARPHeader.cc $(srcdir)/PacketElement.cc $(srcdir)/NetworkLayerElement.cc $(srcdir)/TransportLayerElement.cc $(srcdir)/ARPHeader.cc $(srcdir)/EthernetHeader.cc $(srcdir)/ICMPv4Header.cc $(srcdir)/ICMPv6Header.cc $(srcdir)/IPv4Header.cc $(srcdir)/IPv6Header.cc $(srcdir)/TCPHeader.cc $(srcdir)/UDPHeader.cc $(srcdir)/RawData.cc $(srcdir)/HopByHopHeader.cc $(srcdir)/DestOptsHeader.cc $(srcdir)/FragmentHeader.cc $(srcdir)/RoutingHeader.cc $(srcdir)/PacketParser.cc $(srcdir)/npacket.cc
-OBJS = netutil.o PacketElement.o NetworkLayerElement.o TransportLayerElement.o ARPHeader.o EthernetHeader.o ICMPv4Header.o ICMPv6Header.o IPv4Header.o IPv6Header.o TCPHeader.o UDPHeader.o RawData.o HopByHopHeader.o DestOptsHeader.o FragmentHeader.o RoutingHeader.o  PacketParser.o npacket.o
+SRCS = $(srcdir)/netutil.cc $(srcdir)/PacketElement.cc $(srcdir)/NetworkLayerElement.cc $(srcdir)/ARPHeader.cc $(srcdir)/PacketElement.cc $(srcdir)/NetworkLayerElement.cc $(srcdir)/TransportLayerElement.cc $(srcdir)/ARPHeader.cc $(srcdir)/EthernetHeader.cc $(srcdir)/ICMPv4Header.cc $(srcdir)/ICMPv6Header.cc $(srcdir)/IPv4Header.cc $(srcdir)/IPv6Header.cc $(srcdir)/TCPHeader.cc $(srcdir)/UDPHeader.cc $(srcdir)/RawData.cc $(srcdir)/HopByHopHeader.cc $(srcdir)/DestOptsHeader.cc $(srcdir)/FragmentHeader.cc $(srcdir)/RoutingHeader.cc $(srcdir)/PacketParser.cc
+OBJS = netutil.o PacketElement.o NetworkLayerElement.o TransportLayerElement.o ARPHeader.o EthernetHeader.o ICMPv4Header.o ICMPv6Header.o IPv4Header.o IPv6Header.o TCPHeader.o UDPHeader.o RawData.o HopByHopHeader.o DestOptsHeader.o FragmentHeader.o RoutingHeader.o  PacketParser.o
 
 all: $(TARGET) 
 
