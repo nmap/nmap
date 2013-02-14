@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that prevented Nmap from finding any interfaces when one
+  of them had the type ARP_HDR_APPLETALK; this was the case for
+  AppleTalk interfaces. However, This support is not complete
+  since AppleTalk interfaces use different size hardware addresses than Ethernet.
+  Nmap IP level scans should work without any problem, please refer to
+  the '--send-ip' switch and to the following thread:
+  http://seclists.org/nmap-dev/2013/q1/214
+  This bug was reported by Steven Gregory Johnson. [Daniel Miller]
+
 o [Nping] Nping now skips localhost targets for privileged pings (with
   an error message) because those generally don't work.
   [David Fifield]
