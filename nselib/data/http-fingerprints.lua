@@ -6767,6 +6767,62 @@ table.insert(fingerprints, {
       }
     }
   });
+
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/index.php?option=com_jce&task=plugin&plugin=imgmanager&file=imgmanager&version=1576&cid=20',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '2.0.11</title',
+        output = 'Joomla JCE Extension 2.0.11 Remote Code Execution vulnerability'
+      },
+      {
+        match = '2.0.12</title',
+        output = 'Joomla JCE Extension 2.0.12 Remote Code Execution vulnerability'
+      },
+      {
+        match = '2.0.13</title',
+        output = 'Joomla JCE Extension 2.0.13 Remote Code Execution vulnerability'
+      },
+      {
+        match = '2.0.14</title',
+        output = 'Joomla JCE Extension 2.0.14 Remote Code Execution vulnerability'
+      },
+      {
+        match = '2.0.15</title',
+        output = 'Joomla JCE Extension 2.0.11 Remote Code Execution vulnerability'
+      },
+      {
+        match = '1.5.7.10</title',
+        output = 'Joomla JCE Extension 1.5.7.10 Remote Code Execution vulnerability'
+      },
+      {
+        match = '1.5.7.10</title',
+        output = 'Joomla JCE Extension 1.5.7.10 Remote Code Execution vulnerability'
+      },
+      {
+        match = '1.5.7.11</title',
+        output = 'Joomla JCE Extension 1.5.7.11 Remote Code Execution vulnerability'
+      },
+      {
+        match = '1.5.7.12</title',
+        output = 'Joomla JCE Extension 1.5.7.12 Remote Code Execution vulnerability'
+      },
+      {
+        match = '1.5.7.13</title',
+        output = 'Joomla JCE Extension 1.5.7.13 Remote Code Execution vulnerability'
+      },
+      {
+        match = '1.5.7.14</title',
+        output = 'Joomla JCE Extension 1.5.7.14 Remote Code Execution vulnerability'
+      }
+   }
+  });
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
