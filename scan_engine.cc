@@ -968,9 +968,9 @@ ConnectScanInfo::~ConnectScanInfo() {}
 bool ConnectScanInfo::watchSD(int sd) {
   assert(sd >= 0);
   if (!FD_ISSET(sd, &fds_read)) {
-    FD_SET(sd, &fds_read);
-    FD_SET(sd, &fds_write);
-    FD_SET(sd, &fds_except);
+    CHECKED_FD_SET(sd, &fds_read);
+    CHECKED_FD_SET(sd, &fds_write);
+    CHECKED_FD_SET(sd, &fds_except);
     numSDs++;
     if (sd > maxValidSD)
       maxValidSD = sd;
@@ -986,9 +986,9 @@ bool ConnectScanInfo::watchSD(int sd) {
 bool ConnectScanInfo::clearSD(int sd) {
   assert(sd >= 0);
   if (FD_ISSET(sd, &fds_read)) {
-    FD_CLR(sd, &fds_read);
-    FD_CLR(sd, &fds_write);
-    FD_CLR(sd, &fds_except);
+    CHECKED_FD_CLR(sd, &fds_read);
+    CHECKED_FD_CLR(sd, &fds_write);
+    CHECKED_FD_CLR(sd, &fds_except);
     assert(numSDs > 0);
     numSDs--;
     if (sd == maxValidSD)
