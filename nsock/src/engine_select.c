@@ -76,9 +76,10 @@
     if ((fd) < FD_SETSIZE) { \
       FD_SET((fd), (set)); \
     } else { \
-      fatal("%s:%ld: Attempt to FD_SET fd %d, which is not less than" \
+      fprintf(stderr, "%s:%ld: Attempt to FD_SET fd %d, which is not less than" \
         " FD_SETSIZE (%d). Try using a lower parallelism.", \
         __FILE__, (long int) __LINE__, (fd), FD_SETSIZE); \
+      abort(); \
     } \
   } while (0)
 #endif
@@ -91,9 +92,10 @@
     if ((fd) < FD_SETSIZE) { \
       FD_CLR((fd), (set)); \
     } else { \
-      fatal("%s:%ld: Attempt to FD_CLR fd %d, which is not less than" \
+      fprintf(stderr, "%s:%ld: Attempt to FD_CLR fd %d, which is not less than" \
         " FD_SETSIZE (%d). Try using a lower parallelism.", \
         __FILE__, (long int) __LINE__, (fd), FD_SETSIZE); \
+      abort(); \
     } \
   } while (0)
 #endif
