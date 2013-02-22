@@ -942,18 +942,24 @@ void UltraProbe::setConnect(u16 portno) {
 ConnectScanInfo::ConnectScanInfo() {
   maxValidSD = -1;
   numSDs = 0;
-  /* Subtracting 10 from max_sd accounts for
-     stdin
-     stdout
-     stderr
-     /dev/tty
-     /var/run/utmpx, which is opened on Mac OS X at least
-     -oG log file
-     -oN log file
-     -oS log file
-     -oX log file
-     perhaps another we've forgotten. */
-  maxSocketsAllowed = (o.max_parallelism) ? o.max_parallelism : MAX(5, max_sd() - 10);
+  if (o.max_parallelism > 0) {
+    maxSocketsAllowed = o.max_parallelism;
+  } else {
+    /* Subtracting 10 from max_sd accounts for
+       stdin
+       stdout
+       stderr
+       /dev/tty
+       /var/run/utmpx, which is opened on Mac OS X at least
+       -oG log file
+       -oN log file
+       -oS log file
+       -oX log file
+       perhaps another we've forgotten. */
+    maxSocketsAllowed = max_sd() - 10;
+    if (maxSocketsAllowed < 5)
+      maxSocketsAllowed = 5;
+  }
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_except);
