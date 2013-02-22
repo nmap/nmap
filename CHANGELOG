@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Limited the number of open sockets in ultra_scan to FD_SETSIZE. Very
+  fast connect scans could write past the end of an fd_set and cause a
+  variety of crashes:
+    nmap: scan_engine.cc:978: bool ConnectScanInfo::clearSD(int): Assertion `numSDs > 0' failed.
+    select failed in do_one_select_round(): Bad file descriptor (9)
+  [David Fifield]
+
 o Fixed a bug that prevented Nmap from finding any interfaces when one
   of them had the type ARP_HDR_APPLETALK; this was the case for
   AppleTalk interfaces. However, This support is not complete

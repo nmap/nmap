@@ -960,6 +960,7 @@ ConnectScanInfo::ConnectScanInfo() {
     if (maxSocketsAllowed < 5)
       maxSocketsAllowed = 5;
   }
+  maxSocketsAllowed = MIN(maxSocketsAllowed, FD_SETSIZE - 10);
   FD_ZERO(&fds_read);
   FD_ZERO(&fds_write);
   FD_ZERO(&fds_except);
