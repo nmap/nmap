@@ -77,8 +77,6 @@
 
 void fatal(char *fmt, ...) __attribute__((noreturn));
 
-void myerror(char *fmt, ...);
-
 void pfatal(char *fmt, ...) __attribute__((noreturn));
 
 void gh_perror(char *err, ...);
