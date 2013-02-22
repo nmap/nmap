@@ -277,7 +277,7 @@ static int iod_add_event(msiod *iod, msevent *nse) {
 #endif
 
     default:
-      fatal("Unknown event type (%d) for IOD #%d\n", nse->type, iod->id);
+      fatal("Unknown event type (%d) for IOD #%lu\n", nse->type, iod->id);
   }
   return 0;
 }
