@@ -75,9 +75,13 @@
 #include <unistd.h>
 #endif
 
-void fatal(char *fmt, ...) __attribute__((noreturn));
+void fatal(char *fmt, ...)
+  __attribute__ ((noreturn))
+  __attribute__ ((format (printf, 1, 2)));
 
-void pfatal(char *fmt, ...) __attribute__((noreturn));
+void pfatal(char *fmt, ...)
+  __attribute__ ((noreturn))
+  __attribute__ ((format (printf, 1, 2)));
 
 void gh_perror(char *err, ...);
 

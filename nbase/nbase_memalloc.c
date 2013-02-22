@@ -98,7 +98,9 @@
 #include "nbase.h"
 #include <stdio.h>
 
-static void fatal(char *fmt, ...) __attribute__ ((format(printf, 1, 2)));
+static void fatal(char *fmt, ...)
+  __attribute__ ((noreturn))
+  __attribute__ ((format (printf, 1, 2)));
 
 static void fatal(char *fmt, ...) {
   va_list ap;
