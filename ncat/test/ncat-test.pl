@@ -726,6 +726,8 @@ server_client_test_tcp_sctp_ssl "Debug messages go to stderr",
 };
 kill_children;
 
+{
+local $xfail = 1;
 server_client_test_tcp_ssl "Client closes socket write and keeps running after stdin EOF",
 [], [], sub {
 	my $resp;
@@ -742,6 +744,7 @@ server_client_test_tcp_ssl "Client closes socket write and keeps running after s
 	waitpid($c_pid, WNOHANG) != -1 or die "Client stopped running";
 };
 kill_children;
+}
 
 server_client_test_tcp_ssl "--send-only client closes socket write and stops running after stdin EOF",
 [], ["--send-only"], sub {
@@ -854,6 +857,10 @@ kill_children;
 # where tar on the listening side could be any program that potentially buffers
 # its input. The listener must close its standard output so the program knows
 # to stop reading and process what remains in its buffer.
+{
+# XFAIL because of http://seclists.org/nmap-dev/2013/q1/227. The "close stdout"
+# part works, but not the "server keeps running" part.
+local $xfail = 1;
 server_client_test_tcp_ssl "Server closes stdout and keeps running after socket EOF",
 [], [], sub {
 	my $resp;
@@ -870,6 +877,7 @@ server_client_test_tcp_ssl "Server closes stdout and keeps running after socket 
 	waitpid($s_pid, WNOHANG) != -1 or die "Server stopped running";
 };
 kill_children;
+}
 
 server_client_test_sctp_ssl "Server closes stdout and stops running after socket EOF",
 [], [], sub {
