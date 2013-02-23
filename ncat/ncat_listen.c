@@ -331,7 +331,7 @@ static int ncat_listen_stream(int proto)
                     /* Read from stdin and write to all clients. */
                     rc = read_stdin();
                     if (rc == 0) {
-                        if (o.sendonly) {
+                        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly)) {
                             /* There will be nothing more to send. If we're not
                                receiving anything, we can quit here. */
                             return 0;

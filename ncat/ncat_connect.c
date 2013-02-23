@@ -786,8 +786,8 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
 
     if (status == NSE_STATUS_EOF) {
         shutdown(nsi_getsd(cs.sock_nsi), SHUT_WR);
-        /* In --send-only mode, exit after EOF on stdin. */
-        if (o.sendonly)
+        /* In --send-only mode or non-TCP mode, exit after EOF on stdin. */
+        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.sendonly))
             nsock_loop_quit(nsp);
         return;
     } else if (status == NSE_STATUS_ERROR) {
@@ -833,8 +833,8 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 
     if (status == NSE_STATUS_EOF) {
         Close(STDOUT_FILENO);
-        /* In --recv-only mode, exit after EOF on the socket. */
-        if (o.recvonly)
+        /* In --recv-only mode or non-TCP mode, exit after EOF on the socket. */
+        if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.recvonly))
             nsock_loop_quit(nsp);
         return;
     } else if (status == NSE_STATUS_ERROR) {
