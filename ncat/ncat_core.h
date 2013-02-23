@@ -117,14 +117,14 @@ struct options {
     int debug;
     char *target;
     int af;
+    /* IPPROTO_TCP, IPPROTO_SCTP, or IPPROTO_UDP */
+    int proto;
     int broker;
     int listen;
     int keepopen;
     int sendonly;
     int recvonly;
     int telnet;
-    int udp;
-    int sctp;
     int linedelay;
     int chat;
     int nodns;

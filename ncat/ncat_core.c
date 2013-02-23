@@ -134,14 +134,13 @@ void options_init(void)
     o.debug = 0;
     o.target = NULL;
     o.af = AF_UNSPEC;
+    o.proto = IPPROTO_TCP;
     o.broker = 0;
     o.listen = 0;
     o.keepopen = 0;
     o.sendonly = 0;
     o.recvonly = 0;
     o.telnet = 0;
-    o.udp = 0;
-    o.sctp = 0;
     o.linedelay = 0;
     o.chat = 0;
     o.nodns = 0;

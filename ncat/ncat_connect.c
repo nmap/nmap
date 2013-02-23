@@ -523,7 +523,7 @@ int ncat_connect(void)
 
 #if HAVE_SYS_UN_H
         /* For DGRAM UNIX socket we have to use source socket */
-        if (o.af == AF_UNIX && o.udp)
+        if (o.af == AF_UNIX && o.proto == IPPROTO_UDP)
         {
             if (srcaddr.storage.ss_family != AF_UNIX) {
                 char *tmp_name = NULL;
@@ -559,7 +559,7 @@ int ncat_connect(void)
 
 #if HAVE_SYS_UN_H
         if (o.af == AF_UNIX) {
-            if (o.udp) {
+            if (o.proto == IPPROTO_UDP) {
                 nsock_connect_unixsock_datagram(mypool, cs.sock_nsi, connect_handler, NULL,
                                                 &targetss.sockaddr,
                                                 SUN_LEN((struct sockaddr_un *)&targetss.sockaddr));
@@ -570,13 +570,13 @@ int ncat_connect(void)
             }
         } else
 #endif
-        if (o.udp) {
+        if (o.proto == IPPROTO_UDP) {
             nsock_connect_udp(mypool, cs.sock_nsi, connect_handler,
                               NULL, &targetss.sockaddr, targetsslen,
                               inet_port(&targetss));
         }
 #ifdef HAVE_OPENSSL
-        else if (o.sctp && o.ssl) {
+        else if (o.proto == IPPROTO_SCTP && o.ssl) {
             nsock_connect_ssl(mypool, cs.sock_nsi, connect_handler,
                               o.conntimeout, NULL,
                               &targetss.sockaddr, targetsslen,
@@ -584,7 +584,7 @@ int ncat_connect(void)
                               NULL);
         }
 #endif
-        else if (o.sctp) {
+        else if (o.proto == IPPROTO_SCTP) {
             nsock_connect_sctp(mypool, cs.sock_nsi, connect_handler,
                               o.conntimeout, NULL,
                               &targetss.sockaddr, targetsslen,
@@ -692,7 +692,7 @@ int ncat_connect(void)
     }
 
 #if HAVE_SYS_UN_H
-    if (o.af == AF_UNIX && o.udp) {
+    if (o.af == AF_UNIX && o.proto == IPPROTO_UDP) {
         if (o.verbose)
             loguser("Deleting source DGRAM Unix domain socket. [%s]\n", srcaddr.un.sun_path);
         unlink(srcaddr.un.sun_path);

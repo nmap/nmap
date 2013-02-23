@@ -807,7 +807,7 @@ int ncat_listen()
 {
 #if HAVE_SYS_UN_H
     if (o.af == AF_UNIX)
-        if (o.udp)
+        if (o.proto == IPPROTO_UDP)
             return ncat_listen_dgram(0);
         else
             return ncat_listen_stream(0);
@@ -815,12 +815,14 @@ int ncat_listen()
 #endif
     if (o.httpserver)
         return ncat_http_server();
-    else if (o.udp)
-        return ncat_listen_dgram(IPPROTO_UDP);
-    else if (o.sctp)
-        return ncat_listen_stream(IPPROTO_SCTP);
+    else if (o.proto == IPPROTO_UDP)
+        return ncat_listen_dgram(o.proto);
+    else if (o.proto == IPPROTO_SCTP)
+        return ncat_listen_stream(o.proto);
+    else if (o.proto == IPPROTO_TCP)
+        return ncat_listen_stream(o.proto);
     else
-        return ncat_listen_stream(IPPROTO_TCP);
+        bye("Unknown o.proto %d\n", o.proto);
 
     /* unreached */
     return 1;

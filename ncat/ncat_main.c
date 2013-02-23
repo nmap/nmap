@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
         {"allowfile",       required_argument,  NULL,         0},
         {"telnet",          no_argument,        NULL,         't'},
         {"udp",             no_argument,        NULL,         'u'},
-        {"sctp",            no_argument,        &o.sctp,      1},
+        {"sctp",            no_argument,        NULL,         0},
         {"version",         no_argument,        NULL,         0},
         {"verbose",         no_argument,        NULL,         'v'},
         {"wait",            required_argument,  NULL,         'w'},
@@ -382,7 +382,7 @@ int main(int argc, char *argv[])
             o.listen = 1;
             break;
         case 'u':
-            o.udp = 1;
+            o.proto = IPPROTO_UDP;
             break;
         case 'v':
             /* One -v activites verbose, after that it's debugging. */
@@ -446,6 +446,8 @@ int main(int argc, char *argv[])
                 host_list_add_filename(&deny_host_list, optarg);
             } else if (strcmp(long_options[option_index].name, "append-output") == 0) {
                 o.append = 1;
+            } else if (strcmp(long_options[option_index].name, "sctp") == 0) {
+                o.proto = IPPROTO_SCTP;
             }
 #ifdef HAVE_OPENSSL
             else if (strcmp(long_options[option_index].name, "ssl-cert") == 0) {
@@ -621,7 +623,7 @@ int main(int argc, char *argv[])
         /* if using UNIX sockets just copy the path.
          * If it's not valid, it will fail later! */
         if (o.af == AF_UNIX) {
-            if (o.udp) {
+            if (o.proto == IPPROTO_UDP) {
                 srcaddr.un.sun_family = AF_UNIX;
                 strncpy(srcaddr.un.sun_path, source, sizeof(srcaddr.un.sun_path));
                 srcaddrlen = SUN_LEN(&srcaddr.un);
@@ -760,7 +762,7 @@ int main(int argc, char *argv[])
         socksconnect = tmp;
     }
 
-    if (o.udp) {
+    if (o.proto == IPPROTO_UDP) {
         /* Don't allow a false sense of security if someone tries SSL over UDP. */
         if (o.ssl)
             bye("UDP mode does not support SSL.");
