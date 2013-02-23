@@ -191,6 +191,10 @@ sub server_client_test_tcp_ssl {
 	server_client_test_multi(["tcp", "tcp ssl"], @_);
 }
 
+sub server_client_test_sctp_ssl {
+	server_client_test_multi(["sctp", "sctp ssl"], @_);
+}
+
 # Set up a proxy running on $PROXY_PORT. Start a server on $PORT and connect a
 # client to the server through the proxy. The proxy is controlled through the
 # variables
@@ -790,7 +794,7 @@ server_client_test_tcp_ssl "--send-only server closes socket write and stops run
 };
 kill_children;
 
-server_client_test_tcp_sctp_ssl "Client closes stdout and keeps running after socket EOF",
+server_client_test_tcp_ssl "Client closes stdout and keeps running after socket EOF",
 [], [], sub {
 	my $resp;
 
@@ -804,6 +808,25 @@ server_client_test_tcp_sctp_ssl "Client closes stdout and keeps running after so
 	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
 	sleep 1;
 	waitpid($c_pid, WNOHANG) != -1 or die "Client stopped running";
+};
+kill_children;
+
+# SCTP doesn't have half-open sockets, so the program should exit.
+# http://seclists.org/nmap-dev/2013/q1/203
+server_client_test_sctp_ssl "Client closes stdout and stops running after socket EOF",
+[], [], sub {
+	my $resp;
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Client got \"$resp\", not \"abc\\n\"";
+
+	close($s_in);
+
+	$resp = timeout_read($c_out);
+	!defined($resp) or die "Client didn't get EOF and didn't exit (got \"$resp\")";
+	sleep 1;
+	waitpid($c_pid, WNOHANG) == -1 or die "Client still running";
 };
 kill_children;
 
@@ -831,7 +854,7 @@ kill_children;
 # where tar on the listening side could be any program that potentially buffers
 # its input. The listener must close its standard output so the program knows
 # to stop reading and process what remains in its buffer.
-server_client_test_tcp_sctp_ssl "Server closes stdout and keeps running after socket EOF",
+server_client_test_tcp_ssl "Server closes stdout and keeps running after socket EOF",
 [], [], sub {
 	my $resp;
 
@@ -845,6 +868,23 @@ server_client_test_tcp_sctp_ssl "Server closes stdout and keeps running after so
 	!defined($resp) or die "Server didn't send EOF";
 	sleep 1;
 	waitpid($s_pid, WNOHANG) != -1 or die "Server stopped running";
+};
+kill_children;
+
+server_client_test_sctp_ssl "Server closes stdout and stops running after socket EOF",
+[], [], sub {
+	my $resp;
+
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
+
+	close($c_in);
+
+	$resp = timeout_read($s_out);
+	!defined($resp) or die "Server didn't send EOF";
+	sleep 1;
+	waitpid($s_pid, WNOHANG) == -1 or die "Server still running";
 };
 kill_children;
 
