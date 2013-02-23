@@ -719,8 +719,6 @@ server_client_test_tcp_sctp_ssl "Debug messages go to stderr",
 	$resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 	syswrite($s_in, "abc\n");
-	close($s_in);
-	close($c_in);
 	$resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 };
