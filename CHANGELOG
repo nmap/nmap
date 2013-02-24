@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Changed ip-geolocation-geoplugin to use the web service's new
+  output format. Reported by Robin Wood.
+
 o Limited the number of open sockets in ultra_scan to FD_SETSIZE. Very
   fast connect scans could write past the end of an fd_set and cause a
   variety of crashes:

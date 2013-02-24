@@ -38,7 +38,7 @@ end
 -- No limit on requests
 local geoplugin = function(ip)
 	local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip, nil)
-	local stat, loc = json.parse(response.body:match("geoPlugin%((.+)%)"))
+	local stat, loc = json.parse(response.body)
 	if not stat then return nil end
 	
 	local output = {}
