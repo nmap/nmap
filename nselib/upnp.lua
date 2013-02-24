@@ -181,9 +181,9 @@ Comm = {
 			-- We should get a response back that has contains one line for the server, and one line for the xml file location
 			-- these match any combination of upper and lower case responses
 			local server, location
-			server = string.match(response, "[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\010")
+			server = string.match(response, "[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\r?\n")
 			if server ~= nil then table.insert(output, "Server: " .. server ) end
-			location = string.match(response, "[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:%s*(.-)\010")
+			location = string.match(response, "[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:%s*(.-)\r?\n")
 			if location ~= nil then
 				table.insert(output, "Location: " .. location )
 			
