@@ -400,7 +400,7 @@ sub {
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 
-	my ($c_pid2, $c_out2, $c_in2) = ncat("-6",$IPV6_ADDR);
+	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", $IPV6_ADDR);
 	syswrite($c_in2, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
