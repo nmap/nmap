@@ -157,6 +157,9 @@ public:
 
 class HostGroupState {
 public:
+  /* The maximum number of entries we want to allow storing in defer_buffer. */
+  static const unsigned int DEFER_LIMIT = 64;
+
   HostGroupState(int lookahead, int randomize, int argc, const char *argv[]);
   ~HostGroupState();
   Target **hostbatch;
@@ -180,6 +183,7 @@ public:
 		    at a time to the client program */
   TargetGroup current_group; /* For batch chunking -- targets in queue */
 
+  /* Returns true iff the defer buffer is not yet full. */
   bool defer(Target *t);
   void undefer();
   const char *next_expression();

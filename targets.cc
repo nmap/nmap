@@ -401,9 +401,10 @@ HostGroupState::~HostGroupState() {
   free(hostbatch);
 }
 
+/* Returns true iff the defer buffer is not yet full. */
 bool HostGroupState::defer(Target *t) {
   this->defer_buffer.push_back(t);
-  return true;
+  return this->defer_buffer.size() < HostGroupState::DEFER_LIMIT;
 }
 
 void HostGroupState::undefer() {
