@@ -383,7 +383,7 @@ void Target::setTargetName(const char *name) {
      (64.71.184.53)" or "fe80::202:e3ff:fe14:1102".  The name is
      written into the buffer provided, which is also returned.  Results
      that do not fit in buflen will be truncated. */
-const char *Target::NameIP(char *buf, size_t buflen) {
+const char *Target::NameIP(char *buf, size_t buflen) const {
   assert(buf);
   assert(buflen > 8);
   if (targetname)
@@ -396,7 +396,7 @@ const char *Target::NameIP(char *buf, size_t buflen) {
 }
 
 /* This next version returns a static buffer -- so no concurrency */
-const char *Target::NameIP() {
+const char *Target::NameIP() const {
   if (!nameIPBuf) nameIPBuf = (char *) safe_malloc(MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
   return NameIP(nameIPBuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
 }

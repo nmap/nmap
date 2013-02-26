@@ -205,9 +205,9 @@ class Target {
      (64.71.184.53)" or "fe80::202:e3ff:fe14:1102".  The name is
      written into the buffer provided, which is also returned.  Results
      that do not fit in buflen will be truncated. */
-  const char *NameIP(char *buf, size_t buflen);
+  const char *NameIP(char *buf, size_t buflen) const;
   /* This next version returns a STATIC buffer -- so no concurrency */
-  const char *NameIP();
+  const char *NameIP() const;
 
   /* Give the name from the last setTargetName() call, which is the 
    name of the target given on the command line if it's a named
@@ -328,7 +328,7 @@ class Target {
   int directly_connected; // -1 = unset; 0 = no; 1 = yes
   char targetipstring[INET6_ADDRSTRLEN];
   char sourceipstring[INET6_ADDRSTRLEN];
-  char *nameIPBuf; /* for the NameIP(void) function to return */
+  mutable char *nameIPBuf; /* for the NameIP(void) function to return */
   u8 MACaddress[6], SrcMACaddress[6], NextHopMACaddress[6];  
   bool MACaddress_set, SrcMACaddress_set, NextHopMACaddress_set;
   struct host_timeout_nfo htn;
