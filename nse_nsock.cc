@@ -146,7 +146,7 @@ static std::string hexify (const unsigned char *str, size_t len)
 
 /* Some constants used for enforcing a limit on the number of open sockets
  * in use by threads. The maximum value between MAX_PARALLELISM and
- * o.maxparallelism is the max # of threads that can have connected sockets
+ * o.max_parallelism is the max # of threads that can have connected sockets
  * (open).
  *
  * THREAD_SOCKETS is a weak keyed table of <Thread, Socket Table> pairs.
