@@ -392,7 +392,7 @@ const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void) 
 /* is the current expression a named host */
 int TargetGroup::get_namedhost() const {
   return this->get_resolved_name() != NULL;
-};
+}
 
 /* Lookahead is the number of hosts that can be
    checked (such as ping scanned) in advance.  Randomize causes each
