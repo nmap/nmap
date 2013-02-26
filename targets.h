@@ -123,11 +123,9 @@
 class TargetGroup {
 public:
   NetBlock *netblock;
-  struct sockaddr_storage pushback;
 
   TargetGroup() {
     this->netblock = NULL;
-    this->pushback.ss_family = AF_UNSPEC;
   }
 
   ~TargetGroup() {
@@ -144,9 +142,6 @@ public:
      fills in ss if successful.  ss must point to a pre-allocated
      sockaddr_storage structure */
   int get_next_host(struct sockaddr_storage *ss, size_t *sslen);
-  /* Returns the given host, so that it will be given the next time
-     get_next_host is called. Does nothing if ss is NULL. */
-  void return_host(const struct sockaddr_storage *ss);
   /* Returns true iff the given address is the one that was resolved to create
      this target group; i.e., not one of the addresses derived from it with a
      netmask. */
@@ -165,6 +160,15 @@ public:
   HostGroupState(int lookahead, int randomize, int argc, const char *argv[]);
   ~HostGroupState();
   Target **hostbatch;
+
+  /* The defer_buffer is a place to store targets that have previously been
+     returned but that can't be used right now. They wait in defer_buffer until
+     HostGroupState::undefer is called, at which point they all move to the end
+     of the undeferred list. HostGroupState::next_target always pulls from the
+     undeferred list before returning anything new. */
+  std::list<Target *> defer_buffer;
+  std::list<Target *> undeferred;
+
   int argc;
   const char **argv;
   int max_batch_sz; /* The size of the hostbatch[] array */
@@ -176,7 +180,10 @@ public:
 		    at a time to the client program */
   TargetGroup current_group; /* For batch chunking -- targets in queue */
 
+  bool defer(Target *t);
+  void undefer();
   const char *next_expression();
+  Target *next_target();
 };
 
 /* Ports is the list of ports the user asked to be scanned (0 terminated),

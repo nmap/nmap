@@ -327,13 +327,6 @@ int TargetGroup::parse_expr(const char *target_expr, int af) {
    fills in ss if successful.  ss must point to a pre-allocated
    sockaddr_storage structure */
 int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
-  if (this->pushback.ss_family != AF_UNSPEC) {
-    *ss = this->pushback;
-    *sslen = sizeof(*ss);
-    this->pushback.ss_family = AF_UNSPEC;
-    return 0;
-  }
-
   if (this->netblock == NULL)
     return -1;
 
@@ -357,15 +350,6 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     return 0;
   else
     return -1;
-}
-
-/* Returns the given host, so that it will be given the next time
-   get_next_host is called. Does nothing if ss is NULL. */
-void TargetGroup::return_host(const struct sockaddr_storage *ss) {
-  if (ss == NULL)
-    return;
-  assert(this->pushback.ss_family == AF_UNSPEC);
-  this->pushback = *ss;
 }
 
 /* Returns true iff the given address is the one that was resolved to create
@@ -405,6 +389,8 @@ HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **ar
   this->argc = argc;
   this->argv = argv;
   hostbatch = (Target **) safe_zalloc(sizeof(Target *) * lookahead);
+  defer_buffer = std::list<Target *>();
+  undeferred = std::list<Target *>();
   max_batch_sz = lookahead;
   current_batch_sz = 0;
   next_batch_no = 0;
@@ -413,6 +399,15 @@ HostGroupState::HostGroupState(int lookahead, int rnd, int argc, const char **ar
 
 HostGroupState::~HostGroupState() {
   free(hostbatch);
+}
+
+bool HostGroupState::defer(Target *t) {
+  this->defer_buffer.push_back(t);
+  return true;
+}
+
+void HostGroupState::undefer() {
+  this->undeferred.splice(this->undeferred.end(), this->defer_buffer);
 }
 
 const char *HostGroupState::next_expression() {
@@ -525,73 +520,82 @@ bail:
   return NULL;
 }
 
-Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
-                 struct scan_lists *ports, int pingtype) {
-  int i;
+static Target *next_target(HostGroupState *hs, const addrset *exclude_group,
+  struct scan_lists *ports, int pingtype) {
   struct sockaddr_storage ss;
   size_t sslen;
+  Target *t;
+
+  /* First handle targets deferred in the last batch. */
+  if (!hs->undeferred.empty()) {
+    t = hs->undeferred.front();
+    hs->undeferred.pop_front();
+    return t;
+  }
+
+tryagain:
+
+  if (hs->current_group.get_next_host(&ss, &sslen) != 0) {
+    const char *expr;
+    /* We are going to have to pop in another expression. */
+    for (;;) {
+      expr = hs->next_expression();
+      if (expr == NULL)
+        /* That's the last of them. */
+        return NULL;
+      if (hs->current_group.parse_expr(expr, o.af()) == 0)
+        break;
+      else
+        log_bogus_target(expr);
+    }
+    goto tryagain;
+  }
+
+  /* If we are resuming from a previous scan, we have already finished scanning
+     up to o.resume_ip.  */
+  if (ss.ss_family == AF_INET && o.resume_ip.s_addr) {
+    if (o.resume_ip.s_addr == ((struct sockaddr_in *) &ss)->sin_addr.s_addr)
+      /* We will continue starting with the next IP. */
+      o.resume_ip.s_addr = 0;
+    goto tryagain;
+  }
+
+  /* Check exclude list. */
+  if (hostInExclude((struct sockaddr *) &ss, sslen, exclude_group))
+    goto tryagain;
+
+  t = setup_target(hs, &ss, sslen, pingtype);
+  if (t == NULL)
+    goto tryagain;
+
+  return t;
+}
+
+static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
+  struct scan_lists *ports, int pingtype) {
+  int i;
   bool arpping_done = false;
   struct timeval now;
 
-  if (hs->next_batch_no < hs->current_batch_sz) {
-    /* Woop!  This is easy -- we just pass back the next host struct */
-    return hs->hostbatch[hs->next_batch_no++];
-  }
-
-  /* Doh, we need to refresh our array */
   hs->current_batch_sz = hs->next_batch_no = 0;
-  for (;;) {
-    /* Grab anything we have in our current_group */
-    while (hs->current_batch_sz < hs->max_batch_sz && 
-        hs->current_group.get_next_host(&ss, &sslen) == 0) {
-      Target *t;
+  hs->undefer();
+  while (hs->current_batch_sz < hs->max_batch_sz) {
+    Target *t;
 
-      /* If we are resuming from a previous scan, we have already finished
-         scans up to o.resume_ip.  */
-      if (ss.ss_family == AF_INET && o.resume_ip.s_addr) {
-        if (o.resume_ip.s_addr == ((struct sockaddr_in *) &ss)->sin_addr.s_addr)
-          o.resume_ip.s_addr = 0; /* So that we will KEEP the next one */
-        continue; /* Try again */
-      }
+    t = next_target(hs, exclude_group, ports, pingtype);
+    if (t == NULL)
+      break;
 
-      if (hostInExclude((struct sockaddr *)&ss, sslen, exclude_group)) {
-        continue; /* Skip any hosts the user asked to exclude */
-      }
-      t = setup_target(hs, &ss, sslen, pingtype);
-      if (t == NULL)
+    /* Does this target need to go in a separate host group? */
+    if (target_needs_new_hostgroup(hs, t)) {
+      if (hs->defer(t))
         continue;
-
-      /* Does this target need to go in a separate host group? */
-      if (target_needs_new_hostgroup(hs, t)) {
-        /* Cancel everything!  This guy must go in the next group and we are
-           out of here */
-        hs->current_group.return_host(t->TargetSockAddr());
-        delete t;
-        goto batchfull;
-      }
-
-      hs->hostbatch[hs->current_batch_sz++] = t;
+      else
+        break;
     }
 
-    if (hs->current_batch_sz < hs->max_batch_sz) {
-      const char *expr;
-      /* We are going to have to pop in another expression. */
-      for (;;) {
-        expr = hs->next_expression();
-        if (expr == NULL)
-          goto batchfull;
-        if (hs->current_group.parse_expr(expr, o.af()) != 0)
-          log_bogus_target(expr);
-        else
-          break;
-      }
-    } else break;
+    hs->hostbatch[hs->current_batch_sz++] = t;
   }
-
-batchfull:
-
-  if (hs->current_batch_sz == 0)
-    return NULL;
 
   /* OK, now we have our complete batch of entries.  The next step is to
      randomize them (if requested) */
@@ -654,6 +658,14 @@ batchfull:
 
   if (!o.noresolve)
     nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
+}
+
+Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
+                 struct scan_lists *ports, int pingtype) {
+  if (hs->next_batch_no >= hs->current_batch_sz)
+    refresh_hostbatch(hs, exclude_group, ports, pingtype);
+  if (hs->next_batch_no >= hs->current_batch_sz)
+    return NULL;
 
   return hs->hostbatch[hs->next_batch_no++];
 }
