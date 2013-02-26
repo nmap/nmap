@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap may now partially rearrange its target list for more efficient
+  host groups. Previously, a single target with a different interface,
+  or with an IP address the same as a that of a target already in the
+  group, would cause the group to be broken off at whatever size it
+  was. Now, we buffer a small number of such targets, and keep looking
+  through the input for more targets to fill out the current group.
+  [David Fifield]
+
 o [NSE] Changed ip-geolocation-geoplugin to use the web service's new
   output format. Reported by Robin Wood.
 
