@@ -598,6 +598,9 @@ static void refresh_hostbatch(HostGroupState *hs, const addrset *exclude_group,
     hs->hostbatch[hs->current_batch_sz++] = t;
   }
 
+  if (hs->current_batch_sz == 0)
+    return;
+
   /* OK, now we have our complete batch of entries.  The next step is to
      randomize them (if requested) */
   if (hs->randomize) {
