@@ -10,8 +10,8 @@ NMAP_MSWIN32_AUX = ../../nmap-mswin32-aux
 winbuild: nmap.rc nsis/Nmap.nsi LICENSE
 # VCExpress.exe is devenv.com with the commercial Visual Studio suite instead of VC++ Express
 
-	"$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC)
-	"$(VCEXPRESS)" nmap.sln /build release /project nmap-update /log $(LOGLOC)
+	"$(VCEXPRESS)" nmap.sln /build release /out $(LOGLOC)
+	"$(VCEXPRESS)" nmap.sln /build release /project nmap-update /out $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
 	rm -f nmap-$(NMAP_VERSION)-win32.zip
