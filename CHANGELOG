@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Namespace the pipes used to communicate with subprocesses by PID, to
+  avoid multiple instances of Ncat from interfering with each other.
+  Patch by Andrey Olkhin.
+
 o Nmap may now partially rearrange its target list for more efficient
   host groups. Previously, a single target with a different interface,
   or with an IP address the same as a that of a target already in the

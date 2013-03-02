@@ -220,7 +220,8 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     }
 
     /* Pipe names must have this special form. */
-    Snprintf(pipe_name, sizeof(pipe_name), "\\\\.\\pipe\\ncat-%d", pipe_serial_no);
+    Snprintf(pipe_name, sizeof(pipe_name), "\\\\.\\pipe\\ncat-%d-%d",
+        GetCurrentProcessId(), pipe_serial_no);
     if (o.debug > 1)
         logdebug("Creating named pipe \"%s\"\n", pipe_name);
 
