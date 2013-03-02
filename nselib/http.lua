@@ -147,21 +147,9 @@ local function table_augment(to, from)
 end
 
 --- Get a value suitable for the Host header field.
+-- See RFC 2616 sections 14.23 and 5.2.
 local function get_host_field(host, port)
-  local hostname = stdnse.get_hostname(host)
-  local portno
-  if port == nil then
-    portno = 80
-  elseif type(port) == "table" then
-    portno = port.number
-  else
-    portno = port
-  end
-  if portno == 80 then
-    return hostname
-  else
-    return hostname .. ":" .. tostring(portno)
-  end
+  return stdnse.get_hostname(host)
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
