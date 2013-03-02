@@ -388,8 +388,8 @@ static DWORD WINAPI subprocess_thread_func(void *data)
 
     /* Loop until EOF or error. */
     for (;;) {
-        DWORD n, nwritten;
-        int i;
+        DWORD n_r, n_w;
+        int i, n;
 
         i = WaitForMultipleObjects(3, events, FALSE, INFINITE);
         if (i == WAIT_OBJECT_0) {
@@ -402,22 +402,22 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                 n = ncat_recv(&info->fdn, buffer, sizeof(buffer), &pending);
                 if (n <= 0)
                     goto loop_end;
-                if (WriteFile(info->child_in_w, buffer, n, &nwritten, NULL) == 0)
+                n_r = n;
+                if (WriteFile(info->child_in_w, buffer, n_r, &n_w, NULL) == 0)
                     break;
-                if (nwritten != n)
+                if (n_w != n)
                     goto loop_end;
             } while (pending);
         } else if (i == WAIT_OBJECT_0 + 1) {
             char *crlf = NULL, *wbuf;
             /* Read from process, write to socket. */
-            if (GetOverlappedResult(info->child_out_r, &overlap, &n, FALSE)) {
-                int n_r;
-
+            if (GetOverlappedResult(info->child_out_r, &overlap, &n_r, FALSE)) {
                 wbuf = pipe_buffer;
-                n_r = n;
                 if (o.crlf) {
-                    if (fix_line_endings((char *) pipe_buffer, &n_r, &crlf, &crlf_state))
+                    n = n_r;
+                    if (fix_line_endings((char *) pipe_buffer, &n, &crlf, &crlf_state))
                         wbuf = crlf;
+                    n_r = n;
                 }
                 /* The above call to WSAEventSelect puts the socket in
                    non-blocking mode, but we want this send to block, not
@@ -425,10 +425,10 @@ static DWORD WINAPI subprocess_thread_func(void *data)
                    first we must clear out the select event. */
                 WSAEventSelect(info->fdn.fd, events[0], 0);
                 block_socket(info->fdn.fd);
-                nwritten = ncat_send(&info->fdn, wbuf, n_r);
+                n = ncat_send(&info->fdn, wbuf, n_r);
                 if (crlf != NULL)
                     free(crlf);
-                if (nwritten != n_r)
+                if (n != n_r)
                     break;
                 /* Restore the select event (and non-block the socket again.) */
                 WSAEventSelect(info->fdn.fd, events[0], FD_READ | FD_CLOSE);
