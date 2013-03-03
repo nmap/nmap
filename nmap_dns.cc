@@ -862,14 +862,14 @@ static void connect_dns_servers() {
 #ifdef WIN32
 // Reads the Windows registry and adds all the nameservers found via the
 // add_dns_server() function.
-void win32_read_registry(char *controlset) {
+void win32_read_registry() {
   HKEY hKey;
   HKEY hKey2;
   char keybasebuf[2048];
   char buf[2048], keyname[2048], *p;
   DWORD sz, i;
 
-  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters", controlset);
+  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters");
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
                     0, KEY_READ, &hKey) != ERROR_SUCCESS) {
     if (firstrun) error("mass_dns: warning: Error opening registry to read DNS servers. Try using --system-dns or specify valid servers with --dns-servers");
@@ -886,14 +886,14 @@ void win32_read_registry(char *controlset) {
 
   RegCloseKey(hKey);
 
-  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces", controlset);
+  Snprintf(keybasebuf, sizeof(keybasebuf), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces");
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
                     0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
 
     sz = sizeof(buf);
     for (i=0; RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
 
-      Snprintf(keyname, sizeof(keyname), "SYSTEM\\%s\\Services\\Tcpip\\Parameters\\Interfaces\\%s", controlset, buf);
+      Snprintf(keyname, sizeof(keyname), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%s", buf);
 
       if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyname,
                         0, KEY_READ, &hKey2) == ERROR_SUCCESS) {
@@ -1095,7 +1095,7 @@ static void init_servs(void) {
 #ifndef WIN32
     parse_resolvdotconf();
 #else
-    win32_read_registry("CurrentControlSet");
+    win32_read_registry();
 #endif
   }
 }
