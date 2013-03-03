@@ -890,8 +890,7 @@ void win32_read_registry() {
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keybasebuf,
                     0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
 
-    sz = sizeof(buf);
-    for (i=0; RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
+    for (i=0; sz = sizeof(buf), RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
 
       Snprintf(keyname, sizeof(keyname), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%s", buf);
 
@@ -908,8 +907,6 @@ void win32_read_registry() {
 
         RegCloseKey(hKey2);
       }
-
-      sz = sizeof(buf);
     }
 
     RegCloseKey(hKey);
