@@ -134,7 +134,7 @@ end
 sniffInterface = function(iface, Decoders, decodertab)
 	local condvar = nmap.condvar(decodertab)
 	local sock = nmap.new_socket()
-	local timeout = tonumber(stdnse.get_script_args("broadcast-listener.timeout"))
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-listener.timeout"))
 
 	-- default to 30 seconds, if nothing else was set
 	timeout = timeout and (timeout * 1000) or (30 * 1000)
