@@ -11832,3 +11832,10 @@ rarity 9
 ports 50505,55552
 sslports 3790
 match metasploit-msgrpc m|^HTTP/1\.1 200 OK\r\nContent-Type: binary/message-pack\r\nConnection: close\r\nServer: Rex\r\nContent-Length: 1084\r\n\r\n\x85\xa5error\xc3\xaberror_class\xadArgumentError\xacerror_string\xbdInvalid Request Verb: '\"GET\"'\xaferror_backtrace\xdc\x00\x12\xda\x000lib/msf/core/rpc/v10/service\.rb:107:in `process'\xda\x006lib/msf/core/rpc/v10/service\.rb:88:in `on_request_uri'\xda\x006lib/msf/core/rpc/v10/service\.rb:70:in `block in start'\xda\x00/lib/rex/proto/http/handler/proc\.rb:37:in `call'\xda\x005lib/rex/proto/http/handler/proc\.rb:37:in `on_request'\xda\x00| p/Metasploit Remote API/ v/4.4.0-dev/
+
+##############################NEXT PROBE##############################
+# svrloc
+Probe UDP svrloc q|\x02\x01\x00\x006 \x00\x00\x00\x00\x00\x01\x00\x02en\x00\x00\x00\x15service:service-agent\x00\x07default\x00\x00\x00\x00|
+rarity 8
+ports 427
+match svrloc m|^\x02\x0b| p/Service Location Protocol/ v/2/

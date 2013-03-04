@@ -67,6 +67,11 @@ udp 161
 # http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz
 udp 177 "\x00\x01\x00\x02\x00\x01\x00"
 
+# svrloc
+udp 427
+  "\x02\x01\x00\x006 \x00\x00\x00\x00\x00\x01\x00\x02en\x00\x00\x00\x15"
+  "service:service-agent\x00\x07default\x00\x00\x00\x00"
+
 # Internet Key Exchange version 1, phase 1 Main Mode. We offer every
 # combination of (DES, 3DES) and (MD5, SHA) in the hope that one of them will
 # be acceptable. Because we use a fixed cookie, we set the association lifetime
