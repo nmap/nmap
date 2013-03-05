@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The list of nameservers on Windows now ignores nameservers from
+  inactive interfaces. [David Fifield]
+
 o Namespace the pipes used to communicate with subprocesses by PID, to
   avoid multiple instances of Ncat from interfering with each other.
   Patch by Andrey Olkhin.

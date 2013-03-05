@@ -860,6 +860,30 @@ static void connect_dns_servers() {
 
 
 #ifdef WIN32
+static bool interface_is_known_by_guid(const char *guid) {
+  struct interface_info *iflist;
+  int i, n;
+
+  iflist = getinterfaces(&n, NULL, 0);
+  if (iflist == NULL)
+    return false;
+
+  for (i = 0; i < n; i++) {
+    char pcap_name[1024];
+    char *pcap_guid;
+
+    if (!DnetName2PcapName(iflist[i].devname, pcap_name, sizeof(pcap_name)))
+      continue;
+    pcap_guid = strchr(pcap_name, '{');
+    if (pcap_guid == NULL)
+      continue;
+    if (strcmp(guid, pcap_guid) == 0)
+      return true;
+  }
+
+  return false;
+}
+
 // Reads the Windows registry and adds all the nameservers found via the
 // add_dns_server() function.
 void win32_read_registry() {
@@ -891,6 +915,12 @@ void win32_read_registry() {
                     0, KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS) {
 
     for (i=0; sz = sizeof(buf), RegEnumKeyEx(hKey, i, buf, &sz, NULL, NULL, NULL, NULL) != ERROR_NO_MORE_ITEMS; i++) {
+
+      if (!interface_is_known_by_guid(buf)) {
+        if (o.debugging > 1)
+          log_write(LOG_PLAIN, "Interface %s is not known; ignoring its nameservers.\n", buf);
+        continue;
+      }
 
       Snprintf(keyname, sizeof(keyname), "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\%s", buf);
 
