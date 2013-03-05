@@ -27,9 +27,9 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 -- |   Statistics
 -- |_    Performed 510 guesses in 610 seconds, average tps: 0
 --
--- @args timeout the amount of seconds to wait for a response on the socket.
+-- @args ftp-brute.timeout the amount of time to wait for a response on the socket.
 --       Lowering this value may result in a higher throughput for servers
---       having a delayed response on incorrect login attempts. (default: 5)
+--       having a delayed response on incorrect login attempts. (default: 5s)
 
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -37,7 +37,8 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(21, "ftp")
 
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or 5
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = (arg_timeout or 5) * 1000
 
 Driver = {
 
@@ -53,7 +54,7 @@ Driver = {
 	connect = function( self )
 		self.socket = nmap.new_socket()
 		local status, err = self.socket:connect(self.host, self.port)
-		self.socket:set_timeout(tonumber(arg_timeout) * 1000)
+		self.socket:set_timeout(arg_timeout)
 		if(not(status)) then
 			return false, brute.Error:new( "Couldn't connect to host: " .. err )
 		end

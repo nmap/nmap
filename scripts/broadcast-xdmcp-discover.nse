@@ -18,7 +18,7 @@ are marked using the keyword Willing in the result.
 -- | broadcast-xdmcp-discover: 
 -- |_  192.168.2.162 - Willing
 --
--- @arg broadcast-xdmcp-discover.timeout socket timeout in seconds (default: 5)
+-- @args broadcast-xdmcp-discover.timeout socket timeout (default: 5s)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -27,7 +27,7 @@ categories = {"broadcast", "safe"}
 
 prerule = function() return true end
 
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout")
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 
 action = function()
 

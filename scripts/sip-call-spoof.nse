@@ -26,7 +26,7 @@ Timeout (408) or Hang up (200).
 --@args sip-call-spoof.src Source address to spoof. 
 --
 --@args sip-call-spoof.timeout Time to wait for a response. Defaults to
--- <code>5</code> seconds.
+-- <code>5s</code>
 --
 -- @usage
 -- nmap --script=sip-call-spoof -sU -p 5060 <targets>
@@ -133,15 +133,11 @@ action = function(host, port)
     local from = stdnse.get_script_args(SCRIPT_NAME .. ".from") or "Home"
     local src = stdnse.get_script_args(SCRIPT_NAME .. ".src")
     local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or 100
-    local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+    local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 
     -- Default timeout value = 5 seconds.
-    if timeout then
-	timeout = timeout * 1000
-    else
-	timeout = 5000
-    end
-    
+    timeout = (timeout or 5) * 1000
+
     session = sip.Session:new(host, port)
     status = session:connect()
     if not status then

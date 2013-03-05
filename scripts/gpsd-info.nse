@@ -20,6 +20,7 @@ Retrieves GPS time, coordinates and speed from the GPSD network daemon.
 -- |   Coordinates: 59.321685,17.886493
 -- |_  Speed: - knots
 --
+-- @args gpsd-info.timeout timespec defining how long to wait for data (default 10s)
 
 
 author = "Patrik Karlsson"
@@ -29,7 +30,8 @@ categories = {"discovery", "safe"}
 
 portrule = shortport.port_or_service(2947, "gpsd-ng", "tcp")
 
-local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 10
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = arg_timeout or 10
 
 local function updateData(gpsinfo, entry)
 	for k, v in pairs(gpsinfo) do

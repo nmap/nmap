@@ -20,6 +20,8 @@ Performs password guessing against MySQL.
 -- | mysql-brute:
 -- |   Accounts
 -- |     root:root - Valid credentials
+--
+-- @args mysql-brute.timeout socket timeout for connecting to MySQL (default 5s)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -34,7 +36,8 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(3306, "mysql")
 
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or 5
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = (arg_timeout or 5) * 1000
 
 Driver = {
 
@@ -50,7 +53,7 @@ Driver = {
 	connect = function( self )
 		self.socket = nmap.new_socket()
 		local status, err = self.socket:connect(self.host, self.port)
-		self.socket:set_timeout(tonumber(arg_timeout) * 1000)
+		self.socket:set_timeout(arg_timeout)
 		if(not(status)) then
 			return false, brute.Error:new( "Couldn't connect to host: " .. err )
 		end

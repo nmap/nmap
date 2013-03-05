@@ -20,6 +20,7 @@ Performs brute force password auditing against a Nessus vulnerability scanning d
 -- |_    Performed 1933 guesses in 26 seconds, average tps: 73
 --
 -- @args nessus-xmlrpc-brute.threads sets the number of threads.
+-- @args nessus-xmlrpc-brute.timeout socket timeout (milliseconds) for connecting to Nessus (default 5000)
 
 author = "Patrik Karlsson"
 

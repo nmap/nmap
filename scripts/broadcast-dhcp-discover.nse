@@ -137,11 +137,8 @@ end
 action = function()
 
 	local host, port = "255.255.255.255", 67
-	local timeout = stdnse.get_script_args("broadcast-dhcp-discover.timeout")
-	timeout = tonumber(timeout) or 10
-
-	-- convert from seconds to ms
-	timeout = timeout * 1000
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-dhcp-discover.timeout"))
+	timeout = (timeout or 10) * 1000
 
 	-- randomizing the MAC could exhaust dhcp servers with small scopes
 	-- if ran multiple times, so we should probably refrain from doing

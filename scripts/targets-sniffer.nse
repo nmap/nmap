@@ -79,9 +79,8 @@ action = function()
   local sock = nmap.new_socket()
   local packet_counter = 0
   local ip_counter = 0
-  local DEFAULT_TIMEOUT_SEC = 10 -- Default timeout value in seconds if the timeout argument is not specified
-  local timeoutstr =  stdnse.get_script_args("targets-sniffer.timeout") or tostring(DEFAULT_TIMEOUT_SEC)
-  local timeout = (stdnse.parse_timespec(timeoutstr) * 1000)
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args("targets-sniffer.timeout"))
+  timeout = (timeout or 10) * 1000
   local interface = stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface()
   interface_info = nmap.get_interface_info(interface)
 

@@ -31,8 +31,8 @@ from all devices responding to the request.
 -- |     ip       netmask  nexthop     metric
 -- |_    0.0.0.0  0.0.0.0  10.0.200.1  1
 -- 
--- @args broadcast-rip-discover.timeout sets the timeout in seconds to wait for
---       a response.
+-- @args broadcast-rip-discover.timeout timespec defining how long to wait for
+--       a response. (default 5s)
 
 --
 -- Version 0.1
@@ -147,8 +147,8 @@ RIPv2 = {
 
 
 action = function()
-	local timeout = stdnse.get_script_args('broadcast-rip-discover.timeout')
-	timeout = (timeout and tonumber(timeout) * 1000) or 5000
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args('broadcast-rip-discover.timeout'))
+	timeout = (timeout or 5) * 1000
 
 	local socket = nmap.new_socket("udp")
 	socket:set_timeout(timeout)

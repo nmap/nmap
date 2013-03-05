@@ -17,7 +17,7 @@ This works by sending a PIM Hello message to the PIM multicast address
 
 --
 -- @args broadcast-pim-discovery.timeout Time to wait for responses in seconds.
--- Defaults to <code>5</code> seconds.
+-- Defaults to <code>5s</code>.
 --
 --@usage
 -- nmap --script broadcast-pim-discovery
@@ -151,9 +151,9 @@ local getInterface = function(destination)
 end
 
 action = function()
-    local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 5
+    local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
     local responses = {}
-    timeout = timeout * 1000
+    timeout = (timeout or 5) * 1000
     local mcast = "224.0.0.13"
 
     -- Get the network interface to use

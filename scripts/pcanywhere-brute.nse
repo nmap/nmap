@@ -28,6 +28,8 @@ some time until server becomes available again.
 -- |     administrator:administrator - Valid credentials
 -- |   Statistics
 -- |_    Performed 2 guesses in 55 seconds, average tps: 0
+--
+-- @args pcanywhere-brute.timeout socket timeout for connecting to PCAnywhere (default 10s)
 
 
 author = "Aleksandar Nikolic"
@@ -37,7 +39,8 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(5631, "pcanywheredata")
 
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or 10
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = (arg_timeout or 10) * 1000
 
 -- implements simple xor based encryption which the server expects
 local function encrypt(data)
@@ -78,7 +81,7 @@ Driver = {
 		-- variable "retry" signifies if we need to wait or this is just not pcAnywhere server
 		while not status do 
 			status, err = self.socket:connect(self.host, self.port)
-			self.socket:set_timeout(tonumber(arg_timeout) * 1000)
+			self.socket:set_timeout(arg_timeout)
 			if(not(status)) then
 				return false, brute.Error:new( "Couldn't connect to host: " .. err )
 			end

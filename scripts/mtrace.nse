@@ -33,8 +33,8 @@ This is similar to the mtrace utility provided in Cisco IOS.
 --@args mtrace.firsthop Host to which the query is sent. If not set, the
 -- query will be sent to <code>224.0.0.2</code>.
 --
---@args mtrace.timeout Time to wait for responses in seconds.
--- Defaults to <code>7</code> seconds.
+--@args mtrace.timeout Time to wait for responses.
+-- Defaults to <code>7s</code>.
 --
 --@usage
 -- nmap --script mtrace --script-args 'mtrace.fromip=172.16.45.4'
@@ -324,9 +324,9 @@ action = function()
     local toip = stdnse.get_script_args(SCRIPT_NAME .. ".toip")
     local group = stdnse.get_script_args(SCRIPT_NAME .. ".group") or "0.0.0.0"
     local firsthop = stdnse.get_script_args(SCRIPT_NAME .. ".firsthop") or "224.0.0.2"
-    local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 7
+    local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
     local responses = {}
-    timeout = timeout * 1000
+    timeout = (timeout or 7) * 1000
 
     -- Source address from which to traceroute
     if not fromip then

@@ -137,7 +137,7 @@ sniffInterface = function(iface, Decoders, decodertab)
 	local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-listener.timeout"))
 
 	-- default to 30 seconds, if nothing else was set
-	timeout = timeout and (timeout * 1000) or (30 * 1000)
+	timeout = (timeout or 30) * 1000
 
 	-- We want all packets that aren't explicitly for us
  	sock:pcap_open(iface.name, 1500, true, ("!host %s"):format(iface.address))

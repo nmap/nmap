@@ -24,10 +24,10 @@ anonymous identity if no argument is passed.
 -- |   false    EAP-TLS
 -- |_  false    EAP-MSCHAP-V2
 --
--- @args identity Identity to use for the first step of the authentication methods (if omitted "anonymous" will be used).
--- @args scan Table of authentication methods to test, e.g. { 4, 13, 25 } for MD5, TLS and PEAP. Default: TLS, TTLS, PEAP, MSCHAP.
--- @args interface Network interface to use for the scan, overrides "-e".
--- @args timeout Maximum time allowed for the scan, in seconds. Methods not tested because of timeout will be listed as "unknown".
+-- @args eap-info.identity Identity to use for the first step of the authentication methods (if omitted "anonymous" will be used).
+-- @args eap-info.scan Table of authentication methods to test, e.g. { 4, 13, 25 } for MD5, TLS and PEAP. Default: TLS, TTLS, PEAP, MSCHAP.
+-- @args eap-info.interface Network interface to use for the scan, overrides "-e".
+-- @args eap-info.timeout Maximum time allowed for the scan (default 10s). Methods not tested because of timeout will be listed as "unknown".
 
 author = "Riccardo Cecolin"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -53,7 +53,7 @@ action = function()
 	local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
 	local arg_identity = stdnse.get_script_args(SCRIPT_NAME .. ".identity")
 	local arg_scan = stdnse.get_script_args(SCRIPT_NAME .. ".scan")
-	local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout")
+	local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 	local iface
 
 	-- trying with provided interface name
@@ -75,10 +75,7 @@ action = function()
 	end	    
 	stdnse.print_debug(1, "iface: %s", iface.device)
 
-	local timeout = 10 * 1000
-	if arg_timeout then
-		timeout = arg_timeout * 1000
-	end
+	local timeout = (arg_timeout or 10) * 1000
 
 	stdnse.print_debug(2, "timeout: %s", timeout)
 

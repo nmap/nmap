@@ -317,10 +317,10 @@ local mgroup_name_identify = function(db, ip)
 end
 
 action = function(host, port)
-    local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 7
+    local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
     local version = stdnse.get_script_args(SCRIPT_NAME .. ".version") or 2
     local interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-    timeout = timeout * 1000
+    timeout = (timeout or 7) * 1000
     if version ~= 'all' then
 	version = tonumber(version)
     end

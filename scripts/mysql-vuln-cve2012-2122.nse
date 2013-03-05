@@ -64,9 +64,9 @@ Interesting post about this vuln:
 -- |       http://seclists.org/oss-sec/2012/q2/493
 -- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2122
 --
--- @args mysql-cve2012-2122.user MySQL username. Default: root.
--- @args mysql-cve2012-2122.iterations Connection retries. Default: 1500.
--- @args mysql-cve2012-2122.socket_timeout Socket timeout. Default: 5000.
+-- @args mysql-vuln-cve2012-2122.user MySQL username. Default: root.
+-- @args mysql-vuln-cve2012-2122.iterations Connection retries. Default: 1500.
+-- @args mysql-vuln-cve2012-2122.socket_timeout Socket timeout (milliseconds). Default: 5000.
 ---
 
 local mysql = require "mysql"

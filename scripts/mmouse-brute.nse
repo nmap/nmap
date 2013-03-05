@@ -15,7 +15,7 @@ http://mobilemouse.com/
 
 ---
 -- @usage
--- nmap --script mobilemouse-brute -p 51010 <host>
+-- nmap --script mmouse-brute -p 51010 <host>
 --
 -- @output
 -- PORT      STATE SERVICE
@@ -26,6 +26,7 @@ http://mobilemouse.com/
 -- |   Statistics
 -- |_    Performed 1199 guesses in 23 seconds, average tps: 47
 --
+-- @args mmouse-brute.timeout socket timeout (milliseconds) for connecting to Mobile Mouse (default 5000)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

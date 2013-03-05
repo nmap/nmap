@@ -26,6 +26,8 @@ information for all discovered devices.
 -- |       Description: Canon MG5200 series
 -- |_      Command: MultiPass 2.1,IVEC
 --
+-- @args broadcast-bjnp-discover.timeout specifies the amount of seconds to sniff
+--       the network interface. (default 30s)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -39,7 +41,7 @@ local table = require("table")
 
 local printer_port = { number = 8611, protocol = "udp"}
 local scanner_port = { number = 8612, protocol = "udp"}
-local arg_timeout  = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+local arg_timeout  = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 
 prerule = function()
 	if ( nmap.address_family() ~= 'inet' ) then

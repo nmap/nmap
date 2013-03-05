@@ -22,7 +22,7 @@ Performs brute force password auditing against the classic UNIX rlogin (remote l
 -- |   Statistics
 -- |_    Performed 4 guesses in 5 seconds, average tps: 0
 --
--- @args rlogin-brute.timeout number
+-- @args rlogin-brute.timeout  socket timeout for connecting to rlogin (default 10s)
 
 -- Version 0.1
 -- Created 11/02/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -138,6 +138,9 @@ Driver = {
 	end,
 }
 
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = (arg_timeout or 10) * 1000
+
 action = function(host, port)
 
 	if ( not(nmap.is_privileged()) ) then
@@ -145,12 +148,8 @@ action = function(host, port)
 	end
 
 	local options = {
-		timeout = stdnse.get_script_args("rlogin-brute.timeout")
+		timeout = arg_timeout
 	}
-
-	options.timeout = options.timeout and
-		tonumber(options.timeout) * 1000 or
-		10000
 
 	local engine = brute.Engine:new(Driver, host, port, options)
 	engine.options.script_name = SCRIPT_NAME

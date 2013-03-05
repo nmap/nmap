@@ -21,7 +21,7 @@ Performs brute force password auditing against the classic UNIX rexec (remote ex
 -- |   Statistics
 -- |_    Performed 16 guesses in 7 seconds, average tps: 2
 --
--- @args rexec-brute.timeout number 
+-- @args rexec-brute.timeout  socket timeout for connecting to rexec (default 10s)
 
 -- Version 0.1
 -- Created 11/02/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -85,16 +85,14 @@ Driver = {
 }
 
 
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = (arg_timeout or 10) * 1000
 
 action = function(host, port)
 	local options = {
-		timeout = stdnse.get_script_args("rexec-brute.timeout")
+		timeout = arg_timeout
 	}
 	
-	options.timeout = options.timeout and
-		tonumber(options.timeout) * 1000 or
-		10000
-
 	local engine = brute.Engine:new(Driver, host, port, options)
 	engine.options.script_name = SCRIPT_NAME	
 	local status, result = engine:start()

@@ -21,10 +21,10 @@ peers as targets.
 -- @usage 
 -- nmap --script bittorrent-discovery --script-args newtargets,bittorrent-discovery.torrent=<torrent_file>
 --
--- @arg torrent, a string containing the filename of the torrent file
--- @arg magnet, a string containing the magnet link of the torrent
--- @arg timeout, desired (not actual) timeout for the DHT discovery (default = 30 s)
--- @arg include-nodes, boolean selecting whether to show only nodes
+-- @args bittorrent-discovery.torrent a string containing the filename of the torrent file
+-- @args bittorrent-discovery.magnet a string containing the magnet link of the torrent
+-- @args bittorrent-discover.timeout desired (not actual) timeout for the DHT discovery (default = 30s)
+-- @args bittorrent-discover.include-nodes boolean selecting whether to show only nodes
 --
 -- @output
 -- | bittorrent-peers:
@@ -59,7 +59,7 @@ prerule = function()
 end
 
 action = function()
-	local timeout = stdnse.get_script_args(SCRIPT_NAME..".dht_timeout")
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
 	local filename = stdnse.get_script_args(SCRIPT_NAME..".torrent")
 	local magnet = stdnse.get_script_args(SCRIPT_NAME..".magnet")
 	local include_nodes = stdnse.get_script_args(SCRIPT_NAME..".include-nodes")

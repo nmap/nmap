@@ -22,8 +22,8 @@ Attempts to discover available IPv6 hosts on the LAN by sending an MLD (multicas
 -- |   
 -- |_  Use --script-args=newtargets to add the results as targets
 --
--- @args targets-ipv6-multicast-mld.timeout timeout in seconds to wait for 
---       responses (default: 10)
+-- @args targets-ipv6-multicast-mld.timeout timeout to wait for
+--       responses (default: 10s)
 --
 
 author = "niteesh"
@@ -31,7 +31,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","broadcast"}
 
 
-local arg_timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
 
 prerule = function()
 	if ( not(nmap.is_privileged()) ) then

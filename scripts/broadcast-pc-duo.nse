@@ -21,12 +21,14 @@ Discovers PC-DUO remote control hosts and gateways running on a LAN by sending a
 -- |   PC-Duo Hosts
 -- |_    10.0.200.113 - WIN2K3SRV-1
 --
+-- @args broadcast-pc-duo.timeout specifies the amount of seconds to sniff
+--       the network interface. (default varies according to timing. -T3 = 5s)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "broadcast", "safe" }
 
-local TIMEOUT = tonumber(stdnse.get_script_args("broadcast-pc-duo.timeout"))
+local TIMEOUT = stdnse.parse_timespec(stdnse.get_script_args("broadcast-pc-duo.timeout"))
 
 prerule = function() return ( nmap.address_family() == "inet") end
 

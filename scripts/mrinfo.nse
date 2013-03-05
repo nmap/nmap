@@ -25,8 +25,8 @@ Cisco IOS.
 -- @args mrinfo.target Host to which the request is sent. If not set, the
 -- request will be sent to <code>224.0.0.1</code>.
 --
--- @args mrinfo.timeout Time to wait for responses in seconds.
--- Defaults to <code>5</code> seconds.
+-- @args mrinfo.timeout Time to wait for responses.
+-- Defaults to <code>5s</code>.
 --
 --@usage
 -- nmap --script mrinfo
@@ -242,11 +242,11 @@ local getInterface = function(target)
 end
 
 action = function()
-    local timeout = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 5
+    local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+    timeout = (timeout or 5) * 1000
     local target = stdnse.get_script_args(SCRIPT_NAME .. ".target") or "224.0.0.1"
     local responses = {}
     local interface, result
-    timeout = timeout * 1000
 
     interface = nmap.get_interface() 
     if interface then

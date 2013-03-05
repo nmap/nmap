@@ -21,7 +21,8 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 -- @usage 
 -- nmap -e <interface> --script lltd-discovery 
 --
--- @arg interface, a string specifying which interface to do lltd discovery on.  If not specified, all ethernet interfaces are tried.
+-- @args lltd-discovery.interface string specifying which interface to do lltd discovery on.  If not specified, all ethernet interfaces are tried.
+-- @args lltd-discover.timeout timespec specifying how long to listen for replies (default 30s)
 --
 -- @output
 -- | lltd-discovery: 
@@ -258,12 +259,9 @@ end
 
 
 action = function()
-	local timeout = stdnse.get_script_args(SCRIPT_NAME..".timeout")
-	if timeout then 
-		timeout = tonumber(timeout)
-	else
-		timeout = 30 
-	end
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
+	timeout = timeout or 30
+
 	--get interface script-args, if any
 	local interface_arg = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
 	local interface_opt = nmap.get_interface()

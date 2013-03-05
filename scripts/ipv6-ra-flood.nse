@@ -27,7 +27,7 @@ Additional documents: https://tools.ietf.org/rfc/rfc6104.txt
 
 ---
 -- @args ipv6-ra-flood.interface defines interface we should broadcast on
--- @args ipv6-ra-flood.timeout runs the script until the timeout (in seconds) is reached (default: 30s). If timeout is zero, the script will run forever.
+-- @args ipv6-ra-flood.timeout runs the script until the timeout is reached (default: 30s). If timeout is zero, the script will run forever.
 --
 -- @usage
 -- nmap -6 --script ipv6-ra-flood.nse
@@ -131,7 +131,8 @@ local function broadcast_on_interface(iface)
 	-- packet counter
 	local counter = 0
 
-	local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout") or "30s")
+	local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
+	arg_timeout = arg_timeout or 30
 
 	local dnet = nmap.new_dnet()
 
