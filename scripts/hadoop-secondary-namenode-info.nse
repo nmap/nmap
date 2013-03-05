@@ -101,6 +101,7 @@ action = function( host, port )
 			table.insert(result, ("Checkpoint Period: %s"):format(stats[4]))
 			table.insert(result, ("Checkpoint: Size %s"):format(stats[5]))
 		end
+		nmap.set_port_version(host, port)
 		if target.ALLOW_NEW_TARGETS then
 			if stats[1]:match("([^][/]+)") then
 				local newtarget = stats[1]:match("([^][/]+)")

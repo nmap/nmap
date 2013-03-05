@@ -202,6 +202,7 @@ action = function( host, port )
 		result[#result+1] = parse_page(host, port, env_uri, env_keys )
 		result[#result+1] = "Config: "
 		result[#result+1] = parse_page(host, port, config_uri, config_keys )
+		nmap.set_port_version(host, port)
 		return stdnse.format_output(true, result)
 	end
 end
