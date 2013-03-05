@@ -39,6 +39,7 @@ through all valid ethernet interfaces simultaneously.
 --
 -- @args broadcast-eigrp-discovery.kparams the K metrics. 
 -- Defaults to <code>101000</code>.
+-- @args broadcast-eigrp-discovery.interface Interface to send on (overrides -e)
 --
 --@output
 -- Pre-scan script results:

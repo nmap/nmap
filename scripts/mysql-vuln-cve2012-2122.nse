@@ -65,6 +65,7 @@ Interesting post about this vuln:
 -- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2122
 --
 -- @args mysql-vuln-cve2012-2122.user MySQL username. Default: root.
+-- @args mysql-vuln-cve2012-2122.pass MySQL password. Default: nmapFTW.
 -- @args mysql-vuln-cve2012-2122.iterations Connection retries. Default: 1500.
 -- @args mysql-vuln-cve2012-2122.socket_timeout Socket timeout (milliseconds). Default: 5000.
 ---

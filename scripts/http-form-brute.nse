@@ -188,7 +188,6 @@ action = function( host, port )
 	local uservar = stdnse.get_script_args('http-form-brute.uservar')
 	local passvar = stdnse.get_script_args('http-form-brute.passvar')
   	local path = stdnse.get_script_args('http-form-brute.path') or "/"
-	local force = stdnse.get_script_args("http-form-brute.force")
 	local onsuccess = stdnse.get_script_args("http-form-brute.onsuccess")
 	local onfailure = stdnse.get_script_args("http-form-brute.onfailure")
 	

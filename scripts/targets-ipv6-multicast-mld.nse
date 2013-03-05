@@ -24,6 +24,7 @@ Attempts to discover available IPv6 hosts on the LAN by sending an MLD (multicas
 --
 -- @args targets-ipv6-multicast-mld.timeout timeout to wait for
 --       responses (default: 10s)
+-- @args targets-ipv6-multicast-mld.interface Interface to send on (overrides -e)
 --
 
 author = "niteesh"

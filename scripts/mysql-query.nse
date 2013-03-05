@@ -24,9 +24,10 @@ Runs a query against a MySQL database and returns the results as a table.
 -- |   Query: SELECT host, user FROM mysql.user
 -- |_  User: root
 --
--- @args query the query for which to return the results
--- @args username (optional) the username used to authenticate to the database server
--- @args password (optional) the password used to authenticate to the database server
+-- @args mysql-query.query the query for which to return the results
+-- @args mysql-query.username (optional) the username used to authenticate to the database server
+-- @args mysql-query.password (optional) the password used to authenticate to the database server
+-- @args mysql-query.noheaders do not display column headers (default: false)
 --
 
 author = "Patrik Karlsson"

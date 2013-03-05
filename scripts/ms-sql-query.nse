@@ -37,6 +37,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --
 -- @args ms-sql-query.query The query to run against the server.
 --       (default: SELECT @@version version)
+-- @args mssql.database Database to connect to (default: tempdb)
 --
 -- @output
 -- | ms-sql-query:  
@@ -69,6 +70,7 @@ local function process_instance( instance )
 	local status, result	
 	-- the tempdb should be a safe guess, anyway the library is set up
 	-- to continue even if the DB is not accessible to the user
+  -- TODO: consider renaming this arg to ms-sql-query.database
 	local database = stdnse.get_script_args( 'mssql.database' ) or "tempdb"
 	local query = stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) or "SELECT @@version version"
 	local helper = mssql.Helper:new()

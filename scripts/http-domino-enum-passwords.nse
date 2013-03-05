@@ -77,6 +77,8 @@ also download any Domino ID Files attached to the Person document.
 --       If a negative value is given, all hashes and id files are retrieved (default: 10)
 -- @args domino-enum-passwords.idpath the path where downloaded ID files should be saved
 --       If not given, the script will only indicate if the ID file is donwloadable or not
+-- @args domino-enum-passwords.username Username for HTTP auth, if required
+-- @args domino-enum-passwords.password Password for HTTP auth, if required
 
 --
 -- Version 0.2

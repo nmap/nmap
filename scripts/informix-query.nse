@@ -31,6 +31,7 @@ authentication credentials (see also: informix-brute).
 --       (default: sysmaster)
 -- @args informix-query.query The query to run against the server
 --       (default: returns hostname and version)
+-- @args informix-query.instance The name of the instance to connect to
 
 -- Version 0.1
 
