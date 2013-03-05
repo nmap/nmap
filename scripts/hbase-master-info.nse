@@ -67,8 +67,6 @@ action = function( host, port )
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		local body = response['body']:gsub("%%","%%%%")
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
-		port.version.name = "hbase-master"
-		port.version.product = "Apache Hadoop Hbase"
 		if body:match("HBase%s+Version</td><td>([^][<]+)") then
 			local version = body:match("HBase%s+Version</td><td>([^][<]+)"):gsub("%s+", " ")
 			stdnse.print_debug(1, ("%s:Hbase  Version %s"):format(SCRIPT_NAME,version))
@@ -127,10 +125,14 @@ action = function( host, port )
 				end
 			end
 		end
-		nmap.set_port_version(host, port)
 		if next(region_servers) then
 			table.insert(result,"Region Servers:")
 			table.insert(result,region_servers)
+		end
+		if #result > 0 then
+			port.version.name = "hbase-master"
+			port.version.product = "Apache Hadoop Hbase"
+			nmap.set_port_version(host, port)
 		end
 		return stdnse.format_output(true, result)
 	end

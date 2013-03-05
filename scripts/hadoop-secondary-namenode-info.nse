@@ -65,8 +65,6 @@ action = function( host, port )
 		local body = response['body']:gsub("%%","%%%%")
 		local stats = {}
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
-		port.version.name = "hadoop-secondary-namenode"
-		port.version.product = "Apache Hadoop"
 		-- Page isn't valid html :(
 		for i in string.gmatch(body,"\n[%w%s]+:%s+[^][\n]+") do
 			table.insert(stats,i:match(":%s+([^][\n]+)"))
@@ -101,7 +99,11 @@ action = function( host, port )
 			table.insert(result, ("Checkpoint Period: %s"):format(stats[4]))
 			table.insert(result, ("Checkpoint: Size %s"):format(stats[5]))
 		end
-		nmap.set_port_version(host, port)
+		if #result > 0 then
+			port.version.name = "hadoop-secondary-namenode"
+			port.version.product = "Apache Hadoop"
+			nmap.set_port_version(host, port)
+		end
 		if target.ALLOW_NEW_TARGETS then
 			if stats[1]:match("([^][/]+)") then
 				local newtarget = stats[1]:match("([^][/]+)")

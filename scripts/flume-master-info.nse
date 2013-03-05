@@ -149,8 +149,6 @@ action = function( host, port )
 		local body = response['body']:gsub("%%","%%%%")
 		local capacity = {}
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
-		port.version.name = "flume-master"
-		port.version.product = "Apache Flume"
 		if body:match("Version:%s*</b>([^][,]+)") then
 			local version = body:match("Version:%s*</b>([^][,]+)")
 			stdnse.print_debug(1, ("%s: Version %s"):format(SCRIPT_NAME,version))
@@ -208,7 +206,11 @@ action = function( host, port )
 			result[#result+1] = "Config: "
 			result[#result+1] = vars
 		end
-		nmap.set_port_version(host, port)
+		if #result > 0 then
+			port.version.name = "flume-master"
+			port.version.product = "Apache Flume"
+			nmap.set_port_version(host, port)
+		end
 		return stdnse.format_output(true, result)
 	end
 end

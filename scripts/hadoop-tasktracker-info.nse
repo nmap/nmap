@@ -54,8 +54,6 @@ action = function( host, port )
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		local body = response['body']:gsub("%%","%%%%")
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
-		port.version.name = "hadoop-tasktracker"
-		port.version.product = "Apache Hadoop"
 		if response['body']:match("Version:</b>%s*([^][<]+)") then
 			local version = response['body']:match("Version:</b>%s*([^][<]+)")
 			local versionNo = version:match("([^][,]+)")
@@ -74,7 +72,11 @@ action = function( host, port )
 			stdnse.print_debug(1, ("%s: Logs %s"):format(SCRIPT_NAME,logs))
 			table.insert(result, ("Logs: %s"):format(logs))
 		end
-		nmap.set_port_version(host, port)
+		if #result > 0 then
+			port.version.name = "hadoop-tasktracker"
+			port.version.product = "Apache Hadoop"
+			nmap.set_port_version(host, port)
+		end
 		return stdnse.format_output(true, result)
 	end
 end

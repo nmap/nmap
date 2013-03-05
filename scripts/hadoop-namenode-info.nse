@@ -95,8 +95,6 @@ action = function( host, port )
 		local body = response['body']:gsub("%%","%%%%")
 		local capacity = {}
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
-		port.version.name = "hadoop-namenode"
-		port.version.product = "Apache Hadoop"
 		if body:match("Started:%s*<td>([^][<]+)") then
 			local start = body:match("Started:%s*<td>([^][<]+)")
 			stdnse.print_debug(1, ("%s: Started %s"):format(SCRIPT_NAME,start))
@@ -139,7 +137,6 @@ action = function( host, port )
 			table.insert(result,"Total\tUsed (DFS)\tUsed (Non DFS)\tRemaining")
 			table.insert(result, ("%s\t%s\t%s\t%s"):format(capacity[3],capacity[4],capacity[5],capacity[6]))
 		end
-		nmap.set_port_version(host, port)
 		local datanodes_live = get_datanodes(host,port, "LIVE")
 		if next(datanodes_live) then
 			table.insert(result, "Datanodes (Live): ")
@@ -149,6 +146,11 @@ action = function( host, port )
 		if next(datanodes_dead) then
 			table.insert(result, "Datanodes (Dead): ")
 			table.insert(result, datanodes_dead)
+		end
+		if #result > 0 then
+			port.version.name = "hadoop-namenode"
+			port.version.product = "Apache Hadoop"
+			nmap.set_port_version(host, port)
 		end
 		return stdnse.format_output(true, result)
 	end

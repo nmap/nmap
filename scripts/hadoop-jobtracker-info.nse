@@ -115,8 +115,6 @@ action = function( host, port )
 	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
 	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
 		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,response['body']))
-		port.version.name = "hadoop-jobtracker"
-		port.version.product = "Apache Hadoop"
 		if response['body']:match("State:</b>%s*([^][<]+)") then
 			local state = response['body']:match("State:</b>%s*([^][<]+)")
 			stdnse.print_debug(1, ("%s: State %s"):format(SCRIPT_NAME,state))
@@ -150,7 +148,6 @@ action = function( host, port )
 			stdnse.print_debug(1, ("%s: Log Files %s"):format(SCRIPT_NAME,logfiles))
 			table.insert(result, ("Log Files: %s"):format(logfiles))
 		end
-		nmap.set_port_version(host, port)
 		local tasktrackers = get_tasktrackers (host, port)
 		if next(tasktrackers) then
 			table.insert(result, "Tasktrackers: ")
@@ -160,6 +157,11 @@ action = function( host, port )
 			local userhistory = get_userhistory (host, port)
 			table.insert(result, "Userhistory: ")
 			table.insert(result, userhistory)
+		end
+		if #result > 0 then
+			port.version.name = "hadoop-jobtracker"
+			port.version.product = "Apache Hadoop"
+			nmap.set_port_version(host, port)
 		end
 		return stdnse.format_output(true, result)
 	end
