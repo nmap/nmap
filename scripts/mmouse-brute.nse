@@ -26,14 +26,15 @@ http://mobilemouse.com/
 -- |   Statistics
 -- |_    Performed 1199 guesses in 23 seconds, average tps: 47
 --
--- @args mmouse-brute.timeout socket timeout (milliseconds) for connecting to Mobile Mouse (default 5000)
+-- @args mmouse-brute.timeout socket timeout for connecting to Mobile Mouse (default 5s)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or 5000
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+arg_timeout = (arg_timeout or 5) * 1000
 
 portrule = shortport.port_or_service(51010, "mmouse", "tcp")
 

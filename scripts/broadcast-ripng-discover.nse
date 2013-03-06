@@ -22,8 +22,8 @@ LAN by sending a broadcast RIPng Request command and collecting any responses.
 -- |     fe80:471:0:0:0:0:0:0/64     1       
 -- |_    fe80:472:0:0:0:0:0:0/64     1       
 --
--- @args broadcast-ripng-discover.timeout sets the connection timeout in ms
---       (default: 5000ms)
+-- @args broadcast-ripng-discover.timeout sets the connection timeout
+--       (default: 5s)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -172,7 +172,8 @@ action = function()
 	local req = RIPng.Request:new( { RIPng.RTE:new("0::", 0, 0, 16) } )	
 	local host, port = "FF02::9", { number = 521, protocol = "udp" }
 	local iface = nmap.get_interface()
-	local timeout = stdnse.get_script_args(SCRIPT_NAME..".timeout") or 5000
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
+	timeout = (timeout or 5) * 1000
 
 	local sock = nmap.new_socket("udp")
 	sock:bind(nil, 521)

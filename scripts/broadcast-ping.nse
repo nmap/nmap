@@ -44,7 +44,7 @@ is 0. The payload is consisted of random bytes.
 --
 -- @args broadcast-ping.interface string specifying which interface to use for this script (default all interfaces)
 -- @args broadcast-ping.num_probes number specifying how many ICMP probes should be sent (default 1)
--- @args broadcast-ping.timeout number specifying how long to wait for response in milliseconds (default 3000)
+-- @args broadcast-ping.timeout timespec specifying how long to wait for response (default 3s)
 --
 -- @output
 -- | broadcast-ping: 
@@ -141,8 +141,8 @@ local broadcast_if = function(if_table,icmp_responders)
 	
 	local num_probes = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".num-probes")) or 1
 	
-	local timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout")
-	if not timeout then	timeout = 3000	end
+	local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+	timeout =	(timeout or 3) * 1000
 	
 	local ttl = nmap.get_ttl()
 	

@@ -20,7 +20,7 @@ Performs brute force password auditing against a Nessus vulnerability scanning d
 -- |_    Performed 1933 guesses in 26 seconds, average tps: 73
 --
 -- @args nessus-xmlrpc-brute.threads sets the number of threads.
--- @args nessus-xmlrpc-brute.timeout socket timeout (milliseconds) for connecting to Nessus (default 5000)
+-- @args nessus-xmlrpc-brute.timeout socket timeout for connecting to Nessus (default 5s)
 
 author = "Patrik Karlsson"
 
@@ -31,11 +31,11 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(8834, "ssl/http", "tcp")
 
-local arg_timeout = stdnse.get_script_args(SCRIPT_NAME..'.timeout')
+local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..'.timeout'))
+arg_timeout = (arg_timeout or 5) * 1000
 local arg_threads = stdnse.get_script_args("nessus-xmlrpc-brute.threads")
 
 local function authenticate(host, port, username, password)
-	local timeout = arg_timeout or 5000
 	local post_data = ("login=%s&password=%s"):format(username, password)
 
 	local headers = {
@@ -49,7 +49,7 @@ local function authenticate(host, port, username, password)
 
 	local data = table.concat(headers, "\r\n") .. "\r\n\r\n" .. post_data
 	local socket = nmap.new_socket()
-	socket:set_timeout(timeout)
+	socket:set_timeout(arg_timeout)
 	
 	local status, err = socket:connect(host, port)
 	if ( not(status) ) then

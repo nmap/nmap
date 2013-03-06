@@ -38,7 +38,7 @@ The attack vector/probe used is: <code>/'"/><script>alert(1)</script></code>
 -- |       https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)
 -- |_      http://php.net/manual/en/reserved.variables.server.php
 -- @args http-phpself-xss.uri URI. Default: /
--- @args http-phpself-xss.timeout Spidering timeout. Default:10000
+-- @args http-phpself-xss.timeout Spidering timeout. (default 10s)
 author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive", "vuln"}
@@ -100,7 +100,8 @@ end
 ---
 action = function(host, port)
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/"
-  local timeout = stdnse.get_script_args(SCRIPT_NAME..'.timeout') or 10000
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..'.timeout'))
+  timeout = (timeout or 10) * 1000
   local crawler = httpspider.Crawler:new(host, port, uri, { scriptname = SCRIPT_NAME } )
   crawler:set_timeout(timeout)
 

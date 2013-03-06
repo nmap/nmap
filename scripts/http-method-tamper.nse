@@ -48,7 +48,7 @@ References:
 --
 -- @args http-method-tamper.uri Base URI to crawl. Not aplicable if <code>http-method-tamper.paths</code> is set.
 -- @args http-method-tamper.paths Array of paths to check. If not set, the script will crawl the web server.
--- @args http-method-tamper.timeout Web crawler timeout. Default: 10000ms
+-- @args http-method-tamper.timeout Web crawler timeout. Default: 10s
 ---
 
 author = "Paulino Calderon <calderon()websec.mx>"
@@ -100,7 +100,8 @@ action = function(host, port)
   local vuln_uris = {}
   local paths = stdnse.get_script_args(SCRIPT_NAME..".paths")
   local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/"
-  local timeout = stdnse.get_script_args(SCRIPT_NAME..".timeout") or 10000
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
+  timeout = (timeout or 10) * 1000
   local vuln = {
        title = 'Authentication bypass by HTTP verb tampering',
        state = vulns.STATE.NOT_VULN,
