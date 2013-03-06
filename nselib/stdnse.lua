@@ -341,6 +341,7 @@ end
 -- @return A number of seconds, or <code>nil</code> followed by an error
 -- message.
 function parse_timespec(timespec)
+  if timespec == nil then return nil, "Can't parse nil timespec" end
   local n, unit, t, m
   local multipliers = {[""] = 1, s = 1, m = 60, h = 60 * 60, ms = 0.001}
 
