@@ -6693,7 +6693,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: CAMEO-httpd\r\n.*WWW-Authenticate: 
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: CAMEO-httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"802\.11g WLAN Login\"\r\n| p/CAMEO httpd/ i/TRENDnet WAP http config/ d/WAP/
 
 
-match http m|^HTTP/1\.0 302 Object Moved\r\nServer: Cisco AWARE ([-\w_.]+)\r\n| p/Cisco ASA firewall http config/ i/Cisco AWARE $1/ d/firewall/ o/IOS/ cpe:/o:cisco:ios/a
+match http m=^HTTP/1\.0 302 (?:Temporary|Object) [Mm]oved\r\nServer: Cisco AWARE ([-\w_.]+)\r\n= p/Cisco ASA firewall http config/ i/Cisco AWARE $1/ d/firewall/ o/IOS/ cpe:/o:cisco:ios/a
 match http m|^HTTP/1\.0 200 OK\r\n.*<title>Remote Buddy by IOSPIRIT</title>|s p/IOSPIRIT Remote Buddy http config/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match http m|^HTTP/1\.1 302 Moved Temporarily\r\nServer: Asterisk/[\w_+]+-([-\w_.+]+) \(| p/Asterisk http config/ v/$1/
 match http m|^HTTP/1\.1 501 Not Implemented\r\nCIMError: Only POST and M-POST are implemented\r\n\r\n$| p/OpenPegasus CIMServer/
