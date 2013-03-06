@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Timeout script-args are now standardized to use the timespec that
+  Nmap's command-line arguments take (5s, 5000ms, 1h, etc.). Some
+  scripts that previously took an integer number of milliseconds will
+  now treat that as a number of seconds if not explicitly denoted as
+  ms. [Daniel Miller]
+
 o The list of nameservers on Windows now ignores nameservers from
   inactive interfaces. [David Fifield]
 
