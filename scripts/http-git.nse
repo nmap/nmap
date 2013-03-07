@@ -91,10 +91,12 @@ function action(host, port)
       root = "/" .. root
     end
 
-    -- If we can't get /.git/HEAD, don't even bother continuing
+    -- If we can't get a valid /.git/HEAD, don't even bother continuing
     -- We could try for /.git/, but we will not get a 200 if directory
     -- listings are disallowed.
-    if http.get(host, port, root .. ".git/HEAD").status == STATUS_OK then
+    local resp = http.get(host, port, root .. ".git/HEAD")
+    local sha1_pattern = "^%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x"
+    if resp.status == STATUS_OK and ( resp.body:match("^ref: ") or resp.body:match(sha1_pattern) ) then
       out = out or {}
       local replies = {}
       -- This function returns true if we got a 200 OK when
