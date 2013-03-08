@@ -3023,20 +3023,25 @@ static int set_sockaddr(struct sockaddr_storage *ss, int af, void *data) {
 /* Add rtattrs to a netlink message specifying a source or destination address.
    rta_type must be RTA_SRC or RTA_DST. This function adds either 1 or 2
    rtattrs: it always adds either an RTA_SRC or RTA_DST, depending on rta_type.
-   It also adds either RTA_IIF or RTA_OIF if the address family is AF_INET6 and
-   the sockaddr_in6 has a non-zero sin6_scope_id. */
+   If ifindex is not 0, it is the index of the interface to use. The function
+   adds either RTA_OIF if rta_type is RTA_DST, and either of ifindex and
+   sin6_scope_id is nonzero. */
 static void add_rtattr_addr(struct nlmsghdr *nlmsg,
                             struct rtattr **rtattr, unsigned int *len,
                             unsigned char rta_type,
-                            const struct sockaddr_storage *ss) {
+                            const struct sockaddr_storage *ss,
+                            int ifindex) {
   struct rtmsg *rtmsg;
   const void *addr;
   size_t addrlen;
-  int ifindex;
 
   assert(rta_type == RTA_SRC || rta_type == RTA_DST);
 
-  ifindex = 0;
+  if (rta_type == RTA_SRC) {
+    /* Ignore the interface specification if we are setting an RTA_SRC attribute
+       (it may still get set by the scope_id below). */
+    ifindex = 0;
+  }
 
   if (ss->ss_family == AF_INET) {
     addr = &((struct sockaddr_in *) ss)->sin_addr.s_addr;
@@ -3046,7 +3051,8 @@ static void add_rtattr_addr(struct nlmsghdr *nlmsg,
 
     addr = sin6->sin6_addr.s6_addr;
     addrlen = IP6_ADDR_LEN;
-    ifindex = sin6->sin6_scope_id;
+    if (ifindex == 0)
+      ifindex = sin6->sin6_scope_id;
   } else {
     netutil_fatal("%s: unknown address family %d", __func__, ss->ss_family);
   }
@@ -3091,6 +3097,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   struct nlmsghdr *nlmsg;
   struct rtmsg *rtmsg;
   struct rtattr *rtattr;
+  int intf_index;
   unsigned char buf[512];
   unsigned int len;
   int fd, rc;
@@ -3105,6 +3112,16 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   rc = bind(fd, (struct sockaddr *) &snl, sizeof(snl));
   if (rc == -1)
     netutil_fatal("%s: cannot bind AF_NETLINK socket: %s", __func__, strerror(errno));
+
+  struct interface_info *ii;
+  ii = NULL;
+  intf_index = 0;
+  if (device != NULL && device[0] != '\0') {
+    ii = getInterfaceByName(device, dst->ss_family);
+    if (ii == NULL)
+      netutil_fatal("Could not find interface %s which was specified by -e", device);
+    intf_index = ii->ifindex;
+  }
 
   memset(buf, 0, sizeof(buf));
 
@@ -3122,10 +3139,10 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   len = sizeof(buf) - ((unsigned char *) RTM_RTA(rtmsg) - buf);
 
   /* Add rtattrs for destination address and interface. */
-  add_rtattr_addr(nlmsg, &rtattr, &len, RTA_DST, dst);
+  add_rtattr_addr(nlmsg, &rtattr, &len, RTA_DST, dst, intf_index);
   if (spoofss != NULL) {
     /* Add rtattrs for source address and interface. */
-    add_rtattr_addr(nlmsg, &rtattr, &len, RTA_SRC, spoofss);
+    add_rtattr_addr(nlmsg, &rtattr, &len, RTA_SRC, spoofss, intf_index);
   }
 
   iov.iov_base = nlmsg;
@@ -3164,14 +3181,6 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   rnfo->srcaddr.ss_family = AF_UNSPEC;
   if (spoofss != NULL)
     rnfo->srcaddr = *spoofss;
-
-  struct interface_info *ii;
-  ii = NULL;
-  if (device != NULL && device[0] != '\0') {
-    ii = getInterfaceByName(device, dst->ss_family);
-    if (ii == NULL)
-      netutil_fatal("Could not find interface %s which was specified by -e", device);
-  }
 
   for (rtattr = RTM_RTA(rtmsg); RTA_OK(rtattr, len); rtattr = RTA_NEXT(rtattr, len)) {
     if (rtattr->rta_type == RTA_GATEWAY) {
