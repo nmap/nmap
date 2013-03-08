@@ -3246,7 +3246,7 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
     sin6->sin6_port = htons(DUMMY_PORT);
     dst_dummy_len = sizeof(*sin6);
   } else {
-    return -1;
+    goto bail;
   }
 
   rc = connect(fd, (struct sockaddr *) &dst_dummy, dst_dummy_len);
@@ -3257,7 +3257,7 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
       if (sin6->sin6_scope_id == 0)
         netutil_error("Do you need an IPv6 zone ID suffix (e.g. %%eth0 or %%1)?");
     }
-    return -1;
+    goto bail;
   }
 
   len = sizeof(*src);
@@ -3266,8 +3266,11 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
     netutil_fatal("%s: can't getsockname: %s", __func__, socket_strerror(socket_errno()));
 
   close(fd);
-
   return 0;
+
+bail:
+  close(fd);
+  return -1;
 }
 
 static char *lookup_ifindex(unsigned int index, int af, char *namebuf, size_t len) {
