@@ -8738,6 +8738,7 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: PopChartServer ([\d.]+)\r\n|s p/PopC
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: CordaServer \(PopChartServer compatible\) ([\d.]+)\r\n|s p/CordaServer/ v/$1/
 
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebSTAR/([\d.]+) ID/\d+\r\n|s p/WebSTAR/ v/$1/
+match http m|^HTTP/1\.1 200 OK\r\nServer: INEOQUEST/([\d.]+)\r\nConnection: close\r\nSet-Cookie:|s p/IneoQuest Video Diagnostic HTTP/ v/$1/
 
 match honeypot m|^HTTP/1\.0 401 Unauthorized\r\n\r\n<BODY><HTML><H1>401 - Authorization Failed</H1></HTML></BODY>\0| p/Network Flight Recorder BackOfficer Friendly http honeypot/
 
