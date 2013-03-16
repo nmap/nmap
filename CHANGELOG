@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Add new decoders (BROWSER, DHCP6 and LLMNR) to broadcast-listener and changed
+  output of some of the decoders slightly. [Patrik Karlsson]
+
 o Timeout script-args are now standardized to use the timespec that
   Nmap's command-line arguments take (5s, 5000ms, 1h, etc.). Some
   scripts that previously took an integer number of milliseconds will
