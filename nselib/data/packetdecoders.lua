@@ -95,16 +95,17 @@ Decoders = {
 					tab.addrow(self.results, 'sender ip', 'sender mac', 'target ip')
 				end
 
+				local mac = sender.mac:gsub("(..)(..)(..)(..)(..)(..)","%1:%2:%3:%4:%5:%6")
+				stdnse.print_debug(1, "Decoded ARP: %s, %s, %s", ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
 				if ( not(self.dups[("%u:%s"):format(sender.ip,sender.mac)]) ) then
 					if ( target.ALLOW_NEW_TARGETS ) then target.add(sender.ip) end
-					local mac = sender.mac:gsub("(..)(..)(..)(..)(..)(..)","%1:%2:%3:%4:%5:%6")
 					self.dups[("%u:%s"):format(sender.ip,sender.mac)] = true
 					tab.addrow(self.results, ipOps.fromdword(sender.ip), mac, ipOps.fromdword(target.ip))
 				end
 				
 			end,
 			
-			getResults = function(self)	return { name = "ARP Request", (self.results and tab.dump(self.results) or "")  } end,
+			getResults = function(self)	return { name = "ARP Request", (self.results and tab.dump(self.results))  } end,
 		},
 		
 		-- CDP
@@ -340,7 +341,7 @@ Decoders = {
 					end
 				end,
 
-				getResults = function(self)	return { name = "OSPF Hello", (self.results and tab.dump(self.results) or "")  } end,
+				getResults = function(self)	return { name = "OSPF Hello", (self.results and tab.dump(self.results)) } end,
 			},
 		},
 		
@@ -383,8 +384,8 @@ Decoders = {
 
 				if ( status ) then
 					if ( not(self.results) ) then
-				    self.results = tab.new(5)
-				    tab.addrow(self.results, "srv ip", "cli ip", "mask", "gw", "dns" )
+				    self.results = tab.new(6)
+				    tab.addrow(self.results, "srv ip", "cli ip", "mask", "gw", "dns", "vendor" )
 					end
 				local uniq_key = ("%s:%s"):format(p.ip_src, result.yiaddr_str)
 
@@ -393,7 +394,9 @@ Decoders = {
 						local mask = self.getOption(result.options, "Subnet Mask") or "-"
 						local gw = self.getOption(result.options, "Router") or "-"
 						local dns = self.getOption(result.options, "Domain Name Server") or "-"
-						tab.addrow(self.results, p.ip_src, result.yiaddr_str, mask, gw, dns )
+						local vendor = self.getOption(result.options, "Class Identifier") or "-"
+						stdnse.print_debug(1, "Decoded DHCP: %s, %s, %s, %s, %s, %s", p.ip_src, result.yiaddr_str, mask, gw, dns, vendor)
+						tab.addrow(self.results, p.ip_src, result.yiaddr_str, mask, gw, dns, vendor )
 					end
 				end
 			end,
@@ -581,7 +584,7 @@ Decoders = {
 				end
 			end,
 
-			getResults = function(self)	return { name = "SSDP", (self.results and tab.dump(self.results) or "") } end,
+			getResults = function(self)	return { name = "SSDP", (self.results and tab.dump(self.results)) } end,
 		},
 
 		--- HSRP
@@ -832,6 +835,39 @@ Decoders = {
 				return result
 			end,
 		},
+		
+		[5355] = { -- LLMNR
+			new = function(self)
+				local o = { dups = {} }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+
+			process = function(self, layer3)
+				local tab = require('tab')
+				local dns = require('dns')
+				local p = packet.Packet:new( layer3, #layer3 )
+				local data = layer3:sub(p.udp_offset + 9)
+			
+				local resp = dns.decode(data)
+				if ( not(self.results) )  then
+					self.results = tab.new(2)
+					tab.addrow(self.results, 'ip', 'query')
+				end
+				
+				local name = (( resp.questions and #resp.questions > 0 ) and resp.questions[1].dname )
+				if ( not(name) ) then return end
+				stdnse.print_debug(1, "Decoded LLMNR: %s, %s", p.ip_src, name)
+				
+				if ( not(self.dups[("%s:%s"):format(p.ip_src, name)]) ) then
+					self.dups[("%s:%s"):format(p.ip_src, name)] = true
+					tab.addrow(self.results, p.ip_src, name)
+				end
+			end,
+			
+			getResults = function(self)	return { name = "LLMNR", (self.results and tab.dump(self.results)) } end,
+		},
 
 		--- Spotify
 		[57621] = {
@@ -862,7 +898,7 @@ Decoders = {
 
 			end,
 
-			getResults = function(self)	return { name = "Spotify", (self.results and tab.dump(self.results) or "") } end,
+			getResults = function(self)	return { name = "Spotify", (self.results and tab.dump(self.results)) } end,
 
 		}
 

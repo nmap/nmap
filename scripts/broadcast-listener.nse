@@ -287,7 +287,8 @@ action = function()
 			table.insert( out_outer, { name = proto, out_inner } )
 		end
 	end
-	
+
+	table.sort(out_outer, function(a, b) return a.name < b.name end)
 	return stdnse.format_output(true, out_outer)
 
 end
