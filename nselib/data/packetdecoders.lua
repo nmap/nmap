@@ -405,7 +405,12 @@ Decoders = {
 		[137] = {
 
 			new = function(self)
-				local o = { dups = {} }
+				local o = { 
+					reg_dups = {},
+					query_dups = {},
+					reg_result = tab.new(2),
+					query_result = tab.new(2)
+				}
 				setmetatable(o, self)
 				self.__index = self
 				return o
@@ -415,6 +420,7 @@ Decoders = {
 				local dns = require('dns')
 				local bin = require('bin')
 				local netbios = require('netbios')
+				local tab = require('tab')
 				local p = packet.Packet:new( layer3, #layer3 )
 				local data = layer3:sub(p.udp_offset + 9)
 
@@ -423,20 +429,35 @@ Decoders = {
 
 				local name = netbios.name_decode("\32" .. dresp.questions[1].dname)
 
-				if ( not(self.results) ) then
-					self.results = tab.new(2)
-					tab.addrow(	self.results, 'ip', 'query' )
-				end
+				local function add_record(isreg, ip, name)
+					local res = (isreg and self.reg_result or self.query_result)
+					local dup = (isreg and self.reg_dups or self.query_dups)
 
-				-- check for duplicates
-				if ( not(self.dups[("%s:%s"):format(p.ip_src, name)]) ) then
-					if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
-					tab.addrow( self.results, p.ip_src, name )
-					self.dups[("%s:%s"):format(p.ip_src, name)] = true
+					if ( #res == 0 ) then
+						tab.addrow(res, 'ip', 'query')
+					end
+					stdnse.print_debug(1, 'Decoded Netbios %s, ip: %s, name: %s', (isreg and "Registration" or "Query"), ip, name)
+
+					if ( not(dup[ip]) or not(dup[ip][name]) ) then
+						if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
+						tab.addrow(res, ip, name)
+						dup[ip] = dup[ip] or {}
+						dup[ip][name] = true
+					end
 				end
+				add_record( ( dresp.flags.OC2 and dresp.flags.OC4 ), p.ip_src, name )
 			end,
 
-			getResults = function(self)	return { name = "Netbios", (self.results and tab.dump(self.results)) } end,
+			getResults = function(self)
+				local result = { name = "Netbios" }
+				if ( #self.reg_result > 1) then
+					table.insert(result, { name = "Registrations", tab.dump(self.reg_result) })
+				end
+				if ( #self.query_result > 1 ) then
+					table.insert(result, { name = "Query", tab.dump(self.query_result) })
+				end
+				return result
+			end,
 		},
 
 		-- DHCPv6
