@@ -463,6 +463,46 @@ Decoders = {
 			end,
 		},
 
+		-- BROWSER
+		[138] = {
+
+			new = function(self)
+				local o = { dups = {} }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+
+			process = function(self, layer3)
+				local bin = require('bin')
+				local netbios = require('netbios')
+				local tab = require('tab')
+				local ipOps = require("ipOps")
+				local p = packet.Packet:new( layer3, #layer3 )
+				local data = layer3:sub(p.udp_offset + 9)
+				
+				local pos, ip, _, src, dst = 5
+				pos, ip, _, _, _, src, dst = bin.unpack(">ISSSA34A34", data, pos)
+				
+				ip = ipOps.fromdword(ip)
+				src = netbios.name_decode(src)
+				dst = netbios.name_decode(dst)
+				stdnse.print_debug(1, "Decoded BROWSER: %s, %s, %s", ip, src, dst)
+				
+				local dup_rec = ("%s:%s:%s"):format(ip, src, dst)
+				if ( not(self.dups[dup_rec]) ) then
+					self.dups[dup_rec] = true
+					if ( not(self.results) ) then
+						self.results = tab.new(3)
+						tab.addrow(self.results, 'ip', 'src', 'dst')
+					end
+					tab.addrow(self.results, ip, src, dst)
+				end
+			end,
+			
+			getResults = function(self)	return { name = "Browser", (self.results and tab.dump(self.results)) } end,
+		},
+		
 		-- DHCPv6
 		[547] = {
 
