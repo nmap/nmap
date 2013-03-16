@@ -436,7 +436,7 @@ Decoders = {
 					if ( #res == 0 ) then
 						tab.addrow(res, 'ip', 'query')
 					end
-					stdnse.print_debug(1, 'Decoded Netbios %s, ip: %s, name: %s', (isreg and "Registration" or "Query"), ip, name)
+					stdnse.print_debug(1, 'Decoded Netbios(%s): %s, %s', (isreg and "Registration" or "Query"), ip, name)
 
 					if ( not(dup[ip]) or not(dup[ip][name]) ) then
 						if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
@@ -729,7 +729,11 @@ Decoders = {
 		[5353] = {
 
 			new = function(self)
-				local o = { dups = {} }
+				local o = { 
+					dups = {},
+					macbooks = {},
+					generic = {}
+				}
 				setmetatable(o, self)
 				self.__index = self
 				return o
@@ -773,42 +777,48 @@ Decoders = {
 						end
 					end
 					if ( macbook and model ) then
-						self.macbooks = self.macbooks or {}
-						local record = self.macbooks[macbook] or {}
-						
-						record['macbook'] = record['macbook'] or macbook
-						record['model'] = record['model'] or model
-						record['ip'] = record['ip'] or ip
-						record['ipv6'] = record['ipv6'] or ipv6
-						
-						self.macbooks[macbook] = record
-						print("2=>", macbook, ip, ipv6, model)
+						self.macbooks[macbook] = self.macbooks[macbook] or {}
+						self.macbooks[macbook]['macbook'] = self.macbooks[macbook]['macbook'] or macbook
+						self.macbooks[macbook]['model'] = self.macbooks[macbook]['model'] or model
+						self.macbooks[macbook]['ip'] = self.macbooks[macbook]['ip'] or ip
+						self.macbooks[macbook]['ipv6'] = self.macbooks[macbook]['ipv6'] or ipv6
+						stdnse.print_debug(1, "Decoded MDNS(MacBook): %s, %s, %s, %s", 
+							(self.macbooks[macbook]['ip'] or ""), (self.macbooks[macbook]['ipv6'] or ""),
+							self.macbooks[macbook]['model'], self.macbooks[macbook]['macbook'])
+					else
+						name = dresp.answers[1].dname
+						if ( not(name) ) then return end
+						self.generic[name] = self.generic[name] or {}
+						self.generic[name]['name'] = self.generic[name]['name'] or name
+						if ( p.ip_src:match(":") ) then
+							self.generic[name]['ipv6'] = p.ip_src
+						else
+							self.generic[name]['ip'] = p.ip_src
+						end
+						stdnse.print_debug(1, "Decoded MDNS(Generic): %s, %s", name, p.ip_src)
 					end
-					
-					name = dresp.answers[1].dname
-				end
-
-				if ( not(name) ) then return end
-
-				if ( not(self.results) ) then
-					self.results = tab.new(2)
-					tab.addrow( self.results, 'ip', 'query' )
-				end
-
-				-- check for duplicates
-				if ( not(self.dups[("%s:%s"):format(p.ip_src, name)]) ) then
-					tab.addrow( self.results, p.ip_src, name )
-					self.dups[("%s:%s"):format(p.ip_src, name)] = true
-					if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
 				end
 			end,
 
 			getResults = function(self)
-				local data = { name = "MDNS" }
+				local tab = require('tab')
+				local result = { name = "MDNS" }
 				
 				-- build a macbooks table
-				local macbooks
-				if ( self.macbooks ) then
+				local macbooks, generic
+
+				if ( next(self.generic) ) then
+					table.sort(self.generic)
+					generic = tab.new(3)
+					tab.addrow(generic, 'ip', 'ipv6', 'name')
+					
+					for name, v in pairs(self.generic) do
+						tab.addrow(generic, (v.ip or ""), (v.ipv6 or ""), name)
+					end
+					table.insert(result, { name = 'Generic', tab.dump(generic) } )
+				end
+
+				if ( next(self.macbooks) ) then
 					table.sort(self.macbooks)
 					macbooks = tab.new(4)
 					tab.addrow(macbooks, 'ip', 'ipv6', 'name', 'model')
@@ -816,15 +826,10 @@ Decoders = {
 					for _, v in pairs(self.macbooks) do
 						tab.addrow(macbooks, (v.ip or ""), (v.ipv6 or ""), v.macbook, v.model)
 					end
+					table.insert(result, { name = 'Macbooks', tab.dump(macbooks) } )
 				end
 				
-				if ( self.results ) then
-					table.insert(data, { name = "Generic", tab.dump(self.results) })
-				end
-				if ( macbooks ) then
-					table.insert(data, { name = "MacBooks", tab.dump(macbooks) })
-				end
-				return data
+				return result
 			end,
 		},
 
