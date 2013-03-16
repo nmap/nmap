@@ -482,7 +482,7 @@ Decoders = {
 				local data = layer3:sub(p.udp_offset + 9)
 				
 				local pos, ip, _, src, dst = 5
-				pos, ip, _, _, _, src, dst = bin.unpack(">ISSSA34A34", data, pos)
+				pos, ip, _, _, _, src, dst = bin.unpack("<ISSSA34A34", data, pos)
 				
 				ip = ipOps.fromdword(ip)
 				src = netbios.name_decode(src)
