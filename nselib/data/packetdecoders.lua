@@ -296,54 +296,54 @@ Decoders = {
 
 				process = function(self, layer3)
 					local p = packet.Packet:new( layer3, #layer3 ) 
-						-- IP Protocol is 89 for OSPF
-						if p.ip_p ~= 89 then return end
+					-- IP Protocol is 89 for OSPF
+					if p.ip_p ~= 89 then return end
 
-						local ospf = require("ospf")
-						local data = layer3:sub(p.ip_data_offset + 1)			
-						local header = ospf.OSPF.Header.parse(data)
-						if header then
-							if not(self.results) then
-								self.results = tab.new(5)
-								tab.addrow(self.results, 'Source IP', 'Router ID', 'Area ID', 'Auth Type', 'Password')
-							end
-							local srcip = p.ip_src
-							local areaid = header.area_id
-							local routerid = header.router_id
-							local authtype = header.auth_type
-							local authdata 
-
-							-- Format authentication type and data
-							if header.auth_type == 0 then
-								authtype = "None"
-								authdata = ''
-							elseif header.auth_type == 1 then
-								authtype = "Password"
-								authdata = header.auth_data.password
-							elseif header.auth_type == 2 then
-								authtype = "OSPF MD5"
-								authdata = "" -- Not really helpful, as the MD5 
-								-- is applied to the whole packet+password
-							else
-				 				-- Error
-								stdnse.print_debug("Unknown OSPF auth type %d", header.auth_type)
-								return
-							end
-
-							if ( not(self.dups[("%s:%s"):format(routerid,areaid)]) ) then
-								if ( target.ALLOW_NEW_TARGETS ) then target.add(routerid) end
-								self.dups[("%s:%s"):format(routerid,areaid)] = true
-								tab.addrow( self.results, srcip, routerid, areaid, authtype, authdata)
-							end
-						else
-							return nil
+					local ospf = require("ospf")
+					local data = layer3:sub(p.ip_data_offset + 1)			
+					local header = ospf.OSPF.Header.parse(data)
+					if header then
+						if not(self.results) then
+							self.results = tab.new(5)
+							tab.addrow(self.results, 'Source IP', 'Router ID', 'Area ID', 'Auth Type', 'Password')
 						end
+						local srcip = p.ip_src
+						local areaid = header.area_id
+						local routerid = header.router_id
+						local authtype = header.auth_type
+						local authdata 
+
+						-- Format authentication type and data
+						if header.auth_type == 0 then
+							authtype = "None"
+							authdata = ''
+						elseif header.auth_type == 1 then
+							authtype = "Password"
+							authdata = header.auth_data.password
+						elseif header.auth_type == 2 then
+							authtype = "OSPF MD5"
+							authdata = "" -- Not really helpful, as the MD5 
+							-- is applied to the whole packet+password
+						else
+			 				-- Error
+							stdnse.print_debug("Unknown OSPF auth type %d", header.auth_type)
+							return
+						end
+
+						if ( not(self.dups[("%s:%s"):format(routerid,areaid)]) ) then
+							if ( target.ALLOW_NEW_TARGETS ) then target.add(routerid) end
+							self.dups[("%s:%s"):format(routerid,areaid)] = true
+							tab.addrow( self.results, srcip, routerid, areaid, authtype, authdata)
+						end
+					else
+						return nil
+					end
 				end,
 
 				getResults = function(self)	return { name = "OSPF Hello", (self.results and tab.dump(self.results) or "")  } end,
 			},
 		},
-
+		
 		udp = {
 
 			-- DHCP

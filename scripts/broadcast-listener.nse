@@ -184,7 +184,7 @@ sniffInterface = function(iface, Decoders, decodertab)
 				end
 				-- no decoder was found for this layer2 packet
 				if ( not(decoded) and #data > 10 ) then
-					stdnse.print_debug(2, "No decoder for packet hex: %s", select(2, bin.unpack("H10", data) ) )
+					stdnse.print_debug(1, "No decoder for packet hex: %s", select(2, bin.unpack("H10", data) ) )
 				end
 			end
 		end
