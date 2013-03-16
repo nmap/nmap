@@ -424,22 +424,111 @@ Decoders = {
 				local name = netbios.name_decode("\32" .. dresp.questions[1].dname)
 
 				if ( not(self.results) ) then
-					self.results = tab.new(2)				
+					self.results = tab.new(2)
 					tab.addrow(	self.results, 'ip', 'query' )
 				end
 
 				-- check for duplicates
 				if ( not(self.dups[("%s:%s"):format(p.ip_src, name)]) ) then
 					if ( target.ALLOW_NEW_TARGETS ) then target.add(p.ip_src) end
-						tab.addrow( self.results, p.ip_src, name )
-						self.dups[("%s:%s"):format(p.ip_src, name)] = true
-					end
+					tab.addrow( self.results, p.ip_src, name )
+					self.dups[("%s:%s"):format(p.ip_src, name)] = true
+				end
 			end,
 
-			getResults = function(self)	return { name = "Netbios", (self.results and tab.dump(self.results) or "") } end,
+			getResults = function(self)	return { name = "Netbios", (self.results and tab.dump(self.results)) } end,
 		},
 
-		--- SSDP
+		-- DHCPv6
+		[547] = {
+
+			new = function(self)
+				local o = { dups = {} }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+
+			process = function(self, layer3)
+				local tab = require('tab')
+				local p = packet.Packet:new( layer3, #layer3 )
+				local data = layer3:sub(p.udp_offset + 9)
+				
+				local dhcpv6 = require("dhcp6")
+				local resp = dhcpv6.DHCP6.Response.parse(data)
+
+				for _, v in ipairs(resp.opts or {}) do
+					if v.resp and v.resp.fqdn then
+						if ( not(self.results) ) then
+							self.results = tab.new(2)
+							tab.addrow(self.results, 'ip', 'fqdn')
+						end
+						if ( not(self.dups[p.ip_src]) or not(self.dups[p.ip_src][v.resp.fqdn]) ) then
+							tab.addrow(self.results, p.ip_src, v.resp.fqdn )
+							self.dups[p.ip_src] = self.dups[p.ip_src] or {}
+							self.dups[p.ip_src][v.resp.fqdn] = true
+						end
+					end
+				end
+			end,
+			
+			getResults = function(self)	return { name = "DHCP6", (self.results and tab.dump(self.results)) } end,
+		},
+
+		-- CUPS
+		[631] = {
+			
+			new = function(self)
+				local o = { dups = {} }
+				setmetatable(o, self)
+				self.__index = self
+				return o
+			end,
+
+			process = function(self, layer3)
+				local tab = require('tab')
+				local p = packet.Packet:new( layer3, #layer3 )
+				local data = layer3:sub(p.udp_offset + 9)
+				
+				local function split(str)
+					local start, pos, stop = 1, 1
+					local pattern = ""
+					local result = {}
+
+					while(pos) do
+						start = pos + #pattern
+						pos, stop = str:find("\"", start)
+						pattern = (pos == start and "\" " or " ")
+						pos, stop = str:find(pattern, start + 1)
+						table.insert(result, str:sub(start, (stop and stop - (#pattern))))
+					end
+					return ( #result > 0 and result or nil )
+				end
+				
+				local results = split(data)
+				local uri = ( #results > 3 and results[3]:match('[^%"]+') )
+				local loc = ( #results > 4 and results[4]:match('[^%"]+') or "")
+				local info = ( #results > 5 and results[5]:match('[^%"]+') or "")
+				local model = ( #results > 6 and results[6]:match('[^%"]+') or "")
+				
+				if ( not(self.results) ) then
+					self.results = tab.new(4)
+					tab.addrow(self.results, 'ip', 'uri', 'loc', 'model')
+				end
+				
+				stdnse.print_debug(1, "Decoded CUPS: %s, %s, %s, %s", p.ip_src, uri, loc, model)
+				if ( not(self.dups[p.ip_src]) or not(self.dups[p.ip_src][uri]) ) then
+					tab.addrow(self.results, p.ip_src, uri, loc, model)
+					self.dups[p.ip_src] = self.dups[p.ip_src] or {}
+					self.dups[p.ip_src][uri] = self.dups[p.ip_src][uri] or true
+				end
+			end,
+			
+			getResults = function(self)	return { name = "CUPS", (self.results and tab.dump(self.results)) } end,
+			
+		},
+
+		-- SSDP
 		[1900] = {
 
 			new = function(self)
@@ -636,14 +725,53 @@ Decoders = {
 				if ( dresp.questions and #dresp.questions > 0 ) then
 					name = dresp.questions[1].dname
 				elseif ( dresp.answers and #dresp.answers > 0 ) then
+					-- Identify MacBooks
+					local macbook, model, ip, ipv6
+					
+					if ( p.ip_src:match(":") ) then
+						ipv6 = p.ip_src
+					else
+						ip = p.ip_src
+					end
+					
+					for i in ipairs(dresp.answers) do
+						if ( dresp.answers[i]['data'] ) then
+							local _, data = bin.unpack("p", dresp.answers[i]['data'])
+							if ( data ) then
+								model = data:match("^model=(.*)")
+								if ( model ) then
+									macbook = dresp.answers[i]['dname']:match("^(.-)%._")
+								end
+							end
+						elseif ( dresp.answers[i]['ip'] ) then
+							ip = dresp.answers[i]['ip']
+						elseif ( dresp.answers[i]['ipv6'] ) then
+							ipv6 = dresp.answers[i]['ipv6']
+						elseif ( not(macbook) and dresp.answers[i]['domain'] ) then
+							macbook = dresp.answers[i]['domain']
+						end
+					end
+					if ( macbook and model ) then
+						self.macbooks = self.macbooks or {}
+						local record = self.macbooks[macbook] or {}
+						
+						record['macbook'] = record['macbook'] or macbook
+						record['model'] = record['model'] or model
+						record['ip'] = record['ip'] or ip
+						record['ipv6'] = record['ipv6'] or ipv6
+						
+						self.macbooks[macbook] = record
+						print("2=>", macbook, ip, ipv6, model)
+					end
+					
 					name = dresp.answers[1].dname
 				end
 
 				if ( not(name) ) then return end
 
 				if ( not(self.results) ) then
-					self.results = tab.new(2)				
-					tab.addrow(	self.results, 'ip', 'query' )
+					self.results = tab.new(2)
+					tab.addrow( self.results, 'ip', 'query' )
 				end
 
 				-- check for duplicates
@@ -654,7 +782,29 @@ Decoders = {
 				end
 			end,
 
-			getResults = function(self)	return { name = "MDNS", (self.results and tab.dump(self.results) or "") } end,
+			getResults = function(self)
+				local data = { name = "MDNS" }
+				
+				-- build a macbooks table
+				local macbooks
+				if ( self.macbooks ) then
+					table.sort(self.macbooks)
+					macbooks = tab.new(4)
+					tab.addrow(macbooks, 'ip', 'ipv6', 'name', 'model')
+					
+					for _, v in pairs(self.macbooks) do
+						tab.addrow(macbooks, (v.ip or ""), (v.ipv6 or ""), v.macbook, v.model)
+					end
+				end
+				
+				if ( self.results ) then
+					table.insert(data, { name = "Generic", tab.dump(self.results) })
+				end
+				if ( macbooks ) then
+					table.insert(data, { name = "MacBooks", tab.dump(macbooks) })
+				end
+				return data
+			end,
 		},
 
 		--- Spotify
