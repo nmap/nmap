@@ -368,7 +368,7 @@ DHCP6.Option = {
 				type = DHCP6.OptionTypes.OPTION_SNTP_SERVERS,
 				servers = servers or {},
 			}
-				setmetatable(o, self)
+			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
@@ -387,6 +387,40 @@ DHCP6.Option = {
 			return opt
 		end,
 	},
+	
+	[DHCP6.OptionTypes.OPTION_CLIENT_FQDN] = {
+
+		-- Create a new class instance
+		-- @param fqdn string containing the fqdn
+		-- @return o new instance of class
+		new = function(self, fqdn)
+			local o = {
+				type = DHCP6.OptionTypes.OPTION_CLIENT_FQDN,
+				fqdn = fqdn or "",
+			}
+			setmetatable(o, self)
+			self.__index = self
+			return o
+		end,
+		
+		-- Parse the data string and create an instance of the class
+		-- @param data string containing the data as received over the socket
+		-- @return opt new instance of option
+		parse = function(data)
+			local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_CLIENT_FQDN]:new()
+			local pos = 2
+			local pieces = {}
+			
+			repeat
+				local tmp
+				pos, tmp = bin.unpack("p", data, pos)
+				table.insert(pieces, tmp)
+			until(pos >= #data)
+			opt.fqdn = stdnse.strjoin(".", pieces)
+			return opt
+		end,
+		
+	}
 			
 }
 	
@@ -464,7 +498,7 @@ DHCP6.Response = {
 					if ( not(opt_parsed) ) then
 						table.insert(resp.opts, { type = opt.type, raw = opt.data })
 					else
-						table.insert(resp.opts, { type = opt.type, resp = opt_parsed })
+						table.insert(resp.opts, { type = opt.type, resp = opt_parsed, raw = opt.data })
 					end
 				else
 					stdnse.print_debug(2, "No option decoder for type: %d; len: %d", opt.type, #(opt.data or ""))
