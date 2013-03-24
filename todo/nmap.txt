@@ -1,5 +1,14 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Adopt an issue tracking system for Nmap and related tools.  We
+  should probably look at our needs and options and then decide on and
+  either install it on our own infrastructure or use it hosted elsewhere.
+  - David notes that Trac seems to work well for Tor -- see
+  https://trac.torproject.org/projects/tor
+  - One thing which can be nice is being able to interact with the
+    system through email.  Like for bugs people file on the Nmap package
+    in Debian, I can just reply to the mail and it gets added in the tracker.
+
 o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
@@ -114,6 +123,12 @@ o Investigate WinPcap support for NDIS 6.
   - We need to retain support for Windows back to Windows XP SP3 --
     I'm not sure what Windows releases support NDIS 6 or what the
     backward compatability is like.
+
+o Consider re-architecting Nmap to have more of a scanning pipeline
+approach rather than fixed sets of hosts which start and finish one
+phase and then move into the next in parallel.  This could potentially
+allow us to add hosts one by one to a phase as other hosts finish that
+phase and, ideally, the phases could run in parallel too.
 
 o NSE WORK (note that this is mostly infrastructure because script
   ideas are generally put on the script ideas page instead:
