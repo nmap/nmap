@@ -209,6 +209,7 @@ Entry { filename = "http-wordpress-plugins.nse", categories = { "discovery", "in
 Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "icap-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ike-version.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "imap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
 Entry { filename = "informix-brute.nse", categories = { "brute", "intrusive", } }
