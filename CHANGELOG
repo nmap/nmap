@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Handle ICMP type 11 (Time Exceeded) responses to port scan probes.
+  Ports will be reported as "filtered", to be consistent with existing
+  Connect scan results, and will have a reason of time-exceeded.
+  DiabloHorn reported this issue via IRC. [Daniel Miller]
+
 o Add new decoders (BROWSER, DHCP6 and LLMNR) to broadcast-listener and changed
   output of some of the decoders slightly. [Patrik Karlsson]
 
