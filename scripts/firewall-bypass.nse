@@ -222,7 +222,7 @@ action = function(host, port)
         local status, _ = testsock:connect(host.ip, targetport)
         if status then
             stdnse.print_debug("%s %s target port already open.", SCRIPT_NAME, targetport)
-            return false
+            return nil
         end
         testsock:close()
     else
@@ -257,7 +257,7 @@ action = function(host, port)
         end
         if not helpername then
             stdnse.print_debug("%s no suitable helper found.", SCRIPT_NAME)
-            return false
+            return nil
         end
     end
 
