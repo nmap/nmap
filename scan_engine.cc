@@ -4524,7 +4524,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       if (datalen < 8)
         continue;
-      if (icmp->icmp_type != 3)
+      if (icmp->icmp_type != 3 && icmp->icmp_type != 11)
         continue;
 
       encaps_len = datalen - 8;
@@ -4635,6 +4635,11 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           current_reason = icmp_to_reason(hdr.proto, icmp->icmp_type, icmp->icmp_code);
           if (newstate == PORT_UNKNOWN)
             break;
+          goodone = true;
+        }
+        else if (icmp->icmp_type == 11) { /* ICMP Time Exceeded */
+          newstate = PORT_FILTERED;
+          current_reason = icmp_to_reason(hdr.proto, icmp->icmp_type, icmp->icmp_code);
           goodone = true;
         }
       }
