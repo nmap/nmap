@@ -219,11 +219,8 @@ int main(int argc, char *argv[] ){
 /* Things that should be guaranteed by the compiler, standard library, OS etc,
  *  but that we check just in case... */
 int do_safe_checks(){
- IPv6Header i;
  if( (sizeof(u32) != 4) || (sizeof(u16) != 2) || (sizeof(u8) != 1) )
     nping_fatal(QT_3,"Types u32, u16 and u8 do not have the correct sizes on your system.");
-  //if (i.test_correctness() == false)
-  //  nping_warning(QT_2,"IPv6 may not work on your system. Please report a bug.");
   test_stuff(); /* Little function that is called quite early to test some misc stuff. */
   return OP_SUCCESS;
 } /* End of do_safe_checks() */
