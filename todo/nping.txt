@@ -168,6 +168,13 @@
    line, should we use that version, or the official rDNS, if any?
  - Some more discussion on this topic on nmap-dev may be warranted.
  
+* Improve output for negative verbosity levels. Currently, one can't 
+  even tell how many hosts replied, just how many responses were 
+  received, which could be all from the same host. If there is only
+  one target, then the current behavior is fine. However, when pinging
+  more targets, we should be able to provide a better output; at least
+  how many hosts were alive. This was suggested by Dan Farmer.
+ 
 * From: David Lam <david@thedavid.net>, "Some general questions about 
   Nping/Ncat"
   
