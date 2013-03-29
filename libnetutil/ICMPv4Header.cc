@@ -1139,7 +1139,7 @@ const char *ICMPv4Header::type2string(int type, int code) const {
         case ICMP_TIMXCEED:
             switch(code){
                 case ICMP_TIMXCEED_INTRANS: return "TTL=0 during transit"; break;
-                case ICMP_TIMXCEED_REASS: return "TTL=0 during reassembly"; break;
+                case ICMP_TIMXCEED_REASS: return "Reassembly time exceeded"; break;
                 default: return "TTL exceeded (unknown code)"; break;
             }
         break;
