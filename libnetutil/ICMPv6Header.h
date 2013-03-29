@@ -613,19 +613,19 @@ class ICMPv6Header : public ICMPHeader {
         u16 getSum() const;
 
         int setReserved(u32 val);
-        u32 getReserved();
+        u32 getReserved() const;
         int setUnused(u32 val);
-        u32 getUnused();
+        u32 getUnused() const;
 
         int setFlags(u8 val);
-        u8 getFlags();
+        u8 getFlags() const;
 
         int setMTU(u32 mtu);
-        u32 getMTU();
+        u32 getMTU() const;
 
         /* Parameter problem */
         int setPointer(u32 val);
-        u32 getPointer();
+        u32 getPointer() const;
 
         /* Echo */
         int setIdentifier(u16 val);
@@ -636,55 +636,55 @@ class ICMPv6Header : public ICMPHeader {
 
         /* Router Advertisement */
         int setCurrentHopLimit(u8 val);
-        u8 getCurrentHopLimit();
+        u8 getCurrentHopLimit() const;
 
         int setRouterLifetime(u16 val);
-        u16 getRouterLifetime();
+        u16 getRouterLifetime() const;
 
         int setReachableTime(u32 val);
-        u32 getReachableTime();
+        u32 getReachableTime() const;
 
         int setRetransmissionTimer(u32 val);
-        u32 getRetransmissionTimer();
+        u32 getRetransmissionTimer() const;
 
         int setTargetAddress(struct in6_addr addr);
-        struct in6_addr getTargetAddress();
+        struct in6_addr getTargetAddress() const;
 
         int setDestinationAddress(struct in6_addr addr);
-        struct in6_addr getDestinationAddress();
+        struct in6_addr getDestinationAddress() const;
 
         int setSegmentNumber(u8 val);
-        u8 getSegmentNumber();
+        u8 getSegmentNumber() const;
 
         int setMaxDelay(u16 val);
-        u16 getMaxDelay();
+        u16 getMaxDelay() const;
 
         /* Node Information Queries */
         int setQtype(u16 val);
-        u16 getQtype();
+        u16 getQtype() const;
         int setNodeInfoFlags(u16 val);
-        u16 getNodeInfoFlags();
+        u16 getNodeInfoFlags() const;
         int  setG(bool flag_value=true);
-        bool getG();
+        bool getG() const;
         int  setS(bool flag_value=true);
-        bool getS();
+        bool getS() const;
         int  setL(bool flag_value=true);
-        bool getL();
+        bool getL() const;
         int  setC(bool flag_value=true);
-        bool getC();
+        bool getC() const;
         int  setA(bool flag_value=true);
-        bool getA();
+        bool getA() const;
         int  setT(bool flag_value=true);
-        bool getT();
+        bool getT() const;
         int setNonce(const u8 *nonce);
-        u8 *getNonce();
+        u8 *getNonce() const;
 
         /* Multicast Listener Discovery */
         int setMulticastAddress(struct in6_addr addr);
-        struct in6_addr getMulticastAddress();
+        struct in6_addr getMulticastAddress() const;
 
         /* Misc */
-        int getHeaderLengthFromType(u8 type);
+        int getHeaderLengthFromType(u8 type) const;
         bool isError() const;
         const char *type2string(int type, int code) const;
 

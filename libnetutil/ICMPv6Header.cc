@@ -204,7 +204,7 @@ int ICMPv6Header::print(FILE *output, int detail) const {
     case ICMPv6_ECHOREPLY:
         fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
     break;
-
+  
     default:
         /* Print nothing */
     break;
@@ -468,7 +468,7 @@ int ICMPv6Header::setReserved(u32 val){
 
 
 /** @warning Returned value is in host byte order */
-u32 ICMPv6Header::getReserved(){
+u32 ICMPv6Header::getReserved() const {
   u32 aux32=0;
   u8 *auxpnt=(u8 *)&aux32;
 
@@ -526,7 +526,7 @@ int ICMPv6Header::setUnused(u32 val){
 } /* End of setUnused() */
 
 
-u32 ICMPv6Header::getUnused(){
+u32 ICMPv6Header::getUnused() const {
   return this->getReserved();
 } /* End of getUnused() */
 
@@ -569,7 +569,7 @@ int ICMPv6Header::setFlags(u8 val){
 } /* End of setFlags() */
 
 
-u8 ICMPv6Header::getFlags(){
+u8 ICMPv6Header::getFlags() const {
   switch(this->h.type){
 
     case ICMPv6_ROUTERADVERT:
@@ -618,7 +618,7 @@ int ICMPv6Header::setMTU(u32 mtu){
   return OP_SUCCESS;
 } /* End of setMTU() */
 
-u32 ICMPv6Header::getMTU(){
+u32 ICMPv6Header::getMTU() const {
   return ntohl(this->h_ptb->mtu);
 } /* End of getMTU() */
 
@@ -635,7 +635,7 @@ int ICMPv6Header::setPointer(u32 pnt){
 } /* End of setPointer() */
 
 
-u32 ICMPv6Header::getPointer(){
+u32 ICMPv6Header::getPointer() const {
   return ntohl(this->h_pp->pointer);
 } /* End of getPointer() */
 
@@ -714,7 +714,7 @@ int ICMPv6Header::setCurrentHopLimit(u8 val){
   return OP_SUCCESS;
 } /* End of setCurrentHopLimit() */
 
-u8 ICMPv6Header::getCurrentHopLimit(){
+u8 ICMPv6Header::getCurrentHopLimit() const {
   return this->h_ra->current_hop_limit;
 } /* End of getCurrentHopLimit() */
 
@@ -723,7 +723,7 @@ int ICMPv6Header::setRouterLifetime(u16 val){
   return OP_SUCCESS;
 } /* End of setRouterLifetime() */
 
-u16 ICMPv6Header::getRouterLifetime(){
+u16 ICMPv6Header::getRouterLifetime() const {
   return this->h_ra->router_lifetime;
 } /* End of getRouterLifetime() */
 
@@ -732,7 +732,7 @@ int ICMPv6Header::setReachableTime(u32 val){
   return OP_SUCCESS;
 } /* End of setReachableTime() */
 
-u32 ICMPv6Header::getReachableTime(){
+u32 ICMPv6Header::getReachableTime() const {
     return this->h_ra->reachable_time;
 } /* End of getReachableTime() */
 
@@ -741,7 +741,7 @@ int ICMPv6Header::setRetransmissionTimer(u32 val){
   return OP_SUCCESS;
 } /* End of setRetransmissionTimer() */
 
-u32 ICMPv6Header::getRetransmissionTimer(){
+u32 ICMPv6Header::getRetransmissionTimer() const {
   return this->h_ra->retransmission_timer;
 } /* End of getRetransmissionTimer() */
 
@@ -775,7 +775,7 @@ int ICMPv6Header::setTargetAddress(struct in6_addr addr){
 } /* End of setTargetAddress() */
 
 
-struct in6_addr ICMPv6Header::getTargetAddress(){
+struct in6_addr ICMPv6Header::getTargetAddress() const {
   struct in6_addr addr;
   memset(&addr, 0, sizeof(struct in6_addr));
 
@@ -810,7 +810,7 @@ int ICMPv6Header::setDestinationAddress(struct in6_addr addr){
 } /* End of setDestinationAddress() */
 
 
-struct in6_addr ICMPv6Header::getDestinationAddress(){
+struct in6_addr ICMPv6Header::getDestinationAddress() const {
   struct in6_addr addr;
   memset(&addr, 0, sizeof(struct in6_addr));
 
@@ -839,7 +839,7 @@ int ICMPv6Header::setSegmentNumber(u8 val){
   return OP_SUCCESS;
 } /* End of setSegmentNumber() */
 
-u8 ICMPv6Header::getSegmentNumber(){
+u8 ICMPv6Header::getSegmentNumber() const {
   return this->h_rr->segment_number;
 } /* End of getSegmentNumber() */
 
@@ -864,7 +864,7 @@ int ICMPv6Header::setMaxDelay(u16 val){
 } /* End of setMaxDelay() */
 
 
-u16 ICMPv6Header::getMaxDelay(){
+u16 ICMPv6Header::getMaxDelay() const {
   switch(this->h.type){
     case ICMPv6_RTRRENUM:
       return ntohs(this->h_rr->max_delay);
@@ -895,7 +895,7 @@ int ICMPv6Header::setQtype(u16 val){
 
 
 /** Returns NI Qtype */
-u16 ICMPv6Header::getQtype(){
+u16 ICMPv6Header::getQtype() const {
   return ntohs(this->h_ni->qtype);
 } /* End of getQtype() */
 
@@ -908,7 +908,7 @@ int ICMPv6Header::setNodeInfoFlags(u16 val){
 
 
 /** Returns NI Flags */
-u16 ICMPv6Header::getNodeInfoFlags(){
+u16 ICMPv6Header::getNodeInfoFlags() const {
   return ntohs(this->h_ni->flags);
 } /* End of getNodeInfoFlags() */
 
@@ -931,7 +931,7 @@ int ICMPv6Header::setG(bool flag_value){
 
 
 /* Get NI Flag G */
-bool ICMPv6Header::getG(){
+bool ICMPv6Header::getG() const {
   return this->getNodeInfoFlags() & 0x0020;
 } /* End of getG() */
 
@@ -949,7 +949,7 @@ int ICMPv6Header::setS(bool flag_value){
 
 
 /* Get NI Flag  S */
-bool ICMPv6Header::getS(){
+bool ICMPv6Header::getS() const {
   return this->getNodeInfoFlags() & 0x0010;
 } /* End of getS() */
 
@@ -967,7 +967,7 @@ int ICMPv6Header::setL(bool flag_value){
 
 
 /* Get NI Flag L */
-bool ICMPv6Header::getL(){
+bool ICMPv6Header::getL() const {
   return this->getNodeInfoFlags() & 0x0008;
 } /* End of getL() */
 
@@ -985,7 +985,7 @@ int ICMPv6Header::setC(bool flag_value){
 
 
 /* Get NI Flag C */
-bool ICMPv6Header::getC(){
+bool ICMPv6Header::getC() const {
   return this->getNodeInfoFlags() & 0x0004;
 } /* End of getC() */
 
@@ -1003,7 +1003,7 @@ int ICMPv6Header::setA(bool flag_value){
 
 
 /* Get NI Flag A */
-bool ICMPv6Header::getA(){
+bool ICMPv6Header::getA() const {
   return this->getNodeInfoFlags() & 0x0002;
 } /* End of getA() */
 
@@ -1021,7 +1021,7 @@ int ICMPv6Header::setT(bool flag_value){
 
 
 /* Get NI Flag T */
-bool ICMPv6Header::getT(){
+bool ICMPv6Header::getT() const {
   return this->getNodeInfoFlags() & 0x0001;
 } /* End of getT() */
 
@@ -1039,7 +1039,7 @@ int ICMPv6Header::setNonce(const u8 *nonce){
 /* Returns a pointer to the nonce buffer.
  * @warning: The returned pointer is guaranteed to point to an 8-byte buffer.
  * However, what comes after the 8th byte is unspecified. */
-u8 *ICMPv6Header::getNonce(){
+u8 *ICMPv6Header::getNonce() const {
   return this->h_ni->nonce;
 } /* End of getNonce() */
 
@@ -1065,7 +1065,7 @@ int ICMPv6Header::setMulticastAddress(struct in6_addr addr){
 } /* End of setMulticastAddress() */
 
 
-struct in6_addr ICMPv6Header::getMulticastAddress(){
+struct in6_addr ICMPv6Header::getMulticastAddress() const {
   struct in6_addr addr;
   memset(&addr, 0, sizeof(struct in6_addr));
 
@@ -1091,7 +1091,7 @@ struct in6_addr ICMPv6Header::getMulticastAddress(){
   * bytes but then the packet may contain ICMPv6 options. We only return 40
   * because we don't know in advance the total number of bytes for the message.
   * Same applies to the rest of types. */
-int ICMPv6Header::getHeaderLengthFromType(u8 type){
+int ICMPv6Header::getHeaderLengthFromType(u8 type) const {
 
   switch( type ){
     case ICMPv6_UNREACH:
