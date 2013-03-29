@@ -1,6 +1,8 @@
 
 /***************************************************************************
- * ProbeMode.cc --                                                         *
+ * ProbeMode.cc -- Probe Mode is nping's default working mode. Basically,  *
+ * it involves sending the packets that the user requested at regular      *
+ * intervals and capturing responses from the wire.                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -132,7 +134,7 @@ int ProbeMode::init_nsock(){
         nsock_set_loglevel(nsp, NSOCK_LOG_INFO);
       else if( o.getDebugging() > DBG_5 )
         nsock_set_loglevel(nsp, NSOCK_LOG_DBG_ALL);
-      /* Flag it as already inited so we don't do it again */
+      /* Flag it as already initialized so we don't do it again */
       nsock_init=true;
   }
   return OP_SUCCESS;
@@ -248,7 +250,7 @@ int ProbeMode::start(){
     }
     o.stats.stopTxClock();
     /* If there are some events pending, we'll wait for DEFAULT_WAIT_AFTER_PROBES ms,
-     * otherwise nsock_loop() will return inmediatly */
+     * otherwise nsock_loop() will return immediately */
     loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
     if (loopret == NSOCK_LOOP_ERROR)
         nping_fatal(QT_3, "Unexpected nsock_loop error.\n");
@@ -302,7 +304,7 @@ int ProbeMode::start(){
     }
     o.stats.stopTxClock();
     /* If there are some events pending, we'll wait for DEFAULT_WAIT_AFTER_PROBES ms,
-     * otherwise nsock_loop() will return inmediatly */
+     * otherwise nsock_loop() will return immediately */
     if(!o.disablePacketCapture()){
         loopret=nsock_loop(nsp, DEFAULT_WAIT_AFTER_PROBES);
         if (loopret == NSOCK_LOOP_ERROR)
@@ -371,7 +373,7 @@ int ProbeMode::start(){
                 /* Iterate through all destination ports */
                 for (p=0; p < numTargetPorts; p++){
                     o.targets.rewind();
-                    /* Iterate trough all target IP adresses */
+                    /* Iterate trough all target IP addresses */
                     while( (target=o.targets.getNextTarget()) != NULL ){
 
                         currentPort=targetPorts[p];
@@ -426,7 +428,7 @@ int ProbeMode::start(){
             for( c=0; c < o.getPacketCount(); c++){
                 o.targets.rewind();
                 o.setCurrentRound( o.issetTTL() ?  ((c%(256-o.getTTL()))+o.getTTL()) : ((c%255)+1 ) ); /* Used in traceroute mode */
-                /* Iterate trough all target IP adresses */
+                /* Iterate trough all target IP addresses */
                 while( (target=o.targets.getNextTarget()) != NULL ){
 
                     if ( fillPacket( target, 0, pkt, MAX_IP_PACKET_LEN, &pktLen, rawipsd ) != OP_SUCCESS )
@@ -512,7 +514,7 @@ int ProbeMode::start(){
  * because some IPv6 options like hop limit are tuned using calls to
  * setsockopt() */
 int ProbeMode::fillPacket(NpingTarget *target, u16 port, u8 *buff, int bufflen, int *filledlen, int rawfd){
-  EthernetHeader e;   /* Used when sending at raw ethernet level.           */
+  EthernetHeader e;   /* Used when sending at raw Ethernet level.           */
   u8 *pnt=buff;       /* Aux pointer to keep track of user supplied "buff". */
   int pntlen=bufflen; /* Aux counter to store how many bytes we have left.  */
   int final_len=0;
@@ -523,7 +525,7 @@ int ProbeMode::fillPacket(NpingTarget *target, u16 port, u8 *buff, int bufflen, 
   else
     nping_print(DBG_4, "fillPacket(target=%p, port=%d, buff=%p, bufflen=%d, filledlen=%p rawfd=%d)", target, port, buff, bufflen, filledlen, rawfd);
 
-/* If o.sendEth() is true that means we need to send packets at raw ethernet
+/* If o.sendEth() is true that means we need to send packets at raw Ethernet
  * level (we are probably running on windows or user requested that explicitly.
  * Ethernet frames that carry ARP packets have special requirements (e.g. some
  * of them are sent to a FF:FF:FF:FF:FF:FF broadcast address). That's why we
@@ -691,7 +693,7 @@ int ProbeMode::createIPv6(IPv6Header *i, PacketElement *next_element, const char
  * header (for source IP spoofing, etc) we have to do things like determine
  * source and dest MAC addresses (this is even more complicated in IPv6 than
  * in IPv4 because we don't have ARP anymore, we have to use something new, the
- * NDP, Neighbour Discovery Protocol.)
+ * NDP, Neighbor Discovery Protocol.)
  * So the thing is that, if the user does not want to play with the IPv6 header,
  * why bother with all that link layer work? So what we do is create raw
  * transport layer packets and then send them through a raw IPv6 socket. The
@@ -723,7 +725,7 @@ int ProbeMode::doIPv6ThroughSocket(int rawfd){
     /* Transport layer checksum */
     /* This is totally crazy. We have to tell the kernel EXPLICITLY that we
      * want it to set the TCP/UDP checksum for us. Why the hell is this the
-     * default behaviour if it's so fucking difficult to get the IPv6 source
+     * default behavior if it's so fucking difficult to get the IPv6 source
      * address?
      * Additionally, we have to be very careful not to set this option when
      * dealing with ICMPv6 because in that case the kernel computes the
@@ -741,7 +743,7 @@ int ProbeMode::doIPv6ThroughSocket(int rawfd){
 
     /* Bind IPv6 socket to a specific network interface */
     if ( o.issetDevice() )  {
-        /* It seems that SO_BINDTODEVICE only work on linux */
+        /* It seems that SO_BINDTODEVICE only work on Linux */
         #ifdef LINUX
         if (setsockopt(rawfd, SOL_SOCKET, SO_BINDTODEVICE, o.getDevice(), strlen(o.getDevice())+1) == -1) {
             nping_warning(QT_2, "Error binding IPv6 socket to device %s", o.getDevice() );
@@ -774,7 +776,7 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
   if( buff==NULL || filledlen==NULL || target==NULL)
     nping_fatal(QT_3,"fillPacketTCP(): NULL pointer supplied.");
 
-  /* Add Payload if neccessary */
+  /* Add Payload if necessary */
   if ( o.issetPayloadType() ){
     switch( o.getPayloadType() ){
         case PL_RAND: case PL_HEX: case PL_STRING:
@@ -907,7 +909,7 @@ int ProbeMode::fillPacketUDP(NpingTarget *target, u16 port, u8 *buff, int buffle
     nping_fatal(QT_3,"fillPacketUDP(): NULL pointer supplied.");
 
 
-  /* Add Payload if neccessary */
+  /* Add Payload if necessary */
   if ( o.issetPayloadType() ){
     switch( o.getPayloadType() ){
         case PL_RAND: case PL_HEX:  case PL_STRING:
@@ -1011,7 +1013,7 @@ int ProbeMode::fillPacketICMP(NpingTarget *target, u8 *buff, int bufflen, int *f
     nping_fatal(QT_3,"fillPacketICMP(): NULL pointer supplied.");
   nping_print(DBG_4, "fillPacketICMP(target=%p, buff=%p, bufflen=%d, filledlen=%p)", target, buff, bufflen, filledlen);
 
-  /* Add Payload if neccessary */
+  /* Add Payload if necessary */
   if ( o.issetPayloadType() ){
     switch( o.getPayloadType() ){
         case PL_RAND: case PL_HEX: case PL_STRING:
@@ -1226,7 +1228,7 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
     if( o.issetARPSenderHwAddr() )
         a.setSenderMAC( o.getARPSenderHwAddr() );
     else
-        a.setSenderMAC( e.getSrcMAC() );  /* Get ethernet's source MAC */
+        a.setSenderMAC( e.getSrcMAC() );  /* Get Ethernet's source MAC */
 
     /* Sender Protocol Address */
     if( o.issetARPSenderProtoAddr() )
@@ -1246,7 +1248,7 @@ int ProbeMode::fillPacketARP(NpingTarget *target, u8 *buff, int bufflen, int *fi
     if( o.issetARPTargetHwAddr() )
         a.setTargetMAC( o.getARPTargetHwAddr() );
     else
-        a.setTargetMAC( nullmac );  /* Get ethernet's target MAC */
+        a.setTargetMAC( nullmac );  /* Get Ethernet's target MAC */
 
     /* Store result in user supplied buffer */
     *filledlen = e.dumpToBinaryBuffer(buff, bufflen);
@@ -1325,7 +1327,7 @@ char *ProbeMode::getBPFFilterString(){
         s4->sin_family=AF_INET;
         inet_pton(AF_INET, "127.0.0.1", &s4->sin_addr);
     }
-    nping_print(DBG_2, "Couldn't determine source addrees. Using address %s in BFP filter", IPtoa(&srcss) );
+    nping_print(DBG_2, "Couldn't determine source address. Using address %s in BFP filter", IPtoa(&srcss) );
   }
   o.targets.rewind();
 
@@ -1362,13 +1364,13 @@ char *ProbeMode::getBPFFilterString(){
     buffer=filterstring+strlen(filterstring);
  }
 
- /* Time for protocol specific contraints */
+ /* Time for protocol specific constraints */
  switch( o.getMode() ){
-    case  TCP: /* Restrict to packets targetting our TCP source port */
+    case  TCP: /* Restrict to packets targeting our TCP source port */
         Snprintf(buffer, 1024-strlen(filterstring), "(tcp and dst port %d) ", o.getSourcePort());
     break;
 
-    case  UDP: /* Restrict to packets targetting our UDP source port */
+    case  UDP: /* Restrict to packets targeting our UDP source port */
         Snprintf(buffer, 1024-strlen(filterstring), "(udp and dst port %d) ", o.getSourcePort());
     break;
 
@@ -1413,7 +1415,7 @@ char *ProbeMode::getBPFFilterString(){
                 skip_icmp_matching=true;
             break;
         }
-        /* We have a specifig ICMP type to look for */
+        /* We have an specific ICMP type to look for */
         if(!skip_icmp_matching){
             Snprintf(buffer, 1024-strlen(filterstring), "(icmp and icmp[icmptype] = %d) ", icmp_recv_type);
         }else{
@@ -1499,7 +1501,7 @@ char *ProbeMode::getBPFFilterString(){
   *
   * PCAP READS: start() also schedules pcap read operations so,
   * whenever pcap has capture a packet, nsock generates a pcap read event so
-  * we just read the capture data, update the stats and print the packet
+  * we just read the capture data, update the statistics and print the packet
   * to stdout.
   * */
 void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
@@ -1637,7 +1639,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                     /* Statistics */
                     o.stats.addRecvPacket(packetlen);
 
-                    /* Then we check for a target and a port and do the individual stats */
+                    /* Then we check for a target and a port and do the individual statistics */
                     trg=o.targets.findTarget( getSrcSockAddrFromIPPacket((u8*)packet, packetlen) );
 
                     if(trg != NULL){
@@ -1653,7 +1655,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                         trg=o.targets.findTarget( getDestAddrFromICMPPacket((u8*)packet, packetlen));
                     }
 
-                    /* In the case of ICMP we only do any printing and stats if we
+                    /* In the case of ICMP we only do any printing and statistics if we
                     found a target - otherwise it could be a packet that is nothing
                     to do with us */
                     if(trg!=NULL){
@@ -1764,7 +1766,7 @@ void ProbeMode::probe_delayed_output_handler(nsock_pool nsp, nsock_event nse, vo
   * the info stored there, we schedule a nsock_connect_tcp() event. This means
   * that nsock will initiate a TCP handshake and return. Whenever the handshake
   * is completed, nsock will generate a CONNECT event to indicate it so we
-  * know the othe peer was alive and willing to TCP-handshake with us.
+  * know the other peer was alive and willing to TCP-handshake with us.
   *
   * CONNECTS: These events are scheduled by the code that handles timer events.
   * As described above, nsock generates a connect event when handshakes have
@@ -1891,9 +1893,9 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
             sslen=sizeof(struct sockaddr_in);
         }
 
-        /* We need to keep many IODs open in parrallel but we don't allocate
+        /* We need to keep many IODs open in parallel but we don't allocate
          * millions, just as many as the OS let us (max number of open files).
-         * If we run out of them, we just start overwritting the oldest one.
+         * If we run out of them, we just start overwriting the oldest one.
          * If we don't have a response by that time we probably aren't gonna
          * get any, so it shouldn't be a big problem. */
         if( packetno>(u32)max_iods ){
@@ -1940,7 +1942,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
  } else if (status == NSE_STATUS_ERROR) {
    /** In my tests with Nping and Wireshark, I've seen that we get NSE_STATUS_ERROR
     * whenever we start a TCP handshake but our peer sends a TCP RST packet back
-    * denying the connection. So in this case, we inform the user (as oppossed
+    * denying the connection. So in this case, we inform the user (as opposed
     * to saying nothing, that's what we do when we don't get responses, e.g:
     * when trying to connect to filtered ports). This is not 100% accurate
     * because there may be other reasons why ge get NSE_STATUS_ERROR so that's
@@ -1991,7 +1993,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
   *
   *
   * CONNECTS: These events generated by nsock for consistency with the
-  * behaviour in TCP connects. They are pretty useless. They merely indicate
+  * behavior in TCP connects. They are pretty useless. They merely indicate
   * that nsock successfully obtained a UDP socket ready to allow sending
   * packets to the appropriate target. We basically don't do anything when
   * that event is received, just print a message if we are un debugging mode.
@@ -2003,7 +2005,7 @@ void ProbeMode::probe_tcpconnect_event_handler(nsock_pool nsp, nsock_event nse, 
   *
   * READS: When we get this event it means that the other end actually sent
   * some data back to us. What we do is read that data, tell the user that
-  * we received some bytes and update stats.
+  * we received some bytes and update statistics.
   *
   * */
 void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, void *mydata) {
@@ -2100,9 +2102,9 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
             sslen=sizeof(struct sockaddr_in);
         }
 
-        /* We need to keep many IODs open in parrallel but we don't allocate
+        /* We need to keep many IODs open in parallel but we don't allocate
          * millions, just as many as the OS let us (max number of open files).
-         * If we run out of them, we just start overwritting the oldest one.
+         * If we run out of them, we just start overwriting the oldest one.
          * If we don't have a response by that time we probably aren't gonna
          * get any, so it shouldn't be a big problem. */
         if( packetno>(u32)max_iods ){
@@ -2212,7 +2214,7 @@ void ProbeMode::probe_udpunpriv_event_handler(nsock_pool nsp, nsock_event nse, v
 
     case NSE_TYPE_PCAP_READ:
     case NSE_TYPE_CONNECT_SSL:
-        nping_warning(QT_2,"udpunpriv_event_handler(): Unexpected behaviour, %s event received . Please report this bug.", nse_type2str(type));
+        nping_warning(QT_2,"udpunpriv_event_handler(): Unexpected behavior, %s event received . Please report this bug.", nse_type2str(type));
     break;
 
     default:

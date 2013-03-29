@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * utils.cc -- Miscellanious utils that didn't fit into any of the other   *
+ * utils.cc -- Miscellaneous utils that didn't fit into any of the other   *
  * source files.                                                           *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************

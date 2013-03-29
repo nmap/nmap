@@ -119,22 +119,21 @@ ArgParser::~ArgParser() {
 
 
 int ArgParser::parseArguments(int argc, char *argv[]) {
+  int arg=0;
+  int auxint=0;
+  long l=0;
+  int option_index=0;
+  struct in_addr aux_ip4;
+  u32 aux32=0;
+  u16 aux16=0;
+  u8 aux8=0;
+  u8 auxmac[6];
+  u8 *auxbuff=NULL;
+  u16 *portlist=NULL;
+  char errstr[256];
 
-int arg=0;
-int auxint=0;
-long l=0;
-int option_index=0;
-struct in_addr aux_ip4;
-u32 aux32=0;
-u16 aux16=0;
-u8 aux8=0;
-u8 auxmac[6];
-u8 *auxbuff=NULL;
-u16 *portlist=NULL;
-char errstr[256];
+  struct option long_options[] =  {
 
- struct option long_options[] =
- {
   /* Probe modes */
   {"tcp-connect", no_argument, 0, 0},
   {"tcp", no_argument, 0, 0},
@@ -143,6 +142,7 @@ char errstr[256];
   {"arp", no_argument, 0, 0},
   {"tr", no_argument, 0, 0},
   {"traceroute", no_argument, 0, 0},
+
   /* Mode shortcuts */
   {"echo-request", no_argument, 0, 0},
   {"destination-unreachable", no_argument, 0, 0},
@@ -185,7 +185,7 @@ char errstr[256];
   /* TODO: Add relevant flags for different ICMP options */
 
   /* ARP/RARP */  
-    /* All these are for the ARP Operation Code */
+  /* 1) ARP operation codes. */
   {"arp-type",  required_argument, 0, 0},
   {"rarp-type",  required_argument, 0, 0},
   {"arp-code",  required_argument, 0, 0},
@@ -194,7 +194,7 @@ char errstr[256];
   {"arp-op",  required_argument, 0, 0},
   {"rarp-operation",  required_argument, 0, 0},
   {"rarp-op",  required_argument, 0, 0},  
-    /* These are for the rest of the fields */
+  /* 2) Rest of the fields */
   {"arp-sender-mac", required_argument, 0, 0},
   {"arp-sender-ip", required_argument, 0, 0},
   {"arp-target-mac", required_argument, 0, 0},
@@ -280,20 +280,19 @@ char errstr[256];
   {"debug", no_argument, 0, 0},
   {"quiet", no_argument, 0, 0},
   {0, 0, 0, 0}
- };
+  };
 
   if( argc <= 1 ){
     this->printUsage();
     exit(1);
   }
 
- /* Let's get this parsing party started */
- //optind = 1; /* so it can be called multiple times */
- while((arg = getopt_long_only(argc,argv,"46c:d::e:fg:hHK:NP:q::p:S:Vv::", long_options, &option_index)) != EOF) {
+  /* Let's get this parsing party started */
+  while((arg = getopt_long_only(argc,argv,"46c:d::e:fg:hHK:NP:q::p:S:Vv::", long_options, &option_index)) != EOF) {
 
-  aux8=aux16=aux32=aux_ip4.s_addr=0;
+   aux8=aux16=aux32=aux_ip4.s_addr=0;
 
-  switch(arg) {
+   switch(arg) {
 
    case 0:
 
@@ -1188,10 +1187,8 @@ char errstr[256];
 
 /** Prints version information to stdout */
 void ArgParser::printVersion(void){
-    printf("\n%s version %s ( %s )\n",  NPING_NAME, NPING_VERSION, NPING_URL);
-    /* TODO: change printf for output(). Check why we're getting error
-     * ArgParser.cc:(.text+0x72): undefined reference to `output'*/
-    return;
+  printf("\n%s version %s ( %s )\n",  NPING_NAME, NPING_VERSION, NPING_URL);
+  return;
 } /* End of printVersion() */
 
 
@@ -1707,7 +1704,7 @@ int ArgParser::atoICMPCode(char *opt, u8 *code){
 
 
 
-/* Sames as atoICMPCode() but for ARP operation codes */
+/* Same as atoICMPCode() but for ARP operation codes */
 int ArgParser::atoARPOpCode(char *opt, u16 *code){
 
   if(code==NULL || opt==NULL)

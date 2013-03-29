@@ -1,6 +1,8 @@
 
 /***************************************************************************
- * ProbeMode.h --                                                          *
+ * ProbeMode.h -- Probe Mode is nping's default working mode. Basically,   *
+ * it involves sending the packets that the user requested at regular      *
+ * intervals and capturing responses from the wire.                        *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
