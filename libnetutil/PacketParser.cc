@@ -1708,3 +1708,59 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
   if(PKTPARSERDEBUG)printf("%s(): The received packet was successfully matched with the sent packet.\n", __func__);
   return true;
 }
+
+/* Tries to find a transport layer header in the supplied chain of
+ * protocol headers. On success it returns a pointer to a PacketElement
+ * of one of these types:
+ * 
+ * HEADER_TYPE_TCP
+ * HEADER_TYPE_UDP
+ * HEADER_TYPE_ICMPv4 
+ * HEADER_TYPE_ICMPv6
+ * HEADER_TYPE_SCTP
+ * HEADER_TYPE_ARP
+ * 
+ * It returns NULL if no transport layer header is found.
+ * 
+ * Note that this method onyl understands IPv4, IPv6 (and its 
+ * extension headers) and Ethernet. If the supplied packet contains
+ * something different before the tranport layer, NULL will be returned.
+ * */
+PacketElement *PacketParser::find_transport_layer(PacketElement *chain){
+  PacketElement *aux=chain;
+  /* Traverse the chain of PacketElements */
+  while(aux!=NULL){
+    switch(aux->protocol_id()){
+      /* If we have a link or a network layer header, skip it. */
+      case HEADER_TYPE_IPv6_HOPOPT:
+      case HEADER_TYPE_IPv4:
+      case HEADER_TYPE_IPv6:
+      case HEADER_TYPE_IPv6_ROUTE:
+      case HEADER_TYPE_IPv6_FRAG:
+      case HEADER_TYPE_IPv6_NONXT:
+      case HEADER_TYPE_IPv6_OPTS:
+      case HEADER_TYPE_ETHERNET:
+      case HEADER_TYPE_IPv6_MOBILE:
+        aux=aux->getNextElement();
+      break;
+      
+      /* If we found the transport layer, return it. */
+      case HEADER_TYPE_TCP:
+      case HEADER_TYPE_UDP:
+      case HEADER_TYPE_ICMPv4:
+      case HEADER_TYPE_ICMPv6:
+      case HEADER_TYPE_SCTP:
+      case HEADER_TYPE_ARP:
+        return aux;
+      break;
+      
+      /* Otherwise, the packet contains headers we don't understand
+       * so we just return NULL to indicate that no valid transport 
+       * layer was found. */
+      default:
+        return NULL;
+      break;
+    }
+  }
+  return NULL;
+} /* End of find_transport_layer() */

@@ -158,6 +158,7 @@ class PacketParser {
     static int freePacketChain(PacketElement *first);
     static const char *test_packet_parser(PacketElement *test_pkt);
     static bool is_response(PacketElement *sent, PacketElement *rcvd);
+    static PacketElement *find_transport_layer(PacketElement *chain);
 
 }; /* End of class PacketParser */
 
