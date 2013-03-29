@@ -583,6 +583,35 @@ pkt_type_t *PacketParser::parse_packet(const u8 *pkt, size_t pktlen, bool eth_in
     }else{ // next_layer==APPLICATION_LAYER
         if(PKTPARSERDEBUG)puts("Next Layer=Application");
         if(curr_pktlen>0){
+            
+            /* If we get here it is possible that the packet is ARP but 
+             * we have no access to the original Ethernet header. We 
+             * determine if this header is ARP by checking its size 
+             * and checking for some common values. */          
+            if(arp.storeRecvData(curr_pkt, curr_pktlen)!=OP_FAILURE){
+              if( (arplen=arp.validate())!=OP_FAILURE){
+                if(arp.getHardwareType()==HDR_ETH10MB){
+                  if(arp.getProtocolType()==0x0800){
+                    if(arp.getHwAddrLen()==ETH_ADDRESS_LEN){
+                      if(arp.getProtoAddrLen()==IPv4_ADDRESS_LEN){
+                        this_packet[current_header].length=arplen;
+                        this_packet[current_header++].type=HEADER_TYPE_ARP;
+                        arp.reset();
+                        curr_pkt+=arplen;
+                        curr_pktlen-=arplen;
+                        if(curr_pktlen>0){
+                            next_layer=APPLICATION_LAYER;
+                            expected=HEADER_TYPE_RAW_DATA;
+                        }else{
+                            finished=true;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+                      
             //if(expected==HEADER_TYPE_DNS){
             //}else if(expected==HEADER_TYPE_HTTP){
             //}... ETC
@@ -1006,9 +1035,40 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
     if( (sent=sent->getNextElement())==NULL)
       return false;
   
-  /* Make sure both packets have the same network layer and that it is IP */
+  /* Make sure both packets have the same network layer */
   if(rcvd->protocol_id()!=sent->protocol_id())
     return false;
+    
+  /* The packet could be ARP */
+  if(rcvd->protocol_id()==HEADER_TYPE_ARP){
+    ARPHeader *sent_arp=(ARPHeader *)sent;
+    ARPHeader *rcvd_arp=(ARPHeader *)rcvd;
+    switch(sent_arp->getOpCode()){
+      case OP_ARP_REQUEST:
+        if(rcvd_arp->getOpCode()==OP_ARP_REPLY){
+          /* TODO @todo: getTargetIP() and getSenderIP() should 
+           * either return struct in_addr or IPAddress but not u32. */
+          if(sent_arp->getTargetIP()==rcvd_arp->getSenderIP())
+            if(sent_arp->getSenderIP()==rcvd_arp->getTargetIP())
+              return true;
+        }
+        return false;
+      break;
+           
+      /* We only support ARP, not RARP or other weird stuff. Also, if 
+       * we didn't send a request, then we don't expect any response */
+      case OP_RARP_REQUEST:
+      case OP_DRARP_REQUEST:
+      case OP_INARP_REQUEST:
+      default:
+        return false;
+      break;
+    
+    }
+    return false;
+  }
+  
+  /* The packet is IPv4 or IPv6 */
   if(rcvd->protocol_id()!=HEADER_TYPE_IPv6 && rcvd->protocol_id()!=HEADER_TYPE_IPv4)
     return false;
   if(PKTPARSERDEBUG)printf("%s(): Both packets use IP.\n", __func__);

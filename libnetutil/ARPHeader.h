@@ -171,6 +171,9 @@
 #define OP_RESERVED       65535 /* Reserved [RFC5494]                         */
 
 
+/* TODO @todo: getTargetIP() and getSenderIP() should  either 
+ * return struct in_addr or IPAddress but not u32. */
+
 class ARPHeader : public NetworkLayerElement {
 
     private:
