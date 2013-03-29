@@ -699,7 +699,7 @@ u32 ICMPv6Header::getSequence() const{
 
     case ICMPv6_ECHO:
     case ICMPv6_ECHOREPLY:
-        return ntohl( ((u32)this->h_e->seq) );
+        return (u32)ntohs(this->h_e->seq);
     break;
   }
   return 0;
