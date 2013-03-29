@@ -175,7 +175,32 @@ int IPv6Header::validate(){
   * header in the chain (if there is any).
   * @return OP_SUCCESS on success and OP_FAILURE in case of error. */
 int IPv6Header::print(FILE *output, int detail) const {
-  fprintf(output, "IPv6[]");
+  static char ipstring[256];
+  memset(ipstring, 0, 256);
+  struct in6_addr addr;
+  char ipinfo[512] = "";                /* Temp info about IP.               */
+
+  fprintf(output, "IPv6[");
+  this->getSourceAddress(&addr);
+  inet_ntop(AF_INET6, &addr, ipstring, sizeof(ipstring));
+  fprintf(output, "%s", ipstring);
+  fprintf(output, " >");
+  this->getDestinationAddress(&addr);
+  inet_ntop(AF_INET6, &addr, ipstring, sizeof(ipstring));
+  fprintf(output, " %s", ipstring);
+
+  /* Create a string with information relevant to the specified level of detail */
+  if( detail == PRINT_DETAIL_LOW ){
+      Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d", this->getHopLimit());
+  }else if( detail == PRINT_DETAIL_MED ){
+      Snprintf(ipinfo, sizeof(ipinfo), "hlim=%d tclass=%d flow=%d", 
+               this->getHopLimit(), this->getTrafficClass(), this->getFlowLabel() );
+  }else if( detail>=PRINT_DETAIL_HIGH ){
+      Snprintf(ipinfo, sizeof(ipinfo), "ver=%d hlim=%d tclass=%d flow=%d plen=%d nh=%d", 
+               this->getVersion(), this->getHopLimit(), this->getTrafficClass(), 
+               this->getFlowLabel(), this->getPayloadLength(), this->getNextHeader() );
+  }
+  fprintf(output, " %s]", ipinfo); 
   if(this->next!=NULL){
     print_separator(output, detail);
     next->print(output, detail);
