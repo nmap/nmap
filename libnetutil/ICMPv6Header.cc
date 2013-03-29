@@ -225,6 +225,32 @@ int ICMPv6Header::print(FILE *output, int detail) const {
       fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
     break;
     
+    case ICMPv6_NODEINFOQUERY:
+    case ICMPv6_NODEINFORESP:
+      if(this->getNodeInfoFlags()!=0){
+        fprintf(output, " flags=");
+        if(this->getNodeInfoFlags() & ICMPv6_NI_FLAG_T)
+          fprintf(output, "T");
+        if(this->getNodeInfoFlags() & ICMPv6_NI_FLAG_A)
+          fprintf(output, "A");
+        if(this->getNodeInfoFlags() & ICMPv6_NI_FLAG_C)
+          fprintf(output, "C");
+        if(this->getNodeInfoFlags() & ICMPv6_NI_FLAG_L)
+          fprintf(output, "L");
+        if(this->getNodeInfoFlags() & ICMPv6_NI_FLAG_G)
+          fprintf(output, "G");
+        if(this->getNodeInfoFlags() & ICMPv6_NI_FLAG_S)
+          fprintf(output, "S");
+        }
+      if(detail>=PRINT_DETAIL_HIGH){
+        #ifdef WIN32
+          fprintf(output, " nonce=%I64u",  (long long unsigned int)this->getNonce());
+        #else
+          fprintf(output, " nonce=%llu",  (long long unsigned int)this->getNonce());
+        #endif
+      }
+    break;
+
     default:
         /* Print nothing */
     break;
@@ -1046,12 +1072,19 @@ bool ICMPv6Header::getT() const {
 } /* End of getT() */
 
 
+/* Set the Nonce field. */
+int ICMPv6Header::setNonce(u64 nonce_value){
+  this->h_ni->nonce=nonce_value;
+  return OP_SUCCESS;
+} /* End of setNonce() */
+
+
 /* Set the Nonce field.
  * @warning: Supplied buffer must contain 8 bytes. */
 int ICMPv6Header::setNonce(const u8 *nonce){
   if(nonce==NULL)
     return OP_FAILURE;
-  memcpy(this->h_ni->nonce, nonce, NI_NONCE_LEN);
+  memcpy(&(this->h_ni->nonce), nonce, NI_NONCE_LEN);
   return OP_SUCCESS;
 } /* End of setNonce() */
 
@@ -1059,7 +1092,7 @@ int ICMPv6Header::setNonce(const u8 *nonce){
 /* Returns a pointer to the nonce buffer.
  * @warning: The returned pointer is guaranteed to point to an 8-byte buffer.
  * However, what comes after the 8th byte is unspecified. */
-u8 *ICMPv6Header::getNonce() const {
+u64 ICMPv6Header::getNonce() const {
   return this->h_ni->nonce;
 } /* End of getNonce() */
 

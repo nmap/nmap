@@ -1263,7 +1263,7 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
             case ICMPv6_NODEINFORESP:
               if(sent_icmp6->getNodeInfoFlags() != inner_icmp6->getNodeInfoFlags() )
                 return false;
-              if( memcmp(sent_icmp6->getNonce(), inner_icmp6->getNonce(), NI_NONCE_LEN)!=0 )
+              if(sent_icmp6->getNonce() != inner_icmp6->getNonce())
                 return false;
               if(sent_icmp6->getQtype() != inner_icmp6->getQtype() )
                 return false;
@@ -1472,7 +1472,7 @@ bool PacketParser::is_response(PacketElement *sent, PacketElement *rcvd){
                * responses with the same Nonce value that we used in the query. */
               if(rcvd_icmp6->getType()!=ICMPv6_NODEINFORESP)
                 return false;
-              if( memcmp(sent_icmp6->getNonce(), rcvd_icmp6->getNonce(), NI_NONCE_LEN)!=0 )
+              if(sent_icmp6->getNonce() != rcvd_icmp6->getNonce())
                 return false;
             break;
 

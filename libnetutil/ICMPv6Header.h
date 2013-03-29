@@ -270,6 +270,14 @@
 
 
 
+/* Node Information flag bitmaks */
+#define ICMPv6_NI_FLAG_T    0x01
+#define ICMPv6_NI_FLAG_A    0x02
+#define ICMPv6_NI_FLAG_C    0x04
+#define ICMPv6_NI_FLAG_L    0x08
+#define ICMPv6_NI_FLAG_G    0x10
+#define ICMPv6_NI_FLAG_S    0x20
+
 class ICMPv6Header : public ICMPHeader {
 
         /**********************************************************************/
@@ -524,7 +532,7 @@ class ICMPv6Header : public ICMPHeader {
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |     Type      |     Code      |           Checksum            |
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-          |             Qtype             |             Flags             |
+          |             Qtype             |       unused      |G|S|L|C|A|T|
           +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
           |                                                               |
           +                             Nonce                             +
@@ -537,7 +545,7 @@ class ICMPv6Header : public ICMPHeader {
         struct nodeinfo_msg{
             u16 qtype;
             u16 flags;
-            u8 nonce[NI_NONCE_LEN];
+            u64 nonce;
             //u8 data[?];
         }__attribute__((__packed__));
         typedef struct nodeinfo_msg nodeinfo_msg_t;
@@ -676,8 +684,9 @@ class ICMPv6Header : public ICMPHeader {
         bool getA() const;
         int  setT(bool flag_value=true);
         bool getT() const;
+        int setNonce(u64 nonce_value);
         int setNonce(const u8 *nonce);
-        u8 *getNonce() const;
+        u64 getNonce() const;
 
         /* Multicast Listener Discovery */
         int setMulticastAddress(struct in6_addr addr);
