@@ -364,9 +364,9 @@ class ScriptMetadata (object):
         returned as a list of (argname, description) tuples."""
         args = []
         for tag_name, tag_text in nsedoc_tags_iter(f):
-            m = re.match(r'([\w._-]+)\s*(.*)', tag_text)
+            m = re.match(r'([\w._-]+)', tag_text)
             if (tag_name == "arg" or tag_name == "args") and m:
-                args.append((m.group(1), m.group(2)))
+                args.append((m.group(1), re.sub(r'^[\w._-]+','',tag_text)))
         return args
 
     def get_arguments(self, filename):
