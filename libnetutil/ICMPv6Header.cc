@@ -200,11 +200,26 @@ int ICMPv6Header::print(FILE *output, int detail) const {
     fprintf(output, " (type=%u/code=%u)", type, code);
 
   switch(type) {
-    case ICMPv6_ECHO:
-    case ICMPv6_ECHOREPLY:
-        fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
+    
+    case ICMPv6_UNREACH:
+    case ICMPv6_TIMXCEED:
+      if(detail>=PRINT_DETAIL_HIGH)
+        fprintf(output, " unused=0x%08lX", (long unsigned int)this->getUnused());
     break;
   
+    case ICMPv6_PKTTOOBIG:
+      fprintf(output, " mtu=%lu", (long unsigned int)this->getMTU());
+    break;
+    
+    case ICMPv6_PARAMPROB:
+      fprintf(output, " pointer=%lu", (long unsigned int)this->getPointer());
+    break;
+    
+    case ICMPv6_ECHO:
+    case ICMPv6_ECHOREPLY:
+      fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
+    break;
+    
     default:
         /* Print nothing */
     break;
