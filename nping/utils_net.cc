@@ -277,6 +277,31 @@ u16 sockaddr2port(struct sockaddr_in6 *s6){
 }
 
 
+/* Sets the address family member of the supplied sockaddr. */
+int setsockaddrfamily(struct sockaddr_storage *ss, int family){
+  struct sockaddr_in *s4=(struct sockaddr_in *)ss;
+  s4->sin_family=family;
+  return OP_SUCCESS;
+} /* End of setsockaddrfamily() */
+
+
+/* Sets the special INADDR_ANY or in6addr_an constant on the sin_family or
+ * sin6_addr member of the supplied sockaddr. Note that for this to work,
+ * the supplied sockaddr_storage MUST have a correct address family set 
+ * already (sin_family or sin6_family). */
+int setsockaddrany(struct sockaddr_storage *ss){
+  struct sockaddr_in *s4=(struct sockaddr_in *)ss;
+  struct sockaddr_in6 *s6=(struct sockaddr_in6 *)ss;
+  if(s4->sin_family==AF_INET)
+    s4->sin_addr.s_addr=INADDR_ANY;
+  else if(s6->sin6_family==AF_INET6)
+    s6->sin6_addr=in6addr_any;
+  else
+    return OP_FAILURE;
+  return OP_SUCCESS;
+} /* End of setsockaddrany() */
+
+
 /** Returns true if supplied value corresponds to a valid RFC compliant ICMP
  *  Code. Otherwise it returns false.
  *  @warning The fact that a given value matches a standard code does not

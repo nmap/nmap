@@ -117,6 +117,8 @@ u16 sockaddr2port(struct sockaddr_storage *ss);
 u16 sockaddr2port(struct sockaddr_storage ss);
 u16 sockaddr2port(struct sockaddr_in *s4);
 u16 sockaddr2port(struct sockaddr_in6 *s6);
+int setsockaddrfamily(struct sockaddr_storage *ss, int family);
+int setsockaddrany(struct sockaddr_storage *ss);
 bool isICMPType(u8 type);
 bool isICMPCode(u8 code);
 bool isICMPCode(u8 code, u8 type);
