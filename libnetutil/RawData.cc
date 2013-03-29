@@ -162,16 +162,8 @@ int RawData::validate(){
   * header in the chain (if there is any).
   * @return OP_SUCCESS on success and OP_FAILURE in case of error. */
 int RawData::print(FILE *output, int detail) const {
-  
-  if(detail<=PRINT_DETAIL_MED){
-    fprintf(output, "Data[");
-    fprintf(output, "%d byte%s]", this->length, (this->length!=1)? "s":"");
-  }else{
-      // Print hex dump
-      fprintf(output, "Data[--HEXDUMP-- %d byte%s]", this->length, (this->length!=1)? "s":"");
-      // @todo UNIMPLEMENTED. I don't want to use libnetutil's print_hexdump()
-      // here because it introduces dependencies.
-  }
+  fprintf(output, "Payload[");
+  fprintf(output, "%d byte%s]", this->length, (this->length!=1)? "s":"");
   if(this->next!=NULL){
     print_separator(output, detail);
     next->print(output, detail);
