@@ -191,7 +191,28 @@ int ICMPv6Header::validate(){
   * header in the chain (if there is any).
   * @return OP_SUCCESS on success and OP_FAILURE in case of error. */
 int ICMPv6Header::print(FILE *output, int detail) const {
-  fprintf(output, "ICMPv6[]");
+  u8 type=this->getType();
+  u8 code=this->getCode();
+  const char *typestr=this->type2string(type, code);
+
+  fprintf(output, "ICMPv6[%s", typestr);
+  if(detail>=PRINT_DETAIL_MED)
+    fprintf(output, " (type=%u/code=%u)", type, code);
+
+  switch(type) {
+    case ICMPv6_ECHO:
+    case ICMPv6_ECHOREPLY:
+        fprintf(output, " id=%u seq=%u", this->getIdentifier(), this->getSequence());
+    break;
+
+    default:
+        /* Print nothing */
+    break;
+  }
+
+  if(detail>=PRINT_DETAIL_HIGH)
+      fprintf(output, " csum=0x%04X", ntohs(this->getSum()));
+  fprintf(output, "]");
   if(this->next!=NULL){
     print_separator(output, detail);
     next->print(output, detail);
@@ -384,7 +405,7 @@ int ICMPv6Header::setSum(u16 s){
 /** Returns the value of the checksum field.
  *  @warning The returned value is in NETWORK byte order, no conversion is
  *  performed */
-u16 ICMPv6Header::getSum(){
+u16 ICMPv6Header::getSum() const{
   return this->h.checksum;
 } /* End of getSum() */
 
@@ -627,7 +648,7 @@ int ICMPv6Header::setIdentifier(u16 val){
 } /* End of setIdentifier() */
 
 
-u16 ICMPv6Header::getIdentifier(){
+u16 ICMPv6Header::getIdentifier() const{
   return ntohs(this->h_e->id);
 } /* End of getIdentifier() */
 
@@ -670,7 +691,7 @@ int ICMPv6Header::setSequence(u32 val){
 } /* End of setSequence() */
 
 
-u32 ICMPv6Header::getSequence(){
+u32 ICMPv6Header::getSequence() const{
   switch(this->h.type){
     case ICMPv6_RTRRENUM:
         return ntohl(this->h_rr->seq);
@@ -1155,6 +1176,163 @@ bool ICMPv6Header::isError() const {
     break;
   }
 } /* End of isError() */
+
+
+const char *ICMPv6Header::type2string(int type, int code) const {
+  switch(type) {
+
+    case ICMPv6_UNREACH:
+      switch(code) {
+        case ICMPv6_UNREACH_NO_ROUTE: return "Network unreachable"; break;
+        case ICMPv6_UNREACH_PROHIBITED: return "Comm prohibited"; break;
+        case ICMPv6_UNREACH_BEYOND_SCOPE: return "Beyond scope"; break;
+        case ICMPv6_UNREACH_ADDR_UNREACH: return "Address unreachable"; break;
+        case ICMPv6_UNREACH_PORT_UNREACH: return "Port unreachable"; break;
+        case ICMPv6_UNREACH_SRC_ADDR_FAILED: return "Source address failed"; break;
+        case ICMPv6_UNREACH_REJECT_ROUTE: return "Reject route"; break;
+        default: return "Destination unreachable (unknown code)"; break;
+      }
+    break;   
+    
+    case ICMPv6_PKTTOOBIG:
+      return "Packet too big"; 
+    break;
+
+    case ICMPv6_TIMXCEED:
+      switch(code){
+        case ICMPv6_TIMXCEED_HOP_EXCEEDED: return "HopLimit=0 in transit"; break;
+        case ICMPv6_TIMXCEED_REASS_EXCEEDED: return "Reassembly time exceeded"; break;
+        default: return "Time exceeded (unknown code)"; break;
+      }
+    break;
+    
+    case ICMPv6_PARAMPROB:
+      switch(code){
+        case ICMPv6_PARAMPROB_FIELD: return "Parameter problem (bad field)"; break;
+        case ICMPv6_PARAMPROB_NEXT_HDR: return "Parameter problem (next header unknown)"; break;
+        case ICMPv6_PARAMPROB_OPTION: return "Parameter problem (bad option)"; break;
+        default: return "Parameter problem (unknown code)"; break;
+      }
+    break;
+
+    case ICMPv6_ECHO:
+      return "Echo request"; 
+    break;
+    case ICMPv6_ECHOREPLY:
+      return "Echo reply"; 
+    break;
+    case ICMPv6_GRPMEMBQUERY:
+      return "Group membership query"; 
+    break;
+    case ICMPv6_GRPMEMBREP:
+      return "Group membership report"; 
+    break;
+    case ICMPv6_GRPMEMBRED:
+      return "Group membership reduction"; 
+    break;
+    case ICMPv6_ROUTERSOLICIT:
+      return "Router sol"; 
+    break;
+    case ICMPv6_ROUTERADVERT:
+      return "Router advert"; 
+    break;
+    case ICMPv6_NGHBRSOLICIT:
+      return "Neighbor sol"; 
+    break;
+    case ICMPv6_NGHBRADVERT:
+      return "Neighbor advert"; 
+    break;
+    case ICMPv6_REDIRECT:
+      return "Redirect"; 
+    break;
+    case ICMPv6_RTRRENUM:
+      switch(code){
+        case ICMPv6_RTRRENUM_COMMAND: return "Renumbering command"; break;
+        case ICMPv6_RTRRENUM_RESULT: return "Renumbering result"; break;
+        case ICMPv6_RTRRENUM_SEQ_RESET: return "Renumbering reset"; break;
+        default: return "Router Renumbering (unknown code)"; break;
+      }
+    break;
+    case ICMPv6_NODEINFOQUERY:
+      switch(code){
+        case ICMPv6_NODEINFOQUERY_IPv6ADDR: return "Node info query (IPv6 addr)"; break;
+        case ICMPv6_NODEINFOQUERY_NAME: return "Node info query (name)"; break;
+        case ICMPv6_NODEINFOQUERY_IPv4ADDR: return "Node info query (IPv4 addr)"; break;
+        default: return "Node info query (unknown code)"; break;
+      }
+    break;
+
+    case ICMPv6_NODEINFORESP:
+      switch(code){
+        case ICMPv6_NODEINFORESP_SUCCESS: return "Node info reply (success)"; break;
+        case ICMPv6_NODEINFORESP_REFUSED: return "Node info reply (refused)"; break;
+        case ICMPv6_NODEINFORESP_UNKNOWN: return "Node info reply (qtype unknown)"; break;
+        default: return "Node info reply (unknown code)"; break;
+      }
+    break;
+
+    case ICMPv6_INVNGHBRSOLICIT:
+      return "Inverse neighbor sol"; 
+    break;
+
+    case ICMPv6_INVNGHBRADVERT:
+      return "Inverse neighbor advert"; 
+    break;
+
+    case ICMPv6_MLDV2:
+      return "MLDv2 report"; 
+    break;
+
+    case ICMPv6_AGENTDISCOVREQ:
+      return "Home agent request"; 
+    break;
+
+    case ICMPv6_AGENTDISCOVREPLY:
+      return "Home agent reply"; 
+    break;
+
+    case ICMPv6_MOBPREFIXSOLICIT:
+      return "Prefix sol"; 
+    break;
+
+    case ICMPv6_MOBPREFIXADVERT:
+      return "Prefix advert"; 
+    break;
+
+    case ICMPv6_CERTPATHSOLICIT:
+      return "Cert path sol"; 
+    break;
+
+    case ICMPv6_CERTPATHADVERT:
+      return "Cert path advert"; 
+    break;
+
+    case ICMPv6_EXPMOBILITY:
+      return "Experimental mobility"; 
+    break;
+
+    case ICMPv6_MRDADVERT:
+      return "Multicast router advert"; 
+    break;
+
+    case ICMPv6_MRDSOLICIT:
+      return "Multicast router sol"; 
+    break;
+
+    case ICMPv6_MRDTERMINATE:
+      return "Multicast router term"; 
+    break;
+
+    case ICMPv6_FMIPV6:
+      return "FMIPv6"; 
+    break;
+         
+    default:
+      return "Unknown ICMPv6 type";
+    break;
+  } /* End of ICMP Type switch */
+  return "Unknown ICMPv6 type";
+} /* End of type2string() */
 
 
 

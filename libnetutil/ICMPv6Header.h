@@ -610,7 +610,7 @@ class ICMPv6Header : public ICMPHeader {
         int setSum();
         int setSum(u16 s);
         int setSumRandom();
-        u16 getSum();
+        u16 getSum() const;
 
         int setReserved(u32 val);
         u32 getReserved();
@@ -629,10 +629,10 @@ class ICMPv6Header : public ICMPHeader {
 
         /* Echo */
         int setIdentifier(u16 val);
-        u16 getIdentifier();
+        u16 getIdentifier() const;
         int setSequence(u16 val);
         int setSequence(u32 val);
-        u32 getSequence();
+        u32 getSequence() const;
 
         /* Router Advertisement */
         int setCurrentHopLimit(u8 val);
@@ -686,6 +686,7 @@ class ICMPv6Header : public ICMPHeader {
         /* Misc */
         int getHeaderLengthFromType(u8 type);
         bool isError() const;
+        const char *type2string(int type, int code) const;
 
 }; /* End of class ICMPv6Header */
 
