@@ -166,9 +166,6 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   {"ack", required_argument, 0, 0},
   {"win", required_argument, 0, 0},
   {"badsum", no_argument, 0, 0},
-  {"mss", required_argument, 0, 0},
-  {"ws", required_argument, 0, 0},
-  {"ts", required_argument, 0, 0},
 
   /* ICMP */ 
   {"icmp-type", required_argument, 0, 0},
@@ -510,13 +507,6 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
     /* Set a bad TCP checksum */
     } else if (optcmp(long_options[option_index].name, "badsum") == 0) {
         o.enableBadsum();
-    /* TCP maximum segment size option TODO: Implement this */
-    } else if (optcmp(long_options[option_index].name, "mss") == 0) {
-    /* TCP window scale option TODO: Implement this */
-    } else if (optcmp(long_options[option_index].name, "ws") == 0) {
-    /* TCP timestamp option TODO: Implement this */
-    } else if (optcmp(long_options[option_index].name, "ts") == 0) {
-
 
 /* ICMP OPTIONS **************************************************************/
     /* ICMP Type */
