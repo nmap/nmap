@@ -129,13 +129,13 @@ int error(const char *str, ...)
 int pfatal(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
 
-int outFatal(int level, const char *str, ...)
+int nping_fatal(int level, const char *str, ...)
     __attribute__((format(printf, 2, 3)));
 
-int outError(int level, const char *str, ...)
+int nping_warning(int level, const char *str, ...)
     __attribute__((format(printf, 2, 3)));
 
-int outPrint(int level, const char *str, ...)
+int nping_print(int level, const char *str, ...)
     __attribute__((format(printf, 2, 3)));
 
 #ifdef __cplusplus

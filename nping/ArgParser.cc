@@ -300,27 +300,27 @@ char errstr[256];
 /* PROBE MODES ***************************************************************/
     if (optcmp(long_options[option_index].name, "tcp-connect") == 0) {
         if( o.issetMode() && o.getMode()!=TCP_CONNECT)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(TCP_CONNECT) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(TCP_CONNECT);              	
     } else if (optcmp(long_options[option_index].name, "tcp") == 0) {
         if( o.issetMode() && o.getMode()!=TCP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(TCP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(TCP);              	
     } else if (optcmp(long_options[option_index].name, "udp") == 0) {
         if( o.issetMode() && o.getMode()!=UDP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(UDP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(UDP);
     } else if (optcmp(long_options[option_index].name, "icmp") == 0) {
         if( o.issetMode() && o.getMode()!=ICMP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(ICMP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(ICMP);
     } else if (optcmp(long_options[option_index].name, "arp") == 0) {
         if( o.issetMode() && o.getMode()!=ARP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(ARP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(ARP);
     } else if (optcmp(long_options[option_index].name, "traceroute") == 0 ||
@@ -330,55 +330,55 @@ char errstr[256];
     /* Now shortcuts that we support but that are not actual modes */
     } else if (optcmp(long_options[option_index].name, "arp-request") == 0) {
         if( o.issetMode() && o.getMode()!=ARP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(ARP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(ARP);
         o.setARPOpCode(OP_ARP_REQUEST);
     } else if (optcmp(long_options[option_index].name, "arp-reply") == 0) {
         if( o.issetMode() && o.getMode()!=ARP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(ARP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(ARP);
         o.setARPOpCode(OP_ARP_REPLY);
     } else if (optcmp(long_options[option_index].name, "rarp-request") == 0) {
         if( o.issetMode() && o.getMode()!=ARP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(ARP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(ARP);
         o.setARPOpCode(OP_RARP_REQUEST);
     } else if (optcmp(long_options[option_index].name, "rarp-reply") == 0) {
         if( o.issetMode() && o.getMode()!=ARP)
-            outFatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
+            nping_fatal(QT_3,"Cannot specify more than one probe mode. Choose either %s or %s.",
                    strdup( o.mode2Ascii(ARP) ),  strdup( o.mode2Ascii(o.getMode()) ) );
         o.setMode(ARP);
         o.setARPOpCode(OP_RARP_REPLY);
     } else if (optcmp(long_options[option_index].name, "destination-unreachable") == 0 ||
                optcmp(long_options[option_index].name, "dest-unr") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP Destination unreachable messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP Destination unreachable messages.", o.mode2Ascii(o.getMode()));
         o.setMode(ICMP);
         o.setICMPType( ICMP_UNREACH );
     } else if( optcmp(long_options[option_index].name, "echo-request") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP Echo request messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP Echo request messages.", o.mode2Ascii(o.getMode()));
         o.setMode(ICMP);
         o.setICMPType( ICMP_ECHO );
     } else if (optcmp(long_options[option_index].name, "timestamp") == 0 ||
                optcmp(long_options[option_index].name, "timestamp-request") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP Timestamp request messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP Timestamp request messages.", o.mode2Ascii(o.getMode()));
         o.setMode(ICMP);
         o.setICMPType( ICMP_TSTAMP );
     } else if (optcmp(long_options[option_index].name, "information") == 0 ||
                optcmp(long_options[option_index].name, "information-request") == 0 ) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP Information request messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP Information request messages.", o.mode2Ascii(o.getMode()));
         o.setMode(ICMP);
         o.setICMPType( ICMP_TSTAMP );
     } else if (optcmp(long_options[option_index].name, "netmask") == 0 ||
                optcmp(long_options[option_index].name, "netmask-request") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP Information request messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP Information request messages.", o.mode2Ascii(o.getMode()));
         o.setMode(ICMP);
         o.setICMPType( ICMP_MASK );
 
@@ -387,7 +387,7 @@ char errstr[256];
     /* TCP Sequence number */
     } else if (optcmp(long_options[option_index].name, "seq") == 0) {
         if ( parse_u32(optarg, &aux32) != OP_SUCCESS )
-            outFatal(QT_3, "Invalid TCP Sequence number. Value must be 0<=N<2^32.");
+            nping_fatal(QT_3, "Invalid TCP Sequence number. Value must be 0<=N<2^32.");
         else
             o.setTCPSequence( aux32 );
     /* TCP Flags */
@@ -399,7 +399,7 @@ char errstr[256];
             if( meansRandom(optarg) ){
                 aux8=get_random_u8();
             }else if(aux32>255){
-                outFatal(QT_3, "Invalid TCP flag specification. Numerical values must be in the range [0,255].");
+                nping_fatal(QT_3, "Invalid TCP flag specification. Numerical values must be in the range [0,255].");
             }else{
                 aux8=(u8)aux32;
             }
@@ -426,7 +426,7 @@ char errstr[256];
         /* CASE 2: User supplied a list of flags in the format "syn,ack,ecn" */
         }else if( contains(optarg, ",") ){
             if( ((strlen(optarg)+1)%4)  !=0 )
-                outFatal(QT_3, "Invalid format in --flag. Make sure you specify a comma-separed list that contains 3-charater flag names (e.g: --flags syn,ack,psh)");
+                nping_fatal(QT_3, "Invalid format in --flag. Make sure you specify a comma-separed list that contains 3-charater flag names (e.g: --flags syn,ack,psh)");
 
             for( size_t f=0; f< strlen(optarg); f+=4 ){
                 if(!strncasecmp((optarg+f), "CWR",3)){ o.setFlagTCP(FLAG_CWR);  }
@@ -444,7 +444,7 @@ char errstr[256];
                  char wrongopt[4];
                  memcpy(wrongopt, (optarg+f), 3);
                  wrongopt[3]='\0';
-                 outFatal(QT_3, "Invalid TCP flag specification: \"%s\"", wrongopt);
+                 nping_fatal(QT_3, "Invalid TCP flag specification: \"%s\"", wrongopt);
                 }
             }
 
@@ -488,9 +488,9 @@ char errstr[256];
                         case 'F': case 'f': o.setFlagTCP(FLAG_FIN); break;
                         default:
                             if( isdigit(optarg[f]) )
-                                outFatal(QT_3, "Invalid TCP flag supplied (%c). If you want to specify flags using a number you must add prefix \"0x\"", optarg[f]);
+                                nping_fatal(QT_3, "Invalid TCP flag supplied (%c). If you want to specify flags using a number you must add prefix \"0x\"", optarg[f]);
                             else
-                                outFatal(QT_3, "Invalid TCP flag supplied: %c", optarg[f]);
+                                nping_fatal(QT_3, "Invalid TCP flag supplied: %c", optarg[f]);
                         
                     }
                 }
@@ -499,13 +499,13 @@ char errstr[256];
     /* TCP Acknowledgement number */
     } else if (optcmp(long_options[option_index].name, "ack") == 0) {
         if ( parse_u32(optarg, &aux32) != OP_SUCCESS )
-            outFatal(QT_3, "Invalid TCP ACK number. Value must be 0<=N<2^32.");
+            nping_fatal(QT_3, "Invalid TCP ACK number. Value must be 0<=N<2^32.");
         else
            o.setTCPAck( aux32 );
     /* TCP Window size */
     } else if (optcmp(long_options[option_index].name, "win") == 0) {
         if ( parse_u16(optarg, &aux16) != OP_SUCCESS )
-             outFatal(QT_3, "Invalid TCP Window size. Value must be 0<=N<65535.");
+             nping_fatal(QT_3, "Invalid TCP Window size. Value must be 0<=N<65535.");
         else
            o.setTCPWindow( aux16 );
     /* Set a bad TCP checksum */
@@ -523,7 +523,7 @@ char errstr[256];
     /* ICMP Type */
     } else if (optcmp(long_options[option_index].name, "icmp-type") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         /* User may have supplied type as a number */
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS )
             o.setICMPType( aux8 );
@@ -532,14 +532,14 @@ char errstr[256];
             o.setICMPType( aux8 );
         /* Looks like user supplied a bogus value */
         else
-           outFatal(QT_3, "Invalid ICMP Type. Value must be 0<=N<=255.");
+           nping_fatal(QT_3, "Invalid ICMP Type. Value must be 0<=N<=255.");
         /* Warn if ICMP Type is not RFC-compliant */
         if( !isICMPType(aux8) )
-            outError(QT_1, "Warning: Specified ICMP type (%d) is not RFC compliant.", aux8); 
+            nping_warning(QT_1, "Warning: Specified ICMP type (%d) is not RFC compliant.", aux8); 
     /* ICMP Code */
     } else if (optcmp(long_options[option_index].name, "icmp-code") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         /* User may have supplied code as a number */
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS )
             o.setICMPCode( aux8 );
@@ -548,56 +548,56 @@ char errstr[256];
             o.setICMPCode( aux8 );
         /* Looks like user supplied a bogus value */
         else
-           outFatal(QT_3, "Invalid ICMP Code. Value must be 0<=N<=255.");
+           nping_fatal(QT_3, "Invalid ICMP Code. Value must be 0<=N<=255.");
     /* ICMP Identification field */
     } else if (optcmp(long_options[option_index].name, "icmp-id") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         if ( parse_u16(optarg, &aux16) == OP_SUCCESS )
             o.setICMPIdentifier( aux16 );
         else
-            outFatal(QT_3, "Invalid ICMP Identifier. Value must be 0<=N<2^16.");
+            nping_fatal(QT_3, "Invalid ICMP Identifier. Value must be 0<=N<2^16.");
     /* ICMP Sequence number */
     } else if (optcmp(long_options[option_index].name, "icmp-seq") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         if ( parse_u16(optarg, &aux16) == OP_SUCCESS )
             o.setICMPSequence( aux16 );
         else
-            outFatal(QT_3, "Invalid ICMP Sequence number. Value must be 0<=N<2^16.");
+            nping_fatal(QT_3, "Invalid ICMP Sequence number. Value must be 0<=N<2^16.");
     /* ICMP Redirect Address */
     } else if (optcmp(long_options[option_index].name, "icmp-redirect-addr") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         if( meansRandom(optarg) ){
             while ( (aux_ip4.s_addr=get_random_u32()) == 0 );
             o.setICMPRedirectAddress( aux_ip4 );
         }else{
              if ( atoIP(optarg, &aux_ip4) != OP_SUCCESS)
-                outFatal(QT_3, "Could not resolve specified ICMP Redirect Address.");
+                nping_fatal(QT_3, "Could not resolve specified ICMP Redirect Address.");
              else
                 o.setICMPRedirectAddress( aux_ip4 );
         }
     /* ICMP Parameter problem pointer */
     } else if (optcmp(long_options[option_index].name, "icmp-param-pointer") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS )
             o.setICMPParamProblemPointer( aux8 );
         else
-            outFatal(QT_3, "Invalid ICMP Parameter problem pointer. Value must be 0<=N<=255..");
+            nping_fatal(QT_3, "Invalid ICMP Parameter problem pointer. Value must be 0<=N<=255..");
     /* ICMP Router Advertisement lifetime */
     } else if (optcmp(long_options[option_index].name, "icmp-advert-lifetime") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         if ( parse_u16(optarg, &aux16) == OP_SUCCESS )
             o.setICMPRouterAdvLifetime( aux16 );
         else
-            outFatal(QT_3, "Invalid ICMP Router advertisement lifetime. Value must be 0<=N<2^16..");
+            nping_fatal(QT_3, "Invalid ICMP Router advertisement lifetime. Value must be 0<=N<2^16..");
     /* ICMP Router Advertisement entry */
     } else if (optcmp(long_options[option_index].name, "icmp-advert-entry") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         /* Format should be "IPADDR,PREF":  "192.168.10.99,31337" */
         if( meansRandom(optarg) ){
             while( (aux_ip4.s_addr=get_random_u32()) == 0);
@@ -611,19 +611,19 @@ char errstr[256];
     /* ICMP Timestamp originate timestamp */
     } else if (optcmp(long_options[option_index].name, "icmp-orig-time") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         this->parseICMPTimestamp(optarg, &aux32);
         o.setICMPOriginateTimestamp(aux32);
     /* ICMP Timestamp receive timestamp */
     } else if (optcmp(long_options[option_index].name, "icmp-recv-time") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         this->parseICMPTimestamp(optarg, &aux32);
         o.setICMPReceiveTimestamp(aux32);
     /* ICMP Timestamp trasnmit timestamp */
     } else if (optcmp(long_options[option_index].name, "icmp-trans-time") == 0) {
         if ( o.issetMode() && o.getMode() != ICMP )
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ICMP messages.", o.mode2Ascii(o.getMode()));
         this->parseICMPTimestamp(optarg, &aux32);
         o.setICMPTransmitTimestamp(aux32);
     /* TODO: Add more relevant flags for different ICMP options */
@@ -640,12 +640,12 @@ char errstr[256];
                optcmp(long_options[option_index].name, "rarp-operation") == 0 ||
                optcmp(long_options[option_index].name, "rarp-op") == 0 ){            
         if ( o.issetMode() && o.getMode() != ARP ){
-            outFatal(QT_3,"You cannot specify mode %s if you want to send ARP messages.", o.mode2Ascii(o.getMode()));
+            nping_fatal(QT_3,"You cannot specify mode %s if you want to send ARP messages.", o.mode2Ascii(o.getMode()));
         }else if( !o.issetMode() ){
             o.setMode(ARP);
         }
         if( atoARPOpCode(optarg, &aux16) != OP_SUCCESS ){
-            outFatal(QT_3, "Invalid ARP type/operation code");
+            nping_fatal(QT_3, "Invalid ARP type/operation code");
         }else{
             o.setARPOpCode(aux16);
         }
@@ -653,7 +653,7 @@ char errstr[256];
     } else if (optcmp(long_options[option_index].name, "arp-sender-mac") == 0 ||
                optcmp(long_options[option_index].name, "rarp-sender-mac") == 0 ){
         if ( parseMAC(optarg, auxmac) != OP_SUCCESS ){
-            outFatal(QT_3, "Invalid ARP Sender MAC address.");
+            nping_fatal(QT_3, "Invalid ARP Sender MAC address.");
         }else{
             o.setARPSenderHwAddr(auxmac);
         }
@@ -661,7 +661,7 @@ char errstr[256];
     } else if (optcmp(long_options[option_index].name, "arp-sender-ip") == 0 ||
                optcmp(long_options[option_index].name, "rarp-sender-ip") == 0 ){
         if ( atoIP(optarg, &aux_ip4)!=OP_SUCCESS ){
-            outFatal(QT_3, "Invalid ARP Sender IP address.");
+            nping_fatal(QT_3, "Invalid ARP Sender IP address.");
         }else{
             o.setARPSenderProtoAddr(aux_ip4);
         }
@@ -669,7 +669,7 @@ char errstr[256];
     } else if (optcmp(long_options[option_index].name, "arp-target-mac") == 0 ||
                optcmp(long_options[option_index].name, "rarp-target-mac") == 0 ){
         if ( parseMAC(optarg, auxmac) != OP_SUCCESS ){
-            outFatal(QT_3, "Invalid ARP Target MAC address.");
+            nping_fatal(QT_3, "Invalid ARP Target MAC address.");
         }else{
             o.setARPTargetHwAddr(auxmac);
         }
@@ -677,7 +677,7 @@ char errstr[256];
     } else if (optcmp(long_options[option_index].name, "arp-target-ip") == 0 ||
                optcmp(long_options[option_index].name, "rarp-target-ip") == 0 ){
         if ( atoIP(optarg, &aux_ip4)!=OP_SUCCESS ){
-            outFatal(QT_3, "Invalid ARP Target IP address.");
+            nping_fatal(QT_3, "Invalid ARP Target IP address.");
         }else{
             o.setARPTargetProtoAddr(aux_ip4);
         }
@@ -687,7 +687,7 @@ char errstr[256];
     /* Destination MAC address */
     } else if (optcmp(long_options[option_index].name, "dest-mac") == 0 ){
         if ( parseMAC(optarg, auxmac) != OP_SUCCESS ){
-            outFatal(QT_3, "Invalid Ethernet Destination MAC address.");
+            nping_fatal(QT_3, "Invalid Ethernet Destination MAC address.");
         }else{
             o.setDestMAC(auxmac);
         }
@@ -697,7 +697,7 @@ char errstr[256];
     } else if (optcmp(long_options[option_index].name, "source-mac") == 0 ||
                optcmp(long_options[option_index].name, "spoof-mac") == 0 ){
         if ( parseMAC(optarg, auxmac) != OP_SUCCESS ){
-            outFatal(QT_3, "Invalid Ethernet Source MAC address.");
+            nping_fatal(QT_3, "Invalid Ethernet Source MAC address.");
         }else{
             o.setSourceMAC(auxmac);      
         }
@@ -712,7 +712,7 @@ char errstr[256];
         }else if ( atoEtherType(optarg, &aux16) == OP_SUCCESS ){
             o.setEtherType(aux16);
         }else{
-            outFatal(QT_3, "Invalid Ethernet Type.");
+            nping_fatal(QT_3, "Invalid Ethernet Type.");
         }
         if( !o.issetSendPreference() )
             o.setSendPreference(PACKET_SEND_ETH_STRONG);
@@ -728,14 +728,14 @@ char errstr[256];
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS ){
             o.setTOS(aux8);
         }else{
-            outFatal(QT_3,"TOS option must be a number between 0 and 255 (inclusive)");
+            nping_fatal(QT_3,"TOS option must be a number between 0 and 255 (inclusive)");
         }
     /* IP Identification field */
     } else if (optcmp(long_options[option_index].name, "id") == 0 ){
         if ( parse_u16(optarg, &aux16) == OP_SUCCESS ){
             o.setIdentification(aux16);
         }else{
-            outFatal(QT_3,"Identification must be a number between 0 and 65535 (inclusive)");
+            nping_fatal(QT_3,"Identification must be a number between 0 and 65535 (inclusive)");
         }
     /* Don't fragment bit */
     } else if (optcmp(long_options[option_index].name, "df") == 0 ){
@@ -752,7 +752,7 @@ char errstr[256];
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS ){
             o.setTTL(aux8);
         }else{
-            outFatal(QT_3,"%s option must be a number between 0 and 255 (inclusive)",
+            nping_fatal(QT_3,"%s option must be a number between 0 and 255 (inclusive)",
              optcmp(long_options[option_index].name, "ttl")==0 ? "TTL" : "Hop Limit"
             );
         }
@@ -772,7 +772,7 @@ char errstr[256];
          int foo=0, bar=0;
          u8 buffer[128];
          if( parse_ip_options(optarg, buffer, 128, &foo, &bar, errstr, sizeof(errstr)) < 0 )
-            outFatal(QT_3, "Incorrect IP options specification.");
+            nping_fatal(QT_3, "Incorrect IP options specification.");
          /* If we get here it's safe to store the options */
          o.setIPOptions( optarg );
     /* Maximum Transmission Unit */
@@ -789,7 +789,7 @@ char errstr[256];
         }else if ( (parse_u32(optarg, &aux32)==OP_SUCCESS) && aux32!=0 && aux32%8==0){
             o.setMTU(aux32);
         }else{
-            outFatal(QT_3,"MTU must be >0 and multiple of 8");
+            nping_fatal(QT_3,"MTU must be >0 and multiple of 8");
         }
 
 
@@ -800,18 +800,18 @@ char errstr[256];
         if ( parse_u8(optarg, &aux8) == OP_SUCCESS )
            o.setTrafficClass(aux8);
         else
-            outFatal(QT_3,"IPv6 Traffic Class must be a number between 0 and 255 (inclusive)");
+            nping_fatal(QT_3,"IPv6 Traffic Class must be a number between 0 and 255 (inclusive)");
     /* IPv6 Flow label */
     } else if (optcmp(long_options[option_index].name, "flow") == 0 ){
 		if( meansRandom(optarg) ){
             o.setFlowLabel( get_random_u32()%1048575 ); /* Mod 2^20 so it doesn't exceed 20bits */
         }else if ( parse_u32(optarg, &aux32) == OP_SUCCESS ){
             if( aux32>1048575 )
-				outFatal(QT_3, "IPv6 Flow Label cannot be greater than 1048575 ");
+				nping_fatal(QT_3, "IPv6 Flow Label cannot be greater than 1048575 ");
             else
                 o.setFlowLabel(aux32);
         }else{
-            outFatal(QT_3,"IPv6 Flow Label must be a number between 0 and 1048575");
+            nping_fatal(QT_3,"IPv6 Flow Label must be a number between 0 and 1048575");
         }
 
          
@@ -821,7 +821,7 @@ char errstr[256];
         u8 *tempbuff=NULL;
         size_t len=0;
         if( (tempbuff=parseBufferSpec(optarg, &len))==NULL) 
-            outFatal(QT_3,"Invalid hex string specification\n");
+            nping_fatal(QT_3,"Invalid hex string specification\n");
         else{
             u8 *buff = (u8 *) safe_malloc(len);
             memcpy(buff, tempbuff, len);
@@ -831,34 +831,34 @@ char errstr[256];
     /* Read payload from a file */
     } else if (optcmp(long_options[option_index].name, "data-file") == 0 ){
         if ( o.issetPayloadFilename() ) {
-            outFatal(QT_3,"Only one payload input filename allowed");
+            nping_fatal(QT_3,"Only one payload input filename allowed");
         }else {
             int tmp = file_is_readable(optarg);
             if ( tmp == 1 )
                 o.setPayloadFilename(optarg);
             else if ( tmp==2)
-                outFatal(QT_3,"Specified payload file is a directory, not a file.");
+                nping_fatal(QT_3,"Specified payload file is a directory, not a file.");
             else
-                outFatal(QT_3,"Specified payload file does not exist or couldn't be opened for reading.");
+                nping_fatal(QT_3,"Specified payload file does not exist or couldn't be opened for reading.");
         }
     /* Random payload */
     } else if (optcmp(long_options[option_index].name, "data-length") == 0 ){
         if( o.issetPayloadType() != false )
-            outFatal(QT_3,"Only one type of payload may be selected.");
+            nping_fatal(QT_3,"Only one type of payload may be selected.");
         if( meansRandom(optarg) ){
             /* We do not generate more than Ethernet standard MTU */
             aux32 = 1 + get_random_u16() % (MAX_RANDOM_PAYLOAD-1);
         }else if ( parse_u32(optarg, &aux32) != OP_SUCCESS  ){
-            outFatal(QT_3,"Invalid payload length specification");
+            nping_fatal(QT_3,"Invalid payload length specification");
         }
         if ( aux32 > MAX_PAYLOAD_ALLOWED )
-            outFatal(QT_3,"data-length must be a value between 0 and %d.", MAX_PAYLOAD_ALLOWED);
+            nping_fatal(QT_3,"data-length must be a value between 0 and %d.", MAX_PAYLOAD_ALLOWED);
         if ( aux32 > MAX_RECOMMENDED_PAYLOAD )
-            outPrint(QT_3, "WARNING: Payload exceeds maximum recommended payload (%d)", MAX_RECOMMENDED_PAYLOAD);
+            nping_print(QT_3, "WARNING: Payload exceeds maximum recommended payload (%d)", MAX_RECOMMENDED_PAYLOAD);
         o.setPayloadType(PL_RAND);
         /* Allocate a buffer big enough to hold the desired payload */
         if( (auxbuff=(u8 *)safe_malloc(aux32)) == NULL )
-             outFatal(QT_3,"Not enough memory to store payload.");
+             nping_fatal(QT_3,"Not enough memory to store payload.");
         /* Generate random data and store the payload */
         get_random_bytes(auxbuff, aux32);
         o.setPayloadBuffer(auxbuff, aux32);
@@ -867,9 +867,9 @@ char errstr[256];
         o.setPayloadType(PL_STRING);
         int plen=strlen(optarg);  
         if ( plen>MAX_PAYLOAD_ALLOWED )
-            outFatal(QT_3,"data-string must be between 0 and %d characters.", MAX_PAYLOAD_ALLOWED);
+            nping_fatal(QT_3,"data-string must be between 0 and %d characters.", MAX_PAYLOAD_ALLOWED);
         if ( plen > MAX_RECOMMENDED_PAYLOAD )
-            outPrint(QT_3, "WARNING: Payload exceeds maximum recommended payload (%d)", MAX_RECOMMENDED_PAYLOAD);
+            nping_print(QT_3, "WARNING: Payload exceeds maximum recommended payload (%d)", MAX_RECOMMENDED_PAYLOAD);
         if( meansRandom(optarg) ){
              auxbuff=(u8*)strdup(getRandomTextPayload());
              plen=strlen((char*)auxbuff);
@@ -893,11 +893,11 @@ char errstr[256];
                optcmp(long_options[option_index].name, "ep")==0 ){
         if ( parse_u16(optarg, &aux16) == OP_SUCCESS ){
             if(aux16==0)
-                outFatal(QT_3, "Invalid echo port. Port can't be zero.");
+                nping_fatal(QT_3, "Invalid echo port. Port can't be zero.");
             else
                 o.setEchoPort( aux16 );
         }else{
-            outFatal(QT_3, "Invalid echo port. Value must be 0<N<2^16.");
+            nping_fatal(QT_3, "Invalid echo port. Value must be 0<N<2^16.");
         }
     } else if (optcmp(long_options[option_index].name, "once")==0 ){
         o.setOnce(true);
@@ -914,30 +914,30 @@ char errstr[256];
     /* Inter-packet delay */
     } else if (optcmp(long_options[option_index].name, "delay") == 0 ){
         if ( (l= tval2msecs(optarg)) == -1)
-            outFatal(QT_3,"Invalid delay supplied. Delay must be a valid, positive integer or floating point number.");
+            nping_fatal(QT_3,"Invalid delay supplied. Delay must be a valid, positive integer or floating point number.");
         else if(l<0)
-            outFatal(QT_3,"Invalid delay supplied. Delays can never be negative.");
+            nping_fatal(QT_3,"Invalid delay supplied. Delays can never be negative.");
         if (l >= 10 * 1000 && tval_unit(optarg) == NULL)
-            outFatal(QT_3,"Since April 2010, the default unit for --delay is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+            nping_fatal(QT_3,"Since April 2010, the default unit for --delay is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
         o.setDelay(l);
     /* Tx rate */
     } else if (optcmp(long_options[option_index].name, "rate") == 0 ){
         if (parse_u32(optarg, &aux32)==OP_SUCCESS){
             if(aux32==0){
-                outFatal(QT_3,"Invalid rate supplied. Rate can never be zero.");
+                nping_fatal(QT_3,"Invalid rate supplied. Rate can never be zero.");
             }else{
                 /* Compute delay from rate: delay= 1000ms/rate*/
                 aux32 = 1000 / aux32;
                 o.setDelay(aux32);
             }
         }else{
-            outFatal(QT_3,"Invalid rate supplied. Rate must be a valid, positive integer");
+            nping_fatal(QT_3,"Invalid rate supplied. Rate must be a valid, positive integer");
         }
     /* Host timeout */
     } else if (optcmp(long_options[option_index].name, "host-timeout") == 0 ){
         l = tval2msecs(optarg);
         if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
-            outFatal(QT_3,"Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60 / 60, optarg, l / 1000.0);
+            nping_fatal(QT_3,"Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60 / 60, optarg, l / 1000.0);
         o.setHostTimeout(l);
 
 
@@ -953,10 +953,10 @@ char errstr[256];
     } else if (optcmp(long_options[option_index].name, "bpf-filter") == 0 || optcmp(long_options[option_index].name, "filter") == 0){
         o.setBPFFilterSpec( optarg );
         if( o.issetDisablePacketCapture() && o.disablePacketCapture()==true )
-            outError(QT_2, "Warning: There is no point on specifying a BPF filter if you disable packet capture. BPF filter will be ignored.");
+            nping_warning(QT_2, "Warning: There is no point on specifying a BPF filter if you disable packet capture. BPF filter will be ignored.");
     } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0){
         if (nsock_set_default_engine(optarg) < 0)
-          outFatal(QT_3, "Unknown or non-available engine: %s", optarg);
+          nping_fatal(QT_3, "Unknown or non-available engine: %s", optarg);
     /* Output Options */
     } else if (optcmp(long_options[option_index].name, "quiet") == 0 ){
             o.setVerbosity(-4);
@@ -985,23 +985,23 @@ char errstr[256];
 
     case 'f': /* Fragment packets */
         if( o.issetMTU() == true ){
-            outError(QT_3,"WARNING: -f is irrelevant if an MTU has been previously specified");
+            nping_warning(QT_3,"WARNING: -f is irrelevant if an MTU has been previously specified");
         }
         else{
-            outPrint(DBG_1, "Setting default MTU=%d", DEFAULT_MTU_FOR_FRAGMENTATION);
+            nping_print(DBG_1, "Setting default MTU=%d", DEFAULT_MTU_FOR_FRAGMENTATION);
             o.setMTU( DEFAULT_MTU_FOR_FRAGMENTATION );
         }
     break;
 
     case 'g': /* Source port */
         if( o.issetSourcePort() ){
-            outFatal(QT_3,"Cannot specify source port twice.");
+            nping_fatal(QT_3,"Cannot specify source port twice.");
         }else if ( parse_u16(optarg, &aux16) == OP_SUCCESS ){
             o.setSourcePort(aux16);
             if(aux16==0)
-                outError(QT_1, "WARNING: a source port of zero may not work on all systems.");
+                nping_warning(QT_1, "WARNING: a source port of zero may not work on all systems.");
         }else{
-            outFatal(QT_3,"Source port must be a number between 0 and 65535 (inclusive)");
+            nping_fatal(QT_3,"Source port must be a number between 0 and 65535 (inclusive)");
         }
     break; /* case 'g': */
 
@@ -1009,7 +1009,7 @@ char errstr[256];
         /* Parse port spec */
         nping_getpts_simple(optarg, &portlist, &auxint);
         if( portlist == NULL || auxint <= 0 ){
-            outFatal(QT_3,"Invalid target ports specification.");
+            nping_fatal(QT_3,"Invalid target ports specification.");
         }else{
             o.setTargetPorts(portlist, auxint);
         }
@@ -1029,7 +1029,7 @@ char errstr[256];
             }
             /* Set user supplied address (if we manage to resolve it) */
             else if ( atoIP(optarg, &sourceaddr, PF_INET6) != OP_SUCCESS){
-                outFatal(QT_3, "Could not resolve source IPv6 address.");
+                nping_fatal(QT_3, "Could not resolve source IPv6 address.");
             }else{  
               ipv6addr = source6->sin6_addr;
             }
@@ -1040,7 +1040,7 @@ char errstr[256];
             if( meansRandom(optarg) )
                 while ( (aux_ip4.s_addr=get_random_u32()) == 0 );
             else if ( atoIP(optarg, &aux_ip4) != OP_SUCCESS)
-                outFatal(QT_3, "Could not resolve source IPv4 address.");
+                nping_fatal(QT_3, "Could not resolve source IPv4 address.");
             o.setIPv4SourceAddress(aux_ip4);
             o.setSpoofSource();
         }
@@ -1067,13 +1067,13 @@ char errstr[256];
         }else if( parse_u32(optarg, &aux32) == OP_SUCCESS ){
             o.setPacketCount(aux32);
         }else{
-            outFatal(QT_3,"Packet count must be an integer greater than 0.");
+            nping_fatal(QT_3,"Packet count must be an integer greater than 0.");
         }
     break; /* case 'c': */
 
     case 'e': /* Network interface */
         if(strlen(optarg)==0)
-            outFatal(QT_3,"Invalid network interface supplied. Interface name cannot be NULL.");
+            nping_fatal(QT_3,"Invalid network interface supplied. Interface name cannot be NULL.");
         else
             o.setDevice( strdup(optarg) );
     break; /* case 'e': */
@@ -1081,7 +1081,7 @@ char errstr[256];
     case 'N': /* Don't capture packets */
         o.setDisablePacketCapture(true);
         if( o.issetBPFFilterSpec() )
-            outError(QT_2, "Warning: A custom BPF filter was specified before disabling packet capture. BPF filter will be ignored.");
+            nping_warning(QT_2, "Warning: A custom BPF filter was specified before disabling packet capture. BPF filter will be ignored.");
     break; /* case 'N': */
 
     case 'H': /* Hide sent packets */
@@ -1093,7 +1093,7 @@ char errstr[256];
         if (isdigit(optarg[0]) || optarg[0]=='-'){
             auxint = strtol( optarg, NULL, 10);
             if ( ((auxint==0) && (optarg[0] != '0')) || auxint<0 || auxint > 9)
-                outFatal(QT_3,"Debugging level must be an integer between 0 and 9.");
+                nping_fatal(QT_3,"Debugging level must be an integer between 0 and 9.");
             else{
                 o.setDebugging( auxint );
                 /* When user specifies a debugging level, if no verbosity was specified,
@@ -1111,7 +1111,7 @@ char errstr[256];
                 o.increaseDebugging();
             }
             if (*p != '\0')
-                outFatal(QT_3,"Invalid argument to -d: \"%s\".", optarg);
+                nping_fatal(QT_3,"Invalid argument to -d: \"%s\".", optarg);
         }
     }else{
         o.increaseVerbosity();
@@ -1124,7 +1124,7 @@ char errstr[256];
         if (isdigit(optarg[0]) || optarg[0]=='-'){
             auxint = strtol( optarg, NULL, 10);
             if ( ((auxint==0) && (optarg[0] != '0')) || auxint<(-4) || auxint > 4)
-                outFatal(QT_3,"Verbosity level must be an integer between -4 and +4.");
+                nping_fatal(QT_3,"Verbosity level must be an integer between -4 and +4.");
             else
                 o.setVerbosity( auxint );
         }else {
@@ -1133,7 +1133,7 @@ char errstr[256];
             for (p = optarg != NULL ? optarg : ""; *p == 'v'; p++)
                 o.increaseVerbosity();
             if (*p != '\0')
-                outFatal(QT_3,"Invalid argument to -v: \"%s\".", optarg);
+                nping_fatal(QT_3,"Invalid argument to -v: \"%s\".", optarg);
         }
     }else{
         o.increaseVerbosity();
@@ -1145,7 +1145,7 @@ char errstr[256];
         if (isdigit(optarg[0])){
             auxint = strtol( optarg, NULL, 10);
             if ( ((auxint==0) && (optarg[0] != '0')) || auxint<0 || auxint > 4)
-                outFatal(QT_3,"You can only reduce verbosity from level 0 to level -4.");
+                nping_fatal(QT_3,"You can only reduce verbosity from level 0 to level -4.");
             else
                 o.setVerbosity( -auxint );
         }else {
@@ -1154,7 +1154,7 @@ char errstr[256];
             for (p = optarg != NULL ? optarg : ""; *p == 'q'; p++)
                 o.decreaseVerbosity();
             if (*p != '\0')
-                outFatal(QT_3,"Invalid argument to -q: \"%s\".", optarg);
+                nping_fatal(QT_3,"Invalid argument to -q: \"%s\".", optarg);
         }
     }else{
         o.decreaseVerbosity();
@@ -1350,29 +1350,29 @@ int ArgParser::parseAdvertEntry(char *str, struct in_addr *addr, u32 *pref){
 
   /* I guess one can try to lookup something as short as a single char */
   if ( len < strlen("a,1") )
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: too short");
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: too short");
   /* Im going to limit this to 255 chars. */
   if( len > 255 )
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: too long");
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: too long");
 
   /* Let's find the comma */
   aux=strstr(str, ",");
 
   if(aux==NULL )
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, missing comma delimiter");
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, missing comma delimiter");
   if(aux==str)
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, comma cannot be placed at start");
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, comma cannot be placed at start");
   if(aux>=str+len-1 )
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, comma cannot be placed at the end");
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: Bad syntax, comma cannot be placed at the end");
 
   /* Looks like at least the syntax is corect */
   memcpy(first, str, aux-str);
   memcpy(last, aux+1, len-(aux-str) );
 
   if( atoIP(first, &auxIP) == OP_FAILURE )
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: Unable to resolve %s", first);
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: Unable to resolve %s", first);
   if( isNumber_u32( last ) == false )
-    outFatal(QT_3, "Invalid Router Advertising Entry specification: %s is not a valid preference number", last);
+    nping_fatal(QT_3, "Invalid Router Advertising Entry specification: %s is not a valid preference number", last);
 
   auxPref=strtoul( last, NULL, 10);
   *pref=auxPref;
@@ -1853,28 +1853,28 @@ int ArgParser::parseICMPTimestamp(char *optarg, u32 *dst){
 long diff=0;
 
   if(optarg==NULL || dst==NULL)
-    outFatal(QT_3, "parseICMPTimestamp(): NULL pointer supplied.");
+    nping_fatal(QT_3, "parseICMPTimestamp(): NULL pointer supplied.");
     
   if( meansRandom(optarg) ){
     while( (*dst=get_random_u32()) == 0);
   }
   else if( !strncmp("now-", optarg, 4) ){
     if ( (diff= tval2msecs(optarg+4)) < 0 )
-        outFatal(QT_3,"You must specify a valid time value after now- (e.g. 1000, 2s, 25m, etc.)");
+        nping_fatal(QT_3,"You must specify a valid time value after now- (e.g. 1000, 2s, 25m, etc.)");
     struct timeval now;
     gettimeofday(&now, NULL);
     if( ((((u32)now.tv_sec)%86400)*1000) < (u32)diff )
-        outFatal(QT_3,"Value is %s is too high for current time.", optarg+4 );
+        nping_fatal(QT_3,"Value is %s is too high for current time.", optarg+4 );
     else
         *dst= ((((u32)now.tv_sec)%86400)*1000) - diff;
   }
   else if( !strncmp("now+", optarg, 4) ) {
     if ( (diff= tval2msecs(optarg+4)) < 0 )
-        outFatal(QT_3,"You must specify a valid time value after now+ (e.g. 1000, 2s, 25m, etc.)");
+        nping_fatal(QT_3,"You must specify a valid time value after now+ (e.g. 1000, 2s, 25m, etc.)");
     struct timeval now;
     gettimeofday(&now, NULL);
     if( ((((u32)now.tv_sec)%86400)*1000) + diff > 0xFFFFFFFF )
-        outFatal(QT_3,"Value is %s is too high for current time.", optarg+4 );
+        nping_fatal(QT_3,"Value is %s is too high for current time.", optarg+4 );
     else
         *dst= ((((u32)now.tv_sec)%86400)*1000) + diff;
   }
@@ -1885,7 +1885,7 @@ long diff=0;
   }
   else {
     if ( (diff= tval2msecs(optarg)) == -1)
-        outFatal(QT_3,"Invalid time supplied");
+        nping_fatal(QT_3,"Invalid time supplied");
     else
         *dst=diff;
   }       

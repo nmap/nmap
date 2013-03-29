@@ -138,7 +138,7 @@ int Crypto::hmac_sha256(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, size_t 
 
 
 int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, size_t key_len, u8 *iv){
-  outPrint(DBG_4, "%s(%p, %lu, %p, %p, %lu, %p)", __func__, inbuff, (unsigned long)inlen, dst_buff, key, (unsigned long)key_len, iv);
+  nping_print(DBG_4, "%s(%p, %lu, %p, %p, %lu, %p)", __func__, inbuff, (unsigned long)inlen, dst_buff, key, (unsigned long)key_len, iv);
   if(inbuff==NULL || dst_buff==NULL || key==NULL || iv==NULL)
       return OP_FAILURE;
   if( ((inlen%AES_BLOCK_SIZE)!=0) || key_len<AES_KEY_SIZE)
@@ -152,13 +152,13 @@ int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         EVP_CIPHER_CTX_set_padding(&ctx, 0);
         int result=OP_SUCCESS;
         if( EVP_EncryptInit(&ctx, EVP_aes_128_cbc(), key, iv)==0 ){
-            outPrint(DBG_4, "EVP_EncryptInit() failed");
+            nping_print(DBG_4, "EVP_EncryptInit() failed");
             result=OP_FAILURE;
         }else if( EVP_EncryptUpdate(&ctx, dst_buff, &flen, inbuff, (int)inlen)==0 ){
-            outPrint(DBG_4, "EVP_EncryptUpdate() failed");
+            nping_print(DBG_4, "EVP_EncryptUpdate() failed");
             result=OP_FAILURE;
         }else if( EVP_EncryptFinal(&ctx, dst_buff+flen, &flen2)==0 ){
-            outPrint(DBG_4, "EVP_EncryptFinal() failed");
+            nping_print(DBG_4, "EVP_EncryptFinal() failed");
             result=OP_FAILURE;
         }
         EVP_CIPHER_CTX_cleanup(&ctx);
@@ -173,7 +173,7 @@ int Crypto::aes128_cbc_encrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
 
 
 int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, size_t key_len, u8 *iv){
-  outPrint(DBG_4, "%s(%p, %lu, %p, %p, %lu, %p)", __func__, inbuff, (unsigned long)inlen, dst_buff, key, (unsigned long)key_len, iv);
+  nping_print(DBG_4, "%s(%p, %lu, %p, %p, %lu, %p)", __func__, inbuff, (unsigned long)inlen, dst_buff, key, (unsigned long)key_len, iv);
   if(inbuff==NULL || dst_buff==NULL || key==NULL || iv==NULL)
       return OP_FAILURE;
   if( ((inlen%AES_BLOCK_SIZE)!=0) || key_len<AES_KEY_SIZE)
@@ -187,13 +187,13 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
         EVP_CIPHER_CTX_set_padding(&ctx, 0);
         int result=OP_SUCCESS;
         if( EVP_DecryptInit(&ctx, EVP_aes_128_cbc(), key, iv)==0 ){
-            outPrint(DBG_4, "EVP_DecryptInit() failed");
+            nping_print(DBG_4, "EVP_DecryptInit() failed");
             result=OP_FAILURE;
         }else if( EVP_DecryptUpdate(&ctx, dst_buff, &flen1, inbuff, (int)inlen)==0 ){
-            outPrint(DBG_4, "EVP_DecryptUpdate() failed");
+            nping_print(DBG_4, "EVP_DecryptUpdate() failed");
             result=OP_FAILURE;
         }else  if( EVP_DecryptFinal(&ctx, dst_buff+flen1, &flen2)==0 ){
-            outPrint(DBG_4, "OpenSSL bug: it says EVP_DecryptFinal() failed when it didn't (%s).",
+            nping_print(DBG_4, "OpenSSL bug: it says EVP_DecryptFinal() failed when it didn't (%s).",
                     ERR_error_string(ERR_peek_last_error(), NULL));
             /* We do not return OP_FAILURE in this case because the
              * EVP_DecryptFinal() function seems to be buggy and fails when it shouldn't.
@@ -233,7 +233,7 @@ int Crypto::aes128_cbc_decrypt(u8 *inbuff, size_t inlen, u8 *dst_buff, u8 *key, 
 
 
 int Crypto::generateNonce(u8 *dst_buff, size_t bufflen){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   if(dst_buff==NULL || bufflen<=0)
       return OP_FAILURE;
   #ifdef HAVE_OPENSSL
@@ -249,7 +249,7 @@ int Crypto::generateNonce(u8 *dst_buff, size_t bufflen){
 
 #define TIMES_KEY_DERIVATION 1000
 u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   if(from==NULL || fromlen==0)
       return NULL;
   
@@ -262,7 +262,7 @@ u8 *Crypto::deriveKey(const u8 *from, size_t fromlen, size_t *final_len){
         EVP_MD_CTX_init(&ctx);
 
         if( EVP_MD_size(EVP_sha256()) != SHA256_HASH_LEN )
-          outFatal(QT_2, "OpenSSL is broken. SHA256 len is %d\n", EVP_MD_size(EVP_sha256()) );
+          nping_fatal(QT_2, "OpenSSL is broken. SHA256 len is %d\n", EVP_MD_size(EVP_sha256()) );
 
         /* Compute the SHA256 hash of the supplied buffer */
         EVP_DigestInit(&ctx, EVP_sha256());

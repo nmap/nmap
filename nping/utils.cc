@@ -108,7 +108,7 @@ extern NpingOps o;
 /** Returns true if "source" contains at least one instance of "substring" */
 bool contains(const char *source, const char *substring){
   if(source==NULL || substring==NULL )
-    outFatal(QT_3,"contains(): NULL value received.");
+    nping_fatal(QT_3,"contains(): NULL value received.");
   if( strcasestr(source, substring) )
     return true;
   else
@@ -120,7 +120,7 @@ bool contains(const char *source, const char *substring){
  * sensitive)*/
 bool meansRandom(const char *source){
   if(source==NULL)
-    outFatal(QT_3,"meansRandom(): NULL value received.");
+    nping_fatal(QT_3,"meansRandom(): NULL value received.");
   if( !strcasecmp(source, "rand") || !strcasecmp(source, "random") )
     return true;
   else
@@ -472,7 +472,7 @@ int print_hexdump(int level, const u8 *cp, u32 length){
   char *str = hexdump(cp, length);
   if(str==NULL)
     return OP_FAILURE;
-  outPrint(level, "%s", str);
+  nping_print(level, "%s", str);
   free(str);
   return OP_SUCCESS;
 } /* End of print_hexdump() */

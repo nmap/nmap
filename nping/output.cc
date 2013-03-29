@@ -108,7 +108,7 @@ extern NpingOps o;
 
 /** Print fatal error messages to stderr and then exits.
  * @warning This function does not return because it calls exit() */
-int outFatal(int level, const char *str, ...) {
+int nping_fatal(int level, const char *str, ...) {
   va_list  list;
   char errstr[MAX_ERR_STR_LEN];
   memset(errstr,0, MAX_ERR_STR_LEN);
@@ -135,7 +135,7 @@ int outFatal(int level, const char *str, ...) {
   va_end(list);
   exit(EXIT_FAILURE);
   return OP_SUCCESS;
-} /* End of outFatal() */
+} /* End of nping_fatal() */
 
 
 /** Prints recoverable error message to stderr and returns. This function
@@ -143,9 +143,9 @@ int outFatal(int level, const char *str, ...) {
  *  behaviour it is possible to OR the supplied level with the constant
  *  NO_NEWLINE like this:
  *
- *  outError(QT_2|NO_NEWLINE, "I don't want newlines in this string");
+ *  nping_warning(QT_2|NO_NEWLINE, "I don't want newlines in this string");
  *                                                                           */
-int outError(int level, const char *str, ...) {
+int nping_warning(int level, const char *str, ...) {
   va_list  list;
   char errstr[MAX_ERR_STR_LEN];
   bool skipnewline=false;
@@ -178,16 +178,16 @@ int outError(int level, const char *str, ...) {
   }
   va_end(list);
   return OP_SUCCESS;
-} /* End of outError() */
+} /* End of nping_warning() */
 
 
 /** Print regular messages to stdout. This function inserts one \n newline
  *  automatically in every call. To avoid that behaviour it is possible to
  *  OR the supplied level with constant NO_NEWLINE like this:
  *
- *  outPrint(VB_2|NO_NEWLINE, "I don't want newlines in this string");
+ *  nping_print(VB_2|NO_NEWLINE, "I don't want newlines in this string");
  *                                                                           */
-int outPrint(int level, const char *str, ...){
+int nping_print(int level, const char *str, ...){
   va_list  list;
   char errstr[MAX_ERR_STR_LEN];
   bool skipnewline=false;
@@ -219,7 +219,7 @@ int outPrint(int level, const char *str, ...){
   }
   va_end(list);
   return OP_SUCCESS;
-} /* End of outPrint() */
+} /* End of nping_print() */
 
 
 /*****************************************************************************/

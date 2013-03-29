@@ -544,7 +544,7 @@ void NpingTarget::setResolvedHostName(char *name) {
       // I think only a-z A-Z 0-9 . and - are allowed, but I'll be a little more
       // generous.
       if (!isalnum(*p) && !strchr(".-+=:_~*", *p)) {
-    outError(QT_2, "Illegal character(s) in hostname -- replacing with '*'\n");
+    nping_warning(QT_2, "Illegal character(s) in hostname -- replacing with '*'\n");
     *p = '*';
       }
       p++;
@@ -606,10 +606,10 @@ void NpingTarget::generateIPString() {
   }else if(sin->sin_family == AF_INET6){
     ret=inet_ntop(AF_INET6, (char *) &sin6->sin6_addr, targetipstring, sizeof(targetipstring));
   }else{
-    outFatal(QT_3, "NpingTarget::GenerateIPString(): Unsupported address family");
+    nping_fatal(QT_3, "NpingTarget::GenerateIPString(): Unsupported address family");
   }
   if( ret==NULL )
-    outFatal(QT_3, "NpingTarget::GenerateIPString(): Unsupported address family");
+    nping_fatal(QT_3, "NpingTarget::GenerateIPString(): Unsupported address family");
  targetipstring_set=true;
 } /* End of generateIPString() */
 
@@ -627,7 +627,7 @@ const char *NpingTarget::getSourceIPStr() {
   }else if(sin->sin_family == AF_INET6){
     ret=inet_ntop(AF_INET6, (char *) &sin6->sin6_addr, buffer, sizeof(buffer));
   }else{
-    outFatal(QT_3, "NpingTarget::getSourceIPString(): Unsupported address family");
+    nping_fatal(QT_3, "NpingTarget::getSourceIPString(): Unsupported address family");
   }
   if(ret==NULL)
     return NULL;
@@ -651,7 +651,7 @@ const char *NpingTarget::getSpoofedSourceIPStr() {
   }else if(sin->sin_family == AF_INET6){
     ret=inet_ntop(AF_INET6, (char *) &sin6->sin6_addr, buffer, sizeof(buffer));
   }else{
-    outFatal(QT_3, "NpingTarget::getSourceIPString(): Unsupported address family");
+    nping_fatal(QT_3, "NpingTarget::getSourceIPString(): Unsupported address family");
   }
   if(ret==NULL)
     return NULL;
@@ -670,7 +670,7 @@ const char *NpingTarget::getNextHopIPStr(){
   }else if(sin->sin_family == AF_INET6){
     ret=inet_ntop(AF_INET6, (char *) &sin6->sin6_addr, buffer, sizeof(buffer));
   }else{
-    outFatal(QT_3, "NpingTarget::getNextHopIPStr(): Unsupported address family");
+    nping_fatal(QT_3, "NpingTarget::getNextHopIPStr(): Unsupported address family");
   }
   if(ret==NULL)
     return NULL;
@@ -773,7 +773,7 @@ bool NpingTarget::determineNextHopMACAddress() {
   if ( this->getNextHopMACAddress() )
     return true;
 
-  outPrint(DBG_2,"Determining target %s MAC address or next hop MAC address...", this->getTargetIPstr() );
+  nping_print(DBG_2,"Determining target %s MAC address or next hop MAC address...", this->getTargetIPstr() );
   /* For connected machines, it is the same as the target addy */
   if (this->isDirectlyConnected() && this->getMACAddress() ) {
     this->setNextHopMACAddress(this->getMACAddress());
@@ -794,45 +794,45 @@ bool NpingTarget::determineNextHopMACAddress() {
   }
 
   /* Maybe the system ARP cache will be more helpful */
-  outPrint(DBG_3,"    > Checking system's ARP cache...");
+  nping_print(DBG_3,"    > Checking system's ARP cache...");
   a = arp_open();
   addr_ston((sockaddr *)&targetss, &ae.arp_pa);
   if (arp_get(a, &ae) == 0) {
     mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
     this->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
     arp_close(a);
-    outPrint(DBG_3,"    > Success: Entry found [%s]", this->getNextHopMACStr() );
+    nping_print(DBG_3,"    > Success: Entry found [%s]", this->getNextHopMACStr() );
     return true;
   }
   arp_close(a);
-  outPrint(DBG_3,"    > No relevant entries found in system's ARP cache.");
+  nping_print(DBG_3,"    > No relevant entries found in system's ARP cache.");
 
 
   /* OK, the last choice is to send our own damn ARP request (and
      retransmissions if necessary) to determine the MAC */
   /* We first try sending the ARP with our spoofed IP address on it */
   if( this->spoofingSourceAddress() ){
-    outPrint(DBG_3,"    > Sending ARP request using spoofed IP %s...", this->getSpoofedSourceIPStr() );
+    nping_print(DBG_3,"    > Sending ARP request using spoofed IP %s...", this->getSpoofedSourceIPStr() );
       this->getSpoofedSourceSockAddr(&srcss, NULL);
       if (doArp(this->getDeviceName(), this->getSrcMACAddress(), &srcss, &targetss, mac, NULL)) {
         mac_cache_set(&targetss, mac);
         this->setNextHopMACAddress(mac);
-        outPrint(DBG_4,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
+        nping_print(DBG_4,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
         return true;
       }
   }
-  outPrint(DBG_3,"    > No ARP responses received." );
+  nping_print(DBG_3,"    > No ARP responses received." );
 
   /* If our spoofed IP address didn't work, try our real IP */
-  outPrint(DBG_4,"    > Sending ARP request using our real IP %s...", this->getSourceIPStr() );
+  nping_print(DBG_4,"    > Sending ARP request using our real IP %s...", this->getSourceIPStr() );
   this->getSourceSockAddr(&srcss, NULL);
   if (doArp(this->getDeviceName(), this->getSrcMACAddress(), &srcss, &targetss, mac, NULL)) {
     mac_cache_set(&targetss, mac);
     this->setNextHopMACAddress(mac);
-    outPrint(DBG_3,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
+    nping_print(DBG_3,"    > Success: 1 ARP response received [%s]", this->getNextHopMACStr() );
     return true;
   }
-  outPrint(DBG_3,"    > No ARP responses received" );
+  nping_print(DBG_3,"    > No ARP responses received" );
 
   /* I'm afraid that we couldn't find it!  Maybe it doesn't exist?*/
   return false;
@@ -1025,10 +1025,10 @@ int NpingTarget::updateRTTs(unsigned long int diff){
 
 
 int NpingTarget::printStats(){
-  outPrint(VB_0, "Statistics for host %s:", this->getNameAndIP());
-  outPrint(VB_0|NO_NEWLINE," |  ");
+  nping_print(VB_0, "Statistics for host %s:", this->getNameAndIP());
+  nping_print(VB_0|NO_NEWLINE," |  ");
   this->printCounts();
-  outPrint(VB_0|NO_NEWLINE," |_ ");
+  nping_print(VB_0|NO_NEWLINE," |_ ");
   this->printRTTs();
   return OP_SUCCESS;
 } /* End of printStats() */
@@ -1039,11 +1039,11 @@ void NpingTarget::printCounts(){
   unsigned long int lost = this->sent_total - this->recv_total;
 
   /* Sent Packets */
-  outPrint(VB_0|NO_NEWLINE, "Probes Sent: %ld ", this->sent_total);
+  nping_print(VB_0|NO_NEWLINE, "Probes Sent: %ld ", this->sent_total);
   /* Received Packets */
-  outPrint(VB_0|NO_NEWLINE,"| Rcvd: %ld ", this->recv_total );
+  nping_print(VB_0|NO_NEWLINE,"| Rcvd: %ld ", this->recv_total );
   /* Lost Packets */
-  outPrint(VB_0|NO_NEWLINE,"| Lost: %ld ", lost );
+  nping_print(VB_0|NO_NEWLINE,"| Lost: %ld ", lost );
 
   /* Only compute percentage if we actually sent packets, don't do divisions
    * by zero! (this could happen when user presses CTRL-C and we print the
@@ -1051,24 +1051,24 @@ void NpingTarget::printCounts(){
   float percentlost=0.0;
   if( lost!=0 && this->sent_total!=0)
     percentlost=((double)lost)/((double)this->sent_total) * 100;    
-  outPrint(VB_0," (%.2lf%%)", percentlost);
+  nping_print(VB_0," (%.2lf%%)", percentlost);
 } /* End of printCounts() */
 
 
 /* Print round trip times */
 void NpingTarget::printRTTs(){
   if( max_rtt_set )
-    outPrint(QT_1|NO_NEWLINE,"Max rtt: %.3lfms ", this->max_rtt/1000.0 );
+    nping_print(QT_1|NO_NEWLINE,"Max rtt: %.3lfms ", this->max_rtt/1000.0 );
   else
-    outPrint(QT_1|NO_NEWLINE,"Max rtt: N/A ");
+    nping_print(QT_1|NO_NEWLINE,"Max rtt: N/A ");
 
   if( min_rtt_set )  
-    outPrint(QT_1|NO_NEWLINE,"| Min rtt: %.3lfms ", this->min_rtt/1000.0 );
+    nping_print(QT_1|NO_NEWLINE,"| Min rtt: %.3lfms ", this->min_rtt/1000.0 );
   else
-    outPrint(QT_1|NO_NEWLINE,"| Min rtt: N/A " );
+    nping_print(QT_1|NO_NEWLINE,"| Min rtt: N/A " );
 
   if( avg_rtt_set)  
-    outPrint(QT_1,"| Avg rtt: %.3lfms", this->avg_rtt/1000.0 );
+    nping_print(QT_1,"| Avg rtt: %.3lfms", this->avg_rtt/1000.0 );
   else
-    outPrint(QT_1,"| Avg rtt: N/A" );
+    nping_print(QT_1,"| Avg rtt: N/A" );
 } /* End of printRTTs() */

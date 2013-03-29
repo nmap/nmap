@@ -139,7 +139,7 @@ int NpingTargets::getNextTargetAddressAndName(struct sockaddr_storage *t, size_t
   int family= (o.getIPVersion()==IP_VERSION_6) ? AF_INET6 : AF_INET;
 
   if( t==NULL || tlen==NULL )
-    outFatal(QT_3,"getNextTarget(): NULL values supplied.");
+    nping_fatal(QT_3,"getNextTarget(): NULL values supplied.");
 
   /* Return failure if there are no specs or we noticed that we were finished in
    * a previous call. */
@@ -185,7 +185,7 @@ int NpingTargets::getNextTargetAddressAndName(struct sockaddr_storage *t, size_t
     r=current_group.get_next_host(&next, &nextlen);
 
      if (r != 0)
-        outFatal(QT_3,"BUG: TargetGroups are supposed to contain at least one IP! ");
+        nping_fatal(QT_3,"BUG: TargetGroups are supposed to contain at least one IP! ");
   }
   memcpy( t, &next, sizeof( struct sockaddr_storage ) );
   /* If current spec is a named host (not a range), store name in supplied buff */
@@ -208,12 +208,12 @@ int NpingTargets::getNextIPv4Address(u32 *addr){
   char buff[257];
   memset(buff, 0, 257);
   if( addr == NULL )
-    outFatal(QT_3, "getNextIPv4Address(): NULL value supplied. ");
+    nping_fatal(QT_3, "getNextIPv4Address(): NULL value supplied. ");
   if ( this->getNextTargetAddressAndName(&t, &tlen, buff, 256) != OP_SUCCESS )
     return OP_FAILURE;
   struct sockaddr_in *p=( struct sockaddr_in *)&t;
   if(p->sin_family!=AF_INET)
-	outFatal(QT_3, "getNextIPv4Address(): Trying to obtain an IPv4 address from an IPv6 target.");
+	nping_fatal(QT_3, "getNextIPv4Address(): Trying to obtain an IPv4 address from an IPv6 target.");
   *addr = p->sin_addr.s_addr;
   return OP_SUCCESS;
 } /* End of getNextIPv4Address() */
@@ -273,7 +273,7 @@ int NpingTargets::processSpecs(){
 		if(o.getMode()!=TCP_CONNECT && o.getMode()!=UDP_UNPRIV){
 		  result=route_dst( &ss, &rnfo, o.getDevice(), NULL );
 		  if(result==false){
-			outError(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
+			nping_warning(QT_2, "Failed to determine route to host %s. Skipping it...", mytarget->getTargetIPstr() );
 			delete mytarget;
 			continue;
 		  }
@@ -309,7 +309,7 @@ int NpingTargets::processSpecs(){
 		  mytarget->setSrcMACAddress( rnfo.ii.mac );
 
 		  if( rnfo.ii.device_up == false )
-			outError(QT_2, "Device used for target host %s seems to be down.", mytarget->getTargetIPstr());
+			nping_warning(QT_2, "Device used for target host %s seems to be down.", mytarget->getTargetIPstr());
 
 		  /* Determine next hop MAC address and target MAC address */
 		  if( o.sendEth() ){
@@ -348,7 +348,7 @@ NpingTarget *NpingTargets::getNextTarget(){
   /* Did we reach the end of the vector in the last call? */
   if( this->current_target >= this->Targets.size() )
     return NULL;
-  outPrint(DBG_4, "Next target returned by getNextTarget(): Targets[%lu/%lu] --> %s \n", this->current_target, (unsigned long) this->Targets.size(), this->Targets.at(this->current_target)->getTargetIPstr() );
+  nping_print(DBG_4, "Next target returned by getNextTarget(): Targets[%lu/%lu] --> %s \n", this->current_target, (unsigned long) this->Targets.size(), this->Targets.at(this->current_target)->getTargetIPstr() );
   return this->Targets.at( this->current_target++ );
 } /* End of getNextTarget() */
 

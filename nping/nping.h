@@ -219,13 +219,13 @@
  * So the thing here is that there are two things that should be taken
  * into account:
  *  1. The current verbosity level that user has supplied from the command line
- *  2. The verbosity level that we supply in our print calls ( outPrint(),
- *     outError(), etc...)
+ *  2. The verbosity level that we supply in our print calls ( nping_print(),
+ *     nping_warning(), etc...)
  *
  *  Fortunately Nping output functions already take care of checking the
  *  current verbosity level, so programmers only have to decide which level
  *  should they specify in their output calls. If you are a programmer and
- *  you are using outPrint(), outError() or outFatal() calls in Nping's code,
+ *  you are using nping_print(), nping_warning() or nping_fatal() calls in Nping's code,
  *  you have to ask yourself: Do I want to print extra information that
  *  shouldn't be printed by default? Or am I printing important stuff like
  *  errors, etc, that should almost always be printed out?
@@ -250,9 +250,9 @@
  *  Check the comments after each level definition to see how they should be
  *  used. Here are some examples:
  * 
- *  outFatal(QT_3,"createIPv4(): NULL pointer supplied.");
- *  outPrint(DBG_2,"Resolving specified targets...");
- *  outPrint(VB_0, "Raw packets sent: %llu ", this->stats.getSentPackets() );
+ *  nping_fatal(QT_3,"createIPv4(): NULL pointer supplied.");
+ *  nping_print(DBG_2,"Resolving specified targets...");
+ *  nping_print(VB_0, "Raw packets sent: %llu ", this->stats.getSentPackets() );
  *
  * */
 
@@ -292,7 +292,7 @@
 
 #define MAX_DEV_LEN 128           /**< Max network interface name length     */
 
-#define NO_NEWLINE 0x8000 /**< Used in outFatal(), outError() and outPrint() */
+#define NO_NEWLINE 0x8000 /**< Used in nping_fatal(), nping_warning() and nping_print() */
 
 /** Bit count for number parsing functions */
 #define RANGE_8_BITS  8

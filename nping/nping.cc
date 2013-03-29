@@ -159,25 +159,25 @@ int main(int argc, char *argv[] ){
 
   /* ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html */
   if ( strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
-    outFatal(QT_3,"Unable to properly format time");
-  outPrint(QT_1, "\nStarting %s %s ( %s ) at %s", NPING_NAME, NPING_VERSION, NPING_URL, tbuf);
+    nping_fatal(QT_3,"Unable to properly format time");
+  nping_print(QT_1, "\nStarting %s %s ( %s ) at %s", NPING_NAME, NPING_VERSION, NPING_URL, tbuf);
 
   /*If nping is called on something that doesn't take port scanning
    * we should alert the user that their port command is going to be ignored
    * I choose to print out a Fatal error since the scan doesn't make sense.
    */
   if(o.issetTargetPorts() && !o.scan_mode_uses_target_ports(o.getMode()))
-      outFatal(QT_3, "You cannot use -p (explicit port selection) in your current scan mode.\n(Perhaps you meant to use --tcp or --udp)");
+      nping_fatal(QT_3, "You cannot use -p (explicit port selection) in your current scan mode.\n(Perhaps you meant to use --tcp or --udp)");
 
 
 
   /* Resolve and cache target specs */
-  outPrint(DBG_2,"Resolving specified targets...");
+  nping_print(DBG_2,"Resolving specified targets...");
   o.targets.processSpecs();
   if( ((i=o.targets.getTargetsFetched())<=0) && o.getRole()!=ROLE_SERVER )
-    outFatal(QT_3, "Execution aborted. Nping needs at least one valid target to operate.");
+    nping_fatal(QT_3, "Execution aborted. Nping needs at least one valid target to operate.");
   else
-    outPrint(DBG_2,"%lu target IP address%s determined.", i, (i==1)? "":"es" );
+    nping_print(DBG_2,"%lu target IP address%s determined.", i, (i==1)? "":"es" );
 
   switch( o.getRole() ){
 
@@ -201,7 +201,7 @@ int main(int argc, char *argv[] ){
         break;
 
         default:
-            outFatal(QT_3, "Invalid role %d\n", o.getRole() );
+            nping_fatal(QT_3, "Invalid role %d\n", o.getRole() );
         break;
   }
 
@@ -221,9 +221,9 @@ int main(int argc, char *argv[] ){
 int do_safe_checks(){
  IPv6Header i;
  if( (sizeof(u32) != 4) || (sizeof(u16) != 2) || (sizeof(u8) != 1) )
-    outFatal(QT_3,"Types u32, u16 and u8 do not have the correct sizes on your system.");
+    nping_fatal(QT_3,"Types u32, u16 and u8 do not have the correct sizes on your system.");
   //if (i.test_correctness() == false)
-  //  outError(QT_2,"IPv6 may not work on your system. Please report a bug.");
+  //  nping_warning(QT_2,"IPv6 may not work on your system. Please report a bug.");
   test_stuff(); /* Little function that is called quite early to test some misc stuff. */
   return OP_SUCCESS;
 } /* End of do_safe_checks() */
@@ -253,7 +253,7 @@ void test_stuff(){
   * and http://seclists.org/nmap-dev/2009/q3/0596.html */
 void signal_handler(int signo){
   fflush(stdout);
-  outPrint(DBG_1,"signal_handler(): Received signal %d", signo);
+  nping_print(DBG_1,"signal_handler(): Received signal %d", signo);
   switch(signo) {
       case SIGINT:
         o.stats.stopTxClock();
@@ -267,7 +267,7 @@ void signal_handler(int signo){
       break;
 
       default:
-        outError(QT_2, "signal_handler(): Unexpected signal received (%d). Please report a bug.", signo);
+        nping_warning(QT_2, "signal_handler(): Unexpected signal received (%d). Please report a bug.", signo);
       break;
   }
   fflush(stderr);

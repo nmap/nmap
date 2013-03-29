@@ -259,7 +259,7 @@ int TargetGroup::get_next_host(struct sockaddr_storage *ss, size_t *sslen) {
     //if (o.debugging > 2) { /* CHANGE: Do not use NmapOps and do not use log_Write*/
     //  log_write(LOG_STDOUT, "doing %d.%d.%d.%d = %d.%d.%d.%d\n", current[0], current[1], current[2], current[3], addresses[0][current[0]],addresses[1][current[1]],addresses[2][current[2]],addresses[3][current[3]]);
     //}
-    //outPrint(DBG_2, "doing %d.%d.%d.%d = %d.%d.%d.%d", current[0], current[1], current[2], current[3], addresses[0][current[0]],addresses[1][current[1]],addresses[2][current[2]],addresses[3][current[3]]);
+    //nping_print(DBG_2, "doing %d.%d.%d.%d = %d.%d.%d.%d", current[0], current[1], current[2], current[3], addresses[0][current[0]],addresses[1][current[1]],addresses[2][current[2]],addresses[3][current[3]]);
 
 
     /* Set the IP to the current value of everything */
@@ -443,7 +443,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
           while (target->h_addr_list[count]) count++;
 
           if (count > 1)
-             outPrint(DBG_2,"Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
+             nping_print(DBG_2,"Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
         } else {
           error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges", target_net);
           free(hostexp);

@@ -952,7 +952,7 @@ u8 *EchoHeader::getCiphertextBounds(size_t *final_len, int message_type){
   * block. This should be stored by the caller and used as the IV for the
   * next encrypted data. It returns NULL in case of error. */
 u8 *EchoHeader::encrypt(u8 *key, size_t key_len, u8 *iv){
-  outPrint(DBG_4, "%s(%p, %lu, %p)", __func__, key, (long unsigned)key_len, iv);
+  nping_print(DBG_4, "%s(%p, %lu, %p)", __func__, key, (long unsigned)key_len, iv);
   u8 *start=NULL;
   size_t len=0;
 
@@ -976,7 +976,7 @@ u8 *EchoHeader::encrypt(u8 *key, size_t key_len, u8 *iv){
 
 
 u8 *EchoHeader::decrypt(u8 *key, size_t key_len, u8 *iv, int message_type){
-  outPrint(DBG_4, "%s(%p, %lu, %p)", __func__, key, (long unsigned)key_len, iv);
+  nping_print(DBG_4, "%s(%p, %lu, %p)", __func__, key, (long unsigned)key_len, iv);
   u8 *start=NULL;
   size_t len=0;
   static u8 lastblock[CIPHER_BLOCK_SIZE];

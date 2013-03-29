@@ -134,11 +134,11 @@ int EchoClient::cleanup(){
   * sends the appropriate packet specs and handles raw packet transmission and 
   * NEP_ECHO reception and display. */
 int EchoClient::start(NpingTarget *target, u16 port){
-  outPrint(DBG_4, "%s(%p, %u)", __func__, target, port);
+  nping_print(DBG_4, "%s(%p, %u)", __func__, target, port);
 
   /* Init Nsock in the probe engine */
   if( this->probe.init_nsock() != OP_SUCCESS ){
-    outError(QT_2, "Couln't initialize Nsock.");
+    nping_warning(QT_2, "Couln't initialize Nsock.");
     return OP_FAILURE;
   }else{
     /* Extract the nsock pool handler and store it here */
@@ -148,25 +148,25 @@ int EchoClient::start(NpingTarget *target, u16 port){
 
   /* Schedule a TCP connection attempt */
   if( this->nep_connect(target, port) != OP_SUCCESS ){
-    outError(QT_2, "Connection failed.");
+    nping_warning(QT_2, "Connection failed.");
     return OP_FAILURE;
   }
 
   /* Perform NEP authentication handshake */
   if( this->nep_handshake() != OP_SUCCESS ){
-    outError(QT_2, "Handshake failed.");
+    nping_warning(QT_2, "Handshake failed.");
     return OP_FAILURE;
   }
 
   /* Send packet specification */
   if( this->nep_send_packet_spec() != OP_SUCCESS ){
-    outError(QT_2, "Couldn't send packet specification.");
+    nping_warning(QT_2, "Couldn't send packet specification.");
     return OP_FAILURE;
   }
 
   /* Wait for confirmation */
   if( this->nep_recv_ready() != OP_SUCCESS ){
-    outError(QT_2, "Didn't receive server's OK.");
+    nping_warning(QT_2, "Didn't receive server's OK.");
     return OP_FAILURE;
   }
 
@@ -185,7 +185,7 @@ int EchoClient::start(NpingTarget *target, u16 port){
   * connect to the remote host (this can be because the server rejected the
   * connection or because the connect() timed out). */
 int EchoClient::nep_connect(NpingTarget *target, u16 port){
-  outPrint(DBG_4, "%s(%p, %u)", __func__, target, port);
+  nping_print(DBG_4, "%s(%p, %u)", __func__, target, port);
   struct sockaddr_storage ss;
   struct sockaddr_storage src;
   size_t ss_len;
@@ -194,7 +194,7 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
   enum nsock_loopstatus loopstatus;
   
   if(target==NULL)
-    outFatal(QT_3, "nep_connect(): NULL parameter supplied.");
+    nping_fatal(QT_3, "nep_connect(): NULL parameter supplied.");
   else
     target->getTargetSockAddr(&ss, &ss_len);
 
@@ -244,7 +244,7 @@ int EchoClient::nep_connect(NpingTarget *target, u16 port){
 /** Attempts to perform the NEP authentication handshake with the server.
   * Returns OP_SUCCESS if the authentication went well and OP_FAILURE otherwise */
 int EchoClient::nep_handshake(){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nsock_loopstatus loopstatus;
   EchoHeader h;
   
@@ -262,10 +262,10 @@ int EchoClient::nep_handshake(){
   this->ctx.generateMacKeyC2S();
   this->ctx.generateMacKeyS2C();
 
-  outPrint(DBG_4,"Session Key MAC_C2S:"); print_hexdump(DBG_4,ctx.getMacKeyC2S(), MAC_KEY_LEN);
-  outPrint(DBG_4,"Session Key MAC_S2C:"); print_hexdump(DBG_4,ctx.getMacKeyS2C(), MAC_KEY_LEN);
-  outPrint(DBG_4,"Session Key CIPHER_C2S:"); print_hexdump(DBG_4,ctx.getCipherKeyC2S(), MAC_KEY_LEN);
-  outPrint(DBG_4,"Session Key CIPHER_S2C:"); print_hexdump(DBG_4,ctx.getCipherKeyS2C(), MAC_KEY_LEN);
+  nping_print(DBG_4,"Session Key MAC_C2S:"); print_hexdump(DBG_4,ctx.getMacKeyC2S(), MAC_KEY_LEN);
+  nping_print(DBG_4,"Session Key MAC_S2C:"); print_hexdump(DBG_4,ctx.getMacKeyS2C(), MAC_KEY_LEN);
+  nping_print(DBG_4,"Session Key CIPHER_C2S:"); print_hexdump(DBG_4,ctx.getCipherKeyC2S(), MAC_KEY_LEN);
+  nping_print(DBG_4,"Session Key CIPHER_S2C:"); print_hexdump(DBG_4,ctx.getCipherKeyS2C(), MAC_KEY_LEN);
 
 
   /* Send NEP_HANDSHAKE_CLIENT message */
@@ -282,7 +282,7 @@ int EchoClient::nep_handshake(){
   if(loopstatus!=NSOCK_LOOP_QUIT)
     return OP_FAILURE;
   
-  outPrint(DBG_1, "===NEP Handshake completed successfully===");
+  nping_print(DBG_1, "===NEP Handshake completed successfully===");
   return OP_SUCCESS;
 } /* End of nep_handshake() */
 
@@ -290,7 +290,7 @@ int EchoClient::nep_handshake(){
 /** Sends the appropriate NEP_PACKET_SPEC message to the server. Returns
   * OP_SUCCESS on success and OP_FAILURE in case of error. */
 int EchoClient::nep_send_packet_spec(){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nsock_loopstatus loopstatus;
   EchoHeader h;
 
@@ -310,7 +310,7 @@ int EchoClient::nep_send_packet_spec(){
 /** Receives and parses a NEP_READY message from the server. Returns OP_SUCCESS
   * on success and OP_FAILURE in case of error. */
 int EchoClient::nep_recv_ready(){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nsock_loopstatus loopstatus;
   /* Receive NEP_READY message */
   nsock_readbytes(this->nsp, this->nsi, recv_ready_handler, ECHO_READ_TIMEOUT, NULL, NEP_READY_LEN);
@@ -325,7 +325,7 @@ int EchoClient::nep_recv_ready(){
 /** Reads and parses a NEP_ECHO message from the server. Returns OP_SUCCESS
   * on success and OP_FAILURE in case of error. */
 int EchoClient::nep_recv_echo(u8 *packet, size_t packetlen){
-  outPrint(DBG_4, "%s(%p, %lu)", __func__, packet, (unsigned long)packetlen);
+  nping_print(DBG_4, "%s(%p, %lu)", __func__, packet, (unsigned long)packetlen);
   EchoHeader pkt_in;
   char *delayedstr=NULL;
   nsock_event_id ev_id;
@@ -342,11 +342,11 @@ int EchoClient::nep_recv_echo(u8 *packet, size_t packetlen){
 
   /* Once we have authenticated the received message, extract the echoed packet */
   if(pkt_in.storeRecvData(packet, packetlen)==OP_FAILURE){
-    outPrint(VB_0, "Unexpected error dealing with the NEP_ECHO message,");
+    nping_print(VB_0, "Unexpected error dealing with the NEP_ECHO message,");
     return OP_FAILURE;
   }
   if((pkt=pkt_in.getEchoedPacket(&pktlen))==NULL){
-    outPrint(VB_0, "Error displaying received NEP_ECHO message)");
+    nping_print(VB_0, "Error displaying received NEP_ECHO message)");
     return OP_FAILURE;
   }
   o.stats.addEchoedPacket(pktlen);
@@ -363,7 +363,7 @@ int EchoClient::nep_recv_echo(u8 *packet, size_t packetlen){
   /* @todo: compute the link layer offset from the DLT type and discard
    * link layer headers */
   getPacketStrInfo("IP", pkt, pktlen, pktinfobuffer, 512);
-  outPrint(VB_0,"CAPT (%.4fs) %s", final_time, pktinfobuffer );
+  nping_print(VB_0,"CAPT (%.4fs) %s", final_time, pktinfobuffer );
   if( o.getVerbosity() >= VB_3)
     luis_hdump((char*)pkt, pktlen);
 
@@ -381,39 +381,39 @@ int EchoClient::nep_recv_echo(u8 *packet, size_t packetlen){
   * it returns OP_SUCCESS. OP_FAILURE is returned in case the received packet
   * is not valid. */
 int EchoClient::parse_hs_server(u8 *pkt, size_t pktlen){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   EchoHeader h;
   if(pkt==NULL){
-    outPrint(DBG_1,"%s(): NULL parameter supplied.", __func__ );
+    nping_print(DBG_1,"%s(): NULL parameter supplied.", __func__ );
     return OP_FAILURE;
   }
   if(pktlen!=NEP_HANDSHAKE_SERVER_LEN){
-    outPrint(DBG_1,"%s(): Unexpected length supplied.", __func__ );
+    nping_print(DBG_1,"%s(): Unexpected length supplied.", __func__ );
     return OP_FAILURE;
   }
   h.storeRecvData(pkt, pktlen);
 
   /* Validate version number */
   if( h.getVersion() != ECHO_CURRENT_PROTO_VER ){
-    outPrint(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
+    nping_print(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
     return OP_FAILURE;
   }
 
   /* Ensure the expected message type was received */
   if(h.getMessageType()!=TYPE_NEP_HANDSHAKE_SERVER){
-    outPrint(DBG_1, "Expected NEP_HANDSHAKE_SERVER but received %02X", h.getMessageType() );
+    nping_print(DBG_1, "Expected NEP_HANDSHAKE_SERVER but received %02X", h.getMessageType() );
     return OP_FAILURE;
   }
 
   /* Ensure the received timestamp falls into the allowed time window */
   //if( h.verifyTimestamp()!=OP_SUCCESS ){
-  //    outPrint(DBG_1, "NEP_HANDSHAKE_SERVER timestamp is too old", h.getMessageType() );
+  //    nping_print(DBG_1, "NEP_HANDSHAKE_SERVER timestamp is too old", h.getMessageType() );
   //    return OP_FAILURE;
   //}
 
   /* Ensure message length is correct */
   if( h.getTotalLength()!=(NEP_HANDSHAKE_SERVER_LEN/4)){
-    outPrint(DBG_1, "Received NEP_HANDSHAKE_SERVER specifies an incorrect length (%u)", h.getTotalLength()*4 );
+    nping_print(DBG_1, "Received NEP_HANDSHAKE_SERVER specifies an incorrect length (%u)", h.getTotalLength()*4 );
     return OP_FAILURE;
   }
 
@@ -421,7 +421,7 @@ int EchoClient::parse_hs_server(u8 *pkt, size_t pktlen){
   this->ctx.setServerNonce(h.getServerNonce());
   this->ctx.generateMacKeyS2CInitial();
   if( h.verifyMessageAuthenticationCode(this->ctx.getMacKeyS2C(), MAC_KEY_LEN )!=OP_SUCCESS ){
-      outPrint(DBG_1, "NEP_HANDSHAKE_SERVER authentication failed" );
+      nping_print(DBG_1, "NEP_HANDSHAKE_SERVER authentication failed" );
       return OP_FAILURE;
   }
   this->ctx.setLastServerSequence( h.getSequenceNumber() );
@@ -433,34 +433,34 @@ int EchoClient::parse_hs_server(u8 *pkt, size_t pktlen){
   * it returns OP_SUCCESS. OP_FAILURE is returned in case the received packet
   * is not valid. */
 int EchoClient::parse_hs_final(u8 *pkt, size_t pktlen){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   EchoHeader h;
   u8 *next_iv=NULL;
   if(pkt==NULL){
-    outPrint(DBG_1,"%s(): NULL parameter supplied.", __func__ );
+    nping_print(DBG_1,"%s(): NULL parameter supplied.", __func__ );
     return OP_FAILURE;
   }
   if(pktlen!=NEP_HANDSHAKE_FINAL_LEN){
-    outPrint(DBG_1,"%s(): Unexpected length supplied.", __func__ );
+    nping_print(DBG_1,"%s(): Unexpected length supplied.", __func__ );
     return OP_FAILURE;
   }
   h.storeRecvData(pkt, pktlen);
 
   /* Validate version number */
   if( h.getVersion() != ECHO_CURRENT_PROTO_VER ){
-    outPrint(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
+    nping_print(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
     return OP_FAILURE;
   }
 
   /* Ensure the expected message type was received */
   if(h.getMessageType()!=TYPE_NEP_HANDSHAKE_FINAL){
-    outPrint(DBG_1, "Expected NEP_HANDSHAKE_FINAL but received %02X", h.getMessageType() );
+    nping_print(DBG_1, "Expected NEP_HANDSHAKE_FINAL but received %02X", h.getMessageType() );
     return OP_FAILURE;
   }
 
   /* Ensure the received sequence number is the previous+1 */
   if( h.getSequenceNumber()!=(this->ctx.getLastServerSequence()+1)){
-    outPrint(DBG_1, "Expected sequence number %d but received %d", this->ctx.getLastServerSequence()+1, h.getSequenceNumber() );
+    nping_print(DBG_1, "Expected sequence number %d but received %d", this->ctx.getLastServerSequence()+1, h.getSequenceNumber() );
     return OP_FAILURE;
   }else{
     /* Increment next expected sequence number*/
@@ -469,32 +469,32 @@ int EchoClient::parse_hs_final(u8 *pkt, size_t pktlen){
 
   /* Ensure the received timestamp falls into the allowed time window */
   //if( h.verifyTimestamp()!=OP_SUCCESS ){
-  //    outPrint(DBG_1, "NEP_HANDSHAKE_FINAL timestamp is too old", h.getMessageType() );
+  //    nping_print(DBG_1, "NEP_HANDSHAKE_FINAL timestamp is too old", h.getMessageType() );
   //    return OP_FAILURE;
   //}
 
   /* Ensure message length is correct */
   if( h.getTotalLength()!=(NEP_HANDSHAKE_FINAL_LEN/4)){
-    outPrint(DBG_1, "Received NEP_HANDSHAKE_FINAL specifies an incorrect length (%u)", h.getTotalLength()*4 );
+    nping_print(DBG_1, "Received NEP_HANDSHAKE_FINAL specifies an incorrect length (%u)", h.getTotalLength()*4 );
     return OP_FAILURE;
   }
 
   /* Ensure the server echoed the nonce we sent in our NEP_HANDSHAKE_CLIENT */
   if( memcmp(h.getClientNonce(), this->ctx.getClientNonce(), NONCE_LEN)!=0 ){
-    outPrint(DBG_1, "Echoed nonce in NEP_HANDSHAKE_FINAL message does not match client generate nonce");
+    nping_print(DBG_1, "Echoed nonce in NEP_HANDSHAKE_FINAL message does not match client generate nonce");
     return OP_FAILURE;
   }
 
   /* Decrypt the encrypted part of the message before validating the MAC */
   if((next_iv=h.decrypt(this->ctx.getCipherKeyS2C(), CIPHER_KEY_LEN, this->ctx.getServerNonce(), TYPE_NEP_HANDSHAKE_FINAL))==NULL){
-      outPrint(DBG_1, "Failed to decrypt NEP_HANDSHAKE_FINAL data." );
+      nping_print(DBG_1, "Failed to decrypt NEP_HANDSHAKE_FINAL data." );
       return OP_FAILURE;
   }
   this->ctx.setNextDecryptionIV(next_iv);
 
   /* Check the authenticity of the received message */
   if( h.verifyMessageAuthenticationCode(this->ctx.getMacKeyS2C(), MAC_KEY_LEN )!=OP_SUCCESS ){
-      outPrint(DBG_1, "NEP_HANDSHAKE_FINAL authentication failed" );
+      nping_print(DBG_1, "NEP_HANDSHAKE_FINAL authentication failed" );
       return OP_FAILURE;
   }
 
@@ -506,41 +506,41 @@ int EchoClient::parse_hs_final(u8 *pkt, size_t pktlen){
   * it returns OP_SUCCESS. OP_FAILURE is returned in case the received packet
   * is not valid. */
 int EchoClient::parse_ready(u8 *pkt, size_t pktlen){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   EchoHeader h;
   u8 *next_iv=NULL;
   if(pkt==NULL){
-    outPrint(DBG_1,"%s(): NULL parameter supplied.", __func__ );
+    nping_print(DBG_1,"%s(): NULL parameter supplied.", __func__ );
     return OP_FAILURE;
   }
   if(pktlen!=NEP_READY_LEN){
-    outPrint(DBG_1,"%s(): Unexpected length supplied.", __func__ );
+    nping_print(DBG_1,"%s(): Unexpected length supplied.", __func__ );
     return OP_FAILURE;
   }
   h.storeRecvData(pkt, pktlen);
 
   /* Decrypt message */
   if((next_iv=h.decrypt(this->ctx.getCipherKeyS2C(), CIPHER_KEY_LEN, this->ctx.getNextDecryptionIV(), TYPE_NEP_READY))==NULL){
-      outPrint(DBG_1, "Failed to decrypt NEP_READY data." );
+      nping_print(DBG_1, "Failed to decrypt NEP_READY data." );
       return OP_FAILURE;
   }
   this->ctx.setNextDecryptionIV(next_iv);
 
   /* Validate version number */
   if( h.getVersion() != ECHO_CURRENT_PROTO_VER ){
-    outPrint(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
+    nping_print(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
     return OP_FAILURE;
   }
 
   /* Ensure the expected message type was received */
   if(h.getMessageType()!=TYPE_NEP_READY){
-    outPrint(DBG_1, "Expected NEP_READY but received %02X", h.getMessageType() );
+    nping_print(DBG_1, "Expected NEP_READY but received %02X", h.getMessageType() );
     return OP_FAILURE;
   }
 
   /* Ensure the received sequence number is the previous+1 */
   if( h.getSequenceNumber()!=(this->ctx.getLastServerSequence()+1)){
-    outPrint(DBG_1, "Expected sequence number %d but received %d", this->ctx.getLastServerSequence()+1, h.getSequenceNumber() );
+    nping_print(DBG_1, "Expected sequence number %d but received %d", this->ctx.getLastServerSequence()+1, h.getSequenceNumber() );
     return OP_FAILURE;
   }else{
     /* Increment next expected sequence number*/
@@ -549,19 +549,19 @@ int EchoClient::parse_ready(u8 *pkt, size_t pktlen){
 
   /* Ensure the received timestamp falls into the allowed time window */
   //if( h.verifyTimestamp()!=OP_SUCCESS ){
-  //    outPrint(DBG_1, "NEP_READY timestamp is too old", h.getMessageType() );
+  //    nping_print(DBG_1, "NEP_READY timestamp is too old", h.getMessageType() );
   //    return OP_FAILURE;
   //}
 
   /* Ensure message length is correct */
   if( h.getTotalLength()!=(NEP_READY_LEN/4)){
-    outPrint(DBG_1, "Received NEP_READY specifies an incorrect length (%u)", h.getTotalLength()*4 );
+    nping_print(DBG_1, "Received NEP_READY specifies an incorrect length (%u)", h.getTotalLength()*4 );
     return OP_FAILURE;
   }
 
   /* Check the authenticity of the received message */
   if( h.verifyMessageAuthenticationCode(this->ctx.getMacKeyS2C(), MAC_KEY_LEN )!=OP_SUCCESS ){
-      outPrint(DBG_1, "NEP_READY authentication failed" );
+      nping_print(DBG_1, "NEP_READY authentication failed" );
       return OP_FAILURE;
   }
 
@@ -573,41 +573,41 @@ int EchoClient::parse_ready(u8 *pkt, size_t pktlen){
   * it returns OP_SUCCESS. OP_FAILURE is returned in case the received packet
   * is not valid. */
 int EchoClient::parse_echo(u8 *pkt, size_t pktlen){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   EchoHeader h;
   u8 *next_iv=NULL;
   if(pkt==NULL){
-    outPrint(DBG_1,"%s(): NULL parameter supplied.", __func__ );
+    nping_print(DBG_1,"%s(): NULL parameter supplied.", __func__ );
     return OP_FAILURE;
   }
   if(pktlen<NEP_ECHO_MIN_LEN){
-    outPrint(DBG_1,"%s(): Unexpected length supplied.", __func__ );
+    nping_print(DBG_1,"%s(): Unexpected length supplied.", __func__ );
     return OP_FAILURE;
   }
   h.storeRecvData(pkt, pktlen);
 
   /* Decrypt message */
   if((next_iv=h.decrypt(this->ctx.getCipherKeyS2C(), CIPHER_KEY_LEN, this->ctx.getNextDecryptionIV(), TYPE_NEP_ECHO))==NULL){
-      outPrint(DBG_1, "Failed to decrypt NEP_ECHO data." );
+      nping_print(DBG_1, "Failed to decrypt NEP_ECHO data." );
       return OP_FAILURE;
   }
   this->ctx.setNextDecryptionIV(next_iv);
 
   /* Validate version number */
   if( h.getVersion() != ECHO_CURRENT_PROTO_VER ){
-    outPrint(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
+    nping_print(DBG_1, "Expected NEP version %02x but message used %02x", ECHO_CURRENT_PROTO_VER, h.getVersion() );
     return OP_FAILURE;
   }
 
   /* Ensure the expected message type was received */
   if(h.getMessageType()!=TYPE_NEP_ECHO){
-    outPrint(DBG_1, "Expected NEP_ECHO but received %02X", h.getMessageType() );
+    nping_print(DBG_1, "Expected NEP_ECHO but received %02X", h.getMessageType() );
     return OP_FAILURE;
   }
 
   /* Ensure the received sequence number is the previous+1 */
   if( h.getSequenceNumber()!=(this->ctx.getLastServerSequence()+1)){
-    outPrint(DBG_1, "Expected sequence number %d but received %d", this->ctx.getLastServerSequence()+1, h.getSequenceNumber() );
+    nping_print(DBG_1, "Expected sequence number %d but received %d", this->ctx.getLastServerSequence()+1, h.getSequenceNumber() );
     return OP_FAILURE;
   }else{
     /* Increment next expected sequence number*/
@@ -616,13 +616,13 @@ int EchoClient::parse_echo(u8 *pkt, size_t pktlen){
 
   /* Ensure the received timestamp falls into the allowed time window */
   //if( h.verifyTimestamp()!=OP_SUCCESS ){
-  //    outPrint(DBG_1, "NEP_ECHO timestamp is too old", h.getMessageType() );
+  //    nping_print(DBG_1, "NEP_ECHO timestamp is too old", h.getMessageType() );
   //    return OP_FAILURE;
   //}
 
 //  /* Ensure message length is correct */
 //  if( h.getTotalLength()!=(pktlen/4)){
-//    outPrint(DBG_1, "Received NEP_ECHO specifies an incorrect length (%u)", h.getTotalLength()*4 );
+//    nping_print(DBG_1, "Received NEP_ECHO specifies an incorrect length (%u)", h.getTotalLength()*4 );
 //    return OP_FAILURE;
 //  }
 
@@ -632,10 +632,10 @@ int EchoClient::parse_echo(u8 *pkt, size_t pktlen){
 
   /* Check the authenticity of the received message */
   if( h.verifyMessageAuthenticationCode(this->ctx.getMacKeyS2C(), MAC_KEY_LEN )!=OP_SUCCESS ){
-      outPrint(DBG_1, "NEP_ECHO authentication failed" );
+      nping_print(DBG_1, "NEP_ECHO authentication failed" );
       return OP_FAILURE;
   }else{
-      outPrint(DBG_1, "Received NEP_ECHO was authenticated successfully");
+      nping_print(DBG_1, "Received NEP_ECHO was authenticated successfully");
   }
 
   /* Overwrite the received buffer with the decrypted data */
@@ -649,7 +649,7 @@ int EchoClient::parse_echo(u8 *pkt, size_t pktlen){
   * it returns OP_SUCCESS. OP_FAILURE is returned in case the received packet
   * is not valid. */
 int EchoClient::parse_error(u8 *pkt, size_t pktlen){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   return OP_SUCCESS;
 } /* End of parse_hs_final() */
 
@@ -657,7 +657,7 @@ int EchoClient::parse_error(u8 *pkt, size_t pktlen){
 /** Generates a NEP_HANDSHAKE_CLIENT message. On success it returns OP_SUCCESS.
   * OP_FAILURE is returned in case of error. */
 int EchoClient::generate_hs_client(EchoHeader *h){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   u8 *next_iv=NULL;
   if(h==NULL)
     return OP_FAILURE;
@@ -686,7 +686,7 @@ int EchoClient::generate_hs_client(EchoHeader *h){
 /** Generates a NEP_PACKET_SPEC message. On success it returns OP_SUCCESS.
   * OP_FAILURE is returned in case of error. */
 int EchoClient::generate_packet_spec(EchoHeader *h){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   int ports=-1;
   u8 nxthdr=0;
   u8 aux8=0;
@@ -781,7 +781,7 @@ int EchoClient::generate_packet_spec(EchoHeader *h){
       case TCP_CONNECT:
       case ARP:
       default:
-          outFatal(QT_3, "%s packets are not supported in Echo Mode", o.mode2Ascii(o.getMode()) );
+          nping_fatal(QT_3, "%s packets are not supported in Echo Mode", o.mode2Ascii(o.getMode()) );
       break;
   }
   /* Next protocol number */
@@ -811,7 +811,7 @@ int EchoClient::generate_packet_spec(EchoHeader *h){
   * the nep_recv_echo() method, which is the one in charge of processing
   * NEP_ECHO packets */
 int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   EchoHeader pkt_in;
   u8 *recvbuff=NULL;
   int recvbytes=0;
@@ -820,19 +820,19 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
       if(status!=NSE_STATUS_KILL){
-          outError(QT_2, "===========================================================================");
-          outError(QT_2, "ERROR: Server closed the connection. No more CAPT packets will be received.");
-          outError(QT_2, "===========================================================================");
+          nping_warning(QT_2, "===========================================================================");
+          nping_warning(QT_2, "ERROR: Server closed the connection. No more CAPT packets will be received.");
+          nping_warning(QT_2, "===========================================================================");
       }
       return OP_FAILURE;
   }
   
   /* Read the remaining data */
   if( (recvbuff=(u8 *)nse_readbuf(nse, &recvbytes))==NULL ){
-    outPrint(DBG_4,"nep_echoed_packet_handler(): nse_readbuf failed!\n");
+    nping_print(DBG_4,"nep_echoed_packet_handler(): nse_readbuf failed!\n");
     return OP_FAILURE;
   }else{
-    outPrint(DBG_4, "%s() Received %d bytes", __func__, recvbytes);
+    nping_print(DBG_4, "%s() Received %d bytes", __func__, recvbytes);
   }
 
  /* When we get here we'll have part of the packet stored in this->lasthdr and
@@ -845,11 +845,11 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
     Crypto::aes128_cbc_decrypt(pkt_start, 16, aux, this->ctx.getCipherKeyS2C(), CIPHER_KEY_LEN, this->ctx.getNextDecryptionIV());
     pkt_in.storeRecvData(aux, 16);
     int plen=pkt_in.getTotalLength()*4;
-    outPrint(DBG_4, "%s() Packet claims to have a length of %d bytes", __func__, plen);
+    nping_print(DBG_4, "%s() Packet claims to have a length of %d bytes", __func__, plen);
 
     /* If the packet is bigger than the maximum NEP packet, discard it. */
     if(plen>MAX_NEP_PACKET_LENGTH){
-        outError(DBG_1,"Warning. Received NEP packet (%dB) is bigger than %d bytes.", plen, MAX_NEP_PACKET_LENGTH);
+        nping_warning(DBG_1,"Warning. Received NEP packet (%dB) is bigger than %d bytes.", plen, MAX_NEP_PACKET_LENGTH);
         return OP_FAILURE;
     }
 
@@ -857,7 +857,7 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
     if (plen==((int)this->readbytes+recvbytes)){
         memcpy(this->lasthdr+this->readbytes, recvbuff, recvbytes);
         this->readbytes+=recvbytes;
-        outPrint(DBG_4,"%s(): Received exact length (%d).", __func__, recvbytes);
+        nping_print(DBG_4,"%s(): Received exact length (%d).", __func__, recvbytes);
         this->nep_recv_echo(this->lasthdr, this->readbytes);
         nsock_readbytes(this->nsp, this->nsi, recv_std_header_handler, NSOCK_INFINITE, NULL, STD_NEP_HEADER_LEN);
         return OP_SUCCESS;
@@ -868,12 +868,12 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
     }else if(recvbytes<plen){
         memcpy(this->lasthdr, recvbuff, recvbytes);
         this->readbytes=recvbytes;
-        outPrint(DBG_4,"%s(): Missing %d bytes. Scheduled read operation for remaining bytes", __func__, plen-recvbytes);
+        nping_print(DBG_4,"%s(): Missing %d bytes. Scheduled read operation for remaining bytes", __func__, plen-recvbytes);
         nsock_readbytes(nsp, nsi, echoed_packet_handler, NSOCK_INFINITE, NULL, plen-recvbytes);
         return OP_SUCCESS;
 
     }else{ /* Received more than one packet */
-      outPrint(DBG_4,"%s(): Received more than one packet", __func__);
+      nping_print(DBG_4,"%s(): Received more than one packet", __func__);
       memcpy(this->lasthdr+this->readbytes, recvbuff, plen-this->readbytes);
       this->nep_recv_echo(this->lasthdr, plen);
       recvbuff+=plen-this->readbytes;
@@ -895,7 +895,7 @@ int EchoClient::nep_echoed_packet_handler(nsock_pool nsp, nsock_event nse, void 
   * control to nep_recv_echo(), which is the one in charge of processing
   * NEP_ECHO packets */
 int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   nsock_iod nsi = nse_iod(nse);
   EchoHeader pkt_in;
   u8 *recvbuff=NULL;
@@ -904,18 +904,18 @@ int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, voi
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
       if(status!=NSE_STATUS_KILL){
-          outError(QT_2, "===========================================================================");
-          outError(QT_2, "ERROR: Server closed the connection. No more CAPT packets will be received.");
-          outError(QT_2, "===========================================================================");
+          nping_warning(QT_2, "===========================================================================");
+          nping_warning(QT_2, "ERROR: Server closed the connection. No more CAPT packets will be received.");
+          nping_warning(QT_2, "===========================================================================");
       }
       return OP_FAILURE;
   }
   /* Read data */
   if( (recvbuff=(u8 *)nse_readbuf(nse, &recvbytes))==NULL ){
-    outPrint(DBG_4,"%s(): nse_readbuf failed.", __func__);
+    nping_print(DBG_4,"%s(): nse_readbuf failed.", __func__);
     return OP_FAILURE;
   }else{
-    outPrint(DBG_4, "%s() Received %d bytes", __func__, recvbytes);
+    nping_print(DBG_4, "%s() Received %d bytes", __func__, recvbytes);
   }
 
   /* Here there are different possibilites. We may have received exactly one
@@ -932,13 +932,13 @@ int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, voi
 
     /* If the packet is bigger than the maximum NEP packet, discard it. */
     if(plen>MAX_NEP_PACKET_LENGTH){
-        outError(DBG_1,"Warning. Received NEP packet (%dB) is bigger than %d bytes.", plen, MAX_NEP_PACKET_LENGTH);
+        nping_warning(DBG_1,"Warning. Received NEP packet (%dB) is bigger than %d bytes.", plen, MAX_NEP_PACKET_LENGTH);
         return OP_FAILURE;
     }
 
     /* If we have read the whole packet, give it to nep_recv_echo for processing */
     if (plen==recvbytes){
-        outPrint(DBG_4,"%s(): Received exact length (%d).", __func__, recvbytes);
+        nping_print(DBG_4,"%s(): Received exact length (%d).", __func__, recvbytes);
         this->nep_recv_echo(recvbuff, recvbytes);
         nsock_readbytes(this->nsp, this->nsi, recv_std_header_handler, NSOCK_INFINITE, NULL, STD_NEP_HEADER_LEN);
         return OP_SUCCESS;
@@ -946,12 +946,12 @@ int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, voi
     }else if(recvbytes<plen){
         memcpy(this->lasthdr, recvbuff, recvbytes);
         this->readbytes=recvbytes;
-        outPrint(DBG_4,"%s(): Missing %d bytes. Scheduled read operation for remaining bytes", __func__, plen-recvbytes);
+        nping_print(DBG_4,"%s(): Missing %d bytes. Scheduled read operation for remaining bytes", __func__, plen-recvbytes);
         nsock_readbytes(nsp, nsi, echoed_packet_handler, NSOCK_INFINITE, NULL, plen-recvbytes);
         return OP_SUCCESS;
 
     }else{ /* Received more than one packet */
-      outPrint(DBG_4,"%s(): Received more than one packet", __func__);
+      nping_print(DBG_4,"%s(): Received more than one packet", __func__);
       this->nep_recv_echo(recvbuff, plen);
       recvbuff+=plen;
       recvbytes-=plen;
@@ -972,7 +972,7 @@ int EchoClient::nep_recv_std_header_handler(nsock_pool nsp, nsock_event nse, voi
   * the internal context accordingly. Returns OP_SUCCESS on success and
   * OP_FAILURE in case of error. */
 int EchoClient::nep_recv_hs_server_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   u8 *inbuff=NULL;
   int inlen=0;
   /* Ask nsock to provide received data */
@@ -992,7 +992,7 @@ int EchoClient::nep_recv_hs_server_handler(nsock_pool nsp, nsock_event nse, void
   * the internal context accordingly. Returns OP_SUCCESS on success and
   * OP_FAILURE in case of error. */
 int EchoClient::nep_recv_hs_final_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   u8 *inbuff=NULL;
   int inlen=0;
   /* Ask nsock to provide received data */
@@ -1012,7 +1012,7 @@ int EchoClient::nep_recv_hs_final_handler(nsock_pool nsp, nsock_event nse, void 
   * the internal context accordingly. Returns OP_SUCCESS on success and
   * OP_FAILURE in case of error. */
 int EchoClient::nep_recv_ready_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   u8 *inbuff=NULL;
   int inlen=0;
   /* Ask nsock to provide received data */
@@ -1035,7 +1035,7 @@ int EchoClient::nep_recv_ready_handler(nsock_pool nsp, nsock_event nse, void *ar
   * method. We need this because C++ does not allow to use class methods as
   * callback functions for things like signal() or the Nsock lib. */
 void echoed_packet_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   ec.nep_echoed_packet_handler(nsp, nse, arg);
   return;
 } /* End of echoed_packet_handler() */
@@ -1045,7 +1045,7 @@ void echoed_packet_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * method. We need this because C++ does not allow to use class methods as
   * callback functions for things like signal() or the Nsock lib. */
 void recv_std_header_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   ec.nep_recv_std_header_handler(nsp, nse, arg);
   return;
 } /* End of recv_std_header_handler() */
@@ -1056,10 +1056,10 @@ void recv_std_header_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * it was, we call nsock_loop_quit(), which indicates the success to
   * the method that scheduled the event and called nsock_loop() */
 void connect_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
-    outPrint(DBG_4, "%s(): Failed to connect.", __func__);
+    nping_print(DBG_4, "%s(): Failed to connect.", __func__);
   }else{
     nsock_loop_quit(nsp);
   }
@@ -1072,10 +1072,10 @@ void connect_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * in that case it calls nsock_loop_quit(), which indicates the success to
   * the method that scheduled the event and called nsock_loop() */
 void write_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
-    outPrint(DBG_4, "%s(): Write operation failed.", __func__);
+    nping_print(DBG_4, "%s(): Write operation failed.", __func__);
   }else{
     nsock_loop_quit(nsp);
   }
@@ -1087,10 +1087,10 @@ void write_done_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * method. We need this because C++ does not allow to use class methods as
   * callback functions for things like signal() or the Nsock lib. */
 void recv_hs_server_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
-    outPrint(DBG_4, "%s(): Read operation failed.", __func__);
+    nping_print(DBG_4, "%s(): Read operation failed.", __func__);
   }else if(ec.nep_recv_hs_server_handler(nsp, nse, arg)==OP_SUCCESS){
     nsock_loop_quit(nsp);
   }
@@ -1102,10 +1102,10 @@ void recv_hs_server_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * method. We need this because C++ does not allow to use class methods as
   * callback functions for things like signal() or the Nsock lib. */
 void recv_hs_final_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
-    outPrint(DBG_4, "%s(): Read operation failed.", __func__);
+    nping_print(DBG_4, "%s(): Read operation failed.", __func__);
   }else if(ec.nep_recv_hs_final_handler(nsp, nse, arg)==OP_SUCCESS){
     nsock_loop_quit(nsp);
   }
@@ -1118,10 +1118,10 @@ void recv_hs_final_handler(nsock_pool nsp, nsock_event nse, void *arg){
   * method. We need this because C++ does not allow to use class methods as
   * callback functions for things like signal() or the Nsock lib. */
 void recv_ready_handler(nsock_pool nsp, nsock_event nse, void *arg){
-  outPrint(DBG_4, "%s()", __func__);
+  nping_print(DBG_4, "%s()", __func__);
   enum nse_status status=nse_status(nse);
   if (status!=NSE_STATUS_SUCCESS){
-    outPrint(DBG_4, "%s(): Read operation failed.", __func__);
+    nping_print(DBG_4, "%s(): Read operation failed.", __func__);
   }else if(ec.nep_recv_ready_handler(nsp, nse, arg)==OP_SUCCESS){
     nsock_loop_quit(nsp);
   }

@@ -391,7 +391,7 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
   int detail;
 
   if ( dstbuff == NULL || dstlen < 512 )
-    outFatal(QT_3,"safe_ippackethdrinfo() Invalid values supplied.");
+    nping_fatal(QT_3,"safe_ippackethdrinfo() Invalid values supplied.");
 
   if(o.getVerbosity()>=VB_2)
     detail=HIGH_DETAIL;
@@ -412,9 +412,9 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
     else if ( o.getMode()==UDP )
         return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
     else
-        outFatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
+        nping_fatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
   }else{
-    outFatal(QT_3, "getPacketStrInfo(): Unkwnown protocol");
+    nping_fatal(QT_3, "getPacketStrInfo(): Unkwnown protocol");
   }
   return OP_SUCCESS;
 } /* getPacketStrInfo() */
@@ -480,7 +480,7 @@ int getNetworkInterfaceName(u32 destination, char *dev){
   struct sockaddr_in dst, src;
   bool result=false;
   if(dev==NULL)
-    outFatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
+    nping_fatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
   memset(&rnfo, 0, sizeof(struct route_nfo) );
   memset(&dst, 0, sizeof(struct sockaddr_in) );
   memset(&src, 0, sizeof(struct sockaddr_in) );
@@ -504,7 +504,7 @@ int getNetworkInterfaceName(struct sockaddr_storage *dst, char *dev){
   struct sockaddr_storage src;
   bool result=false;
   if(dev==NULL)
-    outFatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
+    nping_fatal(QT_3, "getNetworkInterfaceName(): NULL value supplied.");
   memset(&rnfo, 0, sizeof(struct route_nfo) );
   memset(&src, 0, sizeof(struct sockaddr_in) );
   result=route_dst(dst, &rnfo, NULL, NULL); 
@@ -532,13 +532,13 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
 
   /* Used for debug. When called with NULL,0x1337, print stats */
   if(host==NULL && pf == 1337){
-	outPrint(DBG_4, "resolveCached(): MISSES: %d,  HITS: %d\n", misses, hits);
+	nping_print(DBG_4, "resolveCached(): MISSES: %d,  HITS: %d\n", misses, hits);
 	return OP_SUCCESS;
   }
 
 
   if( ss==NULL || sslen==NULL || host==NULL)
-	outFatal(QT_3, "resolveCached(): NULL values supplied");
+	nping_fatal(QT_3, "resolveCached(): NULL values supplied");
 	
   /* First we check if we have the host already cached */
   for(int i=0; i<MAX_CACHED_HOSTS && i<cached_count; i++){
@@ -546,14 +546,14 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
 		*sslen=archive[i].sslen;
 		memcpy(ss, &(archive[i].ss) , *sslen);
 		hits++;
-		outPrint(DBG_4, "resolveCached(): Cache hit %d for %s\n", hits, host);
+		nping_print(DBG_4, "resolveCached(): Cache hit %d for %s\n", hits, host);
 		return OP_SUCCESS;		
 	}
   }
 
   /* Cache miss */
   misses++;
-  outPrint(DBG_4, "resolveCached(): Cache miss %d for %s\n", misses, host);
+  nping_print(DBG_4, "resolveCached(): Cache miss %d for %s\n", misses, host);
 
   if( (result=resolve(host, 0, ss, sslen, pf)) == 0 ){
 	
@@ -605,7 +605,7 @@ int resolveCached(char *host, struct sockaddr_storage *ss, size_t *sslen, int pf
 	  //return OP_SUCCESS;
 	
   }else{
-		outError(QT_2, "Error resolving %s\n",host);
+		nping_warning(QT_2, "Error resolving %s\n",host);
 		return OP_FAILURE;
   }
 } /* End of resolveCached() */
@@ -626,20 +626,20 @@ struct hostent *gethostbynameCached(char *host){
   int i=0;
 
   if( host==NULL)
-	outFatal(QT_3, "gethostbynameCached(): NULL values supplied");
+	nping_fatal(QT_3, "gethostbynameCached(): NULL values supplied");
 
   /* First we check if we have the host already cached */
   for(i=0; i<MAX_CACHED_HOSTS && i<cached_count; i++){
     if( !strcasecmp( archive[i].hostname , host ) ){ /* Cache hit */
 		hits++;
-		outPrint(DBG_4, "gethostbynameCached(): Cache hit %d for %s", hits, host);
+		nping_print(DBG_4, "gethostbynameCached(): Cache hit %d for %s", hits, host);
 		return  archive[i].h;
 	}
   }
 
   /* Cache miss */
   misses++;
-  outPrint(DBG_4, "gethostbynameCached(): Cache miss %d for %s", misses, host);
+  nping_print(DBG_4, "gethostbynameCached(): Cache miss %d for %s", misses, host);
 
   if( (result=gethostbyname(host) ) != NULL ){
 	
@@ -828,7 +828,7 @@ char *MACtoa(u8 *mac){
 const char *arppackethdrinfo(const u8 *packet, u32 len, int detail){
   static char protoinfo[512];
   if (packet==NULL)
-    outFatal(QT_3, "arppackethdrinfo(): NULL value supplied");
+    nping_fatal(QT_3, "arppackethdrinfo(): NULL value supplied");
   if( len < 28 )
     return "BOGUS!  Packet too short.";
   u16 *htype = (u16 *)packet;
@@ -870,7 +870,7 @@ int arppackethdrinfo(const u8 *packet, u32 len, u8 *dstbuff, u32 dstlen){
   int detail=0;
 
   if ( dstbuff == NULL || dstlen < 512 )
-    outFatal(QT_3,"safe_arppackethdrinfo() Invalid values supplied.");
+    nping_fatal(QT_3,"safe_arppackethdrinfo() Invalid values supplied.");
 
   /* Determine level of detail in packet output from current verbosity level */
   if(o.getVerbosity()>=VB_2)
@@ -1131,14 +1131,14 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen){
             if(dport!=NULL)
                 s6.sin6_port = *dport;
             else
-                outFatal(QT_3, "send_packet(): Could not determine TCP destination port.");
+                nping_fatal(QT_3, "send_packet(): Could not determine TCP destination port.");
         }
         else if( o.getMode()==UDP){
             dport=getDstPortFromUDPHeader(pkt, pktLen);
             if(dport!=NULL)
                 s6.sin6_port = *dport;
             else
-                outFatal(QT_3, "send_packet(): Could not determine UDP destination port.");
+                nping_fatal(QT_3, "send_packet(): Could not determine UDP destination port.");
         }
         */
 
@@ -1445,21 +1445,21 @@ int obtainRawSocket(){
         break;
         
         case ARP:
-            outError(QT_2,"Warning: createRawSocket() should not be called in ARP mode.");
+            nping_warning(QT_2,"Warning: createRawSocket() should not be called in ARP mode.");
             return 0;
         break;
         
         default:
-            outFatal(QT_3, "createRawSocket(): NpingOps::getMode() does not return a valid mode. Please report this bug.");
+            nping_fatal(QT_3, "createRawSocket(): NpingOps::getMode() does not return a valid mode. Please report this bug.");
         break;
 
     }
     if ((rawipsd = socket(AF_INET6, SOCK_RAW, protocol)) < 0 )
-        outFatal(QT_3,"Couldn't acquire IPv6 raw socket. Are you root?");
+        nping_fatal(QT_3,"Couldn't acquire IPv6 raw socket. Are you root?");
 
   }else{
     if ((rawipsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
-        outFatal(QT_3,"Couldn't acquire IPv4 raw socket. Are you root?");
+        nping_fatal(QT_3,"Couldn't acquire IPv4 raw socket. Are you root?");
         /* Tell the kernel we are including our own IP Header (call to 
         * setsockopt passing option IP_HDRINCL)                             */
         sethdrinclude(rawipsd);
@@ -1467,7 +1467,7 @@ int obtainRawSocket(){
 
   /* Allow broadcast addresses */
   if (setsockopt(rawipsd, SOL_SOCKET, SO_BROADCAST, (const char *)&one, sizeof(int)) == -1)
-      outError(QT_2,"Failed to set SO_BROADCAST on raw socket.");
+      nping_warning(QT_2,"Failed to set SO_BROADCAST on raw socket.");
 
   return rawipsd;
 } /* End of obtainRawSocket() */
@@ -1513,20 +1513,20 @@ int getinterfaces_inet6_linux(if6_t *ifbuf, int max_ifaces){
   memset(buffer, 0, sizeof(buffer));
 
   if(ifbuf==NULL || max_ifaces<=0)
-    outFatal(QT_3,"getinterfaces_inet6_linux() NULL values supplied");
+    nping_fatal(QT_3,"getinterfaces_inet6_linux() NULL values supplied");
  
   /* TODO: Do we fatal() or should we just error and return OP_FAILURE? */
   if ( !file_is_readable(PATH_PROC_IFINET6) )
-    outFatal(QT_3, "Couldn't get IPv6 interface information. File %s does not exist or you don't have read permissions.", PATH_PROC_IFINET6);
+    nping_fatal(QT_3, "Couldn't get IPv6 interface information. File %s does not exist or you don't have read permissions.", PATH_PROC_IFINET6);
   if( (if6file=fopen(PATH_PROC_IFINET6, "r"))==NULL )
-    outFatal(QT_3, "Failed to open %s.", PATH_PROC_IFINET6);
+    nping_fatal(QT_3, "Failed to open %s.", PATH_PROC_IFINET6);
 
   while( fgets(buffer,sizeof(buffer), if6file) ){
 
       if(parsed_ifs>=max_ifaces)
         break;
 
-    outPrint(DBG_4, "Read %s:%d: %s\n", PATH_PROC_IFINET6, ++readlines, buffer);
+    nping_print(DBG_4, "Read %s:%d: %s\n", PATH_PROC_IFINET6, ++readlines, buffer);
 
     /* Check the line has the expected format ********************************/
     /* Some versions of the kernel include colons in the IPv6 address, some
@@ -1707,20 +1707,20 @@ int getroutes_inet6_linux(route6_t *rtbuf, int max_routes){
   memset(buffer, 0, sizeof(buffer));
 
   if(rtbuf==NULL || max_routes<=0)
-    outFatal(QT_3,"getroutes_inet6_linux() NULL values supplied");
+    nping_fatal(QT_3,"getroutes_inet6_linux() NULL values supplied");
  
   /* TODO: Do we fatal() or should we just error and return OP_FAILURE? */
   if ( !file_is_readable(PATH_PROC_IPV6ROUTE) )
-    outFatal(QT_3, "Couldn't get IPv6 route information. File %s does not exist or you don't have read permissions.", PATH_PROC_IPV6ROUTE);
+    nping_fatal(QT_3, "Couldn't get IPv6 route information. File %s does not exist or you don't have read permissions.", PATH_PROC_IPV6ROUTE);
   if( (route6file=fopen(PATH_PROC_IPV6ROUTE, "r"))==NULL )
-    outFatal(QT_3, "Failed to open %s.", PATH_PROC_IPV6ROUTE);
+    nping_fatal(QT_3, "Failed to open %s.", PATH_PROC_IPV6ROUTE);
 
   while( fgets(buffer,sizeof(buffer), route6file) ){
 
       if(parsed_routes>=max_routes)
         break;
 
-    outPrint(DBG_4, "Read %s:%d: %s\n",PATH_PROC_IPV6ROUTE, ++readlines, buffer);
+    nping_print(DBG_4, "Read %s:%d: %s\n",PATH_PROC_IPV6ROUTE, ++readlines, buffer);
 
     /* Check the line has the expected format ********************************/
     /* Some versions of the kernel include colons in the IPv6 address, some

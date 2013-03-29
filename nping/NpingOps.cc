@@ -491,7 +491,7 @@ bool NpingOps::issetTraceroute(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setVerbosity(int level){
    if( level < -4 || level > 4 ){
-        outFatal(QT_3,"setVerbosity(): Invalid verbosity level supplied\n");
+        nping_fatal(QT_3,"setVerbosity(): Invalid verbosity level supplied\n");
         return OP_FAILURE;
    }else{
         switch(level){
@@ -505,7 +505,7 @@ int NpingOps::setVerbosity(int level){
             case  3:  vb=VB_3;  break;
             case  4:  vb=VB_4;  break;
             default:
-                outFatal(QT_3,"setVerbosity():2: Invalid verbosity level supplied\n");
+                nping_fatal(QT_3,"setVerbosity():2: Invalid verbosity level supplied\n");
             break;
         }
     }
@@ -560,7 +560,7 @@ int NpingOps::decreaseVerbosity(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setDebugging(int level){
   if( level < 0 || level > 9){
-    outFatal(QT_3,"setDebugging(): Invalid debugging level supplied\n");
+    nping_fatal(QT_3,"setDebugging(): Invalid debugging level supplied\n");
     return OP_FAILURE;
   }else{
     this->dbg= DBG_0  + level;
@@ -659,7 +659,7 @@ int NpingOps::setSendPreference(int v){
        v!=PACKET_SEND_ETH_STRONG && v!=PACKET_SEND_ETH &&
        v!=PACKET_SEND_IP_WEAK && v!=PACKET_SEND_IP_STRONG &&
        v!=PACKET_SEND_IP ){
-        outFatal(QT_3,"setSendPreference(): Invalid value supplied\n");
+        nping_fatal(QT_3,"setSendPreference(): Invalid value supplied\n");
         return OP_FAILURE;
     }else{
         sendpref=v;
@@ -735,7 +735,7 @@ bool NpingOps::issetSendEth(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setHostTimeout(long t){
   if( t < 0 ){
-    outFatal(QT_3,"setHostTimeout(): Invalid time supplied\n");
+    nping_fatal(QT_3,"setHostTimeout(): Invalid time supplied\n");
     return OP_FAILURE;
   }else{
     this->host_timeout=t;
@@ -764,7 +764,7 @@ bool NpingOps::issetHostTimeout(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setDelay(long t){
   if( t < 0 )
-    outFatal(QT_3,"setDelay(): Invalid time supplied\n");
+    nping_fatal(QT_3,"setDelay(): Invalid time supplied\n");
   this->delay=t;
   this->delay_set=true;
   return OP_SUCCESS;
@@ -788,7 +788,7 @@ bool NpingOps::issetDelay(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setDevice(char *n){
   if( n==NULL ){
-    outFatal(QT_3,"setDevice(): Invalid value supplied\n");
+    nping_fatal(QT_3,"setDevice(): Invalid value supplied\n");
   }else{
     Strncpy(this->device, n, MAX_DEV_LEN-1);
   }
@@ -904,7 +904,7 @@ bool NpingOps::issetDisablePacketCapture(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setIPVersion(u8 val){
   if( val!=IP_VERSION_4 && val!=IP_VERSION_6 ){
-    outFatal(QT_3,"setIPVersion(): Invalid value supplied\n");
+    nping_fatal(QT_3,"setIPVersion(): Invalid value supplied\n");
     return OP_FAILURE;
   }else{
     this-> ipversion=val;
@@ -1009,7 +1009,7 @@ bool NpingOps::issetIsRoot(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setPayloadType(int t){
   if( t!=PL_RAND && t!=PL_HEX && t!=PL_FILE && t!=PL_STRING){
-    outFatal(QT_3,"setPayloadType(): Invalid value supplied\n");
+    nping_fatal(QT_3,"setPayloadType(): Invalid value supplied\n");
     return OP_FAILURE;
   }else{
     payload_type=t;
@@ -1036,7 +1036,7 @@ bool NpingOps::issetPayloadType(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setPayloadBuffer(u8 *p, int len){
   if( p==NULL || len < 0 ){
-    outFatal(QT_3,"setPayloadBuffer(): Invalid value supplied\n");
+    nping_fatal(QT_3,"setPayloadBuffer(): Invalid value supplied\n");
     return OP_FAILURE;
   }else{
     this->payload_buff=p;
@@ -1074,7 +1074,7 @@ bool NpingOps::issetPayloadLen(){
 
 int NpingOps::setPayloadFilename(char *name){
   if( name==NULL ){
-    outFatal(QT_3,"setPayloadFile(): Invalid value supplied\n");
+    nping_fatal(QT_3,"setPayloadFile(): Invalid value supplied\n");
     return OP_FAILURE;
   }else{
     this->payload_file= strdup(name);
@@ -1107,7 +1107,7 @@ bool NpingOps::issetPayloadFilename(){
 int NpingOps::setRole(int r){
   int prev = this->role;
   if (r!=ROLE_NORMAL && r!=ROLE_CLIENT && r!=ROLE_SERVER){
-    outError(QT_2,"setRoleClient(): Invalid role supplied");
+    nping_warning(QT_2,"setRoleClient(): Invalid role supplied");
     return OP_FAILURE;
   }
   else
@@ -1291,7 +1291,7 @@ bool NpingOps::issetDF(){
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 int NpingOps::setMTU(u32 t){
   if(t==0 || (t%8)!=0){
-    outFatal(QT_3,"setMTU(): Invalid mtu supplied\n");
+    nping_fatal(QT_3,"setMTU(): Invalid mtu supplied\n");
   }else{
     this->mtu=t;
     this->mtu_set=true;
@@ -1369,7 +1369,7 @@ bool NpingOps::issetIPv4SourceAddress(){
  *  be free()ed by the NpingOps destructor.                                  */
 int NpingOps::setIPOptions(char *txt){
   if (txt==NULL)
-    outFatal(QT_3,"setIPOptions(): NULL pointer supplied\n");
+    nping_fatal(QT_3,"setIPOptions(): NULL pointer supplied\n");
   this->ip_options=strdup(txt) ;
   this->ip_options_set=true;
   return OP_SUCCESS;
@@ -1434,7 +1434,7 @@ bool NpingOps::issetFlowLabel(){
 
 int NpingOps::setIPv6SourceAddress(u8 *val){
   if(val==NULL)
-    outFatal(QT_3,"setIPv6SourceAddress(): NULL pointer supplied\n");
+    nping_fatal(QT_3,"setIPv6SourceAddress(): NULL pointer supplied\n");
   memcpy(this->ipv6_src_address.s6_addr, val, 16);
   this->ipv6_src_address_set=true;
   return OP_SUCCESS;
@@ -1499,7 +1499,7 @@ struct sockaddr_storage *NpingOps::getSourceSockAddr(struct sockaddr_storage *ss
     else
         s6->sin6_port=0;
   }else{
-    outFatal(QT_3, "NpingOps::getSourceSockAddr(): IP version unset.");
+    nping_fatal(QT_3, "NpingOps::getSourceSockAddr(): IP version unset.");
   }
   return ss;
 } /* End of getSourceSockAddr() */
@@ -1523,7 +1523,7 @@ u16 *NpingOps::getTargetPorts( int *len ){
 /** @warning ports in the supplied array must be in HOST byte order */
 int NpingOps::setTargetPorts( u16 *pnt, int n ){
   if(this->tportcount>65536 || this->tportcount<0)
-    outFatal(QT_3, "setTargetPorts():: Invalid number of ports supplied.");
+    nping_fatal(QT_3, "setTargetPorts():: Invalid number of ports supplied.");
   this->target_ports=pnt;
   this->tportcount=n;
   this->target_ports_set=true;
@@ -1609,7 +1609,7 @@ bool NpingOps::issetTCPAck(){
 
 int NpingOps::setFlagTCP(int flag){
   if (flag < FLAG_CWR || flag > FLAG_FIN)
-    outFatal(QT_3,"setFlagTCP(): Invalid flag supplied\n");
+    nping_fatal(QT_3,"setFlagTCP(): Invalid flag supplied\n");
   else
     this->tcpflags[flag]=1;
   this->tcpflags_set=true;
@@ -1635,7 +1635,7 @@ int NpingOps::unsetAllFlagsTCP(){
 
 int NpingOps::getFlagTCP(int flag){
   if (flag < FLAG_CWR || flag > FLAG_FIN)
-    outFatal(QT_3,"setFlagTCP(): Invalid flag supplied\n");
+    nping_fatal(QT_3,"setFlagTCP(): Invalid flag supplied\n");
   return this->tcpflags[flag];
 } /* End of getFlagTCP() */
 
@@ -1987,9 +1987,9 @@ int NpingOps::addICMPAdvertEntry(struct in_addr addr, u32 pref ){
  *  0 <= num < getICMPAdvertEntryCount() */
 int NpingOps::getICMPAdvertEntry(int num, struct in_addr *addr, u32 *pref){
   if( num<0 || num>=icmp_advert_entry_count )
-    outFatal(QT_3,"getICMPAdvertEntry(): Supplied index is out of bounds.\n");
+    nping_fatal(QT_3,"getICMPAdvertEntry(): Supplied index is out of bounds.\n");
   if( addr==NULL || pref==NULL)
-    outFatal(QT_3,"getICMPAdvertEntry(): NULL pointer supplied\n");
+    nping_fatal(QT_3,"getICMPAdvertEntry(): NULL pointer supplied\n");
   *addr =  this->icmp_advert_entry_addr[num];
   *pref =  this->icmp_advert_entry_pref[num];
   return OP_SUCCESS;
@@ -2346,9 +2346,9 @@ if( !this->issetIsRoot() ){
 
 if (this->havePcap()==false){
     #ifdef WIN32
-        outFatal(QT_3, "Nping requires %s", privreq);
+        nping_fatal(QT_3, "Nping requires %s", privreq);
     #else
-        outFatal(QT_3, "Nping requires libpcap to be installed on your system.");
+        nping_fatal(QT_3, "Nping requires libpcap to be installed on your system.");
     #endif
 }
 
@@ -2363,10 +2363,10 @@ if (this->havePcap()==false){
   /* Check if user entered at least one target spec */
   if( this->getRole() == ROLE_NORMAL ){
     if ( this->targets.getTargetSpecCount() <= 0 )
-        outFatal(QT_3,"WARNING: No targets were specified, so 0 hosts pinged.");
+        nping_fatal(QT_3,"WARNING: No targets were specified, so 0 hosts pinged.");
   }else if( this->getRole() == ROLE_CLIENT ){
     if ( this->targets.getTargetSpecCount() <= 0 )
-        outFatal(QT_3,"No echo server was specified.");
+        nping_fatal(QT_3,"No echo server was specified.");
   }
 
 /** IP VERSION ***************************************************************/
@@ -2411,11 +2411,11 @@ if (this->havePcap()==false){
 
 /** CHECK PRIVILEGES FOR CURRENT ROLE ****************************************/
   if( !this->isRoot() && (this->getRole()==ROLE_SERVER || this->getRole()==ROLE_CLIENT) )
-    outFatal(QT_3,"Echo mode requires %s.", privreq);
+    nping_fatal(QT_3,"Echo mode requires %s.", privreq);
 
 /** CHECK PRIVILEGES FOR CURRENT MODE ****************************************/
   if( !this->isRoot() && this->getMode()!=UDP_UNPRIV && this->getMode()!=TCP_CONNECT )
-    outFatal(QT_3,"Mode %s requires %s.", this->mode2Ascii( this->getMode() ), privreq);
+    nping_fatal(QT_3,"Mode %s requires %s.", this->mode2Ascii( this->getMode() ), privreq);
 
 
 /** DEFAULT HEADER PARAMETERS *************************************************/
@@ -2423,13 +2423,13 @@ if (this->havePcap()==false){
 
 /** ARP MODE RELATED PARAMETERS *********************************************/
   if(this->getMode()==ARP && this->ipv6()) {
-    outFatal(QT_3, "Sorry, ARP does not support IPv6 and Nping does not yet support NDP.");
+    nping_fatal(QT_3, "Sorry, ARP does not support IPv6 and Nping does not yet support NDP.");
   }
 
 /** TCP CONNECT RELATED PARAMETERS *********************************************/
   if(this->getMode()==TCP_CONNECT) {
       if(this->issetPayloadBuffer() || this->issetPayloadFilename())
-        outPrint(VB_0, "Warning: Payload supplied in TCP Connect mode. Payload will be ignored.");
+        nping_print(VB_0, "Warning: Payload supplied in TCP Connect mode. Payload will be ignored.");
   }
 
 /** SOURCE IP, SOURCE MAC and NETWORK DEVICE *********************************/
@@ -2467,7 +2467,7 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
                 if( this->targets.getNextTargetAddressAndName(&ss, &ss_len, hostname, sizeof(hostname)) == OP_SUCCESS )
                     break;
                 else if( z>=(this->targets.getTargetSpecCount()-1) )
-                    outFatal(QT_3,"Cannot find a valid target. Please make sure the specified hosts are either IP addresses in standard notation or hostnames that can be resolved with DNS");
+                    nping_fatal(QT_3,"Cannot find a valid target. Please make sure the specified hosts are either IP addresses in standard notation or hostnames that can be resolved with DNS");
              }
              this->targets.rewind();
 
@@ -2476,15 +2476,15 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
                 /* If that didn't work, ask libpcap */
                 char errbuf[PCAP_ERRBUF_SIZE];
                 if ( (dev = pcap_lookupdev(errbuf)) == NULL)
-                    outFatal(QT_3, "Cannot obtain device for packet capture --> %s", errbuf);
+                    nping_fatal(QT_3, "Cannot obtain device for packet capture --> %s", errbuf);
                 else
                     this->setDevice( dev );
                 /* Libpcap gave us a device name, try to obtain it's IP */
                 if ( devname2ipaddr_alt(this->getDevice(), &ifaddr) != 0 ){
                     if( this->isRoot() )
-                        outFatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
+                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, does it even exist?", this->getDevice());
                     else
-                        outFatal(QT_3,"Cannot figure out what source address to use for device %s, are you root?", this->getDevice());
+                        nping_fatal(QT_3,"Cannot figure out what source address to use for device %s, are you root?", this->getDevice());
                 }
                 else{
                     if( s4->sin_family==AF_INET )
@@ -2498,23 +2498,23 @@ if( this->getMode()!=TCP_CONNECT && this->getMode()!=UDP_UNPRIV && this->getRole
         }else{ /* In IPv6 we just select one in libpcap and hope is the right one */
             char *selected_iface=this->select_network_iface();
             if(selected_iface==NULL)
-                outFatal(QT_3, "Error trying to find a suitable network interface ");
+                nping_fatal(QT_3, "Error trying to find a suitable network interface ");
             else
                 this->setDevice( selected_iface );
         }
     } /* CASE 2: User did actually supply a device name */
     else{
-        outPrint(DBG_2, "Using network interface \"%s\"", this->getDevice() );
+        nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
     }
 
 /* The echo server needs to find out a network interface*/
 }else if (this->getRole()==ROLE_SERVER && this->issetDevice()==false){
   char *selected_iface=this->select_network_iface();
   if(selected_iface==NULL)
-    outFatal(QT_3, "Error trying to find a suitable network interface ");
+    nping_fatal(QT_3, "Error trying to find a suitable network interface ");
   else
     this->setDevice( selected_iface );
-  outPrint(DBG_2, "Using network interface \"%s\"", this->getDevice() );
+  nping_print(DBG_2, "Using network interface \"%s\"", this->getDevice() );
 }
 
 /** RAW IP AND RAW ETHERNET TRANSMISSION MODES *******************************/
@@ -2549,7 +2549,7 @@ if(this->getRole()!=ROLE_SERVER){
             this->setSendEth(true);
             this->setSendPreference( PACKET_SEND_ETH_STRONG );
         }else{
-            outFatal(QT_3, "If you want to control some of the fields"
+            nping_fatal(QT_3, "If you want to control some of the fields"
                          " in the IPv6 header you also have to supply source and"
                          " destination MAC address. However, you can always"
                          " choose to let the kernel create the IPv6  header"
@@ -2579,7 +2579,7 @@ if(this->getRole()!=ROLE_SERVER){
 
     if( this->getMode()==ARP && !this->sendPreferenceEthernet() ){
         this->setSendEth(true);
-        outError(QT_2, "Warning: ARP mode requieres raw ethernet frame transmission. Specified preference will be ignored.");
+        nping_warning(QT_2, "Warning: ARP mode requieres raw ethernet frame transmission. Specified preference will be ignored.");
     }
     else if( this->ipv6() ){
 
@@ -2591,7 +2591,7 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 2: User requested Ethernet but did not really supplied all
          * the information we need */
         }else if( this->sendPreferenceEthernet() && !this->canDoIPv6Ethernet() ){
-            outFatal(QT_3, "You requested raw ethernet level transmission and IPv6."
+            nping_fatal(QT_3, "You requested raw ethernet level transmission and IPv6."
                     " In this case, you need to supply source MAC address,"
                     " destination MAC address and IPv6 source address.");
 
@@ -2603,7 +2603,7 @@ if(this->getRole()!=ROLE_SERVER){
         /* CASE 4: User requested raw IP transmission but also wanted to
          * set custom IPv6 header field values. */
         }else if (this->sendPreferenceIP() && !this->canDoIPv6ThroughSocket()){
-            outFatal(QT_3, "You requested raw IP transmission mode for IPv6."
+            nping_fatal(QT_3, "You requested raw IP transmission mode for IPv6."
                          " Nping does not currently allow IPv6 header manipulation"
                          " when sending packets at raw IP level due to the limitations"
                          " on raw IPv6 sockets, imposed by RFC 2292. Please"
@@ -2619,9 +2619,9 @@ if(this->getRole()!=ROLE_SERVER){
     }
  }
  if( this->getMode()==TCP_CONNECT || this->getMode()==UDP_UNPRIV )
-    outPrint(DBG_2,"Nping will send packets in unprivileged mode using regular system calls");
+    nping_print(DBG_2,"Nping will send packets in unprivileged mode using regular system calls");
  else
-    outPrint(DBG_2,"Nping will send packets at %s",  this->sendEth() ? "raw ethernet level" : "raw IP level" );
+    nping_print(DBG_2,"Nping will send packets at %s",  this->sendEth() ? "raw ethernet level" : "raw IP level" );
 }
 
 /** ECHO MODE ************************************************************/
@@ -2635,9 +2635,9 @@ if(this->getRole()!=ROLE_SERVER){
     if(this->getMode()==TCP){
         for(int i=0; i<tportcount; i++){
             if( this->target_ports[i]==this->getEchoPort())
-                outFatal(QT_3, "Packets can't be sent to the same port that is used to connect to the echo server (%d)", this->getEchoPort());
+                nping_fatal(QT_3, "Packets can't be sent to the same port that is used to connect to the echo server (%d)", this->getEchoPort());
             else if(this->getSourcePort()==this->getEchoPort())
-                outFatal(QT_3, "Packets can't be sent from the same port that is used to connect to the echo server (%d)", this->getEchoPort());
+                nping_fatal(QT_3, "Packets can't be sent from the same port that is used to connect to the echo server (%d)", this->getEchoPort());
         }
     }
 
@@ -2649,14 +2649,14 @@ if(this->getRole()!=ROLE_SERVER){
         break;
 
         default:
-            outFatal(QT_3, "The echo client can't be run with protocols other than TCP, UDP or ICMP.");
+            nping_fatal(QT_3, "The echo client can't be run with protocols other than TCP, UDP or ICMP.");
         break;
     }
   }
   #ifndef HAVE_OPENSSL
   if(this->getRole()==ROLE_CLIENT || this->getRole()==ROLE_SERVER ){
     if( this->doCrypto()==true  ){
-        outFatal(QT_3, "Nping was compiled without OpenSSL so authentications need to be transmitted as cleartext. If you wish to continue, please specify --no-crypto.");
+        nping_fatal(QT_3, "Nping was compiled without OpenSSL so authentications need to be transmitted as cleartext. If you wish to continue, please specify --no-crypto.");
     }
   }
   #endif
@@ -2785,13 +2785,13 @@ bool NpingOps::canDoIPv6Ethernet(){
 void NpingOps::displayNpingDoneMsg(){
 
   if( this->getRole()==ROLE_SERVER ){
-      outPrint(QT_1, "Nping done: %lu %s served in %.2f seconds",
+      nping_print(QT_1, "Nping done: %lu %s served in %.2f seconds",
                (unsigned long)this->stats.getEchoClientsServed(),
                (this->stats.getEchoClientsServed() == 1)? "client" : "clients",
                this->stats.elapsedRuntime()
               );
   }else{
-      outPrint(QT_1, "Nping done: %lu %s pinged in %.2f seconds",
+      nping_print(QT_1, "Nping done: %lu %s pinged in %.2f seconds",
                this->targets.getTargetsFetched(),
                (this->targets.getTargetsFetched() == 1)? "IP address" : "IP addresses",
                this->stats.elapsedRuntime()
@@ -2807,7 +2807,7 @@ void NpingOps::displayStatistics(){
   NpingTarget *target=NULL;
   this->targets.rewind();
 
-  outPrint(VB_0," "); /* Print newline */
+  nping_print(VB_0," "); /* Print newline */
 
     /* Per-target statistics */
     if( this->targets.getTargetsFetched() > 1){
@@ -2822,87 +2822,87 @@ void NpingOps::displayStatistics(){
 #ifdef WIN32
       /* Sent/Recv/Echoed Packets */
       if(this->getRole()==ROLE_CLIENT){
-          outPrint(QT_1|NO_NEWLINE, "Raw packets sent: %I64u ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Rcvd: %I64u ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Lost: %I64u ", this->stats.getLostPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
-          outPrint(QT_1|NO_NEWLINE,"| Echoed: %I64u ", this->stats.getEchoedPackets() );
-          outPrint(QT_1,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE, "Raw packets sent: %I64u ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Rcvd: %I64u ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Lost: %I64u ", this->stats.getLostPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE,"| Echoed: %I64u ", this->stats.getEchoedPackets() );
+          nping_print(QT_1,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
       }else if(this->getRole()==ROLE_SERVER){
-          outPrint(QT_1|NO_NEWLINE, "Raw packets captured: %I64u ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Echoed: %I64u ", this->stats.getEchoedPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Not Matched: %I64u ", this->stats.getUnmatchedPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes()-this->stats.getEchoedBytes(), auxbuff, 256));
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getUnmatchedPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "Raw packets captured: %I64u ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Echoed: %I64u ", this->stats.getEchoedPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Not Matched: %I64u ", this->stats.getUnmatchedPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes()-this->stats.getEchoedBytes(), auxbuff, 256));
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getUnmatchedPacketPercentage100() );
       }else if(this->getMode()==TCP_CONNECT){
-          outPrint(QT_1|NO_NEWLINE, "TCP connection attempts: %I64u ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Successful connections: %I64u ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Failed: %I64u ", this->stats.getLostPackets() );
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "TCP connection attempts: %I64u ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Successful connections: %I64u ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Failed: %I64u ", this->stats.getLostPackets() );
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
       } else if (this->getMode()==UDP_UNPRIV){
-          outPrint(QT_1|NO_NEWLINE, "UDP packets sent: %I64u ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Rcvd: %I64u ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Lost: %I64u ", this->stats.getLostPackets() );
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "UDP packets sent: %I64u ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Rcvd: %I64u ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Lost: %I64u ", this->stats.getLostPackets() );
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
       } else{
-          outPrint(QT_1|NO_NEWLINE, "Raw packets sent: %I64u ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Rcvd: %I64u ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Lost: %I64u ", this->stats.getLostPackets() );
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "Raw packets sent: %I64u ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Rcvd: %I64u ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Lost: %I64u ", this->stats.getLostPackets() );
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
      }
 #else
       /* Sent/Recv/Echoed Packets */
       if(this->getRole()==ROLE_CLIENT){
-          outPrint(QT_1|NO_NEWLINE, "Raw packets sent: %llu ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Rcvd: %llu ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Lost: %llu ", this->stats.getLostPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
-          outPrint(QT_1|NO_NEWLINE,"| Echoed: %llu ", this->stats.getEchoedPackets() );
-          outPrint(QT_1,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE, "Raw packets sent: %llu ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Rcvd: %llu ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Lost: %llu ", this->stats.getLostPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE,"| Echoed: %llu ", this->stats.getEchoedPackets() );
+          nping_print(QT_1,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
       }else if(this->getRole()==ROLE_SERVER){
-          outPrint(QT_1|NO_NEWLINE, "Raw packets captured: %llu ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Echoed: %llu ", this->stats.getEchoedPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Not Matched: %llu ", this->stats.getUnmatchedPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes()-this->stats.getEchoedBytes(), auxbuff, 256));
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getUnmatchedPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "Raw packets captured: %llu ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Echoed: %llu ", this->stats.getEchoedPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getEchoedBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Not Matched: %llu ", this->stats.getUnmatchedPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes()-this->stats.getEchoedBytes(), auxbuff, 256));
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getUnmatchedPacketPercentage100() );
       }else if(this->getMode()==TCP_CONNECT){
-          outPrint(QT_1|NO_NEWLINE, "TCP connection attempts: %llu ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Successful connections: %llu ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Failed: %llu ", this->stats.getLostPackets() );
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "TCP connection attempts: %llu ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Successful connections: %llu ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Failed: %llu ", this->stats.getLostPackets() );
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
       } else if (this->getMode()==UDP_UNPRIV){
-          outPrint(QT_1|NO_NEWLINE, "UDP packets sent: %llu ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Rcvd: %llu ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"| Lost: %llu ", this->stats.getLostPackets() );
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "UDP packets sent: %llu ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Rcvd: %llu ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"| Lost: %llu ", this->stats.getLostPackets() );
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
       } else{
-          outPrint(QT_1|NO_NEWLINE, "Raw packets sent: %llu ", this->stats.getSentPackets() );
-          outPrint(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Rcvd: %llu ", this->stats.getRecvPackets() );
-          outPrint(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
-          outPrint(QT_1|NO_NEWLINE,"| Lost: %llu ", this->stats.getLostPackets() );
-          outPrint(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
+          nping_print(QT_1|NO_NEWLINE, "Raw packets sent: %llu ", this->stats.getSentPackets() );
+          nping_print(QT_1|NO_NEWLINE, "(%s) ", format_bytecount(this->stats.getSentBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Rcvd: %llu ", this->stats.getRecvPackets() );
+          nping_print(QT_1|NO_NEWLINE,"(%s) ", format_bytecount(this->stats.getRecvBytes(), auxbuff, 256));
+          nping_print(QT_1|NO_NEWLINE,"| Lost: %llu ", this->stats.getLostPackets() );
+          nping_print(QT_1,"(%.2lf%%)", this->stats.getLostPacketPercentage100() );
      }
 #endif
 
       /* Transmission times & rates */
-      outPrint(VB_1|NO_NEWLINE,"Tx time: %.5lfs ", this->stats.elapsedTx() );
-      outPrint(VB_1|NO_NEWLINE,"| Tx bytes/s: %.2lf ", this->stats.getOverallTxByteRate() );
-      outPrint(VB_1,"| Tx pkts/s: %.2lf", this->stats.getOverallTxPacketRate() );
+      nping_print(VB_1|NO_NEWLINE,"Tx time: %.5lfs ", this->stats.elapsedTx() );
+      nping_print(VB_1|NO_NEWLINE,"| Tx bytes/s: %.2lf ", this->stats.getOverallTxByteRate() );
+      nping_print(VB_1,"| Tx pkts/s: %.2lf", this->stats.getOverallTxPacketRate() );
+      nping_print(VB_1|NO_NEWLINE,"Rx time: %.5lfs ", this->stats.elapsedRx() );
+      nping_print(VB_1|NO_NEWLINE,"| Rx bytes/s: %.2lf ", this->stats.getOverallRxByteRate() );
+      nping_print(VB_1,"| Rx pkts/s: %.2lf", this->stats.getOverallRxPacketRate() );
 
-      outPrint(VB_1|NO_NEWLINE,"Rx time: %.5lfs ", this->stats.elapsedRx() );
-      outPrint(VB_1|NO_NEWLINE,"| Rx bytes/s: %.2lf ", this->stats.getOverallRxByteRate() );
-      outPrint(VB_1,"| Rx pkts/s: %.2lf", this->stats.getOverallRxPacketRate() );
 } /* End of displayStatistics() */
 
 
@@ -2938,7 +2938,7 @@ char *NpingOps::select_network_iface(){
 
     /* Ask libpcap for a list of network interfaces */
     if( pcap_findalldevs(&pcap_ifaces, errbuf) != 0 )
-        outFatal(QT_3, "Cannot obtain device for packet capture --> %s. You may want to specify one explicitly using option -e", errbuf);
+        nping_fatal(QT_3, "Cannot obtain device for packet capture --> %s. You may want to specify one explicitly using option -e", errbuf);
 
     /* Iterate over the interface list and select the best one */
     for(curr=pcap_ifaces; curr!=NULL; curr=curr->next){
@@ -3241,7 +3241,7 @@ Initialization for NpingOps::NpingOps()
  *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
 /*int NpingOps::setMETHNAME(TYPE val){
    if( 0 ){
-        outFatal(QT_3,"setMETHNAME(): Invalid value supplied\n");
+        nping_fatal(QT_3,"setMETHNAME(): Invalid value supplied\n");
         return OP_FAILURE;
     }else{
         ATTRNAME=val;
