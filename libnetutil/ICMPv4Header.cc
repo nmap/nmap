@@ -329,6 +329,8 @@ bool ICMPv4Header::validateType(u8 val){
         case ICMP_MASK:
         case ICMP_MASKREPLY:
         case ICMP_TRACEROUTE:
+        case ICMP_DOMAINNAME:
+        case ICMP_DOMAINNAMEREPLY:
             return true;
         break;
 
@@ -1059,6 +1061,11 @@ int ICMPv4Header::getICMPHeaderLengthFromType( u8 type ) const {
 
         case ICMP_TRACEROUTE:
             return 20;
+        break;
+        
+        case ICMP_DOMAINNAME:
+        case ICMP_DOMAINNAMEREPLY:
+            return 8;
         break;
 
         /* Packets with non RFC-Compliant types will be represented as
