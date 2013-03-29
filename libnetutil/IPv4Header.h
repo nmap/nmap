@@ -242,6 +242,7 @@ class IPv4Header : public NetworkLayerElement {
 
         /* IP Options */
         int setOpts(const char *txt);
+        int setOpts(u8 *opts_buff,  u32 opts_len);
         const u8 *getOpts() const;
         const u8 *getOpts(int *len) const;
         int printOptions() const;

@@ -93,6 +93,7 @@
 /* This code was originally part of the Nping tool.                        */
 
 #include "IPv4Header.h"
+#include <assert.h>
 
 /******************************************************************************/
 /* CONTRUCTORS, DESTRUCTORS AND INITIALIZATION METHODS                        */
@@ -623,12 +624,21 @@ int IPv4Header::setOpts(const char *txt){
     return OP_FAILURE;
    }else{
      /* Copy options to our IP header */
-     memcpy(h.options, buffer, ret);
-     this->ipoptlen=ret;
-     this->length += ret;
-     this->setHeaderLength();
+     this->setOpts(buffer, ret);
    }
    return OP_SUCCESS;
+} /* End of setOpts() */
+
+
+int IPv4Header::setOpts(u8 *opts_buff,  u32 opts_len){
+  if(opts_buff==NULL || opts_len==0)
+   return OP_FAILURE;
+  assert(opts_len<=MAX_IP_OPTIONS_LEN); /* Max lenght for IP options */
+  memcpy(this->h.options, opts_buff, opts_len);
+  this->ipoptlen=opts_len;
+  this->length += opts_len;
+  this->setHeaderLength();
+  return OP_SUCCESS;
 } /* End of setOpts() */
 
 
