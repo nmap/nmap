@@ -204,7 +204,12 @@ int ICMPv6Header::print(FILE *output, int detail) const {
     case ICMPv6_UNREACH:
     case ICMPv6_TIMXCEED:
       if(detail>=PRINT_DETAIL_HIGH)
-        fprintf(output, " unused=0x%08lX", (long unsigned int)this->getUnused());
+        fprintf(output, " unused=%lu", (long unsigned int)this->getUnused());
+    break;
+    
+    case ICMPv6_ROUTERSOLICIT:
+      if(detail>=PRINT_DETAIL_HIGH)
+        fprintf(output, " reserved=%lu", (long unsigned int)this->getReserved());
     break;
   
     case ICMPv6_PKTTOOBIG:
