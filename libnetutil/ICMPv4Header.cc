@@ -1113,8 +1113,10 @@ const char *ICMPv4Header::type2string(int type, int code) const {
 
         case ICMP_REDIRECT:
             switch(code){
-                case ICMP_REDIRECT_NET: return "Network redirect"; break;
-                case ICMP_REDIRECT_HOST: return "Host redirect"; break;
+                case ICMP_REDIRECT_NET: return "Redirect for network"; break;
+                case ICMP_REDIRECT_HOST: return "Redirect for host"; break;
+                case ICMP_REDIRECT_TOSNET: return "Redirect for TOS and network"; break;
+                case ICMP_REDIRECT_TOSHOST: return "Redirect for TOS and host"; break;
                 default: return "Redirect (unknown code)"; break;
             }
         break;
