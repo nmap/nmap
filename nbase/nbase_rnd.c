@@ -238,6 +238,13 @@ unsigned int get_random_uint() {
   return i;
 }
 
+u64 get_random_u64() {
+  u64 i;
+  get_random_bytes(&i, sizeof(i));
+  return i;
+}
+
+
 u32 get_random_u32() {
   u32 i;
   get_random_bytes(&i, sizeof(i));

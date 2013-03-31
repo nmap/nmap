@@ -479,6 +479,7 @@ int get_random_bytes(void *buf, int numbytes);
 int get_random_int();
 unsigned short get_random_ushort();
 unsigned int get_random_uint();
+u64 get_random_u64();
 u32 get_random_u32();
 u16 get_random_u16();
 u8 get_random_u8();
