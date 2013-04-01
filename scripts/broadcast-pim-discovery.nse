@@ -15,7 +15,7 @@ This works by sending a PIM Hello message to the PIM multicast address
 224.0.0.13 and listening for Hello messages from other routers.
 ]]
 
---
+---
 -- @args broadcast-pim-discovery.timeout Time to wait for responses in seconds.
 -- Defaults to <code>5s</code>.
 --

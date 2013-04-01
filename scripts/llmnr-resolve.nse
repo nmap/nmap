@@ -82,9 +82,9 @@ local llmnrSend = function(query, mcast, mport)
 end
 
 -- Listens for llmnr responses
--- @interface Network interface to listen on.
--- @timeout Maximum time to listen. 
--- @result table to put responses into.
+-- @param interface Network interface to listen on.
+-- @param timeout Maximum time to listen. 
+-- @param result table to put responses into.
 local llmnrListen = function(interface, timeout, result)
     local condvar = nmap.condvar(result)
     local start = nmap.clock_ms()

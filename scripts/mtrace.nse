@@ -21,7 +21,7 @@ information about interface addresses, used protocols and error codes.
 This is similar to the mtrace utility provided in Cisco IOS.
 ]]
 
---
+---
 --@args mtrace.fromip Source address from which to traceroute.
 --
 --@args mtrace.toip Destination address to which to traceroute.

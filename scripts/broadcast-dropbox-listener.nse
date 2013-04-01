@@ -10,6 +10,7 @@ Listens for the LAN sync information broadcasts that the Dropbox.com client broa
 If the <code>newtargets</code> script argument is given, all discovered Dropbox clients will be added to the Nmap target list rather than just listed in the output.
 ]]
 
+---
 -- @usage
 -- nmap --script=broadcast-dropbox-listener
 -- nmap --script=broadcast-dropbox-listener --script-args=newtargets -Pn

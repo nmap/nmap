@@ -31,6 +31,7 @@ Original reversing of the protocol was done by Luigi Auriemma
 (http://aluigi.altervista.org/papers.htm#ventrilo).
 ]]
 
+---
 -- @usage
 -- nmap -sV <target>
 -- @usage

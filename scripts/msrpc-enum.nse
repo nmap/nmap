@@ -20,7 +20,7 @@ or dcedump tool from SPIKE fuzzer.
 -- @output
 -- PORT    STATE SERVICE      REASON
 -- 445/tcp open  microsoft-ds syn-ack
-
+--
 -- Host script results:
 -- | msrpc-enum:
 -- |
@@ -37,7 +37,7 @@ or dcedump tool from SPIKE fuzzer.
 -- |     annotation: DHCP Client LRPC Endpoint
 -- |     tcp_port: 49153
 -- |
-		-- <snip>
+-- <snip>
 -- |
 -- |     uuid: 12345678-1234-abcd-ef00-0123456789ab
 -- |     annotation: IPSec Policy agent endpoint
