@@ -26,7 +26,7 @@ The target must be specified by DNS name, not IP address.
 -- * Add list of nameservers, or group output accordingly
 --
 
-author = "Arturo Busleiman <buanzo@buanzo.com.ar>"
+author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "external"}
 
