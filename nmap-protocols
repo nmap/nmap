@@ -16,7 +16,7 @@ egp               8  # Exterior Gateway Protocol
 igp               9  # any private interior gateway (
 bbn-rcc-mon      10  # BBN RCC Monitoring
 nvp-ii           11  # Network Voice Protocol
-pup              12  # PUP
+pup              12  # PARC universal packet protocol
 argus            13  # ARGUS
 emcon            14  # EMCON
 xnet             15  # Cross Net Debugger
@@ -140,7 +140,12 @@ sctp            132  # Stream Control Transmission Protocol
 fc              133  # Fibre Channel
 rsvp-e2e-ignore 134
 mobility-hdr    135  # Mobility Header
-udplite         136
-mpls-in-ip      137
+udplite         136  # UDP-Lite [RFC3828]
+mpls-in-ip      137  # MPLS-in-IP [RFC4023]
+manet           138  # MANET Protocols [RFC5498]
+hip             139  # Host Identity Protocol
+shim6           140  # Shim6 Protocol [RFC5533]
+wesp            141  # Wrapped Encapsulating Security Payload
+rohc            142  # Robust Header Compression
 experimental1   253  # Use for experimentation and testing
 experimental2   254  # Use for experimentation and testing
