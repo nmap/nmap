@@ -6,10 +6,9 @@ msgstr ""
 "Project-Id-Version: Zenmap\n"
 "Report-Msgid-Bugs-To: dev@nmap.org\n"
 "POT-Creation-Date: 2013-03-31 10:41-0700\n"
-"PO-Revision-Date: 2012-05-30 05:00+0100\n"
+"PO-Revision-Date: 2013-04-01 13:00+0100\n"
 "Last-Translator: Francesco Tombolini <tombo@adamantio.net>\n"
 "Language-Team: \n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -962,15 +961,19 @@ msgstr ""
 
 #: zenmapGUI/ScanInterface.py:583
 msgid "Cannot merge scan"
-msgstr ""
+msgstr "Impossibile incorporare scansione"
 
 #: zenmapGUI/ScanInterface.py:584
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "There was an error while merging the new scan's XML:\n"
 "\n"
 "%s"
 msgstr ""
+"Si è verificato un errore durante l'analisi del file XML generato dalla "
+"scansione:\n"
+"\n"
+"%s"
 
 #: zenmapGUI/ScanInterface.py:671
 #, python-format

@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Updated the Italian translation. [Giacomo]
+
 o Handle ICMP type 11 (Time Exceeded) responses to port scan probes.
   Ports will be reported as "filtered", to be consistent with existing
   Connect scan results, and will have a reason of time-exceeded.
