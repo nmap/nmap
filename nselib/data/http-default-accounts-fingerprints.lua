@@ -23,10 +23,11 @@ local url = require "url"
 -- @param path Path to request
 -- @param user Username for Basic Auth
 -- @param pass Password for Basic Auth
+-- @param digest_auth Digest Authentication
 -- @return True if login in was successful
 ---
-local function try_http_basic_login(host, port, path, user, pass)
-    local credentials = {username = user, password = pass}
+local function try_http_basic_login(host, port, path, user, pass, digest_auth)
+    local credentials = {username = user, password = pass, digest = digest_auth}
     local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
     if req.status ~= 401 and req.status ~= 403 then
       return true
@@ -92,7 +93,7 @@ table.insert(fingerprints, {
 	{username = "j2deployer", password = "j2deployer"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
   end
 })
 
@@ -140,8 +141,24 @@ table.insert(fingerprints, {
     {username = "cisco", password = "cisco"}
   },
   login_check = function (host, port, path, user, pass)
-    return try_http_basic_login(host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
   end
 })
 
+---
+--Digital recorders
+---
+table.insert(fingerprints, {
+  name = "Digital Sprite 2",
+  category = "security",
+  paths = {
+    {path = "/frmpages/index.html"}
+  },
+  login_combos = {
+    {username = "dm", password = "web"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, true)
+  end
+})
 
