@@ -14,6 +14,10 @@ increase in the level of verbosity requested on the command line.
 -- @output
 -- 21/tcp open  ftp
 -- |_ banner: 220 FTP version 1.0\x0D\x0A
+-- @arg banner.ports Which ports to grab. Same syntax as -p option. Use
+--                   "common" to only grab common text-protocol banners.
+--                   Default: all ports.
+-- @arg banner.timeout How long to wait for a banner. Default: 5s
 
 
 author = "jah"
@@ -22,12 +26,21 @@ categories = {"discovery", "safe"}
 
 
 
-
+local portarg = stdnse.get_script_args(SCRIPT_NAME .. ".ports")
+if portarg == "common" then
+  portarg = "13,17,21-23,25,129,194,587,990,992,994,6667,6697"
+end
 
 ---
 -- Script is executed for any TCP port.
 portrule = function( host, port )
-  return port.protocol == "tcp"
+  if port.protocol == "tcp" then
+    if portarg then
+      return stdnse.in_port_range(port, portarg)
+    end
+    return true
+  end
+  return false
 end
 
 
@@ -50,7 +63,8 @@ end
 function grab_banner(host, port)
 
   local opts = {}
-  opts.timeout = get_timeout()
+  opts.timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+  opts.timeout = (opts.timeout or 5) * 1000
   opts.proto = port.protocol
 
   local status, response = comm.get_banner(host.ip, port.number, opts)
@@ -65,17 +79,6 @@ function grab_banner(host, port)
   return response:match("^%s*(.-)%s*$");
 
 end
-
-
-
----
--- Returns a number of milliseconds for use as a socket timeout value (defaults to 5 seconds).
---
--- @return Number of milliseconds.
-function get_timeout()
-  return 5000
-end
-
 
 
 ---
