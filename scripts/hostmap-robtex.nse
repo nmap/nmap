@@ -22,7 +22,7 @@ Discovers hostnames that resolve to the target's IP address by querying the onli
 -- |_  scanme.org
 --
 
-author = "Arturo Busleiman <buanzo@buanzo.com.ar>";
+author = "Arturo 'Buanzo' Busleiman";
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html";
 categories = {
   "discovery",
