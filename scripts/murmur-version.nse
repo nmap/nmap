@@ -31,6 +31,7 @@ the server.
 See http://mumble.sourceforge.net/Protocol.
 ]]
 
+---
 -- @output
 -- PORT      STATE SERVICE VERSION
 -- 64740/tcp open  murmur  Murmur 1.2.4 (control port; users: 35; max. users: 100; bandwidth: 72000 b/s)

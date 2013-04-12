@@ -20,6 +20,9 @@ categories = {"discovery", "safe"}
 -- |   Successfully added the record "nmap-test.cqure.net"
 -- |_  Successfully deleted the record "nmap-test.cqure.net"
 --
+-- @args dns-update.hostname the name of the host to add to the zone
+-- @args dns-update.ip the ip address of the host to add to the zone
+--
 
 --
 -- Examples
@@ -35,9 +38,6 @@ categories = {"discovery", "safe"}
 --	 * dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="", ttl=0 } )
 --	 * dns.update( "cqure.net", { host=host, port=port, dtype="MX", data="", ttl=0 } )
 --	 * dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data="", ttl=0 } )
---
--- @args dns-update.hostname the name of the host to add to the zone
--- @args dns-update.ip the ip address of the host to add to the zone
 --
 
 -- Version 0.2

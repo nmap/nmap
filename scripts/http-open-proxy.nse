@@ -16,6 +16,10 @@ the target to retrieve a web page from www.google.com.
 ---
 -- @args proxy.url Url that will be requested to the proxy
 -- @args proxy.pattern Pattern that will be searched inside the request results
+-- 
+-- @usage
+-- nmap --script http-open-proxy.nse \
+--      --script-args proxy.url=<url>,proxy.pattern=<pattern>
 -- @output
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT     STATE SERVICE
@@ -35,10 +39,6 @@ the target to retrieve a web page from www.google.com.
 --   * Included url and pattern arguments
 --   * Script now checks for http response status code, when url is used
 --   * If google is used, script checks for Server: gws
--- 
--- @usage
--- nmap --script http-open-proxy.nse \
---      --script-args proxy.url=<url>,proxy.pattern=<pattern>
 
 author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

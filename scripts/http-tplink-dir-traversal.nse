@@ -16,7 +16,6 @@ Other interesting files:
 -- @usage nmap -p80 --script http-tplink-dir-traversal.nse <target>
 -- @usage nmap -p80 -Pn -n --script http-tplink-dir-traversal.nse <target>
 -- @usage nmap -p80 --script http-tplink-dir-traversal.nse --script-args rfile=/etc/topology.conf -d -n -Pn <target>
-
 -- 
 -- @output
 -- PORT   STATE SERVICE REASON

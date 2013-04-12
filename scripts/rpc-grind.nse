@@ -21,6 +21,7 @@ hasn't exported program) means that we have sent the incorrect program number.
 Any other accept state is an incorrect behaviour.
 ]]
 
+---
 -- @args rpc-grind.threads Number of grinding threads. Defaults to <code>4</code>
 --
 -- @usage

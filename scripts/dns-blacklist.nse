@@ -53,7 +53,7 @@ PROXY) or to a specific service name.  ]]
 --
 -- @args dns-blacklist.ip string containing the IP to check only needed if
 --       running the script as a prerule.
-
+--
 -- @args dns-blacklist.mode string containing either "short" or "long"
 --       long mode can sometimes provide additional information to why an IP
 --       has been blacklisted. (default: long)

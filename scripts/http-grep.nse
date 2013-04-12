@@ -27,8 +27,7 @@ discovered.
 -- |     + sales@example.com
 -- |     + sales@example.com
 -- |__   + sales@example.com
-
-
+--
 -- @args http-grep.match the string to match in urls and page contents
 -- @args http-grep.maxdepth the maximum amount of directories beneath
 --       the initial url to spider. A negative value disables the limit.
