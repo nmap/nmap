@@ -5,21 +5,21 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Discovers hostnames that resolve to the target's IP address by querying the Robtex service at http://www.robtex.com/dns/.
+Discovers hostnames that resolve to the target's IP address by querying the online Robtex service at http://ip.robtex.com/.
 ]];
 
 ---
 -- @usage
--- nmap --script hostmap-robtex
+-- nmap --script hostmap-robtex -sn -Pn scanme.nmap.org
 --
 -- @output
--- Host script results:
--- | hostmap-robtex:
--- |   example.edu
--- |   example.net
--- |   example.edu
--- |_  example.net
--- (some results omitted for brevity)
+-- | hostmap-robtex: 
+-- |   scanme.nmap.org
+-- |   li86-221.members.linode.com
+-- |   chat.nmap.org
+-- |   scanme.insecure.org
+-- |   scanme.nmap.com
+-- |_  scanme.org
 --
 
 author = "Arturo Busleiman <buanzo@buanzo.com.ar>";
