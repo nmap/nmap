@@ -37,7 +37,7 @@ categories = {
 function parse_robtex_response (data)
   local result = {};
 
-  for linkhref, domain in string.gmatch(data, "<a href=\"/dns/([^\"]-)%.html\">([^<]-)</a></span>") do
+  for domain in string.gmatch(data, "<span id=\"dns[0-9]+\"><a href=\"//[a-z]+.robtex.com/([^\"]-)%.html\"") do
     if not table.contains(result, domain) then
       table.insert(result, domain);
     end
@@ -50,7 +50,7 @@ hostrule = function (host)
 end;
 
 action = function (host)
-  local link = "http://www.robtex.com/ip/" .. host.ip .. ".html";
+  local link = "http://ip.robtex.com/" .. host.ip .. ".html";
   local htmldata = http.get_url(link);
   local domains = parse_robtex_response(htmldata.body);
   if (#domains > 0) then
