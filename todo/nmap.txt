@@ -13,6 +13,10 @@ o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
 
+o INFRASTRUCTURE: Add IPv6 support to secwiki
+ - We probably just have to designate a new IPv6 address for it and
+   add it to Apache config.
+
 o Add IPv6 subnet/pattern support like we offer for IPv4.
   o Obviously we can't go scanning a /48 in IPv6, but small subnets do
     make sense in some cases.  For example, the VPS hosting company
