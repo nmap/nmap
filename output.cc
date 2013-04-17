@@ -760,7 +760,7 @@ void printportoutput(Target *currenths, PortList *plist) {
             p++;
           }
         }
-        log_write(LOG_MACHINE, "%d/%s/%s//%s/%s/", current->portno,
+        log_write(LOG_MACHINE, "%d/%s/%s//%s//%s/", current->portno,
                   state, protocol, serviceinfo, grepvers);
 
         xml_open_start_tag("port");
