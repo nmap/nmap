@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a regression that changed the number of delimiters in machine
+  output. [Daniel Miller]
+
 o [Zenmap] Updated the Italian translation. [Giacomo]
 
 o Handle ICMP type 11 (Time Exceeded) responses to port scan probes.
