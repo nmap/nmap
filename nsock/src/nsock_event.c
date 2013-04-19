@@ -438,12 +438,12 @@ msevent *msevent_new(mspool *nsp, enum nse_type type, msiod *msiod, int timeout_
   nse->iod = msiod;
   nse->handler = handler;
   nse->userdata = userdata;
-  nse->time_created = nsock_tod;
 
-    if (nse->iod == NULL)
-      nsock_log_debug(nsp, "msevent_new (IOD #NULL) (EID #%li)", nse->id);
-    else
-      nsock_log_debug(nsp, "msevent_new (IOD #%li) (EID #%li)", nse->iod->id, nse->id);
+  if (nse->iod == NULL)
+    nsock_log_debug(nsp, "msevent_new (IOD #NULL) (EID #%li)", nse->id);
+  else
+    nsock_log_debug(nsp, "msevent_new (IOD #%li) (EID #%li)", nse->iod->id,
+                    nse->id);
   return nse;
 }
 
