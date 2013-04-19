@@ -312,7 +312,6 @@ typedef struct {
 /* nsock_event_t handles a single event.  Its ID is generally returned when the
  * event is created, and the event is included in callbacks */
 typedef struct {
-
   /* Every event has an ID which is unique for a given nsock unless you blow
    * through more than 500,000,000 events */
   nsock_event_id id;
@@ -340,8 +339,6 @@ typedef struct {
   /* If we return a status of NSE_STATUS_ERROR, this must be set */
   int errnum;
 
-  int eof;
-
   /* The nsock I/O descriptor related to event (if applicable) */
   msiod *iod;
 
@@ -355,9 +352,8 @@ typedef struct {
    * event_done is nonzero.  Used when event is finished at unexpected time and
    * we want to dispatch it later to avoid duplicating stat update code and all
    * that other crap */
-  int event_done;
-
-  struct timeval time_created;
+  unsigned int event_done: 1;
+  unsigned int eof: 1;
 } msevent;
 
 

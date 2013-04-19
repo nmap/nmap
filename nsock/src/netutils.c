@@ -94,10 +94,10 @@ static int netutils_debugging = 0;
  * process and return that maximum value (note -- you better not actually open
  * this many -- stdin, stdout, other files opened by libraries you use, etc. all
  * count toward this limit.  Leave a little slack */
-int maximize_fdlimit(void) { 
+int maximize_fdlimit(void) {
 
 #ifndef WIN32
-  struct rlimit r; 
+  struct rlimit r;
   static int maxfds = -1;
 
   if (maxfds > 0)
@@ -146,12 +146,12 @@ int maximize_fdlimit(void) {
 
 #if HAVE_SYS_UN_H
 /* Get the UNIX domain socket path or empty string if the address family != AF_UNIX. */
-const char *get_unixsock_path(const struct sockaddr_storage *addr)
-{
+const char *get_unixsock_path(const struct sockaddr_storage *addr) {
+  struct sockaddr_un *su = (struct sockaddr_un *)addr;
+
   if (!addr || addr->ss_family != AF_UNIX)
     return "";
 
-  struct sockaddr_un *su = (struct sockaddr_un *)addr;
   return (const char *)su->sun_path;
 }
 #endif
@@ -160,8 +160,7 @@ const char *get_unixsock_path(const struct sockaddr_storage *addr)
  * In case we have support for UNIX domain sockets, function returns
  * string containing path to UNIX socket if the address family is AF_UNIX,
  * otherwise it returns string containing "<address>:<port>". */
-char *get_peeraddr_string(const msiod *iod)
-{
+char *get_peeraddr_string(const msiod *iod) {
   static char buffer[PEER_STR_LEN];
 
 #if HAVE_SYS_UN_H
