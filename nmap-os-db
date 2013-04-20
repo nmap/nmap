@@ -9854,6 +9854,7 @@ T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
+IE(R=N)
 
 # Canon imageRunner 2525
 Fingerprint Canon imageRUNNER 2525 printer (VxWorks)
@@ -74001,6 +74002,7 @@ T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=Z%F=R%O=%RD=0%Q=)
 U1(DF=N%T=96-A0%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(R=N)
 
 # Xavi Wireless x7868r
 Fingerprint XAVi X7868r wireless ADSL modem
