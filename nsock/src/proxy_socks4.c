@@ -158,6 +158,7 @@ static inline void socks4_data_init(struct socks4_data *socks4,
 }
 
 static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
+  struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   struct sockaddr_storage *ss;
   size_t sslen;
   unsigned short port;
@@ -165,17 +166,17 @@ static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   struct socks4_data socks4;
   int timeout;
 
-  nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TCP_CONNECTED;
+  px_ctx->px_state = PROXY_STATE_SOCKS4_TCP_CONNECTED;
 
-  next = proxy_ctx_node_next(nse->iod->px_ctx);
+  next = proxy_ctx_node_next(px_ctx);
   if (next) {
-    ss = &next->ss;
+    ss    = &next->ss;
     sslen = next->sslen;
-    port = next->port;
+    port  = next->port;
   } else {
-    ss = &nse->iod->px_ctx->target_ss;
-    sslen = nse->iod->px_ctx->target_sslen;
-    port = nse->iod->px_ctx->target_port;
+    ss    = &px_ctx->target_ss;
+    sslen = px_ctx->target_sslen;
+    port  = px_ctx->target_port;
   }
 
   socks4_data_init(&socks4, ss, sslen, port);
@@ -190,6 +191,7 @@ static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
 }
 
 static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
+  struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   char *res;
   int reslen;
 
@@ -198,19 +200,19 @@ static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   if (!(reslen == 8 && res[1] == 90)) {
     struct proxy_node *node;
 
-    node = proxy_ctx_node_current(nse->iod->px_ctx);
+    node = proxy_ctx_node_current(px_ctx);
     nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
                     node->nodestr);
     return;
   }
 
-  nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
+  px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
 
-  if (nse->iod->px_ctx->px_current->next == NULL) {
+  if (px_ctx->px_current->next == NULL) {
     forward_event(nsp, nse, udata);
   } else {
-    nse->iod->px_ctx->px_current = nse->iod->px_ctx->px_current->next;
-    nse->iod->px_ctx->px_state = PROXY_STATE_INITIAL;
+    px_ctx->px_current = px_ctx->px_current->next;
+    px_ctx->px_state   = PROXY_STATE_INITIAL;
     nsock_proxy_ev_dispatch(nsp, nse, udata);
   }
 }
