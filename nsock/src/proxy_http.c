@@ -61,10 +61,6 @@
 
 #define DEFAULT_PROXY_PORT_HTTP 8080
 
-struct http_proxy_info {
-  void *dummy;
-};
-
 
 /* ---- PROTOTYPES ---- */
 static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri);
