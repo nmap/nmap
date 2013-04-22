@@ -166,8 +166,8 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struc
       && (nse->handler != nsock_proxy_ev_dispatch)) {   /* for reentrancy */
     struct proxy_node *current;
 
-    nsock_log_debug_all(ms, "TCP connection request (EID %d) redirected through proxy chain",
-                        nse->id);
+    nsock_log_debug_all(ms, "TCP connection request (EID %lu) redirected through proxy chain",
+                        (long)nse->id);
 
     current = proxy_ctx_node_current(iod->px_ctx);
     assert(current != NULL);
