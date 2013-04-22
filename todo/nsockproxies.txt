@@ -11,4 +11,6 @@ o Handle socks4a
   - If nsock could provide async hostname resolution methods, we could do some
     clever tricks...
 
+o socks5 support
+
 o Explore ways to share code with ncat
