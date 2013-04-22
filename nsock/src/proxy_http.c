@@ -61,9 +61,16 @@
 
 #define DEFAULT_PROXY_PORT_HTTP "8080"
 
+struct http_proxy_info {
+  void *dummy;
+};
 
-/* --- PROXY INTERFACE PROTOTYPES --- */
-static void proxy_http_init(struct proxy_node *proxy, char *proxystr);
+
+/* ---- PROTOTYPES ---- */
+static int proxy_http_node_new(struct proxy_node **node, char *proxystr);
+static void proxy_http_node_delete(struct proxy_node *node);
+static int proxy_http_info_new(void **info);
+static void proxy_http_info_delete(void *info);
 static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
 static nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
                                              int timeout_msecs, void *userdata, struct sockaddr *saddr,
@@ -76,7 +83,10 @@ static char *proxy_http_decode(const char *src, size_t len, size_t *dlen);
 const struct proxy_op proxy_http_ops = {
   .prefix      = "http://",
   .type        = PROXY_TYPE_HTTP,
-  .init        = proxy_http_init,
+  .node_new    = proxy_http_node_new,
+  .node_delete = proxy_http_node_delete,
+  .info_new    = proxy_http_info_new,
+  .info_delete = proxy_http_info_delete,
   .handler     = proxy_http_handler,
   .connect_tcp = proxy_http_connect_tcp,
   .encode      = proxy_http_encode,
@@ -84,10 +94,12 @@ const struct proxy_op proxy_http_ops = {
 };
 
 
-void proxy_http_init(struct proxy_node *proxy, char *proxystr) {
+int proxy_http_node_new(struct proxy_node **node, char *proxystr) {
   struct sockaddr_in *sin;
+  struct proxy_node *proxy;
   char *strhost, *strport, *saveptr;
 
+  proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
   proxy->ops = &proxy_http_ops;
 
   strhost = strtok_r(proxystr + 7, ":", &saveptr);
@@ -101,6 +113,31 @@ void proxy_http_init(struct proxy_node *proxy, char *proxystr) {
 
   proxy->sslen = sizeof(struct sockaddr_in);
   proxy->port = (unsigned short)atoi(strport);
+
+  *node = proxy;
+
+  return 1;
+}
+
+void proxy_http_node_delete(struct proxy_node *node) {
+  if (node)
+    free(node);
+}
+
+int proxy_http_info_new(void **info) {
+  struct http_proxy_info *pxi;
+
+  pxi = (struct http_proxy_info *)safe_zalloc(sizeof(struct http_proxy_info));
+  pxi->dummy = NULL; // TODO
+
+  *info = pxi;
+
+  return 1;
+}
+
+void proxy_http_info_delete(void *info) {
+  if (info)
+    free(info);
 }
 
 void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
