@@ -68,8 +68,8 @@ static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *uda
 static nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
                                              int timeout_msecs, void *userdata, struct sockaddr *saddr,
                                              size_t sslen, unsigned short port);
-static char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen);
-static char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
+static char *proxy_http_encode(const char *src, size_t len, size_t *dlen);
+static char *proxy_http_decode(const char *src, size_t len, size_t *dlen);
 
 
 /* ---- PROXY DEFINITION ---- */
@@ -79,8 +79,8 @@ const struct proxy_op proxy_http_ops = {
   .init        = proxy_http_init,
   .handler     = proxy_http_handler,
   .connect_tcp = proxy_http_connect_tcp,
-  .data_encode = proxy_http_data_encode,
-  .data_decode = proxy_http_data_decode
+  .encode      = proxy_http_encode,
+  .decode      = proxy_http_decode
 };
 
 
@@ -184,12 +184,12 @@ nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev
   return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
 }
 
-char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen) {
+char *proxy_http_encode(const char *src, size_t len, size_t *dlen) {
   // TODO
   return NULL;
 }
 
-char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen) {
+char *proxy_http_decode(const char *src, size_t len, size_t *dlen) {
   // TODO
   return NULL;
 }
