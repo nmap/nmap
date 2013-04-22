@@ -293,8 +293,6 @@ void proxy_http_node_init(struct proxy_node *proxy, char *proxystr) {
   if (strport == NULL)
     strport = "8080";
 
-  printf("init HTTP node http://%s:%s\n", strhost, strport);
-
   sin = (struct sockaddr_in *)&proxy->ss;
   sin->sin_family = AF_INET;
   inet_pton(AF_INET, strhost, &sin->sin_addr);
