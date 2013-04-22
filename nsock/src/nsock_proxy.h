@@ -61,12 +61,6 @@
 #include <nsock.h>
 
 
-/* ------------------ UTIL MACROS ------------------ */
-#define PROXY_CTX_CURRENT(ctx) ((struct proxy_node *)(GH_LIST_ELEM_DATA((ctx)->px_current)))
-#define PROXY_CTX_NEXT(ctx) ((struct proxy_node *)((GH_LIST_ELEM_NEXT((ctx)->px_current)) ? GH_LIST_ELEM_DATA(GH_LIST_ELEM_NEXT((ctx)->px_current)) : NULL))
-#define PROXY_CTX_NODES(ctx) ((ctx)->px_chain->nodes)
-
-
 /* ------------------- CONSTANTS ------------------- */
 enum nsock_proxy_type {
   PROXY_TYPE_HTTP = 0,
@@ -139,6 +133,22 @@ struct proxy_op {
   void (*node_delete)(struct proxy_node *node);
   void (*handler)(nsock_pool nspool, nsock_event nsevent, void *udata);
 };
+
+
+/* ------------------- UTIL FUNCTIONS ------------------- */
+static inline struct proxy_node *proxy_ctx_node_current(struct proxy_chain_context *ctx) {
+  return GH_LIST_ELEM_DATA(ctx->px_current);
+}
+
+static inline struct proxy_node *proxy_ctx_node_next(struct proxy_chain_context *ctx) {
+  gh_list_elem *next;
+
+  next = GH_LIST_ELEM_NEXT(ctx->px_current);
+  if (next)
+    return GH_LIST_ELEM_DATA(next);
+
+  return NULL;
+}
 
 
 /* ------------------- PROTOTYPES ------------------- */
