@@ -98,7 +98,6 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
   *pchain = NULL;
 
   pxc = (struct proxy_chain *)safe_malloc(sizeof(struct proxy_chain));
-  pxc->specstr = strdup(proxystr);
   gh_list_init(&pxc->nodes);
 
   if (proxystr) {
@@ -129,7 +128,6 @@ void nsock_proxychain_delete(nsock_proxychain chain) {
   if (pchain) {
     struct proxy_node *node;
 
-    free(pchain->specstr);
     while ((node = (struct proxy_node *)gh_list_pop(&pchain->nodes)) != NULL) {
       node->ops->node_delete(node);
     }
