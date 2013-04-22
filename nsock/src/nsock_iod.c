@@ -281,6 +281,9 @@ void nsi_delete(nsock_iod nsockiod, int pending_response) {
     nsi->pcap = NULL;
   }
 #endif
+
+  if (nsi->px_ctx)
+    proxy_chain_context_delete(nsi->px_ctx);
 }
 
 /* Returns the ID of an nsock_iod . This ID is always unique amongst ids for a

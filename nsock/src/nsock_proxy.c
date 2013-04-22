@@ -175,6 +175,10 @@ struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   return ctx;
 }
 
+void proxy_chain_context_delete(struct proxy_chain_context *ctx) {
+  if (ctx)
+    free(ctx);
+}
 
 struct proxy_parser *proxy_parser_new(const char *proxychainstr) {
   struct proxy_parser *parser;
