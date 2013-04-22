@@ -157,7 +157,7 @@ static inline void socks4_data_init(struct socks4_data *socks4,
     socks4->address = sin->sin_addr.s_addr;
 }
 
-static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
+static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   struct sockaddr_storage *ss;
   size_t sslen;
@@ -188,9 +188,10 @@ static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
 
   nsock_readbytes(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout,
                   udata, 8);
+  return 0;
 }
 
-static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
+static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   char *res;
   int reslen;
@@ -203,7 +204,7 @@ static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
     node = proxy_ctx_node_current(px_ctx);
     nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
                     node->nodestr);
-    return;
+    return -EINVAL;
   }
 
   px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
@@ -215,20 +216,22 @@ static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
     px_ctx->px_state   = PROXY_STATE_INITIAL;
     nsock_proxy_ev_dispatch(nsp, nse, udata);
   }
+  return 0;
 }
 
 void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+  int rc = 0;
   mspool *nsp = (mspool *)nspool;
   msevent *nse = (msevent *)nsevent;
 
   switch (nse->iod->px_ctx->px_state) {
     case PROXY_STATE_INITIAL:
-      handle_state_initial(nsp, nse, udata);
+      rc = handle_state_initial(nsp, nse, udata);
       break;
 
     case PROXY_STATE_SOCKS4_TCP_CONNECTED:
       if (nse->type == NSE_TYPE_READ)
-        handle_state_tcp_connected(nsp, nse, udata);
+        rc = handle_state_tcp_connected(nsp, nse, udata);
       break;
 
     case PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED:
@@ -237,6 +240,11 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
 
     default:
       fatal("Invalid proxy state!");
+  }
+
+  if (rc) {
+    nse->status = NSE_STATUS_PROXYERROR;
+    forward_event(nsp, nse, udata);
   }
 }
 

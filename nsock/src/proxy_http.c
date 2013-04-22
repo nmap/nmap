@@ -60,6 +60,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include <netdb.h>
 #include <string.h>
 
@@ -125,7 +126,7 @@ void proxy_http_node_delete(struct proxy_node *node) {
   free(node);
 }
 
-static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
+static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   struct sockaddr_storage *ss;
   size_t sslen;
@@ -154,9 +155,11 @@ static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
 
   nsock_readlines(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
                   timeout, udata, 1);
+
+  return 0;
 }
 
-static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
+static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   char *res;
   int reslen;
@@ -164,9 +167,15 @@ static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   res = nse_readbuf(nse, &reslen);
 
   /* TODO string check!! */
-  if ((reslen >= 15) && strstr(res, "200 OK")) {
-    px_ctx->px_state = PROXY_STATE_HTTP_TUNNEL_ESTABLISHED;
+  if (!((reslen >= 15) && strstr(res, "200 OK"))) {
+    struct proxy_node *node;
+
+    node = proxy_ctx_node_current(px_ctx);
+    nsock_log_debug(nsp, "Connection refused from proxy %s", node->nodestr);
+    return -EINVAL;
   }
+
+  px_ctx->px_state = PROXY_STATE_HTTP_TUNNEL_ESTABLISHED;
 
   if (px_ctx->px_current->next == NULL) {
     forward_event(nsp, nse, udata);
@@ -175,20 +184,22 @@ static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
     px_ctx->px_state   = PROXY_STATE_INITIAL;
     nsock_proxy_ev_dispatch(nsp, nse, udata);
   }
+  return 0;
 }
 
 void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+  int rc = 0;
   mspool *nsp = (mspool *)nspool;
   msevent *nse = (msevent *)nsevent;
 
   switch (nse->iod->px_ctx->px_state) {
     case PROXY_STATE_INITIAL:
-      handle_state_initial(nsp, nse, udata);
+      rc = handle_state_initial(nsp, nse, udata);
       break;
 
     case PROXY_STATE_HTTP_TCP_CONNECTED:
       if (nse->type == NSE_TYPE_READ)
-        handle_state_tcp_connected(nsp, nse, udata);
+        rc = handle_state_tcp_connected(nsp, nse, udata);
       break;
 
     case PROXY_STATE_HTTP_TUNNEL_ESTABLISHED:
@@ -197,6 +208,11 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
 
     default:
       fatal("Invalid proxy state!");
+  }
+
+  if (rc) {
+    nse->status = NSE_STATUS_PROXYERROR;
+    forward_event(nsp, nse, udata);
   }
 }
 
