@@ -66,6 +66,9 @@
 #include <string.h>
 
 
+extern struct proxy_actions *ProxyActions;
+
+
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
  * broadcast flag. Trying to change these functions after making this call will
@@ -266,15 +269,7 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
   msiod *nsi = (msiod *)ms_iod;
 
   if (nsi->px_ctx) {
-    memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
-    nsi->px_ctx->target_sslen = sslen;
-    nsi->px_ctx->target_port = port;
-    nsi->px_ctx->target_handler = handler;
-
-    saddr = (struct sockaddr *)&nsi->px_ctx->px_current->ss;
-    sslen = nsi->px_ctx->px_current->sslen;
-    port  = nsi->px_ctx->px_current->port;
-    handler = nsock_proxy_ev_handler;
+    return IOD_PX_TCP_CONNECT(nsi)(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
   }
 
   return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);

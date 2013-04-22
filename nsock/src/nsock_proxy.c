@@ -84,44 +84,86 @@ static void proxy_parser_delete(struct proxy_parser *parser);
 
 static struct proxy_node *proxy_node_new(char *proxystr);
 static void proxy_node_delete(struct proxy_node *proxy);
-static void proxy_chain_delete(struct proxy_node *chain);
 
 static void forward_event(mspool *nsp, msevent *nse, void *udata);
 
-void proxy_http_node_init(struct proxy_node *proxy, char *proxystr);
+static void proxy_http_node_init(struct proxy_node *proxy, char *proxystr);
 static void proxy_http_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
 
 
+static nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
+                                             int timeout_msecs, void *userdata, struct sockaddr *saddr,
+                                             size_t sslen, unsigned short port);
+static  char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen);
+static  char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
 
-/* XXX for the sake of stability we might want to have
- * a write-once only API. So that proxyinfo pointers that
- * are used in the IODs remain valid...
- *
- * A proxy chain is a comma-separated list of proxy specification strings:
- * proto://[user:pass@]host[:port]
- */
-int nsock_set_proxychain(nsock_pool nspool, const char *proxystr) {
-  mspool *nsp = (mspool *)nspool;
 
-  if (nsp->px_chain) {
-    proxy_chain_delete(nsp->px_chain);
-    nsp->px_chain = NULL;
+const struct proxy_actions ProxyActions[PROXY_TYPE_COUNT] = {
+  [PROXY_TYPE_HTTP] = {
+    .connect_tcp = proxy_http_connect_tcp,
+    .data_encode = proxy_http_data_encode,
+    .data_decode = proxy_http_data_decode
   }
+};
 
-  /* Pass NULL to reset the proxy chain. */
+
+/* A proxy chain is a comma-separated list of proxy specification strings:
+ * proto://[user:pass@]host[:port] */
+int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool) {
+  mspool *nsp = (mspool *)nspool;
+  struct proxy_chain **pchain = (struct proxy_chain **)chain;
+
+  *pchain = (struct proxy_chain *)safe_malloc(sizeof(struct proxy_chain));
+  (*pchain)->specstr = strdup(proxystr);
+  gh_list_init(&(*pchain)->nodes);
+
   if (proxystr) {
-    struct proxy_node **ppx;
     struct proxy_parser *parser;
 
-    ppx = &nsp->px_chain;
     for (parser = proxy_parser_new(proxystr); !parser->done; proxy_parser_next(parser)) {
-      *ppx = parser->value;
-      ppx = &parser->value->next;
+      gh_list_append(&(*pchain)->nodes, parser->value);
     }
     proxy_parser_delete(parser);
   }
+
+  if (nsp) {
+    if (nsp_set_proxychain(nspool, *pchain) < 0) {
+      nsock_proxychain_delete(*pchain);
+      return -1;
+    }
+  }
+
   return 0;
 }
+
+void nsock_proxychain_delete(nsock_proxychain chain) {
+  struct proxy_chain *pchain = (struct proxy_chain *)chain;
+
+  if (pchain) {
+    struct proxy_node *node;
+
+    free(pchain->specstr);
+    while ((node = (struct proxy_node *)gh_list_pop(&pchain->nodes)) != NULL) {
+      proxy_node_delete(node);
+    }
+
+    gh_list_free(&pchain->nodes);
+    free(pchain);
+  }
+}
+
+int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
+  mspool *nsp = (mspool *)nspool;
+
+  if (nsp && nsp->px_chain) {
+    nsock_trace(nsp, "Invalid call to %s. Existing proxychain on this nsock_pool", __func__);
+    return -1;
+  }
+
+  nsp->px_chain = (struct proxy_chain *)chain;
+  return 0;
+}
+
 
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   mspool *nsp = (mspool *)nspool;
@@ -129,7 +171,7 @@ struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
 
   ctx = (struct proxy_chain_context *)safe_malloc(sizeof(struct proxy_chain_context));
   ctx->px_state = PROXY_STATE_INITIAL;
-  ctx->px_current = nsp->px_chain;
+  ctx->px_current = GH_LIST_FIRST_ELEM(&nsp->px_chain->nodes);
   return ctx;
 }
 
@@ -188,7 +230,6 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
   }
 
   proxy->px_type = PROXY_TYPE_HTTP;
-  proxy->next = NULL;
   proxy_http_node_init(proxy, proxystr);
 
   return proxy;
@@ -197,15 +238,6 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
 static void proxy_node_delete(struct proxy_node *proxy) {
   if (proxy)
     free(proxy);
-}
-
-static void proxy_chain_delete(struct proxy_node *chain) {
-  struct proxy_node *p, *next;
-
-  for (p = chain; p != NULL; p = next) {
-    next = p->next;
-    proxy_node_delete(p);
-  }
 }
 
 void forward_event(mspool *nsp, msevent *nse, void *udata) {
@@ -230,17 +262,19 @@ void forward_event(mspool *nsp, msevent *nse, void *udata) {
 
 void nsock_proxy_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   msevent *nse = (msevent *)nsevent;
+  struct proxy_node *current;
 
   if (nse->status != NSE_STATUS_SUCCESS)
     fatal("Error, but this is debug only!");
 
-  switch (nse->iod->px_ctx->px_current->px_type) {
+  current = PROXY_CTX_CURRENT(nse->iod->px_ctx);
+  switch (current->px_type) {
     case PROXY_TYPE_HTTP:
       proxy_http_ev_handler(nspool, nsevent, udata);
       break;
 
     default:
-      fatal("Invalid proxy type (%d)", nse->iod->px_ctx->px_current->px_type);
+      fatal("Invalid proxy type (%d)", current->px_type);
   }
 }
 
@@ -274,16 +308,17 @@ void proxy_http_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata) 
     case PROXY_STATE_INITIAL:
       nse->iod->px_ctx->px_state = PROXY_STATE_HTTP_TCP_CONNECTED;
 
-      if (nse->iod->px_ctx->px_current->next == NULL) {
+      if (PROXY_CTX_NEXT(nse->iod->px_ctx)) {
+        struct proxy_node *next;
+
+        next = PROXY_CTX_NEXT(nse->iod->px_ctx);
+        ss = &next->ss;
+        sslen = next->sslen;
+        port = next->port;
+      } else {
         ss = &nse->iod->px_ctx->target_ss;
         sslen = nse->iod->px_ctx->target_sslen;
         port = nse->iod->px_ctx->target_port;
-
-        assert(inet_ntop_ez(ss, sslen));
-      } else {
-        ss = &nse->iod->px_ctx->px_current->next->ss;
-        sslen = nse->iod->px_ctx->px_current->next->sslen;
-        port = nse->iod->px_ctx->px_current->next->port;
       }
       nsock_printf(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_handler,
                    4000, udata, "CONNECT %s:%d HTTP/1.1\r\n\r\n",
@@ -321,5 +356,35 @@ void proxy_http_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata) 
     default:
       fatal("Invalid proxy state!");
   }
+}
+
+nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
+                                      int timeout_msecs, void *userdata, struct sockaddr *saddr,
+                                      size_t sslen, unsigned short port) {
+  msiod *nsi = (msiod *)ms_iod;
+  struct proxy_node *current;
+
+  memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
+  nsi->px_ctx->target_sslen = sslen;
+  nsi->px_ctx->target_port = port;
+  nsi->px_ctx->target_handler = handler;
+
+  current = PROXY_CTX_CURRENT(nsi->px_ctx);
+  saddr = (struct sockaddr *)&current->ss;
+  sslen = current->sslen;
+  port  = current->port;
+  handler = nsock_proxy_ev_handler;
+
+  return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
+}
+
+char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen) {
+  // TODO
+  return NULL;
+}
+
+char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen) {
+  // TODO
+  return NULL;
 }
 

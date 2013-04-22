@@ -57,11 +57,24 @@
 #ifndef NSOCK_PROXY_H
 #define NSOCK_PROXY_H
 
+#include "gh_list.h"
 #include <nsock.h>
+
+
+/* ------------------ UTIL MACROS ------------------ */
+#define PROXY_CTX_CURRENT(ctx) ((struct proxy_node *)(GH_LIST_ELEM_DATA((ctx)->px_current)))
+#define PROXY_CTX_NEXT(ctx) ((struct proxy_node *)((GH_LIST_ELEM_NEXT((ctx)->px_current)) ? GH_LIST_ELEM_DATA(GH_LIST_ELEM_NEXT((ctx)->px_current)) : NULL))
+#define PROXY_CTX_NODES(ctx) ((ctx)->px_chain->nodes)
+
+#define IOD_PX_TCP_CONNECT(iod) (ProxyActions[PROXY_CTX_CURRENT((iod)->px_ctx)->px_type].connect_tcp)
+#define IOD_PX_DATA_ENCODE(iod) (ProxyActions[PROXY_CTX_CURRENT((iod)->px_ctx)->px_type].data_encode)
+#define IOD_PX_DATA_DECODE(iod) (ProxyActions[PROXY_CTX_CURRENT((iod)->px_ctx)->px_type].data_decode)
+
 
 /* ------------------- CONSTANTS ------------------- */
 enum nsock_proxy_type {
-  PROXY_TYPE_HTTP,
+  PROXY_TYPE_HTTP = 0,
+  PROXY_TYPE_COUNT,
 };
 
 enum nsock_proxy_state {
@@ -81,20 +94,32 @@ struct proxy_node {
   struct sockaddr_storage ss;
   size_t sslen;
   unsigned short port;
+};
 
-  /* Use a 'next' pointer instead of a gh_list. This is lighter and doesn't
-   * affect performances since the proxy list isn't dynamic. */
-  struct proxy_node *next;
+struct proxy_chain {
+  char *specstr;
+  gh_list nodes;
 };
 
 struct proxy_chain_context {
+  struct proxy_chain *px_chain;
+
+  /* Those fields are used to store current state during the tunnel
+   * establishment phase. */
+  gh_list_elem *px_current;
   enum nsock_proxy_state px_state;
-  struct proxy_node *px_current;
 
   struct sockaddr_storage target_ss;
   size_t target_sslen;
   unsigned short target_port;
   nsock_ev_handler target_handler;
+};
+
+struct proxy_actions {
+  nsock_event_id (*connect_tcp)(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int mstimeout,
+                                void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port);
+  char *(*data_encode)(const char *src, size_t len, size_t *dlen);
+  char *(*data_decode)(const char *src, size_t len, size_t *dlen);
 };
 
 
