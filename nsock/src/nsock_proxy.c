@@ -202,7 +202,7 @@ static int lowercase(char *s) {
 }
 
 static int hex_digit_value(char digit) {
-  const char *DIGITS = "0123456789abcdef";
+  static const char DIGITS[] = "0123456789abcdef";
   const char *p;
 
   if ((unsigned char)digit == '\0')
