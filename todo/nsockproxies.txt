@@ -1,0 +1,14 @@
+TODO/ideas for nsock proxy support:
+
+
+o Authentication
+
+o Handle socks4a
+  - This requires to figure out how to trigger proxy code without resolving
+    target hostname first. The problem is that the proxy code is supposed to be
+    a transparent hook of connect()... Extending the exported API will probably
+    be needed :(
+  - If nsock could provide async hostname resolution methods, we could do some
+    clever tricks...
+
+o Explore ways to share code with ncat
