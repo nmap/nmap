@@ -97,28 +97,31 @@ const static struct proxy_op *ProxyBackends[] = {
  * proto://[user:pass@]host[:port] */
 int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool) {
   mspool *nsp = (mspool *)nspool;
-  struct proxy_chain **pchain = (struct proxy_chain **)chain;
+  struct proxy_chain *pxc, **pchain = (struct proxy_chain **)chain;
 
-  *pchain = (struct proxy_chain *)safe_malloc(sizeof(struct proxy_chain));
-  (*pchain)->specstr = strdup(proxystr);
-  gh_list_init(&(*pchain)->nodes);
+  *pchain = NULL;
+
+  pxc = (struct proxy_chain *)safe_malloc(sizeof(struct proxy_chain));
+  pxc->specstr = strdup(proxystr);
+  gh_list_init(&pxc->nodes);
 
   if (proxystr) {
     struct proxy_parser *parser;
 
     for (parser = proxy_parser_new(proxystr); !parser->done; proxy_parser_next(parser)) {
-      gh_list_append(&(*pchain)->nodes, parser->value);
+      gh_list_append(&pxc->nodes, parser->value);
     }
     proxy_parser_delete(parser);
   }
 
   if (nsp) {
-    if (nsp_set_proxychain(nspool, *pchain) < 0) {
-      nsock_proxychain_delete(*pchain);
+    if (nsp_set_proxychain(nspool, pxc) < 0) {
+      nsock_proxychain_delete(pxc);
       return -1;
     }
   }
 
+  *pchain = pxc;
   return 1;
 }
 
