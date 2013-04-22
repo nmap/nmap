@@ -85,26 +85,15 @@ static void proxy_parser_delete(struct proxy_parser *parser);
 static struct proxy_node *proxy_node_new(char *proxystr);
 static void proxy_node_delete(struct proxy_node *proxy);
 
-static void nsock_proxy_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
-static void forward_event(mspool *nsp, msevent *nse, void *udata);
-
-static void proxy_http_node_init(struct proxy_node *proxy, char *proxystr);
-static void proxy_http_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
+void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata);
+void forward_event(mspool *nsp, msevent *nse, void *udata);
 
 
-static nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
-                                             int timeout_msecs, void *userdata, struct sockaddr *saddr,
-                                             size_t sslen, unsigned short port);
-static char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen);
-static char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
+extern struct proxy_op proxy_http;
 
-
-const struct proxy_op ProxyOps[PROXY_TYPE_COUNT] = {
-  [PROXY_TYPE_HTTP] = {
-    .connect_tcp = proxy_http_connect_tcp,
-    .data_encode = proxy_http_data_encode,
-    .data_decode = proxy_http_data_decode
-  }
+/* Ensure that the proxy_op for PROXY_XX is at the PROXY_TYPE_XX index. */
+const struct proxy_op *ProxyOps[PROXY_TYPE_COUNT] = {
+  [PROXY_TYPE_HTTP] = &proxy_http
 };
 
 
@@ -231,12 +220,11 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
 
-  if (strncasecmp(proxystr, "http://", 7) != 0) {
+  if (strncasecmp(proxystr, "http://", 7) == 0) {
+    ProxyOps[PROXY_TYPE_HTTP]->init(proxy, proxystr);
+  } else {
     fatal("Invalid protocol in proxy specification string: %s", proxystr);
   }
-
-  proxy->px_type = PROXY_TYPE_HTTP;
-  proxy_http_node_init(proxy, proxystr);
 
   return proxy;
 }
@@ -266,7 +254,7 @@ void forward_event(mspool *nsp, msevent *nse, void *udata) {
   nse->status = cached_status;
 }
 
-void nsock_proxy_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata) {
   msevent *nse = (msevent *)nsevent;
   struct proxy_node *current;
 
@@ -274,121 +262,8 @@ void nsock_proxy_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata)
     fatal("Error, but this is debug only!");
 
   current = PROXY_CTX_CURRENT(nse->iod->px_ctx);
-  switch (current->px_type) {
-    case PROXY_TYPE_HTTP:
-      proxy_http_ev_handler(nspool, nsevent, udata);
-      break;
 
-    default:
-      fatal("Invalid proxy type (%d)", current->px_type);
-  }
-}
-
-void proxy_http_node_init(struct proxy_node *proxy, char *proxystr) {
-  struct sockaddr_in *sin;
-  char *strhost, *strport, *saveptr;
-
-  strhost = strtok_r(proxystr + 7, ":", &saveptr);
-  strport = strtok_r(NULL, ":", &saveptr);
-  if (strport == NULL)
-    strport = "8080";
-
-  sin = (struct sockaddr_in *)&proxy->ss;
-  sin->sin_family = AF_INET;
-  inet_pton(AF_INET, strhost, &sin->sin_addr);
-
-  proxy->sslen = sizeof(struct sockaddr_in);
-  proxy->port = (unsigned short)atoi(strport);
-}
-
-void proxy_http_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
-  mspool *nsp = (mspool *)nspool;
-  msevent *nse = (msevent *)nsevent;
-  struct sockaddr_storage *ss;
-  size_t sslen;
-  unsigned short port;
-
-  switch (nse->iod->px_ctx->px_state) {
-    case PROXY_STATE_INITIAL:
-      nse->iod->px_ctx->px_state = PROXY_STATE_HTTP_TCP_CONNECTED;
-
-      if (PROXY_CTX_NEXT(nse->iod->px_ctx)) {
-        struct proxy_node *next;
-
-        next = PROXY_CTX_NEXT(nse->iod->px_ctx);
-        ss = &next->ss;
-        sslen = next->sslen;
-        port = next->port;
-      } else {
-        ss = &nse->iod->px_ctx->target_ss;
-        sslen = nse->iod->px_ctx->target_sslen;
-        port = nse->iod->px_ctx->target_port;
-      }
-      nsock_printf(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_handler,
-                   4000, udata, "CONNECT %s:%d HTTP/1.1\r\n\r\n",
-                   inet_ntop_ez(ss, sslen), (int)port);
-      nsock_readlines(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_handler, 4000, udata, 1);
-      break;
-
-    case PROXY_STATE_HTTP_TCP_CONNECTED:
-      if (nse->type == NSE_TYPE_READ) {
-        char *res;
-        int reslen;
-
-        res = nse_readbuf(nse, &reslen);
-
-        /* TODO string check!! */
-        if ((reslen >= 15) && strstr(res, "200 OK")) {
-          nse->iod->px_ctx->px_state = PROXY_STATE_HTTP_TUNNEL_ESTABLISHED;
-        }
-
-        if (nse->iod->px_ctx->px_current->next == NULL) {
-          forward_event(nsp, nse, udata);
-        } else {
-          nse->iod->px_ctx->px_current = nse->iod->px_ctx->px_current->next;
-          nse->iod->px_ctx->px_state = PROXY_STATE_INITIAL;
-
-          nsock_proxy_ev_handler(nsp, nse, udata);
-        }
-      }
-      break;
-
-    case PROXY_STATE_HTTP_TUNNEL_ESTABLISHED:
-      forward_event(nsp, nse, udata);
-      break;
-
-    default:
-      fatal("Invalid proxy state!");
-  }
-}
-
-nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
-                                      int timeout_msecs, void *userdata, struct sockaddr *saddr,
-                                      size_t sslen, unsigned short port) {
-  msiod *nsi = (msiod *)ms_iod;
-  struct proxy_node *current;
-
-  memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
-  nsi->px_ctx->target_sslen = sslen;
-  nsi->px_ctx->target_port = port;
-  nsi->px_ctx->target_handler = handler;
-
-  current = PROXY_CTX_CURRENT(nsi->px_ctx);
-  saddr = (struct sockaddr *)&current->ss;
-  sslen = current->sslen;
-  port  = current->port;
-  handler = nsock_proxy_ev_handler;
-
-  return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
-}
-
-char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen) {
-  // TODO
-  return NULL;
-}
-
-char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen) {
-  // TODO
-  return NULL;
+  assert(current->px_type > 0 && current->px_type < PROXY_TYPE_COUNT);
+  ProxyOps[current->px_type]->handler(nspool, nsevent, udata);
 }
 
