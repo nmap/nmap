@@ -170,7 +170,7 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
 
       timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
       nsock_write(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                  timeout, udata, (char *)&socks4, 9);
+                  timeout, udata, (char *)&socks4, sizeof(struct socks4_data));
       nsock_readbytes(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
                       timeout, udata, 8);
       break;
