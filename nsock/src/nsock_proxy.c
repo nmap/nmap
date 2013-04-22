@@ -85,9 +85,6 @@ static void proxy_parser_delete(struct proxy_parser *parser);
 static struct proxy_node *proxy_node_new(char *proxystr);
 static void proxy_node_delete(struct proxy_node *proxy);
 
-void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata);
-void forward_event(mspool *nsp, msevent *nse, void *udata);
-
 
 /* --- Implemented proxy backends --- */
 extern const struct proxy_op proxy_http_ops;
@@ -240,7 +237,9 @@ static void proxy_node_delete(struct proxy_node *proxy) {
     free(proxy);
 }
 
-void forward_event(mspool *nsp, msevent *nse, void *udata) {
+void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
+  mspool *nsp = (mspool *)nspool;
+  msevent *nse = (msevent *)nsevent;
   enum nse_type cached_type;
   enum nse_status cached_status;
  
