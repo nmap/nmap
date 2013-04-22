@@ -76,6 +76,7 @@
 #include "filespace.h"
 #include "nsock.h" /* The public interface -- I need it for some enum defs */
 #include "nsock_ssl.h"
+#include "nsock_proxy.h"
 
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -217,6 +218,10 @@ typedef struct {
   /* The SSL Context (options and such) */
   SSL_CTX *sslctx;
 #endif
+
+  /* Proxy chain (or NULL) */
+  struct proxy_node *px_chain;
+
 } mspool;
 
 
@@ -306,6 +311,9 @@ typedef struct {
 
   /* Pointer to mspcap struct (used only if pcap support is included) */
   void *pcap;
+
+  struct proxy_chain_context *px_ctx;
+
 } msiod;
 
 

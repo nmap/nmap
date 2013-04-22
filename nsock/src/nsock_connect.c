@@ -58,11 +58,13 @@
 #include "nsock.h"
 #include "nsock_internal.h"
 #include "nsock_log.h"
+#include "nsock_proxy.h"
 #include "netutils.h"
 
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
+
 
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
@@ -261,7 +263,26 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
  * sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port) {
+  msiod *nsi = (msiod *)ms_iod;
 
+  if (nsi->px_ctx) {
+    memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
+    nsi->px_ctx->target_sslen = sslen;
+    nsi->px_ctx->target_port = port;
+    nsi->px_ctx->target_handler = handler;
+
+    saddr = (struct sockaddr *)&nsi->px_ctx->px_current->ss;
+    sslen = nsi->px_ctx->px_current->sslen;
+    port  = nsi->px_ctx->px_current->port;
+    handler = nsock_proxy_ev_handler;
+  }
+
+  return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
+}
+
+nsock_event_id nsock_connect_tcp_direct(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
+                                        int timeout_msecs, void *userdata, struct sockaddr *saddr,
+                                        size_t sslen, unsigned short port) {
   msiod *nsi = (msiod *)ms_iod;
   mspool *ms = (mspool *)nsp;
   msevent *nse;
