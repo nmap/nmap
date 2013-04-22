@@ -62,10 +62,6 @@
 #define DEFAULT_PROXY_PORT_HTTP "8080"
 
 
-/* Defined in nsock_proxy.c */
-void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata);
-void forward_event(mspool *nsp, msevent *nse, void *udata);
-
 /* --- PROXY INTERFACE PROTOTYPES --- */
 static void proxy_http_init(struct proxy_node *proxy, char *proxystr);
 static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata);

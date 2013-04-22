@@ -132,6 +132,9 @@ struct proxy_op {
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool);
 void proxy_chain_context_delete(struct proxy_chain_context *ctx);
 
+void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata);
+void forward_event(nsock_pool nspool, nsock_event nse, void *udata);
+
 
 #endif /* NSOCK_PROXY_H */
 
