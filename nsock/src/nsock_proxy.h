@@ -118,15 +118,14 @@ struct proxy_chain {
 struct proxy_chain_context {
   const struct proxy_chain *px_chain;
 
-  /* Those fields are used to store current state during the tunnel
-   * establishment phase. */
+  /* Nodes iterator in px_chain->nodes */
   gh_list_elem *px_current;
+  
+  /* Current node connection state. */
   enum nsock_proxy_state px_state;
 
-  /* Each proxy in the chain maintains a data structure. This can contains r/w
-   * buffers for instance. */
-  gh_list px_info;
-
+  /* Those fields are used to store information about the final target
+   * to reach. */
   struct sockaddr_storage target_ss;
   size_t target_sslen;
   unsigned short target_port;
@@ -136,17 +135,9 @@ struct proxy_chain_context {
 struct proxy_op {
   const char *prefix;
   enum nsock_proxy_type type;
-
   int (*node_new)(struct proxy_node **node, const struct uri *uri);
   void (*node_delete)(struct proxy_node *node);
-
-  int (*info_new)(void **info);
-  void (*info_delete)(void *info);
-
   void (*handler)(nsock_pool nspool, nsock_event nsevent, void *udata);
-
-  char *(*encode)(const char *src, size_t len, size_t *dlen);
-  char *(*decode)(const char *src, size_t len, size_t *dlen);
 };
 
 

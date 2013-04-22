@@ -69,11 +69,7 @@ struct http_proxy_info {
 /* ---- PROTOTYPES ---- */
 static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri);
 static void proxy_http_node_delete(struct proxy_node *node);
-static int proxy_http_info_new(void **info);
-static void proxy_http_info_delete(void *info);
 static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
-static char *proxy_http_encode(const char *src, size_t len, size_t *dlen);
-static char *proxy_http_decode(const char *src, size_t len, size_t *dlen);
 
 
 /* ---- PROXY DEFINITION ---- */
@@ -82,11 +78,7 @@ const struct proxy_op proxy_http_ops = {
   .type        = PROXY_TYPE_HTTP,
   .node_new    = proxy_http_node_new,
   .node_delete = proxy_http_node_delete,
-  .info_new    = proxy_http_info_new,
-  .info_delete = proxy_http_info_delete,
   .handler     = proxy_http_handler,
-  .encode      = proxy_http_encode,
-  .decode      = proxy_http_decode
 };
 
 
@@ -116,22 +108,6 @@ int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
 void proxy_http_node_delete(struct proxy_node *node) {
   if (node)
     free(node);
-}
-
-int proxy_http_info_new(void **info) {
-  struct http_proxy_info *pxi;
-
-  pxi = (struct http_proxy_info *)safe_zalloc(sizeof(struct http_proxy_info));
-  pxi->dummy = NULL; // TODO
-
-  *info = pxi;
-
-  return 1;
-}
-
-void proxy_http_info_delete(void *info) {
-  if (info)
-    free(info);
 }
 
 void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
@@ -180,7 +156,6 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
         } else {
           nse->iod->px_ctx->px_current = nse->iod->px_ctx->px_current->next;
           nse->iod->px_ctx->px_state = PROXY_STATE_INITIAL;
-
           nsock_proxy_ev_dispatch(nsp, nse, udata);
         }
       }
@@ -193,15 +168,5 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
     default:
       fatal("Invalid proxy state!");
   }
-}
-
-char *proxy_http_encode(const char *src, size_t len, size_t *dlen) {
-  // TODO
-  return NULL;
-}
-
-char *proxy_http_decode(const char *src, size_t len, size_t *dlen) {
-  // TODO
-  return NULL;
 }
 
