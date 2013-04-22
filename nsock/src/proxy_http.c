@@ -79,17 +79,15 @@ const struct proxy_op proxy_http_ops = {
 
 
 int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
-  struct sockaddr_in *sin;
   struct proxy_node *proxy;
 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
   proxy->ops = &proxy_http_ops;
 
-  sin = (struct sockaddr_in *)&proxy->ss;
-  sin->sin_family = AF_INET;
-  inet_pton(AF_INET, uri->host, &sin->sin_addr); /* TODO Resolve hostnames!! */
-
-  proxy->sslen = sizeof(struct sockaddr_in);
+  if (proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen) < 0) {
+    free(proxy);
+    return -1;
+  }
 
   if (uri->port == -1)
     proxy->port = DEFAULT_PROXY_PORT_HTTP;

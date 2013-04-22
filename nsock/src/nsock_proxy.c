@@ -461,3 +461,17 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
   }
 }
 
+int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen) {
+  struct addrinfo *res;
+  int rc;
+
+  rc = getaddrinfo(host, NULL, NULL, &res);
+  if (rc)
+    return -rc;
+
+  *addr = *res->ai_addr;
+  *addrlen = res->ai_addrlen;
+  freeaddrinfo(res);
+  return 1;
+}
+
