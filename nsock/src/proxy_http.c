@@ -69,28 +69,15 @@
 
 extern struct timeval nsock_tod;
 
-/* ---- PROTOTYPES ---- */
-static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri);
-static void proxy_http_node_delete(struct proxy_node *node);
-static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
+const struct proxy_spec ProxySpecHttp;
 
 
-/* ---- PROXY DEFINITION ---- */
-const struct proxy_op proxy_http_ops = {
-  .prefix      = "http://",
-  .type        = PROXY_TYPE_HTTP,
-  .node_new    = proxy_http_node_new,
-  .node_delete = proxy_http_node_delete,
-  .handler     = proxy_http_handler,
-};
-
-
-int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
+static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
   int rc;
   struct proxy_node *proxy;
 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
-  proxy->ops = &proxy_http_ops;
+  proxy->spec = &ProxySpecHttp;
 
   rc = proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen);
   if (rc < 0) {
@@ -116,7 +103,7 @@ int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
   return 1;
 }
 
-void proxy_http_node_delete(struct proxy_node *node) {
+static void proxy_http_node_delete(struct proxy_node *node) {
   if (!node)
     return;
 
@@ -187,7 +174,7 @@ static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   return 0;
 }
 
-void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   int rc = 0;
   mspool *nsp = (mspool *)nspool;
   msevent *nse = (msevent *)nsevent;
@@ -215,4 +202,18 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
     forward_event(nsp, nse, udata);
   }
 }
+
+
+/* ---- PROXY DEFINITION ---- */
+static const struct proxy_op ProxyOpsHttp = {
+  .node_new    = proxy_http_node_new,
+  .node_delete = proxy_http_node_delete,
+  .handler     = proxy_http_handler,
+};
+
+const struct proxy_spec ProxySpecHttp = {
+  .prefix = "http://",
+  .type   = PROXY_TYPE_HTTP,
+  .ops    = &ProxyOpsHttp,
+};
 

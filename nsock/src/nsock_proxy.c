@@ -78,13 +78,13 @@ static void proxy_parser_delete(struct proxy_parser *parser);
 
 
 /* --- Implemented proxy backends --- */
-extern const struct proxy_op proxy_http_ops;
-extern const struct proxy_op proxy_socks4_ops;
+extern const struct proxy_spec ProxySpecHttp;
+extern const struct proxy_spec ProxySpecSocks4;
 
 
-const static struct proxy_op *ProxyBackends[] = {
-  &proxy_http_ops,
-  &proxy_socks4_ops,
+const static struct proxy_spec *ProxyBackends[] = {
+  &ProxySpecHttp,
+  &ProxySpecSocks4,
   NULL
 };
 
@@ -129,7 +129,7 @@ void nsock_proxychain_delete(nsock_proxychain chain) {
     struct proxy_node *node;
 
     while ((node = (struct proxy_node *)gh_list_pop(&pchain->nodes)) != NULL) {
-      node->ops->node_delete(node);
+      node->spec->ops->node_delete(node);
     }
 
     gh_list_free(&pchain->nodes);
@@ -364,10 +364,10 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
   int i;
 
   for (i = 0; ProxyBackends[i] != NULL; i++) {
-    const struct proxy_op *pxop;
+    const struct proxy_spec *pspec;
 
-    pxop = ProxyBackends[i];
-    if (strncasecmp(proxystr, pxop->prefix, strlen(pxop->prefix)) == 0) {
+    pspec = ProxyBackends[i];
+    if (strncasecmp(proxystr, pspec->prefix, strlen(pspec->prefix)) == 0) {
       struct proxy_node *proxy = NULL;
       struct uri uri;
 
@@ -376,7 +376,7 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
       if (parse_uri(proxystr, &uri) < 0)
         break;
 
-      if (pxop->node_new(&proxy, &uri) < 0)
+      if (pspec->ops->node_new(&proxy, &uri) < 0)
         proxy = NULL;
 
       uri_free(&uri);
@@ -454,7 +454,7 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
 
     current = proxy_ctx_node_current(nse->iod->px_ctx);
     assert(current);
-    current->ops->handler(nspool, nsevent, udata);
+    current->spec->ops->handler(nspool, nsevent, udata);
   } else {
     forward_event(nspool, nsevent, udata);
   }
