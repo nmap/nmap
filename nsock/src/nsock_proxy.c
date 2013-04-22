@@ -95,8 +95,8 @@ static void proxy_http_ev_handler(nsock_pool nspool, nsock_event nsevent, void *
 static nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
                                              int timeout_msecs, void *userdata, struct sockaddr *saddr,
                                              size_t sslen, unsigned short port);
-static  char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen);
-static  char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
+static char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen);
+static char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
 
 
 const struct proxy_actions ProxyActions[PROXY_TYPE_COUNT] = {
