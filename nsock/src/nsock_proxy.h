@@ -136,6 +136,8 @@ struct proxy_op {
 
 
 /* ------------------- UTIL FUNCTIONS ------------------- */
+int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen);
+
 static inline struct proxy_node *proxy_ctx_node_current(struct proxy_chain_context *ctx) {
   return GH_LIST_ELEM_DATA(ctx->px_current);
 }
