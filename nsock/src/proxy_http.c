@@ -77,7 +77,9 @@ static char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
 
 
 /* ---- PROXY DEFINITION ---- */
-struct proxy_op proxy_http = {
+const struct proxy_op proxy_http_ops = {
+  .prefix      = "http://",
+  .type        = PROXY_TYPE_HTTP,
   .init        = proxy_http_init,
   .handler     = proxy_http_handler,
   .connect_tcp = proxy_http_connect_tcp,
@@ -89,6 +91,8 @@ struct proxy_op proxy_http = {
 void proxy_http_init(struct proxy_node *proxy, char *proxystr) {
   struct sockaddr_in *sin;
   char *strhost, *strport, *saveptr;
+
+  proxy->ops = &proxy_http_ops;
 
   strhost = strtok_r(proxystr + 7, ":", &saveptr);
   strport = strtok_r(NULL, ":", &saveptr);
