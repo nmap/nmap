@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Added initial proxy support to nsock. Nsock based modules (version
+  scan, nse) of nmap can now establish TCP connections through chains of
+  proxies. HTTP CONNECT and SOCKS4 protocols are supported, with some
+  limitations. [Henri Doreau]
+
 o Fixed a regression that changed the number of delimiters in machine
   output. [Daniel Miller]
 
