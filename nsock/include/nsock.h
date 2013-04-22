@@ -322,8 +322,9 @@ enum nse_status {
                            nspool is being deleted -- you should free up any
                            resources you have allocated and exit.  Don't you
                            dare make any more async nsock calls!  */
-  NSE_STATUS_EOF        /* We got EOF and NO DATA -- if we got data first,
+  NSE_STATUS_EOF,       /* We got EOF and NO DATA -- if we got data first,
                            SUCCESS is reported (see nse_eof()). */
+  NSE_STATUS_PROXYERROR
 };
 
 enum nse_status nse_status(nsock_event nse);
