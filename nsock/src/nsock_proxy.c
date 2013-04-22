@@ -89,11 +89,13 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
 void forward_event(mspool *nsp, msevent *nse, void *udata);
 
 
-extern struct proxy_op proxy_http;
+/* --- Implemented proxy backends --- */
+extern const struct proxy_op proxy_http_ops;
 
-/* Ensure that the proxy_op for PROXY_XX is at the PROXY_TYPE_XX index. */
-const struct proxy_op *ProxyOps[PROXY_TYPE_COUNT] = {
-  [PROXY_TYPE_HTTP] = &proxy_http
+
+const static struct proxy_op *ProxyBackends[] = {
+  &proxy_http_ops,
+  NULL
 };
 
 
@@ -216,17 +218,21 @@ void proxy_parser_delete(struct proxy_parser *parser) {
  *   - user:pass@ prefix before host specification
  */
 static struct proxy_node *proxy_node_new(char *proxystr) {
-  struct proxy_node *proxy;
+  int i;
 
-  proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
+  for (i = 0; ProxyBackends[i] != NULL; i++) {
+    const struct proxy_op *pxop;
 
-  if (strncasecmp(proxystr, "http://", 7) == 0) {
-    ProxyOps[PROXY_TYPE_HTTP]->init(proxy, proxystr);
-  } else {
-    fatal("Invalid protocol in proxy specification string: %s", proxystr);
+    pxop = ProxyBackends[i];
+    if (strncasecmp(proxystr, pxop->prefix, strlen(pxop->prefix)) == 0) {
+      struct proxy_node *proxy;
+
+      proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
+      pxop->init(proxy, proxystr);
+      return proxy;
+    }
   }
-
-  return proxy;
+  fatal("Invalid protocol in proxy specification string: %s", proxystr);
 }
 
 static void proxy_node_delete(struct proxy_node *proxy) {
@@ -262,8 +268,7 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
     fatal("Error, but this is debug only!");
 
   current = PROXY_CTX_CURRENT(nse->iod->px_ctx);
-
-  assert(current->px_type > 0 && current->px_type < PROXY_TYPE_COUNT);
-  ProxyOps[current->px_type]->handler(nspool, nsevent, udata);
+  assert(current);
+  current->ops->handler(nspool, nsevent, udata);
 }
 
