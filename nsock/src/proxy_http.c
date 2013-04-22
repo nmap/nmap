@@ -72,9 +72,6 @@ static void proxy_http_node_delete(struct proxy_node *node);
 static int proxy_http_info_new(void **info);
 static void proxy_http_info_delete(void *info);
 static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
-static nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
-                                             int timeout_msecs, void *userdata, struct sockaddr *saddr,
-                                             size_t sslen, unsigned short port);
 static char *proxy_http_encode(const char *src, size_t len, size_t *dlen);
 static char *proxy_http_decode(const char *src, size_t len, size_t *dlen);
 
@@ -88,7 +85,6 @@ const struct proxy_op proxy_http_ops = {
   .info_new    = proxy_http_info_new,
   .info_delete = proxy_http_info_delete,
   .handler     = proxy_http_handler,
-  .connect_tcp = proxy_http_connect_tcp,
   .encode      = proxy_http_encode,
   .decode      = proxy_http_decode
 };
@@ -199,26 +195,6 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
     default:
       fatal("Invalid proxy state!");
   }
-}
-
-nsock_event_id proxy_http_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
-                                      int timeout_msecs, void *userdata, struct sockaddr *saddr,
-                                      size_t sslen, unsigned short port) {
-  msiod *nsi = (msiod *)ms_iod;
-  struct proxy_node *current;
-
-  memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
-  nsi->px_ctx->target_sslen = sslen;
-  nsi->px_ctx->target_port = port;
-  nsi->px_ctx->target_handler = handler;
-
-  current = PROXY_CTX_CURRENT(nsi->px_ctx);
-  saddr = (struct sockaddr *)&current->ss;
-  sslen = current->sslen;
-  port  = current->port;
-  handler = nsock_proxy_ev_dispatch;
-
-  return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
 }
 
 char *proxy_http_encode(const char *src, size_t len, size_t *dlen) {

@@ -270,7 +270,18 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
 
     current = PROXY_CTX_CURRENT(nsi->px_ctx);
     assert(current != NULL);
-    return current->ops->connect_tcp(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
+
+    memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
+    nsi->px_ctx->target_sslen = sslen;
+    nsi->px_ctx->target_port = port;
+    nsi->px_ctx->target_handler = handler;
+
+    saddr = (struct sockaddr *)&current->ss;
+    sslen = current->sslen;
+    port  = current->port;
+    handler = nsock_proxy_ev_dispatch;
+
+    return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
   }
 
   return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
