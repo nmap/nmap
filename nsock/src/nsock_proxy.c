@@ -166,17 +166,6 @@ void proxy_chain_context_delete(struct proxy_chain_context *ctx) {
     free(ctx);
 }
 
-static char *mkstr(const char *start, const char *end) {
-  char *s;
-
-  assert(end >= start);
-  s = (char *) safe_malloc(end - start + 1);
-  memcpy(s, start, end - start);
-  s[end - start] = '\0';
-
-  return s;
-}
-
 static void uri_free(struct uri *uri) {
   if (uri->scheme)
     free(uri->scheme);
