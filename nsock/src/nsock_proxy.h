@@ -66,12 +66,6 @@
 #define PROXY_CTX_NEXT(ctx) ((struct proxy_node *)((GH_LIST_ELEM_NEXT((ctx)->px_current)) ? GH_LIST_ELEM_DATA(GH_LIST_ELEM_NEXT((ctx)->px_current)) : NULL))
 #define PROXY_CTX_NODES(ctx) ((ctx)->px_chain->nodes)
 
-#if 0
-#define IOD_PX_TCP_CONNECT(iod) (ProxyOps[PROXY_CTX_CURRENT((iod)->px_ctx)->px_type]->connect_tcp)
-#define IOD_PX_DATA_ENCODE(iod) (ProxyOps[PROXY_CTX_CURRENT((iod)->px_ctx)->px_type]->data_encode)
-#define IOD_PX_DATA_DECODE(iod) (ProxyOps[PROXY_CTX_CURRENT((iod)->px_ctx)->px_type]->data_decode)
-#endif
-
 
 /* ------------------- CONSTANTS ------------------- */
 enum nsock_proxy_type {
