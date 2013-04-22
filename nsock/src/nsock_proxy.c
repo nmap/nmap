@@ -122,7 +122,7 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
     }
   }
 
-  return 0;
+  return 1;
 }
 
 void nsock_proxychain_delete(nsock_proxychain chain) {
@@ -150,7 +150,7 @@ int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   }
 
   nsp->px_chain = (struct proxy_chain *)chain;
-  return 0;
+  return 1;
 }
 
 
