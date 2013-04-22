@@ -69,6 +69,7 @@
 #endif
 
 #include <string.h>
+    
 
 /* nsock_iod is like a "file descriptor" for the nsock library. You use it to
  * request events. And here is how you create an nsock_iod. nsi_new returns
@@ -136,6 +137,12 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
 #if HAVE_OPENSSL
   nsi->ssl_session = NULL;
 #endif
+
+  if (nsp->px_chain) {
+    nsi->px_ctx = proxy_chain_context_new(nsp);
+  } else {
+    nsi->px_ctx = NULL;
+  }
 
   nsi->id = nsp->next_iod_serial++;
   if (nsi->id == 0)

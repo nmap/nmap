@@ -187,6 +187,7 @@ enum nsock_loopstatus {
   NSOCK_LOOP_QUIT
 };
 
+int nsock_set_proxychain(nsock_pool nsp, const char *proxystr);
 
 enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout);
 
@@ -497,6 +498,10 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
  * sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *ss, size_t sslen, unsigned short port);
+
+nsock_event_id nsock_connect_tcp_direct(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler,
+                                        int timeout_msecs, void *userdata, struct sockaddr *ss,
+                                        size_t sslen, unsigned short port);
 
 /* Request an SCTP association to another system (by IP address). The in_addr is
  * normal network byte order, but the port number should be given in HOST BYTE

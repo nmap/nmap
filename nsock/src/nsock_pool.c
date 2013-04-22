@@ -185,6 +185,8 @@ nsock_pool nsp_new(void *userdata) {
   nsp->sslctx = NULL;
 #endif
 
+  nsp->px_chain = NULL;
+
   return (nsock_pool)nsp;
 }
 
