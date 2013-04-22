@@ -59,7 +59,7 @@
 #include <netdb.h>
 #include <string.h>
 
-#define DEFAULT_PROXY_PORT_HTTP "8080"
+#define DEFAULT_PROXY_PORT_HTTP 8080
 
 struct http_proxy_info {
   void *dummy;
@@ -67,7 +67,7 @@ struct http_proxy_info {
 
 
 /* ---- PROTOTYPES ---- */
-static int proxy_http_node_new(struct proxy_node **node, char *proxystr);
+static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri);
 static void proxy_http_node_delete(struct proxy_node *node);
 static int proxy_http_info_new(void **info);
 static void proxy_http_info_delete(void *info);
@@ -90,25 +90,23 @@ const struct proxy_op proxy_http_ops = {
 };
 
 
-int proxy_http_node_new(struct proxy_node **node, char *proxystr) {
+int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
   struct sockaddr_in *sin;
   struct proxy_node *proxy;
-  char *strhost, *strport, *saveptr;
 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
   proxy->ops = &proxy_http_ops;
 
-  strhost = strtok_r(proxystr + 7, ":", &saveptr);
-  strport = strtok_r(NULL, ":", &saveptr);
-  if (strport == NULL)
-    strport = DEFAULT_PROXY_PORT_HTTP;
-
   sin = (struct sockaddr_in *)&proxy->ss;
   sin->sin_family = AF_INET;
-  inet_pton(AF_INET, strhost, &sin->sin_addr);
+  inet_pton(AF_INET, uri->host, &sin->sin_addr); /* TODO Resolve hostnames!! */
 
   proxy->sslen = sizeof(struct sockaddr_in);
-  proxy->port = (unsigned short)atoi(strport);
+
+  if (uri->port == 0)
+    proxy->port = DEFAULT_PROXY_PORT_HTTP;
+  else
+    proxy->port = (unsigned short)uri->port;
 
   *node = proxy;
 
