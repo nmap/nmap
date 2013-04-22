@@ -2674,7 +2674,7 @@ int service_scan(std::vector<Target *> &Targets) {
   nsp_setdevice(nsp, o.device);
 
   if (o.proxy_chain) {
-    nsock_set_proxychain(nsp, o.proxy_chain);
+    nsp_set_proxychain(nsp, o.proxy_chain);
   }
 
 #if HAVE_OPENSSL
