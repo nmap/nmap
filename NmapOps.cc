@@ -136,7 +136,7 @@ NmapOps::~NmapOps() {
     portlist = NULL;
   }
   if (proxy_chain) {
-    free(proxy_chain);
+    nsock_proxychain_delete(proxy_chain);
     proxy_chain = NULL;
   }
   if (exclude_spec) {

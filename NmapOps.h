@@ -95,6 +95,7 @@
 #include "nmap.h"
 #include "global_structures.h"
 #include "output.h"
+#include <nsock.h>
 #include <string>
 
 class NmapOps {
@@ -340,7 +341,7 @@ class NmapOps {
   FILE *inputfd;
   char *portlist; /* Ports list specified by user */
 
-  char *proxy_chain;
+  nsock_proxychain proxy_chain;
 
 #ifndef NOLUA
   int script;

@@ -935,7 +935,8 @@ void parse_options(int argc, char **argv) {
       } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
         nsock_set_default_engine(optarg);
       } else if (optcmp(long_options[option_index].name, "proxies") == 0) {
-        o.proxy_chain = strdup(optarg);
+        if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
+          fatal("Invalid proxy chain specification");
       } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
         o.osscan_limit = 1;
       } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
