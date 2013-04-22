@@ -361,7 +361,7 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
 
     pxop = ProxyBackends[i];
     if (strncasecmp(proxystr, pxop->prefix, strlen(pxop->prefix)) == 0) {
-      struct proxy_node *proxy;
+      struct proxy_node *proxy = NULL;
       struct uri uri;
 
       memset(&uri, 0x00, sizeof(struct uri));
@@ -369,7 +369,9 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
       if (parse_uri(proxystr, &uri) < 0)
         break;
 
-      pxop->node_new(&proxy, &uri);
+      if (pxop->node_new(&proxy, &uri) < 0)
+        proxy = NULL;
+
       uri_free(&uri);
 
       return proxy;

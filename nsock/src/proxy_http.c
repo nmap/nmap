@@ -86,6 +86,7 @@ int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
 
   if (proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen) < 0) {
     free(proxy);
+    *node = NULL;
     return -1;
   }
 
