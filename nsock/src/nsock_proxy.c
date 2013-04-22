@@ -98,8 +98,10 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
   if (proxystr) {
     struct proxy_parser *parser;
 
-    for (parser = proxy_parser_new(proxystr); !parser->done; proxy_parser_next(parser)) {
+    parser = proxy_parser_new(proxystr);
+    while (!parser->done) {
       gh_list_append(&pxc->nodes, parser->value);
+      proxy_parser_next(parser);
     }
     proxy_parser_delete(parser);
   }
