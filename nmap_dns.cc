@@ -1189,6 +1189,9 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   nsp_setdevice(dnspool, o.device);
 
+  if (o.proxy_chain)
+    nsp_set_proxychain(dnspool, o.proxy_chain);
+
   connect_dns_servers();
 
   cname_reqs.clear();
