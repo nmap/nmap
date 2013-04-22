@@ -91,7 +91,7 @@ int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
 
   proxy->sslen = sizeof(struct sockaddr_in);
 
-  if (uri->port == 0)
+  if (uri->port == -1)
     proxy->port = DEFAULT_PROXY_PORT_HTTP;
   else
     proxy->port = (unsigned short)uri->port;
