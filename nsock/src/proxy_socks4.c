@@ -63,6 +63,8 @@
 #define DEFAULT_PROXY_PORT_SOCKS4 1080
 
 
+extern struct timeval nsock_tod;
+
 struct socks4_data {
     char version;
     char type;
@@ -145,9 +147,10 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   size_t sslen;
   unsigned short port;
   struct proxy_node *next;
+  struct socks4_data socks4;
+  int timeout;
 
   switch (nse->iod->px_ctx->px_state) {
-    struct socks4_data socks4;
 
     case PROXY_STATE_INITIAL:
       nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TCP_CONNECTED;
@@ -165,10 +168,11 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
 
       socks4_init(&socks4, ss, sslen, port);
 
+      timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
       nsock_write(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                  4000, udata, (char *)&socks4, 9);
+                  timeout, udata, (char *)&socks4, 9);
       nsock_readbytes(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                      4000, udata, 8);
+                      timeout, udata, 8);
       break;
 
     case PROXY_STATE_SOCKS4_TCP_CONNECTED:

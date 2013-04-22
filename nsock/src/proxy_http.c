@@ -63,6 +63,8 @@
 #define DEFAULT_PROXY_PORT_HTTP 8080
 
 
+extern struct timeval nsock_tod;
+
 /* ---- PROTOTYPES ---- */
 static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri);
 static void proxy_http_node_delete(struct proxy_node *node);
@@ -113,6 +115,7 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   size_t sslen;
   unsigned short port;
   struct proxy_node *next;
+  int timeout;
 
   switch (nse->iod->px_ctx->px_state) {
     case PROXY_STATE_INITIAL:
@@ -128,10 +131,14 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
         sslen = nse->iod->px_ctx->target_sslen;
         port = nse->iod->px_ctx->target_port;
       }
+
+      timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
       nsock_printf(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                   4000, udata, "CONNECT %s:%d HTTP/1.1\r\n\r\n",
+                   timeout, udata, "CONNECT %s:%d HTTP/1.1\r\n\r\n",
                    inet_ntop_ez(ss, sslen), (int)port);
-      nsock_readlines(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, 4000, udata, 1);
+
+      nsock_readlines(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
+                      timeout, udata, 1);
       break;
 
     case PROXY_STATE_HTTP_TCP_CONNECTED:
