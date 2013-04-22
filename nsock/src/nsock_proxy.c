@@ -171,6 +171,7 @@ struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   struct proxy_chain_context *ctx;
 
   ctx = (struct proxy_chain_context *)safe_malloc(sizeof(struct proxy_chain_context));
+  ctx->px_chain = nsp->px_chain;
   ctx->px_state = PROXY_STATE_INITIAL;
   ctx->px_current = GH_LIST_FIRST_ELEM(&nsp->px_chain->nodes);
   return ctx;
