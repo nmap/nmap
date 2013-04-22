@@ -31,7 +31,7 @@ SRCS = error.c filespace.c gh_list.c nsock_connect.c nsock_core.c nsock_iod.c ns
 
 OBJS = error.o filespace.o gh_list.o nsock_connect.o nsock_core.o nsock_iod.o nsock_proxy.o nsock_read.o nsock_timers.o nsock_write.o nsock_ssl.o nsock_event.o nsock_pool.o netutils.o nsock_pcap.o nsock_engines.o engine_select.o engine_epoll.o engine_kqueue.o engine_poll.o nsock_log.o @COMPAT_OBJS@
 
-DEPS = error.h filespace.h gh_list.h nsock_internal.h netutils.h nsock_pcap.h nsock_log.h ../include/nsock.h $(NBASEDIR)/libnbase.a
+DEPS = error.h filespace.h gh_list.h nsock_internal.h netutils.h nsock_pcap.h nsock_log.h nsock_proxy.h ../include/nsock.h $(NBASEDIR)/libnbase.a
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $< -o $@
