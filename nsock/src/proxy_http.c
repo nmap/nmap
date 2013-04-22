@@ -125,59 +125,70 @@ void proxy_http_node_delete(struct proxy_node *node) {
   free(node);
 }
 
-void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
-  mspool *nsp = (mspool *)nspool;
-  msevent *nse = (msevent *)nsevent;
+static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
+  struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
   struct sockaddr_storage *ss;
   size_t sslen;
   unsigned short port;
   struct proxy_node *next;
   int timeout;
 
+  px_ctx->px_state = PROXY_STATE_HTTP_TCP_CONNECTED;
+
+  next = proxy_ctx_node_next(px_ctx);
+  if (next) {
+    ss    = &next->ss;
+    sslen = next->sslen;
+    port  = next->port;
+  } else {
+    ss    = &px_ctx->target_ss;
+    sslen = px_ctx->target_sslen;
+    port  = px_ctx->target_port;
+  }
+
+  timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
+
+  nsock_printf(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
+               timeout, udata, "CONNECT %s:%d HTTP/1.1\r\n\r\n",
+               inet_ntop_ez(ss, sslen), (int)port);
+
+  nsock_readlines(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
+                  timeout, udata, 1);
+}
+
+static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
+  struct proxy_chain_context *px_ctx = nse->iod->px_ctx;
+  char *res;
+  int reslen;
+
+  res = nse_readbuf(nse, &reslen);
+
+  /* TODO string check!! */
+  if ((reslen >= 15) && strstr(res, "200 OK")) {
+    px_ctx->px_state = PROXY_STATE_HTTP_TUNNEL_ESTABLISHED;
+  }
+
+  if (px_ctx->px_current->next == NULL) {
+    forward_event(nsp, nse, udata);
+  } else {
+    px_ctx->px_current = px_ctx->px_current->next;
+    px_ctx->px_state   = PROXY_STATE_INITIAL;
+    nsock_proxy_ev_dispatch(nsp, nse, udata);
+  }
+}
+
+void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+  mspool *nsp = (mspool *)nspool;
+  msevent *nse = (msevent *)nsevent;
+
   switch (nse->iod->px_ctx->px_state) {
     case PROXY_STATE_INITIAL:
-      nse->iod->px_ctx->px_state = PROXY_STATE_HTTP_TCP_CONNECTED;
-
-      next = proxy_ctx_node_next(nse->iod->px_ctx);
-      if (next) {
-        ss = &next->ss;
-        sslen = next->sslen;
-        port = next->port;
-      } else {
-        ss = &nse->iod->px_ctx->target_ss;
-        sslen = nse->iod->px_ctx->target_sslen;
-        port = nse->iod->px_ctx->target_port;
-      }
-
-      timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
-      nsock_printf(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                   timeout, udata, "CONNECT %s:%d HTTP/1.1\r\n\r\n",
-                   inet_ntop_ez(ss, sslen), (int)port);
-
-      nsock_readlines(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                      timeout, udata, 1);
+      handle_state_initial(nsp, nse, udata);
       break;
 
     case PROXY_STATE_HTTP_TCP_CONNECTED:
-      if (nse->type == NSE_TYPE_READ) {
-        char *res;
-        int reslen;
-
-        res = nse_readbuf(nse, &reslen);
-
-        /* TODO string check!! */
-        if ((reslen >= 15) && strstr(res, "200 OK")) {
-          nse->iod->px_ctx->px_state = PROXY_STATE_HTTP_TUNNEL_ESTABLISHED;
-        }
-
-        if (nse->iod->px_ctx->px_current->next == NULL) {
-          forward_event(nsp, nse, udata);
-        } else {
-          nse->iod->px_ctx->px_current = nse->iod->px_ctx->px_current->next;
-          nse->iod->px_ctx->px_state = PROXY_STATE_INITIAL;
-          nsock_proxy_ev_dispatch(nsp, nse, udata);
-        }
-      }
+      if (nse->type == NSE_TYPE_READ)
+        handle_state_tcp_connected(nsp, nse, udata);
       break;
 
     case PROXY_STATE_HTTP_TUNNEL_ESTABLISHED:
