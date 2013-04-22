@@ -85,6 +85,7 @@ static void proxy_parser_delete(struct proxy_parser *parser);
 static struct proxy_node *proxy_node_new(char *proxystr);
 static void proxy_node_delete(struct proxy_node *proxy);
 
+static void nsock_proxy_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
 static void forward_event(mspool *nsp, msevent *nse, void *udata);
 
 static void proxy_http_node_init(struct proxy_node *proxy, char *proxystr);
