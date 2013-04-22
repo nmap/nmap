@@ -125,7 +125,6 @@ struct proxy_actions {
 
 
 /* ------------------- PROTOTYPES ------------------- */
-void nsock_proxy_ev_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
 
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool);
 void proxy_chain_context_delete(struct proxy_chain_context *ctx);
