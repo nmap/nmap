@@ -70,6 +70,8 @@
 
 extern struct timeval nsock_tod;
 
+const struct proxy_spec ProxySpecSocks4;
+
 struct socks4_data {
     char version;
     char type;
@@ -79,28 +81,12 @@ struct socks4_data {
 } __attribute__((packed));
 
 
-/* ---- PROTOTYPES ---- */
-static int proxy_socks4_node_new(struct proxy_node **node, const struct uri *uri);
-static void proxy_socks4_node_delete(struct proxy_node *node);
-static void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata);
-
-
-/* ---- PROXY DEFINITION ---- */
-const struct proxy_op proxy_socks4_ops = {
-  .prefix      = "socks4://",
-  .type        = PROXY_TYPE_SOCKS4,
-  .node_new    = proxy_socks4_node_new,
-  .node_delete = proxy_socks4_node_delete,
-  .handler     = proxy_socks4_handler,
-};
-
-
-int proxy_socks4_node_new(struct proxy_node **node, const struct uri *uri) {
+static int proxy_socks4_node_new(struct proxy_node **node, const struct uri *uri) {
   int rc;
   struct proxy_node *proxy;
 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
-  proxy->ops = &proxy_socks4_ops;
+  proxy->spec = &ProxySpecSocks4;
 
   rc = proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen);
   if (rc < 0)
@@ -134,7 +120,7 @@ err_out:
   return rc;
 }
 
-void proxy_socks4_node_delete(struct proxy_node *node) {
+static void proxy_socks4_node_delete(struct proxy_node *node) {
   if (!node)
     return;
 
@@ -219,7 +205,7 @@ static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   return 0;
 }
 
-void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+static void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   int rc = 0;
   mspool *nsp = (mspool *)nspool;
   msevent *nse = (msevent *)nsevent;
@@ -247,4 +233,17 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
     forward_event(nsp, nse, udata);
   }
 }
+
+/* ---- PROXY DEFINITION ---- */
+static const struct proxy_op ProxyOpsSocks4 = {
+  .node_new    = proxy_socks4_node_new,
+  .node_delete = proxy_socks4_node_delete,
+  .handler     = proxy_socks4_handler,
+};
+
+const struct proxy_spec ProxySpecSocks4 = {
+  .prefix = "socks4://",
+  .type   = PROXY_TYPE_SOCKS4,
+  .ops    = &ProxyOpsSocks4,
+};
 

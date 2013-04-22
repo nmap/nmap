@@ -60,6 +60,7 @@
 
 #include "gh_list.h"
 #include <nsock.h>
+#include <errno.h>
 
 
 /* ------------------- CONSTANTS ------------------- */
@@ -98,9 +99,7 @@ struct uri {
  * parsing the proxy specification string given by user. Those structures are
  * then read-only and stored in the nsock_pool. */
 struct proxy_node {
-  enum nsock_proxy_type px_type;
-
-  const struct proxy_op *ops;
+  const struct proxy_spec *spec;
 
   struct sockaddr_storage ss;
   size_t sslen;
@@ -134,11 +133,15 @@ struct proxy_chain_context {
 };
 
 struct proxy_op {
-  const char *prefix;
-  enum nsock_proxy_type type;
   int (*node_new)(struct proxy_node **node, const struct uri *uri);
   void (*node_delete)(struct proxy_node *node);
   void (*handler)(nsock_pool nspool, nsock_event nsevent, void *udata);
+};
+
+struct proxy_spec {
+  const char *prefix;
+  enum nsock_proxy_type type;
+  const struct proxy_op *ops;
 };
 
 
