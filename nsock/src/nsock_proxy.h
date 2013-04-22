@@ -136,9 +136,6 @@ struct proxy_op {
 
   void (*handler)(nsock_pool nspool, nsock_event nsevent, void *udata);
 
-  nsock_event_id (*connect_tcp)(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int mstimeout,
-                                void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port);
-
   char *(*encode)(const char *src, size_t len, size_t *dlen);
   char *(*decode)(const char *src, size_t len, size_t *dlen);
 };
