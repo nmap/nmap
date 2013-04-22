@@ -66,7 +66,8 @@
 #include <string.h>
 
 
-extern struct proxy_actions *ProxyActions;
+/* Defined in nsock_proxy.c */
+extern struct proxy_actions ProxyActions[];
 
 
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
