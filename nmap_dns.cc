@@ -1159,6 +1159,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
     if (!((*hostI)->flags & HOST_UP) && !o.resolve_all) continue;
 
     // See if it's in /etc/hosts or cached
+    assert((*hostI)->af() == AF_INET);
     tpname = lookup_etchosts((u32) (*hostI)->v4hostip()->s_addr);
     if (tpname) {
       (*hostI)->setHostName(tpname);
