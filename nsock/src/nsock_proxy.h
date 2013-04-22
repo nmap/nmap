@@ -105,11 +105,11 @@ struct proxy_node {
   struct sockaddr_storage ss;
   size_t sslen;
   unsigned short port;
+  char *nodestr; /* used for log messages */
 };
 
 /* Ordered list of proxy nodes, as specified in the proxy specification string. */
 struct proxy_chain {
-  char *specstr;
   gh_list nodes;
 };
 

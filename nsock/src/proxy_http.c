@@ -55,6 +55,9 @@
 
 /* $Id $ */
 
+#define _GNU_SOURCE
+#include <stdio.h>
+
 #include "nsock.h"
 #include "nsock_internal.h"
 #include <netdb.h>
@@ -82,12 +85,14 @@ const struct proxy_op proxy_http_ops = {
 
 
 int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
+  int rc;
   struct proxy_node *proxy;
 
   proxy = (struct proxy_node *)safe_zalloc(sizeof(struct proxy_node));
   proxy->ops = &proxy_http_ops;
 
-  if (proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen) < 0) {
+  rc = proxy_resolve(uri->host, (struct sockaddr *)&proxy->ss, &proxy->sslen);
+  if (rc < 0) {
     free(proxy);
     *node = NULL;
     return -1;
@@ -98,14 +103,26 @@ int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
   else
     proxy->port = (unsigned short)uri->port;
 
+  rc = asprintf(&proxy->nodestr, "http://%s:%d", uri->host, proxy->port);
+  if (rc < 0) {
+    /* asprintf() failed for some reason but this is not a disaster (yet).
+     * Set nodestr to NULL and try to keep on going. */
+    proxy->nodestr = NULL;
+  }
+
   *node = proxy;
 
   return 1;
 }
 
 void proxy_http_node_delete(struct proxy_node *node) {
-  if (node)
-    free(node);
+  if (!node)
+    return;
+
+  if (node->nodestr)
+    free(node->nodestr);
+
+  free(node);
 }
 
 void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {

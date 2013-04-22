@@ -55,8 +55,13 @@
 
 /* $Id $ */
 
+#define _GNU_SOURCE
+#include <stdio.h>
+
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
+
 #include <netdb.h>
 #include <string.h>
 
@@ -111,6 +116,13 @@ int proxy_socks4_node_new(struct proxy_node **node, const struct uri *uri) {
   else
     proxy->port = (unsigned short)uri->port;
 
+  rc = asprintf(&proxy->nodestr, "socks4://%s:%d", uri->host, proxy->port);
+  if (rc < 0) {
+    /* asprintf() failed for some reason but this is not a disaster (yet).
+     * Set nodestr to NULL and try to keep on going. */
+    proxy->nodestr = NULL;
+  }
+
   rc = 1;
 
 err_out:
@@ -123,8 +135,13 @@ err_out:
 }
 
 void proxy_socks4_node_delete(struct proxy_node *node) {
-  if (node)
-    free(node);
+  if (!node)
+    return;
+
+  if (node->nodestr)
+    free(node->nodestr);
+
+  free(node);
 }
 
 static inline void socks4_init(struct socks4_data *socks4,
