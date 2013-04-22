@@ -99,7 +99,7 @@ static char *proxy_http_data_encode(const char *src, size_t len, size_t *dlen);
 static char *proxy_http_data_decode(const char *src, size_t len, size_t *dlen);
 
 
-const struct proxy_actions ProxyActions[PROXY_TYPE_COUNT] = {
+const struct proxy_op ProxyOps[PROXY_TYPE_COUNT] = {
   [PROXY_TYPE_HTTP] = {
     .connect_tcp = proxy_http_connect_tcp,
     .data_encode = proxy_http_data_encode,
