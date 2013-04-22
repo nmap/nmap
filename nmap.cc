@@ -577,6 +577,7 @@ void parse_options(int argc, char **argv) {
     {"nsock_engine", required_argument, 0, 0},
     {"nsock-engine", required_argument, 0, 0},
     {"proxies", required_argument, 0, 0},
+    {"proxy", required_argument, 0, 0},
     {"osscan_limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
     {"osscan-limit", no_argument, 0, 0}, /* skip OSScan if no open ports */
     {"osscan_guess", no_argument, 0, 0}, /* More guessing flexability */
@@ -682,7 +683,6 @@ void parse_options(int argc, char **argv) {
         o.chooseScripts(optarg);
       } else
 #endif
-<<<<<<< HEAD
         if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
           l = atoi(optarg);
           if (l < 1 || l > 50)
@@ -805,6 +805,9 @@ void parse_options(int argc, char **argv) {
         } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
           if (nsock_set_default_engine(optarg) < 0)
             fatal("Unknown or non-available engine: %s", optarg);
+        } else if ((optcmp(long_options[option_index].name, "proxies") == 0) || (optcmp(long_options[option_index].name, "proxy") == 0)) {
+          if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
+            fatal("Invalid proxy chain specification");
         } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
           o.osscan_limit = 1;
         } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
@@ -812,139 +815,6 @@ void parse_options(int argc, char **argv) {
           o.osscan_guess = 1;
         } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
           o.setPacketTrace(true);
-=======
-      if (optcmp(long_options[option_index].name, "max-os-tries") == 0) {
-        l = atoi(optarg);
-        if (l < 1 || l > 50)
-          fatal("Bogus --max-os-tries argument specified, must be between 1 and 50 (inclusive)");
-        o.setMaxOSTries(l);
-      } else if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
-        l = tval2msecs(optarg);
-        if (l < 5)
-          fatal("Bogus --max-rtt-timeout argument specified, must be at least 5ms");
-        if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-          fatal("Since April 2010, the default unit for --max-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
-        if (l < 20)
-          error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
-        delayed_options.pre_max_rtt_timeout = l;
-      } else if (optcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
-        l = tval2msecs(optarg);
-        if (l < 0)
-          fatal("Bogus --min-rtt-timeout argument specified");
-        if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-          fatal("Since April 2010, the default unit for --min-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
-        delayed_options.pre_min_rtt_timeout = l;
-      } else if (optcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
-        l = tval2msecs(optarg);
-        if (l <= 0)
-          fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
-        if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
-          fatal("Since April 2010, the default unit for --initial-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
-        delayed_options.pre_init_rtt_timeout = l;
-      } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
-        delayed_options.exclude_file = strdup(optarg);
-      } else if (strcmp(long_options[option_index].name, "exclude") == 0) {
-        delayed_options.exclude_spec = strdup(optarg);
-      } else if (optcmp(long_options[option_index].name, "max-hostgroup") == 0) {
-        o.setMaxHostGroupSz(atoi(optarg));
-      } else if (optcmp(long_options[option_index].name, "min-hostgroup") == 0) {
-        o.setMinHostGroupSz(atoi(optarg));
-        if (atoi(optarg) > 100)
-          error("Warning: You specified a highly aggressive --min-hostgroup.");
-      } else if (strcmp(long_options[option_index].name, "open") == 0) {
-        o.setOpenOnly(true);
-      } else if (strcmp(long_options[option_index].name, "scanflags") == 0) {
-        o.scanflags = parse_scanflags(optarg);
-        if (o.scanflags < 0) {
-          fatal("--scanflags option must be a number between 0 and 255 (inclusive) or a string like \"URGPSHFIN\".");
-        }
-      } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
-        delayed_options.iflist = true;
-      } else if (strcmp(long_options[option_index].name, "nogcc") == 0 ) {
-        o.nogcc = 1;
-      } else if (optcmp(long_options[option_index].name, "release-memory") == 0 ) {
-        o.release_memory = true;
-      } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {
-        o.min_parallelism = atoi(optarg);
-        if (o.min_parallelism < 1)
-          fatal("Argument to --min-parallelism must be at least 1!");
-        if (o.min_parallelism > 100) {
-          error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
-        }
-      } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {
-        l = tval2msecs(optarg);
-        if (l <= 0)
-          fatal("Bogus --host-timeout argument specified");
-        if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
-          fatal("Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60 / 60, optarg);
-        delayed_options.pre_host_timeout = l;
-      } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
-        o.ttl = atoi(optarg);
-        if (o.ttl < 0 || o.ttl > 255) {
-          fatal("ttl option must be a number between 0 and 255 (inclusive)");
-        }
-      } else if (strcmp(long_options[option_index].name, "datadir") == 0) {
-        o.datadir = strdup(optarg);
-      } else if (strcmp(long_options[option_index].name, "servicedb") == 0) {
-        o.requested_data_files["nmap-services"] = optarg;
-        o.fastscan++;
-      } else if (strcmp(long_options[option_index].name, "versiondb") == 0) {
-        o.requested_data_files["nmap-service-probes"] = optarg;
-      } else if (optcmp(long_options[option_index].name, "append-output") == 0) {
-        o.append_output = 1;
-      } else if (strcmp(long_options[option_index].name, "noninteractive") == 0) {
-        o.noninteractive = true;
-      } else if (optcmp(long_options[option_index].name, "spoof-mac") == 0) {
-        /* I need to deal with this later, once I'm sure that I have output
-           files set up, --datadir, etc. */
-        delayed_options.spoofmac = optarg;
-      } else if (strcmp(long_options[option_index].name, "allports") == 0) {
-        o.override_excludeports = 1;
-      } else if (optcmp(long_options[option_index].name, "version-intensity") == 0) {
-        o.version_intensity = atoi(optarg);
-        if (o.version_intensity < 0 || o.version_intensity > 9)
-          fatal("version-intensity must be between 0 and 9");
-      } else if (optcmp(long_options[option_index].name, "version-light") == 0) {
-        o.version_intensity = 2;
-      } else if (optcmp(long_options[option_index].name, "version-all") == 0) {
-        o.version_intensity = 9;
-      } else if (optcmp(long_options[option_index].name, "scan-delay") == 0) {
-        l = tval2msecs(optarg);
-        if (l < 0)
-          fatal("Bogus --scan-delay argument specified.");
-        if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
-          fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
-        delayed_options.pre_scan_delay = l;
-      } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
-        o.defeat_rst_ratelimit = 1;
-      } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
-        l = tval2msecs(optarg);
-        if (l < 0)
-          fatal("Bogus --max-scan-delay argument specified.");
-        if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
-          fatal("Since April 2010, the default unit for --max-scan-delay is seconds, so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
-        delayed_options.pre_max_scan_delay = l;
-      } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
-        delayed_options.pre_max_retries = atoi(optarg);
-        if (delayed_options.pre_max_retries < 0)
-          fatal("max-retries must be positive");
-      } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
-                 || strcmp(long_options[option_index].name, "rH") == 0) {
-        o.randomize_hosts = 1;
-        o.ping_group_sz = PING_GROUP_SZ * 4;
-      } else if (optcmp(long_options[option_index].name, "nsock-engine") == 0) {
-        nsock_set_default_engine(optarg);
-      } else if (optcmp(long_options[option_index].name, "proxies") == 0) {
-        if (nsock_proxychain_new(optarg, &o.proxy_chain, NULL) < 0)
-          fatal("Invalid proxy chain specification");
-      } else if (optcmp(long_options[option_index].name, "osscan-limit")  == 0) {
-        o.osscan_limit = 1;
-      } else if (optcmp(long_options[option_index].name, "osscan-guess")  == 0
-                 || strcmp(long_options[option_index].name, "fuzzy") == 0) {
-        o.osscan_guess = 1;
-      } else if (optcmp(long_options[option_index].name, "packet-trace") == 0) {
-        o.setPacketTrace(true);
->>>>>>> Added a --proxies <chain> option to nmap to let users specify proxies to use
 #ifndef NOLUA
           o.scripttrace = 1;
 #endif
