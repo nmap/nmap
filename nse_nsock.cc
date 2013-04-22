@@ -86,6 +86,10 @@ static nsock_pool new_pool (lua_State *L)
   nmap_adjust_loglevel(nsp, o.scriptTrace());
 
   nsp_setdevice(nsp, o.device);
+
+  if (o.proxy_chain)
+    nsp_set_proxychain(nsp, o.proxy_chain);
+
   nsp_setbroadcast(nsp, true);
   
   nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
