@@ -331,6 +331,7 @@ static void status (lua_State *L, enum nse_status status)
     case NSE_STATUS_EOF:
     case NSE_STATUS_ERROR:
     case NSE_STATUS_TIMEOUT:
+    case NSE_STATUS_PROXYERROR:
       lua_pushnil(L);
       lua_pushstring(L, nse_status2str(status));
       nse_restore(L, 2);
