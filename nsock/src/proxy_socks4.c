@@ -199,9 +199,15 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
 
         res = nse_readbuf(nse, &reslen);
 
-	if (!(reslen == 8 && res[1] == 90)) {
-	  assert(0);
-	}
+        if (!(reslen == 8 && res[1] == 90)) {
+          struct proxy_node *node;
+
+          node = proxy_ctx_node_current(nse->iod->px_ctx);
+          nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
+                          node->nodestr);
+          break;
+        }
+
         nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
 
         if (nse->iod->px_ctx->px_current->next == NULL) {
