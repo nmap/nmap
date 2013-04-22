@@ -425,7 +425,7 @@ void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
   cached_type = nse->type;
   cached_status = nse->status;
 
-  nse->type = NSE_TYPE_CONNECT;
+  nse->type = nse->iod->px_ctx->target_ev_type;
 
   if (nse->status != NSE_STATUS_SUCCESS)
     nse->status = NSE_STATUS_PROXYERROR;

@@ -120,6 +120,7 @@ struct proxy_chain_context {
 
   /* Those fields are used to store information about the final target
    * to reach. */
+  enum nse_type target_ev_type;
   struct sockaddr_storage target_ss;
   size_t target_sslen;
   unsigned short target_port;

@@ -155,11 +155,37 @@ int nsock_setup_udp(nsock_pool nsp, nsock_iod ms_iod, int af) {
 void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struct sockaddr_storage *ss, size_t sslen,
                             unsigned short port) {
 
-  struct sockaddr_in *sin = (struct sockaddr_in *)ss;
+  struct sockaddr_in *sin;
 #if HAVE_IPV6
-  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)ss;
+  struct sockaddr_in6 *sin6;
 #endif
   msiod *iod = nse->iod;
+
+  if (iod->px_ctx && (nse->handler != nsock_proxy_ev_dispatch)) {
+    struct proxy_node *current;
+
+    current = proxy_ctx_node_current(iod->px_ctx);
+    assert(current != NULL);
+
+    memcpy(&iod->px_ctx->target_ss, ss, sslen);
+    iod->px_ctx->target_sslen = sslen;
+    iod->px_ctx->target_port  = port;
+
+    ss    = &current->ss;
+    sslen = current->sslen;
+    port  = current->port;
+
+    iod->px_ctx->target_handler = nse->handler;
+    nse->handler = nsock_proxy_ev_dispatch;
+
+    iod->px_ctx->target_ev_type = nse->type;
+    nse->type = NSE_TYPE_CONNECT;
+  }
+
+  sin = (struct sockaddr_in *)ss;
+#if HAVE_IPV6
+  sin6 = (struct sockaddr_in6 *)ss;
+#endif
 
   /* Now it is time to actually attempt the connection */
   if (nsock_make_socket(ms, iod, ss->ss_family, type, proto) == -1) {
@@ -263,33 +289,6 @@ nsock_event_id nsock_connect_unixsock_datagram(nsock_pool nsp, nsock_iod nsiod, 
  * sizeof the structure you are passing in. */
 nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
                                  void *userdata, struct sockaddr *saddr, size_t sslen, unsigned short port) {
-  msiod *nsi = (msiod *)ms_iod;
-
-  if (nsi->px_ctx) {
-    struct proxy_node *current;
-
-    current = proxy_ctx_node_current(nsi->px_ctx);
-    assert(current != NULL);
-
-    memcpy(&nsi->px_ctx->target_ss, saddr, sslen);
-    nsi->px_ctx->target_sslen = sslen;
-    nsi->px_ctx->target_port = port;
-    nsi->px_ctx->target_handler = handler;
-
-    saddr = (struct sockaddr *)&current->ss;
-    sslen = current->sslen;
-    port  = current->port;
-    handler = nsock_proxy_ev_dispatch;
-
-    return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
-  }
-
-  return nsock_connect_tcp_direct(nsp, ms_iod, handler, timeout_msecs, userdata, saddr, sslen, port);
-}
-
-nsock_event_id nsock_connect_tcp_direct(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler,
-                                        int timeout_msecs, void *userdata, struct sockaddr *saddr,
-                                        size_t sslen, unsigned short port) {
   msiod *nsi = (msiod *)ms_iod;
   mspool *ms = (mspool *)nsp;
   msevent *nse;
