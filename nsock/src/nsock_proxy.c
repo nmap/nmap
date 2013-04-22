@@ -205,9 +205,10 @@ static int hex_digit_value(char digit) {
   const char *DIGITS = "0123456789abcdef";
   const char *p;
 
-  if ((unsigned char) digit == '\0')
+  if ((unsigned char)digit == '\0')
     return -1;
-  p = strchr(DIGITS, tolower((int) (unsigned char) digit));
+
+  p = strchr(DIGITS, tolower((int)(unsigned char)digit));
   if (p == NULL)
     return -1;
 
