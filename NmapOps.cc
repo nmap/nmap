@@ -135,6 +135,10 @@ NmapOps::~NmapOps() {
     free(portlist);
     portlist = NULL;
   }
+  if (proxy_chain) {
+    free(proxy_chain);
+    proxy_chain = NULL;
+  }
   if (exclude_spec) {
     free(exclude_spec);
     exclude_spec = NULL;
@@ -346,6 +350,7 @@ void NmapOps::Initialize() {
   inputfd = NULL;
   idleProxy = NULL;
   portlist = NULL;
+  proxy_chain = NULL;
 }
 
 bool NmapOps::SCTPScan() {

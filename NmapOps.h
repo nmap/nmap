@@ -340,6 +340,8 @@ class NmapOps {
   FILE *inputfd;
   char *portlist; /* Ports list specified by user */
 
+  char *proxy_chain;
+
 #ifndef NOLUA
   int script;
   char *scriptargs;
