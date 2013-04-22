@@ -77,7 +77,6 @@ struct proxy_parser {
   char *tokens;
 };
 
-
 static struct proxy_parser *proxy_parser_new(const char *proxychainstr);
 static void proxy_parser_next(struct proxy_parser *parser);
 static void proxy_parser_delete(struct proxy_parser *parser);
@@ -197,14 +196,199 @@ void proxy_chain_context_delete(struct proxy_chain_context *ctx) {
   }
 }
 
-/* XXX
- * This function is just an ugly PoC.
- *
- * A clean version should handle:
- *   - both v4 and v6 adresses
- *   - hostnames (how do we want to resolve them though??)
- *   - user:pass@ prefix before host specification
- */
+static char *mkstr(const char *start, const char *end) {
+  char *s;
+
+  assert(end >= start);
+  s = (char *) safe_malloc(end - start + 1);
+  memcpy(s, start, end - start);
+  s[end - start] = '\0';
+
+  return s;
+}
+
+static void uri_free(struct uri *uri) {
+  if (uri->scheme)
+    free(uri->scheme);
+  if (uri->user)
+    free(uri->user);
+  if (uri->pass)
+    free(uri->pass);
+  if (uri->host)
+    free(uri->host);
+  if (uri->path)
+    free(uri->path);
+}
+
+static int lowercase(char *s) {
+  char *p;
+
+  for (p = s; *p != '\0'; p++)
+    *p = tolower((int) (unsigned char) *p);
+
+  return p - s;
+}
+
+static int hex_digit_value(char digit) {
+  const char *DIGITS = "0123456789abcdef";
+  const char *p;
+
+  if ((unsigned char) digit == '\0')
+    return -1;
+  p = strchr(DIGITS, tolower((int) (unsigned char) digit));
+  if (p == NULL)
+    return -1;
+
+  return p - DIGITS;
+}
+
+static int percent_decode(char *s) {
+  char *p, *q;
+
+  /* Skip to the first '%'. If there are no percent escapes, this lets us
+   * return without doing any copying. */
+  q = s;
+  while (*q != '\0' && *q != '%')
+    q++;
+
+  p = q;
+  while (*q != '\0') {
+    if (*q == '%') {
+      int c, d;
+
+      q++;
+      c = hex_digit_value(*q);
+      if (c == -1)
+        return -1;
+      q++;
+      d = hex_digit_value(*q);
+      if (d == -1)
+        return -1;
+
+      *p++ = c * 16 + d;
+      q++;
+      } else {
+        *p++ = *q++;
+      }
+  }
+  *p = '\0';
+
+  return p - s;
+}
+
+static int uri_parse_authority(const char *authority, struct uri *uri) {
+  const char *portsep;
+  const char *host_start, *host_end;
+  char *tail;
+
+  /* We do not support "user:pass@" userinfo. The proxy has no use for it. */
+  if (strchr(authority, '@') != NULL)
+    return -1;
+
+  /* Find the beginning and end of the host. */
+  host_start = authority;
+
+  if (*host_start == '[') {
+    /* IPv6 address in brackets. */
+    host_start++;
+    host_end = strchr(host_start, ']');
+
+    if (host_end == NULL)
+      return -1;
+
+    portsep = host_end + 1;
+
+    if (!(*portsep == ':' || *portsep == '\0'))
+      return -1;
+
+  } else {
+    portsep = strrchr(authority, ':');
+
+    if (portsep == NULL)
+      portsep = strchr(authority, '\0');
+    host_end = portsep;
+  }
+
+  /* Get the port number. */
+  if (*portsep == ':' && *(portsep + 1) != '\0') {
+    long n;
+
+    errno = 0;
+    n = parse_long(portsep + 1, &tail);
+    if (errno != 0 || *tail != '\0' || tail == portsep + 1 || n < 1 || n > 65535)
+      return -1;
+    uri->port = n;
+  } else {
+    uri->port = -1;
+  }
+
+  /* Get the host. */
+  uri->host = mkstr(host_start, host_end);
+  if (percent_decode(uri->host) < 0) {
+    free(uri->host);
+    uri->host = NULL;
+    return -1;
+  }
+
+  return 1;
+}
+
+static int parse_uri(const char *proxystr, struct uri *uri) {
+  const char *p, *q;
+
+  /* Scheme, section 3.1. */
+  p = proxystr;
+  if (!isalpha(*p))
+    goto fail;
+
+  q = p;
+  while (isalpha(*q) || isdigit(*q) || *q == '+' || *q == '-' || *q == '.')
+    q++;
+
+  if (*q != ':')
+      goto fail;
+
+  uri->scheme = mkstr(p, q);
+
+  /* "An implementation should accept uppercase letters as equivalent to
+   * lowercase in scheme names (e.g., allow "HTTP" as well as "http") for the
+   * sake of robustness..." */
+  lowercase(uri->scheme);
+
+  /* Authority, section 3.2. */
+  p = q + 1;
+  if (*p == '/' && *(p + 1) == '/') {
+    char *authority = NULL;
+
+    p += 2;
+    q = p;
+    while (!(*q == '/' || *q == '?' || *q == '#' || *q == '\0'))
+      q++;
+          ;
+    authority = mkstr(p, q);
+    if (uri_parse_authority(authority, uri) < 0) {
+      free(authority);
+      goto fail;
+    }
+    free(authority);
+
+    p = q;
+  }
+
+  /* Path, section 3.3. We include the query and fragment in the path. The
+   * path is also not percent-decoded because we just pass it on to the origin
+   * server. */
+
+  q = strchr(p, '\0');
+  uri->path = mkstr(p, q);
+
+  return 1;
+
+fail:
+  uri_free(uri);
+  return -1;
+}
+
 static struct proxy_node *proxy_node_new(char *proxystr) {
   int i;
 
@@ -214,8 +398,16 @@ static struct proxy_node *proxy_node_new(char *proxystr) {
     pxop = ProxyBackends[i];
     if (strncasecmp(proxystr, pxop->prefix, strlen(pxop->prefix)) == 0) {
       struct proxy_node *proxy;
+      struct uri uri;
 
-      pxop->node_new(&proxy, proxystr);
+      memset(&uri, 0x00, sizeof(struct uri));
+
+      if (parse_uri(proxystr, &uri) < 0)
+        break;
+
+      pxop->node_new(&proxy, &uri);
+      uri_free(&uri);
+
       return proxy;
     }
   }
