@@ -59,15 +59,6 @@
 #include <netdb.h>
 #include <string.h>
 
-/* TODO first!
- * ---
- *   o Parse proxy spec string
- *   o Deal with actual proxy chains (cf. ev_handler)
- *   o Deal with errors
- *   o Generic proxy interface (to handle many proxy types)
- * ---
- *   o Manage timeouts
- */
 
 struct proxy_parser {
   int done;
