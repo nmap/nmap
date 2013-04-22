@@ -161,7 +161,9 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struc
 #endif
   msiod *iod = nse->iod;
 
-  if (iod->px_ctx && (nse->handler != nsock_proxy_ev_dispatch)) {
+  if (iod->px_ctx   /* proxy enabled */
+      && proto == IPPROTO_TCP   /* restrict proxying to TCP connections */
+      && (nse->handler != nsock_proxy_ev_dispatch)) {   /* for reentrancy */
     struct proxy_node *current;
 
     current = proxy_ctx_node_current(iod->px_ctx);
