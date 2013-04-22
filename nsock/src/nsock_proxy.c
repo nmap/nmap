@@ -156,44 +156,17 @@ int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   mspool *nsp = (mspool *)nspool;
   struct proxy_chain_context *ctx;
-  gh_list_elem *elt;
 
   ctx = (struct proxy_chain_context *)safe_malloc(sizeof(struct proxy_chain_context));
   ctx->px_chain = nsp->px_chain;
   ctx->px_state = PROXY_STATE_INITIAL;
   ctx->px_current = GH_LIST_FIRST_ELEM(&nsp->px_chain->nodes);
-  gh_list_init(&ctx->px_info);
-
-  for (elt = GH_LIST_FIRST_ELEM(&nsp->px_chain->nodes); elt != NULL; elt = GH_LIST_ELEM_NEXT(elt)) {
-    struct proxy_node *px = (struct proxy_node *)GH_LIST_ELEM_DATA(elt);
-    void *pinfo = NULL;
-
-    px->ops->info_new(&pinfo);
-    gh_list_append(&ctx->px_info, pinfo);
-  }
-
   return ctx;
 }
 
 void proxy_chain_context_delete(struct proxy_chain_context *ctx) {
-  if (ctx) {
-    gh_list_elem *pxe;
-
-    assert(GH_LIST_COUNT(&ctx->px_chain->nodes) == GH_LIST_COUNT(&ctx->px_info));
-
-    for (pxe = GH_LIST_FIRST_ELEM(&ctx->px_chain->nodes); pxe != NULL; pxe = GH_LIST_ELEM_NEXT(pxe)) {
-      struct proxy_node *pxn;
-      void *px_info;
-
-      pxn = (struct proxy_node *)GH_LIST_ELEM_DATA(pxe);
-      px_info = gh_list_pop(&ctx->px_info);
-
-      pxn->ops->info_delete(px_info);
-    }
-
-    gh_list_free(&ctx->px_info);
+  if (ctx)
     free(ctx);
-  }
 }
 
 static char *mkstr(const char *start, const char *end) {
