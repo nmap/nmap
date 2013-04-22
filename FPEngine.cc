@@ -163,6 +163,9 @@ void FPNetworkControl::init(const char *ifname, devtype iftype) {
 
   nsp_setdevice(nsp, o.device);
 
+  if (o.proxy_chain)
+    nsp_set_proxychain(this->nsp, o.proxy_chain);
+
   /* Allow broadcast addresses */
   nsp_setbroadcast(this->nsp, 1);
 
