@@ -441,7 +441,7 @@ void FPNetworkControl::probe_transmission_handler(nsock_pool nsp, nsock_event ns
   } else if (status == NSE_STATUS_EOF) {
     if (o.debugging)
       log_write(LOG_PLAIN, "probe_transmission_handler(): EOF\n");
-  } else if (status == NSE_STATUS_ERROR) {
+  } else if (status == NSE_STATUS_ERROR || status == NSE_STATUS_PROXYERROR) {
     if (o.debugging)
       log_write(LOG_PLAIN, "probe_transmission_handler(): %s failed: %s\n", nse_type2str(type), strerror(socket_errno()));
   } else if (status == NSE_STATUS_TIMEOUT) {
@@ -566,7 +566,7 @@ void FPNetworkControl::response_reception_handler(nsock_pool nsp, nsock_event ns
   } else if (status == NSE_STATUS_EOF) {
     if (o.debugging)
       log_write(LOG_PLAIN, "response_reception_handler(): EOF\n");
-  } else if (status == NSE_STATUS_ERROR) {
+  } else if (status == NSE_STATUS_ERROR || NSE_STATUS_PROXYERROR) {
     if (o.debugging)
       log_write(LOG_PLAIN, "response_reception_handler(): %s failed: %s\n", nse_type2str(type), strerror(socket_errno()));
   } else if (status == NSE_STATUS_TIMEOUT) {

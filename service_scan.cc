@@ -2253,23 +2253,31 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
     send_probe_text(nsp, nsi, svc, probe);
     // Now let us read any results
     nsock_read(nsp, nsi, servicescan_read_handler, svc->probe_timemsleft(probe, nsock_gettimeofday()), svc);
-  } else if (status == NSE_STATUS_TIMEOUT || status == NSE_STATUS_ERROR) {
-      // This is not good.  The connect() really shouldn't generally
-      // be timing out like that.  We'll mark this svc as incomplete
-      // and move it to the finished bin.
-    if (o.debugging)
-      error("Got nsock CONNECT response with status %s - aborting this service", nse_status2str(status));
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
-  } else if (status == NSE_STATUS_KILL) {
-    /* User probablby specified host_timeout and so the service scan is
-       shutting down */
-    end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
-    return;
-  } else fatal("Unexpected nsock status (%d) returned for connection attempt", (int) status);
+  } else {
+    switch(status) {
+      case NSE_STATUS_TIMEOUT:
+      case NSE_STATUS_ERROR:
+      case NSE_STATUS_PROXYERROR:
+        // This is not good.  The connect() really shouldn't generally
+        // be timing out like that.  We'll mark this svc as incomplete
+        // and move it to the finished bin.
+        if (o.debugging)
+          error("Got nsock CONNECT response with status %s - aborting this service", nse_status2str(status));
+        end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+        break;
+    
+      case NSE_STATUS_KILL:
+        /* User probablby specified host_timeout and so the service scan is
+         * shutting down */
+        end_svcprobe(nsp, PROBESTATE_INCOMPLETE, SG, svc, nsi);
+        return;
 
+      default:
+        fatal("Unexpected nsock status (%d) returned for connection attempt", (int)status);
+    }
+  }
   // We may have room for more pr0bes!
   launchSomeServiceProbes(nsp, SG);
-
   return;
 }
 
@@ -2306,7 +2314,7 @@ static void servicescan_write_handler(nsock_pool nsp, nsock_event nse, void *myd
     return;
   }
 
-  if (status == NSE_STATUS_ERROR) {
+  if (status == NSE_STATUS_ERROR || status == NSE_STATUS_PROXYERROR) {
 	err = nse_errorcode(nse);
 	error("Got nsock WRITE error #%d (%s)", err, strerror(err));
   }
