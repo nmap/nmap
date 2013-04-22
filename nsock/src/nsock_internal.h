@@ -219,8 +219,9 @@ typedef struct {
   SSL_CTX *sslctx;
 #endif
 
-  /* Proxy chain (or NULL) */
-  struct proxy_node *px_chain;
+  /* Optional proxy chain (NULL is not set). Can only be set once per NSP (using
+   * nsock_proxychain_new() or nsp_set_proxychain(). */
+  struct proxy_chain *px_chain;
 
 } mspool;
 

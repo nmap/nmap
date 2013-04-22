@@ -131,6 +131,8 @@ typedef void *nsock_ssl_session;
 typedef void *nsock_ssl_ctx;
 typedef void *nsock_ssl;
 
+typedef void *nsock_proxychain;
+
 
 /* Logging-related data structures */
 
@@ -186,8 +188,6 @@ enum nsock_loopstatus {
   NSOCK_LOOP_ERROR,
   NSOCK_LOOP_QUIT
 };
-
-int nsock_set_proxychain(nsock_pool nsp, const char *proxystr);
 
 enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout);
 
@@ -270,6 +270,21 @@ void nsock_set_log_function(nsock_pool nsp, nsock_logger_t logger);
 nsock_loglevel_t nsock_get_loglevel(nsock_pool nsp);
 void nsock_set_loglevel(nsock_pool nsp, nsock_loglevel_t loglevel);
 
+/* Parse a proxy chain description string and build a nsock_proxychain object
+ * accordingly. If the optional nsock_pool parameter is passed in, it gets
+ * associated to the chain object. The alternative is to pass nsp=NULL and call
+ * nsp_set_proxychain() manually. Whatever is done, the chain object has to be
+ * deleted by the caller, using proxychain_delete(). */
+int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_pool nspool);
+
+/* If nsock_proxychain_new() returned success, caller has to free the chain
+ * object using this function. */
+void nsock_proxychain_delete(nsock_proxychain chain);
+
+/* Assign a previously created proxychain object to a nsock pool. After this,
+ * new connections requests will be issued through the chain of proxies (if
+ * possible). */
+int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain);
 
 /* nsock_event handles a single event.  Its ID is generally returned when the
  * event is created, and the event itself is included in callbacks
