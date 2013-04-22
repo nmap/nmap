@@ -268,7 +268,7 @@ nsock_event_id nsock_connect_tcp(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_hand
   if (nsi->px_ctx) {
     struct proxy_node *current;
 
-    current = PROXY_CTX_CURRENT(nsi->px_ctx);
+    current = proxy_ctx_node_current(nsi->px_ctx);
     assert(current != NULL);
 
     memcpy(&nsi->px_ctx->target_ss, saddr, sslen);

@@ -112,15 +112,14 @@ void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   struct sockaddr_storage *ss;
   size_t sslen;
   unsigned short port;
+  struct proxy_node *next;
 
   switch (nse->iod->px_ctx->px_state) {
     case PROXY_STATE_INITIAL:
       nse->iod->px_ctx->px_state = PROXY_STATE_HTTP_TCP_CONNECTED;
 
-      if (PROXY_CTX_NEXT(nse->iod->px_ctx)) {
-        struct proxy_node *next;
-
-        next = PROXY_CTX_NEXT(nse->iod->px_ctx);
+      next = proxy_ctx_node_next(nse->iod->px_ctx);
+      if (next) {
         ss = &next->ss;
         sslen = next->sslen;
         port = next->port;

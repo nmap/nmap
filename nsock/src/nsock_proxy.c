@@ -452,7 +452,7 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
   if (nse->status != NSE_STATUS_SUCCESS)
     fatal("Error, but this is debug only!");
 
-  current = PROXY_CTX_CURRENT(nse->iod->px_ctx);
+  current = proxy_ctx_node_current(nse->iod->px_ctx);
   assert(current);
   current->ops->handler(nspool, nsevent, udata);
 }
