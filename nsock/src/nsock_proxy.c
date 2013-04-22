@@ -61,6 +61,8 @@
 #include <netdb.h>
 #include <string.h>
 
+#define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
+
 
 struct proxy_parser {
   int done;
@@ -285,7 +287,7 @@ static int uri_parse_authority(const char *authority, struct uri *uri) {
 
     errno = 0;
     n = parse_long(portsep + 1, &tail);
-    if (errno != 0 || *tail != '\0' || tail == portsep + 1 || n < 1 || n > 65535)
+    if (errno || *tail || (tail == (portsep + 1)) || !IN_RANGE(n, 1, 65535))
       return -1;
     uri->port = n;
   } else {
