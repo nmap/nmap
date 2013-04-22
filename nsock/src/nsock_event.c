@@ -500,6 +500,7 @@ const char *nse_status2str(enum nse_status status) {
     case NSE_STATUS_CANCELLED: return "CANCELLED";
     case NSE_STATUS_KILL: return "KILL";
     case NSE_STATUS_EOF: return "EOF";
+    case NSE_STATUS_PROXYERROR: return "PROXY ERROR";
     default:
       return "UNKNOWN!";
   }

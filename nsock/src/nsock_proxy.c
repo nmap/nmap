@@ -428,32 +428,36 @@ void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
   msevent *nse = (msevent *)nsevent;
   enum nse_type cached_type;
   enum nse_status cached_status;
- 
+
   cached_type = nse->type;
   cached_status = nse->status;
- 
+
   nse->type = NSE_TYPE_CONNECT;
-  nse->status = NSE_STATUS_SUCCESS;
- 
+
+  if (nse->status != NSE_STATUS_SUCCESS)
+    nse->status = NSE_STATUS_PROXYERROR;
+
   if (nsp->tracelevel > 0)
-    nsock_trace(nsp, "Forwarding event upstream: SUCCESS TCP connect (IOD #%li) EID %li",
-                nse->iod->id, nse->id);
- 
+    nsock_trace(nsp, "Forwarding event upstream: TCP connect %s (IOD #%li) EID %li",
+                nse_status2str(nse->status), nse->iod->id, nse->id);
+
   nse->iod->px_ctx->target_handler(nsp, nse, udata);
- 
+
   nse->type = cached_type;
   nse->status = cached_status;
 }
 
 void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata) {
   msevent *nse = (msevent *)nsevent;
-  struct proxy_node *current;
 
-  if (nse->status != NSE_STATUS_SUCCESS)
-    fatal("Error, but this is debug only!");
+  if (nse->status == NSE_STATUS_SUCCESS) {
+    struct proxy_node *current;
 
-  current = proxy_ctx_node_current(nse->iod->px_ctx);
-  assert(current);
-  current->ops->handler(nspool, nsevent, udata);
+    current = proxy_ctx_node_current(nse->iod->px_ctx);
+    assert(current);
+    current->ops->handler(nspool, nsevent, udata);
+  } else {
+    forward_event(nspool, nsevent, udata);
+  }
 }
 
