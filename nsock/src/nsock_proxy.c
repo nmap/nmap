@@ -56,6 +56,7 @@
 
 #include "nsock.h"
 #include "nsock_internal.h"
+#include "nsock_log.h"
 #include <netdb.h>
 #include <string.h>
 
@@ -139,7 +140,7 @@ int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   mspool *nsp = (mspool *)nspool;
 
   if (nsp && nsp->px_chain) {
-    nsock_trace(nsp, "Invalid call to %s. Existing proxychain on this nsock_pool", __func__);
+    nsock_log_error(nsp, "Invalid call. Existing proxychain on this nsock_pool");
     return -1;
   }
 
@@ -434,9 +435,8 @@ void forward_event(nsock_pool nspool, nsock_event nsevent, void *udata) {
   if (nse->status != NSE_STATUS_SUCCESS)
     nse->status = NSE_STATUS_PROXYERROR;
 
-  if (nsp->tracelevel > 0)
-    nsock_trace(nsp, "Forwarding event upstream: TCP connect %s (IOD #%li) EID %li",
-                nse_status2str(nse->status), nse->iod->id, nse->id);
+  nsock_log_info(nsp, "Forwarding event upstream: TCP connect %s (IOD #%li) EID %li",
+                 nse_status2str(nse->status), nse->iod->id, nse->id);
 
   nse->iod->px_ctx->target_handler(nsp, nse, udata);
 
