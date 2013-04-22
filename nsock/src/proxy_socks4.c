@@ -144,9 +144,9 @@ void proxy_socks4_node_delete(struct proxy_node *node) {
   free(node);
 }
 
-static inline void socks4_init(struct socks4_data *socks4,
-                               struct sockaddr_storage *ss, size_t sslen,
-                               unsigned short port) {
+static inline void socks4_data_init(struct socks4_data *socks4,
+                                    struct sockaddr_storage *ss, size_t sslen,
+                                    unsigned short port) {
     struct sockaddr_in *sin = (struct sockaddr_in *)ss;
 
     memset(socks4, 0x00, sizeof(struct socks4_data));
@@ -157,9 +157,7 @@ static inline void socks4_init(struct socks4_data *socks4,
     socks4->address = sin->sin_addr.s_addr;
 }
 
-void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
-  mspool *nsp = (mspool *)nspool;
-  msevent *nse = (msevent *)nsevent;
+static void handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   struct sockaddr_storage *ss;
   size_t sslen;
   unsigned short port;
@@ -167,57 +165,68 @@ void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
   struct socks4_data socks4;
   int timeout;
 
+  nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TCP_CONNECTED;
+
+  next = proxy_ctx_node_next(nse->iod->px_ctx);
+  if (next) {
+    ss = &next->ss;
+    sslen = next->sslen;
+    port = next->port;
+  } else {
+    ss = &nse->iod->px_ctx->target_ss;
+    sslen = nse->iod->px_ctx->target_sslen;
+    port = nse->iod->px_ctx->target_port;
+  }
+
+  socks4_data_init(&socks4, ss, sslen, port);
+
+  timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
+
+  nsock_write(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout, udata,
+              (char *)&socks4, sizeof(struct socks4_data));
+
+  nsock_readbytes(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout,
+                  udata, 8);
+}
+
+static void handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
+  char *res;
+  int reslen;
+
+  res = nse_readbuf(nse, &reslen);
+
+  if (!(reslen == 8 && res[1] == 90)) {
+    struct proxy_node *node;
+
+    node = proxy_ctx_node_current(nse->iod->px_ctx);
+    nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
+                    node->nodestr);
+    return;
+  }
+
+  nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
+
+  if (nse->iod->px_ctx->px_current->next == NULL) {
+    forward_event(nsp, nse, udata);
+  } else {
+    nse->iod->px_ctx->px_current = nse->iod->px_ctx->px_current->next;
+    nse->iod->px_ctx->px_state = PROXY_STATE_INITIAL;
+    nsock_proxy_ev_dispatch(nsp, nse, udata);
+  }
+}
+
+void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *udata) {
+  mspool *nsp = (mspool *)nspool;
+  msevent *nse = (msevent *)nsevent;
+
   switch (nse->iod->px_ctx->px_state) {
-
     case PROXY_STATE_INITIAL:
-      nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TCP_CONNECTED;
-
-      next = proxy_ctx_node_next(nse->iod->px_ctx);
-      if (next) {
-        ss = &next->ss;
-        sslen = next->sslen;
-        port = next->port;
-      } else {
-        ss = &nse->iod->px_ctx->target_ss;
-        sslen = nse->iod->px_ctx->target_sslen;
-        port = nse->iod->px_ctx->target_port;
-      }
-
-      socks4_init(&socks4, ss, sslen, port);
-
-      timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
-      nsock_write(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                  timeout, udata, (char *)&socks4, sizeof(struct socks4_data));
-      nsock_readbytes(nspool, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch,
-                      timeout, udata, 8);
+      handle_state_initial(nsp, nse, udata);
       break;
 
     case PROXY_STATE_SOCKS4_TCP_CONNECTED:
-      if (nse->type == NSE_TYPE_READ) {
-        char *res;
-        int reslen;
-
-        res = nse_readbuf(nse, &reslen);
-
-        if (!(reslen == 8 && res[1] == 90)) {
-          struct proxy_node *node;
-
-          node = proxy_ctx_node_current(nse->iod->px_ctx);
-          nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
-                          node->nodestr);
-          break;
-        }
-
-        nse->iod->px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
-
-        if (nse->iod->px_ctx->px_current->next == NULL) {
-          forward_event(nsp, nse, udata);
-        } else {
-          nse->iod->px_ctx->px_current = nse->iod->px_ctx->px_current->next;
-          nse->iod->px_ctx->px_state = PROXY_STATE_INITIAL;
-          nsock_proxy_ev_dispatch(nsp, nse, udata);
-        }
-      }
+      if (nse->type == NSE_TYPE_READ)
+        handle_state_tcp_connected(nsp, nse, udata);
       break;
 
     case PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED:
