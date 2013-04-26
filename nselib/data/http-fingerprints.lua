@@ -6823,6 +6823,23 @@ table.insert(fingerprints, {
       }
    }
   });
+
+table.insert(fingerprints, {
+    category = 'attacks',
+    probes = {
+      {
+        path = '/d41d8cd98f00b204e9800998ecf8427e.php',
+        method = 'GET'
+      }
+    },
+    matches = {
+      {
+        match = '200',
+        output = 'Seagate BlackArmorNAS 110/220/440 Administrator Password Reset Vulnerability'
+      }
+    }
+  });
+
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
