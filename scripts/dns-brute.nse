@@ -195,7 +195,7 @@ action = function(host)
 		dosrv = stdnse.get_script_args("dns-brute.srv") or false
 		stdnse.print_debug("THREADS: "..max_threads)
 		local fileName = stdnse.get_script_args('dns-brute.hostlist')
-		local commFile = fileName and nmap.fetchfile(fileName)
+		local commFile = (fileName and nmap.fetchfile(fileName)) or fileName
 		local hostlist
 		if commFile then
 			local file = io.open(commFile)
@@ -211,12 +211,10 @@ action = function(host)
 					end
 				end
 				file:close()
-			end
-		else
-			if fileName then
+      else
 				print("dns-brute: Hostlist file not found. Will use default list.")
 			end
-		end
+    end
 		if (not hostlist) then hostlist = HOST_LIST end
 		local srvlist = SRV_LIST
 
