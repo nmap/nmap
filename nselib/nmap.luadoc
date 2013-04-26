@@ -143,8 +143,10 @@ function get_ttl()
 -- @usage local payload_length = nmap.get_payload_length
 function get_payload_length()
 
---- Searches for the specified file and returns a string containing its path if
--- it is found and readable (to the process).
+--- Searches for the specified file relative to Nmap's search paths and returns
+-- a string containing its path if it is found and readable (to the process).
+-- Absolute paths and paths relative to the current directory will not be
+-- searched.
 --
 -- If the file is not found, not readable, or is a directory, <code>nil</code>
 -- is returned.
