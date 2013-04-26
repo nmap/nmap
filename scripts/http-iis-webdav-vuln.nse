@@ -107,11 +107,8 @@ local function go(host, port)
 	local is_vulnerable = true
 
 	local folder_file
-	if(nmap.registry.args.folderdb ~= nil) then
-		folder_file = nmap.fetchfile(nmap.registry.args.folderdb)
-	else
-		folder_file = nmap.fetchfile('nselib/data/http-folders.txt')
-	end
+  local farg = nmap.registry.args.folderdb
+  folder_file = farg and (nmap.fetchfile(farg) or farg) or nmap.fetchfile('nselib/data/http-folders.txt')
 
 	if(folder_file == nil) then
 		return false, "Couldn't find http-folders.txt (should be in nselib/data)"
@@ -119,7 +116,7 @@ local function go(host, port)
 
 	local file = io.open(folder_file, "r")
 	if not file then
-		return false, "Couldn't find http-folders.txt (should be in nselib/data)"
+		return false, ("Couldn't find or open %s"):format(folder_file)
 	end
 
 	while true do

@@ -12,7 +12,7 @@ Attempts to exploit java's remote debugging port.  When remote debugging port is
 After injection, class' run() method is executed.
 Method run() has no parameters, and is expected to return a string.
 
-You can specify your own .class file to inject by <code>filename</code> argument.
+You must specify your own .class file to inject by <code>filename</code> argument.
 See nselib/data/jdwp-class/README for more.
 ]]
 
@@ -51,7 +51,7 @@ action = function(host, port)
 	if filename == nil then
 		return stdnse.format_output(false, "This script requires a .class file to inject.")
 	end
-	local file = io.open(nmap.fetchfile(filename), "rb") 
+	local file = io.open(nmap.fetchfile(filename) or filename, "rb") 
 	local class_bytes = file:read("*all")
 	
 	-- inject the class

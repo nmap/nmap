@@ -118,7 +118,7 @@ end
 -- @return status false if error.
 -- @return string current line.
 local useriterator = function(list)
-    local f = nmap.fetchfile(list)
+    local f = nmap.fetchfile(list) or list
     if not f then
 	return false, ("\n ERROR: Couldn't find %s"):format(list)
     end

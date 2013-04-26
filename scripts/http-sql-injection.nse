@@ -208,7 +208,7 @@ end
 
 -- load error strings to the errorstrings table
 local function get_error_strings(path)
-  local f = nmap.fetchfile(path)
+  local f = nmap.fetchfile(path) or path
   if f then
     for e in io.lines(f) do
       if not string.match(e, "^#") then
