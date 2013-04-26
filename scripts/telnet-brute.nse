@@ -8,209 +8,461 @@ local unpwdb = require "unpwdb"
 
 description = [[
 Tries to get Telnet login credentials by guessing usernames and passwords.
+Username and password combinations are retrieved from the unpwdb datatabse.
+Telnet servers that require only a password (but not a username) are
+currently not supported.
 ]]
 
-author = "Eddie Bell, Ron Bowes"
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {'brute', 'intrusive'}
-
 ---
+-- @usage
+--   nmap -p 23 --script telnet-brute \
+--      --script-args userdb=myusers.lst,passdb=mypwds.lst \
+--      --script-args telnet-brute.timeout=8s \
+--      <target>
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 23/tcp open  telnet
 -- |_telnet-brute: root - 1234
+--
+-- @args telnet-brute.timeout  Connection time-out timespec (default: "5s")
 
--- Update (Ron Bowes, November, 2009): Now uses unpwdb database. 
-
-
-local soc
-local catch = function() soc:close() end
-local try = nmap.new_try(catch)
+author = "Eddie Bell, Ron Bowes, nnposter"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {'brute', 'intrusive'}
 
 portrule = shortport.port_or_service(23, 'telnet')
 
-local escape_cred = function(cred) 
-	if cred == '' then
-		return '<blank>'
-	else
-		return cred 
-	end
-end
+
+-- Miscellaneous script-wide parameters and constants
+local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or "5s"
+
+local telnet_timeout      -- connection timeout (in ms) from arg_timeout
+local telnet_eol = "\r\n" -- termination string for sent lines
+local conn_retries = 2    -- # of retries when attempting to connect
+local sess_retries = 2    -- # of retries to log in with the same credentials
+local login_debug = 2     -- debug level for printing attempted credentials
+local detail_debug = 3    -- debug level for printing individual login steps
+
 
 ---
--- Go through telnet's option palaver so we can get to the login prompt.
--- We just deny every options the server asks us about.
-local negotiate_options = function(result, soc)
-	local index, x, opttype, opt, retbuf
+-- Print debug messages, prepending them with the script name
+--
+-- @param level Verbosity level (mandatory, unlike stdnse.print_debug).
+-- @param fmt Format string.
+-- @param ... Arguments to format.
+local print_debug = function (level, fmt, ...)
+	stdnse.print_debug(level, "%s: " .. fmt, SCRIPT_NAME, ...)
+end
 
-	index = 0
-	retbuf = strbuf.new()
+
+---
+-- Decide whether a given string (presumably received from a telnet server)
+-- represents a username prompt
+--
+-- @param str The string to analyze
+-- @return Verdict (true or false)
+local is_username_prompt = function (str)
+	return str:find 'username%s*:'
+		or str:find 'login%s*:'
+end
+
+
+---
+-- Decide whether a given string (presumably received from a telnet server)
+-- represents a password prompt
+--
+-- @param str The string to analyze
+-- @return Verdict (true or false)
+local is_password_prompt = function (str)
+	return str:find 'password%s*:'
+		or str:find 'passcode%s*:'
+end
+
+
+---
+-- Decide whether a given string (presumably received from a telnet server)
+-- indicates a successful login
+--
+-- @param str The string to analyze
+-- @return Verdict (true or false)
+local is_login_success = function (str)
+	return str:find '[/>%%%$#]%s*$'
+		or str:find 'last login%s*:'
+		or str:find '%u:\\'
+		or str:find 'enter terminal emulation:'
+end
+
+
+---
+-- Decide whether a given string (presumably received from a telnet server)
+-- indicates a failed login
+--
+-- @param str The string to analyze
+-- @return Verdict (true or false)
+local is_login_failure = function (str)
+	return str:find 'incorrect'
+		or str:find 'failed'
+		or str:find 'denied'
+		or str:find 'invalid'
+		or str:find 'bad'
+end
+
+
+---
+-- Simple class to encapsulate connection operations
+local Connection = { methods = {} }
+
+
+---
+-- Initialize a connection
+--
+-- @param host Telnet host
+-- @param port Telnet port
+-- @return Connection object or nil (if the operation failed)
+Connection.new = function (host, port)
+	local soc, data, proto = comm.tryssl(host, port, "\n", {timeout=telnet_timeout})
+  	if not soc then return nil end
+	return setmetatable({
+				socket = soc,
+				buffer = "",
+				error = "",
+				host = host,
+				port = port,
+				proto = proto
+				},
+			{ __index = Connection.methods } )
+end
+
+
+---
+-- Open the connection
+--
+-- @param self Connection
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Connection.methods.connect = function (self)
+	local status
+	local wait = 1
+
+	self.buffer = ""
+	self.socket:set_timeout(telnet_timeout)
+
+	for tries = 0, conn_retries do
+		status, self.error = self.socket:connect(self.host, self.port, self.proto)
+		if status then break end
+
+		stdnse.sleep(wait)
+		wait = 2 * wait
+	end
+
+	return status, self.error
+end
+
+
+---
+-- Close the connection
+--
+-- @param self Connection
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Connection.methods.close = function (self)
+	local status
+	self.buffer = ""
+	status, self.error = self.socket:close()
+	return status, self.error
+end
+
+
+---
+-- Send one line through the connection to the server
+--
+-- @param self Connection
+-- @param line Characters to send, will be automatically terminated
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Connection.methods.send_line = function (self, line)
+	local status
+	status, self.error = self.socket:send(line .. telnet_eol)
+	return status, self.error
+end
+
+
+---
+-- Add received data to the connection buffer while taking care
+-- of telnet option signalling
+--
+-- @param self Connection
+-- @param data Data string to add to the buffer
+-- @return Number of characters in the connection buffer
+Connection.methods.fill_buffer = function (self, data)
+	local outbuf = strbuf.new(self.buffer)
+	local optbuf = strbuf.new()
+	local oldpos = 0
 
 	while true do
+		-- look for IAC (Interpret As Command)
+		local newpos = data:find('\255', oldpos)
+		if not newpos then break end
 
-		-- 255 is IAC (Interpret As Command)
-		index, x = string.find(result, '\255', index)
+		outbuf = outbuf .. data:sub(oldpos, newpos - 1)
+		local opttype = data:byte(newpos + 1)
+		local opt = data:byte(newpos + 2)
 
-		if not index then 
-			break 
-		end
-
-		opttype = string.byte(result, index+1)
-		opt = string.byte(result, index+2)
-
-		-- don't want it! won't do it! 
 		if opttype == 251 or opttype == 252 then
-			opttype = 254
+			-- Telnet Will / Will Not
+			-- regarding ECHO, agree with whatever the server wants
+			-- (or not) to do; otherwise respond with "don't"
+			opttype = opt == 1 and opttype + 2 or 254
 		elseif opttype == 253 or opttype == 254 then
+			-- Telnet Do / Do not
+			-- I will not do whatever the server wants me to
 			opttype = 252
 		end
 
-		retbuf = retbuf .. string.char(255)
-		retbuf = retbuf .. string.char(opttype)
-		retbuf = retbuf .. string.char(opt)
-		index = index + 1
-	end	
-	soc:send(strbuf.dump(retbuf))
+		optbuf = optbuf .. string.char(255)
+				.. string.char(opttype)
+				.. string.char(opt)
+		oldpos = newpos + 3
+	end
+
+	self.buffer = strbuf.dump(outbuf) .. data:sub(oldpos)
+	self.socket:send(strbuf.dump(optbuf))
+	return self.buffer:len()
 end
+
 
 ---
--- A semi-state-machine that takes action based on output from the
--- server. Through pattern matching, it tries to deem if a user/pass
--- pair is valid. Telnet does not have a way of telling the client
--- if it was authenticated....so we have to make an educated guess
-local brute_line = function(line, user, pass, usent, soc)
+-- Return leading part of the connection buffer, up to a line termination,
+-- and refill the buffer as needed
+--
+-- @param self Connection
+-- @return String representing the first line in the buffer
+Connection.methods.get_line = function (self)
+	if self.buffer:len() == 0 then
+		-- refill the buffer
+		local t1 = os.time()
+		local status, data = self.socket:receive_buf("[\r\n:>%%%$#\255].*", true)
+		if not status then
+			-- connection error
+			self.error = data
+			return nil
+		end
 
-	if (line:find 'incorrect' or line:find 'failed' or line:find 'denied' or 
-            line:find 'invalid' or line:find 'bad') and usent then
-		usent = false
-		return 2, nil, usent 
-
-	elseif (line:find '[/>%%%$#]+' or line:find "last login%s*:" or
-	        line:find '%u:\\') and not
-	       (line:find 'username%s*:' and line:find 'login%s*:') and
-	       usent then
-		return 1, escape_cred(user) .. ' - ' .. escape_cred(pass)  .. '\n', usent
-		
-	elseif line:find 'username%s*:' or line:find 'login%s*:' then
-		try(soc:send(user .. '\r\0'))
-		usent = true
-
-	elseif line:find 'password%s*:' or line:find 'passcode%s*:' then
-		-- fix, add 'password only' support
-		if not usent then return 1, nil, usent end
-		try(soc:send(pass .. '\r\0'))
+		self:fill_buffer(data)
 	end
 
-	return 0, nil, usent
+	return self.buffer:match('^[^\r\n]*')
 end
 
---[[
-Splits the input into lines and passes it to brute_line()
-so it can try to login with <user> and <pass>
 
-return value: 
-	(1, user:pass)	 - valid pair
-	(2, nil) 	 - invalid pair
-	(3, nil)  	 - disconnected and invalid pair
-	(4, nil)  	 - disconnected and didn't send pair
---]]
+---
+-- Discard leading part of the connection buffer, up to and including
+-- one or more line terminations
+--
+-- @param self Connection
+-- @return Number of characters remaining in the connection buffer
+Connection.methods.discard_line = function (self)
+	self.buffer = self.buffer:gsub('^[^\r\n]*[\r\n]*', '', 1)
+	return self.buffer:len()
+end
 
-local brute_cred = function(user, pass, soc)
-	local status, ret, value, usent, results
 
-	usent = false ; ret = 0
+local state = { INIT = 0,	-- just initialized
+		LOGIN_OK = 1,	-- login succeeded
+		LOGIN_BAD = 2,	-- login failed
+		ERROR_PWD = 3,	-- connection problem after sending username
+		ERROR_USR = 4,	-- connection problem before sending username
+		PWD_ONLY = 5 }	-- password-only authentication detected
+
+
+---
+-- Attempt to log in with a given set of credentials and return the telnet
+-- session state (according to the table above)
+--
+-- @param conn Connection
+-- @param user Username
+-- @param pass Password
+-- @return Resulting state of the login
+local test_credentials = function (conn, user, pass)
+	local usent = false
+
+	local error_state = function ()
+		if usent then
+			return state.ERROR_PWD
+		else
+			return state.ERROR_USR
+		end
+	end
 
 	while true do
-		status, results = soc:receive_lines(1)
+		local line = conn:get_line()
+		if not line then
+			-- remote host disconnected
+			print_debug(detail_debug, "No data received")
+			return error_state()
+		end
+		line = line:lower()
 
-		-- remote host disconnected
-		if not status then 
-			if usent then return 3 
-			else return 4 
+		if usent then
+			-- username has been already sent
+
+			if line == user:lower() then
+				-- ignore; remote echo of the username in effect
+				conn:discard_line()
+
+			elseif is_login_success(line) then
+				-- successful login
+				print_debug(detail_debug, "Login succeeded")
+				return state.LOGIN_OK
+
+			elseif is_password_prompt(line) then
+				-- being prompted for a password
+				conn:discard_line()
+				print_debug(detail_debug, "Sending password")
+				if not conn:send_line(pass) then
+					return error_state()
+				end
+
+			elseif is_login_failure(line) then
+				-- failed login; explicitly told so
+				conn:discard_line()
+				print_debug(detail_debug, "Login failed")
+				return state.LOGIN_BAD
+
+			elseif is_username_prompt(line) then
+				-- failed login; prompted again for a username
+				print_debug(detail_debug, "Login failed")
+				return state.LOGIN_BAD
+
+			else
+				-- ignore; insignificant response line
+				conn:discard_line()
+
 			end
-		end
 
-		if (string.byte(results, 1) == 255) then
-			negotiate_options(results, soc)
-		end
+		else
+			-- username has not yet been sent
 
-		results = string.lower(results)
+			if is_username_prompt(line) then
+				-- being prompted for a username
+				conn:discard_line()
+				print_debug(detail_debug, "Sending username")
+				if not conn:send_line(user) then
+					return error_state()
+				end
+				usent = true
 
-		for line in results:gmatch '[^\r\n]+' do 
-			ret, value, usent = brute_line(line, user, pass, usent, soc)
-			if (ret > 0) then
-				return ret, value
+			elseif is_password_prompt(line) then
+				-- looks like 'password only' support
+				print_debug(detail_debug, "Password prompt encountered")
+				return state.PWD_ONLY
+
+			else
+				-- ignore; insignificant response line
+				conn:discard_line()
+
 			end
+
 		end
+
 	end
-	return 1, "error -> this should never happen"
 end
 
-action = function(host, port)
-	local pair, status
-	local user, pass, count, rbuf
-	local usernames, passwords
 
-	status, usernames = unpwdb.usernames()
-	if(not(status)) then
+---
+-- Format credentials for use in script results or debug messages
+--
+-- @param user Username
+-- @param pass Password
+-- @return String representing the printout of the credentials
+local format_credentials = function (user, pass)
+	return stdnse.string_or_blank(user)
+		.. " - "
+		.. stdnse.string_or_blank(pass)
+end
+
+
+action = function (host, port)
+
+	local userstatus, usernames = unpwdb.usernames()
+	if not userstatus then
 		stdnse.format_output(false, usernames)
 	end
 
-	status, passwords = unpwdb.passwords()
-	if(not(status)) then
+	local passstatus, passwords = unpwdb.passwords()
+	if not passstatus then
 		return stdnse.format_output(false, passwords)
 	end
 
-	pair = nil
-	status = 3
-	count = 0
+	local ts, tserror = stdnse.parse_timespec(arg_timeout)
+	if not ts then
+		return stdnse.format_output(false, "Invalid timeout value: " .. tserror)
+	end
+	telnet_timeout = 1000 * ts
 
-	local opts = {timeout=4000}
-
-	local soc, line, best_opt = comm.tryssl(host, port, "\n",opts)
-  	if not soc then 
+	local conn = Connection.new(host, port)
+  	if not conn then
 		return stdnse.format_output(false, "Unable to open connection")
 	end
 
-	-- continually try user/pass pairs (reconnecting, if we have to)
-        -- until we find a valid one or we run out of pairs
-	pass = passwords()
-	while not (status == 1) do
+	local mystate = state.INIT
+	local retries = sess_retries
 
-		if status == 2 or status == 3 then
+	-- continually try user/pass pairs (reconnecting, if we have to)
+        -- until we find a valid one or we run out of pairs or the server
+	-- stops talking to us
+	local user, pass
+	pass = passwords()
+	while mystate ~= state.LOGIN_OK do
+		if mystate == state.PWD_ONLY then
+			conn:close()
+			return stdnse.format_output(false, "Password-only authentication detected")
+		end
+		if mystate == state.INIT
+				or mystate == state.ERROR_PWD
+				or mystate == state.ERROR_USR then
+			-- the connection needs to be re-established
+			if mystate ~= state.INIT then
+				print_debug(detail_debug, "Connection failed")
+			end
+			conn:close()
+			retries = retries + 1
+			if retries > sess_retries then
+				if mystate == state.ERROR_USR then
+					-- the server stopped cooperating
+					return stdnse.format_output(false, "Authentication error")
+				end
+				-- move onto the next user
+				mystate = state.LOGIN_BAD
+			end
+			if not conn:connect() then
+				-- cannot reconnect with the server
+				return stdnse.format_output(false, "Connection error: " .. conn.error)
+			end
+		end
+
+		if mystate == state.LOGIN_BAD then
+			-- get the next user/password combination
+			retries = 0
 			user = usernames()
-			if(not(user)) then
+			if not user then
 				usernames('reset')
 				user = usernames()
 				pass = passwords()
 
-				if(not(pass)) then
+				if not pass then
+					conn:close()
 					return stdnse.format_output(true, "No accounts found")
 				end
 			end
 
-			stdnse.print_debug(2, "telnet-brute: Trying %s/%s", user, pass)
+			print_debug(login_debug, "Trying %s", format_credentials(user, pass))
 		end
 
-		-- make sure we don't get stuck in a loop
-		if status == 4 then
-			count = count + 1
-			if count > 3 then
-				return false, nil
-			end
-		else
-			count = 0
-		end
-
-		if status == 3 or status == 4 then
-			try(soc:connect(host, port, best_opt))
-		end
-
-		status, pair = brute_cred(user, pass, soc)
+		mystate = test_credentials(conn, user, pass)
 	end
 
-	soc:close()
-
-	return pair
+	conn:close()
+	return format_credentials(user, pass)
 end
-
