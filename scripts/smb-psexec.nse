@@ -521,24 +521,31 @@ local function locate_file(filename, extension)
 
 	extension = extension or ""
 
-	local filename_full = nmap.fetchfile(filename)
-	if(filename_full == nil) then
-		filename_full = nmap.fetchfile(filename .. "." .. extension)
+	local filename_full = nmap.fetchfile(filename) or nmap.fetchfile(filename .. "." .. extension)
 
-		if(filename_full == nil) then
-			filename = "nselib/data/psexec/" .. filename
-			filename_full = nmap.fetchfile(filename)
+  if(filename_full == nil) then
+    local psexecfile = "nselib/data/psexec/" .. filename
+    filename_full = nmap.fetchfile(psexecfile) or nmap.fetchfile(psexecfile .. "." .. extension)
+  end
 
-			if(filename_full == nil) then
-				filename_full = nmap.fetchfile(filename .. "." .. extension)
-			end
-		end
-	end
-
-	-- Die if we couldn't find the file
-	if(filename_full == nil) then
-		return nil
-	end
+  -- check for absolute path or relative to current directory
+  if(filename_full == nil) then 
+    f, err = io.open(filename, "rb")
+    if f == nil then
+      stdnse.print_debug(1, "%s: Error opening %s: %s", SCRIPT_NAME, filename, err)
+      f, err = io.open(filename .. "." .. extension, "rb")
+      if f == nil then
+        stdnse.print_debug(1, "%s: Error opening %s.%s: %s", SCRIPT_NAME, filename, extension, err)
+        return nil -- unnecessary, but explicit
+      else
+        f:close()
+        return filename .. "." .. extension
+      end
+    else
+      f:close()
+      return filename
+    end
+  end
 
 	return filename_full
 end
