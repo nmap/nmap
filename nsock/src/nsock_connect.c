@@ -93,6 +93,7 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
       nsock_log_error(ms, "Setting of SO_REUSEADDR failed (#%li): %s", iod->id,
                       strerror(errno));
 
+    nsock_log_info(ms, "Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
     rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
     if (rc == -1) {
       nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s",
