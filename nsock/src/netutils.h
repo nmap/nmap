@@ -94,5 +94,8 @@ const char *get_unixsock_path(const struct sockaddr_storage *addr);
  * "<address>:<port>". */
 char *get_peeraddr_string(const msiod *iod);
 
+/* Get the local bind address string. */
+char *get_localaddr_string(const msiod *iod);
+
 #endif /* NETUTILS_H */
 

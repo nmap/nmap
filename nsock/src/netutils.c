@@ -188,3 +188,8 @@ static char *get_addr_string(const struct sockaddr_storage *ss, size_t sslen) {
 char *get_peeraddr_string(const msiod *iod) {
   return get_addr_string(&iod->peer, iod->peerlen);
 }
+
+/* Get the local bind address string. */
+char *get_localaddr_string(const msiod *iod) {
+  return get_addr_string(&iod->local, iod->locallen);
+}
