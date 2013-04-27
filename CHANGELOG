@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a service probe for the Hazelcast data grid. [Pavel Kankovsky]
+
 o [NSE] Rewrote telnet-brute for better compatibility with a variety
   of telnet servers. [nnposter]
 

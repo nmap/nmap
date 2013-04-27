@@ -11840,3 +11840,13 @@ Probe UDP svrloc q|\x02\x01\x00\x006 \x00\x00\x00\x00\x00\x01\x00\x02en\x00\x00\
 rarity 8
 ports 427
 match svrloc m|^\x02\x0b| p/Service Location Protocol/ v/2/
+
+##############################NEXT PROBE##############################
+# Hazelcast In-Memory Data Grid >= 1.9-RC http://www.hazelcast.com/
+# http://seclists.org/nmap-dev/2013/q2/7
+Probe TCP hazelcast-http q|GET /hazelcast/rest/cluster HTTP/1.0\r\n\r\n\r\n|
+rarity 9
+ports 5701-5709
+# Sample:
+# |HTTP/1\.1 200 OK\r\nContent-Length: 114\r\n\r\nCluster \[2\] {\n\tMember \[127\.0\.0\.1\]:5701 this\n\tMember \[127\.0\.0\.1\]:5702\n}\n\nConnectionCount: 1\nAllConnectionCount: 95\n\r\n|
+match hazelcast m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\n\r\nCluster \[\d+\] {\n\tMember (.*?)}\n\nConnectionCount: (\d+)\nAllConnectionCount: (\d+)\n\r\n$|s p/Hazelcast/ i/ConnectionCount $2; AllConnectionCount $3; $SUBST(1,"\n\tMember",",")/ cpe:/a:hazelcast:hazelcast/
