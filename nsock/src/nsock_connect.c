@@ -95,17 +95,8 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
 
     rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
     if (rc == -1) {
-      const char *addrstr = NULL;
-
-#if HAVE_SYS_UN_H
-      if (iod->local.ss_family == AF_UNIX)
-        addrstr = get_unixsock_path(&iod->local);
-      else
-#endif
-        addrstr = inet_ntop_ez(&iod->local, iod->locallen);
-
-      nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s", addrstr, iod->id,
-                      strerror(errno));
+      nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s",
+                      get_localaddr_string(iod), iod->id, strerror(errno));
     }
   }
   if (iod->ipoptslen && family == AF_INET) {
