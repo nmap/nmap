@@ -156,20 +156,35 @@ const char *get_unixsock_path(const struct sockaddr_storage *addr) {
 }
 #endif
 
+static int get_port(const struct sockaddr_storage *ss) {
+  if (ss->ss_family == AF_INET)
+    return ntohs(((struct sockaddr_in *) ss)->sin_port);
+#if HAVE_IPV6
+  else if (ss->ss_family == AF_INET6)
+    return ntohs(((struct sockaddr_in6 *) ss)->sin6_port);
+#endif
+
+  return -1;
+}
+
+static char *get_addr_string(const struct sockaddr_storage *ss, size_t sslen) {
+  static char buffer[PEER_STR_LEN];
+
+#if HAVE_SYS_UN_H
+  if (ss->ss_family == AF_UNIX) {
+    sprintf(buffer, "%s", get_unixsock_path(ss));
+    return buffer;
+  }
+#endif
+
+  sprintf(buffer, "%s:%d", inet_ntop_ez(ss, sslen), get_port(ss));
+  return buffer;
+}
+
 /* Get the peer/host address string.
  * In case we have support for UNIX domain sockets, function returns
  * string containing path to UNIX socket if the address family is AF_UNIX,
  * otherwise it returns string containing "<address>:<port>". */
 char *get_peeraddr_string(const msiod *iod) {
-  static char buffer[PEER_STR_LEN];
-
-#if HAVE_SYS_UN_H
-  if (iod->peer.ss_family == AF_UNIX) {
-    sprintf(buffer, "%s", get_unixsock_path(&iod->peer));
-    return buffer;
-  }
-#endif
-
-  sprintf(buffer, "%s:%d", inet_ntop_ez(&iod->peer, iod->peerlen), nsi_peerport((msiod *) iod));
-  return buffer;
+  return get_addr_string(&iod->peer, iod->peerlen);
 }
