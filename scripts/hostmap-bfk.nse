@@ -27,19 +27,37 @@ This script was formerly (until April 2012) known as hostmap.nse.
 --
 -- @output
 -- Host script results:
--- | hostmap-bfk: Saved to hostmap-nmap.org
--- | insecure.org
--- | 74.207.254.18
--- | web.insecure.org
--- | download.insecure.org
--- | images.insecure.org
--- | www.insecure.org
--- | nmap.org
--- | www.nmap.org
--- | sectools.org
--- | mirror.sectools.org
--- | www.sectools.org
--- |_seclists.org
+-- | hostmap-bfk: 
+-- |   hosts: 
+-- |     insecure.org
+-- |     173.255.243.189
+-- |     images.insecure.org
+-- |     www.insecure.org
+-- |     nmap.org
+-- |     189.243.255.173.in-addr.arpa
+-- |     mail.nmap.org
+-- |     svn.nmap.org
+-- |     www.nmap.org
+-- |     sectools.org
+-- |     seclists.org
+-- |_    li253-189.members.linode.com
+--
+-- @xmloutput
+-- <table key="hosts">
+--  <elem>insecure.org</elem>
+--  <elem>173.255.243.189</elem>
+--  <elem>images.insecure.org</elem>
+--  <elem>www.insecure.org</elem>
+--  <elem>nmap.org</elem>
+--  <elem>189.243.255.173.in-addr.arpa</elem>
+--  <elem>mail.nmap.org</elem>
+--  <elem>svn.nmap.org</elem>
+--  <elem>www.nmap.org</elem>
+--  <elem>sectools.org</elem>
+--  <elem>seclists.org</elem>
+--  <elem>li253-189.members.linode.com</elem>
+-- </table>
+---
 
 author = "Ange Gutek"
 
@@ -59,52 +77,45 @@ end
 action = function(host)
   local query = "/bfk_dnslogger.html?query=" .. host.ip
   local response
-
+  local output_tab = stdnse.output_table()
   response = http.get(HOSTMAP_SERVER, 80, query)
   if not response.status then
-    return string.format("Error: could not GET http://%s%s", HOSTMAP_SERVER, query)
+    stdnse.print_debug(1, "Error: could not GET http://%s%s", HOSTMAP_SERVER, query)
+    return nil
   end
-
   local hostnames = {}
-  for entry in string.gmatch(response.body, "#result\">([^<]-)</a>") do
+  local hosts_log = {}
+  for entry in string.gmatch(response.body, "#result\" rel=\"nofollow\">(.-)</a></tt>") do
     if not hostnames[entry] then
       if target.ALLOW_NEW_TARGETS then
         local status, err = target.add(entry)
       end
       hostnames[entry] = true
-      if string.match(entry, "%d+%.%d+%.%d+%.%d+") or dns.query(entry) then
-        hostnames[#hostnames + 1] = entry
-      else
-        hostnames[#hostnames + 1] = entry .. " (cannot resolve)"
-      end
+      hosts_log[#hosts_log + 1] = entry
     end
   end
 
-  if #hostnames == 0 then
+  if #hosts_log == 0 then
     if not string.find(response.body, "<p>The server returned no hits.</p>") then
-      return "Error: found no hostnames but not the marker for \"no hostnames found\" (pattern error?)"
+      stdnse.print_debug(1,"Error: found no hostnames but not the marker for \"no hostnames found\" (pattern error?)")
     end
-    return
+    return nil
   end
-
+  output_tab.hosts = hosts_log
   local hostnames_str = stdnse.strjoin("\n", hostnames)
-  local output_str
 
   local filename_prefix = stdnse.get_script_args("hostmap-bfk.prefix")
   if filename_prefix then
     local filename = filename_prefix .. filename_escape(host.targetname or host.ip)
     local status, err = write_file(filename, hostnames_str .. "\n")
     if status then
-      output_str = string.format("Saved to %s\n", filename)
+      output_tab.filename = filename
     else
-      output_str = string.format("Error saving to %s: %s\n", filename, err)
+      stdnse.print_debug(1,"Error saving to %s: %s\n", filename, err)
     end
-  else
-    output_str = "\n"
   end
-  output_str = output_str .. stdnse.strjoin("\n", hostnames)
 
-  return output_str
+  return output_tab
 end
 
 -- Escape some potentially unsafe characters in a string meant to be a filename.
