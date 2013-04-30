@@ -73,11 +73,11 @@ extern struct timeval nsock_tod;
 const struct proxy_spec ProxySpecSocks4;
 
 struct socks4_data {
-    char version;
-    char type;
-    unsigned short port;
-    unsigned long address;
-    char null;
+    uint8_t  version;
+    uint8_t  type;
+    uint16_t port;
+    uint32_t address;
+    uint8_t  null;
 } __attribute__((packed));
 
 
@@ -170,7 +170,7 @@ static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
 
   nsock_write(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout, udata,
-              (char *)&socks4, 9);
+              (char *)&socks4, sizeof(socks4));
 
   nsock_readbytes(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout,
                   udata, 8);
