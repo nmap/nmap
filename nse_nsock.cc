@@ -92,10 +92,6 @@ static nsock_pool new_pool (lua_State *L)
 
   nsp_setbroadcast(nsp, true);
 
-  if (o.proxy_chain) {
-    nsp_set_proxychain(nsp, o.proxy_chain);
-  }
-  
   nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
   *nspp = nsp;
   lua_newtable(L);
