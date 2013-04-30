@@ -1,5 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Updated hostmap-bfk to work with the latest version of their website. 
+  [Paulino Calderon]
+
+o [NSE] Added XML structured output support to hostmap-bfk, hostmap-robtex,
+  and hostmap-ip2hosts. [Paulino Calderon]
+
+o [NSE] Added hostmap-ip2hosts. It uses the service provider ip2hosts.com
+  to list domain names pointing to the same IP address. [Paulino Calderon]
+
+o [NSE] Added http-vuln-cve2013-0156. It detects Ruby on Rails servers
+  vulnerable to remote command execution (CVE-2013-0156). [Paulino Calderon]
+
 o Added a service probe for the Hazelcast data grid. [Pavel Kankovsky]
 
 o [NSE] Rewrote telnet-brute for better compatibility with a variety
