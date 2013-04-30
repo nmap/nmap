@@ -170,7 +170,7 @@ static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
   timeout = TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod);
 
   nsock_write(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout, udata,
-              (char *)&socks4, sizeof(struct socks4_data));
+              (char *)&socks4, 9);
 
   nsock_readbytes(nsp, (nsock_iod)nse->iod, nsock_proxy_ev_dispatch, timeout,
                   udata, 8);
