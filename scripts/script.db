@@ -127,6 +127,7 @@ Entry { filename = "hbase-master-info.nse", categories = { "default", "discovery
 Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", "intrusive", } }
+Entry { filename = "hostmap-ip2hosts.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "safe", } }
