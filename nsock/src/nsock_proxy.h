@@ -59,6 +59,11 @@
 #define NSOCK_PROXY_H
 
 #include "gh_list.h"
+
+#if HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
 #include <nsock.h>
 #include <errno.h>
 

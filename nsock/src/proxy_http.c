@@ -61,7 +61,6 @@
 #include "nsock.h"
 #include "nsock_internal.h"
 #include "nsock_log.h"
-#include <netdb.h>
 #include <string.h>
 
 #define DEFAULT_PROXY_PORT_HTTP 8080
