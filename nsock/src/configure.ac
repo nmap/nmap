@@ -140,7 +140,7 @@ AC_CHECK_FUNC(nanosleep, , AC_CHECK_LIB(posix4, nanosleep))
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(net/bpf.h sys/ioctl.h sys/un.h)
+AC_CHECK_HEADERS(net/bpf.h sys/ioctl.h sys/un.h netdb.h)
 
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"

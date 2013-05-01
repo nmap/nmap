@@ -58,7 +58,6 @@
 #include "nsock.h"
 #include "nsock_internal.h"
 #include "nsock_log.h"
-#include <netdb.h>
 #include <string.h>
 
 #define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))

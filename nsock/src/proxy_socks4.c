@@ -62,7 +62,6 @@
 #include "nsock_internal.h"
 #include "nsock_log.h"
 
-#include <netdb.h>
 #include <string.h>
 
 #define DEFAULT_PROXY_PORT_SOCKS4 1080
