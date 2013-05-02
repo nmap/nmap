@@ -205,14 +205,14 @@ static void proxy_http_handler(nsock_pool nspool, nsock_event nsevent, void *uda
 
 /* ---- PROXY DEFINITION ---- */
 static const struct proxy_op ProxyOpsHttp = {
-  .node_new    = proxy_http_node_new,
-  .node_delete = proxy_http_node_delete,
-  .handler     = proxy_http_handler,
+  proxy_http_node_new,
+  proxy_http_node_delete,
+  proxy_http_handler,
 };
 
 const struct proxy_spec ProxySpecHttp = {
-  .prefix = "http://",
-  .type   = PROXY_TYPE_HTTP,
-  .ops    = &ProxyOpsHttp,
+  "http://",
+  PROXY_TYPE_HTTP,
+  &ProxyOpsHttp,
 };
 

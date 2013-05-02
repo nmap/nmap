@@ -235,14 +235,14 @@ static void proxy_socks4_handler(nsock_pool nspool, nsock_event nsevent, void *u
 
 /* ---- PROXY DEFINITION ---- */
 static const struct proxy_op ProxyOpsSocks4 = {
-  .node_new    = proxy_socks4_node_new,
-  .node_delete = proxy_socks4_node_delete,
-  .handler     = proxy_socks4_handler,
+  proxy_socks4_node_new,
+  proxy_socks4_node_delete,
+  proxy_socks4_handler,
 };
 
 const struct proxy_spec ProxySpecSocks4 = {
-  .prefix = "socks4://",
-  .type   = PROXY_TYPE_SOCKS4,
-  .ops    = &ProxyOpsSocks4,
+  "socks4://",
+  PROXY_TYPE_SOCKS4,
+  &ProxyOpsSocks4,
 };
 
