@@ -1,5 +1,5 @@
 /*
-** $Id: ltable.c,v 2.71 2012/05/23 15:37:09 roberto Exp $
+** $Id: ltable.c,v 2.72 2012/09/11 19:37:16 roberto Exp $
 ** Lua tables (hash)
 ** See Copyright Notice in lua.h
 */
@@ -480,13 +480,13 @@ const TValue *luaH_getstr (Table *t, TString *key) {
 */
 const TValue *luaH_get (Table *t, const TValue *key) {
   switch (ttype(key)) {
-    case LUA_TNIL: return luaO_nilobject;
     case LUA_TSHRSTR: return luaH_getstr(t, rawtsvalue(key));
+    case LUA_TNIL: return luaO_nilobject;
     case LUA_TNUMBER: {
       int k;
       lua_Number n = nvalue(key);
       lua_number2int(k, n);
-      if (luai_numeq(cast_num(k), nvalue(key))) /* index is int? */
+      if (luai_numeq(cast_num(k), n)) /* index is int? */
         return luaH_getint(t, k);  /* use specialized version */
       /* else go through */
     }

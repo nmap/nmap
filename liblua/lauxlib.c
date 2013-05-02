@@ -1,5 +1,5 @@
 /*
-** $Id: lauxlib.c,v 1.244 2012/05/31 20:28:45 roberto Exp $
+** $Id: lauxlib.c,v 1.248 2013/03/21 13:54:57 roberto Exp $
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
@@ -84,7 +84,7 @@ static void pushfuncname (lua_State *L, lua_Debug *ar) {
   if (*ar->namewhat != '\0')  /* is there a name? */
     lua_pushfstring(L, "function " LUA_QS, ar->name);
   else if (*ar->what == 'm')  /* main? */
-      lua_pushfstring(L, "main chunk");
+      lua_pushliteral(L, "main chunk");
   else if (*ar->what == 'C') {
     if (pushglobalfuncname(L, ar)) {
       lua_pushfstring(L, "function " LUA_QS, lua_tostring(L, -1));
@@ -158,7 +158,8 @@ LUALIB_API int luaL_argerror (lua_State *L, int narg, const char *extramsg) {
   if (strcmp(ar.namewhat, "method") == 0) {
     narg--;  /* do not count `self' */
     if (narg == 0)  /* error is in the self argument itself? */
-      return luaL_error(L, "calling " LUA_QS " on bad self", ar.name);
+      return luaL_error(L, "calling " LUA_QS " on bad self (%s)",
+                           ar.name, extramsg);
   }
   if (ar.name == NULL)
     ar.name = (pushglobalfuncname(L, &ar)) ? lua_tostring(L, -1) : "?";
@@ -214,7 +215,7 @@ LUALIB_API int luaL_fileresult (lua_State *L, int stat, const char *fname) {
     if (fname)
       lua_pushfstring(L, "%s: %s", fname, strerror(en));
     else
-      lua_pushfstring(L, "%s", strerror(en));
+      lua_pushstring(L, strerror(en));
     lua_pushinteger(L, en);
     return 3;
   }
@@ -438,7 +439,7 @@ LUALIB_API char *luaL_prepbuffsize (luaL_Buffer *B, size_t sz) {
   if (B->size - B->n < sz) {  /* not enough space? */
     char *newbuff;
     size_t newsize = B->size * 2;  /* double buffer size */
-    if (newsize - B->n < sz)  /* not bit enough? */
+    if (newsize - B->n < sz)  /* not big enough? */
       newsize = B->n + sz;
     if (newsize < B->n || newsize - B->n < sz)
       luaL_error(L, "buffer too large");
@@ -598,7 +599,7 @@ static int skipBOM (LoadF *lf) {
   lf->n = 0;
   do {
     c = getc(lf->f);
-    if (c == EOF || c != *(unsigned char *)p++) return c;
+    if (c == EOF || c != *(const unsigned char *)p++) return c;
     lf->buff[lf->n++] = c;  /* to be read by the parser */
   } while (*p != '\0');
   lf->n = 0;  /* prefix matched; discard it */

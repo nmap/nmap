@@ -1,5 +1,5 @@
 /*
-** $Id: lobject.h,v 2.70 2012/05/11 14:10:50 roberto Exp $
+** $Id: lobject.h,v 2.71 2012/09/11 18:21:44 roberto Exp $
 ** Type definitions for Lua objects
 ** See Copyright Notice in lua.h
 */
@@ -52,8 +52,7 @@
 #define LUA_TCCL	(LUA_TFUNCTION | (2 << 4))  /* C closure */
 
 
-/*
-** LUA_TSTRING variants */
+/* Variant tags for strings */
 #define LUA_TSHRSTR	(LUA_TSTRING | (0 << 4))  /* short strings */
 #define LUA_TLNGSTR	(LUA_TSTRING | (1 << 4))  /* long strings */
 
@@ -187,8 +186,6 @@ typedef struct lua_TValue TValue;
 
 #define setnvalue(obj,x) \
   { TValue *io=(obj); num_(io)=(x); settt_(io, LUA_TNUMBER); }
-
-#define changenvalue(o,x)	check_exp(ttisnumber(o), num_(o)=(x))
 
 #define setnilvalue(obj) settt_(obj, LUA_TNIL)
 

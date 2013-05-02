@@ -1,5 +1,5 @@
 /*
-** $Id: lcorolib.c,v 1.4 2012/04/27 18:59:04 roberto Exp $
+** $Id: lcorolib.c,v 1.5 2013/02/21 13:44:53 roberto Exp $
 ** Coroutine Library
 ** See Copyright Notice in lua.h
 */
@@ -73,7 +73,7 @@ static int luaB_auxwrap (lua_State *L) {
       lua_insert(L, -2);
       lua_concat(L, 2);
     }
-    lua_error(L);  /* propagate error */
+    return lua_error(L);  /* propagate error */
   }
   return r;
 }

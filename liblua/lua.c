@@ -1,5 +1,5 @@
 /*
-** $Id: lua.c,v 1.205 2012/05/23 15:37:09 roberto Exp $
+** $Id: lua.c,v 1.206 2012/09/29 20:07:06 roberto Exp $
 ** Lua stand-alone interpreter
 ** See Copyright Notice in lua.h
 */
@@ -237,7 +237,6 @@ static const char *get_prompt (lua_State *L, int firstline) {
   lua_getglobal(L, firstline ? "_PROMPT" : "_PROMPT2");
   p = lua_tostring(L, -1);
   if (p == NULL) p = (firstline ? LUA_PROMPT : LUA_PROMPT2);
-  lua_pop(L, 1);  /* remove global */
   return p;
 }
 
@@ -263,7 +262,9 @@ static int pushline (lua_State *L, int firstline) {
   char *b = buffer;
   size_t l;
   const char *prmt = get_prompt(L, firstline);
-  if (lua_readline(L, b, prmt) == 0)
+  int readstatus = lua_readline(L, b, prmt);
+  lua_pop(L, 1);  /* remove result from 'get_prompt' */
+  if (readstatus == 0)
     return 0;  /* no input */
   l = strlen(b);
   if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
