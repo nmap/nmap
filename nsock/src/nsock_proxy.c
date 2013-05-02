@@ -67,7 +67,6 @@ struct proxy_parser {
   int done;
   struct proxy_node *value;
   char *str;
-  char *saveptr;
   char *tokens;
 };
 
@@ -384,24 +383,22 @@ struct proxy_parser *proxy_parser_new(const char *proxychainstr) {
 
   parser->str = strdup(proxychainstr);
 
-  parser->tokens = strtok_r(parser->str, ",", &parser->saveptr);
-  if (parser->tokens) {
+  parser->tokens = strtok(parser->str, ",");
+  if (parser->tokens)
     parser->value = proxy_node_new(parser->tokens);
-  } else {
+  else
     parser->done = 1;
-  }
 
   return parser;
 }
 
 void proxy_parser_next(struct proxy_parser *parser) {
 
-  parser->tokens = strtok_r(NULL, ",", &parser->saveptr);
-  if (parser->tokens) {
+  parser->tokens = strtok(NULL, ",");
+  if (parser->tokens)
     parser->value = proxy_node_new(parser->tokens);
-  } else {
+  else
     parser->done = 1;
-  }
 }
 
 void proxy_parser_delete(struct proxy_parser *parser) {
