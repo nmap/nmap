@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a service probe for Minecraft servers. [Eric Davisson]
+
 o [NSE] Updated hostmap-bfk to work with the latest version of their website. 
   [Paulino Calderon]
 
