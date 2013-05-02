@@ -104,10 +104,7 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
   int failed, datalink;
   char *e;
 
-  gettimeofday(&nsock_tod, NULL);
-
 #ifdef PCAP_CAN_DO_SELECT
-
 #if PCAP_BSD_SELECT_HACK
   /* MacOsX reports error if to_ms is too big (like INT_MAX) with error
    *  FAILED. Reported error: BIOCSRTIMEOUT: Invalid argument
@@ -120,6 +117,8 @@ char* nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, 
 #else
   int to_ms = 1;
 #endif
+
+  gettimeofday(&nsock_tod, NULL);
 
   if (mp)
     return "nsock-pcap: this nsi already has pcap device opened";
