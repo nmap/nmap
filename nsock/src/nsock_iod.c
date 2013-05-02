@@ -205,8 +205,10 @@ void nsi_delete(nsock_iod nsockiod, int pending_response) {
 
     for (i = 0; i < 3 && nsi->events_pending > 0; i++) {
       for (current = evlist_ar[i]; current != NULL; current = next) {
+        msevent *nse;
+
         next = GH_LIST_ELEM_NEXT(current);
-        msevent *nse = (msevent *)GH_LIST_ELEM_DATA(current);
+        nse = (msevent *)GH_LIST_ELEM_DATA(current);
 
         /* we're done with this list of events for the current IOD */
         if (nse->iod != nsi)
