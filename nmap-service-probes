@@ -11850,3 +11850,13 @@ ports 5701-5709
 # Sample:
 # |HTTP/1\.1 200 OK\r\nContent-Length: 114\r\n\r\nCluster \[2\] {\n\tMember \[127\.0\.0\.1\]:5701 this\n\tMember \[127\.0\.0\.1\]:5702\n}\n\nConnectionCount: 1\nAllConnectionCount: 95\n\r\n|
 match hazelcast m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\n\r\nCluster \[\d+\] {\n\tMember (.*?)}\n\nConnectionCount: (\d+)\nAllConnectionCount: (\d+)\n\r\n$|s p/Hazelcast/ i/ConnectionCount $2; AllConnectionCount $3; $SUBST(1,"\n\tMember",",")/ cpe:/a:hazelcast:hazelcast/
+
+
+##############################NEXT PROBE##############################
+# Minecraft Server List Ping http://mc.kev009.com/Server_List_Ping
+Probe TCP minecraft-ping q|\xFE\x01|
+rarity 8
+ports 25565
+
+# Fields are Protocol version, Software version, motd, current player count, max players
+match minecraft m|^\xff\x00.\x00\xa7\x00\x31\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.+)|s p/Minecraft/ v/$P(2)/ i|Protocol: $P(1), Message: $P(3), Users: $P(4)/$P(5)|
