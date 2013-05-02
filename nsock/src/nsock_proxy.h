@@ -154,7 +154,7 @@ struct proxy_spec {
 int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen);
 
 static inline struct proxy_node *proxy_ctx_node_current(struct proxy_chain_context *ctx) {
-  return GH_LIST_ELEM_DATA(ctx->px_current);
+  return (struct proxy_node *)GH_LIST_ELEM_DATA(ctx->px_current);
 }
 
 static inline struct proxy_node *proxy_ctx_node_next(struct proxy_chain_context *ctx) {
@@ -162,7 +162,7 @@ static inline struct proxy_node *proxy_ctx_node_next(struct proxy_chain_context 
 
   next = GH_LIST_ELEM_NEXT(ctx->px_current);
   if (next)
-    return GH_LIST_ELEM_DATA(next);
+    return (struct proxy_node *)GH_LIST_ELEM_DATA(next);
 
   return NULL;
 }
