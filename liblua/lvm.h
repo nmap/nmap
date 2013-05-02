@@ -1,5 +1,5 @@
 /*
-** $Id: lvm.h,v 2.17 2011/05/31 18:27:56 roberto Exp $
+** $Id: lvm.h,v 2.18 2013/01/08 14:06:55 roberto Exp $
 ** Lua virtual machine
 ** See Copyright Notice in lua.h
 */
@@ -19,8 +19,7 @@
 
 #define equalobj(L,o1,o2)  (ttisequal(o1, o2) && luaV_equalobj_(L, o1, o2))
 
-#define luaV_rawequalobj(t1,t2)  \
-        (ttisequal(t1,t2) && luaV_equalobj_(NULL,t1,t2))
+#define luaV_rawequalobj(o1,o2)		equalobj(NULL,o1,o2)
 
 
 /* not to called directly */

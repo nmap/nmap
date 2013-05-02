@@ -1,5 +1,5 @@
 /*
-** $Id: lgc.c,v 2.133 2012/05/31 21:28:59 roberto Exp $
+** $Id: lgc.c,v 2.140 2013/03/16 21:10:18 roberto Exp $
 ** Garbage Collector
 ** See Copyright Notice in lua.h
 */
@@ -43,21 +43,12 @@
 */
 #define STEPMULADJ		200
 
+
 /*
 ** macro to adjust 'pause': 'pause' is actually used like
 ** 'pause / PAUSEADJ' (value chosen by tests)
 */
-#define PAUSEADJ		200
-
-
-
-
-/*
-** standard negative debt for GC; a reasonable "time" to wait before
-** starting a new cycle
-*/
-#define stddebtest(g,e)	(-cast(l_mem, (e)/PAUSEADJ) * g->gcpause)
-#define stddebt(g)	stddebtest(g, gettotalbytes(g))
+#define PAUSEADJ		100
 
 
 /*
@@ -144,9 +135,9 @@ static int iscleared (global_State *g, const TValue *o) {
 void luaC_barrier_ (lua_State *L, GCObject *o, GCObject *v) {
   global_State *g = G(L);
   lua_assert(isblack(o) && iswhite(v) && !isdead(g, v) && !isdead(g, o));
-  lua_assert(isgenerational(g) || g->gcstate != GCSpause);
+  lua_assert(g->gcstate != GCSpause);
   lua_assert(gch(o)->tt != LUA_TTABLE);
-  if (keepinvariant(g))  /* must keep invariant? */
+  if (keepinvariantout(g))  /* must keep invariant? */
     reallymarkobject(g, v);  /* restore invariant */
   else {  /* sweep phase */
     lua_assert(issweepphase(g));
@@ -343,7 +334,7 @@ static void remarkupvals (global_State *g) {
 ** mark root set and reset all gray lists, to start a new
 ** incremental (or full) collection
 */
-static void markroot (global_State *g) {
+static void restartcollection (global_State *g) {
   g->gray = g->grayagain = NULL;
   g->weak = g->allweak = g->ephemeron = NULL;
   markobject(g, g->mainthread);
@@ -459,7 +450,7 @@ static lu_mem traversetable (global_State *g, Table *h) {
   else  /* not weak */
     traversestrongtable(g, h);
   return sizeof(Table) + sizeof(TValue) * h->sizearray +
-                         sizeof(Node) * sizenode(h);
+                         sizeof(Node) * cast(size_t, sizenode(h));
 }
 
 
@@ -796,7 +787,7 @@ static GCObject *udata2finalize (global_State *g) {
   g->allgc = o;
   resetbit(gch(o)->marked, SEPARATED);  /* mark that it is not in 'tobefnz' */
   lua_assert(!isold(o));  /* see MOVE OLD rule */
-  if (!keepinvariant(g))  /* not keeping invariant? */
+  if (!keepinvariantout(g))  /* not keeping invariant? */
     makewhite(g, o);  /* "sweep" object */
   return o;
 }
@@ -855,7 +846,7 @@ static void separatetobefnz (lua_State *L, int all) {
   while ((curr = *p) != NULL) {  /* traverse all finalizable objects */
     lua_assert(!isfinalized(curr));
     lua_assert(testbit(gch(curr)->marked, SEPARATED));
-    if (!(all || iswhite(curr)))  /* not being collected? */
+    if (!(iswhite(curr) || all))  /* not being collected? */
       p = &gch(curr)->next;  /* don't bother with it */
     else {
       l_setbit(gch(curr)->marked, FINALIZEDBIT); /* won't be finalized again */
@@ -891,7 +882,7 @@ void luaC_checkfinalizer (lua_State *L, GCObject *o, Table *mt) {
     ho->next = g->finobj;  /* link it in list 'finobj' */
     g->finobj = o;
     l_setbit(ho->marked, SEPARATED);  /* mark it as such */
-    if (!keepinvariant(g))  /* not keeping invariant? */
+    if (!keepinvariantout(g))  /* not keeping invariant? */
       makewhite(g, o);  /* "sweep" object */
     else
       resetoldbit(o);  /* see MOVE OLD rule */
@@ -908,6 +899,21 @@ void luaC_checkfinalizer (lua_State *L, GCObject *o, Table *mt) {
 */
 
 
+/*
+** set a reasonable "time" to wait before starting a new GC cycle;
+** cycle will start when memory use hits threshold
+*/
+static void setpause (global_State *g, l_mem estimate) {
+  l_mem debt, threshold;
+  estimate = estimate / PAUSEADJ;  /* adjust 'estimate' */
+  threshold = (g->gcpause < MAX_LMEM / estimate)  /* overflow? */
+            ? estimate * g->gcpause  /* no overflow */
+            : MAX_LMEM;  /* overflow; truncate to maximum */
+  debt = -cast(l_mem, threshold - gettotalbytes(g));
+  luaE_setdebt(g, debt);
+}
+
+
 #define sweepphases  \
 	(bitmask(GCSsweepstring) | bitmask(GCSsweepudata) | bitmask(GCSsweep))
 
@@ -918,7 +924,7 @@ void luaC_checkfinalizer (lua_State *L, GCObject *o, Table *mt) {
 ** object inside the list (instead of to the header), so that the real
 ** sweep do not need to skip objects created between "now" and the start
 ** of the real sweep.
-** Returns how many objects it sweeped.
+** Returns how many objects it swept.
 */
 static int entersweep (lua_State *L) {
   global_State *g = G(L);
@@ -985,7 +991,7 @@ void luaC_freeallobjects (lua_State *L) {
 
 static l_mem atomic (lua_State *L) {
   global_State *g = G(L);
-  l_mem work = -g->GCmemtrav;  /* start counting work */
+  l_mem work = -cast(l_mem, g->GCmemtrav);  /* start counting work */
   GCObject *origweak, *origall;
   lua_assert(!iswhite(obj2gco(g->mainthread)));
   markobject(g, L);  /* mark running thread */
@@ -1028,12 +1034,10 @@ static lu_mem singlestep (lua_State *L) {
   global_State *g = G(L);
   switch (g->gcstate) {
     case GCSpause: {
-      g->GCmemtrav = 0;  /* start to count memory traversed */
-      if (!isgenerational(g))
-        markroot(g);  /* start a new collection */
-      /* in any case, root must be marked at this point */
-      lua_assert(!iswhite(obj2gco(g->mainthread))
-              && !iswhite(gcvalue(&g->l_registry)));
+      /* start to count memory traversed */
+      g->GCmemtrav = g->strt.size * sizeof(GCObject*);
+      lua_assert(!isgenerational(g));
+      restartcollection(g);
       g->gcstate = GCSpropagate;
       return g->GCmemtrav;
     }
@@ -1105,18 +1109,23 @@ void luaC_runtilstate (lua_State *L, int statesmask) {
 
 static void generationalcollection (lua_State *L) {
   global_State *g = G(L);
+  lua_assert(g->gcstate == GCSpropagate);
   if (g->GCestimate == 0) {  /* signal for another major collection? */
     luaC_fullgc(L, 0);  /* perform a full regular collection */
     g->GCestimate = gettotalbytes(g);  /* update control */
   }
   else {
     lu_mem estimate = g->GCestimate;
-    luaC_runtilstate(L, ~bitmask(GCSpause));  /* run complete cycle */
-    luaC_runtilstate(L, bitmask(GCSpause));
+    luaC_runtilstate(L, bitmask(GCSpause));  /* run complete (minor) cycle */
+    g->gcstate = GCSpropagate;  /* skip restart */
     if (gettotalbytes(g) > (estimate / 100) * g->gcmajorinc)
       g->GCestimate = 0;  /* signal for a major collection */
+    else
+      g->GCestimate = estimate;  /* keep estimate from last major coll. */
+
   }
-  luaE_setdebt(g, stddebt(g));
+  setpause(g, gettotalbytes(g));
+  lua_assert(g->gcstate == GCSpropagate);
 }
 
 
@@ -1124,7 +1133,7 @@ static void incstep (lua_State *L) {
   global_State *g = G(L);
   l_mem debt = g->GCdebt;
   int stepmul = g->gcstepmul;
-  if (stepmul < 40) stepmul = 40;  /* avoid ridiculous low values */
+  if (stepmul < 40) stepmul = 40;  /* avoid ridiculous low values (and 0) */
   /* convert debt from Kb to 'work units' (avoid zero debt and overflows) */
   debt = (debt / STEPMULADJ) + 1;
   debt = (debt < MAX_LMEM / stepmul) ? debt * stepmul : MAX_LMEM;
@@ -1133,10 +1142,11 @@ static void incstep (lua_State *L) {
     debt -= work;
   } while (debt > -GCSTEPSIZE && g->gcstate != GCSpause);
   if (g->gcstate == GCSpause)
-    debt = stddebtest(g, g->GCestimate);  /* pause until next cycle */
-  else
+    setpause(g, g->GCestimate);  /* pause until next cycle */
+  else {
     debt = (debt / stepmul) * STEPMULADJ;  /* convert 'work units' to Kb */
-  luaE_setdebt(g, debt);
+    luaE_setdebt(g, debt);
+  }
 }
 
 
@@ -1172,7 +1182,6 @@ void luaC_step (lua_State *L) {
 void luaC_fullgc (lua_State *L, int isemergency) {
   global_State *g = G(L);
   int origkind = g->gckind;
-  int someblack = keepinvariant(g);
   lua_assert(origkind != KGC_EMERGENCY);
   if (isemergency)  /* do not run finalizers during emergency GC */
     g->gckind = KGC_EMERGENCY;
@@ -1180,22 +1189,21 @@ void luaC_fullgc (lua_State *L, int isemergency) {
     g->gckind = KGC_NORMAL;
     callallpendingfinalizers(L, 1);
   }
-  if (someblack) {  /* may there be some black objects? */
+  if (keepinvariant(g)) {  /* may there be some black objects? */
     /* must sweep all objects to turn them back to white
        (as white has not changed, nothing will be collected) */
     entersweep(L);
   }
   /* finish any pending sweep phase to start a new cycle */
   luaC_runtilstate(L, bitmask(GCSpause));
-  /* run entire collector */
-  luaC_runtilstate(L, ~bitmask(GCSpause));
-  luaC_runtilstate(L, bitmask(GCSpause));
+  luaC_runtilstate(L, ~bitmask(GCSpause));  /* start new collection */
+  luaC_runtilstate(L, bitmask(GCSpause));  /* run entire collection */
   if (origkind == KGC_GEN) {  /* generational mode? */
-    /* generational mode must always start in propagate phase */
+    /* generational mode must be kept in propagate phase */
     luaC_runtilstate(L, bitmask(GCSpropagate));
   }
   g->gckind = origkind;
-  luaE_setdebt(g, stddebt(g));
+  setpause(g, gettotalbytes(g));
   if (!isemergency)   /* do not run finalizers during emergency GC */
     callallpendingfinalizers(L, 1);
 }

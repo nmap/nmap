@@ -1,5 +1,5 @@
 /*
-** $Id: lvm.c,v 2.152 2012/06/08 15:14:04 roberto Exp $
+** $Id: lvm.c,v 2.155 2013/03/16 21:10:18 roberto Exp $
 ** Lua virtual machine
 ** See Copyright Notice in lua.h
 */
@@ -83,7 +83,7 @@ static void traceexec (lua_State *L) {
     if (counthook)
       L->hookcount = 1;  /* undo decrement to zero */
     ci->u.l.savedpc--;  /* undo increment (resume will increment it again) */
-    ci->callstatus |= CIST_HOOKYIELD;  /* mark that it yieled */
+    ci->callstatus |= CIST_HOOKYIELD;  /* mark that it yielded */
     ci->func = L->top - 1;  /* protect stack below results */
     luaD_throw(L, LUA_YIELD);
   }
@@ -98,7 +98,6 @@ static void callTM (lua_State *L, const TValue *f, const TValue *p1,
   setobj2s(L, L->top++, p2);  /* 2nd argument */
   if (!hasres)  /* no result? 'p3' is third argument */
     setobj2s(L, L->top++, p3);  /* 3rd argument */
-  luaD_checkstack(L, 0);
   /* metamethod may yield only when called from Lua code */
   luaD_call(L, L->top - (4 - hasres), hasres, isLua(L->ci));
   if (hasres) {  /* if has result, move it to its place */
@@ -470,7 +469,7 @@ void luaV_finishOp (lua_State *L) {
         L->top = ci->top;  /* adjust results */
       break;
     }
-    case OP_TAILCALL: case OP_SETTABUP:  case OP_SETTABLE:
+    case OP_TAILCALL: case OP_SETTABUP: case OP_SETTABLE:
       break;
     default: lua_assert(0);
   }
