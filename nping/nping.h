@@ -321,14 +321,14 @@
 /* When doing traceroute, the number of packets sent to each host must be
  * higher because 5 is probably not enough to reach the average target on the
  * Internet. The following paper suggests that internet hosts are no more than
- * 30 hops apart, so setting the packet count to 32 when --traceroute is set
+ * 30 hops apart, so setting the packet count to 48 when --traceroute is set
  * seems like a safe choice.
  *    Cheng, J., Haining, W. and Kang, GS. (2006). Hop-Count Filtering: An
  *    Effective Defense Against Spoofed DDoS Traffic. Australian Telecommu-
  *    nication Networks & Applications Conference (ATNAC). Australia.
  *    <http://portal.acm.org/citation.cfm?id=948109.948116>
  */
-#define TRACEROUTE_PACKET_COUNT 32
+#define TRACEROUTE_PACKET_COUNT 48
 
 #define DEFAULT_DELAY 1000              /**< Milliseconds between each probe */
 
