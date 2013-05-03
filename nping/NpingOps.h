@@ -475,8 +475,6 @@ class NpingOps {
     int setOnce(bool val);
     bool once();
 
-    int getTotalProbes();
-
     /* Validation */
     void validateOptions();
     bool canRunUDPWithoutPrivileges();
@@ -489,6 +487,7 @@ class NpingOps {
     void displayStatistics();
     int cleanup();
     int setDefaultHeaderValues();
+    int getTotalProbes();
 
     int setLastPacketSentTime(struct timeval t);
     struct timeval getLastPacketSentTime();
