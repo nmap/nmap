@@ -150,7 +150,6 @@ u16 *getSrcPortFromIPPacket(u8 *pkt, size_t pktLen);
 u16 *getDstPortFromIPPacket(u8 *pkt, size_t pktLen);
 u16 *getDstPortFromTCPHeader(u8 *pkt, size_t pktLen);
 u16 *getDstPortFromUDPHeader(u8 *pkt, size_t pktLen);
-int obtainRawSocket();
 
 #define DEVNAMELEN 16
 #define PATH_PROC_IFINET6 "/proc/net/if_inet6"
