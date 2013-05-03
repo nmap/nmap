@@ -363,7 +363,8 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         break;
       default:
         fprintf(stderr, "Strange connect error from %s (%d): %s",
-                 inet_ntop_ez(&iod->peer, iod->peerlen), optval, socket_strerror(optval));
+                inet_ntop_ez(&iod->peer, iod->peerlen), optval,
+                socket_strerror(optval));
         assert(0); /* I'd like for someone to report it */
         break;
     }
@@ -476,7 +477,8 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         saved_ev = iod->watched_events;
         nsock_engine_iod_unregister(ms, iod);
         close(iod->sd);
-        nsock_connect_internal(ms, nse, SOCK_STREAM, iod->lastproto, &iod->peer, iod->peerlen, nsi_peerport(iod));
+        nsock_connect_internal(ms, nse, SOCK_STREAM, iod->lastproto, &iod->peer,
+                               iod->peerlen, nsi_peerport(iod));
         nsock_engine_iod_register(ms, iod, saved_ev);
 
         SSL_clear(iod->ssl);
@@ -498,7 +500,6 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
     }
   }
 #endif
-  return;
 }
 
 void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
@@ -585,7 +586,6 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
       ev |= socket_count_write_dec(nse->iod);
     update_events(nse->iod, ms, EV_NONE, ev);
   }
-  return;
 }
 
 void handle_timer_result(mspool *ms, msevent *nse, enum nse_status status) {
