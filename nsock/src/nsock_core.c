@@ -1239,7 +1239,8 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
   nsi = nse->iod;
 
   if (nse->status == NSE_STATUS_ERROR)
-    Snprintf(errstr, sizeof(errstr), "[%s (%d)] ", socket_strerror(nse->errnum), nse->errnum);
+    Snprintf(errstr, sizeof(errstr), "[%s (%d)] ", socket_strerror(nse->errnum),
+             nse->errnum);
   else
     errstr[0] = '\0';
 
@@ -1254,15 +1255,10 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
 
     case NSE_TYPE_READ:
       if (nse->status != NSE_STATUS_SUCCESS) {
-        if (nsi->peerlen > 0) {
-          nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
-                         nse_type2str(nse->type), nse_status2str(nse->status),
-                         errstr, nse->id, get_peeraddr_string(nsi));
-        } else {
-          nsock_log_info(ms, "Callback: %s %s %sfor EID %li (peer unspecified)",
-                         nse_type2str(nse->type), nse_status2str(nse->status),
-                         errstr, nse->id);
-        }
+        nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
+                       nse_type2str(nse->type), nse_status2str(nse->status),
+                       errstr, nse->id,
+                       (nsi->peerlen > 0) ? get_peeraddr_string(nsi) : "peer unspecified");
       } else {
         str = nse_readbuf(nse, &strlength);
         if (strlength < 80) {
@@ -1273,30 +1269,24 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
         } else {
           displaystr[0] = '\0';
         }
-
-        if (nsi->peerlen > 0) {
-          nsock_log_info(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
-                         nse_type2str(nse->type), nse_status2str(nse->status),
-                         nse->id, get_peeraddr_string(nsi),
-                         nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
-        } else {
-          nsock_log_info(ms, "Callback %s %s for EID %li (peer unspecified) %s(%d bytes)%s",
-                         nse_type2str(nse->type), nse_status2str(nse->status),
-                         nse->id, nse_eof(nse)? "[EOF]" : "", strlength, displaystr);
-        }
+        nsock_log_info(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
+                       nse_type2str(nse->type), nse_status2str(nse->status),
+                       nse->id,
+                       (nsi->peerlen > 0) ? get_peeraddr_string(nsi) : "peer unspecified",
+                       nse_eof(nse) ? "[EOF]" : "", strlength, displaystr);
       }
       break;
 
     case NSE_TYPE_WRITE:
       nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
-                     nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                     nse->id, get_peeraddr_string(nsi));
+                     nse_type2str(nse->type), nse_status2str(nse->status),
+                     errstr, nse->id, get_peeraddr_string(nsi));
       break;
 
     case NSE_TYPE_TIMER:
       nsock_log_info(ms, "Callback: %s %s %sfor EID %li",
-                     nse_type2str(nse->type), nse_status2str(nse->status), errstr,
-                     nse->id);
+                     nse_type2str(nse->type), nse_status2str(nse->status),
+                     errstr, nse->id);
       break;
 
 #if HAVE_PCAP
