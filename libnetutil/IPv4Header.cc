@@ -370,7 +370,7 @@ int IPv4Header::setRF(){
 
 /** Unset RF flag */
 int IPv4Header::unsetRF(){
-  h.ip_off ^= htons(IP_RF);
+  h.ip_off = h.ip_off & ~(htons(IP_RF));
   return OP_SUCCESS;
 } /* End of unsetRF() */
 
@@ -390,7 +390,7 @@ int IPv4Header::setMF(){
 
 /** Unset MF flag */
 int IPv4Header::unsetMF(){
-  h.ip_off ^= htons(IP_MF);
+  h.ip_off = h.ip_off & ~(htons(IP_MF));
   return OP_SUCCESS;
 } /* End of unsetMF() */
 
@@ -410,7 +410,7 @@ int IPv4Header::setDF(){
 
 /** Unset DF flag */
 int IPv4Header::unsetDF(){
-  h.ip_off ^= htons(IP_DF);
+  h.ip_off = h.ip_off & ~(htons(IP_DF));
   return OP_SUCCESS;
 } /* End of unsetDF() */
 
