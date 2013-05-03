@@ -146,7 +146,7 @@ NpingOps::NpingOps() {
     spoofsource=false;
     spoofsource_set=false;
 
-    bpf_filter_spec=0;
+    bpf_filter_spec=NULL;
     bpf_filter_spec_set=false;
 
     current_round=0;
