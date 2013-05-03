@@ -481,7 +481,6 @@ class NpingOps {
 
     /* Validation */
     void validateOptions();
-    int printNpingOps();
     bool canRunUDPWithoutPrivileges();
     bool canDoIPv6ThroughSocket();
     bool canDoIPv6Ethernet();

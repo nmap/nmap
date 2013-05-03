@@ -2674,57 +2674,6 @@ if( this->issetSourcePort() && this->getMode()==TCP_CONNECT && this->getPacketCo
 } /* End of validateOptions() */
 
 
-/** Print the contents of the NpingOps class to stdout
- *  @warning this is old and will not print all NpingOps attributes. */
-int NpingOps::printNpingOps(){
-  int i=0;
-    printf("Mode::%d\n", getMode() );
-    printf("Traceroute::%d\n", getTraceroute() );
-    printf("Verbosity:: %d\n", getVerbosity() );
-    printf("Debugging:: %d\n", getDebugging() );
-    printf("Packet count:: %d\n", getPacketCount() );
-    printf("Send preference:: %d\n", getSendPreference() );
-    printf("Host timeout:: %ld\n", getHostTimeout() );
-    printf("Delay:: %ld\n", getDelay() );
-    printf("Device::%s\n", getDevice());
-    printf("Is root?:: %d\n", isRoot() );
-    printf("Payload type:: %d\n", getPayloadType() );
-    printf("Payload buffer:: %p\n", getPayloadBuffer() );
-    printf("Payload length:: %d\n", getPayloadLen() );
-    printf("Payload file:: %s\n", getPayloadFilename() );
-    printf("Role:: %d\n", getRole() );
-    printf("IP TTL:: %d\n", getTTL() );
-    printf("IP TOS:: %d\n", getTOS() );
-    printf("IP Identification:: %d\n", getIdentification() );
-    printf("IP MF flag:: %d\n", getMF() );
-    printf("IP DF flag:: %d\n", getDF() );
-    printf("MTU:: %d\n", getMTU() );
-    printf("Badsum IP?:: %d\n", getBadsumIP() );
-    printf("IP version:: %d\n", getIPVersion() );
-    printf("IPv4 Source Addr:: %s\n",  IPtoa( getIPv4SourceAddress() ));
-    printf("IPv6 Source Addr:: %p\n", IPtoa( getIPv6SourceAddress() ) );
-
-    printf("\n");
-    printf("/* TCP / UDP */ \n");
-    printf("u16 target_ports[65535]:: %p\n", getTargetPorts(&i) );
-    printf("int tportcount:: %d\n", i);
-    printf("int source_port:: %d\n", getSourcePort() );
-    printf("int flags[8]:: %s%s%s%s%s%s%s%s\n",
-            (this->getFlagTCP(FLAG_CWR)==1)?"CWR ":"",
-            (this->getFlagTCP(FLAG_ECN)==1)?"ECN ":"",
-            (this->getFlagTCP(FLAG_URG)==1)?"URG ":"",
-            (this->getFlagTCP(FLAG_ACK)==1)?"ACK ":"",
-            (this->getFlagTCP(FLAG_PSH)==1)?"PSH ":"",
-            (this->getFlagTCP(FLAG_RST)==1)?"RST ":"",
-            (this->getFlagTCP(FLAG_SYN)==1)?"SYN ":"",
-            (this->getFlagTCP(FLAG_FIN)==1)?"FIN ":""
-          );
-
-    printf("bool badsum:: %d\n", getBadsum() );
-    return OP_SUCCESS;
-} /* End of printNpingOps()*/
-
-
 /** Returns true if requested mode is a simple TCP connect probe mode */
 bool NpingOps::canRunUDPWithoutPrivileges(){
   if( this->issetBadsumIP() ||
