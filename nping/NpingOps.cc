@@ -610,7 +610,7 @@ bool NpingOps::issetShowSentPackets(){
 int NpingOps::setPacketCount(u32 val){
   /* If zero is supplied, set highest value */
   if( val==0 )
-    pcount=4294967295u;
+    this->pcount=0xFFFFFFFF;
   else
     pcount=val;
   this->pcount_set=true;
