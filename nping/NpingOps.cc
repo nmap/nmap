@@ -235,15 +235,6 @@ NpingOps::NpingOps() {
     tcpwin=0;
     tcpwin_set=false;
 
-    tcpmss=0;
-    tcpmss_set=false;
-
-    //ws
-    tcpws_set=false;
-
-    //ts
-    tcpts_set=false;
-
     badsum=false;
     badsum_set=false;
 
