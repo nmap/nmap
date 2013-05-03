@@ -125,10 +125,10 @@ void signal_handler(int signo);
   * probe mode, echo client or echo server). */
 int main(int argc, char *argv[] ){
 
-  struct tm *tm;  /* For time display                */
-  time_t now;     /* Stores current time             */
-  char tbuf[128]; /* Stores current time as a string */ 
-  ArgParser a;    /* Command line argument parser    */
+  struct tm *tm;    /* For time display                */
+  time_t now;       /* Stores current time             */
+  char tbuf[128];   /* Stores current time as a string */
+  ArgParser a;      /* Command line argument parser    */
   unsigned long int i=0;
   ProbeMode prob;
   NpingTarget *t=NULL;
