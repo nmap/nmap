@@ -431,6 +431,13 @@ int getPacketStrInfo(const char *proto, const u8 *packet, u32 len, u8 *dstbuff,
     dstbuff[dstlen-1]=0; /* Just to be sure, NULL-terminate the last position*/
   }else if( !strcasecmp(proto, "ARP") || !strcasecmp(proto, "RARP") ){
     return  arppackethdrinfo(packet, len, dstbuff, dstlen);
+  }else if( !strcasecmp(proto, "IPv6_NO_HEADER") || o.ipv6UsingSocket() ){
+    if( o.getMode()==TCP )
+        return  tcppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
+    else if ( o.getMode()==UDP )
+        return  udppackethdrinfo(packet, len, dstbuff, dstlen, detail, ss_src, ss_dst);
+    else
+        nping_fatal(QT_3, "getPacketStrInfo(): Unable to determinate transport layer protocol");
   }else{
     nping_fatal(QT_3, "getPacketStrInfo(): Unkwnown protocol");
   }
@@ -1440,6 +1447,55 @@ u16 *getDstPortFromUDPHeader(u8 *pkt, size_t pktLen){
   port= ntohs(*pnt);
   return &port;
 } /* End of getDstPortFromUDPHeader() */
+
+
+int obtainRawSocket(){
+  int rawipsd=0;
+  int protocol=0;
+  int one=1;
+
+  if( o.ipv6() ){
+    switch( o.getMode() ){
+        
+        case TCP:
+            protocol = IPPROTO_TCP;
+        break;
+        
+        case UDP:
+            protocol = IPPROTO_UDP;
+        break;
+        
+        case ICMP:
+            protocol = IPPROTO_ICMPV6;
+        break;
+        
+        case ARP:
+            nping_warning(QT_2,"Warning: createRawSocket() should not be called in ARP mode.");
+            return 0;
+        break;
+        
+        default:
+            nping_fatal(QT_3, "createRawSocket(): NpingOps::getMode() does not return a valid mode. Please report this bug.");
+        break;
+
+    }
+    if ((rawipsd = socket(AF_INET6, SOCK_RAW, protocol)) < 0 )
+        nping_fatal(QT_3,"Couldn't acquire IPv6 raw socket. Are you root?");
+
+  }else{
+    if ((rawipsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
+        nping_fatal(QT_3,"Couldn't acquire IPv4 raw socket. Are you root?");
+        /* Tell the kernel we are including our own IP Header (call to 
+        * setsockopt passing option IP_HDRINCL)                             */
+        sethdrinclude(rawipsd);
+  }
+
+  /* Allow broadcast addresses */
+  if (setsockopt(rawipsd, SOL_SOCKET, SO_BROADCAST, (const char *)&one, sizeof(int)) == -1)
+      nping_warning(QT_2,"Failed to set SO_BROADCAST on raw socket.");
+
+  return rawipsd;
+} /* End of obtainRawSocket() */
 
 
 /** This function parses Linux file /proc/net/if_inet6 and returns a list
