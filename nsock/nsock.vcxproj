@@ -196,10 +196,13 @@
     <ClCompile Include="src\nsock_log.c" />
     <ClCompile Include="src\nsock_pcap.c" />
     <ClCompile Include="src\nsock_pool.c" />
+    <ClCompile Include="src\nsock_proxy.c" />
     <ClCompile Include="src\nsock_read.c" />
     <ClCompile Include="src\nsock_ssl.c" />
     <ClCompile Include="src\nsock_timers.c" />
     <ClCompile Include="src\nsock_write.c" />
+    <ClCompile Include="src\proxy_http.c" />
+    <ClCompile Include="src\proxy_socks4.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\error.h" />
@@ -210,6 +213,7 @@
     <ClInclude Include="src\nsock_internal.h" />
     <ClInclude Include="src\nsock_log.h" />
     <ClInclude Include="src\nsock_pcap.h" />
+    <ClInclude Include="src\nsock_proxy.h" />
     <ClInclude Include="src\nsock_ssl.h" />
     <ClInclude Include="include\nsock_winconfig.h" />
   </ItemGroup>
