@@ -531,9 +531,6 @@ class NpingOps {
     bool send_eth;            /**< True: send at raw ethernet level      */
     bool send_eth_set;
 
-    long host_timeout;        /**< Timeout for host replies              */
-    bool host_timeout_set;
-
     long delay;               /**< Delay between each probe              */
     bool delay_set;
 

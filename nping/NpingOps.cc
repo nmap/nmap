@@ -137,9 +137,6 @@ NpingOps::NpingOps() {
     send_eth=0;
     send_eth_set=false;
 
-    host_timeout=0;
-    host_timeout_set=false;
-
     delay=0;
     delay_set=false;
 
@@ -726,35 +723,6 @@ bool NpingOps::sendEth(){
 bool NpingOps::issetSendEth(){
   return this->send_eth_set;
 } /* End of issetSendEth() */
-
-
-/** Sets host timeout. Supplied parameter must be a long integer greater than
- *  zero.
- *  @warning timeout is assumed to be in milliseconds. Use tval2msecs() from
- *           nbase to obtain a proper value.
- *  @return OP_SUCCESS on success and OP_FAILURE in case of error.           */
-int NpingOps::setHostTimeout(long t){
-  if( t < 0 ){
-    nping_fatal(QT_3,"setHostTimeout(): Invalid time supplied\n");
-    return OP_FAILURE;
-  }else{
-    this->host_timeout=t;
-  }
-  this->host_timeout_set=true;
-  return OP_SUCCESS;
-} /* End of setHostTimeout() */
-
-
-/** Returns value of attribute host_timeout */
-long NpingOps::getHostTimeout(){
-  return this->host_timeout;
-} /* End of getHostTimeout() */
-
-
-/* Returns true if option has been set */
-bool NpingOps::issetHostTimeout(){
-  return this->host_timeout_set;
-} /* End of issetHostTimeout() */
 
 
 /** Sets inter-probe delay. Supplied parameter is assumed to be in milliseconds
