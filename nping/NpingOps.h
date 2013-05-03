@@ -104,6 +104,7 @@
 #define ROLE_SERVER 0x66
 
 /* Payload types */
+#define PL_NONE 0x00
 #define PL_HEX  0xAA
 #define PL_RAND 0xBB
 #define PL_FILE 0xCC

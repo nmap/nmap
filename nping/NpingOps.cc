@@ -161,7 +161,7 @@ NpingOps::NpingOps() {
     isr00t_set=false;
 
     /* Payloads */
-    payload_type=0;
+    payload_type=PL_NONE;
     payload_type_set=false;
 
     payload_buff=NULL;
