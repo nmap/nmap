@@ -134,7 +134,7 @@ NpingOps::NpingOps() {
     sendpref=0;
     sendpref_set=false;
 
-    send_eth=0;
+    send_eth=false;
     send_eth_set=false;
 
     delay=0;
