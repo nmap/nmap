@@ -495,10 +495,6 @@ class NpingOps {
     int setDelayedRcvd(const char *str, nsock_event_id id);
     char *getDelayedRcvd(nsock_event_id *id);
 
-    /* Public vars */
-    NpingStats stats;                      /* Global statistics           */
-    NpingTargets targets;
-
  private:
 
     /* Probe modes */
@@ -669,6 +665,10 @@ class NpingOps {
     char *delayed_rcvd_str;    /* Delayed RCVD output string           */
     bool delayed_rcvd_str_set; /* Do we have a delayed RCVD string?    */
     nsock_event_id delayed_rcvd_event; /* Nsock event for delayed RCVD */
+
+   public:
+    NpingTargets targets;
+    NpingStats stats;                      /* Global statistics           */
 
 }; /* End of class NpingOps */
 
