@@ -627,15 +627,6 @@ class NpingOps {
     u16 tcpwin;
     bool tcpwin_set;
 
-    u16 tcpmss;
-    bool tcpmss_set;
-
-    //ws
-    bool tcpws_set;
-
-    //ts
-    bool tcpts_set;
-
     bool badsum;              /**< Generate invalid checksums in TCP/UDP */
     bool badsum_set;
 
