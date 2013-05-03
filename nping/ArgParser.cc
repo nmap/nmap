@@ -254,7 +254,6 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
   /* Timing and performance */
   {"delay", required_argument, 0, 0},
   {"rate", required_argument, 0, 0},
-  {"host-timeout", required_argument, 0, 0},
 
   /* Misc */
   {"help", no_argument, 0, 'h'},
@@ -922,13 +921,6 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
         }else{
             nping_fatal(QT_3,"Invalid rate supplied. Rate must be a valid, positive integer");
         }
-    /* Host timeout */
-    } else if (optcmp(long_options[option_index].name, "host-timeout") == 0 ){
-        l = tval2msecs(optarg);
-        if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
-            nping_fatal(QT_3,"Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60 / 60, optarg, l / 1000.0);
-        o.setHostTimeout(l);
-
 
 /* MISC OPTIONS **************************************************************/
     } else if (optcmp(long_options[option_index].name, "privileged") == 0 ){
