@@ -149,6 +149,181 @@
 
 class NpingOps {
 
+  private:
+
+    /* Probe modes */
+    int mode;                 /* Probe mode (TCP,UDP,ICMP,ARP,RARP...) */
+    bool mode_set;
+    bool traceroute;          /* Is traceroute mode enabled?           */
+    bool traceroute_set;
+    
+    /* Output */
+    int vb;                   /* Current Verbosity level               */
+    bool vb_set;
+    int dbg;                  /* Current Debugging level               */
+    bool dbg_set;
+    bool show_sent_pkts;      /* Print packets sent by Nping?          */
+    bool show_sent_pkts_set;
+
+    /* Operation and Performance */
+    u32 pcount;               /* No of packets 2be sent to each target */
+    bool pcount_set;
+    int sendpref;             /* Sending preference: eth or raw ip     */
+    bool sendpref_set;
+    bool send_eth;            /* True: send at raw ethernet level      */
+    bool send_eth_set;
+    long delay;               /* Delay between each probe              */
+    bool delay_set;
+    char device[MAX_DEV_LEN]; /* Network interface                     */
+    bool device_set;
+    bool spoofsource;         /* Did user request IP spoofing?         */
+    bool spoofsource_set;
+    char *bpf_filter_spec;    /* Custom, user-supplied BPF filter spec */
+    bool bpf_filter_spec_set;
+    int current_round;        /** Current round. Used in traceroute mode */
+    bool have_pcap;           /* True if we have access to libpcap     */
+    bool disable_packet_capture; /* If false, no packets are captured  */
+    bool disable_packet_capture_set;
+
+    /* Privileges */
+    bool isr00t;              /* True if current user has root privs   */
+    bool isr00t_set;
+    
+    /* Payloads */
+    int payload_type;         /* Type of payload (RAND,HEX,FILE)       */
+    bool payload_type_set;
+    u8 *payload_buff;         /* Pointer 2buff with the actual payload */
+    bool payload_buff_set;
+    int payload_len;          /* Length of payload                     */
+    bool payload_len_set;
+    
+    /* Roles */
+    int role;                 /* Nping's role: normal|cliente|server.  */
+    bool role_set;
+    
+    /* IPv4 */
+    u8 ttl;                   /* IPv4 TTL / IPv6 Hop limit             */
+    bool ttl_set;
+    u8 tos;                   /* Type of service                       */
+    bool tos_set;
+    u16 identification;       /* Identification field                  */
+    bool identification_set;
+    bool mf;                  /* More fragments flag                   */
+    bool mf_set;
+    bool df;                  /* Don't fragment flag                   */
+    bool df_set;
+    u32 mtu;                  /* Custom MTU len (for IP fragmentation) */
+    bool mtu_set;
+    bool badsum_ip;           /* Generate invalid checksums in TCP/UDP */
+    bool badsum_ip_set;
+    u8 ipversion;             /* IP version to be used in all packets  */
+    bool ipversion_set;
+    struct in_addr ipv4_src_address;     /* Source IPv4 address        */
+    bool ipv4_src_address_set;
+    char *ip_options;         /* IP Options                            */
+    bool ip_options_set;
+    
+    /* IPv6 */
+    u8 ipv6_tclass;           /* Traffic Class                         */
+    bool ipv6_tclass_set;
+    u32 ipv6_flowlabel;       /* Flow Label                            */
+    bool ipv6_flowlabel_set;
+    struct in6_addr ipv6_src_address;  /**< Source IPv6 address          */
+    bool ipv6_src_address_set;
+    
+    /* TCP / UDP */
+    u16 *target_ports;        /* Will point to an array of ports       */
+    int tportcount;           /* Total number of target ports          */
+    bool target_ports_set;
+    u16 source_port;          /* Source port for TCP/UPD packets       */
+    bool source_port_set;
+    u32 tcpseq;               /* TCP Sequence number                   */
+    bool tcpseq_set;
+    u32 tcpack;               /* TCP Acknowledgement                   */
+    bool tcpack_set;
+    u8 tcpflags[8];           /* TCP Flags                             */
+    bool tcpflags_set;
+    u16 tcpwin;               /* TCP Window                            */
+    bool tcpwin_set;
+    bool badsum;              /* Generate invalid TCP/UDP checksums?   */
+    bool badsum_set;
+    
+    /* ICMP */
+    u8 icmp_type;             /* ICMP Type                             */
+    bool icmp_type_set;
+    u8 icmp_code;             /* ICMP Code                             */
+    bool icmp_code_set;
+    bool badsum_icmp;         /* Generate invalid ICMP checksums?      */
+    bool badsum_icmp_set;
+    struct in_addr icmp_redir_addr; /* ICMP Redirect Address */ /* ##TODO## Turn this into an IPAddress object */
+    bool icmp_redir_addr_set;
+    u8 icmp_paramprob_pnt;    /* ICMP Parameter Problem pointer        */
+    bool icmp_paramprob_pnt_set;
+    u16 icmp_routeadv_ltime;  /* ICMP Router Advertisement lifetime    */
+    bool icmp_routeadv_ltime_set;
+    u16 icmp_id;              /* ICMP message identifier               */
+    bool icmp_id_set;
+    u16 icmp_seq;             /* ICMP sequence number                  */
+    bool icmp_seq_set;
+    u32 icmp_orig_time;       /* ICMP originate timestamp              */
+    bool icmp_orig_time_set;
+    u32 icmp_recv_time;       /* ICMP receive timestamp                */
+    bool icmp_recv_time_set;
+    u32 icmp_trans_time;      /* ICMP transmit timestamp               */
+    bool icmp_trans_time_set;
+    /* ICMP Router advertisement entries */
+    struct in_addr icmp_advert_entry_addr[MAX_ICMP_ADVERT_ENTRIES];
+    u32 icmp_advert_entry_pref[MAX_ICMP_ADVERT_ENTRIES];
+    int icmp_advert_entry_count;
+    bool icmp_advert_entry_set;
+    
+    /* Ethernet */
+    u8 src_mac[6];            /* Source MAC address                    */
+    bool src_mac_set;
+    u8 dst_mac[6];            /* Destination MAC address               */
+    bool dst_mac_set;
+    u16 eth_type;             /* EtherType field of the Ethernet frame */
+    bool eth_type_set;
+    
+    /* ARP/RARP */
+    u16 arp_htype;            /* ARP Hardware type                     */
+    bool arp_htype_set;
+    u16 arp_ptype;            /* ARP Protocol type                     */
+    bool arp_ptype_set;
+    u8 arp_hlen;              /* ARP Hardware address length           */
+    bool arp_hlen_set;
+    u8 arp_plen;              /* ARP protocol address length           */
+    bool arp_plen_set;
+    u16 arp_opcode;           /* ARP Operation code                    */
+    bool arp_opcode_set;
+    u8 arp_sha[6];            /* ARP Sender hardware address           */
+    bool arp_sha_set;
+    u8 arp_tha[6];            /* ARP Target hardware address           */
+    bool arp_tha_set;
+    struct in_addr arp_spa;   /* ARP Sender protocol address           */
+    bool arp_spa_set;
+    struct in_addr arp_tpa;   /* ARP Target protocol address           */
+    bool arp_tpa_set;
+    
+    /* Echo mode */
+    u16 echo_port;           /* Echo port to listen or connect to      */
+    bool echo_port_set;
+    char echo_passphrase[1024]; /* User passphrase                     */
+    bool echo_passphrase_set;
+    bool do_crypto;          /* Do encrypted & authenticated sessions? */
+    bool echo_payload;       /* Echo application-layer payloads?       */
+    bool echo_payload_set;   
+    bool echo_server_once;   /* Run server for only 1 client and quit? */
+    bool echo_server_once_set;
+    struct timeval last_sent_pkt_time; /* Time last packet was sent    */
+    char *delayed_rcvd_str;    /* Delayed RCVD output string           */
+    bool delayed_rcvd_str_set; /* Do we have a delayed RCVD string?    */
+    nsock_event_id delayed_rcvd_event; /* Nsock event for delayed RCVD */
+
+  public:
+    NpingTargets targets;
+    NpingStats stats;                      /* Global statistics           */
+
   public:
 
     /* Constructors / Destructors */
@@ -494,181 +669,6 @@ class NpingOps {
 
     int setDelayedRcvd(const char *str, nsock_event_id id);
     char *getDelayedRcvd(nsock_event_id *id);
-
-  private:
-
-    /* Probe modes */
-    int mode;                 /* Probe mode (TCP,UDP,ICMP,ARP,RARP...) */
-    bool mode_set;
-    bool traceroute;          /* Is traceroute mode enabled?           */
-    bool traceroute_set;
-    
-    /* Output */
-    int vb;                   /* Current Verbosity level               */
-    bool vb_set;
-    int dbg;                  /* Current Debugging level               */
-    bool dbg_set;
-    bool show_sent_pkts;      /* Print packets sent by Nping?          */
-    bool show_sent_pkts_set;
-
-    /* Operation and Performance */
-    u32 pcount;               /* No of packets 2be sent to each target */
-    bool pcount_set;
-    int sendpref;             /* Sending preference: eth or raw ip     */
-    bool sendpref_set;
-    bool send_eth;            /* True: send at raw ethernet level      */
-    bool send_eth_set;
-    long delay;               /* Delay between each probe              */
-    bool delay_set;
-    char device[MAX_DEV_LEN]; /* Network interface                     */
-    bool device_set;
-    bool spoofsource;         /* Did user request IP spoofing?         */
-    bool spoofsource_set;
-    char *bpf_filter_spec;    /* Custom, user-supplied BPF filter spec */
-    bool bpf_filter_spec_set;
-    int current_round;        /** Current round. Used in traceroute mode */
-    bool have_pcap;           /* True if we have access to libpcap     */
-    bool disable_packet_capture; /* If false, no packets are captured  */
-    bool disable_packet_capture_set;
-
-    /* Privileges */
-    bool isr00t;              /* True if current user has root privs   */
-    bool isr00t_set;
-    
-    /* Payloads */
-    int payload_type;         /* Type of payload (RAND,HEX,FILE)       */
-    bool payload_type_set;
-    u8 *payload_buff;         /* Pointer 2buff with the actual payload */
-    bool payload_buff_set;
-    int payload_len;          /* Length of payload                     */
-    bool payload_len_set;
-    
-    /* Roles */
-    int role;                 /* Nping's role: normal|cliente|server.  */
-    bool role_set;
-    
-    /* IPv4 */
-    u8 ttl;                   /* IPv4 TTL / IPv6 Hop limit             */
-    bool ttl_set;
-    u8 tos;                   /* Type of service                       */
-    bool tos_set;
-    u16 identification;       /* Identification field                  */
-    bool identification_set;
-    bool mf;                  /* More fragments flag                   */
-    bool mf_set;
-    bool df;                  /* Don't fragment flag                   */
-    bool df_set;
-    u32 mtu;                  /* Custom MTU len (for IP fragmentation) */
-    bool mtu_set;
-    bool badsum_ip;           /* Generate invalid checksums in TCP/UDP */
-    bool badsum_ip_set;
-    u8 ipversion;             /* IP version to be used in all packets  */
-    bool ipversion_set;
-    struct in_addr ipv4_src_address;     /* Source IPv4 address        */
-    bool ipv4_src_address_set;
-    char *ip_options;         /* IP Options                            */
-    bool ip_options_set;
-    
-    /* IPv6 */
-    u8 ipv6_tclass;           /* Traffic Class                         */
-    bool ipv6_tclass_set;
-    u32 ipv6_flowlabel;       /* Flow Label                            */
-    bool ipv6_flowlabel_set;
-    struct in6_addr ipv6_src_address;  /* Source IPv6 address          */
-    bool ipv6_src_address_set;
-    
-    /* TCP / UDP */
-    u16 *target_ports;        /* Will point to an array of ports       */
-    int tportcount;           /* Total number of target ports          */
-    bool target_ports_set;
-    u16 source_port;          /* Source port for TCP/UPD packets       */
-    bool source_port_set;
-    u32 tcpseq;               /* TCP Sequence number                   */
-    bool tcpseq_set;
-    u32 tcpack;               /* TCP Acknowledgement                   */
-    bool tcpack_set;
-    u8 tcpflags[8];           /* TCP Flags                             */
-    bool tcpflags_set;
-    u16 tcpwin;               /* TCP Window                            */
-    bool tcpwin_set;
-    bool badsum;              /* Generate invalid TCP/UDP checksums?   */
-    bool badsum_set;
-    
-    /* ICMP */
-    u8 icmp_type;             /* ICMP Type                             */
-    bool icmp_type_set;
-    u8 icmp_code;             /* ICMP Code                             */
-    bool icmp_code_set;
-    bool badsum_icmp;         /* Generate invalid ICMP checksums?      */
-    bool badsum_icmp_set;
-    struct in_addr icmp_redir_addr; /* ICMP Redirect Address */ /* ##TODO## Turn this into an IPAddress object */
-    bool icmp_redir_addr_set;
-    u8 icmp_paramprob_pnt;    /* ICMP Parameter Problem pointer        */
-    bool icmp_paramprob_pnt_set;
-    u16 icmp_routeadv_ltime;  /* ICMP Router Advertisement lifetime    */
-    bool icmp_routeadv_ltime_set;
-    u16 icmp_id;              /* ICMP message identifier               */
-    bool icmp_id_set;
-    u16 icmp_seq;             /* ICMP sequence number                  */
-    bool icmp_seq_set;
-    u32 icmp_orig_time;       /* ICMP originate timestamp              */
-    bool icmp_orig_time_set;
-    u32 icmp_recv_time;       /* ICMP receive timestamp                */
-    bool icmp_recv_time_set;
-    u32 icmp_trans_time;      /* ICMP transmit timestamp               */
-    bool icmp_trans_time_set;
-    /* ICMP Router advertisement entries */
-    struct in_addr icmp_advert_entry_addr[MAX_ICMP_ADVERT_ENTRIES];
-    u32 icmp_advert_entry_pref[MAX_ICMP_ADVERT_ENTRIES];
-    int icmp_advert_entry_count;
-    bool icmp_advert_entry_set;
-    
-    /* Ethernet */
-    u8 src_mac[6];            /* Source MAC address                    */
-    bool src_mac_set;
-    u8 dst_mac[6];            /* Destination MAC address               */
-    bool dst_mac_set;
-    u16 eth_type;             /* EtherType field of the Ethernet frame */
-    bool eth_type_set;
-    
-    /* ARP/RARP */
-    u16 arp_htype;            /* ARP Hardware type                     */
-    bool arp_htype_set;
-    u16 arp_ptype;            /* ARP Protocol type                     */
-    bool arp_ptype_set;
-    u8 arp_hlen;              /* ARP Hardware address length           */
-    bool arp_hlen_set;
-    u8 arp_plen;              /* ARP protocol address length           */
-    bool arp_plen_set;
-    u16 arp_opcode;           /* ARP Operation code                    */
-    bool arp_opcode_set;
-    u8 arp_sha[6];            /* ARP Sender hardware address           */
-    bool arp_sha_set;
-    u8 arp_tha[6];            /* ARP Target hardware address           */
-    bool arp_tha_set;
-    struct in_addr arp_spa;   /* ARP Sender protocol address           */
-    bool arp_spa_set;
-    struct in_addr arp_tpa;   /* ARP Target protocol address           */
-    bool arp_tpa_set;
-    
-    /* Echo mode */
-    u16 echo_port;           /* Echo port to listen or connect to      */
-    bool echo_port_set;
-    char echo_passphrase[1024]; /* User passphrase                     */
-    bool echo_passphrase_set;
-    bool do_crypto;          /* Do encrypted & authenticated sessions? */
-    bool echo_payload;       /* Echo application-layer payloads?       */
-    bool echo_payload_set;   
-    bool echo_server_once;   /* Run server for only 1 client and quit? */
-    bool echo_server_once_set;
-    struct timeval last_sent_pkt_time; /* Time last packet was sent    */
-    char *delayed_rcvd_str;    /* Delayed RCVD output string           */
-    bool delayed_rcvd_str_set; /* Do we have a delayed RCVD string?    */
-    nsock_event_id delayed_rcvd_event; /* Nsock event for delayed RCVD */
-
-  public:
-    NpingTargets targets;
-    NpingStats stats;                      /* Global statistics           */
 
 }; /* End of class NpingOps */
 
