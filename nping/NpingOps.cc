@@ -157,7 +157,7 @@ NpingOps::NpingOps() {
     disable_packet_capture_set=false;
 
     /* Privileges */
-    isr00t=0;
+    isr00t=false;
     isr00t_set=false;
 
     /* Payloads */
