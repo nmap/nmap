@@ -170,12 +170,6 @@ NpingOps::NpingOps() {
     payload_len=0;
     payload_len_set=false;
 
-    payload_file=NULL;
-    payload_file_set=false;
-
-    payload_file_fd=0;
-    payload_file_fd_set=false;
-
     /* Roles */
     role=0;
     role_set=false;
@@ -1038,30 +1032,6 @@ int NpingOps::getPayloadLen(){
 bool NpingOps::issetPayloadLen(){
   return this->payload_len_set;
 } /* End of issetPayloadLen() */
-
-
-int NpingOps::setPayloadFilename(char *name){
-  if( name==NULL ){
-    nping_fatal(QT_3,"setPayloadFile(): Invalid value supplied\n");
-    return OP_FAILURE;
-  }else{
-    this->payload_file= strdup(name);
-  }
-  this->payload_file_set=true;
-  return OP_SUCCESS;
-} /* End of setPayloadFile() */
-
-
-char *NpingOps::getPayloadFilename(){
-  return this->payload_file;
-} /* End of getPayloadFilename() */
-
-
-/* Returns true if option has been set */
-bool NpingOps::issetPayloadFilename(){
-  return this->payload_file_set;
-} /* End of issetPayloadFilename() */
-
 
 
 /******************************************************************************
@@ -2396,7 +2366,7 @@ if (this->havePcap()==false){
 
 /** TCP CONNECT RELATED PARAMETERS *********************************************/
   if(this->getMode()==TCP_CONNECT) {
-      if(this->issetPayloadBuffer() || this->issetPayloadFilename())
+      if(this->issetPayloadBuffer())
         nping_print(VB_0, "Warning: Payload supplied in TCP Connect mode. Payload will be ignored.");
   }
 

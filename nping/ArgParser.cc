@@ -234,7 +234,6 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
 
   /* Payload */
   {"data", required_argument, 0, 0},
-  {"data-file", required_argument, 0, 0},
   {"data-length", required_argument, 0, 0},
   {"data-string", required_argument, 0, 0},
 
@@ -815,19 +814,6 @@ int ArgParser::parseArguments(int argc, char *argv[]) {
             memcpy(buff, tempbuff, len);
             o.setPayloadBuffer(buff, len);
             o.setPayloadType(PL_HEX);
-        }
-    /* Read payload from a file */
-    } else if (optcmp(long_options[option_index].name, "data-file") == 0 ){
-        if ( o.issetPayloadFilename() ) {
-            nping_fatal(QT_3,"Only one payload input filename allowed");
-        }else {
-            int tmp = file_is_readable(optarg);
-            if ( tmp == 1 )
-                o.setPayloadFilename(optarg);
-            else if ( tmp==2)
-                nping_fatal(QT_3,"Specified payload file is a directory, not a file.");
-            else
-                nping_fatal(QT_3,"Specified payload file does not exist or couldn't be opened for reading.");
         }
     /* Random payload */
     } else if (optcmp(long_options[option_index].name, "data-length") == 0 ){

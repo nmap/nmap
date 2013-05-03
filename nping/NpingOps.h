@@ -243,9 +243,6 @@ class NpingOps {
     bool issetIsRoot();
 
     /* Payloads */
-    int setPayloadFilename(char *name);
-    char *getPayloadFilename();
-    bool issetPayloadFilename();
     int setPayloadType(int t);
     int getPayloadType();
     bool issetPayloadType();
@@ -563,12 +560,6 @@ class NpingOps {
 
     int payload_len;          /**< Length of payload                     */
     bool payload_len_set;
-
-    char *payload_file;       /**< Name of input filename for payload    */
-    bool payload_file_set;
-
-    int payload_file_fd;      /**< File descriptor for input payload file*/
-    bool payload_file_fd_set;
 
     /* Roles */
     int role;                 /**< Nping's role: normal|cliente|server.  */
