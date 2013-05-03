@@ -718,6 +718,7 @@ class NpingOps {
     bool do_crypto;
 
     bool echo_payload;
+    bool echo_payload_set;   
 
     bool echo_server_once;
     bool echo_server_once_set;
