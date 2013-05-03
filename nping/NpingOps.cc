@@ -3078,6 +3078,7 @@ bool NpingOps::echoPayload(){
  * or false to disable. */
 int NpingOps::echoPayload(bool value){
   this->echo_payload=value;
+  this->echo_payload_set=true;
   return OP_SUCCESS;
 }
 
