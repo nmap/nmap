@@ -84,7 +84,7 @@ local function default_test(host, port)
   local methods
   local response = "Versions succesfully tested:"
 	
-  local test_url = "http://www.google.com"
+  local test_url = "/"
   local hostname = "www.google.com"
   local pattern = "^server: gws"
   status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
@@ -101,7 +101,7 @@ local function default_test(host, port)
   if not (cstatus4 or cstatus5) then return false, nil end
   stdnse.print_debug("Test 1 - Google Web Server: Received valid status codes, but pattern does not match")
 	
-  test_url = "http://www.wikipedia.org"
+  test_url = "/"
   hostname = "www.wikipedia.org"
   pattern  = "wikimedia"
   status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
@@ -114,7 +114,7 @@ local function default_test(host, port)
   if not (cstatus4 or cstatus5) then return false, nil end
   stdnse.print_debug("Test 2 - Wikipedia.org: Received valid status codes, but pattern does not match")
 
-  test_url = "http://www.computerhistory.org"
+  test_url = "/"
   hostname = "www.computerhistory.org"
   pattern  = "museum"
   status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
