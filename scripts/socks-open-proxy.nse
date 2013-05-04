@@ -19,11 +19,20 @@ argument.
 --@args proxy.url URL that will be requested to the proxy.
 --@args proxy.pattern Pattern that will be searched inside the request results.
 --@output
--- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT     STATE  SERVICE
 -- 1080/tcp open   socks
--- |  proxy-open-socks: Potentially OPEN proxy.
--- |_ Versions succesfully tested: Socks4 Socks5
+-- |  socks-open-proxy:
+-- |   status: open
+-- |   versions:
+-- |     socks4
+-- |_    socks5
+--
+--@xmloutput
+--<elem key="status">open</elem>
+--<table key="versions">
+--  <elem>socks4</elem>
+--  <elem>socks5</elem>
+--</table>
 --@usage
 -- nmap --script=socks-open-proxy \
 --		--script-args proxy.url=<host>,proxy.pattern=<pattern>
@@ -36,15 +45,15 @@ categories = {"default", "discovery", "external", "safe"}
 --- Performs the custom test, with user's arguments 
 -- @param host The host table
 -- @param port The port table
--- @param test_url The url te send the request
+-- @param test_url The url to request
 -- @param pattern The pattern to check for valid result
--- @return status (if any request was succeded
--- @return response String with supported methods
+-- @return status If any request succeeded
+-- @return response Table with supported methods
 local function custom_test(host, port, test_url, pattern)
   local status4, status5, fstatus
   local get_r4, get_r5
   local methods
-  local response = "Versions succesfully tested:"
+  local response = {}
 
   -- strip hostname
   if not string.match(test_url, "^http://.*") then 
@@ -53,36 +62,45 @@ local function custom_test(host, port, test_url, pattern)
   end
   local url_table = url.parse(test_url)
   local hostname = url_table.host
+  test_url = url_table.path
 
   -- make requests
-  status4, get_r4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
-  status5, get_r5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
+  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
 
-  if(status4) then fstatus = true; response = response .. " Socks4" end
-  if(status5) then fstatus = true; response = response .. " Socks5" end
+  fstatus = status4 or status5
+  if(cstatus4) then response[#response+1]="socks4" end
+  if(cstatus5) then response[#response+1]="socks5" end
   if(fstatus) then return fstatus, response end	
+  
+  -- Nothing works...
+  if not (cstatus4 or cstatus5) then
+    return false, nil
+  else
+    return "pattern not matched", response
+  end
 end
 
 --- Performs the default test
 -- First: Default google request and checks for Server: gws
--- Seconde: Request to wikipedia.org and checks for wikimedia pattern
+-- Second: Request to wikipedia.org and checks for wikimedia pattern
 -- Third: Request to computerhistory.org and checks for museum pattern
 --
--- If any of the requests is succesful, the proxy is considered open
+-- If any of the requests is successful, the proxy is considered open.
 -- If all requests return the same result, the user is alerted that
 -- the proxy might be redirecting his requests (very common on wi-fi
 -- connections at airports, cafes, etc.)
 --
 -- @param host The host table
 -- @param port The port table
--- @return status (if any request was succeded
--- @return response String with supported methods
+-- @return status If any request succeeded
+-- @return response Table with supported methods
 local function default_test(host, port)
   local status4, status5, fstatus
   local cstatus4, cstatus5
   local get_r4, get_r5
   local methods
-  local response = "Versions succesfully tested:"
+  local response = {}
 	
   local test_url = "/"
   local hostname = "www.google.com"
@@ -90,8 +108,9 @@ local function default_test(host, port)
   status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
   status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
 
-  if(status4) then fstatus = true; response = response .. " Socks4" end
-  if(status5) then fstatus = true; response = response .. " Socks5" end
+  fstatus = status4 or status5
+  if(cstatus4) then response[#response+1]="socks4" end
+  if(cstatus5) then response[#response+1]="socks5" end
   if(fstatus) then return fstatus, response end
 
   -- if we receive a invalid response, but with a valid 
@@ -107,12 +126,14 @@ local function default_test(host, port)
   status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
   status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
 
-  if(status4) then fstatus = true; response = response .. " Socks4" end
-  if(status5) then fstatus = true; response = response .. " Socks5" end
+  if(status4) then fstatus = true; response[#response+1]="socks4" end
+  if(status5) then fstatus = true; response[#response+1]="socks5" end
   if(fstatus) then return fstatus, response end
 
   if not (cstatus4 or cstatus5) then return false, nil end
   stdnse.print_debug("Test 2 - Wikipedia.org: Received valid status codes, but pattern does not match")
+  
+  redir_check_get = get_r4 or get_r5
 
   test_url = "/"
   hostname = "www.computerhistory.org"
@@ -120,20 +141,20 @@ local function default_test(host, port)
   status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
   status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
 
-  if(status4) then fstatus = true; response = response .. " Socks4" end
-  if(status5) then fstatus = true; response = response .. " Socks5" end
+  if(status4) then fstatus = true; response[#response+1]="socks4" end
+  if(status5) then fstatus = true; response[#response+1]="socks5" end
   if(fstatus) then return fstatus, response end
 
   if not (cstatus4 or cstatus5) then return false, nil end
   stdnse.print_debug("Test 3 - Computer History: Received valid status codes, but pattern does not match")
 
   -- Check if GET is being redirected
-  if proxy.redirectCheck(get_r4, get_r5) then
-    return false, "Proxy might be redirecting requests"
+  if proxy.redirectCheck(get_r4 or get_r5, redir_check_get) then
+    return "redirecting", response
   end
 
-  -- Nothing works...
-  return false, nil
+  -- Protocol works, but nothing matches
+  return "pattern not matched", response
 
 end
 
@@ -141,12 +162,12 @@ portrule = shortport.port_or_service({1080, 9050},
 	{"socks", "socks4", "socks5", "tor-socks"})
 
 action = function(host, port)
-  local supported_versions = "\nVersions succesfully tested: "
+  local supported_versions
   local fstatus = false
   local pattern, test_url
   local def_test = true
   local hostname
-  local retval
+  local retval = stdnse.output_table()
 
   test_url, pattern = proxy.return_args()
 
@@ -159,12 +180,14 @@ action = function(host, port)
   end
 
   -- If any of the tests were OK, then the proxy is potentially open
-  if fstatus then
-    retval = "Potentially OPEN proxy.\n" .. supported_versions
+  if fstatus == true then
+    retval["status"] = "open"
+    retval["versions"] = supported_versions
     return retval
-  elseif not fstatus and supported_versions then
-    return supported_versions
+  elseif fstatus and supported_versions then
+    retval["status"] = fstatus
+    retval["versions"] = supported_versions
+    return retval
   end
-  return
 
 end
