@@ -277,7 +277,7 @@ static const char *sock_to_url(const union sockaddr_u *su)
     if (su->storage.ss_family == AF_INET)
         Snprintf(buf, sizeof(buf), "%s:%hu", host_str, port);
     else if (su->storage.ss_family == AF_INET6)
-        Snprintf(buf, sizeof(buf), "[%s]:%hu]", host_str, port);
+        Snprintf(buf, sizeof(buf), "[%s]:%hu", host_str, port);
     else
         bye("Unknown address family in sock_to_url_host.");
 
