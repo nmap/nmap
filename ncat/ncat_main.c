@@ -118,7 +118,7 @@ static int ncat_connect_mode(void);
 static int ncat_listen_mode(void);
 
 /* Determines if it's parsing HTTP or SOCKS by looking at defport */
-static void parseproxy(char *str, struct sockaddr_storage *ss, unsigned short defport)
+static size_t parseproxy(char *str, struct sockaddr_storage *ss, unsigned short defport)
 {
     char *c = strrchr(str, ':'), *ptr;
     int httpproxy = (defport == DEFAULT_PROXY_PORT);
@@ -143,6 +143,8 @@ static void parseproxy(char *str, struct sockaddr_storage *ss, unsigned short de
             loguser("Did you specify the port number? It's required for IPv6.\n");
         exit(EXIT_FAILURE);
     }
+
+    return sslen;
 }
 
 /* These functions implement a simple linked list to hold allow/deny
@@ -589,11 +591,11 @@ int main(int argc, char *argv[])
              * colons in the IPv6 address and host:port separator).
              */
 
-            parseproxy(proxyaddr, &httpconnect.storage, DEFAULT_PROXY_PORT);
+            httpconnectlen = parseproxy(proxyaddr, &httpconnect.storage, DEFAULT_PROXY_PORT);
         } else if (!strcmp(o.proxytype, "socks4") || !strcmp(o.proxytype, "4")) {
             /* Parse SOCKS proxy address and temporarily store it in socksconnect */
 
-            parseproxy(proxyaddr, &socksconnect.storage, DEFAULT_SOCKS4_PORT);
+            socksconnectlen = parseproxy(proxyaddr, &socksconnect.storage, DEFAULT_SOCKS4_PORT);
         } else {
             bye("Invalid proxy type \"%s\".", o.proxytype);
         }
@@ -754,12 +756,18 @@ int main(int argc, char *argv[])
      */
     if (httpconnect.storage.ss_family != AF_UNSPEC) {
         union sockaddr_u tmp = targetss;
+        size_t tmplen = targetsslen;
         targetss = httpconnect;
+        targetsslen = httpconnectlen;
         httpconnect = tmp;
+        httpconnectlen = tmplen;
     } else if (socksconnect.storage.ss_family != AF_UNSPEC) {
         union sockaddr_u tmp = targetss;
+        size_t tmplen = targetsslen;
         targetss = socksconnect;
+        targetsslen = socksconnectlen;
         socksconnect = tmp;
+        socksconnectlen = tmplen;
     }
 
     if (o.proto == IPPROTO_UDP) {
