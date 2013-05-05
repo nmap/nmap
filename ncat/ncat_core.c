@@ -118,8 +118,8 @@ size_t srcaddrlen;
 union sockaddr_u targetss;
 size_t targetsslen;
 
-union sockaddr_u httpconnect;
-union sockaddr_u socksconnect;
+union sockaddr_u httpconnect, socksconnect;
+size_t httpconnectlen, socksconnectlen;
 
 /* Global options structure. */
 struct options o;
