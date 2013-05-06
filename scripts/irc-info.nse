@@ -15,12 +15,31 @@ It uses STATS, LUSERS, and other queries to obtain this information.
 ---
 -- @output
 -- 6665/tcp open     irc
--- |  irc-info: Server: target.example.org
--- |  Version: hyperion-1.0.2b(381). target.example.org
--- |  Lservers/Lusers: 0/4204
--- |  Uptime: 106 days, 2:46:30
--- |  Source host: source.example.org
--- |_ Source ident: OK n=nmap
+-- | irc-info:
+-- |   server: asimov.freenode.net
+-- |   version: ircd-seven-1.1.3(20111112-b71671d1e846,charybdis-3.4-dev). asimov.freenode.net
+-- |   servers: 31
+-- |   ops: 36
+-- |   chans: 48636
+-- |   users: 84883
+-- |   lservers: 1
+-- |   lusers: 4350
+-- |   uptime: 511 days, 23:02:29
+-- |   source host: source.example.com
+-- |_  source ident: NONE or BLOCKED
+--@xmloutput
+-- <elem key="server">asimov.freenode.net</elem>
+-- <elem key="version">ircd-seven-1.1.3(20111112-b71671d1e846,charybdis-3.4-dev). asimov.freenode.net </elem>
+-- <elem key="servers">31</elem>
+-- <elem key="ops">36</elem>
+-- <elem key="chans">48636</elem>
+-- <elem key="users">84883</elem>
+-- <elem key="lservers">1</elem>
+-- <elem key="lusers">4350</elem>
+-- <elem key="uptime">511 days, 23:02:29</elem>
+-- <elem key="source host">source.example.com</elem>
+-- <elem key="source ident">NONE or BLOCKED</elem>
+
 
 author = "Doug Hoyte"
 
@@ -90,7 +109,7 @@ action = function(host, port)
   local buf
   local banner_timeout = 60
   local make_output = function()
-    local o = ""
+    local o = stdnse.output_table()
     if (not shost) then
       if serr then
         return "ERROR: " .. serr .. "\n"
@@ -99,26 +118,20 @@ action = function(host, port)
       end
     end
 
-    o = o .. "Server: " .. shost .. "\n"
-    if sver then
-      o = o .. "Version: " .. sver .. "\n"
-    end
-    if sircops and susers and sservers and schans then
-      o = o .. "Servers/Ops/Chans/Users: " .. sservers .. "/" .. sircops .. "/" .. schans .. "/" .. susers .. "\n"
-    end
-    if slusers and slservers then
-      o = o .. "Lservers/Lusers: " .. slservers .. "/" .. slusers .. "\n"
-    end
-    if sup then
-      o = o .. "Uptime: " .. sup .. "\n"
-    end
-    if myhost and myident then
-      o = o .. "Source host: " .. myhost .. "\n"
-      if string.find(myident, "^~") then
-        o = o .. "Source ident: NONE or BLOCKED\n"
-      else
-        o = o .. "Source ident: OK " .. myident .. "\n"
-      end
+    o["server"] = shost
+    o["version"] = sver
+    o["servers"] = sservers
+    o["ops"] = sircops
+    o["chans"] = schans
+    o["users"] = susers
+    o["lservers"] = slservers
+    o["lusers"] = slusers
+    o["uptime"] = sup
+    o["source host"] = myhost
+    if myident and string.find(myident, "^~") then
+      o["source ident"] = "NONE or BLOCKED"
+    else
+      o["source ident"] = myident
     end
 
     return o
