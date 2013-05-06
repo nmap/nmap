@@ -38,7 +38,8 @@ categories = {"default", "version", "discovery", "vuln"}
 
 
 -- WDB protocol information
--- http://www-kryo.desy.de/documents/vxWorks/V5.5/tornado-api/wdbpcl/wdb.html
+-- http://www.vxdev.com/docs/vx55man/tornado-api/wdbpcl/wdb.html
+-- http://www.verysource.com/code/2817990_1/wdb.h.html
 -- Metasploit scanner module
 -- http://www.metasploit.com/redmine/projects/framework/repository/entry/lib/msf/core/exploit/wdbrpc.rb
 
@@ -47,7 +48,11 @@ portrule = shortport.version_port_or_service(17185, "wdbrpc", {"udp"} )
 rpc.RPC_version["wdb"] = { min=1, max=1 }
 
 local WDB_Procedure = {
+  ["WDB_TARGET_PING"] = 0,
 	["WDB_TARGET_CONNECT"] = 1,
+  ["WDB_TARGET_DISCONNECT"] = 2,
+  ["WDB_TARGET_MODE_SET"] = 3,
+  ["WDB_TARGET_MODE_GET"] = 4,
 }
 
 local function checksum(data)
@@ -75,6 +80,14 @@ local function request(comm, procedure, data)
 	local wdbwrapper = bin.pack( ">I2", data:len() + packet:len() + 8, seqno() )
 	local sum = checksum(packet..bin.pack(">I", 0x00000000)..wdbwrapper..data)
 	return packet .. bin.pack(">S2", 0xffff, sum) .. wdbwrapper .. data
+end
+
+local function stripnull(str)
+  local e = -1
+  while str:byte(e) == 0 do
+    e = e - 1
+  end
+  return str:sub(1,e)
 end
 
 local function decode_reply(data, pos)
@@ -183,28 +196,34 @@ action = function(host, port)
 	port.version.name = "wdb"
 	port.version.name_confidence = 10
 	port.version.product = "Wind DeBug Agent"
-	port.version.version = info["agent_ver"]
+	port.version.version = stripnull(info["agent_ver"])
 	if (port.version.ostype ~= nil) then
-		port.version.ostype = "VxWorks " .. info["rt_vers"]
+		port.version.ostype = "VxWorks " .. stripnull(info["rt_vers"])
 	end
 	nmap.set_port_version(host, port)
-	local o = {}
+  -- Clean up (some agents will continue to send data until we disconnect)
+	packet = request(comm, WDB_Procedure["WDB_TARGET_DISCONNECT"], bin.pack(">I3", 0x00000002, 0x00000000, 0x00000000))
+	if (not(comm:SendPacket(packet))) then
+		return stdnse.format_output(false, "Failed to send request")
+	end
+
+	local o = stdnse.output_table()
 	table.insert(o, "VULNERABLE: Wind River Systems VxWorks debug service enabled. See http://www.kb.cert.org/vuls/id/362332")
 	if (info.agent_ver) then
-		table.insert(o, "Agent version: " .. info.agent_ver)
+		o["Agent version"] = stripnull(info.agent_ver)
 	end
 	--table.insert(o, "Agent MTU: " .. info.agent_mtu)
 	if (info.rt_vers) then
-		table.insert(o, "VxWorks version: " .. info.rt_vers)
+		o["VxWorks version"] = stripnull(info.rt_vers)
 	end
 	-- rt_cpu_type is an enum type, but I don't have access to
 	-- cputypes.h, where it is defined
 	--table.insert(o, "CPU Type: " .. info.rt_cpu_type)
 	if (info.rt_bsp_name) then
-		table.insert(o, "Board Support Package: " .. info.rt_bsp_name)
+		o["Board Support Package"] = stripnull(info.rt_bsp_name)
 	end
 	if (info.rt_bootline) then
-		table.insert(o, "Boot line: " .. info.rt_bootline)
+		o["Boot line"] = stripnull(info.rt_bootline)
 	end
-	return stdnse.format_output(true, o)
+	return o
 end
