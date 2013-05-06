@@ -16,25 +16,49 @@ server capabilities.  If possible, studies server vendor.
 -- @output
 -- PORT     STATE SERVICE REASON  VERSION
 -- 5222/tcp open  jabber  syn-ack ejabberd (Protocol 1.0)
--- | xmpp-info: 
--- |   XMPP
--- |     Lang
--- |       ru
--- |     v1.0
--- |   features
--- |     In-Band Registration
--- |     TLS (before TLS stream)
--- |   capabilities
--- |     node
--- |       http://www.process-one.net/en/ejabberd/
--- |     ver
--- |       rvAR01fKsc40hT0hOLGDuG25y9o=
--- |   COMPRESSION METHODS (1)
--- |     zlib
--- |   AUTH MECHANISMS (2)
--- |     DIGEST-MD5
--- |     PLAIN (in TLS stream)
--- |_  Ignores server name
+-- | xmpp-info:  
+-- |   Respects server name
+-- |   info: 
+-- |     xmpp: 
+-- |       lang: en
+-- |       version: 1.0
+-- |     capabilities:
+-- |       node: http://www.process-one.net/en/ejabberd/
+-- |       ver: TQ2JFyRoSa70h2G1bpgjzuXb2sU=
+-- |     features: 
+-- |       In-Band Registration
+-- |     auth_mechanisms:
+-- |       DIGEST-MD5
+-- |       SCRAM-SHA-1
+-- |       PLAIN
+-- |   pre_tls: 
+-- |     features:
+-- |_      TLS
+--@xmloutput
+-- <elem>Respects server name</elem>
+-- <table key="info">
+--   <table key="xmpp">
+--     <elem key="lang">en</elem>
+--     <elem key="version">1.0</elem>
+--   </table>
+--   <table key="capabilities">
+--     <elem key="node">http://www.process-one.net/en/ejabberd/</elem>
+--     <elem key="ver">TQ2JFyRoSa70h2G1bpgjzuXb2sU=</elem>
+--   </table>
+--   <table key="features">
+--     <elem>In-Band Registration</elem>
+--   </table>
+--   <table key="auth_mechanisms">
+--     <elem>DIGEST-MD5</elem>
+--     <elem>SCRAM-SHA-1</elem>
+--     <elem>PLAIN</elem>
+--   </table>
+-- </table>
+-- <table key="pre_tls">
+--   <table key="features">
+--     <elem>TLS</elem>
+--   </table>
+-- </table>
 --
 -- @args xmpp-info.server_name If set, overwrites hello name sent to the server.
 --       It can be necessary if XMPP server's name differs from DNS name.

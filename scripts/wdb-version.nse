@@ -30,6 +30,12 @@ http://www.kb.cert.org/vuls/id/362332
 -- |   VxWorks version: VxWorks5.4.2
 -- |   Board Support Package: PCD ARM940T REV 1
 -- |   Boot line: host:vxWorks.z
+--@xmloutput
+-- <elem>VULNERABLE: Wind River Systems VxWorks debug service enabled. See http://www.kb.cert.org/vuls/id/362332</elem>
+-- <elem key="Agent version">2.0</elem>
+-- <elem key="VxWorks version">5.4</elem>
+-- <elem key="Board Support Package">Alcatel CMM MPC8245/100</elem>
+-- <elem key="Boot line">lanswitchCmm:</elem>
 
 author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
