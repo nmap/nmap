@@ -213,34 +213,22 @@ local connect_tls = function(s, xmlns, server_name)
     end
 end
 
-local caps = {{}, {}}
-local err = {{}, {}}
-local features = {{}, {}}
-local features_list = {{}, {}}
-local mechanisms = {{}, {}}
-local methods = {{}, {}}
-local tag_stack = {{}, {}}
-local t_xmpp = {{}, {}}
-local unknown = {}
-
-local scan = function(host, port, server_name, tls, n)
+local scan = function(host, port, server_name, tls)
     local data, status
     local client = nmap.new_socket()
     local tls_text
-    local result = {}
     local stream_id
 
     -- Looks like 10 seconds is enough for non RFC-compliant servers...
     client:set_timeout(10 * 1000);
 
-    caps[n] = {}
-    err[n] = {}
-    features[n] = {}
-    features_list[n] = {}
-    mechanisms[n] = {}
-    methods[n] = {}
-    tag_stack[n] = {}
-    t_xmpp[n] = {}
+    local caps = stdnse.output_table()
+    local err = {}
+    local features_list = {}
+    local mechanisms = {}
+    local methods = {}
+    local unknown = {}
+    local t_xmpp = stdnse.output_table()
 
     local xmlns
     stdnse.print_debug(port.version.name)
@@ -285,7 +273,7 @@ local scan = function(host, port, server_name, tls, n)
     while true do
         local tag = receive_tag(client)
         if not tag then 
-            table.insert(err[n], "(timeout)")
+            table.insert(err, "(timeout)")
             break 
         end
         log_tag(tag)
@@ -295,30 +283,30 @@ local scan = function(host, port, server_name, tls, n)
 
         if inside() and not known_features[tag.name] then
             stdnse.print_debug(tag.name)
-            unknown[tag.name] = true
+            table.insert(unknown, tag.name)
         end
 
         if tag.name == "stream:stream" and tag.start then
             --http://xmpp.org/extensions/xep-0198.html#ns
             if tag.attrs['xmlns:ack'] and
                tag.attrs['xmlns:ack'] == 'http://www.xmpp.org/extensions/xep-0198.html#ns' then
-                table.insert(t_xmpp[n], "Stream Management")
+               table.insert(t_xmpp, "Stream Management")
             end
             if tag.attrs['xml:lang'] then
-                table.insert(t_xmpp[n], { name = "Lang", tag.attrs['xml:lang']})
+                t_xmpp["lang"] = tag.attrs['xml:lang']
             end
             if tag.attrs.from and tag.attrs.from ~= server_name then
-                table.insert(t_xmpp[n], { name = "Server name", tag.attrs.from})
+                t_xmpp["server name"] = tag.attrs.from
             end
 
             stream_id = tag.attrs.id
 
             if tag.attrs.version then
-                table.insert(t_xmpp[n], 'v' .. tag.attrs.version)
+                t_xmpp["version"] = tag.attrs.version
             else
                 -- Alarm! Not an RFC-compliant server...
                 -- sample: chirimoyas.es
-                table.insert(t_xmpp[n], "(no version)")
+                t_xmpp["version"] = "(none)"
             end
         end
 
@@ -327,52 +315,52 @@ local scan = function(host, port, server_name, tls, n)
             --http://xmpp.org/extensions/xep-0198.html
             --sample: el-tramo.be
             local version = string.match(tag.attrs.xmlns, "^urn:xmpp:sm:(%.)")
-            table.insert(features_list[n], 'Stream management v' .. version)
+            table.insert(features_list, 'Stream management v' .. version)
         end
 
         if tag.name == "starttls" and inside() then
             is_starttls = true
         elseif tag.name == "address" and tag.finish and inside() then
             --http://delta.affinix.com/specs/xmppstream.html
-            table.insert(features_list[n], "MY IP: " .. tag.contents )
+            table.insert(features_list, "MY IP: " .. tag.contents )
         elseif tag.name == "ver" and inside() then
             --http://xmpp.org/extensions/xep-0237.html
-            table.insert(features_list[n], "Roster Versioning")
+            table.insert(features_list, "Roster Versioning")
         elseif tag.name == "dialback" and inside() then
             --http://xmpp.org/extensions/xep-0220.html
-            table.insert(features_list[n], "Server Dialback")
+            table.insert(features_list, "Server Dialback")
         elseif tag.name == "session" and inside() then
             --http://www.ietf.org/rfc/rfc3921.txt
-            table.insert(features_list[n], "IM Session Establishment")
+            table.insert(features_list, "IM Session Establishment")
         elseif tag.name == "bind" and inside() then
             --http://www.ietf.org/rfc/rfc3920.txt
-            table.insert(features_list[n], "Resource Binding")
+            table.insert(features_list, "Resource Binding")
         elseif tag.name == "amp" and inside() then
             --http://xmpp.org/extensions/xep-0079.html
-            table.insert(features_list[n], "Advanced Message Processing")
+            table.insert(features_list, "Advanced Message Processing")
         elseif tag.name == "register" and inside() then
             --http://xmpp.org/extensions/xep-0077.html
             --sample: jabber.ru
-            table.insert(features_list[n], "In-Band Registration")
+            table.insert(features_list, "In-Band Registration")
         elseif tag.name == "auth" and inside() then
             --http://xmpp.org/extensions/xep-0078.html
-            table.insert(mechanisms[n], "Non-SASL")
+            table.insert(mechanisms, "Non-SASL")
         elseif tag.name == "required" and inside('starttls') then
             tls_required = true
         elseif tag.name == "method" and inside('compression', 'method') then
             --http://xmpp.org/extensions/xep-0138.html
             if tag.finish then
-                table.insert(methods[n], tag.contents)
+                table.insert(methods, tag.contents)
             end
         elseif tag.name == "mechanism" and inside('mechanisms', 'mechanism') then
             if tag.finish then
-                table.insert(mechanisms[n], tag.contents)
+                table.insert(mechanisms, tag.contents)
             end
         elseif tag.name == "c" and inside() then 
             --http://xmpp.org/extensions/xep-0115.html
             --sample: jabber.ru
             if tag.attrs and tag.attrs.node then
-                table.insert(caps[n], { name = "node", tag.attrs.node})
+                caps["node"] = tag.attrs.node
 
                 -- It is a table of well-known node values of "c" tag
                 -- If it matched then the server software is determined
@@ -392,7 +380,7 @@ local scan = function(host, port, server_name, tls, n)
                 -- Funny situation: we have a hash of server capabilities list,
                 -- but we cannot explicitly ask him about the list because we have no name before the authentication.
                 -- The ugly solution is checking the hash against the most popular capability sets...
-                table.insert(caps[n], { name = "ver", tag.attrs.ver})
+                caps["ver"] = tag.attrs.ver
             end
         end
 
@@ -401,7 +389,7 @@ local scan = function(host, port, server_name, tls, n)
                 in_error = tag.start
             elseif not got_text then -- non-RFC compliant server!
                 if tag.contents ~= "" then 
-                    table.insert(err[n], { name = "text", tag.contents })
+                    table.insert(err, {text= tag.contents})
                 end
                 in_error = false
             end
@@ -409,10 +397,10 @@ local scan = function(host, port, server_name, tls, n)
             if tag.name == "text" then
                 if tag.finish then
                     got_text = true
-                    table.insert(err[n], { name = "text", tag.contents })
+                    table.insert(err, {text= tag.contents})
                 end
             else
-                table.insert(err[n], tag.name)
+                table.insert(err, tag.name)
             end
         end
 
@@ -425,13 +413,22 @@ local scan = function(host, port, server_name, tls, n)
 
     if is_starttls then
         if tls_required then
-            table.insert(features_list[n], "TLS (required)")
+            table.insert(features_list, "TLS (required)")
         else
-            table.insert(features_list[n], "TLS")
+            table.insert(features_list, "TLS")
         end
     end
 
-    return stream_id
+    return {
+      stream_id=stream_id,
+      xmpp=t_xmpp,
+      features=features_list,
+      capabilities=caps,
+      compression_methods=methods,
+      auth_mechanisms=mechanisms,
+      errors=err,
+      unknown=unknown,
+    }
 end
 
 local server_info = function(host, port, id1, id2)
@@ -450,122 +447,108 @@ local server_info = function(host, port, id1, id2)
     end
 end
 
-local copy_table = function(to, from)
-    for _,f in pairs(from) do table.insert(to, f) end
-end
-
-
---Some stuff to transform two tables into one
-
-local cmp = function(a, b)
-    if type(a) == "table" then
-        return a['name'] == b['name'] and a[1] == b[1]
-    else
-        return a == b
-    end
-end
-
-local get_10_ = function(arr, s)
-    local r = {}
-    for _,f in ipairs(arr[1]) do
-        local seen = 0
-        for _,ff in ipairs(arr[2]) do
-            if cmp(f, ff) then seen = 1 end
+local factor = function( t1, t2 )
+  local both = stdnse.output_table()
+  local t1only = stdnse.output_table()
+  local t2only = stdnse.output_table()
+  --ordered key-value categories
+  for _, cat in ipairs({"xmpp", "capabilities"}) do
+    local both_c = stdnse.output_table()
+    local t1only_c = stdnse.output_table()
+    local t2only_c = stdnse.output_table()
+    local t1c = t1[cat]
+    local t2c = t2[cat]
+    for k,v in pairs(t1c) do
+      if t2c[k] then
+        if t2c[k] == v then
+          both_c[k] = v
+        else
+          t1only_c[k] = v
+          t2only_c[k] = t2c[k]
         end
-        if seen == s then table.insert(r, f) end
+      else
+        t1only_c[k] = v
+      end
     end
-    return r
-end
-local get_10 = function(arr) return get_10_(arr, 0) end
-local get_01 = function(arr) return get_10({ arr[2], arr[1] }) end
-local get_11 = function(arr) return get_10_(arr, 1) end
-local get_any = function(arr)
-    local tmp = {}
-    copy_table(tmp, arr[1])
-    local a01 = get_01(arr)
-    copy_table(tmp, a01)
-    return tmp
-end
-
-local format_el = function(el, comment)
-    if el['name'] then
-        return { name = el['name'] .. comment, el[1] }
-    else
-        return el .. comment
+    for k, v in pairs(t2c) do
+      if not t1c[k] then
+        t2only_c[k] = v
+      end
     end
-end
-
-local format_block_12 = function(t, name)
-    local t11 = get_11(t)
-    local t10 = get_10(t)
-    local t01 = get_01(t)
-    local r = { name = name }
-
-    if #t11 == 0 and #t10 == 0 and #t01 == 0 then return {} end
-
-    for _, el in ipairs(t11) do table.insert(r, el) end
-    for _, el in ipairs(t10) do table.insert(r, format_el(el, ' (before TLS stream)')) end
-    for _, el in ipairs(t01) do table.insert(r, format_el(el, ' (in TLS stream)')) end
-    return r
-end
-
-local format_block_1 = function(t, name)
-    local res = { name = name }
-    if #t[1] == 0 then return {} end
-    copy_table(res, t[1])
-    return res
+    both[cat] = (both_c() and both_c) or nil
+    t1only[cat] = (t1only_c() and t1only_c) or nil
+    t2only[cat] = (t2only_c() and t2only_c) or nil
+  end
+  --ordered list categories
+  for _, cat in ipairs({"features", "compression_methods", "auth_mechanisms", "errors", "unknown"}) do
+    local t1only_c = {}
+    local t2only_c = {}
+    local both_c = {}
+    local t1c = t1[cat]
+    local t2c = t2[cat]
+    local union = {}
+    for _, v in ipairs(t1c) do
+      union[v] = 1
+    end
+    for _, v in ipairs(t2c) do
+      if union[v] then
+        union[v] = 2
+      else
+        table.insert(t2only_c, v)
+      end
+    end
+    for v, num in pairs(union) do
+      if num == 1 then
+        table.insert(t1only_c, v)
+      else
+        table.insert(both_c, v)
+      end
+    end
+    both[cat] = (next(both_c) and both_c) or nil
+    t1only[cat] = (next(t1only_c) and t1only_c) or nil
+    t2only[cat] = (next(t2only_c) and t2only_c) or nil
+  end
+  return both, t1only, t2only
 end
 
 portrule = shortport.port_or_service({5222, 5269}, {"jabber", "xmpp-client", "xmpp-server"})
 action = function(host, port)
     local server_name = stdnse.get_script_args("xmpp-info.server_name") or host.targetname or host.name
     local alt_server_name = stdnse.get_script_args("xmpp-info.alt_server_name") or "."
-    local err_tmp = { {}, {} }
-    local id_tls
+    local tls_result
     local starttls_failed
 
     stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, "server = " .. server_name)
 
-    local id2 = scan(host, port, alt_server_name, false, 1)
-    copy_table(err_tmp[1], err[1])
+    local altname_result = scan(host, port, alt_server_name, false)
 
-    local id1 = scan(host, port, server_name, false, 1)
-    copy_table(err_tmp[2], err[1])
+    local plain_result = scan(host, port, server_name, false)
 
-    server_info(host, port, id1, id2)
+    server_info(host, port, altname_result["stream_id"], plain_result["stream_id"])
 
     if not stdnse.get_script_args("xmpp-info.no_starttls") then
-        id_tls = scan(host, port, server_name, true, 2)
-        if not id_tls then starttls_failed = 1 end
+        tls_result = scan(host, port, server_name, true)
+        if not tls_result then starttls_failed = 1 end
     end
 
 
-    local r = {}
+    local r = stdnse.output_table()
 
-    local format_block = format_block_12
-    if not id_tls then
-        format_block = format_block_1
+    if #altname_result["errors"] == 0 and #plain_result["errors"] == 0 then
+      table.insert(r, "Ignores server name")
+    elseif #altname_result["errors"] ~= #plain_result["errors"] then
+      table.insert(r, "Respects server name")
+    end
+
+    if not tls_result then
         if starttls_failed then table.insert(r, "STARTTLS Failed") end
+        r["info"] = plain_result
+    else
+      local i,p,t = factor(plain_result, tls_result)
+      r["info"] = (i() and i) or nil
+      r["pre_tls"] = (p() and p) or nil
+      r["post_tls"] = (t() and t) or nil
     end
 
-    table.insert(r, format_block(t_xmpp, "XMPP"))
-    table.insert(r, format_block(features_list, "features"))
-    table.insert(r, format_block(caps, "capabilities"))
-    table.insert(r, format_block(methods, "COMPRESSION METHODS (" .. #(get_any(methods)) .. ")"))
-    table.insert(r, format_block(mechanisms, "AUTH MECHANISMS (" .. #get_any(mechanisms) .. ")"))
-    table.insert(r, format_block(err, "errors"))
-
-    local l = { name = 'Unknown features (please report about it on nmap-dev@)' }
-    copy_table(l, unknown)
-    table.insert(r, l)
-
-    if #err_tmp[1] == 0 or #err_tmp[2] == 0 then
-        if (#err_tmp[1] > 0) ~= (#err_tmp[2] > 0) then
-            table.insert(r, "Respects server name")
-        else
-            table.insert(r, "Ignores server name")
-        end
-    end
-
-    return stdnse.format_output(true, r)
+    return r
 end
