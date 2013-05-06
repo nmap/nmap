@@ -84,11 +84,12 @@ local function checkRedis(host, port)
 	end
 	
 	if ( redis.Response.Type.ERROR == response.type ) then
-		if ( "-ERR operation not permitted" == response.data ) then
+		if ( "-ERR operation not permitted" == response.data ) or
+		   ( "-NOAUTH Authentication required." == response.data) then
 			return true
 		end
 	end
-	
+
 	return false, "Server does not require authentication"
 end
 
