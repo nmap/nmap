@@ -200,6 +200,25 @@ udp 10080
   "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
   "SERVICE noop\n"
 
+# VxWorks Wind River Debugger
+udp 17185
+# Random XID
+"\x00\x00\x00\x00"
+# RPC version 2 procedure call
+"\x00\x00\x00\x00\x00\x00\x00\x02"
+# WDB version 1
+"\x55\x55\x55\x55\x00\x00\x00\x01"
+# WDB_TARGET_PING
+"\x00\x00\x00\x00"
+# RPC Auth NULL
+"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+# Checksum
+"\xff\xff\x55\x13"
+# WDB wrapper (length and sequence number)
+"\x00\x00\x00\x30\x00\x00\x00\x01"
+# Empty data?
+"\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00"
+
 # Quake 2 and Quake 3 game servers (and servers of derived games like Nexuiz).
 # Gets game information from the server (see probe responses in
 # nmap-service-probes). These services typically run on a base port or a
