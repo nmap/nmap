@@ -18,6 +18,7 @@ local error = error;
 local getmetatable = getmetatable;
 local ipairs = ipairs
 local pairs = pairs
+local next = next
 local rawset = rawset
 local require = require;
 local select = select
@@ -1131,7 +1132,7 @@ function output_table ()
   end
   local mt = {
     __newindex = function (_, k, v)
-      if t[k] == nil then
+      if t[k] == nil and v ~= nil then
         -- New key?
         table.insert(order, k)
       elseif v == nil then
@@ -1151,6 +1152,9 @@ function output_table ()
     __pairs = function (_)
       return coroutine.wrap(iterator)
     end,
+    __call = function (_) -- hack to mean "not_empty?"
+      return not not next(order)
+    end
   }
   return setmetatable({}, mt)
 end
