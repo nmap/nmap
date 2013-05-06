@@ -86,7 +86,8 @@ action = function(host, port)
 	helper:close()
 
 	if ( redis.Response.Type.ERROR == response.type ) then
-		if ( "-ERR operation not permitted" == response.data ) then
+		if ( "-ERR operation not permitted" == response.data ) or
+		   ( "-NOAUTH Authentication required." == response.data ) then
 			return fail("Authentication required")
 		end
 		return fail(response.data)
@@ -100,7 +101,9 @@ action = function(host, port)
 	local kvs = {}
 	for _, item in ipairs(restab) do
 		local k, v = item:match("^([^:]*):(.*)$")
-		kvs[k] = v
+		if k ~= nil then
+			kvs[k] = v
+		end
 	end
 	
 	local result = tab.new(2)
