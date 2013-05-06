@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Updated redis-brute.nse and redis-info.nse to work against
+  the latest versions of redis server. [Henri Doreau]
+
 o [Ncat] Fixed errors in conneting to IPv6 proxies. [Joachim Henke]
 
 o Added a service probe for Minecraft servers. [Eric Davisson]
