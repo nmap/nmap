@@ -1,0 +1,27 @@
+[DESIGN]
+o Give IODs their own methods to streamline the code and get rid of all
+  the special cases in nsock_core.c. This would also make it easier to
+  hook operations (typically: override the default iod_connect() method
+  to establish a proxy chain).
+o Fix the read API
+o Rework the filespace code to avoid unneeded data copy. Scatter/gather
+  I/O might be useful there.
+o The numerous free-lists (one per gh_list, plus others) of a nsock_pool
+  should be shared. Actually, More efficient data structures in nsock
+  could also simply make them unneeded.
+  !! Do detailed profiling before starting any work on the last two
+  points.
+
+[PROXY SUPPORT]
+o Proper SSL support
+o Authentication
+o Handle socks4a
+  - This requires to figure out how to trigger proxy code without
+    resolving target hostname first. The problem is that the proxy code
+    is supposed to be a transparent hook of connect()... Extending the
+    exported API will probably be needed :(
+  - Async hostname resolution available from within nsock would let us
+    try clever tricks... I'm not sure whether nsock should provide it
+    or if it should simply provide an API to plug an external system.
+o Socks5 support
+o Some code is copied from ncat. I should move it to nbase.
