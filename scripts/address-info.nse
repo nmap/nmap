@@ -27,38 +27,87 @@ definitions of some terms.
 -- @output
 -- Nmap scan report for ::1.2.3.4
 -- Host script results:
--- |_address-info: IPv4-compatible; IPv4 address: 1.2.3.4
---
+-- | address-info: 
+-- |   IPv4-compatible: 
+-- |_    IPv4 address: 1.2.3.4
+-- 
 -- Nmap scan report for ::ffff:1.2.3.4
 -- Host script results:
--- |_address-info: IPv4-mapped; IPv4 address: 1.2.3.4
---
+-- | address-info: 
+-- |   IPv4-mapped: 
+-- |_    IPv4 address: 1.2.3.4
+-- 
 -- Nmap scan report for 2001:0:506:708:282a:3d75:fefd:fcfb
 -- Host script results:
--- | address-info: Teredo;
--- |   Server IPv4 address: 5.6.7.8
--- |   Client IPv4 address: 1.2.3.4
--- |_  UDP port: 49802
---
+-- | address-info: 
+-- |   Teredo: 
+-- |     Server IPv4 address: 5.6.7.8
+-- |     Client IPv4 address: 1.2.3.4
+-- |_    UDP port: 49802
+-- 
 -- Nmap scan report for 2002:102:304::1
 -- Host script results:
--- |_address-info: 6to4; IPv4 address: 1.2.3.4
---
+-- | address-info: 
+-- |   6to4: 
+-- |_    IPv4 address: 1.2.3.4
+-- 
 -- Nmap scan report for fe80::a8bb:ccff:fedd:eeff
 -- Host script results:
--- |_address-info: IPv6 EUI-64; MAC address: aa:bb:cc:dd:ee:ff (Unknown)
---
+-- | address-info: 
+-- |   IPv6 EUI-64: 
+-- |     MAC address: 
+-- |       address: aa:bb:cc:dd:ee:ff
+-- |_      manuf: Unknown
+-- 
 -- Nmap scan report for 64:ff9b::c000:221
 -- Host script results:
--- |_address-info: IPv4-embedded IPv6 address; IPv4 address: 192.0.2.33
---
+-- | address-info: 
+-- |   IPv4-embedded IPv6 address: 
+-- |_    IPv4 address: 192.0.2.33
+-- 
 -- Nmap scan report for ::ffff:0:c0a8:101
 -- Host script results:
--- |_address-info: IPv4-translated IPv6 address; IPv4 address: 192.168.1.1
---
+-- | address-info: 
+-- |   IPv4-translated IPv6 address: 
+-- |_    IPv4 address: 192.168.1.1
 
 -- * ISATAP. RFC 5214.
 --   XXXX:XXXX:XXXX:XX00:0000:5EFE:a.b.c.d
+
+---
+--@xmloutput
+-- <table key="IPv4-mapped">
+--   <elem key="IPv4 address">1.2.3.4</elem>
+-- </table>
+--
+-- <table key="IPv4-compatible">
+--   <elem key="IPv4 address">1.2.3.4</elem>
+-- </table>
+--
+-- <table key="Teredo">
+--   <elem key="Server IPv4 address">5.6.7.8</elem>
+--   <elem key="Client IPv4 address">1.2.3.4</elem>
+--   <elem key="UDP port">49802</elem>
+-- </table>
+--
+-- <table key="6to4">
+--   <elem key="IPv4 address">1.2.3.4</elem>
+-- </table>
+--
+-- <table key="IPv6 EUI-64">
+--   <table key="MAC address">
+--     <elem key="address">aa:bb:cc:dd:ee:ff</elem>
+--     <elem key="manuf">Unknown</elem>
+--   </table>
+-- </table>
+--
+-- <table key="IPv4-embedded IPv6 address">
+--   <elem key="IPv4 address">192.0.2.33</elem>
+-- </table>
+--
+-- <table key="IPv4-translated IPv6 address">
+--   <elem key="IPv4 address">192.168.1.1</elem>
+-- </table>
 
 author = "David Fifield"
 
@@ -114,7 +163,10 @@ local function format_mac(mac)
 		octets[#octets + 1] = string.format("%02x", v)
 	end
 
-	return stdnse.strjoin(":", octets) .. " (" .. get_manuf(mac) .. ")"
+  local out = stdnse.output_table()
+  out.address = stdnse.strjoin(":", octets)
+  out.manuf = get_manuf(mac)
+	return out
 end
 
 local function format_ipv4(ipv4)
@@ -139,42 +191,21 @@ local function decode_eui_64(eui_64)
 	end
 end
 
-local function format_output(label, lines)
-	local output
-
-	output = ""
-	if #lines == 0 then
-		return label
-	elseif #lines == 1 then
-		if label then
-			output = output .. label .. "; "
-		end
-		return output .. lines[1]
-	else
-		if label then
-			output = output .. label .. ";"
-		end
-		return output .. "\n  " .. stdnse.strjoin("\n  ", lines)
-	end
-end
-
 local function do_ipv6(addr)
 	local label
 	local output
 
-	output = {}
+	output = stdnse.output_table()
 
 	if matches(addr, "0000:0000:0000:0000:0000:0000:XXXX:XXXX")
 		and not matches(addr, "0000:0000:0000:0000:0000:0000:0000:0001") then
 		-- RFC 4291 2.5.5.1. Specifically exclude ::1 for localhost.
 		local ipv4 = { addr[13], addr[14], addr[15], addr[16] }
-		return format_output("IPv4-compatible",
-			{ "IPv4 address: " .. format_ipv4(ipv4) })
+		return {["IPv4-compatible"]= { ["IPv4 address"] = format_ipv4(ipv4) } }
 	elseif matches(addr, "0000:0000:0000:0000:0000:ffff:XXXX:XXXX") then
 		-- RFC 4291 2.5.5.2.
 		local ipv4 = { addr[13], addr[14], addr[15], addr[16] }
-		return format_output("IPv4-mapped",
-			{ "IPv4 address: " .. format_ipv4(ipv4) })
+		return {["IPv4-mapped"]= { ["IPv4 address"] = format_ipv4(ipv4) } }
 	elseif matches(addr, "2001:0000:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX") then
 		-- Teredo, RFC 4380.
 		local server_ipv4 = { addr[5], addr[6], addr[7], addr[8] }
@@ -193,43 +224,43 @@ local function do_ipv6(addr)
 			client_ipv4[#client_ipv4 + 1] = bit.bxor(octet, 0xff)
 		end
 
-		output[#output + 1] = "Server IPv4 address: " .. format_ipv4(server_ipv4)
-		output[#output + 1] = "Client IPv4 address: " .. format_ipv4(client_ipv4)
-		output[#output + 1] = "UDP port: " .. tostring(port)
+		output["Server IPv4 address"] = format_ipv4(server_ipv4)
+		output["Client IPv4 address"] = format_ipv4(client_ipv4)
+		output["UDP port"] = tostring(port)
 
-		return format_output("Teredo", output)
+		return {["Teredo"] = output}
 	elseif matches(addr, "0064:ff9b:XXXX:XXXX:00XX:XXXX:XXXX:XXXX") then
 		--IPv4-embedded IPv6 addresses. RFC 6052, Section 2
 
 		--skip addr[9]
 		if matches(addr,"0064:ff9b:0000:0000:0000:0000:XXXX:XXXX") then
 			local ipv4 = {addr[13], addr[14], addr[15], addr[16]}
-			return format_output("IPv4-embedded IPv6 address",{"IPv4 address: "..format_ipv4(ipv4)})
+			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		elseif addr[5] ~= 0x01 then
 			local ipv4 = {addr[5], addr[6], addr[7], addr[8]}
-			return format_output("IPv4-embedded IPv6 address",{"IPv4 address: "..format_ipv4(ipv4)})
+			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		elseif addr[6] ~= 0x22 then
 			local ipv4 = {addr[6], addr[7], addr[8], addr[10]}
-			return format_output("IPv4-embedded IPv6 address",{"IPv4 address: "..format_ipv4(ipv4)})
+			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		elseif addr[7] ~= 0x03 then
 			local ipv4 = {addr[7], addr[8], addr[10], addr[11]}
-			return format_output("IPv4-embedded IPv6 address",{"IPv4 address: "..format_ipv4(ipv4)})
+			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		elseif addr[8] ~= 0x44 then
 			local ipv4 = {addr[8], addr[10], addr[11], addr[12]}
-			return format_output("IPv4-embedded IPv6 address",{"IPv4 address: "..format_ipv4(ipv4)})
+			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		elseif addr[10] == 0x00 and addr[11] == 0x00 and addr[12] == 0x00 then
 			local ipv4 = {addr[13], addr[14], addr[15], addr[16]}
-			return format_output("IPv4-embedded IPv6 address",{"IPv4 address: "..format_ipv4(ipv4)})
+			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		end
 	elseif matches(addr, "0000:0000:0000:0000:ffff:0000:XXXX:XXXX") then
 		-- IPv4-translated IPv6 addresses. RFC 2765, Section 2.1 
-		return format_output("IPv4-translated IPv6 address", 
-			{"IPv4 address: "..format_ipv4( {addr[13], addr[14], addr[15], addr[16]})})
+		return {["IPv4-translated IPv6 address"]= 
+			{["IPv4 address"] = format_ipv4( {addr[13], addr[14], addr[15], addr[16]})}}
 	elseif matches(addr, "XXXX:XXXX:XXXX:XX00:0000:5efe:XXXX:XXXX") then
 		-- ISATAP. RFC 5214, Appendix A
 		-- XXXX:XXXX:XXXX:XX00:0000:5EFE:a.b.c.d
-		return format_output("ISATAP Modified EUI-64 IPv6 Address", 
-			{"IPv4 address: "..format_ipv4( {addr[13], addr[14], addr[15], addr[16]})})
+		return {["ISATAP Modified EUI-64 IPv6 Address"]=
+			{["IPv4 address"] = format_ipv4( {addr[13], addr[14], addr[15], addr[16]})}}
 	end
 
 	-- These following use common handling for the Interface ID part
@@ -242,19 +273,19 @@ local function do_ipv6(addr)
 			addr[13], addr[14], addr[15], addr[16] })
 
 		label = "6to4"
-		output[#output + 1] = "IPv4 address: " .. format_ipv4(ipv4)
+		output["IPv4 address"] = format_ipv4(ipv4)
 	end
 
 	local mac = decode_eui_64({ addr[9], addr[10], addr[11], addr[12],
 		addr[13], addr[14], addr[15], addr[16] })
 	if mac then
-		output[#output + 1] = "MAC address: " .. format_mac(mac)
+		output["MAC address"] = format_mac(mac)
 		if not label then
 			label = "IPv6 EUI-64"
 		end
 	end
 
-	return format_output(label, output)
+	return {[label]= output}
 end
 
 action = function(host)
