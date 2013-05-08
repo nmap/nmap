@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Added a minimal regression test suite for nsock. [Henri Doreau]
+
 o [NSE] Updated redis-brute.nse and redis-info.nse to work against
   the latest versions of redis server. [Henri Doreau]
 
