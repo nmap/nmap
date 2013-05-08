@@ -164,15 +164,15 @@ static int log_check_err_levels(void *tdata) {
 
 
 const struct test_case TestLogLevels = {
-    .t_name     = "set standard log levels",
-    .t_setup    = log_setup,
-    .t_run      = log_check_std_levels,
-    .t_teardown = log_teardown
+  .t_name     = "set standard log levels",
+  .t_setup    = log_setup,
+  .t_run      = log_check_std_levels,
+  .t_teardown = log_teardown
 };
 
 const struct test_case TestErrLevels = {
-    .t_name     = "check error log levels",
-    .t_setup    = log_setup,
-    .t_run      = log_check_err_levels,
-    .t_teardown = log_teardown
+  .t_name     = "check error log levels",
+  .t_setup    = log_setup,
+  .t_run      = log_check_err_levels,
+  .t_teardown = log_teardown
 };

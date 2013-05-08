@@ -43,10 +43,10 @@ static int basic_udata(void *tdata) {
 }
 
 const struct test_case TestPoolUserData = {
-    .t_name     = "nsock pool user data",
-    .t_setup    = basic_setup,
-    .t_run      = basic_udata,
-    .t_teardown = basic_teardown
+  .t_name     = "nsock pool user data",
+  .t_setup    = basic_setup,
+  .t_run      = basic_udata,
+  .t_teardown = basic_teardown
 };
 
 
