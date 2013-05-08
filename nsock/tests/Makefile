@@ -13,7 +13,8 @@ LDFLAGS	= -lssl -lpcap -lcrypto
 
 SRC = tests_main.c \
       basic.c \
-      timer.c
+      timer.c \
+      logs.c
 
 OBJ = $(SRC:.c=.o)
 
