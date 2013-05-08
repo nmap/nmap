@@ -121,9 +121,9 @@ static int timer_totalmess(void *tdata) {
 }
 
 const struct test_case TestTimer = {
-    .t_name     = "test timer operations",
-    .t_setup    = timer_setup,
-    .t_run      = timer_totalmess,
-    .t_teardown = timer_teardown
+  .t_name     = "test timer operations",
+  .t_setup    = timer_setup,
+  .t_run      = timer_totalmess,
+  .t_teardown = timer_teardown
 };
 
