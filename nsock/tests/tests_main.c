@@ -17,6 +17,8 @@
 
 extern const struct test_case TestPoolUserData;
 extern const struct test_case TestTimer;
+extern const struct test_case TestLogLevels;
+extern const struct test_case TestErrLevels;
 
 
 static const struct test_case *TestCases[] = {
@@ -24,6 +26,9 @@ static const struct test_case *TestCases[] = {
   &TestPoolUserData,
   /* ---- timer.c */
   &TestTimer,
+  /* ---- logs.c */
+  &TestLogLevels,
+  &TestErrLevels,
   NULL
 };
 
