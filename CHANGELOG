@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-coldfusion-subzero. It detects Coldfusion 9 and 10
+  vulnerable to a local file inclusion vulnerability and grabs the 
+  version, install path and the administrator credentials. [Paulino Calderon]
+
 o [Nsock] Added a minimal regression test suite for nsock. [Henri Doreau]
 
 o [NSE] Updated redis-brute.nse and redis-info.nse to work against
