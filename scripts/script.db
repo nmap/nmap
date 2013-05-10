@@ -140,6 +140,7 @@ Entry { filename = "http-barracuda-dir-traversal.nse", categories = { "auth", "e
 Entry { filename = "http-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-cakephp-version.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-chrono.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-coldfusion-subzero.nse", categories = { "exploit", } }
 Entry { filename = "http-config-backup.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
