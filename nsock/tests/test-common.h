@@ -16,6 +16,11 @@
 #include <nsock.h>
 
 
+#define PORT_UDP    55234
+#define PORT_TCP    55235
+#define PORT_TCPSSL 55236
+
+
 #define __ASSERT_BASE(stmt)    do { \
         if (!(stmt)) { \
             fprintf(stderr, "(%s:%d) Assertion failed: " #stmt "\n", \
