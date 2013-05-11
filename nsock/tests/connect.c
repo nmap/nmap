@@ -21,7 +21,24 @@ static void connect_handler(nsock_pool nsp, nsock_event nse, void *udata) {
   struct connect_test_data *ctd;
 
   ctd = (struct connect_test_data *)nsp_getud(nsp);
-  ctd->connect_result = nse_status(nse);
+
+  switch(nse_status(nse)) {
+    case NSE_STATUS_SUCCESS:
+      ctd->connect_result = 0;
+      break;
+
+    case NSE_STATUS_ERROR:
+      ctd->connect_result = -(nse_errorcode(nse));
+      break;
+
+    case NSE_STATUS_TIMEOUT:
+      ctd->connect_result = -ETIMEDOUT;
+      break;
+
+    default:
+      ctd->connect_result = -EINVAL;
+      break;
+  }
 }
 
 static int connect_setup(void **tdata) {
@@ -64,8 +81,7 @@ static int connect_tcp(void *tdata) {
                     (struct sockaddr *)&peer, sizeof(peer), PORT_TCP);
 
   nsock_loop(ctd->nsp, 4000);
-  AssertEqual(ctd->connect_result, NSE_STATUS_SUCCESS);
-  return 0;
+  return ctd->connect_result;
 }
 
 
