@@ -1,0 +1,5 @@
+Little regression test suite for nsock.
+
+Usage:
+  $ make
+  $ sh ./run_tests.sh
