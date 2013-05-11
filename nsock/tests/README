@@ -1,4 +1,4 @@
-Little regression test suite for nsock.
+Minimal regression test suite for nsock.
 
 Usage:
   $ make
