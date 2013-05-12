@@ -809,23 +809,31 @@ void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status) {
   msiod *iod = nse->iod;
   mspcap *mp = (mspcap *)iod->pcap;
 
-  if (status == NSE_STATUS_TIMEOUT) {
-    nse->status = NSE_STATUS_TIMEOUT;
-    nse->event_done = 1;
-  } else if (status == NSE_STATUS_CANCELLED) {
-    nse->status = NSE_STATUS_CANCELLED;
-    nse->event_done = 1;
-  } else if (status == NSE_STATUS_SUCCESS) {
-    /* check if we already have something read */
-    if (fs_length(&(nse->iobuf)) == 0) {
+  switch(status) {
+    case NSE_STATUS_TIMEOUT:
       nse->status = NSE_STATUS_TIMEOUT;
-      nse->event_done = 0;
-    } else {
-      nse->status = NSE_STATUS_SUCCESS; /* we have full buffer */
       nse->event_done = 1;
-    }
-  } else {
-    assert(0); /* Currently we only know about TIMEOUT, CANCELLED, and SUCCESS callbacks */
+      break;
+
+    case NSE_STATUS_CANCELLED:
+      nse->status = NSE_STATUS_CANCELLED;
+      nse->event_done = 1;
+      break;
+
+    case NSE_STATUS_SUCCESS:
+      /* check if we already have something read */
+      if (fs_length(&(nse->iobuf)) == 0) {
+        nse->status = NSE_STATUS_TIMEOUT;
+        nse->event_done = 0;
+      } else {
+        nse->status = NSE_STATUS_SUCCESS; /* we have full buffer */
+        nse->event_done = 1;
+      }
+      break;
+
+    default:
+      /* Currently we only know about TIMEOUT, CANCELLED, and SUCCESS callbacks */
+      assert(0);
   }
 
   /* If there are no more read events, we are done reading on the socket so we
