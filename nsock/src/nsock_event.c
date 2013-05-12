@@ -141,7 +141,7 @@ static void first_ev_next(msevent *nse, gh_list_elem **first) {
 }
 
 void update_first_events(msevent *nse) {
-  switch(get_event_id_type(nse->id)) {
+  switch (get_event_id_type(nse->id)) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       first_ev_next(nse, &nse->iod->first_connect);
@@ -191,7 +191,7 @@ int nsock_event_cancel(nsock_pool ms_pool, nsock_event_id id, int notify) {
   nsock_log_info(nsp, "Event #%li (type %s) cancelled", id, nse_type2str(type));
 
   /* First we figure out what list it is in */
-  switch(type) {
+  switch (type) {
     case NSE_TYPE_CONNECT:
       event_list = &nsp->connect_events;
       break;
@@ -261,7 +261,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
 
   /* Now that we found the event... we go through the motions of cleanly
    * cancelling it */
-  switch(nse->type) {
+  switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       handle_connect_result(nsp, nse, NSE_STATUS_CANCELLED);
@@ -477,7 +477,7 @@ void msevent_delete(mspool *nsp, msevent *nse) {
 /* Takes an nse_type (as returned by nse_type() and returns a static string name
  * that you can use for printing, etc. */
 const char *nse_type2str(enum nse_type type) {
-  switch(type) {
+  switch (type) {
     case NSE_TYPE_CONNECT: return "CONNECT";
     case NSE_TYPE_CONNECT_SSL: return "SSL-CONNECT";
     case NSE_TYPE_READ: return "READ";
@@ -492,7 +492,7 @@ const char *nse_type2str(enum nse_type type) {
 /* Takes an nse_status (as returned by nse_status() and returns a static string
  * name that you can use for printing, etc. */
 const char *nse_status2str(enum nse_status status) {
-  switch(status) {
+  switch (status) {
     case NSE_STATUS_NONE: return "NONE";
     case NSE_STATUS_SUCCESS: return "SUCCESS";
     case NSE_STATUS_ERROR: return "ERROR";
