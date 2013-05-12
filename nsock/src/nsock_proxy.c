@@ -80,7 +80,7 @@ extern const struct proxy_spec ProxySpecHttp;
 extern const struct proxy_spec ProxySpecSocks4;
 
 
-const static struct proxy_spec *ProxyBackends[] = {
+static const struct proxy_spec *ProxyBackends[] = {
   &ProxySpecHttp,
   &ProxySpecSocks4,
   NULL
