@@ -786,9 +786,9 @@ local function get_chosen_scripts (rules)
       elseif t == "directory" then
         for f in lfs.dir(path) do
           local file = path .."/".. f
-          if find(f, "%.nse$") and not files_loaded[file] then
+          if find(file, "%.nse$") and not files_loaded[file] then
             script_params.selection = "directory";
-            local script = Script.new(path, script_params);
+            local script = Script.new(file, script_params);
             chosen_scripts[#chosen_scripts+1] = script;
             files_loaded[file] = true;
           end
