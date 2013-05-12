@@ -276,7 +276,7 @@ int nsock_pcap_get_l3_offset(pcap_t *pt, int *dl) {
 
   /* XXX NOTE:
    * if a new offset ever exceeds the current max (24), adjust MAX_LINK_HEADERSZ in libnetutil/netutil.h */
-  switch(datalink) {
+  switch (datalink) {
     case DLT_EN10MB: offset = 14; break;
     case DLT_IEEE802: offset = 22; break;
     #ifdef __amigaos__
@@ -372,7 +372,7 @@ int do_actual_pcap_read(msevent *nse) {
   assert(fs_length(&(nse->iobuf)) == 0);
 
   rc = pcap_next_ex(mp->pt, &pkt_header, &pkt_data);
-  switch(rc) {
+  switch (rc) {
     case 1: /* read good packet  */
       #ifdef PCAP_RECV_TIMEVAL_VALID
       npp.ts     = pkt_header->ts;

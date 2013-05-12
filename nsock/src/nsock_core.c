@@ -223,7 +223,7 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
  * loop just after its addition.
  */
 static int iod_add_event(msiod *iod, msevent *nse) {
-  switch(nse->type) {
+  switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       if (iod->first_connect)
@@ -334,7 +334,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
     if (getsockopt(iod->sd, SOL_SOCKET, SO_ERROR, (char *)&optval, &optlen) != 0)
       optval = socket_errno(); /* Stupid Solaris */
 
-    switch(optval) {
+    switch (optval) {
       case 0:
         nse->status = NSE_STATUS_SUCCESS;
         break;
@@ -750,7 +750,7 @@ void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
     if (rc > 0) {
       nse->iod->read_count += rc;
       /* We decide whether we have read enough to return */
-      switch(nse->readinfo.read_type) {
+      switch (nse->readinfo.read_type) {
         case NSOCK_READ:
           nse->status = NSE_STATUS_SUCCESS;
           nse->event_done = 1;
@@ -809,7 +809,7 @@ void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status) {
   msiod *iod = nse->iod;
   mspcap *mp = (mspcap *)iod->pcap;
 
-  switch(status) {
+  switch (status) {
     case NSE_STATUS_TIMEOUT:
       nse->status = NSE_STATUS_TIMEOUT;
       nse->event_done = 1;
@@ -942,7 +942,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
   nsock_log_debug_all(nsp, "Processing event %lu", nse->id);
 
   if (!nse->event_done) {
-    switch(nse->type) {
+    switch (nse->type) {
       case NSE_TYPE_CONNECT:
       case NSE_TYPE_CONNECT_SSL:
         if (ev != EV_NONE)
@@ -1157,7 +1157,7 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
   nsp->events_pending++;
 
   /* Now we do the event type specific actions */
-  switch(nse->type) {
+  switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       if (!nse->event_done) {
@@ -1253,7 +1253,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
     errstr[0] = '\0';
 
   /* Some types have special tracing treatment */
-  switch(nse->type) {
+  switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
