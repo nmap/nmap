@@ -419,6 +419,8 @@ static inline int nsock_engine_loop(mspool *nsp, int msec_timeout) {
 
 /* ------------------- PROTOTYPES ------------------- */
 
+int msevent_timedout(msevent *nse);
+
 /* Get a new nsock_event_id, given a type */
 nsock_event_id get_new_event_id(mspool *nsp, enum nse_type type);
 

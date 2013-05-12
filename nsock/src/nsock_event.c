@@ -506,3 +506,9 @@ const char *nse_status2str(enum nse_status status) {
   }
 }
 
+int msevent_timedout(msevent *nse) {
+  if (nse->event_done)
+    return 0;
+
+  return (nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod));
+}
