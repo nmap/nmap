@@ -939,7 +939,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
       case NSE_TYPE_CONNECT_SSL:
         if (ev != EV_NONE)
           handle_connect_result(nsp, nse, NSE_STATUS_SUCCESS);
-        if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+        if (msevent_timedout(nse))
           handle_connect_result(nsp, nse, NSE_STATUS_TIMEOUT);
         break;
 
@@ -956,7 +956,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
         if (!nse->iod->ssl && match_r)
           handle_read_result(nsp, nse, NSE_STATUS_SUCCESS);
 
-        if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+        if (msevent_timedout(nse))
           handle_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
         break;
 
@@ -973,12 +973,12 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
           if (!nse->iod->ssl && match_w)
             handle_write_result(nsp, nse, NSE_STATUS_SUCCESS);
 
-          if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+          if (msevent_timedout(nse))
             handle_write_result(nsp, nse, NSE_STATUS_TIMEOUT);
           break;
 
       case NSE_TYPE_TIMER:
-        if (nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+        if (msevent_timedout(nse))
           handle_timer_result(nsp, nse, NSE_STATUS_SUCCESS);
         break;
 
@@ -996,7 +996,7 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
         if (fs_length(&(nse->iobuf)) > 0)
           handle_pcap_read_result(nsp, nse, NSE_STATUS_SUCCESS);
 
-        if (!nse->event_done && nse->timeout.tv_sec && !TIMEVAL_AFTER(nse->timeout, nsock_tod))
+        if (msevent_timedout(nse))
           handle_pcap_read_result(nsp, nse, NSE_STATUS_TIMEOUT);
 
         #if PCAP_BSD_SELECT_HACK
