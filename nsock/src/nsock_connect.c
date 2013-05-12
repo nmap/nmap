@@ -91,31 +91,32 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
     rc = setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
     if (rc == -1)
       nsock_log_error(ms, "Setting of SO_REUSEADDR failed (#%li): %s", iod->id,
-                      strerror(errno));
+                      socket_strerror(socket_errno()));
 
     nsock_log_info(ms, "Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
     rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
     if (rc == -1) {
       nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s",
-                      get_localaddr_string(iod), iod->id, strerror(errno));
+                      get_localaddr_string(iod), iod->id,
+                      socket_strerror(socket_errno()));
     }
   }
   if (iod->ipoptslen && family == AF_INET) {
     rc = setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts,
                     iod->ipoptslen);
     if (rc == -1)
-      nsock_log_error(ms, "Setting of IP options failed (IOD #%li): %s", iod->id,
-                      strerror(errno));
+      nsock_log_error(ms, "Setting of IP options failed (IOD #%li): %s",
+                      iod->id, socket_strerror(socket_errno()));
   }
   if (ms->device) {
     errno = 0;
     if (!socket_bindtodevice(iod->sd, ms->device)) {
       if (errno != EPERM)
         nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s",
-                        iod->id, strerror(errno));
+                        iod->id, socket_strerror(socket_errno()));
       else
         nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s",
-                            iod->id, strerror(errno));
+                            iod->id, socket_strerror(socket_errno()));
     }
   }
   if (ms->broadcast) {
@@ -123,7 +124,7 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
                     (const char *)&(ms->broadcast), sizeof(int));
     if (rc == -1)
       nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li): %s",
-                      iod->id, strerror(errno));
+                      iod->id, socket_strerror(socket_errno()));
   }
   return iod->sd;
 }
