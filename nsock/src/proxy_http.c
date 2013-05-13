@@ -67,8 +67,7 @@
 
 
 extern struct timeval nsock_tod;
-
-const struct proxy_spec ProxySpecHttp;
+extern const struct proxy_spec ProxySpecHttp;
 
 
 static int proxy_http_node_new(struct proxy_node **node, const struct uri *uri) {
