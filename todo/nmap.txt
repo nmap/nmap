@@ -66,6 +66,16 @@ o NSE digest auth should use the more robust parsing from
   http.parse_www_authenticate as described at
   http://seclists.org/nmap-dev/2012/q3/868
  
+o Treat the input to the escape function in xml.cc as UTF-8, not just
+  ASCII. Good UTF-8 should survive into the output; i.e., "\xe2\x98\xbb"
+  should become "\xe2\x98\xbb" in the output, not "&#xe2;&#x98;&#xbb;".
+  If the input happens not to be UTF-8, (like the file name in
+  http://seclists.org/nmap-dev/2013/q1/180), I suppose we can
+  individually encode each byte of each invalid sequence: "\xba\xda\xbf"
+  becomes "&#xba;&#xda;&#xbf;". Can probably do this with simple
+  byte->rune and rune->byte functions as in
+  http://plan9.bell-labs.com/sys/doc/utf.html.
+
 o We should probably redo the Nmap header (e.g. on http://nmap.org) to
   make it more attractive.  Or, at a minimum we should update the
   screenshots and think about which links we really need (some of those
