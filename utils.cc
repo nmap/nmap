@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * utils.cc -- Various miscellaneous utility functions which defy          *
  * categorization :)                                                       *
@@ -98,57 +97,56 @@
 
 extern NmapOps o;
 
-
-
-/* Test a wildcard mask against a test string. Wildcard mask
- * can include '*' and '?' which work the same as they do
- * in /bin/sh (except it's case insensitive)
- * Return val of 1 means it DID match. 0 means it DIDN'T
- * - Doug Hoyte, 2005
- */
-
+/* Test a wildcard mask against a test string. Wildcard mask can include '*' and
+   '?' which work the same as they do in /bin/sh (except it's case insensitive).
+   Return val of 1 means it DID match. 0 means it DIDN'T. - Doug Hoyte, 2005 */
 int wildtest(char *wild, char *test) {
-
   int i;
 
-  while(*wild != '\0'  ||  *test != '\0') {
+  while (*wild != '\0'  ||  *test != '\0') {
     if (*wild == '*') {
-
       /* --- Deal with multiple asterisks. --- */
-      while (wild[1] == '*') wild++;
+      while (wild[1] == '*')
+        wild++;
 
       /* --- Deal with terminating asterisks. --- */
-      if (wild[1] == '\0') return 1;
+      if (wild[1] == '\0')
+        return 1;
 
-      for(i=0; test[i]!='\0'; i++)
+      for (i = 0; test[i] != '\0'; i++) {
         if ((tolower((int) (unsigned char) wild[1]) == tolower((int) (unsigned char) test[i]) || wild[1] == '?')
-            &&  wildtest(wild+1, test+i) == 1) return 1;
+            && wildtest(wild + 1, test + i) == 1) {
+          return 1;
+        }
+      }
 
       return 0;
     }
 
     /* --- '?' can't match '\0'. --- */
-    if (*wild == '?' && *test == '\0') return 0;
+    if (*wild == '?' && *test == '\0')
+      return 0;
 
-    if (*wild != '?' && tolower((int) (unsigned char) *wild) != tolower((int) (unsigned char) *test)) return 0;
-    wild++; test++;
+    if (*wild != '?' && tolower((int) (unsigned char) *wild) != tolower((int) (unsigned char) *test))
+      return 0;
+    wild++;
+    test++;
   }
 
-  if (tolower((int) (unsigned char) *wild) == tolower((int) (unsigned char) *test)) return 1;
-  return 0;
-
+  return tolower((int) (unsigned char) *wild) == tolower((int) (unsigned char) *test);
 }
 
-/* Wrapper for nbase function hexdump() */
-void nmap_hexdump(unsigned char *cp, unsigned int length){
+/* Wrapper for nbase function hexdump. */
+void nmap_hexdump(unsigned char *cp, unsigned int length) {
+  char *string = NULL;
 
- char *string=NULL;
- string = hexdump((u8*)cp, length);
- if(string){
+  string = hexdump((u8*) cp, length);
+  if (string) {
     log_write(LOG_PLAIN, "%s", string);
     free(string);
- }
- return;
+  }
+
+  return;
 }
 
 
@@ -160,8 +158,8 @@ char *strerror(int errnum) {
 }
 #endif
 
-/* Like the perl equivalent -- It removes the terminating newline from string
-   IF one exists.  It then returns the POSSIBLY MODIFIED string */
+/* Like the perl equivalent, removes the terminating newline from string IF one
+   exists. It then returns the POSSIBLY MODIFIED string. */
 char *chomp(char *string) {
   int len = strlen(string);
   if (len && string[len - 1] == '\n') {
@@ -174,120 +172,130 @@ char *chomp(char *string) {
 }
 
 
-/* Scramble the contents of an array*/
+/* Scramble the contents of an array. */
 void genfry(unsigned char *arr, int elem_sz, int num_elem) {
-int i;
-unsigned int pos;
-unsigned char *bytes;
-unsigned char *cptr;
-unsigned short *sptr;
-unsigned int *iptr;
-unsigned char *tmp;
-int bpe;
+  int i;
+  unsigned int pos;
+  unsigned char *bytes;
+  unsigned char *cptr;
+  unsigned short *sptr;
+  unsigned int *iptr;
+  unsigned char *tmp;
+  int bpe;
 
-if (sizeof(unsigned char) != 1)
-  fatal("%s() requires 1 byte chars", __func__);
+  if (sizeof(unsigned char) != 1)
+    fatal("%s() requires 1 byte chars", __func__);
 
-if (num_elem < 2)
-  return;
+  if (num_elem < 2)
+    return;
 
- if (elem_sz == sizeof(unsigned short)) {
-   shortfry((unsigned short *)arr, num_elem);
-   return;
- }
+  if (elem_sz == sizeof(unsigned short)) {
+    shortfry((unsigned short *)arr, num_elem);
+    return;
+  }
 
-/* OK, so I am stingy with the random bytes! */
-if (num_elem < 256) 
-  bpe = sizeof(unsigned char);
-else if (num_elem < 65536)
-  bpe = sizeof(unsigned short);
-else bpe = sizeof(unsigned int);
+  /* OK, so I am stingy with the random bytes! */
+  if (num_elem < 256)
+    bpe = sizeof(unsigned char);
+  else if (num_elem < 65536)
+    bpe = sizeof(unsigned short);
+  else
+    bpe = sizeof(unsigned int);
 
-bytes = (unsigned char *) safe_malloc(bpe * num_elem);
-tmp = (unsigned char *) safe_malloc(elem_sz);
+  bytes = (unsigned char *) safe_malloc(bpe * num_elem);
+  tmp = (unsigned char *) safe_malloc(elem_sz);
 
-get_random_bytes(bytes, bpe * num_elem);
-cptr = bytes;
-sptr = (unsigned short *)bytes;
-iptr = (unsigned int *) bytes;
+  get_random_bytes(bytes, bpe * num_elem);
+  cptr = bytes;
+  sptr = (unsigned short *)bytes;
+  iptr = (unsigned int *) bytes;
 
- for(i=num_elem - 1; i > 0; i--) {
-   if (num_elem < 256) {
-     pos = *cptr; cptr++;
-   }
-   else if (num_elem < 65536) {
-     pos = *sptr; sptr++;
-   } else {
-     pos = *iptr; iptr++;
-   }
-   pos %= i+1;
-   if ((unsigned) i != pos) { /* memcpy is undefined when source and dest overlap. */
-     memcpy(tmp, arr + elem_sz * i, elem_sz);
-     memcpy(arr + elem_sz * i, arr + elem_sz * pos, elem_sz);
-     memcpy(arr + elem_sz * pos, tmp, elem_sz);
-   }
- }
- free(bytes);
- free(tmp);
+  for (i = num_elem - 1; i > 0; i--) {
+    if (num_elem < 256) {
+      pos = *cptr;
+      cptr++;
+    } else if (num_elem < 65536) {
+      pos = *sptr;
+      sptr++;
+    } else {
+      pos = *iptr;
+      iptr++;
+    }
+    pos %= i + 1;
+    if ((unsigned) i != pos) { /* memcpy is undefined when source and dest overlap. */
+      memcpy(tmp, arr + elem_sz * i, elem_sz);
+      memcpy(arr + elem_sz * i, arr + elem_sz * pos, elem_sz);
+      memcpy(arr + elem_sz * pos, tmp, elem_sz);
+    }
+  }
+  free(bytes);
+  free(tmp);
 }
 
 void shortfry(unsigned short *arr, int num_elem) {
-int num;
-unsigned short tmp;
-int i;
+  int num;
+  unsigned short tmp;
+  int i;
 
-if (num_elem < 2)
+  if (num_elem < 2)
+    return;
+
+  for (i = num_elem - 1; i > 0 ; i--) {
+    num = get_random_ushort() % (i + 1);
+    if (i == num)
+      continue;
+    tmp = arr[i];
+    arr[i] = arr[num];
+    arr[num] = tmp;
+  }
+
   return;
- 
- for(i= num_elem - 1; i > 0 ; i--) {
-   num = get_random_ushort() % (i + 1);
-   if (i == num) continue;
-   tmp = arr[i];
-   arr[i] = arr[num];
-   arr[num] = tmp;
- } 
-
- return;
 }
 
-// Send data to a socket, keep retrying until an error or the full length
-// is sent.  Returns -1 if there is an error, or len if the full length was sent.
+/* Send data to a socket, keep retrying until an error or the full length is
+   sent. Returns -1 if there is an error, or len if the full length was sent. */
 int Send(int sd, const void *msg, size_t len, int flags) {
   int res;
   unsigned int sentlen = 0;
 
   do {
-    res = send(sd,(char *) msg + sentlen, len - sentlen, flags);
+    res = send(sd, (char *) msg + sentlen, len - sentlen, flags);
     if (res > 0)
       sentlen += res;
-  } while(sentlen < len && (res != -1 || socket_errno() == EINTR));
+  } while (sentlen < len && (res != -1 || socket_errno() == EINTR));
 
-  return (res < 0)? -1 : (int) len;
+  return (res < 0) ? -1 : (int) len;
 }
 
-unsigned int gcd_n_uint(int nvals, unsigned int *val)
- {
-   unsigned int a,b,c;
-   
-   if (!nvals) return 1;
-   a=*val;
-   for (nvals--;nvals;nvals--)
-     {
-       b=*++val;
-       if (a<b) { c=a; a=b; b=c; }
-       while (b) { c=a%b; a=b; b=c; }
-     }
-   return a;
- }
+unsigned int gcd_n_uint(int nvals, unsigned int *val) {
+  unsigned int a, b, c;
 
-/* This function takes a command and the address of an uninitialized
-   char ** .  It parses the command (by separating out whitespace)
-   into an argv[] style char **, which it sets the argv parameter to.
-   The function returns the number of items filled up in the array
-   (argc), or -1 in the case of an error.  This function allocates
-   memory for argv and thus it must be freed -- use argv_parse_free()
-   for that.  If arg_parse returns <1, then argv does not need to be freed.
-   The returned arrays are always terminated with a NULL pointer */
+  if (!nvals)
+    return 1;
+  a = *val;
+  for (nvals--; nvals; nvals--) {
+    b = *++val;
+    if (a < b) {
+      c = a;
+      a = b;
+      b = c;
+    }
+    while (b) {
+      c = a % b;
+      a = b;
+      b = c;
+    }
+  }
+  return a;
+}
+
+/* This function takes a command and the address of an uninitialized char **. It
+   parses the command (by separating out whitespace) into an argv[]-style
+   char **, which it sets the argv parameter to. The function returns the number
+   of items filled up in the array (argc), or -1 in the case of an error. This
+   function allocates memory for argv and thus it must be freed -- use
+   argv_parse_free() for that. If arg_parse returns <1, then argv does not need
+   to be freed. The returned arrays are always terminated with a NULL pointer */
 int arg_parse(const char *command, char ***argv) {
   char **myargv = NULL;
   int argc = 0;
@@ -296,29 +304,28 @@ int arg_parse(const char *command, char ***argv) {
   char oldend;
 
   *argv = NULL;
-  if (Strncpy(mycommand, command, 4096) == -1) {      
+  if (Strncpy(mycommand, command, 4096) == -1)
     return -1;
-  }
   myargv = (char **) safe_malloc((MAX_PARSE_ARGS + 2) * sizeof(char *));
-  memset(myargv, 0, (MAX_PARSE_ARGS+2) * sizeof(char *));
+  memset(myargv, 0, (MAX_PARSE_ARGS + 2) * sizeof(char *));
   myargv[0] = (char *) 0x123456; /* Integrity checker */
   myargv++;
   start = mycommand;
-  while(start && *start) {
-    while(*start && isspace((int) (unsigned char) *start))
+  while (start && *start) {
+    while (*start && isspace((int) (unsigned char) *start))
       start++;
     if (*start == '"') {
       start++;
       end = strchr(start, '"');
     } else if (*start == '\'') {
       start++;
-      end = strchr(start, '\'');      
+      end = strchr(start, '\'');
     } else if (!*start) {
       continue;
     } else {
-      end = start+1;
-      while(*end && !isspace((int) (unsigned char) *end)) {      
-	end++;
+      end = start + 1;
+      while (*end && !isspace((int) (unsigned char) *end)) {
+        end++;
       }
     }
     if (!end) {
@@ -334,10 +341,12 @@ int arg_parse(const char *command, char ***argv) {
     myargv[argc++] = strdup(start);
     if (oldend)
       start = end + 1;
-    else start = end;
+    else
+      start = end;
   }
-  myargv[argc+1] = 0;
+  myargv[argc + 1] = 0;
   *argv = myargv;
+
   return argc;
 }
 
@@ -348,27 +357,30 @@ void arg_parse_free(char **argv) {
   argv--;
   assert(argv[0] == (char *) 0x123456);
   current = argv + 1;
-  while(*current) {
+  while (*current) {
     free(*current);
     current++;
   }
   free(argv);
 }
 
-// A simple function to form a character from 2 hex digits in ASCII form
-static unsigned char hex2char(unsigned char a, unsigned char b)
-{
+/* A simple function to form a character from 2 hex digits in ASCII form. */
+static unsigned char hex2char(unsigned char a, unsigned char b) {
   int val;
-  if (!isxdigit((int) a) || !isxdigit((int) b)) return 0;
+
+  if (!isxdigit((int) a) || !isxdigit((int) b))
+    return 0;
   a = tolower((int) a);
   b = tolower((int) b);
   if (isdigit((int) a))
     val = (a - '0') << 4;
-  else val = (10 + (a - 'a')) << 4;
+  else
+    val = (10 + (a - 'a')) << 4;
 
   if (isdigit((int) b))
     val += (b - '0');
-  else val += 10 + (b - 'a');
+  else
+    val += 10 + (b - 'a');
 
   return (unsigned char) val;
 }
@@ -382,73 +394,95 @@ char *cstring_unescape(char *str, unsigned int *newlen) {
   char *dst = str, *src = str;
   char newchar;
 
-  while(*src) {
+  while (*src) {
     if (*src == '\\' ) {
       src++;
-      switch(*src) {
+      switch (*src) {
       case '0':
-	newchar = '\0'; src++; break;
+        newchar = '\0';
+        src++;
+        break;
       case 'a': // Bell (BEL)
-	newchar = '\a'; src++; break;	
+        newchar = '\a';
+        src++;
+        break;
       case 'b': // Backspace (BS)
-	newchar = '\b'; src++; break;	
+        newchar = '\b';
+        src++;
+        break;
       case 'f': // Formfeed (FF)
-	newchar = '\f'; src++; break;	
+        newchar = '\f';
+        src++;
+        break;
       case 'n': // Linefeed/Newline (LF)
-	newchar = '\n'; src++; break;	
+        newchar = '\n';
+        src++;
+        break;
       case 'r': // Carriage Return (CR)
-	newchar = '\r'; src++; break;	
+        newchar = '\r';
+        src++;
+        break;
       case 't': // Horizontal Tab (TAB)
-	newchar = '\t'; src++; break;	
+        newchar = '\t';
+        src++;
+        break;
       case 'v': // Vertical Tab (VT)
-	newchar = '\v'; src++; break;	
+        newchar = '\v';
+        src++;
+        break;
       case 'x':
-	src++;
-	if (!*src || !*(src + 1)) return NULL;
-	if (!isxdigit((int) (unsigned char) *src) || !isxdigit((int) (unsigned char) *(src + 1))) return NULL;
-	newchar = hex2char(*src, *(src + 1));
-	src += 2;
-	break;
+        src++;
+        if (!*src || !*(src + 1)) return NULL;
+        if (!isxdigit((int) (unsigned char) *src) || !isxdigit((int) (unsigned char) * (src + 1))) return NULL;
+        newchar = hex2char(*src, *(src + 1));
+        src += 2;
+        break;
       default:
-	if (isalnum((int) (unsigned char) *src))
-	  return NULL; // I don't really feel like supporting octals such as \015
-	// Other characters I'll just copy as is
-	newchar = *src;
-	src++;
-	break;
+        if (isalnum((int) (unsigned char) *src))
+          return NULL; // I don't really feel like supporting octals such as \015
+        // Other characters I'll just copy as is
+        newchar = *src;
+        src++;
+        break;
       }
       *dst = newchar;
       dst++;
     } else {
       if (dst != src)
-	*dst = *src;
-      dst++; src++;
+        *dst = *src;
+      dst++;
+      src++;
     }
   }
-
   *dst = '\0'; // terminated, but this string can include other \0, so use newlen
-  if (newlen) *newlen = dst - str;
+  if (newlen)
+    *newlen = dst - str;
+
   return str;
 }
 
 
-void bintohexstr(char *buf, int buflen, char *src, int srclen){
-    int bp=0;
-    int i;
-    for(i=0; i<srclen; i++){
-      bp += Snprintf(buf+bp, buflen-bp, "\\x%02hhx",src[i]);
-      if(bp >= buflen)break;
-      if(i%16==7){
-        bp += Snprintf(buf+bp, buflen-bp," ");
-        if(bp >= buflen)break;
-      }
-      if(i%16==15){
-        bp += Snprintf(buf+bp, buflen-bp,"\n");
-        if(bp >= buflen)break;
-      }
+void bintohexstr(char *buf, int buflen, char *src, int srclen) {
+  int bp = 0;
+  int i;
+
+  for (i = 0; i < srclen; i++) {
+    bp += Snprintf(buf + bp, buflen - bp, "\\x%02hhx", src[i]);
+    if (bp >= buflen)
+      break;
+    if (i % 16 == 7) {
+      bp += Snprintf(buf + bp, buflen - bp, " ");
+      if (bp >= buflen)
+        break;
     }
-    if(i%16!=0 && bp < buflen)
-      bp += Snprintf(buf+bp, buflen-bp,"\n");
+    if (i % 16 == 15) {
+      bp += Snprintf(buf + bp, buflen - bp, "\n");
+      if (bp >= buflen)
+        break;
+    }
+  }
+  if (i % 16 != 0 && bp < buflen)
+    bp += Snprintf(buf + bp, buflen - bp, "\n");
 }
 
 /* Get the CPE part (first component of the URL, should be "a", "h", or "o") as
@@ -470,15 +504,12 @@ int cpe_get_part(const char *cpe) {
 }
 
 
-/* mmap() an entire file into the address space.  Returns a pointer
-   to the beginning of the file.  The mmap'ed length is returned
-   inside the length parameter.  If there is a problem, NULL is
-   returned, the value of length is undefined, and errno is set to
-   something appropriate.  The user is responsible for doing
-   an munmap(ptr, length) when finished with it.  openflags should 
-   be O_RDONLY or O_RDWR, or O_WRONLY
-*/
-
+/* mmap() an entire file into the address space. Returns a pointer to the
+   beginning of the file. The mmap'ed length is returned inside the length
+   parameter. If there is a problem, NULL is returned, the value of length is
+   undefined, and errno is set to something appropriate. The user is responsible
+   for doing an munmap(ptr, length) when finished with it. openflags should be
+   O_RDONLY or O_RDWR, or O_WRONLY. */
 #ifndef WIN32
 char *mmapfile(char *fname, int *length, int openflags) {
   struct stat st;
@@ -502,93 +533,89 @@ char *mmapfile(char *fname, int *length, int openflags) {
     return NULL;
   }
 
-  fileptr = (char *)mmap(0, st.st_size, (openflags == O_RDONLY)? PROT_READ :
-			 (openflags == O_RDWR)? (PROT_READ|PROT_WRITE) 
-			 : PROT_WRITE, MAP_SHARED, fd, 0);
+  fileptr = (char *)mmap(0, st.st_size, (openflags == O_RDONLY) ? PROT_READ :
+                         (openflags == O_RDWR) ? (PROT_READ | PROT_WRITE)
+                         : PROT_WRITE, MAP_SHARED, fd, 0);
 
   close(fd);
 
 #ifdef MAP_FAILED
   if (fileptr == (void *)MAP_FAILED) return NULL;
 #else
-  if (fileptr == (char *) -1) return NULL;
+  if (fileptr == (char *) - 1) return NULL;
 #endif
 
   *length = st.st_size;
   return fileptr;
 }
 #else /* WIN32 */
-/* FIXME:  From the looks of it, this function can only handle one mmaped 
-   file at a time (note how gmap is used).*/
-/* I believe this was written by Ryan Permeh ( ryan@eeye.com) */
+/* FIXME:  From the looks of it, this function can only handle one mmaped file
+   at a time (note how gmap is used). */
+/* I believe this was written by Ryan Permeh (ryan@eeye.com). */
 
 static HANDLE gmap = NULL;
 
-char *mmapfile(char *fname, int *length, int openflags)
-{
-	HANDLE fd;
-	DWORD mflags, oflags;
-	char *fileptr;
+char *mmapfile(char *fname, int *length, int openflags) {
+  HANDLE fd;
+  DWORD mflags, oflags;
+  char *fileptr;
 
-	if (!length || !fname) {
-		WSASetLastError(EINVAL);
-		return NULL;
-	}
-
- if (openflags == O_RDONLY) {
-  oflags = GENERIC_READ;
-  mflags = PAGE_READONLY;
+  if (!length || !fname) {
+    WSASetLastError(EINVAL);
+    return NULL;
   }
- else {
-  oflags = GENERIC_READ | GENERIC_WRITE;
-  mflags = PAGE_READWRITE;
- }
 
- fd = CreateFile (
-   fname,
-   oflags,                       // open flags
-   0,                            // do not share
-   NULL,                         // no security
-   OPEN_EXISTING,                // open existing
-   FILE_ATTRIBUTE_NORMAL,
-   NULL);                        // no attr. template
- if (!fd)
-  pfatal ("%s(%u): CreateFile()", __FILE__, __LINE__);
+  if (openflags == O_RDONLY) {
+    oflags = GENERIC_READ;
+    mflags = PAGE_READONLY;
+  } else {
+    oflags = GENERIC_READ | GENERIC_WRITE;
+    mflags = PAGE_READWRITE;
+  }
 
- *length = (int) GetFileSize (fd, NULL);
+  fd = CreateFile(
+         fname,
+         oflags,                       // open flags
+         0,                            // do not share
+         NULL,                         // no security
+         OPEN_EXISTING,                // open existing
+         FILE_ATTRIBUTE_NORMAL,
+         NULL);                        // no attr. template
+  if (!fd)
+    pfatal ("%s(%u): CreateFile()", __FILE__, __LINE__);
 
- gmap = CreateFileMapping (fd, NULL, mflags, 0, 0, NULL);
- if (!gmap)
-  pfatal ("%s(%u): CreateFileMapping(), file '%s', length %d, mflags %08lX",
-    __FILE__, __LINE__, fname, *length, mflags);
+  *length = (int) GetFileSize (fd, NULL);
 
- fileptr = (char*) MapViewOfFile (gmap, oflags == GENERIC_READ ? FILE_MAP_READ : FILE_MAP_WRITE,
-                                     0, 0, 0);
- if (!fileptr)
-  pfatal ("%s(%u): MapViewOfFile()", __FILE__, __LINE__);
+  gmap = CreateFileMapping (fd, NULL, mflags, 0, 0, NULL);
+  if (!gmap) {
+    pfatal("%s(%u): CreateFileMapping(), file '%s', length %d, mflags %08lX",
+           __FILE__, __LINE__, fname, *length, mflags);
+  }
 
- if (o.debugging > 2)
-  log_write(LOG_PLAIN, "%s(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
-    __func__, (DWORD)fd, (DWORD)gmap, (DWORD)fileptr, *length);
+  fileptr = (char*) MapViewOfFile (gmap, oflags == GENERIC_READ ? FILE_MAP_READ : FILE_MAP_WRITE, 0, 0, 0);
+  if (!fileptr)
+    pfatal ("%s(%u): MapViewOfFile()", __FILE__, __LINE__);
 
- CloseHandle (fd);
+  if (o.debugging > 2) {
+    log_write(LOG_PLAIN, "%s(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
+              __func__, (DWORD)fd, (DWORD)gmap, (DWORD)fileptr, *length);
+  }
 
-	return fileptr;
+  CloseHandle (fd);
+
+  return fileptr;
 }
 
 
 /* FIXME:  This only works if the file was mapped by mmapfile (and only
    works if the file is the most recently mapped one */
-int win32_munmap(char *filestr, int filelen)
-{
+int win32_munmap(char *filestr, int filelen) {
   if (gmap == 0)
     fatal("%s: no current mapping !\n", __func__);
-
   FlushViewOfFile(filestr, filelen);
   UnmapViewOfFile(filestr);
   CloseHandle(gmap);
   gmap = NULL;
   return 0;
 }
-
 #endif
