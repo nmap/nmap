@@ -64,11 +64,11 @@ DESTDIR =
 TARGET = nping
 
 
-export SRCS = ArgParser.cc common.cc common_modified.cc nping.cc NpingOps.cc utils.cc utils_net.cc output.cc stats.cc NpingTargets.cc NpingTarget.cc EchoHeader.cc EchoServer.cc EchoClient.cc ProbeMode.cc NEPContext.cc Crypto.cc PacketDiff.cc @COMPAT_SRCS@
+export SRCS = ArgParser.cc common.cc common_modified.cc nping.cc NpingOps.cc utils.cc utils_net.cc output.cc stats.cc NpingTargets.cc NpingTarget.cc EchoHeader.cc EchoServer.cc EchoClient.cc ProbeMode.cc NEPContext.cc Crypto.cc PacketDiff.cc
 
 export HDRS = ArgParser.h nping_config.h common.h common_modified.h nping.h NpingOps.h global_structures.h output.h utils.h utils_net.h stats.h NpingTargets.h NpingTarget.h EchoHeader.h EchoServer.h EchoClient.h ProbeMode.h NEPContext.h Crypto.h PacketDiff.h 
 
-OBJS = ArgParser.o common.o common_modified.o nping.o NpingOps.o utils.o utils_net.o output.o stats.o NpingTargets.o NpingTarget.o EchoHeader.o EchoServer.o EchoClient.o ProbeMode.o NEPContext.o Crypto.o PacketDiff.o @COMPAT_OBJS@
+OBJS = ArgParser.o common.o common_modified.o nping.o NpingOps.o utils.o utils_net.o output.o stats.o NpingTargets.o NpingTarget.o EchoHeader.o EchoServer.o EchoClient.o ProbeMode.o NEPContext.o Crypto.o PacketDiff.o
 
 export DOCS2DIST = leet-nping-ascii-art.txt nping.1 nping-man.html
 
