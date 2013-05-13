@@ -68,8 +68,8 @@
 
 
 extern struct timeval nsock_tod;
+extern const struct proxy_spec ProxySpecSocks4;
 
-const struct proxy_spec ProxySpecSocks4;
 
 struct socks4_data {
     uint8_t  version;
