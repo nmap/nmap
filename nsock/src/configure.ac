@@ -125,9 +125,6 @@ AC_PROG_RANLIB
 dnl AC_PROG_INSTALL
 dnl AC_PATH_PROG(MAKEDEPEND, makedepend)
 
-AC_SUBST(COMPAT_OBJS)
-AC_SUBST(COMPAT_SRCS)
-
 dnl Checks for libraries.
 dnl AC_CHECK_LIB(m, pow)
 

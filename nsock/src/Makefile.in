@@ -31,15 +31,13 @@ SRCS = 	error.c filespace.c gh_list.c nsock_connect.c nsock_core.c \
 	nsock_iod.c nsock_read.c nsock_timers.c nsock_write.c \
 	nsock_ssl.c nsock_event.c nsock_pool.c netutils.c nsock_pcap.c \
 	nsock_engines.c engine_select.c engine_epoll.c engine_kqueue.c \
-	engine_poll.c nsock_proxy.c nsock_log.c proxy_http.c proxy_socks4.c \
-	@COMPAT_SRCS@
+	engine_poll.c nsock_proxy.c nsock_log.c proxy_http.c proxy_socks4.c
 
 OBJS =	error.o filespace.o gh_list.o nsock_connect.o nsock_core.o \
 	nsock_iod.o nsock_read.o nsock_timers.o nsock_write.o \
 	nsock_ssl.o nsock_event.o nsock_pool.o netutils.o nsock_pcap.o \
 	nsock_engines.o engine_select.o engine_epoll.o engine_kqueue.o \
-	engine_poll.o nsock_proxy.o nsock_log.o proxy_http.o proxy_socks4.o \
-	@COMPAT_OBJS@
+	engine_poll.o nsock_proxy.o nsock_log.o proxy_http.o proxy_socks4.o
 
 DEPS =	error.h filespace.h gh_list.h nsock_internal.h netutils.h nsock_pcap.h \
 	nsock_log.h nsock_proxy.h ../include/nsock.h $(NBASEDIR)/libnbase.a
