@@ -267,28 +267,6 @@ int Send(int sd, const void *msg, size_t len, int flags) {
   return (res < 0) ? -1 : (int) len;
 }
 
-unsigned int gcd_n_uint(int nvals, unsigned int *val) {
-  unsigned int a, b, c;
-
-  if (!nvals)
-    return 1;
-  a = *val;
-  for (nvals--; nvals; nvals--) {
-    b = *++val;
-    if (a < b) {
-      c = a;
-      a = b;
-      b = c;
-    }
-    while (b) {
-      c = a % b;
-      a = b;
-      b = c;
-    }
-  }
-  return a;
-}
-
 /* This function takes a command and the address of an uninitialized char **. It
    parses the command (by separating out whitespace) into an argv[]-style
    char **, which it sets the argv parameter to. The function returns the number

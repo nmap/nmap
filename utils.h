@@ -175,8 +175,6 @@ char *chomp(char *string);
 
 int Send(int sd, const void *msg, size_t len, int flags);
 
-unsigned int gcd_n_uint(int nvals, unsigned int *val);
-
 int arg_parse(const char *command, char ***argv);
 void arg_parse_free(char **argv);
 

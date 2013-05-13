@@ -2175,6 +2175,28 @@ bool ScanStats::sendOK() {
  * Implementation of class HostOsScan                                         *
  ******************************************************************************/
 
+static unsigned int gcd_n_uint(int nvals, unsigned int *val) {
+  unsigned int a, b, c;
+
+  if (!nvals)
+    return 1;
+  a = *val;
+  for (nvals--; nvals; nvals--) {
+    b = *++val;
+    if (a < b) {
+      c = a;
+      a = b;
+      b = c;
+    }
+    while (b) {
+      c = a % b;
+      a = b;
+      b = c;
+    }
+  }
+  return a;
+}
+
 void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   int i, j;
   u32 seq_diffs[NUM_SEQ_SAMPLES];
