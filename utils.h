@@ -1,4 +1,3 @@
-
 /***************************************************************************
  * utils.h -- Various miscellaneous utility functions which defy           *
  * categorization :)                                                       *
@@ -153,9 +152,8 @@
 
 #define MAX_PARSE_ARGS 254 /* +1 for integrity checking + 1 for null term */
 
-
-/* Return num if it is between min and max.  Otherwise return min or
-   max (whichever is closest to num), */
+/* Return num if it is between min and max.  Otherwise return min or max
+   (whichever is closest to num). */
 template<class T> T box(T bmin, T bmax, T bnum) {
   if (bmin > bmax)
     fatal("box(%d, %d, %d) called (min,max,num)", (int) bmin, (int) bmax, (int) bnum);
@@ -171,15 +169,10 @@ int wildtest(char *wild, char *test);
 
 void nmap_hexdump(unsigned char *cp, unsigned int length);
 
-/* Scramble the contents of an array*/
 void genfry(unsigned char *arr, int elem_sz, int num_elem);
 void shortfry(unsigned short *arr, int num_elem);
-/* Like the perl equivialent -- It removes the terminating newline from string
-   IF one exists.  It then returns the POSSIBLY MODIFIED string */
 char *chomp(char *string);
 
-// Send data to a socket, keep retrying until an error or the full length
-// is sent.  Returns -1 if there is an error, or len if the full length was sent.
 int Send(int sd, const void *msg, size_t len, int flags);
 
 unsigned int gcd_n_uint(int nvals, unsigned int *val);
@@ -187,32 +180,16 @@ unsigned int gcd_n_uint(int nvals, unsigned int *val);
 int arg_parse(const char *command, char ***argv);
 void arg_parse_free(char **argv);
 
-/* Convert a string in the format of a roughly C-style string literal
-   (e.g. can have \r, \n, \xHH escapes, etc.) into a binary string.
-   This is done in-place, and the new (shorter or the same) length is
-   stored in newlen.  If parsing fails, NULL is returned, otherwise
-   str is returned. */
 char *cstring_unescape(char *str, unsigned int *len);
 
 void bintohexstr(char *buf, int buflen, char *src, int srclen);
-
 
 #ifndef HAVE_STRERROR
 char *strerror(int errnum);
 #endif
 
-/* Get the CPE part (first component of the URL, should be "a", "h", or "o") as
-   a character: 'a', 'h', or 'o'. Returns -1 on error. */
 int cpe_get_part(const char *cpe);
 
-/* mmap() an entire file into the address space.  Returns a pointer
-   to the beginning of the file.  The mmap'ed length is returned
-   inside the length parameter.  If there is a problem, NULL is
-   returned, the value of length is undefined, and errno is set to
-   something appropriate.  The user is responsible for doing
-   an munmap(ptr, length) when finished with it.  openflags should 
-   be O_RDONLY or O_RDWR, or O_WRONLY
-*/
 char *mmapfile(char *fname, int *length, int openflags);
 
 #ifdef WIN32
