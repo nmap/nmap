@@ -1312,7 +1312,7 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
       sizeof(dcrn->ifaces[dcrn->numifaces].devfullname));
 
     /* Interface type */
-    if (entry->intf_type == INTF_TYPE_ETH) {
+    if (entry->intf_type == INTF_TYPE_ETH && (entry->intf_flags & INTF_FLAG_NOARP) == 0) {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_ethernet;
       /* Collect the MAC address since this is ethernet */
       memcpy(dcrn->ifaces[dcrn->numifaces].mac, &entry->intf_link_addr.addr_eth.data, 6);
