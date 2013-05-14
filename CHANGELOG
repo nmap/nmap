@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added Polish translation by Jacek Wielemborek.
+
 o [NSE] Added http-coldfusion-subzero. It detects Coldfusion 9 and 10
   vulnerable to a local file inclusion vulnerability and grabs the 
   version, install path and the administrator credentials. [Paulino Calderon]
