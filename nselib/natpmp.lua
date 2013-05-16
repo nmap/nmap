@@ -9,7 +9,6 @@
 local bin = require "bin"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
-local os = require "os"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("natpmp", stdnse.seeall)
 
@@ -104,7 +103,7 @@ Response = {
 		
 			pos, self.time, self.ip = bin.unpack("<II", self.data, pos)
 			self.ip = ipOps.fromdword(self.ip)
-			self.time = os.date("%c", self.time)
+			self.time = stdnse.format_timestamp(self.time)
 			return true
 		end,
 		

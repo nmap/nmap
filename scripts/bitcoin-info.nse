@@ -1,5 +1,4 @@
 local bitcoin = require "bitcoin"
-local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -57,7 +56,7 @@ action = function(host, port)
 	bcoin:close()
 
 	local result = {}
-	table.insert(result, ("Timestamp: %s"):format(os.date("%c", ver.timestamp)))
+	table.insert(result, ("Timestamp: %s"):format(stdnse.format_timestamp(ver.timestamp)))
 	table.insert(result, ("Network: %s"):format(NETWORK[ver.magic]))
 	table.insert(result, ("Version: %s"):format(ver.ver))
 	table.insert(result, ("Node Id: %s"):format(ver.nodeid))

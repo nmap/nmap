@@ -1,7 +1,6 @@
 local bin = require "bin"
 local comm = require "comm"
 local nmap = require "nmap"
-local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -90,7 +89,7 @@ action = function(host, port)
     -- the NTP4 reference above.
     tstamp = sec - 2208988800 + frac / 0x10000000
 
-    table.insert(output, string.format("receive time stamp: %s", os.date("%c", tstamp)))
+    table.insert(output, string.format("receive time stamp: %s", stdnse.format_timestamp(tstamp)))
   end
 
   status, bufrlres = comm.exchange(host, port, rlreq, {proto=port.protocol, timeout=TIMEOUT})
