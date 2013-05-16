@@ -1,6 +1,5 @@
 local comm = require "comm"
 local nmap = require "nmap"
-local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -163,12 +162,11 @@ local function formataddress(data)
 end
 
 local function formattime(data)
-	local FORMAT = "!%Y-%m-%d %H:%M:%S UTC"
 	local time = parsefloat(data)
 	if not time then
 		return
 	end
-	local human = os.date(FORMAT, time)
+	local human = stdnse.format_timestamp(time)
 	return time .. " (" .. human .. ")"
 end
 

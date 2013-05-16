@@ -1,5 +1,4 @@
 local nmap = require "nmap"
-local os = require "os"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local tab = require "tab"
@@ -42,7 +41,7 @@ local filter = {
 	
 	["pid"] = { name = "Process ID" },
 	["uptime"] = { name = "Uptime", func = function(v) return ("%d seconds"):format(v) end },
-	["time"] = { name = "Server time", func = function(v) return os.date("%c", v) end },
+	["time"] = { name = "Server time", func = stdnse.format_timestamp },
 	["pointer_size"] = { name = "Architecture", func = function(v) return v .. " bit" end },
 	["rusage_user"] = { name = "Used CPU (user)" },
 	["rusage_system"] = { name = "Used CPU (system)"},

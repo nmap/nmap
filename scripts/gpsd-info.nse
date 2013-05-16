@@ -95,7 +95,7 @@ action = function(host, port)
 	end
 
 	local output = {
-		("Time of fix: %s UTC"):format(os.date("%c", gps.Util.convertTime(gpsinfo.date, gpsinfo.time))),
+		("Time of fix: %s"):format(stdnse.format_timestamp(gps.Util.convertTime(gpsinfo.date, gpsinfo.time))),
 		("Coordinates: %.4f,%.4f"):format(tonumber(gpsinfo.latitude), tonumber(gpsinfo.longitude)),
 		("Speed: %s knots"):format(gpsinfo.speed)
 	}	

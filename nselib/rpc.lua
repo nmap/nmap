@@ -80,7 +80,6 @@ local bit = require "bit"
 local datafiles = require "datafiles"
 local math = require "math"
 local nmap = require "nmap"
-local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
@@ -3208,9 +3207,7 @@ Util =
         -- @param number of seconds since some given start time
         --        (the "epoch")
         -- @return string that represents time.
-        TimeToString = function(time) 
-            return os.date("!%F %H:%M", time)
-        end,
+        TimeToString = stdnse.format_timestamp,
 
         --- Converts the size in bytes to a human readable format
         --
