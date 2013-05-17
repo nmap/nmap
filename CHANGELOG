@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated libdnet to not SIOCIFNETMASK before SIOCIFADDR on OpenBSD. This was
+  reported to break on -current as of May 2013. [Giovanni Bechis]
+
 o Fixed address matching for SCTP (-PY) ping. [Marin Maržić]
 
 o Removed some non-ANSI-C strftime format strings ("%F") and

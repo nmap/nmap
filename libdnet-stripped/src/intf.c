@@ -77,7 +77,13 @@
 /* XXX - superset of ifreq, for portable SIOC{A,D}IFADDR */
 struct dnet_ifaliasreq {
 	char		ifra_name[IFNAMSIZ];
-	struct sockaddr ifra_addr;
+	union {
+		struct sockaddr ifrau_addr;
+		int             ifrau_align;
+	} ifra_ifrau;
+#ifndef ifra_addr
+#define ifra_addr      ifra_ifrau.ifrau_addr
+#endif
 	struct sockaddr ifra_brdaddr;
 	struct sockaddr ifra_mask;
 	int		ifra_cookie;	/* XXX - IRIX!@#$ */
@@ -308,7 +314,7 @@ intf_set(intf_t *intf, const struct intf_entry *entry)
 	}
 	/* Set interface address. */
 	if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
-#ifdef BSD
+#if defined(BSD) && !defined(__OPENBSD__)
 		/* XXX - why must this happen before SIOCSIFADDR? */
 		if (addr_btos(entry->intf_addr.addr_bits,
 		    &ifr.ifr_addr) == 0) {
