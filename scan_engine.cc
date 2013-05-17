@@ -5317,7 +5317,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         /* Ensure the connection info matches. */
         if (probe->dport() != ntohs(sctp->sh_sport) ||
             probe->sport() != ntohs(sctp->sh_dport) ||
-            sockaddr_storage_cmp(&target_src, &hdr.dst) == 0)
+            sockaddr_storage_cmp(&target_src, &hdr.dst) != 0)
           continue;
 
         /* Sometimes we get false results when scanning localhost with

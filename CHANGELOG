@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed address matching for SCTP (-PY) ping. [Marin Maržić]
+
 o Removed some non-ANSI-C strftime format strings ("%F") and
   locale-dependent formats ("%c") from NSE scripts and libraries.
   C99-specified %F was noticed by Alex Weber. [Daniel Miller]
