@@ -1825,7 +1825,7 @@ msgstr ""
 #translated to a "scan with windows". don't really know the concept.
 #: share/zenmap/misc/profile_editor.xml:26
 msgid "Window scan"
-msgstr "Skan oknami"
+msgstr "Skan okien TCP"
 
 #: share/zenmap/misc/profile_editor.xml:27
 msgid ""
