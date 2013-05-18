@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # nsock regression test suite
 # Same license as nmap -- see http://nmap.org/book/man-legal.html
