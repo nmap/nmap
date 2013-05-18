@@ -24,6 +24,7 @@ INSTALL = $(SHTOOL) install
 MAKEDEPEND = @MAKEDEPEND@
 RPMTDIR=$(HOME)/rpmdir
 NBASEDIR=@NBASEDIR@
+NSOCKTESTDIR=@NSOCKTESTDIR@
 
 TARGET = libnsock.a
 
@@ -63,6 +64,9 @@ distclean: clean
 
 depend:
 	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
+
+check:
+	cd $(NSOCKTESTDIR) && $(MAKE) && ./run_tests.sh
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
