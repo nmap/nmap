@@ -66,13 +66,82 @@
 #include <string.h>
 
 
+static int mksock_bind_addr(mspool *ms, msiod *iod) {
+  int rc;
+  int one = 1;
+
+  rc = setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
+  if (rc == -1) {
+    int err = socket_errno();
+
+    nsock_log_error(ms, "Setting of SO_REUSEADDR failed (#%li): %s (%d)", iod->id,
+                    socket_strerror(err), err);
+  }
+
+  nsock_log_info(ms, "Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
+  rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
+  if (rc == -1) {
+    int err = socket_errno();
+
+    nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s (%d)",
+                    get_localaddr_string(iod), iod->id,
+                    socket_strerror(err), err);
+  }
+  return 0;
+}
+
+static int mksock_set_ipopts(mspool *ms, msiod *iod) {
+  int rc;
+
+  errno = 0;
+  rc = setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts,
+                  iod->ipoptslen);
+  if (rc == -1) {
+    int err = socket_errno();
+
+    nsock_log_error(ms, "Setting of IP options failed (IOD #%li): %s (%d)",
+                    iod->id, socket_strerror(err), err);
+  }
+  return 0;
+}
+
+static int mksock_bind_device(mspool *ms, msiod *iod) {
+  int rc;
+
+  rc = socket_bindtodevice(iod->sd, ms->device);
+  if (!rc) {
+    int err = socket_errno();
+
+    if (err != EPERM)
+      nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
+                      iod->id, socket_strerror(err), err);
+    else
+      nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s (%d)",
+                          iod->id, socket_strerror(err), err);
+  }
+  return 0;
+}
+
+static int mksock_set_broadcast(mspool *ms, msiod *iod) {
+  int rc;
+  int one = 1;
+
+  rc = setsockopt(iod->sd, SOL_SOCKET, SO_BROADCAST,
+                  (const char *)&one, sizeof(one));
+  if (rc == -1) {
+    int err = socket_errno();
+
+    nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li): %s (%d)",
+                    iod->id, socket_strerror(err), err);
+  }
+  return 0;
+}
 /* Create the actual socket (nse->iod->sd) underlying the iod. This unblocks the
  * socket, binds to the localaddr address, sets IP options, and sets the
  * broadcast flag. Trying to change these functions after making this call will
  * not have an effect. This function needs to be called before you try to read
  * or write on the iod. */
 static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int proto) {
-  int rc;
 
   /* inheritable_socket is from nbase */
   iod->sd = (int)inheritable_socket(family, type, proto);
@@ -85,47 +154,20 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
 
   iod->lastproto = proto;
 
-  if (iod->locallen) {
-    int one = 1;
+  if (iod->locallen)
+    mksock_bind_addr(ms, iod);
 
-    rc = setsockopt(iod->sd, SOL_SOCKET, SO_REUSEADDR, (const char *)&one, sizeof(one));
-    if (rc == -1)
-      nsock_log_error(ms, "Setting of SO_REUSEADDR failed (#%li): %s", iod->id,
-                      socket_strerror(socket_errno()));
+  if (iod->ipoptslen && family == AF_INET)
+    mksock_set_ipopts(ms, iod);
 
-    nsock_log_info(ms, "Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
-    rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
-    if (rc == -1) {
-      nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s",
-                      get_localaddr_string(iod), iod->id,
-                      socket_strerror(socket_errno()));
-    }
-  }
-  if (iod->ipoptslen && family == AF_INET) {
-    rc = setsockopt(iod->sd, IPPROTO_IP, IP_OPTIONS, (const char *)iod->ipopts,
-                    iod->ipoptslen);
-    if (rc == -1)
-      nsock_log_error(ms, "Setting of IP options failed (IOD #%li): %s",
-                      iod->id, socket_strerror(socket_errno()));
-  }
-  if (ms->device) {
-    errno = 0;
-    if (!socket_bindtodevice(iod->sd, ms->device)) {
-      if (errno != EPERM)
-        nsock_log_error(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s",
-                        iod->id, socket_strerror(socket_errno()));
-      else
-        nsock_log_debug_all(ms, "Setting of SO_BINDTODEVICE failed (IOD #%li): %s",
-                            iod->id, socket_strerror(socket_errno()));
-    }
-  }
-  if (ms->broadcast) {
-    rc = setsockopt(iod->sd, SOL_SOCKET, SO_BROADCAST,
-                    (const char *)&(ms->broadcast), sizeof(int));
-    if (rc == -1)
-      nsock_log_error(ms, "Setting of SO_BROADCAST failed (IOD #%li): %s",
-                      iod->id, socket_strerror(socket_errno()));
-  }
+  if (ms->device)
+    mksock_bind_device(ms, iod);
+
+  if (ms->broadcast)
+    mksock_set_broadcast(ms, iod);
+
+  /* mksock_* functions can raise warnings/errors
+   * but we don't let them stop us for now. */
   return iod->sd;
 }
 
