@@ -163,7 +163,7 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
   if (ms->device)
     mksock_bind_device(ms, iod);
 
-  if (ms->broadcast)
+  if (ms->broadcast && type != SOCK_STREAM)
     mksock_set_broadcast(ms, iod);
 
   /* mksock_* functions can raise warnings/errors
