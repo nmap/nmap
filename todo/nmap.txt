@@ -660,6 +660,8 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
     o should be a way to specify your own .nmaprc
     o Maybe lets you add a directory and template for saving all
      scans. 
+    o Maybe let you define "scan profiles" like is done with Zenmap.
+      There would then be a command-line option to select the profile used.
 
 o Search for nmap on google news, on google web, and add appropriate
   links to press page and the like.
