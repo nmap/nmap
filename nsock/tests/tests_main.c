@@ -20,6 +20,7 @@ extern const struct test_case TestTimer;
 extern const struct test_case TestLogLevels;
 extern const struct test_case TestErrLevels;
 extern const struct test_case TestConnectTCP;
+extern const struct test_case TestGHLists;
 
 
 static const struct test_case *TestCases[] = {
@@ -32,6 +33,8 @@ static const struct test_case *TestCases[] = {
   &TestErrLevels,
   /* ---- connect.c */
   &TestConnectTCP,
+  /* ---- ghlists.c */
+  &TestGHLists,
   NULL
 };
 

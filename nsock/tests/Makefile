@@ -15,7 +15,8 @@ SRC = tests_main.c \
       basic.c \
       timer.c \
       logs.c \
-      connect.c
+      connect.c \
+      ghlists.c
 
 OBJ = $(SRC:.c=.o)
 
