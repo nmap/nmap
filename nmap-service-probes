@@ -11860,3 +11860,17 @@ ports 25565
 
 # Fields are Protocol version, Software version, motd, current player count, max players
 match minecraft m|^\xff\x00.\x00\xa7\x00\x31\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.+?)\x00\x00(.+)|s p/Minecraft/ v/$P(2)/ i|Protocol: $P(1), Message: $P(3), Users: $P(4)/$P(5)|
+
+
+##############################NEXT PROBE##############################
+# Sends a distribution handshake to an Erlang Distribution Node.
+# send_name request of protocol version 0, with only capability flags
+# DFLAG_EXTENDED_REFERENCES and DFLAG_EXTENDED_PIDS_PORTS, and with a node name
+# of "nm@p"
+# http://erlang.org/doc/apps/erts/erl_dist_protocol.html#id90729
+# http://seclists.org/nmap-dev/2013/q1/360
+Probe TCP erlang-node q|\0\x0bn\0\0\0\0\x01\x04nm@p|
+rarity 9
+
+match erlang-node m|^\0\x03sok\0.n\0\0.{8}(.*)|s p/Erlang Distribution Node/ i/Node name: $1/
+match erlang-node m|^\0[^\x03]s(.*)|s p/Erlang Distribution Node/ i/Status: $1/
