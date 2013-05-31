@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a service probe for Erlang distribution nodes.
+  [Michael Schierl]
+
 o Updated libdnet to not SIOCIFNETMASK before SIOCIFADDR on OpenBSD. This was
   reported to break on -current as of May 2013. [Giovanni Bechis]
 
