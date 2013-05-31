@@ -175,6 +175,7 @@ Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery",
 Entry { filename = "http-open-redirect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-phpmyadmin-dir-traversal.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-phpself-xss.nse", categories = { "fuzzer", "intrusive", "vuln", } }
 Entry { filename = "http-proxy-brute.nse", categories = { "brute", "external", "intrusive", } }
 Entry { filename = "http-put.nse", categories = { "discovery", "intrusive", } }
