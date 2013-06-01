@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed IPv6 routing table alignment on NetBSD.
+
 o [NSE] Added http-phpmyadmin-dir-traversal by Alexey Meshcheryakov.
 
 o Added a service probe for Erlang distribution nodes.

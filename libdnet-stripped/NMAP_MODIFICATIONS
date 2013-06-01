@@ -1887,3 +1887,26 @@ index 4fe059c..184c077 100644
  		/* XXX - why must this happen before SIOCSIFADDR? */
  		if (addr_btos(entry->intf_addr.addr_bits,
  		    &ifr.ifr_addr) == 0) {
+
+o Use the RT_ROUNDUP preprocessor macro for 64-bit rt_msghdr alignment
+  on NetBSD.
+
+diff --git a/libdnet-stripped/src/route-bsd.c b/libdnet-stripped/src/route-bsd.c
+index 44e7dd2..47f3705 100644
+--- a/libdnet-stripped/src/route-bsd.c
++++ b/libdnet-stripped/src/route-bsd.c
+@@ -47,8 +47,14 @@
+ 
+ #include "dnet.h"
+ 
++#ifdef RT_ROUNDUP
++/* NetBSD defines this macro rounding to 64-bit boundaries.
++   http://fxr.watson.org/fxr/ident?v=NETBSD;i=RT_ROUNDUP */
++#define ROUNDUP(a) RT_ROUNDUP(a)
++#else
+ #define ROUNDUP(a) \
+ 	((a) > 0 ? (1 + (((a) - 1) | (RT_MSGHDR_ALIGNMENT - 1))) : RT_MSGHDR_ALIGNMENT)
++#endif
+ 
+ #ifdef HAVE_SOCKADDR_SA_LEN
+ #define NEXTSA(s) \
