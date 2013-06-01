@@ -47,8 +47,14 @@
 
 #include "dnet.h"
 
+#ifdef RT_ROUNDUP
+/* NetBSD defines this macro rounding to 64-bit boundaries.
+   http://fxr.watson.org/fxr/ident?v=NETBSD;i=RT_ROUNDUP */
+#define ROUNDUP(a) RT_ROUNDUP(a)
+#else
 #define ROUNDUP(a) \
 	((a) > 0 ? (1 + (((a) - 1) | (RT_MSGHDR_ALIGNMENT - 1))) : RT_MSGHDR_ALIGNMENT)
+#endif
 
 #ifdef HAVE_SOCKADDR_SA_LEN
 #define NEXTSA(s) \
