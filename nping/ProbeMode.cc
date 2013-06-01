@@ -800,6 +800,7 @@ int ProbeMode::fillPacketTCP(NpingTarget *target, u16 port, u8 *buff, int buffle
   t.setOffset();
   t.setWindow( o.getTCPWindow() );
   t.setUrgPointer(0);
+  t.setFlags(0);
 
   /* Flags */
   if( o.getFlagTCP(FLAG_CWR) == 1 )  t.setCWR();
