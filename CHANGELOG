@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Reduced the default --max-conns limit from 100 to 60 on
+  Windows, to stay within platform limitations. Suggested by Andrey
+  Olkhin.
+
 o Fixed IPv6 routing table alignment on NetBSD.
 
 o [NSE] Added http-phpmyadmin-dir-traversal by Alexey Meshcheryakov.

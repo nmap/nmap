@@ -173,7 +173,13 @@ struct socks4_data {
  * a listening port. You may want to increase or decrease this value depending
  * on your specific needs.
  */
+#ifdef WIN32
+/* Windows is commonly limited to 64 sockets, so keep the default somewhat below
+   that. http://www.tangentsoft.net/wskfaq/advanced.html#64sockets */
+#define DEFAULT_MAX_CONNS 60
+#else
 #define DEFAULT_MAX_CONNS 100
+#endif
 
 /* SOCKS4 protocol responses */
 #define SOCKS4_VERSION          4
