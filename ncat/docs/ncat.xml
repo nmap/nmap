@@ -242,7 +242,7 @@
         </term>
         <listitem>
           <para>The maximum number of simultaneous connections accepted by an Ncat
-          instance. 100 is the default.</para>
+          instance. 100 is the default (60 on Windows).</para>
         </listitem>
       </varlistentry>
 
@@ -461,7 +461,7 @@
           specified port/application like inetd. Ncat will only
           accept a maximum, definable, number of simultaneous connections
           controlled by the <option>-m</option> option. By default this is set
-          to 100.</para>
+          to 100 (60 on Windows).</para>
         </listitem>
       </varlistentry>
 
