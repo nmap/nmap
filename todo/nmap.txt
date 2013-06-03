@@ -1,5 +1,20 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Process Nmap IPv4 OS detection submissions
+ - New fingerprints + corrections
+ - Last done in November 2012: http://seclists.org/nmap-dev/2012/q4/221
+
+o Process Nmap OS service detection submissions
+ - New fingerprints + corrections
+ - Last done November 2012: http://seclists.org/nmap-dev/2012/q4/222
+
+o Process Nmap IPv6 OS detection submissions
+ - New fingerprints + corrections
+
+o Update copyright year to 2013 in the Nmap copyright header files
+
+o New Nmap Release
+
 o Adopt an issue tracking system for Nmap and related tools.  We
   should probably look at our needs and options and then decide on and
   either install it on our own infrastructure or use it hosted elsewhere.
