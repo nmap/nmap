@@ -615,6 +615,7 @@ static int ipv6_is_extension_header(u8 type)
 static int ipv6_is_upperlayer(u8 type)
 {
   switch (type) {
+  case IP_PROTO_NONE:
   case IP_PROTO_TCP:
   case IP_PROTO_UDP:
   case IP_PROTO_ICMP:
