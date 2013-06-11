@@ -13,6 +13,14 @@ o Process Nmap IPv6 OS detection submissions
 
 o Update copyright year to 2013 in the Nmap copyright header files
 
+o Nping in ICMP mode (default) must not be checking the icmp IDs or
+  returned packets or something, because if I have two separate 'nping
+  scanme.nmap.org' running at the same time, each nping sees the replies
+  from the other nping (as well as its own) and it screws up the timing
+  stats too.
+
+o Update CHANGELOG for new release
+
 o New Nmap Release
 
 o Adopt an issue tracking system for Nmap and related tools.  We
@@ -55,12 +63,6 @@ o Move advanced IPv6 host discovery features from NSE into core Nmap.
   - The idea is that Nmap does them automatically if it gets a large
     target specification and sees that it is local so can be multicast
     pinged.
-
-o Nping in ICMP mode (default) must not be checking the icmp IDs or
-  returned packets or something, because if I have two separate 'nping
-  scanme.nmap.org' running at the same time, each nping sees the replies
-  from the other nping (as well as its own) and it screws up the timing
-  stats too.
 
 o We should figure out why (at least with Nping) raw ethernet frame
   sends seem to be taking significantly longer than raw socket sends
