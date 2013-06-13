@@ -92,7 +92,6 @@
 #include "base64.h"
 #include "nsock.h"
 #include "ncat.h"
-#include "ncat_lua.h"
 #include "util.h"
 #include "sys_wrap.h"
 
@@ -138,7 +137,7 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void post_connect(nsock_pool nsp, nsock_iod iod);
 static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data);
-void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data);
+static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void refresh_idle_timer(nsock_pool nsp);
 
@@ -278,7 +277,7 @@ static const char *sock_to_url(const union sockaddr_u *su)
     if (su->storage.ss_family == AF_INET)
         Snprintf(buf, sizeof(buf), "%s:%hu", host_str, port);
     else if (su->storage.ss_family == AF_INET6)
-        Snprintf(buf, sizeof(buf), "[%s]:%hu]", host_str, port);
+        Snprintf(buf, sizeof(buf), "[%s]:%hu", host_str, port);
     else
         bye("Unknown address family in sock_to_url_host.");
 
@@ -774,13 +773,6 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
         cs.idle_timer_event_id =
             nsock_timer_create(nsp, idle_timer_handler, o.idletimeout, NULL);
     }
-
-#ifdef HAVE_LUA
-    if (o.lua)
-    {
-        lua_run_onconnect(nsp, iod);
-    }
-#endif
 }
 
 static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
@@ -874,7 +866,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
     refresh_idle_timer(nsp);
 }
 
-void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
+static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);

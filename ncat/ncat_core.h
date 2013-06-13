@@ -107,8 +107,8 @@ extern size_t srcaddrlen;
 extern union sockaddr_u targetss;
 extern size_t targetsslen;
 
-extern union sockaddr_u httpconnect;
-extern union sockaddr_u socksconnect;
+extern union sockaddr_u httpconnect, socksconnect;
+extern size_t httpconnectlen, socksconnectlen;
 
 struct options {
     unsigned short portno;
@@ -162,9 +162,6 @@ struct options {
     char *sslkey;
     int sslverify;
     char *ssltrustfile;
-
-    int lua;
-    char *luafile;
 };
 
 extern struct options o;

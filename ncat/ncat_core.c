@@ -118,8 +118,8 @@ size_t srcaddrlen;
 union sockaddr_u targetss;
 size_t targetsslen;
 
-union sockaddr_u httpconnect;
-union sockaddr_u socksconnect;
+union sockaddr_u httpconnect, socksconnect;
+size_t httpconnectlen, socksconnectlen;
 
 /* Global options structure. */
 struct options o;
@@ -177,10 +177,6 @@ void options_init(void)
     o.sslverify = 0;
     o.ssltrustfile = NULL;
 #endif
-//#ifdef HAVE_LUA
-    o.lua = 0;
-    o.luafile = NULL;
-//#endif
 }
 
 /* Internal helper for resolve and resolve_numeric. addl_flags is ored into
