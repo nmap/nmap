@@ -2177,21 +2177,16 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
   char *script_output;
 
   if (scriptResults->size() > 0) {
-      scriptResults->sort(scriptid_lessthan);
-      if (scantype == SCRIPT_PRE_SCAN) {
+    scriptResults->sort(scriptid_lessthan);
+    if (scantype == SCRIPT_PRE_SCAN) {
       xml_start_tag("prescript");
       log_write(LOG_PLAIN, "Pre-scan script results:\n");
-    }
-    else {
+    } else {
       xml_start_tag("postscript");
       log_write(LOG_PLAIN, "Post-scan script results:\n");
     }               
-
-    for (iter = scriptResults->begin();
-         iter != scriptResults->end();
-         iter++) {
+    for (iter = scriptResults->begin(); iter != scriptResults->end(); iter++) {
       iter->write_xml();
-
       script_output = formatScriptOutput((*iter));
       if (script_output != NULL) {
         log_write(LOG_PLAIN, "%s\n", script_output);
