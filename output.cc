@@ -2177,7 +2177,6 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
   char *script_output;
 
   if (scriptResults->size() > 0) {
-      // No sense sorting if we don't need too
       scriptResults->sort(scriptid_lessthan);
       if (scantype == SCRIPT_PRE_SCAN) {
       xml_start_tag("prescript");
@@ -2208,7 +2207,6 @@ void printhostscriptresults(Target *currenths) {
   char *script_output;
 
   if (currenths->scriptResults.size() > 0) {
-    //no point sorting an empty list
     currenths->scriptResults.sort(scriptid_lessthan);
     xml_start_tag("hostscript");
     log_write(LOG_PLAIN, "\nHost script results:\n");
