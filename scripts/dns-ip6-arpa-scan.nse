@@ -20,7 +20,7 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 
 ---
 -- @usage
--- nmap --script dns-ip6-arpa-scan --script-args='prefix=2001:0DB8,mask=48'
+-- nmap --script dns-ip6-arpa-scan --script-args='prefix=2001:0DB8::/48'
 --
 -- @output
 -- Pre-scan script results:
@@ -40,7 +40,24 @@ categories = {"intrusive", "discovery"}
 local arg_prefix = stdnse.get_script_args(SCRIPT_NAME .. ".prefix")
 local arg_mask = stdnse.get_script_args(SCRIPT_NAME .. ".mask")
 
-prerule = function() return (arg_prefix ~= nil and arg_mask ~= nil) end
+-- Return a prefix and mask based on script arguments. First checks for "/"
+-- netmask syntax; then looks for a "mask" script argument if that fails. The
+-- "/" syntax wins over "mask" if both are present.
+local function get_prefix_mask(arg_prefix, arg_mask)
+	if not arg_prefix then
+		return
+	end
+	local prefix, mask = string.match(arg_prefix, "^(.*)/(.*)$")
+	if not mask then
+		prefix, mask = arg_prefix, arg_mask
+	end
+	return prefix, mask
+end
+
+prerule = function()
+	local prefix, mask = get_prefix_mask(arg_prefix, arg_mask)
+	return prefix and mask
+end
 
 local function query_prefix(query, result)
 	local condvar = nmap.condvar(result)
@@ -57,11 +74,11 @@ end
 
 action = function()
 
-	local prefix = arg_prefix
+	local prefix, mask = get_prefix_mask(arg_prefix, arg_mask)
 	local query = dns.reverse(prefix)
 
 	-- cut the query name down to the length of the prefix
-	local len = (( arg_mask / 8 ) * 4) + #(".ip6.arpa") - 1
+	local len = (( mask / 8 ) * 4) + #(".ip6.arpa") - 1
 
 	local found = { query:sub(-len) }
 	local threads = {}
@@ -94,7 +111,7 @@ action = function()
 				
 		found = result
 		i = i + 1
-	until( 128 == i * 2 + arg_mask )
+	until( 128 == i * 2 + mask )
 
 	table.sort(result, function(a,b) return (a.ip < b.ip) end)
 	local output = tab.new(2)
