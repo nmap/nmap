@@ -434,7 +434,7 @@ end
 -- This function should be used for all dates emitted as part of NSE structured
 -- output.
 function format_timestamp(t, offset)
-  local tz_string tz_string = format_tz(offset)
+  local tz_string = format_tz(offset)
   offset = offset or 0
   return os.date("!%Y-%m-%dT%H:%M:%S", t + offset) .. tz_string
 end
