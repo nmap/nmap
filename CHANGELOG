@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The dns-ip6-arpa-scan script now optionally accepts "/" syntax
+  for a network mask. Based on a patch by Indula Nayanamith.
+
 o [Ncat] Reduced the default --max-conns limit from 100 to 60 on
   Windows, to stay within platform limitations. Suggested by Andrey
   Olkhin.
