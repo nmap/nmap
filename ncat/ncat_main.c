@@ -114,6 +114,10 @@
 #include <openssl/err.h>
 #endif
 
+#ifdef HAVE_LUA
+#include "ncat_lua.h"
+#endif
+
 static int ncat_connect_mode(void);
 static int ncat_listen_mode(void);
 
@@ -276,6 +280,9 @@ int main(int argc, char *argv[])
         {"ssl-verify",      no_argument,        NULL,         0},
         {"ssl-trustfile",   required_argument,  NULL,         0},
 #endif
+#ifdef HAVE_LUA
+        {"lua-file",        required_argument,  NULL,         0},
+#endif 
         {0, 0, 0, 0}
     };
 
@@ -290,8 +297,13 @@ int main(int argc, char *argv[])
     while (1) {
         /* handle command line arguments */
         int option_index;
+#ifdef HAVE_LUA
+        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n:L",
+                            long_options, &option_index);
+#else 
         int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n",
                             long_options, &option_index);
+#endif
 
         /* That's the end of the options. */
         if (c == -1)
@@ -406,6 +418,12 @@ int main(int argc, char *argv[])
         case 't':
             o.telnet = 1;
             break;
+
+#ifdef HAVE_LUA
+        case 'L':
+            o.lua = 1;
+            break;
+#endif 
         case 0:
             if (strcmp(long_options[option_index].name, "version") == 0) {
                 print_banner();
@@ -471,6 +489,12 @@ int main(int argc, char *argv[])
                 o.sslverify = 1;
             }
 #endif
+#ifdef HAVE_LUA
+            else if (strcmp(long_options[option_index].name, "lua-file") == 0) {
+                o.lua = 1;
+                o.luafile = Strdup(optarg);
+            }
+#endif 
             break;
         case 'h':
             printf("%s %s ( %s )\n", NCAT_NAME, NCAT_VERSION, NCAT_URL);
@@ -524,6 +548,10 @@ int main(int argc, char *argv[])
 "      --ssl-verify           Verify trust and domain name of certificates\n"
 "      --ssl-trustfile        PEM file containing trusted SSL certificates\n"
 #endif
+#ifdef HAVE_LUA
+"      --lua-file             A .lua ncat script\n"
+"      -L                    Run Ncat in Lua stdin mode\n"
+#endif 
 "      --version              Display Ncat's version information and exit\n"
 "\n"
 "See the ncat(1) manpage for full options, descriptions and usage examples\n"
@@ -656,6 +684,9 @@ int main(int argc, char *argv[])
 #endif
         /* Listen defaults to any address and DEFAULT_NCAT_PORT */
         if (!o.listen)
+#ifdef HAVE_LUA
+        if (!(o.lua && o.luafile == NULL))
+#endif 
             bye("You must specify a host to connect to.");
     } else {
 #if HAVE_SYS_UN_H
@@ -679,6 +710,9 @@ int main(int argc, char *argv[])
                 bye("Could not resolve hostname \"%s\": %s.", o.target, gai_strerror(rc));
             optind++;
         } else {
+#ifdef HAVE_LUA
+            if (!(o.lua && o.luafile == NULL))
+#endif 
             if (!o.listen)
                 bye("You must specify a host to connect to.");
         }
@@ -786,6 +820,14 @@ connection brokering should work.");
     /* Do whatever is necessary to receive \n for line endings on input from
        the console. A no-op on Unix. */
     set_lf_mode();
+
+#ifdef HAVE_LUA
+    if(o.lua)
+        lua_setup();
+
+    if(o.lua && o.luafile == NULL)
+        return ncat_lua_mode();
+#endif 
 
     if (o.listen)
         return ncat_listen_mode();

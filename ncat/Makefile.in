@@ -59,6 +59,11 @@ STRIP = @STRIP@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 HAVE_OPENSSL = @HAVE_OPENSSL@
 PCAP_LIBS = @PCAP_LIBS@
+HAVE_LUA = @LIBLUA_LIBS@
+LUA_LIBS = @LIBLUA_LIBS@
+LIBLUADIR = @LIBLUADIR@
+LUA_CFLAGS = @LUA_CFLAGS@
+
 
 CPPFLAGS += $(DEFS) $(INCLS)
 
@@ -78,6 +83,13 @@ OBJS += http_digest.o
 DATAFILES = certs/ca-bundle.crt
 endif
 
+ifneq ($(HAVE_LUA),)
+SRCS += ncat_lua.c
+OBJS += ncat_lua.o
+LUA_LIBS += -lm #a quick hack
+LUA_CFLAGS += -DHAVE_LUA=1
+endif
+
 TARGET = ncat
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
@@ -88,13 +100,17 @@ ifneq ($(HAVE_OPENSSL),)
 TEST_PROGS += test/test-wildcard
 endif
 
-all: $(TARGET) $(TEST_PROGS)
+all: @LUA_BUILD@ $(TARGET) $(TEST_PROGS)  
 
-$(TARGET): $(OBJS) $(NSOCKLIB)
-	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $(OBJS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LIBS)
+lua_build: $(LIBLUADIR)/Makefile
+	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) $(LUA_CFLAGS)"
+
+
+$(TARGET): @LUA_DEPENDS@ $(OBJS) $(NSOCKLIB) 
+	$(CC) -o $@ $(CFLAGS) $(lua_cflags) $(LDFLAGS) $(OBJS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
 %.o: %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(LUA_CFLAGS) $(CFLAGS) -c $< -o $@
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) \
@@ -158,9 +174,15 @@ uninstall:
 ncat_clean:
 	$(RM) -f *.o test/*.o $(TARGET) $(TEST_PROGS)
 
-clean: ncat_clean
+clean: ncat_clean @LUA_CLEAN@
 
-distclean: clean
+lua_clean:
+	-cd $(LIBLUADIR) && $(MAKE) clean
+
+lua_dist_clean:
+	-cd $(LIBLUADIR) && $(MAKE) clean
+	
+distclean: clean @LUA_DIST_CLEAN@
 	-rm -f Makefile makefile.dep $(CONFIG_CLEAN_FILES)
 
 TESTS = ./test-addrset.sh ./test-cmdline-split ./test-uri
