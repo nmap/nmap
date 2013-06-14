@@ -451,7 +451,7 @@ std::string protect_xml(const std::string s) {
 /* This is a helper function to determine the ordering of the script results
    based on their id. */
 static bool scriptid_lessthan(ScriptResult a, ScriptResult b) {
-  return a.get_id() < b.get_id();
+  return strcmp(a.get_id(), b.get_id()) < 0;
 }
 
 static char *formatScriptOutput(ScriptResult sr) {
