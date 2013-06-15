@@ -1265,8 +1265,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
       if (nse->status != NSE_STATUS_SUCCESS) {
         nsock_log_info(ms, "Callback: %s %s %sfor EID %li [%s]",
                        nse_type2str(nse->type), nse_status2str(nse->status),
-                       errstr, nse->id,
-                       (nsi->peerlen > 0) ? get_peeraddr_string(nsi) : "peer unspecified");
+                       errstr, nse->id, get_peeraddr_string(nsi));
       } else {
         str = nse_readbuf(nse, &strlength);
         if (strlength < 80) {
@@ -1280,7 +1279,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
         nsock_log_info(ms, "Callback: %s %s for EID %li [%s] %s(%d bytes)%s",
                        nse_type2str(nse->type), nse_status2str(nse->status),
                        nse->id,
-                       (nsi->peerlen > 0) ? get_peeraddr_string(nsi) : "peer unspecified",
+                       get_peeraddr_string(nsi),
                        nse_eof(nse) ? "[EOF]" : "", strlength, displaystr);
       }
       break;
