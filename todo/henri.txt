@@ -1,4 +1,9 @@
 [DESIGN]
+o Replace event lists by more efficient data structures. Consider using
+  a radix tree to map event IDs to pointers. Another solution would
+  be to put them all into a single RB-tree (TODO: validate BSD_HACK_MODE
+  & stuff). Encoding the event type in the ID's MSB would let us do inorder
+  traversal with connect events first, then read, then write...
 o Give IODs their own methods to streamline the code and get rid of all
   the special cases in nsock_core.c. This would also make it easier to
   hook operations (typically: override the default iod_connect() method
@@ -6,11 +11,6 @@ o Give IODs their own methods to streamline the code and get rid of all
 o Fix the read API
 o Rework the filespace code to avoid unneeded data copy. Scatter/gather
   I/O might be useful there.
-o The numerous free-lists (one per gh_list, plus others) of a nsock_pool
-  should be shared. Actually, More efficient data structures in nsock
-  could also simply make them unneeded.
-  !! Do detailed profiling before starting any work on the last two
-  points.
 
 [PROXY SUPPORT]
 o Proper SSL support
