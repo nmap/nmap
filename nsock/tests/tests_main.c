@@ -60,12 +60,14 @@ int main(int ac, char **av) {
     const struct test_case *current = TestCases[i];
     const char *name = get_test_name(current);
 
+    printf("%-48s", name);
+    fflush(stdout);
     rc = test_case_run(current);
     if (rc) {
-      printf(TEST_FAILED " %s (%s)\n", name, strerror(-rc));
+      printf(TEST_FAILED " (%s)\n", strerror(-rc));
       break;
     }
-    printf(TEST_OK " %s\n", name);
+    printf(TEST_OK "\n");
   }
   return rc;
 }
