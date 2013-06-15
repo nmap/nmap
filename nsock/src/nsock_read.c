@@ -75,12 +75,8 @@ nsock_event_id nsock_readlines(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handle
   nse = msevent_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (nsi->peerlen > 0)
-    nsock_log_info(ms, "Read request for %d lines from IOD #%li [%s] EID %li",
-                   nlines, nsi->id, get_peeraddr_string(nsi), nse->id);
-  else
-    nsock_log_info(ms, "Read request for %d lines from IOD #%li (peer unspecified) EID %li",
-                   nlines, nsi->id, nse->id);
+  nsock_log_info(ms, "Read request for %d lines from IOD #%li [%s] EID %li",
+                 nlines, nsi->id, get_peeraddr_string(nsi), nse->id);
 
   nse->readinfo.read_type = NSOCK_READLINES;
   nse->readinfo.num = nlines;
@@ -101,12 +97,8 @@ nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handle
   nse = msevent_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (nsi->peerlen > 0)
-    nsock_log_info(ms, "Read request for %d bytes from IOD #%li [%s] EID %li",
-                   nbytes, nsi->id, get_peeraddr_string(nsi), nse->id);
-  else
-    nsock_log_info(ms, "Read request for %d bytes from IOD #%li (peer unspecified) EID %li",
-                   nbytes, nsi->id, nse->id);
+  nsock_log_info(ms, "Read request for %d bytes from IOD #%li [%s] EID %li",
+                 nbytes, nsi->id, get_peeraddr_string(nsi), nse->id);
 
   nse->readinfo.read_type = NSOCK_READBYTES;
   nse->readinfo.num = nbytes;
@@ -127,12 +119,8 @@ nsock_event_id nsock_read(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler han
   nse = msevent_new(ms, NSE_TYPE_READ, nsi, timeout_msecs, handler, userdata);
   assert(nse);
 
-  if (nsi->peerlen > 0)
-    nsock_log_info(ms, "Read request from IOD #%li [%s] (timeout: %dms) EID %li",
-                   nsi->id, get_peeraddr_string(nsi), timeout_msecs, nse->id);
-  else
-    nsock_log_info(ms, "Read request from IOD #%li (peer unspecified) (timeout: %dms) EID %li",
-                   nsi->id, timeout_msecs, nse->id);
+  nsock_log_info(ms, "Read request from IOD #%li [%s] (timeout: %dms) EID %li",
+                 nsi->id, get_peeraddr_string(nsi), timeout_msecs, nse->id);
 
   nse->readinfo.read_type = NSOCK_READ;
 

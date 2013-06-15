@@ -186,7 +186,10 @@ static char *get_addr_string(const struct sockaddr_storage *ss, size_t sslen) {
  * string containing path to UNIX socket if the address family is AF_UNIX,
  * otherwise it returns string containing "<address>:<port>". */
 char *get_peeraddr_string(const msiod *iod) {
-  return get_addr_string(&iod->peer, iod->peerlen);
+  if (iod->peerlen > 0)
+    return get_addr_string(&iod->peer, iod->peerlen);
+  else
+    return "peer unspecified";
 }
 
 /* Get the local bind address string. */

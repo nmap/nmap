@@ -150,12 +150,9 @@ nsock_event_id nsock_write(nsock_pool ms_pool, nsock_iod ms_iod,
     } else {
       displaystr[0] = '\0';
     }
-    if (nsi->peerlen > 0)
-      nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s",
-                      datalen, nsi->id, nse->id, get_peeraddr_string(nsi), displaystr);
-    else
-      nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s",
-                      datalen, nsi->id, nse->id, displaystr);
+
+    nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s",
+                    datalen, nsi->id, nse->id, get_peeraddr_string(nsi), displaystr);
 
   fs_cat(&nse->iobuf, data, datalen);
 
@@ -221,12 +218,9 @@ nsock_event_id nsock_printf(nsock_pool ms_pool, nsock_iod ms_iod,
   } else {
     displaystr[0] = '\0';
   }
-  if (nsi->peerlen > 0)
-    nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s",
-                    strlength, nsi->id, nse->id, get_peeraddr_string(nsi), displaystr);
-  else
-    nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li (peer unspecified)%s",
-                    strlength, nsi->id, nse->id, displaystr);
+
+  nsock_log_debug(nsp, "Write request for %d bytes to IOD #%li EID %li [%s]%s",
+                  strlength, nsi->id, nse->id, get_peeraddr_string(nsi), displaystr);
 
   if (buf2 != buf)
     free(buf2);
