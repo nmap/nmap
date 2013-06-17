@@ -889,6 +889,8 @@ nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
         |       X       |
         +-+-+-+-+-+-+-+-+  */
         case TCPOPT_EOL:
+          goto out;
+
         case TCPOPT_NOOP:
           curr_pnt++; /* Skip one octet */
           bytes_left--;
@@ -906,6 +908,8 @@ nping_tcp_opt_t TCPHeader::getOption(unsigned int index) const {
       }
       optsfound++;
   }
+
+out:
   return result;
 }
 

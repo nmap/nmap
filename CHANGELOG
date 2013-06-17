@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Stop parsing TCP options after reaching EOL in libnetutil. Bug reported
+  by Gustavo Moreira. [Henri Doreau]
+
 o [NSE] The dns-ip6-arpa-scan script now optionally accepts "/" syntax
   for a network mask. Based on a patch by Indula Nayanamith.
 
