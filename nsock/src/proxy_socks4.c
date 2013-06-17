@@ -132,14 +132,14 @@ static void proxy_socks4_node_delete(struct proxy_node *node) {
 static inline void socks4_data_init(struct socks4_data *socks4,
                                     struct sockaddr_storage *ss, size_t sslen,
                                     unsigned short port) {
-    struct sockaddr_in *sin = (struct sockaddr_in *)ss;
+  struct sockaddr_in *sin = (struct sockaddr_in *)ss;
 
-    memset(socks4, 0x00, sizeof(struct socks4_data));
-    socks4->version = 4;
-    socks4->type = 1;
-    socks4->port = htons(port);
-    assert(ss->ss_family == AF_INET);
-    socks4->address = sin->sin_addr.s_addr;
+  memset(socks4, 0x00, sizeof(struct socks4_data));
+  socks4->version = 4;
+  socks4->type = 1;
+  socks4->port = htons(port);
+  assert(ss->ss_family == AF_INET);
+  socks4->address = sin->sin_addr.s_addr;
 }
 
 static int handle_state_initial(mspool *nsp, msevent *nse, void *udata) {
