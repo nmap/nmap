@@ -355,6 +355,10 @@ function send_request( host, port, packet )
 	local socket = nmap.new_socket()
 	local s_status, r_status, data, i, hexstring, _
 
+	-- lock resource (port 500/udp)
+	local mutex = nmap.mutex("ike_port_500");
+	mutex "lock";
+
 	-- send the request packet
 	socket:set_timeout(1000)
 	socket:bind(nil, port.number)
@@ -368,6 +372,9 @@ function send_request( host, port, packet )
 		if r_status then
 			i, hexstring = bin.unpack("H" .. data:len(), data)
 			socket:close()
+
+			-- release mutex
+			mutex "done";
 			return response(hexstring)
 		else
 			socket:close()
@@ -375,6 +382,9 @@ function send_request( host, port, packet )
 	else
 		socket:close()
 	end
+
+	-- release mutex
+	mutex "done";
 
 	return {}
 end
