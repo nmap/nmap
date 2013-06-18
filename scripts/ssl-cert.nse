@@ -203,9 +203,9 @@ local function output_tab(cert)
 end
 
 local function output_str(cert)
-	local lines = {}
+    local lines = {}
 
-	lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
+    lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
 
     if nmap.verbosity() > 0 then
         lines[#lines + 1] = "Issuer: " .. stringify_name(cert.issuer)
@@ -224,19 +224,19 @@ local function output_str(cert)
     if nmap.verbosity() > 0 then
         lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
         lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
-	end
+    end
 
     if nmap.verbosity() > 1 then
         lines[#lines + 1] = cert.pem
     end
-	return stdnse.strjoin("\n", lines)
+    return stdnse.strjoin("\n", lines)
 end
 
 action = function(host, port)
-	local status, cert = sslcert.getCertificate(host, port)
-	if ( not(status) ) then
-		return
-	end
+    local status, cert = sslcert.getCertificate(host, port)
+    if ( not(status) ) then
+        return
+    end
 
     return output_tab(cert), output_str(cert)
 end
