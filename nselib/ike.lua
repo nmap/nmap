@@ -39,6 +39,7 @@ categories = {"discovery", "safe"}
 local ENC_METHODS = {
 	["des"]     = 0x80010001,
 	["3des"]    = 0x80010005,
+	["cast"]    = 0x80010006,
 	["aes/128"] = { 0x80010007, 0x800E0080 },
 	["aes/192"] = { 0x80010007, 0x800E00C0 },
 	["aes/256"] = { 0x80010007, 0x800E0100 },
@@ -47,19 +48,24 @@ local ENC_METHODS = {
 local AUTH_TYPES = {
 	["psk"]    = 0x80030001,
 	["rsa"]    = 0x80030003,
+	["ECDSA"]  = 0x80030008,
 	["Hybrid"] = 0x8003FADD,
 	["XAUTH"]  = 0x8003FDE9,
 }
 
 local HASH_ALGORITHM = {
-	["md5"]  = 0x80020001,
-	["sha1"] = 0x80020002,
+	["md5"]      = 0x80020001,
+	["sha1"]     = 0x80020002,
+	["sha2-256"] = 0x80020004,
+	["sha2-384"] = 0x80020005,
+	["sha2-512"] = 0x80020006,
 }
 
 local GROUP_DESCRIPTION = {
 	["768"]  = 0x80040001,
 	["1024"] = 0x80040002,
 	["1536"] = 0x80040005,
+	["2048"] = 0x0004000E,
 }
 
 local EXCHANGE_MODE = {
@@ -404,6 +410,8 @@ local function generate_aggressive(port, protocol, id, diffie)
 		key_length = 96
 	elseif diffie == 2 then
 		key_length = 128
+	elseif diffie == 5 then
+		key_length = 192
 	end
 
 	return bin.pack(">SHHSSHSHCHHH",
