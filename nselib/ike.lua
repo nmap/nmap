@@ -238,17 +238,15 @@ local function lookup(vendor_ids)
 
 					-- if a match is found, check if it's a version detection or attribute
 					if row.category == 'vendor' then
+						local debug_string = ''
+						if row.vendor  ~= nil then debug_string = debug_string .. row.vendor .. ' ' end
+						if row.version ~= nil then debug_string = debug_string .. row.version       end
+						stdnse.print_debug(2, "IKE: Fingerprint: %s matches %s", vendor_id,  debug_string)
 
 						-- Only store the first match
 						if info.vendor == nil then
 							-- the fingerprint contains information about the VID
 							info.vendor = row
-
-							local debug_string = ''
-							if row.vendor  ~= nil then debug_string = debug_string .. row.vendor .. ' ' end
-							if row.version ~= nil then debug_string = debug_string .. row.version       end
-
-							stdnse.print_debug(2, "IKE: Fingerprint: %s matches %s", vendor_id,  debug_string)
 						end
 
 					elseif row.category == 'attribute' then
