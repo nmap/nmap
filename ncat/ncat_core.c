@@ -405,7 +405,7 @@ void dotelnet(int s, unsigned char *buf, size_t bufsiz)
  * There is no upper or lower limit to the delayval, so if you pass in a short
  * length of time <100ms, then you're likely going to get odd results.
  * This is because the Linux timeslice is 10ms-200ms. So don't expect
- * it to return for atleast that long.
+ * it to return for at least that long.
  *
  * Block until the specified time has elapsed, then return 1.
  */
