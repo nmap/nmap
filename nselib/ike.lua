@@ -36,7 +36,7 @@ author = "Jesper Kueckelhahn"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-local enc_methods = {
+local ENC_METHODS = {
 	["des"]     = 0x80010001,
 	["3des"]    = 0x80010005,
 	["aes/128"] = { 0x80010007, 0x800E0080 },
@@ -44,43 +44,43 @@ local enc_methods = {
 	["aes/256"] = { 0x80010007, 0x800E0100 },
 }
 
-local authentication= {
+local AUTH_TYPES = {
 	["psk"]    = 0x80030001,
 	["rsa"]    = 0x80030003,
 	["Hybrid"] = 0x8003FADD,
 	["XAUTH"]  = 0x8003FDE9,
 }
 
-local hash_algo = {
+local HASH_ALGORITHM = {
 	["md5"]  = 0x80020001,
 	["sha1"] = 0x80020002,
 }
 
-local group_desc = {
+local GROUP_DESCRIPTION = {
 	["768"]  = 0x80040001,
 	["1024"] = 0x80040002,
 	["1536"] = 0x80040005,
 }
 
-local exchange_mode = {
+local EXCHANGE_MODE = {
 	["Main"]       = 0x02,
 	["Aggressive"] = 0x04,
 }
 
-local protocol_ids = {
+local PROTOCOL_IDS = {
 	["tcp"] = "06",
 	["udp"] = "11",
 }
 
 -- Response packet types
-local response_exchange_type = {
+local EXCHANGE_TYPE = {
 	["02"] = "Main",
 	["04"] = "Aggressive",
 	["05"] = "Informational",
 }
 
 -- Payload names
-local payloads = {
+local PAYLOADS = {
 	["00"] = "None",
 	["01"] = "SA",
 	["03"] = "Transform",
@@ -163,22 +163,22 @@ local function extract_payloads(packet)
 	local payload = ''
 
 	-- loop over packet
-	while payloads[np] ~= "None" and index <= packet:len() do
+	while PAYLOADS[np] ~= "None" and index <= packet:len() do
 		local payload_length = tonumber("0x"..packet:sub(index, index+3)) * 2
 		payload = string.lower(packet:sub(index+4, index+payload_length-5))
 
 		-- debug
-		if payloads[np] == 'VID' then
-			stdnse.print_debug(2, 'IKE: Found IKE Header: %s: %s - %s', np, payloads[np], payload)
+		if PAYLOADS[np] == 'VID' then
+			stdnse.print_debug(2, 'IKE: Found IKE Header: %s: %s - %s', np, PAYLOADS[np], payload)
 		else
-			stdnse.print_debug(2, 'IKE: Found IKE Header: %s: %s', np, payloads[np])
+			stdnse.print_debug(2, 'IKE: Found IKE Header: %s: %s', np, PAYLOADS[np])
 		end
 
 		-- Store payload
-		if ike_headers[payloads[np]] == nil then
-			ike_headers[payloads[np]] = {payload}
+		if ike_headers[PAYLOADS[np]] == nil then
+			ike_headers[PAYLOADS[np]] = {payload}
 		else
-			table.insert(ike_headers[payloads[np]], payload)
+			table.insert(ike_headers[PAYLOADS[np]], payload)
 		end
 
 		-- find the next payload type
@@ -321,7 +321,7 @@ function response(packet)
 	if packet:len() > 38 then
 
 		-- extract the return type
-		local resp_type = response_exchange_type[packet:sub(37,38)]
+		local resp_type = EXCHANGE_TYPE[packet:sub(37,38)]
 		local ike_headers = {}
 
 		-- simple check that the type is something other than 'Informational'
@@ -385,7 +385,7 @@ end
 --
 local function generate_aggressive(port, protocol, id, diffie)
 	local hex_port = string.format("%.4X", port)
-	local hex_prot = protocol_ids[protocol]
+	local hex_prot = PROTOCOL_IDS[protocol]
 	local id_len = string.format("%.4X", 8 + id:len())
 
 	-- get length of key data based on diffie
@@ -429,11 +429,11 @@ local function generate_transform(auth, encryption, hash, group, number, total)
 	-- handle special case of aes
 	if encryption:sub(1,3) == "aes" then
 		trans_length = 0x0028
-		enc = enc_methods[encryption][1]
-		key_length	= enc_methods[encryption][2]
+		enc = ENC_METHODS[encryption][1]
+		key_length	= ENC_METHODS[encryption][2]
 	else
 		trans_length = 0x0024
-		enc = enc_methods[encryption]
+		enc = ENC_METHODS[encryption]
 		key_length = nil
 	end
 
@@ -454,9 +454,9 @@ local function generate_transform(auth, encryption, hash, group, number, total)
 		0x01			, -- Transform ID (IKE)
 		0x0000			, -- spacers ?
 		enc			, -- Encryption algorithm
-		hash_algo[hash]		, -- Hash algorithm
-		authentication[auth]	, -- Authentication method
-		group_desc[group]	  -- Group Description
+		HASH_ALGORITHM[hash]	, -- Hash algorithm
+		AUTH_TYPES[auth]	, -- Authentication method
+		GROUP_DESCRIPTION[group]  -- Group Description
 	)
 
 	if key_length ~= nil then
@@ -518,7 +518,7 @@ function request(port, proto, mode, transforms, diffie, id)
 		0x0000000000000000	, -- Responder cookie
 		0x01			, -- Next payload (SA)
 		0x10			, -- Version
-		exchange_mode[mode]	, -- Exchange type
+		EXCHANGE_MODE[mode]	, -- Exchange type
 		0x00			, -- Flags
 		0x00000000		, -- Message id
 		l			, -- packet length
