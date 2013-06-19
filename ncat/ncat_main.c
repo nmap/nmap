@@ -722,9 +722,9 @@ int main(int argc, char *argv[])
         ; /* Do nothing. */
 #endif
     else if (targetss.storage.ss_family == AF_UNSPEC)
-	; /* Leave unspecified. */
+        ; /* Leave unspecified. */
     else
-	bye("Unknown address family %d.", targetss.storage.ss_family);
+        bye("Unknown address family %d.", targetss.storage.ss_family);
 
     if (srcport != -1) {
         if (o.listen) {
