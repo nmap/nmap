@@ -191,7 +191,7 @@ local rpcGrinder = function(host, port, iterator, result)
 
         status, data = rpcConn:ReceivePacket()
         if not status then
-            stdnse.print_debug("%s ReceivePacket(): %s", SCRIPT_NAME, err)
+            stdnse.print_debug("%s ReceivePacket(): %s", SCRIPT_NAME, data)
             condvar "signal";
             return
         end
