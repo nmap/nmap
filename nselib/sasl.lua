@@ -85,20 +85,22 @@ if HAVE_SSL then
     parseChallenge = function(self)
       local results = {}
       local start, stop = 0,0
-      while(true) do
-        local name, value
-        start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
-        if ( not(start) ) then break end
-        if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
-          start, stop, value = self.chall:find("(.-)\"", stop + 2)
-        else
-          start, stop, value = self.chall:find("([^,]*)", stop + 1)
+      if self.chall then
+        while(true) do
+          local name, value
+          start, stop, name = self.chall:find("([^=]*)=%s*", stop + 1)
+          if ( not(start) ) then break end
+          if ( self.chall:sub(stop + 1, stop + 1) == "\"" ) then
+            start, stop, value = self.chall:find("(.-)\"", stop + 2)
+          else
+            start, stop, value = self.chall:find("([^,]*)", stop + 1)
+          end
+          name = name:lower()
+          if name == "digest realm" then name="realm" end
+          self.challnvs[name] = value
+          start, stop = self.chall:find("%s*,%s*", stop + 1)
+          if ( not(start) ) then break end
         end
-        name = name:lower()
-        if name == "digest realm" then name="realm" end
-        self.challnvs[name] = value
-        start, stop = self.chall:find("%s*,%s*", stop + 1)
-        if ( not(start) ) then break end
       end
     end,
 
