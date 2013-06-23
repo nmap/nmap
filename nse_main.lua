@@ -1152,6 +1152,7 @@ end
 
 do -- Load script arguments (--script-args)
   local args = cnse.scriptargs or "";
+  print_debug(1, "Script Arguments seen from CLI: %s", args);
 
   -- Parse a string in 'str' at 'start'.
   local function parse_string (str, start)
@@ -1223,6 +1224,11 @@ do -- Load script arguments (--script-args)
       tmpargs[k] = v
     end
     nmap.registry.args = tmpargs
+  end
+  if debugging() >= 2 then
+    local out = {}
+    rawget(stdnse, "pretty_printer")(nmap.registry.args, function (s) out[#out+1] = s end)
+    print_debug(2, concat(out))
   end
 end
 

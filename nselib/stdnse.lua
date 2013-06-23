@@ -24,6 +24,7 @@ local require = require;
 local select = select
 local setmetatable = setmetatable;
 local tonumber = tonumber;
+local tostring = tostring;
 local type = type
 
 local ceil = math.ceil
@@ -1157,6 +1158,41 @@ function output_table ()
     end
   }
   return setmetatable({}, mt)
+end
+
+--- A pretty printer for Lua objects.
+--
+-- Takes an object (usually a table) and prints it using the
+-- printer function. The printer function takes a sole string
+-- argument and will be called repeatedly.
+--
+-- @args obj The object to pretty print.
+-- @args printer The printer function.
+function pretty_printer (obj, printer)
+  if printer == nil then printer = print end
+
+  local function aux (obj, spacing)
+    local t = type(obj)
+    if t == "table" then
+      printer "{\n"
+      for k, v in pairs(obj) do
+        local spacing = spacing.."\t"
+        printer(spacing)
+        printer "["
+        aux(k, spacing)
+        printer "] = "
+        aux(v, spacing)
+        printer ",\n"
+      end
+      printer(spacing.."}")
+    elseif t == "string" then
+      printer(format("%q", obj))
+    else
+      printer(tostring(obj))
+    end
+  end
+
+  return aux(obj, "")
 end
 
 return _ENV;
