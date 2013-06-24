@@ -649,8 +649,8 @@
         <listitem>
           <para>Issue Ncat with <option>-v</option> and it will be verbose and
           display all kinds of useful connection based information. Use more
-          than once (<option>-vv</option>, <option>-vvv</option>) for greater
-          verbosity. <option>-vvv</option> is the maximum level.</para>
+          than once (<option>-vv</option>, <option>-vvv</option>...) for greater
+          verbosity.</para>
         </listitem>
       </varlistentry>
     </variablelist>
