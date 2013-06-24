@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
 "  -t, --telnet               Answer Telnet negotiations\n"
 "  -u, --udp                  Use UDP instead of default TCP\n"
 "      --sctp                 Use SCTP instead of default TCP\n"
-"  -v, --verbose              Set verbosity level (can be used up to 3 times)\n"
+"  -v, --verbose              Set verbosity level (can be used several times)\n"
 "  -w, --wait <time>          Connect timeout\n"
 "      --append-output        Append rather than clobber specified output files\n"
 "      --send-only            Only send data, ignoring received; quit on EOF\n"
