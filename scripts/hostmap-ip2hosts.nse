@@ -17,7 +17,6 @@ The script is in the "external" category because it sends target IPs to a third 
 -- nmap --script hostmap-ip2hosts --script-args 'hostmap-ip2hosts.prefix=hostmap-' <targets>
 -- @usage
 -- nmap -sn --script hostmap-ip2hosts <target>
--- @xml-output 
 -- @output
 -- Host script results:
 -- | hostmap-ip2hosts: 
