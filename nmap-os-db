@@ -698,17 +698,11 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Xerox Phaser 3125/N network printer
 # Samsung 6555N Scanner/Printer/Copier
 # Dell Remote Access Controller in a Dell Power Edge 2650, 3.12 (Build 04.26)
+# Motorola Canopy 5.7Ghz AP running Software version: CANOPY 7.0.7 Mar 02 2005 15:06:58 AP-DES
 # VxWorks? -- Ed.
-Fingerprint 3Com SuperStack 3 Switch 4300, Dell PowerEdge 2650 remote access controller, Samsung ML-2571N or 6555N printer, or Xerox Phaser 3125N printer
-Class 3Com | embedded || switch
-CPE cpe:/h:3com:superstack_3_switch_4300
-Class Dell | embedded || remote management
-CPE cpe:/h:dell:poweredge_2650
-Class Samsung | embedded || printer
-CPE cpe:/h:samsung:ml-2571n
-CPE cpe:/h:samsung:6555n
-Class Xerox | embedded || printer
-CPE cpe:/h:xerox:phaser_3125n
+Fingerprint VxWorks
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
 SEQ(SP=B-15%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=96-A0%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -3308,9 +3302,9 @@ CPE cpe:/o:apple:iphone_os:6 auto
 Class Apple | iOS | 6.X | phone
 CPE cpe:/o:apple:iphone_os:6 auto
 SEQ(SP=E1-109%GCD=1-6%ISR=E6-110%TI=RD|RI%CI=RD|RI%II=RI%TS=8|9|A|B)
-OPS(O1=M5B4NW4NNT11SLL%O2=M5B4NW4NNT11SLL%O3=M5B4NW4NNT11%O4=M5B4NW4NNT11SLL%O5=M5B4NW4NNT11SLL%O6=M5B4NNT11SLL)
+OPS(O1=M5B4NW4NNT11SLL|M5B4NW5NNT11SLL%O2=M5B4NW4NNT11SLL|M5B4NW5NNT11SLL%O3=M5B4NW4NNT11|M5B4NW5NNT11%O4=M5B4NW4NNT11SLL|M5B4NW5NNT11SLL%O5=M5B4NW4NNT11SLL|M5B4NW5NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW4SLL%CC=N%Q=)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW4SLL|M5B4NW5SLL%CC=N%Q=)
 T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
 T2(R=N)
 T3(R=N)
@@ -3651,11 +3645,16 @@ U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # iOS 5.1.1 on iphone running as wifi hotspot
-Fingerprint Apple iOS 5.1.1
+# iOS 6.1
+Fingerprint Apple iOS 5.1.1 - 6.1
 Class Apple | iOS | 5.X | media device
 CPE cpe:/o:apple:iphone_os:5 auto
 Class Apple | iOS | 5.X | phone
 CPE cpe:/o:apple:iphone_os:5 auto
+Class Apple | iOS | 6.X | media device
+CPE cpe:/o:apple:iphone_os:6 auto
+Class Apple | iOS | 6.X | phone
+CPE cpe:/o:apple:iphone_os:6 auto
 SEQ(SP=F3-107%GCD=1-6%ISR=FE-10A%TI=RD%CI=RI%II=RI%TS=A)
 OPS(O1=M582NW4NNT11SLL%O2=M582NW4NNT11SLL%O3=M582NW4NNT11%O4=M582NW4NNT11SLL%O5=M582NW4NNT11SLL%O6=M582NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -24208,9 +24207,13 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Brother MFC-7840N, firmware version F, sub-firmware version 1.00, and NC-6600h print server firmware version 1.02.
 # HL-22700W Brother Printer - Wired Connection
 # Brother DCP-375CW with wireless interface.
-Fingerprint HP LaserJet (1020-, 2010-, 2600-, 2800-, 3050-, or 3390-series), or Brother (DCP-375CW, HL-5250DN, HL-22700W, MFC-7840N, or MFC-8860DN) printer
+# Sony Network Camera SNC-RZ30N running firmware 3.14.
+# MFC-9970CDW
+Fingerprint HP LaserJet (1020-, 2010-, 2600-, 2800-, 3050-, or 3390-series), or Brother (DCP-375CW, HL-5250DN, HL-22700W, MFC-7840N, MFC-8860DN, or MFC-9970CDW) printer; or Sony SNC-RZ30N network camera
 Class HP | embedded || printer
 Class Brother | embedded || printer
+Class Sony | embedded || webcam
+CPE cpe:/h:sony:snc-rz30n
 SEQ(SP=0-16%GCD=1E848|3D090|5B8D8|7A120|98968|B71B0%ISR=9F-A9%TI=I%II=I%SS=S%TS=A|B)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
@@ -29043,24 +29046,6 @@ T7(R=N)
 U1(DF=N%T=F9-103%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=F9-103%TG=FF%CD=S)
 
-# InfoPrint 1832
-Fingerprint IBM InfoPrint 1832 printer
-Class IBM | embedded || printer
-CPE cpe:/h:ibm:infoprint_1832 auto
-SEQ(SP=BB-D7%GCD=1-6%ISR=C5-D7%TI=Z%CI=Z%II=I%TS=A)
-OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
-WIN(W1=B50%W2=B50%W3=B50%W4=B50%W5=B50%W6=B50)
-ECN(R=Y%DF=Y%T=F9-103%TG=FF%W=B68%O=M5B4NNSNW1%CC=N%Q=)
-T1(R=Y%DF=Y%T=F9-103%TG=FF%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=Y%DF=Y%T=F9-103%TG=FF%W=B50%S=O%A=S+%F=AS%O=M5B4ST11NW1%RD=0%Q=)
-T4(R=Y%DF=Y%T=F9-103%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=Y%T=F9-103%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=Y%T=F9-103%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=Y%T=F9-103%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=F9-103%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=F9-103%TG=FF%CD=S)
-
 # IBM Websphere DataPower XI50
 Fingerprint IBM WebSphere DataPower XI50 proxy server
 Class IBM | embedded || proxy server
@@ -30913,9 +30898,12 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Device: Juniper SRX210h JUNOS Software Release [10.4R4.5]
 # Model: srx220h-poe JUNOS Software Release [10.4R3.4]
-Fingerprint Juniper SRX210 or SRX220 firewall (JUNOS 10.4)
+# Juniper SRX (100) JUNOS 12.1X44-D10.4 built 2013-01-08 05:15:31 UTC
+Fingerprint Juniper SRX100-series or SRX200-series firewall (JUNOS 10.4 - 12.1)
 Class Juniper | JUNOS | 10.X | firewall
 CPE cpe:/o:juniper:junos:10 auto
+Class Juniper | JUNOS | 12.X | firewall
+CPE cpe:/o:juniper:junos:12 auto
 SEQ(SP=F5-107%GCD=1-6%ISR=105-112%TI=I%II=RI%SS=O|S%TS=A)
 OPS(O1=M5B4NW1NNT11SLL%O2=M5B4NW1NNT11SLL%O3=M5B4NW1NNT11%O4=M5B4NW1NNT11SLL%O5=M5B4NW1NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -32419,11 +32407,17 @@ T7(R=Y%DF=Y%T=FE%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FE%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FE%TG=FF%CD=S)
 
+# InfoPrint 1832
 # Lexmark T-612 printer
 # Lexmark C544dn Printer
 # Lexmark T650
 # Lexmark X464de network printer
-Fingerprint Lexmark C544dn, T612, T650, or X464de printer
+# Dell 2350dn
+Fingerprint Dell 2350dn, IBM InfoPrint 1832; or Lexmark C544dn, T612, T650, or X464de printer
+Class Dell | embedded || printer
+CPE cpe:/h:dell:2350dn
+Class IBM | embedded || printer
+CPE cpe:/h:ibm:infoprint_1832
 Class Lexmark | embedded || printer
 SEQ(SP=BB-CD%GCD=1-6%ISR=C0-D8%TI=Z%CI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW1%O2=M5B4ST11NW1%O3=M5B4NNT11NW1%O4=M5B4ST11NW1%O5=M5B4ST11NW1%O6=M5B4ST11)
@@ -45141,7 +45135,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 Fingerprint Linux 2.6.8 - 2.6.32
 Class Linux | Linux | 2.6.X | general purpose
 CPE cpe:/o:linux:linux_kernel:2.6 auto
-SEQ(SP=B3-D1%GCD=1-6%ISR=B7-D7%TI=Z%CI=Z%II=I%TS=U)
+SEQ(SP=B3-E7%GCD=1-6%ISR=B7-DB%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4%CC=N%Q=)
@@ -49545,9 +49539,11 @@ U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Microsoft (R) Windows Version 5.0 (Build 2195: Service Pack 4)
-Fingerprint Microsoft Windows 2000 SP4
+Fingerprint Microsoft Windows 2000 SP4 or Windows XP
 Class Microsoft | Windows | 2000 | general purpose
 CPE cpe:/o:microsoft:windows_2000::sp4
+Class Microsoft | Windows | XP | general purpose
+CPE cpe:/o:microsoft:windows_xp auto
 SEQ(SP=101-10B%GCD=1-6%ISR=108-112%II=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
@@ -60056,10 +60052,11 @@ IE(R=N)
 
 # Minix 3.1.2a running in VMWare Workstation 5.5.1 build-19175 on SuSE Linux 10.0
 # Minix 3 OS that I had hosted on VMware 5.
-Fingerprint Minix 3.1.2a
+# Minix 3.2.1 i686
+Fingerprint Minix 3.1.2
 Class Minix | Minix | 3.X | general purpose
 CPE cpe:/o:minix:minix:3 auto
-SEQ(SP=DC-104%GCD=1-6%ISR=106-114%TI=I%TS=U)
+SEQ(SP=DC-10A%GCD=1-6%ISR=106-114%TI=I%CI=I%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=5B4%W2=5B4%W3=5B4%W4=5B4%W5=5B4%W6=5B4)
 ECN(R=Y%DF=Y%T=0-A%TG=20%W=5B4%O=M5B4%CC=N%Q=U)
@@ -60410,7 +60407,10 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Scientific-Atlanta, EPC2203 cable modem
 # Motorola Surfboard SB5101E
-Fingerprint Motorola SURFboard SB5101E or Scientific Atlanta EPC2203 cable modem
+# Cisco EPC3925
+Fingerprint Cisco EPC3925, Motorola SURFboard SB5101E, or Scientific Atlanta EPC2203 cable modem
+Class Cisco | embedded || broadband router
+CPE cpe:/h:cisco:epc3925
 Class Motorola | embedded || broadband router
 CPE cpe:/h:motorola:sb5101e
 Class Scientific Atlanta | embedded || broadband router
@@ -74651,6 +74651,24 @@ T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
+# HP StorageWorks, MSA2312i
+Fingerprint VxWorks
+Class Wind River | VxWorks || general purpose
+CPE cpe:/o:windriver:vxworks auto
+SEQ(SP=96-A0%GCD=1-6%ISR=9D-A7%CI=I%II=I%TS=1)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=4000%O=M5B4NW0%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=4000%S=O%A=O%F=AS%O=M5B4NW0NNT11%RD=0%Q=)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=4000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
+
 # ProCurve J9019A Switch 2510-24, Software revision Q.10.01
 # ProCurve J4903A Switch 2824 Software revision I.08.105
 # HP Procurve 2626-PWR, firmware H.08.98
@@ -78230,3 +78248,20 @@ T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=I%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# ShoreTel Voice Switch 220T1A
+Fingerprint ShoreTel Voice Switch 220T1A VoIP gateway
+Class ShoreTel | embedded || VoIP adapter
+SEQ(SP=FF-109%GCD=1-6%ISR=104-10E%TI=I%CI=I%II=I%SS=S%TS=9)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=4000%O=M5B4NW0%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=N)
+U1(DF=N%T=3B-45%TG=40%IPL=70%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
