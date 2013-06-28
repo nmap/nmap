@@ -1108,7 +1108,7 @@ must be a number in the range [0\(en65535]\&.
 Sets the Don\*(Aqt Fragment bit in sent packets\&. When an IP datagram has its DF flag set, intermediate devices are not allowed to fragment it so if it needs to travel across a network with a MTU smaller that datagram length the datagram will have to be dropped\&. Normally an ICMP Destination Unreachable message is generated and sent back to the sender\&.
 .RE
 .PP
-\fB\-\-md\fR (More Fragments) .\" --mf (Nping option)
+\fB\-\-mf\fR (More Fragments) .\" --mf (Nping option)
 .RS 4
 Sets the More Fragments bit in sent packets\&. The MF flag is set to indicate the receiver that the current datagram is a fragment of some larger datagram\&. When set to zero it indicates that the current datagram is either the last fragment in the set or that it is the only fragment\&.
 .RE
