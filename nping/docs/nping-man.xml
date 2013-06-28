@@ -2043,7 +2043,7 @@ SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
 
       <varlistentry>
         <term>          
-          <option>--md</option> (More Fragments)
+          <option>--mf</option> (More Fragments)
           <indexterm significance="preferred"><primary><option>--mf</option> (Nping option)</primary></indexterm>
         </term>
         <listitem>
