@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now support chained certificates with the --ssl-cert
+  option. [Greg Bailey]
+
 o Stop parsing TCP options after reaching EOL in libnetutil. Bug reported
   by Gustavo Moreira. [Henri Doreau]
 
