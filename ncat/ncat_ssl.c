@@ -173,8 +173,8 @@ SSL_CTX *setup_ssl_listen(void)
     } else {
         if (o.sslcert == NULL || o.sslkey == NULL)
             bye("The --ssl-key and --ssl-cert options must be used together.");
-        if (SSL_CTX_use_certificate_file(sslctx, o.sslcert, SSL_FILETYPE_PEM) != 1)
-            bye("SSL_CTX_use_certificate_file(): %s.", ERR_error_string(ERR_get_error(), NULL));
+        if (SSL_CTX_use_certificate_chain_file(sslctx, o.sslcert) != 1)
+            bye("SSL_CTX_use_certificate_chain_file(): %s.", ERR_error_string(ERR_get_error(), NULL));
         if (SSL_CTX_use_PrivateKey_file(sslctx, o.sslkey, SSL_FILETYPE_PEM) != 1)
             bye("SSL_CTX_use_Privatekey_file(): %s.", ERR_error_string(ERR_get_error(), NULL));
     }
