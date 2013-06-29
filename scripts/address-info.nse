@@ -148,8 +148,8 @@ local function matches(addr, pattern)
 end
 
 local function get_manuf(mac)
-  local catch = function() return "Unknown" end
-  local try = nmap.new_try(catch)
+	local catch = function() return "Unknown" end
+	local try = nmap.new_try(catch)
 	local mac_prefixes = try(datafiles.parse_mac_prefixes())
 	local prefix = string.upper(string.format("%02x%02x%02x", mac[1], mac[2], mac[3]))
 	return mac_prefixes[prefix] or "Unknown"
@@ -163,9 +163,9 @@ local function format_mac(mac)
 		octets[#octets + 1] = string.format("%02x", v)
 	end
 
-  local out = stdnse.output_table()
-  out.address = stdnse.strjoin(":", octets)
-  out.manuf = get_manuf(mac)
+	local out = stdnse.output_table()
+	out.address = stdnse.strjoin(":", octets)
+	out.manuf = get_manuf(mac)
 	return out
 end
 
