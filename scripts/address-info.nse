@@ -197,9 +197,11 @@ local function do_ipv6(addr)
 
 	output = stdnse.output_table()
 
-	if matches(addr, "0000:0000:0000:0000:0000:0000:XXXX:XXXX")
-		and not matches(addr, "0000:0000:0000:0000:0000:0000:0000:0001") then
-		-- RFC 4291 2.5.5.1. Specifically exclude ::1 for localhost.
+	if matches(addr, "0000:0000:0000:0000:0000:0000:0000:0001") then
+		-- ::1 is localhost. Not much to report.
+		return nil
+	elseif matches(addr, "0000:0000:0000:0000:0000:0000:XXXX:XXXX") then
+		-- RFC 4291 2.5.5.1.
 		local ipv4 = { addr[13], addr[14], addr[15], addr[16] }
 		return {["IPv4-compatible"]= { ["IPv4 address"] = format_ipv4(ipv4) } }
 	elseif matches(addr, "0000:0000:0000:0000:0000:ffff:XXXX:XXXX") then
