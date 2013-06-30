@@ -199,6 +199,8 @@ static int ncat_listen_stream(int proto)
 {
     int rc, i, fds_ready;
     fd_set listen_fds;
+    struct timeval tv;
+    struct timeval *tvp = NULL;
 
     /* clear out structs */
     FD_ZERO(&master_readfds);
@@ -254,6 +256,9 @@ static int ncat_listen_stream(int proto)
 
     init_fdlist(&broadcast_fdlist, o.conn_limit);
 
+    if (o.idletimeout > 0)
+        tvp = &tv;
+
     while (1) {
         /* We pass these temporary descriptor sets to fselect, since fselect
            modifies the sets it receives. */
@@ -266,10 +271,16 @@ static int ncat_listen_stream(int proto)
         if (o.debug > 1 && o.broker)
             logdebug("Broker connection count is %d\n", get_conn_count());
 
-        fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, NULL);
+        if (o.idletimeout > 0)
+            ms_to_timeval(tvp, o.idletimeout);
+
+        fds_ready = fselect(client_fdlist.fdmax + 1, &readfds, &writefds, NULL, tvp);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
+
+        if (fds_ready == 0)
+            bye("Idle timeout expired (%d ms).", o.idletimeout);
 
         /*
          * FIXME: optimize this loop to look only at the fds in the fd list,
@@ -584,6 +595,8 @@ static int ncat_listen_dgram(int proto)
     fd_set read_fds;
     union sockaddr_u remotess;
     socklen_t sslen = sizeof(remotess.storage);
+    struct timeval tv;
+    struct timeval *tvp = NULL;
 
     for (i = 0; i < NUM_LISTEN_ADDRS; i++) {
         sockfd[i] = -1;
@@ -618,6 +631,9 @@ static int ncat_listen_dgram(int proto)
         add_fd(&listen_fdlist, sockfd[i]);
     }
 
+    if (o.idletimeout > 0)
+        tvp = &tv;
+
     while (1) {
         int i, j, conn_count, socket_n;
 
@@ -643,11 +659,17 @@ static int ncat_listen_dgram(int proto)
             if (o.debug > 1)
                 logdebug("selecting, fdmax %d\n", listen_fdlist.fdmax);
             fds = listen_fds;
-            fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, NULL);
+
+            if (o.idletimeout > 0)
+                ms_to_timeval(tvp, o.idletimeout);
+
+            fds_ready = fselect(listen_fdlist.fdmax + 1, &fds, NULL, NULL, tvp);
 
             if (o.debug > 1)
                 logdebug("select returned %d fds ready\n", fds_ready);
 
+            if (fds_ready == 0)
+                bye("Idle timeout expired (%d ms).", o.idletimeout);
 
             /*
              * Figure out which listening socket got a connection. This loop should
@@ -755,7 +777,13 @@ static int ncat_listen_dgram(int proto)
             if (o.debug > 1)
                 logdebug("udp select'ing\n");
 
-            fds_ready = fselect(fdmax + 1, &fds, NULL, NULL, NULL);
+            if (o.idletimeout > 0)
+                ms_to_timeval(tvp, o.idletimeout);
+
+            fds_ready = fselect(fdmax + 1, &fds, NULL, NULL, tvp);
+
+            if (fds_ready == 0)
+                bye("Idle timeout expired (%d ms).", o.idletimeout);
 
             if (FD_ISSET(STDIN_FILENO, &fds)) {
                 nbytes = Read(STDIN_FILENO, buf, sizeof(buf));

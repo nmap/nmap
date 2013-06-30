@@ -507,6 +507,17 @@ int allow_access(const union sockaddr_u *su)
 }
 
 /*
+ * Fills the given timeval struct with proper
+ * values based on the given time in milliseconds.
+ * The pointer to timeval struct must NOT be NULL.
+ */
+void ms_to_timeval(struct timeval *tv, long ms)
+{
+    tv->tv_sec = ms / 1000;
+    tv->tv_usec = (ms - (tv->tv_sec * 1000)) * 1000;
+}
+
+/*
  * ugly code to maintain our list of fds so we can have proper fdmax for
  * select().  really this should be generic list code, not this silly bit of
  * stupidity. -sean

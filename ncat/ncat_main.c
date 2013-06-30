@@ -822,9 +822,6 @@ static int ncat_listen_mode(void)
     if (httpconnect.storage.ss_family != AF_UNSPEC || socksconnect.storage.ss_family != AF_UNSPEC)
         bye("Invalid option combination: --proxy and -l.");
 
-    if (o.idletimeout != 0)
-        bye("An idle timeout only works in connect mode.");
-
     if (o.broker && o.cmdexec != NULL)
         bye("Invalid option combination: --broker and -e.");
 
