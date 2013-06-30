@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a byte-ordering problem on little-endian architectures when
+  doing idle scan with a zombie that uses broken ID incremements.
+  [David Fifield]
+
 o [Ncat] Ncat now support chained certificates with the --ssl-cert
   option. [Greg Bailey]
 

@@ -237,6 +237,9 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
   return ipid;
 }
 
+static u16 byteswap_u16(u16 h) {
+  return ((h&0xff) << 8) | ((h>>8)&0xff);
+}
 
 /* Returns the number of increments between an early IP ID and a later
    one, assuming the given IP ID Sequencing class.  Returns -1 if the
@@ -248,8 +251,8 @@ static int ipid_distance(int seqclass , u16 startid, u16 endid) {
 
   if (seqclass == IPID_SEQ_BROKEN_INCR) {
     /* Convert to network byte order */
-    startid = htons(startid);
-    endid = htons(endid);
+    startid = byteswap_u16(startid);
+    endid = byteswap_u16(endid);
     return endid - startid;
   }
 
