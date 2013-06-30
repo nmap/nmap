@@ -1140,7 +1140,7 @@ kill_children;
 
 # Test that both reads and writes reset the idle counter, and that the client
 # properly exits after the timeout expires.
-server_client_test "idle timeout",
+server_client_test_all "idle timeout (connect mode)",
 [], ["-i", "3000ms"], sub {
 	my $resp;
 
@@ -1156,6 +1156,48 @@ server_client_test "idle timeout",
 	syswrite($s_in, "abc\n");
 	$resp = timeout_read($c_out);
 	!$resp or die "Client received \"$resp\" after delay of 4000 ms with idle timeout of 3000 ms."
+};
+
+# Test that both reads and writes reset the idle counter, and that the server
+# properly exits after the timeout expires.
+server_client_test_tcp_sctp_ssl "idle timeout (listen mode)",
+["-i", "3000ms"], [], sub {
+	my $resp;
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	sleep 2;
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	sleep 2;
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	sleep 4;
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	!$resp or die "Server received \"$resp\" after delay of 4000 ms with idle timeout of 3000 ms."
+};
+
+server_client_test_multi ["udp"], "idle timeout (listen mode)",
+["-i", "3000ms"], [], sub {
+	my $resp;
+
+	# when using UDP client must at least write something to the server
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Server didn't receive the message";
+
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	sleep 2;
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out) or die "Read timeout";
+	sleep 2;
+	syswrite($s_in, "abc\n");
+	$resp = timeout_read($c_out) or die "Read timeout";
+	sleep 4;
+	syswrite($c_in, "abc\n");
+	$resp = timeout_read($s_out);
+	!$resp or die "Server received \"$resp\" after delay of 4000 ms with idle timeout of 3000 ms."
 };
 
 # --send-only tests.
