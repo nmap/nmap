@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The -i option (idle timeout) now works in listen mode as well
+  as connect mode. [Tomas Hozza]
+
 o Fixed a byte-ordering problem on little-endian architectures when
   doing idle scan with a zombie that uses broken ID incremements.
   [David Fifield]
