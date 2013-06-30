@@ -158,6 +158,8 @@ int ncat_http_server(void)
     int listen_socket[NUM_LISTEN_ADDRS];
     socklen_t sslen;
     union sockaddr_u conn;
+    struct timeval tv;
+    struct timeval *tvp = NULL;
 
 #ifndef WIN32
     Signal(SIGCHLD, proxyreaper);
@@ -194,6 +196,9 @@ int ncat_http_server(void)
 
     }
 
+    if (o.idletimeout > 0)
+        tvp = &tv;
+
     for (;;) {
         fd_set read_fds;
 
@@ -204,10 +209,17 @@ int ncat_http_server(void)
         if (o.debug > 1)
             logdebug("selecting, fdmax %d\n", listen_fdlist.fdmax);
         read_fds = listen_fds;
-        int fds_ready = fselect(listen_fdlist.fdmax + 1, &read_fds, NULL, NULL, NULL);
+
+        if (o.idletimeout > 0)
+            ms_to_timeval(tvp, o.idletimeout);
+
+        int fds_ready = fselect(listen_fdlist.fdmax + 1, &read_fds, NULL, NULL, tvp);
 
         if (o.debug > 1)
             logdebug("select returned %d fds ready\n", fds_ready);
+
+        if (fds_ready == 0)
+            bye("Idle timeout expired (%d ms).", o.idletimeout);
 
         for (i = 0; i <= listen_fdlist.fdmax && fds_ready > 0; i++) {
             /* Loop through descriptors until there is something ready */

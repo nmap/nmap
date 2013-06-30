@@ -165,6 +165,9 @@ unsigned char *buildsrcrte(struct in_addr dstaddr, struct in_addr routes[],
 
 int allow_access(const union sockaddr_u *su);
 
+void ms_to_timeval(struct timeval *tv, long ms)
+    __attribute__ ((nonnull));
+
 struct fdinfo {
     int fd;
     union sockaddr_u remoteaddr;
