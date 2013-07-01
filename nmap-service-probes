@@ -11885,3 +11885,15 @@ rarity 9
 ports 64738
 
 match murmur m|^\0...abcdefgh............$|s p/Murmur/ v/1.2.X/
+
+
+##############################NEXT PROBE##############################
+# Ventrilo 2.1.2+
+# UDP general status request (encrypted).
+# See http://aluigi.altervista.org/papers.htm#ventrilo
+# http://seclists.org/nmap-dev/2013/q2/413
+Probe UDP Ventrilo q|\x01\xe7\xe5\x75\x31\xa3\x17\x0b\x21\xcf\xbf\x2b\x99\x4e\xdd\x19\xac\xde\x08\x5f\x8b\x24\x0a\x11\x19\xb6\x73\x6f\xad\x28\x13\xd2\x0a\xb9\x12\x75|
+rarity 9
+ports 3784
+
+match ventrilo m|^.{111}|s p/Ventrilo/ v/2.1.2+/
