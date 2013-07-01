@@ -236,3 +236,9 @@ udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,3072
 # UDP ping. "abcdefgh" is an identifier. See
 # http://mumble.sourceforge.net/Protocol.
 udp 64738 "\x00\x00\x00\x00abcdefgh"
+
+# Ventrilo 2.1.2+
+# UDP general status request (encrypted).
+# See http://aluigi.altervista.org/papers.htm#ventrilo
+udp 3784
+"\x01\xe7\xe5\x75\x31\xa3\x17\x0b\x21\xcf\xbf\x2b\x99\x4e\xdd\x19\xac\xde\x08\x5f\x8b\x24\x0a\x11\x19\xb6\x73\x6f\xad\x28\x13\xd2\x0a\xb9\x12\x75"
