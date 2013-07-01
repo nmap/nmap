@@ -419,6 +419,7 @@ Entry { filename = "targets-ipv6-multicast-mld.nse", categories = { "broadcast",
 Entry { filename = "targets-ipv6-multicast-slaac.nse", categories = { "broadcast", "discovery", } }
 Entry { filename = "targets-sniffer.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
+Entry { filename = "teamspeak2-version.nse", categories = { "version", } }
 Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
