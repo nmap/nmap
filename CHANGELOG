@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added teamspeak2-version.nse by Marin Maržić.
+
 o Nmap's routing table is now sorted first by netmask, then by metric.
   Previously it was the other way around, which could cause a very
   general route with a low metric to be preferred over a specific
