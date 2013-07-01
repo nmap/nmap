@@ -1556,8 +1556,6 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
       routeaddr = &dcrn->routes[i].gw;
 
     for (j = 0; j < numifaces; j++) {
-      if (!ifaces[j].device_up)
-        continue;
       if (sockaddr_equal_netmask(&ifaces[j].addr, routeaddr, ifaces[j].netmask_bits)) {
         dcrn->routes[i].device = &ifaces[j];
         break;
@@ -3369,6 +3367,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     if (iface != NULL && strcmp(loopback->devname, iface->devname) != 0)
       continue;
 
+    if (iface == NULL && !loopback->device_up)
+      continue;
+
     rnfo->ii = *loopback;
     rnfo->direct_connect = 1;
     /* But the source address we want to use is the target address. */
@@ -3387,6 +3388,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
       continue;
     /* Ignore routes that aren't on the device we specified. */
     if (iface != NULL && strcmp(routes[i].device->devname, iface->devname) != 0)
+      continue;
+
+    if (iface == NULL && !routes[i].device->device_up)
       continue;
 
     rnfo->ii = *routes[i].device;
@@ -3411,6 +3415,9 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     if (!sockaddr_equal_netmask(dst, &ifaces[i].addr, ifaces[i].netmask_bits))
       continue;
     if (iface != NULL && strcmp(ifaces[i].devname, iface->devname) != 0)
+      continue;
+
+    if (iface == NULL && !ifaces[i].device_up)
       continue;
 
     rnfo->ii = ifaces[i];
