@@ -11897,3 +11897,14 @@ rarity 9
 ports 3784
 
 match ventrilo m|^.{111}|s p/Ventrilo/ v/2.1.2+/
+
+
+##############################NEXT PROBE##############################
+# TeamSpeak 2 TCPQuery "ver" command.
+# http://seclists.org/nmap-dev/2013/q2/413
+Probe TCP teamspeak-tcpquery-ver q|ver\r\n|
+rarity 9
+ports 51234
+
+match teamspeak-tcpquery m|^\[TS\]\r\n([\w._-]+) Win32 ([\w._-]+)\r\nOK\r\n$| p/TeamSpeak 2 TCPQuery/ v/$1/ i/$2/ o/Windows/
+match teamspeak-tcpquery m|^\[TS\]\r\n([\w._-]+) Linux ([\w._-]+)\r\nOK\r\n$| p/TeamSpeak 2 TCPQuery/ v/$1/ i/$2/ o/Linux/
