@@ -11874,3 +11874,14 @@ rarity 9
 
 match erlang-node m|^\0\x03sok\0.n\0\0.{8}(.*)|s p/Erlang Distribution Node/ i/Node name: $1/
 match erlang-node m|^\0[^\x03]s(.*)|s p/Erlang Distribution Node/ i/Status: $1/
+
+
+##############################NEXT PROBE##############################
+# UDP ping. "abcdefgh" is an identifier. See
+# http://mumble.sourceforge.net/Protocol.
+# http://seclists.org/nmap-dev/2013/q2/413
+Probe UDP Murmur q|\0\0\0\0abcdefgh|
+rarity 9
+ports 64738
+
+match murmur m|^\0...abcdefgh............$|s p/Murmur/ v/1.2.X/
