@@ -31,7 +31,6 @@ Original reversing of the protocol was done by Luigi Auriemma
 (http://aluigi.altervista.org/papers.htm#ventrilo).
 ]]
 
----
 -- @usage
 -- nmap -sV <target>
 -- @usage
@@ -40,7 +39,7 @@ Original reversing of the protocol was done by Luigi Auriemma
 -- @output
 -- PORT     STATE SERVICE  VERSION
 -- 9408/tcp open  ventrilo Ventrilo 3.0.3.C (voice port; name: TypeFrag.com; uptime: 152h:56m; auth: pw)
--- | ventrilo-info: 
+-- | ventrilo-info:
 -- | name: TypeFrag.com
 -- | phonetic: Type Frag Dot Com
 -- | comment: http://www.typefrag.com/
@@ -57,16 +56,16 @@ Original reversing of the protocol was done by Luigi Auriemma
 -- | client fields: ADMIN, CID, PHAN, PING, SEC, NAME, COMM
 -- | channels:
 -- | <top level lobby> (CID: 0, PID: n/a, PROT: n/a, COMM: n/a): <empty>
--- | Group 1 (CID: 719, PID: 0, PROT: 0, COMM: ): 
--- |   stabya (ADMIN: 0, PHAN: 0, PING: 47, SEC: 206304, COMM: 
+-- | Group 1 (CID: 719, PID: 0, PROT: 0, COMM: ):
+-- |   stabya (ADMIN: 0, PHAN: 0, PING: 47, SEC: 206304, COMM:
 -- | Group 2 (CID: 720, PID: 0, PROT: 0, COMM: ): <empty>
 -- | Group 3 (CID: 721, PID: 0, PROT: 0, COMM: ): <empty>
 -- | Group 4 (CID: 722, PID: 0, PROT: 0, COMM: ): <empty>
--- | Group 5 (CID: 723, PID: 0, PROT: 0, COMM: ): 
--- |   Sir Master Win (ADMIN: 0, PHAN: 0, PING: 32, SEC: 186890, COMM: 
--- |   waterbukk (ADMIN: 0, PHAN: 0, PING: 31, SEC: 111387, COMM: 
--- |   likez (ADMIN: 0, PHAN: 0, PING: 140, SEC: 22457, COMM: 
--- |   Tweet (ADMIN: 0, PHAN: 0, PING: 140, SEC: 21009, COMM: 
+-- | Group 5 (CID: 723, PID: 0, PROT: 0, COMM: ):
+-- |   Sir Master Win (ADMIN: 0, PHAN: 0, PING: 32, SEC: 186890, COMM:
+-- |   waterbukk (ADMIN: 0, PHAN: 0, PING: 31, SEC: 111387, COMM:
+-- |   likez (ADMIN: 0, PHAN: 0, PING: 140, SEC: 22457, COMM:
+-- |   Tweet (ADMIN: 0, PHAN: 0, PING: 140, SEC: 21009, COMM:
 -- | Group 6 (CID: 724, PID: 0, PROT: 0, COMM: ): <empty>
 -- | Raid (CID: 725, PID: 0, PROT: 0, COMM: ): <empty>
 -- | Officers (CID: 726, PID: 0, PROT: 1, COMM: ): <empty>
@@ -75,8 +74,8 @@ Original reversing of the protocol was done by Luigi Auriemma
 -- | Group 7 (CID: 729, PID: 0, PROT: 0, COMM: ): <empty>
 -- | Group 8 (CID: 730, PID: 0, PROT: 0, COMM: ): <empty>
 -- | Group 9 (CID: 731, PID: 0, PROT: 0, COMM: ): <empty>
--- | AFK - switch to this when AFK (CID: 732, PID: 0, PROT: 0, COMM: ): 
--- |_  Eisennacher (ADMIN: 0, PHAN: 0, PING: 79, SEC: 181948, COMM: 
+-- | AFK - switch to this when AFK (CID: 732, PID: 0, PROT: 0, COMM: ):
+-- |_  Eisennacher (ADMIN: 0, PHAN: 0, PING: 79, SEC: 181948, COMM:
 -- Service Info: OS: WIN32
 --
 -- @xmloutput
@@ -150,8 +149,8 @@ Original reversing of the protocol was done by Luigi Auriemma
 --   <elem>NAME</elem>
 --   <elem>COMM</elem>
 -- </table>
- 
-author = "Marin Marzic"
+
+author = "Marin Maržić"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "default", "discovery", "safe", "version" }
 
@@ -238,7 +237,7 @@ local static_probe_payload = "\x49\xde\xdf\xd0\x65\xc9\x21\xc4\x90\x0d\xbf\x23\x
 -- Returns a string interpretation of the server authentication scheme.
 -- @param auth the server authentication scheme code
 -- @return string string interpretation of the server authentication scheme
-local auth_str = function(auth) 
+local auth_str = function(auth)
     if auth == "0" then
         return "none"
     elseif auth == "1" then
@@ -259,10 +258,10 @@ local uptime_str = function(uptime)
     if not uptime_num then
         return uptime
     end
-    
+
     local h = math.floor(uptime_num/3600)
     local m = math.floor((uptime_num - h*3600)/60)
-    
+
     return h .. "h:" .. m .. "m"
 end
 
@@ -288,7 +287,7 @@ local dec_head = function(str)
     for i = 3,20 do
         head[i] = bit.band(head[i] - (crypt_head[a2 + 1] + ((i - 3) % 5)), 0xFF)
         a2 = bit.band(a2 + a1, 0xFF)
-    end 
+    end
 
     for i = 3,19,2 do
         head[i], head[i + 1] = head[i + 1], head[i]
@@ -301,7 +300,7 @@ local dec_head = function(str)
     local pck = head[15] + bit.lshift(head[16], 8)
     local key = head[17] + bit.lshift(head[18], 8)
     local crc_sum = head[19] + bit.lshift(head[20], 8)
-    
+
     return id, len, totlen, pck, totpck, key, crc_sum
 end
 
@@ -313,11 +312,11 @@ local dec_data = function(str, len, key)
     -- skip the header (first 20 bytes)
     local data = { string.byte(str, 21, 20 + len) }
 
-    local a1 = bit.band(key, 0xFF)
+    a1 = bit.band(key, 0xFF)
     if a1 == 0 then
         return table.concat(data)
     end
-    local a2 = bit.rshift(key, 8)
+    a2 = bit.rshift(key, 8)
 
     for i = 1,len do
         data[i] = bit.band(data[i] - (crypt_data[a2 + 1] + ((i - 1) % 72)), 0xFF)
@@ -343,7 +342,7 @@ end
 -- Calculates the CRC checksum used for checking the integrity of the received
 -- status response data segment.
 -- @param data data to calculate the checksum of
--- @return 2byte CRC checksum as seen in Ventrilo UDP status response headers
+-- @return 2 byte CRC checksum as seen in Ventrilo UDP status headers
 local crc = function(data)
     local sum = 0
     for i = 1,#data do
@@ -359,7 +358,7 @@ end
 local o_table = function(data)
     local info = stdnse.output_table()
     local pos
-    
+
     pos, info.name = str_find(data, "NAME: ([^\n]*)", 0)
     pos, info.phonetic = str_find(data, "PHONETIC: ([^\n]*)", pos)
     pos, info.comment = str_find(data, "COMMENT: ([^\n]*)", pos)
@@ -376,7 +375,7 @@ local o_table = function(data)
     pos, info.channelfields = str_find(data, "CHANNELFIELDS: ([^\n]*)", pos)
 
     -- construct channel fields as a nice list instead of the raw data
-    local channelfields = {} 
+    local channelfields = {}
     for channelfield in string.gmatch(info.channelfields, "[^,\n]+") do
         channelfields[#channelfields + 1] = channelfield
     end
@@ -411,7 +410,7 @@ local o_table = function(data)
 
     -- parse and add clients
     while string.sub(data, pos + 2, pos + 9) == "CLIENT: " do
-        local client = stdnse.output_table() 
+        local client = stdnse.output_table()
         for _, clientfield in ipairs(info.clientfields) do
             pos, client[clientfield] = str_find(data, clientfield .. "=([^,\n]*)", pos)
         end
@@ -525,20 +524,30 @@ end
 portrule = shortport.version_port_or_service({3784}, "ventrilo", {"tcp", "udp"})
 
 action = function(host, port)
-    local socket = nmap.new_socket()
-    socket:set_timeout(2000)
+    local mutex = nmap.mutex("ventrilo-info:" .. host.ip .. ":" .. port.number)
+    mutex("lock")
 
-    local catch = function()
-        socket:close()
+    if host.registry["ventrilo-info"] == nil then
+        host.registry["ventrilo-info"] = {}
     end
-    local try = nmap.new_try(catch)
+    -- Maybe the script already ran for this port number on another protocol
+    local r = host.registry["ventrilo-info"][port.number]
+    if r == nil then
+        r = {}
+        host.registry["ventrilo-info"][port.number] = r
 
-    try(socket:connect(host.ip, port.number, "udp"))
+        local socket = nmap.new_socket()
+        socket:set_timeout(2000)
 
-    local fulldata = {}
-    local curlen = 0
-    local head_crc_sum
-    repeat
+        local cleanup = function()
+            socket:close()
+            mutex("done")
+        end
+        local try = nmap.new_try(cleanup)
+
+        local udpport = { number = port.number, protocol = "udp" }
+        try(socket:connect(host.ip, udpport))
+
         local status, response
         -- try a couple of times on timeout, the service seems to not
         -- respond if multiple requests come within a short timeframe
@@ -546,68 +555,111 @@ action = function(host, port)
             try(socket:send(static_probe_payload))
             status, response = socket:receive()
             if status then
-                if port.protocol == "udp" then
-                    nmap.set_port_state(host, port, "open")
-                end
+                nmap.set_port_state(host, udpport, "open")
                 break
             end
         end
-        
         if not status then
             -- 3 timeouts, no response
+            cleanup()
             return
         end
 
-        -- decrypt received header and extract relevant information
-        local id, len, totlen, pck, totpck, key, crc_sum = dec_head(response)
-        head_crc_sum = crc_sum
+        -- received the first packet, process it and others if they come
+        local fulldata = {}
+        local fulldatalen = 0
+        local curlen = 0
+        local head_crc_sum
+        while true do
+            -- decrypt received header and extract relevant information
+            local id, len, totlen, pck, totpck, key, crc_sum = dec_head(response)
 
-        if id == static_probe_id then
-            curlen = curlen + len
+            if id == static_probe_id then
+                curlen = curlen + len
+                head_crc_sum = crc_sum
 
-            -- check for an invalid response
-            if #response < 20 or pck >= totpck or
-                len > 492 or curlen > totlen then
-                stdnse.print_debug("Invalid response, aborting script.")
+                -- check for an invalid response
+                if #response < 20 or pck >= totpck or
+                    len > 492 or curlen > totlen then
+                    stdnse.print_debug("Invalid response. Aborting script.")
+                    cleanup()
+                    return
+                end
+
+                -- keep track of the length of fulldata (# isn't applicable)
+                if fulldata[pck + 1] == nil then
+                    fulldatalen = fulldatalen + 1
+                end
+                -- accumulate UDP packets that may not necessarily come in proper
+                -- order; arrange them by packet id
+                fulldata[pck + 1] = dec_data(response, len, key)
+            end
+
+            -- check for invalid states in communication
+            if (fulldatalen > totpck) or (curlen > totlen)
+                or (fulldatalen == totpck and curlen ~= totlen)
+                or (curlen == totlen and fulldatalen ~= totpck) then
+                stdnse.print_debug("Invalid state (fulldatalen = " .. fulldatalen ..
+                    "; totpck = " .. totpck .. "; curlen = " .. curlen ..
+                    "; totlen = " .. totlen .. "). Aborting script.")
+                cleanup()
                 return
             end
-            
-            -- accumulate UDP packets that may not necessarily come in proper
-            -- order; arrange them by packet id
-            fulldata[pck + 1] = dec_data(response, len, key)
+
+            -- check for valid end of communication
+            if fulldatalen == totpck and curlen == totlen then
+                break
+            end
+
+            -- receive another packet
+            status, response = socket:receive()
+            if not status then
+                stdnse.print_debug("Response packets stopped coming midway. Aborting script.")
+                cleanup()
+                return
+            end
         end
-    until #fulldata == totpck and curlen == totlen
-    socket:close()
 
-    -- concatenate received data into a single string for further use
-    local fulldata_str = table.concat(fulldata)
+        socket:close()
 
-    -- check for an invalid checksum on the response data sections (no headers)
-    local fulldata_crc_sum = crc(fulldata_str)
-    if fulldata_crc_sum ~= head_crc_sum then
-        stdnse.print_debug("Invalid CRC sum, received = %04X, calculated = %04X", head_crc_sum, fulldata_crc_sum)
-        return
+        -- concatenate received data into a single string for further use
+        local fulldata_str = table.concat(fulldata)
+
+        -- check for an invalid checksum on the response data sections (no headers)
+        local fulldata_crc_sum = crc(fulldata_str)
+        if fulldata_crc_sum ~= head_crc_sum then
+            stdnse.print_debug("Invalid CRC sum, received = %04X, calculated = %04X", head_crc_sum, fulldata_crc_sum)
+            cleanup()
+            return
+        end
+
+        -- parse the received data string into an output table
+        r.info = o_table(fulldata_str)
     end
 
-    -- parse the received data string into an output table
-    local info = o_table(fulldata_str)
+    mutex("done")
+
+    -- If the registry is empty the port was probed but Ventrilo wasn't detected
+    if next(r) == nil then
+        return
+    end
 
     port.version.name = "ventrilo"
     port.version.name_confidence = 10
     port.version.product = "Ventrilo"
-    port.version.version = info.version
-    port.version.ostype = info.platform
-    port.version.extrainfo = "; name: ".. info.name
+    port.version.version = r.info.version
+    port.version.ostype = r.info.platform
+    port.version.extrainfo = "; name: ".. r.info.name
     if port.protocol == "tcp" then
         port.version.extrainfo = "voice port" .. port.version.extrainfo
     else
         port.version.extrainfo = "status port" .. port.version.extrainfo
     end
-    port.version.extrainfo = port.version.extrainfo .. "; uptime: " .. uptime_str(info.uptime)
-    port.version.extrainfo = port.version.extrainfo .. "; auth: " .. auth_str(info.auth)
+    port.version.extrainfo = port.version.extrainfo .. "; uptime: " .. uptime_str(r.info.uptime)
+    port.version.extrainfo = port.version.extrainfo .. "; auth: " .. auth_str(r.info.auth)
 
     nmap.set_port_version(host, port, "hardmatched")
 
     -- an output table for XML output and a custom string for normal output
-    return info, o_str(info)
+    return r.info, o_str(r.info)
 end
