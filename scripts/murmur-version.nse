@@ -6,9 +6,9 @@ local string = require "string"
 
 description = [[
 Detects the Murmur service (server for the Mumble voice communication
-client) version 1.2.0 and above.
+client) versions 1.2.X.
 
-The Murmur server listens on a TCP (control) and an UDP (voice) port
+The Murmur server listens on a TCP (control) and a UDP (voice) port
 with the same port number. This script activates on both a TCP and UDP
 port version scan. In both cases probe data is sent only to the UDP
 port because it allows for a simple and informative ping command.
@@ -31,7 +31,6 @@ the server.
 See http://mumble.sourceforge.net/Protocol.
 ]]
 
----
 -- @output
 -- PORT      STATE SERVICE VERSION
 -- 64740/tcp open  murmur  Murmur 1.2.4 (control port; users: 35; max. users: 100; bandwidth: 72000 b/s)
@@ -41,37 +40,60 @@ author = "Marin Maržić"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "version" }
 
-portrule = shortport.version_port_or_service({64738, 64739, 64740, 64741, 64742}, "murmur", "udp")
+portrule = shortport.version_port_or_service({64738}, "murmur", {"tcp", "udp"})
 
 action = function(host, port)
-    local status, result = comm.exchange(
-        host, port, "\0\0\0\0abcdefgh", { proto = "udp", timeout = 3000 })
-    if (not status) then
-        return
+    local mutex = nmap.mutex("murmur-version:" .. host.ip .. ":" .. port.number)
+    mutex("lock")
+
+    if host.registry["murmur-version"] == nil then
+        host.registry["murmur-version"] = {}
+    end
+    -- Maybe the script already ran for this port number on another protocol
+    local r = host.registry["murmur-version"][port.number]
+    if r == nil then
+        r = {}
+        host.registry["murmur-version"][port.number] = r
+
+        local status, result = comm.exchange(
+            host, port.number, "\0\0\0\0abcdefgh", { proto = "udp", timeout = 3000 })
+        if not status then
+            mutex("done")
+            return
+        end
+
+        -- UDP port is open
+        nmap.set_port_state(host, { number = port.number, protocol = "udp" }, "open")
+
+        if not string.match(result, "^%z...abcdefgh............$") then
+            mutex("done")
+            return
+        end
+
+        -- Detected; extract relevant data
+        _, r.v_a, r.v_b, r.v_c, _, r.users, r.maxusers, r.bandwidth =
+            bin.unpack(">CCCLIII", result, 2)
     end
 
-    if not string.match(result, "^%z...abcdefgh............$") then
+    mutex("done")
+
+    -- If the registry is empty the port was probed but Murmur wasn't detected
+    if next(r) == nil then
         return
     end
-    -- Detected; extract relevant data
-    local _, v_a, v_b, v_c, _, users, maxusers, bandwidth = bin.unpack(
-        ">CCCLIII", result, 2)
 
     port.version.name = "murmur"
     port.version.name_confidence = 10
     port.version.product = "Murmur"
-    port.version.version = v_a .. "." .. v_b .. "." .. v_c
-    -- Set extra info depending on protocol and set port state to "open" if UDP
-    local portinfo
+    port.version.version = r.v_a .. "." .. r.v_b .. "." .. r.v_c
+    port.version.extrainfo = "; users: " .. r.users .. "; max. users: " ..
+        r.maxusers .. "; bandwidth: " .. r.bandwidth .. " b/s"
+    -- Add extra info depending on protocol
     if port.protocol == "tcp" then
-        portinfo = "control port"
+        port.version.extrainfo = "control port" .. port.version.extrainfo
     else
-        portinfo = "voice port"
-        nmap.set_port_state(host, port, "open")
+        port.version.extrainfo = "voice port" .. port.version.extrainfo
     end
-    port.version.extrainfo = portinfo ..
-        "; users: " .. users .. "; max. users: " .. maxusers ..
-        "; bandwidth: " .. bandwidth .. " b/s"
 
     nmap.set_port_version(host, port, "hardmatched")
 
