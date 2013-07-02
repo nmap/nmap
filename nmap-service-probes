@@ -136,25 +136,28 @@ match beidpcscd m|^\0\0\0\x1e\xffV\x92l\xfbUL\x87\xabw\x1f\xb2\n\xd8\xef/\0\0\0\
 
 match bf2rcon m|^### Battlefield 2 ModManager Rcon v([\d.]+)\.\n### Digest seed: \w+\n\n| p/Battlefield 2 ModManager Remote Console/ v/$1/
 
-# Version 0.3.19 protocol
-#  4 bytes magic number:   "\xf9\xbe\xb4\xd9"
-# 12 bytes command:        "version\0\0\0\0\0"
+# https://en.bitcoin.it/wiki/Protocol_specification#Message_structure
+# https://en.bitcoin.it/wiki/Protocol_specification#version
+# https://en.bitcoin.it/wiki/Changelog
+
+# Bitcoin "version" message prior to 20 February 2012.
+#  4 bytes magic number:    "\xf9\xbe\xb4\xd9"
+# 12 bytes command:         "version\0\0\0\0\0"
 #  4 bytes length
 #  4 bytes version
-#  8 bytes nLocalServices: "\x01\0\0\0\0\0\0\0"
-#  8 bytes nTime
-#  8 bytes client nServices "\x01\0\0\0\0\0\0\0"
-# 16 bytes IPv4-compatible client IP "\0\0\0\0\0\0\0\0\0\0\xff\xff...."
+#  8 bytes services bitfield: "\x01\0\0\0\0\0\0\0"
+#  8 bytes timestamp
+#  8 bytes client services count: "\x01\0\0\0\0\0\0\0"
+# 16 bytes IPv4-compatible client IP: "\0\0\0\0\0\0\0\0\0\0\xff\xff...."
 #  2 bytes client port
-#  8 bytes server nServices "\x01\0\0\0\0\0\0\0"
-# 16 bytes IPv4-compatible server IP "\0\0\0\0\0\0\0\0\0\0\xff\xff...."
+#  8 bytes server services count: "\x01\0\0\0\0\0\0\0"
+# 16 bytes IPv4-compatible server IP: "\0\0\0\0\0\0\0\0\0\0\xff\xff...."
 #  2 bytes server port
-#  8 bytes nonce
-#  1 byte  SubVer length
-# variable SubVer string
-#  4 bytes nBestHeight
+#  8 bytes random unique id
+#  1 byte  subversion string length
+# variable subversion string
+#  4 bytes last block
 
-# https://en.bitcoin.it/wiki/Changelog
 # Version 0xc8 -> 200 -> 0.2.0
 match bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x51\0\0\0\xc8\0\0\0\x01\0\0\0\0\0\0\0........\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff......\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff..............\0$|s p/Bitcoin digital currency server/ v/0.2.0/ cpe:/a:bitcoin:bitcoind:0.2.0/
 # Version 0x12c -> 300 -> 0.3.0
@@ -190,6 +193,38 @@ match bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x55\0\0\0\x2c\x7e\0\0\x01\0\0
 # Version 0x7e90 -> 32400 -> 0.3.24
 match bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x55\0\0\0\x90\x7e\0\0\x01\0\0\0\0\0\0\0........\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff......\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff..............\0....$|s p/Bitcoin digital currency server/ v/0.3.24/ cpe:/a:bitcoin:bitcoind:0.3.24/
 match bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x55\0\0\0\x90\x7e\0\0\x01\0\0\0\0\0\0\0........\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff......\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff..............\x02(\..)....$|s p/Bitcoin digital currency server/ v/0.3.24$1/ cpe:/a:bitcoin:bitcoind:0.3.24$1/
+
+# https://bitcointalk.org/index.php?topic=55852.0
+# http://bitcoin.org/en/alert/2012-02-18-protocol-change
+# "In June 2010 the Bitcoin reference software version 0.2.10 introduced a
+# change to the protocol: the 'version' messages exchanged by nodes at
+# connection time would have a new format that included checksum values to
+# detect corruption by broken networks."
+
+# Bitcoin "version" message with protocol version 70001
+# https://en.bitcoin.it/wiki/BIP_0037#Extensions_to_existing_messages
+# https://en.bitcoin.it/wiki/BIP_0060 "The protocol version was upgraded to
+# 70001, and the (now accepted) BIP 0037 became implemented."
+#  4 bytes magic number:    "\xf9\xbe\xb4\xd9"
+# 12 bytes command:         "version\0\0\0\0\0"
+#  4 bytes length
+#  4 bytes checksum
+#  4 bytes version          "\x71\x11\x01\0"
+#  8 bytes services bitfield: "\x01\0\0\0\0\0\0\0"
+#  8 bytes timestamp
+# 16 bytes IPv4-compatible client IP: "\0\0\0\0\0\0\0\0\0\0\xff\xff...."
+#  2 bytes client port
+# 16 bytes IPv4-compatible server IP: "\0\0\0\0\0\0\0\0\0\0\xff\xff...."
+#  2 bytes server port
+#  8 bytes nonce
+#  1 byte  user agent string length
+# variable user agent string https://en.bitcoin.it/wiki/BIP_0014
+#  4 bytes last block
+#  1 byte  relay             https://en.bitcoin.it/wiki/BIP_0037#Extensions_to_existing_messages
+
+# Version numbers now correspond only to protocol changes, not software releases.
+# Version 0x011171 -> 70001 0.7.1
+match bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0.\0\0\0....\x71\x11\x01\0\0\0\0\0\0\0\0\0........\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff......\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff.............../Bitpeer:([\w._-]+)/\0\0\0\0\x01$|s p/Bitpeer/ v/$1/
 
 softmatch bitcoin m|^\xf9\xbe\xb4\xd9version\0\0\0\0\0\x55\0\0\0..\0\0\x01\0\0\0\0\0\0\0........\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff......\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xff\xff..............\0....$|s p/Bitcoin digital currency server/ cpe:/a:bitcoin:bitcoind/
 
@@ -2759,6 +2794,7 @@ match smtp-proxy m|^220 ([\w._-]+) ESMTP EdgeWave mag3000\r\n| p/EdgeWave MAG300
 match smtp-proxy m|^220 Net at Work Mail Gateway ready\r\n| p/Net at Work Mail Gateway smtp proxy/
 match smtp-proxy m|^220 ([\w._-]+) ([\w._-]+)/SMTP Ready\.\r\n| p/McAfee $2 smtp proxy/ h/$1/
 match smtp-proxy m|^220 ([\w._-]+) Python SMTP proxy version ([\w._-]+)\r\n| p/Python SMTP Proxy/ v/$2/ h/$1/
+match smtp-proxy m|^421 <ASSP\.nospam> service temporarily unavailable, closing transmission\r\n| p/ASSP Anti-Spam Proxy smtp proxy/
 
 match fw1-topology m|^[QY]\0\0\0$| p/Checkpoint FireWall-1 Topology/ d/firewall/
 match fw1-pslogon m|^\0\0\0\x02\0\0\0\x02$| p/Checkpoint FireWall-1 Policy Server logon/ d/firewall/
@@ -4148,6 +4184,8 @@ match as-sts m|^\0\0\0\0\0\0\0\x08$| p/IBM Service Tool Server AS-STS/
 
 match authpoint m|^\[AUTHPOINT RESPONSE\]\r\nreturn_code=AUTHPOINT ERROR\r\nreturn_code_text=Error response parsed by base message object: Invalid or missing register #\r\nresponse=\r\nidentifier=\r\napproval_code=\r\n$| p/Authpoint payment processing/
 
+match avaya-aom m|^\0\0\0T\0\0\0\x03\0\0\0\0\0\0\0\x01\x1b\xde\x83B\xca\xc0\xf3\?\0\0\0\x06aomSrv\0\0\0\0\0\x01\*\0\0\0\0\0\0\x01\0\0\0\0\0\0\0\r[\d.]+\0\0\0\0\0\0\x04root\0\0\x06\(\0\0\0J$| p/Avaya Alarm Origination Manager/ d/firewall/
+
 match avk m|^Unknown command\r\n$| p/G Data AVK anti-virus/
 
 match backdoor m|^Can't fork pty, bye!\n$| p/PsychoPhobia backdoor/ i/**BACKDOOR**/
@@ -4207,7 +4245,7 @@ match desktop-central m|^Invalid GWADDR / START protocol\n$| p/ManageEngine Desk
 
 match digi-usb m|^\xff\x14Port is out of range\0\xff\x14Port is out of range\0\xff\x14Port is out of range\0\xff\x14Port is out of range\0\xff\x14Port is out of range\0| p/Digi USB-over-TCP bridge/ d/specialized/
 
-match drb m|^\0\0\0\x03\x04\x08F\0\0\x03\xd5\x04\x08o:\x16DRb::DRbConnError\x07:\x07bt\[\x19\"/(/usr/lib/ruby/([\w._-]+)/drb)/drb\.rb:573| p/Ruby DRb RMI/ i/Ruby $2; path $1/
+match drb m|^\0\0\0\x03\x04\x08F\0\0\x03.\x04\x08o:\x16DRb::DRbConnError\x07:\x07bt\[.\"/(/usr/lib/ruby/([\w._-]+)/drb)/drb\.rb:573| p/Ruby DRb RMI/ i/Ruby $2; path $1/
 
 # HP Digital Sender Service (dss)
 match hpdss m|^(?:53 client not logged in\.\r\n)+$| p/HP Digital Sender client/
@@ -5602,7 +5640,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: close\r\nDate: .*\r\nServer: RM
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: TwistedWeb/([\w.]+)\r\n|s p/TwistedWeb httpd/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([\d.]+) TwistedWeb/SVN-Trunk\r\n|s p/TwistedWeb httpd/ v/$1 SVN-Trunk/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([-\w_.+]+) TwistedWeb/\[twisted\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/
-match http m|^HTTP/1\.1 200 OK\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/\[OPSI\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/
+match http m|^HTTP/1\.1 200 OK\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/\[OPSI\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1; OPSI client management system/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 141\r\nServer: Twisted/([\w._+-]+) TwistedWeb/([\w._+-]+)\r\nDAV: 1, access-control\r\nDate: .*\r\nContent-Type: text/html\r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\nConnection: close\r\n\r\n<html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1><p>You are not authorized to access this resource\.</p></body></html>$| p/TwistedWeb/ v/$2/ i/Twisted $1; Mac OS X teamsserver/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match http m|^HTTP/1\.1 404 Not Found\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*<meta name=\"generator\" content=\"\">\n<meta name=\"apple_required_ui_revision\" content=\"\">\n<meta name=\"apple_collab_uid\" content=\"\">\n|s p/TwistedWeb/ v/$2/ i/Twisted $1; Mac OS X teamsserver/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match http m|^HTTP/1\.[01].*\r\nServer: Twisted/([\.\d]+) TwistedWeb/([\.\d]+)|s p/TwistedWeb/ v/$2/ i/Twisted $1/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
@@ -7262,7 +7300,7 @@ match http m|^HTTP/1\.0 200 Document follows\r\n.*Server: Unknown\r\n.*<TITLE> G
 match http m|^HTTP/1\.1 200 OK\r\nServer: Apache\r\nContent-Type: text/html\r\nContent-Length: 3587\r\nConnection: close\r\n\r\n\n<html>\n<head>\n<!-- \n     Copyright \(C\) 2005-2006 Aviv Raff \(with minor modifications by HDM for the MSF module\)\n     From: http://aviv\.raffon\.net/2005/12/11/MozillaUnderestimateVulnerabilityYetAgainPlusOldVulnerabilityNewExploit\.aspx\n     Greets: SkyLined, The Insider and shutdown \n-->| p|Metasploit multi/browser/mozilla_compareto exploit|
 match http m|^HTTP1\.1 200 OK\r\nServer: WIBU-SYSTEMS HTTP Server/ Version ([^\r\n]*)\r\n| p/WIBU-SYSTEMS HTTP Server/ v/$1/ i/CodeMeter copy prevention dongle http config/ d/specialized/
 match http m|^HTTP/1\.1 401 Unauthorized\r\n.*Server: AppleIDiskServer-([\w._-]+)\r\n.*WWW-Authenticate: Basic realm=\"([\w._-]+)\"\r\n|s p/Apple iDisk Server/ v/$1/ i/online storage access/ h/$2/
-match http m|^HTTP/1\.1 401 Unauthorized\n.*Server: ASSP/([^\r\n]+)\n|s p/ASSP (Anti-Spam SMTP Proxy) httpd/ v/$1/
+match http m|^HTTP/1\.1 \d\d\d .*Server: ASSP/([^\r\n]+)\n|s p/ASSP Anti-Spam Proxy httpd/ v/$1/
 match http m|^HTTP/1\.0 302 Found\r\n.*Location: https://([\w._-]+)/[^\r\n]*\r\n.*<TITLE>Novell iChain</TITLE>|s p/Novell iChain http admin/ o/NetWare/ h/$1/ cpe:/o:novell:netware/a
 match http m|^HTTP/1\.0 200 OK\r\n.*Connection: Keep-Alive\r\nKeep-Alive: timeout=5, max=100\r\n.*<HTML>\r\n<HEAD>\r\n<TITLE></TITLE>\r\n<SCRIPT ID=clientEventHandlersJS LANGUAGE=javascript>\r\n<!--\r\nfunction loadpasswd\(\)\r\n{\r\n\ttop\.location = \"index\.htm\"\r\n}\r\nsetTimeout\(\"loadpasswd\(\)\",1\);\r\n//-->\r\n</SCRIPT>\r\n</HEAD>\r\n<BODY>\r\n</BODY>\r\n</HTML>\r\n$|s p/GoldStar iPECS 50B PBX http config/ d/PBX/
 match http m|^HTTP/1\.1 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\nSet-Cookie: JSESSIONID=[0-9A-F]+; Path=/; Secure\r\n.*<title>VMware View Portal</title>|s p/VMware View Manager httpd/
@@ -7829,6 +7867,7 @@ match http m|^HTTP/1\.1 404 Not Found\r\n.*\r\nServer: Bomgar\r\n|s p/Bomgar Rem
 match http m|^HTTP/1\.1 404 Not Found\r\nServer: SQLAnywhere/([\d.]+)\r\n| p/Sybase SQLAnywhere httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Etag: ([\w._ -]+)\r\n.*\xef\xbb\xbf<!DOCTYPE html .*<title>AirDroid</title>|s p/AirDroid httpd/ v/$1/ d/phone/ o/Android/ cpe:/a:airdroid:airdroid:$1/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.1 200 OK\r\n.*Etag: ([\w._ -]+)\r\n.*Server: AirDroid-g\r\n|s p/AirDroid httpd/ v/$1/ d/phone/ o/Android/ cpe:/a:airdroid:airdroid:$1/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
+match http m|^HTTP/1\.1 200 OK\r\n.*Server: AirDroid ([\w._-]+)\r\n|s p/AirDroid httpd/ v/$1/ d/phone/ o/Android/ cpe:/a:airdroid:airdroid:$1/ cpe:/o:google:android/ cpe:/o:linux:linux_kernel/
 match http m|^HTTP/1\.[01] 200 OK\r\nContent-Type: text/html\r\nX-Ajenti-Auth: start\r\nX-Ajenti-Challenge: | p/Ajenti admin httpd/ v/0.6.1/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: DebTorrent/([\w._-]+)\r\n|s p/DebTorrent httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: application/xml; charset=UTF-8\r\nContent-Length: 154\r\nDate: .* GMT\r\nConnection: close\r\n\r\n<\?xml version=\"1\.0\" encoding=\"UTF-8\"\?>\n<ListAllMyBucketsResult xmlns=\"http://doc\.s3\.amazonaws\.com/2006-03-01\"><Buckets></Buckets></ListAllMyBucketsResult>$| p/Amazon S3 httpd/
@@ -7960,6 +7999,7 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-type: application/octet-stream\r\nCach
 match http m|^HTTP/1\.0 200 OK \r\nContent-Type: text/html\r\nDate: .* GMT\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" lang=\"en\">\n<head>\n<title>Wuala  - Secure Online Storage</title>| p/Wuala cloud storage client http status/
 match http m|^HTTP/1\.1 200 OK\r\nServer: X10 Control ([\w._-]+)\r\n| p/X10 ActivePhone remote control httpd/ v/$1/ d/phone/
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><head><title>Page Not Found</title></head><body>Not here :\(</body></html>$| p/Prosody XMPP BOSH/
+match http m|^HTTP/1\.1 200 OK\r\n.*<title>Endpoint Security Required</title>\n.*div\.header { background: url\(/XX/YY/ZZ/CI/MGPGHGPGPFGHCDPFGGOGFGEH\) 0 0 repeat-x; height: 82px; }\n|s p/FortiGate Endpoint Control httpd/
 
 #(insert http)
 
@@ -8424,6 +8464,8 @@ match powerchute m|^server=&type=0&id=&count=1&oid=[\d.]+&value=&error=4\n| p/AP
 
 match niprint m|^NIPrint received command: ET / HTTP/1\.0\r\.\r\nThis command is not in LPD specification, ignored\r\nNIPrint received command: \.\r\nThis command is not in LPD specification, ignored\r\n| p/Network Instruments NIPrint network analyzer/
 
+match raop m|^RTSP/1\.0 401 Unauthorized\r\nServer: AirTunes/([\w._-]+)\r\nWWW-Authenticate: Digest realm=\"raop\" nonce=\"\w+\"\r\n\r\n$| p/Apple AirTunes roapd/ v/$1/ i/Apple AirPort Express/ d/WAP/
+
 match redis m|^-ERR wrong number of arguments for 'get' command\r\n$| p/Redis key-value store/
 
 match retrospect m|^\0\xca\0\0\0\0\0\x04\0\0\0\0$| p/Dantz Retrospect/ v/6.0/
@@ -8699,6 +8741,7 @@ match vnc-http m|^HTTP/1\.0 200 OK\n\n.*<TITLE>eSVNC Desktop \[([\w._-]+)\]</TIT
 match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>\n([\w._-]+)'s [\w._:-]+ desktop \([\w._:-]+\)\n</TITLE>\n<APPLET CODE=VncViewer\.class ARCHIVE=VncViewer\.jar\n        WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>\n<param name=\"Open New Window\" value=yes>\n</APPLET>\n<BR>\n<A href=\"http://www\.tightvnc\.com/\">|s p/X11VNC/ i/User $1; Resolution $2x$3; VNC TCP port: $4/
 match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>TightVNC desktop \[([\w._-]+)\]</TITLE>.*<APPLET ARCHIVE=\"VncViewer\.jar\" CODE=VncViewer WIDTH=1 HEIGHT=1>\n      <PARAM NAME=\"PORT\" VALUE=\"(\d+)\">\n      <PARAM NAME=\"Open new window\" VALUE=\"YES\">\n\n    </APPLET><BR>\n    <A HREF=\"http://www\.tightvnc\.com/\">|s p/TightVNC/ i/User $1; VNC TCP port: $2/
 match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>TightVNC desktop \[([\w._-]+)\]</TITLE>.*<APPLET ARCHIVE=\"tightvnc-jviewer\.jar\" CODE=\"com\.glavsoft\.viewer\.Viewer\" WIDTH=1 HEIGHT=1>\n      <PARAM NAME=\"PORT\" VALUE=\"(\d+)\">\n      <PARAM NAME=\"OpenNewWindow\" VALUE=\"YES\">\n\n    </APPLET><BR>\n    <A HREF=\"http://www\.tightvnc\.com/\">|s p/TightVNC/ i/User $1; VNC TCP port: $2/
+# match vnc-http m|^HTTP/1\.0 200 OK\r\n.*<TITLE>TightVNC desktop \[([\w._-]+)\]</TITLE>.*<APPLET ARCHIVE=\"tightvnc-jviewer\.jar\" CODE=\"com\.glavsoft\.viewer\.Viewer\" WIDTH=1 HEIGHT=1>\n      <PARAM NAME=\"PORT\" VALUE=\"(\d+)\">\n      <PARAM NAME=\"OpenNewWindow\" VALUE=\"YES\">\n\n    </APPLET><BR>\n    <A HREF=\"http://www\.tightvnc\.com/\">www\.TightVNC\.com</A>\n  </BODY>\n</HTML>\n| p/xxx/
 match vnc-http m|^HTTP/1\.0 200 OK\n\n<HTML>\n<TITLE>VNC desktop \[[\d.]+\]</TITLE>\n<APPLET CODE=vncviewer\.class ARCHIVE=vncviewer\.jar WIDTH=(\d+) HEIGHT=(\d+)>\n<param name=PORT value=(\d+)>\n</APPLET>\n</HTML>\n| p/Wyse Winterm 1200 LE terminal/ i/Resolution $1x$2; VNC TCP port $3/ d/terminal/
 match vnc-http m|^HTTP/1\.1 404 Not Found\r\nServer: TigerVNC/([\w._-]+)\r\n| p/TigerVNC/ v/$1/
 match vnc-http m|^HTTP/1\.0 404 Not found\r\n\r\n<html><head><title>File Not Found</title></head>\n<body><h1>File Not Found</h1></body></html\n$| p/x11vnc/
@@ -8924,6 +8967,9 @@ Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
 rarity 5
 ports 80,554,3052,3372,5000,7070,8080,10000
 fallback GetRequest
+
+match raop m|^RTSP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"raop\", nonce=\"[0-9A-F]{40}\"\r\nContent-Length: 0\r\n\r\n$| p/Remote Audio Output Protocol/ i/Rogue Amoeba Airfoil speakers/ d/media device/
+
 match rtsp m|^RTSP/1\.0 200 OK\r\nCSeq: 0\r\nDate: .*\r\nServer: RealServer Version (\d[-.\w]+) \(win32\)\r\n| p/Realserver RTSP/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealMedia EncoderServer Version (\d[-.\w]+) \(win32\)\r\n|s p/RealMedia EncoderServer/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: RealServer Version (\d[-.\w]+) \(([-.+\w]+)\)\r\n|s p/RealOne Server/ v/$1/ i/$2/
@@ -8953,7 +8999,6 @@ match rtsp m|^RTSP/2\.0 200 OK\r\nCSeq: 0\r\nPublic: DESCRIBE, SETUP, TEARDOWN, 
 match rtsp m|^RTSP/1\.0 200 OK\r\nServer: iCanSystem/([\w._-]+)\r\nCseq: \r\nPublic: DESCRIBE, SETUP, PLAY, PAUSE, TEARDOWN, OPTIONS\r\n\r\n$| p/iCanSystem rtspd/ v/$1/ d/webcam/
 match rtsp m|^RTSP/1\.0 200 OK\r\nPublic: DESCRIBE, GET_PARAMETER, PAUSE, PLAY, SETUP, SET_PARAMETER, TEARDOWN\r\n\r\n$| p/AXIS 207W or 212 PTZ network camera rtspd/ d/webcam/
 match rtsp m|^RTSP/1\.0 200 OK\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, SET_PARAMETER\r\n\r\n$| p/Avtech MPEG4 DVR control rtspd/
-match rtsp m|^RTSP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"raop\", nonce=\"[0-9A-F]{40}\"\r\nContent-Length: 0\r\n\r\n$| p/Remote Audio Output Protocol/ i/Rogue Amoeba Airfoil speakers/ d/media device/
 match rtsp m|^RTSP/1\.0 200 OK\r\nSupported: play\.basic, con\.persistent\r\nCseq: 0\r\nServer: Wowza Media Server ([\w._-]+) build(\d+)\r\nPublic: DESCRIBE, SETUP, TEARDOWN, PLAY, PAUSE, OPTIONS, ANNOUNCE, RECORD, GET_PARAMETER\r\n\r\n$| p/Wowza Media Server rtspd/ v/$1 build $2/
 match rtsp m|^RTSP/1\.0 200 OK\r\n.*Server: Helix Mobile Server Version ([\w._-]+) \(win32\) \(RealServer compatible\)\r\nPublic: OPTIONS, DESCRIBE, PLAY, PAUSE, SETUP, GET_PARAMETER, SET_PARAMETER, TEARDOWN\r\nTurboPlay: 1\r\nRealChallenge1: [0-9a-f]+\r\nStatsMask: 8\r\n\r\n$|s p/Helix Mobile Server rtspd/ v/$1/
 match rtsp m|^RTSP/1\.0 200 OK\r\nCseq: 0\r\nPublic: OPTIONS,DESCRIBE,SETUP,PLAY,PING,PAUSE,TEARDOWN\r\n\r\n$| p/Cisco WVC54GCA webcam rtspd/ d/webcam/ cpe:/h:cisco:wvc54gca/
@@ -10022,7 +10067,7 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookAir\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacBook Air/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacBook Pro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacBookPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.7 - 10.8; MacBook Pro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.7/ cpe:/o:apple:mac_os_x:10.8/
-match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Macmini\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.7; Mac mini/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.7/a
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Macmini\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.7; Mac mini/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.7/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*MacPro\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS.*\x1b\$not_defined_in_RFC4178@please_ignore|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; MacPro/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*VMware(\d+),(\d+)\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06\tDHCAST128\x04DHX2\x06Recon1\rClient Krb v2\x03GSS\x0fNo User Authent.*\x1b\$not_defined_in_RFC4178@please_ignore$|s p/Apple AFP/ i/name: $1; protocol 3.4; Mac OS X 10.6; VMware $2.$3/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x:10.6/a
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x9f\xfb.([^\0\x01]+)[\0\x01].*Xserve\d+,\d+\x05\x06AFP3\.4\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x05\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.4; Xserve/ o/Mac OS X/ cpe:/a:apple:afp_server/a cpe:/o:apple:mac_os_x/a
@@ -10548,6 +10593,8 @@ match http m|^HTTP/1\.1 404 Not Found\r\n.*Expires: Thu, 01-Jan-1970 00:00:00 GM
 
 match http-proxy m|^HTTP/1\.0 404 Error\r\n.*<HTML><HEAD><TITLE>Extra Systems Proxy Server</TITLE>|s p/Extra Systems http proxy/ o/Windows/ cpe:/o:microsoft:windows/a
 match http-proxy m|^HTTP/1\.1 502 Bad Gateway\r\nConnection : close\r\n.*\n<title>The requested URL could not be retrieved</title>\n<link href=\"http://passthrough\.fw-notify\.net/static/default\.css\"|s p/Astaro firewall http proxy/ d/firewall/
+
+match raop m|^RTSP/1\.0 401 Unauthorized\r\nServer: AirTunes/([\w._-]+)\r\nWWW-Authenticate: Digest realm=\"raop\" nonce=\"\w+\"\r\n\r\n$| p/Apple AirTunes roapd/ v/$1/ i/Apple AirPort Express/ d/WAP/
 
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nServer: AirTunes/([\w._-]+)\r\n\r\n$| p/Apple AirTunes rtspd/ v/$1/ i/Apple TV/ d/media device/ o/Mac OS X/ cpe:/a:apple:apple_tv/ cpe:/o:apple:mac_os_x/a
 
