@@ -315,7 +315,7 @@ static int start_subprocess(char *cmdexec, struct subprocess_info *info)
     char *cmdbuf;
     int pid;
 
-    if (o.shellexec) {
+    if (o.execmode == EXEC_SHELL) {
         /* Run with cmd.exe. */
         const char *shell;
         size_t cmdlen;
@@ -324,6 +324,32 @@ static int start_subprocess(char *cmdexec, struct subprocess_info *info)
         cmdlen = strlen(shell) + strlen(cmdexec) + 32;
         cmdbuf = (char *) safe_malloc(cmdlen);
         Snprintf(cmdbuf, cmdlen, "%s /C %s", shell, cmdexec);
+#ifdef HAVE_LUA
+    } else if (o.execmode == EXEC_LUA) {
+        char exepath[8192];
+        char *cmdexec_escaped, *exepath_escaped;
+        int n;
+
+        n = GetModuleFileName(GetModuleHandle(0), exepath, sizeof(exepath));
+        if (n == 0 || n == sizeof(exepath))
+            return -1;
+
+        cmdexec_escaped = escape_windows_command_arg(cmdexec);
+        if (cmdexec_escaped == NULL)
+            return -1;
+
+        exepath_escaped = escape_windows_command_arg(exepath);
+        if (exepath_escaped == NULL) {
+            free(cmdexec_escaped);
+            return -1;
+        }
+
+        n = asprintf(&cmdbuf, "%s --lua-exec-internal %s", exepath_escaped, cmdexec_escaped);
+        free(cmdexec_escaped);
+        free(exepath_escaped);
+        if (n < 0)
+            return -1;
+#endif
     } else {
         cmdbuf = cmdexec;
     }

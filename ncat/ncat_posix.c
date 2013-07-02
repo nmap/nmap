@@ -90,6 +90,7 @@
 /* $Id$ */
 
 #include "ncat.h"
+#include "ncat_lua.h"
 
 char **cmdline_split(const char *cmdexec);
 
@@ -153,10 +154,19 @@ void netexec(struct fdinfo *info, char *cmdexec)
     int maxfd;
 
     if (o.debug) {
-        if (o.shellexec)
+        switch (o.execmode) {
+        case EXEC_SHELL:
             logdebug("Executing with shell: %s\n", cmdexec);
-        else
+            break;
+#ifdef HAVE_LUA
+        case EXEC_LUA:
+            logdebug("Executing as lua script: %s\n", cmdexec);
+            break;
+#endif
+        default:
             logdebug("Executing: %s\n", cmdexec);
+            break;
+        }
     }
 
     if (pipe(child_stdin) == -1 || pipe(child_stdout) == -1)
@@ -174,13 +184,21 @@ void netexec(struct fdinfo *info, char *cmdexec)
         Dup2(child_stdin[0], STDIN_FILENO);
         Dup2(child_stdout[1], STDOUT_FILENO);
 
-        if (o.shellexec) {
-            execl("/bin/sh", "sh", "-c", cmdexec, (void *) NULL);
-        } else {
-            char **cmdargs;
+        switch (o.execmode) {
+        char **cmdargs;
 
+        case EXEC_SHELL:
+            execl("/bin/sh", "sh", "-c", cmdexec, (void *) NULL);
+            break;
+#ifdef HAVE_LUA
+        case EXEC_LUA:
+            lua_run();
+            break;
+#endif
+        default:
             cmdargs = cmdline_split(cmdexec);
             execv(cmdargs[0], cmdargs);
+            break;
         }
 
         /* exec failed. */

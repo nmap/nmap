@@ -1,5 +1,5 @@
 /***************************************************************************
- * config_win.h                                                            *
+ * ncat_lua.h -- ncat lua facilities header file                           *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2012 Insecure.Com LLC. Nmap is    *
@@ -87,10 +87,26 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id: ncat.h 16595 2010-01-27 02:51:16Z fyodor $ */
-/* These are preprocessor definitions in effect on Windows, where Autoconf
-   isn't available to create config.h. */
+/* $Id$ */
 
-#define HAVE_OPENSSL 1
-#define HAVE_HTTP_DIGEST 1
-#define HAVE_LUA 1
+#ifndef _NCAT_LUA_H
+#define _NCAT_LUA_H
+
+#include "ncat.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+void lua_setup(void);
+void lua_run(void);
+
+#endif

@@ -1,0 +1,13 @@
+# Build nbase in Visual C++ (so ..\nbase.lib exists). Then open a Visual
+# Studio Command Prompt (from the Start menu), and run:
+#   nmake /F nmakefile
+
+!include <win32.mak>
+
+all: test-escape_windows_command_arg
+
+.c.obj:
+	$(cc) /c /D WIN32=1 /I .. $*.c
+
+test-escape_windows_command_arg: test-escape_windows_command_arg.obj
+	$(link) /OUT:test-escape_windows_command_arg.exe test-escape_windows_command_arg.obj /NODEFAULTLIB:LIBCMT ..\nbase.lib shell32.lib

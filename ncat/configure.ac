@@ -203,10 +203,113 @@ AC_CHECK_LIB(odm, odm_initialize)
 AC_CHECK_LIB(odm, odm_initialize)
 AC_CHECK_LIB(cfg, _system_configuration)
 
+
+
+LIBLUADIR=../liblua
+
+have_lua=no
+requested_included_lua=no
+no_lua=no
+
+# First we test whether they specified liblua explicitly
+AC_ARG_WITH(liblua, 
+AC_HELP_STRING([--with-liblua=DIR], [Use an existing (compiled) lua lib from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-liblua=included], [Use the liblua version included with Nmap])
+AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all of NSE from compilation)]),
+[  case "$with_liblua" in
+  yes)
+  ;;
+  included)
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
+    LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_BUILD="lua_build"
+    LUA_CLEAN="lua_clean"
+    LUA_DIST_CLEAN="lua_dist_clean"
+	have_lua="yes"
+	
+  ;;
+  no)
+    no_lua="yes"
+  ;;
+  *)
+    CPPFLAGS="-I$with_liblua/include $CPPFLAGS"
+    LDFLAGS="-L$with_liblua/lib $LDFLAGS"
+  ;;
+  esac]
+)
+
+LUA_CFLAGS="-DLUA_USE_POSIX -DLUA_USE_DLOPEN"
+AC_SUBST(LUA_CFLAGS)
+
+# OpenSSL and NSE C modules can require dlopen
+AC_SEARCH_LIBS(dlopen, dl)
+
+# They don't want lua
+if test "$no_lua" = "yes"; then
+  CPPFLAGS="-DNOLUA $CPPFLAGS"
+  LIBLUA_LIBS=""
+  LUA_DEPENDS=""
+  LUA_BUILD=""
+  LUA_CLEAN=""
+  LUA_DIST_CLEAN=""
+  INSTALLNSE=""
+
+else 
+
+  # If they didn't specify it, we try to find it
+  if test $have_lua != yes; then
+    AC_CHECK_HEADERS([lua.h lua/lua.h lua5.2/lua.h],
+      AC_CHECK_LIB(lua, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua"; CPPFLAGS="-I/usr/include/lua $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua52, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua52"; CPPFLAGS="-I/usr/include/lua52 $CPPFLAGS"; break],, [-lm])
+      AC_CHECK_LIB(lua5.2, lua_yieldk, [have_lua=yes; LIBLUA_LIBS="-llua5.2"; CPPFLAGS="-I/usr/include/lua5.2 $CPPFLAGS"; break],, [-lm])
+    )
+
+    AC_LANG_PUSH(C++)
+    AC_MSG_CHECKING([for lua version >= 502])
+    AC_RUN_IFELSE([ AC_LANG_PROGRAM(
+    	[[#include <lua.h>]], 
+    	[[if(LUA_VERSION_NUM < 502) return 1;]])], 
+    	have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
+    AC_LANG_POP(C++)
+  
+    LUA_DEPENDS=""
+    LUA_BUILD=""
+    LUA_CLEAN=""
+    LUA_DIST_CLEAN=""
+  fi
+
+  # if we didn't find we use our own
+  if test $have_lua != yes; then
+    AC_MSG_RESULT(no) 
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
+    LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_BUILD="lua_build"
+    LUA_CLEAN="lua_clean"
+    LUA_DIST_CLEAN="lua_dist_clean"
+    AC_DEFINE(LUA_INCLUDED)
+  else
+    AC_MSG_RESULT(yes) 
+  fi
+
+  INSTALLNSE="install-nse"
+fi
+
+AC_SUBST(LIBLUA_LIBS)
+AC_SUBST(LIBLUADIR)
+AC_SUBST(LUA_DEPENDS)
+AC_SUBST(LUA_BUILD)
+AC_SUBST(LUA_CLEAN)
+AC_SUBST(LUA_DIST_CLEAN)
+
+
+
 AC_CONFIG_FILES(Makefile)
 AC_OUTPUT
 # NCAT ASCII ART
 if test -f docs/ncat-ascii-art.txt; then
 	cat docs/ncat-ascii-art.txt
 fi
+
 echo "Configuration complete."

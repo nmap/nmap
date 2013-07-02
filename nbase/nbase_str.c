@@ -216,6 +216,76 @@ int alloc_vsprintf(char **strp, const char *fmt, va_list va) {
   return n;
 }
 
+/* Used by escape_windows_command_arg to append a character to the given buffer
+   at a given position, resizing the buffer if necessary. The position gets
+   moved by one byte after the call. */
+   
+static char* safe_append_char(char* buf, char byte, unsigned int *rpos, unsigned int *rsize)
+{
+    if (*rpos >= *rsize) {
+        *rsize += 512;
+        buf = (char*) safe_realloc(buf, *rsize);
+    }
+    buf[(*rpos)++] = byte;
+    return buf;
+}
+
+/* Escape a string so that it can be round-tripped into a command line string
+   and retrieved by the default C/C++ command line parser. You can escape a list
+   of strings with this function, join them with spaces, pass them to
+   CreateProcess, and the new process will get the same list of strings in its
+   argv array.
+
+   http://msdn.microsoft.com/en-us/library/17w5ykft%28v=vs.85%29.aspx
+   http://blogs.msdn.com/b/twistylittlepassagesallalike/archive/2011/04/23/everyone-quotes-arguments-the-wrong-way.aspx
+
+   Returns a dynamically allocated string.
+
+   This function has a test program in test/test-escape_windows_command_arg.c.
+   Run that program after making any changes. */
+char *escape_windows_command_arg(const char *arg)
+{
+    const char *p;
+    char *ret;
+    unsigned int rpos = 0, rsize = 1;
+
+    ret = (char *) safe_malloc(rsize);
+    ret = safe_append_char(ret, '"', &rpos, &rsize);
+
+    for (p = arg; *p != '\0'; p++) {
+        unsigned int num_backslashes;
+        unsigned int i;
+
+        num_backslashes = 0;
+        for (; *p == '\\'; p++)
+            num_backslashes++;
+
+        if (*p == '\0') {
+        /* Escape all backslashes, but let the terminating double quotation
+           mark we add below be interpreted as a metacharacter. */
+            for (i = 0; i < num_backslashes*2; i++)
+                ret = safe_append_char(ret, '\\', &rpos, &rsize);
+            break;
+        } else if (*p == '"') {
+        /* Escape all backslashes and the following double quotation
+           mark. */
+            for (i = 0; i < num_backslashes*2 + 1; i++)
+                ret = safe_append_char(ret, '\\', &rpos, &rsize);
+            ret[rpos++] = *p;
+        } else {
+            /* Backslashes aren't special here. */
+            for (i = 0; i < num_backslashes; i++)
+                ret = safe_append_char(ret, '\\', &rpos, &rsize);
+            ret = safe_append_char(ret, *p, &rpos, &rsize);
+        }
+    }
+
+    ret = safe_append_char(ret, '"', &rpos, &rsize);
+    ret = safe_append_char(ret, '\0', &rpos, &rsize);
+
+    return ret;
+}
+
 /* Trivial function that returns nonzero if all characters in str of length strlength are
    printable (as defined by isprint()) */
 int stringisprintable(const char *str, int strlength) {

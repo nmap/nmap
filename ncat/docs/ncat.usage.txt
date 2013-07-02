@@ -44,6 +44,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --ssl-key              Specify SSL private key (PEM) for listening
       --ssl-verify           Verify trust and domain name of certificates
       --ssl-trustfile        PEM file containing trusted SSL certificates
+      --lua-exec             Execute a .lua Ncat script
       --version              Display Ncat's version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples
