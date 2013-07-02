@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Added --lua-exec. This feature is basically an equivalent of ncat 
+  --sh-exec "lua <scriptname>" and allows you to run Lua scripts with Ncat,
+  redirecting all stdin and stdout operations to the socket connection. 
+  [Jacek Wielemborek]
+
 o [NSE] Added teamspeak2-version.nse by Marin Maržić.
 
 o Nmap's routing table is now sorted first by netmask, then by metric.
