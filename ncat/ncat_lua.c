@@ -1,5 +1,5 @@
 /***************************************************************************
- * config_win.h                                                            *
+ * ncat_lua.c -- ncat lua facilities                                       *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2012 Insecure.Com LLC. Nmap is    *
@@ -87,10 +87,64 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id: ncat.h 16595 2010-01-27 02:51:16Z fyodor $ */
-/* These are preprocessor definitions in effect on Windows, where Autoconf
-   isn't available to create config.h. */
+/* $Id$ */
 
-#define HAVE_OPENSSL 1
-#define HAVE_HTTP_DIGEST 1
-#define HAVE_LUA 1
+#include "ncat.h"
+#include "ncat_lua.h"
+
+static lua_State *L;
+static int last_function_number;
+
+static void report(char *prefix)
+{
+    const char *errormsg;
+    errormsg = lua_tostring(L, -1);
+    if (errormsg == NULL)
+        errormsg = "(error object is not a string)";
+    bye("%s: %s.", prefix, errormsg);
+}
+
+static int traceback (lua_State *L)
+{
+    const char *msg;
+    msg = lua_tostring(L, 1);
+    if (msg) {
+        luaL_traceback(L, L, msg, 1);
+    } else {
+        if (!lua_isnoneornil(L, 1)) {  /* is there an error object? */
+            if (!luaL_callmeta(L, 1, "__tostring"))  /* try its 'tostring' metamethod */
+                lua_pushliteral(L, "(no error message)");
+        }
+    }
+    return 1;
+}
+
+void lua_setup(void)
+{
+    ncat_assert(o.cmdexec!=NULL);
+
+    L = luaL_newstate();
+    luaL_openlibs(L);
+
+    if (luaL_loadfile(L,o.cmdexec) != 0)
+        report("Error loading the Lua script");
+
+    /* install the traceback function */
+    last_function_number = lua_gettop(L);
+    lua_pushcfunction(L, traceback);
+    lua_insert(L, last_function_number);
+}
+
+void lua_run(void)
+{
+    if (lua_pcall(L, 0, 0, last_function_number) != LUA_OK && !lua_isnil(L, -1)) {
+        /* handle the error; the code below is taken from lua.c, Lua source code */
+        lua_remove(L, last_function_number);
+        report("Error running the Lua script");
+    } else {
+        if (o.debug)
+            logdebug("%s returned successfully.\n", o.cmdexec);
+        lua_close(L);
+        exit(EXIT_SUCCESS);
+    }
+}

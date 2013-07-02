@@ -70,7 +70,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..;../nbase;..\nsock\include;..\mswin32\pcap-include;..\..\nmap-mswin32-aux\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;../nbase;..\nsock\include;..\mswin32\pcap-include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -90,10 +90,10 @@
       </ResourceOutputFileName>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>nbase.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;nsock.lib;advapi32.lib;libeay32.lib;ssleay32.lib</AdditionalDependencies>
+      <AdditionalDependencies>nbase.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;nsock.lib;advapi32.lib;libeay32.lib;ssleay32.lib;liblua.lib</AdditionalDependencies>
       <OutputFile>.\Debug\ncat.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\mswin32\lib;..\nsock;..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\mswin32\lib;..\nsock;..\nbase;..\..\nmap-mswin32-aux\OpenSSL\lib;..\liblua;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <DelayLoadDLLs>wpcap.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -117,7 +117,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;..;../nbase;..\nsock\include;..\mswin32\pcap-include;..\..\nmap-mswin32-aux\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..;../nbase;..\nsock\include;..\mswin32\pcap-include;..\..\nmap-mswin32-aux\OpenSSL\include;..\liblua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -198,6 +198,7 @@
     <ClCompile Include="ncat_core.c" />
     <ClCompile Include="ncat_exec_win.c" />
     <ClCompile Include="ncat_listen.c" />
+    <ClCompile Include="ncat_lua.c" />
     <ClCompile Include="ncat_main.c" />
     <ClCompile Include="ncat_proxy.c" />
     <ClCompile Include="ncat_ssl.c" />
@@ -215,6 +216,7 @@
     <ClInclude Include="ncat_core.h" />
     <ClInclude Include="ncat_exec.h" />
     <ClInclude Include="ncat_listen.h" />
+    <ClInclude Include="ncat_lua.h" />
     <ClInclude Include="ncat_proxy.h" />
     <ClInclude Include="ncat_ssl.h" />
     <ClInclude Include="..\mswin32\packet_types.h" />
@@ -240,6 +242,9 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\liblua\liblua.vcxproj">
+      <Project>{31fb0767-a71f-4575-8379-002d72b8af86}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\nbase\nbase.vcxproj">
       <Project>{b630c8f7-3138-43e8-89ed-78742fa2ac5f}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

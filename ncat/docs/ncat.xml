@@ -479,6 +479,19 @@
           like environment variables are available.</para>
         </listitem>
       </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--lua-exec <replaceable>file</replaceable></option> (Execute a .lua script)
+          <indexterm><primary><option>--lua-exec</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Runs the specified file as a Lua script after a connection has been
+          established, using a built-in interpreter. Both the script's standard input and
+          the standard output are redirected to the connection data streams.</para>
+        </listitem>
+      </varlistentry>
+
     </variablelist>
 
   </refsect1>

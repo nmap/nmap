@@ -1041,7 +1041,7 @@ sub {
 };
 kill_children;
 
-# Test --exec and --sh-exec.
+# Test --exec, --sh-exec and --lua-exec.
 
 server_client_test_all "--exec",
 ["--exec", "/usr/bin/perl -e \$|=1;while(<>){tr/a-z/A-Z/;print}"], [], sub {
@@ -1075,6 +1075,13 @@ proxy_test "--exec through proxy",
 [], [], ["--exec", "/bin/echo abc"], sub {
 	my $resp = timeout_read($s_out) or die "Read timeout";
 	$resp eq "abc\n" or die "Server received " . d($resp) . ", not " . d("abc\n");
+};
+
+server_client_test_all "--lua-exec",
+["--lua-exec", "toupper.lua"], [], sub {
+	syswrite($c_in, "abc\n");
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
 };
 
 # Do a syswrite and then a delay to force separate reads in the subprocess.

@@ -110,6 +110,12 @@ extern size_t targetsslen;
 extern union sockaddr_u httpconnect, socksconnect;
 extern size_t httpconnectlen, socksconnectlen;
 
+enum exec_mode {
+    EXEC_PLAIN,
+    EXEC_SHELL,
+    EXEC_LUA,
+};
+
 struct options {
     unsigned short portno;
 
@@ -152,8 +158,9 @@ struct options {
     int conn_limit;
     int conntimeout;
 
+    /* When execmode == EXEC_LUA, cmdexec is the name of the file to run. */
     char *cmdexec;
-    int shellexec;
+    enum exec_mode execmode;
     char *proxy_auth;
     char *proxytype;
 

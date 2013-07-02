@@ -166,7 +166,7 @@ void options_init(void)
     o.conntimeout = DEFAULT_CONNECT_TIMEOUT;
 
     o.cmdexec = NULL;
-    o.shellexec = 0;
+    o.execmode = EXEC_PLAIN;
     o.proxy_auth = NULL;
     o.proxytype = NULL;
 

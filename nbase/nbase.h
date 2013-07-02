@@ -436,6 +436,8 @@ char *mkstr(const char *start, const char *end);
 int alloc_vsprintf(char **strp, const char *fmt, va_list va)
      __attribute__ ((format (printf, 2, 0)));
 
+char *escape_windows_command_arg(const char *arg);
+
 /* Trivial function that returns nonzero if all characters in str of
    length strlength are printable (as defined by isprint()) */
 int stringisprintable(const char *str, int strlength);

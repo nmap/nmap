@@ -114,6 +114,10 @@
 #include <openssl/err.h>
 #endif
 
+#ifdef HAVE_LUA
+#include "ncat_lua.h"
+#endif
+
 static int ncat_connect_mode(void);
 static int ncat_listen_mode(void);
 
@@ -238,6 +242,10 @@ int main(int argc, char *argv[])
         {"G",               required_argument,  NULL,         'G'},
         {"exec",            required_argument,  NULL,         'e'},
         {"sh-exec",         required_argument,  NULL,         'c'},
+#ifdef HAVE_LUA
+        {"lua-exec",        required_argument,  NULL,         0},
+        {"lua-exec-internal",required_argument, NULL,         0},
+#endif
         {"max-conns",       required_argument,  NULL,         'm'},
         {"help",            no_argument,        NULL,         'h'},
         {"delay",           required_argument,  NULL,         'd'},
@@ -317,11 +325,16 @@ int main(int argc, char *argv[])
             o.crlf = 1;
             break;
         case 'c':
+            if (o.cmdexec != NULL)
+                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
-            o.shellexec = 1;
+            o.execmode = EXEC_SHELL;
             break;
         case 'e':
+            if (o.cmdexec != NULL)
+                bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
             o.cmdexec = optarg;
+            o.execmode = EXEC_PLAIN;
             break;
         case 'g': {
             char *a = strtok(optarg, ",");
@@ -471,6 +484,29 @@ int main(int argc, char *argv[])
                 o.sslverify = 1;
             }
 #endif
+#ifdef HAVE_LUA
+            else if (strcmp(long_options[option_index].name, "lua-exec") == 0) {
+                if (o.cmdexec != NULL)
+                    bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
+                o.cmdexec = optarg;
+                o.execmode = EXEC_LUA;
+            }
+            else if (strcmp(long_options[option_index].name, "lua-exec-internal") == 0) {
+                /* This command-line switch is undocumented on purpose. Do NOT use it
+                   explicitly as its behavior might differ between Ncat releases.
+
+                   Its goal is to switch the Ncat process to the Lua interpreter state
+                   so that its standard output and input can be redirected to
+                   particular connection's streams. Although it is implemented by
+                   forking in POSIX builds, Windows does not have the fork() system
+                   call and thus requires this workaround. More info here:
+                   http://seclists.org/nmap-dev/2013/q2/492 */
+                ncat_assert(argc == 3);
+                o.cmdexec = argv[2];
+                lua_setup();
+                lua_run();
+            }
+#endif
             break;
         case 'h':
             printf("%s %s ( %s )\n", NCAT_NAME, NCAT_VERSION, NCAT_URL);
@@ -487,6 +523,9 @@ int main(int argc, char *argv[])
 "  -C, --crlf                 Use CRLF for EOL sequence\n"
 "  -c, --sh-exec <command>    Executes the given command via /bin/sh\n"
 "  -e, --exec <command>       Executes the given command\n"
+#ifdef HAVE_LUA
+"      --lua-exec <filename>  Executes the given Lua script\n"
+#endif
 "  -g hop1[,hop2,...]         Loose source routing hop points (8 max)\n"
 "  -G <n>                     Loose source routing hop pointer (4, 8, 12, ...)\n"
 "  -m, --max-conns <n>        Maximum <n> simultaneous connections\n"
@@ -787,6 +826,11 @@ connection brokering should work.");
        the console. A no-op on Unix. */
     set_lf_mode();
 
+#ifdef HAVE_LUA
+    if (o.execmode == EXEC_LUA)
+        lua_setup();
+#endif
+
     if (o.listen)
         return ncat_listen_mode();
     else
@@ -838,7 +882,7 @@ static int ncat_listen_mode(void)
 
 #ifndef WIN32
     /* See if the shell is executable before we get deep into this */
-    if (o.shellexec && access("/bin/sh", X_OK) == -1)
+    if (o.execmode == EXEC_SHELL && access("/bin/sh", X_OK) == -1)
         bye("/bin/sh is not executable, so `-c' won't work.");
 #endif
 
