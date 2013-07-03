@@ -11776,7 +11776,7 @@ unknown	31709/udp	0.000654
 unknown	31712/udp	0.000654
 unknown	31720/udp	0.001307
 unknown	31723/udp	0.000654
-unknown	31727/tcp	0.000152
+diagd	31727/tcp	0.000152
 unknown	31727/udp	0.000654
 unknown	31728/tcp	0.000076
 unknown	31729/udp	0.000654
