@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The ipOps.isPrivate library now considers the deprecated
+  site-local prefix fec0::/10 to be private. [Marek Majkowski]
+
 o [Ncat] Added --lua-exec. This feature is basically an equivalent of ncat 
   --sh-exec "lua <scriptname>" and allows you to run Lua scripts with Ncat,
   redirecting all stdin and stdout operations to the socket connection. 
