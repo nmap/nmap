@@ -31,6 +31,7 @@ _ENV = stdnse.module("ipOps", stdnse.seeall)
 -- * IPv4 Reserved for Future Use (RFC 1112, Section 4)
 -- * IPv4 Multicast Local Network Control Block (RFC 3171, Section 3)
 -- * IPv6 Unspecified and Loopback (RFC3513)
+-- * IPv6 Site-Local (RFC3513, deprecated in RFC3879)
 -- * IPv6 Unique Local Unicast (RFC4193)
 -- * IPv6 Link Local Unicast (RFC4291)
 -- @param ip  String representing an IPv4 or IPv6 address.  Shortened notation
@@ -49,7 +50,7 @@ isPrivate = function( ip )
   if ip:match( ":" ) then
 
     local is_private
-    local ipv6_private = { "::/127", "FC00::/7", "FE80::/10" }
+    local ipv6_private = { "::/127", "FC00::/7", "FE80::/10", "FEC0::/10" }
 
     for _, range in ipairs( ipv6_private ) do
       is_private, err = ip_in_range( ip, range )
