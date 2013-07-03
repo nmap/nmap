@@ -219,7 +219,6 @@ int alloc_vsprintf(char **strp, const char *fmt, va_list va) {
 /* Used by escape_windows_command_arg to append a character to the given buffer
    at a given position, resizing the buffer if necessary. The position gets
    moved by one byte after the call. */
-   
 static char* safe_append_char(char* buf, char byte, unsigned int *rpos, unsigned int *rsize)
 {
     if (*rpos >= *rsize) {
