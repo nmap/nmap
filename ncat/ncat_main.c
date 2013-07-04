@@ -490,8 +490,7 @@ int main(int argc, char *argv[])
                     bye("Only one of --exec, --sh-exec, and --lua-exec is allowed.");
                 o.cmdexec = optarg;
                 o.execmode = EXEC_LUA;
-            }
-            else if (strcmp(long_options[option_index].name, "lua-exec-internal") == 0) {
+            } else if (strcmp(long_options[option_index].name, "lua-exec-internal") == 0) {
                 /* This command-line switch is undocumented on purpose. Do NOT use it
                    explicitly as its behavior might differ between Ncat releases.
 
