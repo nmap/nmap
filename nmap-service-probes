@@ -377,6 +377,9 @@ match dict m|^530 access denied\r\n$| p/dictd/ i/access denied/
 match dict m|^220 ([-.\w]+) dictd ([-.\w/]+) on ([-.+ \w]+) <auth\.mime>| p/dictd/ v/$2/ o/$3/ h/$1/
 match dict m|^220 hello <> msg\r\n$| p/Serpento dictd/
 
+# DS2, Application Version 04.5 (025) M2IP - 03.1 (09.2)Bootloader Version 04.5 (022) M2IP - 03.1 (09.2)
+match digital-sprite-status m|^acam_bitmask\[0\]=1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768\r\nact_actions\[0\]=1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1\r\nact_buzzer=0\r\n| p/Dedicated Micros Digital Sprite 2 camera/ d/webcam/
+
 # Digifort port 8600.
 match digifort m|^\xd1Q\xf0'\0\0\0;\x01\x05LOGIN\0\0\0\x30\x01\x01\0\0\0\x05NONCE\x08 \0\0\0[0-9A-F]{32}$| p/Digifort Enterprise 6.5/ o/Windows/ cpe:/a:digifort:digifort:6.5.0_final/ cpe:/o:microsoft:windows/a
 # Digifort port 8610.
@@ -409,7 +412,7 @@ match drac-console m|^\0\0\0\x0c\0\0\0\?\0\0\0\x02$| p/Dell Remote Access Contro
 
 match dragon m|^UNAUTHORIZED\n\r\n\r$| p/Dragon realtime shell/
 
-match drobo-nasd m|^DRINASD\0\x01\x01\0\0\0\0..<\?xml version=\"1\.0\" encoding=\"utf-8\"\?>\n\n<ESATMUpdate>\n    <mESAUpdateSignature>ESAINFO</mESAUpdateSignature>\n    <mESAUpdateVersion>\d+</mESAUpdateVersion>\n    <mESAUpdateSize>\d+</mESAUpdateSize>\n    <mESAID>0db\d+</mESAID>\n    <mSerial>0db\d+</mSerial>\n    <mName>Drobo(?:-FS)?</mName>\n    <mVersion>([][\w._ ]+)</mVersion>\n    <mReleaseDate>([^<]+)</mReleaseDate>\n| p/Drobo-FS NASD/ v/$1 ($2)/
+match drobo-nasd m|^DRINASD\0\x01\x01\0\0\0\0..<\?xml version=\"1\.0\" encoding=\"utf-8\"\?>\n\n<ESATMUpdate>\n    <mESAUpdateSignature>ESAINFO</mESAUpdateSignature>\n    <mESAUpdateVersion>\d+</mESAUpdateVersion>\n    <mESAUpdateSize>\d+</mESAUpdateSize>\n    <mESAID>\w+</mESAID>\n    <mSerial>\w+</mSerial>\n    <mName>Drobo(?:-FS)?</mName>\n    <mVersion>([][\w._ ]+)</mVersion>\n    <mReleaseDate>([^<]+)</mReleaseDate>\n|s p/Drobo-FS NASD/ v/$1 ($2)/
 match drobo-dsvc m|^DRIDDSVC\x07\x01\0\0\0\0..<ESATMUpdate>\r\n\t<mESAUpdateSignature>ESAINFO</mESAUpdateSignature>\r\n\t<mESAUpdateVersion>\d+</mESAUpdateVersion>\r\n\t<mESAUpdateSize>\d+</mESAUpdateSize>\r\n\t<mESAID>0db\d+</mESAID>\r\n\t<mSerial>tDB\d+</mSerial>\r\n\t<mName>Drobo(?:-FS)?</mName>\r\n\t<mVersion>([][\w._ ]+)</mVersion>\r\n\t<mReleaseDate>([^<]+)</mReleaseDate>\r\n| p/Drobo-FS DDSVC/ v/$1 ($2)/
 
 match drweb m|^0 PROTOCOL 2 [23] AGENT,CONSOLE,INSTALL| p/DrWeb/
@@ -446,7 +449,7 @@ match epp m|^\x00\x00\x03\x72<\?xml version=\"1\.0\" encoding=\"UTF-8\" standalo
 match eve-online m|^7\0\0\0~\0\0\0\0\x14\x06\x04\xe8\x99\x02\0\x05\xeb\0\x04\xdf\x92\0\0\n\xd7\xa3p=\n\xd7\x18@\x04\x95\xf1\x01\0\x13\x13EVE-EVE-RELEASE@ccp$| p/EVE Online game server/
 match eve-online m|^:\0\0\0~\0\0\0\0\x14\x07\x04\xe8\x99\x02\0\x05\x3b\x01\x05\x03k\n333333\x1d@\x04\re\x05\0\x13\x17EVE-EVE-TRANQUILITY@ccp\x01$| p/EVE Online game server/ i/Tranquility server/
 
-match exacqvision m|^8\0\0\0\x07\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0'\x9f\xf8\\\0\0\0\0\x8f\xbb\xd9y\0\0\0\0\+ad3\0\0\0\0| p/exacqVision video surveillance/ v/2.1.13/
+match exacqvision m|^8\0\0\0\x07\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0....\0\0\0\0....\0\0\0\0....\0\0\0\0$| p/exacqVision video surveillance/ v/2.1.13/
 
 match exec m|^\x01Where are you\?\n$| p/netkit-rsh rexecd/ o/Linux/ cpe:/o:linux:linux_kernel/a
 
@@ -779,10 +782,15 @@ match ftp m|^220 The Avalaunch FTP system -- enter user name\r\n| p/Avalaunch ft
 match ftp m|^220 Server 47 FTP service\. Welcome\.\r\n| p/bftpd/ o/Unix/
 match ftp m%^220-loading\.\.\r\n220-\|           W e L c O m E @ SFXP\|=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\|\r\n% p/SwiftFXP/
 match ftp m|^220 Z-FTP\r\n| p/Z-FTPd/
-match ftp m|^220 DELL1700n Dell Laser Printer 1700n FTP Server ([\w.]+) ready\.\r\n| p/Dell 1700n laser printer ftpd/ v/$1/ d/printer/
-match ftp m|^220 Dell Laser Printer 3100cn\r\n| p/Dell 3100cn laser printer ftpd/ d/printer/
-match ftp m|^220 Dell Color Laser 5110cn\r\n| p/Dell Color Laser 5110cn printer ftpd/ d/printer/
-match ftp m|^220 \w+ Dell Laser Printer M5200 FTP Server ([\d.]+) ready\.\r\n| p/Dell Laser Priner M5200 ftpd/ v/$1/ d/printer/
+
+match ftp m|^220 ([-/.+\w_]+) Dell ([-/.+\w ]+) FTP Server ([\w._-]+) ready\.\r\n| p/Dell $2 printer ftpd/ v/$3/ d/printer/ h/$1/ cpe:/h:dell:$2/
+match ftp m|^220 ([-/.+\w_]+) Dell Wireless Printer Adapter ([\w._-]+) FTP Server ready\.\r\n| p/Dell $2 Wireless Printer Adapter ftpd/ d/print server/ h/$1/ cpe:/h:dell:$2/
+match ftp m|^220 ([-/.+\w_]+) Dell Laser Printer ([-/.+\w ]+) FTP Server ([\w._-]+) ready\.\r\n| p/Dell $2 printer ftpd/ v/$3/ d/printer/ h/$1/ cpe:/h:dell:$2/
+match ftp m|^220 Dell Laser Printer ([\w._-]+)\r\n| p/Dell $1 laser printer ftpd/ d/printer/ cpe:/h:dell:$1/
+match ftp m|^220 Dell Color Laser ([\w._-]+)\r\n| p/Dell $1 color laser printer ftpd/ d/printer/ cpe:/h:dell:$1/
+match ftp m|^220 Dell ([\w._-]+) Color Laser\r\n| p/Dell $1 color laser printer ftpd/ d/printer/ cpe:/h:dell:$1/
+match ftp m|^220 Dell MFP Laser ([\w._-]+)\r\n| p/Dell $1 laser printer ftpd/ d/printer/ cpe:/h:dell:$1/
+
 match ftp m|^220 Plan 9 FTP server ready\r\n| p/Plan 9 ftpd/ o/Plan 9/
 match ftp m=^220-\+----------------------\[ UNREGISTERED VERSION \]-----------------------\+\r\n220-\|   This site is running unregistered copy of RaidenFTPD ftp server   \+\r\n= p/RaidenFTPd/ i/Unregistered/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|220 ([-\w_.]+) FTP server \(Version:  Mac OS X Server ([\d.]+) - \+GSSAPI\) ready\.\r\n|s p/MacOS X Server ftpd/ i/MacOS X Server $2/ h/$1/
@@ -841,8 +849,6 @@ match ftp m|^220-TwoFTPd server ready\.\r\n220 Authenticate first\.\r\n| p/TwoFT
 match ftp m|^220  WEB TLC FTP SERVER READY TYPE HELP FOR HELP \r\n| p/Overland Storage Neo2000 ftpd/ d/storage-misc/
 match ftp m|^220 ([-/.+\w_]+) Lexmark ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ v/$3/ d/printer/ h/$1/
 match ftp m|^220 ([-/.+\w_]+) MarkNet ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ v/$3/ d/printer/ h/$1/
-match ftp m|^220 ([-/.+\w_]+) Dell Laser Printer ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Dell $2 printer ftpd/ v/$3/ d/printer/ h/$1/
-match ftp m|^220 ([-/.+\w_]+) Dell ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Dell $2 printer ftpd/ v/$3/ d/printer/ h/$1/
 match ftp m|^500 ([\w._-]+) FTP server shut down -- please try again later\.\r\n| p/Mac OS X Server ftpd/ i/disabled/ o/Mac OS X/ h/$1/ cpe:/o:apple:mac_os_x/a
 match ftp m|^220  \(Ver\. ([^)]+)\) [A-Z][a-z]{2} \d+ 20\d+ ready\.\r\n| p|Canon VB-C10/VB-C10R webcam ftpd| v/$1/ d/webcam/
 match ftp m|^220 Cisco \(([\d.]+)\) FTP server ready\r\n| p/Cisco ftpd/ v/$1/ o/IOS/ cpe:/o:cisco:ios/a
@@ -883,9 +889,7 @@ match ftp m|^220 NetTerm FTP server ready \r\n| p/NetTerm ftpd/ o/Windows/ cpe:/
 match ftp m|^220 SHARP ([\w-]+) FTP server ready\.\r\n| p/Sharp $1 printer ftpd/ d/printer/
 match ftp m|^220 SHARP ([\w-]+) Ver ([\w._-]+) FTP server\.\r\n| p/SHARP $1 printer ftpd/ v/$2/ d/printer/
 match ftp m|^220 (FS-\w+) FTP server\.?\r\n| p/Kyocera $1 printer ftpd/ d/printer/ cpe:/h:kyocera:$1/
-match ftp m|^220 Dell Laser Printer 5100cn\r\n| p/Dell Laser Printer 5100cn ftpd/ d/printer/
 match ftp m|^220 Scala FTP \(\"Scala InfoChannel Player \d+\" ([\w/.]+)\)\r\n| p/Scala InfoChannel Player ftpd/ v/$1/ d/media device/
-match ftp m|^220 ([-\w_.]+) Dell Wireless Printer Adapter 3300 FTP Server| p/Dell Wireless Printer Adapter 3300 ftpd/ d/print server/ h/$1/
 match ftp m|^220 RICOH Aficio MP C2500 FTP server \(([\d.]+)\) ready\.\r\n| p/Ricoh Aficio MP C2500 ftpd/ v/$1/ d/printer/
 match ftp m|^220 FTP Services for ClearPath MCP:  Server version ([\d.]+)\r\n| p/Unisys ClearPath MCP ftpd/ v/$1/
 match ftp m|^220 Nut/OS FTP ([\d.]+) beta ready at| p|Nut/OS Demo ftpd| v/$1/ o|Nut/OS|
@@ -901,8 +905,6 @@ match ftp m|^220 FRITZ!BoxFonWLAN(\w+)(?:\(\w+\))? FTP server ready\.\r\n| p/FRI
 match ftp m|^220 FRITZ!Box Fon WLAN (\d+) FTP server ready\.\r\n| p/FRITZ!Box Fon WLAN $1 WAP ftpd/ d/WAP/
 match ftp m|^220 FRITZ!Box(\w+)Cable\(um\) FTP server ready\.\r\n| p/FRITZ!Box $1 cable modem ftpd/ d/broadband router/
 match ftp m|^220 RICOH Aficio MP 2510 FTP server \(([-\w_.]+)\) ready\.\r\n| p/Ricoh Aficio MP 2510 printer ftpd/ v/$1/ d/printer/
-match ftp m|^220 Dell Color Laser (\w+)\r\n| p/Dell Color Laser $1 printer ftpd/ d/printer/
-match ftp m|^220 Dell MFP Laser (\w+)\r\n| p/Dell MFP Laser $1 printer ftpd/ d/printer/
 match ftp m|^220 CompuMaster SRL, WT-6500 Ftp Server \(Version ([\d.]+)\)\.\r\n| p/CompuMaster WT-6500 ThinClient ftpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^211 Hello \[[-\w_.]+\], Secure/IP Authentication Server ([-\w_.]+) at your service\.\r\n| p|OpenVMS Secure/IP ftpd| v/$1/ o/OpenVMS/ cpe:/o:hp:openvms/a
 match ftp m|^220  HP166XC V([-\w_.]+) FUSION FTP server \(Version ([-\w_.]+)\) ready\.\r\n| p/HP166XC $1 Logic Analyzer ftpd/ i/FUSION ftpd $2/ d/specialized/
@@ -1053,6 +1055,11 @@ match ftp m|^220 RIEDEL Artist FTP Server\r\n| p/Riedel Artist intercom system f
 match ftp m|^220 (ZXDSL [\w._-]+) FTP version ([\w._-]+) ready at .*\r\n| p/ZyXEL $1 ADSL modem telnetd/ v/$2/ d/broadband router/ cpe:/h:zyxel:$1/
 match ftp m|^ - error: no valid servers configured\n - Fatal: error processing configuration file '/etc/proftpd/proftpd\.conf'\n$| p/ProFTPD/ cpe:/a:proftpd:proftpd/
 match ftp m|^220 SoftDataCable ([\w._-]+) ready\r\n| p/Software Data Cable ftpd/ v/$1/
+match ftp m|^220 Operation successful\r\n$| p/BusyBox ftpd/ cpe:/a:busybox:ftpd/ i/D-Link DCS-932L IP-Cam camera/ d/webcam/ cpe:/h:dlink:dcs-932l/
+match ftp m|^220-\*\*\* Running an unlicensed copy of TurboFTP Server \*\*\*\r\n220 TurboFTP Server ([\w._-]+) ready\.\r\n| p/TurboSoft TurboFTP/ v/$1/ cpe:/a:turbosoft:turboftp:$1/ o/Windows/
+match ftp m|^200 Welcome to BarracudaBackupFTPd\.\r\n| p/Barracuda Backup 490 appliance ftpd/ d/storage-misc/
+match ftp m|^220 awaiting Input\r\n| p/Encrypted FTP/ o/Windows/
+match ftp m|^220 Welcome to the Cisco (TelePresence MCU [\w._-]+), version ([\w._()-]+)\r\n| p/Cisco $1 videoconferencing bridge/ d/VoIP addapter/ cpe:/h:cisco:$1/ v/$2/
 
 #(insert ftp)
 
@@ -7797,8 +7804,8 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"Secu
 match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nExpires: .*\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD><TITLE>Welcome to (963)</TITLE>| p/Trend $1 building control system httpd/ d/security-misc/ cpe:/h:trend:$1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWww-Authenticate: Basic REALM=\"elmeg\"\r\nContent-Type: text/plain\r\nContent-Length: 22\r\n\r\nUnauthorized request\r\n$| p/Elmeg IP 290 VoIP phone http config/ d/VoIP phone/ cpe:/h:elmeg:ip_290/
 match http m|^HTTP/1\.1 401 Authorization Required\nDate: .* ([-+]\d+)\nServer: WebPidginZ \n([\w._-]+)\nWWW-Authenticate: Digest realm=\"WebPidginZLoginDigest\", nonce=\"[0-9a-f]+\", opaque=\"0000000000000000\", stale=false, algorithm=MD5, qop=\"auth\"\nConnection: close\nContent-type: text/html\n\n\n\n$| p/WebPidgin-Z instant messaging interface/ v/$2/ i/time zone: $1/
-match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{\n  \"ok\" : true,\n  \"name\" : \"[\w._ -]+\",\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"date\" : \"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)\",\n    \"snapshot_build\" : \w+\n  },\n| p/ElasticSearch/ v/$1 $2/
-match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\n  \"name\" : \"[\w._ -]+\",.*\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"snapshot_build\" : false\n  },|s p/ElasticSearch/ v/$1/
+match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{\n  \"ok\" : true,\n  \"name\" : \"[\w._ -]+\",\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"date\" : \"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)\",\n    \"snapshot_build\" : \w+\n  },\n|s p/ElasticSearch/ v/$1 $2/
+match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: application/json; charset=UTF-8\r\nContent-Length: \d+\r\n\r\n{.*\n  \"name\" : \"([^"]+)\",.*\n  \"version\" : {\n    \"number\" : \"([\w._-]+)\",\n    \"snapshot_build\" : false\n  },|s p/ElasticSearch/ v/$2/ i/name: $1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nCache-Control: no-cache\r\nContent-Length: \d+\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3\.org/TR/html4/loose\.dtd\">\n<!--\nCopyright 2004-2011 H2 Group\.\n| p/H2 database http console/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"NETWORK\"\r\nContent-Type: text/html\r\nServer: Lancam Server\r\n\r\n| p/American Dynamics EDVR security recorder/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: Muratec Server Ver\.([\w._-]+)\r\n.*<TITLE>Administration tool for IF-300</TITLE>\r\n|s p/Muratec IF-300 network module http config/ v/$1/ i/for F-320 printer/ d/printer/ cpe:/h:muratec:f-320/ cpe:/h:muratec:if-300/
@@ -8008,6 +8015,8 @@ match http m|^HTTP/1\.1 200 OK\r\n.*<title>Endpoint Security Required</title>\n.
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n.*Server: TornadoServer/([\w._-]+)\r\n.*<link rel=\"stylesheet\" href=\"/api/d31962c80b154e50adea3b4e7e8d4ba2/file\.cache/minified_front\.css\?\d+\"|s p/Tornado httpd/ v/$1/ i/CouchPotato downloader/
 match http m|^HTTP/1\.1 401 UNAUTHORIZED\r\nWWW-Authenticate: Basic realm=\"CouchPotato Login\"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 54\r\nServer: TornadoServer/([\w._-]+)\r\n\r\nThis is not the page you are looking for\. \*waves hand\*$| p/Tornado httpd/ v/$1/ i/CouchPotato downloader/
 match http m|^HTTP/1\.1 404 Not Found\r\n.*Access-Control-Allow-Origin: \*\r\n.*Server: xmpp-share-server/([\w._-]+)\r\n|s p/xmpp-share-server httpd/
+match http m|^HTTP/1\.1 200 OK\r\nDate: .* ([\w._-]+) \d+\r\nServer: EasyAntiCheat/v([\w._-]+)\r\n| p/EasyAntiCheat httpd/ v/$2/ i/time zone: $1/
+match http m|^HTTP/1\.0 200 OK\r\nDate: .*\r\nServer: Embedthis-Appweb/([\w._-]+)\r\n| p/Embedthis-Appweb/ v/$1/ cpe:/a:mbedthis:appweb:$1/
 
 #(insert http)
 
@@ -10976,8 +10985,10 @@ match rmiregistry m|^\x4e..([\w._-]+)\0\0..$|s p/GNU Classpath grmiregistry/ h/$
 
 ##############################NEXT PROBE##############################
 Probe TCP Radmin q|\x01\x00\x00\x00\x01\x00\x00\x00\x08\x08|
-ports 4899
+ports 4899,9001
 rarity 8
+
+match fcgiwrap m|^\x01\x0b\0\0\0\x08\0\0\0\0\0\0\0\0\0\0$| p/fcgiwrap/
 
 match radmin m|^\x01\x00\x00\x00\x25\x09\x00\x01\x10\x08\x01\x00\x09\x08| p/Famatech Radmin/ v/2.X/ i/Windows Authentication/ o/Windows/ cpe:/a:famatech:radmin:2/ cpe:/o:microsoft:windows/a
 match radmin m|^\x01\x00\x00\x00\x25\x0a\x00\x01\x10\x08\x01\x00\x0a\x08| p/Famatech Radmin/ v/2.X/ i/Radmin Authentication/ o/Windows/ cpe:/a:famatech:radmin:2/ cpe:/o:microsoft:windows/a
