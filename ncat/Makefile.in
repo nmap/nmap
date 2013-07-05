@@ -85,7 +85,7 @@ endif
 ifneq ($(HAVE_LUA),)
 LUA_SRCS = ncat_lua.c
 LUA_OBJS = ncat_lua.o
-LUA_LIBS = @LIBLUA_LIBS@ -lm
+LUA_LIBS = @LIBLUA_LIBS@ -lm -ldl
 LUA_CFLAGS += -DHAVE_LUA=1 -I../liblua
 else
 LUA_SRCS =
