@@ -3918,6 +3918,10 @@ match telnet m|^\r\nWelcome to yersinia version ([\w._-]+)\.\r\nCopyright \d\d\d
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03===Actiontec xDSL Router===\r\nLogin: | p/Actiontec Q1000 DSL router telnetd/ d/broadband router/ cpe:/h:actiontec:q1000/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03DataEngine Telnet v([\w._-]+)\r\n\r\n>| p/DataEngine telnetd/ v/$1/
 match telnet m|^\xff\xfb\x03\xff\xfb\x01HGFMA-B> GET / HTTP/1\.0\r\nGET: Command not found\.\r\nHGFMA-B> \r\nHGFMA-B> | p/Hay Systems HSL 2.75G Femtocell telnetd/ d/WAP/ cpe:/o:hay_systems:hsl_2.75g_femtocell/
+match telnet m|^(TSW-[\w._-]+) Console\r\n\r\nTSW-[\w._-]+>| p/Crestron $1 touch screen telnetd/ d/media device/ cpe:/h:crestron:$1/
+match telnet m|^\x1b\[\?25l\xff\xfb\x01\xff\xfb\x03\xff\xfc\"\xff\xfd\x1f\x1b\[2J\x1b\[0m\x1b\[40m\x1b\[30m\x1b\[1;1H\x1b\[34;1m\xe2\x95\x94Enter your nickname for this session \(Alt\+1\)\xe2\x95\x90| p/dfterm2 telnetd for Dwarf Fortress game/
+# http://www.marss.eu/app/
+match telnet m|^connesso,1\n| p/Marss IP Controller telnetd/ d/remote management/
 
 #(insert telnet)
 
@@ -7489,6 +7493,7 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nConnection: close\r\nWWW-Authenticat
 match http m|^HTTP/1\.1 300 ERROR\r\nConnection: keep-alive\r\nContent-Length: 15\r\nContent-Type: text/html\r\n\r\ninvalid request$| p/uTorrent WebUI/ o/Windows/ cpe:/o:microsoft:windows/a
 # uTorrent 2.0.2
 match http m|^HTTP/1\.1 400 ERROR\r\nConnection: keep-alive\r\nContent-Length: 15\r\nContent-Type: text/html\r\n\r\ninvalid request$| p/uTorrent WebUI/ o/Windows/ cpe:/o:microsoft:windows/a
+match http m|^HTTP/1\.1 400 ERROR\r\nConnection: keep-alive\r\nContent-Length: 17\r\nContent-Type: text/html\r\n\r\n\r\ninvalid request$| p/uTorrent WebUI/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.0 200 OK\r\n.*Server: WYM/([\w._-]+)\r\n.*Content-Length: 1029\r\nLast-Modified: Tue, 19 May 2009 02:17:02 GMT\r\n\r\n\xef\xbb\xbf<html>\r\n<head>\r\n<title>NVS</title>|s p/WYM httpd/ v/$1/ i/A+V Link NVS-4000 surveillance system http config/ d/webcam/
 match http m|^HTTP/1\.1 200 OK\r\nLast-Modified: Mon, 07 Apr  2009  04:00:00 GMT\r\nContent-Type: TEXT/HTML\r\nDate: \w\w\w, \d\d \w\w\w  \d\d\d\d  \d\d:\d\d:\d\d GMT00:00 GMT\r\nServer: ICOM ([\w._-]+)    from SBS\r\nMIME-Version: 1\.0\r\nServer: ICOM [\w._-]+    from SBS\r\nConnection: close\r\nContent-Length:             861\r\n\r\n<HTML>\r\n<HEAD>\r\n<TITLE>UltraQuest Index HTML</TITLE>| p/ICOM httpd/ v/$1/ i/UltraQuest mainframe reporting/ o|OS/390|
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-type: text/html\r\nDate: Sat, 31 Dec 2005 23:02:28 GMT\r\nConnection: close\r\n\r\n<HEAD><TITLE>404 Not Found</TITLE></HEAD>\n<BODY><H1>404 Not Found</H1>\nThe requested URL was not found on this server\.\n</BODY>\n$| p/BusyBox httpd/ i/Sphairon Turbolink IAD ADSL modem http config/ o/Linux/ cpe:/a:busybox:httpd/ cpe:/o:linux:linux_kernel/a
@@ -7913,7 +7918,7 @@ match http m|^HTTP/1\.1 404  not found here\. Contact Phluant Mobile \r\nContent
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: httpd\r\nDate: .* GMT\r\nWWW-Authenticate: Basic realm=\"(\w+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H4>401 Unauthorized</H4>\nAuthorization required\.\n</BODY></HTML>\n$| p/Linksys $1 WAP http config/ d/WAP/ cpe:/h:linksys:$1/
 match http m|^HTTP/1\.0 303 Use Instead\r\nLocation: /index\.html\r\nContent-Type: text/html\r\n\r\n$| p/MikroTik RouterBoard 250GS httpd/ d/router/ cpe:/h:mikrotik:routerboard_250gs/
 match http m|^HTTP/1\.1 200 Ok\r\nDate: .* GMT\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Frameset//EN\" \"http://www\.w3\.org/TR/html4/frameset\.dtd\">\r\n<html>\r\n\t<head>\r\n\t\t<TITLE>Web Application Manager</TITLE>\r\n| p/D-Link DIR-300 WAP http admin/ d/WAP/ cpe:/h:dlink:dir-300/
-match http m|^HTTP/1\.1 200 Ok\r\nServer: httpd\r\nDate: .* GMT\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\n<head>\n<title>Login Page</title>\n<!--\[if lt IE 7\.\]>\n| p/Cisco SPA112 VoIP adapter/ d/VoIP adapter/
+match http m|^HTTP/1\.1 200 Ok\r\nServer: httpd\r\nDate: .* GMT\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: 0\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<html>\n<head>\n<title>Login Page</title>\n<!--\[if lt IE 7\.\]>\n| p/Cisco SPA112 VoIP adapter http config/ d/VoIP adapter/
 match http m|^HTTP/1\.0 200 OK\r\nDate: .* GMT\r\nServer: PanWeb Server/ - \r\n.*Expires: Mon, 26 Jul 1997 05:00:00 GMT\r\n|s p/PanWeb/ i/Palo Alto Networks PA-5050 firewall http admin/ d/firewall/ cpe:/h:paloalto:pa-5050/
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .* GMT\r\nServer: PanWeb Server/ - \r\n.*Expires: Thu, 19 Nov 1981 08:52:00 GMT\r\n|s p/PanWeb/ i/Palo Alto Networks firewall http admin/ d/firewall/
 # Sony Bravia
@@ -8000,6 +8005,9 @@ match http m|^HTTP/1\.0 200 OK \r\nContent-Type: text/html\r\nDate: .* GMT\r\n\r
 match http m|^HTTP/1\.1 200 OK\r\nServer: X10 Control ([\w._-]+)\r\n| p/X10 ActivePhone remote control httpd/ v/$1/ d/phone/
 match http m|^HTTP/1\.0 404 Not Found\r\nContent-Type: text/html\r\nContent-Length: 79\r\n\r\n<html><head><title>Page Not Found</title></head><body>Not here :\(</body></html>$| p/Prosody XMPP BOSH/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>Endpoint Security Required</title>\n.*div\.header { background: url\(/XX/YY/ZZ/CI/MGPGHGPGPFGHCDPFGGOGFGEH\) 0 0 repeat-x; height: 82px; }\n|s p/FortiGate Endpoint Control httpd/
+match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\n.*Server: TornadoServer/([\w._-]+)\r\n.*<link rel=\"stylesheet\" href=\"/api/d31962c80b154e50adea3b4e7e8d4ba2/file\.cache/minified_front\.css\?\d+\"|s p/Tornado httpd/ v/$1/ i/CouchPotato downloader/
+match http m|^HTTP/1\.1 401 UNAUTHORIZED\r\nWWW-Authenticate: Basic realm=\"CouchPotato Login\"\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 54\r\nServer: TornadoServer/([\w._-]+)\r\n\r\nThis is not the page you are looking for\. \*waves hand\*$| p/Tornado httpd/ v/$1/ i/CouchPotato downloader/
+match http m|^HTTP/1\.1 404 Not Found\r\n.*Access-Control-Allow-Origin: \*\r\n.*Server: xmpp-share-server/([\w._-]+)\r\n|s p/xmpp-share-server httpd/
 
 #(insert http)
 
@@ -9029,6 +9037,7 @@ match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\nCache-Control: no-store\r\
 match http m|^HTTP/1\.1 406 Not Acceptable\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\nContent-Length: 616\r\n\r\n<HTML><HEAD>\n<TITLE>Request Error</TITLE>| p/Blue Coat proxy server/ d/proxy server/
 match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r\n</html>\r\n$| p/nginx/ cpe:/a:igor_sysoev:nginx/
 match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>nginx/([\w._-]+)</center>\r\n</body>\r\n</html>\r\n$| p/nginx/ v/$1/ cpe:/a:igor_sysoev:nginx:$1/
+match http m|^<html>\r\n<head><title>400 Bad Request</title></head>\r\n<body bgcolor=\"white\">\r\n<center><h1>400 Bad Request</h1></center>\r\n<hr><center>cloudflare-nginx</center>\r\n</body>\r\n</html>\r\n$| p/cloudflare-nginx/
 match http m|^<head><title>400 Bad Request</title></head>\r\n<h1>400 Bad Request</h1>\r\n\r\n| p/nginx/ cpe:/a:igor_sysoev:nginx/
 # Counting on this 404 being unique enough here in RTSPRequest.
 match http m|^HTTP/1\.0 404 Not Found\r\n\r\n$| p/XBT BitTorrent tracker http interface/
@@ -9271,7 +9280,7 @@ match domain m|^\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..
 match domain m|^\x07version\x04bind\0\0\x10\0.\xc0\x0c\0\x10\0\x01\0\0\0\x05\0..Served by PowerDNS - http://www\.powerdns\.com|s p/PowerDNS/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03.......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03......PowerDNS Recursor ([\w._-]+) (\$Id: pdns_recursor\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
-match domain m|^\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\x05\0..Served by POWERDNS ([\w._-]+) (\$Id: packethandler\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
+match domain m|^\0\x06\x85[\x00\x80]\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\x05\0..Served by POWERDNS ([\w._-]+) (\$Id: packethandler\.cc .*?\$)$|s p/PowerDNS/ v/$1/ i/$2/
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x03\0\x04....$|s p/Netgear ProSafe FVS318v3 firewall named/ d/firewall/
 match domain m|^\0\x06\x05\0\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x01X\x02\0\0\0..Microsoft DNS (.*)|s p/Microsoft DNS/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x01\0\x01\0\0\0\x05\0\x04....|s p/Aruba 3400 Mobility Controller named/
@@ -9298,6 +9307,8 @@ match domain m|\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x0
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x1b\x1arbldnsd ([\d.]+) | p/rbldnsd/ v/$1/
 
 match domain m|^\0\x06\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\x07VERSION\x04BIND\0\0\x10\0\x03\0\0\0\0\0\('Peticion no permitida/Query not allowed| p/ZyXEL Prestige 643 dns cache/ d/switch/
+match domain m|^\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\x01Q\x80\0\x02\0\0| p/ZyXEL P-660R-D1 ADSL router dnsd/ cpe:/h:zyxel:p-660r-d1/ d/broadband router/
+match domain m|^\0\x06\x81\x85\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03| p/ZyXEL P-660HW-D1 wireless ADSL router dnsd/ cpe:/h:zyxel:p-660hw-d1/ d/WAP/
 
 match cisco-sla-responder m|^..\0\x08\0\x03[\0\r][\0\n]$|s p/Cisco SLA Responder/ d/router/ o/IOS/ cpe:/o:cisco:ios/a
 
@@ -9816,6 +9827,7 @@ match http m|^HTTP/1\.0 400 Bad Request\r\nServer: httpd\r\n.*<HTML>\n<HEAD>\n<T
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: httpd\r\n.*<HTML>\n<HEAD>\n<TITLE>400 Bad Request</TITLE>\n<script language=\"javascript\">\n<!--\n\tvar xmlhttp = false;.*<BODY BGCOLOR=\"#cc9999\">\n<H4>400 Bad Request</H4>\n<script language=\"javascript\">\n<!--\n\tif\(xmlhttp\) {\n  \t\talert\('Unauthorizationed'\);|s p/Cisco WAP2000 WAP http config/ d/WAP/
 match http m|^HTTP/0\.9 400 Bad Request\r\n\r\n$| p/Ganeti httpd/
 match http m|^UnknownMethod 400 Bad Request\r\nServer: httpd\r\nDate: .*\r\nConnection: keep-alive\r\nKeep-Alive: timeout=60, max=2000\r\nContent-Type: text/html\r\nContent-length: 130\r\n\r\n<HTML><HEAD><TITLE>Document Error: Bad Request</TITLE></HEAD>\r\n<BODY><H2>Access Error: 400 -- Bad Request</H2>\r\n</BODY></HTML>\r\n\r\n| p/Dell iDRAC 6 http config/ d/remote management/
+match http m|^HTTP/1\.1 500 Internal Server Error\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nFailure: 500 Internal Server Error\r\n$| p/PS3 Media Server httpd/
 
 # Seen a couple times for just Help probe... -Doug
 match http-proxy m|^HTTP/1\.0 200 OK\r\nCache-Control: no-store\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nX-Bypass-Cache: Application and Content Networking System Software ([\d.]+)\r\n| p/Cisco ACNS outbound proxying/ v/$1/ i/**PROXIED**/
@@ -10415,6 +10427,8 @@ match ftp m|^2[23]0 FTP Server Ready\r\n504 Comand length not supported\.\r\n| p
 Probe TCP X11Probe q|\x6C\0\x0B\0\0\0\0\0\0\0\0\0|
 rarity 4
 ports 80,443,497,1550,2002,5302,6000-6020,7000,7100,7101,7777,8000
+
+match acti-control m|^\x01\0\0\0\x01\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/ACTi E32 camera control server port/ d/webcam/ cpe:/h:acti:e32/
 
 match apcupsd m|^\0\0\x02\0\0\0\0\0\0\0\0\0\x06\0\0\0\0@\x0c\0\x9c\x18\0\0X Consortium\x01\n\x01\0\x05\0\0\0f\x84\x017\0\0\0\0\0\0\0\0$| p/apcupsd/
 
