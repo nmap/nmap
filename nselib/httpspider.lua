@@ -506,6 +506,7 @@ Crawler = {
 	--        <code>scriptname</code> - should be set to SCRIPT_NAME to enable
 	--                                  script specific arguments.
 	--        <code>redirect_ok</code> - redirect_ok closure to pass to http.get function
+ 	--        <code>no_cache</code> -  no_cache option to pass to http.get function
 	-- @return o new instance of Crawler or nil on failure
 	new = function(self, host, port, url, options)
 		local o = {
@@ -523,7 +524,7 @@ Crawler = {
 		o:loadLibraryArguments()
 		o:loadDefaultArguments()
 
-		local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok } )
+		local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
 		
 		if ( not(response) or 'table' ~= type(response) ) then
 			return
@@ -692,14 +693,14 @@ Crawler = {
         end
         if is_web_file then
           stdnse.print_debug(2, "%s: Using GET: %s", LIBRARY_NAME, file)
-          response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok } )
+          response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
         else
           stdnse.print_debug(2, "%s: Using HEAD: %s", LIBRARY_NAME, file)
           response = http.head(url:getHost(), url:getPort(), url:getFile())
         end
       else
 			  -- fetch the url, and then push it to the processed table
-			  response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok } )
+			  response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
 			end
       
 			self.processed[tostring(url)] = true
