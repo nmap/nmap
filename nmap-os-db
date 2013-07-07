@@ -17039,7 +17039,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # dgux agaviion R4.11MU06 generic AViiON mc88110, Data General 8540 running the following operating system "DG/UX Release R4.11MU06"
 Fingerprint Data General DG/UX 4.11MU06
 Class Data General | DG/UX | 4.X | general purpose
-CPE cpe:/o:data_general:dg%2fus:4.11mu06
+CPE cpe:/o:data_general:dg%2fux:4.11mu06
 SEQ(SP=C-42%GCD=10000|20000|30000|40000|50000%ISR=98-AC%TI=I|RD%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2238%W2=20D0%W3=2080%W4=2238%W5=2180%W6=2229)
