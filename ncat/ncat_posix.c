@@ -180,6 +180,14 @@ void netexec(struct fdinfo *info, char *cmdexec)
         close(child_stdin[1]);
         close(child_stdout[0]);
 
+        /* We might have turned off SIGPIPE handling in ncat_listen.c. Since
+           the child process SIGPIPE might mean that the connection got broken,
+           ignoring it could result in an infinite loop if the code here
+           ignores the error codes of read()/write() calls. So, just in case,
+           let's restore SIGPIPE so that writing to a broken pipe results in
+           killing the child process. */
+        Signal(SIGPIPE, SIG_DFL);
+
         /* rearrange stdin and stdout */
         Dup2(child_stdin[0], STDIN_FILENO);
         Dup2(child_stdout[1], STDOUT_FILENO);
