@@ -19,6 +19,13 @@ o Nping in ICMP mode (default) must not be checking the icmp IDs or
   from the other nping (as well as its own) and it screws up the timing
   stats too.
 
+o Make Ncat reset the signal handler for SIGPIPE to SIG_DFL before
+  execing a program with --exec and friends. A "broken pipe" error in
+  a subprocess should kill the subprocess. Lack of default SIGPIPE
+  handling is what prevents a trivial Lua chargen script--it loops
+  forever after the socket disconnects because none of its writes
+  fail. Cf. http://www.chiark.greenend.org.uk/ucgi/~cjwatson/blosxom/2009-07-02-python-sigpipe.html.
+
 o Update CHANGELOG for new release
 
 o New Nmap Release
