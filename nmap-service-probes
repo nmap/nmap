@@ -2213,6 +2213,7 @@ match pop3 m|^\+OK ([\w._-]+) IceWarp ([\w._-]+) POP3 \w+, \d+ \w+ \d+ \d+:\d+:\
 match pop3 m|^\+OK DavMail ([\w._-]+) POP ready at | p/DavMail pop3d/ v/$1/
 match pop3 m|^\+OK Welcome AltiPop3 POP3 Server\r\n| p/AltiGen AltiServ pop3d/ d/PBX/ cpe:/a:altigen:altiserv/
 match pop3 m|^\+OK Welcome to coremail Mail Pop3 Server \(gzidcs\[[0-9a-f]{32}s\]\)\r\n$| p/coremail pop3d/
+match pop3 m|^\+OK POP3 Server ([\w._-]+) \(InSciTek OIS\) ready <[\w._-]+@[\w._-]+>\r\n| p/Allworx VoIP server pop3d/ d/VoIP adapter/ h/$1/
 
 match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 match pop3-proxy m|^\+OK CCProxy (\S+) POP3 Service Ready\r\n| p/CCProxy pop3d/ v/$1/
@@ -2239,6 +2240,7 @@ match pop3-proxy m|^\+OK WinProxy POP3 Proxy Ready\r\n| p/WinProxy pop3 proxy/ o
 match pop3-proxy m|^-ERR 403 The requested host is forbidden by WinProxy\.  See your network administrator\.\n| p/WinProxy pop3 proxy/ i/IP forbidden/ o/Windows/ cpe:/o:microsoft:windows/a
 match pop3-proxy m|^\+OK MrPostman webmail proxy ready\r\n| p/MrPostman webmail pop3 proxy/
 match pop3-proxy m|^\+OK (.*) \(PGP Universal service is proxying this connection\)\r\n| p/PGP Universal pop3 proxy/ i/Proxied greeting: $1/
+match pop3-proxy m|^-ERR PGP Universal no pop3 service here\r\n| p/Symantec PGP Universal Server pop3 proxy/
 match pop3-proxy m|^\+OK F-Secure/fsigk_pop/\d+/[-\w_.]+ starting\.\r\n| p/F-Secure Internet Gateway pop3 proxy/
 match pop3-proxy m|^\+OK hello from popgate\(([\d.]+)\)\r\n| p/POPgate pop3 proxy/ v/$1/
 match pop3-proxy m|^\+OK \[ISafe POP3 Proxy\] \r\n| p/ISafe pop3 proxy/
@@ -4640,6 +4642,9 @@ match netsaint m|^ERROR: Unknown request number\.| p/NC_Net nagios server/
 match nsclient m|^ERROR:Wrong password$| p/Netsaint Windows Client/
 match nsclient m|^ERROR: Invalid password\.\nERROR: Invalid password\.\n$| p/NSClient++/
 
+# http://olsr.org/?q=txtinfo_plugin
+match olsrd-txtinfo m|^HTTP/1\.0 200 OK\nContent-type: text/plain\n\nTable: Links\nLocal IP\tRemote IP\tHyst\.\tLQ\tNLQ\tCost\n[\w._-]+\t[\w._-]+\t[\d.]+\t[\d.]+\t[\d.]+\t[\d.]+\t\n| p/olsrd txtinfo plugin/ v/0.6.3/
+
 match omniback m|^HP OpenView OmniBack II ([-.\w]+): INET, | p/HP OpenView OmniBack/ v/$1/
 
 # tcp/2368
@@ -6105,6 +6110,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: ml_www/(.*)\r\n| p/ml_www WinAmp co
 match http m|^HTTP/1\.0 302 Redirect\r\nServer: GoAhead-Webs\r\nDate: .*\r\nPragma: no-cache\r\nCache-Control: no-cache\r\nContent-Type: text/html\r\nLocation: http://Netlinx/WebControl\.asp\r\n\r\n| p/GoAhead httpd/ i|AMX NetLinx A/V control| d/media device/ cpe:/a:goahead:goahead_webserver/
 match http m|^HTTP/1\.0 200 OK \r\nCache-Control: max-age=60\r\nContent-type: text/html; charset=ISO-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Frameset//EN\" >\r\n<HTML>\r\n    <HEAD><TITLE>SandvallsangFSK: (\w+)</TITLE>| p/Kirk $1 VoIP gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nPragma: no-cache\r\n.*<title>POPFile Control Center</title>\n|s p/POPFile http control center/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Pragma: no-cache\r\n.*<title>POPFile Control Center</title>\r\n|s p/POPFile http control center/ v/1.1.1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: fhttpd/([\d.]+)\r\n| p/fhttpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nCache-Control: no-cache\r\n\r\n<html>\r\n<head><meta charset=\"utf-8\">\r\n<title> Home </title>\r\n<script language=\"JavaScript\">\r\n<!--\r\n// the start of Cookie related function\r\nfunction getCookieVal \(offset\) {  \r\n| p/Samsung ML-2251N printer http config/ d/printer/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Agranat-EmWeb/R([\d_]+)\r\nWWW-Authenticate: Basic realm=\"Siemens Web User Interface\"\r\n\r\n401 Unauthorized\r\n| p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ i/Siemens router http config/ d/router/ cpe:/a:agranat:emweb:$SUBST(1,"_",".")/a
@@ -8131,6 +8137,9 @@ match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nContent-Type: text/html\r
 match http m|^HTTP/1\.0 302 Moved Temporarily\r\nDate: .*\r\nServer: \r\nContent-length: 0\r\nConnection: close\r\nLocation: https://:443/login\.lp\r\nSet-Cookie: xAuth_SESSION_ID=.*; path=/; \r\nCache-control: no-cache=\"set-cookie\"\r\n\r\n$| p/Technicolor TG789vn broadband router/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: IPWEBS/([\w._-]+)\r\n.*\.noscript_text{\r\nwidth: 100%;\r\nheight: 100%;\r\nfont-size: 24px;\r\ntext-align: center;\r\npadding-top: 24px;\r\n}\r\n</style>|s p/IPWEBS/ v/$1/ i/Huawei E303s-2 broadband router http admin/ d/broadband router/ cpe:/h:huawei:e303s-2/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nDate: .*\r\nServer: KGet\r\nWWW-Authenticate: Basic realm=\"KGet Webinterface Authorization\"\r\n| p/KGet download manager http interface/
+match http m|^HTTP/1\.1 302 Found\r\nX-Frame-Options: SAMEORIGIN\r\nLocation: https?://([\w._-]+):\d+/vkd/GetWelcomeScreen\.event\r\nContent-Length: \d+\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">| p/Symantec PGP Verified Directory httpd/ h/$1/
+match http m|^HTTP/1\.1 302 Found\r\nX-Frame-Options: SAMEORIGIN\r\nLocation: https?://([\w._-]+):\d+/b/l\.e\r\nContent-Length: \d+\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">| p/Symantec PGP Web Messenger httpd/ h/$1/
+match http m|^HTTP/1\.1 302 Found\r\nX-Frame-Options: SAMEORIGIN\r\nLocation: https?://([\w._-]+):\d+/omc/GetLoginScreen\.uevent\r\nContent-Length: \d+\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2\.0//EN\">| p/Symantec PGP Universal Server http admin/ h/$1/
 
 #(insert http)
 
@@ -10531,7 +10540,7 @@ match postgresql m|^E\0\0\0\x9aS\?\?\?\?\0C0A000\0M\?\?\?\?\?\?\?\?\?\?\?\?\?\?\
 
 match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1700\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.4/ cpe:/a:postgresql:postgresql:9.1.4/
 
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.5 - 9.1.6/ cpe:/a:postgresql:postgresql:9.1/
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.5 - 9.1.9/ cpe:/a:postgresql:postgresql:9.1/
 
 match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.2.0 - 9.2.1/ cpe:/a:postgresql:postgresql:9.2/
 
