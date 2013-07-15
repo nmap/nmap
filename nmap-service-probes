@@ -8289,6 +8289,7 @@ match http m|^HTTP/1\.0 \d\d\d .*Server: uc-httpd/([\w._-]+)\r\n|s p/uc-httpd/ v
 match http m|^HTTP/1\.0 \d\d\d .*Server: uc-httpd ([\w._-]+)\n|s p/uc-httpd/ v/$1/
 match http m|^HTTP/1\.1 200 Document follows\r\nServer: Micro-Web\r\n| p/Micro-Web/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Indy/([\w._-]+)\r\n|s p/Indy/ v/$1/
+match http m|^HTTP/1\.1 404 File not found\r\n.*Server: Indy/([\w._-]+)\r\n|s p/Indy/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WindWeb/([\w._-]+)\r\n| p/WindWeb/ v/$1/ cpe:/a:windriver:windweb:$1/
 
 
@@ -10653,7 +10654,7 @@ match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65
 
 match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1706\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.1.5 - 9.1.9/ cpe:/a:postgresql:postgresql:9.1/
 
-match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.2.0 - 9.2.1/ cpe:/a:postgresql:postgresql:9.2/
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L1612\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/9.2.0 - 9.2.2/ cpe:/a:postgresql:postgresql:9.2/
 
 match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 
