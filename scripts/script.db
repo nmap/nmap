@@ -129,6 +129,7 @@ Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "s
 Entry { filename = "hostmap-bfk.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "hostmap-ip2hosts.nse", categories = { "discovery", "external", } }
 Entry { filename = "hostmap-robtex.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "http-adobe-coldfusion-apsa1301.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth-finder.nse", categories = { "discovery", "safe", } }
@@ -190,6 +191,7 @@ Entry { filename = "http-sitemap-generator.nse", categories = { "discovery", "in
 Entry { filename = "http-slowloris-check.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-slowloris.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "http-sql-injection.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-stored-xss.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-tplink-dir-traversal.nse", categories = { "exploit", "vuln", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
