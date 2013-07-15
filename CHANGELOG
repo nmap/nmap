@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-adobe-coldfusion-apsa1301.nse. It exploits an authentication 
+  bypass vulnerability in Adobe Coldfusion servers. [Paulino Calderon]
+
 o [NSE] The ipOps.isPrivate library now considers the deprecated
   site-local prefix fec0::/10 to be private. [Marek Majkowski]
 
