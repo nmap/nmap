@@ -2170,7 +2170,7 @@ match pop3 m|^\+OK Welcome to Arvixe POP3 server\.\r\n| p/Arvixe pop3d/
 
 # These are fairly general
 match pop3 m|^\+OK POP3 Server ready\r\n$| p/zpop3d/
-match pop3 m|^\+OK POP3 server ready\r\n$| p/qpoppper pop3d/
+match pop3 m|^\+OK POP3 server ready\r\n$| p/qpopper pop3d/
 match pop3 m|^\+OK POP3 server ([-\w_.]+) ready <[\d.]+@[-\w_.]+>\r\n| p/BVRP Software SLMAIL pop3d/ h/$1/
 match pop3 m|^\+OK ([-\w_.]+) POP3 Server \(Version ([\w.]+)\) ready at <.*>\r\n| p/BSD-based in.pop3d/ v/$2/ h/$1/
 match pop3 m|^\+OK popd-([\d.]+) ready \r\n| p/FreeBSD popd/ v/$1/
