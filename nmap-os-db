@@ -18807,8 +18807,8 @@ IE(DFI=N%T=3B-3D%TG=40%CD=Z)
 # Tomato 1.27 Operating system (Linux)
 # Netgear WG602 Wireless Access Point
 # Draytek Vigor3300 'security router'
-Fingerprint D-Link DIR-100; Draytek Vigor3300; or Netgear KWRGR614, RT614, or WG602 router (Linux 2.4)
-Class Draytek | Linux | 2.4.X | WAP
+Fingerprint D-Link DIR-100; DrayTek Vigor3300; or Netgear KWRGR614, RT614, or WG602 router (Linux 2.4)
+Class DrayTek | Linux | 2.4.X | WAP
 CPE cpe:/h:draytek:vigor3300
 CPE cpe:/o:draytek:linux_kernel:2.4 auto
 Class D-Link | Linux | 2.4.X | WAP
