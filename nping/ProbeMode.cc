@@ -1503,8 +1503,33 @@ static NpingTarget *is_response_icmp(const unsigned char *packet, unsigned int p
         return NULL;
 
     trg = o.targets.findTarget(&packethdr.src);
-    if (trg != NULL)
+    if (trg != NULL) {
+        if (packethdr.proto == IPPROTO_ICMP) {
+            struct icmp_hdr *icmp;
+            struct icmp_msg_echo *echo;
+
+            if (datalen < 4)
+                return NULL;
+            icmp = (struct icmp_hdr *) data;
+            /* In case of echo reply, make sure the ICMP ID is the same as we
+               are sending. */
+            if (icmp->icmp_type == ICMP_ECHOREPLY) {
+                u16 expected_id;
+
+                if (o.issetICMPIdentifier())
+                    expected_id = o.getICMPIdentifier();
+                else
+                    expected_id = trg->getICMPIdentifier();
+
+                if (datalen < 8)
+                    return NULL;
+                echo = (struct icmp_msg_echo *) ((char *) icmp + 4);
+                if (ntohs(echo->icmp_id) != expected_id)
+                    return NULL;
+            }
+        }
         return trg;
+    }
 
     /* If that didn't work, check if this is ICMP with an encapsulated IP
        header. */
