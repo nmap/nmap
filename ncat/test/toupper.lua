@@ -2,12 +2,13 @@
 
 while true do
 
-    data = io.stdin:read(1024)
+    data = io.stdin:read(1)
 
     if data == nil then
         break
     end
 
     io.write(data:upper())
+    io.flush()
 
 end
