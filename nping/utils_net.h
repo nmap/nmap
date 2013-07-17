@@ -142,7 +142,6 @@ int send_packet(NpingTarget *target, int rawfd, u8 *pkt, size_t pktLen);
 int print_dnet_interface(const struct intf_entry *entry, void *arg) ;
 int print_interfaces_dnet();
 struct sockaddr_storage *getSrcSockAddrFromIPPacket(u8 *pkt, size_t pktLen);
-struct sockaddr_storage *getDestAddrFromICMPPacket(u8 *pkt, size_t pktLen);
 u8 *getUDPheaderLocation(u8 *pkt, size_t pktLen);
 u8 *getTCPheaderLocation(u8 *pkt, size_t pktLen);
 u8 getProtoFromIPPacket(u8 *pkt, size_t pktLen);

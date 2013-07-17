@@ -1491,14 +1491,46 @@ char *ProbeMode::getBPFFilterString(){
   * we might have sent. Returns non-NULL target pointer if found. Otherwise
   * returns NULL. */
 static NpingTarget *is_response_icmp(const unsigned char *packet, unsigned int packetlen) {
+    const void *data;
+    unsigned int datalen;
+    struct abstract_ip_hdr packethdr;
     NpingTarget *trg;
 
-    trg = o.targets.findTarget(getSrcSockAddrFromIPPacket((u8*)packet, packetlen));
-    if (trg == NULL) {
-        trg = o.targets.findTarget(getDestAddrFromICMPPacket((u8*)packet, packetlen));
+    /* Parse the outermost IP header (for its source address). */
+    datalen = packetlen;
+    data = ip_get_data(packet, &datalen, &packethdr);
+    if (data == NULL)
+        return NULL;
+
+    trg = o.targets.findTarget(&packethdr.src);
+    if (trg != NULL)
+        return trg;
+
+    /* If that didn't work, check if this is ICMP with an encapsulated IP
+       header. */
+    if (packethdr.proto == IPPROTO_ICMP) {
+        struct ip *ip;
+        unsigned int iplen;
+        struct sockaddr_storage ss;
+        struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
+
+        if (datalen < 8)
+            return NULL;
+        ip = (struct ip *) ((char *) data + 8);
+        iplen = datalen - 8;
+        /* Make sure there is enough header to have a dest address. */
+        if (iplen < 20)
+            return NULL;
+        if (ip->ip_v != 4)
+            return NULL;
+        sin->sin_family = AF_INET;
+        sin->sin_addr = ip->ip_dst;
+        trg = o.targets.findTarget(&ss);
+
+        return trg;
     }
 
-    return trg;
+    return NULL;
 }
 
 
