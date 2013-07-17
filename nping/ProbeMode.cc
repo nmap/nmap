@@ -1487,6 +1487,20 @@ char *ProbeMode::getBPFFilterString(){
 
 
 
+/** Helper to check whether a received ICMP-in-IPv4 packet is related to a probe
+  * we might have sent. Returns non-NULL target pointer if found. Otherwise
+  * returns NULL. */
+static NpingTarget *is_response_icmp(const unsigned char *packet, unsigned int packetlen) {
+    NpingTarget *trg;
+
+    trg = o.targets.findTarget(getSrcSockAddrFromIPPacket((u8*)packet, packetlen));
+    if (trg == NULL) {
+        trg = o.targets.findTarget(getDestAddrFromICMPPacket((u8*)packet, packetlen));
+    }
+
+    return trg;
+}
+
 
 /** This function handles nsock events related to raw packet modes
   * TCP, UDP, ICMP and ARP (TCP_CONNEC and UDP_UNPRIV are handled by their
@@ -1651,10 +1665,7 @@ void ProbeMode::probe_nping_event_handler(nsock_pool nsp, nsock_event nse, void 
                 }else if (proto==IPPROTO_ICMP || proto==IPPROTO_ICMPV6){
                     /* we look for a target based on first src addr and second the dest addr of
                     the packet header which is returned in the ICMP packet */
-                    trg=o.targets.findTarget( getSrcSockAddrFromIPPacket((u8*)packet, packetlen) );
-                    if(trg == NULL){
-                        trg=o.targets.findTarget( getDestAddrFromICMPPacket((u8*)packet, packetlen));
-                    }
+                    trg = is_response_icmp(packet, packetlen);
 
                     /* In the case of ICMP we only do any printing and statistics if we
                     found a target - otherwise it could be a packet that is nothing
