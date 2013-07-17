@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nping] Nping now checks for a matching ICMP ID on echo replies, to
+  avoid receiving crosstalk from other ping programs running at the
+  same time. [David Fifield]
+
 o [NSE] Added http-adobe-coldfusion-apsa1301.nse. It exploits an authentication 
   bypass vulnerability in Adobe Coldfusion servers. [Paulino Calderon]
 
