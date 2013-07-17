@@ -1259,36 +1259,6 @@ struct sockaddr_storage *getSrcSockAddrFromIPPacket(u8 *pkt, size_t pktLen){
 } /* End of getSrcSockAddrFromPacket() */
 
 
-struct sockaddr_storage *getDestAddrFromICMPPacket(u8 *pkt, size_t pktLen){
-  static struct sockaddr_storage ss;
-  struct sockaddr_in *s_ip4=(struct sockaddr_in *)&ss;
-  struct ip *i4=(struct ip*)pkt;
-  struct ip *orig_i4=NULL;
-  memset(&ss, 0, sizeof(struct sockaddr_storage));
-
-  if(pkt==NULL || pktLen < 48) /* 48 = First IP hdr + ICMP pkt + Embedded IP hdr */
-    return NULL;
-
-  if( i4->ip_v == 4 ){
-    /* Let's make sure we can trust i4->ip_hl field. We just check if we
-     * have enough bytes to access the DST Addr of the original IP header that
-     * is included in the ICMP packet. */
-    if ( (size_t)(i4->ip_hl*4 + 8 + 16 + 4) > pktLen )
-        return NULL;
-    /* Let's make sure the ICMP pkt contains an IPv4 packet */
-    orig_i4=(struct ip*)( pkt + (8 + i4->ip_hl*4) );
-    if( orig_i4->ip_v != 4 )
-        return NULL;
-    s_ip4->sin_family=AF_INET;    
-    memcpy(&(s_ip4->sin_addr.s_addr), pkt + i4->ip_hl*4 + 8 + 16, 4);
-    return &ss;
-  }
-  else {
-    return NULL;
-  }
-} /* End of getDestAddrFromICMPPacket */
-
-
 
 
 
