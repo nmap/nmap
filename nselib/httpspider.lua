@@ -842,7 +842,7 @@ Crawler = {
 		local o = self.options
 		local limits = {}
 		if ( o.maxdepth > 0 or o.maxpagecount > 0 or
-			 o.withinhost or o.wihtindomain ) then
+			 o.withinhost or o.withindomain ) then
 			if ( o.maxdepth > 0 ) then
 				table.insert(limits, ("maxdepth=%d"):format(o.maxdepth))
 			end
