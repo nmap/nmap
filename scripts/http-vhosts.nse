@@ -65,7 +65,7 @@ categories = { "discovery", "intrusive" }
 
 local arg_domain = stdnse.get_script_args(SCRIPT_NAME..".domain")
 local arg_path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
-local arg_filelist = stdnse.get_script_args(SCRIPT_NAME..'filelist')
+local arg_filelist = stdnse.get_script_args(SCRIPT_NAME..'.filelist')
 local arg_collapse = tonumber(stdnse.get_script_args(SCRIPT_NAME..".collapse")) or 10
 
 -- Defines domain to use, first from user and then from host
