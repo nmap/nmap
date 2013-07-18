@@ -137,6 +137,14 @@ local testThread = function(result, host, port, name)
   condvar "signal"
 end
 
+local readFromFile = function(filename)
+    local database = {}
+    for l in io.lines(filename) do
+        table.insert(database, l)
+    end
+    return database
+end
+
 portrule = shortport.http
 
 ---
@@ -144,13 +152,18 @@ portrule = shortport.http
 -- @param host table
 -- @param port table
 action = function(host, port)
-  local result, threads = {}, {}
+  local result, threads, hostnames = {}, {}, {}
   local condvar = nmap.condvar(result)
+  local status
 
-  local status, hostnames = datafiles.parse_file(arg_filelist or "nselib/data/vhosts-default.lst" , {})
-  if not status then
-    stdnse.print_debug(1, "Can not open file with vhosts file names list")
-    return
+  if arg_filelist then
+    hostnames = readFromFile(arg_filelist)
+  else
+    status, hostnames = datafiles.parse_file("nselib/data/vhosts-default.lst" , {})
+    if not status then
+      stdnse.print_debug(1, "Can not open file with vhosts file names list")
+      return
+    end
   end
 
   arg_domain = arg_domain or defineDomain(host)
