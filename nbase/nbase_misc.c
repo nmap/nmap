@@ -252,32 +252,43 @@ int dup_socket(int sd) {
 
 int unblock_socket(int sd) {
 #ifdef WIN32
-u_long one = 1;
-if(sd != 501) // Hack related to WinIP Raw Socket support
-  ioctlsocket (sd, FIONBIO, &one);
+  unsigned long one = 1;
+
+  if (sd != 501) /* Hack related to WinIP Raw Socket support */
+    ioctlsocket(sd, FIONBIO, &one);
+
+  return 0;
 #else
-int options;
-/*Unblock our socket to prevent recvfrom from blocking forever
-  on certain target ports. */
-options = O_NONBLOCK | fcntl(sd, F_GETFL);
-fcntl(sd, F_SETFL, options);
-#endif //WIN32
-return 1;
+  int options;
+
+  /* Unblock our socket to prevent recvfrom from blocking forever on certain
+   * target ports. */
+  options = fcntl(sd, F_GETFL);
+  if (options == -1)
+    return -1;
+
+  return fcntl(sd, F_SETFL, O_NONBLOCK | options);
+#endif /* WIN32 */
 }
 
 /* Convert a socket to blocking mode */
 int block_socket(int sd) {
 #ifdef WIN32
-  unsigned long options=0;
-  if(sd == 501) return 1;
-  ioctlsocket(sd, FIONBIO, &options);
+  unsigned long options = 0;
+
+  if (sd != 501)
+    ioctlsocket(sd, FIONBIO, &options);
+
+  return 0;
 #else
   int options;
-  options = (~O_NONBLOCK) & fcntl(sd, F_GETFL);
-  fcntl(sd, F_SETFL, options);
-#endif
 
-  return 1;
+  options = fcntl(sd, F_GETFL);
+  if (options == -1)
+    return -1;
+
+  return fcntl(sd, F_SETFL, (~O_NONBLOCK) & options);
+#endif
 }
 
 /* Use the SO_BINDTODEVICE sockopt to bind with a specific interface (Linux
