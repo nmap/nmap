@@ -38,6 +38,37 @@
 --   return result
 -- </code>
 --
+-- For advanced use, the library currently supports a number of closures (withinhost, 
+-- withindomain, doscraping). Please note, that withinhost and withindomain options also 
+-- support boolean values. You will want to override them only for advanced use. You can 
+-- define them using the following ultities:
+--
+-- * <code>iswithinhost</code>
+-- ** You can use this ultity to check if the resource exists within the host.
+--
+-- * <code>iswithindomain</code>
+-- ** You can use this ultity to check if the resource exists within the domain.
+--
+-- * <code>isresource</code>
+-- ** You can use this ultity to check the type of the resource (for example "js").
+-- ** A third option may hold a number of signs that may exist after the extension 
+-- ** of the resource. By default, these are [#, ?]. For example, if we want to return 
+-- only php resources, the function will also return example.php?query=foo or 
+-- example.php#foo.
+--
+-- The following sample code shows an example usage. We override the default 
+-- withinhost method and we allow spidering only on resources within the host 
+-- that they are not "js" or "css".
+-- <code>
+--   crawler.options.withinhost = function(url)
+--       if crawler:iswithinhost(url) 
+--       and not crawler:isresource(url, "js") 
+--       and not crawler:isresource(url, "css") then
+--           return true
+--       end
+--    end
+-- </code>
+--
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- 
 -- @args httpspider.maxdepth the maximum amount of directories beneath
@@ -47,17 +78,26 @@
 --       A negative value disables the limit (default: 20)
 -- @args httpspider.url the url to start spidering. This is a URL
 --       relative to the scanned host eg. /default.html (default: /)
--- @args httpspider.withinhost only spider URLs within the same host.
---       (default: true)
--- @args httpspider.withindomain only spider URLs within the same
+-- @args httpspider.withinhost Closure that overrides the default withinhost 
+--       function that only spiders URLs within the same host. If this is 
+--       set to false the crawler will spider URLs both inside and outside 
+--       the host. See the closure section above to override the default 
+--       behaviour. (default: true)
+-- @args httpspider.withindomain Closure that overrides the default 
+--       withindomain function that only spiders URLs within the same
 --       domain. This widens the scope from <code>withinhost</code> and can
---       not be used in combination. (default: false)
+--       not be used in combination. See the closure section above to 
+--       override the default behaviour. (default: false)
 -- @args httpspider.noblacklist if set, doesn't load the default blacklist
 -- @args httpspider.useheadfornonwebfiles if set, the crawler would use
 --       HEAD instead of GET for files that do not have extensions indicating
 --       that they are webpages (the list of webpage extensions is located in
 --       nselib/data/http-web-files-extensions.lst)
---
+-- @args httpspider.doscraping Closure that overrides the default doscraping  
+--       function used to check if the resource should be scraped (in terms 
+--       of extracting any links within it). See the closure section above to 
+--       override the default behaviour.
+---
 
 local coroutine = require "coroutine"
 local http = require "http"
@@ -87,40 +127,47 @@ Options = {
         o.blacklist = o.blacklist or {}
     local removewww = function(url) return string.gsub(url, "^www%.", "") end
         
-        if ( o.withinhost == true or o.withindomain == true ) then
-            -- set up the appropriate matching functions
-            if ( o.withinhost ) then
-                o.withinhost = function(u)
-                    local parsed_u = url.parse(tostring(u))
-                                                    
-                    if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
-                        if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
-                            return false
-                        end
-                    elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
-                        return false
-                  -- if urls don't match only on the "www" prefix, then they are probably the same
-                    elseif ( parsed_u.host == nil or removewww(parsed_u.host:lower()) ~= removewww(o.base_url:getHost():lower()) ) then
+        -- set up the appropriate matching functions
+        if ( o.withinhost ) then
+            o.withinhost = function(u)
+                local parsed_u = url.parse(tostring(u))
+                                                
+                if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
+                    if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
                         return false
                     end
-                    return true
+                elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
+                    return false
+              -- if urls don't match only on the "www" prefix, then they are probably the same
+                elseif ( parsed_u.host == nil or removewww(parsed_u.host:lower()) ~= removewww(o.base_url:getHost():lower()) ) then
+                    return false
                 end
-            else
-                o.withindomain = function(u)
-                    local parsed_u = url.parse(tostring(u))             
-                    if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
-                        if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
-                            return false
-                        end
-                    elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
-                        return false
-                    elseif ( parsed_u.host == nil or parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
-                        return false
-                    end
-                    return true
-                end
+                return true
             end
         end
+        if ( o.withindomain ) then
+            o.withindomain = function(u)
+                local parsed_u = url.parse(tostring(u))             
+                if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
+                    if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
+                        return false
+                    end
+                elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
+                    return false
+                elseif ( parsed_u.host == nil or parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
+                    return false
+                end
+                return true
+            end
+        end
+
+        if (not o.doscraping) then
+          
+            o.doscraping = function(u)
+                return true
+            end
+        end
+
         setmetatable(o, self)
         self.__index = self
         return o
@@ -150,9 +197,10 @@ LinkExtractor = {
         setmetatable(o, self)
         self.__index = self
         o:parse()
+
         return o
     end,
-    
+ 
     -- is the link absolute or not?
     isAbsolute = function(url)
         -- at this point we don't care about the protocol
@@ -170,6 +218,11 @@ LinkExtractor = {
     -- @param rel_url string containing the relative portion of the URL
     -- @return link string containing the absolute link
     createAbsolute = function(base_url, rel_url, base_href)
+
+        -- is protocol-relative?
+        if rel_url:match("^//") then
+            return ("%s%s%s"):format(base_url:getProto(), ":", rel_url)
+        end
 
         -- is relative with leading slash? ie /dir1/foo.html
         local leading_slash = rel_url:match("^/")
@@ -490,6 +543,68 @@ UrlQueue = {
 
 -- The Crawler class
 Crawler = {
+
+    options = {},
+ 
+    removewww = function(url) return string.gsub(url, "^www%.", "") end,
+
+    -- An ultity when defining closures. Checks if the resource exists within host.
+    -- @param u URL that points to the resource we want to check. 
+    iswithinhost = function(self, u)
+        local parsed_u = url.parse(tostring(u))                                            
+        if ( self.options.base_url:getPort() ~= 80 and self.options.base_url:getPort() ~= 443 ) then
+            if ( tonumber(parsed_u.port) ~= tonumber(self.options.base_url:getPort()) ) then
+                return false
+            end
+        elseif ( parsed_u.scheme ~= self.options.base_url:getProto() ) then
+            return false
+      -- if urls don't match only on the "www" prefix, then they are probably the same
+        elseif ( parsed_u.host == nil or self.removewww(parsed_u.host:lower()) ~= self.removewww(self.options.base_url:getHost():lower()) ) then
+            return false
+        end
+        return true
+    end,
+
+    -- An ultity when defining closures. Checks if the resource exists within domain.
+    -- @param u URL that points to the resource we want to check. 
+    iswithindomain = function(self, u)
+        local parsed_u = url.parse(tostring(u))             
+        if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
+            if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
+                return false
+            end
+        elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
+            return false
+        elseif ( parsed_u.host == nil or parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
+            return false
+        end
+        return true
+    end,
+
+    -- An ultity when defining closures. Checks the type of the resource. 
+    -- @param u URL that points to the resource we want to check. 
+    -- @param ext the extension of the resource.
+    -- @param signs table of signs that may exist after the extension of the resource. 
+    isresource = function(self, u, ext, signs)
+        u = tostring(u)
+
+        if string.match(u, "." .. ext .. "$") then
+            return true
+        end
+
+        if signs then
+            signstring = ""
+            for _, s in signs do
+             signstring = signstring .. s
+            end 
+            signstring:gsub('?', '%?')
+        else
+            signstring = "#%?"
+        end
+
+        return string.match(u, "." .. ext .. "[" .. signstring .. "]" .. "[^.]*$")
+
+    end, 
     
     -- creates a new instance of the Crawler instance
     -- @param host table as received by the action method
@@ -503,6 +618,7 @@ Crawler = {
     --        <code>maxpagecount</code> - the maximum amount of pages to retrieve
     --        <code>withinhost</code> - stay within the host of the base_url
     --        <code>withindomain</code> - stay within the base_url domain
+    --        <code>doscraping</code> - Permit scraping
     --        <code>scriptname</code> - should be set to SCRIPT_NAME to enable
     --                                  script specific arguments.
     --        <code>redirect_ok</code> - redirect_ok closure to pass to http.get function
@@ -519,6 +635,8 @@ Crawler = {
 
         setmetatable(o, self)
         self.__index = self
+
+        self.options = o
 
         o:loadScriptArguments()
         o:loadLibraryArguments()
@@ -674,8 +792,16 @@ Crawler = {
                 stdnse.print_debug(2, "%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
             else
                 stdnse.print_debug(2, "%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
-            end
-      
+            end 
+
+      local scrape = true 
+
+
+      if not (self.options.doscraping(url)) then
+        stdnse.print_debug(2, "%s: Scraping is not allowed for url: %s", LIBRARY_NAME, tostring(url)) 
+        scrape = false
+      end
+
       local response
       -- in case we want to use HEAD rather than GET for files with certain extensions
       if ( self.options.useheadfornonwebfiles ) then
@@ -718,7 +844,7 @@ Crawler = {
                     end
                 end
                 -- if we have a response, proceed scraping it
-                if ( response.body ) then
+                if ( response.body ) and scrape then
                     local links = LinkExtractor:new(url, response.body, self.options):getLinks()
                     self.urlqueue:add(links)
                 end     
@@ -761,9 +887,13 @@ Crawler = {
         if ( nil == self.options.noblacklist ) then
             self.options.noblacklist = stdnse.get_script_args(sn .. ".noblacklist")
         end
-      if ( nil == self.options.useheadfornonwebfiles ) then
+        if ( nil == self.options.useheadfornonwebfiles ) then
             self.options.useheadfornonwebfiles = stdnse.get_script_args(sn .. ".useheadfornonwebfiles")
         end
+        if ( nil == self.options.doscraping ) then
+            self.options.doscraping = stdnse.get_script_args(sn .. ".doscraping")
+        end
+        
     end,
     
     -- Loads the argument on a library level
@@ -788,8 +918,11 @@ Crawler = {
         if ( nil == self.options.noblacklist ) then
             self.options.noblacklist = stdnse.get_script_args(ln .. ".noblacklist")
         end
-      if ( nil == self.options.useheadfornonwebfiles ) then
+        if ( nil == self.options.useheadfornonwebfiles ) then
             self.options.useheadfornonwebfiles = stdnse.get_script_args(ln .. ".useheadfornonwebfiles")
+        end
+        if ( nil == self.options.doscraping ) then
+            self.options.doscraping = stdnse.get_script_args(ln .. ".doscraping")
         end
     end,
     
@@ -816,9 +949,15 @@ Crawler = {
             return b
         end
         
+        if self.options.withinhost == 0 then
+            self.options.withinhost = false
+        end
+
+        if self.options.withindomain == 0 then
+            self.options.withindomain = false
+        end
+
         -- fixup some booleans to make sure they're actually booleans
-        self.options.withinhost = tobool(self.options.withinhost)
-        self.options.withindomain = tobool(self.options.withindomain)
         self.options.noblacklist = tobool(self.options.noblacklist)
         self.options.useheadfornonwebfiles = tobool(self.options.useheadfornonwebfiles)
 
@@ -831,6 +970,9 @@ Crawler = {
         end
         if ( self.options.withindomain == nil ) then
             self.options.withindomain = false
+        end
+        if ( not ( type(self.options.doscraping) == "function" ) ) then
+            self.options.doscraping = false
         end
         self.options.maxdepth = self.options.maxdepth or 3
         self.options.maxpagecount = self.options.maxpagecount or 20
