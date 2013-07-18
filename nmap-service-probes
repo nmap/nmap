@@ -3490,7 +3490,7 @@ match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03.*\r\n([-\w_.]+) lo
 match telnet m|^\xff\xfb\x01Select access level \(read, write, administer\): | p/3Com SuperStack II Switch telnetd/ d/switch/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Login failed\.\r\n| p/Busybox telnetd/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\(none\) login: | p/Busybox telnetd/ v/1.0/
-match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nGET / HTTP/1\.0\r\n\r\n\r\nPartedMagic login: login: loginprompt\.c:164: login_prompt: Assertion `wlen == \(int\) len -1' failed\.\r\n| p/Busybox telnetd/ v/1.19.4/ i/PartedMagic pkg-shadow login/
+match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfb\x01\xff\xfb\x03\r\r\nGET / HTTP/1\.0\r\n\r\n\r\nPartedMagic login: login: loginprompt\.c:164: login_prompt: Assertion `wlen == \(int\) len -1' failed\.\r\n| p/Busybox telnetd/ v/1.19.4/ i/Parted Magic pkg-shadow login/
 match telnet m|^\r\nEfficient 5851 SDSL \[CM\] Router \((5851-\d+)\) v([\d.]+) Ready\r\n\xff\xfb\x01\xff\xfb\x03\xff\xfd\x01\xff\xfe\x01Login: | p/Efficient Networks $1 SDSL router telnetd/ v/$2/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n\nLantronix LPS1 Version V(\d[\w/-_+.]+)\((\d+)\)\n\r\nType HELP at the 'Local_3> ' prompt for assistance\.\n\r\nUsername> | p/Lantronix LPS1 telnetd/ v/$1/ i/Released $2/ d/print server/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\r\n(TA \w+)\r\n\n\n\ruser: | p/Adtran $1 router telnetd/ d/router/
