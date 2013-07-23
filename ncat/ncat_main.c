@@ -500,6 +500,13 @@ int main(int argc, char *argv[])
                    forking in POSIX builds, Windows does not have the fork() system
                    call and thus requires this workaround. More info here:
                    http://seclists.org/nmap-dev/2013/q2/492 */
+#ifdef WIN32
+                if (o.debug)
+                    logdebug("Enabling binary stdout for the Lua output.\n");
+                int result = _setmode(_fileno(stdout), _O_BINARY);
+                if (result == -1)
+                    perror("Cannot set mode");
+#endif
                 ncat_assert(argc == 3);
                 o.cmdexec = argv[2];
                 lua_setup();
