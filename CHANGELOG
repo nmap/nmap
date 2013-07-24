@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Added NCAT_PROTO, NCAT_REMOTE_ADDR, NCAT_REMOTE_PORT, NCAT_LOCAL_ADDR
+  and NCAT_LOCAL_PORT environment variables being set in all --*-exec child
+  processes.
+
 o [Nping] Nping now checks for a matching ICMP ID on echo replies, to
   avoid receiving crosstalk from other ping programs running at the
   same time. [David Fifield]
