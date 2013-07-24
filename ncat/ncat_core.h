@@ -230,3 +230,6 @@ extern int ncat_hostaccess(char *matchaddr, char *filename, char *remoteip);
 /* Make it so that line endings read from a console are always \n (not \r\n).
    Defined in ncat_posix.c and ncat_win.c. */
 extern void set_lf_mode(void);
+
+extern int setenv_portable(const char *name, const char *value);
+extern void setup_environment(struct fdinfo *fdinfo);

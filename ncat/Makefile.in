@@ -135,16 +135,16 @@ config.h:
 		        $(SHELL) ./config.status; \
 	fi
 
-test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o $(LUA_OBJS)
+test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS)
 
-test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o $(LUA_OBJS)
+test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS)
 
 test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS)
 
-test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o $(LUA_OBJS)
+test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS) $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS)
 
 .PHONY: uninstall all clean distclean

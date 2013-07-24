@@ -511,3 +511,45 @@ static int ncat_hexdump(int logfd, const char *data, int len)
 
     return 1;
 }
+
+void setup_environment(struct fdinfo *info)
+{
+    union sockaddr_u su;
+    char ip[INET6_ADDRSTRLEN];
+    char port[16];
+    socklen_t alen = sizeof(su);
+
+    if (getpeername(info->fd, &su.sockaddr, &alen) != 0) {
+        bye("getpeername failed: %s", socket_strerror(socket_errno()));
+    }
+    if (getnameinfo((struct sockaddr *)&su, alen, ip, sizeof(ip),
+            port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
+        setenv_portable("NCAT_REMOTE_ADDR", ip);
+        setenv_portable("NCAT_REMOTE_PORT", port);
+    } else {
+        bye("getnameinfo failed: %s", socket_strerror(socket_errno()));
+    }
+
+    if (getsockname(info->fd, (struct sockaddr *)&su, &alen) < 0) {
+        bye("getsockname failed: %s", socket_strerror(socket_errno()));
+    }
+    if (getnameinfo((struct sockaddr *)&su, alen, ip, sizeof(ip),
+            port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV) == 0) {
+        setenv_portable("NCAT_LOCAL_ADDR", ip);
+        setenv_portable("NCAT_LOCAL_PORT", port);
+    } else {
+        bye("getnameinfo failed: %s", socket_strerror(socket_errno()));
+    }
+
+    switch(o.proto) {
+        case IPPROTO_TCP:
+            setenv_portable("NCAT_PROTO", "TCP");
+            break;
+        case IPPROTO_SCTP:
+            setenv_portable("NCAT_PROTO", "SCTP");
+            break;
+        case IPPROTO_UDP:
+            setenv_portable("NCAT_PROTO", "UDP");
+            break;
+    }
+}
