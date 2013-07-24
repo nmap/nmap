@@ -195,6 +195,28 @@ extern void set_pseudo_sigchld_handler(void (*handler)(void))
     ncat_assert(rc != 0);
 }
 
+int setenv_portable(const char *name, const char *value)
+{
+    BOOL ret = SetEnvironmentVariable(name, value);
+    if (ret == 0) {
+        DWORD last_error = GetLastError();
+        switch (last_error) {
+            case ERROR_INVALID_PARAMETER:
+                errno = EINVAL;
+                break;
+            case ERROR_NOT_ENOUGH_MEMORY:
+                errno = ENOMEM;
+                break;
+            default:
+                if (o.debug)
+                    logdebug("SetEnvironmentVariable: GetLastError returned %d\n", last_error);
+                errno = EINVAL;
+                break;
+        }
+    }
+    return ret != 0;
+}
+
 /* Run a command and redirect its input and output handles to a pair of
    anonymous pipes.  The process handle and pipe handles are returned in the
    info struct. Returns the PID of the new process, or -1 on error. */
@@ -206,6 +228,8 @@ static int run_command_redirected(char *cmdexec, struct subprocess_info *info)
     SECURITY_ATTRIBUTES sa;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
+
+    setup_environment(&info->fdn);
 
     /* Make the pipe handles inheritable. */
     sa.nLength = sizeof(sa);

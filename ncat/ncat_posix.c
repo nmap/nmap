@@ -192,6 +192,8 @@ void netexec(struct fdinfo *info, char *cmdexec)
         Dup2(child_stdin[0], STDIN_FILENO);
         Dup2(child_stdout[1], STDOUT_FILENO);
 
+        setup_environment(info);
+
         switch (o.execmode) {
         char **cmdargs;
 
@@ -389,3 +391,8 @@ int ssl_load_default_ca_certs(SSL_CTX *ctx)
     return 0;
 }
 #endif
+
+int setenv_portable(const char *name, const char *value)
+{
+    return setenv(name, value, 1);
+}

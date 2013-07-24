@@ -381,6 +381,16 @@ sub max_conns_test_tcp_ssl {
 	max_conns_test_multi(["tcp", "tcp ssl"], @_);
 }
 
+sub match_ncat_environment {
+	$_ = shift;
+	return /NCAT_REMOTE_ADDR=.+\n
+			NCAT_REMOTE_PORT=.+\n
+			NCAT_LOCAL_ADDR=.+\n
+			NCAT_LOCAL_PORT=.+\n
+			NCAT_PROTO=.+
+	/x;
+}
+
 # Ignore broken pipe signals that result when trying to read from a terminated
 # client.
 $SIG{PIPE} = "IGNORE";
@@ -1082,6 +1092,35 @@ server_client_test_all "--lua-exec",
 	syswrite($c_in, "abc\n");
 	my $resp = timeout_read($c_out) or die "Read timeout";
 	$resp eq "ABC\n" or die "Client received " . d($resp) . ", not " . d("ABC\n");
+};
+
+# Test environment variables being set for --exec, --sh-exec and --lua-exec.
+
+server_client_test_all "--exec, environment variables",
+["--exec", "/bin/sh test-environment.sh"], [], sub {
+	syswrite($c_in, "abc\n");
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
+};
+
+server_client_test_all "--sh-exec, environment variables",
+["--sh-exec", "sh test-environment.sh"], [], sub {
+	syswrite($c_in, "abc\n");
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
+};
+
+proxy_test "--exec through proxy, environment variables",
+[], [], ["--exec", "/bin/sh test-environment.sh"], sub {
+	my $resp = timeout_read($s_out) or die "Read timeout";
+	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
+};
+
+server_client_test_all "--lua-exec, environment variables",
+["--lua-exec", "test-environment.lua"], [], sub {
+	syswrite($c_in, "abc\n");
+	my $resp = timeout_read($c_out) or die "Read timeout";
+	match_ncat_environment($resp) or die "Client received " . d($resp) . ".";
 };
 
 # Do a syswrite and then a delay to force separate reads in the subprocess.
