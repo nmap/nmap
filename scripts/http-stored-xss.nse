@@ -14,18 +14,18 @@ strings to check if the payloads were succesful.
 -- If any string is reflected on some page without any proper 
 -- HTML escaping, it's a sign for potential XSS vulnerability.
 --
--- @args http-fileupload-exploiter.formpaths The pages that contain 
+-- @args http-stored-xss.formpaths The pages that contain 
 --       the forms to exploit. For example, {/upload.php,  /login.php}.
 --       Default: nil (crawler mode on)
--- @args http-fileupload-exploiter.uploadspaths The pages that reflect
+-- @args http-stored-xss.uploadspaths The pages that reflect
 --       back POSTed data. For example, {/comments.php, /guestbook.php}. 
 --       Default: nil (Crawler mode on)
--- @args http-fileupload-exploiter.fieldvalues The script will try to 
+-- @args http-stored-xss.fieldvalues The script will try to 
 --       fill every field found in the form but that may fail due to 
 --       fields' restrictions. You can manually fill those fields using 
 --       this table. For example, {gender = "male", email = "foo@bar.com"}. 
 --       Default: {}
--- @args http-fileupload-exploiter.filedb The path of a plain text file 
+-- @args http-stored-xss.filedb The path of a plain text file 
 --       that contains one XSS vector per line. Default: nil
 --      
 -- @output
