@@ -54,7 +54,7 @@ local function try_http_post_login(host, port, path, target, failstr, params, fo
     if follow_redirects and ( status > 300 and status < 400 ) then
       req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true, redirect_ok = false })
     end
-    if not(http.response_contains(req, failstr)) then
+    if req.status and req.status ~= 404 and not(http.response_contains(req, failstr)) then
       return true
     end
     return false
