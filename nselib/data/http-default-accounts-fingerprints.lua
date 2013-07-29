@@ -29,7 +29,7 @@ local url = require "url"
 local function try_http_basic_login(host, port, path, user, pass, digest_auth)
     local credentials = {username = user, password = pass, digest = digest_auth}
     local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
-    if req.status ~= 401 and req.status ~= 403 then
+    if req.status and req.status ~= 401 and req.status ~= 403 then
       return true
     end
     return false
@@ -49,7 +49,8 @@ end
 local function try_http_post_login(host, port, path, target, failstr, params, follow_redirects)
     local req = http.post(host, port, path..target, {no_cache=true}, nil, params)
     
-    local status = ( req and tonumber(req.status) ) or 0
+    if not req.status then return false end
+    local status = tonumber(req.status) or 0
     if follow_redirects and ( status > 300 and status < 400 ) then
       req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true, redirect_ok = false })
     end
