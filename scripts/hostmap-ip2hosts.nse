@@ -53,7 +53,7 @@ local target = require "target"
 local HOSTMAP_BING_SERVER = "www.ip2hosts.com"
 local HOSTMAP_DEFAULT_PROVIDER = "ALL"
 
-local filename_escape, write_file
+local write_file
 
 hostrule = function(host)
   return not ipOps.isPrivate(host.ip)
@@ -99,7 +99,7 @@ action = function(host)
   output_tab.hosts = hostnames
   --write to file
   if filename_prefix then
-    local filename = filename_prefix .. filename_escape(host.targetname or host.ip)
+    local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
     hostnames_str = stdnse.strjoin("\n", hostnames)
     local status, err = write_file(filename, hostnames_str)
     if status then
@@ -110,13 +110,6 @@ action = function(host)
   end
 
   return output_tab
-end
-
--- Escape some potentially unsafe characters in a string meant to be a filename.
-function filename_escape(s)
-  return string.gsub(s, "[%z/=]", function(c)
-    return string.format("=%02X", string.byte(c))
-  end)
 end
 
 function write_file(filename, contents)

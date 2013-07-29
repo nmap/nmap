@@ -209,7 +209,7 @@ action = function (host, port)
       if (response.status == 200) then
         -- check it if is valid before inserting
         if cfg.check(response.body) then
-          local filename = ((host.targetname or host.ip) .. url_path):gsub("/", "-");
+          local filename = stdnse.escape_filename((host.targetname or host.ip) .. url_path)
 
           -- save the content
           if save then

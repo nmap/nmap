@@ -315,9 +315,10 @@ action = function(host, port)
 				http_response = http.get( vhost or host, port, u_details.idfile, { auth = { username = user, password = pass }, no_cache = true })	
 
 				if ( http_response.status == 200 ) then
-					local status, err = saveIDFile( ("%s/%s.id"):format(download_path, u_details.fullname), http_response.body )
+					local filename = download_path .. "/" .. stdnse.filename_escape(u_details.fullname .. ".id")
+					local status, err = saveIDFile( filename, http_response.body )
 					if ( status ) then
-						table.insert( id_files, ("%s ID File has been downloaded (%s/%s.id)"):format(u_details.fullname, download_path, u_details.fullname) )
+						table.insert( id_files, ("%s ID File has been downloaded (%s)"):format(u_details.fullname, filename) )
 					else
 						table.insert( id_files, ("%s ID File was not saved (error: %s)"):format(u_details.fullname, err ) )
 					end

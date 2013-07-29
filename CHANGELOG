@@ -19,6 +19,18 @@ o [Ncat] Added --lua-exec. This feature is basically an equivalent of ncat
   redirecting all stdin and stdout operations to the socket connection. 
   [Jacek Wielemborek]
 
+o [NSE] Oops, there was a vulnerability in one of our 437 NSE scripts.
+  If you ran the (fortunately non-default) http-domino-enum-passwords
+  script with the (fortunately also non-default)
+  domino-enum-passwords.idpath parameter against a malicious server,
+  it could cause an arbitrarily named file to to be written to the
+  client system.  Thanks to Trustwave researcher Piotr Duszynski for
+  discovering and reporting the problem.  We've fixed that script, and
+  also updated several other scripts to use a new
+  stdnse.filename_escape function for extra safety.  This breaks our
+  record of never having a vulnerability in the 16 years that Nmap has
+  existed, but that's still a fairly good run. [David, Fyodor]
+
 o [NSE] Added teamspeak2-version.nse by Marin Maržić.
 
 o Nmap's routing table is now sorted first by netmask, then by metric.

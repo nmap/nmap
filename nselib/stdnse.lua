@@ -1195,4 +1195,36 @@ function pretty_printer (obj, printer)
   return aux(obj, "")
 end
 
+-- This pattern must match the percent sign '%' since it is used in
+-- escaping.
+local FILESYSTEM_UNSAFE = "[^a-zA-Z0-9._-]"
+---
+-- Escape a string to remove bytes and strings that may have meaning to
+-- a filesystem, such as slashes. All bytes are escaped, except for:
+-- * alphabetic <code>a</code>-<code>z</code> and <code>A</code>-<code>Z</code>, digits 0-9, <code>.</code> <code>_</code> <code>-</code>
+-- In addition, the strings <code>"."</code> and <code>".."</code> have
+-- their characters escaped.
+--
+-- Bytes are escaped by a percent sign followed by the two-digit
+-- hexadecimal representation of the byte value.
+-- * <code>filename_escape("filename.ext") --> "filename.ext"</code>
+-- * <code>filename_escape("input/output") --> "input%2foutput"</code>
+-- * <code>filename_escape(".") --> "%2e"</code>
+-- * <code>filename_escape("..") --> "%2e%2e"</code>
+-- This escaping is somewhat like that of JavaScript
+-- <code>encodeURIComponent</code>, except that fewer bytes are
+-- whitelisted, and it works on bytes, not Unicode characters or UTF-16
+-- code points.
+function filename_escape(s)
+  if s == "." then
+    return "%2e"
+  elseif s == ".." then
+    return "%2e%2e"
+  else
+    return (string.gsub(s, FILESYSTEM_UNSAFE, function (c)
+      return string.format("%%%02x", string.byte(c))
+    end))
+  end
+end
+
 return _ENV;
