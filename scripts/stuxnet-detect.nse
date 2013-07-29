@@ -81,7 +81,7 @@ local function check_infected(host, path, save)
 
 		fmt = save:gsub("%%h", host.ip)
 		fmt = fmt:gsub("%%v", version)
-		file = io.open(fmt, "w")
+		file = io.open(stdnse.filename_escape(fmt), "w")
 		if file then
 			stdnse.print_debug(1, "Wrote %d bytes to file %s.", #result.arguments, fmt)
 			file:write(result.arguments)

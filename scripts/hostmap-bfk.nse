@@ -68,7 +68,7 @@ categories = {"external", "discovery", "intrusive"}
 
 local HOSTMAP_SERVER = "www.bfk.de"
 
-local filename_escape, write_file
+local write_file
 
 hostrule = function(host)
   return not ipOps.isPrivate(host.ip)
@@ -106,7 +106,7 @@ action = function(host)
 
   local filename_prefix = stdnse.get_script_args("hostmap-bfk.prefix")
   if filename_prefix then
-    local filename = filename_prefix .. filename_escape(host.targetname or host.ip)
+    local filename = filename_prefix .. stdnse.filename_escape(host.targetname or host.ip)
     local status, err = write_file(filename, hostnames_str .. "\n")
     if status then
       output_tab.filename = filename
@@ -116,13 +116,6 @@ action = function(host)
   end
 
   return output_tab
-end
-
--- Escape some potentially unsafe characters in a string meant to be a filename.
-function filename_escape(s)
-  return string.gsub(s, "[\0/=]", function(c)
-    return string.format("=%02X", string.byte(c))
-  end)
 end
 
 function write_file(filename, contents)

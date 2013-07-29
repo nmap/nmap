@@ -119,7 +119,7 @@ action = function( host, port )
 				local filename
 				if ( dir ) then
 					local instance = instance:GetName():match("%\\+(.+)$") or instance:GetName()
-					filename = ("%s/%s_%s_ms-sql_hashes.txt"):format(dir, host.ip, instance)
+					filename = dir .. "/" .. stdnse.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
 					saveToFile(filename, instanceOutput[1])
 				end				
 			end

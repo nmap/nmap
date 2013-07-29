@@ -184,7 +184,7 @@ action = function(host, port)
 			result = ( infile and infile:getContent() )
 			
 			if ( tftproot ) then
-				local fname = tftproot .. host.ip .. "-config"
+				local fname = tftproot .. stdnse.filename_escape(host.ip .. "-config")
 				local file, err = io.open(fname, "w")
 				if ( file ) then
 					file:write(result)

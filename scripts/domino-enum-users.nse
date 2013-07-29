@@ -103,7 +103,7 @@ action = function(host, port)
 		helper:disconnect()
 		
 		if ( status and data and path ) then
-			local filename = ("%s/%s.id"):format(path, username )
+			local filename = path .. "/" .. stdnse.filename_escape(u_details.fullname .. ".id")
 			local status, err = saveIDFile( filename, data )
 			
 			if ( status ) then
