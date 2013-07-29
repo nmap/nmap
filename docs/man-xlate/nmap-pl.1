@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -118,7 +118,7 @@ Najnowszą wersję Nmapa można pobrać z
 .SH "UWAGI DO TłUMACZENIA"
 .PP
 Przemysław Galczewski
-sako(at)avet\&.com\&.pl
+<sako(at)avet\&.com\&.pl>
 (\m[blue]\fB\%http://www.avet.com.pl\fR\m[])
 .PP
 Dokument ten zawiera nieoficjalne polskie tłumaczenie
@@ -134,8 +134,6 @@ i
 Skrócona lista opcji jest wyświetlana przy uruchomieniu Nmapa bez dodatkowych parametrów, a jej najnowsza wersja jest zawsze dostępna pod adresem
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Skrócona lista pozwala łatwiej zapamiętać najpopularniejsze opcje, ale nie zastąpi wgłębienia sie w resztę tej dokumentacji\&. Wiele z pozostałych opcji nie jest nawet zawartych na liście skróconej\&.
 .PP
-
-.sp
 .if n \{\
 .RS 4
 .\}
@@ -1448,7 +1446,6 @@ scanme2\&.nmap\&.org,
 scanme3\&.nmap\&.org
 i następnych, choć hosty te jeszcze nie istnieją\&.
 .PP
-
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Pozwoli na przeskanowanie wszystkich portów TCP adresu
@@ -1456,24 +1453,20 @@ scanme\&.nmap\&.org\&. Opcja
 \fB\-v\fR
 podwyższy poziom szczegółowości zwracanych informacji\&.
 .PP
-
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Uruchamia skanowanie SYN wszystkich 255 hostów znajdujących się w tej samej klasie
 \(lqC\(rq, co host scanme\&.nmap\&.org\&. Dodatkowo wykonywana jest próba detekcji systemu operacyjnego dla każdego hosta, który jest aktywny\&. Wymaga to uprawnień użytkownika root, z powodu wykorzystania skanowania SYN i wykrywania systemu operacyjnego\&.
 .PP
-
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Uruchamia enumerację hostów i skanowanie TCP pierwszej połowy każej z 255 możliwych 8\-mio bitowych podsieci klasy B 198\&.116\&. Wykrywane jest działanie usług sshd, DNS, pop3d, imapd i portu 4564\&. Dla każdego z tych portów, który został wykryty jako otwarty przeprowadzane jest wykrywanie wersji działającej aplikacji\&.
 .PP
-
 \fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
 .PP
 Poleca Nmapowi na wybranie 100,000 losowych hostów i przeskanowanie ich w poszukiwaniu serwerów WWW (port 80)\&. Enumeracja hostów jest wyłączona za pomocą opcji
 \fB\-P0\fR, ponieważ wysyłanie najpierw pakietów w celu określenia czy host jest aktywny nie ma sensu, jako że i tak jest wykonywany test tylko na jednym porcie per host\&.
 .PP
-
 \fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Skanuje 4096 adresów IP w poszukiwaniu serwerów WWW (bez pingowania ich) i zapisuje wyniki w plikach XML i grepowalnym\&.
@@ -1482,14 +1475,14 @@ Skanuje 4096 adresów IP w poszukiwaniu serwerów WWW (bez pingowania ich) i zap
 Jak i jego autor, Nmap nie jest doskonały\&. Możesz jednak pomóc przysyłając raporty dotyczące błędów lub nawet wysyłając własne poprawki\&. Jeśli Nmap nie zachowuje sie w sposób którego oczekujesz, zacznij od aktualizacji do najnowszej wersji dostępnej pod adresem
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Jeśli problem nadal występuje, wykonaj trochę testów dla określenia czy podobny problem nie został już wykryty i oznaczony\&. Spróbuj poszukać Googlem komunikatu błędu lub poprzeglądaj archiwa listy dyskusyjnej Nmap\-dev pod adresem
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Przeczytaj również cała dokumentację\&. Jeśli nic nie pomoże, wyślij raport opisujący błąd po angielsku na adres
-dev@nmap\&.org\&. Proszę dołącz wszystko co udało Ci się ustalić na temat tego problemu, jak również informację o używanej wersji Nmapa i systemie operacyjnym na którym jest uruchamiany\&. Opisy problemów i pytania dotyczące używania Nmapa wysłane na adres dev@nmap\&.org z większym prawdopodobieństwem doczekają sie szybkiej odpowiedzi, niż wysłane bezpośrednio do Fyodora\&.
+<dev@nmap\&.org>\&. Proszę dołącz wszystko co udało Ci się ustalić na temat tego problemu, jak również informację o używanej wersji Nmapa i systemie operacyjnym na którym jest uruchamiany\&. Opisy problemów i pytania dotyczące używania Nmapa wysłane na adres dev@nmap\&.org z większym prawdopodobieństwem doczekają sie szybkiej odpowiedzi, niż wysłane bezpośrednio do Fyodora\&.
 .PP
 Poprawki błędnego kodu są milej widziane, niż opisy błedów\&. Podstawowe instrukcje tworzenia poprawek są opisane na stronie
 \m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Poprawki mogą być wysyłane na nmap\-dev (rekomendowane) lub bezpośrednio do Fyodora\&.
 .SH "AUTOR"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
 Setki ludzi wniosły wartościowy wkład w rozwój Nmapa\&. Szczegóły są zamieszczane w pliku
@@ -1508,7 +1501,7 @@ na język polski\&. Nie zostało ono napisane przez Insecure\&.Com LLC, i przez 
 .SS "Prawa autorskie i licencjonowanie Nmap"
 .PP
 Prawa autorskie (1996\-2005) do programu Nmap Security Scanner posiada Insecure\&.Com LLC\&. Nmap jest także zastrzeżonym znakiem towarowym Insecure\&.Com LLC\&. Ten program jest wolnym oprogramowaniem; możliwa jest jego redystrybucja i/lub modyfikowanie zgodnie z zasadami licencji GNU General Public License opublikowanej przez Free Software Foundation; Wersja 2\&. Gwarantuje ona prawo do używania, modyfikowania i redystrybucji tego oprogramowania pod pewnymi warunkami\&. Jeśli technologia Nmapa jest integrowana z innymi programami, możliwa jest sprzedaż alternatywnych licencji (kontakt
-sales@insecure\&.com)\&. Wielu producentów skanerów bezpieczeństwa licencjonuje technologie Nmapa takie jak wykrywanie hostów, skanowanie portów, wykrywanie systemów operacyjnych i wykrywanie usług/wersji\&.
+<sales@insecure\&.com>)\&. Wielu producentów skanerów bezpieczeństwa licencjonuje technologie Nmapa takie jak wykrywanie hostów, skanowanie portów, wykrywanie systemów operacyjnych i wykrywanie usług/wersji\&.
 .PP
 GPL nakłada isotne ograniczenia w stosunku do
 \(lqproduktów pochodnych \(rq, jednak nie jest jeszcze dostępna dokładna ich definicja\&. Dla uniknięcia nieporozumień zakładamy, że aplikacja jest produktem pochodnym w przypadku gdy spełnia któryś z warunków:
@@ -1582,7 +1575,7 @@ Nie uważamy tego za ograniczenia dodane do GPL, ale jako klarowną interpretacj
 \(lqprogramów pochodnych\(rq, opartych na modułach kernela Linuxa\&. Nasza interpretacja odnosi się tylko do Nmapa \- nie mówimy o żadnym innym produkcie GPL\&.
 .PP
 Jeśli masz jakiekolwiek pytania dotyczące ograniczeń licencji GPL przy zastosowaniach Nmapa w produktach nie opartych na GPL, chętnie pomożemy\&. Jak wspomniano wyżej, oferujemy także alternatywną licencję do integrowania Nmapa we własnych aplikacjach i urządzeniach\&. Licencje na integrację Nmapa zostały sprzedane wielu producentom oprogramowania związanego z bezpieczeństwem i ogólnie zawierają dożywotnią licencję oraz dostarczają priorytetowego wsparcia technicznego wraz z aktualizacjami i pomagają opłacić dalszy rozwój Nmapa\&. Proszę o kontakt z
-sales@insecure\&.com
+<sales@insecure\&.com>
 w celu uzyskania dalszych informacji\&.
 .PP
 Jako specjalny wyjątek dla warunków GPL, Insecure\&.Com LLC zezwala na linkowanie kodu tego programu z dowolną wersją biblioteki OpenSSL, która jest dystrybuowana na licencji identycznej do umieszczonej w pliku Copying\&.OpenSSL oraz na dystrybucję obu w postaci zlinkowanej\&. Musisz przestrzegać licencji GPL we wszystkich aspektach wykorzystania kodu, innym niż OpenSSL\&. Jeśli zmodyfikujesz wspomniany plik, możesz rozszerzyć ten wyjątek o Twoją wersję, ale nie jesteś do tego zobligowany\&.
@@ -1597,7 +1590,7 @@ Prawa (2005) do tego podręcznika Nmapa posiada Insecure\&.Com LLC\&. Jest on ud
 Kod źródłowy dla tego programowania jest dostępny, ponieważ uważamy, że użytkownicy mają prawo wiedzieć dokładnie co program robi, zanim go uruchomią\&. Pozwala to także na przeprowadzenie audytu kodu pod kątem bezpieczeństwa (jak dotąd nie wykryto problemu tego typu)\&.
 .PP
 Kod źródłowy pozwala również na przenoszenie Nmapa na nowe platformy, na poprawianie błędów i dodawanie nowych funkcji\&. Mocno zachęcamy do wysyłania swoich zmian na adres
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 w celu możliwej integracji z główną dystrybucją\&. Wysłanie tych zmian do Fyodora lub na jedną z list dyskusyjnych dla deweloperów Insecure\&.Org, powoduje przekazanie praw do nielimitowanego, nie wyłącznego prawa do ponownego wykorzystania, modyfikacji i relicencjonowania tego kodu\&. Nmap zawsze będzie dostępny jako Open Source, lecz jest to istotne z powodu dewastujących problemów jakie pojawiały się w innych projektach Free Software (takich jak KDE i NASM)\&. Okazjonalnie licencjonujemy kod do firm trzecich, jak to wspomniano wyżej\&. Jeśli chcesz dodać specjalną licencję dla swojego wkładu, wystarczy dołączyć odpowiednią informację przy wysyłaniu kodu do nas\&.
 .SS "Brak gwarancji"
 .PP

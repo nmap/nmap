@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -126,8 +126,6 @@ Hrvatsku verziju Nmap vodiča je preveo Robert Petrunić s
 Sljedeći pregled opcija je ispisan kad pokrenete Nmap bez ikakvih parametara, a posljednja verzija je uvijek dostupna na:
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Pomaže ljudima zapamtiti najčešće opcije, ali nije zamjena za detaljne upute koje se nalaze u ovom manualu\&. Neke manje korištene opcije čak se ni ne nalaze u pregledu opcija\&.
 .PP
-
-.sp
 .if n \{\
 .RS 4
 .\}
@@ -771,8 +769,7 @@ naredbu u nmap\-services\-probes\&.
 \fB\-\-version\-intensity <intensity>\fR (podesite intenzitet otkrivanja verzije servisa)
 .RS 4
 Kad radite scan otkrivanja verzije (\fB\-sV\fR), Nmap šalje seriju upita od kojih je svakom dodijeljen broj od 1 do 9\&. Oni upiti koji imaju niže brojeve u efikasni kod većine često korištenih servisa, dok su oni s višim brojevima rijetko korisni\&. Nivo nntenziteta skeniranja određuje koji upiti će biti korišteni\&. Što je veći broj, to je veća vjerovatnost da će servis biti ispravno identificiran\&. No, takvi skenovi traju duže\&. Intenzitet mora biti između 0 i 9\&. Preddefinirana vrijednost je 7\&. Ukoliko je upit registriran u
-nmap\-service\-probes
-ports
+nmap\-service\-probesports
 naredbi, bit će isproban bez obzira na nivo intenziteta\&. To garantira da će DNS upiti uvijek biti odrađeni na portu 53, SSL na portu 443 itd\&.
 .RE
 .PP
@@ -1491,7 +1488,6 @@ scanme2\&.nmap\&.org,
 scanme3\&.nmap\&.org
 itd\&., iako navedeni hostovi za sad ne postoje\&.
 .PP
-
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Ova naredba skenira sve rezervirane TCP portove na računalu
@@ -1499,25 +1495,21 @@ scanme\&.nmap\&.org\&. Opcija
 \fB\-v\fR
 uključuje verbose mod\&.\&.
 .PP
-
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Pokreće skriveni (engl\&. stealth) SYN scan prema svakom računalu koje je upaljeno od njih 255 mogućih na mreži
 \(lqclass C\(rq
 na kojoj se nalazi scanme host\&. Također pokuša ustanoviti koji OS je pokrenut na svakom od otkrivnih (upaljenih) hostova\&. Ovo zahtijeva root prava zbog SYN scan\-a i OS detekcije\&.
 .PP
-
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Pokreće enumeraciju hostova i TCP scan na prvoj polovici svakog od 255 mogućih 8 bitnih subneta u mrežnog ID\-a 192\&.168 klase B adresnog prostora\&. Scan provjerava da li je na ciljanim računalima pokrenut sshd, DNS, pop3d, imapd i/ili port 4564\&. Za svaki od navedenih portova koji su otvoreni, pokrenuto je i otkrivanje verzije, kak obi se ustanovilo koja aplikacija je otvorila taj port\&.
 .PP
-
 \fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
 .PP
 Ova naredba zatraži Nmap da nasumično odabere 100 000 hostova i skenira ih u potrazi za web serverom (port 80)\&. Enumeracija hostova je isključena opcijom
 \fB\-P0\fR, jer slanje nekoliko sondi kako bi se ustanovilo da li je host upaljen ili ne kad se skenira samo jedan port je ionako nepotrebno\&.
 .PP
-
 \fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Skenira 4096 IP adresa za web serverom (bez prethodnog pinganja) i sprema izvještaj u grepabilnom iXML formatu\&.
@@ -1526,14 +1518,14 @@ Skenira 4096 IP adresa za web serverom (bez prethodnog pinganja) i sprema izvje�
 Poput svog autora niti Nmap nije savršen, no Vi možete pomoći slanjem prijava o greškama, pa čak i pišući patcheve\&. Ukoliko se Nmap ne ponaša onako kako očekujete od njega, najprije ga nadogradite na najnoviju verziju dostupnu na
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Ukoliko je problem i dalje tu, istražite da li je već otkriven i prijavljen\&. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap\-dev arhive na
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Također pročitajte i kompletan manual\&. Ukoliko ništa od toga ne pomogne, pošaljite izvještaj o grešci na
-dev@nmap\&.org\&. Molim Vas napišite sve što ste do tad otkrili o problemu, te koju verziju Nmap\- imate i koju verziju OS\-a imate\&. Izvještaji o prijavljenim problemima i upiti o korištenju Nmap\-a koji su poslani na dev@nmap\&.org imaju više šansi da budu odgovoreni nego oni poslani direktno Fyodor\-u\&.
+<dev@nmap\&.org>\&. Molim Vas napišite sve što ste do tad otkrili o problemu, te koju verziju Nmap\- imate i koju verziju OS\-a imate\&. Izvještaji o prijavljenim problemima i upiti o korištenju Nmap\-a koji su poslani na dev@nmap\&.org imaju više šansi da budu odgovoreni nego oni poslani direktno Fyodor\-u\&.
 .PP
 Patchevi za otklanjanje bugova su još i bolji od samih prijava\&. Osnovne upute za kreiranje patch datoteka s promjenama su dostupne na
 \m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Patchevi mogu biti poslani na nmap\-dev (što je preporučeno) ili direktno Fyodoru\&.
 .SH "AUTHOR"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
 Stotine ljudi su doprinjeli u stvaranju Nmap\-a tijekom godina\&. To je navedeno u
@@ -1544,7 +1536,7 @@ datoteci koja je distribuirana s Nmap\-om, a dostupna je i na sljedećem linku:
 .SS "Nmap Copyright i licenciranje"
 .PP
 Nmap sigurnosni skener je (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap je također reigistered trademark Insecure\&.Com LLC\&. Program je besplatan;možete ga redistribuirati a/ili modificirati pod uvjetima GNU General Public License kako je objavljeno od strane Free Software Fondacije;Verzija 2\&. To vam garantira pravo korištenja, modificiranja i redistribuiranja ovog softvera pod određenim uvjetima\&. Ukoliko želite inkorporirati Nmap tehnologiju u svoj softver, možda ćemo vam prodati dodatne licence (kontaktirajte
-sales@insecure\&.com)\&. Mnogi proizvođači sigurnosnih skenera već imaju licencu Nmap tehnologije poput otkrivanja hostova, skeniranja portova, OS detekcije i otkrivanja servisa/verzije\&.
+<sales@insecure\&.com>)\&. Mnogi proizvođači sigurnosnih skenera već imaju licencu Nmap tehnologije poput otkrivanja hostova, skeniranja portova, OS detekcije i otkrivanja servisa/verzije\&.
 .PP
 Imajte na umu da GPL postavlja važna ograničenja na
 \(lqderivirana djela\(rq, ali ne daje detaljne definicije istih\&. Kako bi se izbjegli nesporazumi, za potrebe ove licence, mi smatramo da aplikacija sadrži
@@ -1621,7 +1613,7 @@ jer se primjenjuje na naš produkt pod GPL licencom\&. To je slično načinu na 
 i kako se to odnosi na module linux kernela\&. Naša interpretacija se odnosi samo na Nmap \- ne govorimo o nijednom drugom produktu licenciranom po GPL\-u\&.
 .PP
 Ukoliko imate bilo kakvo pitanje o GPL licenciranju i restrikcijama kod korištenja Nmap\-a u ne GPL djelima, rado ćemo Vam pomoći\&. Kao što je gore navedeno, također nudimo i alternativne licence za integriranje Nmapa u neke druge aplikacije i uređaje\&. Takvi ugovori su prodani mnogim sigurnosnim izdavačima i generalno sadrže stalnu licencu kao i uslugu prioritetne podrške, a uz to financijski pomažu kontinuirani razvoj Nmap tehnologije\&. Molimo Vas da poš aljete mail na
-sales@insecure\&.com
+<sales@insecure\&.com>
 za daljne informacije\&.
 .PP
 Kao posebno izuzeće od GPL uvjeta, Insecure\&.Com LLC daje dozvolu za povezivanje koda ovog programa s bilo kojom verzijom OpenSSL biblioteke koja je distribuirana pod sličnom licencom kao i s licencom koja se nalazi u datoteci Copying\&.OpenSSL i distribuirati povezanu kombinaciju oba programa\&. Morate poštivati GNU GPL na svim područjima za bilo koji kod koji nije OpenSSL\&. Ukoliko modificirate navedenu datoteku možete proširiti to izuzeće i na svoju verziju programa, ali niste obavezni to napraviti\&.
@@ -1636,7 +1628,7 @@ Nmap referentne upute su (C) 2005 Insecure\&.Com LLC\&. Time su stavljene pod ve
 Izvorni kod je dostupan s programom zato jer vjerujemo da korisnik ima pravo znati što uistinu program radi prije nego će ga pokrenuti\&. To Vam isto tako omogućava provjeru softvera na sigurnosne rupe (do sad nije pronađena niti jedna)\&.
 .PP
 Izvorni Vam kod isto tako omogućava prijenos Nmap\-a na nove platforme, popravljanje grešaka i dodavanje novih mogućnosti\&. Potaknuti ste da promjene pošaljete na
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 kako bi eventualno bile inkorporirane u buduće verzije glavne distribucije\&. Slanjem promjena Fyodoru ili nekom na Insecure\&.Org mailing listi developera, podrazumijeva se da Fyodoru i Insecure\&.Org\-u dajete puna prava na korištenje, modificiranje i relicenciranje koda\&. Nmap će uvijek biti dostupan kao open source, ali to je bitno jer je nemogućnost relicenciranja koda stvorila ogromne probleme nekim drugim besplatnim softverskim projektima (poput KDE\-a i NASM\-a)\&. Također povremeno relicenciramo kod drugim tvrtkama kako je navedeno gore\&. Ukoliko želite definirati posebne licenčne uvjete za svoj doprinos, navedite to odmah kad ih pošaljete\&.
 .SS "Nema garancije"
 .PP

@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "07/28/2013" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -123,7 +123,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 6\&.26SVN ( http://nmap\&.org )
+Nmap 6\&.41SVN ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -490,9 +490,7 @@ and
 \fB\-PU \fR\fB\fIport list\fR\fR (UDP Ping) .\" -PU .\" UDP ping
 .RS 4
 .\" payloads, protocol-specific
-Another host discovery option is the UDP ping, which sends a UDP packet to the given ports\&. For most ports, the packet will be empty, though for a few a protocol\-specific payload will be sent that is more likely to get a response\&..\" protocol-specific payloads: UDP
-The payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payloads.html\fR\m[]\&.
-
+Another host discovery option is the UDP ping, which sends a UDP packet to the given ports\&. For most ports, the packet will be empty, though for a few a protocol\-specific payload will be sent that is more likely to get a response\&..\" protocol-specific payloads: UDPThe payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payloads.html\fR\m[]\&.
 The
 \fB\-\-data\-length\fR.\" --data-length
 option can be used to send a fixed\-length random payload to every port or (if you specify a value of
@@ -767,7 +765,6 @@ to skip slow hosts\&.
 .PP
 \fB\-sY\fR (SCTP INIT scan) .\" -sY .\" SCTP INIT scan
 .RS 4
-
 \m[blue]\fBSCTP\fR\m[]\&\s-2\u[7]\d\s+2
 is a relatively new alternative to the TCP and UDP protocols, combining most characteristics of TCP and UDP, and also adding new features like multi\-homing and multi\-streaming\&. It is mostly being used for SS7/SIGTRAN related services but has the potential to be used for other applications as well\&. SCTP INIT scan is the SCTP equivalent of a TCP SYN scan\&. It can be performed quickly, scanning thousands of ports per second on a fast network not hampered by restrictive firewalls\&. Like SYN scan, INIT scan is relatively unobtrusive and stealthy, since it never completes SCTP associations\&. It also allows clear, reliable differentiation between the
 open,
@@ -1132,8 +1129,7 @@ directive\&.
 When performing a version scan (\fB\-sV\fR), Nmap sends a series of probes, each of which is assigned a rarity value between one and nine\&. The lower\-numbered probes are effective against a wide variety of common services, while the higher\-numbered ones are rarely useful\&. The intensity level specifies which probes should be applied\&. The higher the number, the more likely it is the service will be correctly identified\&. However, high intensity scans take longer\&. The intensity must be between 0 and 9\&..\" version detection: intensity
 The default is 7\&..\" version detection: default intensity
 When a probe is registered to the target port via the
-nmap\-service\-probes
-ports
+nmap\-service\-probesports
 directive, that probe is tried regardless of intensity level\&. This ensures that the DNS probes will always be attempted against any open port 53, the SSL probe will be done against 443, etc\&.
 .RE
 .PP
@@ -1178,7 +1174,6 @@ class, which means that they increment the ID field in the IP header for each pa
 .PP
 Another bit of extra information enabled by OS detection is a guess at a target\*(Aqs uptime\&. This uses the TCP timestamp option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[10]\d\s+2) to guess when a machine was last rebooted\&. The guess can be inaccurate due to the timestamp counter not being initialized to zero or the counter overflowing and wrapping around, so it is printed only in verbose mode\&.
 .PP
-
 A paper documenting the workings, usage, and customization of OS detection is available at \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
 .PP
 OS detection is enabled and controlled with the following options:
@@ -1241,7 +1236,6 @@ Scripts are not run in a sandbox and thus could accidentally or maliciously dama
 .PP
 The Nmap Scripting Engine is described in detail
 at \m[blue]\fB\%http://nmap.org/book/nse.html\fR\m[]
-
 and is controlled by the following options:
 .PP
 \fB\-sC\fR .\" -sC
@@ -1263,8 +1257,7 @@ may be used to specify every script in Nmap\*(Aqs database\&. Be cautious with t
 File and directory names may be relative or absolute\&. Absolute names are used directly\&. Relative paths are looked for in the
 scripts
 of each of the following places until found:
-.\" data files: directory search order.\" scripts, location of
-.RS 4
+.\" data files: directory search order.\" scripts, location of.RS 4
 \fB\-\-datadir\fR
 .RE
 .RS 4
@@ -1301,7 +1294,6 @@ Nmap scripts are stored in a
 scripts
 subdirectory of the Nmap data directory by default
 (see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
-
 For efficiency, scripts are indexed in a database stored in
 scripts/script\&.db,.\" script.db
 which lists the category or categories in which each script belongs\&.
@@ -1574,7 +1566,6 @@ There are two conditions when the actual scanning rate may fall below the reques
 Specifying a minimum rate should be done with care\&. Scanning faster than a network can support may lead to a loss of accuracy\&. In some cases, using a faster rate can make a scan take
 \fIlonger\fR
 than it would with a slower rate\&. This is because Nmap\*(Aqs
-
 adaptive retransmission
 algorithms will detect the network congestion caused by an excessive scanning rate and increase the number of retransmissions in order to improve accuracy\&. So even though packets are sent at a higher rate, more packets are sent overall\&. Cap the number of retransmissions with the
 \fB\-\-max\-retries\fR
@@ -1669,8 +1660,7 @@ and
 \fBT2\fR
 are similar but they only wait 15 seconds and 0\&.4 seconds, respectively, between probes\&.
 \fBT3\fR
-is Nmap\*(Aqs default behavior, which includes parallelization\&..\" normal (-T3) timing template
-\fB\-T4\fR
+is Nmap\*(Aqs default behavior, which includes parallelization\&..\" normal (-T3) timing template\fB\-T4\fR
 does the equivalent of
 \fB\-\-max\-rtt\-timeout 1250ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
 and sets the maximum TCP scan delay to 10 milliseconds\&.
@@ -2367,8 +2357,7 @@ For testing purposes, you have permission to scan the host scanme\&.nmap\&.org\&
 This permission only includes scanning via Nmap and not testing exploits or denial of service attacks\&. To conserve bandwidth, please do not initiate more than a dozen scans against that host per day\&. If this free scanning target service is abused, it will be taken down and Nmap will report
 Failed to resolve given hostname/IP: scanme\&.nmap\&.org\&. These permissions also apply to the hosts scanme2\&.nmap\&.org, scanme3\&.nmap\&.org, and so on, though those hosts do not currently exist\&.
 .PP
-.\" -v: example of
-\fBnmap \-v scanme\&.nmap\&.org\fR
+.\" -v: example of\fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 This option scans all reserved TCP ports on the machine
 scanme\&.nmap\&.org
@@ -2376,28 +2365,21 @@ scanme\&.nmap\&.org
 \fB\-v\fR
 option enables verbose mode\&.
 .PP
-.\" -sS: example of
-.\" -O: example of
-\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
+.\" -sS: example of.\" -O: example of\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Launches a stealth SYN scan against each machine that is up out of the 256 IPs on the class C sized network where Scanme resides\&. It also tries to determine what operating system is running on each host that is up and running\&. This requires root privileges because of the SYN scan and OS detection\&.
 .PP
-.\" -p: example of
-\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
+.\" -p: example of\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Launches host enumeration and a TCP scan at the first half of each of the 255 possible eight\-bit subnets in the 198\&.116 class B address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
 .PP
-.\" -iR: example of
-.\" -Pn: example of
-\fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
+.\" -iR: example of.\" -Pn: example of\fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
 .PP
 Asks Nmap to choose 100,000 hosts at random and scan them for web servers (port 80)\&. Host enumeration is disabled with
 \fB\-Pn\fR
 since first sending a couple probes to determine whether a host is up is wasteful when you are only probing one port on each target host anyway\&.
 .PP
-.\" -oX: example of
-.\" -oG: example of
-\fBnmap \-Pn \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
+.\" -oX: example of.\" -oG: example of\fBnmap \-Pn \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 This scans 4096 IPs for any web servers (without pinging them) and saves the output in grepable and XML formats\&.
 .SH "NMAP BOOK"
@@ -2418,8 +2400,8 @@ nmap\-dev
 archives at
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&..\" nmap-dev mailing list
 Read this full manual page as well\&. If nothing comes of this, mail a bug report to
-dev@nmap\&.org\&. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on\&. Problem reports and Nmap usage questions sent to
-dev@nmap\&.org
+<dev@nmap\&.org>\&. Please include everything you have learned about the problem, as well as what version of Nmap you are running and what operating system version it is running on\&. Problem reports and Nmap usage questions sent to
+<dev@nmap\&.org>
 are far more likely to be answered than those sent to Fyodor directly\&. If you subscribe to the nmap\-dev list before posting, your message will bypass moderation and get through more quickly\&. Subscribe at
 \m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
@@ -2432,7 +2414,7 @@ nmap\-dev
 Gordon
 \(lqFyodor\(rq
 Lyon
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Hundreds of people have made valuable contributions to Nmap over the years\&. These are detailed in the
@@ -2445,7 +2427,7 @@ file which is distributed with Nmap and also available from
 .\" GNU General Public License
 .PP
 The Nmap Security Scanner is (C) 1996\(en2012 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
-sales@insecure\&.com)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
+<sales@insecure\&.com>)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
 .PP
 Note that the GPL places important restrictions on
 \(lqderived works\(rq, yet it does not provide a detailed definition of that term\&. To avoid misunderstandings, we consider an application to constitute a
@@ -2515,7 +2497,7 @@ The term
 should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap\(emwe don\*(Aqt speak for other people\*(Aqs GPL works\&.
 .PP
 If you have any questions about the GPL licensing restrictions on using Nmap in non\-GPL works, we would be happy to help\&. As mentioned above, we also offer alternative license to integrate Nmap into proprietary applications and appliances\&. These contracts have been sold to many security vendors, and generally include a perpetual license as well as providing for priority support and updates as well as helping to fund the continued development of Nmap technology\&. Please email
-sales@insecure\&.com
+<sales@insecure\&.com>
 for further information\&.
 .PP
 As a special exception to the GPL terms, Insecure\&.Com LLC grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
@@ -2535,7 +2517,7 @@ is (C) 2005\(en2012 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
 .PP
 Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
-dev@nmap\&.org
+<dev@nmap\&.org>
 for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering the Nmap Project (Insecure\&.Com LLC) the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available open source,.\" open source
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed above\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty.\" warranty (lack of)"
@@ -2576,7 +2558,6 @@ The
 \m[blue]\fBLiblinear linear classification library\fR\m[]\&\s-2\u[27]\d\s+2
 is used for our
 \m[blue]\fBIPv6 OS detection machine learning techniques\fR\m[]\&\s-2\u[28]\d\s+2\&.
-
 All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
 .PP
 Binary packages for Windows and Mac OS X include support libraries necessary to run Zenmap and Ndiff with Python and PyGTK\&. (Unix platforms commonly make these libraries easy to install, so they are not part of the packages\&.) A listing of these support libraries and their licenses is included in the

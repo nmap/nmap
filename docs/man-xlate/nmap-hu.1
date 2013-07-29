@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -122,7 +122,7 @@ címről tölthető le\&.
 Az Nmap Referencia Útmutató jelen magyar változatát Mlatilik Zsolt készítette a 6184\-es
 \m[blue]\fBeredeti angol változat\fR\m[]\&\s-2\u[1]\d\s+2
 alapján
-drmac68@freemail\&.hu\&. A fordítást annak reményében készítettem, hogy megkönnyítse a magyar nyelvű felhasználók számára a program használatát\&. Nem tudom garantálni, hogy ez a leírás olyan teljes vagy naprakész, mint az eredeti angol változat\&. Ez a fordítás a
+<drmac68@freemail\&.hu>\&. A fordítást annak reményében készítettem, hogy megkönnyítse a magyar nyelvű felhasználók számára a program használatát\&. Nem tudom garantálni, hogy ez a leírás olyan teljes vagy naprakész, mint az eredeti angol változat\&. Ez a fordítás a
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2
 alapján szabadon módosítható és terjeszthető\&.
 .SH "PARAMéTER öSSZEFOGLALó"
@@ -131,9 +131,6 @@ Ez az összefoglaló akkor jelenik meg, amikor az Nmap programot paraméterek n�
 \m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]
 címen érhető el\&. Ez a lista segít emlékezni a legáltalánosabb paraméterekre, de nem helyettesíti az útmutatóban található részletes dokumentációt\&. Néhány rejtett paraméter szintén nem található meg ebben a listában\&.
 .PP
-
-
-.sp
 .if n \{\
 .RS 4
 .\}
@@ -1024,24 +1021,20 @@ könnyűsúlyú parancsnyelv sokoldalúságával, így kínálva számtalan lehe
 \m[blue]\fB\%http://nmap.org/nse/\fR\m[]
 címen bőséges dokumentációt talál az NSE\-ről (beleértve a programozói felületet is)\&. Az NSE célja, hogy hatékony környezetet biztosítson az Nmap képességeinek kiterjesztéséhez és a felhasználók számára egyszerűbbé tegye testreszabott tesztek létrehozását\&. Az NSE felhasználási területei:
 .PP
-
 \fIKiterjesztett változat érzékelés\fR
 (kategória
 version) \(em Bár az Nmap rendelkezik egy saját szolgáltatás\- és változatérzékelő rendszerrel, mely hatékonyságában és működési körében páratlan, egy bonyolultabb próbákat igénylő szolgáltatás felderítésekor ez az erő nem használható ki\&. Például a Skype\-Protocol 2\-es változatának azonosításához két független próbacsomagot kell elküldeni, melyre a beépített rendszer nem képes\&. Egy egyszerű NSE parancsfájl végre tudja hajtani ezt a feladatot és frissíteni tudja a kapukhoz tartozó szolgáltatások információit\&.
 .PP
-
 \fIKárokozó érzékelés\fR
 (kategóriák
 malware
 és
 backdoors) \- Mind a támadók, mind a féregprogramok gyakran hagynak maguk után hátsó bejáratokat \- például a levélszemetek küldői gyakran használnak szokatlan kapukon működő SMTP kiszolgálókat a leveleik továbbítására, vagy a betörők egyfajta FTP kiszolgálót használva próbálnak meg hozzáférni kritikus adatokhoz\&. Pár sor Lua kóddal ezek a rések könnyen felderíthetők\&.
 .PP
-
 \fISebezhetőség érzékelés\fR
 (kategória
 vulnerability)\- Az NSE képességeinek kihasználásával könnyen azonosíthat olyan veszélyeket, mint például az alapértelmezett jelszavak, vagy az SMTP kiszolgálók levél\-átjátszási képessége tetszőleges tartományokból\&.
 .PP
-
 \fIHálózati felderítés és Információgyújtés\fR
 (kategóriák
 safe,
@@ -1963,7 +1956,6 @@ scanme2\&.nmap\&.org,
 scanme3\&.nmap\&.org
 és a további állomásokra is, bár ezek jelenleg még nem üzemelnek\&.
 .PP
-
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Ezzel a paranccsal letapogatható az összes foglalt TCP kapu a
@@ -1972,26 +1964,22 @@ scanme\&.nmap\&.org
 \fB\-v\fR
 paraméter engedélyezi a bőbeszédű üzemmódot\&.
 .PP
-
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Elindít egy lopakodó SYN letapogatást minden olyan állomáson, mely a Scanme állomás
 \(lqC osztályú\(rq
 címterében található és elérhető\&. Emelett megpróbálja kideríteni, hogy az elérhető állomások milyen operációs rendszert futtatnak\&. A SYN letapogatás és az operációs rendszer felderítése miatt ennek a parancsnak a futtatásához rendszergazdai jogosultságok szükségesek\&.
 .PP
-
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Felderíti az állomásokat a 198\&.116\-os B osztályú hálózat mind a 255 8 bites alhálózatának alsó felében és végrehajt rajtuk egy TCP letapogatást\&. Ellenőrzi, hogy a rendszereken fut\-e SSH, DNS, POP3 vagy IMAP szolgáltatás a szabványos kapukon, illetve fut\-e bármilyen szolgáltatás a 4564\-os kapun\&. Ha bármely kapu nyitva található, egy változat érzékeléssel meghatározzuk az azon futó alkalmazás típusát\&.
 .PP
-
 \fBnmap \-v \-iR 100000 \-PN \-p 80\fR
 .PP
 Arra utasítja az Nmap programot, hogy válasszon ki véletlenszerűen 100 000 állomást és keressen rajtuk webkiszolgálót (80\-as kapu)\&. Az állomások felderítését a
 \fB\-PN\fR
 paraméterrel kikapcsoljuk, mivel egy kapu letapogatásakor felesleges először néhány próbával kideríteni, hogy az állomás elérhető\-e\&.
 .PP
-
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Visszhang próbák nélkül letapogat 4096 IP címet webkiszolgáló után kutatva, a kimenetet pedig elmenti greppel feldolgozható és XML formátumban\&.
@@ -2002,7 +1990,7 @@ Akárcsak a program készítője, az Nmap sem tökéletes\&. De segíthet jobbá
 címről\&. Ha a probléma továbbra is fennáll, nézzen utána, hogy felfedezték\-e már mások is\&. Keressen rá a Google\-ban a hibaüzenetre vagy böngéssze át az Nmap fejlesztői listát a
 \m[blue]\fB\%http://seclists.org/\fR\m[]
 címen\&. Olvassa végig ezt a leírást is\&. Ha nem talál semmit, küldjön egy hibajelentést az
-dev@nmap\&.org
+<dev@nmap\&.org>
 címre\&. Írjon le mindent, amit a hibával kapcsolatban tapasztalt\&. Adja meg pontosan a használt Nmap változatot és a futtató operációs rendszer változatát is\&. Az dev@nmap\&.org címre küldött hibajelzések és az Nmap használatával kapcsolatos kérdések valószínűleg gyorsabban megválaszolásra kerülnek, mintha azokat közvetlenül a program készítőjének (Fyodor) küldené\&.
 .PP
 A hibajavítások sokkal hasznosabbak, mint a hibajelentések\&. A hibajavítások elkészítésével kapcsolatban tanácsokat kaphat a
@@ -2011,7 +1999,7 @@ címen\&. A hibajavítások elküldhetők az nmap\-dev listára (ez a javasolt),
 .SH "SZERZő"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Az évek során emberek százai járultak hozzá értékes munkájukkal az Nmap programhoz\&. Ezek részletezése megtalálható a
@@ -2023,7 +2011,7 @@ címen is\&.
 .SS "Nmap szerzői jog és licenc.\" szerzői jog .\" licenc .\" GNU GPL"
 .PP
 Nmap Biztonsági letapogató (C) 1996\-2007 Insecure\&.Com LLC\&. Az Nmap az Insecure\&.Com LLC bejegyzett védjegye\&. Ez egy szabad program; szabadon továbbadható és/vagy módosítható a Szabad Szoftver Alapítvány által kiadott GNU General Public License 2\-es változatának irányelvei szerint\&. Ez biztosítja Önnek a jogot, hogy bizonyos feltételek esetén ezt a programot használja, módosítsa és továbbadja\&. Ha az Nmap technológiáját üzleti célú programba kívánja beágyazni, más licencre van szüksége (írjon a
-sales@insecure\&.com
+<sales@insecure\&.com>
 címre)\&. Több, biztonsági letapogatót forgalmazó cég kapott ilyen licencet az Nmap technológiájának használatára az állomás felderítés, kapupásztázás, operációs rendszer érzékelés és szolgáltatás/változat érzékelés területén\&.
 .PP
 A GPL fontos korlátozásokat alkalmaz a
@@ -2102,7 +2090,7 @@ fogalmát a GPL engedély alatt terjesztett Nmap programmal kapcsolatban\&. Ez h
 kapcsolatban\&. A készítők értelmezése kizárólag az Nmap programra vonatkozik \- nem vonatkozik más GPL termékekre\&.
 .PP
 A készítők örömmel segítenek a GPL korlátozásainak értelmezésében, ha az Nmap programot nem GPL licenc alatt terjesztett munkában kívánja felhasználni és bármilyen kérdése merülne fel ezzel kapcsolatban\&. Ahogy a fentiekben már szóba került, a készítőktől más licenc is beszerezhető, ha az Nmap programot üzleti célú alkalmazásban vagy eszközben kívánja felhasználni\&. Több biztonsági eszköz szállítója kötött ilyen szerződést, amely általában tartalmaz egy állandó licencet az Nmap használatára, kiemelt támogatást és frissítést\&. Emellett segít fedezni az Nmap technológiájának folyamatos fejlesztésével járó költségeket is\&. További információkat a
-sales@insecure\&.com
+<sales@insecure\&.com>
 címre küldött levélben kérhet\&.
 .PP
 .\" licenc: OpenSSL kivétel
@@ -2130,7 +2118,7 @@ nem hivatalos magyar fordítása\&. Ezt nem az Insecure\&.Com LLC készítette �
 Azért biztosítjuk a hozzáférést a program forráskódjához, mert hiszünk abban, hogy a felhasználónak jogában áll megismerni a program működését annak elindítása előtt\&. Emellett a program esetleges biztonsági rései is vizsgálhatóak (régóta nem találtak egyet sem)\&.
 .PP
 A forráskód segítségével az Nmap átvihető új rendszerekre, kijavíthatók a hibák és új képességekkel is bővíthető a program\&. Bátorítunk mindenkit, hogy az általa készített változtatásokat küldje el a
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 címre, hogy azok bekerülhessenek a fő terjesztésbe\&. Azzal, hogy ezeket a módosításokat elküldi Fyodornak vagy valamely Insecure\&.Org fejlesztői listának, Ön korlátozás nélküli, nem\-kizárólagos jogot biztosít Fyodornak és az Insecure\&.Com LLC\-nek a kód újrafelhasználásához, módosításához és új licenc alatti kibocsátásához\&. Bár az Nmap mindig elérhető lesz nyílt forrásúként, de ha nincs lehetőség a kód új licenc alatti kibocsátására, ez számos szabad program szempontjából katasztrofális\&. Alkalmanként harmadik fél számára is új licenc alatt engedélyezzük a kód használatát a fentiek szerint\&. Ha a saját kódját különleges licenc alatt szeretné engedélyezni, kérjük jelezze azt az elküldéssel egyidőben\&.
 .SS "Nincs garancia.\" garancia (hiánya)"
 .PP
