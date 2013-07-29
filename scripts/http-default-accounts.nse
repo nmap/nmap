@@ -15,7 +15,7 @@ This script depends on a fingerprint file containing the target's information: n
 
 You may select a category if you wish to reduce the number of requests. We have categories like:
 * <code>web</code> - Web applications
-* <code>router</code> - Routers
+* <code>routers</code> - Routers
 * <code>voip</code> - VOIP devices
 * <code>security</code> 
 
