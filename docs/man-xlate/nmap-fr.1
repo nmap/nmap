@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -124,10 +124,10 @@ La plus récente version de Nmap peut être obtenue à l\*(Aqurl
 Cette édition Francaise du Guide de référence de Nmap a été traduite à partir de la version [2991] de la
 \m[blue]\fBversion originale en Anglais\fR\m[]\&\s-2\u[1]\d\s+2
 par Romuald THION
-romuald\&.thion@insa\-lyon\&.fr
+<romuald\&.thion@insa\-lyon\&.fr>
 et 4N9e Gutek
-4n9e@futurezone\&.biz\&. Elle a été relue et corrigée par Ghislaine Landry
-g\-landry@rogers\&.com\&. Ce travail peut être modifié et redistribué selon les termes de la license
+<4n9e@futurezone\&.biz>\&. Elle a été relue et corrigée par Ghislaine Landry
+<g\-landry@rogers\&.com>\&. Ce travail peut être modifié et redistribué selon les termes de la license
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2\&.
 .PP
 Mise a jour au 19 dec 2007\&.
@@ -137,8 +137,6 @@ Ce résumé des options est affiché quand Nmap est exécuté sans aucun argumen
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]
 \&. Il sert d\*(Aqaide\-mémoire des options les plus fréquemment utilisées, mais ne remplace pas la documentation bien plus détaillée de la suite de ce manuel\&. Les options obscures n\*(Aqy sont pas incluses\&.
 .PP
-
-.sp
 .if n \{\
 .RS 4
 .\}
@@ -815,8 +813,7 @@ Exclude\&.
 \fB\-\-version\-intensity <intensity>\fR(Sélectionne l\*(Aqintensité du scan de version)
 .RS 4
 Lors d\*(Aqun scan de version (\fB\-sV\fR), Nmap envoie une série de paquets de tests, à chacun duquel est associé une valeur de rareté allant de 1 à 9\&. Les tests aux basses valeurs sont efficaces pour une grande variété de services courants, tandis que les hautes valeurs indiquent ceux qui ne sont que rarement utiles\&. Le niveau d\*(Aqintensité spécifie quels tests doivent être effectués\&. Plus la valeur est haute, plus le service a de chances d\*(Aqêtre correctement identifié\&. Cependant, ces scans\-ci sont plus longs\&. La valeur d\*(Aqintensité doit être comprise entre 0 et 9, la valeur par défaut étant le 7\&. Quand un test est inscrit sur le port cible par le biais de la directive
-nmap\-service\-probes
-ports, ce test est tenté quelque soit le niveau d\*(Aqintensité\&. Cela permet de s\*(Aqassurer que les tests DNS seront toujours tentés sur chaque port 53 ouvert, les tests SSL sur chaque 443, etc\&.
+nmap\-service\-probesports, ce test est tenté quelque soit le niveau d\*(Aqintensité\&. Cela permet de s\*(Aqassurer que les tests DNS seront toujours tentés sur chaque port 53 ouvert, les tests SSL sur chaque 443, etc\&.
 .RE
 .PP
 \fB\-\-version\-light\fR(Active le mode léger)
@@ -976,7 +973,6 @@ seront suffisantes\&. Si vous etes face a un routage, mesurez d\*(Aqabord le tem
 et tripler ou quadrupler le
 \fB\-\-max\-rtt\-timeout\fR\&. Généralement, je ne règle pas le rtt maximum à moins de 100ms, et ce, quelles que soient les mesures de ping\&. De plus, je n\*(Aqexcède pas 1 000ms\&.
 .sp
-
 \fB\-\-min_rtt_timeout\fR
 est une option rarement utilisée qui peut s\*(Aqavérer utile lorsqu\*(Aqun réseau est si lent que même les réglages par défaut de Nmap sont trop agressifs\&. Comme Nmap ne réduit le délai d\*(Aqinactivité au minimum que lorsque le réseau semble suffisamment rapide, ce genre de besoin est inhabituel et devrait être rapporté en tant que procédure erronée à la liste de développement de nmap\-dev\&.
 .RE
@@ -1140,7 +1136,6 @@ seront suffisantes\&. Si vous etes face a un routage, mesurez d\*(Aqabord le tem
 et tripler ou quadrupler le
 \fB\-\-max\-rtt\-timeout\fR\&. Généralement, je ne règle pas le rtt maximum à moins de 100ms, et ce, quelles que soient les mesures de ping\&. De plus, je n\*(Aqexcède pas 1 000ms\&.
 .sp
-
 \fB\-\-min_rtt_timeout\fR
 est une option rarement utilisée qui peut s\*(Aqavérer utile lorsqu\*(Aqun réseau est si lent que même les réglages par défaut de Nmap sont trop agressifs\&. Comme Nmap ne réduit le délai d\*(Aqinactivité au minimum que lorsque le réseau semble suffisamment rapide, ce genre de besoin est inhabituel et devrait être rapporté en tant que procédure erronée à la liste de développement de nmap\-dev\&.
 .RE
@@ -1802,7 +1797,6 @@ Failed to resolve given hostname/IP: scanme\&.nmap\&.org\&. Ces permissions s\*(
 scanme2\&.nmap\&.org, à
 scanme3\&.nmap\&.org, et ainsi de suite, même si ces hôtes n\*(Aqexistent présentement pas\&.
 .PP
-
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Cette option scanne tous les ports réservés TCP sur la machine
@@ -1811,31 +1805,26 @@ scanme\&.nmap\&.org
 \fB\-v\fR
 active le mode verbeux\&.
 .PP
-
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Lance un scan furtif (stealth SYN scan) contre chaque machine active parmi les 255 machines du réseau de
 \(lqclasse C\(rq
 sur lequel Scanme réside\&. Il essaie aussi de déterminer le système d\*(Aqexploitation sur chaque hôte actif\&. Cette démarche nécessite les privilèges de root puisqu\*(Aqon utilise un SYN scan et une détection d\*(AqOS\&.
 .PP
-
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Lance une recherche des hôtes et un scan TCP dans la première moitié de chacun des 255 sous\-réseaux à 8 bits dans l\*(Aqespace d\*(Aqadressage de classe B 198\&.116 Cela permet de déterminer si les systèmes font tourner sshd, DNS, pop3d, imapd ou le port 4564\&. Pour chacun de ces ports qui sont ouverts, la détection de version est utilisée pour déterminer quelle application est actuellement lancée\&.
 .PP
-
 \fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
 .PP
 Demande à Nmap de choisir 100 000 hôtes de façon aléatoire et de les scanner dans le but de trouver les serveurs Web (port 80)\&. L\*(Aqénumération des hôtes est désactivée avec
 \fB\-P0\fR
 puisque envoyer en premier lieu quelques probes pour déterminer si un hôte est actif est inutile lorsque vous ne cherchez à tester qu\*(Aqun port sur chaque hôte\&.
 .PP
-
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Cette procédure scanne 4 096 adresses IP à la recherche de serveurs Web (sans les pinguer au préalable) et sauvegarde la sortie en format grepable et XML\&.
 .PP
-
 \fBhost \-l company\&.com | cut \-d \-f 4 | nmap \-v \-iL \-\fR
 .PP
 Effectue un transfert de zone DNS afin de trouver les hôtes au sein de company\&.com et ensuite fournir les adresses IP à Nmap\&. Les commandes ci\-dessus concerne mon GNU/Linux \-\- les autres systèmes ont d\*(Aqautres commandes pour effectuer les transferts de zone\&.
@@ -1844,24 +1833,24 @@ Effectue un transfert de zone DNS afin de trouver les hôtes au sein de company\
 Comme son auteur, Nmap n\*(Aqest pas parfait\&. Mais vous pouvez aider à l\*(Aqaméliorer en envoyant les rapports de bogues ou même en écrivant des programmes de correction\&. Si Nmap ne satisfait pas à vos attentes, mettez\-le d\*(Aqabord à jour en utilisant la dernière version disponible sur
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Si le problème persiste, faites quelques recherches afin de déterminer s\*(Aqil a déjà été remarqué et signalé\&. Essayez pour cela de mettre l\*(Aqerreur en argument sur Google ou parcourez les archives de Nmap\-dev sur
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Lisez ce manuel en entier quoiqu\*(Aqil en soit\&. Si rien ne semble fonctionner, envoyez un rapport de bogue à
-dev@nmap\&.org\&. Veillez à inclure tout ce que vous avez appris au sujet de ce bogue ainsi que la version de Nmap concernée et le système d\*(Aqexploitation que vous utilisez\&. Les rapports de problèmes et les questions sur l\*(Aqutilisation de Nmap envoyés à dev@nmap\&.org ont plus de chance de trouver une réponse que ceux envoyés à Fyodor directement\&.
+<dev@nmap\&.org>\&. Veillez à inclure tout ce que vous avez appris au sujet de ce bogue ainsi que la version de Nmap concernée et le système d\*(Aqexploitation que vous utilisez\&. Les rapports de problèmes et les questions sur l\*(Aqutilisation de Nmap envoyés à dev@nmap\&.org ont plus de chance de trouver une réponse que ceux envoyés à Fyodor directement\&.
 .PP
 Les codes de programmes de correction destinés à régler des bogues sont encore meilleurs que les rapports de bogues\&. Les instructions de base pour créer des fichiers de programmes de correction avec vos modifications sont disponibles sur
 \m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Les programmes de correction peuvent être envoyés à nmap\-dev (recommandé) ou à Fyodor directement\&.
 .SH "AUTEUR"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
 Traduction française :
 .PP
 Romuald THION
-romuald\&.thion@insa\-lyon\&.fr
+<romuald\&.thion@insa\-lyon\&.fr>
 4N9e Gutek
-4n9e@futurezone\&.biz
+<4n9e@futurezone\&.biz>
 Relecture et corrections : Ghislaine Landry
-g\-landry@rogers\&.com
+<g\-landry@rogers\&.com>
 .PP
 Bien qu\*(Aqun soin particulier ait été apporté à cette traduction, il est possible que certaines erreurs s\*(Aqy soient glissées\&. Le cas échéant, n\*(Aqhésitez pas à communiquer avec les traducteurs\&. La traduction ne remplace pas au texte original (version anglaise), tout particulièrement en ce qui concerne les dispositions légales\&. Une erreur d\*(Aqinterprétation dans cette traduction ne peut, en aucun cas, se substituer à ces dispositions\&. Insecure\&.Com LLC n\*(Aqassume aucune responsabilité en ce qui a trait aux erreurs éventuelles de traduction ou d\*(Aqinterprétation\&.
 .PP
@@ -1873,7 +1862,7 @@ qui est distribué avec Nmap mais aussi disponible sur
 .SS "Droits d\*(Aqauteur et licence"
 .PP
 Le Nmap Security Scanner est sous droits d\*(Aqauteur (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap est aussi une marque déposée de Insecure\&.Com LLC\&. Ce programme est un logiciel libre; vous pouvez le redistribuer ou le modifier selon les termes de la licence GNU General Public License comme publiée par la Free Software Foundation; Version 2\&. Cela garantie vos droits d\*(Aqutilisation, de modification et de redistribution de ce logiciel, et ce, sous certaines conditions\&. Si vous souhaitez inclure la technologie Nmap dans un logiciel propriétaire, nous nous réservons le droit de vendre d\*(Aqautres licences (communiquez avec
-sales@insecure\&.com)\&. Beaucoup de distributeurs de scanners de sécurité ont déjà acquis une licence pour les technologies Nmap, notamment la découverte d\*(Aqhôte, le scan de ports, le détection du système d\*(Aqexploitation et la détection de service ou de version\&.
+<sales@insecure\&.com>)\&. Beaucoup de distributeurs de scanners de sécurité ont déjà acquis une licence pour les technologies Nmap, notamment la découverte d\*(Aqhôte, le scan de ports, le détection du système d\*(Aqexploitation et la détection de service ou de version\&.
 .PP
 Notez que la licence GPL comporte d\*(Aqimportantes restrictions relativement aux
 \(lqtravaux dérivés\(rq, bien qu\*(Aqelle ne donne pas de détails suffisants quant à la définition de ceux\-ci\&. Afin d\*(Aqéviter toute incompréhension, nous considérons une application comme constituant un
@@ -1951,7 +1940,7 @@ qui s\*(Aqappliquent à notre produit Nmap sous licence GPL\&. Ceci est semblabl
 qui s\*(Aqappliquent aux modules du noyau Linux\&. Notre interprétation fait seulement référence à Nmap; nous ne parlons d\*(Aqaucun autre produit sous GPL\&.
 .PP
 Si vous avez des questions à propos des restrictions de la licence GPL et de l\*(Aqutilisation de Nmap dans le cadre des travaux non\-GPL, nous serions heureux de vous aider\&. Tel que mentionné ci\-dessus, nous offrons une autre licence afin d\*(Aqintégrer Nmap au sein d\*(Aqapplications propriétaires\&. Ces contrats ont été vendus à de nombreux distributeurs du domaine de la sécurité et comportent généralement une licence perpétuelle tout en fournissant un support, des mises à jour prioritaires et une aide au développement constant de la technologie Nmap\&. Veuillez envoyer un courriel à
-sales@insecure\&.com
+<sales@insecure\&.com>
 pour obtenir plus d\*(Aqinformations\&.
 .PP
 Comme exception particulière à la licence GPL, Insecure\&.Com LLC permet de lier le code de ce programme à toute version de la librairie OpenSSL, qui est distribuée sous une licence identique à celle spécifiée dans le fichier Copying\&.OpenSSL ci\-inclus, et de distribuer les combinaisons de liens incluant les deux\&. Vous devez observer le GNU GPL dans tous ses aspects pour toute portion du code utilisée autre que OpenSSL\&. Si vous modifiez ce fichier, vous pouvez étendre cette exception à votre version du fichier mais vous n\*(Aqêtes toutefois pas obligé de le faire\&.
@@ -1966,7 +1955,7 @@ Ce guide de référence Nmap est déposé par 2005 Insecure\&.Com LLC\&. Il est 
 La source est fournie avec ce programme car nous croyons que les utilisateurs ont le droit de savoir exactement ce qu\*(Aqun programme va faire avant d\*(Aqêtre lancé\&. Cela vous permet aussi de vérifier ce logiciel relativement à d\*(Aqéventuelles vulnérabilités (aucune n\*(Aqa été trouvée à ce jour)\&.
 .PP
 Le code source vous permet aussi d\*(Aqutiliser Nmap sur de nouvelles plateformes, de régler des bogues et d\*(Aqajouter de nouvelles fonctionnalités\&. Vous êtes fortement encouragés à présenter vos modifications à
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 dans le but de les intégrer dans la distribution principale\&. Lorsque vous envoyez ces changements à Fyodor ou à l\*(Aqune des listes de développement d\*(AqInsecure\&.Org, il est recommandé que vous cédiez à Fyodor et à Insecure\&.Com LLC le droit illimité et non exclusif de réutiliser, de modifier et de concéder de nouveau une licence pour le code\&. Nmap sera toujours disponible en Open Source et ce, principalement en raison de l\*(Aqimpossibilité de concéder de nouveau une licence pour le code, ce qui a occasionné des problèmes dévastateurs pour d\*(Aqautres projets de développement libres (comme KDE et NASM)\&. Nous concédons aussi occasionnellement une licence pour le code à des tierces parties, tel que décrit ci\-dessus\&. Si vous souhaitez spécifier une condition de licence à votre contribution, indiquez\-le simplement au moment de nous l\*(Aqenvoyer\&.
 .SS "Pas de garanties"
 .PP

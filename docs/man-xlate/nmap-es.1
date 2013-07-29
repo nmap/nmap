@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -122,10 +122,10 @@ Puede obtener la versión más reciente de Nmap en
 Esta edición de la Guía de referencia de Nmap ha sido traducida de la versión 3137 de la
 \m[blue]\fBversión original en inglés\fR\m[]\&\s-2\u[1]\d\s+2
 por Arturo Busleiman
-buanzo_AT_buanzo\&.com\&.ar, Pablo Fernández
-pablo_AT_littleQ\&.net
+<buanzo_AT_buanzo\&.com\&.ar>, Pablo Fernández
+<pablo_AT_littleQ\&.net>
 y Javier Fernández\-Sanguino
-jfs_AT_computer\&.org\&. Aunque nuestra intención es hacer Nmap más accesible a los lectores españoles en todo el mundo no podemos garantizar que esta traducción está tan actualizada o completa como la versión oficial en inglés\&. Este trabajo puede ser modificado y redistribuido bajo los términos de la
+<jfs_AT_computer\&.org>\&. Aunque nuestra intención es hacer Nmap más accesible a los lectores españoles en todo el mundo no podemos garantizar que esta traducción está tan actualizada o completa como la versión oficial en inglés\&. Este trabajo puede ser modificado y redistribuido bajo los términos de la
 \m[blue]\fBLicencia Creative Commons Atribución\fR\m[]\&\s-2\u[2]\d\s+2\&.
 .PP
 Esta traducción ha sido adaptada al español como se habla en España (localización \(Foes_ES\(Fc) por Javier Fernández\-Sanguino\&. Cualquier comentario o errata sobre esta traducción debe enviarse a Javier Fernández\-Sanguino a la dirección arriba indicada\&. El coordinador de la traducción quiere agradecer el esfuerzo de revisión realizado por Jesús Escoredo\&.
@@ -179,8 +179,6 @@ Nótese que éste glosario difiere en algunos términos del utilizado para otras
 Cuando se ejecuta Nmap sin parámetros se muestra este resumen de opciones\&. Puede encontrar siempre la última versión en
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Aunque ayuda a recordar las opciones más habituales no es un sustituto de la documentación en detalle que acompaña al resto de este manual\&. Algunas de las opciones menos conocidas no se incluyen aquí\&.
 .PP
-
-.sp
 .if n \{\
 .RS 4
 .\}
@@ -846,8 +844,7 @@ Exclude\&.
 \fB\-\-version\-intensity <intensidad>\fR (Fijar la intensidad de la detección de versiones)
 .RS 4
 Nmap envía una serie de sondas cuando se activa la detección de versiones (\fB\-sV\fR) con un nivel de rareza preasignado y variable de 1 a 9\&. Las sondas con un número bajo son efectivas contra un amplio número de servicios comunes, mientras que las de números más altos se utilizan rara vez\&. El nivel de intensidad indica que sondas deberían utilizarse\&. Cuanto más alto sea el número, mayor las probabilidades de identificar el servicio\&. Sin embargo, los sondeos de alta intensidad tardan más tiempo\&. El valor de intensidad puede variar de 0 a 9\&. El valor por omisión es 7\&. Se probará una sonda independientemente del nivel de intensidad cuando ésta se registra para el puerto objetivo a través de la directiva
-nmap\-service\-probes
-ports\&. De esta forma se asegura que las sondas de DNS se probarán contra cualquier puerto abierto 53, las sondas SSL contra el puerto 443, etc\&.
+nmap\-service\-probesports\&. De esta forma se asegura que las sondas de DNS se probarán contra cualquier puerto abierto 53, las sondas SSL contra el puerto 443, etc\&.
 .RE
 .PP
 \fB\-\-version\-light\fR (Activar modo ligero)
@@ -1551,7 +1548,6 @@ Failed to resolve given hostname/IP: scanme\&.nmap\&.org
 analizame2\&.nmap\&.org,
 analizame3\&.nmap\&.org, y así sucesivamente, aunque esos servidores actualmente no existen\&.
 .PP
-
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Esta opción sondea todos los puertos TCP reservados en el servidor
@@ -1559,26 +1555,22 @@ scanme\&.nmap\&.org\&. La opción
 \fB\-v\fR
 activa el modo detallado (también llamado verboso)\&.
 .PP
-
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Lanza un sondeo de tipo SYN sigiloso contra cada una de las 255 máquinas en la
 \(lqclase C\(rq
 de la red donde está el sistema "analizame"\&. También intenta determinar cual es el sistema operativo que se ejecuta en cada máquina que esté encendida\&. Esto requiere permisos de root por la opción de sondeo SYN y por la de detección de sistema operativo\&.
 .PP
-
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Lanza una enumeración de equipos y un sondeo TCP a cada uno de la primera mitad de las 255 posibles subredes de 8 bit en la red de clase B 198\&.116\&. Esto probará si los sistemas están ejecutando sshd, DNS, pop3d, imapd o tienen un servidor en el puerto 4564\&. Para cualquier puerto que se encuentre abierto, se realizará una detección de versión para determinar qué aplicación se está ejecutando\&.
 .PP
-
 \fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
 .PP
 Solicita a Nmap que elija 100\&.000 sistemas aleatoriamente y los sondee buscando servidores web (puerto 80)\&. La enumeración de sistemas se deshabilita con
 \fB\-P0\fR
 ya que es un desperdicio enviar un par de pruebas para determinar si el sistema debe ser analizado cuando de todas maneras sólo se va a analizar un puerto\&.
 .PP
-
 \fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Esto sondea 4096 IPs para buscar cualquier servidor web (sin enviar sondas ICMP) y guarda la salida en formato para grep y en XML\&.
@@ -1587,14 +1579,14 @@ Esto sondea 4096 IPs para buscar cualquier servidor web (sin enviar sondas ICMP)
 Al igual que su autor, Nmap no es perfecto\&. Pero tu puedes ayudar a hacerlo mejor enviando informes de fallo o incluso escribiendo parches\&. Si Nmap no se comporta como tú esperas, primero actualiza a la última versión disponible en
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Si el problema persiste, investiga para determinar si la causa ya ha sido descubierta y solucionada\&. Busca en Google el mensaje de error o navega en los archivos de Nmap\-dev en
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. También deberías leer este manual completo\&. Si esto no te ayuda, envía un informe de error en inglés a
-dev@nmap\&.org\&. Por favor, incluya todo lo que haya visto del problema, así como qué versión de Nmap está utilizando y sobre qué versión del sistema operativo está trabajando\&. Hay muchas más probabilidades de que un informe de fallo o una pregunta sobre el uso de Nmap se contesten si se envían a dev@nmap\&.org que si se envían directamente a Fyodor\&.
+<dev@nmap\&.org>\&. Por favor, incluya todo lo que haya visto del problema, así como qué versión de Nmap está utilizando y sobre qué versión del sistema operativo está trabajando\&. Hay muchas más probabilidades de que un informe de fallo o una pregunta sobre el uso de Nmap se contesten si se envían a dev@nmap\&.org que si se envían directamente a Fyodor\&.
 .PP
 Es mejor enviar parches para arreglar el código que un informe de error\&. Puedes encontrar las instrucciones básicas para crear parches con sus cambios en
 \m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Puede enviar los parches a nmap\-dev (recomendado) o directamente a Fyodor\&.
 .SH "AUTOR"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
 Cientos de personas han realizado valiosas contribuciones a Nmap a lo largo de los años\&. Sus nombres se detallan en el archivo
@@ -1614,11 +1606,11 @@ al español\&. Esta traducción no ha sido escrita por Insecure\&.Com LLC por lo
 .SS "Licencia y copyright de Nmap"
 .PP
 The Nmap Security Scanner is (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we may be willing to sell alternative licenses (contact
-sales@insecure\&.com)\&. Many security scanner vendors already license Nmap technology such as host discovery, port scanning, OS detection, and service/version detection\&.
+<sales@insecure\&.com>)\&. Many security scanner vendors already license Nmap technology such as host discovery, port scanning, OS detection, and service/version detection\&.
 .PP
 \fITraducción no autorizada:\fR
 La herramienta de sondeos de seguridad Nmap es (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap también es una marca registrada por Insecure\&.Com LLC\&. Este programa es software libre\&. Puede redistribuirlo y/o modificarlo bajo los términos de la Licencia Pública General de GNU según es publicada por la Free Software Foundation, versión 2\&. Esto garantiza su derecho a utilizarla, modificarla y redistribuirla bajo ciertas condiciones\&. Si desea introducir la tecnología de Nmap en programas propietarios podemos vender licencias alternativas (póngase en contacto con
-sales@insecure\&.com)\&. Hay muchos fabricantes de herramientas de análisis de seguridad que licencian la tecnología de Nmap como es el descubrimiento de equipos, sondeos de puertos, detección de sistema operativo y detección de servicios y versiones\&.
+<sales@insecure\&.com>)\&. Hay muchos fabricantes de herramientas de análisis de seguridad que licencian la tecnología de Nmap como es el descubrimiento de equipos, sondeos de puertos, detección de sistema operativo y detección de servicios y versiones\&.
 .PP
 Tenga en cuenta que la GPL impone restricciones importantes en los
 \(lqtrabajos derivados\(rq, pero no ofrece una definición precisa de ese término\&. Para evitar malentendidos, a continuación se definen, para los propósitos de esta licencia, las condiciones bajo las que una aplicación constituye un
@@ -1695,7 +1687,7 @@ y su aplicación al producto Nmap licenciado GPL\&. Esto es parecido a la interp
 y su aplicación a los módulos del núcleo de Linux\&. Nuestra interpretación sólo aplica a Nmap, no hablamos en nombre de otros productos GPL\&.
 .PP
 Estaremos encantados de ayudarle si tiene alguna pregunta de cómo aplican las restricciones de licenciamiento GPL al uso de Nmap en trabajos que no son GPL\&. Tal y como se menciona más arriba, ofrecemos licencias alternativas para integrar Nmap en aplicaciones propietarias así como en dispositivos hardware\&. Ya se han vendido este tipo de contratos a fabricantes de dispositivos de seguridad y habitualmente incluye una licencia perpetua, al tiempo que se da soporte prioritario y actualizaciones\&. Estos contratos financian el desarrollo continuo de la tecnología Nmap\&. Por favor, contacte con
-sales@insecure\&.com
+<sales@insecure\&.com>
 si desea más información\&.
 .PP
 Insecure\&.Com LLC da permiso para enlazar el código de este programa con cualquier librería de OpenSSL que se distribuya bajo una licencia idéntica a la indicada en el fichero Copying\&.OpenSSL adjunto, así como a la distribución de la combinación enlazada que incluye a ambos\&. Ésta es una excepción especial a los términos de la GPL\&. Debe obedecer los demás términos de la GPL de GNU en cualquier otro aspecto en relación al código que utilice que no sea OpenSSL\&. Si modifica este fichero puede extender esta excepción a su versión del fichero, aunque no está obligado a hacerlo\&.
@@ -1710,7 +1702,7 @@ Esta guía de referencia de Nmap Reference Guide es (C) 2005 Insecure\&.Com LLC\
 Se da el código fuente de este programa porque creemos que los usuarios tienen el derecho a saber cómo funciona un programa con exactitud antes de ejecutarlo\&. También le permite auditar el programa en búsqueda de agujeros de seguridad (no se ha encontrado ninguno aún)\&.
 .PP
 El código fuente le permite migrar Nmap a otras plataformas, arreglar erratas y añadir nuevas funciones\&. Le pedimos encarecidamente que envíe sus cambios a
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 para que puedan incorporarse en la distribución principal\&. Al enviar estos cambios a Fyodor o cualquiera de las listas de correo de desarrollo en Insecure\&.Org se asume que está ofreciendo a Fyodor y a Insecure\&.Com LLC derechos ilimitados y no exclusivos para reutilizar, modificar y relicenciar el código\&. Nmap siempre estará disponible como software libre, pero esto es importante porque la incapacidad de relicenciar el código ha dado muchos problemas a otros proyectos de software libre (como es el caso de KDE y NASM)\&. También relicenciamos el código de forma ocasional a terceros, como se ha descrito previamente\&. Puede especificar condiciones especiales de licencia para sus contribuciones, sólo tiene que indicarlas cuando las envíe\&.
 .SS "Sin garantía"
 .PP

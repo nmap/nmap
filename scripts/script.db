@@ -183,6 +183,7 @@ Entry { filename = "http-phpself-xss.nse", categories = { "fuzzer", "intrusive",
 Entry { filename = "http-proxy-brute.nse", categories = { "brute", "external", "intrusive", } }
 Entry { filename = "http-put.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-qnap-nas-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-referer-checker.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-rfi-spider.nse", categories = { "intrusive", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
@@ -214,6 +215,7 @@ Entry { filename = "http-waf-fingerprint.nse", categories = { "discovery", "intr
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-wordpress-enum.nse", categories = { "auth", "intrusive", "vuln", } }
 Entry { filename = "http-wordpress-plugins.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-xssed.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "iax2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "icap-info.nse", categories = { "discovery", "safe", } }
@@ -438,7 +440,8 @@ Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "voldemort-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "vuze-dht-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "version", "vuln", } }
-Entry { filename = "whois.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "whois-domain.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "whois-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "wsdd-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "x11-access.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "xdmcp-discover.nse", categories = { "discovery", "safe", } }

@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: Panduan Referensi Nmap
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "Nmap" "Panduan Referensi Nmap"
+.TH "NMAP" "1" "07/28/2013" "Nmap" "Panduan Referensi Nmap"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -280,10 +280,7 @@ Untuk survei dan riset lain skala\-Internet, anda mungkin ingin memilih target s
 memberitahu Nmap berapa banyak IP yang ingin dihasilkan\&. IP yang tidak diinginkan seperti dalam rentang alamat privat, multicast, atau tidak dialokasi secara otomatis akan dilewati\&. Argumen
 0
 dapat dispesifikasikan untuk pemeriksaan yang tidak pernah berakhir\&. Perhatikan bahwa beberapa administrator jaringan tidak suka terhadap pemeriksaan yang tidak terotorisasi terhadap jaringan mereka dan mungkin mengeluh\&. Gunakan opsi ini dengan risiko anda! Jika anda benar\-benar merasa bosan di sore hari yang hujan, coba perintah
-\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fR
-.\" -sS: example of
-.\" -PS: example of
-.\" -iR: example of
+\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fR.\" -sS: example of.\" -PS: example of.\" -iR: example of
 untuk mencari server web acak untuk browsing\&.
 .RE
 .PP
@@ -372,8 +369,7 @@ alamat IP target yang dispesifikasikan\&. Jadi bila pada perintah baris dispesif
 \fB\-PS \fR\fB\fIport list\fR\fR (TCP SYN Ping) .\" -PS .\" SYN ping
 .RS 4
 Opsi ini mengirimkan sebuah paket TCP kosong dengan flag SYN diset\&. Port tujuan baku adalah 80 (dapat dikonfigurasi pada waktu kompilasi dengan merubah
-\fIDEFAULT_TCP_PROBE_PORT_SPEC\fR
-.\" DEFAULT_TCP_PROBE_PORT_SPEC
+\fIDEFAULT_TCP_PROBE_PORT_SPEC\fR.\" DEFAULT_TCP_PROBE_PORT_SPEC
 dalam
 nmap\&.h)\&.
 .\" nmap.h
@@ -949,8 +945,7 @@ Ketika melakukan pemeriksaan versi (\fB\-sV\fR), Nmap mengirim serangkaian probe
 Nilai bakunya adalah 7\&.
 .\" version detection: default intensity
 Ketika sebuah probe didaftarkan ke port target melalui direktif
-nmap\-service\-probes
-ports, probe tersebut akan dicoba tanpa memperdulikan level intensitas\&. Hal ini memastikan bahwa probe DNS akan selalu dicoba terhadap sembarang port terbuka 53, probe SSL akan dilakukan terhadap port 443, dst\&.
+nmap\-service\-probesports, probe tersebut akan dicoba tanpa memperdulikan level intensitas\&. Hal ini memastikan bahwa probe DNS akan selalu dicoba terhadap sembarang port terbuka 53, probe SSL akan dilakukan terhadap port 443, dst\&.
 .RE
 .PP
 \fB\-\-version\-light\fR (Aktifkan mode ringan) .\" --version-light
@@ -1000,7 +995,6 @@ or
 .PP
 Informasi ekstra lain yang disertakan dalam deteksi SO adalah menduga waktu uptime target\&. Tekniknya menggunakan opsi timestamp TCP (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[9]\d\s+2) untuk menduga waktu terakhir mesin direboot\&. Dugaan dapat tidak akurat akibat counter timestamp tidak diinisialisasi ke nol atau counter overflow dan kembali ke awal, sehingga ia hanya dicetak dalam mode verbose\&.
 .PP
-
 Sebuah paper yang mendokumentasikan cara kerja, penggunaan, dan kustomisasi deteksi SO tersedia di \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
 .PP
 Deteksi SO diaktifkan dan dikendalikan dengan opsi\-opsi berikut:
@@ -1056,7 +1050,6 @@ at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
 Nmap Scripting Engine dijelaskan lebih rinci
 di \m[blue]\fB\%http://nmap.org/book/nse.html\fR\m[]
-
 dan dikendalikan oleh opsi\-opsi berikut ini:
 .PP
 \fB\-sC\fR .\" -sC
@@ -1069,13 +1062,9 @@ Melakukan scan skrip menggunakan sejumlah skrip baku\&. Ia merupakan ekivalen
 .RS 4
 Menjalankan scan skrip (seperti
 \fB\-sC\fR) menggunakan daftar kategori skrip, skrip individual, atau direktori berisikan skrip, aih\-alih menggunakan set baku\&. Nmap akan mencoba dulu menginterpretasikan argumen sebagai kategori, kemudian sebagai file atau direktori\&. Skrip atau direktori skrip dapat dispesifikasikan dengan path absolut atau relatif\&. Path absolut digunakan seperti yang diberikan\&. Path relatif akan dicari dalam tempat\-tempat berikut hingga ditemukan :
-.\" file data: urutan pencarian direktori.\" skrip, lokasi
-\-\-datadir/;
-$NMAPDIR/;.\" NMAPDIR environment variable
-~/\&.nmap/
-(tidak dicari pada Windows);.\" .nmap directory
-NMAPDATADIR/ or.\" NMAPDATADIR
-\&./\&. A
+.\" file data: urutan pencarian direktori.\" skrip, lokasi\-\-datadir/;
+$NMAPDIR/;.\" NMAPDIR environment variable~/\&.nmap/
+(tidak dicari pada Windows);.\" .nmap directoryNMAPDATADIR/ or.\" NMAPDATADIR\&./\&. A
 scripts/
 subdirektori juga dicari untuk setiap direktori ini\&.
 .sp
@@ -1089,7 +1078,6 @@ Skrip Nmap secara baku disimpan dalam subdirektori
 scripts
 direktori data Nmap
 (lihat \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
-
 Demi efisiensi, skrip diindeks dalam database yang disimpan dalam
 scripts/script\&.db\&..\" script.db
 yang mendaftar kategori atau kategori\-kategori yang dimiliki skrip\&. Berikan argumen
@@ -1137,8 +1125,7 @@ Teknik\-teknik untuk memperbaiki waktu pemeriksaan mencakup menghilangkan tes\-t
 .PP
 Beberapa opsi menerima sebuah parameter
 waktu\&. Ia dispesifikasikan secara baku dalam milidetik, meskipun anda dapat menambahkan \(oqs\(cq, \(oqm\(cq, atau \(oqh\(cq ke nilai untuk menspesifikasikan detik, menit, atau jam\&. Sehingga argumen
-\fB\-\-host\-timeout\fR
-900000,
+\fB\-\-host\-timeout\fR900000,
 900s, dan
 15m
 semuanya melakukan hal yang sama\&.
@@ -1230,8 +1217,7 @@ untuk memastikan bahwa Nmap tidak menghabiskan lebih dari setengah jam pada satu
 .RS 4
 Opsi ini menyebabkan Nmap menunggu selama waktu yang diberikan antara setiap probe yang dikirimkan ke host yang diberikan\&. Hal ini terutama bermanfaat dalam hal pembatasan\&..\" rate limiting
 Mesin\-mesin Solaris (di antara yang lainnya) akan menanggapi paket probe scan UDP dengan hanya satu pesan ICMP per detik\&. Bila dikirimkan oleh Nmap lebih dari itu akan percuma\&. Nilai
-\fB\-\-scan\-delay\fR
-1s
+\fB\-\-scan\-delay\fR1s
 akan membuat Nmap tetap pada rate lambat tersebut\&. Nmap berusaha untuk mendeteksi pembatasan rate dan menyesuaikan delay scan, namun tidaklah rugi untuk menspesifikasikannya secara eksplisit bila anda telah tahu rate terbaik\&.
 .sp
 Ketika Nmap menyesuaikan delay scan lebih tinggi untuk menanggapi pembatasn rate, scan akan melambat secara dramatis\&. Opsi
@@ -1278,7 +1264,6 @@ Terdapat dua kondisi ketika rate pemeriksaan aktual kurang dari nilai minimum ya
 Menspesifikasikan nilai rate minimum harus dilakukan dengan hati\-hati\&. Pemeriksaan yang lebih cepat daripada yang dapat didukung oleh jaringan akan menyebabkan hilangnya akurasi\&. Dalam beberapa kasus, dengan menggunakan rate yang lebih cepat dapat membuat pemeriksaan menjadi
 \fIlebih lama\fR
 daripada bila menggunakan rate yang lebih lambat\&. Hal ini karena algoritma
-
 adaptive retransmission
 Nmap akan mendeteksi kepadatan jaringan yang disebabkan oleh rate pemeriksaan yang berlebihan dan meningkatkan angka transmisi ulang untuk memperbaiki akurasi\&. Jadi meskipun paket dikirim pada rate yang lebih tinggi, namun secara keseluruhan lebih banyak paket yang dikirimkan\&. Batasi angka transmisi ulang dengan opsi
 \fB\-\-max\-retries\fR
@@ -1361,8 +1346,7 @@ dan
 \fBT2\fR
 adalah serupa namun mereka hanya menunggu 15 detik dan 0\&.4 detik, antar probe\&.
 \fBT3\fR
-merupakan perilaku baku Nmap, yang mencakup paralelisasi\&..\" normal (-T3) timing template
-\fB\-T4\fR
+merupakan perilaku baku Nmap, yang mencakup paralelisasi\&..\" normal (-T3) timing template\fB\-T4\fR
 ekivalen dengan
 \fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500 \-\-max\-retries 6\fR
 dan menset delay scan TCP maksimum ke 10 milidetik\&.
@@ -1652,11 +1636,9 @@ diarahkan ke namafile yang diberikan\&. Nmap menyertakan document type definitio
 \m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML memberikan format stabil yang dapat secara mudah diparse oleh software\&. Parser XML yang bebas tersedia untuk bahasa pemrograman utama, termasuk C/C++, Perl, Python, dan Java\&. Orang bahkan telah menulis binding untuk kebanyakan bahasa ini untuk menangani output Nmap dan dijalankan secara khusus\&. Contohnya adalah
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[12]\d\s+2
-.\" Nmap::Scanner
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[12]\d\s+2.\" Nmap::Scanner
 and
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[13]\d\s+2
-.\" Nmap::Parser
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[13]\d\s+2.\" Nmap::Parser
 dalam Perl CPAN\&. Dalam kebanyakan kasus bagi interface aplikasi dengan Nmap yang sulit, XML merupakan format yang lebih disukai\&.
 .sp
 Output XML mengacu ke XSL stylesheet yang dapat digunakan untuk memformat hasilnya sebagai HTML\&. Cara termudah menggunakan file ini adalah dengan memuat output XML dalam sebuah browser web seperti Firefox atau IE\&. Secara baku, ini hanya bekerja pada mesin tempat anda menjalankan Nmap (atau yang dikonfigurasi serupa) akibat path sistem file
@@ -1835,8 +1817,7 @@ Nmap menyertakan sebuah stylesheet
 XSL
 .\" XSL
 bernama
-nmap\&.xsl
-.\" nmap.xsl
+nmap\&.xsl.\" nmap.xsl
 untuk melihat atau menerjemahkan output XML ke HTML\&.
 .\" HTML from XML output
 Output XML menyertakan sebuah direktif
@@ -2042,8 +2023,7 @@ Failed to resolve given hostname/IP: scanme\&.nmap\&.org\&. Ijin ini juga berlak
 scanme2\&.nmap\&.org,
 scanme3\&.nmap\&.org, dan seterusnya, meskipun host\-host ini belum ada\&.
 .PP
-.\" -v: example of
-\fBnmap \-v scanme\&.nmap\&.org\fR
+.\" -v: example of\fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Opsi ini memeriksa seluruh port TCP reserved pada mesin
 scanme\&.nmap\&.org
@@ -2051,30 +2031,23 @@ scanme\&.nmap\&.org
 \fB\-v\fR
 mengaktifkan mode verbose\&.
 .PP
-.\" -sS: example of
-.\" -O: example of
-\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
+.\" -sS: example of.\" -O: example of\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Meluncurkan scan stealth SYN terhadap setiap mesin yang up dari 256 IP pada jaringan berukuran
 \(lqkelas C\(rq
 tempat Scanme berada\&. Ia juga berusaha menentukan sistem operasi yang digunakan pada setiap host yang hidup dan berjalan\&. Hal ini membutukan privilege root karena scan SYN dan deteksi SO\&.
 .PP
-.\" -p: example of
-\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
+.\" -p: example of\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Meluncurkan enumerasi host dan scan TCP pada setengah bagian pertama dari subnet dalam alamat kelas B 198\&.116\&. Scan ini menguji apakah sistem menjalankan SSH, DNS, POP3, atau IMAP pada port standarnya, atau apapun pada port 4564\&. Pada sembarang port yang ditemukan terbuka, akan digunakan deteksi versi untuk menentukan aplikasi apa yang berjalan\&.
 .PP
-.\" -iR: example of
-.\" -PN: example of
-\fBnmap \-v \-iR 100000 \-PN \-p 80\fR
+.\" -iR: example of.\" -PN: example of\fBnmap \-v \-iR 100000 \-PN \-p 80\fR
 .PP
 Meminta Nmap memilih 100\&.000 host secara acak dan memeriksanya untuk web server (port 80)\&. Enumerasi host ditiadakan dengan
 \fB\-PN\fR
 karena mengirim beberapa probe untuk menentukan apakah host hidup adalah sia\-sia ketika anda hanya memprobe satu port pada setiap host target\&.
 .PP
-.\" -oX: example of
-.\" -oG: example of
-\fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
+.\" -oX: example of.\" -oG: example of\fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Memeriksa 4096 IP untuk sembarang web server (tanpa mem\-ping mereka) dan menyimpan hasilnya dalam format grepable dan XML\&.
 .SH "BUGS"
@@ -2088,8 +2061,8 @@ nmap\-dev
 di
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&..\" nmap-dev mailing list
 Bacalah juga halaman manual ini dengan baik\&. Jika masih belum selesai juga, kirimkan laporan bug ke
-dev@nmap\&.org\&. Mohon sertakan semua yang anda telah pelajari mengenai masalah, dan juga versi Nmap dan sistem operasi yang anda gunakan\&. Laporan kesalahan dan pertanyaan penggunaan Nmap yang dikirim ke
-dev@nmap\&.org
+<dev@nmap\&.org>\&. Mohon sertakan semua yang anda telah pelajari mengenai masalah, dan juga versi Nmap dan sistem operasi yang anda gunakan\&. Laporan kesalahan dan pertanyaan penggunaan Nmap yang dikirim ke
+<dev@nmap\&.org>
 akan lebih mungkin dijawab daripada yang dikirimkan secara langsung ke Fyodor\&. Jika anda berlangganan ke list nmap\-dev sebelum posting, pesan anda akan melewati moderasi dan akan lewat dengan lebih cepat\&. Berlangganan di
 \m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
@@ -2100,7 +2073,7 @@ nmap\-dev
 .SH "PENULIS"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Selama ini, ratusan orang telah memberikan kontribusi berharga ke Nmap\&. Hal ini dirinci dalam file
@@ -2122,7 +2095,7 @@ ke dalam bahasa Indonesia\&. Ia tidak ditulis oleh Insecure\&.Com LLC, dan tidak
 .\" GNU General Public License
 .PP
 The Nmap Security Scanner is (C) 1996\(en2009 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
-sales@insecure\&.com)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
+<sales@insecure\&.com>)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
 .PP
 Note that the GPL places important restrictions on
 \(lqderived works\(rq, yet it does not provide a detailed definition of that term\&. To avoid misunderstandings, we consider an application to constitute a
@@ -2192,7 +2165,7 @@ The term
 should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap\(emwe don\*(Aqt speak for other people\*(Aqs GPL works\&.
 .PP
 If you have any questions about the GPL licensing restrictions on using Nmap in non\-GPL works, we would be happy to help\&. As mentioned above, we also offer alternative license to integrate Nmap into proprietary applications and appliances\&. These contracts have been sold to many security vendors, and generally include a perpetual license as well as providing for priority support and updates as well as helping to fund the continued development of Nmap technology\&. Please email
-sales@insecure\&.com
+<sales@insecure\&.com>
 for further information\&.
 .PP
 As a special exception to the GPL terms, Insecure\&.Com LLC grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
@@ -2212,7 +2185,7 @@ is (C) 2005\(en2008 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
 .PP
 Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering Fyodor and Insecure\&.Com LLC the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available Open Source,.\" open source
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed above\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty.\" warranty (lack of)"

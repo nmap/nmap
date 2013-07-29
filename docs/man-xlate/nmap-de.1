@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: Nmap-Referenz-Handbuch
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "Nmap" "Nmap\-Referenz\-Handbuch"
+.TH "NMAP" "1" "07/28/2013" "Nmap" "Nmap\-Referenz\-Handbuch"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -282,10 +282,7 @@ the section called \(lq\(rq
 sorgfältig, bevor Sie \-iR benutzen\&.
 .sp
 Falls Sie mal an einem regnerischen Tag wirklich Langeweile haben, probieren Sie einmal den Befehl
-\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fR
-.\" -iR: Beispiel
-.\" -sS: Beispiel
-.\" -PS: Beispiel
+\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fR.\" -iR: Beispiel.\" -sS: Beispiel.\" -PS: Beispiel
 aus, um zufällig Webserver zu finden, auf denen Sie herumstöbern können\&.
 .RE
 .PP
@@ -1029,7 +1026,6 @@ aktiviert ist, wird auch die IP\-ID\-Sequenzerzeugung berichtet\&. Die meisten R
 .PP
 Eine weitere zusätzliche Information, die die Betriebssystem\-Erkennung aktiviert, ist eine Schätzung der Betriebszeit des Zielhosts\&. Dabei wird die TCP\-Timestamp\-Option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[7]\d\s+2) benutzt, um zu raten, wann ein Rechner das letzte Mal neu gestartet wurde\&. Wenn der Timestamp\-Zähler nicht bei null gestartet wurde oder der Zähler überläuft und wieder von vorn zählt, kann diese Schätzung ungenau werden, weshalb sie nur im ausführlichen Modus ausgegeben wird\&.
 .PP
-
 A paper documenting the workings, usage, and customization of OS detection is available at \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
 .PP
 Eingeschaltet und gesteuert wird die Betriebssystem\-Erkennung mit den folgenden Optionen:
@@ -1068,8 +1064,7 @@ Wenn Nmap eine Betriebssystem\-Erkennung auf einem Ziel durchführt und dafür k
 .\" Nmap Scripting Engine (NSE)
 .PP
 Die Nmap Scripting Engine (NSE) ist eines der mächtigsten und flexibelsten Merkmale von Nmap\&. Mit ihr können Benutzer einfache Scripts schreiben und weitergeben (geschrieben in der
-\m[blue]\fBProgrammiersprache Lua\fR\m[]\&\s-2\u[8]\d\s+2
-.\" Programmiersprache Lua), um eine breite Palette von Netzwerkaufgaben zu automatisieren\&. Diese Scripts werden dann parallel mit der Geschwindigkeit und Effizienz abgearbeitet, die Sie von Nmap erwarten\&. Als Benutzer können Sie auf eine wachsende und vielfältige Menge von Scripts vertrauen, die mit Nmap veröffentlicht werden, oder eigene Scripts für eigene Bedürfnisse schreiben\&.
+\m[blue]\fBProgrammiersprache Lua\fR\m[]\&\s-2\u[8]\d\s+2.\" Programmiersprache Lua), um eine breite Palette von Netzwerkaufgaben zu automatisieren\&. Diese Scripts werden dann parallel mit der Geschwindigkeit und Effizienz abgearbeitet, die Sie von Nmap erwarten\&. Als Benutzer können Sie auf eine wachsende und vielfältige Menge von Scripts vertrauen, die mit Nmap veröffentlicht werden, oder eigene Scripts für eigene Bedürfnisse schreiben\&.
 .PP
 Zu den Aufgaben, die wir bei der Konzeption dieses Systems anvisierten, gehören die Netzwerkerkennung, eine ausgefeiltere Versionserkennung sowie eine Verwundbarkeitserkennung\&. NSE kann aber sogar bei der Ausbeutung von Schwachstellen benutzt werden\&.
 .PP
@@ -1087,7 +1082,6 @@ at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
 Die Nmap Scripting Engine wird detailliert
 at \m[blue]\fB\%http://nmap.org/book/nse.html\fR\m[]
-
 beschrieben und wird mit den folgenden Optionen gesteuert:
 .PP
 \fB\-sC\fR .\" -sC
@@ -1099,13 +1093,9 @@ Führt einen Script\-Scan mit dem Standardsatz an Scripts durch\&. Das ist äqui
 \fB\-\-script \fR\fB\fIscript\-categories\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIfilename\fR\fR\fB|all\fR.\" --script
 .RS 4
 Führt einen Script\-Scan (wie z\&.B\&.
-\fB\-sC\fR) durch und benutzt dabei die mit Kommata getrennte Liste von Script\-Kategorien, individuellen Scripts oder Script\-Verzeichnissen statt des Standardsatzes\&. Zuerst versucht Nmap, die Argumente als Kategorien zu interpretieren, dann (wenn das nicht gelingt) als Datei\- oder Verzeichnisnamen\&. Ein Script oder Verzeichnis von Scripts kann als absoluter oder relativer Pfad angegeben werden\&. Absolute Pfade werden unverändert benutzt\&. Relative Pfade werden an den folgenden Orten gesucht, bis sie gefunden werden:.\" Datendateien: Verzeichnis-Suchreihenfolge.\" Scripts, Orte
-\-\-datadir/;
-$NMAPDIR/;.\" NMAPDIR Umgebungsvariable
-~/\&.nmap/
-(wird unter Windows nicht durchsucht);.\" .nmap Verzeichnis
-NMAPDATADIR/ oder.\" NMAPDATADIR
-\&./\&. In all diesen Verzeichnissen wird außerdem auch ein
+\fB\-sC\fR) durch und benutzt dabei die mit Kommata getrennte Liste von Script\-Kategorien, individuellen Scripts oder Script\-Verzeichnissen statt des Standardsatzes\&. Zuerst versucht Nmap, die Argumente als Kategorien zu interpretieren, dann (wenn das nicht gelingt) als Datei\- oder Verzeichnisnamen\&. Ein Script oder Verzeichnis von Scripts kann als absoluter oder relativer Pfad angegeben werden\&. Absolute Pfade werden unverändert benutzt\&. Relative Pfade werden an den folgenden Orten gesucht, bis sie gefunden werden:.\" Datendateien: Verzeichnis-Suchreihenfolge.\" Scripts, Orte\-\-datadir/;
+$NMAPDIR/;.\" NMAPDIR Umgebungsvariable~/\&.nmap/
+(wird unter Windows nicht durchsucht);.\" .nmap VerzeichnisNMAPDATADIR/ oder.\" NMAPDATADIR\&./\&. In all diesen Verzeichnissen wird außerdem auch ein
 scripts/\-Unterverzeichnis ausprobiert\&.
 .sp
 Falls ein Verzeichnis angegeben und gefunden wird, lädt Nmap alle NSE\-Scripts (alle Dateinamen, die mit
@@ -1119,7 +1109,6 @@ lauten\&.
 Nmap\-Scripts werden standardmäßig in einem
 scripts\-Unterverzeichnis des Nmap\-Datenverzeichnisses gespeichert
 (see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
-
 Aus Effizienzgründen werden Scripts in einer Datenbank indiziert, die in
 scripts/script\&.db\&..\" script.db
 gespeichert ist und für jedes Script auflistet, in welche Kategorie bzw\&. Kategorien es gehört\&. Um alle Scripts in der Nmap\-Script\-Datenbank auszuführen, geben Sie das Argument
@@ -1312,7 +1301,6 @@ Unter zwei Bedingungen kann die tatsächliche Scan\-Rate unter das verlangte Min
 Eine minimale Rate sollte man mit Vorsicht angeben\&. Scans, die schneller sind, als das Netzwerk erlaubt, können zu einem Verlust von Genauigkeit führen\&. In manchen Fällen kann die Wahl eines schnelleren Scans dazu führen, dass er
 \fIlänger\fR
 braucht als bei einer kleineren Rate\&. Das liegt daran, dass Nmaps Algorithmen für die
-
 adaptive retransmission
 die von einer zu hohen Scan\-Rate verursachte Netzwerküberlastung erkennen und die Anzahl der Wiederholungen erhöhen, um die Genauigkeit zu verbessern\&. Das heißt, selbst wenn Pakete mit höherer Rate gesendet werden, werden mehr Pakete insgesamt gesendet\&. Begrenzen Sie diese Anzahl von Wiederholungen nach oben mit der Option
 \fB\-\-max\-retries\fR, wenn Sie eine obere Grenze für die gesamte Scan\-Zeit setzen müssen\&.
@@ -1697,11 +1685,9 @@ in der angegebenen Datei gespeichert wird\&. Nmap fügt eine DTD (Document Type 
 verfügbar\&.
 .sp
 XML bietet ein stabiles Format, das man mit Software leicht parsen kann\&. Solche XML\-Parser sind für alle wichtigen Programmiersprachen wie C/C++, Perl, Python und Java gratis verfügbar\&. Manche Leute haben sogar Anbindungen für die meisten dieser Sprachen geschrieben, um speziell die Ausgabe und Ausführung von Nmap zu steuern\&. Beispiele sind
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[10]\d\s+2
-.\" Nmap::Scanner
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[10]\d\s+2.\" Nmap::Scanner
 und
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[11]\d\s+2
-.\" Nmap::Parser
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[11]\d\s+2.\" Nmap::Parser
 für Perl in CPAN\&. In fast allen Fällen, in denen eine nicht\-triviale Anwendung eine Schnittstelle zu Nmap benutzt, ist XML das bevorzugte Format\&.
 .sp
 Die XML\-Ausgabe verweist auf ein XSL\-Stylesheet, mit dem man die Ergebnisse als HTML formatieren kann\&. Am einfachsten benutzt man das, indem man einfach die XML\-Ausgabe in einem Webbrowser wie Firefox oder IE lädt\&. Standardmäßig funktioniert das nur auf dem Rechner, auf dem Sie Nmap ausgeführt haben (oder auf einem, der ähnlich konfiguriert ist), weil der Pfad zu
@@ -1891,11 +1877,9 @@ auf\&. Nmap fügt neue Ergebnisse dann an die Datendateien an, die im vorherigen
 .PP
 \fB\-\-stylesheet \fR\fB\fIpath or URL\fR\fR (setze XSL\-Stylesheet, um eine XML\-Ausgabe zu transformieren) .\" --stylesheet
 .RS 4
-Die Nmap\-Distribution enthält ein XSL\-Stylesheet.\" XSL
-.\" Stylesheet
+Die Nmap\-Distribution enthält ein XSL\-Stylesheet.\" XSL.\" Stylesheet
 namens
-nmap\&.xsl
-.\" nmap.xsl
+nmap\&.xsl.\" nmap.xsl
 zum Betrachten oder Übersetzen einer XML\-Ausgabe nach HTML\&.
 .\" HTML aus XML-Ausgabe
 Die XML\-Ausgabe enthält eine
@@ -2101,37 +2085,29 @@ scanme2\&.nmap\&.org,
 scanme3\&.nmap\&.org
 usw\&., auch wenn diese Hosts noch nicht existieren\&.
 .PP
-.\" -v: Beispiel
-\fBnmap \-v scanme\&.nmap\&.org\fR
+.\" -v: Beispiel\fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Diese Option scannt alle reservierten TCP\-Ports auf dem Rechner
 scanme\&.nmap\&.org\&. Die Option
 \fB\-v\fR
 schaltet den ausführlichen Modus an\&.
 .PP
-.\" -sS: Beispiel
-.\" -O: Beispiel
-\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
+.\" -sS: Beispiel.\" -O: Beispiel\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Startet einen Stealth\-SYN\-Scan auf allen aktiven Rechnern unter den 256 IPs im Netzwerk der Größe
 \(lqKlasse C\(rq, in dem Scanme sitzt\&. Es versucht auch herauszufinden, welches Betriebssystem auf jedem aktiven Host läuft\&. Wegen des SYN\-Scans und der Betriebssystemerkennung sind dazu root\-Rechte notwendig\&.
 .PP
-.\" -p: Beispiel
-\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
+.\" -p: Beispiel\fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Startet eine Host\-Auflistung und einen TCP\-Scan in der ersten Hälfte von allen 255 möglichen acht\-Bit\-Unternetzen im Klasse\-B\-Adressraum 198\&.116\&. Dabei wird getestet, ob die Systeme SSH, DNS, POP3 oder IMAP auf ihren Standardports laufen haben oder irgendetwas auf Port 4564\&. Falls einer dieser Ports offen ist, wird eine Versionserkennung benutzt, um festzustellen, welche Anwendung darauf läuft\&.
 .PP
-.\" -iR: Beispiel
-.\" -PN: Beispiel
-\fBnmap \-v \-iR 100000 \-PN \-p 80\fR
+.\" -iR: Beispiel.\" -PN: Beispiel\fBnmap \-v \-iR 100000 \-PN \-p 80\fR
 .PP
 Verlangt von Nmap, 100\&.000 Hosts zufällig auszuwählen und sie nach Webservern (Port 80) zu scannen\&. Eine Host\-Auflistung wird mit
 \fB\-PN\fR
 unterbunden, weil es Verschwendung ist, zuerst eine Reihe von Testpaketen zu senden, um festzustellen, ob ein Host aktiv ist, wenn Sie auf jedem Zielhost ohnehin nur einen Port testen\&.
 .PP
-.\" -oX: Beispiel
-.\" -oG: Beispiel
-\fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
+.\" -oX: Beispiel.\" -oG: Beispiel\fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Das scannt 4096 IPs nach Webservern (ohne sie anzupingen) und speichert die Ausgabe im grepbaren und im XML\-Format\&.
 .SH "DAS NMAP-BUCH"
@@ -2156,8 +2132,8 @@ oder bei Google\&. Stöbern Sie in den
 nmap\-dev\-Archiven unter
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&..\" nmap-dev Mailingliste
 Lesen Sie auch diese Manpage vollständig\&. Wenn Sie keine Lösung finden, schicken Sie einen Fehlerbericht per E\-Mail an
-dev@nmap\&.org\&. Beschreiben Sie darin bitte alles, was Sie über das Problem wissen, inklusive der Nmap\-Version und der Betriebssystemversion, unter der Sie Nmap einsetzen\&. Berichte von Problemen und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher beantwortet, wenn sie an
-dev@nmap\&.org
+<dev@nmap\&.org>\&. Beschreiben Sie darin bitte alles, was Sie über das Problem wissen, inklusive der Nmap\-Version und der Betriebssystemversion, unter der Sie Nmap einsetzen\&. Berichte von Problemen und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher beantwortet, wenn sie an
+<dev@nmap\&.org>
 geschickt werden statt direkt an Fyodor\&. Wenn Sie sich erst auf der nmap\-dev\-Liste eintragen, bevor Sie Ihre E\-Mail schicken, entgeht Ihre Nachricht auch der Moderation und kommt schneller an\&. Eintragen können Sie sich unter
 \m[blue]\fB\%http://nmap.org/mailman/listinfo/dev\fR\m[]\&.
 .PP
@@ -2169,7 +2145,7 @@ nmap\-dev
 .SH "AUTOR"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Über die Jahre haben hunderte von Menschen wertvolle Beiträge zu Nmap geleistet\&. Sie sind detailliert in der Datei

@@ -1,4 +1,4 @@
-Ncat 6.26SVN ( http://nmap.org/ncat )
+Ncat 6.41SVN ( http://nmap.org/ncat )
 Usage: ncat [options] [hostname] [port]
 
 Options taking a time assume seconds. Append 'ms' for milliseconds,
@@ -9,6 +9,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
   -C, --crlf                 Use CRLF for EOL sequence
   -c, --sh-exec <command>    Executes the given command via /bin/sh
   -e, --exec <command>       Executes the given command
+      --lua-exec <filename>  Executes the given Lua script
   -g hop1[,hop2,...]         Loose source routing hop points (8 max)
   -G <n>                     Loose source routing hop pointer (4, 8, 12, ...)
   -m, --max-conns <n>        Maximum <n> simultaneous connections
@@ -25,7 +26,7 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
   -t, --telnet               Answer Telnet negotiations
   -u, --udp                  Use UDP instead of default TCP
       --sctp                 Use SCTP instead of default TCP
-  -v, --verbose              Set verbosity level (can be used up to 3 times)
+  -v, --verbose              Set verbosity level (can be used several times)
   -w, --wait <time>          Connect timeout
       --append-output        Append rather than clobber specified output files
       --send-only            Only send data, ignoring received; quit on EOF
@@ -44,7 +45,6 @@ Options taking a time assume seconds. Append 'ms' for milliseconds,
       --ssl-key              Specify SSL private key (PEM) for listening
       --ssl-verify           Verify trust and domain name of certificates
       --ssl-trustfile        PEM file containing trusted SSL certificates
-      --lua-exec             Execute a .lua Ncat script
       --version              Display Ncat's version information and exit
 
 See the ncat(1) manpage for full options, descriptions and usage examples

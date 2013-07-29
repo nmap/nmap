@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 12/09/2012
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 07/28/2013
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/09/2012" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "07/28/2013" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -122,8 +122,6 @@ Stanislavom Sivakom\&. Dufam sice, ze tento preklad viac spristupni Nmap slovens
 Tento zoznam moznosti sa zobrazi, ak je Nmap spusteny bez parametrov a jeho najnovsia verzia je k dispozii na adrese
 \m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]\&. Pomaha ludom zapamatat si najbeznejsie moznosti, ale nie je nahradou za podrobnu dokumentaciu v zostavajucej casti tohoto manualu\&. Na tomto mieste nie su dokonca uvedene niektore malo zname, nejasne moznosti\&.
 .PP
-
-.sp
 .if n \{\
 .RS 4
 .\}
@@ -1444,7 +1442,6 @@ scanme2\&.nmap\&.org,
 scanme3\&.nmap\&.org
 atd\&., hoci tieto stanice momentalne neexistuju\&.
 .PP
-
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Tento parameter spusti scan vsetkych rezervovanych TCP portov na pocitaci
@@ -1452,30 +1449,25 @@ scanme\&.nmap\&.org
 \&. Parameter\fB\-v\fR
 umoznuje tzv\&. verbose mode\&.
 .PP
-
 \fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 Spusti SYN scan proti kazdemu aktivnemu pocitacu v sieti triedy
 \(lqclass C\(rq
 s nazvom Scanme\&. Takisto sa pokusi urcit spustene operacne systemy aktivnych pocitacov\&. K tymto parametrom sa vyzaduju privilegia roota\&.
 .PP
-
 \fBnmap \-sV \-p 22,53,110,143,4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
 Spusti vypocet hostitelskych stanic a TCP scan na prvu polovicu z 255 moznych 8\-bitovych subnetov v adresnom priestore 198\&.116 triedy B\&. Zaroven sa testuje, ci na systemoch bezia sluzby sshd, DNS, pop3d, imapd alebo port 4564\&. Pre kazdy z najdenych otvorenych portov sa pouzije detekcia verzia na urcenie spustenych aplikacii\&.
 .PP
-
 \fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
 .PP
 Nmap zvoli nahodne 100 000 hostitelskych pocitacov a scanuje ich port 80\&. Vypocet hostitelskych stanic je zakazany parametrom
 \fB\-P0\fR, pretoze je zbytocne najprv posielat test na zistenie, ci je hostitelska stanica aktivna, ak sa bude aj tak testovat len jeden port\&.
 .PP
-
 \fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Scanuje 4096 IP adries kvoli najdeniu webserverov (bez ich pingnutia) a vystup ulozi vo formatoch grep a XML\&.
 .PP
-
 \fBhost \-l company\&.com | cut \-d \-f 4 | nmap \-v \-iL \-\fR
 .PP
 Vykona preklad domeny DNS, cim sa najdu hostitelske pocitace na adrese company\&.com a potom Nmap pouzije tieto IP adresy\&. Tieto prikazy sa mozu pouzit pre pocitac so systemom GNU/Linux \- dalsie systemy maju odlisne prikazy na vykonavanie prekladu domeny\&.
@@ -1484,14 +1476,14 @@ Vykona preklad domeny DNS, cim sa najdu hostitelske pocitace na adrese company\&
 Tak ako autor, ani Nmap nie je dokonaly, no mate moznost pomoct pri jeho vylepsovani tym, ze zaslete spravu o bugoch alebo dokonca napisete patch\&. Ak sa Nmap nechova podla ocakavania, vykonajte najprv upgrade na najnovsiu verziu dostupnu z adresy
 \m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]\&. Ak problem pretrvava, preskumajte, ci uz nebol objaveny a adresovany\&. Vyskusajte pouzit google s vyrazom chybovej spravy alebo prehladajte archivy Nmap\-dev na adrese
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Precitajte si aj tento plny manual\&. Ak nenajdete nic podobne, poslite mail o bugu na adresu
-dev@nmap\&.org\&. Zahrnte vsetko, co ste sa dozvedeli o probleme spolu s verziou Nmapu a operacnym systemom\&. Spravy o problemoch a otazky na pouzivanie Nmapu budu ovela pravdepodobnejsie zodpovedane, ak budu odoslane na dev@nmap\&.org namiesto odosielania priamo Fyodorovi\&.
+<dev@nmap\&.org>\&. Zahrnte vsetko, co ste sa dozvedeli o probleme spolu s verziou Nmapu a operacnym systemom\&. Spravy o problemoch a otazky na pouzivanie Nmapu budu ovela pravdepodobnejsie zodpovedane, ak budu odoslane na dev@nmap\&.org namiesto odosielania priamo Fyodorovi\&.
 .PP
 Patche s kodom na opravu bugov su este lepsie ako samotne spravy o bugoch\&. Zakladne instrukcie na tvorbu suborov patchov s vasimi zmenami su dostupne na
 \m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]\&. Patche mozu byt odoslane prednostne na nmap\-dev alebo priamo Fyodorovi\&.
 .SH "AUTOR"
 .PP
 Fyodor
-fyodor@nmap\&.org
+<fyodor@nmap\&.org>
 (\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
 Za posledne roky stovky ludi vyznamne prispeli pre Nmap\&. Podrobnosti o nich su obsiahnute v suboreCHANGELOG, ktory sa dodava s Nmapom a je dostupny z adresy\m[blue]\fB\%http://www.insecure.org/nmap/changelog.html\fR\m[]\&.
@@ -1507,7 +1499,7 @@ do slovenciny\&. Nebol vytvoreny spolocnostou Insecure\&.Com LLC a ani legalne n
 .SS "Copyright a licencia Nmapu"
 .PP
 Program Nmap Security Scanner je produktom (C) 1996\-2005 Insecure\&.Com LLC\&. Nmap je tiez registrovana obchodna znacka spolocnosti Insecure\&.Com LLC\&. Tento program je free softwarom; je mozne ho redistribuovat alebo modifikovat podla podmienok licencie GNU General Public License 2 uverejnenou zdruzenim Free Software Foundation\&. Zarucuje pravo na pouzivanie, modifikaciu a redistribuciu tohoto softwaru za istych podmienok\&. Ak mate zaujem o zaclenenie technologie Nmapu do proprietarneho softwaru, mozeme predat alternativne licencie (kontakt
-sales@insecure\&.com)\&. Vela vyrobcov bezpecnostnych scannerov uz licencuju technologiu Nmapu, napr\&. zistovanie hostitelskych stanic, scanovanie portov, detekcia OS a detekcia sluzby/verzie\&.
+<sales@insecure\&.com>)\&. Vela vyrobcov bezpecnostnych scannerov uz licencuju technologiu Nmapu, napr\&. zistovanie hostitelskych stanic, scanovanie portov, detekcia OS a detekcia sluzby/verzie\&.
 .PP
 Je nutne poznamenat, ze GPL uvaluje dolezite obmedzenia na
 \(lqodvodene diela\(rq, no neposkytuje podrobnu definiciu tohoto pojmu\&. Aby sa predislo nedorozumeniam, za ucelom tejto licencie povazujeme aplikaciu za
@@ -1585,7 +1577,7 @@ podla vztahu k nasmu produktu s licenciou GPL\&. Je to nieco podobne, ako ked Li
 k modulom linuxovskeho kernelu\&. Nasa intepretacia sa odkazuje len na Nmap \- nehovorime za ine GPL produkty\&.
 .PP
 Ak mate otazky tykajuce sa obmedzeni licencii GPL ohladom pouzivania Nmapu v dielach nelicencovanych GPL, radi pomozeme\&. Ako uz bolo spomenute vyssie, tiez ponukame alternativne licencie na zahrnutie Nmapu do proprietarnych aplikacii a zariadeni\&. Tieto zmluvy uz boli predane mnohym vyrobcom zaoberajucich sa bezpecnostou a vseobecne zahrnuju trvalu licenciu tak ako aj poskytovanie prioritnej podpory a updateov a pomoc financne podporovat pokracujuci vyvoj technologie Nmapu\&. Na ziskanie dalsich informacii zaslite e\-mail na adresu
-sales@insecure\&.com\&.
+<sales@insecure\&.com>\&.
 .PP
 Ako vynimku ku terminom licencie GPL, spolocnost Insecure\&.Com LLC udeluje povolenie spajat kod tohoto programu s lubovolnou verziou kniznice OpenSSL, ktora je distribuovana pod licenciou identickou k tej zmienenej v zahrnutom subore Copying\&.OpenSSL, a distribuovat suvisiace kombinacie vratane tychto dvoch\&. Musite dodrziavat GNU GPL vo vsetkych ohladoch pre kod iny ako OpenSSL\&. Ak pozmenite tento subor, je mozne nezavazne rozsirit tuto vynimku na vasu verziu tohoto suboru\&.
 .PP
@@ -1600,7 +1592,7 @@ verzie 2\&.5, co dovoluje redistribuovat a modifikovat dielo podla ziadosti, pri
 K tomuto softwaru je poskytovany kod, pretoze si myslime, ze pouzivatelia maju pravo poznat pred jeho spustenim, co presne program vykona\&. To umoznuje aj vam skumat software kvoli bezpecnostnym dieram, aj ked zatial neboli ziadne najdene\&.
 .PP
 Zdrojovy kod vam tiez dovoluje portovat Nmap na nove platformy, opravovat bugy, a pridavat nove funkcie\&. Ste vrelo podporovani zasielat vase modifikacie pre pripadne zaclenenie do hlavnej distribucie na adresu
-fyodor@nmap\&.org\&. Zaslatim tychto zmien Fyodorovi alebo na niektory z vyvojarskych mailing listov Insecure\&.Org sa predpoklada, ze poskytujete Fyodorovi a firme Insecure\&.Com LLC nelimitovane, nevylucne pravo na pouzivanie, modifikaciu a opatovne licencovanie kodu\&. Nmap bude vzdy dostupnym Open Source programom, ale tato zmienka je dolezita, pretoze nemoznost prelicencovat kod uz sposobila obrovske problemy dalsim projektom Free Software (napr\&. KDE a NASM)\&. Prilezitostne relicencujeme kod tretim stranam podla hore spomenuteho\&. Ak si prajete specifikovat specialne podmienky licencie vasich prispevkov, uvedte to pri ich zasielani\&.
+<fyodor@nmap\&.org>\&. Zaslatim tychto zmien Fyodorovi alebo na niektory z vyvojarskych mailing listov Insecure\&.Org sa predpoklada, ze poskytujete Fyodorovi a firme Insecure\&.Com LLC nelimitovane, nevylucne pravo na pouzivanie, modifikaciu a opatovne licencovanie kodu\&. Nmap bude vzdy dostupnym Open Source programom, ale tato zmienka je dolezita, pretoze nemoznost prelicencovat kod uz sposobila obrovske problemy dalsim projektom Free Software (napr\&. KDE a NASM)\&. Prilezitostne relicencujeme kod tretim stranam podla hore spomenuteho\&. Ak si prajete specifikovat specialne podmienky licencie vasich prispevkov, uvedte to pri ich zasielani\&.
 .SS "Bez zaruky"
 .PP
 Tento program je distribuovany s vierou, ze bude uzitocny, ale BEZ AKEJKOLVEK ZARUKY; dokonca aj bez naznacenej zaruky PREDAJNOSTI a VHODNOSTI NA URCITY UCEL\&. Dalsie podrobnosti mozete najst na adrese\m[blue]\fB\%http://www.gnu.org/copyleft/gpl.html\fR\m[], alebo v subore COPYING zahrnutym v Nmape\&.
