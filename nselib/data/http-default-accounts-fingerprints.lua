@@ -146,6 +146,20 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  name = "Cisco WAP200",
+  category = "routers",
+  paths = {
+    {path = "/StatusLan.htm"}
+  },
+  login_combos = {
+    {username = "admin", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
 ---
 --Digital recorders
 ---
