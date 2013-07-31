@@ -286,7 +286,7 @@ int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem 
 #endif
 
     default:
-      assert(0);
+      fatal("Invalid nsock event type (%d)", nse->type);
   }
 
   assert(nse->event_done);
