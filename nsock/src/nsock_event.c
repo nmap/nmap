@@ -413,10 +413,11 @@ msevent *msevent_new(mspool *nsp, enum nse_type type, msiod *msiod, int timeout_
 #if HAVE_OPENSSL
   nse->sslinfo.ssl_desire = SSL_ERROR_NONE;
 #endif
+
   if (type == NSE_TYPE_READ || type ==  NSE_TYPE_WRITE)
     filespace_init(&(nse->iobuf), 1024);
-#if HAVE_PCAP
 
+#if HAVE_PCAP
   if (type == NSE_TYPE_PCAP_READ) {
     mspcap *mp;
     int sz;
