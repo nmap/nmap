@@ -190,11 +190,11 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
   setmask = ev_inc;
   clrmask = EV_NONE;
 
-  if ((ev_dec & EV_READ) && (!iod->readsd_count)
+  if ((ev_dec & EV_READ) &&
 #if HAVE_PCAP
-        && (!iod->readpcapsd_count)
+      !iod->readpcapsd_count &&
 #endif
-     )
+      !iod->readsd_count)
     clrmask |= EV_READ;
 
   if ((ev_dec & EV_WRITE) && (!iod->writesd_count))
@@ -382,12 +382,12 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
           fatal("SSL_new failed: %s", ERR_error_string(ERR_get_error(), NULL));
       }
 
-      if (iod->hostname != NULL) {
 #if HAVE_SSL_SET_TLSEXT_HOST_NAME
+      if (iod->hostname != NULL) {
         if (SSL_set_tlsext_host_name(iod->ssl, iod->hostname) != 1)
           fatal("SSL_set_tlsext_host_name failed: %s", ERR_error_string(ERR_get_error(), NULL));
-#endif
       }
+#endif
 
       /* Associate our new SSL with the connected socket.  It will inherit the
        * non-blocking nature of the sd */
@@ -502,6 +502,14 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
 #endif
 }
 
+static int errcode_is_failure(int err) {
+#ifndef WIN32
+  return err != EINTR && err != EAGAIN && err != EBUSY;
+#else
+  return err != EINTR && err != EAGAIN;
+#endif
+}
+
 void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
   int bytesleft;
   char *str;
@@ -559,11 +567,7 @@ void handle_write_result(mspool *ms, msevent *nse, enum nse_status status) {
 #endif
       } else {
         err = socket_errno();
-        if (err != EINTR && err != EAGAIN
-#ifndef WIN32
-            && err != EBUSY
-#endif
-            ) {
+        if (errcode_is_failure(err)) {
           nse->event_done = 1;
           nse->status = NSE_STATUS_ERROR;
           nse->errnum = err;
