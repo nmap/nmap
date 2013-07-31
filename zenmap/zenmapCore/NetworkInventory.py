@@ -445,7 +445,6 @@ class FilteredNetworkInventory(NetworkInventory):
         search_keywords["ofp"] = "open_filtered"
         search_keywords["closed|filtered"] = "closed_filtered"
         search_keywords["cfp"] = "closed_filtered"
-        search_keywords[""] = ""
         self.search_parser = SearchParser(self, search_keywords)
 
     # FIXME: This method doesn't do anything.  We just need to support
