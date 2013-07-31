@@ -361,12 +361,12 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
         nse->status = NSE_STATUS_ERROR;
         nse->errnum = optval;
         break;
+
       default:
-        fprintf(stderr, "Strange connect error from %s (%d): %s",
-                inet_ntop_ez(&iod->peer, iod->peerlen), optval,
-                socket_strerror(optval));
-        assert(0); /* I'd like for someone to report it */
-        break;
+        /* I'd like for someone to report it */
+        fatal("Strange connect error from %s (%d): %s",
+              inet_ntop_ez(&iod->peer, iod->peerlen), optval,
+              socket_strerror(optval));
     }
 
     /* Now special code for the SSL case where the TCP connection was successful. */
@@ -391,9 +391,9 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
 
       /* Associate our new SSL with the connected socket.  It will inherit the
        * non-blocking nature of the sd */
-      if (SSL_set_fd(iod->ssl, iod->sd) != 1) {
+      if (SSL_set_fd(iod->ssl, iod->sd) != 1)
         fatal("SSL_set_fd failed: %s", ERR_error_string(ERR_get_error(), NULL));
-      }
+
       /* Event not done -- need to do SSL connect below */
       nse->sslinfo.ssl_desire = SSL_ERROR_WANT_CONNECT;
 #endif
@@ -403,7 +403,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
       nse->event_done = 1;
     }
   } else {
-    assert(0); /* Currently we only know about TIMEOUT and SUCCESS callbacks */
+    fatal("Unknown status (%d)", status);
   }
 
   /* At this point the TCP connection is done, whether successful or not.
@@ -781,12 +781,11 @@ void handle_read_result(mspool *ms, msevent *nse, enum nse_status status) {
           /* Else we are not done */
           break;
         default:
-          assert(0);
-          break; /* unreached */
+          fatal("Unknown operation type (%d)", (int)nse->readinfo.read_type);
       }
     }
   } else {
-    assert(0); /* Currently we only know about TIMEOUT, CANCELLED, and SUCCESS callbacks */
+    fatal("Unknown status (%d)", status);
   }
 
   /* If there are no more reads for this IOD, we are done reading on the socket
@@ -832,8 +831,7 @@ void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status) {
       break;
 
     default:
-      /* Currently we only know about TIMEOUT, CANCELLED, and SUCCESS callbacks */
-      assert(0);
+      fatal("Unknown status (%d) for nsock event #%lu", status, nse->id);
   }
 
   /* If there are no more read events, we are done reading on the socket so we
@@ -1227,8 +1225,7 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
 #endif
 
     default:
-      assert(0);
-      break; /* unreached */
+      fatal("Unknown nsock event type (%d)", nse->type);
   }
 }
 
@@ -1305,8 +1302,7 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse) {
 #endif
 
     default:
-      assert(0);
-      break;
+      fatal("Invalid nsock event type (%d)", nse->type);
   }
 }
 
