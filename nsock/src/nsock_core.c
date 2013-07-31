@@ -427,7 +427,7 @@ void handle_connect_result(mspool *ms, msevent *nse, enum nse_status status) {
     if (iod->ssl_session) {
       rc = SSL_set_session(iod->ssl, iod->ssl_session);
       if (rc == 0)
-        nsock_log_error(ms, "Uh-oh: SSL_set_session() failed - please tell nmap-dev@insecure.org\n");
+        nsock_log_error(ms, "Uh-oh: SSL_set_session() failed - please tell dev@nmap.org");
       iod->ssl_session = NULL; /* No need for this any more */
     }
 
