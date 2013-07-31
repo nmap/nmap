@@ -58,6 +58,10 @@
 
 #include "error.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
 void fatal(char *fmt, ...) {
   va_list ap;
 
@@ -82,17 +86,5 @@ void pfatal(char *fmt, ...) {
   va_end(ap);
 
   exit(1);
-}
-
-void gh_perror(char *err, ...) {
-  va_list ap;
-
-  va_start(ap, err);
-  fflush(stdout);
-  vfprintf(stderr, err, ap);
-  va_end(ap);
-
-  perror(" ");
-  fflush(stderr);
 }
 

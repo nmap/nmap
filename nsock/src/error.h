@@ -59,22 +59,6 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#ifdef HAVE_CONFIG_H
-#include "nsock_config.h"
-#include "nbase_config.h"
-#endif
-
-#ifdef WIN32
-#include "nbase_winconfig.h"
-#endif
-
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 void fatal(char *fmt, ...)
   __attribute__ ((noreturn))
   __attribute__ ((format (printf, 1, 2)));
@@ -83,7 +67,4 @@ void pfatal(char *fmt, ...)
   __attribute__ ((noreturn))
   __attribute__ ((format (printf, 1, 2)));
 
-void gh_perror(char *err, ...);
-
 #endif /* ERROR_H */
-
