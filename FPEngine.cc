@@ -389,8 +389,8 @@ int FPNetworkControl::unregister_caller(FPHost *oldcaller) {
 /* This method gets the controller ready for packet capture. Basically it
  * obtains a pcap descriptor from nsock and sets an appropriate BPF filter. */
 int FPNetworkControl::setup_sniffer(const char *iface, const char *bpf_filter) {
-  char *errmsg = NULL;
   char pcapdev[128];
+  int rc;
 
 #ifdef WIN32
   /* Nmap normally uses device names obtained through dnet for interfaces, but
@@ -405,8 +405,9 @@ int FPNetworkControl::setup_sniffer(const char *iface, const char *bpf_filter) {
 #endif
 
   /* Obtain a pcap descriptor */
-  if ((errmsg = nsock_pcap_open(this->nsp, this->pcap_nsi, pcapdev, 8192, 0, bpf_filter)) != NULL)
-    fatal("Error opening capture device %s --> %s\n", pcapdev, errmsg);
+  rc = nsock_pcap_open(this->nsp, this->pcap_nsi, pcapdev, 8192, 0, bpf_filter);
+  if (rc)
+    fatal("Error opening capture device %s\n", pcapdev);
 
   /* Store the pcap NSI inside the pool so we can retrieve it inside a callback */
   nsp_setud(this->nsp, (void *)&(this->pcap_nsi));

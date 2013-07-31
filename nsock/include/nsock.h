@@ -622,13 +622,16 @@ const struct timeval *nsock_gettimeofday();
  *   promisc: whether to open device in promiscuous mode
  *   bpf_fmt: berkeley filter
  *
- * return value: NULL if everything was okay, or error string if error occurred
- * [sorry Fyodor for breaking the API, but it's just simpler]
+ * return value: 0 if everything was okay, or error code if error occurred.
  * */
-char *nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device, int snaplen, int promisc, const char *bpf_fmt, ...);
+int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
+                    int snaplen, int promisc, const char *bpf_fmt, ...);
 
-/* Requests exactly one packet to be captured.from pcap.See nsock_read() for parameters description. */
-nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod, nsock_ev_handler handler, int timeout_msecs, void *userdata);
+/* Requests exactly one packet to be captured.from pcap.
+ * See nsock_read() for parameters description. */
+nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod,
+                                      nsock_ev_handler handler,
+                                      int timeout_msecs, void *userdata);
 
 /* Gets packet data. This should be called after successful receipt of packet
  * to get packet.  If you're not interested in some values, just pass NULL
@@ -640,7 +643,8 @@ nsock_event_id nsock_pcap_read_packet(nsock_pool nsp, nsock_iod nsiod, nsock_ev_
  * As a result you'll get longer times than you should, but it's safer to
  * think that host is a bit further.
  * */
-void nse_readpcap(nsock_event nsee, const unsigned char **l2_data, size_t *l2_len, const unsigned char **l3_data, size_t *l3_len,
+void nse_readpcap(nsock_event nsee, const unsigned char **l2_data,
+                  size_t *l2_len, const unsigned char **l3_data, size_t *l3_len,
                   size_t *packet_len, struct timeval *ts);
 
 /* Well. Just pcap-style datalink. Like DLT_EN10MB or DLT_SLIP. Check in pcap(3) manpage. */
