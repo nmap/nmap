@@ -962,6 +962,8 @@ static int l_pcap_open (lua_State *L)
   nsock_iod *nsiod = (nsock_iod *) lua_touserdata(L, -1);
   if (nsiod == NULL) /* does not exist */
   {
+    int rc;
+
     lua_pop(L, 1); /* the nonexistant socket */
     nsiod = (nsock_iod *) lua_newuserdata(L, sizeof(nsock_iod));
     lua_pushvalue(L, PCAP_SOCKET);
@@ -970,10 +972,10 @@ static int l_pcap_open (lua_State *L)
     lua_pushvalue(L, 7); /* the pcap socket key */
     lua_pushvalue(L, -2); /* the pcap socket nsiod */
     lua_rawset(L, KEY_PCAP); /* KEY_PCAP["dev|snap|promis|bpf"] = pcap_nsiod */
-    char *e = nsock_pcap_open(nsp, *nsiod, lua_tostring(L, 6), snaplen,
-        lua_toboolean(L, 4), bpf);
-    if (e)
-      luaL_error(L, "%s", e);
+    rc = nsock_pcap_open(nsp, *nsiod, lua_tostring(L, 6), snaplen,
+                         lua_toboolean(L, 4), bpf);
+    if (rc)
+      luaL_error(L, "can't open pcap reader on %s", device);
   }
   lua_getuservalue(L, 1); /* the socket user value */
   lua_pushvalue(L, -2); /* the pcap socket nsiod */

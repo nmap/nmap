@@ -1435,7 +1435,6 @@ int EchoServer::start() {
   nsock_iod client_nsi;            /**< Stores connected client IOD          */
   nsock_iod pcap_nsi;              /**< Stores Pcap IOD                      */
   char pcapdev[128];               /**< Device name passed to pcap_open_live */
-  char *auxpnt=NULL;               /**< Aux str pointer                      */
   struct timeval now;              /**< For timestamps                       */
   struct sockaddr_storage ss;      /**< New client socket address            */
   socklen_t sslen=sizeof(ss);      /**< New client socket address len        */
@@ -1444,6 +1443,7 @@ int EchoServer::start() {
   clientid_t *idpnt=NULL;          /**< For new client assigned identifiers  */
   NEPContext ctx;                  /**< Context for the new client           */
   EchoHeader h;
+  int rc;
 
   /* Create a new nsock pool */
   if ((nsp = nsp_new(NULL)) == NULL)
@@ -1461,10 +1461,12 @@ int EchoServer::start() {
     nping_fatal(QT_3, "Failed to create new nsock_iod.  QUITTING.\n");
         
   /* Open pcap */
-  nping_print(DBG_2,"Opening pcap device %s", o.getDevice() );
+  nping_print(DBG_2,"Opening pcap device %s", o.getDevice());
   Strncpy(pcapdev, o.getDevice(), sizeof(pcapdev));
-  if( (auxpnt=nsock_pcap_open(nsp, pcap_nsi, pcapdev, MAX_ECHOED_PACKET_LEN, 1, ProbeMode::getBPFFilterString() )) != NULL )
-    nping_fatal(QT_3, "Error opening capture device %s --> %s\n", o.getDevice(), auxpnt);
+  rc = nsock_pcap_open(nsp, pcap_nsi, pcapdev, MAX_ECHOED_PACKET_LEN, 1,
+                       ProbeMode::getBPFFilterString());
+  if (rc)
+    nping_fatal(QT_3, "Error opening capture device %s\n", o.getDevice());
   else
     nping_print(VB_0,"Packet capture will be performed using network interface %s.", o.getDevice());
   nping_print(VB_0,"Waiting for connections...");
