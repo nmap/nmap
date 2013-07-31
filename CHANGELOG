@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash that would happen when you entered a search
+  term starting with a colon: "AttributeError:
+  'FilteredNetworkInventory' object has no attribute 'match_'".
+  Reported by Kris Paernell. [David Fifield]
+
 o [Ncat] Added NCAT_PROTO, NCAT_REMOTE_ADDR, NCAT_REMOTE_PORT, NCAT_LOCAL_ADDR
   and NCAT_LOCAL_PORT environment variables being set in all --*-exec child
   processes.
