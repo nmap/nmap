@@ -159,9 +159,9 @@ static int socket_count_readpcap_dec(msiod *iod) {
 /* Call socket_count_read_dec or socket_count_write_dec on nse->iod depending on
  * the current value of nse->sslinfo.ssl_desire. */
 static int socket_count_dec_ssl_desire(msevent *nse) {
-  assert(nse->iod->ssl != NULL &&
-    (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
-     nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE));
+  assert(nse->iod->ssl != NULL);
+  assert(nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ ||
+         nse->sslinfo.ssl_desire == SSL_ERROR_WANT_WRITE);
 
   if (nse->sslinfo.ssl_desire == SSL_ERROR_WANT_READ)
     return socket_count_read_dec(nse->iod);
@@ -197,7 +197,7 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
       !iod->readsd_count)
     clrmask |= EV_READ;
 
-  if ((ev_dec & EV_WRITE) && (!iod->writesd_count))
+  if ((ev_dec & EV_WRITE) && !iod->writesd_count)
     clrmask |= EV_WRITE;
 
   if (ev_dec & EV_EXCEPT)
