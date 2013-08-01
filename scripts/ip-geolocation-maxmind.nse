@@ -402,7 +402,7 @@ local GeoIP = {
 		self.__index = self
 		o._filename=filename
 		local err
-		o._filehandle= assert(io.open(filename,'rb'), "Cannot open Maxmind database file")
+		o._filehandle= assert(io.open(filename,'rb'))
 		o._databaseType = MaxmindDef.COUNTRY_EDITION
 		o._recordLength = MaxmindDef.STANDARD_RECORD_LENGTH
 		
