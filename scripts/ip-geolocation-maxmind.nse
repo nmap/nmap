@@ -594,7 +594,7 @@ action = function(host,port)
 		local out = gi:output_record_by_addr(host.ip)
 		output = out
 	else
-		local gi = assert( GeoIP:new("nselib/data/GeoLiteCity.dat"), "Cannot read Maxmind database file in 'nselib/data/'.")
+		local gi = assert( GeoIP:new(nmap.fetchfile("nselib/data/GeoLiteCity.dat")), "Cannot read Maxmind database file in 'nselib/data/'.")
 		local out = gi:output_record_by_addr(host.ip)
 		output = out
 	end
