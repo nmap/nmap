@@ -25,7 +25,7 @@ strings to check if the payloads were succesful.
 --       fields' restrictions. You can manually fill those fields using 
 --       this table. For example, {gender = "male", email = "foo@bar.com"}. 
 --       Default: {}
--- @args http-stored-xss.filedb The path of a plain text file 
+-- @args http-stored-xss.dbfile The path of a plain text file 
 --       that contains one XSS vector per line. Default: nil
 --      
 -- @output
