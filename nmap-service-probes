@@ -12296,6 +12296,6 @@ ports 8767
 # 180     uint8  welcome message length
 # 181-435 string welcome message
 
-match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00....\x02\x00\x00\x00.....([^\0]+)[^\w\s]+Win32\0+[^\0].{355}$|s p/TeamSpeak 2/ i/name: $1; no password/ o/Windows/
-match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00....\x02\x00\x00\x00.....([^\0]+)[^\w\s]+Linux\0+[^\0].{355}$|s p/TeamSpeak 2/ i/name: $1; no password/ o/Linux/
+match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00....\x02\x00\x00\x00.....([^\0]+)\0*.Win32\0*|s p/TeamSpeak 2/ i/name: $1; no password/ o/Windows/
+match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00....\x02\x00\x00\x00.....([^\0]+)\0*.Linux\0*|s p/TeamSpeak 2/ i/name: $1; no password/ o/Linux/
 match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00....\x02\x00\x00\x00....\0{60}.{356}$|s p/TeamSpeak 2/
