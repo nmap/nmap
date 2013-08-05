@@ -12277,6 +12277,25 @@ Probe UDP TeamSpeak2 q|\xf4\xbe\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\
 rarity 9
 ports 8767
 
+# Offset  Type   Value                  Comment
+# 0-1     uint16 0xBEF4                 Class: connection
+# 2-3     uint16 0x0004                 Type: login reply
+# 4-7     uint32 0                      Session key; zero on first reply
+# 8-11    uint32 client id
+# 12-15   uint32 2                      Sequence number; 2 on first reply
+# 16-19   uint32 some crc32 checksum
+# 20      uint8  server name length
+# 21-49   string server name
+# 50      uint8  platform length
+# 51-79   string platform
+# 80-81   uint16 1. version             E.g. the "2" in "2.0.23.19"
+# 82-83   uint16 2. version             E.g. the "0" in "2.0.23.19"
+# 84-85   uint16 3. version             E.g. the "23" in "2.0.23.19"
+# 86-87   uint16 4. version             E.g. the "19" in "2.0.23.19"
+# 88-179  bytes  unknown
+# 180     uint8  welcome message length
+# 181-435 string welcome message
+
 match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00.............([^\0]+)[^\w\s]+Win32\0+[^\0].{355}$|s p/TeamSpeak 2/ i/name: $1; no password/ o/Windows/
 match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00.............([^\0]+)[^\w\s]+Linux\0+[^\0].{355}$|s p/TeamSpeak 2/ i/name: $1; no password/ o/Linux/
 match teamspeak2 m|^\xf4\xbe\x04\x00\x00\x00\x00\x00............\0{60}.{356}$|s p/TeamSpeak 2/
