@@ -22,7 +22,7 @@ portrule = function(host, port)
                 port.service == nil or port.service == "" or
                 port.service == "unknown")
                and port.protocol == "tcp" and port.state == "open"
-               and port.service ~= "http" and port.service ~= "ssl/http"
+               and port.version.name_confidence < 10
                and not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
