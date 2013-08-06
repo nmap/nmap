@@ -497,8 +497,8 @@
     <para>All exec options add the following variables to the child's environment:</para>
     <variablelist>
     <varlistentry>
-      <term><envar>NCAT_REMOTE_ADDR</envar></term>
-      <term><envar>NCAT_REMOTE_PORT</envar></term>
+      <term><envar>NCAT_REMOTE_ADDR</envar></term><indexterm><primary><envar>NCAT_REMOTE_ADDR></envar> environment variable</primary></indexterm>
+      <term><envar>NCAT_REMOTE_PORT</envar></term><indexterm><primary><envar>NCAT_REMOTE_PORT></envar> environment variable</primary></indexterm>
       <listitem>
       <para>
       The IP address and port number of the remote host. In connect mode, it's
@@ -507,8 +507,8 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term><envar>NCAT_LOCAL_ADDR</envar></term>
-      <term><envar>NCAT_LOCAL_PORT</envar></term>
+      <term><envar>NCAT_LOCAL_ADDR</envar></term><indexterm><primary><envar>NCAT_LOCAL_ADDR></envar> environment variable</primary></indexterm>
+      <term><envar>NCAT_LOCAL_PORT</envar></term><indexterm><primary><envar>NCAT_LOCAL_PORT></envar> environment variable</primary></indexterm>
       <listitem>
       <para>
       The IP address and port number of the local end of the connection.
@@ -516,7 +516,7 @@
       </listitem>
     </varlistentry>
     <varlistentry>
-      <term><envar>NCAT_PROTO</envar></term>
+      <term><envar>NCAT_PROTO</envar></term><indexterm><primary><envar>NCAT_PROTO></envar> environment variable</primary></indexterm>
       <listitem>
       <para>
       The protocol in use: one of <code>TCP</code>, <code>UDP</code>, and <code>SCTP</code>.
