@@ -937,9 +937,10 @@ static int ncat_listen_mode(void)
         if (o.af == AF_INET6 || o.af == AF_UNSPEC) {
             ss_len = sizeof(listenaddrs[num_listenaddrs]);
             rc = resolve("::", o.portno, &listenaddrs[num_listenaddrs].storage, &ss_len, AF_INET6);
-            if (rc != 0)
-                bye("Failed to resolve default IPv6 address: %s.", gai_strerror(rc));
-            num_listenaddrs++;
+            if (rc == 0)
+                num_listenaddrs++;
+            else
+                logdebug("Failed to resolve default IPv6 address: %s\n", gai_strerror(rc));
         }
 #endif
         if (o.af == AF_INET || o.af == AF_UNSPEC) {
