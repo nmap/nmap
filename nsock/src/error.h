@@ -59,6 +59,8 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#include "nbase.h"
+
 void fatal(char *fmt, ...)
   __attribute__ ((noreturn))
   __attribute__ ((format (printf, 1, 2)));
