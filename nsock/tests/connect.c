@@ -4,10 +4,6 @@
  */
 
 #include "test-common.h"
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 
 
 struct connect_test_data {
