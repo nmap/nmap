@@ -221,7 +221,8 @@ int ncat_http_server(void)
     for (i = 0; i < num_listenaddrs; i++) {
         listen_socket[num_sockets] = do_listen(SOCK_STREAM, IPPROTO_TCP, &listenaddrs[i]);
         if (listen_socket[num_sockets] == -1) {
-            logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+            if (o.debug > 0)
+                logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
             continue;
         }
 

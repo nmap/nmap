@@ -274,7 +274,8 @@ static int ncat_listen_stream(int proto)
         /* setup the main listening socket */
         listen_socket[num_sockets] = do_listen(SOCK_STREAM, proto, &listenaddrs[i]);
         if (listen_socket[num_sockets] == -1) {
-            logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+            if (o.debug > 0)
+                logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
             continue;
         }
 
@@ -681,7 +682,8 @@ static int ncat_listen_dgram(int proto)
         /* create the UDP listen sockets */
         sockfd[num_sockets].fd = do_listen(SOCK_DGRAM, proto, &listenaddrs[i]);
         if (sockfd[num_sockets].fd == -1) {
-            logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+            if (o.debug > 0)
+                logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
             continue;
         }
         FD_SET(sockfd[num_sockets].fd, &listen_fds);
