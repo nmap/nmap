@@ -680,7 +680,7 @@ static int ncat_listen_dgram(int proto)
 
             /* Rebuild the udp socket which got burnt */
             sockfd[fdn] = do_listen(SOCK_DGRAM, proto, &listenaddrs[fdn]);
-            if (sockfd[i] == -1)
+            if (sockfd[fdn] == -1)
                 bye("do_listen: %s", socket_strerror(socket_errno()));
             FD_SET(sockfd[fdn], &listen_fds);
             add_fd(&listen_fdlist, sockfd[fdn]);
