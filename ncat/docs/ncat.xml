@@ -541,10 +541,6 @@
       </listitem>
     </varlistentry>
     </variablelist>
-
-    <para>Currently the address fields are numeric IP addresses. In IPv6
-    mode, the address might be not expanded.</para>
-
   </refsect1>
 
   <refsect1 id="ncat-man-access-options">
