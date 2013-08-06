@@ -2,12 +2,12 @@
 .\"     Title: Ncat
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/29/2013
+.\"      Date: 08/06/2013
 .\"    Manual: Ncat Reference Guide
 .\"    Source: Ncat
 .\"  Language: English
 .\"
-.TH "NCAT" "1" "07/29/2013" "Ncat" "Ncat Reference Guide"
+.TH "NCAT" "1" "08/06/2013" "Ncat" "Ncat Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -307,78 +307,43 @@ Execute the specified command after a connection has been established\&. The com
 \fB\-\-keep\-open\fR, Ncat will handle multiple simultaneous connections to your specified port/application like inetd\&. Ncat will only accept a maximum, definable, number of simultaneous connections controlled by the
 \fB\-m\fR
 option\&. By default this is set to 100 (60 on Windows)\&.
-.sp
-\-\-exec adds the following variables to the child\*(Aqs environment:
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-NCAT_REMOTE_ADDR \- the remote address \- in connect mode,
-              it\*(Aqs the one we\*(Aqre connecting to, in listen mode \- it\*(Aqs the one
-              that connected to us,.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-NCAT_REMOTE_PORT \- the remote port number, where "remote"
-              means the same as above,.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-NCAT_LOCAL_ADDR \- our local address used for
-              establishing/receiving the connection,.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-NCAT_LOCAL_PORT \- our local port number,.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.sp -1
-.IP \(bu 2.3
-.\}
-NCAT_PROTO \- the protocol name \- TCP, UDP or SCTP,.RE
-.sp
-Currently the address fields are numeric IP addresses\&. In IPv6 mode, the address might be not expanded\&.
 .RE
 .PP
 \fB\-c \fR\fB\fIcommand\fR\fR, \fB\-\-sh\-exec \fR\fB\fIcommand\fR\fR (Execute command via sh) .\" --sh-exec (Ncat option) .\" -c (Ncat option)
 .RS 4
 Same as
 \fB\-e\fR, except it tries to execute the command via
-/bin/sh\&. This means you don\*(Aqt have to specify the full path for the command, and shell facilities like environment variables are available\&. Ncat also sets a few special environment variables (see
-\fB\-e\fR
-for details)\&.
+/bin/sh\&. This means you don\*(Aqt have to specify the full path for the command, and shell facilities like environment variables are available\&.
 .RE
 .PP
 \fB\-\-lua\-exec \fR\fB\fIfile\fR\fR (Execute a \&.lua script) .\" --lua-exec (Ncat option)
 .RS 4
 Runs the specified file as a Lua script after a connection has been established, using a built\-in interpreter\&. Both the script\*(Aqs standard input and the standard output are redirected to the connection data streams\&.
+.RE
+.PP
+All exec options add the following variables to the child\*(Aqs environment:
+.PP
+\fBNCAT_REMOTE_ADDR\fR, \fBNCAT_REMOTE_PORT\fR
+.RS 4
+.\" NCAT_REMOTE_ADDR> environment variable
+.\" NCAT_REMOTE_PORT> environment variable
+The IP address and port number of the remote host\&. In connect mode, it\*(Aqs the target\*(Aqs address; in listen mode, it\*(Aqs the client\*(Aqs address\&.
+.RE
+.PP
+\fBNCAT_LOCAL_ADDR\fR, \fBNCAT_LOCAL_PORT\fR
+.RS 4
+.\" NCAT_LOCAL_ADDR> environment variable
+.\" NCAT_LOCAL_PORT> environment variable
+The IP address and port number of the local end of the connection\&.
+.RE
+.PP
+\fBNCAT_PROTO\fR
+.RS 4
+.\" NCAT_PROTO> environment variable
+The protocol in use: one of
+TCP,
+UDP, and
+SCTP\&.
 .RE
 .SH "ACCESS CONTROL OPTIONS"
 .PP
