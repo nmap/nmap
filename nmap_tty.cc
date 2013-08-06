@@ -189,10 +189,11 @@ static int tty_getchar()
 #endif
         
 	if (tty_fd && tcgetpgrp(tty_fd) == getpid()) {
-           
-           // This is so that when the terminal has been disconnected, it will be reconnected when possible. If it slows things down, just remove it
-           // tty_init();
-           
+
+        // This is so that when the terminal has been disconnected, it will be
+        // reconnected when possible. If it slows things down, just remove it
+        // tty_init();
+
 #ifdef __CYGWIN32__
 		FD_ZERO(&set); FD_SET(tty_fd, &set);
 		tv.tv_sec = 0; tv.tv_usec = 0;
