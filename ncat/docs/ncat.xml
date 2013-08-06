@@ -494,24 +494,53 @@
 
     </variablelist>
 
-    <para>All exec options add the following variables to the child's environment:
-    <itemizedlist>
-    <listitem>NCAT_REMOTE_ADDR - the remote address - in connect mode,
-    it's the one we're connecting to, in listen mode - it's the one
-    that connected to us,</listitem>
-
-    <listitem>NCAT_REMOTE_PORT - the remote port number, where "remote"
-    means the same as above,</listitem>
-
-    <listitem>NCAT_LOCAL_ADDR - our local address used for
-    establishing/receiving the connection,</listitem>
-
-    <listitem>NCAT_LOCAL_PORT - our local port number,</listitem>
-
-    <listitem>NCAT_PROTO - the protocol name - TCP, UDP or SCTP,</listitem>
-
-    </itemizedlist>
-    </para>
+    <para>All exec options add the following variables to the child's environment:</para>
+    <variablelist>
+    <varlistentry>
+      <term><envar>NCAT_REMOTE_ADDR</envar></term>
+      <listitem>
+      <para>
+      the remote address - in connect mode,
+      it's the one we're connecting to, in listen mode - it's the one
+      that connected to us.
+      </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><envar>NCAT_REMOTE_PORT</envar></term>
+      <listitem>
+      <para>
+      the remote port number, where "remote"
+      means the same as above.
+      </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><envar>NCAT_LOCAL_ADDR</envar></term>
+      <listitem>
+      <para>
+      our local address used for
+      establishing/receiving the connection.
+      </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><envar>NCAT_LOCAL_PORT</envar></term>
+      <listitem>
+      <para>
+      our local port number.
+      </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term><envar>NCAT_PROTO</envar></term>
+      <listitem>
+      <para>
+      the protocol name - TCP, UDP or SCTP
+      </para>
+      </listitem>
+    </varlistentry>
+    </variablelist>
 
     <para>Currently the address fields are numeric IP addresses. In IPv6
     mode, the address might be not expanded.</para>
