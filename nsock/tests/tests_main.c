@@ -15,6 +15,10 @@
 #define TEST_OK     "[" BOLDGREEN "OK" RESET "]"
 
 
+/* socket_strerror() comes from nbase
+ * Declared here to work around a silly inclusion issue until I can fix it. */
+char *socket_strerror(int errnum);
+
 extern const struct test_case TestPoolUserData;
 extern const struct test_case TestTimer;
 extern const struct test_case TestLogLevels;
@@ -64,7 +68,7 @@ int main(int ac, char **av) {
     fflush(stdout);
     rc = test_case_run(current);
     if (rc) {
-      printf(TEST_FAILED " (%s)\n", strerror(-rc));
+      printf(TEST_FAILED " (%s)\n", socket_strerror(-rc));
       break;
     }
     printf(TEST_OK "\n");
