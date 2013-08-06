@@ -939,7 +939,7 @@ static int ncat_listen_mode(void)
             rc = resolve("::", o.portno, &listenaddrs[num_listenaddrs].storage, &ss_len, AF_INET6);
             if (rc == 0)
                 num_listenaddrs++;
-            else
+            else if (o.debug > 0)
                 logdebug("Failed to resolve default IPv6 address: %s\n", gai_strerror(rc));
         }
 #endif
