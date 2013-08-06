@@ -387,6 +387,8 @@ unsigned short inet_port(const union sockaddr_u *su)
     return 0;
 }
 
+/* Return a listening socket after setting various characteristics on it.
+   Returns -1 on error. */
 int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
 {
     int sock = 0, option_on = 1;
@@ -400,7 +402,7 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
        nbase. */
     sock = inheritable_socket(srcaddr_u->storage.ss_family, type, proto);
     if (sock < 0)
-      bye("socket: %s", socket_strerror(socket_errno()));
+        return -1;
 
     Setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &option_on, sizeof(int));
 
