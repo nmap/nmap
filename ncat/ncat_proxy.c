@@ -192,6 +192,7 @@ int ncat_http_server(void)
     union sockaddr_u conn;
     struct timeval tv;
     struct timeval *tvp = NULL;
+    unsigned int num_sockets;
 
 #ifndef WIN32
     Signal(SIGCHLD, proxyreaper);
@@ -216,18 +217,28 @@ int ncat_http_server(void)
     init_fdlist(&listen_fdlist, num_listenaddrs);
 
     /* Listen on each address, set up lists for select */
+    num_sockets = 0;
     for (i = 0; i < num_listenaddrs; i++) {
-        listen_socket[i] = do_listen(SOCK_STREAM, IPPROTO_TCP, &listenaddrs[i]);
-        if (listen_socket[i] == -1)
-            bye("do_listen: %s", socket_strerror(socket_errno()));
+        listen_socket[num_sockets] = do_listen(SOCK_STREAM, IPPROTO_TCP, &listenaddrs[i]);
+        if (listen_socket[num_sockets] == -1) {
+            logdebug("do_listen(\"%s\"): %s\n", inet_ntop_ez(&listenaddrs[i].storage, sizeof(listenaddrs[i].storage)), socket_strerror(socket_errno()));
+            continue;
+        }
 
         /* make us not block on accepts in wierd cases. See ncat_listen.c:209 */
-        unblock_socket(listen_socket[i]);
+        unblock_socket(listen_socket[num_sockets]);
 
         /* setup select sets and max fd */
-        FD_SET(listen_socket[i], &listen_fds);
-        add_fd(&listen_fdlist, listen_socket[i]);
+        FD_SET(listen_socket[num_sockets], &listen_fds);
+        add_fd(&listen_fdlist, listen_socket[num_sockets]);
 
+        num_sockets++;
+    }
+    if (num_sockets == 0) {
+        if (num_listenaddrs == 1)
+            bye("Unable to open listening socket on %s: %s", inet_ntop_ez(&listenaddrs[0].storage, sizeof(listenaddrs[0].storage)), socket_strerror(socket_errno()));
+        else
+            bye("Unable to open any listening sockets.");
     }
 
     if (o.idletimeout > 0)
@@ -261,7 +272,7 @@ int ncat_http_server(void)
                 continue;
 
             /* Check each listening socket */
-            for (j = 0; j < num_listenaddrs; j++) {
+            for (j = 0; j < num_sockets; j++) {
                 if (i == listen_socket[j]) {
                     fds_ready--;
                     c = accept(i, &conn.sockaddr, &sslen);
