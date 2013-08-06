@@ -498,37 +498,20 @@
     <variablelist>
     <varlistentry>
       <term><envar>NCAT_REMOTE_ADDR</envar></term>
-      <listitem>
-      <para>
-      the remote address - in connect mode,
-      it's the one we're connecting to, in listen mode - it's the one
-      that connected to us.
-      </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
       <term><envar>NCAT_REMOTE_PORT</envar></term>
       <listitem>
       <para>
-      the remote port number, where "remote"
-      means the same as above.
+      The IP address and port number of the remote host. In connect mode, it's
+      the target's address; in listen mode, it's the client's address.
       </para>
       </listitem>
     </varlistentry>
     <varlistentry>
       <term><envar>NCAT_LOCAL_ADDR</envar></term>
-      <listitem>
-      <para>
-      our local address used for
-      establishing/receiving the connection.
-      </para>
-      </listitem>
-    </varlistentry>
-    <varlistentry>
       <term><envar>NCAT_LOCAL_PORT</envar></term>
       <listitem>
       <para>
-      our local port number.
+      The IP address and port number of the local end of the connection.
       </para>
       </listitem>
     </varlistentry>
@@ -536,7 +519,7 @@
       <term><envar>NCAT_PROTO</envar></term>
       <listitem>
       <para>
-      the protocol name - TCP, UDP or SCTP
+      The protocol in use: one of <code>TCP</code>, <code>UDP</code>, and <code>SCTP</code>.
       </para>
       </listitem>
     </varlistentry>
