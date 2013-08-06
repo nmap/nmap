@@ -271,6 +271,8 @@ static int ncat_listen_stream(int proto)
     for (i = 0; i < num_listenaddrs; i++) {
         /* setup the main listening socket */
         listen_socket[i] = do_listen(SOCK_STREAM, proto, &listenaddrs[i]);
+        if (listen_socket[i] == -1)
+            bye("do_listen: %s", socket_strerror(socket_errno()));
 
         /* Make our listening socket non-blocking because there are timing issues
          * which could cause us to block on accept() even though select() says it's
@@ -659,6 +661,8 @@ static int ncat_listen_dgram(int proto)
     for (i = 0; i < num_listenaddrs; i++) {
         /* create the UDP listen sockets */
         sockfd[i] = do_listen(SOCK_DGRAM, proto, &listenaddrs[i]);
+        if (sockfd[i] == -1)
+            bye("do_listen: %s", socket_strerror(socket_errno()));
         FD_SET(sockfd[i], &listen_fds);
         add_fd(&listen_fdlist, sockfd[i]);
     }
@@ -676,6 +680,8 @@ static int ncat_listen_dgram(int proto)
 
             /* Rebuild the udp socket which got burnt */
             sockfd[fdn] = do_listen(SOCK_DGRAM, proto, &listenaddrs[fdn]);
+            if (sockfd[i] == -1)
+                bye("do_listen: %s", socket_strerror(socket_errno()));
             FD_SET(sockfd[fdn], &listen_fds);
             add_fd(&listen_fdlist, sockfd[fdn]);
 

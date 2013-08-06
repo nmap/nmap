@@ -218,6 +218,8 @@ int ncat_http_server(void)
     /* Listen on each address, set up lists for select */
     for (i = 0; i < num_listenaddrs; i++) {
         listen_socket[i] = do_listen(SOCK_STREAM, IPPROTO_TCP, &listenaddrs[i]);
+        if (listen_socket[i] == -1)
+            bye("do_listen: %s", socket_strerror(socket_errno()));
 
         /* make us not block on accepts in wierd cases. See ncat_listen.c:209 */
         unblock_socket(listen_socket[i]);
