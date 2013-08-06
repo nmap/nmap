@@ -310,7 +310,7 @@ int nsock_pcap_open(nsock_pool nsp, nsock_iod nsiod, const char *pcap_device,
    * delivered immediately. This is how Linux works by default. See the comments
    * surrounding the setting of BIOCIMMEDIATE in libpcap/pcap-bpf.c. */
 #ifdef BIOCIMMEDIATE
-  i f (mp->pcap_desc != -1) {
+  if (mp->pcap_desc != -1) {
     int immediate = 1;
 
     if (ioctl(mp->pcap_desc, BIOCIMMEDIATE, &immediate) < 0)
