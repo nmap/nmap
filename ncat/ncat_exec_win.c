@@ -229,24 +229,18 @@ extern void set_pseudo_sigchld_handler(void (*handler)(void))
 
 int setenv_portable(const char *name, const char *value)
 {
-    BOOL ret = SetEnvironmentVariable(name, value);
-    if (ret == 0) {
-        DWORD last_error = GetLastError();
-        switch (last_error) {
-            case ERROR_INVALID_PARAMETER:
-                errno = EINVAL;
-                break;
-            case ERROR_NOT_ENOUGH_MEMORY:
-                errno = ENOMEM;
-                break;
-            default:
-                if (o.debug)
-                    logdebug("SetEnvironmentVariable: GetLastError returned %d\n", last_error);
-                errno = EINVAL;
-                break;
-        }
-    }
-    return ret != 0;
+    char *var;
+    int ret;
+    size_t len;
+    len = strlen(name) + strlen(value) + 2; /* 1 for '\0', 1 for =. */
+    var = (char*)safe_malloc(len);
+    Snprintf(var, len, "%s=%s", name, value);
+    /* _putenv was chosen over SetEnvironmentVariable because variables set
+       with the latter seem to be invisible to getenv() calls and Lua uses
+       these in the 'os' module. */
+    ret = _putenv(var) == 0;
+    free(var);
+    return ret;
 }
 
 /* Run a command and redirect its input and output handles to a pair of
