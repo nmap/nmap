@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Update dns-cache-snoop script to use a new list of top 50
+  domains rather than a 2010 list. [Nicolle Neulist]
+
 o [NSE] Added the qconn-exec script by Brendan Coles, which tests the
   QNX QCONN service for remote command execution.
 
@@ -53,6 +56,13 @@ o Nmap's routing table is now sorted first by netmask, then by metric.
 
 o [Ncat] The -i option (idle timeout) now works in listen mode as well
   as connect mode. [Tomas Hozza]
+
+o Updated the Nmap license agreement to close some loopholes and stop
+  some abusers.  Particularly companies which distribute malware-laden
+  Nmap installers as we caught Download.com doing last
+  year--http://insecure.org/news/download-com-fiasco.html.  The
+  updated license is in the all the normal places, including
+  https://svn.nmap.org/nmap/COPYING.
 
 o Fixed a byte-ordering problem on little-endian architectures when
   doing idle scan with a zombie that uses broken ID incremements.
