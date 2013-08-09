@@ -158,9 +158,9 @@ extern int errno;
    equivalents.  So you can use EMSGSIZE or EINTR. */
 int socket_errno() {
 #ifdef WIN32
-	return WSAGetLastError();
+    return WSAGetLastError();
 #else
-	return errno;
+    return errno;
 #endif
 }
 
@@ -171,16 +171,16 @@ int socket_errno() {
 */
 char *socket_strerror(int errnum) {
 #ifdef WIN32
-	static char buffer[128];
+    static char buffer[128];
 
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS |
-		FORMAT_MESSAGE_MAX_WIDTH_MASK,
-		0, errnum, 0, buffer, sizeof(buffer), NULL);
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS |
+        FORMAT_MESSAGE_MAX_WIDTH_MASK,
+        0, errnum, 0, buffer, sizeof(buffer), NULL);
 
-	return buffer;
+    return buffer;
 #else
-	return strerror(errnum);
+    return strerror(errnum);
 #endif
 }
 
@@ -238,13 +238,13 @@ const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen) {
     if (sslen < sizeof(struct sockaddr_in))
       return NULL;
     return inet_ntop(AF_INET, &sin->sin_addr, str, sizeof(str));
-  } 
+  }
 #if HAVE_IPV6
   else if(sin->sin_family == AF_INET6) {
     if (sslen < sizeof(struct sockaddr_in6))
       return NULL;
     return inet_ntop(AF_INET6, &sin6->sin6_addr, str, sizeof(str));
-  } 
+  }
 #endif
   //Some laptops report the ip and address family of disabled wifi cards as null
   //so yes, we will hit this sometimes.
@@ -684,9 +684,9 @@ unsigned long nbase_adler32(unsigned char *buf, int len)
  * buffer. It uses current locale to determine if a character is printable or
  * not. It prints 73char+\n wide lines like these:
 
-0000   e8 60 65 86 d7 86 6d 30  35 97 54 87 ff 67 05 9e  .`e...m05.T..g.. 
-0010   07 5a 98 c0 ea ad 50 d2  62 4f 7b ff e1 34 f8 fc  .Z....P.bO{..4.. 
-0020   c4 84 0a 6a 39 ad 3c 10  63 b2 22 c4 24 40 f4 b1  ...j9.<.c.".$@.. 
+0000   e8 60 65 86 d7 86 6d 30  35 97 54 87 ff 67 05 9e  .`e...m05.T..g..
+0010   07 5a 98 c0 ea ad 50 d2  62 4f 7b ff e1 34 f8 fc  .Z....P.bO{..4..
+0020   c4 84 0a 6a 39 ad 3c 10  63 b2 22 c4 24 40 f4 b1  ...j9.<.c.".$@..
 
  * The lines look basically like Wireshark's hex dump.
  * WARNING: This function returns a pointer to a DYNAMICALLY allocated buffer
@@ -735,20 +735,20 @@ char *hexdump(const u8 *cp, u32 length){
     line2print[4]=' '; /* Replace the '\0' inserted by snprintf() with a space */
     hex=HEX_START;  asc=ASC_START;
     do { /* Print 16 bytes in both hex and ascii */
-		if (i%16 == 8) hex++; /* Insert space every 8 bytes */
+        if (i%16 == 8) hex++; /* Insert space every 8 bytes */
         snprintf(printbyte, sizeof(printbyte), "%02x", cp[i]);/* First print the hex number */
         line2print[hex++]=printbyte[0];
         line2print[hex++]=printbyte[1];
         line2print[hex++]=' ';
         line2print[asc++]=asciify[ cp[i] ]; /* Then print its ASCII equivalent */
-		i++;
-	} while (i < length && i%16 != 0);
+        i++;
+    } while (i < length && i%16 != 0);
     /* Copy line to output buffer */
     line2print[LINE_LEN-1]='\n';
     memcpy(current_line, line2print, LINE_LEN);
     current_line += LINE_LEN;
   }
-  buffer[bytes2alloc-1]='\0'; 
+  buffer[bytes2alloc-1]='\0';
   return buffer;
 } /* End of hexdump() */
 
@@ -789,7 +789,7 @@ int optcmp(const char *a, const char *b) {
   while(*a && *b) {
     if (*a == '_' || *a == '-') {
       if (*b != '_' && *b != '-')
-	return 1;
+    return 1;
     }
     else if (*a != *b)
       return 1;
@@ -804,18 +804,18 @@ int optcmp(const char *a, const char *b) {
  * is readable by the executing process.  Returns two if it is readable
  * and is a directory.  Otherwise returns 0. */
 int file_is_readable(const char *pathname) {
-	char *pathname_buf = strdup(pathname);
-	int status = 0;
-	struct stat st;
+    char *pathname_buf = strdup(pathname);
+    int status = 0;
+    struct stat st;
 
 #ifdef WIN32
-	// stat on windows only works for "dir_name" not for "dir_name/" or "dir_name\\"
-	int pathname_len = strlen(pathname_buf);
-	char last_char = pathname_buf[pathname_len - 1];
+    // stat on windows only works for "dir_name" not for "dir_name/" or "dir_name\\"
+    int pathname_len = strlen(pathname_buf);
+    char last_char = pathname_buf[pathname_len - 1];
 
-	if(	last_char == '/'
-		|| last_char == '\\')
-		pathname_buf[pathname_len - 1] = '\0';
+    if(    last_char == '/'
+        || last_char == '\\')
+        pathname_buf[pathname_len - 1] = '\0';
 
 #endif
 

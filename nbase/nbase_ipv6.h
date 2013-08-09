@@ -179,13 +179,13 @@ const char *inet_ntop(int af, const void *src, char *dst, size_t size);
 
 #ifndef HAVE_SOCKADDR_STORAGE
      /* Just needs to be big enough to hold sockaddr_in or
-	sockaddr_in6.  I should really align it at 64 bits, but 32 is
-	probably fine as hosts that actually want to store a
-	sockaddr_in6 in here should already have this defined (see
-	RFC2355). */
+        sockaddr_in6.  I should really align it at 64 bits, but 32 is
+        probably fine as hosts that actually want to store a
+        sockaddr_in6 in here should already have this defined (see
+        RFC2355). */
 struct sockaddr_storage {
-	u32 padding[32];
-}; 
+    u32 padding[32];
+};
 #endif /* SOCKADDR_STORAGE */
 
 /* Compares two sockaddr_storage structures with a return value like strcmp.
@@ -240,8 +240,8 @@ const char *inet_ntop_ez(const struct sockaddr_storage *ss, size_t sslen);
 
 struct sockaddr;
 int getnameinfo(const struct sockaddr *sa, size_t salen,
-		char *host, size_t hostlen,
-		char *serv, size_t servlen, int flags);
+                char *host, size_t hostlen,
+                char *serv, size_t servlen, int flags);
 #endif /* !HAVE_GETNAMEINFO */
 
 #if !HAVE_GETADDRINFO
@@ -266,8 +266,8 @@ struct addrinfo {
 #endif
 
 void freeaddrinfo(struct addrinfo *res);
-int getaddrinfo(const char *node, const char *service, 
-		const struct addrinfo *hints, struct addrinfo **res);
+int getaddrinfo(const char *node, const char *service,
+                const struct addrinfo *hints, struct addrinfo **res);
 
 #endif /* !HAVE_GETADDRINFO */
 

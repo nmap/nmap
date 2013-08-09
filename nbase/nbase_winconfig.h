@@ -130,7 +130,7 @@
 //This disables the warning 4800 http://msdn.microsoft.com/en-us/library/b6801kcy(v=vs.71).aspx
 #pragma warning(disable : 4800)
 /* It doesn't really have struct IP, but we use a different one instead
-	of the one that comes with Nmap */
+   of the one that comes with Nmap */
 #define HAVE_STRUCT_IP 1
 /* #define HAVE_STRUCT_ICMP 1 */
 #define HAVE_STRNCASECMP 1
@@ -185,7 +185,7 @@ typedef signed __int64 int64_t;
 #define _CRT_SECURE_NO_DEPRECATE 1
 #ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS 1
-#endif 
+#endif
 #pragma warning(disable: 4996)
 
 #ifdef __GNUC__

@@ -137,8 +137,8 @@
  * * 'inline' is defined to what is neccessary for the C compiler being
  *   used (which may be nothing)
  *
- * * snprintf, inet_pton, memcpy, and bzero are 
- *   provided if you don't have them (prototypes for these are 
+ * * snprintf, inet_pton, memcpy, and bzero are
+ *   provided if you don't have them (prototypes for these are
  *   included either way).
  *
  * * WORDS_BIGENDIAN is defined if platform is big endian
@@ -149,7 +149,7 @@
  *
  * * Insures that getopt_* functions exist (such as getopt_long_only)
  *
- * * Various string functions such as Strncpy() and strcasestr() see protos 
+ * * Various string functions such as Strncpy() and strcasestr() see protos
  *   for more info.
  *
  * * IPv6 structures like 'sockaddr_storage' are provided if they do
@@ -198,7 +198,7 @@
 #endif
 
 #if HAVE_NETDB_H
-#include <netdb.h>  
+#include <netdb.h>
 #endif
 
 #if HAVE_INTTYPES_H
@@ -242,7 +242,7 @@ typedef int64_t s64;
 #define MIN(x,y) (((x)<(y))?(x):(y))
 #endif
 #ifndef ABS
-#define ABS(x) (((x) >= 0)?(x):-(x)) 
+#define ABS(x) (((x) >= 0)?(x):-(x))
 #endif
 
 /* Timeval subtraction in microseconds */
@@ -501,7 +501,7 @@ char *path_get_dirname(const char *path);
 char *path_get_basename(const char *path);
 
 /* A few simple wrappers for the most common memory allocation routines which will exit() if the
-	allocation fails, so you don't always have to check -- see nbase_memalloc.c */
+   allocation fails, so you don't always have to check -- see nbase_memalloc.c */
 void *safe_malloc(size_t size);
 void *safe_realloc(void *ptr, size_t size);
 /* Zero-initializing version of safe_malloc */
