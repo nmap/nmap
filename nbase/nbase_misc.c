@@ -500,6 +500,8 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         /* selecting on anything other than stdin? */
         if (s > 1)
             fds_ready = select(s, &rset, &wset, &eset, &stv);
+        else
+            usleep(stv.tv_usec);
 
         if (fds_ready > -1 && win_stdin_ready()) {
             FD_SET(STDIN_FILENO, &rset);
