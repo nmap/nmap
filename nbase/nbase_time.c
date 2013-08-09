@@ -137,12 +137,12 @@
 #ifndef HAVE_USLEEP
 void usleep(unsigned long usec) {
 #ifdef HAVE_NANOSLEEP
-struct timespec ts; 
-ts.tv_sec = usec / 1000000; 
-ts.tv_nsec = (usec % 1000000) * 1000; 
+struct timespec ts;
+ts.tv_sec = usec / 1000000;
+ts.tv_nsec = (usec % 1000000) * 1000;
 nanosleep(&ts, NULL);
 #else /* Windows style */
- Sleep( usec / 1000 ); 
+ Sleep( usec / 1000 );
 #endif /* HAVE_NANOSLEEP */
 }
 #endif
@@ -150,19 +150,19 @@ nanosleep(&ts, NULL);
 #ifdef WIN32
 int gettimeofday(struct timeval *tv, struct timeval *tz)
 {
-	struct _timeb timebuffer;
+  struct _timeb timebuffer;
 
-	_ftime( &timebuffer );
+  _ftime( &timebuffer );
 
-	tv->tv_sec = (long) timebuffer.time;
-	tv->tv_usec = timebuffer.millitm * 1000;
-	return 0;
+  tv->tv_sec = (long) timebuffer.time;
+  tv->tv_usec = timebuffer.millitm * 1000;
+  return 0;
 };
 
 unsigned int sleep(unsigned int seconds)
 {
-	Sleep(1000*seconds);
-	return(0);
+  Sleep(1000*seconds);
+  return(0);
 };
 #endif /* WIN32 */
 
