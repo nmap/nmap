@@ -160,6 +160,20 @@ table.insert(fingerprints, {
   end
 })
 
+table.insert(fingerprints, {
+  name = "Cisco WAP55AG",
+  category = "routers",
+  paths = {
+    {path = "/WPA_Preshared.asp"}
+  },
+  login_combos = {
+    {username = "", password = "admin"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass, false)
+  end
+})
+
 ---
 --Digital recorders
 ---
