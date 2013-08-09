@@ -501,7 +501,7 @@ int fselect(int s, fd_set *rmaster, fd_set *wmaster, fd_set *emaster, struct tim
         if (s > 1)
             fds_ready = select(s, &rset, &wset, &eset, &stv);
         else
-            usleep(stv->tv_sec * 1000000UL + stv->tv_usec);
+            usleep(stv.tv_sec * 1000000UL + stv.tv_usec);
 
         if (fds_ready > -1 && win_stdin_ready()) {
             FD_SET(STDIN_FILENO, &rset);
