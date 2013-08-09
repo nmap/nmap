@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the qconn-exec script by Brendan Coles, which tests the
+  QNX QCONN service for remote command execution.
+
 o [Zenmap] Fixed a crash that would happen when you entered a search
   term starting with a colon: "AttributeError:
   'FilteredNetworkInventory' object has no attribute 'match_'".
