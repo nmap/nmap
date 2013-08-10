@@ -146,7 +146,7 @@ static int nsock_make_socket(mspool *ms, msiod *iod, int family, int type, int p
   /* inheritable_socket is from nbase */
   iod->sd = (int)inheritable_socket(family, type, proto);
   if (iod->sd == -1) {
-    perror("Socket troubles");
+    nsock_log_error(ms, "Socket trouble: %s", socket_strerror(socket_errno()));
     return -1;
   }
 
