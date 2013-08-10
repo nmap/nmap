@@ -65,6 +65,8 @@
 -- ** <code>name</code>
 -- ** <code>value</code>
 -- ** <code>path</code>
+-- ** <code>expires</code>
+--   Only <code>name</code> and <code>value</code> fields are required.
 -- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>, which will be used for HTTP Basic authentication.
 --   If a server requires HTTP Digest authentication, then there must also be a key <code>digest</code>, with value <code>true</code>.
 -- * <code>bypass_cache</code>: Do not perform a lookup in the local HTTP cache.
@@ -893,7 +895,12 @@ local function buildCookies(cookies, path)
   local cookie = ""
   if type(cookies) == 'string' then return cookies end
   for i, ck in ipairs(cookies or {}) do
-    if not path or string.match(ck["path"],".*" .. path .. ".*") then
+      local ckpath = ck["path"]
+      if not path or not ckpath
+        or ckpath == path
+        or ckpath:sub(-1) == "/" and ckpath == path:sub(1, ckpath:len())
+        or ckpath .. "/" == path:sub(1, ckpath:len()+1)
+        then
       if i ~= 1 then cookie = cookie .. " " end
       cookie = cookie .. ck["name"] .. "=" .. ck["value"] .. ";"
     end
