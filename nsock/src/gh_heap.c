@@ -1,8 +1,5 @@
 /***************************************************************************
- * nsock_engines.c -- This contains the functions and definitions to       *
- * manage the list of available IO engines.  Each IO engine leverages a    *
- * specific IO notification function to wait for events.  Nsock will try   *
- * to use the most efficient engine for your system.                       *
+ * gh_heap.c -- heap based priority queue.                                 *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
@@ -60,101 +57,192 @@
 
 #ifdef HAVE_CONFIG_H
 #include "nsock_config.h"
+#include "nbase_config.h"
 #endif
 
-#include "nsock_internal.h"
+#ifdef WIN32
+#include "nbase_winconfig.h"
+#endif
 
-#if HAVE_EPOLL
-  extern struct io_engine engine_epoll;
-  #define ENGINE_EPOLL &engine_epoll,
-#else
-  #define ENGINE_EPOLL
-#endif /* HAVE_EPOLL */
+#include <nbase.h>
+#include "gh_heap.h"
 
-#if HAVE_KQUEUE
-  extern struct io_engine engine_kqueue;
-  #define ENGINE_KQUEUE &engine_kqueue,
-#else
-  #define ENGINE_KQUEUE
-#endif /* HAVE_KQUEUE */
-
-#if HAVE_POLL
-  extern struct io_engine engine_poll;
-  #define ENGINE_POLL &engine_poll,
-#else
-  #define ENGINE_POLL
-#endif /* HAVE_POLL */
-
-/* select() based engine is the fallback engine, we assume it's always available */
-extern struct io_engine engine_select;
-#define ENGINE_SELECT &engine_select,
-
-/* Available IO engines. This depends on which IO management interfaces are
- * available on your system. Engines must be sorted by order of preference */
-static struct io_engine *available_engines[] = {
-  ENGINE_EPOLL
-  ENGINE_KQUEUE
-  ENGINE_POLL
-  ENGINE_SELECT
-  NULL
-};
-
-static char *engine_hint;
+#define GH_SLOTS   128
 
 
-struct io_engine *get_io_engine(void) {
-  struct io_engine *engine = NULL;
-  int i;
-
-  if (!engine_hint) {
-    engine = available_engines[0];
-  } else {
-    for (i = 0; available_engines[i] != NULL; i++)
-      if (strcmp(engine_hint, available_engines[i]->name) == 0) {
-        engine = available_engines[i];
-        break;
-      }
-  }
-
-  if (!engine)
-    fatal("No suitable IO engine found! (%s)\n",
-          engine_hint ? engine_hint : "no hint");
-
-  return engine;
+static gh_hnode_t **hnode_ptr(gh_heap_t *heap, unsigned int index) {
+  assert(index >= 0);
+  assert(index <= heap->count);
+  return &(heap->slots[index]);
 }
 
-int nsock_set_default_engine(char *engine) {
-  if (engine_hint)
-    free(engine_hint);
+gh_hnode_t *gh_heap_find(gh_heap_t *heap, unsigned int index) {
+  if (index >= heap->count)
+    return NULL;
 
-  if (engine) {
-    int i;
+  return *hnode_ptr(heap, index);
+}
 
-    for (i = 0; available_engines[i] != NULL; i++) {
-      if (strcmp(engine, available_engines[i]->name) == 0) {
-        engine_hint = strdup(engine);
-        return 0;
+static int hnode_up(gh_heap_t *heap, gh_hnode_t *hnode)
+{
+  unsigned int cur_idx = hnode->index;
+  gh_hnode_t **cur_ptr = hnode_ptr(heap, cur_idx);
+  unsigned int parent_idx;
+  gh_hnode_t **parent_ptr;
+  int action = 0;
+
+  assert(*cur_ptr == hnode);
+
+  while (cur_idx > 0) {
+    parent_idx = (cur_idx - 1) >> 1;
+
+    parent_ptr = hnode_ptr(heap, parent_idx);
+    assert((*parent_ptr)->index == parent_idx);
+
+    if (heap->cmp_op(*parent_ptr, hnode))
+      break;
+
+    (*parent_ptr)->index = cur_idx;
+    *cur_ptr = *parent_ptr;
+    cur_ptr = parent_ptr;
+    cur_idx = parent_idx;
+    action = 1;
+  }
+
+  hnode->index = cur_idx;
+  *cur_ptr = hnode;
+
+  return action;
+}
+
+static int hnode_down(gh_heap_t *heap, gh_hnode_t *hnode)
+{
+  unsigned int count = heap->count;
+  unsigned int ch1_idx, ch2_idx, cur_idx;
+  gh_hnode_t **ch1_ptr, **ch2_ptr, **cur_ptr;
+  gh_hnode_t  *ch1, *ch2;
+  int action = 0;
+
+  cur_idx = hnode->index;
+  cur_ptr = hnode_ptr(heap, cur_idx);
+  assert(*cur_ptr == hnode);
+
+  while (cur_idx < count) {
+    ch1_idx = (cur_idx << 1) + 1;
+    if (ch1_idx >= count)
+      break;
+
+    ch1_ptr = hnode_ptr(heap, ch1_idx);
+    ch1 = *ch1_ptr;
+
+    ch2_idx = ch1_idx + 1;
+    if (ch2_idx < count) {
+      ch2_ptr = hnode_ptr(heap, ch2_idx);
+      ch2 = *ch2_ptr;
+
+      if (heap->cmp_op(ch2, ch1)) {
+        ch1_idx = ch2_idx;
+        ch1_ptr = ch2_ptr;
+        ch1 = ch2;
       }
     }
-    return -1;
+
+    assert(ch1->index == ch1_idx);
+
+    if (heap->cmp_op(hnode, ch1))
+      break;
+
+    ch1->index = cur_idx;
+    *cur_ptr = ch1;
+    cur_ptr = ch1_ptr;
+    cur_idx = ch1_idx;
+    action = 1;
   }
-  /* having engine = NULL is fine. This is actually the
-   * way to tell nsock to use the default engine again. */
-  engine_hint = NULL;
+
+  hnode->index = cur_idx;
+  *cur_ptr = hnode;
+
+  return action;
+}
+
+static int heap_grow(gh_heap_t *heap) {
+  /* Do we really need to grow? */
+  assert(heap->count == heap->highwm);
+
+  heap->slots = safe_realloc(heap->slots,
+                             (heap->count + GH_SLOTS) * sizeof(gh_hnode_t *));
+  heap->highwm += GH_SLOTS;
   return 0;
 }
 
-const char *nsock_list_engines(void) {
-  return
-#if HAVE_EPOLL
-  "epoll "
-#endif
-#if HAVE_KQUEUE
-  "kqueue "
-#endif
-#if HAVE_POLL
-  "poll "
-#endif
-  "select";
+int gh_heap_init(gh_heap_t *heap, gh_heap_cmp_t cmp_op) {
+  int rc;
+
+  if (!cmp_op)
+      return -1;
+
+  heap->cmp_op = cmp_op;
+  heap->count  = 0;
+  heap->highwm = 0;
+  heap->slots  = NULL;
+
+  rc = heap_grow(heap);
+  if (rc)
+    gh_heap_free(heap);
+
+  return rc;
 }
 
+void gh_heap_free(gh_heap_t *heap) {
+  if (heap->highwm) {
+    assert(heap->slots);
+    free(heap->slots);
+  }
+  memset(heap, 0, sizeof(gh_heap_t));
+}
+
+int gh_heap_push(gh_heap_t *heap, gh_hnode_t *hnode) {
+  gh_hnode_t **new_ptr;
+  unsigned int new_index = heap->count;
+
+  assert(!gh_hnode_is_valid(hnode));
+
+  if (new_index == heap->highwm)
+    heap_grow(heap);
+
+  hnode->index = new_index;
+  new_ptr = hnode_ptr(heap, new_index);
+  heap->count++;
+  *new_ptr = hnode;
+
+  hnode_up(heap, hnode);
+  return 0;
+}
+
+int gh_heap_remove(gh_heap_t *heap, gh_hnode_t *hnode)
+{
+  unsigned int count = heap->count;
+  unsigned int cur_idx = hnode->index;
+  gh_hnode_t **cur_ptr;
+  gh_hnode_t *last;
+
+  assert(gh_hnode_is_valid(hnode));
+  assert(cur_idx < count);
+
+  cur_ptr = hnode_ptr(heap, cur_idx);
+  assert(*cur_ptr == hnode);
+
+  count--;
+  last = *hnode_ptr(heap, count);
+  heap->count = count;
+  if (last == hnode)
+    return 0;
+
+  last->index = cur_idx;
+  *cur_ptr = last;
+  if (!hnode_up(heap, *cur_ptr))
+    hnode_down(heap, *cur_ptr);
+
+  gh_hnode_invalidate(hnode);
+  return 0;
+}

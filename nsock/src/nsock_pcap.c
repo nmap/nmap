@@ -411,12 +411,15 @@ int do_actual_pcap_read(msevent *nse) {
       n = (nsock_pcap *)fs_str(&(nse->iobuf));
       n->packet = (unsigned char *)fs_str(&(nse->iobuf)) + sizeof(npp);
 
-      nsock_log_debug_all(nse->iod->nsp, "PCAP %s READ (IOD #%li) (EID #%li) size=%i",
+      nsock_log_debug_all(nse->iod->nsp,
+                          "PCAP %s READ (IOD #%li) (EID #%li) size=%i",
                           __func__, nse->iod->id, nse->id, pkt_header->caplen);
-      return 1;
+      rc = 1;
+      break;
 
     case 0: /* timeout */
-      return(0);
+      rc = 0;
+      break;
 
     case -1: /* error */
       fatal("pcap_next_ex() fatal error while reading from pcap: %s\n",
@@ -427,7 +430,8 @@ int do_actual_pcap_read(msevent *nse) {
     default:
       fatal("Unexpected return code from pcap_next_ex! (%d)\n", rc);
   }
-  return 0;
+
+  return rc;
 }
 
 void nse_readpcap(nsock_event nsev, const unsigned char **l2_data, size_t *l2_len,

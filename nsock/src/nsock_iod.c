@@ -87,12 +87,15 @@ nsock_iod nsi_new(nsock_pool nsockp, void *userdata) {
  * will be destroyed when the nsi is destroyed. */
 nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
   mspool *nsp = (mspool *)nsockp;
+  gh_lnode_t *lnode;
   msiod *nsi;
 
-  nsi = (msiod *)gh_list_pop(&nsp->free_iods);
-  if (!nsi) {
+  lnode = gh_list_pop(&nsp->free_iods);
+  if (!lnode) {
     nsi = (msiod *)safe_malloc(sizeof(msiod));
     memset(nsi, 0, sizeof(*nsi));
+  } else {
+    nsi = container_of(lnode, msiod, nodeq);
   }
 
   if (sd == -1) {
@@ -149,7 +152,7 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata) {
     nsi->id = nsp->next_iod_serial++;
 
   /* The nsp keeps track of active msiods so it can delete them if it is deleted */
-  nsi->entry_in_nsp_active_iods = gh_list_append(&nsp->active_iods, nsi);
+  gh_list_append(&nsp->active_iods, &nsi->nodeq);
 
   nsock_log_info(nsp, "nsi_new (IOD #%lu)", nsi->id);
 
@@ -169,10 +172,10 @@ int socket_count_zero(msiod *iod, mspool *ms);
  * quiit the program) */
 void nsi_delete(nsock_iod nsockiod, int pending_response) {
   msiod *nsi = (msiod *)nsockiod;
-  gh_list_elem *evlist_ar[3];
-  gh_list *corresp_list[3];
+  gh_lnode_t *evlist_ar[3];
+  gh_list_t *corresp_list[3];
   int i;
-  gh_list_elem *current, *next;
+  gh_lnode_t *current, *next;
 
   assert(nsi);
 
@@ -207,8 +210,8 @@ void nsi_delete(nsock_iod nsockiod, int pending_response) {
       for (current = evlist_ar[i]; current != NULL; current = next) {
         msevent *nse;
 
-        next = GH_LIST_ELEM_NEXT(current);
-        nse = (msevent *)GH_LIST_ELEM_DATA(current);
+        next = gh_lnode_next(current);
+        nse = lnode_msevent(current);
 
         /* we're done with this list of events for the current IOD */
         if (nse->iod != nsi)

@@ -110,11 +110,12 @@ struct proxy_node {
   size_t sslen;
   unsigned short port;
   char *nodestr; /* used for log messages */
+  gh_lnode_t nodeq;
 };
 
 /* Ordered list of proxy nodes, as specified in the proxy specification string. */
 struct proxy_chain {
-  gh_list nodes;
+  gh_list_t nodes;
 };
 
 /* IOD-specific context. For each IOD we establish a tunnel through the chain of
@@ -123,7 +124,7 @@ struct proxy_chain_context {
   const struct proxy_chain *px_chain;
 
   /* Nodes iterator in px_chain->nodes */
-  gh_list_elem *px_current;
+  struct proxy_node *px_current;
   
   /* Current node connection state. */
   enum nsock_proxy_state px_state;
@@ -153,18 +154,17 @@ struct proxy_spec {
 /* ------------------- UTIL FUNCTIONS ------------------- */
 int proxy_resolve(const char *host, struct sockaddr *addr, size_t *addrlen);
 
-static inline struct proxy_node *proxy_ctx_node_current(struct proxy_chain_context *ctx) {
-  return (struct proxy_node *)GH_LIST_ELEM_DATA(ctx->px_current);
-}
-
 static inline struct proxy_node *proxy_ctx_node_next(struct proxy_chain_context *ctx) {
-  gh_list_elem *next;
+  gh_lnode_t *next;
 
-  next = GH_LIST_ELEM_NEXT(ctx->px_current);
-  if (next)
-    return (struct proxy_node *)GH_LIST_ELEM_DATA(next);
+  assert(ctx);
+  assert(ctx->px_current);
 
-  return NULL;
+  next = gh_lnode_next(&ctx->px_current->nodeq);
+  if (!next)
+    return NULL;
+
+  return container_of(next, struct proxy_node, nodeq);
 }
 
 

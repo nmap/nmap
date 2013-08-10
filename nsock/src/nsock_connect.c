@@ -204,7 +204,7 @@ void nsock_connect_internal(mspool *ms, msevent *nse, int type, int proto, struc
     nsock_log_debug_all(ms, "TCP connection request (EID %lu) redirected through proxy chain",
                         (long)nse->id);
 
-    current = proxy_ctx_node_current(iod->px_ctx);
+    current = iod->px_ctx->px_current;
     assert(current != NULL);
 
     memcpy(&iod->px_ctx->target_ss, ss, sslen);

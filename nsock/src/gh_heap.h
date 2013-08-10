@@ -1,8 +1,5 @@
 /***************************************************************************
- * nsock_engines.c -- This contains the functions and definitions to       *
- * manage the list of available IO engines.  Each IO engine leverages a    *
- * specific IO notification function to wait for events.  Nsock will try   *
- * to use the most efficient engine for your system.                       *
+ * gh_heap.h -- heap based priority queues.                                *
  *                                                                         *
  ***********************IMPORTANT NSOCK LICENSE TERMS***********************
  *                                                                         *
@@ -58,103 +55,92 @@
 
 /* $Id$ */
 
+#ifndef GH_HEAP_H
+#define GH_HEAP_H
+
 #ifdef HAVE_CONFIG_H
 #include "nsock_config.h"
+#include "nbase_config.h"
 #endif
 
-#include "nsock_internal.h"
+#ifdef WIN32
+#include "nbase_winconfig.h"
+#endif
 
-#if HAVE_EPOLL
-  extern struct io_engine engine_epoll;
-  #define ENGINE_EPOLL &engine_epoll,
-#else
-  #define ENGINE_EPOLL
-#endif /* HAVE_EPOLL */
-
-#if HAVE_KQUEUE
-  extern struct io_engine engine_kqueue;
-  #define ENGINE_KQUEUE &engine_kqueue,
-#else
-  #define ENGINE_KQUEUE
-#endif /* HAVE_KQUEUE */
-
-#if HAVE_POLL
-  extern struct io_engine engine_poll;
-  #define ENGINE_POLL &engine_poll,
-#else
-  #define ENGINE_POLL
-#endif /* HAVE_POLL */
-
-/* select() based engine is the fallback engine, we assume it's always available */
-extern struct io_engine engine_select;
-#define ENGINE_SELECT &engine_select,
-
-/* Available IO engines. This depends on which IO management interfaces are
- * available on your system. Engines must be sorted by order of preference */
-static struct io_engine *available_engines[] = {
-  ENGINE_EPOLL
-  ENGINE_KQUEUE
-  ENGINE_POLL
-  ENGINE_SELECT
-  NULL
-};
-
-static char *engine_hint;
+#include "error.h"
+#include <assert.h>
 
 
-struct io_engine *get_io_engine(void) {
-  struct io_engine *engine = NULL;
-  int i;
+#if !defined(container_of)
+#define container_of(ptr, type, member) \
+        ((type *)((char *)(ptr)-(char *)(&((type *)0)->member)))
+#endif
 
-  if (!engine_hint) {
-    engine = available_engines[0];
-  } else {
-    for (i = 0; available_engines[i] != NULL; i++)
-      if (strcmp(engine_hint, available_engines[i]->name) == 0) {
-        engine = available_engines[i];
-        break;
-      }
-  }
 
-  if (!engine)
-    fatal("No suitable IO engine found! (%s)\n",
-          engine_hint ? engine_hint : "no hint");
+typedef struct {
+  unsigned int index;
+} gh_hnode_t;
 
-  return engine;
+/* POISON value, set heap node index to this value to indicate that the node is
+ * inactive (not part of a heap) */
+#define GH_HEAP_GUARD  0x19890721
+
+/* Node comparison function.
+ * Here lies all the intelligence of the tree.
+ * Return 1 if hnode1 < hnode2, 0 otherwise. */
+typedef int (*gh_heap_cmp_t)(gh_hnode_t *hnode1, gh_hnode_t *hnode2);
+
+
+typedef struct gh_heap {
+  gh_heap_cmp_t cmp_op;
+  unsigned int count;
+  unsigned int highwm;
+  gh_hnode_t **slots;
+} gh_heap_t;
+
+
+int gh_heap_init(gh_heap_t *heap, gh_heap_cmp_t cmp_op);
+
+void gh_heap_free(gh_heap_t *heap);
+
+int gh_heap_push(gh_heap_t *heap, gh_hnode_t *node);
+
+int gh_heap_remove(gh_heap_t *heap, gh_hnode_t *node);
+
+gh_hnode_t *gh_heap_find(gh_heap_t *heap, unsigned int index);
+
+
+static inline gh_hnode_t *gh_heap_min(gh_heap_t *heap) {
+  if (heap->count == 0)
+    return NULL;
+
+  return gh_heap_find(heap, 0);
 }
 
-int nsock_set_default_engine(char *engine) {
-  if (engine_hint)
-    free(engine_hint);
+static inline gh_hnode_t *gh_heap_pop(gh_heap_t *heap) {
+  gh_hnode_t *hnode;
 
-  if (engine) {
-    int i;
+  hnode = gh_heap_find(heap, 0);
+  if (hnode != NULL)
+    gh_heap_remove(heap, hnode);
 
-    for (i = 0; available_engines[i] != NULL; i++) {
-      if (strcmp(engine, available_engines[i]->name) == 0) {
-        engine_hint = strdup(engine);
-        return 0;
-      }
-    }
-    return -1;
-  }
-  /* having engine = NULL is fine. This is actually the
-   * way to tell nsock to use the default engine again. */
-  engine_hint = NULL;
-  return 0;
+  return hnode;
 }
 
-const char *nsock_list_engines(void) {
-  return
-#if HAVE_EPOLL
-  "epoll "
-#endif
-#if HAVE_KQUEUE
-  "kqueue "
-#endif
-#if HAVE_POLL
-  "poll "
-#endif
-  "select";
+static inline size_t gh_heap_count(gh_heap_t *heap) {
+  return heap->count;
 }
 
+static inline int gh_heap_is_empty(gh_heap_t *heap) {
+  return heap->count == 0;
+}
+
+static inline void gh_hnode_invalidate(gh_hnode_t *node) {
+  node->index = GH_HEAP_GUARD;
+}
+
+static inline int gh_hnode_is_valid(const gh_hnode_t *node) {
+  return (node && node->index != GH_HEAP_GUARD);
+}
+
+#endif /* GH_HEAP_H */

@@ -73,6 +73,7 @@
 #endif
 
 #include "gh_list.h"
+#include "gh_heap.h"
 #include "filespace.h"
 #include "nsock.h" /* The public interface -- I need it for some enum defs */
 #include "nsock_ssl.h"
@@ -165,28 +166,21 @@ typedef struct {
   void *engine_data;
 
   /* Active network events */
-  gh_list connect_events;
-  gh_list read_events;
-  gh_list write_events;
-  gh_list timer_events;
+  gh_list_t connect_events;
+  gh_list_t read_events;
+  gh_list_t write_events;
 #if HAVE_PCAP
-  gh_list pcap_read_events;
+  gh_list_t pcap_read_events;
 #endif
+  gh_heap_t expirables;
 
   /* Active iods and related lists of events */
-  gh_list active_iods;
+  gh_list_t active_iods;
 
   /* msiod structures that have been freed for reuse */
-  gh_list free_iods;
+  gh_list_t free_iods;
   /* When an event is deleted, we stick it here for later reuse */
-  gh_list free_events;
-
-  /* The soonest time that either a timer event goes
-   * off or a read/write/connect expires.  It is
-   * updated each main loop round as we go through
-   * the events.  It is an absolute time.  If there
-   * are no events, tv_sec is 0 */
-  struct timeval next_ev;
+  gh_list_t free_events;
 
   /* Number of events pending (total) on all lists */
   int events_pending;
@@ -236,11 +230,11 @@ typedef struct {
   int events_pending;
 
   /* Pending events */
-  gh_list_elem *first_connect;
-  gh_list_elem *first_read;
-  gh_list_elem *first_write;
+  gh_lnode_t *first_connect;
+  gh_lnode_t *first_read;
+  gh_lnode_t *first_write;
 #if HAVE_PCAP
-  gh_list_elem *first_pcap_read;
+  gh_lnode_t *first_pcap_read;
 #endif
 
   int readsd_count;
@@ -273,7 +267,7 @@ typedef struct {
   /* The mspool keeps track of msiods that have been allocated so that it can
    * destroy them if the msp is deleted.  This pointer makes it easy to remove
    * this msiod from the allocated list when necessary */
-  gh_list_elem *entry_in_nsp_active_iods;
+  gh_lnode_t nodeq;
 
 #define IOD_REGISTERED  0x01
 #define IOD_PROCESSED   0x02    /* internally used by engine_kqueue.c */
@@ -353,6 +347,18 @@ typedef struct {
 
   /* The handler to call when event is complete */
   nsock_ev_handler handler;
+
+  /* slot in the expirable binheap */
+  gh_hnode_t expire;
+
+  /* For some reasons (see nsock_pcap.c) we register pcap events as both read
+   * and pcap_read events when in PCAP_BSD_SELECT_HACK mode. We then need two
+   * gh_lnode_t handles. To make code simpler, we _always_ use _nodeq_pcap for
+   * pcap_read events and _nodeq_io for the other ones.
+   * When not in PCAP_BSD_SELECT_HACK mode we define both handles as members
+   * of an union to optimize memory footprint. */
+  gh_lnode_t nodeq_io;
+  gh_lnode_t nodeq_pcap;
 
   /* Optional (NULL if unset) pointer to pass to the handler */
   void *userdata;
@@ -439,7 +445,7 @@ msevent *msevent_new(mspool *nsp, enum nse_type type, msiod *msiod, int timeout_
  * is the list element in event_list which holds the event.  Pass a nonzero for
  * notify if you want the program owning the event to be notified that it has
  * been cancelled */
-int msevent_cancel(mspool *nsp, msevent *nse, gh_list *event_list, gh_list_elem *elem, int notify);
+int msevent_cancel(mspool *nsp, msevent *nse, gh_list_t *event_list, gh_lnode_t *elem, int notify);
 
 /* Adjust various statistics, dispatches the event handler (if notify is
  * nonzero) and then deletes the event.  This function does NOT delete the event
@@ -485,6 +491,24 @@ void nsock_trace_handler_callback(mspool *ms, msevent *nse);
  * should not have been set yet (as no freeing is done) */
 void nsi_set_ssl_session(msiod *iod, SSL_SESSION *sessid);
 #endif
+
+static inline msevent *next_expirable_event(mspool *nsp) {
+  gh_hnode_t *hnode;
+
+  hnode = gh_heap_min(&nsp->expirables);
+  if (!hnode)
+    return NULL;
+
+  return container_of(hnode, msevent, expire);
+}
+
+static inline msevent *lnode_msevent(gh_lnode_t *lnode) {
+  return container_of(lnode, msevent, nodeq_io);
+}
+
+static inline msevent *lnode_msevent2(gh_lnode_t *lnode) {
+  return container_of(lnode, msevent, nodeq_pcap);
+}
 
 #endif /* NSOCK_INTERNAL_H */
 

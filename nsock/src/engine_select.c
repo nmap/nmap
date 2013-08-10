@@ -94,8 +94,9 @@ struct io_engine engine_select = {
 static void iterate_through_event_lists(mspool *nsp);
 
 /* defined in nsock_core.c */
-void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev);
+void process_event(mspool *nsp, gh_list_t *evlist, msevent *nse, int ev);
 void process_iod_events(mspool *nsp, msiod *nsi, int ev);
+void process_expired_events(mspool *nsp);
 
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
@@ -252,18 +253,21 @@ int select_loop(mspool *nsp, int msec_timeout) {
     return 0; /* No need to wait on 0 events ... */
 
   do {
+    msevent *nse;
+
     nsock_log_debug_all(nsp, "wait for events");
 
-    if (nsp->next_ev.tv_sec == 0)
+    nse = next_expirable_event(nsp);
+    if (!nse)
       event_msecs = -1; /* None of the events specified a timeout */
     else
-      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nsp->next_ev, nsock_tod));
+      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
 
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
     /* Force a low timeout when capturing packets on systems where
      * the pcap descriptor is not select()able. */
-    if (GH_LIST_COUNT(&nsp->pcap_read_events))
+    if (gh_list_count(&nsp->pcap_read_events))
       if (event_msecs > PCAP_POLL_INTERVAL)
         event_msecs = PCAP_POLL_INTERVAL;
 #endif
@@ -366,39 +370,25 @@ static inline int get_evmask(const mspool *nsp, const msiod *nsi) {
  * timer_events, etc) and take action for those that have completed (due to
  * timeout, i/o, etc) */
 void iterate_through_event_lists(mspool *nsp) {
-  gh_list_elem *current, *next, *last, *timer_last;
+  gh_lnode_t *current, *next, *last;
 
-  /* Clear it -- We will find the next event as we go through the list */
-  nsp->next_ev.tv_sec = 0;
+  last = gh_list_last_elem(&nsp->active_iods);
 
-  last = GH_LIST_LAST_ELEM(&nsp->active_iods);
-  timer_last = GH_LIST_LAST_ELEM(&nsp->timer_events);
+  for (current = gh_list_first_elem(&nsp->active_iods);
+       current != NULL && gh_lnode_prev(current) != last;
+       current = next) {
+    msiod *nsi = container_of(current, msiod, nodeq);
 
-  for (current = GH_LIST_FIRST_ELEM(&nsp->active_iods);
-       current != NULL && GH_LIST_ELEM_PREV(current) != last; current = next) {
-    msiod *nsi = (msiod *)GH_LIST_ELEM_DATA(current);
-    
     if (nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
       process_iod_events(nsp, nsi, get_evmask(nsp, nsi));
 
-    next = GH_LIST_ELEM_NEXT(current);
+    next = gh_lnode_next(current);
     if (nsi->state == NSIOD_STATE_DELETED) {
-      gh_list_remove_elem(&nsp->active_iods, current);
-      gh_list_prepend(&nsp->free_iods, nsi);
+      gh_list_remove(&nsp->active_iods, current);
+      gh_list_prepend(&nsp->free_iods, current);
     }
   }
 
-  /* iterate through timers */
-  for (current = GH_LIST_FIRST_ELEM(&nsp->timer_events);
-       current != NULL && GH_LIST_ELEM_PREV(current) != timer_last; current = next) {
-
-    msevent *nse = (msevent *)GH_LIST_ELEM_DATA(current);
-
-    process_event(nsp, &nsp->timer_events, nse, EV_NONE);
-
-    next = GH_LIST_ELEM_NEXT(current);
-    if (nse->event_done)
-      gh_list_remove_elem(&nsp->timer_events, current);
-  }
+  /* iterate through timers and expired events */
+  process_expired_events(nsp);
 }
-
