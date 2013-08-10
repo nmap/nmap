@@ -894,18 +894,17 @@ end
 local function buildCookies(cookies, path)
   local cookie = ""
   if type(cookies) == 'string' then return cookies end
-  for i, ck in ipairs(cookies or {}) do
-      local ckpath = ck["path"]
-      if not path or not ckpath
-        or ckpath == path
-        or ckpath:sub(-1) == "/" and ckpath == path:sub(1, ckpath:len())
-        or ckpath .. "/" == path:sub(1, ckpath:len()+1)
-        then
-      if i ~= 1 then cookie = cookie .. " " end
-      cookie = cookie .. ck["name"] .. "=" .. ck["value"] .. ";"
+  for _, ck in ipairs(cookies or {}) do
+    local ckpath = ck["path"]
+    if not path or not ckpath
+      or ckpath == path
+      or ckpath:sub(-1) == "/" and ckpath == path:sub(1, ckpath:len())
+      or ckpath .. "/" == path:sub(1, ckpath:len()+1)
+      then
+        cookie = cookie .. ck["name"] .. "=" .. ck["value"] .. "; "
+      end
     end
-  end
-  return cookie
+  return cookie:gsub("; $","")
 end
 
 -- HTTP cache.
