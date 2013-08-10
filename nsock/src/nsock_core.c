@@ -223,27 +223,33 @@ static void update_events(msiod * iod, mspool *ms, int ev_inc, int ev_dec) {
  * loop just after its addition.
  */
 static int iod_add_event(msiod *iod, msevent *nse) {
+  mspool *nsp = iod->nsp;
+
   switch (nse->type) {
     case NSE_TYPE_CONNECT:
     case NSE_TYPE_CONNECT_SSL:
       if (iod->first_connect)
-        iod->first_connect = gh_list_insert_before(&iod->nsp->connect_events, iod->first_connect, nse);
+        gh_list_insert_before(&nsp->connect_events,
+                              iod->first_connect, &nse->nodeq_io);
       else
-        iod->first_connect = gh_list_append(&iod->nsp->connect_events, nse);
+        gh_list_append(&nsp->connect_events, &nse->nodeq_io);
+      iod->first_connect = &nse->nodeq_io;
       break;
 
     case NSE_TYPE_READ:
       if (iod->first_read)
-        iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
+        gh_list_insert_before(&nsp->read_events, iod->first_read, &nse->nodeq_io);
       else
-        iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
+        gh_list_append(&nsp->read_events, &nse->nodeq_io);
+      iod->first_read = &nse->nodeq_io;
       break;
 
     case NSE_TYPE_WRITE:
       if (iod->first_write)
-        iod->first_write = gh_list_insert_before(&iod->nsp->write_events, iod->first_write, nse);
+        gh_list_insert_before(&nsp->write_events, iod->first_write, &nse->nodeq_io);
       else
-        iod->first_write = gh_list_append(&iod->nsp->write_events, nse);
+        gh_list_append(&nsp->write_events, &nse->nodeq_io);
+      iod->first_write = &nse->nodeq_io;
       break;
 
 #if HAVE_PCAP
@@ -262,15 +268,18 @@ static int iod_add_event(msiod *iod, msevent *nse) {
 #endif
       if (add_read) {
         if (iod->first_read)
-          iod->first_read = gh_list_insert_before(&iod->nsp->read_events, iod->first_read, nse);
+          gh_list_insert_before(&nsp->read_events, iod->first_read, &nse->nodeq_io);
         else
-          iod->first_read = gh_list_append(&iod->nsp->read_events, nse);
+          gh_list_append(&nsp->read_events, &nse->nodeq_io);
+        iod->first_read = &nse->nodeq_io;
       }
       if (add_pcap_read) {
         if (iod->first_pcap_read)
-          iod->first_pcap_read = gh_list_insert_before(&iod->nsp->pcap_read_events, iod->first_pcap_read, nse);
+          gh_list_insert_before(&nsp->pcap_read_events, iod->first_pcap_read,
+                                &nse->nodeq_pcap);
         else
-          iod->first_pcap_read = gh_list_append(&iod->nsp->pcap_read_events, nse);
+          gh_list_append(&nsp->pcap_read_events, &nse->nodeq_pcap);
+        iod->first_pcap_read = &nse->nodeq_pcap;
       }
       break;
     }
@@ -850,20 +859,21 @@ void handle_pcap_read_result(mspool *ms, msevent *nse, enum nse_status status) {
 
 /* Returns whether something was read */
 int pcap_read_on_nonselect(mspool *nsp) {
-  gh_list_elem *current, *next;
+  gh_lnode_t *current, *next;
   msevent *nse;
   int ret = 0;
 
-  for (current = GH_LIST_FIRST_ELEM(&nsp->pcap_read_events); current != NULL; current = next) {
-    nse = (msevent *)GH_LIST_ELEM_DATA(current);
+  for (current = gh_list_first_elem(&nsp->pcap_read_events);
+       current != NULL;
+       current = next) {
+    nse = lnode_msevent2(current);
     if (do_actual_pcap_read(nse) == 1) {
       /* something received */
       ret++;
       break;
     }
-    next = GH_LIST_ELEM_NEXT(current);
+    next = gh_lnode_next(current);
   }
-
   return ret;
 }
 #endif /* HAVE_PCAP */
@@ -935,13 +945,16 @@ enum nsock_loopstatus nsock_loop(nsock_pool nsp, int msec_timeout) {
   return quitstatus;
 }
 
-void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
+void process_event(mspool *nsp, gh_list_t *evlist, msevent *nse, int ev) {
   int match_r = 0, match_w = 0;
 #if HAVE_OPENSSL
   int desire_r = 0, desire_w = 0;
 #endif
 
-  nsock_log_debug_all(nsp, "Processing event %lu", nse->id);
+  nsock_log_debug_all(nsp, "Processing event %lu (timeout in %ldms, done=%d)",
+                      nse->id,
+                      (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod),
+                      nse->event_done);
 
   if (!nse->event_done) {
     switch (nse->type) {
@@ -1015,18 +1028,24 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
          * Of course we should destroy it only once.
          * I assume we're now in read_event, so just unlink this event from
          * pcap_read_event */
-        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && nse->event_done && evlist == &nsp->read_events) {
+        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0
+            && nse->event_done
+            && evlist == &nsp->read_events) {
           /* event is done, list is read_events and we're in BSD_HACK mode.
            * So unlink event from pcap_read_events */
           update_first_events(nse);
-          gh_list_remove(&nsp->pcap_read_events, nse);
+          gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
 
-          nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS", nse->id);
+          nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from PCAP_READ_EVENTS",
+                              nse->id);
         }
-        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0 && nse->event_done && evlist == &nsp->pcap_read_events) {
+        if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0
+            && nse->event_done
+            && evlist == &nsp->pcap_read_events) {
           update_first_events(nse);
-          gh_list_remove(&nsp->read_events, nse);
-          nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS", nse->id);
+          gh_list_remove(&nsp->read_events, &nse->nodeq_io);
+          nsock_log_debug_all(nsp, "PCAP NSE #%lu: Removing event from READ_EVENTS",
+                              nse->id);
         }
         #endif
         break;
@@ -1034,11 +1053,12 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
 #endif
       default:
         fatal("Event has unknown type (%d)", nse->type);
-        break; /* unreached */
-      }
+    }
   }
+
   if (nse->event_done) {
-    /* Security sanity check: don't return a functional SSL iod without setting an SSL data structure. */
+    /* Security sanity check: don't return a functional SSL iod without
+     * setting an SSL data structure. */
     if (nse->type == NSE_TYPE_CONNECT_SSL && nse->status == NSE_STATUS_SUCCESS)
       assert(nse->iod->ssl != NULL);
 
@@ -1046,14 +1066,6 @@ void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev) {
 
     /* WooHoo!  The event is ready to be sent */
     msevent_dispatch_and_delete(nsp, nse, 1);
-  } else {
-    /* Is this event the next-to-timeout? */
-    if (nse->timeout.tv_sec != 0) {
-      if (nsp->next_ev.tv_sec == 0)
-        nsp->next_ev = nse->timeout;
-      else if (TIMEVAL_AFTER(nsp->next_ev, nse->timeout))
-        nsp->next_ev = nse->timeout;
-    }
   }
 }
 
@@ -1061,7 +1073,7 @@ void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
   int i = 0;
   /* store addresses of the pointers to the first elements of each kind instead
    * of storing the values, as a connect can add a read for instance */
-  gh_list_elem **start_elems[] = {
+  gh_lnode_t **start_elems[] = {
     &nsi->first_connect,
     &nsi->first_read,
     &nsi->first_write,
@@ -1070,15 +1082,18 @@ void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
 #endif
     NULL
   };
-  gh_list *evlists[] = {
-    &nsi->nsp->connect_events,
-    &nsi->nsp->read_events,
-    &nsi->nsp->write_events,
+  gh_list_t *evlists[] = {
+    &nsp->connect_events,
+    &nsp->read_events,
+    &nsp->write_events,
 #if HAVE_PCAP
-    &nsi->nsp->pcap_read_events,
+    &nsp->pcap_read_events,
 #endif
     NULL
   };
+
+  assert(nsp == nsi->nsp);
+  nsock_log_debug_all(nsp, "Processing events on IOD %lu (ev=%d)", nsi->id, ev);
 
   /* We keep the events separate because we want to handle them in the
    * order: connect => read => write => timer for several reasons:
@@ -1091,16 +1106,24 @@ void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
    *     processed in the same cycle.  In the same way, read() often
    *     leads to write().
    */
-  for (i = 0; start_elems[i] != NULL; i++) {
-    gh_list_elem *current, *next, *last;
+  for (i = 0; evlists[i] != NULL; i++) {
+    gh_lnode_t *current, *next, *last;
 
-    /* for each list, get the last event and don't look past it as an event could
-     * add another event in the same list and so on... */
-    last = GH_LIST_LAST_ELEM(evlists[i]);
+    /* for each list, get the last event and don't look past it as an event
+     * could add another event in the same list and so on... */
+    last = gh_list_last_elem(evlists[i]);
 
-    for (current = *start_elems[i]; current != NULL
-        && GH_LIST_ELEM_PREV(current) != last; current = next) {
-      msevent *nse = (msevent *)GH_LIST_ELEM_DATA(current);
+    for (current = *start_elems[i];
+         current != NULL && gh_lnode_prev(current) != last;
+         current = next) {
+      msevent *nse;
+
+#if HAVE_PCAP
+      if (evlists[i] == &nsi->nsp->pcap_read_events)
+        nse = lnode_msevent2(current);
+      else
+#endif
+        nse = lnode_msevent(current);
 
       /* events are grouped by IOD. Break if we're done with the events for the
        * current IOD */
@@ -1108,15 +1131,88 @@ void process_iod_events(mspool *nsp, msiod *nsi, int ev) {
         break;
 
       process_event(nsp, evlists[i], nse, ev);
-      next = GH_LIST_ELEM_NEXT(current);
+      next = gh_lnode_next(current);
 
       if (nse->event_done) {
         /* event is done, remove it from the event list and update IOD pointers
          * to the first events of each kind */
         update_first_events(nse);
-        gh_list_remove_elem(evlists[i], current);
+        gh_list_remove(evlists[i], current);
+        gh_list_append(&nsp->free_events, &nse->nodeq_io);
+
+        if (nse->timeout.tv_sec)
+          gh_heap_remove(&nsp->expirables, &nse->expire);
       }
     }
+  }
+}
+
+static int msevent_unref(mspool *nsp, msevent *nse) {
+  switch (nse->type) {
+    case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
+      gh_list_remove(&nsp->connect_events, &nse->nodeq_io);
+      break;
+
+    case NSE_TYPE_READ:
+      gh_list_remove(&nsp->read_events, &nse->nodeq_io);
+      break;
+
+    case NSE_TYPE_WRITE:
+      gh_list_remove(&nsp->write_events, &nse->nodeq_io);
+      break;
+
+#if HAVE_PCAP
+    case NSE_TYPE_PCAP_READ: {
+      char read = 0;
+      char pcap = 0;
+
+#if PCAP_BSD_SELECT_HACK
+      read = pcap = 1;
+#else
+      if (((mspcap *)nse->iod->pcap)->pcap_desc >= 0)
+        read = 1;
+      else
+        pcap = 1;
+#endif /* PCAP_BSD_SELECT_HACK */
+
+      if (read)
+        gh_list_remove(&nsp->read_events, &nse->nodeq_io);
+      if (pcap)
+        gh_list_remove(&nsp->pcap_read_events, &nse->nodeq_pcap);
+
+      break;
+    }
+#endif /* HAVE_PCAP */
+
+    case NSE_TYPE_TIMER:
+      /* Nothing to do */
+      break;
+
+    default:
+      fatal("Unknown event type %d", nse->type);
+  }
+  gh_list_append(&nsp->free_events, &nse->nodeq_io);
+  return 0;
+}
+
+void process_expired_events(mspool *nsp) {
+  for (;;) {
+    gh_hnode_t *hnode;
+    msevent *nse;
+
+    hnode = gh_heap_min(&nsp->expirables);
+    if (!hnode)
+      break;
+
+    nse = container_of(hnode, msevent, expire);
+    if (msevent_timedout(nse)) {
+      gh_heap_pop(&nsp->expirables);
+      process_event(nsp, NULL, nse, EV_NONE);
+      assert(nse->event_done);
+      update_first_events(nse);
+      msevent_unref(nsp, nse);
+    } else break;
   }
 }
 
@@ -1142,21 +1238,16 @@ const struct timeval *nsock_gettimeofday() {
  * adjusting the descriptor select/poll lists, registering the timeout value,
  * etc. */
 void nsp_add_event(mspool *nsp, msevent *nse) {
-    nsock_log_debug(nsp, "NSE #%lu: Adding event", nse->id);
-
-  /* First lets do the event-type independent stuff, starting with timeouts */
-  if (nse->event_done) {
-    nsp->next_ev = nsock_tod;
-  } else {
-    if (nse->timeout.tv_sec != 0) {
-      if (nsp->next_ev.tv_sec == 0)
-        nsp->next_ev = nse->timeout;
-      else if (TIMEVAL_AFTER(nsp->next_ev, nse->timeout))
-        nsp->next_ev = nse->timeout;
-    }
-  }
+  nsock_log_debug(nsp, "NSE #%lu: Adding event (timeout in %ldms)",
+                  nse->id,
+                  (long)TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
 
   nsp->events_pending++;
+
+  if (!nse->event_done && nse->timeout.tv_sec) {
+    /* This event is expirable, add it to the queue */
+    gh_heap_push(&nsp->expirables, &nse->expire);
+  }
 
   /* Now we do the event type specific actions */
   switch (nse->type) {
@@ -1198,7 +1289,7 @@ void nsp_add_event(mspool *nsp, msevent *nse) {
       break;
 
     case NSE_TYPE_TIMER:
-      gh_list_append(&nsp->timer_events, nse);
+      /* nothing to do */
       break;
 
 #if HAVE_PCAP

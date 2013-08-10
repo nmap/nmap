@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Handle timers and timeouts via a priority queue (using a heap)
+  for improved performance. Nsock now only iterates over events which are
+  completed or expired instead of inspecting the entire event set at each
+  iteration. [Henri Doreau]
+
 o [NSE] Update dns-cache-snoop script to use a new list of top 50
   domains rather than a 2010 list. [Nicolle Neulist]
 

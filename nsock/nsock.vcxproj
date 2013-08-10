@@ -186,7 +186,7 @@
     <ClCompile Include="src\engine_select.c" />
     <ClCompile Include="src\error.c" />
     <ClCompile Include="src\filespace.c" />
-    <ClCompile Include="src\gh_list.c" />
+    <ClCompile Include="src\gh_heap.c" />
     <ClCompile Include="src\netutils.c" />
     <ClCompile Include="src\nsock_connect.c" />
     <ClCompile Include="src\nsock_core.c" />
@@ -207,6 +207,7 @@
   <ItemGroup>
     <ClInclude Include="src\error.h" />
     <ClInclude Include="src\filespace.h" />
+    <ClInclude Include="src\gh_heap.h" />
     <ClInclude Include="src\gh_list.h" />
     <ClInclude Include="src\netutils.h" />
     <ClInclude Include="include\nsock.h" />

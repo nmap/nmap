@@ -184,9 +184,8 @@ static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
   res = nse_readbuf(nse, &reslen);
 
   if (!(reslen == 8 && res[1] == 90)) {
-    struct proxy_node *node;
+    struct proxy_node *node = px_ctx->px_current;
 
-    node = proxy_ctx_node_current(px_ctx);
     nsock_log_debug(nsp, "Ignoring invalid socks4 reply from proxy %s",
                     node->nodestr);
     return -EINVAL;
@@ -194,10 +193,10 @@ static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
 
   px_ctx->px_state = PROXY_STATE_SOCKS4_TUNNEL_ESTABLISHED;
 
-  if (px_ctx->px_current->next == NULL) {
+  if (proxy_ctx_node_next(px_ctx) == NULL) {
     forward_event(nsp, nse, udata);
   } else {
-    px_ctx->px_current = px_ctx->px_current->next;
+    px_ctx->px_current = proxy_ctx_node_next(px_ctx);
     px_ctx->px_state   = PROXY_STATE_INITIAL;
     nsock_proxy_ev_dispatch(nsp, nse, udata);
   }

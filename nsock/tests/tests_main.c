@@ -31,6 +31,8 @@ extern const struct test_case TestLogLevels;
 extern const struct test_case TestErrLevels;
 extern const struct test_case TestConnectTCP;
 extern const struct test_case TestGHLists;
+extern const struct test_case TestGHHeaps;
+extern const struct test_case TestHeapOrdering;
 
 
 static const struct test_case *TestCases[] = {
@@ -45,8 +47,12 @@ static const struct test_case *TestCases[] = {
   &TestConnectTCP,
   /* ---- ghlists.c */
   &TestGHLists,
+  /* ---- ghheaps.c */
+  &TestGHHeaps,
+  &TestHeapOrdering,
   NULL
 };
+
 
 static int test_case_run(const struct test_case *test) {
   int rc;

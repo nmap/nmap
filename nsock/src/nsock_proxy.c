@@ -103,7 +103,7 @@ int nsock_proxychain_new(const char *proxystr, nsock_proxychain *chain, nsock_po
 
     parser = proxy_parser_new(proxystr);
     while (!parser->done) {
-      gh_list_append(&pxc->nodes, parser->value);
+      gh_list_append(&pxc->nodes, &parser->value->nodeq);
       proxy_parser_next(parser);
     }
     proxy_parser_delete(parser);
@@ -124,9 +124,12 @@ void nsock_proxychain_delete(nsock_proxychain chain) {
   struct proxy_chain *pchain = (struct proxy_chain *)chain;
 
   if (pchain) {
-    struct proxy_node *node;
+    gh_lnode_t *lnode;
 
-    while ((node = (struct proxy_node *)gh_list_pop(&pchain->nodes)) != NULL) {
+    while ((lnode = gh_list_pop(&pchain->nodes)) != NULL) {
+      struct proxy_node *node;
+
+      node = container_of(lnode, struct proxy_node, nodeq);
       node->spec->ops->node_delete(node);
     }
 
@@ -147,7 +150,6 @@ int nsp_set_proxychain(nsock_pool nspool, nsock_proxychain chain) {
   return 1;
 }
 
-
 struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   mspool *nsp = (mspool *)nspool;
   struct proxy_chain_context *ctx;
@@ -155,7 +157,9 @@ struct proxy_chain_context *proxy_chain_context_new(nsock_pool nspool) {
   ctx = (struct proxy_chain_context *)safe_malloc(sizeof(struct proxy_chain_context));
   ctx->px_chain = nsp->px_chain;
   ctx->px_state = PROXY_STATE_INITIAL;
-  ctx->px_current = GH_LIST_FIRST_ELEM(&nsp->px_chain->nodes);
+  ctx->px_current = container_of(gh_list_first_elem(&nsp->px_chain->nodes),
+                                 struct proxy_node,
+                                 nodeq);
   return ctx;
 }
 
@@ -437,7 +441,7 @@ void nsock_proxy_ev_dispatch(nsock_pool nspool, nsock_event nsevent, void *udata
   if (nse->status == NSE_STATUS_SUCCESS) {
     struct proxy_node *current;
 
-    current = proxy_ctx_node_current(nse->iod->px_ctx);
+    current = nse->iod->px_ctx->px_current;
     assert(current);
     current->spec->ops->handler(nspool, nsevent, udata);
   } else {

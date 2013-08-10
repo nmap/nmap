@@ -102,7 +102,8 @@ static void iterate_through_event_lists(mspool *nsp, int evcount);
 
 /* defined in nsock_core.c */
 void process_iod_events(mspool *nsp, msiod *nsi, int ev);
-void process_event(mspool *nsp, gh_list *evlist, msevent *nse, int ev);
+void process_event(mspool *nsp, gh_list_t *evlist, msevent *nse, int ev);
+void process_expired_events(mspool *nsp);
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
 int pcap_read_on_nonselect(mspool *nsp);
@@ -231,24 +232,27 @@ int kqueue_loop(mspool *nsp, int msec_timeout) {
     return 0; /* No need to wait on 0 events ... */
 
 
-  if (GH_LIST_COUNT(&nsp->active_iods) > kinfo->evlen) {
-    kinfo->evlen = GH_LIST_COUNT(&nsp->active_iods) * 2;
+  if (gh_list_count(&nsp->active_iods) > kinfo->evlen) {
+    kinfo->evlen = gh_list_count(&nsp->active_iods) * 2;
     kinfo->events = (struct kevent *)safe_realloc(kinfo->events, kinfo->evlen * sizeof(struct kevent));
   }
 
   do {
+    msevent *nse;
+
     nsock_log_debug_all(nsp, "wait for events");
 
-    if (nsp->next_ev.tv_sec == 0)
+    nse = next_expirable_event(nsp);
+    if (!nse)
       event_msecs = -1; /* None of the events specified a timeout */
     else
-      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nsp->next_ev, nsock_tod));
+      event_msecs = MAX(0, TIMEVAL_MSEC_SUBTRACT(nse->timeout, nsock_tod));
 
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
     /* Force a low timeout when capturing packets on systems where
      * the pcap descriptor is not select()able. */
-    if (GH_LIST_COUNT(&nsp->pcap_read_events) > 0)
+    if (gh_list_count(&nsp->pcap_read_events) > 0)
       if (event_msecs > PCAP_POLL_INTERVAL)
         event_msecs = PCAP_POLL_INTERVAL;
 #endif
@@ -332,15 +336,7 @@ static inline int get_evmask(msiod *nsi, const struct kevent *kev) {
 void iterate_through_event_lists(mspool *nsp, int evcount) {
   int n;
   struct kqueue_engine_info *kinfo = (struct kqueue_engine_info *)nsp->engine_data;
-  gh_list_elem *current, *next, *last, *timer_last;
-  msevent *nse;
   msiod *nsi;
-
-  /* Clear it -- We will find the next event as we go through the list */
-  nsp->next_ev.tv_sec = 0;
-
-  last = GH_LIST_LAST_ELEM(&nsp->active_iods);
-  timer_last = GH_LIST_LAST_ELEM(&nsp->timer_events);
 
   for (n = 0; n < evcount; n++) {
     struct kevent *kev = &kinfo->events[n];
@@ -353,37 +349,22 @@ void iterate_through_event_lists(mspool *nsp, int evcount) {
     IOD_PROPSET(nsi, IOD_PROCESSED);
   }
 
-  current = GH_LIST_FIRST_ELEM(&nsp->active_iods);
+  for (n = 0; n < evcount; n++) {
+    struct kevent *kev = &kinfo->events[n];
 
-  /* cull timeouts amongst the non active IODs */
-  while (current != NULL && GH_LIST_ELEM_PREV(current) != last) {
-    msiod *nsi = (msiod *)GH_LIST_ELEM_DATA(current);
+    nsi = (msiod *)kev->udata;
 
-    if (IOD_PROPGET(nsi, IOD_PROCESSED))
-      IOD_PROPCLR(nsi, IOD_PROCESSED);
-    else if (nsi->state != NSIOD_STATE_DELETED && nsi->events_pending)
-      process_iod_events(nsp, nsi, EV_NONE);
-
-    next = GH_LIST_ELEM_NEXT(current);
     if (nsi->state == NSIOD_STATE_DELETED) {
-      gh_list_remove_elem(&nsp->active_iods, current);
-      gh_list_prepend(&nsp->free_iods, nsi);
+      if (IOD_PROPGET(nsi, IOD_PROCESSED)) {
+        IOD_PROPCLR(nsi, IOD_PROCESSED);
+        gh_list_remove(&nsp->active_iods, &nsi->nodeq);
+        gh_list_prepend(&nsp->free_iods, &nsi->nodeq);
+      }
     }
-    current = next;
   }
 
-  /* iterate through timers */
-  for (current = GH_LIST_FIRST_ELEM(&nsp->timer_events);
-       current != NULL && GH_LIST_ELEM_PREV(current) != timer_last; current = next) {
-
-    nse = (msevent *)GH_LIST_ELEM_DATA(current);
-
-    process_event(nsp, &nsp->timer_events, nse, EV_NONE);
-
-    next = GH_LIST_ELEM_NEXT(current);
-    if (nse->event_done)
-      gh_list_remove_elem(&nsp->timer_events, current);
-  }
+  /* iterate through timers and expired events */
+  process_expired_events(nsp);
 }
 
 #endif /* HAVE_KQUEUE */

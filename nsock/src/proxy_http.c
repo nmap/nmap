@@ -153,19 +153,18 @@ static int handle_state_tcp_connected(mspool *nsp, msevent *nse, void *udata) {
 
   /* TODO string check!! */
   if (!((reslen >= 15) && strstr(res, "200 OK"))) {
-    struct proxy_node *node;
+    struct proxy_node *node = px_ctx->px_current;
 
-    node = proxy_ctx_node_current(px_ctx);
     nsock_log_debug(nsp, "Connection refused from proxy %s", node->nodestr);
     return -EINVAL;
   }
 
   px_ctx->px_state = PROXY_STATE_HTTP_TUNNEL_ESTABLISHED;
 
-  if (px_ctx->px_current->next == NULL) {
+  if (proxy_ctx_node_next(px_ctx) == NULL) {
     forward_event(nsp, nse, udata);
   } else {
-    px_ctx->px_current = px_ctx->px_current->next;
+    px_ctx->px_current = proxy_ctx_node_next(px_ctx);
     px_ctx->px_state   = PROXY_STATE_INITIAL;
     nsock_proxy_ev_dispatch(nsp, nse, udata);
   }
