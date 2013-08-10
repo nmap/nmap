@@ -147,6 +147,7 @@ Entry { filename = "http-config-backup.nse", categories = { "auth", "intrusive",
 Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-default-accounts.nse", categories = { "auth", "discovery", "safe", } }
+Entry { filename = "http-dombased-xss.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-drupal-enum-users.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-drupal-modules.nse", categories = { "discovery", "intrusive", } }
@@ -174,6 +175,7 @@ Entry { filename = "http-majordomo2-dir-traversal.nse", categories = { "exploit"
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
 Entry { filename = "http-method-tamper.nse", categories = { "auth", "vuln", } }
 Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
+Entry { filename = "http-mobileversion-checker.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "http-open-redirect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
@@ -198,6 +200,7 @@ Entry { filename = "http-tplink-dir-traversal.nse", categories = { "exploit", "v
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-unsafe-output-escaping.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-useragent-tester.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-virustotal.nse", categories = { "external", "malware", "safe", } }
