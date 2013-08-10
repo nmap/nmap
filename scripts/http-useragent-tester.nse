@@ -36,9 +36,9 @@ Checks if various crawling ultities are allowed by the host.
 -- |
 -- |     Forbidden User Agents:
 -- |
--- |     libwww redirected to: https://www.facebook.com/unsupportedbrowser (different host)
--- |     libcurl-agent/1.0 redirected to: https://www.facebook.com/unsupportedbrowser (different host)
--- |_    Wget/1.13.4 (linux-gnu) redirected to: https://www.facebook.com/unsupportedbrowser (different host)
+-- |     libwww redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
+-- |     libcurl-agent/1.0 redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
+-- |_    Wget/1.13.4 (linux-gnu) redirected to: https://www.some-random-page.com/unsupportedbrowser (different host)
 --
 ---
 
