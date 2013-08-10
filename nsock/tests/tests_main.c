@@ -7,12 +7,18 @@
 #include "test-common.h"
 
 
-#define RESET       "\033[0m"
-#define BOLDRED     "\033[1m\033[31m"
-#define BOLDGREEN   "\033[1m\033[32m"
+#ifndef WIN32
+  #define RESET       "\033[0m"
+  #define BOLDRED     "\033[1m\033[31m"
+  #define BOLDGREEN   "\033[1m\033[32m"
+  #define TEST_FAILED "[" BOLDRED "FAILED" RESET "]"
+  #define TEST_OK     "[" BOLDGREEN "OK" RESET "]"
+#else
+  /* WIN32 terminal has no ANSI driver */
+  #define TEST_FAILED "[FAILED]"
+  #define TEST_OK     "[OK]"
+#endif
 
-#define TEST_FAILED "[" BOLDRED "FAILED" RESET "]"
-#define TEST_OK     "[" BOLDGREEN "OK" RESET "]"
 
 
 /* socket_strerror() comes from nbase
