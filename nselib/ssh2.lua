@@ -228,7 +228,7 @@ fetch_host_key = function( host, port, key_type )
     stdnse.print_debug( "Unsupported key type: %s", key_type )
   end
 
-  return { key=public_host_key, key_type=key_type, fp_input=public_host_key, bits=bits,
+  return { key=base64.enc(public_host_key), key_type=key_type, fp_input=public_host_key, bits=bits,
            full_key=('%s %s'):format(key_type,base64.enc(public_host_key)),
            algorithm=algorithm, fingerprint=openssl.md5(public_host_key) }
 end
