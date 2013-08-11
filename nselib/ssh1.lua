@@ -52,7 +52,7 @@ end
 --- Fetch an SSH-1 host key.
 -- @param host Nmap host table.
 -- @param port Nmap port table.
--- @return A table with the following fields: <code>exp</code>,
+-- @return A table with the following fields: <code>key</code>, <code>exp</code>,
 -- <code>mod</code>, <code>bits</code>, <code>key_type</code>,
 -- <code>fp_input</code>, <code>full_key</code>, <code>algorithm</code>, and
 -- <code>fingerprint</code>.
@@ -102,6 +102,7 @@ fetch_host_key = function(host, port)
       fp_input = mod:tobin()..exp:tobin()
 
       return {exp=exp,mod=mod,bits=host_key_bits,key_type='rsa1',fp_input=fp_input,
+              key=exp:todec()..' '..mod:todec(),
               full_key=exp:todec()..' '..mod:todec(),algorithm="RSA1",
               fingerprint=openssl.md5(fp_input)}
     end

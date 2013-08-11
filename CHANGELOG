@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made the table returned by ssh1.fetch_host_key contain a "key"
+  element, like that of ssh2.fetch_host_key. This fixed a crash in the
+  ssh-hostkey script reported by Dan Farmer and Florian Pelgrim. The
+  "key" element of ssh2.fetch_host_key now is base64-encoded, to match
+  the format used by the known_hosts file. [David Fifield]
+
 o [Nsock] Handle timers and timeouts via a priority queue (using a heap)
   for improved performance. Nsock now only iterates over events which are
   completed or expired instead of inspecting the entire event set at each
