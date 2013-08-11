@@ -42,19 +42,19 @@ fi
 
 
 function setup_echo_udp() {
-  $NCAT -l --udp --sh-exec cat localhost $PORT_UDP &
+  $NCAT -l --udp --sh-exec cat 127.0.0.1 $PORT_UDP &
   pid_udp=$!
   echo "started UDP listener on port $PORT_UDP (pid $pid_udp)"
 }
 
 function setup_echo_tcp() {
-  $NCAT -l --keep-open --sh-exec cat localhost $PORT_TCP &
+  $NCAT -l --keep-open --sh-exec cat 127.0.0.1 $PORT_TCP &
   pid_tcp=$!
   echo "started TCP listener on port $PORT_TCP (pid $pid_tcp)"
 }
 
 function setup_echo_tcpssl() {
-  $NCAT -l --ssl --keep-open --sh-exec cat localhost $PORT_TCPSSL &
+  $NCAT -l --ssl --keep-open --sh-exec cat 127.0.0.1 $PORT_TCPSSL &
   pid_tcpssl=$!
   echo "started TCP SSL listener on port $PORT_TCPSSL (pid $pid_tcpssl)"
 }
