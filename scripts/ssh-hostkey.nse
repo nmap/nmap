@@ -151,7 +151,7 @@ local function portaction(host, port)
       fingerprint=stdnse.tohex(key.fingerprint),
       type=key.key_type,
       bits=key.bits,
-      key=base64.enc(key.key),
+      key=key.key,
     })
     if format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
