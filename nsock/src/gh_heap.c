@@ -169,7 +169,7 @@ static int heap_grow(gh_heap_t *heap) {
   /* Do we really need to grow? */
   assert(heap->count == heap->highwm);
 
-  heap->slots = safe_realloc(heap->slots,
+  heap->slots = (gh_hnode_t **)safe_realloc(heap->slots,
                              (heap->count + GH_SLOTS) * sizeof(gh_hnode_t *));
   heap->highwm += GH_SLOTS;
   return 0;
