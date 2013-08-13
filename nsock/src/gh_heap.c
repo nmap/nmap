@@ -166,11 +166,14 @@ static int hnode_down(gh_heap_t *heap, gh_hnode_t *hnode)
 }
 
 static int heap_grow(gh_heap_t *heap) {
+  int newsize;
+
   /* Do we really need to grow? */
   assert(heap->count == heap->highwm);
 
+  newsize = heap->count + GH_SLOTS;
   heap->slots = (gh_hnode_t **)safe_realloc(heap->slots,
-                             (heap->count + GH_SLOTS) * sizeof(gh_hnode_t *));
+                                            newsize * sizeof(gh_hnode_t *));
   heap->highwm += GH_SLOTS;
   return 0;
 }
