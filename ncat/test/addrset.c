@@ -22,6 +22,23 @@
 
 #include "ncat_core.h"
 
+#ifdef WIN32
+#include "../nsock/error.h"
+#endif
+
+
+#ifdef WIN32
+static void win_init(void)
+{
+  WSADATA data;
+  int rc;
+
+  rc = WSAStartup(MAKEWORD(2,2), &data);
+  if (rc)
+    fatal("failed to start winsock: %s\n", socket_strerror(rc));
+}
+#endif
+
 static int resolve_name(const char *name, struct addrinfo **result)
 {
     struct addrinfo hints = { 0 };
@@ -37,6 +54,10 @@ int main(int argc, char *argv[])
     struct addrset set;
     char line[1024];
     int i;
+
+#ifdef WIN32
+    win_init();
+#endif
 
     addrset_init(&set);
 
