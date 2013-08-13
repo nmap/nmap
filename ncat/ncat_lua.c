@@ -153,12 +153,12 @@ static int traceback (lua_State *L)
 
 void lua_setup(void)
 {
-    ncat_assert(o.cmdexec!=NULL);
+    ncat_assert(o.cmdexec != NULL);
 
     L = luaL_newstate();
     luaL_openlibs(L);
 
-    if (luaL_loadfile(L,o.cmdexec) != 0)
+    if (luaL_loadfile(L, o.cmdexec) != 0)
         report("Error loading the Lua script");
 
     /* install the traceback function */
