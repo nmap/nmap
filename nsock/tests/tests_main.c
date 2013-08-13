@@ -69,8 +69,24 @@ static int test_case_run(const struct test_case *test) {
   return test_teardown(test, tdata);
 }
 
+#ifdef WIN32
+static int win_init(void) {
+  WSADATA data;
+
+  rc = WSAStartup(MAKEWORD(2, 2), &data);
+  if (rc)
+    fatal("Failed to start winsock: %s\n", socket_strerror(rc));
+
+  return 0;
+}
+#endif
+
 int main(int ac, char **av) {
   int rc, i;
+
+#ifdef WIN32
+  win_init();
+#endif
 
   for (i = 0; TestCases[i] != NULL; i++) {
     const struct test_case *current = TestCases[i];
