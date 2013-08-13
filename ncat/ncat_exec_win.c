@@ -233,7 +233,7 @@ int setenv_portable(const char *name, const char *value)
     int ret;
     size_t len;
     len = strlen(name) + strlen(value) + 2; /* 1 for '\0', 1 for =. */
-    var = (char*)safe_malloc(len);
+    var = (char *) safe_malloc(len);
     Snprintf(var, len, "%s=%s", name, value);
     /* _putenv was chosen over SetEnvironmentVariable because variables set
        with the latter seem to be invisible to getenv() calls and Lua uses
