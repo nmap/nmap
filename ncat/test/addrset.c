@@ -23,7 +23,7 @@
 #include "ncat_core.h"
 
 #ifdef WIN32
-#include "../nsock/error.h"
+#include "../nsock/src/error.h"
 #endif
 
 
