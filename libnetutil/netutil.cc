@@ -2646,7 +2646,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         srchost, ntohs(sctp->sh_sport), dsthost, ntohs(sctp->sh_dport),
         ipinfo);
     } else if (detail == MEDIUM_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%d > %s:%d csum=0x%04x] IP [%s]",
+      Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%d > %s:%d csum=0x%08x] IP [%s]",
         srchost, ntohs(sctp->sh_sport), dsthost, ntohs(sctp->sh_dport), ntohl(sctp->sh_sum),
         ipinfo);
     } else if (detail == HIGH_DETAIL) {
