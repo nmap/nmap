@@ -182,24 +182,18 @@ end
 
 ---
 -- format_basepath(basepath)
--- Removes trailing and leading dashes in a string
+-- Modifies a given path so that it can be later prepended to another absolute
+-- path to form a new absolute path.
 -- @param basepath Basepath string
--- @return Basepath string with no trailing or leading dashes
+-- @return Basepath string with a leading slash and no trailing slashes.
+--                   (Empty string is returned if the input is an empty string
+--                   or "/".)
 ---
 local function format_basepath(basepath)
-  -- Remove trailing slash, if it exists
-  if(#basepath > 1 and string.sub(basepath, #basepath, #basepath) == '/') then
-    basepath = string.sub(basepath, 1, #basepath - 1)
+  if basepath:sub(1,1) ~= "/" then
+    basepath = "/" .. basepath
   end
-  -- Add a leading slash, if it doesn't exist
-  if(#basepath <= 1) then
-    basepath = ''
-  else
-    if(string.sub(basepath, 1, 1) ~= '/') then
-      basepath = '/' .. basepath
-    end
-  end
-  return basepath  
+  return basepath:gsub("/+$","")
 end
 
 ---
