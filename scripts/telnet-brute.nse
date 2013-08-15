@@ -1,16 +1,13 @@
 local comm = require "comm"
-local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"
 local string = require "string"
-local unpwdb = require "unpwdb"
+local brute = require "brute"
+local pcre = require "pcre"
 
 description = [[
-Tries to get Telnet login credentials by guessing usernames and passwords.
-Username and password combinations are retrieved from the unpwdb datatabse.
-Telnet servers that require only a password (but not a username) are
-currently not supported.
+Performs brute-force password auditing against telnet servers.
 ]]
 
 ---
@@ -21,13 +18,19 @@ currently not supported.
 --      <target>
 --
 -- @output
--- PORT   STATE SERVICE
 -- 23/tcp open  telnet
--- |_telnet-brute: root - 1234
+-- | telnet-brute:
+-- |   Accounts
+-- |     wkurtz:colonel
+-- |   Statistics
+-- |_    Performed 15 guesses in 19 seconds, average tps: 0
 --
--- @args telnet-brute.timeout  Connection time-out timespec (default: "5s")
+-- @args telnet-brute.timeout   Connection time-out timespec (default: "5s")
+-- @args telnet-brute.autosize  Whether to automatically reduce the thread
+--                              count based on the behavior of the target
+--                              (default: "true")
 
-author = "Eddie Bell, Ron Bowes, nnposter"
+author = "nnposter"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'brute', 'intrusive'}
 
@@ -36,13 +39,18 @@ portrule = shortport.port_or_service(23, 'telnet')
 
 -- Miscellaneous script-wide parameters and constants
 local arg_timeout = stdnse.get_script_args(SCRIPT_NAME .. ".timeout") or "5s"
+local arg_autosize = stdnse.get_script_args(SCRIPT_NAME .. ".autosize") or "true"
 
-local telnet_timeout      -- connection timeout (in ms) from arg_timeout
+local telnet_timeout      -- connection timeout (in ms), from arg_timeout
+local telnet_autosize     -- whether to auto-size the execution, from arg_autosize
 local telnet_eol = "\r\n" -- termination string for sent lines
 local conn_retries = 2    -- # of retries when attempting to connect
-local sess_retries = 2    -- # of retries to log in with the same credentials
+local critical_debug = 1  -- debug level for printing critical messages
 local login_debug = 2     -- debug level for printing attempted credentials
 local detail_debug = 3    -- debug level for printing individual login steps
+                          --                          and thread-level info
+
+local pcreptn = {}        -- cache of compiled PCRE patterns
 
 
 ---
@@ -63,8 +71,10 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_username_prompt = function (str)
-	return str:find 'username%s*:'
-		or str:find 'login%s*:'
+	pcreptn.username_prompt = pcreptn.username_prompt
+		or pcre.new("\\b(?:username|login)\\s*:\\s*$",
+			pcre.flags().CASELESS, "C")
+	return pcreptn.username_prompt:match(str)
 end
 
 
@@ -75,8 +85,10 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_password_prompt = function (str)
-	return str:find 'password%s*:'
-		or str:find 'passcode%s*:'
+	pcreptn.password_prompt = pcreptn.password_prompt
+		or pcre.new("\\bpass(?:word|code)\\s*:\\s*$",
+			pcre.flags().CASELESS, "C")
+	return pcreptn.password_prompt:match(str)
 end
 
 
@@ -87,10 +99,14 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_success = function (str)
-	return str:find '[/>%%%$#]%s*$'
-		or str:find 'last login%s*:'
-		or str:find '%u:\\'
-		or str:find 'enter terminal emulation:'
+	pcreptn.login_success = pcreptn.login_success
+		or pcre.new("[/>%$#]\\s*$"			-- general prompt
+			.. "|^Last login\\s*:"			-- linux telnetd
+			.. "|^(?-i:[A-Z]):\\\\"			-- Windows telnet
+			.. "|Main(?:\\s|\\x1B\\[\\d+;\\d+H)Menu\\b" -- Netgear RM356
+			.. "|^Enter Terminal Emulation:\\s*$",	-- Hummingbird telnetd
+			pcre.flags().CASELESS, "C")
+	return pcreptn.login_success:match(str)
 end
 
 
@@ -101,11 +117,10 @@ end
 -- @param str The string to analyze
 -- @return Verdict (true or false)
 local is_login_failure = function (str)
-	return str:find 'incorrect'
-		or str:find 'failed'
-		or str:find 'denied'
-		or str:find 'invalid'
-		or str:find 'bad'
+	pcreptn.login_failure = pcreptn.login_failure
+		or pcre.new("\\b(?:incorrect|failed|denied|invalid|bad)\\b",
+			pcre.flags().CASELESS, "C")
+	return pcreptn.login_failure:match(str)
 end
 
 
@@ -115,30 +130,34 @@ local Connection = { methods = {} }
 
 
 ---
--- Initialize a connection
+-- Initialize a connection object
 --
 -- @param host Telnet host
 -- @param port Telnet port
 -- @return Connection object or nil (if the operation failed)
-Connection.new = function (host, port)
-	local soc, data, proto = comm.tryssl(host, port, "\n", {timeout=telnet_timeout})
+Connection.new = function (host, port, proto)
+	local soc = nmap.new_socket(proto)
   	if not soc then return nil end
-	return setmetatable({
-				socket = soc,
-				buffer = "",
-				error = "",
-				host = host,
-				port = port,
-				proto = proto
+	return setmetatable(	{
+					socket = soc,
+					isopen = false,
+					buffer = nil,
+					error = nil,
+					host = host,
+					port = port,
+					proto = proto
 				},
-			{ __index = Connection.methods } )
+				{
+					__index = Connection.methods,
+					__gc = Connection.methods.close
+				} )
 end
 
 
 ---
 -- Open the connection
 --
--- @param self Connection
+-- @param self Connection object
 -- @return Status (true or false)
 -- @return nil if the operation was successful; error code otherwise
 Connection.methods.connect = function (self)
@@ -146,16 +165,16 @@ Connection.methods.connect = function (self)
 	local wait = 1
 
 	self.buffer = ""
-	self.socket:set_timeout(telnet_timeout)
 
 	for tries = 0, conn_retries do
+		self.socket:set_timeout(telnet_timeout)
 		status, self.error = self.socket:connect(self.host, self.port, self.proto)
 		if status then break end
-
 		stdnse.sleep(wait)
 		wait = 2 * wait
 	end
 
+	self.isopen = status
 	return status, self.error
 end
 
@@ -163,12 +182,14 @@ end
 ---
 -- Close the connection
 --
--- @param self Connection
+-- @param self Connection object
 -- @return Status (true or false)
 -- @return nil if the operation was successful; error code otherwise
 Connection.methods.close = function (self)
+	if not self.isopen then return true, nil end
 	local status
-	self.buffer = ""
+	self.isopen = false
+	self.buffer = nil
 	status, self.error = self.socket:close()
 	return status, self.error
 end
@@ -177,7 +198,7 @@ end
 ---
 -- Send one line through the connection to the server
 --
--- @param self Connection
+-- @param self Connection object
 -- @param line Characters to send, will be automatically terminated
 -- @return Status (true or false)
 -- @return nil if the operation was successful; error code otherwise
@@ -192,7 +213,7 @@ end
 -- Add received data to the connection buffer while taking care
 -- of telnet option signalling
 --
--- @param self Connection
+-- @param self Connection object
 -- @param data Data string to add to the buffer
 -- @return Number of characters in the connection buffer
 Connection.methods.fill_buffer = function (self, data)
@@ -211,9 +232,10 @@ Connection.methods.fill_buffer = function (self, data)
 
 		if opttype == 251 or opttype == 252 then
 			-- Telnet Will / Will Not
-			-- regarding ECHO, agree with whatever the server wants
-			-- (or not) to do; otherwise respond with "don't"
-			opttype = opt == 1 and opttype + 2 or 254
+			-- regarding ECHO or GO-AHEAD, agree with whatever the
+			-- server wants (or not) to do; otherwise respond with
+			-- "don't"
+			opttype = (opt == 1 or opt == 3) and opttype + 2 or 254
 		elseif opttype == 253 or opttype == 254 then
 			-- Telnet Do / Do not
 			-- I will not do whatever the server wants me to
@@ -236,12 +258,12 @@ end
 -- Return leading part of the connection buffer, up to a line termination,
 -- and refill the buffer as needed
 --
--- @param self Connection
+-- @param self Connection object
+-- @param normalize whether the returned line is normalized (default: false)
 -- @return String representing the first line in the buffer
 Connection.methods.get_line = function (self)
 	if self.buffer:len() == 0 then
 		-- refill the buffer
-		local t1 = os.time()
 		local status, data = self.socket:receive_buf("[\r\n:>%%%$#\255].*", true)
 		if not status then
 			-- connection error
@@ -251,7 +273,6 @@ Connection.methods.get_line = function (self)
 
 		self:fill_buffer(data)
 	end
-
 	return self.buffer:match('^[^\r\n]*')
 end
 
@@ -260,7 +281,7 @@ end
 -- Discard leading part of the connection buffer, up to and including
 -- one or more line terminations
 --
--- @param self Connection
+-- @param self Connection object
 -- @return Number of characters remaining in the connection buffer
 Connection.methods.discard_line = function (self)
 	self.buffer = self.buffer:gsub('^[^\r\n]*[\r\n]*', '', 1)
@@ -268,201 +289,400 @@ Connection.methods.discard_line = function (self)
 end
 
 
-local state = { INIT = 0,	-- just initialized
-		LOGIN_OK = 1,	-- login succeeded
-		LOGIN_BAD = 2,	-- login failed
-		ERROR_PWD = 3,	-- connection problem after sending username
-		ERROR_USR = 4,	-- connection problem before sending username
-		PWD_ONLY = 5 }	-- password-only authentication detected
+---
+-- Ghost connection object
+Connection.GHOST = {}
 
 
 ---
--- Attempt to log in with a given set of credentials and return the telnet
--- session state (according to the table above)
---
--- @param conn Connection
--- @param user Username
--- @param pass Password
--- @return Resulting state of the login
-local test_credentials = function (conn, user, pass)
-	local usent = false
+-- Simple class to encapsulate target properties, including thread-specific data
+-- persisted across Driver instances
+local Target = { methods = {} }
 
-	local error_state = function ()
-		if usent then
-			return state.ERROR_PWD
+
+---
+-- Initialize a target object
+--
+-- @param host Telnet host
+-- @param port Telnet port
+-- @return Target object or nil (if the operation failed)
+Target.new = function (host, port)
+	local soc, _, proto = comm.tryssl(host, port, "\n", {timeout=telnet_timeout})
+  	if not soc then return nil end
+  	soc:close()
+	return setmetatable({
+				host = host,
+				port = port,
+				proto = proto,
+				workers = setmetatable({}, { __mode = "k" })
+				},
+			{ __index = Target.methods } )
+end
+
+
+---
+-- Set the calling thread up as one of the worker threads
+--
+-- @param self Target object
+Target.methods.worker = function (self)
+	local thread = coroutine.running()
+	self.workers[thread] = self.workers[thread] or {}
+end
+
+
+---
+-- Provide the calling worker thread with an open connection to the target.
+-- The state of the connection is at the beginning of the login flow.
+--
+-- @param self Target object
+-- @return Status (true or false)
+-- @return Connection if the operation was successful; error code otherwise
+Target.methods.attach = function (self)
+	local worker = self.workers[coroutine.running()]
+	local conn = worker.conn
+			or Connection.new(self.host, self.port, self.proto)
+  	if not conn then return false, "Unable to allocate connection" end
+	worker.conn = conn
+
+	if conn.error then conn:close() end
+	if not conn.isopen then
+		local status, err = conn:connect()
+		if not status then return false, err end
+	end
+
+	return true, conn
+end
+
+
+---
+-- Recover a connection used by the calling worker thread
+--
+-- @param self Target object
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Target.methods.detach = function (self)
+	local conn = self.workers[coroutine.running()].conn
+	local status, response = true, nil
+	if conn and conn.error then status, response = conn:close() end
+	return status, response
+end
+
+
+---
+-- Set the state of the calling worker thread
+--
+-- @param self Target object
+-- @param inuse Whether the worker is in use (true or false)
+--              (INIT, EXEC, PARK)
+-- @return inuse
+Target.methods.inuse = function (self, inuse)
+	self.workers[coroutine.running()].inuse = inuse
+	return inuse
+end
+
+
+---
+-- Decide whether the target is still being worked on
+--
+-- @param self Target object
+-- @return Verdict (true or false)
+Target.methods.idle = function (self)
+	local idle = true
+	for t, w in pairs(self.workers) do
+		idle = idle and (not w.inuse or coroutine.status(t) == "dead")
+	end
+	return idle
+end
+
+
+---
+-- Class that can be used as a "driver" by brute.lua
+local Driver = { methods = {} }
+
+
+---
+-- Initialize a driver object
+--
+-- @param host Telnet host
+-- @param port Telnet port
+-- @param target instance of a Target class
+-- @return Driver object or nil (if the operation failed)
+Driver.new = function (self, host, port, target)
+	assert(host == target.host and port == target.port, "Target mismatch")
+	target:worker()
+	return setmetatable({
+				target = target,
+				connect = telnet_autosize
+						and Driver.methods.connect_autosize
+						or Driver.methods.connect_simple,
+				thread_exit = nmap.condvar(target)
+				},
+			{ __index = Driver.methods } )
+end
+
+
+---
+-- Connect the driver to the target (when auto-sizing is off)
+--
+-- @param self Driver object
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Driver.methods.connect_simple = function (self)
+	assert(not self.conn, "Multiple connections attempted")
+	local status, response = self.target:attach()
+	if status then
+		self.conn = response
+		response = nil
+	end
+	return status, response
+end
+
+
+---
+-- Connect the driver to the target (when auto-sizing is on)
+--
+-- @param self Driver object
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Driver.methods.connect_autosize = function (self)
+	assert(not self.conn, "Multiple connections attempted")
+	self.target:inuse(true)
+	local status, response = self.target:attach()
+	if status then
+		-- connected to the target
+		self.conn = response
+		if self:prompt() then
+			-- successfully reached login prompt
+			return true, nil
+			end
+		-- connected but turned away
+		self.target:detach()
+		end
+	-- let's park the thread here till all the functioning threads finish
+	self.target:inuse(false)
+	print_debug(detail_debug, "Retiring %s", tostring(coroutine.running()))
+	while not self.target:idle() do self.thread_exit("wait") end
+	-- pretend that it connected
+	self.conn = Connection.GHOST
+	return true, nil
+end
+
+
+---
+-- Disconnect the driver from the target
+--
+-- @param self Driver object
+-- @return Status (true or false)
+-- @return nil if the operation was successful; error code otherwise
+Driver.methods.disconnect = function (self)
+	assert(self.conn, "Attempt to disconnect non-existing connection")
+	self.conn = nil
+	return self.target:detach()
+end
+
+
+---
+-- Attempt to reach telnet login prompt on the target
+--
+-- @param self Driver object
+-- @return line Reached prompt or nil
+Driver.methods.prompt = function (self)
+	assert(self.conn, "Attempt to use disconnected driver")
+	local conn = self.conn
+	local line
+	repeat
+		line = conn:get_line()
+	until not line
+		or is_username_prompt(line)
+		or is_password_prompt(line)
+		or not conn:discard_line()
+	return line
+end
+
+
+---
+-- Attempt to establish authenticated telnet session on the target
+--
+-- @param self Driver object
+-- @return Status (true or false)
+-- @return instance of brute.Account if the operation was successful;
+--         instance of brute.Error otherwise
+Driver.methods.login = function (self, username, password)
+	assert(self.conn, "Attempt to use disconnected driver")
+	local sent_username = self.target.passonly
+	local sent_password = false
+	local conn = self.conn
+	
+	local loc = " in " .. tostring(coroutine.running())
+	
+	local connection_error = function (msg)
+		print_debug(detail_debug, msg .. loc)
+		local err = brute.Error:new(msg)
+		err:setRetry(true)
+		return false, err
+	end
+
+	local passonly_error = function ()
+		local msg = "Password prompt encountered"
+		print_debug(critical_debug, msg .. loc)
+		local err = brute.Error:new(msg)
+		err:setAbort(true)
+		return false, err
+	end
+
+	local username_error = function ()
+		local msg = "Invalid username encountered"
+		print_debug(detail_debug, msg .. loc)
+		local err = brute.Error:new(msg)
+		err:setInvalidAccount(username)
+		return false, err
+	end
+
+	local login_error = function ()
+		local msg = "Login failed"
+		print_debug(detail_debug, msg .. loc)
+		return false, brute.Error:new(msg)
+	end
+
+	local login_success = function ()
+		local msg = "Login succeeded"
+		print_debug(detail_debug, msg .. loc)
+		return true, brute.Account:new(username, password, "OPEN")
+	end
+
+	local login_no_password = function ()
+		local msg = "Login succeeded without password"
+		print_debug(detail_debug, msg .. loc)
+		return true, brute.Account:new(username, "<none>", "OPEN")
+	end
+
+	print_debug(detail_debug, "Login attempt %s:%s%s", username, password, loc)
+
+	if conn == Connection.GHOST then
+		-- reached when auto-sizing is enabled and all worker threads
+		-- failed
+		return connection_error("Service unreachable")
+	end
+	
+	-- username has not yet been sent
+	while not sent_username do
+		local line = conn:get_line()
+		if not line then
+			-- stopped receiving data
+			return connection_error("Login prompt not reached")
+		end
+
+		if is_username_prompt(line) then
+			-- being prompted for a username
+			conn:discard_line()
+			print_debug(detail_debug, "Sending username" .. loc)
+			if not conn:send_line(username) then
+				return connection_error(conn.error)
+			end
+			sent_username = true
+			if conn:get_line() == username then
+				-- ignore; remote echo of the username in effect
+				conn:discard_line()
+			end
+
+		elseif is_password_prompt(line) then
+			-- looks like 'password only' support
+			return passonly_error()
+
 		else
-			return state.ERROR_USR
+			-- ignore; insignificant response line
+			conn:discard_line()
 		end
 	end
 
+	-- username has been already sent
+	while not sent_password do
+		local line = conn:get_line()
+		if not line then
+			-- remote host disconnected
+			return connection_error("Password prompt not reached")
+		end
+
+		if is_login_success(line) then
+			-- successful login without a password
+			conn:close()
+			return login_no_password()
+
+		elseif is_password_prompt(line) then
+			-- being prompted for a password
+			conn:discard_line()
+			print_debug(detail_debug, "Sending password" .. loc)
+			if not conn:send_line(password) then
+				return connection_error(conn.error)
+			end
+			sent_password = true
+
+		elseif is_login_failure(line) then
+			-- failed login without a password; explicitly told so
+			conn:discard_line()
+			return username_error()
+
+		elseif is_username_prompt(line) then
+			-- failed login without a password; prompted again for a username
+			return username_error()
+
+		else
+			-- ignore; insignificant response line
+			conn:discard_line()
+		end
+
+	end
+
+	-- password has been already sent
 	while true do
 		local line = conn:get_line()
 		if not line then
 			-- remote host disconnected
-			print_debug(detail_debug, "No data received")
-			return error_state()
+			return connection_error("Login not completed")
 		end
-		line = line:lower()
 
-		if usent then
-			-- username has been already sent
+		if is_login_success(line) then
+			-- successful login
+			conn:close()
+			return login_success()
 
-			if line == user:lower() then
-				-- ignore; remote echo of the username in effect
-				conn:discard_line()
+		elseif is_login_failure(line) then
+			-- failed login; explicitly told so
+			conn:discard_line()
+			return login_error()
 
-			elseif is_login_success(line) then
-				-- successful login
-				print_debug(detail_debug, "Login succeeded")
-				return state.LOGIN_OK
-
-			elseif is_password_prompt(line) then
-				-- being prompted for a password
-				conn:discard_line()
-				print_debug(detail_debug, "Sending password")
-				if not conn:send_line(pass) then
-					return error_state()
-				end
-
-			elseif is_login_failure(line) then
-				-- failed login; explicitly told so
-				conn:discard_line()
-				print_debug(detail_debug, "Login failed")
-				return state.LOGIN_BAD
-
-			elseif is_username_prompt(line) then
-				-- failed login; prompted again for a username
-				print_debug(detail_debug, "Login failed")
-				return state.LOGIN_BAD
-
-			else
-				-- ignore; insignificant response line
-				conn:discard_line()
-
-			end
+		elseif is_password_prompt(line) or is_username_prompt(line) then
+			-- failed login; prompted again for credentials
+			return login_error()
 
 		else
-			-- username has not yet been sent
-
-			if is_username_prompt(line) then
-				-- being prompted for a username
-				conn:discard_line()
-				print_debug(detail_debug, "Sending username")
-				if not conn:send_line(user) then
-					return error_state()
-				end
-				usent = true
-
-			elseif is_password_prompt(line) then
-				-- looks like 'password only' support
-				print_debug(detail_debug, "Password prompt encountered")
-				return state.PWD_ONLY
-
-			else
-				-- ignore; insignificant response line
-				conn:discard_line()
-
-			end
-
+			-- ignore; insignificant response line
+			conn:discard_line()
 		end
 
 	end
-end
 
-
----
--- Format credentials for use in script results or debug messages
---
--- @param user Username
--- @param pass Password
--- @return String representing the printout of the credentials
-local format_credentials = function (user, pass)
-	return stdnse.string_or_blank(user)
-		.. " - "
-		.. stdnse.string_or_blank(pass)
+	-- unreachable code
+	assert(false, "Reached unreachable code")
 end
 
 
 action = function (host, port)
-
-	local userstatus, usernames = unpwdb.usernames()
-	if not userstatus then
-		stdnse.format_output(false, usernames)
-	end
-
-	local passstatus, passwords = unpwdb.passwords()
-	if not passstatus then
-		return stdnse.format_output(false, passwords)
-	end
-
 	local ts, tserror = stdnse.parse_timespec(arg_timeout)
 	if not ts then
 		return stdnse.format_output(false, "Invalid timeout value: " .. tserror)
 	end
 	telnet_timeout = 1000 * ts
+	telnet_autosize = arg_autosize:lower() == "true"
 
-	local conn = Connection.new(host, port)
-  	if not conn then
-		return stdnse.format_output(false, "Unable to open connection")
+	local target = Target.new(host, port)
+	if not target then
+		return stdnse.format_output(false, "Unable to connect to the target")
 	end
 
-	local mystate = state.INIT
-	local retries = sess_retries
-
-	-- continually try user/pass pairs (reconnecting, if we have to)
-        -- until we find a valid one or we run out of pairs or the server
-	-- stops talking to us
-	local user, pass
-	pass = passwords()
-	while mystate ~= state.LOGIN_OK do
-		if mystate == state.PWD_ONLY then
-			conn:close()
-			return stdnse.format_output(false, "Password-only authentication detected")
-		end
-		if mystate == state.INIT
-				or mystate == state.ERROR_PWD
-				or mystate == state.ERROR_USR then
-			-- the connection needs to be re-established
-			if mystate ~= state.INIT then
-				print_debug(detail_debug, "Connection failed")
-			end
-			conn:close()
-			retries = retries + 1
-			if retries > sess_retries then
-				if mystate == state.ERROR_USR then
-					-- the server stopped cooperating
-					return stdnse.format_output(false, "Authentication error")
-				end
-				-- move onto the next user
-				mystate = state.LOGIN_BAD
-			end
-			if not conn:connect() then
-				-- cannot reconnect with the server
-				return stdnse.format_output(false, "Connection error: " .. conn.error)
-			end
-		end
-
-		if mystate == state.LOGIN_BAD then
-			-- get the next user/password combination
-			retries = 0
-			user = usernames()
-			if not user then
-				usernames('reset')
-				user = usernames()
-				pass = passwords()
-
-				if not pass then
-					conn:close()
-					return stdnse.format_output(true, "No accounts found")
-				end
-			end
-
-			print_debug(login_debug, "Trying %s", format_credentials(user, pass))
-		end
-
-		mystate = test_credentials(conn, user, pass)
-	end
-
-	conn:close()
-	return format_credentials(user, pass)
+	local engine = brute.Engine:new(Driver, host, port, target)
+	engine.options.script_name = SCRIPT_NAME
+	target.passonly = engine.options.passonly
+	local _, result = engine:start()
+	return result
 end

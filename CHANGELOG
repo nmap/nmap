@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made telnet-brute support multiple parallel guessing threads,
+  reuse connections, and support password-only logins. [nnposter]
+
 o [NSE] Made the table returned by ssh1.fetch_host_key contain a "key"
   element, like that of ssh2.fetch_host_key. This fixed a crash in the
   ssh-hostkey script reported by Dan Farmer and Florian Pelgrim. The
