@@ -2652,7 +2652,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     } else if (detail == HIGH_DETAIL) {
       Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%d > %s:%d vtag=%ul csum=0x%08x] IP [%s]",
         srchost, ntohs(sctp->sh_sport), dsthost, ntohs(sctp->sh_dport),
-        ntohl(sctp->sh_sum), ntohl(sctp->sh_vtag),
+        ntohl(sctp->sh_vtag), ntohl(sctp->sh_sum),
         ipinfo);
     }
 
