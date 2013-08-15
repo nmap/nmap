@@ -47,7 +47,7 @@ end
 -- @return True if login in was successful
 ---
 local function try_http_post_login(host, port, path, target, failstr, params, follow_redirects)
-    local req = http.post(host, port, path:gsub("[^/]+$","")..target, {no_cache=true}, nil, params)
+    local req = http.post(host, port, url.absolute(path, target), {no_cache=true}, nil, params)
     
     if not req.status then return false end
     local status = tonumber(req.status) or 0
