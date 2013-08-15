@@ -2436,7 +2436,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s %s %s %s",
           srchost, dsthost, tflags, ipinfo, tcpinfo, tcpoptinfo);
       } else if (detail == MEDIUM_DETAIL) {
-        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%ul win=%hu %s IP [%s]",
+        Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
           srchost, dsthost, tflags,
           ntohl(tcp->th_ack), ntohs(tcp->th_win),
           tcpoptinfo, ipinfo);
@@ -2451,7 +2451,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
             (tcpoptinfo[0]!='\0') ? " " : "",
             tcpoptinfo, ipinfo);
         } else { /* We only have bytes 8-16 */
-          Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%ul win=%hu %s IP [%s]",
+          Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? %s ack=%lu win=%hu %s IP [%s]",
             srchost, dsthost, tflags,
             ntohl(tcp->th_ack), ntohs(tcp->th_win),
             tcpoptinfo, ipinfo);
@@ -2650,7 +2650,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
         srchost, ntohs(sctp->sh_sport), dsthost, ntohs(sctp->sh_dport), ntohl(sctp->sh_sum),
         ipinfo);
     } else if (detail == HIGH_DETAIL) {
-      Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%d > %s:%d vtag=%ul csum=0x%08x] IP [%s]",
+      Snprintf(protoinfo, sizeof(protoinfo), "SCTP [%s:%d > %s:%d vtag=%lu csum=0x%08x] IP [%s]",
         srchost, ntohs(sctp->sh_sport), dsthost, ntohs(sctp->sh_dport),
         ntohl(sctp->sh_vtag), ntohl(sctp->sh_sum),
         ipinfo);
