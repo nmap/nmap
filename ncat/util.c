@@ -212,6 +212,16 @@ void logdebug(const char *fmt, ...)
     va_end(ap);
 }
 
+void logtest(const char *fmt, ...)
+{
+    va_list ap;
+
+    fprintf(stderr, "NCAT TEST: ");
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end(ap);
+}
+
 /* Exit status 2 indicates a program error other than a network error. */
 void die(char *err)
 {
