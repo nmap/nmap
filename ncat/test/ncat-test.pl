@@ -429,12 +429,12 @@ test "Server default listen address and port",
 sub {
 	my $resp;
 
-	my ($c_pid, $c_out, $c_in) = ncat($HOST);
+	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
 
-	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", $IPV6_ADDR);
+	my ($c_pid2, $c_out2, $c_in2) = ncat("-6", "::1");
 	syswrite($c_in2, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
@@ -446,7 +446,7 @@ test "Server -4 default listen address and port",
 sub {
 	my $resp;
 
-	my ($c_pid, $c_out, $c_in) = ncat($HOST);
+	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\"";
