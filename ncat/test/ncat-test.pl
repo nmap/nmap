@@ -2641,7 +2641,7 @@ test "SSL verification, correct domain name",
 sub {
 	my $resp;
 
-	($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "--ssl-verify", "--ssl-trustfile", "test-cert.pem");
+	($c_pid, $c_out, $c_in) = ncat("localhost", $PORT, "--ssl-verify", "--ssl-trustfile", "test-cert.pem");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
 	$resp or die "Read timeout";
@@ -2668,7 +2668,7 @@ test "SSL verification, no server cert",
 sub {
 	my $resp;
 
-	($c_pid, $c_out, $c_in) = ncat($HOST, $PORT, "--ssl-verify", "--ssl-trustfile", "test-cert.pem");
+	($c_pid, $c_out, $c_in) = ncat("localhost", $PORT, "--ssl-verify", "--ssl-trustfile", "test-cert.pem");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
 	!$resp or die "Server got \"$resp\" when verification should have failed";
