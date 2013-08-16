@@ -50,10 +50,32 @@ sub ncat {
 	return ($pid, *OUT, *IN, *ERR);
 }
 
+sub wait_listen {
+	my $fh = shift;
+	my $timeout = shift || 0.3;
+	my $rd = "";
+	vec($rd, fileno($fh), 1) = 1;
+	my $partial = "";
+	for (;;) {
+		my ($n, $frag);
+		($n, $timeout) = select($rd, undef, undef, $timeout);
+		last if $n == 0;
+		$n = sysread($fh, $frag, $BUFSIZ);
+		last if (not defined($n)) || $n == 0;
+		$partial = $partial . $frag;
+		while ($partial =~ /^(.*?)\n(.*)$/s) {
+			my $line = $1;
+			$partial = $2;
+			if ($line =~ /^NCAT TEST: LISTEN/) {
+				return;
+			}
+		}
+	}
+}
+
 sub ncat_server {
-	my @ret = ncat($HOST, $PORT, "-l", @_);
-	# Give it a moment to start up.
-	select(undef, undef, undef, 0.3);
+	my @ret = ncat($HOST, $PORT, "--test", "-l", @_);
+	wait_listen($ret[3]);
 	return @ret;
 }
 
