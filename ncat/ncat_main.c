@@ -309,6 +309,7 @@ int main(int argc, char *argv[])
         {"proxy-type",      required_argument,  NULL,         0},
         {"proxy-auth",      required_argument,  NULL,         0},
         {"nsock-engine",    required_argument,  NULL,         0},
+        {"test",            no_argument,        NULL,         0},
 #ifdef HAVE_OPENSSL
         {"ssl",             no_argument,        &o.ssl,       1},
         {"ssl-cert",        required_argument,  NULL,         0},
@@ -471,6 +472,8 @@ int main(int argc, char *argv[])
                 if (nsock_set_default_engine(optarg) < 0)
                     bye("Unknown or non-available engine: %s.", optarg);
                 o.nsock_engine = 1;
+            } else if (strcmp(long_options[option_index].name, "test") == 0) {
+                o.test = 1;
             } else if (strcmp(long_options[option_index].name, "broker") == 0) {
                 o.broker = 1;
                 /* --broker implies --listen. */
