@@ -1484,7 +1484,7 @@ sub {
 
 	accept(S, SOCK) or die;
 	my ($port, $addr) = sockaddr_in(getpeername(S));
-	$port == 1234 or die "Client connected to prosy with source port $port, not 1234";
+	$port == 1234 or die "Client connected to proxy with source port $port, not 1234";
 };
 kill_children;
 
@@ -1524,7 +1524,7 @@ sub {
 
 	accept(S, SOCK) or die;
 	my ($port, $addr) = sockaddr_in(getpeername(S));
-	$port == 1234 or die "Client connected to prosy with source port $port, not 1234";
+	$port == 1234 or die "Client connected to proxy with source port $port, not 1234";
 };
 kill_children;
 
@@ -1548,7 +1548,7 @@ sub {
 
 	my $peeraddr = recv(SOCK, $buff, 4, 0) or die;
 	my ($path) = sockaddr_un($peeraddr);
-	$path eq $UNIXSOCK_TMP or die "Client connected to prosy with source socket path $path, not $UNIXSOCK_TMP";
+	$path eq $UNIXSOCK_TMP or die "Client connected to proxy with source socket path $path, not $UNIXSOCK_TMP";
 };
 kill_children;
 unlink($UNIXSOCK);
