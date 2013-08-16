@@ -1485,6 +1485,7 @@ sub {
 	accept(S, SOCK) or die;
 	my ($port, $addr) = sockaddr_in(getpeername(S));
 	$port == 1234 or die "Client connected to proxy with source port $port, not 1234";
+	close(S);
 };
 kill_children;
 
@@ -1505,6 +1506,7 @@ sub {
 	accept(S, SOCK) or die;
 	my ($port, $addr) = sockaddr_in(getpeername(S));
 	$port == 1234 or die "Client connected to proxy with source port $port, not 1234";
+	close(S);
 };
 kill_children;
 
@@ -1525,6 +1527,7 @@ sub {
 	accept(S, SOCK) or die;
 	my ($port, $addr) = sockaddr_in(getpeername(S));
 	$port == 1234 or die "Client connected to proxy with source port $port, not 1234";
+	close(S);
 };
 kill_children;
 
