@@ -305,6 +305,7 @@ sub max_conns_test {
 	my $count = shift;
 	my @client_pids;
 	my @client_outs;
+	my @client_ins;
 
 	($s_pid, $s_out, $s_in) = ncat_server(@$server_args, ("--max-conns", $count));
 	test $desc, sub {
@@ -316,6 +317,7 @@ sub max_conns_test {
 			($c_pid, $c_out, $c_in) = ncat_client(@$client_args);
 			push @client_pids, $c_pid;
 			push @client_outs, $c_out;
+			push @client_ins, $c_in;
 			syswrite($c_in, "abc\n");
 			$resp = timeout_read($s_out, 2.0);
 			if (!$resp) {
@@ -330,6 +332,7 @@ sub max_conns_test {
 			($c_pid, $c_out, $c_in) = ncat_client(@$client_args);
 			push @client_pids, $c_pid;
 			push @client_outs, $c_out;
+			push @client_ins, $c_in;
 			syswrite($c_in, "abc\n");
 			$resp = timeout_read($s_out, 2.0);
 			if (!$resp) {
@@ -352,6 +355,7 @@ sub max_conns_test {
 			($c_pid, $c_out, $c_in) = ncat_client(@$client_args);
 			push @client_pids, $c_pid;
 			push @client_outs, $c_out;
+			push @client_ins, $c_in;
 			syswrite($c_in, "abc\n");
 			$resp = timeout_read($s_out, 2.0);
 			if (!$resp) {
