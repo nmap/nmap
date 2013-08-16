@@ -16,6 +16,8 @@ use POSIX ":sys_wait_h";
 use IPC::Open3;
 use strict;
 
+$| = 1;
+
 my $NCAT = "../ncat";
 my $HOST = "localhost";
 my $IPV6_ADDR = "::1";
