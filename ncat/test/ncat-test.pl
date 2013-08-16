@@ -714,7 +714,7 @@ sub {
 	$code = $? >> 8;
 	$code == 2 or die "Exit code was $code, not 2";
 
-	my ($s_pid, $s_out, $s_in) = ncat_server("--baffle");
+	my ($s_pid, $s_out, $s_in) = ncat("-l", "--baffle");
 	do {
 		$pid = waitpid($s_pid, 0);
 	} while ($pid > 0 && $pid != $s_pid);
