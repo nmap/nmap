@@ -26,6 +26,8 @@ my $PROXY_PORT = 40001;
 my $UNIXSOCK = "ncat.unixsock";
 my $UNIXSOCK_TMP = "ncat.unixsock_tmp";
 
+my $HAVE_SCTP = !($^O eq "MSWin32" || $^O eq "cygwin");
+
 my $BUFSIZ = 1024;
 
 my $num_tests = 0;
@@ -184,13 +186,12 @@ sub server_client_test_multi {
 	my $client_args_ref = shift;
 	my $code = shift;
 	my $outer_xfail = $xfail;
-	local $xfail;
 
 	for my $spec (@$specs) {
 		my @server_args = @$server_args_ref;
 		my @client_args = @$client_args_ref;
 
-		$xfail = $outer_xfail;
+		local $xfail = $outer_xfail;
 		for my $proto (split(/ /, $spec)) {
 			if ($proto eq "tcp") {
 				# Nothing needed.
@@ -200,6 +201,7 @@ sub server_client_test_multi {
 			} elsif ($proto eq "sctp") {
 				push @server_args, ("--sctp");
 				push @client_args, ("--sctp");
+				$xfail = 1 if !$HAVE_SCTP;
 			} elsif ($proto eq "ssl") {
 				push @server_args, ("--ssl", "--ssl-key", "test-cert.pem", "--ssl-cert", "test-cert.pem");
 				push @client_args, ("--ssl");
