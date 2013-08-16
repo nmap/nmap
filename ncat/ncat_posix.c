@@ -391,6 +391,14 @@ char **cmdline_split(const char *cmdexec)
     return cmd_args;
 }
 
+int ncat_openlog(const char *logfile, int append)
+{
+    if (append)
+        return Open(logfile, O_WRONLY | O_CREAT | O_APPEND, 0664);
+    else
+        return Open(logfile, O_WRONLY | O_CREAT | O_TRUNC, 0664);
+}
+
 void set_lf_mode(void)
 {
     /* Nothing needed. */
