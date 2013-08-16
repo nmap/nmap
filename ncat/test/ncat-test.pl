@@ -74,7 +74,7 @@ sub wait_listen {
 }
 
 sub ncat_server {
-	my @ret = ncat($HOST, $PORT, "--test", "-l", @_);
+	my @ret = ncat($PORT, "--test", "-l", @_);
 	wait_listen($ret[3]);
 	return @ret;
 }
