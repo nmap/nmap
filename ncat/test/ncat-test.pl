@@ -79,8 +79,17 @@ sub ncat_server {
 	return @ret;
 }
 
+sub host_for_args {
+	if (grep(/^-[^-]*6/, @_)) {
+		return "::1";
+	} else {
+		return "127.0.0.1";
+	}
+}
+
 sub ncat_client {
-	my @ret = ncat($HOST, $PORT, @_);
+	my $host;
+	my @ret = ncat(host_for_args(@_), $PORT, @_);
 	# Give it a moment to connect.
 	select(undef, undef, undef, 0.1);
 	return @ret;
@@ -229,9 +238,9 @@ sub proxy_test {
 	my $server_args = shift;
 	my $client_args = shift;
 	my $code = shift;
-	($p_pid, $p_out, $p_in) = ncat(($HOST, $PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
-	($s_pid, $s_out, $s_in) = ncat(($HOST, $PORT, "-l"), @$server_args);
-	($c_pid, $c_out, $c_in) = ncat(($HOST, $PORT, "--proxy", "$HOST:$PROXY_PORT"), @$client_args);
+	($p_pid, $p_out, $p_in) = ncat(host_for_args(@$proxy_args), ($PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
+	($s_pid, $s_out, $s_in) = ncat(host_for_args(@$server_args), ($PORT, "-l"), @$server_args);
+	($c_pid, $c_out, $c_in) = ncat(host_for_args(@$client_args), ($PORT, "--proxy", "$HOST:$PROXY_PORT"), @$client_args);
 	test($desc, $code);
 	kill_children;
 }
@@ -244,9 +253,9 @@ sub proxy_test_raw {
 	my $server_args = shift;
 	my $client_args = shift;
 	my $code = shift;
-	($p_pid, $p_out, $p_in) = ncat(($HOST, $PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
-	($s_pid, $s_out, $s_in) = ncat(($HOST, $PORT, "-l"), @$server_args);
-	($c_pid, $c_out, $c_in) = ncat(($HOST, $PROXY_PORT), @$client_args);
+	($p_pid, $p_out, $p_in) = ncat(host_for_args(@$proxy_args), ($PROXY_PORT, "-l", "--proxy-type", "http"), @$proxy_args);
+	($s_pid, $s_out, $s_in) = ncat(host_for_args(@$server_args), ($PORT, "-l"), @$server_args);
+	($c_pid, $c_out, $c_in) = ncat(host_for_args(@$client_args), ($PROXY_PORT), @$client_args);
 	test($desc, $code);
 	kill_children;
 }
