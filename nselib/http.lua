@@ -1883,7 +1883,7 @@ end
 function parse_form(form)
   local parsed = {}
   local fields = {}
-  local form_action = string.match(form, '[Aa][Cc][Tt][Ii][Oo][Nn]="(.-)"')
+  local form_action = string.match(form, '[Aa][Cc][Tt][Ii][Oo][Nn]=[\'"](.-)[\'"]')
   if form_action then
     parsed["action"] = form_action
   else
@@ -1891,19 +1891,27 @@ function parse_form(form)
   end
   
   -- determine if the form is using get or post
-  local form_method = string.match(form, '[Mm][Ee][Tt][Hh][Oo][Dd]="(.-)"')
+  local form_method = string.match(form, '[Mm][Ee][Tt][Hh][Oo][Dd]=[\'"](.-)[\'"]')
   if form_method then
     parsed["method"] = string.lower(form_method)
+  end
+
+  -- get the id of the form
+  local form_id = string.match(form, '[iI][dD]=[\'"](.-)[\'"]')
+  if form_id then
+    parsed["id"] = string.lower(form_id)
   end
 
   -- now identify the fields
   local input_type
   local input_name
+  local input_value
 
   -- first find regular inputs
   for f in string.gmatch(form, '<%s*[Ii][Nn][Pp][Uu][Tt].->') do
-    input_type = string.match(f, '[Tt][Yy][Pp][Ee]="(.-)"')
-    input_name = string.match(f, '[Nn][Aa][Mm][Ee]="(.-)"')
+    input_type = string.match(f, '[Tt][Yy][Pp][Ee]=[\'"](.-)[\'"]')
+    input_name = string.match(f, '[Nn][Aa][Mm][Ee]=[\'"](.-)[\'"]')
+    input_value = string.match(f, '[Vv][Aa][Ll][Uu][Ee]=[\'"](.-)[\'"]') 
     local next_field_index = #fields+1
     if input_name then
       fields[next_field_index] = {}
@@ -1911,12 +1919,15 @@ function parse_form(form)
       if input_type then
         fields[next_field_index]["type"] = string.lower(input_type)
       end
+      if input_value then
+        fields[next_field_index]["value"] = input_value
+      end
     end
   end
 
   -- now search for textareas
   for f in string.gmatch(form, '<%s*[Tt][Ee][Xx][Tt][Aa][Rr][Ee][Aa].->') do
-    input_name = string.match(f, '[Nn][Aa][Mm][Ee]="(.-)"')
+    input_name = string.match(f, '[Nn][Aa][Mm][Ee]=[\'"](.-)[\'"]')
     local next_field_index = #fields+1
     if input_name then
       fields[next_field_index] = {}
