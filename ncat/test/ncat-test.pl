@@ -19,7 +19,7 @@ use strict;
 $| = 1;
 
 my $NCAT = "../ncat";
-my $HOST = "localhost";
+my $HOST = "127.0.0.1";
 my $IPV6_ADDR = "::1";
 my $PORT = 40000;
 my $PROXY_PORT = 40001;
