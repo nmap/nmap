@@ -542,10 +542,10 @@ test "Server default listen address -6 --udp",
 sub {
 	my $resp;
 
-	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
+	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
-	!$resp or die "Server got \"$resp\", not \"\" from localhost";
+	!$resp or die "Server got \"$resp\", not \"\" from 127.0.0.1";
 
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
@@ -559,10 +559,10 @@ test "Server default listen address -4 --udp",
 sub {
 	my $resp;
 
-	my ($c_pid, $c_out, $c_in) = ncat("localhost", "--udp");
+	my ($c_pid, $c_out, $c_in) = ncat("127.0.0.1", "--udp");
 	syswrite($c_in, "abc\n");
 	$resp = timeout_read($s_out);
-	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from localhost";
+	$resp eq "abc\n" or die "Server got \"$resp\", not \"abc\\n\" from 127.0.0.1";
 
 	my ($c_pid1, $c_out1, $c_in1) = ncat("::1", "--udp");
 	syswrite($c_in1, "abc\n");
