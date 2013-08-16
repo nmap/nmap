@@ -45,7 +45,7 @@ sub ncat {
 	# print join(" ", ($NCAT, @_)) . "\n";
 	$pid = open3(*IN, *OUT, *ERR, $NCAT, @_);
 	if (!defined $pid) {
-		die "open2 failed";
+		die "open3 failed";
 	}
 	return ($pid, *OUT, *IN, *ERR);
 }
