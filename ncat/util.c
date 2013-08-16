@@ -468,6 +468,8 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
 #endif
             loguser("Listening on %s:%hu\n", inet_socktop(srcaddr_u), inet_port(srcaddr_u));
     }
+    if (o.test)
+        logtest("LISTEN\n");
 
     return sock;
 }
