@@ -47,6 +47,9 @@ sub ncat {
 	if (!defined $pid) {
 		die "open3 failed";
 	}
+	binmode *IN;
+	binmode *OUT;
+	binmode *ERR;
 	return ($pid, *OUT, *IN, *ERR);
 }
 
@@ -746,10 +749,12 @@ server_client_test_all "Messages are logged to output file",
 	sleep 1;
 	close($c_in);
 	open(FH, "server.log");
+	binmode FH;
 	my $contents = join("", <FH>);
 	close(FH);
 	$contents eq "abc\ndef\n" or die "Server logged " . d($contents);
 	open(FH, "client.log");
+	binmode FH;
 	$contents = join("", <FH>);
 	close(FH);
 	$contents eq "abc\ndef\n" or die "Client logged " . d($contents);
