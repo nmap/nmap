@@ -112,8 +112,8 @@ sub test {
 		}
 	} else {
 		if ($xfail) {
-			$num_expected_failures++;
 			print "XFAIL $desc\n";
+			$num_expected_failures++;
 		} else {
 			$num_failures++;
 			print "FAIL $desc\n";
