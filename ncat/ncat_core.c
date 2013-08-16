@@ -454,16 +454,6 @@ int ncat_delay_timer(int delayval)
     return 1;
 }
 
-/* Open a logfile for writing.
- * Return the open file descriptor. */
-int ncat_openlog(const char *logfile, int append)
-{
-    if (append)
-        return Open(logfile, O_BINARY | O_WRONLY | O_CREAT | O_APPEND, 0664);
-    else
-        return Open(logfile, O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 0664);
-}
-
 static int ncat_hexdump(int logfd, const char *data, int len);
 
 void ncat_log_send(const char *data, size_t len)

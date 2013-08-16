@@ -124,6 +124,14 @@
 #include "nbase.h"
 #include "ncat.h"
 
+int ncat_openlog(const char *logfile, int append)
+{
+    if (append)
+        return Open(logfile, O_BINARY | O_WRONLY | O_CREAT | O_APPEND, 0664);
+    else
+        return Open(logfile, O_BINARY | O_WRONLY | O_CREAT | O_TRUNC, 0664);
+}
+
 void set_lf_mode(void)
 {
     /* _O_TEXT (the default setting) converts \r\n to \n on input, making the
