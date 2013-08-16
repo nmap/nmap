@@ -191,6 +191,8 @@ void options_init(void)
 
     o.nsock_engine = 0;
 
+    o.test = 0;
+
     o.numsrcrtes = 0;
     o.srcrteptr = 4;
 

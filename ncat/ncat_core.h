@@ -180,6 +180,8 @@ struct options {
     struct addrset denyset;
     int httpserver;
     int nsock_engine;
+    /* Output messages useful for testing to stderr? */
+    int test;
 
     /* Loose source-routing stuff */
     struct in_addr srcrtes[8];
