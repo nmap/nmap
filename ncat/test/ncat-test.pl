@@ -26,7 +26,9 @@ my $PROXY_PORT = 40001;
 my $UNIXSOCK = "ncat.unixsock";
 my $UNIXSOCK_TMP = "ncat.unixsock_tmp";
 
-my $HAVE_SCTP = !($^O eq "MSWin32" || $^O eq "cygwin");
+my $WIN32 = $^O eq "MSWin32" || $^O eq "cygwin";
+my $HAVE_SCTP = !$WIN32;
+my $HAVE_UNIXSOCK = !$WIN32;
 
 my $BUFSIZ = 1024;
 
@@ -590,6 +592,8 @@ sub {
 kill_children;
 
 # Test UNIX domain sockets listening
+{
+local $xfail = 1 if !$HAVE_UNIXSOCK;
 ($s_pid, $s_out, $s_in) = ncat("-l", "-U", $UNIXSOCK);
 test "Server UNIX socket listen on $UNIXSOCK (STREAM)",
 sub {
@@ -603,7 +607,10 @@ sub {
 };
 kill_children;
 unlink($UNIXSOCK);
+}
 
+{
+local $xfail = 1 if !$HAVE_UNIXSOCK;
 ($s_pid, $s_out, $s_in) = ncat("-l", "-U", "--udp", $UNIXSOCK);
 test "Server UNIX socket listen on $UNIXSOCK --udp (DGRAM)",
 sub {
@@ -617,6 +624,7 @@ sub {
 };
 kill_children;
 unlink($UNIXSOCK);
+}
 
 server_client_test "Connect success exit code",
 [], ["--send-only"], sub {
