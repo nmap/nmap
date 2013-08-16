@@ -156,6 +156,8 @@ void loguser_noprefix(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
 void logdebug(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
+void logtest(const char *fmt, ...)
+     __attribute__ ((format (printf, 1, 2)));
 
 /* handle errors */
 
