@@ -1,5 +1,5 @@
 description = [[
-Extracts and outputs HTML/JS comments from HTTP responses.
+Extracts and outputs HTML and JavaScript comments from HTTP responses.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Attempts to exploit an authentication bypass vulnerability in Adobe Coldfusion servers (APSA13-01:http://www.adobe.com/support/security/advisories/apsa13-01.html) to retrieve a valid administrator's session cookie. 
+Attempts to exploit an authentication bypass vulnerability in Adobe Coldfusion servers (APSA13-01: http://www.adobe.com/support/security/advisories/apsa13-01.html) to retrieve a valid administrator's session cookie. 
 ]]
 
 ---
