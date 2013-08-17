@@ -974,8 +974,8 @@ Crawler = {
         if ( not ( type(self.options.doscraping) == "function" ) ) then
             self.options.doscraping = false
         end
-        self.options.maxdepth = self.options.maxdepth or 3
-        self.options.maxpagecount = self.options.maxpagecount or 20
+        self.options.maxdepth = tonumber(self.options.maxdepth) or 3
+        self.options.maxpagecount = tonumber(self.options.maxpagecount) or 20
         self.url = self.url or '/'
     end,    
     
