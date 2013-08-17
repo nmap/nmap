@@ -3437,38 +3437,39 @@ work properly.</para>
       <varlistentry>
         <term>
           <option>--proxies <replaceable>Comma-separated list of proxy
-          URLs</replaceable></option> Relay TCP connections via a chain of
-          proxies.
+          URLs</replaceable></option> (Relay TCP connections through a chain of
+          proxies)
 
         <indexterm significance="preferred"><primary><option>--proxies</option></primary></indexterm>
         <indexterm><primary>proxy</primary></indexterm>
         <indexterm><primary>proxies</primary></indexterm>
         </term>
         <listitem>
-          <para>Asks Nmap to establish TCP connections via the supplied chain of
-          <indexterm><primary>proxies</primary></indexterm>. Connections are
-          established to the first node of the chain, which is in turn asked to
-          connect to the second one... to eventually reach the target.  This
-          technique degrades performance, mostly by introducing latency.  It is
-          up to the user to adjust timeouts and other scan parameters
-          accordingly when invoking nmap. Typically, some proxies might refuse
-          to handle as many concurrent connections as nmap's default
-          parallelism.</para>
 
-          <para>The option takes a list of proxies as argument, expressed as
-          URLs like <literal>proto://host:port</literal>. Use commas to separate
-          node URLs of a chain. No authentication is supported yet. Valid
+          <para>Asks Nmap to establish TCP connections with a final
+          target through supplied chain of one or more HTTP or SOCKS4
+          <indexterm><primary>proxies</primary></indexterm>.  Proxies
+          can help hide the true source of a scan or evade certain
+          firewall restrictions, but they can hamper scan performance
+          by increasing latency.  Users may need to adjust Nmap
+          timeouts and other scan parameters accordingly. In
+          particular, a lower <option>--max-prallelism</option> may
+          help because some proxies refuse to handle as many
+          concurrent connections as Nmap opens by default.</para>
+
+          <para>This option takes a list of proxies as argument, expressed as
+          URLs in the format <literal>proto://host:port</literal>. Use commas to separate
+          node URLs in a chain. No authentication is supported yet. Valid
           protocols are <literal>HTTP</literal> and <literal>SOCKS4</literal>.
           </para>
 
           <para>Warning: this feature is still under development and has
           limitations. It is implemented within the nsock library and thus has
-          no effect on the ping, port scanning and OS discovery phases. Only
-          NSE and version scan already benefit from this option. Also, SSL
-          connections are not supported yet, as well as proxy-side DNS
-          resolving (hostnames are always resolved by nmap). In other words,
-          the current implementation does not aim to provide strong
-          anonymity.</para>
+          no effect on the ping, port scanning and OS discovery phases
+	  of a scan. Only NSE and version scan benefit from this
+	  option so far&mdash;other features may disclose your true address. SSL
+          connections are not yet supported, nor is proxy-side DNS
+          resolution (hostnames are always resolved by nmap).</para>
         </listitem>
       </varlistentry>
 
