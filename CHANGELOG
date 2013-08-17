@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The ICMP ID of ICMP probes is now matched against the sent ICMP ID,
+  to reduce the chance of false matches. Patch by Chris Johnson.
+
 o [NSE] Made telnet-brute support multiple parallel guessing threads,
   reuse connections, and support password-only logins. [nnposter]
 
