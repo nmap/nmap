@@ -1,11 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Update copyright year to 2013 in the Nmap copyright header files
-
-o Update CHANGELOG for new release
-
-o New Nmap Release
-
 o Adopt an issue tracking system for Nmap and related tools.  We
   should probably look at our needs and options and then decide on and
   either install it on our own infrastructure or use it hosted elsewhere.
@@ -357,6 +351,14 @@ o Create new default username list:
     list like "root", "admin", "administrator", "web", "user", "test",
     and also a general list which we obtain from spidering from
     emails, etc.
+
+o Improve Nsock proxies system
+ - Add SSL support
+ - Add proxy authentication
+ - Switch Ncat to using Nsock proxy system rather than it's own
+   built-in support.
+ - Add proxy support to connect() scan.  This would mean moving
+   connect scan to nsock.
 
 o [NCAT] Send one line at a time when --delay is in effect. This is
   cumbersome to do until Nsock supports buffered reading.
@@ -715,6 +717,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Update copyright year to 2013 in the Nmap copyright header files
+
+o Update CHANGELOG for new release
+
+o New Nmap Release
 
 o Nping in ICMP mode (default) must not be checking the icmp IDs or
   returned packets or something, because if I have two separate 'nping
