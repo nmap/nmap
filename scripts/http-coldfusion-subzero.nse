@@ -1,5 +1,5 @@
 description = [[
-Attempts to retrieve version, absolute path of administration panel and the file 'password.properties' in vulnerable installations of ColdFusion 9 and 10.
+Attempts to retrieve version, absolute path of administration panel and the file 'password.properties' from vulnerable installations of ColdFusion 9 and 10.
 
 This was based on the exploit 'ColdSub-Zero.pyFusion v2'.
 ]]

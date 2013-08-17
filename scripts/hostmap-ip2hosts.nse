@@ -38,7 +38,7 @@ The script is in the "external" category because it sends target IPs to a third 
 -- <elem key="filename">output_nmap.org</elem>
 ---
 
-author = {'Paulino Calderon <calderon@websec.mx>'}
+author = "Paulino Calderon <calderon@websec.mx>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

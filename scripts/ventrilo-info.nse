@@ -9,8 +9,9 @@ local shortport = require "shortport"
 
 description = [[
 Detects the Ventrilo voice communication server service versions 2.1.2
-and above. Some of the older versions (pre 3.0.0) may not have the UDP
-service this probe relies on enabled by default.
+and above and tries to determine version and configuration
+information. Some of the older versions (pre 3.0.0) may not have the
+UDP service that this probe relies on enabled by default.
 
 The Ventrilo server listens on a TCP (voice/control) and an UDP (ping/status)
 port with the same port number (fixed to 3784 in the free version, otherwise

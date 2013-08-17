@@ -4,7 +4,7 @@ local http = require "http"
 local vulns = require "vulns"
 
 description = [[
-Exploits a directory traversal vulnerability in phpMyAdmin 2.6.4-pl1 to retrieve remote files on the web server. Other phpmyadmin versions might be vulnerable.
+Exploits a directory traversal vulnerability in phpMyAdmin 2.6.4-pl1 (and possibly other versions) to retrieve remote files on the web server.
 
 Reference:
 * http://www.exploit-db.com/exploits/1244/

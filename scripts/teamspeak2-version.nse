@@ -5,7 +5,7 @@ local bin = require "bin"
 local stdnse = require "stdnse"
 
 description = [[
-Detects the TeamSpeak 2 server UDP voice communication service.
+Detects the TeamSpeak 2 voice communication server and attempts to determine version and configuration information.
 
 A single UDP packet (a login request) is sent. If the server does not have a
 password set, the exact version, name, and OS type will also be reported on.

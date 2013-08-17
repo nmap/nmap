@@ -1,7 +1,7 @@
 description = [[
-This script will POST specially crafted strings to every form it 
-encounters and then it will search through the website for those 
-strings to check if the payloads were succesful.
+Posts specially crafted strings to every form it 
+encounters and then searches through the website for those 
+strings to determine whether the payloads were succesful.
 ]]
 
 ---
