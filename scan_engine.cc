@@ -250,6 +250,10 @@ public:
   int sd; /* Socket descriptor used for connection.  -1 if not valid. */
 };
 
+struct IPExtraProbeData_icmp {
+  u16 ident;
+};
+
 struct IPExtraProbeData_tcp {
   u16 sport;
   u32 seq; /* host byte order (like the other fields */
@@ -267,6 +271,7 @@ struct IPExtraProbeData_sctp {
 struct IPExtraProbeData {
   u16 ipid; /* host byte order */
   union {
+    struct IPExtraProbeData_icmp icmp;
     struct IPExtraProbeData_tcp tcp;
     struct IPExtraProbeData_udp udp;
     struct IPExtraProbeData_sctp sctp;
@@ -326,6 +331,7 @@ public:
   u16 ipid() const {
     return probes.IP.ipid;
   }
+  u16 icmpid() const; // ICMP ident if protocol is ICMP
   u32 tcpseq() const; // TCP sequence number if protocol is TCP
   u32 sctpvtag() const; // SCTP vtag if protocol is SCTP
   /* Number, such as IPPROTO_TCP, IPPROTO_UDP, etc. */
@@ -912,6 +918,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
   struct tcp_hdr *tcp = NULL;
   struct udp_hdr *udp = NULL;
   struct sctp_hdr *sctp = NULL;
+  struct ppkt *icmp = NULL;
   const void *data;
   u8 hdr;
 
@@ -947,10 +954,18 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
     sctp = (struct sctp_hdr *) data;
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
     probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
+  } else if (hdr == IPPROTO_ICMP) {
+    icmp = (struct ppkt *) data;
+    probes.IP.pd.icmp.ident = ntohs(icmp->id);
   }
 
   mypspec = *pspec;
   return;
+}
+
+u16 UltraProbe::icmpid() const {
+  assert(mypspec.proto == IPPROTO_ICMP);
+  return probes.IP.pd.icmp.ident;
 }
 
 u32 UltraProbe::tcpseq() const {
