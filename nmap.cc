@@ -333,6 +333,7 @@ static void printusage(int rc) {
          "  -S <IP_Address>: Spoof source address\n"
          "  -e <iface>: Use specified interface\n"
          "  -g/--source-port <portnum>: Use given port number\n"
+         "  --proxies <url1,[url2],..>: Relay TCP connections through a chain of proxies\n"
          "  --data-length <num>: Append random data to sent packets\n"
          "  --ip-options <options>: Send packets with specified ip options\n"
          "  --ttl <val>: Set IP time-to-live field\n"
