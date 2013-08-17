@@ -3436,6 +3436,44 @@ work properly.</para>
 
       <varlistentry>
         <term>
+          <option>--proxies <replaceable>Comma-separated list of proxy
+          URLs</replaceable></option> Relay TCP connections via a chain of
+          proxies.
+
+        <indexterm significance="preferred"><primary><option>--proxies</option></primary></indexterm>
+        <indexterm><primary>proxy</primary></indexterm>
+        <indexterm><primary>proxies</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Asks Nmap to establish TCP connections via the supplied chain of
+          <indexterm><primary>proxies</primary></indexterm>. Connections are
+          established to the first node of the chain, which is in turn asked to
+          connect to the second one... to eventually reach the target.  This
+          technique degrades performance, mostly by introducing latency.  It is
+          up to the user to adjust timeouts and other scan parameters
+          accordingly when invoking nmap. Typically, some proxies might refuse
+          to handle as many concurrent connections as nmap's default
+          parallelism.</para>
+
+          <para>The option takes a list of proxies as argument, expressed as
+          URLs like <literal>proto://host:port</literal>. Use commas to separate
+          node URLs of a chain. No authentication is supported yet. Valid
+          protocols are <literal>HTTP</literal> and <literal>SOCKS4</literal>.
+          </para>
+
+          <para>Warning: this feature is still under development and has
+          limitations. It is implemented within the nsock library and thus has
+          no effect on the ping, port scanning and OS discovery phases. Only
+          NSE and version scan already benefit from this option. Also, SSL
+          connections are not supported yet, as well as proxy-side DNS
+          resolving (hostnames are always resolved by nmap). In other words,
+          the current implementation does not aim to provide strong
+          anonymity.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
           <option>--badsum</option> (Send packets with bogus TCP/UDP checksums)
         <indexterm><primary><option>--badsum</option></primary></indexterm>
         <indexterm><primary>TCP checksum</primary></indexterm>
