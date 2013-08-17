@@ -235,6 +235,14 @@ static const char *pspectype2ascii(int type) {
   return ""; // Unreached
 }
 
+struct ppkt { /* Beginning of ICMP Echo/Timestamp header         */
+  u8 type;
+  u8 code;
+  u16 checksum;
+  u16 id;
+  u16 seq;
+};
+
 class ConnectProbe {
 public:
   ConnectProbe();
@@ -2523,6 +2531,42 @@ static bool sport_decode(const UltraScanInfo *USI, u16 base_portno, u16 portno,
     if (trynum)
       *trynum = t;
   }
+
+  return true;
+}
+
+static bool icmp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
+                             const struct ppkt *ping,
+                             const struct sockaddr_storage *target_src,
+                             const struct sockaddr_storage *src,
+                             const struct sockaddr_storage *dst,
+                             u8 proto,
+                             u32 ipid) {
+  /* Check if it is ICMP or ICMPV6. */
+  if (probe->protocol() != IPPROTO_ICMPV6 && probe->protocol() != IPPROTO_ICMP)
+    return false;
+
+  /* Ensure the connection info matches. */
+  if (sockaddr_storage_cmp(target_src, dst) != 0)
+    return false;
+
+  /* Don't match a timestamp request with an echo reply, for example. */
+  if (proto == IPPROTO_ICMP &&
+      ((ping->type == 0 && probe->pspec()->pd.icmp.type != 8) ||
+       (ping->type == 14 && probe->pspec()->pd.icmp.type != 13) ||
+       (ping->type == 18 && probe->pspec()->pd.icmp.type != 17)))
+    return false;
+  if (proto == IPPROTO_ICMPV6 &&
+      (ping->type == 129 && probe->pspec()->pd.icmpv6.type != 128))
+    return false;
+
+  /* Sometimes we get false results when scanning localhost with
+     -p- because we scan localhost with src port = dst port and
+     see our outgoing packet and think it is a response. */
+  if (probe->dport() == probe->sport() &&
+      sockaddr_storage_cmp(src, dst) == 0 &&
+      probe->ipid() == ipid)
+    return false; /* We saw the packet we ourselves sent */
 
   return true;
 }
@@ -4959,13 +5003,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   struct link_header linkhdr;
   struct ip *ip_tmp;
   unsigned int bytes;
-  struct ppkt {
-    unsigned char type;
-    unsigned char code;
-    unsigned short checksum;
-    unsigned short id;
-    unsigned short seq;
-  } *ping;
+  struct ppkt *ping;
   long to_usec;
   HostScanStats *hss = NULL;
   std::list<UltraProbe *>::iterator probeI;
@@ -5060,30 +5098,8 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           probeI--;
           probe = *probeI;
 
-          /* Check if it is ICMP or ICMPV6. */
-          if (probe->protocol() != IPPROTO_ICMPV6 && probe->protocol() != IPPROTO_ICMP)
+          if (!icmp_probe_match(USI, probe, ping, &target_src, &hdr.src, &hdr.dst, hdr.proto, hdr.ipid))
             continue;
-
-          /* Ensure the connection info matches. */
-          if (sockaddr_storage_cmp(&target_src, &hdr.dst) != 0)
-            continue;
-          /* Don't match a timestamp request with an echo reply, for example. */
-          if (hdr.proto == IPPROTO_ICMP &&
-              ((ping->type == 0 && probe->pspec()->pd.icmp.type != 8) ||
-               (ping->type == 14 && probe->pspec()->pd.icmp.type != 13) ||
-               (ping->type == 18 && probe->pspec()->pd.icmp.type != 17)))
-            continue;
-          if (hdr.proto == IPPROTO_ICMPV6 &&
-              (ping->type == 129 && probe->pspec()->pd.icmpv6.type != 128))
-            continue;
-
-          /* Sometimes we get false results when scanning localhost with
-             -p- because we scan localhost with src port = dst port and
-             see our outgoing packet and think it is a response. */
-          if (probe->dport() == probe->sport() &&
-              sockaddr_storage_cmp(&hdr.src, &hdr.dst) == 0 &&
-              probe->ipid() == hdr.ipid)
-            continue; /* We saw the packet we ourselves sent */
 
           goodone = true;
           newstate = HOST_UP;
