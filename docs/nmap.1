@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
-.\"      Date: 07/29/2013
+.\"      Date: 08/17/2013
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "07/29/2013" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "08/17/2013" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1852,6 +1852,22 @@ Apple,
 deadbeefcafe,
 0020F2, and
 Cisco\&. This option only affects raw packet scans such as SYN scan or OS detection, not connection\-oriented features such as version detection or the Nmap Scripting Engine\&.
+.RE
+.PP
+\fB\-\-proxies \fR\fB\fIComma\-separated list of proxy URLs\fR\fR (Relay TCP connections through a chain of proxies) .\" --proxies .\" proxy .\" proxies
+.RS 4
+Asks Nmap to establish TCP connections with a final target through supplied chain of one or more HTTP or SOCKS4
+.\" proxies\&. Proxies can help hide the true source of a scan or evade certain firewall restrictions, but they can hamper scan performance by increasing latency\&. Users may need to adjust Nmap timeouts and other scan parameters accordingly\&. In particular, a lower
+\fB\-\-max\-prallelism\fR
+may help because some proxies refuse to handle as many concurrent connections as Nmap opens by default\&.
+.sp
+This option takes a list of proxies as argument, expressed as URLs in the format
+proto://host:port\&. Use commas to separate node URLs in a chain\&. No authentication is supported yet\&. Valid protocols are
+HTTP
+and
+SOCKS4\&.
+.sp
+Warning: this feature is still under development and has limitations\&. It is implemented within the nsock library and thus has no effect on the ping, port scanning and OS discovery phases of a scan\&. Only NSE and version scan benefit from this option so far\(emother features may disclose your true address\&. SSL connections are not yet supported, nor is proxy\-side DNS resolution (hostnames are always resolved by nmap)\&.
 .RE
 .PP
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums) .\" --badsum .\" TCP checksum .\" checksums
