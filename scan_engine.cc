@@ -2583,6 +2583,10 @@ static bool icmp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
       probe->ipid() == ipid)
     return false; /* We saw the packet we ourselves sent */
 
+  /* Check that the randomly-generated ping ident matches. */
+  if (ntohs(ping->id) != probe->icmpid())
+    return false;
+
   return true;
 }
 
