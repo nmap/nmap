@@ -28,6 +28,11 @@ Remember each fingerprint must have:
 * <code>paths</code> - Paths table containing the possible location of the target
 * <code>login_check</code> - Login function of the target
 
+In addition, a fingerprint may have:
+* <code>target_check</code> - Target validation function. If defined, it will be
+                              called to validate the target before attempting
+                              any logins.
+
 Default fingerprint file: /nselib/data/http-default-accounts-fingerprints.lua 
 This script was based on http-enum. 
 ]]
@@ -48,6 +53,10 @@ This script was based on http-enum.
 -- Other useful arguments relevant to this script:
 -- http.pipeline Sets max number of petitions in the same request.
 -- http.useragent User agent for HTTP requests
+--
+-- Revision History
+-- 2013-08-13 nnposter
+--   * added support for target_check()
 ---
 
 author = "Paulino Calderon"
@@ -109,6 +118,10 @@ local function validate_fingerprints(fingerprints)
      -- Make sure they include the login function
     if(type(fingerprint.login_check) ~= "function") then
       return "Missing or invalid login_check function in entry #"..i
+    end
+     -- Make sure that the target validation is a function
+    if(fingerprint.target_check and type(fingerprint.target_check) ~= "function") then
+      return "Invalid target_check function in entry #"..i
     end
       -- Are they missing any fields?
     if(fingerprint.category and type(fingerprint.category) ~= "string") then
@@ -269,7 +282,10 @@ action = function(host, port)
       if (results[j] and not(credentials_found)) then
         local path = basepath .. probe['path']
 
-        if( http.page_exists(results[j], result_404, known_404, path, true) ) then
+        if http.page_exists(results[j], result_404, known_404, path, true)
+        	and (not fingerprint.target_check
+        		or fingerprint.target_check(host, port, path, results[j]))
+        	then
           for _, login_combo in ipairs(fingerprint.login_combos) do
             stdnse.print_debug(2, "%s: Trying login combo -> %s:%s", SCRIPT_NAME, login_combo["username"], login_combo["password"])
             --Check default credentials
