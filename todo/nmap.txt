@@ -357,6 +357,15 @@ o Improve Nsock proxies system
  - Add proxy authentication
  - Switch Ncat to using Nsock proxy system rather than it's own
    built-in support.
+ - Move the code which is shared with ncat to nbase (URL parsing code,
+   for instance).
+ - Add socks4a/socks5 support. This requires to figure out how to
+   enter the nsock proxy code w/o having the target IP address. No huge
+   technical blocker there though, only design choices to make.
+ - Nping could potentially use it as well (could be useful for
+   measuring latency and reliability of a given proxy chain, for
+   example).
+
  - Add proxy support to connect() scan.  This would mean moving
    connect scan to nsock.
 
