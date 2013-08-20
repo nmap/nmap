@@ -3453,7 +3453,7 @@ work properly.</para>
           firewall restrictions, but they can hamper scan performance
           by increasing latency.  Users may need to adjust Nmap
           timeouts and other scan parameters accordingly. In
-          particular, a lower <option>--max-prallelism</option> may
+          particular, a lower <option>--max-parallelism</option> may
           help because some proxies refuse to handle as many
           concurrent connections as Nmap opens by default.</para>
 
@@ -3469,7 +3469,7 @@ work properly.</para>
 	  of a scan. Only NSE and version scan benefit from this
 	  option so far&mdash;other features may disclose your true address. SSL
           connections are not yet supported, nor is proxy-side DNS
-          resolution (hostnames are always resolved by nmap).</para>
+          resolution (hostnames are always resolved by Nmap).</para>
         </listitem>
       </varlistentry>
 
