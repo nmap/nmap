@@ -5863,7 +5863,7 @@ match http m|^HTTP/1\.0 200 OK\r\n.*<title>Remote UI &lt;Top Page&gt; : iR(\w+) 
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>Remote UI \(Top Page\):&nbsp;(MF\w+) Series|s p/Canon $1 printer http config/ d/printer/ cpe:/h:canon:$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: 2Wire-Gateway/([-\w_.]+)\r\n| p/2Wire HomePortal router http config/ i/Firmware $1/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 2wire Gateway ([\d.]+)\r\n|s p/2Wire HomePortal http config/ v/$1/ d/broadband router/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 2wire Gateway\r\n|s p/2Wire HomePortal touer http config/ d/broadband router/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 2wire Gateway\r\n|s p/2Wire HomePortal router http config/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Agranat-EmWeb/R([\d_]+)\r\n.*<title>2Wire HomePortal</title>|s p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ i/2Wire HomePortal router http config/ d/router/ cpe:/a:agranat:emweb:$SUBST(1,"_",".")/
 match http m|^HTTP/1\.0 200 OK\r\nPragma:no-cache\r\nContent-Length: \d+\r\nContent-Type: text/html\r\n\r\n<html>\n<head>\n<title>AXIS ([\d/+]+); IP address: [\d.]+</title>\n| p/AXIS $1 print server http config/ d/print server/
 match http m|^HTTP/1\.0 \d\d\d.*<TITLE>Lantronix Web Manager ([\d.]+) : Home</TITLE>|s p/Lantronix Web Manager/ v/$1/
