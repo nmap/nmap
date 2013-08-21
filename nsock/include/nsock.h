@@ -380,7 +380,7 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata);
  * pending on this nsock_iod.  This can be NSOCK_PENDING_NOTIFY (send a KILL
  * notification to each event), NSOCK_PENDING_SILENT (do not send notification
  * to the killed events), or NSOCK_PENDING_ERROR (print an error message and
- * quiit the program) */
+ * quit the program) */
 #define NSOCK_PENDING_NOTIFY 1
 #define NSOCK_PENDING_SILENT 2
 #define NSOCK_PENDING_ERROR 4
