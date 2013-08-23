@@ -145,6 +145,7 @@ Entry { filename = "http-coldfusion-subzero.nse", categories = { "exploit", } }
 Entry { filename = "http-comments-displayer.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-config-backup.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-csrf.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-default-accounts.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "http-dombased-xss.nse", categories = { "exploit", "intrusive", "vuln", } }
@@ -153,8 +154,10 @@ Entry { filename = "http-drupal-enum-users.nse", categories = { "discovery", "in
 Entry { filename = "http-drupal-modules.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-email-harvest.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
+Entry { filename = "http-errors.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-exif-spider.nse", categories = { "intrusive", } }
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-feed.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-fileupload-exploiter.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-form-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-form-fuzzer.nse", categories = { "fuzzer", "intrusive", } }
