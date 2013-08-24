@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"
+[
+<!ENTITY ncat SYSTEM "ncatguide.xml">
+]>
+
+<article id="ncat">
+<artheader>
+  <title>Ncat Users' Guide</title>
+</artheader>
+&ncat;
+</article>
