@@ -271,7 +271,8 @@ Content-Type: text/html; charset=UTF-8
     ran out of input; it won't re-send what has already been sent. For
     more information on making a server that continually responds to
     requests, see the examples in
-    <xref linkend="ncat-simple-services"/>.
+    <xref linkend="ncat-simple-services"/>. More HTTP server tricks can
+    be found here in <xref linkend="ncat-httpserv"/>.
     </para>
 
   </sect2>
@@ -1413,6 +1414,79 @@ Hello. This short message is being sent by Ncat.
     input runs out, so you may not see what the other end sends. And
     finally, <command>telnet</command> doesn't do UDP.
     </para>
+  </sect2>
+
+  <sect2 id="ncat-httpserv">
+    <title>Turn Ncat into a simple web server</title>
+
+    <para>
+    Continuing the example from <xref linkend="ncat-listen"/>, we can
+    create a simple HTTP server that serves the
+    <literal>index.html<literal> file using the following command:
+    </para>
+
+<literallayout>
+nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"
+</literallayout>
+
+    <para>
+    Or, if you're a Windows user:
+    </para>
+
+<literallayout>
+ncat -lk -p 8080 --sh-exec "echo HTTP/1.1 200 OK&amp; echo(&amp;type index.html"
+</literallayout>
+
+    <para>
+    This will start the HTTP server, serving the <literal>index.html</literal>
+    file from your current working directory. To try it out, visit
+    <userinput>http://localhost:8080/</userinput> using
+    your web browser. You can also skip <literal>:8080</literal> from the
+    URL if you specified <literal>-p 80</literal> instead of
+    <literal>-p 8080</literal> in the command above. Note that it will send
+    this file regardless of the entered URL - to change the file being sent,
+    you need to change the Ncat command or use the httpd.lua script (see
+    below).
+    </para>
+
+    <para>
+    Since Ncat v6.40, it is possible to use --lua-exec feature to run a Lua
+    script turning Ncat into a web server. In order to do that, need the
+    httpd.lua script - currently hosted on our SVN server. You can download
+    it from the following URL:
+    </para>
+
+<literallayout>
+https://svn.nmap.org/nmap-exp/d33tah/lua-exec-examples/ncat/scripts/httpd.lua
+</literallayout>
+
+    <para>
+    Once you have downloaded it, simply run Ncat in listening mode. Assuming
+    that your working directory contains the httpd.lua script, simply run:
+    <para>
+
+<literallayout>
+ncat --lua-exec httpd.lua --listen 8080 --keep-open
+</literallayout>
+
+    <para>
+    This will spawn a HTTP server on TCP port 8080. Unlike the previous
+    example though, the httpd.lua script works without modification on all
+    POSIX-compatible systems and also on Windows. Moreover, you can specify
+    in the URL any other file from the current directory or one of its
+    subdirectories and it will be sent to the user, unlike the
+    <literal>--sh-exec</literal> example.
+    </para>
+
+    <indexterm><primary>Ncat HTTP server on production</primary></indexterm>
+    <warning><para>
+    The Ncat HTTP server examples shown above are very simple and may be not
+    as  powerful as complete HTTP servers, such as Apache HTTPD. It is not
+    advised to use them in production environments (such as public website
+    hosting). It might be useful, though, if you need to quickly spawn a HTTP
+    server to copy some files or for educational purposes.
+    </para></warning>
+
   </sect2>
 
   <sect2 id="ncat-chain">
