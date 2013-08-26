@@ -1582,6 +1582,30 @@ host1$ <userinput>ncat --send-only host2 &lt; log.txt</userinput>
     connecting it to
     <filename><replaceable>host</replaceable></filename> with Ncat.
     </para>
+
+    <para>
+    If your SSH server administrator did not disable tunneling (which is
+    enabled in most default configurations), you can use the proxy server
+    built into SSH. Use the following command to spawn a proxy server on
+    TCP port 8080 of your local machine that tunnels the traffic through
+    the SSH connection:
+    </para>
+
+<literallayout>
+<command>ssh router -D 8080</command>
+</literallayout>
+
+    <para>
+    Now you can make connections inside the network using Ncat's proxy client
+    capabilities. For example, to connect to host with IP address
+    192.168.1.123 that is behind the router, you can use the following
+    command if you spawned the tunnel:
+    </para>
+
+<literallayout>
+<command>ncat --proxy localhost:8080 --proxy-type socks4 192.168.1.123</command>
+</literallayout>
+
   </sect2>
 
   <sect2 id="ncat-nmap-version">
