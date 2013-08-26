@@ -1426,7 +1426,7 @@ Hello. This short message is being sent by Ncat.
     </para>
 
 <literallayout>
-nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"
+<command>nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"<command>
 </literallayout>
 
     <para>
@@ -1434,7 +1434,7 @@ nc -lk -p 8080 --sh-exec "echo -e 'HTTP/1.1 200 OK\r\n'; cat index.html"
     </para>
 
 <literallayout>
-ncat -lk -p 8080 --sh-exec "echo HTTP/1.1 200 OK&amp; echo(&amp;type index.html"
+<command>ncat -lk -p 8080 --sh-exec "echo HTTP/1.1 200 OK&amp; echo(&amp;type index.html"</command>
 </literallayout>
 
     <para>
@@ -1466,7 +1466,7 @@ https://svn.nmap.org/nmap-exp/d33tah/lua-exec-examples/ncat/scripts/httpd.lua
     <para>
 
 <literallayout>
-ncat --lua-exec httpd.lua --listen 8080 --keep-open
+<command>ncat --lua-exec httpd.lua --listen 8080 --keep-open</command>
 </literallayout>
 
     <para>
