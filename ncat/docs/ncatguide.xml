@@ -572,15 +572,47 @@ SHA-1 fingerprint: F0:13:BF:FB:2D:AA:76:88:22:60:3E:17:93:29:3E:0E:6B:92:C0:2F
   connection. A nice thing about running programs written in Lua is that
   the same interpreter is used on all platforms, in comparison with
   shells that operate differently.
+  </para>
+
+  <para>
+  That means that the default Ncat build
+  is all you need to run a simple network service. To write a program, the
+  standard text editor (even a Windows "notepad") is enough; to learn how
+  to create programs in Lua, have a look at "Programming in Lua" book
+  available for free at
+  <ulink role="hidepdf" url="http://www.lua.org/pil/contents.html">Lua.org</ulink>
+  website.
   <xref linkend="ncat-ex-lua-exec" xrefstyle="select: label nopage"/>
   shows how to run a program stored in a file called
-  <filename>echo.lua</filename>.
+  <filename>hello-luaexec.lua</filename>. You can find this script - and
+  some other ones - in Nmap's source code package, in
+  <literal>ncat/scripts</literal> directory - the latest versions of the
+  scripts can be found in the
+  <ulink role="hidepdf" url="https://svn.nmap.org/nmap/ncat/scripts/">Nmap project public SVN repository</ulink>.
+  Here are the contents of the hello-luaexec.lua file, if you would prefer
+  to create the file yourself:
   </para>
+
+<programlisting>
+--This is a --lua-exec "Hello world" example. In order to send to a client,
+--all you need to do is output it to the standard output.
+
+print("Hello, world!")
+</programlisting>
 
   <example id="ncat-ex-lua-exec">
     <title>Running a command with <option>--lua-exec</option></title>
-<literallayout><command>ncat -l --lua-exec echo.lua</command></literallayout>
+<literallayout><command>ncat -l --lua-exec hello-luaexec.lua</command></literallayout>
   </example>
+
+  <para>
+  Now, anyone that connects to our server will see the "Hello, world"
+  message. For a script with a bit more capabilities, have a look at
+<ulink role="hidepdf" url="https://svn.nmap.org/nmap/ncat/scripts/conditional.lua">conditional.lua</ulink>.
+  It shows how to create a simple menu, receive some data from the user
+  repeatedly and react according to her decisions. You might want to start
+  off your experiments with Lua by making changes to this script.
+  </para>
 
   <para>
   The exec options can be used in connect mode and listen mode. In
@@ -668,6 +700,17 @@ NCAT_PROTO "TCP"
 </screen>
     </para>
   </example>
+
+  <indexterm><primary>--lua-exec portability</primary></indexterm>
+  <warning><para>
+  When writing your own --lua-exec script, keep in mind that while Lua is
+  very portable, there is a caveat related to running your Lua scripts
+  written on Windows to Unix systems. For technical reasons, --lua-exec
+  on Windows reloads the script every time it is run. Do not rely on this
+  behavior on other systems though - on POSIX-compatible systems, the
+  script is only loaded once and any modifications to its code will not
+  be visible until you restart Ncat.
+  </para></warning>
 
   <para>
   Any program that takes input and produces output can be executed by
