@@ -6,6 +6,6 @@
 --loop that will waste your CPU power until you kill the process.
 
 while true do
-    print("chargen")
+  print "chargen"
 end
 
