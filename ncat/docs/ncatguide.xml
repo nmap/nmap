@@ -611,7 +611,9 @@ print("Hello, world!")
 <ulink role="hidepdf" url="https://svn.nmap.org/nmap/ncat/scripts/conditional.lua">conditional.lua</ulink>.
   It shows how to create a simple menu, receive some data from the user
   repeatedly and react according to her decisions. You might want to start
-  off your experiments with Lua by making changes to this script.
+  off your experiments with Lua by making changes to this script. Also see
+  <xref linkend="ncat-httpserv"/> for information on how to run a simple
+  HTTP server in Lua.
   </para>
 
   <para>
