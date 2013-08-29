@@ -2,10 +2,10 @@
 
 while true do
 
-    data = io.stdin:read(512)
+  data = io.stdin:read(512)
 
-    if data == nil then
-        break
-    end
+  if data == nil then
+    break
+  end
 
 end
