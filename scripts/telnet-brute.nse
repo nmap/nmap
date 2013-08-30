@@ -321,7 +321,7 @@ end
 
 
 ---
--- Set the calling thread up as one of the worker threads
+-- Set up the calling thread as one of the worker threads
 --
 -- @param self Target object
 Target.methods.worker = function (self)
@@ -373,7 +373,6 @@ end
 --
 -- @param self Target object
 -- @param inuse Whether the worker is in use (true or false)
---              (INIT, EXEC, PARK)
 -- @return inuse
 Target.methods.inuse = function (self, inuse)
 	self.workers[coroutine.running()].inuse = inuse
@@ -476,6 +475,10 @@ end
 -- @return nil if the operation was successful; error code otherwise
 Driver.methods.disconnect = function (self)
 	assert(self.conn, "Attempt to disconnect non-existing connection")
+	if self.conn.isopen and not self.conn.error then
+		-- try to reach new login prompt
+		self:prompt()
+	end
 	self.conn = nil
 	return self.target:detach()
 end
