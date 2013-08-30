@@ -1880,7 +1880,7 @@ proxy_test "HTTP CONNECT proxy relays",
 	$resp eq "abc\n" or die "Proxy relayed \"$resp\", not \"abc\\n\"";
 	syswrite($s_in, "def\n");
 	$resp = timeout_read($c_out) or die "Read timeout";
-	$resp eq "def\n" or die "Proxy relayed \"$resp\", not \"abc\\n\"";
+	$resp eq "def\n" or die "Proxy relayed \"$resp\", not \"def\\n\"";
 };
 
 # Proxy client shouldn't see the status line returned by the proxy server.
