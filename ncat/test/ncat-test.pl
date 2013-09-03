@@ -18,7 +18,6 @@ use strict;
 
 $| = 1;
 
-my $NCAT = "../ncat";
 my $HOST = "127.0.0.1";
 my $IPV6_ADDR = "::1";
 my $PORT = 40000;
@@ -27,6 +26,14 @@ my $UNIXSOCK = "ncat.unixsock";
 my $UNIXSOCK_TMP = "ncat.unixsock_tmp";
 
 my $WIN32 = $^O eq "MSWin32" || $^O eq "cygwin";
+
+my $NCAT;
+if ($WIN32) {
+	$NCAT = "../Debug/ncat.exe";
+} else {
+	$NCAT = "../ncat";
+}
+
 my $HAVE_SCTP = !$WIN32;
 my $HAVE_UNIXSOCK = !$WIN32;
 
