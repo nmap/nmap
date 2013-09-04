@@ -38,6 +38,22 @@ function url_decode(str)
         function(h) return string.char(tonumber(h,16)) end)
 end
 
+--Read a line of at most 8096 bytes from standard input. Returns the truncated
+--string in case we didn't hit the newline. This is here because
+--io.stdin:read("*line") could read to memory exhaustion if we received
+--gigabytes of characters with no newline.
+function read_line(max_len)
+    local ret = ""
+    for i = 1, (max_len or 8096) do
+        local chr = io.read(1)
+        if chr == "\r" or chr == "\n" then
+            return ret
+        end
+        ret = ret .. chr
+    end
+    return ret
+end
+
 --The following function and variables was translated from Go to Lua. The
 --original code can be found here:
 --
@@ -243,7 +259,11 @@ do_405 = function() make_error("405 Method Not Allowed") end
 --                         End of library section                           --
 ------------------------------------------------------------------------------
 
-input = io.stdin:read("*line")
+input = read_line()
+
+if input == nil then
+    do_400()
+end
 
 if input:sub(-1) == "\r" then
     input = input:sub(1,-2)
@@ -269,8 +289,8 @@ end
 
 while true do
 
-    input = io.stdin:read("*line")
-    if not input or input == "\r" or input == "" then
+    input = read_line()
+    if input == "" then
         break
     end
 end
