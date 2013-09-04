@@ -4,15 +4,14 @@
 
 --This function reads a line of at most 8096 bytes (or whatever the first
 --parameter says) from standard input. Returns the string and a boolean value
---that is true if we hit the newline (defined as "\r" or "\n") or false if the
---line had to be truncated. This is here because io.stdin:read("*line") could
---read to memory exhaustion if we received gigabytes of characters with no
---newline.
+--that is true if we hit the newline (defined as "\n") or false if the line had
+--to be truncated. This is here because io.stdin:read("*line") could read to
+--memory exhaustion if we received gigabytes of characters with no newline.
 function read_line(max_len)
     local ret = ""
     for i = 1, (max_len or 8096) do
         local chr = io.read(1)
-        if chr == "\r" or chr == "\n" then
+        if chr == "\n" then
             return ret, true
         end
         ret = ret .. chr
