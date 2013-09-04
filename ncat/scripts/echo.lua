@@ -2,7 +2,9 @@
 
 while true do
 
-  data = io.stdin:read(512)
+  --We're reading in 1-byte chunks because calls like io.stdin:read(512) would
+  --wait for full 512 bytes of data before continuing.
+  data = io.stdin:read(1)
 
   if data == nil then
     break
