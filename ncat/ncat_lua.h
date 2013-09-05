@@ -138,7 +138,7 @@ extern "C" {
 }
 #endif
 
-lua_State *lua_setup(void);
+lua_State *lua_setup(const char *filename);
 void lua_run(lua_State *L);
 
 #endif
