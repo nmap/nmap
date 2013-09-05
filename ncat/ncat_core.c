@@ -204,6 +204,10 @@ void options_init(void)
     o.proxy_auth = NULL;
     o.proxytype = NULL;
 
+#ifdef HAVE_LUA
+    o.lua_exec_state = NULL;
+#endif
+
 #ifdef HAVE_OPENSSL
     o.ssl = 0;
     o.sslcert = NULL;

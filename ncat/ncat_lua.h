@@ -138,7 +138,7 @@ extern "C" {
 }
 #endif
 
-void lua_setup(void);
-void lua_run(void);
+lua_State *lua_setup(void);
+void lua_run(lua_State *L);
 
 #endif
