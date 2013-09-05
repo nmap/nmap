@@ -165,11 +165,7 @@ lua_State *lua_setup(const char *filename)
 
 void lua_run(lua_State *L)
 {
-    /* The chunk as read from lua_setup is on top of the stack. Put the
-       traceback function before it and run it. */
-    lua_pushcfunction(L, traceback);
-    lua_insert(L, -2);
-    if (lua_pcall(L, 0, 0, -2) != LUA_OK && !lua_isnil(L, -1)) {
+    if (lua_call_traceback(L, 0, 0) != LUA_OK && !lua_isnil(L, -1)) {
         report(L, "Error running the Lua script");
     } else {
         if (o.debug)
@@ -177,4 +173,16 @@ void lua_run(lua_State *L)
         lua_close(L);
         exit(EXIT_SUCCESS);
     }
+}
+
+
+/* Returns the value of a lua_pcall of the chunk on top of the stack, with an
+   error handler that prints a traceback. */
+int lua_call_traceback(lua_State *L, int nargs, int nresults)
+{
+    /* The chunk to run is on top of the stack. Put the traceback function
+       before it and run it. */
+    lua_pushcfunction(L, traceback);
+    lua_insert(L, -2);
+    return lua_pcall(L, nargs, nresults, -2);
 }
