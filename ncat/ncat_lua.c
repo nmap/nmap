@@ -148,16 +148,16 @@ static int traceback (lua_State *L)
     return 1;
 }
 
-lua_State *lua_setup(void)
+lua_State *lua_setup(const char *filename)
 {
     lua_State *L;
 
-    ncat_assert(o.cmdexec != NULL);
+    ncat_assert(filename != NULL);
 
     L = luaL_newstate();
     luaL_openlibs(L);
 
-    if (luaL_loadfile(L, o.cmdexec) != 0)
+    if (luaL_loadfile(L, filename) != 0)
         report(L, "Error loading the Lua script");
 
     return L;
@@ -173,7 +173,7 @@ void lua_run(lua_State *L)
         report(L, "Error running the Lua script");
     } else {
         if (o.debug)
-            logdebug("%s returned successfully.\n", o.cmdexec);
+            logdebug("Lua script returned successfully.\n");
         lua_close(L);
         exit(EXIT_SUCCESS);
     }
