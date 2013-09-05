@@ -125,7 +125,6 @@
 #include "ncat_lua.h"
 
 static lua_State *L;
-static int last_function_number;
 
 static void report(char *prefix)
 {
@@ -160,18 +159,15 @@ void lua_setup(void)
 
     if (luaL_loadfile(L, o.cmdexec) != 0)
         report("Error loading the Lua script");
-
-    /* install the traceback function */
-    last_function_number = lua_gettop(L);
-    lua_pushcfunction(L, traceback);
-    lua_insert(L, last_function_number);
 }
 
 void lua_run(void)
 {
-    if (lua_pcall(L, 0, 0, last_function_number) != LUA_OK && !lua_isnil(L, -1)) {
-        /* handle the error; the code below is taken from lua.c, Lua source code */
-        lua_remove(L, last_function_number);
+    /* The chunk as read from lua_setup is on top of the stack. Put the
+       traceback function before it and run it. */
+    lua_pushcfunction(L, traceback);
+    lua_insert(L, -2);
+    if (lua_pcall(L, 0, 0, -2) != LUA_OK && !lua_isnil(L, -1)) {
         report("Error running the Lua script");
     } else {
         if (o.debug)
