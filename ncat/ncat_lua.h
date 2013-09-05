@@ -140,5 +140,6 @@ extern "C" {
 
 lua_State *lua_setup(const char *filename);
 void lua_run(lua_State *L);
+int lua_call_traceback(lua_State *L, int nargs, int nresults);
 
 #endif
