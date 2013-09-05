@@ -126,6 +126,10 @@
 #include "util.h"
 #include "sockaddr_u.h"
 
+#ifdef HAVE_LUA
+#include "ncat_lua.h"
+#endif
+
 /* Maximum size of the srcaddrs array. In this case two because we can only have
    a IPV4 INADDR_ANY and a IPV6 in6addr_any at most or a user defined address */
 #define NUM_LISTEN_ADDRS 2
@@ -197,6 +201,10 @@ struct options {
     enum exec_mode execmode;
     char *proxy_auth;
     char *proxytype;
+
+#ifdef HAVE_LUA
+    lua_State *lua_exec_state;
+#endif
 
     int ssl;
     char *sslcert;

@@ -124,9 +124,7 @@
 #include "ncat.h"
 #include "ncat_lua.h"
 
-static lua_State *L;
-
-static void report(char *prefix)
+static void report(lua_State *L, char *prefix)
 {
     const char *errormsg;
     errormsg = lua_tostring(L, -1);
@@ -150,25 +148,29 @@ static int traceback (lua_State *L)
     return 1;
 }
 
-void lua_setup(void)
+lua_State *lua_setup(void)
 {
+    lua_State *L;
+
     ncat_assert(o.cmdexec != NULL);
 
     L = luaL_newstate();
     luaL_openlibs(L);
 
     if (luaL_loadfile(L, o.cmdexec) != 0)
-        report("Error loading the Lua script");
+        report(L, "Error loading the Lua script");
+
+    return L;
 }
 
-void lua_run(void)
+void lua_run(lua_State *L)
 {
     /* The chunk as read from lua_setup is on top of the stack. Put the
        traceback function before it and run it. */
     lua_pushcfunction(L, traceback);
     lua_insert(L, -2);
     if (lua_pcall(L, 0, 0, -2) != LUA_OK && !lua_isnil(L, -1)) {
-        report("Error running the Lua script");
+        report(L, "Error running the Lua script");
     } else {
         if (o.debug)
             logdebug("%s returned successfully.\n", o.cmdexec);

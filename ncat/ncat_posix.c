@@ -234,7 +234,7 @@ void netexec(struct fdinfo *info, char *cmdexec)
             break;
 #ifdef HAVE_LUA
         case EXEC_LUA:
-            lua_run();
+            lua_run(o.lua_exec_state);
             break;
 #endif
         default:
