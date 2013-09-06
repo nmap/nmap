@@ -148,6 +148,7 @@ Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe
 Entry { filename = "http-csrf.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-default-accounts.nse", categories = { "auth", "discovery", "safe", } }
+Entry { filename = "http-devframework.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-dombased-xss.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-drupal-enum-users.nse", categories = { "discovery", "intrusive", } }
