@@ -124,8 +124,6 @@
 #ifndef _NCAT_LUA_H
 #define _NCAT_LUA_H
 
-#include "ncat.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,8 +136,7 @@ extern "C" {
 }
 #endif
 
-lua_State *lua_setup(const char *filename);
-void lua_run(lua_State *L);
-int lua_call_traceback(lua_State *L, int nargs, int nresults);
+void lua_setup(void);
+void lua_run(void);
 
 #endif

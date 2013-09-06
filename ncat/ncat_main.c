@@ -535,8 +535,6 @@ int main(int argc, char *argv[])
                    forking in POSIX builds, Windows does not have the fork() system
                    call and thus requires this workaround. More info here:
                    http://seclists.org/nmap-dev/2013/q2/492 */
-                lua_State *L;
-
 #ifdef WIN32
                 if (o.debug)
                     logdebug("Enabling binary stdout for the Lua output.\n");
@@ -545,9 +543,9 @@ int main(int argc, char *argv[])
                     perror("Cannot set mode");
 #endif
                 ncat_assert(argc == 3);
-                L = lua_setup(argv[2]);
-                ncat_assert(L != NULL);
-                lua_run(L);
+                o.cmdexec = argv[2];
+                lua_setup();
+                lua_run();
             }
 #endif
             break;
@@ -871,7 +869,7 @@ connection brokering should work.");
 
 #ifdef HAVE_LUA
     if (o.execmode == EXEC_LUA)
-        o.lua_exec_state = lua_setup(o.cmdexec);
+        lua_setup();
 #endif
 
     if (o.listen)

@@ -124,7 +124,10 @@
 #include "ncat.h"
 #include "ncat_lua.h"
 
-static void report(lua_State *L, char *prefix)
+static lua_State *L;
+static int last_function_number;
+
+static void report(char *prefix)
 {
     const char *errormsg;
     errormsg = lua_tostring(L, -1);
@@ -148,41 +151,32 @@ static int traceback (lua_State *L)
     return 1;
 }
 
-lua_State *lua_setup(const char *filename)
+void lua_setup(void)
 {
-    lua_State *L;
-
-    ncat_assert(filename != NULL);
+    ncat_assert(o.cmdexec != NULL);
 
     L = luaL_newstate();
     luaL_openlibs(L);
 
-    if (luaL_loadfile(L, filename) != 0)
-        report(L, "Error loading the Lua script");
+    if (luaL_loadfile(L, o.cmdexec) != 0)
+        report("Error loading the Lua script");
 
-    return L;
+    /* install the traceback function */
+    last_function_number = lua_gettop(L);
+    lua_pushcfunction(L, traceback);
+    lua_insert(L, last_function_number);
 }
 
-void lua_run(lua_State *L)
+void lua_run(void)
 {
-    if (lua_call_traceback(L, 0, 0) != LUA_OK && !lua_isnil(L, -1)) {
-        report(L, "Error running the Lua script");
+    if (lua_pcall(L, 0, 0, last_function_number) != LUA_OK && !lua_isnil(L, -1)) {
+        /* handle the error; the code below is taken from lua.c, Lua source code */
+        lua_remove(L, last_function_number);
+        report("Error running the Lua script");
     } else {
         if (o.debug)
-            logdebug("Lua script returned successfully.\n");
+            logdebug("%s returned successfully.\n", o.cmdexec);
         lua_close(L);
         exit(EXIT_SUCCESS);
     }
-}
-
-
-/* Returns the value of a lua_pcall of the chunk on top of the stack, with an
-   error handler that prints a traceback. */
-int lua_call_traceback(lua_State *L, int nargs, int nresults)
-{
-    /* The chunk to run is on top of the stack. Put the traceback function
-       before it and run it. */
-    lua_pushcfunction(L, traceback);
-    lua_insert(L, -2);
-    return lua_pcall(L, nargs, nresults, -2);
 }
