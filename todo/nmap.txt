@@ -9,6 +9,13 @@ o Adopt an issue tracking system for Nmap and related tools.  We
     system through email.  Like for bugs people file on the Nmap package
     in Debian, I can just reply to the mail and it gets added in the tracker.
 
+o When scanning your own IP from Windows, Nmap currently recognizes
+  the problem (can't do a raw scan like that on Windows) and skips the
+  SYN scan, leading to Nmap printing a bunch of ports in "unknown"
+  state at the end.  Nmap should probably act like unprivileged mode
+  in this case (e.g. do a connect scan, etc.).  See
+  http://seclists.org/nmap-dev/2013/q3/519
+
 o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
