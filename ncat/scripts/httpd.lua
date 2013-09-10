@@ -293,7 +293,7 @@ end
 while true do
 
     input = read_line()
-    if input == "" then
+    if input == "" or input == "\r" then
         break
     end
 end
