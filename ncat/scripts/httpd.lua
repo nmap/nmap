@@ -315,8 +315,8 @@ first_char = resource:sub(0, 1)
 --(Windows drive names are not welcome too.)
 drive = resource:match("^([a-zA-Z]):")
 if first_char == "." or first_char == "/" or first_char == "\\" or drive
-        or resource:find("/\\.\\./?") or resource:find("\\\\.\\.\\?")
-        or resource:find("/?\\.\\./") or resource:find("\\?\\.\\.\\") then
+        or resource:find("/%.%./?") or resource:find("\\%.%.\\?")
+        or resource:find("/?%.%./") or resource:find("\\?%.%.\\") then
     do_403() --no hidden Unix files or simple directory traversal, sorry!
 end
 
