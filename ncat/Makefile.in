@@ -83,8 +83,8 @@ DATAFILES = certs/ca-bundle.crt
 endif
 
 ifneq ($(HAVE_LUA),)
-LUA_SRCS = ncat_lua.c
-LUA_OBJS = ncat_lua.o
+LUA_SRCS = ncat_lua_exec.c ncat_lua.c
+LUA_OBJS = ncat_lua_exec.o ncat_lua.o
 LUA_LIBS = @LIBLUA_LIBS@ -lm
 LUA_CFLAGS += -DHAVE_LUA=1 -I../liblua
 else

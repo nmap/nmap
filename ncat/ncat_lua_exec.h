@@ -1,5 +1,5 @@
 /***************************************************************************
- * ncat_lua.h -- ncat lua facilities header file                           *
+ * ncat_lua_exec.h -- ncat --lua-exec facilities header file               *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2013 Insecure.Com LLC. Nmap is    *
@@ -66,7 +66,7 @@
  * obeying all GPL rules and restrictions.  For example, source code of    *
  * the whole work must be provided and free redistribution must be         *
  * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
+ * including the terms and conditions of this license text as well.       *
  *                                                                         *
  * Because this license imposes special exceptions to the GPL, Covered     *
  * Work may not be combined (even as part of a larger work) with plain GPL *
@@ -121,8 +121,8 @@
 
 /* $Id$ */
 
-#ifndef _NCAT_LUA_H
-#define _NCAT_LUA_H
+#ifndef _NCAT_LUA_EXEC_H
+#define _NCAT_LUA_EXEC_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,12 +136,8 @@ extern "C" {
 }
 #endif
 
-extern lua_State *luaexec_L;
+void lua_run(void);
 
-extern int error_handler_idx;
-
-void lua_report(lua_State *L, char *prefix, int panic);
-void dump_stack(lua_State *L, char* title);
-void lua_setup(char *cmdexec);
+void lua_unregister_fd(struct fdinfo *fdn);
 
 #endif

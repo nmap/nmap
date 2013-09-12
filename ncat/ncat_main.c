@@ -148,6 +148,7 @@
 
 #ifdef HAVE_LUA
 #include "ncat_lua.h"
+#include "ncat_lua_exec.h"
 #endif
 
 static int ncat_connect_mode(void);
@@ -544,7 +545,7 @@ int main(int argc, char *argv[])
 #endif
                 ncat_assert(argc == 3);
                 o.cmdexec = argv[2];
-                lua_setup();
+                lua_setup(o.cmdexec);
                 lua_run();
             }
 #endif
@@ -869,7 +870,7 @@ connection brokering should work.");
 
 #ifdef HAVE_LUA
     if (o.execmode == EXEC_LUA)
-        lua_setup();
+        lua_setup(o.cmdexec);
 #endif
 
     if (o.listen)
