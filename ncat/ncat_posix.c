@@ -122,7 +122,7 @@
 /* $Id$ */
 
 #include "ncat.h"
-#include "ncat_lua_exec.h"
+#include "ncat_lua.h"
 
 char **cmdline_split(const char *cmdexec);
 

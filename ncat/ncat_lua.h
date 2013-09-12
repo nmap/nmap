@@ -136,13 +136,7 @@ extern "C" {
 }
 #endif
 
-extern lua_State *luaexec_L;
-extern lua_State *filters_L;
-
-extern int error_handler_idx;
-
-void lua_report(lua_State *L, char *prefix, int panic);
-void dump_stack(lua_State *L, char* title);
-void lua_setup(char *cmdexec, int script);
+void lua_setup(void);
+void lua_run(void);
 
 #endif

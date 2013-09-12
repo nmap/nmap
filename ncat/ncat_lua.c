@@ -123,33 +123,17 @@
 
 #include "ncat.h"
 #include "ncat_lua.h"
-#include "ncat_lua_filters.h"
 
-lua_State *filters_L = NULL;
-lua_State *luaexec_L = NULL;
-int error_handler_idx = -1;
+static lua_State *L;
+static int last_function_number;
 
-void lua_report(lua_State *L, char *prefix, int panic)
+static void report(char *prefix)
 {
     const char *errormsg;
     errormsg = lua_tostring(L, -1);
     if (errormsg == NULL)
         errormsg = "(error object is not a string)";
-
-    if (panic)
-        bye("%s: %s.", prefix, errormsg);
-    else
-        loguser("%s: %s.", prefix, errormsg);
-}
-
-void dump_stack(lua_State *L, char* title) {
-    int i;
-    logdebug("DUMPING THE STACK title=%s.\n", title);
-    for (i = 1; i <= lua_gettop(L); ++i) {
-        fprintf(stderr, "%d %s %s\n", i, luaL_typename(L, i), luaL_tolstring(L, i, 0));
-        lua_pop(L, 1);
-    }
-    logdebug("END OF DUMP.\n\n");
+    bye("%s: %s.", prefix, errormsg);
 }
 
 static int traceback (lua_State *L)
@@ -167,30 +151,32 @@ static int traceback (lua_State *L)
     return 1;
 }
 
-void lua_setup(char *cmdexec, int script)
+void lua_setup(void)
 {
-    ncat_assert(cmdexec != NULL);
+    ncat_assert(o.cmdexec != NULL);
 
-    lua_State **L = script ? &filters_L : &luaexec_L;
+    L = luaL_newstate();
+    luaL_openlibs(L);
 
-    if (*L == NULL) {
-        *L = luaL_newstate();
-        luaL_openlibs(*L);
+    if (luaL_loadfile(L, o.cmdexec) != 0)
+        report("Error loading the Lua script");
 
-        if (error_handler_idx == -1) {
-            /* install the traceback function */
-            error_handler_idx = lua_gettop(*L);
-            lua_pushcfunction(*L, traceback);
-            lua_insert(*L, error_handler_idx);
-        }
+    /* install the traceback function */
+    last_function_number = lua_gettop(L);
+    lua_pushcfunction(L, traceback);
+    lua_insert(L, last_function_number);
+}
 
-        if (script)
-            lua_filters_setup();
+void lua_run(void)
+{
+    if (lua_pcall(L, 0, 0, last_function_number) != LUA_OK && !lua_isnil(L, -1)) {
+        /* handle the error; the code below is taken from lua.c, Lua source code */
+        lua_remove(L, last_function_number);
+        report("Error running the Lua script");
+    } else {
+        if (o.debug)
+            logdebug("%s returned successfully.\n", o.cmdexec);
+        lua_close(L);
+        exit(EXIT_SUCCESS);
     }
-
-    if (luaL_loadfile(*L, cmdexec) != 0)
-        lua_report(*L, "Error loading the Lua script", 1);
-
-    if (script)
-        lua_run_filter(cmdexec);
 }

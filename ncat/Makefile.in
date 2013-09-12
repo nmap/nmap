@@ -83,19 +83,15 @@ DATAFILES = certs/ca-bundle.crt
 endif
 
 ifneq ($(HAVE_LUA),)
-LUA_SRCS = ncat_lua.c ncat_lua_exec.c ncat_lua_filters.c ncat_lua_connect.c
-LUA_OBJS = ncat_lua.o ncat_lua_exec.o ncat_lua_filters.o ncat_lua_connect.o
+LUA_SRCS = ncat_lua.c
+LUA_OBJS = ncat_lua.o
 LUA_LIBS = @LIBLUA_LIBS@ -lm
 LUA_CFLAGS += -DHAVE_LUA=1 -I../liblua
-# This is the result of lua_setup() pulling in recv/send routines, which
-# in turn pull a few other files.
-MORE_TEST_OBJS = http.o http_digest.o base64.o ncat_ssl.o ncat_connect.o
 else
 LUA_SRCS =
 LUA_OBJS =
 LUA_LIBS =
 LUA_CFLAGS =
-MORE_TEST_OBJS =
 endif
 
 SRCS += $(LUA_SRCS)
@@ -139,16 +135,16 @@ config.h:
 		        $(SHELL) ./config.status; \
 	fi
 
-test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o $(MORE_TEST_OBJS) $(LUA_OBJS)
+test/addrset: test/addrset.o ncat_core.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o $(MORE_TEST_OBJS) $(LUA_OBJS)
+test/test-uri: test/test-uri.o base64.o http.o ncat_core.o  sys_wrap.o util.o ncat_posix.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o $(MORE_TEST_OBJS) $(LUA_OBJS)
+test/test-cmdline-split: test/test-cmdline-split.o ncat_posix.o ncat_core.o sys_wrap.o util.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
-test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(MORE_TEST_OBJS) $(LUA_OBJS)
+test/test-wildcard: test/test-wildcard.o ncat_core.o ncat_ssl.o sys_wrap.o util.o ncat_posix.o $(LUA_OBJS)
 	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(NSOCKLIB) $(NBASELIB) $(OPENSSL_LIBS) $(PCAP_LIBS) $(LUA_LIBS) $(LIBS)
 
 .PHONY: uninstall all clean distclean
