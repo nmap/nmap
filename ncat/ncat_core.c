@@ -201,6 +201,7 @@ void options_init(void)
 
     o.cmdexec = NULL;
     o.execmode = EXEC_PLAIN;
+    o.script = 0;
     o.proxy_auth = NULL;
     o.proxytype = NULL;
 
