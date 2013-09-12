@@ -323,7 +323,7 @@ end
 --try to make all file openings from now on relative to the working directory.
 resource = "./" .. resource
 
---If it's a directory, check if it has index.html and if not, try to list it.
+--If it's a directory, try to load index.html from it.
 if resource:sub(-1) == "/" then
     resource = resource .. '/index.html'
 end
