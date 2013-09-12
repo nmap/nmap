@@ -151,6 +151,11 @@
 #define SHUT_WR SD_SEND
 #endif
 
+#ifdef HAVE_LUA
+#include "ncat_lua_filters.h"
+#include "ncat_lua_connect.h"
+#endif
+
 struct conn_state {
     nsock_iod sock_nsi;
     nsock_iod stdin_nsi;
@@ -169,7 +174,6 @@ static void connect_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void post_connect(nsock_pool nsp, nsock_iod iod);
 static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data);
-static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void idle_timer_handler(nsock_pool nsp, nsock_event evt, void *data);
 static void refresh_idle_timer(nsock_pool nsp);
 
@@ -549,6 +553,10 @@ int ncat_connect(void)
         cs.sock_nsi = nsi_new(mypool, NULL);
         if (cs.sock_nsi == NULL)
             bye("Failed to create nsock_iod.");
+#ifdef HAVE_LUA
+        if (o.script)
+            lua_nsock_save(mypool, cs.sock_nsi);
+#endif
 
         if (nsi_set_hostname(cs.sock_nsi, o.target) == -1)
             bye("Failed to set hostname on iod.");
@@ -706,6 +714,10 @@ int ncat_connect(void)
         /* Create IOD for nsp->stdin */
         if ((cs.stdin_nsi = nsi_new2(mypool, 0, NULL)) == NULL)
             bye("Failed to create stdin nsiod.");
+#ifdef HAVE_LUA
+        if (o.script)
+            lua_nsock_save(mypool, cs.sock_nsi);
+#endif
 
         post_connect(mypool, cs.sock_nsi);
     }
@@ -792,8 +804,14 @@ static void post_connect(nsock_pool nsp, nsock_iod iod)
 
     /* Start the initial reads. */
 
-    if (!o.sendonly)
-        nsock_read(nsp, cs.sock_nsi, read_socket_handler, -1, NULL);
+    if (!o.sendonly) {
+#ifdef HAVE_LUA
+        if (o.script)
+            lua_nsock_read(0);
+        else
+#endif
+            nsock_read(nsp, cs.sock_nsi, read_socket_handler, -1, NULL);
+    }
 
     if (!o.recvonly)
         nsock_readbytes(nsp, cs.stdin_nsi, read_stdin_handler, -1, NULL, 0);
@@ -845,7 +863,13 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
             buf = tmp;
     }
 
-    nsock_write(nsp, cs.sock_nsi, write_socket_handler, -1, NULL, buf, nbytes);
+#ifdef HAVE_LUA
+    if (o.script)
+        lua_nsock_write(nsp, cs.sock_nsi, buf, nbytes);
+    else
+#endif
+        nsock_write(nsp, cs.sock_nsi, write_socket_handler, -1, NULL, buf, nbytes);
+
     ncat_log_send(buf, nbytes);
 
     if (tmp)
@@ -854,12 +878,11 @@ static void read_stdin_handler(nsock_pool nsp, nsock_event evt, void *data)
     refresh_idle_timer(nsp);
 }
 
-static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
+/* Handle nsock errors. */
+int check_nsock_error(nsock_pool nsp, nsock_event evt)
 {
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);
-    char *buf;
-    int nbytes;
 
     ncat_assert(type == NSE_TYPE_READ);
 
@@ -868,7 +891,7 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         /* In --recv-only mode or non-TCP mode, exit after EOF on the socket. */
         if (o.proto != IPPROTO_TCP || (o.proto == IPPROTO_TCP && o.recvonly))
             nsock_loop_quit(nsp);
-        return;
+        return 1;
     } else if (status == NSE_STATUS_ERROR) {
         loguser("%s.\n", socket_strerror(nse_errorcode(evt)));
         exit(1);
@@ -876,29 +899,46 @@ static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
         loguser("%s.\n", socket_strerror(ETIMEDOUT));
         exit(1);
     } else if (status == NSE_STATUS_CANCELLED || status == NSE_STATUS_KILL) {
-        return;
+        return 1;
     } else {
         ncat_assert(status == NSE_STATUS_SUCCESS);
     }
+    return 0;
+}
 
-    buf = nse_readbuf(evt, &nbytes);
-
+/* Handle some post-read activities. */
+void ncat_nsock_postread(nsock_pool nsp, nsock_event evt, const char *buf, int nbytes)
+{
     if (o.linedelay)
         ncat_delay_timer(o.linedelay);
 
-    if (o.telnet)
-        dotelnet(nsi_getsd(nse_iod(evt)), (unsigned char *) buf, nbytes);
+    if (nbytes > 0) {
+        if (o.telnet)
+            dotelnet(nsi_getsd(nse_iod(evt)), (unsigned char *) buf, nbytes);
 
-    /* Write socket data to stdout */
-    Write(STDOUT_FILENO, buf, nbytes);
-    ncat_log_recv(buf, nbytes);
-
-    nsock_readbytes(nsp, cs.sock_nsi, read_socket_handler, -1, NULL, 0);
+        /* Write socket data to stdout */
+        Write(STDOUT_FILENO, buf, nbytes);
+        ncat_log_recv(buf, nbytes);
+    }
 
     refresh_idle_timer(nsp);
 }
 
-static void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
+static void read_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
+{
+    char *buf;
+    int nbytes;
+
+    if (check_nsock_error(nsp, evt))
+        return;
+
+    buf = nse_readbuf(evt, &nbytes);
+    ncat_nsock_postread(nsp, evt, buf, nbytes);
+
+    nsock_readbytes(nsp, cs.sock_nsi, read_socket_handler, -1, NULL, 0);
+}
+
+void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data)
 {
     enum nse_status status = nse_status(evt);
     enum nse_type type = nse_type(evt);

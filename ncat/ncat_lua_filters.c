@@ -139,11 +139,17 @@ static void lua_create_supersocket()
     lua_newtable(filters_L);
 
     lua_pushstring(filters_L, "recv");
-    lua_pushcfunction(filters_L, lua_do_nothing);
+    if (o.listen)
+        lua_pushcfunction(filters_L, lua_do_nothing); /* TODO */
+    else
+        lua_pushcfunction(filters_L, lua_nsock_recv_raw);
     lua_settable(filters_L, -3);
 
     lua_pushstring(filters_L, "send");
-    lua_pushcfunction(filters_L, lua_do_nothing);
+    if (o.listen)
+        lua_pushcfunction(filters_L, lua_do_nothing);
+    else
+        lua_pushcfunction(filters_L, lua_nsock_write_raw);
     lua_settable(filters_L, -3);
 
     lua_set_registry("socket");
@@ -228,4 +234,110 @@ void lua_run_filter(char *cmdexec)
     if (lua_pcall(filters_L, 3, 1, error_handler_idx) != LUA_OK)
         lua_report(filters_L, cmdexec, 1);
     lua_set_registry("socket");
+}
+
+/* Try to find the connection in the global table named "connections" with fd
+   as the key. If it's not there, create it, find its topmost "super", set its
+   "fd" to the given struct ncat_lua_state and save it in connection_supers.
+   Leave the socket on the stack. If *fdn is NULL, we assume that fd=0 and
+   we're in connect mode. Also, if *created is not NULL, it is set to 1 if
+   the socket put on the stack was just created. */
+struct ncat_lua_state* get_connection(struct fdinfo *fdn, int *created)
+{
+    struct ncat_lua_state *ret;
+    int connections_key;
+    if (fdn == NULL)
+        connections_key = 0;
+    else
+        connections_key = fdn->fd;
+    /* Try to access connections[fd]. Leave connections[] on the stack. */
+    lua_fetch_registry("connections");
+    lua_pushinteger(filters_L, connections_key);
+    lua_gettable(filters_L, -2);
+
+    if (lua_isnil(filters_L, -1)) {
+
+        lua_pop(filters_L, 1); /* nil means we hadn't added the connection yet, pop it. */
+
+        /* Basically: connections[fd] = new_socket(socket) */
+        lua_pushinteger(filters_L, connections_key);
+        lua_pushvalue(filters_L, make_socket_function_idx);
+        lua_pushvalue(filters_L, make_socket_function_idx);
+        lua_fetch_registry("socket");
+        if (lua_pcall(filters_L, 2, 1, error_handler_idx) != LUA_OK)
+            lua_report(filters_L, "Error creating the socket", 1);
+        lua_pushvalue(filters_L, -1); /* Make a copy of the connection we created. */
+        lua_insert(filters_L, -4); /* Move it below connection, 5 and original table. */
+        lua_settable(filters_L, -3);
+        lua_pop(filters_L, 1); /* Get rid of connections[]. */
+
+        /* Make another copy of the table - we'll work on the current one
+           looking for the topmost super. */
+        lua_pushvalue(filters_L, -1);
+        for(;;) {
+            lua_pushvalue(filters_L, -1); /* Copy the current table */
+            lua_pushstring(filters_L, "super");
+            lua_gettable(filters_L, -2);
+            lua_insert(filters_L, -2); /* Move the copy to the top, pop it */
+            lua_pop(filters_L, 1);
+            if (lua_isnil(filters_L, -1)) {
+                lua_pop(filters_L, 1); /* Pop the nil */
+                break; /* There's no super, we're at the top */
+            }
+            lua_insert(filters_L, -2); /* Get rid of the old table */
+            lua_pop(filters_L, 1);
+        }
+
+        ret = (struct ncat_lua_state *) Calloc(1, sizeof(*ret));
+        if (fdn != NULL)
+            ret->fdn = *fdn;
+
+        /* Set the "lua_state" to a pointer to ret. */
+        lua_pushlightuserdata(filters_L, ret);
+        lua_setfield(filters_L, -2, "lua_state");
+
+        lua_fetch_registry("connection_roots");
+        lua_pushinteger(filters_L, connections_key);
+        lua_pushvalue(filters_L, -3);
+        lua_remove(filters_L, -4);
+        lua_settable(filters_L, -3);
+        lua_pop(filters_L, 1);
+
+        if (created != NULL)
+            *created = 1;
+    } else {
+        lua_insert(filters_L, -2); /* Get rid of connections[]. */
+        lua_pop(filters_L, 1);
+
+        /* Get the struct ncat_lua_state from connection_roots[fd].lua_state. */
+        lua_fetch_registry("connection_roots");
+        lua_pushinteger(filters_L, connections_key);
+        lua_gettable(filters_L, -2);
+        lua_getfield(filters_L, -1, "lua_state");
+        ret = (struct ncat_lua_state *) lua_touserdata(filters_L, -1);
+        lua_pop(filters_L, 3); /* Pop the userdata, the table and connection_roots. */
+
+        if (created != NULL)
+            *created = 0;
+    }
+
+    return ret;
+}
+
+
+/* Read "lua_state" field from socket table available under stack index given
+   as the second argument. If after the call *ret is set to a non-negative
+   value, it must be returned. */
+struct ncat_lua_state* lua_fetch_userdata(lua_State *L, int idx, int *ret)
+{
+    struct ncat_lua_state *nls;
+    *ret = -1;
+    lua_getfield(L, idx, "lua_state");
+    nls = (struct ncat_lua_state *) lua_touserdata(L, -1);
+    if (nls == NULL) {
+        lua_pushnil(L);
+        lua_pushstring(L, "Socket already closed");
+        *ret = 2;
+    }
+    return nls;
 }
