@@ -123,7 +123,9 @@
 
 #include "ncat.h"
 #include "ncat_lua.h"
+#include "ncat_lua_filters.h"
 
+lua_State *filters_L = NULL;
 lua_State *luaexec_L = NULL;
 int error_handler_idx = -1;
 
@@ -168,9 +170,8 @@ static int traceback (lua_State *L)
 void lua_setup(char *cmdexec, int script)
 {
     ncat_assert(cmdexec != NULL);
-    ncat_assert(script == 0); //TODO
 
-    lua_State **L = &luaexec_L;
+    lua_State **L = script ? &filters_L : &luaexec_L;
 
     if (*L == NULL) {
         *L = luaL_newstate();
@@ -182,8 +183,14 @@ void lua_setup(char *cmdexec, int script)
             lua_pushcfunction(*L, traceback);
             lua_insert(*L, error_handler_idx);
         }
+
+        if (script)
+            lua_filters_setup();
     }
 
     if (luaL_loadfile(*L, cmdexec) != 0)
         lua_report(*L, "Error loading the Lua script", 1);
+
+    if (script)
+        lua_run_filter(cmdexec);
 }
