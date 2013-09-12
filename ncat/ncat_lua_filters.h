@@ -1,5 +1,5 @@
 /***************************************************************************
- * ncat_lua.h -- ncat lua facilities header file                           *
+ * ncat_lua_filters.h -- Ncat Lua filters shared code headers              *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2013 Insecure.Com LLC. Nmap is    *
@@ -66,7 +66,7 @@
  * obeying all GPL rules and restrictions.  For example, source code of    *
  * the whole work must be provided and free redistribution must be         *
  * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
+ * including the terms and conditions of this license text as well.       *
  *                                                                         *
  * Because this license imposes special exceptions to the GPL, Covered     *
  * Work may not be combined (even as part of a larger work) with plain GPL *
@@ -121,28 +121,17 @@
 
 /* $Id$ */
 
-#ifndef _NCAT_LUA_H
-#define _NCAT_LUA_H
+#ifndef _NCAT_LUA_FILTERS_H
+#define _NCAT_LUA_FILTERS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+struct ncat_lua_state {
+    struct fdinfo fdn;
+};
 
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-
-#ifdef __cplusplus
-}
-#endif
-
-extern lua_State *luaexec_L;
-extern lua_State *filters_L;
-
-extern int error_handler_idx;
-
-void lua_report(lua_State *L, char *prefix, int panic);
-void dump_stack(lua_State *L, char* title);
-void lua_setup(char *cmdexec, int script);
+void lua_fetch_registry(const char *key);
+void lua_run_filter(char *cmdexec);
+void lua_filters_setup();
+struct ncat_lua_state* get_connection(struct fdinfo *fdn, int *created);
+struct ncat_lua_state* lua_fetch_userdata(lua_State *L, int idx, int *ret);
 
 #endif

@@ -1,5 +1,5 @@
 /***************************************************************************
- * ncat_lua.h -- ncat lua facilities header file                           *
+ * ncat_lua_filters.c -- Ncat Lua filters shared code                      *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2013 Insecure.Com LLC. Nmap is    *
@@ -66,7 +66,7 @@
  * obeying all GPL rules and restrictions.  For example, source code of    *
  * the whole work must be provided and free redistribution must be         *
  * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
+ * including the terms and conditions of this license text as well.       *
  *                                                                         *
  * Because this license imposes special exceptions to the GPL, Covered     *
  * Work may not be combined (even as part of a larger work) with plain GPL *
@@ -121,28 +121,111 @@
 
 /* $Id$ */
 
-#ifndef _NCAT_LUA_H
-#define _NCAT_LUA_H
+#include "ncat.h"
+#include "ncat_lua.h"
+#include "ncat_lua_filters.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+static int make_socket_function_idx;
 
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+static void lua_set_registry(const char *key);
 
-#ifdef __cplusplus
+static int lua_do_nothing(lua_State *L)
+{
+    return 0;
 }
-#endif
 
-extern lua_State *luaexec_L;
-extern lua_State *filters_L;
+static void lua_create_supersocket()
+{
+    lua_newtable(filters_L);
 
-extern int error_handler_idx;
+    lua_pushstring(filters_L, "recv");
+    lua_pushcfunction(filters_L, lua_do_nothing);
+    lua_settable(filters_L, -3);
 
-void lua_report(lua_State *L, char *prefix, int panic);
-void dump_stack(lua_State *L, char* title);
-void lua_setup(char *cmdexec, int script);
+    lua_pushstring(filters_L, "send");
+    lua_pushcfunction(filters_L, lua_do_nothing);
+    lua_settable(filters_L, -3);
 
-#endif
+    lua_set_registry("socket");
+}
+
+void lua_filters_setup()
+{
+    /* Initialize the registry. */
+    lua_pushlightuserdata(filters_L, filters_L);
+    lua_newtable(filters_L);
+    lua_settable(filters_L, LUA_REGISTRYINDEX);
+
+    lua_newtable(filters_L);
+    lua_set_registry("connections");
+
+    lua_newtable(filters_L);
+    lua_set_registry("connection_roots");
+
+    lua_create_supersocket();
+
+    luaL_loadstring(filters_L, "return function(function_self, self, arg2) "
+            "local super = arg2 or self.super "
+            "local ret "
+            "if super then "
+                "ret = {} "
+                "for _, m in pairs({'send','recv'}) do "
+                    /* Set the method to one that calls super and passes it
+                       all the arguments we got, returning everything we'd get.
+                    */
+                    "ret[m] = function(self, ...) "
+                            "return table.unpack({self.super[m](self.super, ...)}) "
+                        "end "
+                "end "
+            "else "
+                "ret = {} "
+            "end "
+            "for k, v in pairs(self) do "
+                "ret[k] = v "
+            "end "
+            "if super then "
+                "ret.super = function_self(function_self, super) "
+            "end "
+            "return ret "
+        "end ");
+    lua_pcall(filters_L, 0, 1, error_handler_idx);
+    make_socket_function_idx = lua_gettop(filters_L);
+}
+
+void lua_fetch_registry(const char *key)
+{
+    lua_pushlightuserdata(filters_L, filters_L);
+    lua_gettable(filters_L, LUA_REGISTRYINDEX);
+    lua_pushstring(filters_L, key);
+    lua_gettable(filters_L, -2);
+    lua_insert(filters_L, -2);
+    lua_pop(filters_L, 1);
+}
+
+static void lua_set_registry(const char *key)
+{
+    lua_pushlightuserdata(filters_L, filters_L);
+    lua_gettable(filters_L, LUA_REGISTRYINDEX);
+    lua_insert(filters_L, -2);
+    lua_pushstring(filters_L, key);
+    lua_insert(filters_L, -2);
+    lua_settable(filters_L, -3);
+    lua_pop(filters_L, 1);
+}
+
+void lua_run_filter(char *cmdexec)
+{
+    lua_pcall(filters_L, 0, 1, error_handler_idx);
+    if (!lua_istable(filters_L, -1))
+        bye("%s did not return a table.", cmdexec);
+    /* Overwrite the socket variable with new_socket(socket_from_file,
+       socket). */
+    lua_pushvalue(filters_L, make_socket_function_idx);
+    lua_insert(filters_L, -2);
+    lua_pushvalue(filters_L, make_socket_function_idx);
+    lua_insert(filters_L, -3);
+    lua_fetch_registry("socket");
+    if (lua_pcall(filters_L, 3, 1, error_handler_idx) != LUA_OK)
+        lua_report(filters_L, cmdexec, 1);
+    lua_set_registry("socket");
+}
