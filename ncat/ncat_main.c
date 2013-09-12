@@ -148,11 +148,6 @@
 
 #ifdef HAVE_LUA
 #include "ncat_lua.h"
-#include "ncat_lua_exec.h"
-
-char** filter_filenames = NULL;
-int filter_filenames_no = 0;
-
 #endif
 
 static int ncat_connect_mode(void);
@@ -282,7 +277,6 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LUA
         {"lua-exec",        required_argument,  NULL,         0},
         {"lua-exec-internal",required_argument, NULL,         0},
-        {"load-lua-socket-file",        required_argument,  NULL,         'L'},
 #endif
         {"max-conns",       required_argument,  NULL,         'm'},
         {"help",            no_argument,        NULL,         'h'},
@@ -337,7 +331,7 @@ int main(int argc, char *argv[])
     while (1) {
         /* handle command line arguments */
         int option_index;
-        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:nL:",
+        int c = getopt_long(argc, argv, "46UCc:e:g:G:i:km:hp:d:lo:x:ts:uvw:n",
                             long_options, &option_index);
 
         /* That's the end of the options. */
@@ -550,15 +544,9 @@ int main(int argc, char *argv[])
 #endif
                 ncat_assert(argc == 3);
                 o.cmdexec = argv[2];
-                lua_setup(o.cmdexec, 0);
+                lua_setup();
                 lua_run();
             }
-            break;
-        case 'L':
-                o.script = 1;
-                filter_filenames_no++;
-                filter_filenames = (char **)safe_realloc(filter_filenames, sizeof(char *) * filter_filenames_no);
-                filter_filenames[filter_filenames_no-1] = Strdup(optarg);
 #endif
             break;
         case 'h':
@@ -578,8 +566,6 @@ int main(int argc, char *argv[])
 "  -e, --exec <command>       Executes the given command\n"
 #ifdef HAVE_LUA
 "      --lua-exec <filename>  Executes the given Lua script\n"
-//This line is clearly too long. The option name, IMHO, too.
-"  -L  --load-lua-socket-file Applies the Lua filter script\n"
 #endif
 "  -g hop1[,hop2,...]         Loose source routing hop points (8 max)\n"
 "  -G <n>                     Loose source routing hop pointer (4, 8, 12, ...)\n"
@@ -882,18 +868,8 @@ connection brokering should work.");
     set_lf_mode();
 
 #ifdef HAVE_LUA
-    if (o.script) {
-        int i;
-        for (i = 0; i < filter_filenames_no; i++) {
-            if (o.verbose)
-                loguser("Applying Lua filter: %s\n", filter_filenames[i]);
-            lua_setup(filter_filenames[i], 1);
-            free(filter_filenames[i]);
-        }
-        free(filter_filenames);
-    }
     if (o.execmode == EXEC_LUA)
-        lua_setup(o.cmdexec, 0);
+        lua_setup();
 #endif
 
     if (o.listen)

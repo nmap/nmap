@@ -123,13 +123,5 @@
 
 #include "nsock.h"
 
-#ifdef HAVE_LUA
-#include "ncat_lua.h"
-#include "ncat_lua_connect.h"
-#endif
-
 /* handle nsock-powered connections */
 extern int ncat_connect(void);
-int check_nsock_error(nsock_pool nsp, nsock_event evt);
-void ncat_nsock_postread(nsock_pool nsp, nsock_event evt, const char *buf, int nbytes);
-void write_socket_handler(nsock_pool nsp, nsock_event evt, void *data);

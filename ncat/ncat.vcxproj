@@ -199,8 +199,6 @@
     <ClCompile Include="ncat_exec_win.c" />
     <ClCompile Include="ncat_listen.c" />
     <ClCompile Include="ncat_lua.c" />
-    <ClCompile Include="ncat_lua_exec.c" />
-    <ClCompile Include="ncat_lua_filters.c" />
     <ClCompile Include="ncat_main.c" />
     <ClCompile Include="ncat_proxy.c" />
     <ClCompile Include="ncat_ssl.c" />
@@ -219,8 +217,6 @@
     <ClInclude Include="ncat_exec.h" />
     <ClInclude Include="ncat_listen.h" />
     <ClInclude Include="ncat_lua.h" />
-    <ClInclude Include="ncat_lua_exec.h" />
-    <ClInclude Include="ncat_lua_filters.h" />
     <ClInclude Include="ncat_proxy.h" />
     <ClInclude Include="ncat_ssl.h" />
     <ClInclude Include="..\mswin32\packet_types.h" />
