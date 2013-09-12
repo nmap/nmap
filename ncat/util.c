@@ -189,6 +189,7 @@ void loguser(const char *fmt, ...)
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);
+    fflush(stderr);
 }
 
 /* Log a user message without the "Ncat: " prefix, to allow building up a line
@@ -200,6 +201,7 @@ void loguser_noprefix(const char *fmt, ...)
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);
+    fflush(stderr);
 }
 
 void logdebug(const char *fmt, ...)
@@ -210,6 +212,7 @@ void logdebug(const char *fmt, ...)
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);
+    fflush(stderr);
 }
 
 void logtest(const char *fmt, ...)
@@ -220,12 +223,14 @@ void logtest(const char *fmt, ...)
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);
+    fflush(stderr);
 }
 
 /* Exit status 2 indicates a program error other than a network error. */
 void die(char *err)
 {
     perror(err);
+    fflush(stderr);
     exit(2);
 }
 
@@ -239,6 +244,7 @@ void bye(const char *fmt, ...)
     vfprintf(stderr, fmt, ap);
     va_end(ap);
     fprintf(stderr, " QUITTING.\n");
+    fflush(stderr);
 
     exit(2);
 }
