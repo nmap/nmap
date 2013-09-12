@@ -140,6 +140,16 @@ void lua_report(lua_State *L, char *prefix, int panic)
         loguser("%s: %s.", prefix, errormsg);
 }
 
+void dump_stack(lua_State *L, char* title) {
+    int i;
+    logdebug("DUMPING THE STACK title=%s.\n", title);
+    for (i = 1; i <= lua_gettop(L); ++i) {
+        fprintf(stderr, "%d %s %s\n", i, luaL_typename(L, i), luaL_tolstring(L, i, 0));
+        lua_pop(L, 1);
+    }
+    logdebug("END OF DUMP.\n\n");
+}
+
 static int traceback (lua_State *L)
 {
     const char *msg;
