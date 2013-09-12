@@ -126,6 +126,19 @@
 
 struct ncat_lua_state {
     struct fdinfo fdn;
+
+    /* Only used in connect mode: */
+    int in_send;
+
+    /* Needed for receiving */
+    nsock_event evt;
+    /* 1 if the next read should be performed by nsock_readbytes, 0 if
+    nsock_read. */
+    int readbytes;
+
+    /* Needed for sending */
+    nsock_pool nsp;
+    nsock_iod nsiod;
 };
 
 void lua_fetch_registry(const char *key);
