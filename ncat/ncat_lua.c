@@ -165,9 +165,10 @@ static int traceback (lua_State *L)
     return 1;
 }
 
-void lua_setup(char *cmdexec)
+void lua_setup(char *cmdexec, int script)
 {
     ncat_assert(cmdexec != NULL);
+    ncat_assert(script == 0); //TODO
 
     lua_State **L = &luaexec_L;
 

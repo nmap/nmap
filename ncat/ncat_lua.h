@@ -142,6 +142,6 @@ extern int error_handler_idx;
 
 void lua_report(lua_State *L, char *prefix, int panic);
 void dump_stack(lua_State *L, char* title);
-void lua_setup(char *cmdexec);
+void lua_setup(char *cmdexec, int script);
 
 #endif

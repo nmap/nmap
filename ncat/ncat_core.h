@@ -195,6 +195,7 @@ struct options {
     /* When execmode == EXEC_LUA, cmdexec is the name of the file to run. */
     char *cmdexec;
     enum exec_mode execmode;
+    int script;
     char *proxy_auth;
     char *proxytype;
 
