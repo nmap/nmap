@@ -1,5 +1,5 @@
 /***************************************************************************
- * ncat_lua.h -- ncat lua facilities header file                           *
+ * ncat_lua_exec.c -- ncat --lua-exec facilities                           *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2013 Insecure.Com LLC. Nmap is    *
@@ -66,7 +66,7 @@
  * obeying all GPL rules and restrictions.  For example, source code of    *
  * the whole work must be provided and free redistribution must be         *
  * allowed.  All GPL references to "this License", are to be treated as    *
- * including the terms and conditions of this license text as well.        *
+ * including the terms and conditions of this license text as well.       *
  *                                                                         *
  * Because this license imposes special exceptions to the GPL, Covered     *
  * Work may not be combined (even as part of a larger work) with plain GPL *
@@ -121,27 +121,19 @@
 
 /* $Id$ */
 
-#ifndef _NCAT_LUA_H
-#define _NCAT_LUA_H
+#include "ncat.h"
+#include "ncat_lua.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-
-#ifdef __cplusplus
+void lua_run(void)
+{
+    if (lua_pcall(luaexec_L, 0, 0, error_handler_idx) != LUA_OK && !lua_isnil(luaexec_L, -1)) {
+        /* handle the error; the code below is taken from lua.c, Lua source code */
+        lua_remove(luaexec_L, error_handler_idx);
+        lua_report(luaexec_L, "Error running the Lua script", 1);
+    } else {
+        if (o.debug)
+            logdebug("%s returned successfully.\n", o.cmdexec);
+        lua_close(luaexec_L);
+        exit(EXIT_SUCCESS);
+    }
 }
-#endif
-
-extern lua_State *luaexec_L;
-
-extern int error_handler_idx;
-
-void lua_report(lua_State *L, char *prefix, int panic);
-void dump_stack(lua_State *L, char* title);
-void lua_setup(char *cmdexec);
-
-#endif

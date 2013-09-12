@@ -124,16 +124,20 @@
 #include "ncat.h"
 #include "ncat_lua.h"
 
-static lua_State *L;
-static int last_function_number;
+lua_State *luaexec_L = NULL;
+int error_handler_idx = -1;
 
-static void report(char *prefix)
+void lua_report(lua_State *L, char *prefix, int panic)
 {
     const char *errormsg;
     errormsg = lua_tostring(L, -1);
     if (errormsg == NULL)
         errormsg = "(error object is not a string)";
-    bye("%s: %s.", prefix, errormsg);
+
+    if (panic)
+        bye("%s: %s.", prefix, errormsg);
+    else
+        loguser("%s: %s.", prefix, errormsg);
 }
 
 static int traceback (lua_State *L)
@@ -151,32 +155,24 @@ static int traceback (lua_State *L)
     return 1;
 }
 
-void lua_setup(void)
+void lua_setup(char *cmdexec)
 {
-    ncat_assert(o.cmdexec != NULL);
+    ncat_assert(cmdexec != NULL);
 
-    L = luaL_newstate();
-    luaL_openlibs(L);
+    lua_State **L = &luaexec_L;
 
-    if (luaL_loadfile(L, o.cmdexec) != 0)
-        report("Error loading the Lua script");
+    if (*L == NULL) {
+        *L = luaL_newstate();
+        luaL_openlibs(*L);
 
-    /* install the traceback function */
-    last_function_number = lua_gettop(L);
-    lua_pushcfunction(L, traceback);
-    lua_insert(L, last_function_number);
-}
-
-void lua_run(void)
-{
-    if (lua_pcall(L, 0, 0, last_function_number) != LUA_OK && !lua_isnil(L, -1)) {
-        /* handle the error; the code below is taken from lua.c, Lua source code */
-        lua_remove(L, last_function_number);
-        report("Error running the Lua script");
-    } else {
-        if (o.debug)
-            logdebug("%s returned successfully.\n", o.cmdexec);
-        lua_close(L);
-        exit(EXIT_SUCCESS);
+        if (error_handler_idx == -1) {
+            /* install the traceback function */
+            error_handler_idx = lua_gettop(*L);
+            lua_pushcfunction(*L, traceback);
+            lua_insert(*L, error_handler_idx);
+        }
     }
+
+    if (luaL_loadfile(*L, cmdexec) != 0)
+        lua_report(*L, "Error loading the Lua script", 1);
 }
