@@ -178,6 +178,42 @@ function validate_utf8(s)
     return true
 end
 
+function is_path_valid(resource)
+     --now, remove the beginning slash
+    resource = string.sub(resource, 2, string.len(resource))
+
+    --if it starts with a dot or a slash or a backslash, forbid any acccess to it.
+    first_char = resource:sub(0, 1)
+    --(Windows drive names are not welcome too.)
+    if resource:match("^([a-zA-Z]):") then
+        return false
+    end
+
+    if first_char == "." then
+        return false
+    end
+
+    if first_char == "/" then
+        return false
+    end
+
+    if first_char == "\\" then
+        return false
+    end
+
+    -- /.. and/or ../?
+    if resource:find("/%.%./?") or resource:find("/?%.%./") then
+        return false
+    end
+
+    -- \.. and/or ..\?
+    if resource:find("\\%.%.\\?") or resource:find("\\?%.%.\\") then
+        return false
+    end
+
+    return true
+end
+
 --Make a response, output it and stop execution.
 --
 --It takes an associative array with three optional keys: status (status line)
@@ -307,17 +343,8 @@ if resource:sub(0, 1) ~= '/' then
         do_400() --could probably use a fancier error here.
 end
 
---now, remove the beginning slash
-resource = string.sub(resource, 2, string.len(resource))
-
---if it starts with a dot or a slash or a backslash, forbid any acccess to it.
-first_char = resource:sub(0, 1)
---(Windows drive names are not welcome too.)
-drive = resource:match("^([a-zA-Z]):")
-if first_char == "." or first_char == "/" or first_char == "\\" or drive
-        or resource:find("/%.%./?") or resource:find("\\%.%.\\?")
-        or resource:find("/?%.%./") or resource:find("\\?%.%.\\") then
-    do_403() --no hidden Unix files or simple directory traversal, sorry!
+if not is_path_valid(resource) then
+    do_403()
 end
 
 --try to make all file openings from now on relative to the working directory.
