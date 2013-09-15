@@ -182,12 +182,13 @@ function is_path_valid(resource)
      --remove the beginning slash
     resource = string.sub(resource, 2, string.len(resource))
 
-    --if it starts with a dot or a slash or a backslash, forbid any acccess to it.
-    first_char = resource:sub(0, 1)
     --(Windows drive names are not welcome too.)
     if resource:match("^([a-zA-Z]):") then
         return false
     end
+
+    --if it starts with a dot or a slash or a backslash, forbid any acccess to it.
+    first_char = resource:sub(0, 1)
 
     if first_char == "." then
         return false
