@@ -197,17 +197,12 @@ function is_path_valid(resource)
         return false
     end
 
-    if first_char == "\\" then
+    if resource:find("\\") then
         return false
     end
 
     -- /.. and/or ../?
     if resource:find("/%.%./?") or resource:find("/?%.%./") then
-        return false
-    end
-
-    -- \.. and/or ..\?
-    if resource:find("\\%.%.\\?") or resource:find("\\?%.%.\\") then
         return false
     end
 
