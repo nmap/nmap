@@ -178,6 +178,39 @@ function validate_utf8(s)
     return true
 end
 
+--Returns a table containing the list of directories resulting from splitting
+--the argument by '/'.
+function split_path(path)
+    --[[
+    for _, v in pairs({"/a/b/c", "a/b/c", "//a/b/c", "a/b/c/", "a/b/c//"}) do
+        print(v,table.concat(split_path(v), ','))
+    end
+
+    -- /a/b/c  ,a,b,c
+    -- a/b/c   a,b,c
+    -- //a/b/c ,,a,b,c
+    -- a/b/c/  a,b,c
+    -- a/b/c// a,b,c,
+    ]]
+    local ret  = {}
+    local j = 0
+    for i=1, path:len() do
+        if path:sub(i,i) == '/' then
+            if j == 0 then
+                ret[#ret+1] = path:sub(1, i-1)
+            else
+                ret[#ret+1] = path:sub(j+1, i-1)
+            end
+            j = i
+        end
+    end
+    if j ~= path:len() then
+        ret[#ret+1] = path:sub(j+1, path:len())
+    end
+    return ret
+end
+
+
 function is_path_valid(resource)
      --remove the beginning slash
     resource = string.sub(resource, 2, string.len(resource))
@@ -202,9 +235,14 @@ function is_path_valid(resource)
         return false
     end
 
-    -- /.. and/or ../?
-    if resource:find("/%.%./?") or resource:find("/?%.%./") then
-        return false
+    for _, directory in pairs(split_path(resource)) do
+        if directory == '' then
+            return false
+        end
+
+        if directory == '..' then
+            return false
+        end
     end
 
     return true
