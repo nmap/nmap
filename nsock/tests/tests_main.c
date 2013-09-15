@@ -26,6 +26,7 @@
 char *socket_strerror(int errnum);
 
 extern const struct test_case TestPoolUserData;
+extern const struct test_case TestCancelOperation;
 extern const struct test_case TestTimer;
 extern const struct test_case TestLogLevels;
 extern const struct test_case TestErrLevels;
@@ -38,6 +39,7 @@ extern const struct test_case TestHeapOrdering;
 static const struct test_case *TestCases[] = {
   /* ---- basic.c */
   &TestPoolUserData,
+  &TestCancelOperation,
   /* ---- timer.c */
   &TestTimer,
   /* ---- logs.c */

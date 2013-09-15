@@ -199,6 +199,7 @@ int nsock_event_cancel(nsock_pool ms_pool, nsock_event_id id, int notify) {
   /* First we figure out what list it is in */
   switch (type) {
     case NSE_TYPE_CONNECT:
+    case NSE_TYPE_CONNECT_SSL:
       event_list = &nsp->connect_events;
       break;
 
