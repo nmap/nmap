@@ -182,7 +182,7 @@ function is_path_valid(resource)
      --remove the beginning slash
     resource = string.sub(resource, 2, string.len(resource))
 
-    --(Windows drive names are not welcome too.)
+    --Windows drive names are not welcome.
     if resource:match("^([a-zA-Z]):") then
         return false
     end
