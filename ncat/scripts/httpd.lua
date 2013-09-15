@@ -179,7 +179,7 @@ function validate_utf8(s)
 end
 
 function is_path_valid(resource)
-     --now, remove the beginning slash
+     --remove the beginning slash
     resource = string.sub(resource, 2, string.len(resource))
 
     --if it starts with a dot or a slash or a backslash, forbid any acccess to it.
