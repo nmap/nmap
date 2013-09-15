@@ -340,7 +340,7 @@ resource = url_decode(resource)
 
 --make sure that the resource starts with a slash.
 if resource:sub(0, 1) ~= '/' then
-        do_400() --could probably use a fancier error here.
+    do_400() --could probably use a fancier error here.
 end
 
 if not is_path_valid(resource) then
