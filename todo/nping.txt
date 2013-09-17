@@ -60,6 +60,23 @@
   to David's tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
 
+* Consider adding the possibility to see the RTT in the RECV line. Something 
+  similar to the way the traditional ping tool prints the RTT (time=XXX ms)
+
+    $ ping nmap.org
+    PING nmap.org (173.255.243.189) 56(84) bytes of data.
+    64 bytes from nmap.org (173.255.243.189): icmp_req=1 ttl=48 time=169 ms
+    64 bytes from nmap.org (173.255.243.189): icmp_req=2 ttl=48 time=177 ms
+    64 bytes from nmap.org (173.255.243.189): icmp_req=3 ttl=48 time=179 ms
+    ^C
+    --- nmap.org ping statistics ---
+    3 packets transmitted, 3 received, 0% packet loss, time 2000ms
+    rtt min/avg/max/mdev = 169.097/175.137/179.152/4.347 ms
+
+
+  This was requested by Jacek Wielemborek. More info: 
+  http://seclists.org/nmap-dev/2013/q3/533
+
 * Currently, Nping determines the maximum number of open descriptors 
   (in TCP connect and UDP unprivileged modes), from the value returned
   by libnetutil::get_max_open_descriptors(). However, it is often the 
