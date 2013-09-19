@@ -58,6 +58,11 @@ o We should figure out why (at least with Nping) raw ethernet frame
   happens with Fyodor's machine connected with WiFi.  Fyodor should
   test on the same machine using wired and see if that changes anything.
 
+o When Ncat is compiled without OpenSSL, we should still accept the
+  --ssl argument and just give an error message noting that SSL was not
+  compiled in.  This reduces confusion for users
+  (e.g. http://seclists.org/nmap-dev/2013/q3/579)
+
 o Our http library should allow the client to specify a max size in
   advance and should probably enforce some sort of maximum by default
   (unless turned off by the script).  That way sites can't DoS Nmap by
