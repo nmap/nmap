@@ -23,7 +23,7 @@ This script searches the xssed.com database and outputs the result.
 -- |_    /myBook/myregion.php?targetUrl=javascript:alert(1);
 ---
 
-author = {'George Chatzisofroniou'}
+author = "George Chatzisofroniou"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "external", "discovery"}
 

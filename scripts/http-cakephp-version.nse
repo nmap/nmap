@@ -21,7 +21,7 @@ For more information about CakePHP visit: http://www.cakephp.org/.
 -- | Version of icons: 1.2.x
 -- | Version of stylesheet: 1.2.6
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","safe"}
 

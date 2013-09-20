@@ -79,7 +79,7 @@ local table = require "table"
 local vulns = require "vulns"
 local openssl = stdnse.silent_require "openssl"
 
-author = "Paulino Calderon <calderon()websec.mx>"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive", "vuln"}
 

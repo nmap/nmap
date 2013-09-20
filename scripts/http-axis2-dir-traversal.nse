@@ -38,7 +38,7 @@ Reference:
 -- @args http.useragent User Agent used in the GET requests
 ---
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive", "exploit"}
 

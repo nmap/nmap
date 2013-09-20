@@ -30,7 +30,7 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 -- |     128.12.0.0/16
 -- |_    171.64.0.0/14
 
-author = "John Bond"
+author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 
 categories = {"discovery", "external", "safe"}

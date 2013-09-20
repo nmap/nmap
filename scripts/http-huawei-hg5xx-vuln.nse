@@ -50,7 +50,7 @@ References:
 -- |_      http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure
 ---
 
-author = "Paulino Calderon <calderon () websec mx>"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln"}
 

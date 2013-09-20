@@ -33,7 +33,7 @@ References:
 -- @args http-litespeed-sourcecode-download.uri URI path to remote file
 ---
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive", "exploit"}
 

@@ -51,7 +51,7 @@ References:
 -- @args http-method-tamper.timeout Web crawler timeout. Default: 10s
 ---
 
-author = "Paulino Calderon <calderon()websec.mx>"
+author = "Paulino Calderon <calderon@websec.mx>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

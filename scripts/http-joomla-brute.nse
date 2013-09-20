@@ -53,7 +53,7 @@ Joomla's default uri and form names:
 -- Based on Patrik Karlsson's http-form-brute
 --
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 

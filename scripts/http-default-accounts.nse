@@ -59,7 +59,7 @@ This script was based on http-enum.
 --   * added support for target_check()
 ---
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "auth", "safe"}
 

@@ -80,7 +80,7 @@ Namp scan queue.
 --|     mapred.task.tracker.http.address: 0.0.0.0:50060
 --|_    mapred.task.tracker.report.address: 127.0.0.1:0
 
-author = "John R. Bond (john.r.bond@gmail.com)"
+author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"default", "discovery", "safe"}
 
