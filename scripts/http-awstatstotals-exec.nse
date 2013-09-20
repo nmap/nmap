@@ -40,7 +40,7 @@ References:
 -- http.useragent - User Agent to use in GET request
 --
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive", "exploit"}
 

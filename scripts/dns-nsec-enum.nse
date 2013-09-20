@@ -43,7 +43,7 @@ servers that use NSEC3 rather than NSEC; for that, see
 -- |     snorlax.example.com
 -- |_    vulpix.example.com
 
-author = "John Bond"
+author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 
 categories = {"discovery", "intrusive"}

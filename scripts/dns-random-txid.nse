@@ -20,7 +20,7 @@ txidtest query to the DNS server running on the target.
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 author = [[
-Script: Brandon Enright <bmenrigh@ucsd.edu>\n
+Script: Brandon Enright <bmenrigh@ucsd.edu>
 txidtest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
 ]]
 

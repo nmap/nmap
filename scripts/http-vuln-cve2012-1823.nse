@@ -47,7 +47,7 @@ TODO:
 -- @args http-vuln-cve2012-1823.uri URI. Default: /index.php
 ---
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 

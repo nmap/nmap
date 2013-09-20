@@ -29,7 +29,7 @@ References:
 -- |_  bind.version: 9.7.3-P3
 ---
 
-author = "John Bond"
+author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 
 categories = {"discovery", "default"}

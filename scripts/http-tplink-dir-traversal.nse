@@ -57,7 +57,7 @@ Other interesting files:
 -- * http.useragent - Sets user agent
 -- 
 
-author = "Paulino Calderon <calderon()websec.mx>"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "exploit"}
 

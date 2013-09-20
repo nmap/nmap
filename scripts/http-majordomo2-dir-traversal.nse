@@ -36,7 +36,7 @@ For more information about this vulnerability:
 -- * http.useragent - Sets user agent
 -- 
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln", "exploit"}
 

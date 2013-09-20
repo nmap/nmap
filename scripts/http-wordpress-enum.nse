@@ -34,7 +34,7 @@ Original advisory:
 -- @args http-wordpress-enum.out If set it saves the username list in this file.
 ---
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "intrusive", "vuln"}
 

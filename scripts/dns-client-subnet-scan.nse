@@ -47,7 +47,7 @@ requests using a given subnet.
 -- @args dns-client-subnet.nameserver [optional] nameserver to use.  (default = host.ip)
 --
 
-author = "John Bond"
+author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
 categories = {"discovery", "safe"}
 

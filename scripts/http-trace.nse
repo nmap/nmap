@@ -23,7 +23,7 @@ Sends an HTTP TRACE request and shows if the method TRACE is enabled. If debug i
 --
 -- @args http-trace.path Path to URI
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

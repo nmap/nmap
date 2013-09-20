@@ -46,7 +46,7 @@ following products:
 -- http.useragent User Agent for HTTP requests
 -- http.pipeline Number of requests sent in the single request
 
-author = "Paulino Calderon"
+author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
