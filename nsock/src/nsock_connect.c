@@ -67,6 +67,7 @@
 
 
 static int mksock_bind_addr(mspool *ms, msiod *iod) {
+  const char *path;
   int rc;
   int one = 1;
 
@@ -78,13 +79,15 @@ static int mksock_bind_addr(mspool *ms, msiod *iod) {
                     socket_strerror(err), err);
   }
 
-  nsock_log_info(ms, "Binding to %s (IOD #%li)", get_localaddr_string(iod), iod->id);
+  path = get_localaddr_string(iod);
+  unlink(path);
+  nsock_log_info(ms, "Binding to %s (IOD #%li)", path, iod->id);
   rc = bind(iod->sd, (struct sockaddr *)&iod->local, (int) iod->locallen);
   if (rc == -1) {
     int err = socket_errno();
 
     nsock_log_error(ms, "Bind to %s failed (IOD #%li): %s (%d)",
-                    get_localaddr_string(iod), iod->id,
+                    path, iod->id,
                     socket_strerror(err), err);
   }
   return 0;
