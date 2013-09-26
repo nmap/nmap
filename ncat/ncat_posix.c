@@ -436,3 +436,36 @@ int setenv_portable(const char *name, const char *value)
 {
     return setenv(name, value, 1);
 }
+
+/* Create a name temporary file. This function aims to emulate tempnam, with the
+   exception that it creates the file like mkstemp does.
+   The directories tried are, in order,
+     * $TMPDIR
+     * dir
+     * /tmp
+*/
+char *tempfile(const char *dir, const char *prefix)
+{
+    const char *SUFFIX = "XXXXXXXXXX";
+    const char *tmpdir;
+    char *namebuf;
+    size_t namelen;
+    int n;
+
+    tmpdir = NULL;
+    if ((getuid() == geteuid()) && (getgid() == getegid()))
+        tmpdir = getenv("TMPDIR");
+    if (tmpdir == NULL)
+        tmpdir = dir;
+    if (tmpdir == NULL)
+        tmpdir = "/tmp";
+    namelen = strlen(tmpdir) + 1 + strlen(prefix) + strlen(SUFFIX);
+    namebuf = malloc(namelen + 1);
+    n = Snprintf(namebuf, namelen + 1, "%s/%s%s", tmpdir, prefix, SUFFIX);
+    ncat_assert(n >= 0 && n <= namelen);
+    n = mkstemp(namebuf);
+    if (n == -1)
+        return NULL;
+
+    return namebuf;
+}
