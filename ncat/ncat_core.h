@@ -267,3 +267,5 @@ extern void set_lf_mode(void);
 
 extern int setenv_portable(const char *name, const char *value);
 extern void setup_environment(struct fdinfo *fdinfo);
+
+extern char *tempfile(const char *dir, const char *prefix);
