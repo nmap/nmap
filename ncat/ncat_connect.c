@@ -560,8 +560,8 @@ int ncat_connect(void)
             if (srcaddr.storage.ss_family != AF_UNIX) {
                 char *tmp_name = NULL;
                 /* If no source socket was specified, we have to create temporary one. */
-                if ((tmp_name = tempfile(NULL, "ncat.")) == NULL)
-                    bye("Failed to create name for temporary DGRAM source Unix domain socket (mkstemp).");
+                if ((tmp_name = tempnam(NULL, "ncat.")) == NULL)
+                    bye("Failed to create name for temporary DGRAM source Unix domain socket (tempnam).");
 
                 srcaddr.un.sun_family = AF_UNIX;
                 strncpy(srcaddr.un.sun_path, tmp_name, sizeof(srcaddr.un.sun_path));

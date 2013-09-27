@@ -178,8 +178,3 @@ int ssl_load_default_ca_certs(SSL_CTX *ctx)
     return rc == 1 ? 0 : -1;
 }
 #endif
-
-char *tempfile(const char *dir, const char *prefix)
-{
-    return tempnam(dir, prefix);
-}
