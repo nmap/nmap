@@ -1,5 +1,13 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Fix a segmentation fault in Ncat when scanned with the SSL NSE
+  scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
+  by running:
+  Ncat: ncat -v -k --ssl -l localhost
+  Nmap: ./nmap --script-trace --script '+ssl*' localhost -p 31337
+  This was initially reported by Timo Juhani Lindfors on the Debian
+  bug tracker: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=724580
+
 o Adopt an issue tracking system for Nmap and related tools.  We
   should probably look at our needs and options and then decide on and
   either install it on our own infrastructure or use it hosted elsewhere.
