@@ -12,11 +12,13 @@ description = [[
 Checks whether the SSL certificate used by a host has a fingerprint
 that matches an included database of problematic keys.
 
-The only database currently checked the LittleBlackBox 0.1 database of
-compromised keys from various devices, but any file of fingerprints
-will serve just as well. For example, this could be used to find weak
-Debian OpenSSL keys using the widely available (but too large to
-include with Nmap) list.
+The only databases currently checked are the LittleBlackBox 0.1
+database of compromised keys from various devices and some keys
+reportedly used by the Chinese state-sponsored hacking division APT1
+(https://www.mandiant.com/blog/md5-sha1/).  However, any file of
+fingerprints will serve just as well. For example, this could be used
+to find weak Debian OpenSSL keys using the widely available (but too
+large to include with Nmap) list.
 ]]
 
 ---
