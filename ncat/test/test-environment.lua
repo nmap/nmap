@@ -1,9 +1,13 @@
 #!/usr/bin/lua
 
---Print the following NCAT_* variables and their values:
-envs = {'REMOTE_ADDR', 'REMOTE_PORT', 'LOCAL_ADDR', 'LOCAL_PORT', 'PROTO'}
-
-for _,v in pairs(envs) do
-    v = 'NCAT_' .. v
+function print_env(v)
     print(("%s=%s"):format(v, os.getenv(v)))
 end
+
+print_env("NCAT_REMOTE_ADDR")
+print_env("NCAT_REMOTE_PORT")
+
+print_env("NCAT_LOCAL_ADDR")
+print_env("NCAT_LOCAL_PORT")
+
+print_env("NCAT_PROTO")
