@@ -1194,9 +1194,6 @@ FingerPrintDB *parse_fingerprint_file(const char *fname) {
 
   char *p, *q; /* OH YEAH!!!! */
 
-  if (!DB)
-    fatal("non-allocated DB passed to %s", __func__);
-
   fp = fopen(fname, "r");
   if (!fp)
     fatal("Unable to open Nmap fingerprint file: %s", fname);
