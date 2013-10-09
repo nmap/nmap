@@ -1,4 +1,3 @@
-[DESIGN]
 o Replace event lists by more efficient data structures. Consider using
   a radix tree to map event IDs to pointers. Another solution would
   be to put them all into a single RB-tree (TODO: validate BSD_HACK_MODE
@@ -11,8 +10,6 @@ o Give IODs their own methods to streamline the code and get rid of all
 o Fix the read API
 o Rework the filespace code to avoid unneeded data copy. Scatter/gather
   I/O might be useful there.
-
-[PROXY SUPPORT]
 o Proper SSL support
 o Authentication
 o Handle socks4a
