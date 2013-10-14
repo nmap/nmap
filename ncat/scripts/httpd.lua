@@ -221,7 +221,7 @@ function is_path_valid(resource)
     end
 
     --if it starts with a dot or a slash or a backslash, forbid any acccess to it.
-    first_char = resource:sub(0, 1)
+    first_char = resource:sub(1, 1)
 
     if first_char == "." then
         return false
@@ -373,7 +373,7 @@ debug("Got a request for '" .. resource
 resource = url_decode(resource)
 
 --make sure that the resource starts with a slash.
-if resource:sub(0, 1) ~= '/' then
+if resource:sub(1, 1) ~= '/' then
     do_400() --could probably use a fancier error here.
 end
 
