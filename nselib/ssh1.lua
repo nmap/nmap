@@ -52,7 +52,7 @@ end
 --- Fetch an SSH-1 host key.
 -- @param host Nmap host table.
 -- @param port Nmap port table.
--- @return A table with the following fields: <code>key</code>, <code>exp</code>,
+-- @return A table with the following fields: <code>exp</code>,
 -- <code>mod</code>, <code>bits</code>, <code>key_type</code>,
 -- <code>fp_input</code>, <code>full_key</code>, <code>algorithm</code>, and
 -- <code>fingerprint</code>.
@@ -102,7 +102,6 @@ fetch_host_key = function(host, port)
       fp_input = mod:tobin()..exp:tobin()
 
       return {exp=exp,mod=mod,bits=host_key_bits,key_type='rsa1',fp_input=fp_input,
-              key=exp:todec()..' '..mod:todec(),
               full_key=exp:todec()..' '..mod:todec(),algorithm="RSA1",
               fingerprint=openssl.md5(fp_input)}
     end
@@ -208,5 +207,53 @@ fingerprint_visual = function( fingerprint, algorithm, bits )
   return s
 end
 
+-- A lazy parsing function for known_hosts_file.
+-- The script checks for the known_hosts file in this order:
+--
+-- (1) If known_hosts is specified in a script arg, use that. If turned
+-- off (false), then don't do any known_hosts checking.
+-- (2) Look at ~/.ssh/config to see if user known_hosts is in an
+-- alternate location*. Look for "UserKnownHostsFile". If
+-- UserKnownHostsFile is specified, open that known_hosts.
+-- (3) Otherwise, open ~/.ssh/known_hosts.
+parse_known_hosts_file = function(path)
+    common_paths = {}
+    local f, knownhostspath
+
+    if path and io.open(path) then
+        knownhostspath = path
+    end
+
+    if not knownhostspath then
+        for l in io.lines(os.getenv("HOME") .. "/.ssh/config") do
+            if l and string.find(l, "UserKnownHostsFile") then
+                knownhostspath = string.match(l, "UserKnownHostsFile%s(.*)")
+                if string.sub(knownhostspath,1,1)=="~" then
+                    knownhostspath = os.getenv("HOME") .. string.sub(knownhostspath, 2)
+                end
+            end
+        end
+    end
+
+    if not knownhostspath then
+        knownhostspath = os.getenv("HOME") .."/.ssh/known_hosts"
+    end
+
+    if not knownhostspath then
+        return
+    end
+
+    known_host_entries = {} 
+    lnumber = 0
+
+    for l in io.lines(knownhostspath) do
+        lnumber = lnumber + 1
+        if l and string.sub(l, 1, 1) ~= "#" then
+            parts = stdnse.strsplit(" ", l)
+            table.insert(known_host_entries, {entry=parts, linenumber=lnumber})
+        end
+    end
+    return known_host_entries
+end
 
 return _ENV;
