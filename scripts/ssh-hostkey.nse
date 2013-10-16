@@ -1,3 +1,4 @@
+local base64 = require "base64"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -14,14 +15,16 @@ Shows SSH hostkeys.
 
 Shows the target SSH server's key fingerprint and (with high enough verbosity level) the public key itself.  It records the discovered host keys in <code>nmap.registry</code> for use by other scripts.  Output can be controlled with the <code>ssh_hostkey</code> script argument.
 
+You may also compare the retrieved key with the keys in your known-hosts file using the <code>known-hosts</code> argument.
+
 The script also includes a postrule that check for duplicate hosts using the gathered keys.
 ]]
 
 ---
 --@usage
--- nmap host --script SSH-hostkey --script-args ssh_hostkey=full
--- nmap host --script SSH-hostkey --script-args ssh_hostkey=all
--- nmap host --script SSH-hostkey --script-args ssh_hostkey='visual bubble'
+-- nmap host --script ssh-hostkey --script-args ssh_hostkey=full
+-- nmap host --script ssh-hostkey --script-args ssh_hostkey=all
+-- nmap host --script ssh-hostkey --script-args ssh_hostkey='visual bubble'
 --
 --@args ssh_hostkey Controls the output format of keys. Multiple values may be
 -- given, separated by spaces. Possible values are
@@ -29,7 +32,13 @@ The script also includes a postrule that check for duplicate hosts using the gat
 -- * <code>"bubble"</code>: Bubble Babble output,
 -- * <code>"visual"</code>: Visual ASCII art representation.
 -- * <code>"all"</code>: All of the above.
+-- @args ssh-hostkey.known-hosts If this is set, the script will check if the 
+-- known hosts file contains a key for the host being scanned and will compare 
+-- it with the keys that have been found by the script. The script will try to 
+-- detect your known-hosts file but you can, optionally, pass the path of the 
+-- file to this option.
 --
+-- @args ssh-hostkey.known-hosts-path. Path to a known_hosts file. 
 --@output
 -- 22/tcp open  ssh
 -- |  ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
@@ -46,9 +55,18 @@ The script also includes a postrule that check for duplicate hosts using the gat
 -- |  |     = .         |
 -- |  |    o .          |
 -- |_ +-----------------+
--- 22/tcp open  ssh
--- |  ssh-hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
--- |_ ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
+-- 22/tcp open  ssh     syn-ack
+-- | ssh-hostkey: Key comparison with known_hosts file: 
+-- |   GOOD Matches in known_hosts file: 
+-- |       L7: 199.19.117.60
+-- |       L11: foo
+-- |       L15: bar
+-- |       L19: <unknown>
+-- |   WRONG Matches in known_hosts file: 
+-- |       L3: 199.19.117.60
+-- | ssh-hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
+-- |_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
+
 --
 --@output
 -- Post-scan script results:
@@ -98,7 +116,7 @@ The script also includes a postrule that check for duplicate hosts using the gat
 --   </table>
 -- </table>
 
-author = "Sven Klemm"
+author = "Sven Klemm" -- comparing keys from known_hosts file added by Piotr Olma and George Chatzisofroniou
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
@@ -107,6 +125,19 @@ portrule = shortport.port_or_service(22, "ssh")
 
 postrule = function() return (nmap.registry.sshhostkey ~= nil) end
 
+--- check for the presence of a value in a table
+--@param tab the table to search into
+--@param item the searched value
+--@return a boolean indicating whether the value has been found or not
+local function contains(tab, item)
+  for _, val in pairs(tab) do
+    if val == item then
+      return true
+    end
+  end
+  return false
+end
+
 --- put hostkey in the nmap registry for usage by other scripts
 --@param host nmap host table
 --@param key host key table
@@ -114,6 +145,114 @@ local add_key_to_registry = function( host, key )
   nmap.registry.sshhostkey = nmap.registry.sshhostkey or {}
   nmap.registry.sshhostkey[host.ip] = nmap.registry.sshhostkey[host.ip] or {}
   table.insert( nmap.registry.sshhostkey[host.ip], key )
+end
+
+--- check if there is a key in known_hosts file for the host that's being scanned
+--- and if there is, compare the keys
+local function check_keys(host, keys, f)
+  local keys_found = {}
+  for _,k in ipairs(keys) do
+    table.insert(keys_found, k.full_key)
+  end
+  local keys_from_file = {}
+  local same_key, same_key_hashed = {}, {}
+  local hostname = host.name == "" and nil or host.name
+  local possible_host_names = {hostname or nil, host.ip or nil, (hostname and host.ip) and ("%s,%s"):format(hostname, host.ip) or nil}
+  for _p, parts in ipairs(f) do
+    lnumber = parts.linenumber
+    parts = parts.entry
+    local foundhostname = false
+    if #parts >= 3 then
+      -- the line might be hashed
+      if string.match(parts[1], "^|") then
+        -- split the first part of the line - it contains base64'ed salt and hashed hostname
+        local parts_hostname = stdnse.strsplit("|", parts[1])
+        if #parts_hostname == 4 then
+          -- check if the hash corresponds to the host being scanned
+          local salt = base64.dec(parts_hostname[3])
+          for _,name in ipairs(possible_host_names) do
+            local hash = base64.enc(openssl.hmac("SHA1", salt, name))
+            if parts_hostname[4] == hash then
+              stdnse.print_debug(2, "%s: found a hash that matches: %s for hostname: %s", SCRIPT_NAME, hash, name)
+              foundhostname = true
+              table.insert(keys_from_file, {name=name, key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
+            end
+          end
+          -- Is the key the same but the hashed hostname isn't?
+          if not foundhostname then
+            for _, k in ipairs(keys_found) do
+              if ("%s %s"):format(parts[2], parts[3]) == k then
+                  table.insert(same_key_hashed, {lnumber = lnumber})
+              end
+            end
+          end
+        end
+      else
+        if contains(possible_host_names, parts[1]) then
+          stdnse.print_debug(2, "Found an entry that matches: %s", parts[1])
+          table.insert(keys_from_file, ("%s %s"):format(parts[2], parts[3]))
+        else
+          -- Is the key the same but the clear text hostname isn't?
+          for _, k in ipairs(keys_found) do
+             if ("%s %s"):format(parts[2], parts[3]) == k then
+               table.insert(same_key, {name=parts[1], key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
+             end
+          end
+        end
+      end
+    end
+  end
+
+  local matched_keys, different_keys = {}, {}
+  local matched
+
+  -- Compare the keys found for this hostname and update the counts.
+  for _,k in ipairs(keys_from_file) do
+    matched = false
+    for __,l in ipairs(keys_found) do
+      if l == k.key then
+        table.insert(matched_keys, k)
+        matched = true
+      end
+    end
+    if not matched then 
+        table.insert(different_keys, k)
+    end
+  end
+
+  -- Start making output.
+  local return_string = "Key comparison with known_hosts file: "
+  if #keys_from_file == 0 then
+    return_string = return_string .. "\n\t" ..  "No entry for scanned host found in known_hosts file."
+  else 
+    if next(matched_keys) or next(same_key_hashed) or next(same_key) then 
+        return_string = return_string .. "\n\tGOOD Matches in known_hosts file: "
+        if next(matched_keys) then
+            for __, gm in ipairs(matched_keys) do
+                return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
+            end 
+        end
+        if next(same_key) then
+            for __, gm in ipairs(same_key) do
+              return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
+            end
+        end
+
+        if next(same_key_hashed) then 
+            for __, gm in ipairs(same_key_hashed) do
+                return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": <unknown>"
+            end
+        end
+
+        if different_keys ~= 0 then
+            return_string = return_string .. "\n\tWRONG Matches in known_hosts file: "
+            for __, gm in ipairs(different_keys) do
+                return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
+            end 
+        end
+    end
+  end
+  return true, return_string
 end
 
 --- gather host keys
@@ -151,7 +290,7 @@ local function portaction(host, port)
       fingerprint=stdnse.tohex(key.fingerprint),
       type=key.key_type,
       bits=key.bits,
-      key=key.key,
+      key=base64.enc(key.key),
     })
     if format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
@@ -169,6 +308,16 @@ local function portaction(host, port)
       table.insert( output, key.full_key )
     end
   end
+
+  -- if a known_hosts file was given, then check if it contains a key for the host being scanned
+  local known_hosts = stdnse.get_script_args("ssh-hostkey.known-hosts") or false
+  if known_hosts then 
+    known_hosts = ssh1.parse_known_hosts_file(known_hosts)
+    local res, status
+    res, status = check_keys(host, keys, known_hosts)
+    table.insert(output, 1, status)
+  end
+ 
 
   if #output > 0 then
     return output_tab, table.concat( output, '\n' )
