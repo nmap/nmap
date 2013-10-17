@@ -22,15 +22,59 @@ owns.
 -- |_ nbstat: NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5 (VMware)
 --
 -- Host script results:
--- |  nbstat:
--- |  |  NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5 (VMware)
--- |  |  Names
--- |  |  |  WINDOWS2003<00>      Flags: <unique><active>
--- |  |  |  WINDOWS2003<20>      Flags: <unique><active>
--- |  |  |  SKULLSECURITY<00>    Flags: <group><active>
--- |  |  |  SKULLSECURITY<1e>    Flags: <group><active>
--- |  |  |  SKULLSECURITY<1d>    Flags: <unique><active>
--- |_ |_ |_ \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
+-- |  nbstat: NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5 (VMware)
+-- |  Names:
+-- |    WINDOWS2003<00>      Flags: <unique><active>
+-- |    WINDOWS2003<20>      Flags: <unique><active>
+-- |    SKULLSECURITY<00>    Flags: <group><active>
+-- |    SKULLSECURITY<1e>    Flags: <group><active>
+-- |    SKULLSECURITY<1d>    Flags: <unique><active>
+-- |_   \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
+--
+-- @xmloutput
+-- <elem key="server_name">WINDOWS2003</elem>
+-- <elem key="user">&lt;unknown&gt;</elem>
+-- <table key="mac">
+--   <elem key="manuf">VMware</elem>
+--   <elem key="address">00:0c:29:c6:da:f5</elem>
+-- </table>
+-- <table key="Names">
+--   <table>
+--     <elem key="name">WINDOWS2003</elem>
+--     <elem key="suffix">0</elem>
+--     <elem key="flags">1024</elem>
+--   </table>
+--   <table>
+--     <elem key="name">SKULLSECURITY</elem>
+--     <elem key="suffix">0</elem>
+--     <elem key="flags">33792</elem>
+--   </table>
+--   <table>
+--     <elem key="name">WINDOWS2003</elem>
+--     <elem key="suffix">32</elem>
+--     <elem key="flags">1024</elem>
+--   </table>
+--   <table>
+--     <elem key="name">SKULLSECURITY</elem>
+--     <elem key="suffix">30</elem>
+--     <elem key="flags">33792</elem>
+--   </table>
+--   <table>
+--     <elem key="name">SKULLSECURITY</elem>
+--     <elem key="suffix">29</elem>
+--     <elem key="flags">1024</elem>
+--   </table>
+--   <table>
+--     <elem key="name">\x01\x02__MSBROWSE__\x02</elem>
+--     <elem key="suffix">1</elem>
+--     <elem key="flags">33792</elem>
+--   </table>
+-- </table>
+-- <table key="Statistics">
+--   <elem>00 0c 29 c6 da f5 00 00 00 00 00 00 00 00 00 00 00</elem>
+--   <elem>00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00</elem>
+--   <elem>00 00 00 00 00 00 00 00 00 00 00 00 00 00</elem>
+-- </table>
 
 
 author = "Brandon Enright, Ron Bowes"
@@ -106,62 +150,92 @@ action = function(host)
 	if(#statistics >= 6) then
 		-- MAC prefixes are matched on the first three bytes, all uppercase
 		prefix = string.upper(string.format("%02x%02x%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3)))
-		manuf = mac_prefixes[prefix]
-		if manuf == nil then
-			manuf = "unknown"
-		end
+		mac = {
+			address = ("%02x:%02x:%02x:%02x:%02x:%02x"):format( statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6) ),
+			manuf = mac_prefixes[prefix] or "unknown"
+		}
 		host.registry['nbstat'] = { 
 			server_name = server_name, 
-			mac = ("%02x:%02x:%02x:%02x:%02x:%02x"):format( statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6) )
+			mac = mac.address
 		}
-		mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x (%s)", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6), manuf)
 		-- Samba doesn't set the Mac address, and nmap-mac-prefixes shows that as Xerox
-		if(mac == "00:00:00:00:00:00 (Xerox)") then
-			mac = "<unknown>"
+		if(mac.address == "00:00:00:00:00:00") then
+			mac.address = "<unknown>"
+			mac.manuf = "unknown"
 		end
 	else
-		mac = "<unknown>"
+		mac = {
+			address = "<unknown>",
+			manuf = "unknown"
+		}
 	end
+	setmetatable(mac, {
+		-- MAC is formatted as "00:11:22:33:44:55 (Manufacturer)"
+		__tostring=function(t) return string.format("%s (%s)", t.address, t.manuf) end
+	})
 
 	-- Check if we actually got a username
 	if(user_name == nil) then
 		user_name = "<unknown>"
 	end
 
+	response["server_name"] = server_name
+	response["user"] = user_name
+	response["mac"] = mac
 
-	-- If verbosity is set, dump the whole list of names
-	if(nmap.verbosity() >= 1) then
-		table.insert(response, string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", server_name, user_name, mac))
-
-		local names_output = {}
-		names_output['name'] = "Names"
-		for i = 1, #names, 1 do
-			local padding = string.rep(" ", 17 - #names[i]['name'])
-			local flags_str = netbios.flags_to_string(names[i]['flags'])
-			table.insert(names_output, string.format("%s<%02x>%sFlags: %s", names[i]['name'], names[i]['suffix'], padding, flags_str))
+	local names_output = {}
+	for i = 1, #names, 1 do
+		local name = names[i]
+		setmetatable(name, {
+			__tostring = function(t)
+				-- Tabular format with padding
+				return string.format("%s<%02x>%sFlags: %s",
+				t['name'], t['suffix'],
+				string.rep(" ", 17 - #t['name']),
+				netbios.flags_to_string(t['flags']))
+			end
+		})
+		table.insert(names_output, name)
+	end
+	setmetatable(names_output, {
+		__tostring = function(t)
+			local ret = {}
+			for i,v in ipairs(t) do
+				table.insert(ret, tostring(v))
+			end
+			-- Indent Names table by 2 spaces
+			return "  " .. table.concat(ret, "\n  ")
 		end
+	})
 
-		table.insert(response, names_output)
+	response["names"] = names_output
 
-		-- If super verbosity is set, print out the full statistics
-		if(nmap.verbosity() >= 2) then
-			local statistics_output = {}
-			local statistics_string = ''
-			statistics_output['name'] = "Statistics"
-			for i = 1, #statistics, 1 do
-				statistics_string = statistics_string .. string.format("%02x ", statistics:byte(i))
-				if(i ~= #statistics and ((i) % 16) == 0) then
-					table.insert(statistics_output, statistics_string)
-					statistics_string = ''
+	local statistics_output = {}
+	for i = 1, #statistics, 16 do
+		--Format statistics as space-separated hex bytes, 16 columns
+		table.insert(statistics_output,
+			stdnse.tohex(string.sub(statistics,i,i+16), {separator = " "})
+		)
+	end
+	response["statistics"] = statistics_output
+
+	setmetatable(response, {
+		__tostring = function(t)
+			-- Normal single-line result
+			local ret = {string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", t.server_name, t.user, t.mac)}
+			-- If verbosity is set, dump the whole list of names
+			if nmap.verbosity() >= 1 then
+				table.insert(ret, string.format("Names:\n%s",t.names))
+				-- If super verbosity is set, print out the full statistics
+				if nmap.verbosity() >= 2 then
+					-- Indent Statistics table by 2 spaces
+					table.insert(ret, string.format("Statistics:\n  %s",table.concat(t.statistics,"\n  ")))
 				end
 			end
-			table.insert(statistics_output, statistics_string)
-			table.insert(response, statistics_output)
+			return table.concat(ret, "\n")
 		end
+	})
 
-		return stdnse.format_output(true, response)
-	else
-		return string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", server_name, user_name, mac)
-	end
+	return response
 
 end
