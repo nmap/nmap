@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+
+# Ndiff
+#
+# This programs reads two Nmap XML files and displays a list of their
+# differences.
+#
+# Copyright 2008 Insecure.Com LLC
+# Ndiff is distributed under the same license as Nmap. See the file COPYING or
+# http://nmap.org/data/COPYING. See http://nmap.org/book/man-legal.html for more
+# details.
+#
+# David Fifield
+# based on a design by Michael Pattrick
+
+import ndiff
+import sys
+
+if __name__ == "__main__":
+    sys.excepthook = ndiff.excepthook
+    sys.exit(ndiff.main())

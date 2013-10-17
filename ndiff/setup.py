@@ -28,6 +28,7 @@ class checked_install(distutils.command.install.install):
             raise distutils.errors.DistutilsPlatformError(str(e) + "\n"
                 + "Installing your distribution's python-dev package may solve this problem.")
 
-distutils.core.setup(name = u"ndiff", scripts = [u"ndiff"],
+distutils.core.setup(name = u"ndiff", scripts = [u"scripts/ndiff"],
+    py_modules = [u"ndiff"],
     data_files = [(u"share/man/man1", [u"docs/ndiff.1"])],
     cmdclass = {"install_egg_info": null_command, "install": checked_install})
