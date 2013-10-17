@@ -11,7 +11,7 @@ import StringIO
 import imp
 dont_write_bytecode = sys.dont_write_bytecode
 sys.dont_write_bytecode = True
-ndiff = imp.load_source("ndiff", "ndiff")
+ndiff = imp.load_source("ndiff", "ndiff.py")
 for x in dir(ndiff):
     if not x.startswith("_"):
         globals()[x] = getattr(ndiff, x)
@@ -742,10 +742,10 @@ def host_apply_diff(host, diff):
 def call_quiet(args, **kwargs):
     """Run a command with subprocess.call and hide its output."""
     return subprocess.call(args, stdout = subprocess.PIPE,
-        stderr = subprocess.STDOUT, **kwargs)
+        stderr = subprocess.STDOUT, env = {'PYTHONPATH': "."}, **kwargs)
 
 class exit_code_test(unittest.TestCase):
-    NDIFF = "./ndiff"
+    NDIFF = "./scripts/ndiff"
 
     def test_exit_equal(self):
         """Test that the exit code is 0 when the diff is empty."""
