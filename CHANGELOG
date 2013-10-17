@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add http-dlink-backdoor script that detects DLink routers with firmware
+  backdoor allowing admin access over HTTP interface. [Patrik Karlsson]
+
 o The ICMP ID of ICMP probes is now matched against the sent ICMP ID,
   to reduce the chance of false matches. Patch by Chris Johnson.
 
