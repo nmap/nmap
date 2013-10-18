@@ -26,6 +26,12 @@ For more information , see:
 -- |   spdy/3
 -- |   spdy/2
 -- |_  http/1.1
+--
+-- @xmloutput
+-- <elem>spdy/4a4</elem>
+-- <elem>spdy/3.1</elem>
+-- <elem>spdy/3</elem>
+-- <elem>http/1.1</elem>
 
 
 author = "Hani Benhabiles"
@@ -171,6 +177,6 @@ action = function(host, port)
     if status and response then
 	-- Analyze response
 	local results = check_npn(response)
-	return stdnse.format_output(true, results)
+	return results
     end
 end
