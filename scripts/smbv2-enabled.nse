@@ -16,6 +16,9 @@ Checks whether or not a server is running the SMBv2 protocol.
 --
 -- Host script results:
 -- |_ smb-v2-enabled: Server doesn't support SMBv2 protocol
+--
+-- @xmloutput
+-- false
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
@@ -40,16 +43,16 @@ local function go(host)
 	status, result = smb.negotiate_protocol(smbstate, overrides)
 	if(not(status)) then
 		if(string.find(result, "SMBv2")) then
-			return true, "Server supports SMBv2 protocol"
+			return true, "Server supports SMBv2 protocol", true
 		end
 		return false, "Couldn't negotiate protocol: " .. result
 	end
 
-	return true, "Server doesn't support SMBv2 protocol"
+	return true, "Server doesn't support SMBv2 protocol", false
 end
 
 action = function(host)
-	local status, result = go(host)
+	local status, result, flag = go(host)
 
 	if(not(status)) then
 		if(nmap.debugging() > 0) then
@@ -59,7 +62,7 @@ action = function(host)
 		end
 	end
 
-	return result
+	return flag, result
 end
 
 
