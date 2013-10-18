@@ -19,6 +19,9 @@ the <code>xhost +</code> list. In this case, script will display the message:
 -- @output
 -- Host script results:
 -- |_ x11-access: X server access is granted
+--
+-- @xmloutput
+-- true
 
 author = "vladz"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -66,6 +69,6 @@ action = function(host, port)
 
         -- Check if first byte received is 0x01 (xTrue: succeed).
         if string.match(result, "^\001") then
-                return "X server access is granted"
+                return true, "X server access is granted"
         end
 end
