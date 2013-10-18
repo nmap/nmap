@@ -1,5 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Web: figure out why autogeneration of nmap.org/nsedoc/ doesn't seem
+  to be working.  I think we had a cron job which was supposed to be
+  doing it.
+
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
   by running:
