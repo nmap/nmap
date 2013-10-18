@@ -14,6 +14,9 @@ categories = {"default", "safe"}
 -- PORT   STATE SERVICE
 -- 22/tcp open  ssh
 -- |_sshv1: Server supports SSHv1
+--
+-- @xmloutput
+-- true
 
 
 portrule = shortport.port_or_service(22, "ssh")
@@ -67,5 +70,5 @@ action = function(host, port)
 	
 	socket:close();
 
-	return "Server supports SSHv1"
+	return true, "Server supports SSHv1"
 end
