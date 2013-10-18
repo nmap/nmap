@@ -24,7 +24,15 @@ types:
 -- |   No authentication 
 -- |_  Username and password
 --
-
+-- @xmloutput
+-- <table>
+--   <elem key="method">0</elem>
+--   <elem key="name">No authentication</elem>
+-- </table>
+-- <table>
+--   <elem key="method">2</elem>
+--   <elem key="name">Username and password</elem>
+-- </table>
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -39,14 +47,20 @@ action = function(host, port)
 
 	-- iterate over all authentication methods as the server only responds with
 	-- a single supported one if we send a list.
+  local mt = { __tostring = function(t) return t.name end }
 	for _, method in pairs(socks.AuthMethod) do
 		local status, response = helper:connect( method )
 		if ( status ) then
-			table.insert(auth_methods, helper:authNameByNumber(response.method))
+      local out = {
+        method = response.method,
+        name = helper:authNameByNumber(response.method)
+      }
+      setmetatable(out, mt)
+			table.insert(auth_methods, out)
 		end
 	end
 	
 	helper:close()
 	if ( 0 == #auth_methods ) then return end
-	return stdnse.format_output(true, auth_methods)
+	return auth_methods
 end
