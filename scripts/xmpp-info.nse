@@ -499,9 +499,9 @@ local factor = function( t1, t2 )
         t2only_c[k] = v
       end
     end
-    both[cat] = (both_c() and both_c) or nil
-    t1only[cat] = (t1only_c() and t1only_c) or nil
-    t2only[cat] = (t2only_c() and t2only_c) or nil
+    both[cat] = (#both_c and both_c) or nil
+    t1only[cat] = (#t1only_c and t1only_c) or nil
+    t2only[cat] = (#t2only_c and t2only_c) or nil
   end
   --ordered list categories
   for _, cat in ipairs({"features", "compression_methods", "auth_mechanisms", "errors", "unknown"}) do
@@ -569,9 +569,9 @@ action = function(host, port)
         r["info"] = plain_result
     else
       local i,p,t = factor(plain_result, tls_result)
-      r["info"] = (i() and i) or nil
-      r["pre_tls"] = (p() and p) or nil
-      r["post_tls"] = (t() and t) or nil
+      r["info"] = (#i and i) or nil
+      r["pre_tls"] = (#p and p) or nil
+      r["post_tls"] = (#t and t) or nil
     end
 
     return r
