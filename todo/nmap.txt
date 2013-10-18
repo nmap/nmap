@@ -1,5 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Add a W3C XML Schema Definition (XSD) for Nmap XML output. Keeping the DTD
+  around is also helpful, but XSD is widely supported and could help improve
+  support for Nmap XML in other tools.
+
 o Web: figure out why autogeneration of nmap.org/nsedoc/ doesn't seem
   to be working.  I think we had a cron job which was supposed to be
   doing it.
