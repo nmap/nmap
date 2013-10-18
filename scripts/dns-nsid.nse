@@ -27,7 +27,14 @@ References:
 -- |   NSID dns.example.com (646E732E6578616D706C652E636F6D)
 -- |   id.server: dns.example.com
 -- |_  bind.version: 9.7.3-P3
----
+--
+-- @xmloutput
+-- <table key="NSID">
+--   <elem key="raw">mia01.l.root-servers.org</elem>
+--   <elem key="hex">6d696130312e6c2e726f6f742d736572766572732e6f7267</elem>
+-- </table>
+-- <elem key="id.server">mia01.l.root-servers.org</elem>
+-- <elem key="bind.version">NSD 3.2.15</elem>
 
 author = "John R. Bond"
 license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licenses/BSD-simplified"
@@ -54,21 +61,34 @@ local function rr_filter(pktRR, label)
 end
 
 action = function(host, port)	
-	local result = {}
+	local result = stdnse.output_table()
+	local flag = false
 	local status, resp = dns.query("id.server", {host = host.ip, dtype='TXT', class=dns.CLASS.CH, retAll=true, retPkt=true, nsid=true, dnssec=true})
 	if ( status ) then
 		local status, nsid = rr_filter(resp.add,'OPT')
 		if ( status ) then
-			table.insert(result, ("NSID: %s (%s)"):format(nsid, stdnse.tohex(nsid)))
+			flag = true
+			-- RFC 5001 says NSID can be any arbitrary bytes, and should be displayed
+			-- as hex, but often it is a readable string. Store both.
+			result["NSID"] = { raw = nsid, hex = stdnse.tohex(nsid) }
+			setmetatable(result["NSID"], {
+				__tostring = function(t)
+					return ("%s (%s)"):format(t.raw, t.hex)
+				end
+			})
 		end
 		local status, id_server = rr_filter(resp.answers,'TXT')
 		if ( status ) then
-			table.insert(result, ("id.server: %s"):format(id_server))
+			flag = true
+			result["id.server"] = id_server 
 		end
 	end
 	local status, bind_version = dns.query("version.bind", {host = host.ip, dtype='TXT', class=dns.CLASS.CH})
 	if ( status ) then
-		table.insert(result, ("bind.version: %s"):format(bind_version))
+		flag = true
+		result["bind.version"] = bind_version 
 	end
-	return stdnse.format_output(true, result)
+	if flag then
+		return result
+	end
 end
