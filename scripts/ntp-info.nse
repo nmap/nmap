@@ -117,9 +117,7 @@ action = function(host, port)
     -- Backslash escapes should be interpreted inside strings and commas should
     -- be allowed inside them.
     for k, q, v in string.gmatch(data, "%s*(%w+)=(\"?)([^,\"\r\n]*)%2,?") do
-      if DEFAULT_FIELDS[k] or nmap.verbosity() then
-        output[k] = v
-      end
+      output[k] = v
     end
   end
 
