@@ -1155,6 +1155,9 @@ function output_table ()
     end,
     __call = function (_) -- hack to mean "not_empty?"
       return not not next(order)
+    end,
+    __len = function (_)
+      return #order
     end
   }
   return setmetatable({}, mt)
