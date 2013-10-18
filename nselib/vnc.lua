@@ -79,8 +79,8 @@ VNC = {
 		[22]= "Colin Dean xvp",
 		
 		-- Mac OS X screen sharing uses 30 and 35
-		[30]= "Mac OS X security type (30)",
-		[35]= "Mac OS X security type (35)",
+		[30]= "Mac OS X security type",
+		[35]= "Mac OS X security type",
 	},
 	
 	new = function(self, host, port)
@@ -256,13 +256,20 @@ VNC = {
 		return true, ""
 	end,
 	
-	--- Returns all supported security types as a table of strings
+	--- Returns all supported security types as a table
 	--
-	-- @return table containing a string entry for each security type
-	getSecTypesAsStringTable = function( self )
+	-- @return table containing a entry for each security type
+	getSecTypesAsTable = function( self )
 		local tmp = {}
+		local typemt = {
+			__tostring = function(me)
+				return ("%s (%s)"):format(me.name, me.type)
+			end
+		}
 		for i=1, self.vncsec.count do
-			table.insert( tmp, VNC.sectypes_str[self.vncsec.types[i]] or ("Unknown security type (%d)"):format(self.vncsec.types[i]) )
+			local t = {name=VNC.sectypes_str[self.vncsec.types[i]] or "Unknown security type", type=self.vncsec.types[i]}
+			setmetatable(t, typemt)
+			table.insert( tmp, t )
 		end
 		return true, tmp
 	end,

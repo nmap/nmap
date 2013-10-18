@@ -21,6 +21,18 @@ categories = {"default", "discovery", "safe"}
 -- |     Mac OS X security type (30)
 -- |_    Mac OS X security type (35)
 --
+-- @xmloutput
+-- <elem key="Protocol version">3.8</elem>
+-- <table key="Security types">
+--   <table>
+--     <elem key="name">Ultra</elem>
+--     <elem key="type">17</elem>
+--   </table>
+--   <table>
+--     <elem key="name">VNC Authentication</elem>
+--     <elem key="type">2</elem>
+--   </table>
+-- </table>
 
 -- Version 0.2
 
@@ -34,7 +46,7 @@ action = function(host, port)
 
 	local vnc = vnc.VNC:new( host.ip, port.number )
 	local status, data
-	local result = {}
+	local result = stdnse.output_table()
 	
 	status, data = vnc:connect()
 	if ( not(status) ) then	return "  \n  ERROR: " .. data end
@@ -42,19 +54,18 @@ action = function(host, port)
 	status, data = vnc:handshake()
 	if ( not(status) ) then	return "  \n  ERROR: " .. data end
 
-	status, data = vnc:getSecTypesAsStringTable()
+	status, data = vnc:getSecTypesAsTable()
 	if ( not(status) ) then	return "  \n  ERROR: " .. data end
 
-	table.insert(result, ("Protocol version: %s"):format(vnc:getProtocolVersion()) )
+	result["Protocol version"] = vnc:getProtocolVersion()
 
 	if ( data and #data ~= 0 ) then
-		data.name = "Security types:"
-		table.insert( result, data )
+		result["Security types"] = data
 	end
 	
 	if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
-		table.insert(result, "WARNING: Server does not require authentication")
+		result["WARNING"] = "Server does not require authentication"
 	end
 	
-	return stdnse.format_output(status, result)
+	return result
 end
