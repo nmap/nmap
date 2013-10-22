@@ -307,7 +307,11 @@ Black Hat Briefings in 2010.</para>
 
         <varlistentry>
         <term>Usefulness</term>
-        <listitem><para>Default scans need to produce valuable and actionable information.  If even the script author has trouble explaining why an average networking or security professional would find the output valuable, the script should not run by default.  The script may still be worth including in Nmap so that administrators can run for those occasions when they do need the extra information.</para></listitem>
+        <listitem><para>Default scans need to produce valuable and
+	actionable information.  If even the script author has trouble
+	explaining why an average networking or security professional
+	would find the output valuable, the script should not run by
+	default.</para></listitem>
         </varlistentry>
 
         <varlistentry>
@@ -319,7 +323,7 @@ Black Hat Briefings in 2010.</para>
         important information to report, NSE scripts (particularly
         default ones) should return nothing.  Checking for an obscure
         vulnerability may be OK by default as long as it only produces output
-        when that vulnerability discovered.</para></listitem>
+        when that vulnerability is discovered.</para></listitem>
         </varlistentry>
 
         <varlistentry>
@@ -363,9 +367,13 @@ Black Hat Briefings in 2010.</para>
             <option>dos</option>
           </term>
           <listitem>
-            <para>Scripts in this category may cause denial of service, usually
-            because they crash a service as a side effect of testing it for a
-            vulnerability.</para>
+            <para>Scripts in this category may cause a denial of
+            service.  Sometimes this is done to test vulnerability to
+	    a denial of service method, but more commonly it is
+	    an undesired by necessary side effect of testing for
+	    a traditional vulnerability.  These tests sometimes crash
+	    vulnerable services.</para>
+
           </listitem>
         </varlistentry>
 
