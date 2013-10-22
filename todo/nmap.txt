@@ -1,12 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Add a W3C XML Schema Definition (XSD) for Nmap XML output. Keeping the DTD
-  around is also helpful, but XSD is widely supported and could help improve
-  support for Nmap XML in other tools.
-
-o Web: figure out why autogeneration of nmap.org/nsedoc/ doesn't seem
-  to be working.  I think we had a cron job which was supposed to be
-  doing it.
 
 o Fix a segmentation fault in Ncat when scanned with the SSL NSE
   scripts.  I was able to reproduce this on 2013-09-27 with latest SVN
@@ -73,6 +66,12 @@ o We should figure out why (at least with Nping) raw ethernet frame
   on 'web' and 'research' machines and could not reproduce.  Still
   happens with Fyodor's machine connected with WiFi.  Fyodor should
   test on the same machine using wired and see if that changes anything.
+
+o Consider a continuous integration system for automating tests of
+  Nmap on various platforms to detect and resolve issues more quickly.
+  Things to look at include the Supercell cluster (provides VMs of
+  various hardware/software for testing) and projects like Buildbot,
+  Travis, Hudson, Jenkins, etc.
 
 o When Ncat is compiled without OpenSSL, we should still accept the
   --ssl argument and just give an error message noting that SSL was not
@@ -754,6 +753,19 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Web: figure out why autogeneration of nmap.org/nsedoc/ doesn't seem
+  to be working.  I think we had a cron job which was supposed to be
+  doing it.
+  - hb system was still running crontab files from old web vm in its
+    rc.local.  Fixed.
+
+o Add a W3C XML Schema Definition (XSD) for Nmap XML output. Keeping the DTD
+  around is also helpful, but XSD is widely supported and could help improve
+  support for Nmap XML in other tools.
+  o We're going to discuss this on mailing list before deciding
+    whether to 1) switch from DTD to XSD, 2) stick with just a DTD, or
+    3) try to support both.
 
 o Update copyright year to 2013 in the Nmap copyright header files
 
