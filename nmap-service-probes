@@ -9040,6 +9040,8 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: INEOQUEST/([\d.]+)\r\nConnection: clos
 
 match honeypot m|^HTTP/1\.0 401 Unauthorized\r\n\r\n<BODY><HTML><H1>401 - Authorization Failed</H1></HTML></BODY>\0| p/Network Flight Recorder BackOfficer Friendly http honeypot/
 
+match http m|^HTTP/1\.1 200 OK\r\nServer: fexsrv\r\n.*A HREF="mailto:fex@([^"]*)"|s p/F*EX (Frams' Fast File EXchange) server/ h/$1/
+
 # Maybe too specific?
 match hpilo-virtual-media m|^#\0\x04\0$| p/HP Integrated Lights-Out Virtual Media/
 
