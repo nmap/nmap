@@ -350,6 +350,7 @@ Entry { filename = "redis-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "reverse-index.nse", categories = { "safe", } }
 Entry { filename = "rexec-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "rfc868-time.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "riak-http-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rlogin-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
