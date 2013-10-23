@@ -234,8 +234,8 @@ function set_port_state(host, port, state)
 -- information to set. The version detection fields this function looks at are
 -- <code>name</code>, <code>product</code>, <code>version</code>,
 -- <code>extrainfo</code>, <code>hostname</code>, <code>ostype</code>,
--- <code>devicetype</code>, and <code>service_tunnel</code>. All these keys are
--- optional.
+-- <code>devicetype</code>, <code>service_tunnel</code>, and <code>cpe</code>.
+-- All these keys are optional.
 --
 -- The <code>probestate</code> argument describes the state in which the script
 -- completed. It is a string, one of: <code>"hardmatched"</code>,
