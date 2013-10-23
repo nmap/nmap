@@ -26,7 +26,6 @@
 char *socket_strerror(int errnum);
 
 extern const struct test_case TestPoolUserData;
-extern const struct test_case TestCancelOperation;
 extern const struct test_case TestTimer;
 extern const struct test_case TestLogLevels;
 extern const struct test_case TestErrLevels;
@@ -34,12 +33,14 @@ extern const struct test_case TestConnectTCP;
 extern const struct test_case TestGHLists;
 extern const struct test_case TestGHHeaps;
 extern const struct test_case TestHeapOrdering;
+extern const struct test_case TestCancelTCP;
+extern const struct test_case TestCancelUDP;
+extern const struct test_case TestCancelSSL;
 
 
 static const struct test_case *TestCases[] = {
   /* ---- basic.c */
   &TestPoolUserData,
-  &TestCancelOperation,
   /* ---- timer.c */
   &TestTimer,
   /* ---- logs.c */
@@ -52,6 +53,10 @@ static const struct test_case *TestCases[] = {
   /* ---- ghheaps.c */
   &TestGHHeaps,
   &TestHeapOrdering,
+  /* ---- cancel.c */
+  &TestCancelTCP,
+  &TestCancelUDP,
+  &TestCancelSSL,
   NULL
 };
 
