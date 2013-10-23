@@ -92,7 +92,7 @@ static inline int fs_length(const struct filespace *fs) {
   return fs->current_size;
 }
 
-static inline char * fs_str(const struct filespace *fs) {
+static inline char *fs_str(const struct filespace *fs) {
   return fs->str;
 }
 

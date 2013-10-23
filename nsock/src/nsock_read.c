@@ -66,7 +66,8 @@
  * NSE_STATUS_SUCCESS will be returned in the case of EOF or tiemout if at least
  * 1 char has been read.  Also note that you may get more than 'nlines' back --
  * we just stop once "at least" 'nlines' is read */
-nsock_event_id nsock_readlines(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
+nsock_event_id nsock_readlines(nsock_pool nsp, nsock_iod ms_iod,
+                               nsock_ev_handler handler, int timeout_msecs,
                                void *userdata, int nlines) {
   msiod *nsi = (msiod *)ms_iod;
   mspool *ms = (mspool *)nsp;
@@ -87,7 +88,8 @@ nsock_event_id nsock_readlines(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handle
 }
 
 /* Same as above, except it tries to read at least 'nbytes' instead of 'nlines'. */
-nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs,
+nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod,
+                               nsock_ev_handler handler, int timeout_msecs,
                                void *userdata, int nbytes) {
 
   msiod *nsi = (msiod *)ms_iod;
@@ -111,7 +113,9 @@ nsock_event_id nsock_readbytes(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handle
 
 /* The simplest read function -- returns NSE_STATUS_SUCCESS when it
  * reads anything, otherwise it returns timeout, eof, or error as appropriate */
-nsock_event_id nsock_read(nsock_pool nsp, nsock_iod ms_iod, nsock_ev_handler handler, int timeout_msecs, void *userdata) {
+nsock_event_id nsock_read(nsock_pool nsp, nsock_iod ms_iod,
+                          nsock_ev_handler handler, int timeout_msecs,
+                          void *userdata) {
   msiod *nsi = (msiod *)ms_iod;
   mspool *ms = (mspool *)nsp;
   msevent *nse;
