@@ -85,17 +85,17 @@ action = function( host, port )
 	if ( response.srvclass and response.srvclass:match("IDS/") ) then
 		port.version.name = "drda"
 		port.version.product = "IBM Informix Dynamic Server"
-		port.version.name_confidence = 100
+		port.version.name_confidence = 10
 		table.insert( results, ("Informix Version: %s"):format( parseVersion(response.prodrel) ) )
 	elseif ( response.srvclass and response.srvclass:match("Apache Derby") ) then
 		port.version.name = "drda"
 		port.version.product = "Apache Derby Server"
-		port.version.name_confidence = 100
+		port.version.name_confidence = 10
 		table.insert( results, ("Derby Version: %s"):format( parseVersion(response.prodrel) ) )
 	elseif ( response.srvclass and response.srvclass:match("DB2") ) then
 		port.version.name = "drda"
 		port.version.product = "IBM DB2 Database Server"
-		port.version.name_confidence = 100
+		port.version.name_confidence = 10
 		table.insert( results, ("DB2 Version: %s"):format( parseVersion(response.prodrel) ) )
 	else
 		table.insert( results, ("Version: %s"):format( response.prodrel ) )

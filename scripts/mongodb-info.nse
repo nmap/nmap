@@ -104,7 +104,7 @@ function action(host,port)
 	
 	port.version.name ='mongodb'
 	port.version.product='MongoDB'
-	port.version.name_confidence = 100
+	port.version.name_confidence = 10
 	nmap.set_port_version(host,port)
 
 	status, packet = mongodb.buildInfoQuery()
