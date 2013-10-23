@@ -145,7 +145,7 @@ local get_version = function(host, port, token)
 			-- put info in a table and parse for OS detection and other info
 			port.version.name = "metasploit-msgrpc"
 			port.version.product = metasploit_version
-			port.version.name_confidence = 100
+			port.version.name_confidence = 10
 			nmap.set_port_version(host,port)
 			local info = "Metasploit version: " .. metasploit_version .. " Ruby version: " .. ruby_version .. " API version: " .. api_version
 			if string.find(ruby_version,"mingw") < 0 then

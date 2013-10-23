@@ -397,7 +397,7 @@ local scan = function(host, port, server_name, tls)
                 if hint then
                     port.state = "open"
                     port.version.product = hint
-                    port.version.name_confidence = 100
+                    port.version.name_confidence = 10
                     nmap.set_port_version(host, port)
                 end
 
@@ -463,7 +463,7 @@ local server_info = function(host, port, id1, id2)
                 stdnse.print_debug("MATCHED")
                 port.version.product = v.name
                 stdnse.print_debug("  " .. v.name)
-                port.version.name_confidence = 60
+                port.version.name_confidence = 6
                 nmap.set_port_version(host, port)
                 break
             end

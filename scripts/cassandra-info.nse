@@ -77,7 +77,7 @@ function action(host,port)
         cassinc = cassinc + 1
         port.version.name ='cassandra'
         port.version.product='Cassandra'
-        port.version.name_confidence = 100
+        port.version.name_confidence = 10
         nmap.set_port_version(host,port)
         table.insert(results, ("Cluster name: %s"):format(val))
 
