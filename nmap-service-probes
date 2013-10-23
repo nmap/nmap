@@ -12309,3 +12309,12 @@ rarity 9
 ports 9987
 
 match ts3 m|^........\x00\x00\x02\x97\x76\x8b\x54\xad\x79\xe3\xaf\x87\xeb\xaa\x1a\x19\xba\xcf\x41\xe0\x16\xa2\x32\x6c\xf3\xcf\xf4\x8e\x3c\x44\x83\xc8\x8d\x51\x45\x6f\x90\x95\x23\x33\x08\x86\x2d\x40|s p/TeamSpeak 3 server/
+
+##############################NEXT PROBE##############################
+# xmlsysd info request
+# http://www.phy.duke.edu/~rgb/brahma/Resources/xmlsysd.php
+Probe TCP xmlsysd q|init\noff all\non identity version\nsend\nquit\n|
+rarity 9
+ports 7887
+
+match xmlsysd m|^Content-Length: [0-9]+\n\n<\?xml version=\"1\.0\"\?>\s*<xmlsysd init=\"1\">\s*<system>\s*<identity>\s*<hostname>([^<]*)</hostname>\s*<hostip>([^<]*)</hostip>\s*</identity>\s*</system>\s*<proc>\s*<version>([^<]*)</version>\s*</proc>\s*</xmlsysd>|s p/xmlsysd daemon/ h/$1/ i/IP: $2/ o/$3/ cpe:/a:wulfware:xmlsysd/
