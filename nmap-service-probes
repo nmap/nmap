@@ -8938,6 +8938,9 @@ match upnp m|^HTTP/1\.0 404 Not Found\r\nSERVER: PACKAGE_VERSION HUAWEI, UPnP, H
 # UUCP 1.06.2 on Linux 2.4.X
 # Taylor UUCP 1.06.2 on Slackware
 match uucp m|^login: Password:$| p/Taylor uucpd/
+# uucico prompt does not have space after "Password:",
+# but Debian-contributed in.uucpd calls pam_authenticate, which does.
+match uucp m|^login: Password: $| p/Debian in.uucpd, probably Taylor uucpd/ i/PAM auth/
 match uucp m|^login: Login incorrect\.$| p/Solaris uucpd/
 
 # Veritas Netbackup client v.3.4
