@@ -147,7 +147,7 @@ extern NmapOps o;
 struct idle_proxy_info {
   Target host; /* contains name, IP, source IP, timing info, etc. */
   int seqclass; /* IP ID sequence class (IPID_SEQ_* defined in nmap.h) */
-  u16 latestid; /* The most recent IP ID we have received from the proxy */
+  u32 latestid; /* The most recent IP ID we have received from the proxy */
   u16 probe_port; /* The port we use for probing IP ID infoz */
   u16 max_groupsz; /* We won't test groups larger than this ... */
   u16 min_groupsz; /* We won't allow the group size to fall below this
@@ -277,14 +277,14 @@ static u16 byteswap_u16(u16 h) {
    one, assuming the given IP ID Sequencing class.  Returns -1 if the
    distance cannot be determined */
 
-static int ipid_distance(int seqclass , u16 startid, u16 endid) {
+static int ipid_distance(int seqclass , u32 startid, u32 endid) {
   if (seqclass == IPID_SEQ_INCR)
     return endid - startid;
 
   if (seqclass == IPID_SEQ_BROKEN_INCR) {
     /* Convert to network byte order */
-    startid = byteswap_u16(startid);
-    endid = byteswap_u16(endid);
+    startid = byteswap_u16((u16) startid);
+    endid = byteswap_u16((u16) endid);
     return endid - startid;
   }
 
@@ -326,7 +326,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   u32 sequence_base;
   u32 ack = 0;
   struct timeval probe_send_times[NUM_IPID_PROBES], tmptv, rcvdtime;
-  u16 lastipid = 0;
+  u32 lastipid = 0;
   struct ip *ip;
   struct tcp_hdr *tcp;
   int distance;
@@ -514,7 +514,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
            of sneaking through the firewall.  Plus SYN|ACK is what they will
            be receiving back from the target */
         probes_returned++;
-        ipids[seq_response_num] = (u16) ntohs(ip->ip_id);
+        ipids[seq_response_num] = ntohs(ip->ip_id);
         probe_returned[seq_response_num] = 1;
         adjust_timeouts2(&probe_send_times[seq_response_num], &rcvdtime, &(proxy->host.to));
       }
