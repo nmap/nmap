@@ -128,6 +128,30 @@
 
 /* $Id$ */
 
+/* IPv6 fragment ID sequence algorithms. http://seclists.org/nmap-dev/2013/q3/369.
+	Android 4.1 (Linux 3.0.15) | Per host, incremental (1)
+	FreeBSD 7.4 | Random
+	FreeBSD 9.1 | Random
+	iOS 6.1.2 | Random
+	Linux 2.6.32 | Per host, incremental (2)
+	Linux 3.2 | Per host, incremental (1)
+	Linux 3.8 | Per host, incremental
+	OpenBSD 4.6 | Random
+	OpenBSD 5.2 | Random
+	OS X 10.6.7 | Global, incremental (3)
+	OS X 10.8.3 | Random
+	Solaris 11 | Per host, incremental
+	Windows Server 2003 R2 Standard 64bit, SP2 | Global, incremental
+	Windows Server 2008 Standard 32bit,  SP1 | Global, incremental
+	Windows Server 2008 R2 Standard 64bit, SP1 | Global, incremental by 2
+	Windows Server 2012 Standard 64bit | Global, incremental by 2
+	Windows XP Professional 32bit, SP3 | Global, incremental (4)
+	Windows Vista Business 64bit, SP1 | Global, incremental
+	Windows 7 Home Premium 32bit, SP1 | Global, incremental by 2
+	Windows 7 Ultimate 32bit, SP1 | Global, incremental by 2
+	Windows 8 Enterprise 32 bit | Global, incremental by 2
+*/
+
 #include "idle_scan.h"
 #include "timing.h"
 #include "osscan2.h"
