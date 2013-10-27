@@ -269,7 +269,7 @@ struct IPExtraProbeData_sctp {
 };
 
 struct IPExtraProbeData {
-  u16 ipid; /* host byte order */
+  u32 ipid; /* host byte order */
   union {
     struct IPExtraProbeData_icmp icmp;
     struct IPExtraProbeData_tcp tcp;
@@ -328,7 +328,7 @@ public:
     }
     /* not reached */
   }
-  u16 ipid() const {
+  u32 ipid() const {
     return probes.IP.ipid;
   }
   u16 icmpid() const; // ICMP ident if protocol is ICMP
@@ -934,7 +934,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
     data = ipv6_get_data_any(ip6, &len, &hdr);
     assert(data != NULL);
     assert(len == (u32) ntohs(ip6->ip6_plen));
-    probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK) & 0xFFFF;
+    probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
     hdr = ip6->ip6_nxt;
   } else {
     fatal("Bogus packet passed to %s -- only IP packets allowed", __func__);
