@@ -730,8 +730,7 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
     memcpy(&sin6->sin6_addr, &ip6->ip6_dst, IP6_ADDR_LEN);
 
     hdr->ttl = ip6->ip6_hlim;
-    /* abstract_hdr.ipid is limited to 16 bits. */
-    hdr->ipid = (u16) ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
+    hdr->ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
     return ipv6_get_data_primitive(ip6, len, &hdr->proto, upperlayer_only);
   }
 
