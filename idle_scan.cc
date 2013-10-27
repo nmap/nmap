@@ -126,7 +126,7 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id: idle_scan.cc 2013-07-26 Mathias Morbitzer (mathias.morbitzer(at)fox-it.com) $ */
+/* $Id$ */
 
 #include "idle_scan.h"
 #include "timing.h"
