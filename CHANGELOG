@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Idle scan now supports IPv6. IPv6 packets don't usually come with
+  fragments identifiers like IPv4 packets do, so new techniques had to
+  be developed to make idle scan possible. The implementation is by
+  Mathias Morbitzer, who made it the subject of his master's thesis.
+
 o [NSE] Add http-dlink-backdoor script that detects DLink routers with firmware
   backdoor allowing admin access over HTTP interface. [Patrik Karlsson]
 
