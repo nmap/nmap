@@ -232,7 +232,7 @@ def install_excepthook():
                 secondary_text=_("""\
 A required module was not found.
 
-""" + value.message))
+""" + unicode(value)))
             d.run()
             d.destroy()
         else:
