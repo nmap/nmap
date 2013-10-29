@@ -39,6 +39,15 @@ o INFRASTRUCTURE: Consider updating our svn-mailer.py (and conf file)
   currently using one from
   subversion-1.4.2/tools/hook-scripts/mailer/mailer.py.
 
+o Investigate how we're ending up with OS fingerprints in nmap-os-db
+  with attribute names like W0 and W8 when according to the docs they
+  are only supposed to be W1 - W6 (and plain W).
+  http://nmap.org/book/osdetect-methods.html#osdetect-w.  See also
+  http://seclists.org/nmap-dev/2013/q4/68.  Need to determine how
+  these are getting into the file (from Nmap itself or our
+  integration/merge tools) and fix that then remove them from the
+  file.
+
 o Add IPv6 subnet/pattern support like we offer for IPv4.
   o Obviously we can't go scanning a /48 in IPv6, but small subnets do
     make sense in some cases.  For example, the VPS hosting company
