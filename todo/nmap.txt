@@ -33,6 +33,12 @@ o INFRASTRUCTURE: Add IPv6 support to secwiki
  - We probably just have to designate a new IPv6 address for it and
    add it to Apache config.
 
+o INFRASTRUCTURE: Consider updating our svn-mailer.py (and conf file)
+  to the latest official version.  First check whether there is a
+  later official version and whether it has material changes.  We're
+  currently using one from
+  subversion-1.4.2/tools/hook-scripts/mailer/mailer.py.
+
 o Add IPv6 subnet/pattern support like we offer for IPv4.
   o Obviously we can't go scanning a /48 in IPv6, but small subnets do
     make sense in some cases.  For example, the VPS hosting company
