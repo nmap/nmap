@@ -450,6 +450,7 @@ Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "voldemort-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "vuze-dht-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "version", "vuln", } }
+Entry { filename = "weblogic-t3-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "whois-domain.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "whois-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "wsdd-discover.nse", categories = { "default", "discovery", "safe", } }
