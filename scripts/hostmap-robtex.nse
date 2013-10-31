@@ -51,7 +51,7 @@ hostrule = function (host)
 end
 
 action = function (host)
-  local link = "http://ip.robtex.com/" .. host.ip .. ".html"
+  local link = "https://ip.robtex.com/" .. host.ip .. ".html"
   local htmldata = http.get_url(link)
   local domains = parse_robtex_response(htmldata.body)
   local output_tab = stdnse.output_table()
