@@ -1,7 +1,9 @@
 description = [[
-Attempts to brute force the 8.3 filenames (commonly known as short names) of files and directories in the root folder of vulnerable IIS servers. This script is an implementation of the PoC "iis shortname scanner".
+Attempts to brute force the 8.3 filenames (commonly known as short names) of files and directories in the root folder 
+of vulnerable IIS servers. This script is an implementation of the PoC "iis shortname scanner".
 
-The script uses ~,? and * to bruteforce the short name of files present in the IIS document root. Short names have a restriction of 6 character file name followed by a three character extension.
+The script uses ~,? and * to bruteforce the short name of files present in the IIS document root. 
+Short names have a restriction of 6 character file name followed by a three character extension.
 
 Notes:
 * The script might have to be run twice (according to the original author). 
@@ -24,7 +26,9 @@ References:
 -- |   Microsoft IIS tilde character "~" short name disclosure and denial of service
 -- |     State: VULNERABLE (Exploitable)
 -- |     Description:
--- |      Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the webroot folder. Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to cause a denial of service condition.
+-- |      Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the webroot folder. 
+-- |      Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to 
+-- |      cause a denial of service condition.
 -- |           
 -- |     Extra information:
 -- |       
@@ -145,11 +149,14 @@ action = function(host, port)
     title = 'Microsoft IIS tilde character "~" short name disclosure and denial of service',
     state = vulns.STATE.NOT_VULN,
     description = [[
-Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the root folder. Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to cause a denial of service condition.
+Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the root folder. 
+Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to 
+cause a denial of service condition.
     ]],
     references = {
       'http://soroush.secproject.com/downloadable/microsoft_iis_tilde_character_vulnerability_feature.pdf',
-      'http://code.google.com/p/iis-shortname-scanner-poc/'
+      'http://code.google.com/p/iis-shortname-scanner-poc/',
+      'http://www.osvdb.org/83771'
     }
   }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
@@ -161,7 +168,7 @@ Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming 
     folders = {}
   end
   --Vulnerable!
-  if #files or #folders then
+  if #files>0 or #folders>0 then
     results = {}
     table.insert(results, folders)
     table.insert(results, files)
