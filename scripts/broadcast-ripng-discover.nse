@@ -209,7 +209,7 @@ action = function()
 	
 	local result = {}
 	for ip, resp in pairs(responses) do
-		print(ip, resp)
+		stdnse.print_debug(ip, resp)
 		table.insert(result, { name = ip, parse_response(resp) } )
 	end
 	return stdnse.format_output(true, result)

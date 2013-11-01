@@ -96,7 +96,7 @@ end
 local function processSwitchMode(socket, swmode)
 	local m, o, a1, a2, p = swmode:match("^(.-)\30(.-)\30(.-)\30(.-)\30(.-)\04$")
 	if ( m ~= "SWITCHMODE") then
-		print("lklklk", m, o)
+		stdnse.print_debug("Unknown SWITCHMODE: %s %s", m, o)
 		return false, "Failed to parse SWITCHMODE"
 	end
 	

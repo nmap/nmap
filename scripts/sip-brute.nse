@@ -81,7 +81,7 @@ local function checkBadUser(host, port)
 	local pass = "badpass-" .. math.random(10000)
 	local helper = sip.Helper:new(host, port, { expires = 0 })
 		
-	print(user, pass)
+	stdnse.print_debug(2, "Checking bad user: %s/%s", user, pass)
 	local status, err = helper:connect()
 	if ( not(status) ) then return false, "ERROR: Failed to connect" end
 	
