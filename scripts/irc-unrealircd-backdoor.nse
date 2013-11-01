@@ -49,7 +49,7 @@ Reference:
 -- |_irc-unrealircd-backdoor: Looks like trojaned version of unrealircd. See http://seclists.org/fulldisclosure/2010/Jun/277
 -- 
 
-author = "Vlatko Kosturjak and Ron Bowes"
+author = "Vlatko Kosturjak, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit", "intrusive", "malware", "vuln"}
 
