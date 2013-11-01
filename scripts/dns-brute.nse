@@ -248,7 +248,7 @@ action = function(host)
 				end
 				file:close()
       else
-				print("dns-brute: Hostlist file not found. Will use default list.")
+				stdnse.print_debug("dns-brute: Hostlist file not found. Will use default list.")
 			end
     end
 		if (not hostlist) then hostlist = HOST_LIST end

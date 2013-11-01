@@ -78,7 +78,7 @@ function verify_password( host, port, username, password, domain )
 			account.valid = false
 			account.message = "Unspecified"
 		else
-			print("UNKNOWN response: " .. response)
+			stdnse.print_debug("UNKNOWN response: " .. response)
 			account.valid = false
 			account.message = "failed"
 		end
