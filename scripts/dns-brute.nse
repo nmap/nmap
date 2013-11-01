@@ -102,21 +102,6 @@ local function guess_domain(host)
 	end
 end
 
---- Check if an element is inside a table
---@param table Table to check
---@param element Element to find in table
---@return boolean Element was found or not
-function table.contains(table, element)
-	if(type(table) == "table") then
-		for _, value in pairs(table) do
-			if value == element then
-				return true
-			end
-		end
-	end
-	return false
-end
-
 -- Single DNS lookup, returning all results. dtype should be e.g. "A", "AAAA".
 local function resolve(host, dtype)
 	local status, result = dns.query(host, {dtype=dtype,retAll=true})
@@ -205,43 +190,70 @@ action = function(host)
 		nmap.registry.bruteddomains = {}
 	end
 
-	local dosrv
-	if(not table.contains(nmap.registry.bruteddomains,domainname)) then
-		table.insert(nmap.registry.bruteddomains, domainname)
-		stdnse.print_debug("Starting dns-brute at: "..domainname)
-		local max_threads = stdnse.get_script_args('dns-brute.threads') and tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
-		dosrv = stdnse.get_script_args("dns-brute.srv") or false
-		stdnse.print_debug("THREADS: "..max_threads)
-		-- First look for dns-brute.hostlist
-		local fileName = stdnse.get_script_args('dns-brute.hostlist')
-		-- Check fetchfile locations, then relative paths
-		local commFile = (fileName and nmap.fetchfile(fileName)) or fileName
-		-- Finally, fall back to vhosts-default.lst
-		commFile = commFile or nmap.fetchfile("nselib/data/vhosts-default.lst")
-		local hostlist = {}
-		if commFile then
-			for l in io.lines(commFile) do
-				if not l:match("#!comment:") then
-					table.insert(hostlist, l)
-				end
-			end
-		else
-			stdnse.print_debug(1, "%s: Cannot find hostlist file, quitting", SCRIPT_NAME)
-			return
-    end
-		local srvlist = SRV_LIST
+	if nmap.registry.bruteddomains[domainname] then
+		stdnse.print_debug("Skipping already-bruted domain %s", domainname)
+		return nil
+	end
 
-		local threads, results, srvresults = {}, {}, {}
-		local condvar = nmap.condvar( results )
-		local i = 1
-		local howmany = math.floor(#hostlist/max_threads)+1
-		stdnse.print_debug("Hosts per thread: "..howmany)
+	nmap.registry.bruteddomains[domainname] = true
+	stdnse.print_debug("Starting dns-brute at: "..domainname)
+	local max_threads = stdnse.get_script_args('dns-brute.threads') and tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
+	local dosrv = stdnse.get_script_args("dns-brute.srv") or false
+	stdnse.print_debug("THREADS: "..max_threads)
+	-- First look for dns-brute.hostlist
+	local fileName = stdnse.get_script_args('dns-brute.hostlist')
+	-- Check fetchfile locations, then relative paths
+	local commFile = (fileName and nmap.fetchfile(fileName)) or fileName
+	-- Finally, fall back to vhosts-default.lst
+	commFile = commFile or nmap.fetchfile("nselib/data/vhosts-default.lst")
+	local hostlist = {}
+	if commFile then
+		for l in io.lines(commFile) do
+			if not l:match("#!comment:") then
+				table.insert(hostlist, l)
+			end
+		end
+	else
+		stdnse.print_debug(1, "%s: Cannot find hostlist file, quitting", SCRIPT_NAME)
+		return
+	end
+	local srvlist = SRV_LIST
+
+	local threads, results, srvresults = {}, {}, {}
+	local condvar = nmap.condvar( results )
+	local i = 1
+	local howmany = math.floor(#hostlist/max_threads)+1
+	stdnse.print_debug("Hosts per thread: "..howmany)
+	repeat
+		local j = math.min(i+howmany, #hostlist)
+		local name_iter = array_iter(hostlist, i, j)
+		threads[stdnse.new_thread(thread_main, domainname, results, name_iter)] = true
+		i = j+1
+	until i > #hostlist
+	local done
+	-- wait for all threads to finish
+	while( not(done) ) do
+		done = true
+		for thread in pairs(threads) do
+			if (coroutine.status(thread) ~= "dead") then done = false end
+		end
+		if ( not(done) ) then
+			condvar("wait")
+		end
+	end
+
+	if(dosrv) then
+		i = 1
+		threads = {}
+		howmany = math.floor(#srvlist/max_threads)+1
+		condvar = nmap.condvar( srvresults )
+		stdnse.print_debug("SRV's per thread: "..howmany)
 		repeat
-			local j = math.min(i+howmany, #hostlist)
-			local name_iter = array_iter(hostlist, i, j)
-			threads[stdnse.new_thread(thread_main, domainname, results, name_iter)] = true
+			local j = math.min(i+howmany, #srvlist)
+			local name_iter = array_iter(srvlist, i, j)
+			threads[stdnse.new_thread(srv_main, domainname, srvresults, name_iter)] = true
 			i = j+1
-		until i > #hostlist
+		until i > #srvlist
 		local done
 		-- wait for all threads to finish
 		while( not(done) ) do
@@ -253,45 +265,19 @@ action = function(host)
 				condvar("wait")
 			end
 		end
-
-		if(dosrv) then
-			local i = 1
-			local threads = {}
-			local howmany_ip = math.floor(#srvlist/max_threads)+1
-			local condvar = nmap.condvar( srvresults )
-			stdnse.print_debug("SRV's per thread: "..howmany_ip)
-			repeat
-				local j = math.min(i+howmany_ip, #srvlist)
-				local name_iter = array_iter(srvlist, i, j)
-				threads[stdnse.new_thread(srv_main, domainname, srvresults, name_iter)] = true
-				i = j+1
-			until i > #srvlist
-			local done
-			-- wait for all threads to finish
-			while( not(done) ) do
-				done = true
-				for thread in pairs(threads) do
-					if (coroutine.status(thread) ~= "dead") then done = false end
-				end
-				if ( not(done) ) then
-					condvar("wait")
-				end
-			end
-		end
-
-		local response = stdnse.output_table()
-		local t_dns = {}
-		if(#results==0) then
-      setmetatable(results, { __tostring = function(t) return "No results." end })
-		end
-		response["DNS Brute-force hostnames"] = results
-		if(dosrv) then
-			if(#srvresults==0) then
-				setmetatable(srvresults, { __tostring = function(t) return "No results." end })
-			end
-			response["SRV results"] = srvresults
-		end
-		return response
 	end
+
+	local response = stdnse.output_table()
+	if(#results==0) then
+		setmetatable(results, { __tostring = function(t) return "No results." end })
+	end
+	response["DNS Brute-force hostnames"] = results
+	if(dosrv) then
+		if(#srvresults==0) then
+			setmetatable(srvresults, { __tostring = function(t) return "No results." end })
+		end
+		response["SRV results"] = srvresults
+	end
+	return response
 end
 
