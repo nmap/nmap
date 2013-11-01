@@ -9,7 +9,9 @@ local table = require "table"
 local target = require "target"
 
 description = [[
-Attempts to enumerate DNS hostnames by brute force guessing of common subdomains.
+Attempts to enumerate DNS hostnames by brute force guessing of common
+subdomains. With the <code>dns-brute.srv</code> argument, dns-brute will also
+try to enumerate common DNS SRV records.
 ]]
 -- 2011-01-26
 
@@ -18,10 +20,12 @@ Attempts to enumerate DNS hostnames by brute force guessing of common subdomains
 -- nmap --script dns-brute --script-args dns-brute.domain=foo.com,dns-brute.threads=6,dns-brute.hostlist=./hostfile.txt,newtargets -sS -p 80
 -- nmap --script dns-brute www.foo.com
 -- @args dns-brute.hostlist The filename of a list of host strings to try.
--- @args dns-brute.threads Thread to use (default 5).
--- @args dns-brute.srv Perform lookup for SRV records
--- @args dns-brute.domain Domain name to brute force if no host is specified
--- @args newtargets Add discovered targets to nmap scan queue
+--                          Defaults to "nselib/data/vhosts-default.lst"
+-- @args dns-brute.threads  Thread to use (default 5).
+-- @args dns-brute.srv      Perform lookup for SRV records
+-- @args dns-brute.srvlist  The filename of a list of SRV records to try.
+--                          Defaults to "nselib/data/dns-srv-names"
+-- @args dns-brute.domain   Domain name to brute force if no host is specified
 -- @output
 -- Pre-scan script results:
 -- | dns-brute:
@@ -75,21 +79,6 @@ end
 hostrule = function(host)
 	return true
 end
-
-local SRV_LIST = {
-	'_afpovertcp._tcp', '_ssh._tcp', '_autodiscover._tcp', '_caldav._tcp',
-	'_client._smtp', '_gc._tcp', '_h323cs._tcp', '_h323cs._udp', '_h323ls._tcp',
-	'_h323ls._udp', '_h323rs._tcp', '_h323rs._tcp', '_http._tcp', '_iax.udp',
-	'_imap._tcp', '_imaps._tcp', '_jabber-client._tcp', '_jabber._tcp',
-	'_kerberos-adm._tcp', '_kerberos._tcp', '_kerberos._tcp.dc._msdcs',
-	'_kerberos._udp', '_kpasswd._tcp', '_kpasswd._udp', '_ldap._tcp',
-	'_ldap._tcp.dc._msdcs', '_ldap._tcp.gc._msdcs', '_ldap._tcp.pdc._msdcs',
-	'_msdcs', '_mysqlsrv._tcp', '_ntp._udp', '_pop3._tcp', '_pop3s._tcp',
-	'_sip._tcp', '_sip._tls', '_sip._udp', '_sipfederationtls._tcp',
-	'_sipinternaltls._tcp', '_sips._tcp', '_smtp._tcp', '_stun._tcp',
-	'_stun._udp', '_tcp', '_tls', '_udp', '_vlmcs._tcp', '_vlmcs._udp',
-	'_wpad._tcp', '_xmpp-client._tcp', '_xmpp-server._tcp',
-}
 
 local function guess_domain(host)
 	local name
@@ -217,7 +206,6 @@ action = function(host)
 		stdnse.print_debug(1, "%s: Cannot find hostlist file, quitting", SCRIPT_NAME)
 		return
 	end
-	local srvlist = SRV_LIST
 
 	local threads, results, srvresults = {}, {}, {}
 	local condvar = nmap.condvar( results )
@@ -243,28 +231,45 @@ action = function(host)
 	end
 
 	if(dosrv) then
-		i = 1
-		threads = {}
-		howmany = math.floor(#srvlist/max_threads)+1
-		condvar = nmap.condvar( srvresults )
-		stdnse.print_debug("SRV's per thread: "..howmany)
-		repeat
-			local j = math.min(i+howmany, #srvlist)
-			local name_iter = array_iter(srvlist, i, j)
-			threads[stdnse.new_thread(srv_main, domainname, srvresults, name_iter)] = true
-			i = j+1
-		until i > #srvlist
-		local done
-		-- wait for all threads to finish
-		while( not(done) ) do
-			done = true
-			for thread in pairs(threads) do
-				if (coroutine.status(thread) ~= "dead") then done = false end
+    -- First look for dns-brute.srvlist
+    fileName = stdnse.get_script_args('dns-brute.srvlist')
+    -- Check fetchfile locations, then relative paths
+    commFile = (fileName and nmap.fetchfile(fileName)) or fileName
+    -- Finally, fall back to dns-srv-names
+    commFile = commFile or nmap.fetchfile("nselib/data/dns-srv-names")
+    local srvlist = {}
+    if commFile then
+      for l in io.lines(commFile) do
+        if not l:match("#!comment:") then
+          table.insert(srvlist, l)
+        end
+      end
+			
+			i = 1
+			threads = {}
+			howmany = math.floor(#srvlist/max_threads)+1
+			condvar = nmap.condvar( srvresults )
+			stdnse.print_debug("SRV's per thread: "..howmany)
+			repeat
+				local j = math.min(i+howmany, #srvlist)
+				local name_iter = array_iter(srvlist, i, j)
+				threads[stdnse.new_thread(srv_main, domainname, srvresults, name_iter)] = true
+				i = j+1
+			until i > #srvlist
+			local done
+			-- wait for all threads to finish
+			while( not(done) ) do
+				done = true
+				for thread in pairs(threads) do
+					if (coroutine.status(thread) ~= "dead") then done = false end
+				end
+				if ( not(done) ) then
+					condvar("wait")
+				end
 			end
-			if ( not(done) ) then
-				condvar("wait")
-			end
-		end
+    else
+      stdnse.print_debug(1, "%s: Cannot find srvlist file, skipping", SCRIPT_NAME)
+    end
 	end
 
 	local response = stdnse.output_table()
