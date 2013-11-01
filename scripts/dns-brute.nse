@@ -31,6 +31,30 @@ Attempts to enumerate DNS hostnames by brute force guessing of common subdomains
 -- |     blog.foo.com - 127.0.1.3
 -- |     ns1.foo.com - 127.0.0.4
 -- |_    admin.foo.com - 127.0.0.5
+-- @xmloutput
+-- <table key="DNS Brute-force hostnames">
+--   <table>
+--     <elem key="address">127.0.0.1</elem>
+--     <elem key="hostname">www.foo.com</elem>
+--   </table>
+--   <table>
+--     <elem key="address">127.0.0.2</elem>
+--     <elem key="hostname">mail.foo.com</elem>
+--   </table>
+--   <table>
+--     <elem key="address">127.0.1.3</elem>
+--     <elem key="hostname">blog.foo.com</elem>
+--   </table>
+--   <table>
+--     <elem key="address">127.0.0.4</elem>
+--     <elem key="hostname">ns1.foo.com</elem>
+--   </table>
+--   <table>
+--     <elem key="address">127.0.0.5</elem>
+--     <elem key="hostname">admin.foo.com</elem>
+--   </table>
+-- </table>
+-- <table key="SRV results"></table>
 
 author = "Cirrus"
 
@@ -40,7 +64,7 @@ categories = {"intrusive", "discovery"}
 
 prerule = function()
     if not stdnse.get_script_args("dns-brute.domain") then
-      stdnse.print_debug(3,
+      stdnse.print_debug(1,
         "Skipping '%s' %s, 'dns-brute.domain' argument is missing.",
         SCRIPT_NAME, SCRIPT_TYPE)
       return false
@@ -139,7 +163,13 @@ local function thread_main(domainname, results, name_iter)
 						local status,err = target.add(hostn)
 					end
 					stdnse.print_debug("Hostname: "..hostn.." IP: "..addr)
-					results[#results+1] = { hostname=hostn, address=addr }
+					local record = { hostname=hostn, address=addr }
+					setmetatable(record, {
+						__tostring = function(t)
+							return string.format("%s - %s", t.hostname, t.address)
+						end
+					})
+					results[#results+1] = record
 				end
 			end
 		end
@@ -159,12 +189,18 @@ local function srv_main(domainname, srvresults, srv_iter)
 					local srvres = resolve(addr[4], dtype)
 					if(srvres) then
 						for srvhost,srvip in ipairs(srvres) do
-							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
-							srvresults[#srvresults+1] = { hostname=hostn, address=srvip }
 							if target.ALLOW_NEW_TARGETS then
 								stdnse.print_debug("Added target: "..srvip)
 								local status,err = target.add(srvip)
 							end
+							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
+							local record = { hostname=hostn, address=srvip }
+							setmetatable(record, {
+								__tostring = function(t)
+									return string.format("%s - %s", t.hostname, t.address)
+								end
+							})
+							srvresults[#srvresults+1] = record
 						end
 					end
 				end
@@ -219,7 +255,6 @@ action = function(host)
 		local srvlist = SRV_LIST
 
 		local threads, results, revresults, srvresults = {}, {}, {}, {}
-		results['name'] = "Result:"
 		local condvar = nmap.condvar( results )
 		local i = 1
 		local howmany = math.floor(#hostlist/max_threads)+1
@@ -267,28 +302,19 @@ action = function(host)
 			end
 		end
 
-		local response = {}
+		local response = stdnse.output_table()
 		local t_dns = {}
-		t_dns['name'] = "DNS Brute-force hostnames"
 		if(#results==0) then
-			table.insert(t_dns,"No results.")
+      setmetatable(results, { __tostring = function(t) return "No results." end })
 		end
-		for _, res in ipairs(results) do
-			table.insert(t_dns, res['hostname'].." - "..res['address'])
-		end
-		response[#response + 1] = t_dns
+		response["DNS Brute-force hostnames"] = results
 		if(dosrv) then
-			local t_srv = {}
-			t_srv['name'] = "SRV results"
 			if(#srvresults==0) then
-				table.insert(t_srv,"No results.")
+				setmetatable(srvresults, { __tostring = function(t) return "No results." end })
 			end
-			for _, res in ipairs(srvresults) do
-				table.insert(t_srv, res['hostname'].." - "..res['address'])
-			end
-			response[#response + 1] = t_srv
+			response["SRV results"] = srvresults
 		end
-		return stdnse.format_output(true, response)
+		return response
 	end
 end
 
