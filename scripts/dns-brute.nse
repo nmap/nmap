@@ -76,24 +76,6 @@ hostrule = function(host)
 	return true
 end
 
-
-
-local HOST_LIST = {
-	'www', 'mail', 'blog', 'ns0', 'ns1', 'mail2', 'mail3', 'admin', 'ads', 'ssh',
-	'voip', 'sip', 'dns', 'ns2', 'ns3', 'dns0', 'dns1', 'dns2', 'eshop', 'shop',
-	'forum', 'ftp', 'ftp0', 'host', 'log', 'mx0', 'mx1', 'mysql', 'sql', 'news',
-	'noc', 'ns', 'auth', 'administration', 'adserver', 'alerts', 'alpha', 'ap',
-	'app', 'apache', 'apps' , 'appserver', 'gw', 'backup', 'beta', 'cdn', 'chat',
-	'citrix', 'cms', 'erp', 'corp', 'intranet', 'crs', 'svn', 'cvs', 'git', 'db',
-	'database', 'demo', 'dev', 'devsql', 'dhcp', 'dmz', 'download', 'en', 'f5',
-	'fileserver', 'firewall', 'help', 'http', 'id', 'info', 'images', 'internal',
-	'internet', 'lab', 'ldap', 'linux', 'local', 'log', 'ipv6', 'syslog',
-	'mailgate', 'main', 'manage', 'mgmt', 'monitor', 'mirror', 'mobile', 'mssql',
-	'oracle', 'exchange', 'owa', 'mta', 'mx', 'mx0', 'mx1', 'ntp', 'ops', 'pbx',
-	'whois', 'ssl', 'secure', 'server', 'smtp', 'squid', 'stage', 'stats', 'test',
-	'upload', 'vm', 'vnc', 'vpn', 'wiki', 'xml', 'direct',
-}
-
 local SRV_LIST = {
 	'_afpovertcp._tcp', '_ssh._tcp', '_autodiscover._tcp', '_caldav._tcp',
 	'_client._smtp', '_gc._tcp', '_h323cs._tcp', '_h323cs._udp', '_h323ls._tcp',
@@ -230,31 +212,26 @@ action = function(host)
 		local max_threads = stdnse.get_script_args('dns-brute.threads') and tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
 		dosrv = stdnse.get_script_args("dns-brute.srv") or false
 		stdnse.print_debug("THREADS: "..max_threads)
+		-- First look for dns-brute.hostlist
 		local fileName = stdnse.get_script_args('dns-brute.hostlist')
+		-- Check fetchfile locations, then relative paths
 		local commFile = (fileName and nmap.fetchfile(fileName)) or fileName
-		local hostlist
+		-- Finally, fall back to vhosts-default.lst
+		commFile = commFile or nmap.fetchfile("nselib/data/vhosts-default.lst")
+		local hostlist = {}
 		if commFile then
-			local file = io.open(commFile)
-			if file then
-				hostlist = {}
-				while true do
-					local l = file:read()
-					if not l then
-						break
-					end
-					if not l:match("#!comment:") then
-						table.insert(hostlist, l)
-					end
+			for l in io.lines(commFile) do
+				if not l:match("#!comment:") then
+					table.insert(hostlist, l)
 				end
-				file:close()
-      else
-				stdnse.print_debug("dns-brute: Hostlist file not found. Will use default list.")
 			end
+		else
+			stdnse.print_debug(1, "%s: Cannot find hostlist file, quitting", SCRIPT_NAME)
+			return
     end
-		if (not hostlist) then hostlist = HOST_LIST end
 		local srvlist = SRV_LIST
 
-		local threads, results, revresults, srvresults = {}, {}, {}, {}
+		local threads, results, srvresults = {}, {}, {}
 		local condvar = nmap.condvar( results )
 		local i = 1
 		local howmany = math.floor(#hostlist/max_threads)+1
