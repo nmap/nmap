@@ -27,7 +27,7 @@
 --  -- yet. The second parameter represents the 'options' table, which we don't need.
 --  all = http.pipeline_add('/book',    nil, all)
 --  all = http.pipeline_add('/test',    nil, all)
---  all = http.pipeline_add('/monkeys', nil, all)
+--  all = http.pipeline_add('/monkeys', nil, all, 'HEAD')
 --
 --  -- Perform all three requests as parallel as Nmap is able to
 --  local results = http.pipeline('nmap.org', 80, all)
@@ -1619,7 +1619,7 @@ end
 -- @param path The path to retrieve.
 -- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @param all_requests [optional] The current pipeline queue (retunred from a previous <code>add_pipeline</code> call), or nil if it's the first call.
--- @param method [optional] The HTTP method ('get', 'head', 'post', etc). Default: 'get'.
+-- @param method [optional] The HTTP method ('GET', 'HEAD', 'POST', etc). Default: 'GET'.
 -- @return Table with the pipeline get requests (plus this new one)
 -- @see http.pipeline_go
 function pipeline_add(path, options, all_requests, method)
