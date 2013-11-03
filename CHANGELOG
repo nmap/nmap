@@ -1,7 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
 o [NSE] Removed a fixed value (28428) which was being set for the Request ID in
-  snmpWalk; a value based on nmap.clock_ms will now be set instead. [jah]
+  the snmpWalk library function; a value based on nmap.clock_ms will now be set
+  instead. [jah]
 
 o [NSE] Add http-iis-short-name-brute script that detects Microsoft IIS
   servers vulnerable to a file/folder name disclosure and a denial of 
