@@ -20,17 +20,17 @@
 -- <code>pipeline</code> performs the requests, returning the results as an array,
 -- with the responses in the same order as the queries were added. As a simple example:
 --<code>
---	-- Start by defining the 'all' variable as nil
---	local all = nil
+--  -- Start by defining the 'all' variable as nil
+--  local all = nil
 --
---	-- Add two 'GET' requests and one 'HEAD' to the queue. These requests are not performed
---	-- yet. The second parameter represents the 'options' table, which we don't need.
---	all = http.pipeline_add('/book',          nil, all)
---	all = http.pipeline_add('/test',          nil, all)
---	all = http.pipeline_add('/monkeys',       nil, all)
+--  -- Add two 'GET' requests and one 'HEAD' to the queue. These requests are not performed
+--  -- yet. The second parameter represents the 'options' table, which we don't need.
+--  all = http.pipeline_add('/book',    nil, all)
+--  all = http.pipeline_add('/test',    nil, all)
+--  all = http.pipeline_add('/monkeys', nil, all)
 --
---	-- Perform all three requests as parallel as Nmap is able to
---	local results = http.pipeline('nmap.org', 80, all)
+--  -- Perform all three requests as parallel as Nmap is able to
+--  local results = http.pipeline('nmap.org', 80, all)
 --</code>
 --
 -- At this point, <code>results</code> is an array with three elements. Each element
@@ -520,8 +520,8 @@ local function recv_chunked(s, partial)
 
     line, partial = recv_line(s, partial)
     if not line then
-	  -- this warning message was initially an error but was adapted
-	  -- to support broken servers, such as the Citrix XML Service
+      -- this warning message was initially an error but was adapted
+      -- to support broken servers, such as the Citrix XML Service
       stdnse.print_debug(2, "Didn't find CRLF after chunk-data.")
     elseif not string.match(line, "^\r?\n") then
       return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
@@ -1312,7 +1312,7 @@ function redirect_ok(host, port)
   -- redirected to. They incrementally fill in loc.host, loc.port, and loc.path.
   local rules = {
 
-	-- Check if there's any credentials in the url
+    -- Check if there's any credentials in the url
     function (url, host, port)
       -- bail if userinfo is present
       return ( url.userinfo and false ) or true
@@ -1377,7 +1377,7 @@ function redirect_ok(host, port)
     if ( counter == 0 ) then return false end
     counter = counter - 1
     for i, rule in ipairs( rules ) do
-	  if ( not(rule( url, host, port )) ) then
+      if ( not(rule( url, host, port )) ) then
         --stdnse.print_debug("Rule failed: %d", i)
         return false
       end
@@ -1431,8 +1431,8 @@ local function get_redirect_ok(host, port, options)
     if ( options.redirect_ok == false ) then
       return function() return false end
     elseif( "function" == type(options.redirect_ok) ) then
-	  return options.redirect_ok(host, port)
-	else
+      return options.redirect_ok(host, port)
+    else
       return redirect_ok(host, port)
     end
   else
