@@ -473,7 +473,6 @@ function snmpWalk( socket, base_oid )
 	while ( true ) do
 		
 		local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
-		options.reqId = 28428 -- unnecessary?
 		payload = encode( buildPacket( buildGetNextRequest(options, oid) ) )
 
 		status, err = socket:send(payload)
