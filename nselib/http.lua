@@ -1,19 +1,19 @@
 ---Implements the HTTP client protocol in a standard form that Nmap scripts can
--- take advantage of. 
+-- take advantage of.
 --
 -- Because HTTP has so many uses, there are a number of interfaces to this library.
 -- The most obvious and common ones are simply <code>get</code>, <code>post</code>,
 -- and <code>head</code>; or, if more control is required, <code>generic_request</code>
--- can be used. These functions do what one would expect. The <code>get_url</code> 
--- helper function can be used to parse and retrieve a full URL. 
+-- can be used. These functions do what one would expect. The <code>get_url</code>
+-- helper function can be used to parse and retrieve a full URL.
 --
 -- These functions return a table of values, including:
 -- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK". In case of an error, a description will be provided in this line.
 -- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
--- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present. 
+-- * <code>header</code> - An associative array representing the header. Keys are all lowercase, and standard headers, such as 'date', 'content-length', etc. will typically be present.
 -- * <code>rawheader</code> - A numbered array of the headers, exactly as the server sent them. While header['content-type'] might be 'text/html', rawheader[3] might be 'Content-type: text/html'.
--- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>. 
--- * <code>body</code> - The full body, as returned by the server. 
+-- * <code>cookies</code> - A numbered array of the cookies the server sent. Each cookie is a table with the following keys: <code>name</code>, <code>value</code>, <code>path</code>, <code>domain</code>, and <code>expires</code>.
+-- * <code>body</code> - The full body, as returned by the server.
 --
 -- If a script is planning on making a lot of requests, the pipelining functions can
 -- be helpful. <code>pipeline_add</code> queues requests in a table, and
@@ -34,34 +34,34 @@
 --</code>
 --
 -- At this point, <code>results</code> is an array with three elements. Each element
--- is a table containing the HTTP result, as discussed above. 
+-- is a table containing the HTTP result, as discussed above.
 --
 -- One more interface provided by the HTTP library helps scripts determine whether or not
--- a page exists. The <code>identify_404</code> function will try several URLs on the 
+-- a page exists. The <code>identify_404</code> function will try several URLs on the
 -- server to determine what the server's 404 pages look like. It will attempt to identify
--- customized 404 pages that may not return the actual status code 404. If successful, 
+-- customized 404 pages that may not return the actual status code 404. If successful,
 -- the function <code>page_exists</code> can then be used to determine whether or not
--- a page existed. 
+-- a page existed.
 --
 -- Some other miscellaneous functions that can come in handy are <code>response_contains</code>,
 -- <code>can_use_head</code>, and <code>save_path</code>. See the appropriate documentation
--- for them. 
+-- for them.
 --
 -- The response to each function is typically a table with the following keys:
 -- <code>status-line</code>: The HTTP status line; for example, "HTTP/1.1 200 OK" (note: this is followed by a newline). In case of an error, a description will be provided in this line.
 -- <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
 -- <code>header</code>: A table of header values, where the keys are lowercase and the values are exactly what the server sent
 -- <code>rawheader</code>: A list of header values as "name: value" strings, in the exact format and order that the server sent them
--- <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below). 
+-- <code>cookies</code>: A list of cookies that the server is sending. Each cookie is a table containing the keys <code>name</code>, <code>value</code>, and <code>path</code>. This table can be sent to the server in subsequent responses in the <code>options</code> table to any function (see below).
 -- <code>body</code>: The body of the response
 --
 -- Many of the functions optionally allow an 'options' table. This table can alter the HTTP headers
--- or other values like the timeout. The following are valid values in 'options' (note: not all 
+-- or other values like the timeout. The following are valid values in 'options' (note: not all
 -- options will necessarily affect every function):
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request. For example, <code>options['header']['Content-Type'] = 'text/xml'</code>
--- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override). This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request). 
--- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized: 
+-- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override). This can be either a string, which will be directly added as the body of the message, or a table, which will have each key=value pair added (like a normal POST request).
+-- * <code>cookies</code>: A list of cookies as either a string, which will be directly sent, or a table. If it's a table, the following fields are recognized:
 -- ** <code>name</code>
 -- ** <code>value</code>
 -- ** <code>path</code>
@@ -84,7 +84,7 @@
 --     end
 --   end
 --   </code>
---  
+--
 -- @args http.max-cache-size The maximum memory size (in bytes) of the cache.
 --
 -- @args http.useragent The value of the User-Agent header field sent with
@@ -93,7 +93,7 @@
 -- A value of the empty string disables sending the User-Agent header field.
 --
 -- @args http.pipeline If set, it represents the number of HTTP requests that'll be
--- sent on one connection. This can be set low to make debugging easier, or it 
+-- sent on one connection. This can be set low to make debugging easier, or it
 -- can be set high to test how a server reacts (its chosen max is ignored).
 -- @args http.max-pipeline If set, it represents the number of outstanding  HTTP requests
 -- that should be pipelined. Defaults to <code>http.pipeline</code> (if set), or to what
@@ -252,7 +252,7 @@ end
 
 ---Validate an 'options' table, which is passed to a number of the HTTP functions. It is
 -- often difficult to track down a mistake in the options table, and requires fiddling
--- with the http.lua source, but this should make that a lot easier. 
+-- with the http.lua source, but this should make that a lot easier.
 local function validate_options(options)
   local bad = false
 
@@ -757,7 +757,7 @@ local function parse_set_cookie(s)
         else
           -- account for the possibility of the expires attribute being empty or improperly formatted
           local last_pos = pos
- 
+
          if string.lower(name) == "expires" then
             -- For version 0 cookies we must allow one comma for "expires".
             _, pos, value = string.find(s, "([^,]*,[^;,]*)[ \t]*", pos)
@@ -1000,7 +1000,7 @@ local function response_is_cacheable(response)
   if not response.status then
     return false
   end
-  
+
   -- 206 Partial Content. RFC 2616, 1.34: "...a cache that does not support the
   -- Range and Content-Range headers MUST NOT cache 206 (Partial Content)
   -- responses."
@@ -1231,10 +1231,10 @@ local function request(host, port, data, options)
 end
 
 ---Do a single request with a given method. The response is returned as the standard
--- response table (see the module documentation). 
+-- response table (see the module documentation).
 --
 -- The <code>get</code>, <code>head</code>, and <code>post</code> functions are simple
--- wrappers around <code>generic_request</code>. 
+-- wrappers around <code>generic_request</code>.
 --
 -- Any 1XX (informational) responses are discarded.
 --
@@ -1242,14 +1242,14 @@ end
 -- @param port The port to connect to.
 -- @param method The method to use; for example, 'GET', 'HEAD', etc.
 -- @param path The path to retrieve.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @return A response table, see module documentation for description.
 -- @see request
 function generic_request(host, port, method, path, options)
   if(not(validate_options(options))) then
     return http_error("Options failed to validate.")
   end
-  
+
   local digest_auth = options and options.auth and options.auth.digest
 
   if digest_auth and not have_ssl then
@@ -1282,7 +1282,7 @@ end
 -- @param host The host to connect to.
 -- @param port The port to connect to.
 -- @param path The path to retrieve.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @param putdata The contents of the file to upload
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
@@ -1450,14 +1450,14 @@ end
 -- * Has the same port number
 -- * Stays within the current scheme
 -- * Does not exceed <code>MAX_REDIRECT_COUNT</code> count of redirects
--- 
+--
 -- Caching and redirects can be controlled in the <code>options</code> array, see module
--- documentation for more information. 
+-- documentation for more information.
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
 -- @param path The path to retrieve.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function get(host, port, path, options)
@@ -1488,7 +1488,7 @@ end
 -- all the standard fields, protocol://host:port/path
 --
 -- @param u The URL of the host.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @return A response table, see module documentation for description.
 -- @see http.get
 function get_url( u, options )
@@ -1528,14 +1528,14 @@ end
 -- * Has the same port number
 -- * Stays within the current scheme
 -- * Does not exceed <code>MAX_REDIRECT_COUNT</code> count of redirects
--- 
+--
 -- Caching and redirects can be controlled in the <code>options</code> array,
 -- see module documentation for more information.
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
 -- @param path The path to retrieve.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @return A response table, see module documentation for description.
 -- @see http.generic_request
 function head(host, port, path, options)
@@ -1564,12 +1564,12 @@ end
 
 ---Fetches a resource with a POST request. Like <code>get</code>, this is a simple
 -- wrapper around <code>generic_request</code> except that postdata is handled
--- properly. 
+-- properly.
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
 -- @param path The path to retrieve.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
 -- @param ignored Ignored for backwards compatibility.
 -- @param postdata A string or a table of data to be posted. If a table, the keys and values must be strings, and they will be encoded into an application/x-www-form-encoded form submission.
 -- @return A response table, see module documentation for description.
@@ -1606,20 +1606,20 @@ end
 
 ---Adds a pending request to the HTTP pipeline. The HTTP pipeline is a set of requests that will
 -- all be sent at the same time, or as close as the server allows. This allows more efficient
--- code, since requests are automatically buffered and sent simultaneously. 
+-- code, since requests are automatically buffered and sent simultaneously.
 --
 -- The <code>all_requests</code> argument contains the current list of queued requests (if this
 -- is the first time calling <code>pipeline_add</code>, it should be <code>nil</code>). After
 -- adding the request to end of the queue, the queue is returned and can be passed to the next
--- <code>pipeline_add</code> call. 
+-- <code>pipeline_add</code> call.
 --
 -- When all requests have been queued, call <code>pipeline_go</code> with the all_requests table
--- that has been built. 
+-- that has been built.
 --
 -- @param path The path to retrieve.
--- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
--- @param all_requests [optional] The current pipeline queue (retunred from a previous <code>add_pipeline</code> call), or nil if it's the first call. 
--- @param method [optional] The HTTP method ('get', 'head', 'post', etc). Default: 'get'. 
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above).
+-- @param all_requests [optional] The current pipeline queue (retunred from a previous <code>add_pipeline</code> call), or nil if it's the first call.
+-- @param method [optional] The HTTP method ('get', 'head', 'post', etc). Default: 'get'.
 -- @return Table with the pipeline get requests (plus this new one)
 -- @see http.pipeline_go
 function pipeline_add(path, options, all_requests, method)
@@ -1642,14 +1642,14 @@ function pipeline_add(path, options, all_requests, method)
   return all_requests
 end
 
----Performs all queued requests in the all_requests variable (created by the 
+---Performs all queued requests in the all_requests variable (created by the
 -- <code>pipeline_add</code> function). Returns an array of responses, each of
--- which is a table as defined in the module documentation above. 
+-- which is a table as defined in the module documentation above.
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
 -- @param all_requests A table with all the previously built pipeline requests
--- @return A list of responses, in the same order as the requests were queued. Each response is a table as described in the module documentation. 
+-- @return A list of responses, in the same order as the requests were queued. Each response is a table as described in the module documentation.
 function pipeline_go(host, port, all_requests)
   stdnse.print_debug("Total number of pipelined requests: " .. #all_requests)
   local responses
@@ -1719,7 +1719,7 @@ function pipeline_go(host, port, all_requests)
       count = 0
     end
     socket:set_timeout(10000)
-    
+
     local start = 1
     local len = #requests
     local req_sent = 0
@@ -1854,10 +1854,10 @@ function grab_forms(body)
   if not body then return forms end
   local form_start_expr = '<%s*[Ff][Oo][Rr][Mm]'
   local form_end_expr = '</%s*[Ff][Oo][Rr][Mm]>'
-  
+
   local form_opening = string.find(body, form_start_expr)
   local forms = {}
-  
+
   while form_opening do
     local form_closing = string.find(body, form_end_expr, form_opening+1)
     if form_closing == nil then --html code contains errors
@@ -1889,7 +1889,7 @@ function parse_form(form)
   else
     return nil
   end
-  
+
   -- determine if the form is using get or post
   local form_method = string.match(form, '[Mm][Ee][Tt][Hh][Oo][Dd]=[\'"](.-)[\'"]')
   if form_method then
@@ -1911,7 +1911,7 @@ function parse_form(form)
   for f in string.gmatch(form, '<%s*[Ii][Nn][Pp][Uu][Tt].->') do
     input_type = string.match(f, '[Tt][Yy][Pp][Ee]=[\'"](.-)[\'"]')
     input_name = string.match(f, '[Nn][Aa][Mm][Ee]=[\'"](.-)[\'"]')
-    input_value = string.match(f, '[Vv][Aa][Ll][Uu][Ee]=[\'"](.-)[\'"]') 
+    input_value = string.match(f, '[Vv][Aa][Ll][Uu][Ee]=[\'"](.-)[\'"]')
     local next_field_index = #fields+1
     if input_name then
       fields[next_field_index] = {}
@@ -2109,9 +2109,9 @@ end
 -- Note: If <code>identify_404</code> returns a 200 status, HEAD requests
 -- should be disabled. Sometimes, servers use a 200 status code with a message
 -- explaining that the page wasn't found. In this case, to actually identify
--- a 404 page, we need the full body that a HEAD request doesn't supply. 
+-- a 404 page, we need the full body that a HEAD request doesn't supply.
 -- This is determined automatically if the <code>result_404</code> field is
--- set. 
+-- set.
 --
 -- @param host The host object.
 -- @param port The port to use.
@@ -2275,7 +2275,7 @@ function identify_404(host, port)
 
       -- Check if the return code became something other than 200.
       -- Status code: -1 represents unknown.
-      -- If the status is nil or the string "unknown" we switch to -1. 
+      -- If the status is nil or the string "unknown" we switch to -1.
       if(data2.status ~= 200) then
         if(type(data2.status) ~= "number") then
           data2.status = -1
@@ -2337,7 +2337,7 @@ end
 -- @param result_404 The status code to expect for non-existent pages. This is returned by <code>identify_404</code>.
 -- @param known_404 The 404 page itself, if <code>result_404</code> is 200. If <code>result_404</code> is something else, this parameter is ignored and can be set to <code>nil</code>. This is returned by <code>identify_404</code>.
 -- @param page The page being requested (used in error messages).
--- @param displayall [optional] If set to true, don't exclude non-404 errors (such as 500). 
+-- @param displayall [optional] If set to true, don't exclude non-404 errors (such as 500).
 -- @return A boolean value: true if the page appears to exist, and false if it does not.
 function page_exists(data, result_404, known_404, page, displayall)
   if(data and data.status) then
@@ -2385,23 +2385,23 @@ function page_exists(data, result_404, known_404, page, displayall)
   end
 end
 
----Check if the response variable, which could be a return from a http.get, http.post, http.pipeline, 
+---Check if the response variable, which could be a return from a http.get, http.post, http.pipeline,
 -- etc, contains the given text. The text can be:
 -- * Part of a header ('content-type', 'text/html', '200 OK', etc)
 -- * An entire header ('Content-type: text/html', 'Content-length: 123', etc)
 -- * Part of the body
 --
--- The search text is treated as a Lua pattern. 
+-- The search text is treated as a Lua pattern.
 --
 --@param response The full response table from a HTTP request.
---@param pattern The pattern we're searching for. Don't forget to escape '-', for example, 'Content%-type'. The pattern can also contain captures, like 'abc(.*)def', which will be returned if successful. 
+--@param pattern The pattern we're searching for. Don't forget to escape '-', for example, 'Content%-type'. The pattern can also contain captures, like 'abc(.*)def', which will be returned if successful.
 --@param case_sensitive [optional] Set to <code>true</code> for case-sensitive searches. Default: not case sensitive.
 --@return result True if the string matched, false otherwise
 --@return matches An array of captures from the match, if any
 function response_contains(response, pattern, case_sensitive)
   local result, _
   local m = {}
-  
+
   -- If they're searching for the empty string or nil, it's true
   if(pattern == '' or pattern == nil) then
     return true
@@ -2442,7 +2442,7 @@ end
 ---Take a URI or URL in any form and convert it to its component parts. The URL can optionally
 -- have a protocol definition ('http://'), a server ('scanme.insecure.org'), a port (':80'), a
 -- URI ('/test/file.php'), and a query string ('?username=ron&password=turtle'). At the minimum,
--- a path or protocol and url are required. 
+-- a path or protocol and url are required.
 --
 --@param url The incoming URL to parse
 --@return result A table containing the result, which can have the following fields: protocol, hostname, port, uri, querystring. All fields are strings except querystring, which is a table containing name=value pairs.
@@ -2525,15 +2525,15 @@ end
 
 ---This function should be called whenever a valid path (a path that doesn't contain a known
 -- 404 page) is discovered. It will add the path to the registry in several ways, allowing
--- other scripts to take advantage of it in interesting ways. 
+-- other scripts to take advantage of it in interesting ways.
 --
---@param host The host the path was discovered on (not necessarily the host being scanned). 
---@param port The port the path was discovered on (not necessarily the port being scanned). 
+--@param host The host the path was discovered on (not necessarily the host being scanned).
+--@param port The port the path was discovered on (not necessarily the port being scanned).
 --@param path The path discovered. Calling this more than once with the same path is okay; it'll update the data as much as possible instead of adding a duplicate entry
---@param status [optional] The status code (200, 404, 500, etc). This can be left off if it isn't known. 
---@param links_to [optional] A table of paths that this page links to. 
---@param linked_from [optional] A table of paths that link to this page. 
---@param contenttype [optional] The content-type value for the path, if it's known. 
+--@param status [optional] The status code (200, 404, 500, etc). This can be left off if it isn't known.
+--@param links_to [optional] A table of paths that this page links to.
+--@param linked_from [optional] A table of paths that link to this page.
+--@param contenttype [optional] The content-type value for the path, if it's known.
 function save_path(host, port, path, status, links_to, linked_from, contenttype)
   -- Make sure we have a proper hostname and port
   host = stdnse.get_hostname(host)
