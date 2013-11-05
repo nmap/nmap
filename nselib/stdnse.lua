@@ -25,6 +25,7 @@ local select = select
 local setmetatable = setmetatable;
 local tonumber = tonumber;
 local tostring = tostring;
+local print = print;
 local type = type
 
 local ceil = math.ceil
