@@ -1206,13 +1206,14 @@ void process_expired_events(mspool *nsp) {
       break;
 
     nse = container_of(hnode, msevent, expire);
-    if (msevent_timedout(nse)) {
-      gh_heap_pop(&nsp->expirables);
-      process_event(nsp, NULL, nse, EV_NONE);
-      assert(nse->event_done);
-      update_first_events(nse);
-      msevent_unref(nsp, nse);
-    } else break;
+    if (!msevent_timedout(nse))
+      break;
+
+    gh_heap_pop(&nsp->expirables);
+    process_event(nsp, NULL, nse, EV_NONE);
+    assert(nse->event_done);
+    update_first_events(nse);
+    msevent_unref(nsp, nse);
   }
 }
 
