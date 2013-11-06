@@ -844,7 +844,15 @@ unsigned short ipv4_pseudoheader_cksum(const struct in_addr *src,
   sum = ip_cksum_add(hstart, len, sum);
 
   /* Fold in the carry, take the complement, and return. */
-  return ip_cksum_carry(sum);
+  sum = ip_cksum_carry(sum);
+  /* RFC 768: "If the computed  checksum  is zero,  it is transmitted  as all
+   * ones (the equivalent  in one's complement  arithmetic).   An all zero
+   * transmitted checksum  value means that the transmitter  generated  no
+   * checksum" */
+  if (proto == IP_PROTO_UDP && sum == 0)
+    sum = 0xFFFF;
+
+  return sum;
 }
 
 /* Calculate the Internet checksum of some given data concatenated with the
@@ -868,6 +876,7 @@ u16 ipv6_pseudoheader_cksum(const struct in6_addr *src,
 
   sum = ip_cksum_add(&hdr, sizeof(hdr), 0);
   sum = ip_cksum_add(hstart, len, sum);
+  sum = ip_cksum_carry(sum);
   /* RFC 2460: "Unlike IPv4, when UDP packets are originated by an IPv6 node,
      the UDP checksum is not optional.  That is, whenever originating a UDP
      packet, an IPv6 node must compute a UDP checksum over the packet and the
@@ -876,7 +885,7 @@ u16 ipv6_pseudoheader_cksum(const struct in6_addr *src,
   if (nxt == IP_PROTO_UDP && sum == 0)
     sum = 0xFFFF;
 
-  return ip_cksum_carry(sum);
+  return sum;
 }
 
 void sethdrinclude(int sd) {

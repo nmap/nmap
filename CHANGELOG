@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug with UDP checksum calculation. When the UDP checksum is zero
+  (0x0000), it must be transmitted as 1's-complement -0 (0xffff) to avoid
+  ambiguity with +0, which indicates no checksum was calculated. This affected
+  UDP on IPv4 only. Reported by Michael Weber. [Daniel Miller]
+
 o [NSE] Removed a fixed value (28428) which was being set for the Request ID in
   the snmpWalk library function; a value based on nmap.clock_ms will now be set
   instead. [jah]
