@@ -1327,7 +1327,11 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
     /* The first time through the loop we add the primary interface record.
        After that we add the aliases one at a time. */
     if (!primary_done) {
-      if (addr_ntos(&entry->intf_addr, (struct sockaddr *) &tmpss) == -1) {
+      if ( (addr_ntos(&entry->intf_addr, (struct sockaddr *) &tmpss) == -1)
+#ifdef AF_LINK
+              || (tmpss.ss_family == AF_LINK)
+#endif
+         ) {
         dcrn->ifaces[dcrn->numifaces].addr.ss_family = 0;
       } else {
         rc = canonicalize_address(&tmpss, &dcrn->ifaces[dcrn->numifaces].addr);
@@ -1336,7 +1340,11 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
       dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_addr.addr_bits;
       primary_done = true;
     } else if (num_aliases_done < entry->intf_alias_num) {
-      if (addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &tmpss) == -1) {
+      if ( (addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &tmpss) == -1)
+#ifdef AF_LINK
+              || (tmpss.ss_family == AF_LINK)
+#endif
+         ) {
         dcrn->ifaces[dcrn->numifaces].addr.ss_family = 0;
       } else {
         rc = canonicalize_address(&tmpss, &dcrn->ifaces[dcrn->numifaces].addr);
