@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add rfc868-time script to get the date and time from an RFC 868 Time
+  server. [Daniel Miller]
+
+o [NSE] Add weblogic-t3-info script that detects the T3 RMI protocol used by
+  Oracle/BEA Weblogic. Extracts the Weblogic version, as well [Alessandro
+  Zanni, Daniel Miller]
+
 o Fixed a bug in libdnet with handling interfaces with AF_LINK addresses on
   FreeBSD >9 reported by idwer on IRC. Likely affected other *BSDs. Handled by
   skipping these non-network addresses. [Daniel Miller]
