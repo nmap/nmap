@@ -56,6 +56,43 @@ type.
 -- |   compression_algorithms (2)
 -- |       none
 -- |_      zlib@openssh.com
+--
+-- @xmloutput
+-- <table key="kex_algorithms">
+--   <elem>ecdh-sha2-nistp256</elem>
+--   <elem>ecdh-sha2-nistp384</elem>
+--   <elem>ecdh-sha2-nistp521</elem>
+--   <elem>diffie-hellman-group-exchange-sha256</elem>
+--   <elem>diffie-hellman-group-exchange-sha1</elem>
+--   <elem>diffie-hellman-group14-sha1</elem>
+--   <elem>diffie-hellman-group1-sha1</elem>
+-- </table>
+-- <table key="server_host_key_algorithms">
+--   <elem>ssh-rsa</elem>
+--   <elem>ecdsa-sha2-nistp256</elem>
+-- </table>
+-- <table key="encryption_algorithms">
+--   <elem>aes128-ctr</elem>
+--   <elem>aes192-ctr</elem>
+--   <elem>aes256-ctr</elem>
+--   <elem>aes128-cbc</elem>
+--   <elem>3des-cbc</elem>
+--   <elem>blowfish-cbc</elem>
+--   <elem>cast128-cbc</elem>
+--   <elem>aes192-cbc</elem>
+--   <elem>aes256-cbc</elem>
+-- </table>
+-- <table key="mac_algorithms">
+--   <elem>hmac-sha1</elem>
+--   <elem>umac-64@openssh.com</elem>
+--   <elem>hmac-ripemd160</elem>
+--   <elem>hmac-sha2-256</elem>
+--   <elem>hmac-sha2-512</elem>
+-- </table>
+-- <table key="compression_algorithms">
+--   <elem>none</elem>
+--   <elem>zlib@openssh.com</elem>
+-- </table>
 
 author = "Kris Katterjohn"
 
@@ -94,22 +131,28 @@ end
 
 -- Build and return the output table
 local output = function(parsed, lists)
-	local out = {}
+	local out = stdnse.output_table()
 
 	for _, l in ipairs(lists) do
 		local v = parsed[l]
 		local a = v:len() > 0 and stdnse.strsplit(",", v) or {}
-		local e
 		if nmap.verbosity() > 0 then
-			e = { ["name"] = l .. " (" .. #a .. ")" }
-			table.insert(e, a)
-		else
-			e = l .. " (" .. #a .. ")"
+      setmetatable(a, {
+        __tostring = function(t)
+          return string.format("(%d)\n      %s", #t, table.concat(t, "\n      "))
+        end
+      })
+    else
+      setmetatable(a, {
+        __tostring = function(t)
+          return string.format("(%d)", #t)
+        end
+      })
 		end
-		table.insert(out, e)
+    out[l] = a
 	end
 
-	return stdnse.format_output(true, out)
+	return out
 end
 
 action = function(host, port)
