@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed compilation when --without-liblua is specified in
+  configure (an #include needed an ifdef guard). [Quentin Glidic]
+
 o [NSE] Add http-server-header script to grab the Server header as a last-ditch
   effort to get a software version. This can't be done as a softmatch because
   of the need to match non-HTTP services that obey some HTTP requests. [Daniel
