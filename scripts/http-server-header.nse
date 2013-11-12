@@ -2,6 +2,7 @@ local comm = require "comm"
 local string = require "string"
 local shortport = require "shortport"
 local nmap = require "nmap"
+local stdnse = require "stdnse"
 
 description = [[
 Uses the HTTP Server header for missing version info. This is currently
@@ -13,12 +14,18 @@ correctly.
 --@output
 -- PORT   STATE SERVICE VERSION
 -- 80/tcp open  http    Unidentified Server 1.0
+--@args
+-- http-server-header.skip  If set, this script will not run. Useful for
+--                          printing service fingerprints to submit to Nmap.org
 
 author = "Daniel Miller" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 portrule = function(host, port)
+  if stdnse.get_script_args(SCRIPT_NAME .. ".skip") then
+    return false
+  end
   -- Avoid running if -sV scan already got a match
   if type(port.version) == "table" and (port.version.name_confidence > 3 or port.version.product ~= nil) then
     return false
@@ -50,5 +57,13 @@ action = function(host, port)
   end
   nmap.set_port_version(host, port, "hardmatched")
 
-  return
+  if nmap.verbosity() > 0 then
+    return [[
+Software version grabbed from Server header.
+Consider submitting a service fingerprint.
+Run with --script-args http-server-header.skip
+]]
+  else
+    return nil
+  end
 end
