@@ -43,6 +43,10 @@ rm -rf build dist
 echo "Compiling using py2app."
 $PYTHON setup.py py2app --no-strip
 
+# Delete a library that causes compatibility problems with OS X 10.9.
+# http://seclists.org/nmap-dev/2013/q4/85
+rm -f $BASE/Frameworks/libxml2.2.dylib
+
 mkdir -p $BASE/Resources/etc
 mkdir -p $BASE/Resources/lib
 
