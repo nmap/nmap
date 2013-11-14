@@ -45,7 +45,7 @@ portrule = shortport.http
 
 action = function(host, port)
 	local response = http.get(host, port, "/", { redirect_ok = false, no_cache = true })
-	local server = response.header and response.header['server']
+	local server = response.header and response.header['server'] or ""
 	local vuln_table = {
 		title = "Firmware backdoor in some models of D-Link routers allow for admin password bypass",
 		state = vulns.STATE.NOT_VULN,
