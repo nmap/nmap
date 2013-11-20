@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add freelancer-info to gather information about the Freelancer
+  game server. Also added a related version detection probe and UDP
+  protocol payload for detecting the service. [Marin Maržić]
+
 o [Ncat] Fixed compilation when --without-liblua is specified in
   configure (an #include needed an ifdef guard). [Quentin Glidic]
 
