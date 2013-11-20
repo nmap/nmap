@@ -106,6 +106,7 @@ Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", 
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
 Entry { filename = "firewall-bypass.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "flume-master-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "freelancer-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "ftp-bounce.nse", categories = { "default", "safe", } }
 Entry { filename = "ftp-brute.nse", categories = { "brute", "intrusive", } }

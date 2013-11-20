@@ -169,6 +169,11 @@ udp 2049
   "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
 
+# Freelancer game server status query
+# http://sourceforge.net/projects/gameq/
+# (relevant files: games.ini, packets.ini, freelancer.php)
+udp 2302 "\x00\x02\xf1\x26\x01\x26\xf0\x90\xa6\xf0\x26\x57\x4e\xac\xa0\xec\xf8\x68\xe4\x8d\x21"
+
 # Sun Service Tag Discovery protocol (stdiscover)
 # http://arc.opensolaris.org/caselog/PSARC/2006/638/stdiscover_protocolv2.pdf
 # Would work better with a varying cookie; the second and later sends of this
