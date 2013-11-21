@@ -1100,22 +1100,25 @@ void GroupScanStats::probeSent(unsigned int nbytes) {
      Recall that these have effect only when --min-rate or --max-rate is
      given. */
 
-  TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
-              (time_t) (1000000.0 / o.max_packet_send_rate));
+  if (o.max_packet_send_rate != 0.0)
+      TIMEVAL_ADD(send_no_earlier_than, send_no_earlier_than,
+                  (time_t) (1000000.0 / o.max_packet_send_rate));
   /* Allow send_no_earlier_than to slip into the past. This allows the sending
      scheduler to catch up and make up for delays in other parts of the scan
      engine. If we were to update send_no_earlier_than to the present the
      sending rate could be much less than the maximum requested, even if the
      connection is capable of the maximum. */
 
-  if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
-    /* The next scheduled send is in the future. That means there's slack time
-       during which the sending rate could drop. Pull the time back to the
-       present to prevent that. */
-    send_no_later_than = USI->now;
+  if (o.min_packet_send_rate != 0.0) {
+      if (TIMEVAL_SUBTRACT(send_no_later_than, USI->now) > 0) {
+        /* The next scheduled send is in the future. That means there's slack time
+           during which the sending rate could drop. Pull the time back to the
+           present to prevent that. */
+        send_no_later_than = USI->now;
+      }
+      TIMEVAL_ADD(send_no_later_than, send_no_later_than,
+                  (time_t) (1000000.0 / o.min_packet_send_rate));
   }
-  TIMEVAL_ADD(send_no_later_than, send_no_later_than,
-              (time_t) (1000000.0 / o.min_packet_send_rate));
 }
 
 /* Returns true if the GLOBAL system says that sending is OK.*/
