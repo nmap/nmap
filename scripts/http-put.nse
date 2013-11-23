@@ -37,7 +37,7 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 action = function( host, port )
 
-	local fname, url = stdnse.get_script_args('http-url.file', 'http-put.url')
+	local fname, url = stdnse.get_script_args('http-put.file', 'http-put.url')
 	if ( not(fname) or not(url) ) then
 		 return
 	end 
