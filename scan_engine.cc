@@ -1921,9 +1921,11 @@ int UltraScanInfo::removeCompletedHosts() {
   HostScanStats *hss = NULL;
   int hostsRemoved = 0;
   bool timedout = false;
+  struct timeval compare;
 
   /* We don't want to run this all of the time */
-  if ((unsigned) TIMEVAL_MSEC_SUBTRACT(now, lastCompletedHostRemoval) > completedHostLifetime / 2) {
+  TIMEVAL_MSEC_ADD(compare, lastCompletedHostRemoval, completedHostLifetime / 2);
+  if ( TIMEVAL_AFTER(now, compare) ) {
     for (hostI = completedHosts.begin(); hostI != completedHosts.end(); hostI = nxt) {
       nxt = hostI;
       nxt++;
@@ -1933,7 +1935,8 @@ int UltraScanInfo::removeCompletedHosts() {
       if (hss == gstats->pinghost)
         continue;
 
-      if ((unsigned) TIMEVAL_MSEC_SUBTRACT(now, hss->completiontime) > completedHostLifetime) {
+      TIMEVAL_MSEC_ADD(compare, hss->completiontime, completedHostLifetime);
+      if ( TIMEVAL_AFTER(now, compare) ) {
         completedHosts.erase(hostI);
         hostsRemoved++;
       }
