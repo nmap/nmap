@@ -525,7 +525,6 @@ class HostOsScanInfo {
 class OSScan {
 
  private:
-  int ip_ver;             /* IP version for the OS Scan (4 or 6) */
   int chunk_and_do_scan(std::vector<Target *> &Targets, int family);
   int os_scan_ipv4(std::vector<Target *> &Targets);
   int os_scan_ipv6(std::vector<Target *> &Targets);
