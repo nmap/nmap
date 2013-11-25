@@ -986,7 +986,7 @@ static void parse_resolvdotconf() {
   FILE *fp;
   char buf[2048], *tp;
   char fmt[32];
-  char ipaddr[INET6_ADDRSTRLEN];
+  char ipaddr[INET6_ADDRSTRLEN+1];
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
@@ -994,8 +994,7 @@ static void parse_resolvdotconf() {
     return;
   }
 
-  /* Customize a sscanf format to sizeof(ipaddr). */
-  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", (unsigned int) sizeof(ipaddr));
+  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", INET6_ADDRSTRLEN);
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;
