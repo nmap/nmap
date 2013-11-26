@@ -1709,6 +1709,7 @@ int nmap_main(int argc, char *argv[]) {
   chomp(mytime);
   char *xslfname = o.XSLStyleSheet();
   xml_start_document();
+  log_write(LOG_XML, "<!DOCTYPE nmaprun PUBLIC \"-//IDN nmap.org//DTD Nmap XML %s//EN\" \"https://svn.nmap.org/nmap/docs/nmap.dtd\">\n", NMAP_XMLOUTPUTVERSION);
   if (xslfname) {
     xml_open_pi("xml-stylesheet");
     xml_attribute("href", "%s", xslfname);
