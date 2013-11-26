@@ -120,6 +120,8 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef NMAP_DNS_H
+#define NMAP_DNS_H
 class Target;
 
 #include "nbase.h"
@@ -131,3 +133,4 @@ void nmap_mass_rdns(Target ** targets, int num_targets);
 const char *lookup_cached_host(u32 ip);
 
 std::list<std::string> get_dns_servers();
+#endif /* NMAP_DNS_H */

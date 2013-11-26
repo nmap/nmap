@@ -194,7 +194,6 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <list>
-#include <vector>
 #include <algorithm>
 
 extern NmapOps o;

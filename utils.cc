@@ -126,6 +126,7 @@
 #include "nmap.h"
 #include "utils.h"
 #include "NmapOps.h"
+#include <fcntl.h>
 
 extern NmapOps o;
 
