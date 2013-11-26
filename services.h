@@ -128,15 +128,7 @@
 #ifndef SERVICES_H
 #define SERVICES_H
 
-#ifdef WIN32
-#include "mswin32\winclude.h"
-#else
-#include <netdb.h>
-#endif
 #include "nmap.h"
-#include "global_structures.h"
-
-#include "nbase.h"
 
 #define SERVICE_TABLE_SIZE 1024
 

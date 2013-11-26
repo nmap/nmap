@@ -124,7 +124,6 @@
 
 /* $Id$ */
 #include "nmap.h"
-#include "nbase.h"
 #include "NmapOps.h"
 #include "services.h"
 #include "utils.h"

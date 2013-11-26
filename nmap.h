@@ -173,9 +173,6 @@ void *realloc();
 #include <bstring.h>
 #endif
 
-#include <ctype.h>
-#include <sys/types.h>
-
 #ifndef WIN32	/* from nmapNT -- seems to work */
 #include <sys/wait.h>
 #endif /* !WIN32 */
@@ -183,8 +180,6 @@ void *realloc();
 #ifdef HAVE_SYS_PARAM_H   
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
-
-#include <stdio.h>
 
 #if HAVE_RPC_TYPES_H
 #include <rpc/types.h>
@@ -194,13 +189,9 @@ void *realloc();
 #include <sys/socket.h>
 #endif
  
-#include <sys/stat.h>
-
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
-
-#include <errno.h>
 
 #if HAVE_NETDB_H
 #include <netdb.h>
@@ -217,8 +208,6 @@ void *realloc();
 # endif
 #endif
 
-#include <fcntl.h>
-#include <stdarg.h>
 
 #ifdef HAVE_PWD_H
 #include <pwd.h>
@@ -236,7 +225,6 @@ void *realloc();
 /* Keep assert() defined for security reasons */
 #undef NDEBUG
 
-#include <math.h>
 #include <assert.h>
 
 #if HAVE_SYS_RESOURCE_H

@@ -134,7 +134,6 @@
 #include <map>
 
 #include "NmapOps.h"
-#include "nbase.h"
 #include "payload.h"
 #include "utils.h"
 

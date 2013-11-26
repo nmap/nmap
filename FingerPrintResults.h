@@ -130,7 +130,6 @@
 class FingerPrintResults;
 
 #include "nmap.h"
-#include "global_structures.h"
 #include "FPEngine.h"
 
 /* Maximum number of results allowed in one of these things ... */

@@ -122,6 +122,9 @@
  ***************************************************************************/
 
 /* $Id:$ */
+#ifndef NSE_SSL_CERT_H
+#define NSE_SSL_CERT_H
 
 int l_get_ssl_certificate(lua_State *L);
 void nse_nsock_init_ssl_cert(lua_State *L);
+#endif /* NSE_SSL_CERT_H */
