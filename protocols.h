@@ -132,6 +132,8 @@
 #endif
 
 #include "nmap.h"
+#include "global_structures.h"
+#include "nbase.h"
 
 #define PROTOCOL_TABLE_SIZE 256
 

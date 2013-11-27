@@ -124,10 +124,8 @@
 
 /* $Id$ */
 
-#ifndef NMAPOPS_H
-#define NMAPOPS_H
-
 #include "nmap.h"
+#include "global_structures.h"
 #include "output.h"
 #include <nsock.h>
 #include <string>
@@ -426,4 +424,4 @@ class NmapOps {
   u8 spoof_mac[6];
   bool spoof_mac_set;
 };
-#endif /* NMAPOPS_H */
+  

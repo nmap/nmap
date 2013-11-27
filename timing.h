@@ -130,6 +130,7 @@
 #define NMAP_TIMING_H
 
 #include "nmap.h"
+#include "global_structures.h"
 
 /* Call this function on a newly allocated struct timeout_info to
    initialize the values appropriately */

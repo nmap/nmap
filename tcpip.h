@@ -129,7 +129,78 @@
 #ifndef TCPIP_H
 #define TCPIP_H
 
-#include "nmap.h"
+#ifdef HAVE_CONFIG_H
+#include "nmap_config.h"
+#endif
+
+#include "nbase.h"
+
+#ifdef WIN32
+#include "mswin32\winclude.h"
+#else
+
+#ifdef STDC_HEADERS
+#include <stdlib.h>
+#else
+void *malloc();
+void *realloc();
+#endif
+
+#if STDC_HEADERS || HAVE_STRING_H
+#include <string.h>
+#if !STDC_HEADERS && HAVE_MEMORY_H
+#include <memory.h>
+#endif
+#endif
+#if HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
+#ifdef HAVE_BSTRING_H
+#include <bstring.h>
+#endif
+
+#include <ctype.h>
+#include <sys/types.h>
+
+#ifdef HAVE_SYS_PARAM_H
+#include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
+#endif
+
+#include <stdio.h>
+
+#if HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
+#ifdef HAVE_RPC_TYPES_H
+#include <rpc/types.h>
+#endif
+
+#ifdef HAVE_NETDB_H
+#include <netdb.h>
+#endif
+
+#if HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#include <arpa/inet.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <fcntl.h>
+
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
+#endif
 
 #include <sys/ioctl.h>
 
@@ -144,14 +215,17 @@ extern "C" {
 #if HAVE_SYS_SOCKIO_H
 #include <sys/sockio.h>  /* SIOCGIFCONF for Solaris */
 #endif
+#endif /* WIN32 */
 
 #include <setjmp.h>
 #include <errno.h>
 #include <signal.h>
 #include <dnet.h>
 
-/* from Target.h */
-class Target;
+
+
+#include "nmap.h"
+#include "global_structures.h"
 
 #ifndef INET_ADDRSTRLEN
 #define INET_ADDRSTRLEN 16

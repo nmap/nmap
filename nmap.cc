@@ -129,10 +129,12 @@
 #include "osscan2.h"
 #include "scan_engine.h"
 #include "idle_scan.h"
+#include "timing.h"
 #include "NmapOps.h"
 #include "MACLookup.h"
 #include "traceroute.h"
 #include "nmap_tty.h"
+#include "nmap_dns.h"
 #include "services.h"
 #include "protocols.h"
 #include "targets.h"
@@ -142,10 +144,6 @@
 #include "nmap_error.h"
 #include "utils.h"
 #include "xml.h"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 
 #ifndef NOLUA
 #include "nse_main.h"

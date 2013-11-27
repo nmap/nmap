@@ -165,6 +165,7 @@
 
 #include "portlist.h"
 #include "nmap.h"
+#include "global_structures.h"
 #include <nsock.h>
 
 #include <string>

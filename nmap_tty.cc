@@ -121,6 +121,10 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef WIN32
+#include "nmap_config.h"
+#endif
+
 #include "nmap.h"
 
 #include <sys/types.h>

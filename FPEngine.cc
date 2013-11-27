@@ -132,7 +132,6 @@
 #include "osscan.h"
 #include "libnetutil/npacket.h"
 #include "linear.h"
-#include <math.h>
 extern NmapOps o;
 
 
