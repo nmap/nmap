@@ -559,7 +559,7 @@ if 'py2exe' in sys.argv:
                      "icon_resources": [(1, "install_scripts/windows/nmap-eye.ico")]}],
         # On Windows we build Ndiff here in Zenmap's setup.py so the two Python
         # programs will share a common runtime.
-        'console': [{"script": "../ndiff/ndiff", "description": "Nmap scan comparison tool"}],
+        'console': [{"script": "../ndiff/scripts/ndiff", "description": "Nmap scan comparison tool"}],
         'options': {"py2exe": {
             "compressed": 1,
             "optimize": 2,
