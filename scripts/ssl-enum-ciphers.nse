@@ -123,10 +123,10 @@ categories = {"discovery", "intrusive"}
 -- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/
 PROTOCOLS = {
-	["SSLv3"]	= 0x0300,
-	["TLSv1.0"]	= 0x0301,
-	["TLSv1.1"]	= 0x0302,
-	["TLSv1.2"]	= 0x0303
+  ["SSLv3"]       = 0x0300,
+  ["TLSv1.0"]     = 0x0301,
+  ["TLSv1.1"]     = 0x0302,
+  ["TLSv1.2"]     = 0x0303
 }
 
 --
@@ -135,75 +135,75 @@ PROTOCOLS = {
 TLS_RECORD_HEADER_LENGTH = 5
 
 TLS_CONTENTTYPE_REGISTRY = {
-	["change_cipher_spec"]	= 20,
-	["alert"]		= 21,
-	["handshake"]		= 22,
-	["application_data"]	= 23
+  ["change_cipher_spec"]  = 20,
+  ["alert"]               = 21,
+  ["handshake"]           = 22,
+  ["application_data"]    = 23
 }
 
 --
 -- TLS Alert Levels
 --
 TLS_ALERT_LEVELS = {
-	["warning"]	= 1,
-	["fatal"]	= 2,
+  ["warning"]     = 1,
+  ["fatal"]       = 2,
 }
 
 --
 -- TLS Alert Record Types
 --
 TLS_ALERT_REGISTRY = {
-	["close_notify"]			= 0,
-	["unexpected_message"]			= 10,
-	["bad_record_mac"]			= 20,
-	["decryption_failed"]			= 21,
-	["record_overflow"]			= 22,
-	["decompression_failure"]		= 30,
-	["handshake_failure"]			= 40,
-	["no_certificate"]			= 41,
-	["bad_certificate"]			= 42,
-	["unsupported_certificate"]		= 43,
-	["certificate_revoked"]			= 44,
-	["certificate_expired"]			= 45,
-	["certificate_unknown"]			= 46,
-	["illegal_parameter"]			= 47,
-	["unknown_ca"]				= 48,
-	["access_denied"]			= 49,
-	["decode_error"]			= 50,
-	["decrypt_error"]			= 51,
-	["export_restriction"]			= 60,
-	["protocol_version"]			= 70,
-	["insufficient_security"]		= 71,
-	["internal_error"]			= 80,
-	["user_canceled"]			= 90,
-	["no_renegotiation"]			= 100,
-	["unsupported_extension"]		= 110,
-	["certificate_unobtainable"]		= 111,
-	["unrecognized_name"]			= 112,
-	["bad_certificate_status_response"]	= 113,
-	["bad_certificate_hash_value"]		= 114,
-	["unknown_psk_identity"]		= 115
+  ["close_notify"]                        = 0,
+  ["unexpected_message"]                  = 10,
+  ["bad_record_mac"]                      = 20,
+  ["decryption_failed"]                   = 21,
+  ["record_overflow"]                     = 22,
+  ["decompression_failure"]               = 30,
+  ["handshake_failure"]                   = 40,
+  ["no_certificate"]                      = 41,
+  ["bad_certificate"]                     = 42,
+  ["unsupported_certificate"]             = 43,
+  ["certificate_revoked"]                 = 44,
+  ["certificate_expired"]                 = 45,
+  ["certificate_unknown"]                 = 46,
+  ["illegal_parameter"]                   = 47,
+  ["unknown_ca"]                          = 48,
+  ["access_denied"]                       = 49,
+  ["decode_error"]                        = 50,
+  ["decrypt_error"]                       = 51,
+  ["export_restriction"]                  = 60,
+  ["protocol_version"]                    = 70,
+  ["insufficient_security"]               = 71,
+  ["internal_error"]                      = 80,
+  ["user_canceled"]                       = 90,
+  ["no_renegotiation"]                    = 100,
+  ["unsupported_extension"]               = 110,
+  ["certificate_unobtainable"]            = 111,
+  ["unrecognized_name"]                   = 112,
+  ["bad_certificate_status_response"]     = 113,
+  ["bad_certificate_hash_value"]          = 114,
+  ["unknown_psk_identity"]                = 115
 }
 
 --
 -- TLS Handshake Record Types
 --
 TLS_HANDSHAKETYPE_REGISTRY = {
-	["hello_request"]		= 0,
-	["client_hello"]		= 1,
-	["server_hello"]		= 2,
-	["hello_verify_request"]	= 3,
-	["NewSessionTicket"]		= 4,
-	["certificate"]			= 11,
-	["server_key_exchange"]		= 12,
-	["certificate_request"]		= 13,
-	["server_hello_done"]		= 14,
-	["certificate_verify"]		= 15,
-	["client_key_exchange"]		= 16,
-	["finished"]			= 20,
-	["certificate_url"]		= 21,
-	["certificate_status"]		= 22,
-	["supplemental_data"]		= 23
+  ["hello_request"]               = 0,
+  ["client_hello"]                = 1,
+  ["server_hello"]                = 2,
+  ["hello_verify_request"]        = 3,
+  ["NewSessionTicket"]            = 4,
+  ["certificate"]                 = 11,
+  ["server_key_exchange"]         = 12,
+  ["certificate_request"]         = 13,
+  ["server_hello_done"]           = 14,
+  ["certificate_verify"]          = 15,
+  ["client_key_exchange"]         = 16,
+  ["finished"]                    = 20,
+  ["certificate_url"]             = 21,
+  ["certificate_status"]          = 22,
+  ["supplemental_data"]           = 23
 }
 
 --
@@ -211,9 +211,9 @@ TLS_HANDSHAKETYPE_REGISTRY = {
 -- http://www.iana.org/assignments/comp-meth-ids
 --
 COMPRESSORS = {
-	["NULL"]		= 0,
-	["DEFLATE"]		= 1,
-	["LZS"]			= 64
+  ["NULL"]                = 0,
+  ["DEFLATE"]             = 1,
+  ["LZS"]                 = 64
 }
 
 --
@@ -585,10 +585,10 @@ CIPHERS = {
 }
 
 cipherstrength = {
-	["broken"] = 0,
-	["weak"]	= 1,
-	["unknown strength"]	= 2,
-	["strong"]	= 3
+  ["broken"] = 0,
+  ["weak"]        = 1,
+  ["unknown strength"]    = 2,
+  ["strong"]      = 3
 }
 
 local rankedciphers={}
@@ -597,222 +597,222 @@ local rankedciphersfilename=false
 local policy=true
 
 local function record_read(buffer, i)
-	local b, h, j, len
+  local b, h, j, len
 
-	local function find_key(t, value)
-		local k, v
+  local function find_key(t, value)
+    local k, v
 
-		for k, v in pairs(t) do
-			if v == value then
-				return k
-			end
-		end
+    for k, v in pairs(t) do
+      if v == value then
+        return k
+      end
+    end
 
-		return nil
-	end
+    return nil
+  end
 
-	------------
-	-- Header --
-	------------
+  ------------
+  -- Header --
+  ------------
 
-	-- Ensure we have enough data for the header.
-	if #buffer - i < TLS_RECORD_HEADER_LENGTH then
-		return i, nil
-	end
+  -- Ensure we have enough data for the header.
+  if #buffer - i < TLS_RECORD_HEADER_LENGTH then
+    return i, nil
+  end
 
-	-- Parse header.
-	h = {}
-	j, h["type"] = bin.unpack("C", buffer, i)
-	j, h["protocol"] = bin.unpack(">S", buffer, j)
-	j, h["length"] = bin.unpack(">S", buffer, j)
+  -- Parse header.
+  h = {}
+  j, h["type"] = bin.unpack("C", buffer, i)
+  j, h["protocol"] = bin.unpack(">S", buffer, j)
+  j, h["length"] = bin.unpack(">S", buffer, j)
 
-	-- Ensure we have enough data for the body.
-	len = j + h["length"] - 1
-	if #buffer < len then
-		return i, nil
-	end
+  -- Ensure we have enough data for the body.
+  len = j + h["length"] - 1
+  if #buffer < len then
+    return i, nil
+  end
 
-	-- Convert to human-readable form.
-	h["type"] = find_key(TLS_CONTENTTYPE_REGISTRY, h["type"])
-	h["protocol"] = find_key(PROTOCOLS, h["protocol"])
+  -- Convert to human-readable form.
+  h["type"] = find_key(TLS_CONTENTTYPE_REGISTRY, h["type"])
+  h["protocol"] = find_key(PROTOCOLS, h["protocol"])
 
-	----------
-	-- Body --
-	----------
+  ----------
+  -- Body --
+  ----------
 
-	b = {}
-	h["body"] = b
-	if h["type"] == "alert" then
-		-- Parse body.
-		j, b["level"] = bin.unpack("C", buffer, j)
-		j, b["description"] = bin.unpack("C", buffer, j)
+  b = {}
+  h["body"] = b
+  if h["type"] == "alert" then
+    -- Parse body.
+    j, b["level"] = bin.unpack("C", buffer, j)
+    j, b["description"] = bin.unpack("C", buffer, j)
 
-		-- Convert to human-readable form.
-		b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
-		b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
-	elseif h["type"] == "handshake" then
-		-- Parse body.
-		j, b["type"] = bin.unpack("C", buffer, j)
-		local _
-		j, _ = bin.unpack("A3", buffer, j)
+    -- Convert to human-readable form.
+    b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
+    b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
+  elseif h["type"] == "handshake" then
+    -- Parse body.
+    j, b["type"] = bin.unpack("C", buffer, j)
+    local _
+    j, _ = bin.unpack("A3", buffer, j)
 
-		-- Convert to human-readable form.
-		b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
+    -- Convert to human-readable form.
+    b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
 
-		if b["type"] == "server_hello" then
-			-- Parse body.
-			j, b["protocol"] = bin.unpack(">S", buffer, j)
-			j, b["time"] = bin.unpack(">I", buffer, j)
-			j, b["random"] = bin.unpack("A28", buffer, j)
-			j, b["session_id_length"] = bin.unpack("C", buffer, j)
-			j, b["session_id"] = bin.unpack("A" .. b["session_id_length"], buffer, j)
-			j, b["cipher"] = bin.unpack(">S", buffer, j)
-			j, b["compressor"] = bin.unpack("C", buffer, j)
+    if b["type"] == "server_hello" then
+      -- Parse body.
+      j, b["protocol"] = bin.unpack(">S", buffer, j)
+      j, b["time"] = bin.unpack(">I", buffer, j)
+      j, b["random"] = bin.unpack("A28", buffer, j)
+      j, b["session_id_length"] = bin.unpack("C", buffer, j)
+      j, b["session_id"] = bin.unpack("A" .. b["session_id_length"], buffer, j)
+      j, b["cipher"] = bin.unpack(">S", buffer, j)
+      j, b["compressor"] = bin.unpack("C", buffer, j)
 
-			-- Convert to human-readable form.
-			b["protocol"] = find_key(PROTOCOLS, b["protocol"])
-			b["cipher"] = find_key(CIPHERS, b["cipher"])
-			b["compressor"] = find_key(COMPRESSORS, b["compressor"])
-		end
-	end
+      -- Convert to human-readable form.
+      b["protocol"] = find_key(PROTOCOLS, b["protocol"])
+      b["cipher"] = find_key(CIPHERS, b["cipher"])
+      b["compressor"] = find_key(COMPRESSORS, b["compressor"])
+    end
+  end
 
-	-- Ignore unparsed bytes.
-	j = len
+  -- Ignore unparsed bytes.
+  j = len
 
-	return j, h
+  return j, h
 end
 
 local function record_write(type, protocol, b)
-	local h
+  local h
 
-	h = ""
+  h = ""
 
-	-- Set the header as a handshake.
-	h = h .. bin.pack("C", TLS_CONTENTTYPE_REGISTRY[type])
+  -- Set the header as a handshake.
+  h = h .. bin.pack("C", TLS_CONTENTTYPE_REGISTRY[type])
 
-	-- Set the protocol.
-	h = h .. bin.pack(">S", PROTOCOLS[protocol])
+  -- Set the protocol.
+  h = h .. bin.pack(">S", PROTOCOLS[protocol])
 
-	-- Set the length of the header body.
-	h = h .. bin.pack(">S", #b)
+  -- Set the length of the header body.
+  h = h .. bin.pack(">S", #b)
 
-	return h .. b
+  return h .. b
 end
 
 local function client_hello(t)
-	local b, cipher, ciphers, compressor, compressors, h, len
+  local b, cipher, ciphers, compressor, compressors, h, len
 
-	----------
-	-- Body --
-	----------
+  ----------
+  -- Body --
+  ----------
 
-	b = ""
+  b = ""
 
-	-- Set the protocol.
-	b = b .. bin.pack(">S", PROTOCOLS[t["protocol"]])
+  -- Set the protocol.
+  b = b .. bin.pack(">S", PROTOCOLS[t["protocol"]])
 
-	-- Set the random data.
-	b = b .. bin.pack(">I", os.time())
+  -- Set the random data.
+  b = b .. bin.pack(">I", os.time())
 
-	-- Set the random data.
-	b = b .. string.rep("nmap", 7)
+  -- Set the random data.
+  b = b .. string.rep("nmap", 7)
 
-	-- Set the session ID.
-	b = b .. bin.pack("C", 0)
+  -- Set the session ID.
+  b = b .. bin.pack("C", 0)
 
-	-- Cipher suites.
-	ciphers = ""
-	if t["ciphers"] ~= nil then
-		-- Add specified ciphers.
-		for _, cipher in pairs(t["ciphers"]) do
-			ciphers = ciphers .. bin.pack(">S", CIPHERS[cipher])
-		end
-	else
-		-- Add all known ciphers.
-		for _, cipher in pairs(CIPHERS) do
-			ciphers = ciphers .. bin.pack(">S", cipher)
-		end
-	end
-	b = b .. bin.pack(">S", #ciphers)
-	b = b .. ciphers
+  -- Cipher suites.
+  ciphers = ""
+  if t["ciphers"] ~= nil then
+    -- Add specified ciphers.
+    for _, cipher in pairs(t["ciphers"]) do
+      ciphers = ciphers .. bin.pack(">S", CIPHERS[cipher])
+    end
+  else
+    -- Add all known ciphers.
+    for _, cipher in pairs(CIPHERS) do
+      ciphers = ciphers .. bin.pack(">S", cipher)
+    end
+  end
+  b = b .. bin.pack(">S", #ciphers)
+  b = b .. ciphers
 
-	-- Compression methods.
-	compressors = ""
-	if t["compressors"] ~= nil then
-		-- Add specified compressors.
-		for _, compressor in pairs(t["compressors"]) do
+  -- Compression methods.
+  compressors = ""
+  if t["compressors"] ~= nil then
+    -- Add specified compressors.
+    for _, compressor in pairs(t["compressors"]) do
       if compressor ~= "NULL" then
         compressors = compressors .. bin.pack("C", COMPRESSORS[compressor])
       end
-		end
+    end
     compressors = compressors .. bin.pack("C", 0) -- Always include NULL as last choice
-	else
-		-- Add all known compressors.
-		for _, compressor in pairs(COMPRESSORS) do
-			compressors = compressors .. bin.pack("C", compressor)
-		end
-	end
-	b = b .. bin.pack("C", #compressors)
-	b = b .. compressors
+  else
+    -- Add all known compressors.
+    for _, compressor in pairs(COMPRESSORS) do
+      compressors = compressors .. bin.pack("C", compressor)
+    end
+  end
+  b = b .. bin.pack("C", #compressors)
+  b = b .. compressors
 
-	------------
-	-- Header --
-	------------
+  ------------
+  -- Header --
+  ------------
 
-	h = ""
+  h = ""
 
-	-- Set type to ClientHello.
-	h = h .. bin.pack("C", TLS_HANDSHAKETYPE_REGISTRY["client_hello"])
+  -- Set type to ClientHello.
+  h = h .. bin.pack("C", TLS_HANDSHAKETYPE_REGISTRY["client_hello"])
 
-	-- Set the length of the body.
-	len = bin.pack(">I", #b)
-	h = h .. bin.pack("CCC", len:byte(2), len:byte(3), len:byte(4))
+  -- Set the length of the body.
+  len = bin.pack(">I", #b)
+  h = h .. bin.pack("CCC", len:byte(2), len:byte(3), len:byte(4))
 
-	return record_write("handshake", t["protocol"], h .. b)
+  return record_write("handshake", t["protocol"], h .. b)
 end
 
 local function try_params(host, port, t)
-	local buffer, err, i, record, req, resp, sock, status
+  local buffer, err, i, record, req, resp, sock, status
 
-	-- Create socket.
-	sock = nmap.new_socket()
-	sock:set_timeout(5000)
-	status, err = sock:connect(host, port, "tcp")
-	if not status then
-		stdnse.print_debug(1, "Can't connect: %s", err)
-		sock:close()
-		return nil
-	end
+  -- Create socket.
+  sock = nmap.new_socket()
+  sock:set_timeout(5000)
+  status, err = sock:connect(host, port, "tcp")
+  if not status then
+    stdnse.print_debug(1, "Can't connect: %s", err)
+    sock:close()
+    return nil
+  end
 
-	-- Send request.
-	req = client_hello(t)
-	status, err = sock:send(req)
-	if not status then
-		stdnse.print_debug(1, "Can't send: %s", err)
-		sock:close()
-		return nil
-	end
+  -- Send request.
+  req = client_hello(t)
+  status, err = sock:send(req)
+  if not status then
+    stdnse.print_debug(1, "Can't send: %s", err)
+    sock:close()
+    return nil
+  end
 
-	-- Read response.
-	i = 0
-	buffer = ""
-	record = nil
-	while true do
-		status, resp = sock:receive()
-		if not status then
-			sock:close()
-			return nil
-		end
+  -- Read response.
+  i = 0
+  buffer = ""
+  record = nil
+  while true do
+    status, resp = sock:receive()
+    if not status then
+      sock:close()
+      return nil
+    end
 
-		buffer = buffer .. resp
+    buffer = buffer .. resp
 
-		-- Parse response.
-		i, record = record_read(buffer, i)
-		if record ~= nil then
-			sock:close()
-			return record
-		end
-	end
+    -- Parse response.
+    i, record = record_read(buffer, i)
+    if record ~= nil then
+      sock:close()
+      return record
+    end
+  end
 end
 
 local function keys(t)
@@ -859,42 +859,42 @@ local function find_ciphers(host, port, protocol)
   protocol_worked = false
   for _, group in ipairs(ciphers) do
     while (next(group)) do
-			-- Create structure.
-			t = {
-				["ciphers"] = group,
-				["protocol"] = protocol
-			}
+      -- Create structure.
+      t = {
+        ["ciphers"] = group,
+        ["protocol"] = protocol
+      }
 
       record = try_params(host, port, t)
-		
-			if record == nil then
-				if protocol_worked then
-					stdnse.print_debug(2, "%d ciphers rejected. (No handshake)", #group)
-				else
-					stdnse.print_debug(1, "%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
-				end
+    
+      if record == nil then
+        if protocol_worked then
+          stdnse.print_debug(2, "%d ciphers rejected. (No handshake)", #group)
+        else
+          stdnse.print_debug(1, "%d ciphers and/or protocol %s rejected. (No handshake)", #group, protocol)
+        end
         break
-			elseif record["protocol"] ~= protocol then
-				stdnse.print_debug(1, "Protocol %s rejected.", protocol)
+      elseif record["protocol"] ~= protocol then
+        stdnse.print_debug(1, "Protocol %s rejected.", protocol)
         protocol_worked = nil
-				break
-			elseif record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
-				protocol_worked = true
-				stdnse.print_debug(2, "%d ciphers rejected.", #group)
         break
-			elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
-				stdnse.print_debug(2, "Unexpected record received.")
+      elseif record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
+        protocol_worked = true
+        stdnse.print_debug(2, "%d ciphers rejected.", #group)
         break
-			else
-				protocol_worked = true
-				name = record["body"]["cipher"]
-				stdnse.print_debug(2, "Cipher %s chosen.", name)
+      elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
+        stdnse.print_debug(2, "Unexpected record received.")
+        break
+      else
+        protocol_worked = true
+        name = record["body"]["cipher"]
+        stdnse.print_debug(2, "Cipher %s chosen.", name)
         remove(group, name)
 
-				-- Add cipher to the list of accepted ciphers.
-				table.insert(results, name)
-			end
-		end
+        -- Add cipher to the list of accepted ciphers.
+        table.insert(results, name)
+      end
+    end
     if protocol_worked == nil then return nil end
   end
   if not protocol_worked then return nil end
@@ -956,17 +956,17 @@ local function find_compressors(host, port, protocol, good_cipher)
 end
 
 local function try_protocol(host, port, protocol, upresults)
-	local ciphers, compressors, results
+  local ciphers, compressors, results
   local condvar = nmap.condvar(upresults)
 
-	results = stdnse.output_table()
+  results = stdnse.output_table()
 
-	-- Find all valid ciphers.
-	ciphers = find_ciphers(host, port, protocol)
-	if ciphers == nil then
-		condvar "signal"
-		return nil
-	end
+  -- Find all valid ciphers.
+  ciphers = find_ciphers(host, port, protocol)
+  if ciphers == nil then
+    condvar "signal"
+    return nil
+  end
   
   if #ciphers == 0 then
     results = {ciphers={},compressors={}}
@@ -977,11 +977,11 @@ local function try_protocol(host, port, protocol, upresults)
     condvar "signal"
     return nil
   end
-	-- Find all valid compression methods.
-	compressors = find_compressors(host, port, protocol, ciphers[1])
+  -- Find all valid compression methods.
+  compressors = find_compressors(host, port, protocol, ciphers[1])
 
   -- Add rankings to ciphers
-	local cipherstr
+  local cipherstr
   for i, name in ipairs(ciphers) do
     if rankedciphersfilename and rankedciphers[name] then
       cipherstr=rankedciphers[name]
@@ -1000,12 +1000,12 @@ local function try_protocol(host, port, protocol, upresults)
     ciphers[i]=outcipher
   end
 
-	-- Format the cipher table.
-	table.sort(ciphers, function(a, b) return a["name"] < b["name"] end)
+  -- Format the cipher table.
+  table.sort(ciphers, function(a, b) return a["name"] < b["name"] end)
   results["ciphers"] = ciphers
 
-	-- Format the compressor table.
-	table.sort(compressors)
+  -- Format the compressor table.
+  table.sort(compressors)
   results["compressors"] = compressors
 
   upresults[protocol] = results
@@ -1015,37 +1015,37 @@ end
 
 -- Shamelessly stolen from nselib/unpwdb.lua and changed a bit. (Gabriel Lawrence)
 local filltable = function(filename,table)
-	if #table ~= 0 then
-		return true
-	end
+  if #table ~= 0 then
+    return true
+  end
 
-	local file = io.open(filename, "r")
+  local file = io.open(filename, "r")
 
-	if not file then
-		return false
-	end
+  if not file then
+    return false
+  end
 
-	while true do
-		local l = file:read()
+  while true do
+    local l = file:read()
 
-		if not l then
-			break
-		end
+    if not l then
+      break
+    end
 
-		-- Comments takes up a whole line
-		if not l:match("#!comment:") then
-			local lsplit=stdnse.strsplit("%s+", l)
-			if cipherstrength[lsplit[2]] then
-				table[lsplit[1]] = lsplit[2]
-			else
-				stdnse.print_debug(1,"Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
-			end
-		end
-	end
+    -- Comments takes up a whole line
+    if not l:match("#!comment:") then
+      local lsplit=stdnse.strsplit("%s+", l)
+      if cipherstrength[lsplit[2]] then
+        table[lsplit[1]] = lsplit[2]
+      else
+        stdnse.print_debug(1,"Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
+      end
+    end
+  end
 
-	file:close()
+  file:close()
 
-	return true
+  return true
 end
 
 portrule = shortport.ssl
@@ -1072,27 +1072,27 @@ function sorted_by_key(t)
 end
 
 action = function(host, port)
-	local name, result, results
+  local name, result, results
 
-	rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
-	if rankedciphersfilename then
-		filltable(rankedciphersfilename,rankedciphers)
-	else
-		rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
-		stdnse.print_debug(1, "Ranked ciphers filename: %s", rankedciphersfilename)
-		filltable(rankedciphersfilename,rankedciphers)
-	end
+  rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
+  if rankedciphersfilename then
+    filltable(rankedciphersfilename,rankedciphers)
+  else
+    rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
+    stdnse.print_debug(1, "Ranked ciphers filename: %s", rankedciphersfilename)
+    filltable(rankedciphersfilename,rankedciphers)
+  end
 
-	results = {}
+  results = {}
 
   local condvar = nmap.condvar(results)
   local threads = {}
 
-	for name, _ in pairs(PROTOCOLS) do
-		stdnse.print_debug(1, "Trying protocol %s.", name)
-		local co = stdnse.new_thread(try_protocol, host.ip, port.number, name, results)
+  for name, _ in pairs(PROTOCOLS) do
+    stdnse.print_debug(1, "Trying protocol %s.", name)
+    local co = stdnse.new_thread(try_protocol, host.ip, port.number, name, results)
     threads[co] = true
-	end
+  end
 
   repeat
     for thread in pairs(threads) do
@@ -1107,14 +1107,14 @@ action = function(host, port)
     return nil
   end
 
-	if rankedciphersfilename then
-		for k, v in pairs(cipherstrength) do
-			if v == mincipherstrength then
-				-- Should sort before or after SSLv3, TLSv*
-				results["least strength"] = k
-			end
-		end
-	end
+  if rankedciphersfilename then
+    for k, v in pairs(cipherstrength) do
+      if v == mincipherstrength then
+        -- Should sort before or after SSLv3, TLSv*
+        results["least strength"] = k
+      end
+    end
+  end
 
-	return sorted_by_key(results)
+  return sorted_by_key(results)
 end
