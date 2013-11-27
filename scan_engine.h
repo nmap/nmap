@@ -129,6 +129,7 @@
 #define SCAN_ENGINE_H
 
 #include "nmap.h"
+#include "global_structures.h"
 #include <vector>
 
 struct probespec_tcpdata {

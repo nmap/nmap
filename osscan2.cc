@@ -137,7 +137,6 @@
 #include "struct_ip.h"
 
 #include <list>
-#include <math.h>
 
 extern NmapOps o;
 

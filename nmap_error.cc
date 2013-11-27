@@ -127,7 +127,6 @@
 #include "output.h"
 #include "NmapOps.h"
 #include "xml.h"
-#include <errno.h>
 
 extern NmapOps o;
 

@@ -121,9 +121,6 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef NMAP_TTY_H
-#define NMAP_TTY_H
-
 /*
  * Initializes the terminal for unbuffered non-blocking input. Also
  * registers tty_done() via atexit().  You need to call this before
@@ -136,4 +133,4 @@ void tty_init();
    being returned means a nonstandard key has been pressed and the
    calling method should print a status message */
 bool keyWasPressed();
-#endif /* NMAP_TTY_H */
+

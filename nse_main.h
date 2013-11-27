@@ -14,6 +14,7 @@ extern "C" {
 }
 
 #include "nmap.h"
+#include "global_structures.h"
 
 class ScriptResult
 {

@@ -130,7 +130,6 @@
 #include "NmapOps.h"
 #include "utils.h"
 #include "xml.h"
-#include <math.h>
 
 extern NmapOps o;
 

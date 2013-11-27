@@ -1,4 +1,5 @@
 #include "nmap.h"
+#include "nbase.h"
 #include "nmap_error.h"
 #include "portlist.h"
 #include "nsock.h"
@@ -7,7 +8,6 @@
 #include "Target.h"
 #include "nmap_tty.h"
 #include "xml.h"
-#include <math.h>
 
 #include "nse_main.h"
 #include "nse_utility.h"
