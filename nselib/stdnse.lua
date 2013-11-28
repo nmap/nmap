@@ -1170,8 +1170,8 @@ end
 -- printer function. The printer function takes a sole string
 -- argument and will be called repeatedly.
 --
--- @args obj The object to pretty print.
--- @args printer The printer function.
+-- @param obj The object to pretty print.
+-- @param printer The printer function.
 function pretty_printer (obj, printer)
   if printer == nil then printer = print end
 
