@@ -395,7 +395,7 @@ nsock_event_id get_new_event_id(mspool *ms, enum nse_type type) {
   assert(type < NSE_TYPE_MAX);
 
   shiftbits = sizeof(nsock_event_id) * 8 - TYPE_CODE_NUM_BITS;
-  max_serial_allowed = (1 << shiftbits) - 1;
+  max_serial_allowed = ((unsigned long)1 << shiftbits) - 1;
   if (serial == max_serial_allowed) {
     /* then the next serial will be one because 0 is forbidden */
     ms->next_event_serial = 1;
