@@ -12336,3 +12336,15 @@ ports 2302
 
 match freelancer m|^\x00\x03\xf1\x26.{88}(.*)\0\0(?:.*?:){5}(.*)\0\0$|s p/Freelancer/ i/name: $P(1); description: $P(2)/
 
+# All-Seeing Eye service provided by some game servers for querying
+# the server's status
+# For more info on the protocol see:
+# http://int64.org/docs/gamestat-protocols/ase.html
+# http://aluigi.altervista.org/papers.htm#ase
+# http://sourceforge.net/projects/gameq/
+# (relevant files: games.ini, packets.ini, ase.php)
+Probe UDP ASE q|s|
+rarity 9
+ports 1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138
+
+match allseeingeye m/^EYE1.(.*?)(?|\x02(\d)|\x03(\d{2})|\x04(\d{3})|\x05(\d{4})|\x06(\d{5}))/s p/All-Seeing Eye/ i/game: $1; port: $2/

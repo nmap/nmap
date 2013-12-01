@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added allseeingeye-info for gathering information from games
+  using this query protocol.  A version detection probe was also
+  added. [Marin Maržić]
+
 o [NSE] Add freelancer-info to gather information about the Freelancer
   game server. Also added a related version detection probe and UDP
   protocol payload for detecting the service. [Marin Maržić]
