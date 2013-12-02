@@ -3381,7 +3381,7 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
   OSI = OsSI;
 
   FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
-  FP_matches = (FingerPrintResultsIPv4 *) safe_zalloc(o.maxOSTries() * sizeof(FingerPrintResultsIPv4));
+  FP_matches = new FingerPrintResultsIPv4[o.maxOSTries()];
   timedOut = false;
   isCompleted = false;
 
@@ -3398,7 +3398,7 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
 HostOsScanInfo::~HostOsScanInfo() {
   delete hss;
   free(FPs);
-  free(FP_matches);
+  delete[] FP_matches;
 }
 
 
