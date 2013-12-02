@@ -57,7 +57,10 @@ $(TARGET): $(DEPS) $(OBJS)
 $(NBASEDIR)/libnbase.a: $(NBASEDIR)/Makefile
 	cd $(NBASEDIR) && $(MAKE)
 
-clean:
+clean-test:
+	cd $(NSOCKTESTDIR) && $(MAKE) clean
+
+clean: clean-test
 	rm -f $(OBJS) $(TARGET)
 
 distclean: clean
