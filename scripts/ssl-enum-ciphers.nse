@@ -120,6 +120,11 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 
+-- Test this many ciphersuites at a time.
+-- http://seclists.org/nmap-dev/2012/q3/156
+-- http://seclists.org/nmap-dev/2010/q1/859
+local CHUNK_SIZE = 64
+
 -- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/
 PROTOCOLS = {
@@ -823,18 +828,14 @@ local function keys(t)
   return ret
 end
 
-local function keys_in_chunks(t)
-  local ret = {{}}
-  local c = 0
-  local b = 1
-  for k, _ in pairs(t) do
-    c = c+1
-    ret[b][c] = k
-    if c >= 64 then
-      c = 0
-      b = b + 1
-      ret[b] = {}
+local function in_chunks(t, size)
+  local ret = {}
+  for i = 1, #t, size do
+    local chunk = {}
+    for j = i, i + size do
+      chunk[#chunk+1] = t[j]
     end
+    ret[#ret+1] = chunk
   end
   return ret
 end
@@ -851,7 +852,7 @@ end
 
 local function find_ciphers(host, port, protocol)
   local name, protocol_worked, record, results, t,cipherstr
-  local ciphers = keys_in_chunks(CIPHERS)
+  local ciphers = in_chunks(keys(CIPHERS), CHUNK_SIZE)
 
   results = {}
 
