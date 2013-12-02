@@ -9,7 +9,8 @@ NBASELIB=$(NBASEDIR)/libnbase.a
 
 CC 	= gcc
 CFLAGS	= -Wall -O0 -ggdb -I../include/ -I$(NBASEDIR)
-LDFLAGS	= -lssl -lpcap -lcrypto
+LDFLAGS	=
+LIBS	= -lssl -lpcap -lcrypto
 
 SRC = tests_main.c \
       basic.c \
@@ -27,7 +28,7 @@ EXE = tests_main
 all: $(SRC) $(EXE)
 
 $(EXE): $(OBJ)
-	$(CC) $(LDFLAGS) $(OBJ) -o $@ $(NSOCKLIB) $(NBASELIB)
+	$(CC) $(LDFLAGS) $(OBJ) -o $@ $(NSOCKLIB) $(NBASELIB) $(LIBS)
 
 .c.o:
 	$(CC) -c $(CFLAGS) $< -o $@
