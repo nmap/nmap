@@ -830,7 +830,7 @@ local function keys_in_chunks(t)
   for k, _ in pairs(t) do
     c = c+1
     ret[b][c] = k
-    if c > 64 then
+    if c >= 64 then
       c = 0
       b = b + 1
       ret[b] = {}
