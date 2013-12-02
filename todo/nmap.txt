@@ -25,6 +25,14 @@ o When scanning your own IP from Windows, Nmap currently recognizes
   in this case (e.g. do a connect scan, etc.).  See
   http://seclists.org/nmap-dev/2013/q3/519
 
+o Web: We should probably distribute RapidSSL intermediate certificate
+  on SecWiki so it is trusted even if browsers don't have that cert
+  cached.  Here's a page nothing the issue:
+  https://www.ssllabs.com/ssltest/analyze.html?d=secwiki.org
+  - We probably need to add an entry in apache conf after
+  SSLCertificateFile which looks something like:
+  SSLCertificateChainFile /etc/apache2/rapidssl.pem
+
 o Make CONCURRENCY_LIMIT in nse_main.lua at least the min-parallelism.
   Otherwise NSE is limited to 1000 socket-using threads even if you've
   requested more.
