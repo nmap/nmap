@@ -61,7 +61,7 @@ clean:
 	rm -f $(OBJS) $(TARGET)
 
 distclean: clean
-	rm -f Makefile makefile.dep config.log config.status nsock_config.h
+	rm -f Makefile makefile.dep config.log config.status ../include/nsock_config.h
 
 depend:
 	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
