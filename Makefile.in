@@ -214,6 +214,9 @@ liblinear_clean:
 	-cd $(LIBLINEARDIR) && $(MAKE) clean
 zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
+	rm -f $(ZENMAPDIR)/zenmapCore/__init__.pyc
+	rm -f $(ZENMAPDIR)/zenmapCore/Version.pyc
+	rm -f $(ZENMAPDIR)/zenmapCore/Name.pyc
 ndiff_clean:
 	-cd $(NDIFFDIR) && $(PYTHON) setup.py clean --all
 nping_clean:
