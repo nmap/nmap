@@ -331,7 +331,7 @@ install-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
 
 NSE_FILES = scripts/script.db scripts/*.nse
-NSE_LIB_LUA_FILES = nselib/*.lua
+NSE_LIB_LUA_FILES = nselib/*.lua nselib/*.luadoc
 
 install-nse: $(TARGET)
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
