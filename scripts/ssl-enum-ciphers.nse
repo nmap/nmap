@@ -832,7 +832,7 @@ local function in_chunks(t, size)
   local ret = {}
   for i = 1, #t, size do
     local chunk = {}
-    for j = i, i + size do
+    for j = i, i + size - 1 do
       chunk[#chunk+1] = t[j]
     end
     ret[#ret+1] = chunk
