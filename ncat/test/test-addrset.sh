@@ -19,17 +19,17 @@ test_addrset() {
 	ret=$?
 	# Change newlines to spaces.
 	result=$(echo $result)
-	TESTS=$((TESTS + 1));
+	TESTS=$(expr $TESTS + 1);
 	if [ "$ret" != "0" ]; then
 		echo "FAIL $ADDRSET returned $ret."
-		TEST_FAIL=$((TEST_FAIL + 1))
+		TEST_FAIL=$(expr $TEST_FAIL + 1)
 	elif [ "$result" != "$expected" ]; then
 		echo "FAIL \"$result\" !="
 		echo "     \"$expected\"."
-		TEST_FAIL=$((TEST_FAIL + 1))
+		TEST_FAIL=$(expr $TEST_FAIL + 1)
 	else
 		echo "PASS $specs"
-		TEST_PASS=$((TEST_PASS + 1))
+		TEST_PASS=$(expr $TEST_PASS + 1)
 	fi
 }
 
@@ -39,13 +39,13 @@ expect_fail() {
 	specs=$1
 	$ADDRSET $specs < /dev/null 2> /dev/null
 	ret=$?
-	TESTS=$((TESTS + 1))
+	TESTS=$(expr $TESTS + 1)
 	if [ "$ret" = "0" ]; then
 		echo "FAIL $ADDRSET $specs was expected to fail, but didn't."
-		TEST_FAIL=$((TEST_FAIL + 1))
+		TEST_FAIL=$(expr $TEST_FAIL + 1)
 	else
 		echo "PASS $specs"
-		TEST_PASS=$((TEST_PASS + 1))
+		TEST_PASS=$(expr $TEST_PASS + 1)
 	fi
 }
 
@@ -55,7 +55,7 @@ seq() {
 	high=$2
 	while [ $low -le $high ]; do
 		echo $low
-		low=$((low + 1))
+		low=$(expr $low + 1)
 	done
 }
 
