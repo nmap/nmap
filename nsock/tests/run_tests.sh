@@ -11,6 +11,11 @@ PORT_TCPSSL=$(grep "PORT_TCPSSL " test-common.h | awk '{print $3}')
 EXEC_MAIN=./tests_main
 
 NCAT=${NCAT:-ncat}
+if [ ! -x "$NCAT" -a -z "$(which $NCAT)" ]; then
+    echo "Can't find your ncat: $NCAT"
+    echo "Skipping nsock tests."
+    exit 0
+fi
 
 
 if [ -n "$1" ]
