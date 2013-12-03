@@ -239,7 +239,7 @@ netutil_dist_clean:
 ncat_dist_clean:
 	-cd $(NCATDIR) && $(MAKE) distclean
 zenmap_dist_clean: zenmap_clean
-	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/
+	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/ INSTALLED_FILES
 ndiff_dist_clean: ndiff_clean
 	-cd $(NDIFFDIR) && rm -rf build/ dist/
 nping_dist_clean:
