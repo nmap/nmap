@@ -552,7 +552,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   struct ip *ip;
   struct tcp_hdr *tcp;
   int distance;
-  int ipids[NUM_IPID_PROBES];
+  u32 ipids[NUM_IPID_PROBES];
   u8 probe_returned[NUM_IPID_PROBES];
   struct route_nfo rnfo;
   assert(proxyName);

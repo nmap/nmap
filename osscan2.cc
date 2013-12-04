@@ -193,7 +193,7 @@ struct scan_performance_vars perf;
    test result should be omitted, the function returns NULL and doesn't modify
    *av. Otherwise, it returns av after filling in the information. */
 static struct AVal *make_aval_ipid_seq(struct AVal *av, const char *attribute,
-                                       int ipid_seqclass, int ipids[NUM_SEQ_SAMPLES]) {
+                                       int ipid_seqclass, u32 ipids[NUM_SEQ_SAMPLES]) {
   switch (ipid_seqclass) {
   case IPID_SEQ_CONSTANT:
     av->value = string_pool_sprintf("%X", ipids[0]);
@@ -332,7 +332,7 @@ int identify_sequence(int numSamples, u32 *ipid_diffs, int islocalhost, int alli
 
 /* Calculate the distances between the ipids and write them
    into the ipid_diffs array */
-int get_diffs(u32 *ipid_diffs, int numSamples, int *ipids, int islocalhost) {
+int get_diffs(u32 *ipid_diffs, int numSamples, u32 *ipids, int islocalhost) {
   int i;
   int allipideqz = 1;
 
@@ -343,11 +343,7 @@ int get_diffs(u32 *ipid_diffs, int numSamples, int *ipids, int islocalhost) {
     if (ipids[i - 1] != 0 || ipids[i] != 0)
       allipideqz = 0; /* All IP.ID values do *NOT* equal zero */
 
-    if (ipids[i - 1] <= ipids[i]) {
-        ipid_diffs[i - 1] = ipids[i] - ipids[i - 1];
-    } else {
-        ipid_diffs[i - 1] = (u32) (ipids[i] - ipids[i - 1] + 4294967296);
-    }
+    ipid_diffs[i - 1] = ipids[i] - ipids[i - 1];
 
     /* Random */
     if (numSamples > 2 && ipid_diffs[i - 1] > 20000)
@@ -359,7 +355,7 @@ int get_diffs(u32 *ipid_diffs, int numSamples, int *ipids, int islocalhost) {
 }
 
 /* Indentify the ipid sequence for 32-bit IPID values (IPv6) */
-int get_ipid_sequence_32(int numSamples, int *ipids, int islocalhost) {
+int get_ipid_sequence_32(int numSamples, u32 *ipids, int islocalhost) {
   int allipideqz=1;
   u32 ipid_diffs[32];
   assert(numSamples < (int) (sizeof(ipid_diffs) / 2));
@@ -368,7 +364,7 @@ int get_ipid_sequence_32(int numSamples, int *ipids, int islocalhost) {
 }
 
 /* Indentify the ipid sequence for 16-bit IPID values (IPv4) */
-int get_ipid_sequence_16(int numSamples, int *ipids, int islocalhost) {
+int get_ipid_sequence_16(int numSamples, u32 *ipids, int islocalhost) {
   int i;
   int allipideqz=1;
   u32 ipid_diffs[32];
@@ -2390,21 +2386,21 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   good_icmp_ipid_num = 0;
 
   for (i = 0; i < NUM_SEQ_SAMPLES; i++) {
-    if (hss->ipid.tcp_ipids[i] != -1) {
+    if (hss->ipid.tcp_ipids[i] != 0xffffffff) {
       if (good_tcp_ipid_num < i) {
         hss->ipid.tcp_ipids[good_tcp_ipid_num] = hss->ipid.tcp_ipids[i];
       }
       good_tcp_ipid_num++;
     }
 
-    if (hss->ipid.tcp_closed_ipids[i] != -1) {
+    if (hss->ipid.tcp_closed_ipids[i] != 0xffffffff) {
       if (good_tcp_closed_ipid_num < i) {
         hss->ipid.tcp_closed_ipids[good_tcp_closed_ipid_num] = hss->ipid.tcp_closed_ipids[i];
       }
       good_tcp_closed_ipid_num++;
     }
 
-    if (hss->ipid.icmp_ipids[i] != -1) {
+    if (hss->ipid.icmp_ipids[i] != 0xffffffff) {
       if (good_icmp_ipid_num < i) {
         hss->ipid.icmp_ipids[good_icmp_ipid_num] = hss->ipid.icmp_ipids[i];
       }
@@ -2450,7 +2446,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     /* Both are incremental. Thus we have "SS" test. Check if they
        are in the same sequence. */
     AV.attribute = "SS";
-    int avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
+    u32 avg = (hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] - hss->ipid.tcp_ipids[0]) / (good_tcp_ipid_num - 1);
     if ( hss->ipid.icmp_ipids[0] < hss->ipid.tcp_ipids[good_tcp_ipid_num - 1] + 3 * avg) {
       AV.value = "S";
     } else {
