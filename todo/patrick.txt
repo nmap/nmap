@@ -2,28 +2,9 @@
 
 Currently working on:
 
--- Spider script and module (within http library).
-
--- Update NSE Book Implementation Section.
-
--- Review and Improve NSE Nsock Library.
-     o Move away from C pointer references and allocation over to Lua.
-       If a function ends in error, all the userdata will be collected.
-       We would otherwise need to use pcalls everywhere to clean up
-       and free malloc()'d memory.
-     o Use thread calling nsock_loop (or currently running thread)
-       for restoring waiting threads to the running queue.
-       Making a function call on a yielded thread is a hack and
-       could cause problems in the future.
-     o Get rid of the static nsock_pool and use a dynamically allocated
-       structure on a per-host-group basis.
-     o Prepare for Lua 5.2 --> Change to real errors.
+-- LPEG in NSE.
 
 -- HTTP Library in LPeg.
-
--- Merge utility functions into a single source file (e.g. table_length
-   and all debug functions). Is there a simple way to define a DEBUG flag
-   during compilation for the inclusion of the debug functions?
 
 ===
 
@@ -44,10 +25,24 @@ Maybe:
 
 -- Look into moving Packet Module to C.
 
-
 ===
 
 Done:
+
+-- Review and Improve NSE Nsock Library.
+     o Move away from C pointer references and allocation over to Lua.
+       If a function ends in error, all the userdata will be collected.
+       We would otherwise need to use pcalls everywhere to clean up
+       and free malloc()'d memory.
+     o Use thread calling nsock_loop (or currently running thread)
+       for restoring waiting threads to the running queue.
+       Making a function call on a yielded thread is a hack and
+       could cause problems in the future.
+     o Get rid of the static nsock_pool and use a dynamically allocated
+       structure on a per-host-group basis.
+     o Prepare for Lua 5.2 --> Change to real errors.
+
+-- Update NSE Book Implementation Section.
 
 -- Added boolean operator patch.
 
