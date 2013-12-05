@@ -599,7 +599,6 @@ cipherstrength = {
 local rankedciphers={}
 local mincipherstrength=9999 --artificial "highest value"
 local rankedciphersfilename=false
-local policy=true
 
 local function record_read(buffer, i)
   local b, h, j, len
