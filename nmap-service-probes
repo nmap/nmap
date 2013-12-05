@@ -9616,8 +9616,9 @@ match domain m|^....\x85\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x0
 # Has to come before BIND matches.
 match domain m|^..\0\x06\x81\x80\0\x01\0\x01\0\0\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x0e.unbound ([\w._-]+)$| p/Unbound/ v/$1/
 
-match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
 match domain m|\x07version\x04bind.*[\x03-\x14]BIND ([-\w._]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
+match domain m|\x07version\x04bind.*[\x03-\x14]NSD ([-\w._]{3,20})|s p/NLnet Labs NSD/ v/$1/ cpe:/a:nlnet:nsd:$1/
+match domain m|\x07version\x04bind.*[\x03-\x14]([-\w._ ]{3,20})|s p/ISC BIND/ v/$1/ cpe:/a:isc:bind:$1/
 # ISC Bind 9.1.3
 match domain m|\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0\0\x01\0| p/ISC BIND/ v/9.X/ cpe:/a:isc:bind:9/
 match domain m|^..\0\x06\x85\0\0\x01\0\x01\0\x01\0\0\x07version\x04bind\0\0\x10\0\x03\xc0\x0c\0\x10\0\x03\0\0\0\0...[\w._-]+-RedHat-([\w._-]+\.el5_[\w._-]+)\xc0\x0c\0\x02\0\x03\0\0\0\0\0\x02\xc0\x0c|s p/ISC BIND/ v/$1/ o/Red Hat Enterprise Linux/ cpe:/a:isc:bind:$1/ cpe:/o:redhat:enterprise_linux/
