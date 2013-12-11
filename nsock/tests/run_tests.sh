@@ -13,8 +13,13 @@ EXEC_MAIN=./tests_main
 NCAT=${NCAT:-ncat}
 if [ ! -x "$NCAT" -a -z "$(which $NCAT)" ]; then
     echo "Can't find your ncat: $NCAT"
-    echo "Skipping nsock tests."
-    exit 0
+    echo "Trying ../../ncat/ncat"
+    NCAT="../../ncat/ncat"
+    if [ ! -x "$NCAT" ]; then
+        echo "You haven't built Ncat."
+        echo "Skipping nsock tests."
+        exit 0
+    fi
 fi
 
 
