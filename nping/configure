@@ -2250,8 +2250,7 @@ if test "$user_localdirs" = 1; then
      LDFLAGS="$LDFLAGS -L/usr/local/lib"
      fi
    if test -d /usr/local/include; then
-     CFLAGS="$CFLAGS -I/usr/local/include"
-     CXXFLAGS="$CFLAGS -I/usr/local/include"
+     CPPFLAGS="$CPPFLAGS -I/usr/local/include"
    fi
 fi
 
@@ -5147,7 +5146,7 @@ fi
     have_libpcap=no
    ;;
   *)
-    _cppflags=$CXXFLAGS
+    _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
@@ -5203,7 +5202,7 @@ fi
 
 
     LDFLAGS=$_ldflags
-    CXXFLAGS=$_cppflags
+    CPPFLAGS=$_cppflags
     ;;
   esac
 
@@ -5216,9 +5215,6 @@ fi
 
 if test $have_libpcap = yes; then
   if test "${LIBPCAP_INC+set}" = "set"; then
-    _cflags=$CXXFLAGS
-    _ldflags=$LDFLAGS
-
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
     LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi
