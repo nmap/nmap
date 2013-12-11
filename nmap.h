@@ -278,11 +278,6 @@ void *realloc();
    sockets.  Can also adjust with the -M command line option.  */
 #define MAX_SOCKETS 36 
 
-/* How do we want to log into ftp sites for */ 
-#define FTPUSER "anonymous"
-#define FTPPASS "-wwwuser@"
-#define FTP_RETRIES 2 /* How many times should we relogin if we lose control
-                         connection? */
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts 
 				      in a row before we decide the host is 
 				      dead? */
@@ -436,8 +431,6 @@ void *realloc();
 
 /* print Interactive usage information */
 void printinteractiveusage();
-
-int ftp_anon_connect(struct ftpinfo *ftp);
 
 /* port manipulators */
 void getpts(const char *expr, struct scan_lists * ports); /* someone stole the name getports()! */

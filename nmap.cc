@@ -135,6 +135,7 @@
 #include "traceroute.h"
 #include "nmap_tty.h"
 #include "nmap_dns.h"
+#include "nmap_ftp.h"
 #include "services.h"
 #include "protocols.h"
 #include "targets.h"
@@ -218,39 +219,6 @@ static int parse_scanflags(char *arg) {
       flagval = 0;
   }
   return flagval;
-}
-
-/* parse a URL stype ftp string of the form user:pass@server:portno */
-static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
-  char *p = url, *q, *s;
-
-  if ((q = strrchr(url, '@'))) { /* we have user and/or pass */
-    *q++ = '\0';
-
-    if ((s = strchr(p, ':'))) { /* we have user AND pass */
-      *s++ = '\0';
-      strncpy(ftp->pass, s, 255);
-    } else { /* we ONLY have user */
-      log_write(LOG_STDOUT, "Assuming %s is a username, and using the default password: %s\n",
-                p, ftp->pass);
-    }
-
-    strncpy(ftp->user, p, 63);
-  } else {
-    q = url;
-  }
-
-  /* q points to beginning of server name */
-  if ((s = strchr(q, ':'))) { /* we have portno */
-    *s++ = '\0';
-    ftp->port = atoi(s);
-  }
-
-  strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
-
-  ftp->user[63] = ftp->pass[255] = ftp->server_name[MAXHOSTNAMELEN] = 0;
-
-  return 1;
 }
 
 static void printusage(int rc) {
@@ -492,13 +460,7 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o) {
 #endif
 }
 
-#if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
-/* Note that struct in_addr in solaris is 3 levels deep just to store an
- * unsigned int! */
-struct ftpinfo ftp = { FTPUSER, FTPPASS, "",  { { { 0 } } } , 21, 0};
-#else
-struct ftpinfo ftp = { FTPUSER, FTPPASS, "", { 0 }, 21, 0};
-#endif
+struct ftpinfo ftp = get_default_ftpinfo();
 
 /* A list of targets to be displayed by the --route-dst debugging option. */
 static std::vector<std::string> route_dst_hosts;
@@ -2845,83 +2807,6 @@ const char *statenum2str(int state) {
   }
   return "unknown";
 }
-
-int ftp_anon_connect(struct ftpinfo *ftp) {
-  int sd;
-  struct sockaddr_in sock;
-  int res;
-  char recvbuf[2048];
-  char command[512];
-
-  if (o.verbose || o.debugging)
-    log_write(LOG_STDOUT, "Attempting connection to ftp://%s:%s@%s:%i\n",
-	      ftp->user, ftp->pass, ftp->server_name, ftp->port);
-
-  if ((sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
-    gh_perror("Couldn't create %s socket", __func__);
-    return 0;
-  }
-  socket_bindtodevice(sd, o.device);
-
-  sock.sin_family = AF_INET;
-  sock.sin_addr.s_addr = ftp->server.s_addr;
-  sock.sin_port = htons(ftp->port);
-  res = connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in));
-  if (res < 0)
-    fatal("Your FTP bounce proxy server won't talk to us!");
-  if (o.verbose || o.debugging)
-    log_write(LOG_STDOUT, "Connected:");
-  while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 7, NULL)) > 0) {
-    if (o.debugging || o.verbose) {
-      recvbuf[res] = '\0';
-      log_write(LOG_STDOUT, "%s", recvbuf);
-    }
-  }
-  if (res < 0)
-    pfatal("recv problem from FTP bounce server");
-
-  Snprintf(command, 511, "USER %s\r\n", ftp->user);
-
-  send(sd, command, strlen(command), 0);
-  res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 12, NULL);
-  if (res <= 0)
-    pfatal("recv problem from FTP bounce server");
-  recvbuf[res] = '\0';
-  if (o.debugging)
-    log_write(LOG_STDOUT, "sent username, received: %s", recvbuf);
-  if (recvbuf[0] == '5')
-    fatal("Your FTP bounce server doesn't like the username \"%s\"", ftp->user);
-
-  Snprintf(command, 511, "PASS %s\r\n", ftp->pass);
-
-  send(sd, command, strlen(command), 0);
-  res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 12, NULL);
-  if (res < 0)
-    pfatal("recv problem from FTP bounce server");
-  if (!res) {
-    error("Timeout from bounce server ...");
-  } else {
-    recvbuf[res] = '\0';
-    if (o.debugging)
-      log_write(LOG_STDOUT, "sent password, received: %s", recvbuf);
-    if (recvbuf[0] == '5')
-      fatal("Your FTP bounce server refused login combo (%s/%s)", ftp->user, ftp->pass);
-  }
-  while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 2, NULL)) > 0) {
-    if (o.debugging) {
-      recvbuf[res] = '\0';
-      log_write(LOG_STDOUT, "%s", recvbuf);
-    }
-  }
-  if (res < 0)
-    pfatal("recv problem from FTP bounce server");
-  if (o.verbose)
-    log_write(LOG_STDOUT, "Login credentials accepted by FTP server!\n");
-
-  ftp->sd = sd;
-  return sd;
-}
-
 
 static char *executable_dir(const char *argv0) {
   char *path, *dir;

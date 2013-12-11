@@ -181,15 +181,6 @@ struct scanstats {
   int alreadydecreasedqueries;
 };
 
-struct ftpinfo {
-  char user[64];
-  char pass[256]; /* methinks you're paranoid if you need this much space */
-  char server_name[MAXHOSTNAMELEN + 1];
-  struct in_addr server;
-  u16 port;
-  int sd; /* socket descriptor */
-};
-
 struct AVal {
   const char *attribute;
   const char *value;
