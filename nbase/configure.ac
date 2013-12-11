@@ -34,7 +34,7 @@ if test "$user_localdirs" = 1; then
      LDFLAGS="$LDFLAGS -L/usr/local/lib"
      fi
    if test -d /usr/local/include; then
-     CFLAGS="$CFLAGS -I/usr/local/include"
+     CPPFLAGS="$CPPFLAGS -I/usr/local/include"
    fi
 fi
 

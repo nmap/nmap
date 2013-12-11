@@ -26,8 +26,7 @@ if test "$user_localdirs" = 1; then
      LDFLAGS="$LDFLAGS -L/usr/local/lib"
      fi
    if test -d /usr/local/include; then
-     CFLAGS="$CFLAGS -I/usr/local/include"
-     CXXFLAGS="$CXXFLAGS -I/usr/local/include"
+     CPPFLAGS="$CPPFLAGS -I/usr/local/include"
    fi
 fi
 
@@ -373,7 +372,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
     have_libpcap=no
    ;;
   *)
-    _cppflags=$CXXFLAGS
+    _cppflags=$CPPFLAGS
     _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
@@ -386,7 +385,7 @@ AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap
 	LIBPCAP_LIB=$with_libpcap/lib])])
 
     LDFLAGS=$_ldflags
-    CXXFLAGS=$_cppflags
+    CPPFLAGS=$_cppflags
     ;;
   esac]
 )
@@ -397,9 +396,6 @@ fi
 
 if test $have_libpcap = yes; then
   if test "${LIBPCAP_INC+set}" = "set"; then
-    _cflags=$CXXFLAGS
-    _ldflags=$LDFLAGS
-
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
     LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi

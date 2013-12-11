@@ -22,7 +22,7 @@ AC_ARG_WITH(openssl,[  --with-openssl=DIR    Use optional openssl libs and inclu
   *)
     specialssldir="$with_openssl"
     LDFLAGS="$LDFLAGS -L$with_openssl/lib"
-    CFLAGS="-I$with_openssl/include $CFLAGS"
+    CPPFLAGS="-I$with_openssl/include $CPPFLAGS"
   ;;
   esac]
 )
