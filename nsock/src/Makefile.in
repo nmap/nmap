@@ -14,7 +14,7 @@ CCOPT =
 DEFS = @DEFS@ -DNSOCK_VERSION=\"$(NSOCK_VERSION)\"
 # With GCC, add extra security checks to source code.
 DEFS += -D_FORTIFY_SOURCE=2
-INCLS = -I../include -I../../libpcap
+INCLS = -I../include
 CFLAGS = @CFLAGS@ $(CCOPT)
 # CFLAGS = -g -Wall $(DEFS) $(INCLS)
 CPPFLAGS = @CPPFLAGS@ $(DEFS) $(INCLS)

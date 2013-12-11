@@ -104,12 +104,49 @@ if test "$user_localdirs" = 1; then
 fi
 
 pcap_enabled=yes
-AC_ARG_WITH(pcap,
-  AC_HELP_STRING([--disable-pcap], [Disable pcap functions.]),
-  [ pcap_enabled="$withval" ])
+AC_ARG_WITH(libpcap,
+AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
+[  case "$with_libpcap" in
+  yes)
+    AC_CHECK_HEADER(pcap.h,[
+      AC_CHECK_LIB(pcap, pcap_datalink,
+      [pcap_enabled=yes ])])
+    ;;
+  no)
+    pcap_enabled=no
+   ;;
+  *)
+    _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
 
-if test "$pcap_enabled" != "no"; then
+    CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
+    LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
+
+    AC_CHECK_HEADER(pcap.h,[
+      AC_CHECK_LIB(pcap, pcap_datalink,
+	[have_libpcap=yes
+	LIBPCAP_INC=$with_libpcap/include
+	LIBPCAP_LIB=$with_libpcap/lib])])
+
+    LDFLAGS=$_ldflags
+    CPPFLAGS=$_cppflags
+    ;;
+  esac],
+[  pcap_enabled=yes
+  LIBPCAP_INC="../../libpcap"
+  LIBPCAP_LIB="../../libpcap"
+   ]
+)
+
+if test $pcap_enabled = yes; then
+  if test "${LIBPCAP_INC+set}" = "set"; then
+    CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
+    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
+  fi
+
   AC_DEFINE(HAVE_PCAP)
+  LIBPCAP_LIBS="-lpcap"
 fi
 
 AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL)], )
