@@ -1,8 +1,6 @@
 
 /***************************************************************************
- * scan_engine.h -- Includes much of the "engine" functions for scanning,  *
- * such as ultra_scan.  It also includes dependant functions such as       *
- * those for collecting SYN/connect scan responses.                        *
+ * nmap_ftp.cc -- Nmap's FTP routines used for FTP bounce scan (-b)
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -124,80 +122,263 @@
  ***************************************************************************/
 
 /* $Id$ */
+#include "nmap_ftp.h"
+#include "output.h"
+#include "NmapOps.h"
+#include "nmap_error.h"
+#include "tcpip.h"
+#include "Target.h"
+extern NmapOps o;
 
-#ifndef SCAN_ENGINE_H
-#define SCAN_ENGINE_H
+struct ftpinfo get_default_ftpinfo(void) {
+#if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
+  /* Note that struct in_addr in solaris is 3 levels deep just to store an
+   * unsigned int! */
+  struct ftpinfo ftp = { FTPUSER, FTPPASS, "",  { { { 0 } } } , 21, 0};
+#else
+  struct ftpinfo ftp = { FTPUSER, FTPPASS, "", { 0 }, 21, 0};
+#endif
+  return ftp;
+}
 
-#include "nmap.h"
-#include "global_structures.h"
-#include <vector>
+/* parse a URL stype ftp string of the form user:pass@server:portno */
+int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
+  char *p = url, *q, *s;
 
-struct probespec_tcpdata {
-  u16 dport;
-  u8 flags;
-};
+  if ((q = strrchr(url, '@'))) { /* we have user and/or pass */
+    *q++ = '\0';
 
-struct probespec_udpdata {
-  u16 dport;
-};
+    if ((s = strchr(p, ':'))) { /* we have user AND pass */
+      *s++ = '\0';
+      strncpy(ftp->pass, s, 255);
+    } else { /* we ONLY have user */
+      log_write(LOG_STDOUT, "Assuming %s is a username, and using the default password: %s\n",
+                p, ftp->pass);
+    }
 
-struct probespec_sctpdata {
-  u16 dport;
-  u8 chunktype;
-};
+    strncpy(ftp->user, p, 63);
+  } else {
+    q = url;
+  }
 
-struct probespec_icmpdata {
-  u8 type;
-  u8 code;
-};
+  /* q points to beginning of server name */
+  if ((s = strchr(q, ':'))) { /* we have portno */
+    *s++ = '\0';
+    ftp->port = atoi(s);
+  }
 
-struct probespec_icmpv6data {
-  u8 type;
-  u8 code;
-};
+  strncpy(ftp->server_name, q, MAXHOSTNAMELEN);
 
-#define PS_NONE 0
-#define PS_TCP 1
-#define PS_UDP 2
-#define PS_PROTO 3
-#define PS_ICMP 4
-#define PS_ARP 5
-#define PS_CONNECTTCP 6
-#define PS_SCTP 7
-#define PS_ICMPV6 8
-#define PS_ND 9
+  ftp->user[63] = ftp->pass[255] = ftp->server_name[MAXHOSTNAMELEN] = 0;
 
-/* The size of this structure is critical, since there can be tens of
-   thousands of them stored together ... */
-typedef struct probespec {
-  /* To save space, I changed this from private enum (took 4 bytes) to
-     u8 that uses #defines above */
-  u8 type;
-  u8 proto; /* If not PS_ARP -- Protocol number ... eg IPPROTO_TCP, etc. */
-  union {
-    struct probespec_tcpdata tcp; /* If type is PS_TCP or PS_CONNECTTCP. */
-    struct probespec_udpdata udp; /* PS_UDP */
-    struct probespec_sctpdata sctp; /* PS_SCTP */
-    struct probespec_icmpdata icmp; /* PS_ICMP */
-    struct probespec_icmpv6data icmpv6; /* PS_ICMPV6 */
-    /* Nothing needed for PS_ARP, since src mac and target IP are
-       avail from target structure anyway */
-  } pd;
-} probespec;
+  return 1;
+}
 
-/* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
-void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports, 
-		stype scantype, struct timeout_info *to = NULL);
+int ftp_anon_connect(struct ftpinfo *ftp) {
+  int sd;
+  struct sockaddr_in sock;
+  int res;
+  char recvbuf[2048];
+  char command[512];
 
-/* Determines an ideal number of hosts to be scanned (port scan, os
-   scan, version detection, etc.) in parallel after the ping scan is
-   completed.  This is a balance between efficiency (more hosts in
-   parallel often reduces scan time per host) and results latency (you
-   need to wait for all hosts to finish before Nmap can spit out the
-   results).  Memory consumption usually also increases with the
-   number of hosts scanned in parallel, though rarely to significant
-   levels. */
-int determineScanGroupSize(int hosts_scanned_so_far, 
-			   struct scan_lists *ports);
+  if (o.verbose || o.debugging)
+    log_write(LOG_STDOUT, "Attempting connection to ftp://%s:%s@%s:%i\n",
+	      ftp->user, ftp->pass, ftp->server_name, ftp->port);
 
-#endif /* SCAN_ENGINE_H */
+  if ((sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+    gh_perror("Couldn't create %s socket", __func__);
+    return 0;
+  }
+  socket_bindtodevice(sd, o.device);
+
+  sock.sin_family = AF_INET;
+  sock.sin_addr.s_addr = ftp->server.s_addr;
+  sock.sin_port = htons(ftp->port);
+  res = connect(sd, (struct sockaddr *) &sock, sizeof(struct sockaddr_in));
+  if (res < 0)
+    fatal("Your FTP bounce proxy server won't talk to us!");
+  if (o.verbose || o.debugging)
+    log_write(LOG_STDOUT, "Connected:");
+  while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 7, NULL)) > 0) {
+    if (o.debugging || o.verbose) {
+      recvbuf[res] = '\0';
+      log_write(LOG_STDOUT, "%s", recvbuf);
+    }
+  }
+  if (res < 0)
+    pfatal("recv problem from FTP bounce server");
+
+  Snprintf(command, 511, "USER %s\r\n", ftp->user);
+
+  send(sd, command, strlen(command), 0);
+  res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 12, NULL);
+  if (res <= 0)
+    pfatal("recv problem from FTP bounce server");
+  recvbuf[res] = '\0';
+  if (o.debugging)
+    log_write(LOG_STDOUT, "sent username, received: %s", recvbuf);
+  if (recvbuf[0] == '5')
+    fatal("Your FTP bounce server doesn't like the username \"%s\"", ftp->user);
+
+  Snprintf(command, 511, "PASS %s\r\n", ftp->pass);
+
+  send(sd, command, strlen(command), 0);
+  res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 12, NULL);
+  if (res < 0)
+    pfatal("recv problem from FTP bounce server");
+  if (!res) {
+    error("Timeout from bounce server ...");
+  } else {
+    recvbuf[res] = '\0';
+    if (o.debugging)
+      log_write(LOG_STDOUT, "sent password, received: %s", recvbuf);
+    if (recvbuf[0] == '5')
+      fatal("Your FTP bounce server refused login combo (%s/%s)", ftp->user, ftp->pass);
+  }
+  while ((res = recvtime(sd, recvbuf, sizeof(recvbuf) - 1, 2, NULL)) > 0) {
+    if (o.debugging) {
+      recvbuf[res] = '\0';
+      log_write(LOG_STDOUT, "%s", recvbuf);
+    }
+  }
+  if (res < 0)
+    pfatal("recv problem from FTP bounce server");
+  if (o.verbose)
+    log_write(LOG_STDOUT, "Login credentials accepted by FTP server!\n");
+
+  ftp->sd = sd;
+  return sd;
+}
+
+/* FTP bounce attack scan.  This function is rather lame and should be
+   rewritten.  But I don't think it is used much anyway.  If I'm going to
+   allow FTP bounce scan, I should really allow SOCKS proxy scan.  */
+void bounce_scan(Target *target, u16 *portarray, int numports,
+                 struct ftpinfo *ftp) {
+  o.current_scantype = BOUNCE_SCAN;
+
+  time_t starttime;
+  int res , sd = ftp->sd,  i = 0;
+  const char *t = (const char *)target->v4hostip();
+  int retriesleft = FTP_RETRIES;
+  char recvbuf[2048];
+  char targetstr[20];
+  char command[512];
+  char hostname[1200];
+  unsigned short portno, p1, p2;
+  int timedout;
+
+  if (numports == 0)
+    return; /* nothing to scan for */
+
+  Snprintf(targetstr, 20, "%d,%d,%d,%d,", UC(t[0]), UC(t[1]), UC(t[2]), UC(t[3]));
+
+  starttime = time(NULL);
+  if (o.verbose || o.debugging) {
+    struct tm *tm = localtime(&starttime);
+    assert(tm);
+    log_write(LOG_STDOUT, "Initiating TCP FTP bounce scan against %s at %02d:%02d\n", target->NameIP(hostname, sizeof(hostname)), tm->tm_hour, tm->tm_min );
+  }
+  for (i = 0; i < numports; i++) {
+
+    /* Check for timeout */
+    if (target->timedOut(NULL))
+      return;
+
+    portno = htons(portarray[i]);
+    p1 = ((unsigned char *) &portno)[0];
+    p2 = ((unsigned char *) &portno)[1];
+    Snprintf(command, 512, "PORT %s%i,%i\r\n", targetstr, p1, p2);
+    if (o.debugging)
+      log_write(LOG_STDOUT, "Attempting command: %s", command);
+    if (send(sd, command, strlen(command), 0) < 0 ) {
+      gh_perror("send in %s", __func__);
+      if (retriesleft) {
+        if (o.verbose || o.debugging)
+          log_write(LOG_STDOUT, "Our FTP proxy server hung up on us!  retrying\n");
+        retriesleft--;
+        close(sd);
+        ftp->sd = ftp_anon_connect(ftp);
+        if (ftp->sd < 0)
+          return;
+        sd = ftp->sd;
+        i--;
+      } else {
+        error("Our socket descriptor is dead and we are out of retries. Giving up.");
+        close(sd);
+        ftp->sd = -1;
+        return;
+      }
+    } else { /* Our send is good */
+      res = recvtime(sd, recvbuf, 2048, 15, NULL);
+      if (res <= 0) {
+        perror("recv problem from FTP bounce server");
+      } else { /* our recv is good */
+        recvbuf[res] = '\0';
+        if (o.debugging)
+          log_write(LOG_STDOUT, "result of port query on port %i: %s",
+                                     portarray[i],  recvbuf);
+        if (recvbuf[0] == '5') {
+          if (portarray[i] > 1023) {
+            fatal("Your FTP bounce server sucks, it won't let us feed bogus ports!");
+          } else {
+            error("Your FTP bounce server doesn't allow privileged ports, skipping them.");
+            while (i < numports && portarray[i] < 1024) i++;
+            if (!portarray[i]) {
+              fatal("And you didn't want to scan any unpriviliged ports.  Giving up.");
+            }
+          }
+        } else { /* Not an error message */
+          if (send(sd, "LIST\r\n", 6, 0) > 0 ) {
+            res = recvtime(sd, recvbuf, 2048, 12, &timedout);
+            if (res < 0) {
+              perror("recv problem from FTP bounce server");
+            } else if (res == 0) {
+              if (timedout)
+                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
+              else target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
+            } else {
+              recvbuf[res] = '\0';
+              if (o.debugging)
+                log_write(LOG_STDOUT, "result of LIST: %s", recvbuf);
+              if (!strncmp(recvbuf, "500", 3)) {
+                /* fuck, we are not aligned properly */
+                if (o.verbose || o.debugging)
+                  error("FTP command misalignment detected ... correcting.");
+                res = recvtime(sd, recvbuf, 2048, 10, NULL);
+              }
+              if (recvbuf[0] == '1' || recvbuf[0] == '2') {
+                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_OPEN);
+                if (recvbuf[0] == '1') {
+                  res = recvtime(sd, recvbuf, 2048, 5, NULL);
+                  if (res < 0)
+                    perror("recv problem from FTP bounce server");
+                  else {
+                    recvbuf[res] = '\0';
+                    if (res > 0) {
+                      if (o.debugging)
+                        log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
+                      if (recvbuf[0] == '4' && recvbuf[1] == '2' && recvbuf[2] == '6') {
+                        target->ports.forgetPort(portarray[i], IPPROTO_TCP);
+                        if (o.debugging || o.verbose)
+                          log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
+                      }
+                    }
+                  }
+                }
+              } else {
+                /* This means the port is closed ... */
+                target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (o.debugging || o.verbose)
+    log_write(LOG_STDOUT, "Scanned %d ports in %ld seconds via the Bounce scan.\n",
+              numports, (long) time(NULL) - starttime);
+  return;
+}
