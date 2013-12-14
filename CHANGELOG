@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added version detection signatures and probes for a bunch of Android
+  remote mouse/keyboard servers, including AndroMouse, AirHID,
+  Wifi-mouse, and RemoteMouse. [Paul Hemberger]
+
 o [NSE] Added allseeingeye-info for gathering information from games
   using this query protocol.  A version detection probe was also
   added. [Marin Maržić]
