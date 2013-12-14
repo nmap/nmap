@@ -74,6 +74,8 @@ match amanda m|^220 ([-.\w]+) AMANDA index server \((\d[-.\w ]+)\) ready\.\r\n| 
 match amanda m|^501 Could not read config file [^!\r\n]+!\r\n220 ([-.\w]+) AMANDA index server \(([-\w_.]+)\) ready\.\r\n| p/Amanda backup system index server/ v/$2/ i/broken: config file not found/ h/$1/
 match amanda m|^ld\.so\.1: amandad: fatal: (libsunmath\.so\.1): open failed: No such file or directory\n$| p/Amanda backup system index server/ i/broken: $1 not found/
 
+match AndroMouse m|^AMServer$|s p/AndroMouse Android remote mouse server/
+
 match antivir m|^220 Symantec AntiVirus Scan Engine ready\.\r\n| p/Symantec AntiVirus Scan Engine/ cpe:/a:symantec:antivirus/
 match antivir m|^200 NOD32SS ([\d.]+) \((\d+)\)\r\n| p/NOD32 AntiVirus/ v/$1 ($2)/ cpe:/a:eset:nod32_antivirus:$1/
 
@@ -3108,6 +3110,9 @@ match kvm m|^\0\0\0\x0bSynergy\0\x01\0| p/Synergy KVM/
 match kvm m|^\0\0\0\x0b<CSC/>\0| p/Raritan KVM/
 match kvm m|^LFB 1\.0[56]$| p/IBM BladeCenter KVM/
 
+match RemoteMouse m|^SIN 17osx nop nopwd \d+$|s p/Remote Mouse/ i/OS X/
+match RemoteMouse m|^SIN 17win nop nopwd \d+$|s p/Remote Mouse/ i/Windows/
+
 # Redhat Linux 7.1 - HAHAHAHAHAHA!!!! I love this service :)
 match systat m|^USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND\n| p/Linux systat/ o/Linux/ cpe:/o:linux:linux_kernel/a
 match systat m|^  PID  PGRP SID PRI STATE   BLK  SIZE COMMAND\n| p/QNX systat/ o/QNX/
@@ -4126,6 +4131,10 @@ match websm m|^\+ read portFile\n\+ find /var/websm/data/wservers/| p/AIX wsmser
 match websm m|^\+ find /var/websm/data/wservers/ -type f -print -name \[0-9\]\*\[0-9\]\n\+ 2> /dev/null\n\+ head -1\n\+ read portFile\n\+| p/AIX wsmserver/ o/AIX/ cpe:/o:ibm:aix/a
 
 match weprint m|^\0\0\x26\xa1\0\0\x26\x99<header><type>hello</type><version>1</version><envVersion>2</envVersion><seq>[0-9a-f]+</seq><info>\(c\) 2008, EuroSmartz Ltd\. Only for use with EuroSmartz approved software\.</info><model>wep/([\w._-]+)</model><id>\d+</id><serverName>([\w._-]+)</serverName>| p/WePrint printer sharing server/ v/$1/ h/$2/
+
+match wifi-mouse m|^system\x20mac\x2010\.9\nversion\x201\.5\.0\.0\n$|s p/WiFi Mouse/ i/OS X/
+match wifi-mouse m|^system\x20windows\x206\.1\nversion\x201\.\x205\.\x200\.\x200\n$|s p/WiFi Mouse/ i/Windows/
+match wifi-mouse m|^system\x20linux\x2010\.0\.4\nversion\x201\.\x205\.\x200\.\x200\n$|s p/WiFi Mouse/ i/Linux/
 
 match winshell m=^Microsoft Windows( (?:2000|XP|NT 4\.0)|) \[Version ([\d.]+)\]\r\n\(C\) Copyright 1985-20\d\d Microsoft Corp\.\r\n\r\n= p/Microsoft Windows$1 $2 cmd.exe/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
 match winshell m|^Microsoft Windows \[Version ([\d.]+)\]\r\nCopyright \(c\) 20\d\d Microsoft Corporation\.  All rights reserved\.\r\n\r\n| p/Microsoft Windows $1 cmd.exe/ i/**BACKDOOR**/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -12349,3 +12358,18 @@ rarity 9
 ports 1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138
 
 match allseeingeye m/^EYE1.(.*?)(?|\x02(\d)|\x03(\d{2})|\x04(\d{3})|\x05(\d{4})|\x06(\d{5}))/s p/All-Seeing Eye/ i/game: $1; port: $2/
+
+##############################NEXT PROBE##############################
+Probe UDP AndroMouse q|AMSNIFF|
+rarity 9
+ports 8888
+
+match AndroMouse m|^GOTBACK$|s p/AndroMouse Android remote mouse server/
+
+##############################NEXT PROBE##############################
+Probe UDP AirHID q|from:airhid|
+rarity 9
+ports 13246
+
+match AirHID m|^andReceiver-\d+\.\d+\.\d+$|s p/AirHID Andrioid remote mouse server/
+
