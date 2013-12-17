@@ -964,7 +964,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
 }
 
 u16 UltraProbe::icmpid() const {
-  assert(mypspec.proto == IPPROTO_ICMP);
+  assert(mypspec.proto == IPPROTO_ICMP || mypspec.proto == IPPROTO_ICMPV6);
   return probes.IP.pd.icmp.ident;
 }
 
