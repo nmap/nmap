@@ -334,7 +334,7 @@ netscaler = {
 
             -- TODO Check for other version detection possibilities
             -- based on fingerprint difference
-            if response.header.via and string.find(response.header.via, 'NS-CACHE') then -- 
+            if response.header.via and string.find(response.header.via, 'NS%-CACHE') then -- 
                 stdnse.print_debug("%s Citrix Netscaler detected through Via Header.", SCRIPT_NAME)
                 netscaler.version = string.sub(response.header.via, 10, 12)
                 netscaler.detected = true

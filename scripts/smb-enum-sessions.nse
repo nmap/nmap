@@ -215,7 +215,7 @@ local function winreg_enum_rids(host)
 	for i = 1, #elements, 1 do
 		if(elements[i]['name'] ~= nil) then
 			local sid = elements[i]['name']
-		    if(string.find(sid, "^S-") ~= nil and string.find(sid, "-%d+$") ~= nil) then
+		    if(string.find(sid, "^S%-") ~= nil and string.find(sid, "%-%d+$") ~= nil) then
 				-- The rid is the last digits before the end of the string
 				local rid = string.sub(sid, string.find(sid, "%d+$"))
 

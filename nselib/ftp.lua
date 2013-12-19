@@ -57,7 +57,7 @@ function read_reply(buffer)
 	end
 
 	-- Multi-line response?
-	_, p, code, message = string.find(line, "^(%d%d%d)-(.*)$")
+	_, p, code, message = string.find(line, "^(%d%d%d)%-(.*)$")
 	if p then
 	while true do
 		line, err = buffer()
