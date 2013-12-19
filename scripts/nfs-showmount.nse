@@ -45,7 +45,7 @@ local function get_exports(host, port)
     host.registry.nfs = {}
   end
   if mountver == nil then
-    local low, high = string.match(port.version.version, "(%d)-(%d)")
+    local low, high = string.match(port.version.version, "(%d)%-(%d)")
     if high == nil then
       mountver = tonumber(port.version.version)
     else
