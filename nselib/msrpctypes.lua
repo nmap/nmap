@@ -1571,11 +1571,11 @@ function marshall_dom_sid2(sid)
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_dom_sid2()"))
 
 
-	if(string.find(sid, "^S-") == nil) then
+	if(string.find(sid, "^S%-") == nil) then
 		stdnse.print_debug(1, "MSRPC: ERROR: Invalid SID encountered: %s\n", sid)
 		return nil
 	end
-	if(string.find(sid, "-%d+$") == nil) then
+	if(string.find(sid, "%-%d+$") == nil) then
 		stdnse.print_debug(1, "MSRPC: ERROR: Invalid SID encountered: %s\n", sid)
 		return nil
 	end

@@ -232,7 +232,7 @@ tools = { Django = { rapidDetect = function(host, port)
                         consumingDetect = function(page, path)
                             if page then
                                 if string.find(page, "content=[\"']WordPress") or 
-                                    string.find(page, "wp-content") then
+                                    string.find(page, "wp%-content") then
                                     return "Wordpress detected. Found common traces on " .. page
                                 end
                             end
