@@ -67,7 +67,7 @@ hostrule = function(host)
   end
   if nfsport == nil then return false end
   if host.registry.nfs.nfsver == nil then
-    local low, high = string.match(nfsport.version.version, "(%d)-(%d)")
+    local low, high = string.match(nfsport.version.version, "(%d)%-(%d)")
     if high == nil then
       high = tonumber(nfsport.version.version)
       if high == 4 then
@@ -85,7 +85,7 @@ hostrule = function(host)
   end
   if mountport == nil then return false end
   if host.registry.nfs.mountver == nil then
-    local low, high = string.match(mountport.version.version, "(%d)-(%d)")
+    local low, high = string.match(mountport.version.version, "(%d)%-(%d)")
     if high == nil then
       host.registry.nfs.mountver = tonumber(mountport.version.version)
     else
