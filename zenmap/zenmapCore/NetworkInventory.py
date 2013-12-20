@@ -312,8 +312,8 @@ class NetworkInventory(object):
         """Loads a scan from the given file."""
         from zenmapCore.NmapParser import NmapParser
 
-        parsed = NmapParser(path)
-        parsed.parse()
+        parsed = NmapParser()
+        parsed.parse_file(path)
         self.add_scan(parsed, path)
 
     def open_from_dir(self, path):
@@ -324,8 +324,8 @@ class NetworkInventory(object):
             fullpath = os.path.join(path, filename)
             if os.path.isdir(fullpath):
                 continue
-            parsed = NmapParser(fullpath)
-            parsed.parse()
+            parsed = NmapParser()
+            parsed.parse_file(fullpath)
             self.add_scan(parsed, filename=fullpath)
 
     def save_to_file(self, path, index, format = "xml"):
