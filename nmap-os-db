@@ -66390,7 +66390,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # OpenBSD 5.0 GENERIC#43 i386
 # OpenBSD 5.0 GENERIC.MP#59 i386
-Fingerprint OpenBSD 5.0 GENERIC#43 i386
+Fingerprint OpenBSD 5.0
 Class OpenBSD | OpenBSD | 5.X | general purpose
 CPE cpe:/o:openbsd:openbsd:5 auto
 SEQ(SP=F5-10D%GCD=1-6%ISR=105-10F%TI=RD%II=RI%TS=20|21|22)
