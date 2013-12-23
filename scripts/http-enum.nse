@@ -13,6 +13,10 @@ This parses a fingerprint file that's formatted in a way that's compatible with 
 scanner. This script, however, takes it one step further by building in advanced pattern matching as well
 as having the ability to identify specific versions of Web applications. 
 
+You can, however, parse the nikto database using http-fingerprints.nikto-db-path. This will try to parse 
+most of the fingerprints defined in nikto's database in real time. More documentation about this in the 
+nselib/data/http-fingerprints file.
+
 Currently, the database can be found under Nmap's directory in the nselib/data folder. The file is called
 http-fingerprints and has a long description of its functionality in the file header. 
 
