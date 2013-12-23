@@ -330,6 +330,7 @@ class Service(object):
         # self.ostype = None
         # self.devicetype = None
 
+    __hash__ = None
     def __eq__(self, other):
         return self.name == other.name \
             and self.product == other.product \
@@ -383,6 +384,7 @@ class ScriptResult(object):
         self.id = None
         self.output = None
 
+    __hash__ = None
     def __eq__(self, other):
         return self.id == other.id and self.output == other.output
 
