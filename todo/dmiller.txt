@@ -16,5 +16,8 @@
   * broadcast-srvloc-info - test
   * broadcast-rpcbind - write, test
   * Patrik's tns lib and oracle scripts
+  * libssh or other SSH support
+  * deflate/gzip for HTTP, etc.
+  * Consolidate utility functions
 
 * Grock libdnet, consider separate release?
