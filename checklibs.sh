@@ -3,7 +3,7 @@
 NDIR=${NDIR:-$PWD}
 
 newest() {
-    perl -ne'$n=pack"C*",split/\./;$m=($m,$n)[$n gt$m];END{print join".",unpack("C*",$m)}'
+    perl -nE'END{$,=".";say unpack"C*",$m}$m=($m,$n)[($n=pack"C*",split/\./) gt$m]'
 }
 
 trim_version() {
