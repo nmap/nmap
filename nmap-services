@@ -3164,7 +3164,7 @@ dvr-esm	2804/udp	0.000330	# March Networks Digital Video Recorders and Enterpris
 cspuni	2806/tcp	0.000076
 corbaloc	2809/tcp	0.000439	# Corba
 gsiftp	2811/tcp	0.000380	# GSI FTP
-atmtcp	2812/tcp	0.000076
+atmtcp	2812/tcp	0.000076	# commonly Monit httpd - http://mmonit.com/monit/documentation/monit.html#monit_httpd
 llm-pass	2813/udp	0.000330
 fc-faultnotify	2819/udp	0.000661	# FC Fault Notification
 vrts-at-port	2821/udp	0.000661	# VERITAS Authentication Service
@@ -3891,7 +3891,8 @@ vrml-multi-use	4224/udp	0.000330	# VRML Multi User Systems
 vrml-multi-use	4225/udp	0.000330	# VRML Multi User Systems
 vrml-multi-use	4232/udp	0.000661	# VRML Multi User Systems
 vrml-multi-use	4234/tcp	0.000076	# VRML Multi User Systems
-vrml-multi-use	4242/tcp	0.000456	# VRML Multi User Systems
+vrml-multi-use	4242/tcp	0.000456	# VRML Multi User Systems or CrashPlan http://support.code42.com/CrashPlan/Latest/Configuring/Network#Networking_FAQs
+vrml-multi-use	4243/tcp	0.000076	# VRML Multi User Systems or CrashPlan http://support.code42.com/CrashPlan/Latest/Configuring/Network#Networking_FAQs
 vrml-multi-use	4247/udp	0.000330	# VRML Multi User Systems
 vrml-multi-use	4252/tcp	0.000152	# VRML Multi User Systems
 vrml-multi-use	4260/udp	0.000330	# VRML Multi User Systems
@@ -4608,7 +4609,7 @@ unknown	5930/udp	0.000330
 unknown	5931/tcp	0.000076
 unknown	5934/tcp	0.000076
 unknown	5936/tcp	0.000076
-unknown	5938/tcp	0.000152
+teamviewer	5938/tcp	0.000152	# teamviewer - http://www.teamviewer.com/en/help/334-Which-ports-are-used-by-TeamViewer.aspx
 unknown	5939/tcp	0.000076
 unknown	5940/tcp	0.000152
 unknown	5945/tcp	0.000076
@@ -5428,7 +5429,7 @@ unknown	8316/udp	0.000330
 unknown	8319/udp	0.000330
 tnp	8321/udp	0.000330	# Thin(ium) Network Protocol
 unknown	8329/udp	0.000330
-unknown	8333/tcp	0.000380
+bitcoin	8333/tcp	0.000380	# Bitcoin crypto currency - https://en.bitcoin.it/wiki/Running_Bitcoin
 unknown	8336/udp	0.000661
 unknown	8338/udp	0.000330
 unknown	8339/tcp	0.000076
@@ -5762,6 +5763,7 @@ unknown	9310/udp	0.000661
 unknown	9314/udp	0.000330
 unknown	9322/udp	0.000330
 unknown	9326/udp	0.000330
+litecoin	9333/tcp	0.000076	# Litecoin crypto currency - https://litecoin.info/Litecoin.conf
 unknown	9336/udp	0.000330
 unknown	9338/udp	0.000330
 mpidcmgr	9343/tcp	0.000076	# MpIdcMgr
@@ -7904,6 +7906,7 @@ unknown	18324/udp	0.000654
 unknown	18327/udp	0.000654
 unknown	18328/udp	0.000654
 unknown	18331/udp	0.001961
+bitcoin	18333/tcp	0.000076	# Bitcoin crypto currency - https://en.bitcoin.it/wiki/Running_Bitcoin
 unknown	18336/tcp	0.000076
 unknown	18337/tcp	0.000076
 unknown	18343/udp	0.000654
@@ -8200,6 +8203,7 @@ unknown	19322/udp	0.001961
 unknown	19328/udp	0.000654
 unknown	19331/udp	0.000654
 unknown	19332/udp	0.001961
+litecoin	19333/tcp	0.000076	# Litecoin crypto currency testnet - https://litecoin.info/Litecoin.conf
 unknown	19333/udp	0.000654
 unknown	19336/udp	0.000654
 unknown	19340/udp	0.000654
@@ -10392,8 +10396,11 @@ unknown	27014/udp	0.000654
 unknown	27015/tcp	0.000076
 halflife	27015/udp	0.002432	# Half-life game server
 unknown	27016/tcp	0.000076
+mongod	27017/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	27017/udp	0.001307
+mongod	27018/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	27018/udp	0.000654
+mongod	27019/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	27020/udp	0.000654
 unknown	27025/udp	0.001307
 unknown	27027/udp	0.001307
@@ -10692,6 +10699,7 @@ unknown	27994/udp	0.000654
 unknown	27996/udp	0.000654
 unknown	28005/udp	0.000654
 unknown	28011/udp	0.001307
+mongod	28017/tcp	0.000076	# http://docs.mongodb.org/manual/reference/default-mongodb-port/
 unknown	28019/udp	0.000654
 unknown	28020/udp	0.000654
 unknown	28021/udp	0.000654
