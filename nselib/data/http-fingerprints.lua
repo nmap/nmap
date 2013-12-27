@@ -22,7 +22,7 @@ local table = require "table"
 --          * It doesn't support sending additional headers for a probe.
 --       That means, if a nikto fingerprint needs one of the above features, it 
 --       won't be loaded. At the time of writing this, 6546 out of the 6573 Nikto 
---       fingerprints are being loaded successfully.
+--       fingerprints are being loaded successfully.  This runtime Nikto fingerprint integration was suggested by Nikto co-author Chris Sullo as described at http://seclists.org/nmap-dev/2013/q4/292 
 --
 -- Although this format was originally modeled after the Nikto format, that ended
 -- up being too restrictive. The current format is a simple Lua table. There are many
