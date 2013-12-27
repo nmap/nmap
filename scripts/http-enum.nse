@@ -9,13 +9,13 @@ local table = require "table"
 description = [[
 Enumerates directories used by popular web applications and servers.
 
-This parses a fingerprint file that's formatted in a way that's compatible with the Nikto Web application
+This parses a fingerprint file that's similar in format to the Nikto Web application
 scanner. This script, however, takes it one step further by building in advanced pattern matching as well
 as having the ability to identify specific versions of Web applications. 
 
-You can, however, parse the nikto database using http-fingerprints.nikto-db-path. This will try to parse 
+You can also parse a Nikto-formatted database using http-fingerprints.nikto-db-path. This will try to parse 
 most of the fingerprints defined in nikto's database in real time. More documentation about this in the 
-nselib/data/http-fingerprints file.
+nselib/data/http-fingerprints.lua file.
 
 Currently, the database can be found under Nmap's directory in the nselib/data folder. The file is called
 http-fingerprints and has a long description of its functionality in the file header. 
