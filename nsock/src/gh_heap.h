@@ -69,10 +69,11 @@
 
 #include "error.h"
 #include <assert.h>
-#include <stddef.h>
 
 
 #if !defined(container_of)
+#include <stddef.h>
+
 #define container_of(ptr, type, member) \
         ((type *)((char *)(ptr) - offsetof(type, member)))
 #endif
