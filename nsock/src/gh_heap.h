@@ -69,6 +69,7 @@
 
 #include "error.h"
 #include <assert.h>
+#include <stddef.h>
 
 
 #if !defined(container_of)
