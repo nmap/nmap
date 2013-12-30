@@ -5516,9 +5516,6 @@ static void begin_sniffer(UltraScanInfo *USI, std::vector<Target *> &Targets) {
   unsigned int targetno;
   bool doIndividual = Targets.size() <= 20; // Don't bother IP limits if scanning huge # of hosts
 
-  if (!USI->isRawScan())
-    return; /* No sniffer needed! */
-
   if (doIndividual) {
     for (targetno = 0; targetno < Targets.size(); targetno++) {
       dst_hosts += (targetno == 0) ? "" : " or ";
@@ -5799,7 +5796,10 @@ void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
     log_write(LOG_STDOUT, "Scanning %s [%d port%s%s]\n", targetstr, USI.gstats->numprobes, (USI.gstats->numprobes != 1) ? "s" : "", plural ? "/host" : "");
   }
 
-  begin_sniffer(&USI, Targets);
+  if (USI.isRawScan())
+    begin_sniffer(&USI, Targets);
+  /* Otherwise, no sniffer needed! */
+
   while (!USI.incompleteHostsEmpty()) {
     doAnyPings(&USI);
     doAnyOutstandingRetransmits(&USI); // Retransmits from probes_outstanding
