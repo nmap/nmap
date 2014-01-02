@@ -1,5 +1,5 @@
 /*
-** $Id: lbitlib.c,v 1.18 2013/03/19 13:19:12 roberto Exp $
+** $Id: lbitlib.c,v 1.18.1.2 2013/07/09 18:01:41 roberto Exp $
 ** Standard library for bitwise operations
 ** See Copyright Notice in lua.h
 */
@@ -129,7 +129,8 @@ static int b_rot (lua_State *L, int i) {
   b_uint r = luaL_checkunsigned(L, 1);
   i &= (LUA_NBITS - 1);  /* i = i % NBITS */
   r = trim(r);
-  r = (r << i) | (r >> (LUA_NBITS - i));
+  if (i != 0)  /* avoid undefined shift of LUA_NBITS when i == 0 */
+    r = (r << i) | (r >> (LUA_NBITS - i));
   lua_pushunsigned(L, trim(r));
   return 1;
 }
