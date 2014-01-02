@@ -2683,7 +2683,7 @@ bool HostOsScan::processTSeqResp(HostOsScanStats *hss, struct ip *ip, int replyN
 
 
 bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
-  assert(replyNo >= 0 || replyNo < 6);
+  assert(replyNo >= 0 && replyNo < 6);
   char ops_buf[256];
   bool opsParseResult;
 
@@ -2728,7 +2728,7 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int 
 
 
 bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int replyNo) {
-  assert(replyNo >= 0 || replyNo < 6);
+  assert(replyNo >= 0 && replyNo < 6);
 
   if (hss->FP_TWin || hss->TWin_AVs[replyNo])
     return false;
