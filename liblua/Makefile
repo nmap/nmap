@@ -7,7 +7,7 @@
 PLAT= none
 
 CC= gcc
-CFLAGS= -O2 -Wall $(SYSCFLAGS) $(MYCFLAGS)
+CFLAGS= -O2 -Wall -DLUA_COMPAT_ALL $(SYSCFLAGS) $(MYCFLAGS)
 LDFLAGS= $(SYSLDFLAGS) $(MYLDFLAGS)
 LIBS= -lm $(SYSLIBS) $(MYLIBS)
 
@@ -106,7 +106,7 @@ linux:
 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_LINUX" SYSLIBS="-Wl,-E -ldl -lreadline"
 
 macosx:
-	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_MACOSX" SYSLIBS="-lreadline"
+	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_MACOSX" SYSLIBS="-lreadline" CC=cc
 
 mingw:
 	$(MAKE) "LUA_A=lua52.dll" "LUA_T=lua.exe" \
