@@ -24,7 +24,7 @@ http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 -- nmap --script targets-asn --script-args targets-asn.asn=32
 --
 -- @output
--- 53/udp open  domain  udp-response
+-- Pre-scan script results:
 -- | targets-asn:
 -- |   32
 -- |     128.12.0.0/16
