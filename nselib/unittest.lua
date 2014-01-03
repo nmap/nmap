@@ -130,17 +130,16 @@ TestSuite = {
 --- Test creation helper function.
 --  Turns a simple function into a test factory.
 --  @param test A function that returns true or false depending on test
---  @param nargs The number of arguments to the test function
 --  @param fmt A format string describing the failure condition using the
 --             arguments to the test function
 --  @return function that generates tests suitable for use in add_test
-make_test = function(test, blah, fmt)
+make_test = function(test, fmt)
   return function(...)
-    local args={"dummy", ...}
-    local nargs = select("#", ...) + 1
+    local args={...}
+    local nargs = select("#", ...)
     return function(suite)
-      if not test(table.unpack(args,2,nargs)) then
-        return false, string.format(fmt, table.unpack(args,2,nargs))
+      if not test(table.unpack(args,1,nargs)) then
+        return false, string.format(fmt, table.unpack(args,1,nargs))
       end
       return true
     end
@@ -152,7 +151,7 @@ end
 -- @return bool True if the value is nil, false otherwise.
 is_nil = make_test( function(value)
   return value == nil
-end, 1,
+end,
 "Expected not nil, got %s"
 )
 
@@ -161,7 +160,7 @@ end, 1,
 -- @return bool True if the value is not nil, false otherwise.
 not_nil = make_test( function(value)
   return value ~= nil
-end, 1,
+end,
 "Expected not nil, got %s"
 )
 
@@ -171,7 +170,7 @@ end, 1,
 -- @return bool True if a == b, false otherwise.
 equal = make_test( function(a, b)
   return a == b
-end, 2,
+end,
 "%s not equal to %s"
 )
 
@@ -181,7 +180,7 @@ end, 2,
 -- @return bool True if a != b, false otherwise.
 not_equal = make_test( function(a, b)
   return a ~= b
-end, 2,
+end,
 "%s unexpectedly equal to %s"
 )
 
@@ -190,7 +189,7 @@ end, 2,
 -- @return bool True if value is a boolean and true
 is_true = make_test( function(value)
   return value == true
-end, 1,
+end,
 "Expected true, got %s"
 )
 
@@ -199,7 +198,7 @@ end, 1,
 -- @return bool True if value is a boolean and false
 is_false = make_test( function(value)
   return value == false
-end, 1,
+end,
 "Expected false, got %s"
 )
 
@@ -209,7 +208,7 @@ end, 1,
 -- @return bool True if a < b, false otherwise.
 lt = make_test( function(a, b)
   return a < b
-end, 2,
+end,
 "%s not less than %s"
 )
 
@@ -219,7 +218,7 @@ end, 2,
 -- @return bool True if a <= b, false otherwise.
 lte = make_test( function(a, b)
   return a <= b
-end, 2,
+end,
 "%s not less than %s"
 )
 
@@ -229,7 +228,7 @@ end, 2,
 -- @return bool True if the length of t is l
 length_is = make_test( function(t, l)
   return #t == l
-end, 2,
+end,
 "Length of %s is not %s"
 )
 
