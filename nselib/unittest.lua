@@ -16,9 +16,9 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
-local nsedebug = require "nsedebug"
 local string = require "string"
-local debug = require "debug"
+local table = require "table"
+local nmap = require "nmap"
 _ENV = stdnse.module("unittest", stdnse.seeall)
 
 local libs = {
