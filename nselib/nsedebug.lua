@@ -12,6 +12,7 @@ local io = require "io"
 local math = require "math"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 _ENV = stdnse.module("nsedebug", stdnse.seeall)
 
 local EMPTY = {}; -- Empty constant table
@@ -25,41 +26,38 @@ local EMPTY = {}; -- Empty constant table
 --              is 0. 
 --@return A string representation of a data, will be one or more full lines. 
 function tostr(data, indent)
-	local str = ""
+	local str
 
 	if(indent == nil) then
 		indent = 0
 	end
 
 	-- Check the type
-	if(type(data) == "nil") then
-		str = str .. (" "):rep(indent) .. "nil\n"
+	local typ = type(data)
+	if(typ == "nil" or typ == "number" or typ == "boolean" or typ == "function" or typ == "thread" or typ == "userdata") then
+		str = {(" "):rep(indent), tostring(data), "\n"}
 	elseif(type(data) == "string") then
-		str = str .. (" "):rep(indent) .. string.format("%q", data) .. "\n"
-	elseif(type(data) == "number") then
-		str = str .. (" "):rep(indent) .. data .. "\n"
-	elseif(type(data) == "boolean") then
-		if(data == true) then
-			str = str .. "true\n"
-		else
-			str = str .. "false\n"
-		end
+		str = {(" "):rep(indent), string.format("%q", data), "\n"}
 	elseif(type(data) == "table") then
 		local i, v
+		str = {}
 		for i, v in pairs(data) do
 			-- Check for a table in a table
+			str[#str+1] = (" "):rep(indent)
+			str[#str+1] = tostring(i)
 			if(type(v) == "table") then
-				str = str .. (" "):rep(indent) .. tostring(i) .. ":\n"
-				str = str .. tostr(v, indent + 2)
+				str[#str+1] = ":\n"
+				str[#str+1] = tostr(v, indent + 2)
 			else
-				str = str .. (" "):rep(indent) .. tostring(i) .. ": " .. tostr(v, 0)
+				str[#str+1] = ": "
+				str[#str+1] = tostr(v, 0)
 			end
 		end
 	else
 		stdnse.print_debug(1, "Error: unknown data type: %s", type(data))
 	end
-		
-	return str
+
+	return table.concat(str)
 end
 
 --- Print out a string in hex, for debugging.
