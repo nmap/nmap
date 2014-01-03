@@ -13,6 +13,7 @@ local table    = table
 local string   = string
 local ipairs   = ipairs
 local tonumber = tonumber
+local unittest = require "unittest"
 
 
 _ENV = stdnse.module("ipOps", stdnse.seeall)
@@ -653,5 +654,43 @@ hex_to_bin = function( hex )
   return table.concat( t )
 
 end
+
+test_suite = unittest.TestSuite:new()
+test_suite:add_test(unittest.is_true(isPrivate("192.168.123.123")), "192.168.123.123 is private")
+test_suite:add_test(unittest.is_false(isPrivate("1.1.1.1")), "1.1.1.1 is not private")
+test_suite:add_test(unittest.equal(todword("65.66.67.68"),0x41424344), "todword")
+test_suite:add_test(unittest.equal(fromdword(0xffffffff),"255.255.255.255"), "fromdword")
+test_suite:add_test(function()
+  local parts, err = get_parts_as_number("8.255.0.1")
+  if parts == nil then return false, err end
+  if parts[1] == 8 and parts[2] == 255 and parts[3] == 0 and parts[4] == 1 then
+    return true
+  end
+  return false, string.format("Expected {8, 255, 0, 1}, got {%d, %d, %d, %d}", table.unpack(parts))
+end, "get_parts_as_number")
+test_suite:add_test(function()
+  return compare_ip( "2001::DEAD:0:0:0", "eq", "2001:0:0:0:DEAD::" )
+end, "compare_ip (IPv6, eq, true)")
+test_suite:add_test(function()
+  return not compare_ip( "2001::DEAF:0:0:0", "eq", "2001:0:0:0:DEAD::" )
+end, "compare_ip (IPv6, eq, false)")
+test_suite:add_test(function()
+  return compare_ip( "10.10.10.10", "eq", "10.10.10.10" )
+end, "compare_ip (IPv4, eq, true)")
+test_suite:add_test(function()
+  return not compare_ip( "10.10.3.10", "eq", "10.10.10.10" )
+end, "compare_ip (IPv4, eq, false)")
+test_suite:add_test(function()
+  return compare_ip( "2001::DEAD:0:0:0", "ge", "2001:0:0:0:DEAD::" )
+end, "compare_ip (IPv6, ge, true)")
+test_suite:add_test(function()
+  return not compare_ip( "2001::DEAD:0:0:0", "ge", "2001:0:0:0:DEAF::" )
+end, "compare_ip (IPv6, ge, false)")
+test_suite:add_test(function()
+  return compare_ip( "10.10.10.10", "ge", "10.10.10.10" )
+end, "compare_ip (IPv4, ge, true)")
+test_suite:add_test(function()
+  return not compare_ip( "10.10.3.10", "ge", "10.10.10.10" )
+end, "compare_ip (IPv4, ge, false)")
 
 return _ENV;
