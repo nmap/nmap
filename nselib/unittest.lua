@@ -149,88 +149,79 @@ end
 --- Test for nil
 -- @param value The value to test
 -- @return bool True if the value is nil, false otherwise.
-is_nil = make_test( function(value)
+is_nil = function(value)
   return value == nil
-end,
-"Expected not nil, got %s"
-)
+end
+is_nil = make_test(is_nil, "Expected not nil, got %s")
 
 --- Test for not nil
 -- @param value The value to test
 -- @return bool True if the value is not nil, false otherwise.
-not_nil = make_test( function(value)
+not_nil = function(value)
   return value ~= nil
-end,
-"Expected not nil, got %s"
-)
+end
+not_nil = make_test(not_nil, "Expected not nil, got %s")
 
 --- Test for equality
 -- @param a The first value to test
 -- @param b The second value to test
 -- @return bool True if a == b, false otherwise.
-equal = make_test( function(a, b)
+equal = function(a, b)
   return a == b
-end,
-"%s not equal to %s"
-)
+end
+equal = make_test(equal, "%s not equal to %s")
 
 --- Test for inequality
 -- @param a The first value to test
 -- @param b The second value to test
 -- @return bool True if a != b, false otherwise.
-not_equal = make_test( function(a, b)
+not_equal = function(a, b)
   return a ~= b
-end,
-"%s unexpectedly equal to %s"
-)
+end
+not_equal = make_test(not_equal, "%s unexpectedly equal to %s")
 
 --- Test for truth
 -- @param value The value to test
 -- @return bool True if value is a boolean and true
-is_true = make_test( function(value)
+is_true = function(value)
   return value == true
-end,
-"Expected true, got %s"
-)
+end
+is_true = make_test(is_true, "Expected true, got %s")
 
 --- Test for falsehood
 -- @param value The value to test
 -- @return bool True if value is a boolean and false
-is_false = make_test( function(value)
+is_false = function(value)
   return value == false
-end,
-"Expected false, got %s"
-)
+end
+is_false = make_test(is_false, "Expected false, got %s")
 
 --- Test less than
 -- @param a The first value to test
 -- @param b The second value to test
 -- @return bool True if a < b, false otherwise.
-lt = make_test( function(a, b)
+lt = function(a, b)
   return a < b
-end,
-"%s not less than %s"
-)
+end
+lt = make_test(lt, "%s not less than %s")
 
 --- Test less than or equal to
 -- @param a The first value to test
 -- @param b The second value to test
 -- @return bool True if a <= b, false otherwise.
-lte = make_test( function(a, b)
+lte = function(a, b)
   return a <= b
-end,
-"%s not less than %s"
-)
+end
+lte = make_test(lte, "%s not less than %s")
 
 --- Test length
 -- @param t The table to test
 -- @param l The length to test
 -- @return bool True if the length of t is l
-length_is = make_test( function(t, l)
+length_is = function(t, l)
   return #t == l
-end,
-"Length of %s is not %s"
-)
+end
+length_is = make_test(length_is, "Length of %s is not %s")
 
 --- Expected failure test
 -- @param test The test to run
