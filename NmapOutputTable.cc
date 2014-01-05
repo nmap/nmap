@@ -153,8 +153,8 @@ NmapOutputTable::~NmapOutputTable() {
     for(col = 0; col < numColumns; col++) {
       cell = getCellAddy(row, col);
       if (cell->weAllocated) {
-	assert(cell->str);
-	free(cell->str);
+        assert(cell->str);
+        free(cell->str);
       }
     }
   }
@@ -166,7 +166,7 @@ NmapOutputTable::~NmapOutputTable() {
 }
 
 void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool fullrow,
-				bool copy, const char *item, int itemlen) {
+                                bool copy, const char *item, int itemlen) {
   struct NmapOutputTableCell *cell;
   int mc = maxColLen[column];
   
@@ -181,7 +181,7 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool fullro
 }
 
 void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, const char *item, 
-			      int itemlen) {
+                              int itemlen) {
   struct NmapOutputTableCell *cell;
 
   assert(row < numRows);
@@ -215,9 +215,9 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, 
 }
 
 void NmapOutputTable::addItemFormatted(unsigned int row, 
-					  unsigned int column,
-					  bool fullrow,
-					  const char *fmt, ...) {
+                                          unsigned int column,
+                                          bool fullrow,
+                                          const char *fmt, ...) {
   struct NmapOutputTableCell *cell;
   int mc = maxColLen[column];
   unsigned int res;
@@ -241,20 +241,20 @@ void NmapOutputTable::addItemFormatted(unsigned int row,
 
 /* True if every column in nrow is empty */
 bool NmapOutputTable::emptyRow(unsigned int nrow) {
-	NmapOutputTableCell *cell;
-	unsigned int col;
-	bool isEmpty = true;
-	
-	assert(nrow < numRows);
+        NmapOutputTableCell *cell;
+        unsigned int col;
+        bool isEmpty = true;
+        
+        assert(nrow < numRows);
 
-	for(col = 0 ; col < numColumns; col++) {
-		cell = getCellAddy(nrow, col);
-		if(cell->strlength > 0) {
-			isEmpty = false;
-			break;
-		}
-	}
-	return isEmpty;		
+        for(col = 0 ; col < numColumns; col++) {
+                cell = getCellAddy(nrow, col);
+                if(cell->strlength > 0) {
+                        isEmpty = false;
+                        break;
+                }
+        }
+        return isEmpty;		
 }
 
  // This function sticks the entire table into a character buffer.
@@ -280,14 +280,14 @@ char *NmapOutputTable::printableTable(int *size) {
     validthisrow = 0;
 
     if(emptyRow(row)) 
-	continue;
+        continue;
 
     cell = getCellAddy(row, 0);
     if(cell->fullrow && cell->strlength > 0) {
       /* Full rows are easy, just make sure we have the space + \n\0 */
       if (cell->strlength + p + 2 > tableoutsz) {
-	tableoutsz = (cell->strlength + p + 2) * 2;
-	tableout = (char *) safe_realloc(tableout, tableoutsz);
+        tableoutsz = (cell->strlength + p + 2) * 2;
+        tableout = (char *) safe_realloc(tableout, tableoutsz);
       }
       memcpy(tableout + p, cell->str,  cell->strlength);
       p += cell->strlength;
@@ -295,11 +295,11 @@ char *NmapOutputTable::printableTable(int *size) {
       for(col = 0; col < numColumns; col++) {
         cell = getCellAddy(row, col);
         clen = maxColLen[col];
-	/* Cells get padded with an extra space + \n\0 */
-	if (clen + p + 3 > tableoutsz) {
-	  tableoutsz = (cell->strlength + p + 2) * 2;
-	  tableout = (char *) safe_realloc(tableout, tableoutsz);
-	}
+        /* Cells get padded with an extra space + \n\0 */
+        if (clen + p + 3 > tableoutsz) {
+          tableoutsz = (cell->strlength + p + 2) * 2;
+          tableout = (char *) safe_realloc(tableout, tableoutsz);
+        }
         if (cell->strlength > 0) {
           memcpy(tableout + p, cell->str,  cell->strlength);
           p += cell->strlength;

@@ -928,8 +928,8 @@ void parse_options(int argc, char **argv) {
         } else if (optcmp(long_options[option_index].name, "disable-arp-ping") == 0) {
           o.implicitARPPing = false;
         } else if (optcmp(long_options[option_index].name, "route-dst") == 0) {
-	  /* The --route-dst debugging option: push these on a list to be
-	     resolved later after options like -6 and -S have been parsed. */
+          /* The --route-dst debugging option: push these on a list to be
+             resolved later after options like -6 and -S have been parsed. */
           route_dst_hosts.push_back(optarg);
         } else {
           fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
@@ -963,7 +963,7 @@ void parse_options(int argc, char **argv) {
       do {
         q = strchr(p, ',');
         if (q)
-	  *q = '\0';
+          *q = '\0';
         if (!strcasecmp(p, "me")) {
           if (o.decoyturn != -1)
             fatal("Can only use 'ME' as a decoy once.\n");
@@ -1035,7 +1035,7 @@ void parse_options(int argc, char **argv) {
       o.magic_port = atoi(optarg);
       o.magic_port_set = true;
       if (o.magic_port == 0)
-	error("WARNING: a source port of zero may not work on all systems.");
+        error("WARNING: a source port of zero may not work on all systems.");
       break;
     case 'h':
       printusage(0);
@@ -1471,10 +1471,10 @@ void  apply_delayed_options() {
       const char *p = delayed_options.spoofmac;
       while (*p) {
         if (*p == ':')
-	  p++;
+          p++;
         if (isxdigit((int) (unsigned char) *p) && isxdigit((int) (unsigned char) * (p + 1))) {
           if (pos >= 6)
-	    fatal("Bogus --spoof-mac value encountered (%s) -- only up to 6 bytes permitted", delayed_options.spoofmac);
+            fatal("Bogus --spoof-mac value encountered (%s) -- only up to 6 bytes permitted", delayed_options.spoofmac);
           tmphex[0] = *p;
           tmphex[1] = *(p + 1);
           tmphex[2] = '\0';
@@ -1632,9 +1632,9 @@ int nmap_main(int argc, char *argv[]) {
       printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
       printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
       if (rnfo.direct_connect)
-	printf(" direct");
+        printf(" direct");
       else
-	printf(" nexthop %s", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
+        printf(" nexthop %s", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
     }
     printf("\n");
   }
@@ -1962,9 +1962,9 @@ int nmap_main(int argc, char *argv[]) {
           o.current_scantype = BOUNCE_SCAN;
           keyWasPressed(); // Check if a status message should be printed
           if (ftp.sd <= 0)
-	    ftp_anon_connect(&ftp);
+            ftp_anon_connect(&ftp);
           if (ftp.sd > 0)
-	    bounce_scan(Targets[targetno], ports.tcp_ports, ports.tcp_count, &ftp);
+            bounce_scan(Targets[targetno], ports.tcp_ports, ports.tcp_count, &ftp);
         }
       }
 
@@ -2224,7 +2224,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     if (found) {
       q = strchr(found, '\n');
       if (!q)
-	fatal("Unable to parse supposed log file %s.  Sorry", fname);
+        fatal("Unable to parse supposed log file %s.  Sorry", fname);
       *q = '\0';
       p = strchr(found, '(');
       if (!p) { /* No DNS reverse lookup, found should already contain IP */
@@ -2482,7 +2482,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
 
       // Skip over a following ',' so we're ready to keep parsing
       if (*current_range == ',')
-	current_range++;
+        current_range++;
 
       continue;
     } else if (*current_range == ']') {
@@ -2520,7 +2520,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
 
       i = addportsfromservmask(servmask, porttbl, range_type);
       if (range_type & SCAN_PROTOCOLS)
-	i += addprotocolsfromservmask(servmask, porttbl);
+        i += addprotocolsfromservmask(servmask, porttbl);
 
       if (i == 0)
         fatal("Found no matches for the service mask '%s' and your specified protocols", servmask);
@@ -2601,7 +2601,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
 
     if (*current_range == ']') {
       if (!nested)
-	fatal("Unexpected ] character in port/protocol specification");
+        fatal("Unexpected ] character in port/protocol specification");
       return;
     }
 

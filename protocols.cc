@@ -176,12 +176,12 @@ static int nmap_protocols_init() {
 
     /* Now we make sure our protocols don't have duplicates */
     for(current = protocol_table[protno % PROTOCOL_TABLE_SIZE], previous = NULL;
-	current; current = current->next) {
+        current; current = current->next) {
       if (protno == current->protoent->p_proto) {
-	if (o.debugging) {
-	  error("Protocol %d is duplicated in protocols file %s", ntohs(protno), filename);
-	}
-	break;
+        if (o.debugging) {
+          error("Protocol %d is duplicated in protocols file %s", ntohs(protno), filename);
+        }
+        break;
       }
       previous = current;
     }

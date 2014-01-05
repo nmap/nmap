@@ -179,11 +179,11 @@ void Target::Initialize() {
 
 
 const char * Target::deviceName() const {
-	return (devname[0] != '\0')? devname : NULL;
+        return (devname[0] != '\0')? devname : NULL;
 }
 
 const char * Target::deviceFullName() const {
-	return (devfullname[0] != '\0')? devfullname : NULL; 
+        return (devfullname[0] != '\0')? devfullname : NULL; 
 }
 
 void Target::Recycle() {
@@ -232,7 +232,7 @@ void Target::GenerateTargetIPString() {
 #else
                 (char *) NULL,
 #endif
-		targetipstring, sizeof(targetipstring)) == NULL) {
+                targetipstring, sizeof(targetipstring)) == NULL) {
     fatal("Failed to convert target address to presentation format!?!  Error: %s", strerror(socket_errno()));
   }
 }
@@ -252,7 +252,7 @@ void Target::GenerateSourceIPString() {
 #else
                 (char *) NULL,
 #endif
-		sourceipstring, sizeof(sourceipstring)) == NULL) {
+                sourceipstring, sizeof(sourceipstring)) == NULL) {
     fatal("Failed to convert source address to presentation format!?!  Error: %s", strerror(socket_errno()));
   }
 }
@@ -392,8 +392,8 @@ void Target::setHostName(const char *name) {
       // I think only a-z A-Z 0-9 . and - are allowed, but I'll be a little more
       // generous.
       if (!isalnum((int) (unsigned char) *p) && !strchr(".-+=:_~*", *p)) {
-	log_write(LOG_STDOUT, "Illegal character(s) in hostname -- replacing with '*'\n");
-	*p = '*';
+        log_write(LOG_STDOUT, "Illegal character(s) in hostname -- replacing with '*'\n");
+        *p = '*';
       }
       p++;
     }
@@ -566,14 +566,14 @@ const u8 *Target::NextHopMACAddress() const {
 }
 
 int Target::osscanPerformed(void) {
-	return osscan_flag;
+        return osscan_flag;
 }
 
 void Target::osscanSetFlag(int flag) {
-	if(osscan_flag == OS_PERF_UNREL)
-		return;
-	else
-		osscan_flag = flag;
+        if(osscan_flag == OS_PERF_UNREL)
+                return;
+        else
+                osscan_flag = flag;
 }
 
 

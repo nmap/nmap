@@ -352,7 +352,7 @@ static char *cstringSanityCheck(const char* string, int len) {
   int slen;
 
   if(!string)
-	  return NULL;
+          return NULL;
 
   slen = strlen(string);
   if (slen > len) slen = len;
@@ -521,8 +521,8 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
 
   if ((state == PORT_OPEN && o.verbose) || (o.debugging > 1)) {
     log_write(LOG_STDOUT, "Discovered %s port %hu/%s%s\n",
-	      statenum2str(state), portno,
-	      proto2ascii_lowercase(protocol), idstr? idstr : "");
+              statenum2str(state), portno,
+              proto2ascii_lowercase(protocol), idstr? idstr : "");
     log_flush(LOG_STDOUT);
   }
 
@@ -610,7 +610,7 @@ int PortList::getStateCounts(int state) const {
    except that if you ask for both TCP, UDP & SCTP, every TCP port
    will be returned before we start returning UDP and SCTP ports */
 Port *PortList::nextPort(const Port *cur, Port *next,
-			 int allowed_protocol, int allowed_state) {
+                         int allowed_protocol, int allowed_state) {
   int proto;
   int mapped_pno;
   Port *port;
@@ -728,8 +728,8 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
 
   if (o.verbose) {
     log_write(LOG_STDOUT, "Deleting port %hu/%s, which we thought was %s\n",
-	      portno, proto2ascii_lowercase(answer->proto),
-	      statenum2str(answer->state));
+              portno, proto2ascii_lowercase(answer->proto),
+              statenum2str(answer->state));
     log_flush(LOG_STDOUT);
   }
 
@@ -810,8 +810,8 @@ int PortList::nextIgnoredState(int prevstate) {
     /* If a previous state was given, we must have fewer ports than
        that one, or be tied but be a larger state number */
     if (prevstate != PORT_UNKNOWN &&
-	(getStateCounts(state) > getStateCounts(prevstate) ||
-	 (getStateCounts(state) == getStateCounts(prevstate) && state <= prevstate)))
+        (getStateCounts(state) > getStateCounts(prevstate) ||
+         (getStateCounts(state) == getStateCounts(prevstate) && state <= prevstate)))
       continue;
 
     /* We only qualify if we have more ports than the current best */
@@ -906,7 +906,7 @@ int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl,
       answer->reason.ip_addr.sockaddr.sa_family = AF_UNSPEC;
     else
       answer->reason.set_ip_addr(ip_addr);
-	answer->reason.ttl = ttl;
+        answer->reason.ttl = ttl;
     return 0;
 }
 
@@ -932,13 +932,13 @@ void random_port_cheat(u16 *ports, int portcount) {
     // see if the currentport is a popular port
     for(popportidx = 0; popportidx < num_pop_ports; popportidx++) {
       if (ports[allportidx] == pop_ports[popportidx]) {
-	// This one is popular!  Swap it near to the beginning.
-	if (allportidx != earlyreplidx) {
-	  ports[allportidx] = ports[earlyreplidx];
-	  ports[earlyreplidx] = pop_ports[popportidx];
-	}
-	earlyreplidx++;
-	break;
+        // This one is popular!  Swap it near to the beginning.
+        if (allportidx != earlyreplidx) {
+          ports[allportidx] = ports[earlyreplidx];
+          ports[earlyreplidx] = pop_ports[popportidx];
+        }
+        earlyreplidx++;
+        break;
       }
     }
   }

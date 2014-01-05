@@ -412,10 +412,10 @@ bool NmapOps::RawScan() {
 
 
 void NmapOps::ValidateOptions() {
-	const char *privreq = "root privileges.";
+        const char *privreq = "root privileges.";
 #ifdef WIN32
-	if (!have_pcap)
-		privreq = "WinPcap version 3.1 or higher and\n\
+        if (!have_pcap)
+                privreq = "WinPcap version 3.1 or higher and\n\
 iphlpapi.dll.  You seem to be missing one or both of these.  Winpcap is\n\
 available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and\n\
 later operating sytems and NT 4.0 with SP4 or greater.  For previous windows\n\
@@ -674,17 +674,17 @@ void NmapOps::setSpoofMACAddress(u8 *mac_data) {
 
 #ifndef NOLUA
 void NmapOps::chooseScripts(char* argument) {
-	char *p;
+        char *p;
 
-	for (;;) {
-		p = strchr(argument, ',');
-		if (p == NULL) {
-			chosenScripts.push_back(std::string(argument));
-			break;
-		} else {
-			chosenScripts.push_back(std::string(argument, p - argument));
-			argument = p + 1;
-		}
-	}
+        for (;;) {
+                p = strchr(argument, ',');
+                if (p == NULL) {
+                        chosenScripts.push_back(std::string(argument));
+                        break;
+                } else {
+                        chosenScripts.push_back(std::string(argument, p - argument));
+                        argument = p + 1;
+                }
+        }
 }
 #endif

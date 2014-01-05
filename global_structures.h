@@ -167,15 +167,15 @@ struct udpprobeinfo {
 struct scanstats {
   int packet_incr;
   int initial_packet_width; /* Number of queries in parallel we should 
-			       start with */
+                               start with */
   double fallback_percent;
   int numqueries_outstanding; /* How many unexpired queries are on the 'net
-				 right now? */
+                                 right now? */
   double numqueries_ideal; /* How many do we WANT to be on the 'net right now? */
   int max_width; /* What is the MOST we will tolerate at once.  Can be 
-		    modified via --max_parallelism */
+                    modified via --max_parallelism */
   int min_width; /* We must always allow at least this many at once.  Can 
-		    be modified via --min_parallelism*/
+                    be modified via --min_parallelism*/
   int ports_left;
   int changed; /* Has anything changed since last round? */
   int alreadydecreasedqueries;
@@ -240,7 +240,7 @@ struct FingerPrintDB {
 struct ultra_timing_vals {
   double cwnd; /* Congestion window - in probes */
   int ssthresh; /* The threshold above which mode is changed from slow start
-		   to congestion avoidance */
+                   to congestion avoidance */
   /* The number of replies we would expect if every probe produced a reply. This
      is almost like the total number of probes sent but it is not incremented
      until a reply is received or a probe times out. This and
@@ -269,20 +269,20 @@ struct scan_performance_vars {
   int host_initial_cwnd; /* Initial congestion window for ind. hosts */
   int group_initial_cwnd; /* Initial congestion window for all hosts as a group */
   int max_cwnd; /* I should never have more than this many probes
-		   outstanding */
+                   outstanding */
   int slow_incr; /* How many probes are incremented for each response
-		    in slow start mode */
+                    in slow start mode */
   int ca_incr; /* How many probes are incremented per (roughly) rtt in 
-		  congestion avoidance mode */
+                  congestion avoidance mode */
   int cc_scale_max; /* The maximum scaling factor for congestion window
-		       increments. */
+                       increments. */
   int initial_ssthresh;
   double group_drop_cwnd_divisor; /* all-host group cwnd divided by this
-				     value if any packet drop occurs */
+                                     value if any packet drop occurs */
   double group_drop_ssthresh_divisor; /* used to drop the group ssthresh when
-					 any drop occurs */
+                                         any drop occurs */
   double host_drop_ssthresh_divisor; /* used to drop the host ssthresh when
-					 any drop occurs */
+                                         any drop occurs */
 
   /* Do initialization after the global NmapOps table has been filled in. */
   void init();
@@ -316,27 +316,27 @@ struct ipid_info {
  * Each element is to point to an array of port/protocol numbers
  */
 struct scan_lists {
-	/* The "synprobes" are also used when doing a connect() ping */
-	unsigned short *syn_ping_ports;
-	unsigned short *ack_ping_ports;
-	unsigned short *udp_ping_ports;
-	unsigned short *sctp_ping_ports;
-	unsigned short *proto_ping_ports;
-	int syn_ping_count;
-	int ack_ping_count;
-	int udp_ping_count;
-	int sctp_ping_count;
-	int proto_ping_count;
-	//the above fields are only used for host discovery
-	//the fields below are only used for port scanning
-	unsigned short *tcp_ports;
-	int tcp_count;
-	unsigned short *udp_ports;
-	int udp_count;
-	unsigned short *sctp_ports;
-	int sctp_count;
-	unsigned short *prots;
-	int prot_count;
+        /* The "synprobes" are also used when doing a connect() ping */
+        unsigned short *syn_ping_ports;
+        unsigned short *ack_ping_ports;
+        unsigned short *udp_ping_ports;
+        unsigned short *sctp_ping_ports;
+        unsigned short *proto_ping_ports;
+        int syn_ping_count;
+        int ack_ping_count;
+        int udp_ping_count;
+        int sctp_ping_count;
+        int proto_ping_count;
+        //the above fields are only used for host discovery
+        //the fields below are only used for port scanning
+        unsigned short *tcp_ports;
+        int tcp_count;
+        unsigned short *udp_ports;
+        int udp_count;
+        unsigned short *sctp_ports;
+        int sctp_count;
+        unsigned short *prots;
+        int prot_count;
 };
 
 typedef enum { STYPE_UNKNOWN, HOST_DISCOVERY, ACK_SCAN, SYN_SCAN, FIN_SCAN, XMAS_SCAN, UDP_SCAN, CONNECT_SCAN, NULL_SCAN, WINDOW_SCAN, SCTP_INIT_SCAN, SCTP_COOKIE_ECHO_SCAN, MAIMON_SCAN, IPPROT_SCAN, PING_SCAN, PING_SCAN_ARP, IDLE_SCAN, BOUNCE_SCAN, SERVICE_SCAN, OS_SCAN, SCRIPT_PRE_SCAN, SCRIPT_SCAN, SCRIPT_POST_SCAN, TRACEROUTE, PING_SCAN_ND }stype;

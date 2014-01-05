@@ -3633,7 +3633,7 @@ int OSScan::os_scan_ipv4(std::vector<Target *> &Targets) {
       char targetstr[128];
       bool plural = (OSI.numIncompleteHosts() != 1);
       if (!plural) {
-	(*(OSI.incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
+        (*(OSI.incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
       } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI.numIncompleteHosts());
       log_write(LOG_STDOUT, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
       log_flush_all();

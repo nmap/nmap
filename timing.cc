@@ -156,8 +156,8 @@ void adjust_timeouts(struct timeval sent, struct timeout_info *to) {
  back or it could be for efficiency because the caller already knows
  the current time */
 void adjust_timeouts2(const struct timeval *sent, 
-		      const struct timeval *received, 
-		      struct timeout_info *to) {
+                      const struct timeval *received, 
+                      struct timeout_info *to) {
   long delta = 0;
 
   if (o.debugging > 3) {
@@ -187,14 +187,14 @@ void adjust_timeouts2(const struct timeval *sent,
 
     if (delta >= 8000000 || delta < 0) {
       if (o.verbose)
-	error("%s: packet supposedly had rtt of %ld microseconds.  Ignoring time.", __func__, delta);
+        error("%s: packet supposedly had rtt of %ld microseconds.  Ignoring time.", __func__, delta);
       return;
     }
     rttdelta = delta - to->srtt;
     /* sanity check 2*/
     if (rttdelta > 1500000 && rttdelta > 3 * to->srtt + 2 * to->rttvar) {
       if (o.debugging) {
-	log_write(LOG_STDOUT, "Bogus rttdelta: %ld (srtt %d) ... ignoring\n", rttdelta, to->srtt);
+        log_write(LOG_STDOUT, "Bogus rttdelta: %ld (srtt %d) ... ignoring\n", rttdelta, to->srtt);
       }
       return;
     }
@@ -210,7 +210,7 @@ void adjust_timeouts2(const struct timeval *sent,
   /* It hurts to do this ... it really does ... but otherwise we are being
      too risky */
   to->timeout = box(o.minRttTimeout() * 1000, o.maxRttTimeout() * 1000,  
-		    to->timeout);
+                    to->timeout);
 
   if (o.scan_delay)
     to->timeout = MAX((unsigned) to->timeout, o.scan_delay * 1000);
@@ -624,7 +624,7 @@ static double estimate_time_left(double perc_done,
    because the estimate has changed significantly.  Returns whether
    or not a line was printed.*/
 bool ScanProgressMeter::printStatsIfNecessary(double perc_done, 
-					       const struct timeval *now) {
+                                               const struct timeval *now) {
   struct timeval tvtmp;
   double time_left_s;
   bool printit = false;

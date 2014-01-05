@@ -144,7 +144,7 @@
 #define PORT_OPENFILTERED 7 /* Like udp/fin/xmas/null/ipproto scan with no response */
 #define PORT_CLOSEDFILTERED 8 /* Idle scan */
 #define PORT_HIGHEST_STATE 9 /* ***IMPORTANT -- BUMP THIS UP WHEN STATES ARE 
-				ADDED *** */
+                                ADDED *** */
  
 #define TCPANDUDPANDSCTP IPPROTO_MAX
 #define UDPANDSCTP (IPPROTO_MAX + 1)
@@ -285,13 +285,13 @@ class PortList {
   // SERVICE_TUNNEL_NONE (normal) or SERVICE_TUNNEL_SSL (means ssl was
   // detected and we tried to tunnel through it ).
   void setServiceProbeResults(u16 portno, int protocol,
-			      enum serviceprobestate sres, const char *sname,
-			      enum service_tunnel_type tunnel, const char *product, 
-			      const char *version, const char *hostname,
-			      const char *ostype, const char *devicetype,
-			      const char *extrainfo,
-			      const std::vector<const char *> *cpe,
-			      const char *fingerprint);
+                              enum serviceprobestate sres, const char *sname,
+                              enum service_tunnel_type tunnel, const char *product, 
+                              const char *version, const char *hostname,
+                              const char *ostype, const char *devicetype,
+                              const char *extrainfo,
+                              const std::vector<const char *> *cpe,
+                              const char *fingerprint);
 
   // pass in an allocated struct serviceDeductions (don't worry about initializing, and
   // you don't have to free any internal ptrs.  See the serviceDeductions definition for

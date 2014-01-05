@@ -169,8 +169,8 @@ class NmapOps {
   void ValidateOptions(); /* Checks that the options given are
                              reasonable and consistant.  If they aren't, the
                              function may bail out of Nmap or make small
-		             adjustments (quietly or with a warning to the
-		             user). */
+                             adjustments (quietly or with a warning to the
+                             user). */
   int isr00t;
   /* Whether we have pcap functions (can be false on Windows). */
   bool have_pcap;
@@ -289,19 +289,19 @@ class NmapOps {
   bool open_only;
 
   int scanflags; /* if not -1, this value should dictate the TCP flags
-		    for the core portscaning routine (eg to change a
-		    FIN scan into a PSH scan.  Sort of a hack, but can
-		    be very useful sometimes. */
+                    for the core portscaning routine (eg to change a
+                    FIN scan into a PSH scan.  Sort of a hack, but can
+                    be very useful sometimes. */
 
   int defeat_rst_ratelimit; /* Solaris 9 rate-limits RSTs so scanning is very
             slow against it. If we don't distinguish between closed and filtered ports,
             we can get the list of open ports very fast */
 
   struct in_addr resume_ip; /* The last IP in the log file if user 
-			       requested --restore .  Otherwise 
-			       restore_ip.s_addr == 0.  Also 
-			       target_struct_get will eventually set it 
-			       to 0. */
+                               requested --restore .  Otherwise 
+                               restore_ip.s_addr == 0.  Also 
+                               target_struct_get will eventually set it 
+                               to 0. */
 
   // Version Detection Options
   int override_excludeports;

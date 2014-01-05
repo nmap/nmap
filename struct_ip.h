@@ -2,7 +2,7 @@
    something else in <netinet/ip.h>:
 
 struct ip {
-	struct	ip_firstfour ip_ff;
+        struct	ip_firstfour ip_ff;
 #define	ip_v	ip_ff.ip_fv
 #define	ip_hl	ip_ff.ip_fhl
 #define	ip_vhl	ip_ff.ip_fvhl

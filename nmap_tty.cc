@@ -158,9 +158,9 @@ static void tty_done() { return; }
 
 static void tty_flush(void)
 {
-	static HANDLE stdinput = GetStdHandle(STD_INPUT_HANDLE);
+        static HANDLE stdinput = GetStdHandle(STD_INPUT_HANDLE);
 
-	FlushConsoleInputBuffer(stdinput);
+        FlushConsoleInputBuffer(stdinput);
 }
 
 #else
@@ -182,49 +182,49 @@ static struct termios saved_ti;
 
 static int tty_getchar()
 {
-	int c, numChars;
+        int c, numChars;
 #ifdef __CYGWIN32__
-	fd_set set;
-	struct timeval tv;
+        fd_set set;
+        struct timeval tv;
 #endif
         
-	if (tty_fd && tcgetpgrp(tty_fd) == getpid()) {
+        if (tty_fd && tcgetpgrp(tty_fd) == getpid()) {
 
         // This is so that when the terminal has been disconnected, it will be
         // reconnected when possible. If it slows things down, just remove it
         // tty_init();
 
 #ifdef __CYGWIN32__
-		FD_ZERO(&set); FD_SET(tty_fd, &set);
-		tv.tv_sec = 0; tv.tv_usec = 0;
-		if (select(tty_fd + 1, &set, NULL, NULL, &tv) <= 0)
-			return -1;
+                FD_ZERO(&set); FD_SET(tty_fd, &set);
+                tv.tv_sec = 0; tv.tv_usec = 0;
+                if (select(tty_fd + 1, &set, NULL, NULL, &tv) <= 0)
+                        return -1;
 #endif
-		c = 0;
+                c = 0;
                 numChars = read(tty_fd, &c, 1);
-		if (numChars > 0) return c;
-	}
+                if (numChars > 0) return c;
+        }
 
-	return -1;
+        return -1;
 }
 
 static void tty_done()
 {
-	if (!tty_fd) return;
+        if (!tty_fd) return;
 
-	tcsetattr(tty_fd, TCSANOW, &saved_ti);
+        tcsetattr(tty_fd, TCSANOW, &saved_ti);
 
-	close(tty_fd);
-	tty_fd = 0;
+        close(tty_fd);
+        tty_fd = 0;
 }
 
 static void tty_flush(void)
 {
-	/* we don't need to test for tty_fd==0 here because
-	 * this isn't called unless we succeeded
-	 */
+        /* we don't need to test for tty_fd==0 here because
+         * this isn't called unless we succeeded
+         */
 
-	tcflush(tty_fd, TCIFLUSH);
+        tcflush(tty_fd, TCIFLUSH);
 }
 
 /*
@@ -234,30 +234,30 @@ static void tty_flush(void)
  */
 void tty_init()
 {
-	struct termios ti;
+        struct termios ti;
 
-	if(o.noninteractive)
-		return;
+        if(o.noninteractive)
+                return;
 
-	if (tty_fd)
-		return;
+        if (tty_fd)
+                return;
 
-	if ((tty_fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
+        if ((tty_fd = open("/dev/tty", O_RDONLY | O_NONBLOCK)) < 0) return;
 
 #ifndef __CYGWIN32__
-	if (tcgetpgrp(tty_fd) != getpid()) {
-		close(tty_fd); return;
-	}
+        if (tcgetpgrp(tty_fd) != getpid()) {
+                close(tty_fd); return;
+        }
 #endif
 
-	tcgetattr(tty_fd, &ti);
-	saved_ti = ti;
-	ti.c_lflag &= ~(ICANON | ECHO);
-	ti.c_cc[VMIN] = 1;
-	ti.c_cc[VTIME] = 0;
-	tcsetattr(tty_fd, TCSANOW, &ti);
+        tcgetattr(tty_fd, &ti);
+        saved_ti = ti;
+        ti.c_lflag &= ~(ICANON | ECHO);
+        ti.c_cc[VMIN] = 1;
+        ti.c_cc[VTIME] = 0;
+        tcsetattr(tty_fd, TCSANOW, &ti);
 
-	atexit(tty_done);
+        atexit(tty_done);
 }
 
 #endif  //!win32
@@ -285,7 +285,7 @@ bool keyWasPressed()
        log_write(LOG_STDOUT, "Verbosity Increased to %d.\n", o.verbose);
     } else if (c == 'V') {
        if (o.verbose > 0)
-	 o.verbose--;
+         o.verbose--;
        log_write(LOG_STDOUT, "Verbosity Decreased to %d.\n", o.verbose);
     } else if (c == 'd') {
        o.debugging++;
@@ -301,12 +301,12 @@ bool keyWasPressed()
        log_write(LOG_STDOUT, "Packet Tracing disabled.\n");
     } else if (c == '?') {
       log_write(LOG_STDOUT,
-		"Interactive keyboard commands:\n"
-		"?               Display this information\n"
-		"v/V             Increase/decrease verbosity\n"
-		"d/D             Increase/decrease debugging\n"
-		"p/P             Enable/disable packet tracing\n"
-		"anything else   Print status\n"
+                "Interactive keyboard commands:\n"
+                "?               Display this information\n"
+                "v/V             Increase/decrease verbosity\n"
+                "d/D             Increase/decrease debugging\n"
+                "p/P             Enable/disable packet tracing\n"
+                "anything else   Print status\n"
                 "More help: http://nmap.org/book/man-runtime-interaction.html\n");
     } else {
        printStatusMessage();

@@ -192,7 +192,7 @@ static void mac_prefix_init() {
       MacTable[pfx] = cp_strdup(vendor);
     } else {
       if (o.debugging > 1)
-	error("MAC prefix %06X is duplicated in %s; ignoring duplicates.", pfx, filename);
+        error("MAC prefix %06X is duplicated in %s; ignoring duplicates.", pfx, filename);
     }
 
   }

@@ -404,7 +404,7 @@ static void do_possible_writes() {
 
       if (tpreq) {
         if (o.debugging >= TRACE_DEBUG_LEVEL)
-	   log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , servI->hostname.c_str());
+           log_write(LOG_STDOUT, "mass_rdns: TRANSMITTING for <%s> (server <%s>)\n", tpreq->targ->targetipstr() , servI->hostname.c_str());
         stat_trans++;
         put_dns_packet_on_wire(tpreq);
       }
@@ -666,7 +666,7 @@ static int encoded_name_to_normal(const unsigned char *buf, char *output, int ou
 // Takes a pointer to the start of a DNS name inside a packet. It makes
 // sure that there is enough space in the name, deals with compression, etc.
 static int advance_past_dns_name(u8 *buf, int buflen, int curbuf,
-			  int *nameloc) {
+                          int *nameloc) {
   int compression=0;
 
   if (curbuf <= 0 || curbuf >= buflen) return -1;
@@ -1353,19 +1353,19 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
   if (stat_actual > 0) {
     if (o.debugging || o.verbose >= 3) {
       if (o.mass_dns && o.af() == AF_INET) {
-	// #:  Number of DNS servers used
-	// OK: Number of fully reverse resolved queries
-	// NX: Number of confirmations of 'No such reverse domain eXists'
-	// DR: Dropped IPs (no valid responses were received)
-	// SF: Number of IPs that got 'Server Failure's
-	// TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
-	log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
-		  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
-		  (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
+        // #:  Number of DNS servers used
+        // OK: Number of fully reverse resolved queries
+        // NX: Number of confirmations of 'No such reverse domain eXists'
+        // DR: Dropped IPs (no valid responses were received)
+        // SF: Number of IPs that got 'Server Failure's
+        // TR: Total number of transmissions necessary. The number of domains is ideal, higher is worse
+        log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: Async [#: %lu, OK: %d, NX: %d, DR: %d, SF: %d, TR: %d, CN: %d]\n",
+                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  (unsigned long) servs.size(), stat_ok, stat_nx, stat_dropped, stat_sf, stat_trans, stat_cname);
       } else {
-	log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
-		  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
-		  stat_ok, stat_actual - stat_ok);
+        log_write(LOG_STDOUT, "DNS resolution of %d IPs took %.2fs. Mode: System [OK: %d, ??: %d]\n",
+                  stat_actual, TIMEVAL_MSEC_SUBTRACT(now, starttv) / 1000.0,
+                  stat_ok, stat_actual - stat_ok);
       }
     }
   }
