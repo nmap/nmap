@@ -183,7 +183,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
 
   if (o.verbose || o.debugging)
     log_write(LOG_STDOUT, "Attempting connection to ftp://%s:%s@%s:%i\n",
-	      ftp->user, ftp->pass, ftp->server_name, ftp->port);
+              ftp->user, ftp->pass, ftp->server_name, ftp->port);
 
   if ((sd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
     gh_perror("Couldn't create %s socket", __func__);

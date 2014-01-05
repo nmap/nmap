@@ -209,10 +209,10 @@ public:
   int max_batch_sz; /* The size of the hostbatch[] array */
   int current_batch_sz; /* The number of VALID members of hostbatch[] */
   int next_batch_no; /* The index of the next hostbatch[] member to be given
-			back to the user */
+                        back to the user */
   int randomize; /* Whether each batch should be "shuffled" prior to the ping
-		    scan (they will also be out of order when given back one
-		    at a time to the client program */
+                    scan (they will also be out of order when given back one
+                    at a time to the client program */
   TargetGroup current_group; /* For batch chunking -- targets in queue */
 
   /* Returns true iff the defer buffer is not yet full. */

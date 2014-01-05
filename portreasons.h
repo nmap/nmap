@@ -158,42 +158,42 @@ public:
 /* stored inside a Port Object and describes
  * why a port is in a specific state */
 typedef struct port_reason {
-	reason_t reason_id;
-	union {
-		struct sockaddr_in in;
-		struct sockaddr_in6 in6;
-		struct sockaddr sockaddr;
-	} ip_addr;
-	unsigned short ttl;
+        reason_t reason_id;
+        union {
+                struct sockaddr_in in;
+                struct sockaddr_in6 in6;
+                struct sockaddr sockaddr;
+        } ip_addr;
+        unsigned short ttl;
 
-	int set_ip_addr(const struct sockaddr_storage *ss);
+        int set_ip_addr(const struct sockaddr_storage *ss);
 } state_reason_t;
 
 /* used to calculate state reason summaries.
  * I.E 10 ports filter because of 10 no-responses */
 typedef struct port_reason_summary {
-	reason_t reason_id;
-	unsigned int count;
-	struct port_reason_summary *next;
+        reason_t reason_id;
+        unsigned int count;
+        struct port_reason_summary *next;
 } state_reason_summary_t;
 
 
 enum reason_codes {
-	ER_RESETPEER, ER_CONREFUSED, ER_CONACCEPT, 
-	ER_SYNACK, ER_SYN, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, 
+        ER_RESETPEER, ER_CONREFUSED, ER_CONACCEPT, 
+        ER_SYNACK, ER_SYN, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, 
 
-	ER_NETUNREACH, ER_HOSTUNREACH, ER_PROTOUNREACH,
-	ER_PORTUNREACH, ER_ECHOREPLY, 
+        ER_NETUNREACH, ER_HOSTUNREACH, ER_PROTOUNREACH,
+        ER_PORTUNREACH, ER_ECHOREPLY, 
 
-	ER_DESTUNREACH, ER_SOURCEQUENCH, ER_NETPROHIBITED,
-	ER_HOSTPROHIBITED, ER_ADMINPROHIBITED,
-	ER_TIMEEXCEEDED, ER_TIMESTAMPREPLY,
+        ER_DESTUNREACH, ER_SOURCEQUENCH, ER_NETPROHIBITED,
+        ER_HOSTPROHIBITED, ER_ADMINPROHIBITED,
+        ER_TIMEEXCEEDED, ER_TIMESTAMPREPLY,
 
-	ER_ADDRESSMASKREPLY, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
-	ER_ARPRESPONSE, ER_NDRESPONSE, ER_TCPRESPONSE, ER_NORESPONSE,
-	ER_INITACK, ER_ABORT,
-	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER,
-	ER_NOROUTE, ER_BEYONDSCOPE, ER_REJECTROUTE, ER_PARAMPROBLEM,
+        ER_ADDRESSMASKREPLY, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
+        ER_ARPRESPONSE, ER_NDRESPONSE, ER_TCPRESPONSE, ER_NORESPONSE,
+        ER_INITACK, ER_ABORT,
+        ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER,
+        ER_NOROUTE, ER_BEYONDSCOPE, ER_REJECTROUTE, ER_PARAMPROBLEM,
 };
 
 /* A map of reason_codes to plural and singular *

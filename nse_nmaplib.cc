@@ -834,7 +834,7 @@ static int l_list_interfaces (lua_State *L)
       nseU_setsfield(L, -1, "shortname", iflist[i].devname);
       nseU_setnfield(L, -1, "netmask", iflist[i].netmask_bits);
       nseU_setsfield(L, -1, "address", inet_ntop_ez(&(iflist[i].addr), 
-	    sizeof(iflist[i].addr) ));
+            sizeof(iflist[i].addr) ));
       
       switch (iflist[i].device_type){
         case devt_ethernet:

@@ -421,7 +421,7 @@ public:
   /* Total # of probes outstanding (active) for all Hosts */
   int num_probes_active;
   UltraScanInfo *USI; /* The USI which contains this GSS.  Use for at least
-			 getting the current time w/o gettimeofday() */
+                         getting the current time w/o gettimeofday() */
   struct ultra_timing_vals timing;
   struct timeout_info to; /* Group-wide packet rtt/timeout info */
   int numtargets; /* Total # of targets scanned -- includes finished and incomplete hosts */
@@ -484,7 +484,7 @@ public:
   ~HostScanStats();
   int freshPortsLeft(); /* Returns the number of ports remaining to probe */
   int next_portidx; /* Index of the next port to probe in the relevent
-		       ports array in USI.ports */
+                       ports array in USI.ports */
   bool sent_arp; /* Has an ARP probe been sent for the target yet? */
 
   /* massping state. */
@@ -708,7 +708,7 @@ public:
   bool isRawScan();
 
   struct timeval now; /* Updated after potentially meaningful delays.  This can
-			 be used to save a call to gettimeofday() */
+                         be used to save a call to gettimeofday() */
   GroupScanStats *gstats;
   struct ultra_scan_performance_vars perf;
   /* A circular buffer of the incompleteHosts.  nextIncompleteHost() gives
@@ -773,7 +773,7 @@ public:
   pcap_t *pd;
   eth_t *ethsd;
   u32 seqmask; /* This mask value is used to encode values in sequence
-		  numbers.  It is set randomly in UltraScanInfo::Init() */
+                  numbers.  It is set randomly in UltraScanInfo::Init() */
 private:
 
   unsigned int numInitialTargets;

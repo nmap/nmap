@@ -149,17 +149,17 @@
 #endif
 
 enum osscan_flags {
-	OS_NOTPERF=0, OS_PERF, OS_PERF_UNREL
+        OS_NOTPERF=0, OS_PERF, OS_PERF_UNREL
 };
 
 /* The method used to calculate the Target::distance, included in OS
    fingerprints. */
 enum dist_calc_method {
-	DIST_METHOD_NONE,
-	DIST_METHOD_LOCALHOST,
-	DIST_METHOD_DIRECT,
-	DIST_METHOD_ICMP,
-	DIST_METHOD_TRACEROUTE
+        DIST_METHOD_NONE,
+        DIST_METHOD_LOCALHOST,
+        DIST_METHOD_DIRECT,
+        DIST_METHOD_ICMP,
+        DIST_METHOD_TRACEROUTE
 };
 
 struct host_timeout_nfo {

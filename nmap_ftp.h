@@ -153,6 +153,6 @@ int parse_bounce_argument(struct ftpinfo *ftp, char *url);
    rewritten.  But I don't think it is used much anyway.  If I'm going to
    allow FTP bounce scan, I should really allow SOCKS proxy scan.  */
 void bounce_scan(Target *target, u16 *portarray, int numports,
-		 struct ftpinfo *ftp);
+                 struct ftpinfo *ftp);
 
 #endif /* NMAP_FTP_H */

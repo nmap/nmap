@@ -279,8 +279,8 @@ void *realloc();
 #define MAX_SOCKETS 36 
 
 #define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts 
-				      in a row before we decide the host is 
-				      dead? */
+                                      in a row before we decide the host is 
+                                      dead? */
 #define _STR(X) #X
 #define STR(X)  _STR(X)
 #define DEFAULT_TCP_PROBE_PORT 80 /* The ports TCP ping probes go to if
@@ -328,7 +328,7 @@ void *realloc();
 
 #ifndef MAX_RTT_TIMEOUT
 #define MAX_RTT_TIMEOUT 10000 /* Never allow more than 10 secs for packet round
-				 trip */
+                                 trip */
 #endif
 
 #define INITIAL_RTT_TIMEOUT 1000 /* Allow 1 second initially for packet responses */

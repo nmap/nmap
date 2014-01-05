@@ -129,27 +129,27 @@
 /* $Id$ */
 
 /* IPv6 fragment ID sequence algorithms. http://seclists.org/nmap-dev/2013/q3/369.
-	Android 4.1 (Linux 3.0.15) | Per host, incremental (1)
-	FreeBSD 7.4 | Random
-	FreeBSD 9.1 | Random
-	iOS 6.1.2 | Random
-	Linux 2.6.32 | Per host, incremental (2)
-	Linux 3.2 | Per host, incremental (1)
-	Linux 3.8 | Per host, incremental
-	OpenBSD 4.6 | Random
-	OpenBSD 5.2 | Random
-	OS X 10.6.7 | Global, incremental (3)
-	OS X 10.8.3 | Random
-	Solaris 11 | Per host, incremental
-	Windows Server 2003 R2 Standard 64bit, SP2 | Global, incremental
-	Windows Server 2008 Standard 32bit,  SP1 | Global, incremental
-	Windows Server 2008 R2 Standard 64bit, SP1 | Global, incremental by 2
-	Windows Server 2012 Standard 64bit | Global, incremental by 2
-	Windows XP Professional 32bit, SP3 | Global, incremental (4)
-	Windows Vista Business 64bit, SP1 | Global, incremental
-	Windows 7 Home Premium 32bit, SP1 | Global, incremental by 2
-	Windows 7 Ultimate 32bit, SP1 | Global, incremental by 2
-	Windows 8 Enterprise 32 bit | Global, incremental by 2
+        Android 4.1 (Linux 3.0.15) | Per host, incremental (1)
+        FreeBSD 7.4 | Random
+        FreeBSD 9.1 | Random
+        iOS 6.1.2 | Random
+        Linux 2.6.32 | Per host, incremental (2)
+        Linux 3.2 | Per host, incremental (1)
+        Linux 3.8 | Per host, incremental
+        OpenBSD 4.6 | Random
+        OpenBSD 5.2 | Random
+        OS X 10.6.7 | Global, incremental (3)
+        OS X 10.8.3 | Random
+        Solaris 11 | Per host, incremental
+        Windows Server 2003 R2 Standard 64bit, SP2 | Global, incremental
+        Windows Server 2008 Standard 32bit,  SP1 | Global, incremental
+        Windows Server 2008 R2 Standard 64bit, SP1 | Global, incremental by 2
+        Windows Server 2012 Standard 64bit | Global, incremental by 2
+        Windows XP Professional 32bit, SP3 | Global, incremental (4)
+        Windows Vista Business 64bit, SP1 | Global, incremental
+        Windows 7 Home Premium 32bit, SP1 | Global, incremental by 2
+        Windows 7 Ultimate 32bit, SP1 | Global, incremental by 2
+        Windows 8 Enterprise 32 bit | Global, incremental by 2
 */
 
 #include "idle_scan.h"
@@ -175,7 +175,7 @@ struct idle_proxy_info {
   u16 probe_port; /* The port we use for probing IP ID infoz */
   u16 max_groupsz; /* We won't test groups larger than this ... */
   u16 min_groupsz; /* We won't allow the group size to fall below this
-		      level.  Affected by --min-parallelism */
+                      level.  Affected by --min-parallelism */
   double current_groupsz; /* Current group size being used ... depends on
                           conditions ... won't be higher than
                           max_groupsz */
@@ -1030,7 +1030,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
   int openports;
   int tries;
   int proxyprobes_sent = 0; /* diff. from tries 'cause sometimes we
-			       skip tries */
+                               skip tries */
   int proxyprobes_rcvd = 0; /* To determine if packets were dr0pped */
   int sent, rcvd;
   int ipid_dist;
@@ -1224,7 +1224,7 @@ static int idlescan_countopen(struct idle_proxy_info *proxy,
     sleep(tries * tries);
     if (tries == 5)
       sleep(45); /* We're gonna give up if this fails, so we will be a bit
-		    patient */
+                    patient */
     /* Since the host may have received packets while we were sleeping,
        lets update our proxy IP ID counter */
     proxy->latestid = ipid_proxy_probe(proxy, NULL, NULL);

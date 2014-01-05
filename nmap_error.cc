@@ -203,8 +203,8 @@ void pfatal(const char *fmt, ...) {
 #ifdef WIN32
   error_number = GetLastError();
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
-		NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR) &strerror_s,  0, NULL);
+                NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPTSTR) &strerror_s,  0, NULL);
 #else
   error_number = errno;
   strerror_s = strerror(error_number);
@@ -218,7 +218,7 @@ void pfatal(const char *fmt, ...) {
   va_end(ap);
 
   log_write(LOG_NORMAL|LOG_STDERR, "%s: %s (%d)\n",
-	    errbuf, strerror_s, error_number);
+            errbuf, strerror_s, error_number);
 
   if (xml_tag_open())
     xml_close_start_tag();
@@ -265,8 +265,8 @@ void gh_perror(const char *fmt, ...) {
 #ifdef WIN32
   error_number = GetLastError();
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
-		NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR) &strerror_s,  0, NULL);
+                NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+                (LPTSTR) &strerror_s,  0, NULL);
 #else
   error_number = errno;
   strerror_s = strerror(error_number);

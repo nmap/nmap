@@ -150,13 +150,13 @@ class FingerPrintResults {
   virtual ~FingerPrintResults();
 
   double accuracy[MAX_FP_RESULTS]; /* Percentage of match (1.0 == perfect 
-				      match) in same order as matches[] below */
+                                      match) in same order as matches[] below */
   FingerMatch *matches[MAX_FP_RESULTS]; /* ptrs to matching references -- 
-					      highest accuracy matches first */
+                                              highest accuracy matches first */
   int num_perfect_matches; /* Number of 1.0 accuracy matches in matches[] */
   int num_matches; /* Total number of matches in matches[] */
   int overall_results; /* OSSCAN_TOOMANYMATCHES, OSSCAN_NOMATCHES, 
-			  OSSCAN_SUCCESS, etc */
+                          OSSCAN_SUCCESS, etc */
 
   /* Ensures that the results are available and then returns them.
    You should only call this AFTER all matching has been completed
@@ -167,11 +167,11 @@ class FingerPrintResults {
   const struct OS_Classification_Results *getOSClassification();
 
   int osscan_opentcpport; /* Open TCP port used for scannig (if one found -- 
-			  otherwise -1) */
+                          otherwise -1) */
   int osscan_closedtcpport; /* Closed TCP port used for scannig (if one found -- 
-			    otherwise -1) */
+                            otherwise -1) */
   int osscan_closedudpport;  /* Closed UDP port used for scannig (if one found -- 
-			    otherwise -1) */
+                            otherwise -1) */
   int distance; /* How "far" is this FP gotten from? */
   int distance_guess; /* How "far" is this FP gotten from? by guessing based on ttl. */
 

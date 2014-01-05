@@ -566,7 +566,7 @@ static int l_sendto (lua_State *L)
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
   freeaddrinfo(dest);
   return yield(L, nu, "SEND", TO, 0, NULL);
-	
+        
 }
 
 static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)

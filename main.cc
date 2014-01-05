@@ -180,12 +180,12 @@ int main(int argc, char *argv[]) {
   set_program_name(argv[0]);
 
 #ifdef __amigaos__
-	if(!OpenLibs()) {
-		error("Couldn't open TCP/IP Stack Library(s)!");
-		exit(20);
-	}
-	MiamiBPFInit((struct Library *)MiamiBase, (struct Library *)SocketBase);
-	MiamiPCapInit((struct Library *)MiamiBase, (struct Library *)SocketBase);
+        if(!OpenLibs()) {
+                error("Couldn't open TCP/IP Stack Library(s)!");
+                exit(20);
+        }
+        MiamiBPFInit((struct Library *)MiamiBase, (struct Library *)SocketBase);
+        MiamiPCapInit((struct Library *)MiamiBase, (struct Library *)SocketBase);
 #endif
 
 #ifdef MTRACE

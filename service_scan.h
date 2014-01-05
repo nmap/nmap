@@ -242,8 +242,8 @@ class ServiceProbeMatch {
   // for a string, that string will have zero length after the function
   // call (assuming the corresponding length passed in is at least 1)
   int getVersionStr(const u8 *subject, int subjectlen, int *ovector, 
-		  int nummatches, char *product, int productlen,
-		  char *version, int versionlen, char *info, int infolen,
+                  int nummatches, char *product, int productlen,
+                  char *version, int versionlen, char *info, int infolen,
                   char *hostname, int hostnamelen, char *ostype, int ostypelen,
                   char *devicetype, int devicetypelen,
                   char *cpe_a, int cpe_alen,
@@ -295,7 +295,7 @@ class ServiceProbe {
   // are a comma separated list of ports and ranges
   // (e.g. 53,80,6000-6010).
   void setProbablePorts(enum service_tunnel_type tunnel,
-			const char *portstr, int lineno);
+                        const char *portstr, int lineno);
 
   /* Returns true if the passed in port is on the list of probable
      ports for this probe and tunnel type.  Use a tunnel of
@@ -337,7 +337,7 @@ class ServiceProbe {
 
  private:
   void setPortVector(std::vector<u16> *portv, const char *portstr, 
-				 int lineno);
+                                 int lineno);
   char *probename;
 
   u8 *probestring;

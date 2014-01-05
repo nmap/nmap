@@ -199,22 +199,22 @@ static int nmap_services_init() {
     error("Unable to find nmap-services!  Resorting to /etc/services");
     strcpy(filename, "/etc/services");
 #else
-	int len, wnt = GetVersion() < 0x80000000;
+        int len, wnt = GetVersion() < 0x80000000;
     error("Unable to find nmap-services!  Resorting to /etc/services");
-	if(wnt)
-		len = GetSystemDirectory(filename, 480);	//	be safe
-	else
-		len = GetWindowsDirectory(filename, 480);	//	be safe
-	if(!len)
-		error("Get%sDirectory failed (%d) @#!#@",
-		 wnt ? "System" : "Windows", GetLastError());
-	else
-	{
-		if(wnt)
-			strcpy(filename + len, "\\drivers\\etc\\services");
-		else
-			strcpy(filename + len, "\\services");
-	}
+        if(wnt)
+                len = GetSystemDirectory(filename, 480);	//	be safe
+        else
+                len = GetWindowsDirectory(filename, 480);	//	be safe
+        if(!len)
+                error("Get%sDirectory failed (%d) @#!#@",
+                 wnt ? "System" : "Windows", GetLastError());
+        else
+        {
+                if(wnt)
+                        strcpy(filename + len, "\\drivers\\etc\\services");
+                else
+                        strcpy(filename + len, "\\services");
+        }
 #endif
   }
 
@@ -239,27 +239,27 @@ static int nmap_services_init() {
       ratio = 0;
     } else if (res == 4) {
       if (strchr(ratio_str, '/')) {
-	res = sscanf(ratio_str, "%d/%d", &ratio_n, &ratio_d);
-	if (res != 2)
-	  fatal("%s:%d contains invalid port ratio string: %s", filename, lineno, ratio_str);
+        res = sscanf(ratio_str, "%d/%d", &ratio_n, &ratio_d);
+        if (res != 2)
+          fatal("%s:%d contains invalid port ratio string: %s", filename, lineno, ratio_str);
 
-	if (ratio_n < 0 || ratio_d < 0)
-	  fatal("%s:%d contains an invalid negative value", filename, lineno);
-	
-	if (ratio_n > ratio_d)
-	  fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
-	
-	if (ratio_d == 0)
-	  fatal("%s:%d has a ratio denominator of 0 causing a division by 0 error", filename, lineno);
-	
-	ratio = (double)ratio_n / ratio_d;
-	ratio_format = 1;
+        if (ratio_n < 0 || ratio_d < 0)
+          fatal("%s:%d contains an invalid negative value", filename, lineno);
+        
+        if (ratio_n > ratio_d)
+          fatal("%s:%d has a ratio %g. All ratios must be < 1", filename, lineno, (double)ratio_n/ratio_d);
+        
+        if (ratio_d == 0)
+          fatal("%s:%d has a ratio denominator of 0 causing a division by 0 error", filename, lineno);
+        
+        ratio = (double)ratio_n / ratio_d;
+        ratio_format = 1;
       } else if (strncmp(ratio_str, "0.", 2) == 0) {
-	/* We assume the ratio is in floating point notation already */
-	ratio = strtod(ratio_str, NULL);
-	ratio_format = 1;
+        /* We assume the ratio is in floating point notation already */
+        ratio = strtod(ratio_str, NULL);
+        ratio_format = 1;
       } else {
-	ratio = 0;
+        ratio = 0;
       }
     } else {
       continue;
@@ -292,7 +292,7 @@ static int nmap_services_init() {
       /* possibly misplaced comment, but who cares? */
     } else {
       if (o.debugging)
-	error("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
+        error("Unknown protocol (%s) on line %d of services file %s.", proto, lineno, filename);
       continue;
     }
 

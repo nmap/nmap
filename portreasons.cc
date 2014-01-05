@@ -227,8 +227,8 @@ static reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
-	case ICMP_ECHOREPLY:
-	    return ER_ECHOREPLY;
+        case ICMP_ECHOREPLY:
+            return ER_ECHOREPLY;
 
         case ICMP_UNREACH:
             switch(icmp_code){
@@ -270,8 +270,8 @@ static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
-	case ICMPV6_ECHOREPLY:
-	    return ER_ECHOREPLY;
+        case ICMPV6_ECHOREPLY:
+            return ER_ECHOREPLY;
 
         case ICMPV6_UNREACH:
             switch(icmp_code) {
@@ -293,7 +293,7 @@ static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
             return ER_UNKNOWN;
 
         case ICMPV6_PARAMPROBLEM:
-	    return ER_PARAMPROBLEM;
+            return ER_PARAMPROBLEM;
 
         case ICMPV6_TIMEXCEED:
             return ER_TIMEEXCEEDED;
@@ -302,41 +302,41 @@ static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
 };
 
 reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code) {
-	if (proto == IPPROTO_ICMP)
-		return icmpv4_to_reason(icmp_type, icmp_code);
-	else if (proto == IPPROTO_ICMPV6)
-		return icmpv6_to_reason(icmp_type, icmp_code);
-	else
-		return ER_UNKNOWN;
+        if (proto == IPPROTO_ICMP)
+                return icmpv4_to_reason(icmp_type, icmp_code);
+        else if (proto == IPPROTO_ICMPV6)
+                return icmpv6_to_reason(icmp_type, icmp_code);
+        else
+                return ER_UNKNOWN;
 }
 
 static void state_reason_summary_init(state_reason_summary_t *r) {
-	r->reason_id = ER_UNKNOWN;
-	r->count = 0;
-	r->next = NULL;
+        r->reason_id = ER_UNKNOWN;
+        r->count = 0;
+        r->next = NULL;
 }
 
 static void state_reason_summary_dinit(state_reason_summary_t *r) {
-	state_reason_summary_t *tmp;
+        state_reason_summary_t *tmp;
 
-	while(r != NULL) {
-		tmp = r->next;
-		free(r);
-		r = tmp;
-	}
+        while(r != NULL) {
+                tmp = r->next;
+                free(r);
+                r = tmp;
+        }
 }
 
 /* Counts how different valid state reasons exist */
 static int state_summary_size(state_reason_summary_t *head) {
-	state_reason_summary_t *current = head;
-	int size = 0;
+        state_reason_summary_t *current = head;
+        int size = 0;
 
-	while(current) {
-		if(current->count > 0)
-			size++;
-		current = current->next;
-	}
-	return size;
+        while(current) {
+                if(current->count > 0)
+                        size++;
+                current = current->next;
+        }
+        return size;
 }
 
 /* Simon Tatham's linked list merge sort
@@ -345,11 +345,11 @@ static int state_summary_size(state_reason_summary_t *head) {
  * because it does not require the O(N) extra space
  * needed with arrays */
 static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
-	state_reason_summary_t *p, *q, *e, *tail;
-	int insize = 1, nmerges, psize, qsize, i;
+        state_reason_summary_t *p, *q, *e, *tail;
+        int insize = 1, nmerges, psize, qsize, i;
 
     if (!list)
-	  return NULL;
+          return NULL;
 
     while (1) {
         p = list;
@@ -363,27 +363,27 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
             psize = 0;
             for (i = 0; i < insize; i++) {
                 psize++;
-		        q = q->next;
+                        q = q->next;
                 if (!q) break;
             }
             qsize = insize;
             while (psize > 0 || (qsize > 0 && q)) {
               if (psize == 0) {
-		        e = q; q = q->next; qsize--;
-		     } else if (qsize == 0 || !q) {
-		        e = p; p = p->next; psize--;
-		     } else if (q->count<p->count) {
-		        e = p; p = p->next; psize--;
-		     } else {
-		       e = q; q = q->next; qsize--;
-		     }
+                        e = q; q = q->next; qsize--;
+                     } else if (qsize == 0 || !q) {
+                        e = p; p = p->next; psize--;
+                     } else if (q->count<p->count) {
+                        e = p; p = p->next; psize--;
+                     } else {
+                       e = q; q = q->next; qsize--;
+                     }
 
-		     if (tail) {
-		      tail->next = e;
-		    } else {
-		      list = e;
-		    }
-		    tail = e;
+                     if (tail) {
+                      tail->next = e;
+                    } else {
+                      list = e;
+                    }
+                    tail = e;
           }
           p = q;
        }
@@ -398,68 +398,68 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
 
 /* Builds and aggregates reason state summary messages */
 static int update_state_summary(state_reason_summary_t *head, reason_t reason_id) {
-	state_reason_summary_t *tmp = head;
+        state_reason_summary_t *tmp = head;
 
-	if(tmp == NULL)
-		return -1;
+        if(tmp == NULL)
+                return -1;
 
-	while(1) {
-		if(tmp->reason_id == reason_id) {
-			tmp->count++;
-			return 0;
-		}
+        while(1) {
+                if(tmp->reason_id == reason_id) {
+                        tmp->count++;
+                        return 0;
+                }
 
-		if(tmp->next == NULL) {
-		  tmp->next = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
-		  tmp = tmp->next;
-		  break;
-		}
-		tmp = tmp->next;
-	}
-	state_reason_summary_init(tmp);
-	tmp->reason_id = reason_id;
-	tmp->count = 1;
-	return 0;
+                if(tmp->next == NULL) {
+                  tmp->next = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
+                  tmp = tmp->next;
+                  break;
+                }
+                tmp = tmp->next;
+        }
+        state_reason_summary_init(tmp);
+        tmp->reason_id = reason_id;
+        tmp->count = 1;
+        return 0;
 }
 
 /* Converts Port objects and their corrosponsing state_reason structures into
  * state_reason_summary structures using update_state_summary */
 static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports, int state) {
-	Port *current = NULL;
+        Port *current = NULL;
         Port port;
-	state_reason_summary_t *reason;
-	unsigned int total = 0;
-	unsigned short proto = (o.ipprotscan) ? IPPROTO_IP : TCPANDUDPANDSCTP;
+        state_reason_summary_t *reason;
+        unsigned int total = 0;
+        unsigned short proto = (o.ipprotscan) ? IPPROTO_IP : TCPANDUDPANDSCTP;
 
-	if(head == NULL)
-		return 0;
-	reason = head;
+        if(head == NULL)
+                return 0;
+        reason = head;
 
-	while((current = Ports->nextPort(current, &port, proto, state)) != NULL) {
-		if(Ports->isIgnoredState(current->state)) {
-			total++;
-			update_state_summary(reason, current->reason.reason_id);
-		}
-	}
-	return total;
+        while((current = Ports->nextPort(current, &port, proto, state)) != NULL) {
+                if(Ports->isIgnoredState(current->state)) {
+                        total++;
+                        update_state_summary(reason, current->reason.reason_id);
+                }
+        }
+        return total;
 }
 
 /* parse and sort reason summary for main print_* functions */
 static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int state) {
-	state_reason_summary_t *reason_head;
+        state_reason_summary_t *reason_head;
 
-	reason_head = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
+        reason_head = (state_reason_summary_t *)safe_malloc(sizeof(state_reason_summary_t));
 
-	state_reason_summary_init(reason_head);
+        state_reason_summary_init(reason_head);
 
-	if((get_state_summary(reason_head, Ports, state) < 1)) {
-		state_reason_summary_dinit(reason_head);
-		return NULL;
-	}
+        if((get_state_summary(reason_head, Ports, state) < 1)) {
+                state_reason_summary_dinit(reason_head);
+                return NULL;
+        }
 
-	if((reason_head = reason_sort(reason_head)) == NULL)
-		return NULL;
-	return reason_head;
+        if((reason_head = reason_sort(reason_head)) == NULL)
+                return NULL;
+        return reason_head;
 }
 
 /* looks up reason_id's and returns with the plural or singular
@@ -475,90 +475,90 @@ const char *reason_str(reason_t reason_code, unsigned int number) {
 }
 
 void state_reason_init(state_reason_t *reason) {
-	reason->reason_id = ER_UNKNOWN;
-	reason->ip_addr.sockaddr.sa_family = AF_UNSPEC;
-	reason->ttl = 0;
+        reason->reason_id = ER_UNKNOWN;
+        reason->ip_addr.sockaddr.sa_family = AF_UNSPEC;
+        reason->ttl = 0;
 }
 
 /* Main external interface to converting, building, sorting and
  * printing plain-text state reason summaries */
 void print_state_summary(PortList *Ports, unsigned short type) {
-	state_reason_summary_t *reason_head, *currentr;
-	bool first_time = true;
-	const char *separator = ", ";
-	int states;
+        state_reason_summary_t *reason_head, *currentr;
+        bool first_time = true;
+        const char *separator = ", ";
+        int states;
 
-	if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)
-		return;
+        if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)
+                return;
 
-	if(type == STATE_REASON_EMPTY)
-		log_write(LOG_PLAIN, " because of");
-	else if(type == STATE_REASON_FULL)
-		log_write(LOG_PLAIN, "Reason:");
-	else
-		assert(0);
+        if(type == STATE_REASON_EMPTY)
+                log_write(LOG_PLAIN, " because of");
+        else if(type == STATE_REASON_FULL)
+                log_write(LOG_PLAIN, "Reason:");
+        else
+                assert(0);
 
-	states = state_summary_size(reason_head);
-	currentr = reason_head;
-	
-	while(currentr != NULL) {
-		if(states == 1 && (!first_time))
-			separator = " and ";
-		if(currentr->count > 0) {
-			log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator,
-				currentr->count, reason_str(currentr->reason_id, currentr->count));
-			first_time = false;
+        states = state_summary_size(reason_head);
+        currentr = reason_head;
+        
+        while(currentr != NULL) {
+                if(states == 1 && (!first_time))
+                        separator = " and ";
+                if(currentr->count > 0) {
+                        log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator,
+                                currentr->count, reason_str(currentr->reason_id, currentr->count));
+                        first_time = false;
 
-		}
-		states--;
-		currentr  = currentr->next;
-	}
-	if(type == STATE_REASON_FULL)
-		log_write(LOG_PLAIN, "\n");
-	state_reason_summary_dinit(reason_head);
+                }
+                states--;
+                currentr  = currentr->next;
+        }
+        if(type == STATE_REASON_FULL)
+                log_write(LOG_PLAIN, "\n");
+        state_reason_summary_dinit(reason_head);
 }
 
 void print_xml_state_summary(PortList *Ports, int state) {
-	state_reason_summary_t *reason_head, *currentr;
+        state_reason_summary_t *reason_head, *currentr;
 
-	if((currentr = reason_head = print_state_summary_internal(Ports, state)) == NULL)
-		return;
+        if((currentr = reason_head = print_state_summary_internal(Ports, state)) == NULL)
+                return;
 
-	while(currentr != NULL) {
-		if(currentr->count > 0) {
-			xml_open_start_tag("extrareasons");
-			xml_attribute("reason", "%s", reason_str(currentr->reason_id, currentr->count));
-			xml_attribute("count", "%d", currentr->count);
-			xml_close_empty_tag();
-			xml_newline();
-		}
-		currentr = currentr->next;
-	}
+        while(currentr != NULL) {
+                if(currentr->count > 0) {
+                        xml_open_start_tag("extrareasons");
+                        xml_attribute("reason", "%s", reason_str(currentr->reason_id, currentr->count));
+                        xml_attribute("count", "%d", currentr->count);
+                        xml_close_empty_tag();
+                        xml_newline();
+                }
+                currentr = currentr->next;
+        }
     state_reason_summary_dinit(reason_head);
 }
 
 /* converts target into reason message for ping scans. Uses a static
  * buffer so new values overwrite old values */
 char *target_reason_str(Target *t) {
-	static char reason[128];
-	memset(reason,'\0', 128);
-	Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR));
-	return reason;
+        static char reason[128];
+        memset(reason,'\0', 128);
+        Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR));
+        return reason;
 }
 
 /* Build an output string based on reason and source ip address.
  * uses a static return value so previous values will be over
  * written by subsequent calls */
 char *port_reason_str(state_reason_t r) {
-	static char reason[128];
-	memset(reason,'\0', 128);
-	if (r.ip_addr.sockaddr.sa_family == AF_UNSPEC) {
-		Snprintf(reason, sizeof(reason), "%s", reason_str(r.reason_id, SINGULAR));
-	} else {
-		struct sockaddr_storage ss;
-		memcpy(&ss, &r.ip_addr, sizeof(r.ip_addr));
-		Snprintf(reason, sizeof(reason), "%s from %s", reason_str(r.reason_id, SINGULAR),
-			inet_ntop_ez(&ss, sizeof(ss)));
-	}
-	return reason;
+        static char reason[128];
+        memset(reason,'\0', 128);
+        if (r.ip_addr.sockaddr.sa_family == AF_UNSPEC) {
+                Snprintf(reason, sizeof(reason), "%s", reason_str(r.reason_id, SINGULAR));
+        } else {
+                struct sockaddr_storage ss;
+                memcpy(&ss, &r.ip_addr, sizeof(r.ip_addr));
+                Snprintf(reason, sizeof(reason), "%s from %s", reason_str(r.reason_id, SINGULAR),
+                        inet_ntop_ez(&ss, sizeof(ss)));
+        }
+        return reason;
 }
