@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added unittest library and NSE script for adding unit tests to NSE
+  libraries. See unittest.lua for examples, and run `nmap --script=unittest
+  --script-args=unittest.run -d` to run the tests. [Daniel Miller]
+
+o Updated bundled liblua from 5.2.2 to 5.2.3 (bugfix release) [Daniel Miller]
+
 o Added version detection signatures and probes for a bunch of Android
   remote mouse/keyboard servers, including AndroMouse, AirHID,
   Wifi-mouse, and RemoteMouse. [Paul Hemberger]
