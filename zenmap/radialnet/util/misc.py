@@ -120,7 +120,6 @@
 # ***************************************************************************/
 
 from radialnet.core.Coordinate import CartesianCoordinate
-from radialnet.gui.RadialNet import *
 from radialnet.util.geometry import *
 import math
 
