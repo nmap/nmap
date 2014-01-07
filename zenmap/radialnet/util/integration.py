@@ -272,3 +272,8 @@ def make_graph_from_hosts(hosts):
     graph.set_main_node(main_node)
 
     return graph
+
+
+def make_graph_from_nmap_parser(parser):
+    return make_graph_from_hosts(
+            parser.get_root().search_children('host', deep=True))
