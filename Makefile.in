@@ -388,9 +388,13 @@ uninstall-ncat:
 uninstall-nping:
 	@cd $(NPINGDIR) && $(MAKE) uninstall
 
-check:
-	@cd $(NSOCKDIR)/src && $(MAKE) check
+ncat_check:
 	@cd $(NCATDIR) && $(MAKE) check
+
+nsock_check:
+	@cd $(NSOCKDIR)/src && $(MAKE) check
+
+check: @NCAT_CHECK@ @NSOCK_CHECK@
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf

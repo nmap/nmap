@@ -804,6 +804,7 @@ AC_CONFIG_SUBDIRS(nbase)
 
 NSOCKDIR="nsock"
 NSOCK_BUILD="nsock_build"
+NSOCK_CHECK="nsock_check"
 AC_ARG_WITH(libnsock,
 AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
 [  case "$with_libnsock" in
@@ -812,6 +813,7 @@ AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
   *)
     NSOCKDIR="$with_libnsock"
     NSOCK_BUILD=""
+    NSOCK_CHECK=""
     ;;
   esac]
 )
@@ -822,6 +824,7 @@ LIBNSOCK_LIBS="-lnsock"
 
 AC_SUBST(NSOCKDIR)
 AC_SUBST(NSOCK_BUILD)
+AC_SUBST(NSOCK_CHECK)
 AC_SUBST(LIBNSOCK_LIBS)
 
 AC_CONFIG_SUBDIRS(nsock/src)
@@ -833,12 +836,14 @@ AC_ARG_WITH(ncat,
 
 if test "$with_ncat" = "no"; then
   NCAT_BUILD=""
+  NCAT_CHECK=""
   NCAT_INSTALL=""
   NCAT_UNINSTALL=""
   NCAT_CLEAN=""
   NCAT_DIST_CLEAN=""
 else
   NCAT_BUILD="ncat_build"
+  NCAT_CHECK="ncat_check"
   NCAT_INSTALL="install-ncat"
   NCAT_UNINSTALL="uninstall-ncat"
   NCAT_CLEAN="ncat_clean"
@@ -848,6 +853,7 @@ fi
 
 AC_SUBST(NCATDIR)
 AC_SUBST(NCAT_BUILD)
+AC_SUBST(NCAT_CHECK)
 AC_SUBST(NCAT_INSTALL)
 AC_SUBST(NCAT_UNINSTALL)
 AC_SUBST(NCAT_CLEAN)

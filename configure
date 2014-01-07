@@ -631,9 +631,11 @@ NCAT_DIST_CLEAN
 NCAT_CLEAN
 NCAT_UNINSTALL
 NCAT_INSTALL
+NCAT_CHECK
 NCAT_BUILD
 NCATDIR
 LIBNSOCK_LIBS
+NSOCK_CHECK
 NSOCK_BUILD
 NSOCKDIR
 LIBNBASE_LIBS
@@ -7628,6 +7630,7 @@ subdirs="$subdirs nbase"
 
 NSOCKDIR="nsock"
 NSOCK_BUILD="nsock_build"
+NSOCK_CHECK="nsock_check"
 
 # Check whether --with-libnsock was given.
 if test "${with_libnsock+set}" = set; then :
@@ -7637,6 +7640,7 @@ if test "${with_libnsock+set}" = set; then :
   *)
     NSOCKDIR="$with_libnsock"
     NSOCK_BUILD=""
+    NSOCK_CHECK=""
     ;;
   esac
 
@@ -7646,6 +7650,7 @@ fi
 LDFLAGS="$LDFLAGS -L$NSOCKDIR/src/"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NSOCKDIR/include"
 LIBNSOCK_LIBS="-lnsock"
+
 
 
 
@@ -7667,12 +7672,14 @@ fi
 
 if test "$with_ncat" = "no"; then
   NCAT_BUILD=""
+  NCAT_CHECK=""
   NCAT_INSTALL=""
   NCAT_UNINSTALL=""
   NCAT_CLEAN=""
   NCAT_DIST_CLEAN=""
 else
   NCAT_BUILD="ncat_build"
+  NCAT_CHECK="ncat_check"
   NCAT_INSTALL="install-ncat"
   NCAT_UNINSTALL="uninstall-ncat"
   NCAT_CLEAN="ncat_clean"
@@ -7680,6 +7687,7 @@ else
   subdirs="$subdirs ncat"
 
 fi
+
 
 
 
