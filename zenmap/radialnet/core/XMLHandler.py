@@ -179,10 +179,7 @@ class XMLNode:
     def get_attr(self, attr):
         """
         """
-        if attr in self.__attrs:
-            return self.__attrs[attr]
-
-        return None
+        return self.__attrs.get(attr)
 
     def get_attrs(self):
         """

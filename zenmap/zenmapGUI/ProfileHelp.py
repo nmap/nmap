@@ -137,28 +137,19 @@ class ProfileHelp:
         self.labels[option_name] = text
 
     def get_label(self):
-        if self.currentstate in self.labels.keys():
-            return self.labels[self.currentstate]
-        else:
-            return ""  # blank
+        return self.labels.get(self.currentstate, "")
 
     def add_shortdesc(self, option_name, text):
         self.descs[option_name] = text
 
     def get_shortdesc(self):
-        if self.currentstate in self.descs.keys():
-            return self.descs[self.currentstate]
-        else:
-            return ""  # blank
+        return self.descs.get(self.currentstate, "")
 
     def add_example(self, option_name, text):
         self.examples[option_name] = text
 
     def get_example(self):
-        if self.currentstate in self.examples.keys():
-            return self.examples[self.currentstate]
-        else:
-            return ""  # blank
+        return self.examples.get(self.currentstate, "")
 
     def handler(self, whichLabel):
         log.debug("whichLabel: %s" % whichLabel)
