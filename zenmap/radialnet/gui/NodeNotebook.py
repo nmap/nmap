@@ -254,17 +254,9 @@ class ServicesPage(gtk.Notebook):
 
             color = get_service_color(port['state']['state'])
 
-            if 'name' in port['service']:
-                service_name = port['service']['name']
+            service_name = port['service'].get('name', _('<unknown>'))
 
-            else:
-                service_name = _('<unknown>')
-
-            if 'method' in port['service']:
-                service_method = port['service']['method']
-
-            else:
-                service_method = _('<none>')
+            service_method = port['service'].get('method', _('<none>'))
 
             reference = self.__ports_store.append(None,
                                                   [port['id'],
@@ -576,10 +568,7 @@ class SystemPage(BWScrolledWindow):
 
                 for os_class in os['classes']:
 
-                    os_gen = ''
-
-                    if 'os_gen' in os_class:
-                        os_gen = os_class['os_gen']
+                    os_gen = os_class.get('os_gen', '')
 
                     self.__class_store.append([os_class['accuracy'],
                                                os_class['vendor'],

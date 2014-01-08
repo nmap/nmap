@@ -2042,10 +2042,7 @@ class NetNode(Node):
         if info == None:
             return self.__draw_info
 
-        if info in self.__draw_info:
-            return self.__draw_info[info]
-
-        return None
+        return self.__draw_info.get(info)
 
     def set_draw_info(self, info):
         """
