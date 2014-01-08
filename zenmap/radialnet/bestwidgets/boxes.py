@@ -122,7 +122,6 @@
 import gtk
 
 
-
 class BWBox(gtk.Box):
     """
     """
@@ -131,36 +130,30 @@ class BWBox(gtk.Box):
         """
         self.pack_start(widget, True, True, padding)
 
-
     def bw_pack_start_expand_nofill(self, widget, padding=0):
         """
         """
         self.pack_start(widget, True, False, padding)
-
 
     def bw_pack_start_noexpand_nofill(self, widget, padding=0):
         """
         """
         self.pack_start(widget, False, False, padding)
 
-
     def bw_pack_end_expand_fill(self, widget, padding=0):
         """
         """
         self.pack_end(widget, True, True, padding)
-
 
     def bw_pack_end_expand_nofill(self, widget, padding=0):
         """
         """
         self.pack_end(widget, True, False, padding)
 
-
     def bw_pack_end_noexpand_nofill(self, widget, padding=0):
         """
         """
         self.pack_end(widget, False, False, padding)
-
 
 
 class BWHBox(gtk.HBox, BWBox):
@@ -172,7 +165,6 @@ class BWHBox(gtk.HBox, BWBox):
         gtk.HBox.__init__(self, homogeneous, spacing)
 
 
-
 class BWVBox(gtk.VBox, BWBox):
     """
     """
@@ -182,7 +174,6 @@ class BWVBox(gtk.VBox, BWBox):
         gtk.VBox.__init__(self, homogeneous, spacing)
 
 
-
 class BWStatusbar(gtk.Statusbar, BWBox):
     """
     """
@@ -190,7 +181,6 @@ class BWStatusbar(gtk.Statusbar, BWBox):
         """
         """
         gtk.HBox.__init__(self, homogeneous, spacing)
-
 
 
 class BWTable(gtk.Table, BWBox):
@@ -207,13 +197,11 @@ class BWTable(gtk.Table, BWBox):
 
         self.__last_point = (0, 0)
 
-
     def bw_set_spacing(self, spacing):
         """
         """
         self.set_row_spacings(spacing)
         self.set_col_spacings(spacing)
-
 
     def bw_resize(self, rows, columns):
         """
@@ -223,11 +211,10 @@ class BWTable(gtk.Table, BWBox):
 
         self.resize(rows, columns)
 
-
     def bw_attach_next(self,
                        child,
-                       xoptions=gtk.EXPAND|gtk.FILL,
-                       yoptions=gtk.EXPAND|gtk.FILL,
+                       xoptions=gtk.EXPAND | gtk.FILL,
+                       yoptions=gtk.EXPAND | gtk.FILL,
                        xpadding=0,
                        ypadding=0):
         """
@@ -255,7 +242,6 @@ class BWTable(gtk.Table, BWBox):
                 column += 1
 
             self.__last_point = (row, column)
-
 
 
 class BWScrolledWindow(gtk.ScrolledWindow):

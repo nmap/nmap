@@ -129,27 +129,27 @@ from radialnet.bestwidgets.labels import *
 from radialnet.bestwidgets.textview import *
 
 
-PORTS_HEADER = [_('Port'), _('Protocol'), _('State'), _('Service'), _('Method')]
+PORTS_HEADER = [
+        _('Port'), _('Protocol'), _('State'), _('Service'), _('Method')]
 EXTRAPORTS_HEADER = [_('Count'), _('State'), _('Reasons')]
 
-SERVICE_COLORS = {'open'            : '#ffd5d5',
-                  'closed'          : '#d5ffd5',
-                  'filtered'        : '#ffffd5',
-                  'unfiltered'      : '#ffd5d5',
-                  'open|filtered'   : '#ffd5d5',
-                  'closed|filtered' : '#d5ffd5'}
+SERVICE_COLORS = {'open':            '#ffd5d5',
+                  'closed':          '#d5ffd5',
+                  'filtered':        '#ffffd5',
+                  'unfiltered':      '#ffd5d5',
+                  'open|filtered':   '#ffd5d5',
+                  'closed|filtered': '#d5ffd5'}
 UNKNOWN_SERVICE_COLOR = '#d5d5d5'
 
 TRACE_HEADER = [_('TTL'), _('RTT'), _('IP'), _('Hostname')]
 
-TRACE_TEXT = _("""\
-Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops.\
-""")
+TRACE_TEXT = _(
+    "Traceroute on port <b>%s/%s</b> totalized <b>%d</b> known hops.")
 
 NO_TRACE_TEXT = _("No traceroute information available.")
 
-HOP_COLOR = {'known'   : '#ffffff',
-             'unknown' : '#cccccc'}
+HOP_COLOR = {'known':   '#ffffff',
+             'unknown': '#cccccc'}
 
 SYSTEM_ADDRESS_TEXT = "[%s] %s"
 
@@ -161,6 +161,7 @@ USED_PORTS_TEXT = "%d/%s %s"
 TCP_SEQ_NOTE = _("""\
 <b>*</b> TCP sequence <i>index</i> equal to %d and <i>difficulty</i> is "%s".\
 """)
+
 
 def get_service_color(state):
     color = SERVICE_COLORS.get(state)
@@ -182,7 +183,6 @@ class NodeNotebook(gtk.Notebook):
 
         self.__create_widgets()
 
-
     def __create_widgets(self):
         """
         """
@@ -195,7 +195,6 @@ class NodeNotebook(gtk.Notebook):
         self.append_page(self.__system_page, BWLabel(_('General')))
         self.append_page(self.__services_page, BWLabel(_('Services')))
         self.append_page(self.__trace_page, BWLabel(_('Traceroute')))
-
 
 
 class ServicesPage(gtk.Notebook):
@@ -212,7 +211,6 @@ class ServicesPage(gtk.Notebook):
         self.__font = pango.FontDescription('Monospace')
 
         self.__create_widgets()
-
 
     def __create_widgets(self):
         """
@@ -256,13 +254,13 @@ class ServicesPage(gtk.Notebook):
 
             color = get_service_color(port['state']['state'])
 
-            if port['service'].has_key('name'):
+            if 'name' in port['service']:
                 service_name = port['service']['name']
 
             else:
                 service_name = _('<unknown>')
 
-            if port['service'].has_key('method'):
+            if 'method' in port['service']:
                 service_method = port['service']['method']
 
             else:
@@ -330,7 +328,7 @@ class ServicesPage(gtk.Notebook):
 
             column = gtk.TreeViewColumn(PORTS_HEADER[i],
                                         self.__cell,
-                                        text = i)
+                                        text=i)
 
             self.__ports_column.append(column)
 
@@ -338,9 +336,9 @@ class ServicesPage(gtk.Notebook):
             self.__ports_column[i].set_resizable(True)
             self.__ports_column[i].set_sort_column_id(i)
             self.__ports_column[i].set_attributes(self.__cell,
-                                                  text = i,
-                                                  background = 5,
-                                                  editable = 6)
+                                                  text=i,
+                                                  background=5,
+                                                  editable=6)
 
             self.__ports_treeview.append_column(self.__ports_column[i])
 
@@ -364,12 +362,9 @@ class ServicesPage(gtk.Notebook):
             color = get_service_color(xports['state'])
             number_of_xports += xports['count']
 
-            reference = self.__xports_store.append(None,
-                                                   [xports['count'],
-                                                    xports['state'],
-                                                    ", ".join(xports['reason']),
-                                                    color,
-                                                    True])
+            reference = self.__xports_store.append(
+                    None, [xports['count'], xports['state'],
+                    ", ".join(xports['reason']), color, True])
 
             for xreason in xports['all_reason']:
                 self.__xports_store.append(reference,
@@ -385,7 +380,7 @@ class ServicesPage(gtk.Notebook):
 
             column = gtk.TreeViewColumn(EXTRAPORTS_HEADER[i],
                                         self.__cell,
-                                        text = i)
+                                        text=i)
 
             self.__xports_column.append(column)
 
@@ -393,9 +388,9 @@ class ServicesPage(gtk.Notebook):
             self.__xports_column[i].set_resizable(True)
             self.__xports_column[i].set_sort_column_id(i)
             self.__xports_column[i].set_attributes(self.__cell,
-                                                   text = i,
-                                                   background = 3,
-                                                   editable = 4)
+                                                   text=i,
+                                                   background=3,
+                                                   editable=4)
 
             self.__xports_treeview.append_column(self.__xports_column[i])
 
@@ -410,7 +405,6 @@ class ServicesPage(gtk.Notebook):
 
         if len(self.__text) > 0:
             self.__select_combobox.set_active(0)
-
 
     def __change_text_value(self, widget):
         """
@@ -432,7 +426,6 @@ class SystemPage(BWScrolledWindow):
         self.__font = pango.FontDescription('Monospace')
 
         self.__create_widgets()
-
 
     def __create_widgets(self):
         """
@@ -516,7 +509,8 @@ class SystemPage(BWScrolledWindow):
 
         sequences = self.__node.get_info('sequences')
         if len(sequences) > 0:
-            self.__sequences_frame.bw_add(self.__create_sequences_widget(sequences))
+            self.__sequences_frame.bw_add(
+                    self.__create_sequences_widget(sequences))
 
         # operating system information widgets
         self.__os = gtk.Notebook()
@@ -525,7 +519,7 @@ class SystemPage(BWScrolledWindow):
 
         if os != None:
 
-            if os.has_key('matches'):
+            if 'matches' in os:
 
                 self.__match_scroll = BWScrolledWindow()
 
@@ -550,15 +544,15 @@ class SystemPage(BWScrolledWindow):
 
                     column = gtk.TreeViewColumn(OSMATCH_HEADER[i],
                                                 self.__cell,
-                                                text = i)
+                                                text=i)
 
                     self.__match_column.append(column)
 
                     self.__match_column[i].set_reorderable(True)
                     self.__match_column[i].set_resizable(True)
                     self.__match_column[i].set_attributes(self.__cell,
-                                                          text = i,
-                                                          editable = 3)
+                                                          text=i,
+                                                          editable=3)
 
                     self.__match_column[i].set_sort_column_id(i)
                     self.__match_treeview.append_column(self.__match_column[i])
@@ -567,7 +561,7 @@ class SystemPage(BWScrolledWindow):
 
                 self.__os.append_page(self.__match_scroll, BWLabel(_('Match')))
 
-            if os.has_key('classes'):
+            if 'classes' in os:
 
                 self.__class_scroll = BWScrolledWindow()
 
@@ -584,7 +578,7 @@ class SystemPage(BWScrolledWindow):
 
                     os_gen = ''
 
-                    if os_class.has_key('os_gen'):
+                    if 'os_gen' in os_class:
                         os_gen = os_class['os_gen']
 
                     self.__class_store.append([os_class['accuracy'],
@@ -600,15 +594,15 @@ class SystemPage(BWScrolledWindow):
 
                     column = gtk.TreeViewColumn(OSCLASS_HEADER[i],
                                                 self.__cell,
-                                                text = i)
+                                                text=i)
 
                     self.__class_column.append(column)
 
                     self.__class_column[i].set_reorderable(True)
                     self.__class_column[i].set_resizable(True)
                     self.__class_column[i].set_attributes(self.__cell,
-                                                          text = i,
-                                                          editable = 5)
+                                                          text=i,
+                                                          editable=5)
 
                     self.__class_column[i].set_sort_column_id(i)
                     self.__class_treeview.append_column(self.__class_column[i])
@@ -630,7 +624,7 @@ class SystemPage(BWScrolledWindow):
 
             self.__fp_vbox = BWVBox()
 
-            if os.has_key('used_ports'):
+            if 'used_ports' in os:
 
                 used_ports = os['used_ports']
 
@@ -692,7 +686,8 @@ class SystemPage(BWScrolledWindow):
             tcp_note.set_selectable(True)
             tcp_note.set_line_wrap(False)
             tcp_note.set_alignment(1.0, 0.5)
-            tcp_note.set_markup(TCP_SEQ_NOTE % (tcp['index'], tcp['difficulty']))
+            tcp_note.set_markup(
+                    TCP_SEQ_NOTE % (tcp['index'], tcp['difficulty']))
 
             table.attach(tcp_note, 0, 3, 4, 5)
 
@@ -733,8 +728,6 @@ class SystemPage(BWScrolledWindow):
         return table
 
 
-
-
 class TraceroutePage(BWVBox):
     """
     """
@@ -747,7 +740,6 @@ class TraceroutePage(BWVBox):
         self.__node = node
 
         self.__create_widgets()
-
 
     def __create_widgets(self):
         """
@@ -805,23 +797,22 @@ class TraceroutePage(BWVBox):
                                                HOP_COLOR['unknown'],
                                                True])
 
-
             self.__trace_column = list()
 
             for i in range(len(TRACE_HEADER)):
 
                 column = gtk.TreeViewColumn(TRACE_HEADER[i],
                                             self.__cell,
-                                            text = i)
+                                            text=i)
 
                 self.__trace_column.append(column)
 
                 self.__trace_column[i].set_reorderable(True)
                 self.__trace_column[i].set_resizable(True)
                 self.__trace_column[i].set_attributes(self.__cell,
-                                                      text = i,
-                                                      background = 4,
-                                                      editable = 5)
+                                                      text=i,
+                                                      background=4,
+                                                      editable=5)
 
                 self.__trace_treeview.append_column(self.__trace_column[i])
 

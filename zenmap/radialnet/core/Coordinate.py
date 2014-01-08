@@ -141,30 +141,25 @@ class PolarCoordinate:
         self.__t = t
         """Angle (theta) of polar coordinate in radians"""
 
-
     def get_theta(self):
         """
         """
         return math.degrees(self.__t)
-
 
     def get_radius(self):
         """
         """
         return self.__r
 
-
     def set_theta(self, t):
         """
         """
         self.__t = math.radians(t)
 
-
     def set_radius(self, r):
         """
         """
         self.__r = r
-
 
     def get_coordinate(self):
         """
@@ -173,7 +168,6 @@ class PolarCoordinate:
         @return: Polar coordinates (r, t)
         """
         return (self.__r, math.degrees(self.__t))
-
 
     def set_coordinate(self, r, t):
         """
@@ -185,7 +179,6 @@ class PolarCoordinate:
         """
         self.__r = r
         self.__t = math.radians(t)
-
 
     def to_cartesian(self):
         """
@@ -199,12 +192,10 @@ class PolarCoordinate:
         return (x, y)
 
 
-
 class CartesianCoordinate:
     """
     Class to implement a cartesian coordinate object
     """
-
     def __init__(self, x=0, y=0):
         """
         Constructor method of CartesianCoordinate class
@@ -218,7 +209,6 @@ class CartesianCoordinate:
         self.__y = y
         """Y component of cartesian coordinate"""
 
-
     def get_coordinate(self):
         """
         Get cartesian coordinate
@@ -226,7 +216,6 @@ class CartesianCoordinate:
         @return: Cartesian coordinates (x, y)
         """
         return (self.__x, self.__y)
-
 
     def set_coordinate(self, x, y):
         """
@@ -239,25 +228,24 @@ class CartesianCoordinate:
         self.__x = x
         self.__y = y
 
-
     def to_polar(self):
         """
         Convert cartesian in polar coordinate
         @rtype: tuple
         @return: polar coordinates (r, t)
         """
-        r = math.sqrt(self.__x**2 + self.__y**2)
+        r = math.sqrt(self.__x ** 2 + self.__y ** 2)
 
         if self.__x > 0:
 
             if self.__y >= 0:
-                t = math.atan( self.__y / self.__x )
+                t = math.atan(self.__y / self.__x)
 
             else:
-                t = math.atan( self.__y / self.__x ) + 2 * math.pi
+                t = math.atan(self.__y / self.__x) + 2 * math.pi
 
         elif self.__x < 0:
-            t = math.atan( self.__y / self.__x ) + math.pi
+            t = math.atan(self.__y / self.__x) + math.pi
 
         elif self.__x == 0:
 
@@ -273,12 +261,11 @@ class CartesianCoordinate:
         return (r, t)
 
 
-
 if __name__ == "__main__":
 
     # Testing application
 
-    polar     = PolarCoordinate(1, math.pi)
+    polar = PolarCoordinate(1, math.pi)
     cartesian = CartesianCoordinate(-1,  0)
 
     print polar.to_cartesian()

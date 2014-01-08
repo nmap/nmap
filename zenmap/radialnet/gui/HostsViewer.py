@@ -138,7 +138,6 @@ DIMENSION = (700, 400)
 IP_RE = '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'
 
 
-
 class HostsViewer(BWMainWindow):
     """
     """
@@ -155,7 +154,6 @@ class HostsViewer(BWMainWindow):
 
         self.__create_widgets()
 
-
     def __create_widgets(self):
         """
         """
@@ -169,8 +167,6 @@ class HostsViewer(BWMainWindow):
         self.__panel.set_position(int(DIMENSION[0] / 5))
 
         self.add(self.__panel)
-
-
 
     def change_notebook(self, node):
         """
@@ -187,7 +183,6 @@ class HostsViewer(BWMainWindow):
         self.__panel.add2(self.__view)
 
 
-
 class HostsList(gtk.ScrolledWindow):
     """
     """
@@ -202,7 +197,6 @@ class HostsList(gtk.ScrolledWindow):
         self.__nodes = nodes
 
         self.__create_widgets()
-
 
     def __create_widgets(self):
         """
@@ -239,16 +233,16 @@ class HostsList(gtk.ScrolledWindow):
 
             column = gtk.TreeViewColumn(HOSTS_HEADER[i],
                                         self.__cell,
-                                        text = i)
+                                        text=i)
 
             self.__hosts_column.append(column)
 
             self.__hosts_column[i].set_reorderable(True)
             self.__hosts_column[i].set_resizable(True)
             self.__hosts_column[i].set_attributes(self.__cell,
-                                                  text = i,
-                                                  background = 3,
-                                                  editable = 4)
+                                                  text=i,
+                                                  background=3,
+                                                  editable=4)
 
         self.__hosts_treeview.append_column(self.__hosts_column[2])
 
@@ -262,7 +256,6 @@ class HostsList(gtk.ScrolledWindow):
             self.__hosts_treeview.set_cursor((0,))
         self.__cursor_callback(self.__hosts_treeview)
 
-
     def __cursor_callback(self, widget):
         """
         """
@@ -275,7 +268,6 @@ class HostsList(gtk.ScrolledWindow):
         node = self.__nodes[self.__hosts_store.get_value(iter, 0)]
 
         self.__parent.change_notebook(node)
-
 
     def __host_sort(self, treemodel, iter1, iter2):
         """

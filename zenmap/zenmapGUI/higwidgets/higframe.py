@@ -130,6 +130,7 @@ __all__ = ['HIGFrame']
 
 import gtk
 
+
 class HIGFrame(gtk.Frame):
     """
     Frame without border with bold label.

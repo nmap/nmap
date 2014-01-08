@@ -144,6 +144,7 @@ from radialnet.util.integration import make_graph_from_hosts
 
 SLOW_LIMIT = 1000
 
+
 class TopologyPage(HIGVBox):
     def __init__(self, inventory):
         HIGVBox.__init__(self)
@@ -200,12 +201,14 @@ class TopologyPage(HIGVBox):
         self.display_panel.pack_start(self.radialnet, True, True)
 
     def add_scan(self, scan):
-        """Parses a given XML file and adds the parsed result to the network inventory."""
+        """Parses a given XML file and adds the parsed result to the network
+        inventory."""
         self.network_inventory.add_scan(scan)
         self.update_radialnet()
 
     def update_radialnet(self):
-        """Creates a graph from network inventory's host list and displays it."""
+        """Creates a graph from network inventory's host list and displays
+        it."""
         hosts_up = self.network_inventory.get_hosts_up()
 
         self.slow_label.set_text(_("""\

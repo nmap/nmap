@@ -132,6 +132,7 @@ import gtk
 
 from gtkutils import gtk_version_minor
 
+
 class HIGDialog(gtk.Dialog):
     """
     HIGFied Dialog
@@ -141,6 +142,7 @@ class HIGDialog(gtk.Dialog):
         self.set_border_width(5)
         self.vbox.set_border_width(2)
         self.vbox.set_spacing(6)
+
 
 class HIGAlertDialog(gtk.MessageDialog):
     """

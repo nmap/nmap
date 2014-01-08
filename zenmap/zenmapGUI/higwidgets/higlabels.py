@@ -126,9 +126,12 @@ higwidgets/higlabels.py
    labels related classes
 """
 
-__all__ = ['HIGSectionLabel', 'HIGHintSectionLabel', 'HIGEntryLabel', 'HIGDialogLabel']
+__all__ = [
+    'HIGSectionLabel', 'HIGHintSectionLabel', 'HIGEntryLabel', 'HIGDialogLabel'
+    ]
 
 import gtk
+
 
 class HIGSectionLabel(gtk.Label):
     """
@@ -142,10 +145,11 @@ class HIGSectionLabel(gtk.Label):
             self.set_alignment(0, 0.50)
             self.set_line_wrap(True)
 
+
 class HIGHintSectionLabel(gtk.HBox, object):
     """
-    Bold label used to define sections, with a little icon that shows up a hint when mouse is
-    over it.
+    Bold label used to define sections, with a little icon that shows up a hint
+    when mouse is over it.
     """
     def __init__(self, text=None, hint=None):
         gtk.HBox.__init__(self)
@@ -156,13 +160,15 @@ class HIGHintSectionLabel(gtk.HBox, object):
         self.pack_start(self.label, False, False)
         self.pack_start(self.hint, False, False, 5)
 
+
 class Hint(gtk.EventBox, object):
     def __init__(self, hint):
         gtk.EventBox.__init__(self)
         self.hint = hint
 
         self.hint_image = gtk.Image()
-        self.hint_image.set_from_stock(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_SMALL_TOOLBAR)
+        self.hint_image.set_from_stock(
+                gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_SMALL_TOOLBAR)
 
         self.add(self.hint_image)
 
@@ -171,6 +177,7 @@ class Hint(gtk.EventBox, object):
     def show_hint(self, widget, event=None):
         hint_window = HintWindow(self.hint)
         hint_window.show_all()
+
 
 class HintWindow(gtk.Window):
     def __init__(self, hint):
@@ -207,6 +214,7 @@ class HIGEntryLabel(gtk.Label):
         self.set_alignment(0, 0.50)
         self.set_use_markup(True)
         self.set_line_wrap(True)
+
 
 class HIGDialogLabel(gtk.Label):
     """

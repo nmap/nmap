@@ -124,6 +124,7 @@ from os import access, R_OK, W_OK
 from os.path import dirname
 from zenmapCore.Paths import Path
 
+
 class RecentScans(object):
     def __init__(self):
         self.temp_list = []

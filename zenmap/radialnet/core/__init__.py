@@ -118,4 +118,3 @@
 # * Nmap, and also available from https://svn.nmap.org/nmap/COPYING         *
 # *                                                                         *
 # ***************************************************************************/
-

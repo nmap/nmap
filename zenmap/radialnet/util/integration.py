@@ -135,16 +135,17 @@ BASE_RADIUS = 5.5
 NONE_RADIUS = 4.5
 
 
-
 def set_node_info(node, host):
     """
     """
     node.set_host(host)
 
-    radius = BASE_RADIUS + 2 * math.log(node.get_info("number_of_open_ports") + 1)
+    radius = BASE_RADIUS + 2 * math.log(
+            node.get_info("number_of_open_ports") + 1)
 
-    node.set_draw_info({"color":COLORS[node.get_info("vulnerability_score")],
-                        "radius":radius})
+    node.set_draw_info({"color": COLORS[node.get_info("vulnerability_score")],
+                        "radius": radius})
+
 
 class TracerouteHostInfo(object):
     """This is a minimal implementation of HostInfo, sufficient to
@@ -164,14 +165,17 @@ class TracerouteHostInfo(object):
     def get_best_osmatch(self):
         if not self.osmatches:
             return None
+
         def osmatch_key(osmatch):
             try:
                 return -float(osmatch["accuracy"])
             except ValueError:
                 return 0
-        return sorted(self.osmatches, key = osmatch_key)[0]
+
+        return sorted(self.osmatches, key=osmatch_key)[0]
 
     hostnames = property(lambda self: self.hostname and [self.hostname] or [])
+
 
 def make_graph_from_hosts(hosts):
     #hosts = parser.get_root().search_children('host', deep=True)
@@ -187,7 +191,8 @@ def make_graph_from_hosts(hosts):
     localhost.ip = {"addr": "127.0.0.1/8", "type": "ipv4"}
     localhost.hostname = "localhost"
     main_node.set_host(localhost)
-    main_node.set_draw_info({"valid": True, "color":(0,0,0), "radius":NONE_RADIUS})
+    main_node.set_draw_info(
+            {"valid": True, "color": (0, 0, 0), "radius": NONE_RADIUS})
 
     #Save endpoints for attaching scanned hosts to
     endpoints = {}
@@ -219,10 +224,14 @@ def make_graph_from_hosts(hosts):
                         nodes.append(node)
 
                         hop_host = TracerouteHostInfo()
-                        hop_host.ip = {"addr": hop["ipaddr"], "type": "", "vendor": ""}
-                        node.set_draw_info({"valid":True})
-                        node.set_draw_info({"color":(1,1,1),
-                                            "radius":NONE_RADIUS})
+                        hop_host.ip = {
+                                "addr": hop["ipaddr"],
+                                "type": "",
+                                "vendor": ""
+                                }
+                        node.set_draw_info({"valid": True})
+                        node.set_draw_info({"color": (1, 1, 1),
+                                            "radius": NONE_RADIUS})
 
                         if hop["host"] != "":
                             hop_host.hostname = hop["host"]
@@ -240,8 +249,9 @@ def make_graph_from_hosts(hosts):
                     node = NetNode()
                     nodes.append(node)
 
-                    node.set_draw_info({"valid":False})
-                    node.set_draw_info({"color":(1,1,1), "radius":NONE_RADIUS})
+                    node.set_draw_info({"valid": False})
+                    node.set_draw_info(
+                            {"color": (1, 1, 1), "radius": NONE_RADIUS})
 
                     graph.set_connection(node, prev_node)
 
@@ -259,12 +269,12 @@ def make_graph_from_hosts(hosts):
             node = NetNode()
             nodes.append(node)
 
-            node.set_draw_info({"no_route":True})
+            node.set_draw_info({"no_route": True})
 
             graph.set_connection(node, endpoints[host])
 
-        node.set_draw_info({"valid":True})
-        node.set_draw_info({"scanned":True})
+        node.set_draw_info({"valid": True})
+        node.set_draw_info({"scanned": True})
         set_node_info(node, host)
         node_cache[node.get_info("ip")] = node
 

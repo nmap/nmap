@@ -136,7 +136,6 @@ class Linear2DInterpolator:
         self.__interpolated_points = []
         """Interpolated points vector"""
 
-
     def set_start_point(self, a, b):
         """
         Set initial coordinate
@@ -148,7 +147,6 @@ class Linear2DInterpolator:
         """
         self.__start_point = (a, b)
 
-
     def set_final_point(self, a, b):
         """
         Set final coordinate
@@ -158,7 +156,6 @@ class Linear2DInterpolator:
         @param b: The second component of final point
         """
         self.__final_point = (a, b)
-
 
     def get_weighed_points(self, number_of_pass, pass_vector):
         """
@@ -188,7 +185,6 @@ class Linear2DInterpolator:
 
         return self.__interpolated_points
 
-
     def get_points(self, number_of_pass):
         """
         Return the vector of coordinates between the initial and final
@@ -213,7 +209,6 @@ class Linear2DInterpolator:
         return self.__interpolated_points
 
 
-
 if __name__ == "__main__":
 
     # Testing application
@@ -224,4 +219,3 @@ if __name__ == "__main__":
     i.set_final_point(1, 1)
 
     print len(i.get_points(10)), i.get_points(10)
-

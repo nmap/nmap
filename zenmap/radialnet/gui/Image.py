@@ -128,7 +128,7 @@ from zenmapCore.Paths import Path
 
 
 FORMAT_RGBA = 4
-FORMAT_RGB  = 3
+FORMAT_RGB = 3
 
 
 def get_pixels_for_cairo_image_surface(pixbuf):
@@ -144,16 +144,16 @@ def get_pixels_for_cairo_image_surface(pixbuf):
     j = 0
     while i < len(pixbuf.get_pixels()):
 
-        b, g, r = pixbuf.get_pixels()[i:i+FORMAT_RGB]
+        b, g, r = pixbuf.get_pixels()[i:i + FORMAT_RGB]
 
         if format == FORMAT_RGBA:
             a = pixbuf.get_pixels()[i + FORMAT_RGBA - 1]
         elif format == FORMAT_RGB:
             a = '\xff'
         else:
-            raise TypeError, 'unknown image format'
+            raise TypeError('unknown image format')
 
-        data[j:j+FORMAT_RGBA] = array.ArrayType('c', [r, g, b, a])
+        data[j:j + FORMAT_RGBA] = array.ArrayType('c', [r, g, b, a])
 
         i += format
         j += FORMAT_RGBA
@@ -170,12 +170,10 @@ class Image:
         self.__path = path
         self.__cache = dict()
 
-
     def set_path(self, path):
         """
         """
         self.__path = path
-
 
     def get_pixbuf(self, icon, image_type='png'):
         """
@@ -186,10 +184,10 @@ class Image:
         if icon + image_type not in self.__cache.keys():
 
             file = self.get_icon(icon, image_type)
-            self.__cache[icon + image_type] = gtk.gdk.pixbuf_new_from_file(file)
+            self.__cache[icon + image_type] = \
+                    gtk.gdk.pixbuf_new_from_file(file)
 
         return self.__cache[icon + image_type]
-
 
     def get_icon(self, icon, image_type='png'):
         """
@@ -198,7 +196,6 @@ class Image:
             return False
 
         return os.path.join(self.__path, icon + "." + image_type)
-
 
 
 class Pixmaps(Image):
@@ -210,7 +207,6 @@ class Pixmaps(Image):
         Image.__init__(self, os.path.join(Path.pixmaps_dir, "radialnet"))
 
 
-
 class Icons(Image):
     """
     """
@@ -218,7 +214,6 @@ class Icons(Image):
         """
         """
         Image.__init__(self, os.path.join(Path.pixmaps_dir, "radialnet"))
-
 
 
 class Application(Image):

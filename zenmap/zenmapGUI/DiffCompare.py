@@ -129,7 +129,8 @@ import sys
 import xml.sax
 
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog, HIGDialog
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, hig_box_space_holder
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, \
+        hig_box_space_holder
 from zenmapGUI.higwidgets.higlabels import HIGSectionLabel
 from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.higwidgets.higbuttons import HIGButton
@@ -143,6 +144,7 @@ from zenmapGUI.FileChoosers import ResultsFileSingleChooserDialog
 
 # In milliseconds.
 NDIFF_CHECK_TIMEOUT = 200
+
 
 class ScanChooser(HIGVBox):
     """This class allows the selection of scan results from the list of open
@@ -193,7 +195,7 @@ class ScanChooser(HIGVBox):
     def get_buffer(self):
         return self.txt_scan_result.get_buffer()
 
-    def show_scan (self, widget):
+    def show_scan(self, widget):
         nmap_output = self.get_nmap_output()
         if nmap_output is not None:
             self.txt_scan_result.get_buffer().set_text(nmap_output)
@@ -201,14 +203,15 @@ class ScanChooser(HIGVBox):
     def normalize_output(self, output):
         return "\n".join(output.split("\\n"))
 
-    def _pack_hbox (self):
+    def _pack_hbox(self):
         self.hbox._pack_noexpand_nofill(hig_box_space_holder())
         self.hbox._pack_expand_fill(self.table)
 
-    def _attaching_widgets (self):
-        self.table.attach(self.combo_scan, 0,1,0,1, yoptions=0)
-        self.table.attach(self.btn_open_scan, 1,2,0,1, yoptions=0, xoptions=0)
-        self.table.attach(self.exp_scan, 0,2,1,2)
+    def _attaching_widgets(self):
+        self.table.attach(self.combo_scan, 0, 1, 0, 1, yoptions=0)
+        self.table.attach(
+                self.btn_open_scan, 1, 2, 0, 1, yoptions=0, xoptions=0)
+        self.table.attach(self.exp_scan, 0, 2, 1, 2)
 
     def _set_scrolled(self):
         self.scrolled.set_border_width(5)
@@ -223,19 +226,20 @@ class ScanChooser(HIGVBox):
         # Setting scrolled window
         self.scrolled.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
-    def _set_text_view (self):
+    def _set_text_view(self):
         self.txg_table = self.txt_scan_result.get_buffer().get_tag_table()
         self.txg_table.add(self.txg_tag)
         self.txg_tag.set_property("family", "Monospace")
 
         self.txt_scan_result.set_wrap_mode(gtk.WRAP_WORD)
         self.txt_scan_result.set_editable(False)
-        self.txt_scan_result.get_buffer().connect("changed", self._text_changed_cb)
+        self.txt_scan_result.get_buffer().connect(
+                "changed", self._text_changed_cb)
 
-    def _set_open_button (self):
+    def _set_open_button(self):
         self.btn_open_scan.connect('clicked', self.open_file)
 
-    def open_file (self, widget):
+    def open_file(self, widget):
         file_chooser = ResultsFileSingleChooserDialog(_("Select Scan Result"))
 
         response = file_chooser.run()
@@ -248,15 +252,19 @@ class ScanChooser(HIGVBox):
             except xml.sax.SAXParseException, e:
                 alert = HIGAlertDialog(
                     message_format='<b>%s</b>' % _('Error parsing file'),
-                    secondary_text=_("The file is not an Nmap XML output file. \
-The parsing error that occurred was\n%s") % str(e))
+                    secondary_text=_(
+                        "The file is not an Nmap XML output file. "
+                        "The parsing error that occurred was\n%s") % str(e))
                 alert.run()
                 alert.destroy()
                 return False
             except Exception, e:
                 alert = HIGAlertDialog(
-                        message_format='<b>%s</b>' % _('Cannot open selected file'),
-                        secondary_text=_("This error occurred while trying to open the file:\n%s") % str(e))
+                        message_format='<b>%s</b>' % _(
+                            'Cannot open selected file'),
+                        secondary_text=_("""\
+                            This error occurred while trying to open the file:
+                            %s""") % str(e))
                 alert.run()
                 alert.destroy()
                 return False
@@ -276,9 +284,10 @@ The parsing error that occurred was\n%s") % str(e))
         self.list_scan.append([new_scan_name])
         self.scan_dict[new_scan_name] = parser
 
-    def _text_changed_cb (self, widget):
-        buff = self.txt_scan_result.get_buffer ()
-        buff.apply_tag(self.txg_tag, buff.get_start_iter(), buff.get_end_iter())
+    def _text_changed_cb(self, widget):
+        buff = self.txt_scan_result.get_buffer()
+        buff.apply_tag(
+                self.txg_tag, buff.get_start_iter(), buff.get_end_iter())
 
     def get_parsed_scan(self):
         """Return the currently selected scan's parsed output as an NmapParser
@@ -306,9 +315,10 @@ class DiffWindow(gtk.Window):
         gtk.Window.__init__(self)
         self.set_title(_("Compare Results"))
         self.ndiff_process = None
-        # We allow the user to start a new diff before the old one has finished.
-        # We have to keep references to old processes until they finish to avoid
-        # problems when tearing down the Python interpreter at program exit.
+        # We allow the user to start a new diff before the old one has
+        # finished.  We have to keep references to old processes until they
+        # finish to avoid problems when tearing down the Python interpreter at
+        # program exit.
         self.old_processes = []
         self.timer_id = None
 
@@ -358,12 +368,13 @@ class DiffWindow(gtk.Window):
         self.scan_chooser_a.connect('changed', self.refresh_diff)
         self.scan_chooser_b.connect('changed', self.refresh_diff)
 
-    def refresh_diff (self, widget):
+    def refresh_diff(self, widget):
         """This method is called whenever the diff output might have changed,
         such as when a different scan was selected in one of the choosers."""
         log.debug("Refresh diff.")
 
-        if self.ndiff_process is not None and self.ndiff_process.poll() is None:
+        if (self.ndiff_process is not None and
+                self.ndiff_process.poll() is None):
             # Put this in the list of old processes we keep track of.
             self.old_processes.append(self.ndiff_process)
             self.ndiff_process = None
@@ -378,14 +389,17 @@ class DiffWindow(gtk.Window):
                 self.ndiff_process = zenmapCore.Diff.ndiff(scan_a, scan_b)
             except OSError, e:
                 alert = HIGAlertDialog(
-                    message_format = _("Error running ndiff"),
-                    secondary_text = _("There was an error running the ndiff program.\n\n") + str(e).decode(sys.getdefaultencoding(), "replace"))
+                    message_format=_("Error running ndiff"),
+                    secondary_text=_(
+                        "There was an error running the ndiff program.\n\n"
+                        ) + str(e).decode(sys.getdefaultencoding(), "replace"))
                 alert.run()
                 alert.destroy()
             else:
                 self.progress.show()
                 if self.timer_id is None:
-                    self.timer_id = gobject.timeout_add(NDIFF_CHECK_TIMEOUT, self.check_ndiff_process)
+                    self.timer_id = gobject.timeout_add(
+                            NDIFF_CHECK_TIMEOUT, self.check_ndiff_process)
 
     def check_ndiff_process(self):
         """Check if the ndiff subprocess is done and show the diff if it is.
@@ -412,21 +426,23 @@ class DiffWindow(gtk.Window):
                     diff = self.ndiff_process.get_scan_diff()
                 except zenmapCore.Diff.NdiffParseException, e:
                     alert = HIGAlertDialog(
-                        message_format = _("Error parsing ndiff output"),
-                        secondary_text = str(e))
+                        message_format=_("Error parsing ndiff output"),
+                        secondary_text=str(e))
                     alert.run()
                     alert.destroy()
                 else:
                     self.diff_view.show_diff(diff)
             else:
                 # Unsuccessful completion.
-                error_text = _("The ndiff process terminated with status code %d.") % status
+                error_text = _(
+                        "The ndiff process terminated with status code %d."
+                        ) % status
                 stderr = self.ndiff_process.stderr.read()
                 if len(stderr) > 0:
                     error_text += "\n\n" + stderr
                 alert = HIGAlertDialog(
-                    message_format = _("Error running ndiff"),
-                    secondary_text = error_text)
+                    message_format=_("Error running ndiff"),
+                    secondary_text=error_text)
                 alert.run()
                 alert.destroy()
 
@@ -445,6 +461,7 @@ class DiffWindow(gtk.Window):
     def close(self, widget=None, extra=None):
         self.destroy()
 
+
 class DiffView(gtk.TextView):
     REMOVE_COLOR = "#ffaaaa"
     ADD_COLOR = "#ccffcc"
@@ -456,9 +473,10 @@ class DiffView(gtk.TextView):
 
         buff = self.get_buffer()
         # Create text markup tags.
-        buff.create_tag("=", font = "Monospace")
-        buff.create_tag("-", font = "Monospace", background = self.REMOVE_COLOR)
-        buff.create_tag("+", font = "Monospace", background = self.ADD_COLOR)
+        buff.create_tag("=", font="Monospace")
+        buff.create_tag(
+                "-", font="Monospace", background=self.REMOVE_COLOR)
+        buff.create_tag("+", font="Monospace", background=self.ADD_COLOR)
 
     def clear(self):
         self.get_buffer().set_text(u"")
@@ -494,6 +512,6 @@ if __name__ == "__main__":
                      "Parsed 4": parsed4})
 
     dw.show_all()
-    dw.connect("delete-event", lambda x,y: gtk.main_quit())
+    dw.connect("delete-event", lambda x, y: gtk.main_quit())
 
     gtk.main()

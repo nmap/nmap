@@ -124,6 +124,7 @@ import gtk
 
 from zenmapCore.TargetList import target_list
 
+
 class TargetCombo(gtk.ComboBoxEntry):
     def __init__(self):
         gtk.ComboBoxEntry.__init__(self, gtk.ListStore(str), 0)
@@ -143,7 +144,7 @@ class TargetCombo(gtk.ComboBoxEntry):
 
         t_list = target_list.get_target_list()
         for target in t_list[:15]:
-            t_model.append([target.replace('\n','')])
+            t_model.append([target.replace('\n', '')])
 
     def add_new_target(self, target):
         target_list.add_target(target)

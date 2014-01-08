@@ -135,6 +135,7 @@ from higlabels import HIGEntryLabel
 from higtables import HIGTable
 from higentries import HIGTextEntry, HIGPasswordEntry
 
+
 class HIGLoginDialog(HIGDialog):
     """
     A dialog that asks for basic login information (username / password)

@@ -125,7 +125,6 @@ from radialnet.bestwidgets import gtk_version_minor
 PRIMARY_TEXT_MARKUP = '<span weight="bold" size="larger">%s</span>'
 
 
-
 class BWAlertDialog(gtk.MessageDialog):
     """
     """
@@ -149,12 +148,10 @@ class BWAlertDialog(gtk.MessageDialog):
             if gtk_version_minor > 4:
                 self.format_secondary_text(secondary_text)
 
-
     def __destroy(self, dialog, id):
         """
         """
         self.destroy()
-
 
 
 class BWWindow(gtk.Window):

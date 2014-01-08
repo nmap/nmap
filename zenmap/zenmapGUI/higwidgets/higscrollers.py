@@ -130,6 +130,7 @@ __all__ = ['HIGScrolledWindow']
 
 import gtk
 
+
 class HIGScrolledWindow(gtk.ScrolledWindow):
     def __init__(self):
         gtk.ScrolledWindow.__init__(self)

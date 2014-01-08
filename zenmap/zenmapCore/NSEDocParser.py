@@ -122,10 +122,12 @@
 
 import re
 
+
 class NSEDocEvent (object):
-    def __init__(self, type, text = None):
+    def __init__(self, type, text=None):
         self.type = type
         self.text = text
+
 
 def nsedoc_parse_sub(text, pos):
     """Parse paragraph-level NSEDoc markup, inside of paragraphs and lists.
@@ -144,6 +146,7 @@ def nsedoc_parse_sub(text, pos):
             events.append(NSEDocEvent("text", m.group().replace("\n", " ")))
         return pos + m.end(), events
     return pos, events
+
 
 def nsedoc_parse(text):
     """Parse text marked up for NSEDoc. This is a generator that returns a

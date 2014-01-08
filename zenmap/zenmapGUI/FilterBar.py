@@ -4,6 +4,7 @@ import gobject
 from zenmapGUI.higwidgets.higboxes import HIGHBox
 from zenmapGUI.higwidgets.higlabels import HintWindow
 
+
 class FilterBar(HIGHBox):
     """This is the bar that appears while the host filter is active. It allows
     entering a string that restricts the set of visible hosts."""

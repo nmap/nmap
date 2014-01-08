@@ -127,15 +127,18 @@ from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.Icons import get_os_icon
 import zenmapCore.I18N
 
+
 def treemodel_get_addrs_for_sort(model, iter):
     host = model.get_value(iter, 0)
     return host.get_addrs_for_sort()
+
 
 # Used to sort hosts by address.
 def cmp_treemodel_addr(model, iter_a, iter_b):
     addrs_a = treemodel_get_addrs_for_sort(model, iter_a)
     addrs_b = treemodel_get_addrs_for_sort(model, iter_b)
     return cmp(addrs_a, addrs_b)
+
 
 class ScanHostsView(HIGVBox, object):
     HOST_MODE, SERVICE_MODE = range(2)
@@ -272,8 +275,8 @@ class ScanHostsView(HIGVBox, object):
         self.host_column.pack_start(self.host_cell, True)
 
         self.pic_column.set_min_width(35)
-        self.pic_column.set_attributes(self.os_cell, stock_id = 1)
-        self.host_column.set_attributes(self.host_cell, text = 2)
+        self.pic_column.set_attributes(self.os_cell, stock_id=1)
+        self.host_column.set_attributes(self.host_cell, text=2)
 
     def mass_update(self, hosts):
         """Update the internal ListStores to reflect the hosts and services

@@ -171,12 +171,17 @@ if pixmap_path:
                     # Try again.
                     pass
             else:
-                log.warn('Could not find the icon for %s at any of (%s) in %s' % (icon_name, ', '.join(get_pixmap_file_names(icon_name, size)), pixmap_path))
+                log.warn('Could not find the icon for %s at '
+                        'any of (%s) in %s' % (
+                            icon_name,
+                            ', '.join(get_pixmap_file_names(icon_name, size)),
+                            pixmap_path))
                 continue
             iconset = gtk.IconSet(pixbuf)
             iconfactory.add(key, iconset)
             log.debug('Register %s icon name for file %s' % (key, file_path))
     iconfactory.add_default()
+
 
 def get_os_icon(host):
     osmatch = host.get_best_osmatch()
@@ -190,6 +195,7 @@ def get_os_icon(host):
     else:
         return get_os(None, None, 'icon')
 
+
 def get_os_logo(host):
     osmatch = host.get_best_osmatch()
     if osmatch and osmatch['osclasses']:
@@ -202,51 +208,53 @@ def get_os_logo(host):
     else:
         return get_os(None, None, 'logo')
 
+
 def get_os(osfamily, osmatch, type):
     if osfamily:
         if osfamily == 'Linux':
             if re.findall("ubuntu", osmatch.lower()):
                 # Ubuntu icon
-                return 'ubuntu_%s'%type
+                return 'ubuntu_%s' % type
             elif re.findall("red hat", osmatch.lower()):
                 # RedHat icon
-                return 'redhat_%s'%type
+                return 'redhat_%s' % type
             else:
                 # Generic Linux icon
-                return 'linux_%s'%type
+                return 'linux_%s' % type
         elif osfamily == 'Windows':
             # Windows icon
-            return 'win_%s'%type
+            return 'win_%s' % type
         elif osfamily == 'OpenBSD':
             # OpenBSD icon
-            return 'openbsd_%s'%type
+            return 'openbsd_%s' % type
         elif osfamily == 'FreeBSD':
             # FreeBSD icon
-            return 'freebsd_%s'%type
+            return 'freebsd_%s' % type
         elif osfamily == 'NetBSD':
             # NetBSD icon
-            return 'default_%s'%type
+            return 'default_%s' % type
         elif osfamily == 'Solaris':
             # Solaris icon
-            return 'solaris_%s'%type
+            return 'solaris_%s' % type
         elif osfamily == 'OpenSolaris':
             # OpenSolaris icon
-            return 'solaris_%s'%type
+            return 'solaris_%s' % type
         elif osfamily == 'IRIX':
             # Irix icon
-            return 'irix_%s'%type
+            return 'irix_%s' % type
         elif osfamily == 'Mac OS X':
             # Mac OS X icon
-            return 'macosx_%s'%type
+            return 'macosx_%s' % type
         elif osfamily == 'Mac OS':
             # Mac OS icon
-            return 'macosx_%s'%type
+            return 'macosx_%s' % type
         else:
             # Default OS icon
-            return 'default_%s'%type
+            return 'default_%s' % type
     else:
         # Unknown OS icon
-        return 'unknown_%s'%type
+        return 'unknown_%s' % type
+
 
 def get_vulnerability_logo(open_ports):
     open_ports = int(open_ports)

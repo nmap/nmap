@@ -128,6 +128,7 @@ import zenmapCore.I18N
 
 RESPONSE_OPEN_DIRECTORY = 1
 
+
 class AllFilesFileFilter(gtk.FileFilter):
     def __init__(self):
         gtk.FileFilter.__init__(self)
@@ -135,6 +136,7 @@ class AllFilesFileFilter(gtk.FileFilter):
         pattern = "*"
         self.add_pattern(pattern)
         self.set_name(_("All files (%s)") % pattern)
+
 
 class ResultsFileFilter(gtk.FileFilter):
     def __init__(self):
@@ -145,6 +147,7 @@ class ResultsFileFilter(gtk.FileFilter):
             self.add_pattern(pattern)
         self.set_name(_("Nmap XML files (%s)") % ", ".join(patterns))
 
+
 class ScriptFileFilter(gtk.FileFilter):
     def __init__(self):
         gtk.FileFilter.__init__(self)
@@ -153,6 +156,7 @@ class ScriptFileFilter(gtk.FileFilter):
         for pattern in patterns:
             self.add_pattern(pattern)
         self.set_name(_("NSE scripts (%s)") % ", ".join(patterns))
+
 
 class UnicodeFileChooserDialog(gtk.FileChooserDialog):
     """This is a base class for file choosers. It is designed to ease the
@@ -173,6 +177,7 @@ class UnicodeFileChooserDialog(gtk.FileChooserDialog):
             pass
         return filename
 
+
 class AllFilesFileChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
                  action=gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -183,6 +188,7 @@ class AllFilesFileChooserDialog(UnicodeFileChooserDialog):
                                        action, buttons)
         self.set_default_response(gtk.RESPONSE_OK)
         self.add_filter(AllFilesFileFilter())
+
 
 class ResultsFileSingleChooserDialog(UnicodeFileChooserDialog):
     """This results file choose only allows the selection of single files, not
@@ -198,6 +204,7 @@ class ResultsFileSingleChooserDialog(UnicodeFileChooserDialog):
         for f in (ResultsFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
 
+
 class ResultsFileChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
                  action=gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -211,6 +218,7 @@ class ResultsFileChooserDialog(UnicodeFileChooserDialog):
         for f in (ResultsFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
 
+
 class ScriptFileChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
                  action=gtk.FILE_CHOOSER_ACTION_OPEN,
@@ -223,6 +231,7 @@ class ScriptFileChooserDialog(UnicodeFileChooserDialog):
         self.set_select_multiple(True)
         for f in (ScriptFileFilter(), AllFilesFileFilter()):
             self.add_filter(f)
+
 
 class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
     TYPES = (
@@ -286,11 +295,13 @@ class SaveResultsFileChooserDialog(UnicodeFileChooserDialog):
     def get_format(self):
         """Get the save format the user has chosen. It is a string, either
         "text" or "xml"."""
-        filetype = self.combo.get_model().get_value(self.combo.get_active_iter(), 1)
+        filetype = self.combo.get_model().get_value(
+                self.combo.get_active_iter(), 1)
         if filetype is None:
             # Guess based on extension. "xml" is the default if unknown.
             return self.EXTENSIONS.get(self.get_extension(), "xml")
         return filetype
+
 
 class DirectoryChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,
@@ -300,6 +311,7 @@ class DirectoryChooserDialog(UnicodeFileChooserDialog):
 
         UnicodeFileChooserDialog.__init__(self, title, parent, action, buttons)
         self.set_default_response(gtk.RESPONSE_OK)
+
 
 class SaveToDirectoryChooserDialog(UnicodeFileChooserDialog):
     def __init__(self, title="", parent=None,

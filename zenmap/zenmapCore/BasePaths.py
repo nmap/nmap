@@ -126,6 +126,7 @@ import sys
 
 from zenmapCore.Name import APP_NAME
 
+
 def fs_dec(s):
     """Decode s from the filesystem decoding, handling various possible
     errors."""
@@ -133,6 +134,7 @@ def fs_dec(s):
     if enc is None:
         enc = "UTF-8"
     return s.decode(enc)
+
 
 def fs_enc(u):
     """Encode u to the filesystem decoding, handling various possible
@@ -146,20 +148,20 @@ def fs_enc(u):
 # home directory, because os.path.expanduser doesn't properly decode the raw
 # byte string from the file system encoding. You get a UnicodeDecodeError on
 # systems like Windows where the file system encoding is different from the
-# result of sys.getdefaultencoding(). So we call os.path.expanduser with a plain
-# string and decode it from the filesystem encoding.
+# result of sys.getdefaultencoding(). So we call os.path.expanduser with a
+# plain string and decode it from the filesystem encoding.
 HOME = fs_dec(os.path.expanduser("~"))
 
 # The base_paths dict in this file gives symbolic names to various files. For
 # example, use base_paths.target_list instead of 'target_list.txt'.
 
-base_paths = dict(user_config_file = APP_NAME + '.conf',
-                  user_config_dir = os.path.join(HOME, '.' + APP_NAME),
-                  scan_profile = 'scan_profile.usp',
-                  profile_editor = 'profile_editor.xml',
-                  recent_scans = 'recent_scans.txt',
-                  target_list = 'target_list.txt',
-                  options = 'options.xml',
-                  user_home = HOME,
-                  db = APP_NAME + ".db",
-                  version = APP_NAME + "_version")
+base_paths = dict(user_config_file=APP_NAME + '.conf',
+                  user_config_dir=os.path.join(HOME, '.' + APP_NAME),
+                  scan_profile='scan_profile.usp',
+                  profile_editor='profile_editor.xml',
+                  recent_scans='recent_scans.txt',
+                  target_list='target_list.txt',
+                  options='options.xml',
+                  user_home=HOME,
+                  db=APP_NAME + ".db",
+                  version=APP_NAME + "_version")

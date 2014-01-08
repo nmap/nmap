@@ -130,12 +130,14 @@ __all__ = ['HIGHBox', 'HIGVBox']
 
 import gtk
 
+
 class HIGBox(gtk.Box):
     def _pack_noexpand_nofill(self, widget):
         self.pack_start(widget, expand=False, fill=False)
 
     def _pack_expand_fill(self, widget):
         self.pack_start(widget, expand=True, fill=True)
+
 
 class HIGHBox(gtk.HBox, HIGBox):
     def __init__(self, homogeneous=False, spacing=12):
@@ -145,12 +147,14 @@ class HIGHBox(gtk.HBox, HIGBox):
     pack_label = HIGBox._pack_noexpand_nofill
     pack_entry = HIGBox._pack_expand_fill
 
+
 class HIGVBox(gtk.VBox, HIGBox):
     def __init__(self, homogeneous=False, spacing=12):
         gtk.VBox.__init__(self, homogeneous, spacing)
 
     # Packs a widget as a line, so it doesn't expand vertically
     pack_line = HIGBox._pack_noexpand_nofill
+
 
 class HIGSpacer(HIGHBox):
     def __init__(self, widget=None):
@@ -165,6 +169,7 @@ class HIGSpacer(HIGHBox):
 
     def get_child(self):
         return self.child
+
 
 def hig_box_space_holder():
     return gtk.Label("    ")

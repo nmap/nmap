@@ -128,11 +128,13 @@ from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 
+
 def findout_service_icon(port_info):
     if port_info["port_state"] in ["open", "open|filtered"]:
         return gtk.STOCK_YES
     else:
         return gtk.STOCK_NO
+
 
 def get_version_string(d):
     """Get a human-readable version string from the dict d. The keys used in d
@@ -148,38 +150,45 @@ def get_version_string(d):
         result.append("(" + d["service_extrainfo"] + ")")
     return " ".join(result)
 
+
 def get_addrs(host):
     if host is None:
         return None
     return host.get_addrs_for_sort()
 
+
 def cmp_addrs(host_a, host_b):
     return cmp(get_addrs(host_a), get_addrs(host_b))
+
 
 def cmp_port_list_addr(model, iter_a, iter_b):
     host_a = model.get_value(iter_a, 0)
     host_b = model.get_value(iter_b, 0)
     return cmp_addrs(host_a, host_b)
 
+
 def cmp_port_tree_addr(model, iter_a, iter_b):
     host_a = model.get_value(iter_a, 0)
     host_b = model.get_value(iter_b, 0)
     return cmp_addrs(host_a, host_b)
+
 
 def cmp_host_list_addr(model, iter_a, iter_b):
     host_a = model.get_value(iter_a, 2)
     host_b = model.get_value(iter_b, 2)
     return cmp_addrs(host_a, host_b)
 
+
 def cmp_host_tree_addr(model, iter_a, iter_b):
     host_a = model.get_value(iter_a, 2)
     host_b = model.get_value(iter_b, 2)
     return cmp_addrs(host_a, host_b)
 
+
 class ScanOpenPortsPage(gtk.ScrolledWindow):
     def __init__(self):
         gtk.ScrolledWindow.__init__(self)
-        self.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_AUTOMATIC)
+        self.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         self.__create_widgets()
 
@@ -187,6 +196,7 @@ class ScanOpenPortsPage(gtk.ScrolledWindow):
 
     def __create_widgets(self):
         self.host = HostOpenPorts()
+
 
 class HostOpenPorts(HIGVBox):
     def __init__(self):
@@ -203,8 +213,10 @@ class HostOpenPorts(HIGVBox):
         # host hostname icon port protocol state service version
         # The hostname column is shown only when more than one host is selected
         # (hence port_tree not port_list is used).
-        self.port_list = gtk.ListStore(object, str, str, int, str, str, str, str)
-        self.port_tree = gtk.TreeStore(object, str, str, int, str, str, str, str)
+        self.port_list = gtk.ListStore(
+                object, str, str, int, str, str, str, str)
+        self.port_tree = gtk.TreeStore(
+                object, str, str, int, str, str, str, str)
 
         self.port_list.set_sort_func(1000, cmp_port_list_addr)
         self.port_list.set_sort_column_id(1000, gtk.SORT_ASCENDING)
@@ -229,8 +241,10 @@ class HostOpenPorts(HIGVBox):
         # service icon host hostname port protocol state version
         # service is shown only when more than one service is selected (hence
         # host_tree not host_list is used).
-        self.host_list = gtk.ListStore(str, str, object, str, int, str, str, str)
-        self.host_tree = gtk.TreeStore(str, str, object, str, int, str, str, str)
+        self.host_list = gtk.ListStore(
+                str, str, object, str, int, str, str, str)
+        self.host_tree = gtk.TreeStore(
+                str, str, object, str, int, str, str, str)
 
         self.host_list.set_sort_func(1000, cmp_host_list_addr)
         self.host_list.set_sort_column_id(1000, gtk.SORT_ASCENDING)
@@ -285,7 +299,8 @@ class HostOpenPorts(HIGVBox):
         self.host_columns['state'].pack_start(self.cell_port, True)
 
         self.host_columns['service'].set_attributes(self.cell_port, text=0)
-        self.host_columns['icon'].set_attributes(self.cell_host_icon, stock_id=1)
+        self.host_columns['icon'].set_attributes(
+                self.cell_host_icon, stock_id=1)
         self.host_columns['hostname'].set_attributes(self.cell_port, text=3)
         self.host_columns['port_number'].set_attributes(self.cell_port, text=4)
         self.host_columns['protocol'].set_attributes(self.cell_port, text=5)
@@ -294,7 +309,8 @@ class HostOpenPorts(HIGVBox):
 
         self.host_columns['service'].set_visible(False)
 
-        self.scroll_ports_hosts.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scroll_ports_hosts.set_policy(
+                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
     def _set_port_list(self):
         self.port_view.set_enable_search(True)
@@ -314,7 +330,6 @@ class HostOpenPorts(HIGVBox):
         for k in self.port_columns:
             self.port_columns[k].set_reorderable(True)
             self.port_columns[k].set_resizable(True)
-
 
         self.port_columns['icon'].set_min_width(35)
 
@@ -368,10 +383,14 @@ class HostOpenPorts(HIGVBox):
     def freeze(self):
         """Freeze notifications and sorting to make adding lots of elements to
         the model faster."""
-        self.frozen_host_list_sort_column_id = self.host_list.get_sort_column_id()
-        self.frozen_host_tree_sort_column_id = self.host_tree.get_sort_column_id()
-        self.frozen_port_list_sort_column_id = self.port_list.get_sort_column_id()
-        self.frozen_port_tree_sort_column_id = self.port_tree.get_sort_column_id()
+        self.frozen_host_list_sort_column_id = \
+                self.host_list.get_sort_column_id()
+        self.frozen_host_tree_sort_column_id = \
+                self.host_tree.get_sort_column_id()
+        self.frozen_port_list_sort_column_id = \
+                self.port_list.get_sort_column_id()
+        self.frozen_port_tree_sort_column_id = \
+                self.port_tree.get_sort_column_id()
         self.host_list.set_default_sort_func(lambda *args: -1)
         self.host_tree.set_default_sort_func(lambda *args: -1)
         self.port_list.set_default_sort_func(lambda *args: -1)
@@ -387,13 +406,17 @@ class HostOpenPorts(HIGVBox):
         """Restore notifications and sorting (after making changes to the
         model)."""
         if self.frozen_host_list_sort_column_id != (None, None):
-            self.host_list.set_sort_column_id(*self.frozen_host_list_sort_column_id)
+            self.host_list.set_sort_column_id(
+                    *self.frozen_host_list_sort_column_id)
         if self.frozen_host_tree_sort_column_id != (None, None):
-            self.host_tree.set_sort_column_id(*self.frozen_host_tree_sort_column_id)
+            self.host_tree.set_sort_column_id(
+                    *self.frozen_host_tree_sort_column_id)
         if self.frozen_port_list_sort_column_id != (None, None):
-            self.port_list.set_sort_column_id(*self.frozen_port_list_sort_column_id)
+            self.port_list.set_sort_column_id(
+                    *self.frozen_port_list_sort_column_id)
         if self.frozen_port_tree_sort_column_id != (None, None):
-            self.port_tree.set_sort_column_id(*self.frozen_port_tree_sort_column_id)
+            self.port_tree.set_sort_column_id(
+                    *self.frozen_port_tree_sort_column_id)
         self.host_view.set_model(self.frozen_host_view_model)
         self.port_view.set_model(self.frozen_port_view_model)
         self.host_view.thaw_child_notify()
@@ -414,7 +437,8 @@ class HostOpenPorts(HIGVBox):
         self.host_list.append(entry)
 
     def add_to_port_tree(self, host):
-        parent = self.port_tree.append(None, [host, host.get_hostname(), None, 0,'','','',''])
+        parent = self.port_tree.append(
+                None, [host, host.get_hostname(), None, 0, '', '', '', ''])
         for p in host.get_ports():
             self.port_tree.append(parent,
                 [None, '', findout_service_icon(p), int(p.get('portid', "0")),
@@ -422,12 +446,21 @@ class HostOpenPorts(HIGVBox):
                 p.get('service_name', _("Unknown")), get_version_string(p)])
 
     def add_to_host_tree(self, service_name, ports):
-        parent = self.host_tree.append(None, [service_name, '', None, '', 0, '', '', ''])
+        parent = self.host_tree.append(
+                None, [service_name, '', None, '', 0, '', '', ''])
         for p in ports:
             self.host_tree.append(parent,
-                ['', findout_service_icon(p), p["host"], p["host"].get_hostname(),
-                int(p.get('portid', "0")), p.get('protocol', ""),
-                p.get('port_state', _("Unknown")), get_version_string(p)])
+                    [
+                        '',
+                        findout_service_icon(p),
+                        p["host"],
+                        p["host"].get_hostname(),
+                        int(p.get('portid', "0")),
+                        p.get('protocol', ""),
+                        p.get('port_state', _("Unknown")),
+                        get_version_string(p)
+                    ]
+                )
 
     def switch_port_to_list_store(self):
         if self.port_view.get_model() != self.port_list:

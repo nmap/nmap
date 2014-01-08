@@ -134,6 +134,7 @@ from zenmapCore.NmapOptions import NmapOptions
 from zenmapCore.NmapParser import NmapParser
 from zenmapCore.UmitLogging import log
 
+
 class HostSearch(object):
     @staticmethod
     def match_target(host, name):
@@ -142,16 +143,20 @@ class HostSearch(object):
         ip = host.get_ip()
         ipv6 = host.get_ipv6()
 
-        if mac and mac.has_key('addr'):
-            if name in mac['addr'].lower(): return True
-        if ip and ip.has_key('addr'):
-            if name in ip['addr'].lower(): return True
-        if ipv6 and ipv6.has_key('addr'):
-            if name in ipv6['addr'].lower(): return True
+        if mac and 'addr' in mac:
+            if name in mac['addr'].lower():
+                return True
+        if ip and 'addr' in ip:
+            if name in ip['addr'].lower():
+                return True
+        if ipv6 and 'addr' in ipv6:
+            if name in ipv6['addr'].lower():
+                return True
 
         if HostSearch.match_hostname(host, name):
             return True
         return False
+
     @staticmethod
     def match_hostname(host, hostname):
         hostname = hostname.lower()
@@ -161,20 +166,27 @@ class HostSearch(object):
                 return True
         else:
             return False
+
     @staticmethod
     def match_service(host, service):
         for port in host.get_ports():
             # We concatenate all useful fields and add them to the list
-            if port['port_state'] not in ['open','open|filtered']:
+            if port['port_state'] not in ['open', 'open|filtered']:
                 continue
-            version = port.get("service_name", "") + " " + \
-                      port.get("service_product", "") + " " + \
-                      port.get("service_version", "") + " " + \
-                      port.get("service_extrainfo", "")
+            version = " ".join(
+                    port.get(x, "") for x in (
+                        "service_name",
+                        "service_product",
+                        "service_version",
+                        "service_extrainfo"
+                        )
+                    )
+
             if service in version.lower():
                 return True
         else:
             return False
+
     @staticmethod
     def match_os(host, os):
         os = os.lower()
@@ -191,6 +203,7 @@ class HostSearch(object):
                 return True
 
         return False
+
     @staticmethod
     def match_port(host_ports, port, port_state):
         # Check if the port is parsable, if not return False silently
@@ -202,6 +215,7 @@ class HostSearch(object):
                 return True
 
         return False
+
 
 class SearchResult(object):
     def __init__(self):
@@ -223,8 +237,8 @@ class SearchResult(object):
                     # No match => we discard this scan_result
                     break
             else:
-                # All operator-matching functions have returned True, so this scan_result
-                # satisfies all conditions
+                # All operator-matching functions have returned True, so this
+                # scan_result satisfies all conditions
                 yield self.parsed_scan
 
     def _match_all_args(self, operator, args):
@@ -250,7 +264,8 @@ class SearchResult(object):
         if keyword == "*" or keyword == "":
             return True
 
-        return keyword.lower() in str(self.parsed_scan.__getattribute__(property)).lower()
+        return keyword.lower() in str(
+                self.parsed_scan.__getattribute__(property)).lower()
 
     def match_keyword(self, keyword):
         log.debug("Match keyword: %s" % keyword)
@@ -261,7 +276,8 @@ class SearchResult(object):
 
     def match_profile(self, profile):
         log.debug("Match profile: %s" % profile)
-        log.debug("Comparing: %s == %s ??" % (str(self.parsed_scan.profile_name).lower(),
+        log.debug("Comparing: %s == %s ??" % (
+            str(self.parsed_scan.profile_name).lower(),
                                               "*%s*" % profile.lower()))
         if profile == "*" or profile == "" or \
            profile.lower() in str(self.parsed_scan.profile_name).lower():
@@ -274,18 +290,20 @@ class SearchResult(object):
         if option == "*" or option == "":
             return True
 
-        # NOTE: Option matching treats "_" and "-" the same, just like the optcmp
-        #       function in utils.cc . Also, option matching is case-sensitive.
+        # NOTE: Option matching treats "_" and "-" the same, just like the
+        # optcmp function in utils.cc . Also, option matching is
+        # case-sensitive.
         option = option.replace("_", "-")
 
         ops = NmapOptions()
         ops.parse_string(self.parsed_scan.get_nmap_command())
 
         if "(" in option and ")" in option:
-            # The syntax allows matching option arguments as "opt:option_name(value)".
-            # Since we've received only the "option_name(value)" part, we need to parse it.
+            # The syntax allows matching option arguments as
+            # "opt:option_name(value)".  Since we've received only the
+            # "option_name(value)" part, we need to parse it.
             optname = option[:option.find("(")]
-            optval = option[option.find("(")+1:option.find(")")]
+            optval = option[option.find("(") + 1:option.find(")")]
 
             val = ops["--" + optname]
             if val is None:
@@ -294,7 +312,8 @@ class SearchResult(object):
                 return False
             return str(val) == optval or str(val) == optval
         else:
-            return ops["--" + option] is not None or ops["-" + option] is not None
+            return (ops["--" + option] is not None or
+                    ops["-" + option] is not None)
 
     def match_date(self, date_arg, operator="date"):
         # The parsed scan's get_date() returns a time.struct_time, so we
@@ -314,15 +333,17 @@ class SearchResult(object):
             year, month, day = date_arg.split("-")
             parsed_date = date(int(year), int(month), int(day))
         elif re.match("[-|\+]\d+$", date_arg):
-            # We need to convert from the "-n" format (n days ago) to a date object
-            # (I found this in some old code, don't ask :) )
-            parsed_date = date.fromordinal(date.today().toordinal() + int(date_arg))
+            # We need to convert from the "-n" format (n days ago) to a date
+            # object (I found this in some old code, don't ask :) )
+            parsed_date = date.fromordinal(
+                    date.today().toordinal() + int(date_arg))
         else:
             # Fail silently
             return False
 
-        # Now that we have both the scan date and the user date converted to date objects,
-        # we need to make a comparison based on the operator (date, after, before).
+        # Now that we have both the scan date and the user date converted to
+        # date objects, we need to make a comparison based on the operator
+        # (date, after, before).
         if operator == "date":
             return abs((scan_date - parsed_date).days) <= fuzz
         # We ignore fuzziness for after: and before:
@@ -351,10 +372,11 @@ class SearchResult(object):
         return False
 
     def match_os(self, os):
-        # If you have lots of big scans in your DB (with a lot of hosts scanned),
-        # you're probably better off using the keyword (freetext) search. Keyword
-        # search just greps through the nmap output, while this function iterates
-        # through all parsed OS-related values for every host in every scan!
+        # If you have lots of big scans in your DB (with a lot of hosts
+        # scanned), you're probably better off using the keyword (freetext)
+        # search. Keyword search just greps through the nmap output, while this
+        # function iterates through all parsed OS-related values for every host
+        # in every scan!
         hosts = self.parsed_scan.get_hosts()
         for host in hosts:
             if HostSearch.match_os(host, os):
@@ -376,12 +398,13 @@ class SearchResult(object):
         # Make a list of all scanned ports
         services = []
         for scaninfo in self.parsed_scan.get_scaninfo():
-            services.append( scaninfo["services"].split(",") )
+            services.append(scaninfo["services"].split(","))
 
-        # These two loops iterate over search ports and over scanned ports. As soon as
-        # the search finds a given port among the scanned ports, it breaks from the services
-        # loop and continues with the next port in the ports list. If a port isn't
-        # found in the services list, the function immediately returns False.
+        # These two loops iterate over search ports and over scanned ports. As
+        # soon as the search finds a given port among the scanned ports, it
+        # breaks from the services loop and continues with the next port in the
+        # ports list. If a port isn't found in the services list, the function
+        # immediately returns False.
         for port in ports:
             for service in services:
                 if "-" in service and \
@@ -394,7 +417,8 @@ class SearchResult(object):
             else:
                 return False
         else:
-            # The ports loop finished for all ports, which means the search was successful.
+            # The ports loop finished for all ports, which means the search was
+            # successful.
             return True
 
     def match_port(self, ports, port_state):
@@ -405,7 +429,8 @@ class SearchResult(object):
 
         for host in self.parsed_scan.get_hosts():
             for port in ports:
-                if not HostSearch.match_port(host.get_ports(), port, port_state):
+                if not HostSearch.match_port(
+                        host.get_ports(), port, port_state):
                     break
             else:
                 return True
@@ -445,15 +470,16 @@ class SearchResult(object):
             return True
         host = host.lower()
 
-        # Since the parser doesn't parse traceroute output, we need to cheat and look
-        # the host up in the Nmap output, in the Traceroute section of the scan.
+        # Since the parser doesn't parse traceroute output, we need to cheat
+        # and look the host up in the Nmap output, in the Traceroute section of
+        # the scan.
         nmap_out = self.parsed_scan.get_nmap_output()
         tr_pos = 0
         traceroutes = []        # A scan holds one traceroute section per host
         while tr_pos != -1:
-            # Find the beginning and the end of the traceroute section, and append
-            # the substring to the traceroutes list
-            tr_pos = nmap_out.find("TRACEROUTE", tr_pos+1)
+            # Find the beginning and the end of the traceroute section, and
+            # append the substring to the traceroutes list
+            tr_pos = nmap_out.find("TRACEROUTE", tr_pos + 1)
             tr_end_pos = nmap_out.find("\n\n", tr_pos)
             if tr_pos != -1:
                 traceroutes.append(nmap_out[tr_pos:tr_end_pos])
@@ -465,14 +491,17 @@ class SearchResult(object):
             return False
 
     def match_dir(self, dir):
-        # The dir: operator is handled by the SearchParser class, we ignore it here.
+        # The dir: operator is handled by the SearchParser class, we ignore it
+        # here.
         return True
 
+
 class SearchDummy(SearchResult):
-    """A dummy search class that returns no results. It is used as a placeholder
-    when SearchDB can't be used."""
+    """A dummy search class that returns no results. It is used as a
+    placeholder when SearchDB can't be used."""
     def get_scan_results(self):
         return []
+
 
 class SearchDB(SearchResult, object):
     def __init__(self):
@@ -492,12 +521,14 @@ class SearchDB(SearchResult, object):
                 parsed.parse(buffer)
                 buffer.close()
             except Exception, e:
-                log.warning(">>> Error loading scan with ID %u from database: %s" % (scan.scans_id, str(e)))
+                log.warning(">>> Error loading scan with ID %u from database: "
+                        "%s" % (scan.scans_id, str(e)))
             else:
                 self.scan_results.append(parsed)
 
     def get_scan_results(self):
         return self.scan_results
+
 
 class SearchDir(SearchResult, object):
     def __init__(self, search_directory, file_extensions=["usr"]):
@@ -510,7 +541,8 @@ class SearchDir(SearchResult, object):
         elif type(file_extensions) == type([]):
             self.file_extensions = file_extensions
         else:
-            raise Exception("Wrong file extension format! '%s'" % file_extensions)
+            raise Exception(
+                    "Wrong file extension format! '%s'" % file_extensions)
 
         log.debug(">>> Getting directory's scan results")
         self.scan_results = []
@@ -534,6 +566,7 @@ class SearchDir(SearchResult, object):
     def get_scan_results(self):
         return self.scan_results
 
+
 class SearchResultTest(unittest.TestCase):
     class SearchClass(SearchResult):
         """This class is for use by the unit testing code"""
@@ -544,6 +577,7 @@ class SearchResultTest(unittest.TestCase):
                 scan = NmapParser()
                 scan.parse_file(filename)
                 self.scan_results.append(scan)
+
         def get_scan_results(self):
             return self.scan_results
 
@@ -553,31 +587,38 @@ class SearchResultTest(unittest.TestCase):
 
     def _test_skeleton(self, key, val):
         results = []
-        search = {key:[val]}
+        search = {key: [val]}
         for scan in self.search_result.search(**search):
             results.append(scan)
         return len(results)
+
     def test_match_os(self):
         """Test that checks if the match_os predicate works"""
-        assert(self._test_skeleton('os','linux') == 2)
+        assert(self._test_skeleton('os', 'linux') == 2)
+
     def test_match_target(self):
         """Test that checks if the match_target predicate works"""
-        assert(self._test_skeleton('target','localhost') == 4)
+        assert(self._test_skeleton('target', 'localhost') == 4)
+
     def test_match_port_open(self):
         """Test that checks if the match_open predicate works"""
         assert(self._test_skeleton('open', '22') == 7)
+
     def test_match_port_closed(self):
         """Test that checks if the match_closed predicate works"""
         assert(self._test_skeleton('open', '22') == 7)
         assert(self._test_skeleton('closed', '22') == 9)
+
     def test_match_service(self):
         """Test that checks if the match_service predicate works"""
         assert(self._test_skeleton('service', 'apache') == 9)
         assert(self._test_skeleton('service', 'openssh') == 7)
+
     def test_match_service_version(self):
         """Test that checks if the match_service predicate works when """
         """checking version"""
         assert(self._test_skeleton('service', '2.0.52') == 7)
+
 
 if __name__ == "__main__":
     unittest.main()

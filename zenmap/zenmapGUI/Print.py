@@ -123,8 +123,8 @@
 # This prints the normal (text) output of a single scan. Ideas for further
 # development:
 #
-# Print the topology graphic. The graphic is already made with Cairo so the same
-# code can be used to draw on the print context.
+# Print the topology graphic. The graphic is already made with Cairo so the
+# same code can be used to draw on the print context.
 #
 # Print in color with highlighting, like NmapOutputViewer.
 #
@@ -138,6 +138,7 @@ import gobject
 import pango
 
 MONOSPACE_FONT_DESC = pango.FontDescription("Monospace 12")
+
 
 class PrintState (object):
     """This is the userdatum passed to gtk.PrintOperation callbacks."""
@@ -169,7 +170,9 @@ class PrintState (object):
         op.set_n_pages((len(self.lines) - 1) / self.lines_per_page + 1)
 
     def draw_page(self, op, context, page_nr):
-        this_page_lines = self.lines[page_nr * self.lines_per_page:(page_nr + 1) * self.lines_per_page]
+        this_page_lines = self.lines[
+                page_nr * self.lines_per_page:
+                (page_nr + 1) * self.lines_per_page]
         layout = context.create_pango_layout()
         # Do no wrapping.
         layout.set_width(-1)
@@ -179,6 +182,7 @@ class PrintState (object):
 
         cr = context.get_cairo_context()
         cr.show_layout(layout)
+
 
 def run_print_operation(inventory, entry):
     op = gtk.PrintOperation()

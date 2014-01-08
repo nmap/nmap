@@ -2,8 +2,8 @@
 
 # This is an Nmap command line parser. It has two main parts:
 #
-#   getopt_long_only_extras, which is like getopt_long_only with robust handling
-#   of unknown options.
+#   getopt_long_only_extras, which is like getopt_long_only with robust
+#   handling of unknown options.
 #
 #   NmapOptions, a class representing a set of Nmap options.
 #
@@ -30,9 +30,11 @@
 # >>> ops["-v"] = 2
 # >>> ops["-oX"] = "output.xml"
 # >>> ops.render()
-# ['C:\\Program Files\\Nmap\\nmap.exe', '-v', '-v', '-oX', 'output.xml', '--script', 'safe', 'localhost']
+# ['C:\\Program Files\\Nmap\\nmap.exe', '-v', '-v', '-oX', 'output.xml',
+#  '--script', 'safe', 'localhost']
 # >>> ops.render_string()
-# '"C:\\Program Files\\Nmap\\nmap.exe" -v -v -oX output.xml --script safe localhost'
+# '"C:\\Program Files\\Nmap\\nmap.exe" -v -v -oX output.xml\
+#  --script safe localhost'
 #
 # A primary design consideration was robust handling of unknown options. That
 # gives this code a degree of independence from Nmap's own list of options. If
@@ -45,17 +47,17 @@
 #   nmap -x -e eth0 scanme.nmap.org
 # If -x, whatever it is, does not take an argument, it is equivalent to
 #   nmap -e eth0 scanme.nmap.org -x
-# that is, a scan of scanme.nmap.org over interface eth0. But if it does take an
-# argument, its argument is "-e", and the command line is the same as
+# that is, a scan of scanme.nmap.org over interface eth0. But if it does take
+# an argument, its argument is "-e", and the command line is the same as
 #   nmap eth0 scanme.nmap.org -x -e
 # which is a scan of the two hosts eth0 and scanme.nmap.org, over the default
 # interface. In either case scanme.nmap.org is a target but the other arguments
-# are ambiguous. To resolve this, once an unknown option is found, all following
-# arguments that can be interpreted ambiguously are removed with it and placed
-# in the extras, with normal option processing resumed only when there is no
-# more ambiguity. This ensures that such options maintain their relative order
-# when rendered again to output. In this example "-x -e eth0" will always appear
-# in that order, and the -e option will be uninterpreted.
+# are ambiguous. To resolve this, once an unknown option is found, all
+# following arguments that can be interpreted ambiguously are removed with it
+# and placed in the extras, with normal option processing resumed only when
+# there is no more ambiguity. This ensures that such options maintain their
+# relative order when rendered again to output. In this example "-x -e eth0"
+# will always appear in that order, and the -e option will be uninterpreted.
 #
 # To add a new option, one should do the following:
 # 1) Add a test case to the NmapOptionsTest::test_options() method for the new
@@ -79,6 +81,7 @@
 #    get_option_check_auxiliary_widget in OptionBuilder.py.
 # 7) Make sure the test case works now.
 
+
 class option:
     """A single option, part of a pool of potential options. It's just a name
     and a flag saying if the option takes no argument, if an agument is
@@ -90,6 +93,7 @@ class option:
     def __init__(self, name, has_arg):
         self.name = name
         self.has_arg = has_arg
+
 
 def split_quoted(s):
     """Like str.split, except that no splits occur inside quoted strings, and
@@ -114,8 +118,8 @@ def split_quoted(s):
                         i += 1
                         if i < len(s):
                             c = s[i]
-                        # Otherwise, ignore the error and leave the backslash at
-                        # the end of the string.
+                        # Otherwise, ignore the error and leave the backslash
+                        # at the end of the string.
                     part.append(c)
                     i += 1
             else:
@@ -126,6 +130,7 @@ def split_quoted(s):
             i += 1
 
     return r
+
 
 def maybe_quote(s):
     """Return s quoted if it needs to be, otherwise unchanged."""
@@ -146,8 +151,10 @@ def maybe_quote(s):
 
     return "\"" + "".join(r) + "\""
 
+
 def join_quoted(l):
     return " ".join([maybe_quote(x) for x in l])
+
 
 def make_options(short_opts, long_opts):
     """Parse a short option specification string and long option tuples into a
@@ -176,6 +183,7 @@ def make_options(short_opts, long_opts):
 
 lookup_option_cache = {}
 
+
 def lookup_option(name, options):
     """Find an option with the given (possibly abbreviated) name. None is
     returned if no options match or if the name is ambiguous (more than one
@@ -197,7 +205,8 @@ def lookup_option(name, options):
         return name.replace("_", "-")
 
     name = canonicalize_name(name)
-    matches = [o for o in options if canonicalize_name(o.name).startswith(name)]
+    matches = [o for o in options
+            if canonicalize_name(o.name).startswith(name)]
     if len(matches) == 0:
         # No match.
         lookup_option_cache[cache_code] = None
@@ -215,19 +224,22 @@ def lookup_option(name, options):
             lookup_option_cache[cache_code] = None
     return lookup_option_cache[cache_code]
 
+
 def split_option(cmd_arg, options):
     """Split an option into a name, argument (if any), and possible remainder.
-    It is not an error if the option does not include an argument even though it
-    is required; the caller must take the argument from the next command-line
-    argument. The remainder is what's left over after stripping a single short
-    option that doesn't take an argument. At most one of argument and remainder
-    will be non-None.
+    It is not an error if the option does not include an argument even though
+    it is required; the caller must take the argument from the next
+    command-line argument. The remainder is what's left over after stripping a
+    single short option that doesn't take an argument. At most one of argument
+    and remainder will be non-None.
     Examples:
     >>> split_option("-v", [option("v", option.NO_ARGUMENT)])
     ('v', None, None)
-    >>> split_option("--min-rate", [option("min-rate", option.REQUIRED_ARGUMENT)])
+    >>> split_option("--min-rate",
+    ...     [option("min-rate", option.REQUIRED_ARGUMENT)])
     ('min-rate', None, None)
-    >>> split_option("--min-rate=100", [option("min-rate", option.REQUIRED_ARGUMENT)])
+    >>> split_option("--min-rate=100",
+    ...     [option("min-rate", option.REQUIRED_ARGUMENT)])
     ('min-rate', '100', None)
     >>> split_option("-d9", [option("d", option.OPTIONAL_ARGUMENT)])
     ('d', '9', None)
@@ -273,15 +285,17 @@ def split_option(cmd_arg, options):
     else:
         assert False, cmd_arg
 
+
 def get_option(cmd_args, options):
     """Find and return the first option (plus a possible option argument) or
     positional argument from the command-line option list in cmd_args. The
     return value will have one of the following forms:
-    a string, representing a positional argument;
-    an (option, argument) pair (argument may be None);
-    a (None, extra, ...) tuple, where extra, ... is a chain of an unknown option
-        and its following arguments that cannot be interpreted unambiguously; or
-    None, at the end of the option list."""
+    * a string, representing a positional argument;
+    * an (option, argument) pair (argument may be None);
+    * a (None, extra, ...) tuple, where extra, ... is a chain of an unknown
+        option and its following arguments that cannot be interpreted
+        unambiguously; or
+    * None, at the end of the option list."""
     if len(cmd_args) == 0:
         return None
     cmd_arg = cmd_args.pop(0)
@@ -305,9 +319,9 @@ def get_option(cmd_args, options):
             return (None, cmd_arg)
         else:
             extras = [None, cmd_arg]
-            # We found an unknown option but we have a problem--we don't know if
-            # it takes an argument or not. So what we do is, we simulate what
-            # would happen both if the option took and argument and if it
+            # We found an unknown option but we have a problem--we don't know
+            # if it takes an argument or not. So what we do is, we simulate
+            # what would happen both if the option took and argument and if it
             # didn't. The sync function does that by calling this function in a
             # loop.
             rest = sync(cmd_args[1:], cmd_args[:], options)
@@ -332,6 +346,7 @@ def get_option(cmd_args, options):
     else:
         return (option.name, arg)
 
+
 def sync(a, b, options):
     """Given two command-line argument lists, incrementally get an option from
     whichever is longer until both lists are equal. Return the resulting
@@ -343,15 +358,17 @@ def sync(a, b, options):
             get_option(b, options)
     return a
 
+
 def getopt_long_only_extras(cmd_args, short_opts, long_opts):
     """This is a generator version of getopt_long_only that additionally has
     robust handling of unknown options. Each of the items in the sequence it
     yields will be one of the following:
-    a string, representing a positional argument;
-    an (option, argument) pair (argument may be None);
-    a (None, extra, ...) tuple, where extra, ... is a chain of an unknown option
-        and its following arguments that cannot be interpreted unambiguously; or
-    None, at the end of the option list."""
+    * a string, representing a positional argument;
+    * an (option, argument) pair (argument may be None);
+    * a (None, extra, ...) tuple, where extra, ... is a chain of an unknown
+        option and its following arguments that cannot be interpreted
+        unambiguously; or
+    * None, at the end of the option list."""
     options = make_options(short_opts, long_opts)
     # get_option modifies its list of arguments in place. Don't modify the
     # original list.
@@ -361,6 +378,7 @@ def getopt_long_only_extras(cmd_args, short_opts, long_opts):
         if result is None:
             break
         yield result
+
 
 class NmapOptions(object):
     SHORT_OPTIONS = "6Ab:D:d::e:Ffg:hi:M:m:nO::o:P:p:RrS:s:T:v::V"
@@ -492,7 +510,8 @@ class NmapOptions(object):
     def _set_executable(self, executable):
         self._executable = executable
 
-    executable = property(lambda self: self._executable or "nmap", _set_executable)
+    executable = property(lambda self: self._executable or "nmap",
+            _set_executable)
 
     def canonicalize_name(self, name):
         opt, arg, remainder = split_option(name, self.options)
@@ -563,7 +582,8 @@ class NmapOptions(object):
             "webxml",
             ):
             self["--" + opt] = True
-        elif opt in ("b", "D", "e", "g", "i", "iL", "m", "M", "o", "oA", "oG", "oM", "oN", "oS", "oX", "p", "S", "sI"):
+        elif opt in ("b", "D", "e", "g", "i", "iL", "m", "M", "o", "oA", "oG",
+                "oM", "oN", "oS", "oX", "p", "S", "sI"):
             assert arg is not None
             if self["-" + opt] is None:
                 self["-" + opt] = arg
@@ -617,7 +637,8 @@ class NmapOptions(object):
             try:
                 self["-d"] = int(arg)
             except ValueError:
-                if reduce(lambda x, y: x and y, map(lambda z: z == "d", arg), True):
+                if reduce(lambda x, y: x and y,
+                        map(lambda z: z == "d", arg), True):
                     self.setdefault("-d", 0)
                     self["-d"] += len(arg) + 1
                 else:
@@ -646,7 +667,8 @@ class NmapOptions(object):
                     self.extras.append("-O%s" % arg)
         elif opt == "P":
             type, ports = arg[:1], arg[1:]
-            if type == "0" or type == "D" or type == "N" or type == "n" and ports == "":
+            if (type == "0" or type == "D" or type == "N" or
+                    type == "n" and ports == ""):
                 self["-Pn"] = True
             elif (type == "" or type == "I" or type == "E") and ports == "":
                 self["-PE"] = True
@@ -693,7 +715,8 @@ class NmapOptions(object):
             try:
                 self["-v"] = int(arg)
             except ValueError:
-                if reduce(lambda x, y: x and y, map(lambda z: z == "v", arg), True):
+                if reduce(lambda x, y: x and y,
+                        map(lambda z: z == "v", arg), True):
                     self.setdefault("-v", 0)
                     self["-v"] += len(arg) + 1
                 else:
@@ -707,7 +730,8 @@ class NmapOptions(object):
         if len(opt_list) > 0:
             self.executable = opt_list[0]
 
-        for result in getopt_long_only_extras(opt_list[1:], self.SHORT_OPTIONS, self.LONG_OPTIONS):
+        for result in getopt_long_only_extras(
+                opt_list[1:], self.SHORT_OPTIONS, self.LONG_OPTIONS):
             self.handle_result(result)
 
     def parse_string(self, opt_string):
@@ -716,7 +740,8 @@ class NmapOptions(object):
     def render(self):
         opt_list = []
 
-        for opt in ("-sA", "-sC", "-sF", "-sL", "-sM", "-sN", "-sO", "-sn", "-sR", "-sS", "-sT", "-sU", "-sV", "-sW", "-sX", "-sY", "-sZ"):
+        for opt in ("-sA", "-sC", "-sF", "-sL", "-sM", "-sN", "-sO", "-sn",
+                "-sR", "-sS", "-sT", "-sU", "-sV", "-sW", "-sX", "-sY", "-sZ"):
             if self[opt]:
                 opt_list.append(opt)
 
@@ -865,6 +890,7 @@ class NmapOptions(object):
 import doctest
 import unittest
 
+
 class NmapOptionsTest(unittest.TestCase):
     def test_clear(self):
         """Test that a new object starts without defining any options, that the
@@ -901,7 +927,8 @@ class NmapOptionsTest(unittest.TestCase):
         TEST = "nmap -T4 -A -v localhost --webxml"
         ops = NmapOptions()
         ops.parse_string(TEST)
-        self.assertTrue(type(ops.render()) == list, "type == %s" % type(ops.render))
+        self.assertTrue(type(ops.render()) == list,
+                "type == %s" % type(ops.render))
 
     def test_quoted(self):
         """Test that strings can be quoted."""
@@ -1123,7 +1150,8 @@ class NmapOptionsTest(unittest.TestCase):
         ops.parse_string("nmap -min-rate=100")
         self.assertTrue(ops["--min-rate"] == "100")
 
-        # Short options not taking an argument can be followed by a long option.
+        # Short options not taking an argument can be followed by a long
+        # option.
         ops.parse_string("nmap -nFmin-rate 100")
         self.assertTrue(ops["-n"])
         self.assertTrue(ops["-F"])
@@ -1155,8 +1183,8 @@ class NmapOptionsTest(unittest.TestCase):
         self.assertEqual(ops["--nonoption"], None)
 
     def test_canonical_option_names(self):
-        """Test that equivalent option names are properly canonicalized, so that
-        ops["--timing"] and ops["-T"] mean the same thing, for example."""
+        """Test that equivalent option names are properly canonicalized, so
+        that ops["--timing"] and ops["-T"] mean the same thing, for example."""
         EQUIVS = (
             ("--debug", "-d"),
             ("--help", "-h"),
@@ -1334,11 +1362,17 @@ class NmapOptionsTest(unittest.TestCase):
             ops.parse_string("nmap " + test)
             opt_list_1 = ops.render()
             self.assertTrue(len(opt_list_1) > 1, "%s missing on render" % test)
-            self.assertTrue(len(ops.extras) == 0, "%s caused extras: %s" % (test, repr(ops.extras)))
+            self.assertTrue(len(ops.extras) == 0,
+                    "%s caused extras: %s" % (test, repr(ops.extras)))
             ops.parse(opt_list_1)
             opt_list_2 = ops.render()
-            self.assertTrue(opt_list_1 == opt_list_2, "Result of parsing and rendering %s not parsable again" % test)
-            self.assertTrue(len(ops.extras) == 0, "Result of parsing and rendering %s left extras: %s" % (test, ops.extras))
+            self.assertTrue(opt_list_1 == opt_list_2,
+                    "Result of parsing and rendering %s not parsable again" % (
+                        test))
+            self.assertTrue(len(ops.extras) == 0,
+                    "Result of parsing and rendering %s left extras: %s" % (
+                        test, ops.extras))
+
 
 class SplitQuotedTest(unittest.TestCase):
     """A unittest class that tests the split_quoted function."""
@@ -1358,6 +1392,7 @@ class SplitQuotedTest(unittest.TestCase):
         self.assertEqual(split_quoted('"\\""'), ['"'])
         self.assertEqual(split_quoted('\\"\\""'), ['\\"'])
         self.assertEqual(split_quoted('"\\"\\""'), ['""'])
+
 
 if __name__ == "__main__":
     doctest.testmod()

@@ -124,12 +124,10 @@ import xml.sax.saxutils
 from xml.sax.xmlreader import AttributesImpl as Attributes
 
 
-
 def convert_to_utf8(text):
     """
     """
     return text.encode('utf8', 'replace')
-
 
 
 class XMLNode:
@@ -143,69 +141,58 @@ class XMLNode:
         self.__attrs = dict()
         self.__children = []
 
-
     def set_text(self, text):
         """
         """
         self.__text = text
-
 
     def get_text(self):
         """
         """
         return self.__text
 
-
     def set_name(self, name):
         """
         """
         self.__name = name
-
 
     def get_name(self):
         """
         """
         return self.__name
 
-
     def add_attr(self, key, value):
         """
         """
         self.__attrs[key] = value
-
 
     def add_child(self, child):
         """
         """
         self.__children.append(child)
 
-
     def get_keys(self):
         """
         """
         return self.__attrs.keys()
 
-
     def get_attr(self, attr):
         """
         """
-        if self.__attrs.has_key(attr):
+        if attr in self.__attrs:
             return self.__attrs[attr]
 
         return None
-
 
     def get_attrs(self):
         """
         """
         return self.__attrs
 
-
     def get_children(self):
         """
         """
         return self.__children
-
 
     def query_children(self, name, attr, value, first=False, deep=False):
         """
@@ -216,7 +203,7 @@ class XMLNode:
 
             if child.get_name() == name:
 
-                if child.get_attrs().has_key(attr):
+                if attr in child.get_attrs():
 
                     c_value = child.get_attr(attr)
 
@@ -242,7 +229,6 @@ class XMLNode:
             return None
 
         return result
-
 
     def search_children(self, name, first=False, deep=False):
         """
@@ -276,7 +262,6 @@ class XMLNode:
         return result
 
 
-
 class XMLWriter(xml.sax.saxutils.XMLGenerator):
     """
     """
@@ -287,12 +272,10 @@ class XMLWriter(xml.sax.saxutils.XMLGenerator):
 
         self.__root = root
 
-
     def set_root(self, root):
         """
         """
         self.__root = root
-
 
     def write(self):
         """
@@ -300,7 +283,6 @@ class XMLWriter(xml.sax.saxutils.XMLGenerator):
         self.startDocument()
         self.write_xml_node([self.__root])
         self.endDocument()
-
 
     def write_xml_node(self, root):
         """
@@ -317,7 +299,6 @@ class XMLWriter(xml.sax.saxutils.XMLGenerator):
             self.endElement(child.get_name())
 
 
-
 class XMLReader(xml.sax.ContentHandler):
     """
     """
@@ -330,27 +311,23 @@ class XMLReader(xml.sax.ContentHandler):
         self.__file = file
         self.__root = None
 
-        self.__parser = xml.sax.make_parser();
-        self.__parser.setContentHandler(self);
-
+        self.__parser = xml.sax.make_parser()
+        self.__parser.setContentHandler(self)
 
     def set_file(self, file, root):
         """
         """
         self.__file = file
 
-
     def get_file(self):
         """
         """
         return self.__file
 
-
     def get_root(self):
         """
         """
         return self.__root
-
 
     def parse(self):
         """
@@ -358,12 +335,10 @@ class XMLReader(xml.sax.ContentHandler):
         if self.__file != None:
             self.__parser.parse(self.__file)
 
-
     def startDocument(self):
         """
         """
         pass
-
 
     def startElement(self, name, attrs):
         """
@@ -384,7 +359,6 @@ class XMLReader(xml.sax.ContentHandler):
 
         self.__status.append(node)
 
-
     def endElement(self, name):
         """
         """
@@ -393,18 +367,15 @@ class XMLReader(xml.sax.ContentHandler):
         self.__text = ""
         self.__status.pop()
 
-
     def endDocument(self):
         """
         """
         pass
 
-
     def characters(self, text):
         """
         """
         self.__text += text
-
 
 
 if __name__ == "__main__":

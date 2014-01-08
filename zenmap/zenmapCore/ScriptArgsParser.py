@@ -131,6 +131,7 @@ quoted_re = re.compile(r'\s*(([\'"])(.*?[^\\])\2)\s*([},=]|$)')
 # "^%s*(['\"])%1%s*[},=]"
 empty_re = re.compile(r'\s*(([\'"])\2)\s*([},=]|$)')
 
+
 def parse_string(s, start):
     """Parses a single string that is quoted, unquoted or empty. It returns the
     found string along with the next starting position """
@@ -140,6 +141,7 @@ def parse_string(s, start):
             return m.group(1), m.end(1)
         raise ValueError("No string found at %s." % repr(s[start:]))
 
+
 def next_char(s, start):
     """Returns the next character and position in the string."""
     while start < len(s) and s[start].isspace():
@@ -148,6 +150,7 @@ def next_char(s, start):
         return s[start], start
     else:
         return None, start
+
 
 def parse_value(s, start):
     """If the string starting from start is a name-value pair, returns a
@@ -172,6 +175,7 @@ def parse_value(s, start):
         else:
             return s[start:j], j
 
+
 def parse_table(s, start):
     """This function is responsible for parsing a table; i.e, a string that
     starts with '{'. It returns the position where the balancing pair of braces
@@ -192,6 +196,7 @@ def parse_table(s, start):
             if nc == ",":
                 j += 1
 
+
 def parse_script_args(s):
     """Main function responsible for parsing the script args and storing the
     name-value pairs in a list. If an invalid argument is present it stores the
@@ -202,7 +207,8 @@ def parse_script_args(s):
         while nc is not None:
             val, j = parse_value(s, j)
             if type(val) == str:
-                raise ValueError("Only name-value pairs expected in parse_script_args.")
+                raise ValueError(
+                        "Only name-value pairs expected in parse_script_args.")
             else:
                 args.append(val)
             nc, j = next_char(s, j)
@@ -213,6 +219,7 @@ def parse_script_args(s):
         return None
     return args
 
+
 def parse_script_args_dict(raw_argument):
     """Wrapper function that copies the name-value pairs from a list into a
     dictionary."""
@@ -221,7 +228,7 @@ def parse_script_args_dict(raw_argument):
     if args is None:
         return None
     for item in args:
-        if(len(item) == 2): # only key/value pairs are stored
+        if(len(item) == 2):  # only key/value pairs are stored
             args_dict[item[0]] = item[1]
     return args_dict
 
@@ -234,7 +241,11 @@ if __name__ == '__main__':
         ('a={one,{two,{three}}}', [('a', '{one,{two,{three}}}')]),
         ('a={"quoted}quoted"}', [('a', '{"quoted}quoted"}')]),
         ('a="unterminated', None),
-        ('user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=C:\\Some\\Path\\To\\File', [('user', 'foo'), ('pass', '",{}=bar"'), ('whois', '{whodb=nofollow+ripe}'), ('userdb', 'C:\\Some\\Path\\To\\File')]),
+        ('user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},'
+            'userdb=C:\\Some\\Path\\To\\File',
+            [('user', 'foo'), ('pass', '",{}=bar"'),
+                ('whois', '{whodb=nofollow+ripe}'),
+                ('userdb', 'C:\\Some\\Path\\To\\File')]),
      )
 
     for test, expected in TESTS:
@@ -242,7 +253,7 @@ if __name__ == '__main__':
         print args_dict
         args = parse_script_args(test)
         if args == expected:
-            print "PASS" , test
+            print "PASS", test
             continue
         print "FAIL", test
         if args is None:

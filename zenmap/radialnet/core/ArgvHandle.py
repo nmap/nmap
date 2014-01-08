@@ -130,7 +130,6 @@ class ArgvHandle:
         """
         self.__argv = argv
 
-
     def get_option(self, option):
         """
         """
@@ -143,18 +142,15 @@ class ArgvHandle:
 
         return None
 
-
     def has_option(self, option):
         """
         """
         return option in self.__argv
 
-
     def get_last_value(self):
         """
         """
         return self.__argv[-1]
-
 
 
 if __name__ == '__main__':

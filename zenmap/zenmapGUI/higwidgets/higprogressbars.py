@@ -132,6 +132,7 @@ import gtk
 
 from higboxes import HIGHBox
 
+
 class HIGLabeledProgressBar(HIGHBox):
     def __init__(self, label=None):
         HIGHBox.__init__(self)

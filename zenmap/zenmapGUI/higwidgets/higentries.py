@@ -130,6 +130,7 @@ import gtk
 
 HIGTextEntry = gtk.Entry
 
+
 class HIGPasswordEntry(HIGTextEntry):
     """
     An entry that masks its text

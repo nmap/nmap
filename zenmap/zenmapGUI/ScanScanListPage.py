@@ -128,6 +128,7 @@ from zenmapGUI.higwidgets.higbuttons import HIGButton
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
 import zenmapCore.I18N
 
+
 def status_data_func(widget, cell_renderer, model, iter):
     entry = model.get_value(iter, 0)
     if entry.running:
@@ -143,14 +144,17 @@ def status_data_func(widget, cell_renderer, model, iter):
         status = _("Canceled")
     cell_renderer.set_property("text", status)
 
+
 def command_data_func(widget, cell_renderer, model, iter):
     entry = model.get_value(iter, 0)
     cell_renderer.set_property("ellipsize", pango.ELLIPSIZE_END)
     cell_renderer.set_property("text", entry.get_command_string())
 
+
 class ScanScanListPage(HIGVBox):
-    """This is the "Scans" scan results tab. It the list of running and finished
-    scans contained in the ScansListStore passed to the constructor."""
+    """This is the "Scans" scan results tab. It the list of running and
+    finished scans contained in the ScansListStore passed to the
+    constructor."""
     def __init__(self, scans_store):
         HIGVBox.__init__(self)
 
@@ -159,7 +163,8 @@ class ScanScanListPage(HIGVBox):
         scans_store.connect("row-changed", self._row_changed)
 
         self.scans_list = gtk.TreeView(scans_store)
-        self.scans_list.get_selection().connect("changed", self._selection_changed)
+        self.scans_list.get_selection().connect(
+                "changed", self._selection_changed)
 
         status_col = gtk.TreeViewColumn(_("Status"))
         cell = gtk.CellRendererText()
@@ -193,9 +198,9 @@ class ScanScanListPage(HIGVBox):
         self.cancel_button = HIGButton(_("Cancel Scan"), gtk.STOCK_CANCEL)
         buttonbox.pack_start(self.cancel_button, False)
 
-        hbox.pack_start(buttonbox, padding = 4)
+        hbox.pack_start(buttonbox, padding=4)
 
-        self.pack_start(hbox, False, padding = 4)
+        self.pack_start(hbox, False, padding=4)
 
         self._update()
 
@@ -206,13 +211,13 @@ class ScanScanListPage(HIGVBox):
         self._update()
 
     def _update(self):
-        # Make the Cancel button sensitive or not depending on whether a running
-        # scan is selected.
+        # Make the Cancel button sensitive or not depending on whether a
+        # running scan is selected.
         tree_selection = self.scans_list.get_selection()
         if tree_selection is None:
             # I can't find anything in the PyGTK documentation that suggests
-            # this is possible, but we received many crash reports that indicate
-            # it is.
+            # this is possible, but we received many crash reports that
+            # indicate it is.
             model, selection = None, []
         else:
             model, selection = tree_selection.get_selected_rows()

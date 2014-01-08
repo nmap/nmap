@@ -122,7 +122,6 @@
 import gtk
 
 
-
 class BWFrame(gtk.Frame):
     """
     """
@@ -141,19 +140,16 @@ class BWFrame(gtk.Frame):
 
         self.bw_set_label(label)
 
-
     def bw_set_label(self, label):
         """
         """
         self.set_label("<b>" + label + "</b>")
         self.get_label_widget().set_use_markup(True)
 
-
     def bw_add(self, widget):
         """
         """
         self.__alignment.add(widget)
-
 
     def bw_remove(self, widget):
         """

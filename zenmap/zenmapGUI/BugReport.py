@@ -130,6 +130,7 @@ import zenmapCore.I18N
 # For escaping text in marked-up labels.
 from xml.sax.saxutils import escape
 
+
 class BugReport(gtk.Window, object):
     def __init__(self):
         gtk.Window.__init__(self)
@@ -173,7 +174,11 @@ Code patches to fix bugs are even better than bug reports. Basic \
 instructions for creating patch files with your changes are available at \
 http://nmap.org/data/HACKING. Patches may be sent to nmap-dev \
 (recommended) or to Fyodor directly.
-""") % {"app": escape(APP_DISPLAY_NAME), "nmap": escape(NMAP_DISPLAY_NAME), "nmap_web": escape(NMAP_WEB_SITE)})
+""") % {
+            "app": escape(APP_DISPLAY_NAME),
+            "nmap": escape(NMAP_DISPLAY_NAME),
+            "nmap_web": escape(NMAP_WEB_SITE)
+            })
         self.vbox.add(self.text)
 
         self.button_box.set_layout(gtk.BUTTONBOX_END)

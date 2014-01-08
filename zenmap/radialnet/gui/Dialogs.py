@@ -126,7 +126,6 @@ from radialnet.core.Info import INFO
 from radialnet.gui.Image import Pixmaps
 
 
-
 class AboutDialog(gtk.AboutDialog):
     """
     """
@@ -145,7 +144,6 @@ class AboutDialog(gtk.AboutDialog):
         self.set_logo(Pixmaps().get_pixbuf('logo'))
 
         self.connect('response', self.__destroy)
-
 
     def __destroy(self, dialog, id):
         """

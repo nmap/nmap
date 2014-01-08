@@ -128,6 +128,7 @@ higwidgets/higwindows.py
 
 import gtk
 
+
 class HIGWindow(gtk.Window):
     """HIGFied Window"""
     def __init__(self, type=gtk.WINDOW_TOPLEVEL):

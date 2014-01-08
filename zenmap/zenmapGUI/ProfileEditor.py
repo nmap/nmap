@@ -123,7 +123,8 @@
 import gtk
 
 from zenmapGUI.higwidgets.higwindows import HIGWindow
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer, hig_box_space_holder
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer, \
+        hig_box_space_holder
 from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HIGEntryLabel
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
 from zenmapGUI.higwidgets.higtextviewers import HIGTextView
@@ -137,8 +138,10 @@ from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 from zenmapCore.NmapOptions import NmapOptions
 
+
 class ProfileEditor(HIGWindow):
-    def __init__(self, command=None, profile_name=None, deletable=True, overwrite=False):
+    def __init__(self, command=None, profile_name=None,
+            deletable=True, overwrite=False):
         HIGWindow.__init__(self)
         self.connect("delete_event", self.exit)
         self.set_title(_('Profile Editor'))
@@ -148,8 +151,8 @@ class ProfileEditor(HIGWindow):
         self.profile_name = profile_name
         self.overwrite = overwrite
 
-        # Used to block recursive updating of the command entry when the command
-        # entry causes the OptionBuilder widgets to change.
+        # Used to block recursive updating of the command entry when the
+        # command entry causes the OptionBuilder widgets to change.
         self.inhibit_command_update = False
 
         self.__create_widgets()
@@ -164,20 +167,27 @@ class ProfileEditor(HIGWindow):
 
             # Interface settings
             self.profile_name_entry.set_text(profile_name)
-            self.profile_description_text.get_buffer().set_text(prof['description'])
+            self.profile_description_text.get_buffer().set_text(
+                    prof['description'])
 
             command_string = prof['command']
             self.ops.parse_string(command_string)
         if command:
             self.ops.parse_string(command)
 
-        self.option_builder = OptionBuilder(Path.profile_editor, self.ops, self.update_command, self.help_field.get_buffer())
+        self.option_builder = OptionBuilder(
+                Path.profile_editor, self.ops,
+                self.update_command, self.help_field.get_buffer())
         log.debug("Option groups: %s" % str(self.option_builder.groups))
-        log.debug("Option section names: %s" % str(self.option_builder.section_names))
+        log.debug("Option section names: %s" % str(
+            self.option_builder.section_names))
         #log.debug("Option tabs: %s" % str(self.option_builder.tabs))
 
         for tab in self.option_builder.groups:
-            self.__create_tab(_(tab), _(self.option_builder.section_names[tab]), self.option_builder.tabs[tab])
+            self.__create_tab(
+                    _(tab),
+                    _(self.option_builder.section_names[tab]),
+                    self.option_builder.tabs[tab])
 
         self.update_command()
 
@@ -195,16 +205,18 @@ class ProfileEditor(HIGWindow):
             # cause a change in the command entry.
             self.command_entry.handler_block(self.command_entry_changed_cb_id)
             self.command_entry.set_text(self.ops.render_string())
-            self.command_entry.handler_unblock(self.command_entry_changed_cb_id)
+            self.command_entry.handler_unblock(
+                    self.command_entry_changed_cb_id)
 
     def update_help_name(self, widget, extra):
-        self.help_field.get_buffer().set_text("Profile name\n\nThis is how the"
-        +" profile will be identified in the drop-down combo box in the"
-        +" scan tab.")
+        self.help_field.get_buffer().set_text(
+                "Profile name\n\nThis is how the profile will be identified "
+                "in the drop-down combo box in the scan tab.")
 
     def update_help_desc(self, widget, extra):
-        self.help_field.get_buffer().set_text("Description\n\nThe description is a"
-        + " full description of what the scan does, which may be long.")
+        self.help_field.get_buffer().set_text(
+                "Description\n\nThe description is a full description of what "
+                "the scan does, which may be long.")
 
     def __create_widgets(self):
 
@@ -218,8 +230,8 @@ class ProfileEditor(HIGWindow):
 
         #self.main_vbox = HIGVBox()
         self.command_entry = gtk.Entry()
-        self.command_entry_changed_cb_id = \
-            self.command_entry.connect("changed", self.command_entry_changed_cb)
+        self.command_entry_changed_cb_id = self.command_entry.connect(
+                "changed", self.command_entry_changed_cb)
 
         self.scan_button = HIGButton(_("Scan"))
         self.scan_button.connect("clicked", self.run_scan)
@@ -231,12 +243,14 @@ class ProfileEditor(HIGWindow):
         self.profile_info_label = HIGSectionLabel(_('Profile Information'))
         self.profile_name_label = HIGEntryLabel(_('Profile name'))
         self.profile_name_entry = gtk.Entry()
-        self.profile_name_entry.connect('enter-notify-event', self.update_help_name)
+        self.profile_name_entry.connect(
+                'enter-notify-event', self.update_help_name)
         self.profile_description_label = HIGEntryLabel(_('Description'))
         self.profile_description_scroll = HIGScrolledWindow()
         self.profile_description_scroll.set_border_width(0)
         self.profile_description_text = HIGTextView()
-        self.profile_description_text.connect('motion-notify-event', self.update_help_desc)
+        self.profile_description_text.connect(
+                'motion-notify-event', self.update_help_desc)
 
         # Buttons
         self.buttons_hbox = HIGHBox()
@@ -259,8 +273,9 @@ class ProfileEditor(HIGWindow):
         self.help_field.set_cursor_visible(False)
         self.help_field.set_left_margin(5)
         self.help_field.set_editable(False)
-        self.help_vbox.set_size_request(200,-1)
+        self.help_vbox.set_size_request(200, -1)
         ###
+
     def __pack_widgets(self):
 
         ###
@@ -283,9 +298,9 @@ class ProfileEditor(HIGWindow):
         self.main_whole_box._pack_noexpand_nofill(self.lower_box)
         ###
 
-
         # Packing profile information tab on notebook
-        self.notebook.append_page(self.profile_info_vbox, gtk.Label(_('Profile')))
+        self.notebook.append_page(
+                self.profile_info_vbox, gtk.Label(_('Profile')))
         self.profile_info_vbox.set_border_width(5)
         table = HIGTable()
         self.profile_info_vbox._pack_noexpand_nofill(self.profile_info_label)
@@ -300,10 +315,11 @@ class ProfileEditor(HIGWindow):
         vbox_ann = HIGVBox()
         vbox_ann._pack_expand_fill(hig_box_space_holder())
 
-        table.attach(self.profile_name_label,0,1,0,1,xoptions=0,yoptions=0)
-        table.attach(self.profile_name_entry,1,2,0,1,yoptions=0)
-        table.attach(vbox_desc,0,1,1,2,xoptions=0)
-        table.attach(self.profile_description_scroll,1,2,1,2)
+        table.attach(
+                self.profile_name_label, 0, 1, 0, 1, xoptions=0, yoptions=0)
+        table.attach(self.profile_name_entry, 1, 2, 0, 1, yoptions=0)
+        table.attach(vbox_desc, 0, 1, 1, 2, xoptions=0)
+        table.attach(self.profile_description_scroll, 1, 2, 1, 2)
 
         # Packing buttons on button_hbox
         self.buttons_hbox._pack_expand_fill(hig_box_space_holder())
@@ -327,7 +343,7 @@ class ProfileEditor(HIGWindow):
         log.debug(">>> Tab name: %s" % tab_name)
         log.debug(">>>Creating profile editor section: %s" % section_name)
         vbox = HIGVBox()
-        if  tab.notscripttab: # if notscripttab is set
+        if  tab.notscripttab:  # if notscripttab is set
             table = HIGTable()
             table.set_row_spacings(2)
             section = HIGSectionLabel(section_name)
@@ -337,7 +353,7 @@ class ProfileEditor(HIGWindow):
             tab.fill_table(table, True)
         else:
             hbox = tab.get_hmain_box()
-            vbox.pack_start(hbox,True,True,0)
+            vbox.pack_start(hbox, True, True, 0)
         self.notebook.append_page(vbox, gtk.Label(tab_name))
 
     def save_profile(self, widget):
@@ -345,9 +361,10 @@ class ProfileEditor(HIGWindow):
             self.profile.remove_profile(self.profile_name)
         profile_name = self.profile_name_entry.get_text()
         if profile_name == '':
-            alert = HIGAlertDialog(message_format=_('Unnamed profile'),\
-                                   secondary_text=_('You must provide a name \
-for this profile.'))
+            alert = HIGAlertDialog(
+                    message_format=_('Unnamed profile'),
+                    secondary_text=_(
+                        'You must provide a name for this profile.'))
             alert.run()
             alert.destroy()
 
@@ -366,11 +383,12 @@ for this profile.'))
                                      command=command,\
                                      description=description)
         except ValueError:
-            alert = HIGAlertDialog(message_format=_('Disallowed profile name'),\
-                                   secondary_text=_('Sorry, the name "%s" \
-is not allowed due to technical limitations. (The underlying ConfigParser \
-used to store profiles does not allow it.) Choose a different \
-name.' % profile_name))
+            alert = HIGAlertDialog(
+                    message_format=_('Disallowed profile name'),
+                    secondary_text=_('Sorry, the name "%s" is not allowed due '
+                        'to technical limitations. (The underlying '
+                        'ConfigParser used to store profiles does not allow '
+                        'it.) Choose a different name.' % profile_name))
             alert.run()
             alert.destroy()
             return
@@ -392,9 +410,10 @@ name.' % profile_name))
         if self.deletable:
             dialog = HIGDialog(buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
                                         gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-            alert = HIGEntryLabel('<b>'+_("Deleting Profile")+'</b>')
-            text = HIGEntryLabel(_('Your profile is going to be deleted! Click\
- Ok to continue, or Cancel to go back to Profile Editor.'))
+            alert = HIGEntryLabel('<b>' + _("Deleting Profile") + '</b>')
+            text = HIGEntryLabel(_(
+                'Your profile is going to be deleted! ClickOk to continue, '
+                'or Cancel to go back to Profile Editor.'))
             hbox = HIGHBox()
             hbox.set_border_width(5)
             hbox.set_spacing(12)
@@ -404,7 +423,8 @@ name.' % profile_name))
             vbox.set_spacing(12)
 
             image = gtk.Image()
-            image.set_from_stock(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_DIALOG)
+            image.set_from_stock(
+                    gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_DIALOG)
 
             vbox.pack_start(alert)
             vbox.pack_start(text)
@@ -433,7 +453,7 @@ name.' % profile_name))
         self.scan_interface.toolbar.profile_entry.update()
         list = self.scan_interface.toolbar.profile_entry.get_model()
         length = len(list)
-        if length >0 :
+        if length > 0:
             self.scan_interface.toolbar.profile_entry.set_active(0)
 
 

@@ -133,6 +133,7 @@ import gtk
 #from higlabels import *
 #from higentries import *
 
+
 class HIGTable(gtk.Table):
     """
     A HIGFied table
@@ -154,4 +155,4 @@ class HIGTable(gtk.Table):
         self.attach(widget, x0, x, y0, y, xoptions=gtk.FILL)
 
     def attach_entry(self, widget, x0, x, y0, y):
-        self.attach(widget, x0, x, y0, y, xoptions=gtk.FILL|gtk.EXPAND)
+        self.attach(widget, x0, x, y0, y, xoptions=gtk.FILL | gtk.EXPAND)

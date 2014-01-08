@@ -133,6 +133,7 @@ from zenmapCore.Version import VERSION
 from zenmapCore.Name import APP_NAME
 from zenmapCore.UmitOptionParser import option_parser
 
+
 # Find out the prefix under which data files (interface definition XML,
 # pixmaps, etc.) are stored. This can vary depending on whether we are running
 # in an executable package and what type of package it is, which we check using
@@ -161,6 +162,8 @@ MISC_DIR = join(prefix, "share", APP_NAME, "misc")
 PIXMAPS_DIR = join(prefix, "share", "zenmap", "pixmaps")
 DOCS_DIR = join(prefix, "share", APP_NAME, "docs")
 NMAPDATADIR = join(prefix, "..")
+
+
 def get_extra_executable_search_paths():
     """Return a list of additional executable search paths as a convenience for
     platforms where the default PATH is inadequate."""
@@ -169,6 +172,7 @@ def get_extra_executable_search_paths():
     elif sys.platform == 'win32':
         return [dirname(sys.executable)]
     return []
+
 
 #######
 # Paths
@@ -194,7 +198,8 @@ class Paths(object):
 
     def __init__(self):
         self.user_config_dir = option_parser.get_confdir()
-        self.user_config_file = os.path.join(self.user_config_dir, base_paths['user_config_file'])
+        self.user_config_file = os.path.join(
+                self.user_config_dir, base_paths['user_config_file'])
         self.config_dir = CONFIG_DIR
         self.locale_dir = LOCALE_DIR
         self.pixmaps_dir = PIXMAPS_DIR
@@ -207,10 +212,12 @@ class Paths(object):
             return self.__dict__[name]
 
         elif name in self.config_files_list:
-            return return_if_exists(join(self.user_config_dir, base_paths[name]))
+            return return_if_exists(
+                    join(self.user_config_dir, base_paths[name]))
 
         elif name in self.empty_config_files_list:
-            return return_if_exists(join(self.user_config_dir, base_paths[name]), True)
+            return return_if_exists(
+                    join(self.user_config_dir, base_paths[name]), True)
 
         elif name in self.misc_files_list:
             return return_if_exists(join(self.misc_dir, base_paths[name]))
@@ -223,14 +230,16 @@ class Paths(object):
     def __setattr__(self, name, value):
         self.__dict__[name] = value
 
+
 def create_dir(path):
     """Create a directory with os.makedirs without raising an error if the
-        directory already exists."""
+    directory already exists."""
     try:
         os.makedirs(path)
     except OSError, e:
         if e.errno != errno.EEXIST:
             raise
+
 
 def create_user_config_dir(user_dir, template_dir):
     """Create a user configuration directory by creating the directory if
@@ -252,6 +261,7 @@ def create_user_config_dir(user_dir, template_dir):
             continue
         shutil.copyfile(template_filename, user_filename)
         log.debug(">>> Copy %s to %s." % (template_filename, user_filename))
+
 
 def return_if_exists(path, create=False):
     path = os.path.abspath(path)

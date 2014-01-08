@@ -126,6 +126,7 @@ import sys
 
 from zenmapCore.Name import APP_NAME
 
+
 def get_locales():
     """Get a list of locales to use based on system configuration."""
     locales = []
@@ -148,6 +149,7 @@ def get_locales():
         pass
     return locales
 
+
 def install_gettext(locale_dir):
     try:
         locale.setlocale(locale.LC_ALL, '')
@@ -162,8 +164,9 @@ def install_gettext(locale_dir):
     except ImportError:
         pass
     else:
-        t = gettext.translation(APP_NAME, locale_dir, languages = get_locales(), fallback = True)
-        t.install(unicode = True)
+        t = gettext.translation(
+                APP_NAME, locale_dir, languages=get_locales(), fallback=True)
+        t.install(unicode=True)
 
 # Install a dummy _ function so modules can safely use it after importing this
 # module, even if they don't install the gettext version.
