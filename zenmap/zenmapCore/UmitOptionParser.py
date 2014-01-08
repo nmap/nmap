@@ -120,8 +120,6 @@
 # *                                                                         *
 # ***************************************************************************/
 
-import re
-
 from optparse import OptionParser
 from zenmapCore.Name import APP_NAME, NMAP_DISPLAY_NAME
 from zenmapCore.Version import VERSION

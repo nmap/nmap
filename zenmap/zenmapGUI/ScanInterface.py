@@ -124,7 +124,6 @@ import errno
 import gtk
 import gobject
 import os
-import re
 import time
 import xml.sax
 

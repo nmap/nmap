@@ -124,7 +124,6 @@ from radialnet.gui.RadialNet import NetNode
 import zenmapCore.NmapParser
 
 import math
-import re
 
 
 COLORS = [(0.0, 1.0, 0.0),
