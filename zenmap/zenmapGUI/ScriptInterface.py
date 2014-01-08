@@ -125,7 +125,6 @@ import gobject
 import gtk
 import sys
 import tempfile
-import re
 import xml.sax
 
 from zenmapGUI.higwidgets.higwindows import HIGWindow

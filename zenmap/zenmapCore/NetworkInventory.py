@@ -121,7 +121,6 @@
 # ***************************************************************************/
 
 import os
-import re
 import unittest
 import zenmapCore
 import zenmapCore.NmapParser

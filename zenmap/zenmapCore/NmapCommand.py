@@ -128,7 +128,6 @@ import errno
 import locale
 import sys
 import os
-import re
 import tempfile
 import unittest
 

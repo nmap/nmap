@@ -135,7 +135,7 @@ HOSTS_HEADER = ['ID', '#', 'Hosts']
 
 DIMENSION = (700, 400)
 
-IP_RE = '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'
+IP_RE = re.compile('^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$')
 
 
 class HostsViewer(BWMainWindow):
@@ -275,8 +275,8 @@ class HostsList(gtk.ScrolledWindow):
         value1 = treemodel.get_value(iter1, 2)
         value2 = treemodel.get_value(iter2, 2)
 
-        value1_is_ip = re.search(IP_RE, value1)
-        value2_is_ip = re.search(IP_RE, value2)
+        value1_is_ip = IP_RE.match(value1)
+        value2_is_ip = IP_RE.match(value2)
 
         if value1_is_ip and value2_is_ip:
             return ipv4_compare(value1, value2)
