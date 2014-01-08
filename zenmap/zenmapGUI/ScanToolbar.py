@@ -133,7 +133,8 @@ from zenmapGUI.TargetCombo import TargetCombo
 
 
 class ScanCommandToolbar(HIGHBox):
-    """This class builds the toolbar devoted to Command entry. It allows you to retrieve and edit the current command entered."""
+    """This class builds the toolbar devoted to Command entry. It allows you to
+    retrieve and edit the current command entered."""
     def __init__(self):
         """Initialize command toolbar"""
         HIGHBox.__init__(self)
@@ -249,6 +250,6 @@ if __name__ == "__main__":
     box.pack_start(stool)
     box.pack_start(sctool)
 
-    w.connect("delete-event", lambda x,y: gtk.main_quit())
+    w.connect("delete-event", lambda x, y: gtk.main_quit())
     w.show_all()
     gtk.main()

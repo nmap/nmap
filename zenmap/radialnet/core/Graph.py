@@ -135,14 +135,11 @@ class Node(object):
         self.__edges = []
         """List of edges to other nodes"""
 
-
     def get_data(self):
         return self.__data
 
-
     def set_data(self, data):
         self.__data = data
-
 
     def get_edge(self, dest):
         """
@@ -153,17 +150,14 @@ class Node(object):
                 return edge
         return None
 
-
     def get_edges(self):
         """
         Return the list of edges
         """
         return self.__edges
 
-
     def add_edge(self, edge):
         self.__edges.append(edge)
-
 
 
 class Edge:
@@ -176,18 +170,15 @@ class Edge:
         self.__nodes = nodes
         self.__weights_mean = None
 
-
     def get_nodes(self):
         """
         """
         return self.__nodes
 
-
     def get_weights(self):
         """
         """
         return self.__weights
-
 
     def set_weights(self, weights):
         """
@@ -195,20 +186,16 @@ class Edge:
         self.__weights = weights
         self.__weights_mean = sum(self.__weights) / len(self.__weights)
 
-
     def add_weight(self, weight):
         """
         """
         self.__weights.append(weight)
         self.__weights_mean = sum(self.__weights) / len(self.__weights)
 
-
     def get_weights_mean(self):
         """
         """
         return self.__weights_mean
-
-
 
 
 class Graph:
@@ -227,18 +214,15 @@ class Graph:
         self.__max_edge_mean_value = None
         self.__min_edge_mean_value = None
 
-
     def set_nodes(self, nodes):
         """
         """
         self.__nodes = nodes
 
-
     def get_nodes(self):
         """
         """
         return self.__nodes
-
 
     def get_number_of_nodes(self):
         """
@@ -248,7 +232,6 @@ class Graph:
         """
         return len(self.__nodes)
 
-
     def set_main_node(self, node):
         """
         Set the main node
@@ -257,7 +240,6 @@ class Graph:
         """
         self.__main_node = node
 
-
     def get_main_node(self):
         """
         Get the main node
@@ -265,7 +247,6 @@ class Graph:
         @return: The main node
         """
         return self.__main_node
-
 
     def set_connection(self, a, b, weight=None):
         """
@@ -287,11 +268,12 @@ class Graph:
             edge.add_weight(weight)
 
             mean_weight = edge.get_weights_mean()
-            if self.__min_edge_mean_value is None or mean_weight < self.__min_edge_mean_value:
+            if (self.__min_edge_mean_value is None or
+                    mean_weight < self.__min_edge_mean_value):
                 self.__min_edge_mean_value = mean_weight
-            if self.__max_edge_mean_value is None or mean_weight > self.__max_edge_mean_value:
+            if (self.__max_edge_mean_value is None or
+                    mean_weight > self.__max_edge_mean_value):
                 self.__max_edge_mean_value = mean_weight
-
 
     def get_edges(self):
         """
@@ -301,7 +283,6 @@ class Graph:
             for edge in node.get_edges():
                 if edge.get_nodes()[0] == node:
                     yield edge
-
 
     def get_node_connections(self, node):
         """
@@ -319,16 +300,12 @@ class Graph:
 
         return connections
 
-
     def get_max_edge_mean_weight(self):
         """
         """
         return self.__max_edge_mean_value
 
-
     def get_min_edge_mean_weight(self):
         """
         """
         return self.__min_edge_mean_value
-
-

@@ -130,10 +130,10 @@ from zenmapCore.UmitLogging import log
 from zenmapCore.UmitConfigParser import UmitConfigParser
 import zenmapCore.I18N
 
-# This is the global configuration parser object that represents the contents of
-# zenmap.conf. It should be initialized once by the application. Most
-# interaction with the global parser is done by other classes in this file, like
-# SearchConfig, that wrap specific configuration sections.
+# This is the global configuration parser object that represents the contents
+# of zenmap.conf. It should be initialized once by the application. Most
+# interaction with the global parser is done by other classes in this file,
+# like SearchConfig, that wrap specific configuration sections.
 config_parser = UmitConfigParser()
 
 # Check if running on Maemo
@@ -144,8 +144,10 @@ try:
 except ImportError:
     pass
 
+
 def is_maemo():
     return MAEMO
+
 
 class SearchConfig(UmitConfigParser, object):
     section_name = "search"
@@ -245,10 +247,11 @@ class SearchConfig(UmitConfigParser, object):
 
 class Profile(UmitConfigParser, object):
     """This class represents not just one profile, but a whole collection of
-    them found in a config file such as scan_profiles.usp. The methods therefore
-    all take an argument that is the name of the profile to work on."""
+    them found in a config file such as scan_profiles.usp. The methods
+    therefore all take an argument that is the name of the profile to work
+    on."""
 
-    def __init__(self, user_profile = None, *args):
+    def __init__(self, user_profile=None, *args):
         UmitConfigParser.__init__(self, *args)
 
         if not user_profile:
@@ -272,10 +275,10 @@ class Profile(UmitConfigParser, object):
             return self.set(profile, attribute, value)
 
     def add_profile(self, profile_name, **attributes):
-        """Add a profile with the given name and attributes to the collection of
-        profiles. If a profile with the same name exists, it is not overwritten,
-        and the method returns immediately. The backing file for the profiles is
-        automatically updated."""
+        """Add a profile with the given name and attributes to the collection
+        of profiles. If a profile with the same name exists, it is not
+        overwritten, and the method returns immediately. The backing file for
+        the profiles is automatically updated."""
 
         log.debug(">>> Add Profile '%s': %s" % (profile_name, attributes))
 
@@ -292,8 +295,10 @@ class Profile(UmitConfigParser, object):
         self.save_changes()
 
     def remove_profile(self, profile_name):
-        try: self.remove_section(profile_name)
-        except: pass
+        try:
+            self.remove_section(profile_name)
+        except:
+            pass
         self.save_changes()
 
     def _verify_profile(self, profile_name):
@@ -301,16 +306,17 @@ class Profile(UmitConfigParser, object):
             return False
         return True
 
+
 class CommandProfile (Profile, object):
     """This class is a wrapper around Profile that provides accessors for the
     attributes of a profile: command and description"""
-    def __init__(self, user_profile = None):
+    def __init__(self, user_profile=None):
         Profile.__init__(self, user_profile)
 
     def get_command(self, profile):
         command_string = self._get_it(profile, 'command')
-        # Old versions of Zenmap used to append "%s" to commands and use that to
-        # substitute the target. Ignore it if present.
+        # Old versions of Zenmap used to append "%s" to commands and use that
+        # to substitute the target. Ignore it if present.
         if command_string.endswith("%s"):
             command_string = command_string[:-len("%s")]
         return command_string
@@ -325,9 +331,9 @@ class CommandProfile (Profile, object):
         self._set_it(profile, 'description', description)
 
     def get_profile(self, profile_name):
-        return {'profile':profile_name, \
-                'command':self.get_command(profile_name), \
-                'description':self.get_description(profile_name)}
+        return {'profile': profile_name, \
+                'command': self.get_command(profile_name), \
+                'description': self.get_description(profile_name)}
 
 
 class NmapOutputHighlight(object):
@@ -381,10 +387,14 @@ class NmapOutputHighlight(object):
 
         tuple_regex = "[\(\[]\s?(\d+)\s?,\s?(\d+)\s?,\s?(\d+)\s?[\)\]]"
         if isinstance(settings[3], basestring):
-            settings[3] = [int(t) for t in re.findall(tuple_regex, settings[3])[0]]
+            settings[3] = [
+                    int(t) for t in re.findall(tuple_regex, settings[3])[0]
+                    ]
 
         if isinstance(settings[4], basestring):
-            settings[4]= [int(h) for h in re.findall(tuple_regex, settings[4])[0]]
+            settings[4] = [
+                    int(h) for h in re.findall(tuple_regex, settings[4])[0]
+                    ]
 
         return settings
 
@@ -446,7 +456,8 @@ class NmapOutputHighlight(object):
         try:
             enable = config_parser.get("output_highlight", "enable_highlight")
         except NoSectionError:
-            config_parser.set("output_highlight", "enable_highlight", str(True))
+            config_parser.set(
+                    "output_highlight", "enable_highlight", str(True))
 
         if enable == "False" or enable == "0" or enable == "":
             return False
@@ -454,9 +465,11 @@ class NmapOutputHighlight(object):
 
     def set_enable(self, enable):
         if enable == False or enable == "0" or enable == None or enable == "":
-            config_parser.set("output_highlight", "enable_highlight", str(False))
+            config_parser.set(
+                    "output_highlight", "enable_highlight", str(False))
         else:
-            config_parser.set("output_highlight", "enable_highlight", str(True))
+            config_parser.set(
+                    "output_highlight", "enable_highlight", str(True))
 
     date = property(get_date, set_date)
     hostname = property(get_hostname, set_hostname)
@@ -468,56 +481,68 @@ class NmapOutputHighlight(object):
     details = property(get_details, set_details)
     enable = property(get_enable, set_enable)
 
-    # These settings are made when there is nothing set yet. They set the "factory" \
-    # default to highlight colors
-    default_highlights = {"date":{"bold":str(True),
-                            "italic":str(False),
-                            "underline":str(False),
-                            "text":[0, 0, 0],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}\s.{1,4}"},
-                          "hostname":{"bold":str(True),
-                            "italic":str(True),
-                            "underline":str(True),
-                            "text":[0, 111, 65535],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"(\w{2,}://)*[\w-]{2,}\.[\w-]{2,}(\.[\w-]{2,})*(/[[\w-]{2,}]*)*"},
-                          "ip":{"bold":str(True),
-                            "italic":str(False),
-                            "underline":str(False),
-                            "text":[0, 0, 0],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"},
-                          "port_list":{"bold":str(True),
-                            "italic":str(False),
-                            "underline":str(False),
-                            "text":[0, 1272, 28362],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"PORT\s+STATE\s+SERVICE(\s+VERSION)?[^\n]*"},
-                          "open_port":{"bold":str(True),
-                            "italic":str(False),
-                            "underline":str(False),
-                            "text":[0, 41036, 2396],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"\d{1,5}/.{1,5}\s+open\s+.*"},
-                          "closed_port":{"bold":str(False),
-                            "italic":str(False),
-                            "underline":str(False),
-                            "text":[65535, 0, 0],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"\d{1,5}/.{1,5}\s+closed\s+.*"},
-                          "filtered_port":{"bold":str(False),
-                            "italic":str(False),
-                            "underline":str(False),
-                            "text":[38502, 39119, 0],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"\d{1,5}/.{1,5}\s+filtered\s+.*"},
-                          "details":{"bold":str(True),
-                            "italic":str(False),
-                            "underline":str(True),
-                            "text":[0, 0, 0],
-                            "highlight":[65535, 65535, 65535],
-                            "regex":"^(\w{2,}[\s]{,3}){,4}:"}}
+    # These settings are made when there is nothing set yet. They set the
+    # "factory" default to highlight colors
+    default_highlights = {
+            "date": {
+                "bold": str(True),
+                "italic": str(False),
+                "underline": str(False),
+                "text": [0, 0, 0],
+                "highlight": [65535, 65535, 65535],
+                "regex": "\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}\s.{1,4}"},
+            "hostname": {
+                "bold": str(True),
+                "italic": str(True),
+                "underline": str(True),
+                "text": [0, 111, 65535],
+                "highlight": [65535, 65535, 65535],
+                "regex": "(\w{2,}://)*[\w-]{2,}\.[\w-]{2,}"
+                         "(\.[\w-]{2,})*(/[[\w-]{2,}]*)*"},
+            "ip": {
+                "bold": str(True),
+                "italic": str(False),
+                "underline": str(False),
+                "text": [0, 0, 0],
+                "highlight": [65535, 65535, 65535],
+                "regex": "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"},
+            "port_list": {
+                "bold": str(True),
+                "italic": str(False),
+                "underline": str(False),
+                "text": [0, 1272, 28362],
+                "highlight": [65535, 65535, 65535],
+                "regex": "PORT\s+STATE\s+SERVICE(\s+VERSION)?[^\n]*"},
+            "open_port": {
+                "bold": str(True),
+                "italic": str(False),
+                "underline": str(False),
+                "text": [0, 41036, 2396],
+                "highlight": [65535, 65535, 65535],
+                "regex": "\d{1,5}/.{1,5}\s+open\s+.*"},
+            "closed_port": {
+                "bold": str(False),
+                "italic": str(False),
+                "underline": str(False),
+                "text": [65535, 0, 0],
+                "highlight": [65535, 65535, 65535],
+                "regex": "\d{1,5}/.{1,5}\s+closed\s+.*"},
+            "filtered_port": {
+                "bold": str(False),
+                "italic": str(False),
+                "underline": str(False),
+                "text": [38502, 39119, 0],
+                "highlight": [65535, 65535, 65535],
+                "regex": "\d{1,5}/.{1,5}\s+filtered\s+.*"},
+            "details": {
+                "bold": str(True),
+                "italic": str(False),
+                "underline": str(True),
+                "text": [0, 0, 0],
+                "highlight": [65535, 65535, 65535],
+                "regex": "^(\w{2,}[\s]{,3}){,4}:"}
+            }
+
 
 # Retrieve details from zenmap.conf regarding paths subsection
 # (e.g. nmap_command_path) - jurand
@@ -530,8 +555,9 @@ class PathsConfig(object):
     def __get_it(self, p_name, default):
         try:
             return config_parser.get(self.section_name, p_name)
-        except (NoOptionError,NoSectionError):
-            log.debug(">>> Using default \"%s\" for \"%s\"." % (default, p_name))
+        except (NoOptionError, NoSectionError):
+            log.debug(
+                    ">>> Using default \"%s\" for \"%s\"." % (default, p_name))
             return default
 
     def __set_it(self, property_name, settings):
@@ -550,17 +576,22 @@ class PathsConfig(object):
         self.__set_it("ndiff_command_path", settings)
 
     nmap_command_path = property(get_nmap_command_path, set_nmap_command_path)
-    ndiff_command_path = property(get_ndiff_command_path, set_ndiff_command_path)
+    ndiff_command_path = property(
+            get_ndiff_command_path, set_ndiff_command_path)
+
 
 # Exceptions
 class ProfileNotFound:
-    def __init__ (self, profile):
+    def __init__(self, profile):
         self.profile = profile
-    def __str__ (self):
-        return "No profile named '"+self.profile+"' found!"
+
+    def __str__(self):
+        return "No profile named '" + self.profile + "' found!"
+
 
 class ProfileCouldNotBeSaved:
-    def __init__ (self, profile):
+    def __init__(self, profile):
         self.profile = profile
-    def __str__ (self):
-        return "Profile named '"+self.profile+"' could not be saved!"
+
+    def __str__(self):
+        return "Profile named '" + self.profile + "' could not be saved!"

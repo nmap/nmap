@@ -122,7 +122,6 @@
 import gtk
 
 
-
 class BWLabel(gtk.Label):
     """
     """
@@ -137,7 +136,6 @@ class BWLabel(gtk.Label):
         self.set_line_wrap(True)
 
 
-
 class BWSectionLabel(gtk.Label):
     """
     """
@@ -150,7 +148,6 @@ class BWSectionLabel(gtk.Label):
         self.set_justify(gtk.JUSTIFY_LEFT)
         self.set_alignment(0, 0.50)
         self.set_line_wrap(True)
-
 
     def bw_set_text(self, text):
         """

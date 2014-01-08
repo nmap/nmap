@@ -133,8 +133,11 @@ class HIGNotebook(gtk.Notebook):
         gtk.Notebook.__init__(self)
         self.popup_enable()
 
+
 class HIGClosableTabLabel(HIGHBox):
-    __gsignals__ = { 'close-clicked' : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()) }
+    __gsignals__ = {
+            'close-clicked': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ())
+            }
 
     def __init__(self, label_text=""):
         gobject.GObject.__init__(self)

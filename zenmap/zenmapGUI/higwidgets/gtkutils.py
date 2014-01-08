@@ -136,23 +136,24 @@ import gobject
 gtk_version_major, gtk_version_minor, gtk_version_release = gtk.gtk_version
 assert gtk_version_major == 2
 
+
 def gtk_constant_name(group, value):
     """
     Returns the (py)GTK+ name of a constant, given its group name
     """
-    group_response = { -1 : 'gtk.RESPONSE_NONE',
-                       -2 : 'gtk.RESPONSE_REJECT',
-                       -3 : 'gtk.RESPONSE_ACCEPT',
-                       -4 : 'gtk.RESPONSE_DELETE_EVENT',
-                       -5 : 'gtk.RESPONSE_OK',
-                       -6 : 'gtk.RESPONSE_CANCEL',
-                       -7 : 'gtk.RESPONSE_CLOSE',
-                       -8 : 'gtk.RESPONSE_YES',
-                       -9 : 'gtk.RESPONSE_NO',
-                       -10 : 'gtk.RESPONSE_APPLY',
-                       -11 : 'gtk.RESPONSE_HELP' }
+    group_response = {-1: 'gtk.RESPONSE_NONE',
+                      -2: 'gtk.RESPONSE_REJECT',
+                      -3: 'gtk.RESPONSE_ACCEPT',
+                      -4: 'gtk.RESPONSE_DELETE_EVENT',
+                      -5: 'gtk.RESPONSE_OK',
+                      -6: 'gtk.RESPONSE_CANCEL',
+                      -7: 'gtk.RESPONSE_CLOSE',
+                      -8: 'gtk.RESPONSE_YES',
+                      -9: 'gtk.RESPONSE_NO',
+                      -10: 'gtk.RESPONSE_APPLY',
+                      -11: 'gtk.RESPONSE_HELP'}
 
-    groups = {'response' : group_response}
+    groups = {'response': group_response}
 
     return groups.get(group, {}).get(value, 'Error: constant value not found')
 

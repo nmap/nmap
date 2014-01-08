@@ -135,7 +135,6 @@ from radialnet.bestwidgets.boxes import *
 DIMENSION = (640, 480)
 
 
-
 class Application(BWMainWindow):
     """
     """
@@ -148,7 +147,6 @@ class Application(BWMainWindow):
         self.set_icon(Pixmaps().get_pixbuf('logo'))
 
         self.__create_widgets()
-
 
     def __create_widgets(self):
         """
@@ -188,7 +186,6 @@ class Application(BWMainWindow):
         self.__fisheye.hide()
         self.__toolbar.disable_controls()
 
-
     def parse_nmap_xml_file(self, file):
         """
         """
@@ -216,7 +213,6 @@ class Application(BWMainWindow):
         self.__toolbar.enable_controls()
 
         return True
-
 
     def start(self):
         """

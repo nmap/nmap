@@ -132,6 +132,7 @@ import gtk
 
 from higboxes import HIGHBox, hig_box_space_holder
 
+
 class HIGExpander(gtk.Expander):
     def __init__(self, label):
         gtk.Expander.__init__(self)

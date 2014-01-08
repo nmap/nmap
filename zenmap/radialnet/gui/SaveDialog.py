@@ -133,8 +133,8 @@ TYPES = ((_("By extension"), None, None),
          (_("PNG"), RadialNet.FILE_TYPE_PNG, ".png"),
          (_("PostScript"), RadialNet.FILE_TYPE_PS, ".ps"),
          (_("SVG"), RadialNet.FILE_TYPE_SVG, ".svg"))
-# Build a reverse index of extensions to file types, for the "By extension" file
-# type.
+# Build a reverse index of extensions to file types, for the "By extension"
+# file type.
 EXTENSIONS = {}
 for type in TYPES:
     if type[2] is not None:
@@ -181,7 +181,8 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
             self.set_current_folder(dir)
 
         # Find the recommended extension.
-        new_ext = self.__combo.get_model().get_value(self.__combo.get_active_iter(), 2)
+        new_ext = self.__combo.get_model().get_value(
+                self.__combo.get_active_iter(), 2)
         if new_ext is not None:
             # Change the filename to use the recommended extension.
             root, ext = os.path.splitext(basename)
@@ -197,15 +198,17 @@ class SaveDialog(zenmapGUI.FileChoosers.UnicodeFileChooserDialog):
             if ext == "":
                 filename = self.get_filename() or ""
                 dir, basename = os.path.split(filename)
-                alert = HIGAlertDialog(message_format=_("No filename extension"),
-                    secondary_text=_("""\
-The filename "%s" does not have an extension, and no specific file type was chosen.
-Enter a known extension or select the file type from the list.\
-""" % basename))
+                alert = HIGAlertDialog(
+                        message_format=_("No filename extension"),
+                        secondary_text=_("""\
+The filename "%s" does not have an extension, \
+and no specific file type was chosen.
+Enter a known extension or select the file type from the list.""" % basename))
 
             else:
-                alert = HIGAlertDialog(message_format=_("Unknown filename extension"),
-                    secondary_text=_("""\
+                alert = HIGAlertDialog(
+                        message_format=_("Unknown filename extension"),
+                        secondary_text=_("""\
 There is no file type known for the filename extension "%s".
 Enter a known extension or select the file type from the list.\
 """) % self.__get_extension())
@@ -218,7 +221,8 @@ Enter a known extension or select the file type from the list.\
         return os.path.splitext(self.get_filename())[1]
 
     def get_filetype(self):
-        filetype = self.__combo.get_model().get_value(self.__combo.get_active_iter(), 1)
+        filetype = self.__combo.get_model().get_value(
+                self.__combo.get_active_iter(), 1)
         if filetype is None:
             # Guess based on extension.
             return EXTENSIONS.get(self.__get_extension())

@@ -121,8 +121,10 @@
 # ***************************************************************************/
 
 from os.path import exists
-from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, NoSectionError
+from ConfigParser import ConfigParser, DEFAULTSECT, NoOptionError, \
+        NoSectionError
 from zenmapCore.UmitLogging import log
+
 
 class UmitConfigParser(ConfigParser):
     filenames = None
@@ -158,9 +160,11 @@ class UmitConfigParser(ConfigParser):
                 if len(self.filenames) == 1:
                     filename = self.filenames[0]
                 else:
-                    raise ValueError("UmitConfigParser can't handle a list of filenames: %s" % self.filenames)
+                    raise ValueError("UmitConfigParser can't handle a list "
+                            "of filenames: %s" % self.filenames)
             else:
-                raise ValueError("UmitConfigParser can't handle a filename of type %s: %s" % (type(self.filenames), self.filenames))
+                raise ValueError("UmitConfigParser can't handle a filename of "
+                        "type %s: %s" % (type(self.filenames), self.filenames))
             self.write(open(filename, 'w'))
         elif self.fp:
             self.write(self.fp)
@@ -187,6 +191,7 @@ class UmitConfigParser(ConfigParser):
                     fp.write("%s = %s\n" %
                              (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
+
 
 def test_umit_conf_content(filename):
     parser = ConfigParser()

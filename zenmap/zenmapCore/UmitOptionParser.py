@@ -128,6 +128,7 @@ from zenmapCore.Version import VERSION
 import zenmapCore.I18N
 from zenmapCore.BasePaths import base_paths
 
+
 class UmitOptionParser(OptionParser):
     def __init__(self, args=False):
         OptionParser.__init__(self, version="%%prog %s" % VERSION)
@@ -135,10 +136,10 @@ class UmitOptionParser(OptionParser):
         self.set_usage("%prog [options] [result files]")
 
         self.add_option("--confdir",
-            default = base_paths["user_config_dir"],
-            dest = "confdir",
-            metavar = "DIR",
-            help = _("\
+            default=base_paths["user_config_dir"],
+            dest="confdir",
+            metavar="DIR",
+            help=_("\
 Use DIR as the user configuration directory. Default: %default"))
 
         ## Open Scan Results (GUI)
@@ -163,7 +164,8 @@ scan result files."))
                         default=[],
                         action="callback",
                         callback=self.__nmap_callback,
-                        help=_("Run %s with the specified args.") % NMAP_DISPLAY_NAME)
+                        help=_("Run %s with the specified args."
+                            ) % NMAP_DISPLAY_NAME)
 
         ## Execute a profile against a target (GUI)
         ### Positional args should be taken as targets to feed this scan

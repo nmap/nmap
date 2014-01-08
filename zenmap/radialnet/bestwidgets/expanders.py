@@ -139,12 +139,10 @@ class BWExpander(gtk.Expander):
 
         self.add(self.__alignment)
 
-
     def bw_set_label_text(self, text):
         """
         """
         self.__label.bw_set_text(text)
-
 
     def bw_add(self, widget):
         """
@@ -153,7 +151,6 @@ class BWExpander(gtk.Expander):
             self.__alignment.remove(self.__alignment.get_children()[0])
 
         self.__alignment.add(widget)
-
 
     def bw_no_padding(self):
         """

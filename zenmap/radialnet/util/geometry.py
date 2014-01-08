@@ -141,7 +141,7 @@ def is_in_circle(point, radius=1, center=(0, 0)):
     x, y = point
     a, b = center
 
-    if ((x - a)**2 + (y - b)**2) <= (radius**2):
+    if ((x - a) ** 2 + (y - b) ** 2) <= (radius ** 2):
         return True
 
     return False

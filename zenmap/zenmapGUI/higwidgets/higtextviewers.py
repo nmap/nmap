@@ -130,6 +130,7 @@ __all__ = ['HIGTextView']
 
 import gtk
 
+
 class HIGTextView(gtk.TextView):
     def __init__(self, text=''):
         gtk.TextView.__init__(self)

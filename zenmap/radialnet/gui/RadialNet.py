@@ -139,9 +139,9 @@ from radialnet.gui.Image import Icons, get_pixels_for_cairo_image_surface
 from zenmapCore.BasePaths import fs_enc
 
 REGION_COLORS = [(1.0, 0.0, 0.0), (1.0, 1.0, 0.0), (0.0, 1.0, 0.0)]
-REGION_RED    = 0
+REGION_RED = 0
 REGION_YELLOW = 1
-REGION_GREEN  = 2
+REGION_GREEN = 2
 
 SQUARE_TYPES = ['router', 'switch', 'wap']
 
@@ -151,19 +151,19 @@ ICON_DICT = {'router':      'router',
              'firewall':    'firewall'}
 
 POINTER_JUMP_TO = 0
-POINTER_INFO    = 1
-POINTER_GROUP   = 2
-POINTER_FILL    = 3
+POINTER_INFO = 1
+POINTER_GROUP = 2
+POINTER_FILL = 3
 
 LAYOUT_SYMMETRIC = 0
-LAYOUT_WEIGHTED  = 1
+LAYOUT_WEIGHTED = 1
 
 INTERPOLATION_CARTESIAN = 0
-INTERPOLATION_POLAR     = 1
+INTERPOLATION_POLAR = 1
 
 FILE_TYPE_PDF = 1
 FILE_TYPE_PNG = 2
-FILE_TYPE_PS  = 3
+FILE_TYPE_PS = 3
 FILE_TYPE_SVG = 4
 
 
@@ -189,11 +189,12 @@ class RadialNet(gtk.DrawingArea):
         self.__interpolation_slow_in_out = True
 
         self.__animating = False
-        self.__animation_rate = 1000 / 60 # 60Hz (human perception factor)
+        self.__animation_rate = 1000 / 60  # 60Hz (human perception factor)
         self.__number_of_frames = 60
 
         self.__scale = 1.0
-        self.__rotate = 225 # rotated so that single-host traceroute doesn't have overlapping hosts
+        # rotated so that single-host traceroute doesn't have overlapping hosts
+        self.__rotate = 225
         self.__translation = (0, 0)
 
         self.__button1_press = False
@@ -251,7 +252,6 @@ class RadialNet(gtk.DrawingArea):
         self.set_flags(gtk.CAN_FOCUS)
         self.grab_focus()
 
-
     def graph_is_not_empty(function):
         """
         Decorator function to prevent the execution when graph not is set
@@ -265,7 +265,6 @@ class RadialNet(gtk.DrawingArea):
 
         return check_graph_status
 
-
     def not_is_in_animation(function):
         """
         Decorator function to prevent the execution when graph is animating
@@ -278,7 +277,6 @@ class RadialNet(gtk.DrawingArea):
             return function(*args)
 
         return check_animation_status
-
 
     def save_drawing_to_file(self, file, type=FILE_TYPE_PNG):
         """
@@ -302,7 +300,7 @@ class RadialNet(gtk.DrawingArea):
                     allocation.width,
                     allocation.height)
         else:
-            raise TypeError, 'unknown surface type'
+            raise TypeError('unknown surface type')
 
         context = cairo.Context(self.surface)
 
@@ -322,36 +320,30 @@ class RadialNet(gtk.DrawingArea):
 
         return True
 
-
     def get_slow_inout(self):
         """
         """
         return self.__interpolation_slow_in_out
-
 
     def set_slow_inout(self, value):
         """
         """
         self.__interpolation_slow_in_out = value
 
-
     def get_region_color(self):
         """
         """
         return self.__region_color
-
 
     def set_region_color(self, value):
         """
         """
         self.__region_color = value
 
-
     def get_show_region(self):
         """
         """
         return self.__show_region
-
 
     def set_show_region(self, value):
         """
@@ -359,36 +351,30 @@ class RadialNet(gtk.DrawingArea):
         self.__show_region = value
         self.queue_draw()
 
-
     def get_pointer_status(self):
         """
         """
         return self.__pointer_status
-
 
     def set_pointer_status(self, pointer_status):
         """
         """
         self.__pointer_status = pointer_status
 
-
     def get_show_address(self):
         """
         """
         return self.__show_address
-
 
     def get_show_hostname(self):
         """
         """
         return self.__show_hostname
 
-
     def get_show_ring(self):
         """
         """
         return self.__show_ring
-
 
     def set_show_address(self, value):
         """
@@ -396,13 +382,11 @@ class RadialNet(gtk.DrawingArea):
         self.__show_address = value
         self.queue_draw()
 
-
     def set_show_hostname(self, value):
         """
         """
         self.__show_hostname = value
         self.queue_draw()
-
 
     def set_show_ring(self, value):
         """
@@ -410,12 +394,10 @@ class RadialNet(gtk.DrawingArea):
         self.__show_ring = value
         self.queue_draw()
 
-
     def get_min_ring_gap(self):
         """
         """
         return self.__min_ring_gap
-
 
     @graph_is_not_empty
     @not_is_in_animation
@@ -432,12 +414,10 @@ class RadialNet(gtk.DrawingArea):
 
         return True
 
-
     def get_number_of_frames(self):
         """
         """
         return self.__number_of_frames
-
 
     @not_is_in_animation
     def set_number_of_frames(self, number_of_frames):
@@ -451,7 +431,6 @@ class RadialNet(gtk.DrawingArea):
         self.__number_of_frames = 3
         return False
 
-
     @not_is_in_animation
     def update_layout(self):
         """
@@ -461,7 +440,6 @@ class RadialNet(gtk.DrawingArea):
         self.__animating = True
         self.__calc_interpolation(self.__graph.get_main_node())
         self.__livens_up()
-
 
     @not_is_in_animation
     def set_layout(self, layout):
@@ -481,12 +459,10 @@ class RadialNet(gtk.DrawingArea):
 
         return False
 
-
     def get_layout(self):
         """
         """
         return self.__layout
-
 
     @not_is_in_animation
     def set_interpolation(self, interpolation):
@@ -496,42 +472,35 @@ class RadialNet(gtk.DrawingArea):
 
         return True
 
-
     def get_interpolation(self):
         """
         """
         return self.__interpolation
-
 
     def get_number_of_rings(self):
         """
         """
         return self.__number_of_rings
 
-
     def get_fisheye_ring(self):
         """
         """
         return self.__fisheye_ring
-
 
     def get_fisheye_interest(self):
         """
         """
         return self.__fisheye_interest
 
-
     def get_fisheye_spread(self):
         """
         """
         return self.__fisheye_spread
 
-
     def get_fisheye(self):
         """
         """
         return self.__fisheye
-
 
     def set_fisheye(self, enable):
         """
@@ -540,7 +509,6 @@ class RadialNet(gtk.DrawingArea):
 
         self.__update_nodes_positions()
         self.queue_draw()
-
 
     def set_fisheye_ring(self, value):
         """
@@ -551,7 +519,6 @@ class RadialNet(gtk.DrawingArea):
         self.__update_nodes_positions()
         self.queue_draw()
 
-
     def set_fisheye_interest(self, value):
         """
         """
@@ -559,7 +526,6 @@ class RadialNet(gtk.DrawingArea):
 
         self.__update_nodes_positions()
         self.queue_draw()
-
 
     def set_fisheye_spread(self, value):
         """
@@ -569,12 +535,10 @@ class RadialNet(gtk.DrawingArea):
         self.__update_nodes_positions()
         self.queue_draw()
 
-
     def get_show_icon(self):
         """
         """
         return self.__show_icon
-
 
     def set_show_icon(self, value):
         """
@@ -582,12 +546,10 @@ class RadialNet(gtk.DrawingArea):
         self.__show_icon = value
         self.queue_draw()
 
-
     def get_show_latency(self):
         """
         """
         return self.__show_latency
-
 
     def set_show_latency(self, value):
         """
@@ -595,18 +557,15 @@ class RadialNet(gtk.DrawingArea):
         self.__show_latency = value
         self.queue_draw()
 
-
     def get_scale(self):
         """
         """
         return self.__scale
 
-
     def get_zoom(self):
         """
         """
         return int(round(self.__scale * 100))
-
 
     def set_scale(self, scale):
         """
@@ -616,21 +575,18 @@ class RadialNet(gtk.DrawingArea):
             self.__scale = scale
             self.queue_draw()
 
-
     def set_zoom(self, zoom):
         """
         """
         if float(zoom) >= 1:
 
-            self.set_scale( float(zoom) / 100.0 )
+            self.set_scale(float(zoom) / 100.0)
             self.queue_draw()
-
 
     def get_ring_gap(self):
         """
         """
         return self.__ring_gap
-
 
     @not_is_in_animation
     def set_ring_gap(self, ring_gap):
@@ -642,7 +598,6 @@ class RadialNet(gtk.DrawingArea):
             self.__update_nodes_positions()
             self.queue_draw()
 
-
     def scroll_event(self, widget, event):
         """
         """
@@ -653,7 +608,6 @@ class RadialNet(gtk.DrawingArea):
             self.set_scale(self.__scale - 0.01)
 
         self.queue_draw()
-
 
     @graph_is_not_empty
     @not_is_in_animation
@@ -677,7 +631,6 @@ class RadialNet(gtk.DrawingArea):
         self.queue_draw()
 
         return True
-
 
     @graph_is_not_empty
     def key_release(self, widget, event):
@@ -707,7 +660,6 @@ class RadialNet(gtk.DrawingArea):
 
         return True
 
-
     @graph_is_not_empty
     @not_is_in_animation
     def enter_notify(self, widget, event):
@@ -716,19 +668,17 @@ class RadialNet(gtk.DrawingArea):
         self.grab_focus()
         return False
 
-
     @graph_is_not_empty
     @not_is_in_animation
     def leave_notify(self, widget, event):
         """
         """
         for node in self.__graph.get_nodes():
-            node.set_draw_info({'over':False})
+            node.set_draw_info({'over': False})
 
         self.queue_draw()
 
         return False
-
 
     @graph_is_not_empty
     def button_press(self, widget, event):
@@ -743,13 +693,15 @@ class RadialNet(gtk.DrawingArea):
         """
         result = self.__get_node_by_coordinate(self.get_pointer())
 
-        if event.button == 1: self.__button1_press = True
+        if event.button == 1:
+            self.__button1_press = True
 
         # animate if node is pressed
         if self.__pointer_status == POINTER_JUMP_TO and event.button == 1:
 
             # prevent double animation
-            if self.__animating == True: return False
+            if self.__animating == True:
+                return False
 
             if result != None:
 
@@ -760,9 +712,9 @@ class RadialNet(gtk.DrawingArea):
 
                     if node.get_draw_info('group') == True:
 
-                        node.set_draw_info({'group':False})
-                        node.set_subtree_info({'grouped':False,
-                                               'group_node':None})
+                        node.set_draw_info({'group': False})
+                        node.set_subtree_info({'grouped': False,
+                                               'group_node': None})
 
                     self.__animating = True
                     self.__calc_interpolation(node)
@@ -772,7 +724,8 @@ class RadialNet(gtk.DrawingArea):
         elif self.__pointer_status == POINTER_GROUP and event.button == 1:
 
             # prevent group on animation
-            if self.__animating == True: return False
+            if self.__animating == True:
+                return False
 
             if result != None:
 
@@ -783,17 +736,17 @@ class RadialNet(gtk.DrawingArea):
 
                     if node.get_draw_info('group') == True:
 
-                        node.set_draw_info({'group':False})
-                        node.set_subtree_info({'grouped':False,
-                                               'group_node':None})
+                        node.set_draw_info({'group': False})
+                        node.set_subtree_info({'grouped': False,
+                                               'group_node': None})
 
                     else:
 
                         self.__last_group_node = node
 
-                        node.set_draw_info({'group':True})
-                        node.set_subtree_info({'grouped':True,
-                                               'group_node':node})
+                        node.set_draw_info({'group': True})
+                        node.set_subtree_info({'grouped': True,
+                                               'group_node': node})
 
                 self.__animating = True
                 self.__calc_interpolation(self.__graph.get_main_node())
@@ -833,15 +786,16 @@ class RadialNet(gtk.DrawingArea):
                 elif node.get_draw_info('scanned'):
 
                     view = NodeWindow(node, (int(xw + x), int(yw + y)))
+
                     def close_view(view, event, node):
                         view.destroy()
                         del self.__node_views[node]
+
                     view.connect("delete-event", close_view, node)
                     view.show_all()
                     self.__node_views[node] = view
 
         return False
-
 
     @graph_is_not_empty
     def button_release(self, widget, event):
@@ -867,7 +821,6 @@ class RadialNet(gtk.DrawingArea):
 
         return False
 
-
     @graph_is_not_empty
     def motion_notify(self, widget, event):
         """
@@ -883,12 +836,12 @@ class RadialNet(gtk.DrawingArea):
         pointer = self.get_pointer()
 
         for node in self.__graph.get_nodes():
-            node.set_draw_info({'over':False})
+            node.set_draw_info({'over': False})
 
         result = self.__get_node_by_coordinate(self.get_pointer())
 
         if result != None:
-            result[0].set_draw_info({'over':True})
+            result[0].set_draw_info({'over': True})
 
         elif self.__button1_press == True and self.__last_motion_point != None:
 
@@ -904,7 +857,6 @@ class RadialNet(gtk.DrawingArea):
         self.queue_draw()
 
         return False
-
 
     def expose(self, widget, event):
         """
@@ -927,7 +879,6 @@ class RadialNet(gtk.DrawingArea):
         self.__draw(context)
 
         return False
-
 
     @graph_is_not_empty
     def __draw(self, context):
@@ -1000,15 +951,19 @@ class RadialNet(gtk.DrawingArea):
                         context.set_source_rgb(r, g, b)
                         context.set_line_width(1)
 
-                        xa, ya = PolarCoordinate(i_radius, final).to_cartesian()
-                        xb, yb = PolarCoordinate(f_radius, final).to_cartesian()
+                        xa, ya = PolarCoordinate(
+                                i_radius, final).to_cartesian()
+                        xb, yb = PolarCoordinate(
+                                f_radius, final).to_cartesian()
 
                         context.move_to(xc + xa, yc - ya)
                         context.line_to(xc + xb, yc - yb)
                         context.stroke()
 
-                        xa, ya = PolarCoordinate(i_radius, start).to_cartesian()
-                        xb, yb = PolarCoordinate(f_radius, start).to_cartesian()
+                        xa, ya = PolarCoordinate(
+                                i_radius, start).to_cartesian()
+                        xb, yb = PolarCoordinate(
+                                f_radius, start).to_cartesian()
 
                         context.move_to(xc + xa, yc - ya)
                         context.line_to(xc + xb, yc - yb)
@@ -1052,7 +1007,8 @@ class RadialNet(gtk.DrawingArea):
 
             elif not a_is_grouped or not b_is_grouped:
 
-                if not (a_is_group and b_is_child or b_is_group and a_is_child):
+                if not (a_is_group and b_is_child or
+                        b_is_group and a_is_child):
                     self.__draw_edge(context, edge)
 
             elif a_group != b_group:
@@ -1066,7 +1022,6 @@ class RadialNet(gtk.DrawingArea):
 
             if group == self.__last_group_node or not grouped:
                 self.__draw_node(context, node)
-
 
     def __draw_edge(self, context, edge):
         """
@@ -1130,7 +1085,6 @@ class RadialNet(gtk.DrawingArea):
                                      yc - (ya + yb) / 2 + 4)
                 context.show_text(str(round(latency, 2)))
                 context.stroke()
-
 
     def __draw_node(self, context, node):
         """
@@ -1263,20 +1217,17 @@ class RadialNet(gtk.DrawingArea):
         context.set_line_width(1)
         context.stroke()
 
-
     def __check_fisheye_ring(self):
         """
         """
         if self.__fisheye_ring >= self.__number_of_rings:
             self.__fisheye_ring = self.__number_of_rings - 1
 
-
     def __set_number_of_rings(self, value):
         """
         """
         self.__number_of_rings = value
         self.__check_fisheye_ring()
-
 
     def __fisheye_function(self, ring):
         """
@@ -1291,7 +1242,6 @@ class RadialNet(gtk.DrawingArea):
             value = self.__min_ring_gap
 
         return value
-
 
     @graph_is_not_empty
     @not_is_in_animation
@@ -1314,7 +1264,6 @@ class RadialNet(gtk.DrawingArea):
             else:
                 ring = node.get_draw_info('ring')
                 node.set_coordinate_radius(self.__calc_radius(ring))
-
 
     @graph_is_not_empty
     def __get_node_by_coordinate(self, point):
@@ -1345,7 +1294,6 @@ class RadialNet(gtk.DrawingArea):
 
         return None
 
-
     def __calc_radius(self, ring):
         """
         """
@@ -1362,7 +1310,6 @@ class RadialNet(gtk.DrawingArea):
             radius = ring * self.__ring_gap
 
         return radius
-
 
     @graph_is_not_empty
     def __arrange_nodes(self):
@@ -1385,10 +1332,11 @@ class RadialNet(gtk.DrawingArea):
                 old_nodes.add(node)
 
                 # set ring location
-                node.set_draw_info({'ring':ring})
+                node.set_draw_info({'ring': ring})
 
                 # check group constraints
-                if node.get_draw_info('group') or node.get_draw_info('grouped'):
+                if (node.get_draw_info('group') or
+                        node.get_draw_info('grouped')):
                     children = node.get_draw_info('children')
 
                 else:
@@ -1404,9 +1352,10 @@ class RadialNet(gtk.DrawingArea):
 
                 # setting father foreign
                 for child in children:
-                    child.set_draw_info({'father':node})
+                    child.set_draw_info({'father': node})
 
-                node.set_draw_info({'children':misc.sort_children(children, node)})
+                node.set_draw_info(
+                        {'children': misc.sort_children(children, node)})
                 tmp_nodes.update(children)
 
             # check group influence in number of rings
@@ -1425,12 +1374,11 @@ class RadialNet(gtk.DrawingArea):
 
         self.__set_number_of_rings(number_of_needed_rings)
 
-
     def __weighted_layout(self):
         """
         """
         # calculating the space needed by each node
-        self.__graph.get_main_node().set_draw_info({'range':(0, 360)})
+        self.__graph.get_main_node().set_draw_info({'range': (0, 360)})
         new_nodes = set([self.__graph.get_main_node()])
 
         self.__graph.get_main_node().calc_needed_space()
@@ -1462,15 +1410,14 @@ class RadialNet(gtk.DrawingArea):
                     theta = child_total / 2 + min + self.__rotate
 
                     child.set_coordinate_theta(theta)
-                    child.set_draw_info({'range':(min, min + child_total)})
+                    child.set_draw_info({'range': (min, min + child_total)})
 
                     min += child_total
-
 
     def __symmetric_layout(self):
         """
         """
-        self.__graph.get_main_node().set_draw_info({'range':(0, 360)})
+        self.__graph.get_main_node().set_draw_info({'range': (0, 360)})
         new_nodes = set([self.__graph.get_main_node()])
 
         while len(new_nodes) > 0:
@@ -1495,10 +1442,9 @@ class RadialNet(gtk.DrawingArea):
                     theta = factor / 2 + min + self.__rotate
 
                     child.set_coordinate_theta(theta)
-                    child.set_draw_info({'range':(min, min + factor)})
+                    child.set_draw_info({'range': (min, min + factor)})
 
                     min += factor
-
 
     @graph_is_not_empty
     def __calc_layout(self, reference):
@@ -1524,8 +1470,7 @@ class RadialNet(gtk.DrawingArea):
                 node.set_coordinate_theta(theta - factor)
 
                 a, b = node.get_draw_info('range')
-                node.set_draw_info({'range':(a - factor, b - factor)})
-
+                node.set_draw_info({'range': (a - factor, b - factor)})
 
     @graph_is_not_empty
     def __calc_node_positions(self, reference=None):
@@ -1544,7 +1489,6 @@ class RadialNet(gtk.DrawingArea):
         # set nodes' coordinate theta
         self.__calc_layout(reference)
 
-
     def __calc_interpolation(self, focus):
         """
         """
@@ -1560,7 +1504,7 @@ class RadialNet(gtk.DrawingArea):
             elif self.__interpolation == INTERPOLATION_CARTESIAN:
                 coordinate = node.get_cartesian_coordinate()
 
-            node.set_draw_info({'start_coordinate':coordinate})
+            node.set_draw_info({'start_coordinate': coordinate})
 
         father = focus.get_draw_info('father')
 
@@ -1605,7 +1549,7 @@ class RadialNet(gtk.DrawingArea):
             if self.__interpolation == INTERPOLATION_POLAR:
 
                 coordinate = node.get_polar_coordinate()
-                node.set_draw_info({'final_coordinate':coordinate})
+                node.set_draw_info({'final_coordinate': coordinate})
 
                 # adjusting polar coordinates
                 ri, ti = node.get_draw_info('start_coordinate')
@@ -1619,18 +1563,20 @@ class RadialNet(gtk.DrawingArea):
                 ti, tf = geometry.calculate_short_path(ti, tf)
 
                 # main node goes direct to center (no arc)
-                if node == self.__graph.get_main_node(): tf = ti
+                if node == self.__graph.get_main_node():
+                    tf = ti
 
                 # old main node goes direct to new position (no arc)
-                if node == old_main_node: ti = tf
+                if node == old_main_node:
+                    ti = tf
 
-                node.set_draw_info({'start_coordinate':(ri, ti)})
-                node.set_draw_info({'final_coordinate':(rf, tf)})
+                node.set_draw_info({'start_coordinate': (ri, ti)})
+                node.set_draw_info({'final_coordinate': (rf, tf)})
 
             elif self.__interpolation == INTERPOLATION_CARTESIAN:
 
                 coordinate = node.get_cartesian_coordinate()
-                node.set_draw_info({'final_coordinate':coordinate})
+                node.set_draw_info({'final_coordinate': coordinate})
 
             # calculate interpolated points
             ai, bi = node.get_draw_info('start_coordinate')
@@ -1640,15 +1586,15 @@ class RadialNet(gtk.DrawingArea):
             l2di.set_final_point(af, bf)
 
             if self.__interpolation_slow_in_out:
-                points = l2di.get_weighed_points(self.__number_of_frames, steps)
+                points = l2di.get_weighed_points(
+                        self.__number_of_frames, steps)
 
             else:
                 points = l2di.get_points(self.__number_of_frames)
 
-            node.set_draw_info({'interpolated_coordinate':points})
+            node.set_draw_info({'interpolated_coordinate': points})
 
         return True
-
 
     def __livens_up(self, index=0):
         """
@@ -1696,15 +1642,14 @@ class RadialNet(gtk.DrawingArea):
 
         # animation continue condition
         if index < self.__number_of_frames - 1:
-            gobject.timeout_add(self.__animation_rate, # time to recall
-                                self.__livens_up,      # recursive call
-                                index + 1)             # next iteration
+            gobject.timeout_add(self.__animation_rate,  # time to recall
+                                self.__livens_up,       # recursive call
+                                index + 1)              # next iteration
         else:
             self.__last_group_node = None
             self.__animating = False
 
         return False
-
 
     @not_is_in_animation
     def set_graph(self, graph):
@@ -1723,7 +1668,6 @@ class RadialNet(gtk.DrawingArea):
         else:
             self.__graph = None
 
-
     def get_scanned_nodes(self):
         """
         """
@@ -1738,12 +1682,10 @@ class RadialNet(gtk.DrawingArea):
 
         return nodes
 
-
     def get_graph(self):
         """
         """
         return self.__graph
-
 
     def set_empty(self):
         """
@@ -1753,12 +1695,10 @@ class RadialNet(gtk.DrawingArea):
 
         self.queue_draw()
 
-
     def get_rotation(self):
         """
         """
         return self.__rotate
-
 
     @graph_is_not_empty
     def set_rotation(self, angle):
@@ -1774,12 +1714,10 @@ class RadialNet(gtk.DrawingArea):
 
         self.queue_draw()
 
-
     def get_translation(self):
         """
         """
         return self.__translation
-
 
     @graph_is_not_empty
     def set_translation(self, translation):
@@ -1787,7 +1725,6 @@ class RadialNet(gtk.DrawingArea):
         """
         self.__translation = translation
         self.queue_draw()
-
 
     def is_empty(self):
         """
@@ -1797,19 +1734,16 @@ class RadialNet(gtk.DrawingArea):
 
         return False
 
-
     def is_in_animation(self):
         """
         """
         return self.__animating
 
-
     def calc_sorted_nodes(self):
         """
         """
         self.__sorted_nodes = list(self.__graph.get_nodes())
-        self.__sorted_nodes.sort(key = lambda n: n.get_draw_info('ring'))
-
+        self.__sorted_nodes.sort(key=lambda n: n.get_draw_info('ring'))
 
 
 class NetNode(Node):
@@ -1825,20 +1759,17 @@ class NetNode(Node):
 
         super(NetNode, self).__init__()
 
-
     def get_host(self):
         """
         Set the HostInfo that this node represents
         """
         return self.get_data()
 
-
     def set_host(self, host):
         """
         Set the HostInfo that this node represents
         """
         self.set_data(host)
-
 
     def get_info(self, info):
         """Return various information extracted from the host set with
@@ -1910,7 +1841,6 @@ class NetNode(Node):
 
                         os_class["type"] = osclass.get("type", "")
                         os_class["vendor"] = osclass.get("vendor", "")
-                        #os_class["accuracy"] = int(osclass.get("accuracy", ""))
                         os_class["accuracy"] = osclass.get("accuracy", "")
                         os_class["os_family"] = osclass.get("osfamily", "")
                         os_class["os_gen"] = osclass.get("osgen", "")
@@ -1941,30 +1871,38 @@ class NetNode(Node):
             elif info == "sequences":
                 # getting sequences information
                 sequences = {}
-                # If all fields are empty, we don't put it into the sequences list
-                if reduce(lambda x,y: x + y, host.tcpsequence.values(), "") != "":
+                # If all fields are empty, we don't put it into the sequences
+                # list
+                if reduce(lambda x, y: x + y,
+                        host.tcpsequence.values(), "") != "":
                     tcp = {}
                     if host.tcpsequence.get("index", "") != "":
                         tcp["index"] = int(host.tcpsequence["index"])
                     else:
                         tcp["index"] = 0
                     tcp["class"] = ""   # not supported
-                    tcp["values"] = host.tcpsequence.get("values", "").split(",")
+                    tcp["values"] = host.tcpsequence.get(
+                            "values", "").split(",")
                     tcp["difficulty"] = host.tcpsequence.get("difficulty", "")
                     sequences["tcp"] = tcp
-                if reduce(lambda x,y: x + y, host.ipidsequence.values(), "") != "":
+                if reduce(lambda x, y: x + y,
+                        host.ipidsequence.values(), "") != "":
                     ip_id = {}
                     ip_id["class"] = host.ipidsequence.get("class", "")
-                    ip_id["values"] = host.ipidsequence.get("values", "").split(",")
+                    ip_id["values"] = host.ipidsequence.get(
+                            "values", "").split(",")
                     sequences["ip_id"] = ip_id
-                if reduce(lambda x,y: x + y, host.tcptssequence.values(), "") != "":
+                if reduce(lambda x, y: x + y,
+                        host.tcptssequence.values(), "") != "":
                     tcp_ts = {}
                     tcp_ts["class"] = host.tcptssequence.get("class", "")
-                    tcp_ts["values"] = host.tcptssequence.get("values", "").split(",")
+                    tcp_ts["values"] = host.tcptssequence.get(
+                            "values", "").split(",")
                     sequences["tcp_ts"] = tcp_ts
                 return sequences
             elif info == "filtered":
-                if len(host.extraports) > 0 and host.extraports[0]["state"] == "filtered":
+                if (len(host.extraports) > 0 and
+                        host.extraports[0]["state"] == "filtered"):
                     return True
                 else:
                     for port in host.ports:
@@ -1992,7 +1930,8 @@ class NetNode(Node):
                     service["method"] = host_port.get("service_method", "")
                     service["version"] = host_port.get("service_version", "")
                     service["product"] = host_port.get("service_product", "")
-                    service["extrainfo"] = host_port.get("service_extrainfo", "")
+                    service["extrainfo"] = host_port.get(
+                            "service_extrainfo", "")
 
                     port["state"] = state
                     port["scripts"] = None      # not supported
@@ -2032,35 +1971,30 @@ class NetNode(Node):
                     trace["protocol"] = host.trace.get("proto", "")
 
                     return trace
-        else: # host is None
+        else:  # host is None
             pass
 
         return None
-
 
     def get_coordinate_theta(self):
         """
         """
         return self.__coordinate.get_theta()
 
-
     def get_coordinate_radius(self):
         """
         """
         return self.__coordinate.get_radius()
-
 
     def set_coordinate_theta(self, value):
         """
         """
         self.__coordinate.set_theta(value)
 
-
     def set_coordinate_radius(self, value):
         """
         """
         self.__coordinate.set_radius(value)
-
 
     def set_polar_coordinate(self, r, t):
         """
@@ -2072,7 +2006,6 @@ class NetNode(Node):
         """
         self.__coordinate.set_coordinate(r, t)
 
-
     def get_polar_coordinate(self):
         """
         Get cartesian coordinate
@@ -2080,7 +2013,6 @@ class NetNode(Node):
         @return: Cartesian coordinates (x, y)
         """
         return self.__coordinate.get_coordinate()
-
 
     def set_cartesian_coordinate(self, x, y):
         """
@@ -2091,7 +2023,6 @@ class NetNode(Node):
 
         self.set_polar_coordinate(r, math.degrees(t))
 
-
     def get_cartesian_coordinate(self):
         """
         Get cartesian coordinate
@@ -2099,7 +2030,6 @@ class NetNode(Node):
         @return: Cartesian coordinates (x, y)
         """
         return self.__coordinate.to_cartesian()
-
 
     def get_draw_info(self, info=None):
         """
@@ -2112,11 +2042,10 @@ class NetNode(Node):
         if info == None:
             return self.__draw_info
 
-        if self.__draw_info.has_key(info):
+        if info in self.__draw_info:
             return self.__draw_info[info]
 
         return None
-
 
     def set_draw_info(self, info):
         """
@@ -2126,7 +2055,6 @@ class NetNode(Node):
         """
         for key in info:
             self.__draw_info[key] = info[key]
-
 
     def deep_search_child(self, node):
         """
@@ -2141,7 +2069,6 @@ class NetNode(Node):
 
         return False
 
-
     def set_subtree_info(self, info):
         """
         """
@@ -2151,7 +2078,6 @@ class NetNode(Node):
 
             if child.get_draw_info('group') != True:
                 child.set_subtree_info(info)
-
 
     def calc_needed_space(self):
         """
@@ -2172,6 +2098,5 @@ class NetNode(Node):
         size = self.get_draw_info('radius') * 2
         own_angle = geometry.angle_from_object(distance, size)
 
-        self.set_draw_info({'children_need':sum_angle})
-        self.set_draw_info({'space_need':max(sum_angle, own_angle)})
-
+        self.set_draw_info({'children_need': sum_angle})
+        self.set_draw_info({'space_need': max(sum_angle, own_angle)})

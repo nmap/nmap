@@ -151,7 +151,6 @@ class NodeWindow(BWWindow):
         self.__icon = Application()
         self.__create_widgets()
 
-
     def __create_widgets(self):
         """
         """
@@ -168,7 +167,8 @@ class NodeWindow(BWWindow):
         self.__color_image.set_from_file(self.__icon.get_icon('border'))
         self.__color_box.add(self.__color_image)
         self.__color_box.set_size_request(15, 15)
-        r, g, b = drawing.cairo_to_gdk_color(self.__node.get_draw_info('color'))
+        r, g, b = drawing.cairo_to_gdk_color(
+                self.__node.get_draw_info('color'))
         self.__color_box.modify_bg(gtk.STATE_NORMAL, gtk.gdk.Color(r, g, b))
 
         # title with the node ip and hostname

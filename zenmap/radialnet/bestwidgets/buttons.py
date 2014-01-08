@@ -122,7 +122,6 @@
 import gtk
 
 
-
 class BWStockButton(gtk.Button):
     """
     """
@@ -136,7 +135,6 @@ class BWStockButton(gtk.Button):
         self.__image = gtk.Image()
         self.__image.set_from_stock(stock, self.__size)
         self.set_image(self.__image)
-
 
 
 class BWToggleStockButton(gtk.ToggleButton):

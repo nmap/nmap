@@ -130,6 +130,7 @@ __all__ = ['HIGSpinner']
 
 import gobject
 
+
 def gobject_register(klass):
     if gtk_version_minor < 8:
         gobject.type_register(klass)

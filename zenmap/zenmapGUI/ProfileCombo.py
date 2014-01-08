@@ -125,6 +125,7 @@ import gtk
 from zenmapCore.UmitConf import CommandProfile
 import zenmapCore.I18N
 
+
 class ProfileCombo(gtk.ComboBoxEntry, object):
     def __init__(self):
         gtk.ComboBoxEntry.__init__(self, gtk.ListStore(str), 0)

@@ -128,8 +128,10 @@ import copy
 from zenmapGUI.higwidgets.higwindows import HIGWindow
 from zenmapGUI.higwidgets.higboxes import HIGVBox
 from zenmapGUI.higwidgets.higbuttons import HIGButton, HIGToggleButton
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer, hig_box_space_holder
-from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HIGEntryLabel, HintWindow
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, HIGSpacer,\
+        hig_box_space_holder
+from zenmapGUI.higwidgets.higlabels import HIGSectionLabel, HIGEntryLabel,\
+        HintWindow
 from zenmapGUI.higwidgets.higtables import HIGTable
 from zenmapGUI.higwidgets.higdialogs import HIGAlertDialog
 
@@ -161,14 +163,16 @@ class SearchParser(object):
         self.search_gui = search_gui
         self.search_dict = search_gui.search_dict
 
-        # We need to make an operator->searchkey mapping, since the search entry
-        # field and the search classes have different syntax.
+        # We need to make an operator->searchkey mapping, since the search
+        # entry field and the search classes have different syntax.
         #
-        # NOTE: if you want to add a new search key not handled by the SearchResult
-        # class, you should add a new method match_CRITERIANAME to the SearchResult class.
-        # For example, if you'd like a "noodles" criteria, you need to create the method
-        # SearchResult.match_noodles(self, noodles_string). To see how searches are
-        # actually performed, start reading from the SearchResult.search() method.
+        # NOTE: if you want to add a new search key not handled by the
+        # SearchResult class, you should add a new method match_CRITERIANAME to
+        # the SearchResult class.  For example, if you'd like a "noodles"
+        # criteria, you need to create the method
+        # SearchResult.match_noodles(self, noodles_string). To see how searches
+        # are actually performed, start reading from the SearchResult.search()
+        # method.
         self.ops2keys = copy.deepcopy(search_keywords)
 
         # This is not really an operator (see below)
@@ -198,15 +202,17 @@ class SearchParser(object):
                 else:
                     self.search_dict["keyword"] = [word]
 
-        # Check if we have any dir: operators in our map, and if so, add them to the
-        # search_gui object and remove them from the map. The dir: operator isn't a real
-        # operator, in a sense that it doesn't need to be processed by the
-        # SearchResult.search() function. It is needed only to create a new SearchDir
-        # object, which is then used to perform the actual search().
+        # Check if we have any dir: operators in our map, and if so, add them
+        # to the search_gui object and remove them from the map. The dir:
+        # operator isn't a real operator, in a sense that it doesn't need to be
+        # processed by the SearchResult.search() function. It is needed only to
+        # create a new SearchDir object, which is then used to perform the
+        # actual search().
         if "dir" in self.search_dict:
             self.search_gui.init_search_dirs(self.search_dict["dir"])
         else:
             self.search_gui.init_search_dirs([])
+
 
 class SearchGUI(gtk.VBox, object):
     """This class is a VBox that holds the search entry field and buttons on
@@ -230,25 +236,28 @@ class SearchGUI(gtk.VBox, object):
         self.id = 0
         self.search_window = search_window
 
-        # The Search* objects are created once per Search Window invocation, so that
-        # they get a list of scans only once, not whenever the search conditions change
+        # The Search* objects are created once per Search Window invocation, so
+        # that they get a list of scans only once, not whenever the search
+        # conditions change
         if self.options["search_db"]:
             try:
                 self.search_db = SearchDB()
             except ImportError, e:
                 self.search_db = SearchDummy()
                 self.no_db_warning.show()
-                self.no_db_warning.set_text("""\
-Warning: The database of saved scans is not available. (%s.) Use \
-"Include Directory" under "Expressions" to search a directory.\
-""" % str(e))
+                self.no_db_warning.set_text(
+                        'Warning: The database of saved scans is not '
+                        'available. (%s.) Use "Include Directory" under '
+                        '"Expressions" to search a directory.' % str(e))
 
-        # Search directories can be added via the "dir:" operator, so it needs to be a map
+        # Search directories can be added via the "dir:" operator, so it needs
+        # to be a map
         self.search_dirs = {}
         self.init_search_dirs()
 
         # We create an empty search dictionary, since SearchParser will fill it
-        # with keywords as it encounters different operators in the search string.
+        # with keywords as it encounters different operators in the search
+        # string.
         self.search_dict = dict()
         # We need to define our own keyword search dictionary
         search_keywords = dict()
@@ -286,42 +295,48 @@ Warning: The database of saved scans is not available. (%s.) Use \
         search_keywords["ir"] = "in_route"
         self.search_parser = SearchParser(self, search_keywords)
 
-        # This list holds the (operator, argument) tuples, parsed from the GUI criteria rows
+        # This list holds the (operator, argument) tuples, parsed from the GUI
+        # criteria rows
         self.gui_criteria_list = []
 
-        # Do an initial "empty" search, so that the results window initially holds
-        # all scans in the database
+        # Do an initial "empty" search, so that the results window initially
+        # holds all scans in the database
         self.search_parser.update("")
         self.start_search()
 
-    def init_search_dirs(self, dirs = []):
+    def init_search_dirs(self, dirs=[]):
         # Start fresh
         self.search_dirs.clear()
 
-        # If specified, add the search directory from the Zenmap config file to the map
+        # If specified, add the search directory from the Zenmap config file to
+        # the map
         conf_dir = self.options["directory"]
         if conf_dir:
-            self.search_dirs[conf_dir] = SearchDir(conf_dir, self.options["file_extension"])
+            self.search_dirs[conf_dir] = SearchDir(
+                    conf_dir, self.options["file_extension"])
 
         # Process any other dirs (as added by the dir: operator)
         for dir in dirs:
-            self.search_dirs[dir] = SearchDir(dir, self.options["file_extension"])
+            self.search_dirs[dir] = SearchDir(
+                    dir, self.options["file_extension"])
 
     def _create_widgets(self):
         # Search box and buttons
         self.search_top_hbox = HIGHBox()
         self.search_label = HIGSectionLabel(_("Search:"))
         self.search_entry = gtk.Entry()
-        self.expressions_btn = HIGToggleButton(_("Expressions "), gtk.STOCK_EDIT)
+        self.expressions_btn = HIGToggleButton(
+                _("Expressions "), gtk.STOCK_EDIT)
 
         # The quick reference tooltip button
         self.search_tooltip_btn = HIGButton(" ", gtk.STOCK_INFO)
 
-        # The expression VBox. This is only visible once the user clicks on "Expressions"
+        # The expression VBox. This is only visible once the user clicks on
+        # "Expressions"
         self.expr_vbox = gtk.VBox()
 
         # Results section
-        self.result_list = gtk.ListStore(str, str, int) # title, date, id
+        self.result_list = gtk.ListStore(str, str, int)  # title, date, id
         self.result_view = gtk.TreeView(self.result_list)
         self.result_scrolled = gtk.ScrolledWindow()
         self.result_title_column = gtk.TreeViewColumn(_("Scan"))
@@ -341,13 +356,14 @@ Warning: The database of saved scans is not available. (%s.) Use \
         self.search_top_hbox.pack_start(self.expressions_btn, False)
         self.search_top_hbox.pack_start(self.search_tooltip_btn, False)
 
-        # The expressions (if any) should be tightly packed so that they don't take
-        # too much screen real-estate
+        # The expressions (if any) should be tightly packed so that they don't
+        # take too much screen real-estate
         self.expr_vbox.set_spacing(0)
 
         # Packing the result section
         self.result_scrolled.add(self.result_view)
-        self.result_scrolled.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.result_scrolled.set_policy(
+                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Packing it all together
         self.set_spacing(4)
@@ -366,21 +382,24 @@ Warning: The database of saved scans is not available. (%s.) Use \
         hint_window.show_all()
 
     def expressions_clicked(self, widget=None, extra=None):
-        if len(self.expr_vbox.get_children()) == 0 and self.search_entry.get_text() == "":
+        if (len(self.expr_vbox.get_children()) == 0 and
+                self.search_entry.get_text() == ""):
             # This is the first time the user has clicked on "Show Expressions"
-            # and the search entry box is empty, so we add a single Criterion row
+            # and the search entry box is empty, so we add a single Criterion
+            # row
             self.expr_vbox.pack_start(Criterion(self))
 
         if self.expressions_btn.get_active():
-            # The Expressions GUI is about to be displayed. It needs to reflect all the
-            # conditions in the search entry field, so a comparison between the entry field
-            # and the GUI needs to be performed.
+            # The Expressions GUI is about to be displayed. It needs to reflect
+            # all the conditions in the search entry field, so a comparison
+            # between the entry field and the GUI needs to be performed.
 
-            # Make the search entry field insensitive while expressions are visible
+            # Make the search entry field insensitive while expressions are
+            # visible
             self.search_entry.set_sensitive(False)
 
-            # Get a map of operator => argument from the Expressions GUI so that
-            # we can compare them with the ones in the search entry field
+            # Get a map of operator => argument from the Expressions GUI so
+            # that we can compare them with the ones in the search entry field
             gui_ops = {}
             for criterion in self.expr_vbox.get_children():
                 if criterion.operator in gui_ops:
@@ -389,19 +408,22 @@ Warning: The database of saved scans is not available. (%s.) Use \
                     gui_ops[criterion.operator] = [criterion.argument]
 
             # We compare the search entry field to the Expressions GUI. Every
-            # (operator, value) pair must be present in the GUI after this loop is done.
+            # (operator, value) pair must be present in the GUI after this loop
+            # is done.
             for op, args in self.search_dict.iteritems():
                 for arg in args:
                     if (op not in gui_ops) or (arg not in gui_ops[op]):
                         # We need to add this pair to the GUI
-                        self.expr_vbox.pack_start(Criterion(self, op, arg), False)
+                        self.expr_vbox.pack_start(
+                                Criterion(self, op, arg), False)
 
-            # Now we check if there are any leftover criterion rows that aren't present
-            # in the search_dict (for example, if a user has deleted something from the
-            # search entry field)
+            # Now we check if there are any leftover criterion rows that aren't
+            # present in the search_dict (for example, if a user has deleted
+            # something from the search entry field)
             for criterion in self.expr_vbox.get_children():
-                if criterion.operator not in self.search_dict or \
-                   criterion.argument not in self.search_dict[criterion.operator]:
+                if (criterion.operator not in self.search_dict or
+                        criterion.argument not in self.search_dict[
+                            criterion.operator]):
                     criterion.destroy()
             # If we have deleted all rows, add an empty one
             if len(self.expr_vbox.get_children()) == 0:
@@ -410,8 +432,9 @@ Warning: The database of saved scans is not available. (%s.) Use \
             # Display all elements
             self.expr_vbox.show_all()
         else:
-            # The Expressions GUI is about to be hidden. No updates to the search entry field
-            # are necessary, since it gets updated on every change in one of the criterion rows.
+            # The Expressions GUI is about to be hidden. No updates to the
+            # search entry field are necessary, since it gets updated on every
+            # change in one of the criterion rows.
             self.expr_vbox.hide_all()
             self.search_entry.set_sensitive(True)
 
@@ -450,7 +473,8 @@ Warning: The database of saved scans is not available. (%s.) Use \
 
     def add_search_dir(self, dir):
         if dir not in self.search_dirs:
-            self.search_dirs[dir] = SearchDir(dir, self.options["file_extension"])
+            self.search_dirs[dir] = SearchDir(
+                    dir, self.options["file_extension"])
 
     def update_search_entry(self, widget, extra=None):
         """Called when the search entry field is modified."""
@@ -459,10 +483,14 @@ Warning: The database of saved scans is not available. (%s.) Use \
 
     def start_search(self):
         if not self.options["search_db"] and not self.options["directory"]:
-            d = HIGAlertDialog(message_format=_("No search method selected!"),
-                               secondary_text=_("%s can search results on directories or \
-inside it's own database. Please, select a method by choosing a directory or by checking \
-the search data base option at the 'Search options' tab before start the search") % APP_DISPLAY_NAME)
+            d = HIGAlertDialog(
+                    message_format=_("No search method selected!"),
+                    secondary_text=_(
+                        "%s can search results on directories or inside its "
+                        "own database. Please select a method by choosing a "
+                        "directory or by checking the search data base option "
+                        "in the 'Search options' tab before starting a search"
+                        ) % APP_DISPLAY_NAME)
             d.run()
             d.destroy()
             return
@@ -488,8 +516,9 @@ the search data base option at the 'Search options' tab before start the search"
         #    self.append_result(result)
         #    matched += 1
 
-        self.search_window.set_label_text("Matched <b>%s</b> out of <b>%s</b> scans." % \
-                                         (str(matched), str(total)))
+        self.search_window.set_label_text(
+                "Matched <b>%s</b> out of <b>%s</b> scans." % (
+                    str(matched), str(total)))
 
     def clear_result_list(self):
         for i in range(len(self.result_list)):
@@ -504,7 +533,6 @@ the search data base option at the 'Search options' tab before start the search"
             date_field = date.strftime("%Y-%m-%d %H:%M")
         except ValueError:
             date_field = _("Unknown")
-
 
         self.parsed_results[self.id] = [title, parsed_result]
         self.result_list.append([title, date_field, self.id])
@@ -554,11 +582,11 @@ the search data base option at the 'Search options' tab before start the search"
 
 
 class Criterion(gtk.HBox):
-    """This class holds one criterion row, represented as an HBox.
-    It holds a ComboBox and a Subcriterion's subclass instance, depending on the
-    selected entry in the ComboBox. For example, when the 'Target' option is
-    selected, a SimpleSubcriterion widget is displayed, but when the 'Date'
-    operator is selected, a DateSubcriterion widget is displayed."""
+    """This class holds one criterion row, represented as an HBox.  It holds a
+    ComboBox and a Subcriterion's subclass instance, depending on the selected
+    entry in the ComboBox. For example, when the 'Target' option is selected, a
+    SimpleSubcriterion widget is displayed, but when the 'Date' operator is
+    selected, a DateSubcriterion widget is displayed."""
 
     def __init__(self, search_window, operator="keyword", argument=""):
         """A reference to the search window is passed so that we can call
@@ -571,17 +599,18 @@ class Criterion(gtk.HBox):
 
         # We need this as a map, so that we can pass the operator into
         # the SimpleSubcriterion instance
-        self.combo_entries = {"Keyword" : ["keyword"],
-                              "Profile Name" : ["profile"],
-                              "Target" : ["target"],
-                              "Options" : ["option"],
-                              "Date" : ["date", "after", "before"],
-                              "Operating System" : ["os"],
-                              "Port" : ["open", "scanned", "closed", "filtered",
-                                        "unfiltered", "open_filtered", "closed_filtered"],
-                              "Service" : ["service"],
-                              "Host In Route" : ["inroute"],
-                              "Include Directory" : ["dir"]}
+        self.combo_entries = {"Keyword": ["keyword"],
+                              "Profile Name": ["profile"],
+                              "Target": ["target"],
+                              "Options": ["option"],
+                              "Date": ["date", "after", "before"],
+                              "Operating System": ["os"],
+                              "Port": ["open", "scanned", "closed", "filtered",
+                                  "unfiltered", "open_filtered",
+                                  "closed_filtered"],
+                              "Service": ["service"],
+                              "Host In Route": ["inroute"],
+                              "Include Directory": ["dir"]}
 
         self._create_widgets()
         self._pack_widgets()
@@ -591,7 +620,8 @@ class Criterion(gtk.HBox):
         # A ComboBox containing the list of operators
         self.operator_combo = gtk.combo_box_new_text()
 
-        # Sort all the keys from combo_entries and make an entry for each of them
+        # Sort all the keys from combo_entries and make an entry for each of
+        # them
         sorted_entries = self.combo_entries.keys()
         sorted_entries.sort()
         for name in sorted_entries:
@@ -605,7 +635,8 @@ class Criterion(gtk.HBox):
                     break
 
         # Create a subcriterion
-        self.subcriterion = self.new_subcriterion(self.default_operator, self.default_argument)
+        self.subcriterion = self.new_subcriterion(
+                self.default_operator, self.default_argument)
 
         # The "add" and "remove" buttons
         self.add_btn = HIGButton(" ", gtk.STOCK_ADD)
@@ -674,6 +705,7 @@ class Criterion(gtk.HBox):
     operator = property(get_operator)
     argument = property(get_argument)
 
+
 class Subcriterion(gtk.HBox):
     """This class is a base class for all subcriterion types. Depending on the
     criterion selected in the Criterion's ComboBox, a subclass of Subcriterion
@@ -685,8 +717,10 @@ class Subcriterion(gtk.HBox):
         self.argument = ""
 
     def value_changed(self):
-        """Propagates the operator and the argument up to the Criterion parent."""
+        """Propagates the operator and the argument up to the Criterion
+        parent."""
         self.get_parent().value_changed(self.operator, self.argument)
+
 
 class SimpleSubcriterion(Subcriterion):
     """This class represents all 'simple' criterion types that need only an
@@ -716,6 +750,7 @@ class SimpleSubcriterion(Subcriterion):
         self.argument = widget.get_text()
         self.value_changed()
 
+
 class PortSubcriterion(Subcriterion):
     """This class shows the port criterion GUI."""
     def __init__(self, operator="open", argument=""):
@@ -736,11 +771,12 @@ class PortSubcriterion(Subcriterion):
         self.label = gtk.Label("  is  ")
 
         self.port_state_combo = gtk.combo_box_new_text()
-        states = ["open", "scanned", "closed", "filtered", "unfiltered", "open|filtered",
-                  "closed|filtered"]
+        states = ["open", "scanned", "closed", "filtered", "unfiltered",
+                "open|filtered", "closed|filtered"]
         for state in states:
             self.port_state_combo.append_text(state)
-        self.port_state_combo.set_active(states.index(self.operator.replace("_", "|")))
+        self.port_state_combo.set_active(
+                states.index(self.operator.replace("_", "|")))
 
     def _pack_widgets(self):
         self.pack_start(self.entry, True)
@@ -758,6 +794,7 @@ class PortSubcriterion(Subcriterion):
     def port_criterion_changed(self, widget=None, extra=None):
         self.operator = widget.get_active_text()
         self.value_changed()
+
 
 class DirSubcriterion(Subcriterion):
     def __init__(self, operator="dir", argument=""):
@@ -797,13 +834,14 @@ class DirSubcriterion(Subcriterion):
         self.argument = widget.get_text()
         self.value_changed()
 
+
 class DateSubcriterion(Subcriterion):
     def __init__(self, operator="date", argument=""):
         Subcriterion.__init__(self)
 
-        self.text2op = {"is" : "date",
-                        "after" : "after",
-                        "before" : "before"}
+        self.text2op = {"is": "date",
+                        "after": "after",
+                        "before": "before"}
 
         self.operator = operator
 
@@ -811,7 +849,8 @@ class DateSubcriterion(Subcriterion):
         self._pack_widgets()
         self._connect_widgets()
 
-        # Count the fuzzy operators, so that we can append them to the argument later
+        # Count the fuzzy operators, so that we can append them to the argument
+        # later
         self.fuzzies = argument.count("~")
         argument = argument.replace("~", "")
         self.minus_notation = False
@@ -821,9 +860,11 @@ class DateSubcriterion(Subcriterion):
             self.argument = argument
         elif re.match("[-|\+]\d+$", argument) != None:
             # Convert the date from the "-n" notation into YYYY-MM-DD
-            parsed_date = datetime.date.fromordinal(datetime.date.today().toordinal() + int(argument))
+            parsed_date = datetime.date.fromordinal(
+                    datetime.date.today().toordinal() + int(argument))
             self.argument = argument
-            self.date = datetime.date(parsed_date.year, parsed_date.month, parsed_date.day)
+            self.date = datetime.date(
+                    parsed_date.year, parsed_date.month, parsed_date.day)
 
             self.minus_notation = True
         else:
@@ -851,7 +892,8 @@ class DateSubcriterion(Subcriterion):
         self.pack_start(self.date_button, True)
 
     def _connect_widgets(self):
-        self.date_criterion_combo.connect("changed", self.date_criterion_changed)
+        self.date_criterion_combo.connect(
+                "changed", self.date_criterion_changed)
         self.date_button.connect("clicked", self.show_calendar)
 
     def date_criterion_changed(self, widget=None, extra=None):
@@ -897,6 +939,7 @@ class DateSubcriterion(Subcriterion):
     date = property(get_date, set_date)
     _date = datetime.date.today()
 
+
 class DateCalendar(gtk.Window, object):
     def __init__(self):
         gtk.Window.__init__(self, gtk.WINDOW_POPUP)
@@ -906,7 +949,7 @@ class DateCalendar(gtk.Window, object):
         self.add(self.calendar)
 
     def connect_calendar(self, update_button_cb):
-        self.calendar.connect("day-selected-double-click", \
+        self.calendar.connect("day-selected-double-click",
                               self.kill_calendar, update_button_cb)
 
     def kill_calendar(self, widget, method):

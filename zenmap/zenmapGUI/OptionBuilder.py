@@ -138,6 +138,7 @@ import zenmapCore.I18N
 from zenmapCore.UmitLogging import log
 from zenmapGUI.ScriptInterface import *
 
+
 def get_option_check_auxiliary_widget(option, ops, check):
     if option in ("-sI", "-b", "--script", "--script-args", "--exclude", "-p",
         "-D", "-S", "--source-port", "-e", "--ttl", "-iR", "--max-retries",
@@ -158,6 +159,7 @@ def get_option_check_auxiliary_widget(option, ops, check):
         return OptionExtras(option, ops, check)
     else:
         assert False, "Unknown option %s" % option
+
 
 class OptionEntry(gtk.Entry):
     def __init__(self, option, ops, check):
@@ -187,6 +189,7 @@ class OptionEntry(gtk.Entry):
         self.check.set_active(True)
         self.ops[self.option] = self.get_text().decode("UTF-8")
 
+
 class OptionExtras(gtk.Entry):
     def __init__(self, option, ops, check):
         gtk.Entry.__init__(self)
@@ -213,6 +216,7 @@ class OptionExtras(gtk.Entry):
     def changed_cb(self, widget):
         self.check.set_active(True)
         self.ops.extras = [self.get_text().decode("UTF-8")]
+
 
 class OptionLevel(gtk.SpinButton):
     def __init__(self, option, ops, check):
@@ -243,6 +247,7 @@ class OptionLevel(gtk.SpinButton):
         self.check.set_active(True)
         self.ops[self.option] = int(self.get_adjustment().get_value())
 
+
 class OptionFile(gtk.HBox):
     __gsignals__ = {
         "changed": (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
@@ -257,7 +262,7 @@ class OptionFile(gtk.HBox):
 
         self.entry = gtk.Entry()
         self.pack_start(self.entry, True, True)
-        button = HIGButton(stock = gtk.STOCK_OPEN)
+        button = HIGButton(stock=gtk.STOCK_OPEN)
         self.pack_start(button, False)
 
         button.connect("clicked", self.clicked_cb)
@@ -291,6 +296,7 @@ class OptionFile(gtk.HBox):
             self.entry.set_text(dialog.get_filename())
         dialog.destroy()
 
+
 class TargetEntry(gtk.Entry):
     def __init__(self, ops):
         gtk.Entry.__init__(self)
@@ -307,11 +313,12 @@ class TargetEntry(gtk.Entry):
     def get_targets(self):
         return split_quoted(self.get_text().decode("UTF-8"))
 
+
 class OptionTab(object):
     def __init__(self, root_tab, ops, update_command, help_buf):
-        actions = {'target':self.__parse_target,
-                   'option_list':self.__parse_option_list,
-                   'option_check':self.__parse_option_check}
+        actions = {'target': self.__parse_target,
+                   'option_list': self.__parse_option_list,
+                   'option_check': self.__parse_option_check}
 
         self.ops = ops
         self.update_command = update_command
@@ -321,8 +328,10 @@ class OptionTab(object):
         self.notscripttab = False  # assume every tab is scripting tab
         self.widgets_list = []
         for option_element in root_tab.childNodes:
-            try:option_element.tagName
-            except:pass
+            try:
+                option_element.tagName
+            except:
+                pass
             else:
                 if option_element.tagName in actions.keys():
                     parse_func = actions[option_element.tagName]
@@ -339,7 +348,8 @@ class OptionTab(object):
     def __parse_option_list(self, option_list_element):
         children = option_list_element.getElementsByTagName(u'option')
 
-        label_widget = HIGEntryLabel(_(option_list_element.getAttribute(u'label')))
+        label_widget = HIGEntryLabel(
+                _(option_list_element.getAttribute(u'label')))
         option_list_widget = OptionList(self.ops)
 
         for child in children:
@@ -348,8 +358,10 @@ class OptionTab(object):
             label = _(child.getAttribute(u'label'))
             option_list_widget.append(option, argument, label)
             self.profilehelp.add_label(option, label)
-            self.profilehelp.add_shortdesc(option, _(child.getAttribute(u'short_desc')))
-            self.profilehelp.add_example(option, child.getAttribute(u'example'))
+            self.profilehelp.add_shortdesc(
+                    option, _(child.getAttribute(u'short_desc')))
+            self.profilehelp.add_example(
+                    option, child.getAttribute(u'example'))
 
         option_list_widget.update()
 
@@ -369,10 +381,12 @@ class OptionTab(object):
         self.profilehelp.add_example(option, example)
 
         check = OptionCheck(option, label)
-        auxiliary_widget = get_option_check_auxiliary_widget(option, self.ops, check)
+        auxiliary_widget = get_option_check_auxiliary_widget(
+                option, self.ops, check)
         if auxiliary_widget is not None:
             auxiliary_widget.connect("changed", self.update_auxiliary_widget)
-            auxiliary_widget.connect('enter-notify-event', self.enter_notify_event_cb, option)
+            auxiliary_widget.connect(
+                    'enter-notify-event', self.enter_notify_event_cb, option)
         else:
             check.set_active(not not self.ops[option])
 
@@ -381,14 +395,14 @@ class OptionTab(object):
 
         return check, auxiliary_widget
 
-    def fill_table(self, table, expand_fill = True):
+    def fill_table(self, table, expand_fill=True):
         yopt = (0, gtk.EXPAND | gtk.FILL)[expand_fill]
         for y, widget in enumerate(self.widgets_list):
             if widget[1] == None:
-                table.attach(widget[0], 0, 2, y, y+1, yoptions=yopt)
+                table.attach(widget[0], 0, 2, y, y + 1, yoptions=yopt)
             else:
-                table.attach(widget[0], 0, 1, y, y+1, yoptions=yopt)
-                table.attach(widget[1], 1, 2, y, y+1, yoptions=yopt)
+                table.attach(widget[0], 0, 1, y, y + 1, yoptions=yopt)
+                table.attach(widget[1], 1, 2, y, y + 1, yoptions=yopt)
 
     def update_auxiliary_widget(self, auxiliary_widget):
         self.update_command()
@@ -446,6 +460,7 @@ class OptionTab(object):
     def enter_notify_event_cb(self, event, widget, option):
         self.show_help_for_option(option)
 
+
 class OptionBuilder(object):
     def __init__(self, xml_file, ops, update_func, help_buf):
         """
@@ -462,7 +477,6 @@ class OptionBuilder(object):
         self.update_func = update_func
 
         self.root_tag = "interface"
-
 
         self.xml = self.xml.getElementsByTagName(self.root_tag)[0]
 
@@ -490,11 +504,13 @@ class OptionBuilder(object):
         dic = {}
         for tab_name in self.groups:
             if tab_name != "Scripting":
-                dic[tab_name] = OptionTab(self.xml.getElementsByTagName(tab_name)[0],
-                                      self.ops, self.update_func, self.help_buf)
+                dic[tab_name] = OptionTab(
+                        self.xml.getElementsByTagName(tab_name)[0], self.ops,
+                        self.update_func, self.help_buf)
                 dic[tab_name].notscripttab = True
             else:
-                dic[tab_name] =ScriptInterface(None,self.ops, self.update_func, self.help_buf)
+                dic[tab_name] = ScriptInterface(
+                        None, self.ops, self.update_func, self.help_buf)
         return dic
 
 
@@ -518,7 +534,8 @@ class OptionList(gtk.ComboBox):
             opt, arg = row[0], row[1]
             if opt == "":
                 continue
-            if (not arg and self.ops[opt]) or (arg and str(self.ops[opt]) == arg):
+            if ((not arg and self.ops[opt]) or
+                    (arg and str(self.ops[opt]) == arg)):
                 selected = i
         self.set_active(selected)
 
@@ -534,6 +551,7 @@ class OptionList(gtk.ComboBox):
 
         self.list.append([option, argument, opt])
         self.options.append(option)
+
 
 class OptionCheck(gtk.CheckButton):
     def __init__(self, option, label):

@@ -127,7 +127,7 @@ import sys
 # recursively checked, up to a limit of SYMLINK_LIMIT.
 # https://www.securecoding.cert.org/confluence/display/seccode/FIO15-C.+Ensure+that+file+operations+are+performed+in+a+secure+directory
 SYMLINK_LIMIT = 5
-def is_secure_dir(path, num_symlinks = 0):
+def is_secure_dir(path, num_symlinks=0):
     import os
     import os.path
     import stat

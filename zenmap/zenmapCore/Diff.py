@@ -136,8 +136,10 @@ import zenmapCore.Paths
 # The [paths] configuration from zenmap.conf, used to get ndiff_command_path.
 paths_config = PathsConfig()
 
+
 class NdiffParseException(Exception):
     pass
+
 
 def get_path():
     """Return a value for the PATH environment variable that is appropriate
@@ -153,8 +155,9 @@ def get_path():
             search_paths.append(path)
     return os.pathsep.join(search_paths)
 
+
 class NdiffCommand(subprocess.Popen):
-    def __init__(self, filename_a, filename_b, temporary_filenames = []):
+    def __init__(self, filename_a, filename_b, temporary_filenames=[]):
         self.temporary_filenames = temporary_filenames
 
         search_paths = get_path()
@@ -162,20 +165,38 @@ class NdiffCommand(subprocess.Popen):
         env["PATH"] = search_paths
         if getattr(sys, "frozen", None) == "macosx_app":
             # These variables are set by py2app, but they can interfere with
-            # Ndiff because Ndiff is also a Python application. Without removing
-            # these, Ndiff will attempt to run using the py2app-bundled Python
-            # library, and may run into version or architecture mismatches.
-            if env.has_key("PYTHONPATH"):
+            # Ndiff because Ndiff is also a Python application. Without
+            # removing these, Ndiff will attempt to run using the
+            # py2app-bundled Python library, and may run into version or
+            # architecture mismatches.
+            if "PYTHONPATH" in env:
                 del env["PYTHONPATH"]
-            if env.has_key("PYTHONHOME"):
+            if "PYTHONHOME" in env:
                 del env["PYTHONHOME"]
 
-        command_list = [paths_config.ndiff_command_path, "--verbose", "--", filename_a, filename_b]
-        self.stdout_file = tempfile.TemporaryFile(mode = "rb", prefix = APP_NAME + "-ndiff-", suffix = ".xml")
+        command_list = [
+                paths_config.ndiff_command_path,
+                "--verbose",
+                "--",
+                filename_a,
+                filename_b
+                ]
+        self.stdout_file = tempfile.TemporaryFile(
+                mode="rb",
+                prefix=APP_NAME + "-ndiff-",
+                suffix=".xml"
+                )
 
         log.debug("Running command: %s" % repr(command_list))
-        # See zenmapCore.NmapCommand.py for an explanation of the shell argument.
-        subprocess.Popen.__init__(self, command_list, stdout = self.stdout_file, stderr = self.stdout_file, env = env, shell = (sys.platform == "win32"))
+        # shell argument explained in zenmapCore.NmapCommand.py
+        subprocess.Popen.__init__(
+                self,
+                command_list,
+                stdout=self.stdout_file,
+                stderr=self.stdout_file,
+                env=env,
+                shell=(sys.platform == "win32")
+                )
 
     def get_scan_diff(self):
         self.wait()
@@ -194,13 +215,17 @@ class NdiffCommand(subprocess.Popen):
     def kill(self):
         self.close()
 
+
 def ndiff(scan_a, scan_b):
     """Run Ndiff on two scan results, which may be filenames or NmapParserSAX
     objects, and return a running NdiffCommand object."""
     temporary_filenames = []
 
     if isinstance(scan_a, NmapParserSAX):
-        fd, filename_a = tempfile.mkstemp(prefix = APP_NAME + "-diff-", suffix = ".xml")
+        fd, filename_a = tempfile.mkstemp(
+                prefix=APP_NAME + "-diff-",
+                suffix=".xml"
+                )
         temporary_filenames.append(filename_a)
         f = os.fdopen(fd, "wb")
         scan_a.write_xml(f)
@@ -209,7 +234,10 @@ def ndiff(scan_a, scan_b):
         filename_a = scan_a
 
     if isinstance(scan_b, NmapParserSAX):
-        fd, filename_b = tempfile.mkstemp(prefix = APP_NAME + "-diff-", suffix = ".xml")
+        fd, filename_b = tempfile.mkstemp(
+                prefix=APP_NAME + "-diff-",
+                suffix=".xml"
+                )
         temporary_filenames.append(filename_b)
         f = os.fdopen(fd, "wb")
         scan_b.write_xml(f)

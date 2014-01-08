@@ -122,6 +122,7 @@
 
 import gtk
 
+
 class ScansListStoreEntry(object):
     """This class is an abstraction for running and completed scans, which are
     otherwise represented by very different classes."""
@@ -134,11 +135,11 @@ class ScansListStoreEntry(object):
         self.command = None
         self.parsed = None
 
-    def set_running(self, command = None):
+    def set_running(self, command=None):
         self.state = self.RUNNING
         self.command = command
 
-    def set_finished(self, parsed = None):
+    def set_finished(self, parsed=None):
         self.state = self.FINISHED
         self.parsed = parsed
 
@@ -160,6 +161,7 @@ class ScansListStoreEntry(object):
     finished = property(lambda self: self.state == self.FINISHED)
     failed = property(lambda self: self.state == self.FAILED)
     canceled = property(lambda self: self.state == self.CANCELED)
+
 
 class ScansListStore(gtk.ListStore):
     """This is a specialization of a gtk.ListStore that holds running,

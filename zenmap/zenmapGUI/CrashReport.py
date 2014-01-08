@@ -134,6 +134,7 @@ import zenmapCore.I18N
 # For escaping text in marked-up labels.
 from xml.sax.saxutils import escape
 
+
 class CrashReport(HIGDialog):
     def __init__(self, type, value, tb):
         HIGDialog.__init__(self)
@@ -158,17 +159,16 @@ class CrashReport(HIGDialog):
         self.description_text.set_editable(False)
 
         self.bug_text = gtk.Label()
-        self.bug_text.set_markup(_("""\
-An unexpected error has crashed %(app_name)s. Please copy the stack trace below and \
-send it to the <a href="mailto:dev@nmap.org">dev@nmap.org</a> \
-mailing list. (<a href="http://seclists.org/nmap-dev/">More about the list.</a>) \
-The developers will see your report and try to fix the problem.""") % \
-    { "app_name": escape(APP_DISPLAY_NAME) })
+        self.bug_text.set_markup(_('An unexpected error has crashed '
+            '%(app_name)s. Please copy the stack trace below and send it to '
+            'the <a href="mailto:dev@nmap.org">dev@nmap.org</a> mailing list. '
+            '(<a href="http://seclists.org/nmap-dev/">More about the list.</a>'
+            ') The developers will see your report and try to fix the problem.'
+            ) % {"app_name": escape(APP_DISPLAY_NAME)})
         self.email_frame = gtk.Frame()
         self.email_label = gtk.Label()
-        self.email_label.set_markup(_("""\
-<b>Copy and email to <a href="mailto:dev@nmap.org">dev@nmap.org</a>:</b>\
-"""))
+        self.email_label.set_markup(_('<b>Copy and email to '
+            '<a href="mailto:dev@nmap.org">dev@nmap.org</a>:</b>'))
         self.btn_copy = gtk.Button(stock=gtk.STOCK_COPY)
         self.btn_ok = gtk.Button(stock=gtk.STOCK_OK)
 
@@ -176,7 +176,8 @@ The developers will see your report and try to fix the problem.""") % \
 
     def _pack_widgets(self):
         self.description_scrolled.add(self.description_text)
-        self.description_scrolled.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.description_scrolled.set_policy(
+                gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.description_scrolled.set_size_request(400, 150)
         self.description_text.set_wrap_mode(gtk.WRAP_WORD)
 
@@ -223,7 +224,7 @@ The developers will see your report and try to fix the problem.""") % \
         sys.exit(0)
 
 if __name__ == "__main__":
-    c = CrashReport(None,None,None)
+    c = CrashReport(None, None, None)
     c.show_all()
     c.connect("delete-event", lambda x, y: gtk.main_quit())
 

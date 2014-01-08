@@ -127,6 +127,7 @@ from zenmapCore.UmitOptionParser import option_parser
 
 LOGLEVEL = option_parser.get_verbose()
 
+
 class Log(Logger, object):
     def __init__(self, name, level=0):
         Logger.__init__(self, name, level)
@@ -142,7 +143,6 @@ class Log(Logger, object):
 
     def set_formatter(self, fmt):
         self.__formatter = Formatter(fmt)
-
 
     format = "%(levelname)s - %(asctime)s - %(message)s"
 

@@ -126,7 +126,8 @@ import webbrowser
 
 from zenmapGUI.higwidgets.higdialogs import HIGDialog
 from zenmapGUI.higwidgets.higwindows import HIGWindow
-from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, hig_box_space_holder
+from zenmapGUI.higwidgets.higboxes import HIGVBox, HIGHBox, \
+        hig_box_space_holder
 from zenmapGUI.higwidgets.higbuttons import HIGButton
 from zenmapGUI.higwidgets.hignotebooks import HIGNotebook
 from zenmapGUI.higwidgets.higscrollers import HIGScrolledWindow
@@ -141,6 +142,7 @@ import zenmapCore.I18N
 # For escaping text in marked-up labels.
 from xml.sax.saxutils import escape
 
+
 class _program_entry(gtk.VBox):
     """A little box containing labels with a program's name and
     description and a clickable link to its web site."""
@@ -149,7 +151,7 @@ class _program_entry(gtk.VBox):
     # web site button.
     NAME_WEB_SITE_SPACING = 20
 
-    def __init__(self, name = None, web_site = None, description = None):
+    def __init__(self, name=None, web_site=None, description=None):
         gtk.VBox.__init__(self)
 
         self.hbox = gtk.HBox(False, self.NAME_WEB_SITE_SPACING)
@@ -157,7 +159,9 @@ class _program_entry(gtk.VBox):
 
         if name is not None:
             name_label = gtk.Label()
-            name_label.set_markup("<span size=\"large\" weight=\"bold\">%s</span>" % escape(name))
+            name_label.set_markup(
+                    '<span size="large" weight="bold">%s</span>' % escape(
+                        name))
             self.hbox.pack_start(name_label, False)
 
         if web_site is not None:
@@ -180,41 +184,44 @@ class _program_entry(gtk.VBox):
     def _link_button_open(self, widget):
         webbrowser.open(widget.get_uri())
 
+
 class About(HIGDialog):
     """An about dialog showing information about the program. It is meant to
     have roughly the same feel as gtk.AboutDialog."""
     def __init__(self):
         HIGDialog.__init__(self)
-        self.set_title(_("About %s and %s") % (NMAP_DISPLAY_NAME, APP_DISPLAY_NAME))
+        self.set_title(_("About %s and %s") % (
+            NMAP_DISPLAY_NAME, APP_DISPLAY_NAME))
 
         self.vbox.set_border_width(12)
         self.vbox.set_spacing(12)
 
         label = gtk.Label()
-        label.set_markup("<span size=\"xx-large\" weight=\"bold\">%s %s</span>" \
-% (escape(APP_DISPLAY_NAME), escape(VERSION)))
+        label.set_markup(
+                '<span size="xx-large" weight="bold">%s %s</span>' % (
+                    escape(APP_DISPLAY_NAME), escape(VERSION)))
         label.set_selectable(True)
         self.vbox.pack_start(label)
 
         label = gtk.Label()
-        label.set_markup("<span size=\"small\">%s</span>" \
-% (escape(APP_COPYRIGHT)))
+        label.set_markup(
+                '<span size="small">%s</span>' % (escape(APP_COPYRIGHT)))
         self.vbox.pack_start(label)
 
-        entry = _program_entry(NMAP_DISPLAY_NAME, NMAP_WEB_SITE, _("""\
-%s is a free and open source utility for network exploration and security \
-auditing.""") % NMAP_DISPLAY_NAME)
+        entry = _program_entry(NMAP_DISPLAY_NAME, NMAP_WEB_SITE, _(
+            "%s is a free and open source utility for network exploration "
+            "and security auditing.") % NMAP_DISPLAY_NAME)
         self.vbox.pack_start(entry)
 
-        entry = _program_entry(APP_DISPLAY_NAME, APP_WEB_SITE, _("""\
-%s is a multi-platform graphical %s frontend and results viewer. It was \
-originally derived from %s.""") \
-% (APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, UMIT_DISPLAY_NAME))
+        entry = _program_entry(APP_DISPLAY_NAME, APP_WEB_SITE, _(
+        "%s is a multi-platform graphical %s frontend and results viewer. "
+        "It was originally derived from %s.") % (
+            APP_DISPLAY_NAME, NMAP_DISPLAY_NAME, UMIT_DISPLAY_NAME))
         self.vbox.pack_start(entry)
 
-        entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _("""\
-%s is an %s GUI created as part of the Nmap/Google Summer of Code program.""") \
-% (UMIT_DISPLAY_NAME, NMAP_DISPLAY_NAME))
+        entry = _program_entry(UMIT_DISPLAY_NAME, UMIT_WEB_SITE, _(
+            "%s is an %s GUI created as part of the Nmap/Google Summer "
+            "of Code program.") % (UMIT_DISPLAY_NAME, NMAP_DISPLAY_NAME))
         button = gtk.Button(_("%s credits") % UMIT_DISPLAY_NAME)
         button.connect("clicked", self._show_umit_credits)
         entry.hbox.pack_start(button, False)
@@ -246,17 +253,20 @@ originally derived from %s.""") \
             return
 
         self._umit_credits_dialog = UmitCredits()
+
         def credits_destroyed(widget):
             # Mark that the credits dialog has been destroyed.
             self._umit_credits_dialog = None
+
         self._umit_credits_dialog.connect("destroy", credits_destroyed)
         self._umit_credits_dialog.show_all()
+
 
 class UmitCredits(HIGWindow):
     def __init__(self):
         HIGWindow.__init__(self)
         self.set_title(_("%s credits") % UMIT_DISPLAY_NAME)
-        self.set_size_request(-1,250)
+        self.set_size_request(-1, 250)
         self.set_position(gtk.WIN_POS_CENTER)
 
         self.__create_widgets()
@@ -296,12 +306,18 @@ class UmitCredits(HIGWindow):
         self.hbox._pack_expand_fill(hig_box_space_holder())
         self.hbox._pack_noexpand_nofill(self.btn_close)
 
-        self.notebook.append_page(self.written_by_scroll, gtk.Label(_("Written by")))
-        self.notebook.append_page(self.design_scroll, gtk.Label(_("Design")))
-        self.notebook.append_page(self.soc2007_scroll, gtk.Label(_("SoC 2007")))
-        self.notebook.append_page(self.contributors_scroll, gtk.Label(_("Contributors")))
-        self.notebook.append_page(self.translation_scroll, gtk.Label(_("Translation")))
-        self.notebook.append_page(self.nokia_scroll, gtk.Label(_("Maemo")))
+        self.notebook.append_page(
+                self.written_by_scroll, gtk.Label(_("Written by")))
+        self.notebook.append_page(
+                self.design_scroll, gtk.Label(_("Design")))
+        self.notebook.append_page(
+                self.soc2007_scroll, gtk.Label(_("SoC 2007")))
+        self.notebook.append_page(
+                self.contributors_scroll, gtk.Label(_("Contributors")))
+        self.notebook.append_page(
+                self.translation_scroll, gtk.Label(_("Translation")))
+        self.notebook.append_page(
+                self.nokia_scroll, gtk.Label(_("Maemo")))
 
         self.written_by_scroll.add(self.written_by_text)
         self.written_by_text.set_wrap_mode(gtk.WRAP_NONE)
@@ -321,7 +337,7 @@ class UmitCredits(HIGWindow):
         self.nokia_scroll.add(self.nokia_text)
         self.nokia_text.set_wrap_mode(gtk.WRAP_NONE)
 
-        self.btn_close.connect('clicked', lambda x,y=None:self.destroy())
+        self.btn_close.connect('clicked', lambda x, y=None: self.destroy())
 
     def set_text(self):
         b = self.written_by_text.get_buffer()

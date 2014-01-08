@@ -121,6 +121,8 @@
 # ***************************************************************************/
 
 UNIQUE_STRING_MAP = {}
+
+
 def unique(s):
     """Return a single unique representation of s (unique as to id),
     letting s be garbage collected."""

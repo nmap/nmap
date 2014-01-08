@@ -134,12 +134,14 @@ import gobject
 
 from gtkutils import gobject_register
 
+
 class HIGSpinnerImages:
     def __init__(self):
         """This class holds list of GDK Pixbuffers.
 
         - static_pixbufs is used for multiple static pixbuffers
-        - self.animated_pixbufs is used for the pixbuffers that make up the animation
+        - self.animated_pixbufs is used for the pixbuffers that make up the
+          animation
         """
 
         dprint('HIGSpinnerImages::__init__')
@@ -182,7 +184,7 @@ class HIGSpinnerImages:
 
         dprint('HIGSpinnerImages::set_rest_pixbuf')
 
-        if not self.static_pixbufs.has_key(name):
+        if name not in self.static_pixbufs:
             raise StaticPixbufNotFound
 
         # self.rest_pixbuf holds the *real* pixbuf, not it's name
@@ -322,6 +324,7 @@ class HIGSpinnerCache:
         self.spinner_images.static_pixbufs[key_name].save(path_name,
                                                           image_format)
 
+
 class HIGSpinner(gtk.EventBox):
     """Simple spinner, such as the one found in webbrowsers and file managers.
 
@@ -331,8 +334,8 @@ class HIGSpinner(gtk.EventBox):
     * height, the height that will be set for the images
     """
 
-    __gsignals__ = { 'expose-event' : 'override',
-                     'size-request' : 'override' }
+    __gsignals__ = {'expose-event': 'override',
+                    'size-request': 'override'}
 
     def __init__(self):
         gtk.EventBox.__init__(self)
@@ -384,8 +387,8 @@ class HIGSpinner(gtk.EventBox):
         if self.timer_task == 0:
             self.current_pixbuf = self.cache.spinner_images.rest_pixbuf
         else:
-            self.current_pixbuf = self.cache.spinner_images.animated_pixbufs\
-                                  [self.animated_pixbuf_index]
+            self.current_pixbuf = self.cache.spinner_images.animated_pixbufs[
+                    self.animated_pixbuf_index]
 
     def start(self):
         """Starts the animation"""
@@ -401,11 +404,11 @@ class HIGSpinner(gtk.EventBox):
         self.timer_task = 0
         self.queue_draw()
 
-
     def stop(self):
         """Stops the animation
 
-        Do the same stuff as pause, but returns the animation to the beggining."""
+        Do the same stuff as pause, but returns the animation to the
+        beginning."""
         self.pause()
         self.animated_pixbuf_index = 0
 

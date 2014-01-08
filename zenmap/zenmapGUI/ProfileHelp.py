@@ -122,6 +122,7 @@
 
 from zenmapCore.UmitLogging import log
 
+
 class ProfileHelp:
     def __init__(self, currentstate=None):
         self.currentstate = "Default"
@@ -139,7 +140,7 @@ class ProfileHelp:
         if self.currentstate in self.labels.keys():
             return self.labels[self.currentstate]
         else:
-            return "" #blank
+            return ""  # blank
 
     def add_shortdesc(self, option_name, text):
         self.descs[option_name] = text
@@ -148,7 +149,7 @@ class ProfileHelp:
         if self.currentstate in self.descs.keys():
             return self.descs[self.currentstate]
         else:
-            return "" #blank
+            return ""  # blank
 
     def add_example(self, option_name, text):
         self.examples[option_name] = text
@@ -157,8 +158,8 @@ class ProfileHelp:
         if self.currentstate in self.examples.keys():
             return self.examples[self.currentstate]
         else:
-            return "" #blank
+            return ""  # blank
 
-    def handler(self,whichLabel):
+    def handler(self, whichLabel):
         log.debug("whichLabel: %s" % whichLabel)
         self.currentstate = whichLabel

@@ -130,6 +130,7 @@ __all__ = ['HIGMixButton', 'HIGButton']
 
 import gtk
 
+
 class HIGMixButton (gtk.HBox):
     def __init__(self, title, stock):
         gtk.HBox.__init__(self, False, 4)
@@ -146,8 +147,9 @@ class HIGMixButton (gtk.HBox):
         self.pack_start(self.align)
         self.pack_start(self.hbox1)
 
+
 class HIGButton (gtk.Button):
-    def __init__ (self, title="", stock=None):
+    def __init__(self, title="", stock=None):
         if title and stock:
             gtk.Button.__init__(self)
             content = HIGMixButton(title, stock)
@@ -158,6 +160,7 @@ class HIGButton (gtk.Button):
             gtk.Button.__init__(self, stock=stock)
         else:
             gtk.Button.__init__(self)
+
 
 class HIGToggleButton(gtk.ToggleButton):
     def __init__(self, title="", stock=None):

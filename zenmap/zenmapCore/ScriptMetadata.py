@@ -131,6 +131,7 @@ import sys
 from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 
+
 class ScriptDB (object):
     """Class responsible for parsing the script.db file, fetching script
     names and categories."""
@@ -138,7 +139,8 @@ class ScriptDB (object):
         "a": "\a", "b": "\b", "f": "\f", "n": "\n", "r": "\r",
         "t": "\t", "v": "\v", "\\": "\\", "\"": "\"", "'": "'", "0": "\0"
     }
-    def __init__(self, script_db_path = None):
+
+    def __init__(self, script_db_path=None):
         self.unget_buf = ""
 
         self.f = open(script_db_path, "r")
@@ -162,7 +164,8 @@ class ScriptDB (object):
     def parse(self):
         """Parses a script.db entry and returns it as a dictionary. An entry
         looks like this:
-        Entry { filename = "afp-brute.nse", categories = { "auth", "intrusive", } }
+        Entry { filename = "afp-brute.nse", categories = \
+                { "auth", "intrusive", } }
         """
         entries = []
         while True:
@@ -238,7 +241,8 @@ class ScriptDB (object):
         if not token or token[0] != "string":
             raise ScriptDBSyntaxError()
         entry["filename"] = token[1]
-        self.expect((("delim", ","), ("ident", "categories"), ("delim", "="), ("delim", "{")))
+        self.expect((("delim", ","), ("ident", "categories"),
+            ("delim", "="), ("delim", "{")))
         entry["categories"] = []
         token = self.token()
         if token and token[0] == "string":
@@ -262,6 +266,7 @@ class ScriptDB (object):
 
     def get_entries_list(self):
         return self.entries_list
+
 
 def nsedoc_tags_iter(f):
     in_doc_comment = False
@@ -296,6 +301,7 @@ def nsedoc_tags_iter(f):
                 tag_name = None
                 tag_text = None
 
+
 class ScriptMetadata (object):
     """Class responsible for parsing all the script information."""
 
@@ -305,14 +311,15 @@ class ScriptMetadata (object):
         def __init__(self, filename):
             self.filename = filename
             self.categories = []
-            self.arguments = [] # Arguments including library arguments.
+            self.arguments = []  # Arguments including library arguments.
             self.license = ""
             self.author = ""
             self.description = ""
             self.output = ""
             self.usage = ""
 
-        url = property(lambda self: "http://nmap.org/nsedoc/scripts/" + os.path.splitext(self.filename)[0] + ".html")
+        url = property(lambda self: "http://nmap.org/nsedoc/scripts/"
+                "%s.html" % (os.path.splitext(self.filename)[0]))
 
     def __init__(self, scripts_dir, nselib_dir):
         self.scripts_dir = scripts_dir
@@ -351,13 +358,16 @@ class ScriptMetadata (object):
         return contents
 
     def get_string_variable(self, filename, varname):
-        contents = ScriptMetadata.get_file_contents(os.path.join(self.scripts_dir, filename))
+        contents = ScriptMetadata.get_file_contents(
+            os.path.join(self.scripts_dir, filename))
         # Short string?
-        m = re.search(re.escape(varname) + r'\s*=\s*(["\'])(.*?[^\\])\1', contents)
+        m = re.search(
+            re.escape(varname) + r'\s*=\s*(["\'])(.*?[^\\])\1', contents)
         if m:
             return m.group(2)
         # Long string?
-        m = re.search(re.escape(varname) + r'\s*=\s*\[(=*)\[(.*?)\]\1\]', contents, re.S)
+        m = re.search(
+            re.escape(varname) + r'\s*=\s*\[(=*)\[(.*?)\]\1\]', contents, re.S)
         if m:
             return m.group(2)
         return None
@@ -398,7 +408,7 @@ class ScriptMetadata (object):
         for tag_name, tag_text in nsedoc_tags_iter(f):
             m = re.match(r'([\w._-]+)', tag_text)
             if (tag_name == "arg" or tag_name == "args") and m:
-                args.append((m.group(1), re.sub(r'^[\w._-]+','',tag_text)))
+                args.append((m.group(1), re.sub(r'^[\w._-]+', '', tag_text)))
         return args
 
     def get_arguments(self, filename):
@@ -443,6 +453,7 @@ class ScriptMetadata (object):
 
             self.library_arguments[libname] = self.get_script_args(filepath)
             self.library_requires[libname] = self.get_requires(filepath)
+
 
 def get_script_entries(scripts_dir, nselib_dir):
     """Merge the information obtained so far into one single entry for

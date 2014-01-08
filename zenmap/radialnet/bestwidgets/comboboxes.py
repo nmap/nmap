@@ -123,7 +123,6 @@ import gtk
 import gobject
 
 
-
 class BWChangeableComboBoxEntry(gtk.ComboBoxEntry):
     """
     """
@@ -139,19 +138,16 @@ class BWChangeableComboBoxEntry(gtk.ComboBoxEntry):
 
         self.__last_active = None
 
-
     def __changed(self, widget):
         """
         """
         if self.get_active() != -1:
             self.__last_active = self.get_active()
 
-
     def bw_get_lenght(self):
         """
         """
         return len(self.__liststore)
-
 
     def __entry_changed(self, widget):
         """
@@ -163,7 +159,6 @@ class BWChangeableComboBoxEntry(gtk.ComboBoxEntry):
             iter = self.get_model().get_iter((self.__last_active,))
             self.__liststore.set_value(iter, 0, widget.get_text().strip())
 
-
     def bw_get_active(self):
         """
         """
@@ -173,7 +168,6 @@ class BWChangeableComboBoxEntry(gtk.ComboBoxEntry):
         return self.get_active()
 
 
-
 # testing widget
 if __name__ == "__main__":
 
@@ -181,7 +175,6 @@ if __name__ == "__main__":
         """
         """
         combo.append_text('New')
-
 
     window = gtk.Window()
     window.connect("destroy", lambda w: gtk.main_quit())

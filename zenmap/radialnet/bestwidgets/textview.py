@@ -135,7 +135,6 @@ class BWTextView(BWScrolledWindow):
 
         self.__create_widgets()
 
-
     def __create_widgets(self):
         """
         """
@@ -144,24 +143,20 @@ class BWTextView(BWScrolledWindow):
 
         self.add_with_viewport(self.__textview)
 
-
     def bw_set_auto_scroll(self, value):
         """
         """
         self.__auto_scroll = value
-
 
     def bw_set_editable(self, editable):
         """
         """
         self.__textview.set_editable(False)
 
-
     def bw_modify_font(self, font):
         """
         """
         self.__textview.modify_font(font)
-
 
     def bw_set_text(self, text):
         """
@@ -171,25 +166,21 @@ class BWTextView(BWScrolledWindow):
         if self.__auto_scroll:
             self.bw_set_scroll_down()
 
-
     def bw_get_text(self):
         """
         """
         return self.__textbuffer.get_text(self.__textbuffer.get_start_iter(),
                                           self.__textbuffer.get_end_iter())
 
-
     def bw_set_scroll_down(self):
         """
         """
         self.get_vadjustment().set_value(self.get_vadjustment().upper)
 
-
     def bw_get_textbuffer(self):
         """
         """
         return self.__textbuffer
-
 
 
 class BWTextEditor(BWScrolledWindow):
@@ -204,7 +195,6 @@ class BWTextEditor(BWScrolledWindow):
         self.__auto_scroll = False
 
         self.__create_widgets()
-
 
     def __create_widgets(self):
         """
@@ -225,32 +215,27 @@ class BWTextEditor(BWScrolledWindow):
 
         self.add_with_viewport(self.__hbox)
 
-
     def __expose(self, widget, event):
         """
         """
         # code to fix a gtk issue that don't show text correctly
         self.__hbox.check_resize()
 
-
     def bw_set_auto_scroll(self, value):
         """
         """
         self.__auto_scroll = value
-
 
     def bw_set_editable(self, editable):
         """
         """
         self.__textview.set_editable(False)
 
-
     def bw_modify_font(self, font):
         """
         """
         self.__textview.modify_font(font)
         self.__lineview.modify_font(font)
-
 
     def bw_set_text(self, text):
         """
@@ -273,13 +258,11 @@ class BWTextEditor(BWScrolledWindow):
             self.__textbuffer.set_text("")
             self.__linebuffer.set_text("")
 
-
     def bw_get_text(self):
         """
         """
         return self.__textbuffer.get_text(self.__textbuffer.get_start_iter(),
                                           self.__textbuffer.get_end_iter())
-
 
     def bw_set_scroll_down(self):
         """

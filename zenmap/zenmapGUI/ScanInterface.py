@@ -145,7 +145,8 @@ from zenmapGUI.ScanScanListPage import ScanScanListPage
 from zenmapGUI.ScansListStore import ScansListStore
 from zenmapGUI.TopologyPage import TopologyPage
 
-from zenmapCore.NetworkInventory import NetworkInventory, FilteredNetworkInventory
+from zenmapCore.NetworkInventory import NetworkInventory,\
+        FilteredNetworkInventory
 from zenmapCore.NmapCommand import NmapCommand
 from zenmapCore.UmitConf import CommandProfile, ProfileNotFound, is_maemo
 from zenmapCore.NmapParser import NmapParser
@@ -156,6 +157,7 @@ import zenmapCore.I18N
 
 # How often the live output view refreshes, in milliseconds.
 NMAP_OUTPUT_REFRESH_INTERVAL = 1000
+
 
 class ScanInterface(HIGVBox):
     """ScanInterface contains the scan toolbar and the scan results. Each
@@ -204,20 +206,26 @@ class ScanInterface(HIGVBox):
                                       scan_interface=self)
         self.host_view_selection = self.scan_result.get_host_selection()
         self.service_view_selection = self.scan_result.get_service_selection()
-        self.host_view_selection.connect('changed', self.host_selection_changed)
-        self.service_view_selection.connect('changed', self.service_selection_changed)
+        self.host_view_selection.connect(
+                'changed', self.host_selection_changed)
+        self.service_view_selection.connect(
+                'changed', self.service_selection_changed)
         host_page = self.scan_result.scan_result_notebook.open_ports.host
-        host_page.host_view.get_selection().connect('changed', self.service_host_selection_changed)
-        self.host_view_selection.connect('changed', self.host_selection_changed)
+        host_page.host_view.get_selection().connect(
+                'changed', self.service_host_selection_changed)
+        self.host_view_selection.connect(
+                'changed', self.host_selection_changed)
 
-        self.scan_result.scan_result_notebook.nmap_output.connect("changed", self._displayed_scan_change_cb)
-        self.scan_result.scan_result_notebook.scans_list.remove_button.connect("clicked", self._remove_scan_cb)
+        self.scan_result.scan_result_notebook.nmap_output.connect(
+                "changed", self._displayed_scan_change_cb)
+        self.scan_result.scan_result_notebook.scans_list.remove_button.connect(
+                "clicked", self._remove_scan_cb)
 
         # The hosts dict maps hostnames (as returned by HostInfo.get_hostname)
         # to HostInfo objects.
         self.hosts = {}
-        # The services dict maps service names ("http") to lists of dicts of the
-        # form
+        # The services dict maps service names ("http") to lists of dicts of
+        # the form
         # {'host': <HostInfo object>, 'hostname': u'example.com',
         #  'port_state': u'open', 'portid': u'22', 'protocol': u'tcp',
         #  'service_conf': u'10', 'service_extrainfo': u'protocol 2.0',
@@ -236,7 +244,8 @@ class ScanInterface(HIGVBox):
         self._pack_noexpand_nofill(self.top_box)
         self._pack_expand_fill(self.scan_result)
 
-        self.scan_result.scan_result_notebook.scans_list.cancel_button.connect("clicked", self._cancel_scans_list_cb)
+        self.scan_result.scan_result_notebook.scans_list.cancel_button.connect(
+                "clicked", self._cancel_scans_list_cb)
         self.update_cancel_button()
 
         # Create the filter GUI
@@ -271,16 +280,18 @@ class ScanInterface(HIGVBox):
         # Restart the timer to start the filter.
         if self.filter_timeout_id:
             gobject.source_remove(self.filter_timeout_id)
-        self.filter_timeout_id = gobject.timeout_add(self.FILTER_DELAY, self.filter_hosts, filter_bar.get_filter_string())
+        self.filter_timeout_id = gobject.timeout_add(
+                self.FILTER_DELAY, self.filter_hosts,
+                filter_bar.get_filter_string())
 
     def filter_hosts(self, filter_string):
         start = time.clock()
         self.inventory.apply_filter(filter_string)
-        filter_time = time.clock() - start;
+        filter_time = time.clock() - start
         # Update the gui
         start = time.clock()
         self.update_ui()
-        gui_time = time.clock() - start;
+        gui_time = time.clock() - start
 
         if filter_time + gui_time > 0.0:
             log.debug("apply_filter %g ms  update_ui %g ms (%.0f%% filter)" %
@@ -302,8 +313,8 @@ class ScanInterface(HIGVBox):
         return len(self.jobs)
 
     def select_default_profile(self):
-        """Select a "default" profile. Currently this is defined to be the first
-        profile."""
+        """Select a "default" profile. Currently this is defined to be the
+        first profile."""
         if len(self.toolbar.profile_entry.get_model()) > 0:
             self.toolbar.profile_entry.set_active(0)
 
@@ -314,21 +325,22 @@ class ScanInterface(HIGVBox):
     def __create_toolbar(self):
         self.toolbar = ScanToolbar()
 
-        self.target_entry_changed_handler = \
-            self.toolbar.target_entry.connect('changed', self._target_entry_changed)
+        self.target_entry_changed_handler = self.toolbar.target_entry.connect(
+                'changed', self._target_entry_changed)
         self.profile_entry_changed_handler = \
-            self.toolbar.profile_entry.connect('changed', self._profile_entry_changed)
+            self.toolbar.profile_entry.connect(
+                    'changed', self._profile_entry_changed)
 
         self.toolbar.scan_button.connect('clicked', self.start_scan_cb)
         self.toolbar.cancel_button.connect('clicked', self._cancel_scan_cb)
 
-
     def __create_command_toolbar(self):
         self.command_toolbar = ScanCommandToolbar()
-        self.command_toolbar.command_entry.connect('activate',
-                                    lambda x: self.toolbar.scan_button.clicked())
+        self.command_toolbar.command_entry.connect(
+                'activate', lambda x: self.toolbar.scan_button.clicked())
         self.command_entry_changed_handler = \
-            self.command_toolbar.command_entry.connect('changed', self._command_entry_changed)
+            self.command_toolbar.command_entry.connect(
+                    'changed', self._command_entry_changed)
 
     def _command_entry_changed(self, editable):
         ops = NmapOptions()
@@ -378,23 +390,29 @@ class ScanInterface(HIGVBox):
     def set_command_quiet(self, command_string):
         """Set the command used by this scan interface, ignoring any further
         "changed" signals."""
-        self.command_toolbar.command_entry.handler_block(self.command_entry_changed_handler)
+        self.command_toolbar.command_entry.handler_block(
+                self.command_entry_changed_handler)
         self.command_toolbar.set_command(command_string)
-        self.command_toolbar.command_entry.handler_unblock(self.command_entry_changed_handler)
+        self.command_toolbar.command_entry.handler_unblock(
+                self.command_entry_changed_handler)
 
     def set_target_quiet(self, target_string):
         """Set the target string used by this scan interface, ignoring any
         further "changed" signals."""
-        self.toolbar.target_entry.handler_block(self.target_entry_changed_handler)
+        self.toolbar.target_entry.handler_block(
+                self.target_entry_changed_handler)
         self.toolbar.set_selected_target(target_string)
-        self.toolbar.target_entry.handler_unblock(self.target_entry_changed_handler)
+        self.toolbar.target_entry.handler_unblock(
+                self.target_entry_changed_handler)
 
     def set_profile_name_quiet(self, profile_name):
         """Set the profile name used by this scan interface, ignoring any
         further "changed" signals."""
-        self.toolbar.profile_entry.handler_block(self.profile_entry_changed_handler)
+        self.toolbar.profile_entry.handler_block(
+                self.profile_entry_changed_handler)
         self.toolbar.set_selected_profile(profile_name)
-        self.toolbar.profile_entry.handler_unblock(self.profile_entry_changed_handler)
+        self.toolbar.profile_entry.handler_unblock(
+                self.profile_entry_changed_handler)
 
     def start_scan_cb(self, widget=None):
         target = self.toolbar.selected_target
@@ -412,14 +430,17 @@ class ScanInterface(HIGVBox):
             except IOError, e:
                 # We failed to save target_list.txt; treat it as read-only.
                 # Probably it's owned by root and this is a normal user.
-                log.debug(">>> Error saving %s: %s" % (Path.target_list, str(e)))
+                log.debug(">>> Error saving %s: %s" % (
+                    Path.target_list, str(e)))
 
         if command == '':
-            warn_dialog = HIGAlertDialog(message_format=_("Empty Nmap Command"),
-                                         secondary_text=_("There is no command to  \
-execute. Maybe the selected/typed profile doesn't exist. Please, check the profile name \
-or type the nmap command you would like to execute."),
-                                         type=gtk.MESSAGE_ERROR)
+            warn_dialog = HIGAlertDialog(
+                    message_format=_("Empty Nmap Command"),
+                    secondary_text=_("There is no command to execute. "
+                        "Maybe the selected/typed profile doesn't exist. "
+                        "Please check the profile name or type the nmap "
+                        "command you would like to execute."),
+                    type=gtk.MESSAGE_ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
             return
@@ -467,8 +488,8 @@ or type the nmap command you would like to execute."),
                 self.inventory.remove_scan(entry.parsed)
             except ValueError:
                 pass
-            # Create TreeRowReferences because those persist while we change the
-            # model.
+            # Create TreeRowReferences because those persist while we change
+            # the model.
             selected_refs.append(gtk.TreeRowReference(model, path))
         # Delete the entries from the ScansListStore.
         for ref in selected_refs:
@@ -500,7 +521,7 @@ or type the nmap command you would like to execute."),
         self.jobs.remove(command)
         self.update_cancel_button()
 
-    def execute_command(self, command, target = None, profile = None):
+    def execute_command(self, command, target=None, profile=None):
         """Run the given Nmap command. Add it to the list of running scans.
         Schedule a timer to refresh the output and check the scan for
         completion."""
@@ -515,21 +536,27 @@ or type the nmap command you would like to execute."),
                 # Handle ENOENT specially.
                 if e.errno == errno.ENOENT:
                     # nmap_command_path comes from zenmapCore.NmapCommand.
-                    text += "\n\n" + _("This means that the nmap executable was not found in your system PATH, which is") + "\n\n" + os.getenv("PATH", _("<undefined>"))
+                    text += "\n\n%s\n\n%s" % (
+                            _("This means that the nmap executable was "
+                                "not found in your system PATH, which is"),
+                            os.getenv("PATH", _("<undefined>"))
+                            )
                     path_env = os.getenv("PATH")
                     if path_env is None:
                         default_paths = []
                     else:
                         default_paths = path_env.split(os.pathsep)
                     extra_paths = get_extra_executable_search_paths()
-                    extra_paths = [p for p in extra_paths if p not in default_paths]
+                    extra_paths = [p for p in extra_paths if (
+                        p not in default_paths)]
                     if len(extra_paths) > 0:
                         if len(extra_paths) == 1:
                             text += "\n\n" + _("plus the extra directory")
                         else:
                             text += "\n\n" + _("plus the extra directories")
                         text += "\n\n" + os.pathsep.join(extra_paths)
-            warn_dialog = HIGAlertDialog(message_format=_("Error executing command"),
+            warn_dialog = HIGAlertDialog(
+                message_format=_("Error executing command"),
                 secondary_text=text, type=gtk.MESSAGE_ERROR)
             warn_dialog.run()
             warn_dialog.destroy()
@@ -546,7 +573,8 @@ or type the nmap command you would like to execute."),
         self.scan_result.refresh_nmap_output()
 
         # Add a timeout function
-        self.verify_thread_timeout_id = gobject.timeout_add(NMAP_OUTPUT_REFRESH_INTERVAL, self.verify_execution)
+        self.verify_thread_timeout_id = gobject.timeout_add(
+            NMAP_OUTPUT_REFRESH_INTERVAL, self.verify_execution)
 
     def verify_execution(self):
         """This is a callback that is called periodically to refresh the output
@@ -597,12 +625,12 @@ or type the nmap command you would like to execute."),
             except:
                 st = None
             if st is None or st.st_size > 0:
-                warn_dialog = HIGAlertDialog(message_format = _("Parse error"),
-                    secondary_text = _(u"""\
-There was an error while parsing the XML file generated from the scan:
-
-%s\
-""") % str(e), type = gtk.MESSAGE_ERROR)
+                warn_dialog = HIGAlertDialog(
+                        message_format=_("Parse error"),
+                        secondary_text=_(
+                            "There was an error while parsing the XML file "
+                            "generated from the scan:\n\n%s""") % str(e),
+                        type=gtk.MESSAGE_ERROR)
                 warn_dialog.run()
                 warn_dialog.destroy()
         else:
@@ -612,12 +640,12 @@ There was an error while parsing the XML file generated from the scan:
             try:
                 self.inventory.add_scan(parsed)
             except Exception, e:
-                warn_dialog = HIGAlertDialog(message_format = _("Cannot merge scan"),
-                    secondary_text = _(u"""\
-There was an error while merging the new scan's XML:
-
-%s\
-""") % str(e), type = gtk.MESSAGE_ERROR)
+                warn_dialog = HIGAlertDialog(
+                        message_format=_("Cannot merge scan"),
+                        secondary_text=_(
+                            "There was an error while merging the new scan's "
+                            "XML:\n\n%s") % str(e),
+                        type=gtk.MESSAGE_ERROR)
                 warn_dialog.run()
                 warn_dialog.destroy()
         parsed.set_xml_is_temp(command.xml_is_temp)
@@ -686,27 +714,29 @@ There was an error while merging the new scan's XML:
                 if name not in self.services.keys():
                     self.services[name] = []
 
-                hs = {"host":host, "hostname":hostname}
+                hs = {"host": host, "hostname": hostname}
                 hs.update(service)
 
                 self.services[name].append(hs)
 
             self.hosts[hostname] = host
 
-        # If the host and service selection is empty or has become empty, select
-        # the first host if there is at least one.
-        if len(self.host_view_selection.get_selected_rows()[1]) == 0 \
-            and len(self.service_view_selection.get_selected_rows()[1]) == 0 \
-            and len(self.scan_result.scan_host_view.host_list) > 0:
-            self.host_view_selection.select_iter(self.scan_result.scan_host_view.host_list.get_iter_first())
+        # If the host and service selection is empty or has become empty,
+        # select the first host if there is at least one.
+        if (len(self.service_view_selection.get_selected_rows()[1]) == 0 and
+                len(self.host_view_selection.get_selected_rows()[1]) == 0 and
+                len(self.scan_result.scan_host_view.host_list) > 0):
+            self.host_view_selection.select_iter(
+                self.scan_result.scan_host_view.host_list.get_iter_first())
 
         self.filter_bar.set_information_text(_("%d/%d hosts shown") %
             (len(self.inventory.get_hosts_up()),
              len(NetworkInventory.get_hosts_up(self.inventory))))
 
-        if self.scan_result.scan_host_view.mode == ScanHostsView.HOST_MODE:
+        mode = self.scan_result.scan_host_view.mode
+        if mode == ScanHostsView.HOST_MODE:
             self.refresh_port_output()
-        elif self.scan_result.scan_host_view.mode == ScanHostsView.SERVICE_MODE:
+        elif mode == ScanHostsView.SERVICE_MODE:
             self.refresh_host_output()
 
     def refresh_port_output(self):
@@ -714,11 +744,12 @@ There was an error while merging the new scan's XML:
         current host selection."""
         self.scan_result.scan_result_notebook.port_mode()
 
-        model_host_list, selection = self.host_view_selection.get_selected_rows()
+        model_host_list, selection = \
+                self.host_view_selection.get_selected_rows()
         host_objs = []
         for i in selection:
             hostname = model_host_list[i[0]][2]
-            if self.hosts.has_key(hostname):
+            if hostname in self.hosts:
                 host_objs.append(self.hosts[hostname])
 
         if len(host_objs) == 1:
@@ -732,11 +763,12 @@ There was an error while merging the new scan's XML:
         current service selection."""
         self.scan_result.scan_result_notebook.host_mode()
 
-        model_service_list, selection = self.service_view_selection.get_selected_rows()
+        model_service_list, selection = \
+                self.service_view_selection.get_selected_rows()
         serv_objs = []
         for i in selection:
             key = model_service_list[i[0]][0]
-            if self.services.has_key(key):
+            if key in self.services:
                 serv_objs.append(self.services[key])
 
         # Each element of serv_objs is a list of port dicts.
@@ -745,7 +777,9 @@ There was an error while merging the new scan's XML:
         else:
             servs = []
             for s in serv_objs:
-                servs.append({"service_name":s[0]["service_name"], "ports": s})
+                servs.append({
+                    "service_name": s[0]["service_name"],
+                    "ports": s})
             self.set_multiple_service_host(servs)
 
     def host_selection_changed(self, widget):
@@ -791,7 +825,8 @@ There was an error while merging the new scan's XML:
         """Sets the comment on a host from the contents of the comment text
         entry."""
         buff = widget.get_buffer()
-        host.comment = buff.get_text(buff.get_start_iter(), buff.get_end_iter())
+        host.comment = buff.get_text(
+                buff.get_start_iter(), buff.get_end_iter())
         for scan in self.inventory.get_scans():
             if host in scan.get_hosts():
                 scan.unsaved = True
@@ -803,8 +838,10 @@ There was an error while merging the new scan's XML:
         pages = []
         for host in hosts:
             page = ScanHostDetailsPage(host)
-            page.host_details.comment_txt_vw.connect("insert-at-cursor", self._save_comment, host)
-            page.host_details.comment_txt_vw.connect("focus-out-event", self._save_comment, host)
+            page.host_details.comment_txt_vw.connect(
+                    "insert-at-cursor", self._save_comment, host)
+            page.host_details.comment_txt_vw.connect(
+                    "focus-out-event", self._save_comment, host)
             pages.append(page)
         return pages
 
@@ -833,9 +870,9 @@ There was an error while merging the new scan's XML:
         host_page.thaw()
 
     def set_multiple_host_port(self, host_list):
-        """Change the "Ports / Hosts" tab to show the port output for all of the
-        hosts in host_list. When multiple hosts are selected, the port output
-        for each is contained in an expander."""
+        """Change the "Ports / Hosts" tab to show the port output for all of
+        the hosts in host_list. When multiple hosts are selected, the port
+        output for each is contained in an expander."""
         host_page = self.scan_result.scan_result_notebook.open_ports.host
         host_page.switch_port_to_tree_store()
 
@@ -846,18 +883,21 @@ There was an error while merging the new scan's XML:
         host_page.thaw()
 
     def set_multiple_service_host(self, service_list):
-        """Change the "Ports / Hosts" tab to show the hosts associated with each
-        of the services in service_list. Each element of service_list must be a
-        dict with the keys "service_name" and "ports". When multiple services
-        are selected, the hosts for each are contained in an expander."""
+        """Change the "Ports / Hosts" tab to show the hosts associated with
+        each of the services in service_list. Each element of service_list must
+        be a dict with the keys "service_name" and "ports". When multiple
+        services are selected, the hosts for each are contained in an
+        expander."""
         host_page = self.scan_result.scan_result_notebook.open_ports.host
         host_page.switch_host_to_tree_store()
 
         host_page.freeze()
         host_page.clear_host_tree()
         for service in service_list:
-            host_page.add_to_host_tree(service["service_name"], service["ports"])
+            host_page.add_to_host_tree(
+                    service["service_name"], service["ports"])
         host_page.thaw()
+
 
 class ScanResult(gtk.HPaned):
     """This is the pane that has the "Host"/"Service" column (ScanHostsView) on
@@ -915,7 +955,8 @@ class ScanResultNotebook(HIGNotebook):
 
         self.__create_widgets(inventory, scans_store)
 
-        self.scans_list.scans_list.connect("row-activated", self._scan_row_activated)
+        self.scans_list.scans_list.connect(
+                "row-activated", self._scan_row_activated)
 
         self.append_page(self.nmap_output_page, gtk.Label(_('Nmap Output')))
         self.append_page(self.open_ports_page, gtk.Label(_('Ports / Hosts')))

@@ -124,7 +124,6 @@ from radialnet.util.geometry import *
 import math
 
 
-
 def ipv4_compare(ip1, ip2):
     """
     """
@@ -174,5 +173,7 @@ def sort_children_by_angle(children):
     """
 
     vector = list(children)
-    vector.sort(key = lambda c: normalize_angle(c.get_draw_info('angle_from_father')))
+    vector.sort(
+            key=lambda c: normalize_angle(
+                c.get_draw_info('angle_from_father')))
     return vector

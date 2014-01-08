@@ -135,7 +135,8 @@ from glob import glob
 from stat import *
 
 from zenmapCore.Version import VERSION
-from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, APP_WEB_SITE, APP_DOWNLOAD_SITE, NMAP_DISPLAY_NAME
+from zenmapCore.Name import APP_NAME, APP_DISPLAY_NAME, APP_WEB_SITE,\
+        APP_DOWNLOAD_SITE, NMAP_DISPLAY_NAME
 
 # The name of the file used to record the list of installed files, so that the
 # uninstall command can remove them.
@@ -154,6 +155,7 @@ misc_dir = os.path.join(data_dir, 'misc')
 # Where to install .desktop files.
 desktop_dir = os.path.join('share', 'applications')
 
+
 def mo_find(result, dirname, fnames):
     files = []
     for f in fnames:
@@ -164,29 +166,31 @@ def mo_find(result, dirname, fnames):
     if files:
         result.append((dirname, files))
 
-################################################################################
+###############################################################################
 # Installation variables
 
-data_files = [ (pixmaps_dir, glob(os.path.join(pixmaps_dir, '*.gif')) +
-                             glob(os.path.join(pixmaps_dir, '*.png'))),
+data_files = [
+        (pixmaps_dir, glob(os.path.join(pixmaps_dir, '*.gif')) +
+            glob(os.path.join(pixmaps_dir, '*.png'))),
 
-               (os.path.join(pixmaps_dir, "radialnet"),
-                             glob(os.path.join(pixmaps_dir, "radialnet", '*.png'))),
+        (os.path.join(pixmaps_dir, "radialnet"),
+            glob(os.path.join(pixmaps_dir, "radialnet", '*.png'))),
 
-               (config_dir, [os.path.join(config_dir, APP_NAME + '.conf')] +
-                            [os.path.join(config_dir, 'scan_profile.usp')] +
-                            [os.path.join(config_dir, APP_NAME + '_version')]),
+        (config_dir, [os.path.join(config_dir, APP_NAME + '.conf'),
+            os.path.join(config_dir, 'scan_profile.usp'),
+            os.path.join(config_dir, APP_NAME + '_version')]),
 
-               (misc_dir, glob(os.path.join(misc_dir, '*.xml'))),
+        (misc_dir, glob(os.path.join(misc_dir, '*.xml'))),
 
-               (docs_dir, [os.path.join(docs_dir, 'help.html')])]
+        (docs_dir, [os.path.join(docs_dir, 'help.html')])
+        ]
 
 # Add i18n files to data_files list
 os.path.walk(locale_dir, mo_find, data_files)
 
+
 # path_startswith and path_strip_prefix are used to deal with the installation
 # root (--root option, also known as DESTDIR).
-
 def path_startswith(path, prefix):
     """Returns True if path starts with prefix. It's a little more intelligent
     than str.startswith because it normalizes the paths to remove multiple
@@ -195,10 +199,11 @@ def path_startswith(path, prefix):
     prefix = os.path.normpath(prefix)
     return path.startswith(prefix)
 
+
 def path_strip_prefix(path, prefix):
     """Return path stripped of its directory prefix if it starts with prefix,
-    otherwise return path unmodified. This only works correctly with Unix paths;
-    for example it will not replace the drive letter on a Windows path.
+    otherwise return path unmodified. This only works correctly with Unix
+    paths; for example it will not replace the drive letter on a Windows path.
     Examples:
     >>> path_strip_prefix('/tmp/destdir/usr/bin', '/tmp/destdir')
     '/usr/bin'
@@ -221,14 +226,16 @@ def path_strip_prefix(path, prefix):
     assert os.path.isabs(path) == absolute
     return path
 
-################################################################################
+###############################################################################
 # Distutils subclasses
+
 
 class my_install(install):
     def finalize_options(self):
         # Ubuntu's python2.6-2.6.4-0ubuntu3 package changes sys.prefix in
         # install.finalize_options when sys.prefix is "/usr/local" (our
-        # default). Because we need the unchanged value later, remember it here.
+        # default). Because we need the unchanged value later, remember it
+        # here.
         self.saved_prefix = self.prefix
         install.finalize_options(self)
 
@@ -252,14 +259,17 @@ class my_install(install):
         # Recursively include all the directories in data_dir (share/zenmap).
         # This is mainly for convenience in listing locale directories.
         installed_files.append(os.path.join(self.install_data, data_dir))
-        for dirpath, dirs, files in os.walk(os.path.join(self.install_data, data_dir)):
+        for dirpath, dirs, files in os.walk(
+                os.path.join(self.install_data, data_dir)):
             for dir in dirs:
                 installed_files.append(os.path.join(dirpath, dir))
-        installed_files.append(os.path.join(self.install_scripts, "uninstall_" + APP_NAME))
+        installed_files.append(
+                os.path.join(self.install_scripts, "uninstall_" + APP_NAME))
         return installed_files
 
     def create_uninstaller(self):
-        uninstaller_filename = os.path.join(self.install_scripts, "uninstall_" + APP_NAME)
+        uninstaller_filename = os.path.join(
+                self.install_scripts, "uninstall_" + APP_NAME)
 
         uninstaller = """\
 #!/usr/bin/env python
@@ -267,26 +277,28 @@ import errno, os, os.path, sys
 
 print 'Uninstall %(name)s %(version)s'
 
-answer = raw_input('Are you sure that you want to uninstall %(name)s %(version)s? (yes/no) ')
+answer = raw_input('Are you sure that you want to uninstall '
+    '%(name)s %(version)s? (yes/no) ')
 
 if answer != 'yes' and answer != 'y':
     print 'Not uninstalling.'
     sys.exit(0)
 
-""" % {'name':APP_DISPLAY_NAME, 'version':VERSION}
+""" % {'name': APP_DISPLAY_NAME, 'version': VERSION}
 
         installed_files = []
         for output in self.get_installed_files():
             if self.root is not None:
-                # If we have a root (DESTDIR), we need to strip it off the front
-                # of paths so the uninstaller runs on the target host. The path
-                # manipulations are tricky, but made easier because the
-                # uninstaller only has to run on Unix.
+                # If we have a root (DESTDIR), we need to strip it off the
+                # front of paths so the uninstaller runs on the target host.
+                # The path manipulations are tricky, but made easier because
+                # the uninstaller only has to run on Unix.
                 if not path_startswith(output, self.root):
-                    # This should never happen (everything gets installed inside
-                    # the root), but if it does, be safe and don't delete
-                    # anything.
-                    uninstaller += "print '%s was not installed inside the root %s; skipping.'\n" % (output, self.root)
+                    # This should never happen (everything gets installed
+                    # inside the root), but if it does, be safe and don't
+                    # delete anything.
+                    uninstaller += ("print '%s was not installed inside "
+                        "the root %s; skipping.'\n" % (output, self.root))
                     continue
                 output = path_strip_prefix(output, self.root)
                 assert os.path.isabs(output)
@@ -356,7 +368,8 @@ for dir in dirs:
                 lines[i] = "INSTALL_LIB = %s\n" % repr(modules_dir)
                 break
         else:
-            raise ValueError("INSTALL_LIB replacement not found in %s" % app_file_name)
+            raise ValueError(
+                    "INSTALL_LIB replacement not found in %s" % app_file_name)
 
         app_file = open(app_file_name, "w")
         app_file.writelines(lines)
@@ -380,16 +393,17 @@ for dir in dirs:
                                  S_IRGRP | \
                                  S_IROTH)
 
-
     def fix_paths(self):
         """Replace some hardcoded paths to match where files were installed."""
-        interesting_paths = {"CONFIG_DIR": os.path.join(self.saved_prefix, config_dir),
-                             "DOCS_DIR": os.path.join(self.saved_prefix, docs_dir),
-                             "LOCALE_DIR": os.path.join(self.saved_prefix, locale_dir),
-                             "MISC_DIR": os.path.join(self.saved_prefix, misc_dir),
-                             "PIXMAPS_DIR": os.path.join(self.saved_prefix, pixmaps_dir),
-                             # See $(nmapdatadir) in nmap/Makefile.in.
-                             "NMAPDATADIR": os.path.join(self.saved_prefix, "share", "nmap"),}
+        interesting_paths = {
+                "CONFIG_DIR": os.path.join(self.saved_prefix, config_dir),
+                "DOCS_DIR": os.path.join(self.saved_prefix, docs_dir),
+                "LOCALE_DIR": os.path.join(self.saved_prefix, locale_dir),
+                "MISC_DIR": os.path.join(self.saved_prefix, misc_dir),
+                "PIXMAPS_DIR": os.path.join(self.saved_prefix, pixmaps_dir),
+                # See $(nmapdatadir) in nmap/Makefile.in.
+                "NMAPDATADIR": os.path.join(self.saved_prefix, "share", "nmap")
+                }
 
         # Find and read the Paths.py file.
         pcontent = ""
@@ -417,8 +431,10 @@ for dir in dirs:
         # Rewrite the zenmap.desktop and zenmap-root.desktop files to point to
         # the installed locations of the su-to-zenmap.sh script and application
         # icon.
-        su_filename = os.path.join(self.saved_prefix, data_dir, "su-to-zenmap.sh")
-        icon_filename = os.path.join(self.saved_prefix, pixmaps_dir, "zenmap.png")
+        su_filename = os.path.join(
+                self.saved_prefix, data_dir, "su-to-zenmap.sh")
+        icon_filename = os.path.join(
+                self.saved_prefix, pixmaps_dir, "zenmap.png")
 
         desktop_filename = None
         root_desktop_filename = None
@@ -442,7 +458,9 @@ for dir in dirs:
             df = open(root_desktop_filename, "r")
             dcontent = df.read()
             df.close()
-            regex = re.compile("^((?:Exec|TryExec) *= *).*su-to-zenmap.sh(.*)$", re.MULTILINE)
+            regex = re.compile(
+                    "^((?:Exec|TryExec) *= *).*su-to-zenmap.sh(.*)$",
+                    re.MULTILINE)
             dcontent = regex.sub("\\1%s\\2" % su_filename, dcontent)
             regex = re.compile("^(Icon *= *).*$", re.MULTILINE)
             dcontent = regex.sub("\\1%s" % icon_filename, dcontent)
@@ -456,7 +474,8 @@ for dir in dirs:
         doesn't strip off the installation root, if any. File names containing
         newline characters are not handled."""
         if INSTALLED_FILES_NAME == self.record:
-            distutils.log.warn("warning: installation record is overwriting --record file '%s'." % self.record)
+            distutils.log.warn("warning: installation record is overwriting "
+                "--record file '%s'." % self.record)
         f = open(INSTALLED_FILES_NAME, "w")
         try:
             for output in self.get_installed_files():
@@ -465,12 +484,14 @@ for dir in dirs:
         finally:
             f.close()
 
+
 class my_uninstall(Command):
     """A distutils command that performs uninstallation. It reads the list of
     installed files written by the install command."""
 
     command_name = "uninstall"
-    description = "uninstall installed files recorded in '%s'" % INSTALLED_FILES_NAME
+    description = "uninstall installed files recorded in '%s'" % (
+            INSTALLED_FILES_NAME)
     user_options = []
 
     def initialize_options(self):
@@ -485,7 +506,8 @@ class my_uninstall(Command):
             f = open(INSTALLED_FILES_NAME, "r")
         except IOError, e:
             if e.errno == errno.ENOENT:
-                log.error("Couldn't open the installation record '%s'. Have you installed yet?" % INSTALLED_FILES_NAME)
+                log.error("Couldn't open the installation record '%s'. "
+                        "Have you installed yet?" % INSTALLED_FILES_NAME)
                 return
         installed_files = [file.rstrip("\n") for file in f.readlines()]
         f.close()
@@ -510,7 +532,7 @@ class my_uninstall(Command):
         # Delete the directories. First reverse-sort the normalized paths by
         # length so that child directories are deleted before their parents.
         dirs = [os.path.normpath(dir) for dir in dirs]
-        dirs.sort(key = len, reverse = True)
+        dirs.sort(key=len, reverse=True)
         for dir in dirs:
             try:
                 log.info("Removing the directory '%s'." % dir)
@@ -523,8 +545,8 @@ class my_uninstall(Command):
                     log.error(str(e))
 
 # setup can be called in different ways depending on what we're doing. (For
-# example py2exe needs special handling.) These arguments are common between all
-# the operations.
+# example py2exe needs special handling.) These arguments are common between
+# all the operations.
 COMMON_SETUP_ARGS = {
     'name': APP_NAME,
     'license': 'Nmap License (http://nmap.org/book/man-legal.html)',
@@ -533,14 +555,14 @@ COMMON_SETUP_ARGS = {
     'author': 'Nmap Project',
     'maintainer': 'Nmap Project',
     'description': "%s frontend and results viewer" % NMAP_DISPLAY_NAME,
-    'long_description': """\
-%s is an %s frontend \
-that is really useful for advanced users and easy to be used by newbies.""" \
-% (APP_DISPLAY_NAME, NMAP_DISPLAY_NAME),
+    'long_description': "%s is an %s frontend that is really useful"
+        "for advanced users and easy to be used by newbies." % (
+            APP_DISPLAY_NAME, NMAP_DISPLAY_NAME),
     'version': VERSION,
     'scripts': [APP_NAME],
     'packages': ['zenmapCore', 'zenmapGUI', 'zenmapGUI.higwidgets',
-                 'radialnet', 'radialnet.bestwidgets', 'radialnet.core', 'radialnet.gui', 'radialnet.util'],
+                 'radialnet', 'radialnet.bestwidgets', 'radialnet.core',
+                 'radialnet.gui', 'radialnet.util'],
     'data_files': data_files,
 }
 
@@ -555,17 +577,24 @@ if 'py2exe' in sys.argv:
     WINDOWS_SETUP_ARGS = {
         'zipfile': 'py2exe/library.zip',
         'name': APP_NAME,
-        'windows': [{"script": APP_NAME,
-                     "icon_resources": [(1, "install_scripts/windows/nmap-eye.ico")]}],
+        'windows': [{
+            "script": APP_NAME,
+            "icon_resources": [(1, "install_scripts/windows/nmap-eye.ico")]
+            }],
         # On Windows we build Ndiff here in Zenmap's setup.py so the two Python
         # programs will share a common runtime.
-        'console': [{"script": "../ndiff/scripts/ndiff", "description": "Nmap scan comparison tool"}],
+        'console': [{
+            "script": "../ndiff/scripts/ndiff",
+            "description": "Nmap scan comparison tool"
+            }],
         'options': {"py2exe": {
             "compressed": 1,
             "optimize": 2,
             "packages": ["encodings"],
-            "includes": ["pango", "atk", "gobject", "gio", "pickle", "bz2", "encodings", "encodings.*", "cairo", "pangocairo"],
-            "dll_excludes": ["USP10.dll", "NSI.dll", "MSIMG32.dll", "DNSAPI.dll"]
+            "includes": ["pango", "atk", "gobject", "gio", "pickle", "bz2",
+                "encodings", "encodings.*", "cairo", "pangocairo"],
+            "dll_excludes": ["USP10.dll", "NSI.dll", "MSIMG32.dll",
+                "DNSAPI.dll"]
             }
         }
     }

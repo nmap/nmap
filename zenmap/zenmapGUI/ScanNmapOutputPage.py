@@ -134,6 +134,7 @@ from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 import zenmapCore.I18N
 
+
 def scan_entry_data_func(widget, cell_renderer, model, iter):
     """Set the properties of a cell renderer for a scan entry."""
     cell_renderer.set_property("ellipsize", pango.ELLIPSIZE_END)
@@ -150,12 +151,15 @@ def scan_entry_data_func(widget, cell_renderer, model, iter):
         cell_renderer.set_property("strikethrough", True)
     cell_renderer.set_property("text", entry.get_command_string())
 
+
 class Throbber(gtk.Image):
     """This is a little progress indicator that animates while a scan is
     running."""
     try:
-        still = gtk.gdk.pixbuf_new_from_file(os.path.join(Path.pixmaps_dir, "throbber.png"))
-        anim = gtk.gdk.PixbufAnimation(os.path.join(Path.pixmaps_dir, "throbber.gif"))
+        still = gtk.gdk.pixbuf_new_from_file(
+                os.path.join(Path.pixmaps_dir, "throbber.png"))
+        anim = gtk.gdk.PixbufAnimation(
+                os.path.join(Path.pixmaps_dir, "throbber.gif"))
     except Exception, e:
         log.debug("Error loading throbber images: %s." % str(e))
         still = None
@@ -176,6 +180,7 @@ class Throbber(gtk.Image):
         if self.animating and self.still is not None:
             self.set_from_pixbuf(self.still)
         self.animating = False
+
 
 class ScanNmapOutputPage(HIGVBox):
     """This is the "Nmap Output" scan results tab. It holds a text view of Nmap
@@ -223,8 +228,8 @@ class ScanNmapOutputPage(HIGVBox):
         self._update()
 
     def set_active_iter(self, i):
-        """Set the active entry to an interator into the ScansListStore referred
-        to by this object."""
+        """Set the active entry to an interator into the ScansListStore
+        referred to by this object."""
         self.scans_list.set_active_iter(i)
 
     def get_active_entry(self):
@@ -287,9 +292,11 @@ class ScanNmapOutputPage(HIGVBox):
         if self._details_windows.get(entry) is None:
             window = gtk.Window()
             window.add(ScanRunDetailsPage(entry.parsed))
+
             def close_details(details, event, entry):
                 details.destroy()
                 del self._details_windows[entry]
+
             window.connect("delete-event", close_details, entry)
             window.show_all()
             self._details_windows[entry] = window
