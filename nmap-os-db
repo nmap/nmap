@@ -6795,7 +6795,7 @@ T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=3B-45%TG=40%CD=S)
 
-# Fingerprint Avaya Inc. - P330 Stackable Switch, SW version 4.1.6
+# Avaya Inc. - P330 Stackable Switch, SW version 4.1.6
 Fingerprint Avaya P330 Stackable Switch
 Class Avaya | embedded || switch
 SEQ(SP=F-11%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=9B-9D%TI=I%II=I%SS=S%TS=U)
@@ -37575,7 +37575,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Linux 2.6.17-10-generic [2.6.17-10.33] SMP x86 Ubuntu Edgy
 # Linux 2.6.17-10-generic K7 Ubuntu 6.10 "Edgy Eft"
-# Fingerprint Ubuntu 6.10; uname: Linux 2.6.17-10-generic #2 SMP Fri Oct 13 18:45:35 UTC 2006 i686 GNU/Linux
+# Ubuntu 6.10; uname: Linux 2.6.17-10-generic #2 SMP Fri Oct 13 18:45:35 UTC 2006 i686 GNU/Linux
 # Linux 2.6.17-10-386 (gcc version 4.1.2 20060928 (prerelease) (Ubuntu 4.1.1-13ubuntu5)) #2 Fri Oct 13 18:41:40 UTC 2006 (Ubuntu 2.6.17-10.33-386) i686 GNU/Linux (Ubunty 6.10 Edgy))
 # Linux 2.6.17-ck1 (x86 compiled by myself)
 # Linux 2.6.19-ARCH #1 SMP PREEMPT Tue Dec 12 12:47:42 CET 2006 i686 Pentium III (Coppermine) GenuineIntel GNU/Linux
