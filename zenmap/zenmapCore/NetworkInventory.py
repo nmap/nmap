@@ -142,7 +142,7 @@ class NetworkInventory(object):
         # A dictionary mapping IP addresses into HostInfo objects
         self.hosts = {}
 
-        if filename != None:
+        if filename is not None:
             self.open_from_file(filename)
 
     def add_scan(self, scan, filename=None):
@@ -177,7 +177,7 @@ class NetworkInventory(object):
 
         self.scans.append(scan)
 
-        if filename != None:
+        if filename is not None:
             basename = os.path.basename(filename)
 
             if basename in self.filenames.values():

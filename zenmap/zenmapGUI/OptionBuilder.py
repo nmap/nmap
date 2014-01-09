@@ -398,7 +398,7 @@ class OptionTab(object):
     def fill_table(self, table, expand_fill=True):
         yopt = (0, gtk.EXPAND | gtk.FILL)[expand_fill]
         for y, widget in enumerate(self.widgets_list):
-            if widget[1] == None:
+            if widget[1] is None:
                 table.attach(widget[0], 0, 2, y, y + 1, yoptions=yopt)
             else:
                 table.attach(widget[0], 0, 1, y, y + 1, yoptions=yopt)

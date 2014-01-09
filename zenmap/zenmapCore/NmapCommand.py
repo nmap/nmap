@@ -326,12 +326,12 @@ class NmapCommand(object):
         subprocess completed successfully. If the subprocess terminated with an
         error an exception is raised. The scan must have been started with
         run_scan before calling this method."""
-        if self.command_process == None:
+        if self.command_process is None:
             raise Exception("Scan is not running yet!")
 
         state = self.command_process.poll()
 
-        if state == None:
+        if state is None:
             return True  # True means that the process is still running
         elif state == 0:
             return False  # False means that the process had a successful exit

@@ -263,7 +263,7 @@ class Graph:
             b.add_edge(edge)
 
         # then add new weight value
-        if weight != None:
+        if weight is not None:
 
             edge.add_weight(weight)
 

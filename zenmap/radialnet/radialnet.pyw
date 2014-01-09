@@ -170,7 +170,7 @@ if __name__ == '__main__':
 
         file = argvh.get_option('-f')
 
-        if file == None:
+        if file is None:
 
             print USAGE
             sys.exit(0)
