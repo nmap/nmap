@@ -344,7 +344,7 @@ class ControlVariableWidget(gtk.DrawingArea):
         @rtype: boolean
         @return: Indicator of the event propagation
         """
-        if self.__active_increment == True:
+        if self.__active_increment:
 
             xc, yc = self.__center_of_widget
             x, _ = self.get_pointer()
@@ -409,7 +409,7 @@ class ControlVariableWidget(gtk.DrawingArea):
         self.context.arc(xc + self.__pointer_position,
                          yc + self.__radius,
                          self.__radius, 0, 2 * math.pi)
-        if self.__active_increment == True:
+        if self.__active_increment:
             self.context.set_source_rgb(0.0, 0.0, 0.0)
         else:
             self.context.set_source_rgb(1.0, 1.0, 1.0)
@@ -423,10 +423,7 @@ class ControlVariableWidget(gtk.DrawingArea):
         xc, yc = self.__center_of_widget
         center = (xc, yc + self.__radius)
 
-        if geometry.is_in_circle(pointer, 6, center) == True:
-            return True
-
-        return False
+        return geometry.is_in_circle(pointer, 6, center)
 
     def __increment_value(self):
         """
@@ -435,7 +432,7 @@ class ControlVariableWidget(gtk.DrawingArea):
 
         self.queue_draw()
 
-        if self.__active_increment == True:
+        if self.__active_increment:
 
             gobject.timeout_add(self.__increment_time,
                                 self.__increment_value)
@@ -1084,7 +1081,7 @@ class ControlNavigation(gtk.DrawingArea):
 
         direction = False
 
-        if self.__rotate_is_clicked(pointer) == True:
+        if self.__rotate_is_clicked(pointer):
 
             event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
             self.__rotating = True
@@ -1097,7 +1094,7 @@ class ControlNavigation(gtk.DrawingArea):
             self.__moving = direction
             self.__move_in_direction(direction)
 
-        if self.__center_is_clicked(pointer) == True:
+        if self.__center_is_clicked(pointer):
 
             event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
             self.__centering = True
@@ -1145,7 +1142,7 @@ class ControlNavigation(gtk.DrawingArea):
         status = not self.radialnet.is_in_animation()
         status = status and not self.radialnet.is_empty()
 
-        if self.__rotating == True and status:
+        if self.__rotating and status:
 
             r, t = self.__rotate_node.get_coordinate()
             t = math.degrees(math.atan2(yc - y, x - xc))
@@ -1206,7 +1203,7 @@ class ControlNavigation(gtk.DrawingArea):
         self.context.set_dash([1, 0])
         self.context.arc(xc + x, yc - y, self.__rotate_radius, 0, 2 * math.pi)
 
-        if self.__rotating == True:
+        if self.__rotating:
             self.context.set_source_rgb(0.0, 0.0, 0.0)
 
         else:
@@ -1256,7 +1253,7 @@ class ControlNavigation(gtk.DrawingArea):
 
         self.context.arc(xc, yc, 6, 0, 2 * math.pi)
 
-        if self.__centering == True:
+        if self.__centering:
             self.context.set_source_rgb(0.0, 0.0, 0.0)
         else:
             self.context.set_source_rgb(1.0, 1.0, 1.0)
@@ -1310,24 +1307,13 @@ class ControlNavigation(gtk.DrawingArea):
         xc, yc = self.__center_of_widget
 
         center = (xc + xn, yc - yn)
-        result = geometry.is_in_circle(pointer, self.__rotate_radius, center)
-
-        if result == True:
-            return True
-
-        return False
+        return geometry.is_in_circle(pointer, self.__rotate_radius, center)
 
     def __center_is_clicked(self, pointer):
         """
         """
-        result = geometry.is_in_circle(pointer,
-                                       self.__move_radius,
-                                       self.__center_of_widget)
-
-        if result == True:
-            return True
-
-        return False
+        return geometry.is_in_circle(pointer, self.__move_radius,
+                self.__center_of_widget)
 
     def __move_is_clicked(self, pointer):
         """
@@ -1341,11 +1327,7 @@ class ControlNavigation(gtk.DrawingArea):
             x, y = pc.to_cartesian()
 
             center = (xc + x, yc - y)
-            result = geometry.is_in_circle(pointer,
-                                           self.__move_radius,
-                                           center)
-
-            if result == True:
+            if geometry.is_in_circle(pointer, self.__move_radius, center):
                 return i
 
         return None
