@@ -272,7 +272,7 @@ class RadialNet(gtk.DrawingArea):
         @param function: Protected function
         """
         def check_animation_status(*args):
-            if args[0].__animating == True:
+            if args[0].__animating:
                 return False
             return function(*args)
 
@@ -700,7 +700,7 @@ class RadialNet(gtk.DrawingArea):
         if self.__pointer_status == POINTER_JUMP_TO and event.button == 1:
 
             # prevent double animation
-            if self.__animating == True:
+            if self.__animating:
                 return False
 
             if result is not None:
@@ -710,7 +710,7 @@ class RadialNet(gtk.DrawingArea):
 
                 if node != main_node:
 
-                    if node.get_draw_info('group') == True:
+                    if node.get_draw_info('group'):
 
                         node.set_draw_info({'group': False})
                         node.set_subtree_info({'grouped': False,
@@ -724,7 +724,7 @@ class RadialNet(gtk.DrawingArea):
         elif self.__pointer_status == POINTER_GROUP and event.button == 1:
 
             # prevent group on animation
-            if self.__animating == True:
+            if self.__animating:
                 return False
 
             if result is not None:
@@ -734,7 +734,7 @@ class RadialNet(gtk.DrawingArea):
 
                 if node != main_node:
 
-                    if node.get_draw_info('group') == True:
+                    if node.get_draw_info('group'):
 
                         node.set_draw_info({'group': False})
                         node.set_subtree_info({'grouped': False,
@@ -843,7 +843,7 @@ class RadialNet(gtk.DrawingArea):
         if result is not None:
             result[0].set_draw_info({'over': True})
 
-        elif self.__button1_press == True and self.__last_motion_point != None:
+        elif self.__button1_press and self.__last_motion_point is not None:
 
             ax, ay = pointer
             ox, oy = self.__last_motion_point
@@ -970,7 +970,7 @@ class RadialNet(gtk.DrawingArea):
                         context.stroke()
 
         # drawing network rings
-        if self.__show_ring == True and self.__animating != True:
+        if self.__show_ring and not self.__animating:
 
             for i in range(1, self.__number_of_rings):
 
@@ -1103,7 +1103,7 @@ class RadialNet(gtk.DrawingArea):
         y_gap = 0
 
         # draw group indication
-        if node.get_draw_info('group') == True:
+        if node.get_draw_info('group'):
 
             x_gap += 5
 
@@ -1129,7 +1129,7 @@ class RadialNet(gtk.DrawingArea):
             context.stroke()
 
         # draw over node
-        if node.get_draw_info('over') == True:
+        if node.get_draw_info('over'):
 
             context.set_line_width(0)
 
@@ -1250,7 +1250,7 @@ class RadialNet(gtk.DrawingArea):
         """
         for node in self.__sorted_nodes:
 
-            if node.get_draw_info('grouped') == True:
+            if node.get_draw_info('grouped'):
 
                 # deep group check
                 group = node.get_draw_info('group_node')
@@ -1273,7 +1273,7 @@ class RadialNet(gtk.DrawingArea):
 
         for node in self.__graph.get_nodes():
 
-            if node.get_draw_info('grouped') == True:
+            if node.get_draw_info('grouped'):
                 continue
 
             ax, ay = self.__translation
@@ -1285,11 +1285,11 @@ class RadialNet(gtk.DrawingArea):
             type = node.get_info('device_type')
 
             if type in SQUARE_TYPES:
-                if geometry.is_in_square(point, radius, center) == True:
+                if geometry.is_in_square(point, radius, center):
                     return node, center
 
             else:
-                if geometry.is_in_circle(point, radius, center) == True:
+                if geometry.is_in_circle(point, radius, center):
                     return node, center
 
         return None
@@ -1361,7 +1361,7 @@ class RadialNet(gtk.DrawingArea):
             # check group influence in number of rings
             for node in tmp_nodes:
 
-                if node.get_draw_info('grouped') != True:
+                if not node.get_draw_info('grouped'):
 
                     number_of_needed_rings += 1
                     break
@@ -1391,7 +1391,7 @@ class RadialNet(gtk.DrawingArea):
             children = set()
             for child in node.get_draw_info('children'):
 
-                if child.get_draw_info('grouped') != True:
+                if not child.get_draw_info('grouped'):
                     children.add(child)
                     new_nodes.add(child)
 
@@ -1428,7 +1428,7 @@ class RadialNet(gtk.DrawingArea):
             children = set()
             for child in node.get_draw_info('children'):
 
-                if child.get_draw_info('grouped') != True:
+                if not child.get_draw_info('grouped'):
                     children.add(child)
                     new_nodes.add(child)
 
@@ -1534,7 +1534,7 @@ class RadialNet(gtk.DrawingArea):
             l2di = Linear2DInterpolator()
 
             # change grouped nodes coordinate
-            if node.get_draw_info('grouped') == True:
+            if node.get_draw_info('grouped'):
 
                 group_node = node.get_draw_info('group_node')
                 a, b = group_node.get_draw_info('final_coordinate')
@@ -2070,7 +2070,7 @@ class NetNode(Node):
 
             child.set_draw_info(info)
 
-            if child.get_draw_info('group') != True:
+            if not child.get_draw_info('group'):
                 child.set_subtree_info(info)
 
     def calc_needed_space(self):
@@ -2081,7 +2081,7 @@ class NetNode(Node):
         sum_angle = 0
         own_angle = 0
 
-        if number_of_children > 0 and self.get_draw_info('group') != True:
+        if number_of_children > 0 and not self.get_draw_info('group'):
 
             for child in self.get_draw_info('children'):
 
