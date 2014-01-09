@@ -394,7 +394,10 @@ ncat_check:
 nsock_check:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@
+zenmap_check:
+	@cd $(ZENMAPDIR) && $(PYTHON) -m unittest discover build/lib.* '*.py'
+
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
