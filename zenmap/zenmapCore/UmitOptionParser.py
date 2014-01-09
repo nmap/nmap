@@ -125,6 +125,7 @@ from zenmapCore.Name import APP_NAME, NMAP_DISPLAY_NAME
 from zenmapCore.Version import VERSION
 import zenmapCore.I18N
 from zenmapCore.BasePaths import base_paths
+from zenmapCore.DelayedObject import DelayedObject
 
 
 class UmitOptionParser(OptionParser):
@@ -259,7 +260,7 @@ used more than once to get even more verbosity"))
         """
         return 40 - (self.options.verbose * 10)
 
-option_parser = UmitOptionParser()
+option_parser = DelayedObject(UmitOptionParser)
 
 if __name__ == "__main__":
     opt = UmitOptionParser()

@@ -131,7 +131,6 @@ import shutil
 from zenmapCore.BasePaths import base_paths, fs_dec
 from zenmapCore.Version import VERSION
 from zenmapCore.Name import APP_NAME
-from zenmapCore.UmitOptionParser import option_parser
 
 
 # Find out the prefix under which data files (interface definition XML,
@@ -197,29 +196,39 @@ class Paths(object):
                        "profile_editor"]
 
     def __init__(self):
-        self.user_config_dir = option_parser.get_confdir()
-        self.user_config_file = os.path.join(
-                self.user_config_dir, base_paths['user_config_file'])
         self.config_dir = CONFIG_DIR
         self.locale_dir = LOCALE_DIR
         self.pixmaps_dir = PIXMAPS_DIR
         self.misc_dir = MISC_DIR
         self.docs_dir = DOCS_DIR
         self.nmap_dir = NMAPDATADIR
+        self._delayed_incomplete = True
+
+    # Delay initializing these paths so that
+    # zenmapCore.I18N.install_gettext can install _() before modules that
+    # need it get imported
+    def _delayed_init(self):
+        if self._delayed_incomplete:
+            from zenmapCore.UmitOptionParser import option_parser
+            self.user_config_dir = option_parser.get_confdir()
+            self.user_config_file = os.path.join(
+                    self.user_config_dir, base_paths['user_config_file'])
+            self._delayed_incomplete = False
 
     def __getattr__(self, name):
         if name in self.hardcoded:
             return self.__dict__[name]
 
-        elif name in self.config_files_list:
+        self._delayed_init()
+        if name in self.config_files_list:
             return return_if_exists(
                     join(self.user_config_dir, base_paths[name]))
 
-        elif name in self.empty_config_files_list:
+        if name in self.empty_config_files_list:
             return return_if_exists(
                     join(self.user_config_dir, base_paths[name]), True)
 
-        elif name in self.misc_files_list:
+        if name in self.misc_files_list:
             return return_if_exists(join(self.misc_dir, base_paths[name]))
 
         try:

@@ -124,12 +124,13 @@
 from logging import Logger, StreamHandler, Formatter
 from zenmapCore.Name import APP_DISPLAY_NAME
 from zenmapCore.UmitOptionParser import option_parser
-
-LOGLEVEL = option_parser.get_verbose()
+from zenmapCore.DelayedObject import DelayedObject
 
 
 class Log(Logger, object):
     def __init__(self, name, level=0):
+        if level == 0:
+            level = option_parser.get_verbose()
         Logger.__init__(self, name, level)
         self.formatter = self.format
 
@@ -151,7 +152,7 @@ class Log(Logger, object):
 
 
 # Import this!
-log = Log(APP_DISPLAY_NAME, LOGLEVEL)
+log = DelayedObject(Log, APP_DISPLAY_NAME)
 
 if __name__ == '__main__':
     log.debug("Debug Message")
