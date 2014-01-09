@@ -123,18 +123,20 @@
 
 class DelayedObject(object):
     def __init__(self, klass, *args, **kwargs):
-        object.__setattr__(self,"klass", klass)
-        object.__setattr__(self,"args", args)
-        object.__setattr__(self,"kwargs", kwargs)
+        object.__setattr__(self, "klass", klass)
+        object.__setattr__(self, "args", args)
+        object.__setattr__(self, "kwargs", kwargs)
+
     def __setattr__(self, name, value):
         self = object.__getattribute__(self, "klass")(
-                *object.__getattribute__(self,"args"),
-                **object.__getattribute__(self,"kwargs")
+                *object.__getattribute__(self, "args"),
+                **object.__getattribute__(self, "kwargs")
                 )
         setattr(self, name, value)
+
     def __getattribute__(self, name):
         self = object.__getattribute__(self, "klass")(
-                *object.__getattribute__(self,"args"),
-                **object.__getattribute__(self,"kwargs")
+                *object.__getattribute__(self, "args"),
+                **object.__getattribute__(self, "kwargs")
                 )
         return getattr(self, name)
