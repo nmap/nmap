@@ -681,6 +681,7 @@ NPINGDIR
 subdirs
 ZENMAP_DIST_CLEAN
 ZENMAP_CLEAN
+ZENMAP_CHECK
 UNINSTALLZENMAP
 INSTALLZENMAP
 BUILDZENMAP
@@ -5953,15 +5954,18 @@ if test "$with_zenmap" = "no"; then
   BUILDZENMAP=""
   INSTALLZENMAP=""
   UNINSTALLZENMAP=""
+  ZENMAP_CHECK=""
   ZENMAP_CLEAN=""
   ZENMAP_DIST_CLEAN=""
 else
   BUILDZENMAP=build-zenmap
   INSTALLZENMAP=install-zenmap
   UNINSTALLZENMAP=uninstall-zenmap
+  ZENMAP_CHECK=zenmap_check
   ZENMAP_CLEAN=zenmap_clean
   ZENMAP_DIST_CLEAN=zenmap_dist_clean
 fi
+
 
 
 
