@@ -464,7 +464,7 @@ class NmapOutputHighlight(object):
         return True
 
     def set_enable(self, enable):
-        if enable == False or enable == "0" or enable == None or enable == "":
+        if enable == False or enable == "0" or enable is None or enable == "":
             config_parser.set(
                     "output_highlight", "enable_highlight", str(False))
         else:

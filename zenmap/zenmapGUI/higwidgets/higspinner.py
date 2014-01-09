@@ -240,17 +240,17 @@ class HIGSpinnerCache:
         """Loads an animated icon by doing a lookup on the icon theme."""
 
         # If user do not choose a icon_name, use the default one
-        if icon_name == None:
+        if icon_name is None:
             icon_name = self.default_animated_icon_name
 
         # Even the default one (now on icon_name) might not be available
-        if icon_name == None:
+        if icon_name is None:
             raise AnimatedIconNotFound
 
         # Try to lookup the icon
         icon_info = self.icon_theme.lookup_icon(icon_name, -1, 0)
         # Even if icon_name exists, it might not be found by lookup
-        if icon_info == None:
+        if icon_info is None:
             raise AnimatedIconNotFound
 
         # Base size is, according to PyGTK docs:
@@ -291,7 +291,7 @@ class HIGSpinnerCache:
     def load_static_from_filename(self, filename, key_name=None):
         icon_pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
 
-        if key_name == None:
+        if key_name is None:
             key_name = filename.split(".")[0]
 
         self.spinner_images.add_static_pixbuf(key_name, icon_pixbuf)
@@ -420,7 +420,7 @@ class HIGSpinner(gtk.EventBox):
     def do_expose_event(self, event):
         #self.chain(event)
 
-        if self.cache.spinner_images.rest_pixbuf == None:
+        if self.cache.spinner_images.rest_pixbuf is None:
             raise RestPixbufNotFound
 
         self.__select_pixbuf()
@@ -437,7 +437,7 @@ class HIGSpinner(gtk.EventBox):
         dest = event.area.intersect(pix_area)
 
         # If a graphic context doesn't not exist yet, create one
-        if self.gc == None:
+        if self.gc is None:
             self.gc = gtk.gdk.GC(self.window)
         #gc = self.gc
 

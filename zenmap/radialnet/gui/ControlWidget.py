@@ -1091,7 +1091,7 @@ class ControlNavigation(gtk.DrawingArea):
 
         direction = self.__move_is_clicked(pointer)
 
-        if direction != None and self.__moving == None:
+        if direction is not None and self.__moving is None:
 
             event.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.HAND2))
             self.__moving = direction
@@ -1285,7 +1285,7 @@ class ControlNavigation(gtk.DrawingArea):
     def __move_in_direction(self, direction):
         """
         """
-        if self.__moving != None:
+        if self.__moving is not None:
 
             bx, by = self.__move_position
             ax, ay = self.__move_addition[direction]

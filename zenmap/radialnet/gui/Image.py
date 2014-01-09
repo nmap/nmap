@@ -178,7 +178,7 @@ class Image:
     def get_pixbuf(self, icon, image_type='png'):
         """
         """
-        if self.__path == None:
+        if self.__path is None:
             return False
 
         if icon + image_type not in self.__cache.keys():
@@ -192,7 +192,7 @@ class Image:
     def get_icon(self, icon, image_type='png'):
         """
         """
-        if self.__path == None:
+        if self.__path is None:
             return False
 
         return os.path.join(self.__path, icon + "." + image_type)

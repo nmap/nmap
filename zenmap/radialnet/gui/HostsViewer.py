@@ -171,7 +171,7 @@ class HostsViewer(BWMainWindow):
     def change_notebook(self, node):
         """
         """
-        if self.__view != None:
+        if self.__view is not None:
             self.__view.destroy()
 
         if node is not None:

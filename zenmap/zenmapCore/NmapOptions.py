@@ -515,7 +515,7 @@ class NmapOptions(object):
 
     def canonicalize_name(self, name):
         opt, arg, remainder = split_option(name, self.options)
-        assert remainder == None
+        assert remainder is None
         if arg is None:
             option = lookup_option(opt, self.options)
             if option:
@@ -541,7 +541,7 @@ class NmapOptions(object):
             # A positional argument.
             self.target_specs.append(result)
             return
-        elif result[0] == None:
+        elif result[0] is None:
             # An unknown option.
             self.extras.extend(result[1:])
             return
@@ -1170,10 +1170,10 @@ class NmapOptionsTest(unittest.TestCase):
         ops.parse_string("nmap -d#")
         self.assertTrue(ops.extras == ["-d#"])
         ops.parse_string("nmap -T monkeys")
-        self.assertTrue(ops["-T"] == None)
+        self.assertTrue(ops["-T"] is None)
         self.assertTrue(ops.extras == ["-T", "monkeys"])
         ops.parse_string("nmap -iR monkeys")
-        self.assertTrue(ops["-iR"] == None)
+        self.assertTrue(ops["-iR"] is None)
         self.assertTrue(ops.extras == ["-iR", "monkeys"])
 
     def test_read_unknown(self):

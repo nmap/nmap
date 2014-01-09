@@ -259,7 +259,7 @@ class RadialNet(gtk.DrawingArea):
         @param function: Protected function
         """
         def check_graph_status(*args):
-            if args[0].__graph == None:
+            if args[0].__graph is None:
                 return False
             return function(*args)
 
@@ -449,7 +449,7 @@ class RadialNet(gtk.DrawingArea):
 
             self.__layout = layout
 
-            if self.__graph != None:
+            if self.__graph is not None:
 
                 self.__animating = True
                 self.__calc_interpolation(self.__graph.get_main_node())
@@ -703,7 +703,7 @@ class RadialNet(gtk.DrawingArea):
             if self.__animating == True:
                 return False
 
-            if result != None:
+            if result is not None:
 
                 node, point = result
                 main_node = self.__graph.get_main_node()
@@ -727,7 +727,7 @@ class RadialNet(gtk.DrawingArea):
             if self.__animating == True:
                 return False
 
-            if result != None:
+            if result is not None:
 
                 node, point = result
                 main_node = self.__graph.get_main_node()
@@ -755,7 +755,7 @@ class RadialNet(gtk.DrawingArea):
         # setting to show node's region
         elif self.__pointer_status == POINTER_FILL and event.button == 1:
 
-            if result != None:
+            if result is not None:
 
                 node, point = result
 
@@ -773,7 +773,7 @@ class RadialNet(gtk.DrawingArea):
             if event.button == 3:
                 self.__button3_press = True
 
-            if result != None:
+            if result is not None:
 
                 xw, yw = self.window.get_origin()
                 node, point = result
@@ -840,7 +840,7 @@ class RadialNet(gtk.DrawingArea):
 
         result = self.__get_node_by_coordinate(self.get_pointer())
 
-        if result != None:
+        if result is not None:
             result[0].set_draw_info({'over': True})
 
         elif self.__button1_press == True and self.__last_motion_point != None:
@@ -921,7 +921,7 @@ class RadialNet(gtk.DrawingArea):
 
                 not_grouped = not node.get_draw_info('grouped')
 
-                if node.get_draw_info('region') != None and not_grouped:
+                if node.get_draw_info('region') is not None and not_grouped:
 
                     x, y = node.get_cartesian_coordinate()
                     xc, yc = self.__center_of_widget
@@ -1002,7 +1002,7 @@ class RadialNet(gtk.DrawingArea):
             last_group = self.__last_group_node
             groups = [a_group, b_group]
 
-            if last_group in groups and last_group != None:
+            if last_group in groups and last_group is not None:
                 self.__draw_edge(context, edge)
 
             elif not a_is_grouped or not b_is_grouped:
@@ -1051,7 +1051,7 @@ class RadialNet(gtk.DrawingArea):
             context.set_source_rgba(0.1, 0.5, 1.0, 0.8)
 
         # calculating line thickness by latency
-        if latency != None:
+        if latency is not None:
 
             min = self.__graph.get_min_edge_mean_weight()
             max = self.__graph.get_max_edge_mean_weight()
@@ -1077,7 +1077,7 @@ class RadialNet(gtk.DrawingArea):
 
         if not self.__animating and self.__show_latency:
 
-            if latency != None:
+            if latency is not None:
 
                 context.set_font_size(8)
                 context.set_line_width(1)
@@ -1208,10 +1208,10 @@ class RadialNet(gtk.DrawingArea):
 
             hostname = node.get_info('hostname')
 
-            if hostname != None and self.__show_hostname:
+            if hostname is not None and self.__show_hostname:
                 context.show_text(hostname)
 
-            elif node.get_info('ip') != None:
+            elif node.get_info('ip') is not None:
                 context.show_text(node.get_info('ip'))
 
         context.set_line_width(1)
@@ -1255,7 +1255,7 @@ class RadialNet(gtk.DrawingArea):
                 # deep group check
                 group = node.get_draw_info('group_node')
 
-                while group.get_draw_info('group_node') != None:
+                while group.get_draw_info('group_node') is not None:
                     group = group.get_draw_info('group_node')
 
                 ring = group.get_draw_info('ring')
@@ -1458,7 +1458,7 @@ class RadialNet(gtk.DrawingArea):
             self.__weighted_layout()
 
         # rotating focus' children to keep orientation
-        if reference != None:
+        if reference is not None:
 
             father, angle = reference
             theta = father.get_coordinate_theta()
@@ -1509,7 +1509,7 @@ class RadialNet(gtk.DrawingArea):
         father = focus.get_draw_info('father')
 
         # calculate nodes positions (and father orientation)?
-        if father != None:
+        if father is not None:
 
             xa, ya = father.get_cartesian_coordinate()
             xb, yb = focus.get_cartesian_coordinate()
@@ -1729,10 +1729,7 @@ class RadialNet(gtk.DrawingArea):
     def is_empty(self):
         """
         """
-        if self.__graph == None:
-            return True
-
-        return False
+        return self.__graph is None
 
     def is_in_animation(self):
         """
@@ -1830,7 +1827,7 @@ class NetNode(Node):
                 if len(host.osmatches) > 0 and \
                    host.osmatches[0]["accuracy"] != "" and \
                    host.osmatches[0]["name"] != "":
-                    if os == None:
+                    if os is None:
                         os = {}
                     os["matches"] = host.osmatches
                     os["matches"][0]["db_line"] = 0     # not supported
@@ -1850,7 +1847,7 @@ class NetNode(Node):
 
                 # ports_used
                 if len(host.ports_used) > 0:
-                    if os == None:
+                    if os is None:
                         os = {}
                     os_portsused = []
 
@@ -2039,7 +2036,7 @@ class NetNode(Node):
         @rtype: mixed
         @return: The requested information
         """
-        if info == None:
+        if info is None:
             return self.__draw_info
 
         return self.__draw_info.get(info)

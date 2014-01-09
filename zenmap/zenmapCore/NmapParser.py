@@ -518,7 +518,7 @@ class ParserBasics(object):
         self.nmap['scaninfo'] = info
 
     def get_services_scanned(self):
-        if self._services_scanned == None:
+        if self._services_scanned is None:
             return self._services_scanned
 
         services = []
@@ -553,7 +553,7 @@ class ParserBasics(object):
         return protocols
 
     def get_num_services(self):
-        if self._num_services == None:
+        if self._num_services is None:
             return self._num_services
 
         num = 0

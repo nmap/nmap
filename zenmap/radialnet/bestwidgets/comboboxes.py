@@ -153,7 +153,7 @@ class BWChangeableComboBoxEntry(gtk.ComboBoxEntry):
         """
         """
         if len(self.__liststore) > 0 and\
-           self.__last_active != None and\
+           self.__last_active is not None and\
            self.get_active() == -1:
 
             iter = self.get_model().get_iter((self.__last_active,))

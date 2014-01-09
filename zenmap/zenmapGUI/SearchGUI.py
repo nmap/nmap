@@ -439,7 +439,7 @@ class SearchGUI(gtk.VBox, object):
             self.search_entry.set_sensitive(True)
 
     def close(self):
-        if self.expr_window != None:
+        if self.expr_window is not None:
             self.expr_window.close()
 
     def add_criterion(self, caller):
@@ -854,11 +854,11 @@ class DateSubcriterion(Subcriterion):
         self.fuzzies = argument.count("~")
         argument = argument.replace("~", "")
         self.minus_notation = False
-        if re.match("\d\d\d\d-\d\d-\d\d$", argument) != None:
+        if re.match("\d\d\d\d-\d\d-\d\d$", argument) is not None:
             year, month, day = argument.split("-")
             self.date = datetime.date(int(year), int(month), int(day))
             self.argument = argument
-        elif re.match("[-|\+]\d+$", argument) != None:
+        elif re.match("[-|\+]\d+$", argument) is not None:
             # Convert the date from the "-n" notation into YYYY-MM-DD
             parsed_date = datetime.date.fromordinal(
                     datetime.date.today().toordinal() + int(argument))

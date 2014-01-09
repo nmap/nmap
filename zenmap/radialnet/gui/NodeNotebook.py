@@ -446,7 +446,7 @@ class SystemPage(BWScrolledWindow):
             params = address['type'], address['addr']
             address_text = SYSTEM_ADDRESS_TEXT % params
 
-            if address['vendor'] != None and address['vendor'] != '':
+            if address['vendor'] is not None and address['vendor'] != '':
                 address_text += " (%s)" % address['vendor']
 
             self.__address_list.append_text(address_text)
@@ -458,7 +458,7 @@ class SystemPage(BWScrolledWindow):
                                       xoptions=gtk.FILL)
         self.__general.bw_attach_next(self.__address_list, yoptions=gtk.FILL)
 
-        if self.__node.get_info('hostnames') != None:
+        if self.__node.get_info('hostnames') is not None:
 
             self.__hostname_label = BWSectionLabel(_('Hostname:'))
             self.__hostname_list = gtk.combo_box_entry_new_text()
@@ -477,7 +477,7 @@ class SystemPage(BWScrolledWindow):
             self.__general.bw_attach_next(self.__hostname_list,
                                           yoptions=gtk.FILL)
 
-        if self.__node.get_info('uptime') != None:
+        if self.__node.get_info('uptime') is not None:
 
             self.__uptime_label = BWSectionLabel(_('Last boot:'))
 
@@ -509,7 +509,7 @@ class SystemPage(BWScrolledWindow):
 
         os = self.__node.get_info('os')
 
-        if os != None:
+        if os is not None:
 
             if 'matches' in os:
 
@@ -703,7 +703,7 @@ class SystemPage(BWScrolledWindow):
 
             table.attach(tcp_ts_class, 1, 2, 3, 4)
 
-            if tcp_ts['values'] != None:
+            if tcp_ts['values'] is not None:
 
                 tcp_ts_values = gtk.combo_box_entry_new_text()
 

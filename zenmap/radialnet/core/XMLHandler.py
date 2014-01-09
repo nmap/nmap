@@ -211,7 +211,7 @@ class XMLNode:
 
                 c_result = child.query_children(name, attr, value, first, deep)
 
-                if c_result != None:
+                if c_result is not None:
 
                     if first:
                         return c_result
@@ -245,7 +245,7 @@ class XMLNode:
 
                 c_result = child.search_children(name, first, deep)
 
-                if c_result != None and c_result != []:
+                if c_result is not None and c_result != []:
 
                     if first:
                         return c_result
@@ -329,7 +329,7 @@ class XMLReader(xml.sax.ContentHandler):
     def parse(self):
         """
         """
-        if self.__file != None:
+        if self.__file is not None:
             self.__parser.parse(self.__file)
 
     def startDocument(self):
@@ -351,7 +351,7 @@ class XMLReader(xml.sax.ContentHandler):
         if len(self.__status) > 0:
             self.__status[-1].add_child(node)
 
-        if self.__root == None:
+        if self.__root is None:
             self.__root = node
 
         self.__status.append(node)
