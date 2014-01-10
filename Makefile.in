@@ -388,6 +388,9 @@ uninstall-ncat:
 uninstall-nping:
 	@cd $(NPINGDIR) && $(MAKE) uninstall
 
+nse_check:
+	./nmap -d --datadir . --script=unittest --script-args=unittest.run
+
 ncat_check:
 	@cd $(NCATDIR) && $(MAKE) check
 
@@ -397,7 +400,7 @@ nsock_check:
 zenmap_check:
 	@cd $(ZENMAPDIR) && $(PYTHON) -m unittest discover build/lib.* '*.py'
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
