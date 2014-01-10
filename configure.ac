@@ -218,17 +218,20 @@ fi
 if test "$with_ndiff" = "no"; then
   BUILDNDIFF=""
   INSTALLNDIFF=""
+  NDIFF_CHECK=""
   NDIFF_CLEAN=""
   NDIFF_DIST_CLEAN=""
 else
   BUILDNDIFF=build-ndiff
   INSTALLNDIFF=install-ndiff
+  NDIFF_CHECK="ndiff_check"
   NDIFF_CLEAN=ndiff_clean
   NDIFF_DIST_CLEAN=ndiff_dist_clean
 fi
 AC_SUBST(NDIFFDIR)
 AC_SUBST(BUILDNDIFF)
 AC_SUBST(INSTALLNDIFF)
+AC_SUBST(NDIFF_CHECK)
 AC_SUBST(NDIFF_CLEAN)
 AC_SUBST(NDIFF_DIST_CLEAN)
 
