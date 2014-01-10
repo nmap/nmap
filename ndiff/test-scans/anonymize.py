@@ -18,19 +18,23 @@ VERBOSE = True
 
 r = random.Random()
 
+
 def hash(s):
     digest = hashlib.sha512(s).hexdigest()
     return int(digest, 16)
+
 
 def anonymize_mac_address(addr):
     r.seed(hash(addr))
     nums = (0, 0, 0) + tuple(r.randrange(256) for i in range(3))
     return u":".join(u"%02X" % x for x in nums)
 
+
 def anonymize_ipv4_address(addr):
     r.seed(hash(addr))
     nums = (10,) + tuple(r.randrange(256) for i in range(3))
     return u".".join(unicode(x) for x in nums)
+
 
 def anonymize_ipv6_address(addr):
     r.seed(hash(addr))
@@ -42,6 +46,7 @@ def anonymize_ipv6_address(addr):
 # Maps to memoize address and host name conversions.
 hostname_map = {}
 address_map = {}
+
 
 def anonymize_hostname(name):
     if name in hostname_map:
@@ -60,6 +65,7 @@ mac_re = re.compile(r'\b([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}\b')
 ipv4_re = re.compile(r'\b([0-9]{1,3}\.){3}[0-9]{1,3}\b')
 ipv6_re = re.compile(r'\b([0-9a-fA-F]{1,4}::?){3,}[0-9a-fA-F]{1,4}\b')
 
+
 def anonymize_address(addr):
     if addr in address_map:
         return address_map[addr]
@@ -75,20 +81,24 @@ def anonymize_address(addr):
         print >> sys.stderr, "Replace %s with %s" % (addr, address_map[addr])
     return address_map[addr]
 
+
 def repl_addr(match):
     addr = match.group(0)
     anon_addr = anonymize_address(addr)
     return anon_addr
+
 
 def repl_hostname_name(match):
     name = match.group(1)
     anon_name = anonymize_hostname(name)
     return r'<hostname name="%s"' % anon_name
 
+
 def repl_hostname(match):
     name = match.group(1)
     anon_name = anonymize_hostname(name)
     return r'hostname="%s"' % anon_name
+
 
 def anonymize_file(f):
     for line in f:
@@ -100,6 +110,7 @@ def anonymize_file(f):
         line = re.sub(r'\bhostname="([^"]*)"', repl_hostname, line)
         line = re.sub(r' *\bservicefp="([^"]*)"', r'', line)
         yield line
+
 
 def main():
     filename = sys.argv[1]
