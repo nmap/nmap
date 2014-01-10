@@ -394,13 +394,16 @@ nse_check:
 ncat_check:
 	@cd $(NCATDIR) && $(MAKE) check
 
+ndiff_check:
+	@cd $(NDIFFDIR) && $(PYTHON) ndifftest.py
+
 nsock_check:
 	@cd $(NSOCKDIR)/src && $(MAKE) check
 
 zenmap_check:
 	@cd $(ZENMAPDIR) && $(PYTHON) -m unittest discover build/lib.* '*.py'
 
-check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@
+check: @NCAT_CHECK@ @NSOCK_CHECK@ @ZENMAP_CHECK@ @NSE_CHECK@ @NDIFF_CHECK@
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
