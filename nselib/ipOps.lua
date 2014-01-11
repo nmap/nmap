@@ -668,29 +668,59 @@ test_suite:add_test(function()
   end
   return false, string.format("Expected {8, 255, 0, 1}, got {%d, %d, %d, %d}", table.unpack(parts))
 end, "get_parts_as_number")
-test_suite:add_test(function()
-  return compare_ip( "2001::DEAD:0:0:0", "eq", "2001:0:0:0:DEAD::" )
-end, "compare_ip (IPv6, eq, true)")
-test_suite:add_test(function()
-  return not compare_ip( "2001::DEAF:0:0:0", "eq", "2001:0:0:0:DEAD::" )
-end, "compare_ip (IPv6, eq, false)")
-test_suite:add_test(function()
-  return compare_ip( "10.10.10.10", "eq", "10.10.10.10" )
-end, "compare_ip (IPv4, eq, true)")
-test_suite:add_test(function()
-  return not compare_ip( "10.10.3.10", "eq", "10.10.10.10" )
-end, "compare_ip (IPv4, eq, false)")
-test_suite:add_test(function()
-  return compare_ip( "2001::DEAD:0:0:0", "ge", "2001:0:0:0:DEAD::" )
-end, "compare_ip (IPv6, ge, true)")
-test_suite:add_test(function()
-  return not compare_ip( "2001::DEAD:0:0:0", "ge", "2001:0:0:0:DEAF::" )
-end, "compare_ip (IPv6, ge, false)")
-test_suite:add_test(function()
-  return compare_ip( "10.10.10.10", "ge", "10.10.10.10" )
-end, "compare_ip (IPv4, ge, true)")
-test_suite:add_test(function()
-  return not compare_ip( "10.10.3.10", "ge", "10.10.10.10" )
-end, "compare_ip (IPv4, ge, false)")
+
+do
+  local low_ip4 = "192.168.1.10"
+  local high_ip4 = "192.168.10.1"
+  local low_ip6 = "2001::DEAD:0:0:9"
+  local high_ip6 = "2001::DEAF:0:0:9"
+  for _, op in ipairs({
+    {low_ip4, "eq", low_ip4, unittest.is_true, "IPv4"},
+    {low_ip6, "eq", low_ip6, unittest.is_true, "IPv6"},
+    {high_ip4, "eq", low_ip4, unittest.is_false, "IPv4"},
+    {high_ip6, "eq", low_ip6, unittest.is_false, "IPv6"},
+    {low_ip4, "eq", low_ip6, unittest.is_false, "mixed"},
+    {low_ip4, "ne", low_ip4, unittest.is_false, "IPv4"},
+    {low_ip6, "ne", low_ip6, unittest.is_false, "IPv6"},
+    {high_ip4, "ne", low_ip4, unittest.is_true, "IPv4"},
+    {high_ip6, "ne", low_ip6, unittest.is_true, "IPv6"},
+    {low_ip4, "ne", low_ip6, unittest.is_true, "mixed"},
+    {low_ip4, "ge", low_ip4, unittest.is_true, "IPv4, equal"},
+    {low_ip6, "ge", low_ip6, unittest.is_true, "IPv6, equal"},
+    {high_ip4, "ge", low_ip4, unittest.is_true, "IPv4"},
+    {high_ip6, "ge", low_ip6, unittest.is_true, "IPv6"},
+    {low_ip4, "ge", high_ip4, unittest.is_false, "IPv4"},
+    {low_ip6, "ge", high_ip6, unittest.is_false, "IPv6"},
+    {low_ip6, "ge", low_ip4, unittest.is_true, "mixed"},
+    {low_ip4, "ge", low_ip6, unittest.is_false, "mixed"},
+    {low_ip4, "le", low_ip4, unittest.is_true, "IPv4, equal"},
+    {low_ip6, "le", low_ip6, unittest.is_true, "IPv6, equal"},
+    {high_ip4, "le", low_ip4, unittest.is_false, "IPv4"},
+    {high_ip6, "le", low_ip6, unittest.is_false, "IPv6"},
+    {low_ip4, "le", high_ip4, unittest.is_true, "IPv4"},
+    {low_ip6, "le", high_ip6, unittest.is_true, "IPv6"},
+    {low_ip6, "le", low_ip4, unittest.is_false, "mixed"},
+    {low_ip4, "le", low_ip6, unittest.is_true, "mixed"},
+    {low_ip4, "gt", low_ip4, unittest.is_false, "IPv4, equal"},
+    {low_ip6, "gt", low_ip6, unittest.is_false, "IPv6, equal"},
+    {high_ip4, "gt", low_ip4, unittest.is_true, "IPv4"},
+    {high_ip6, "gt", low_ip6, unittest.is_true, "IPv6"},
+    {low_ip4, "gt", high_ip4, unittest.is_false, "IPv4"},
+    {low_ip6, "gt", high_ip6, unittest.is_false, "IPv6"},
+    {low_ip6, "gt", low_ip4, unittest.is_true, "mixed"},
+    {low_ip4, "gt", low_ip6, unittest.is_false, "mixed"},
+    {low_ip4, "lt", low_ip4, unittest.is_false, "IPv4, equal"},
+    {low_ip6, "lt", low_ip6, unittest.is_false, "IPv6, equal"},
+    {high_ip4, "lt", low_ip4, unittest.is_false, "IPv4"},
+    {high_ip6, "lt", low_ip6, unittest.is_false, "IPv6"},
+    {low_ip4, "lt", high_ip4, unittest.is_true, "IPv4"},
+    {low_ip6, "lt", high_ip6, unittest.is_true, "IPv6"},
+    {low_ip6, "lt", low_ip4, unittest.is_false, "mixed"},
+    {low_ip4, "lt", low_ip6, unittest.is_true, "mixed"},
+    }) do
+    test_suite:add_test(op[4](compare_ip(op[1], op[2], op[3])),
+      string.format("compare_ip(%s, %s, %s) (%s)", op[1], op[2], op[3], op[5]))
+  end
+end
 
 return _ENV;
