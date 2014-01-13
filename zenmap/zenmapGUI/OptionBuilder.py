@@ -328,15 +328,11 @@ class OptionTab(object):
         self.notscripttab = False  # assume every tab is scripting tab
         self.widgets_list = []
         for option_element in root_tab.childNodes:
-            try:
-                option_element.tagName
-            except:
-                pass
-            else:
-                if option_element.tagName in actions.keys():
-                    parse_func = actions[option_element.tagName]
-                    widget = parse_func(option_element)
-                    self.widgets_list.append(widget)
+            if (hasattr(option_element, "tagName") and
+                    option_element.tagName in actions.keys()):
+                parse_func = actions[option_element.tagName]
+                widget = parse_func(option_element)
+                self.widgets_list.append(widget)
 
     def __parse_target(self, target_element):
         label = _(target_element.getAttribute(u'label'))
