@@ -248,54 +248,33 @@ class HostDetails(HIGVBox):
         self.host_status_expander.set_expanded(True)
         table, hbox = self.create_table_hbox()
 
-        try:
-            if status['state'] == '':
-                raise Exception
+        if ('state' in status and
+                status['state'] != ''):
             self.info_host_state_label.set_text(status['state'])
-        except:
-            pass
 
-        try:
-            if status['open'] == '':
-                raise Exception
+        if ('open' in status and
+                status['open'] != ''):
             self.info_open_ports.set_text(status['open'])
-        except:
-            pass
 
-        try:
-            if status['filtered'] == '':
-                raise Exception
+        if ('filtered' in status and
+                status['filtered'] != ''):
             self.info_filtered_label.set_text(status['filtered'])
-        except:
-            pass
 
-        try:
-            if status['closed'] == '':
-                raise Exception
+        if ('closed' in status and
+                status['closed'] != ''):
             self.info_closed_ports.set_text(status['closed'])
-        except:
-            pass
 
-        try:
-            if status['scanned'] == '':
-                raise Exception
+        if ('scanned' in status and
+                status['scanned'] != ''):
             self.info_scanned_label.set_text(status['scanned'])
-        except:
-            pass
 
-        try:
-            if status['uptime'] == '':
-                raise Exception
+        if ('uptime' in status and
+                status['uptime'] != ''):
             self.info_uptime_label.set_text(status['uptime'])
-        except:
-            pass
 
-        try:
-            if status['lastboot'] == '':
-                raise Exception
+        if ('lastboot' in status and
+                status['lastboot'] != ''):
             self.info_lastboot_label.set_text(status['lastboot'])
-        except:
-            pass
 
         table.attach(self.host_state_label, 0, 1, 0, 1)
         table.attach(self.info_host_state_label, 1, 2, 0, 1)
@@ -339,26 +318,17 @@ class HostDetails(HIGVBox):
         self.address_expander.set_expanded(True)
 
         #print '>>> Address:', address
-        try:
-            if address['ipv4'] == 1:
-                raise Exception
+        if ('ipv4' in address and
+                address['ipv4'] != 1):
             self.info_ipv4_label.set_text(address['ipv4'])
-        except:
-            pass
 
-        try:
-            if address['ipv6'] == 1:
-                raise Exception
+        if ('ipv6' in address and
+                address['ipv6'] != 1):
             self.info_ipv6_label.set_text(address['ipv6'])
-        except:
-            pass
 
-        try:
-            if address['mac'] == 1:
-                raise Exception
+        if ('mac' in address and
+                address['mac'] != 1):
             self.info_mac_label.set_text(address['mac'])
-        except:
-            pass
 
         table.attach(self.ipv4_label, 0, 1, 0, 1)
         table.attach(self.info_ipv4_label, 1, 2, 0, 1)
@@ -382,17 +352,8 @@ class HostDetails(HIGVBox):
             y2 = 2
 
             for h in hostname:
-                name = na
-                try:
-                    name = h['hostname']
-                except:
-                    pass
-
-                type = na
-                try:
-                    type = h['hostname_type']
-                except:
-                    pass
+                name = h.get('hostname', na)
+                type = h.get('hostname_type', na)
 
                 table.attach(HIGEntryLabel(_('Name - Type:')), 0, 1, y1, y2)
                 table.attach(HIGEntryLabel(name + ' - ' + type), 1, 2, y1, y2)
@@ -409,10 +370,10 @@ class HostDetails(HIGVBox):
             table, hbox = self.create_table_hbox()
             progress = gtk.ProgressBar()
 
-            try:
+            if 'accuracy' in os:
                 progress.set_fraction(float(os['accuracy']) / 100.0)
                 progress.set_text(os['accuracy'] + '%')
-            except:
+            else:
                 progress.set_text(_('Not Available'))
 
             table.attach(HIGEntryLabel(_('Name:')), 0, 1, 0, 1)
@@ -424,20 +385,16 @@ class HostDetails(HIGVBox):
             y1 = 2
             y2 = 3
 
-            try:
+            if 'portsused' in os:
                 self.set_ports_used(os['portsused'])
                 table.attach(self.portsused_expander, 0, 2, y1, y2)
                 y1 += 1
                 y2 += 1
-            except:
-                pass
 
-            try:
+            if 'osclasses' in os:
                 self.set_osclass(os['osclasses'])
                 self.osclass_expander.set_use_markup(True)
                 table.attach(self.osclass_expander, 0, 2, y1, y2)
-            except:
-                pass
 
             self.os_expander.add(hbox)
             self._pack_noexpand_nofill(self.os_expander)
