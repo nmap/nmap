@@ -687,92 +687,94 @@ local function record_read(buffer, i)
 end
 
 local function record_write(type, protocol, b)
-  local h
-
-  h = ""
-
-  -- Set the header as a handshake.
-  h = h .. bin.pack("C", TLS_CONTENTTYPE_REGISTRY[type])
-
-  -- Set the protocol.
-  h = h .. bin.pack(">S", PROTOCOLS[protocol])
-
-  -- Set the length of the header body.
-  h = h .. bin.pack(">S", #b)
-
-  return h .. b
+  return stdnse.strjoin('', {
+    -- Set the header as a handshake.
+    bin.pack("C", TLS_CONTENTTYPE_REGISTRY[type]),
+    -- Set the protocol.
+    bin.pack(">S", PROTOCOLS[protocol]),
+    -- Set the length of the header body.
+    bin.pack(">S", #b),
+    b
+  })
 end
 
 local function client_hello(t)
-  local b, cipher, ciphers, compressor, compressors, h, len
+  local b, ciphers, compressor, compressors, h, len
 
   ----------
   -- Body --
   ----------
 
-  b = ""
-
+  b = {}
   -- Set the protocol.
-  b = b .. bin.pack(">S", PROTOCOLS[t["protocol"]])
+  table.insert(b, bin.pack(">S", PROTOCOLS[t["protocol"]]))
 
   -- Set the random data.
-  b = b .. bin.pack(">I", os.time())
+  table.insert(b, bin.pack(">I", os.time()))
 
   -- Set the random data.
-  b = b .. string.rep("nmap", 7)
+  table.insert(b, string.rep("nmap", 7))
 
   -- Set the session ID.
-  b = b .. bin.pack("C", 0)
+  table.insert(b, bin.pack("C", 0))
 
   -- Cipher suites.
-  ciphers = ""
+  ciphers = {}
   if t["ciphers"] ~= nil then
     -- Add specified ciphers.
     for _, cipher in pairs(t["ciphers"]) do
-      ciphers = ciphers .. bin.pack(">S", CIPHERS[cipher])
+      table.insert(ciphers, bin.pack(">S", CIPHERS[cipher]))
     end
   else
     -- Add all known ciphers.
     for _, cipher in pairs(CIPHERS) do
-      ciphers = ciphers .. bin.pack(">S", cipher)
+      table.insert(ciphers, bin.pack(">S", cipher))
     end
   end
-  b = b .. bin.pack(">S", #ciphers)
-  b = b .. ciphers
+  ciphers = stdnse.strjoin('', ciphers)
+
+  table.insert(b, bin.pack(">S", #ciphers))
+  table.insert(b, ciphers)
 
   -- Compression methods.
-  compressors = ""
+  compressors = {}
   if t["compressors"] ~= nil then
     -- Add specified compressors.
     for _, compressor in pairs(t["compressors"]) do
       if compressor ~= "NULL" then
-        compressors = compressors .. bin.pack("C", COMPRESSORS[compressor])
+        table.insert(compressors, bin.pack("C", COMPRESSORS[compressor]))
       end
     end
-    compressors = compressors .. bin.pack("C", 0) -- Always include NULL as last choice
+    table.insert(compressors, bin.pack("C", 0)) -- Always include NULL as last choice
   else
     -- Add all known compressors.
     for _, compressor in pairs(COMPRESSORS) do
-      compressors = compressors .. bin.pack("C", compressor)
+      table.insert(compressors, bin.pack("C", compressor))
     end
   end
-  b = b .. bin.pack("C", #compressors)
-  b = b .. compressors
+  compressors = stdnse.strjoin('', compressors)
+
+  table.insert(b, bin.pack("C", #compressors))
+  table.insert(b, compressors)
 
   ------------
   -- Header --
   ------------
 
-  h = ""
+  b = stdnse.strjoin('', b)
+
+  h = {}
 
   -- Set type to ClientHello.
-  h = h .. bin.pack("C", TLS_HANDSHAKETYPE_REGISTRY["client_hello"])
+  table.insert(h, bin.pack("C", TLS_HANDSHAKETYPE_REGISTRY["client_hello"]))
 
   -- Set the length of the body.
   len = bin.pack(">I", #b)
-  h = h .. bin.pack("CCC", len:byte(2), len:byte(3), len:byte(4))
+  table.insert(h, bin.pack("CCC", len:byte(2), len:byte(3), len:byte(4)))
 
-  return record_write("handshake", t["protocol"], h .. b)
+  h = stdnse.strjoin('', h)
+
+  return record_write("handshake", t["protocol"], stdnse.strjoin('', {h, b}))
 end
 
 local function try_params(host, port, t)
