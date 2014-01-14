@@ -723,4 +723,40 @@ do
   end
 end
 
+do
+  for _, op in ipairs({
+    {"192.168.13.1", "192/8", unittest.is_true, "IPv4 CIDR"},
+    {"193.168.13.1", "192/8", unittest.is_false, "IPv4 CIDR"},
+    {"2001:db8::9", "2001:db8/32", unittest.is_true, "IPv6 CIDR"},
+    {"2001:db7::9", "2001:db8/32", unittest.is_false, "IPv6 CIDR"},
+    {"192.168.13.1", "192.168.10.33-192.168.80.80", unittest.is_true, "IPv4 range"},
+    {"193.168.13.1", "192.168.1.1 - 192.168.5.0", unittest.is_false, "IPv4 range"},
+    {"2001:db8::9", "2001:db8::1-2001:db8:1::1", unittest.is_true, "IPv6 range"},
+    {"2001:db8::9", "2001:db8:10::1-2001:db8:11::1", unittest.is_false, "IPv6 range"},
+    {"193.168.1.1", "192.168.1.1 - 2001:db8::1", unittest.is_nil, "mixed"},
+    {"2001:db8::1", "192.168.1.1 - 2001:db8::1", unittest.is_nil, "mixed"},
+    }) do
+    test_suite:add_test(op[3](ip_in_range(op[1], op[2])),
+      string.format("ip_in_range(%s, %s) (%s)", op[1], op[2], op[4]))
+  end
+end
+
+do
+  for _, op in ipairs({
+    {"192.168", nil, "192.168.0.0", "IPv4 trunc"},
+    {"192.0.2.3", nil, "192.0.2.3", "IPv4"},
+    {"192.168", "inet6", "0:0:0:0:0:ffff:c0a8:0", "IPv4 trunc to IPv6"},
+    {"2001:db8::9", nil, "2001:db8:0:0:0:0:0:9", "IPv6"},
+    {"::ffff:192.0.2.128", "inet6", "0:0:0:0:0:ffff:c000:280", "IPv4-mapped to IPv6"},
+    -- TODO: Perhaps we should support extracting IPv4 from IPv4-mapped addresses?
+    --{"::ffff:192.0.2.128", "inet4", "192.0.2.128", "IPv4-mapped to IPv4"},
+    --{"::ffff:c000:0280", "inet4", "192.0.2.128", "IPv4-mapped to IPv4"},
+    }) do
+    test_suite:add_test(unittest.equal(expand_ip(op[1], op[2]), op[3]),
+      string.format("expand_ip(%s, %s) (%s)", op[1], op[2], op[4]))
+  end
+  test_suite:add_test(unittest.is_nil(expand_ip("2001:db8::1", "ipv4")),
+      "IPv6 to IPv4")
+end
+
 return _ENV;
