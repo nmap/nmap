@@ -1020,7 +1020,7 @@ class NmapParserSAX(ParserBasics, ContentHandler):
             self._parse_host_trace_error(attrs)
 
     def endElement(self, name):
-        if name == "runstats":
+        if name == "output":
             self.in_interactive_output = False
         elif name == "runstats":
             self.in_run_stats = False
