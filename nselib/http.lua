@@ -7,6 +7,9 @@
 -- can be used. These functions do what one would expect. The <code>get_url</code>
 -- helper function can be used to parse and retrieve a full URL.
 --
+-- HTTPS support is transparent. The library uses <code>comm.tryssl</code> to
+-- determine whether SSL is required for a request.
+--
 -- These functions return a table of values, including:
 -- * <code>status-line</code> - A string representing the status, such as "HTTP/1.1 200 OK". In case of an error, a description will be provided in this line.
 -- * <code>status</code>: The HTTP status value; for example, "200". If an error occurs during a request, then this value is going to be nil.
