@@ -120,10 +120,26 @@
 # *                                                                         *
 # ***************************************************************************/
 
-UNIQUE_STRING_MAP = {}
+
+class UniqueStringMap(dict):
+    def __missing__(self, key):
+        self[key] = key
+        return key
+
+UNIQUE_STRING_MAP = UniqueStringMap()
+
+# Return a single unique representation of s (unique as to id),
+# letting s be garbage collected.
+unique = UNIQUE_STRING_MAP.__getitem__
+
+import unittest
 
 
-def unique(s):
-    """Return a single unique representation of s (unique as to id),
-    letting s be garbage collected."""
-    return UNIQUE_STRING_MAP.setdefault(s, s)
+class StringPoolTest(unittest.TestCase):
+
+    def test_pool(self):
+        source = "Test string. Zenmap. Test string."
+        self.assertIs(unique(source[:12]), unique(source[-12:]))
+
+if __name__ == '__main__':
+    unittest.main()
