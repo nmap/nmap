@@ -6,13 +6,14 @@
 -- exception handling via <code>nmap.new_try</code>.
 --
 -- These functions may be passed a table of options, but it's not required. The
--- keys for the options table are <code>"bytes"</code>, <code>"lines"</code>,
--- <code>"proto"</code>, and <code>"timeout"</code>. <code>"bytes"</code> sets
--- a minimum number of bytes to read. <code>"lines"</code> does the same for
--- lines. <code>"proto"</code> sets the protocol to communicate with,
--- defaulting to <code>"tcp"</code> if not provided. <code>"timeout"</code>
--- sets the socket timeout (see the socket function <code>set_timeout</code>
--- for details). 
+-- keys for the options table are:
+-- * <code>bytes</code> - minimum number of bytes to read.
+-- * <code>lines</code> - minimum number of lines to read.
+-- * <code>proto</code> - string, protocol to use. Default <code>"tcp"</code>
+-- * <code>timeout</code> - socket timeout in milliseconds. Default 8000
+-- * <code>connect_timeout</code> - override timeout for connection
+-- * <code>request_timeout</code> - override timeout for requests
+-- * <code>recv_before</code> - boolean, receive data before sending first payload
 --
 -- If both <code>"bytes"</code> and <code>"lines"</code> are provided,
 -- <code>"lines"</code> takes precedence. If neither are given, the functions
@@ -227,7 +228,7 @@ local function opencon(host, port, protocol, data, opts)
         status, response = sd:receive()
     else
         if not (opts and opts.recv_before) then
-            stdnse.print_debug("Using comm.tryssl without first data payload and recv_first." ..
+            stdnse.print_debug("Using comm.tryssl without either first data payload or opts.recv_before." ..
                          "\nImpossible to test the connection for the correct protocol!")
         end
         response = early_resp
