@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added tls library for functions related to SSLv3 and TLS messages.
+  Existing ssl-enum-ciphers, ssl-date, and tls-nextprotoneg scripts were
+  updated to use this library. [Daniel Miller]
+
 o [NSE] Add sstp-discover script to discover Microsoft's Secure Socket
   Tunnelling Protocol (http://msdn.microsoft.com/en-us/library/cc247338.aspx)
   [Niklaus Schiess]
