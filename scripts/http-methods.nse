@@ -122,21 +122,11 @@ action = function(host, port)
 	return #output > 0 and stdnse.strjoin("\n", output) or nil
 end
 
-local function contains(t, elem)
-	local _, e
-	for _, e in ipairs(t) do
-		if e == elem then
-			return true
-		end
-	end
-	return false
-end
-
 function filter_out(t, filter)
 	local result = {}
 	local _, e, f
 	for _, e in ipairs(t) do
-		if not contains(filter, e) then
+		if not stdnse.contains(filter, e) then
 			result[#result + 1] = e
 		end
 	end

@@ -207,16 +207,6 @@ local function get_first(tbl)
 	end
 end	
 
--- convenience function , check if table cointains an element
-local function table_contains(tbl,element)
-  for _, value in pairs(tbl) do
-    if value == element then
-      return true
-    end
-  end
-  return false
-end
-
 -- queries the domain and parses the results 
 -- returns the list of new ranges
 local function query_for_hashes(host,subdomain,domain)
@@ -228,7 +218,7 @@ local function query_for_hashes(host,subdomain,domain)
 		for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
 			local h1 = string.lower(remove_suffix(nsec3.dname,domain))
 			local h2 = string.lower(nsec3.hash.base32)
-			if not table_contains(all_results,"nexthash " .. h1 .. " " .. h2) then
+			if not stdnse.contains(all_results,"nexthash " .. h1 .. " " .. h2) then
 				table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
 				stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
 			end

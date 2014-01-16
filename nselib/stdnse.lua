@@ -1238,4 +1238,19 @@ function filename_escape(s)
   end
 end
 
+--- Check for the presence of a value in a table
+--@param tab the table to search into
+--@param item the searched value
+--@return Boolean true if the item was found, false if not
+--@return The index or key where the value was found, or nil
+function contains(tab, item)
+	for k, val in pairs(tab) do
+		if val == item then
+			return true, k
+		end
+	end
+	return false, nil
+end
+
+
 return _ENV;
