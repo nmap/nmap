@@ -75,7 +75,7 @@ local function get_mac_addr( mac )
 	else
 		local prefix = string.upper(string.format("%02x%02x%02x", mac:byte(1), mac:byte(2), mac:byte(3)))
 		local manuf = mac_prefixes[prefix] or "Unknown"
-		return string.format("%02x:%02x:%02x:%02x:%02x:%02x (%s)", mac:byte(1), mac:byte(2), mac:byte(3), mac:byte(4), mac:byte(5), mac:byte(6), manuf )
+		return string.format("%s (%s)", stdnse.format_mac(mac:sub(1,6)), manuf )
 	end
 end
 

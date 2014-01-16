@@ -3,6 +3,7 @@ local datafiles = require "datafiles"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
+local table = require "table"
 
 description = [[
 Shows extra information about IPv6 addresses, such as embedded MAC or IPv4 addresses when available.
@@ -156,15 +157,8 @@ local function get_manuf(mac)
 end
 
 local function format_mac(mac)
-	local octets
-
-	octets = {}
-	for _, v in ipairs(mac) do
-		octets[#octets + 1] = string.format("%02x", v)
-	end
-
 	local out = stdnse.output_table()
-	out.address = stdnse.strjoin(":", octets)
+	out.address = stdnse.format_mac(string.char(table.unpack(mac)))
 	out.manuf = get_manuf(mac)
 	return out
 end

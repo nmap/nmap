@@ -125,10 +125,6 @@ local function sendConfigInfoRequest(iface)
 	dnet:ethernet_close()
 end
 
-local function mactostr(bin_mac)
-	return stdnse.tohex(bin_mac, { separator=":", group=2 })
-end
-
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function()
@@ -151,7 +147,7 @@ action = function()
 
 	local pcap = nmap.new_socket()
 	pcap:set_timeout(5000)
-	pcap:pcap_open(iface.device, 1500, true, "ether proto 0x88a2 && !ether src " .. mactostr(iface.mac))
+	pcap:pcap_open(iface.device, 1500, true, "ether proto 0x88a2 && !ether src " .. stdnse.format_mac(iface.mac))
 	
 	sendConfigInfoRequest(iface)
 
@@ -165,7 +161,7 @@ action = function()
 			f:ether_parse()
 
 			local str = ("Server: %s; Version: %d; Major: %d; Minor: %d"):format(
-				mactostr(f.mac_src),
+				stdnse.format_mac(f.mac_src),
 				header.version,
 				header.major,
 				header.minor)

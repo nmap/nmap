@@ -303,6 +303,13 @@ function tohex( s, options )
   return hex
 end
 
+---Format a MAC address as colon-separated hex bytes.
+--@param mac The MAC address in binary, such as <code>host.mac_addr</code>
+--@return The MAC address in XX:XX:XX:XX:XX:XX format
+function format_mac(mac)
+  return tohex(mac, {separator=":"})
+end
+
 ---Either return the string itself, or return "<blank>" (or the value of the second parameter) if the string
 -- was blank or nil.
 --

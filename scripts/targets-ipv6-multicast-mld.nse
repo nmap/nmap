@@ -126,7 +126,7 @@ local function single_interface_broadcast(if_nfo, results)
 					if target.ALLOW_NEW_TARGETS then
 						target.add(target_str)
 					end
-					results[target_str] = { address = target_str, mac = stdnse.tohex(l2reply.mac_src, {separator = ":", group = 2}), iface = if_nfo.device }
+					results[target_str] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
 				end
 			end
 		end
