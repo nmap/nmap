@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add sstp-discover script to discover Microsoft's Secure Socket
+  Tunnelling Protocol (http://msdn.microsoft.com/en-us/library/cc247338.aspx)
+  [Niklaus Schiess]
+
 o [NSE] Added unittest library and NSE script for adding unit tests to NSE
   libraries. See unittest.lua for examples, and run `nmap --script=unittest
   --script-args=unittest.run -d` to run the tests. [Daniel Miller]
