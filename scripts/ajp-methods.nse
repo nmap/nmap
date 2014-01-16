@@ -41,15 +41,10 @@ portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 local arg_url = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
 local UNINTERESTING_METHODS = {	"GET", "HEAD", "POST", "OPTIONS" }
 
-local function contains(t, elem)
-	for _, e in ipairs(t) do if e == elem then return true end end
-	return false
-end
-
 local function filter_out(t, filter)
 	local result = {}
 	for _, e in ipairs(t) do
-		if ( not(contains(filter, e)) ) then
+		if ( not(stdnse.contains(filter, e)) ) then
 			result[#result + 1] = e
 		end
 	end

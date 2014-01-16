@@ -61,19 +61,6 @@ dependencies = {"ssl-cert", "ssh-hostkey", "nbstat"}
 hostrule = function() return true end
 postrule = function() return true end
 
---- check for the presence of a value in a table
---@param tab the table to search into
---@param item the searched value
---@return a boolean indicating whether the value has been found or not
-local function contains(tab, item)
-	for _, val in pairs(tab) do
-		if val == item then
-			return true
-		end
-	end
-	return false
-end
-
 local function processSSLCerts(tab)
 	
 	-- Handle SSL-certificates
@@ -82,7 +69,7 @@ local function processSSLCerts(tab)
 	for host, v in pairs(tab) do
 		for port, sha1 in pairs(v) do
 			ssl_certs[sha1] = ssl_certs[sha1] or {}
-			if ( not contains(ssl_certs[sha1], host.ip) ) then
+			if ( not stdnse.contains(ssl_certs[sha1], host.ip) ) then
 				table.insert(ssl_certs[sha1], host.ip)
 			end
 		end
@@ -111,7 +98,7 @@ local function processSSHKeys(tab)
 				hostkeys[fp] = {}
 			end
 			-- discard duplicate IPs
-			if not contains(hostkeys[fp], ip) then
+			if not stdnse.contains(hostkeys[fp], ip) then
 				table.insert(hostkeys[fp], ip)
 			end
 		end
@@ -135,12 +122,12 @@ local function processNBStat(tab)
 	local results, mac_table, name_table = {}, {}, {}
 	for host, v in pairs(tab) do
 		mac_table[v.mac] = mac_table[v.mac] or {}
-		if ( not(contains(mac_table[v.mac], host.ip)) ) then
+		if ( not(stdnse.contains(mac_table[v.mac], host.ip)) ) then
 			table.insert(mac_table[v.mac], host.ip)
 		end
 
 		name_table[v.server_name] = name_table[v.server_name] or {}
-		if ( not(contains(name_table[v.server_name], host.ip)) ) then
+		if ( not(stdnse.contains(name_table[v.server_name], host.ip)) ) then
 			table.insert(name_table[v.server_name], host.ip)
 		end
 	end
@@ -171,7 +158,7 @@ local function processMAC(tab)
 		if ( host.mac_addr ) then
 			mac = stdnse.format_mac(host.mac_addr)
 			mac_table[mac] = mac_table[mac] or {}
-			if ( not(contains(mac_table[mac], host.ip)) ) then
+			if ( not(stdnse.contains(mac_table[mac], host.ip)) ) then
 				table.insert(mac_table[mac], host.ip)
 			end
 		end

@@ -102,16 +102,6 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 hostrule = mssql.Helper.GetHostrule_Standard()
 portrule = mssql.Helper.GetPortrule_Standard()
 
-local function table_contains( tbl, val )
-	for k,v in pairs(tbl) do
-		if ( v == val ) then
-			return true
-		end
-	end
-	return false
-end
-
-
 local function process_instance( instance )
 
 	local status, result, dbs, tables
@@ -188,7 +178,7 @@ local function process_instance( instance )
 				end
 	
 				for k, v in pairs(dbs.rows) do
-					if ( not( table_contains( done_dbs, v[1] ) ) ) then
+					if ( not( stdnse.contains( done_dbs, v[1] ) ) ) then
 						local query = [[ SELECT so.name 'table', sc.name 'column', st.name 'type', sc.length 
 									FROM %s..syscolumns sc, %s..sysobjects so, %s..systypes st
 									WHERE so.id = sc.id AND sc.xtype=st.xtype AND

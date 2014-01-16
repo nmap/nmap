@@ -125,19 +125,6 @@ portrule = shortport.port_or_service(22, "ssh")
 
 postrule = function() return (nmap.registry.sshhostkey ~= nil) end
 
---- check for the presence of a value in a table
---@param tab the table to search into
---@param item the searched value
---@return a boolean indicating whether the value has been found or not
-local function contains(tab, item)
-  for _, val in pairs(tab) do
-    if val == item then
-      return true
-    end
-  end
-  return false
-end
-
 --- put hostkey in the nmap registry for usage by other scripts
 --@param host nmap host table
 --@param key host key table
@@ -188,7 +175,7 @@ local function check_keys(host, keys, f)
           end
         end
       else
-        if contains(possible_host_names, parts[1]) then
+        if stdnse.contains(possible_host_names, parts[1]) then
           stdnse.print_debug(2, "Found an entry that matches: %s", parts[1])
           table.insert(keys_from_file, ("%s %s"):format(parts[2], parts[3]))
         else
@@ -324,19 +311,6 @@ local function portaction(host, port)
   end
 end
 
---- check for the presence of a value in a table
---@param tab the table to search into
---@param item the searched value
---@return a boolean indicating whether the value has been found or not
-local function contains(tab, item)
-  for _, val in pairs(tab) do
-    if val == item then
-      return true
-    end
-  end
-  return false
-end
-
 --- iterate over the list of gathered keys and look for duplicate hosts (sharing the same hostkeys)
 local function postaction()
   local hostkeys = {}
@@ -357,7 +331,7 @@ local function postaction()
         }
       end
       -- discard duplicate IPs
-      if not contains(hostkeys[fp], ip) then
+      if not stdnse.contains(hostkeys[fp], ip) then
         table.insert(hostkeys[fp], ip)
       end
     end

@@ -73,19 +73,6 @@ local add_key_to_registry = function(host, port, path, affid)
 	table.insert(nmap.registry["http-affiliate-id"][site], affid)
 end
 
---- check for the presence of a value in a table
---@param tab the table to search into
---@param item the searched value
---@return a boolean indicating whether the value has been found or not
-local function contains(tab, item)
-	for _, val in pairs(tab) do
-		if val == item then
-			return true
-		end
-	end
-	return false
-end
-
 portaction = function(host, port)
 	local result = {}
 	local url_path = stdnse.get_script_args("http-affiliate-id.url-path") or "/"
@@ -121,7 +108,7 @@ local function postaction()
 				siteids[id] = {}
 			end
 			-- discard duplicate IPs
-			if not contains(siteids[id], site) then
+			if not stdnse.contains(siteids[id], site) then
 				table.insert(siteids[id], site)
 			end
 		end
