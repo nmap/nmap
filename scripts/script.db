@@ -222,6 +222,7 @@ Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "safe", "vuln", 
 Entry { filename = "http-vuln-cve2011-3368.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2012-1823.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-vuln-cve2013-0156.nse", categories = { "exploit", "vuln", } }
+Entry { filename = "http-vuln-zimbra-lfi.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-waf-fingerprint.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
@@ -426,6 +427,7 @@ Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusiv
 Entry { filename = "ssl-google-cert-catalog.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ssl-known-key.nse", categories = { "default", "discovery", "safe", "vuln", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
+Entry { filename = "sstp-discover.nse", categories = { "default", "discovery", } }
 Entry { filename = "stun-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "stun-version.nse", categories = { "version", } }
 Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
@@ -443,6 +445,7 @@ Entry { filename = "telnet-encryption.nse", categories = { "discovery", "safe", 
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "tls-nextprotoneg.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "traceroute-geolocation.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "unittest.nse", categories = { } }
 Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "url-snarf.nse", categories = { "safe", } }
