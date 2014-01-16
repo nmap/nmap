@@ -49,12 +49,6 @@ local function fail(err)
 	end
 end
 
-local function mac_tostr(mac)
-	local srv_mac = {}
-	for i=1, #mac do table.insert(srv_mac, select(2,bin.unpack("H", mac, i))) end
-	return stdnse.strjoin(":", srv_mac)
-end
-
 local function discoverPPPoE(helper)
 
 	local status, err = helper:connect()
@@ -117,7 +111,7 @@ action = function()
 		end
 		helper:close()
 	
-		local output = { name = ("Server: %s"):format(mac_tostr(pado.mac_srv)) }
+		local output = { name = ("Server: %s"):format(stdnse.format_mac(pado.mac_srv)) }
 		table.insert(output, ("Version: %d"):format(pado.header.version))
 		table.insert(output, ("Type: %d"):format(pado.header.type))
 			

@@ -164,20 +164,12 @@ end
 
 local function processMAC(tab)
 	
-	local function format_mac(mac)
-		local octets = {}
-		for _, v in ipairs({ string.byte(mac, 1, #mac) }) do
-			octets[#octets + 1] = string.format("%02x", v)
-		end
-		return stdnse.strjoin(":", octets)
-	end
-	
 	local mac
 	local mac_table = {}
 	
 	for host in pairs(tab) do
 		if ( host.mac_addr ) then
-			mac = format_mac(host.mac_addr)
+			mac = stdnse.format_mac(host.mac_addr)
 			mac_table[mac] = mac_table[mac] or {}
 			if ( not(contains(mac_table[mac], host.ip)) ) then
 				table.insert(mac_table[mac], host.ip)

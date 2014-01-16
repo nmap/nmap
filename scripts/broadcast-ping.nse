@@ -193,8 +193,7 @@ local broadcast_if = function(if_table,icmp_responders)
 		if icmpreply:ip_parse() and icmp_ids[icmp_id] then 
 			if not icmp_responders[icmpreply.ip_src] then
 				-- [key = IP]=MAC
-				local mac_pretty = string.format("%02x:%02x:%02x:%02x:%02x:%02x",l2:byte(7),
-					l2:byte(8),l2:byte(9),l2:byte(10),l2:byte(11),l2:byte(12))
+				local mac_pretty = stdnse.format_mac(l2:sub(7,12))
 				icmp_responders[icmpreply.ip_src] = mac_pretty
 			end
 		else

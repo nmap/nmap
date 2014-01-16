@@ -120,17 +120,6 @@ local function get_interfaces()
 	return interfaces
 end
 
-local function format_mac(mac)
-	local octets
-
-	octets = {}
-	for _, v in ipairs({ string.byte(mac, 1, #mac) }) do
-		octets[#octets + 1] = string.format("%02x", v)
-	end
-
-	return stdnse.strjoin(":", octets)
-end
-
 local function single_interface_broadcast(if_nfo, results)
 	stdnse.print_debug("Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
 
@@ -208,7 +197,7 @@ local function single_interface_broadcast(if_nfo, results)
 						if target.ALLOW_NEW_TARGETS then
 							target.add(actual_addr_str)
 						end
-						results[#results + 1] = { address = actual_addr_str, mac = format_mac(l2reply.mac_src), iface = if_nfo.device }
+						results[#results + 1] = { address = actual_addr_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
 						results[actual_addr_str] = true
 					end
 				end
