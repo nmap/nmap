@@ -1,11 +1,11 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
-local bin = require "bin"
 local nmap = require "nmap"
 local os = require "os"
 local string = require "string"
 local sslcert = require "sslcert"
+local tls = require "tls"
 
 description = [[
 Retrieves a target host's time and date from its TLS ServerHello response.
@@ -55,35 +55,16 @@ local client_hello = function(host, port)
     local sock, status, response, err, cli_h
 
     -- Craft Client Hello
-    -- Content Type: Client Handshake
-    cli_h = bin.pack(">C", 0x16)
-    -- Version: TLS 1.0
-    cli_h = cli_h .. bin.pack(">S", 0x0301)
-    -- Length, fixed
-    cli_h = cli_h .. bin.pack(">S", 0x0031)
-    -- Handshake protocol
-    -- Handshake Type: Client Hello
-    cli_h = cli_h .. bin.pack(">C", 0x01)
-    -- Length, fixed
-    cli_h = cli_h .. bin.pack(">CS", 0x00, 0x002d)
-    -- Version: TLS 1.0 
-    cli_h = cli_h .. bin.pack(">S", 0x0301)
-    -- Random: epoch time
-    cli_h = cli_h .. bin.pack(">I", os.time()) 
-    -- Random: random 28 bytes
-    cli_h = cli_h .. stdnse.generate_random_string(28)
-    -- Session ID length
-    cli_h = cli_h .. bin.pack(">C", 0x00)
-    -- Cipher Suites length
-    cli_h = cli_h .. bin.pack(">S", 0x0006)
-    -- Ciphers
-    cli_h = cli_h .. bin.pack(">S", 0xc011)
-    cli_h = cli_h .. bin.pack(">S", 0x0039)
-    cli_h = cli_h .. bin.pack(">S", 0x0004)
-    -- Compression Methods length
-    cli_h = cli_h .. bin.pack(">C", 0x01)
-    -- Compression Methods: null
-    cli_h = cli_h .. bin.pack(">C", 0x00)
+    cli_h = tls.client_hello({
+      ["protocol"] = "TLSv1.0",
+      ["ciphers"] = {
+        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_RSA_WITH_RC4_128_MD5",
+      },
+      ["compressors"] = {"NULL"},
+    })
+
     -- Connect to the target server
 	local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
 	
@@ -125,31 +106,18 @@ end
 
 -- extract time from ServerHello response
 local extract_time = function(response)
-    local result
-    local shlength, npndata, protocol, _
-
-    if not response then
-	stdnse.print_debug(SCRIPT_NAME .. ": Didn't get response.")
-	return false,result
-    end
-    -- If content type not handshake
-    if string.sub(response,1,1) ~= string.char(22) then
-	stdnse.print_debug(SCRIPT_NAME .. ": Response type not handshake.")
-	return false,result
-    end
-    -- If handshake protocol not server hello
-    if string.sub(response, 6, 6) ~= string.char(02) then
-	stdnse.print_debug(SCRIPT_NAME .. ": Handshake response not server hello.")
-	return false,result
+    local i, record = tls.record_read(response, 0)
+    if record == nil then
+      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+      return nil
     end
 
-    -- Get the server hello length
-    _, shlength = bin.unpack(">S", response, 4)
-    local serverhello = string.sub(response, 6, 6 + shlength)
-	local bin_res = string.sub(serverhello,7,10)
-	_,result = bin.unpack(">I",bin_res)
-	stdnse.print_debug("HERE: " ..result)
-    return true,result
+    if record.type == "handshake" and record.body.type == "server_hello" then
+      return true, record.body.time
+    else
+      stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
+      return nil
+    end
 end
 
 action = function(host, port)

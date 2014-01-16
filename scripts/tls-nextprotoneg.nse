@@ -111,7 +111,7 @@ local check_npn = function(response)
         return nil
       end
       local results = {}
-      npndata = record.body.extensions["next_protocol_negotiation"]
+      local npndata = record.body.extensions["next_protocol_negotiation"]
       if npndata == nil then
         stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
         return nil
