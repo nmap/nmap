@@ -568,6 +568,18 @@ function record_read(buffer, i)
       j, b["session_id"] = bin.unpack("A" .. b["session_id_length"], buffer, j)
       j, b["cipher"] = bin.unpack(">S", buffer, j)
       j, b["compressor"] = bin.unpack("C", buffer, j)
+      -- Optional extensions
+      if j < len then
+        local num_exts
+        b["extensions"] = {}
+        j, num_exts = bin.unpack(">S", buffer, j)
+        for e = 0, num_exts do
+          local extcode, datalen
+          j, extcode = bin.unpack(">S", buffer, j)
+          extcode = find_key(EXTENSIONS, extcode) or extcode
+          j, b["extensions"][extcode] = bin.unpack(">P", buffer, j)
+        end
+      end
 
       -- Convert to human-readable form.
       b["protocol"] = find_key(PROTOCOLS, b["protocol"])
@@ -667,8 +679,9 @@ function client_hello(t)
   local extensions = {}
   if t["extensions"] ~= nil then
     -- Add specified extensions.
-    for _, extension in pairs(t["extensions"]) do
+    for extension, data in pairs(t["extensions"]) do
       table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
+      table.insert(extensions, bin.pack(">P", data))
     end
   end
   -- Extensions are optional
