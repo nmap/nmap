@@ -21,7 +21,7 @@ author = "Daniel Miller"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {}
+categories = {"safe"}
 
 
 prerule = function() return stdnse.get_script_args("unittest.run") end
