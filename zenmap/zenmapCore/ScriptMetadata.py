@@ -132,6 +132,11 @@ from zenmapCore.Paths import Path
 from zenmapCore.UmitLogging import log
 
 
+class ScriptDBSyntaxError(SyntaxError):
+    """Exception raised when encountering a syntax error in the script.db"""
+    pass
+
+
 class ScriptDB (object):
     """Class responsible for parsing the script.db file, fetching script
     names and categories."""
@@ -144,21 +149,38 @@ class ScriptDB (object):
         self.unget_buf = ""
 
         self.f = open(script_db_path, "r")
+        self.lineno = 1
+        self.line = ""
         try:
             self.entries_list = self.parse()
         finally:
             self.f.close()
 
+    def syntax_error(self, message):
+        e = ScriptDBSyntaxError(message)
+        e.filename = self.f.name
+        e.lineno = self.lineno
+        e.offset = len(self.line)
+        e.text = self.line
+        return e
+
     def getchar(self):
+        c = None
         if self.unget_buf:
             c = self.unget_buf[-1]
             self.unget_buf = self.unget_buf[:-1]
-            return c
         else:
-            return self.f.read(1)
+            c = self.f.read(1)
+        if c == "\n":
+            self.lineno += 1
+            self.line = ""
+        else:
+            self.line += c
+        return c
 
     def unget(self, data):
         if data:
+            self.line = self.line[:-len(data)]
             self.unget_buf += data
 
     def parse(self):
@@ -199,7 +221,7 @@ class ScriptDB (object):
                     repl = None
                     c = self.getchar()
                     if not c:
-                        raise ScriptDBSyntaxError()
+                        raise self.syntax_error("Unexpected EOF")
                     if c.isdigit():
                         d1 = c
                         d2 = self.getchar()
@@ -207,7 +229,8 @@ class ScriptDB (object):
                         if d1 and d2 and d3:
                             n = int(d1 + d2 + d3)
                             if n > 255:
-                                raise ScriptDBSyntaxError()
+                                raise self.syntax_error(
+                                        "Character code >255")
                             repl = chr(n)
                         else:
                             self.unget(d3)
@@ -215,7 +238,7 @@ class ScriptDB (object):
                     if not repl:
                         repl = self.LUA_STRING_ESCAPES.get(c)
                     if not repl:
-                        raise ScriptDBSyntaxError()
+                        raise self.syntax_error("Unhandled string escape")
                     c = repl
                 string.append(c)
                 c = self.getchar()
@@ -223,13 +246,15 @@ class ScriptDB (object):
         elif c in "{},=":
             return ("delim", c)
         else:
-            raise ScriptDBSyntaxError()
+            raise self.syntax_error("Unknown token")
 
     def expect(self, tokens):
         for token in tokens:
             t = self.token()
             if t != token:
-                raise ScriptDBSyntaxError()
+                raise self.syntax_error(
+                        "Unexpected token '%s', expected '%s'" % (
+                            t[1], token[1]))
 
     def parse_entry(self):
         entry = {}
@@ -239,7 +264,7 @@ class ScriptDB (object):
         self.expect((("delim", "{"), ("ident", "filename"), ("delim", "=")))
         token = self.token()
         if not token or token[0] != "string":
-            raise ScriptDBSyntaxError()
+            raise self.syntax_error("Unexpected non-string token or EOF")
         entry["filename"] = token[1]
         self.expect((("delim", ","), ("ident", "categories"),
             ("delim", "="), ("delim", "{")))
@@ -256,12 +281,14 @@ class ScriptDB (object):
                 break
             token = self.token()
         if token != ("delim", "}"):
-            raise ScriptDBSyntaxError()
+            raise self.syntax_error(
+                    "Unexpected token '%s', expected '}'" % (token[1]))
         token = self.token()
         if token == ("delim", ","):
             token = self.token()
         if token != ("delim", "}"):
-            raise ScriptDBSyntaxError()
+            raise self.syntax_error(
+                    "Unexpected token '%s', expected '}'" % (token[1]))
         return entry
 
     def get_entries_list(self):
@@ -472,7 +499,8 @@ def get_script_entries(scripts_dir, nselib_dir):
     return entries
 
 if __name__ == '__main__':
-    for entry in get_script_entries():
+    import sys
+    for entry in get_script_entries(sys.argv[1], sys.argv[2]):
         print "*" * 75
         print "Filename:", entry.filename
         print "Categories:", entry.categories
