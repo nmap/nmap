@@ -57,6 +57,7 @@ author = "George Chatzisofroniou"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 local http = require "http"
+local io = require "io"
 local string = require "string"
 local httpspider = require "httpspider"
 local shortport = require "shortport"
@@ -90,9 +91,8 @@ local makeRequests = function(host, port, submission, fields, fieldvalues)
         for __, field in ipairs(fields) do
             if field["type"] == "text" or field["type"] == "textarea" or field["type"] == "radio" or field["type"] == "checkbox" then
                 
-                if fieldvalues[field["name"]] ~= nil then
-                    value = fieldvalues[field["name"]]
-                else
+                local value = fieldvalues[field["name"]]
+                if value == nil then
                     value = p.vector
                 end
               
@@ -121,10 +121,10 @@ end
 -- Check if the payloads were succesfull by checking the content of pages in the uploadspaths array.
 local checkRequests = function(body, target)
  
-    output = {}
+    local output = {}
     for _, p in ipairs(payloads) do
         if checkPayload(body, p.vector) then
-            report = " Payload: " .. p.vector .. "\n\t Uploaded on: " .. target
+            local report = " Payload: " .. p.vector .. "\n\t Uploaded on: " .. target
             if p.description then
                 report = report .. "\n\t Description: " .. p.description
             end
@@ -207,6 +207,7 @@ action = function(host, port)
                     local action_absolute = string.find(form["action"], "https*://")
               
                     -- Determine the path where the form needs to be submitted.
+                    local submission
                     if action_absolute then
                         submission = form["action"]
                     else    

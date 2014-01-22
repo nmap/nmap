@@ -530,7 +530,7 @@ local function locate_file(filename, extension)
 
   -- check for absolute path or relative to current directory
   if(filename_full == nil) then 
-    f, err = io.open(filename, "rb")
+    local f, err = io.open(filename, "rb")
     if f == nil then
       stdnse.print_debug(1, "%s: Error opening %s: %s", SCRIPT_NAME, filename, err)
       f, err = io.open(filename .. "." .. extension, "rb")

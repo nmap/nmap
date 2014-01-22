@@ -59,7 +59,7 @@ local getLineNumber = function(body, comment)
 
     local partofresponse = body:find(comment, 1, true)
     partofresponse = body:sub(0, partofresponse)
-    _, count = string.gsub(partofresponse, "\n", "\n")
+    local _, count = string.gsub(partofresponse, "\n", "\n")
 
     return count + 1
 
@@ -103,7 +103,7 @@ action = function(host, port)
             path = target
 
         else
-            status, r = crawler:crawl()
+            local status, r = crawler:crawl()
             -- if the crawler fails it can be due to a number of different reasons
             -- most of them are "legitimate" and should not be reason to abort
             if (not(status)) then

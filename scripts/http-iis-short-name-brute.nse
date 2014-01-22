@@ -51,6 +51,7 @@ categories = {"intrusive", "brute"}
 
 local stdnse    = require "stdnse"
 local shortport = require "shortport"
+local table = require "table"
 local http      = require "http"
 local vulns = require "vulns"
 
@@ -169,7 +170,7 @@ cause a denial of service condition.
   end
   --Vulnerable!
   if #files>0 or #folders>0 then
-    results = {}
+    local results = {}
     table.insert(results, folders)
     table.insert(results, files)
     vuln.state = vulns.STATE.EXPLOIT

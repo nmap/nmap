@@ -228,7 +228,7 @@ action = function(host, port)
 	available_ciphers = ciphers(cipher_list, ciphers_len);
 
 -- actually run some tests:
-  o = stdnse.output_table()
+  local o = stdnse.output_table()
 	if (ssl_version == string.char(0x00, 0x02)) then
     table.insert(o, "SSLv2 supported")
     o["ciphers"] = available_ciphers

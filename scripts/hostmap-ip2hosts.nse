@@ -46,8 +46,10 @@ categories = {"external", "discovery"}
 
 local dns = require "dns"
 local ipOps = require "ipOps"
+local io = require "io"
 local http = require "http"
 local stdnse = require "stdnse"
+local string = require "string"
 local target = require "target"
 
 local HOSTMAP_BING_SERVER = "www.ip2hosts.com"

@@ -59,11 +59,10 @@ local findFeeds = function(body, path)
                     local c = string.match(body, pf) 
 
                     if c then
+                      local v = ""
                         -- Try to find feed's version.
                         if string.match(c, f["version"]) then
                             v = " (version " .. string.match(c, f["version"]) .. ")"
-                        else
-                            v = ""
                         end 
                         feedsfound[path] =  _ .. v .. ": "
                     end
@@ -102,7 +101,7 @@ action = function(host, port)
     local index, k, target, response, path
     while (true) do
   
-        status, r = crawler:crawl()
+        local status, r = crawler:crawl()
         -- if the crawler fails it can be due to a number of different reasons
         -- most of them are "legitimate" and should not be reason to abort
         if (not(status)) then

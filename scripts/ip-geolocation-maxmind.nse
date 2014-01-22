@@ -2,6 +2,7 @@ local bit = require "bit"
 local io = require "io"
 local ipOps = require "ipOps"
 local math = require "math"
+local nmap = require "nmap"
 local stdnse = require "stdnse"
 local table = require "table"
 

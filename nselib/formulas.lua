@@ -17,7 +17,10 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 ---
 
+local bin = require "bin"
+local math = require "math"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 _ENV = stdnse.module("formulas", stdnse.seeall)

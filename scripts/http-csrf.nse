@@ -110,7 +110,7 @@ action = function(host, port)
             path = target
 
         else
-            status, r = crawler:crawl()
+            local status, r = crawler:crawl()
             -- if the crawler fails it can be due to a number of different reasons
             -- most of them are "legitimate" and should not be reason to abort
             if (not(status)) then

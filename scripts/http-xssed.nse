@@ -28,6 +28,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "external", "discovery"}
 
 local http = require "http"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
@@ -46,19 +47,19 @@ action = function(host, port)
 
     local fixed, unfixed
 
-    target = XSSED_SEARCH .. host.targetname
+    local target = XSSED_SEARCH .. host.targetname
 
     -- Only one instantiation of the script should ping xssed at once.
     local mutex = nmap.mutex("http-xssed")
     mutex "lock"
 
-    response = http.get(XSSED_SITE, 80, target)
+    local response = http.get(XSSED_SITE, 80, target)
     
     if string.find(response.body, XSSED_FOUND) then
         fixed = {}
         unfixed = {}
         for m in string.gmatch(response.body, XSSED_MIRROR) do
-            mirror = http.get(XSSED_SITE, 80, m)
+            local mirror = http.get(XSSED_SITE, 80, m)
             for v in string.gmatch(mirror.body, XSSED_URL) do
                 if string.find(mirror.body, XSSED_FIXED) then
                     table.insert(fixed, "\t" .. v .. "\n")

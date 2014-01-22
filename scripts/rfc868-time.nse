@@ -37,7 +37,7 @@ action = function(host, port)
       _, stamp = bin.unpack(">I", result)
       port.version.extrainfo = "64 bits"
     else
-      stdnse.print_debug(1, "Odd response: %s", stdnse.filename_escape(response)) 
+      stdnse.print_debug(1, "Odd response: %s", stdnse.filename_escape(result))
       return nil
     end
 

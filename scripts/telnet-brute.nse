@@ -1,4 +1,6 @@
 local comm = require "comm"
+local coroutine = require "coroutine"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local strbuf = require "strbuf"

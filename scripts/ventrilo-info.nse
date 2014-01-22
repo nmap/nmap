@@ -313,11 +313,11 @@ local dec_data = function(str, len, key)
     -- skip the header (first 20 bytes)
     local data = { string.byte(str, 21, 20 + len) }
 
-    a1 = bit.band(key, 0xFF)
+    local a1 = bit.band(key, 0xFF)
     if a1 == 0 then
         return table.concat(data)
     end
-    a2 = bit.rshift(key, 8)
+    local a2 = bit.rshift(key, 8)
 
     for i = 1,len do
         data[i] = bit.band(data[i] - (crypt_data[a2 + 1] + ((i - 1) % 72)), 0xFF)
