@@ -72,7 +72,7 @@ getLastLoc = function(host, port, useragent)
 
     stdnse.print_debug(2, "Making a request with User-Agent: " .. useragent)
 
-    response = http.get(host, port, '/', options)
+    local response = http.get(host, port, '/', options)
 
     if response.location then
         return response.location[#response.location] or false
@@ -92,7 +92,7 @@ action = function(host, port)
     -- We don't crawl any site. We initialize a crawler to use its iswithinhost method.
     local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
 
-    HTTPlibs = {"libwww",
+    local HTTPlibs = {"libwww",
                 "lwp-trivial", 
                 "libcurl-agent/1.0", 
                 "PHP/", 
@@ -117,18 +117,18 @@ action = function(host, port)
     end
 
     -- We perform a normal browser request and get the returned location
-    loc = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
+    local loc = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
  
-    allowed, forb = {}, {}
+    local allowed, forb = {}, {}
 
     for _, l in ipairs(HTTPlibs) do
    
-        libloc = getLastLoc(host, port, l) 
+        local libloc = getLastLoc(host, port, l)
 
         -- If the library's request returned a different location, that means the request was redirected somewhere else, hence is forbidden. 
         if loc ~= libloc then
-            msg = l .. " redirected to: " .. libloc 
-            libhost = http.parse_url(libloc)
+            local msg = l .. " redirected to: " .. libloc
+            local libhost = http.parse_url(libloc)
             if not crawler:iswithinhost(libhost.host) then    
                 msg = msg .. " (different host)" 
                 if newtargets then

@@ -48,7 +48,7 @@ getLastLoc = function(host, port, useragent)
 
     options['header']['User-Agent'] = useragent
 
-    response = http.get(host, port, '/', options)
+    local response = http.get(host, port, '/', options)
 
     if response.location then
         return response.location[#response.location] or false
@@ -67,13 +67,13 @@ action = function(host, port)
     -- We don't crawl any site. We initialize a crawler to use its iswithinhost method.
     local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
 
-    loc = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
-    mobloc = getLastLoc(host, port, "Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30") 
+    local loc = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
+    local mobloc = getLastLoc(host, port, "Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30")
 
     -- If the mobile browser request is redirected to a different page, that must be the mobile version's page.
     if loc ~= mobloc then
-        msg = "Found mobile version: " .. mobloc 
-        mobhost = http.parse_url(mobloc)
+        local msg = "Found mobile version: " .. mobloc
+        local mobhost = http.parse_url(mobloc)
         if not crawler:iswithinhost(mobhost.host) then    
             msg = msg .. " (Redirected to a different host)" 
             if newtargets then

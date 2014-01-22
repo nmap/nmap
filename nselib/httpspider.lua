@@ -569,13 +569,13 @@ Crawler = {
     -- @param u URL that points to the resource we want to check. 
     iswithindomain = function(self, u)
         local parsed_u = url.parse(tostring(u))             
-        if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
-            if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
+        if ( self.options.base_url:getPort() ~= 80 and self.options.base_url:getPort() ~= 443 ) then
+            if ( tonumber(parsed_u.port) ~= tonumber(self.options.base_url:getPort()) ) then
                 return false
             end
-        elseif ( parsed_u.scheme ~= o.base_url:getProto() ) then
+        elseif ( parsed_u.scheme ~= self.options.base_url:getProto() ) then
             return false
-        elseif ( parsed_u.host == nil or parsed_u.host:sub(-#o.base_url:getDomain()):lower() ~= o.base_url:getDomain():lower() ) then
+        elseif ( parsed_u.host == nil or parsed_u.host:sub(-#self.options.base_url:getDomain()):lower() ~= self.options.base_url:getDomain():lower() ) then
             return false
         end
         return true
@@ -592,8 +592,8 @@ Crawler = {
             return true
         end
 
+        local signstring = ""
         if signs then
-            signstring = ""
             for _, s in signs do
              signstring = signstring .. s
             end 

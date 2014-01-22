@@ -8,9 +8,13 @@
 
 local bin = require "bin"
 local bit = require "bit"
+local io = require "io"
 local math = require "math"
 local nmap = require "nmap"
+local os = require "os"
 local stdnse = require "stdnse"
+local string = require "string"
+local table = require "table"
 local openssl = stdnse.silent_require "openssl"
 _ENV = stdnse.module("ssh1", stdnse.seeall)
 
@@ -217,7 +221,7 @@ end
 -- UserKnownHostsFile is specified, open that known_hosts.
 -- (3) Otherwise, open ~/.ssh/known_hosts.
 parse_known_hosts_file = function(path)
-    common_paths = {}
+    local common_paths = {}
     local f, knownhostspath
 
     if path and io.open(path) then
@@ -243,13 +247,13 @@ parse_known_hosts_file = function(path)
         return
     end
 
-    known_host_entries = {} 
-    lnumber = 0
+    local known_host_entries = {}
+    local lnumber = 0
 
     for l in io.lines(knownhostspath) do
         lnumber = lnumber + 1
         if l and string.sub(l, 1, 1) ~= "#" then
-            parts = stdnse.strsplit(" ", l)
+            local parts = stdnse.strsplit(" ", l)
             table.insert(known_host_entries, {entry=parts, linenumber=lnumber})
         end
     end

@@ -71,6 +71,7 @@ action = function(host, port)
         end
 
         -- Detected; extract relevant data
+        local _
         _, r.v_a, r.v_b, r.v_c, _, r.users, r.maxusers, r.bandwidth =
             bin.unpack(">CCCLIII", result, 2)
     end

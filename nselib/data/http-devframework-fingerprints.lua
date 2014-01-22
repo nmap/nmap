@@ -1,4 +1,6 @@
 local http = require "http"
+local io = require "io"
+local string = require "string"
 local table = require "table"
 local url = require "url"
 
@@ -20,7 +22,7 @@ local url = require "url"
 tools = { Django = { rapidDetect = function(host, port)
 
                             -- Check if the site gives that familiar Django admin login page.
-                            response = http.get(host, port, "/admin/")
+                            local response = http.get(host, port, "/admin/")
 
                             if response.body then
                                 if string.find(response.body, "Log in | Django site admin") or 
@@ -70,7 +72,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                 RubyOnRails = { rapidDetect = function(host, port)
 
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             -- Check for Mongrel or Passenger in the "Server" or "X-Powered-By" header
                             for h, v in pairs(response.header) do
@@ -118,11 +120,11 @@ tools = { Django = { rapidDetect = function(host, port)
 
                 ASPdotNET = { rapidDetect = function(host, port)
 
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             -- Look for an ASP.NET header.
                             for h, v in pairs(response.header) do
-                                vl = v:lower()
+                                local vl = v:lower()
                                 if h == "x-aspnet-version" or string.find(vl, "asp") then
                                     return "ASP.NET detected. Found related header."
                                 end
@@ -154,7 +156,7 @@ tools = { Django = { rapidDetect = function(host, port)
                 CodeIgniter = { rapidDetect = function(host, port)
 
                             -- Match default error page.
-                            response = http.get(host, port, "/random404page/")
+                            local response = http.get(host, port, "/random404page/")
 
                             if response.body then
                                 if string.find(response.body, "#990000") and
@@ -174,10 +176,10 @@ tools = { Django = { rapidDetect = function(host, port)
 
 
                             -- Find CAKEPHP header.
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             for h, v in pairs(response.header) do
-                                vl = v:lower()
+                                local vl = v:lower()
                                 if string.find(vl, "cakephp") then
                                     return "CakePHP detected. Found related header."
                                 end
@@ -193,10 +195,10 @@ tools = { Django = { rapidDetect = function(host, port)
                 Symfony = { rapidDetect = function(host, port)
 
                             -- Find Symfony header.
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             for h, v in pairs(response.header) do
-                                vl = v:lower()
+                                local vl = v:lower()
                                 if string.find(vl, "symfony") then
                                     return "Symfony detected. Found related header."
                                 end
@@ -212,7 +214,7 @@ tools = { Django = { rapidDetect = function(host, port)
                 Wordpress = { rapidDetect = function(host, port)
 
                             -- Check for common traces in the source code.
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.body then
                                 if string.find(response.body, "content=[\"']WordPress") or 
@@ -243,7 +245,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
 
                             -- Check for common traces in the source code.
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.body then
                                 if string.find(response.body, "content=[\"']Joomla!") then
@@ -270,7 +272,7 @@ tools = { Django = { rapidDetect = function(host, port)
                 Drupal = { rapidDetect = function(host, port)
 
                             -- Check for common traces in the source code.
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.body then
                                 if string.find(response.body, "content=[\"']Drupal") then
@@ -289,7 +291,7 @@ tools = { Django = { rapidDetect = function(host, port)
                 MediaWiki = { rapidDetect = function(host, port)
 
                             -- Check for common traces in the source code.
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.body then
                                 if string.find(response.body, "content=[\"']MediaWiki") or 
@@ -309,7 +311,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                 ColdFusion = { rapidDetect = function(host, port)
 
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
@@ -327,7 +329,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                 Broadvision = { rapidDetect = function(host, port)
 
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
@@ -345,7 +347,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                 WebSphereCommerce = { rapidDetect = function(host, port)
 
-                            response = http.get(host, port, "/")
+                            local response = http.get(host, port, "/")
 
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do

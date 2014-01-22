@@ -1,6 +1,7 @@
 local comm = require("comm")
 local vulns = require("vulns")
 local stdnse = require("stdnse")
+local string = require("string")
 local shortport = require("shortport")
 
 description = [[

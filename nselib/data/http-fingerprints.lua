@@ -1,3 +1,5 @@
+local io = require "io"
+local string = require "string"
 local table = require "table"
 
 ---HTTP Fingerprint files, compiled by Ron Bowes with a special thanks to...

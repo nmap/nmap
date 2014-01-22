@@ -35,7 +35,9 @@ categories = {"exploit"}
 local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local url = require "url"
+local openssl = stdnse.silent_require "openssl"
 
 portrule = shortport.http
 

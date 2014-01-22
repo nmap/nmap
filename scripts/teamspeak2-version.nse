@@ -3,6 +3,7 @@ local shortport = require "shortport"
 local nmap = require "nmap"
 local bin = require "bin"
 local stdnse = require "stdnse"
+local string = require "string"
 
 description = [[
 Detects the TeamSpeak 2 voice communication server and attempts to determine version and configuration information.
@@ -44,7 +45,7 @@ action = function(host, port)
     if name == "" then
         port.version.version = "2"
     else
-        _, v_a, v_b, v_c, v_d = bin.unpack("<SSSS", version)
+        local _, v_a, v_b, v_c, v_d = bin.unpack("<SSSS", version)
         port.version.version = v_a .. "." .. v_b .. "." .. v_c .. "." .. v_d
         port.version.extrainfo = "name: " .. name .. "; no password"
         if platform == "Win32" then

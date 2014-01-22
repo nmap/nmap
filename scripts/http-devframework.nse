@@ -42,11 +42,13 @@ author = "George Chatzisofroniou"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 local http = require "http"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local string = require "string"
 local httpspider = require "httpspider"
+local _G = require "_G"
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
@@ -113,7 +115,7 @@ action = function(host, port)
 
         local response, path
 
-        status, r = crawler:crawl()
+        local status, r = crawler:crawl()
         -- if the crawler fails it can be due to a number of different reasons
         -- most of them are "legitimate" and should not be reason to abort
         if (not(status)) then

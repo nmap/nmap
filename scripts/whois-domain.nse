@@ -102,7 +102,7 @@ end
 
 action = function( host )
 
-    mutexes = {}
+    local mutexes = {}
 
     -- If the user has provided a domain name.
     if host.targetname then
@@ -110,7 +110,7 @@ action = function( host )
         local referral_patterns = {"refer:%s*(.-)\n", "Whois%sServer:%s*(.-)\n"}
 
         -- Remove www prefix and add a newline.
-        query_data = string.gsub(host.targetname, "^www%.", "") .. "\n"
+        local query_data = string.gsub(host.targetname, "^www%.", "") .. "\n"
 
         local result
 

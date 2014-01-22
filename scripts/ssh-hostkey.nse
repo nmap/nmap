@@ -5,6 +5,7 @@ local shortport = require "shortport"
 local ssh1 = require "ssh1"
 local ssh2 = require "ssh2"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 local base64 = require "base64"
 
@@ -146,7 +147,7 @@ local function check_keys(host, keys, f)
   local hostname = host.name == "" and nil or host.name
   local possible_host_names = {hostname or nil, host.ip or nil, (hostname and host.ip) and ("%s,%s"):format(hostname, host.ip) or nil}
   for _p, parts in ipairs(f) do
-    lnumber = parts.linenumber
+    local lnumber = parts.linenumber
     parts = parts.entry
     local foundhostname = false
     if #parts >= 3 then

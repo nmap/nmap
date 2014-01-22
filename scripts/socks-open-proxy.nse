@@ -50,7 +50,7 @@ categories = {"default", "discovery", "external", "safe"}
 -- @return status If any request succeeded
 -- @return response Table with supported methods
 local function custom_test(host, port, test_url, pattern)
-  local status4, status5, fstatus
+  local status4, status5, fstatus, cstatus4, cstatus5
   local get_r4, get_r5
   local methods
   local response = {}
@@ -133,7 +133,7 @@ local function default_test(host, port)
   if not (cstatus4 or cstatus5) then return false, nil end
   stdnse.print_debug("Test 2 - Wikipedia.org: Received valid status codes, but pattern does not match")
   
-  redir_check_get = get_r4 or get_r5
+  local redir_check_get = get_r4 or get_r5
 
   test_url = "/"
   hostname = "www.computerhistory.org"
