@@ -23,7 +23,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
 -- |_ftp-bounce: server forbids bouncing to low ports <1025
--- 
+--
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
 -- |_ftp-bounce: no banner
@@ -111,7 +111,7 @@ action = function(host, port)
 	local sendPass = true
 	local user, pass = get_login()
 	local fc
-	
+
 	socket:set_timeout(10000)
 	socket:connect(host, port)
 
@@ -133,7 +133,7 @@ action = function(host, port)
 	--	return "bad banner (code " .. fc .. ")"
 		return
 	end
-	
+
 	socket:set_timeout(5000)
 	-- USER
 	socket:send("USER " .. user .. "\r\n")
@@ -147,13 +147,13 @@ action = function(host, port)
 	if fc == 0 then
 		socket:close()
 		-- return "anonymous user timeouted"
-		return 
+		return
 	end
 	if fc ~= 230 and fc ~= 331 then
 		socket:close()
 		-- bad code
 		-- return "bad response for anonymous user (code " .. fc .. ")"
-		return 
+		return
 	end
 	if fc == 230 then
 		sendPass = false
@@ -180,7 +180,7 @@ action = function(host, port)
 			return
 		end
 	end
-	
+
 	-- PORT scanme.nmap.com:highport
 	socket:send("PORT 205,217,153,62,80,80\r\n")
 	fc = get_ftp_code(socket)

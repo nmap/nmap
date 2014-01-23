@@ -52,17 +52,17 @@ action = function(host, port)
 	local response = try(comm.exchange(host, port, payload, {timeout=5000}))
 
 	local result
-		
+
 	-- check to see if the packet we got back matches the beginning of a PPTP Start-Control-Connection-Reply packet
 	result = string.match(response, "\0\156\0\001\026\043(.*)")
 	local output
-	
+
 	if result ~= nil then
 		local firmware
 		local hostname
 		local vendor
-		
-		-- get the firmware version (2 octets) 
+
+		-- get the firmware version (2 octets)
 		local s1,s2
 		s1,s2 = string.byte(result, 22, 23)
 		firmware = s1 * 256 + s2
@@ -77,13 +77,13 @@ action = function(host, port)
 		length = #result
 		s4 = string.sub(result, 88, length)
 		vendor = string.match(s4, "(.-)\0")
-	
+
 		port.version.name = "pptp"
 		port.version.name_confidence = 10
 		if vendor ~= nil then port.version.product = vendor end
 		if firmware ~= 0 then port.version.version = "(Firmware: " .. firmware .. ")" end
 		if hostname ~= nil then port.version.hostname = hostname end
-		
+
 		port.version.service_tunnel = "none"
 		nmap.set_port_version(host, port)
 	end

@@ -21,7 +21,7 @@ http://www.lexmark.com/vgn/images/portal/Security%20Features%20of%20Lexmark%20MF
 -- Interesting ports on 192.168.1.111:
 -- PORT     STATE   SERVICE REASON
 -- 9100/udp unknown unknown unknown-response
--- | lexmark-config:  
+-- | lexmark-config:
 -- |   IPADDRESS: 10.46.200.170
 -- |   IPNETMASK: 255.255.255.0
 -- |   IPGATEWAY: 10.46.200.2
@@ -55,7 +55,7 @@ portrule = shortport.portnumber({5353,9100}, "udp")
 
 action = function( host, port )
 
-	local result = {}	
+	local result = {}
 	local status, response = dns.query( "", { port = port.number, host = host.ip, dtype="PTR", retPkt=true} )
 	if ( not(status) ) then
 		return
@@ -64,23 +64,23 @@ action = function( host, port )
 	if ( not(status) ) then
 		return
 	end
-	
+
 	for _, v in ipairs( txtrecords ) do
 		if ( v:len() > 0 ) then
 			if v:find("PRINTERVIDPID") then
 				port.version.name="hbn3"
 			end
-			if not v:find("product=") then					
+			if not v:find("product=") then
 				v = v:gsub(" ", ": ", 1)
-			end	
+			end
 			table.insert( result, v )
 		end
 	end
-	
+
 	-- set port to open
 	nmap.set_port_state(host, port, "open")
 	nmap.set_port_version(host, port)
-	
+
 	return stdnse.format_output(true, result)
 end
 

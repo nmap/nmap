@@ -27,9 +27,9 @@ anonymous bind will be used as a last attempt.
 --       If no defaultNamingContext is available the script iterates over the available namingContexts
 -- @args ldap.attrib If set, the search will include only the attributes specified. For a single attribute a string value can be used, if
 --       multiple attributes need to be supplied a table should be used instead.
--- @args ldap.maxobjects If set, overrides the number of objects returned by the script (default 20). 
+-- @args ldap.maxobjects If set, overrides the number of objects returned by the script (default 20).
 --       The value -1 removes the limit completely.
--- @args ldap.savesearch If set, the script will save the output to a file beginning with the specified path and name.  The file suffix 
+-- @args ldap.savesearch If set, the script will save the output to a file beginning with the specified path and name.  The file suffix
 --       of .CSV as well as the hostname and port will automatically be added based on the output type selected.
 --
 -- @usage
@@ -42,7 +42,7 @@ anonymous bind will be used as a last attempt.
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 389/tcp open  ldap    syn-ack
--- | ldap-search:  
+-- | ldap-search:
 -- |   DC=cqure,DC=net
 -- |     dn: CN=Administrator,CN=Users,DC=cqure,DC=net
 -- |         sAMAccountName: Administrator
@@ -60,7 +60,7 @@ anonymous bind will be used as a last attempt.
 -- |         sAMAccountName: VMABUSEXP008$
 -- |     dn: CN=ldaptest,CN=Users,DC=cqure,DC=net
 -- |_        sAMAccountName: ldaptest
--- 
+--
 --
 -- PORT    STATE SERVICE REASON
 -- 389/tcp open  ldap    syn-ack
@@ -76,7 +76,7 @@ anonymous bind will be used as a last attempt.
 -- |_        operatingSystemServicePack: Service Pack 1
 
 
--- Credit 
+-- Credit
 -- ------
 -- o Martin Swende who provided me with the initial code that got me started writing this.
 
@@ -104,7 +104,7 @@ portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 function action(host,port)
 
 	local status
-	local socket, opt	
+	local socket, opt
 	local args = nmap.registry.args
 	local username = stdnse.get_script_args('ldap.username')
 	local password = stdnse.get_script_args('ldap.password')
@@ -123,11 +123,11 @@ function action(host,port)
 	local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
 	local _
 	socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
-	
+
 	if not socket then
 		return
 	end
-	
+
 	-- Check if ldap-brute stored us some credentials
 	if ( not(username) and nmap.registry.ldapaccounts~=nil ) then
 		accounts = nmap.registry.ldapaccounts
@@ -137,17 +137,17 @@ function action(host,port)
 	socket:close()
 	status = socket:connect(host, port, opt)
 	socket:set_timeout(10000)
-	
+
 	local req
 	local searchResEntries
 	local contexts = {}
-	local result = {} 
+	local result = {}
 	local filter
 
 	if base == nil then
 		req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default, attributes = { "defaultNamingContext", "namingContexts" } }
 		status, searchResEntries = ldap.searchRequest( socket, req )
-		
+
 		if not status then
 			socket:close()
 			return
@@ -172,7 +172,7 @@ function action(host,port)
 	if ( username ) then
 		local bindParam = { version=3, ['username']=username, ['password']=password}
 		local status, errmsg = ldap.bindRequest( socket, bindParam )
-		
+
 		if not status then
 			stdnse.print_debug( string.format("ldap-search failed to bind: %s", errmsg) )
 			return "  \n  ERROR: Authentication failed"
@@ -182,27 +182,27 @@ function action(host,port)
 		for username, password in pairs(accounts) do
 			local bindParam = { version=3, ['username']=username, ['password']=password}
 			local status, errmsg = ldap.bindRequest( socket, bindParam )
-		
+
 			if status then
 				break
 			end
 		end
 	end
-	
+
 	if qfilter == "users" then
-		filter = { op=ldap.FILTER._or, val= 
-						{ 
-							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='user' }, 
+		filter = { op=ldap.FILTER._or, val=
+						{
+							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='user' },
 							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='posixAccount' },
-							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='person' } 
+							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='person' }
 						}
 				   }
 	elseif qfilter == "computers" or qfilter == "computer" then
 		filter = { op=ldap.FILTER.equalityMatch, obj='objectClass', val='computer' }
-	
+
 	elseif qfilter == "ad_dcs" then
 		filter = { op=ldap.FILTER.extensibleMatch, obj='userAccountControl', val='1.2.840.113556.1.4.803:=8192' }
-		
+
 	elseif qfilter == "custom" then
 		if searchAttrib == nil or searchValue == nil then
 			return "\n\nERROR: Please specify both ldap.searchAttrib and ldap.searchValue using using the custom qfilter."
@@ -212,30 +212,30 @@ function action(host,port)
 		else
 			filter = { op=ldap.FILTER.substrings, obj=searchAttrib, val=searchValue }
 		end
-	
+
 	elseif qfilter == "all" or qfilter == nil then
 		filter = nil -- { op=ldap.FILTER}
 	else
 		return "  \n\nERROR: Unsupported Quick Filter: " .. qfilter
 	end
-	
+
 	if type(attribs) == 'string' then
 		local tmp = attribs
 		attribs = {}
 		table.insert(attribs, tmp)
-	end	
-	
+	end
+
 	for _, context in ipairs(contexts) do
-	
-		req = { 
-			baseObject = context, 
-			scope = ldap.SCOPE.sub, 
-			derefPolicy = ldap.DEREFPOLICY.default, 
-			filter = filter, 
+
+		req = {
+			baseObject = context,
+			scope = ldap.SCOPE.sub,
+			derefPolicy = ldap.DEREFPOLICY.default,
+			filter = filter,
 			attributes = attribs,
 			['maxObjects'] = maxObjects }
 		status, searchResEntries = ldap.searchRequest( socket, req )
-		
+
 		if not status then
 			if ( searchResEntries:match("DSID[-]0C090627") and not(username) ) then
 				return "ERROR: Failed to bind as the anonymous user"
@@ -244,7 +244,7 @@ function action(host,port)
 				return
 			end
 		end
-				
+
 		local result_part = ldap.searchResultToTable( searchResEntries )
 
 		if saveFile then
@@ -254,7 +254,7 @@ function action(host,port)
 				stdnse.print_debug(save_err)
 			end
 		end
-		
+
 		objCount = objCount + (result_part and #result_part or 0)
 		result_part.name = ""
 
@@ -265,7 +265,7 @@ function action(host,port)
 			result_part.name = result_part.name .. ("; QFilter: %s"):format(qfilter)
 		end
 		if ( attribs ) then
-			result_part.name = result_part.name .. ("; Attributes: %s"):format(stdnse.strjoin(",", attribs))			
+			result_part.name = result_part.name .. ("; Attributes: %s"):format(stdnse.strjoin(",", attribs))
 		end
 
 		table.insert( result, result_part )
@@ -274,27 +274,27 @@ function action(host,port)
 		if searchResEntries.resultCode ~= 0 then
 			local output = stdnse.format_output(true, result )
 			output = output .. string.format("\n\n\n=========== %s ===========", searchResEntries.errorMessage )
-			
+
 			return output
 		end
 
 	end
-		
+
 	-- perform a unbind only if we have valid credentials
 	if ( username ) then
 		status = ldap.unbindRequest( socket )
 	end
-	
+
 	socket:close()
-	
+
 	-- if taken a way and ldap returns a single result, it ain't shown....
 	--result.name = "LDAP Results"
-	
+
 	local output = stdnse.format_output(true, result )
-	
+
 	if ( maxObjects ~= -1 and objCount == maxObjects ) then
 		output = output .. ("\n\nResult limited to %d objects (see ldap.maxobjects)"):format(maxObjects)
 	end
-	
+
 	return output
 end

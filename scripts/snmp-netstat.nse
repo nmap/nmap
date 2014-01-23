@@ -14,7 +14,7 @@ newtargets script argument.
 
 ---
 -- @output
--- | snmp-netstat:  
+-- | snmp-netstat:
 -- |   TCP  0.0.0.0:21           0.0.0.0:2256
 -- |   TCP  0.0.0.0:80           0.0.0.0:8218
 -- |   TCP  0.0.0.0:135          0.0.0.0:53285
@@ -81,7 +81,7 @@ local function add_targets(tbl)
 	if ( not(target.ALLOW_NEW_TARGETS) ) then
 		return
 	end
-	
+
 	-- get a list of local IPs
 	local local_ips = {}
 	for _, v in ipairs(tbl) do
@@ -103,7 +103,7 @@ action = function(host, port)
 
 	local socket = nmap.new_socket()
 	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)	
+	local try = nmap.new_try(catch)
 	local tcp_oid = "1.3.6.1.2.1.6.13.1.1"
 	local udp_oid = "1.3.6.1.2.1.7.5.1.1"
 	local netstat = {}
@@ -111,28 +111,28 @@ action = function(host, port)
 
 	socket:set_timeout(5000)
 	try(socket:connect(host, port))
-	
+
 	status, tcp = snmp.snmpWalk( socket, tcp_oid )
 	if ( not(status) ) then return end
 
 	status, udp = snmp.snmpWalk( socket, udp_oid )
 	if ( not(status) ) then return end
 	socket:close()
-	
+
 	if ( tcp == nil ) or ( #tcp == 0 ) or ( udp==nil ) or ( #udp == 0 ) then
 		return
 	end
-	
+
 	tcp = process_answer(tcp, tcp_oid)
 	add_targets(tcp)
 	tcp = format_output(tcp, "TCP")
-	
+
 	udp = process_answer(udp, udp_oid)
 	add_targets(udp)
 	udp = format_output(udp, "UDP")
-		
+
 	netstat = table_merge( tcp, udp )
-	
+
 	nmap.set_port_state(host, port, "open")
 	socket:close()
 

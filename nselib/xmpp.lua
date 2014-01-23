@@ -41,7 +41,7 @@ _ENV = stdnse.module("xmpp", stdnse.seeall)
 
 
 XML = {
-	
+
 	-- This is a trivial XML processor written by Vasiliy Kulikov.  It doesn't
 	-- fully support XML, but it should be sufficient for the basic XMPP
 	-- stream handshake.  If you see stanzas with uncommon symbols, feel
@@ -67,15 +67,15 @@ XML = {
 	             contents = contents,
 	             finish = finish }
 	end,
-	
+
 }
 
 TagProcessor = {
-	
+
 	["failure"] = function(socket, tag)
 		return TagProcessor["success"](socket,tag)
 	end,
-	
+
 	["success"] = function(socket, tag)
 		if ( tag.finish ) then return true end
 		local newtag
@@ -89,23 +89,23 @@ TagProcessor = {
 		if ( newtag.name == tag.name ) then return true, tag end
 		return false, ("ERROR: Failed to process %s tag"):format(tag.name)
 	end,
-	
+
 	["challenge"] = function(socket, tag)
 		local status, data = socket:receive_buf(">", true)
 		if ( not(status) ) then return false, "ERROR: Failed to read challenge tag" end
 		local tag = XML.parse_tag(data)
-		
+
 		if ( not(status) or tag.name ~= "challenge" ) then
-			return false, "ERROR: Failed to process challenge" 
+			return false, "ERROR: Failed to process challenge"
 		end
 		return status, (tag.contents and base64.dec(tag.contents))
 	end,
-	
-	
+
+
 }
 
 XMPP = {
-	
+
 	--- Creates a new instance of the XMPP class
 	--
 	-- @param host table as receieved by the action function
@@ -126,13 +126,13 @@ XMPP = {
         self.__index = self
 		return o
 	end,
-	
+
 	--- Sends data to XMPP server
 	-- @param data string containing data to send to server
 	-- @return status true on success false on failure
 	-- @return err string containing error message
 	send = function(self, data)
-	
+
 		-- this ain't pretty, but we try to "flush" what's left of the receive
 		-- buffer, prior to send. This way we account for not reading to the
 		-- end of one message resulting in the next read reading from our
@@ -142,10 +142,10 @@ XMPP = {
 			local status = self.socket:receive_buf("\0", false)
 		until(not(status))
 		self.socket:set_timeout(self.options.timeout * 1000)
-	
-		return self.socket:send(data) 
+
+		return self.socket:send(data)
 	end,
-	
+
 	--- Receives a XML tag from the server
 	--
 	-- @param tag [optional] if unset, receives the next available tag
@@ -157,19 +157,19 @@ XMPP = {
 			local status, data = self.socket:receive_buf(">", true)
 			if ( not(status) ) then return false, data end
 	    	result = XML.parse_tag(data)
-		until( ( not(tag) and (close == nil or result.finish == close ) ) or 
+		until( ( not(tag) and (close == nil or result.finish == close ) ) or
 				( tag == result.name and ( close == nil or result.finish == close ) ) )
 		return true, result
 	end,
-		
+
 	--- Connects to the XMPP server
 	-- @return status true on success, false on failure
 	-- @return err string containing an error message if status is false
 	connect = function(self)
-		assert(self.servername, 
+		assert(self.servername,
 				"Cannot connect to XMPP server without valid server name")
-		
-		-- we may be reconnecting using SSL		
+
+		-- we may be reconnecting using SSL
 		if ( not(self.socket) ) then
 			self.socket = nmap.new_socket()
 			self.socket:set_timeout(self.options.timeout * 1000)
@@ -181,7 +181,7 @@ XMPP = {
 		local data = ("<?xml version='1.0' ?><stream:stream to='%s' xmlns='jabber:client'" ..
 						" xmlns:stream='http://etherx.jabber.org/streams'" ..
 						" version='1.0'>"):format(self.servername)
-						
+
 		local status, err = self:send(data)
 		if ( not(status) ) then return false, "ERROR: Failed to connect to server" end
 
@@ -194,7 +194,7 @@ XMPP = {
 				version = tag.attrs and tag.attrs.version
 			elseif ( tag.name == "starttls" and tag.start ) then
 				status, tag = self:receive_tag()
-				if ( not(status) ) then 
+				if ( not(status) ) then
 					return false, "ERROR: Failed to connect to server"
 				end
 				if ( tag.name ~= "starttls" ) then
@@ -206,11 +206,11 @@ XMPP = {
 				self.auth.mechs[tag.contents] = true
 			end
 		until(tag.name == "stream:features" and tag.finish)
-		
+
 		if ( version ~= "1.0" ) then
 			return false, "ERROR: Only version 1.0 is supported"
 		end
-		
+
 		if ( start_tls == "required" or self.options.starttls) then
 			status, err = self:send("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>")
 			if ( not(status) ) then return false, "ERROR: Failed to initiate STARTTLS" end
@@ -222,10 +222,10 @@ XMPP = {
 				return self:connect()
 			end
 		end
-		
+
 		return true
 	end,
-	
+
 	--- Logs in to the XMPP server
 	--
 	-- @param username string
@@ -237,12 +237,12 @@ XMPP = {
 		assert(mech == "PLAIN" or
 		 		mech == "DIGEST-MD5" or
 				mech == "CRAM-MD5" or
-				mech == "LOGIN", 
+				mech == "LOGIN",
 				"Unsupported authentication mechanism")
-		
+
 		local auth = ("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' " ..
 						"mechanism='%s'/>"):format(mech)
-		
+
 		-- we currently don't do anything with the realm
 		local realm
 
@@ -250,9 +250,9 @@ XMPP = {
 		if ( username:match("@") ) then
 			username, realm = username:match("^(.*)@(.*)$")
 		end
-		
-		local status, result			
-		
+
+		local status, result
+
 		if ( mech == "PLAIN" ) then
 			local mech_params = { username, password }
 			local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
@@ -264,7 +264,7 @@ XMPP = {
 
 			status, result = self:receive_tag()
 			if ( not(status) ) then return false, "ERROR: Failed to receive login response" end
-			
+
 			if ( result.name == "failure" ) then
 				status = TagProcessor[result.name](self.socket, result)
 			end
@@ -276,7 +276,7 @@ XMPP = {
 			status, result = self:receive_tag()
 			if ( not(status) ) then return false, "ERROR: Failed to retrieve challenge" end
 			status, chall = TagProcessor[result.name](self.socket, result)
-						
+
 			if ( mech == "LOGIN" ) then
 				if ( chall ~= "User Name" ) then
 					return false, ("ERROR: Login expected 'User Name' received: %s"):format(chall)
@@ -284,21 +284,21 @@ XMPP = {
 				self.socket:send("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" ..
 									base64.enc(username) ..
 									"</response>")
-								
+
 				status, result = self:receive_tag()
 				if ( not(status) or result.name ~= "challenge") then
 					return false, "ERROR: Receiving tag from server"
 				end
 				status, chall = TagProcessor[result.name](self.socket, result)
-				
+
 				if ( chall ~= "Password" ) then
 					return false, ("ERROR: Login expected 'Password' received: %s"):format(chall)
-				end	
-				
+				end
+
 				self.socket:send("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>" ..
 									base64.enc(password) ..
 									"</response>")
-				
+
 				status, result = self:receive_tag()
 				if ( not(status) ) then return false, "ERROR: Failed to receive login challenge" end
 				if ( result.name == "failure" ) then
@@ -318,7 +318,7 @@ XMPP = {
 				repeat
 					status, result = self:receive_tag()
 					if ( not(status) ) then return false, "ERROR: Failed to receive login challenge" end
-				
+
 					if ( result.name == "failure" ) then
 						status = TagProcessor[result.name](self.socket, result)
 						return false, "Login failed"
@@ -327,7 +327,7 @@ XMPP = {
 						if ( not(status) ) then return false, "Failed to process success message" end
 						return true, "Login success"
 					elseif ( result.name ~= "challenge" ) then
-						return false, "ERROR: Failed to receive login challenge" 
+						return false, "ERROR: Failed to receive login challenge"
 					end
 				until( result.name == "challenge" and result.finish )
 
@@ -336,33 +336,33 @@ XMPP = {
 					if ( not(status) ) then return false, "ERROR: Failed to send DIGEST-MD5 request" end
 					status, result = self:receive_tag()
 					if ( not(status) ) then return false, "ERROR: Failed to receive DIGEST-MD5 response" end
-				end				
+				end
 			end
 		end
 		if ( result.name == "success" ) then
 			return true, "Login success"
 		end
-		
+
 		return false, "Login failed"
 	end,
-	
+
 	--- Retrieves the available authentication mechanisms
 	-- @return table containing all available authentication mechanisms
 	getAuthMechs = function(self) return self.auth.mechs end,
-	
+
 	--- Disconnects the socket from the server
 	-- @return status true on success, false on failure
-	disconnect = function(self) 
-		local status, err = self.socket:close() 
+	disconnect = function(self)
+		local status, err = self.socket:close()
 		self.socket = nil
 		return status, err
 	end,
-		
+
 }
 
 
 Helper = {
-	
+
 	--- Creates a new Helper instance
 	-- @param host table as receieved by the action function
 	-- @param port table as receieved by the action function
@@ -380,7 +380,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Connects to the XMPP server and starts the initial communication
 	-- @return status true on success, false on failure
 	-- @return err string containing an error message is status is false
@@ -392,7 +392,7 @@ Helper = {
 		self.state = "CONNECTED"
 		return self.xmpp:connect()
 	end,
-	
+
 	--- Login to the XMPP server
 	--
 	-- @param username string
@@ -402,7 +402,7 @@ Helper = {
 	login = function(self, username, password, mech)
 		return self.xmpp:login(username, password, mech)
 	end,
-	
+
 	--- Retrieves the available authentication mechanisms
 	-- @return table containing all available authentication mechanisms
 	getAuthMechs = function(self)
@@ -417,7 +417,7 @@ Helper = {
 		self.xmpp:disconnect()
 		self.state = "DISCONNECTED"
 	end,
-	
+
 }
 
 return _ENV;

@@ -12,7 +12,7 @@ Performs brute force password auditing against the pcAnywhere remote access prot
 
 Due to certain limitations of the protocol, bruteforcing
 is limited to single thread at a time.
-After a valid login pair is guessed the script waits 
+After a valid login pair is guessed the script waits
 some time until server becomes available again.
 
 ]]
@@ -52,7 +52,7 @@ local function encrypt(data)
 		for i = 2,string.len(data) do
 			result[i] = bit.bxor(result[i-1],string.byte(data,i),i-2)
 		end
-	end 
+	end
 	return string.char(table.unpack(result))
 end
 
@@ -74,12 +74,12 @@ Driver = {
 		local response
 		local err
 		local status = false
-		
+
 		stdnse.sleep(2)
 		-- when we hit a valid login pair, server enters some kind of locked state
 		-- so we need to wait for some time before trying next pair
 		-- variable "retry" signifies if we need to wait or this is just not pcAnywhere server
-		while not status do 
+		while not status do
 			status, err = self.socket:connect(self.host, self.port)
 			self.socket:set_timeout(arg_timeout)
 			if(not(status)) then
@@ -87,17 +87,17 @@ Driver = {
 			end
 			status, err = self.socket:send(bin.pack("H","00000000")) --initial hello
 			status, response = self.socket:receive_bytes(0)
-			if not status and not retry then 
+			if not status and not retry then
 				break
 			end
 			stdnse.print_debug("in a loop")
-			stdnse.sleep(2) -- needs relatively big timeout between retries 			
+			stdnse.sleep(2) -- needs relatively big timeout between retries
 		end
 		if not status or string.find(response,"Please press <Enter>") == nil then
 			--probably not pcanywhere
 			stdnse.print_debug(1, "%s: not pcAnywhere", SCRIPT_NAME)
 			return false, brute.Error:new( "Probably not pcAnywhere." )
-		end	
+		end
 		retry = false
 		status, err = self.socket:send(bin.pack("H","6f06ff")) -- downgrade into legacy mode
 		status, response = self.socket:receive_bytes(0)
@@ -110,7 +110,7 @@ Driver = {
 		if not status or (string.find(response,"Enter user name") == nil and string.find(response,"Enter login name") == nil) then
 			stdnse.print_debug(1, "%s: handshake failed", SCRIPT_NAME)
 			return false, brute.Error:new( "Handshake failed." )
-		end	
+		end
 		return true
 	end,
 
@@ -126,15 +126,15 @@ Driver = {
 		if not status or string.find(response,"Enter password") == nil then
 			stdnse.print_debug(1, "%s: Sending username failed", SCRIPT_NAME)
 			return false, brute.Error:new( "Sending username failed." )
-		end	
+		end
 		-- send password
 		status, err = self.socket:send(bin.pack("C",0x06) .. bin.pack("C",string.len(pass)) .. encrypt(pass) ) -- send password
 		status, response = self.socket:receive_bytes(0)
 		if not status or string.find(response,"Login unsuccessful") or string.find(response,"Invalid login.")then
 			stdnse.print_debug(1, "%s: Incorrect username or password", SCRIPT_NAME)
 			return false, brute.Error:new( "Incorrect username or password." )
-		end	
-	
+		end
+
 		if status then
 			retry = true -- now the server is in "locked mode", we need to retry next connection a few times
 			return true, brute.Account:new( user, pass, creds.State.VALID)

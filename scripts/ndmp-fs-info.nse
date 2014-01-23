@@ -27,7 +27,7 @@ to support the protocol:
 -- @output
 -- PORT      STATE SERVICE REASON  VERSION
 -- 10000/tcp open  ndmp    syn-ack Symantec/Veritas Backup Exec ndmp
--- | ndmp-fs-info: 
+-- | ndmp-fs-info:
 -- | FS       Logical device          Physical device
 -- | NTFS     C:                      Device0000
 -- | NTFS     E:                      Device0000
@@ -50,14 +50,14 @@ action = function(host, port)
 	local helper = ndmp.Helper:new(host, port)
 	local status, msg = helper:connect()
 	if ( not(status) ) then	return fail("Failed to connect to server") end
-	
+
 	status, msg = helper:getFsInfo()
 	if ( not(status) ) then return fail("Failed to get filesystem information from server") end
 	helper:close()
-	
+
 	local result = tab.new(3)
 	tab.addrow(result, "FS", "Logical device", "Physical device")
-	
+
 	for _, item in ipairs(msg.fsinfo) do
 		if ( item.fs_logical_device and #item.fs_logical_device ~= 0 ) then
 			if ( item and item.fs_type and item.fs_logical_device and item.fs_physical_device ) then

@@ -23,7 +23,7 @@ For more information about acarsd, see:
 -- @output
 -- PORT    STATE SERVICE
 -- 2202/tcp open  unknown
--- | acarsd-info: 
+-- | acarsd-info:
 -- |   Version: 1.65
 -- |   API Version: API-2005-Oct-18
 -- |   Authorization Required: 0
@@ -107,7 +107,7 @@ action = function(host, port)
 	end
 	port.version.name = "acarsd"
 	port.version.product = "ACARS Decoder"
-	nmap.set_port_version(host, port)        
+	nmap.set_port_version(host, port)
 
 	-- Return results
 	return stdnse.format_output(true, result)

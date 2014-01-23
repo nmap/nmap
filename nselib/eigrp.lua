@@ -70,7 +70,7 @@ EIGRP = {
     -- @param Checksum integer EIGRP packet checksum. Calculated automatically
     --	      if not manually set.
     -- @param Table TLVs table.
-    -- @return o Instance of EIGRP 
+    -- @return o Instance of EIGRP
     new = function(self, opcode, as, routerid, flags, seq, ack, checksum, tlvs)
 	local o = {
 	    ver = 2,
@@ -253,7 +253,7 @@ EIGRP = {
     -- @return status true if tlvtype is a routing information tlv.
     isRoutingTLV = function(tlvtype)
 	if tlvtype == 0x101 or tlvtype == 0x102
-	    or tlvtype == 0x103 or tlvtype == 0x104 
+	    or tlvtype == 0x103 or tlvtype == 0x104
 	    or tlvtype == 0x402 or tlvtype == 0x403
 	    or tlvtype == 0x404 then
 	    return true
@@ -273,7 +273,7 @@ EIGRP = {
     --- Sets the EIGRP packet checksum
     -- @param integer checksum Checksum to set.
     setChecksum = function(self, checksum)
-	self.checksum = checksum 
+	self.checksum = checksum
     end,
     --- Sets the EIGRP packet flags field.
     -- @param flags Flags integer value.
@@ -288,19 +288,19 @@ EIGRP = {
     --- Sets the EIGRP Packet acknowledge field.
     -- @param ack EIGRP acknowledge.
     setAcknowledge = function(self, ack)
-	self.ack = ack 
+	self.ack = ack
     end,
-    --- Sets the EIGRP Packet Virtual Router ID. 
+    --- Sets the EIGRP Packet Virtual Router ID.
     -- @param routerid EIGRP Virtual Router ID.
     setRouterID = function(self, routerid)
-	self.routerid = routerid 
+	self.routerid = routerid
     end,
     --- Sets the EIGRP Packet Autonomous System.
     -- @param as EIGRP A.S.
     setAS = function(self, as)
 	self.as = as
     end,
-    --- Sets the EIGRP Packet tlvs 
+    --- Sets the EIGRP Packet tlvs
     -- @param tlvs table of EIGRP tlvs.
     setTlvs = function(self, tlvs)
 	self.tlvs = tlvs
@@ -314,7 +314,7 @@ EIGRP = {
 	-- If checksum not manually.
 	-- set to 0, then calculate it later
 	if self.checksum then
-	    data = data .. bin.pack(">S", self.checksum) 
+	    data = data .. bin.pack(">S", self.checksum)
 	else
 	    data = data .. bin.pack(">S", 0x0000) -- Calculated later.
 	end
@@ -322,7 +322,7 @@ EIGRP = {
 	data = data .. bin.pack(">I", self.seq) -- Sequence 0
 	data = data .. bin.pack(">I", self.ack) -- Acknowledge 0
 	data = data .. bin.pack(">S", self.routerid) -- Virtual Router ID 0
-	data = data .. bin.pack(">S", self.as) -- Autonomous system 
+	data = data .. bin.pack(">S", self.as) -- Autonomous system
 	for _, tlv in pairs(self.tlvs) do
 	    if tlv.type == TLV.PARAM then
 		data = data .. bin.pack(">S", TLV.PARAM)

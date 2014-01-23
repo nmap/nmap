@@ -16,7 +16,7 @@ local url = require "url"
 -- * <code>target_check</code> - Validation function of the target (optional)
 -- * <code>login_check</code> - Login function of the target
 --
--- TODO: Update the functionality of <code>target_check</code> to differentiate 
+-- TODO: Update the functionality of <code>target_check</code> to differentiate
 --       between valid HTTP/200 and a custom error page.
 ---
 
@@ -52,7 +52,7 @@ end
 ---
 local function try_http_post_login(host, port, path, target, failstr, params, follow_redirects)
     local req = http.post(host, port, url.absolute(path, target), {no_cache=true}, nil, params)
-    
+
     if not req.status then return false end
     local status = tonumber(req.status) or 0
     if follow_redirects and ( status > 300 and status < 400 ) then
@@ -68,7 +68,7 @@ end
 -- Returns authentication realm advertised in an HTTP response
 -- @param response HTTP response object, such as a result from http.get()
 -- @return realm found in response header WWW-Authenticate
---               (or nil if not present) 
+--               (or nil if not present)
 ---
 local function http_auth_realm(response)
     local auth = response.header["www-authenticate"] or ""

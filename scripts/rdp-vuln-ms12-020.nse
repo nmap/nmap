@@ -175,10 +175,10 @@ action = function(host, port)
 	rdp_vuln_0002.state = vulns.STATE.NOT_VULN
 
 	-- Sleep for 0.2 seconds to make sure the script works even with SYN scan.
-	-- Posible reason for this is that Windows resets the connection if we try to 
+	-- Posible reason for this is that Windows resets the connection if we try to
 	-- reconect too fast to the same port after doing a SYN scan and not completing the
 	-- handshake. In my tests, sleep values above 0.1s prevent the connection reset.
-	stdnse.sleep(0.2) 
+	stdnse.sleep(0.2)
 
 	socket:connect(host.ip, port)
 	status, err = socket:send(connectionRequest)

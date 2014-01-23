@@ -17,7 +17,7 @@ Performs brute force password auditing against the MongoDB database.
 -- @output
 -- PORT      STATE SERVICE
 -- 27017/tcp open  mongodb
--- | mongodb-brute: 
+-- | mongodb-brute:
 -- |   Accounts
 -- |     root:Password1 - Valid credentials
 -- |   Statistics
@@ -34,18 +34,18 @@ local arg_db = stdnse.get_script_args(SCRIPT_NAME .. ".db") or "admin"
 portrule = shortport.port_or_service({27017}, {"mongodb"})
 
 Driver = {
-	
+
 	new = function(self, host, port, options)
 		local o = { host = host, port = port, sock = nmap.new_socket() }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		return self.sock:connect(self.host, self.port)
 	end,
-	
+
 	login = function(self, username, password)
 		local status, resp = mongodb.login(self.sock, arg_db, username, password)
 		if ( status ) then
@@ -53,15 +53,15 @@ Driver = {
 		elseif ( resp ~= "Authentication failed" ) then
 			local err = brute.Error:new( resp )
 			err:setRetry( true )
-			return false, err					
+			return false, err
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	disconnect = function(self)
 		return self.sock:close()
 	end,
-	
+
 }
 
 local function needsAuth(host, port)
@@ -76,13 +76,13 @@ local function needsAuth(host, port)
 	if ( not(status) ) then
 		return false, result
 	end
-	
+
 	--- Send packet
 	status, result = mongodb.query(socket, packet)
 	if ( not(status) ) then
 		return false, result
 	end
-	
+
 	socket:close()
 	if ( status and result.errmsg ) then
 		return true
@@ -97,7 +97,7 @@ action = function(host, port)
 	end
 
 	local engine = brute.Engine:new(Driver, host, port )
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	local status, result = engine:start()

@@ -40,7 +40,7 @@ action = function( host, port )
 	local fname, url = stdnse.get_script_args('http-put.file', 'http-put.url')
 	if ( not(fname) or not(url) ) then
 		 return
-	end 
+	end
 
 	local f = io.open(fname, "r")
 	if ( not(f) ) then
@@ -50,7 +50,7 @@ action = function( host, port )
 	f:close()
 
 	local response = http.put(host, port, url,  nil, content)
-	
+
 	if ( response.status == 200 or response.status == 204 ) then
 		return stdnse.format_output(true, ("%s was successfully created"):format(url))
 	end

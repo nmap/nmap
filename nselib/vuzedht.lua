@@ -39,10 +39,10 @@ Request = {
 		ACTION_PING = 1024,
 		FIND_NODE = 1028,
 	},
-	
+
 	-- The request Header class shared by all Requests classes
 	Header = {
-		
+
 		-- Creates a new Header instance
 		-- @param action number containing the request action
 		-- @param session instance of Session
@@ -67,7 +67,7 @@ Request = {
 	        self.__index = self
 			return o
 	    end,
-	
+
 		-- Converts the header to a string
 		__tostring = function(self)
 			local lhost = ipOps.todword(self.address)
@@ -75,12 +75,12 @@ Request = {
 				self.proto_version, self.vendor_id, self.network_id, self.local_proto_version,
 				4, lhost, self.port, self.instance_id, self.time )
 		end,
-		
+
 	},
-	
+
 	-- The PING Request class
 	Ping = {
-		
+
 		-- Creates a new Ping instance
 		-- @param session instance of Session
 		-- @return o new instance of Ping
@@ -92,17 +92,17 @@ Request = {
 	        self.__index = self
 			return o
 	    end,
-	
+
 		-- Converts a Ping Request to a string
 		__tostring = function(self)
-			return tostring(self.header)		
+			return tostring(self.header)
 		end,
-				
+
 	},
-	
+
 	-- The FIND_NODES Request class
 	FindNode = {
-		
+
 		-- Creates a new FindNode instance
 		-- @param session instance of Session
 		-- @return o new instance of FindNode
@@ -118,19 +118,19 @@ Request = {
 	        self.__index = self
 			return o
 	    end,
-	
+
 		-- Converts a FindNode Request to a string
 		__tostring = function(self)
 			local data = tostring(self.header)
 			data = data .. bin.pack(">CAII", self.id_length, self.node_id, self.status, self.dht_size)
 			return data
-		end,	
+		end,
 	}
-	
+
 }
 
 Response = {
-	
+
 	-- A table of currently supported Actions (Responses)
 	-- It's used in the fromString method to determine which class to create.
 	Actions = {
@@ -154,9 +154,9 @@ Response = {
 				return o
 			end
 	    end,
-		
+
 		-- Parses the received data
-		-- @return true on success, false on failure	
+		-- @return true on success, false on failure
 		parse = function(self)
 			local pos, addr_len = bin.unpack("C", self.data)
 			if ( addr_len == 4 ) then
@@ -174,21 +174,21 @@ Response = {
 			return true
 		end
 	},
-	
-	-- The reponse header, present in all packets	
+
+	-- The reponse header, present in all packets
 	Header = {
-		
+
 		Vendors = {
 			[0] = "Azureus",
 			[1] = "ShareNet",
-			[255] = "Unknown", -- to be honest, we report all except 0 and 1 as unknown			
+			[255] = "Unknown", -- to be honest, we report all except 0 and 1 as unknown
 		},
-		
+
 		Networks = {
 			[0] = "Stable",
 			[1] = "CVS"
 		},
-		
+
 		-- Creates a new Header instance
 		-- @param data string containing the received data
 		-- @return o instance of Header
@@ -199,7 +199,7 @@ Response = {
 			o:parse()
 			return o
 	    end,
-	
+
 		-- parses the header
 		parse = function(self)
 			local pos
@@ -207,7 +207,7 @@ Response = {
 				self.proto_version,	self.vendor_id, self.network_id,
 				self.instance_id = bin.unpack(">IIH8CCII", self.data)
 		end,
-		
+
 		-- Converts the header to a suitable string representation
 		__tostring = function(self)
 			local result = {}
@@ -223,10 +223,10 @@ Response = {
 		end,
 
 	},
-	
+
 	-- The PING response
 	PING = {
-		
+
 		-- Creates a new instance of PING
 		-- @param data string containing the received data
 		-- @return o new PING instance
@@ -238,7 +238,7 @@ Response = {
 			self.__index = self
 			return o
 	    end,
-	
+
 		-- Creates a new PING instance based on received data
 		-- @param data string containing received data
 		-- @return status true on success, false on failure
@@ -250,17 +250,17 @@ Response = {
 			end
 			return false, "Failed to parse PING response"
 		end,
-		
+
 		-- Converts the PING response to a response suitable for script output
 		-- @return result formatted script output
 		__tostring = function(self)
 			return tostring(self.header)
 		end,
 	},
-	
+
 	-- A class to process the response from a FIND_NODE query
 	FIND_NODE = {
-		
+
 		-- Creates a new FIND_NODE instance
 		-- @param data string containing the received data
 		-- @return o new instance of FIND_NODE
@@ -278,9 +278,9 @@ Response = {
 		-- Parses the FIND_NODE response
 		parse = function(self)
 			local pos
-			pos, self.spoof_id, self.node_type, self.dht_size, 
+			pos, self.spoof_id, self.node_type, self.dht_size,
 				self.network_coords = bin.unpack(">IIIH20", self.data)
-				
+
 			local contact_count
 			pos, contact_count = bin.unpack("C", self.data, pos)
 			self.contacts = {}
@@ -312,7 +312,7 @@ Response = {
 
 			return true, find
 		end,
-		
+
 		-- Convert the FIND_NODE response to formatted string data, suitable
 		-- for script output.
 		-- @return string with formatted FIND_NODE data
@@ -328,10 +328,10 @@ Response = {
 			return stdnse.format_output(true, result)
 		end
 	},
-	
+
 	-- The ERROR action
 	ERROR = {
-	
+
 		-- Creates a new ERROR instance based on received socket data
 		-- @return o new ERROR instance on success, nil on failure
 		new = function(self, data)
@@ -356,7 +356,7 @@ Response = {
 			end
 			return false
 		end,
-		
+
 		-- creates a new ERROR instance based on the received data
 		-- @return true on success, false on failure
 		fromString = function(data)
@@ -366,22 +366,22 @@ Response = {
 			end
 			return false
 		end,
-		
+
 		-- Converts the ERROR action to a formatted response
 		-- @return string containing the formatted response
 		__tostring = function(self)
 			return ("Wrong address, expected: %s"):format(self.addr.ip)
 		end,
-		
+
 	},
-	
+
 	-- creates a suitable Response class based on the Action received
 	-- @return true on success, false on failure
 	-- @return response instance of suitable Response class on success,
-	--         err string error message if status is false	
+	--         err string error message if status is false
 	fromString = function(data)
 		local pos, action = bin.unpack(">I", data)
-	
+
 		if ( action == Response.Actions.ACTION_PING ) then
 			return Response.PING.fromString(data)
 		elseif ( action == Response.Actions.FIND_NODE ) then
@@ -389,18 +389,18 @@ Response = {
 		elseif ( action == Response.Actions.ERROR ) then
 			return Response.ERROR.fromString(data)
 		end
-	
+
 		stdnse.print_debug("ERROR: Unknown response received from server")
 		return false, "Failed to parse response"
 	end,
-	
-	
-	
+
+
+
 }
 
--- The Session 
+-- The Session
 Session = {
-	
+
 	-- Creates a new Session instance to keep track on some of the protocol
 	-- stuff, such as transaction- and instance- identities.
 	-- @param address the local address to pass in the requests to the server
@@ -409,7 +409,7 @@ Session = {
 	-- @param port the local port to pass in the requests to the server
 	-- @return o new instance of Session
 	new = function(self, address, port)
-		local o = { 
+		local o = {
 			trans_id = math.random(12345678),
 			instance_id = math.random(12345678),
 			address = address,
@@ -426,31 +426,31 @@ Session = {
 		self.trans_id = self.trans_id + 1
 		return self.trans_id
 	end,
-	
+
 	-- Gets the next instance ID
 	-- @return instance_id number
 	getInstanceId = function(self)
 		self.instance_id = self.instance_id + 1
 		return self.instance_id
 	end,
-	
+
 	-- Gets the stored local address used to create the session
 	-- @return string containing the IP passed to the session
 	getAddress = function(self)
 		return self.address
 	end,
-	
+
 	-- Get the stored local port used to create the session
 	-- @return number containing the local port
 	getPort = function(self)
 		return self.port
 	end
-	
+
 }
 
 -- The Helper class, used as main interface between the scripts and the library
 Helper = {
-	
+
 	-- Creates a new instance of the Helper class
 	-- @param host table as passed to the action method
 	-- @param port table as passed to the action method
@@ -460,7 +460,7 @@ Helper = {
 	--        the requests to the remote node.
 	-- @return o new instance of Helper
 	new = function(self, host, port, lhost, lport)
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			lhost = lhost,
@@ -478,7 +478,7 @@ Helper = {
 	connect = function(self)
 		local lhost = self.lhost or stdnse.get_script_args('vuzedht.lhost')
 		local lport = self.lport or stdnse.get_script_args('vuzedht.lport')
-		
+
 		self.socket = nmap.new_socket()
 
 		if ( lport ) then
@@ -488,7 +488,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, "Failed to connect to server"
 		end
-		
+
 		if ( not(lhost) or not(lport) ) then
 			local status, lh, lp, _, _ = self.socket:get_info()
 			if ( not(status) ) then
@@ -497,7 +497,7 @@ Helper = {
 			lhost = lhost or lh
 			lport = lport or lp
 		end
-		
+
 		self.session = Session:new(lhost, lport)
 		return true
 	end,
@@ -525,7 +525,7 @@ Helper = {
 		end
 		return true, response
 	end,
-	
+
 	-- Requests a list of known nodes by sending the FIND_NODES request
 	-- to the remote node and parses the response.
 	-- @return status true on success, false on failure
@@ -547,7 +547,7 @@ Helper = {
 		end
 		return true, response
 	end,
-	
+
 	-- Closes the socket connect to the remote node
 	close = function(self)
 		self.socket:close()

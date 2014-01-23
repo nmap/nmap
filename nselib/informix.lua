@@ -29,13 +29,13 @@
 --		- A helper class that provides easy access to the rest of the library
 --
 --   o Socket
---      - This is a copy of the DB2Socket class which provides fundamental 
+--      - This is a copy of the DB2Socket class which provides fundamental
 --        buffering
 --
 -- In addition the library contains the following tables with decoder functions
 --
 --  o MetaDataDecoders
---     - Contains functions to decode the column metadata per data type 
+--     - Contains functions to decode the column metadata per data type
 --
 --  o DataTypeDecoders
 --     - Contains function to decode each data-type in the query resultset
@@ -59,7 +59,7 @@
 -- ----------------------
 -- The implementation is based on analysis of packet dumps and has been tested
 -- against:
--- 
+--
 -- x IBM Informix Dynamic Server Express Edition v11.50 32-bit on Ubuntu
 -- x IBM Informix Dynamic Server xxx 32-bit on Windows 2003
 --
@@ -100,7 +100,7 @@ Constants =
 		SQ_INFO = 0x51,
 		SQ_PROTOCOLS = 0x7e,
 	},
-	
+
 	-- A subset of supported data types
 	DataType = {
 		CHAR = 0x00,
@@ -112,7 +112,7 @@ Constants =
 		DATETIME = 0x0a,
 		VARCHAR = 0x0d,
 	},
-	
+
 	-- These were the ones I ran into when developing :-)
 	ErrorMsg = {
 		[-201] = "A syntax error has occurred.",
@@ -135,7 +135,7 @@ Constants =
 -- A socket implementation that provides fundamental buffering and allows for
 -- reading of an exact number of bytes, instead of atleast ...
 Socket =
-{	
+{
 	new = function(self, socket)
 		local o = {}
        	setmetatable(o, self)
@@ -144,7 +144,7 @@ Socket =
 		o.Buffer = nil
 		return o
 	end,
-	
+
 
 	--- Establishes a connection.
 	--
@@ -158,7 +158,7 @@ Socket =
 		local status = self.Socket:set_timeout(20000)
 		return self.Socket:connect( hostid, port, protocol )
 	end,
-	
+
 	--- Closes an open connection.
 	--
 	-- @return Status (true or false).
@@ -166,7 +166,7 @@ Socket =
 	close = function( self )
 		return self.Socket:close()
 	end,
-	
+
 	--- Opposed to the <code>socket:receive_bytes</code> function, that returns
 	-- at least x bytes, this function returns the amount of bytes requested.
 	--
@@ -176,9 +176,9 @@ Socket =
 	-- 		   err containing error message if status is false
 	recv = function( self, count )
 		local status, data
-	
+
 		self.Buffer = self.Buffer or ""
-	
+
 		if ( #self.Buffer < count ) then
 			status, data = self.Socket:receive_bytes( count - #self.Buffer )
 			if ( not(status) or #data < count - #self.Buffer ) then
@@ -186,13 +186,13 @@ Socket =
 			end
 			self.Buffer = self.Buffer .. data
 		end
-			
+
 		data = self.Buffer:sub( 1, count )
 		self.Buffer = self.Buffer:sub( count + 1)
-	
-		return true, data	
+
+		return true, data
 	end,
-	
+
 	--- Sends data over the socket
 	--
 	-- @return Status (true or false).
@@ -204,7 +204,7 @@ Socket =
 
 -- The ColMetaData class
 ColMetaData = {
-	
+
 	---Creates a new ColMetaData instance
 	--
 	-- @return object a new instance of ColMetaData
@@ -214,12 +214,12 @@ ColMetaData = {
         self.__index = self
 		return o
 	end,
-	
+
 	--- Sets the datatype
 	--
 	-- @param typ number containing the datatype
 	setType = function( self, typ ) self.type = typ end,
-	
+
 	--- Sets the name
 	--
 	-- @param name string containing the name
@@ -230,7 +230,7 @@ ColMetaData = {
 	--
 	-- @param len number containing the length of the column
 	setLength = function( self, len ) self.len = len end,
-	
+
 	--- Gets the column type
 	--
 	-- @return typ the column type
@@ -240,7 +240,7 @@ ColMetaData = {
 	--
 	-- @return name the column name
 	getName = function( self ) return self.name end,
-	
+
 	--- Gets the column length
 	--
 	-- @return len the column length
@@ -252,19 +252,19 @@ Packet  = {}
 -- MetaData decoders used to decode the information for each data type in the
 -- meta data returned by the server
 --
--- The decoders, should be self explanatory 
+-- The decoders, should be self explanatory
 MetaDataDecoders = {
-	
+
 	[Constants.DataType.INT] = function( data )
 		local col_md = ColMetaData:new( )
 		local pos = 19
-		
+
 		if ( #data < pos ) then	return false, "Failed to decode meta data for data type INT" end
-		
+
 		local _, len = bin.unpack(">S", data, pos)
 		col_md:setLength(len)
 		col_md:setType( Constants.DataType.INT )
-		
+
 		return true, col_md
 	end,
 
@@ -274,7 +274,7 @@ MetaDataDecoders = {
 			return false, "Failed to decode metadata for data type CHAR"
 		end
 		col_md:setType( Constants.DataType.CHAR )
-		
+
 		return true, col_md
 	end,
 
@@ -282,7 +282,7 @@ MetaDataDecoders = {
 		local status, col_md = MetaDataDecoders[Constants.DataType.INT]( data )
 		if( not(status) ) then return false, "Failed to decode metadata for data type CHAR"	end
 		col_md:setType( Constants.DataType.VARCHAR )
-		
+
 		return true, col_md
 	end,
 
@@ -290,7 +290,7 @@ MetaDataDecoders = {
 		local status, col_md = MetaDataDecoders[Constants.DataType.INT]( data )
 		if( not(status) ) then return false, "Failed to decode metadata for data type SMALLINT"	end
 		col_md:setType( Constants.DataType.SMALLINT )
-				
+
 		return true, col_md
 	end,
 
@@ -298,7 +298,7 @@ MetaDataDecoders = {
 		local status, col_md = MetaDataDecoders[Constants.DataType.INT]( data )
 		if( not(status) ) then return false, "Failed to decode metadata for data type SMALLINT"	end
 		col_md:setType( Constants.DataType.SERIAL )
-				
+
 		return true, col_md
 	end,
 
@@ -307,7 +307,7 @@ MetaDataDecoders = {
 		if( not(status) ) then return false, "Failed to decode metadata for data type DATETIME"	end
 		col_md:setType( Constants.DataType.DATETIME )
 		col_md:setLength(10)
-		
+
 		return true, col_md
 	end,
 
@@ -315,28 +315,28 @@ MetaDataDecoders = {
 		local status, col_md = MetaDataDecoders[Constants.DataType.INT]( data )
 		if( not(status) ) then return false, "Failed to decode metadata for data type DATETIME"	end
 		col_md:setType( Constants.DataType.FLOAT )
-		
+
 		return true, col_md
 	end,
-	
+
 	[Constants.DataType.DATE] = function( data )
 		local status, col_md = MetaDataDecoders[Constants.DataType.INT]( data )
 		if( not(status) ) then return false, "Failed to decode metadata for data type DATETIME"	end
 		col_md:setType( Constants.DataType.DATE )
-		
+
 		return true, col_md
 	end,
-		
-		
+
+
 }
 
 -- DataType decoders used to decode result set returned from the server
 -- This class is still incomplete and some decoders just adjust the offset
 -- position rather than decode the value.
 --
--- The decoders, should be self explanatory 
+-- The decoders, should be self explanatory
 DataTypeDecoders = {
-	
+
 	[Constants.DataType.INT] = function( data, pos )
 		return bin.unpack(">i", data, pos)
 	end,
@@ -359,27 +359,27 @@ DataTypeDecoders = {
 
 	[Constants.DataType.CHAR] = function( data, pos, len )
 		local pos, ret = bin.unpack("A" .. len, data, pos)
-		return pos, Util.ifxToLuaString( ret )		
+		return pos, Util.ifxToLuaString( ret )
 	end,
 
 	[Constants.DataType.VARCHAR] = function( data, pos, len )
 		local pos, len = bin.unpack("C", data, pos)
 		local ret
-				
-		pos, ret = bin.unpack("A" .. len, data, pos)		
+
+		pos, ret = bin.unpack("A" .. len, data, pos)
 		return pos, Util.ifxToLuaString( ret )
 	end,
-	
+
 	[Constants.DataType.DATETIME] = function( data, pos )
 		return pos + 10, "DATETIME"
 	end,
-	
+
 }
 
 
 -- The MessageDecoders class "holding" the Response Decoders
 MessageDecoders = {
-	
+
 	--- Decodes the SQ_ERR error message
 	--
 	-- @param socket already connected to the Informix database server
@@ -391,24 +391,24 @@ MessageDecoders = {
 		local _, svcerr, oserr, errmsg, str, len, pos
 
 		if( not(status) ) then return false, "Failed to decode error response"	end
-		
+
 		pos, svcerr, oserr, _, len = bin.unpack(">ssss", data )
-		
+
 		if( len and len > 0 ) then
 			status, data = socket:recv(len)
 			if( not(status) ) then return false, "Failed to decode error response"	end
 			_, str = bin.unpack("A" .. len, data)
 		end
-		
+
 		status, data = socket:recv(2)
-		
+
 		errmsg = Constants.ErrorMsg[svcerr]
 		if ( errmsg and str ) then
 			errmsg = errmsg:format(str)
 		end
 		return false, errmsg or ("Informix returned an error (svcerror: %d, oserror: %d)"):format( svcerr, oserr )
 	end,
-	
+
 	--- Decodes the SQ_PROTOCOLS message
 	--
 	-- @param socket already connected to the Informix database server
@@ -417,7 +417,7 @@ MessageDecoders = {
 	[Constants.Message.SQ_PROTOCOLS] = function( socket )
 		local status, data
 		local len, _
-				
+
 		status, data = socket:recv(2)
 		if( not(status) ) then return false, "Failed to decode SQ_PROTOCOLS response" end
 		_, len = bin.unpack(">S", data )
@@ -425,14 +425,14 @@ MessageDecoders = {
 		-- read the remaining data
 		return socket:recv(len + 2)
 	end,
-	
+
 	--- Decodes the SQ_EOT message
 	--
 	-- @return status, always true
-	[Constants.Message.SQ_EOT] = function( socket )		
+	[Constants.Message.SQ_EOT] = function( socket )
 		return true
 	end,
-	
+
 	--- Decodes the SQ_DONE message
 	--
 	-- @param socket already connected to the Informix database server
@@ -443,7 +443,7 @@ MessageDecoders = {
 		local _, len, tmp
 		if( not(status) ) then return false, "Failed to decode SQ_DONE response" end
 		_, len = bin.unpack(">S", data )
-		
+
 		-- For some *@#! reason the SQ_DONE packet sometimes contains an
 		-- length exeeding the length of the packet by one. Attempt to
 		-- detect this and fix.
@@ -451,7 +451,7 @@ MessageDecoders = {
 		_, tmp = bin.unpack(">S", data, len - 2)
 		return socket:recv( (tmp == 0) and 3 or 4 )
 	end,
-	
+
 	--- Decodes the metadata for a result set
 	--
 	-- @param socket already connected to the Informix database server
@@ -462,7 +462,7 @@ MessageDecoders = {
 		local pos, cols, col_type, col_name, col_len, col_md, stmt_id
 		local coldesc_len, x
 		local column_meta = {}
-		
+
 		if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 		pos, cols, coldesc_len = bin.unpack(">SS", data, 11)
 		pos, stmt_id = bin.unpack(">S", data, 3)
@@ -474,7 +474,7 @@ MessageDecoders = {
 			if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 
 			pos, tmp = bin.unpack(">S", data)
-			
+
 			-- This was the result of a CREATE or UPDATE statement
 			if ( tmp == 0x0f ) then
 				status, data = socket:recv(26)
@@ -500,7 +500,7 @@ MessageDecoders = {
 				if( not(status) ) then
 					return false, "Failed to read column meta data"
 				end
-				
+
 				status, col_md = MetaDataDecoders[col_type]( data )
 				if ( not(status) ) then
 					return false, col_md
@@ -508,29 +508,29 @@ MessageDecoders = {
 			else
 				return false, ("No metadata decoder for column type: %d"):format(col_type)
 			end
-			
+
 			if ( i<cols ) then
 				status, data = socket:recv(6)
 				if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 			end
-			
+
 			col_md:setType( col_type )
 			table.insert( column_meta, col_md )
 		end
-		
+
 		status, data = socket:recv( ( coldesc_len % 2 ) == 0 and coldesc_len or coldesc_len + 1 )
 		if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 		pos = 1
-		
+
 		for i=1, cols do
 			local col_name
 			pos, col_name = bin.unpack("z", data, pos)
 			column_meta[i]:setName( col_name )
 		end
-				
+
 		status, data = socket:recv(2)
 		if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
-	
+
 		pos, data = bin.unpack(">S", data)
 		if( data == Constants.Message.SQ_DONE ) then
 			status, data = socket:recv(26)
@@ -539,7 +539,7 @@ MessageDecoders = {
 		end
 		return true, { metadata = column_meta, stmt_id = stmt_id }
 	end,
-	
+
 	--- Processes the result from a query
 	--
 	-- @param socket already connected to the Informix database server
@@ -560,10 +560,10 @@ MessageDecoders = {
 
 		while (true) do
 			local pos = 1
-		
+
 			status, data = socket:recv(6)
 			if( not(status) ) then return false, "Failed to read column data" end
-			
+
 			local _, total_len = bin.unpack(">I", data, 3)
 			status, data = socket:recv( ( total_len % 2 == 0 ) and total_len or total_len + 1)
 			if( not(status) ) then return false, "Failed to read column data" end
@@ -572,7 +572,7 @@ MessageDecoders = {
 			for _, col in ipairs(info.metadata) do
 				local typ, len, name = col:getType(), col:getLength(), col:getName()
 				local val
-								
+
 				if( DataTypeDecoders[typ] ) then
 					pos, val = DataTypeDecoders[typ]( data, pos, len )
 				else
@@ -582,7 +582,7 @@ MessageDecoders = {
 			end
 
 			status, data = socket:recv(2)
-			
+
 			local _, flags = bin.unpack(">S", data)
 
 			count = count + 1
@@ -592,107 +592,107 @@ MessageDecoders = {
 			if ( Constants.Message.SQ_DONE == flags ) then
 				break
 			end
-			
+
 			-- If there's more data we need to send a new SQ_ID packet
-			if ( flags == Constants.Message.SQ_EOT ) then 
+			if ( flags == Constants.Message.SQ_EOT ) then
 				local status, tmp = socket:send( tostring(Packet.SQ_ID:new( info.id, nil, "continue" ) ) )
 				local pkt_type
-								
+
 				status, tmp = socket:recv( 2 )
-				pos, pkt_type = bin.unpack(">S", tmp) 
-				
+				pos, pkt_type = bin.unpack(">S", tmp)
+
 				return MessageDecoders[pkt_type]( socket, info )
 			end
-			
+
 		end
-		
+
 		-- read the remaining data
 		status, data = socket:recv( 26 )
 		if( not(status) ) then return false, "Failed to read column data" end
-		
+
 		-- signal finnish reading
 		status, data = socket:send( tostring(Packet.SQ_ID:new( info.id, nil, "end" ) ) )
 		status, data = socket:recv( 2 )
-		
+
 		return true, info
-		
+
 	end,
-	
+
 	--- Decodes a SQ_DBLIST response
 	--
 	-- @param socket already connected to the Informix database server
 	-- @return status true on success, false on failure
 	-- @return databases array of database names
 	[Constants.Message.SQ_DBLIST] = function( socket )
-	
+
 		local status, data, pos, len, db
 		local databases = {}
-		
+
 		while( true ) do
 			status, data = socket:recv(2)
 			if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
-		
+
 			pos, len = bin.unpack(">S", data)
 			if ( 0 == len ) then break end
-		
+
 			status, data = socket:recv(len)
 			if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
-			
+
 			pos, db = bin.unpack("A" .. len, data )
 			table.insert( databases, db )
-			
+
 			if ( len %2 == 1 ) then
 				socket:recv(1)
 				if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
 			end
 		end
-		
+
 		-- read SQ_EOT
 		status, data = socket:recv(2)
-				
+
 		return true, databases
 	end,
-	
+
 	[Constants.Message.SQ_EXIT] = function( socket )
 		local status, data = socket:recv(2)
 		if ( not(status) ) then return false, "Failed to parse SQ_EXIT response" end
-		
+
 		return true
 	end
-	
-	
-} 
+
+
+}
 
 -- Packet used to request a list of available databases
 Packet.SQ_DBLIST =
 {
 	--- Creates a new Packet.SQ_DBLIST instance
 	--
-	-- @return object new instance of Packet.SQ_DBLIST		
+	-- @return object new instance of Packet.SQ_DBLIST
 	new = function( self )
 		local o = {}
        	setmetatable(o, self)
         self.__index = self
    		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function(self)
 		return bin.pack(">SS", Constants.Message.SQ_DBLIST, Constants.Message.SQ_EOT)
 	end
-	
+
 }
 
 -- Packet used to open the database
 Packet.SQ_DBOPEN =
 {
-	
+
 	--- Creates a new Packet.SQ_DBOPEN instance
 	--
 	-- @param database string containing the name of the database to open
-	-- @return object new instance of Packet.SQ_DBOPEN		
+	-- @return object new instance of Packet.SQ_DBOPEN
 	new = function( self, database )
 		local o = {}
        	setmetatable(o, self)
@@ -700,26 +700,26 @@ Packet.SQ_DBOPEN =
 		o.database = database
    		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function(self)
 		return bin.pack(">SSASS", Constants.Message.SQ_DBOPEN, #self.database,
 		 				Util.padToOdd(self.database), 0x00,
 		 				Constants.Message.SQ_EOT)
 	end
-	
+
 }
 
 -- This packet is "a mess" and requires further analysis
-Packet.SQ_ID = 
+Packet.SQ_ID =
 {
 	--- Creates a new Packet.SQ_ID instance
 	--
 	-- @param id number containing the statement identifier
 	-- @param s1 number unknown, should be 0 on first call and 1 when more data is requested
-	-- @return object new instance of Packet.SQ_ID		
+	-- @return object new instance of Packet.SQ_ID
 	new = function( self, id, id2, mode )
 		local o = {}
        	setmetatable(o, self)
@@ -729,21 +729,21 @@ Packet.SQ_ID =
 		o.mode = mode
    		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function(self)
 		if ( self.mode == "continue" ) then
 			return bin.pack( ">SSSSSS",  Constants.Message.SQ_ID, self.seq, 0x0009, 0x1000, 0x0000, Constants.Message.SQ_EOT )
 		elseif ( self.mode == "end" ) then
 			return bin.pack( ">SSSS", Constants.Message.SQ_ID, self.seq, 0x000a, Constants.Message.SQ_EOT)
 		else
-			return bin.pack(">SSSSASSSSSSS", Constants.Message.SQ_ID, self.seq, 0x0003, #self.id, self.id, 
+			return bin.pack(">SSSSASSSSSSS", Constants.Message.SQ_ID, self.seq, 0x0003, #self.id, self.id,
 							0x0006, 0x0004, self.seq, 0x0009, 0x1000, 0x0000, Constants.Message.SQ_EOT )
 		end
 	end
-	
+
 }
 
 Packet.SQ_INFO =
@@ -758,7 +758,7 @@ Packet.SQ_INFO =
 	--- Creates a new Packet.SQ_INFO instance
 	--
 	-- @param params containing any additional parameters to use
-	-- @return object new instance of Packet.SQ_INFO	
+	-- @return object new instance of Packet.SQ_INFO
 	new = function( self, params )
 		local o = {}
 		local params = params or Packet.SQ_INFO.DEFAULT_PARAMETERS
@@ -773,28 +773,28 @@ Packet.SQ_INFO =
 		end
    		return o
 	end,
-	
+
 	addParameter = function( self, key, value )
 		table.insert( self.parameters, { [key] = value } )
 	end,
-	
+
 	paramToString = function( self, key, value )
 		return bin.pack(">SASA", #key, Util.padToOdd(key), #value, Util.padToOdd( value ) )
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function( self )
 		local params = ""
 		local data
-		
+
 		for _, v in ipairs( self.parameters ) do
 			for k2, v2 in pairs( v ) do
 				params = params .. self:paramToString( k2, v2 )
 			end
 		end
-		
+
 		data = bin.pack(">SSSSS", Constants.Message.SQ_INFO, 0x0006, #params + 6, 0x000c, 0x0004 )
 		data = data .. params .. bin.pack(">SSS", 0x0000, 0x0000, Constants.Message.SQ_EOT)
 		return data
@@ -802,14 +802,14 @@ Packet.SQ_INFO =
 }
 
 -- Performs protocol negotiation?
-Packet.SQ_PROTOCOLS = 
+Packet.SQ_PROTOCOLS =
 {
 	-- hex-encoded data to send as protocol negotiation
 	data = "0007fffc7ffc3c8c8a00000c",
 
 	--- Creates a new Packet.SQ_PROTOCOLS instance
 	--
-	-- @return object new instance of Packet.SQ_PROTOCOLS	
+	-- @return object new instance of Packet.SQ_PROTOCOLS
 	new = function( self )
 		local o = {}
        	setmetatable(o, self)
@@ -819,17 +819,17 @@ Packet.SQ_PROTOCOLS =
 
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data			
+	-- @return string containing the packet data
 	__tostring = function(self)
 		return bin.pack(">SH", Constants.Message.SQ_PROTOCOLS, self.data)
 	end
-	
+
 }
 
 -- Packet used to execute SELECT Queries
-Packet.SQ_PREPARE = 
+Packet.SQ_PREPARE =
 {
-	
+
 	--- Creates a new Packet.SQ_PREPARE instance
 	--
 	-- @param query string containing the query to execute
@@ -841,20 +841,20 @@ Packet.SQ_PREPARE =
 		o.query = Util.padToEven(query)
    		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data	
+	-- @return string containing the packet data
 	__tostring = function(self)
 		return bin.pack(">SIACSSS", Constants.Message.SQ_PREPARE, #self.query, self.query, 0, 0x0016, 0x0031, Constants.Message.SQ_EOT)
 	end
-	
+
 }
 
 -- Packet used to execute commands other than SELECT
-Packet.SQ_COMMAND = 
+Packet.SQ_COMMAND =
 {
-	
+
 	--- Creates a new Packet.SQ_COMMAND instance
 	--
 	-- @param query string containing the query to execute
@@ -866,14 +866,14 @@ Packet.SQ_COMMAND =
 		o.query = Util.padToEven(query)
    		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data	
+	-- @return string containing the packet data
 	__tostring = function(self)
 		return bin.pack(">SIACSSSS", Constants.Message.SQ_COMMAND, #self.query, self.query, 0, 0x0016, 0x0007, 0x000b, Constants.Message.SQ_EOT)
 	end
-	
+
 }
 
 Packet.SQ_EXIT = {
@@ -887,18 +887,18 @@ Packet.SQ_EXIT = {
         self.__index = self
    		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data	
+	-- @return string containing the packet data
 	__tostring = function(self)
 		return bin.pack(">S", Constants.Message.SQ_EXIT)
 	end
-	
+
 }
 
 -- The Utility Class
-Util = 
+Util =
 {
 	--- Converts a connection parameter to string
 	--
@@ -908,7 +908,7 @@ Util =
 	paramToString = function( param, value )
 		return bin.pack(">PP", param, value )
 	end,
-	
+
 	--- Pads a string to an even number of characters
 	--
 	-- @param str the string to pad
@@ -922,11 +922,11 @@ Util =
 	--
 	-- @param str the string to pad
 	-- @param pad the character to pad with
-	-- @return result the padded string	
+	-- @return result the padded string
 	padToOdd = function( str, pad )
 		return (#str % 2 == 0) and str or str .. ( pad and pad or "\0")
 	end,
-	
+
 	--- Formats a table to suitable script output
 	--
 	-- @param info as returned from ExecutePrepare
@@ -936,24 +936,24 @@ Util =
 		local result = {}
 		local metadata = info.metadata
 		local rows = info.rows
-		
+
 		if ( info.error ) then
 			table.insert(result, info.error)
 			return result
 		end
-		
+
 		if ( info.info ) then
 			table.insert(result, info.info)
 			return result
 		end
-		
+
 		if ( not(metadata) ) then return "" end
-		
+
 		for i=1, #metadata do
 			if ( metadata[i]:getType() == Constants.DataType.CHAR and metadata[i]:getLength() < 50) then
 				header = header .. ("%-" .. metadata[i]:getLength() .. "s "):format(metadata[i]:getName())
 			else
-				header = header .. metadata[i]:getName() 
+				header = header .. metadata[i]:getName()
 				if ( i<#metadata ) then
 					header = header .. "\t"
 				end
@@ -969,7 +969,7 @@ Util =
 			end
 			table.insert( result, row )
 		end
-		
+
 		return result
 	end,
 
@@ -979,16 +979,16 @@ Util =
 	-- @return ret the string with any trailing nulls removed
 	ifxToLuaString = function( str )
 		local ret
-		
+
 		if ( not(str) ) then return "" end
-		
+
 		if ( str:sub(-1, -1 ) ~= "\0" ) then
 			return str
 		end
 
 	  	for i=1, #str do
-	   		if ( str:sub(-i,-i) == "\0" ) then 
-	    		ret = str:sub(1, -i - 1) 
+        if ( str:sub(-i,-i) == "\0" ) then
+          ret = str:sub(1, -i - 1)
 	   		else
 	    		break
 	   		end
@@ -1004,7 +1004,7 @@ Util =
 -- The unknown portions in the __tostring method have been derived from Java
 -- code connecting to Informix using JDBC.
 Packet.Connect = {
-	
+
 	-- default parameters sent using JDBC
 	DEFAULT_PARAMETERS = {
 		[1] = { ['LOCKDOWN'] = 'no' },
@@ -1020,7 +1020,7 @@ Packet.Connect = {
 		[11] = { ['CLIENT_LOCALE'] = 'en_US.8859-1' },
 		[12] = { ['SKINHIBIT'] = '0' },
 	},
-	
+
 	--- Creates a new Connection packet
 	--
 	-- @param username string containing the username for authentication
@@ -1044,7 +1044,7 @@ Packet.Connect = {
 			for k2, v2 in pairs( v ) do
 				self:addParameter( k2, v2 )
 			end
-		end		
+		end
 	end,
 
 	--- Adds a parameter to the connection packet
@@ -1056,10 +1056,10 @@ Packet.Connect = {
 		local tbl = {}
 		tbl[param] = value
 		table.insert( self.parameters, tbl )
-		
+
 		return true
 	end,
-		
+
 	--- Retrieves the OS error code
 	--
 	-- @return oserror number containing the OS error code
@@ -1074,7 +1074,7 @@ Packet.Connect = {
 	--
 	-- @return errmsg string containing the "mapped" error message
 	getErrMsg = function( self ) return self.errmsg end,
-	
+
 	--- Reads and decodes the response to the connect packet from the server.
 	-- The function will return true even if the response contains an Informix
 	-- error. In order to verify if the connection was successful, check for OS
@@ -1086,22 +1086,22 @@ Packet.Connect = {
 	readResponse = function( self, socket )
 		local status, data = socket:recv( 2 )
 		local len, pos, tmp
-		
+
 		if ( not(status) ) then	return false, data	end
 		pos, len = bin.unpack(">S", data)
 		status, data = socket:recv( len - 2 )
 		if ( not(status) ) then	return false, data	end
-	
+
 		pos = 13
 		pos, tmp = bin.unpack(">S", data, pos)
 		pos = pos + tmp
-		
+
 		pos, tmp = bin.unpack(">S", data, pos)
-		
+
 		if ( 108 ~= tmp ) then
 			return false, "Connect recieved unexpected response"
 		end
-		
+
 		pos = pos + 12
 		-- version
 		pos, len = bin.unpack(">S", data, pos)
@@ -1110,41 +1110,41 @@ Packet.Connect = {
 		-- serial
 		pos, len = bin.unpack(">S", data, pos)
 		pos, self.serial = bin.unpack("A" .. len, data, pos)
-		
+
 		-- applid
 		pos, len = bin.unpack(">S", data, pos)
 		pos, self.applid = bin.unpack("A" .. len, data, pos)
-			
+
 		-- skip 14 bytes ahead
 		pos = pos + 14
 
 		-- do some more skipping
 		pos, tmp = bin.unpack(">S", data, pos)
 		pos = pos + tmp
-		
+
 		-- do some more skipping
 		pos, tmp = bin.unpack(">S", data, pos)
 		pos = pos + tmp
-		
+
 		-- skip another 24 bytes
 		pos = pos + 24
 		pos, tmp = bin.unpack(">S", data, pos)
-		
+
 		if ( tmp ~= 102 ) then
 			return false, "Connect recieved unexpected response"
 		end
-		
+
 		pos = pos + 6
 		pos, self.svcerror = bin.unpack(">s", data, pos)
 		pos, self.oserror = bin.unpack(">s", data, pos )
-		
+
 		if ( self.svcerror ~= 0 ) then
 			self.errmsg = Constants.ErrorMsg[self.svcerror] or ("Unknown error %d occured"):format( self.svcerror )
 		end
-		
+
 		return true
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
 	-- @return string containing the packet data
@@ -1155,24 +1155,24 @@ Packet.Connect = {
 						00000006392e32383000000c524453235230303030303000000573716c690000
 						00013300000000000000000001
 		]]
-		
+
 		local unknown2 = [[
 						6f6c0000000000000000003d746c697463700000000000010068000b
 						00000003
 		]]
-		
+
 		local unknown3 = [[
 						00000000000000000000006a
 		]]
-		
+
 		local unknown4 = [[ 007f ]]
 
 		if ( not(self.parameters) ) then
 			self.parameters = {}
 			self:addDefaultParameters()
 		end
-				
-		data = bin.pack(">HPPHPHS", unknown, self.username, self.password, unknown2, self.instance, unknown3, #self.parameters ) 
+
+		data = bin.pack(">HPPHPHS", unknown, self.username, self.password, unknown2, self.instance, unknown3, #self.parameters )
 
 		if ( self.parameters ) then
 			for _, v in ipairs( self.parameters ) do
@@ -1181,18 +1181,18 @@ Packet.Connect = {
 				end
 			end
 		end
-		
+
 		data = data .. bin.pack("H", unknown4)
 		data = bin.pack(">S", #data + 2) .. data
-				
+
 		return data
 	end,
-	
-	
+
+
 }
 
 -- The communication class
-Comm = 
+Comm =
 {
 	--- Creates a new Comm instance
 	--
@@ -1205,7 +1205,7 @@ Comm =
 		o.socket = socket
 		return o
 	end,
-	
+
 	--- Sends and packet and attempts to handle the response
 	--
 	-- @param packets an instance of a Packet.* class
@@ -1213,7 +1213,7 @@ Comm =
 	--        decoder
 	-- @return status true on success, false on failure
 	-- @return data returned from the ResponseDecoder
-	exchIfxPacket = function( self, packet, info )	
+	exchIfxPacket = function( self, packet, info )
 		local _, typ
 		local status, data = self.socket:send( tostring(packet) )
 		if ( not(status) ) then	return false, data	end
@@ -1226,15 +1226,15 @@ Comm =
 		else
 			return false, ("Unsupported data returned from server (type: 0x%x)"):format(typ)
 		end
-		
+
 		return status, data
 	end
-	
+
 }
 
 -- The Helper class providing easy access to the other db functionality
 Helper = {
-	
+
 	--- Creates a new Helper instance
 	--
 	-- @param host table as passed to the action script function
@@ -1253,7 +1253,7 @@ Helper = {
 		o.instance = instance or "nmap_probe"
 		return o
 	end,
-	
+
 	--- Connects to the Informix server
 	--
 	-- @return true on success, false on failure
@@ -1267,9 +1267,9 @@ Helper = {
 		if( not(status) ) then
 			return status, data
 		end
-		
+
 		self.comm = Comm:new( self.socket )
-		
+
 		return true
 	end,
 
@@ -1278,10 +1278,10 @@ Helper = {
 	-- used to connect to the database. In case it's ommited a set of default
 	-- parameters are set. Parameters should be past as key, value pairs inside
 	-- of a table array as the following example:
-	-- 
+	--
 	-- local params = {
 	-- 		[1] = { ["PARAM1"] = "VALUE1" },
-	--		[2] = { ["PARAM2"] = "VALUE2" },	
+	--		[2] = { ["PARAM2"] = "VALUE2" },
 	-- }
 	--
 	-- @param username string containing the username for authentication
@@ -1290,17 +1290,17 @@ Helper = {
 	-- @param database [optional] database to connect to
 	-- @param retry [optional] used when autodetecting instance
 	-- @return status true on success, false on failure
-	-- @return err containing the error message if status is false 
+	-- @return err containing the error message if status is false
 	Login = function( self, username, password, parameters, database, retry )
 		local conn, status, data, len, packet
 
 		conn = Packet.Connect:new( username, password, self.instance, parameters )
-	
+
 		status, data = self.socket:send( tostring(conn) )
 		if ( not(status) ) then	return false, "Helper.Login failed to send login request" end
 		status = conn:readResponse( self.socket )
 		if ( not(status) ) then	return false, "Helper.Login failed to read response" end
-		
+
 		if ( status and ( conn:getOsError() ~= 0  or conn:getSvcError() ~= 0 )  ) then
 			-- Check if we didn't supply the correct instance name, if not attempt to
 			-- reconnect using the instance name returned by the server
@@ -1312,23 +1312,23 @@ Helper = {
 			end
 			return false, conn:getErrMsg()
 		end
-		
+
 		status, packet = self.comm:exchIfxPacket( Packet.SQ_PROTOCOLS:new() )
 		if ( not(status) ) then	return false, packet end
 
 		status, packet = self.comm:exchIfxPacket( Packet.SQ_INFO:new() )
 		if ( not(status) ) then	return false, packet end
-			
+
 		-- If a database was supplied continue further protocol negotiation and
 		-- attempt to open the database.
 		if ( database ) then
 			status, packet = self:OpenDatabase( database )
 			if ( not(status) ) then	return false, packet end
 		end
-		
+
 		return true
 	end,
-	
+
 	--- Opens a database
 	--
 	-- @param database string containing the database name
@@ -1337,7 +1337,7 @@ Helper = {
 	OpenDatabase = function( self, database )
 		return self.comm:exchIfxPacket( Packet.SQ_DBOPEN:new( database ) )
 	end,
-	
+
 	--- Attempts to retrieve a list of available databases
 	--
 	-- @return status true on success, false on failure
@@ -1345,24 +1345,24 @@ Helper = {
 	GetDatabases = function( self )
 		return self.comm:exchIfxPacket( Packet.SQ_DBLIST:new() )
 	end,
-	
+
 	Query = function( self, query )
 		local status, metadata, data, res
 		local id, seq = 0, 1
 		local result = {}
-		
+
 		if ( type(query) == "string" ) then
 			query = stdnse.strsplit(";%s*", query)
 		end
-		
+
 		for _, q in ipairs( query ) do
 			if ( q:upper():match("^%s*SELECT") ) then
 				status, data = self.comm:exchIfxPacket( Packet.SQ_PREPARE:new( q ) )
-				seq = seq + 1 
+				seq = seq + 1
 			else
 				status, data = self.comm:exchIfxPacket( Packet.SQ_COMMAND:new( q .. ";" ) )
 			end
-		
+
 			if( status and data ) then
 				metadata = data.metadata
 				status, data = self.comm:exchIfxPacket( Packet.SQ_ID:new( data.stmt_id, seq, "begin" ), { metadata = metadata, id = id, rows = nil, query=q }  )
@@ -1379,10 +1379,10 @@ Helper = {
 			end
 			table.insert( result, data )
 		end
-		
+
 		return true, result
 	end,
-		
+
 	--- Closes the connection to the server
 	--
 	-- @return status true on success, false on failure
@@ -1390,7 +1390,7 @@ Helper = {
 		local status, packet = self.comm:exchIfxPacket( Packet.SQ_EXIT:new() )
 		return self.socket:close()
 	end,
-	
+
 }
 
 return _ENV;

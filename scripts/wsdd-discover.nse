@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local wsdd = require "wsdd"
 
-description = [[ 
+description = [[
 Retrieves and displays information from devices supporting the Web
 Services Dynamic Discovery (WS-Discovery) protocol. It also attempts
 to locate any published Windows Communication Framework (WCF) web
@@ -19,13 +19,13 @@ services (.NET 4.0 or later).
 -- @output
 -- PORT     STATE         SERVICE
 -- 3702/udp open|filtered unknown
--- | wsdd-discover: 
+-- | wsdd-discover:
 -- |   Devices
 -- |     Message id: 39a2b7f2-fdbd-690c-c7c9-deadbeefceb3
 -- |     Address: http://10.0.200.116:50000
 -- |_    Type: Device wprt:PrintDeviceType
 --
--- 
+--
 
 --
 -- Version 0.1
@@ -49,7 +49,7 @@ discoverThread = function( funcname, host, port, results )
 	local condvar = nmap.condvar( results )
 	local helper = wsdd.Helper:new(host, port)
 	helper:setTimeout(timeout)
-	
+
 	local status, result = helper[funcname](helper)
 	if ( status ) then table.insert(results, result) end
 	condvar("broadcast")
@@ -66,12 +66,12 @@ action = function(host, port)
 
 	local threads, results = {}, {}
 	local condvar = nmap.condvar( results )
-	
+
 	-- Attempt to discover both devices and WCF web services
 	for _, f in ipairs( {"discoverDevices", "discoverWCFServices"} ) do
 		threads[stdnse.new_thread( discoverThread, f, host, port, results )] = true
 	end
-	
+
 	local done
 	-- wait for all threads to finish
 	while( not(done) ) do

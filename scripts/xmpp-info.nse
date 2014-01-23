@@ -16,22 +16,22 @@ server capabilities.  If possible, studies server vendor.
 -- @output
 -- PORT     STATE SERVICE REASON  VERSION
 -- 5222/tcp open  jabber  syn-ack ejabberd (Protocol 1.0)
--- | xmpp-info:  
+-- | xmpp-info:
 -- |   Respects server name
--- |   info: 
--- |     xmpp: 
+-- |   info:
+-- |     xmpp:
 -- |       lang: en
 -- |       version: 1.0
 -- |     capabilities:
 -- |       node: http://www.process-one.net/en/ejabberd/
 -- |       ver: TQ2JFyRoSa70h2G1bpgjzuXb2sU=
--- |     features: 
+-- |     features:
 -- |       In-Band Registration
 -- |     auth_mechanisms:
 -- |       DIGEST-MD5
 -- |       SCRAM-SHA-1
 -- |       PLAIN
--- |   pre_tls: 
+-- |   pre_tls:
 -- |     features:
 -- |_      TLS
 --@xmloutput
@@ -98,7 +98,7 @@ end
 -- Be carefull while adding fingerprints into the table - it must be well sorted
 -- as some fingerprints are actually supersetted by another...
 local id_database = {
-    { 
+    {
                 --f3af7012-5d06-41dc-b886-42521de4e198
                 --''
             regexp1 = '^' .. string.rep('[0-9a-f]', 8) .. '[-]' ..
@@ -117,14 +117,14 @@ local id_database = {
             check = check_citadele
     },
 
-    { 
+    {
                 --1082952309
                 --(no)
             regexp1 = '^' .. string.rep('[0-9]', 9) .. '$',
             regexp2 = nil,
             name = 'jabberd'
     },
-    { 
+    {
                 --1082952309
                 --(no)
             regexp1 = '^' .. string.rep('[0-9]', 10) .. '$',
@@ -132,7 +132,7 @@ local id_database = {
             name = 'jabberd'
     },
 
-    { 
+    {
                 --8npnkiriy7ga6bak1bdpzn816tutka5sxvfhe70c
                 --egnlry6t9ji87r9dk475ecxc8dtmkuyzalk2jrvt
             regexp1 = '^' .. string.rep('[0-9a-z]', 40) .. '$',
@@ -140,7 +140,7 @@ local id_database = {
             name = 'jabberd2'
     },
 
-    { 
+    {
                 --4c9e369a841db417
                 --fc0a60b82275289e
             regexp1 = '^' .. string.rep('[0-9a-f]', 16) .. '$',
@@ -148,7 +148,7 @@ local id_database = {
             name = 'Isode M-Link'
     },
 
-    { 
+    {
                 --1114798225
                 --494549622
             regexp1 = '^' .. string.rep('[0-9]', 8) .. string.rep('[0-9]?', 2) .. '$',
@@ -156,7 +156,7 @@ local id_database = {
             name = 'ejabberd'
     },
 
-    { 
+    {
                 --5f049d72
                 --3b5b40b
             regexp1 = '^' .. string.rep('[0-9a-f]', 6) .. string.rep('[0-9a-f]?', 2) .. '$',
@@ -165,7 +165,7 @@ local id_database = {
     },
 
 
-    { 
+    {
                 --c7cd895f-e006-473b-9623-c0aae85f17fc
                 --tigase-error-tigase
             regexp1 = '^' .. string.rep('[0-9a-f]', 8) .. '[-]' ..
@@ -176,7 +176,7 @@ local id_database = {
             regexp2 = '^tigase[-]error[-]tigase$',
             name = 'Tigase'
     },
-    { 
+    {
                 -- tigase.org (in case of bad DNS name):
                 --tigase-error-tigase
                 --tigase-error-tigase
@@ -185,7 +185,7 @@ local id_database = {
             name = 'Tigase'
     },
 
-    { 
+    {
                 --4c9e369a841db417
                 --fc0a60b82275289e
             regexp1 = '^' .. string.rep('[0-9a-f]', 16) .. '$',
@@ -296,9 +296,9 @@ local scan = function(host, port, server_name, tls)
     local is_starttls, tls_required, in_error, got_text
     while true do
         local tag = receive_tag(client)
-        if not tag then 
+        if not tag then
             table.insert(err, "(timeout)")
-            break 
+            break
         end
         log_tag(tag)
         if tag.name == "stream:features" and tag.finish then
@@ -380,7 +380,7 @@ local scan = function(host, port, server_name, tls)
             if tag.finish then
                 table.insert(mechanisms, tag.contents)
             end
-        elseif tag.name == "c" and inside() then 
+        elseif tag.name == "c" and inside() then
             --http://xmpp.org/extensions/xep-0115.html
             --sample: jabber.ru
             if tag.attrs and tag.attrs.node then
@@ -408,11 +408,11 @@ local scan = function(host, port, server_name, tls)
             end
         end
 
-        if tag.name == "stream:error" then 
+        if tag.name == "stream:error" then
             if tag.start then
                 in_error = tag.start
             elseif not got_text then -- non-RFC compliant server!
-                if tag.contents ~= "" then 
+                if tag.contents ~= "" then
                     table.insert(err, {text= tag.contents})
                 end
                 in_error = false

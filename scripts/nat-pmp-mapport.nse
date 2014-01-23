@@ -20,19 +20,19 @@ o unmapall - unmaps all previously mapped ports for the requesting IP
 -- @output
 -- PORT     STATE SERVICE
 -- 5351/udp open  nat-pmp
--- | nat-pmp-mapport: 
+-- | nat-pmp-mapport:
 -- |_  Successfully mapped tcp 1.2.3.4:8080 -> 192.168.0.100:80
 --
 -- @args nat-pmp-mapport.op operation, can be either map, unmap or unmap all
 --       o map allows you to map an external port to an internal port of the calling IP
 --       o unmap removes the external port mapping for the specified ports and protocol
---       o unmapall removes all mappings for the specified protocol and calling IP 
+--       o unmapall removes all mappings for the specified protocol and calling IP
 --
 -- @args nat-pmp-mapport.pubport the external port to map on the router. The
 --       specified port is treated as the requested port. If the port is available
 --       it will be allocated to the caller, otherwise the router will simply
 --       choose another port, create the mapping and return the resulting port.
---       
+--
 -- @args nat-pmp-mapport.privport the internal port of the calling IP to map requests
 --       to. This port will recieve all requests coming in to the external port on the
 --       router.
@@ -60,12 +60,12 @@ local function fail(str) return "\n  ERROR: " .. str end
 action = function(host, port)
 
 	local op = arg_op:lower()
-		
+
 	if ( "map" ~= op and "unmap" ~= op and "unmapall" ~= op ) then
 		return fail("Operation must be either \"map\", \"unmap\" or \"unmapall\"")
 	end
 
-	if ( ("map" == op or "unmap" == op ) and 
+	if ( ("map" == op or "unmap" == op ) and
 		 ( not(arg_pubport) or not(arg_privport) or not(arg_protocol) ) ) then
 		return fail("The arguments pubport, privport and protocol are required")
 	elseif ( "unmapall" == op and not(arg_protocol) ) then
@@ -80,7 +80,7 @@ action = function(host, port)
 	if ( "unmapall" == op ) then
 		arg_pubport, arg_privport = 0, 0
 	end
-	
+
 	local status, response = helper:getWANIP()
 	if ( not(status) ) then
 		return fail("Failed to retrieve WAN IP")
@@ -88,13 +88,13 @@ action = function(host, port)
 
 	local wan_ip = response.ip
 	local lan_ip = (nmap.get_interface_info(host.interface)).address
-		
+
 	local status, response = helper:mapPort(arg_pubport, arg_privport, arg_protocol, arg_lifetime)
-	
+
 	if ( not(status) ) then
 		return fail(response)
 	end
-	
+
 	local output
 	if ( "unmap" == op ) then
 		output = ("Successfully unmapped %s %s:%d -> %s:%d"):format(
@@ -110,7 +110,7 @@ action = function(host, port)
 			table.insert(output, "WARNING: Requested public port could not be allocated")
 		end
 	end
-	
+
 	return stdnse.format_output(true, output)
-	
+
 end

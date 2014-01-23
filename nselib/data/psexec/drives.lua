@@ -1,7 +1,7 @@
 ---This configuration file pulls info about a given harddrive
 
--- Any variable in the 'config' table in smb-psexec.nse can be overriden in the 
--- 'overrides' table. Most of them are not really recommended, such as the host, 
+-- Any variable in the 'config' table in smb-psexec.nse can be overriden in the
+-- 'overrides' table. Most of them are not really recommended, such as the host,
 -- key, etc.
 overrides = {}
 --overrides.timeout = 40

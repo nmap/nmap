@@ -18,7 +18,7 @@ detected method.
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-auth-finder: 
+-- | http-auth-finder:
 -- |   url                                   method
 -- |   http://192.168.1.162/auth1/index.html  HTTP: Basic, Digest, Negotiate
 -- |_  http://192.168.1.162/auth2/index.html  FORM
@@ -48,7 +48,7 @@ local function parseAuthentication(resp)
 	if ( not(www_authenticate) ) then
     	return false, "Server returned no authentication headers."
   	end
-	
+
 	local challenges = http.parse_www_authenticate(www_authenticate)
 	if ( not(challenges) ) then
 		return false, ("Authentication header (%s) could not be parsed."):format(www_authenticate)

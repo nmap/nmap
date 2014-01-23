@@ -5,18 +5,18 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 
-description = [[ 
+description = [[
 Extracts a list of Citrix servers from the ICA Browser service.
 ]]
 
 ---
--- @usage sudo ./nmap -sU --script=citrix-enum-servers -p 1604 
+-- @usage sudo ./nmap -sU --script=citrix-enum-servers -p 1604
 --
 -- @output
 -- PORT     STATE SERVICE
 -- 1604/udp open  unknown
--- | citrix-enum-servers:  
--- |   CITRIXSRV01  
+-- | citrix-enum-servers:
+-- |   CITRIXSRV01
 -- |_  CITRIXSRV02
 --
 
@@ -39,7 +39,7 @@ portrule = shortport.portnumber(1604, "udp")
 -- @return string row delimited with \n containing all published applications
 --
 function process_server_response(response)
-    
+
     local pos, packet_len = bin.unpack("SS", response)
     local server_name
     local server_list = {}
@@ -78,31 +78,31 @@ action = function(host, port)
 	-- some brief information for the bits and bytes this script uses.
 	--
 	-- Spec. of response to query[2] that contains a list of published apps
-	-- 
+	--
 	-- offset	size	content
 	-- -------------------------
 	-- 0		16-bit	Length
 	-- 12		32-bit	Server IP (not used here)
-	-- 30		8-bit	Last packet	(1), More packets(0)	
+	-- 30		8-bit	Last packet	(1), More packets(0)
 	-- 40		-		null-separated list of applications
 	--
 	query[0] = string.char(
 				0x1e, 0x00, -- Length: 30
 				0x01, 0x30, 0x02, 0xfd, 0xa8, 0xe3, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00
 				)
 
 	query[1] = string.char(
 				0x2a, 0x00, -- Length: 42
-				0x01, 0x32, 0x02, 0xfd, 0xa8, 0xe3, 0x00, 0x00, 
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-				0x00, 0x00, 0x01, 0x00, 0x02, 0x00,	0x00, 0x00, 
+				0x01, 0x32, 0x02, 0xfd, 0xa8, 0xe3, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				0x00, 0x00, 0x01, 0x00, 0x02, 0x00,	0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 				)
-	
+
 	counter = 0
 
 	socket = nmap.new_socket()
@@ -128,8 +128,8 @@ action = function(host, port)
 	--
 	while packet:sub(31,31) ~= string.char(0x01) do
 	    packet = try( socket:receive() )
-	    local tmp_table = process_server_response( packet )	
-	
+	    local tmp_table = process_server_response( packet )
+
 		for _, v in ipairs(tmp_table) do
 			table.insert(server_list, v)
 		end
@@ -138,7 +138,7 @@ action = function(host, port)
 	if #server_list>0 then
 	    nmap.set_port_state(host, port, "open")
 	end
-	
+
 	socket:close()
 
 	return stdnse.format_output(true, server_list)

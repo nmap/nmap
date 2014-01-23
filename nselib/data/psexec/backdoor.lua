@@ -1,7 +1,7 @@
 ---This config file is designed for adding a backdoor to the system. It has a few
--- options by default, only one enabled by default. I suggest 
+-- options by default, only one enabled by default. I suggest
 --
--- Note that none of these modules are included with Nmap by default. 
+-- Note that none of these modules are included with Nmap by default.
 
 -- Any variable in the 'config' table in smb-psexec.nse can be overriden in the
 -- 'overrides' table. Most of them are not really recommended, such as the host,
@@ -17,7 +17,7 @@ local mod
 -- a response
 mod = {}
 mod.upload           = false
-mod.name             = "Adding a user account: $username/$password" 
+mod.name             = "Adding a user account: $username/$password"
 mod.program          = "net"
 mod.args             = "user $username $password /add"
 mod.maxtime          = 2

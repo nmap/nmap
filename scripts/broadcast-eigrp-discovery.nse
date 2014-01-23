@@ -37,7 +37,7 @@ through all valid ethernet interfaces simultaneously.
 -- @args broadcast-eigrp-discovery.timeout Max amount of time to listen for A.S
 -- announcements and updates. Defaults to <code>10</code> seconds.
 --
--- @args broadcast-eigrp-discovery.kparams the K metrics. 
+-- @args broadcast-eigrp-discovery.kparams the K metrics.
 -- Defaults to <code>101000</code>.
 -- @args broadcast-eigrp-discovery.interface Interface to send on (overrides -e)
 --
@@ -45,7 +45,7 @@ through all valid ethernet interfaces simultaneously.
 -- Pre-scan script results:
 -- | broadcast-eigrp-discovery:
 -- | 192.168.2.2
--- |   Interface: eth0 
+-- |   Interface: eth0
 -- |   A.S: 1
 -- |   Virtual Router ID: 0
 -- |   Internal Route
@@ -134,7 +134,7 @@ local eigrpListener = function(interface, timeout, responses)
 	if status then
 	    p = packet.Packet:new(l3data, #l3data)
 	    eigrp_raw = string.sub(l3data, p.ip_hl*4 + 1)
-	    -- Check if it is an EIGRPv2 Update 
+	    -- Check if it is an EIGRPv2 Update
 	    if eigrp_raw:byte(1) == 0x02 and eigrp_raw:byte(2) == 0x01 then
 		-- Skip if did get the info from this router before
 		if not routers[p.ip_src] then
@@ -230,7 +230,7 @@ action = function()
 	local ifacelist = nmap.list_interfaces()
 	for _, iface in ipairs(ifacelist) do
 	    -- Match all ethernet interfaces
-	    if iface.address and iface.link=="ethernet" and 
+	    if iface.address and iface.link=="ethernet" and
 		iface.address:match("%d+%.%d+%.%d+%.%d+") then
 
 		stdnse.print_debug("%s: Will use %s interface.", SCRIPT_NAME, iface.shortname)

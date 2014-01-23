@@ -14,7 +14,7 @@ Spiders a web site and collects e-mail addresses.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-email-harvest: 
+-- | http-email-harvest:
 -- | Spidering limited to: maxdepth=3; maxpagecount=20
 -- |   root@examplec.com
 -- |_  postmaster@example.com
@@ -42,8 +42,8 @@ portrule = shortport.http
 
 function action(host, port)
 	local EMAIL_PATTERN = "[A-Za-z0-9%.%%%+%-]+@[A-Za-z0-9%.%%%+%-]+%.%w%w%w?%w?"
-	
-	local crawler = httpspider.Crawler:new(host, port, nil, { 
+
+	local crawler = httpspider.Crawler:new(host, port, nil, {
 			scriptname = SCRIPT_NAME
 		}
 	)
@@ -65,7 +65,7 @@ function action(host, port)
 				break
 			end
 		end
-		
+
 		-- Collect each e-mail address and build a unique index of them
     if r.response.body then
       for email in r.response.body:gmatch(EMAIL_PATTERN) do
@@ -83,6 +83,6 @@ function action(host, port)
   	end
 
 	results.name = crawler:getLimitations()
-	
+
 	return stdnse.format_output(true, results)
 end

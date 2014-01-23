@@ -17,7 +17,7 @@ Performs brute force password auditing against a Nexpose vulnerability scanner u
 -- @output
 -- PORT     STATE SERVICE     REASON  VERSION
 -- 3780/tcp open  ssl/nexpose syn-ack NeXpose NSC 0.6.4
--- | nexpose-brute: 
+-- | nexpose-brute:
 -- |   Accounts
 -- |     nxadmin:nxadmin - Valid credentials
 -- |   Statistics
@@ -25,7 +25,7 @@ Performs brute force password auditing against a Nexpose vulnerability scanner u
 --
 -- As the Nexpose application enforces account lockout after 4 incorrect login
 -- attempts, the script performs only 3 guesses per default. This can be
--- altered by supplying the <code>brute.guesses</code> argument a different 
+-- altered by supplying the <code>brute.guesses</code> argument a different
 -- value or 0 (zero) to guess the whole dictionary.
 
 author = "Vlatko Kosturjak"
@@ -37,7 +37,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(3780, "nexpose", "tcp")
 
-Driver = 
+Driver =
 {
 	new = function (self, host, port)
 		local o = { host = host, port = port }

@@ -1,41 +1,41 @@
 ---
 -- This module was written to marshall parameters for Microsoft RPC (MSRPC) calls. The values passed in and out are based
--- on structs defined by the protocol, and documented by Samba developers. For detailed breakdowns of the types, take a 
--- look at Samba 4.0's <code>.idl</code> files. 
+-- on structs defined by the protocol, and documented by Samba developers. For detailed breakdowns of the types, take a
+-- look at Samba 4.0's <code>.idl</code> files.
 --
 -- There is nothing simple about how this all comes together, so I'll take some time to explain how it's done. This
 -- is fairly technical and, when it comes right down to it, unnecessary for how to use these functions (although if you
--- want to write one of these, you best understand it). 
+-- want to write one of these, you best understand it).
 --
 -- There are base types, like int32 and int16. These are marshalled the way you'd expect (converted to a 4- or
--- 2-byte little endian string). The only trick with these is that they have to end up aligned on 4-byte boundaries. 
+-- 2-byte little endian string). The only trick with these is that they have to end up aligned on 4-byte boundaries.
 -- So, a 2-byte integer requires 2 bytes of padding, and a 1-byte integer requires 3 bytes of padding. The functions
--- <code>marshall_int32</code>, <code>marshall_int16</code>, etc. will marshall the base types, and <code>unmarshall_int32</code>, 
--- <code>unmarshall_int16</code>, etc. will unmarshall them. 
+-- <code>marshall_int32</code>, <code>marshall_int16</code>, etc. will marshall the base types, and <code>unmarshall_int32</code>,
+-- <code>unmarshall_int16</code>, etc. will unmarshall them.
 --
 -- Strings are a little bit trickier. A string is preceded by three 32-bit values: the max length, the offset, and
 -- the length. Additionally, strings may or may not be null terminated, depending on where they're being used. For
 -- more information on strings, see the comments on <code>marshall_unicode</code>. The functions <code>marshall_unicode</code>
--- and <code>unmarshall_unicode</code> can be used to mashall/unmarshall strings. 
+-- and <code>unmarshall_unicode</code> can be used to mashall/unmarshall strings.
 --
 -- Pointers also have interesting properties. A pointer is preceeded by a 4-byte value called (at least by Wireshark)
--- the "referent id". For a valid pointer, this can be anything except 0 (I use 'NMAP' for it). If it's '0', then 
+-- the "referent id". For a valid pointer, this can be anything except 0 (I use 'NMAP' for it). If it's '0', then
 -- it's a null pointer and the data doesn't actually follow. To help clarify, a pointer to the integer '4' could be
 -- marshalled as the hex string <code>78 56 34 12 04 00 00 00</code> (the referent_id is 0x12345678 and the integer
--- itself is 0x00000004). If the integer is nil, then it's marshalled as <code>00 00 00 00</code>, which is simply 
--- a referent_id of 0. 
+-- itself is 0x00000004). If the integer is nil, then it's marshalled as <code>00 00 00 00</code>, which is simply
+-- a referent_id of 0.
 --
 -- From the perspective of the program, pointers can be marshalled by using the "<code>_ptr</code>" versions of normal functions
 -- (for example, <code>marshall_int32_ptr</code> and <code>unmarshall_unicode_ptr</code>. From the perspective
 -- of functions within this module, especially functions for marshalling structs and arrays, the <code>marshall_ptr</code>
 -- and <code>unmarshall_ptr</code> functions should be used. These can marshall any data type; the marshalling function
--- is passed as a parameter. 
+-- is passed as a parameter.
 --
--- So far, this is fairly straight forward. Arrays are where everything falls apart. 
+-- So far, this is fairly straight forward. Arrays are where everything falls apart.
 --
 -- An array of basic types is simply the types themselves, preceeded by the "max length" of the array (which can be
 -- longer than the actual length). When pointers are used in an array, however, things get hairy. The 'referent_id's
--- of the pointers are all put at the start of the array, along with the base types. Then, the data is put at the 
+-- of the pointers are all put at the start of the array, along with the base types. Then, the data is put at the
 -- end of the array, for all the referent_ids that aren't null. Let's say you have four strings, "abc", "def", null, and
 -- "jkl", in an array. The array would look like this:
 -- <code>
@@ -47,7 +47,7 @@
 --  "def"
 --  "ghi"
 -- </code>
---  
+--
 -- If you mix in a base type, it goes at the front along with the referent_ids. So, let's say you have a structure
 -- that contains two integers and a string. You have an array of these. It would encode like this:
 -- <code>
@@ -62,40 +62,40 @@
 -- </code>
 --
 -- From the perspective of the program, arrays shouldn't need to be marshalled/unmarshalled, this is tricky and should be
--- left up to functions within this module. Functions within this module should use <code>marshall_array</code> and 
+-- left up to functions within this module. Functions within this module should use <code>marshall_array</code> and
 -- <code>unmarshall_array</code> to interact with arrays. These take callback functions for the datatype being stored
--- in the array; these callback functions have to be in a particular format, so care should be taken when writing them. 
--- In particular, the first parameter has to be <code>location</code>, which is used to separate the header (the part with the 
--- referent_ids) and the body (the part with the pointer data). These are explained more thoroughly in the function headers. 
+-- in the array; these callback functions have to be in a particular format, so care should be taken when writing them.
+-- In particular, the first parameter has to be <code>location</code>, which is used to separate the header (the part with the
+-- referent_ids) and the body (the part with the pointer data). These are explained more thoroughly in the function headers.
 --
 -- Structs are handled the same as arrays. The referent_ids and base types go at the top, and the values being pointed to
 -- go at the bottom. An array of struct, as has already been shown, will have all the base types and referent_ids for all the
--- members at the top, and all the values for all the pointers at the bottom. 
+-- members at the top, and all the values for all the pointers at the bottom.
 --
 -- Structs tend to be custom functions. Sometimes, these functions are passed as the callback to <code>marshall_ptr</code> or
 -- <code>marshall_array</code> (and the equivalent <code>unmarshall_</code> functions). This means that the custom struct
 -- functions have to be able to split themselves into the base types and the pointer data automatically. For an example, see
--- the functions that have already been written. 
+-- the functions that have already been written.
 --
 -- In the case where you need to unmarshall the same struct from both an array and a pointer, there's an issue; they require
 -- different prototypes. There's really no way to directly fix this, at least, none that I could come up with, so I write
 -- a function called <code>unmarshall_struct</code>. <code>unmarshall_struct</code> basically calls a struct unmarshalling
--- function the same way <code>unmarshall_array</code> would. This is a bit of a kludge, but it's the best I could come up 
--- with. 
+-- function the same way <code>unmarshall_array</code> would. This is a bit of a kludge, but it's the best I could come up
+-- with.
 --
--- There are different sections in here, which correspond to "families" of types. I modelled these after Samba's <code>.idl</code> files. 
+-- There are different sections in here, which correspond to "families" of types. I modelled these after Samba's <code>.idl</code> files.
 -- MISC corresponds to <code>misc.idl</code>, LSA to <code>lsa.idl</code>, etc. Each of these sections has possible dependencies; for example, SAMR
--- functions use LSA strings, and everything uses SECURITY and MISC. So the order is important -- dependencies have to go 
--- above the module. 
+-- functions use LSA strings, and everything uses SECURITY and MISC. So the order is important -- dependencies have to go
+-- above the module.
 --
 -- The datatypes used here are modelled after the datatypes used by Microsoft's functions. Each function that represents
--- a struct will have the struct definition in its comment; and that struct (or the closest representation to it) will be 
+-- a struct will have the struct definition in its comment; and that struct (or the closest representation to it) will be
 -- returned. Often, this requires scripts to access something like <code>result['names']['names'][0]['name']</code>, which is
 -- rather unwieldy, but I decided that following Microsoft's definitions was the most usable way for many reasons. I find
 -- the best way to figure out how to work a function is to call a print_table()-style function on the result and look at
--- how the response is laid out. 
+-- how the response is laid out.
 --
--- Many datatypes are automatically encoded when sent and decoded when received to make life easier for developers. Some 
+-- Many datatypes are automatically encoded when sent and decoded when received to make life easier for developers. Some
 -- examples are:
 -- * All absolute time values will be seconds from 1970
 -- * All relative time values will be in seconds (this includes the <code>hyper</code> datatype); when possible, the milliseconds/microseconds (as far down as we have access to) will be preserved as a decimal
@@ -116,13 +116,13 @@ local HEAD = 'HEAD'
 local BODY = 'BODY'
 local ALL  = 'ALL'
 
---- Convert a string to fake unicode (ascii with null characters between them), optionally add a null terminator, 
+--- Convert a string to fake unicode (ascii with null characters between them), optionally add a null terminator,
 --  and optionally align it to 4-byte boundaries. This is frequently used in MSRPC calls, so I put it here, but
---  it might be a good idea to move this function (and the converse one below) into a separate library. 
+--  it might be a good idea to move this function (and the converse one below) into a separate library.
 --
---@param string The string to convert. 
---@param do_null [optional]  Add a null-terminator to the unicode string. Default false. 
---@return The unicode version of the string. 
+--@param string The string to convert.
+--@param do_null [optional]  Add a null-terminator to the unicode string. Default false.
+--@return The unicode version of the string.
 function string_to_unicode(string, do_null)
 	local i
 	local result = ""
@@ -141,7 +141,7 @@ function string_to_unicode(string, do_null)
 	if(string == nil) then
 		stdnse.print_debug(1, "MSRPC: WARNING: couldn't convert value to string in string_to_unicode()")
 	end
-		
+
 
 	-- Loop through the string, adding each character followed by a char(0)
 	for i = 1, #string, 1 do
@@ -163,15 +163,15 @@ function string_to_unicode(string, do_null)
 	return result
 end
 
---- Read a unicode string from a buffer, similar to how <code>bin.unpack</code> would, optionally eat the null terminator, 
---  and optionally align it to 4-byte boundaries. 
+--- Read a unicode string from a buffer, similar to how <code>bin.unpack</code> would, optionally eat the null terminator,
+--  and optionally align it to 4-byte boundaries.
 --
 --@param buffer   The buffer to read from, typically the full 'arguments' value for MSRPC
 --@param pos      The position in the buffer to start (just like <code>bin.unpack</code>)
---@param length   The number of ascii characters that will be read (including the null, if do_null is set). 
---@param do_null  [optional] Remove a null terminator from the string as the last character. Default false. 
---@return (pos, string) The new position and the string read, again imitating <code>bin.unpack</code>. If there was an 
---				attempt to read off the end of the string, then 'nil' is returned for both parameters. 
+--@param length   The number of ascii characters that will be read (including the null, if do_null is set).
+--@param do_null  [optional] Remove a null terminator from the string as the last character. Default false.
+--@return (pos, string) The new position and the string read, again imitating <code>bin.unpack</code>. If there was an
+--				attempt to read off the end of the string, then 'nil' is returned for both parameters.
 function unicode_to_string(buffer, pos, length, do_null)
 	local i, j, ch, dummy
 	local string = ""
@@ -225,16 +225,16 @@ end
 ---Marshalls a pointer to another datatype. This function will optionally separate the
 -- REFERENT_ID of the pointer (which goes at location = HEAD) from the data part of the
 -- pointer (which goes at location = BODY). If the entire pointer is needed, then location
--- should be set to ALL. 
+-- should be set to ALL.
 --
 -- When marshalling the body, the function <code>func</code> is called, which is passed as
 -- a parameter, with the arguments <code>args</code>. This function has to return a marshalled
--- parameter, but other than that it can be any marshalling function. The 'value' parameter 
+-- parameter, but other than that it can be any marshalling function. The 'value' parameter
 -- simply determined whether or not it's a null pointer, and will probably be a repease of
--- one of the arguments. 
+-- one of the arguments.
 --
--- Note that the function <code>func</code> doesn't have to conform to any special prototype, 
--- as long as the <code>args</code> array matches what the function wants. 
+-- Note that the function <code>func</code> doesn't have to conform to any special prototype,
+-- as long as the <code>args</code> array matches what the function wants.
 --
 -- This can be used to marshall an int16 value of 0x1234 with padding like this:
 -- <code>
@@ -248,21 +248,21 @@ end
 -- </code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the referent_id), BODY
---                (for the pointer data), or ALL (for both together). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
+--                (for the pointer data), or ALL (for both together). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
 --@param func     The function to call when encoding the body. Should convert the arguments passed
 --                in the <code>args</code> parameter to a string.
 --@param args     An array of arguments that will be directly passed to the function <code>func</code>
 --@param value    The value that's actually being encoded. This is simply used to determine whether or
---                not the pointer is null. 
---@return A string representing the marshalled data. 
+--                not the pointer is null.
+--@return A string representing the marshalled data.
 local function marshall_ptr(location, func, args, value)
 	local result = ""
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_ptr(location = %s)", location))
 
-	-- If we're marshalling the HEAD section, add a REFERENT_ID. 
+	-- If we're marshalling the HEAD section, add a REFERENT_ID.
 	if(location == HEAD or location == ALL) then
 		if(func == nil or args == nil or value == nil) then
 			result = result .. bin.pack("<I", 0)
@@ -272,7 +272,7 @@ local function marshall_ptr(location, func, args, value)
 	end
 
 	-- If we're marshalling the BODY section, and the value isn't null, call the function to marshall
-	-- the data. 
+	-- the data.
 	if(location == BODY or location == ALL) then
 		if(func == nil or args == nil or value == nil) then
 		else
@@ -287,9 +287,9 @@ end
 
 ---Unmarshalls a pointer by removing the referent_id in the HEAD section and the data in the
 -- BODY section (or both in the ALL section). Because the unmarshall function for the body is
--- called if and only if the referent_id is non-zero, if the head and the body are split apart, 
+-- called if and only if the referent_id is non-zero, if the head and the body are split apart,
 -- the second call to this function has to know the context. This is the purpose for the <code>result</code>
--- parameter, it is the result from the first time this is called. 
+-- parameter, it is the result from the first time this is called.
 --
 -- The function <code>func</code> has to conform to this format:
 --<code>
@@ -297,28 +297,28 @@ end
 --</code>
 --
 --@param location The part of the pointer being processed, either HEAD (for the referent_id), BODY
---                (for the pointer data), or ALL (for both together). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
+--                (for the pointer data), or ALL (for both together). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
 --@param pos      The position within <code>data</code>
 --@param func     The function that's used to process the body data (only called if it isn't a null
---                pointer). This function has to conform to a specific prototype, see above. 
+--                pointer). This function has to conform to a specific prototype, see above.
 --@param args     The arguments that'll be passed to the function <code>func</code>, after the data
---                array and the position. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                array and the position.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position along with the result. For HEAD the result is either <code>true</code>
---                for valid pointers or <code>false</code> for null pointers. For BODY or ALL, the result is 
---                <code>nil</code> for null pointers, or the data for valid pointers. 
+--                for valid pointers or <code>false</code> for null pointers. For BODY or ALL, the result is
+--                <code>nil</code> for null pointers, or the data for valid pointers.
 local function unmarshall_ptr(location, data, pos, func, args, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_ptr()"))
 	if(args == nil) then
 		args = {}
 	end
-	-- If we're unmarshalling the header, then pull off a referent_id. 
+	-- If we're unmarshalling the header, then pull off a referent_id.
 	if(location == HEAD or location == ALL) then
 		local referent_id
 		pos, referent_id = bin.unpack("<I", data, pos)
@@ -352,24 +352,24 @@ local function unmarshall_ptr(location, data, pos, func, args, result)
 	return pos, result
 end
 
----Similar to <code>marshall_ptr</code>, except that this marshalls a type that isn't a pointer. 
+---Similar to <code>marshall_ptr</code>, except that this marshalls a type that isn't a pointer.
 -- It also understands pointers, in the sense that it'll only return data in the HEAD section, since
--- basetypes are printed in the HEAD and not the BODY. 
+-- basetypes are printed in the HEAD and not the BODY.
 --
 -- Using this isn't strictly necessary, but it cleans up functions for generating structs containing
--- both pointers and basetypes (see <code>marshall_srvsvc_NetShareInfo2</code>). 
+-- both pointers and basetypes (see <code>marshall_srvsvc_NetShareInfo2</code>).
 --
 -- Like <code>marshall_ptr</code>, the function doesn't have to match any prototype, as long as the
--- proper arguments are passed to it. 
--- 
+-- proper arguments are passed to it.
+--
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
 --@param func     The function to call when encoding the body. Should convert the arguments passed
 --                in the <code>args</code> parameter to a string.
 --@param args     An array of arguments that will be directly passed to the function <code>func</code>
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 local function marshall_basetype(location, func, args)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_basetype()"))
@@ -385,24 +385,24 @@ local function marshall_basetype(location, func, args)
 	return result
 end
 
----Marshalls an array. Recall (from the module comment) that the data in an array is split into the 
--- referent_ids and base types at the top and the data at the bottom. This function will call 
--- any number of location-aware functions twice (once for the top and once for the bottom). 
+---Marshalls an array. Recall (from the module comment) that the data in an array is split into the
+-- referent_ids and base types at the top and the data at the bottom. This function will call
+-- any number of location-aware functions twice (once for the top and once for the bottom).
 --
 -- Each element in the array can technically have a different function. I don't know why I allowed
 -- that, and may refactor it out in the future. For now, I strongly recommend setting the function
--- to the same for every element. 
+-- to the same for every element.
 --
 -- The function that's called has to have the prototype:
 --<code>
 -- func(location, <args>)
 --</code>
--- where "location" is the standard HEAD/BODY/ALL location used throughout the functions. 
+-- where "location" is the standard HEAD/BODY/ALL location used throughout the functions.
 --
---@param array An array of tables. Each table contains 'func', a pointer to the marshalling 
+--@param array An array of tables. Each table contains 'func', a pointer to the marshalling
 --             function and 'args', the arguments to pass to the marshalling function after the
---             'location' variable. 
---@return A string representing the marshalled data. 
+--             'location' variable.
+--@return A string representing the marshalled data.
 function marshall_array(array)
 	local i
 	local result = ""
@@ -410,8 +410,8 @@ function marshall_array(array)
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_array()"))
 
 	-- The max count is always at the front of the array (at least, in my tests). It is possible that
-	-- this won't always hold true, so if you're having an issue that you've traced back to this function, 
-	-- you might want to double-check my assumption. 
+	-- this won't always hold true, so if you're having an issue that you've traced back to this function,
+	-- you might want to double-check my assumption.
 	result = result .. bin.pack("<I", #array)
 
 	-- Encode the HEAD sections of all the elements in the array
@@ -434,29 +434,29 @@ function marshall_array(array)
 	return result
 end
 
----Unmarshalls an array. This function starts to get a little hairy, due to the number of 
--- parameters that need to be propagated, but it isn't too bad. Basically, this unmarshalls an 
--- array by calling the given function for each element. 
+---Unmarshalls an array. This function starts to get a little hairy, due to the number of
+-- parameters that need to be propagated, but it isn't too bad. Basically, this unmarshalls an
+-- array by calling the given function for each element.
 --
 -- The function <code>func</code> has to conform to a very specific prototype:
 --<code>
 -- func(location, data, pos, result, <args>)
 --</code>
--- Where <code>location<code> is the standard HEAD/BODY location, <code>data<code> and <code>pos<code> 
--- are the packet and position within it, <code>result<code> is the result from the HEAD section (if 
--- it's nil, it isn't used), and <code>args<code> are arbitrary arguments passed to it. 
+-- Where <code>location<code> is the standard HEAD/BODY location, <code>data<code> and <code>pos<code>
+-- are the packet and position within it, <code>result<code> is the result from the HEAD section (if
+-- it's nil, it isn't used), and <code>args<code> are arbitrary arguments passed to it.
 --
--- I made the call to pass the same arguments to each function when it's called. This is, for example, 
+-- I made the call to pass the same arguments to each function when it's called. This is, for example,
 -- whether or not to null-terminate a string, or whether or not to pad an int16. If different types are
 -- required, you're probably out of luck.
--- 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param count    The number of elements in the array. 
---@param func     The function to call to unmarshall each parameter. Has to match a specific prototype; 
---                see the function comment. 
---@param args     Arbitrary arguments to pass to the function. 
---@return (pos, result) The new position and the result of unmarshalling this value. 
+--
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param count    The number of elements in the array.
+--@param func     The function to call to unmarshall each parameter. Has to match a specific prototype;
+--                see the function comment.
+--@param args     Arbitrary arguments to pass to the function.
+--@return (pos, result) The new position and the result of unmarshalling this value.
 local function unmarshall_array(data, pos, count, func, args)
 	local i
 	local size
@@ -473,14 +473,14 @@ local function unmarshall_array(data, pos, count, func, args)
 		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_array(). Please report!")
 	end
 
-	-- Unmarshall the header, which will be referent_ids and base types. 
+	-- Unmarshall the header, which will be referent_ids and base types.
 	for i = 1, count, 1 do
 		pos, result[i] = func(HEAD, data, pos, nil, table.unpack(args))
 	end
 
 	-- Unmarshall the body. Note that the original result (result[i]) is passed back
 	-- into this function. This is required for pointers because, to unmarshall a pointer,
-	-- we have to remember whether or not it's null. 
+	-- we have to remember whether or not it's null.
 	for i = 1, count, 1 do
 		pos, result[i] = func(BODY, data, pos, result[i], table.unpack(args))
 	end
@@ -491,9 +491,9 @@ local function unmarshall_array(data, pos, count, func, args)
 end
 
 ---Call a function that matches the prototype for <code>unmarshall_array</code>. This allows the same
--- struct to be used in <code>unmarshall_array</code> and in <code>unmarshall_ptr</code>. It is kind 
+-- struct to be used in <code>unmarshall_array</code> and in <code>unmarshall_ptr</code>. It is kind
 -- of a kludge, but it makes sense, and was the cleanest solution I could come up with to this problem
--- (although I'm sure that there's a better one staring me in the face). 
+-- (although I'm sure that there's a better one staring me in the face).
 --
 -- The <code>func</code> parameter, obviously, has to match the same prototype as strings being passed to
 -- <code>unmarshall_array</code>, which is:
@@ -501,12 +501,12 @@ end
 -- func(location, data, pos, result, <args>)
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param func     The function to call to unmarshall each parameter. Has to match a specific prototype; 
---                see the function comment. 
---@param args     Arbitrary arguments to pass to the function. 
---@return (pos, result) The new position and the result of unmarshalling this value. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param func     The function to call to unmarshall each parameter. Has to match a specific prototype;
+--                see the function comment.
+--@param args     Arbitrary arguments to pass to the function.
+--@return (pos, result) The new position and the result of unmarshalling this value.
 local function unmarshall_struct(data, pos, func, args)
 	local result
 
@@ -531,15 +531,15 @@ end
 --- Marshall a string that is in the format:
 -- <code>[string,charset(UTF16)] uint16 *str</code>
 --
--- This has the max size of the buffer, the offset (I'm not sure what the offset does, I've 
--- never seen it used), the actual size, and the string itself. This will always align to 
--- the 4-byte boundary. 
+-- This has the max size of the buffer, the offset (I'm not sure what the offset does, I've
+-- never seen it used), the actual size, and the string itself. This will always align to
+-- the 4-byte boundary.
 --
---@param str The string to insert. Cannot be nil. 
---@param do_null [optional] Appends a null to the end of the string. Default false. 
+--@param str The string to insert. Cannot be nil.
+--@param do_null [optional] Appends a null to the end of the string. Default false.
 --@param max_length [optional] Sets a max length that's different than the string's length. Length
---                  is in characters, not bytes. 
---@return A string representing the marshalled data. 
+--                  is in characters, not bytes.
+--@return A string representing the marshalled data.
 function marshall_unicode(str, do_null, max_length)
 	local buffer_length
 	local result
@@ -573,10 +573,10 @@ function marshall_unicode(str, do_null, max_length)
 end
 
 --- Marshall a null-teriminated ascii string, with the length/maxlength prepended. Very similar
--- to <code>marshall_unicode</code>, except it's ascii and the null terminator is always used. 
+-- to <code>marshall_unicode</code>, except it's ascii and the null terminator is always used.
 --
---@param str        The string to marshall. 
---@param max_length [optional] The maximum length; default: actual length. 
+--@param str        The string to marshall.
+--@param max_length [optional] The maximum length; default: actual length.
 function marshall_ascii(str, max_length)
 	local buffer_length
 	local result
@@ -592,7 +592,7 @@ function marshall_ascii(str, max_length)
 		padding = padding .. string.char(0)
 	end
 
-	result = bin.pack("<IIIzA", 
+	result = bin.pack("<IIIzA",
 				max_length,
 				0,
 				buffer_length,
@@ -603,13 +603,13 @@ function marshall_ascii(str, max_length)
 	return result
 end
 
---- Marshall a pointer to a unicode string. 
+--- Marshall a pointer to a unicode string.
 --
---@param str The string to insert. Can be nil. 
---@param do_null [optional] Appends a null to the end of the string. Default false. 
+--@param str The string to insert. Can be nil.
+--@param do_null [optional] Appends a null to the end of the string. Default false.
 --@param max_length [optional] Sets a max length that's different than the string's length. Length
---                  is in characters, not bytes. 
---@return A string representing the marshalled data. 
+--                  is in characters, not bytes.
+--@return A string representing the marshalled data.
 function marshall_unicode_ptr(str, do_null, max_length)
 	local result
 
@@ -622,11 +622,11 @@ function marshall_unicode_ptr(str, do_null, max_length)
 	return result
 end
 
---- Marshall a pointer to an ascii string. 
+--- Marshall a pointer to an ascii string.
 --
---@param str The string to insert. Can be nil. 
---@param max_length [optional] Sets a max length that's different than the string's length. 
---@return A string representing the marshalled data. 
+--@param str The string to insert. Can be nil.
+--@param max_length [optional] Sets a max length that's different than the string's length.
+--@return A string representing the marshalled data.
 function marshall_ascii_ptr(str, max_length)
 	local result
 
@@ -638,13 +638,13 @@ end
 --- Unmarshall a string that is in the format:
 -- <code>[string,charset(UTF16)] uint16 *str</code>
 --
--- See <code>marshall_unicode</code> for more information. 
+-- See <code>marshall_unicode</code> for more information.
 --
---@param data   The data buffer. 
---@param pos    The position in the data buffer. 
---@param do_null [optional] Discards the final character, the string terminator. Default false. 
+--@param data   The data buffer.
+--@param pos    The position in the data buffer.
+--@param do_null [optional] Discards the final character, the string terminator. Default false.
 --
---@return (pos, str) The new position, and the string. The string may be nil. 
+--@return (pos, str) The new position, and the string. The string may be nil.
 function unmarshall_unicode(data, pos, do_null)
 	local ptr, str
 	local max, offset, actual
@@ -667,12 +667,12 @@ function unmarshall_unicode(data, pos, do_null)
 	return pos, str
 end
 
----Unmarshall a pointer to a unicode string. 
+---Unmarshall a pointer to a unicode string.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param do_null [optional] Assumes a null is at the end of the string. Default false. 
---@return (pos, result) The new position and the string. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param do_null [optional] Assumes a null is at the end of the string. Default false.
+--@return (pos, result) The new position and the string.
 function unmarshall_unicode_ptr(data, pos, do_null)
 	local result
 
@@ -683,12 +683,12 @@ function unmarshall_unicode_ptr(data, pos, do_null)
 	return pos, result
 end
 
----Marshall an array of unicode strings. This is a perfect demonstration of how to use 
--- <code>marshall_array</code>. 
+---Marshall an array of unicode strings. This is a perfect demonstration of how to use
+-- <code>marshall_array</code>.
 --
 --@param strings The array of strings to marshall
---@param do_null [optional] Appends a null to the end of the string. Default false. 
---@return A string representing the marshalled data. 
+--@param do_null [optional] Appends a null to the end of the string. Default false.
+--@return A string representing the marshalled data.
 function marshall_unicode_array(strings, do_null)
 	local array = {}
 	local result
@@ -705,11 +705,11 @@ function marshall_unicode_array(strings, do_null)
 end
 
 ---Marshall a pointer to an array of unicode strings. See <code>marshall_unicode_array</code>
--- for more information. 
+-- for more information.
 --
 --@param strings The array of strings to marshall
---@param do_null [optional] Appends a null to the end of the string. Default false. 
---@return A string representing the marshalled data. 
+--@param do_null [optional] Appends a null to the end of the string. Default false.
+--@return A string representing the marshalled data.
 function marshall_unicode_array_ptr(strings, do_null)
 	local result
 
@@ -718,9 +718,9 @@ function marshall_unicode_array_ptr(strings, do_null)
 	return result
 end
 
---- Marshall an int64. This is simply an 8-byte integer inserted into the buffer, nothing fancy. 
+--- Marshall an int64. This is simply an 8-byte integer inserted into the buffer, nothing fancy.
 --@param int64 The integer to insert
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_int64(int64)
 	local result
 
@@ -734,9 +734,9 @@ end
 --- Marshall an int32, which has the following format:
 -- <code>     [in]            uint32           var</code>
 --
--- This is simply an integer inserted into the buffer, nothing fancy. 
+-- This is simply an integer inserted into the buffer, nothing fancy.
 --@param int32 The integer to insert
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_int32(int32)
 	local result
 
@@ -747,7 +747,7 @@ function marshall_int32(int32)
 	return result
 end
 
----Marshall an array of int32 values. 
+---Marshall an array of int32 values.
 --
 --@param data The array
 --@return A string representing the marshalled data
@@ -768,10 +768,10 @@ end
 --- Marshall an int16, which has the following format:
 -- <code>     [in]            uint16           var</code>
 --
--- This is simply an integer inserted into the buffer, nothing fancy. 
+-- This is simply an integer inserted into the buffer, nothing fancy.
 --@param int16 The integer to insert
---@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true. 
---@return A string representing the marshalled data. 
+--@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true.
+--@return A string representing the marshalled data.
 function marshall_int16(int16, pad)
 	local result
 
@@ -791,11 +791,11 @@ end
 --- Marshall an int8, which has the following format:
 -- <code>     [in]            uint8           var</code>
 --
--- This is simply an integer inserted into the buffer, nothing fancy. 
+-- This is simply an integer inserted into the buffer, nothing fancy.
 --
 --@param int8  The integer to insert
---@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true. 
---@return A string representing the marshalled data. 
+--@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true.
+--@return A string representing the marshalled data.
 function marshall_int8(int8, pad)
 	local result
 
@@ -811,11 +811,11 @@ function marshall_int8(int8, pad)
 	return result
 end
 
---- Unmarshall an int64. See <code>marshall_int64</code> for more information. 
+--- Unmarshall an int64. See <code>marshall_int64</code> for more information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@return (pos, int64) The new position, and the value. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@return (pos, int64) The new position, and the value.
 function unmarshall_int64(data, pos)
 	local value
 
@@ -829,11 +829,11 @@ function unmarshall_int64(data, pos)
 	return pos, value
 end
 
---- Unmarshall an int32. See <code>marshall_int32</code> for more information. 
+--- Unmarshall an int32. See <code>marshall_int32</code> for more information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@return (pos, int32) The new position, and the value. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@return (pos, int32) The new position, and the value.
 function unmarshall_int32(data, pos)
 	local value
 
@@ -845,14 +845,14 @@ function unmarshall_int32(data, pos)
 	return pos, value
 end
 
---- Unmarshall an int16. See <code>marshall_int16</code> for more information. 
+--- Unmarshall an int16. See <code>marshall_int16</code> for more information.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@param pad  [optional] If set, will remove extra bytes to align the packet, Default: true
---@return (pos, int16) The new position, and the value. 
+--@return (pos, int16) The new position, and the value.
 function unmarshall_int16(data, pos, pad)
-	local value 
+	local value
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int16()"))
 
@@ -870,14 +870,14 @@ function unmarshall_int16(data, pos, pad)
 	return pos, value
 end
 
---- Unmarshall an int8. See <code>marshall_int8</code> for more information. 
+--- Unmarshall an int8. See <code>marshall_int8</code> for more information.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@param pad  [optional] If set, will remove extra bytes to align the packet, Default: true
---@return (pos, int8) The new position, and the value. 
+--@return (pos, int8) The new position, and the value.
 function unmarshall_int8(data, pos, pad)
-	local value 
+	local value
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int8()"))
 
@@ -895,11 +895,11 @@ function unmarshall_int8(data, pos, pad)
 	return pos, value
 end
 
---- Marshall a pointer to an int64. If the pointer is null, it simply marshalls the 
--- integer '0'. Otherwise, it uses a referent id followed by the integer. 
+--- Marshall a pointer to an int64. If the pointer is null, it simply marshalls the
+-- integer '0'. Otherwise, it uses a referent id followed by the integer.
 --
 --@param int64 The value of the integer pointer
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_int64_ptr(int64)
 	local result
 
@@ -912,11 +912,11 @@ end
 
 --- Marshall a pointer to an int32, which has the following format:
 -- <code>     [in,out]   uint32 *ptr</code>
--- If the pointer is null, it simply marshalls the integer '0'. Otherwise, 
--- it uses a referent id followed by the integer. 
+-- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
+-- it uses a referent id followed by the integer.
 --
 --@param int32 The value of the integer pointer
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_int32_ptr(int32)
 	local result
 
@@ -929,12 +929,12 @@ end
 
 --- Marshall a pointer to an int16, which has the following format:
 -- <code>     [in,out]   uint16 *ptr</code>
--- If the pointer is null, it simply marshalls the integer '0'. Otherwise, 
--- it uses a referent id followed by the integer. 
+-- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
+-- it uses a referent id followed by the integer.
 --
 --@param int16 The value of the integer pointer
---@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true. 
---@return A string representing the marshalled data. 
+--@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true.
+--@return A string representing the marshalled data.
 function marshall_int16_ptr(int16, pad)
 	local result
 
@@ -947,12 +947,12 @@ end
 
 --- Marshall a pointer to an int8, which has the following format:
 -- <code>     [in,out]   uint8 *ptr</code>
--- If the pointer is null, it simply marshalls the integer '0'. Otherwise, 
--- it uses a referent id followed by the integer. 
+-- If the pointer is null, it simply marshalls the integer '0'. Otherwise,
+-- it uses a referent id followed by the integer.
 --
 --@param int8 The value of the integer pointer
---@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true. 
---@return A string representing the marshalled data. 
+--@param pad   [optional] If set, will align the insert on 4-byte boundaries. Default: true.
+--@return A string representing the marshalled data.
 function marshall_int8_ptr(int8, pad)
 	local result
 
@@ -963,11 +963,11 @@ function marshall_int8_ptr(int8, pad)
 	return result
 end
 
---- Unmarshall a pointer to an int32. See <code>marshall_int32_ptr</code> for more information. 
+--- Unmarshall a pointer to an int32. See <code>marshall_int32_ptr</code> for more information.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, int32) The new position, and the value. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, int32) The new position, and the value.
 function unmarshall_int32_ptr(data, pos)
 	local result
 
@@ -978,12 +978,12 @@ function unmarshall_int32_ptr(data, pos)
 	return pos, result
 end
 
---- Unmarshall a pointer to an int16. See <code>marshall_int16_ptr</code> for more information. 
+--- Unmarshall a pointer to an int16. See <code>marshall_int16_ptr</code> for more information.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@param pad  [optional] If set, will remove extra bytes to align the packet, Default: true
---@return (pos, int16) The new position, and the value. 
+--@return (pos, int16) The new position, and the value.
 function unmarshall_int16_ptr(data, pos, pad)
 	local result
 
@@ -994,12 +994,12 @@ function unmarshall_int16_ptr(data, pos, pad)
 	return pos, result
 end
 
---- Unmarshall a pointer to an int8. See <code>marshall_int8_ptr</code> for more information. 
+--- Unmarshall a pointer to an int8. See <code>marshall_int8_ptr</code> for more information.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@param pad  [optional] If set, will remove extra bytes to align the packet, Default: true
---@return (pos, int8) The new position, and the value. 
+--@return (pos, int8) The new position, and the value.
 function unmarshall_int8_ptr(data, pos, pad)
 	local result
 
@@ -1010,12 +1010,12 @@ function unmarshall_int8_ptr(data, pos, pad)
 	return pos, result
 end
 
---- Marshall an array of int8s, with an optional max_length set. 
+--- Marshall an array of int8s, with an optional max_length set.
 --
---@param data The array to marshall, as a string. Cannot be nil. 
---@param max_length [optional] The maximum length of the buffer. Default: the length of 
---       <code>data</code>. 
---@return A string representing the marshalled data. 
+--@param data The array to marshall, as a string. Cannot be nil.
+--@param max_length [optional] The maximum length of the buffer. Default: the length of
+--       <code>data</code>.
+--@return A string representing the marshalled data.
 function marshall_int8_array(data, max_length)
 	local result = ""
 
@@ -1032,13 +1032,13 @@ function marshall_int8_array(data, max_length)
 	return result
 end
 
---- Unmarshall an array of int8s. 
+--- Unmarshall an array of int8s.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@param pad  [optional] If set to true, will align data on 4-byte boundaries. Default:
---            true. 
---@return (pos, str) The position, and the resulting string, which cannot be nil. 
+--            true.
+--@return (pos, str) The position, and the resulting string, which cannot be nil.
 function unmarshall_int8_array(data, pos, pad)
 	local max, offset, actual
 	local str
@@ -1067,12 +1067,12 @@ function unmarshall_int8_array(data, pos, pad)
 	return pos, str
 end
 
---- Marshall a pointer to an array of int8s. 
+--- Marshall a pointer to an array of int8s.
 --
---@param data The array to marshall, as a string. Can be nil. 
---@param max_length [optional] The maximum length of the buffer. Default: the length of 
---       <code>data</code>. 
---@return A string representing the marshalled data. 
+--@param data The array to marshall, as a string. Can be nil.
+--@param max_length [optional] The maximum length of the buffer. Default: the length of
+--       <code>data</code>.
+--@return A string representing the marshalled data.
 function marshall_int8_array_ptr(data, max_length)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_int8_array_ptr()"))
@@ -1084,13 +1084,13 @@ function marshall_int8_array_ptr(data, max_length)
 end
 
 --- Unmarshall a pointer to an array of int8s. By default, aligns the result to 4-byte
---  boundaries. 
+--  boundaries.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@param pad  [optional] If set to true, will align data on 4-byte boundaries. Default:
---            true. 
---@return (pos, str) The position, and the resulting string, which cannot be nil. 
+--            true.
+--@return (pos, str) The position, and the resulting string, which cannot be nil.
 function unmarshall_int8_array_ptr(data, pos, pad)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int8_array_ptr()"))
@@ -1101,11 +1101,11 @@ function unmarshall_int8_array_ptr(data, pos, pad)
 	return pos, str
 end
 
---- Unmarshall an array of int32s. 
+--- Unmarshall an array of int32s.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The position, and the resulting string, which cannot be nil. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The position, and the resulting string, which cannot be nil.
 function unmarshall_int32_array(data, pos, count)
 	local maxcount
 	local result = {}
@@ -1121,9 +1121,9 @@ end
 
 --- Unmarshall a pointer to an array of int32s.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The position, and the resulting string, which cannot be nil. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The position, and the resulting string, which cannot be nil.
 function unmarshall_int32_array_ptr(data, pos)
 	local count, array
 
@@ -1136,12 +1136,12 @@ end
 ---Marshalls an NTTIME. This is sent as the number of 1/10 microseconds since 1601; however
 -- the internal representation is the number of seconds since 1970. Because doing conversions
 -- in code is annoying, the user will never have to understand anything besides seconds since
--- 1970. 
+-- 1970.
 --
---@param time The time, in seconds since 1970. 
---@return A string representing the marshalled data. 
+--@param time The time, in seconds since 1970.
+--@return A string representing the marshalled data.
 function marshall_NTTIME(time)
-	local result 
+	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_NTTIME()"))
 
 	if(time == 0) then
@@ -1154,11 +1154,11 @@ function marshall_NTTIME(time)
 	return result
 end
 
----Unmarshalles an NTTIME. See <code>marshall_NTTIME</code> for more information. 
+---Unmarshalles an NTTIME. See <code>marshall_NTTIME</code> for more information.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, time) The new position, and the time in seconds since 1970. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, time) The new position, and the time in seconds since 1970.
 function unmarshall_NTTIME(data, pos)
 	local time
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_NTTIME()"))
@@ -1176,10 +1176,10 @@ function unmarshall_NTTIME(data, pos)
 	return pos, time
 end
 
----Marshalls an NTTIME*. 
+---Marshalls an NTTIME*.
 --
---@param time The time, in seconds since 1970. 
---@return A string representing the marshalled data. 
+--@param time The time, in seconds since 1970.
+--@return A string representing the marshalled data.
 function marshall_NTTIME_ptr(time)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_NTTIME_ptr()"))
@@ -1190,11 +1190,11 @@ function marshall_NTTIME_ptr(time)
 	return result
 end
 
----Unmarshalles an <code>NTTIME*</code>. 
+---Unmarshalles an <code>NTTIME*</code>.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, time) The new position, and the time in seconds since 1970. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, time) The new position, and the time in seconds since 1970.
 function unmarshall_NTTIME_ptr(data, pos)
 	local time
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_NTTIME_ptr()"))
@@ -1205,7 +1205,7 @@ function unmarshall_NTTIME_ptr(data, pos)
 	return pos, time
 end
 
----Unmarshall a SYSTEMTIME structure, converting it to a standard representation. The structure is a 
+---Unmarshall a SYSTEMTIME structure, converting it to a standard representation. The structure is a
 -- follows:
 --
 -- <code>
@@ -1221,9 +1221,9 @@ end
 --	 } SYSTEMTIME
 -- </code>
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, time) The new position, and the time in seconds since 1970. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, time) The new position, and the time in seconds since 1970.
 function unmarshall_SYSTEMTIME(data, pos)
 	local date = {}
     local _
@@ -1237,12 +1237,12 @@ function unmarshall_SYSTEMTIME(data, pos)
 end
 
 ---Unmarshalls a <code>hyper</code>. I have no idea what a <code>hyper</code> is, just that it seems
--- to be a 64-bit data type used for measuring time, and that the units happen to be negative 
--- microseconds. This function converts the value to seconds and returns it. 
+-- to be a 64-bit data type used for measuring time, and that the units happen to be negative
+-- microseconds. This function converts the value to seconds and returns it.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, val) The new position, and the result in seconds. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, val) The new position, and the result in seconds.
 function unmarshall_hyper(data, pos)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_hyper()"))
@@ -1256,12 +1256,12 @@ end
 
 ---Marshall an entry in a table. Basically, converts the string to a number based on the entries in
 -- <code>table</code> before sending. Multiple values can be ORed together (like flags) by separating
--- them with pipes ("|"). 
+-- them with pipes ("|").
 --
---@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C". 
---@param table The table to use for lookups. The keys should be the names, and the values should be 
---             the numbers. 
---@return A string representing the marshalled data. 
+--@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C".
+--@param table The table to use for lookups. The keys should be the names, and the values should be
+--             the numbers.
+--@return A string representing the marshalled data.
 local function marshall_Enum32(val, table)
 	local result = 0
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_Enum32()"))
@@ -1272,7 +1272,7 @@ local function marshall_Enum32(val, table)
 	for i = 1, #vals, 1 do
 		result = bit.bor(result, table[vals[i]])
 	end
-	
+
 	result = marshall_int32(result)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_Enum32()"))
@@ -1280,14 +1280,14 @@ local function marshall_Enum32(val, table)
 end
 
 ---Unmarshall an entry in a table. Basically, converts the next int32 in the buffer to a string
--- based on the entries in <code>table</code> before returning. 
+-- based on the entries in <code>table</code> before returning.
 --
---@param data    The data packet. 
---@param pos     The position within the data. 
---@param table   The table to use for lookups. The keys should be the names, and the values should be 
---               the numbers. 
---@param default The default value to return if the lookup was unsuccessful. 
---@return (pos, policy_handle) The new position, and a table representing the policy_handle. 
+--@param data    The data packet.
+--@param pos     The position within the data.
+--@param table   The table to use for lookups. The keys should be the names, and the values should be
+--               the numbers.
+--@param default The default value to return if the lookup was unsuccessful.
+--@return (pos, policy_handle) The new position, and a table representing the policy_handle.
 local function unmarshall_Enum32(data, pos, table, default)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_Enum32()"))
 
@@ -1308,15 +1308,15 @@ local function unmarshall_Enum32(data, pos, table, default)
 end
 
 ---Unmarshall an entry in a table. Basically, converts the next int16 in the buffer to a string
--- based on the entries in <code>table</code> before returning. 
+-- based on the entries in <code>table</code> before returning.
 --
---@param data    The data packet. 
---@param pos     The position within the data. 
---@param table   The table to use for lookups. The keys should be the names, and the values should be 
---               the numbers. 
---@param default The default value to return if the lookup was unsuccessful. 
---@param pad     [optional] If set, will ensure that we end up on an even multiple of 4. Default: true. 
---@return (pos, policy_handle) The new position, and a table representing the policy_handle. 
+--@param data    The data packet.
+--@param pos     The position within the data.
+--@param table   The table to use for lookups. The keys should be the names, and the values should be
+--               the numbers.
+--@param default The default value to return if the lookup was unsuccessful.
+--@param pad     [optional] If set, will ensure that we end up on an even multiple of 4. Default: true.
+--@return (pos, policy_handle) The new position, and a table representing the policy_handle.
 local function unmarshall_Enum16(data, pos, table, default, pad)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_Enum16()"))
 
@@ -1338,13 +1338,13 @@ end
 
 ---Marshall an entry in a table. Basically, converts the string to a number based on the entries in
 -- <code>table</code> before sending. Multiple values can be ORed together (like flags) by separating
--- them with pipes ("|"). 
+-- them with pipes ("|").
 --
---@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C". 
---@param table The table to use for lookups. The keys should be the names, and the values should be 
---             the numbers. 
---@param pad [optional] If set, will ensure that we end up on an even multiple of 4. Default: true. 
---@return A string representing the marshalled data. 
+--@param val The value to look up. Can be multiple values with pipes between, eg, "A|B|C".
+--@param table The table to use for lookups. The keys should be the names, and the values should be
+--             the numbers.
+--@param pad [optional] If set, will ensure that we end up on an even multiple of 4. Default: true.
+--@return A string representing the marshalled data.
 local function marshall_Enum8(val, table, pad)
 	local result = 0
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_Enum8()"))
@@ -1355,7 +1355,7 @@ local function marshall_Enum8(val, table, pad)
 	for i = 1, #vals, 1 do
 		result = bit.bor(result, table[vals[i]])
 	end
-	
+
 	result = marshall_int8(result, pad)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_Enum8()"))
@@ -1366,11 +1366,11 @@ end
 
 ---Similar to <code>unmarshall_Enum32</code>, except it'll return every value that could be ANDed together to
 -- create the resulting value (except a 0 value). This is effective for parsing flag data types.
---@param data    The data packet. 
---@param pos     The position within the data. 
---@param table   The table to use for lookups. The keys should be the names, and the values should be 
---               the numbers. 
---@return (pos, array) The new position, and a table representing the enumeration values. 
+--@param data    The data packet.
+--@param pos     The position within the data.
+--@param table   The table to use for lookups. The keys should be the names, and the values should be
+--               the numbers.
+--@return (pos, array) The new position, and a table representing the enumeration values.
 local function unmarshall_Enum32_array(data, pos, table)
 	local array = {}
 	local i, v
@@ -1389,11 +1389,11 @@ local function unmarshall_Enum32_array(data, pos, table)
 	return pos, array
 end
 
----Unmarshall raw data. 
---@param data    The data packet. 
---@param pos     The position within the data. 
---@param length  The number of bytes to unmarshall. 
---@return (pos, data) The new position in the packet, and a string representing the raw data. 
+---Unmarshall raw data.
+--@param data    The data packet.
+--@param pos     The position within the data.
+--@param length  The number of bytes to unmarshall.
+--@return (pos, data) The new position in the packet, and a string representing the raw data.
 function unmarshall_raw(data, pos, length)
 	local val
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_raw()"))
@@ -1425,8 +1425,8 @@ end
 --	} GUID;
 --</code>
 --
---@param guid A table representing the GUID. 
---@return A string representing the marshalled data. 
+--@param guid A table representing the GUID.
+--@return A string representing the marshalled data.
 local function marshall_guid(guid)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_guid()"))
@@ -1437,10 +1437,10 @@ local function marshall_guid(guid)
 	return result
 end
 
----Unmarshalls a GUID. See <code>marshall_guid</code> for the structure. 
+---Unmarshalls a GUID. See <code>marshall_guid</code> for the structure.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_guid(data, pos)
 	local guid = {}
@@ -1464,8 +1464,8 @@ end
 --	} policy_handle;
 --</code>
 --
---@param policy_handle The policy_handle to marshall. 
---@return A string representing the marshalled data. 
+--@param policy_handle The policy_handle to marshall.
+--@return A string representing the marshalled data.
 function marshall_policy_handle(policy_handle)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_policy_handle()"))
@@ -1478,8 +1478,8 @@ end
 
 ---Unmarshalls a policy_handle. See <code>marshall_policy_handle</code> for the structure.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_policy_handle(data, pos)
 	local policy_handle = {}
@@ -1508,8 +1508,8 @@ end
 --    } dom_sid;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_dom_sid2(data, pos)
 	local i
@@ -1542,10 +1542,10 @@ function unmarshall_dom_sid2(data, pos)
 end
 
 ---Unmarshall a pointer to a <code>dom_sid2</code> struct. See the <code>unmarshall_dom_sid2</code> function
--- for more information. 
+-- for more information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_dom_sid2_ptr(data, pos)
 	return unmarshall_ptr(ALL, data, pos, unmarshall_dom_sid2, {})
@@ -1562,7 +1562,7 @@ end
 --    } dom_sid;
 --</code>
 --
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_dom_sid2(sid)
 	local i
 	local pos_next
@@ -1625,7 +1625,7 @@ end
 
 ---A <code>lsa_String</code> is a buffer that holds a non-null-terminated string. It can have a max size that's different
 -- from its actual size. I tagged this one as "internal" because I don't want the user to have to provide
--- a "location". 
+-- a "location".
 --
 -- This is the format:
 --
@@ -1638,14 +1638,14 @@ end
 --</code>
 --
 --@param location   The part of the pointer wanted, either HEAD (for the referent_id), BODY
---                  (for the pointer data), or ALL (for both together). Generally, unless the 
---                  referent_id is split from the data (for example, in an array), you will want 
---                  ALL. 
+--                  (for the pointer data), or ALL (for both together). Generally, unless the
+--                  referent_id is split from the data (for example, in an array), you will want
+--                  ALL.
 --@param str        The string to marshall
---@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator. 
---                  Defaults to the length of the string, including the null. 
---@param do_null    [optional] Appends a null to the end of the string. Default false. 
---@return A string representing the marshalled data. 
+--@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator.
+--                  Defaults to the length of the string, including the null.
+--@param do_null    [optional] Appends a null to the end of the string. Default false.
+--@return A string representing the marshalled data.
 local function marshall_lsa_String_internal(location, str, max_length, do_null)
 	local length
 	local result = ""
@@ -1682,19 +1682,19 @@ local function marshall_lsa_String_internal(location, str, max_length, do_null)
 	return result
 end
 
----Unmarshall a <code>lsa_String</code> value. See <code>marshall_lsa_String_internal</code> for more information. 
+---Unmarshall a <code>lsa_String</code> value. See <code>marshall_lsa_String_internal</code> for more information.
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data packet. 
---@param pos      The position within the data. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data packet.
+--@param pos      The position within the data.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
---@return (pos, str) The new position, and the unmarshalled string. 
+--                anything.
+--@return (pos, str) The new position, and the unmarshalled string.
 local function unmarshall_lsa_String_internal(location, data, pos, result)
 	local length, size
 	local str
@@ -1715,13 +1715,13 @@ local function unmarshall_lsa_String_internal(location, data, pos, result)
 	return pos, str
 end
 
----Public version of <code>marshall_lsa_String_internal</code> -- see that function on that for more information. 
--- This version doesn't require a <code>location</code>, so it's suitable to be a public function. 
+---Public version of <code>marshall_lsa_String_internal</code> -- see that function on that for more information.
+-- This version doesn't require a <code>location</code>, so it's suitable to be a public function.
 --
 --@param str        The string to marshall
---@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator. 
---                  Defaults to the length of the string, including the null. 
---@return A string representing the marshalled data. 
+--@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator.
+--                  Defaults to the length of the string, including the null.
+--@return A string representing the marshalled data.
 function marshall_lsa_String(str, max_length)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_String()"))
@@ -1732,11 +1732,11 @@ function marshall_lsa_String(str, max_length)
 	return result
 end
 
----Marshall an array of lsa_String objects. This is a perfect demonstration of how to use 
--- <code>marshall_array</code>. 
+---Marshall an array of lsa_String objects. This is a perfect demonstration of how to use
+-- <code>marshall_array</code>.
 --
 --@param strings The array of strings to marshall
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_lsa_String_array(strings)
 	local array = {}
 	local result
@@ -1777,8 +1777,8 @@ function marshall_lsa_String_array2(strings)
 	return result
 end
 
----Table of SID types. 
-local lsa_SidType = 
+---Table of SID types.
+local lsa_SidType =
 {
 	SID_NAME_USE_NONE = 0, -- NOTUSED
 	SID_NAME_USER     = 1, -- user
@@ -1792,7 +1792,7 @@ local lsa_SidType =
 	SID_NAME_COMPUTER = 9  -- machine
 }
 ---String versions of SID types
-local lsa_SidType_str = 
+local lsa_SidType_str =
 {
 	SID_NAME_USE_NONE = "n/a",
 	SID_NAME_USER     = "User",
@@ -1805,12 +1805,12 @@ local lsa_SidType_str =
 	SID_NAME_UNKNOWN  = "Unknown account",
 	SID_NAME_COMPUTER = "Machine"
 }
----Marshall a <code>lsa_SidType</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>lsa_SidType</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param sid_type The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_lsa_SidType(sid_type)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_SidType()"))
@@ -1821,11 +1821,11 @@ function marshall_lsa_SidType(sid_type)
 	return result
 end
 
----Unmarshall a <code>lsa_SidType</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>lsa_SidType</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_lsa_SidType(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_SidType()"))
@@ -1837,10 +1837,10 @@ function unmarshall_lsa_SidType(data, pos)
 end
 
 ---Convert a <code>lsa_SidType</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function lsa_SidType_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering lsa_SidType_tostr()"))
@@ -1851,8 +1851,8 @@ function lsa_SidType_tostr(val)
 	return result
 end
 
----LSA name levels. 
-local lsa_LookupNamesLevel = 
+---LSA name levels.
+local lsa_LookupNamesLevel =
 {
 	LOOKUP_NAMES_ALL                  = 1,
 	LOOKUP_NAMES_DOMAINS_ONLY         = 2,
@@ -1861,8 +1861,8 @@ local lsa_LookupNamesLevel =
 	LOOKUP_NAMES_FOREST_TRUSTS_ONLY   = 5,
 	LOOKUP_NAMES_UPLEVEL_TRUSTS_ONLY2 = 6
 }
----LSA name level strings. 
-local lsa_LookupNamesLevel_str = 
+---LSA name level strings.
+local lsa_LookupNamesLevel_str =
 {
 	LOOKUP_NAMES_ALL                  = "All",
 	LOOKUP_NAMES_DOMAINS_ONLY         = "Domains only",
@@ -1871,12 +1871,12 @@ local lsa_LookupNamesLevel_str =
 	LOOKUP_NAMES_FOREST_TRUSTS_ONLY   = "Forest trusted domains only",
 	LOOKUP_NAMES_UPLEVEL_TRUSTS_ONLY2 = "Uplevel trusted domains only (2)"
 }
----Marshall a <code>lsa_LookupNamesLevel</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>lsa_LookupNamesLevel</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param names_level The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_lsa_LookupNamesLevel(names_level)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_LookupNamesLevel()"))
@@ -1887,11 +1887,11 @@ function marshall_lsa_LookupNamesLevel(names_level)
 	return result
 end
 
----Unmarshall a <code>lsa_LookupNamesLevel</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>lsa_LookupNamesLevel</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_lsa_LookupNamesLevel(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_LookupNamesLevel()"))
@@ -1903,10 +1903,10 @@ function unmarshall_lsa_LookupNamesLevel(data, pos)
 end
 
 ---Convert a <code>lsa_LookupNamesLevel</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function lsa_LookupNamesLevel_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering lsa_LookupNamesLevel_tostr()"))
@@ -1929,14 +1929,14 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
 --@param sid_type  The <code>sid_type</code> value (I don't know what this means)
 --@param rid       The <code>rid</code> (a number representing the user)
 --@param sid_index The <code>sid_index</code> value (I don't know what this means, either)
---@param unknown   An unknown value (is normaly 0). 
---@return A string representing the marshalled data. 
+--@param unknown   An unknown value (is normaly 0).
+--@return A string representing the marshalled data.
 local function marshall_lsa_TranslatedSid2(location, sid_type, rid, sid_index, unknown)
 	local result = ""
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_TranslatedSid2()"))
@@ -1973,15 +1973,15 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_lsa_TranslatedSid2(location, data, pos, result)
 	if(result == nil) then
@@ -2014,14 +2014,14 @@ end
 --</code>
 --
 --@param location  The part of the pointer wanted, either HEAD (for the data itself), BODY
---                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                 referent_id is split from the data (for example, in an array), you will want 
---                 ALL. 
+--                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                 referent_id is split from the data (for example, in an array), you will want
+--                 ALL.
 --@param sid_type  The <code>sid_type</code> value, as a string
 --@param name      The name of the user
 --@param sid_index The sid_index (I don't know what this is)
 --@param unknown   An unknown value, normally 0
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 local function marshall_lsa_TranslatedName2(location, sid_type, name, sid_index, unknown)
 	local result = ""
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_TranslatedName2()"))
@@ -2048,15 +2048,15 @@ local function marshall_lsa_TranslatedName2(location, sid_type, name, sid_index,
 end
 
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_lsa_TranslatedName2(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_TranslatedName2()"))
@@ -2091,7 +2091,7 @@ end
 --</code>
 --
 --@param sids An array of SIDs to translate (as strings)
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_lsa_TransSidArray2(sids)
 	local result = ""
 	local array = {}
@@ -2122,16 +2122,16 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
---@return (pos, result) The new position in <code>data</code>, and the string value. 
+--                anything.
+--@return (pos, result) The new position in <code>data</code>, and the string value.
 local function unmarshall_lsa_StringLarge(location, data, pos, result)
 	local length, size
 	local str
@@ -2162,15 +2162,15 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_lsa_DomainInfo(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_DomainInfo()"))
@@ -2202,8 +2202,8 @@ end
 --    } lsa_RefDomainList;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_RefDomainList(data, pos)
 	local result = {}
@@ -2222,10 +2222,10 @@ function unmarshall_lsa_RefDomainList(data, pos)
 end
 
 ---Unmarshall a pointer to a <code>lsa_RefDomainList</code>. See the <code>unmarshall_lsa_RefDomainList</code> function
--- for more information. 
+-- for more information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_RefDomainList_ptr(data, pos)
 	local result
@@ -2246,8 +2246,8 @@ end
 --    } lsa_TransSidArray2;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_TransSidArray2(data, pos)
 	local result = {}
@@ -2272,9 +2272,9 @@ end
 --</code>
 --
 -- I didn't bother letting the user specify values, since I don't know what any of them do. The
--- defaults seem to work really well. 
+-- defaults seem to work really well.
 --
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_lsa_QosInfo()
 	local result = ""
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_QosInfo()"))
@@ -2302,9 +2302,9 @@ end
 --</code>
 --
 -- I didn't bother letting the user specify values, since I don't know what any of them do. The
--- defaults seem to work really well. 
+-- defaults seem to work really well.
 --
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_lsa_ObjectAttribute()
 	local result = ""
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_ObjectAttribute()"))
@@ -2329,11 +2329,11 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param sid      The SID to marshall (as a string). 
---@return A string representing the marshalled data. 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param sid      The SID to marshall (as a string).
+--@return A string representing the marshalled data.
 local function marshall_lsa_SidPtr(location, sid)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_SidPtr()"))
@@ -2353,8 +2353,8 @@ end
 --    } lsa_SidArray;
 --</code>
 --
---@param sids The array of SIDs to marshall (as strings). 
---@return A string representing the marshalled data. 
+--@param sids The array of SIDs to marshall (as strings).
+--@return A string representing the marshalled data.
 function marshall_lsa_SidArray(sids)
 	local result = ""
 	local array = {}
@@ -2378,15 +2378,15 @@ end
 --    } lsa_SidPtr;
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_SidPtr(location, data, pos, result)
 	return unmarshall_ptr(location, data, pos, unmarshall_dom_sid2, {}, result)
@@ -2399,8 +2399,8 @@ end
 --        [size_is(num_sids)] lsa_SidPtr *sids;
 --    } lsa_SidArray;
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_SidArray(data, pos)
 	local sidarray = {}
@@ -2420,8 +2420,8 @@ end
 --    } lsa_TransNameArray2;
 --</code>
 --
---@param names An array of names to translate. 
---@return A string representing the marshalled data. 
+--@param names An array of names to translate.
+--@return A string representing the marshalled data.
 function marshall_lsa_TransNameArray2(names)
 	local result = ""
 	local array = {}
@@ -2447,10 +2447,10 @@ function marshall_lsa_TransNameArray2(names)
 end
 
 ---Unmarshall a <code>lsa_TransNameArray2</code> structure. See the <code>marshall_lsa_TransNameArray2</code> for more
--- information. 
+-- information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_lsa_TransNameArray2(data, pos)
 	local result = {}
@@ -2470,7 +2470,7 @@ end
 -- (dependencies: LSA, INITSHUTDOWN, SECURITY)
 -------------------------------------
 --- Access masks for Windows registry calls
-local winreg_AccessMask = 
+local winreg_AccessMask =
 {
 	DELETE_ACCESS          = 0x00010000,
 	READ_CONTROL_ACCESS    = 0x00020000,
@@ -2502,11 +2502,11 @@ local winreg_AccessMask_str =
 	GENERIC_READ_ACCESS    = "Read access"
 }
 
----Marshall a <code>winreg_AccessMask</code>. 
+---Marshall a <code>winreg_AccessMask</code>.
 --
 --@param accessmask The access mask as a string (see the <code>winreg_AccessMask</code>
 --                  table)
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 function marshall_winreg_AccessMask(accessmask)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_winreg_AccessMask()"))
@@ -2517,11 +2517,11 @@ function marshall_winreg_AccessMask(accessmask)
 	return result
 end
 
----Unmarshall a <code>winreg_AccessMask</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>winreg_AccessMask</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_winreg_AccessMask(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_winreg_AccessMask()"))
@@ -2533,10 +2533,10 @@ function unmarshall_winreg_AccessMask(data, pos)
 end
 
 ---Convert a <code>winreg_AccessMask</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function winreg_AccessMask_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering winreg_AccessMask_tostr()"))
@@ -2548,7 +2548,7 @@ function winreg_AccessMask_tostr(val)
 end
 
 ---Registry types
-winreg_Type = 
+winreg_Type =
 {
 	REG_NONE                       = 0,
 	REG_SZ                         = 1,
@@ -2565,7 +2565,7 @@ winreg_Type =
 }
 
 ---Registry type strings
-winreg_Type_str = 
+winreg_Type_str =
 {
 	REG_NONE                       = "None",
 	REG_SZ                         = "String",
@@ -2581,12 +2581,12 @@ winreg_Type_str =
 	REG_QWORD                      = "Qword"
 }
 
----Marshall a <code>winreg_Type</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>winreg_Type</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param winregtype The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_winreg_Type(winregtype)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_winreg_Type()"))
@@ -2597,11 +2597,11 @@ function marshall_winreg_Type(winregtype)
 	return result
 end
 
----Unmarshall a <code>winreg_Type</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>winreg_Type</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_winreg_Type(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_winreg_Type()"))
@@ -2612,12 +2612,12 @@ function unmarshall_winreg_Type(data, pos)
 	return pos, str
 end
 
----Marshall a pointer to a <code>winreg_Type</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a pointer to a <code>winreg_Type</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param winreg_type The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_winreg_Type_ptr(winreg_type)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_winreg_Type_ptr()"))
@@ -2628,11 +2628,11 @@ function marshall_winreg_Type_ptr(winreg_type)
 	return result
 end
 
----Unmarshall a pointer to a <code>winreg_Type</code>. This datatype is tied to the table with that name. 
+---Unmarshall a pointer to a <code>winreg_Type</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_winreg_Type_ptr(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_winreg_Type_ptr()"))
@@ -2644,10 +2644,10 @@ function unmarshall_winreg_Type_ptr(data, pos)
 end
 
 ---Convert a <code>winreg_Type</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function winreg_Type_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering winreg_Type_tostr()"))
@@ -2659,22 +2659,22 @@ function winreg_Type_tostr(val)
 end
 
 --- A winreg_stringbuf is a buffer that holds a null-terminated string. It can have a max size that's different
---  from its actual size. 
+--  from its actual size.
 --
 -- This is the format:
 --
 --<code>
 --	typedef struct {
---		[value(strlen_m_term(name)*2)] uint16 length; 
+--		[value(strlen_m_term(name)*2)] uint16 length;
 --		uint16 size;
 --		[size_is(size/2),length_is(length/2),charset(UTF16)] uint16 *name;
 --	} winreg_StringBuf;
 --</code>
 --
---@param table The table to marshall. Will probably contain just the 'name' entry. 
---@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator. 
---                  Defaults to the length of the string, including the null. 
---@return A string representing the marshalled data. 
+--@param table The table to marshall. Will probably contain just the 'name' entry.
+--@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator.
+--                  Defaults to the length of the string, including the null.
+--@return A string representing the marshalled data.
 function marshall_winreg_StringBuf(table, max_length)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_winreg_StringBuf()"))
@@ -2709,11 +2709,11 @@ function marshall_winreg_StringBuf(table, max_length)
 	return result
 end
 
----Unmarshall a winreg_StringBuf buffer. 
+---Unmarshall a winreg_StringBuf buffer.
 --
---@param data   The data buffer. 
---@param pos    The position in the data buffer. 
---@return (pos, str) The new position and the string. 
+--@param data   The data buffer.
+--@param pos    The position in the data buffer.
+--@return (pos, str) The new position and the string.
 function unmarshall_winreg_StringBuf(data, pos)
 	local length, size
 	local str
@@ -2729,11 +2729,11 @@ function unmarshall_winreg_StringBuf(data, pos)
 end
 
 ---Marshall a winreg_StringBuffer pointer. Same as <code>marshall_winreg_StringBuf</code>, except
--- the string can be <code>nil</code>. 
+-- the string can be <code>nil</code>.
 --
 --@param table The table representing the String.
---@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null. 
---@return A string representing the marshalled data. 
+--@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null.
+--@return A string representing the marshalled data.
 function marshall_winreg_StringBuf_ptr(table, max_length)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_winreg_StringBuf_ptr()"))
@@ -2746,9 +2746,9 @@ end
 
 ---Unmarshall a winreg_StringBuffer pointer
 --
---@param data   The data buffer. 
---@param pos    The position in the data buffer. 
---@return (pos, str) The new position and the string. 
+--@param data   The data buffer.
+--@param pos    The position in the data buffer.
+--@return (pos, str) The new position and the string.
 function unmarshall_winreg_StringBuf_ptr(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_winreg_StringBuf_ptr()"))
@@ -2760,11 +2760,11 @@ function unmarshall_winreg_StringBuf_ptr(data, pos)
 end
 
 
---- A winreg_String has the same makup as a winreg_StringBuf, as far as I can tell, so delegate to that function. 
+--- A winreg_String has the same makup as a winreg_StringBuf, as far as I can tell, so delegate to that function.
 --
---@param table The table representing the String. 
---@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null. 
---@return A string representing the marshalled data. 
+--@param table The table representing the String.
+--@param max_length [optional] The maximum size of the buffer, in characters. Defaults to the length of the string, including the null.
+--@return A string representing the marshalled data.
 function marshall_winreg_String(table, max_length)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_winreg_String()"))
@@ -2775,11 +2775,11 @@ function marshall_winreg_String(table, max_length)
 	return result
 end
 
----Unmarshall a winreg_String. Since ti has the same makup as winreg_StringBuf, delegate to that.  
+---Unmarshall a winreg_String. Since ti has the same makup as winreg_StringBuf, delegate to that.
 --
---@param data   The data buffer. 
---@param pos    The position in the data buffer. 
---@return (pos, str) The new position and the string. 
+--@param data   The data buffer.
+--@param pos    The position in the data buffer.
+--@return (pos, str) The new position and the string.
 function unmarshall_winreg_String(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_winreg_String()"))
@@ -2796,7 +2796,7 @@ end
 -- (dependencies: SECURITY, SVCCTL)
 -------------------------------------
 ---Share types
-local srvsvc_ShareType = 
+local srvsvc_ShareType =
 {
 	STYPE_DISKTREE           = 0x00000000,
 	STYPE_DISKTREE_TEMPORARY = 0x40000000,
@@ -2804,10 +2804,10 @@ local srvsvc_ShareType =
 	STYPE_PRINTQ             = 0x00000001,
 	STYPE_PRINTQ_TEMPORARY   = 0x40000001,
 	STYPE_PRINTQ_HIDDEN      = 0x80000001,
-	STYPE_DEVICE             = 0x00000002, -- Serial device 
+	STYPE_DEVICE             = 0x00000002, -- Serial device
 	STYPE_DEVICE_TEMPORARY   = 0x40000002,
 	STYPE_DEVICE_HIDDEN      = 0x80000002,
-	STYPE_IPC                = 0x00000003, -- Interprocess communication (IPC) 
+	STYPE_IPC                = 0x00000003, -- Interprocess communication (IPC)
 	STYPE_IPC_TEMPORARY      = 0x40000003,
 	STYPE_IPC_HIDDEN         = 0x80000003
 }
@@ -2828,12 +2828,12 @@ local srvsvc_ShareType_str =
 	STYPE_IPC_HIDDEN         = "Interprocess Communication (hidden)"
 }
 
----Marshall a <code>srvsvc_ShareType</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>srvsvc_ShareType</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param sharetype The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_srvsvc_ShareType(sharetype)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_ShareType()"))
@@ -2844,11 +2844,11 @@ function marshall_srvsvc_ShareType(sharetype)
 	return result
 end
 
----Unmarshall a <code>srvsvc_ShareType</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>srvsvc_ShareType</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_srvsvc_ShareType(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_ShareType()"))
@@ -2860,12 +2860,12 @@ function unmarshall_srvsvc_ShareType(data, pos)
 end
 
 ---Convert a <code>srvsvc_ShareType</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function srvsvc_ShareType_tostr(val)
-	local result 
+	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering srvsvc_ShareType_tostr()"))
 
 	result = srvsvc_ShareType_str[val]
@@ -2874,7 +2874,7 @@ function srvsvc_ShareType_tostr(val)
 	return result
 end
 
----Marshall a NetShareInfo type 0, which is just a name. 
+---Marshall a NetShareInfo type 0, which is just a name.
 --
 --<code>
 --    typedef struct {
@@ -2883,11 +2883,11 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param name     The name to marshall. 
---@return A string representing the marshalled data. 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param name     The name to marshall.
+--@return A string representing the marshalled data.
 local function marshall_srvsvc_NetShareInfo0(location, name)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_NetShareInfo0()"))
@@ -2898,18 +2898,18 @@ local function marshall_srvsvc_NetShareInfo0(location, name)
 	return result
 end
 
----Unmarshall a NetShareInfo type 0, which is just a name. See the marshall function for more information. 
+---Unmarshall a NetShareInfo type 0, which is just a name. See the marshall function for more information.
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data   The data packet. 
---@param pos    The position within the data. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data   The data packet.
+--@param pos    The position within the data.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_srvsvc_NetShareInfo0(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_NetShareInfo0()"))
@@ -2929,7 +2929,7 @@ local function unmarshall_srvsvc_NetShareInfo0(location, data, pos, result)
 	return pos, result
 end
 
----Marshall a NetShareInfo type 1, which is the name and a few other things. 
+---Marshall a NetShareInfo type 1, which is the name and a few other things.
 --
 --<code>
 --    typedef struct {
@@ -2940,13 +2940,13 @@ end
 --</code>
 --
 --@param location  The part of the pointer wanted, either HEAD (for the data itself), BODY
---                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                 referent_id is split from the data (for example, in an array), you will want 
---                 ALL. 
---@param name      The name to marshall. 
---@param sharetype The sharetype to marshall (as a string). 
---@param comment   The comment to marshall. 
---@return A string representing the marshalled data. 
+--                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                 referent_id is split from the data (for example, in an array), you will want
+--                 ALL.
+--@param name      The name to marshall.
+--@param sharetype The sharetype to marshall (as a string).
+--@param comment   The comment to marshall.
+--@return A string representing the marshalled data.
 local function marshall_srvsvc_NetShareInfo1(location, name, sharetype, comment)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_NetShareInfo1()"))
@@ -2960,19 +2960,19 @@ local function marshall_srvsvc_NetShareInfo1(location, name, sharetype, comment)
 	return result
 end
 
----Unmarshall a NetShareInfo type 1, which is a name and a couple other things. See the marshall 
--- function for more information. 
+---Unmarshall a NetShareInfo type 1, which is a name and a couple other things. See the marshall
+-- function for more information.
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data packet. 
---@param pos      The position within the data. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data packet.
+--@param pos      The position within the data.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_srvsvc_NetShareInfo1(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_NetShareInfo1()"))
@@ -2996,7 +2996,7 @@ local function unmarshall_srvsvc_NetShareInfo1(location, data, pos, result)
 end
 
 
----Marshall a NetShareInfo type 2, which is the name and a few other things. 
+---Marshall a NetShareInfo type 2, which is the name and a few other things.
 --
 --<code>
 --    typedef struct {
@@ -3012,18 +3012,18 @@ end
 --</code>
 --
 --@param location      The part of the pointer wanted, either HEAD (for the data itself), BODY
---                     (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                     referent_id is split from the data (for example, in an array), you will want 
---                     ALL. 
---@param name          The name to marshall. 
---@param sharetype     The sharetype to marshall (as a string). 
---@param comment       The comment to marshall. 
---@param permissions   The permissions, an integer. 
---@param max_users     The max users, an integer. 
+--                     (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                     referent_id is split from the data (for example, in an array), you will want
+--                     ALL.
+--@param name          The name to marshall.
+--@param sharetype     The sharetype to marshall (as a string).
+--@param comment       The comment to marshall.
+--@param permissions   The permissions, an integer.
+--@param max_users     The max users, an integer.
 --@param current_users The current users, an integer.
 --@param path          The path, a string.
 --@param password      The share-level password, a string (never used on Windows).
---@return A string representing the marshalled data. 
+--@return A string representing the marshalled data.
 local function marshall_srvsvc_NetShareInfo2(location, name, sharetype, comment, permissions, max_users, current_users, path, password)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_NetShareInfo2()"))
@@ -3042,19 +3042,19 @@ local function marshall_srvsvc_NetShareInfo2(location, name, sharetype, comment,
 	return result
 end
 
----Unmarshall a NetShareInfo type 2, which is a name and a few other things. See the marshall 
--- function for more information. 
+---Unmarshall a NetShareInfo type 2, which is a name and a few other things. See the marshall
+-- function for more information.
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data packet. 
---@param pos      The position within the data. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data packet.
+--@param pos      The position within the data.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_srvsvc_NetShareInfo2(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_NetShareInfo2()"))
@@ -3093,8 +3093,8 @@ end
 --    } srvsvc_NetShareCtr0;
 --</code>
 --
---@param NetShareCtr0 A table representing the structure. 
---@return A string representing the marshalled data. 
+--@param NetShareCtr0 A table representing the structure.
+--@return A string representing the marshalled data.
 function marshall_srvsvc_NetShareCtr0(NetShareCtr0)
 	local i
 	local result = ""
@@ -3127,10 +3127,10 @@ function marshall_srvsvc_NetShareCtr0(NetShareCtr0)
 	return result
 end
 
----Unmarshall a NetShareCtr (container) type 0. See the marshall function for the definition. 
+---Unmarshall a NetShareCtr (container) type 0. See the marshall function for the definition.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_srvsvc_NetShareCtr0(data, pos)
 	local count
@@ -3154,8 +3154,8 @@ end
 --    } srvsvc_NetShareCtr1;
 --</code>
 --
---@param NetShareCtr1 A table representing the structure. 
---@return A string representing the marshalled data. 
+--@param NetShareCtr1 A table representing the structure.
+--@return A string representing the marshalled data.
 function marshall_srvsvc_NetShareCtr1(NetShareCtr1)
 	local i
 	local result = ""
@@ -3198,8 +3198,8 @@ end
 --    } srvsvc_NetShareCtr2;
 --</code>
 --
---@param NetShareCtr2 A pointer to the structure. 
---@return A string representing the marshalled data. 
+--@param NetShareCtr2 A pointer to the structure.
+--@return A string representing the marshalled data.
 function marshall_srvsvc_NetShareCtr2(NetShareCtr2)
 	local i
 	local result = ""
@@ -3251,14 +3251,14 @@ end
 --    } srvsvc_NetShareCtr;
 --</code>
 --
--- Not all of them are implemented, however; look at the code to see which are implemented (at the 
--- time of this writing, it's 0, 1, and 2). 
+-- Not all of them are implemented, however; look at the code to see which are implemented (at the
+-- time of this writing, it's 0, 1, and 2).
 --
 --@param level The level to request. Different levels will return different results, but also require
---             different access levels to call. 
---@param data  The data to populate the array with. Depending on the level, this data will be different. 
---             For level 0, you'll probably want a table containing array=nil. 
---@return A string representing the marshalled data, or 'nil' if it couldn't be marshalled.  
+--             different access levels to call.
+--@param data  The data to populate the array with. Depending on the level, this data will be different.
+--             For level 0, you'll probably want a table containing array=nil.
+--@return A string representing the marshalled data, or 'nil' if it couldn't be marshalled.
 function marshall_srvsvc_NetShareCtr(level, data)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_NetShareCtr()"))
@@ -3279,12 +3279,12 @@ function marshall_srvsvc_NetShareCtr(level, data)
 end
 
 ---Unmarshall the top-level NetShareCtr. This is a union of a bunch of containers, see the equivalent
--- marshall function for more information; at the time of this writing I've only implemented level = 0. 
+-- marshall function for more information; at the time of this writing I've only implemented level = 0.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. 
---        The result may be <code>nil</code> if there's an error. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
+--        The result may be <code>nil</code> if there's an error.
 function unmarshall_srvsvc_NetShareCtr(data, pos)
 	local level
 	local result
@@ -3321,13 +3321,13 @@ end
 --    } srvsvc_NetShareInfo;
 --</code>
 --
--- Not all of them are implemented, however; look at the code to see which are implemented (at the 
--- time of this writing, it's 0, 1, and 2). 
+-- Not all of them are implemented, however; look at the code to see which are implemented (at the
+-- time of this writing, it's 0, 1, and 2).
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. This may be
---                <code>nil</code> if there was an error. 
+--                <code>nil</code> if there was an error.
 function unmarshall_srvsvc_NetShareInfo(data, pos)
 	local level
 	local result
@@ -3349,7 +3349,7 @@ function unmarshall_srvsvc_NetShareInfo(data, pos)
 	return pos, result
 end
 
----Marshall a NetSessInfo type 10. 
+---Marshall a NetSessInfo type 10.
 --
 --<code>
 --    typedef struct {
@@ -3361,14 +3361,14 @@ end
 --</code>
 --
 --@param location  The part of the pointer wanted, either HEAD (for the data itself), BODY
---                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                 referent_id is split from the data (for example, in an array), you will want 
---                 ALL. 
---@param client    The client string. 
---@param user      The user string. 
---@param time      The number of seconds that the user has been logged on. 
---@param idle_time The number of seconds that the user's been idle. 
---@return A string representing the marshalled data. 
+--                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                 referent_id is split from the data (for example, in an array), you will want
+--                 ALL.
+--@param client    The client string.
+--@param user      The user string.
+--@param time      The number of seconds that the user has been logged on.
+--@param idle_time The number of seconds that the user's been idle.
+--@return A string representing the marshalled data.
 local function marshall_srvsvc_NetSessInfo10(location, client, user, time, idle_time)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_NetShareInfo10()"))
@@ -3383,18 +3383,18 @@ local function marshall_srvsvc_NetSessInfo10(location, client, user, time, idle_
 	return result
 end
 
----Unmarshall a NetSessInfo type 10. For more information, see the marshall function. 
+---Unmarshall a NetSessInfo type 10. For more information, see the marshall function.
 --
 --@param location  The part of the pointer wanted, either HEAD (for the data itself), BODY
---                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                 referent_id is split from the data (for example, in an array), you will want 
---                 ALL. 
---@param data   The data packet. 
---@param pos    The position within the data. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                 (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                 referent_id is split from the data (for example, in an array), you will want
+--                 ALL.
+--@param data   The data packet.
+--@param pos    The position within the data.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_srvsvc_NetSessInfo10(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_srvsvc_NetSessInfo10()"))
@@ -3427,8 +3427,8 @@ end
 --    } srvsvc_NetSessCtr10;
 --</code>
 --
---@param NetSessCtr10 A table representing the structure. 
---@return A string representing the marshalled data. 
+--@param NetSessCtr10 A table representing the structure.
+--@return A string representing the marshalled data.
 function marshall_srvsvc_NetSessCtr10(NetSessCtr10)
 	local i
 	local result = ""
@@ -3461,10 +3461,10 @@ function marshall_srvsvc_NetSessCtr10(NetSessCtr10)
 	return result
 end
 
----Unmarshall a NetSessCtr (session container) type 10. See the marshall function for the definition. 
+---Unmarshall a NetSessCtr (session container) type 10. See the marshall function for the definition.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_srvsvc_NetSessCtr10(data, pos)
 	local count
@@ -3492,13 +3492,13 @@ end
 --    } srvsvc_NetSessCtr;
 --</code>
 --
--- Not all of them are implemented, however; look at the code to see which are implemented (at the 
--- time of this writing, it's just 10). 
+-- Not all of them are implemented, however; look at the code to see which are implemented (at the
+-- time of this writing, it's just 10).
 --
 --@param level The level to request. Different levels will return different results, but also require
---             different access levels to call. 
---@param data  The data to populate the array with. Depending on the level, this data will be different. 
---@return A string representing the marshalled data. 
+--             different access levels to call.
+--@param data  The data to populate the array with. Depending on the level, this data will be different.
+--@return A string representing the marshalled data.
 function marshall_srvsvc_NetSessCtr(level, data)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_srvsvc_NetShareCtr()"))
@@ -3514,12 +3514,12 @@ function marshall_srvsvc_NetSessCtr(level, data)
 	return result
 end
 
----Unmarshall the top-level NetShareCtr. This is a union; see the marshall function for more information. 
+---Unmarshall the top-level NetShareCtr. This is a union; see the marshall function for more information.
 --
---@param data     The data being processed. 
+--@param data     The data being processed.
 --@param pos      The position within <code>data</code>
---@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. Can be 
---                <code>nil</code> if there's an error. 
+--@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. Can be
+--                <code>nil</code> if there's an error.
 function unmarshall_srvsvc_NetSessCtr(data, pos)
 	local level
 	local result
@@ -3563,9 +3563,9 @@ end
 --    } srvsvc_Statistics;
 --</code>
 --
--- Note that Wireshark (at least, the version I'm using, 1.0.3) gets this wrong, so be careful. 
+-- Note that Wireshark (at least, the version I'm using, 1.0.3) gets this wrong, so be careful.
 --
---@param data     The data being processed. 
+--@param data     The data being processed.
 --@param pos      The position within <code>data</code>
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_srvsvc_Statistics(data, pos)
@@ -3595,11 +3595,11 @@ function unmarshall_srvsvc_Statistics(data, pos)
 end
 
 ---Unmarshalls a <code>srvsvc_Statistics</code> as a pointer. Wireshark fails to do this, and ends
--- up parsing the packet wrong, so take care when packetlogging. 
+-- up parsing the packet wrong, so take care when packetlogging.
 --
--- See <code>unmarshall_srvsvc_Statistics</code> for more information. 
+-- See <code>unmarshall_srvsvc_Statistics</code> for more information.
 --
---@param data     The data being processed. 
+--@param data     The data being processed.
 --@param pos      The position within <code>data</code>
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_srvsvc_Statistics_ptr(data, pos)
@@ -3619,7 +3619,7 @@ end
 -- (dependencies: MISC, LSA, SECURITY)
 ----------------------------------
 
-local samr_ConnectAccessMask = 
+local samr_ConnectAccessMask =
 {
 	SAMR_ACCESS_CONNECT_TO_SERVER   = 0x00000001,
 	SAMR_ACCESS_SHUTDOWN_SERVER     = 0x00000002,
@@ -3628,7 +3628,7 @@ local samr_ConnectAccessMask =
 	SAMR_ACCESS_ENUM_DOMAINS        = 0x00000010,
 	SAMR_ACCESS_OPEN_DOMAIN         = 0x00000020
 }
-local samr_ConnectAccessMask_str = 
+local samr_ConnectAccessMask_str =
 {
 	SAMR_ACCESS_CONNECT_TO_SERVER   = "Connect to server",
 	SAMR_ACCESS_SHUTDOWN_SERVER     = "Shutdown server",
@@ -3638,12 +3638,12 @@ local samr_ConnectAccessMask_str =
 	SAMR_ACCESS_OPEN_DOMAIN         = "Open domain"
 }
 
----Marshall a <code>samr_ConnectAccessMask</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>samr_ConnectAccessMask</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param accessmask The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_samr_ConnectAccessMask(accessmask)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_samr_ConnectAccessMask()"))
@@ -3654,10 +3654,10 @@ function marshall_samr_ConnectAccessMask(accessmask)
 	return result
 end
 
----Unmarshall a <code>samr_ConnectAccessMask</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>samr_ConnectAccessMask</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_ConnectAccessMask(data, pos)
 	local result
@@ -3670,12 +3670,12 @@ function unmarshall_samr_ConnectAccessMask(data, pos)
 end
 
 ---Convert a <code>samr_ConnectAccessMask</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function samr_ConnectAccessMask_tostr(val)
-	local result 
+	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering samr_ConnectAccessMask_tostr()"))
 
 	result = samr_ConnectAccessMask_str[val]
@@ -3684,7 +3684,7 @@ function samr_ConnectAccessMask_tostr(val)
 	return result
 end
 
-local samr_DomainAccessMask = 
+local samr_DomainAccessMask =
 {
 	DOMAIN_ACCESS_LOOKUP_INFO_1  = 0x00000001,
 	DOMAIN_ACCESS_SET_INFO_1     = 0x00000002,
@@ -3698,7 +3698,7 @@ local samr_DomainAccessMask =
 	DOMAIN_ACCESS_OPEN_ACCOUNT   = 0x00000200,
 	DOMAIN_ACCESS_SET_INFO_3     = 0x00000400
 }
-local samr_DomainAccessMask_str = 
+local samr_DomainAccessMask_str =
 {
 	DOMAIN_ACCESS_LOOKUP_INFO_1  = "Lookup info (1)",
 	DOMAIN_ACCESS_SET_INFO_1     = "Set info (1)",
@@ -3713,12 +3713,12 @@ local samr_DomainAccessMask_str =
 	DOMAIN_ACCESS_SET_INFO_3     = "Set info (3)"
 }
 
----Marshall a <code>samr_DomainAccessMask</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>samr_DomainAccessMask</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param accessmask The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_samr_DomainAccessMask(accessmask)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_samr_DomainAccessMask()"))
@@ -3729,10 +3729,10 @@ function marshall_samr_DomainAccessMask(accessmask)
 	return result
 end
 
----Unmarshall a <code>samr_DomainAccessMask</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>samr_DomainAccessMask</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
+--@param data The data packet.
+--@param pos  The position within the data.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomainAccessMask(data, pos)
 	local result
@@ -3745,10 +3745,10 @@ function unmarshall_samr_DomainAccessMask(data, pos)
 end
 
 ---Convert a <code>samr_DomainAccessMask</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function samr_DomainAccessMask_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering samr_DomainAccessMask_tostr()"))
@@ -3759,7 +3759,7 @@ function samr_DomainAccessMask_tostr(val)
 	return result
 end
 
-local samr_AcctFlags = 
+local samr_AcctFlags =
 {
 	ACB_NONE                    = 0x0000000,
 	ACB_DISABLED                = 0x00000001,  -- User account disabled
@@ -3782,7 +3782,7 @@ local samr_AcctFlags =
 	ACB_PW_EXPIRED              = 0x00020000,  -- Password Expired
 	ACB_NO_AUTH_DATA_REQD       = 0x00080000   -- No authorization data required
 }
-local samr_AcctFlags_str = 
+local samr_AcctFlags_str =
 {
 	ACB_NONE                    = "n/a",
 	ACB_DISABLED                = "Account disabled",
@@ -3806,12 +3806,12 @@ local samr_AcctFlags_str =
 	ACB_NO_AUTH_DATA_REQD       = "No authorization data required"
 }
 
----Marshall a <code>samr_AcctFlags</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>samr_AcctFlags</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_samr_AcctFlags(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_samr_AcctFlags()"))
@@ -3822,11 +3822,11 @@ function marshall_samr_AcctFlags(flags)
 	return result
 end
 
----Unmarshall a <code>samr_AcctFlags</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>samr_AcctFlags</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_samr_AcctFlags(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_samr_AcctFlags()"))
@@ -3838,10 +3838,10 @@ function unmarshall_samr_AcctFlags(data, pos)
 end
 
 ---Convert a <code>samr_AcctFlags</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function samr_AcctFlags_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering samr_AcctFlags_tostr()"))
@@ -3852,7 +3852,7 @@ function samr_AcctFlags_tostr(val)
 	return result
 end
 
-local samr_PasswordProperties = 
+local samr_PasswordProperties =
 {
 	DOMAIN_PASSWORD_COMPLEX         = 0x00000001,
 	DOMAIN_PASSWORD_NO_ANON_CHANGE  = 0x00000002,
@@ -3861,7 +3861,7 @@ local samr_PasswordProperties =
 	DOMAIN_PASSWORD_STORE_CLEARTEXT = 0x00000010,
 	DOMAIN_REFUSE_PASSWORD_CHANGE   = 0x00000020
 }
-local samr_PasswordProperties_str = 
+local samr_PasswordProperties_str =
 {
 	DOMAIN_PASSWORD_COMPLEX         = "Complexity requirements exist",
 	DOMAIN_PASSWORD_NO_ANON_CHANGE  = "Must be logged in to change password",
@@ -3871,12 +3871,12 @@ local samr_PasswordProperties_str =
 	DOMAIN_REFUSE_PASSWORD_CHANGE   = "Passwords cannot be changed"
 }
 
----Marshall a <code>samr_PasswordProperties</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>samr_PasswordProperties</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param properties The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_samr_PasswordProperties(properties)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_samr_PasswordProperties()"))
@@ -3887,11 +3887,11 @@ function marshall_samr_PasswordProperties(properties)
 	return result
 end
 
----Unmarshall a <code>samr_PasswordProperties</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>samr_PasswordProperties</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_samr_PasswordProperties(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_samr_PasswordProperties()"))
@@ -3903,10 +3903,10 @@ function unmarshall_samr_PasswordProperties(data, pos)
 end
 
 ---Convert a <code>samr_PasswordProperties</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function samr_PasswordProperties_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering samr_PasswordProperties_tostr()"))
@@ -3928,15 +3928,15 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_samr_SamEntry(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_samr_SamEntry()"))
@@ -3967,8 +3967,8 @@ end
 --    } samr_SamArray;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_SamArray(data, pos)
 	local result = {}
@@ -3982,10 +3982,10 @@ function unmarshall_samr_SamArray(data, pos)
 end
 
 ---Unmarshall a pointer to a <code>samr_SamArray</code> type. See <code>unmarshall_samr_SamArray</code> for
--- more information. 
+-- more information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_SamArray_ptr(data, pos)
 	local result
@@ -4011,15 +4011,15 @@ end
 --</code>
 --
 --@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
---                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
---                referent_id is split from the data (for example, in an array), you will want 
---                ALL. 
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
---@param result   This is required when unmarshalling the BODY section, which always comes after 
---                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the
+--                referent_id is split from the data (for example, in an array), you will want
+--                ALL.
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
+--@param result   This is required when unmarshalling the BODY section, which always comes after
+--                unmarshalling the HEAD. It is the result returned for this parameter during the
 --                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
---                anything. 
+--                anything.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_samr_DispEntryGeneral(location, data, pos, result)
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_samr_DispEntryGeneral()"))
@@ -4056,8 +4056,8 @@ end
 --    } samr_DispInfoGeneral;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DispInfoGeneral(data, pos)
 	local result = {}
@@ -4083,10 +4083,10 @@ end
 --    } samr_DispInfo;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. It may also return
---                <code>nil</code>, if there was an error. 
+--                <code>nil</code>, if there was an error.
 function unmarshall_samr_DispInfo(data, pos)
     local level
     local result
@@ -4118,8 +4118,8 @@ end
 --	} samr_DomInfo1;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomInfo1(data, pos)
 	local result = {}
@@ -4144,8 +4144,8 @@ end
 --	} samr_DomInfo8;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomInfo8(data, pos)
 	local result = {}
@@ -4168,8 +4168,8 @@ end
 --	} samr_DomInfo12;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_samr_DomInfo12(data, pos)
 	local result = {}
@@ -4202,10 +4202,10 @@ end
 --	} samr_DomainInfo;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. May return
---                <code>nil</code> if there was an error. 
+--                <code>nil</code> if there was an error.
 function unmarshall_samr_DomainInfo(data, pos)
     local level
     local result
@@ -4229,12 +4229,12 @@ function unmarshall_samr_DomainInfo(data, pos)
 end
 
 ---Unmarshall a pointer to a <code>samr_DomainInfo</code>. See <code>unmarshall_samr_DomainInfo</code> for
--- more information. 
+-- more information.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. May return
---                <code>nil</code> if there was an error. 
+--                <code>nil</code> if there was an error.
 function unmarshall_samr_DomainInfo_ptr(data, pos)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_samr_DomainInfo_ptr()"))
@@ -4254,10 +4254,10 @@ end
 --    } samr_Ids;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. May return
---                <code>nil</code> if there was an error. 
+--                <code>nil</code> if there was an error.
 function unmarshall_samr_Ids(data, pos)
     local array
 
@@ -4271,7 +4271,7 @@ end
 -- (dependencies: MISC)
 ----------------------------------
 
-local svcctl_ControlCode = 
+local svcctl_ControlCode =
 {
 	SERVICE_CONTROL_CONTINUE       = 0x00000003,
 	SERVICE_CONTROL_INTERROGATE    = 0x00000004,
@@ -4283,7 +4283,7 @@ local svcctl_ControlCode =
 	SERVICE_CONTROL_PAUSE          = 0x00000002,
 	SERVICE_CONTROL_STOP           = 0x00000001,
 }
-local svcctl_ControlCode_str = 
+local svcctl_ControlCode_str =
 {
 	SERVICE_CONTROL_CONTINUE       = "Notifies a paused service that it should resume.",
 	SERVICE_CONTROL_INTERROGATE    = "Notifies a service that it should report its current status information to the service control manager.",
@@ -4297,12 +4297,12 @@ local svcctl_ControlCode_str =
 }
 
 
----Marshall a <code>svcctl_ControlCode</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>svcctl_ControlCode</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_svcctl_ControlCode(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_svcctl_ControlCode()"))
@@ -4313,11 +4313,11 @@ function marshall_svcctl_ControlCode(flags)
 	return result
 end
 
----Unmarshall a <code>svcctl_ControlCode</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>svcctl_ControlCode</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_svcctl_ControlCode(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_svcctl_ControlCode()"))
@@ -4329,10 +4329,10 @@ function unmarshall_svcctl_ControlCode(data, pos)
 end
 
 ---Convert a <code>svcctl_ControlCode</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function svcctl_ControlCode_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering svcctl_ControlCode_tostr()"))
@@ -4355,12 +4355,12 @@ local svcctl_Type =
     SERVICE_TYPE_WIN32               = 0x30
 }
 
----Marshall a <code>svcctl_Type</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>svcctl_Type</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_svcctl_Type(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_svcctl_Type()"))
@@ -4371,11 +4371,11 @@ function marshall_svcctl_Type(flags)
 	return result
 end
 
----Unmarshall a <code>svcctl_Type</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>svcctl_Type</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_svcctl_Type(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_svcctl_Type()"))
@@ -4387,10 +4387,10 @@ function unmarshall_svcctl_Type(data, pos)
 end
 
 --[[Convert a <code>svcctl_Type</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function svcctl_Type_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering svcctl_Type_tostr()"))
@@ -4409,12 +4409,12 @@ local svcctl_State =
     SERVICE_STATE_INACTIVE = 0x02,
     SERVICE_STATE_ALL      = 0x03
 }
----Marshall a <code>svcctl_State</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>svcctl_State</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_svcctl_State(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_svcctl_State()"))
@@ -4425,11 +4425,11 @@ function marshall_svcctl_State(flags)
 	return result
 end
 
----Unmarshall a <code>svcctl_State</code>. This datatype is tied to the table with that name. 
+---Unmarshall a <code>svcctl_State</code>. This datatype is tied to the table with that name.
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, str) The new position, and the string representing the datatype. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, str) The new position, and the string representing the datatype.
 function unmarshall_svcctl_State(data, pos)
 	local str
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_svcctl_State()"))
@@ -4441,10 +4441,10 @@ function unmarshall_svcctl_State(data, pos)
 end
 
 --[[Convert a <code>svcctl_State</code> value to a string that can be shown to the user. This is
--- based on the <code>_str</table> table. 
+-- based on the <code>_str</table> table.
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
---@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found. 
+--@return A string suitable for displaying to the user, or <code>nil</code> if it wasn't found.
 function svcctl_State_tostr(val)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering svcctl_State_tostr()"))
@@ -4471,9 +4471,9 @@ end]]--
 --    } SERVICE_STATUS;
 -- </code>
 --
---@param data The data packet. 
---@param pos  The position within the data. 
---@return (pos, table) The new position, and the table of values. 
+--@param data The data packet.
+--@param pos  The position within the data.
+--@return (pos, table) The new position, and the table of values.
 function unmarshall_SERVICE_STATUS(data, pos)
 	local result = {}
 
@@ -4490,7 +4490,7 @@ end
 
 
 
-local atsvc_DaysOfMonth = 
+local atsvc_DaysOfMonth =
 {
 	First           =       0x00000001,
 	Second          =       0x00000002,
@@ -4525,12 +4525,12 @@ local atsvc_DaysOfMonth =
 	Thirtyfirst     =       0x40000000
 }
 
----Marshall a <code>atsvc_DaysOfMonth</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>atsvc_DaysOfMonth</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_atsvc_DaysOfMonth(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_atsvc_DaysOfMonth()"))
@@ -4550,12 +4550,12 @@ local atsvc_Flags =
 	JOB_ADD_CURRENT_DATE    = 0x08,
 	JOB_NONINTERACTIVE      = 0x10
 }
----Marshall a <code>atsvc_Flags</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>atsvc_Flags</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_atsvc_Flags(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_atsvc_Flags()"))
@@ -4567,7 +4567,7 @@ function marshall_atsvc_Flags(flags)
 end
 
 
-local atsvc_DaysOfWeek = 
+local atsvc_DaysOfWeek =
 {
 	DAYSOFWEEK_MONDAY    = 0x01,
 	DAYSOFWEEK_TUESDAY   = 0x02,
@@ -4577,12 +4577,12 @@ local atsvc_DaysOfWeek =
 	DAYSOFWEEK_SATURDAY  = 0x20,
 	DAYSOFWEEK_SUNDAY    = 0x40
 }
----Marshall a <code>atsvc_DaysOfWeek</code>. This datatype is tied to the table above with that 
--- name. 
+---Marshall a <code>atsvc_DaysOfWeek</code>. This datatype is tied to the table above with that
+-- name.
 --
 --@param flags The value to marshall, as a string
---@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't 
---        found. 
+--@return The marshalled integer representing the given value, or <code>nil</code> if it wasn't
+--        found.
 function marshall_atsvc_DaysOfWeek(flags)
 	local result
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_atsvc_DaysOfWeek()"))
@@ -4605,10 +4605,10 @@ end
 --    } atsvc_JobInfo;
 --</code>
 --
---@param command The command to run. This has to be just the command, no parameters; if a 
+--@param command The command to run. This has to be just the command, no parameters; if a
 --               program requires parameters, then the best way to run it is through a batch
---               file. 
---@param time The time at which to run the job, in milliseconds from midnight. 
+--               file.
+--@param time The time at which to run the job, in milliseconds from midnight.
 function marshall_atsvc_JobInfo(command, time)
 	local result = ""
 

@@ -22,10 +22,10 @@ argument or by attempting to reverse resolve the local IP.
 -- nmap --script broadcast-wpad-discover
 --
 -- @output
--- | broadcast-wpad-discover: 
+-- | broadcast-wpad-discover:
 -- |   1.2.3.4:8080
 -- |_  4.5.6.7:3128
--- 
+--
 -- @args broadcast-wpad-discover.domain the domain in which the WPAD host should be discovered
 -- @args broadcast-wpad-discover.nodns instructs the script to skip discovery using DNS
 -- @args broadcast-wpad-discover.nodhcp instructs the script to skip discovery using dhcp
@@ -70,7 +70,7 @@ local function getInterfaces(link, up)
 		end
 	end
 	return result
-end	
+end
 
 
 local function parseDHCPResponse(response)
@@ -83,16 +83,16 @@ end
 
 local function getWPAD(u)
 	local u_parsed = url.parse(u)
-	
+
 	if ( not(u_parsed) ) then
 		return false, ("Failed to parse url: %s"):format(u)
 	end
-	
+
 	local response = http.get(u_parsed.host, u_parsed.port or 80, u_parsed.path)
 	if ( response and response.status == 200 ) then
 		return true, response.body
 	end
-	
+
 	return false, ("Failed to retrieve wpad.dat (%s) from server"):format(u)
 end
 
@@ -125,9 +125,9 @@ local function dnsDiscover()
 				return true, { name = name, ip = response[1] }
 			end
 		until( not(d) or not(d:match("%.")) )
-		
+
 	end
-	
+
 	-- first try a domain if it was supplied
 	if ( arg_domain ) then
 		local status, response = enumWPADNames(arg_domain)
@@ -135,8 +135,8 @@ local function dnsDiscover()
 			return status, response
 		end
 	end
-	
-	
+
+
 	-- if no domain was supplied, attempt to reverse lookup every ip on each
 	-- interface to find our FQDN hostname, once we do, try to query for WPAD
 	for i in pairs(getInterfaces("ethernet", "up") or {}) do
@@ -154,7 +154,7 @@ local function dnsDiscover()
 						domains[domain] = true
 					end
 				end
-				
+
 				-- attempt to discover the ip for WPAD in all domains
 				-- each domain is processed and reduced and ones the first
 				-- match is received it returns an IP
@@ -164,12 +164,12 @@ local function dnsDiscover()
 						return true, response
 					end
 				end
-								
+
 			end
 
 		end
 	end
-	
+
 	return false, "Failed to find WPAD using DNS"
 
 end
@@ -182,7 +182,7 @@ local function dhcpDiscover()
 		if ( iface ) then
 			local req_list = createRequestList( { 1, 15, 3, 6, 44, 46, 47, 31, 33, 249, 43, 252 } )
 			local status, response = dhcp.make_request("255.255.255.255", dhcp.request_types["DHCPDISCOVER"], "0.0.0.0", iface.mac, nil, req_list, { flags = 0x8000 } )
-			
+
 			-- if we got a response, we're happy and don't need to continue
 			if (status) then
 				return status, response
@@ -196,18 +196,18 @@ end
 action = function()
 
 	local status, response, wpad
-	
+
 	if ( arg_nodhcp and arg_nodns ) then
 		return "\n  ERROR: Both nodns and nodhcp arguments were supplied"
 	end
-	
+
 	if ( nmap.is_privileged() and not(arg_nodhcp) ) then
 		status, response = dhcpDiscover()
 		if ( status ) then
 			status, wpad = parseDHCPResponse(response)
 		end
 	end
-		
+
 	-- if the DHCP did not get a result, fallback to DNS
 	if (not(status) and not(arg_nodns) ) then
 		status, response = dnsDiscover()
@@ -217,16 +217,16 @@ action = function()
 		end
 		wpad = ("http://%s/wpad.dat"):format( response.name )
 	end
-	
+
 	if ( status ) then
 		status, response = getWPAD(wpad)
 	end
-	
+
 	if ( not(status) ) then
 		return status, response
 	end
-	
+
 	local output = ( arg_getwpad and response or parseWPAD(response) )
-	
+
 	return stdnse.format_output(true, output)
 end

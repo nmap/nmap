@@ -7,17 +7,17 @@ third-party entities.
 ---
 -- @usage nmap -p80 --script http-refferer-checker.nse <host>
 --
--- This script informs about cross-domain include of scripts by 
--- finding src attributes that point to a different domain. 
--- 
+-- This script informs about cross-domain include of scripts by
+-- finding src attributes that point to a different domain.
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-referer-checker: 
+-- | http-referer-checker:
 -- | Spidering limited to: maxdepth=3; maxpagecount=20;
 -- |   http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js
 -- |_  http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js?ver=3.4.2
--- 
+--
 ---
 
 categories = {"discovery", "safe"}
@@ -34,17 +34,17 @@ local httpspider = require "httpspider"
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 action = function(host, port)
- 
-    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME, 
-                                                              maxpagecount = 30, 
-                                                              maxdepth = -1, 
+
+    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
+                                                              maxpagecount = 30,
+                                                              maxdepth = -1,
                                                               withinhost = 0,
                                                               withindomain = 0
                                                               })
 
     crawler.options.doscraping = function(url)
-        if crawler:iswithinhost(url) 
-        and not crawler:isresource(url, "js") 
+        if crawler:iswithinhost(url)
+        and not crawler:isresource(url, "js")
         and not crawler:isresource(url, "css") then
             return true
         end
@@ -85,7 +85,7 @@ action = function(host, port)
   	end
 
 	results.name = crawler:getLimitations()
-	
+
 	return stdnse.format_output(true, results)
 
 end

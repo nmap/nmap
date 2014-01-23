@@ -10,28 +10,28 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Implements remote process execution similar to the Sysinternals' psexec tool, 
+Implements remote process execution similar to the Sysinternals' psexec tool,
 allowing a user to run a series of programs on a remote machine and read the output. This
-is great for gathering information about servers, running the same tool on a range of 
-system, or even installing a backdoor on a collection of computers. 
+is great for gathering information about servers, running the same tool on a range of
+system, or even installing a backdoor on a collection of computers.
 
-This script can run commands present on the remote machine, such as ping or tracert, 
-or it can upload a program and run it, such as pwdump6 or a backdoor. Additionally, it 
-can read the program's stdout/stderr and return it to the user (works well with ping, 
-pwdump6, etc), or it can read a file that the process generated (fgdump, for example, 
+This script can run commands present on the remote machine, such as ping or tracert,
+or it can upload a program and run it, such as pwdump6 or a backdoor. Additionally, it
+can read the program's stdout/stderr and return it to the user (works well with ping,
+pwdump6, etc), or it can read a file that the process generated (fgdump, for example,
 generates a file), or it can just start the process and let it run headless (a backdoor
-might run like this). 
+might run like this).
 
 To use this, a configuration file should be created and edited. Several configuration
-files are included that you can customize, or you can write your own. This config file 
-is placed in <code>nselib/data/psexec</code> (if you aren't sure where that is, search your system 
-for <code>default.lua</code>), then is passed to Nmap as a script argument (for example, 
-myconfig.lua would be passed as <code>--script-args=config=myconfig</code>. 
+files are included that you can customize, or you can write your own. This config file
+is placed in <code>nselib/data/psexec</code> (if you aren't sure where that is, search your system
+for <code>default.lua</code>), then is passed to Nmap as a script argument (for example,
+myconfig.lua would be passed as <code>--script-args=config=myconfig</code>.
 
 The configuration file consists mainly of a module list. Each module is defined by a lua
-table, and contains fields for the name of the program, the executable and arguments 
+table, and contains fields for the name of the program, the executable and arguments
 for the program, and a score of other options. Modules also have an 'upload' field, which
-determines whether or not the module is to be uploaded. Here is a simple example of how 
+determines whether or not the module is to be uploaded. Here is a simple example of how
 to run <code>net localgroup administrators</code>, which returns a list of users in the "administrators"
 group (take a look at the <code>examples.lua</code> configuration file for these examples):
 
@@ -46,7 +46,7 @@ group (take a look at the <code>examples.lua</code> configuration file for these
 
 <code>mod.upload</code> is <code>false</code>, meaning the program should already be
 present on the remote system (since 'net.exe' is on every version of Windows, this should
-be the case). <code>mod.name</code> defines the name that the program will have in the 
+be the case). <code>mod.name</code> defines the name that the program will have in the
 output. <code>mod.program</code> and <code>mod.args</code> obviously define which program
 is going to be run. The output for this script is this:
 
@@ -54,19 +54,19 @@ is going to be run. The output for this script is this:
 	|  Example 1: Membership of 'administrators'
 	|  | Alias name     administrators
 	|  | Comment        Administrators have complete and unrestricted access to the computer/domain
-	|  | 
+	|  |
 	|  | Members
-	|  | 
+	|  |
 	|  | -------------------------------------------------------------------------------
 	|  | Administrator
 	|  | ron
 	|  | test
 	|  | The command completed successfully.
-	|  | 
+	|  |
 	|  |_
 </code>
 
-That works, but it's really ugly. In general, we can use <code>mod.find</code>, 
+That works, but it's really ugly. In general, we can use <code>mod.find</code>,
 <code>mod.replace</code>, <code>mod.remove</code>, and <code>mod.noblank</code> to clean up
 the output. For this example, we're going to use <code>mod.remove</code> to remove a lot
 of the useless lines, and <code>mod.noblank</code> to get rid of the blank lines that we
@@ -93,7 +93,7 @@ We can see that the output is now much cleaner:
 
 For our next command, we're going to run Windows' ipconfig.exe, which outputs a significant
 amount of unnecessary information, and what we do want isn't formatted very nicely. All we
-want is the IP address and MAC address, and we get it using <code>mod.find</code> and 
+want is the IP address and MAC address, and we get it using <code>mod.find</code> and
 <code>mod.replace</code>:
 
 <code>
@@ -108,7 +108,7 @@ want is the IP address and MAC address, and we get it using <code>mod.find</code
 	table.insert(modules, mod)
 </code>
 
-This module searches for lines that contain "IP Address", "Physical Address", or "Ethernet adapter". 
+This module searches for lines that contain "IP Address", "Physical Address", or "Ethernet adapter".
 In these lines, a ". " is replaced with nothing, a "-" is replaced with a colon, and the term
 "Physical Address" is replaced with "MAC Address" (arguably unnecessary). Run ipconfig /all yourself
 to see what we start with, but here's the final output:
@@ -129,9 +129,9 @@ in the <code>config</code> table, most of which are listed below. The more inter
 * <code>$share</code>: The share where the script was uploaded
 
 User-supplied arguments are given on the commandline, and can be controlled by <code>mod.req_args</code>
-in the configuration file. Arguments are given by the user in --script-args; for example, to set $host 
+in the configuration file. Arguments are given by the user in --script-args; for example, to set $host
 to '1.2.3.4', the user would pass in --script-args=host=1.2.3.4. To ensure the user passes in the host
-variable, <code>mod.req_args</code> would be set to <code>{'host'}</code>. 
+variable, <code>mod.req_args</code> would be set to <code>{'host'}</code>.
 
 Here is a module that pings the local ip address:
 <code>
@@ -142,7 +142,7 @@ Here is a module that pings the local ip address:
 	mod.args             = "$lhost"
 	mod.remove           = {"statistics", "Packet", "Approximate", "Minimum"}
 	mod.noblank          = true
-	mod.env              = "SystemRoot=c:\\WINDOWS" 
+	mod.env              = "SystemRoot=c:\\WINDOWS"
 	table.insert(modules, mod)
 </code>
 
@@ -183,7 +183,7 @@ $ ./nmap -n -d -p445 --script=smb-psexec --script-args=smbuser=test,smbpass=test
 |  |_Request timed out.
 </code>
 
-For the final example, we'll use the <code>upload</code> command to upload <code>fgdump.exe</code>, run it, 
+For the final example, we'll use the <code>upload</code> command to upload <code>fgdump.exe</code>, run it,
 download its output file, and clean up its logfile. You'll have to put <code>fgdump.exe</code>
 in the same folder as the script for this to work:
 <code>
@@ -197,109 +197,109 @@ in the same folder as the script for this to work:
 	mod.outfile          = "127.0.0.1.pwdump"
 	table.insert(modules, mod)
 </code>
-The <code>-l</code> argument for fgdump supplies the name of the logfile. That file is listed in the 
-<code>mod.tempfiles</code> field. What, exactly, does <code>mod.tempfiles</code> do? 
-It simply gives the service a list of files to delete while cleaning up. The cleanup 
-process will be discussed later. 
+The <code>-l</code> argument for fgdump supplies the name of the logfile. That file is listed in the
+<code>mod.tempfiles</code> field. What, exactly, does <code>mod.tempfiles</code> do?
+It simply gives the service a list of files to delete while cleaning up. The cleanup
+process will be discussed later.
 
 <code>mod.url</code> is displayed to the user if <code>mod.program</code> isn't found in
 <code>nselib/data/psexec/</code>. And finally, <code>mod.outfile</code> is the file that is downloaded
-from the system. This is required because fgdump writes to an output file instead of to 
-stdout (pwdump6, for example, doesn't require <code>mod.outfile</code>. 
+from the system. This is required because fgdump writes to an output file instead of to
+stdout (pwdump6, for example, doesn't require <code>mod.outfile</code>.
 
 Now that we've seen a few possible combinations of fields, I present a complete list of all
-fields available and what each of them do. Many of them will be familiar, but there are a 
+fields available and what each of them do. Many of them will be familiar, but there are a
 few that aren't discussed in the examples:
 
-* <code>upload</code>     (boolean)  true if it's a local file to upload, false if it's already on the host machine. If <code>upload</code> is true, <code>program</code> has to be in <code>nselib/data/psexec</code>. 
-* <code>name</code>       (string)   The name to display above the output. If this isn't given, <code>program</code> .. <code>args</code> are used. 
-* <code>program</code>    (string)   If <code>upload</code> is false, the name (fully qualified or relative) of the program on the remote system; if <code>upload</code> is true, the name of the local file that will be uploaded (stored in <code>nselib/data/psexec</code>). 
-* <code>args</code>       (string)   Arguments to pass to the process. 
-* <code>env</code>        (string)   Environmental variables to pass to the process, as name=value pairs, delimited, per Microsoft's spec, by NULL characters (<code>string.char(0)</code>). 
-* <code>maxtime</code>    (integer)  The approximate amount of time to wait for this process to complete. The total timeout for the script before it gives up waiting for a response is the total of all <code>maxtime</code> fields. 
-* <code>extrafiles</code> (string[]) Extra file(s) to upload before running the program. These will not be renamed (because, presumably, if they are then the program won't be able to find them), but they will be marked as hidden/system/etc. This may cause a race condition if multiple people are doing this at once, but there isn't much we can do. The files are also deleted afterwards as tempfiles would be. The files have to be in the same directory as programs (<code>nselib/data/psexec</code>), but the program doesn't necessarily need to be an uploaded one. 
+* <code>upload</code>     (boolean)  true if it's a local file to upload, false if it's already on the host machine. If <code>upload</code> is true, <code>program</code> has to be in <code>nselib/data/psexec</code>.
+* <code>name</code>       (string)   The name to display above the output. If this isn't given, <code>program</code> .. <code>args</code> are used.
+* <code>program</code>    (string)   If <code>upload</code> is false, the name (fully qualified or relative) of the program on the remote system; if <code>upload</code> is true, the name of the local file that will be uploaded (stored in <code>nselib/data/psexec</code>).
+* <code>args</code>       (string)   Arguments to pass to the process.
+* <code>env</code>        (string)   Environmental variables to pass to the process, as name=value pairs, delimited, per Microsoft's spec, by NULL characters (<code>string.char(0)</code>).
+* <code>maxtime</code>    (integer)  The approximate amount of time to wait for this process to complete. The total timeout for the script before it gives up waiting for a response is the total of all <code>maxtime</code> fields.
+* <code>extrafiles</code> (string[]) Extra file(s) to upload before running the program. These will not be renamed (because, presumably, if they are then the program won't be able to find them), but they will be marked as hidden/system/etc. This may cause a race condition if multiple people are doing this at once, but there isn't much we can do. The files are also deleted afterwards as tempfiles would be. The files have to be in the same directory as programs (<code>nselib/data/psexec</code>), but the program doesn't necessarily need to be an uploaded one.
 * <code>tempfiles</code>  (string[]) A list of temporary files that the process is known to create (if the process does create files, using this field is recommended because it helps avoid making a mess on the remote system).
-* <code>find</code>       (string[]) Only display lines that contain the given string(s) (for example, if you're searching for a line that contains "IP Address", set this to <code>{'IP Address'}</code>. This allows Lua-style patterns, see: http://lua-users.org/wiki/PatternsTutorial (don't forget to escape special characters with a <code>%</code>). Note that this is client-side only; the full output is still returned, the rest is removed while displaying. The line of output only needs to match one of the strings given here. 
+* <code>find</code>       (string[]) Only display lines that contain the given string(s) (for example, if you're searching for a line that contains "IP Address", set this to <code>{'IP Address'}</code>. This allows Lua-style patterns, see: http://lua-users.org/wiki/PatternsTutorial (don't forget to escape special characters with a <code>%</code>). Note that this is client-side only; the full output is still returned, the rest is removed while displaying. The line of output only needs to match one of the strings given here.
 * <code>remove</code>     (string[]) Opposite of <code>find</code>; this removes lines containing the given string(s) instead of displaying them. Like <code>find</code>, this is client-side only and uses Lua-style patterns. If <code>remove</code> and <code>find</code> are in conflict, then <code>remove</code> takes priority.
 * <code>noblank</code>    (boolean)  Setting this to true removes all blank lines from the output.
-* <code>replace</code>    (table)    A table of values to replace in the strings returned. Like <code>find</code> and <code>replace</code>, this is client-side only and uses Lua-style patterns. 
+* <code>replace</code>    (table)    A table of values to replace in the strings returned. Like <code>find</code> and <code>replace</code>, this is client-side only and uses Lua-style patterns.
 * <code>headless</code>   (boolean)  If <code>headless</code> is set to true, the program doesn't return any output; rather, it runs detached from the service so that, when the service ends, the program keeps going. This can be useful for, say, a monitoring program. Or a backdoor, if that's what you're into (a Metasploit payload should work nicely). Not compatible with: <code>find</code>, <code>remove</code>, <code>noblank</code>, <code>replace</code>, <code>maxtime</code>, <code>outfile</code>.
-* <code>enabled</code>    (boolean)  Set to false, and optionally set <code>disabled_message</code>, if you don't want a module to run. Alternatively, you can comment out the process. 
-* <code>disabled_message</code> (string) Displayed if the module is disabled. 
-* <code>url</code>        (string)   A module where the user can download the uploadable file. Displayed if the uploadable file is missing. 
-* <code>outfile</code>    (string)   If set, the specified file will be returned instead of stdout. 
-* <code>req_args</code>   (string[]) An array of arguments that the user must set in <code>--script-args</code>. 
+* <code>enabled</code>    (boolean)  Set to false, and optionally set <code>disabled_message</code>, if you don't want a module to run. Alternatively, you can comment out the process.
+* <code>disabled_message</code> (string) Displayed if the module is disabled.
+* <code>url</code>        (string)   A module where the user can download the uploadable file. Displayed if the uploadable file is missing.
+* <code>outfile</code>    (string)   If set, the specified file will be returned instead of stdout.
+* <code>req_args</code>   (string[]) An array of arguments that the user must set in <code>--script-args</code>.
 
 
 Any field in the configuration file can contain variables, as discussed. Here are some of the available built-in variables:
 * <code>$lhost</code>: local IP address as a string.
 * <code>$lport</code>: local port (meaningless; it'll change by the time the module is uploaded since multiple connections are made).
 * <code>$rhost</code>: remote IP address as a string.
-* <code>$rport</code>: remote port. 
+* <code>$rport</code>: remote port.
 * <code>$lmac</code>:  local MAC address as a string in the xx:xx:xx:xx:xx:xx format (note: requires root).
-* <code>$path</code>:  the path where the file will be uploaded to. 
+* <code>$path</code>:  the path where the file will be uploaded to.
 * <code>$service_name</code>: the name of the service that will be running this program
 * <code>$service_file</code>: the name of the executable file for the service
 * <code>$temp_output_file</code>: The (ciphered) file where the programs' output will be written before being renamed to $output_file
 * <code>$output_file</code>: The final name of the (ciphered) output file. When this file appears, the script downloads it and stops the service
 * <code>$timeout</code>: The total amount of time the script is going to run before it gives up and stops the process
 * <code>$share</code>: The share that everything was uploaded to
-* (script args): Any value passed as a script argument will be replaced (for example, if Nmap is run with <code>--script-args=var3=10</code>, then <code>$var3</code> in any field will be replaced with <code>10</code>. See the <code>req_args</code> field above. Script argument values take priority over config values. 
+* (script args): Any value passed as a script argument will be replaced (for example, if Nmap is run with <code>--script-args=var3=10</code>, then <code>$var3</code> in any field will be replaced with <code>10</code>. See the <code>req_args</code> field above. Script argument values take priority over config values.
 
 In addition to modules, the configuration file can also contain overrides. Most of these
 aren't useful, so I'm not going to go into great detail. Search <code>smb-psexec.nse</code>
-for any reference to the <code>config</code> table; any value in the <code>config</code> 
+for any reference to the <code>config</code> table; any value in the <code>config</code>
 table can be overridden with the <code>overrides</code> table in the module. The most useful
-value to override is probably <code>timeout</code>. 
+value to override is probably <code>timeout</code>.
 
-Before and after scripts are run, and when there's an error, a cleanup is performed. in the 
+Before and after scripts are run, and when there's an error, a cleanup is performed. in the
 cleanup, we attempt to stop the remote processes, delete all programs, output files, temporary
-files, extra files, etc. A lot of effort was put into proper cleanup, since making a mess on 
-remote systems is a bad idea. 
+files, extra files, etc. A lot of effort was put into proper cleanup, since making a mess on
+remote systems is a bad idea.
 
 
 Now that I've talked at length about how to use this script, I'd like to spend some time
-talking about how it works. 
+talking about how it works.
 
 Running a script happens in several stages:
 
-1) An open fileshare is found that we can write to. Finding an open fileshare basically 
-consists of enumerating all shares and seeing which one(s) we have access to. 
+1) An open fileshare is found that we can write to. Finding an open fileshare basically
+consists of enumerating all shares and seeing which one(s) we have access to.
 
-2) A "service wrapper", and all of the uploadable/extra files, are uploaded. Before 
-they're uploaded, the name of each file is obfuscated. The obfuscation completely 
+2) A "service wrapper", and all of the uploadable/extra files, are uploaded. Before
+they're uploaded, the name of each file is obfuscated. The obfuscation completely
 renames the file, is unique for each source system, and doesn't change between multiple
-runs. This obfuscation has the benefit of preventing filenames from overlapping if 
+runs. This obfuscation has the benefit of preventing filenames from overlapping if
 multiple people are running this against the same computer, and also makes it more difficult
-to determine their purposes. The reason for keeping them consistent for every run is to 
+to determine their purposes. The reason for keeping them consistent for every run is to
 make cleanup possible: a random filename, if the script somehow fails, will be left on
-the system. 
+the system.
 
-3) A new service is created and started. The new service has a random name for the same 
-reason the files do, and points at the 'service wrapper' program that was uploaded. 
+3) A new service is created and started. The new service has a random name for the same
+reason the files do, and points at the 'service wrapper' program that was uploaded.
 
 4) The service runs the processes.
 
 One by one, the processes are run and their output is captured. The output is obfuscated
 using a simple (and highly insecure) xor algorithm, which is designed to prevent casual
-sniffing (but won't deter intelligent attackers). This data is put into a temporary output 
+sniffing (but won't deter intelligent attackers). This data is put into a temporary output
 file. When all the programs have finished, the file is renamed to the final output file
 
 5) The output file is downloaded, and the cleanup is performced. The file being renamed
 triggers the final stage of the program, where the data is downloaded and all relevant
-files are deleted. 
+files are deleted.
 
-6) Output file, now decrypted, is formatted and displayed to the user. 
+6) Output file, now decrypted, is formatted and displayed to the user.
 
-And that's how it works! 
+And that's how it works!
 
-Please post any questions, or suggestions for better modules, to dev@nmap.org. 
+Please post any questions, or suggestions for better modules, to dev@nmap.org.
 
-And, as usual, since this tool can be dangerous and can easily be viewed as a malicious 
-tool -- use this responsibly, and don't break any laws with it. 
+And, as usual, since this tool can be dangerous and can easily be viewed as a malicious
+tool -- use this responsibly, and don't break any laws with it.
 
 Some ideas for later versions (TODO):
-* Set up a better environment for scripts (<code>PATH</code>, <code>SystemRoot</code>, etc). Without this, a lot of programs (especially ones that deal with network traffic) behave oddly. 
+* Set up a better environment for scripts (<code>PATH</code>, <code>SystemRoot</code>, etc). Without this, a lot of programs (especially ones that deal with network traffic) behave oddly.
 * Abstract the code required to run remote processes so other scripts can use it more easily (difficult, but will ultimately be well worth it later). (May actually not be possible. There is a lot of overhead and specialized code in this module. We'll see, though.)
 * Let user specify an output file (per-script) so they can, for example, download binary files (don't think it's worthwhile).
 * Consider running the external programs in parallel (not sure if the benefits outweigh the drawbacks).
@@ -390,26 +390,26 @@ Some ideas for later versions (TODO):
 -- |  |  |  Persistent Routes:
 -- |  |  |    None
 -- |_ |_ |_ Route Table
--- 
---@args config  The config file to use (eg, default). Config files require a .lua extension, and are located in <code>nselib/data/psexec</code>. 
+--
+--@args config  The config file to use (eg, default). Config files require a .lua extension, and are located in <code>nselib/data/psexec</code>.
 --@args nohide  Don't set the uploaded files to hidden/system/etc.
---@args cleanup Set to only clean up any mess we made (leftover files, processes, etc. on the host OS) on a previous run of the script. 
+--@args cleanup Set to only clean up any mess we made (leftover files, processes, etc. on the host OS) on a previous run of the script.
 --              This will attempt to delete the files from every share, not just the first one. This is done to prevent leftover
---              files if the OS changes the ordering of the shares (there's no guarantee of shares coming back in any particular 
+--              files if the OS changes the ordering of the shares (there's no guarantee of shares coming back in any particular
 --              order)
---              Note that cleaning up is still fairly invasive, since it has to re-discover the proper share, connect to it, 
---              delete files, open the services manager, etc. 
+--              Note that cleaning up is still fairly invasive, since it has to re-discover the proper share, connect to it,
+--              delete files, open the services manager, etc.
 --@args share   Set to override the share used for uploading. This also stops shares from being enumerated, and all other shares
---              will be ignored. No checks are done to determine whether or not this is a valid share before using it. Reqires 
---              <code>sharepath</code> to be set. 
---@args sharepath The full path to the share (eg, <code>"c:\windows"</code>). This is required when creating a service. 
+--              will be ignored. No checks are done to determine whether or not this is a valid share before using it. Reqires
+--              <code>sharepath</code> to be set.
+--@args sharepath The full path to the share (eg, <code>"c:\windows"</code>). This is required when creating a service.
 --@args time    The minimum amount of time, in seconds, to wait for the external module to finish (default: <code>15</code>)
 --
---@args nocleanup Set to not clean up at all; this leaves the files on the remote system and the wrapper 
---              service installed. This is bad in practice, but significantly reduces the network traffic and makes analysis 
---              easier. 
---@args nocipher Set to disable the ciphering of the returned text (useful for debugging). 
---@args key     Script uses this value instead of a random encryption key (useful for debugging the crypto). 
+--@args nocleanup Set to not clean up at all; this leaves the files on the remote system and the wrapper
+--              service installed. This is bad in practice, but significantly reduces the network traffic and makes analysis
+--              easier.
+--@args nocipher Set to disable the ciphering of the returned text (useful for debugging).
+--@args key     Script uses this value instead of a random encryption key (useful for debugging the crypto).
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -428,14 +428,14 @@ hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
----Get the random-ish filenames used by the service. 
+---Get the random-ish filenames used by the service.
 --
---@param host The host table, which the names are based on. 
---@return Status: true or false. 
---@return Name of the remote service, or an error message if status is false. 
---@return Name of the executable file that's run by the service. 
---@return Name of the temporary output file. 
---@return Name of the final output file. 
+--@param host The host table, which the names are based on.
+--@return Status: true or false.
+--@return Name of the remote service, or an error message if status is false.
+--@return Name of the executable file that's run by the service.
+--@return Name of the temporary output file.
+--@return Name of the final output file.
 local function get_service_files(host)
 	local status, service_name, service_file, temp_output_file, output_file
 
@@ -463,7 +463,7 @@ local function get_service_files(host)
 	-- Get the actual output file
 	status, output_file = smb.get_uniqueish_name(host, "out")
 	if(status == false) then
-		return false, string.format("Error generating remote output file: %s", output_file) 
+		return false, string.format("Error generating remote output file: %s", output_file)
 	end
 	stdnse.print_debug("smb-psexec: Generated static output filename: %s", output_file)
 
@@ -473,13 +473,13 @@ end
 
 ---Stop/delete the service and delete the service file.
 --
---@param host         The host object. 
---@param config       The table of configuration values. 
+--@param host         The host object.
+--@param config       The table of configuration values.
 function cleanup(host, config)
 	local status, err
 
-	-- Add a delay here. For some reason, calling this function too quickly causes SMB to close the connection, 
-	-- but even a tiny delay makes that issue go away.  
+	-- Add a delay here. For some reason, calling this function too quickly causes SMB to close the connection,
+	-- but even a tiny delay makes that issue go away.
 	stdnse.sleep(.01)
 
 	-- If the user doesn't want to clean up, don't
@@ -511,11 +511,11 @@ function cleanup(host, config)
 end
 
 ---Find the file on the system (checks both Nmap's directories and the current
--- directory). 
+-- directory).
 --
---@param filename  The name of the file. 
---@param extension The extension of the file (filename without the extension is tried first). 
---@return The full filename, or nil if it couldn't be found. 
+--@param filename  The name of the file.
+--@param extension The extension of the file (filename without the extension is tried first).
+--@return The full filename, or nil if it couldn't be found.
 local function locate_file(filename, extension)
 	stdnse.print_debug(1, "smb-psexec: Attempting to find file: %s", filename)
 
@@ -529,7 +529,7 @@ local function locate_file(filename, extension)
   end
 
   -- check for absolute path or relative to current directory
-  if(filename_full == nil) then 
+  if(filename_full == nil) then
     local f, err = io.open(filename, "rb")
     if f == nil then
       stdnse.print_debug(1, "%s: Error opening %s: %s", SCRIPT_NAME, filename, err)
@@ -550,12 +550,12 @@ local function locate_file(filename, extension)
 	return filename_full
 end
 
----Generate an array of all files that will be uploaded/created, including 
--- the temporary file and the output file. This is done so the files can 
--- all be deleted during the cleanup phase. 
+---Generate an array of all files that will be uploaded/created, including
+-- the temporary file and the output file. This is done so the files can
+-- all be deleted during the cleanup phase.
 --
---@param config The config table. 
---@return The array of files. 
+--@param config The config table.
+--@return The array of files.
 local function get_all_files(config)
 	local files = {config.service_file, config.output_file, config.temp_output_file}
 	for _, mod in ipairs(config.enabled_modules) do
@@ -585,14 +585,14 @@ local function get_all_files(config)
 	return files
 end
 
----Decide which share to use. Unless the user overrides it with the 'share' and 'sharepath' 
--- arguments, a the first writable share is used. 
+---Decide which share to use. Unless the user overrides it with the 'share' and 'sharepath'
+-- arguments, a the first writable share is used.
 --
---@param host The host object. 
+--@param host The host object.
 --@return status true for success, false for failure
---@return share  The share we're going to use, or an error message. 
---@return path   The path on the remote system that points to the share. 
---@return shares A list of all shares on the system (used for cleaning up). 
+--@return share  The share we're going to use, or an error message.
+--@return path   The path on the remote system that points to the share.
+--@return shares A list of all shares on the system (used for cleaning up).
 local function find_share(host)
 	local status, share, path, shares
 
@@ -607,7 +607,7 @@ local function find_share(host)
 
 		stdnse.print_debug(1, "smb-psexec: Using share chosen by the user: %s (%s)", share, path)
 	else
-		-- Try and find a share to use. 
+		-- Try and find a share to use.
 		status, share, path, shares = smb.share_find_writable(host)
 		if(status == false) then
 			return false, share .. " (May not have an administrator account)"
@@ -622,11 +622,11 @@ local function find_share(host)
 end
 
 ---Recursively replace all variables in the 'setting' field with string variables
--- found in the 'config' field and in the script-args passed by the user. 
+-- found in the 'config' field and in the script-args passed by the user.
 --
---@param config  The configuration table (used as a source of variables to replace). 
---@param setting The current setting field (generally a string or a table). 
---@return setting The setting with all values replaced. 
+--@param config  The configuration table (used as a source of variables to replace).
+--@param setting The current setting field (generally a string or a table).
+--@return setting The setting with all values replaced.
 local function replace_variables(config, setting)
 	if(type(setting) == "string") then
 		-- Replace module fields with variables in the script-args argument
@@ -651,30 +651,30 @@ end
 
 ---Takes the 'overrides' field from a module and replace any configuration variables.
 --
---@param config    The config table. 
---@param overrides The overrides we're replacing values with. 
---@return config   The new config table. 
+--@param config    The config table.
+--@param overrides The overrides we're replacing values with.
+--@return config   The new config table.
 local function do_overrides(config, overrides)
 	if(overrides) then
 		if(type(overrides) == 'string') then
 			overrides = {overrides}
 		end
-	
+
 		for i, v in pairs(overrides) do
 			config[i] = v
 		end
 	end
-	
+
 	return config
 end
 
----Reads, prepares, parses, sanity checks, and pre-processes the configuration file (either the 
--- default, or the file passed as a parameter). 
+---Reads, prepares, parses, sanity checks, and pre-processes the configuration file (either the
+-- default, or the file passed as a parameter).
 --
 --@param host The host table.
 --@param config A table to fill with configuration values.
 --@return status true or false
---@return config The configuration table or an error message. 
+--@return config The configuration table or an error message.
 local function get_config(host, config)
 	local status
 	local filename = nmap.registry.args.config
@@ -716,7 +716,7 @@ local function get_config(host, config)
 	-- Initialize the timeout
 	config.timeout = 0
 
-	-- Figure out which share we're using (this is the first place in the script where a lot of traffic is generated -- 
+	-- Figure out which share we're using (this is the first place in the script where a lot of traffic is generated --
 	-- any possible sanity checking should be done before this)
 	status, config.share, config.path, config.all_shares = find_share(host)
 	if(not(status)) then
@@ -736,8 +736,8 @@ local function get_config(host, config)
 	end
 
 	-- Make sure the modules loaded properly
-	-- NOTE: If you're here because of an error that 'modules' is undefined, it's likely because your configuration file doesn't have a 
-	-- proper modules table, or your configuration file has a module() declaration at the top. 
+	-- NOTE: If you're here because of an error that 'modules' is undefined, it's likely because your configuration file doesn't have a
+	-- proper modules table, or your configuration file has a module() declaration at the top.
 	if(not(modules) or #modules == 0) then
 		return false, string.format("Configuration file (%s) doesn't have a proper 'modules' table.", filename)
 	end
@@ -864,7 +864,7 @@ local function get_config(host, config)
 
 
 		-- Prepare extra files
-		if(enabled and mod.extrafiles) then	
+		if(enabled and mod.extrafiles) then
 			-- Make sure we have an array to help save on duplicate code
 			if(type(mod.extrafiles) == "string") then
 				mod.extrafiles = {mod.extrafiles}
@@ -917,11 +917,11 @@ local function get_config(host, config)
 	return true, config
 end
 
----Cipher (or uncipher) a string with a weak xor-based encryption. 
+---Cipher (or uncipher) a string with a weak xor-based encryption.
 --
 --@args str    The string go cipher/uncipher.
 --@args config The config file for this host (stores the encryption key).
---@return      The decrypted string. 
+--@return      The decrypted string.
 local function cipher(str, config)
 	local result = ""
 	if(config.key == "") then
@@ -983,12 +983,12 @@ local function service_file_is_xor_encoded(filename)
 	return bytes == string.char(0xb2, 0xa5)
 end
 
----Upload all of the uploadable files to the remote system. 
+---Upload all of the uploadable files to the remote system.
 --
---@param host The host table. 
---@param config The configuration table. 
+--@param host The host table.
+--@param config The configuration table.
 --@return status true or false
---@return err    An error message if status is false. 
+--@return err    An error message if status is false.
 local function upload_everything(host, config)
 	local is_xor_encoded, msg
 	local overrides = get_overrides()
@@ -1054,11 +1054,11 @@ local function upload_everything(host, config)
 	return true
 end
 
----Create the service on the remote system. 
+---Create the service on the remote system.
 --@param host   The host object.
---@param config The configuration table. 
+--@param config The configuration table.
 --@return status true or false
---@return err    An error message if status is false. 
+--@return err    An error message if status is false.
 local function create_service(host, config)
 	local status, err = msrpc.service_create(host, config.service_name, config.path .. "\\" .. config.service_file)
 	if(status == false) then
@@ -1076,12 +1076,12 @@ local function create_service(host, config)
 end
 
 ---Create the list of parameters we're using to start the service. This consists
--- of a few global params, then a group of parameters with options for each process 
--- that's going to be started. 
+-- of a few global params, then a group of parameters with options for each process
+-- that's going to be started.
 --
---@param config The configuration table. 
+--@param config The configuration table.
 --@return status true or false
---@return params A table of parameters if status is true, or an error message if status is false. 
+--@return params A table of parameters if status is true, or an error message if status is false.
 local function get_params(config)
 	local count = 0
 
@@ -1090,7 +1090,7 @@ local function get_params(config)
 	table.insert(params, config.path .. "\\" .. config.output_file)
 	table.insert(params, config.path .. "\\" .. config.temp_output_file)
 	table.insert(params, tostring(#config.enabled_modules))
-	table.insert(params, "0") 
+	table.insert(params, "0")
 	table.insert(params, config.key)
 	table.insert(params, config.path)
 	for _, mod in ipairs(config.enabled_modules) do
@@ -1109,13 +1109,13 @@ local function get_params(config)
 	return true, params
 end
 
----Start the service on the remote machine. 
+---Start the service on the remote machine.
 --
 --@param host   The host object.
---@param config The configuration table. 
---@param params The parameters to pass to the service, likely from the <code>get_params</code> function. 
+--@param config The configuration table.
+--@param params The parameters to pass to the service, likely from the <code>get_params</code> function.
 --@return status true or false
---@return err    An error message if status is false. 
+--@return err    An error message if status is false.
 local function start_service(host, config, params)
 	local status, err = msrpc.service_start(host, config.service_name, params)
 	if(status == false) then
@@ -1127,12 +1127,12 @@ local function start_service(host, config, params)
 end
 
 ---Poll for the output file on the remote machine until either the file is created, or the timeout
--- expires. 
+-- expires.
 --
 --@param host   The host object.
---@param config The configuration table. 
+--@param config The configuration table.
 --@return status true or false
---@return result The file if status is true, or an error message if status is false. 
+--@return result The file if status is true, or an error message if status is false.
 
 local function get_output_file(host, config)
 	stdnse.print_debug(1, "smb-psexec: Waiting for output file to be created (timeout = %d seconds)", config.timeout)
@@ -1146,7 +1146,7 @@ local function get_output_file(host, config)
 			-- An unexpected error occurred
 			stdnse.print_debug(1, "smb-psexec: Couldn't read the file: %s", result)
 			cleanup(host, config)
-   
+
 			return false, string.format("Couldn't read the file from the remote machine: %s", result)
 		end
 
@@ -1173,7 +1173,7 @@ local function get_output_file(host, config)
 end
 
 ---Decide whether or not a line should be included in the output file, based on the module's
--- find, remove, and noblank settings. 
+-- find, remove, and noblank settings.
 local function should_be_included(mod, line)
 	local removed, found
 
@@ -1195,7 +1195,7 @@ local function should_be_included(mod, line)
 	end
 
 	-- Remove blank lines if we're supposed to
-	if(mod.noblank and line == "") then	
+	if(mod.noblank and line == "") then
 		removed = true
 	end
 
@@ -1222,7 +1222,7 @@ local function should_be_included(mod, line)
 	return (found and not(removed))
 end
 
----Alter a line based on the module's 'replace' setting. 
+---Alter a line based on the module's 'replace' setting.
 local function do_replacements(mod, line)
 	if(mod.replace) then
 		for _, v in pairs(mod.replace) do
@@ -1248,7 +1248,7 @@ local function do_replacements(mod, line)
 	return line
 end
 
----Parse the output file into a neat array. 
+---Parse the output file into a neat array.
 local function parse_output(config, data)
 	-- Allow 'data' to be nil. This lets us skip most of the effort when all mods are disabled
 	data = data or ""
@@ -1298,7 +1298,7 @@ local function parse_output(config, data)
 				result = {}
 				result['name'] = "<no name>"
 				result['lines'] = {}
-					
+
 				if(mod.name) then
 					result['name'] = mod.name
 				else
@@ -1376,14 +1376,14 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
 	end
 
 	if(#config.enabled_modules > 0) then
-		-- Start by cleaning up, just in case. 
+		-- Start by cleaning up, just in case.
 		cleanup(host, config)
-	
+
 		-- If the user just wanted a cleanup, do it
 		if(stdnse.get_script_args( "cleanup" )) then
 			return stdnse.format_output(true, "Cleanup complete.")
 		end
-	
+
 		-- Check if any of the files exist
 		status, result, files = smb.files_exist(host, config.share, config.all_files, {})
 		if(not(status)) then
@@ -1398,28 +1398,28 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
 			table.insert(response, "* Deleting the affected file(s) off the server manually (\\\\" .. config.share .. "\\" .. stdnse.strjoin(", \\\\" .. config.share .. "\\", files) .. ")")
 			return stdnse.format_output(false, response)
 		end
-	
+
 		-- Upload the modules
 		status, err = upload_everything(host, config)
 		if(not(status)) then
 			cleanup(host, config)
 			return stdnse.format_output(false, err)
 		end
-	
+
 		-- Create the service
 		status, err = create_service(host, config)
 		if(not(status)) then
 			cleanup(host, config)
 			return stdnse.format_output(false, err)
 		end
-	
+
 		-- Get the table of parameters to pass to the service when we start it
 		status, params = get_params(config)
 		if(not(status)) then
 			cleanup(host, config)
 			return stdnse.format_output(false, params)
 		end
-	
+
 		-- Start the service
 		status, params = start_service(host, config, params)
 		if(not(status)) then
@@ -1436,7 +1436,7 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
 
 		-- Do a final cleanup
 		cleanup(host, config)
-	
+
 		-- Uncipher the file
 		result = cipher(result, config)
 	end

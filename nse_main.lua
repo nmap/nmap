@@ -330,7 +330,7 @@ do
     if not self.worker then
       -- Structure table and unstructured string outputs.
       local tab, str
-  
+
       if r2 then
         tab, str = r1, tostring(r2);
       elseif type(r1) == "string" then
@@ -340,7 +340,7 @@ do
       else
         tab, str = r1, nil;
       end
-  
+
       if self.type == "prerule" or self.type == "postrule" then
         cnse.script_set_output(self.id, tab, str);
       elseif self.type == "hostrule" then
@@ -572,12 +572,12 @@ do
     local postrule = rules.postrule;
     -- Assert that categories is an array of strings
     for i, category in ipairs(rawget(env, "categories")) do
-      assert(type(category) == "string", 
+      assert(type(category) == "string",
         filename.." has non-string entries in the 'categories' array");
     end
     -- Assert that dependencies is an array of strings
     for i, dependency in ipairs(rawget(env, "dependencies")) do
-      assert(type(dependency) == "string", 
+      assert(type(dependency) == "string",
         filename.." has non-string entries in the 'dependencies' array");
     end
     -- Return the script
@@ -624,7 +624,7 @@ end
 -- Arguments:
 --   rules  The array of rules to use for loading scripts.
 -- Returns:
---   chosen_scripts  The array of scripts loaded for the given rules. 
+--   chosen_scripts  The array of scripts loaded for the given rules.
 local function get_chosen_scripts (rules)
   check_rules(rules);
 
@@ -745,7 +745,7 @@ local function get_chosen_scripts (rules)
               " -> script rule expression not supported.");
       end
       -- The script rule matches a category or a pattern
-      if found then 
+      if found then
         used_rules[rule_table.original_rule] = true;
         script_params.forced = not not forced_rules[rule_table.original_rule];
         local t, path = cnse.fetchscript(filename);
@@ -806,7 +806,7 @@ local function get_chosen_scripts (rules)
   local chain = {}; -- chain of script names
   local function calculate_runlevel (script)
     chain[#chain+1] = script.short_basename;
-    if script.runlevel == false then -- circular dependency 
+    if script.runlevel == false then -- circular dependency
       error("circular dependency in chain `"..concat(chain, "->").."`");
     else
       script.runlevel = false; -- placeholder
@@ -1174,7 +1174,7 @@ do -- Load script arguments (--script-args)
           "' is invalid or is unterminated by a valid seperator");
     end
   end
-  -- Takes 'str' at index 'start' and parses a table. 
+  -- Takes 'str' at index 'start' and parses a table.
   -- Returns the table and the place in the string it finished reading.
   local function parse_table (str, start)
     local _, j = find(str, "^%s*{", start);
@@ -1303,13 +1303,13 @@ local function main (hosts, scantype)
   --  parent  A table that contains the parent thread table (it self).
   --  close_handlers
   --          A table that contains the thread destructor handlers.
-  --  info    A string that contains the script name and the thread 
+  --  info    A string that contains the script name and the thread
   --            debug information.
-  --  args    A table that contains the arguments passed to scripts, 
+  --  args    A table that contains the arguments passed to scripts,
   --            arguments can be host and port tables.
   --  env     A table that contains the global script environment:
   --            categories, description, author, license, nmap table,
-  --            action function, rule functions, SCRIPT_PATH, 
+  --            action function, rule functions, SCRIPT_PATH,
   --            SCRIPT_NAME, SCRIPT_TYPE (pre|host|port|post rule).
   --  identifier
   --          A string to identify the thread address.

@@ -23,7 +23,7 @@ References:
 --
 -- @output
 -- 53/udp open  domain  udp-response
--- | dns-nsid: 
+-- | dns-nsid:
 -- |   NSID dns.example.com (646E732E6578616D706C652E636F6D)
 -- |   id.server: dns.example.com
 -- |_  bind.version: 9.7.3-P3
@@ -60,7 +60,7 @@ local function rr_filter(pktRR, label)
 	end
 end
 
-action = function(host, port)	
+action = function(host, port)
 	local result = stdnse.output_table()
 	local flag = false
 	local status, resp = dns.query("id.server", {host = host.ip, dtype='TXT', class=dns.CLASS.CH, retAll=true, retPkt=true, nsid=true, dnssec=true})
@@ -80,13 +80,13 @@ action = function(host, port)
 		local status, id_server = rr_filter(resp.answers,'TXT')
 		if ( status ) then
 			flag = true
-			result["id.server"] = id_server 
+			result["id.server"] = id_server
 		end
 	end
 	local status, bind_version = dns.query("version.bind", {host = host.ip, dtype='TXT', class=dns.CLASS.CH})
 	if ( status ) then
 		flag = true
-		result["bind.version"] = bind_version 
+		result["bind.version"] = bind_version
 	end
 	if flag then
 		return result

@@ -22,7 +22,7 @@ Performs brute force password auditing against http basic authentication.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | http-brute:  
+-- | http-brute:
 -- |   Accounts
 -- |     Patrik Karlsson:secret => Valid credentials
 -- |   Statistics
@@ -52,7 +52,7 @@ categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 Driver = {
-  
+
   new = function(self, host, port, opts)
     local o = {port=port, path=opts.path, method=opts.method, digestauth=opts.digestauth}
     setmetatable(o, self)
@@ -60,14 +60,14 @@ Driver = {
     o.host = stdnse.get_script_args("http-brute.hostname") or host
     return o
   end,
-	
+
 	connect = function( self )
 		-- This will cause problems, as ther is no way for us to "reserve"
 		-- a socket. We may end up here early with a set of credentials
 		-- which won't be guessed until the end, due to socket exhaustion.
 		return true
 	end,
-	
+
   login = function( self, username, password )
     local response
     local opts_table
@@ -79,13 +79,13 @@ Driver = {
       opts_table = { auth = { username = username, password = password, digest = true }, no_cache = true }
     end
     response = http.generic_request( self.host, self.port, self.method, self.path, opts_table)
-    
+
     if not response.status then
       local err = brute.Error:new(response["status-line"])
       err:setRetry(true)
       return false, err
     end
-    
+
 		-- Checking for ~= 401 *should* work to
 		-- but gave me a number of false positives last time I tried.
 		-- We decided to change it to ~= 4xx.
@@ -101,33 +101,33 @@ Driver = {
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
-	disconnect = function( self ) 
+
+	disconnect = function( self )
 		return true
 	end,
-	
+
 	check = function( self )
     return true
 	end,
-	
+
 }
 
 
 action = function( host, port )
-	local status, result 
+	local status, result
 	local path = stdnse.get_script_args("http-brute.path") or "/"
 	local method = string.upper(stdnse.get_script_args("http-brute.method") or "GET")
-	
+
 	if ( not(path) ) then
 		return "  \n  ERROR: No path was specified (see http-brute.path)"
 	end
-	
+
 	local response = http.generic_request( host, port, method, path, { no_cache = true } )
-	
+
 	if ( response.status ~= 401 ) then
 		return ("  \n  Path \"%s\" does not require authentication"):format(path)
 	end
-  
+
   -- check if digest auth is required
   local digestauth = false
   local h = response.header['www-authenticate']
@@ -140,8 +140,8 @@ action = function( host, port )
 
   local engine = brute.Engine:new(Driver, host, port, {method=method, path=path, digestauth=digestauth})
   engine.options.script_name = SCRIPT_NAME
-  
+
   status, result = engine:start()
-  
+
   return result
 end

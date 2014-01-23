@@ -59,7 +59,7 @@ local function list(socket, target, max_lines)
 	-- The server should answer with something like
 	-- 2xx Entering Passive Mode (a,b,c,d,hp,lp)
 	--                           (-- IP--,PORT)
-	-- PORT is (hp x 256) + lp 
+	-- PORT is (hp x 256) + lp
 	local high, low = string.match(message, "%(%d+,%d+,%d+,%d+,(%d+),(%d+)%)")
 	if not high then
 		return nil, string.format("Can't parse PASV response: %q", message)
@@ -169,7 +169,7 @@ action = function(host, port)
 	if not max_list or max_list > 0 then
 		local status, listing = list(socket, host, max_list)
 		socket:close()
-	
+
 		if not status then
 			result[#result + 1] = "Can't get directory listing: " .. listing
 		else

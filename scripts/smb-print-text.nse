@@ -6,31 +6,31 @@ local string = require "string"
 local stdnse = require "stdnse"
 
 description = [[
-Attempts to print text on a shared printer by calling Print Spooler Service RPC functions. 
+Attempts to print text on a shared printer by calling Print Spooler Service RPC functions.
 
-In order to use the script, at least one printer needs to be shared 
-over SMB. If no printer is specified, script tries to enumerate existing 
+In order to use the script, at least one printer needs to be shared
+over SMB. If no printer is specified, script tries to enumerate existing
 ones by calling LANMAN API which might not be always available.
 LANMAN is available by default on Windows XP, but not on Vista or Windows 7
 for example. In that case, you need to specify printer share name manualy
 using <code>printer</code> script argument. You can find out available shares
-by using smb-enum-shares script. 
+by using smb-enum-shares script.
 
 Later versions of Windows require valid credentials by default
 which you can specify trough smb library arguments <code>smbuser</code> and
-<code>smbpassword</code> or other options. 
+<code>smbpassword</code> or other options.
 
 ]]
 ---
 -- @usage nmap  -p 445 <target> --script=smb-print-text  --script-args="text=0wn3d"
 --
--- @output 
+-- @output
 -- |_smb-print-text: Printer job started using MyPrinter printer share.
 --
 -- @args printer  Printer share name. Optional, by default script tries to enumerate available printer shares.
--- @args text 	  Text to print. Either text or filename need to be specified. 
+-- @args text 	  Text to print. Either text or filename need to be specified.
 -- @args filename File to read text from (ASCII only).
--- 
+--
 
 author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -42,16 +42,16 @@ end
 
 action = function(host,port)
 	local status, smbstate
-	local text = stdnse.get_script_args(SCRIPT_NAME .. '.text') 
+	local text = stdnse.get_script_args(SCRIPT_NAME .. '.text')
 	local filename = stdnse.get_script_args(SCRIPT_NAME .. '.filename')
-	if (not text) and (not filename) then 
+	if (not text) and (not filename) then
 		stdnse.print_debug("Script requires either text or filename script argument.")
 		return false
 	end
 	local text_to_print
 	if text then
 		text_to_print = text
-	else 
+	else
 		-- read text from file
 		local file = io.open(filename, "rb")
 		text_to_print = file:read("*all")
@@ -61,7 +61,7 @@ action = function(host,port)
 		stdnse.print_debug("SMB: " .. smbstate)
 		return false, smbstate
 	end
-	
+
 	local bind_result
 	status, bind_result = msrpc.bind(smbstate,msrpc.SPOOLSS_UUID, msrpc.SPOOLSS_VERSION, nil)
 	if(status == false) then
@@ -69,9 +69,9 @@ action = function(host,port)
 		stdnse.print_debug("SMB: " .. bind_result)
 		return false, bind_result
 	end
-	local printer = stdnse.get_script_args(SCRIPT_NAME .. '.printer') 
-	-- if printer not set find available printers 
-	if not printer then 
+	local printer = stdnse.get_script_args(SCRIPT_NAME .. '.printer')
+	-- if printer not set find available printers
+	if not printer then
 		stdnse.print_debug("No printer specified, trying to find one...")
 		local lanman_result
 		local REMSmb_NetShareEnum_P  = "WrLeh"
@@ -82,7 +82,7 @@ action = function(host,port)
 			stdnse.print_debug("SMB: Looks like LANMAN API is not available. Try setting printer script arg.")
 			return false
 		end
-		
+
 		local parameters = lanman_result.parameters
 		local data = lanman_result.data
 		local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
@@ -91,12 +91,12 @@ action = function(host,port)
 		for i = 1, entry_count, 1 do
 			_,share_type = bin.unpack(">s",data,pos+14)
 			pos, name = bin.unpack("<z", data, pos)
-			
+
 			-- pos needs to be rounded to the next even multiple of 20
 			pos = pos + ( 20 - (#name % 20) ) - 1
 			if share_type == 1 then -- share is printer
 				stdnse.print_debug("Found printer share %s.", name)
-				printer = name	
+				printer = name
 			end
 		end
 	end
@@ -110,22 +110,22 @@ action = function(host,port)
 	if not status then
 		return false
 	end
-	local printer_handle = string.sub(result.data,25,#result.data-4) 
+	local printer_handle = string.sub(result.data,25,#result.data-4)
 	stdnse.print_debug("Printer handle %s",stdnse.tohex(printer_handle))
 	-- call RpcStartDocPrinter - opnum 17
-	status,result = msrpc.spoolss_start_doc_printer(smbstate,printer_handle,"nmap_print_test.txt") -- patched version will allow this 
-	if not status then												
+	status,result = msrpc.spoolss_start_doc_printer(smbstate,printer_handle,"nmap_print_test.txt") -- patched version will allow this
+	if not status then
 		return false
 	end
 	local print_job_id = string.sub(result.data,25,#result.data-4)
 	stdnse.print_debug("Start doc printer job id %s",stdnse.tohex(print_job_id))
 
-	-- call RpcWritePrinter - 19 
+	-- call RpcWritePrinter - 19
 	status, result = msrpc.spoolss_write_printer(smbstate,printer_handle,text_to_print)
 	if not status then
 		return false
 	end
-	local write_result = string.sub(result.data,25,#result.data-4) 
+	local write_result = string.sub(result.data,25,#result.data-4)
 	stdnse.print_debug("Written %s bytes to a file.",stdnse.tohex(write_result))
 
 	status,result = msrpc.spoolss_end_doc_printer(smbstate,printer_handle)

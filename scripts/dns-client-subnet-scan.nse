@@ -31,7 +31,7 @@ requests using a given subnet.
 --
 -- @output
 -- 53/udp open  domain  udp-response
--- | dns-client-subnet-scan: 
+-- | dns-client-subnet-scan:
 -- | www.google.com
 -- |   1.2.3.4
 -- |   5.6.7.8
@@ -304,7 +304,7 @@ local areaIPs = {
 	Z4 = {ip=40321024, desc="GB,Z4,Wrexham"}
 }
 
-local get_addresses = function(address, mask, domain, nameserver) 
+local get_addresses = function(address, mask, domain, nameserver)
 
 	-- translate the IP's in the areaIPs to strings, as this is what the
 	-- DNS library expects
@@ -325,12 +325,12 @@ end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
-action = function(host, port)	
+action = function(host, port)
 
 	if ( not(argDomain) ) then
 		return fail(SCRIPT_NAME .. ".domain was not specified")
 	end
-	
+
 	local nameserver = argNS or (host and host.ip)
 	-- as the nameserver argument overrides the host.ip, the prerule should
 	-- already have done our work, so abort
@@ -339,9 +339,9 @@ action = function(host, port)
 	-- if we have no nameserver argument and no host, we dont have sufficient
 	-- information to continue, abort
 	elseif ( not(argNS) and not(host) ) then
-		return		
+		return
 	end
-	
+
 	local addrs = argAddr or areaIPs
 	if ( "string" == type(addrs) ) then	addrs = {{ ip = addrs }} end
 

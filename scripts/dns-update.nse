@@ -16,7 +16,7 @@ categories = {"discovery", "safe"}
 -- @output
 -- PORT   STATE SERVICE
 -- 53/udp open  domain
--- | dns-update: 
+-- | dns-update:
 -- |   Successfully added the record "nmap-test.cqure.net"
 -- |_  Successfully deleted the record "nmap-test.cqure.net"
 --
@@ -49,7 +49,7 @@ categories = {"discovery", "safe"}
 portrule = shortport.port_or_service( 53, "dns", "udp", {"open", "open|filtered"} )
 
 local function test(host, port)
-	
+
 	local status, err = dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="10.10.10.10" } )
 	if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
 	status, err = dns.update( "www2", { zone="cqure.net", host=host, port=port, dtype="A", data="10.10.10.10" } )
@@ -60,7 +60,7 @@ local function test(host, port)
 	if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
 	status, err = dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data={ prio=0, weight=100, port=389, target="ldap.cqure.net" } } )
 	if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
-	
+
 	status, err = dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
 	if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
 	status, err = dns.update( "www2.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
@@ -71,11 +71,11 @@ local function test(host, port)
 	if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
 	status, err = dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data="", ttl=0 } )
 	if ( status ) then stdnse.print_debug("SUCCESS") else stdnse.print_debug("FAIL: " .. (err or "")) end
-	
+
 end
 
 action = function(host, port)
-	
+
 	local t = stdnse.get_script_args('dns-update.test')
 	local name, ip = stdnse.get_script_args('dns-update.hostname', 'dns-update.ip')
 
@@ -98,7 +98,7 @@ action = function(host, port)
 		nmap.set_port_state(host, port, "open")
 		return stdnse.format_output(true, result)
 	elseif ( err ) then
-		return "\n  ERROR: " .. err 
+		return "\n  ERROR: " .. err
 	end
 
 end

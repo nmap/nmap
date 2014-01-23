@@ -12,11 +12,11 @@ PROXY) or to a specific service name.  ]]
 -- @usage
 -- nmap --script dns-blacklist --script-args='dns-blacklist.ip=<ip>'
 -- or
--- nmap -sn <ip> --script dns-blacklist 
+-- nmap -sn <ip> --script dns-blacklist
 --
 -- @output
 -- Pre-scan script results:
--- | dns-blacklist: 
+-- | dns-blacklist:
 -- | 1.2.3.4
 -- |   PROXY
 -- |     dnsbl.ahbl.org - PROXY
@@ -33,7 +33,7 @@ PROXY) or to a specific service name.  ]]
 -- |_    spam.dnsbl.sorbs.net - SPAM
 --
 -- Supported blacklist list mode (--script-args dns-blacklist.list):
--- | dns-blacklist: 
+-- | dns-blacklist:
 -- |   PROXY
 -- |     dnsbl.ahbl.org
 -- |     socks.dnsbl.sorbs.net
@@ -113,7 +113,7 @@ local function formatResult(result)
 end
 
 dnsblAction = function(host)
-		
+
 	local helper
 	if ( arg_services and ( not(arg_category) or "all" == arg_category:lower() ) ) then
 		return "\n  ERROR: A service filter can't be used without a specific category"
@@ -143,11 +143,11 @@ dnsblAction = function(host)
 		end
 		if ( #output == 0 ) then return end
 	end
-	
+
 	if ( "prerule" == SCRIPT_TYPE ) then
 		output.name = host.ip
 	end
-	
+
 	return stdnse.format_output(true, output)
 end
 
@@ -158,16 +158,16 @@ action = function(...)
 	if ( arg_mode ~= "short" and arg_mode ~= "long" ) then
 		return "\n  ERROR: Invalid argument supplied, mode should be either 'short' or 'long'"
 	end
-	
+
 	if ( arg_IP and not(ipOps.todword(arg_IP)) ) then
 		return "\n  ERROR: Invalid IP address was supplied"
 	end
-	
+
 	-- if the list argument was given, just list the services and abort
 	if ( arg_list ) then
 		return listServices()
 	end
-	
+
 	if ( arg_IP and "prerule" == SCRIPT_TYPE ) then
 		return dnsblAction( { ip = arg_IP } )
 	elseif ( "hostrule" == SCRIPT_TYPE ) then

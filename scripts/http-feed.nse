@@ -7,14 +7,14 @@ Please, note that the script will become more intrusive though.
 ]]
 
 ---
--- @usage nmap -p80 --script http-feed.nse <target>  
--- 
+-- @usage nmap -p80 --script http-feed.nse <target>
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-feed: 
+-- | http-feed:
 -- | Spidering limited to: maxpagecount=40; withinhost=some-random-page.com
--- |   Found the following feeds: 
+-- |   Found the following feeds:
 -- |     RSS (version 2.0): http://www.some-random-page.com/2011/11/20/feed/
 -- |     RSS (version 2.0): http://www.some-random-page.com/2011/12/04/feed/
 -- |     RSS (version 2.0): http://www.some-random-page.com/category/animalsfeed/
@@ -51,19 +51,19 @@ checked = {}
 
 -- Searches the resource for feeds.
 local findFeeds = function(body, path)
-                
+
         if body then
             for _, f in pairs(FEEDS) do
                 for __, pf in pairs(f["search"]) do
 
-                    local c = string.match(body, pf) 
+                    local c = string.match(body, pf)
 
                     if c then
                       local v = ""
                         -- Try to find feed's version.
                         if string.match(c, f["version"]) then
                             v = " (version " .. string.match(c, f["version"]) .. ")"
-                        end 
+                        end
                         feedsfound[path] =  _ .. v .. ": "
                     end
 
@@ -74,19 +74,19 @@ local findFeeds = function(body, path)
 end
 
 
-action = function(host, port) 
+action = function(host, port)
 
     local maxpagecount = stdnse.get_script_args("maxpagecount") or 40
 
-    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME, 
-                                                              maxpagecount = maxpagecount, 
-                                                              maxdepth = -1, 
+    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
+                                                              maxpagecount = maxpagecount,
+                                                              maxdepth = -1,
                                                               withinhost = 1
                                                               })
 
     crawler.options.doscraping = function(url)
-        if crawler:iswithinhost(url) 
-        and not crawler:isresource(url, "js") 
+        if crawler:iswithinhost(url)
+        and not crawler:isresource(url, "js")
         and not crawler:isresource(url, "css") then
             return true
         end
@@ -100,7 +100,7 @@ action = function(host, port)
 
     local index, k, target, response, path
     while (true) do
-  
+
         local status, r = crawler:crawl()
         -- if the crawler fails it can be due to a number of different reasons
         -- most of them are "legitimate" and should not be reason to abort
@@ -119,11 +119,11 @@ action = function(host, port)
             findFeeds(response.body, path)
 
             for _, p in ipairs(FEEDS_REFS) do
-                for l in string.gmatch(response.body, p) do 
+                for l in string.gmatch(response.body, p) do
                     if not checked[l] then
                         local resp
                         -- If this is an absolute URL, use get_url.
-                        if string.match(l, "^http") then 
+                        if string.match(l, "^http") then
                             resp = http.get_url(l)
                         else
                             resp = http.get(host, port, l)
@@ -133,7 +133,7 @@ action = function(host, port)
                         end
                     end
                 end
-            end 
+            end
         end
 
     end
@@ -152,7 +152,7 @@ action = function(host, port)
     table.insert(results, 1, "Found the following feeds: ")
 
 	results.name = crawler:getLimitations()
-	
+
 	return stdnse.format_output(true, results)
 
 end

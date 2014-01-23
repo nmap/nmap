@@ -15,7 +15,7 @@ Parses and displays the banner information of an OpenLookup (network key-value s
 --
 -- @output
 -- 5850/tcp open  openlookup
--- | openlookup-info: 
+-- | openlookup-info:
 -- |     sync port: 5850
 -- |     name: Paradise, Arizona
 -- |     your address: 127.0.0.1:50162
@@ -82,7 +82,7 @@ local function parsestring(data)
 	if string.sub(data, 1, 1) ~= "s" then
 		return
 	end
-	return string.sub(data, 2)	
+	return string.sub(data, 2)
 end
 
 -- parses an NSON int, float, or string

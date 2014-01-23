@@ -57,25 +57,25 @@ Useful resources
 -- 53/tcp   open     domain
 -- |  dns-zone-transfer:
 -- |  foo.com.            SOA     ns2.foo.com. piou.foo.com.
--- |  foo.com.            TXT  
--- |  foo.com.            NS      ns1.foo.com.               
--- |  foo.com.            NS      ns2.foo.com.               
--- |  foo.com.            NS      ns3.foo.com.               
--- |  foo.com.            A       127.0.0.1                  
--- |  foo.com.            MX      mail.foo.com.              
--- |  anansie.foo.com.    A       127.0.0.2                  
--- |  dhalgren.foo.com.   A       127.0.0.3                  
+-- |  foo.com.            TXT
+-- |  foo.com.            NS      ns1.foo.com.
+-- |  foo.com.            NS      ns2.foo.com.
+-- |  foo.com.            NS      ns3.foo.com.
+-- |  foo.com.            A       127.0.0.1
+-- |  foo.com.            MX      mail.foo.com.
+-- |  anansie.foo.com.    A       127.0.0.2
+-- |  dhalgren.foo.com.   A       127.0.0.3
 -- |  drupal.foo.com.     CNAME
--- |  goodman.foo.com.    A       127.0.0.4 i                
--- |  goodman.foo.com.    MX      mail.foo.com.              
--- |  isaac.foo.com.      A       127.0.0.5                  
--- |  julie.foo.com.      A       127.0.0.6                  
--- |  mail.foo.com.       A       127.0.0.7                  
--- |  ns1.foo.com.        A       127.0.0.7                  
--- |  ns2.foo.com.        A       127.0.0.8                  
--- |  ns3.foo.com.        A       127.0.0.9                  
--- |  stubing.foo.com.    A       127.0.0.10                 
--- |  vicki.foo.com.      A       127.0.0.11                 
+-- |  goodman.foo.com.    A       127.0.0.4 i
+-- |  goodman.foo.com.    MX      mail.foo.com.
+-- |  isaac.foo.com.      A       127.0.0.5
+-- |  julie.foo.com.      A       127.0.0.6
+-- |  mail.foo.com.       A       127.0.0.7
+-- |  ns1.foo.com.        A       127.0.0.7
+-- |  ns2.foo.com.        A       127.0.0.8
+-- |  ns3.foo.com.        A       127.0.0.9
+-- |  stubing.foo.com.    A       127.0.0.10
+-- |  vicki.foo.com.      A       127.0.0.11
 -- |  votetrust.foo.com.  CNAME
 -- |  www.foo.com.        CNAME
 -- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.
@@ -437,7 +437,7 @@ local RD = {
     offset, field = bin.unpack("A" .. (bto16(data, offset-2)-2), data, offset+2)
     return offset, string.format("%d %d %s", coding, subcoding, stdnse.tohex(field))
   end,
-  --OPT APL DS 
+  --OPT APL DS
   SSHFP = function(data, offset)
     local algorithm, fptype, fplen, fingerprint
     algorithm = string.byte(data, offset)
@@ -625,7 +625,7 @@ function add_zone_info(response)
     return false, ret and ret or "Error: failed to add DNS records."
   end
   tab.addrow(outtab, "Node Names", newhosts_count)
-  nhosts = newhosts_count 
+  nhosts = newhosts_count
 
   tab.nextrow(outtab)
 
@@ -636,7 +636,7 @@ function add_zone_info(response)
     if rectype == 'A' then
       for rdata in pairs(RR[rectype]) do
         if dns_opts.addall or not ipOps.isPrivate(rdata) then
-          status, ret = target.add(rdata) 
+          status, ret = target.add(rdata)
           if not status then
             stdnse.print_debug(3,
                 "Error: failed to add all 'A' records.")

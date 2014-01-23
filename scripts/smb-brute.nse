@@ -9,65 +9,65 @@ local table = require "table"
 local unpwdb = require "unpwdb"
 
 description = [[
-Attempts to guess username/password combinations over SMB, storing discovered combinations 
-for use in other scripts. Every attempt will be made to get a valid list of users and to 
-verify each username before actually using them. When a username is discovered, besides 
+Attempts to guess username/password combinations over SMB, storing discovered combinations
+for use in other scripts. Every attempt will be made to get a valid list of users and to
+verify each username before actually using them. When a username is discovered, besides
 being printed, it is also saved in the Nmap registry so other Nmap scripts can use it. That
-means that if you're going to run <code>smb-brute.nse</code>, you should run other <code>smb</code> scripts you want. 
-This checks passwords in a case-insensitive way, determining case after a password is found, 
-for Windows versions before Vista. 
+means that if you're going to run <code>smb-brute.nse</code>, you should run other <code>smb</code> scripts you want.
+This checks passwords in a case-insensitive way, determining case after a password is found,
+for Windows versions before Vista.
 
-This script is specifically targeted towards security auditors or penetration testers. 
+This script is specifically targeted towards security auditors or penetration testers.
 One example of its use, suggested by Brandon Enright, was hooking up <code>smb-brute.nse</code> to the
 database of usernames and passwords used by the Conficker worm (the password list can be
 found at http://www.skullsecurity.org/wiki/index.php/Passwords, among other places.
-Then, the network is scanned and all systems that would be infected by Conficker are 
-discovered. 
+Then, the network is scanned and all systems that would be infected by Conficker are
+discovered.
 
 From the penetration tester perspective its use is pretty obvious. By discovering weak passwords
-on SMB, a protocol that's well suited for bruteforcing, access to a system can be gained. 
+on SMB, a protocol that's well suited for bruteforcing, access to a system can be gained.
 Further, passwords discovered against Windows with SMB might also be used on Linux or MySQL
-or custom Web applications. Discovering a password greatly beneficial for a pen-tester. 
+or custom Web applications. Discovering a password greatly beneficial for a pen-tester.
 
-This script uses a lot of little tricks that I (Ron Bowes) describe in detail in a blog 
+This script uses a lot of little tricks that I (Ron Bowes) describe in detail in a blog
 posting, http://www.skullsecurity.org/blog/?p=164. The tricks will be summarized here, but
-that blog is the best place to learn more. 
+that blog is the best place to learn more.
 
 Usernames and passwords are initially taken from the unpwdb library. If possible, the usernames
 are verified as existing by taking advantage of Windows' odd behaviour with invalid username
-and invalid password responses. As soon as it is able, this script will download a full list 
-of usernames from the server and replace the unpw usernames with those. This enables the 
-script to restrict itself to actual accounts only. 
+and invalid password responses. As soon as it is able, this script will download a full list
+of usernames from the server and replace the unpw usernames with those. This enables the
+script to restrict itself to actual accounts only.
 
 When an account is discovered, it's saved in the <code>smb</code> module (which uses the Nmap
-registry). If an account is already saved, the account's privileges are checked; accounts 
+registry). If an account is already saved, the account's privileges are checked; accounts
 with administrator privileges are kept over accounts without. The specific method for checking
 is by calling <code>GetShareInfo("IPC$")</code>, which requires administrative privileges. Once this script
 is finished (all other smb scripts depend on it, it'll run first), other scripts will use the saved account
-to perform their checks. 
+to perform their checks.
 
 The blank password is always tried first, followed by "special passwords" (such as the username
-and the username reversed). Once those are exhausted, the unpwdb password list is used. 
+and the username reversed). Once those are exhausted, the unpwdb password list is used.
 
-One major goal of this script is to avoid accout lockouts. This is done in a few ways. First, 
+One major goal of this script is to avoid accout lockouts. This is done in a few ways. First,
 when a lockout is detected, unless you user specifically overrides it with the <code>smblockout</code>
-argument, the scan stops. Second, all usernames are checked with the most common passwords first, 
-so with not-too-strict lockouts (10 invalid attempts), the 10 most common passwords will still 
-be tried. Third, one account, called the canary, "goes out ahead"; that is, three invalid 
-attempts are made (by default) to ensure that it's locked out before others are. 
+argument, the scan stops. Second, all usernames are checked with the most common passwords first,
+so with not-too-strict lockouts (10 invalid attempts), the 10 most common passwords will still
+be tried. Third, one account, called the canary, "goes out ahead"; that is, three invalid
+attempts are made (by default) to ensure that it's locked out before others are.
 
 In addition to active accounts, this script will identify valid passwords for accounts that
 are disabled, guest-equivalent, and require password changes. Although these accounts can't
 be used, it's good to know that the password is valid. In other cases, it's impossible to
-tell a valid password (if an account is locked out, for example). These are displayed, too. 
+tell a valid password (if an account is locked out, for example). These are displayed, too.
 Certain accounts, such as guest or some guest-equivalent, will permit any password. This
-is also detected. When possible, the SMB protocol is used to its fullest to get maximum 
-information. 
+is also detected. When possible, the SMB protocol is used to its fullest to get maximum
+information.
 
 When possible, checks are done using a case-insensitive password, then proper case is
-determined with a fairly efficient bruteforce. For example, if the actual password is 
+determined with a fairly efficient bruteforce. For example, if the actual password is
 "PassWord", then "password" will work and "PassWord" will be found afterwards (on the
-14th attempt out of a possible 256 attempts, with the current algorithm). 
+14th attempt out of a possible 256 attempts, with the current algorithm).
 ]]
 ---
 --@usage
@@ -87,19 +87,19 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 -- |  |  thisisaverylongname:password => Valid credentials
 -- |  |  thisisaverylongnamev:password => Valid credentials
 -- |_ |_ web:TeSt => Valid credentials, account disabled
--- 
--- @args smblockout This argument will force the script to continue if it 
---       locks out an account or thinks it will lock out an account. 
--- @args brutelimit Limits the number of usernames checked in the script. In some domains, 
+--
+-- @args smblockout This argument will force the script to continue if it
+--       locks out an account or thinks it will lock out an account.
+-- @args brutelimit Limits the number of usernames checked in the script. In some domains,
 --       it's possible to end up with 10,000+ usernames on each server. By default, this
 --       will be <code>5000</code>, which should be higher than most servers and also prevent infinite
 --       loops or other weird things. This will only affect the user list pulled from the
---       server, not the username list. 
--- @args canaries Sets the number of tests to do to attempt to lock out the first account. 
---       This will lock out the first account without locking out the rest of the accounts. 
+--       server, not the username list.
+-- @args canaries Sets the number of tests to do to attempt to lock out the first account.
+--       This will lock out the first account without locking out the rest of the accounts.
 --       The default is 3, which will only trigger strict lockouts, but will also bump the
 --       canary account up far enough to detect a lockout well before other accounts are
---       hit. 
+--       hit.
 -----------------------------------------------------------------------
 
 
@@ -111,14 +111,14 @@ categories = {"intrusive", "brute"}
 
 ---The maximum number of usernames to check (can be modified with smblimit argument)
 -- The limit exists because domains may have hundreds of thousands of accounts,
--- potentially. 
+-- potentially.
 local LIMIT = 5000
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
----The possible result codes. These are simplified from the actual codes that SMB returns. 
+---The possible result codes. These are simplified from the actual codes that SMB returns.
 local results =
 {
 	SUCCESS             =  1, -- Login was successful
@@ -163,17 +163,17 @@ result_strings[results.FAIL]                 = "Invalid credentials"
 result_strings[results.INVALID_LOGON_HOURS]  = "Valid credentials, account cannot log in at current time"
 result_strings[results.INVALID_WORKSTATION]  = "Valid credentials, account cannot log in from current host"
 
----Constants for special passwords. These each contain a null character, which is illegal in 
--- actual passwords. 
+---Constants for special passwords. These each contain a null character, which is illegal in
+-- actual passwords.
 local USERNAME          = string.char(0) .. "username"
 local USERNAME_REVERSED = string.char(0) .. "username reversed"
 local special_passwords = { USERNAME, USERNAME_REVERSED }
 
----Generates a random string of the requested length. This can be used to check how hosts react to 
--- weird username/password combinations. 
---@param length (optional) The length of the string to return. Default: 8. 
---@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore. 
---@return The random string. 
+---Generates a random string of the requested length. This can be used to check how hosts react to
+-- weird username/password combinations.
+--@param length (optional) The length of the string to return. Default: 8.
+--@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore.
+--@return The random string.
 local function get_random_string(length, set)
 	if(length == nil) then
 		length = 8
@@ -193,10 +193,10 @@ local function get_random_string(length, set)
 	return str
 end
 
----Splits a string in the form "domain\user" into domain and user. 
+---Splits a string in the form "domain\user" into domain and user.
 --@param str The string to split
 --@return (domain, username) The domain and the username. If no domain was given, nil is returned
---        for domain. 
+--        for domain.
 local function split_domain(str)
 	local username, domain
 	local split = stdnse.strsplit("\\", str)
@@ -212,12 +212,12 @@ local function split_domain(str)
 	return domain, username
 end
 
----Formats a username/password pair with an optional result. Just a way to keep things consistent 
--- throughout the program. Currently, the format is "username:password => result". 
---@param username The username. 
---@param password [optional] The password. Default: "<unknown>". 
---@param result   [optional] The result, as a constant. Default: not used. 
---@return A string representing the input values. 
+---Formats a username/password pair with an optional result. Just a way to keep things consistent
+-- throughout the program. Currently, the format is "username:password => result".
+--@param username The username.
+--@param password [optional] The password. Default: "<unknown>".
+--@param result   [optional] The result, as a constant. Default: not used.
+--@return A string representing the input values.
 local function format_result(username, password, result)
 
 	if(username == "") then
@@ -237,9 +237,9 @@ local function format_result(username, password, result)
 	end
 end
 
----Decides which login type to use (lanman, ntlm, or other). Designed to keep things consistent. 
---@param hostinfo The hostinfo table. 
---@return A string representing the login type to use (that can be passed to SMB functions). 
+---Decides which login type to use (lanman, ntlm, or other). Designed to keep things consistent.
+--@param hostinfo The hostinfo table.
+--@return A string representing the login type to use (that can be passed to SMB functions).
 local function get_type(hostinfo)
 	-- Check if the user requested a specific type
 	if(nmap.registry.args.smbtype ~= nil) then
@@ -260,9 +260,9 @@ local function get_type(hostinfo)
 end
 
 ---Stops the session, if one exists. This can be called as frequently as needed, it'll just return if no
--- session is present, but it should generally be paired with a <code>restart_session</code> call. 
---@param hostinfo The hostinfo table. 
---@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined. 
+-- session is present, but it should generally be paired with a <code>restart_session</code> call.
+--@param hostinfo The hostinfo table.
+--@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined.
 local function stop_session(hostinfo)
 	local status, err
 
@@ -281,9 +281,9 @@ local function stop_session(hostinfo)
 end
 
 ---Starts or restarts a SMB session with the host. Although this will automatically stop a session if
--- one exists, it's a little cleaner to pair this with a <code>stop_session</code> call. 
---@param hostinfo The hostinfo table. 
---@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined. 
+-- one exists, it's a little cleaner to pair this with a <code>stop_session</code> call.
+--@param hostinfo The hostinfo table.
+--@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined.
 local function restart_session(hostinfo)
 	local status, err, smbstate
 
@@ -301,18 +301,18 @@ local function restart_session(hostinfo)
 	return true
 end
 
----Attempts to log into an account, returning one of the <code>results</code> constants. Will always return to the 
--- state where another login can be attempted. Will also differentiate between a hash and a password, and choose the 
--- proper login method (unless overridden). Will interpret the result as much as possible. 
+---Attempts to log into an account, returning one of the <code>results</code> constants. Will always return to the
+-- state where another login can be attempted. Will also differentiate between a hash and a password, and choose the
+-- proper login method (unless overridden). Will interpret the result as much as possible.
 --
--- The session has to be active (ie, <code>restart_session</code> has to be called) before calling this function. 
+-- The session has to be active (ie, <code>restart_session</code> has to be called) before calling this function.
 --
---@param hostinfo The hostinfo table. 
---@param username The username to try. 
---@param password The password to try. 
+--@param hostinfo The hostinfo table.
+--@param username The username to try.
+--@param password The password to try.
 --@param logintype [optional] The logintype to use. Default: <code>get_type</code> is called. If <code>password</code>
---       is a hash, this is ignored. 
---@return Result, an integer value from the <code>results</code> constants. 
+--       is a hash, this is ignored.
+--@return Result, an integer value from the <code>results</code> constants.
 local function check_login(hostinfo, username, password, logintype)
 	local result
 	local domain = ""
@@ -329,7 +329,7 @@ local function check_login(hostinfo, username, password, logintype)
 	else
 		status, err	  = smb.start_session(smbstate, smb.get_overrides(username, domain, password, nil, logintype), false)
 	end
-   
+
 	if(status == true) then
 		if(smbstate['is_guest'] == 1) then
 			result = results.GUEST_ACCESS
@@ -363,14 +363,14 @@ local function check_login(hostinfo, username, password, logintype)
 	return result
 end
 
----Determines whether or not a login was successful, based on what's known about the server's settings. This 
--- is fairly straight forward, but has a couple little tricks. 
+---Determines whether or not a login was successful, based on what's known about the server's settings. This
+-- is fairly straight forward, but has a couple little tricks.
 --
---@param hostinfo The hostinfo table. 
---@param result   The result code. 
+--@param hostinfo The hostinfo table.
+--@param result   The result code.
 --@return <code>true</code> if the password used for logging in was correct, <code>false</code> otherwise. Keep
 --        in mind that this doesn't imply the login was successful (only results.SUCCESS indicates that), rather
---        that the password was valid. 
+--        that the password was valid.
 
 function is_positive_result(hostinfo, result)
 	-- If result is a FAIL, it's always bad
@@ -393,16 +393,16 @@ function is_positive_result(hostinfo, result)
 	return true
 end
 
----Determines whether or not a login was "bad". A bad login is one where an account becomes locked out. 
+---Determines whether or not a login was "bad". A bad login is one where an account becomes locked out.
 --
---@param hostinfo The hostinfo table. 
---@param result   The result code. 
+--@param hostinfo The hostinfo table.
+--@param result   The result code.
 --@return <code>true</code> if the password used for logging in was correct, <code>false</code> otherwise. Keep
 --        in mind that this doesn't imply the login was successful (only results.SUCCESS indicates that), rather
---        that the password was valid. 
+--        that the password was valid.
 
 function is_bad_result(hostinfo, result)
-	-- If result is LOCKED, it's always bad. 
+	-- If result is LOCKED, it's always bad.
 	if(result == results.ACCOUNT_LOCKED or result == results.ACCOUNT_LOCKED_NOW) then
 		return true
 	end
@@ -412,9 +412,9 @@ function is_bad_result(hostinfo, result)
 end
 
 ---Count the number of one bits in a binary representation of the given number. This is used for case-sensitive
--- checks. 
+-- checks.
 --
---@param num The number to count the ones for. 
+--@param num The number to count the ones for.
 --@return The number of ones in the number
 local function count_ones(num)
 	local count = 0
@@ -430,12 +430,12 @@ local function count_ones(num)
 end
 
 ---Converts a string's case based on a binary number. For every '1' bit, the character is uppercased, and for every '0'
--- bit it's lowercased. For example, "test" and 8 (1000) becomes "Test", while "test" and 11 (1011) becomes "TeST". 
+-- bit it's lowercased. For example, "test" and 8 (1000) becomes "Test", while "test" and 11 (1011) becomes "TeST".
 --
 --@param str The string to convert.
 --@param num The binary number representing the case. This value isn't checked, so if it's too large it's truncated, and if it's
---           too small it's effectively zero-padded. 
---@return The converted string. 
+--           too small it's effectively zero-padded.
+--@return The converted string.
 local function convert_case(str, num)
 	local pos = #str
 
@@ -468,15 +468,15 @@ local function convert_case(str, num)
 end
 
 ---Attempts to determine the case of a password. This is done by trying every possible combination of upper and lowercase
--- characters in the password, in the most efficient possible ordering, until the corerct case is found. 
+-- characters in the password, in the most efficient possible ordering, until the corerct case is found.
 --
--- A session has to be active when this function is called. 
+-- A session has to be active when this function is called.
 --
---@param hostinfo The hostinfo table. 
---@param username The username. 
+--@param hostinfo The hostinfo table.
+--@param username The username.
 --@param password The password (it's assumed that it's all lowercase already, but it doesn't matter)
 --@return The password with the proper case, or the original password if it couldn't be determined (either the proper
---        case wasn't found or the login type is incorrect). 
+--        case wasn't found or the login type is incorrect).
 local function find_password_case(hostinfo, username, password)
 	-- Only do this if we're using lanman, otherwise we already have the proper password
 	if(get_type(hostinfo) ~= "lm") then
@@ -519,8 +519,8 @@ local function find_password_case(hostinfo, username, password)
 	return password
 end
 
----Unless the user is ok with lockouts, check the lockout policy of the host. Take the most restrictive 
--- portion among the domains. Returns true if lockouts could happen, false otherwise. 
+---Unless the user is ok with lockouts, check the lockout policy of the host. Take the most restrictive
+-- portion among the domains. Returns true if lockouts could happen, false otherwise.
 local function bad_lockout_policy(host)
 	-- If the user is ok with locking out accounts, just return
 	if(stdnse.get_script_args( "smblockout" )) then
@@ -546,9 +546,9 @@ local function bad_lockout_policy(host)
 end
 
 ---Initializes and returns the hostinfo table. This includes queuing up the username and password lists, determining
--- the server's operating system,  and checking the server's response for invalid usernames/invalid passwords. 
+-- the server's operating system,  and checking the server's response for invalid usernames/invalid passwords.
 --
---@param host The host object. 
+--@param host The host object.
 local function initialize(host)
 	local os, result
 	local status, bad_lockout_policy_result
@@ -613,9 +613,9 @@ local function initialize(host)
 		return false, err
 	end
 
-	-- Some hosts will accept any username -- check for this by trying to log in with a totally random name. If the 
+	-- Some hosts will accept any username -- check for this by trying to log in with a totally random name. If the
 	-- server accepts it, it'll be impossible to bruteforce; if it gives us a weird result code, we have to remember
-	-- it. 
+	-- it.
 	hostinfo['invalid_username'] = check_login(hostinfo, get_random_string(8), get_random_string(8), "ntlm")
 	hostinfo['invalid_password'] = check_login(hostinfo, "Administrator",      get_random_string(8), "ntlm")
 
@@ -658,10 +658,10 @@ local function initialize(host)
 end
 
 ---Retrieves the next password in the password database we're using. Will never return the empty string.
--- May also return one of the <code>special_passwords</code> constants. 
+-- May also return one of the <code>special_passwords</code> constants.
 --
---@param hostinfo The hostinfo table (the password list is stored there). 
---@return The new password, or nil if the end of the list has been reached. 
+--@param hostinfo The hostinfo table (the password list is stored there).
+--@return The new password, or nil if the end of the list has been reached.
 local function get_next_password(hostinfo)
 	local new_password
 
@@ -680,19 +680,19 @@ local function get_next_password(hostinfo)
 	return new_password
 end
 
----Reset to the first password. This is normally done when the user list changes. 
+---Reset to the first password. This is normally done when the user list changes.
 --
---@param hostinfo The hostinfo table. 
+--@param hostinfo The hostinfo table.
 local function reset_password(hostinfo)
 	hostinfo['password_list']("reset")
 end
 
 ---Retrieves the next username. This can be from the username database, or from an array stored in the
--- hostinfo table. This won't return any names that have been determined to be invalid, locked, or 
--- have already had their password found. 
+-- hostinfo table. This won't return any names that have been determined to be invalid, locked, or
+-- have already had their password found.
 --
 --@param hostinfo The hostinfo table
---@return The next username, or nil if the end of the list has been reached. 
+--@return The next username, or nil if the end of the list has been reached.
 local function get_next_username(hostinfo)
 	local username
 
@@ -700,13 +700,13 @@ local function get_next_username(hostinfo)
 		if(hostinfo['have_user_list']) then
 			local index = hostinfo['user_list_index']
 			hostinfo['user_list_index'] = hostinfo['user_list_index'] + 1
-	
+
 			username = hostinfo['user_list'][index]
 			if(username ~= nil) then
 			  local _
 				_, username = split_domain(username)
 			end
-	
+
 		else
 			username = hostinfo['user_list_default']()
 		end
@@ -721,9 +721,9 @@ local function get_next_username(hostinfo)
 	return username
 end
 
----Reset to the first username. 
+---Reset to the first username.
 --
---@param hostinfo The hostinfo table. 
+--@param hostinfo The hostinfo table.
 local function reset_username(hostinfo)
 	if(hostinfo['have_user_list']) then
 		hostinfo['user_list_index'] = 1
@@ -732,11 +732,11 @@ local function reset_username(hostinfo)
 	end
 end
 
----Do a little trick to detect account lockouts without bringing every user to the lockout threshold -- bump the lockout counter of 
--- the first user ahead. If lockouts are happening, this means that the first account will trigger before the rest of the accounts. 
+---Do a little trick to detect account lockouts without bringing every user to the lockout threshold -- bump the lockout counter of
+-- the first user ahead. If lockouts are happening, this means that the first account will trigger before the rest of the accounts.
 -- A canary in the mineshaft, in a way.
 --
--- The number of checks defaults to three, but it can be controlled with the <code>canary</code> argument. 
+-- The number of checks defaults to three, but it can be controlled with the <code>canary</code> argument.
 --
 -- Times it'll fail are when:
 -- * Accounts are locked out due to the initial checks (happens if the user runs smb-brute twice in a row, the canary won't help)
@@ -746,9 +746,9 @@ function test_lockouts(hostinfo)
 	local i
 	local username = get_next_username(hostinfo)
 
-	-- It's possible that every username was accounted for already, so our list is empty. 
+	-- It's possible that every username was accounted for already, so our list is empty.
 	if(username == nil) then
-		return 
+		return
 	end
 
 	if(stdnse.get_script_args( "smblockout" )) then
@@ -782,7 +782,7 @@ function test_lockouts(hostinfo)
 
 		-- If the account just became locked (it's already been put on the 'valid' list), we're in trouble
 		if(result == results.LOCKED) then
-			-- If the canary just became locked, we're one step from locking out every account. Loop through the usernames and invalidate them to 
+			-- If the canary just became locked, we're one step from locking out every account. Loop through the usernames and invalidate them to
 			-- prevent them from being locked out
 			stdnse.print_debug(1, "smb-brute: Canary (%s) became locked out -- aborting")
 
@@ -803,17 +803,17 @@ function test_lockouts(hostinfo)
 end
 
 ---Attempts to validate the current list of usernames by logging in with a blank password, marking invalid ones (and ones that had
--- a blank password). Determining the validity of a username works best if invalid usernames are redirected to 'guest'. 
+-- a blank password). Determining the validity of a username works best if invalid usernames are redirected to 'guest'.
 --
--- If a username accepts the blank password, a random password is tested. If that's accepted as well, the account is marked as 
--- accepting any password (the 'guest' account is normally like that). 
+-- If a username accepts the blank password, a random password is tested. If that's accepted as well, the account is marked as
+-- accepting any password (the 'guest' account is normally like that).
 --
--- This also checks whether the server locks out users, and raises the lockout threshold of the first user (see the 
+-- This also checks whether the server locks out users, and raises the lockout threshold of the first user (see the
 -- <code>check_lockouts</code> function for more information on that. If accounts on the system are locked out, they aren't
--- checked. 
+-- checked.
 --
---@param hostinfo The hostinfo table. 
---@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined. 
+--@param hostinfo The hostinfo table.
+--@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined.
 local function validate_usernames(hostinfo)
 	local status, err
 	local result
@@ -854,12 +854,12 @@ local function validate_usernames(hostinfo)
 			stdnse.print_debug(1, "smb-brute: Blank password for '%s' => '%s' (locked out)", username, result_short_strings[result])
 
 		elseif(result == results.FAIL) then
-			-- If none of the standard options work, check if it's FAIL. If it's FAIL, there's an error somewhere (probably, the 
-			-- 'administrator' username is changed so we're getting invalid data). 
+			-- If none of the standard options work, check if it's FAIL. If it's FAIL, there's an error somewhere (probably, the
+			-- 'administrator' username is changed so we're getting invalid data).
 			stdnse.print_debug(1, "smb-brute: Blank password for '%s' => '%s' (may be valid)", username, result_short_strings[result])
 
 		else
-			-- If none of those came up, either the password is legitimately blank, or any account works. Figure out what! 
+			-- If none of those came up, either the password is legitimately blank, or any account works. Figure out what!
 			local new_result = check_login(hostinfo, username, get_random_string(14), "ntlm")
 			if(new_result == result) then
 				-- Any password works (often happens with 'guest' account)
@@ -893,17 +893,17 @@ local function validate_usernames(hostinfo)
 end
 
 ---Marks an account as discovered. The login with this account doesn't have to be successful, but <code>is_positive_result</code> should
--- return <code>true</code>. 
+-- return <code>true</code>.
 --
--- If the result IS successful, and this hasn't been done before, this function will attempt to pull a userlist from the server. 
+-- If the result IS successful, and this hasn't been done before, this function will attempt to pull a userlist from the server.
 --
--- The session should be stopped before entering this function, and restarted after -- that allows this function to make its own SMB calls. 
+-- The session should be stopped before entering this function, and restarted after -- that allows this function to make its own SMB calls.
 --
---@param hostinfo The hostinfo table. 
---@param username The username. 
+--@param hostinfo The hostinfo table.
+--@param username The username.
 --@param password The password.
---@param result   The result, as an integer constant. 
---@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined. 
+--@param result   The result, as an integer constant.
+--@return (status, err) If status is false, err is a string corresponding to the error; otherwise, err is undefined.
 function found_account(hostinfo, username, password, result)
 	local status, err
 
@@ -922,8 +922,8 @@ function found_account(hostinfo, username, password, result)
 
 		-- Check if we have an 'admin' account
         -- Try getting information about "IPC$". This determines whether or not the user is administrator
-        -- since only admins can get share info. Note that on Vista and up, unless UAC is disabled, all 
-        -- accounts are non-admin. 
+        -- since only admins can get share info. Note that on Vista and up, unless UAC is disabled, all
+        -- accounts are non-admin.
 		local is_admin = smb.is_admin(hostinfo['host'], username, '', password, nil, nil)
 
 		-- Add the account
@@ -965,16 +965,16 @@ function found_account(hostinfo, username, password, result)
 		if(status == false) then
 			return false, err
 		end
-		
+
 	end
 end
 
----This is the main function that does all the work (loops through the lists and checks the results). 
+---This is the main function that does all the work (loops through the lists and checks the results).
 --
---@param host The host table. 
+--@param host The host table.
 --@return (status, accounts, locked_accounts) If status is false, accounts is an error message. Otherwise, accounts
 --        is a table of passwords/results, indexed by the username and locked_accounts is a table indexed by locked
---        usernames. 
+--        usernames.
 local function go(host)
 	local status, err
 	local result, hostinfo
@@ -987,7 +987,7 @@ local function go(host)
 		return false, hostinfo
 	end
 
-	-- If invalid accounts don't give guest, we can determine the existence of users by trying to 
+	-- If invalid accounts don't give guest, we can determine the existence of users by trying to
 	-- log in with an invalid password and checking the value
 	status, err = validate_usernames(hostinfo)
 	if(status == false) then

@@ -23,7 +23,7 @@ determine if the fuzzing was successful.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-form-fuzzer: 
+-- | http-form-fuzzer:
 -- |   Path: /register.html Action: /validate.php
 -- |     age
 -- |       integer lengths that caused errors:
@@ -114,11 +114,11 @@ local charset_number = generate_charset(49,57) -- ascii 49 -> 1; 57 -> 9
 local function fuzz_field(field, minlen, maxlen, postdata, sending_function)
   local affected_string = {}
   local affected_int = {}
-  
+
   for i=minlen,maxlen do -- maybe a better idea would be to increment the string's length by more then 1 in each step
     local response_string
     local response_number
-    
+
     --first try to fuzz with a string
     postdata[field["name"]] = stdnse.generate_random_string(i, charset)
     response_string = sending_function(postdata)
@@ -141,7 +141,7 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
   local affected_fields = {}
   local postdata = generate_safe_postdata(form)
   local action_absolute = string.find(form["action"], "https*://")
-  
+
   -- determine the path where the form needs to be submitted
   local form_submission_path
   if action_absolute then
@@ -151,7 +151,7 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
     path_cropped = path_cropped and path_cropped or ""
     form_submission_path = path_cropped..form["action"]
   end
-  
+
   -- determine should the form be sent by post or get
   local sending_function
   if form["method"]=="post" then
@@ -159,7 +159,7 @@ local function fuzz_form(form, minlen, maxlen, host, port, path)
   else
     sending_function = function(data) return http.get(host, port, form_submission_path..generate_get_string(data), {no_cache=true, bypass_cache=true}) end
   end
-  
+
   for _,field in ipairs(form["fields"]) do
     if fuzzable(field["type"]) then
       local affected_string, affected_int = fuzz_field(field, minlen, maxlen, postdata, sending_function)
@@ -185,7 +185,7 @@ function action(host, port)
   local maxlen_global = stdnse.get_script_args("http-form-fuzzer.maxlength") or 310000
   local targets = stdnse.get_script_args('http-form-fuzzer.targets') or {{path="/"}}
   local return_table = {}
-  
+
   for _,target in ipairs(targets) do
     stdnse.print_debug(2, "http-form-fuzzer: testing path: "..target["path"])
     local path = target["path"]

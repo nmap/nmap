@@ -20,7 +20,7 @@ discovered by other scripts.
 -- @output
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s
--- | ms-sql-dump-hashes: 
+-- | ms-sql-dump-hashes:
 -- |   nmap_test:0x01001234567890ABCDEF01234567890ABCDEF01234567890ABCDEF01234567890ABCDEF01234567890ABCDEF0123
 -- |   sa:0x01001234567890ABCDEF01234567890ABCDEF01234567890ABCDEF01234567890ABCDEF01234567890ABCDEF0123
 -- |_  webshop_dbo:0x01001234567890ABCDEF01234567890ABCDEF01234567890ABCDEF01234567890ABCDEF01234567890ABCDEF0123
@@ -46,29 +46,29 @@ local function process_instance(instance)
 	local helper = mssql.Helper:new()
 	local status, errorMessage = helper:ConnectEx( instance )
 	if ( not(status) ) then
-		return false, { 
-				['name'] = string.format( "[%s]", instance:GetName() ), 
-				"ERROR: " .. errorMessage 
+		return false, {
+				['name'] = string.format( "[%s]", instance:GetName() ),
+				"ERROR: " .. errorMessage
 			}
 	end
-    
+
 	status, errorMessage = helper:LoginEx( instance )
 	if ( not(status) ) then
-		return false, { 
-				['name'] = string.format( "[%s]", instance:GetName() ), 
-				"ERROR: " .. errorMessage 
+		return false, {
+				['name'] = string.format( "[%s]", instance:GetName() ),
+				"ERROR: " .. errorMessage
 			}
 	end
 
 	local result
-	local query = [[ 
+	local query = [[
 		IF ( OBJECT_ID('master..sysxlogins' ) ) <> 0
 			SELECT name, password FROM master..sysxlogins WHERE password IS NOT NULL
 		ELSE IF ( OBJECT_ID('master.sys.sql_logins') ) <> 0
 			SELECT name, password_hash FROM master.sys.sql_logins
 	]]
 	status, result = helper:Query( query )
-	
+
 	local output = {}
 
 	if ( status ) then
@@ -81,9 +81,9 @@ local function process_instance(instance)
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
 	table.insert( instanceOutput, output )
-	
+
 	return true, instanceOutput
-	
+
 end
 
 -- Saves the hashes to file
@@ -109,7 +109,7 @@ action = function( host, port )
 	local dir = stdnse.get_script_args("ms-sql-dump-hashes.dir")
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-        
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -121,12 +121,12 @@ action = function( host, port )
 					local instance = instance:GetName():match("%\\+(.+)$") or instance:GetName()
 					filename = dir .. "/" .. stdnse.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
 					saveToFile(filename, instanceOutput[1])
-				end				
+				end
 			end
 			table.insert( scriptOutput, instanceOutput )
 		end
 	end
-	
+
 	if ( #scriptOutput == 0 ) then return end
 
 	local output = ( #scriptOutput > 1 and scriptOutput or scriptOutput[1] )

@@ -51,7 +51,7 @@ local concat = table.concat;
 
 _ENV = stdnse.module("strbuf", stdnse.seeall)
 
--- String buffer functions. Concatenation is not efficient in 
+-- String buffer functions. Concatenation is not efficient in
 -- lua as strings are immutable. If a large amount of '..' sequential
 -- operations are needed a string buffer should be used instead
 -- e.g. for i = 1, 10 do s = s..i end

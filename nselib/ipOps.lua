@@ -154,12 +154,12 @@ todword = function( ip )
 end
 
 ---
--- Converts the supplied IPv4 address from a DWORD value into a dotted string. 
+-- Converts the supplied IPv4 address from a DWORD value into a dotted string.
 --
--- For example, the address (((a*256+b)*256+c)*256+d) becomes a.b.c.d. 
+-- For example, the address (((a*256+b)*256+c)*256+d) becomes a.b.c.d.
 --
---@param ip DWORD representing an IPv4 address. 
---@return The string representing the address. 
+--@param ip DWORD representing an IPv4 address.
+--@return The string representing the address.
 fromdword = function( ip )
   if type( ip ) ~= "number" then
     stdnse.print_debug(1, "Error in ipOps.todword: Expected IPv4 address.")
@@ -354,7 +354,7 @@ expand_ip = function( ip, family )
     if family == "inet6" then
       return ( table.concat( { 0,0,0,0,0,"ffff",
         stdnse.tohex( 256*octets[1]+octets[2] ),
-        stdnse.tohex( 256*octets[3]+octets[4] ) 
+        stdnse.tohex( 256*octets[3]+octets[4] )
         }, ":" ) )
     else
       return ( table.concat( octets, "." ) )

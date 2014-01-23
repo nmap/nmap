@@ -6,7 +6,7 @@
 -- <code>listop</code> module tries to bring much of the functionality from
 -- functional languages to Lua using Lua's central data structure, the table, as
 -- a base for its list operations. Highlights include a <code>map</code>
--- function applying a given function to each element of a list. 
+-- function applying a given function to each element of a list.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local stdnse = require "stdnse"
@@ -32,8 +32,8 @@ Functional programming style 'list' operations
     value	ncar(list, x)
     list	cdr(list)
     list	ncdr(list, x)
-    
-    where 'list' is an indexed table 
+
+    where 'list' is an indexed table
     where 'value' is an lua datatype
 --]]
 
@@ -58,7 +58,7 @@ end
 -- @param f The function to call.
 -- @param l A list.
 -- @return List of function results.
-function map(f, l) 
+function map(f, l)
     local results = {}
     for _, v in ipairs(l) do
     	results[#results+1] = f(v);
@@ -87,7 +87,7 @@ end
 -- @param f The function.
 -- @param l The list.
 -- @return Filtered list.
-function filter(f, l) 
+function filter(f, l)
   local results = {}
   for i, v in ipairs(l) do
   	if(f(v)) then
@@ -125,7 +125,7 @@ end
 -- @param x Element index.
 -- @return Elements after index <code>x</code> or after index <code>1</code> if
 -- <code>x</code> is not given.
-function ncdr(l, x) 
+function ncdr(l, x)
   return {table.unpack(l, x or 2)};
 end
 

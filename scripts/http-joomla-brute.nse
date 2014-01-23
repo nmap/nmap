@@ -8,8 +8,8 @@ local string = require "string"
 description = [[
 Performs brute force password auditing against Joomla web CMS installations.
 
-This script initially reads the session cookie and parses the security token to perfom the brute force password auditing. 
-It uses the unpwdb and brute libraries to perform password guessing. Any successful guesses are stored using the 
+This script initially reads the session cookie and parses the security token to perfom the brute force password auditing.
+It uses the unpwdb and brute libraries to perform password guessing. Any successful guesses are stored using the
 credentials library.
 
 Joomla's default uri and form names:
@@ -20,7 +20,7 @@ Joomla's default uri and form names:
 
 ---
 -- @usage
--- nmap -sV --script http-joomla-brute 
+-- nmap -sV --script http-joomla-brute
 --   --script-args 'userdb=users.txt,passdb=passwds.txt,http-joomla-brute.hostname=domain.com,
 --                  http-joomla-brute.threads=3,brute.firstonly=true' <target>
 -- nmap -sV --script http-joomla-brute <target>
@@ -28,7 +28,7 @@ Joomla's default uri and form names:
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-joomla-brute: 
+-- | http-joomla-brute:
 -- |   Accounts
 -- |     xdeadbee:i79eWBj07g => Login correct
 -- |   Statistics
@@ -46,9 +46,9 @@ Joomla's default uri and form names:
 -- * http.useragent = String - User Agent used in HTTP requests
 -- * brute.firstonly = Boolean - Stop attack when the first credentials are found
 -- * brute.mode = user/creds/pass - Username password iterator
--- * passdb = String - Path to password list 
--- * userdb = String - Path to user list 
--- 
+-- * passdb = String - Path to password list
+-- * userdb = String - Path to user list
+--
 --
 -- Based on Patrik Karlsson's http-form-brute
 --
@@ -69,9 +69,9 @@ local security_token
 local session_cookie_str
 
 ---
---This class implements the Brute library (http://nmap.org/nsedoc/lib/brute.html) 
+--This class implements the Brute library (http://nmap.org/nsedoc/lib/brute.html)
 ---
-Driver = {	
+Driver = {
   new = function(self, host, port, options)
     local o = {}
     setmetatable(o, self)
@@ -82,17 +82,17 @@ Driver = {
 		o.options = options
     return o
 	end,
-	
+
 	connect = function( self )
 		return true
 	end,
-	
+
 	login = function( self, username, password )
     stdnse.print_debug(2, "HTTP POST %s%s with security token %s\n", self.host, self.uri, security_token)
-		local response = http.post( self.host, self.port, self.uri, { cookies = session_cookie_str, no_cache = true, no_cache_body = true }, nil, 
-                              { [self.options.uservar] = username, [self.options.passvar] = password, 
+		local response = http.post( self.host, self.port, self.uri, { cookies = session_cookie_str, no_cache = true, no_cache_body = true }, nil,
+                              { [self.options.uservar] = username, [self.options.passvar] = password,
                               [security_token] = 1, lang = "", option = "com_login", task = "login" } )
-    
+
     if response.body and not( response.body:match('name=[\'"]*'..self.options.passvar ) ) then
       stdnse.print_debug(2, "Response:\n%s", response.body)
       local c = creds.Credentials:new(SCRIPT_NAME, self.host, self.port )
@@ -101,14 +101,14 @@ Driver = {
     end
     return false, brute.Error:new( "Incorrect password" )
 	end,
-	
-	disconnect = function( self ) 
+
+	disconnect = function( self )
 		return true
 	end,
-	
+
 	check = function( self )
 		local response = http.get( self.host, self.port, self.uri )
-	  stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)			
+	  stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
 		-- Check if password field is there
 		if ( response.status == 200 and response.body:match('type=[\'"]password[\'"]')) then
       stdnse.print_debug(1, "Initial check passed. Launching brute force attack")
@@ -123,14 +123,14 @@ Driver = {
         stdnse.print_debug(2, "The security token was not found.")
         return false
       end
-        
+
 			return true
     else
       stdnse.print_debug(1, "Initial check failed. Password field wasn't found")
 	  end
 		return false
 	end
-	
+
 }
 ---
 --MAIN
@@ -140,11 +140,11 @@ action = function( host, port )
   local uservar = stdnse.get_script_args('http-joomla-brute.uservar') or DEFAULT_JOOMLA_USERVAR
   local passvar = stdnse.get_script_args('http-joomla-brute.passvar') or DEFAULT_JOOMLA_PASSVAR
   local thread_num = stdnse.get_script_args("http-joomla-brute.threads") or DEFAULT_THREAD_NUM
-	
+
   engine = brute.Engine:new( Driver, host, port, { uservar = uservar, passvar = passvar } )
   engine:setMaxThreads(thread_num)
   engine.options.script_name = SCRIPT_NAME
   status, result = engine:start()
-		
+
   return result
 end

@@ -30,7 +30,7 @@ Namp scan queue.
 -- @output
 -- PORT      STATE SERVICE         REASON
 -- 35871/tcp open  flume-master syn-ack
---| flume-master-info: 
+--| flume-master-info:
 --|   Version:  0.9.4-cdh3u3
 --|   ServerID: 0
 --|   Flume nodes:
@@ -44,7 +44,7 @@ Namp scan queue.
 --|     master1.example.com
 --|   Hbase Master Master:
 --|     hdfs://master1.example.com:8020/hbase
---|   Enviroment: 
+--|   Enviroment:
 --|     java.runtime.name: Java(TM) SE Runtime Environment
 --|     java.runtime.version: 1.6.0_36-a01
 --|     java.version: 1.6.0_36
@@ -56,7 +56,7 @@ Namp scan queue.
 --|     os.version: 2.6.32-220.4.2.el6.x86_64
 --|     user.country: US
 --|     user.name: flume
---|   Config: 
+--|   Config:
 --|     dfs.datanode.address: 0.0.0.0:50010
 --|     dfs.datanode.http.address: 0.0.0.0:50075
 --|     dfs.datanode.https.address: 0.0.0.0:50475
@@ -92,7 +92,7 @@ portrule = function(host, port)
 		or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
 end
 
-function add_target(hostname) 
+function add_target(hostname)
 	if target.ALLOW_NEW_TARGETS then
 		stdnse.print_debug(1, ("%s: Added target: %s"):format(SCRIPT_NAME, hostname))
 		local status,err = target.add(hostname)
@@ -172,7 +172,7 @@ action = function( host, port )
 				add_target(hostname)
 			end
 		end
-		if next(nodes) ~= nil then 
+		if next(nodes) ~= nil then
 			table.insert(result, "Flume nodes:")
 			result[#result+1] = nodes
 		end
@@ -182,7 +182,7 @@ action = function( host, port )
 				add_target(zookeeper)
 			end
 		end
-		if next(zookeepers) ~= nil then 
+		if next(zookeepers) ~= nil then
 			result[#result+1] = "Zookeeper Master:"
 			result[#result+1] = zookeepers
 		end
@@ -192,7 +192,7 @@ action = function( host, port )
 				add_target(hbasemaster)
 			end
 		end
-		if next(hbasemasters) ~= nil then 
+		if next(hbasemasters) ~= nil then
 			result[#result+1] = "Hbase Master Master:"
 			result[#result+1] = hbasemasters
 		end

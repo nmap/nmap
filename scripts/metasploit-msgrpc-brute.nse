@@ -7,7 +7,7 @@ local bin = require "bin"
 local creds = require "creds"
 
 description = [[
-Performs brute force username and password auditing against 
+Performs brute force username and password auditing against
 Metasploit msgrpc interface.
 
 ]]
@@ -18,7 +18,7 @@ Metasploit msgrpc interface.
 --
 -- This script uses brute library to perform password
 -- guessing agains Metasploit's msgrpc interface.
--- 
+--
 --
 -- @output
 -- PORT      STATE SERVICE REASON
@@ -42,9 +42,9 @@ portrule = shortport.port_or_service(55553,"metasploit-msgrpc")
 -- see http://wiki.msgpack.org/display/MSGPACK/Format+specification for more
 local encode = function(username, password)
 	local method = "auth.login"
-	local username_prefix 
-	local password_prefix 
-	
+	local username_prefix
+	local password_prefix
+
 	if string.len(username) <= 31 then -- http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-fixraw
 		username_prefix = bin.pack("C",0xa0 + string.len(username))
 	else -- http://wiki.msgpack.org/display/MSGPACK/Format+specification#Formatspecification-raw16
@@ -52,10 +52,10 @@ local encode = function(username, password)
 	end
 	if string.len(password) <= 31 then
 		password_prefix = bin.pack("C",0xa0 + string.len(password))
-	else 
+	else
 		password_prefix = bin.pack("C",0xda)  .. bin.pack("s",string.len(password))
 	end
-	
+
 	return bin.pack("C",0x93) .. bin.pack("C",0xaa) .. method .. username_prefix .. username .. password_prefix .. password
 end
 
@@ -72,11 +72,11 @@ Driver = {
 
 	-- as we are using http methods, no need for connect and disconnect
 	-- this might cause a problem as in other scripts that don't have explicit connect
-	-- as there is no way to "reserve" a socket 
+	-- as there is no way to "reserve" a socket
 	connect = function( self )
 		return true
 	end,
-	
+
 	login = function (self, user, pass)
 		local data
 		local options = {
@@ -98,20 +98,20 @@ Driver = {
 		return false, err
 	end,
 
-	disconnect = function( self ) 
+	disconnect = function( self )
 		return true
 	end
 }
 
 action = function( host, port )
 
-	local status, result 
+	local status, result
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.script_name = SCRIPT_NAME
-	engine.options.firstonly = true 
+	engine.options.firstonly = true
 	engine.max_threads = 3
 	engine.max_retries = 10
 	status, result = engine:start()
-	
+
 	return result
 end

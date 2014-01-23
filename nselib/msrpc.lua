@@ -1,48 +1,48 @@
 ---
--- By making heavy use of the <code>smb</code> library, this library will call various MSRPC 
---  functions. The functions used here can be accessed over TCP ports 445 and 139, 
---  with an established session. A NULL session (the default) will work for some 
---  functions and operating systems (or configurations), but not for others. 
+-- By making heavy use of the <code>smb</code> library, this library will call various MSRPC
+--  functions. The functions used here can be accessed over TCP ports 445 and 139,
+--  with an established session. A NULL session (the default) will work for some
+--  functions and operating systems (or configurations), but not for others.
 --
 -- To make use of these function calls, a SMB session with the server has to be
 -- established. This can be done manually with the <code>smb</code> library, or the function
--- <code>start_smb</code> can be called. A session has to be created, then the IPC$ 
--- tree opened. 
+-- <code>start_smb</code> can be called. A session has to be created, then the IPC$
+-- tree opened.
 --
--- Next, the interface has to be bound. The <code>bind()</code> function will take care of that. 
+-- Next, the interface has to be bound. The <code>bind()</code> function will take care of that.
 --
 -- After that, you're free to call any function that's part of that interface. In
 -- other words, if you bind to the SAMR interface, you can only call the <code>samr_</code>
--- functions, for <code>lsa_</code> functions, bind to the LSA interface, etc.  Although functions 
+-- functions, for <code>lsa_</code> functions, bind to the LSA interface, etc.  Although functions
 -- can technically be called in any order, many functions depend on the
--- value returned by other functions. I indicate those in the function comments, 
--- so keep an eye out. SAMR functions, for example, require a call to 
--- <code>connect4</code>. 
+-- value returned by other functions. I indicate those in the function comments,
+-- so keep an eye out. SAMR functions, for example, require a call to
+-- <code>connect4</code>.
 --
 -- Something to note is that these functions, for the most part, return a whole ton
--- of stuff in a table; basically, everything that is returned by the function. 
+-- of stuff in a table; basically, everything that is returned by the function.
 -- Generally, if you want to know exactly what you have access to, either display the
 -- returned data with a <code>print_table</code>-type function, or check the documentation (Samba 4.0's
--- <code>.idl</code> files (in <code>samba_4.0/source/librpc/idl</code>; see below for link) are what I based 
--- the names on). 
+-- <code>.idl</code> files (in <code>samba_4.0/source/librpc/idl</code>; see below for link) are what I based
+-- the names on).
 --
 -- The parameters for each function are converted to a string of bytes in a process
 -- called "marshalling". Functions here take arguments that match what a user would
--- logically want to send. These are marshalled by using functions in the 
--- <code>msrpctypes</code> module. Those functions require a table of values that 
+-- logically want to send. These are marshalled by using functions in the
+-- <code>msrpctypes</code> module. Those functions require a table of values that
 -- isn't very use friendly; as such, it's generated, when possible, in the functions
 -- in this module. The value returned, on the other hand, is returned directly to the
--- user; I don't want to limit what data they can use, and it's difficult to rely on 
+-- user; I don't want to limit what data they can use, and it's difficult to rely on
 -- servers to format it consistently (sometimes a <code>null</code> is returned, and
--- other times an empty array or blank string), so I put the onus on the scripts to 
--- deal with the returned values. 
+-- other times an empty array or blank string), so I put the onus on the scripts to
+-- deal with the returned values.
 --
 -- When implementing this, I used Wireshark's output significantly, as well as Samba's
 -- <code>.idl</code> files for reference:
 --  http://websvn.samba.org/cgi-bin/viewcvs.cgi/branches/SAMBA_4_0/source/librpc/idl/.
--- I'm not a lawyer, but I don't expect that this is a breach of Samba's copyright -- 
--- if it is, please talk to me and I'll make arrangements to re-license this or to 
--- remove references to Samba. 
+-- I'm not a lawyer, but I don't expect that this is a breach of Samba's copyright --
+-- if it is, please talk to me and I'll make arrangements to re-license this or to
+-- remove references to Samba.
 --
 -- Revised 07/25/2012 - added Printer Spooler Service (spoolss) RPC functions and
 -- 						constants [Aleksandar Nikolic]
@@ -104,7 +104,7 @@ EPMAPPER_UUID     = string.char(0x08, 0x83, 0xaf, 0xe1, 0x1f, 0x5d, 0xc9, 0x11, 
 EPMAPPER_VERSION  = 3
 
 
--- This is the only transfer syntax I've seen in the wild, not that I've looked hard. It seems to work well. 
+-- This is the only transfer syntax I've seen in the wild, not that I've looked hard. It seems to work well.
 TRANSFER_SYNTAX = string.char(0x04, 0x5d, 0x88, 0x8a, 0xeb, 0x1c, 0xc9, 0x11, 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60)
 
 -- The 'referent_id' value is ignored, as far as I can tell, so this value is passed for it. No, it isn't random. :)
@@ -113,21 +113,21 @@ REFERENT_ID = 0x50414d4e
 -- The maximum length of a packet fragment
 MAX_FRAGMENT = 0x800
 
----The number of SAMR records to pull at once. This was originally 1, but since I've written 
+---The number of SAMR records to pull at once. This was originally 1, but since I've written
 -- proper fragmentation code, I've successfully done it with 110 users, although I'd be surprised
--- if you couldn't go a lot higher. I had some issues that I suspect was UNIX truncating packets, 
--- so I scaled it back. 
+-- if you couldn't go a lot higher. I had some issues that I suspect was UNIX truncating packets,
+-- so I scaled it back.
 local SAMR_GROUPSIZE = 20
 
 ---The number of LSA RIDs to check at once. I've successfully tested with up to about 110. Note that
--- due to very long message sizes, Wireshark might truncate packets if you have more than 30 together, 
+-- due to very long message sizes, Wireshark might truncate packets if you have more than 30 together,
 -- so for debugging, setting this to 30 might be a plan. Like SAMR, I scaled this back due to UNIX
--- truncation. 
+-- truncation.
 local LSA_GROUPSIZE  = 20
 
----The number of consecutive empty groups to stop after. Basically, this means that after 
+---The number of consecutive empty groups to stop after. Basically, this means that after
 -- <code>LSA_MINEMPTY</code> groups of <code>LSA_GROUPSIZE</code> users come back empty, we give
--- up. Raising this could find more users, but at the expense of more packets. 
+-- up. Raising this could find more users, but at the expense of more packets.
 local LSA_MINEMPTY = 10
 
 ---Mapping between well known MSRPC UUIDs and coresponding exe/service
@@ -181,18 +181,18 @@ local UUID2EXE = {
 
 --- This is a wrapper around the SMB class, designed to get SMB going quickly for MSRPC calls. This will
 --  connect to the SMB server, negotiate the protocol, open a session, connect to the IPC$ share, and
---  open the named pipe given by 'path'. When this successfully returns, the 'smbstate' table can be immediately 
---  used for MSRPC (the <code>bind</code> function should be called right after). 
+--  open the named pipe given by 'path'. When this successfully returns, the 'smbstate' table can be immediately
+--  used for MSRPC (the <code>bind</code> function should be called right after).
 --
 -- Note that the smbstate table is the same one used in the SMB files (obviously), so it will contain
--- the various results/information places in there by SMB functions. 
+-- the various results/information places in there by SMB functions.
 --
---@param host The host object. 
---@param path The path to the named pipe; for example, msrpc.SAMR_PATH or msrpc.SRVSVC_PATH. 
---@param disable_extended [optional] If set to 'true', disables extended security negotiations. 
---@param overrides [optional] Overrides variables in all the SMB functions. 
+--@param host The host object.
+--@param path The path to the named pipe; for example, msrpc.SAMR_PATH or msrpc.SRVSVC_PATH.
+--@param disable_extended [optional] If set to 'true', disables extended security negotiations.
+--@param overrides [optional] Overrides variables in all the SMB functions.
 --@return (status, smbstate) if status is false, smbstate is an error message. Otherwise, smbstate is
---        required for all further calls. 
+--        required for all further calls.
 function start_smb(host, path, disable_extended, overrides)
 	overrides = overrides or {}
 	return smb.start_ex(host, true, true, "IPC$", path, disable_extended, overrides)
@@ -201,25 +201,25 @@ end
 --- A wrapper around the <code>smb.stop</code> function. I only created it to add symmetry, so client code
 --  doesn't have to call both msrpc and smb functions.
 --
---@param state The SMB state table. 
+--@param state The SMB state table.
 function stop_smb(state)
 	smb.stop(state)
 end
 
 --- Bind to a MSRPC interface. Two common interfaces are SAML and SRVSVC, and can be found as
 --  constants at the top of this file. Once this function has successfully returned, any MSRPC
---  call can be made (provided it doesn't depend on results from other MSRPC calls). 
+--  call can be made (provided it doesn't depend on results from other MSRPC calls).
 --
 --@param smbstate The SMB state table
---@param interface_uuid The interface to bind to. There are constants defined for these (<code>SAMR_UUID</code>, 
+--@param interface_uuid The interface to bind to. There are constants defined for these (<code>SAMR_UUID</code>,
 --       etc.)
---@param interface_version The interface version to use. There are constants at the top (<code>SAMR_VERSION</code>, 
+--@param interface_version The interface version to use. There are constants at the top (<code>SAMR_VERSION</code>,
 --       etc.)
 --@param transfer_syntax The transfer syntax to use. I don't really know what this is, but the value
 --       was always the same on my tests. You can use the constant at the top (<code>TRANSFER_SYNTAX</code>), or
---       just set this parameter to 'nil'. 
---@return (status, result) If status is false, result is an error message. Otherwise, result is a 
---        table of values, none of which are especially useful. 
+--       just set this parameter to 'nil'.
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a
+--        table of values, none of which are especially useful.
 function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 	local i
 	local status, result
@@ -229,7 +229,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 
 	stdnse.print_debug(2, "MSRPC: Sending Bind() request")
 
-	-- Use the only transfer_syntax value I know of. 
+	-- Use the only transfer_syntax value I know of.
 	if(transfer_syntax == nil) then
 		transfer_syntax = TRANSFER_SYNTAX
 	end
@@ -275,7 +275,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 
 	stdnse.print_debug(3, "MSRPC: Received Bind() result")
 
-	-- Make these easier to access. 
+	-- Make these easier to access.
 	parameters = result['parameters']
 	data = result['data']
 
@@ -310,7 +310,7 @@ function bind(smbstate, interface_uuid, interface_version, transfer_syntax)
 		return false, "MSRPC call returned an incorrect 'call_id' value"
 	end
 
-	-- If we made it this far, then we have a valid Bind() result. Pull out some more parameters. 
+	-- If we made it this far, then we have a valid Bind() result. Pull out some more parameters.
 	pos, result['max_transmit_frag'], result['max_receive_frag'], result['assoc_group'], result['secondary_address_length'] = bin.unpack("<SSIS", data, pos)
 	if(result['secondary_address_length'] == nil) then
 		return false, "MSRPC: ERROR: Ran off the end of SMB packet; likely due to server truncation"
@@ -346,21 +346,21 @@ end
 
 --- Call a MSRPC function on the remote sever, with the given opnum and arguments. I opted to make this a local function
 --  for design reasons -- scripts shouldn't be directly calling a function, if a function I haven't written is needed, it
---  ought to be added to this file. 
+--  ought to be added to this file.
 --
 -- Anyways, this function takes the opnum and marshalled arguments, and passes it down to the SMB layer. The SMB layer sends
--- out a <code>SMB_COM_TRANSACTION</code> packet, and parses the result. Once the SMB stuff has been stripped off the result, it's 
+-- out a <code>SMB_COM_TRANSACTION</code> packet, and parses the result. Once the SMB stuff has been stripped off the result, it's
 -- passed down here, cleaned up some more, and returned to the caller.
 --
 -- There's a reason that SMB is sometimes considered to be between layer 4 and 7 on the OSI model. :)
 --
---@param smbstate  The SMB state table (after <code>bind</code> has been called). 
---@param opnum     The operating number (ie, the function). Find this in the MSRPC documentation or with a packet logger. 
---@param arguments The marshalled arguments to pass to the function. Currently, marshalling is all done manually. 
+--@param smbstate  The SMB state table (after <code>bind</code> has been called).
+--@param opnum     The operating number (ie, the function). Find this in the MSRPC documentation or with a packet logger.
+--@param arguments The marshalled arguments to pass to the function. Currently, marshalling is all done manually.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'arguments', which are the values returned by the server. If the packet is fragmented, the fragments
 --        will be reassembled and 'arguments' will represent all the arguments; however, the rest of the result table will represent
---        the most recent fragment. 
+--        the most recent fragment.
 function call_function(smbstate, opnum, arguments)
 	local i
 	local status, result
@@ -401,11 +401,11 @@ function call_function(smbstate, opnum, arguments)
 		if(status ~= true) then
 			return false, result
 		end
-	
-		-- Make these easier to access. 
+
+		-- Make these easier to access.
 		parameters = result['parameters']
 		data       = result['data']
-	
+
 		-- Extract the first part from the resposne
 		pos, result['version_major'], result['version_minor'], result['packet_type'], result['packet_flags'], result['data_representation'], result['frag_length'], result['auth_length'], result['call_id'] = bin.unpack("<CCCC>I<SSI", data)
 		if(result['call_id'] == nil) then
@@ -442,7 +442,7 @@ function call_function(smbstate, opnum, arguments)
 		if(result['call_id'] ~= 0x41414141) then
 			return false, "MSRPC call returned an incorrect 'call_id' value"
 		end
-	
+
 		-- Extract some more
 		pos, result['alloc_hint'], result['context_id'], result['cancel_count'], align = bin.unpack("<ISCC", data, pos)
 		if(align == nil) then
@@ -463,14 +463,14 @@ function call_function(smbstate, opnum, arguments)
 	return true, result
 end
 
----LANMAN API calls use different conventions than everything else, so make a separate function for them. 
+---LANMAN API calls use different conventions than everything else, so make a separate function for them.
 function call_lanmanapi(smbstate, opnum, paramdesc, datadesc, data)
 	local status, result
 	local parameters = ""
 	local pos
 
-	parameters = bin.pack("<SzzA", 
-							opnum, 
+	parameters = bin.pack("<SzzA",
+							opnum,
 							paramdesc,  -- Parameter Descriptor
 							datadesc,      -- Return Descriptor
 							data
@@ -478,7 +478,7 @@ function call_lanmanapi(smbstate, opnum, paramdesc, datadesc, data)
 
 	stdnse.print_debug(1, "MSRPC: Sending Browser Service request")
 	status, result = smb.send_transaction_named_pipe(smbstate, parameters, nil, "\\PIPE\\LANMAN", true)
-	
+
 	if(not(status)) then
 		return false, "Couldn't call LANMAN API: " .. result
 	end
@@ -488,10 +488,10 @@ end
 
 --- Queries the (master) browser service for a list of server that it manages
 --
--- @param smbstate  The SMB state table (after <code>bind</code> has been called). 
+-- @param smbstate  The SMB state table (after <code>bind</code> has been called).
 -- @param domain (optional) string containing the domain name to query
 -- @param server_type number containing a server bit mask to use to filter responses
--- @param detail_level number containing either 0 or 1 
+-- @param detail_level number containing either 0 or 1
 function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 
 	local NETSERVERENUM2 = 0x0068
@@ -499,7 +499,7 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 	assert( detail_level > 0 and detail_level < 2, "detail_level must be either 0 or 1")
 	local datadesc = ( detail_level == 0 and "B16" or "B16BBDz")
 	local data = bin.pack("<SSIA", detail_level,
-							14724, 
+							14724,
 							server_type,
 							(domain or "")
 						)
@@ -509,7 +509,7 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 	if ( not(status) ) then
 		return false, "MSRPC: NetServerEnum2 call failed"
 	end
-	
+
 	local parameters = result.parameters
 	local data = result.data
 
@@ -521,11 +521,11 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 	end
 
 	stdnse.print_debug(1, "MSRPC: Browser service returned %d entries", entry_count)
-	
-	
+
+
 	local pos = 1
 	local entries = {}
-	
+
 	for i = 1, entry_count, 1 do
 		local server = {}
 
@@ -538,7 +538,7 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 		if ( detail_level > 0 ) then
 			local comment_offset, _
 			server.version = {}
-			pos, server.version.major, server.version.minor, 
+			pos, server.version.major, server.version.minor,
 				server.type, comment_offset, _ = bin.unpack("<CCISS", data, pos)
 
 			_, server.comment = bin.unpack("<z", data, (comment_offset - convert + 1))
@@ -549,23 +549,23 @@ function rap_netserverenum2(smbstate, domain, server_type, detail_level)
 	return true, entries
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a ShareType to an english string. 
+---A proxy to a <code>msrpctypes</code> function that converts a ShareType to an english string.
 -- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
 -- functions.
 --
 --@param val The value to convert.
---@return A string that can be displayed to the user. 
+--@return A string that can be displayed to the user.
 function srvsvc_ShareType_tostr(val)
 	return msrpctypes.srvsvc_ShareType_tostr(val)
 end
 
 ---Call the MSRPC function <code>netshareenumall</code> on the remote system. This function basically returns a list of all the shares
--- on the system. 
+-- on the system.
 --
 --@param smbstate The SMB state table
 --@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'shares', which is a list of the system's shares. 
+--        useful one being 'shares', which is a list of the system's shares.
 function srvsvc_netshareenumall(smbstate, server)
 	local i, j
 	local status, result
@@ -635,12 +635,12 @@ function srvsvc_netshareenumall(smbstate, server)
 end
 
 ---Call the MSRPC function <code>netsharegetinfo</code> on the remote system. This function retrieves extra information about a share
--- on the system. 
+-- on the system.
 --
 --@param smbstate The SMB state table
 --@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'shares', which is a list of the system's shares. 
+--        useful one being 'shares', which is a list of the system's shares.
 function srvsvc_netsharegetinfo(smbstate, server, share, level)
 	local i, j
 	local status, result
@@ -693,8 +693,8 @@ function srvsvc_netsharegetinfo(smbstate, server, share, level)
 end
 
 
----Call the <code>NetSessEnum</code> function, which gets a list of active sessions on the host. For this function, 
--- a session is defined as a connection to a file share. 
+---Call the <code>NetSessEnum</code> function, which gets a list of active sessions on the host. For this function,
+-- a session is defined as a connection to a file share.
 --
 --@param smbstate The SMB state table
 --@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
@@ -710,7 +710,7 @@ function srvsvc_netsessenum(smbstate, server)
 
 --		[in]   [string,charset(UTF16)] uint16 *server_unc,
 	arguments = msrpctypes.marshall_unicode_ptr(server, true)
-	
+
 --		[in]   [string,charset(UTF16)] uint16 *client,
 	arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil)
 
@@ -777,20 +777,20 @@ function srvsvc_netsessenum(smbstate, server)
 	return true, result
 end
 
---- Calls the <code>NetServerGetStatistics</code> function, which grabs a bunch of statistics on the server. 
+--- Calls the <code>NetServerGetStatistics</code> function, which grabs a bunch of statistics on the server.
 --  This function requires administrator access to call.
 --
--- Note: Wireshark 1.0.3 doesn't parse this packet properly. 
+-- Note: Wireshark 1.0.3 doesn't parse this packet properly.
 --
 --@param smbstate The SMB state table
 --@param server   The IP or name of the server (I don't think this is actually used, but it's
---                good practice to send it). 
+--                good practice to send it).
 --
 --@return A table containing the following values:
---  * 'start'       The time when statistics collection started (or when the statistics were last cleared). The value is 
---                stored as the number of seconds that have elapsed since 00:00:00, January 1, 1970, GMT. To calculate 
---                the length of time that statistics have been collected, subtract the value of this member from the 
---                present time. 'start_date' is the date as a string. 
+--  * 'start'       The time when statistics collection started (or when the statistics were last cleared). The value is
+--                stored as the number of seconds that have elapsed since 00:00:00, January 1, 1970, GMT. To calculate
+--                the length of time that statistics have been collected, subtract the value of this member from the
+--                present time. 'start_date' is the date as a string.
 --  * 'fopens'      The number of times a file is opened on a server. This includes the number of times named pipes are opened.
 --  * 'devopens'    The number of times a server device is opened.
 --  * 'jobsqueued'  The number of server print jobs spooled.
@@ -860,15 +860,15 @@ function srvsvc_netservergetstatistics(smbstate, server)
 	return true, result
 end
 
----Call the NetPathCompare() function, which indirectly calls NetPathCanonicalize(), 
--- the target of ms08-067. I'm currently only using this to trigger ms08-067. 
+---Call the NetPathCompare() function, which indirectly calls NetPathCanonicalize(),
+-- the target of ms08-067. I'm currently only using this to trigger ms08-067.
 --
 -- The string used by Metasploit and other free tools to check for this vulnerability is
 -- '\AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\..\n'. On vulnerable systems, this will be
 -- accepted and this function will return '0'. On patched systems, this will be rejected
--- and return <code>ERROR_INVALID_PARAMETER</code>. 
+-- and return <code>ERROR_INVALID_PARAMETER</code>.
 --
--- Note that the srvsvc.exe process occasionally crashes when attempting this. 
+-- Note that the srvsvc.exe process occasionally crashes when attempting this.
 --
 --@param smbstate  The SMB state table
 --@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
@@ -877,7 +877,7 @@ end
 --@param pathtype  The pathtype to pass to the function (I always use '1')
 --@param pathflags The pathflags to pass to the function (I always use '0')
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values containing
--- 'return'. 
+-- 'return'.
 function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathflags)
 	local i, j
 	local status, result
@@ -934,13 +934,13 @@ function srvsvc_netpathcompare(smbstate, server, path1, path2, pathtype, pathfla
 end
 
 
----Call the NetPathCanonicalize() function, which is the target of ms08-067. 
+---Call the NetPathCanonicalize() function, which is the target of ms08-067.
 --
 --@param smbstate  The SMB state table
 --@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
 --@param path      The path to canonicalize
 --@return (status, result, error_result) If status is false, result is an error message and error_result is
---        the result table. Otherwise, result is a table of values. 
+--        the result table. Otherwise, result is a table of values.
 function srvsvc_netpathcanonicalize(smbstate, server, path)
 	local i, j
 	local status, result
@@ -986,12 +986,12 @@ function srvsvc_netpathcanonicalize(smbstate, server, path)
 --        [in,out] uint32 pathtype,
 --        [in]    uint32 pathflags
 
-	-- NOTE: This isn't being done correctly.. due to Wireshark's broken parsing, 
+	-- NOTE: This isn't being done correctly.. due to Wireshark's broken parsing,
 	-- and Samba's possibly-broken definition, I'm not sure how this is supposed
-	-- to be parsed. 
+	-- to be parsed.
 	pos, result['max_count'] = msrpctypes.unmarshall_int32(arguments, pos)
 	pos, result['can_path']  = msrpctypes.unmarshall_int32(arguments, pos)
-	pos, result['type']      = msrpctypes.unmarshall_int32(arguments, pos) 
+	pos, result['type']      = msrpctypes.unmarshall_int32(arguments, pos)
 	pos, result['return']    = msrpctypes.unmarshall_int32(arguments, pos)
 
 	if(result['return'] == nil) then
@@ -1006,16 +1006,16 @@ function srvsvc_netpathcanonicalize(smbstate, server, path)
 end
 
 
----Call the RpcOpenPrinterEx() function whose opnum  is 69. 
+---Call the RpcOpenPrinterEx() function whose opnum  is 69.
 --
 -- http://msdn.microsoft.com/en-us/library/cc244809%28v=prot.13%29.aspx
 --@param smbstate  The SMB state table
 --@param printer    Printer share name
---@return (status, result) If status is false, result is an error message. Otherwise, result is a printer handle. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a printer handle.
 function spoolss_open_printer(smbstate,printer)
 	local machine = msrpctypes.marshall_unicode_ptr("",true)
 	local user = msrpctypes.marshall_unicode_ptr("",true)
-	
+
 	local arguments = msrpctypes.marshall_unicode_ptr(printer,true)
 	arguments = arguments .. msrpctypes.marshall_int32(0)
 	--devmod containter
@@ -1036,34 +1036,34 @@ function spoolss_open_printer(smbstate,printer)
 	arguments2 = arguments2 .. msrpctypes.marshall_int32(9)
 	arguments2 = arguments2 .. string.sub(machine,5,#machine)
 	arguments2 = arguments2 .. string.sub(user,5,#user)
-	arguments2 = msrpctypes.marshall_int32(#arguments2+4) .. arguments2 
+	arguments2 = msrpctypes.marshall_int32(#arguments2+4) .. arguments2
 
 	arguments = arguments .. arguments2
-	
+
 	local status, result = call_function(smbstate, 69, arguments)
 	if not status then
 		stdnse.print_debug("MSRPC spoolss_open_printer(): %s ",result)
 	end
 	return status,result
-	
+
 end
 
----Call the RpcStartDocPrinter() function whose opnum  is 17. 
+---Call the RpcStartDocPrinter() function whose opnum  is 17.
 --
 -- http://msdn.microsoft.com/en-us/library/cc244828%28v=prot.10%29.aspx
 --@param smbstate  		   The SMB state table
 --@param printer_handle    Printer handle returned by spoolss_open_printer()
 --@param filename    	   Name of the file to print to
---@return (status, result) If status is false, result is an error message. Otherwise, result is a print job id. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a print job id.
 function spoolss_start_doc_printer(smbstate,printer_handle,filename)
 	local arguments = printer_handle
-	local document_name = msrpctypes.marshall_unicode_ptr("nmap_test",true) 
+	local document_name = msrpctypes.marshall_unicode_ptr("nmap_test",true)
 	local fname = msrpctypes.marshall_unicode_ptr(filename,true)
 	local dtype = msrpctypes.marshall_int32(0)
 	local document_container = msrpctypes.marshall_int32(1)
-	
+
 	arguments = arguments .. msrpctypes.marshall_int32(1)
-	
+
 	document_container = document_container .. msrpctypes.marshall_int32(12332131)
 	document_container = document_container .. string.sub(document_name,1,4)
 	document_container = document_container .. string.sub(fname,1,4)
@@ -1071,23 +1071,23 @@ function spoolss_start_doc_printer(smbstate,printer_handle,filename)
 	document_container = document_container .. string.sub(document_name,5,#document_name)
 	document_container = document_container .. string.sub(fname,5,#fname)
 	document_container = document_container .. string.sub(dtype,5,#dtype)
-	
+
 	arguments = arguments .. document_container
-	
+
 	local status, result = call_function(smbstate, 17, arguments)
-	if not status then 
+	if not status then
 		stdnse.print_debug("MSRPC spoolss_start_doc_printer(): %s",result)
 	end
 	return status,result
 end
 
----Call the RpcWritePrinter() function whose opnum  is 19. 
+---Call the RpcWritePrinter() function whose opnum  is 19.
 --
 -- http://msdn.microsoft.com/en-us/library/cc244831%28v=prot.10%29
 --@param smbstate  		   The SMB state table
 --@param printer_handle    Printer handle returned by spoolss_open_printer()
 --@param data    	   	   Actuall data to write to a file
---@return (status, result) If status is false, result is an error message. Otherwise, result is number of bytes written. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is number of bytes written.
 function spoolss_write_printer(smbstate,printer_handle,data)
 	stdnse.print_debug("len %d", #data)
 	local padding_len = 4 - math.fmod(#data,4)
@@ -1096,18 +1096,18 @@ function spoolss_write_printer(smbstate,printer_handle,data)
 		data_padding = string.rep(bin.pack("H","00"),padding_len)
 	end
 	local arguments = printer_handle ..  msrpctypes.marshall_int32(#data)
-	--arguments = arguments ..  msrpctypes.marshall_int32(#data)	
+	--arguments = arguments ..  msrpctypes.marshall_int32(#data)
 	arguments = arguments .. data
 	if data_padding then arguments = arguments .. data_padding end
 	arguments = arguments ..  msrpctypes.marshall_int32(#data)
 	local status,result = call_function(smbstate, 19, arguments)
-	if not status then 
+	if not status then
 		stdnse.print_debug("MSRPC spoolss_write_printer(): %s",result)
 	end
-	return status,result	
+	return status,result
 end
 
----Call the EndDocPrinter() function whose opnum  is 23. 
+---Call the EndDocPrinter() function whose opnum  is 23.
 --
 -- http://msdn.microsoft.com/en-us/library/cc244783%28v=prot.10%29
 --@param smbstate  		   The SMB state table
@@ -1121,7 +1121,7 @@ function spoolss_end_doc_printer(smbstate,printer_handle)
 	return status,result
 end
 
----Call the RpcAbortPrinter() function whose opnum  is 21. 
+---Call the RpcAbortPrinter() function whose opnum  is 21.
 --
 -- http://msdn.microsoft.com/en-us/library/cc244757%28v=prot.13%29
 --@param smbstate  		   The SMB state table
@@ -1148,13 +1148,13 @@ end
 --- Helper function that maps known UUIDs to coresponding exe/services.
 --
 --@param uuid
---@return Coresponding service and description as a string or nil. 
+--@return Coresponding service and description as a string or nil.
 function string_uuid_to_exe(uuid)
 	return UUID2EXE[uuid]
 end
 
 --- Lookup endpoint mapper for endpoints
---	
+--
 -- Queries the remote endpoint mapper and parses data into a table with following values:
 -- *'new_handle'
 -- *'annotation'
@@ -1183,8 +1183,8 @@ function epmapper_lookup(smbstate,handle)
         -- [in, out]       ept_lookup_handle_t *entry_handle,
         -- [in]            unsigned32          max_ents,
         -- [out]           unsigned32          *num_ents,
-        -- [out, length_is(*num_ents), size_is(max_ents)]  
-                        -- ept_entry_t         entries[],    
+        -- [out, length_is(*num_ents), size_is(max_ents)]
+                        -- ept_entry_t         entries[],
         -- [out]           error_status_t      *status
     -- );
 	local params = msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0) .. msrpctypes.marshall_int32(0)
@@ -1196,7 +1196,7 @@ function epmapper_lookup(smbstate,handle)
 	end
 
 	local data = result.data
-	-- parse data 
+	-- parse data
 	-- skip 24 bytes of common DCE header
 	local pos
 	local lookup_response = {
@@ -1213,7 +1213,7 @@ function epmapper_lookup(smbstate,handle)
 		ncacn_http = nil
 	}
 	--stdnse.set_tostring(lookup_response,stdnse.format_generator({key_order = {"new_handle,annotation,uuid,exe,tcp_port,udp_port,ip_addr,ncalrpc,ncacn_np,netbios,ncacn_http"}}))
-	
+
 	lookup_response.new_handle = string.sub(data,25,44)
 
 --	stdnse.print_debug("new_handle: %s", stdnse.tohex(new_handle))
@@ -1225,7 +1225,7 @@ function epmapper_lookup(smbstate,handle)
 	end
 	--skip max count, offset, actual count
 	pos = pos + 12
-	--skip object , 
+	--skip object ,
 	pos = pos + 16
 	pos = pos + 8
 	local annotation_length
@@ -1241,10 +1241,10 @@ function epmapper_lookup(smbstate,handle)
 	local num_floors,floor_len,uuid, address_type,address_len,tcp_port,udp_port,ip_addr,saved_pos,ncalrpc,ncacn_np,netbios,ncacn_http
 	pos, num_floors = bin.unpack("<S",data,pos)
 
-	for i = 1, num_floors do 
+	for i = 1, num_floors do
 		saved_pos = pos
 		pos, floor_len = bin.unpack("<S",data,pos)
-		
+
 		if i == 1 then
 			uuid = string.sub(data,pos+1,pos+16)
 			lookup_response.uuid = uuid_to_string(uuid)
@@ -1265,14 +1265,14 @@ function epmapper_lookup(smbstate,handle)
 					floor_len = floor_len + address_len - 2
 				elseif address_type == 0x10 then
 					lookup_response.ncalrpc = string.sub(data,pos,pos+address_len-2)
-					floor_len = floor_len + address_len - 2 
+					floor_len = floor_len + address_len - 2
 				elseif address_type == 0x11 then
 					lookup_response.netbios = string.sub(data,pos,pos+address_len-2)
-					floor_len = floor_len + address_len - 2 
+					floor_len = floor_len + address_len - 2
 				elseif address_type == 0x1f then
 					pos, lookup_response.ncacn_http = bin.unpack(">S",data,pos)
 				else
-					stdnse.print_debug("unknown address type %x",address_type)					
+					stdnse.print_debug("unknown address type %x",address_type)
 				end
 			end
 		end
@@ -1281,33 +1281,33 @@ function epmapper_lookup(smbstate,handle)
 	return status,lookup_response
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an english string. 
+---A proxy to a <code>msrpctypes</code> function that converts a PasswordProperties to an english string.
 -- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
 -- functions.
 --
 --@param val The value to convert.
---@return A string that can be displayed to the user. 
+--@return A string that can be displayed to the user.
 function samr_PasswordProperties_tostr(val)
 	return msrpctypes.samr_PasswordProperties_tostr(val)
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a AcctFlags to an english string. 
+---A proxy to a <code>msrpctypes</code> function that converts a AcctFlags to an english string.
 -- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
 -- functions.
 --
 --@param val The value to convert.
---@return A string that can be displayed to the user. 
+--@return A string that can be displayed to the user.
 function samr_AcctFlags_tostr(val)
 	return msrpctypes.samr_AcctFlags_tostr(val)
 end
 
----Call the <code>connect4</code> function, to obtain a "connect handle". This must be done before calling many 
--- of the SAMR functions. 
+---Call the <code>connect4</code> function, to obtain a "connect handle". This must be done before calling many
+-- of the SAMR functions.
 --
 --@param smbstate  The SMB state table
 --@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'connect_handle', which is required to call other functions. 
+--        useful one being 'connect_handle', which is required to call other functions.
 function samr_connect4(smbstate, server)
 	local i, j
 	local status, result
@@ -1318,7 +1318,7 @@ function samr_connect4(smbstate, server)
 
 -- [in,string,charset(UTF16)] uint16 *system_name,
 	arguments = msrpctypes.marshall_unicode_ptr("\\\\" .. server, true)
-	
+
 -- [in] uint32 unknown,
 	arguments = arguments .. msrpctypes.marshall_int32(0x02)
 
@@ -1355,12 +1355,12 @@ function samr_connect4(smbstate, server)
 	return true, result
 end
 
----Call the <code>enumdomains</code> function, which returns a list of all domains in use by the system. 
+---Call the <code>enumdomains</code> function, which returns a list of all domains in use by the system.
 --
 --@param smbstate       The SMB state table
 --@param connect_handle The connect_handle, returned by samr_connect4()
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'domains', which is a list of the domains. 
+--        useful one being 'domains', which is a list of the domains.
 function samr_enumdomains(smbstate, connect_handle)
 	local i, j
 	local status, result
@@ -1372,7 +1372,7 @@ function samr_enumdomains(smbstate, connect_handle)
 
 --		[in,ref]      policy_handle *connect_handle,
 	arguments = msrpctypes.marshall_policy_handle(connect_handle)
-	
+
 --		[in,out,ref]  uint32 *resume_handle,
 	arguments = arguments .. msrpctypes.marshall_int32(0)
 
@@ -1417,13 +1417,13 @@ function samr_enumdomains(smbstate, connect_handle)
 end
 
 ---Call the <code>LookupDomain</code> function, which converts a domain's name into its sid, which is
--- required to do operations on the domain. 
+-- required to do operations on the domain.
 --
 --@param smbstate       The SMB state table
 --@param connect_handle The connect_handle, returned by <code>samr_connect4</code>
 --@param domain         The name of the domain (all domain names can be obtained with <code>samr_enumdomains</code>)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'sid', which is required to call other functions. 
+--        useful one being 'sid', which is required to call other functions.
 function samr_lookupdomain(smbstate, connect_handle, domain)
 	local i, j
 	local status, result
@@ -1433,7 +1433,7 @@ function samr_lookupdomain(smbstate, connect_handle, domain)
 
 	stdnse.print_debug(2, "MSRPC: Calling LookupDomain(%s) [%s]", domain, smbstate['ip'])
 
---		[in,ref]  policy_handle *connect_handle,		
+--		[in,ref]  policy_handle *connect_handle,
 	arguments = msrpctypes.marshall_policy_handle(connect_handle)
 
 --		[in,ref]  lsa_String *domain_name,
@@ -1470,14 +1470,14 @@ function samr_lookupdomain(smbstate, connect_handle, domain)
 	return true, result
 end
 
----Call <code>OpenDomain</code>, which returns a handle to the domain identified by the given sid. 
--- This is required before calling certain functions. 
+---Call <code>OpenDomain</code>, which returns a handle to the domain identified by the given sid.
+-- This is required before calling certain functions.
 --
 --@param smbstate       The SMB state table
 --@param connect_handle The connect_handle, returned by <code>samr_connect4</code>
 --@param sid            The sid for the domain, returned by <code>samr_lookupdomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'domain_handle', which is used to call other functions. 
+--        useful one being 'domain_handle', which is used to call other functions.
 function samr_opendomain(smbstate, connect_handle, sid)
 	local i, j
 	local status, result
@@ -1523,17 +1523,17 @@ function samr_opendomain(smbstate, connect_handle, sid)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.opendomain)"
 	end
-	
+
 	return true, result
 end
 
----Call <code>EnumDomainUsers</code>, which returns a list of users only. To get more information about the users, the 
--- QueryDisplayInfo() function can be used. 
+---Call <code>EnumDomainUsers</code>, which returns a list of users only. To get more information about the users, the
+-- QueryDisplayInfo() function can be used.
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'names', which is a list of usernames in that domain. 
+--        useful one being 'names', which is a list of usernames in that domain.
 function samr_enumdomainusers(smbstate, domain_handle)
 	local i, j
 	local status, result
@@ -1589,22 +1589,22 @@ function samr_enumdomainusers(smbstate, domain_handle)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.enumdomainusers)"
 	end
-	
+
 	return true, result
 
 end
 
 ---Call <code>QueryDisplayInfo</code>, which returns a list of users with accounts on the system, as well as extra information about
--- them (their full name and description). 
+-- them (their full name and description).
 --
--- I found in testing that trying to get all the users at once is a mistake, it returns ERR_BUFFER_OVERFLOW, so instead I'm 
+-- I found in testing that trying to get all the users at once is a mistake, it returns ERR_BUFFER_OVERFLOW, so instead I'm
 -- only reading one user at a time. My recommendation is to start at <code>index</code> = 0, and increment until you stop getting
--- an error indicator in <code>result['return']</code>. 
+-- an error indicator in <code>result['return']</code>.
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain handle, returned by <code>samr_opendomain</code>
 --@param index          The index of the user to check; the first user is 0, next is 1, etc.
---@param count          [optional] The number of users to return; you may want to be careful about going too high. Default: 1. 
+--@param count          [optional] The number of users to return; you may want to be careful about going too high. Default: 1.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful ones being 'names', a list of all the usernames, and 'details', a further list of tables with the elements
 --        'name', 'fullname', and 'description' (note that any of them can be nil if the server didn't return a value). Finally,
@@ -1620,7 +1620,7 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
 	end
 
 	-- This loop is because, in my testing, if I asked for all the results at once, it would blow up (ERR_BUFFER_OVERFLOW). So, instead,
-	-- I put a little loop here and grab the names individually. 
+	-- I put a little loop here and grab the names individually.
 	stdnse.print_debug(2, "MSRPC: Calling QueryDisplayInfo(%d) [%s]", index, smbstate['ip'])
 
 --		[in,ref]    policy_handle *domain_handle,
@@ -1648,7 +1648,7 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
 	if(status ~= true) then
 		return false, result
 	end
-	
+
 	stdnse.print_debug(3, "MSRPC: QueryDisplayInfo() returned successfully", i)
 
 	-- Make arguments easier to use
@@ -1683,13 +1683,13 @@ function samr_querydisplayinfo(smbstate, domain_handle, index, count)
 	return true, result
 end
 
----Call <code>QueryDomainInfo2</code>, which grabs various data about a domain. 
+---Call <code>QueryDomainInfo2</code>, which grabs various data about a domain.
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@param level          The level, which determines which type of information to query for. See the @return section
---                      for details. 
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, 
+--                      for details.
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values,
 --        and the values that are returned are dependent on the 'level' settings:
 --        Level 1:
 --         'min_password_length' (in characters)
@@ -1748,7 +1748,7 @@ function samr_querydomaininfo2(smbstate, domain_handle, level)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.querydomaininfo2)"
 	end
-	
+
 	return true, result
 end
 
@@ -1756,7 +1756,7 @@ end
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_enumdomainaliases(smbstate, domain_handle)
 	local i, j
 	local status, result
@@ -1767,7 +1767,7 @@ function samr_enumdomainaliases(smbstate, domain_handle)
 
 --        [in]          policy_handle *domain_handle,
 	arguments = arguments .. msrpctypes.marshall_policy_handle(domain_handle)
-	
+
 --        [in,out,ref]  uint32 *resume_handle,
 	arguments = arguments .. msrpctypes.marshall_int32_ptr(nil)
 
@@ -1791,7 +1791,7 @@ function samr_enumdomainaliases(smbstate, domain_handle)
 --        [in]          policy_handle *domain_handle,
 --        [in,out,ref]  uint32 *resume_handle,
 	pos, result['resume_handle'] = msrpctypes.unmarshall_int32(arguments, pos)
-	
+
 --        [out,ref]     samr_SamArray **sam,
 	pos, result['sam'] = msrpctypes.unmarshall_samr_SamArray_ptr(arguments, pos)
 
@@ -1806,7 +1806,7 @@ function samr_enumdomainaliases(smbstate, domain_handle)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.enumdomainaliases)"
 	end
-	
+
 	return true, result
 end
 
@@ -1814,7 +1814,7 @@ end
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_lookupnames(smbstate, domain_handle, names)
 	local i, j
 	local status, result
@@ -1831,7 +1831,7 @@ function samr_lookupnames(smbstate, domain_handle, names)
 
 --        [in,size_is(1000),length_is(num_names)] lsa_String names[],
 	arguments = arguments .. msrpctypes.marshall_lsa_String_array2(names)
-	
+
 --        [out,ref]     samr_Ids *rids,
 --        [out,ref]     samr_Ids *types
 
@@ -1866,16 +1866,16 @@ function samr_lookupnames(smbstate, domain_handle, names)
 	if(result['return'] ~= 0 and result['return'] ~= smb.status_codes['NT_STATUS_SOME_NOT_MAPPED']) then
 		return false, smb.get_status_name(result['return']) .. " (samr.lookupnames)"
 	end
-	
+
 	return true, result
 end
 
----Call the <code>OpenAlias</code> function, which gets a handle to a group. 
+---Call the <code>OpenAlias</code> function, which gets a handle to a group.
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@param rid            The RID of the alias
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_openalias(smbstate, domain_handle, rid)
 	local i, j
 	local status, result
@@ -1919,17 +1919,17 @@ function samr_openalias(smbstate, domain_handle, rid)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.openalias)"
 	end
-	
+
 	return true, result
 end
 
----Call the <code>GetAliasMembership</code> function. 
---Sends the "raw" data, without marshaling. 
--- 
+---Call the <code>GetAliasMembership</code> function.
+--Sends the "raw" data, without marshaling.
+--
 --@param smbstate       The SMB state table
 --@param alias_handle   The alias_handle, already marshaled
 --@param args			Actuall data to send, already marshaled
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_getaliasmembership(smbstate, alias_handle,args)
 	local status, result
 	local arguments
@@ -1946,12 +1946,12 @@ function samr_getaliasmembership(smbstate, alias_handle,args)
 	return true, result
 end
 
----Call the <code>GetMembersInAlias</code> function, which retrieves a list of users in 
--- a group. 
+---Call the <code>GetMembersInAlias</code> function, which retrieves a list of users in
+-- a group.
 --
 --@param smbstate       The SMB state table
 --@param alias_handle   The alias_handle, returned by <code>samr_openalias</code>
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 function samr_getmembersinalias(smbstate, alias_handle)
 	local i, j
 	local status, result
@@ -1986,20 +1986,20 @@ function samr_getmembersinalias(smbstate, alias_handle)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.getmembersinalias)"
 	end
-	
+
 	return true, result
 end
 
--- Call the <code>LookupRids</code> function, which converts a list of RIDs to 
--- names. 
+-- Call the <code>LookupRids</code> function, which converts a list of RIDs to
+-- names.
 --
---NOTE: This doesn't appear to work (it generates a fault, despite the packet being properly formatted). 
---if you ever feel like you need this function, check out <code>lsa_lookupsids2</code>. 
+--NOTE: This doesn't appear to work (it generates a fault, despite the packet being properly formatted).
+--if you ever feel like you need this function, check out <code>lsa_lookupsids2</code>.
 --
 --@param smbstate       The SMB state table
 --@param domain_handle  The domain_handle, returned by <code>samr_opendomain</code>
 --@param rids           An array of RIDs to look up
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 --function samr_lookuprids(smbstate, domain_handle, rids)
 --	local i, j
 --	local status, result
@@ -2043,7 +2043,7 @@ end
 --	if(result['return'] ~= 0) then
 --		return false, smb.get_status_name(result['return']) .. " (samr.getmembersinalias)"
 --	end
---	
+--
 --	return true, result
 --end
 
@@ -2053,7 +2053,7 @@ end
 --@param smbstate The SMB state table
 --@param handle   The handle to close
 --@return (status, result) If status is false, result is an error message. Otherwise, result is potentially
---        a table of values, none of which are likely to be used. 
+--        a table of values, none of which are likely to be used.
 function samr_close(smbstate, handle)
 	local i, j
 	local status, result
@@ -2088,17 +2088,17 @@ function samr_close(smbstate, handle)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (samr.close)"
 	end
-	
+
 	return true, result
 end
 
----Call the <code>LsarOpenPolicy2</code> function, to obtain a "policy handle". This must be done before calling many 
--- of the LSA functions. 
+---Call the <code>LsarOpenPolicy2</code> function, to obtain a "policy handle". This must be done before calling many
+-- of the LSA functions.
 --
 --@param smbstate  The SMB state table
 --@param server    The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'policy_handle', which is required to call other functions. 
+--        useful one being 'policy_handle', which is required to call other functions.
 function lsa_openpolicy2(smbstate, server)
 	local i, j
 	local status, result
@@ -2116,7 +2116,7 @@ function lsa_openpolicy2(smbstate, server)
 --		[in]      uint32 access_mask,
 	arguments = arguments .. msrpctypes.marshall_int32(0x00000800)
 
---		[out] policy_handle *handle	
+--		[out] policy_handle *handle
 
 	-- Do the call
 	status, result = call_function(smbstate, 0x2C, arguments)
@@ -2133,7 +2133,7 @@ function lsa_openpolicy2(smbstate, server)
 --		[in,unique]      [string,charset(UTF16)] uint16 *system_name,
 --		[in]  lsa_ObjectAttribute *attr,
 --		[in]      uint32 access_mask,
---		[out] policy_handle *handle	
+--		[out] policy_handle *handle
 	pos, result['policy_handle'] = msrpctypes.unmarshall_policy_handle(arguments, pos)
 	pos, result['return'] = msrpctypes.unmarshall_int32(arguments, pos)
 
@@ -2147,15 +2147,15 @@ function lsa_openpolicy2(smbstate, server)
 	return true, result
 end
 
----Call the <code>LsarLookupNames2</code> function, to convert the server's name into a sid. 
+---Call the <code>LsarLookupNames2</code> function, to convert the server's name into a sid.
 --
 --@param smbstate      The SMB state table
 --@param policy_handle The policy handle returned by <code>lsa_openpolicy2</code>
---@param names         An array of names to look up. To get a SID, only one of the names needs to be valid. 
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
+--@param names         An array of names to look up. To get a SID, only one of the names needs to be valid.
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
 --        The most useful result is 'domains', which is a list of domains known to the server. And, for each of the
 --        domains, there is a 'name' entry, which is a string, and a 'sid' entry, which is yet another object which
---        can be passed to functions that understand SIDs. 
+--        can be passed to functions that understand SIDs.
 function lsa_lookupnames2(smbstate, policy_handle, names)
 	local i, j
 	local status, result
@@ -2184,7 +2184,7 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
 
 --		[in,out] uint32 *count,
 	arguments = arguments .. msrpctypes.marshall_int32(0)
-	
+
 --		[in]         uint32 unknown1,
 	arguments = arguments .. msrpctypes.marshall_int32(0)
 
@@ -2214,7 +2214,7 @@ function lsa_lookupnames2(smbstate, policy_handle, names)
 
 --		[in,out] lsa_TransSidArray2 *rids,
 	pos, result['rids'] = msrpctypes.unmarshall_lsa_TransSidArray2(arguments, pos)
-	
+
 --		[in]         lsa_LookupNamesLevel level,
 --		[in,out] uint32 *count,
 	pos, result['count'] = msrpctypes.unmarshall_int32(arguments, pos)
@@ -2243,11 +2243,11 @@ end
 --@param smbstate      The SMB state table
 --@param policy_handle The policy handle returned by <code>lsa_openpolicy2</code>
 --@param sids          The SIDs to look up (will probably be the server's SID with "-[rid]" appended
---@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values. 
---        The element 'domains' is identical to the lookupnames2() element called 'domains'. The element 'names' is a 
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values.
+--        The element 'domains' is identical to the lookupnames2() element called 'domains'. The element 'names' is a
 --        list of strings, for the usernames (not necessary a 1:1 mapping with the RIDs), and the element 'details' is
 --        a table containing more information about each name, even if the name wasn't found (this one is a 1:1 mapping
---        with the RIDs). 
+--        with the RIDs).
 function lsa_lookupsids2(smbstate, policy_handle, sids)
 	local i, j
 	local status, result
@@ -2259,7 +2259,7 @@ function lsa_lookupsids2(smbstate, policy_handle, sids)
 
 --		[in]     policy_handle *handle,
 	arguments = msrpctypes.marshall_policy_handle(policy_handle)
-	
+
 --		[in]     lsa_SidArray *sids,
 	arguments = arguments .. msrpctypes.marshall_lsa_SidArray(sids)
 
@@ -2322,7 +2322,7 @@ end
 --@param smbstate  The SMB state table
 --@param handle    The handle to close
 --@return (status, result) If status is false, result is an error message. Otherwise, result is potentially
---        a table of values, none of which are likely to be used. 
+--        a table of values, none of which are likely to be used.
 function lsa_close(smbstate, handle)
 	local i, j
 	local status, result
@@ -2354,17 +2354,17 @@ function lsa_close(smbstate, handle)
 	if(result['return'] ~= 0) then
 		return false, smb.get_status_name(result['return']) .. " (lsa.close)"
 	end
-	
+
 	stdnse.print_debug(3, "MSRPC: LsaClose() returned successfully")
 	return true, result
 end
 
----A proxy to a <code>msrpctypes</code> function that converts a SidType to an english string. 
+---A proxy to a <code>msrpctypes</code> function that converts a SidType to an english string.
 -- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
 -- functions.
 --
 --@param val The value to convert.
---@return A string that can be displayed to the user. 
+--@return A string that can be displayed to the user.
 function lsa_SidType_tostr(val)
 	return msrpctypes.lsa_SidType_tostr(val)
 end
@@ -2374,7 +2374,7 @@ end
 --
 --@param smbstate  The SMB state table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'handle', which is required to call other winreg functions. 
+--        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhku(smbstate)
 	local i, j
 	local status, result
@@ -2424,7 +2424,7 @@ end
 --
 --@param smbstate  The SMB state table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'handle', which is required to call other winreg functions. 
+--        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhklm(smbstate)
 	local i, j
 	local status, result
@@ -2473,7 +2473,7 @@ end
 --
 --@param smbstate  The SMB state table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'handle', which is required to call other winreg functions. 
+--        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhkpd(smbstate)
 	local i, j
 	local status, result
@@ -2522,7 +2522,7 @@ end
 --
 --@param smbstate  The SMB state table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'handle', which is required to call other winreg functions. 
+--        useful one being 'handle', which is required to call other winreg functions.
 function winreg_openhkcu(smbstate)
 	local i, j
 	local status, result
@@ -2571,14 +2571,14 @@ end
 
 
 ---Calls the Windows registry function <code>EnumKey</code>, which returns a single key
--- under the given handle, at the index of 'index'. 
+-- under the given handle, at the index of 'index'.
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example. 
+--@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example.
 --@param index     The index of the key to return. Generally you'll start at 0 and increment until
 --                 an error is returned.
 --@param name      The <code>name</code> buffer. This should be set to the empty string; however, setting to 'nil' can have
---                 interesting effects on Windows 2000 (I experienced crashes). 
+--                 interesting effects on Windows 2000 (I experienced crashes).
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one being 'name', which is the name of the current key
 function winreg_enumkey(smbstate, handle, index, name)
@@ -2597,7 +2597,7 @@ function winreg_enumkey(smbstate, handle, index, name)
 
 --		[in,out,ref]    winreg_StringBuf *name,
 	-- NOTE: if the 'name' parameter here is set to 'nil', the service on a fully patched Windows 2000 system
-	-- may crash. 
+	-- may crash.
 	arguments = arguments .. msrpctypes.marshall_winreg_StringBuf({name=""}, 520)
 
 --		[in,out,unique] winreg_StringBuf *keyclass,
@@ -2644,13 +2644,13 @@ function winreg_enumkey(smbstate, handle, index, name)
 
 end
 
---- Calls the function <code>OpenKey</code>, which obtains a handle to a named key. 
+--- Calls the function <code>OpenKey</code>, which obtains a handle to a named key.
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example. 
---@param keyname   The name of the key to open. 
+--@param handle    A handle to hive or key. <code>winreg_openhku</code> provides a useable key, for example.
+--@param keyname   The name of the key to open.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
---        useful one being 'handle', which is a handle to the newly opened key. 
+--        useful one being 'handle', which is a handle to the newly opened key.
 function winreg_openkey(smbstate, handle, keyname)
 	local i, j
 	local status, result
@@ -2704,13 +2704,13 @@ function winreg_openkey(smbstate, handle, keyname)
 	return true, result
 end
 
---- Calls the function <code>QueryInfoKey</code>, which obtains information about an opened key. 
+--- Calls the function <code>QueryInfoKey</code>, which obtains information about an opened key.
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to the key that's being queried. 
+--@param handle    A handle to the key that's being queried.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one, at least for me, being 'last_changed_time'/'last_changed_date', which are the date and time that the
---        key was changed. 
+--        key was changed.
 function winreg_queryinfokey(smbstate, handle)
 	local i, j
 	local status, result
@@ -2791,11 +2791,11 @@ end
 --- Calls the function <code>QueryValue</code>, which returns the value of the requested key.
 --
 --@param smbstate  The SMB state table
---@param handle    A handle to the key that's being queried. 
---@param value     The value we're looking for. 
+--@param handle    A handle to the key that's being queried.
+--@param value     The value we're looking for.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, the most
 --        useful one, at least for me, being 'last_changed_time'/'last_changed_date', which are the date and time that the
---        key was changed. 
+--        key was changed.
 function winreg_queryvalue(smbstate, handle, value)
 	local i, j
 	local status, result
@@ -2885,12 +2885,12 @@ end
 
 
 --- Calls the function <code>CloseKey</code>, which closes an opened handle. Strictly speaking, this doesn't have to be called (Windows
---  will close the key for you), but it's good manners to clean up after yourself. 
+--  will close the key for you), but it's good manners to clean up after yourself.
 --
 --@param smbstate  The SMB state table
---@param handle    the handle to be closed. 
+--@param handle    the handle to be closed.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values, none of
---                         which are especially useful. 
+--                         which are especially useful.
 function winreg_closekey(smbstate, handle)
 	local i, j
 	local status, result
@@ -2929,12 +2929,12 @@ function winreg_closekey(smbstate, handle)
 end
 
 --- Calls the function <code>OpenSCManagerA</code>, which gets a handle to the service manager. Should be closed with
--- <code>CloseServiceHandle</code> when finished. 
+-- <code>CloseServiceHandle</code> when finished.
 --
 --@param smbstate    The SMB state table
---@param machinename The name or IP of the machine. 
+--@param machinename The name or IP of the machine.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
---        representing the "out" parameters.  
+--        representing the "out" parameters.
 function svcctl_openscmanagera(smbstate, machinename)
 	local i, j
 	local status, result
@@ -2950,8 +2950,8 @@ function svcctl_openscmanagera(smbstate, machinename)
 	arguments = arguments .. msrpctypes.marshall_ascii_ptr(nil)
 
 --        [in] uint32 access_mask,
---	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f) 
-	arguments = arguments .. msrpctypes.marshall_int32(0x00000002) 
+--	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f)
+	arguments = arguments .. msrpctypes.marshall_int32(0x00000002)
 
 --        [out,ref] policy_handle *handle
 
@@ -2986,12 +2986,12 @@ end
 
 
 --- Calls the function <code>OpenSCManagerW</code>, which gets a handle to the service manager. Should be closed with
--- <code>CloseServiceHandle</code> when finished. 
+-- <code>CloseServiceHandle</code> when finished.
 --
 --@param smbstate    The SMB state table
---@param machinename The name or IP of the machine. 
+--@param machinename The name or IP of the machine.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
---        representing the "out" parameters.  
+--        representing the "out" parameters.
 function svcctl_openscmanagerw(smbstate, machinename)
 	local i, j
 	local status, result
@@ -3011,8 +3011,8 @@ function svcctl_openscmanagerw(smbstate, machinename)
 	arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil, true)
 
 --        [in] uint32 access_mask,
---	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f) 
-	arguments = arguments .. msrpctypes.marshall_int32(0x02000000) 
+--	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f)
+	arguments = arguments .. msrpctypes.marshall_int32(0x02000000)
 
 --        [out,ref] policy_handle *handle
 
@@ -3049,9 +3049,9 @@ end
 --- Calls the function <code>CloseServiceHandle</code>, which releases a handle.
 --
 --@param smbstate  The SMB state table
---@param handle    The handle to be closed. 
+--@param handle    The handle to be closed.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
---        representing the "out" parameters.  
+--        representing the "out" parameters.
 function svcctl_closeservicehandle(smbstate, handle)
 	local i, j
 	local status, result
@@ -3091,12 +3091,12 @@ function svcctl_closeservicehandle(smbstate, handle)
 end
 
 --- Calls the function <code>CreateServiceW</code>, which creates a service on the remote machine. This should
--- be deleted with <code>DeleteService</code> when finished. 
+-- be deleted with <code>DeleteService</code> when finished.
 --
 --@param smbstate  The SMB state table
 --@param handle    The handle created by <code>OpenSCManagerW</code>
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
---        representing the "out" parameters.  
+--        representing the "out" parameters.
 function svcctl_createservicew(smbstate, handle, service_name, display_name, path)
 	local i, j
 	local status, result
@@ -3177,7 +3177,7 @@ function svcctl_createservicew(smbstate, handle, service_name, display_name, pat
 --        [in] [string,charset(UTF16)] uint16 *LoadOrderGroupKey,
 --        [in,out] uint32 *TagId,
 	pos, result['TagId'] = msrpctypes.unmarshall_int32_ptr(arguments, pos)
-	
+
 --        [in,size_is(dependencies_size)] uint8 *dependencies,
 --        [in] uint32 dependencies_size,
 --        [in] [string,charset(UTF16)] uint16 *service_start_name,
@@ -3198,12 +3198,12 @@ function svcctl_createservicew(smbstate, handle, service_name, display_name, pat
 end
 
 --- Calls the function <code>DeleteService</code>, which deletes a service on the remote machine. This service
--- has to opened with <code>OpenServiceW</code> or similar functions. 
+-- has to opened with <code>OpenServiceW</code> or similar functions.
 --
 --@param smbstate  The SMB state table.
---@param handle    The handle to delete, opened with <code>OpenServiceW</code> or similar. 
+--@param handle    The handle to delete, opened with <code>OpenServiceW</code> or similar.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
---        representing the "out" parameters.  
+--        representing the "out" parameters.
 function svcctl_deleteservice(smbstate, handle)
 	local i, j
 	local status, result
@@ -3244,13 +3244,13 @@ function svcctl_deleteservice(smbstate, handle)
 end
 
 --- Calls the function <code>OpenServiceW</code>, which gets a handle to the service.  Should be closed with
--- <code>CloseServiceHandle</code> when finished. 
+-- <code>CloseServiceHandle</code> when finished.
 --
 --@param smbstate The SMB state table.
---@param handle   A handle to the policy manager, opened with <code>OpenSCManagerW</code> or similar. 
---@param name     The name of the service. 
+--@param handle   A handle to the policy manager, opened with <code>OpenSCManagerW</code> or similar.
+--@param name     The name of the service.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
---        representing the "out" parameters.  
+--        representing the "out" parameters.
 function svcctl_openservicew(smbstate, handle, name)
 	local i, j
 	local status, result
@@ -3300,11 +3300,11 @@ function svcctl_openservicew(smbstate, handle, name)
 end
 
 --- Calls the function <code>StartServiceW</code>, which starts a service. Requires a handle
--- created by <code>OpenServiceW</code>. 
+-- created by <code>OpenServiceW</code>.
 --
 --@param smbstate The SMB state table.
 --@param handle   The handle, opened by <code>OpenServiceW</code>.
---@param args     An array of strings representing the arguments. 
+--@param args     An array of strings representing the arguments.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_startservicew(smbstate, handle, args)
@@ -3355,11 +3355,11 @@ function svcctl_startservicew(smbstate, handle, args)
 
 end
 
---- Calls the function <code>ControlService</code>, which can send various commands to the service. 
+--- Calls the function <code>ControlService</code>, which can send various commands to the service.
 --
 --@param smbstate The SMB state table.
 --@param handle   The handle, opened by <code>OpenServiceW</code>.
---@param control  The command to send. See <code>svcctl_ControlCode</code> in <code>msrpctypes.lua</code>. 
+--@param control  The command to send. See <code>svcctl_ControlCode</code> in <code>msrpctypes.lua</code>.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table of values
 --        representing the "out" parameters.
 function svcctl_controlservice(smbstate, handle, control)
@@ -3409,7 +3409,7 @@ function svcctl_controlservice(smbstate, handle, control)
 end
 
 
---- Calls the function <code>QueryServiceStatus</code>, which gets the state information about the service. 
+--- Calls the function <code>QueryServiceStatus</code>, which gets the state information about the service.
 --
 --@param smbstate The SMB state table.
 --@param handle   The handle, opened by <code>OpenServiceW</code>.
@@ -3456,15 +3456,15 @@ function svcctl_queryservicestatus(smbstate, handle, control)
 	return true, result
 end
 
----Calls the function <code>JobAdd</code>, which schedules a process to be run on the remote 
+---Calls the function <code>JobAdd</code>, which schedules a process to be run on the remote
 -- machine. This requires administrator privileges to run, and the command itself runs as
--- SYSTEM. 
+-- SYSTEM.
 --@param smbstate The SMB state table.
 --@param server   The IP or Hostname of the server (seems to be ignored but it's a good idea to have it)
---@param command  The command to run on the remote machine. The appropriate file(s) already 
---                have to be there, and this should be a full path. 
---@param time     (optional) The time at which to run the command. Default: 5 seconds from 
---                when the user logged in. 
+--@param command  The command to run on the remote machine. The appropriate file(s) already
+--                have to be there, and this should be a full path.
+--@param time     (optional) The time at which to run the command. Default: 5 seconds from
+--                when the user logged in.
 function atsvc_jobadd(smbstate, server, command, time)
 	local i, j
 	local status, result
@@ -3514,9 +3514,9 @@ function atsvc_jobadd(smbstate, server, command, time)
 	return true, result
 end
 
----Attempt to enumerate users using SAMR functions. 
+---Attempt to enumerate users using SAMR functions.
 --
---@param host The host object. 
+--@param host The host object.
 --@return (status, result) If status is false, result is an error message. Otherwise, result
 -- is an array of tables, each of which contain the following fields:
 -- * name
@@ -3588,7 +3588,7 @@ function samr_enum_users(host)
 
 			-- Save the sid
 			local sid = lookupdomain_result['sid']
-	
+
 			-- Call OpenDomain()
 			local status, opendomain_result = samr_opendomain(smbstate, connect_handle, sid)
 			if(status == false) then
@@ -3599,7 +3599,7 @@ function samr_enum_users(host)
 			-- Save the domain handle
 			local domain_handle = opendomain_result['domain_handle']
 
-			-- Loop as long as we're getting valid results	
+			-- Loop as long as we're getting valid results
 			j = 0
 			repeat
 				-- Call QueryDisplayInfo()
@@ -3615,8 +3615,8 @@ function samr_enum_users(host)
 					for k = 1, #querydisplayinfo_result['info']['entries'], 1 do
 						local array = {}
 						local l
-	
-						-- The reason these are all indexed from '1' is because we request names one at a time. 
+
+						-- The reason these are all indexed from '1' is because we request names one at a time.
 						array['name']        = querydisplayinfo_result['info']['entries'][k]['account_name']
 						array['fullname']    = querydisplayinfo_result['info']['entries'][k]['full_name']
 						array['description'] = querydisplayinfo_result['info']['entries'][k]['description']
@@ -3631,7 +3631,7 @@ function samr_enum_users(host)
 						for l = 1, #array['flags'], 1 do
 							array['flags'][l] = samr_AcctFlags_tostr(array['flags'][l])
 						end
-	
+
 						-- Add it to the array
 						response[#response + 1] = array
 					end
@@ -3850,8 +3850,8 @@ end
 
 ---Attempt to enumerate users using LSA functions.
 --
---@param host The host object. 
---@return status, result -- if status is false, result is an error message; otherwise, result is 
+--@param host The host object.
+--@return status, result -- if status is false, result is an error message; otherwise, result is
 --        an array of tables, each containing the following elements:
 -- * name
 -- * rid
@@ -3892,7 +3892,7 @@ function lsa_enum_users(host)
 		names[#names + 1] = smbstate['domain']
 	end
 	if(smbstate['server'] ~= nil) then
-		names[#names + 1] = string.sub(smbstate['server'], 1, #smbstate['server'] - 1) 
+		names[#names + 1] = string.sub(smbstate['server'], 1, #smbstate['server'] - 1)
 	end
 
 	-- Get the server's name from nbstat
@@ -3920,8 +3920,8 @@ function lsa_enum_users(host)
 		local sids   = { }
 
 		-- Start by looking up 500 and up
-		for j = 500, 500 + LSA_GROUPSIZE, 1 do 
-			sids[#sids + 1] = sid .. "-" .. j 
+		for j = 500, 500 + LSA_GROUPSIZE, 1 do
+			sids[#sids + 1] = sid .. "-" .. j
 		end
 
 		status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
@@ -3929,7 +3929,7 @@ function lsa_enum_users(host)
 			stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
 		else
 			-- Put the details for each name into an array
-			-- NOTE: Be sure to mirror any changes here in the next bit! 
+			-- NOTE: Be sure to mirror any changes here in the next bit!
 			for j = 1, #lookupsids2_result['names']['names'], 1 do
 				if(lookupsids2_result['names']['names'][j]['sid_type'] == "SID_NAME_USER") then
 					local result = {}
@@ -3953,7 +3953,7 @@ function lsa_enum_users(host)
 			local used_names = 0
 
 			local sids = {}
-			for j = start, start + LSA_GROUPSIZE, 1 do 
+			for j = start, start + LSA_GROUPSIZE, 1 do
 				sids[#sids + 1] = sid .. "-" .. j
 			end
 
@@ -3970,7 +3970,7 @@ function lsa_enum_users(host)
 					local typenum = lookupsids2_result['names']['names'][j]['sid_type']
 					local typestr = lsa_SidType_tostr(typenum)
 
-					-- Check if the username matches the rid (one server we discovered returned every user as valid, 
+					-- Check if the username matches the rid (one server we discovered returned every user as valid,
 					-- this is to prevent that infinite loop)
 					if(tonumber(name) ~= rid) then
 						if(lookupsids2_result['names']['names'][j]['sid_type'] == "SID_NAME_USER") then
@@ -3982,7 +3982,7 @@ function lsa_enum_users(host)
 							result['typestr'] = typestr
 							result['source']  = "LSA Bruteforce"
 							table.insert(response, result)
-	
+
 							-- Increment the number of names we've found
 							used_names = used_names + 1
 						end
@@ -4011,13 +4011,13 @@ function lsa_enum_users(host)
 	return true, response
 end
 
----Gets the best possible list of user accounts on the remote system using every available method. 
+---Gets the best possible list of user accounts on the remote system using every available method.
 --
 -- TODO: Caching, store this in the registry
 --
---@param host The host object. 
+--@param host The host object.
 --@return (status, result, names) If status is false, result is an error message; otherwise, result
---        is an array of users indexed by username and names is a sorted array of names. 
+--        is an array of users indexed by username and names is a sorted array of names.
 function get_user_list(host)
 	local status_samr, result_samr
 	local status_lsa,  result_lsa
@@ -4060,7 +4060,7 @@ function get_user_list(host)
 end
 
 ---Retrieve information about a domain. This is done by three seperate calls to samr_querydomaininfo2() to get all
--- possible information. smbstate has to be in the proper state for this to work. 
+-- possible information. smbstate has to be in the proper state for this to work.
 local function get_domain_info(host, domain)
 	local result = {}
 	local status, smbstate, bind_result, connect4_result, lookupdomain_result, opendomain_result, enumdomainusers_result
@@ -4102,7 +4102,7 @@ local function get_domain_info(host, domain)
 	end
 
 	-- Call QueryDomainInfo2() to get domain properties. We call these for three types -- 1, 8, and 12, since those return
-	-- the most useful information. 
+	-- the most useful information.
 	local status_1,  querydomaininfo2_result_1  = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 1)
 	local status_8,  querydomaininfo2_result_8  = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 8)
 	local status_12, querydomaininfo2_result_12 = samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 12)
@@ -4215,7 +4215,7 @@ local function get_domain_info(host, domain)
 	end
 
 	local password_properties = querydomaininfo2_result_1['info']['password_properties']
-	
+
 	if(#password_properties > 0) then
 		local password_properties_response = {}
 		password_properties_response['name'] = "Password properties:"
@@ -4294,21 +4294,21 @@ end
 -- on the system. The name of the service can be whatever you want it to be. The service is created
 -- in the "stopped" state with "manual" startup, and it ignores errors. The 'servicename' is what
 -- people will see on the system while the service is running, and what'll stay there is something
--- happens that the service can't be deleted properly. 
+-- happens that the service can't be deleted properly.
 --
 -- Note that this (and the other "service" functions) are highly invasive. They make configuration
--- changes to the machine that can potentially affect stability. 
+-- changes to the machine that can potentially affect stability.
 --
--- The reason that this and the other "service" functions don't require a <code>smbstate</code> 
--- object is that I wanted them to be independent. If a service fails to start, I don't want it 
+-- The reason that this and the other "service" functions don't require a <code>smbstate</code>
+-- object is that I wanted them to be independent. If a service fails to start, I don't want it
 -- to affect the program's ability to stop and delete the service. Every service function is
--- independent. 
+-- independent.
 --
---@param host        The host object. 
---@param servicename The name of the service to create. 
---@param path        The path and filename on the remote system. 
---@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
---        otherwise, err is undefined. 
+--@param host        The host object.
+--@param servicename The name of the service to create.
+--@param path        The path and filename on the remote system.
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message;
+--        otherwise, err is undefined.
 function service_create(host, servicename, path)
 	local status, smbstate, bind_result, open_result, create_result, close_result
 
@@ -4361,18 +4361,18 @@ function service_create(host, servicename, path)
 	return true
 end
 
----Start a service on the remote machine based on its name. For example, to start the registry 
--- service, this can be called on "RemoteRegistry". 
+---Start a service on the remote machine based on its name. For example, to start the registry
+-- service, this can be called on "RemoteRegistry".
 --
 -- If you start a service on a machine, you should also stop it when you're finished. Every service
 -- running is extra attack surface for a potential attacker
 --
---@param host        The host object. 
---@param servicename The name of the service to start. 
+--@param host        The host object.
+--@param servicename The name of the service to start.
 --@param args        [optional] The arguments to pass to the service. Most built-in services don't
---                   require arguments. 
---@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
---        otherwise, err is undefined. 
+--                   require arguments.
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message;
+--        otherwise, err is undefined.
 function service_start(host, servicename, args)
 	local status, smbstate, bind_result, open_result, open_service_result, start_result, close_result, query_result
 
@@ -4445,16 +4445,16 @@ function service_start(host, servicename, args)
 	return true
 end
 
----Stop a service on the remote machine based on its name. For example, to stop the registry 
--- service, this can be called on "RemoteRegistry". 
+---Stop a service on the remote machine based on its name. For example, to stop the registry
+-- service, this can be called on "RemoteRegistry".
 --
 -- This can be called on a service that's already stopped without hurting anything (just keep in mind
--- that an error will be returned). 
--- 
---@param host        The host object. 
---@param servicename The name of the service to stop. 
---@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
---        otherwise, err is undefined. 
+-- that an error will be returned).
+--
+--@param host        The host object.
+--@param servicename The name of the service to stop.
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message;
+--        otherwise, err is undefined.
 function service_stop(host, servicename)
 	local status, smbstate, bind_result, open_result, open_service_result, control_result, close_result, query_result
 
@@ -4525,15 +4525,15 @@ function service_stop(host, servicename)
 	smb.stop(smbstate)
 
 	return true
-end 
+end
 
 ---Delete a service on the remote machine based on its name. I don't recommend deleting any services that
--- you didn't create. 
--- 
---@param host        The host object. 
---@param servicename The name of the service to delete. 
---@return (status, err) If status is <code>false</code>, <code>err</code> is an error message; 
---        otherwise, err is undefined. 
+-- you didn't create.
+--
+--@param host        The host object.
+--@param servicename The name of the service to delete.
+--@return (status, err) If status is <code>false</code>, <code>err</code> is an error message;
+--        otherwise, err is undefined.
 function service_delete(host, servicename)
 	local status, smbstate, bind_result, open_result, open_service_result, delete_result, close_result
 
@@ -4597,10 +4597,10 @@ end
 
 ---Retrieves statistical information about the given server. This function requires administrator privileges
 -- to run, and is present on all Windows versions, so it's a useful way to check whether or not an account
--- is administrative. 
+-- is administrative.
 --@param host       The host object
 --@return (status, data) If status is false, data is an error message; otherwise, data is a table of information
---        about the server. 
+--        about the server.
 function get_server_stats(host)
 	local stats
 	local status
@@ -4611,25 +4611,25 @@ function get_server_stats(host)
 	if(status == false) then
 		return false, smbstate
 	end
-   
+
 	-- Bind to SRVSVC service
 	local status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
 	if(status == false) then
 		smb.stop(smbstate)
 		return false, bind_result
 	end
-   
+
 	-- Call netservergetstatistics for 'server'
 	local status, netservergetstatistics_result = srvsvc_netservergetstatistics(smbstate, host.ip)
 	if(status == false) then
 		smb.stop(smbstate)
 		return false, netservergetstatistics_result
 	end
-   
+
 	-- Stop the session
 	smb.stop(smbstate)
-   
-	-- Build the response   
+
+	-- Build the response
 	local stats = netservergetstatistics_result['stat']
 
 	-- Convert the date to a string
@@ -4644,7 +4644,7 @@ function get_server_stats(host)
 	else
 		stats['period_str'] = string.format("%02dm%02ds", stats['period'] / 60, stats['period'] % 60)
 	end
-   
+
 	-- Combine the 64-bit values
 	stats['bytessent'] = bit.bor(bit.lshift(stats['bytessent_high'], 32), stats['bytessent_low'])
 	stats['bytesrcvd'] = bit.bor(bit.lshift(stats['bytesrcvd_high'], 32), stats['bytesrcvd_low'])
@@ -4653,7 +4653,7 @@ function get_server_stats(host)
 	if(stats['period'] == 0) then
 		stats['period'] = 1
 	end
-   
+
   	-- Get the bytes/second values
 	stats['bytessentpersecond'] = stats['bytessent'] / stats['period']
 	stats['bytesrcvdpersecond'] = stats['bytesrcvd'] / stats['period']
@@ -4662,9 +4662,9 @@ function get_server_stats(host)
 end
 
 ---Attempts to enumerate the shares on a remote system using MSRPC calls. Without a user account,
--- this will likely fail against a modern system, but will succeed against Windows 2000. 
+-- this will likely fail against a modern system, but will succeed against Windows 2000.
 --
---@param host The host object. 
+--@param host The host object.
 --@return Status (true or false).
 --@return List of shares (if status is true) or an an error string (if status is false).
 function enum_shares(host)
@@ -4683,14 +4683,14 @@ function enum_shares(host)
 	-- Bind to SRVSVC service
 	status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
 	if(status == false) then
-		smb.stop(smbstate) 
+		smb.stop(smbstate)
 		return false, bind_result
 	end
 
 	-- Call netsharenumall
 	status, netshareenumall_result = srvsvc_netshareenumall(smbstate, host.ip)
 	if(status == false) then
-		smb.stop(smbstate) 
+		smb.stop(smbstate)
 		return false, netshareenumall_result
 	end
 
@@ -4707,12 +4707,12 @@ function enum_shares(host)
 end
 
 
----Attempts to retrieve additional information about a share. Will fail unless we have 
--- administrative access. 
+---Attempts to retrieve additional information about a share. Will fail unless we have
+-- administrative access.
 --
---@param host The host object. 
+--@param host The host object.
 --@return Status (true or false).
---@return A table of information about the share (if status is true) or an an error string (if 
+--@return A table of information about the share (if status is true) or an an error string (if
 --        status is false).
 function get_share_info(host, name)
 	local response = {}
@@ -4726,14 +4726,14 @@ function get_share_info(host, name)
 	-- Bind to SRVSVC service
 	local status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
 	if(status == false) then
-		smb.stop(smbstate) 
+		smb.stop(smbstate)
 		return false, bind_result
 	end
 
 	-- Call NetShareGetInfo
 	local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
 	if(status == false) then
-		smb.stop(smbstate) 
+		smb.stop(smbstate)
 		return false, netsharegetinfo_result
 	end
 
@@ -5036,7 +5036,7 @@ end
 ---Makes a pad for alignment
 -- @param data Data which needs to be padded for the sake of alignment.
 -- @param align Integer representing the alignment boundary.
--- @param pad_byte The value for pad byte. 
+-- @param pad_byte The value for pad byte.
 -- @return Returns the amount of pad calculated by <code>(align-datalen%align)%align</code>.
 --####################################################################--
 function get_pad(data, align, pad_byte)
@@ -5048,7 +5048,7 @@ end
 ---Generates a random string of the requested length.
 --@param length The length of the string to return.
 --@param charset    The set of letters to choose from. Default: ASCII letters and numbers
---@return The random string. 
+--@return The random string.
 --####################################################################--
 function random_crap(length, charset)
 	charset = charset or "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY"
@@ -5059,6 +5059,6 @@ function random_crap(length, charset)
         end
 	return random_str
 end
-	
+
 
 return _ENV;

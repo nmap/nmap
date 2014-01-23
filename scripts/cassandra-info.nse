@@ -18,14 +18,14 @@ http://cassandra.apache.org/
 ---
 -- @usage
 -- nmap -p 9160 <ip> --script=cassandra-info
--- 
+--
 -- @output
 -- PORT     STATE SERVICE   REASON
 -- 9160/tcp open  cassandra syn-ack
--- | cassandra-info: 
+-- | cassandra-info:
 -- |   Cluster name: Test Cluster
 -- |_  Version: 19.10.0
--- 
+--
 
 -- version 0.1
 -- Created 14/09/2012 - v0.1 - created by Vlatko Kosturjak <kost@linux.hr>
@@ -42,18 +42,18 @@ function action(host,port)
 
 	local socket = nmap.new_socket()
         local cassinc = 2 -- cmd/resp starts at 2
-	
+
 	-- set a reasonable timeout value
 	socket:set_timeout(10000)
 	-- do some exception  / cleanup
 	local catch = function()
 		socket:close()
 	end
-	
+
 	local try = nmap.new_try(catch)
 
 	try( socket:connect(host, port) )
-	
+
         local results = {}
 
 	-- uglyness to allow creds.cassandra to work, as the port is not recognized

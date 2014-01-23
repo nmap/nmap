@@ -29,7 +29,7 @@ password.
 -- @output
 -- PORT     STATE  SERVICE REASON
 -- 1521/tcp open  oracle  syn-ack
--- | oracle-brute-stealth: 
+-- | oracle-brute-stealth:
 -- |   Accounts
 -- |     dummy:$o5logon$1245C95384E15E7F0C893FCD1893D8E19078170867E892CE86DF90880E09FAD3B4832CBCFDAC1A821D2EA8E3D2209DB6*4202433F49DE9AE72AE2 - Hashed valid or invalid credentials
 -- |     nmap:$o5logon$D1B28967547DBA3917D7B129E339F96156C8E2FE5593D42540992118B3475214CA0F6580FD04C2625022054229CAAA8D*7BCF2ACF08F15F75B579 - Hashed valid or invalid credentials
@@ -152,7 +152,7 @@ action = function(host, port)
 	if ( not(sid) ) then
 		return "\n  ERROR: Oracle instance not set (see oracle-brute-stealth.sid or tns.sid)"
 	end
-	
+
 	if ( arg_johnfile ) then
 		johnfile = io.open(arg_johnfile, "w")
 		if ( not(johnfile) ) then

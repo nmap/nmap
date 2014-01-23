@@ -92,7 +92,7 @@ local function create_instance_output_table( instance )
 		local credsOutput = {}
 		credsOutput["name"] = "Credentials found:"
 		table.insert( instanceOutput, credsOutput )
-		
+
 		for username, result in pairs( instance.ms_sql_brute.credentials ) do
 			local password = result[1]
 			local errorCode = result[2]
@@ -104,32 +104,32 @@ local function create_instance_output_table( instance )
 				table.insert( credsOutput, string.format( "%s:%s => Login Success", username, password ) )
 			end
 		end
-		
+
 		if ( #credsOutput == 0 ) then
 			table.insert( instanceOutput, "No credentials found" )
 		end
 	end
-	
+
 	if ( instance.ms_sql_brute.warnings ) then
 		local warningsOutput = {}
 		warningsOutput["name"] = "Warnings:"
 		table.insert( instanceOutput, warningsOutput )
-		
+
 		for _, warning in ipairs( instance.ms_sql_brute.warnings ) do
 			table.insert( warningsOutput, warning )
 		end
 	end
-	
+
 	if ( instance.ms_sql_brute.errors ) then
 		local errorsOutput = {}
 		errorsOutput["name"] = "Errors:"
 		table.insert( instanceOutput, errorsOutput )
-		
+
 		for _, error in ipairs( instance.ms_sql_brute.errors ) do
 			table.insert( errorsOutput, error )
 		end
 	end
-	
+
 	return instanceOutput
 
 end
@@ -138,7 +138,7 @@ end
 local function test_credentials( instance, helper, username, password )
 	local database = "tempdb"
 	local stopUser, stopInstance = false, false
-	
+
 	local status, result = helper:ConnectEx( instance )
 	local loginErrorCode
 	if( status ) then
@@ -146,7 +146,7 @@ local function test_credentials( instance, helper, username, password )
 		status, result, loginErrorCode = helper:Login( username, password, database, instance.host.ip )
 	end
 	helper:Disconnect()
-	
+
 	local passwordIsGood, canLogin
 	if status then
 		passwordIsGood = true
@@ -156,7 +156,7 @@ local function test_credentials( instance, helper, username, password )
 			 ( loginErrorCode ~= mssql.LoginErrorType.NotAssociatedWithTrustedConnection ) ) then
 			stopUser = true
 		end
-		
+
 		if ( loginErrorCode == mssql.LoginErrorType.PasswordExpired ) then passwordIsGood = true
 		elseif ( loginErrorCode == mssql.LoginErrorType.PasswordMustChange ) then passwordIsGood = true
 		elseif ( loginErrorCode == mssql.LoginErrorType.AccountLockedOut ) then
@@ -178,21 +178,21 @@ local function test_credentials( instance, helper, username, password )
 		stopUser = true
 		stopInstance = true
 	end
-	
+
 	if ( passwordIsGood ) then
 		stopUser = true
-		
+
 		instance.ms_sql_brute.credentials[ username ] = { password, loginErrorCode }
 		-- Add credentials for other ms-sql scripts to use but don't
 		-- add accounts that need to change passwords
 		if ( canLogin ) then
 			instance.credentials[ username ] = password
 			-- Legacy storage method (does not distinguish between instances)
-			nmap.registry.mssqlusers = nmap.registry.mssqlusers or {}	
+			nmap.registry.mssqlusers = nmap.registry.mssqlusers or {}
 			nmap.registry.mssqlusers[username]=password
 		end
 	end
-	
+
 	return stopUser, stopInstance
 end
 
@@ -205,39 +205,39 @@ local function process_instance( instance )
 	-- attempt once and then re-use the results. We'll use a mutex to make sure
 	-- that multiple script instances (e.g. a host-script and a port-script)
 	-- working on the same SQL Server instance can only enter this block one at
-	-- a time. 
+	-- a time.
 	local mutex = nmap.mutex( instance )
 	mutex( "lock" )
-	
+
 	-- If this instance has already been tested (e.g. if we got to it by both the
 	-- hostrule and the portrule), don't test it again.
 	if ( instance.tested_brute ~= true ) then
 		instance.tested_brute = true
-		
+
 		instance.credentials = instance.credentials or {}
 		instance.ms_sql_brute = instance.ms_sql_brute or {}
 		instance.ms_sql_brute.credentials = instance.ms_sql_brute.credentials or {}
 		instance.ms_sql_brute.warnings = instance.ms_sql_brute.warnings or {}
 		instance.ms_sql_brute.errors = instance.ms_sql_brute.errors or {}
-		
+
 		local result, status
 		local stopUser, stopInstance
 		local usernames, passwords, username, password
 		local helper = mssql.Helper:new()
-		
+
 		if ( not instance:HasNetworkProtocols() ) then
 			stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
 			table.insert( instance.ms_sql_brute.errors, "No network protocols enabled." )
 			stopInstance = true
 		end
-		
+
 		status, usernames = unpwdb.usernames()
 		if ( not(status) ) then
 			stdnse.print_debug( 1, "%s: Failed to load usernames list.", SCRIPT_NAME )
 			table.insert( instance.ms_sql_brute.errors, "Failed to load usernames list." )
 			stopInstance = true
 		end
-		
+
 		if ( status ) then
 			status, passwords = unpwdb.passwords()
 			if ( not(status) ) then
@@ -246,40 +246,40 @@ local function process_instance( instance )
 				stopInstance = true
 			end
 		end
-		
+
 		if ( status ) then
 			for username in usernames do
 				if stopInstance then break end
-				
+
 				-- See if the password is the same as the username (which may not
 				-- be in the password list)
 				stopUser, stopInstance = test_credentials( instance, helper, username, username )
-				
+
 				for password in passwords do
 					if stopUser then break end
-					
+
 					stopUser, stopInstance = test_credentials( instance, helper, username, password )
 				end
-				
+
 				passwords("reset")
 			end
 		end
 	end
-	
+
 	-- The password testing has been finished. Unlock the mutex.
 	mutex( "done" )
-	
+
 	return create_instance_output_table( instance )
-	
+
 end
 
 
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	local domain, bruteWindows = stdnse.get_script_args("mssql.domain", "ms-sql-brute.brute-windows-accounts")
-	
+
 	if ( domain and not(bruteWindows) ) then
 		local ret = "\n  " ..
 			"Windows authentication was enabled but the argument\n  " ..
@@ -289,7 +289,7 @@ action = function( host, port )
 			"(passdb argument) are at least 2 entries below the lockout threshold."
 		return ret
 	end
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -300,6 +300,6 @@ action = function( host, port )
 			end
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end

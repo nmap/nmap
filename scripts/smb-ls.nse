@@ -16,7 +16,7 @@ The output is intended to resemble the output of the UNIX <code>ls</code> comman
 --
 -- @output
 -- Host script results:
--- | smb-ls: 
+-- | smb-ls:
 -- |   Directory of \\192.168.56.101\c$\
 -- |     2007-12-02 00:20:09  0      AUTOEXEC.BAT
 -- |     2007-12-02 00:20:09  0      CONFIG.SYS
@@ -49,7 +49,7 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
-hostrule = function(host) 
+hostrule = function(host)
 	return ( smb.get_port(host) ~= nil and arg_share and arg_path )
 end
 
@@ -64,35 +64,35 @@ action = function(host)
 	local status, smbstate = smb.start_ex(host, true, true, arg_share, nil, nil, nil)
 	if ( not(status) ) then
 		return fail("Failed to authenticate to server (" .. smbstate .. ")")
-	end	
-	
+	end
+
 	-- remove leading slash
 	arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
-	
+
 	-- fixup checksum argument
 	arg_checksum = ( arg_checksum == 'true' or arg_checksum == '1' ) and true or false
-	
+
 	local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
 	local depth, path, output, dirs = 0, arg_path, {}, {}
 	local file_count, dir_count, total_bytes = 0, 0, 0
-	
+
 	repeat
 		local lstab = tab.new((arg_checksum and 4 or 3))
-			
+
 		for fe in smb.find_files(smbstate, path .. '\\' .. arg_pattern, options ) do
 			if ( arg_checksum and not(is_dir(fe)) ) then
 				local status, content = smb.file_read(host, arg_share, path .. '\\' .. fe.fname, nil, {file_create_disposition=1})
 				local sha1 = ( status and stdnse.tohex(openssl.sha1(content)) or "" )
-				tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname, sha1)					
+				tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname, sha1)
 			else
-				tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname)	
+				tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname)
 			end
 
 			arg_maxfiles = ( arg_maxfiles and arg_maxfiles - 1 )
 			if ( arg_maxfiles == 0 ) then
 				break
 			end
-		
+
 			if ( is_dir(fe) ) then
 				dir_count = dir_count + 1
 				if ( fe.fname ~= '.' and fe.fname ~= '..' ) then
@@ -111,18 +111,18 @@ action = function(host)
 			depth = dir.depth
 			if ( not(arg_maxdepth) or ( dir.depth < arg_maxdepth ) ) then
 				path = dir.path
-				table.insert(output, "")				
+				table.insert(output, "")
 			end
 		end
 	until(not(path) or arg_maxfiles == 0)
-	
+
 	smb.stop(smbstate)
-	
-	local summary = { name = "Total Files Listed:", 
+
+	local summary = { name = "Total Files Listed:",
 		("%8d File(s)\t%d bytes"):format(file_count, total_bytes),
 		("%8d Dir(s)"):format(dir_count) }
 	table.insert(output, "")
 	table.insert(output, summary)
 
-	return stdnse.format_output(true, output)	
+	return stdnse.format_output(true, output)
 end

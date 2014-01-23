@@ -9,7 +9,7 @@ local table = require "table"
 description = [[
 Gets database statistics from a CouchDB database.
 
-For more info about the CouchDB HTTP API and the statistics, see 
+For more info about the CouchDB HTTP API and the statistics, see
 http://wiki.apache.org/couchdb/Runtime_Statistics
 and
 http://wiki.apache.org/couchdb/HTTP_database_API.
@@ -21,7 +21,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 5984/tcp open  httpd   syn-ack
--- | couchdb-stats:  
+-- | couchdb-stats:
 -- |   httpd_request_methods
 -- |     GET (number of HTTP GET requests)
 -- |       current = 5
@@ -84,17 +84,17 @@ end
 
 action = function(host, port)
 	local data, result, err
-	
+
 	data = http.get( host, port, '/_stats' )
-	
+
 	-- check that body was received
 	if not data.body or data.body == "" then
 		local msg = ("%s did not respond with any data."):format(host.targetname or host.ip )
-		dbg( msg ) 
+		dbg( msg )
 		return  msg
 	end
-	
-	-- The html body should look like this : 
+
+	-- The html body should look like this :
 	--
 	--{"httpd_status_codes":{"200":{"current":10,"count":29894,"mean":0.0003345152873486337,"min":0,"max":1,"stddev":0.01828669972606202,"description":"number of HTTP 200 OK responses"},"500":{"current":1,"count":28429,"mean":0.00003517534911534013,"min":0,"max":1,"stddev":0.005930776661631644,"description":"number of HTTP 500 Internal Server Error responses"}},"httpd_request_methods":{"GET":{"current":12,"count":29894,"mean":0.00040141834481835866,"min":0,"max":2,"stddev":0.02163701147572207,"description":"number of HTTP GET requests"}},"httpd":{"requests":{"current":12,"count":29894,"mean":0.00040141834481835866,"min":0,"max":2,"stddev":0.02163701147572207,"description":"number of HTTP requests"}},"couchdb":{"request_time":{"current":23,"count":12,"mean":32.58333333333333,"min":1,"max":287,"stddev":77.76723638882608,"description":"length of a request inside CouchDB without MochiWeb"}}}
 
@@ -103,19 +103,19 @@ action = function(host, port)
 		dbg(result)
 		return result
 	end
-	
+
 	-- Here we know it is a couchdb
 	port.version.name ='httpd'
 	port.version.product='Apache CouchDB'
 	nmap.set_port_version(host,port)
-	
+
 	-- We have a valid table in result containing the parsed json
-	-- now, get all the interesting bits		
-	
+	-- now, get all the interesting bits
+
 	result = queryResultToTable(result)
-	
+
 	-- Additionally, we can check if authentication is used :
-	-- The following actions are restricted if auth is used 
+	-- The following actions are restricted if auth is used
 -- 	create db (PUT /database)
 -- 	delete db (DELETE /database)
 -- 	Creating a design document (PUT /database/_design/app)
@@ -126,13 +126,13 @@ action = function(host, port)
 -- 	Restart the server (POST /_restart)
 -- 	Read the active configuration (GET /_config)
 -- 	Update the active configuration (PUT /_config)
-	
-	data = http.get( host, port, '/_config' ) 
+
+	data = http.get( host, port, '/_config' )
 	local status, authresult = json.parse(data.body)
 
 	-- If authorization is used, we should get back something like
 	-- {"error":"unauthorized","reason":"You are not a server admin."}
-	-- Otherwise, a *lot* of data,  : 
+	-- Otherwise, a *lot* of data,  :
 -- 	{"httpd_design_handlers":{"_info":"{couch_httpd_db,   handle_design_info_req}",
 -- 	"_list":"{couch_httpd_show, handle_view_list_req}","_show":"{couch_httpd_show, handle_doc_show_req}",
 -- 	"_update":"{couch_httpd_show, handle_doc_update_req}","_view":"{couch_httpd_view, handle_view_req}"},
@@ -163,9 +163,9 @@ action = function(host, port)
 	local auth = "Authentication : %s"
 	local authEnabled = "unknown"
 
-	if(status) then 
+	if(status) then
 		if(authresult["error"] == "unauthorized") then authEnabled = "enabled"
-		elseif (authresult["httpd_design_handlers"] ~= nil) then authEnabled = "NOT enabled ('admin party')" 
+		elseif (authresult["httpd_design_handlers"] ~= nil) then authEnabled = "NOT enabled ('admin party')"
 		end
 	end
 	table.insert(result, auth:format(authEnabled))

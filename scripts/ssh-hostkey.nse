@@ -33,13 +33,13 @@ The script also includes a postrule that check for duplicate hosts using the gat
 -- * <code>"bubble"</code>: Bubble Babble output,
 -- * <code>"visual"</code>: Visual ASCII art representation.
 -- * <code>"all"</code>: All of the above.
--- @args ssh-hostkey.known-hosts If this is set, the script will check if the 
--- known hosts file contains a key for the host being scanned and will compare 
--- it with the keys that have been found by the script. The script will try to 
--- detect your known-hosts file but you can, optionally, pass the path of the 
+-- @args ssh-hostkey.known-hosts If this is set, the script will check if the
+-- known hosts file contains a key for the host being scanned and will compare
+-- it with the keys that have been found by the script. The script will try to
+-- detect your known-hosts file but you can, optionally, pass the path of the
 -- file to this option.
 --
--- @args ssh-hostkey.known-hosts-path. Path to a known_hosts file. 
+-- @args ssh-hostkey.known-hosts-path. Path to a known_hosts file.
 --@output
 -- 22/tcp open  ssh
 -- |  ssh-hostkey: 2048 f0:58:ce:f4:aa:a4:59:1c:8e:dd:4d:07:44:c8:25:11 (RSA)
@@ -57,13 +57,13 @@ The script also includes a postrule that check for duplicate hosts using the gat
 -- |  |    o .          |
 -- |_ +-----------------+
 -- 22/tcp open  ssh     syn-ack
--- | ssh-hostkey: Key comparison with known_hosts file: 
--- |   GOOD Matches in known_hosts file: 
+-- | ssh-hostkey: Key comparison with known_hosts file:
+-- |   GOOD Matches in known_hosts file:
 -- |       L7: 199.19.117.60
 -- |       L11: foo
 -- |       L15: bar
 -- |       L19: <unknown>
--- |   WRONG Matches in known_hosts file: 
+-- |   WRONG Matches in known_hosts file:
 -- |       L3: 199.19.117.60
 -- | ssh-hostkey: 2048 xuvah-degyp-nabus-zegah-hebur-nopig-bubig-difeg-hisym-rumef-cuxex (RSA)
 -- |_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==
@@ -203,7 +203,7 @@ local function check_keys(host, keys, f)
         matched = true
       end
     end
-    if not matched then 
+    if not matched then
         table.insert(different_keys, k)
     end
   end
@@ -212,13 +212,13 @@ local function check_keys(host, keys, f)
   local return_string = "Key comparison with known_hosts file: "
   if #keys_from_file == 0 then
     return_string = return_string .. "\n\t" ..  "No entry for scanned host found in known_hosts file."
-  else 
-    if next(matched_keys) or next(same_key_hashed) or next(same_key) then 
+  else
+    if next(matched_keys) or next(same_key_hashed) or next(same_key) then
         return_string = return_string .. "\n\tGOOD Matches in known_hosts file: "
         if next(matched_keys) then
             for __, gm in ipairs(matched_keys) do
                 return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-            end 
+            end
         end
         if next(same_key) then
             for __, gm in ipairs(same_key) do
@@ -226,7 +226,7 @@ local function check_keys(host, keys, f)
             end
         end
 
-        if next(same_key_hashed) then 
+        if next(same_key_hashed) then
             for __, gm in ipairs(same_key_hashed) do
                 return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": <unknown>"
             end
@@ -236,7 +236,7 @@ local function check_keys(host, keys, f)
             return_string = return_string .. "\n\tWRONG Matches in known_hosts file: "
             for __, gm in ipairs(different_keys) do
                 return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-            end 
+            end
         end
     end
   end
@@ -299,13 +299,13 @@ local function portaction(host, port)
 
   -- if a known_hosts file was given, then check if it contains a key for the host being scanned
   local known_hosts = stdnse.get_script_args("ssh-hostkey.known-hosts") or false
-  if known_hosts then 
+  if known_hosts then
     known_hosts = ssh1.parse_known_hosts_file(known_hosts)
     local res, status
     res, status = check_keys(host, keys, known_hosts)
     table.insert(output, 1, status)
   end
- 
+
 
   if #output > 0 then
     return output_tab, table.concat( output, '\n' )

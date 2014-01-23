@@ -1,4 +1,4 @@
-description = [[ 
+description = [[
 
 Tries to find out the technology behind the target website.
 
@@ -13,22 +13,22 @@ nselib/data/http-tools-fingerprints.lua
 
 Each entry must have:
 * <code>rapidDetect</code> - Callback function that is called in the beginning
-of detection process. It takes the host and port of target website as arguments. 
+of detection process. It takes the host and port of target website as arguments.
 * <code>consumingDetect</code> - Callback function that is called for each
 spidered page. It takes the body of the response (HTML code) and the requested
 path as arguments.
 
-Note that the <code>consumingDetect</code> callback will not take place only if 
+Note that the <code>consumingDetect</code> callback will not take place only if
 <code>rapid</code> option is enabled.
 
 ]]
 
 ---
 -- @usage nmap -p80 --script http-devframework.nse <target>
--- 
--- @args http-errors.rapid boolean value that determines if a rapid detection 
---       should take place. The main difference of a rapid vs a lengthy detection 
---       is that second one requires crawling through the website. Default: false 
+--
+-- @args http-errors.rapid boolean value that determines if a rapid detection
+--       should take place. The main difference of a rapid vs a lengthy detection
+--       is that second one requires crawling through the website. Default: false
 --       (lengthy detection is performed)
 --
 -- @output
@@ -76,8 +76,8 @@ local function loadFingerprints(filename, cat)
 
 end
 
-action = function(host, port) 
- 
+action = function(host, port)
+
     local tools = stdnse.get_script_args("http-devframework.fingerprintfile") or loadFingerprints("nselib/data/http-devframework-fingerprints.lua")
     local rapid = stdnse.get_script_args("http-devframework.rapid")
 
@@ -85,15 +85,15 @@ action = function(host, port)
 
     -- Run rapidDetect() callbacks.
     for f, method in pairs(tools) do
-        d = method["rapidDetect"](host, port) 
+        d = method["rapidDetect"](host, port)
         if d then
             return d
         end
     end
 
-    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME, 
-                                                              maxpagecount = 40, 
-                                                              maxdepth = -1, 
+    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
+                                                              maxpagecount = 40,
+                                                              maxdepth = -1,
                                                               withinhost = 1
                                                               })
 
@@ -102,8 +102,8 @@ action = function(host, port)
     end
 
     crawler.options.doscraping = function(url)
-        if crawler:iswithinhost(url) 
-        and not crawler:isresource(url, "js") 
+        if crawler:iswithinhost(url)
+        and not crawler:isresource(url, "js")
         and not crawler:isresource(url, "css") then
             return true
         end
@@ -111,7 +111,7 @@ action = function(host, port)
 
 	crawler:set_timeout(10000)
 
-    while (true) do 
+    while (true) do
 
         local response, path
 
@@ -128,9 +128,9 @@ action = function(host, port)
 
         response = r.response
         path = tostring(r.url)
-                
+
         if (response.body) then
-            
+
             -- Run consumingDetect() callbacks.
             for f, method in pairs(tools) do
                 d = method["consumingDetect"](response.body, path)

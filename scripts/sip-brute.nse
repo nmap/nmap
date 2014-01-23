@@ -15,7 +15,7 @@ Performs brute force password auditing against Session Initiation Protocol (SIP 
 --
 -- PORT     STATE         SERVICE
 -- 5060/udp open|filtered sip
--- | sip-brute: 
+-- | sip-brute:
 -- |   Accounts
 -- |     1000:password123 => Valid credentials
 -- |   Statistics
@@ -32,7 +32,7 @@ categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 
 Driver = {
-	
+
 	new = function(self, host, port)
 		local o = {}
    		setmetatable(o, self)
@@ -41,7 +41,7 @@ Driver = {
 		o.port = port
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.helper = sip.Helper:new(self.host, self.port, { expires = 0 })
 		local status, err = self.helper:connect()
@@ -67,8 +67,8 @@ Driver = {
 		end
 		return true, brute.Account:new(username, password, creds.State.VALID)
 	end,
-	
-	disconnect = function(self)	return self.helper:close() end,	
+
+	disconnect = function(self)	return self.helper:close() end,
 }
 
 -- Function used to check if we can distinguish existing from non-existing
@@ -80,11 +80,11 @@ local function checkBadUser(host, port)
 	local user = "baduser-" .. math.random(10000)
 	local pass = "badpass-" .. math.random(10000)
 	local helper = sip.Helper:new(host, port, { expires = 0 })
-		
+
 	stdnse.print_debug(2, "Checking bad user: %s/%s", user, pass)
 	local status, err = helper:connect()
 	if ( not(status) ) then return false, "ERROR: Failed to connect" end
-	
+
 	helper:setCredentials(user, pass)
 	local status, err = helper:register()
 	helper:close()

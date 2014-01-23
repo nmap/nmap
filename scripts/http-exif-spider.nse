@@ -335,9 +335,9 @@ bytes_per_format = {0,1,1,2,4,8,1,1,2,4,8,4,8}
 portrule = shortport.http
 
 ---Unpack a rational number from exif. In exif, a rational number is stored
---as a pair of integers - the numerator and the denominator. 
+--as a pair of integers - the numerator and the denominator.
 --
---@return the new position, and the value. 
+--@return the new position, and the value.
 local function unpack_rational(endian, data, pos)
   local v1, v2
   pos, v1, v2 = bin.unpack(endian .. "II", data, pos)

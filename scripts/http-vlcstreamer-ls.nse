@@ -17,7 +17,7 @@ enable streaming of multimedia content from the remote server to the device.
 -- @output
 -- PORT      STATE SERVICE
 -- 54340/tcp open  unknown
--- | http-vlcstreamer-ls: 
+-- | http-vlcstreamer-ls:
 -- |   /Applications
 -- |   /Developer
 -- |   /Library
@@ -57,7 +57,7 @@ local arg_dir = stdnse.get_script_args(SCRIPT_NAME .. ".dir") or "/"
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
-	
+
 	local response = http.get(host, port, ("/secure?command=browse&dir=%s"):format(arg_dir))
 
 	if ( response.status ~= 200 or not(response.body) or 0 == #response.body ) then
@@ -72,11 +72,11 @@ action = function(host, port)
 	if ( not(status) ) then
 		return fail("Failed to parse response")
 	end
-	
+
 	if ( parsed.errorMessage ) then
 		return fail(parsed.errorMessage)
 	end
-	
+
 	local output = {}
 	for _, entry in pairs(parsed.files or {}) do
 		table.insert(output,entry.path)

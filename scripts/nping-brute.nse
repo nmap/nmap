@@ -21,7 +21,7 @@ documentation.
 --
 -- @output
 -- 9929/tcp open  nping-echo
--- | nping-brute: 
+-- | nping-brute:
 -- |   Accounts
 -- |     123abc => Valid credentials
 -- |   Statistics
@@ -54,12 +54,12 @@ local function readmessage(socket, length)
 	return msg
 end
 
-Driver = 
+Driver =
 {
 	NEP_VERSION = 0x01,
 	AES_128_CBC = "aes-128-cbc",
 	SHA256 = "sha256",
-	
+
 	new = function(self, host, port)
 		local o = {}
 	       	setmetatable(o, self)
@@ -68,7 +68,7 @@ Driver =
 		o.port = port
 		return o
 	end,
-	
+
 	nepkey = function(self, password, nonce, typeid)
 		local seed = password .. nonce .. typeid
 		local h = openssl.digest(self.SHA256, seed)
@@ -78,12 +78,12 @@ Driver =
 		local _, key = bin.unpack("A16", h)
 		return key
 	end,
-	
+
 	getservernonce = function(self, serverhs)
 		local parts = {bin.unpack("CC>S>I>Ix4A32x15A32", serverhs)}
-		return parts[7] 
+		return parts[7]
 	end,
-	
+
 	chsbody = function(self)
 		local IP4 = 0x04
 		local IP6 = 0x06
@@ -95,13 +95,13 @@ Driver =
 		end
 		return bin.pack("ACx15", target, family)
 	end,
-	
+
 	clienths = function(self, snonce, password)
 		local NEP_HANDSHAKE_CLIENT = 0x02
 		local NEP_HANDSHAKE_CLIENT_LEN = 36
 		local NEP_CLIENT_CIPHER_ID = "NEPkeyforCiphertextClient2Server"
 		local NEP_CLIENT_MAC_ID = "NEPkeyforMACClient2Server"
-	
+
 		local now = nmap.clock()
 		local seqb = randombytes(4)
 		local cnonce = randombytes(32)
@@ -113,7 +113,7 @@ Driver =
 		local crypted = openssl.encrypt(self.AES_128_CBC, enckey, iv, plain)
 		local head = bin.pack("CC>SA>Ix4A", self.NEP_VERSION, NEP_HANDSHAKE_CLIENT, NEP_HANDSHAKE_CLIENT_LEN, seqb, now, nonce)
 		local mac = openssl.hmac(self.SHA256, mackey, head .. plain)
-	
+
 		return head .. crypted .. mac
 	end,
 
@@ -133,7 +133,7 @@ Driver =
 		end
 		return true
 	end,
-	
+
 	connect = function(self)
 		self.socket = nmap.new_socket()
 		return self.socket:connect(self.host, self.port)
@@ -145,7 +145,7 @@ Driver =
 		end
 		return false, brute.Error:new("Incorrect password")
 	end,
-	
+
 	disconnect = function(self)
 		return self.socket:close()
 	end,

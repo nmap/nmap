@@ -3,7 +3,7 @@ local smb = require "smb"
 local string = require "string"
 
 description = [[
-Checks whether or not a server is running the SMBv2 protocol. 
+Checks whether or not a server is running the SMBv2 protocol.
 ]]
 ---
 --@usage

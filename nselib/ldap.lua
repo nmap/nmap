@@ -1,5 +1,5 @@
 ---
--- Library methods for handling LDAP. 
+-- Library methods for handling LDAP.
 --
 -- @author Patrik Karlsson
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -14,7 +14,7 @@
 --                             formats
 -- Revised 10/29/2011 - v0.5 - Added support for performing wildcard searches via the substring filter.
 -- Revised 10/30/2011 - v0.6 - Added support for the ldap extensibleMatch filter type for searches
---                             
+--
 
 local asn1 = require "asn1"
 local bin = require "bin"
@@ -48,7 +48,7 @@ APPNO = {
 	UnbindRequest = 2,
 	SearchRequest = 3,
 	SearchResponse = 4,
-	SearchResDone = 5	
+	SearchResDone = 5
 }
 
 -- Filter operation constants
@@ -67,10 +67,10 @@ FILTER = {
 
 -- Scope constants
 SCOPE = {
-	base=0, 
-	one=1, 
-	sub= 2, 
-	children=3, 
+	base=0,
+	one=1,
+	sub= 2,
+	children=3,
 	default = 0
 }
 
@@ -90,7 +90,7 @@ tagEncoder['table'] = function(self, val)
 	if (val._ldap == '0A') then
 		local ival = self.encodeInt(val[1])
 		local len = self.encodeLength(#ival)
-		return bin.pack('HAA', '0A', len, ival)	
+		return bin.pack('HAA', '0A', len, ival)
 	end
 	if (val._ldaptype) then
 		local len
@@ -101,17 +101,17 @@ tagEncoder['table'] = function(self, val)
 			return bin.pack('HAA', val._ldaptype, len, val[1])
 		end
 	end
-	
+
 	local encVal = ""
   	for _, v in ipairs(val) do
  		encVal = encVal .. encode(v) -- todo: buffer?
   	end
   	local tableType = bin.pack("H", "30")
-  	if (val["_snmp"]) then 
- 		tableType = bin.pack("H", val["_snmp"]) 
-  	end
+    if (val["_snmp"]) then
+      tableType = bin.pack("H", val["_snmp"])
+    end
   	return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
- 	
+
 end
 
 ---
@@ -120,17 +120,17 @@ end
 -- @param val Value to be encoded.
 -- @return Encoded value.
 function encode(val)
-	
+
 	local encoder = asn1.ASN1Encoder:new()
 	local encValue
-	
+
 	encoder:registerTagEncoders(tagEncoder)
 	encValue = encoder:encode(val)
-	
+
 	if encValue then
 		return encValue
 	end
-	
+
    	return ''
 end
 
@@ -179,7 +179,7 @@ local function decodeSeq(encStr, len, pos)
 	local sPos = 1
 	local sStr
 	pos, sStr = bin.unpack("A" .. len, encStr, pos)
-	if(sStr==nil) then 
+	if(sStr==nil) then
 		return pos,seq
 	end
 	while (sPos < len) do
@@ -217,7 +217,7 @@ end
 -- @param socket socket already connected to the ldap server
 -- @param params table containing at least <code>scope</code>, <code>derefPolicy</code>, <code>baseObject</code>
 --        the field <code>maxObjects</code> may also be included to restrict the amount of records returned
--- @return success true or false. 
+-- @return success true or false.
 -- @return err string containing error message
 function searchRequest( socket, params )
 
@@ -229,35 +229,35 @@ function searchRequest( socket, params )
 	local attrSeq = ''
 	local requestData, messageSeq, data
 	local maxObjects = params.maxObjects or -1
-	
+
 	local encoder = asn1.ASN1Encoder:new()
 	local decoder = asn1.ASN1Decoder:new()
-	
+
 	encoder:registerTagEncoders(tagEncoder)
 	decoder:registerTagDecoders(tagDecoder)
-	
+
 	request = request .. encode( { _ldap='0A', params.scope } )--scope
 	request = request .. encode( { _ldap='0A', params.derefPolicy } )--derefpolicy
 	request = request .. encode( params.sizeLimit or 0)--sizelimit
 	request = request .. encode( params.timeLimit or 0)--timelimit
 	request = request .. encode( params.typesOnly or false)--TypesOnly
-	
+
 	if params.filter then
 		request = request .. createFilter( params.filter )
 	else
 		request = request .. encode( { _ldaptype='87', "objectclass" } )-- filter : string, presence
 	end
 	if  attributes~= nil then
-		for _,attr in ipairs(attributes) do 
+		for _,attr in ipairs(attributes) do
 			attrSeq = attrSeq .. encode(attr)
-		end 
+		end
 	end
 
 	request = request .. encoder:encodeSeq(attrSeq)
 	requestData = encodeLDAPOp(APPNO.SearchRequest, true, request)
- 	messageSeq = encode(ldapMessageId) 
+  messageSeq = encode(ldapMessageId)
 	ldapMessageId = ldapMessageId +1
-	messageSeq = messageSeq .. requestData	 
+	messageSeq = messageSeq .. requestData
 	data = encoder:encodeSeq(messageSeq)
 	try( socket:send( data ) )
 	data = ""
@@ -268,13 +268,13 @@ function searchRequest( socket, params )
 		local _, objectName, attributes, ldapOp
 		local attributes
 		local searchResEntry = {}
-		
+
 		if ( maxObjects == 0 ) then
 			break
 		elseif ( maxObjects > 0 ) then
 			maxObjects = maxObjects - 1
 		end
-		
+
 		if data:len() > 6 then
 			pos, len = decoder.decodeLength( data, pos )
 		else
@@ -285,13 +285,13 @@ function searchRequest( socket, params )
 		while ( len + pos - 1 > data:len() ) do
 			data = data .. try( socket:receive() )
 		end
-		
+
 		pos, messageId = decode( data, pos )
 		pos, tmp = bin.unpack("C", data, pos)
 		pos, len = decoder.decodeLength( data, pos )
 		ldapOp = asn1.intToBER( tmp )
 		searchResEntry = {}
-		
+
 		if ldapOp.number == APPNO.SearchResDone then
 			pos, searchResEntry.resultCode = decode( data, pos )
 			-- errors may occur after a large amount of data has been received (eg. size limit exceeded)
@@ -303,7 +303,7 @@ function searchRequest( socket, params )
 				local error_msg
 				pos, searchResEntry.matchedDN = decode( data, pos )
 				pos, searchResEntry.errorMessage = decode( data, pos )
-				error_msg = ERROR_MSG[searchResEntry.resultCode] 
+				error_msg = ERROR_MSG[searchResEntry.resultCode]
 				-- if the table is empty return a hard error
 				if #searchResEntries == 0 then
 					return false, string.format("Code: %d|Error: %s|Details: %s", searchResEntry.resultCode, error_msg or "", searchResEntry.errorMessage or "" )
@@ -319,7 +319,7 @@ function searchRequest( socket, params )
 		pos, searchResEntry.objectName = decode( data, pos )
 		if ldapOp.number == APPNO.SearchResponse then
 			pos, searchResEntry.attributes = decode( data, pos )
-					
+
 			table.insert( searchResEntries, searchResEntry )
 		end
 		if data:len() > pos then
@@ -345,23 +345,23 @@ function bindRequest( socket, params )
 	local ldapAuth = encode( { _ldaptype = 80, params.password } )
 	local bindReq = encode( params.version ) .. encode( params.username ) .. ldapAuth
 	local ldapMsg = encode(ldapMessageId) .. encodeLDAPOp( APPNO.BindRequest, true, bindReq )
-	local packet 
+	local packet
 	local pos, packet_len, resultCode, tmp, len, _
 	local response = {}
 
 	local encoder = asn1.ASN1Encoder:new()
 	local decoder = asn1.ASN1Decoder:new()
-	
+
 	encoder:registerTagEncoders(tagEncoder)
 	decoder:registerTagDecoders(tagDecoder)
-	
+
 	packet = encoder:encodeSeq( ldapMsg )
 	ldapMessageId = ldapMessageId +1
 	try( socket:send( packet ) )
 	packet = try( socket:receive() )
 
 	pos, packet_len = decoder.decodeLength( packet, 2 )
-	pos, response.messageID = decode( packet, pos )	
+	pos, response.messageID = decode( packet, pos )
 	pos, tmp = bin.unpack("C", packet, pos)
 	pos, len = decoder.decodeLength( packet, pos )
 	response.protocolOp = asn1.intToBER( tmp )
@@ -369,20 +369,20 @@ function bindRequest( socket, params )
 	if response.protocolOp.number ~= APPNO.BindResponse then
 		return false, string.format("Recieved incorrect Op in packet: %d, expected %d", response.protocolOp.number, APPNO.BindResponse)
 	end
-	
+
 	pos, response.resultCode = decode( packet, pos )
-	
+
 	if ( response.resultCode ~= 0 ) then
 		local error_msg
 		pos, response.matchedDN = decode( packet, pos )
 		pos, response.errorMessage = decode( packet, pos )
-		error_msg = ERROR_MSG[response.resultCode] 
-		return false, string.format("\n  Error: %s\n  Details: %s", 
+		error_msg = ERROR_MSG[response.resultCode]
+		return false, string.format("\n  Error: %s\n  Details: %s",
 			error_msg or "Unknown error occured (code: " .. response.resultCode ..
 			")", response.errorMessage or "" )
 	else
 		return true, "Success"
-	end	
+	end
 end
 
 --- Performs an LDAP Unbind
@@ -422,13 +422,13 @@ function createFilter( filter )
 			filter_str = filter_str .. createFilter( v )
 		end
 	else
-		local obj = encode( filter.obj ) 
+		local obj = encode( filter.obj )
 		local val = ''
 		if ( filter.op == FILTER['substrings'] ) then
-			
+
 			local tmptable = stdnse.strsplit('*', filter.val)
 			local tmp_result = ''
-			
+
 			if (#tmptable <= 1 ) then
 				-- 0x81  = 10000001  =  10        0                 00001
 				-- hex     binary       Context   Primitive value   Field: Sequence  Value: 1 (any / any position in string)
@@ -446,7 +446,7 @@ function createFilter( filter )
 						-- hex     binary       Context   Primitive value   Field: Sequence  Value: 1 (any / match in any position in string)
 						tmp_result = tmp_result .. bin.pack('HAA' , '81', string.char(#substr), substr)
 					end
-					
+
 					if (indexval == #tmptable) and (substr ~= '') then
 						-- 0x82  = 10000010  =  10        0                 00010
 						-- hex     binary       Context   Primitive value   Field: Sequence  Value: 2 (final / match at end of string)
@@ -456,30 +456,30 @@ function createFilter( filter )
 			end
 
 			val = asn1.ASN1Encoder:encodeSeq( tmp_result )
-			
+
 		elseif ( filter.op == FILTER['extensibleMatch'] ) then
-		
+
 			local tmptable = stdnse.strsplit(':=', filter.val)
 			local tmp_result = ''
 			local OID, bitmask
-		
+
 			if ( tmptable[1] ~= nil ) then
 				OID = tmptable[1]
 			else
 				return false, ("ERROR: Invalid extensibleMatch query format")
 			end
-			
+
 			if ( tmptable[2] ~= nil ) then
 				bitmask = tmptable[2]
 			else
 				return false, ("ERROR: Invalid extensibleMatch query format")
 			end
-		
+
 			-- Format and create matchingRule using OID
 			-- 0x81  = 10000001  =  10        0                 00001
 			-- hex     binary       Context   Primitive value   Field: matchingRule  Value: 1
 			tmp_result = bin.pack('HAA' , '81', string.char(#OID), OID)
-			
+
 			-- Format and create type using ldap attribute
 			-- 0x82  = 10000010  =  10        0                 00010
 			-- hex     binary       Context   Primitive value   Field: Type          Value: 2
@@ -488,7 +488,7 @@ function createFilter( filter )
 			-- Format and create matchValue using bitmask
 			-- 0x83  = 10000011  =  10        0                 00011
 			-- hex     binary       Context   Primitive value   Field: matchValue    Value: 3
-			tmp_result = tmp_result .. bin.pack('HAA' , '83', string.char(#bitmask), bitmask)			
+			tmp_result = tmp_result .. bin.pack('HAA' , '83', string.char(#bitmask), bitmask)
 
 			-- Format and create dnAttributes, defaulting to false
 			-- 0x84  = 10000100  =  10        0                 00100
@@ -496,7 +496,7 @@ function createFilter( filter )
 			--
 			-- 0x01 =  field length
 			-- 0x00 =  boolean value, in this case false
-			tmp_result = tmp_result .. bin.pack('H' , '840100')				
+			tmp_result = tmp_result .. bin.pack('H' , '840100')
 
 			-- Format the overall extensibleMatch block
 			-- 0xa9  = 10101001  =  10        1                 01001
@@ -505,9 +505,9 @@ function createFilter( filter )
 
 		else
 			val = encode( filter.val )
-		end 
-	
-		filter_str = filter_str .. obj .. val			
+		end
+
+		filter_str = filter_str .. obj .. val
 
 	end
 	return encode( { _ldaptype=bin.pack("A", string.format("%X", asn1_type)), filter_str } )
@@ -528,7 +528,7 @@ function searchResultToTable( searchEntries )
 	for _, v in ipairs( searchEntries ) do
 		local result_part = {}
 		if v.objectName and v.objectName:len() > 0 then
-			result_part.name = string.format("dn: %s", v.objectName) 
+			result_part.name = string.format("dn: %s", v.objectName)
 		else
 			result_part.name = "<ROOT>"
 		end
@@ -553,7 +553,7 @@ function searchResultToTable( searchEntries )
 				end
 			end
 			table.insert( result_part, attribs )
-		end		
+		end
 		table.insert( result, result_part )
 	end
 	return result
@@ -573,16 +573,16 @@ end
 function searchResultToFile( searchEntries, filename )
 
 	local f = io.open( filename, "w")
-	
+
 	if ( not(f) ) then
 		return false, ("ERROR: Failed to open file (%s)"):format(filename)
 	end
-		
+
 	-- Build table structure.  Using a multi pass approach ( build table then populate table )
 	-- because the objects returned may not necessarily have the same number of attributes
 	-- making single pass CSV output generation problematic.
-	-- Unfortunately the searchEntries table passed to this function is not organized in a  
-	-- way that make particular attributes for a given hostname directly addressable.  	
+	-- Unfortunately the searchEntries table passed to this function is not organized in a
+	-- way that make particular attributes for a given hostname directly addressable.
 	--
 	-- At some point restructuring the searchEntries table may be a good optimization target
 
@@ -597,15 +597,15 @@ function searchResultToFile( searchEntries, filename )
 					end
 				end
 			end
-		end		
+		end
 	end
-	
+
 	-- build table of hosts
 	local host_table = {}
 	for _, v in ipairs( searchEntries ) do
 		if v.objectName and v.objectName:len() > 0 then
 			local host = {}
-			
+
 			if v.objectName and v.objectName:len() > 0 then
 				-- use a copy of the table here, assigning attrib_table into host_table
 				-- links the values so setting it for one host changes the specific attribute
@@ -614,44 +614,44 @@ function searchResultToFile( searchEntries, filename )
 			end
 		end
 	end
-	
+
 	-- populate the host table with values for each attribute that has valid data
 	for _, v in ipairs( searchEntries ) do
 		if ( v.attributes ~= nil ) then
 			for _, attrib in ipairs( v.attributes ) do
-				for i=2, #attrib do			
+				for i=2, #attrib do
 					-- do some additional Windows decoding
 					if ( attrib[1] == "objectSid" ) then
 						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = string.format( "%d", decode( attrib[i] ) )
-					
+
 					elseif ( attrib[1] == "objectGUID") then
 						local _, o1, o2, o3, o4, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of = bin.unpack("C16", attrib[i] )
 						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] =  string.format( "%x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x", o4, o3, o2, o1, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of )
-					
+
 					elseif ( attrib[1] == "lastLogon" or attrib[1] == "lastLogonTimestamp" or attrib[1] == "pwdLastSet" or attrib[1] == "accountExpires" or attrib[1] == "badPasswordTime" ) then
 						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = convertADTimeStamp(attrib[i])
-					
+
 					elseif ( attrib[1] == "whenChanged" or attrib[1] == "whenCreated" or attrib[1] == "dSCorePropagationData" ) then
 						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = convertZuluTimeStamp(attrib[i])
-					
+
 					else
 						host_table[v.objectName].attributes[attrib[1]] = string.format( "%s", attrib[i] )
 					end
-						
+
 				end
 			end
-		end		
+		end
 	end
 
 	-- write the new, fully populuated table out to CSV
-	
+
 	-- initialize header row
 	local output = "\"name\""
 	for attribute, value in pairs(attrib_table) do
 		output = output .. ",\"" .. attribute .. "\""
-	end 
+	end
 	output = output .. "\n"
-	
+
 	-- gather host data from fields, add to output.
 	for name, attribs in pairs(host_table) do
 		output = output .. "\"" .. name .. "\""
@@ -661,13 +661,13 @@ function searchResultToFile( searchEntries, filename )
 		end
 		output = output .. "\n"
 	end
-		
+
 	-- write the output to file
 	if ( not(f:write( output .."\n" ) ) ) then
 		f:close()
 		return false, ("ERROR: Failed to write file (%s)"):format(filename)
 	end
-	
+
 	f:close()
 	return true
 end
@@ -684,7 +684,7 @@ function extractAttribute( searchEntries, attributeName )
 		if ( v.attributes ~= nil ) then
 			for _, attrib in ipairs( v.attributes ) do
 				local attribType = attrib[1]
-				for i=2, #attrib do								
+				for i=2, #attrib do
 					if ( attribType:upper() == attributeName:upper() ) then
 						table.insert( attributeTbl, attrib[i])
 					end
@@ -706,22 +706,22 @@ function convertADTimeStamp(timestamp)
 	local base_time = tonumber(os.time({year=1601, month=1, day=1, hour=0, minute=0, sec =0}))
 
 	timestamp = tonumber(timestamp)
-		
+
 	if (timestamp and timestamp > 0) then
-		
+
 		-- The result value was 3036 seconds off what Microsoft says it should be.
 		-- I have been unable to find an explaination for this, and have resorted to
 		-- manually adjusting the formula.
-		
+
 		result = ( timestamp /  10000000 ) - 3036
 		result = result + base_time
 		result = os.date("%Y/%m/%d %H:%M:%S UTC", result)
 	else
 		result = 'Never'
 	end
-		
+
 	return result
-	
+
 end
 
 --- Converts a non-delimited Zulu timestamp format to a human readable form
@@ -741,13 +741,13 @@ function convertZuluTimeStamp(timestamp)
 		local mins  = string.sub(timestamp,11,12)
 		local secs  = string.sub(timestamp,13,14)
 		local result = year .. "/" .. month .. "/" .. day .. " " .. hour .. ":" .. mins .. ":" .. secs .. " UTC"
-		
+
 		return result
-	
+
 	else
-		return 'Invalid date format'		
+		return 'Invalid date format'
 	end
-		
+
 end
 
 --- Creates a copy of a table
@@ -757,8 +757,8 @@ end
 -- @return table object containing copy of original
 function copyTable(targetTable)
   local temp = { }
-  for key, val in pairs(targetTable) do 
-	temp[key] = val 
+  for key, val in pairs(targetTable) do
+	temp[key] = val
   end
   return setmetatable(temp, getmetatable(targetTable))
 end

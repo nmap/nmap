@@ -23,13 +23,13 @@ For more information,see:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-drupal-enum-users: 
--- |   admin 
+-- | http-drupal-enum-users:
+-- |   admin
 -- |   alex
 -- |   manager
 -- |_  user
 --
--- @args http-drupal-enum-users.root base path. Defaults to "/" 
+-- @args http-drupal-enum-users.root base path. Defaults to "/"
 
 author = "Hani Benhabiles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -48,7 +48,7 @@ action = function(host, port)
 	root = root .. "/"
   end
 
-  -- characters that usernames may begin with 
+  -- characters that usernames may begin with
   -- + is space in url
   local characters = "abcdefghijklmnopqrstuvwxyz.-123456789+"
 
@@ -63,7 +63,7 @@ action = function(host, port)
     stdnse.print_debug(1, "%s: No answers from pipelined requests", SCRIPT_NAME)
     return nil
   end
-  
+
   for i, response in pairs(pipeline_responses) do
     if response.status == 200 then
       local status, info = json.parse(response.body)

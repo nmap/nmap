@@ -14,13 +14,13 @@ With knowledge of the correct repository name, usernames and passwords can be gu
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap -p 2401 --script cvs-brute-repository <host>
 --
 -- @output
 -- PORT     STATE SERVICE    REASON
 -- 2401/tcp open  cvspserver syn-ack
--- | cvs-brute-repository: 
+-- | cvs-brute-repository:
 -- |   Repositories
 -- |     /myrepos
 -- |     /demo
@@ -44,7 +44,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(2401, "cvspserver")
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port )
@@ -53,7 +53,7 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.helper:connect()
 		return true
@@ -72,30 +72,30 @@ Driver =
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	disconnect = function( self )
 		self.helper:close()
 	end,
-		
+
 }
 
 
 action = function(host, port)
-	
-	local status, result 
+
+	local status, result
 	local engine = brute.Engine:new(Driver, host, port)
-	
+
 	-- a list of "common" repository names:
 	-- the first two are Debian/Ubuntu default names
 	-- the rest were found during tests or in google searches
 	local repos = {"myrepos", "demo", "cvs", "cvsroot", "prod", "src", "test",
-	 				"source", "devel", "cvsroot", "/var/lib/cvsroot", 
+           "source", "devel", "cvsroot", "/var/lib/cvsroot",
 					"cvs-repository", "/home/cvsroot", "/var/cvs",
 					"/usr/local/cvs"}
-	
+
 	local repofile = stdnse.get_script_args("cvs-brute-repository.repofile")
 	local f
-	
+
 	if ( repofile ) then
 		f = io.open( repofile, "r" )
 		if ( not(f) ) then
@@ -114,7 +114,7 @@ action = function(host, port)
 		end
 		return coroutine.wrap(next_repo)
 	end
-	
+
 	engine.options:setTitle("Repositories")
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.passonly = true

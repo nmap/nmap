@@ -24,7 +24,7 @@ type.
 -- @output
 -- PORT   STATE SERVICE
 -- 22/tcp open  ssh
--- | ssh2-enum-algos: 
+-- | ssh2-enum-algos:
 -- |   kex_algorithms (4)
 -- |       diffie-hellman-group-exchange-sha256
 -- |       diffie-hellman-group-exchange-sha1

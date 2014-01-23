@@ -8,15 +8,15 @@ local table = require "table"
 description = [[
 Pulls back information about the remote system from the registry. Getting all
 of the information requires an administrative account, although a user account
-will still get a lot of it. Guest probably won't get any, nor will anonymous. 
-This goes for all operating systems, including Windows 2000. 
+will still get a lot of it. Guest probably won't get any, nor will anonymous.
+This goes for all operating systems, including Windows 2000.
 
-Windows Vista disables remote registry access by default, so unless it was enabled, 
+Windows Vista disables remote registry access by default, so unless it was enabled,
 this script won't work.
 
-If you know of more information stored in the Windows registry that could be interesting, 
-post a message to the nmap-dev mailing list and I (Ron Bowes) will add it to my todo list. 
-Adding new checks to this is extremely easy. 
+If you know of more information stored in the Windows registry that could be interesting,
+post a message to the nmap-dev mailing list and I (Ron Bowes) will add it to my todo list.
+Adding new checks to this is extremely easy.
 
 WARNING: I have experienced crashes in <code>regsvc.exe</code> while making registry calls
 against a fully patched Windows 2000 system; I've fixed the issue that caused it,
@@ -64,8 +64,8 @@ hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
----Retrieves the requested value from the registry. 
---@param smbstate The SMB table we're using, bound to the WINREG service. 
+---Retrieves the requested value from the registry.
+--@param smbstate The SMB table we're using, bound to the WINREG service.
 --@param handle   The handle to the hive (HKLM or HKU, for example).
 --@param key      The full path of the key to retrieve (like <code>"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment"</code>).
 --@param value    The value to retrieve (like <code>"NUMBER_OF_PROCESSORS"</code>).
@@ -177,7 +177,7 @@ local function get_info_registry(host)
 	end
 
 	msrpc.stop_smb(smbstate)
-	
+
 	return true, result
 end
 

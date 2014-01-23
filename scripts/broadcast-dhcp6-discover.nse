@@ -18,7 +18,7 @@ to a privileged port (udp/546).
 -- nmap -6 --script broadcast-dhcp6-discover
 --
 -- @output
--- | broadcast-dhcp6-discover: 
+-- | broadcast-dhcp6-discover:
 -- |   Interface: en0
 -- |     Message type: Advertise
 -- |     Transaction id: 74401
@@ -76,7 +76,7 @@ local function solicit(iface, result)
 		condvar "signal"
 		return
 	end
-	
+
 	local status, response = helper:solicit()
 	if ( status ) then
 		response.name=("Interface: %s"):format(iface)
@@ -101,7 +101,7 @@ action = function(host, port)
 		local co = stdnse.new_thread( solicit, iface, result )
 		threads[co] = true
 	end
-	
+
 	-- wait until the probes are all done
 	repeat
 		for thread in pairs(threads) do

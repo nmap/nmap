@@ -15,12 +15,12 @@ LAN by sending a broadcast RIPng Request command and collecting any responses.
 -- nmap --script broadcast-ripng-discover
 --
 -- @output
--- | broadcast-ripng-discover: 
+-- | broadcast-ripng-discover:
 -- |   fe80::a00:27ff:fe9a:880c
 -- |     route                       metric  next hop
--- |     fe80:470:0:0:0:0:0:0/64     1       
--- |     fe80:471:0:0:0:0:0:0/64     1       
--- |_    fe80:472:0:0:0:0:0:0/64     1       
+-- |     fe80:470:0:0:0:0:0:0/64     1
+-- |     fe80:471:0:0:0:0:0:0/64     1
+-- |_    fe80:472:0:0:0:0:0:0/64     1
 --
 -- @args broadcast-ripng-discover.timeout sets the connection timeout
 --       (default: 5s)
@@ -39,10 +39,10 @@ RIPng = {
 		Request = 1,
 		Response = 2,
 	},
-	
+
 	-- Route table entry
 	RTE = {
-	
+
 		-- Creates a new Route Table Entry
 		-- @param prefix string containing the ipv6 route prefix
 		-- @param tag number containing the route tag
@@ -61,20 +61,20 @@ RIPng = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte string and creates an instance of RTE
 		-- @param data string of bytes
 		-- @return rte instance of RTE
 		parse = function(data)
 			local rte = RIPng.RTE:new()
 			local pos, ip
-			
+
 			pos, ip, rte.tag, rte.prefix_len, rte.metric = bin.unpack(">A16SCC", data)
 			ip = select(2, bin.unpack("B" .. #ip, ip))
 			rte.prefix = ipOps.bin_to_ip(ip)
 			return rte
 		end,
-		
+
 		-- Converts a RTE instance to string
 		-- @return string of bytes to send to the server
 		__tostring = function(self)
@@ -82,19 +82,19 @@ RIPng = {
 			assert(16 == #ipstr, "Invalid IPv6 address encountered")
 			return bin.pack(">ASCC", ipstr, self.tag, self.prefix_len, self.metric)
 		end,
-	
-		
+
+
 	},
-		
+
 	-- The Request class contains functions to build a RIPv2 Request
 	Request = {
-	
+
 		-- Creates a new Request instance
 		--
 		-- @param command number containing the RIPv2 Command to use
 		-- @return o instance of request
 		new = function(self, entries)
-			local o = { 
+			local o = {
 				command 	= 1,
 				version 	= 1,
 				entries		= entries,
@@ -103,7 +103,7 @@ RIPng = {
 			self.__index = self
 			return o
 		end,
-    
+
 		-- Converts the whole request to a string
 		__tostring = function(self)
 			local RESERVED = 0
@@ -115,10 +115,10 @@ RIPng = {
 		end,
 
 	},
-	
+
 	-- A RIPng Response
 	Response = {
-		
+
 		-- Creates a new Response instance
 		-- @return o new instance of Response
 		new = function(self)
@@ -127,13 +127,13 @@ RIPng = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Creates a new Response instance based on a string of bytes
 		-- @return resp new instance of Response
 		parse = function(data)
 			local resp = RIPng.Response:new()
 			local pos, _
-			
+
 			pos, resp.command, resp.version, _ = bin.unpack(">CCS", data)
 			resp.entries = {}
 			while( pos < #data ) do
@@ -141,9 +141,9 @@ RIPng = {
 				table.insert(resp.entries, e)
 				pos = pos + 20
 			end
-			
+
 			return resp
-		end,		
+		end,
 	}
 }
 
@@ -169,7 +169,7 @@ end
 
 action = function()
 
-	local req = RIPng.Request:new( { RIPng.RTE:new("0::", 0, 0, 16) } )	
+	local req = RIPng.Request:new( { RIPng.RTE:new("0::", 0, 0, 16) } )
 	local host, port = "FF02::9", { number = 521, protocol = "udp" }
 	local iface = nmap.get_interface()
 	local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
@@ -180,7 +180,7 @@ action = function()
 	sock:set_timeout(timeout)
 
 	local status = sock:sendto(host, port, tostring(req))
-		
+
 	-- do we need to add the interface name to the address?
 	if ( not(status) ) then
 		if ( not(iface) ) then
@@ -188,7 +188,7 @@ action = function()
 		end
 		status = sock:sendto(host .. "%" .. iface, port, tostring(req))
 	end
-	
+
 	if ( not(status) ) then
 		return fail("Failed to send request to server")
 	end
@@ -206,7 +206,7 @@ action = function()
 			responses[rhost] = RIPng.Response.parse(data)
 		end
 	end
-	
+
 	local result = {}
 	for ip, resp in pairs(responses) do
 		stdnse.print_debug(ip, resp)

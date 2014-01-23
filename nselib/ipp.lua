@@ -17,11 +17,11 @@ _ENV = stdnse.module("ipp", stdnse.seeall)
 
 -- The IPP layer
 IPP = {
-	
+
 	StatusCode = {
 		OK        = 0,
 	},
-	
+
 	State = {
 	  IPP_JOB_PENDING     = 3,
 	  IPP_JOB_HELD        = 4,
@@ -31,7 +31,7 @@ IPP = {
 	  IPP_JOB_ABORTED     = 8,
 	  IPP_JOB_COMPLETED   = 9,
 	},
-	
+
 	StateName = {
 		[3] = "Pending",
 		[4] = "Held",
@@ -41,7 +41,7 @@ IPP = {
 		[8] = "Aborted",
 		[9] = "Completed",
 	},
-	
+
 	OperationID = {
 		IPP_CANCEL_JOB           = 0x0008,
 		IPP_GET_JOB_ATTRIBUTES   = 0x0009,
@@ -49,13 +49,13 @@ IPP = {
 		CUPS_GET_PRINTERS        = 0x4002,
 		CUPS_GET_DOCUMENT        = 0x4027
 	},
-	
+
 	PrinterState = {
 		IPP_PRINTER_IDLE         = 3,
 		IPP_PRINTER_PROCESSING   = 4,
 		IPP_PRINTER_STOPPED      = 5,
 	},
-	
+
 	Attribute = {
 
 		IPP_TAG_OPERATION	= 0x01,
@@ -69,25 +69,25 @@ IPP = {
 		IPP_TAG_URI         = 0x45,
 		IPP_TAG_CHARSET 	= 0x47,
 		IPP_TAG_LANGUAGE	= 0x48,
-		
+
 		new = function(self, tag, name, value)
 			local o = { tag = tag, name = name, value = value }
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-		
+
 		parse = function(data, pos)
 			local attrib = IPP.Attribute:new()
 			local val
 			pos, attrib.tag, attrib.name, val = bin.unpack(">CPP", data, pos)
 			-- print(attrib.name, stdnse.tohex(val))
-			attrib.value = {}		
+			attrib.value = {}
 			table.insert(attrib.value, { tag = attrib.tag, val = val })
-			
+
 			repeat
 				local tag, name_len, val
-				
+
 				if ( #data < pos + 3 ) then
 					break
 				end
@@ -100,7 +100,7 @@ IPP = {
 					pos = pos - 3
 				end
 			until( name_len ~= 0 )
-			
+
 			-- do minimal decoding
 			for i=1, #attrib.value do
 				if ( attrib.value[i].tag == IPP.Attribute.IPP_TAG_INTEGER ) then
@@ -109,15 +109,15 @@ IPP = {
 					attrib.value[i].val = select(2, bin.unpack(">I", attrib.value[i].val))
 				end
 			end
-			
+
 			if ( 1 == #attrib.value ) then
 				attrib.value = attrib.value[1].val
 			end
 			--print(attrib.name, attrib.value, stdnse.tohex(val))
-			
+
 			return pos, attrib
 		end,
-		
+
 		__tostring = function(self)
 			if ( "string" == type(self.value) ) then
 				return bin.pack(">CSASA", self.tag, #self.name, self.name, #self.value, self.value)
@@ -129,23 +129,23 @@ IPP = {
 				return data
 			end
 		end
-		
+
 	},
-	
+
 	-- An attribute group, groups several attributes
 	AttributeGroup = {
-		
+
 		new = function(self, tag, attribs)
 			local o = { tag = tag, attribs = attribs or {} }
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-		
+
 		addAttribute = function(self, attrib)
 			table.insert(self.attribs, attrib)
 		end,
-		
+
 		--
 		-- Gets the first attribute matching name and optionally tag from the
 		-- attribute group.
@@ -175,23 +175,23 @@ IPP = {
 				end
 			end
 		end,
-		
+
 		__tostring = function(self)
 			local data = bin.pack("C", self.tag)
-		
+
 			for _, attrib in ipairs(self.attribs) do
 				data = data .. tostring(attrib)
 			end
 			return data
 		end
-		
+
 	},
-	
+
 	-- The IPP request
 	Request = {
-	
+
 		new = function(self, opid, reqid)
-			local o = { 
+			local o = {
 				version        = 0x0101,
 				opid           = opid,
 				reqid          = reqid,
@@ -201,11 +201,11 @@ IPP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		addAttributeGroup = function(self, group)
 			table.insert( self.attrib_groups, group )
 		end,
-		
+
 		__tostring = function(self)
 			local data = bin.pack(">SSI", self.version, self.opid, self.reqid )
 
@@ -215,12 +215,12 @@ IPP = {
 			data = data .. bin.pack("C", IPP.Attribute.IPP_TAG_END)
 			return data
 		end,
-		
+
 	},
-	
+
 	-- A class to handle responses from the server
 	Response = {
-		
+
 		-- Creates a new instance of response
 		new = function(self)
 			local o = {}
@@ -228,7 +228,7 @@ IPP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		getAttributeGroups = function(self, tag)
 			local groups = {}
 			for _, v in ipairs(self.attrib_groups or {}) do
@@ -238,24 +238,24 @@ IPP = {
 			end
 			return groups
 		end,
-		
+
 		parse = function(data)
 			local resp = IPP.Response:new()
 			local pos
-			
+
 			pos, resp.version, resp.status, resp.reqid = bin.unpack(">SSI", data)
-			
+
 			resp.attrib_groups = {}
 			local group
 			repeat
 				local tag, attrib
 				pos, tag = bin.unpack(">C", data, pos)
-								
+
 				if ( tag == IPP.Attribute.IPP_TAG_OPERATION or
 					 tag == IPP.Attribute.IPP_TAG_JOB or
 					 tag == IPP.Attribute.IPP_TAG_PRINTER or
 					 tag == IPP.Attribute.IPP_TAG_END ) then
-										
+
 					if ( group ) then
 						table.insert(resp.attrib_groups, group)
 						group = IPP.AttributeGroup:new(tag)
@@ -265,27 +265,27 @@ IPP = {
 				else
 					pos = pos - 1
 				end
-				
+
 				if ( not(group) ) then
 					stdnse.print_debug(2, "Unexpected tag: %d", tag)
 					return
 				end
-				
+
 				pos, attrib = IPP.Attribute.parse(data, pos)
 				group:addAttribute(attrib)
-				
+
 			until( pos == #data  + 1)
-			
+
 			return resp
 		end,
-		
+
 	},
-	
-	
+
+
 }
 
 HTTP = {
-	
+
 	Request = function(host, port, request)
 		local headers = {
 			['Content-Type'] = 'application/ipp',
@@ -301,28 +301,28 @@ HTTP = {
 		if ( not(response) ) then
 			return false, "Failed to parse response"
 		end
-		
+
 		return true, response
 	end,
-	
+
 }
 
 
 Helper = {
-	
+
 	new = function(self, host, port, options)
 		local o = { host = host, port = port, options = options or {} }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		self.socket = nmap.new_socket()
 		self.socket:set_timeout(self.options.timeout or 10000)
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	getPrinters = function(self)
 
 		local attribs = {
@@ -340,17 +340,17 @@ Helper = {
 		end
 
 		local printers = {}
-		
+
 		for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_PRINTER)) do
-			local attrib = { 
-				["printer-name"] = "name", 
+			local attrib = {
+				["printer-name"] = "name",
 				["printer-location"] = "location",
 				["printer-make-and-model"] = "model",
 				["printer-state"] = "state",
 				["queued-job-count"] = "queue_count",
 				["printer-dns-sd-name"] = "dns_sd_name",
 			}
-			
+
 			local printer = {}
 			for k, v in pairs(attrib) do
 				if ( ag:getAttributeValue(k) ) then
@@ -361,10 +361,10 @@ Helper = {
 		end
 		return true, printers
 	end,
-	
+
 	getQueueInfo = function(self, uri)
 		local uri = uri or ("ipp://%s/"):format(self.host.ip)
-	
+
 		local attribs = {
 			IPP.Attribute:new(IPP.Attribute.IPP_TAG_CHARSET, "attributes-charset", "utf-8" ),
 			IPP.Attribute:new(IPP.Attribute.IPP_TAG_LANGUAGE, "attributes-natural-language", "en-us"),
@@ -384,16 +384,16 @@ Helper = {
 				{ tag = IPP.Attribute.IPP_TAG_KEYWORD, val = "time-at-creation" } } ),
 			IPP.Attribute:new(IPP.Attribute.IPP_TAG_KEYWORD, "which-jobs", "not-completed" )
 		}
-	
+
 		local ag = IPP.AttributeGroup:new(IPP.Attribute.IPP_TAG_OPERATION, attribs)
 		local request = IPP.Request:new(IPP.OperationID.IPP_GET_JOBS, 1)
 		request:addAttributeGroup(ag)
-	
+
 		local status, response = HTTP.Request( self.host, self.port, tostring(request) )
 		if ( not(response) ) then
 			return status, response
 		end
-		
+
 		local results = {}
 		for _, ag in ipairs(response:getAttributeGroups(IPP.Attribute.IPP_TAG_JOB)) do
 			local uri = ag:getAttributeValue("printer-uri")
@@ -407,19 +407,19 @@ Helper = {
 			local size = ag:getAttributeValue("job-k-octets") .. "k"
 			local jobname = ag:getAttributeValue("com.apple.print.JobInfo.PMJobName") or "Unknown"
 			local owner = ag:getAttributeValue("com.apple.print.JobInfo.PMJobOwner") or "Unknown"
-			
+
 			results[printer] = results[printer] or {}
 			table.insert(results[printer], {
-				id = id, 
+				id = id,
 				time = os.date("%Y-%m-%d %H:%M:%S", tm),
 				state = ( IPP.StateName[tonumber(state)] or "Unknown" ),
 				size = size,
 				owner = owner,
-				jobname = jobname })			
+				jobname = jobname })
 		end
-		
+
 		local output = {}
-		for name, entries in pairs(results) do			
+		for name, entries in pairs(results) do
 			local t = tab.new(5)
 			tab.addrow(t, "id", "time", "state", "size (kb)", "owner", "jobname")
 			for _, entry in ipairs(entries) do
@@ -429,10 +429,10 @@ Helper = {
 				table.insert(output, { name = name, tab.dump(t) })
 			end
 		end
-		
+
 		return output
 	end,
-	
+
 	close = function(self)
 		return self.socket:close()
 	end,

@@ -16,7 +16,7 @@ Performs brute force password auditing against the rsync remote file syncing pro
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 873/tcp open  rsync   syn-ack
--- | rsync-brute: 
+-- | rsync-brute:
 -- |   Accounts
 -- |     user1:laptop - Valid credentials
 -- |     user2:password - Valid credentials
@@ -34,19 +34,19 @@ categories = {"brute", "intrusive"}
 portrule = shortport.port_or_service(873, "rsync", "tcp")
 
 Driver = {
-	
+
 	new = function(self, host, port, options)
 		local o = {	host = host, port = port, options = options	}
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		self.helper = rsync.Helper:new(self.host, self.port, self.options)
 		return self.helper:connect()
 	end,
-	
+
 	login = function(self, username, password)
 
 		local status, data = self.helper:login(username, password)
@@ -61,11 +61,11 @@ Driver = {
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
 	end,
-	
+
 	disconnect = function( self )
 		return self.helper:disconnect()
-	end		
-		
+	end
+
 }
 
 local function isModuleValid(host, port, module)
@@ -89,17 +89,17 @@ local function isModuleValid(host, port, module)
 end
 
 action = function(host, port)
-	
+
 	local mod = stdnse.get_script_args(SCRIPT_NAME .. ".module")
 	if ( not(mod) ) then
 		return "\n  ERROR: rsync-brute.module was not supplied"
 	end
-	
+
 	local status, err = isModuleValid(host, port, mod)
 	if ( not(status) ) then
 		return ("\n  ERROR: %s"):format(err)
 	end
-	
+
 	local engine = brute.Engine:new(Driver, host, port, { module = mod })
 	engine.options.script_name = SCRIPT_NAME
 	local result

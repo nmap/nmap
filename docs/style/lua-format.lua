@@ -219,7 +219,7 @@ local lua = lpeg.locale {
 
   -- This is an expression which is always truncated to 1 result, and so we can remove
   -- redundant parenthesis.
-  _single_exp = P "(" * V "whitespace" * V "_single_exp" * V "whitespace" * P ")" * -(V "whitespace" * (V "suffix" + V "binop")) + 
+  _single_exp = P "(" * V "whitespace" * V "_single_exp" * V "whitespace" * P ")" * -(V "whitespace" * (V "suffix" + V "binop")) +
                V "exp";
 
   _oneline_exp = Cg(Cg(Cc " ", "newline") * Cg(Cc "", "indent") * Cg(Cc "", "indent_space") * V "_single_exp");

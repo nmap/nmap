@@ -15,7 +15,7 @@ _ENV = stdnse.module("rsync", stdnse.seeall)
 
 -- The Helper class serves as the main interface for script writers
 Helper = {
-	
+
 	-- Creates a new instance of the Helper class
 	-- @param host table as received by the action function
 	-- @param port table as received by the action function
@@ -28,7 +28,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Handles send and receive of control messages
 	-- @param data string containing the command to send
 	-- @return status true on succes, false on failure
@@ -45,7 +45,7 @@ Helper = {
 		end
 		return true, data
 	end,
-	
+
 	-- Connects to the rsync server
 	-- @return status, true on success, false on failure
 	-- @return err string containing an error message if status is false
@@ -56,7 +56,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, err
 		end
-		
+
 		local data
 		status, data = self:ctrl_exch("@RSYNCD: 29")
 		if ( not(status) ) then
@@ -67,7 +67,7 @@ Helper = {
 		end
 		return true
 	end,
-	
+
 	-- Authenticates against the rsync module. If no username is given, assume
 	-- no authentication is required.
 	-- @param username [optional] string containing the username
@@ -78,7 +78,7 @@ Helper = {
 		if (not(status)) then
 			return false, data
 		end
-		
+
 		local chall
 		if ( data:match("@RSYNCD: OK") ) then
 			return true, "No authentication was required"
@@ -94,7 +94,7 @@ Helper = {
 		if ( chall and not(username) ) then
 			return false, "Authentication required"
 		end
-		
+
 		local md4 = openssl.md4("\0\0\0\0" .. password .. chall)
 		local resp = base64.enc(md4):sub(1,-3)
 		status, data = self:ctrl_exch(username .. " " .. resp)
@@ -105,9 +105,9 @@ Helper = {
 		if ( data == "@RSYNCD: OK" ) then
 			return true, "Authentication successfull"
 		end
-		return false, "Authentication failed"		
+		return false, "Authentication failed"
 	end,
-	
+
 	-- Lists accessible modules from the rsync server
 	-- @return status true on success, false on failure
 	-- @return modules table containing a list of modules
@@ -116,7 +116,7 @@ Helper = {
 		if (not(status)) then
 			return false, data
 		end
-		
+
 		local modules = {}
 		while(true) do
 			status, data = self.socket:receive_buf("\n", false)
@@ -131,7 +131,7 @@ Helper = {
 		end
 		return true, modules
 	end,
-	
+
 	-- Lists the files available for the directory/module
 	-- TODO: Add support for parsing results, seemed straight forward at
 	--       first, but wasn't.
@@ -146,7 +146,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, data
 		end
-		
+
 		status, data = self.socket:send("\0\0\0\0")
 		if ( not(status) ) then
 			return false, data
@@ -156,7 +156,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, data
 		end
-		
+
 		local pos, len = bin.unpack("<S", data)
 		status, data = self.socket:receive_buf(match.numbytes(len), false)
 		if ( not(status) ) then
@@ -165,11 +165,11 @@ Helper = {
 
 		-- Parsing goes here
 	end,
-	
+
 	-- Disconnects from the rsync server
 	-- @return status true on success, false on failure
 	disconnect = function(self) return self.socket:close() end,
-	
+
 }
 
 return _ENV;

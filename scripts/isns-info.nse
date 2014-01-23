@@ -16,7 +16,7 @@ Service (iSNS).
 -- @output
 -- PORT     STATE SERVICE
 -- 3205/tcp open  unknown
--- | isns-info: 
+-- | isns-info:
 -- |   Portal
 -- |     ip             port
 -- |     192.168.0.1    3260/tcp
@@ -41,11 +41,11 @@ action = function(host, port)
 	if ( not(helper:connect()) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	local status, portals = helper:listPortals()
 	if ( not(status) ) then
 		return
-	end	
+	end
 
 	local results = {}
 	local restab = tab.new(2)
@@ -53,19 +53,19 @@ action = function(host, port)
 	for _, portal in ipairs(portals) do
 		tab.addrow(restab, portal.addr, ("%d/%s"):format(portal.port, portal.proto))
 	end
-	table.insert(results, { name = "Portal", tab.dump(restab) })	
-	
+	table.insert(results, { name = "Portal", tab.dump(restab) })
+
 	local status, nodes = helper:listISCINodes()
 	if ( not(status) ) then
 		return
-	end	
+	end
 
 	restab = tab.new(2)
 	tab.addrow(restab, "node", "type")
 	for _, portal in ipairs(nodes) do
 		tab.addrow(restab, portal.name, portal.type)
 	end
-	table.insert(results, { name = "iSCSI Nodes", tab.dump(restab) })	
+	table.insert(results, { name = "iSCSI Nodes", tab.dump(restab) })
 
 	return stdnse.format_output(true, results)
 end

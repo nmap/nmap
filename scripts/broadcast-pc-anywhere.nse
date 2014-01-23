@@ -13,7 +13,7 @@ Sends a special broadcast probe to discover PC-Anywhere hosts running on a LAN.
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-pc-anywhere: 
+-- | broadcast-pc-anywhere:
 -- |_  10.0.200.113 - WIN2K3SRV-1
 --
 -- @args broadcast-pc-anywhere.timeout specifies the amount of seconds to sniff
@@ -32,7 +32,7 @@ action = function()
 
 	local host = { ip = "255.255.255.255" }
 	local port = { number = 5632, protocol = "udp" }
-	
+
 	local socket = nmap.new_socket("udp")
 	socket:set_timeout(500)
 
@@ -42,11 +42,11 @@ action = function()
 			return "\n  ERROR: Failed to send broadcast request"
 		end
 	end
-		
+
 	local timeout = TIMEOUT or ( 20 / ( nmap.timing_level() + 1 ) )
 	local responses = {}
 	local stime = os.time()
-	
+
 	repeat
 		local status, data = socket:receive()
 		if ( status ) then
@@ -63,7 +63,7 @@ action = function()
 		end
 	until( os.time() - stime > timeout )
 	socket:close()
-	
+
 	local result = {}
 	for ip, name in pairs(responses) do
 		table.insert(result, ("%s - %s"):format(ip,name))

@@ -19,7 +19,7 @@ Performs brute force password auditing against a Metasploit RPC server using the
 -- @output
 -- PORT      STATE SERVICE
 -- 55553/tcp open  unknown
--- | metasploit-xmlrpc-brute: 
+-- | metasploit-xmlrpc-brute:
 -- |   Accounts
 -- |     password - Valid credentials
 -- |   Statistics
@@ -33,7 +33,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(55553, "metasploit-xmlrpc", "tcp")
 
-Driver = 
+Driver =
 {
 	new = function (self, host, port, opts)
 		local o = { host = host, port = port, opts = opts }
@@ -47,7 +47,7 @@ Driver =
 		if ( not(self.socket:connect(self.host, self.port, self.opts)) ) then
 			return false
 		end
-		return true	
+		return true
 	end,
 
 	login = function( self, username, password )
@@ -61,14 +61,14 @@ Driver =
 		end
 
 		-- Create a buffer and receive the first line
-		local response 
+		local response
 		status, response = self.socket:receive_buf("\r?\n", false)
 
 		if (response == nil or string.match(response,"<name>faultString</name><value><string>authentication error</string>")) then
 			stdnse.print_debug(2, "metasploit-xmlrpc-brute: Bad login: %s/%s", username, password)
 			return false, brute.Error:new( "Bad login" )
 		elseif (string.match(response,"<name>result</name><value><string>success</string></value>")) then
-				
+
 			stdnse.print_debug(1, "metasploit-xmlrpc-brute: Good login: %s/%s", username, password)
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end

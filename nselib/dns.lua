@@ -257,7 +257,7 @@ end
 -- * <code>subnet</code>: table, if set perform a edns-client-subnet lookup. The table should contain the fields:
 --                        <code>family</code> - string can be either inet or inet6
 --                        <code>address</code> - string containing the originating subnet IP address
---                        <code>mask</code> - number containing the number of subnet bits 
+--                        <code>mask</code> - number containing the number of subnet bits
 -- @return <code>true</code> if a dns response was received and contained an answer of the requested type,
 --  or the decoded dns response was requested (retPkt) and is being returned - or <code>false</code> otherwise.
 -- @return String answer of the requested type, table of answers or a String error message of one of the following:
@@ -1055,10 +1055,10 @@ decoder[types.NSEC3] = function (entry, data, pos)
    entry.NSEC3.dname = entry.dname
    entry.NSEC3.salt, entry.NSEC3.hash = {}, {}
 
-   np, entry.NSEC3.hash.alg,flags,entry.NSEC3.iterations = bin.unpack(">CBS", data, np) 
+   np, entry.NSEC3.hash.alg,flags,entry.NSEC3.iterations = bin.unpack(">CBS", data, np)
    -- do we even need to decode these do we care about opt out?
    -- entry.NSEC3.flags = decodeFlagsNSEC3(flags)
-  
+
    np, entry.NSEC3.salt.bin = bin.unpack(">p",  data, np)
    _, entry.NSEC3.salt.hex = bin.unpack("H" .. #entry.NSEC3.salt.bin, entry.NSEC3.salt.bin)
 
@@ -1156,7 +1156,7 @@ decoder[types.TXT] =
 -- @param entry RR in packet.
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
-decoder[types.OPT] = 
+decoder[types.OPT] =
 	function(entry, data, pos)
 		local np = pos - #entry.data - 6
 		local opt = { bufsize = entry.class }
@@ -1367,14 +1367,14 @@ end
 -- @param client_subnet table containing the following fields
 --        <code>family</code>  - 1 IPv4, 2 - IPv6
 --        <code>mask</code>    - byte containing the length of the subnet mask
---        <code>address</code> - string containing the IP address 
+--        <code>address</code> - string containing the IP address
 function addClientSubnet(pkt,Z,subnet)
 	local udp_payload_size = 4096
 	local code = 20730 -- temporary option-code http://comments.gmane.org/gmane.ietf.dnsext/19776
 	local scope_mask = 0 -- In requests, it MUST be set to 0 see draft
 	local data = bin.pack(">SCCA",subnet.family or 1,subnet.mask,scope_mask,ipOps.ip_to_str(subnet.address))
 	local opt = bin.pack(">SS",code, #data) .. data
-	addOPT(pkt,Z,opt)  
+	addOPT(pkt,Z,opt)
 end
 
 ---
@@ -1384,7 +1384,7 @@ end
 function addNSID (pkt,Z)
 	local udp_payload_size = 4096
 	local opt = bin.pack(">SS",3, 0) -- nsid data
-	addOPT(pkt,Z,opt)  
+	addOPT(pkt,Z,opt)
 end
 
 ---

@@ -1,6 +1,6 @@
 ---
 -- Read and parse some of Nmap's data files: <code>nmap-protocols</code>,
--- <code>nmap-rpc</code>, <code>nmap-services</code>, and 
+-- <code>nmap-rpc</code>, <code>nmap-services</code>, and
 -- <code>nmap-mac-prefixes</code>.
 --
 -- The functions in this module return values appropriate for use with exception

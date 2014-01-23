@@ -15,7 +15,7 @@ Retrieves information (such as node name and architecture) from a Basho Riak dis
 -- @output
 -- PORT     STATE SERVICE
 -- 8098/tcp open  http
--- | riak-http-info: 
+-- | riak-http-info:
 -- |   Node name                  riak@127.0.0.1
 -- |   Architecture               x86_64-unknown-linux-gnu
 -- |   Storage backend            riak_kv_bitcask_backend
@@ -71,7 +71,7 @@ local filter = {
 	["sys_driver_version"] = { name = "System driver version" },
 	["bitcask_version"] = { name = "Bitcask version" },
 	["riak_search_version"] = { name = "Riak search version" },
-	["kernel_version"] = { name = "Riak kernel version" }, 
+	["kernel_version"] = { name = "Riak kernel version" },
 	["stdlib_version"] = { name = "Riak stdlib version" },
 	["basho_metrics_version"] = { name = "Basho metrics version" },
 	["webmachine_version"] = { name = "WebMachine version" },
@@ -91,7 +91,7 @@ local filter = {
 }
 
 local order = {
-	"nodename", "sys_system_architecture", "storage_backend", "mem_total", 
+	"nodename", "sys_system_architecture", "storage_backend", "mem_total",
 	"crypto_version", "skerl_version", "os_mon_version", "basho_stats_version",
 	"lager_version", "cluster_info_version",	"luke_version",	"sasl_version",
 	"sys_driver_version", "bitcask_version", "riak_search_version",
@@ -108,30 +108,30 @@ local function fail(err) return ("\n  ERROR: %s"):format(err) end
 action = function(host, port)
 
 	local response = http.get(host, port, "/stats")
-	
+
 	if ( not(response) or response.status ~= 200 ) then
 		return
 	end
-	
+
 	-- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
 	local _, http_status, _ = http.identify_404(host,port)
 	if ( http_status == 200 ) then
 		stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
 		return false
 	end
-  
+
 	-- Silently abort if the server responds as anything different than
 	-- MochiWeb
 	if ( response.header['server'] and
 		 not(response.header['server']:match("MochiWeb")) ) then
 		return
 	end
-	
+
 	local status, parsed = json.parse(response.body)
 	if ( not(status) ) then
 		return fail("Failed to parse response")
 	end
-	
+
 	local result = tab.new(2)
 	for _, item in ipairs(order) do
 		if ( parsed[item] ) then

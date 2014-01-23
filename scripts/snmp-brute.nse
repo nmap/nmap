@@ -12,9 +12,9 @@ local unpwdb = require "unpwdb"
 description = [[
 Attempts to find an SNMP community string by brute force guessing.
 
-This script opens a sending socket and a sniffing pcap socket in parallel 
+This script opens a sending socket and a sniffing pcap socket in parallel
 threads. The sending socket sends the SNMP probes with the community strings,
-while the pcap socket sniffs the network for an answer to the probes. If 
+while the pcap socket sniffs the network for an answer to the probes. If
 valid community strings are found, they are added to the creds database and
 reported in the output.
 
@@ -28,8 +28,8 @@ this wordlist does not exist, the script falls back to
 No output is reported if no valid account is found.
 ]]
 -- 2008-07-03 Philip Pickering, basic verstion
--- 2011-07-17 Gorjan Petrovski, Patrik Karlsson, optimization and creds 
---            accounts, rejected use of the brute library because of 
+-- 2011-07-17 Gorjan Petrovski, Patrik Karlsson, optimization and creds
+--            accounts, rejected use of the brute library because of
 --            implementation using unconnected sockets.
 -- 2011-12-29 Patrik Karlsson - Added lport to sniff_snmp_responses to fix
 --                              bug preventing multiple scripts from working
@@ -44,7 +44,7 @@ No output is reported if no valid account is found.
 -- @output
 -- PORT    STATE SERVICE
 -- 161/udp open  snmp
--- | snmp-brute: 
+-- | snmp-brute:
 -- |   dragon - Valid credentials
 -- |_  jordan - Valid credentials
 
@@ -81,7 +81,7 @@ local filltable = function(filename, table)
 
 	return true
 end
- 
+
 local closure = function(table)
 	local i = 1
 
@@ -170,26 +170,26 @@ end
 
 local sniff_snmp_responses = function(host, port, lport, result)
 	local condvar = nmap.condvar(result)
-	
+
 	local pcap = nmap.new_socket()
 	pcap:set_timeout(host.times.timeout * 1000 * 3)
 	local ip = host.bin_ip_src
 	ip = string.format("%d.%d.%d.%d",ip:byte(1),ip:byte(2),ip:byte(3),ip:byte(4))
 	pcap:pcap_open(host.interface, 104, false,"dst host " .. ip .. " and udp and src port 161 and dst port " .. lport)
-	
+
 	-- last_run indicated whether there will be only one more receive
 	local last_run = false
 
 	-- receive even when status=false untill all the probes are sent
 	while true do
 		local status, plen, l2, l3, _ = pcap:pcap_receive()
-		
+
 		if status then
 			local p = packet.Packet:new(l3,#l3)
 			if not p:udp_parse() then
 				--shouldn't happen
 				result.status = false
-				result.msg = "Wrong type of packet received"  
+				result.msg = "Wrong type of packet received"
 				condvar "signal"
 				return
 			end
@@ -201,7 +201,7 @@ local sniff_snmp_responses = function(host, port, lport, result)
 			if type(res) == "table" then
 				result.communities[ #(result.communities) + 1 ] = res[2]
 			else
-				result.status = false 
+				result.status = false
 				result.msg = "Wrong type of SNMP response received"
 				condvar "signal"
 				return
@@ -233,31 +233,31 @@ action = function(host, port)
 	local threads = {}
 
 	local condvar = nmap.condvar(result)
-	
+
 	result.sent = false --whether the probes are sent
 	result.communities = {} -- list of valid community strings
 	result.msg = "" -- Error/Status msg
-	result.status = true -- Status (is everything ok) 
+	result.status = true -- Status (is everything ok)
 
 	local socket = nmap.new_socket("udp")
 	status = socket:connect(host, port)
-	
+
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to connect to server"
 	end
-	
+
 	local status, _, lport = socket:get_info()
 	if( not(status) ) then
 		return "\n  ERROR: Failed to retrieve local port"
 	end
-	
+
 	local recv_co = stdnse.new_thread(sniff_snmp_responses, host, port, lport, result)
 	local send_co = stdnse.new_thread(send_snmp_queries, socket, result, nextcommunity)
-	
+
 	local recv_dead, send_dead
-	while true do 
+	while true do
 		condvar "wait"
-		recv_dead = (coroutine.status(recv_co) == "dead") 
+		recv_dead = (coroutine.status(recv_co) == "dead")
 		send_dead = (coroutine.status(send_co) == "dead")
 		if recv_dead then break end
 	end

@@ -17,7 +17,7 @@ Attempts to enumerate RTSP media URLS by testing for common paths on devices suc
 -- @output
 -- PORT    STATE SERVICE
 -- 554/tcp open  rtsp
--- | rtsp-url-brute: 
+-- | rtsp-url-brute:
 -- |   Discovered URLs
 -- |_    rtsp://camera.example.com/mpeg4
 --
@@ -59,15 +59,15 @@ end
 
 -- Fetches the next url from the iterator, creates an absolute url and tries
 -- to fetch it from the RTSP service.
--- @param host table containing the host table as received by action 
--- @param port table containing the port table as received by action 
+-- @param host table containing the host table as received by action
+-- @param port table containing the port table as received by action
 -- @param url_iter function containing the url iterator
 -- @param result table containing the urls that were successfully retrieved
 local function processURL(host, port, url_iter, result)
 	local condvar = nmap.condvar(result)
 	for u in url_iter do
 		local name = ( host.targetname and #host.targetname > 0 ) and host.targetname or
-		 			 ( host.name and #host.name > 0 ) and host.name or 
+            ( host.name and #host.name > 0 ) and host.name or
 					   host.ip
 		local url = ("rtsp://%s%s"):format(name, u)
 		local helper = rtsp.Helper:new(host, port)
@@ -89,7 +89,7 @@ local function processURL(host, port, url_iter, result)
 
 		table.insert(result, { url = url, status = response.status } )
 		helper:close()
-	end		
+	end
 	condvar "signal"
 end
 
@@ -101,7 +101,7 @@ action = function(host, port)
 	local threadcount = stdnse.get_script_args('rtsp-url-brute.threads') or 10
 	local filename = stdnse.get_script_args('rtsp-url-brute.urlfile') or
 	                 nmap.fetchfile("nselib/data/rtsp-urls.txt")
-	
+
 	threadcount = tonumber(threadcount)
 
 	if ( not(filename) ) then
@@ -112,12 +112,12 @@ action = function(host, port)
 	if ( not(f) ) then
 		return stdnse.format_output(false, ("Failed to open dictionary file: %s"):format(filename))
 	end
-	
+
 	local url_iter = urlIterator(f)
 	if ( not(url_iter) ) then
 		return stdnse.format_output(false, ("Could not open the URL dictionary: "):format(f))
 	end
-	
+
 	local threads = {}
 	for t=1, threadcount do
 		local co = stdnse.new_thread(processURL, host, port, url_iter, result)
@@ -137,12 +137,12 @@ action = function(host, port)
 	-- failure in socket send or receive
 	local failure_urls = { name='An error occured while testing the following URLs' }
 
-	-- urls that illicited a 200 OK response 
+	-- urls that illicited a 200 OK response
 	local success_urls = { name='Discovered URLs' }
-	
+
 	-- urls requiring authentication
 	-- local auth_urls = { name='URL requiring authentication' }
-	
+
 	for _, r in ipairs(result) do
 		if ( r.status == -1 ) then
 			table.insert(failure_urls, r.url)
@@ -159,6 +159,6 @@ action = function(host, port)
 --	if (#result > #auth_urls) then
 --		table.insert(result, 2, auth_urls)
 --	end
-	
+
 	return stdnse.format_output(true, result )
 end

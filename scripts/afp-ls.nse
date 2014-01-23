@@ -15,7 +15,7 @@ The output is intended to resemble the output of <code>ls</code>.
 --@output
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp     syn-ack
--- | afp-ls: 
+-- | afp-ls:
 -- |   Macintosh HD
 -- |     PERMISSION  UID  GID  SIZE    TIME              FILENAME
 -- |     -rw-r--r--  501  80   15364   2010-06-13 17:52  .DS_Store
@@ -45,7 +45,7 @@ The output is intended to resemble the output of <code>ls</code>.
 -- |     -rw-------  501  20   102    2010-06-14 01:46  .lesshst
 -- |     -rw-r--r--  501  20   241    2010-06-14 01:45  .profile
 -- |     -rw-------  501  20   218    2010-09-12 16:35  .recently-used.xbel
--- |   
+-- |
 -- |   Information retrieved as: patrik
 -- |_  Output restricted to 10 entries per volume. (See afp-ls.maxfiles)
 --
@@ -75,7 +75,7 @@ local function createFileTable()
 	tab.add(filetab, 5, "TIME")
 	tab.add(filetab, 6, "FILENAME")
 	tab.nextrow(filetab)
-	
+
 	return filetab
 end
 
@@ -87,12 +87,12 @@ action = function(host, port)
 	local users = nmap.registry.afp or { ['nil'] = 'nil' }
 	local maxfiles = tonumber(stdnse.get_script_args("afp-ls.maxfiles") or 10)
 	local output = {}
-	
+
 	if ( args['afp.username'] ) then
 		users = {}
 		users[args['afp.username']] = args['afp.password']
-	end	
-	
+	end
+
 	for username, password in pairs(users) do
 
 		local status, response = afpHelper:OpenSession(host, port)
@@ -124,7 +124,7 @@ action = function(host, port)
 				if ( not(status) ) then
 					return ("\n\nERROR: Failed to list the contents of %s"):format(vol)
 				end
-						
+
 				local file_tab = createFileTable()
 				local counter = maxfiles or 10
 				for _, item in ipairs(tbl[1]) do
@@ -139,7 +139,7 @@ action = function(host, port)
 							if ( not(status) ) then
 								return ("\n\nERROR: Failed to retreive file dates for %/%s"):format(vol, item.name)
 							end
-									
+
 							tab.addrow(file_tab, result.privs, result.uid, result.gid, fsize, date.create, item.name)
 
 							counter = counter - 1
@@ -152,10 +152,10 @@ action = function(host, port)
 				table.insert(output, result_part)
 			end
 		end
-		
+
 		status, response = afpHelper:Logout()
 		status, response = afpHelper:CloseSession()
-					
+
 		-- stop after first succesfull attempt
 		if ( output and #output > 0 ) then
 			table.insert(output, "")

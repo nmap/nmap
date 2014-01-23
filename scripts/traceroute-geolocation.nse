@@ -16,7 +16,7 @@ saves the results to a KML file, plottable on Google earth and maps.
 -- nmap --traceroute --script traceroute-geolocation
 --
 -- @output
--- | traceroute-geolocation: 
+-- | traceroute-geolocation:
 -- |   hop  RTT     ADDRESS                                               GEOLOCATION
 -- |   1    ...
 -- |   2    ...
@@ -105,7 +105,7 @@ local function createKMLFile(filename, coords)
 	end
 	f:write(header .. output .. footer)
 	f:close()
-	
+
 	return true
 end
 
@@ -154,7 +154,7 @@ action = function(host)
 			output_hop(count)
 		end
 	end
-  
+
 	if (#output_structured > 0) then
 		output = tab.dump(output)
 		if ( arg_kmlfile ) then

@@ -21,7 +21,7 @@ http://cassandra.apache.org/
 -- @output
 -- PORT     STATE SERVICE VERSION
 -- 9160/tcp open  apani1?
--- | cassandra-brute: 
+-- | cassandra-brute:
 -- |   Accounts
 -- |     admin:lover - Valid credentials
 -- |   Statistics
@@ -35,14 +35,14 @@ categories = {"intrusive", "brute"}
 portrule = shortport.port_or_service({9160}, {"cassandra"})
 
 Driver = {
-	
+
 	new = function(self, host, port, options)
 		local o = { host = host, port = port, socket = nmap.new_socket() }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		return self.socket:connect(self.host, self.port)
 	end,
@@ -73,7 +73,7 @@ Driver = {
 			err:setAbort( true )
 			return false, err
 		end
-			
+
 		_, size = bin.unpack(">I", response, 1)
 
                 magic = string.sub(response,18,22)
@@ -83,10 +83,10 @@ Driver = {
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		elseif (magic == cassandra.LOGINFAIL) then
                         stdnse.print_debug(3,"Account FAIL: "..combo)
-			return false, brute.Error:new( "Incorrect password" )	
+			return false, brute.Error:new( "Incorrect password" )
                 elseif (magic == cassandra.LOGINACC) then
                         stdnse.print_debug(3, "Account VALID, but wrong password: "..combo)
-                        return false, brute.Error:new( "Good user, bad password" )	
+                        return false, brute.Error:new( "Good user, bad password" )
 		else
                         stdnse.print_debug(3, "Unrecognized packet for "..combo)
                         stdnse.print_debug(3, "packet hex: %s", stdnse.tohex(response) )
@@ -95,13 +95,13 @@ Driver = {
 			local err = brute.Error:new( response )
 			err:setRetry( true )
 			return false, err
-		end	
+		end
 	end,
-	
+
 	disconnect = function(self)
 		return self.socket:close()
 	end,
-	
+
 }
 
 local function noAuth(host, port)
@@ -124,7 +124,7 @@ action = function(host, port)
 	end
 
 	local engine = brute.Engine:new(Driver, host, port )
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	local status, result = engine:start()

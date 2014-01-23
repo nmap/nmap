@@ -16,7 +16,7 @@ Performs brute force password auditing against SMTP servers using either LOGIN, 
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 25/tcp  open  stmp    syn-ack
--- | smtp-brute: 
+-- | smtp-brute:
 -- |   Accounts
 -- |     braddock:jules - Valid credentials
 -- |     lane:sniper - Valid credentials
@@ -24,7 +24,7 @@ Performs brute force password auditing against SMTP servers using either LOGIN, 
 -- |   Statistics
 -- |_    Performed 1160 guesses in 41 seconds, average tps: 33
 --
--- @args smtp-brute.auth authentication mechanism to use LOGIN, PLAIN, 
+-- @args smtp-brute.auth authentication mechanism to use LOGIN, PLAIN,
 --		 CRAM-MD5, DIGEST-MD5 or NTLM
 
 -- Version 0.1
@@ -44,7 +44,7 @@ local mech
 -- for each attempt.
 ConnectionPool = {}
 
-Driver = 
+Driver =
 {
 
 	-- Creates a new driver instance
@@ -57,7 +57,7 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	-- Connects to the server (retrieves a connection from the pool)
 	connect = function( self )
 		self.socket = ConnectionPool[coroutine.running()]
@@ -87,17 +87,17 @@ Driver =
 			local err = brute.Error:new( err )
 			-- This might be temporary, set the retry flag
 			err:setRetry( true )
-			return false, err			
+			return false, err
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	-- Disconnects from the server (release the connection object back to
 	-- the pool)
 	disconnect = function( self )
 		return true
 	end,
-		
+
 }
 
 
@@ -108,17 +108,17 @@ action = function(host, port)
 	local status, response = smtp.ehlo(socket, smtp.get_domain(host))
 	if ( not(status) ) then return "\n  ERROR: EHLO command failed, aborting ..." end
 	local mechs = smtp.get_auth_mech(response)
-	if ( not(mechs) ) then 
+	if ( not(mechs) ) then
 		return "\n  ERROR: Failed to retrieve authentication mechanisms form server"
 	end
 	smtp.quit(socket)
-		
-	local mech_prio = stdnse.get_script_args("smtp-brute.auth") 
-	mech_prio = ( mech_prio and { mech_prio } ) or 
+
+	local mech_prio = stdnse.get_script_args("smtp-brute.auth")
+	mech_prio = ( mech_prio and { mech_prio } ) or
 					{ "LOGIN", "PLAIN", "CRAM-MD5", "DIGEST-MD5", "NTLM" }
-	
+
 	for _, mp in ipairs(mech_prio) do
-		for _, m in pairs(mechs) do 
+		for _, m in pairs(mechs) do
 			if ( mp == m ) then
 				mech = m
 				break
@@ -126,14 +126,14 @@ action = function(host, port)
 		end
 		if ( mech ) then break end
 	end
-		
+
 	local engine = brute.Engine:new(Driver, host, port)
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	local result
 	status, result = engine:start()
-	
+
 	for _, sock in pairs(ConnectionPool) do sock:close() end
-	
+
 	return result
 end

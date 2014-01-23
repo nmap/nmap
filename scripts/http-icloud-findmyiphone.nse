@@ -11,10 +11,10 @@ the MobileMe web service (authentication required).
 ---
 -- @usage
 -- nmap -sn -Pn --script http-icloud-findmyiphone --script-args='username=<user>,password=<pass>'
--- 
+--
 -- @output
 -- Pre-scan script results:
--- | http-icloud-findmyiphone: 
+-- | http-icloud-findmyiphone:
 -- |   name                           location        accuracy  date               type
 -- |   Patrik Karlsson's MacBook Air  -,-             -         -                  -
 -- |   Patrik Karlsson's iPhone       40.690,-74.045  65        04/10/12 16:56:37  Wifi
@@ -60,7 +60,7 @@ action = function()
 		stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, response)
 		return fail("Failed to retrieve location information")
 	end
-	
+
 	local output = tab.new(4)
 	tab.addrow(output, "name", "location", "accuracy", "date", "type")
 	for name, info in pairs(response) do
@@ -80,7 +80,7 @@ action = function()
 		end
 		tab.addrow(output, decodeString(name), loc, info.accuracy or "-", ts, info.postype or "-")
 	end
-	
+
 	if ( 1 < #output ) then
 		return stdnse.format_output(true, tab.dump(output))
 	end

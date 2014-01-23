@@ -25,9 +25,9 @@ The script needs to be run as a privileged user, typically root.
 ---
 -- @usage
 -- sudo nmap --script broadcast-dhcp-discover
--- 
+--
 -- @output
--- | broadcast-dhcp-discover: 
+-- | broadcast-dhcp-discover:
 -- |   IP Offered: 192.168.1.114
 -- |   DHCP Message Type: DHCPOFFER
 -- |   Server Identifier: 192.168.1.1
@@ -70,7 +70,7 @@ local function randomizeMAC()
 	local mac_addr = ""
 	for j=1, 6 do
 		mac_addr = mac_addr .. string.char(math.random(1, 255))
-	end	
+	end
 	return mac_addr
 end
 
@@ -92,7 +92,7 @@ local function getInterfaces(link, up)
 		end
 	end
 	return result
-end	
+end
 
 -- Listens for an incoming dhcp response
 --
@@ -102,9 +102,9 @@ end
 -- @param result a table to which the result is written
 local function dhcp_listener(sock, timeout, xid, result)
 	local condvar = nmap.condvar(result)
-	
+
 	sock:set_timeout(100)
-	
+
 	local start_time = nmap.clock_ms()
 	while( nmap.clock_ms() - start_time < timeout ) do
 		local status, _, _, data = sock:pcap_receive()
@@ -114,7 +114,7 @@ local function dhcp_listener(sock, timeout, xid, result)
 			condvar "signal"
 			return
 		end
-	
+
 		if ( status ) then
 			local p = packet.Packet:new( data, #data )
 			if ( p and p.udp_dport ) then
@@ -144,9 +144,9 @@ action = function()
 	-- if ran multiple times, so we should probably refrain from doing
 	-- this?
 	local mac = string.char(0xDE,0xAD,0xC0,0xDE,0xCA,0xFE)--randomizeMAC()
-	
+
 	local interfaces
-	
+
 	-- first check if the user supplied an interface
 	if ( nmap.get_interface() ) then
 		interfaces = { [nmap.get_interface()] = true }
@@ -159,7 +159,7 @@ action = function()
 	end
 
 	if( not(interfaces) ) then return "\n  ERROR: Failed to retrieve interfaces (try setting one explicitly using -e)" end
-	
+
 	local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
 	local request_type = dhcp.request_types["DHCPDISCOVER"]
 	local ip_address = bin.pack(">I", ipOps.todword("0.0.0.0"))
@@ -172,7 +172,7 @@ action = function()
 	local threads = {}
 	local result = {}
 	local condvar = nmap.condvar(result)
-	
+
 	-- start a listening thread for each interface
 	for iface, _ in pairs(interfaces) do
 		local sock, co
@@ -186,9 +186,9 @@ action = function()
 	socket:bind(nil, 68)
 	socket:sendto( host, port, packet )
 	socket:close()
-	
+
 	-- wait until all threads are done
-	repeat 
+	repeat
 		for thread in pairs(threads) do
 			if coroutine.status(thread) == "dead" then threads[thread] = nil end
 		end
@@ -196,7 +196,7 @@ action = function()
 			condvar "wait"
 		end
 	until next(threads) == nil
-	
+
 	local response = {}
 	-- Display the results
 	for i, r in ipairs(result) do
@@ -209,5 +209,5 @@ action = function()
 			end
 		end
 	end
-	return stdnse.format_output(true, response)		
+	return stdnse.format_output(true, response)
 end

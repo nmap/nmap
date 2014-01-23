@@ -6,17 +6,17 @@ local table = require "table"
 
 description = [[
 Attempts to grab the server's statistics over SMB and MSRPC, which uses TCP
-ports 445 or 139. 
+ports 445 or 139.
 
 An administrator account is required to pull these statistics on most versions
-of Windows, and Vista and above require UAC to be turned down. 
+of Windows, and Vista and above require UAC to be turned down.
 
-Some of the numbers returned here don't feel right to me, but they're definitely 
-the numbers that Windows returns. Take the values here with a grain of salt. 
+Some of the numbers returned here don't feel right to me, but they're definitely
+the numbers that Windows returns. Take the values here with a grain of salt.
 
-These statistics are found using a single call to a SRVSVC function, 
+These statistics are found using a single call to a SRVSVC function,
 <code>NetServerGetStatistics</code>. This packet is parsed incorrectly by Wireshark,
-up to version 1.0.3 (and possibly higher). 
+up to version 1.0.3 (and possibly higher).
 ]]
 
 ---

@@ -47,7 +47,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 -- nmap -p 1433 --script ms-sql-tables --script-args mssql.username=sa,mssql.password=sa <host>
 --
 -- @args ms-sql-tables.maxdb Limits the amount of databases that are
---       processed and returned (default 5). If set to zero or less 
+--       processed and returned (default 5). If set to zero or less
 --       all databases are processed.
 --
 -- @args ms-sql-tables.maxtables Limits the amount of tables returned
@@ -57,7 +57,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --		 the keywords
 --
 -- @output
--- | ms-sql-tables:  
+-- | ms-sql-tables:
 -- |   [192.168.100.25\MSSQLSERVER]
 -- |   webshop
 -- |     table	column	type	length
@@ -83,14 +83,14 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 -- |_    users	fullname	varchar	100
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 04/02/2010 - v0.2 
+-- Revised 04/02/2010 - v0.2
 --		- Added support for filters
 --		- Changed output formatting of restrictions
 --		- Added parameter information in output if parameters are using their
 --		  defaults.
 -- Revised 02/01/2011 - v0.3 (Chris Woodbury)
 --		- Added ability to run against all instances on a host;
---		- Added compatibility with changes in mssql.lua 
+--		- Added compatibility with changes in mssql.lua
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -105,7 +105,7 @@ portrule = mssql.Helper.GetPortrule_Standard()
 local function process_instance( instance )
 
 	local status, result, dbs, tables
-	
+
 	local output = {}
 	local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
 	local db_query
@@ -117,7 +117,7 @@ local function process_instance( instance )
 	local TABLE_COUNT = stdnse.get_script_args( {'ms-sql-tables.maxtables', 'mssql-tables.maxtables' } )
 		and tonumber( stdnse.get_script_args( {'ms-sql-tables.maxtables', 'mssql-tables.maxtables' } ) ) or 2
 	local keywords_filter = ""
-	
+
 	if ( DB_COUNT <= 0 ) then
 		db_limit = ""
 	else
@@ -128,26 +128,26 @@ local function process_instance( instance )
 	else
 		tbl_limit = string.format( "TOP %d", TABLE_COUNT )
 	end
-	
+
 	-- Build the keyword filter
 	if ( stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } ) ) then
-		local keywords = stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } ) 
+		local keywords = stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } )
 		local tmp_tbl = {}
-		
+
 		if( type(keywords) == 'string' ) then
 			keywords = { keywords }
 		end
-		
+
 		for _, v in ipairs(keywords) do
 			table.insert(tmp_tbl, ("'%s'"):format(v))
 		end
-		
-		keywords_filter = (" AND ( so.name IN (%s) or sc.name IN (%s) ) "):format( 
-							stdnse.strjoin(",", tmp_tbl), 
-							stdnse.strjoin(",", tmp_tbl) 
+
+		keywords_filter = (" AND ( so.name IN (%s) or sc.name IN (%s) ) "):format(
+							stdnse.strjoin(",", tmp_tbl),
+							stdnse.strjoin(",", tmp_tbl)
 							)
 	end
-	
+
 	db_query = ("SELECT %s name from master..sysdatabases WHERE name NOT IN (%s)"):format(db_limit, stdnse.strjoin(",", exclude_dbs))
 
 
@@ -162,24 +162,24 @@ local function process_instance( instance )
 				table.insert(output, "ERROR: " .. result)
 				break
 			end
-			
+
 			if ( status ) then
 				status = helper:Login( username, password, nil, instance.host.ip )
 			end
-			
+
 			if ( status ) then
 				status, dbs = helper:Query( db_query )
 			end
-	
+
 			if ( status ) then
 				-- all done?
 				if ( #done_dbs == #dbs.rows ) then
 					break
 				end
-	
+
 				for k, v in pairs(dbs.rows) do
 					if ( not( stdnse.contains( done_dbs, v[1] ) ) ) then
-						local query = [[ SELECT so.name 'table', sc.name 'column', st.name 'type', sc.length 
+						local query = [[ SELECT so.name 'table', sc.name 'column', st.name 'type', sc.length
 									FROM %s..syscolumns sc, %s..sysobjects so, %s..systypes st
 									WHERE so.id = sc.id AND sc.xtype=st.xtype AND
 									so.id IN (SELECT %s id FROM %s..sysobjects WHERE xtype='U') %s ORDER BY so.name, sc.name, st.name]]
@@ -194,7 +194,7 @@ local function process_instance( instance )
 								table.insert(item, "Filter returned no matches")
 							end
 							item.name = v[1]
-							
+
 							table.insert(output, item)
 							table.insert(done_dbs, v[1])
 						end
@@ -202,11 +202,11 @@ local function process_instance( instance )
 				end
 			end
 			helper:Disconnect()
-		end	
-	
+		end
+
 		local pos = 1
 		local restrict_tbl = {}
-		
+
 		if ( stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } ) ) then
 			local tmp = stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } )
 			if ( type(tmp) == 'table' ) then
@@ -217,7 +217,7 @@ local function process_instance( instance )
 		else
 			table.insert(restrict_tbl, 1, "No filter (see ms-sql-tables.keywords)")
 		end
-	
+
 		if ( DB_COUNT > 0 ) then
 			local tmp = ("Output restricted to %d databases"):format(DB_COUNT)
 			if ( not(stdnse.get_script_args( { 'ms-sql-tables.maxdb', 'mssql-tables.maxdb' } ) ) ) then
@@ -226,7 +226,7 @@ local function process_instance( instance )
 			table.insert(restrict_tbl, 1, tmp)
 			pos = pos + 1
 		end
-		
+
 		if ( TABLE_COUNT > 0 ) then
 			local tmp = ("Output restricted to %d tables"):format(TABLE_COUNT)
 			if ( not(stdnse.get_script_args( { 'ms-sql-tables.maxtables', 'mssql-tables.maxtables' } ) ) ) then
@@ -235,19 +235,19 @@ local function process_instance( instance )
 			table.insert(restrict_tbl, 1, tmp)
 			pos = pos + 1
 		end
-		
+
 		if ( 1 < pos and type( output ) == "table" and #output > 0) then
 			restrict_tbl.name = "Restrictions"
 			table.insert(output, "")
 			table.insert(output, restrict_tbl)
 		end
 	end
-	
-		
+
+
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
 	table.insert( instanceOutput, output )
-	
+
 	return instanceOutput
 
 end
@@ -256,7 +256,7 @@ end
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -267,6 +267,6 @@ action = function( host, port )
 			end
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end

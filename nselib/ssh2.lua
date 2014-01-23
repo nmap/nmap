@@ -20,7 +20,7 @@ local SSH2
 
 --- Retrieve the size of the packet that is being received
 --  and checks if it is fully received
--- 
+--
 --  This function is very similar to the function generated
 --  with match.numbytes(num) function, except that this one
 --  will check for the number of bytes on-the-fly, based on
@@ -122,7 +122,7 @@ end
 --- Parse a <code>kexinit</code> package.
 --
 -- Returns an empty table in case of an error
-transport.parse_kex_init = function( payload ) 
+transport.parse_kex_init = function( payload )
   local _, offset, msg_code, parsed, fields, fieldname
   parsed = {}
 

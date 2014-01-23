@@ -1,9 +1,9 @@
----Implement a Dynamic Host Configuration Protocol (DHCP) client. 
+---Implement a Dynamic Host Configuration Protocol (DHCP) client.
 --
--- DHCP, defined in rfc2132 and rfc2131, is a protocol for hosts to automatically 
+-- DHCP, defined in rfc2132 and rfc2131, is a protocol for hosts to automatically
 -- configure themselves on a network (that is, obtain an ip address). This library,
 -- which have a trivial one-function interface, can send out DHCP packets of many
--- types and parse the responses. 
+-- types and parse the responses.
 --
 -- @author "Ron Bowes"
 
@@ -24,7 +24,7 @@ local table = require "table"
 _ENV = stdnse.module("dhcp", stdnse.seeall)
 
 
-request_types = 
+request_types =
 {
 	DHCPDISCOVER = 1,
 	DHCPOFFER    = 2,
@@ -46,19 +46,19 @@ request_types_str[6] = "DHCPNAK"
 request_types_str[7] = "DHCPRELEASE"
 request_types_str[8] = "DHCPINFORM"
 
----Read an IP address or a list of IP addresses. Print an error if the length isn't a multiple of 4. 
+---Read an IP address or a list of IP addresses. Print an error if the length isn't a multiple of 4.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_ip(data, pos, length)
 	if(length ~= 4) then
 		if((length % 4) ~= 0) then
 			stdnse.print_debug(1, "dhcp-discover: Invalid length for an ip address (%d)", length)
 			pos = pos + length
-	
+
 			return pos, nil
 		else
 			local results = {}
@@ -78,24 +78,24 @@ local function read_ip(data, pos, length)
 	end
 end
 
----Read a string. The length of the string is given by the length field. 
+---Read a string. The length of the string is given by the length field.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_string(data, pos, length)
 	return bin.unpack(string.format("A%d", length), data, pos)
 end
 
----Read a single byte. Print an error if the length isn't 1. 
+---Read a single byte. Print an error if the length isn't 1.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_1_byte(data, pos, length)
 	if(length ~= 1) then
 		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 1)
@@ -106,13 +106,13 @@ local function read_1_byte(data, pos, length)
 end
 
 ---Read a message type. This is a single-byte value that's looked up in the <code>request_types_str</code>
--- table. Print an error if the length isn't 1. 
+-- table. Print an error if the length isn't 1.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_message_type(data, pos, length)
 	local value
 
@@ -125,14 +125,14 @@ local function read_message_type(data, pos, length)
 	return pos, request_types_str[value]
 end
 
----Read a single byte, and return 'false' if it's 0, or 'true' if it's non-zero. Print an error if the 
--- length isn't 1. 
+---Read a single byte, and return 'false' if it's 0, or 'true' if it's non-zero. Print an error if the
+-- length isn't 1.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_boolean(data, pos, length)
 	local result
 	pos, result = read_1_byte(data, pos, length)
@@ -147,13 +147,13 @@ local function read_boolean(data, pos, length)
 	end
 end
 
----Read a 2-byte unsigned little endian value. Print an error if the length isn't 2. 
+---Read a 2-byte unsigned little endian value. Print an error if the length isn't 2.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_2_bytes(data, pos, length)
 	if(length ~= 2) then
 		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 2)
@@ -165,13 +165,13 @@ end
 
 
 ---Read a list of 2-byte unsigned little endian values. Print an error if the length isn't a multiple
--- of 2. 
+-- of 2.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_2_bytes_list(data, pos, length)
 	if((length % 2) ~= 0) then
 		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 2)
@@ -191,13 +191,13 @@ local function read_2_bytes_list(data, pos, length)
 end
 
 
----Read a 4-byte unsigned little endian value. Print an error if the length isn't 4. 
+---Read a 4-byte unsigned little endian value. Print an error if the length isn't 4.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_4_bytes(data, pos, length)
 	if(length ~= 4) then
 		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 4)
@@ -207,14 +207,14 @@ local function read_4_bytes(data, pos, length)
 	return bin.unpack(">I", data, pos)
 end
 
----Read a 4-byte unsigned little endian value, and interpret it as a time offset value. Print an 
--- error if the length isn't 4. 
+---Read a 4-byte unsigned little endian value, and interpret it as a time offset value. Print an
+-- error if the length isn't 4.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_time(data, pos, length)
 	local result
 	if(length ~= 4) then
@@ -244,14 +244,14 @@ local function read_time(data, pos, length)
 	return pos, string.format("%d %s, %d:%02d:%02d", days, dayLabel, hours, minutes, seconds)
 end
 
----Read a list of static routes. Each of them are a pair of IP addresses, a destination and a 
--- router. Print an error if the length isn't a multiple of 8. 
+---Read a list of static routes. Each of them are a pair of IP addresses, a destination and a
+-- router. Print an error if the length isn't a multiple of 8.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_static_route(data, pos, length)
 	if((length % 8) ~= 0) then
 		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 8)
@@ -271,14 +271,14 @@ local function read_static_route(data, pos, length)
 	end
 end
 
----Read a list of policy filters. Each of them are a pair of IP addresses, an address and a 
--- mask. Print an error if the length isn't a multiple of 8. 
+---Read a list of policy filters. Each of them are a pair of IP addresses, an address and a
+-- mask. Print an error if the length isn't a multiple of 8.
 --
 --@param data The packet.
---@param pos  The position in the packet. 
---@param length The length that the server claims the field is. 
+--@param pos  The position in the packet.
+--@param length The length that the server claims the field is.
 --@return The new position (will always be pos + length, no matter what we think it should be)
---@return The value of the field, or nil if the field length was wrong. 
+--@return The value of the field, or nil if the field length was wrong.
 local function read_policy_filter(data, pos, length)
 	if((length % 8) ~= 0) then
 		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 8)
@@ -299,7 +299,7 @@ local function read_policy_filter(data, pos, length)
 end
 
 ---These are the different fields for DHCP. These have to come after the read_* function
--- definitions. 
+-- definitions.
 local actions = {}
 actions[1]  = {name="Subnet Mask",                     func=read_ip,             default=true}
 actions[2]  = {name="Time Offset",                     func=read_4_bytes,        default=false}
@@ -364,14 +364,14 @@ actions[60] = {name="Class Identifier",                func=read_string,        
 actions[61] = {name="Client Identifier (client)",      func=read_string,         default=false}
 actions[252]= {name="WPAD",                            func=read_string,         default=false}
 
---- Does the send/receive, doesn't build/parse anything. 
+--- Does the send/receive, doesn't build/parse anything.
 local function dhcp_send(socket, host, packet)
 	-- Send out the packet
 	return socket:sendto(host, { number=67, protocol="udp" }, packet)
 end
 
 local function dhcp_receive(socket, transaction_id)
-	
+
 	local status, data = socket:receive()
 	if ( not(status) ) then
 		socket:close()
@@ -382,7 +382,7 @@ local function dhcp_receive(socket, transaction_id)
 	-- generated and different for every instance of a script (to prevent collisions)
 	while status and data:sub(5, 8) ~= transaction_id do
 		status, data = socket:receive()
-	end	
+	end
 
 	return status, data
 end
@@ -390,32 +390,32 @@ end
 --- Builds a DHCP packet
 --
 --@param request_type    The type of request as an integer (use the <code>request_types</code> table at the
---                       top of this file). 
---@param ip_address      Your ip address (as a dotted-decimal string). This tells the DHCP server where to 
+--                       top of this file).
+--@param ip_address      Your ip address (as a dotted-decimal string). This tells the DHCP server where to
 --                       send the response. Setting it to "255.255.255.255" or "0.0.0.0" is generally acceptable (if not,
---                       host.ip_src can work). 
+--                       host.ip_src can work).
 --@param mac_address     Your mac address (as a string up to 16 bytes) where the server will send the response. Like
---                       <code>ip_address</code>, setting to the broadcast address (FF:FF:FF:FF:FF:FF) is 
---                       common (host.mac_addr_src works). 
+--                       <code>ip_address</code>, setting to the broadcast address (FF:FF:FF:FF:FF:FF) is
+--                       common (host.mac_addr_src works).
 --@param options         [optional] A table of additional request options where each option is a table containing the
 --                       following fields:
 --                         * <code>number</code> - The option number
 --                         * <code>type</code>   - The option type ("string" or "ip")
 --                         * <code>value</code>  - The option value
---@param request_options [optional] The options to request from the server, as an array of integers. For the 
+--@param request_options [optional] The options to request from the server, as an array of integers. For the
 --                       acceptable options, see the <code>actions</code> table above or have a look at rfc2132.
 --                       Some DHCP servers (such as my Linksys WRT54g) will ignore this list and send whichever
 --                       information it wants. Default: all options marked as 'default' in the <code>actions</code>
---                       table above are requested (the typical interesting ones) if no verbosity is given. 
---                       If any level of verbosity is on, get all types. 
+--                       table above are requested (the typical interesting ones) if no verbosity is given.
+--                       If any level of verbosity is on, get all types.
 --@param overrides       [optional] A table of overrides. If a field in the table matches a field in the DHCP
 --                       packet (see rfc2131 section 2 for a list of possible fields), the value in the table
---                       will be sent instead of the default value. 
---@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second. 
+--                       will be sent instead of the default value.
+--@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second.
 --@param transaction_id  The identity of the transaction.
 --
 --@return status (true or false)
---@return The parsed response, as a table. 
+--@return The parsed response, as a table.
 function dhcp_build(request_type, ip_address, mac_address, options, request_options, overrides, lease_time, transaction_id)
 	local packet = ''
 
@@ -472,13 +472,13 @@ function dhcp_build(request_type, ip_address, mac_address, options, request_opti
 end
 
 ---Parse a DHCP packet (either a request or a response) and return the results as a table. The
--- table at the top of this function (<code>actions</code>) defines the name of each field, as 
--- laid out in rfc2132, and the function that parses it. 
+-- table at the top of this function (<code>actions</code>) defines the name of each field, as
+-- laid out in rfc2132, and the function that parses it.
 --
--- In theory, this should be able to parse any valid DHCP packet. 
+-- In theory, this should be able to parse any valid DHCP packet.
 --
---@param data The DHCP packet data. Any padding at the end of the packet will be ignored (by default, 
---            DHCP packets are padded with \x00 bytes). 
+--@param data The DHCP packet data. Any padding at the end of the packet will be ignored (by default,
+--            DHCP packets are padded with \x00 bytes).
 function dhcp_parse(data, transaction_id)
 	local pos = 1
 	local result = {}
@@ -555,7 +555,7 @@ function dhcp_parse(data, transaction_id)
 		end
 
 		-- Handle the 'Option Overload' option specially -- if it's set, it tells us to use the file and/or sname values after we
-		-- run out of data. 
+		-- run out of data.
 		if(option == 52) then
 			if(value == 1) then
 				data = data .. result['file']
@@ -573,7 +573,7 @@ function dhcp_parse(data, transaction_id)
 end
 
 ---Build and send any kind of DHCP packet, and parse the response. This is the only interface
--- to the DHCP library, and should be the only one necessary. 
+-- to the DHCP library, and should be the only one necessary.
 --
 -- All DHCP packet have the same structure, but different fields. It is therefore easy to build
 -- any of the possible request types:
@@ -591,30 +591,30 @@ end
 -- type. If you're going to build some DHCP code on your own, I recommend reading rfc2131.
 --
 --@param request_type    The type of request as an integer (use the <code>request_types</code> table at the
---                       top of this file). 
---@param ip_address      Your ip address (as a dotted-decimal string). This tells the DHCP server where to 
+--                       top of this file).
+--@param ip_address      Your ip address (as a dotted-decimal string). This tells the DHCP server where to
 --                       send the response. Setting it to "255.255.255.255" or "0.0.0.0" is generally acceptable (if not,
---                       host.ip_src can work). 
+--                       host.ip_src can work).
 --@param mac_address     Your mac address (as a string up to 16 bytes) where the server will send the response. Like
---                       <code>ip_address</code>, setting to the broadcast address (FF:FF:FF:FF:FF:FF) is 
---                       common (host.mac_addr_src works). 
+--                       <code>ip_address</code>, setting to the broadcast address (FF:FF:FF:FF:FF:FF) is
+--                       common (host.mac_addr_src works).
 --@param options         [optional] A table of additional request options where each option is a table containing the
 --                       following fields:
 --                         * <code>number</code> - The option number
 --                         * <code>type</code>   - The option type ("string" or "ip")
 --                         * <code>value</code>  - The option value
---@param request_options [optional] The options to request from the server, as an array of integers. For the 
+--@param request_options [optional] The options to request from the server, as an array of integers. For the
 --                       acceptable options, see the <code>actions</code> table above or have a look at rfc2132.
 --                       Some DHCP servers (such as my Linksys WRT54g) will ignore this list and send whichever
 --                       information it wants. Default: all options marked as 'default' in the <code>actions</code>
---                       table above are requested (the typical interesting ones) if no verbosity is given. 
---                       If any level of verbosity is on, get all types. 
+--                       table above are requested (the typical interesting ones) if no verbosity is given.
+--                       If any level of verbosity is on, get all types.
 --@param overrides       [optional] A table of overrides. If a field in the table matches a field in the DHCP
 --                       packet (see rfc2131 section 2 for a list of possible fields), the value in the table
---                       will be sent instead of the default value. 
---@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second. 
+--                       will be sent instead of the default value.
+--@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second.
 --@return status (true or false)
---@return The parsed response, as a table. 
+--@return The parsed response, as a table.
 function make_request(target, request_type, ip_address, mac_address, options, request_options, overrides, lease_time)
 	-- A unique id that identifies this particular session (and lets us filter out what we don't want to see)
 	local transaction_id = overrides and overrides['xid'] or bin.pack("<I", math.random(0, 0x7FFFFFFF))
@@ -643,7 +643,7 @@ function make_request(target, request_type, ip_address, mac_address, options, re
 	if ( not(status) ) then
 		stdnse.print_debug(1, "dhcp: Couldn't receive packet: " .. response)
 		return false, "Couldn't receive packet: "  .. response
-	end	
+	end
 
 	-- Parse the response
 	local status, parsed = dhcp_parse(response, transaction_id)

@@ -25,7 +25,7 @@ The following services are enumerated by the script:
 -- nmap --script dns-srv-enum --script-args "dns-srv-enum.domain='example.com'"
 --
 -- @output
--- | dns-srv-enum: 
+-- | dns-srv-enum:
 -- |   Active Directory Global Catalog
 -- |     service   prio  weight  host
 -- |     3268/tcp  0     100     stodc01.example.com
@@ -72,7 +72,7 @@ local function parseSvcList(services)
 	local i = 1
 	return function()
 		local svc = services[i]
-		if ( svc ) then 
+		if ( svc ) then
 			i=i + 1
 		else
 			return
@@ -151,20 +151,20 @@ action = function(host)
 		{ name = "XMPP server-to-server", query = {"_xmpp-server._tcp"} },
 		{ name = "XMPP client-to-server", query = {"_xmpp-client._tcp"} },
 	}
-	
+
 	if ( not(checkFilter(services)) ) then
 		return fail(("Invalid filter (%s) was supplied"):format(arg_filter))
 	end
 
 	local threads, result = {}, {}
 	for name, queries in parseSvcList(services) do
-		if ( not(arg_filter) or 0 == #arg_filter or 
+		if ( not(arg_filter) or 0 == #arg_filter or
 			"all" == arg_filter or arg_filter == name ) then
 			local co = stdnse.new_thread(doQuery, name, queries, result)
 			threads[co] = true
 		end
 	end
-	
+
 	local condvar = nmap.condvar(result)
 	repeat
 		for t in pairs(threads) do
@@ -174,8 +174,8 @@ action = function(host)
 			condvar "wait"
 		end
 	until( next(threads) == nil )
-	
+
 	table.sort(result, function(a,b) return a.name < b.name end)
-	
+
 	return stdnse.format_output(true, result)
 end

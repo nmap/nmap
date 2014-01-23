@@ -2,15 +2,15 @@
 -- Formula functions for various calculations.
 --
 -- The library lets scripts to use common mathematical functions to compute percentages,
--- averages, entropy, randomness and other calculations. Scripts that generate statistics 
+-- averages, entropy, randomness and other calculations. Scripts that generate statistics
 -- and metrics can also make use of this library.
 --
 -- Functions included:
 --
 -- <code>calcPwdEntropy</code> - Calculate the entropy of a password.  A random
--- password's information entropy, H, is given by the formula: H = L * (logN) / (log2), 
--- where N is the number of possible symbols and L is the number of symbols in the 
--- password. Based on https://en.wikipedia.org/wiki/Password_strength 
+-- password's information entropy, H, is given by the formula: H = L * (logN) / (log2),
+-- where N is the number of possible symbols and L is the number of symbols in the
+-- password. Based on https://en.wikipedia.org/wiki/Password_strength
 --
 -- <code>looksRandom</code> - Returns true if the value looks random.
 --

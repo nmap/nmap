@@ -31,7 +31,7 @@ For more information, see:
 --@output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-traceroute: 
+-- | http-traceroute:
 -- |   HTML title
 -- |     Hop #1: Twitter / Over capacity
 -- |     Hop #2: t.co / Twitter
@@ -120,7 +120,7 @@ local compare_responses = function(responses, method)
   end
   if titles[1] ~= titles[2] or
      titles[1] ~= titles[3] then
-     
+
      table.insert(results, 'HTML title')
      for key,response in pairs(responses) do
        table.insert(result, "Hop #" .. key .. ": " .. titles[key])
@@ -129,8 +129,8 @@ local compare_responses = function(responses, method)
   end
 
   -- Check status code
-  if responses[1].status == 502 or 
-    responses[1].status == 483 or 
+  if responses[1].status == 502 or
+    responses[1].status == 483 or
     responses[1].status ~= responses[2].status or
     responses[1].status ~= responses[3].status then
 
@@ -151,7 +151,7 @@ local compare_responses = function(responses, method)
       result = {}
       table.insert(results, header)
       for key,response in pairs(responses) do
-        if response.header[header] ~= nil then 
+        if response.header[header] ~= nil then
           table.insert(result, "Hop #" .. key .. ": " .. tostring(response.header[header]))
         else
           table.insert(result, "Hop #" .. key)
@@ -178,7 +178,7 @@ action = function(host, port)
   local method = stdnse.get_script_args(SCRIPT_NAME .. '.method') or "GET"
   local responses = {}
   local detected = "Possible reverse proxy detected."
- 
+
   for i = 0,2 do
     local response = http.generic_request(host, port, method, path, { ['header'] = { ['Max-Forwards'] = i }, ['no_cache'] = true})
     table.insert(responses, response)

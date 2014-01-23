@@ -2,7 +2,7 @@
 -- Library methods for handling JSON data. It handles JSON encoding and
 -- decoding according to RFC 4627.
 --
--- There is a test section at the bottom which shows some example 
+-- There is a test section at the bottom which shows some example
 -- parsing. If you want to parse JSON, you can test it by pasting sample JSON
 -- into the <code>TESTS</code> table and run the <code>test</code> method
 --
@@ -19,9 +19,9 @@
 -- Version 0.4
 -- Created 01/25/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Heavily modified 02/22/2010 - v0.3. Rewrote the parser into an OO-form, to not have to handle
--- all kinds of state with parameters and return values. 
--- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson 
--- and fromJson intogenerate() and parse(), implemented more proper numeric parsing and added some more error checking. 
+-- all kinds of state with parameters and return values.
+-- Modified 02/27/2010 - v0.4 Added unicode handling (written by David Fifield). Renamed toJson
+-- and fromJson intogenerate() and parse(), implemented more proper numeric parsing and added some more error checking.
 
 local bit = require "bit"
 local nmap = require "nmap"
@@ -72,7 +72,7 @@ do
 	end
 end
 
--- Escapes a string 
+-- Escapes a string
 --@param str the string
 --@return a string where the special chars have been escaped
 local function escape(str)
@@ -123,7 +123,7 @@ end
 --@return a string containing valid json
 function generate(obj)
 
-	-- NULL-check must be performed before 
+	-- NULL-check must be performed before
 	-- checking type == table, since the NULL-object
 	-- is a table
 	if obj == NULL then
@@ -177,11 +177,11 @@ end
 function Json:eatWhiteSpace()
 	--Find next non-white char
 	local a,b = self.input:find("%S",self.pos)
-	if not a then 
+	if not a then
 		self:syntaxerror("Empty data")
 		return
 	end
-	self.pos = a 
+	self.pos = a
 end
 
 -- Jumps to a specified position
@@ -206,7 +206,7 @@ end
 -- If false, triggers a syntax error
 --@param str the string to test
 function Json:assertStr(str)
-	local content = self.input:sub(self.pos,self.pos+str:len()-1) 
+	local content = self.input:sub(self.pos,self.pos+str:len()-1)
 	if(content == str) then-- All ok
 		-- Jump forward
 		self:jumpTo(self.pos+str:len())
@@ -231,9 +231,9 @@ function Json:parseStart()
 	-- of the outermost container can other types appear.
 	self:eatWhiteSpace()
 	local c = self:peek()
-	if c == '{' then 
+	if c == '{' then
 		return self:parseObject()
-	elseif c == '[' then 
+	elseif c == '[' then
 		return self:parseArray()
 	else
 		self:syntaxerror(("JSON must start with object or array (started with %s)"):format(c))
@@ -246,13 +246,13 @@ end
 function Json:parseValue()
 	self:eatWhiteSpace()
 	local c = self:peek()
-	
+
 	local value
-	if c == '{' then 
+	if c == '{' then
 		value = self:parseObject()
-	elseif c == '[' then 
+	elseif c == '[' then
 		value = self:parseArray()
-	elseif c == '"' then 
+	elseif c == '"' then
 		value = self:parseString()
 	elseif c == 'n' then
 		self:assertStr("null")
@@ -271,7 +271,7 @@ function Json:parseValue()
 			return
 		end
 		value = tonumber(self.input:sub(a,b))
-		if(value == nil) then 
+		if(value == nil) then
 			self:syntaxerror("Error 2 parsing numeric value")
 			return
 		end
@@ -285,7 +285,7 @@ function Json:parseObject()
 	local object  = {}
   	make_object(object)
 	local _= self:next() -- Eat {
-	
+
 	while(self:hasMore() and not self:errors()) do
 		self:eatWhiteSpace()
 		local c = self:peek()
@@ -293,14 +293,14 @@ function Json:parseObject()
 			self:next() -- Eat it
 			return object
 		end
-		
+
 		if(c ~= '"') then
 			self:syntaxerror(("Expected '\"', got '%s'"):format(c))
 			return
 		end
-		
+
 		local key = self:parseString()
-		if self:errors() then 
+		if self:errors() then
 			return
 		end
 		self:eatWhiteSpace()
@@ -310,18 +310,18 @@ function Json:parseObject()
 			return
 		end
 		local value = self:parseValue()
-		
-		if self:errors() then 
+
+		if self:errors() then
 			return
 		end
-		
+
 		object[key] = value
-		
+
 		self:eatWhiteSpace()
 		c = self:next()
 		-- Valid now is , or }
-		if(c == '}') then 
-			return object 
+		if(c == '}') then
+			return object
 		end
 		if(c ~= ',') then
 			self:syntaxerror("Expected ',' or '}', got "..c)
@@ -448,20 +448,20 @@ function Json:parseString()
 	assert( c == '"')
 	while(self:hasMore()) do
 		local c  = self:next()
-		
+
 		if(c == '"') then -- end of string
 			break
 		elseif(c == '\\') then-- Escaped char
 			local d = self:next()
-			if REVERSE_ESCAPE_TABLE[d] ~= nil then 
-				val = val .. REVERSE_ESCAPE_TABLE[d] 
+			if REVERSE_ESCAPE_TABLE[d] ~= nil then
+				val = val .. REVERSE_ESCAPE_TABLE[d]
 			elseif d == 'u' then -- Unicode chars
 				local codepoint = self:parseUnicodeEscape()
 				if not codepoint then
 					return
 				end
 				val = val .. utf8_enc(codepoint)
-			else 
+			else
 				self:syntaxerror(("Undefined escape character '%s'"):format(d))
 				return false
 			end
@@ -472,7 +472,7 @@ function Json:parseString()
 	return val
 end
 --- Parses json data into an object form
--- This is the method you probably want to use if you 
+-- This is the method you probably want to use if you
 -- use this library from a script.
 --@param data a json string
 --@return status true if ok, false if bad
@@ -510,7 +510,7 @@ local TESTS = {
         '{"a" bad :1}',		-- error
         '["a\\\\t"]',		-- Should become Lua {"a\\t"}
 	'[0.0.0]',	-- error
-	'[-1]',	
+	'[-1]',
 	'[-1.123e-2]',
         '[5e3]',
         '[5e+3]',
@@ -531,7 +531,7 @@ function test()
 		print(v)
 		status,res = parse(v)
 		if not status then print( res) end
-		if(status) then 
+		if(status) then
 			print(generate(res))
 		else
 			print("Error:".. res)

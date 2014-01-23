@@ -27,14 +27,14 @@ response status code.
 ---
 --@args sip-enum-users.minext Extension value to start enumeration from.
 --  Defaults to <code>0</code>.
--- 
+--
 --@args sip-enum-users.maxext Extension value to end enumeration at.
 --  Defaults to <code>999</code>.
 --
---@args sip-enum-users.padding Number of digits to pad zeroes up to. 
+--@args sip-enum-users.padding Number of digits to pad zeroes up to.
 --  Defaults to <code>0</code>. No padding if this is set to zero.
 --
---@args sip-enum-users.users If set, will also enumerate users 
+--@args sip-enum-users.users If set, will also enumerate users
 --  from <code>userslist</code> file.
 --
 --@args sip-enum-users.userslist Path to list of users.
@@ -43,13 +43,13 @@ response status code.
 --@usage
 -- nmap --script=sip-enum-users -sU -p 5060 <targets>
 --
--- nmap --script=sip-enum-users -sU -p 5060 <targets> --script-args 
+-- nmap --script=sip-enum-users -sU -p 5060 <targets> --script-args
 -- 'sip-enum-users.padding=4, sip-enum-users.minext=1000,
 -- sip-enum-users.maxext=9999'
 --
 --@output
 -- 5060/udp open sip
--- | sip-enum-users: 
+-- | sip-enum-users:
 -- |   Accounts
 -- |     101: Auth required
 -- |     120: No auth
@@ -66,7 +66,7 @@ categories = {"auth", "intrusive"}
 
 portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 
---- Function that sends register sip request with provided extension 
+--- Function that sends register sip request with provided extension
 -- using the specified session.
 -- @arg sess session to use.
 -- @arg ext Extension to send register request to.
@@ -79,7 +79,7 @@ local registerext = function(sess, ext)
     request:setUri("sip:" ..  sess.sessdata:getServer())
     sess.sessdata:setUsername(ext)
     request:setSessionData(sess.sessdata)
-    
+
     return sess:exch(request)
 end
 
@@ -147,7 +147,7 @@ local test404 = function(host, port)
     if not status then
 	return false, "ERROR: Failed to connect to the SIP server."
     end
-    
+
     status, response = registerext(session, randext)
     if  not status then
 	return false, "ERROR: No response from the SIP server."
@@ -211,21 +211,21 @@ Driver = {
 	end
     end,
 
-    disconnect = function(self) 
+    disconnect = function(self)
 	self.session:close()
 	return true
-    end,	
+    end,
 }
 
 action = function(host, port)
     local result, lthreads = {}, {}
-    local status, err 
+    local status, err
     local minext = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".minext")) or 0
     local minext = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".minext")) or 0
     local maxext = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".maxext")) or 999
     local padding = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".padding")) or 0
     local users = stdnse.get_script_args(SCRIPT_NAME .. ".users")
-    local usersfile = stdnse.get_script_args(SCRIPT_NAME .. ".userslist") 
+    local usersfile = stdnse.get_script_args(SCRIPT_NAME .. ".userslist")
 			 or "nselib/data/usernames.lst"
 
     -- min extension should be less than max extension.
@@ -261,5 +261,5 @@ action = function(host, port)
     engine.options.passonly = true
     status, result = engine:start()
 
-    return result 
+    return result
 end

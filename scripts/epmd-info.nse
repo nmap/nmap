@@ -16,7 +16,7 @@ Connects to Erlang Port Mapper Daemon (epmd) and retrieves a list of nodes with 
 -- @output
 -- PORT     STATE SERVICE
 -- 4369/tcp open  epmd
--- | epmd-info.nse: 
+-- | epmd-info.nse:
 -- |   epmd running on port 4369
 -- |   name rabbit at port 36804
 -- |_  name ejabberd at port 46540

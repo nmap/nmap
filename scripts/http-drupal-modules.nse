@@ -33,7 +33,7 @@ huge number of existing modules (~10k).
 -- Interesting ports on my.woot.blog (123.123.123.123):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-drupal-modules: 
+-- | http-drupal-modules:
 -- |   views
 -- |   token
 -- |   cck
@@ -59,14 +59,14 @@ categories = {"discovery", "intrusive"}
 
 portrule = shortport.service("http")
 
---- Attempts to find modules path 
+--- Attempts to find modules path
 --@param host nmap host table
 --@param port nmap port table
 --@param root Where to grep for the modules base path
 local get_modules_path = function(host, port, root)
   local default_path = "sites/all/modules/"
   local modules_path = stdnse.get_script_args(SCRIPT_NAME .. '.modules_path')
-  
+
   if modules_path == nil then
     -- greps response body for sign of the modules path
     local pathregex = "sites/[a-zA-Z0-9.-]*/modules/"
@@ -99,7 +99,7 @@ action = function(host, port)
   else
      modules_limit = tonumber(modules_limit)
   end
- 
+
   local modules_path = get_modules_path(host, port, root)
   --Check modules list
   local drupal_modules_list = nmap.fetchfile("nselib/data/drupal-modules.lst")
@@ -114,7 +114,7 @@ action = function(host, port)
       method = "GET"
   end
 
-  for module_name in io.lines(drupal_modules_list) do 
+  for module_name in io.lines(drupal_modules_list) do
     count = count + 1
     if modules_limit and count>modules_limit then break end
     -- add request to pipeline
@@ -130,13 +130,13 @@ action = function(host, port)
     stdnse.print_debug(1, "No answers from pipelined requests", SCRIPT_NAME)
     return nil
   end
-  
+
   for i, response in pairs(pipeline_responses) do
     -- Module exists if 200 on HEAD
     -- or contains identification string for GET
     if method == "HEAD" and response.status == 200 or
         method == "GET" and response.status == 200 and
-        string.match(response.body, identification_string) then 
+        string.match(response.body, identification_string) then
       table.insert(result, requests[i])
     end
   end

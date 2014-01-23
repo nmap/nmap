@@ -121,45 +121,45 @@ portrule = shortport.portnumber(6481, "udp", {"open", "open|filtered"})
 local get_agent, get_svctag_list, get_svctag
 
 ---
--- Sends Service Tags discovery packet to host, 
+-- Sends Service Tags discovery packet to host,
 -- and extracts service information from results
 action = function(host, port)
-    
+
     -- create the socket used for our connection
     local socket = nmap.new_socket()
-    
+
     -- set a reasonable timeout value
     socket:set_timeout(5000)
-    
+
     -- do some exception handling / cleanup
     local catch = function()
         socket:close()
     end
-    
+
     local try = nmap.new_try(catch)
-    
+
     -- connect to the potential service tags discoverer
     try(socket:connect(host.ip, port.number, "udp"))
-    
+
     local payload
-    
+
     payload = "[PROBE] ".. tostring(os.time()) .. "\r\n"
-    
+
     try(socket:send(payload))
-    
+
     local status
     local response
-    
+
     -- read in any response we might get
     response = try(socket:receive())
     socket:close()
 
     -- since we got something back, the port is definitely open
     nmap.set_port_state(host, port, "open")
-    
+
     -- buffer to hold script output
     local output = {}
-    
+
     -- We should get a response back that has contains one line for the
     -- agent URN and TCP port
     local urn, xport, split

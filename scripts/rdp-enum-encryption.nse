@@ -15,7 +15,7 @@ http://labs.mwrinfosecurity.com/tools/2009/01/12/rdp-cipher-checker/
 -- @output
 -- PORT     STATE SERVICE
 -- 3389/tcp open  ms-wbt-server
--- | rdp-enum-encryption: 
+-- | rdp-enum-encryption:
 -- |   Security layer
 -- |     CredSSP: SUCCESS
 -- |     Native RDP: SUCCESS
@@ -54,9 +54,9 @@ local function enum_protocols(host, port)
 		[4] = "INCONSISTENT_FLAGS",
 		[5] = "HYBRID_REQUIRED_BY_SERVER"
 	}
-	
+
 	local res_proto = { name = "Security layer" }
-	
+
 	for k, v in pairs(PROTOCOLS) do
 		local comm = rdp.Comm:new(host, port)
 		if ( not(comm:connect()) ) then
@@ -86,14 +86,14 @@ local function enum_protocols(host, port)
 end
 
 local function enum_ciphers(host, port)
-	
+
 	local CIPHERS = {
 		{ ["40-bit RC4"] = 1 },
 		{ ["56-bit RC4"] = 8 },
 		{ ["128-bit RC4"] = 2 },
 		{ ["FIPS 140-1"] = 16 }
 	}
-	
+
 	local ENC_LEVELS = {
 		[0] = "None",
 		[1] = "Low",
@@ -101,9 +101,9 @@ local function enum_ciphers(host, port)
 		[3] = "High",
 		[4] = "FIPS Compliant",
 	}
-	
+
 	local res_ciphers = {}
-	
+
 	local function get_ordered_ciphers()
 		local i = 0
 		return function()
@@ -114,19 +114,19 @@ local function enum_ciphers(host, port)
 			end
 		end
 	end
-	
+
 	for k, v in get_ordered_ciphers() do
 		local comm = rdp.Comm:new(host, port)
 		if ( not(comm:connect()) ) then
 			return false, "ERROR: Failed to connect to server"
 		end
-	
+
 		local cr = rdp.Request.ConnectionRequest:new()
 		local status, response = comm:exch(cr)
 		if ( not(status) ) then
 			break
 		end
-	
+
 		local msc = rdp.Request.MCSConnectInitial:new(v)
 		local status, response = comm:exch(msc)
 		comm:close()
@@ -156,7 +156,7 @@ action = function(host, port)
 	if ( not(status) ) then
 		return res_ciphers
 	end
-	
+
 	table.insert(result, res_proto)
 	table.insert(result, res_ciphers)
 	return stdnse.format_output(true, result)

@@ -13,12 +13,12 @@ include-nodes NSE argument is given) implement the DHT protocol and
 are used to track the peers. The sets of peers and nodes are not the
 same, but they usually intersect.
 
-If the <code>newtargets</code> script-arg is supplied it adds the discovered 
+If the <code>newtargets</code> script-arg is supplied it adds the discovered
 peers as targets.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap --script bittorrent-discovery --script-args newtargets,bittorrent-discovery.torrent=<torrent_file>
 --
 -- @args bittorrent-discovery.torrent a string containing the filename of the torrent file
@@ -63,7 +63,7 @@ action = function()
 	local filename = stdnse.get_script_args(SCRIPT_NAME..".torrent")
 	local magnet = stdnse.get_script_args(SCRIPT_NAME..".magnet")
 	local include_nodes = stdnse.get_script_args(SCRIPT_NAME..".include-nodes")
-	
+
 	local t = bittorrent.Torrent:new()
 	if filename then
 		t:load_from_file(filename)
@@ -72,13 +72,13 @@ action = function()
 	end
 	t:trackers_peers()
 	t:dht_peers(timeout)
-	
+
 	local output = {}
 	local peers = {}
 	peers.name = "Peers:"
 	local nodes = {}
 	nodes.name = "Nodes:"
-	
+
 	-- add peers
 	if target.ALLOW_NEW_TARGETS then
 		for peer_ip in pairs(t.peers) do
@@ -90,13 +90,13 @@ action = function()
 		end
 	else
 		for peer_ip in pairs(t.peers) do
-			table.insert(peers, peer_ip) 
+			table.insert(peers, peer_ip)
 		end
 		if #peers>0 then
 			table.insert(peers, "Total of "..#peers.." peers discovered")
 		end
 	end
-	
+
 	-- add nodes
 	if target.ALLOW_NEW_TARGETS and include_nodes then
 		for node_ip in pairs(t.nodes) do
@@ -114,10 +114,10 @@ action = function()
 			table.insert(nodes, "Total of "..#nodes.." nodes discovered")
 		end
 	end
-	
+
 	local print_out = false
 
-	if #peers > 0 then 
+	if #peers > 0 then
 		table.insert(output, peers)
 		print_out = true
 	end
@@ -126,7 +126,7 @@ action = function()
 		table.insert(output, nodes)
 		print_out = true
 	end
-	
+
 	if print_out and not target.ALLOW_NEW_TARGETS then
 		table.insert(output,"Use the newtargets script-arg to add the results as targets")
 	end

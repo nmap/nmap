@@ -13,7 +13,7 @@ Retrieves the external IP address of a NAT:ed host using the STUN protocol.
 -- @output
 -- PORT     STATE         SERVICE
 -- 3478/udp open|filtered stun
--- | stun-info: 
+-- | stun-info:
 -- |_  External IP: 80.216.42.106
 --
 
@@ -32,7 +32,7 @@ action = function(host, port)
 	if ( not(status) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	local status, result = helper:getExternalAddress()
 	if ( not(status) ) then
 		return fail("Failed to retrieve external IP")
@@ -41,7 +41,7 @@ action = function(host, port)
 	port.version.name = "stun"
 	nmap.set_port_state(host, port, "open")
 	nmap.set_port_version(host, port)
-    
+
 	if ( result ) then
 		return "\n  External IP: " .. result
 	end

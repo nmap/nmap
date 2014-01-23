@@ -29,26 +29,26 @@ tagEncoder['table'] = function(self, val)
 		local oidStr = string.char(val[1]*40 + val[2])
 		for i = 3, #val do
    			oidStr = oidStr .. self.encode_oid_component(val[i])
-		end 
-		return bin.pack("HAA", '06', self.encodeLength(#oidStr), oidStr) 
+		end
+		return bin.pack("HAA", '06', self.encodeLength(#oidStr), oidStr)
 
  	elseif (val._snmp == '40') then -- ipAddress
 		return bin.pack("HC4", '40 04', table.unpack(val))
- 	
+
     -- counter or gauge or timeticks or opaque
 	elseif (val._snmp == '41' or val._snmp == '42' or val._snmp == '43' or val._snmp == '44') then
 		local val = self:encodeInt(val[1])
 		return bin.pack("HAA", val._snmp, self.encodeLength(#val), val)
 	end
-	
+
 	local encVal = ""
 	for _, v in ipairs(val) do
 		encVal = encVal .. self:encode(v) -- todo: buffer?
 	end
 
 	local tableType = bin.pack("H", "30")
-	if (val["_snmp"]) then 
-		tableType = bin.pack("H", val["_snmp"]) 
+	if (val["_snmp"]) then
+		tableType = bin.pack("H", val["_snmp"])
 	end
 	return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
 end
@@ -62,14 +62,14 @@ function encode(val)
 	local vtype = type(val)
 	local encoder = asn1.ASN1Encoder:new()
 	encoder:registerTagEncoders( tagEncoder )
-   	
+
 
 	local encVal = encoder:encode(val)
-		
+
 	if encVal then
 		return encVal
 	end
-	
+
 	return ''
 end
 
@@ -84,7 +84,7 @@ local tagDecoder = {}
 -- TOOD: Figure out how to remove these dependancies
 tagDecoder["A2"] = function( self, encStr, elen, pos )
    local seq = {}
- 
+
    pos, seq = self:decodeSeq(encStr, elen, pos)
    seq._snmp = "A2"
    return pos, seq
@@ -106,7 +106,7 @@ end
 -- @return The decoded value(s).
 function decode(encStr, pos)
 	local decoder = asn1.ASN1Decoder:new()
-	
+
 	if ( #tagDecoder == 0 ) then
 		decoder:registerBaseDecoders()
 		-- Application specific tags
@@ -129,8 +129,8 @@ function decode(encStr, pos)
 		tagDecoder["A6"] = decoder.decoder["30"]  -- InformRequest-PDU (not implemented here yet)
 		tagDecoder["A7"] = decoder.decoder["30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
 	end
-	
-	
+
+
 	decoder:registerTagDecoders( tagDecoder )
 
    return decoder:decode( encStr, pos )
@@ -170,7 +170,7 @@ function buildPacket(PDU, version, commStr)
 end
 
 
---- 
+---
 -- Create an SNMP Get Request PDU.
 -- @param options A table containing the following fields:
 -- * <code>"reqId"</code>: Request ID.
@@ -190,7 +190,7 @@ function buildGetRequest(options, ...)
    req[1] = options.reqId
    req[2] = options.err
    req[3] = options.errIdx
-   
+
    local payload = {}
    for i=1, select('#', ...) do
       payload[i] = {}
@@ -205,7 +205,7 @@ function buildGetRequest(options, ...)
 end
 
 
---- 
+---
 -- Create an SNMP Get Next Request PDU.
 -- @param options A table containing the following fields:
 -- * <code>"reqId"</code>: Request ID.
@@ -225,7 +225,7 @@ function buildGetNextRequest(options, ...)
    req[1] = options.reqId
    req[2] = options.err
    req[3] = options.errIdx
-   
+
    local payload = {}
    for i=1, select('#', ...) do
       payload[i] = {}
@@ -239,7 +239,7 @@ function buildGetNextRequest(options, ...)
    return req
 end
 
---- 
+---
 -- Create an SNMP Set Request PDU.
 --
 -- Takes one OID/value pair or an already prepared table.
@@ -266,7 +266,7 @@ function buildSetRequest(options, oid, value)
 
    if (type(value) == "table") then
       req[4] = value
-   else 
+   else
       local payload = {}
       if (type(oid) == "string") then
 	 payload[1] = str2oid(oid)
@@ -280,13 +280,13 @@ function buildSetRequest(options, oid, value)
    return req
 end
 
---- 
+---
 -- Create an SNMP Trap PDU.
 -- @return Table representing PDU
 function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
    local req = {}
    req._snmp = 'A4'
-   if (type(enterpriseOid) == "string") then 
+   if (type(enterpriseOid) == "string") then
       req[1] = str2oid(enterpriseOid)
    else
       req[1] = enterpriseOid
@@ -308,7 +308,7 @@ function buildTrap(enterpriseOid, agentIp, genTrap, specTrap, timeStamp)
    return req
 end
 
---- 
+---
 -- Create an SNMP Get Response PDU.
 --
 -- Takes one OID/value pair or an already prepared table.
@@ -319,7 +319,7 @@ end
 -- @param oid Object identifiers of object to be sent back.
 -- @param value If given a table, use the table instead of OID/value pair.
 -- @return Table representing PDU.
-function buildGetResponse(options, oid, value) 
+function buildGetResponse(options, oid, value)
    if not options then options = {} end
 
    -- if really a response, should use reqId of request!
@@ -335,7 +335,7 @@ function buildGetResponse(options, oid, value)
 
    if (type(value) == "table") then
       resp[4] = value
-   else 
+   else
 
       local payload = {}
       if (type(oid) == "string") then
@@ -350,7 +350,7 @@ function buildGetResponse(options, oid, value)
    return resp
 end
 
---- 
+---
 -- Transforms a string into an object identifier table.
 -- @param oidStr Object identifier as string, for example
 -- <code>"1.3.6.1.2.1.1.1.0"</code>.
@@ -407,7 +407,7 @@ function fetchResponseValues(resp)
       _, resp = decode(resp)
    end
 
-   if (type(resp) ~= "table") then 
+   if (type(resp) ~= "table") then
       return {}
    end
 
@@ -452,7 +452,7 @@ function fetchFirst(response)
 
 	if type(result) == "table" and result[1] and result[1][1] then
 		return result[1][1]
-   	else 
+  else
 		return nil
 	end
 end
@@ -465,13 +465,13 @@ end
 -- @return status true on success, false on failure
 -- @return table containing <code>oid</code> and <code>value</code>
 function snmpWalk( socket, base_oid )
-	
+
 	local snmp_table = {}
 	local oid = base_oid
 	local status, err, payload
-	
+
 	while ( true ) do
-		
+
 		local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
 		payload = encode( buildPacket( buildGetNextRequest(options, oid) ) )
 
@@ -480,8 +480,8 @@ function snmpWalk( socket, base_oid )
 			stdnse.print_debug("snmp.snmpWalk: Send failed")
 			return false, err
 		end
-		
-		status, response = socket:receive_bytes(1) 
+
+		status, response = socket:receive_bytes(1)
 		if ( not( status ) ) then
 			-- Unless we don't have a usefull error message, don't report it
 			if ( response ~= "ERROR" ) then
@@ -490,27 +490,27 @@ function snmpWalk( socket, base_oid )
 			end
 			return false, nil
 		end
-	
+
 		snmpdata = fetchResponseValues( response )
-		
+
 		value = snmpdata[1][1]
 		oid  = snmpdata[1][2]
-		
+
 		if not oid:match( base_oid ) or base_oid == oid then
 			break
 		end
-		
+
 		item.oid = oid
 		item.value = value
-		
+
 		table.insert( snmp_table, item )
-		
+
 	end
 
 	snmp_table.baseoid = base_oid
 
 	return true, snmp_table
-	
+
 end
 
 return _ENV;

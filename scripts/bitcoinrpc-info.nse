@@ -17,7 +17,7 @@ Obtains information from a Bitcoin server by calling <code>getinfo</code> on its
 -- @args creds.global http credentials used for the query (user:pass)
 -- @output
 -- 8332/tcp open  unknown
--- | bitcoinrpc-info.nse: 
+-- | bitcoinrpc-info.nse:
 -- |   USER: root
 -- |     connections: 36
 -- |     hashespersec: 0

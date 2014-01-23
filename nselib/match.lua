@@ -11,12 +11,12 @@ _ENV = stdnse.module("match", stdnse.seeall)
 
 --various functions for use with nse's nsock:receive_buf - function
 
--- e.g. 
+-- e.g.
 -- sock:receive_buf(regex("myregexpattern")) - does a match using pcre- regular-
 --                                           - expressions
--- sock:receive_buf(numbytes(80)) - is the buffered version of 
+-- sock:receive_buf(numbytes(80)) - is the buffered version of
 --                                  sock:receive_bytes(80) - i.e. it returns
---                                  exactly 80 bytes and no more 
+--                                  exactly 80 bytes and no more
 
 --- Return a function that allows delimiting with a regular expression.
 --
@@ -41,7 +41,7 @@ end
 -- This function can be used to get a buffered version of
 -- <code>sock:receive_bytes(n)</code> in case a script requires more than one
 -- fixed-size chunk, as the unbuffered version may return more bytes than
--- requested and thus would require you to do the parsing on your own. 
+-- requested and thus would require you to do the parsing on your own.
 -- @param num Number of bytes.
 -- @usage sock:receive_buf(match.numbytes(80))
 -- @see nmap.receive_buf

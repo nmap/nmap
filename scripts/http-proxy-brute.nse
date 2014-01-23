@@ -16,7 +16,7 @@ Performs brute force password guessing against HTTP proxy servers.
 -- @output
 -- PORT     STATE SERVICE
 -- 8080/tcp open  http-proxy
--- | http-proxy-brute: 
+-- | http-proxy-brute:
 -- |   Accounts
 -- |     patrik:12345 - Valid credentials
 -- |   Statistics
@@ -41,35 +41,35 @@ local arg_url 		= stdnse.get_script_args(SCRIPT_NAME .. '.url') or 'http://scanm
 local arg_method	= stdnse.get_script_args(SCRIPT_NAME .. '.method') or "HEAD"
 
 Driver = {
-	
+
 	new = function(self, host, port)
 		local o = { host = host, port = port }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function( self )
 		return true
 	end,
-	
+
 	login = function( self, username, password )
 
 		-- the http library does not yet support proxy authentication, so let's
 		-- do what's necessary here.
 	    local header = { ["Proxy-Authorization"] = "Basic " .. base64.enc(username .. ":" .. password) }
 		local response = http.generic_request(self.host, self.port, arg_method, arg_url, { header = header, bypass_cache = true } )
-		
+
 		-- if we didn't get a 407 error, assume the credentials
 		-- were correct. we should probably do some more checks here
 		if ( response.status ~= 407 ) then
 			return true, brute.Account:new( username, password, creds.State.VALID)
 		end
-		
+
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
-	disconnect = function( self ) 
+
+	disconnect = function( self )
 		return true
 	end,
 }
@@ -88,9 +88,9 @@ local function checkProxy(host, port, url)
 	if ( not(proxy_auth) ) then
 		return false, "No proxy authentication header was found"
 	end
-	
+
 	local challenges = http.parse_www_authenticate(proxy_auth)
-	
+
 	for _, challenge in ipairs(challenges) do
 		if ( "Basic" == challenge.scheme ) then
 			return true

@@ -10,7 +10,7 @@ local tls = require "tls"
 description = [[
 Enumerates a TLS server's supported protocols by using the next protocol negotiation extension.
 
-This works by adding the next protocol negotiation extension in the client hello 
+This works by adding the next protocol negotiation extension in the client hello
 packet and parsing the returned server hello's NPN extension data.
 
 For more information , see:
@@ -23,7 +23,7 @@ For more information , see:
 --
 --@output
 -- 443/tcp open  https
--- | tls-nextprotoneg: 
+-- | tls-nextprotoneg:
 -- |   spdy/3
 -- |   spdy/2
 -- |_  http/1.1

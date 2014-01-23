@@ -19,7 +19,7 @@ References:
 -- @usage
 -- nmap -p80 --script http-litespeed-sourcecode-download --script-args http-litespeed-sourcecode-download.uri=/phpinfo.php <host>
 -- nmap -p8088 --script http-litespeed-sourcecode-download <host>
--- 
+--
 -- @output
 -- PORT     STATE SERVICE    REASON
 -- 8088/tcp open  radan-http syn-ack
@@ -55,7 +55,7 @@ action = function(host, port)
         output[#output+1] = "Request with null byte did not work. This web server might not be vulnerable"
       elseif req.status == 404 and nmap.verbosity() >= 2 then
         output[#output+1] = string.format("Page: %s was not found. Try with an existing file.", rfile)
-      end 
+      end
       stdnse.print_debug(2, "%s:Request status:%s body:%s", SCRIPT_NAME, req.status, req.body)
     else
       output[#output+1] = "\nLitespeed Web Server Source Code Disclosure (CVE-2010-2333)"
@@ -65,6 +65,6 @@ action = function(host, port)
   end
 
   if #output>0 then
-    return stdnse.strjoin("\n", output) 
+    return stdnse.strjoin("\n", output)
   end
 end

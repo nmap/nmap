@@ -15,7 +15,7 @@ Discovers targets that have IGMP Multicast memberships and grabs interesting inf
 The scripts works by sending IGMP Membership Query message to the 224.0.0.1 All
 Hosts multicast address and listening for IGMP Membership Report messages. The
 script then extracts all the interesting information from the report messages
-such as the version, group, mode, source addresses (depending on the version).  
+such as the version, group, mode, source addresses (depending on the version).
 
 The script defaults to sending an IGMPv2 Query but this could be changed to
 another version (version 1 or 3) or to sending queries of all three version. If
@@ -43,7 +43,7 @@ interfaces.
 --
 --@output
 --Pre-scan script results:
--- | broadcast-igmp-discovery: 
+-- | broadcast-igmp-discovery:
 -- |   192.168.2.2
 -- |     Interface: tap0
 -- |     Version: 3
@@ -71,9 +71,9 @@ interfaces.
 -- |_  Use the newtargets script-arg to add the results as targets
 --
 
--- 
+--
 -- The Multicast Group names DB can be created by the following script:
--- 
+--
 -- #!/usr/bin/awk -f
 -- BEGIN { FS="<|>"; }
 -- /<record/ { r=1; addr1=""; addr2=""; rfc=""; }
@@ -226,7 +226,7 @@ local igmpRaw = function(interface, version)
 
     if version == 3 then
 	-- Reserved = 4 bits (Should be zeroed)
-	-- Supress Flag = 1 bit 
+	-- Supress Flag = 1 bit
 	-- QRV (Querier's Robustness Variable) = 3 bits
 	-- all are set to 0
 	igmp_raw = igmp_raw .. bin.pack(">C", 0x00)
@@ -270,7 +270,7 @@ igmpQuery = function(interface, version)
 
 	local sock = nmap.new_dnet()
 	sock:ethernet_open(interface.device)
-	 
+
 	-- Ethernet IPv4 multicast, our ethernet address and type IP
 	local eth_hdr = bin.pack("HAH", "01 00 5e 00 00 01", interface.mac, "08 00")
 	sock:ethernet_send(eth_hdr .. igmp_packet.buf)
@@ -346,7 +346,7 @@ action = function(host, port)
 	local ifacelist = nmap.list_interfaces()
 	for _, iface in ipairs(ifacelist) do
 	    -- Match all ethernet interfaces
-	    if iface.address and iface.link=="ethernet" and 
+	    if iface.address and iface.link=="ethernet" and
 		iface.address:match("%d+%.%d+%.%d+%.%d+") then
 
 		stdnse.print_debug("%s: Will use %s interface.", SCRIPT_NAME, iface.shortname)
@@ -414,7 +414,7 @@ action = function(host, port)
 			sourcetable = {}
 			sourcetable.name = "Sources:"
 			table.insert(sourcetable, group.src)
-			table.insert(grouptable, sourcetable) 
+			table.insert(grouptable, sourcetable)
 		    end
 		    table.insert(result, grouptable)
 		end

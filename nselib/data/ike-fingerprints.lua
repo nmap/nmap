@@ -147,7 +147,7 @@ table.insert(fingerprints, {
 	fingerprint = '^f4ed19e0c114eb516faaac0ee37daf2807b4381f000000010000138d........00000000........'
 });
 
--- Catch all Checkpoint 
+-- Catch all Checkpoint
 table.insert(fingerprints, {
 	category = 'vendor',
 	vendor = 'Checkpoint VPN-1 / Firewall-1',
@@ -161,7 +161,7 @@ table.insert(fingerprints, {
 
 
 --------------------------------------------------------------------------------
--- Cisco 
+-- Cisco
 --------------------------------------------------------------------------------
 table.insert(fingerprints, {
 	category = 'vendor',
@@ -226,7 +226,7 @@ table.insert(fingerprints, {
 
 
 --------------------------------------------------------------------------------
--- Fortinet 
+-- Fortinet
 --------------------------------------------------------------------------------
 table.insert(fingerprints, {
 	category = 'vendor',
@@ -241,7 +241,7 @@ table.insert(fingerprints, {
 
 
 --------------------------------------------------------------------------------
--- FreeS/WAN 
+-- FreeS/WAN
 --------------------------------------------------------------------------------
 table.insert(fingerprints, {
 	category = 'vendor',
@@ -521,7 +521,7 @@ table.insert(fingerprints, {
 	version = nil,
 	ostype = nil,
 	devicetype = nil,
-	cpe = nil, 
+	cpe = nil,
 	fingerprint = '^7003cbc1097dbe9c2600ba6983bc8b35'
 });
 
@@ -553,7 +553,7 @@ table.insert(fingerprints, {
 
 
 --------------------------------------------------------------------------------
--- Microsoft 
+-- Microsoft
 -- http://msdn.microsoft.com/en-us/library/cc233476.aspx
 --------------------------------------------------------------------------------
 table.insert(fingerprints, {
@@ -659,7 +659,7 @@ table.insert(fingerprints, {
 
 
 --------------------------------------------------------------------------------
--- Nortel Contivity / Nortel VPN router 
+-- Nortel Contivity / Nortel VPN router
 -- The last byte might be a version ?
 -- From ike-scan:
 --- 00000004, 00000005, 00000007, 00000009, 0000000a
@@ -692,7 +692,7 @@ table.insert(fingerprints, {
 
 
 --------------------------------------------------------------------------------
--- Openswan 
+-- Openswan
 --------------------------------------------------------------------------------
 table.insert(fingerprints, {
 	category = 'vendor',
@@ -791,7 +791,7 @@ table.insert(fingerprints, {
 	ostype = nil,
 	devicetype = nil,
 	cpe = nil,
-	fingerprint = '^5b362bc820f60007' -- (Maybe NSA?, SonicOS Enhanced 4.2?) 
+	fingerprint = '^5b362bc820f60007' -- (Maybe NSA?, SonicOS Enhanced 4.2?)
 });
 
 table.insert(fingerprints, {
@@ -1879,7 +1879,7 @@ table.insert(fingerprints, {
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 -- Attribute: Misc fingerprints
--- 		not directly usable for fingerprinting 
+-- 		not directly usable for fingerprinting
 -- 		but can be used for guessing
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
@@ -2348,7 +2348,7 @@ table.insert(fingerprints, {
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
--- vid_order: 
+-- vid_order:
 --		By examining the ordering of the VIDs, some assumptions can be made
 --		Currently only has support for Cisco
 
@@ -2419,7 +2419,7 @@ table.insert(fingerprints, {
 				-- Cisco Unity, XAUTH, IKE Fragmentation, Cisco VPN Concentrator
 });
 
---[[ Probably too  
+--[[ Probably too
 table.insert(fingerprints, {
 	category = 'vid_ordering',
 	vendor = 'Cisco',
@@ -2436,11 +2436,11 @@ table.insert(fingerprints, {
 
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
--- header_ordering: 
+-- header_ordering:
 --		For possible future use
 
 --- Cisco
---   1: SA, VID, VID, VID, VID, KeyExchange, ID, Nonce, Hash 
+--   1: SA, VID, VID, VID, VID, KeyExchange, ID, Nonce, Hash
 --   2: SA, KeyExchange, Nonce, ID, Hash, VID, VID, VID, VID, VID, VID
 --   3: SA, KeyExchange, Nonce, ID, Hash, VID, VID, VID, VID, VID
 

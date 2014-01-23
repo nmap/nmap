@@ -19,7 +19,7 @@ References:
 --
 -- @output
 -- Host script results:
--- | http-vuln-cve2011-3192: 
+-- | http-vuln-cve2011-3192:
 -- |   VULNERABLE:
 -- |   Apache byterange filter DoS
 -- |     State: VULNERABLE

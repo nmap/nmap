@@ -41,14 +41,14 @@ categories = {"vuln", "intrusive"}
 portrule = shortport.http
 
 ---Enumeration for results
-local enum_results = 
+local enum_results =
 {
 	VULNERABLE = 1,
 	NOT_VULNERABLE = 2,
 	UNKNOWN = 3
 }
 
----Sends a PROPFIND request to the given host, and for the given folder. Returns a table reprenting a response. 
+---Sends a PROPFIND request to the given host, and for the given folder. Returns a table reprenting a response.
 local function get_response(host, port, folder)
 	local webdav_req = '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/><getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/><checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>'
 
@@ -65,7 +65,7 @@ local function get_response(host, port, folder)
 	return http.generic_request(host, port, "PROPFIND", folder, options)
 end
 
----Check a single folder on a single host for the vulnerability. Returns one of the enum_results codes. 
+---Check a single folder on a single host for the vulnerability. Returns one of the enum_results codes.
 local function go_single(host, port, folder)
 	local response
 
@@ -100,7 +100,7 @@ local function go_single(host, port, folder)
 	end
 end
 
----Checks a list of possible folders for the vulnerability. Returns a list of vulnerable folders. 
+---Checks a list of possible folders for the vulnerability. Returns a list of vulnerable folders.
 local function go(host, port)
 	local status, folder
 	local results = {}
@@ -150,7 +150,7 @@ action = function(host, port)
 	-- Start by checking if '/' is protected -- if it is, we can't do the tests
 	local result = go_single(host, port, "/")
 	if(result == enum_results.NOT_VULNERABLE) then
-		stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is password protected, aborting.")			
+		stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is password protected, aborting.")
 		return nmap.verbosity() > 0 and "Could not determine vulnerability, since root folder is password protected" or nil
 	end
 
@@ -190,10 +190,10 @@ action = function(host, port)
 		else
 			return nmap.verbosity() > 0 and string.format("WebDAV is ENABLED. Could not determine vulnerability of folder: %s", folder) or nil
 		end
-		
+
 	else
 		local status, results, is_vulnerable = go(host, port)
-	
+
 	    if(status == false) then
 			return nmap.verbosity() > 0 and "ERROR: " .. results or nil
 		else

@@ -73,7 +73,7 @@ end
 -- <code>"smtp"</code>, or <code>"ftp"</code>. These service names are
 -- determined by Nmap's version scan or (if no version scan information is
 -- available) the service assigned to the port in <code>nmap-services</code>
--- (e.g. <code>"http"</code> for TCP port 80). 
+-- (e.g. <code>"http"</code> for TCP port 80).
 -- @param services Service name or a list of names to run against.
 -- @param protos The protocol or list of protocols to match against, default
 -- <code>"tcp"</code>.
@@ -110,7 +110,7 @@ end
 -- a list of values as in those functions. This function exists because many
 -- scripts explicitly try to run against the well-known ports, but want also to
 -- run against any other port which was discovered to run the named service.
--- @usage portrule = shortport.port_or_service(22,"ssh"). 
+-- @usage portrule = shortport.port_or_service(22,"ssh").
 -- @param ports A single port number or a list of port numbers.
 -- @param services Service name or a list of names to run against.
 -- @param protos The protocol or list of protocols to match against, default

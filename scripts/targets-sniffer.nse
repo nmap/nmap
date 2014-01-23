@@ -49,8 +49,8 @@ local function check_if_valid(address)
   local broadcast = interface_info.broadcast
   local local_address = interface_info.address
 
-  if address == local_address 
-    or address == broadcast or address == "255.255.255.255" 
+  if address == local_address
+    or address == broadcast or address == "255.255.255.255"
     or address:match('^ff') --IPv6 Multicast addrs
     then
     return false

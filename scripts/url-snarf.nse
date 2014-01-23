@@ -21,7 +21,7 @@ ctrl+break is issued, by setting the timeout to 0.
 -- nmap --script url-snarf -e <interface>
 --
 -- @output
--- | url-snarf: 
+-- | url-snarf:
 -- |_  Sniffed 169 URLs in 5 seconds
 --
 -- @args url-snarf.timeout runs the script until the timeout is reached.
@@ -67,7 +67,7 @@ local function get_url(data)
 	parsed.path = headers[1]:match("^[^s%s]+ ([^%s]*) HTTP/1%.%d$")
 	if ( not(parsed.path) ) then
 		return
-	end	
+	end
 	for _, v in ipairs(headers) do
 		parsed.host, parsed.port = v:match("^Host: (.*):?(%d?)$")
 		if ( parsed.host ) then
@@ -102,7 +102,7 @@ end
 
 action = function()
 	local counter = 0
-	
+
 	if ( arg_outfile ) then
 		local outfd = io.open(arg_outfile, "a")
 		if ( not(outfd) ) then
@@ -110,7 +110,7 @@ action = function()
 		end
 		outfd:close()
 	end
-		
+
 	local socket = nmap.new_socket()
 	socket:set_timeout(1000)
 	socket:pcap_open(arg_iface, 1500, true, "tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) != 0)")

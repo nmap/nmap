@@ -12,7 +12,7 @@ Discovers Versant object databases using the broadcast srvloc protocol.
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-versant-locate: 
+-- | broadcast-versant-locate:
 -- |_  vod://192.168.200.222:5019
 --
 
@@ -28,10 +28,10 @@ action = function()
 	local helper = srvloc.Helper:new()
 	local status, result = helper:ServiceRequest("service:odbms.versant:vod", "default")
 	helper:close()
-	
+
 	if ( not(status) ) then return end
 	local output = {}
-	for _, v in ipairs(result) do		
+	for _, v in ipairs(result) do
 		table.insert(output, v:match("^service:odbms.versant:vod://(.*)$"))
 	end
 	return stdnse.format_output(true, output)

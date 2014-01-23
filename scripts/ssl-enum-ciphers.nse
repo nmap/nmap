@@ -227,7 +227,7 @@ local function find_ciphers(host, port, protocol)
       }
 
       record = try_params(host, port, t)
-    
+
       if record == nil then
         if protocol_worked then
           stdnse.print_debug(2, "%d ciphers rejected. (No handshake)", #group)
@@ -281,7 +281,7 @@ local function find_compressors(host, port, protocol, good_cipher)
 
     -- Try connecting with compressor.
     record = try_params(host, port, t)
-  
+
     if record == nil then
       if protocol_worked then
         stdnse.print_debug(2, "%d compressors rejected. (No handshake)", #compressors)
@@ -328,7 +328,7 @@ local function try_protocol(host, port, protocol, upresults)
     condvar "signal"
     return nil
   end
-  
+
   if #ciphers == 0 then
     results = {ciphers={},compressors={}}
     setmetatable(results,{

@@ -66,7 +66,7 @@ action = function(host, port)
 
 	owner = try(client_ident:receive_lines(1))
 
-	if string.match(owner, "ERROR") then 
+	if string.match(owner, "ERROR") then
 		owner = nil
 	else
 		owner = string.match(owner,

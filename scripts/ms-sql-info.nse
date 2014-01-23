@@ -12,7 +12,7 @@ description = [[
 Attempts to determine configuration and version information for Microsoft SQL
 Server instances.
 
-SQL Server credentials required: No (will not benefit from 
+SQL Server credentials required: No (will not benefit from
 <code>mssql.username</code> & <code>mssql.password</code>).
 Run criteria:
 * Host script: Will always run.
@@ -27,10 +27,10 @@ The script uses two means of getting version information for SQL Server instance
 * Querying the SQL Server Browser service, which runs by default on UDP port
 1434 on servers that have SQL Server 2000 or later installed. However, this
 service may be disabled without affecting the functionality of the instances.
-Additionally, it provides imprecise version information. 
+Additionally, it provides imprecise version information.
 * Sending a probe to the instance, causing the instance to respond with
 information including the exact version number. This is the same method that
-Nmap uses for service versioning; however, this script can also do the same for 
+Nmap uses for service versioning; however, this script can also do the same for
 instances accessiable via Windows named pipes, and can target all of the
 instances listed by the SQL Server Browser service.
 
@@ -122,7 +122,7 @@ hostrule = function(host)
 		local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} )
 		-- smb.get_port() will return nil if no SMB port was scanned OR if SMB ports were scanned but none was open
 		local smbPortNumber = smb.get_port( host )
-		
+
 		if ( (stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) ~= nil) or
 				(sqlBrowserPort and (sqlBrowserPort.state == "open" or sqlBrowserPort.state == "open|filtered")) or
 				(sqlDefaultPort and (sqlDefaultPort.state == "open" or sqlDefaultPort.state == "open|filtered")) or
@@ -134,16 +134,16 @@ end
 
 
 --- Adds a label and value to an output table. If the value is a boolean, it is
---  converted to Yes/No; if the value is nil, nothing is added to the table. 
+--  converted to Yes/No; if the value is nil, nothing is added to the table.
 local function add_to_output_table( outputTable, outputLabel, outputData )
 	if outputData == nil then return end
-	
+
 	if outputData == true then
 		outputData = "Yes"
 	elseif outputData == false then
 		outputData = "No"
 	end
-	
+
 	table.insert(outputTable, string.format( "%s: %s", outputLabel, outputData ) )
 end
 
@@ -151,7 +151,7 @@ end
 --- Returns formatted output for the given version data
 local function create_version_output_table( versionInfo )
 	local versionOutput = {}
-	
+
 	versionOutput["name"] = "Version: " .. versionInfo:ToString()
 	if ( versionInfo.source ~= "SSRP" ) then
 		add_to_output_table( versionOutput, "Version number", versionInfo.versionNumber )
@@ -159,7 +159,7 @@ local function create_version_output_table( versionInfo )
 	add_to_output_table( versionOutput, "Product", versionInfo.productName )
 	add_to_output_table( versionOutput, "Service pack level", versionInfo.servicePackLevel )
 	add_to_output_table( versionOutput, "Post-SP patches applied", versionInfo.patched )
-	
+
 	return versionOutput
 end
 
@@ -173,7 +173,7 @@ local function create_instance_output_table( instance )
 
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	
+
 	add_to_output_table( instanceOutput, "Instance name", instance.instanceName )
 	if instance.version then
 		local versionOutput = create_version_output_table( instance.version )
@@ -190,10 +190,10 @@ end
 
 --- Processes a single instance, attempting to determine its version, etc.
 local function process_instance( instance )
-	
+
 	local foundVersion = false
 	local ssnetlibVersion
-	
+
 	-- If possible and allowed (see 'mssql.scanned-ports-only' argument), we'll
 	-- connect to the instance to get an accurate version number
 	if ( instance:HasNetworkProtocols() ) then
@@ -206,7 +206,7 @@ local function process_instance( instance )
 			stdnse.print_debug( 1, "%s: Could not retrieve SSNetLib version for %s.", SCRIPT_NAME, instance:GetName() )
 		end
 	end
-	
+
 	-- If we didn't get a version from SSNetLib, give the user some detail as to why
 	if ( not foundVersion ) then
 		if ( not instance:HasNetworkProtocols() ) then
@@ -218,7 +218,7 @@ local function process_instance( instance )
 			stdnse.print_debug( 1, "%s: Version info could not be retrieved for %s.", SCRIPT_NAME, instance:GetName() )
 		end
 	end
-	
+
 	-- Give some version info back to Nmap
 	if ( instance.port and instance.version ) then
 		instance.version:PopulateNmapPortVersion( instance.port )
@@ -230,7 +230,7 @@ end
 
 action = function( host )
 	local scriptOutput = {}
-	
+
 	local status, instanceList = mssql.Helper.GetTargetInstances( host )
 	-- if no instances were targeted, then display info on all
 	if ( not status ) then
@@ -239,8 +239,8 @@ action = function( host )
 		end
 		instanceList = mssql.Helper.GetDiscoveredInstances( host )
 	end
-	
-	
+
+
 	if ( not instanceList ) then
 		return stdnse.format_output( false, instanceList or "" )
 	else
@@ -258,7 +258,7 @@ action = function( host )
 			end
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end
 

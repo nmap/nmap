@@ -29,7 +29,7 @@ References:
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | ftp-vsftpd-backdoor: 
+-- | ftp-vsftpd-backdoor:
 -- |   VULNERABLE:
 -- |   vsFTPd version 2.3.4 backdoor
 -- |     State: VULNERABLE (Exploitable)
@@ -81,7 +81,7 @@ end
 local function check_backdoor(host, shell_cmd, vuln)
   local socket = nmap.new_socket("tcp")
   socket:set_timeout(10000)
-  
+
   local status, ret = socket:connect(host, 6200, "tcp")
   if not status then
     stdnse.print_debug(3, "%s: can't connect to tcp port 6200: NOT VULNERABLE",
@@ -124,7 +124,7 @@ local function check_backdoor(host, shell_cmd, vuln)
       socket:send("exit\n");
     end
   end
- 
+
   vuln.state = vulns.STATE.EXPLOIT
   table.insert(vuln.exploit_results,
       string.format("Shell command: %s", shell_cmd))
@@ -132,7 +132,7 @@ local function check_backdoor(host, shell_cmd, vuln)
   table.insert(vuln.exploit_results,
       string.format("Results: %s", result))
 
-  return finish_ftp(socket, true) 
+  return finish_ftp(socket, true)
 end
 
 action = function(host, port)

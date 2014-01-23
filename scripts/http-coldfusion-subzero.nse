@@ -7,11 +7,11 @@ This was based on the exploit 'ColdSub-Zero.pyFusion v2'.
 ---
 -- @usage nmap -sV --script http-coldfusion-subzero <target>
 -- @usage nmap -p80 --script http-coldfusion-subzero --script-args basepath=/cf/ <target>
--- 
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-coldfusion-subzero: 
+-- | http-coldfusion-subzero:
 -- |   absolute_path: C:\inetpub\wwwroot\CFIDE\adminapi\customtags
 -- |   version: 9
 -- |   password_properties: #Fri Mar 02 17:03:01 CST 2012
@@ -91,7 +91,7 @@ local function get_version(host, port, basepath)
     elseif md5chk == "" then
       stdnse.print_debug(1, "%s:CF version 8 detected.", SCRIPT_NAME)
       version = 8
-    else 
+    else
       stdnse.print_debug(1, "%s:Could not determine version.", SCRIPT_NAME)
       version = nil
     end

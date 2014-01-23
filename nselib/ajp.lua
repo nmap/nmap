@@ -17,10 +17,10 @@ _ENV = stdnse.module("ajp", stdnse.seeall)
 --
 
 AJP = {
-	
+
 	-- The magic prefix that has to be present in all requests
 	Magic = 0x1234,
-	
+
 	-- Methods encoded as numeric values
 	Method = {
 		['OPTIONS'] = 1,
@@ -51,7 +51,7 @@ AJP = {
 		['BASELINE_CONTROL'] = 26,
 		['MKACTIVITY'] = 27,
 	},
-	
+
 	-- Request codes
 	Code = {
 		FORWARD_REQUEST = 2,
@@ -62,7 +62,7 @@ AJP = {
 		PING            = 8,
 		CPING           = 10,
 	},
-	
+
 	-- Request attributes
 	Attribute = {
 		CONTEXT      = 0x01,
@@ -78,9 +78,9 @@ AJP = {
 		SSL_KEY_SIZE = 0x0B,
 		ARE_DONE     = 0xFF,
 	},
-	
+
 	ForwardRequest = {
-		
+
 		-- Common headers encoded as numeric values
 		Header = {
 			['accept']           = 0xA001,
@@ -97,7 +97,7 @@ AJP = {
 			['pragma']           = 0xA00C,
 			['referer']          = 0xA00D,
 			['user-agent']       = 0xA00E,
-		},		
+		},
 
 		new = function(self, host, port, method, uri, headers, attributes, options)
 			local o = {
@@ -118,11 +118,11 @@ AJP = {
 			}
 			setmetatable(o, self)
 			self.__index = self
-	       	return o		
+      return o
 		end,
-		
+
 		__tostring = function(self)
-			
+
 			-- encodes a string, prefixing it with a 2-byte length
 			-- and suffixing it with a zero. P-encoding can't be used
 			-- as the zero terminator should not be counted in the length
@@ -144,7 +144,7 @@ AJP = {
 			if ( not(self.headers['host']) ) then
 				self.headers['host'] = stdnse.get_hostname(self.host)
 			end
-			
+
 			-- add keep-alive connection header if missing
 			if ( not(self.headers['connection']) ) then
 				self.headers['connection'] = "keep-alive"
@@ -153,12 +153,12 @@ AJP = {
 			local p_url = url.parse(self.uri)
 
 			-- save the magic and data for last
-			local data = bin.pack(">CCAAAAASCS", self.code, self.method, 
+			local data = bin.pack(">CCAAAAASCS", self.code, self.method,
 				encstr(self.version), encstr(p_url.path), encstr(self.raddr),
 				encstr(self.rhost), encstr(self.srv),
 				self.port, (self.is_ssl and 1 or 0),
 				headerCount())
-			
+
 			-- encode headers
 			for k, v in pairs(self.headers) do
 				local header = AJP.ForwardRequest.Header[k:lower()] or k
@@ -167,27 +167,27 @@ AJP = {
 				else
 					data = data .. bin.pack(">S", header)
 				end
-				
+
 				data = data .. encstr(v)
 			end
-			
+
 			-- encode attributes
 			if ( p_url.query ) then
 			 	data = data .. bin.pack("C", AJP.Attribute.QUERY_STRING)
 			 	data = data .. encstr(p_url.query)
 			end
-			
+
 			-- terminate the attribute list
 			data = data .. bin.pack("C", AJP.Attribute.ARE_DONE)
-			
+
 			-- returns the AJP request as a string
 			return bin.pack(">SSA", AJP.Magic, #data, data)
 		end,
-		
+
 	},
-	
+
 	Response = {
-		
+
 		Header = {
 			['Content-Type']      = 0xA001,
 			['Content-Language']  = 0xA002,
@@ -201,51 +201,51 @@ AJP = {
 			['Status']            = 0xA00A,
 			['WWW-Authenticate']  = 0xA00B,
 		},
-	
+
 		SendHeaders = {
-		
+
 			new = function(self)
 				local o = { headers = {}, rawheaders = {} }
 				setmetatable(o, self)
 				self.__index = self
 				return o
 			end,
-			
+
 			parse = function(data)
 				local sh = AJP.Response.SendHeaders:new()
 				local pos = 6
 				local status_msg, hdr_count
-				
+
 				pos, sh.status = bin.unpack(">S", data, pos)
 				pos, status_msg  = bin.unpack(">P", data, pos)
 				pos = pos + 1
 				sh['status-line'] = ("AJP/1.3 %d %s"):format(sh.status, status_msg)
-								
+
 				pos, hdr_count = bin.unpack(">S", data, pos)
-								
+
 				local function headerById(id)
 					for k, v in pairs(AJP.Response.Header) do
 						if ( v == id ) then	return k end
 					end
 				end
-				
-				
+
+
 				for i=1, hdr_count do
 					local key, val, len
 					pos, len = bin.unpack(">S", data, pos)
-					
+
 					if ( len < 0xA000 ) then
 						pos, key = bin.unpack("A"..len, data, pos)
 						pos = pos + 1
 					else
 						key = headerById(len)
 					end
-					
+
 					pos, val = bin.unpack(">P", data, pos)
 					pos = pos + 1
-					
+
 					sh.headers[key:lower()] = val
-					
+
 					-- to keep the order, in which the headers were received,
 					-- add them to the rawheader table as well. This is based
 					-- on the same principle as the http library, however the
@@ -255,16 +255,16 @@ AJP = {
 				end
 				return sh
 			end,
-			
+
 		},
-						
+
 	},
-		
+
 }
 
 -- The Comm class handles sending and receiving AJP requests/responses
 Comm = {
-	
+
 	-- Creates a new Comm instance
 	new = function(self, host, port, options)
 		local o = { host = host, port = port, options = options or {}}
@@ -272,7 +272,7 @@ Comm = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Connects to the AJP server
 	--
 	-- @return status true on success, false on failure
@@ -282,7 +282,7 @@ Comm = {
 		self.socket:set_timeout(self.options.timeout or 5000)
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	-- Sends a request to the server
 	--
 	-- @param req instance of object that can be serialized with tostring
@@ -291,7 +291,7 @@ Comm = {
 	send = function(self, req)
 		return self.socket:send(tostring(req))
 	end,
-	
+
 	-- Receives an AJP response from the server
 	--
 	-- @return status true on succes, false on failure
@@ -317,7 +317,7 @@ Comm = {
 			if ( not(status) ) then
 				return false, "Failed to receive response from server"
 			end
-		
+
 			local pos, code = bin.unpack("C", data)
 			if ( AJP.Code.SEND_HEADERS == code ) then
 				local sh = AJP.Response.SendHeaders.parse(buf .. data)
@@ -330,22 +330,22 @@ Comm = {
 		end
 		return true, response
 	end,
-	
+
 	-- Closes the socket
 	close = function(self)
 		return self.socket:close()
 	end,
-	
+
 }
 
 
 Helper = {
-	
+
 	--- Creates a new AJP Helper instance
 	--
 	-- @param host table
 	-- @param port table
-	-- @param opt 
+	-- @param opt
 	-- @return o new Helper instance
 	new = function(self, host, port, opt)
 		local o = { host = host, port = port, opt = opt or {} }
@@ -362,18 +362,18 @@ Helper = {
 		self.comm = Comm:new(self.host, self.port, self.opt)
 		return self.comm:connect()
 	end,
-	
+
 	getOption = function(self, options, key)
-	
+
 		-- first check options, then global self.opt
 		if ( options and options[key] ) then
 			return options[key]
 		elseif ( self.opt and self.opt[key] ) then
 			return self.opt[key]
 		end
-	
+
 	end,
-	
+
 	--- Sends an AJP request to the server
 	--
 	-- @param url string containing the URL to query
@@ -388,22 +388,22 @@ Helper = {
 		if ( not(status) ) then
 			return false, "Failed to get socket information"
 		end
-				
+
 		local request = AJP.ForwardRequest:new(self.host, self.port, method, url, headers, attributes, { raddr = rhost })
 		if ( not(self.comm:send(request)) ) then
 			return false, "Failed to send request to server"
 		end
 		local status, result = self.comm:receive()
-	
+
 		-- support Basic authentication
 		if ( status and result.status == 401 and result.headers['www-authenticate'] ) then
-			
+
 			local auth = self:getOption(options, "auth")
 			if ( not(auth) or not(auth.username) and not(auth.password) ) then
 				stdnse.print_debug(2, "No authentication information")
 				return status, result
 			end
-			
+
 			local challenges = http.parse_www_authenticate(result.headers['www-authenticate'])
 			local scheme
 			for _, challenge in ipairs(challenges or {}) do
@@ -412,7 +412,7 @@ Helper = {
 					break
 				end
 			end
-						
+
 			if ( not(scheme) ) then
 				stdnse.print_debug(2, "Could not find a supported authentication scheme")
 			elseif ( "basic" ~= scheme ) then
@@ -426,7 +426,7 @@ Helper = {
 				end
 				status, result = self.comm:receive()
 			end
-			
+
 		end
 		return status, result
 	end,
@@ -443,7 +443,7 @@ Helper = {
 	get = function(self, url, headers, attributes, options)
 		return self:request("GET", url, headers, attributes, options)
 	end,
-	
+
 	--- Sends an AJP HEAD request to the server
 	--
 	-- @param url string containing the URL to query
@@ -456,7 +456,7 @@ Helper = {
 	head = function(self, url, headers, attributes, options)
 		return self:request("HEAD", url, headers, attributes, options)
 	end,
-	
+
 	--- Sends an AJP TRACE request to the server
 	--
 	-- @param url string containing the URL to query
@@ -469,7 +469,7 @@ Helper = {
 	trace = function(self, url, headers, attributes, options)
 		return self:request("TRACE", url, headers, attributes, options)
 	end,
-	
+
 	--- Sends an AJP PUT request to the server
 	--
 	-- @param url string containing the URL to query
@@ -495,7 +495,7 @@ Helper = {
 	delete = function(self, url, headers, attributes, options)
 		return self:request("DELETE", url, headers, attributes, options)
 	end,
-	
+
 	--- Sends an AJP OPTIONS request to the server
 	--
 	-- @param url string containing the URL to query
@@ -508,18 +508,18 @@ Helper = {
 	options = function(self, url, headers, attributes, options)
 		return self:request("OPTIONS", url, headers, attributes, options)
 	end,
-	
+
 	-- should only work against 127.0.0.1
 	shutdownContainer = function(self)
 		self.comm:send(bin.pack("H", "1234000107"))
 		self.comm:receive()
 	end,
-	
+
 	--- Disconnects from the server
 	close = function(self)
 		return self.comm:close()
 	end,
-	
+
 }
 
 return _ENV;

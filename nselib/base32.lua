@@ -1,6 +1,6 @@
 ---
 -- Base32 encoding and decoding. Follows RFC 4648.
--- 
+--
 -- @author Philip Pickering <pgpickering@gmail.com>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @ported base64 to base32 <john.r.bond@gmail.com>
@@ -25,9 +25,9 @@ local b32standard = {
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
 	'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
 	'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-	'Y', 'Z', '2', '3', '4', '5', '6', '7', 
+	'Y', 'Z', '2', '3', '4', '5', '6', '7',
 	}
-	
+
 local b32dcstandard = {} -- efficency
 b32dcstandard['A'] = '00000'
 b32dcstandard['B'] = '00001'
@@ -108,7 +108,7 @@ local b32dctable = b32dcstandard
 
 local append = table.insert
 local substr = string.sub
-local bpack = bin.pack 
+local bpack = bin.pack
 local bunpack = bin.unpack
 local concat = table.concat
 
@@ -155,13 +155,13 @@ function enc(bdata, hexExtend)
 		append(b32dataBuf, b32enc5bit(bitstring .. "0000"))
 		append(b32dataBuf, '====')
 	elseif #bitstring == 2 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "000") ) 
+		append(b32dataBuf, b32enc5bit(bitstring .. "000") )
 		append(b32dataBuf, '=')
 	elseif #bitstring == 3 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "00") ) 
+		append(b32dataBuf, b32enc5bit(bitstring .. "00") )
 		append(b32dataBuf, "======")
 	elseif #bitstring == 4 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "0") ) 
+		append(b32dataBuf, b32enc5bit(bitstring .. "0") )
 		append(b32dataBuf, '===')
 	end
 	return concat(b32dataBuf)

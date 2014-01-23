@@ -18,7 +18,7 @@ no specific target is specified, the request will be sent to the 224.0.0.1 All
 Hosts multicast address.
 
 This script is similar somehow to the mrinfo utility included with Windows and
-Cisco IOS.  
+Cisco IOS.
 ]]
 
 ---
@@ -35,7 +35,7 @@ Cisco IOS.
 --
 --@output
 -- Pre-scan script results:
--- | mrinfo: 
+-- | mrinfo:
 -- |   Source: 224.0.0.1
 -- |     Version 12.4
 -- |     Local address: 172.16.0.2
@@ -70,7 +70,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "broadcast"}
 
 
-prerule = function() 
+prerule = function()
     if nmap.address_family() ~= 'inet' then
 	stdnse.print_verbose("%s is IPv4 only.", SCRIPT_NAME)
 	return false
@@ -115,7 +115,7 @@ local mrinfoParse = function(data)
 	index, address.treshold= bin.unpack(">C", data, index)
 	-- Flags
 	index, address.flags = bin.unpack(">C", data, index)
-	-- Number of neighbors 
+	-- Number of neighbors
 	index, address.ncount = bin.unpack(">C", data, index)
 
 	address.neighbors = {}
@@ -153,7 +153,7 @@ local mrinfoListen = function(interface, timeout, responses)
 		-- Check that IGMP Type == DVMRP (0x13) and DVMRP code == Neighbor 2 (0x06)
 		if mrinfo_raw:byte(1) == 0x13 and mrinfo_raw:byte(2) == 0x06 then
 		    response = mrinfoParse(mrinfo_raw)
-		    if response then 
+		    if response then
 			response.srcip = p.ip_src
 			table.insert(responses, response)
 		    end
@@ -182,7 +182,7 @@ local mrinfoRaw = function()
     -- Calculate checksum
     mrinfo_raw = mrinfo_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(mrinfo_raw)) .. mrinfo_raw:sub(5)
 
-    return mrinfo_raw 
+    return mrinfo_raw
 end
 
 -- Function that sends a DVMRP query.
@@ -193,7 +193,7 @@ local mrinfoQuery = function(interface, dstip)
     local srcip = interface.address
 
     local mrinfo_raw = mrinfoRaw()
-    local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw 
+    local ip_raw = bin.pack("H", "45c00040ed780000400218bc0a00c8750a00c86b") .. mrinfo_raw
     mrinfo_packet = packet.Packet:new(ip_raw, ip_raw:len())
     mrinfo_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
     mrinfo_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))
@@ -248,9 +248,9 @@ action = function()
     local responses = {}
     local interface, result
 
-    interface = nmap.get_interface() 
+    interface = nmap.get_interface()
     if interface then
-	interface = nmap.get_interface_info(interface) 
+	interface = nmap.get_interface_info(interface)
     else
 	interface = getInterface(target)
     end

@@ -11,7 +11,7 @@ Connects to portmapper and fetches a list of all registered programs.  It then p
 -- @output
 -- PORT    STATE SERVICE
 -- 111/tcp open  rpcbind
--- | rpcinfo: 
+-- | rpcinfo:
 -- |   program version   port/proto  service
 -- |   100000  2,3,4        111/tcp  rpcbind
 -- |   100000  2,3,4        111/udp  rpcbind
@@ -80,20 +80,20 @@ portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 action = function(host, port)
 
     local result = {}
-    local status, rpcinfo = rpc.Helper.RpcInfo( host, port )    
+    local status, rpcinfo = rpc.Helper.RpcInfo( host, port )
     local xmlout = {}
-    
+
     if ( not(status) ) then
         return stdnse.format_output(false, rpcinfo)
     end
-    
+
     for progid, v in pairs(rpcinfo) do
         xmlout[tostring(progid)] = v
         for proto, v2 in pairs(v) do
             table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
         end
     end
-    
+
     table.sort(result)
 
     if (#result > 0) then
@@ -101,5 +101,5 @@ action = function(host, port)
     end
 
     return xmlout, stdnse.format_output( true, result )
-    
+
 end

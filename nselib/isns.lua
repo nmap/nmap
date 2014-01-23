@@ -15,20 +15,20 @@ local table = require('table')
 _ENV = stdnse.module("isns", stdnse.seeall);
 
 iSCSI = {
-	
+
 	NodeType = {
 		TARGET    = 1,
-		INITIATOR = 2, 
+		INITIATOR = 2,
 		CONTROL   = 4,
 	}
-	
+
 }
 
 
 Header = {
 
 	VERSION = 1,
-	
+
 	--
 	-- Creates a header instance
 	--
@@ -41,7 +41,7 @@ Header = {
 	new = function(self, func_id, pdu_len, flags, trans_id, seq_id)
 		local o = {
 			ver = Header.VERSION,
-			func_id = func_id, 
+			func_id = func_id,
 			flags = flags,
 			trans_id = trans_id,
 			seq_id = seq_id,
@@ -51,7 +51,7 @@ Header = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--
 	-- Parses a opaque string and creates a new Header instance
 	--
@@ -60,25 +60,25 @@ Header = {
 	parse = function(data)
 		local hdr = Header:new()
 		local pos
-		
+
 		pos, hdr.ver, hdr.func_id, hdr.pdu_len, hdr.flags, hdr.trans_id,
 			hdr.seq_id = bin.unpack(">SSSSSS", data)
-		
+
 		return hdr
 	end,
-	
+
 	--
 	-- Converts the instance to an opaque string
 	-- @return str containing an opaque string
 	__tostring = function(self)
-		return bin.pack(">SSSSSS", self.ver, self.func_id, 
+		return bin.pack(">SSSSSS", self.ver, self.func_id,
 			self.pdu_len, self.flags, self.trans_id, self.seq_id )
 	end
-	
+
 }
 
 Attribute = {
-	
+
 	Tag = {
 		ISNS_TAG_DELIMITER		= 0,
 		ISNS_TAG_ENTITY_IDENTIFIER	= 1,
@@ -164,7 +164,7 @@ Attribute = {
 		ISNS_VENDOR_SPECIFIC_DDSET_BASE = 1281,
 		ISNS_VENDOR_SPECIFIC_OTHER_BASE = 1537,
 	},
-	
+
 	--
 	-- Creates a new Attribute instance
 	--
@@ -178,7 +178,7 @@ Attribute = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--
 	-- Creates a new Attribute instance
 	--
@@ -187,20 +187,20 @@ Attribute = {
 	parse = function(data)
 		local attr = Attribute:new()
 		local pos
-		
+
 		pos, attr.tag, attr.len = bin.unpack(">II", data)
 		pos, attr.val = bin.unpack(">A" .. attr.len, pos)
-		
+
 		return attr
 	end,
-	
+
 	--
 	-- Converts the instance to an opaque string
 	-- @return str containing an opaque string
 	__tostring = function(self)
 		return bin.pack(">IIA", self.tag, self.len, self.val)
 	end,
-	
+
 }
 
 Attributes = {
@@ -214,7 +214,7 @@ Attributes = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--
 	-- Adds a new Attribute to the table
 	-- @param tag number containing the tag number
@@ -223,7 +223,7 @@ Attributes = {
 	add = function(self, tag, val, len)
 		table.insert(self, Attribute:new(tag, val, len))
 	end,
-	
+
 	--
 	-- Converts the instance to an opaque string
 	-- @return str containing an opaque string
@@ -234,11 +234,11 @@ Attributes = {
 		end
 		return str
 	end,
-	
+
 }
 
 Request = {
-		
+
 	FuncId = {
 		DevAttrReg = 0x0001,
 		DevAttrQry = 0x0002,
@@ -255,7 +255,7 @@ Request = {
 		ESI        = 0x000D,
 		Heartbeat  = 0x000E,
 	},
-	
+
 	--
 	-- Creates a new Request message
 	-- @param func_id number containing the function ID of the message
@@ -274,7 +274,7 @@ Request = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--
 	-- Converts the instance to an opaque string
 	-- @return str containing an opaque string
@@ -282,12 +282,12 @@ Request = {
 		return tostring(self.header) .. tostring(self.data) ..
 			( self.auth and self.auth or "" )
 	end,
-	
-	
+
+
 }
 
 Response = {
-	
+
 	Error = {
 		[0] = "Successful",
 		[1] = "Unknown Error",
@@ -314,7 +314,7 @@ Response = {
 		[22] = "Invalid Deregistration",
 		[23] = "Registration Feature Not Supported",
 	},
-	
+
 	--
 	-- Creates a new Response instance
 	-- @return o new instance of Response
@@ -324,7 +324,7 @@ Response = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--
 	-- Creates a new Response instance
 	--
@@ -334,12 +334,12 @@ Response = {
 		local hdr = Header.parse(data)
 		local pos = #(tostring(hdr)) + 1
 		local resp = Response:new()
-		
+
 		pos, resp.error = bin.unpack(">I", data, pos)
 		if ( resp.error ~= 0 ) then
 			return resp
 		end
-		
+
 		while( pos < #data ) do
 			local tag, len, val
 			pos, tag, len = bin.unpack(">II", data, pos)
@@ -348,12 +348,12 @@ Response = {
 		end
 		return resp
 	end,
-	
+
 }
 
 
 Session = {
-	
+
 	--
 	-- Creates a new Session instance
 	-- @param host table
@@ -370,7 +370,7 @@ Session = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--
 	-- Connects to the server
 	-- @return status true on success, false on failure
@@ -379,7 +379,7 @@ Session = {
 		self.socket:set_timeout(5000)
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	--
 	-- Sends data to the server
 	-- @return status true on success, false on failure
@@ -392,13 +392,13 @@ Session = {
 		-- update the sequence and transaction ID's
 		req.header.seq_id = self.seq_id
 		req.header.trans_id = self.trans_id
-	
+
 		local status, err = self.socket:send(tostring(req))
 		self.trans_id = self.trans_id + 1
-		
+
 		return status, err
 	end,
-	
+
 	--
 	-- Receives data from the server
 	-- @return status true on success, false on failure
@@ -409,19 +409,19 @@ Session = {
 		if ( not(status) ) then
 			return status, buf_hdr
 		end
-		
+
 		local hdr = Header.parse(buf_hdr)
-				
+
 		-- receive the data
 		local buf_data = nil
 		status, buf_data = self.socket:receive_buf(match.numbytes(hdr.pdu_len), true)
 		if ( not(status) ) then
 			return status, buf_data
 		end
-		
+
 		return true, Response.parse(buf_hdr .. buf_data)
 	end,
-	
+
 	close = function(self)
 		return self.close()
 	end
@@ -429,8 +429,8 @@ Session = {
 
 
 Helper = {
-	
-	-- 
+
+	--
 	-- Creates a new Helper instance
 	-- @param host param
 	-- @param port param
@@ -441,14 +441,14 @@ Helper = {
         self.__index = self
 	   	return o
 	end,
-	
+
 	--
 	-- Connects to the server
 	-- @return status true on success, false on failure
 	connect = function(self)
 		return self.session:connect()
 	end,
-	
+
 	--
 	-- Lists portals
 	-- @return status true on success, false on failure
@@ -464,23 +464,23 @@ Helper = {
 		attribs:add(Attribute.Tag.ISNS_TAG_ENTITY_IDENTIFIER)
 
 		local flags = 0x8c00 -- Sender is iSNS client, Last PDU, First PDU
-		
+
 		local req = Request:new(Request.FuncId.DevAttrQry, flags, tostring(attribs))
 		if ( not(self.session:send(req)) ) then
 			return false, "Failed to send message to server"
 		end
-		
+
 		local status, resp = self.session:receive()
 		if ( not(status) ) then
 			return false, "Failed to receive message from server"
 		end
-		
+
 		local results = {}
 		local addr, proto, port
 		for _, attr in ipairs(resp.attrs) do
 			if ( attr.tag == Attribute.Tag.ISNS_TAG_PORTAL_IP_ADDRESS ) then
 				addr = attr.val
-				local pos, is_ipv4 = bin.unpack("A12", addr) 
+				local pos, is_ipv4 = bin.unpack("A12", addr)
 				if ( is_ipv4 == "\0\0\0\0\0\0\0\0\0\0\xFF\xFF" ) then
 					local pos, bin_ip = bin.unpack("B4", addr, 13)
 					addr = ipops.bin_to_ip(bin_ip)
@@ -491,7 +491,7 @@ Helper = {
 			elseif ( attr.tag == Attribute.Tag.ISNS_TAG_PORTAL_TCP_UDP_PORT ) then
 				local pos, s1
 				pos, s1, port = bin.unpack(">SS", attr.val)
-				
+
 				if ( s1 == 1 ) then
 					proto = "udp"
 				elseif ( s1 == 0 ) then
@@ -506,12 +506,12 @@ Helper = {
 		end
 		return true, results
 	end,
-	
+
 	--
 	-- Lists iSCSI nodes
 	-- @return status true on success, false on failure
 	-- @return resulst list of iSCSI nodes, err string on failure
-	listISCINodes = function(self)	
+	listISCINodes = function(self)
 		local attribs = Attributes:new()
 		local name = "iqn.control.node\0por"
 		attribs:add(Attribute.Tag.ISNS_TAG_ISCSI_NAME, name)
@@ -521,17 +521,17 @@ Helper = {
 		attribs:add(Attribute.Tag.ISNS_TAG_ISCSI_NODE_TYPE)
 
 		local flags = 0x8c00 -- Sender is iSNS client, Last PDU, First PDU
-		
+
 		local req = Request:new(Request.FuncId.DevAttrQry, flags, tostring(attribs))
 		if ( not(self.session:send(req)) ) then
 			return false, "Failed to send message to server"
 		end
-		
+
 		local status, resp = self.session:receive()
 		if ( not(status) ) then
 			return false, "Failed to receive message from server"
 		end
-		
+
 		local name, ntype
 		local results = {}
 		for _, attr in ipairs(resp.attrs) do
@@ -553,14 +553,14 @@ Helper = {
 				table.insert(results, { name = name:match("^([^\0]*)"), type = ntype })
 				name, ntype = nil, nil
 			end
-		end	
+		end
 		return true, results
 	end,
-	
+
 	close = function(self)
 		return self.session:close()
 	end,
-	
+
 }
 
 return _ENV;

@@ -8,7 +8,7 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Tests for access with default credentials used by a variety of web applications and devices.  
+Tests for access with default credentials used by a variety of web applications and devices.
 
 It works similar to http-enum, we detect applications by matching known paths and launching a login routine using default credentials when found.
 This script depends on a fingerprint file containing the target's information: name, category, location paths, default credentials and login routine.
@@ -17,7 +17,7 @@ You may select a category if you wish to reduce the number of requests. We have 
 * <code>web</code> - Web applications
 * <code>routers</code> - Routers
 * <code>voip</code> - VOIP devices
-* <code>security</code> 
+* <code>security</code>
 
 Please help improve this script by adding new entries to nselib/data/http-default-accounts.lua
 
@@ -33,8 +33,8 @@ In addition, a fingerprint may have:
                               called to validate the target before attempting
                               any logins.
 
-Default fingerprint file: /nselib/data/http-default-accounts-fingerprints.lua 
-This script was based on http-enum. 
+Default fingerprint file: /nselib/data/http-default-accounts-fingerprints.lua
+This script was based on http-enum.
 ]]
 
 ---
@@ -49,7 +49,7 @@ This script was based on http-enum.
 -- @args http-default-accounts.basepath Base path to append to requests. Default: "/"
 -- @args http-default-accounts.fingerprintfile Fingerprint filename. Default:http-default-accounts-fingerprints.lua
 -- @args http-default-accounts.category Selects a category of fingerprints to use.
--- 
+--
 -- Other useful arguments relevant to this script:
 -- http.pipeline Sets max number of petitions in the same request.
 -- http.useragent User agent for HTTP requests
@@ -67,8 +67,8 @@ portrule = shortport.http
 
 ---
 --validate_fingerprints(fingerprints)
---Returns an error string if there is something wrong with 
---fingerprint table. 
+--Returns an error string if there is something wrong with
+--fingerprint table.
 --Modified's version of http-enums validation code
 --@param fingerprints Fingerprint table
 --@return Error string if its an invalid fingerprint table
@@ -136,7 +136,7 @@ end
 ---
 -- load_fingerprints(filename, category)
 -- Loads data from file and returns table of fingerprints if sanity checks are passed
--- Based on http-enum's load_fingerprints() 
+-- Based on http-enum's load_fingerprints()
 -- @param filename Fingerprint filename
 -- @param cat Category of fingerprints to use
 -- @return Table of fingerprints
@@ -216,7 +216,7 @@ end
 -- @param login_username Username
 -- @param login_password Password
 ---
-local function register_http_credentials(host, port, login_username, login_password) 
+local function register_http_credentials(host, port, login_username, login_password)
   local c = creds.Credentials:new( SCRIPT_NAME, host, port )
   c:add(login_username, login_password, creds.State.VALID )
 end
@@ -239,8 +239,8 @@ action = function(host, port)
     stdnse.print_debug(1, "%s: Exiting due to ambiguous response from web server on %s:%s. All URIs return status 200.", SCRIPT_NAME, host.ip, port.number)
     return false
   end
-  
-  --Load fingerprint data or abort 
+
+  --Load fingerprint data or abort
   status, fingerprints = load_fingerprints(fingerprint_filename, category)
   if(not(status)) then
     return stdnse.format_output(false, fingerprints)
@@ -273,7 +273,7 @@ action = function(host, port)
 
   -- Iterate through responses to find a candidate for login routine
   local j = 1
-  
+
   for i, fingerprint in ipairs(fingerprints) do
     local credentials_found = false
     stdnse.print_debug(1, "%s: Processing %s", SCRIPT_NAME, fingerprint.name)
@@ -290,10 +290,10 @@ action = function(host, port)
             stdnse.print_debug(2, "%s: Trying login combo -> %s:%s", SCRIPT_NAME, login_combo["username"], login_combo["password"])
             --Check default credentials
             if( fingerprint.login_check(host, port, path, login_combo["username"], login_combo["password"]) ) then
-              
+
               --Valid credentials found
               stdnse.print_debug(1, "%s:[%s] valid default credentials found.", SCRIPT_NAME, fingerprint.name)
-              output_lns[#output_lns + 1] = string.format("[%s] credentials found -> %s:%s Path:%s", 
+              output_lns[#output_lns + 1] = string.format("[%s] credentials found -> %s:%s Path:%s",
                                           fingerprint.name, login_combo["username"], login_combo["password"], path)
               -- Add to http credentials table
               register_http_credentials(host, port, login_combo["username"], login_combo["password"])

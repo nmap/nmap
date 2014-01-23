@@ -1,12 +1,12 @@
 description = [[
-Attempts to brute force the 8.3 filenames (commonly known as short names) of files and directories in the root folder 
+Attempts to brute force the 8.3 filenames (commonly known as short names) of files and directories in the root folder
 of vulnerable IIS servers. This script is an implementation of the PoC "iis shortname scanner".
 
-The script uses ~,? and * to bruteforce the short name of files present in the IIS document root. 
+The script uses ~,? and * to bruteforce the short name of files present in the IIS document root.
 Short names have a restriction of 6 character file name followed by a three character extension.
 
 Notes:
-* The script might have to be run twice (according to the original author). 
+* The script might have to be run twice (according to the original author).
 * Tested against IIS 6.0 and 5.1.
 
 References:
@@ -17,21 +17,21 @@ References:
 ---
 -- @usage
 -- nmap -p80 --script http-iis-short-name-brute <target>
--- 
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-iis-short-name-brute: 
+-- | http-iis-short-name-brute:
 -- |   VULNERABLE:
 -- |   Microsoft IIS tilde character "~" short name disclosure and denial of service
 -- |     State: VULNERABLE (Exploitable)
 -- |     Description:
--- |      Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the webroot folder. 
--- |      Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to 
+-- |      Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the webroot folder.
+-- |      Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to
 -- |      cause a denial of service condition.
--- |           
+-- |
 -- |     Extra information:
--- |       
+-- |
 -- |   8.3 filenames found:
 -- |     Folders
 -- |       admini~1
@@ -39,7 +39,7 @@ References:
 -- |       backup~1.zip
 -- |       certsb~2.zip
 -- |       siteba~1.zip
--- |   
+-- |
 -- |     References:
 -- |       http://soroush.secproject.com/downloadable/microsoft_iis_tilde_character_vulnerability_feature.pdf
 -- |_      http://code.google.com/p/iis-shortname-scanner-poc/
@@ -92,10 +92,10 @@ local function charInExtension(host, port, path, ext)
 end
 
 local function findExtension(host, port, path, ext)
-  if charInExtension(host, port, path, ext) then		
+  if charInExtension(host, port, path, ext) then
   -- currently only support for ext of length 3
-    if ext:len() == 3 then 
-      stdnse.print_debug(1, "Added file: %s", path .. ext)		
+    if ext:len() == 3 then
+      stdnse.print_debug(1, "Added file: %s", path .. ext)
       table.insert(files, path .. ext)
     else
       for c in chars:gmatch(".") do
@@ -105,7 +105,7 @@ local function findExtension(host, port, path, ext)
   end
 end
 
-local function findName(host, port, path, number)      
+local function findName(host, port, path, number)
   -- check if the name is valid
   if foundName(host, port, path, number) then
     if isFolder(host, port, path, number) then
@@ -122,21 +122,21 @@ local function findName(host, port, path, number)
 
         -- increase the number ('~1' to '~2')
         last_number = number
-        local nextNumber = tostring(tonumber(number) + 1) 
+        local nextNumber = tostring(tonumber(number) + 1)
         findName(host, port, path, nextNumber)
       end
-    -- if the name is valid, and it's not a folder, it must be a file		
+    -- if the name is valid, and it's not a folder, it must be a file
     else
-      findExtension(host, port, path .. "~" .. number .. ".", "")			
+      findExtension(host, port, path .. "~" .. number .. ".", "")
       -- increase the number ('~1' to '~2')
-      local nextNumber = tostring(tonumber(number) + 1) 
+      local nextNumber = tostring(tonumber(number) + 1)
       findName(host, port, path, nextNumber)
     end
   end
 
   -- is the path valid (i.e. 404)
   local cont = isLonger(host, port, path, number)
-	
+
   -- recurse if the path is valid and the length of path is not 6
   if not (path:len() == 6) and cont and not(errors_max) then
     stdnse.print_debug(1, "Testing: %s", path .. "~" .. number)
@@ -150,8 +150,8 @@ action = function(host, port)
     title = 'Microsoft IIS tilde character "~" short name disclosure and denial of service',
     state = vulns.STATE.NOT_VULN,
     description = [[
-Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the root folder. 
-Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to 
+Vulnerable IIS servers disclose folder and file names with a Windows 8.3 naming scheme inside the root folder.
+Shortnames can be used to guess or brute force sensitive filenames. Attackers can exploit this vulnerability to
 cause a denial of service condition.
     ]],
     references = {

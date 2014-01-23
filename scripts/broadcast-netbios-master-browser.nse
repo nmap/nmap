@@ -13,7 +13,7 @@ Attempts to discover master browsers and the domains they manage.
 -- nmap --script=broadcast-netbios-master-browser
 --
 -- @output
--- | broadcast-netbios-master-browser: 
+-- | broadcast-netbios-master-browser:
 -- | ip            server        domain
 -- |_10.0.200.156  WIN2K3-EPI-1  WORKGROUP
 --
@@ -42,10 +42,10 @@ action = function()
 
 	local status, result = netbios.nbquery( { ip = BROADCAST_ADDR }, NBNAME, { multiple = true })
 	if ( not(status) ) then	return end
-	
+
 	local outtab = tab.new(3)
 	tab.addrow(outtab, 'ip', 'server', 'domain')
-	
+
 	for _, v in ipairs(result) do
 		local status, names, _ = netbios.do_nbstat(v.peer)
 		local srv_name, domain_name

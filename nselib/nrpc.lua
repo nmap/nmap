@@ -17,7 +17,7 @@
 --		- A helper class that provides easy access to the rest of the library
 --
 --   o DominoSocket
---      - This is a copy of the DB2Socket class which provides fundamental 
+--      - This is a copy of the DB2Socket class which provides fundamental
 --        buffering
 --
 --
@@ -50,11 +50,11 @@ _ENV = stdnse.module("nrpc", stdnse.seeall)
 
 -- The Domino Packet
 DominoPacket = {
-	
+
 	--- Creates a new DominoPacket instance
 	--
 	-- @param data string containing the packet data
-	-- @return a new DominoPacket instance	
+	-- @return a new DominoPacket instance
 	new = function( self, data )
 		local o = {}
         setmetatable(o, self)
@@ -62,7 +62,7 @@ DominoPacket = {
 		o.data = data
 		return o
     end,
-	
+
 	--- Reads a packet from the DominoSocket
 	--
 	-- @param domsock DominoSocket connected to the server
@@ -79,12 +79,12 @@ DominoPacket = {
 	__tostring = function(self)
 		return bin.pack("<SA", #self.data, self.data )
 	end,
-	
+
 }
 
 DominoSocket =
-{	
-	
+{
+
 	new = function(self)
 		local o = {}
        	setmetatable(o, self)
@@ -105,7 +105,7 @@ DominoSocket =
 		self.Socket:set_timeout(5000)
 		return self.Socket:connect( hostid, port, protocol )
 	end,
-	
+
 	--- Closes an open connection.
 	--
 	-- @return Status (true or false).
@@ -113,7 +113,7 @@ DominoSocket =
 	close = function( self )
 		return self.Socket:close()
 	end,
-	
+
 	--- Opposed to the <code>socket:receive_bytes</code> function, that returns
 	-- at least x bytes, this function returns the amount of bytes requested.
 	--
@@ -123,9 +123,9 @@ DominoSocket =
 	-- 		   err containing error message if status is false
 	recv = function( self, count )
 		local status, data
-	
+
 		self.Buffer = self.Buffer or ""
-	
+
 		if ( #self.Buffer < count ) then
 			status, data = self.Socket:receive_bytes( count - #self.Buffer )
 			if ( not(status) or #data < count - #self.Buffer ) then
@@ -133,13 +133,13 @@ DominoSocket =
 			end
 			self.Buffer = self.Buffer .. data
 		end
-			
+
 		data = self.Buffer:sub( 1, count )
 		self.Buffer = self.Buffer:sub( count + 1)
-	
-		return true, data	
+
+		return true, data
 	end,
-	
+
 	--- Sends data over the socket
 	--
 	-- @return Status (true or false).
@@ -150,7 +150,7 @@ DominoSocket =
 }
 
 Helper = {
-	
+
 	--- Creates a new Helper instance
 	--
 	-- @param host table as recieved by the script action method
@@ -169,13 +169,13 @@ Helper = {
 	--
 	-- @return status true on success, false on failure
 	-- @return err error message if status is false
-	connect = function( self )		
+	connect = function( self )
 		if( not( self.domsock:connect( self.host.ip, self.port.number, "tcp" ) ) ) then
 			return false, ("ERROR: Failed to connect to Domino server %s:%d\n"):format(self.host, self.port)
 		end
 		return true
 	end,
-	
+
 	--- Disconnects from the Lotus Domino Server
 	--
 	-- @return status true on success, false on failure
@@ -190,14 +190,14 @@ Helper = {
 	-- @return status true on success false on failure
 	-- @return domino_id if it exists and status is true
 	--         err if status is false
-	isValidUser = function( self, username )	
+	isValidUser = function( self, username )
 		local data = bin.pack("H", "00001e00000001000080000007320000700104020000fb2b2d00281f1e000000124c010000000000")
 		local status, id_data
 		local data_len, pos, total_len, pkt_type, valid_user
-		
+
 		self.domsock:send( tostring(DominoPacket:new( data )) )
 		data = DominoPacket:new():read( self.domsock )
-	
+
 		data = bin.pack("HCHAH", "0100320002004f000100000500000900", #username + 1, "000000000000000000000000000000000028245573657273290000", username, "00")
 		self.domsock:send( tostring(DominoPacket:new( data ) ) )
 		status, id_data = DominoPacket:new():read( self.domsock )
@@ -205,7 +205,7 @@ Helper = {
 		pos, pkt_type = bin.unpack("C", id_data, 3)
 		pos, valid_user = bin.unpack("C", id_data, 11)
 		pos, total_len = bin.unpack("<S", id_data, 13)
-		
+
 		if ( pkt_type == 0x16 ) then
 			if ( valid_user == 0x19 ) then
 				return true
@@ -213,7 +213,7 @@ Helper = {
 				return false
 			end
 		end
-		
+
 		if ( pkt_type ~= 0x7e ) then
 			return false, "Failed to retrieve ID file"
 		end
@@ -222,10 +222,10 @@ Helper = {
 
 		id_data = id_data:sub(33)
 		id_data = id_data .. data:sub(11, total_len - #id_data + 11)
-		
+
 		return true, id_data
 	end,
-	
+
 }
 
 return _ENV;

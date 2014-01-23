@@ -25,7 +25,7 @@ action = function(host, port)
 	local status = true
 
 	socket:connect(host, port)
-	
+
 	status, result = socket:receive_lines(1)
 
 	if (not status) then

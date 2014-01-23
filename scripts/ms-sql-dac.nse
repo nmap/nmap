@@ -28,7 +28,7 @@ accessible or not.
 -- sudo nmap -sU -p 1434 --script ms-sql-dac <ip>
 --
 -- @output
--- | ms-sql-dac: 
+-- | ms-sql-dac:
 -- |_  Instance: SQLSERVER; DAC port: 1533
 --
 
@@ -73,7 +73,7 @@ end
 action = function( host )
 	local result, threads = {}, {}
 	local condvar = nmap.condvar(result)
-	
+
 	local status, instanceList = mssql.Helper.GetTargetInstances( host )
 	-- if no instances were targeted, then display info on all
 	if ( not status ) then
@@ -82,7 +82,7 @@ action = function( host )
 		end
 		instanceList = mssql.Helper.GetDiscoveredInstances( host )
 	end
-	
+
 	for _, instance in ipairs(instanceList or {}) do
 		local name = instance:GetName():match("^[^\\]*\\(.*)$")
 		if ( name ) then
@@ -99,7 +99,7 @@ action = function( host )
 			condvar "wait"
 		end
 	end
-	
+
 	return stdnse.format_output( true, result )
 end
 

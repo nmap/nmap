@@ -15,7 +15,7 @@ own lists use the <code>userdb</code> and <code>passdb</code> script arguments.
 
 This script does not make any attempt to prevent account lockout!
 If the number of passwords in the dictionary exceed the amount of
-allowed tries, accounts will be locked out. This usually happens 
+allowed tries, accounts will be locked out. This usually happens
 very quickly.
 
 Authenticating against Active Directory using LDAP does not use the
@@ -37,7 +37,7 @@ This script uses some AD-specific support and optimizations:
 --
 -- @output
 -- 389/tcp open  ldap
--- | ldap-brute:  
+-- | ldap-brute:
 -- |_  ldaptest:ldaptest => Valid credentials
 -- |   restrict.ws:restricted1 => Valid credentials, account cannot log in from current host
 -- |   restrict.time:restricted1 => Valid credentials, account cannot log in at current time
@@ -47,21 +47,21 @@ This script uses some AD-specific support and optimizations:
 -- |_  must.change:need2change => Valid credentials, password must be changed at next logon
 --
 -- @args ldap.base If set, the script will use it as a base for the password
---       guessing attempts. If both ldap.base and ldap.upnsuffix are unset the user 
+--       guessing attempts. If both ldap.base and ldap.upnsuffix are unset the user
 --       list must either contain the distinguished name of each user or the server
---       must support authentication using a simple user name. See the AD discussion 
---       in the description.  DO NOT use ldap.upnsuffix in conjunction with ldap.base 
+--       must support authentication using a simple user name. See the AD discussion
+--       in the description.  DO NOT use ldap.upnsuffix in conjunction with ldap.base
 --       as attempts to login will fail.
 --
--- @args ldap.upnsuffix  If set, the script will append this suffix value to the username 
+-- @args ldap.upnsuffix  If set, the script will append this suffix value to the username
 --       to create a User Principle Name (UPN).  For example if the ldap.upnsuffix value were
---       'mycompany.com' and the username being tested was 'pete' then this script would 
+--       'mycompany.com' and the username being tested was 'pete' then this script would
 --       attempt to login as 'pete@mycompany.com'.  This setting should only have value
 --       when running the script against a Microsoft Active Directory LDAP implementation.
 --       When the UPN is known using this setting should provide more reliable results
 --       against domains that have been organized into various OUs or child domains.
 --       If both ldap.base and ldap.upnsuffix are unset the user list must either contain
---       the distinguished name of each user or the server must support authentication 
+--       the distinguished name of each user or the server must support authentication
 --       using a simple user name. See the AD discussion in the description.
 --       DO NOT use ldap.upnsuffix in conjunction with ldap.base as attempts to login
 --       will fail.
@@ -97,14 +97,14 @@ portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 -- @param socket socket already connected to LDAP server
 -- @return string containing a valid naming context
 function get_naming_context( socket )
-	
+
 	local req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default, attributes = { "defaultNamingContext", "namingContexts" } }
-	local status, searchResEntries = ldap.searchRequest( socket, req ) 
-	
+	local status, searchResEntries = ldap.searchRequest( socket, req )
+
 	if not status then
 		return nil
 	end
-	
+
 	local contexts = ldap.extractAttribute( searchResEntries, "defaultNamingContext" )
 
 	-- OpenLDAP does not have a defaultNamingContext
@@ -115,7 +115,7 @@ function get_naming_context( socket )
 	if contexts and #contexts > 0 then
 		return contexts[1]
 	end
-	
+
 	return nil
 end
 
@@ -126,36 +126,36 @@ end
 -- @return true if credentials are valid and search was a success, false if not.
 function is_valid_credential( socket, context )
 	local req = { baseObject = context, scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default, attributes = nil }
-	local status, searchResEntries = ldap.searchRequest( socket, req )				
+	local status, searchResEntries = ldap.searchRequest( socket, req )
 
 	return status
 end
 
 action = function( host, port )
 
-	local result, response, status, err, context, output, valid_accounts = {}, nil, nil, nil, nil, nil, {}	
+	local result, response, status, err, context, output, valid_accounts = {}, nil, nil, nil, nil, nil, {}
 	local usernames, passwords, username, password, fq_username
 	local user_cnt, invalid_account_cnt, tot_tries = 0, 0, 0
-	
+
 	local clock_start = nmap.clock_ms()
-	
+
 	local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
 	local socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
-	
+
 	local base_dn = stdnse.get_script_args('ldap.base')
 	local upn_suffix = stdnse.get_script_args('ldap.upnsuffix')
-		
+
 	local output_type = stdnse.get_script_args('ldap.savetype')
-	
+
 	local output_prefix = nil
 	if ( stdnse.get_script_args('ldap.saveprefix') ) then
 		output_prefix = stdnse.get_script_args('ldap.saveprefix')
 	elseif ( output_type ) then
 		output_prefix = "ldap-brute"
 	end
-	
+
 	local credTable = creds.Credentials:new(SCRIPT_NAME, host, port)
-	
+
 	if not socket then
 		return
 	end
@@ -168,25 +168,25 @@ action = function( host, port )
 	if not status then
 		return
 	end
-	
+
 	context = get_naming_context(socket)
-	
+
 	if not context then
 		stdnse.print_debug("Failed to retrieve namingContext")
 		socket:close()
 		return
 	end
-	
+
  	status, usernames = unpwdb.usernames()
 	if not status then
 		return
 	end
-	
+
 	status, passwords = unpwdb.passwords()
 	if not status then
 		return
 	end
-	
+
 	for username in usernames do
 		-- if a base DN was set append our username (CN) to the base
 		if base_dn then
@@ -196,10 +196,10 @@ action = function( host, port )
 		else
 			fq_username = username
 		end
-		
-		
+
+
 		user_cnt = user_cnt + 1
-		for password in passwords do			
+		for password in passwords do
 			tot_tries = tot_tries + 1
 
 			-- handle special case where we want to guess the username as password
@@ -216,7 +216,7 @@ action = function( host, port )
 				invalid_account_cnt = invalid_account_cnt + 1
 				break
 			end
-			
+
 			-- Is AD telling us the account does not exist?
 			if not status and response:match("AcceptSecurityContext error, data 525,") then
 				invalid_account_cnt = invalid_account_cnt + 1
@@ -246,7 +246,7 @@ action = function( host, port )
 				credTable:add(fq_username,password, creds.State.CHANGEPW)
 				break
 			end
-			
+
 			-- Login correct, user account expired
 			if not status and response:match("AcceptSecurityContext error, data 701,") then
 				table.insert( valid_accounts, string.format("%s:%s => Valid credentials, account expired", fq_username, password:len()>0 and password or "<empty>" ) )
@@ -254,7 +254,7 @@ action = function( host, port )
 				credTable:add(fq_username,password, creds.State.EXPIRED)
 				break
 			end
-			
+
 			-- Login correct, user account logon time restricted
 			if not status and response:match("AcceptSecurityContext error, data 530,") then
 				table.insert( valid_accounts, string.format("%s:%s => Valid credentials, account cannot log in at current time", fq_username, password:len()>0 and password or "<empty>" ) )
@@ -262,7 +262,7 @@ action = function( host, port )
 				credTable:add(fq_username,password, creds.State.TIME_RESTRICTED)
 				break
 			end
-			
+
 			-- Login correct, user account can only log in from certain workstations
 			if not status and response:match("AcceptSecurityContext error, data 531,") then
 				table.insert( valid_accounts, string.format("%s:%s => Valid credentials, account cannot log in from current host", fq_username, password:len()>0 and password or "<empty>" ) )
@@ -280,13 +280,13 @@ action = function( host, port )
 					-- Add credentials for other ldap scripts to use
 					if nmap.registry.ldapaccounts == nil then
 						nmap.registry.ldapaccounts = {}
-					end	
+					end
 					nmap.registry.ldapaccounts[fq_username]=password
 					credTable:add(fq_username,password, creds.State.VALID)
-					
+
 					break
 				end
-			end			
+			end
 		end
 		passwords("reset")
 	end
@@ -296,9 +296,9 @@ action = function( host, port )
 	if ( invalid_account_cnt == user_cnt and base_dn ~= nil ) then
 		return "WARNING: All usernames were invalid. Invalid LDAP base?"
 	end
-	
-	
-	
+
+
+
 	if output_prefix then
 		local output_file = output_prefix .. "_" .. host.ip .. "_" .. port.number
 		status, err = credTable:saveToFile(output_file,output_type)
@@ -312,7 +312,7 @@ action = function( host, port )
 	else
 		output = stdnse.format_output(true, valid_accounts) or ""
 	end
-	
+
 	return output
 
 end

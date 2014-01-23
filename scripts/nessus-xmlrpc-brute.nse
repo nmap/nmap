@@ -13,7 +13,7 @@ Performs brute force password auditing against a Nessus vulnerability scanning d
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 8834/tcp open  unknown syn-ack
--- | nessus-xmlrpc-brute: 
+-- | nessus-xmlrpc-brute:
 -- |   Accounts
 -- |     nessus:nessus - Valid credentials
 -- |   Statistics
@@ -50,7 +50,7 @@ local function authenticate(host, port, username, password)
 	local data = table.concat(headers, "\r\n") .. "\r\n\r\n" .. post_data
 	local socket = nmap.new_socket()
 	socket:set_timeout(arg_timeout)
-	
+
 	local status, err = socket:connect(host, port)
 	if ( not(status) ) then
 		return false, "Failed to connect to server"
@@ -67,7 +67,7 @@ local function authenticate(host, port, username, password)
 	return status, response
 end
 
-Driver = 
+Driver =
 {
 	new = function (self, host, port )
 		local o = { host = host, port = port }
@@ -79,7 +79,7 @@ Driver =
 	connect = function ( self )	return true	end,
 
 	login = function( self, username, password )
-		
+
 		local status, response = authenticate(self.host, self.port, username, password)
 		if ( status and response ) then
 			if ( response:match("^HTTP/1.1 200 OK.*<status>OK</status>") ) then
@@ -108,17 +108,17 @@ action = function(host, port)
 	-- The server answers non-ssl connections as legitimate http stating that
 	-- the server should be connected to using https on the same port. ugly.
 	if ( status and response:match("^HTTP/1.1 400 Bad request\r\n") ) then
-		port.protocol = "ssl"	
+		port.protocol = "ssl"
 		status, response = authenticate(host, port, "nmap-ssl-test-probe", "nmap-ssl-test-probe")
 		if ( not(status) ) then
 			return fail(response)
 		end
 	end
-	
+
 	if ( not(response:match("^HTTP/1.1 200 OK.*Server: NessusWWW.*<status>ERROR</status>")) ) then
 		return fail("Failed to detect Nessus Web server")
 	end
-	
+
 	local engine = brute.Engine:new(Driver, host, port)
 	if ( arg_threads ) then
 		engine:setMaxThreads(arg_threads)

@@ -22,7 +22,7 @@ Reference:
 -- @output
 -- PORT   STATE SERVICE
 -- 25/tcp open  smtp
--- | smtp-vuln-cve2011-1720: 
+-- | smtp-vuln-cve2011-1720:
 -- |   VULNERABLE:
 -- |   Postfix SMTP server Cyrus SASL Memory Corruption
 -- |     State: VULNERABLE
@@ -84,17 +84,17 @@ local AUTH_VULN = {
     killby = {}
   },
 }
- 
+
 -- parse and check the authentication mechanisms.
 -- This function will save the vulnerable auth mechanisms in
 -- the auth_mlist table, and returns all the available auth
 -- mechanisms as a string.
 local function chk_auth_mechanisms(ehlo_res, auth_mlist)
   local mlist, mstr = smtp.get_auth_mech(ehlo_res), ""
-    
+
   if mlist then
     for _, mech in ipairs(mlist) do
-      mstr = mstr.." "..mech 
+      mstr = mstr.." "..mech
       if AUTH_VULN[mech] then
         auth_mlist[mech] = mech
       end
@@ -188,7 +188,7 @@ local function check_smtpd(smtp_opts)
     if not status then
       return status, response
     end
- 
+
     status, response = smtp.ehlo(socket, smtp_opts.domain)
     if not status then
       return status, response
@@ -244,13 +244,13 @@ local function check_smtpd(smtp_opts)
 
       table.insert(vuln.check_results, string.format("AUTH tests:%s",
                                                      auth_tests))
-    end 
+    end
   else
     stdnse.print_debug(2, "%s: Authentication is not available",
         SCRIPT_NAME)
     table.insert(vuln.check_results, "Authentication is not available")
   end
-  
+
   vuln.state = vulns.STATE.NOT_VULN
   return smtp_finish(socket, true)
 end

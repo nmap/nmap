@@ -14,8 +14,8 @@ Performs brute force password auditing against a OpenVAS vulnerability scanner d
 ---
 -- @output
 -- PORT     STATE SERVICE    REASON  VERSION
--- 9391/tcp open  ssl/openvas syn-ack 
--- | openvas-otp-brute: 
+-- 9391/tcp open  ssl/openvas syn-ack
+-- | openvas-otp-brute:
 -- |   Accounts
 -- |     openvas:openvas - Valid credentials
 -- |   Statistics
@@ -32,7 +32,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service({9390,9391}, "openvas", "tcp")
 
-Driver = 
+Driver =
 {
 	new = function (self, host, port)
 		local o = { host = host, port = port }
@@ -42,11 +42,11 @@ Driver =
 	end,
 
 	connect = function ( self )
-		self.socket = nmap.new_socket() 
+		self.socket = nmap.new_socket()
 		if ( not(self.socket:connect(self.host, self.port, "ssl")) ) then
 			return false
 		end
-		return true	
+		return true
 	end,
 
 	login = function( self, username, password )
@@ -58,7 +58,7 @@ Driver =
 			return false, err
 		end
 
-		local response 
+		local response
 		status, response = self.socket:receive_buf("\r?\n", false)
 		if ( not(status) or response ~= "< OTP/1.0 >" ) then
 			local err = brute.Error:new( "Bad handshake from server: "..response )
@@ -88,7 +88,7 @@ Driver =
 			stdnse.print_debug(2, "openvas-otp-brute: Bad login: %s/%s", username, password)
 			return false, brute.Error:new( "Bad login" )
 		elseif (string.match(line,"SERVER <|>")) then
-				
+
 			stdnse.print_debug(1, "openvas-otp-brute: Good login: %s/%s", username, password)
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end

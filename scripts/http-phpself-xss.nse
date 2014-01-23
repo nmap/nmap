@@ -1,5 +1,5 @@
 description=[[
-Crawls a web server and attempts to find PHP files vulnerable to reflected cross site scripting via the variable $_SERVER["PHP_SELF"]. 
+Crawls a web server and attempts to find PHP files vulnerable to reflected cross site scripting via the variable $_SERVER["PHP_SELF"].
 
 This script crawls the webserver to create a list of PHP files and then sends an attack vector/probe to identify PHP_SELF cross site scripting vulnerabilities.
 PHP_SELF XSS refers to reflected cross site scripting vulnerabilities caused by the lack of sanitation of the variable <code>$_SERVER["PHP_SELF"]</code> in PHP scripts. This variable is
@@ -19,15 +19,15 @@ The attack vector/probe used is: <code>/'"/><script>alert(1)</script></code>
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-phpself-xss: 
+-- | http-phpself-xss:
 -- |   VULNERABLE:
 -- |   Unsafe use of $_SERVER["PHP_SELF"] in PHP files
 -- |     State: VULNERABLE (Exploitable)
 -- |     Description:
 -- |       PHP files are not handling safely the variable $_SERVER["PHP_SELF"] causing Reflected Cross Site Scripting vulnerabilities.
--- |              
+-- |
 -- |     Extra information:
--- |       
+-- |
 -- |   Vulnerable files with proof of concept:
 -- |     http://calder0n.com/sillyapp/three.php/%27%22/%3E%3Cscript%3Ealert(1)%3C/script%3E
 -- |     http://calder0n.com/sillyapp/secret/2.php/%27%22/%3E%3Cscript%3Ealert(1)%3C/script%3E
@@ -77,7 +77,7 @@ end
 local function launch_probe(host, port, uri)
   local probe_response
 
-  --We avoid repeating probes. 
+  --We avoid repeating probes.
   --This is a temp fix since httpspider do not keep track of previously parsed links at the moment.
   if probes[uri] then
     return false
@@ -130,7 +130,7 @@ PHP files are not handling safely the variable $_SERVER["PHP_SELF"] causing Refl
         break
       end
     end
-  
+
     local parsed = url.parse(tostring(r.url))
 
     --Only work with .php files
@@ -147,7 +147,7 @@ PHP files are not handling safely the variable $_SERVER["PHP_SELF"] causing Refl
         end
       end
   end
-  
+
   if ( #vulnpages > 0 ) then
     vuln.state = vulns.STATE.EXPLOIT
     vulnpages.name = "Vulnerable files with proof of concept:"

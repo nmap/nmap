@@ -4,7 +4,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local wsdd = require "wsdd"
 
-description = [[ 
+description = [[
 Uses a multicast query to discover devices supporting the Web Services
 Dynamic Discovery (WS-Discovery) protocol. It also attempts to locate
 any published Windows Communication Framework (WCF) web services (.NET
@@ -13,10 +13,10 @@ any published Windows Communication Framework (WCF) web services (.NET
 
 ---
 -- @usage
--- sudo ./nmap --script broadcast-wsdd-discover 
+-- sudo ./nmap --script broadcast-wsdd-discover
 --
 -- @output
--- | broadcast-wsdd-discover: 
+-- | broadcast-wsdd-discover:
 -- |   Devices
 -- |     1.2.3.116
 -- |         Message id: 9ea97e41-e874-faa7-fe28-deadbeefceb3
@@ -35,7 +35,7 @@ any published Windows Communication Framework (WCF) web services (.NET
 -- |         Message id: c1767df8-43e5-4440-9e26--deadbeefceb3
 -- |_        Address: http://win-7:8090/discovery/scenarios/service2/deadbeef-3382-4668-86e7-deadbeefb935/
 --
--- 
+--
 
 --
 -- Version 0.1
@@ -60,7 +60,7 @@ discoverThread = function( funcname, results )
 	local helper = wsdd.Helper:new()
 	helper:setMulticast(true)
 	helper:setTimeout(timeout)
-	
+
 	local status, result = helper[funcname](helper)
 	if ( status ) then table.insert(results, result) end
 	condvar("broadcast")
@@ -77,12 +77,12 @@ action = function()
 
 	local threads, results = {}, {}
 	local condvar = nmap.condvar( results )
-	
+
 	-- Attempt to discover both devices and WCF web services
 	for _, f in ipairs( {"discoverDevices", "discoverWCFServices"} ) do
 		threads[stdnse.new_thread( discoverThread, f, results )] = true
 	end
-	
+
 	local done
 	-- wait for all threads to finish
 	while( not(done) ) do

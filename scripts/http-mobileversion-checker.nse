@@ -2,15 +2,15 @@ description = [[
 Checks if the website holds a mobile version.
 ]]
 
---- 
+---
 -- @usage nmap -p80 --script http-mobileversion-checker.nse <host>
 --
--- This script sets an Android User-Agent header and checks if the request 
--- will be redirected to a page different than a (valid) browser request 
--- would be. If so, this page is most likely to be a mobile version of the 
+-- This script sets an Android User-Agent header and checks if the request
+-- will be redirected to a page different than a (valid) browser request
+-- would be. If so, this page is most likely to be a mobile version of the
 -- app.
 --
--- @args newtargets If this is set, add any newly discovered hosts to nmap 
+-- @args newtargets If this is set, add any newly discovered hosts to nmap
 --                  scanning queue. Default: nil
 --
 -- @output
@@ -60,8 +60,8 @@ end
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
-action = function(host, port) 
- 
+action = function(host, port)
+
     local newtargets = stdnse.get_script_args("newtargets") or nil
 
     -- We don't crawl any site. We initialize a crawler to use its iswithinhost method.
@@ -74,8 +74,8 @@ action = function(host, port)
     if loc ~= mobloc then
         local msg = "Found mobile version: " .. mobloc
         local mobhost = http.parse_url(mobloc)
-        if not crawler:iswithinhost(mobhost.host) then    
-            msg = msg .. " (Redirected to a different host)" 
+        if not crawler:iswithinhost(mobhost.host) then
+            msg = msg .. " (Redirected to a different host)"
             if newtargets then
                 target.add(mobhost.host)
             end

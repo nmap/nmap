@@ -22,7 +22,7 @@ accounts will be locked.
 -- @output
 -- PORT     STATE SERVICE    REASON
 -- 8080/tcp open  http-proxy syn-ack
--- | citrix-brute-xml:  
+-- | citrix-brute-xml:
 -- |   Joe:password => Must change password at next logon
 -- |   Luke:summer => Login was successful
 -- |_  Jane:secret => Account is disabled
@@ -49,18 +49,18 @@ portrule = shortport.portnumber({8080,80,443}, "tcp")
 -- @param domain string, the Windows domain to authenticate against
 --
 -- @return success, message
---  
+--
 function verify_password( host, port, username, password, domain )
 
 	local response = citrixxml.request_validate_credentials(host, port, {Credentials={Domain=domain, Password=password, UserName=username}})
 	local cred_status = citrixxml.parse_validate_credentials_response(response)
-	
+
 	local account = {}
 
 	account.username = username
 	account.password = password
 	account.domain = domain
-			
+
 	if cred_status.ErrorId then
 		if cred_status.ErrorId == "must-change-credentials" then
 			account.valid = true
@@ -88,7 +88,7 @@ function verify_password( host, port, username, password, domain )
 	end
 
 	return account
-	
+
 end
 
 --- Formats the result from the table of valid accounts
@@ -99,10 +99,10 @@ function create_result_from_table(accounts)
 
 	local result = ""
 
-	for _, account in ipairs(accounts) do		
+	for _, account in ipairs(accounts) do
 		result = result .. "  " .. account.username .. ":" .. account.password .. " => " .. account.message .. "\n"
 	end
-	
+
 	return "\n" .. result
 end
 
@@ -113,13 +113,13 @@ action = function(host, port)
 	local args = nmap.registry.args
 	local ntdomain = args.ntdomain
 	local valid_accounts = {}
-	
+
 	if not ntdomain then
 		return "FAILED: No domain specified (use ntdomain argument)"
 	end
-	
+
 	status, nextUser = unpwdb.usernames()
-	
+
 	if not status then
 		return
 	end
@@ -129,36 +129,36 @@ action = function(host, port)
 	if not status then
 		return
 	end
-	
+
 	username = nextUser()
-	
+
 	-- iterate over userlist
 	while username do
 		password = nextPass()
-		
+
 		-- iterate over passwordlist
 		while password do
 			local result = "Trying " .. username .. "/" .. password .. " "
 			local account = verify_password(host.ip, port.number, username, password, ntdomain)
-			
+
 			if account.valid then
-				
+
 				table.insert(valid_accounts, account)
-				
+
 				if account.valid then
 					stdnse.print_debug(1, "Trying %s/%s => Login Correct, Info: %s", username, password, account.message)
 				else
-					stdnse.print_debug(1, "Trying %s/%s => Login Correct", username, password)					
+					stdnse.print_debug(1, "Trying %s/%s => Login Correct", username, password)
 				end
 			else
 				stdnse.print_debug(1, "Trying %s/%s => Login Failed, Reason: %s", username, password, account.message)
 			end
 			password = nextPass()
 		end
-	
+
 		nextPass("reset")
 		username = nextUser()
 	end
-		
+
 	return create_result_from_table(valid_accounts)
 end

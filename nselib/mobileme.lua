@@ -7,15 +7,15 @@ _ENV = stdnse.module("mobileme", stdnse.seeall)
 
 ---
 -- A MobileMe web service client that allows discovering Apple devices
--- using the "find my iPhone" functionality. 
--- 
+-- using the "find my iPhone" functionality.
+--
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 
 MobileMe = {
-	
+
 	-- headers used in all requests
-	headers = { 
+	headers = {
 		["Content-Type"] = "application/json; charset=utf-8",
     	["X-Apple-Find-Api-Ver"] = "2.0",
     	["X-Apple-Authscheme"] = "UserIdGuest",
@@ -26,7 +26,7 @@ MobileMe = {
     	["Accept-Language"] = "en-us",
     	["Connection"] = "keep-alive"
 	},
-	
+
 	-- Creates a MobileMe instance
 	-- @param username string containing the Apple ID username
 	-- @param password string containing the Apple ID password
@@ -42,7 +42,7 @@ MobileMe = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Sends a message to an iOS device
 	-- @param devid string containing the device id to which the message should
 	--        be sent
@@ -59,14 +59,14 @@ MobileMe = {
 	    local auth = { username = self.username, password = self.password }
 
 		local response = http.post(self.host, self.port, url, { header = self.headers, auth = auth, timeout = 10000 }, nil, data)
-		
+
 		if ( response.status == 200 ) then
 			local status, resp = json.parse(response.body)
 			if ( not(status) ) then
 				stdnse.print_debug(2, "Failed to parse JSON response from server")
 				return false, "Failed to parse JSON response from server"
 			end
-			
+
 			if ( resp.statusCode ~= "200" ) then
 				stdnse.print_debug(2, "Failed to send message to server")
 				return false, "Failed to send message to server"
@@ -74,7 +74,7 @@ MobileMe = {
 		end
 		return true
 	end,
-	
+
 	-- Updates location information for all devices controlled by the Apple ID
 	-- @return status true on success, false on failure
 	-- @return json parsed json table or string containing an error message on
@@ -97,20 +97,20 @@ MobileMe = {
 			if ( response.header["x-apple-mme-host"] ) then
 				self.host = response.header["x-apple-mme-host"]
 			end
-			
+
 			if ( response.status == 401 ) then
 				return false, "Authentication failed"
 			elseif ( response.status ~= 200 and response.status ~= 330 ) then
 				return false, "An unexpected error occured"
 			end
-			
+
 			retries = retries - 1
 		until ( 200 == response.status or 0 == retries)
 
 		if ( response.status ~= 200 ) then
 			return false, "Received unexpected response from server"
 		end
-		
+
 		local status, parsed_json = json.parse(response.body)
 
 		if ( not(status) or parsed_json.statusCode ~= "200" ) then
@@ -122,7 +122,7 @@ MobileMe = {
 
 		return true, parsed_json
 	end,
-	
+
 	-- Get's a list of devices
 	-- @return devices table containing a list of devices
 	getDevices = function(self)
@@ -136,7 +136,7 @@ MobileMe = {
 
 Helper = {
 
-	
+
 	-- Creates a Helper instance
 	-- @param username string containing the Apple ID username
 	-- @param password string containing the Apple ID password
@@ -150,7 +150,7 @@ Helper = {
 		o.mm:update()
 		return o
 	end,
-	
+
 	-- Get's the geolocation from each device
 	--
 	-- @return status true on success, false on failure
@@ -162,7 +162,7 @@ Helper = {
 	--         * <code>accuracy</code>  - the location accuracy
 	--         * <code>timestamp</code> - the time the location was acquired
 	--         * <code>postype</code>   - the position type (GPS or WiFi)
-	--         * <code>finished</code>  - 
+	--         * <code>finished</code>  -
 	--         or string containing an error message on failure
 	getLocation = function(self)
 		-- do 3 tries, with a 5 second timeout to allow the location to update
@@ -171,10 +171,10 @@ Helper = {
 		-- success with that.
 		local tries, timeout = 3, 5
 		local result = {}
-		
+
 		repeat
 			local status, response = self.mm:update()
-			
+
 			if ( not(status) or not(response) ) then
 				return false, "Failed to retrieve response from server"
 			end
@@ -197,7 +197,7 @@ Helper = {
 		until( tries == 0 )
 		return true, result
 	end,
-	
+
 	-- Gets a list of names and ids of devices associated with the Apple ID
 	-- @return status true on success, false on failure
 	-- @return table of devices containing the following fields:
@@ -209,7 +209,7 @@ Helper = {
 		end
 		return true, devices
 	end,
-	
+
 	-- Send a message to an iOS Device
 	--
 	-- @param devid string containing the device id to which the message should
@@ -222,7 +222,7 @@ Helper = {
 	sendMessage = function(self, ...)
 		return self.mm:sendMessage(...)
 	end
-	
+
 }
 
 return _ENV;

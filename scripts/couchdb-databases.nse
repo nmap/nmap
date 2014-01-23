@@ -8,7 +8,7 @@ local table = require "table"
 description = [[
 Gets database tables from a CouchDB database.
 
-For more info about the CouchDB HTTP API, see 
+For more info about the CouchDB HTTP API, see
 http://wiki.apache.org/couchdb/HTTP_database_API.
 ]]
 
@@ -18,7 +18,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API.
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 5984/tcp open  unknown syn-ack
--- | couchdb-databases:  
+-- | couchdb-databases:
 -- |   1 = test_suite_db
 -- |   2 = test_suite_db_a
 -- |   3 = test_suite_db/with_slashes
@@ -68,32 +68,32 @@ action = function(host, port)
 	local data, result, err
 	dbg("Requesting all databases")
 	data = http.get( host, port, '/_all_dbs' )
-	
+
 	-- check that body was received
 	if not data.body or data.body == "" then
 		local msg = ("%s did not respond with any data."):format(host.targetname or host.ip )
-		dbg( msg ) 
+		dbg( msg )
 		return  msg
 	end
-	
-	-- The html body should look like this : 
+
+	-- The html body should look like this :
 	-- ["somedatabase", "anotherdatabase"]
-	
+
 	local status, result = json.parse(data.body)
 	if not status then
 		dbg(result)
 		return result
 	end
-	
+
 	-- Here we know it is a couchdb
 	port.version.name ='httpd'
 	port.version.product='Apache CouchDB'
 	nmap.set_port_version(host,port)
-	
+
 	-- We have a valid table in result containing the parsed json
-	-- now, get all the interesting bits		
-	
+	-- now, get all the interesting bits
+
 	result = queryResultToTable(result)
-	
+
 	return stdnse.format_output(true, result )
 end

@@ -6,14 +6,14 @@
 -- Summary
 -- -------
 -- The library currently supports the VNC Authentication security type only.
--- This security type is supported by default in VNC, TightVNC and 
+-- This security type is supported by default in VNC, TightVNC and
 -- "Remote Desktop Sharing" in eg. Ubuntu. For servers that do not support
--- this authentication security type the login method will fail. 
+-- this authentication security type the login method will fail.
 --
 -- Overview
 -- --------
 -- The library contains the following classes:
--- 
+--
 --   o VNC
 --		- This class contains the core functions needed to communicate with VNC
 --
@@ -45,7 +45,7 @@ VNC = {
 		-- Mac Screen Sharing, could probably be used to fingerprint OS
 		["RFB 003.889\n"] = "3.889",
 	},
-	
+
 	sectypes = {
 		INVALID = 0,
 		NONE = 1,
@@ -62,7 +62,7 @@ VNC = {
 		MAC_OSX_SECTYPE_30 = 30,
 		MAC_OSX_SECTYPE_35 = 35,
 	},
-	
+
 	-- Security types are fetched from the rfbproto.pdf
 	sectypes_str = {
 		[0] = "Invalid security type",
@@ -77,12 +77,12 @@ VNC = {
 		[20]= "GTK-VNC SASL",
 		[21]= "MD5 hash authentication",
 		[22]= "Colin Dean xvp",
-		
+
 		-- Mac OS X screen sharing uses 30 and 35
 		[30]= "Mac OS X security type",
 		[35]= "Mac OS X security type",
 	},
-	
+
 	new = function(self, host, port)
 		local o = {
 			host = host,
@@ -94,7 +94,7 @@ VNC = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Connects the VNC socket
 	connect = function(self)
 		if ( not(HAVE_SSL) ) then
@@ -102,12 +102,12 @@ VNC = {
 		end
 		return self.socket:connect(self.host, self.port, "tcp")
 	end,
-	
+
 	--- Disconnects the VNC socket
 	disconnect = function(self)
 		return self.socket:close()
 	end,
-	
+
 	--- Performs the VNC handshake and determines
 	-- o The RFB Protocol to use
 	-- o The supported authentication security types
@@ -120,17 +120,17 @@ VNC = {
 			count = 1,
 			types = {}
 		}
-		
+
 		if ( not(status) ) then
 			return status, "ERROR: VNC:handshake failed to receive protocol version"
 		end
-		
+
 		self.protover = VNC.versions[data]
 		if ( not(self.protover) ) then
 			stdnse.print_debug("ERROR: VNC:handshake unsupported version (%s)", data:sub(1,11))
 			return false, ("Unsupported version (%s)"):format(data:sub(1,11))
 		end
-			
+
 		status = self.socket:send( self.cli_version )
 		if ( not(status) ) then
 			stdnse.print_debug("ERROR: VNC:handshake failed to send client version")
@@ -158,7 +158,7 @@ VNC = {
 
 			vncsec.types[1] = select(2, bin.unpack("I", tmp) )
 			self.vncsec = vncsec
-			
+
 			-- do we have an invalid security type, if so we need to handle an
 			-- error condition
 			if ( vncsec.types[1] == 0 ) then
@@ -187,10 +187,10 @@ VNC = {
 			end
 			self.vncsec = vncsec
 		end
-		
+
 		return true
 	end,
-	
+
 	--- Creates the password bit-flip needed before DES encryption
 	--
 	-- @param password string containing the password to process
@@ -201,7 +201,7 @@ VNC = {
 				password = password .. string.char(0x00)
 			end
 		end
-		
+
 		local newpass = ""
 		for i=1, 8 do
 			local _, bitstr = bin.unpack("B", password, i)
@@ -209,7 +209,7 @@ VNC = {
 		end
 		return newpass
 	end,
-	
+
 	--- Attempts to login to the VNC service
 	-- Currently the only supported auth sectype is VNC Authentication
 	--
@@ -221,17 +221,17 @@ VNC = {
 		if ( not(password) ) then
 			return false, "No password was supplied"
 		end
-	
+
 		if ( not( self:supportsSecType( VNC.sectypes.VNCAUTH ) ) ) then
 			return false, "The server does not support the \"VNC Authentication\" security type."
 		end
-	
+
 		-- Announce that we support VNC Authentication
 		local status = self.socket:send( bin.pack("C", VNC.sectypes.VNCAUTH) )
 		if ( not(status) ) then
 			return false, "Failed to select authentication type"
 		end
-	
+
 		local status, chall = self.socket:receive_buf(match.numbytes(16), true)
 		if ( not(status) ) then
 			return false, "Failed to receive authentication challenge"
@@ -244,18 +244,18 @@ VNC = {
 		if ( not(status) ) then
 			return false, "Failed to send authentication response to server"
 		end
-		
+
 		local status, result = self.socket:receive_buf(match.numbytes(4), true)
 		if ( not(status) ) then
 			return false, "Failed to retrieve authentication status from server"
 		end
-		
+
 		if ( select(2, bin.unpack("I", result) ) ~= 0 ) then
 			return false, ("Authentication failed with password %s"):format(password)
 		end
 		return true, ""
 	end,
-	
+
 	--- Returns all supported security types as a table
 	--
 	-- @return table containing a entry for each security type
@@ -273,7 +273,7 @@ VNC = {
 		end
 		return true, tmp
 	end,
-	
+
 	--- Checks if the supplied security type is supported or not
 	--
 	-- @param sectype number containing the security type to check for
@@ -286,14 +286,14 @@ VNC = {
 		end
 		return false
 	end,
-	
+
 	--- Returns the protocol version reported by the server
 	--
 	-- @param version string containing the version number
 	getProtocolVersion = function( self )
 		return self.protover
 	end,
-	
+
 }
 
 return _ENV;

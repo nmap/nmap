@@ -18,7 +18,7 @@ request.
 -- @output
 -- PORT      STATE SERVICE
 -- 19150/tcp open  gkrellm
--- | gkrellm-info: 
+-- | gkrellm-info:
 -- |   Hostname: ubu1110
 -- |   System: Linux 3.0.0-12-generic
 -- |   Version: gkrellmd 2.3.4
@@ -153,11 +153,11 @@ end
 action = function(host, port)
 	local socket = nmap.new_socket()
 	socket:set_timeout(5000)
-	
+
 	if ( not(socket:connect(host, port)) ) then
 		return fail("Failed to connect to the server")
 	end
-	
+
 	-- If there's an error we get a response back, and only then
 	local status, data = socket:receive_buf("\n", false)
 	if( status and data ~= "<error>" ) then
@@ -187,11 +187,11 @@ action = function(host, port)
 		else
 			tag = tag:match("^<(.*)>$")
 		end
-		
+
 		if ( tags[tag] ) then
 			break
 		end
-		
+
 		while(true) do
 			local data
 			status, data = socket:receive_buf("\n", false)
@@ -207,7 +207,7 @@ action = function(host, port)
 		end
 	end
 	socket:close()
-	
+
 	local output = {}
 	for tag in pairs(tags) do
 		local result, order = decodeTag(tag, tags[tag])
@@ -215,7 +215,7 @@ action = function(host, port)
 			table.insert(output, result)
 		end
 	end
-	
-	table.sort(output, function(a,b) return getOrderPos(a) < getOrderPos(b) end)	
+
+	table.sort(output, function(a,b) return getOrderPos(a) < getOrderPos(b) end)
 	return stdnse.format_output(true, output)
 end

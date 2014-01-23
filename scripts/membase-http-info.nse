@@ -18,7 +18,7 @@ does not require any credentials.
 -- @output
 -- PORT     STATE SERVICE
 -- 8091/tcp open  unknown
--- | membase-http-info: 
+-- | membase-http-info:
 -- |   Hostname           192.168.0.5:8091
 -- |   OS                 x86_64-unknown-linux-gnu
 -- |   Version            1.7.2r-20-g6604356
@@ -52,7 +52,7 @@ local filter = {
 	["parsed[1]['nodes'][1]['uptime']"] = { name = "Uptime" },
 	["parsed[1]['nodes'][1]['memoryTotal']"] = { name = "Total memory" },
 	["parsed[1]['nodes'][1]['memoryFree']"] = { name = "Free memory" },
-	["parsed[1]['vBucketServerMap']['serverList']"] = { name = "Server list" },	
+	["parsed[1]['vBucketServerMap']['serverList']"] = { name = "Server list" },
 	["parsed['componentsVersion']['kernel']"] = { name = "Kernel version" },
 	["parsed['componentsVersion']['mnesia']"] = { name = "Mnesia version" },
 	["parsed['componentsVersion']['stdlib']"] = { name = "Stdlib version" },
@@ -80,16 +80,16 @@ local order = {
 
 local function cmdReq(host, port, url, result)
 	local response = http.get(host, port, url)
-	
+
 	if ( 200 ~= response.status ) or ( response.header['server'] == nil ) then
 		return false
 	end
-	
+
 	if ( response.header['server'] and
 		 not( response.header['server']:match("^Couchbase Server") or response.header['server']:match("^Membase Server")  ) ) then
 		return false
 	end
-	
+
 	local status, parsed = json.parse(response.body)
 	if ( not(status) ) then
 		return false, "Failed to parse response from server"
@@ -109,9 +109,9 @@ local function cmdReq(host, port, url, result)
 			end
 			val = func()
 		end
-		
+
 		if ( val ) then
-			local name = filter[item].name			
+			local name = filter[item].name
 			val = ( "table" == type(val) and stdnse.strjoin(",", val) or val )
 			result[item] = { name = name, value = val }
 		end
@@ -120,7 +120,7 @@ local function cmdReq(host, port, url, result)
 end
 
 action = function(host, port)
-  
+
 	-- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
 	local _, http_status, _ = http.identify_404(host,port)
 	if ( http_status == 200 ) then
@@ -129,7 +129,7 @@ action = function(host, port)
 	end
 
 	local urls = { "/pools/default/buckets", "/pools" }
-	
+
 	local status, result
 	for _, u in ipairs(urls) do
 		status, result = cmdReq(host, port, u, result)
@@ -138,13 +138,13 @@ action = function(host, port)
 	if ( not(result) or not(next(result)) ) then
 	 	return
 	end
-	
+
 	local output = tab.new(2)
 	for _, item in ipairs(order) do
 		if ( result[item] ) then
 			tab.addrow(output, result[item].name, result[item].value)
 		end
 	end
-	
+
 	return stdnse.format_output(true, tab.dump(output))
 end

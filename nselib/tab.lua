@@ -90,7 +90,7 @@ end
 function dump(t)
 	assert(t)
 
-	local column_width = {}	
+	local column_width = {}
 	local num_columns = {}
 	local buf = strbuf.new()
 

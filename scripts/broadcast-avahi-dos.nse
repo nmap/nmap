@@ -16,7 +16,7 @@ vulnerable.
 
 Reference:
 * http://avahi.org/ticket/325
-* http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1002 
+* http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1002
 ]]
 
 
@@ -25,7 +25,7 @@ Reference:
 -- nmap --script=broadcast-avahi-dos
 --
 -- @output
--- | broadcast-avahi-dos: 
+-- | broadcast-avahi-dos:
 -- |   Discovered hosts:
 -- |     10.0.1.150
 -- |     10.0.1.151
@@ -55,7 +55,7 @@ action = function()
   local wtime = stdnse.get_script_args("broadcast-avahi-dos.wait") or 20
   local helper = dnssd.Helper:new()
   helper:setMulticast(true)
-	
+
   local status, result = helper:queryServices()
   if (status) then
     local output, hosts, tmp = {}, {}, {}
@@ -88,7 +88,7 @@ action = function()
             end
           end
         end
-      end 
+      end
 
       local vulns = {}
       for ip, _ in pairs(tmp) do
@@ -101,7 +101,7 @@ action = function()
       else
         table.insert(output, "Hosts are all up (not vulnerable).")
       end
-      
+
       return stdnse.format_output(true, output)
     end
   end

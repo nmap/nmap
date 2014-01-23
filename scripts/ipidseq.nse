@@ -16,7 +16,7 @@ for these hosts.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap --script ipidseq [--script-args probeport=port] target
 -- @args probeport Set destination port to probe
 -- @output

@@ -40,13 +40,13 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 -- @args mssql.database Database to connect to (default: tempdb)
 --
 -- @output
--- | ms-sql-query:  
+-- | ms-sql-query:
 -- |   [192.168.100.25\MSSQLSERVER]
 -- |     Query: SELECT @@version version
 -- |       version
 -- |       =======
--- |       Microsoft SQL Server 2005 - 9.00.3068.00 (Intel X86) 
--- |     	Feb 26 2008 18:15:01 
+-- |       Microsoft SQL Server 2005 - 9.00.3068.00 (Intel X86)
+-- |     	Feb 26 2008 18:15:01
 -- |     	Copyright (c) 1988-2005 Microsoft Corporation
 -- |_    	Express Edition on Windows NT 5.2 (Build 3790: Service Pack 2)
 --
@@ -65,9 +65,9 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 hostrule = mssql.Helper.GetHostrule_Standard()
 portrule = mssql.Helper.GetPortrule_Standard()
 
---- 
+---
 local function process_instance( instance )
-	local status, result	
+	local status, result
 	-- the tempdb should be a safe guess, anyway the library is set up
 	-- to continue even if the DB is not accessible to the user
   -- TODO: consider renaming this arg to ms-sql-query.database
@@ -76,7 +76,7 @@ local function process_instance( instance )
 	local helper = mssql.Helper:new()
 
 	status, result = helper:ConnectEx( instance )
-	
+
 	if status then
 		status, result = helper:LoginEx( instance, database )
 		if ( not(status) ) then result = "ERROR: " .. result end
@@ -85,9 +85,9 @@ local function process_instance( instance )
 		status, result = helper:Query( query )
 		if ( not(status) ) then result = "ERROR: " .. result end
 	end
-	
+
 	helper:Disconnect()
-	
+
 	if status then
 		result = mssql.Util.FormatOutputTable( result, true )
 		result["name"] = string.format( "Query: %s", query )
@@ -95,7 +95,7 @@ local function process_instance( instance )
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
 	table.insert( instanceOutput, result )
-	
+
 	return instanceOutput
 end
 
@@ -103,7 +103,7 @@ end
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -117,6 +117,6 @@ action = function( host, port )
 			table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-query.query='<QUERY>' to change query.)")
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end

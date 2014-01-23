@@ -29,7 +29,7 @@ http://www.exploit-db.com/exploits/15130/
 -- @args http-max-cache-size
 --		   Set max cache size. The default value is 100,000.
 --		   Barracuda config files vary in size mostly due to the number
---		   of users. Using a max cache size of 5,000,000 bytes should be 
+--		   of users. Using a max cache size of 5,000,000 bytes should be
 --		   enough for config files containing up to 5,000 users.
 --
 -- @output

@@ -39,7 +39,7 @@ if pcall(require,'openssl') then
   HAVE_SSL = true
 end
 
---- A Session class holds connection and interaction with the server 
+--- A Session class holds connection and interaction with the server
 Session = {
 
   --- Creates a new session object

@@ -162,7 +162,7 @@ local SMTP_CMD = {
 -- Returns a domain to be used in the SMTP commands that need it. If the
 -- user specified one through the script argument <code>smtp.domain</code>
 -- this function will return it. Otherwise it will try to find the domain
--- from the typed hostname and from the rDNS name. If it still can't find 
+-- from the typed hostname and from the rDNS name. If it still can't find
 -- one it will return the nmap.scanme.org by default.
 --
 -- @param host The host table
@@ -290,7 +290,7 @@ connect = function(host, port, opts)
   if opts.ssl then
     local socket, _, _, ret = comm.tryssl(host, port, '', opts)
     if not socket then
-      return socket, (ERROR_MESSAGES[ret] or 'unspecified error') 
+      return socket, (ERROR_MESSAGES[ret] or 'unspecified error')
     end
     return socket, ret
   else
@@ -324,7 +324,7 @@ end
 
 --- Switches the plain text connection to be protected by the TLS protocol
 -- by using the SMTP STARTTLS command.
--- 
+--
 -- The socket will be reconnected by using SSL. On network errors or if the
 -- SMTP command fails, the connection will be closed and the socket cleared.
 --
@@ -334,7 +334,7 @@ end
 --         to the client's STARTTLS command, or an error message on failures.
 starttls = function(socket)
   local st, reply, ret
-  
+
   st, reply = query(socket, "STARTTLS")
   if not st then
     return st, reply
@@ -356,7 +356,7 @@ starttls = function(socket)
 end
 
 --- Sends the EHLO command to the SMTP server.
--- 
+--
 -- On network errors or if the SMTP command fails, the connection
 -- will be closed and the socket cleared.
 --
@@ -382,7 +382,7 @@ ehlo = function(socket, domain)
 end
 
 --- Sends the HELP command to the SMTP server.
--- 
+--
 -- On network errors or if the SMTP command fails, the connection
 -- will be closed and the socket cleared.
 --
@@ -565,7 +565,7 @@ end
 verify = function(socket, mailbox)
   local st, ret, response
   st, response = query(socket, "VRFY", mailbox)
-  
+
   st, ret = check_reply("VRFY", response)
   if not st then
     quit(socket)
@@ -596,7 +596,7 @@ end
 --         error message on failures.
 
 login = function(socket, username, password, mech)
-	assert(mech == "LOGIN" or mech == "PLAIN" or mech == "CRAM-MD5" 
+	assert(mech == "LOGIN" or mech == "PLAIN" or mech == "CRAM-MD5"
 			or mech == "DIGEST-MD5" or mech == "NTLM",
 			("Unsupported authentication mechanism (%s)"):format(mech or "nil"))
 	local status, response = query(socket, "AUTH", mech)
@@ -634,16 +634,16 @@ login = function(socket, username, password, mech)
 		end
 		return false, response
 	end
-	
-	
+
+
 	if ( mech == "NTLM" ) then
 		-- sniffed of the wire, seems to always be the same
 		-- decodes to some NTLMSSP blob greatness
 		status, response = query(socket, "TlRMTVNTUAABAAAAB7IIogYABgA3AAAADwAPACgAAAAFASgKAAAAD0FCVVNFLUFJUi5MT0NBTERPTUFJTg==")
-		if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end 
+		if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end
 	end
-	
-	
+
+
 	local chall = response:match("^334 (.*)")
 	chall = (chall and base64.dec(chall))
 	if (not(chall)) then return false, "ERROR: Failed to retrieve challenge" end
@@ -653,12 +653,12 @@ login = function(socket, username, password, mech)
 	local mech_params = { username, password, chall, "smtp" }
 	local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
 	auth_data = base64.enc(auth_data)
-	
+
 	status, response = query(socket, auth_data)
 	if ( not(status) ) then
 		return false, ("ERROR: Failed to authenticate using SASL %s"):format(mech)
 	end
-	
+
 	if ( mech == "DIGEST-MD5" ) then
 		local rspauth = response:match("^334 (.*)")
 		if ( rspauth ) then
@@ -666,9 +666,9 @@ login = function(socket, username, password, mech)
 			status, response = query(socket,"")
 		end
 	end
-	
+
 	if ( response:match("^235") ) then return true, "Login success"	end
-		
+
 	return false, response
 end
 

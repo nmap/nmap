@@ -16,7 +16,7 @@ _ENV = stdnse.module("cassandra", stdnse.seeall)
 
 --[[
 
-  Cassandra Thrift protocol implementation. 
+  Cassandra Thrift protocol implementation.
 
   For more information about Cassandra, see:
 
@@ -43,7 +43,7 @@ end
 --@param username to put in format
 --@param password to put in format
 --@return str : string in cassandra format for login
-function loginstr (username, password) 
+function loginstr (username, password)
         local str = CASSANDRAREQ .. pack4str ("login")
         str = str .. CASSLOGINMAGIC
         str = str .. pack4str("username")
@@ -60,7 +60,7 @@ end
 --@param cnt is protocol count
 --@return status : true if ok; false if bad
 --@return result : value if status ok, error msg if bad
-function cmdstr (command,cnt) 
+function cmdstr (command,cnt)
         local str = CASSANDRAREQ .. pack4str (command)
         str = str .. bin.pack(">I",cnt)
         str = str .. string.char (0x00) -- add null on the end
@@ -73,7 +73,7 @@ end
 --@param cnt is protocol count
 --@return status : true if ok; false if bad
 --@return result : value if status ok, error msg if bad
-function sendcmd (socket, command, cnt) 
+function sendcmd (socket, command, cnt)
   local cmdstr = cmdstr (command,cnt)
   local response
 
@@ -86,7 +86,7 @@ function sendcmd (socket, command, cnt)
   if ( not(status) ) then
     return false, "error sending packet payload"
   end
-  
+
   status, response = socket:receive_bytes(4)
   if ( not(status) ) then
           return false, "error receiving length"
@@ -103,7 +103,7 @@ function sendcmd (socket, command, cnt)
   end
 
   -- magic response starts at 5th byte for 4 bytes, 4 byte for length + length of string commmand
-  if (string.sub(response,5,8+4+string.len(command)) ~= CASSANDRARESP..pack4str(command)) then  
+  if (string.sub(response,5,8+4+string.len(command)) ~= CASSANDRARESP..pack4str(command)) then
     return false, "protocol response error"
   end
 
@@ -115,10 +115,10 @@ end
 --@param cnt is protocol count
 --@return status : true if ok; false if bad
 --@return result : value if status ok, error msg if bad
-function describe_cluster_name (socket,cnt) 
+function describe_cluster_name (socket,cnt)
   local cname = "describe_cluster_name"
   local status,resp = sendcmd(socket,cname,cnt)
-  
+
   if (not(status)) then
     stdnse.print_debug(1, "sendcmd"..resp)
     return false, "error in communication"
@@ -134,15 +134,15 @@ function describe_cluster_name (socket,cnt)
   return true, value
 end
 
---Return API version 
+--Return API version
 --@param socket to connect to
 --@param cnt is protocol count
 --@return status : true if ok; false if bad
 --@return result : value if status ok, error msg if bad
-function describe_version (socket,cnt) 
+function describe_version (socket,cnt)
   local cname = "describe_version"
   local status,resp = sendcmd(socket,cname,cnt)
-  
+
   if (not(status)) then
     stdnse.print_debug(1, "sendcmd"..resp)
     return false, "error in communication"
@@ -158,7 +158,7 @@ function describe_version (socket,cnt)
   return true, value
 end
 
---Login to Cassandra 
+--Login to Cassandra
 --@param socket to connect to
 --@param username to connect to
 --@param password to connect to
@@ -190,7 +190,7 @@ function login (socket,username,password)
   local _, size = bin.unpack(">I", response, 1)
 
   local loginresp = string.sub(response,5,17)
-  if (loginresp ~= CASSANDRARESP..pack4str("login")) then  
+  if (loginresp ~= CASSANDRARESP..pack4str("login")) then
     return false, "protocol error"
   end
 
@@ -205,6 +205,6 @@ function login (socket,username,password)
   else
     return false, "Login failed."
   end
-end 
+end
 
 return _ENV;

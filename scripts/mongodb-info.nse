@@ -15,7 +15,7 @@ Attempts to get build info and server status from a MongoDB database.
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 27017/tcp open  unknown syn-ack
--- | mongodb-info:  
+-- | mongodb-info:
 -- |   MongoDB Build info
 -- |     ok = 1
 -- |     bits = 64
@@ -67,20 +67,20 @@ portrule = shortport.port_or_service({27017}, {"mongodb"})
 function action(host,port)
 
 	local socket = nmap.new_socket()
-	
+
 	-- set a reasonable timeout value
 	socket:set_timeout(10000)
 	-- do some exception  / cleanup
 	local catch = function()
 		socket:close()
 	end
-	
+
 	local try = nmap.new_try(catch)
 
 	try( socket:connect(host, port) )
-	
+
 	local req, statusresponse, buildinfo, err
-	
+
 	-- uglyness to allow creds.mongodb to work, as the port is not recognized
 	-- as mongodb, unless a service scan was run
 	local ps = port.service
@@ -93,15 +93,15 @@ function action(host,port)
 		end
 	end
 	port.service = ps
-	
+
 	local status, packet = mongodb.serverStatusQuery()
 	if not status then return packet end
 
 	local statQResult, buildQResult
 	status,statQResult = mongodb.query(socket, packet)
-	
+
 	if not status then return statQResult end
-	
+
 	port.version.name ='mongodb'
 	port.version.product='MongoDB'
 	port.version.name_confidence = 10
@@ -109,11 +109,11 @@ function action(host,port)
 
 	status, packet = mongodb.buildInfoQuery()
 	if not status then return packet end
-	
+
 	status, buildQResult =  mongodb.query(socket,packet )
-	
-	if not status then 
-		stdnse.log_error(buildQResult) 
+
+	if not status then
+		stdnse.log_error(buildQResult)
 		return buildQResult
 	end
 
@@ -124,6 +124,6 @@ function action(host,port)
 	local stat_out = mongodb.queryResultToTable(statQResult)
 	local build_out = mongodb.queryResultToTable(buildQResult)
 	local output = {"MongoDB Build info",build_out,"Server status",stat_out}
-	
+
 	return stdnse.format_output(true, output )
 end

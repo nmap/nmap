@@ -24,7 +24,7 @@ Helper = {
         self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		self.socket = nmap.new_socket()
 		return self.socket:connect(self.host, self.port)
@@ -35,23 +35,23 @@ Helper = {
 		assert(repo, "No repository was specified")
 		assert(user, "No user was specified")
 		assert(pass, "No pass was specified")
-		
+
 		-- Add a leading slash if it's missing
 		if ( repo:sub(1,1) ~= "/" ) then repo = "/" .. repo end
-		
+
 		table.insert(auth_tab, "BEGIN AUTH REQUEST")
 		table.insert(auth_tab, repo)
 		table.insert(auth_tab, user)
 		table.insert(auth_tab, Util.pwscramble(pass))
 		table.insert(auth_tab, "END AUTH REQUEST")
-		
+
 		local data = stdnse.strjoin("\n", auth_tab) .. "\n"
 		local status = self.socket:send(data)
 		if ( not(status) ) then return false, "Failed to send login request" end
-		
+
 		local status, response = self.socket:receive()
 		if ( not(status) ) then return false, "Failed to read login response" end
-		
+
 		if ( response == "I LOVE YOU\n" ) then return true end
 		return false, response
 	end,
@@ -59,11 +59,11 @@ Helper = {
 	close = function(self)
 		return self.socket:close()
 	end
-	
+
 }
 
 Util = {
-	
+
 	--- Scrambles a password
 	--
 	-- @param password string containing the password to scramble
@@ -92,7 +92,7 @@ Util = {
 		end
 		return 'A' .. result
 	end
-	
+
 }
 
 return _ENV;

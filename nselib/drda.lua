@@ -39,7 +39,7 @@
 -- </code>
 --
 -- The implementation is based on packet dumps and the excellent decoding
--- provided by Wireshark. 
+-- provided by Wireshark.
 --
 -- There is some documentation at
 -- http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/topic/com.ibm.db29.doc.drda/db2z_drda.htm.
@@ -119,7 +119,7 @@ SecMec =
 }
 
 DRDAPacket = {
-	
+
 	new = function(self, drda_array)
 		local o = {
 			drda_array = drda_array,
@@ -137,11 +137,11 @@ DRDAPacket = {
 			end
 		end
 	end,
-	
+
 	getDRDA = function( self, n )
 		return ( #self.drda_array >= n ) and self.drda_array[n] or nil
 	end,
-	
+
 	__tostring = function( self )
 		local data = ""
 		-- do some DDM fixup in here
@@ -156,12 +156,12 @@ DRDAPacket = {
 		end
 		return data
 	end
-	
+
 }
 
 -- Distributed Relational Database Architecture (DRDA) Class
 DRDA = {
-	
+
 	new = function(self, ddm)
 		local o = {
 			Parameters = {},
@@ -171,8 +171,8 @@ DRDA = {
 		self.__index = self
 		return o
 	end,
-	
-	--- Sets the DDM 
+
+	--- Sets the DDM
 	--
 	-- @param ddm DDM to assign to the DRDA
 	-- @return status boolean true on success, false on failure
@@ -183,7 +183,7 @@ DRDA = {
 		self.DDM = ddm
 		return true
 	end,
-	
+
 	--- Adds a DRDA parameter to the table
 	--
 	-- @param param DRDAParam containing the parameter to add to the table
@@ -198,16 +198,16 @@ DRDA = {
 			stdnse.print_debug("drda.DRDA.addParameter: Param cannot be nil")
 			return false, "Param cannot be nil"
 		end
-		
+
 		table.insert(self.Parameters, param)
-	
+
 		-- update the DDM length fields
 		self.DDM.Length = self.DDM.Length + param.Length
 		self.DDM.Length2 = self.DDM.Length2 + param.Length
-		
+
 		return true
 	end,
-	
+
 	--- Gets a parameter from the DRDA parameter table
 	--
 	-- @param codepoint number containing the parameter type ro retrieve
@@ -217,26 +217,26 @@ DRDA = {
 			if ( v.CodePoint == codepoint ) then
 				return v
 			end
-		end	
+		end
 		return
 	end,
-	
+
 	--- Converts the DRDA class to a string
 	--
-	-- @return data containing the object instance		
+	-- @return data containing the object instance
 	__tostring = function(self)
 		if ( not(self.DDM) ) then
 			stdnse.print_debug("drda.DRDA.toString: DDM cannot be nil")
 			return nil
 		end
-		
+
 		local data = bin.pack(">SCCSSS", self.DDM.Length, self.DDM.Magic, self.DDM.Format, self.DDM.CorelId, self.DDM.Length2, self.DDM.CodePoint )
 		for k,v in ipairs(self.Parameters) do
 			data = data .. tostring(v)
 		end
 		return data
 	end,
-	
+
 	--- Sends the DRDA over the db2socket
 	--
 	-- @param db2socket DB2Socket over which to send the data
@@ -245,27 +245,27 @@ DRDA = {
 	send = function( self, db2socket )
 		return db2socket:send( tostring(self) )
 	end,
-	
+
 	--- Receives data from the db2socket and builds a DRDA object
 	--
 	-- @param db2socket from which to read data
 	-- @return Status (true or false).
-	-- @return Data (if status is true) or error string (if status is false).	
+	-- @return Data (if status is true) or error string (if status is false).
 	receive = function( self, db2socket )
 		local DDM_SIZE = 10
 		local pos = 1
-		
+
 		-- first read atleast enough so that we can populate the DDM
 		local status, data = db2socket:receive_buf( match.numbytes(DDM_SIZE), true )
 		if ( not(status) ) then
 			stdnse.print_debug("drda.DRDA.receive: %s", data)
 			return false, ("Failed to read at least %d bytes from socket"):format(DDM_SIZE)
 		end
-		
+
 		local ddm = DDM:new()
 		ddm:fromString( data )
 		self:setDDM( ddm )
-		
+
 		status, data = db2socket:receive_buf( match.numbytes(ddm.Length - 10), true )
 		if ( not(status) ) then
 			return false, ("Failed to read the remaining %d bytes of the DRDA message")
@@ -277,7 +277,7 @@ DRDA = {
 			pos = param:fromString( data, pos )
 			self:addParameter( param )
 		until ( #data <= pos )
-			
+
 		return true
 	end,
 
@@ -285,12 +285,12 @@ DRDA = {
 
 -- The DRDAParameter class implements the DRDA parameters
 DRDAParameter = {
-		
+
 	--- DRDA Parameter constructor
 	--
 	-- @param codepoint number containing the codepoint value
 	-- @param data string containing the data portion of the DRDA parameter
-	-- @return o DRDAParameter object 
+	-- @return o DRDAParameter object
 	new = function(self, codepoint, data)
 		local o = {
 			CodePoint = codepoint,
@@ -306,13 +306,13 @@ DRDAParameter = {
 	--
 	-- @return data string containing the DRDA Parameter
 	__tostring = function( self )
-		local data = bin.pack(">SS", self.Length, self.CodePoint )	
+		local data = bin.pack(">SS", self.Length, self.CodePoint )
 		if ( self.Data ) then
 			data = data .. bin.pack("A", self.Data)
 		end
 		return data
 	end,
-	
+
 	--- Builds a DRDA Parameter from a string
 	--
 	-- @param data string from which to build the DRDA Parameter
@@ -332,14 +332,14 @@ DRDAParameter = {
 		end
 		return pos
 	end,
-	
+
 	--- Returns the data portion of the parameter as an ASCII string
 	--
 	-- @return str containing the data portion of the DRDA parameter as ASCII
 	getDataAsASCII = function( self )
 		return StringUtil.toASCII( self.Data )
 	end,
-	
+
 	--- Returns the data in EBCDIC format
 	--
 	-- @return str containing the data portion of the DRDA parameter in EBCDIC
@@ -351,7 +351,7 @@ DRDAParameter = {
 
 -- Distributed data management (DDM)
 DDM = {
-	
+
 	Formats =
 	{
 		RESERVED 		 = 0x80,
@@ -359,7 +359,7 @@ DDM = {
 		CONTINUE 		 = 0x20,
 		SAME_CORRELATION = 0x10,
 	},
-	
+
 	Length = 10,
 	Magic = 0xD0,
 	Format = 0x41,
@@ -388,32 +388,32 @@ DDM = {
 	__tostring = function( self )
 		return bin.pack(">SCCSSS", self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint)
 	end,
-	
+
 	--- Constructs a DDM object from a string
 	--
 	-- @param str containing the data from which to construct the object
 	fromString = function( self, str )
 		local DDM_SIZE = 10
 		local pos = 1
-		
+
 		if ( #str < DDM_SIZE ) then
 			return -1, ("drda.DDM.fromString: str was less than DDM_SIZE (%d)"):format( DDM_SIZE )
 		end
-		
+
 		pos, self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint = bin.unpack( ">SCCSSS", str )
 		return pos
 	end,
-	
+
 	--- Verifiers if there are additional DRDA's following
 	--
-	-- @return true if the DRDA is to be chained, false if it's the last one	
+	-- @return true if the DRDA is to be chained, false if it's the last one
 	isChained = function( self )
 		if ( bit.band( self.Format, DDM.Formats.CHAINED ) == DDM.Formats.CHAINED ) then
 			return true
 		end
 		return false
 	end,
-	
+
 	--- Set the DRDA as chained (more following)
 	--
 	-- @param chained boolean true if more DRDA's are following
@@ -424,11 +424,11 @@ DDM = {
 			self.Format = bit.bor( self.Format, self.Formats.CHAINED )
 		end
 	end,
-	
+
 }
 
 -- static DRDA packet construction class
-Command = 
+Command =
 {
 	--- Builds an EXCSAT DRDA packet
 	--
@@ -440,7 +440,7 @@ Command =
 	-- @return drda DRDA instance
 	EXCSAT = function( extname, srvname, rellev, mgrlvlls, srvclass )
 		local drda = DRDA:new( DDM:new( CodePoint.EXCSAT ) )
-	
+
 		drda:addParameter( DRDAParameter:new( CodePoint.EXTNAM, StringUtil.toEBCDIC( extname ) ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.SRVNAM, StringUtil.toEBCDIC( srvname ) ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.SRVRLSLV, StringUtil.toEBCDIC( rellev ) ) )
@@ -449,7 +449,7 @@ Command =
 
 		return drda
 	end,
-	
+
 	--- Builds an ACCSEC DRDA packet
 	--
 	-- @param secmec number containing the security mechanism ID
@@ -459,7 +459,7 @@ Command =
 		local drda = DRDA:new( DDM:new( CodePoint.ACCSEC ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.SECMEC, secmec ))
 		drda:addParameter( DRDAParameter:new( CodePoint.RDBNAM, StringUtil.toEBCDIC(StringUtil.padWithChar(database,' ', 18)) ))
-	
+
 		return drda
 	end,
 
@@ -469,17 +469,17 @@ Command =
 	-- @param database string containing the database name
 	-- @param username string
 	-- @param password string
-	-- @return drda DRDA instance	
+	-- @return drda DRDA instance
 	SECCHK = function( secmec, database, username, password )
 		local drda = DRDA:new( DDM:new( CodePoint.SECCHK ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.SECMEC, secmec ))
 		drda:addParameter( DRDAParameter:new( CodePoint.RDBNAM, StringUtil.toEBCDIC(StringUtil.padWithChar(database,' ', 18)) ))
 		drda:addParameter( DRDAParameter:new( CodePoint.USRID, StringUtil.toEBCDIC(username) ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.PASSWORD, StringUtil.toEBCDIC(password) ) )
-		
+
 		return drda
 	end,
-	
+
 	--- Builds an ACCRDB DRDA packet
 	--
 	-- @param database string containing the database name
@@ -487,7 +487,7 @@ Command =
 	-- @param prdid string containing the product id
 	-- @param typdefnam string containing the data type definition name
 	-- @param typdefovr string containing the data type definition override
-	-- @return drda DRDA instance		
+	-- @return drda DRDA instance
 	ACCRDB = function( database, rdbaccl, prdid, prddata, typdefnam, crrtkn, typdefovr )
 		local drda = DRDA:new( DDM:new( CodePoint.ACCRDB ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.RDBNAM, StringUtil.toEBCDIC(StringUtil.padWithChar(database,' ', 18)) ) )
@@ -510,10 +510,10 @@ Command =
 		if( typdefovr ) then
 			drda:addParameter( DRDAParameter:new( CodePoint.TYPDEFOVR, typdefovr ) )
 		end
-		
+
 		return drda
 	end
-	
+
 }
 
 
@@ -526,13 +526,13 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Connect to the DB2 host
 	--
 	-- @param host table
 	-- @param port table
 	-- @return Status (true or false).
-	-- @return Error code (if status is false).	
+	-- @return Error code (if status is false).
 	connect = function( self, host, port )
 		self.comm = Comm:new( host, port )
 		return self.comm:connect()
@@ -541,23 +541,23 @@ Helper = {
 	--- Closes an open connection.
 	--
 	-- @return Status (true or false).
-	-- @return Error code (if status is false).	
+	-- @return Error code (if status is false).
 	close = function( self )
 		self.comm:close()
 	end,
-	
+
 	--- Returns Server Information (name, platform, version)
 	--
-	-- @return table containing <code>extname</code>, <code>srvclass</code>, 
+	-- @return table containing <code>extname</code>, <code>srvclass</code>,
 	--				<code>srvname</code> and <code>prodrel</code>
 	getServerInfo = function( self )
 		local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
 		local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
 		local response, param, err
-	
+
 		local status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat } ) )
 		if ( not(status) ) then	return false, err end
-	
+
 		local drda = packet:getDRDAByCodePoint( CodePoint.EXCSATRD )
 		if ( drda ) then
 			response = {}
@@ -578,12 +578,12 @@ Helper = {
 				response.prodrel = param:getDataAsASCII()
 			end
 		else
-			return false, "The response contained no EXCSATRD"	
+			return false, "The response contained no EXCSATRD"
 		end
-		
-		return true, response	
+
+		return true, response
 	end,
-	
+
 	--- Login to DB2 database server
 	--
 	-- @param database containing the name of the database
@@ -596,37 +596,37 @@ Helper = {
 		local secmec, prdid = "\00\03", "JCC03010"
 		local tdovr = bin.pack("H", "0006119c04b80006119d04b00006119e04b8")
 		local crrtkn= bin.pack("H", "d5c6f0f0f0f0f0f14bc3c6f4c4012a11168414")
-		
+
 		local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
 		local drda_accsec = Command.ACCSEC( secmec, database )
 		local drda_secchk = Command.SECCHK( secmec, database, username, password )
 		local drda_accrdb = Command.ACCRDB( database, string.char(0x24,0x07), "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
-				
+
 		local status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
 		if( not(status) ) then return false, packet end
-		
+
 		if ( packet:getDRDAByCodePoint( CodePoint.RDBNFNRM ) or
 			 packet:getDRDAByCodePoint( CodePoint.RDBAFLRM ) ) then
 			stdnse.print_debug("drda.Helper.login: ERROR: RDB not found")
 			return false, "ERROR: Database not found"
 		end
-		
+
 		local drda = packet:getDRDAByCodePoint( CodePoint.ACCSECRD )
 		if ( not(drda) ) then
 			return false, "ERROR: Response did not contain any valid security mechanisms"
 		end
-		
+
 		local param = drda:getParameter( CodePoint.SECMEC )
 		if ( not(param) ) then
 			stdnse.print_debug("drda.Helper.login: ERROR: Response did not contain any valid security mechanisms")
 			return false, "ERROR: Response did not contain any valid security mechanisms"
 		end
-		
+
 		if ( select(2, bin.unpack(">S", param:getData())) ~= SecMec.USER_PASSWORD ) then
 			stdnse.print_debug("drda.Helper.login: ERROR: Securite Mechanism not supported")
 			return false, "ERROR: Security mechanism not supported"
 		end
-		
+
 		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_secchk, drda_accrdb } ) )
 		if( not(status) ) then return false, "ERROR: Login failed" end
 
@@ -657,12 +657,12 @@ Helper = {
 		end
 		return false, "ERROR: Login failed"
 	end,
-	
+
 }
 
 -- The communication class
 Comm = {
-	
+
 	new = function(self, host, port)
 		local o = {
 			host = host,
@@ -673,18 +673,18 @@ Comm = {
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	close = function(self)
 		return self.socket:close()
 	end,
-	
+
 	recvDRDA = function( self )
 		local drda_tbl = {}
-		
+
 		repeat
 			local drda = DRDA:new()
 			local status, err = drda:receive( self.socket )
@@ -695,7 +695,7 @@ Comm = {
 		until ( not(drda.DDM:isChained()) )
 		return true, drda_tbl
 	end,
-	
+
 	--- Sends a packet to the server and receives the response
 	--
 	-- @param DRDAPacket
@@ -704,12 +704,12 @@ Comm = {
 	exchDRDAPacket = function( self, packet )
 		local drda, err
 		local status, err = self.socket:send( tostring(packet) )
-		
+
 		if ( not(status) ) then
 			stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", err )
 			return false, ("ERROR: DB2Socket error: %s"):format( err )
 		end
-		
+
 		status, drda = self:recvDRDA()
 		if( not(status) ) then
 			stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", drda )
@@ -717,7 +717,7 @@ Comm = {
 		end
 		return true, DRDAPacket:new( drda )
 	end
-	
+
 }
 
 -- EBCDIC/ASCII Conversion tables
@@ -766,7 +766,7 @@ StringUtil =
 	-- @return string containing ASCII value
 	toASCII = function( ebcdic )
 		local ret = ""
-		
+
 		for i=1, #ebcdic do
 			local val = ebcdic.byte(ebcdic,i) + 1
 			ret = ret .. e2a_tbl:sub(val, val)

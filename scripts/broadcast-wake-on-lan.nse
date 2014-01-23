@@ -12,7 +12,7 @@ Wakes a remote system up from sleep by sending a Wake-On-Lan packet.
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-wake-on-lan: 
+-- | broadcast-wake-on-lan:
 -- |_  Sent WOL packet to: 10:9a:dd:a8:40:24
 --
 -- @args broadcast-wake-on-lan.MAC The MAC address of the remote system to wake up
@@ -53,7 +53,7 @@ action = function()
 	else
 		return "\n  ERROR: Failed to process MAC address"
 	end
-	
+
 	local host = { ip = address or "255.255.255.255" }
 	local port = { number = 9, protocol = "udp" }
 	local socket = nmap.new_socket("udp")
@@ -68,4 +68,4 @@ action = function()
 	end
 	return stdnse.format_output(true, ("Sent WOL packet to: %s"):format(MAC))
 end
-	
+

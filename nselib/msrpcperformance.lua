@@ -1,17 +1,17 @@
 ---
 -- This module is designed to parse the <code>PERF_DATA_BLOCK</code> structure, which is
 -- stored in the registry under HKEY_PERFORMANCE_DATA. By querying this structure, you can
--- get a whole lot of information about what's going on. 
+-- get a whole lot of information about what's going on.
 --
--- To use this from a script, see <code>get_performance_data</code>, it is the only 
--- "public" function in this module. 
+-- To use this from a script, see <code>get_performance_data</code>, it is the only
+-- "public" function in this module.
 --
 -- My primary sources of information were:
 -- * This 1996 journal by Matt Pietrek: <http://www.microsoft.com/msj/archive/S271.aspx>
 -- * The followup article: <http://www.microsoft.com/msj/archive/S2A9.aspx>
 -- * The WinPerf.h header file
 --
--- And my primary inspiration was PsTools, specifically, <code>pstasklist.exe</code>. 
+-- And my primary inspiration was PsTools, specifically, <code>pstasklist.exe</code>.
 --
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -24,10 +24,10 @@ local msrpctypes = require "msrpctypes"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("msrpcperformance", stdnse.seeall)
 
----Parses the title database, which is a series of null-terminated string pairs. 
+---Parses the title database, which is a series of null-terminated string pairs.
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_title_database(data, pos)
@@ -86,8 +86,8 @@ end
 --	} PERF_DATA_BLOCK, *PPERF_DATA_BLOCK;
 --</code>
 --
---@param data     The data being processed. 
---@param pos      The position within <code>data</code>. 
+--@param data     The data being processed.
+--@param pos      The position within <code>data</code>.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_data_block(data, pos)
@@ -121,7 +121,7 @@ local function parse_perf_data_block(data, pos)
 
 	-- Ensure that the system name is directly after the header. This technically shouldn't matter, but Microsoft's documentation
 	-- (in WinPref.h) says that the actual object comes "after the PERF_DATA_BLOCK", so it doesn't make sense that the SystemName
-	-- could be anywhere else. 
+	-- could be anywhere else.
 	if(pos ~= result['SystemNameOffset'] + 1) then
 		return false, "MSRPC: PERF_DATA_BLOCK has SystemName in the wrong location"
 	end
@@ -215,8 +215,8 @@ end
 -- } PERF_OBJECT_TYPE, *PPERF_OBJECT_TYPE;
 --</code>
 --
---@param data           The data being processed. 
---@param pos            The position within <code>data</code>. 
+--@param data           The data being processed.
+--@param pos            The position within <code>data</code>.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_object_type(data, pos)
@@ -285,8 +285,8 @@ end
 --	} PERF_COUNTER_DEFINITION, *PPERF_COUNTER_DEFINITION;
 --</code>
 --
---@param data           The data being processed. 
---@param pos            The position within <code>data</code>. 
+--@param data           The data being processed.
+--@param pos            The position within <code>data</code>.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_counter_definition(data, pos)
@@ -310,14 +310,14 @@ local function parse_perf_counter_definition(data, pos)
 end
 
 ---Parse the actual counter value. This is a fairly simple function, it takes a counter
--- definition and pulls out data based on it. 
+-- definition and pulls out data based on it.
 --
 -- Note: I don't think this is doing the 8-byte values right, I suspect that they're supposed
--- to be doubles. 
+-- to be doubles.
 --
---@param data           The data being processed. 
---@param pos            The position within <code>data</code>. 
---@param counter_definition The matching counter_definition. 
+--@param data           The data being processed.
+--@param pos            The position within <code>data</code>.
+--@param counter_definition The matching counter_definition.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_counter(data, pos, counter_definition)
@@ -374,8 +374,8 @@ end
 --	} PERF_INSTANCE_DEFINITION, *PPERF_INSTANCE_DEFINITION;
 --</code>
 --
---@param data           The data being processed. 
---@param pos            The position within <code>data</code>. 
+--@param data           The data being processed.
+--@param pos            The position within <code>data</code>.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_instance_definition(data, pos)
@@ -406,11 +406,11 @@ end
 --		DWORD           ByteLength;         // Length in bytes of this structure,
 --		                                    // including the following counters
 --	} PERF_COUNTER_BLOCK, *PPERF_COUNTER_BLOCK;
---	
+--
 --</code>
 --
---@param data           The data being processed. 
---@param pos            The position within <code>data</code>. 
+--@param data           The data being processed.
+--@param pos            The position within <code>data</code>.
 --@return (status, pos, result) The status (true if successful), the new position in <code>data</code> (or an error
 --                              message), and a table representing the datatype, if any.
 local function parse_perf_counter_block(data, pos)
@@ -422,12 +422,12 @@ local function parse_perf_counter_block(data, pos)
 end
 
 ---Retrieve the parsed performance data from the given host for the requested object values. To get a list of possible
--- object values, leave 'objects' blank and look at <code>result['title_database']</code> -- it'll contain a list of 
--- indexes that can be looked up. These indexes are passed as a string or as a series of space-separated strings (eg, 
--- "230" for "Process" and "238" for "Process" and "Processor"). 
+-- object values, leave 'objects' blank and look at <code>result['title_database']</code> -- it'll contain a list of
+-- indexes that can be looked up. These indexes are passed as a string or as a series of space-separated strings (eg,
+-- "230" for "Process" and "238" for "Process" and "Processor").
 --
 --@param host The host object
---@param objects [optional] The space-separated list of object numbers to retrieve. Default: only retrieve the database. 
+--@param objects [optional] The space-separated list of object numbers to retrieve. Default: only retrieve the database.
 function get_performance_data(host, objects)
 
 	-- Create the SMB session
@@ -508,7 +508,7 @@ function get_performance_data(host, objects)
 --stdnse.print_debug("Index = %d\n", object_type['ObjectNameTitleIndex'])
 			local object_name = result['title_database'][object_type['ObjectNameTitleIndex']]
 			result[object_name] = {}
-			
+
 --stdnse.print_debug("\n\nOBJECT: %s\n", object_name)
 --stdnse.print_debug(" Counters: %d\n", object_type['NumCounters'])
 --stdnse.print_debug(" Instances: %d\n", object_type['NumInstances'])
@@ -547,7 +547,7 @@ function get_performance_data(host, objects)
 					-- Set up the instance array
 					local instance_name = object_instances[j]['InstanceName']
 					result[object_name][instance_name] = {}
-		
+
 					-- Bring the pos to the start of the counter block
 					pos = instance_start + object_instances[j]['ByteLength']
 
@@ -556,7 +556,7 @@ function get_performance_data(host, objects)
 --stdnse.print_debug("  NameOffset: %d\n", object_instances[j]['NameOffset'])
 --stdnse.print_debug("  NameLength: %d\n", object_instances[j]['NameLength'])
 --stdnse.print_debug("  --------------\n")
-		
+
 					-- The counter block
 					local status, counter_block
 					status, pos, counter_block = parse_perf_counter_block(queryvalue_result['value'], pos)
@@ -564,7 +564,7 @@ function get_performance_data(host, objects)
 						msrpc.stop_smb(smbstate)
 						return false, pos
 					end
-		
+
 					for k = 1, object_type['NumCounters'], 1 do
 						-- Each individual counter
 						local status, counter_result
@@ -580,7 +580,7 @@ function get_performance_data(host, objects)
 						-- Save it in the result
 						result[object_name][instance_name][counter_name] = counter_result
 					end
-		
+
 					-- Bring the pos to the end of the next section
 					pos = instance_start + object_instances[j]['ByteLength'] + counter_block['ByteLength']
 				end
@@ -608,7 +608,7 @@ function get_performance_data(host, objects)
 	end
 
 	msrpc.stop_smb(smbstate)
-	
+
 	return true, result
 end
 

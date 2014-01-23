@@ -16,7 +16,7 @@ a Versant object database.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 5019/tcp open  versant syn-ack
--- | versant-info: 
+-- | versant-info:
 -- |   Hostname: WIN-S6HA7RJFAAR
 -- |   Root path: C:\Versant\8
 -- |   Database path: C:\Versant\db
@@ -53,13 +53,13 @@ action = function(host, port)
 	if ( not(status) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	local status, newport = v:getObePort()
 	if ( not(status) ) then
 		return fail("Failed to retrieve OBE port")
 	end
 	v:close()
-	
+
 	v = versant.Versant.OBE:new(host, newport)
 	status = v:connect()
 	if ( not(status) ) then
@@ -74,13 +74,13 @@ action = function(host, port)
 	v:close()
 
 	local output = {}
-	
+
 	table.insert(output, ("Hostname: %s"):format(result.hostname))
 	table.insert(output, ("Root path: %s"):format(result.root_path))
 	table.insert(output, ("Database path: %s"):format(result.db_path))
 	table.insert(output, ("Library path: %s"):format(result.lib_path))
 	table.insert(output, ("Version: %s"):format(result.version))
-	
+
 	port.version.product = "Versant Database"
 	port.version.name = "versant"
 	nmap.set_port_version(host, port)
@@ -99,9 +99,9 @@ action = function(host, port)
 		return stdnse.format_output(true, output)
 	end
 	v:close()
-	
+
 	local databases = { name = "Databases" }
-	
+
 	for _, db in ipairs(result) do
 		local db_tbl = { name = db.name }
 		table.insert(db_tbl, ("Created: %s"):format(db.created))
@@ -109,7 +109,7 @@ action = function(host, port)
 		table.insert(db_tbl, ("Version: %s"):format(db.version))
 		table.insert(databases, db_tbl)
 	end
-	
+
 	table.insert(output, databases)
 	return stdnse.format_output(true, output)
 end

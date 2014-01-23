@@ -16,7 +16,7 @@ discovered.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-grep: 
+-- | http-grep:
 -- |   (4) http://example.com/name/
 -- |     + name@example.com
 -- |     + name@example.com
@@ -64,17 +64,17 @@ action = function(host, port)
 	-- read script specific arguments
 	local match 			= stdnse.get_script_args("http-grep.match")
 	local break_on_match 	= stdnse.get_script_args("http-grep.breakonmatch")
-	
+
 	if ( not(match) ) then
 		return stdnse.format_output(true, "ERROR: Argument http-grep.match was not set")
 	end
-	
+
 	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
 	local results = {}
 
 	-- set timeout to 10 seconds
 	crawler:set_timeout(10000)
-	
+
 	while(true) do
 		local status, r = crawler:crawl()
 		-- if the crawler fails it can be due to a number of different reasons
@@ -95,10 +95,10 @@ action = function(host, port)
 			for match in body:gmatch(match) do
 				table.insert(matches, "+ " .. shortenMatch(match))
 			end
-			
+
 			matches.name = ("(%d) %s"):format(count,tostring(r.url))
 			table.insert(results, matches)
-			
+
 			-- should we continue to search for matches?
 			if ( break_on_match ) then
 				crawler:stop()
@@ -107,5 +107,5 @@ action = function(host, port)
 		end
 	end
 	table.sort(results, function(a,b) return a.name>b.name end)
-	return stdnse.format_output(true, results)	
+	return stdnse.format_output(true, results)
 end

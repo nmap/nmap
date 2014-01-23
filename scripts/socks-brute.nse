@@ -14,7 +14,7 @@ Performs brute force password auditing against SOCKS 5 proxy servers.
 -- @output
 -- PORT     STATE SERVICE
 -- 1080/tcp open  socks
--- | socks-brute: 
+-- | socks-brute:
 -- |   Accounts
 -- |     patrik:12345 - Valid credentials
 -- |   Statistics
@@ -29,7 +29,7 @@ categories = {"brute", "intrusive"}
 portrule = shortport.port_or_service({1080, 9050}, {"socks", "socks5", "tor-socks"})
 
 Driver = {
-	
+
 	new = function (self, host, port)
 		local o = { host = host, port = port }
 		setmetatable (o,self)
@@ -41,7 +41,7 @@ Driver = {
 		self.helper = socks.Helper:new(self.host, self.port, { timeout = 10000 })
 		return self.helper:connect()
 	end,
-	
+
 	login = function( self, username, password )
 		local status, err = self.helper:authenticate({username=username, password=password})
 
@@ -50,7 +50,7 @@ Driver = {
 			if ( "Authentication failed" == err ) then
 				return false, brute.Error:new( "Login failed" )
 			end
-			
+
 			-- something else happend, let's retry
 			local err = brute.Error:new( err )
 			err:setRetry( true )
@@ -59,10 +59,10 @@ Driver = {
 
 		return true, brute.Account:new(username, password, creds.State.VALID)
 	end,
-	
+
 	disconnect = function( self )
 		return self.helper:close()
-	end,	
+	end,
 }
 
 local function checkAuth(host, port)
@@ -72,11 +72,11 @@ local function checkAuth(host, port)
 	if ( not(status) ) then
 		return false, response
 	end
-	
+
 	if ( response.method == socks.AuthMethod.NONE ) then
 		return false, "\n  No authentication required"
 	end
-	
+
 	local status, err = helper:authenticate({username="nmap", password="nmapbruteprobe"})
 	if ( err ~= "Authentication failed" ) then
 		return false, ("\n  ERROR: %s"):format(err)

@@ -4,8 +4,8 @@ Obtains the CakePHP version of a web application built with the CakePHP framewor
 This script queries the files 'vendors.php', 'cake.generic.css', 'cake.icon.png' and 'cake.icon.gif' to try to obtain the version of the CakePHP installation.
 Since installations that had been upgraded are prone to false positives due to old files that aren't removed, the script displays 3 different versions:
 * Codebase: Taken from the existence of vendors.php (1.1.x or 1.2.x if it does and 1.3.x otherwise)
-* Stylesheet: Taken from cake.generic.css 
-* Icon: Taken from cake.icon.gif or cake.icon.png 
+* Stylesheet: Taken from cake.generic.css
+* Icon: Taken from cake.icon.gif or cake.icon.png
 
 For more information about CakePHP visit: http://www.cakephp.org/.
 ]]
@@ -15,7 +15,7 @@ For more information about CakePHP visit: http://www.cakephp.org/.
 -- nmap -p80,443 --script http-cakephp-version <host/ip>
 --
 -- @output
--- PORT   STATE SERVICE 
+-- PORT   STATE SERVICE
 -- 80/tcp open  http
 -- | http-cakephp-version: Version of codebase: 1.2.x
 -- | Version of icons: 1.2.x
@@ -72,7 +72,7 @@ action = function(host, port)
 	if png_icon_response.body and png_icon_response.status == 200 then
 		icon_versions = {"1.3.x"}
 	elseif gif_icon_response.body and gif_icon_response.status == 200 then
-		icon_versions = {"1.2.x"}	
+		icon_versions = {"1.2.x"}
 	end
 
 	-- Download cake.generic.css and fingerprint
@@ -84,11 +84,11 @@ action = function(host, port)
 	-- Is /js/vendors.php there?
 	response = http.get(host, port, VENDORS_QUERY)
 	if response.body and response.status == 200 then
-		installation_version = {"1.1.x","1.2.x"}	
+		installation_version = {"1.1.x","1.2.x"}
 	elseif response.status ~= 200 and (icon_versions or stylesheet_versions) then
-		installation_version = {"1.3.x"}	
+		installation_version = {"1.3.x"}
 	end
-	-- Prepare output	
+	-- Prepare output
 	output_lines = {}
 	if installation_version then
 		output_lines[#output_lines + 1] = "Version of codebase: " .. stdnse.strjoin(", ", installation_version)

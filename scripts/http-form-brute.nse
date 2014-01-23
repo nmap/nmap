@@ -41,7 +41,7 @@ Performs brute force password auditing against http form-based authentication.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | http-brute:  
+-- | http-brute:
 -- |   Accounts
 -- |     Patrik Karlsson:secret => Login correct
 -- |   Statistics
@@ -53,7 +53,7 @@ Performs brute force password auditing against http form-based authentication.
 --     library
 --
 -- @args http-form-brute.path points to the path protected by authentication
--- @args http-form-brute.hostname sets the host header in case of virtual 
+-- @args http-form-brute.hostname sets the host header in case of virtual
 --       hosting
 -- @args http-form-brute.uservar (optional) sets the http-variable name that
 --       holds the username used to authenticate. A simple autodetection of
@@ -84,7 +84,7 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 local form_params = {}
 
 Driver = {
-	
+
 	new = function(self, host, port, options)
 		local o = {}
        	setmetatable(o, self)
@@ -94,29 +94,29 @@ Driver = {
 		o.options = options
 		return o
 	end,
-	
+
 	connect = function( self )
 		-- This will cause problems, as ther is no way for us to "reserve"
 		-- a socket. We may end up here early with a set of credentials
 		-- which won't be guessed until the end, due to socket exhaustion.
 		return true
 	end,
-	
+
 	login = function( self, username, password )
 		-- we need to supply the no_cache directive, or else the http library
 		-- incorrectly tells us that the authentication was successfull
 		local postparams = { [self.options.passvar] = password }
 		if ( self.options.uservar ) then postparams[self.options.uservar] = username end
-		
+
 		local response = Driver.postRequest(self.host, self.port, self.options.path, postparams)
 		local success = false
-		
+
 		-- if we have no response, we were successful
 		if ( not(response.body) ) then
 			success = true
 		-- if we have a response and it matches our onsuccess match, login was successful
 		elseif ( response.body and
-				self.options.onsuccess and 
+				self.options.onsuccess and
 				response.body:match(self.options.onsuccess) ) then
 			success = true
 		-- if we have a response and it does not match our onfailure, login was successful
@@ -125,7 +125,7 @@ Driver = {
 				self.options.onfailure and
 				not(response.body:match(self.options.onfailure))) then
 			success = true
-		-- if we have a response and no onfailure or onsuccess match defined 
+		-- if we have a response and no onfailure or onsuccess match defined
 		-- and can't find a password field, login was successful
 		elseif ( response.body and
 				not(self.options.onfailure) and
@@ -142,18 +142,18 @@ Driver = {
 			table.insert( nmap.registry.credentials.http, { username = username, password = password } )
 			return true, brute.Account:new( username, password, creds.State.VALID)
 		end
-		
+
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
-	disconnect = function( self ) 
+
+	disconnect = function( self )
 		return true
 	end,
-	
+
 	check = function( self )
 		return true
 	end,
-	
+
 	postRequest = function( host, port, path, options )
 		local response = http.post( host, port, path, { no_cache = true }, nil, options )
 		local status = ( response and tonumber(response.status) ) or 0
@@ -163,15 +163,15 @@ Driver = {
 		end
 		return response
 	end,
-		
+
 }
 
 --- Attempts to auto-detect known form-fields
 --
 local function detectFormFields( host, port, path )
-	local response = http.get( host, port, path )	
+	local response = http.get( host, port, path )
 	local user_field, pass_field
-	
+
 	if ( response.status == 200 ) then
 		user_field = response.body:match("<[Ii][Nn][Pp][Uu][Tt].-name=[\"]*([^\"]-[Uu][Ss][Ee][Rr].-)[\"]*.->")
 		pass_field = response.body:match("<[Ii][Nn][Pp][Uu][Tt].-name=[\"]*([Pp][Aa][Ss][Ss].-)[\"]*.->")
@@ -180,7 +180,7 @@ local function detectFormFields( host, port, path )
 			pass_field = response.body:match("<[Ii][Nn][Pp][Uu][Tt].-name=[\"]-([^\"]-[Kk][Ee][Yy].-)[\"].->")
 		end
 	end
-	
+
 	return user_field, pass_field
 end
 
@@ -190,7 +190,7 @@ action = function( host, port )
   	local path = stdnse.get_script_args('http-form-brute.path') or "/"
 	local onsuccess = stdnse.get_script_args("http-form-brute.onsuccess")
 	local onfailure = stdnse.get_script_args("http-form-brute.onfailure")
-	
+
 	local _
 
 	-- if now fields were given attempt to autodetect
@@ -200,51 +200,51 @@ action = function( host, port )
 	elseif ( not(passvar) ) then
 		_, passvar = detectFormFields( host, port, path )
 	end
-	
+
 	-- uservar is optional, so only make sure we have a passvar
 	if ( not( passvar ) ) then
 		return "\n  ERROR: No passvar was specified (see http-form-brute.passvar)"
 	end
-	
+
 	if ( not(path) ) then
 		return "\n  ERROR: No path was specified (see http-form-brute.path)"
 	end
-	
+
 	if ( onsuccess and onfailure ) then
 		return "\n  ERROR: Either the onsuccess or onfailure argument should be passed, not both."
 	end
-	
+
 	local options = { [passvar] = "this_is_not_a_valid_password" }
 	if ( uservar ) then options[uservar] = "this_is_not_a_valid_user" end
-	
+
 	local response = Driver.postRequest( host, port, path, options )
 	if ( not(response) or not(response.body) or response.status ~= 200 ) then
 		return ("\n  ERROR: Failed to retrieve path (%s) from server"):format(path)
 	end
-	
+
 	-- try to detect onfailure match
 	if ( onfailure and not(response.body:match(onfailure)) ) then
 		return ("\n  ERROR: Failed to match password failure message (%s)"):format(onfailure)
-	elseif ( not(onfailure) and 
-			not(onsuccess) and 
+	elseif ( not(onfailure) and
+			not(onsuccess) and
 			not(response.body:match("input.-type=[\"]*[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd][\"]*")) ) then
 		return ("\n  ERROR: Failed to detect password form field see (http-form-brute.onsuccess or http-form-brute.onfailure)")
 	end
-	
+
 	local engine = brute.Engine:new( Driver, host, port, {
-		uservar = uservar, passvar = passvar, 
+		uservar = uservar, passvar = passvar,
 		path = path, onsuccess = onsuccess, onfailure = onfailure
-		} 
+		}
 	)
 	-- there's a bug in http.lua that does not allow it to be called by
 	-- multiple threads
 	engine:setMaxThreads(1)
 	engine.options.script_name = SCRIPT_NAME
-	
+
 	if ( not(uservar) ) then
 		engine.options:setOption( "passonly", true )
 	end
 	local status, result = engine:start()
-		
+
 	return result
 end

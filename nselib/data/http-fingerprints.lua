@@ -14,17 +14,17 @@ local table = require "table"
 -- This file is released under the Nmap license; see:
 --  http://nmap.org/book/man-legal.html
 --
--- @args http-fingerprints.nikto-db-path Looks at the given path for nikto database. 
---       It then converts the records in nikto's database into our Lua table format 
---       and adds them to our current fingerprints if they don't exist already. 
+-- @args http-fingerprints.nikto-db-path Looks at the given path for nikto database.
+--       It then converts the records in nikto's database into our Lua table format
+--       and adds them to our current fingerprints if they don't exist already.
 --       Unfortunately, our current implementation has some limitations:
 --          * It doesn't support records with more than one 'dontmatch' patterns for
 --            a probe.
 --          * It doesn't support logical AND for the 'match' patterns.
 --          * It doesn't support sending additional headers for a probe.
---       That means, if a nikto fingerprint needs one of the above features, it 
---       won't be loaded. At the time of writing this, 6546 out of the 6573 Nikto 
---       fingerprints are being loaded successfully.  This runtime Nikto fingerprint integration was suggested by Nikto co-author Chris Sullo as described at http://seclists.org/nmap-dev/2013/q4/292 
+--       That means, if a nikto fingerprint needs one of the above features, it
+--       won't be loaded. At the time of writing this, 6546 out of the 6573 Nikto
+--       fingerprints are being loaded successfully.  This runtime Nikto fingerprint integration was suggested by Nikto co-author Chris Sullo as described at http://seclists.org/nmap-dev/2013/q4/292
 --
 -- Although this format was originally modeled after the Nikto format, that ended
 -- up being too restrictive. The current format is a simple Lua table. There are many
@@ -11804,7 +11804,7 @@ table.insert(fingerprints, {
         method = 'HEAD'
       },
       {
-        path = '/sitecore/admin/unlock_admin.aspx', -- disabled per default in 6.2.0 (rev.100507) 
+        path = '/sitecore/admin/unlock_admin.aspx', -- disabled per default in 6.2.0 (rev.100507)
         method = 'HEAD'
       },
       {
@@ -11862,12 +11862,12 @@ if f then
         if not string.match(l, "^#.*") then
 
             record = {}
-            
+
             for field in string.gmatch(l, "\"(.-)\",") do
 
                 -- Grab every attribute and create a record.
                 if field then
-                    string.gsub(field, '%%', '%%%%') 
+                    string.gsub(field, '%%', '%%%%')
                     table.insert(record, field)
                 end
             end
@@ -11892,7 +11892,7 @@ if f then
             -- record[2]: OSVDB-ID
             -- record[3]: Server Type
             -- record[4]: URI
-            -- record[5]: HTTP Method   
+            -- record[5]: HTTP Method
             -- record[6]: Match 1
             -- record[7]: Match 1 (Or)
             -- record[8]: Match1 (And)
@@ -11903,11 +11903,11 @@ if f then
             -- record[13]: Headers
 
             -- Is this a valid record?  Atm, with our current format we need
-            -- to skip some nikto records. See NSEDoc for more info. 
-            
-            if not exists  
+            -- to skip some nikto records. See NSEDoc for more info.
+
+            if not exists
             and record[4]
-            and record[8] == "" and record[10] == "" and record[12] == "" 
+            and record[8] == "" and record[10] == "" and record[12] == ""
             and (tonumber(record[4]) == nil or (tonumber(record[4]) and record[4] == "200")) then
 
                 -- Our current format does not support HTTP code matching.
@@ -11930,11 +11930,11 @@ if f then
                                     }
 
                 -- If there is a second match, add it.
-                if record[7] and record[7] ~= "" then 
+                if record[7] and record[7] ~= "" then
                     table.insert(nikto_fingerprint.matches, { match = record[7], output = record[11] })
                 end
 
-                table.insert(fingerprints, nikto_fingerprint) 
+                table.insert(fingerprints, nikto_fingerprint)
 
             end
         end

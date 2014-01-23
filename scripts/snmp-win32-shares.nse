@@ -10,7 +10,7 @@ Attempts to enumerate Windows Shares through SNMP.
 
 ---
 -- @output
--- | snmp-win32-shares:  
+-- | snmp-win32-shares:
 -- |   SYSVOL
 -- |     C:\WINDOWS\sysvol\sysvol
 -- |   NETLOGON
@@ -37,13 +37,13 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 -- @param oid string containing the object id for which the value should be extracted
 -- @return value of relevant type or nil if oid was not found
 function get_value_from_table( tbl, oid )
-	
+
 	for _, v in ipairs( tbl ) do
 		if v.oid == oid then
 			return v.value
 		end
 	end
-	
+
 	return nil
 end
 
@@ -52,27 +52,27 @@ end
 -- @param tbl table containing <code>oid</code> and <code>value</code>
 -- @return table suitable for <code>stdnse.format_output</code>
 function process_answer( tbl )
-	
+
 	local share_name = "1.3.6.1.4.1.77.1.2.27.1.1"
 	local share_path = "1.3.6.1.4.1.77.1.2.27.1.2"
 	local new_tbl = {}
-	
+
 	for _, v in ipairs( tbl ) do
-		
+
 		if ( v.oid:match("^" .. share_name) ) then
 			local item = {}
-			local objid = v.oid:gsub( "^" .. share_name, share_path) 
+			local objid = v.oid:gsub( "^" .. share_name, share_path)
 			local path = get_value_from_table( tbl, objid )
 
 			item.name = v.value
 			table.insert( item, path )
 			table.insert( new_tbl, item )
 		end
-	
+
 	end
-	
+
 	return new_tbl
-	
+
 end
 
 
@@ -80,21 +80,21 @@ action = function(host, port)
 
 	local socket = nmap.new_socket()
 	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)	
+	local try = nmap.new_try(catch)
 	local data, snmpoid = nil, "1.3.6.1.4.1.77.1.2.27"
 	local shares = {}
 	local status
 
 	socket:set_timeout(5000)
 	try(socket:connect(host, port))
-	
+
 	status, shares = snmp.snmpWalk( socket, snmpoid )
 	socket:close()
 
 	if (not(status)) or ( shares == nil ) or ( #shares == 0 ) then
 		return shares
 	end
-		
+
 	shares = process_answer( shares )
 
 	nmap.set_port_state(host, port, "open")

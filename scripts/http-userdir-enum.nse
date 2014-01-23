@@ -48,7 +48,7 @@ portrule = shortport.http
 
 action = function(host, port)
 
-  if(not nmap.registry.userdir) then 
+  if(not nmap.registry.userdir) then
     init()
   end
   local usernames = nmap.registry.userdir

@@ -287,7 +287,7 @@ passwords = function(time_limit, count_limit)
 end
 
 --- Returns a new iterator that iterates trough it's consecutive iterators,
--- basically concatenating them. 
+-- basically concatenating them.
 -- @param iter1 First iterator to concatenate.
 -- @param iter2 Second iterator to concatenate.
 -- @return function The concatenated iterators.

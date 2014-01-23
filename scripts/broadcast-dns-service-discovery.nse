@@ -1,7 +1,7 @@
 local dnssd = require "dnssd"
 local stdnse = require "stdnse"
 
-description=[[ 
+description=[[
 Attempts to discover hosts' services using the DNS Service Discovery protocol.  It sends a multicast DNS-SD query and collects all the responses.
 
 The script first sends a query for _services._dns-sd._udp.local to get a
@@ -15,7 +15,7 @@ get more information.
 -- nmap --script=broadcast-dns-service-discovery
 --
 -- @output
--- | broadcast-dns-service-discovery: 
+-- | broadcast-dns-service-discovery:
 -- |   1.2.3.1
 -- |     _ssh._tcp.local
 -- |     _http._tcp.local
@@ -49,9 +49,9 @@ prerule = function() return true end
 action = function()
 	local helper = dnssd.Helper:new( )
 	helper:setMulticast(true)
-	
+
 	local status, result = helper:queryServices()
-	if ( status ) then 
+	if ( status ) then
 		return stdnse.format_output(true, result)
 	end
 end

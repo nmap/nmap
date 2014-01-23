@@ -10,36 +10,36 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Checks if a host is infected with Conficker.C or higher, based on Conficker's peer to peer communication. 
+Checks if a host is infected with Conficker.C or higher, based on Conficker's peer to peer communication.
 
-When Conficker.C or higher infects a system, it opens four ports: two TCP and two UDP. The ports are 
-random, but are seeded with the current week and the IP of the infected host. By determining the algorithm, 
-one can check if these four ports are open, and can probe them for more data. 
+When Conficker.C or higher infects a system, it opens four ports: two TCP and two UDP. The ports are
+random, but are seeded with the current week and the IP of the infected host. By determining the algorithm,
+one can check if these four ports are open, and can probe them for more data.
 
-Once the open ports are found, communication can be initiated using Conficker's custom peer to peer protocol. 
-If a valid response is received, then a valid Conficker infection has been found. 
+Once the open ports are found, communication can be initiated using Conficker's custom peer to peer protocol.
+If a valid response is received, then a valid Conficker infection has been found.
 
-This check won't work properly on a multihomed or NATed system because the open ports will be based on a nonpublic IP. 
+This check won't work properly on a multihomed or NATed system because the open ports will be based on a nonpublic IP.
 The argument <code>checkall</code> tells Nmap to attempt communication with every open port (much like a version
 check) and the argument <code>realip</code> tells Nmap to base its port generation on the given IP address instead
 of the actual IP.
 
 By default, this will run against a system that has a standard Windows port open (445, 139, 137). The arguments
 <code>checkall</code> and <code>checkconficker</code> will both perform checks regardless of which port is open, see the args section for
-more information. 
+more information.
 
 Note: Ensure your clock is correct (within a week) before using this script!
 
-The majority of research for this script was done by Symantec Security Response, and some was taken 
+The majority of research for this script was done by Symantec Security Response, and some was taken
 from public sources (most notably the port blacklisting was found by David Fifield). A big thanks goes
-out to everybody who contributed! 
+out to everybody who contributed!
 ]]
 
 ---
 -- @args checkall If set to <code>1</code> or <code>true</code>, attempt
 -- to communicate with every open port.
--- @args checkconficker If set to <code>1</code> or <code>true</code>, the script will always run on active hosts, 
---       it doesn't matter if any open ports were detected. 
+-- @args checkconficker If set to <code>1</code> or <code>true</code>, the script will always run on active hosts,
+--       it doesn't matter if any open ports were detected.
 -- @args realip An IP address to use in place of the one known by Nmap.
 --
 -- @usage
@@ -65,7 +65,7 @@ out to everybody who contributed!
 -- |  | Check 3 (port 31380/udp): CLEAN (Failed to receive data)
 -- |  | Check 4 (port 52600/udp): CLEAN (Failed to receive data)
 -- |_ |_ 0/4 checks: Host is CLEAN or ports are blocked
--- 
+--
 -- Infected machine (results always printed):
 -- Host script results:
 -- |  p2p-conficker: Checking for Conficker.C or higher...
@@ -74,7 +74,7 @@ out to everybody who contributed!
 -- |  | Check 3 (port 11722/udp): INFECTED (Received valid data)
 -- |  | Check 4 (port 12690/udp): INFECTED (Received valid data)
 -- |_ |_ 4/4 checks: Host is likely INFECTED
--- 
+--
 -----------------------------------------------------------------------
 
 author = "Ron Bowes (with research from Symantec Security Response)"
@@ -122,7 +122,7 @@ end
 --
 --@param u First number (0 <= u <= 0xFFFFFFFF)
 --@param v Second number (0 <= v <= 0xFFFFFFFF)
---@return 64-bit product of u*v, as a pair of 32-bit integers. 
+--@return 64-bit product of u*v, as a pair of 32-bit integers.
 local function mul64(u, v)
 	-- This is based on formula (2) from section 4.3.3 of The Art of
 	-- Computer Programming. We split u and v into upper and lower 16-bit
@@ -141,11 +141,11 @@ local function mul64(u, v)
 	return bit.band(t, 0xFFFFFFFF), u1 * v1 + bit.rshift(t, 32)
 end
 
----Rotates the 64-bit integer defined by h:l left by one bit. 
+---Rotates the 64-bit integer defined by h:l left by one bit.
 --
 --@param h The high-order 32 bits
 --@param l The low-order 32 bits
---@return 64-bit rotated integer, as a pair of 32-bit integers. 
+--@return 64-bit rotated integer, as a pair of 32-bit integers.
 local function rot64(h, l)
 	local i
 
@@ -172,7 +172,7 @@ end
 -- <http://www.bamsoftware.com/wiki/Nmap/PortSetGraphics#conficker>
 --
 -- Basically, each bit in the blacklist array represents a group of 32 ports. If that bit is on, those ports
--- are blacklisted and will never come up. 
+-- are blacklisted and will never come up.
 --
 --@param port The port to check
 --@return true if the port is blacklisted, false otherwise
@@ -188,11 +188,11 @@ local function is_blacklisted_port(port)
 	return (bit.band(blacklist[r + 1], l) ~= 0)
 end
 
----Generates the four random ports that Conficker uses, based on the current time and the IP address. 
+---Generates the four random ports that Conficker uses, based on the current time and the IP address.
 --
 --@param ip The IP address as a 32-bit little endian integer
 --@param seed The seed, based on the time (<code>floor((time - 345600) / 604800)</code>)
---@return An array of four ports; the first and third are TCP, and the second and fourth are UDP. 
+--@return An array of four ports; the first and third are TCP, and the second and fourth are UDP.
 local function prng_generate_ports(ip, seed)
 	local ports = {0, 0, 0, 0}
 	local v1, v2
@@ -247,11 +247,11 @@ local function prng_generate_ports(ip, seed)
 	return {ports[1], ports[2], ports[3], ports[4]}
 end
 
----Calculate a checksum for the data. This checksum is appended to every Conficker packet before the random noise. 
--- The checksum includes the key and data, but not the noise and optional length. 
+---Calculate a checksum for the data. This checksum is appended to every Conficker packet before the random noise.
+-- The checksum includes the key and data, but not the noise and optional length.
 --
 --@param data The data to create a checksum for.
---@return An integer representing the checksum. 
+--@return An integer representing the checksum.
 local function p2p_checksum(data)
 	local pos, i
 	local hash = #data
@@ -274,13 +274,13 @@ local function p2p_checksum(data)
 end
 
 ---Encrypt/decrypt the buffer with a simple xor-based symmetric encryption. It uses a 64-bit key, represented
--- by key1:key2, that is transmited in plain text. Since sniffed packets can be decrypted, this is a 
--- simple obfuscation technique. 
+-- by key1:key2, that is transmited in plain text. Since sniffed packets can be decrypted, this is a
+-- simple obfuscation technique.
 --
---@param packet The packet to encrypt (before the key and optional length are prepended). 
+--@param packet The packet to encrypt (before the key and optional length are prepended).
 --@param key1 The low-order 32 bits in the key.
---@param key2 The high-order 32 bits in the key. 
---@return The encrypted (or decrypted) data. 
+--@param key2 The high-order 32 bits in the key.
+--@return The encrypted (or decrypted) data.
 local function p2p_cipher(packet, key1, key2)
 	local i
 	local buf = ""
@@ -309,13 +309,13 @@ local function p2p_cipher(packet, key1, key2)
 end
 
 ---Decrypt the packet, verify it, and parse it. This function will fail with an error if the packet can't be
--- parsed properly (likely means the port is being used for something else), but will return successfully 
+-- parsed properly (likely means the port is being used for something else), but will return successfully
 -- without checking the packet's checksum (although it does calculate the checksum). It's up to the calling
--- function to decide if it cares about the checksum. 
+-- function to decide if it cares about the checksum.
 --
---@param packet The packet, without the optional length (if it's TCP). 
+--@param packet The packet, without the optional length (if it's TCP).
 --@return (status, result) If status is true, result is a table (including 'hash' and 'real_hash'). If status
---        is false, result is a string that indicates why the parse failed. 
+--        is false, result is a string that indicates why the parse failed.
 function p2p_parse(packet)
 	local pos = 1
 	local data = {}
@@ -373,18 +373,18 @@ function p2p_parse(packet)
 
 	-- Read the sysinfo, if present
 	if(bit.band(data['flags'], mode_flags.FLAG_SYSINFO_INCLUDED) ~= 0) then
-		pos, data['sysinfo_systemtestflags'], 
-			data['sysinfo_os_major'], 
-			data['sysinfo_os_minor'], 
-			data['sysinfo_os_build'], 
-			data['sysinfo_os_servicepack_major'], 
-			data['sysinfo_os_servicepack_minor'], 
-			data['sysinfo_ntdll_translation_file_information'], 
-			data['sysinfo_prng_sample'], 
-			data['sysinfo_unknown0'], 
-			data['sysinfo_unknown1'], 
-			data['sysinfo_unknown2'], 
-			data['sysinfo_unknown3'], 
+		pos, data['sysinfo_systemtestflags'],
+			data['sysinfo_os_major'],
+			data['sysinfo_os_minor'],
+			data['sysinfo_os_build'],
+			data['sysinfo_os_servicepack_major'],
+			data['sysinfo_os_servicepack_minor'],
+			data['sysinfo_ntdll_translation_file_information'],
+			data['sysinfo_prng_sample'],
+			data['sysinfo_unknown0'],
+			data['sysinfo_unknown1'],
+			data['sysinfo_unknown2'],
+			data['sysinfo_unknown3'],
 			data['sysinfo_unknown4'] = bin.unpack("<SCCSCCSISSISS", packet, pos)
 		if(data['sysinfo_unknown4'] == nil) then
 			return false, "Packet was too short [7]"
@@ -409,7 +409,7 @@ function p2p_parse(packet)
 	return true, data
 end
 
----Create a peer to peer packet for the given protocol. 
+---Create a peer to peer packet for the given protocol.
 --
 --@param protocol The protocol (either 'tcp' or 'udp' -- tcp packets have a length in front, and an extra
 --       flag)
@@ -459,13 +459,13 @@ local function p2p_create_packet(protocol, do_encryption)
 end
 
 ---Checks if conficker is present on the given port/protocol. The ports Conficker uses are fairly standard, so
--- those should generally be used for this check. This can also be sent to any open port on the system. 
+-- those should generally be used for this check. This can also be sent to any open port on the system.
 --
 --@param ip The ip address of the system to check
 --@param port The port to check (can be taken from <code>prng_generate_ports</code>, or from unidentified ports)
---@return (status, reason, data) Status indicates whether or not Conficker is suspected to be present (<code>true</code) = 
---        Conficker, <code>false</code> = no Conficker). If status is true, data is the table of information returned by 
---        Conficker. 
+--@return (status, reason, data) Status indicates whether or not Conficker is suspected to be present (<code>true</code) =
+--        Conficker, <code>false</code> = no Conficker). If status is true, data is the table of information returned by
+--        Conficker.
 local function conficker_check(ip, port, protocol)
 	local status, packet
 	local socket
@@ -557,7 +557,7 @@ action = function(host)
 				if(tcp ~= nil and tcp.state == "open") then
 					tcp_ports[i] = true
 				end
-	
+
 				local udp = nmap.get_port_state(host, {number=i, protocol="udp"})
 				if(udp ~= nil and (udp.state == "open" or udp.state == "open|filtered")) then
 					udp_ports[i] = true

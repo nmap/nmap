@@ -1,4 +1,4 @@
---- 
+---
 -- EAP (Extensible Authentication Protocol) library supporting a
 -- limited subset of features.
 --
@@ -16,8 +16,8 @@
 -- <code>
 -- pcap:pcap_open(iface.device, 512, true, "ether proto 0x888e")
 -- ...
--- local _, _, l2_data, l3_data, _ = pcap:pcap_receive()		
--- local packet = eap.parse(l2_data .. l3_data3) 
+-- local _, _, l2_data, l3_data, _ = pcap:pcap_receive()
+-- local packet = eap.parse(l2_data .. l3_data3)
 -- if packet then
 --   if packet.eap.type == eap.eap_t.IDENTITY and  packet.eap.code == eap.code_t.REQUEST then
 --	 eap.send_identity_response(iface, packet.eap.id, "anonymous")
@@ -74,7 +74,7 @@ code_t = {
 }
 
 code_str = {
-   [1] = "Request", 
+   [1] = "Request",
    [2] = "Response",
    [3] = "Success",
    [4] = "Failure",
@@ -155,13 +155,13 @@ eap_str = {
 local make_eapol = function (arg)
 	if not arg.type then arg.type = eapol_t.PACKET end
 	if not arg.version then arg.version = 1 end
-	if not arg.payload then arg.payload = "" end		      
+	if not arg.payload then arg.payload = "" end
 	if not arg.src then return nil end
 
 	local p = packet.Frame:new()
 	p.mac_src = arg.src
 	p.mac_dst = packet.mactobin(ETHER_BROADCAST)
-	p.ether_type = ETHER_TYPE_EAPOL	      
+	p.ether_type = ETHER_TYPE_EAPOL
 
 	local bin_payload = bin.pack(">A",arg.payload)
 	p.buf = bin.pack("C",arg.version) .. bin.pack("C",arg.type) .. bin.pack(">S",bin_payload:len()).. bin_payload
@@ -179,14 +179,14 @@ local make_eap = function (arg)
 
     local bin_payload = bin.pack(">A",arg.payload)
     arg.header.payload = bin.pack("C",arg.code) .. bin.pack("C",arg.id) .. bin.pack(">S",bin_payload:len() + EAP_HEADER_SIZE).. bin.pack("C",arg.type) .. bin_payload
- 
+
     local v = make_eapol(arg.header)
     stdnse.print_debug(2, "make eapol %s", arg.header.src)
-		      
+
     return v
 end
 
-parse = function (packet) 
+parse = function (packet)
 	local tb = {}
 	local _
 
@@ -199,14 +199,14 @@ parse = function (packet)
 	-- parsing eapol header
 	_, tb.version, tb.type, tb.length = bin.unpack(">CCS", packet, ETHER_HEADER_SIZE + 1)
 
-	stdnse.print_debug(1, "mac_src: %s, mac_dest: %s, ether_type: 0x%X", 
+	stdnse.print_debug(1, "mac_src: %s, mac_dest: %s, ether_type: 0x%X",
 	tb.mac_src_str, tb.mac_dst_str, tb.ether_type)
 
-	if tb.ether_type ~= ETHER_TYPE_EAPOL_N then return nil, "not an eapol packet" end	   
+	if tb.ether_type ~= ETHER_TYPE_EAPOL_N then return nil, "not an eapol packet" end
 
-	stdnse.print_debug(2, "version: %X, type: %s, length: 0x%X", 
+	stdnse.print_debug(2, "version: %X, type: %s, length: 0x%X",
 	tb.version, eapol_str[tb.type] or "unknown",
-	tb.length)	   		   		   
+	tb.length)
 
 	tb.eap = {}
 
@@ -214,7 +214,7 @@ parse = function (packet)
 		-- parsing body
 
 		_, tb.eap.code, tb.eap.id, tb.eap.length, tb.eap.type = bin.unpack(">CCSC", packet,
-		ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + 1) 	      
+		ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + 1)
 		stdnse.print_debug(2, "code: %s, id: 0x%X, length: 0x%X, type: %s",
 		code_str[tb.eap.code] or "unknown",
 		tb.eap.id, tb.eap.length, eap_str[tb.eap.type] or "unknown" )
@@ -233,7 +233,7 @@ parse = function (packet)
 	end
 
 	if tb.length > 5 and tb.eap.type == eap_t.MD5  then
-		_, tb.eap.body.challenge = bin.unpack("p", packet, ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1) 
+		_, tb.eap.body.challenge = bin.unpack("p", packet, ETHER_HEADER_SIZE + EAPOL_HEADER_SIZE + EAP_HEADER_SIZE + 1)
 	end
 
 	return tb
@@ -244,9 +244,9 @@ send_identity_response = function (iface, id, identity)
 	if not iface then
 		stdnse.print_debug(1, "no interface given")
 		return
-	end	
+	end
 
-	local dnet = nmap.new_dnet()		   
+	local dnet = nmap.new_dnet()
 	local tb = {src = iface.mac, type = eapol_t.PACKET}
 	local response = make_eap{header = tb, code = code_t.RESPONSE, type = eap_t.IDENTITY, id = id, payload = identity}
 
@@ -260,9 +260,9 @@ send_nak_response = function (iface, id, auth)
 	if not iface then
 		stdnse.print_debug(1, "no interface given")
 		return
-	end	
+	end
 
-	local dnet = nmap.new_dnet()		   
+	local dnet = nmap.new_dnet()
 	local tb = {src = iface.mac, type = eapol_t.PACKET}
 	local response = make_eap{header = tb, code = code_t.RESPONSE, type = eap_t.NAK, id = id, payload = bin.pack("C",auth)}
 
@@ -273,19 +273,19 @@ end
 
 
 send_start = function (iface)
-		
+
 	if not iface then
 		stdnse.print_debug(1, "no interface given")
 		return
 	end
 
 	local dnet = nmap.new_dnet()
-	local start = make_eapol{type = eapol_t.START, src = iface.mac}   
+	local start = make_eapol{type = eapol_t.START, src = iface.mac}
 
 	dnet:ethernet_open(iface.device)
 	dnet:ethernet_send(start)
 	dnet:ethernet_close()
-		
+
 end
 
 return _ENV;

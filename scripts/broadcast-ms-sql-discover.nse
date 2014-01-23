@@ -10,7 +10,7 @@ local target = require "target"
 description = [[
 Discovers Microsoft SQL servers in the same broadcast domain.
 
-SQL Server credentials required: No (will not benefit from 
+SQL Server credentials required: No (will not benefit from
 <code>mssql.username</code> & <code>mssql.password</code>).
 
 The script attempts to discover SQL Server instances in the same broadcast
@@ -23,7 +23,7 @@ broadcast version will only use the SQL Server Browser service discovery method.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap --script broadcast-ms-sql-discover
 -- nmap --script broadcast-ms-sql-discover,ms-sql-info --script-args=newtargets
 --
@@ -58,7 +58,7 @@ prerule = function() return true end
 
 
 --- Adds a label and value to an output table. If the value is a boolean, it is
---  converted to Yes/No; if the value is nil, nothing is added to the table. 
+--  converted to Yes/No; if the value is nil, nothing is added to the table.
 local function add_to_output_table( outputTable, outputLabel, outputData )
 
 	if outputData ~= nil then
@@ -67,7 +67,7 @@ local function add_to_output_table( outputTable, outputLabel, outputData )
 		elseif outputData == false then
 			outputData = "No"
 		end
-		
+
 		table.insert(outputTable, string.format( "%s: %s", outputLabel, outputData ) )
 	end
 
@@ -89,10 +89,10 @@ local function create_instance_output_table( instance )
 end
 
 action = function()
-	
+
 	local host = { ip = "255.255.255.255" }
 	local port = { number = 1434, protocol = "udp" }
-	
+
 	local status, result = mssql.Helper.DiscoverBySsrp(host, port, true)
 	if ( not(status) ) then return end
 
@@ -108,7 +108,7 @@ action = function()
 		serverOutput.name = string.format( "%s (%s)", ip, serverName )
 		table.insert( scriptOutput, serverOutput )
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
-	
+
 end

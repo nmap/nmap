@@ -19,14 +19,14 @@ Reference: http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-dlink-backdoor: 
+-- | http-dlink-backdoor:
 -- |   VULNERABLE:
 -- |   Firmware backdoor in some models of D-Link routers allow for admin password bypass
 -- |     State: VULNERABLE
 -- |     Risk factor: High
 -- |     Description:
 -- |       D-Link routers have been found with a firmware backdoor allowing for admin password bypass using a "secret" User-Agent string.
--- |       
+-- |
 -- |     References:
 -- |_      http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor/
 ---
@@ -64,7 +64,7 @@ D-Link routers have been found with a firmware backdoor allowing for admin passw
 		if ( response.status == 200 ) then
 			vuln_table.state = vulns.STATE.VULN
 			local report = vulns.Report:new(SCRIPT_NAME, host, port)
-			return report:make_output(vuln_table) 
+			return report:make_output(vuln_table)
 		end
 	end
 	return

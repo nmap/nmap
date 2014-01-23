@@ -16,7 +16,7 @@
 --
 -- * <code>Crawler</code>
 -- ** This class is responsible for the actual crawling.
--- 
+--
 -- The following sample code shows how the spider could be used:
 -- <code>
 --   local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME } )
@@ -38,9 +38,9 @@
 --   return result
 -- </code>
 --
--- For advanced use, the library currently supports a number of closures (withinhost, 
--- withindomain, doscraping). Please note, that withinhost and withindomain options also 
--- support boolean values. You will want to override them only for advanced use. You can 
+-- For advanced use, the library currently supports a number of closures (withinhost,
+-- withindomain, doscraping). Please note, that withinhost and withindomain options also
+-- support boolean values. You will want to override them only for advanced use. You can
 -- define them using the following ultities:
 --
 -- * <code>iswithinhost</code>
@@ -51,18 +51,18 @@
 --
 -- * <code>isresource</code>
 -- ** You can use this ultity to check the type of the resource (for example "js").
--- ** A third option may hold a number of signs that may exist after the extension 
--- ** of the resource. By default, these are [#, ?]. For example, if we want to return 
--- only php resources, the function will also return example.php?query=foo or 
+-- ** A third option may hold a number of signs that may exist after the extension
+-- ** of the resource. By default, these are [#, ?]. For example, if we want to return
+-- only php resources, the function will also return example.php?query=foo or
 -- example.php#foo.
 --
--- The following sample code shows an example usage. We override the default 
--- withinhost method and we allow spidering only on resources within the host 
+-- The following sample code shows an example usage. We override the default
+-- withinhost method and we allow spidering only on resources within the host
 -- that they are not "js" or "css".
 -- <code>
 --   crawler.options.withinhost = function(url)
---       if crawler:iswithinhost(url) 
---       and not crawler:isresource(url, "js") 
+--       if crawler:iswithinhost(url)
+--       and not crawler:isresource(url, "js")
 --       and not crawler:isresource(url, "css") then
 --           return true
 --       end
@@ -70,7 +70,7 @@
 -- </code>
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
--- 
+--
 -- @args httpspider.maxdepth the maximum amount of directories beneath
 --       the initial url to spider. A negative value disables the limit.
 --       (default: 3)
@@ -78,24 +78,24 @@
 --       A negative value disables the limit (default: 20)
 -- @args httpspider.url the url to start spidering. This is a URL
 --       relative to the scanned host eg. /default.html (default: /)
--- @args httpspider.withinhost Closure that overrides the default withinhost 
---       function that only spiders URLs within the same host. If this is 
---       set to false the crawler will spider URLs both inside and outside 
---       the host. See the closure section above to override the default 
+-- @args httpspider.withinhost Closure that overrides the default withinhost
+--       function that only spiders URLs within the same host. If this is
+--       set to false the crawler will spider URLs both inside and outside
+--       the host. See the closure section above to override the default
 --       behaviour. (default: true)
--- @args httpspider.withindomain Closure that overrides the default 
+-- @args httpspider.withindomain Closure that overrides the default
 --       withindomain function that only spiders URLs within the same
 --       domain. This widens the scope from <code>withinhost</code> and can
---       not be used in combination. See the closure section above to 
+--       not be used in combination. See the closure section above to
 --       override the default behaviour. (default: false)
 -- @args httpspider.noblacklist if set, doesn't load the default blacklist
 -- @args httpspider.useheadfornonwebfiles if set, the crawler would use
 --       HEAD instead of GET for files that do not have extensions indicating
 --       that they are webpages (the list of webpage extensions is located in
 --       nselib/data/http-web-files-extensions.lst)
--- @args httpspider.doscraping Closure that overrides the default doscraping  
---       function used to check if the resource should be scraped (in terms 
---       of extracting any links within it). See the closure section above to 
+-- @args httpspider.doscraping Closure that overrides the default doscraping
+--       function used to check if the resource should be scraped (in terms
+--       of extracting any links within it). See the closure section above to
 --       override the default behaviour.
 ---
 
@@ -114,10 +114,10 @@ local PREFETCH_SIZE = 5
 
 -- The Options class, handling all spidering options
 Options = {
-    
+
     new = function(self, options)
         local o = { }
-        
+
         -- copy all options as class members
         for k, v in pairs(options) do o[k] = v  end
 
@@ -126,12 +126,12 @@ Options = {
         o.whitelist = o.whitelist or {}
         o.blacklist = o.blacklist or {}
     local removewww = function(url) return string.gsub(url, "^www%.", "") end
-        
+
         -- set up the appropriate matching functions
         if ( o.withinhost ) then
             o.withinhost = function(u)
                 local parsed_u = url.parse(tostring(u))
-                                                
+
                 if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
                     if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
                         return false
@@ -147,7 +147,7 @@ Options = {
         end
         if ( o.withindomain ) then
             o.withindomain = function(u)
-                local parsed_u = url.parse(tostring(u))             
+                local parsed_u = url.parse(tostring(u))
                 if ( o.base_url:getPort() ~= 80 and o.base_url:getPort() ~= 443 ) then
                     if ( tonumber(parsed_u.port) ~= tonumber(o.base_url:getPort()) ) then
                         return false
@@ -162,7 +162,7 @@ Options = {
         end
 
         if (not o.doscraping) then
-          
+
             o.doscraping = function(u)
                 return true
             end
@@ -172,7 +172,7 @@ Options = {
         self.__index = self
         return o
     end,
-    
+
     addWhitelist = function(self, func) table.insert(self.whitelist, func) end,
     addBlacklist = function(self, func) table.insert(self.blacklist, func) end,
 
@@ -180,11 +180,11 @@ Options = {
 
 -- Placeholder for form extraction code
 FormExtractor = {
-    
+
 }
 
 LinkExtractor = {
-    
+
     -- Creates a new instance of LinkExtractor
     -- @return o instance of LinkExtractor
     new = function(self, url, html, options)
@@ -200,7 +200,7 @@ LinkExtractor = {
 
         return o
     end,
- 
+
     -- is the link absolute or not?
     isAbsolute = function(url)
         -- at this point we don't care about the protocol
@@ -208,7 +208,7 @@ LinkExtractor = {
         -- feed:http://example.com/rss.xml
         return ( url:match('^%w*:') ~= nil )
     end,
-    
+
     -- Creates an absolute link from a relative one based on the base_url
     -- The functionality is very simple and does not take any ../../ in
     -- consideration.
@@ -235,7 +235,7 @@ LinkExtractor = {
 
         if ( ( base_url:getProto() == 'https' and base_url:getPort() == 443 ) or
              ( base_url:getProto() == 'http' and base_url:getPort() == 80 ) ) then
-            
+
             if ( leading_slash ) then
                 return ("%s://%s/%s"):format(base_url:getProto(), base_url:getHost(), rel_url)
             else
@@ -257,7 +257,7 @@ LinkExtractor = {
             end
         end
     end,
-    
+
     -- Gets the depth of the link, relative to our base url eg.
     -- base_url = http://www.cqure.net/wp/
     -- url = http://www.cqure.net/wp/                           - depth: 0
@@ -279,7 +279,7 @@ LinkExtractor = {
             end
         end
     end,
-    
+
     validate_link = function(self, url)
         local valid = true
 
@@ -296,7 +296,7 @@ LinkExtractor = {
             if ( -1 == depth or depth > self.options.maxdepth ) then
                 stdnse.print_debug(3, "%s: Skipping link depth: %d; b_url=%s; url=%s", LIBRARY_NAME, depth, tostring(self.options.base_url), tostring(url))
                 return false
-            end     
+            end
         end
 
         -- withindomain trumps any whitelisting
@@ -315,7 +315,7 @@ LinkExtractor = {
             end
         end
 
-        -- run through all blacklists   
+        -- run through all blacklists
         if ( #self.options.blacklist > 0 ) then
             for _, func in ipairs(self.options.blacklist) do
                 if ( func(url) ) then
@@ -353,12 +353,12 @@ LinkExtractor = {
             '[sS][rR][cC]%s*=%s*([^\'\"][^%s>]+)',
             '[aA][cC][tT][iI][oO][nN]%s*=%s*[\'"]%s*([^"^\']+%s*)[\'"]',
         }
-        
+
         local base_hrefs = {
             '[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*[\'"](%s*[^"^\']+%s*)[\'"]',
             '[Bb][Aa][Ss][Ee]%s*[Hh][Rr][Ee][Ff]%s*=%s*([^\'\"][^%s>]+)'
         }
-        
+
         local base_href
         for _, pattern in ipairs(base_hrefs) do
             base_href = self.html:match(pattern)
@@ -373,11 +373,11 @@ LinkExtractor = {
                 if ( not(LinkExtractor.isAbsolute(l)) ) then
                     link = LinkExtractor.createAbsolute(self.url, l, base_href)
                 end
-                
+
                 local url = URL:new(link)
-                
+
                 local valid = self:validate_link(url)
-                
+
                 if ( valid ) then
                     stdnse.print_debug(3, "%s: Adding link: %s", LIBRARY_NAME, tostring(url))
                     links[tostring(url)] = true
@@ -386,24 +386,24 @@ LinkExtractor = {
                 end
             end
         end
-        
+
         for link in pairs(links) do
             table.insert(self.links, link)
         end
-    
+
     end,
 
     -- Gets a table containing all of the retrieved URLs, after filtering
     -- has been applied.
     getLinks = function(self) return self.links end,
-    
-    
+
+
 }
 
 -- The URL class, containing code to process URLS
 -- This class is heavily inspired by the Java URL class
 URL = {
-    
+
     -- Creates a new instance of URL
     -- @param url string containing the text representation of a URL
     -- @return o instance of URL, in case of parsing being successful
@@ -412,14 +412,14 @@ URL = {
         local o = {
             raw = url,
         }
-                
+
         setmetatable(o, self)
         self.__index = self
         if ( o:parse() ) then
             return o
         end
     end,
-    
+
     -- Parses the string representation of the URL and splits it into different
     -- URL components
     -- @return status true on success, false on failure
@@ -430,15 +430,15 @@ URL = {
             self.port = tonumber(self.port)
             if ( not(self.port) ) then
                 if ( self.proto:match("https") ) then
-                    self.port = 443 
+                    self.port = 443
                 elseif ( self.proto:match("http")) then
                     self.port = 80
                 end
             end
-            
+
             self.path  = self.file:match("^([^?]*)[%?]?")
             self.dir   = self.path:match("^(.+%/)") or "/"
-            self.domain= self.host:match("^[^%.]-%.(.*)")           
+            self.domain= self.host:match("^[^%.]-%.(.*)")
             return true
         elseif( self.raw:match("^javascript:") ) then
             stdnse.print_debug(2, "%s: Skipping javascript url: %s", LIBRARY_NAME, self.raw)
@@ -449,42 +449,42 @@ URL = {
         end
         return false
     end,
-    
+
     -- Get's the host portion of the URL
     -- @return host string containing the hostname
     getHost = function(self) return self.host end,
-    
+
     -- Get's the protocol representation of the URL
     -- @return proto string containing the protocol (ie. http, https)
     getProto = function(self) return self.proto end,
-    
-    -- Returns the filename component of the URL. 
+
+    -- Returns the filename component of the URL.
     -- @return file string containing the path and query components of the url
     getFile = function(self) return self.file end,
-    
+
     -- Gets the port component of the URL
     -- @return port number containing the port of the URL
     getPort = function(self) return self.port end,
-    
+
     -- Gets the path component of the URL
     -- @return the full path and filename of the URL
     getPath = function(self) return self.path end,
-    
+
     -- Gets the directory component of the URL
-    -- @return directory string containing the directory part of the URL 
+    -- @return directory string containing the directory part of the URL
     getDir  = function(self) return self.dir end,
-    
+
     -- Gets the domain component of the URL
     -- @return domain string containing the hosts domain
     getDomain = function(self)
         if ( self.domain ) then
-            return self.domain 
+            return self.domain
         -- fallback to the host, if we can't find a domain
         else
             return self.host
         end
     end,
-    
+
     -- Converts the URL to a string
     -- @return url string containing the string representation of the url
     __tostring = function(self) return self.raw end,
@@ -492,12 +492,12 @@ URL = {
 
 -- An UrlQueue
 UrlQueue = {
-    
+
     -- creates a new instance of UrlQueue
     -- @param options table containing options
     -- @return o new instance of UrlQueue
     new = function(self, options)
-        local o = { 
+        local o = {
             urls = {},
             options = options
         }
@@ -505,23 +505,23 @@ UrlQueue = {
         self.__index = self
         return o
     end,
-    
+
     -- get's the next available url in the queue
     getNext = function(self)
         return table.remove(self.urls,1)
     end,
-    
+
     -- adds a new url to the queue
     -- @param url can be either a string or a URL or a table of URLs
     add = function(self, url)
         assert( type(url) == 'string' or type(url) == 'table', "url was neither a string or table")
         local urls = ( 'string' == type(url) ) and URL:new(url) or url
-        
+
         -- if it's a table, it can be either a single URL or an array of URLs
         if ( 'table' == type(url) and url.raw ) then
             urls = { url }
         end
-        
+
         for _, u in ipairs(urls) do
             u = ( 'string' == type(u) ) and URL:new(u) or u
             if ( u ) then
@@ -531,27 +531,27 @@ UrlQueue = {
             end
         end
     end,
-    
+
     -- dumps the contents of the UrlQueue
     dump = function(self)
         for _, url in ipairs(self.urls) do
             print("url:", url)
         end
     end,
-    
+
 }
 
 -- The Crawler class
 Crawler = {
 
     options = {},
- 
+
     removewww = function(url) return string.gsub(url, "^www%.", "") end,
 
     -- An ultity when defining closures. Checks if the resource exists within host.
-    -- @param u URL that points to the resource we want to check. 
+    -- @param u URL that points to the resource we want to check.
     iswithinhost = function(self, u)
-        local parsed_u = url.parse(tostring(u))                                            
+        local parsed_u = url.parse(tostring(u))
         if ( self.options.base_url:getPort() ~= 80 and self.options.base_url:getPort() ~= 443 ) then
             if ( tonumber(parsed_u.port) ~= tonumber(self.options.base_url:getPort()) ) then
                 return false
@@ -566,9 +566,9 @@ Crawler = {
     end,
 
     -- An ultity when defining closures. Checks if the resource exists within domain.
-    -- @param u URL that points to the resource we want to check. 
+    -- @param u URL that points to the resource we want to check.
     iswithindomain = function(self, u)
-        local parsed_u = url.parse(tostring(u))             
+        local parsed_u = url.parse(tostring(u))
         if ( self.options.base_url:getPort() ~= 80 and self.options.base_url:getPort() ~= 443 ) then
             if ( tonumber(parsed_u.port) ~= tonumber(self.options.base_url:getPort()) ) then
                 return false
@@ -581,10 +581,10 @@ Crawler = {
         return true
     end,
 
-    -- An ultity when defining closures. Checks the type of the resource. 
-    -- @param u URL that points to the resource we want to check. 
+    -- An ultity when defining closures. Checks the type of the resource.
+    -- @param u URL that points to the resource we want to check.
     -- @param ext the extension of the resource.
-    -- @param signs table of signs that may exist after the extension of the resource. 
+    -- @param signs table of signs that may exist after the extension of the resource.
     isresource = function(self, u, ext, signs)
         u = tostring(u)
 
@@ -596,7 +596,7 @@ Crawler = {
         if signs then
             for _, s in signs do
              signstring = signstring .. s
-            end 
+            end
             signstring:gsub('?', '%?')
         else
             signstring = "#%?"
@@ -604,8 +604,8 @@ Crawler = {
 
         return string.match(u, "." .. ext .. "[" .. signstring .. "]" .. "[^.]*$")
 
-    end, 
-    
+    end,
+
     -- creates a new instance of the Crawler instance
     -- @param host table as received by the action method
     -- @param port table as received by the action method
@@ -643,13 +643,13 @@ Crawler = {
         o:loadDefaultArguments()
 
         local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout, redirect_ok = o.options.redirect_ok, no_cache = o.options.no_cache } )
-        
+
         if ( not(response) or 'table' ~= type(response) ) then
             return
         end
-        
+
         o.url = o.url:match("/?(.*)")
-        
+
         local u_host = o.host.targetname or o.host.name
         if ( not(u_host) or 0 == #u_host ) then
             u_host = o.host.ip
@@ -662,17 +662,17 @@ Crawler = {
 
         o.options.timeout = o.options.timeout or 10000
         o.processed = {}
-        
+
         -- script arguments have precedense
         if ( not(o.options.maxdepth) ) then
             o.options.maxdepth = tonumber(stdnse.get_script_args("httpspider.maxdepth"))
         end
-        
+
         -- script arguments have precedense
         if ( not(o.options.maxpagecount) ) then
             o.options.maxpagecount = tonumber(stdnse.get_script_args("httpspider.maxpagecount"))
         end
-        
+
         if ( not(o.options.noblacklist) ) then
             o:addDefaultBlacklist()
         end
@@ -689,18 +689,18 @@ Crawler = {
         end
       end
     end
-        
+
         stdnse.print_debug(2, "%s: %s", LIBRARY_NAME, o:getLimitations())
-        
+
         return o
     end,
-    
+
     -- Set's the timeout used by the http library
     -- @param timeout number containing the timeout in ms.
     set_timeout = function(self, timeout)
         self.options.timeout = timeout
     end,
-        
+
     -- Get's the amount of pages that has been retrieved
     -- @return count number of pages retrieved by the instance
     getPageCount = function(self)
@@ -710,7 +710,7 @@ Crawler = {
         end
         return count
     end,
-    
+
     -- Adds a default blacklist blocking binary files such as images,
     -- compressed archives and executable files
     addDefaultBlacklist = function(self)
@@ -740,7 +740,7 @@ Crawler = {
             end
         end )
     end,
-    
+
     -- does the heavy crawling
     --
     -- The crawler may exit due to a number of different reasons, including
@@ -759,12 +759,12 @@ Crawler = {
         end
 
         while(true) do
-            
+
             if ( self.quit or coroutine.status(self.basethread) == 'dead'  ) then
                 table.insert(response_queue, {false, { err = false, msg = "Quit signalled by crawler" } })
                 break
             end
-            
+
             -- in case the user set a max page count to retrieve check how many
             -- pages we have retrieved so far
             local count = self:getPageCount()
@@ -774,7 +774,7 @@ Crawler = {
                 condvar "signal"
                 return
             end
-        
+
             -- pull links from the queue until we get a valid one
             local url
             repeat
@@ -787,18 +787,18 @@ Crawler = {
                 condvar "signal"
                 return
             end
-          
+
             if ( self.options.maxpagecount ) then
                 stdnse.print_debug(2, "%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
             else
                 stdnse.print_debug(2, "%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
-            end 
+            end
 
-      local scrape = true 
+      local scrape = true
 
 
       if not (self.options.doscraping(url)) then
-        stdnse.print_debug(2, "%s: Scraping is not allowed for url: %s", LIBRARY_NAME, tostring(url)) 
+        stdnse.print_debug(2, "%s: Scraping is not allowed for url: %s", LIBRARY_NAME, tostring(url))
         scrape = false
       end
 
@@ -828,9 +828,9 @@ Crawler = {
               -- fetch the url, and then push it to the processed table
               response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout, redirect_ok = self.options.redirect_ok, no_cache = self.options.no_cache } )
             end
-      
+
             self.processed[tostring(url)] = true
-      
+
             if ( response ) then
                 -- were we redirected?
                 if ( response.location ) then
@@ -847,7 +847,7 @@ Crawler = {
                 if ( response.body ) and scrape then
                     local links = LinkExtractor:new(url, response.body, self.options):getLinks()
                     self.urlqueue:add(links)
-                end     
+                end
             else
                 response = { body = "", headers = {} }
             end
@@ -860,7 +860,7 @@ Crawler = {
         end
         condvar "signal"
     end,
-    
+
     -- Loads the argument set on a script level
     loadScriptArguments = function(self)
         local sn = self.options.scriptname
@@ -868,7 +868,7 @@ Crawler = {
             stdnse.print_debug("%s: WARNING: Script argument could not be loaded as scriptname was not set", LIBRARY_NAME)
             return
         end
-        
+
         if ( nil == self.options.maxdepth ) then
             self.options.maxdepth = tonumber(stdnse.get_script_args(sn .. ".maxdepth"))
         end
@@ -893,9 +893,9 @@ Crawler = {
         if ( nil == self.options.doscraping ) then
             self.options.doscraping = stdnse.get_script_args(sn .. ".doscraping")
         end
-        
+
     end,
-    
+
     -- Loads the argument on a library level
     loadLibraryArguments = function(self)
         local ln = LIBRARY_NAME
@@ -925,7 +925,7 @@ Crawler = {
             self.options.doscraping = stdnse.get_script_args(ln .. ".doscraping")
         end
     end,
-    
+
     -- Loads any defaults for arguments that were not set
     loadDefaultArguments = function(self)
         local function tobool(b)
@@ -948,7 +948,7 @@ Crawler = {
             end
             return b
         end
-        
+
         if self.options.withinhost == 0 then
             self.options.withinhost = false
         end
@@ -977,8 +977,8 @@ Crawler = {
         self.options.maxdepth = tonumber(self.options.maxdepth) or 3
         self.options.maxpagecount = tonumber(self.options.maxpagecount) or 20
         self.url = self.url or '/'
-    end,    
-    
+    end,
+
     -- gets a string of limitations imposed on the crawl
     getLimitations = function(self)
         local o = self.options
@@ -998,12 +998,12 @@ Crawler = {
                 table.insert(limits, ("withinhost=%s"):format(o.base_url:getHost()))
             end
         end
-    
+
         if ( #limits > 0 ) then
             return ("Spidering limited to: %s"):format(stdnse.strjoin("; ", limits))
         end
     end,
-    
+
     -- does the crawling
     crawl = function(self)
         self.response_queue = self.response_queue or {}
@@ -1013,7 +1013,7 @@ Crawler = {
         end
 
         if ( #self.response_queue == 0 and coroutine.status(self.thread) ~= 'dead') then
-            condvar "wait" 
+            condvar "wait"
         end
         condvar "signal"
         if ( #self.response_queue == 0 ) then
@@ -1022,7 +1022,7 @@ Crawler = {
             return table.unpack(table.remove(self.response_queue, 1))
         end
     end,
-    
+
     -- signals the crawler to stop
     stop = function(self)
         local condvar = nmap.condvar(self.response_queue)

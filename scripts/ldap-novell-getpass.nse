@@ -12,7 +12,7 @@ administrative account.
 ]]
 
 ---
--- Universal Password enables advanced password policies, including extended 
+-- Universal Password enables advanced password policies, including extended
 -- characters in passwords, synchronization of passwords from eDirectory to
 -- other systems, and a single password for all access to eDirectory.
 --
@@ -26,7 +26,7 @@ administrative account.
 --       to the server
 -- @args ldap-novell-getpass.password The LDAP password to use when connecting
 --       to the server
--- 
+--
 -- @usage
 -- nmap -p 636 --script ldap-novell-getpass --script-args \
 --	'ldap-novell-getpass.username="CN=admin,O=cqure", \
@@ -36,8 +36,8 @@ administrative account.
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 636/tcp open  ldapssl syn-ack
--- | ldap-novell-getpass: 
--- |   Account: CN=patrik,OU=security,O=cqure 
+-- | ldap-novell-getpass:
+-- |   Account: CN=patrik,OU=security,O=cqure
 -- |_  Password: foobar
 --
 
@@ -78,8 +78,8 @@ function action(host,port)
 	if ( not(socket) ) then
 		return "\n  ERROR: Failed to connect to LDAP server"
 	end
-		
-	local status, errmsg = ldap.bindRequest( socket, { 
+
+	local status, errmsg = ldap.bindRequest( socket, {
 		version = 3,
 		username = username,
 		password = password
@@ -93,7 +93,7 @@ function action(host,port)
 	local NMASLDAP_GET_PASSWORD_RESPONSE = "2.16.840.1.113719.1.39.42.100.14"
 	-- Add a trailing zero to the account name
 	local data = ldap.encode( account .. '\0' )
-	
+
 	-- The following section could do with more documentation
 	-- It's based on packet dumps from the getpass utility available from Novell Cool Solutions
 	-- encode the account name as a sequence
@@ -107,25 +107,25 @@ function action(host,port)
 
 	status = socket:send(data)
 	if ( not(status) ) then	return "ERROR: Failed to send request" end
-	
+
 	status, data = socket:receive()
 	if ( not(status) ) then return data end
 	socket:close()
-	
+
 	local _, response = ldap.decode(data)
 
 	-- make sure the result code was a success
 	local rescode = ( #response >= 2 ) and response[2]
 	local respname = ( #response >= 5 ) and response[5]
 
-	if ( rescode ~= 0 ) then 
+	if ( rescode ~= 0 ) then
 		local errmsg = ( #response >= 4 ) and response[4] or "An unknown error occured"
 		return "\n  ERROR: " .. errmsg
 	end
 
 	-- make sure we get a NMAS Get Password Response back from the server
 	if ( respname ~= NMASLDAP_GET_PASSWORD_RESPONSE ) then return end
-	
+
 	local universal_pw = ( #response >= 6 and #response[6] >= 3 ) and response[6][3]
 
 	if ( universal_pw ) then

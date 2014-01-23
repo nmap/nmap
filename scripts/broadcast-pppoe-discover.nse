@@ -20,7 +20,7 @@ mode to operate.
 -- nmap --script broadcast-pppoe-discover
 --
 -- @output
--- | broadcast-pppoe-discover: 
+-- | broadcast-pppoe-discover:
 -- | Server: 08:00:27:AB:CD:EF
 -- |   Version: 1
 -- |   Type: 1
@@ -55,17 +55,17 @@ local function discoverPPPoE(helper)
 	if ( not(status) ) then
 		return false, err
 	end
-	
+
 	local status, pado = helper:discoverInit()
 	if ( not(status) ) then
 		return false, pado
 	end
-	
+
 	status, err = helper:discoverRequest()
 	if ( not(status) ) then
 		return false, err
 	end
-	
+
 	return true, pado
 end
 
@@ -87,19 +87,19 @@ local function getInterfaces(link, up)
 		end
 	end
 	return result
-end	
+end
 
 action = function()
 
 	local interfaces
-	
+
 	-- first check if the user supplied an interface
 	if ( nmap.get_interface() ) then
 		interfaces = { [nmap.get_interface()] = true }
 	else
 		interfaces = getInterfaces("ethernet", "up")
 	end
-	
+
 	for iface in pairs(interfaces) do
 		local helper, err = pppoe.Helper:new(iface)
 		if ( not(helper) ) then
@@ -110,11 +110,11 @@ action = function()
 			return fail(pado)
 		end
 		helper:close()
-	
+
 		local output = { name = ("Server: %s"):format(stdnse.format_mac(pado.mac_srv)) }
 		table.insert(output, ("Version: %d"):format(pado.header.version))
 		table.insert(output, ("Type: %d"):format(pado.header.type))
-			
+
 		local tags = { name = "TAGs" }
 		for _, tag in ipairs(pado.tags) do
 			local name, val = pppoe.PPPoE.TagName[tag.tag], tag.decoded

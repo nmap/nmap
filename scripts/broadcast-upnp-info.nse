@@ -7,7 +7,7 @@ Attempts to extract system information from the UPnP service by sending a multic
 
 ---
 -- @output
--- | broadcast-upnp-info: 
+-- | broadcast-upnp-info:
 -- |   1.2.3.50
 -- |       Debian/4.0 DLNADOC/1.50 UPnP/1.0 MiniDLNA/1.0
 -- |       Location:  http://1.2.3.50:8200/rootDesc.xml
@@ -37,13 +37,13 @@ categories = {"broadcast", "safe"}
 prerule = function() return true end
 
 ---
--- Sends UPnP discovery packet to host, 
+-- Sends UPnP discovery packet to host,
 -- and extracts service information from results
 action = function()
 	local helper = upnp.Helper:new()
 	helper:setMulticast(true)
 	local status, result = helper:queryServices()
-	
+
 	if ( status ) then
 		return stdnse.format_output(true, result)
 	end

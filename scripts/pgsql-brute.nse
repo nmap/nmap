@@ -13,12 +13,12 @@ Performs password guessing against PostgreSQL.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap -p 5432 --script pgsql-brute <host>
 --
 -- @output
 -- 5432/tcp open  pgsql
--- | pgsql-brute:  
+-- | pgsql-brute:
 -- |   root:<empty> => Valid credentials
 -- |_  test:test => Valid credentials
 --
@@ -39,7 +39,7 @@ categories = {"intrusive", "brute"}
 
 -- Version 0.4
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 02/20/2010 - v0.2 - moved version detection to pgsql library 
+-- Revised 02/20/2010 - v0.2 - moved version detection to pgsql library
 -- Revised 03/04/2010 - v0.3 - added code from ssh-hostkey.nse to check for SSL support
 --                           - added support for trusted authentication method
 -- Revised 09/10/2011 - v0.4 - changed account status text to be more consistent with other *-brute scripts
@@ -54,7 +54,7 @@ portrule = shortport.port_or_service(5432, "postgresql")
 -- @return socket connected to server
 local function connectSocket(host, port, ssl)
 	local socket = nmap.new_socket()
-	
+
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
 	socket:connect(host, port)
@@ -75,7 +75,7 @@ action = function( host, port )
 	local result, response, status, nossl = {}, nil, nil, false
 	local valid_accounts = {}
 	local pg
-	
+
 	if ( nmap.registry.args['pgsql.version'] ) then
 		if ( tonumber(nmap.registry.args['pgsql.version']) == 2 ) then
 			pg = pgsql.v2
@@ -95,25 +95,25 @@ action = function( host, port )
 
 	status, passwords = unpwdb.passwords()
 	if ( not(status) ) then	return end
-	
+
 	-- If the user explicitly does not disable SSL, enforce it
-	if ( ( nmap.registry.args['pgsql.nossl'] == 'true' ) or 
+	if ( ( nmap.registry.args['pgsql.nossl'] == 'true' ) or
 		 ( nmap.registry.args['pgsql.nossl'] == '1' ) ) then
 		nossl = true
 	end
-	
+
 	for username in usernames do
 		ssl_enable = not(nossl)
 		for password in passwords do
 			stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
 			local socket = connectSocket( host, port, ssl_enable )
 			status, response = pg.sendStartup(socket, username, username)
-			
+
 			-- if nossl is enforced by the user, we're done
 			if ( not(status) and nossl ) then
 				break
 			end
-			
+
 			-- SSL failed, this can occure due to:
 			-- 1. The server does not do SSL
 			-- 2. SSL was denied on a per host or network level
@@ -134,17 +134,17 @@ action = function( host, port )
 					end
 				end
 			end
-	
+
 			-- Do not attempt to authenticate if authentication type is trusted
 			if ( response.authtype ~= pgsql.AuthenticationType.Success ) then
 				status, response = pg.loginRequest( socket, response, username, password, response.salt)
 			end
-			
-			if status then				
+
+			if status then
 				-- Add credentials for other pgsql scripts to use
 				if nmap.registry.pgsqlusers == nil then
 					nmap.registry.pgsqlusers = {}
-				end	
+				end
 				nmap.registry.pgsqlusers[username]=password
 				if ( response.authtype ~= pgsql.AuthenticationType.Success ) then
 					table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
@@ -157,9 +157,9 @@ action = function( host, port )
 		end
 		passwords("reset")
 	end
-	
-	output = stdnse.format_output(true, valid_accounts)	
-	
+
+	output = stdnse.format_output(true, valid_accounts)
+
 	return output
-	
+
 end

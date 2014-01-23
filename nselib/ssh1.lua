@@ -20,7 +20,7 @@ _ENV = stdnse.module("ssh1", stdnse.seeall)
 
 --- Retrieve the size of the packet that is being received
 --  and checks if it is fully received
--- 
+--
 --  This function is very similar to the function generated
 --  with match.numbytes(num) function, except that this one
 --  will check for the number of bytes on-the-fly, based on
@@ -179,10 +179,10 @@ fingerprint_visual = function( fingerprint, algorithm, bits )
   local x, y = math.ceil(fieldsize_x/2), math.ceil(fieldsize_y/2)
   field[x][y] = #characters - 1;
 
-  -- iterate over fingerprint 
+  -- iterate over fingerprint
   for i=1,#fingerprint do
     input = fingerprint:byte(i)
-    -- each byte conveys four 2-bit move commands 
+    -- each byte conveys four 2-bit move commands
     for j=1,4 do
       if bit.band( input, 1) == 1 then x = x + 1 else x = x - 1 end
       if bit.band( input, 2) == 2 then y = y + 1 else y = y - 1 end

@@ -1,9 +1,9 @@
 description = [[
 Detects Ruby on Rails servers vulnerable to object injection, remote command executions and denial of service attacks. (CVE-2013-0156)
 
-All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable. This script 
-sends 3 harmless yaml payloads to detect vulnerable installations. If the malformed object receives a status 500 response, the server 
-is processing YAML objects and therefore is likely vulnerable. 
+All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable. This script
+sends 3 harmless yaml payloads to detect vulnerable installations. If the malformed object receives a status 500 response, the server
+is processing YAML objects and therefore is likely vulnerable.
 
 References:
 * https://community.rapid7.com/community/metasploit/blog/2013/01/10/exploiting-ruby-on-rails-with-metasploit-cve-2013-0156',
@@ -11,7 +11,7 @@ References:
 * http://cvedetails.com/cve/2013-0156/
 
 TODO:
-* Add argument to exploit cmd exec vuln 
+* Add argument to exploit cmd exec vuln
 ]]
 
 ---
@@ -22,15 +22,15 @@ TODO:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-vuln-cve2013-0156: 
+-- | http-vuln-cve2013-0156:
 -- |   VULNERABLE:
 -- |   Parameter parsing vulnerabilities in several versions of Ruby on Rails allow object injection, remote command execution and Denial Of Service attacks (CVE-2013-0156)
 -- |     State: VULNERABLE
 -- |     Risk factor: High
 -- |     Description:
--- |       All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable to object injection, remote command execution and denial of service attacks. 
+-- |       All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable to object injection, remote command execution and denial of service attacks.
 -- |       The attackers don't need to be authenticated to exploit these vulnerabilities.
--- |       
+-- |
 -- |     References:
 -- |       https://groups.google.com/forum/?fromgroups=#!msg/rubyonrails-security/61bkgvnSGTQ/nehwjA8tQ8EJ
 -- |       https://community.rapid7.com/community/metasploit/blog/2013/01/10/exploiting-ruby-on-rails-with-metasploit-cve-2013-0156
@@ -75,7 +75,7 @@ local PAYLOAD_MALFORMED = [=[<?xml version="1.0" encoding="UTF-8"?>
 local function detect(host, port, uri)
   local opts = {header={}}
   opts["header"]["Content-type"] = 'application/xml'
-  
+
   local req_ok = http.post(host, port, uri, opts, nil, PAYLOAD_OK)
   local req_time = http.post(host, port, uri, opts, nil, PAYLOAD_TIME)
   stdnse.print_debug(2, "%s:First request returned status %d. Second request returned status %d", SCRIPT_NAME, req_ok.status, req_time.status)
@@ -99,7 +99,7 @@ action = function(host, port)
     state = vulns.STATE.NOT_VULN,
     risk_factor = "High",
     description = [[
-All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable to object injection, remote command execution and denial of service attacks. 
+All Ruby on Rails versions before 2.3.15, 3.0.x before 3.0.19, 3.1.x before 3.1.10, and 3.2.x before 3.2.11 are vulnerable to object injection, remote command execution and denial of service attacks.
 The attackers don't need to be authenticated to exploit these vulnerabilities.
 ]],
 
@@ -114,7 +114,7 @@ The attackers don't need to be authenticated to exploit these vulnerabilities.
     stdnse.print_debug(1, "%s:Received status 500 as expected in vulnerable installations. Marking as vulnerable...", SCRIPT_NAME)
     vuln_table.state = vulns.STATE.VULN
     local report = vulns.Report:new(SCRIPT_NAME, host, port)
-    return report:make_output(vuln_table) 
+    return report:make_output(vuln_table)
   end
 
   return nil

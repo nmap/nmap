@@ -14,7 +14,7 @@ Obtains up to 100 forward DNS names for a target IP address by querying the Robt
 --
 -- @output
 -- Pre-scan script results:
--- | http-robtex-reverse-ip: 
+-- | http-robtex-reverse-ip:
 -- |   *.insecure.org
 -- |   *.nmap.com
 -- |   *.nmap.org
@@ -34,7 +34,7 @@ Obtains up to 100 forward DNS names for a target IP address by querying the Robt
 -- |   www.seclists.org
 -- |_  images.insecure.org
 --
--- @args http-robtex-reverse-ip.host IPv4 address of the host to lookup 
+-- @args http-robtex-reverse-ip.host IPv4 address of the host to lookup
 --
 
 author = "riemann"
@@ -63,11 +63,11 @@ action = function(host, port)
 	if ( not(ip) or #ip ~= 4 ) then
 		return stdnse.format_output(false, "The argument \"http-robtex-reverse-ip.host\" did not contain a valid IPv4 address")
 	end
- 
+
 	local link = "https://www.robtex.com/ip/"..target..".html"
 	local htmldata = http.get_url(link)
 	local domains = parse_robtex_response(htmldata.body)
 	if ( #domains > 0 ) then
 	    return stdnse.format_output(true, domains)
-	end	
+	end
 end

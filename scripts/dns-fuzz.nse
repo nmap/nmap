@@ -8,7 +8,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[
-Launches a DNS fuzzing attack against DNS servers. 
+Launches a DNS fuzzing attack against DNS servers.
 
 The script induces errors into randomly generated but valid DNS packets.
 The packet template that we use includes one uncompressed and one
@@ -67,19 +67,19 @@ function pingServer (host, port, attempts)
           local data
           local pkt = dns.newPacket()
           pkt.id = math.random(65535)
-          
+
           pkt.flags.OC3 = true
-          
+
           data = dns.encode(pkt)
-          
-          for i = 1, attempts do 
+
+          for i = 1, attempts do
              status, result = comm.exchange(host, port, data, {proto="udp", timeout=math.pow(DNStimeout,slowDown)})
              if status then
                return true
              end
              slowDown = slowDown + 0.25
           end
-          
+
           return false
      else
           -- just do a vanilla recursive lookup of scanme.nmap.org
@@ -159,7 +159,7 @@ end
 ---
 -- Introduce bit errors into a packet at a rate of 1/50
 -- As Charlie Miller points out in "Fuzz by Number"
--- -> cansecwest.com/csw08/csw08-miller.pdf 
+-- -> cansecwest.com/csw08/csw08-miller.pdf
 -- It's difficult to tell how much random you should insert into packets
 -- "If data is too valid, might not cause problems, If data is too invalid,
 --  might be quickly rejected"
@@ -211,7 +211,7 @@ function injectByte (dnsPacket)
      dnsPacket:gsub(".", function(c)
           i=i+1
           if i==byteToInject then
-               newPacket = newPacket .. string.char(math.random(0,255)) 
+               newPacket = newPacket .. string.char(math.random(0,255))
           end
           newPacket = newPacket .. c
      end)
@@ -262,7 +262,7 @@ function corruptAndSend (host, port, query)
           elseif randCorr==4  then
                query = truncatePacket(query)
           end
-          
+
           status, result = comm.exchange(host, port, query, {proto="udp", timeout=DNStimeout})
           if not status then
                if not pingServer(host,port,3) then
@@ -288,7 +288,7 @@ action = function(host, port)
      local timelimit, err
      local retStr
      local query
-     
+
      for _, k in ipairs({"dns-fuzz.timelimit", "timelimit"}) do
           if nmap.registry.args[k] then
                timelimit, err = stdnse.parse_timespec(nmap.registry.args[k])
@@ -305,8 +305,8 @@ action = function(host, port)
           -- 10 minutes
           endT = 10*60*1000 + nmap.clock_ms()
      end
-     
-     
+
+
      -- Check if the server is a DNS server.
      if not pingServer(host,port,1) then
           -- David reported that his DNS server doesn't respond to

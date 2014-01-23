@@ -13,7 +13,7 @@ Determines which methods are supported by the RTSP (real time streaming protocol
 -- @output
 -- PORT    STATE SERVICE
 -- 554/tcp open  rtsp
--- | rtsp-methods: 
+-- | rtsp-methods:
 -- |_  DESCRIBE, SETUP, PLAY, TEARDOWN, OPTIONS
 --
 -- @args rtsp-methods.path the path to query, defaults to "*" which queries

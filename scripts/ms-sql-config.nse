@@ -79,35 +79,35 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 --- Processes a set of instances
 local function process_instance( instance )
-	
+
 	local status, errorMessage
 	local result, result_part = {}, {}
-	local conf_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and "" 
+	local conf_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and ""
 		or " WHERE configuration_id > 16384"
-	local db_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and "" 
+	local db_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and ""
 		or " WHERE name NOT IN ('master','model','tempdb','msdb')"
 	local helper = mssql.Helper:new()
-	
-	local queries = { 
-		[2]={ ["Configuration"] = [[ SELECT name, 
-								cast(value as varchar) value, 
-								cast(value_in_use as varchar) inuse, 
-								description 
-								FROM sys.configurations ]] .. conf_filter }, 
-		[3]={ ["Linked Servers"] = [[ SELECT srvname, srvproduct, providername 
-									FROM master..sysservers 
+
+	local queries = {
+		[2]={ ["Configuration"] = [[ SELECT name,
+								cast(value as varchar) value,
+								cast(value_in_use as varchar) inuse,
+								description
+								FROM sys.configurations ]] .. conf_filter },
+		[3]={ ["Linked Servers"] = [[ SELECT srvname, srvproduct, providername
+									FROM master..sysservers
 									WHERE srvid > 0 ]] },
-		[1]={ ["Databases"] = [[ CREATE TABLE #nmap_dbs(name varchar(255), db_size varchar(255), owner varchar(255), 
+		[1]={ ["Databases"] = [[ CREATE TABLE #nmap_dbs(name varchar(255), db_size varchar(255), owner varchar(255),
 									dbid int, created datetime, status varchar(512), compatibility_level int )
 								INSERT INTO #nmap_dbs EXEC sp_helpdb
-								SELECT name, db_size, owner 
+								SELECT name, db_size, owner
 									FROM #nmap_dbs ]] .. db_filter .. [[
 								DROP TABLE #nmap_dbs ]] }
 	}
-	
+
 	status, errorMessage = helper:ConnectEx( instance )
 	if ( not(status) ) then result = "ERROR: " .. errorMessage end
-	
+
 	if status then
 		status, errorMessage = helper:LoginEx( instance )
 		if ( not(status) ) then result = "ERROR: " .. errorMessage end
@@ -127,13 +127,13 @@ local function process_instance( instance )
 			table.insert( result, result_part )
 		end
 	end
-	
+
 	helper:Disconnect()
-	
+
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
 	table.insert( instanceOutput, result )
-	
+
 	return instanceOutput
 end
 
@@ -141,7 +141,7 @@ end
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -152,6 +152,6 @@ action = function( host, port )
 			end
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end

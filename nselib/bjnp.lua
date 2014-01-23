@@ -22,7 +22,7 @@ BJNP = {
 
 	-- The common BJNP header
 	Header = {
-		
+
 		new = function(self, o)
 			o = o or {}
 			o = {
@@ -42,15 +42,15 @@ BJNP = {
 		parse = function(data)
 			local hdr = BJNP.Header:new({ code = -1 })
 			local pos
-			
+
 			pos, hdr.id, hdr.type, hdr.code,
 				hdr.seq, hdr.session, hdr.length = bin.unpack(">A4CCISI", data)
 			return hdr
 		end,
 
 		__tostring = function(self)
-				return bin.pack(">ACCISI", 
-					self.id, 
+				return bin.pack(">ACCISI",
+					self.id,
 					self.type,
 					self.code,
 					self.seq,
@@ -59,19 +59,19 @@ BJNP = {
 				)
 			end
 	},
-	
+
 	-- Scanner related code
 	Scanner = {
-		
+
 		Code = {
 			DISCOVER = 1,
 			IDENTITY = 48,
 		},
-		
+
 		Request = {
 
 			Discover = {
-			
+
 				new = function(self)
 					local o = { header = BJNP.Header:new( { type = 2, code = BJNP.Scanner.Code.DISCOVER }) }
 					setmetatable(o, self)
@@ -83,10 +83,10 @@ BJNP = {
 					return tostring(self.header)
 				end,
 			},
-			
-			
+
+
 			Identity = {
-				
+
 				new = function(self)
 					local o = { header = BJNP.Header:new( { type = 2, code = BJNP.Scanner.Code.IDENTITY, length = 4 }), data = 0 }
 					setmetatable(o, self)
@@ -98,18 +98,18 @@ BJNP = {
 					return tostring(self.header) .. bin.pack(">I", self.data)
 				end,
 			}
-			
+
 		},
-		
+
 		Response = {
-			
+
 			Identity = {
 
 				new = function(self)
 					local o = {}
 					setmetatable(o, self)
 					self.__index = self
-					return o					
+					return o
 				end,
 
 				parse = function(data)
@@ -123,10 +123,10 @@ BJNP = {
 						return identity
 					end
 				end,
-				
+
 
 			}
-			
+
 		}
 
 	},
@@ -138,7 +138,7 @@ BJNP = {
 			DISCOVER = 1,
 			IDENTITY = 48,
 		},
-		
+
 		Request = {
 
 			Discover = {
@@ -153,9 +153,9 @@ BJNP = {
 					return tostring(self.header)
 				end,
 			},
-			
+
 			Identity = {
-				
+
 				new = function(self)
 					local o = { header = BJNP.Header:new( { code = BJNP.Printer.Code.IDENTITY }) }
 					setmetatable(o, self)
@@ -167,11 +167,11 @@ BJNP = {
 					return tostring(self.header)
 				end,
 			}
-			
+
 		},
 
 		Response = {
-			
+
 			Identity = {
 
 				new = function(self)
@@ -184,7 +184,7 @@ BJNP = {
 				parse = function(data)
 					local identity = BJNP.Printer.Response.Identity:new()
 					identity.header = BJNP.Header.parse(data)
-					
+
 					local pos = #tostring(identity.header) + 1
 					local pos, len = bin.unpack(">S", data, pos)
 					if ( len ) then
@@ -192,19 +192,19 @@ BJNP = {
 						return identity
 					end
 				end,
-				
-				
+
+
 			}
-			
+
 		},
-		
+
 	}
 
 }
 
 -- Helper class, the main script writer interface
 Helper = {
-	
+
 	-- Creates a new Helper instance
 	-- @param host table
 	-- @param port table
@@ -222,7 +222,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Connects the socket to the device
 	-- This should always be called, regardless if the broadcast option is set
 	-- or not.
@@ -237,7 +237,7 @@ Helper = {
 		end
 		return true
 	end,
-	
+
 	-- Discover network devices using either broadcast or unicast
 	-- @param packet discovery packet (printer or scanner)
 	-- @return status, true on success, false on failure
@@ -267,17 +267,17 @@ Helper = {
 		for host in pairs(tmp) do table.insert(devices, host) end
 		return true, ( self.options.bcast and devices or ( #devices > 0 and devices[1] ))
 	end,
-	
+
 	-- Discover BJNP supporting scanners
 	discoverScanner = function(self)
 		return self:discoverDevice(BJNP.Scanner.Request.Discover:new())
 	end,
-	
+
 	-- Discover BJNP supporting printers
 	discoverPrinter = function(self)
 		return self:discoverDevice(BJNP.Printer.Request.Discover:new())
 	end,
-	
+
 	-- Gets a printer identity (additional information)
 	-- @param devtype string containing either the string printer or scanner
 	-- @return status, true on success, false on failure
@@ -285,13 +285,13 @@ Helper = {
 	--         errmsg string containing the error message when status is false
 	getDeviceIdentity = function(self, devtype)
 		-- Were currenlty only decoding this as I don't know what the other cruft is
-		local attrib_names = { 
+		local attrib_names = {
 			["scanner"] = {
 				{ ['MFG'] = "Manufacturer" },
 				{ ['MDL'] = "Model" },
 				{ ['DES'] = "Description" },
 				{ ['CMD'] = "Command" },
-			}, 
+			},
 			["printer"] = {
 				{ ['MFG'] = "Manufacturer" },
 				{ ['MDL'] = "Model" },
@@ -314,7 +314,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, "Failed to receive response from server"
 		end
-		
+
 		local identity
 		if ( "printer" == devtype ) then
 			identity = BJNP.Printer.Response.Identity.parse(data)
@@ -337,27 +337,27 @@ Helper = {
 				table.insert(attrs, ("%s: %s"):format(long, kvps[short]))
 			end
 		end
-		
+
 		return true, attrs
 	end,
-	
+
 	-- Retrieves information related to the printer
 	getPrinterIdentity = function(self)
 		return self:getDeviceIdentity("printer")
 	end,
-	
+
 	-- Retrieves information related to the scanner
 	getScannerIdentity = function(self)
 		return self:getDeviceIdentity("scanner")
 	end,
-	
+
 	-- Closes the connection
 	-- @return status, true on success, false on failure
 	-- @return errmsg string containing the error message when status is false
 	close = function(self)
 		return self.socket:close()
 	end
-	
+
 }
 
 return _ENV;

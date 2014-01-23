@@ -17,7 +17,7 @@ Based on old ftp-brute.nse script by Diman Todorov, Vlatko Kosturjak and Ron Bow
 --
 -- This script uses brute library to perform password
 -- guessing.
--- 
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
@@ -60,7 +60,7 @@ Driver = {
 		end
 		return true
 	end,
-	
+
 	login = function (self, user, pass)
 		local status, err
 		local res = ""
@@ -104,22 +104,22 @@ Driver = {
 		return false, brute.Error:new("Login didn't return a proper response")
 	end,
 
-	disconnect = function( self ) 
+	disconnect = function( self )
 		self.socket:close()
 		return true
 	end
-	
+
 
 }
 
 action = function( host, port )
 
-	local status, result 
+	local status, result
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.script_name = SCRIPT_NAME
 
 
 	status, result = engine:start()
-	
+
 	return result
 end

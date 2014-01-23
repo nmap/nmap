@@ -57,7 +57,7 @@ Packet = {
 	},
 
 	[OpCode.QUERY] = {
-		
+
 		-- Creates a new instance of class
 		-- @param authnames table of strings containing authentication
 		--        mechanism names.
@@ -92,15 +92,15 @@ Packet = {
 			packet.header.opcode = OpCode.BCAST_QUERY
 			return packet
 		end,
-		
+
 		__tostring = function(...)
 			return Packet[OpCode.QUERY]:__tostring(...)
 		end
-		
+
 	},
 
 	[OpCode.WILLING] = {
-	
+
 		-- Creates a new instance of class
 		-- @return o instance of class
 		new = function(self)
@@ -111,32 +111,32 @@ Packet = {
 			self.__index = self
 			return o
 		end,
-	
+
 		-- Parses data based on which a new object is instantiated
 		-- @param data opaque string containing data received over the wire
 		-- @return hdr instance of class
 		parse = function(data)
 			local willing = Packet[OpCode.WILLING]:new()
 			willing.header = Packet.Header.parse(data)
-		
+
 			local pos = 7
-			pos, willing.authname, willing.hostname, 
+			pos, willing.authname, willing.hostname,
 				willing.status = bin.unpack("ppp", data, pos)
 			return willing
 		end,
-			
+
 	},
-	
+
 	[OpCode.REQUEST] = {
-		
+
 		-- The connection class
 		Connection = {
-			
+
 			IpType = {
 				IPv4 = 0,
 				IPv6 = 6,
 			},
-		
+
 			-- Creates a new instance of class
 			-- @param iptype number
 			-- @param ip opaque string containing the ip
@@ -150,9 +150,9 @@ Packet = {
 				self.__index = self
 				return o
 			end,
-						
+
 		},
-	
+
 		-- Creates a new instance of class
 		-- @param disp_no number containing the display name
 		-- @param auth_name string containing the authentication name
@@ -174,19 +174,19 @@ Packet = {
 			self.__index = self
 			return o
 		end,
-	
+
 		-- Adds a new connection entry
 		-- @param conn instance of Connections
 		addConnection = function(self, conn)
 			table.insert(self.conns, conn)
 		end,
-		
+
 		-- Adds a new authorization entry
 		-- @param str string containing the name of the authorization mechanism
 		addAuthrName = function(self, str)
 			table.insert(self.authr_names, str)
 		end,
-	
+
 		-- Converts the instance to an opaque string
 		-- @return str string containing the instance
 		__tostring = function(self)
@@ -197,22 +197,22 @@ Packet = {
 			data = data .. bin.pack("C", #self.conns)
 			for _, conn in ipairs(self.conns) do
 				data = data .. bin.pack(">P", ipOps.ip_to_str(conn.ip))
-			end			
+			end
 			data = data .. bin.pack(">PP", self.auth_name, self.auth_data)
 			data = data .. bin.pack("C", #self.authr_names)
 			for _, authr in ipairs(self.authr_names) do
 				data = data .. bin.pack(">P", authr)
 			end
 			data = data .. bin.pack(">P", self.manf_id)
-			self.header.length = #data 
-			
+			self.header.length = #data
+
 			return tostring(self.header) .. data
 		end,
 
 	},
-	
+
 	[OpCode.ACCEPT] = {
-		
+
 		-- Creates a new instance of class
 		-- @param session_id number containing the session id
 		-- @param auth_name string containing the authentication name
@@ -233,23 +233,23 @@ Packet = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses data based on which a new object is instantiated
 		-- @param data opaque string containing data received over the wire
 		-- @return hdr instance of class
 		parse = function(data)
 			local accept = Packet[OpCode.ACCEPT]:new()
-			accept.header = Packet.Header.parse(data)		
+			accept.header = Packet.Header.parse(data)
 			local pos = 7
 			pos, accept.session_id, accept.auth_name, accept.auth_data,
 			 	accept.authr_name, accept.authr_data = bin.unpack(">IPPPP", data, pos)
 			return accept
 		end,
-		
+
 	},
-	
+
 	[OpCode.MANAGE] = {
-		
+
 		-- Creates a new instance of class
 		-- @param session_id number containing the session id
 		-- @param disp_no number containing the display number
@@ -266,7 +266,7 @@ Packet = {
 			self.__index = self
 			return o
 		end,
-	
+
 		-- Converts the instance to an opaque string
 		-- @return str string containing the instance
 		__tostring = function(self)
@@ -274,21 +274,21 @@ Packet = {
 			self.header.length = #data
 			return tostring(self.header) .. data
 		end,
-		
+
 	}
-	
+
 }
 
 -- The Helper class serves as the main script interface
 Helper = {
-	
+
 	-- Creates a new instance of Helper
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
 	-- @param options table
 	-- @retun o new instance of Helper
 	new = function(self, host, port, options)
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			options = options or {},
@@ -297,7 +297,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- "Connects" to the server (ie. creates the socket)
 	-- @return status, true on success, false on failure
 	connect = function(self)
@@ -305,7 +305,7 @@ Helper = {
 		self.socket:set_timeout(self.options.timeout or 10000)
 		return true
 	end,
-	
+
 	-- Creates a xdmcp session
 	-- @param auth_name string containing the authentication name
 	-- @param authr_name string containing the authorization mechanism name
@@ -317,7 +317,7 @@ Helper = {
 		if ( not(info) ) then
 			return false, ("Failed to get information for interface %s"):format(self.host.interface)
 		end
-		
+
 		local req = Packet[OpCode.QUERY]:new(auth_names)
 		local status, response = self:exch(req)
 		if ( not(status) ) then
@@ -340,19 +340,19 @@ Helper = {
 		elseif ( response.header.opcode ~= OpCode.ACCEPT ) then
 			return false, "Received unexpected response"
 		end
-		
+
 		-- Sending this last manage packet doesn't make any sense as we can't
 		-- set up a listening TCP server anyway. When we can, we could enable
 		-- this and wait for the incoming request and retrieve X protocol info.
-		
-		-- local manage = Packet[OpCode.MANAGE]:new(response.session_id, 
+
+		-- local manage = Packet[OpCode.MANAGE]:new(response.session_id,
 		-- 	disp_no, "MIT-unspecified")
 		-- local status, response = self:exch(manage)
 		-- if ( not(status) ) then
 		-- 	return false, response
 		-- end
-		
-		return true, { 
+
+		return true, {
 			session_id	= response.session_id,
 			auth_name 	= response.auth_name,
 			auth_data	= response.auth_data,
@@ -360,11 +360,11 @@ Helper = {
 			authr_data	= response.authr_data,
 			}
 	end,
-	
+
 	send = function(self, req)
 		return self.socket:sendto(self.host, self.port, tostring(req))
 	end,
-	
+
 	recv = function(self)
 		local status, data = self.socket:receive()
 		if ( not(status) ) then
@@ -383,7 +383,7 @@ Helper = {
 		end
 		return true, resp
 	end,
-	
+
 	-- Sends a request to the server, receives and parses a response
 	-- @param req instance of Packet
 	-- @return status true on success, false on failure
@@ -395,7 +395,7 @@ Helper = {
 		end
 		return self:recv()
 	end,
-	
+
 }
 
 return _ENV;

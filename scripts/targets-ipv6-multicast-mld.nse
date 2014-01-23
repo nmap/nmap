@@ -16,10 +16,10 @@ Attempts to discover available IPv6 hosts on the LAN by sending an MLD (multicas
 -- nmap -6 --script=targets-ipv6-multicast-mld.nse --script-args 'newtargets,interface=eth0' -sP
 --
 -- Pre-scan script results:
--- | targets-ipv6-multicast-mld: 
+-- | targets-ipv6-multicast-mld:
 -- |   IP: fe80::5a55:abcd:ef01:2345  MAC: 58:55:ab:cd:ef:01  IFACE: en0
 -- |   IP: fe80::9284:0123:4567:89ab  MAC: 90:84:01:23:45:67  IFACE: en0
--- |   
+-- |
 -- |_  Use --script-args=newtargets to add the results as targets
 --
 -- @args targets-ipv6-multicast-mld.timeout timeout to wait for
@@ -88,14 +88,14 @@ local function single_interface_broadcast(if_nfo, results)
 	probe.mac_dst = dst_mac
 	probe.ip_bin_src = src_ip6
 	probe.ip_bin_dst = dst_ip6
-	
+
 	probe.ip6_tc = 0
 	probe.ip6_fl = 0
 	probe.ip6_hlimit = 1
 
 	probe.icmpv6_type = packet.MLD_LISTENER_QUERY
 	probe.icmpv6_code = 0
-	
+
 	-- Add a non-empty payload too.
 	probe.icmpv6_payload = bin.pack("HA", "00 00 00 00", gen_qry)
 	probe:build_icmpv6_header()
@@ -119,7 +119,7 @@ local function single_interface_broadcast(if_nfo, results)
 		if ( status ) then
 			local l2reply = packet.Frame:new(layer2)
 			local reply = packet.Packet:new(layer3, length, true)
-			if ( reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or 
+			if ( reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or
 				 reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT ) then
 				local target_str = reply.ip_src
 				if not results[target_str] then

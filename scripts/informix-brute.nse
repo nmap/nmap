@@ -16,7 +16,7 @@ Performs brute force password auditing against IBM Informix Dynamic Server.
 -- @output
 -- PORT     STATE SERVICE
 -- 9088/tcp open  unknown
--- | informix-brute:  
+-- | informix-brute:
 -- |   Accounts
 -- |     ifxnoob:ifxnoob => Valid credentials
 -- |   Statistics
@@ -38,9 +38,9 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
-portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
+portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port)
@@ -51,22 +51,22 @@ Driver =
 		o.port = port
 		return o
 	end,
-	
+
 	--- Connects performs protocol negotiation
 	--
 	-- @return true on success, false on failure
 	connect = function( self )
-		local status, data 
+		local status, data
 		self.helper = informix.Helper:new( self.host, self.port, "on_nmap_dummy" )
-		
+
 		status, data = self.helper:Connect()
 		if ( not(status) ) then
 			return status, data
 		end
-		
+
 		return true
 	end,
-	
+
 	--- Attempts to login to the Informix server
 	--
 	-- @param username string containing the login username
@@ -76,7 +76,7 @@ Driver =
 	--         brute.Account object on success
 	login = function( self, username, password )
 		local status, data = self.helper:Login( username, password, {} )
-		
+
 		if ( status ) then
 			if ( not(nmap.registry['informix-brute']) ) then
 				nmap.registry['informix-brute'] = {}
@@ -91,20 +91,20 @@ Driver =
 		return false, brute.Error:new( data )
 
 	end,
-	
+
 	--- Disconnects and terminates the Informix communication
 	disconnect = function( self )
 		self.helper:Close()
 	end,
-	
+
 }
 
 
 action = function(host, port)
-	local status, result 
+	local status, result
 	local engine = brute.Engine:new(Driver, host, port )
 	engine.options.script_name = SCRIPT_NAME
-	
+
 	status, result = engine:start()
 
 	return result

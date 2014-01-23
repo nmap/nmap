@@ -179,7 +179,7 @@ local function nfs_filesystem_info(nfs, mount, filesystem)
   if nfs_comm == nil then
     rpc.Helper.UnmountPath(mnt_comm, mount)
     return false, status
-  end 
+  end
 
   nfs.version = nfs_comm.version
 
@@ -195,8 +195,8 @@ local function nfs_filesystem_info(nfs, mount, filesystem)
   elseif nfs_comm.version == 3 then
     status, res = nfsobj:FsStat(nfs_comm, fhandle)
   end
-  
-  if status then 
+
+  if status then
     status, res = table_fsstat(nfs, mount, res)
     if status then
       for k, v in pairs(res) do
@@ -259,7 +259,7 @@ mainaction = function(host)
                   string.format("%s: %s", v.name, err))
     end
   end
- 
+
   return stdnse.format_output(true, report(nfs_info, fs_info))
 end
 

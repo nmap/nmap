@@ -28,7 +28,7 @@ where status of the queued file may be checked.
 --
 -- @output
 -- Pre-scan script results:
--- | http-virustotal: 
+-- | http-virustotal:
 -- |   Permalink: https://www.virustotal.com/file/275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f/analysis/1333633817/
 -- |   Scan date: 2012-04-05 13:50:17
 -- |   Positives: 41
@@ -106,7 +106,7 @@ local function readFile(filename)
 	if ( not(f) ) then
 		return false, ("Failed to open file: %s"):format(filename)
 	end
-	
+
 	local str = f:read("*all")
 	if ( not(str) ) then
 		f:close()
@@ -121,7 +121,7 @@ local function requestFileScan(filename)
 	if ( not(status) ) then
 		return false, str
 	end
-	
+
 	local shortfile = filename:match("^.*[\\/](.*)$")
 	local boundary = "----------------------------nmapboundary"
 	local header = { ["Content-Type"] = ("multipart/form-data; boundary=%s"):format(boundary) }
@@ -131,11 +131,11 @@ local function requestFileScan(filename)
 	postdata = postdata .. ("--%s\r\n" ..
 		"Content-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n" ..
 		"Content-Type: text/plain\r\n\r\n%s\r\n--%s--\r\n"):format(boundary, shortfile, str, boundary)
-	
+
 	local host = "www.virustotal.com"
 	local port = { number = 80, protocol = "tcp" }
 	local path = "/vtapi/v2/file/scan"
-	
+
 	local response = http.post( host, port, path, { header = header }, nil, postdata )
 	if ( not(response) or response.status ~= 200 ) then
 		return false, "Failed to request file scan"
@@ -145,7 +145,7 @@ local function requestFileScan(filename)
 	if ( not(status) ) then
 		return false, "Failed to parse JSON response"
 	end
-		
+
 	return true, json_data
 end
 
@@ -154,7 +154,7 @@ local function getFileScanReport(resource)
 	local host = "www.virustotal.com"
 	local port = { number = 80, protocol = "tcp" }
 	local path = "/vtapi/v2/file/report"
-	
+
 
 	local response = http.post(host, port, path, nil, nil, { ["apikey"] = arg_apiKey, ["resource"] = resource })
 	if ( not(response) or response.status ~= 200 ) then
@@ -165,12 +165,12 @@ local function getFileScanReport(resource)
 	if ( not(status) ) then
 		return false, "Failed to parse JSON response"
 	end
-		
+
 	return true, json_data
 end
 
 local function calcSHA256(filename)
-	
+
 	local status, str = readFile(filename)
 	if ( not(status) ) then
 		return false, str
@@ -180,17 +180,17 @@ end
 
 local function parseScanReport(report)
 	local result = {}
-	
+
 	table.insert(result, ("Permalink: %s"):format(report.permalink))
 	table.insert(result, ("Scan date: %s"):format(report.scan_date))
 	table.insert(result, ("Positives: %s"):format(report.positives))
-	table.insert(result, { 
-		name = "digests", 
+	table.insert(result, {
+		name = "digests",
 		("SHA1: %s"):format(report.sha1),
 		("SHA256: %s"):format(report.sha256),
 		("MD5: %s"):format(report.md5)
 	})
-	
+
 	local tmp = {}
 	for name, scanres in pairs(report.scans) do
 		local res = ( scanres.detected ) and scanres.result or "-"
@@ -204,14 +204,14 @@ local function parseScanReport(report)
 		tab.addrow(scan_tbl, v.name, v.result, v.update, v.version)
 	end
 	table.insert(result, { name = "Results", tab.dump(scan_tbl) })
-	
+
 	return result
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function()
-	
+
 	if ( not(arg_apiKey) ) then
 		return fail("An API key is required in order to use this script (see description)")
 	end
@@ -239,17 +239,17 @@ action = function()
 	else
 		return
 	end
-	
+
 	local status, response
-	
+
 	local status, response = getFileScanReport(resource)
 	if ( not(status) ) then
 		return fail("Failed to retrieve file scan report")
 	end
-			
+
 	if ( not(response.response_code) or 0 == tonumber(response.response_code) ) then
 		return fail(("Failed to retreive scan report for resource: %s"):format(resource))
 	end
-	
+
 	return stdnse.format_output(true, parseScanReport(response))
 end

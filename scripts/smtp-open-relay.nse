@@ -16,7 +16,7 @@ be able to send email originating from any third-party email address that they w
 The checks are done based in combinations of MAIL FROM and RCPT TO commands. The list is
 hardcoded in the source file. The script will output all the working combinations that the
 server allows if nmap is in verbose mode otherwise the script will print the number of
-successful tests. The script will not output if the server requires authentication. 
+successful tests. The script will not output if the server requires authentication.
 
 If debug is enabled and an error occurrs while testing the target host, the error will be
 printed with the list of any combinations that were found prior to the error.
@@ -92,11 +92,11 @@ function get_parameters(host)
                         smtp.get_domain()
 
     local from = stdnse.get_script_args('smtp-open-relay.from') or "antispam"
-  
+
     local to = stdnse.get_script_args('smtp-open-relay.to') or "relaytest"
-    
+
     local ip = stdnse.get_script_args('smtp-open-relay.ip') or host.ip
-      
+
     return domain, from, to, ip
 end
 
@@ -123,14 +123,14 @@ function go(host, port)
     if not status then
         return status, response
     end
-       
+
     if not srvname then
         srvname = string.match(response, "%d+%-([%w]+[%w%.-]*)")
     end
 
     -- Antispam tests.
     local tests = {
-      { 
+      {
         from = "",
         to = string.format("%s@%s", to, domain)
       },
@@ -195,7 +195,7 @@ function go(host, port)
         to = string.format("%s!%s@%s", domain, to, srvname)
       },
     }
-  
+
     -- This function is used when something goes wrong with the connection.
     -- It makes sure that if it found working combinations before the error
     -- occurred, they will be returned. If the debug flag is enabled the
@@ -227,7 +227,7 @@ function go(host, port)
             return failure(string.format("Failed to issue %s command (%s)",
                           tests[index]["from"], response))
         end
-                  
+
         if string.match(response, "530") then
             smtp.quit(socket)
             return false, "Server isn't an open relay, authentication needed"

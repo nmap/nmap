@@ -29,7 +29,7 @@ Credit to wafw00f and w3af for some fingerprints.
 --@output
 --PORT   STATE SERVICE REASON
 --80/tcp open  http    syn-ack
---| http-waf-fingerprint: 
+--| http-waf-fingerprint:
 --|   Detected WAF
 --|_    BinarySec version 3.2.2
 
@@ -69,19 +69,19 @@ bigip = {
 
     match = function(responses)
         for _, response in pairs(responses) do
-            
+
             if response.header['x-cnection'] then
                 stdnse.print_debug("%s BigIP detected through X-Cnection header.", SCRIPT_NAME)
                 bigip.detected = true
                 return
             end
-            
-            if response.header.server == 'BigIP' then -- 
+
+            if response.header.server == 'BigIP' then --
                 stdnse.print_debug("%s BigIP detected through Server header.", SCRIPT_NAME)
                 bigip.detected = true
                 return
             end
-            
+
             for _, cookie in pairs(response.cookies) do --
                 if string.find(cookie.name, "BIGipServer") then
                     stdnse.print_debug("%s BigIP detected through cookies.", SCRIPT_NAME)
@@ -109,11 +109,11 @@ webknight = {
 
     match = function(responses)
         for name, response in pairs(responses) do
-            if response.header.server and string.find(response.header.server, 'WebKnight/') then -- 
+            if response.header.server and string.find(response.header.server, 'WebKnight/') then --
                 stdnse.print_debug("%s WebKnight detected through Server Header.", SCRIPT_NAME)
                 webknight.version = string.sub(response.header.server, 11)
                 webknight.detected = true
-                return 
+                return
             end
             if response.status == 999 then
                 if not webknight.detected then stdnse.print_debug("%s WebKnight detected through 999 response status code.", SCRIPT_NAME) end
@@ -133,7 +133,7 @@ isaserver = {
     -- TODO Check if version detection is possible
     -- based on the response reason
     reason = {"Forbidden %( The server denied the specified Uniform Resource Locator %(URL%). Contact the server administrator.  %)",
-              "Forbidden %( The ISA Server denied the specified Uniform Resource Locator %(URL%)"  
+              "Forbidden %( The ISA Server denied the specified Uniform Resource Locator %(URL%)"
              },
 
     match = function(responses)
@@ -167,7 +167,7 @@ airlock = {
                     airlock.detected = true
                     return
                 end
-                if cookie.name == "AL_SESS" and (string.sub(cookie.value, 1, 5) == 'AAABL' 
+                if cookie.name == "AL_SESS" and (string.sub(cookie.value, 1, 5) == 'AAABL'
                       or string.sub(cookie.value, 1, 5) == 'LgEAA' )then
                     stdnse.print_debug("%s Airlock detected through AL_SESS cookies.", SCRIPT_NAME)
                     airlock.detected = true
@@ -223,7 +223,7 @@ denyall = {
     end,
 }
 
-local f5trafficshield 
+local f5trafficshield
 f5trafficshield = {
     name = "F5 Traffic Shield",
     detected = false,
@@ -238,7 +238,7 @@ f5trafficshield = {
                 f5trafficshield.detected = true
                 return
             end
-            
+
             for _, cookie in pairs(response.cookies) do
                 if cookie.name == "ASINFO" then
                     stdnse.print_debug("%s F5 Traffic Shield detected through cookies.", SCRIPT_NAME)
@@ -252,9 +252,9 @@ f5trafficshield = {
     end,
 }
 
-local teros 
+local teros
 teros = {
-    name = "Teros / Citrix Application Firewall Enterprise", -- CAF EX, according to citrix documentation 
+    name = "Teros / Citrix Application Firewall Enterprise", -- CAF EX, according to citrix documentation
     detected = false,
     version = nil,
 
@@ -273,7 +273,7 @@ teros = {
     end,
 }
 
-local binarysec 
+local binarysec
 binarysec = {
     name = "BinarySec",
     detected = false,
@@ -281,7 +281,7 @@ binarysec = {
 
     match = function(responses)
         for _, response in pairs(responses) do
-            if response.header.server and string.find(response.header.server, 'BinarySEC/') then -- 
+            if response.header.server and string.find(response.header.server, 'BinarySEC/') then --
                 stdnse.print_debug("%s BinarySec detected through Server Header.", SCRIPT_NAME)
                 binarysec.version = string.sub(response.header.server, 11)
                 binarysec.detected = true
@@ -334,18 +334,18 @@ netscaler = {
 
             -- TODO Check for other version detection possibilities
             -- based on fingerprint difference
-            if response.header.via and string.find(response.header.via, 'NS%-CACHE') then -- 
+            if response.header.via and string.find(response.header.via, 'NS%-CACHE') then --
                 stdnse.print_debug("%s Citrix Netscaler detected through Via Header.", SCRIPT_NAME)
                 netscaler.version = string.sub(response.header.via, 10, 12)
                 netscaler.detected = true
-                return 
+                return
             end
 
             if response.header.cneonction == "close" or response.header.nncoection == "close" then
                 if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through Cneoction/nnCoection header.", SCRIPT_NAME) end
                 netscaler.detected = true
             end
-            
+
             -- TODO Does X-CLIENT-IP apply to Citrix Application Firewall too ?
             if response.header['x-client-ip'] then
                 if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through X-CLIENT-IP header.", SCRIPT_NAME) end
@@ -353,7 +353,7 @@ netscaler = {
             end
 
             for _, cookie in pairs(response.cookies) do
-                if cookie.name == "ns_af" or cookie.name == "citrix_ns_id" or 
+                if cookie.name == "ns_af" or cookie.name == "citrix_ns_id" or
                                     string.find(cookie.name, "NSC_") then
                     if not netscaler.detected then stdnse.print_debug("%s Netscaler detected through cookies.", SCRIPT_NAME) end
                     netscaler.detected = true
@@ -403,7 +403,7 @@ ibmdatapower = {
     end,
 }
 
-local cloudflare 
+local cloudflare
 cloudflare = {
     name = "Cloudflare",
     detected = false,
@@ -450,7 +450,7 @@ incapsula = {
     end,
 }
 
-local uspses 
+local uspses
 uspses = {
     name = "USP Secure Entry Server",
     detected = false,
@@ -490,7 +490,7 @@ ciscoacexml = {
 
 
 local modsecurity
-modsecurity = { 
+modsecurity = {
     -- Credit to Brendan Coles
     name = "ModSecurity",
     detected = false,
@@ -504,29 +504,29 @@ modsecurity = {
                 modsecurity.version = string.sub(response.header.server, pos + 13, pos + 18)
                 modsecurity.detected = true
                 return
-            end 
+            end
 
             if response.header.server and string.find(response.header.server, 'Mod_Security') then
                 stdnse.print_debug("%s Modsecurity detected through Server Header.", SCRIPT_NAME)
-                modsecurity.version = string.sub(response.header.server, 13, -9) 
+                modsecurity.version = string.sub(response.header.server, 13, -9)
                 modsecurity.detected = true
                 return
-            end 
+            end
 
             -- The default SecServerSignature value is "NOYB" <= TODO For older versions, so we could
             -- probably do some version detection out of it.
-            if response.header.server ==  'NOYB' then 
+            if response.header.server ==  'NOYB' then
                 stdnse.print_debug("%s modsecurity detected through Server header.", SCRIPT_NAME)
                 modsecurity.detected = true
-            end 
-        end 
+            end
+        end
     end,
     intensive = function(host, port, root, responses)
     end,
 }
 
 local naxsi
-naxsi = { 
+naxsi = {
     name = "Naxsi",
     detected = false,
     version = nil,
@@ -550,7 +550,7 @@ naxsi = {
 local wafs = {
     -- WAFs that are commented out don't have reliable fingerprints
     --  with no false positives yet.
-          
+
     bigip = bigip,
     webknight = webknight,
     isaserver = isaserver,
@@ -585,7 +585,7 @@ local wafs = {
 
 local send_requests = function(host, port, root)
     local requests, all, responses = {}, {}, {}
-    
+
     local dirtraversal = "../../../etc/passwd"
     local cleanhtml = "<hellot>hello"
     local xssstring = "<script>alert(1)</script>"
@@ -598,23 +598,23 @@ local send_requests = function(host, port, root)
     -- Normal inexisting
     all = http.pipeline_add(root .. "asofKlj", nil, all, "GET")
     table.insert(requests,"inexisting")
-    
+
     -- Invalid Method
     all = http.pipeline_add(root, nil, all, "ASDE")
     table.insert(requests,"invalidmethod")
-    
+
     -- Directory traversal
     all = http.pipeline_add(root .. "?parameter=" .. dirtraversal, nil, all, "GET")
     table.insert(requests,"invalidmethod")
-    
+
     -- Invalid Host
     all = http.pipeline_add(root , {header= {Host = "somerandomsite.com"}}, all, "GET")
     table.insert(requests,"invalidhost")
-    
+
     --Clean HTML encoded
     all = http.pipeline_add(root .. "?parameter=" .. cleanhtml , nil, all, "GET")
     table.insert(requests,"cleanhtml")
-    
+
     --Clean HTML
     all = http.pipeline_add(root .. "?parameter=" .. url.escape(cleanhtml), nil, all, "GET")
     table.insert(requests,"cleanhtmlencoded")
@@ -622,28 +622,28 @@ local send_requests = function(host, port, root)
     -- XSS
     all = http.pipeline_add(root .. "?parameter=" .. xssstring, nil, all, "GET")
     table.insert(requests,"xss")
-    
+
     -- XSS encoded
     all = http.pipeline_add(root .. "?parameter=" ..  url.escape(xssstring), nil, all, "GET")
     table.insert(requests,"xssencoded")
-    
+
     -- cmdexe
     all = http.pipeline_add(root .. "?parameter=" .. cmdexe, nil, all, "GET")
     table.insert(requests,"cmdexe")
 
-    
+
     -- send all requests
     local pipeline_responses = http.pipeline_go(host, port, all)
     if not pipeline_responses then
         stdnse.print_debug("%s No response from pipelined requests", SCRIPT_NAME)
         return nil
     end
-    
+
     -- Associate responses with requests names
     for i, response in pairs(pipeline_responses) do
-        responses[requests[i]] = response 
-    end 
-    
+        responses[requests[i]] = response
+    end
+
     return responses
 end
 

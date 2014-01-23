@@ -34,7 +34,7 @@ portrule = shortport.http
 
 --- Validates the HTTP response and returns header list
 --@param response The HTTP response
---@param response_headers The HTTP response headers 
+--@param response_headers The HTTP response headers
 local validate = function(response, response_headers)
   local output_lines = {}
   if ( not(response) ) then
@@ -45,7 +45,7 @@ local validate = function(response, response_headers)
   else
     output_lines[ #output_lines+1 ] = "TRACE is enabled"
   end
-  if nmap.verbosity() >= 2 then 
+  if nmap.verbosity() >= 2 then
     output_lines[ #output_lines+1 ]= "Headers:"
     for _, value in pairs(response_headers) do
       output_lines [ #output_lines+1 ] = value
@@ -53,7 +53,7 @@ local validate = function(response, response_headers)
   end
   if #output_lines > 0 then
     return stdnse.strjoin("\n", output_lines)
-  end 
+  end
 end
 
 ---
@@ -61,7 +61,7 @@ end
 ---
 action = function(host, port)
   local path = stdnse.get_script_args("http-trace.path") or "/"
-  
+
   local req = http.generic_request(host, port, "TRACE", path)
   if (req.status == 301 or req.status == 302) and req.header["location"] then
     req = http.generic_request(host, port, "TRACE", req.header["location"])

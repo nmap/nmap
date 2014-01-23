@@ -16,14 +16,14 @@ authentication credentials (see also: informix-brute).
 -- @output
 -- PORT     STATE SERVICE
 -- 9088/tcp open  unknown syn-ack
--- | informix-query:  
+-- | informix-query:
 -- |   Information
 -- |     User: informix
 -- |     Database: sysmaster
 -- |     Query: "SELECT FIRST 1 DBINFO('dbhostname') hostname, DBINFO('version','full') version FROM systables"
 -- |   Results
--- |     hostname      version                                        
--- |_    patrik-laptop IBM Informix Dynamic Server Version 11.50.UC4E 
+-- |     hostname      version
+-- |_    patrik-laptop IBM Informix Dynamic Server Version 11.50.UC4E
 --
 -- @args informix-query.username The username used for authentication
 -- @args informix-query.password The password used for authentication
@@ -43,7 +43,7 @@ categories = {"intrusive", "auth"}
 dependencies = { "informix-brute" }
 
 
-portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
+portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
 
 action = function( host, port )
 	local instance = stdnse.get_script_args('informix-info.instance')
@@ -54,12 +54,12 @@ action = function( host, port )
 	local pass = stdnse.get_script_args('informix-query.password')
 	local query = stdnse.get_script_args('informix-query.query')
 	local db = stdnse.get_script_args('informix-query.database') or "sysmaster"
-	
+
 	query = query or "SELECT FIRST 1 DBINFO('dbhostname') hostname, " ..
 					 "DBINFO('version','full') version FROM systables"
 
 	helper = informix.Helper:new( host, port, instance )
-	
+
 	-- If no user was specified lookup the first user in the registry saved by
 	-- the informix-brute script
 	if ( not(user) ) then
@@ -70,7 +70,7 @@ action = function( host, port )
 			return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
 		end
 	end
-	
+
 	status, data = helper:Connect()
 	if ( not(status) ) then
 		return stdnse.format_output(status, data)
@@ -81,14 +81,14 @@ action = function( host, port )
 
 	status, data = helper:Query(query)
 	if ( not(status) ) then	return stdnse.format_output(status, data) end
-	
+
 	for _, rs in ipairs(data) do
 		table.insert( result, { "User: " .. user, "Database: " .. db, ( "Query: \"%s\"" ):format( rs.query ), name="Information" } )
 		local tmp = informix.Util.formatTable( rs )
 		tmp.name = "Results"
 		table.insert(  result, tmp  )
 	end
-	
-	
+
+
 	return stdnse.format_output(status, result)
 end

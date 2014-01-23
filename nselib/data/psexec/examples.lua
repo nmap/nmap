@@ -1,7 +1,7 @@
----This configuration file contains the examples given in smb-psexec.nse. 
+---This configuration file contains the examples given in smb-psexec.nse.
 
--- Any variable in the 'config' table in smb-psexec.nse can be overriden in the 
--- 'overrides' table. Most of them are not really recommended, such as the host, 
+-- Any variable in the 'config' table in smb-psexec.nse can be overriden in the
+-- 'overrides' table. Most of them are not really recommended, such as the host,
 -- key, etc.
 overrides = {}
 overrides.timeout = 40
@@ -42,7 +42,7 @@ mod.program          = "ping.exe"
 mod.args             = "$lhost"
 mod.remove           = {"statistics", "Packet", "Approximate", "Minimum"}
 mod.noblank          = true
-mod.env              = "SystemRoot=c:\\WINDOWS" 
+mod.env              = "SystemRoot=c:\\WINDOWS"
 table.insert(modules, mod)
 
 mod = {}
@@ -52,7 +52,7 @@ mod.program          = "ping.exe"
 mod.args             = "$host"
 mod.remove           = {"statistics", "Packet", "Approximate", "Minimum"}
 mod.noblank          = true
-mod.env              = "SystemRoot=c:\\WINDOWS" 
+mod.env              = "SystemRoot=c:\\WINDOWS"
 mod.req_args         = {'host'}
 table.insert(modules, mod)
 

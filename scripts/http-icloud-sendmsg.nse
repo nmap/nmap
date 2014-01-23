@@ -15,7 +15,7 @@ application.
 --
 -- @output
 -- Pre-scan script results:
--- | http-icloud-sendmsg: 
+-- | http-icloud-sendmsg:
 -- |_  Message was successfully sent to "Patrik Karlsson's iPhone"
 --
 -- @args http-icloud-sendmsg.username the Apple ID username
@@ -72,7 +72,7 @@ local function listDevices(mm)
 		local name = decodeString(devices[i].name or "")
 		tab.addrow(output, i, name)
 	end
-	
+
 	if ( 1 < #output ) then
 		return stdnse.format_output(true, tab.dump(output))
 	end
@@ -83,7 +83,7 @@ action = function()
 	if ( not(arg_username) or not(arg_password) ) then
 		return fail("No username or password was supplied")
 	end
-	
+
 	if ( not(arg_deviceindex) and not(arg_listdevices) ) then
 		return fail("No device ID was specificed")
 	end
@@ -96,11 +96,11 @@ action = function()
 	else
 		local mm = mobileme.Helper:new(arg_username, arg_password)
 		local status, devices = mm:getDevices()
-		
+
 		if ( not(status) ) then
 			return fail("Failed to get devices")
 		end
-	
+
 		if ( status and arg_deviceindex <= #devices ) then
 			local status = mm:sendMessage( devices[arg_deviceindex].id, arg_subject, arg_message, arg_sound)
 			if ( status ) then

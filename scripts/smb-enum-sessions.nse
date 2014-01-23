@@ -5,38 +5,38 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Enumerates the users logged into a system either locally or through an SMB share. The local users 
-can be logged on either physically on the machine, or through a terminal services session. 
-Connections to a SMB share are, for example, people connected to fileshares or making RPC calls. 
-Nmap's connection will also show up, and is generally identified by the one that connected "0 
-seconds ago". 
+Enumerates the users logged into a system either locally or through an SMB share. The local users
+can be logged on either physically on the machine, or through a terminal services session.
+Connections to a SMB share are, for example, people connected to fileshares or making RPC calls.
+Nmap's connection will also show up, and is generally identified by the one that connected "0
+seconds ago".
 
 From the perspective of a penetration tester, the SMB Sessions is probably the most useful
-part of this program, especially because it doesn't require a high level of access. On, for 
-example, a file server, there might be a dozen or more users connected at the same time. Based 
-on the usernames, it might tell the tester what types of files are stored on the share. 
+part of this program, especially because it doesn't require a high level of access. On, for
+example, a file server, there might be a dozen or more users connected at the same time. Based
+on the usernames, it might tell the tester what types of files are stored on the share.
 
 Since the IP they're connected from and the account is revealed, the information here can also
 provide extra targets to test, as well as a username that's likely valid on that target. Additionally,
-since a strong username to ip correlation is given, it can be a boost to a social engineering 
-attack. 
+since a strong username to ip correlation is given, it can be a boost to a social engineering
+attack.
 
-Enumerating the logged in users is done by reading the remote registry (and therefore won't 
-work against Vista, which disables it by default). Keys stored under <code>HKEY_USERS</code> are 
-SIDs that represent the connected users, and those SIDs can be converted to proper names by using 
-the <code>lsar.LsaLookupSids</code> function. Doing this requires any access higher than 
+Enumerating the logged in users is done by reading the remote registry (and therefore won't
+work against Vista, which disables it by default). Keys stored under <code>HKEY_USERS</code> are
+SIDs that represent the connected users, and those SIDs can be converted to proper names by using
+the <code>lsar.LsaLookupSids</code> function. Doing this requires any access higher than
 anonymous; guests, users, or administrators are all able to perform this request on Windows 2000,
-XP, 2003, and Vista. 
+XP, 2003, and Vista.
 
-Enumerating SMB connections is done using the <code>srvsvc.netsessenum</code> function, which 
-returns the usernames that are logged in, when they logged in, and how long they've been idle 
-for. The level of access required for this varies between Windows versions, but in Windows 
-2000 anybody (including the anonymous account) can access this, and in Windows 2003 a user 
+Enumerating SMB connections is done using the <code>srvsvc.netsessenum</code> function, which
+returns the usernames that are logged in, when they logged in, and how long they've been idle
+for. The level of access required for this varies between Windows versions, but in Windows
+2000 anybody (including the anonymous account) can access this, and in Windows 2003 a user
 or administrator account is required.
 
-I learned the idea and technique for this from Sysinternals' tool, <code>PsLoggedOn.exe</code>. I (Ron 
-Bowes) use similar function calls to what they use (although I didn't use their source), 
-so thanks go out to them. Thanks also to Matt Gardenghi, for requesting this script.  
+I learned the idea and technique for this from Sysinternals' tool, <code>PsLoggedOn.exe</code>. I (Ron
+Bowes) use similar function calls to what they use (although I didn't use their source),
+so thanks go out to them. Thanks also to Matt Gardenghi, for requesting this script.
 
 WARNING: I have experienced crashes in regsvc.exe while making registry calls
 against a fully patched Windows 2000 system; I've fixed the issue that caused it,
@@ -71,10 +71,10 @@ hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
----Attempts to enumerate the sessions on a remote system using MSRPC calls. This will likely fail 
--- against a modern system, but will succeed against Windows 2000. 
+---Attempts to enumerate the sessions on a remote system using MSRPC calls. This will likely fail
+-- against a modern system, but will succeed against Windows 2000.
 --
---@param host The host object. 
+--@param host The host object.
 --@return Status (true or false).
 --@return List of sessions (if status is true) or an an error string (if status is false).
 local function srvsvc_enum_sessions(host)
@@ -109,14 +109,14 @@ local function srvsvc_enum_sessions(host)
 end
 
 ---Enumerates the users logged in locally (or through terminal services) by using functions
--- that access the registry. To perform this check, guest access or higher is required. 
+-- that access the registry. To perform this check, guest access or higher is required.
 --
 -- The way this works is based on the registry. HKEY_USERS is enumerated, and every key in it
--- that looks like a SID is converted to a username using the LSA lookup function lsa_lookupsids2(). 
+-- that looks like a SID is converted to a username using the LSA lookup function lsa_lookupsids2().
 --
---@param host The host object. 
+--@param host The host object.
 --@return An array of user tables, each with the keys <code>name</code>, <code>domain</code>, and <code>changed_date</code> (representing
---        when they logged in). 
+--        when they logged in).
 local function winreg_enum_rids(host)
 	local i, j
 	local elements = {}
@@ -142,7 +142,7 @@ local function winreg_enum_rids(host)
 
 	-- Loop through the keys under HKEY_USERS and grab the names
 	i = 0
-	repeat 
+	repeat
 		local status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
 
 		if(status == true) then
@@ -157,7 +157,7 @@ local function winreg_enum_rids(host)
 			if(status ~= false) then
 				local queryinfokey_result, closekey_result
 
-				-- Query the info about this key. The response will tell us when the user logged into the server. 
+				-- Query the info about this key. The response will tell us when the user logged into the server.
 				local status, queryinfokey_result = msrpc.winreg_queryinfokey(smbstate, openkey_result['handle'])
 				if(status == false) then
 					msrpc.stop_smb(smbstate)
@@ -229,7 +229,7 @@ local function winreg_enum_rids(host)
 					local result = {}
 					result['changed_date'] = elements[i]['changed_date']
 					result['rid'] = rid
-		
+
 					-- Fill in the result from the response
 					if(lookupsids2_result['names']['names'][1] == nil) then
 						result['name'] = "<unknown>"
@@ -244,7 +244,7 @@ local function winreg_enum_rids(host)
 							result['domain'] = ""
 						end
 					end
-	
+
 					if(result['type'] ~= "SID_NAME_WKN_GRP") then -- Don't show "well known" accounts
 						-- Add it to the results
 						results[#results + 1] = result
@@ -311,7 +311,7 @@ action = function(host)
 				else
 					time = string.format("%02dm%02ds", time / 60, time % 60)
 				end
-		
+
 				local idle_time = sessions[i]['idle_time']
 				if(idle_time == 0) then
 					idle_time = "[not idle]"

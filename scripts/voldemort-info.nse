@@ -15,7 +15,7 @@ Retrieves cluster and store information from the Voldemort distributed key-value
 -- @output
 -- PORT     STATE SERVICE
 -- 6666/tcp open  irc
--- | voldemort-info: 
+-- | voldemort-info:
 -- |   Cluster
 -- |     Name: mycluster
 -- |     Id: 0
@@ -54,24 +54,24 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 local function connect(host, port)
 	local socket = nmap.new_socket()
 	socket:set_timeout(5000)
-	
+
 	local status, err = socket:connect(host, port)
 	if ( not(status) ) then
 		return false, "Failed to connect to server"
 	end
-	
+
 	status, err = socket:send("vp3")
 	if ( not(status) ) then
 		return false, "Failed to send request to server"
 	end
-	
+
 	local response
 	status, response = socket:receive(2)
 	if ( not(status) ) then
 		return false, "Failed to receive response from server"
 	elseif( response ~= "ok" ) then
 		return false, "Unsupported protocol"
-	end	
+	end
 	return true, socket
 end
 
@@ -81,7 +81,7 @@ end
 -- @return status true on success false on failure
 -- @return data string as received from the server
 local function getMetadata(socket, file)
-	
+
 	local req = bin.pack(">HCzIcz", "0100", #("metadata"), "metadata", 0, #file, file)
 	local status, err = socket:send(req)
 	if ( not(status) ) then
@@ -124,7 +124,7 @@ action = function(host, port)
 			{ key = "Routing", match = "<store>.-<routing>(.-)</routing>" },
 		},
 	}
-	
+
 	-- connect to the server
 	local status, socket = connect(host, port)
 	if ( not(status) ) then
@@ -145,7 +145,7 @@ action = function(host, port)
 			table.insert(cluster_tbl, ("%s: %s"):format(item.key, val))
 		end
 	end
-	
+
 	-- get the stores meta data
 	local status, response = getMetadata(socket, "stores.xml")
 	if ( not(status) or not(response:match("<stores>.-</stores>")) ) then
@@ -165,7 +165,7 @@ action = function(host, port)
 			if ( val ) then
 				table.insert(store_tbl, ("%s: %s"):format(item.key, val))
 			end
-		end		
+		end
 		table.insert(stores, store_tbl)
 	end
 	table.insert(result, stores)

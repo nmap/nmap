@@ -25,7 +25,7 @@ http://7bits.nl/blog/2012/03/26/finding-v6-hosts-by-efficiently-mapping-ip6-arpa
 --
 -- @output
 -- Pre-scan script results:
--- | dns-ip6-arpa-scan: 
+-- | dns-ip6-arpa-scan:
 -- | ip                                 ptr
 -- | 2001:0DB8:0:0:0:0:0:2              resolver1.example.com
 -- |_2001:0DB8:0:0:0:0:0:3              resolver2.example.com
@@ -95,7 +95,7 @@ action = function()
 				threads[co] = true
 			end
 		end
-		
+
 		local condvar = nmap.condvar(result)
 		repeat
 			for t in pairs(threads) do
@@ -105,11 +105,11 @@ action = function()
 				condvar "wait"
 			end
 		until( next(threads) == nil )
-			
+
 		if ( 0 == #result ) then
 			return
 		end
-				
+
 		found = result
 		i = i + 1
 	until( 128 == i * 2 + mask )
@@ -121,6 +121,6 @@ action = function()
 	for _, item in ipairs(result) do
 		tab.addrow(output, item.ip, item.ptr)
 	end
-	
+
 	return "\n" .. tab.dump(output)
 end

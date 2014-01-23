@@ -55,8 +55,8 @@ SMTP server.
 --   - 'domain' can be specified via a script-arg
 --   - removed extra EHLO command that was redundant and not needed
 --   - fixed two quit()s to include a return value
--- + To reiterate, this is a blatant cut and paste job of Arturo 'Buanzo' 
---   Busleiman's SMTP open relay detector script and Duarte Silva's SMTP 
+-- + To reiterate, this is a blatant cut and paste job of Arturo 'Buanzo'
+--   Busleiman's SMTP open relay detector script and Duarte Silva's SMTP
 --   user enumeration script.
 --   Props to them for doing what they do and letting me ride on their coattails.
 -- 2.1.0.0 - 2011-06-01

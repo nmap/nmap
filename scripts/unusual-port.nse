@@ -35,7 +35,7 @@ end
 
 hostrule = function() return true end
 
--- the hostrule is only needed to warn 
+-- the hostrule is only needed to warn
 hostaction = function(host)
 	local port, state = nil, "open"
 	local is_version_scan = false
@@ -57,11 +57,11 @@ hostaction = function(host)
 	if ( not(is_version_scan) ) then
 		return stdnse.format_output(true, "WARNING: this script depends on Nmap's service/version detection (-sV)")
 	end
-	
+
 end
 
 portchecks = {
-	
+
 	['tcp'] = {
 		[113] = function(host, port) return ( port.service == "ident" ) end,
 		[445] = function(host, port) return ( port.service == "netbios-ssn" ) end,
@@ -70,7 +70,7 @@ portchecks = {
 		[636] = function(host, port) return ( port.service == "ldapssl" ) end,
 		[3268] = function(host, port) return ( port.service == "ldap" ) end,
 	},
-	
+
 	['udp'] = {
 		[5353] = function(host, port) return ( port.service == "mdns" ) end,
 	}
@@ -85,11 +85,11 @@ servicechecks = {
 		port.service = service
 		return status
 	end,
-	
+
 	-- accept msrpc on any port for now, we might want to limit it to certain
 	-- port ranges in the future.
 	['msrpc'] = function(host, port) return true end,
-	
+
 	-- accept ncacn_http on any port for now, we might want to limit it to
 	-- certain port ranges in the future.
 	['ncacn_http'] = function(host, port) return true end,
@@ -107,12 +107,12 @@ portaction = function(host, port)
 	if ( not(ok) and servicechecks[port.service] ) then
 		ok = servicechecks[port.service](host, port)
 	end
-	if ( not(ok) and port.service and 
+	if ( not(ok) and port.service and
 		( port.service == svc_table[port.protocol][port.number] or
 		  "unknown" == svc_table[port.protocol][port.number] or
 		  not(svc_table[port.protocol][port.number]) ) ) then
 		ok = true
-	end	
+	end
 	if ( not(ok) ) then
 		return ("%s unexpected on port %s/%d"):format(port.service, port.protocol, port.number)
 	end

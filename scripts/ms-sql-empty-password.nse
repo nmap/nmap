@@ -11,7 +11,7 @@ description = [[
 Attempts to authenticate to Microsoft SQL Servers using an empty password for
 the sysadmin (sa) account.
 
-SQL Server credentials required: No (will not benefit from 
+SQL Server credentials required: No (will not benefit from
 <code>mssql.username</code> & <code>mssql.password</code>).
 Run criteria:
 * Host script: Will run if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code>
@@ -63,7 +63,7 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 local function test_credentials( instance, helper, username, password )
 	local database = "tempdb"
-	
+
 	local status, result = helper:ConnectEx( instance )
 	local loginErrorCode
 	if( status ) then
@@ -71,7 +71,7 @@ local function test_credentials( instance, helper, username, password )
 		status, result, loginErrorCode = helper:Login( username, password, database, instance.host.ip )
 	end
 	helper:Disconnect()
-	
+
 	local passwordIsGood, canLogin
 	if status then
 		passwordIsGood = true
@@ -91,20 +91,20 @@ local function test_credentials( instance, helper, username, password )
 	else
 		table.insert( instance.ms_sql_empty, string.format("Network error. Error: %s", result ) )
 	end
-	
+
 	if ( passwordIsGood ) then
 		local loginResultMessage = "Login Success"
 		if loginErrorCode then
 			loginResultMessage = mssql.LoginErrorMessage[ loginErrorCode ] or "unknown error"
 		end
 		table.insert( instance.ms_sql_empty, string.format( "%s:%s => %s", username, password:len()>0 and password or "<empty>", loginResultMessage ) )
-		
+
 		-- Add credentials for other ms-sql scripts to use but don't
 		-- add accounts that need to change passwords
 		if ( canLogin ) then
 			instance.credentials[ username ] = password
 			-- Legacy storage method (does not distinguish between instances)
-			nmap.registry.mssqlusers = nmap.registry.mssqlusers or {}	
+			nmap.registry.mssqlusers = nmap.registry.mssqlusers or {}
 			nmap.registry.mssqlusers[username]=password
 		end
 	end
@@ -119,33 +119,33 @@ local function process_instance( instance )
 	-- attempt once and then re-use the results. We'll use a mutex to make sure
 	-- that multiple script instances (e.g. a host-script and a port-script)
 	-- working on the same SQL Server instance can only enter this block one at
-	-- a time. 
+	-- a time.
 	local mutex = nmap.mutex( instance )
 	mutex( "lock" )
-	
+
 	local status, result
-	
+
 	-- If this instance has already been tested (e.g. if we got to it by both the
 	-- hostrule and the portrule), don't test it again. This will reduce the risk
 	-- of locking out accounts.
 	if ( instance.tested_empty ~= true ) then
 		instance.tested_empty = true
-		
+
 		instance.credentials = instance.credentials or {}
 		instance.ms_sql_empty = instance.ms_sql_empty or {}
-		
+
 		if not instance:HasNetworkProtocols() then
 			stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
 			table.insert( instance.ms_sql_empty, "No network protocols enabled." )
 		end
-		
+
 		local helper = mssql.Helper:new()
 		test_credentials( instance, helper, "sa", "" )
 	end
-	
+
 	-- The password testing has been finished. Unlock the mutex.
 	mutex( "done" )
-	
+
 	local instanceOutput
 	if ( instance.ms_sql_empty ) then
 		instanceOutput = {}
@@ -157,16 +157,16 @@ local function process_instance( instance )
 			table.insert( instanceOutput, "'sa' account password is not blank." )
 		end
 	end
-	
+
 	return instanceOutput
-	
+
 end
 
 
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else

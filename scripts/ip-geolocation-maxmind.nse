@@ -391,7 +391,7 @@ local MaxmindDef = {
 
 local ip2long=function(ip_str)
 	local ip = stdnse.strsplit('%.',ip_str)
-	local ip_num = (tonumber(ip[1])*16777216 + tonumber(ip[2])*65536 
+	local ip_num = (tonumber(ip[1])*16777216 + tonumber(ip[2])*65536
 			+ tonumber(ip[3])*256 + tonumber(ip[4]))
 	return ip_num
 end
@@ -406,40 +406,40 @@ local GeoIP = {
 		o._filehandle= assert(io.open(filename,'rb'))
 		o._databaseType = MaxmindDef.COUNTRY_EDITION
 		o._recordLength = MaxmindDef.STANDARD_RECORD_LENGTH
-		
+
 		local filepos = o._filehandle:seek()
 		o._filehandle:seek("end",-3)
-		
+
 		for i=1,MaxmindDef.STRUCTURE_INFO_MAX_SIZE do
 			local delim = o._filehandle:read(3)
-			
+
 			if delim == '\255\255\255' then
 				o._databaseType = o._filehandle:read(1):byte()
 				-- backward compatibility with databases from April 2003 and earlier
-				if (o._databaseType >= 106) then 
-					o._databaseType = o._databaseType - 105	
+				if (o._databaseType >= 106) then
+					o._databaseType = o._databaseType - 105
 				end
-				
+
 				local fast_combo1={[MaxmindDef.CITY_EDITION_REV0]=true,
 					[MaxmindDef.CITY_EDITION_REV1]=true,
 					[MaxmindDef.ORG_EDITION]=true,
 					[MaxmindDef.ISP_EDITION]=true,
 					[MaxmindDef.ASNUM_EDITION]=true}
-				
+
 				if o._databaseType == MaxmindDef.REGION_EDITION_REV0 then
 					o._databaseSegments = MaxmindDef.STATE_BEGIN_REV0
 				elseif o._databaseType == MaxmindDef.REGION_EDITION_REV1 then
 					o._databaseSegments = MaxmindDef.STATE_BEGIN_REV1
-				elseif fast_combo1[o._databaseType] then						
+				elseif fast_combo1[o._databaseType] then
 					o._databaseSegments = 0
 					local buf = o._filehandle:read(MaxmindDef.SEGMENT_RECORD_LENGTH)
-					
-					-- the original representation in the MaxMind API is ANSI C integer 
+
+					-- the original representation in the MaxMind API is ANSI C integer
 					-- which should not overflow the greatest value Lua can offer ;)
 					for j=0,(MaxmindDef.SEGMENT_RECORD_LENGTH-1) do
 						o._databaseSegments = o._databaseSegments + bit.lshift( buf:byte(j+1), j*8)
 					end
-					
+
 					if o._databaseType == MaxmindDef.ORG_EDITION or o._databaseType == MaxmindDef.ISP_EDITION then
 						o._recordLength = MaxmindDef.ORG_RECORD_LENGTH
 					end
@@ -449,25 +449,25 @@ local GeoIP = {
 				o._filehandle:seek("cur",-4)
 			end
 		end
-		
+
 		if o._databaseType == MaxmindDef.COUNTRY_EDITION then
 			o._databaseSegments = MaxmindDef.COUNTRY_BEGIN
 		end
 		o._filehandle:seek("set",filepos)
-		
+
 		return o
 	end,
-	
+
 	output_record_by_addr = function(self,addr)
 		local loc = self:record_by_addr(addr)
 		if not loc then return nil end
-		
+
 		local output = {}
 		--output.name = "Maxmind database"
 		table.insert(output, "coordinates (lat,lon): " .. loc.latitude .. "," .. loc.longitude)
-		
+
 		local str = ""
-		if loc.city then 
+		if loc.city then
 			str = str.."city: "..loc.city
 		end
 		if loc.metro_code then
@@ -477,10 +477,10 @@ local GeoIP = {
 			str = str .. ", "..loc.country_name
 		end
 		table.insert(output,str)
-		
+
 		return output
 	end,
-	
+
 	record_by_addr=function(self,addr)
 		local ipnum = ip2long(addr)
 		return self:_get_record(ipnum)
@@ -492,10 +492,10 @@ local GeoIP = {
 			return nil
 		end
 		local record_pointer = seek_country + (2 * self._recordLength - 1) * self._databaseSegments
-		
+
 		self._filehandle:seek("set",record_pointer)
 		local record_buf = self._filehandle:read(MaxmindDef.FULL_RECORD_LENGTH)
-		
+
 		local record = {}
 		local start_pos = 1
 		local char = record_buf:byte(start_pos)
@@ -505,34 +505,34 @@ local GeoIP = {
 		record.country_name = MaxmindDef.COUNTRY_NAMES[char]
 		start_pos = start_pos + 1
 		local end_pos = 0
-		
+
 		end_pos = record_buf:find("\0",start_pos)
-		if start_pos ~= end_pos then 
+		if start_pos ~= end_pos then
 			record.region_name = record_buf:sub(start_pos, end_pos-1)
 		end
 		start_pos = end_pos + 1
-		
+
 		end_pos = record_buf:find("\0",start_pos)
-		if start_pos ~= end_pos then 
+		if start_pos ~= end_pos then
 			record.city = record_buf:sub(start_pos, end_pos-1)
 		end
 		start_pos = end_pos + 1
-		
-		
+
+
 		end_pos = record_buf:find("\0",start_pos)
-		if start_pos ~= end_pos then 
+		if start_pos ~= end_pos then
 			record.postal_code = record_buf:sub(start_pos, end_pos-1)
 		end
 		start_pos = end_pos + 1
-		
+
 		local c1,c2,c3=record_buf:byte(start_pos,start_pos+3)
 		record.latitude = (( bit.lshift(c1,0*8) + bit.lshift(c2,1*8) + bit.lshift(c3,2*8) )/10000) - 180
 		start_pos = start_pos +3
-		
+
 		c1,c2,c3=record_buf:byte(start_pos,start_pos+3)
 		record.longitude = (( bit.lshift(c1,0*8) + bit.lshift(c2,1*8) + bit.lshift(c3,2*8) )/10000) - 180
 		start_pos = start_pos +3
-		
+
 		if self._databaseType == MaxmindDef.CITY_EDITION_REV1 and record.country_code=='US' then
 			c1,c2,c3=record_buf:byte(start_pos,start_pos+3)
 			local dmaarea_combo= bit.lshift(c1,0*8) + bit.lshift(c2,1*8) + bit.lshift(c3,2*8)
@@ -542,13 +542,13 @@ local GeoIP = {
 			record.dma_code = nil
 			record.area_code = nil
 		end
-		
+
 		if record.dma_code and MaxmindDef.DMA_MAP[record.dma_code] then
 			record.metro_code = MaxmindDef.DMA_MAP[record.dma_code]
 		else
 			record.metro_code = nil
 		end
-		
+
 		return record
 	end,
 
@@ -557,10 +557,10 @@ local GeoIP = {
 		for depth=31,0,-1 do
 			self._filehandle:seek("set", 2 * self._recordLength * offset)
 			local buf = self._filehandle:read(2*self._recordLength)
-			
+
 			local x = {}
 			x[0],x[1] = 0,0
-			
+
 			for i=0,1 do
 				for j=0,(self._recordLength-1) do
 					x[i] = x[i] + bit.lshift(buf:byte((self._recordLength * i + j) +1 ), j*8)
@@ -583,12 +583,12 @@ local GeoIP = {
 		return nil
 	end,
 }
-	
+
 action = function(host,port)
 	local f_maxmind = stdnse.get_script_args(SCRIPT_NAME .. ".maxmind_db")
-	
+
 	local output = {}
-	
+
 	--if f_maxmind is a string, it should specify the filename of the database
 	if f_maxmind then
 		local gi = assert( GeoIP:new(f_maxmind), "Wrong file specified for a Maxmind database")
@@ -599,13 +599,13 @@ action = function(host,port)
 		local out = gi:output_record_by_addr(host.ip)
 		output = out
 	end
-	
-	if(#output~=0) then 
-		output.name = host.ip 
+
+	if(#output~=0) then
+		output.name = host.ip
 		if host.targetname then
-			output.name = output.name.." ("..host.targetname..")" 
+			output.name = output.name.." ("..host.targetname..")"
 		end
 	end
-	
+
 	return stdnse.format_output(true,output)
 end

@@ -122,7 +122,7 @@ action = function(host, port)
                 return
            end
         end
-        
+
         -- Check for two Answer RRs and 1 Authority RR
         if (string.byte(result, 5) ~= 0x00
                 or string.byte(result, 6) ~= 0x01
@@ -148,7 +148,7 @@ action = function(host, port)
         -- in any way, this won't work and will fail.
         -- Jump to second answer and check to see that it is TXT, IN
         -- then grab the length and display that text...
-        
+
         -- Check for TXT
         if (string.byte(result, 118) ~= 0x00
                 or string.byte(result, 119) ~= 0x10)

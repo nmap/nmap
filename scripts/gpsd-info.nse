@@ -15,7 +15,7 @@ Retrieves GPS time, coordinates and speed from the GPSD network daemon.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 2947/tcp open  gpsd-ng syn-ack
--- | gpsd-info: 
+-- | gpsd-info:
 -- |   Time of fix: Sat Apr 14 15:54:23 2012
 -- |   Coordinates: 59.321685,17.886493
 -- |_  Speed: - knots
@@ -53,7 +53,7 @@ end
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
-	
+
 	local gpsinfo = {
 		longitude = "-",
 		latitude = "-",
@@ -64,9 +64,9 @@ action = function(host, port)
 
 	local socket = nmap.new_socket()
 	socket:set_timeout(1000)
-	
+
 	local status = socket:connect(host, port)
-	
+
 	if ( not(status) ) then
 		return fail("Failed to connect to server")
 	end
@@ -74,9 +74,9 @@ action = function(host, port)
 	-- get the banner
 	local status, line = socket:receive_lines(1)
 	socket:send('?WATCH={"enable":true,"nmea":true}\r\n')
-	
+
 	local start_time = os.time()
-	
+
 	repeat
 		local entry
 		status, line = socket:receive_buf("\r\n", false)
@@ -98,6 +98,6 @@ action = function(host, port)
 		("Time of fix: %s"):format(stdnse.format_timestamp(gps.Util.convertTime(gpsinfo.date, gpsinfo.time))),
 		("Coordinates: %.4f,%.4f"):format(tonumber(gpsinfo.latitude), tonumber(gpsinfo.longitude)),
 		("Speed: %s knots"):format(gpsinfo.speed)
-	}	
+	}
 	return stdnse.format_output(true, output)
 end

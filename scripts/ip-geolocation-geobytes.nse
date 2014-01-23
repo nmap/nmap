@@ -47,8 +47,8 @@ hostrule = function(host)
     return not is_private
 end
 
--- Limit is 20 request per hour per requesting host, when reached all table 
--- values are filled with a "Limit Exceeded" value. A record in the registry is 
+-- Limit is 20 request per hour per requesting host, when reached all table
+-- values are filled with a "Limit Exceeded" value. A record in the registry is
 -- made so no more requests are made to the server during one scan
 action = function(host)
 	if nmap.registry["ip-geolocation-geobytes"] and nmap.registry["ip-geolocation-geobytes"].blocked then
@@ -70,7 +70,7 @@ action = function(host)
 		-- an empty table is returned when latitude and longitude can not be determined
 		if ( "table" == type(loc.latitude) or "table" == type(loc.longitude) ) then
 			return "Could not determine location for IP"
-		end		
+		end
 		output["latitude"] = loc.latitude
 		output["longitude"] = loc.longitude
 		output["city"] = loc.city

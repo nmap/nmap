@@ -58,7 +58,7 @@ categories = {"intrusive", "vuln"}
 portrule = shortport.http
 
 action = function(host, port)
- 
+
   local vuln = {
        title = 'Adobe ColdFusion Directory Traversal Vulnerability',
        state = vulns.STATE.NOT_VULN, -- default
@@ -105,8 +105,8 @@ locale parameter]],
 				-- Generate HMAC as this is what the web application needs for authentication as admin
 	 			local hmaccontent = stdnse.tohex(openssl.hmac('sha1', saltcontent, hashcontent)):upper()
 	   			--return true, ("\n\tHMAC: %s\n\tSalt: %s\n\tHash: %s"):format(hmaccontent, saltcontent, hashcontent)
-				local result = { 
-					("HMAC: %s"):format(hmaccontent), 
+				local result = {
+					("HMAC: %s"):format(hmaccontent),
 					("Salt: %s"):format(saltcontent),
 					("Hash: %s"):format(hashcontent)
 				}

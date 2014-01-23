@@ -154,7 +154,7 @@ local function is_ssl(port_number)
     return not not common_ssl_ports[port_number]
 end
 
---- This function returns best protocol order for trying  to open a 
+--- This function returns best protocol order for trying  to open a
 -- connection based on port and service information
 --
 -- The first value is the best option, the second is the worst
@@ -173,7 +173,7 @@ local function bestoption(port)
 end
 
 --- This function opens a connection, sends the first data payload and
---  check if a response is correctly received (what means that the 
+--  check if a response is correctly received (what means that the
 --  protocol used is fine)
 --
 -- Possible options:
@@ -197,7 +197,7 @@ local function opencon(host, port, protocol, data, opts)
 
     -- check for connect_timeout or timeout option
 
-    if opts and opts.connect_timeout then 
+    if opts and opts.connect_timeout then
         sd:set_timeout(opts.connect_timeout)
     elseif opts and opts.timeout then
         sd:set_timeout(opts.timeout)
@@ -206,9 +206,9 @@ local function opencon(host, port, protocol, data, opts)
     end
 
     local status = sd:connect(host, port, protocol)
-    if not status then 
+    if not status then
           sd:close()
-          return nil, nil, nil 
+          return nil, nil, nil
         end
 
     -- check for request_timeout or timeout option
@@ -233,9 +233,9 @@ local function opencon(host, port, protocol, data, opts)
         end
         response = early_resp
     end
-    if not status then 
+    if not status then
           sd:close()
-          return nil, response, early_resp 
+          return nil, response, early_resp
         end
     return sd, response, early_resp
 end

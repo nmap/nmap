@@ -24,7 +24,7 @@ author, Alexander Kornbrust (http://seclists.org/nmap-dev/2009/q4/645).
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 1521/tcp open  oracle  syn-ack
--- | oracle-sid-brute:  
+-- | oracle-sid-brute:
 -- |   orcl
 -- |   prod
 -- |_  devel
@@ -55,14 +55,14 @@ local tns_type = {CONNECT=1, REFUSE=4, REDIRECT=5, RESEND=11}
 --
 local function create_tns_header(packetType, packetLength)
 
-	local request = bin.pack( ">SSCCS", 
+	local request = bin.pack( ">SSCCS",
 					packetLength + 34, -- Packet Length
 					0, -- Packet Checksum
 					tns_type[packetType], -- Packet Type
 					0, -- Reserved Byte
 					0 -- Header Checksum
 					)
-  
+
 	return request
 
 end
@@ -76,12 +76,12 @@ end
 -- @return string containing the raw TNS packet
 --
 local function create_connect_packet( host_ip, port_no, sid )
-	
+
 	local connect_data =  "(DESCRIPTION=(CONNECT_DATA=(SID=" .. sid .. ")"
 	connect_data = connect_data .. "(CID=(PROGRAM=)(HOST=__jdbc__)(USER=)))"
 	connect_data = connect_data .. "(ADDRESS=(PROTOCOL=tcp)(HOST=" .. host_ip .. ")"
 	connect_data = connect_data .. "(PORT=" .. port_no .. ")))"
-	
+
 	local data = bin.pack(">SSSSSSSSSSICCA",
 							308, -- Version
 							300, -- Version (Compatibility)
@@ -95,32 +95,32 @@ local function create_connect_packet( host_ip, port_no, sid )
 							34, -- Offset to connect data
 							0, -- Maximum Receivable Connect Data
 							1, -- Connect Flags 0
-							1, -- Connect Flags 1 
+							1, -- Connect Flags 1
 							connect_data
 							)
-	
+
 
 	local header = create_tns_header("CONNECT", connect_data:len() )
 
 	return header .. data
-	
+
 end
 
 --- Process a TNS response and extracts Length, Checksum and Type
 --
--- @param packet string as a raw TNS response 
+-- @param packet string as a raw TNS response
 -- @return table with Length, Checksum and Type set
 --
 local function process_tns_packet( packet )
 
 	local tnspacket = {}
-	
+
 	-- just pull out the bare minimum to be able to match
 	local _
 	_, tnspacket.Length, tnspacket.Checksum, tnspacket.Type = bin.unpack(">SSC", packet)
-	
+
 	return tnspacket
-	
+
 end
 
 action = function(host, port)
@@ -131,21 +131,21 @@ action = function(host, port)
   	local try = nmap.new_try(catch)
 	local request, response, tns_packet
 	local sidfile
-	
+
 	socket:set_timeout(5000)
 
 	-- open the sid file specified by the user or fallback to the default oracle-sids file
 	local sidfilename = nmap.registry.args.oraclesids or nmap.fetchfile("nselib/data/oracle-sids")
-	
+
 	sidfile = io.open(sidfilename)
-	
+
 	if not sidfile then
 		return
 	end
-	
+
 	-- read sids line-by-line from the sidfile
 	for sid in sidfile:lines() do
-		
+
 		-- check for comments
 		if not sid:match("#!comment:") then
 
@@ -161,7 +161,7 @@ action = function(host, port)
 			end
 
 			try(socket:close())
-		
+
 		end
 
 	end
