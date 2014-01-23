@@ -10,7 +10,7 @@ Crawls webservers in search of RFI (remote file inclusion) vulnerabilities. It t
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-rfi-spider: 
+-- | http-rfi-spider:
 -- |   Possible RFI in form at path: /pio/rfi_test2.php, action: /rfi_test2.php for fields:
 -- |     color
 -- |_    inc
@@ -82,7 +82,7 @@ local function check_form(form, host, port, path)
   local vulnerable_fields = {}
   local postdata = generate_safe_postdata(form)
   local sending_function, response
-  
+
   local action_absolute = string.find(form["action"], "^https?://")
   -- determine the path where the form needs to be submitted
   local form_submission_path
@@ -98,7 +98,7 @@ local function check_form(form, host, port, path)
   else
     sending_function = function(data) return http.get(host, port, form_submission_path..generate_get_string(data), nil) end
   end
-  
+
   for _,field in ipairs(form["fields"]) do
     if rfi_field(field["type"]) then
       stdnse.print_debug(2, "http-rfi-spider: checking field %s", field["name"])
@@ -168,13 +168,13 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 function action(host, port)
   inclusion_url = stdnse.get_script_args('http-rfi-spider.inclusionurl') or 'http://www.yahoo.com/search?p=rfi'
   local pattern_to_search = stdnse.get_script_args('http-rfi-spider.pattern') or '<a href="http://search%.yahoo%.com/info/submit%.html">Submit Your Site</a>'
-  
+
   -- once we know the pattern we'll be searching for, we can set up the function
   check_response = function(body) return string.find(body, pattern_to_search) end
-  
+
   -- create a new crawler instance
 	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME} )
-  
+
 	if ( not(crawler) ) then
 		return
 	end
@@ -183,7 +183,7 @@ function action(host, port)
 
 	while(true) do
 	  local status, r = crawler:crawl()
-    
+
 	  if ( not(status) ) then
 		  if ( r.err ) then
 			  return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
@@ -191,7 +191,7 @@ function action(host, port)
 			  break
 		  end
 	  end
-    
+
 	  -- first we try rfi on forms
 	  if r.response and r.response.body and r.response.status==200 then
       local all_forms = http.grab_forms(r.response.body)
@@ -207,7 +207,7 @@ function action(host, port)
         end
       end --for
 	  end --if
-    
+
     -- now try inclusion by parameters
     local injectable = {}
     -- search for injectable links (as in sql-injection.nse)

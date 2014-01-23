@@ -17,7 +17,7 @@ the value of the Allow header in the response.
 --
 --@output
 -- 5060/udp open  sip
--- | sip-methods: 
+-- | sip-methods:
 -- |_  INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO
 
 

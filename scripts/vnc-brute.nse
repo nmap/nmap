@@ -15,7 +15,7 @@ Performs brute force password auditing against VNC servers.
 -- @output
 -- PORT     STATE  SERVICE REASON
 -- 5900/tcp open   vnc     syn-ack
--- | vnc-brute:  
+-- | vnc-brute:
 -- |   Accounts
 -- |_    123456 => Valid credentials
 --
@@ -38,7 +38,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(5901, "vnc", "tcp", "open")
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port)
@@ -49,9 +49,9 @@ Driver =
 		o.port = port
 		return o
 	end,
-	
+
 	connect = function( self )
-		local status, data 
+		local status, data
 		self.vnc = vnc.VNC:new( self.host.ip, self.port.number )
 		status, data = self.vnc:connect()
 		if ( not(status) ) then
@@ -76,7 +76,7 @@ Driver =
 			data:match("Your connection has been rejected.") ) ) then
 			local err = brute.Error:new( data )
 			err:setAbort( true )
-			return false, err			
+			return false, err
 		elseif ( not(status) ) then
 			local err = brute.Error:new( "VNC handshake failed" )
 			-- This might be temporary, set the retry flag
@@ -92,20 +92,20 @@ Driver =
 			local err = brute.Error:new( data )
 			-- This might be temporary, set the retry flag
 			err:setRetry( true )
-			return false, err			
+			return false, err
 		end
 
 		return false, brute.Error:new( "Incorrect password" )
 
 	end,
-	
+
 	disconnect = function( self )
 		self.vnc:disconnect()
 	end,
-	
+
 	check = function( self )
 		local vnc = vnc.VNC:new( self.host.ip, self.port.number )
-		local status, data 
+		local status, data
 
 		status, data = vnc:connect()
 		if ( not(status) ) then
@@ -125,21 +125,21 @@ Driver =
 		if ( data:match("The server does not support.*security type") ) then
 			return stdnse.format_output( false, "  \n  " .. data )
 		end
-				
+
 		return true
 	end,
-	
+
 }
 
 
 action = function(host, port)
-	local status, result 
+	local status, result
 	local engine = brute.Engine:new(Driver, host, port )
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	engine.options:setOption( "passonly", true )
-	
+
 	status, result = engine:start()
 
 	return result

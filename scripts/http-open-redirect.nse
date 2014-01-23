@@ -19,7 +19,7 @@ responds with a http redirect (3XX) to the target.  Risks of open redirects are 
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- | http-open-redirect: 
+-- | http-open-redirect:
 -- |_  https://foobar.target.se:443/redirect.php?url=http%3A%2f%2fscanme.nmap.org%2f
 --
 -- @args http-open-redirect.maxdepth the maximum amount of directories beneath
@@ -75,7 +75,7 @@ local function checkLocationEcho(query, destination)
 	-- Check the values (and keys) and see if they are reflected in the location header
 	for k,v in pairs(q) do
 		local s,f = string.find(destination, v)
-		if s == 1 then 
+		if s == 1 then
 			-- Build a new URL
 			q[k] = "http%3A%2f%2fscanme.nmap.org%2f";
 			return url.build_query(q)
@@ -89,7 +89,7 @@ action = function(host, port)
 
 	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME, redirect_ok = false } )
 	crawler:set_timeout(10000)
-	
+
 	local results = {}
 	while(true) do
 		local status, r = crawler:crawl()
@@ -103,11 +103,11 @@ action = function(host, port)
 			end
 		end
 		local response = r.response
-		-- Was it a redirect?		
+		-- Was it a redirect?
 		if response and response.header and response.header.location and isRedirect(response.status)  then
 			-- Were any parameters involved?
 			local parsed = url.parse(tostring(r.url));
-			
+
 			-- We are only interested in links which have parameters
 			if parsed.query and #parsed.query > 0 then
 				-- Now we need to check if any of the parameters were echoed in the location-header

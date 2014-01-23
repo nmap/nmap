@@ -12,7 +12,7 @@ mounts, etc.) from the Novell NetWare Core Protocol (NCP) service.
 --@output
 -- PORT    STATE SERVICE
 -- 524/tcp open  ncp
--- | ncp-serverinfo: 
+-- | ncp-serverinfo:
 -- |   Server name: LINUX-L84T
 -- |   Tree Name: IIT-LABTREE
 -- |   OS Version: 5.70 (rev 7)
@@ -44,7 +44,7 @@ action = function(host, port)
 
 	status, resp = helper:getServerInfo()
 	if ( not(status) ) then	return stdnse.format_output(false, resp) end
-	
+
 	helper:close()
 
 	return stdnse.format_output(true, resp)

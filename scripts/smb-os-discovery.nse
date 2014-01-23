@@ -8,12 +8,12 @@ local os = require "os"
 description = [[
 Attempts to determine the operating system, computer name, domain, workgroup, and current
 time over the SMB protocol (ports 445 or 139).
-This is done by starting a session with the anonymous 
+This is done by starting a session with the anonymous
 account (or with a proper user account, if one is given; it likely doesn't make
 a difference); in response to a session starting, the server will send back all this
 information.
 
-The following fields may be included in the output, depending on the 
+The following fields may be included in the output, depending on the
 cirumstances (e.g. the workgroup name is mutually exclusive with domain and forest
 names) and the information available:
 * OS
@@ -26,18 +26,18 @@ names) and the information available:
 * Workgroup
 * System time
 
-Some systems, like Samba, will blank out their name (and only send their domain). 
+Some systems, like Samba, will blank out their name (and only send their domain).
 Other systems (like embedded printers) will simply leave out the information. Other
 systems will blank out various pieces (some will send back 0 for the current
-time, for example). 
+time, for example).
 
 Retrieving the name and operating system of a server is a vital step in targeting
 an attack against it, and this script makes that retrieval easy. Additionally, if
 a penetration tester is choosing between multiple targets, the time can help identify
 servers that are being poorly maintained (for more information/random thoughts on
-using the time, see http://www.skullsecurity.org/blog/?p=76. 
+using the time, see http://www.skullsecurity.org/blog/?p=76.
 
-Although the standard <code>smb*</code> script arguments can be used, 
+Although the standard <code>smb*</code> script arguments can be used,
 they likely won't change the outcome in any meaningful way. However, <code>smbnoguest</code>
 will speed up the script on targets that do not allow guest access.
 ]]
@@ -143,7 +143,7 @@ action = function(host)
 	if(status == false) then
 		return stdnse.format_output(false, result)
 	end
-	
+
 	-- Collect results.
 	response.os = result.os
 	response.lanmanager = result.lanmanager
@@ -157,7 +157,7 @@ action = function(host)
 	response.forest_dns = result.forest_dns
 	response.workgroup = result.workgroup
 	response.cpe = make_cpe(result)
-	
+
 	-- Build normal output.
 	local output_lines = {}
 	if response.os and response.lanmanager then

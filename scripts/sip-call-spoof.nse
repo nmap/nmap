@@ -23,7 +23,7 @@ Timeout (408) or Hang up (200).
 --@args sip-call-spoof.extension SIP Extension to send request from. Defaults to
 -- <code>100</code>.
 --
---@args sip-call-spoof.src Source address to spoof. 
+--@args sip-call-spoof.src Source address to spoof.
 --
 --@args sip-call-spoof.timeout Time to wait for a response. Defaults to
 -- <code>5s</code>
@@ -35,7 +35,7 @@ Timeout (408) or Hang up (200).
 --
 --@output
 -- 5060/udp open  sip
--- | sip-call-spoof: 
+-- | sip-call-spoof:
 -- |_  Target hung up. (After 10.9 seconds)
 
 
@@ -128,7 +128,7 @@ end
 
 action = function(host, port)
     local status, session
-    
+
     local ua = stdnse.get_script_args(SCRIPT_NAME .. ".ua") or "Ekiga"
     local from = stdnse.get_script_args(SCRIPT_NAME .. ".from") or "Home"
     local src = stdnse.get_script_args(SCRIPT_NAME .. ".src")
@@ -147,13 +147,13 @@ action = function(host, port)
     local ringing, result, waittime = invitespoof(session, ua, from, src, extension, timeout)
     -- If we get a response, we set the port to open.
     if result then
-	if nmap.get_port_state(host, port) ~= "open" then 
+	if nmap.get_port_state(host, port) ~= "open" then
 	    nmap.set_port_state(host, port, "open")
 	end
     end
 
     -- We check for ringing to skip false positives.
-    if ringing then 
+    if ringing then
 	if result == sip.Error.BUSY then
 	    return stdnse.format_output(true, "Target line is busy.")
 	elseif result == sip.Error.DECLINE then

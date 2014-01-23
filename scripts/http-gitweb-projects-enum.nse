@@ -15,7 +15,7 @@ Retrieves a list of Git projects, owners and descriptions from a gitweb (web int
 --
 -- @output
 -- 80/tcp open  http
--- | http-gitweb-projects-enum: 
+-- | http-gitweb-projects-enum:
 -- | Projects from gitweb.samba.org:
 -- |   PROJECT                         AUTHOR            DESCRIPTION
 -- |   sando.git                       authornum1        no description
@@ -53,7 +53,7 @@ action = function(host, port)
 	local path = stdnse.get_script_args(SCRIPT_NAME .. '.path') or '/'
 	local response = http.get(host,port,path)
 	local result, result_stats = {}, {}
-	
+
 	if not response or not response.status or response.status ~= 200 or
 		not response.body then
 		stdnse.print_debug(1, "%s: Failed to retrieve file: %s",
@@ -68,9 +68,9 @@ action = function(host, port)
 	-- verif generator
 	if (html:match('meta name="generator" content="gitweb(.-)"')) then
 		result['name'] = string.format("Projects from %s:", host.targetname or host.ip)
-		
+
 		local owners, projects_counter, owners_counter = {}, 0, 0
-		
+
 		for tr_code in html:gmatch('(%<tr[^<>]*%>(.-)%</tr%>)') do
 			local regx='<a[^<>]*href="(.-)">(.-)</a>(.-)title="(.-)"(.-)<i>(.-)</i>'
 			for _, project, _, desc, _, owner in tr_code:gmatch(regx) do
@@ -79,7 +79,7 @@ action = function(host, port)
 				if(string.find(desc,'Unnamed repository')) then
 					desc='no description'
 				end
-				
+
 				tab.addrow(repo, project, get_owner(owner), desc)
 
         -- Protect from parsing errors or long owners

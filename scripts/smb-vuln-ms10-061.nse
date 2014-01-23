@@ -20,16 +20,16 @@ Also, on some systems, accessing shares requires valid credentials
 which can be specified with smb library arguments smbuser and
 smbpassword.
 
-References: 
+References:
 	- http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2729
-	- http://technet.microsoft.com/en-us/security/bulletin/MS10-061 
+	- http://technet.microsoft.com/en-us/security/bulletin/MS10-061
 	- http://blogs.technet.com/b/srd/archive/2010/09/14/ms10-061-printer-spooler-vulnerability.aspx
 ]]
 ---
 -- @usage nmap  -p 445 <target> --script=smb-vuln-ms10-061
--- 
+--
 -- @args printer Printer share name. Optional, by default script tries to enumerate available printer shares.
--- 
+--
 -- @output
 -- PORT    STATE SERVICE      REASON
 -- 445/tcp open  microsoft-ds syn-ack
@@ -94,7 +94,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
 		stdnse.print_debug("SMB: " .. smbstate)
 		return false, smbstate
 	end
-	
+
 	local bind_result
 	status, bind_result = msrpc.bind(smbstate,msrpc.SPOOLSS_UUID, msrpc.SPOOLSS_VERSION, nil)
 	if(status == false) then
@@ -102,9 +102,9 @@ aka "Print Spooler Service Impersonation Vulnerability."
 		stdnse.print_debug("SMB: " .. bind_result)
 		return false, bind_result
 	end
-	local printer = stdnse.get_script_args(SCRIPT_NAME .. '.printer') 
-	-- if printer not set find available printers 
-	if not printer then 
+	local printer = stdnse.get_script_args(SCRIPT_NAME .. '.printer')
+	-- if printer not set find available printers
+	if not printer then
 		stdnse.print_debug("No printer specified, trying to find one...")
 		local lanman_result
 		local REMSmb_NetShareEnum_P  = "WrLeh"
@@ -114,7 +114,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
 			stdnse.print_debug("SMB: " .. lanman_result)
 			stdnse.print_debug("SMB: Looks like LANMAN API is not available. Try setting printer script arg.")
 		end
-		
+
 		local parameters = lanman_result.parameters
 		local data = lanman_result.data
 		local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
@@ -123,12 +123,12 @@ aka "Print Spooler Service Impersonation Vulnerability."
 		for i = 1, entry_count, 1 do
 			_,share_type = bin.unpack(">s",data,pos+14)
 			pos, name = bin.unpack("<z", data, pos)
-			
+
 			-- pos needs to be rounded to the next even multiple of 20
 			pos = pos + ( 20 - (#name % 20) ) - 1
 			if share_type == 1 then -- share is printer
 				stdnse.print_debug("Found printer share %s.", name)
-				printer = name	
+				printer = name
 			end
 		end
 	end
@@ -142,29 +142,29 @@ aka "Print Spooler Service Impersonation Vulnerability."
 	if not status then
 		return false
 	end
-	local printer_handle = string.sub(result.data,25,#result.data-4) 
+	local printer_handle = string.sub(result.data,25,#result.data-4)
 	stdnse.print_debug("Printer handle %s",stdnse.tohex(printer_handle))
 	-- call RpcStartDocPrinter - opnum 17
-	status,result = msrpc.spoolss_start_doc_printer(smbstate,printer_handle,",") -- patched version will allow this 
-	if not status then												
+	status,result = msrpc.spoolss_start_doc_printer(smbstate,printer_handle,",") -- patched version will allow this
+	if not status then
 		return false
 	end
 	local print_job_id = string.sub(result.data,25,#result.data-4)
 	stdnse.print_debug("Start doc printer job id %s",stdnse.tohex(print_job_id))
 
-	-- call RpcWritePrinter - 19 
+	-- call RpcWritePrinter - 19
 	status, result = msrpc.spoolss_write_printer(smbstate,printer_handle,"aaaa")
 	if not status then
 		return false
 	end
-	local write_result = string.sub(result.data,25,#result.data-4) 
+	local write_result = string.sub(result.data,25,#result.data-4)
 	stdnse.print_debug("Written %s bytes to a file.",stdnse.tohex(write_result))
-	if stdnse.tohex(write_result) == "00000000" then -- patched version would report 4 bytes written 
+	if stdnse.tohex(write_result) == "00000000" then -- patched version would report 4 bytes written
 		ms10_061.state = vulns.STATE.VULN			 -- identified by diffing patched an unpatched version
 	end
 	-- call abort_printer to stop the actuall printing in case the remote system is not vulnerable
-	-- we care about the environment and don't want to spend more paper then needed :) 
+	-- we care about the environment and don't want to spend more paper then needed :)
 	status,result = msrpc.spoolss_abort_printer(smbstate,printer_handle)
 
-	return report:make_output(ms10_061)	
+	return report:make_output(ms10_061)
 end

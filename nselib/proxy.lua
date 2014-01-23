@@ -59,7 +59,7 @@ local function check(result, pattern)
   return s_code, s_pattern
 end
 
---- Performs a request to the web server and calls check to check if 
+--- Performs a request to the web server and calls check to check if
 --  the response is a valid result
 --
 --@param socket The socket to send the request through
@@ -151,7 +151,7 @@ end
 function return_args()
   local url = false
   local pattern = false
-  if nmap.registry.args['proxy.url'] 
+  if nmap.registry.args['proxy.url']
     then url = nmap.registry.args['proxy.url']
   elseif nmap.registry.args.proxy and nmap.registry.args.proxy.url
     then url = nmap.registry.args.proxy.url
@@ -197,7 +197,7 @@ function socksHandshake(socket, version, hostname)
   end
   if version == 4 then
     paystring = '04 01 00 50 ' .. sip .. ' 6e 6d 61 70 00'
-    payload = bin.pack("H",paystring) 
+    payload = bin.pack("H",paystring)
     try(socket:send(payload))
     local response = try(socket:receive())
     local request_status = string.byte(response, 2)
@@ -205,11 +205,11 @@ function socksHandshake(socket, version, hostname)
       stdnse.print_debug("Socks4: Received \"Request Granted\" from proxy server\n")
       return socket
     end
-    if(request_status == 0x5b) then 
+    if(request_status == 0x5b) then
       stdnse.print_debug("Socks4: Received \"Request rejected or failed\" from proxy server")
-    elseif (request_status == 0x5c) then 
+    elseif (request_status == 0x5c) then
       stdnse.print_debug("Socks4: Received \"request failed because client is not running identd\" from proxy server")
-    elseif (request_status == 0x5d) then 
+    elseif (request_status == 0x5d) then
       stdnse.print_debug("Socks4: Received \"request failed because client's identd could not confirm" ..
       			 "\nthe user ID string in the request from proxy server")
     end
@@ -220,33 +220,33 @@ function socksHandshake(socket, version, hostname)
     try(socket:send(payload))
     local auth = try(socket:receive())
     local r2 = string.byte(auth,2)
-	
+
     -- If Auth is required, proxy is closed, skip next test
-    if(r2 ~= 0x00) then 
+    if(r2 ~= 0x00) then
       stdnse.print_debug("Socks5: Authentication required")
     else
       -- If no Auth is required, try to estabilish connection
       stdnse.print_debug("Socks5: No authentication required")
-      -- Socks5 second payload: Version, Command, Null, Address type, Ip-Address, Port number	
+      -- Socks5 second payload: Version, Command, Null, Address type, Ip-Address, Port number
       paystring = '05 01 00 01 ' .. sip .. '00 50'
-      payload = bin.pack("H",paystring)	
+      payload = bin.pack("H",paystring)
       try(socket:send(payload))
-      local z = try(socket:receive())	
+      local z = try(socket:receive())
       local request_status = string.byte(z, 2)
       if (request_status == 0x00) then
 	stdnse.print_debug("Socks5: Received \"Request Granted\" from proxy server\n")
 	return socket
-      elseif(request_status == 0x01) then 
+      elseif(request_status == 0x01) then
 	stdnse.print_debug("Socks5: Received \"General failure\" from proxy server")
-      elseif (request_status == 0x02) then 
+      elseif (request_status == 0x02) then
 	stdnse.print_debug("Socks5: Received \"Connection not allowed by ruleset\" from proxy server")
-      elseif (request_status == 0x03) then 
+      elseif (request_status == 0x03) then
 	stdnse.print_debug("Socks5: Received \"Network unreachable\" from proxy server")
-      elseif (request_status == 0x04) then 
+      elseif (request_status == 0x04) then
 	stdnse.print_debug("Socks5: Received \"Host unreachable\" from proxy server")
-      elseif (request_status == 0x05) then 
+      elseif (request_status == 0x05) then
 	stdnse.print_debug("Socks5: Received \"Connection refused by destination host\" from proxy server")
-      elseif (request_status == 0x06) then 
+      elseif (request_status == 0x06) then
 	stdnse.print_debug("Socks5: Received \"TTL Expired\" from proxy server")
       elseif (request_status == 0x07) then
 	stdnse.print_debug("Socks5: Received \"command not supported / protocol error\" from proxy server")
@@ -255,7 +255,7 @@ function socksHandshake(socket, version, hostname)
       end
     end
     return false
-  end			
+  end
   stdnse.print_debug("Unrecognized proxy type");
   return false
 end

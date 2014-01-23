@@ -31,7 +31,7 @@ For more information, see:
 --
 --@output
 -- Pre-scan script results:
--- | llmnr-query: 
+-- | llmnr-query:
 -- |   acer-PC : 192.168.1.4
 -- |_  Use the newtargets script-arg to add the results as targets
 --
@@ -83,7 +83,7 @@ end
 
 -- Listens for llmnr responses
 -- @param interface Network interface to listen on.
--- @param timeout Maximum time to listen. 
+-- @param timeout Maximum time to listen.
 -- @param result table to put responses into.
 local llmnrListen = function(interface, timeout, result)
     local condvar = nmap.condvar(result)
@@ -112,7 +112,7 @@ local llmnrListen = function(interface, timeout, result)
 	    -- Message == Response bit
 	    -- and 1 Question (hostname we requested) and
 	    if (bit.rshift(flags, 15) == 1) and questions == 0x01 then
-		stdnse.print_debug("%s got response from %s", SCRIPT_NAME, p.ip_src) 
+		stdnse.print_debug("%s got response from %s", SCRIPT_NAME, p.ip_src)
 		-- Skip header's 12 bytes
 		-- extract host length
 		local index, qlen = bin.unpack(">C", llmnr, 13)
@@ -177,9 +177,9 @@ action = function()
     end
 
     -- Check if a valid interface was provided
-    local interface = nmap.get_interface() 
+    local interface = nmap.get_interface()
     if interface then
-	interface = nmap.get_interface_info(interface) 
+	interface = nmap.get_interface_info(interface)
     else
 	interface = getInterface(mcast)
     end
@@ -202,10 +202,10 @@ action = function()
     -- Check responses
     if #result > 0 then
       for _, response in pairs(result) do
-        table.insert(output, response.hostname.. " : " .. response.address) 
-        if target.ALLOW_NEW_TARGETS then 
+        table.insert(output, response.hostname.. " : " .. response.address)
+        if target.ALLOW_NEW_TARGETS then
           target.add(response.address)
-        end 
+        end
       end
       if ( not(target.ALLOW_NEW_TARGETS) ) then
         table.insert(output,"Use the newtargets script-arg to add the results as targets")

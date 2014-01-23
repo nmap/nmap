@@ -9,12 +9,12 @@ Performs brute force passwords auditing against a Redis key-value store.
 
 ---
 -- @usage
--- nmap -p 6379 <ip> --script redis-brute 
+-- nmap -p 6379 <ip> --script redis-brute
 --
 -- @output
 -- PORT     STATE SERVICE
 -- 6379/tcp open  unknown
--- | redis-brute: 
+-- | redis-brute:
 -- |   Accounts
 -- |     toledo - Valid credentials
 -- |   Statistics
@@ -32,22 +32,22 @@ portrule = shortport.port_or_service(6379, "redis-server")
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
 Driver = {
-	
+
 	new = function(self, host, port)
 		local o = { host = host, port = port }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.helper = redis.Helper:new(self.host, self.port)
 		return self.helper:connect()
 	end,
-	
+
 	login = function( self, username, password )
 		local status, response = self.helper:reqCmd("AUTH", password)
-		
+
 		-- some error occured, attempt to retry
 		if ( status and response.type == redis.Response.Type.ERROR and
 			"-ERR invalid password" == response.data ) then
@@ -55,34 +55,34 @@ Driver = {
 		elseif ( status and response.type == redis.Response.Type.STATUS and
 			"+OK" ) then
 			return true, brute.Account:new( "", password, creds.State.VALID)
-		else 
+		else
 			local err = brute.Error:new( response.data )
 			err:setRetry( true )
 			return false, err
 		end
-		
+
 	end,
-	
+
 	disconnect = function(self)
 		return self.helper:close()
-	end,	
-	
+	end,
+
 }
 
 
 local function checkRedis(host, port)
-	
+
 	local helper = redis.Helper:new(host, port)
 	local status = helper:connect()
 	if( not(status) ) then
 		return false, "Failed to connect to server"
 	end
-	
+
 	local status, response = helper:reqCmd("INFO")
 	if ( not(status) ) then
 		return false, "Failed to request INFO command"
 	end
-	
+
 	if ( redis.Response.Type.ERROR == response.type ) then
 		if ( "-ERR operation not permitted" == response.data ) or
 		   ( "-NOAUTH Authentication required." == response.data) then
@@ -99,9 +99,9 @@ action = function(host, port)
 	if ( not(status) ) then
 		return fail(err)
 	end
-	
+
 	local engine = brute.Engine:new(Driver, host, port )
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	engine.options:setOption( "passonly", true )

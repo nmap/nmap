@@ -36,7 +36,7 @@ result in a large number of accounts being locked out on the database server.
 -- @output
 -- PORT     STATE  SERVICE REASON
 -- 1521/tcp open  oracle  syn-ack
--- | oracle-brute:  
+-- | oracle-brute:
 -- |   Accounts
 -- |     system:powell => Account locked
 -- |     haxxor:haxxor => Valid credentials
@@ -51,7 +51,7 @@ result in a large number of accounts being locked out on the database server.
 --
 -- Version 0.3
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 07/23/2010 - v0.2 - added script usage and output and 
+-- Revised 07/23/2010 - v0.2 - added script usage and output and
 -- 							 - oracle-brute.sid argument
 -- Revised 07/25/2011 - v0.3 - added support for guessing default accounts
 --                             changed code to use ConnectionPool
@@ -76,7 +76,7 @@ portrule = shortport.port_or_service(1521, "oracle-tns", "tcp", "open")
 local ConnectionPool = {}
 local sysdba = {}
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port, sid )
@@ -85,19 +85,19 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	--- Connects performs protocol negotiation
 	--
 	-- @return true on success, false on failure
-	connect = function( self )		
+	connect = function( self )
 		local MAX_RETRIES = 10
 		local tries = MAX_RETRIES
-		
+
 		self.helper = ConnectionPool[coroutine.running()]
 		if ( self.helper ) then return true end
-		
+
 		self.helper = tns.Helper:new( self.host, self.port, self.sid )
-		
+
 		-- This loop is intended for handling failed connections
 		-- A connection may fail for a number of different reasons.
 		-- For the moment, we're just handling the error code 12520
@@ -119,14 +119,14 @@ Driver =
 			tries = tries - 1
 			stdnse.sleep(1)
 		until( tries == 0 or data ~= "12520" )
-		
+
 		if ( status ) then
 			ConnectionPool[coroutine.running()] = self.helper
 		end
-		
+
 		return status, data
 	end,
-	
+
 	--- Attempts to login to the Oracle server
 	--
 	-- @param username string containing the login username
@@ -136,11 +136,11 @@ Driver =
 	--         brute.Account object on success
 	login = function( self, username, password )
 		local status, data = self.helper:Login( username, password )
-		
+
 		if ( sysdba[username] ) then
 			return false, brute.Error:new("Account already discovered")
 		end
-		
+
 		if ( status ) then
 			self.helper:Close()
 			ConnectionPool[coroutine.running()] = nil
@@ -168,12 +168,12 @@ Driver =
 		return false, brute.Error:new( data )
 
 	end,
-	
+
 	--- Disconnects and terminates the Oracle TNS communication
 	disconnect = function( self )
 		return true
 	end,
-		
+
 }
 
 
@@ -183,7 +183,7 @@ action = function(host, port)
 				stdnse.get_script_args('tns.sid')
 	local engine = brute.Engine:new(Driver, host, port, sid)
 	local mode = "default"
-	
+
 	if ( not(sid) ) then
 		return "\n  ERROR: Oracle instance not set (see oracle-brute.sid or tns.sid)"
 	end
@@ -217,9 +217,9 @@ action = function(host, port)
 
 		engine.iterator = brute.Iterators.credential_iterator(f)
 	end
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	status, result = engine:start()
-	
+
 	return result
 end

@@ -25,7 +25,7 @@ to be on the LAN.
 -- sudo nmap -sn <target> --script ip-forwarding --script-args='target=www.example.com'
 --
 -- @output
--- | ip-forwarding: 
+-- | ip-forwarding:
 -- |_  The host has ip forwarding enabled, tried ping against (www.example.com)
 --
 -- @args ip-forwarding.target a LAN or routed target responding to ICMP echo
@@ -53,7 +53,7 @@ icmpEchoRequest = function(ifname, host, addr)
 	pcap:set_timeout(5000)
 	pcap:pcap_open(iface.device, 128, false, ("ether src %s and icmp and ( icmp[0] = 0 or icmp[0] = 5 ) and dst %s"):format(stdnse.format_mac(host.mac_addr), iface.address))
 	dnet:ethernet_open(iface.device)
-	
+
 	local probe = packet.Frame:new()
 	probe.mac_src = iface.mac
 	probe.mac_dst = host.mac_addr
@@ -66,9 +66,9 @@ icmpEchoRequest = function(ifname, host, addr)
 	probe:build_icmp_header()
 	probe:build_ip_packet()
 	probe:build_ether_frame()
-	
+
 	dnet:ethernet_send(probe.frame_buf)
-	local status = pcap:pcap_receive()	
+	local status = pcap:pcap_receive()
 	dnet:ethernet_close()
 	return status
 end
@@ -92,11 +92,11 @@ action = function(host)
 	else
 		target = arg_target
 	end
-	
+
 	if ( target == host.ip ) then
 		return ("\n  ERROR: Target can not be the same as the scanned host")
 	end
-	
+
 	if (icmpEchoRequest(ifname, host, target)) then
 		return ("\n  The host has ip forwarding enabled, tried ping against (%s)"):format(arg_target)
 	end

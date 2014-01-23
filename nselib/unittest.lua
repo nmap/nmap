@@ -64,7 +64,7 @@ end
 --
 -- Holds and runs tests.
 TestSuite = {
-  
+
   --- Creates a new TestSuite object
   --
   -- @return TestSuite object

@@ -21,7 +21,7 @@ indication of potential XSS vulnerability.
 --
 -- @output
 -- PORT   STATE SERVICE REASON
--- | http-unsafe-output-escaping: 
+-- | http-unsafe-output-escaping:
 -- |   Characters [> " '] reflected in parameter kalle at http://foobar.gazonk.se/xss.php?foo=bar&kalle=john
 -- |_  Characters [> " '] reflected in parameter foo at http://foobar.gazonk.se/xss.php?foo=bar&kalle=john
 --
@@ -73,7 +73,7 @@ local function getReflected(parsed, r)
 		else
 			not_reflected_values[k] = v
 		end
-	end		
+	end
 	if count > 0 then
 		return reflected_values,not_reflected_values,q
 	end
@@ -125,7 +125,7 @@ action = function(host, port)
 
 	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
 	crawler:set_timeout(10000)
-	
+
 	local results = {}
 	while(true) do
 		local status, r = crawler:crawl()
@@ -138,24 +138,24 @@ action = function(host, port)
 				break
 			end
 		end
-		
+
 		-- parse the returned url
 		local parsed = url.parse(tostring(r.url))
 		-- We are only interested in links which have parameters
-		if parsed.query and #parsed.query > 0 then 
+		if parsed.query and #parsed.query > 0 then
 			local host, port = getHostPort(parsed)
 			local reflected_values,not_reflected_values,all_values = getReflected(parsed, r)
 
-			
-			-- Now,were any reflected ? 
+
+			-- Now,were any reflected ?
 			if  reflected_values then
 				-- Ok, create new links with payloads in the reflected slots
 				local new_links = createMinedLinks(reflected_values, all_values)
-				
+
 				-- Now, if we had 2 reflected values, we should have 2 new links to fetch
-				visitLinks(host, port,parsed, new_links, results,tostring(r.url))	
+				visitLinks(host, port,parsed, new_links, results,tostring(r.url))
 			end
-		end	
+		end
 	end
 	if ( #results> 0 ) then
 		return stdnse.format_output(true, results)

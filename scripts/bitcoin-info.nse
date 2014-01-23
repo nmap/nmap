@@ -14,7 +14,7 @@ Extracts version and node information from a Bitcoin server
 -- @output
 -- PORT     STATE SERVICE
 -- 8333/tcp open  unknown
--- | bitcoin-info: 
+-- | bitcoin-info:
 -- |   Timestamp: Wed Nov  9 19:47:23 2011
 -- |   Network: main
 -- |   Version: 0.4.0
@@ -28,7 +28,7 @@ categories = {"discovery", "safe"}
 
 --
 -- Version 0.1
--- 
+--
 -- Created 11/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
@@ -37,18 +37,18 @@ portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 
 action = function(host, port)
 
-	local NETWORK = { 
+	local NETWORK = {
 		[3652501241] = "main",
 		[3669344250] = "testnet"
 	}
-	
+
 	local bcoin = bitcoin.Helper:new(host, port, { timeout = 10000 })
 	local status = bcoin:connect()
-	
+
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to connect to server"
 	end
-	
+
 	local status, ver = bcoin:exchVersion()
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to extract version information"
@@ -61,6 +61,6 @@ action = function(host, port)
 	table.insert(result, ("Version: %s"):format(ver.ver))
 	table.insert(result, ("Node Id: %s"):format(ver.nodeid))
 	table.insert(result, ("Lastblock: %s"):format(ver.lastblock))
-	
+
 	return stdnse.format_output(true, result)
 end

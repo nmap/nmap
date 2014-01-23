@@ -1,9 +1,9 @@
 ---
--- Debugging functions for Nmap scripts. 
+-- Debugging functions for Nmap scripts.
 --
 -- This module contains various handy functions for debugging. These should
--- never be used for actual results, only during testing. 
--- 
+-- never be used for actual results, only during testing.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local coroutine = require "coroutine"
@@ -18,13 +18,13 @@ _ENV = stdnse.module("nsedebug", stdnse.seeall)
 local EMPTY = {}; -- Empty constant table
 
 ---
--- Converts an arbitrary data type into a string. Will recursively convert 
--- tables. This can be very useful for debugging. 
+-- Converts an arbitrary data type into a string. Will recursively convert
+-- tables. This can be very useful for debugging.
 --
---@param data   The data to convert. 
+--@param data   The data to convert.
 --@param indent (optional) The number of times to indent the line. Default
---              is 0. 
---@return A string representation of a data, will be one or more full lines. 
+--              is 0.
+--@return A string representation of a data, will be one or more full lines.
 function tostr(data, indent)
 	local str
 
@@ -108,7 +108,7 @@ function print_hex(str)
 			end
 			io.write(string.format("%c", ch))
 		end
-		
+
 		io.write("\n")
 	end
 
@@ -117,7 +117,7 @@ function print_hex(str)
 
 end
 
----Print out a stacktrace. The stacktrace will naturally include this function call. 
+---Print out a stacktrace. The stacktrace will naturally include this function call.
 function print_stack()
 	local thread = coroutine.running()
 	local trace = debug.traceback(thread);

@@ -12,7 +12,7 @@ vulnerable installations.
 
 CHANGELOG:
 - Added new detection mechanism by trying to perform a "echo" command
-- Added exploitation script that allows you to define your command (default: uname -a). 
+- Added exploitation script that allows you to define your command (default: uname -a).
 ]]
 
 ---
@@ -22,7 +22,7 @@ CHANGELOG:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-vuln-cve2012-1823: 
+-- | http-vuln-cve2012-1823:
 -- |   VULNERABLE:
 -- |   PHP-CGI Remote code execution and source code disclosure
 -- |     State: VULNERABLE (Exploitable)

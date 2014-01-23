@@ -55,7 +55,7 @@
 --   dates = {
 --      disclosure = { year = 2000, month = 12, day = 18},
 --   },
---   
+--
 --   check_results = { -- A string or a list of strings
 --      -- This field can store the results of the vulnerability check.
 --      -- Did the server return anything ? some specialists can
@@ -245,10 +245,10 @@ local VULNS
 --        ...
 --      },
 --    },
---    
+--
 --    NETWORKS = {
 --      -- list of vulnerabilities that lacks the 'host' table
---      { -- vuln_1 
+--      { -- vuln_1
 --        ...
 --      },
 --      {
@@ -299,7 +299,7 @@ local VULNS
 --                  VULNS.ENTRIES.HOSTS[host_x][vuln_x],
 --              }
 --              [host_y_ip] = {
---                [host_y_targetname_y or host_y_ip] = 
+--                [host_y_targetname_y or host_y_ip] =
 --                  VULNS.ENTRIES.HOSTS[host_y][vuln_z],
 --              }
 --              ...
@@ -379,7 +379,7 @@ STATE = {
   LIKELY_VULN = 0x01,
   NOT_VULN = 0x02,
   VULN = 0x04,
-  DoS = 0x08, 
+  DoS = 0x08,
   EXPLOIT = 0x10,
 }
 
@@ -511,7 +511,7 @@ end
 --         missing.
 local validate_vuln = function(vuln_table)
   local ret = false
-  
+
   if type(vuln_table) == "table" and vuln_table.title and
   type(vuln_table.title) == "string" and vuln_table.state and
   STATE_MSG[vuln_table.state] then
@@ -668,7 +668,7 @@ end
 --
 -- @usage
 -- l_update_id(fid_table, 'CVE', 'CVE-2001-0053', vuln_table)
--- 
+--
 -- @param fid_table  The filter ID table.
 -- @param id_type  String representing the vulnerability ID type.
 --        <code>'CVE'</code>, <code>'OSVDB'</code> ...
@@ -993,8 +993,8 @@ local l_add = function(vulndb, vuln_table)
   -- If the vulnerability was already saved in the registry, then
   -- store its references here.
   local old_entries = {}
-  
-  
+
+
   -- Count how many vuln_table.IDS entries should be and should reference
   -- the vulnerability table in the registry
   -- (in all the FILTERS_IDS tables).
@@ -1053,8 +1053,8 @@ local l_add = function(vulndb, vuln_table)
               id_not_found = false
             end
           end
-          
-        end        
+
+        end
       end
 
       -- If the ID couple (id_type, id) was not found then save it
@@ -1112,7 +1112,7 @@ local l_add = function(vulndb, vuln_table)
   if ids_found < ids_count then
 
     for _, fid in ipairs(FIDS) do
-      for id_type, new_entry in pairs(NEW_IDS) do  
+      for id_type, new_entry in pairs(NEW_IDS) do
         if new_entry['fid'] == fid then
           -- Add the ID couple (id_type, id) to the
           -- VULNS.FILTERS_IDS[fid] table that lacks them
@@ -1254,7 +1254,7 @@ local l_find_vulns = function(fid_table, entries, filter)
              l_filter_vuln(vuln_table, filter)
     end
   else
-    check_vuln = function(vuln_table, fid_table) 
+    check_vuln = function(vuln_table, fid_table)
       return vuln_table._FIDS_MATCH[fid_table]
     end
   end
@@ -1298,7 +1298,7 @@ end
 --- Report vulnerabilities.
 local l_make_output = function(fid_table, entries, filter)
   local hosts, networks = {}, {vulns = {}, not_vulns = {}}
-  
+
   local save_not_vulns = function(vulns, vuln_table)
   end
   if SHOW_ALL then
@@ -1315,7 +1315,7 @@ local l_make_output = function(fid_table, entries, filter)
              l_filter_vuln(vuln_table, filter)
     end
   else
-    check_vuln = function(vuln_table, fid_table) 
+    check_vuln = function(vuln_table, fid_table)
       return vuln_table._FIDS_MATCH[fid_table]
     end
   end
@@ -1326,7 +1326,7 @@ local l_make_output = function(fid_table, entries, filter)
       vulns = {},
       not_vulns = {},
     }
-    
+
     for _, vuln_table in ipairs(vulns_list) do
       if check_vuln(vuln_table, fid_table, filter) then
         print_debug(5,
@@ -1357,7 +1357,7 @@ local l_make_output = function(fid_table, entries, filter)
       end
     end
   end
- 
+
   local output = {}
   local function sort_hosts(a, b)
     return compare_ip(a.ip, "le", b.ip)
@@ -1392,7 +1392,7 @@ local l_make_output = function(fid_table, entries, filter)
         end
         l_push_vuln_output(output, host.not_vulns, SHOW_ALL)
       end
-  
+
       if #hosts > 1 and hidx ~= #hosts then
         insert(output, "")
       end
@@ -1454,7 +1454,7 @@ end
 --- Find vulnerabilities wrapper
 local registry_find_vulns = function(fid, selection_filter)
   local fid_table = VULNS.FILTERS_IDS[fid]
-  
+
   if fid_table and next(fid_table) then
     -- Normalize the 'selection_filter' fields
     local filter = l_normalize_selection_filter(selection_filter)
@@ -1833,7 +1833,7 @@ local format_vuln_base = function(vuln_table, showall)
   if bit.band(vuln_table.state, STATE.NOT_VULN) == 0 then
     if vuln_table.risk_factor then
       local risk_str = ""
-    
+
       if vuln_table.scores and next(vuln_table.scores) then
         for score_type, score in pairs(vuln_table.scores) do
           risk_str = risk_str .. string_format("  %s: %s", score_type, score)
@@ -2079,7 +2079,7 @@ save_reports = function(filter_callback)
     VULNS.SHARED.REFERENCES = VULNS.SHARED.REFERENCES or {}
     VULNS.FILTERS_FUNCS = VULNS.FILTERS_FUNCS or {}
     VULNS.FILTERS_IDS = VULNS.FILTERS_IDS or {}
-  
+
     -- Enable functions
     add_ids = registry_add_ids
     get_ids = registry_get_ids
@@ -2102,7 +2102,7 @@ end
 -- Hostrule and Portrule scripts should use this class to store and
 -- report vulnerabilities.
 Report = {
-  
+
   --- Creates a new Report object
   --
   -- @return report object

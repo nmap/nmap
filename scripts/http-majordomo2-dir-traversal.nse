@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[
-Exploits a directory traversal vulnerability existing in Majordomo2 to retrieve remote files. (CVE-2011-0049). 
+Exploits a directory traversal vulnerability existing in Majordomo2 to retrieve remote files. (CVE-2011-0049).
 
 Vulnerability originally discovered by Michael Brooks.
 
@@ -20,13 +20,13 @@ For more information about this vulnerability:
 -- nmap -p80 --script http-majordomo2-dir-traversal <host/ip>
 --
 -- @output
--- PORT   STATE SERVICE 
+-- PORT   STATE SERVICE
 -- 80/tcp open  http    syn-ack
 -- | http-majordomo2-dir-traversal: /etc/passwd was found:
--- | 
+-- |
 -- | root:x:0:0:root:/root:/bin/bash
 -- | bin:x:1:1:bin:/bin:/sbin/nologin
--- |  
+-- |
 --
 -- @args http-majordomo2-dir-traversal.rfile Remote file to download. Default: /etc/passwd
 -- @args http-majordomo2-dir-traversal.uri URI Path to mj_wwwusr. Default: /cgi-bin/mj_wwwusr
@@ -34,7 +34,7 @@ For more information about this vulnerability:
 --
 -- Other arguments you might want to use with this script:
 -- * http.useragent - Sets user agent
--- 
+--
 
 author = "Paulino Calderon <calderon@websec.mx>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

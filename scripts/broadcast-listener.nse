@@ -6,7 +6,7 @@ local packet = require "packet"
 local stdnse = require "stdnse"
 local table = require "table"
 
-description = [[ 
+description = [[
 Sniffs the network for incoming broadcast communication and
 attempts to decode the received packets. It supports protocols like CDP, HSRP,
 Spotify, DropBox, DHCP, ARP and a few more. See packetdecoders.lua for more
@@ -22,7 +22,7 @@ unless a specific interface was given using the -e argument to Nmap.
 -- nmap --script broadcast-listener -e eth0
 --
 -- @output
--- | broadcast-listener: 
+-- | broadcast-listener:
 -- |   udp
 -- |       Netbios
 -- |         ip           query
@@ -63,13 +63,13 @@ unless a specific interface was given using the -e argument to Nmap.
 -- ether decoders are triggered by a pattern match. The port or pattern is used
 -- as an index in a table containing functions to process packets and fetch
 -- the decoded results.
--- 
+--
 
 
 --
 -- Version 0.1
 -- Created 07/02/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 07/25/2011 - v0.2 -  
+-- Revised 07/25/2011 - v0.2 -
 --								* added more documentation
 --								* added getInterfaces code to detect available
 --								  interfaces.
@@ -114,7 +114,7 @@ loadDecoders = function(fname)
 		stdnse.print_debug("%s: Couldn't load decoder file: %s", SCRIPT_NAME, fname)
 		return false, "ERROR: Couldn't load decoder file: " .. fname
 	end
-	
+
 	file()
 
 	local d = env.Decoders
@@ -126,7 +126,7 @@ end
 ---
 -- Starts sniffing the selected interface for packets with a destination that
 -- is not explicitly ours (broadcast, multicast etc.)
--- 
+--
 -- @param iface table containing <code>name</code> and <code>address</code>
 -- @param Decoders the decoders class loaded externally
 -- @param decodertab the "result" table to which all discovered items are
@@ -148,7 +148,7 @@ sniffInterface = function(iface, Decoders, decodertab)
 	local start_time = nmap.clock_ms()
 	while( nmap.clock_ms() - start_time < timeout ) do
 		local status, _, _, data = sock:pcap_receive()
-	
+
 		if ( status ) then
 			local p = packet.Packet:new( data, #data )
 
@@ -194,7 +194,7 @@ end
 
 ---
 -- Gets a list of available interfaces based on link and up filters
--- Interfaces are only added if they've got an ipv4 address 
+-- Interfaces are only added if they've got an ipv4 address
 --
 -- @param link string containing the link type to filter
 -- @param up string containing the interface status to filter
@@ -208,13 +208,13 @@ getInterfaces = function(link, up)
 	local result = {}
 	if ( not(err) ) then
 		for _, iface in ipairs(interfaces) do
-			if ( iface.link == link and 
+			if ( iface.link == link and
 				 iface.up == up and
-				 iface.address ) then 
-				
+				 iface.address ) then
+
 				-- exclude ipv6 addresses for now
 				if ( not(iface.address:match(":")) ) then
-					table.insert(result, { name = iface.device, 
+					table.insert(result, { name = iface.device,
 										address = iface.address } )
 				end
 			end
@@ -228,21 +228,21 @@ action = function()
 	local DECODERFILE = "nselib/data/packetdecoders.lua"
 	local iface = nmap.get_interface()
 	local interfaces = {}
-	
+
 	-- was an interface supplied using the -e argument?
-	if ( iface ) then	
+	if ( iface ) then
 		local iinfo, err = nmap.get_interface_info(iface)
-	
+
 		if ( not(iinfo.address) ) then
 			return "\n  ERROR: The IP address of the interface could not be determined ..."
 		end
-		
+
 		interfaces = { { name = iface, address = iinfo.address } }
 	else
 		-- no interface was supplied, attempt autodiscovery
 		interfaces = getInterfaces("ethernet", "up")
 	end
-	
+
 	-- make sure we have at least one interface to start sniffing
 	if ( #interfaces == 0 ) then
 		return "\n  ERROR: Could not determine any valid interfaces"
@@ -251,18 +251,18 @@ action = function()
 	-- load the decoders from file
 	local status, Decoders = loadDecoders(DECODERFILE)
 	if ( not(status) ) then return "\n  " .. Decoders end
-	
+
 	-- create a local table to handle instantiated decoders
 	local decodertab = { udp = {}, ether = {} }
 	local condvar = nmap.condvar(decodertab)
 	local threads = {}
-	
+
 	-- start a thread for each interface to sniff
 	for _, iface in ipairs(interfaces) do
 		local co = stdnse.new_thread(sniffInterface, iface, Decoders, decodertab)
 		threads[co] = true
 	end
-	
+
 	-- wait for all threads to finish sniffing
     repeat
 		for thread in pairs(threads) do
@@ -276,7 +276,7 @@ action = function()
 	until next(threads) == nil
 
 	local out_outer = {}
-	
+
 	-- create the results table
 	for proto, _ in pairs(decodertab) do
 		local out_inner = {}

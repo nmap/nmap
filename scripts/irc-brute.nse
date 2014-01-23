@@ -17,7 +17,7 @@ Performs brute force password auditing against IRC (Internet Relay Chat) servers
 -- @output
 -- PORT     STATE SERVICE
 -- 6667/tcp open  irc
--- | irc-brute: 
+-- | irc-brute:
 -- |   Accounts
 -- |     password - Valid credentials
 -- |   Statistics
@@ -37,17 +37,17 @@ categories={"brute","intrusive"}
 portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
 
 Driver = {
-	
+
 	new = function(self, host, port, opts)
 		local o = { host = host, port = port, opts = opts or {} }
        	setmetatable(o, self)
         self.__index = self
 		return o
 	end,
-		
+
 	connect = function(self)
 		-- the high timeout should take delays from ident into consideration
-		local s, r, opts, _ = comm.tryssl(self.host, 
+		local s, r, opts, _ = comm.tryssl(self.host,
 			self.port,
 			'',
 			{ timeout = self.opts.timeout or 10000 } )
@@ -62,14 +62,14 @@ Driver = {
 		local msg = ("PASS %s\r\nNICK nmap_brute\r\nUSER anonymous 0 * :Nmap brute\r\n"):format(password)
 		local status, data = self.socket:send(msg)
 		local success = false
-		
+
 		if ( not(status) ) then
 			local err = brute.Error:new( data )
 			-- This might be temporary, set the retry flag
             err:setRetry( true )
-            return false, err                       
+            return false, err
         end
-	
+
 		repeat
 			local status, response = self.socket:receive_buf("\r?\n", false)
 			-- we check for the RPL_WELCOME message, if we don't see it,
@@ -78,7 +78,7 @@ Driver = {
 				success = true
 			end
 		until(not(status))
-			
+
 		if (success) then
 			return true, brute.Account:new("", password, creds.State.VALID)
 		end
@@ -100,7 +100,7 @@ local function needsPassword(host, port)
 	local msg = ("NICK %s\r\nUSER anonymous 0 * :Nmap brute\r\n"):format(random_nick())
 	local s, r, opts, _ = comm.tryssl(host, port, msg, { timeout = 15000 } )
 	local err, code
-	
+
 	repeat
 		local status, response = s:receive_buf("\r?\n", false)
 		if ( status ) then
@@ -131,9 +131,9 @@ action = function(host, port)
 	if ( not(status) ) then
 		return stdnse.format_output(false, err)
 	end
-	
+
 	local engine = brute.Engine:new(Driver, host, port)
-	engine.options.script_name = SCRIPT_NAME	
+	engine.options.script_name = SCRIPT_NAME
     engine.options.firstonly = true
     engine.options.passonly = true
   local result

@@ -35,14 +35,14 @@ end
 local err =stdnse.print_debug
 
 ----------------------------------------------------------------------
--- First of all comes a Bson parsing library. This can easily be moved out into a separate library should other 
+-- First of all comes a Bson parsing library. This can easily be moved out into a separate library should other
 -- services start to use Bson
 ----------------------------------------------------------------------
--- Library methods for handling the BSON format 
+-- Library methods for handling the BSON format
 --
--- For more documentation about the BSON format, 
----and more details about it's implementations, check out the 
--- python BSON implementation which is available at 
+-- For more documentation about the BSON format,
+---and more details about it's implementations, check out the
+-- python BSON implementation which is available at
 -- http://github.com/mongodb/mongo-python-driver/blob/master/pymongo/bson.py
 -- and licensed under the Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0)
 --
@@ -72,18 +72,18 @@ end
 --@return status : true if ok, false if error
 --@return result : the packed binary data OR error message
 local function _element_to_bson(key, value)
-	
+
 	--Some constraints-checking
-	if type(key) ~= 'string' then 
-		return false, "Documents must have only string keys, key was " .. type(key) 
+	if type(key) ~= 'string' then
+		return false, "Documents must have only string keys, key was " .. type(key)
 	end
-        if key:sub(1,1) == "$" then 
-		return false,  "key must not start with $: ".. key 
+        if key:sub(1,1) == "$" then
+		return false,  "key must not start with $: ".. key
 	end
         if key:find("%.") then
 		return false, ("key %r must not contain '.'"):format(tostring(key))
 	end
-	
+
 	local name =bin.pack("z",key) -- null-terminated string
 	if type(value) == 'string' then
 		local cstring = bin.pack("z",value) -- null-terminated string
@@ -99,17 +99,17 @@ local function _element_to_bson(key, value)
 		-- Use 01 - double for - works better than 10
 		return true, bin.pack('H','01') .. name .. bin.pack("<d", value)
 	end
-	
+
 	local _ = ("cannot convert value of type %s to bson"):format(type(value))
 	return false, _
 end
 
 --Converts a table of elements to binary bson format
 --@param dict the table
---@return status : true if ok, false if error 
+--@return status : true if ok, false if error
 --@return result : a string of binary data OR error message
 function toBson(dict)
-    
+
 	local elements = ""
 	--Put id first
 	if dict._id then
@@ -134,7 +134,7 @@ function toBson(dict)
 	end
 	-- Get length
 	local length = #elements + 5
-	
+
 	if length > 4 * 1024 * 1024 then
 		return false, "document too large - BSON documents are limited to 4 MB"
 	end
@@ -143,24 +143,24 @@ function toBson(dict)
 	return true, bin.pack("I", length) .. elements .. bin.pack('H',"00")
 end
 
--- Reads a null-terminated string. If length is supplied, it is just cut 
--- out from the data, otherwise the data is scanned for at null-char. 
+-- Reads a null-terminated string. If length is supplied, it is just cut
+-- out from the data, otherwise the data is scanned for at null-char.
 --@param data the data which starts with a c-string
 --@param length optional length of the string
---@return the string 
+--@return the string
 --@return the remaining data (*without* null-char)
 local function get_c_string(data,length)
 	if not length then
 		local index = data:find(string.char(0))
-		if index == nil then 
-			error({code="C-string did not contain NULL char"}) 
+		if index == nil then
+			error({code="C-string did not contain NULL char"})
 		end
 		length = index
 	end
 	local value = data:sub(1,length-1)
-	
+
 	--dbg("Found char at pos %d, data is %s c-string is %s",length, data, value)
-	
+
 	return value, data:sub(length+1)
 end
 
@@ -170,25 +170,25 @@ end
 -- @return Unpacked value
 -- @return error string if error occurred
 local function parse(code,data)
-	if 	1 == code  then -- double 
+	if 	1 == code  then -- double
 		return bin.unpack("<d", data)
 	elseif 2 == code then -- string
 		-- data length = first four bytes
-		local _,len = bin.unpack("<i",data) 
+		local _,len = bin.unpack("<i",data)
 		-- string data = data[5] -->
 		local value = get_c_string(data:sub(5), len)
 		-- Count position as header (=4) + length of string (=len)+ null char (=1)
 		return 4+len+1,value
-	elseif 3 == code or 4 == code then -- table or array 
+	elseif 3 == code or 4 == code then -- table or array
 		local object, err
-	
+
 		-- Need to know the length, to return later
 		local _,obj_size = bin.unpack("<i", data)
 		-- Now, get the data object
 		dbg("Recursing into bson array")
 		object, data, err = fromBson(data)
 		dbg("Recurse finished, got data object")
-		-- And return where the parsing stopped 
+		-- And return where the parsing stopped
 		return obj_size+1, object
 	--6 = _get_null
 	--7 = _get_oid
@@ -206,7 +206,7 @@ local function parse(code,data)
 	elseif 16 == code then -- 4 byte integer
 		return bin.unpack("<i", data)
 	--17= _get_timestamp
-	elseif 18 == code then -- long 
+	elseif 18 == code then -- long
 		return bin.unpack("<l", data)
 	end
 	local err = ("Getter for %d not implemented"):format(code)
@@ -217,7 +217,7 @@ end
 -- Reads an element from binary to BSon
 --@param data a string of data to convert
 --@return Name of the element
---@return Value of the element 
+--@return Value of the element
 --@return Residual data not used
 --@return any error that occurred
 local function _element_to_dict(data)
@@ -225,17 +225,17 @@ local function _element_to_dict(data)
 	--local element_size = data:byte(1)
 	element_type = data:byte(1)
 	element_name, data = get_c_string(data:sub(2))
-	
+
 	dbg(" Read element name '%s' (type:%s), data left: %d",element_name, element_type,data:len())
 	--pos,value,err = parsers.get(element_type)(data)
 	pos,value,err = parse(element_type,data)
-	if(err ~= nil) then 
+	if(err ~= nil) then
 		dbg_err(err)
-		return nil,nil, data, err 
+		return nil,nil, data, err
 	end
-	
+
 	data=data:sub(pos)
-	
+
 	dbg(" Read element value '%s', data left: %d",tostring(value), data:len())
 	return element_name, value, data
 end
@@ -265,11 +265,11 @@ function isPacketComplete(data)
 		local err_msg = "Not enough data in buffer, at least 4 bytes header info expected"
 		return false
 	end
-	
+
 	local _,obj_size = bin.unpack("<i", data)
-	
+
 	dbg("BSon packet size is %s", obj_size)
-	
+
 	-- Check that all data is read and the packet is complete
 	if data:len() < obj_size then
 		return false,obj_size
@@ -284,16 +284,16 @@ end
 --@return remaining data
 --@return error message if not enough data was in packet
 function fromBson(data)
-	
+
 	dbg("Decoding, got %s bytes of data", data:len())
 	local complete, object_size = isPacketComplete(data)
 
 	if not complete then
 		local err_msg = ("Not enough data in buffer, expected %s but only has %d"):format(object_size or "?", data:len())
 		dbg(err_msg)
-		return {},data, err_msg 
+		return {},data, err_msg
 	end
-	
+
 	local element_portion = data:sub(5,object_size)
 	local remainder = data:sub(object_size+1)
 	return _elements_to_dict(element_portion), remainder
@@ -305,7 +305,7 @@ end
 ----------------------------------------------------------------------------------
 function testBson()
 	local p = toBson({hello="world", test="ok"})
-	
+
 	print( "Encoded something ok")
 	local orig = fromBson(p)
 	print(" Decoded something else ok")
@@ -321,7 +321,7 @@ end
 
 --[[ MongoDB wire protocol format
 
-Standard message header : 
+Standard message header :
 struct {
     int32   messageLength;  // total size of the message, including the 4 bytes of length
     int32   requestID;      // client or database-generated identifier for this message
@@ -329,7 +329,7 @@ struct {
     int32   opCode;         // request type - see table below
 }
 
-Opcodes : 
+Opcodes :
 OP_REPLY 	 1 	 Reply to a client request. responseTo is set
 OP_MSG 	1000 	generic msg command followed by a string
 OP_UPDATE 	2001 	update document
@@ -338,9 +338,9 @@ OP_GET_BY_OID 	2003 	is this used?
 OP_QUERY 	2004 	query a collection
 OP_GET_MORE 	2005 	Get more data from a query. See Cursors
 OP_DELETE 	2006 	Delete documents
-OP_KILL_CURSORS 	2007 	Tell database client is done with a cursor 
+OP_KILL_CURSORS 	2007 	Tell database client is done with a cursor
 
-Query message : 
+Query message :
 struct {
     MsgHeader header;                 // standard message header
     int32     opts;                   // query options.  See below for details.
@@ -399,11 +399,11 @@ end
 function MongoData:addBSON(dict)
 --	status, res = bson.toBson(dict)
 	local status, res = toBson(dict)
-	if not status then 
+	if not status then
 		dbg(res)
 		return status,res
 	end
-	
+
 	self.valueString = self.valueString..res
 	return true
 end
@@ -429,15 +429,15 @@ local function createQuery(collectionName, query)
 	packet:addUnsignedInt32(0) 	-- number to skip
 	packet:addUnsignedInt32(-1) -- number to return : no limit
 	local status, error = packet:addBSON(query)
-	
+
 	if not status then
 		return status, error
 	end
-	
+
 	return true, packet:data()
 end
 -- Creates a get last error query
--- @param responseTo optional identifier this packet is a response to 
+-- @param responseTo optional identifier this packet is a response to
 --@return status : true for OK, false for error
 --@return packet data OR error message
 function lastErrorQuery(responseTo)
@@ -446,7 +446,7 @@ function lastErrorQuery(responseTo)
 	return createQuery(collectionName, query)
 end
 -- Creates a server status query
--- @param responseTo optional identifier this packet is a response to 
+-- @param responseTo optional identifier this packet is a response to
 --@return status : true for OK, false for error
 --@return packet data OR error message
 function serverStatusQuery(responseTo)
@@ -455,7 +455,7 @@ function serverStatusQuery(responseTo)
 	return createQuery(collectionName, query)
 end
 -- Creates a optime query
--- @param responseTo optional identifier this packet is a response to 
+-- @param responseTo optional identifier this packet is a response to
 --@return status : true for OK, false for error
 --@return packet data OR error message
 function opTimeQuery(responseTo)
@@ -464,7 +464,7 @@ function opTimeQuery(responseTo)
 	return createQuery(collectionName, query)
 end
 -- Creates a list databases query
--- @param responseTo optional identifier this packet is a response to 
+-- @param responseTo optional identifier this packet is a response to
 --@return status : true for OK, false for error
 --@return packet data OR error message
 function listDbQuery(responseTo)
@@ -473,7 +473,7 @@ function listDbQuery(responseTo)
 	return createQuery(collectionName, query)
 end
 -- Creates a build info query
--- @param responseTo optional identifier this packet is a response to 
+-- @param responseTo optional identifier this packet is a response to
 --@return status : true for OK, false for error
 --@return packet data OR error message
 --@return status : true for OK, false for error
@@ -487,15 +487,15 @@ end
 --@return int32 value
 --@return data unread
 local function parseInt32(data)
-	local pos,val = bin.unpack("<i",data) 
+	local pos,val = bin.unpack("<i",data)
 	return val, data:sub(pos)
 end
 local function parseInt64(data)
-	local pos,val =  bin.unpack("<l",data) 
+	local pos,val =  bin.unpack("<l",data)
 	return val, data:sub(pos)
 end
 -- Parses response header
--- The response header looks like this : 
+-- The response header looks like this :
 --[[
 struct {
     MsgHeader header;                 // standard message header
@@ -511,7 +511,7 @@ struct {
 local function parseResponseHeader(data)
 	local response= {}
 	local hdr, rflag, cID, sfrom, nRet, docs
-	
+
 	-- First std message header
 	hdr ={}
 	hdr["messageLength"], data = parseInt32(data)
@@ -537,11 +537,11 @@ function isPacketComplete(data)
 		local err_msg = "Not enough data in buffer, at least 4 bytes header info expected"
 		return false
 	end
-	
+
 	local _,obj_size = bin.unpack("<i", data)
-	
+
 	dbg("MongoDb Packet size is %s, (got %d)", obj_size,data:len())
-	
+
 	-- Check that all data is read and the packet is complete
 	if data:len() < obj_size then
 		return false,obj_size
@@ -572,25 +572,25 @@ function query(socket, data)
 		dbg("mongo: waiting for data from socket, got %d bytes so far...",data:len())
 		data = data .. try( socket:receive() )
 		isComplete, pSize = isPacketComplete(data)
-	end	
+	end
 	-- All required data shold be read now
 	local packetData = data:sub(1,pSize)
 	local residualData = data:sub(pSize+1)
 	local responseHeader = parseResponseHeader(packetData)
-	
+
 	if responseHeader["responseFlag"] ~= 0 then
 		dbg("Response flag not zero : %d, some error occurred", responseHeader["responseFlag"])
 	end
-	
+
 	local bsonData = responseHeader["bson"]
-	if #bsonData == 0 then 
+	if #bsonData == 0 then
 		dbg("No BSon data returned ")
 		return false, "No Bson data returned"
 	end
-	
+
 --	result, data, err_msg = bson.fromBson(bsonData)
 	result, data, err_msg = fromBson(bsonData)
-	
+
 	if err_msg then
 		dbg("Got error converting from bson: %s" , err_msg)
 		return false, ("Got error converting from bson: %s"):format(err_msg)
@@ -608,11 +608,11 @@ function login(socket, db, username, password)
 	if ( not(status) or not(response.nonce) ) then
 		return false, "Failed to retrieve nonce"
 	end
-	
+
 	local nonce = response.nonce
 	local pwdigest = stdnse.tohex(openssl.md5(username .. ':mongo:' ..password))
 	local digest = stdnse.tohex(openssl.md5(nonce .. username .. pwdigest))
-	
+
 	query = { user = username, nonce = nonce, key = digest }
 	query._cmd = { authenticate = 1 }
 
@@ -642,16 +642,16 @@ function queryResultToTable( resultTable )
 		else
 			table.insert(result,(("%s = %s"):format(tostring(k), tostring(v))))
 		end
-	end	
+	end
 	return result
-	
+
 end
 ----------------------------------------------------------------------------------
 -- Test-code for debugging purposes below
 ----------------------------------------------------------------------------------
 
 
---- Prints data (string) as Hex values, e.g so it more easily can 
+--- Prints data (string) as Hex values, e.g so it more easily can
 -- be compared with a packet dump
 -- @param strData the data in a string format
 
@@ -667,7 +667,7 @@ local function printBuffer(strData)
 		end
 		--if ch > 64 and ch < 123 then
 		--	out = out .. string.char(ch)
-		--else 
+		--else
 			out = out .. ch
 		--end
 	end

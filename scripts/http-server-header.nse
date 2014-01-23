@@ -18,7 +18,7 @@ correctly.
 -- http-server-header.skip  If set, this script will not run. Useful for
 --                          printing service fingerprints to submit to Nmap.org
 
-author = "Daniel Miller" 
+author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 

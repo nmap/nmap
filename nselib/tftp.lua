@@ -2,7 +2,7 @@
 --
 -- Currently only write-operations are supported so that script can trigger
 -- TFTP transfers and receive the files and return them as result.
--- 
+--
 -- The library contains the following classes
 -- * <code>Packet</code>
 -- ** The <code>Packet</code> classes contain one class for each TFTP operation.
@@ -45,7 +45,7 @@ OpCode = {
 	WRQ = 2,
 	DATA = 3,
 	ACK = 4,
-	ERROR = 5,	
+	ERROR = 5,
 }
 
 
@@ -54,10 +54,10 @@ OpCode = {
 -- The current code only implements the ACK and ERROR packets
 -- As the server is write-only the other packet types are not needed
 Packet = {
-	
+
 	-- Implements the ACK packet
 	ACK = {
-		
+
 		new = function( self, block )
 			local o = {}
 		   	setmetatable(o, self)
@@ -65,13 +65,13 @@ Packet = {
 			o.block = block
 			return o
 		end,
-		
+
 		__tostring = function( self )
 			return bin.pack(">SS", OpCode.ACK, self.block)
 		end,
-		
+
 	},
-	
+
 	-- Implements the error packet
 	ERROR = {
 
@@ -83,17 +83,17 @@ Packet = {
 			o.code = code
 			return o
 		end,
-		
+
 		__tostring = function( self )
 			return bin.pack(">SSz", OpCode.ERROR, self.code, self.msg)
 		end,
 	}
-	
+
 }
 
 --- The File class holds files received by the TFTP server
 File = {
-	
+
 	--- Creates a new file object
 	--
 	-- @param filename string containing the filename
@@ -114,7 +114,7 @@ File = {
 
 	getName = function(self) return self.name end,
 	setName = function(self, name) self.name = name end,
-	
+
 	setSender = function(self, sender) self.sender = sender end,
 	getSender = function(self) return self.sender end,
 }
@@ -124,21 +124,21 @@ File = {
 local function dispatcher()
 
 	local last = os.time()
-	local f_condvar = nmap.condvar(infiles) 
+	local f_condvar = nmap.condvar(infiles)
 	local s_condvar = nmap.condvar(state)
 
 	while(true) do
-	
+
 		-- check if other scripts are active
 		local counter = 0
 		for t in pairs(running) do
 			counter = counter + 1
 		end
-		if ( counter == 0 ) then 
+		if ( counter == 0 ) then
 			state = "STOPPING"
 			s_condvar "broadcast"
 		end
-	
+
 		if #threads == 0 then break end
 		for i, thread in ipairs(threads) do
 			local status, res = coroutine.resume(thread)
@@ -147,14 +147,14 @@ local function dispatcher()
             	break
           	end
         end
-        		
+
 		-- Make sure to process waitFile atleast every 2 seconds
 		-- in case no files have arrived
 		if ( os.time() - last >= 2 ) then
 			last = os.time()
 			f_condvar "broadcast"
 		end
-		
+
 	end
 	state = "STOPPED"
 	s_condvar "broadcast"
@@ -176,7 +176,7 @@ local function processConnection( host, port, data )
 	if ( not(status) ) then	return status, err end
 
 	socket:set_timeout(10)
-	
+
 	-- If we get anything else than a write request, abort the connection
 	if ( OpCode.WRQ ~= op ) then
 		stdnse.print_debug("Unsupported opcode")
@@ -185,10 +185,10 @@ local function processConnection( host, port, data )
 
 	local pos, filename, enctype = bin.unpack("zz", data, pos)
 	status, err = socket:send( tostring( Packet.ACK:new(0) ) )
-	
+
 	local blocks = {}
 	local lastread = os.time()
-	
+
 	while( true ) do
 		local status, pdata = socket:receive()
 		if ( not(status) ) then
@@ -205,18 +205,18 @@ local function processConnection( host, port, data )
 			if ( OpCode.DATA ~= op ) then
 				stdnse.print_debug("Expected a data packet, terminating TFTP transfer")
 			end
-		
+
 			local block, data
 			pos, block, data = bin.unpack(">SA" .. #pdata - 4, pdata, pos )
-		
+
 			blocks[block] = data
-		
+
 			-- First block was not 1
 			if ( #blocks == 0 ) then
 				socket:send( tostring(Packet.ERROR:new(0, "Did not receive block 1")))
 				break
 			end
-		
+
 			-- for every fith block check that we've received the preceeding four
 			if ( ( #blocks % 5 ) == 0 ) then
 				for b = #blocks - 4, #blocks do
@@ -225,7 +225,7 @@ local function processConnection( host, port, data )
 					end
 				end
 			end
-		
+
 			-- Ack the data block
 			status, err = socket:send( tostring(Packet.ACK:new(block)) )
 
@@ -233,17 +233,17 @@ local function processConnection( host, port, data )
 				-- yield every 5th iteration so other threads may work
 				coroutine.yield(true)
 			end
-		
-			-- If the data length was less than 512, this was our last block			
+
+			-- If the data length was less than 512, this was our last block
 			if ( #data < 512 ) then
 				socket:close()
 				break
 			end
 		end
 	end
-	
+
 	local filecontent = ""
-	
+
 	-- Make sure we received all the blocks needed to proceed
 	for i=1, #blocks do
 		if ( not(blocks[i]) ) then
@@ -252,27 +252,27 @@ local function processConnection( host, port, data )
 		filecontent = filecontent .. blocks[i]
 	end
 	stdnse.print_debug("Finnished receiving file \"%s\"", filename)
-	
+
 	-- Add  anew file to the global infiles table
 	table.insert( infiles, File:new(filename, filecontent, host) )
-	
+
 	local condvar = nmap.condvar(infiles)
 	condvar "broadcast"
 end
 
 -- Waits for a connection from a client
 local function waitForConnection()
-	
+
 	local srvsock = nmap.new_socket("udp")
 	local status = srvsock:bind(nil, 69)
 	assert(status, "Failed to bind to TFTP server port")
-	
+
 	srvsock:set_timeout(0)
-	
+
 	while( state == "RUNNING" ) do
 		local status, data = srvsock:receive()
-		if ( not(status) ) then 
-			coroutine.yield(true) 
+		if ( not(status) ) then
+			coroutine.yield(true)
 		else
 			local status, _, _, rhost, rport = srvsock:get_info()
 			local x = coroutine.create( function() processConnection(rhost, rport, data) end )
@@ -293,13 +293,13 @@ function start()
 
 	mutex "lock"
 	if ( state == "STOPPED" ) then
-		srvthread = coroutine.running()	
+		srvthread = coroutine.running()
 		table.insert( threads, coroutine.create( waitForConnection ) )
 		stdnse.new_thread( dispatcher )
 		state = "RUNNING"
 	end
 	mutex "done"
-	
+
 end
 
 local function waitLast()
@@ -328,10 +328,10 @@ function waitFile( filename, timeout )
 	local t = os.time()
 	while(os.time() - t < timeout) do
 		for _, f in ipairs(infiles) do
-			if (f:getName() == filename) then 
+			if (f:getName() == filename) then
 				running[coroutine.running()] = nil
 				waitLast()
-				return true, f 
+				return true, f
 			end
 		end
 		condvar "wait"

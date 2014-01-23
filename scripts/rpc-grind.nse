@@ -259,7 +259,7 @@ action = function(host, port)
         if result.highver ~= result.lowver then
             port.version.version = ("%s-%s"):format(result.lowver, result.highver)
         else
-            port.version.version = result.highver 
+            port.version.version = result.highver
         end
         nmap.set_port_version(host, port, "hardmatched")
     else

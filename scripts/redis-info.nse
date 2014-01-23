@@ -15,7 +15,7 @@ Retrieves information (such as version number and architecture) from a Redis key
 -- @output
 -- PORT     STATE SERVICE
 -- 6379/tcp open  unknown
--- | redis-info: 
+-- | redis-info:
 -- |   Version            2.2.11
 -- |   Architecture       64 bits
 -- |   Process ID         17821
@@ -38,7 +38,7 @@ portrule = shortport.port_or_service(6379, "redis-server")
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
 local filter = {
-	
+
 	["redis_version"] = { name = "Version" },
 	["arch_bits"] 	= { name = "Architecture", func = function(v) return ("%s bits"):format(v) end },
 	["process_id"]	= { name = "Process ID"},
@@ -49,7 +49,7 @@ local filter = {
 	["connected_slaves"] 	= { name = "Connected slaves"},
 	["used_memory_human"]	= { name = "Used memory"},
 	["role"]				= { name = "Role"}
-	
+
 }
 
 local order = {
@@ -65,7 +65,7 @@ action = function(host, port)
 	if( not(status) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	-- do we have a service password
 	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
 	local cred = c:getCredentials(creds.State.VALID + creds.State.PARAM)()
@@ -77,7 +77,7 @@ action = function(host, port)
 			return fail(response)
 		end
 	end
-		
+
 	local status, response = helper:reqCmd("INFO")
 	if ( not(status) ) then
 		helper:close()
@@ -105,7 +105,7 @@ action = function(host, port)
 			kvs[k] = v
 		end
 	end
-	
+
 	local result = tab.new(2)
 	for _, item in ipairs(order) do
 		if ( kvs[item] ) then

@@ -16,7 +16,7 @@ Performs brute force password auditing against IMAP servers using either LOGIN, 
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 143/tcp open  imap    syn-ack
--- | imap-brute: 
+-- | imap-brute:
 -- |   Accounts
 -- |     braddock:jules - Valid credentials
 -- |     lane:sniper - Valid credentials
@@ -24,7 +24,7 @@ Performs brute force password auditing against IMAP servers using either LOGIN, 
 -- |   Statistics
 -- |_    Performed 62 guesses in 10 seconds, average tps: 6
 --
--- @args imap-brute.auth authentication mechanism to use LOGIN, PLAIN, 
+-- @args imap-brute.auth authentication mechanism to use LOGIN, PLAIN,
 --		 CRAM-MD5, DIGEST-MD5 or NTLM
 
 -- Version 0.1
@@ -43,7 +43,7 @@ local mech
 -- for each attempt.
 ConnectionPool = {}
 
-Driver = 
+Driver =
 {
 
 	-- Creates a new driver instance
@@ -56,7 +56,7 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	-- Connects to the server (retrieves a connection from the pool)
 	connect = function( self )
 		self.helper = ConnectionPool[coroutine.running()]
@@ -75,7 +75,7 @@ Driver =
 	-- @return brute.Error on failure and brute.Account on success
 	login = function( self, username, password )
 		local status, err = self.helper:login( username, password, mech )
-		if ( status ) then 
+		if ( status ) then
 			self.helper:close()
 			self.helper:connect()
 			return true, brute.Account:new(username, password, creds.State.VALID)
@@ -86,17 +86,17 @@ Driver =
 			local err = brute.Error:new( err )
 			-- This might be temporary, set the retry flag
 			err:setRetry( true )
-			return false, err			
+			return false, err
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	-- Disconnects from the server (release the connection object back to
 	-- the pool)
 	disconnect = function( self )
 		return true
 	end,
-		
+
 }
 
 
@@ -112,10 +112,10 @@ action = function(host, port)
 
 	-- check if an authentication mechanism was provided or try
 	-- try them in the mech_prio order
-	local mech_prio = stdnse.get_script_args("imap-brute.auth") 
-	mech_prio = ( mech_prio and { mech_prio } ) or 
+	local mech_prio = stdnse.get_script_args("imap-brute.auth")
+	mech_prio = ( mech_prio and { mech_prio } ) or
 				{ "LOGIN", "PLAIN", "CRAM-MD5", "DIGEST-MD5", "NTLM" }
-	
+
 	-- iterates over auth mechanisms until a valid mechanism is found
 	for _, m in ipairs(mech_prio) do
 		if ( m == "LOGIN" and not(capabilities.LOGINDISABLED)) then
@@ -131,13 +131,13 @@ action = function(host, port)
 	if ( not(mech) ) then
 		return "\n  ERROR: No suitable authentication mechanism was found"
 	end
-		
+
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.script_name = SCRIPT_NAME
 	local result
 	status, result = engine:start()
-	
+
 	for _, helper in pairs(ConnectionPool) do helper:close() end
-	
+
 	return result
 end

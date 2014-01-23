@@ -12,7 +12,7 @@ Attempts to use the Service Location Protocol to discover Novell NetWare Core Pr
 --
 --@output
 -- Pre-scan script results:
--- | broadcast-novell-locate: 
+-- | broadcast-novell-locate:
 -- |   Tree name: CQURE-LABTREE
 -- |   Server name: linux-l84t
 -- |   Addresses
@@ -33,7 +33,7 @@ prerule = function() return true end
 function action()
 
 	local helper = srvloc.Helper:new()
-	
+
 	local status, bindery = helper:ServiceRequest("bindery.novell", "DEFAULT")
 	if ( not(status) or not(bindery) ) then
 		helper:close()
@@ -41,7 +41,7 @@ function action()
 	end
 	bindery = bindery[1]
 	local srvname = bindery:match("%/%/%/(.*)$")
-	
+
 	local status, attrib = helper:AttributeRequest(bindery, "DEFAULT", "svcaddr-ws")
 	helper:close()
 	attrib = attrib:match("^%(svcaddr%-ws=(.*)%)$")
@@ -57,7 +57,7 @@ function action()
 		if ( addr ) then
 			local pos, dw_addr = bin.unpack( "<I", bin.pack("H", addr) )
 			local ip = ipOps.fromdword(dw_addr)
-			
+
 			if ( not(ips[ip]) ) then
 				table.insert(addrs, ip)
 				ips[ip] = ip
@@ -67,13 +67,13 @@ function action()
 
 	local output = {}
 	local status, treename = helper:ServiceRequest("ndap.novell", "DEFAULT")
-	if ( status ) then 
+	if ( status ) then
 		treename = treename[1]
 		treename = treename:match("%/%/%/(.*)%.$")
 		table.insert(output, ("Tree name: %s"):format(treename))
 	end
 	table.insert(output, ("Server name: %s"):format(srvname))
 	table.insert(output, addrs)
-		
+
 	return stdnse.format_output(true, output)
 end

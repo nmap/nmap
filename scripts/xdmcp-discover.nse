@@ -15,7 +15,7 @@ Requests an XDMCP (X display manager control protocol) session and lists support
 -- @output
 -- PORT    STATE         SERVICE
 -- 177/udp open|filtered xdmcp
--- | xdmcp-discover: 
+-- | xdmcp-discover:
 -- |   Session id: 0x0000703E
 -- |   Authorization name: MIT-MAGIC-COOKIE-1
 -- |_  Authorization data: c282137c9bf8e2af88879e6eaa922326
@@ -30,7 +30,7 @@ portrule = shortport.port_or_service(177, "xdmcp", "udp")
 
 local mutex = nmap.mutex("xdmcp-discover")
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
-	
+
 
 action = function(host, port)
 
@@ -43,9 +43,9 @@ action = function(host, port)
 		return fail("Failed to connect to server")
 	end
 
-	local status, response = helper:createSession(nil, 
+	local status, response = helper:createSession(nil,
 		{"MIT-MAGIC-COOKIE-1", "XDM-AUTHORIZATION-1"}, DISPLAY_ID)
-	
+
 	if ( not(status) ) then
 		return fail("Failed to create xdmcp session")
 	end

@@ -24,7 +24,7 @@
 --		- A helper class that provides easy access to the rest of the library
 --
 --   o Socket
---      - This is a copy of the DB2Socket class which provides fundamental 
+--      - This is a copy of the DB2Socket class which provides fundamental
 --        buffering
 --
 --
@@ -66,24 +66,24 @@ _ENV = stdnse.module("giop", stdnse.seeall)
 
 -- A bunch of constants
 Constants = {
-	
+
 	SyncScope = {
 		WITH_TARGET = 3,
 	},
-	
+
 	ServiceContext = {
 		CODESETS = 1,
 		SENDING_CONTEXT_RUNTIME = 6,
 		NEO_FIRST_SERVICE_CONTEXT = 1313165056,
 	},
-	
+
 	ReplyStatus = {
 		SYSTEM_EXCEPTION = 2,
 	},
-	
+
 	VERSION_1_0 = 1,
 	VERSION_1_2 = 0x0201,
-	
+
 	NAMESERVICE = "NameService\0",
 }
 
@@ -91,7 +91,7 @@ Constants = {
 Packet = {}
 
 Packet.GIOP = {
-	
+
 	magic   = "GIOP",
 	version = 0x0001,
 	byte_order = 0,
@@ -110,19 +110,19 @@ Packet.GIOP = {
 		o.size = data and #data or 0
 		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the instance data				
+	-- @return string containing the instance data
 	__tostring = function( self )
 		return bin.pack("<ASCC>IA", self.magic, self.version, self.byte_order, self.type, self.size, self.data )
 	end,
-	
+
 	--- Sets the packet version
 	--
 	-- @param version number containing the version to use
 	setVersion = function( self, version ) self.version = version end,
-	
+
 	--- Receives the packet over the socket
 	--
 	-- @param socket containing the already connected socket
@@ -131,14 +131,14 @@ Packet.GIOP = {
 	recv = function( self, socket )
 		local status, data = socket:recv( 12 )
 		local pos
-		
+
 		if ( not(status) ) then	return false, "Failed to read Packet.GIOP" end
-		
-		pos, self.magic, self.version, self.byte_order, 
+
+		pos, self.magic, self.version, self.byte_order,
 		self.type = bin.unpack("<A4SCC", data )
-		
+
 		pos, self.size = bin.unpack( ( self.byte_order == 0 and ">" or "<") .. "I", data, pos )
-		
+
 		status, data = socket:recv( self.size )
 		if ( not(status) ) then	return false, "Failed to read Packet.GIOP" end
 
@@ -164,10 +164,10 @@ ServiceContext = {
 		o.pad = pad
 		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the instance data				
+	-- @return string containing the instance data
 	__tostring = function( self )
 		if ( self.pad ) then
 			return bin.pack(">IIAS", self.id, #self.data, self.data, self.pad)
@@ -178,7 +178,7 @@ ServiceContext = {
 }
 
 --- Creates a SendingContextRuntime
-SendingContextRuntime = 
+SendingContextRuntime =
 {
 	--- Creates a SendingContextRuntime
 	--
@@ -188,12 +188,12 @@ SendingContextRuntime =
 		local o = {}
        	setmetatable(o, self)
         self.__index = self
-		o.data = bin.pack(">HIAH", 
-			[[ 
+		o.data = bin.pack(">HIAH",
+			[[
 				000000000000002849444c3a6f6d672e6f72672f53656e64696e67436f6e746
 				578742f436f6465426173653a312e300000000001000000000000006e000102
 				00
-			]], #lhost + 1, lhost .. "\0", 
+			]], #lhost + 1, lhost .. "\0",
 			[[
 				00ec5100000019afabcb000000000249765d6900000008000000000000000014
 				0000000000000200000001000000200000000000010001000000020501000100
@@ -201,15 +201,15 @@ SendingContextRuntime =
 			]] )
 		return o
 	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the instance data				
+	-- @return string containing the instance data
 	__tostring = function( self ) return self.data end,
 }
 
 Packet.GIOP.reply = {
-	
+
 	--- Creates a new Packet.GIOP.reply instance
 	--
 	-- @return obj a new Packet.GIOP.get instance
@@ -221,7 +221,7 @@ Packet.GIOP.reply = {
 		self.GIOP = Packet.GIOP:new()
 		return o
 	end,
-	
+
 	--- Receives a Packet.GIOP.reply from the socket
 	--
 	-- @param socket already connected to the server
@@ -231,7 +231,7 @@ Packet.GIOP.reply = {
 		local status, err = self.GIOP:recv( socket )
 		local pos, tmp
 		local bo = ( self.GIOP.byte_order == 0 and ">" or "<")
-		
+
 		if( not(status) ) then return false, err end
 
 		if ( self.GIOP.version == Constants.VERSION_1_2 ) then
@@ -248,24 +248,24 @@ Packet.GIOP.reply = {
 			if ( i ~= tmp ) then pos = pos + 2 end
 			table.insert( self.sc, ServiceContext:new( ctx_id, ctx_data ) )
 		end
-		
+
 		if ( self.GIOP.version == Constants.VERSION_1_0 ) then
 			pos, self.request_id, self.reply_status, self.stub_data = bin.unpack( bo .. "IIA" .. ( #self.GIOP.data - pos - 8 ), self.GIOP.data, pos )
 		elseif ( pos < #self.GIOP.data ) then
 			pos, self.data = bin.unpack("A" .. (#self.GIOP.data - pos), self.GIOP.data, pos )
 		end
-				
+
 		return true
 	end,
-		
+
 }
 
 Packet.GIOP.get = {
-	
+
 	resp_expected = 1,
 	key_length = 4,
 	princ_len = 0,
-	
+
 	--- Creates a new Packet.GIOP._is_a instance
 	--
 	-- @param id the packet identifier
@@ -283,21 +283,21 @@ Packet.GIOP.get = {
 		o.sc = {}
 		return o
 	end,
-	
+
 	--- Creates and adds a service context to the packet
 	--
 	-- @param id number containing the context id
 	-- @param data the service context data
 	-- @param pad [optional] number used to pad after the service context
 	addServiceContext = function( self, id, data, pad )	table.insert( self.sc, ServiceContext:new(id, data, pad) ) end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function( self )
 		local data = bin.pack(">I", #self.sc)
 		local pad = 0
-		
+
 		for i=1, #self.sc do
 			local tmp = tostring( self.sc[i])
 			data = data .. bin.pack("A", tmp )
@@ -308,12 +308,12 @@ Packet.GIOP.get = {
 
 		return tostring( Packet.GIOP:new( 0, data ) )
 	end,
-	
+
 }
 
 Packet.GIOP._is_a =
 {
-	
+
 	--- Creates a new Packet.GIOP._is_a instance
 	--
 	-- @param id the packet identifier
@@ -326,46 +326,46 @@ Packet.GIOP._is_a =
         self.__index = self
 		o.op = "_is_a\0"
 		o.id = id
-		o.target_addr = 0 -- KeyAddr 
+		o.target_addr = 0 -- KeyAddr
 		o.key_addr = key_addr
 		o.flags = flags or Constants.SyncScope.WITH_TARGET -- SyncScope WITH_TARGET
 		o.sc = {}
 		return o
 	end,
-	
+
 	--- Creates and adds a service context to the packet
 	--
 	-- @param id number containing the context id
 	-- @param data the service context data
 	-- @param pad [optional] number used to pad after the service context
 	addServiceContext = function( self, id, data, pad )	table.insert( self.sc, ServiceContext:new(id, data, pad) )	end,
-	
+
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function( self )
 		local TYPE_ID = "IDL:omg.org/CosNaming/NamingContextExt:1.0\0"
 		local RESERVED = 0
 		local UNKNOWN, UNKNOWN2, UNKNOWN3 = 2, 1, 0
 		local data = bin.pack(">ICCCCSSIAIASI", self.id, self.flags, RESERVED, RESERVED, RESERVED, self.target_addr,
 				UNKNOWN, #self.key_addr, self.key_addr, #self.op, self.op, UNKNOWN2, #self.sc )
-				
+
 		for i=1, #self.sc do
 			local tmp = tostring( self.sc[i])
 			data = data .. bin.pack("A", tmp )
 		end
-		
+
 		data = data .. bin.pack(">IA", #TYPE_ID, TYPE_ID)
 
 		local packet = Packet.GIOP:new( 0, data )
 		packet:setVersion( Constants.VERSION_1_2 )
-		
-		return tostring( packet )	 
+
+		return tostring( packet )
 	end,
-	
+
 }
 
-Packet.GIOP.list = 
+Packet.GIOP.list =
 {
 	--- Creates a new Packet.GIOP.list instance
 	--
@@ -387,7 +387,7 @@ Packet.GIOP.list =
 		o.sc = {}
 		return o
 	end,
-	
+
 	--- Creates and adds a service context to the packet
 	--
 	-- @param id number containing the context id
@@ -397,33 +397,33 @@ Packet.GIOP.list =
 
 	--- Converts the class to a string suitable to send over the socket
 	--
-	-- @return string containing the packet data				
+	-- @return string containing the packet data
 	__tostring = function( self )
 		local RESERVED = 0
 		local UNKNOWN, UNKNOWN2, UNKNOWN3 = 2, 1, 6
-		
+
 		local data = bin.pack(">ICCCCSSIAIACCCI", self.id, self.flags, RESERVED, RESERVED,
-			RESERVED, self.target_addr, UNKNOWN, #self.key_addr, self.key_addr, 
+			RESERVED, self.target_addr, UNKNOWN, #self.key_addr, self.key_addr,
 			#self.op, self.op, RESERVED, RESERVED, UNKNOWN2, #self.sc )
-		
+
 		for i=1, #self.sc do
 			local tmp = tostring( self.sc[i])
 			data = data .. bin.pack("A", tmp )
 		end
-		
+
 		data = data .. bin.pack(">II", UNKNOWN3, self.how_many )
 		local packet = Packet.GIOP:new( 0, data )
 		packet:setVersion( Constants.VERSION_1_2 )
-		
+
 		return tostring( packet )
 	end,
-	
+
 }
 
 -- A socket implementation that provides fundamental buffering and allows for
 -- reading of an exact number of bytes, instead of atleast ...
 Socket =
-{	
+{
 	new = function(self, socket)
 		local o = {}
        	setmetatable(o, self)
@@ -438,7 +438,7 @@ Socket =
 		if (not(status)) then return false, "Error failed to get socket information" end
 		return true, lhost
 	end,
-	
+
 	--- Establishes a connection.
 	--
 	-- @param hostid Hostname or IP address.
@@ -450,7 +450,7 @@ Socket =
 		local status = self.Socket:set_timeout(10000)
 		return self.Socket:connect( hostid, port, protocol )
 	end,
-	
+
 	--- Closes an open connection.
 	--
 	-- @return Status (true or false).
@@ -458,7 +458,7 @@ Socket =
 	close = function( self )
 		return self.Socket:close()
 	end,
-	
+
 	--- Opposed to the <code>socket:receive_bytes</code> function, that returns
 	-- at least x bytes, this function returns the amount of bytes requested.
 	--
@@ -468,9 +468,9 @@ Socket =
 	-- 		   err containing error message if status is false
 	recv = function( self, count )
 		local status, data
-	
+
 		self.Buffer = self.Buffer or ""
-	
+
 		if ( #self.Buffer < count ) then
 			status, data = self.Socket:receive_bytes( count - #self.Buffer )
 			if ( not(status) or #data < count - #self.Buffer ) then
@@ -478,13 +478,13 @@ Socket =
 			end
 			self.Buffer = self.Buffer .. data
 		end
-			
+
 		data = self.Buffer:sub( 1, count )
 		self.Buffer = self.Buffer:sub( count + 1)
-	
-		return true, data	
+
+		return true, data
 	end,
-	
+
 	--- Sends data over the socket
 	--
 	-- @return Status (true or false).
@@ -496,10 +496,10 @@ Socket =
 
 -- Static class containing various message decoders
 MessageDecoder = {
-	
+
 	--- Decodes a get response
 	--
-	-- @param packet the GIOP packet as recieved by the comm 
+	-- @param packet the GIOP packet as recieved by the comm
 	--       <code>exchGIOPPacket</code> function
 	-- @return status true on success, false on failure
 	-- @return table containing <code>ip</code> and <code>ctx</code>
@@ -507,7 +507,7 @@ MessageDecoder = {
 		local bo = ( packet.GIOP.byte_order == 0 and ">" or "<")
 		local pos, len = bin.unpack(bo .. "I", packet.stub_data)
 		local ip, ctx
-		
+
 		pos = pos + len + 16
 
 		pos, len = bin.unpack(bo .. "I", packet.stub_data, pos)
@@ -516,13 +516,13 @@ MessageDecoder = {
 		pos = pos + 3
 		pos, len = bin.unpack(bo .. "I", packet.stub_data, pos)
 		pos, ctx = bin.unpack( bo .. "A" .. len, packet.stub_data, pos)
-		
+
 		return true, { ip = ip, ctx = ctx}
 	end,
-	
+
 	--- Decodes a _is_a response (not implemented)
 	--
-	-- @param packet the GIOP packet as recieved by the comm 
+	-- @param packet the GIOP packet as recieved by the comm
 	--       <code>exchGIOPPacket</code> function
 	-- @return status, always true
 	["_is_a"] = function( packet )
@@ -531,7 +531,7 @@ MessageDecoder = {
 
 	--- Decodes a list response
 	--
-	-- @param packet the GIOP packet as recieved by the comm 
+	-- @param packet the GIOP packet as recieved by the comm
 	--       <code>exchGIOPPacket</code> function
 	-- @return status true on success, false on failure
 	-- @return table containing <code>id</code>, <code>kind</code> and
@@ -540,40 +540,40 @@ MessageDecoder = {
 		local bo = ( packet.GIOP.byte_order == 0 and ">" or "<")
 		local pos, seq_len = bin.unpack( bo .. "I", packet.data, 7)
 		local objs = {}
-		
+
 		for i=1, seq_len do
 			local seq_len_of_bind_name
 			local len, name
 			local obj = {}
-			
+
 			pos, seq_len_of_bind_name = bin.unpack( bo .. "I", packet.data, pos)
 			if ( seq_len_of_bind_name ~= 1 ) then return false, "Sequence length of Binding_binding_name was greater than 1" end
-			
+
 			pos, len = bin.unpack( bo .. "I", packet.data, pos )
 			pos, obj.id = bin.unpack( "A" .. len - 1, packet.data, pos )
 
 			-- Account for terminating zero
 			pos = pos + 1
-			
+
 			-- Account for undecoded data
 			pos = pos + ( ( len % 4 > 0 ) and ( 4 - ( len % 4 ) ) or 0 )
 			pos = pos + 3
-			
+
 			pos, obj.kind = bin.unpack("C", packet.data, pos)
-			
+
 			-- Account for undecoded data
 			pos = pos + 4
 			pos, obj.enum = bin.unpack( bo .. "I", packet.data, pos )
 			table.insert( objs, obj )
 		end
-			
+
 		return true, objs
 	end,
-	
+
 }
 
 Comm = {
-	
+
 	--- Creates a new Comm instance
 	--
 	-- @param socket containing a buffered socket connected to the server
@@ -585,7 +585,7 @@ Comm = {
 		o.socket = socket
 		return o
 	end,
-	
+
 	--- Sends and recieves a GIOP packet
 	--
 	-- @param packet containing a Packet.* object, the object must
@@ -597,7 +597,7 @@ Comm = {
 		local status, err = self.socket:send( tostring(packet) )
 		local op = packet.op:sub(1, -2)
 		local data
-		
+
 		if( not(status) ) then return false, err end
 		packet = Packet.GIOP.reply:new()
 
@@ -609,15 +609,15 @@ Comm = {
 		else
 			return false, ("No message decoder for op (%s)"):format(op)
 		end
-		
+
 		return status, data
 	end,
-	
+
 }
 
 
 Helper = {
-	
+
 	new = function(self, host, port )
 		local o = {}
        	setmetatable(o, self)
@@ -627,48 +627,48 @@ Helper = {
 		o.socket = Socket:new()
 		return o
 	end,
-	
+
 	GetNamingContext = function( self )
 		local packet = Packet.GIOP.get:new( 5, 0x494e4954, bin.pack(">IA", #Constants.NAMESERVICE, Constants.NAMESERVICE) )
 		local status, ctx, lhost, pos, len, bo, tmp
-				
+
 		packet:addServiceContext( 17, string.char(0x00, 0x02), 0)
 		packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, string.char(0x00, 0x14), 0)
 		packet:addServiceContext( Constants.ServiceContext.SENDING_CONTEXT_RUNTIME, tostring(SendingContextRuntime:new( self.lhost )), 0 )
-		
+
 		status, packet = self.comm:exchGIOPPacket( packet )
 		if( not(status) ) then return status, packet end
-				
+
 		return true, packet.ctx
 	end,
-	
+
 	ListObjects = function( self, keyaddr )
 		-- SyncScope WITH_TARGET
 		local packet = Packet.GIOP._is_a:new( 5, Constants.SyncScope.WITH_TARGET, keyaddr )
 		local status, err, lhost
-		
+
 		status, err = self:Reconnect()
 		if( not(status) ) then return false, err end
-				
+
 		packet:addServiceContext( 17, "\0\2", 0x000d)
 		packet:addServiceContext( Constants.ServiceContext.CODESETS, "\0\0\0\0\0\1\0\1\0\1\1\9" )
 		packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, string.char(0x00, 0x14), 0x5d69)
 		packet:addServiceContext( Constants.ServiceContext.SENDING_CONTEXT_RUNTIME, tostring(SendingContextRuntime:new( self.lhost )), 0 )
-		
+
 		status, packet = self.comm:exchGIOPPacket( packet )
 		if( not(status) ) then return status, packet end
-		
+
 		packet = Packet.GIOP.list:new( Constants.ServiceContext.SENDING_CONTEXT_RUNTIME, Constants.SyncScope.WITH_TARGET, keyaddr, 1000 )
 		packet:addServiceContext( 17, "\0\2", 0x000d)
 		packet:addServiceContext( Constants.ServiceContext.CODESETS, "\0\0\0\0\0\1\0\1\0\1\1\9" )
 		packet:addServiceContext( Constants.ServiceContext.NEO_FIRST_SERVICE_CONTEXT, string.char(0x00, 0x14), 0x9c9b)
-		
+
 		status, packet = self.comm:exchGIOPPacket( packet )
 		if( not(status) ) then return status, packet end
-		
+
 		return true, packet
 	end,
-	
+
 	--- Connects and performs protocol negotiation with the Oracle server
 	--
 	-- @return true on success, false on failure
@@ -679,22 +679,22 @@ Helper = {
 		self.comm = Comm:new( self.socket )
 
 		status, self.lhost = self.socket:getSrcIp()
-		if ( not(status) ) then 
+		if ( not(status) ) then
 			self.socket:close()
-			return false, self.lhost 
+			return false, self.lhost
 		end
 
 		return true
 	end,
-	
+
 	Close = function( self )
 		return self.socket:close()
 	end,
-	
+
 	Reconnect = function( self )
 		local status = self:Close()
 		if( not(status) ) then return false, "Failed to close socket" end
-		
+
 		status = self:Connect()
 		if( not(status) ) then return false, "Failed to re-connect socket" end
 

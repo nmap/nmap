@@ -2,10 +2,10 @@
 -- MSSQL Library supporting a very limited subset of operations.
 --
 -- The library was designed and tested against Microsoft SQL Server 2005.
--- However, it should work with versions 7.0, 2000, 2005, 2008 and 2012. 
+-- However, it should work with versions 7.0, 2000, 2005, 2008 and 2012.
 -- Only a minimal amount of parsers have been added for tokens, column types
 -- and column data in order to support the first scripts.
--- 
+--
 -- The code has been implemented based on traffic analysis and the following
 -- documentation:
 -- * SSRP Protocol Specification: http://msdn.microsoft.com/en-us/library/cc219703.aspx
@@ -50,7 +50,7 @@
 -- </code>
 --
 -- Known limitations:
--- * The library does not support SSL. The foremost reason being the akward choice of implementation where the SSL handshake is performed within the TDS data block. By default, servers support connections over non SSL connections though. 
+-- * The library does not support SSL. The foremost reason being the akward choice of implementation where the SSL handshake is performed within the TDS data block. By default, servers support connections over non SSL connections though.
 -- * Version 7 and ONLY version 7 of the protocol is supported. This should cover Microsoft SQL Server 7.0 and later.
 -- * TDS Responses contain one or more response tokens which are parsed based on their type. The supported tokens are listed in the <code>TokenType</code> table and their respective parsers can be found in the <code>Token</code> class. Note that some token parsers are not fully implemented and simply move the offset the right number of bytes to continue processing of the response.
 -- * The library only supports a limited subsets of datatypes and will abort execution and return an error if it detects an unsupported type. The supported data types are listed in the <code>DataTypes</code> table. In order to add additional data types a parser function has to be added to both the <code>ColumnInfo</code> and <code>ColumnData</code> class.
@@ -61,7 +61,7 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>, Chris Woodbury"
--- 
+--
 -- @args mssql.username The username to use to connect to SQL Server instances.
 --		This username is used by scripts taking actions that require
 --		authentication (e.g. <code>ms-sql-query</code>) This username (and its
@@ -142,13 +142,13 @@ local HAVE_SSL, openssl = pcall(require, "openssl")
 do
   namedpipes = smb.namedpipes
   local arg = stdnse.get_script_args( "mssql.timeout" ) or "30s"
-  
+
   local timeout, err = stdnse.parse_timespec(arg)
   if not timeout then
     error(err)
   end
   MSSQL_TIMEOUT = timeout
-  
+
   SCANNED_PORTS_ONLY = false
   if ( stdnse.get_script_args( "mssql.scanned-ports-only" ) ) then
   	SCANNED_PORTS_ONLY = true
@@ -158,7 +158,7 @@ end
 
 -- *************************************
 -- Informational Classes
--- ************************************* 
+-- *************************************
 
 --- SqlServerInstanceInfo class
 SqlServerInstanceInfo =
@@ -177,7 +177,7 @@ SqlServerInstanceInfo =
         self.__index = self
 		return o
     end,
-    
+
     -- Compares two SqlServerInstanceInfo objects and determines whether they
     -- refer to the same SQL Server instance, judging by a combination of host,
     -- port, named pipe information and instance name.
@@ -190,10 +190,10 @@ SqlServerInstanceInfo =
     	else
     		areEqual = (self.host.ip == other.host.ip)
     	end
-    	
+
     	if (self.port and other.port) then
     		areEqual = areEqual and ( other.port.number == self.port.number and
-    									other.port.protocol == self.port.protocol ) 
+          other.port.protocol == self.port.protocol )
     	elseif (self.pipeName and other.pipeName) then
     		areEqual = areEqual and (self.pipeName == other.pipeName)
     	elseif (self.instanceName and other.instanceName) then
@@ -203,10 +203,10 @@ SqlServerInstanceInfo =
     		-- we can't say whether they're the same
     		areEqual = false
     	end
-    	
+
     	return areEqual
     end,
-    
+
     --- Merges the data from one SqlServerInstanceInfo object into another. Each
     --  field in the first object is populated with the data from that field in
     --  second object if the first object's field is nil OR if <code>overwrite</code>
@@ -221,12 +221,12 @@ SqlServerInstanceInfo =
     			self[ fieldname ] = other[ fieldname ]
     		end
     	end
-    	if (self.version and self.version.source == "SSRP" and 
+      if (self.version and self.version.source == "SSRP" and
     		other.version and other.version.Source == "SSNetLib") then
     			self.version = other.version
     	end
     end,
-    
+
     --- Returns a name for the instance, based on the available information. This
     --  may take one of the following forms:
     --  * HOST\INSTANCENAME
@@ -241,7 +241,7 @@ SqlServerInstanceInfo =
     		return string.format( "%s:%s",  self.host.ip or self.serverName or "[nil]", (self.port and self.port.number) or "[nil]" )
     	end
     end,
-    
+
     --- Sets whether the instance is in a cluster
     --
     --	@param self
@@ -250,7 +250,7 @@ SqlServerInstanceInfo =
     SetIsClustered = function( self, isClustered )
     	self.isClustered = (isClustered == true) or (isClustered == "Yes")
     end,
-    
+
     --- Indicates whether this instance has networking protocols enabled, such
     --  that scripts could attempt to connect to it.
     HasNetworkProtocols = function( self )
@@ -260,9 +260,9 @@ SqlServerInstanceInfo =
 
 
 --- SqlServerVersionInfo class
-SqlServerVersionInfo = 
+SqlServerVersionInfo =
 {
-	versionNumber = "",		-- The full version string (e.g. "9.00.2047.00") 
+	versionNumber = "",		-- The full version string (e.g. "9.00.2047.00")
 	major = nil,			-- The major version (e.g. 9)
 	minor = nil,			-- The minor version (e.g. 0)
 	build = nil,			-- The build number (e.g. 2047)
@@ -279,7 +279,7 @@ SqlServerVersionInfo =
         self.__index = self
 		return o
     end,
-	
+
 	--- Sets the version using a version number string.
 	--
 	-- @param versionNumber a version number string (e.g. "9.00.1399.00")
@@ -296,7 +296,7 @@ SqlServerVersionInfo =
 
 		self:SetVersion( major, minor, revision, subBuild, source )
 	end,
-	
+
 	--- Sets the version using the individual numeric components of the version
 	--  number.
 	--
@@ -304,25 +304,25 @@ SqlServerVersionInfo =
 	SetVersion = function(self, major, minor, build, subBuild, source)
 		self.source = source
 		-- make sure our version numbers all end up as valid numbers
-		self.major, self.minor, self.build, self.subBuild = 
+		self.major, self.minor, self.build, self.subBuild =
 			tonumber( major or 0 ), tonumber( minor or 0 ), tonumber( build or 0 ), tonumber( subBuild or 0 )
-		
+
 		self.versionNumber = string.format( "%u.%02u.%u.%02u", self.major, self.minor, self.build, self.subBuild )
-		
+
 		self:_ParseVersionInfo()
 	end,
-		
+
 	--- Using the version number, determines the product version
 	_InferProductVersion = function(self)
-		
+
 		local VERSION_LOOKUP_TABLE = {
-			["^6%.0"] = "6.0", ["^6%.5"] = "6.5", ["^7%.0"] = "7.0", 
+			["^6%.0"] = "6.0", ["^6%.5"] = "6.5", ["^7%.0"] = "7.0",
 			["^8%.0"] = "2000",	["^9%.0"] = "2005",	["^10%.0"] = "2008",
 			["^10%.50"] = "2008 R2", ["^11%.0"] = "2012",
 		}
-		
+
 		local product = ""
-	
+
 		for m, v in pairs(VERSION_LOOKUP_TABLE) do
 			if ( self.versionNumber:match(m) ) then
 				product = v
@@ -330,17 +330,17 @@ SqlServerVersionInfo =
 				break
 			end
 		end
-		
+
 		self.productName = ("Microsoft SQL Server %s"):format(product)
-		
+
 	end,
-	
-	
+
+
 	--- Returns a lookup table that maps revision numbers to service pack levels for
 	--  the applicable SQL Server version (e.g. { {1600, "RTM"}, {2531, "SP1"} }).
 	_GetSpLookupTable = function(self)
-	
-		-- Service pack lookup tables: 
+
+		-- Service pack lookup tables:
 		-- For instances where a revised service pack was released (e.g. 2000 SP3a), we will include the
 		-- build number for the original SP and the build number for the revision. However, leaving it
 		-- like this would make it appear that subsequent builds were a patched version of the revision
@@ -349,25 +349,25 @@ SqlServerVersionInfo =
 		-- number that combines the two.
 		local SP_LOOKUP_TABLE_6_5 = { {201, "RTM"}, {213, "SP1"}, {240, "SP2"}, {258, "SP3"}, {281, "SP4"},
 			{415, "SP5"}, {416, "SP5a"}, {417, "SP5/SP5a"}, }
-		
+
 		local SP_LOOKUP_TABLE_7 = { {623, "RTM"}, {699, "SP1"}, {842, "SP2"}, {961, "SP3"}, {1063, "SP4"}, }
-		
+
 		local SP_LOOKUP_TABLE_2000 = { {194, "RTM"}, {384, "SP1"}, {532, "SP2"}, {534, "SP2"}, {760, "SP3"},
 			{766, "SP3a"}, {767, "SP3/SP3a"}, {2039, "SP4"}, }
-		
+
 		local SP_LOOKUP_TABLE_2005 = { {1399, "RTM"}, {2047, "SP1"}, {3042, "SP2"}, {4035, "SP3"}, {5000, "SP4"}, }
-		
+
 		local SP_LOOKUP_TABLE_2008 = { {1600, "RTM"}, {2531, "SP1"}, {4000, "SP2"}, {5500, "SP3"}, }
-		
+
 		local SP_LOOKUP_TABLE_2008R2 = { {1600, "RTM"}, {2500, "SP1"}, {4000, "SP2"}, }
 
 		local SP_LOOKUP_TABLE_2012 = { {2100, "RTM"}, }
-	
-	
+
+
 		if ( not self.brandedVersion ) then
 			self:_InferProductVersion()
 		end
-		
+
 		local spLookupTable
 		if self.brandedVersion == "6.5" then spLookupTable = SP_LOOKUP_TABLE_6_5
 			elseif self.brandedVersion == "7.0" then spLookupTable = SP_LOOKUP_TABLE_7
@@ -377,26 +377,26 @@ SqlServerVersionInfo =
 			elseif self.brandedVersion == "2008 R2" then spLookupTable = SP_LOOKUP_TABLE_2008R2
 			elseif self.brandedVersion == "2012" then spLookupTable = SP_LOOKUP_TABLE_2012
 		end
-		
+
 		return spLookupTable
-	
+
 	end,
-	
-	
+
+
 	--- Processes version data to determine (if possible) the product version,
 	--  service pack level and patch status.
 	_ParseVersionInfo = function(self)
-	
+
 		local spLookupTable = self:_GetSpLookupTable()
-		
+
 		if spLookupTable then
-			
+
 			local spLookupItr = 0
 			-- Loop through the service pack levels until we find one whose revision
 			-- number is the same as or lower than our revision number.
 			while spLookupItr < #spLookupTable do
 				spLookupItr = spLookupItr + 1
-				
+
 				if (spLookupTable[ spLookupItr ][1] == self.build ) then
 					spLookupItr = spLookupItr
 					break
@@ -411,18 +411,18 @@ SqlServerVersionInfo =
 					break
 				end
 			end
-			
+
 			-- Now that we've identified the proper service pack level:
 			if self.servicePackLevel ~= "Pre-RTM" then
 				self.servicePackLevel = spLookupTable[ spLookupItr ][2]
-				
+
 				if ( spLookupTable[ spLookupItr ][1] == self.build ) then
 					self.patched = false
 				else
 					self.patched = true
 				end
 			end
-			
+
 			-- Clean up some of our inferences. If the source of our revision number
 			-- was the SSRP (SQL Server Browser) response, we need to recognize its
 			-- limitations:
@@ -432,19 +432,19 @@ SqlServerVersionInfo =
 			--  * Versions of SQL Server starting with 2005 (and going through at least
 			--    2008) do better but are still only reported with the build number as
 			--    of the last service pack (e.g. SQL Server 2005 SP3 with patches is
-			--    still reported as 9.00.4035.00). 
+			--    still reported as 9.00.4035.00).
 			if ( self.source == "SSRP" ) then
 				self.patched = nil
-				
+
 				if ( self.major <= 8 ) then
 					self.servicePackLevel = nil
 				end
 			end
 		end
-		
+
 		return true
 	end,
-	
+
 	---
 	ToString = function(self)
 		local friendlyVersion = strbuf.new()
@@ -458,23 +458,23 @@ SqlServerVersionInfo =
 				friendlyVersion:concatbuf( "+" )
 			end
 		end
-		
+
 		return friendlyVersion:dump()
 	end,
-	
+
 	--- Uses the information in this SqlServerVersionInformation object to
 	--  populate the version information in an Nmap port table for a SQL Server
 	--  TCP listener.
-	--  
+	--
 	--  @param self A SqlServerVersionInformation object
 	--  @param port An Nmap port table corresponding to the instance
 	PopulateNmapPortVersion = function(self, port)
-		
+
 		port.service = "ms-sql-s"
 		port.version = port.version or {}
 		port.version.name = "ms-sql-s"
 		port.version.product = self.productName
-		
+
 		local versionString = strbuf.new()
 		if self.source ~= "SSRP" then
 			versionString:concatbuf( self.versionNumber )
@@ -487,7 +487,7 @@ SqlServerVersionInfo =
 			end
 			port.version.version = versionString:dump()
 		end
-		
+
 		return port
 	end,
 }
@@ -495,12 +495,12 @@ SqlServerVersionInfo =
 
 -- *************************************
 -- SSRP (SQL Server Resolution Protocol)
--- ************************************* 
-SSRP = 
+-- *************************************
+SSRP =
 {
 	PORT = { number = 1434, protocol = "udp" },
 	DEBUG_ID = "MSSQL-SSRP",
-	
+
 	MESSAGE_TYPE =
 	{
 		ClientBroadcast 		= 0x02,
@@ -509,7 +509,7 @@ SSRP =
 		ClientUnicastDAC		= 0x0F,
 		ServerResponse			= 0x05,
 	},
-	
+
 	--- Parses an SSRP string and returns a table containing one or more
 	--  SqlServerInstanceInfo objects created from the parsed string.
 	_ParseSsrpString = function( host, ssrpString )
@@ -518,7 +518,7 @@ SSRP =
 		-- data, signifying an empty field (e.g. "...bv;;@COMPNAME;;tcp;1433;;...").
 		-- So, instead, we'll split up the string ahead of time.
 		-- See the SSRP specification for more details.
-		
+
 		local instanceStrings = {}
 		local firstInstanceEnd, instanceString
 		repeat
@@ -529,26 +529,26 @@ SSRP =
 			else
 				instanceString = ssrpString
 			end
-			
+
 			table.insert( instanceStrings, instanceString )
 		until (not firstInstanceEnd)
 		stdnse.print_debug( 2, "%s: SSRP Substrings:\n  %s", SSRP.DEBUG_ID, stdnse.strjoin( "\n  ", instanceStrings ) )
-		
+
 		local instances = {}
 		for _, instanceString in ipairs( instanceStrings ) do
 	  		local instance = SqlServerInstanceInfo:new()
 	  		local version = SqlServerVersionInfo:new()
 	  		instance.version = version
-	  		
+
 	  		instance.host = host
 	  		instance.serverName = instanceString:match( "ServerName;(.-);")
 	  		instance.instanceName = instanceString:match( "InstanceName;(.-);")
 	  		instance:SetIsClustered( instanceString:match( "IsClustered;(.-);") )
 	  		version:SetVersionNumber( instanceString:match( "Version;(.-);"), "SSRP" )
-	  		
+
 	  		local tcpPort = tonumber( instanceString:match( ";tcp;(.-);") )
-	  		if tcpPort then instance.port = {number = tcpPort, protocol = "tcp"} end 
-	  		
+        if tcpPort then instance.port = {number = tcpPort, protocol = "tcp"} end
+
 	  		local pipeName = instanceString:match( ";np;(.-);")
 	  		local status, pipeSubPath = namedpipes.get_pipe_subpath( pipeName )
 	    	if status then
@@ -557,13 +557,13 @@ SSRP =
 				stdnse.print_debug( 1, "%s: Invalid pipe name:\n%s", SSRP.DEBUG_ID, pipeName )
 	    	end
 	    	instance.pipeName = pipeName
-			
+
 			table.insert( instances, instance )
 		end
-		
+
 		return instances
 	end,
-	
+
 	---
 	_ProcessResponse = function( host, responseData )
 		local instances
@@ -575,16 +575,16 @@ SSRP =
 		stdnse.print_debug( 2, "%s: SSRP Data: %s", SSRP.DEBUG_ID, responseData )
 		if ( messageType ~= SSRP.MESSAGE_TYPE.ServerResponse or
 			 dataLength ~= responseData:len() ) then
-			
+
 			stdnse.print_debug( 2, "%s: Invalid SSRP response. Type: 0x%02x, Length: %d, Actual length: %d",
 				SSRP.DEBUG_ID, messageType, dataLength, responseData:len() )
 		else
 			instances = SSRP._ParseSsrpString( host, responseData )
 		end
-		
+
 		return instances
 	end,
-	
+
 	---	Attempts to retrieve information about SQL Server instances by querying
 	--	the SQL Server Browser service on a host.
 	--
@@ -592,27 +592,27 @@ SSRP =
 	--	@param port (Optional) A port table for the target SQL Server Browser service
 	--	@return (status, result) If status is true, result is a table of
 	--		SqlServerInstanceInfo objects. If status is false, result is an
-	--		error message. 
+	--		error message.
 	DiscoverInstances = function( host, port )
 		port = port or SSRP.PORT
-		
+
 		if ( SCANNED_PORTS_ONLY and nmap.get_port_state( host, port ) == nil ) then
 			stdnse.print_debug( 2, "%s: Discovery disallowed: scanned-ports-only is set and port %d was not scanned", SSRP.DEBUG_ID, port.number )
 			return false, "Discovery disallowed: scanned-ports-only"
 		end
-		
+
 		local socket = nmap.new_socket("udp")
 		socket:set_timeout(5000)
-		
+
 		if ( port.number ~= SSRP.PORT.number ) then
 			stdnse.print_debug( 1, "%s: DiscoverInstances() called with non-standard port (%d)", SSRP.DEBUG_ID, port.number )
 		end
-		
+
 		local status, err = socket:connect( host, port )
 		if ( not(status) ) then	return false, err end
 		status, err = socket:send( bin.pack( "C", SSRP.MESSAGE_TYPE.ClientUnicast ) )
 		if ( not(status) ) then	return false, err end
-		
+
 		local responseData, instances_host
 		status, responseData = socket:receive()
 		if ( not(status) ) then	return false, responseData
@@ -620,11 +620,11 @@ SSRP =
 			instances_host = SSRP._ProcessResponse( host, responseData )
 		end
 		socket:close()
-		
+
 		return status, instances_host
 	end,
-	
-	
+
+
 	---	Attempts to retrieve information about SQL Server instances by querying
 	--	the SQL Server Browser service on a broadcast domain.
 	--
@@ -633,21 +633,21 @@ SSRP =
 	--	@return (status, result) If status is true, result is a table of
 	--		tables containing SqlServerInstanceInfo objects. The top-level table
 	--		is indexed by IP address. If status is false, result is an
-	--		error message. 
+	--		error message.
 	DiscoverInstances_Broadcast = function( host, port )
 		port = port or SSRP.PORT
-		
+
 		local socket = nmap.new_socket("udp")
 		socket:set_timeout(5000)
 		local instances_all = {}
-		
+
 		if ( port.number ~= SSRP.PORT.number ) then
 			stdnse.print_debug( 1, "%S: DiscoverInstances_Broadcast() called with non-standard port (%d)", SSRP.DEBUG_ID, port.number )
 		end
-		
+
 		local status, err = socket:sendto(host, port, bin.pack( "C", SSRP.MESSAGE_TYPE.ClientBroadcast ))
 		if ( not(status) ) then	return false, err end
-		
+
 		while ( status ) do
 			local responseData
 			status, responseData = socket:receive()
@@ -659,7 +659,7 @@ SSRP =
 			end
 		end
 		socket:close()
-		
+
 		return true, instances_all
 	end,
 }
@@ -681,7 +681,7 @@ PacketType =
 }
 
 -- TDS response token types
-TokenType = 
+TokenType =
 {
 	ReturnStatus         = 0x79,
 	TDS7Results          = 0x81,
@@ -698,7 +698,7 @@ TokenType =
 }
 
 -- SQL Server/Sybase data types
-DataTypes = 
+DataTypes =
 {
 	SQLTEXT       = 0x23,
 	GUIDTYPE      = 0x24,
@@ -723,7 +723,7 @@ DataTypes =
 
 -- SQL Server login error codes
 -- See http://msdn.microsoft.com/en-us/library/ms131024.aspx
-LoginErrorType = 
+LoginErrorType =
 {
 	AccountLockedOut						= 15113,
 	NotAssociatedWithTrustedConnection		= 18452,	-- This probably means that the server is set for Windows authentication only
@@ -744,7 +744,7 @@ for i, v in pairs(LoginErrorType) do
 end
 
 -- "static" ColumInfo parser class
-ColumnInfo = 
+ColumnInfo =
 {
 
 	Parse =
@@ -753,7 +753,7 @@ ColumnInfo =
 		[DataTypes.SQLTEXT] = function( data, pos )
 			local colinfo = {}
 			local tmp
-			
+
 			pos, colinfo.unknown, colinfo.codepage, colinfo.flags, colinfo.charset = bin.unpack("<ISSC", data, pos )
 
 			pos, colinfo.tablenamelen = bin.unpack("s", data, pos )
@@ -792,11 +792,11 @@ ColumnInfo =
 		[DataTypes.SYBDATETIME] = function( data, pos )
 			local colinfo = {}
 			local tmp
-		
+
 			pos, colinfo.msglen = bin.unpack("C", data, pos)
 			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
 			colinfo.text = Util.FromWideChar(tmp)
-	
+
 			return pos, colinfo
 		end,
 
@@ -843,7 +843,7 @@ ColumnInfo =
 			pos, colinfo.lts, colinfo.msglen = bin.unpack("<SC", data, pos)
 			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos )
 			colinfo.text = Util.FromWideChar(tmp)
-			
+
 			return pos, colinfo
 		end,
 
@@ -863,7 +863,7 @@ ColumnInfo =
 			local colinfo = {}
 			local tmp
 
-			pos, colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset, 
+			pos, colinfo.lts, colinfo.codepage, colinfo.flags, colinfo.charset,
 			colinfo.msglen = bin.unpack("<SSSCC", data, pos )
 			pos, tmp = bin.unpack("A" .. (colinfo.msglen * 2), data, pos)
 			colinfo.text = Util.FromWideChar(tmp)
@@ -874,19 +874,19 @@ ColumnInfo =
 		[DataTypes.SQLNCHAR] = function( data, pos )
 			return ColumnInfo.Parse[DataTypes.XSYBNVARCHAR](data, pos)
 		end,
-  
+
 	}
-	
+
 }
 
 -- "static" ColumData parser class
-ColumnData = 
+ColumnData =
 {
 	Parse = {
 
 		[DataTypes.SQLTEXT] = function( data, pos )
 			local len, coldata
-			
+
 			-- The first len value is the size of the meta data block
 			-- for non-null values this seems to be 0x10 / 16 bytes
 			pos, len = bin.unpack( "<C", data, pos )
@@ -897,7 +897,7 @@ ColumnData =
 
 			-- Skip over the text update time and date values, we don't need them
 			-- We may come back add parsing for this information.
-			pos = pos + len 
+			pos = pos + len
 
 			-- skip a label, should be 'dummyTS'
 			pos = pos + 8
@@ -913,36 +913,36 @@ ColumnData =
 			local len, coldata, index, nextdata
 			local hex = {}
 			pos, len = bin.unpack("C", data, pos)
-			
+
 			if ( len == 0 ) then
 				return pos, 'Null'
-				
+
 			elseif ( len == 16 ) then
-				
+
 				-- Return the first 8 bytes
 				for index=1, 8 do
 					pos, hex[index] = bin.unpack("H", data, pos)
 				end
-				
+
 				-- reorder the bytes
 				coldata = hex[4] .. hex[3] .. hex[2] .. hex[1]
 				coldata = coldata .. '-' .. hex[6] .. hex[5]
 				coldata = coldata .. '-' .. hex[8] .. hex[7]
-				
+
 				pos, nextdata = bin.unpack("H2", data, pos)
-				coldata = coldata .. '-' .. nextdata		 
-				
+				coldata = coldata .. '-' .. nextdata
+
 				pos, nextdata = bin.unpack("H6", data, pos)
 				coldata = coldata .. '-' .. nextdata
-			 
+
 			else
 				 stdnse.print_debug("Unhandled length (%d) for GUIDTYPE", len)
 				return pos + len, 'Unsupported Data'
-			end	
+			end
 
 			return pos, coldata
-		end,	
-		
+		end,
+
 		[DataTypes.SYBINTN] = function( data, pos )
 			local len, num
 			pos, len = bin.unpack("C", data, pos)
@@ -963,18 +963,18 @@ ColumnData =
 
 			return -1, "Error"
 		end,
-		
+
 		[DataTypes.SYBINT2] = function( data, pos )
 			local num
 			pos, num = bin.unpack("<S", data, pos)
-			
+
 			return pos, num
 		end,
-		
+
 		[DataTypes.SYBINT4] = function( data, pos )
 			local num
 			pos, num = bin.unpack("<I", data, pos)
-			
+
 			return pos, num
 		end,
 
@@ -988,13 +988,13 @@ ColumnData =
 			-- determine the offset between the tds_epoch and the local system epoch
 			system_epoch       = os.time( os.date("*t", 0))
 			tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
- 
+
 			result_seconds = (hi*24*60*60) + (lo/300)
 
 			result = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
 			return pos, result
 		end,
- 
+
 		[DataTypes.NTEXTTYPE] = function( data, pos )
 			local len, coldata
 
@@ -1007,7 +1007,7 @@ ColumnData =
 
 			-- Skip over the text update time and date values, we don't need them
 			-- We may come back add parsing for this information.
-			pos = pos + len 
+			pos = pos + len
 
 			-- skip a label, should be 'dummyTS'
 			pos = pos + 8
@@ -1018,7 +1018,7 @@ ColumnData =
 
 			return pos, Util.FromWideChar(coldata)
 		end,
-   
+
 		[DataTypes.BITNTYPE] = function( data, pos )
 			return ColumnData.Parse[DataTypes.SYBINTN](data, pos)
 		end,
@@ -1051,19 +1051,19 @@ ColumnData =
 			if ( sign == 0 ) then
 				coldata = coldata * -1
 			end
-			
+
 			coldata = coldata * (10^-scale)
 			-- format the return information to reduce truncation by lua
 			format_string = string.format("%%.%if", scale)
 			coldata = string.format(format_string,coldata)
-			
+
 			return pos, coldata
 		end,
-		
+
 		[DataTypes.NUMERICNTYPE] = function( precision, scale, data, pos )
 			return ColumnData.Parse[DataTypes.DECIMALNTYPE]( precision, scale, data, pos )
 		end,
- 
+
 		[DataTypes.SYBDATETIME] = function( data, pos )
 			local hi, lo, result_seconds, result
 			local tds_epoch, system_epoch, tds_offset_seconds
@@ -1074,13 +1074,13 @@ ColumnData =
 			-- determine the offset between the tds_epoch and the local system epoch
 			system_epoch       = os.time( os.date("*t", 0))
 			tds_offset_seconds = os.difftime(tds_epoch,system_epoch)
- 
+
 			result_seconds = (hi*24*60*60) + (lo/300)
 
 			result = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
 			return pos, result
 		end,
- 
+
 		[DataTypes.BITNTYPE] = function( data, pos )
 			return ColumnData.Parse[DataTypes.SYBINTN](data, pos)
 		end,
@@ -1097,7 +1097,7 @@ ColumnData =
 
 			-- Skip over the text update time and date values, we don't need them
 			-- We may come back add parsing for this information.
-			pos = pos + len 
+			pos = pos + len
 
 			-- skip a label, should be 'dummyTS'
 			pos = pos + 8
@@ -1159,7 +1159,7 @@ ColumnData =
 				-- format is smalldatetime
 				local days, mins
 				pos, days, mins = bin.unpack("<SS", data, pos)
-				
+
 				local tds_epoch = os.time( {year = 1900, month = 1, day = 1, hour = 00, min = 00, sec = 00, isdst = nil} )
 				-- determine the offset between the tds_epoch and the local system epoch
 				local system_epoch			 = os.time( os.date("*t", 0))
@@ -1167,16 +1167,16 @@ ColumnData =
 
 				local result_seconds = (days*24*60*60) + (mins*60)
 				coldata = os.date("!%b %d, %Y %H:%M:%S", tds_offset_seconds + result_seconds )
-				
+
 				return pos,coldata
-				
+
 			elseif ( len == 8 ) then
 				-- format is datetime
 				return ColumnData.Parse[DataTypes.SYBDATETIME](data, pos)
 			else
 				return -1, ("Unhandled length (%d) for SYBDATETIMN"):format(len)
 			end
-		 
+
 		end,
 
 		[DataTypes.XSYBVARBINARY] = function( data, pos )
@@ -1193,7 +1193,7 @@ ColumnData =
 
 			return -1, "Error"
 		end,
-  
+
 		[DataTypes.XSYBVARCHAR] = function( data, pos )
 			local len, coldata
 
@@ -1235,7 +1235,7 @@ ColumnData =
 }
 
 -- "static" Token parser class
-Token = 
+Token =
 {
 
 	Parse = {
@@ -1263,46 +1263,46 @@ Token =
 
 			return pos, token
 		end,
-		
+
 		--- Parse environment change tokens
 		-- (This function is not implemented and simply moves the pos offset)
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields		
+		-- @return token table containing token specific fields
 		[TokenType.EnvironmentChange] = function( data, pos )
 			local token = {}
 			local tmp
-			
+
 			token.type = TokenType.EnvironmentChange
 			pos, token.size = bin.unpack("<S", data, pos)
-		
+
 			return pos + token.size, token
 		end,
-	
+
 		--- Parse information message tokens
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields		
+		-- @return token table containing token specific fields
 		[TokenType.InformationMessage] = function( data, pos )
 			local pos, token = Token.Parse[TokenType.ErrorMessage]( data, pos )
 			token.type = TokenType.InformationMessage
 			return pos, token
 		end,
-	
+
 		--- Parse login acknowledgment tokens
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields			
+		-- @return token table containing token specific fields
 		[TokenType.LoginAcknowledgement] = function( data, pos )
 			local token = {}
 			local _
-			
+
 			token.type = TokenType.LoginAcknowledgement
 			pos, token.size, _, _, _, _, token.textlen = bin.unpack( "<SCCCSC", data, pos )
 			pos, token.text = bin.unpack("A" .. token.textlen * 2, data, pos)
@@ -1310,19 +1310,19 @@ Token =
 
 			return pos, token
 		end,
-	
+
 		--- Parse done tokens
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields			
+		-- @return token table containing token specific fields
 		[TokenType.Done] = function( data, pos )
 			local token = {}
-			
+
 			token.type = TokenType.Done
 			pos, token.flags, token.operation, token.rowcount = bin.unpack( "<SSI", data, pos )
-			
+
 			return pos, token
 		end,
 
@@ -1331,65 +1331,65 @@ Token =
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields				
+		-- @return token table containing token specific fields
 		[TokenType.DoneProc] = function( data, pos )
 			local token
 			pos, token = Token.Parse[TokenType.Done]( data, pos )
 			token.type = TokenType.DoneProc
-			
+
 			return pos, token
 		end,
 
-		
+
 		--- Parses a DoneInProc token recieved after executing a SP
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields				
+		-- @return token table containing token specific fields
 		[TokenType.DoneInProc] = function( data, pos )
 			local token
 			pos, token = Token.Parse[TokenType.Done]( data, pos )
 			token.type = TokenType.DoneInProc
-			
+
 			return pos, token
 		end,
-		
+
 		--- Parses a ReturnStatus token
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields	
+		-- @return token table containing token specific fields
 		[TokenType.ReturnStatus] = function( data, pos )
 			local token = {}
-			
+
 			pos, token.value = bin.unpack("<i", data, pos)
 			token.type = TokenType.ReturnStatus
 			return pos, token
 		end,
-		
+
 		--- Parses a OrderBy token
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields						
+		-- @return token table containing token specific fields
 		[TokenType.OrderBy] = function( data, pos )
 			local token = {}
-			
+
 			pos, token.size = bin.unpack("<S", data, pos)
 			token.type = TokenType.OrderBy
 			return pos + token.size, token
 		end,
 
-		
+
 		--- Parse TDS result tokens
 		--
 		-- @param data string containing "raw" data
 		-- @param pos number containing offset into data
 		-- @return pos number containing new offset after parse
-		-- @return token table containing token specific fields			
+		-- @return token table containing token specific fields
 		[TokenType.TDS7Results] = function( data, pos )
 			local token = {}
 			local _
@@ -1411,13 +1411,13 @@ Token =
 				colinfo.usertype = usertype
 				colinfo.flags = flags
 				colinfo.type = ttype
-				
+
 				table.insert( token.colinfo, colinfo )
 			end
 			return pos, token
 		end,
-		
-		
+
+
 		[TokenType.NTLMSSP_CHALLENGE] = function(data, pos)
 			local pos, len, ntlmssp, msgtype = bin.unpack("<SA8I", data, pos)
 			local NTLMSSP_CHALLENGE = 2
@@ -1425,19 +1425,19 @@ Token =
 			if ( ntlmssp ~= "NTLMSSP\0" or msgtype ~= NTLMSSP_CHALLENGE ) then
 				return -1, "Failed to process NTLMSSP Challenge"
 			end
-			
+
 			local ntlm_challenge = data:sub( 28, 35 )
 			pos = pos + len - 13
 			return pos, ntlm_challenge
 		end,
 	},
-	
+
 	--- Parses the first token at positions pos
 	--
 	-- @param data string containing "raw" data
 	-- @param pos number containing offset into data
 	-- @return pos number containing new offset after parse or -1 on error
-	-- @return token table containing token specific fields	or error message on error		
+	-- @return token table containing token specific fields	or error message on error
 	ParseToken = function( data, pos )
 		local ttype
 		pos, ttype = bin.unpack("C", data, pos)
@@ -1445,15 +1445,15 @@ Token =
 			stdnse.print_debug( 1, "%s: No parser for token type 0x%X", "MSSQL", ttype )
 			return -1, ("No parser for token type: 0x%X"):format( ttype )
 		end
-			
+
 		return Token.Parse[ttype](data, pos)
 	end,
-	
+
 }
 
 
 --- QueryPacket class
-QueryPacket = 
+QueryPacket =
 {
 	new = function(self,o)
 		o = o or {}
@@ -1461,23 +1461,23 @@ QueryPacket =
         self.__index = self
 		return o
     end,
-	
+
 	SetQuery = function( self, query )
 		self.query = query
 	end,
-	
+
 	--- Returns the query packet as string
 	--
 	-- @return string containing the authentication packet
 	ToString = function( self )
 		return PacketType.Query, Util.ToWideChar( self.query )
 	end,
-	
+
 }
 
 
 --- PreLoginPacket class
-PreLoginPacket = 
+PreLoginPacket =
 {
 	-- TDS pre-login option types
 	OPTION_TYPE = {
@@ -1488,8 +1488,8 @@ PreLoginPacket =
 		MARS = 0x04,
 		Terminator = 0xFF,
 	},
-	
-	
+
+
 	versionInfo = nil,
 	_requestEncryption = 0,
 	_instanceName = "",
@@ -1502,14 +1502,14 @@ PreLoginPacket =
         self.__index = self
 		return o
     end,
-	
+
 	--- Sets the client version (default = 9.00.1399.00)
 	--
 	-- @param versionInfo A SqlServerVersionInfo object with the client version information
 	SetVersion = function(self, versionInfo)
 		self._versionInfo = versionInfo
 	end,
-	
+
 	--- Sets whether to request encryption (default = false)
 	--
 	-- @param requestEncryption A boolean indicating whether encryption will be requested
@@ -1520,7 +1520,7 @@ PreLoginPacket =
 			self._requestEncryption = 0
 		end
 	end,
-	
+
 	--- Sets whether to request MARS support (default = undefined)
 	--
 	-- @param requestMars A boolean indicating whether MARS support will be requested
@@ -1534,11 +1534,11 @@ PreLoginPacket =
 
 	--- Sets the instance name of the target
 	--
-	-- @param instanceName A string containing the name of the instance	
+	-- @param instanceName A string containing the name of the instance
 	SetInstanceName = function(self, instanceName)
 		self._instanceName = instanceName or ""
 	end,
-	
+
 	--- Returns the pre-login packet as a byte string
 	--
 	-- @return byte string containing the pre-login packet
@@ -1552,7 +1552,7 @@ PreLoginPacket =
 			[PreLoginPacket.OPTION_TYPE.MARS] = 1,
 			[PreLoginPacket.OPTION_TYPE.Terminator] = 0,
 		}
-	
+
 		local data, optionLength, optionType = "", 0, 0
 		local offset = 1 -- Terminator
 		offset = offset + 5 -- Version
@@ -1560,41 +1560,41 @@ PreLoginPacket =
 		offset = offset + 5 -- InstOpt
 		offset = offset + 5 -- ThreadId
 		if self._requestMars then offset = offset + 3 end -- MARS
-		
+
 		if not self.versionInfo then
 			self.versionInfo = SqlServerVersionInfo:new()
 			self.versionInfo:SetVersionNumber( "9.00.1399.00" )
 		end
-		
+
 		optionType = PreLoginPacket.OPTION_TYPE.Version
 		optionLength = OPTION_LENGTH_CLIENT[ optionType ]
 		data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
 		offset = offset + optionLength
-		
+
 		optionType = PreLoginPacket.OPTION_TYPE.Encryption
 		optionLength = OPTION_LENGTH_CLIENT[ optionType ]
 		data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
 		offset = offset + optionLength
-		
+
 		optionType = PreLoginPacket.OPTION_TYPE.InstOpt
 		optionLength = #self._instanceName + 1 --(string length + null-terminator)
 		data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
 		offset = offset + optionLength
-		
+
 		optionType = PreLoginPacket.OPTION_TYPE.ThreadId
 		optionLength = OPTION_LENGTH_CLIENT[ optionType ]
 		data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
 		offset = offset + optionLength
-		
+
 		if self.requestMars then
 			optionType = PreLoginPacket.OPTION_TYPE.MARS
 			optionLength = OPTION_LENGTH_CLIENT[ optionType ]
 			data = data .. bin.pack( ">CSS", optionType, offset, optionLength )
 			offset = offset + optionLength
 		end
-		
+
 		data = data .. bin.pack( "C", PreLoginPacket.OPTION_TYPE.Terminator )
-		
+
 		-- Now that the pre-login headers are done, write the data
 		data = data .. bin.pack( ">CCSS", self.versionInfo.major, self.versionInfo.minor,
 					self.versionInfo.build, self.versionInfo.subBuild )
@@ -1604,12 +1604,12 @@ PreLoginPacket =
 		if self.requestMars then
 			data = data .. bin.pack( "C", self._requestMars )
 		end
-		
+
 		return PacketType.PreLogin, data
 	end,
-	
+
 	---	Reads a byte-string and creates a PreLoginPacket object from it. This is
-	--	intended to handle the server's response to a pre-login request. 
+	--	intended to handle the server's response to a pre-login request.
 	FromBytes = function( bytes )
 		local OPTION_LENGTH_SERVER = {
 			[PreLoginPacket.OPTION_TYPE.Version] = 6,
@@ -1619,13 +1619,13 @@ PreLoginPacket =
 			[PreLoginPacket.OPTION_TYPE.MARS] = 1,
 			[PreLoginPacket.OPTION_TYPE.Terminator] = 0,
 		}
-		
-		
+
+
 		local status, pos = false, 1
 		local preLoginPacket = PreLoginPacket:new()
-		
+
 		while true do
-		
+
 			local optionType, optionPos, optionLength, optionData, expectedOptionLength, _
 			pos, optionType = bin.unpack("C", bytes, pos)
 			if ( optionType == PreLoginPacket.OPTION_TYPE.Terminator ) then
@@ -1637,21 +1637,21 @@ PreLoginPacket =
 				stdnse.print_debug( 2, "%s: Unrecognized pre-login option type: %s", "MSSQL", optionType )
 				expectedOptionLength = -1
 			end
-			
+
 			pos, optionPos, optionLength = bin.unpack(">SS", bytes, pos)
 			if not (optionPos and optionLength) then
 				stdnse.print_debug( 2, "%s: Could not unpack optionPos and optionLength.", "MSSQL" )
 				return false, "Invalid pre-login response"
 			end
-			
+
 			optionPos = optionPos + 1 -- convert from 0-based index to 1-based index
 			if ( (optionPos + optionLength) > (#bytes + 1) ) then
 				stdnse.print_debug( 2, "%s: Pre-login response: pos+len for option type %s is beyond end of data.", "MSSQL", optionType )
 				stdnse.print_debug( 2, "%s:   (optionPos: %s) (optionLength: %s)", "MSSQL", optionPos, optionLength )
 				return false, "Invalid pre-login response"
 			end
-			
-			
+
+
 			if ( optionLength ~= expectedOptionLength and expectedOptionLength ~= -1 ) then
 				stdnse.print_debug( 2, "%s: Option data is incorrect size in pre-login response. ", "MSSQL" )
 				stdnse.print_debug( 2, "%s:   (optionType: %s) (optionLength: %s)", "MSSQL", optionType, optionLength )
@@ -1669,7 +1669,7 @@ PreLoginPacket =
 				minor = string.byte( optionData:sub( 2, 2 ) )
 				build = (string.byte( optionData:sub( 3, 3 ) ) * 256) + string.byte( optionData:sub( 4, 4 ) )
 				subBuild = (string.byte( optionData:sub( 5, 5 ) ) * 256) + string.byte( optionData:sub( 6, 6 ) )
-				
+
 				version = SqlServerVersionInfo:new()
 				version:SetVersion( major, minor, build, subBuild, "SSNetLib" )
 				preLoginPacket.versionInfo = version
@@ -1683,25 +1683,25 @@ PreLoginPacket =
 				preLoginPacket:SetRequestMars( bin.unpack( "C", optionData ) )
 			end
 		end
-		
+
 		return status, preLoginPacket
 	end,
 }
 
 
 --- LoginPacket class
-LoginPacket = 
+LoginPacket =
 {
-	
+
 	-- options_1 possible values
 	-- 0x80 enable warning messages if SET LANGUAGE issued
     -- 0x40 change to initial database must succeed
     -- 0x20 enable warning messages if USE <database> issued
     -- 0x10 enable BCP
-    
+
 	-- options_2 possible values
     -- 0x80 enable domain login security
-	-- 0x40 "USER_SERVER - reserved" 
+	-- 0x40 "USER_SERVER - reserved"
 	-- 0x20 user type is "DQ login"
 	-- 0x10 user type is "replication login"
 	-- 0x08 "fCacheConnect"
@@ -1731,14 +1731,14 @@ LoginPacket =
 	locale = "",
 	database = "master", --nil,
 	MAC = string.char(0x00,0x00,0x00,0x00,0x00,0x00), -- should contain client MAC, jTDS uses all zeroes
-	
+
 	new = function(self,o)
 		o = o or {}
         setmetatable(o, self)
         self.__index = self
 		return o
     end,
-	
+
 	--- Sets the username used for authentication
 	--
 	-- @param username string containing the username to user for authentication
@@ -1748,11 +1748,11 @@ LoginPacket =
 
 	--- Sets the password used for authentication
 	--
-	-- @param password string containing the password to user for authentication	
+	-- @param password string containing the password to user for authentication
 	SetPassword = function(self, password)
 		self.password = password
 	end,
-	
+
 	--- Sets the database used in authentication
 	--
 	-- @param database string containing the database name
@@ -1766,11 +1766,11 @@ LoginPacket =
 	SetServer = function(self, server)
 		self.server = server
 	end,
-	
+
 	SetDomain = function(self, domain)
 		self.domain = domain
 	end,
-	
+
 	--- Returns the authentication packet as string
 	--
 	-- @return string containing the authentication packet
@@ -1779,9 +1779,9 @@ LoginPacket =
 		local offset = 86
 		local ntlmAuth = not(not(self.domain))
 		local authLen = 0
-		
+
 		self.cli_pid = math.random(100000)
-		
+
 		self.length = offset + 2 * ( self.client:len() + self.app:len() + self.server:len() + self.library:len() + self.database:len() )
 
 		if ( ntlmAuth ) then
@@ -1791,15 +1791,15 @@ LoginPacket =
 		else
 			self.length = self.length + 2 * (self.username:len() + self.password:len())
 		end
-								
+
 		data = bin.pack("<IIIIII", self.length, self.version, self.size, self.cli_version, self.cli_pid, self.conn_id )
 		data = data .. bin.pack("CCCC", self.options_1, self.options_2, self.sqltype_flag, self.reserved_flag )
 		data = data .. bin.pack("<II", self.time_zone, self.collation )
-		
+
 		-- offsets begin
 		data = data .. bin.pack("<SS", offset, self.client:len() )
 		offset = offset + self.client:len() * 2
-		
+
 		if ( not(ntlmAuth) ) then
 			data = data .. bin.pack("<SS", offset, self.username:len() )
 
@@ -1810,28 +1810,28 @@ LoginPacket =
 			data = data .. bin.pack("<SS", offset, 0 )
 			data = data .. bin.pack("<SS", offset, 0 )
 		end
-		
+
 		data = data .. bin.pack("<SS", offset, self.app:len() )
 		offset = offset + self.app:len() * 2
-		
+
 		data = data .. bin.pack("<SS", offset, self.server:len() )
 		offset = offset + self.server:len() * 2
-		
+
 		-- Offset to unused placeholder (reserved for future use in TDS spec)
 		data = data .. bin.pack("<SS", 0, 0 )
 
 		data = data .. bin.pack("<SS", offset, self.library:len() )
 		offset = offset + self.library:len() * 2
-		
+
 		data = data .. bin.pack("<SS", offset, self.locale:len() )
 		offset = offset + self.locale:len() * 2
-		
+
 		data = data .. bin.pack("<SS", offset, self.database:len() )
 		offset = offset + self.database:len() * 2
 
 		-- client MAC address, hardcoded to 00:00:00:00:00:00
 		data = data .. bin.pack("A", self.MAC)
-		
+
 		-- offset to auth info
 		data = data .. bin.pack("<S", offset)
 		-- lenght of nt auth (should be 0 for sql auth)
@@ -1840,7 +1840,7 @@ LoginPacket =
 		data = data .. bin.pack("<S", self.length)
 		-- zero pad
 		data = data .. bin.pack("<S", 0)
-		
+
 		-- Auth info wide strings
 		data = data .. bin.pack("A", Util.ToWideChar(self.client) )
 		if ( not(ntlmAuth) ) then
@@ -1857,21 +1857,21 @@ LoginPacket =
 			local NTLMSSP_NEGOTIATE = 1
 			local flags = 0x0000b201
 			local workstation = ""
-			
+
 			data = data .. "NTLMSSP\0"
 			data = data .. bin.pack("<II", NTLMSSP_NEGOTIATE, flags)
 			data = data .. bin.pack("<SSI", #self.domain, #self.domain, 32)
 			data = data .. bin.pack("<SSI", #workstation, #workstation, 32)
 			data = data .. bin.pack("A", self.domain:upper())
 		end
-		
+
 		return PacketType.Login, data
 	end,
-	
+
 }
 
 NTAuthenticationPacket = {
-	
+
 	new = function(self, username, password, domain, nonce)
 		local o = {}
         setmetatable(o, self)
@@ -1882,24 +1882,24 @@ NTAuthenticationPacket = {
 		self.__index = self
 		return o
     end,
-	
+
 	ToString = function(self)
 		local ntlmssp = "NTLMSSP\0"
 		local NTLMSSP_AUTH = 3
 		local domain = Util.ToWideChar(self.domain:upper())
 		local user = Util.ToWideChar(self.username)
 		local hostname, sessionkey = "", ""
-		local flags = 0x00008201		
+		local flags = 0x00008201
 		local ntlm_response = Auth.NtlmResponse(self.password, self.nonce)
 		local lm_response = Auth.LmResponse(self.password, self.nonce)
-		
+
 		local domain_offset = 64
 		local username_offset = domain_offset + #domain
 		local lm_response_offset = username_offset + #user
 		local ntlm_response_offset = lm_response_offset + #lm_response
 		local hostname_offset = ntlm_response_offset + #ntlm_response
 		local sessionkey_offset = hostname_offset + #hostname
-		
+
 		local data = bin.pack("<AISSI", ntlmssp, NTLMSSP_AUTH, #lm_response, #lm_response, lm_response_offset)
 		data = data .. bin.pack("<SSI", #ntlm_response, #ntlm_response, ntlm_response_offset)
 		data = data .. bin.pack("<SSI", #domain, #domain, domain_offset)
@@ -1910,10 +1910,10 @@ NTAuthenticationPacket = {
 		data = data .. bin.pack("A", domain)
 		data = data .. bin.pack("A", user )
 		data = data .. lm_response .. ntlm_response
-		
+
 		return PacketType.NTAuthentication, data
 	end,
-	
+
 }
 
 -- Handles communication with SQL Server
@@ -1939,9 +1939,9 @@ TDSStream = {
         self.__index = self
 		return o
     end,
-    
+
     --- Establishes a connection to the SQL server.
-    --	
+    --
     --	@param self A mssql.Helper object
     --	@param instanceInfo	A SqlServerInstanceInfo object for the instance to
     --		connect to.
@@ -1957,14 +1957,14 @@ TDSStream = {
 		if ( connectionPreference and 'string' == type(connectionPreference) ) then
 			connectionPreference = { connectionPreference }
 		end
-		
+
 		local status, result, connectionType, errorMessage
 		stdnse.print_debug( 3, "%s: Connection preferences for %s: %s",
 			"MSSQL", instanceInfo:GetName(), stdnse.strjoin( ", ", connectionPreference ) )
-		
+
 		for _, connectionType in ipairs( connectionPreference ) do
     		if connectionType == "TCP" then
-    		
+
     			if not ( instanceInfo.port ) then
     				stdnse.print_debug( 3, "%s: Cannot connect to %s via TCP because port table is not set.",
     					"MSSQL", instanceInfo:GetName() )
@@ -1973,9 +1973,9 @@ TDSStream = {
     				status, result = self:Connect( instanceInfo.host, instanceInfo.port )
     				if status then return true end
     			end
-    			
+
     		elseif connectionType == "Named Pipes" or connectionType == "NP" then
-    		
+
     			if not ( instanceInfo.pipeName ) then
     				stdnse.print_debug( 3, "%s: Cannot connect to %s via named pipes because pipe name is not set.",
     					"MSSQL", instanceInfo:GetName() )
@@ -1984,30 +1984,30 @@ TDSStream = {
     				status, result = self:ConnectToNamedPipe( instanceInfo.host, instanceInfo.pipeName, smbOverrides )
     				if status then return true end
     			end
-    		
+
     		else
     			stdnse.print_debug( 1, "%s: Unknown connection preference: %s", "MSSQL", connectionType )
 				return false, ("ERROR: Unknown connection preference: %s"):format(connectionType)
     		end
-    	
-    		-- Handle any error messages 
+
+        -- Handle any error messages
     		if not status then
 				if errorMessage then
 					errorMessage = string.format( "%s, %s: %s", errorMessage, connectionType, result or "nil" )
 				else
 					errorMessage = string.format( "%s: %s", connectionType, result or "nil" )
-				end	
+				end
 			end
     	end
-    	
+
     	if not errorMessage then
 			errorMessage = string.format( "%s: None of the preferred connection types are available for %s\\%s",
     			"MSSQL", instanceInfo:GetName() )
 		end
-		
+
 		return false, errorMessage
 	end,
-    
+
     --- Establishes a connection to the SQL server
 	--
 	-- @param host A host table for the target host
@@ -2019,14 +2019,14 @@ TDSStream = {
 	-- @return error_message: an error message, or nil
 	ConnectToNamedPipe = function( self, host, pipePath, overrides )
 		if ( self._socket ) then return false, "Already connected via TCP" end
-		
+
 		if ( SCANNED_PORTS_ONLY and smb.get_port( host ) == nil ) then
 			stdnse.print_debug( 2, "%s: Connection disallowed: scanned-ports-only is set and no SMB port is available", "MSSQL" )
 			return false, "Connection disallowed: scanned-ports-only"
 		end
-	
+
 		pipePath = pipePath or "\\sql\\query"
-		
+
 		self._pipe = namedpipes.named_pipe:new()
 		local status, result = self._pipe:connect( host, pipePath, overrides )
 		if ( status ) then
@@ -2034,7 +2034,7 @@ TDSStream = {
 		else
 			self._pipe = nil
 		end
-		
+
 		return status, result
 	end,
 
@@ -2046,38 +2046,38 @@ TDSStream = {
 	-- @return result containing error message on failure
 	Connect = function( self, host, port )
 		if ( self._pipe ) then return false, "Already connected via named pipes" end
-		
+
 		if ( SCANNED_PORTS_ONLY and nmap.get_port_state( host, port ) == nil ) then
 			stdnse.print_debug( 2, "%s: Connection disallowed: scanned-ports-only is set and port %d was not scanned", "MSSQL", port.number )
 			return false, "Connection disallowed: scanned-ports-only"
 		end
-	
+
 		local status, result, lport, _
-		
+
 		self._socket = nmap.new_socket()
 
 		-- Set the timeout to something realistic for connects
 		self._socket:set_timeout( 5000 )
 		status, result = self._socket:connect(host, port)
-		
+
 		if ( status ) then
 			-- Sometimes a Query can take a long time to respond, so we set
 			-- the timeout to 30 seconds. This shouldn't be a problem as the
-			-- library attempt to decode the protocol and avoid reading past 
+			-- library attempt to decode the protocol and avoid reading past
 			-- the end of the input buffer. So the only time the timeout is
 			-- triggered is when waiting for a response to a query.
 			self._socket:set_timeout( MSSQL_TIMEOUT * 1000 )
-	
+
 			status, _, lport, _, _ = self._socket:get_info()
 		end
-		
+
 		if ( not(status) ) then
 			self._socket = nil
 			stdnse.print_debug( 2, "%s: Socket connection failed on %s:%s", "MSSQL", host.ip, port.number )
 			return false, "Socket connection failed"
 		end
 		self._name = string.format( "%s:%s", host.ip, port.number )
-		
+
 		return status, result
 	end,
 
@@ -2098,7 +2098,7 @@ TDSStream = {
 			return false, "Not connected"
 		end
 	end,
-	
+
 	--- Sets the timeout for communication over the socket
 	--
 	-- @param timeout number containing the new socket timeout in ms
@@ -2109,7 +2109,7 @@ TDSStream = {
 			return false, "Not connected"
 		end
 	end,
-	
+
 	--- Gets the name of the name pipe, or nil
 	GetNamedPipeName = function( self )
 		if ( self._pipe ) then
@@ -2118,7 +2118,7 @@ TDSStream = {
 			return nil
 		end
 	end,
-	
+
 	--- Send a TDS request to the server
 	--
 	-- @param packetType A <code>PacketType</code>, indicating the type of TDS
@@ -2129,11 +2129,11 @@ TDSStream = {
 	Send = function( self, packetType, packetData )
 		local packetLength = packetData:len() + 8 -- +8 for TDS header
 		local messageStatus, spid, window = 1, 0, 0
-	
-	
+
+
 		if ( packetType ~= PacketType.NTAuthentication ) then	self._packetId = self._packetId + 1 end
 		local assembledPacket = bin.pack(">CCSSCCA", packetType, messageStatus, packetLength, spid, self._packetId, window, packetData )
-		
+
 		if ( self._socket ) then
 			return self._socket:send( assembledPacket )
 		elseif ( self._pipe ) then
@@ -2155,18 +2155,18 @@ TDSStream = {
 		local status, result, errorDetail
 		local combinedData, readBuffer = "", "" -- the buffer is solely for the benefit of TCP connections
 		local tdsPacketAvailable = true
-		
+
 		if not ( self._socket or self._pipe ) then
 			return false, "Not connected"
 		end
-		
+
 		-- Large messages (e.g. result sets) can be split across multiple TDS
 		-- packets from the server (which could themselves each be split across
 		-- multiple TCP packets or SMB messages).
 		while ( tdsPacketAvailable ) do
 			local packetType, messageStatus, packetLength, spid, window
 			local pos = 1
-			
+
 			if ( self._socket ) then
 				-- If there is existing data in the readBuffer, see if there's
 				-- enough to read the TDS headers for the next packet. If not,
@@ -2183,26 +2183,26 @@ TDSStream = {
 				status, result, errorDetail = self._pipe:receive()
 				readBuffer = result
 			end
-			
+
 			if not ( status and readBuffer ) then return false, result, errorDetail end
-			
+
 			-- TDS packet validity check: packet at least as long as the TDS header
 			if ( readBuffer:len() < 8 ) then
 				stdnse.print_debug( 2, "%s: Receiving (%s): packet is invalid length", "MSSQL", self._name )
-				return false, "Server returned invalid packet" 
+				return false, "Server returned invalid packet"
 			end
-			
+
 			-- read in the TDS headers
 			pos, packetType, messageStatus, packetLength = bin.unpack(">CCS", readBuffer, pos )
 			pos, spid, self._packetId, window = bin.unpack(">SCC", readBuffer, pos )
-			
+
 			-- TDS packet validity check: packet type is Response (0x4)
 			if ( packetType ~= PacketType.Response ) then
 				stdnse.print_debug( 2, "%s: Receiving (%s): Expected type 0x4 (response), but received type 0x%x",
 					"MSSQL", self._name, packetType )
 				return false, "Server returned invalid packet"
 			end
-			
+
 			if ( self._socket ) then
 				-- If we didn't previously read in enough data to complete this
 				-- TDS packet, let's do so.
@@ -2212,8 +2212,8 @@ TDSStream = {
 					readBuffer = readBuffer .. result
 				end
 			end
-			
-			-- We've read in an apparently valid TDS packet 
+
+			-- We've read in an apparently valid TDS packet
 			local thisPacketData = readBuffer:sub( pos, packetLength )
 			-- Append its data to that of any previous TDS packets
 			combinedData = combinedData .. thisPacketData
@@ -2222,24 +2222,24 @@ TDSStream = {
 				-- so that we can use it in the next loop.
 				readBuffer = readBuffer:sub( packetLength + 1 )
 			end
-			
+
 			-- TDS packet validity check: packet length matches length from header
 			if ( packetLength ~= (thisPacketData:len() + 8) ) then
 				stdnse.print_debug( 2, "%s: Receiving (%s): Header reports length %d, actual length is %d",
 					"MSSQL", self._name, packetLength, thisPacketData:len()  )
-				return false, "Server returned invalid packet" 
+				return false, "Server returned invalid packet"
 			end
-			
+
 			-- Check the status flags in the TDS packet to see if the message is
-			-- continued in another TDS packet. 
-			tdsPacketAvailable = (bit.band( messageStatus, TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage) ~= 
+			-- continued in another TDS packet.
+			tdsPacketAvailable = (bit.band( messageStatus, TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage) ~=
 									TDSStream.MESSAGE_STATUS_FLAGS.EndOfMessage)
 		end
-		
+
 		-- return only the data section ie. without the headers
 		return status, combinedData
 	end,
-	
+
 }
 
 --- Helper class
@@ -2251,7 +2251,7 @@ Helper =
         self.__index = self
 		return o
     end,
-	
+
 	--- Establishes a connection to the SQL server
 	--
 	-- @param host table containing host information
@@ -2268,7 +2268,7 @@ Helper =
 
 		return true
 	end,
-	
+
 	--- Establishes a connection to the SQL server
 	--
 	-- @param host table containing host information
@@ -2285,7 +2285,7 @@ Helper =
 
 		return true
 	end,
-	
+
 	---	Returns true if discovery has been performed to detect
 	--	SQL Server instances on the given host
 	WasDiscoveryPerformed = function( host )
@@ -2293,13 +2293,13 @@ Helper =
 		mutex( "lock" )
 		nmap.registry.mssql = nmap.registry.mssql or {}
 		nmap.registry.mssql.discovery_performed = nmap.registry.mssql.discovery_performed or {}
-		
+
 		local wasPerformed = nmap.registry.mssql.discovery_performed[ host.ip ] or false
 		mutex( "done" )
-		
+
 		return wasPerformed
 	end,
-	
+
 	--- Adds an instance to the list of instances kept in the Nmap registry for
 	--	shared use by SQL Server scripts. If the registry already contains the
 	--	instance, any new information is merged into the existing instance info.
@@ -2308,11 +2308,11 @@ Helper =
 	--	will prevent duplicates, where possible.
 	AddOrMergeInstance = function( newInstance )
 		local instanceExists
-		
+
 		nmap.registry.mssql = nmap.registry.mssql or {}
 		nmap.registry.mssql.instances = nmap.registry.mssql.instances or {}
   		nmap.registry.mssql.instances[ newInstance.host.ip ] = nmap.registry.mssql.instances[ newInstance.host.ip ] or {}
-  		
+
   		for _, existingInstance in ipairs( nmap.registry.mssql.instances[ newInstance.host.ip ] ) do
   			if existingInstance == newInstance then
   				existingInstance:Merge( newInstance )
@@ -2320,15 +2320,15 @@ Helper =
   				break
   			end
   		end
-  		
+
   		if not instanceExists then
   			table.insert( nmap.registry.mssql.instances[ newInstance.host.ip ], newInstance )
   		end
 	end,
-	
+
 	---	Gets a table containing SqlServerInstanceInfo objects discovered on
 	--	the specified host (and port, if specified).
-	--	
+	--
 	--	@param host A host table for the target host
 	--	@param port (Optional) If omitted, all of the instances for the host
 	--		will be returned.
@@ -2337,7 +2337,7 @@ Helper =
 		nmap.registry.mssql = nmap.registry.mssql or {}
 		nmap.registry.mssql.instances = nmap.registry.mssql.instances or {}
 		nmap.registry.mssql.instances[ host.ip ] = nmap.registry.mssql.instances[ host.ip ] or {}
-  		
+
 		if ( not port ) then
 			local instances = nmap.registry.mssql.instances[ host.ip ]
 			if ( instances and #instances == 0 ) then instances = nil end
@@ -2349,7 +2349,7 @@ Helper =
 	  				return { instance }
 	  			end
 	  		end
-	
+
 			return nil
 		end
 	end,
@@ -2358,22 +2358,22 @@ Helper =
 	--	more (if <code>broadcast</code> is used) SQL Server Browser services.
 	--	Any discovered instances are returned, as well as being stored for use
 	--	by other scripts (see <code>mssql.Helper.GetDiscoveredInstances()</code>).
-	--	
+	--
 	--	@param host A host table for the target.
 	--	@param port (Optional) A port table for the target port. If this is nil,
-	--		the default SSRP port (UDP 1434) is used. 
+	--		the default SSRP port (UDP 1434) is used.
 	--	@param broadcast If true, this will be done with an SSRP broadcast, and
 	--		<code>host</code> should contain the broadcast specification (e.g.
 	--		ip = "255.255.255.255").
 	--	@return (status, result) If status is true, result is a table of
 	--		tables containing SqlServerInstanceInfo objects. The top-level table
 	--		is indexed by IP address. If status is false, result is an
-	--		error message. 
+	--		error message.
 	DiscoverBySsrp = function( host, port, broadcast )
-		
+
 		if broadcast then
 			local status, result = SSRP.DiscoverInstances_Broadcast( host, port )
-			
+
 			if not status then
 				return status, result
 			else
@@ -2387,12 +2387,12 @@ Helper =
 						end
 		  			end
 	  			end
-	  			
+
 				return true, result
 			end
 		else
 			local status, result = SSRP.DiscoverInstances( host, port )
-			
+
 			if not status then
 				return status, result
 			else
@@ -2404,7 +2404,7 @@ Helper =
 						nmap.set_port_version( host, instance.port)
 					end
 	  			end
-	  			
+
 	  			local instances_all = {}
 				instances_all[ host.ip ] = result
 				return true, instances_all
@@ -2413,7 +2413,7 @@ Helper =
 	end,
 
 	--- Attempts to discover a SQL Server instance listening on the specified
-	--	port. If an instance is discovered, it is returned, as well as being 
+	--	port. If an instance is discovered, it is returned, as well as being
 	--	stored for use by other scripts (see <code>mssql.Helper.GetDiscoveredInstances()</code>).
 	--
 	--	@param host A host table for the target.
@@ -2429,7 +2429,7 @@ Helper =
 			instance =  SqlServerInstanceInfo:new()
 			instance.host = host
 			instance.port = port
-			
+
 			status, version = Helper.GetInstanceVersion( instance )
 			if ( status ) then
 				Helper.AddOrMergeInstance( instance )
@@ -2444,7 +2444,7 @@ Helper =
 				end
 			end
 		end
-		
+
 		return (instance ~= nil), { instance }
 	end,
 
@@ -2465,27 +2465,27 @@ Helper =
 		}
 		local tdsStream = TDSStream:new()
 		local status, result, instances_host
-		
+
 		for _, pipeSubPath in ipairs( defaultPipes ) do
 			status, result = tdsStream:ConnectToNamedPipe( host, pipeSubPath, nil )
-			
+
 			if status then
 				instances_host = {}
 				local instance = SqlServerInstanceInfo:new()
 				instance.pipeName = tdsStream:GetNamedPipeName()
 				tdsStream:Disconnect()
 				instance.host = host
-				
+
 				Helper.AddOrMergeInstance( instance )
 				table.insert( instances_host, instance )
 			else
 				stdnse.print_debug( 3, "DiscoverBySmb \n pipe: %s\n result: %s", pipeSubPath, tostring( result ) )
 			end
 		end
-		
+
 		return (instances_host ~= nil), instances_host
 	end,
-	
+
 	--- Attempts to discover SQL Server instances by a variety of means.
 	--	This function calls the three DiscoverBy functions, which perform the
 	--	actual discovery. Any discovered instances can be retrieved using
@@ -2496,10 +2496,10 @@ Helper =
 		nmap.registry.mssql = nmap.registry.mssql or {}
 		nmap.registry.mssql.discovery_performed = nmap.registry.mssql.discovery_performed or {}
 		nmap.registry.mssql.discovery_performed[ host.ip ] = false
-		
+
 		local mutex = nmap.mutex( "discovery_performed for " .. host.ip )
 		mutex( "lock" )
-		
+
 		local sqlDefaultPort = nmap.get_port_state( host, {number = 1433, protocol = "tcp"} ) or {number = 1433, protocol = "tcp"}
 		local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} ) or {number = 1434, protocol = "udp"}
 		local smbPort
@@ -2512,7 +2512,7 @@ Helper =
 		end
 		-- if the user has specified ports, we'll check those too
 		local targetInstancePorts = stdnse.get_script_args( "mssql.instance-port" )
-		
+
 		if ( sqlBrowserPort and sqlBrowserPort.state ~= "closed" ) then
 			Helper.DiscoverBySsrp( host, sqlBrowserPort )
 		end
@@ -2531,11 +2531,11 @@ Helper =
 				Helper.DiscoverByTcp( host, {number = portNumber, protocol = "tcp"} )
 			end
 		end
-		
+
 		nmap.registry.mssql.discovery_performed[ host.ip ] = true
 		mutex( "done" )
 	end,
-	
+
 	--- Returns all of the credentials available for the target instance,
 	--	including any set by the <code>mssql.username</code> and <code>mssql.password</code>
 	--	script arguments.
@@ -2550,14 +2550,14 @@ Helper =
 			break
 		end
 		if ( not credsExist ) then credentials = nil end
-		
+
 		if ( stdnse.get_script_args( "mssql.username" ) ) then
 			credentials = credentials or {}
 			local usernameArg = stdnse.get_script_args( "mssql.username" )
 			local passwordArg = stdnse.get_script_args( "mssql.password" ) or ""
 			credentials[ usernameArg ] = passwordArg
 		end
-		
+
 		return credentials
 	end,
 
@@ -2569,7 +2569,7 @@ Helper =
 	--		password is used.)
 	--	* If the password for the "sa" account has been discovered (e.g. by the
 	--		<code>ms-sql-empty-password</code> or <code>ms-sql-brute</code>
-	--		scripts), these credentials are used. 
+	--		scripts), these credentials are used.
 	--	* If other credentials have been discovered, the first of these in the
 	--		table are used.
 	--	* Otherwise, nil is returned.
@@ -2577,11 +2577,11 @@ Helper =
 	--	@param instanceInfo A SqlServerInstanceInfo object for the target instance
 	--	@return (username, password)
 	GetLoginCredentials = function( instanceInfo )
-	
+
 		-- First preference goes to any user-specified credentials
 		local username = stdnse.get_script_args( "mssql.username" )
 		local password = stdnse.get_script_args( "mssql.password" ) or ""
-		
+
 		-- Otherwise, use any valid credentials that have been discovered (e.g. by ms-sql-brute)
 		if ( not(username) and instanceInfo.credentials ) then
 			-- Second preference goes to the "sa" account
@@ -2597,7 +2597,7 @@ Helper =
 				end
 			end
 		end
-		
+
 		return username, password
 	end,
 
@@ -2609,13 +2609,13 @@ Helper =
 		if ( not(self.stream) ) then
 			return false, "Not connected to server"
 		end
-		
+
 		self.stream:Disconnect()
 		self.stream = nil
-		
+
 		return true
 	end,
-	
+
 	--- Authenticates to SQL Server. If login fails, one of the following error
 	--  messages will be returned:
 	--  * "Password is expired"
@@ -2636,7 +2636,7 @@ Helper =
 		local servername = servername or "DUMMY"
 		local pos = 1
 		local ntlmAuth = false
-		
+
 		if ( not self.stream ) then
 			return false, "Not connected to server"
 		end
@@ -2645,7 +2645,7 @@ Helper =
 		loginPacket:SetPassword(password)
 		loginPacket:SetDatabase(database)
 		loginPacket:SetServer(servername)
-		
+
 		local domain = stdnse.get_script_args("mssql.domain")
 		if (domain) then
 			if ( not(HAVE_SSL) ) then return false, "mssql: OpenSSL not present" end
@@ -2654,9 +2654,9 @@ Helper =
 			if (domain == 1 or domain == true ) then
 				domain = "."
 			end
-			loginPacket:SetDomain(domain) 
+			loginPacket:SetDomain(domain)
 		end
-		
+
 		status, result = self.stream:Send( loginPacket:ToString() )
 		if ( not(status) ) then
 			return false, result
@@ -2668,7 +2668,7 @@ Helper =
 			-- disconnect the pipe if the login attempt failed (this only seems
 			-- to happen with non-"sa") accounts. At this point, having
 			-- successfully connected and sent a message, we can be reasonably
-			-- comfortable that a disconnected pipe indicates a failed login. 
+			-- comfortable that a disconnected pipe indicates a failed login.
 			if ( errorDetail == "NT_STATUS_PIPE_DISCONNECTED" ) then
 				return false, "Bad username or password", LoginErrorType.InvalidUsernameOrPassword
 			end
@@ -2690,7 +2690,7 @@ Helper =
 			if ( -1 == pos ) then
 				return false, token
 			end
-	
+
 			if ( token.type == TokenType.ErrorMessage ) then
 				local errorMessageLookup = {
 					[LoginErrorType.AccountLockedOut] = "Account is locked out",
@@ -2700,7 +2700,7 @@ Helper =
 					[LoginErrorType.PasswordMustChange] = "Must change password at next logon",
 				}
 				local errorMessage = errorMessageLookup[ token.errno ] or string.format( "Login Failed (%s)", tostring(token.errno) )
-				
+
 				return false, errorMessage, token.errno
 			elseif ( token.type == TokenType.LoginAcknowledgement ) then
 				return true, "Login Success"
@@ -2709,11 +2709,11 @@ Helper =
 
 		return false, "Failed to process login response"
 	end,
-	
+
 	--- Authenticates to SQL Server, using the credentials returned by
 	--  Helper.GetLoginCredentials(). If the login is rejected by the server,
-	--  the error code will be returned, as a number in the form of a 
-	--  <code>mssql.LoginErrorType</code> (for which error messages can be 
+	--  the error code will be returned, as a number in the form of a
+	--  <code>mssql.LoginErrorType</code> (for which error messages can be
 	--  looked up in <code>mssql.LoginErrorMessage</code>).
 	--
 	-- @param instanceInfo a SqlServerInstanceInfo object for the instance to log into
@@ -2727,10 +2727,10 @@ Helper =
 		if ( not username ) then
 			return false, "No login credentials"
 		end
-		
+
 		return self:Login( username, password, database, servername )
 	end,
-	
+
 	--- Performs a SQL query and parses the response
 	--
 	-- @param query string containing the SQL query
@@ -2738,16 +2738,16 @@ Helper =
 	-- @return table containing a table of columns for each row
 	--         or error message on failure
 	Query = function( self, query )
-	
+
 		local queryPacket = QueryPacket:new()
 		local status, result, data, token, colinfo, rows
 		local pos = 1
-			
+
 		if ( nil == self.stream ) then
 			return false, "Not connected to server"
 		end
-	
-		queryPacket:SetQuery( query )		
+
+		queryPacket:SetQuery( query )
 		status, result = self.stream:Send( queryPacket:ToString() )
 		if ( not(status) ) then
 			return false, result
@@ -2761,11 +2761,11 @@ Helper =
 		-- Iterate over tokens until we get to a rowtag
 		while( pos < data:len() ) do
 			local rowtag = select(2, bin.unpack("C", data, pos))
-			
+
 			if ( rowtag == TokenType.Row ) then
 				break
 			end
-			
+
 			pos, token = Token.ParseToken( data, pos )
 			if ( -1 == pos ) then
 				return false, token
@@ -2779,7 +2779,7 @@ Helper =
 
 
 		rows = {}
-	
+
 		while(true) do
 			local rowtag
 			pos, rowtag = bin.unpack("C", data, pos )
@@ -2790,10 +2790,10 @@ Helper =
 
 			if ( rowtag == TokenType.Row and colinfo and #colinfo > 0 ) then
 				local columns = {}
-				
+
 				for i=1, #colinfo do
 					local val
-				
+
 					if ( ColumnData.Parse[colinfo[i].type] ) then
 						if not ( colinfo[i].type == 106 or colinfo[i].type == 108) then
 							pos, val = ColumnData.Parse[colinfo[i].type](data, pos)
@@ -2813,14 +2813,14 @@ Helper =
 				table.insert(rows, columns)
 			end
 		end
-		
+
 		result = {}
 		result.rows = rows
 		result.colinfo = colinfo
-		
+
 		return true, result
 	end,
-	
+
 	--- Attempts to connect to a SQL Server instance listening on a TCP port in
 	--  order to determine the version of the SSNetLib DLL, which is an
 	--  authoritative version number for the SQL Server instance itself.
@@ -2829,29 +2829,29 @@ Helper =
 	-- @return status true on success, false on failure
 	-- @return versionInfo an instance of mssql.SqlServerVersionInfo, or nil
 	GetInstanceVersion = function( instanceInfo )
-	
+
 		if ( not instanceInfo.host or not (instanceInfo:HasNetworkProtocols()) ) then return false, nil end
-		
+
 		local status, response, version
 		local tdsStream = TDSStream:new()
 
 		status, response = tdsStream:ConnectEx( instanceInfo )
-		
+
 		if ( not status ) then
 			stdnse.print_debug( 2, "%s: Connection to %s failed: %s", "MSSQL", instanceInfo:GetName(), response or "" )
 			return false, "Connect failed"
 		end
-		
+
 		local preLoginRequest = PreLoginPacket:new()
 		preLoginRequest:SetInstanceName( instanceInfo.instanceName )
-		
+
 		tdsStream:SetTimeout( 5000 )
 		tdsStream:Send( preLoginRequest:ToBytes() )
-		
+
 		-- read in any response we might get
 		status, response = tdsStream:Receive()
 		tdsStream:Disconnect()
-		
+
 		if status then
 			local preLoginResponse
 			status, preLoginResponse = PreLoginPacket.FromBytes( response )
@@ -2866,10 +2866,10 @@ Helper =
 			stdnse.print_debug( 2, "%s: Receive for %s failed: %s", "MSSQL", instanceInfo:GetName(), response or "" )
 			return false, "Receive failed"
 		end
-		
+
 		return status, version
 	end,
-	
+
 	--- Gets a table containing SqlServerInstanceInfo objects for the instances
 	--	that should be run against, based on the script-args (e.g. <code>mssql.instance</code>)
 	--
@@ -2883,7 +2883,7 @@ Helper =
 		if ( port ) then
 			local status = true
 			local instance = Helper.GetDiscoveredInstances( host, port )
-			
+
 			if ( not instance ) then
 				status, instance = Helper.DiscoverByTcp( host, port )
 			end
@@ -2896,29 +2896,29 @@ Helper =
 			local targetInstanceNames = stdnse.get_script_args( "mssql.instance-name" )
 			local targetInstancePorts = stdnse.get_script_args( "mssql.instance-port" )
 			local targetAllInstances = stdnse.get_script_args( "mssql.instance-all" )
-			
+
 			if ( targetInstanceNames and targetInstancePorts ) then
 				return false, "Connections can be made either by instance name or port."
 			end
-			
+
 			if ( targetAllInstances and ( targetInstanceNames or targetInstancePorts ) ) then
 				return false, "All instances cannot be specified together with an instance name or port."
 			end
-			
+
 			if ( not (targetInstanceNames or targetInstancePorts or targetAllInstances) ) then
 				return false, "No instance(s) specified."
 			end
-			
+
 			if ( not Helper.WasDiscoveryPerformed( host ) ) then
 				stdnse.print_debug( 2, "%s: Discovery has not been performed prior to GetTargetInstances() call. Performing discovery now.", "MSSQL" )
 				Helper.Discover( host )
 			end
-			
+
 			local instanceList = Helper.GetDiscoveredInstances( host )
 			if ( not instanceList ) then
 				return false, "No instances found on target host"
 			end
-			
+
 			local targetInstances = {}
 			if ( targetAllInstances ) then
 				targetInstances = instanceList
@@ -2935,8 +2935,8 @@ Helper =
 					end
 				end
 				targetInstanceNames = temp
-				
-				-- Do the same for the target ports 
+
+				-- Do the same for the target ports
 				temp = {}
 				if ( targetInstancePorts ) then
 					if ( type( targetInstancePorts ) == "string" ) then
@@ -2948,7 +2948,7 @@ Helper =
 					end
 				end
 				targetInstancePorts = temp
-				
+
 				for _, instance in ipairs( instanceList ) do
 					if ( instance.instanceName and targetInstanceNames[ string.upper( instance.instanceName ) ] ) then
 						table.insert( targetInstances, instance )
@@ -2957,7 +2957,7 @@ Helper =
 					end
 				end
 			end
-			
+
 			if ( #targetInstances > 0 ) then
 				return true, targetInstances
 			else
@@ -2965,7 +2965,7 @@ Helper =
 			end
 		end
 	end,
-	
+
 	--- Queries the SQL Browser service for the DAC port of the specified instance
 	--  The DAC (Dedicated Admin Connection) port allows DBA's to connect to
 	--  the database when normal connection attempts fail, for example, when
@@ -2981,12 +2981,12 @@ Helper =
 		if ( not(socket:connect(host, 1434, "udp")) ) then
 			return false, "Failed to connect to sqlbrowser service"
 		end
-		
+
 		if ( not(socket:send(bin.pack("Hz", "0F01", instanceName))) ) then
 			socket:close()
 			return false, "Failed to send request to sqlbrowser service"
 		end
-		
+
 		local status, data = socket:receive_buf(match.numbytes(6), true)
 		if ( not(status) ) then
 			socket:close()
@@ -2999,7 +2999,7 @@ Helper =
 		end
 		return select(2, bin.unpack("<S", data, 5))
 	end,
-	
+
 	---	Returns a hostrule for standard SQL Server scripts, which will return
 	--	true if one or more instances have been targeted with the <code>mssql.instance</code>
 	--	script argument. However, if a previous script has failed to find any
@@ -3020,8 +3020,8 @@ Helper =
 			end
 		end
 	end,
-	
-	
+
+
 	---	Returns a portrule for standard SQL Server scripts, which will run return
 	--	true if BOTH of the following conditions are met:
 	--	* The port has been identified as "ms-sql-s"
@@ -3030,7 +3030,7 @@ Helper =
 	--	@return A portrule function (use as <code>portrule = mssql.GetPortrule_Standard()</code>)
 	GetPortrule_Standard = function()
 		return function( host, port )
-			return ( shortport.service( "ms-sql-s" )(host, port) and 
+			return ( shortport.service( "ms-sql-s" )(host, port) and
 				 stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) == nil)
 		end
 	end,
@@ -3038,7 +3038,7 @@ Helper =
 
 
 Auth = {
-	
+
 	--- Encrypts a password using the TDS7 *ultra secure* XOR encryption
 	--
 	-- @param password string containing the password to encrypt
@@ -3046,7 +3046,7 @@ Auth = {
 	TDS7CryptPass = function(password)
 		local xormask = 0x5a5a
 		local result = ""
-		
+
 		for i=1, password:len() do
 			local c = bit.bxor( string.byte( password:sub( i, i ) ), xormask )
 			local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
@@ -3055,7 +3055,7 @@ Auth = {
 		end
 		return result
 	end,
-	
+
 	LmResponse = function( password, nonce )
 
 		if ( not(HAVE_SSL) ) then
@@ -3094,23 +3094,23 @@ Auth = {
 		result = openssl.encrypt("DES", key1, nil, nonce) .. openssl.encrypt("DES", key2, nil, nonce) .. openssl.encrypt("DES", key3, nil, nonce)
 		return result
 	end,
-	
+
 	NtlmResponse = function( password, nonce )
-		local lm_response, ntlm_response, mac_key = smbauth.get_password_response(nil, 
-			nil, 
-			nil, 
-			password, 
-			nil, 
-			"v1", 
-			nonce, 
+		local lm_response, ntlm_response, mac_key = smbauth.get_password_response(nil,
+			nil,
+			nil,
+			password,
+			nil,
+			"v1",
+			nonce,
 			false
 		)
 		return ntlm_response
-	end,	
+	end,
 }
 
 --- "static" Utility class containing mostly conversion functions
-Util = 
+Util =
 {
 	--- Converts a string to a wide string
 	--
@@ -3120,8 +3120,8 @@ Util =
 	ToWideChar = function( str )
 		return str:gsub("(.)", "%1" .. string.char(0x00) )
 	end,
-	
-	
+
+
 	--- Concerts a wide string to string
 	--
 	-- @param wstr containing the wide string to convert
@@ -3136,7 +3136,7 @@ Util =
 		end
 		return str
 	end,
-	
+
 	--- Takes a table as returned by Query and does some fancy formatting
 	--  better suitable for <code>stdnse.output_result</code>
 	--
@@ -3150,7 +3150,7 @@ Util =
 		if ( not(tbl) ) then
 			return
 		end
-		
+
 		if ( with_headers and tbl.rows and #tbl.rows > 0 ) then
 			local headers
 			for k, v in pairs( tbl.colinfo ) do
@@ -3161,7 +3161,7 @@ Util =
 			headers = headers:gsub("[^%s]", "=")
 			table.insert( new_tbl, headers )
 		end
-		
+
 		for _, v in ipairs( tbl.rows ) do
 			table.insert( new_tbl, stdnse.strjoin("\t", v) )
 		end

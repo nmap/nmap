@@ -12,7 +12,7 @@ Creates a reverse index at the end of scan output showing which hosts run a part
 --
 -- @output
 -- Post-scan script results:
--- | reverse-index: 
+-- | reverse-index:
 -- |   22/tcp: 192.168.0.60
 -- |   23/tcp: 192.168.0.100
 -- |   80/tcp: 192.168.0.70
@@ -22,7 +22,7 @@ Creates a reverse index at the end of scan output showing which hosts run a part
 --
 -- @args reverse-index.mode the output display mode, can be either horizontal
 --       or vertical (default: horizontal)
--- 
+--
 
 -- Version 0.1
 -- Created 11/22/2011 - v0.1 - created by Patrik Karlsson
@@ -56,7 +56,7 @@ end
 --
 -- Shows an index similar to the following one
 -- Post-scan script results:
--- | reverse-index: 
+-- | reverse-index:
 -- |   tcp/22
 -- |     192.168.0.60
 -- |   tcp/23
@@ -81,7 +81,7 @@ local function createVerticalResults(db)
 			table.sort(result_entries)
 			result_entries.name = ("%d/%s"):format(port, proto)
 			table.insert(results, result_entries)
-			table.sort(results, 
+			table.sort(results,
 				function(a,b)
 			 		local a_port, a_proto = a.name:match("^(%d+)/(%w*)")
 					local b_port, b_proto = b.name:match("^(%d+)/(%w*)")
@@ -90,7 +90,7 @@ local function createVerticalResults(db)
 					else
 						return a_proto < b_proto
 					end
-				end 
+				end
 			)
 		end
 	end
@@ -99,7 +99,7 @@ end
 
 --
 -- Shows an index similar to the following one
--- | reverse-index: 
+-- | reverse-index:
 -- |   tcp/22: 192.168.0.60
 -- |   tcp/23: 192.168.0.100
 -- |   tcp/80: 192.168.0.70
@@ -108,7 +108,7 @@ end
 -- |_  udp/5353: 192.168.0.105, 192.168.0.70, 192.168.0.60, 192.168.0.1
 local function createHorizontalResults(db)
 	local results = {}
-	
+
 	for proto, ports in pairs(db) do
 		for port, entries in pairs(ports) do
 			local result_entries = {}
@@ -118,7 +118,7 @@ local function createHorizontalResults(db)
 			local ips = stdnse.strjoin(", ", result_entries)
 			local str = ("%d/%s: %s"):format(port, proto, ips)
 			table.insert(results, str)
-			table.sort(results, 
+			table.sort(results,
 				function(a,b)
 			 		local a_port, a_proto = a:match("^(%d+)/(%w*):")
 					local b_port, b_proto = b:match("^(%d+)/(%w*):")
@@ -127,11 +127,11 @@ local function createHorizontalResults(db)
 					else
 						return a_proto < b_proto
 					end
-				end 
+				end
 			)
 		end
 	end
-	return results	
+	return results
 end
 
 postaction = function()
@@ -139,10 +139,10 @@ postaction = function()
 	if ( db == nil ) then
 		return false
 	end
-  
+
 	local results
 	local mode = stdnse.get_script_args("reverse-index.mode") or "horizontal"
-	
+
 	if ( mode == 'horizontal' ) then
 		results = createHorizontalResults(db)
 	else

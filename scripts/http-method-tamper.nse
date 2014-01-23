@@ -1,15 +1,15 @@
 description = [[
-Attempts to bypass password protected resources (HTTP 401 status) by performing HTTP verb tampering. 
-If an array of paths to check is not set, it will crawl the web server and perform the check against any 
+Attempts to bypass password protected resources (HTTP 401 status) by performing HTTP verb tampering.
+If an array of paths to check is not set, it will crawl the web server and perform the check against any
 password protected resource that it finds.
 
 The script determines if the protected URI is vulnerable by performing HTTP verb tampering and monitoring
- the status codes. First, it uses a HEAD request, then a POST request and finally a random generated string 
+ the status codes. First, it uses a HEAD request, then a POST request and finally a random generated string
 ( This last one is useful when web servers treat unknown request methods as a GET request. This is the case
  for PHP servers ).
 
-If the table <code>paths</code> is set, it will attempt to access the given URIs. Otherwise, a web crawler 
-is initiated to try to find protected resources. Note that in a PHP environment with .htacess files you need to specify a 
+If the table <code>paths</code> is set, it will attempt to access the given URIs. Otherwise, a web crawler
+is initiated to try to find protected resources. Note that in a PHP environment with .htacess files you need to specify a
 path to a file rather than a directory to find misconfigured .htaccess files.
 
 References:
@@ -26,20 +26,20 @@ References:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-method-tamper: 
+-- | http-method-tamper:
 -- |   VULNERABLE:
 -- |   Authentication bypass by HTTP verb tampering
 -- |     State: VULNERABLE (Exploitable)
 -- |     Description:
--- |       This web server contains password protected resources vulnerable to authentication bypass 
+-- |       This web server contains password protected resources vulnerable to authentication bypass
 -- |       vulnerabilities via HTTP verb tampering. This is often found in web servers that only limit access to the
 -- |        common HTTP methods and in misconfigured .htaccess files.
--- |              
+-- |
 -- |     Extra information:
--- |       
+-- |
 -- |   URIs suspected to be vulnerable to HTTP verb tampering:
 -- |     /method-tamper/protected/pass.txt [POST]
--- |   
+-- |
 -- |     References:
 -- |       http://www.imperva.com/resources/glossary/http_verb_tampering.html
 -- |       http://www.mkit.com.ar/labs/htexploit/
@@ -77,11 +77,11 @@ local function probe_http_verbs(host, port, uri)
   local head_req = http.head(host, port, uri)
   if head_req and head_req.status ~= 401 then
     return true, "HEAD"
-  end 
+  end
   local post_req = http.post(host, port, uri)
   if post_req and post_req.status ~= 401 then
     return true, "POST"
-  end 
+  end
   --With a random generated verb we look for 400 and 501 status
   local random_verb_req = http.generic_request(host, port, stdnse.generate_random_string(4), uri)
   local retcodes = {
@@ -91,8 +91,8 @@ local function probe_http_verbs(host, port, uri)
   }
   if random_verb_req and not retcodes[random_verb_req.status] then
     return true, "GENERIC"
-  end 
-  
+  end
+
   return false
 end
 
@@ -106,7 +106,7 @@ action = function(host, port)
        title = 'Authentication bypass by HTTP verb tampering',
        state = vulns.STATE.NOT_VULN,
        description = [[
-This web server contains password protected resources vulnerable to authentication bypass 
+This web server contains password protected resources vulnerable to authentication bypass
 vulnerabilities via HTTP verb tampering. This is often found in web servers that only limit access to the
  common HTTP methods and in misconfigured .htaccess files.
        ]],
@@ -143,7 +143,7 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
         end
       end
     end
-  else 
+  else
   -- Paths were set, check them and exit. No crawling here.
 
     -- convert single string entry to table
@@ -161,7 +161,7 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
           table.insert(vuln_uris, path..string.format(" [%s]", probe_type))
          end
       end
-    
+
     end
   end
 

@@ -19,7 +19,7 @@ command packet and parses the response.
 -- |  Server Platform: QDB2/SUN
 -- |  Instance Name:   db2inst1
 -- |_ External Name:   db2inst1db2agent00002B430
-  
+
 author = "Patrik Karlsson"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -48,7 +48,7 @@ local function parseVersion( server_version )
 	if pfx == "SQL" or pfx == "IFX" then
 		local major_version = string.sub(server_version,4,5)
 
-		-- strip the leading 0 from the major version, for consistency with 
+		-- strip the leading 0 from the major version, for consistency with
 		-- nmap-service-probes results
 		if string.sub(major_version,1,1) == "0" then
 			major_version = string.sub(major_version,2)
@@ -59,7 +59,7 @@ local function parseVersion( server_version )
 	elseif( pfx == "CSS" ) then
 		return server_version:match("%w+/(.*)")
 	end
-	
+
 	return server_version
 end
 
@@ -68,7 +68,7 @@ action = function( host, port )
 	local helper = drda.Helper:new()
 	local status, response
 	local results = {}
-	
+
 	status, response = helper:connect(host, port)
 	if( not(status) ) then
 		return response
@@ -78,7 +78,7 @@ action = function( host, port )
 	if( not(status) ) then
 		return response
 	end
-	
+
 	helper:close()
 
 	-- Set port information
@@ -102,13 +102,13 @@ action = function( host, port )
 	end
 	nmap.set_port_state(host, port, "open")
 	if response.srvclass ~= nil then port.version.extrainfo = response.srvclass   end
-	
+
 	nmap.set_port_version(host, port)
-	
+
 	-- Generate results
 	table.insert( results, ("Server Platform: %s"):format( response.srvclass ) )
 	table.insert( results, ("Instance Name: %s"):format( response.srvname ) )
 	table.insert( results, ("External Name: %s"):format( response.extname ) )
-	
+
 	return stdnse.format_output( true, results )
 end

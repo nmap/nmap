@@ -5,7 +5,7 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Attempts to retrieve the model, firmware version, and enabled services from a 
+Attempts to retrieve the model, firmware version, and enabled services from a
 QNAP Network Attached Storage (NAS) device.
 ]]
 
@@ -16,7 +16,7 @@ QNAP Network Attached Storage (NAS) device.
 -- @output
 -- PORT   STATE SERVICE   REASON
 -- 443/tcp open  https   syn-ack
--- | http-qnap-nas-info: 
+-- | http-qnap-nas-info:
 -- |   Device Model: TS-859
 -- |   Firmware Version: 3.2.5
 -- |   Firmware Build: 0410T

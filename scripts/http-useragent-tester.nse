@@ -10,7 +10,7 @@ Checks if various crawling ultities are allowed by the host.
 -- redirected to a page different than a (valid) browser request would be, that
 -- means that this ultity is banned.
 --
--- @args http-useragent-tester.useragents A table with more User-Agent headers. 
+-- @args http-useragent-tester.useragents A table with more User-Agent headers.
 --       Default: nil
 --
 -- @output
@@ -84,31 +84,31 @@ end
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
-action = function(host, port) 
+action = function(host, port)
 
-    local moreagents = stdnse.get_script_args("http-useragent-tester.useragents") or nil 
+    local moreagents = stdnse.get_script_args("http-useragent-tester.useragents") or nil
     local newtargets = stdnse.get_script_args("newtargets") or nil
 
     -- We don't crawl any site. We initialize a crawler to use its iswithinhost method.
     local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME } )
 
     local HTTPlibs = {"libwww",
-                "lwp-trivial", 
-                "libcurl-agent/1.0", 
-                "PHP/", 
-                "Python-urllib/2.5", 
-                "GT::WWW", 
-                "Snoopy", 
-                "MFC_Tear_Sample", 
-                "HTTP::Lite", 
-                "PHPCrawl", 
-                "URI::Fetch", 
-                "Zend_Http_Client", 
-                "http client", 
-                "PECL::HTTP", 
-                "Wget/1.13.4 (linux-gnu)", 
+                "lwp-trivial",
+                "libcurl-agent/1.0",
+                "PHP/",
+                "Python-urllib/2.5",
+                "GT::WWW",
+                "Snoopy",
+                "MFC_Tear_Sample",
+                "HTTP::Lite",
+                "PHPCrawl",
+                "URI::Fetch",
+                "Zend_Http_Client",
+                "http client",
+                "PECL::HTTP",
+                "Wget/1.13.4 (linux-gnu)",
                 "WWW-Mechanize/1.34"
-                } 
+                }
 
     if moreagents then
        for _, l in ipairs(moreagents) do
@@ -118,19 +118,19 @@ action = function(host, port)
 
     -- We perform a normal browser request and get the returned location
     local loc = getLastLoc(host, port, "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17")
- 
+
     local allowed, forb = {}, {}
 
     for _, l in ipairs(HTTPlibs) do
-   
+
         local libloc = getLastLoc(host, port, l)
 
-        -- If the library's request returned a different location, that means the request was redirected somewhere else, hence is forbidden. 
+        -- If the library's request returned a different location, that means the request was redirected somewhere else, hence is forbidden.
         if loc ~= libloc then
             local msg = l .. " redirected to: " .. libloc
             local libhost = http.parse_url(libloc)
-            if not crawler:iswithinhost(libhost.host) then    
-                msg = msg .. " (different host)" 
+            if not crawler:iswithinhost(libhost.host) then
+                msg = msg .. " (different host)"
                 if newtargets then
                     target.add(libhost.host)
                 end

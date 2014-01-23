@@ -9,7 +9,7 @@ Opens a connection to a NetBus server and extracts information about
 the host and the NetBus service itself.
 
 The extracted host information includes a list of running
-applications, and the hosts sound volume settings. 
+applications, and the hosts sound volume settings.
 
 The extracted service information includes it's access control list
 (acl), server information, and setup. The acl is a list of IP
@@ -29,7 +29,7 @@ and an smtp-server used for notification delivery.
 --
 -- @output
 -- 12345/tcp open  netbus
--- | netbus-info:   
+-- | netbus-info:
 -- |   ACL
 -- |     127.0.0.1
 -- |   APPLICATIONS

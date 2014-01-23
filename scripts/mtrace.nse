@@ -41,7 +41,7 @@ This is similar to the mtrace utility provided in Cisco IOS.
 --
 --@output
 -- Pre-scan script results:
--- | mtrace: 
+-- | mtrace:
 -- |   Group 0.0.0.0 from 172.16.45.4 to 172.16.0.1
 -- |   Source: 172.16.45.4
 -- |     In address: 172.16.34.3
@@ -69,17 +69,17 @@ categories = {"discovery", "safe", "broadcast"}
 
 -- From: https://tools.ietf.org/id/draft-ietf-idmr-traceroute-ipm-07.txt
 PROTO = {
-    [0x01] = "DVMRP", 
-    [0x02] = "MOSPF", 
-    [0x03] = "PIM", 
-    [0x04] = "CBT", 
-    [0x05] = "PIM / Special table", 
-    [0x06] = "PIM / Static", 
-    [0x07] = "DVMRP / Static", 
-    [0x08] = "PIM / MBGP", 
+    [0x01] = "DVMRP",
+    [0x02] = "MOSPF",
+    [0x03] = "PIM",
+    [0x04] = "CBT",
+    [0x05] = "PIM / Special table",
+    [0x06] = "PIM / Static",
+    [0x07] = "DVMRP / Static",
+    [0x08] = "PIM / MBGP",
     [0x09] = "CBT / Special table",
-    [0x10] = "CBT / Static", 
-    [0x11] = "PIM / state created by Assert processing", 
+    [0x10] = "CBT / Static",
+    [0x11] = "PIM / state created by Assert processing",
 }
 
 FWD_CODE = {
@@ -123,7 +123,7 @@ local traceRaw = function(fromip, toip, group, receiver)
     local data = data .. bin.pack(">C", 0x20) -- Hops: 32
     local data = data .. bin.pack(">S", 0x0000) -- Checksum: To be set later
     local data = data .. bin.pack(">I", ipOps.todword(group)) -- Multicast group
-    local data = data .. bin.pack(">I", ipOps.todword(fromip)) -- Source 
+    local data = data .. bin.pack(">I", ipOps.todword(fromip)) -- Source
     local data = data .. bin.pack(">I", ipOps.todword(toip)) -- Destination
     local data = data .. bin.pack(">I", ipOps.todword(receiver)) -- Receiver
     local data = data .. bin.pack(">C", 0x40) -- TTL
@@ -180,7 +180,7 @@ local traceParse = function(data)
     -- Hops
     index, response.hops = bin.unpack(">C", data, 2)
 
-    -- Checksum 
+    -- Checksum
     index, response.checksum = bin.unpack(">S", data, index)
 
     -- Group
@@ -284,7 +284,7 @@ local traceListener = function(interface, timeout, responses)
 		-- Check that IGMP Type == 0x1e (Traceroute Response)
 		if trace_raw:byte(1) == 0x1e then
 		    response = traceParse(trace_raw)
-		    if response then 
+		    if response then
 			response.srcip = p.ip_src
 			table.insert(responses, response)
 		    end
@@ -335,9 +335,9 @@ action = function()
     end
 
     -- Get network interface to use
-    local interface = nmap.get_interface() 
+    local interface = nmap.get_interface()
     if interface then
-	interface = nmap.get_interface_info(interface) 
+	interface = nmap.get_interface_info(interface)
     else
 	interface = getInterface(firsthop)
     end
@@ -362,7 +362,7 @@ action = function()
     local condvar = nmap.condvar(responses)
     condvar("wait")
     if #responses > 0 then
-	local outresp 
+	local outresp
 	local output, outblock = {}
 	table.insert(output, ("Group %s from %s to %s"):format(group, fromip, toip))
 	for _, response in pairs(responses) do

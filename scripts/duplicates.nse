@@ -23,7 +23,7 @@ script to analyze the data.
 -- sudo nmap -PN -p445,443 --script duplicates,nbstat,ssl-cert <ips>
 --
 -- @output
--- | duplicates: 
+-- | duplicates:
 -- |   ARP
 -- |       MAC: 01:23:45:67:89:0a
 -- |           192.168.99.10
@@ -62,7 +62,7 @@ hostrule = function() return true end
 postrule = function() return true end
 
 local function processSSLCerts(tab)
-	
+
 	-- Handle SSL-certificates
 	-- We create a new table using the SHA1 digest as index
 	local ssl_certs = {}
@@ -74,7 +74,7 @@ local function processSSLCerts(tab)
 			end
 		end
 	end
-	
+
 	local results = {}
 	for sha1, hosts in pairs(ssl_certs) do
 		table.sort(hosts, function(a, b) return ipOps.compare_ip(a, "lt", b) end)
@@ -82,7 +82,7 @@ local function processSSLCerts(tab)
 			table.insert(results, { name = ("Certficate (%s)"):format(sha1), hosts } )
 		end
 	end
-	
+
 	return results
 end
 
@@ -131,29 +131,29 @@ local function processNBStat(tab)
 			table.insert(name_table[v.server_name], host.ip)
 		end
 	end
-	
+
 	for mac, hosts in pairs(mac_table) do
 		if ( #hosts > 1 ) then
 			table.sort(hosts, function(a, b) return ipOps.compare_ip(a, "lt", b) end)
 			table.insert(results, { name = ("MAC: %s"):format(mac), hosts })
 		end
 	end
-	
+
 	for srvname, hosts in pairs(name_table) do
 		if ( #hosts > 1 ) then
 			table.sort(hosts, function(a, b) return ipOps.compare_ip(a, "lt", b) end)
 			table.insert(results, { name = ("Server Name: %s"):format(srvname), hosts })
 		end
 	end
-	
+
 	return results
 end
 
 local function processMAC(tab)
-	
+
 	local mac
 	local mac_table = {}
-	
+
 	for host in pairs(tab) do
 		if ( host.mac_addr ) then
 			mac = stdnse.format_mac(host.mac_addr)
@@ -163,7 +163,7 @@ local function processMAC(tab)
 			end
 		end
 	end
-	
+
 	local results = {}
 	for mac, hosts in pairs(mac_table) do
 		if ( #hosts > 1 ) then
@@ -171,30 +171,30 @@ local function processMAC(tab)
 			table.insert(results, { name = ("MAC: %s"):format(mac), hosts })
 		end
 	end
-	
+
 	return results
 end
 
 postaction = function()
-	
+
 	local handlers = {
 		['ssl-cert'] = { func = processSSLCerts, name = "SSL" },
 		['sshhostkey'] = { func = processSSHKeys, name = "SSH" },
 		['nbstat'] = { func = processNBStat, name = "Netbios" },
 		['mac'] = { func = processMAC, name = "ARP" }
 	}
-	
+
 	-- temporary re-allocation code for SSH keys
 	for k, v in pairs(nmap.registry.sshhostkey or {}) do
 		nmap.registry['duplicates'] = nmap.registry['duplicates'] or {}
 		nmap.registry['duplicates']['sshhostkey'] = nmap.registry['duplicates']['sshhostkey'] or {}
 		nmap.registry['duplicates']['sshhostkey'][k] = v
 	end
-	
+
 	if ( not(nmap.registry['duplicates']) ) then
 		return
 	end
-	
+
 	local results = {}
 	for key, handler in pairs(handlers) do
 		if ( nmap.registry['duplicates'][key] ) then
@@ -204,7 +204,7 @@ postaction = function()
 			end
 		end
 	end
-	
+
 	return stdnse.format_output(true, results)
 end
 
@@ -220,7 +220,7 @@ hostaction = function(host)
 		nmap.registry['duplicates']['ssl-cert'][host] = nmap.registry['duplicates']['ssl-cert'][host] or {}
 		nmap.registry['duplicates']['ssl-cert'][host][port] = stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
 	end
-	
+
 	if ( host.registry['nbstat'] ) then
 		nmap.registry['duplicates']['nbstat'] = nmap.registry['duplicates']['nbstat'] or {}
 		nmap.registry['duplicates']['nbstat'][host] = host.registry['nbstat']

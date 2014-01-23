@@ -46,11 +46,11 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 -- nmap -p 1433 --script ms-sql-hasdbaccess --script-args mssql.username=sa,mssql.password=sa <host>
 --
 -- @args ms-sql-hasdbaccess.limit limits the amount of databases per-user
---       that are returned (default 5). If set to zero or less all 
+--       that are returned (default 5). If set to zero or less all
 --       databases the user has access to are returned.
 --
 -- @output
--- | ms-sql-hasdbaccess:  
+-- | ms-sql-hasdbaccess:
 -- |   [192.168.100.25\MSSQLSERVER]
 -- |       webshop_reader
 -- |         dbname	owner
@@ -81,26 +81,26 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 
 local function process_instance( instance )
-	
+
 	local status, result, rs
 	local query, limit
 	local output = {}
 	local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
-	
+
 	local RS_LIMIT = stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )
 		and tonumber(stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )) or 5
-	
+
 	if ( RS_LIMIT <= 0 ) then
 		limit = ""
 	else
 		limit = string.format( "TOP %d", RS_LIMIT )
 	end
-	
-	local query = { [[CREATE table #hasaccess(dbname varchar(255), owner varchar(255), 
+
+	local query = { [[CREATE table #hasaccess(dbname varchar(255), owner varchar(255),
 							 DboOnly bit, ReadOnly bit, SingelUser bit, Detached bit,
 							 Suspect bit, Offline bit, InLoad bit, EmergencyMode bit,
 							 StandBy bit, [ShutDown] bit, InRecovery bit, NotRecovered bit )]],
-							
+
 
 							"INSERT INTO #hasaccess EXEC sp_MShasdbaccess",
 							("SELECT %s dbname, owner FROM #hasaccess WHERE dbname NOT IN(%s)"):format(limit, stdnse.strjoin(",", exclude_dbs)),
@@ -117,11 +117,11 @@ local function process_instance( instance )
 				output = "ERROR: " .. result
 				break
 			end
-			
+
 			if ( status ) then
 				status = helper:Login( username, password, nil, instance.host.ip )
 			end
-	
+
 			if ( status ) then
 				for _, q in pairs(query) do
 					status, result = helper:Query( q )
@@ -133,9 +133,9 @@ local function process_instance( instance )
 					end
 				end
 			end
-			
+
 			helper:Disconnect()
-	
+
 			if ( status and rs ) then
 				result = mssql.Util.FormatOutputTable( rs, true )
 				result.name = username
@@ -146,12 +146,12 @@ local function process_instance( instance )
 			end
 		end
 	end
-	
-	
+
+
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
 	table.insert( instanceOutput, output )
-	
+
 	return instanceOutput
 
 end
@@ -160,7 +160,7 @@ end
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -171,6 +171,6 @@ action = function( host, port )
 			end
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end

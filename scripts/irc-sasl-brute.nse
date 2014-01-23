@@ -25,7 +25,7 @@ Performs brute force password auditing against IRC (Internet Relay Chat) servers
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 6667/tcp open  irc     syn-ack
--- | irc-sasl-brute: 
+-- | irc-sasl-brute:
 -- |   Accounts
 -- |     root:toor - Valid credentials
 -- |   Statistics
@@ -46,14 +46,14 @@ local dbg = stdnse.print_debug
 
 -- some parts of the following class are taken from irc-brute written by Patrik
 Driver = {
-  
+
   new = function(self, host, port, saslencoder)
     local o = { host = host, port = port, saslencoder = saslencoder}
     setmetatable(o, self)
     self.__index = self
     return o
   end,
-  
+
   connect = function(self)
     -- the high timeout should take delays from ident into consideration
     local s, r, opts, _ = comm.tryssl(self.host,
@@ -95,22 +95,22 @@ Driver = {
       if challenge then status = false end
     until (not status)
     local msg = self.saslencoder:encode(username, password, challenge)
-    
+
     -- SASL PLAIN is supposed to be plaintext, but freenode actually wants it to be base64 encoded
     if self.saslencoder:get_mechanism() == "PLAIN" then
       msg = base64.enc(msg)
     end
-    
+
     local status, data = self.socket:send("AUTHENTICATE "..msg.."\r\n")
     local success = false
-    
+
     if ( not(status) ) then
       local err = brute.Error:new( data )
       -- This might be temporary, set the retry flag
       err:setRetry( true )
       return false, err
     end
-    
+
     repeat
       status, response = self.socket:receive_lines(1)
       if ( status and string.find(response, "90[45]") ) then
@@ -121,13 +121,13 @@ Driver = {
         status = false
       end
     until (not status)
-    
+
     if (success) then
       return true, brute.Account:new(username, password, creds.State.VALID)
     end
     return false, brute.Error:new("Incorrect username or password")
   end,
-  
+
   disconnect = function(self) return self.socket:close() end,
 }
 
@@ -135,7 +135,7 @@ Driver = {
 -- mechanisms
 local function check_sasl(host, port)
   local s, r, opts, _ = comm.tryssl(host, port, "CAP REQ sasl\r\n", { timeout = 15000 } )
-  
+
   repeat
     local status, lines = s:receive_lines(1)
     if string.find(lines, "ACK") then status = false end
@@ -177,10 +177,10 @@ action = function(host, port)
   if not sasl_supported then
     return stdnse.format_output(false, "Server doesn't support SASL authentication.")
   end
-  
+
   local saslencoder = sasl.Helper:new()
   local sasl_mech
-  
+
   -- check if the library supports any of the mechanisms we identified
   for _,m in ipairs(mechs) do
     if saslencoder:set_mechanism(m) then

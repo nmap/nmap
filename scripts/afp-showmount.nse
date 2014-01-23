@@ -13,7 +13,7 @@ Shows AFP shares and ACLs.
 --@output
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp
--- | afp-showmount:  
+-- | afp-showmount:
 -- |   Yoda's Public Folder
 -- |     Owner: Search,Read,Write
 -- |     Group: Search,Read
@@ -54,7 +54,7 @@ action = function(host, port)
 	if ( args['afp.username'] ) then
 		users = {}
 		users[args['afp.username']] = args['afp.password']
-	end	
+	end
 
 	for username, password in pairs(users) do
 

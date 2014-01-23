@@ -15,32 +15,32 @@ Retrieves a list of tables and column definitions for each database on an Inform
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 9088/tcp open  unknown syn-ack
--- | informix-tables:  
+-- | informix-tables:
 -- |   Information
 -- |     User: informix
 -- |     Database: stores_demo
 -- |   Results
--- |     table                column               rows                 
--- |     call_type            call_code            5                    
--- |     call_type            code_descr           5                    
--- |     catalog              cat_advert           74                   
--- |     catalog              cat_descr            74                   
--- |     catalog              cat_picture          74                   
--- |     catalog              catalog_num          74                   
--- |     catalog              manu_code            74                   
--- |     catalog              stock_num            74                   
--- |     classes              class                4                    
--- |     classes              classid              4                    
+-- |     table                column               rows
+-- |     call_type            call_code            5
+-- |     call_type            code_descr           5
+-- |     catalog              cat_advert           74
+-- |     catalog              cat_descr            74
+-- |     catalog              cat_picture          74
+-- |     catalog              catalog_num          74
+-- |     catalog              manu_code            74
+-- |     catalog              stock_num            74
+-- |     classes              class                4
+-- |     classes              classid              4
 -- |     classes              subject              4
--- |     cust_calls          call_code           7                   
--- |     cust_calls          call_descr          7                   
--- |     cust_calls          call_dtime          7                   
--- |     cust_calls          customer_num        7                   
--- |     cust_calls          res_descr           7                   
--- |     cust_calls          res_dtime           7                   
--- |     cust_calls          user_id             7                   
--- |     warehouses          warehouse_id        4                   
--- |     warehouses          warehouse_name      4                   
+-- |     cust_calls          call_code           7
+-- |     cust_calls          call_descr          7
+-- |     cust_calls          call_dtime          7
+-- |     cust_calls          customer_num        7
+-- |     cust_calls          res_descr           7
+-- |     cust_calls          res_dtime           7
+-- |     cust_calls          user_id             7
+-- |     warehouses          warehouse_id        4
+-- |     warehouses          warehouse_name      4
 -- |_    warehouses          warehouse_spec      4
 --
 -- @args informix-query.username The username used for authentication
@@ -55,7 +55,7 @@ categories = {"intrusive", "auth"}
 dependencies = { "informix-brute" }
 
 
-portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
+portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
 
 action = function( host, port )
 	local helper
@@ -65,11 +65,11 @@ action = function( host, port )
 	local pass = stdnse.get_script_args('informix-tables.password') or ""
 	local query= [[
 		SELECT cast(tabname as char(20)) table, cast(colname as char(20)) column, cast( cast(nrows as int) as char(20)) rows
-		FROM "informix".systables st, "informix".syscolumns sc 
-		WHERE sc.tabid = st.tabid and st.tabid > 99 and st.tabtype='T' 
+		FROM "informix".systables st, "informix".syscolumns sc
+		WHERE sc.tabid = st.tabid and st.tabid > 99 and st.tabtype='T'
 		ORDER BY table, column]]
 	local excluded_dbs = { ["sysmaster"] = true, ["sysutils"] = true, ["sysuser"] = true, ["sysadmin"] = true }
-	
+
 	-- If no user was specified lookup the first user in the registry saved by
 	-- the informix-brute script
 	if ( not(user) ) then
@@ -80,9 +80,9 @@ action = function( host, port )
 			return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
 		end
 	end
-	
+
 	helper = informix.Helper:new( host, port )
-	
+
 	status, data = helper:Connect()
 	if ( not(status) ) then
 		return stdnse.format_output(status, data)
@@ -96,14 +96,14 @@ action = function( host, port )
 	if ( not(status) ) then
 		return "  \n  ERROR: Failed to retrieve a list of databases"
 	end
-	
+
 	for _, db in ipairs(databases) do
 		if ( not( excluded_dbs[db] ) ) then
 			status, data = helper:OpenDatabase(db)
 			if ( not(status) ) then	return stdnse.format_output(status, data) end
 			status, data = helper:Query( query )
 			if ( not(status) ) then	return stdnse.format_output(status, data) end
-						
+
 			if ( status ) then
 				data = informix.Util.formatTable( data[1] )
 				data.name = "Results"

@@ -67,7 +67,7 @@ action = function(host, port)
 		socket:close()
 		return
 	end
-	
+
 	socket:close();
 
 	return true, "Server supports SSHv1"

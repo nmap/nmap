@@ -21,7 +21,7 @@ types:
 -- PORT     STATE SERVICE
 -- 1080/tcp open  socks
 -- | socks-auth-info:
--- |   No authentication 
+-- |   No authentication
 -- |_  Username and password
 --
 -- @xmloutput
@@ -59,7 +59,7 @@ action = function(host, port)
 			table.insert(auth_methods, out)
 		end
 	end
-	
+
 	helper:close()
 	if ( 0 == #auth_methods ) then return end
 	return auth_methods

@@ -106,7 +106,7 @@ action = function(host, port)
 		title = 'phpMyAdmin grab_globals.lib.php subform Parameter Traversal Local File Inclusion',
 		IDS = {CVE = 'CVE-2005-3299'},
 		state = vulns.STATE.NOT_VULN,
-		description = 
+		description =
 			[[PHP file inclusion vulnerability in grab_globals.lib.php in phpMyAdmin 2.6.4 and 2.6.4-pl1 allows remote attackers to include local files via the $__redirect parameter, possibly involving the subform array.
 		]],
 		references = {
@@ -117,7 +117,7 @@ action = function(host, port)
 		},
 	}
 	local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
-	
+
 	local response = http.post(host, port, evil_uri,
 		{header = {["Content-Type"] = "application/x-www-form-urlencoded"}}, nil, evil_postdata)
 	if response.body and response.status==200 then

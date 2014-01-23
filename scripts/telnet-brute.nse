@@ -517,9 +517,9 @@ Driver.methods.login = function (self, username, password)
 	local sent_username = self.target.passonly
 	local sent_password = false
 	local conn = self.conn
-	
+
 	local loc = " in " .. tostring(coroutine.running())
-	
+
 	local connection_error = function (msg)
 		print_debug(detail_debug, msg .. loc)
 		local err = brute.Error:new(msg)
@@ -568,7 +568,7 @@ Driver.methods.login = function (self, username, password)
 		-- failed
 		return connection_error("Service unreachable")
 	end
-	
+
 	-- username has not yet been sent
 	while not sent_username do
 		local line = conn:get_line()

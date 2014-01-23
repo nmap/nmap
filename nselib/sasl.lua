@@ -11,7 +11,7 @@
 -- 	local dmd5 = DigestMD5:new(chall, user, pass, "AUTHENTICATE", nil, "imap")
 -- 	local digest = dmd5:calcDigest()
 -- </code>
--- 
+--
 -- The <code>NTLM</code> class contains all code necessary to calculate a
 -- NTLM response based on the servers challenge and the other necessary
 -- arguments (@see NTLM.new). It can be called through the SASL helper or
@@ -55,7 +55,7 @@ if ( not(HAVE_SSL) ) then
 end
 local MECHANISMS = { }
 
-if HAVE_SSL then 
+if HAVE_SSL then
   -- Calculates a DIGEST MD5 response
   DigestMD5 = {
 
@@ -64,8 +64,8 @@ if HAVE_SSL then
   -- @param chall string containing the base64 decoded challenge
   -- @return a new instance of DigestMD5
     new = function(self, chall, username, password, method, uri, service, realm)
-      local o = { nc = 0, 
-        chall = chall, 
+      local o = { nc = 0,
+        chall = chall,
         challnvs = {},
         username = username,
         password = password,
@@ -150,7 +150,7 @@ if HAVE_SSL then
       response = response .. (",%s=\"%s\""):format("digest-uri", uri)
       response = response .. (",%s=%s"):format("response", digest)
       response = response .. (",%s=%s"):format("charset", "utf-8")
-      
+
       -- response_table is used in http library because the request should
       -- be a little bit different then the string generated above
       local response_table = {
@@ -164,7 +164,7 @@ if HAVE_SSL then
         algorithm = self.challnvs.algorithm,
         response = digest_http
       }
-      
+
       return response, response_table
     end,
 
@@ -180,8 +180,8 @@ if HAVE_SSL then
 		-- @param password string containing the password
 		-- @return new instance of NTML
 		new = function(self, chall, username, password)
-			local o = { nc = 0, 
-				chall = chall, 
+			local o = { nc = 0,
+				chall = chall,
 				username = username,
 				password = password}
 	       	setmetatable(o, self)
@@ -207,8 +207,8 @@ if HAVE_SSL then
 			local NTLM_NegotiateExtendedSecurity 	= 0x00080000
 			local pos, _, message_type
 
-			pos, _, message_type, _, _, 
-			_, self.flags, self.chall, _, 
+			pos, _, message_type, _, _,
+			_, self.flags, self.chall, _,
 			_, _, _	 = bin.unpack("<A8ISSIIA8LSSI", self.chall)
 
 			if ( message_type ~= 0x02 ) then
@@ -225,7 +225,7 @@ if HAVE_SSL then
 				self.workstation = self.to_unicode(self.workstation)
 				self.username = self.to_unicode(self.username)
 				self.domain = self.to_unicode(self.domain)
-			end	
+			end
 		end,
 
 		--- Calculates the response
@@ -277,7 +277,7 @@ if HAVE_SSL then
 		end
 
 	}
-	
+
   --- Encodes the parameters using the <code>CRAM-MD5</code> mechanism.
   --
   -- @param username string.
@@ -303,11 +303,11 @@ if HAVE_SSL then
   -- @return string The encoded string on success, or nil if Nmap was
   --         compiled without OpenSSL.
   function digest_md5_enc(username, password, challenge, service, uri)
-	return DigestMD5:new(challenge, 
-							username, 
-							password, 
-							"AUTHENTICATE", 
-							uri, 
+	return DigestMD5:new(challenge,
+							username,
+							password,
+							"AUTHENTICATE",
+							uri,
 							service):calcDigest()
   end
 
@@ -448,7 +448,7 @@ Helper = {
   end,
 
   --- Returns the current authentication mechanism.
-  -- 
+  --
   -- @return mechanism on success, or nil on failures.
   get_mechanism = function(self)
     return self.mechanism

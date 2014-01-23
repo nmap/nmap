@@ -52,7 +52,7 @@ References:
 ]]
 ---
 -- @usage
--- nmap  -sU -p 53 <target> --script=dns-nsec3-enum --script-args dns-nsec3-enum.domains=example.com 
+-- nmap  -sU -p 53 <target> --script=dns-nsec3-enum --script-args dns-nsec3-enum.domains=example.com
 ---
 -- @args dns-nsec3-enum.domains The domain or list of domains to
 -- enumerate. If not provided, the script will make a guess based on the
@@ -85,7 +85,7 @@ local function get_end_time()
 	local t = nmap.timing_level()
 	local limit = stdnse.parse_timespec(stdnse.get_script_args('dns-nsec3-enum.timelimit') or "30m")
 	local end_time  = 1000 * limit + nmap.clock_ms()
-	return end_time 
+	return end_time
 end
 
 local function remove_empty(t)
@@ -172,13 +172,13 @@ local function random_string()
 	return msrpc.random_crap(8,"etaoinshrdlucmfw")
 end
 
--- generate a random hash with domains suffix 
+-- generate a random hash with domains suffix
 -- return both domain and it's hash
 local function generate_hash(domain, iter, salt)
 	local rand_str = random_string()
-	local random_domain = rand_str .. "." .. domain 
+	local random_domain = rand_str .. "." .. domain
 	local packed_domain = ""
-	for word in string.gmatch(domain,"[^%.]+") do 
+	for word in string.gmatch(domain,"[^%.]+") do
 		packed_domain = packed_domain .. bin.pack("c",string.len(word)) .. word
 	end
 	local to_hash = bin.pack("c",string.len(rand_str)) .. rand_str .. packed_domain .. bin.pack("c",0) .. bin.pack("H",salt)
@@ -191,7 +191,7 @@ local function generate_hash(domain, iter, salt)
 	return string.lower(base32.enc(hash,true)), random_domain
 end
 
--- convenience function , returns size of a table 
+-- convenience function , returns size of a table
 local function table_size(tbl)
 	local numItems = 0
 	for k,v in pairs(tbl) do
@@ -205,16 +205,16 @@ local function get_first(tbl)
 	for k,v in pairs(tbl) do
 		return k,v
 	end
-end	
+end
 
--- queries the domain and parses the results 
+-- queries the domain and parses the results
 -- returns the list of new ranges
 local function query_for_hashes(host,subdomain,domain)
 	local status
 	local result
 	local ranges = {}
 	status, result = dns.query(subdomain, {host = host.ip, dtype='NSEC3', retAll=true, retPkt=true, dnssec=true})
-	if status then 
+	if status then
 		for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do
 			local h1 = string.lower(remove_suffix(nsec3.dname,domain))
 			local h2 = string.lower(nsec3.hash.base32)
@@ -224,15 +224,15 @@ local function query_for_hashes(host,subdomain,domain)
 			end
 			ranges[h1] = h2
 		end
-	else 
+	else
 		stdnse.print_debug(1, "DNS error: %s", result)
-	end 
+	end
 	return ranges
 end
 
 -- does the actuall enumeration
 local function enum(host, port, domain)
-	
+
 	local seen, seen_subdomain = {}, {}
 	local ALG ={}
 	ALG[1] = "SHA-1"
@@ -241,8 +241,8 @@ local function enum(host, port, domain)
 	local result = {}
 	local subdomain = msrpc.random_crap(8,"etaoinshrdlucmfw")
 	local full_domain = join({subdomain, domain})
-	local iter 
-	local salt 
+	local iter
+	local salt
 	local end_time = get_end_time()
 
 	-- do one query to determine the hash and if DNSSEC is actually used
@@ -251,12 +251,12 @@ local function enum(host, port, domain)
 		local is_nsec3 = false
 		for _, nsec3 in ipairs(auth_filter(result, "NSEC3")) do -- parse the results and add initial ranges
 			is_nsec3 = true
-			dnssec = true 
+			dnssec = true
 			iter = nsec3.iterations
 			salt = nsec3.salt.hex
 			local h1 = string.lower(remove_suffix(nsec3.dname,domain))
 			local h2 = string.lower(nsec3.hash.base32)
-			if table_size(todo) == 0 then 
+			if table_size(todo) == 0 then
 				table.insert(all_results, "domain " .. domain)
 				stdnse.print_debug("domain " .. domain)
 				table.insert(all_results, "salt " .. salt)
@@ -265,11 +265,11 @@ local function enum(host, port, domain)
 				stdnse.print_debug("iterations " .. iter)
 				if h1 < h2 then
 					todo[h2] = h1
-				else 
+				else
 					todo[h1] = h2
 				end
-			else 
-				for b,a in pairs(todo) do 
+			else
+				for b,a in pairs(todo) do
 					if h1 == b and h2 == a then -- h2:a  b:h1 case
 						todo[b] = nil
 						break
@@ -284,7 +284,7 @@ local function enum(host, port, domain)
 						todo[b] = h2
 						break
 					end
-					if h1 > b  then 	-- a b h1 h2 
+					if h1 > b  then 	-- a b h1 h2
 						todo[b] = nil
 						todo[b] = h1
 						todo[h2] = a
@@ -299,7 +299,7 @@ local function enum(host, port, domain)
 				end -- for
 			end -- else
 			table.insert(all_results, "nexthash " .. h1 .. " " .. h2)
-			stdnse.print_debug("nexthash " .. h1 .. " " .. h2)	
+			stdnse.print_debug("nexthash " .. h1 .. " " .. h2)
 		end
 	end
 
@@ -308,7 +308,7 @@ local function enum(host, port, domain)
 		local hash
 		hash, subdomain  = generate_hash(domain,iter,salt)
 		local queried = false
-		for a,b in pairs(todo) do 
+		for a,b in pairs(todo) do
 			if a == b then
 				todo[a] = nil
 				break
@@ -358,7 +358,7 @@ local function enum(host, port, domain)
 						end
 						if h1 == a and h2 > h1 then  -- b   a:h1 h2 case
 							todo[a] = nil
-							todo[h1] = b 
+							todo[h1] = b
 							changed = true
 						end
 						if h1 == a and h2 < b then -- h2 b a:h1 case
@@ -393,7 +393,7 @@ local function enum(host, port, domain)
 			if queried then
 				break
 			end
-		end	
+		end
 	end
 	return dnssec, status, all_results
 end

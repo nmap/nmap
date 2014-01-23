@@ -49,7 +49,7 @@ _ENV = stdnse.module("dnsbl", stdnse.seeall)
 --       the TXT record, this argument and check can be omitted.
 --   When the short mode is used, the function should return a table containing
 --   the <code>state</code> field, or nil if the IP wasn't listed. When long
---   mode is used, the function should return additional information using the 
+--   mode is used, the function should return additional information using the
 --  <code>details</code> field. Eg:
 --     return { state = "SPAM" } -- short mode
 --     return { state = "PROXY", details = {
@@ -69,11 +69,11 @@ _ENV = stdnse.module("dnsbl", stdnse.seeall)
 --   and description of the arguments that provide the configuration/options.
 --   If this function isn't specified, the library will assume the service
 --   doesn't require configuration.
---                            
+--
 SERVICES = {
-	
+
 	SPAM = {
-		
+
 		["dnsbl.inps.de"] = {
 			-- This service supports both long and short <code>mode</code>
 			ns_type = {
@@ -114,7 +114,7 @@ SERVICES = {
 			end,
 		},
 
-		["spam.dnsbl.sorbs.net"] = { 
+		["spam.dnsbl.sorbs.net"] = {
 			ns_type = {
 				["short"] = "A"
 			},
@@ -144,7 +144,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-	
+
 		["all.spamrats.com"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -160,7 +160,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-		
+
 		["list.quorum.to"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -172,11 +172,11 @@ SERVICES = {
 				-- this service appears to return 127.0.0.0 when the service is
 				-- "blocked because it has never been seen to send mail".
 				-- This would essentially return every host as SPAM and we
-				-- don't want that. 
-				return ( ( r[1] and r[1] ~= "127.0.0.0" ) and { state = "SPAM" } ) 
+				-- don't want that.
+				return ( ( r[1] and r[1] ~= "127.0.0.0" ) and { state = "SPAM" } )
 			end
 		},
-		
+
 		["sbl.spamhaus.org"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -190,9 +190,9 @@ SERVICES = {
 					["127.0.0.3"] = "SPAM",
 				}
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
-			end,		
+			end,
 		},
-		
+
 		["bl.spamcop.net"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -207,7 +207,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-		
+
 		["dnsbl.ahbl.org"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -226,7 +226,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-		
+
 		["l2.apews.org"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -241,11 +241,11 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-	
+
 	},
 
 	PROXY = {
-		
+
 		["dnsbl.tornevall.org"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -275,12 +275,12 @@ SERVICES = {
 						if ( bit.band( code, k ) == k ) then
 							table.insert(result, v)
 						end
-					end	
+					end
 					return { state = "PROXY", details = result }
-				end	
+				end
 			end,
 		},
-		
+
 		["ip-port.exitlist.torproject.org"] = {
 			configuration = {
 				["port"] = "the port to which the target can relay to",
@@ -364,7 +364,7 @@ SERVICES = {
 				end
 			end,
 		},
-		
+
 		["dnsbl.ahbl.org"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -379,7 +379,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-		
+
 		["http.dnsbl.sorbs.net"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -394,7 +394,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-		
+
 		["socks.dnsbl.sorbs.net"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -409,7 +409,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		},
-		
+
 		["misc.dnsbl.sorbs.net"] = {
 			new = function(self, ip, mode, config)
 				local o = { ip = ip, mode = mode, config = config }
@@ -424,7 +424,7 @@ SERVICES = {
 				return ( r[1] and responses[r[1]] ) and { state = responses[r[1]] }
 			end,
 		}
-			
+
 	},
 
 	ATTACK = {
@@ -485,7 +485,7 @@ SERVICES = {
 					}
 
 					local result = {}
-					
+
 					-- Search engines are a special case.
 					if ( octet4 == 0 ) then
 						table.insert(result, ("Search engine: %s"):format(
@@ -495,7 +495,7 @@ SERVICES = {
 							octet2))
 						table.insert(result, ("Threat score: %i"):format(
 							octet3))
-						
+
 						local activity = {}
 						activity['name'] = "Activity"
 						-- Suspicious activity
@@ -512,7 +512,7 @@ SERVICES = {
 						if ( bit.band(octet4, 4)  == 4) then
 							table.insert(activity, "Comment spammer")
 						end
-						
+
 						table.insert(result, activity)
 					end
 
@@ -558,13 +558,13 @@ SERVICES = {
  			end,
  		}
 	},
-	
+
 }
 
 
 
 Helper = {
-	
+
 	-- Creates a new Helper instance
 	-- @param category string containing a valid DNSBL service category
 	-- @param mode string (short|long) specifying whether short or long
@@ -577,7 +577,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-    
+
 	-- Lists all DNSBL services for the category
 	-- @return services table of service names
 	listServices = function(self)
@@ -597,19 +597,19 @@ Helper = {
 				table.insert(services, name)
 			end
 		end
-		return services		
+		return services
 	end,
-	
+
 	-- Validates the filter set by setFilter to make sure it contains only
 	-- valid service names.
 	-- @return status boolean, true on success false on failure
 	-- @return err string containing an error message on failure
 	validateFilter = function(self)
-	
+
 		if ( not(self.filterstr) ) then
 			return true
 		end
-	
+
 		local all = SERVICES[self.category]
 		self.filter = {}
 		for _, f in pairs(stdnse.strsplit(",%s*", self.filterstr)) do
@@ -621,19 +621,19 @@ Helper = {
 		end
 		return true
 	end,
-	
+
 	-- Sets a new service filter to choose only a limited subset of services
 	-- within a category.
 	-- @param filter string containing a comma separated list of service names
 	setFilter = function(self, filter) self.filterstr = filter end,
-	
+
 	-- Gets a list of filtered services, or all services if no filter is in use
 	-- @return services table containing a list of services
 	getServices = function(self)
 		if ( not(self:validateFilter()) ) then
 			return nil
 		end
-		
+
 		if ( self.filter ) then
 			local filtered = {}
 			for name, svc in pairs(SERVICES[self.category]) do
@@ -646,7 +646,7 @@ Helper = {
 			return SERVICES[self.category]
 		end
 	end,
-	
+
 	doQuery = function(self, ip, name, svc, answers)
 
 		local condvar = nmap.condvar(answers)
@@ -676,10 +676,10 @@ Helper = {
 		else
 			stdnse.print_debug("Query function returned nothing, skipping '%s'", name)
 		end
-		
+
 		condvar "signal"
 	end,
-	
+
 	-- Runs the DNS blacklist check for the given IP against all non-filtered
 	-- services in the given category.
 	-- @param ip string containing the IP address to check
@@ -687,7 +687,7 @@ Helper = {
 	checkBL = function(self, ip)
 		local result, answers, threads = {}, {}, {}
 		local condvar = nmap.condvar(answers)
-		
+
 		for name, svc in pairs(self:getServices()) do
 			local co = stdnse.new_thread(self.doQuery, self, ip, name, svc, answers)
 			threads[co] = true
@@ -701,7 +701,7 @@ Helper = {
 				condvar "wait"
 			end
 		until( next(threads) == nil )
-		
+
 		for name, answer in pairs(answers) do
 			local status, answer, svc = answer.status, answer.answer, answer.svc
 			if ( status ) then
@@ -710,7 +710,7 @@ Helper = {
 					local resp = ( #answer > 0 and ("UNKNOWN (%s)"):format(answer[1]) or "UNKNOWN" )
 					stdnse.print_debug(2, ("%s received %s"):format(name, resp))
 				end
-	
+
 				if ( svc_result ) then
 					table.insert(result, { name = name, result = svc_result })
 				end

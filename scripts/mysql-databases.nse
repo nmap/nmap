@@ -19,7 +19,7 @@ Attempts to list all databases on a MySQL server.
 --
 -- @output
 -- 3306/tcp open  mysql
--- | mysql-databases:  
+-- | mysql-databases:
 -- |   information_schema
 -- |   mysql
 -- |   horde
@@ -59,7 +59,7 @@ action = function( host, port )
 	elseif nmap.registry.mysqlusers then
 		-- do we have root credentials?
 		if nmap.registry.mysqlusers['root'] then
-			users['root'] = nmap.registry.mysqlusers['root'] 
+			users['root'] = nmap.registry.mysqlusers['root']
 		else
 			-- we didn't have root, so let's make sure we loop over them all
 			users = nmap.registry.mysqlusers
@@ -87,12 +87,12 @@ action = function( host, port )
 
 				-- if we got here as root, we've got them all
 				-- if we're here as someone else, we cant be sure
-				if username == 'root' then	
+				if username == 'root' then
 					break
 				end
 			end
 		end
 		socket:close()
 	end
-	return stdnse.format_output(true, result)	
+	return stdnse.format_output(true, result)
 end

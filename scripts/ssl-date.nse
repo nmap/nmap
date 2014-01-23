@@ -67,7 +67,7 @@ local client_hello = function(host, port)
 
     -- Connect to the target server
 	local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
-	
+
 	if not specialized_function then
 		sock = nmap.new_socket()
 		sock:set_timeout(5000)
@@ -77,7 +77,7 @@ local client_hello = function(host, port)
 			stdnse.print_debug("Can't send: %s", err)
 			return false
 		end
-	else 
+	else
 		status,sock = specialized_function(host,port)
 		if not status then
 			return false

@@ -13,7 +13,7 @@ are a root document.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-sitemap-generator: 
+-- | http-sitemap-generator:
 -- |   Directory structure:
 -- |     /
 -- |       Other: 1
@@ -121,21 +121,21 @@ end
 
 function action(host, port)
   local starting_url = stdnse.get_script_args('http-sitemap-generator.url') or "/"
-  
+
   -- create a new crawler instance
 	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME, noblacklist=true, useheadfornonwebfiles=true } )
-  
+
 	if ( not(crawler) ) then
 		return
 	end
-  
+
 	local visited = {}
   local dir_structure = {}
   local total_ext = {}
   local longest_dir_structure = {dir="/", depth=0}
 	while(true) do
 	  local status, r = crawler:crawl()
-    
+
 	  if ( not(status) ) then
 		  if ( r.err ) then
 			  return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
@@ -164,7 +164,7 @@ function action(host, port)
       end
 	  end
 	end
-  
+
 	local out = internal_table_to_output(sort_dirs(dir_structure))
 	local tot = sort_by_keys(total_ext)
 	out =

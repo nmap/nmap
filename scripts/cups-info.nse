@@ -15,22 +15,22 @@ Lists printers managed by the CUPS printing service.
 -- @output
 -- PORT    STATE SERVICE
 -- 631/tcp open  ipp
--- | cups-info: 
+-- | cups-info:
 -- |   Generic-PostScript-Printer
 -- |     DNS-SD Name: Lexmark S300-S400 Series @ ubu1110
--- |     Location: 
+-- |     Location:
 -- |     Model: Local Raw Printer
 -- |     State: Processing
 -- |     Queue: 0 print jobs
 -- |   Lexmark-S300-S400-Series
 -- |     DNS-SD Name: Lexmark S300-S400 Series @ ubu1110
--- |     Location: 
+-- |     Location:
 -- |     Model: Local Raw Printer
 -- |     State: Stopped
 -- |     Queue: 0 print jobs
 -- |   PDF
 -- |     DNS-SD Name: PDF @ ubu1110
--- |     Location: 
+-- |     Location:
 -- |     Model: Generic CUPS-PDF Printer
 -- |     State: Idle
 -- |_    Queue: 0 print jobs
@@ -51,12 +51,12 @@ action = function(host, port)
 	if ( not(helper:connect()) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	local status, printers = helper:getPrinters()
 	if ( not(status) ) then
 		return
 	end
-	
+
 	local output = {}
 	for _, printer in ipairs(printers) do
 		local states = {
@@ -65,7 +65,7 @@ action = function(host, port)
 			[ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
 		}
 		local pos, state = bin.unpack(">I", printer.state)
-		table.insert(output, { 
+		table.insert(output, {
 			name = printer.name,
 			("DNS-SD Name: %s"):format(printer.dns_sd_name or ""),
 			("Location: %s"):format(printer.location or ""),
@@ -74,7 +74,7 @@ action = function(host, port)
 			("Queue: %s print jobs"):format(tonumber(printer.queue_count) or 0),
 		} )
 	end
-	
+
 	if ( 0 ~= #output ) then
 		return stdnse.format_output(true, output)
 	end

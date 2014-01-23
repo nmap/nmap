@@ -14,7 +14,7 @@ Performs brute force password auditing against a Nessus vulnerability scanning d
 -- @output
 -- PORT     STATE SERVICE
 -- 1241/tcp open  nessus
--- | nessus-brute: 
+-- | nessus-brute:
 -- |   Accounts
 -- |     nessus:nessus - Valid credentials
 -- |   Statistics
@@ -36,7 +36,7 @@ categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(1241, "nessus", "tcp")
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port)
@@ -45,7 +45,7 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.socket = nmap.new_socket()
 		if ( not(self.socket:connect(self.host, self.port, "ssl")) ) then
@@ -78,28 +78,28 @@ Driver =
 			err:setRetry( true )
 			return false, err
 		end
-		
+
 		status = self.socket:send(username .. "\n")
 		if ( not(status) ) then
 			local err = brute.Error:new( "Failed to send username to server" )
 			err:setAbort( true )
 			return false, err
 		end
-	
+
 		status, line = self.socket:receive()
 		if ( not(status) or line ~= "Password : ") then
 			local err = brute.Error:new( "Expected \"Password : \", got something else" )
 			err:setRetry( true )
 			return false, err
 		end
-		
+
 		status = self.socket:send(password)
 		if ( not(status) ) then
 			local err = brute.Error:new( "Failed to send password to server" )
 			err:setAbort( true )
 			return false, err
 		end
-		
+
 		-- the line feed has to be sent separate like this, otherwise we don't
 		-- receive the server response and the server simply hangs up
 		status = self.socket:send("\n")
@@ -108,7 +108,7 @@ Driver =
 			err:setAbort( true )
 			return false, err
 		end
-		
+
 		-- we force a brief incorrect statement just to get an error message to
 		-- confirm that we've succesfully authenticated to the server
 		local bad_cli_pref = "CLIENT <|> PREFERENCES <|>\n<|> CLIENT\n"
@@ -126,24 +126,24 @@ Driver =
 		if ( not(status) ) then
 			return false, brute.Error:new( "Incorrect password" )
 		end
-	
+
 		if ( line:match("SERVER <|> PREFERENCES_ERRORS <|>") ) then
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
-	
+
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	disconnect = function( self )
 		self.socket:close()
 	end,
-		
+
 }
 
 action = function(host, port)
 
 	local engine = brute.Engine:new(Driver, host, port)
-	engine.options.script_name = SCRIPT_NAME	
+	engine.options.script_name = SCRIPT_NAME
 
 	-- the nessus service doesn't appear to do very well with multiple threads
 	engine:setMaxThreads(1)

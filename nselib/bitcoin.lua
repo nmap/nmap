@@ -26,7 +26,7 @@
 
 --
 -- Version 0.2
--- 
+--
 -- Created 11/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 17/02/2012 - v0.2 - fixed count parsing
 --                           - changed version/verack handling to support
@@ -43,9 +43,9 @@ _ENV = stdnse.module("bitcoin", stdnse.seeall)
 
 -- A class that supports the BitCoin network address structure
 NetworkAddress = {
-	
+
 	NODE_NETWORK = 1,
-	
+
 	-- Creates a new instance of the NetworkAddress class
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
@@ -60,20 +60,20 @@ NetworkAddress = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Creates a new instance of NetworkAddress based on the data string
 	-- @param data string of bytes
 	-- @return na instance of NetworkAddress
 	fromString = function(data)
 		assert(26 == #data, "Expected 26 bytes of data")
-		
+
 		local na = NetworkAddress:new()
 		local _
 		_, na.service, na.ipv6_prefix, na.host, na.port = bin.unpack("<LH12I>S", data)
 		na.host = ipOps.fromdword(na.host)
 		return na
 	end,
-	
+
 	-- Converts the NetworkAddress instance to string
 	-- @return data string containing the NetworkAddress instance
 	__tostring = function(self)
@@ -85,10 +85,10 @@ NetworkAddress = {
 
 -- The request class container
 Request = {
-	
+
 	-- The version request
 	Version = {
-		
+
 		-- Creates a new instance of the Version request
 		-- @param host table as received by the action method
 		-- @param port table as received by the action method
@@ -96,7 +96,7 @@ Request = {
 		-- @param lport number containing the source port
 		-- @return o instance of Version
 		new = function(self, host, port, lhost, lport)
-			local o = { 
+			local o = {
 				host = host,
 				port = port,
 				lhost= lhost,
@@ -106,7 +106,7 @@ Request = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts the Version request to a string
 		-- @return data as string
 		__tostring = function(self)
@@ -115,7 +115,7 @@ Request = {
 			local len = 85
 			-- ver: 0.4.0
 			local ver = 0x9c40
-			
+
 			-- NODE_NETWORK = 1
 			local services = 1
 			local timestamp = os.time()
@@ -132,20 +132,20 @@ Request = {
 			-- Checksum is first 4 bytes of sha256(sha256(payload))
 			local checksum = openssl.digest("sha256", payload)
 			checksum = openssl.digest("sha256", checksum)
-		
+
 			-- Construct the header without checksum
-			local header = bin.pack("<IAI", magic, cmd, len)	
-			
+			local header = bin.pack("<IAI", magic, cmd, len)
+
 			-- After 2012-02-20, version messages require checksums
 			header = header .. bin.pack("A", checksum:sub(1,4))
-		
+
 			return header .. payload
 		end,
 	},
-	
+
 	-- The GetAddr request
 	GetAddr = {
-		
+
 		-- Creates a new instance of the Version request
 		-- @param host table as received by the action method
 		-- @param port table as received by the action method
@@ -153,7 +153,7 @@ Request = {
 		-- @param lport number containing the source port
 		-- @return o instance of Version
 		new = function(self, host, port, lhost, lport)
-			local o = { 
+			local o = {
 				host = host,
 				port = port,
 				lhost= lhost,
@@ -163,7 +163,7 @@ Request = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts the Version request to a string
 		-- @return data as string
 		__tostring = function(self)
@@ -175,27 +175,27 @@ Request = {
 			return bin.pack("<IAII", magic, cmd, len, chksum)
 		end
 	},
-	
+
 	VerAck = {
-		
+
 		new = function(self)
 			local o = {}
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-			
+
 		__tostring = function(self)
 			return bin.pack("<IAII", 0xD9B4BEF9, "verack\0\0\0\0\0\0", 0, 0xe2e0f65d)
 		end,
-		
+
 	}
-	
+
 }
 
 -- The response class container
 Response = {
-	
+
 	Header = {
 		size = 24,
 		new = function(self)
@@ -213,21 +213,21 @@ Response = {
 		parse = function(data)
 			local header = Response.Header:new()
 			local pos
-			
+
 			pos, header.magic, header.cmd, header.length, header.checksum = bin.unpack(">IA12II", data)
 			return header
 		end,
 	},
-	
-	
+
+
 	Alert = {
-		
+
 		type = "Alert",
 		-- Creates a new instance of Version based on data string
 		-- @param data string containing the raw response
 		-- @return o instance of Version
 		new = function(self, data)
-			local o = { 
+			local o = {
 				data = data,
 			}
 			setmetatable(o, self)
@@ -240,24 +240,24 @@ Response = {
 		parse = function(self)
 			local pos = Response.Header.size + 1
 			self.header = Response.Header.parse(self.data)
-			
+
 			local p_length
 			pos, p_length = Util.decodeVarInt(self.data, pos)
 			local data
 			pos, data = bin.unpack("A" .. p_length, self.data, pos)
-			
+
 			--
 			-- TODO: Alert decoding goes here
 			--
-			
+
 			return
-		end,		
+		end,
 	},
-			
-	
+
+
 	-- The version response message
 	Version = {
-		
+
 		-- Creates a new instance of Version based on data string
 		-- @param data string containing the raw response
 		-- @return o instance of Version
@@ -268,7 +268,7 @@ Response = {
 			o:parse()
 			return o
 		end,
-		
+
 		-- Parses the raw data and builds the Version instance
 		parse = function(self)
 			local pos, ra, sa
@@ -277,7 +277,7 @@ Response = {
 			pos, self.magic, self.cmd, self.len, self.checksum, self.ver_raw, self.service,
 				self.timestamp, ra, sa, self.nodeid,
 				self.subver, self.lastblock = bin.unpack("<IA12IIILLA26A26H8CI", self.data)
-			
+
 			local function decode_bitcoin_version(n)
 				if ( n < 31300 ) then
 					local minor, micro = n / 100, n % 100
@@ -287,16 +287,16 @@ Response = {
 					return ("0.%d.%d"):format(minor, micro)
 				end
 			end
-		
+
 			self.ver = decode_bitcoin_version(self.ver_raw)
 			self.sa = NetworkAddress.fromString(sa)
 			self.ra = NetworkAddress.fromString(ra)
-		end,		
+		end,
 	},
-	
+
 	-- The verack response message
 	VerAck = {
-		
+
 		-- Creates a new instance of VerAck based on data string
 		-- @param data string containing the raw response
 		-- @return o instance of Version
@@ -307,7 +307,7 @@ Response = {
 			o:parse()
 			return o
 		end,
-		
+
 		-- Parses the raw data and builds the VerAck instance
 		parse = function(self)
 			local pos
@@ -318,7 +318,7 @@ Response = {
 
 	-- The Addr response message
 	Addr = {
-		
+
 		-- Creates a new instance of VerAck based on data string
 		-- @param data string containing the raw response
 		-- @return o instance of Addr
@@ -329,13 +329,13 @@ Response = {
 			o:parse()
 			return o
 		end,
-		
+
 		-- Parses the raw data and builds the Addr instance
 		parse = function(self)
 			local pos, count
-			pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)	
+			pos, self.magic, self.cmd, self.len, self.chksum = bin.unpack("<IA12II", self.data)
 			pos, count = Util.decodeVarInt(self.data, pos)
-			
+
 			self.addresses = {}
 			for c=1, count do
 				if ( self.version > 31402 ) then
@@ -345,13 +345,13 @@ Response = {
 					table.insert(self.addresses, { ts = timestamp, address = na })
 				end
 			end
-			
-		end,		
+
+		end,
 	},
-	
+
 	-- The inventory server packet
 	Inv = {
-	
+
 		-- Creates a new instance of VerAck based on data string
 		-- @param data string containing the raw response
 		-- @return o instance of Addr
@@ -362,14 +362,14 @@ Response = {
 			o:parse()
 			return o
 		end,
-		
+
 		-- Parses the raw data and builds the Addr instance
 		parse = function(self)
 			local pos, count
 			pos, self.magic, self.cmd, self.len = bin.unpack("<IA12II", self.data)
-		end,		
+		end,
 	},
-	
+
 	-- Receives the packet and decodes it
 	-- @param socket BCSocket instance
 	-- @param version number containing the server version
@@ -381,10 +381,10 @@ Response = {
 		if ( not(status) ) then
 			return false, "Failed to read the packet header"
 		end
-		
+
 		local pos, magic, cmd, len, checksum = bin.unpack("<IA12II", header)
 		local data = ""
-		
+
 		-- the verack has no payload
 		if ( 0 ~= len ) then
 			status, data = socket:recv(len)
@@ -394,7 +394,7 @@ Response = {
 		end
 		return Response.decode(header .. data, version)
 	end,
-	
+
 	-- Decodes the raw packet data
 	-- @param data string containing the raw packet
 	-- @param version number containing the server version
@@ -416,7 +416,7 @@ Response = {
 		else
 			return false, ("Unknown command (%s)"):format(cmd)
 		end
-	end,	
+	end,
 }
 
 Util = {
@@ -438,23 +438,23 @@ Util = {
 			return pos, count
 		end
 	end
-	
-	
+
+
 }
-	
+
 -- A buffered socket implementation
 BCSocket =
-{	
+{
 	retries = 3,
-	
-	-- Creates a new BCSocket instance 
+
+	-- Creates a new BCSocket instance
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
 	-- @param options table containing additional options
 	--    <code>timeout</code> - the socket timeout in ms
 	-- @return instance of BCSocket
 	new = function(self, host, port, options)
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			timeout = "table" == type(options) and options.timeout or 10000
@@ -465,7 +465,7 @@ BCSocket =
 		o.Buffer = nil
 		return o
 	end,
-	
+
 	--- Establishes a connection.
 	--
 	-- @return Status (true or false).
@@ -474,7 +474,7 @@ BCSocket =
 		self.Socket:set_timeout( self.timeout )
 		return self.Socket:connect( self.host, self.port )
 	end,
-	
+
 	--- Closes an open connection.
 	--
 	-- @return Status (true or false).
@@ -482,7 +482,7 @@ BCSocket =
 	close = function( self )
 		return self.Socket:close()
 	end,
-	
+
 	--- Opposed to the <code>socket:receive_bytes</code> function, that returns
 	-- at least x bytes, this function returns the amount of bytes requested.
 	--
@@ -492,9 +492,9 @@ BCSocket =
 	-- 		   err containing error message if status is false
 	recv = function( self, count )
 		local status, data
-	
+
 		self.Buffer = self.Buffer or ""
-	
+
 		if ( #self.Buffer < count ) then
 			status, data = self.Socket:receive_bytes( count - #self.Buffer )
 			if ( not(status) or #data < count - #self.Buffer ) then
@@ -502,13 +502,13 @@ BCSocket =
 			end
 			self.Buffer = self.Buffer .. data
 		end
-			
+
 		data = self.Buffer:sub( 1, count )
 		self.Buffer = self.Buffer:sub( count + 1)
-	
-		return true, data	
+
+		return true, data
 	end,
-	
+
 	--- Sends data over the socket
 	--
 	-- @return Status (true or false).
@@ -520,15 +520,15 @@ BCSocket =
 
 -- The Helper class used as a primary interface to scripts
 Helper = {
-	
-	-- Creates a new Helper instance 
+
+	-- Creates a new Helper instance
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
 	-- @param options table containing additional options
 	--    <code>timeout</code> - the socket timeout in ms
 	-- @return instance of Helper
 	new = function(self, host, port, options)
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			options = options
@@ -544,7 +544,7 @@ Helper = {
 	connect = function(self)
 		self.socket = BCSocket:new(self.host, self.port, self.options)
 		local status, err = self.socket:connect()
-		
+
 		if ( not(status) ) then
 			return false, err
 		end
@@ -560,63 +560,63 @@ Helper = {
 		if ( not(self.socket) ) then
 			return false
 		end
-		
+
 		local req = Request.Version:new(
 			self.host, self.port, self.lhost, self.lport
 		)
-		
-		local status, err = self.socket:send(tostring(req))
-		if ( not(status) ) then
-			return false, "Failed to send \"Version\" request to server"
-		end
-		
-		local version
-		status, version = Response.recvPacket(self.socket)
-		
-		if ( not(status) or not(version) or version.cmd ~= "version\0\0\0\0\0" ) then
-			return false, "Failed to read \"Version\" response from server"
-		end
-		
-		if ( version.ver_raw > 29000 ) then
-			local status, verack = Response.recvPacket(self.socket)
-		end
-		
-		local verack = Request.VerAck:new()
-		local status, err = self.socket:send(tostring(verack))
-		if ( not(status) ) then
-			return false, "Failed to send \"Version\" request to server"
-		end
-			
-		self.version = version.ver_raw
-		return status, version
-	end,
-	
-	getNodes = function(self)
-		local req = Request.GetAddr:new(
-			self.host, self.port, self.lhost, self.lport
-		)		
 
 		local status, err = self.socket:send(tostring(req))
 		if ( not(status) ) then
 			return false, "Failed to send \"Version\" request to server"
 		end
-		
+
+		local version
+		status, version = Response.recvPacket(self.socket)
+
+		if ( not(status) or not(version) or version.cmd ~= "version\0\0\0\0\0" ) then
+			return false, "Failed to read \"Version\" response from server"
+		end
+
+		if ( version.ver_raw > 29000 ) then
+			local status, verack = Response.recvPacket(self.socket)
+		end
+
+		local verack = Request.VerAck:new()
+		local status, err = self.socket:send(tostring(verack))
+		if ( not(status) ) then
+			return false, "Failed to send \"Version\" request to server"
+		end
+
+		self.version = version.ver_raw
+		return status, version
+	end,
+
+	getNodes = function(self)
+		local req = Request.GetAddr:new(
+			self.host, self.port, self.lhost, self.lport
+		)
+
+		local status, err = self.socket:send(tostring(req))
+		if ( not(status) ) then
+			return false, "Failed to send \"Version\" request to server"
+		end
+
 		-- take care of any alerts that may be incoming
 		local status, response = Response.recvPacket(self.socket, self.version)
 		while ( status and response and response.type == "Alert" ) do
 			status, response = Response.recvPacket(self.socket, self.version)
 		end
-		
+
 		return status, response
 	end,
-	
+
 	-- Reads a message from the server
 	-- @return status true on success, false on failure
 	-- @return response instance of response packet if status is true
 	--         err string containing the error message if status is false
 	readMessage = function(self)
 		assert(self.version, "Version handshake has not been performed")
-		return Response.recvPacket(self.socket, self.version)	
+		return Response.recvPacket(self.socket, self.version)
 	end,
 
 	-- Closes the connection to the server
@@ -624,7 +624,7 @@ Helper = {
 	-- @return err code, if status is false
 	close = function(self)
 		return self.socket:close()
-	end	
+	end
 }
 
 return _ENV;

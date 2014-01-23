@@ -20,15 +20,15 @@ the script against).
 --
 -- @arg backorifice-brute.ports (mandatory) List of UDP ports to run the script against separated with "," ex. "U:31337,25252,151-222", "U:1024-1512"
 --
--- This script uses the brute library to perform password guessing. A 
--- successful password guess is stored in the nmap registry, under the 
--- <code>nmap.registry.credentials.backorifice</code> table for other BackOrifice 
+-- This script uses the brute library to perform password guessing. A
+-- successful password guess is stored in the nmap registry, under the
+-- <code>nmap.registry.credentials.backorifice</code> table for other BackOrifice
 -- scripts to use.
 --
 -- @output
 -- PORT       STATE  SERVICE
 -- 31337/udp  open   BackOrifice
--- | backorifice-brute:  
+-- | backorifice-brute:
 -- |   Accounts:
 -- |     michael => Valid credentials
 -- |   Statistics
@@ -62,12 +62,12 @@ portrule = function(host, port)
 		stdnse.print_debug("Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
 		return false
 	end
-	
+
 	return port.protocol == "udp" and stdnse.in_port_range(port, ports:gsub(",",",") ) and
 		not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
-local backorifice = 
+local backorifice =
 {
 	new = function(self, host, port)
 		local o = {}
@@ -77,7 +77,7 @@ local backorifice =
 		o.port = port
 		return o
 	end,
-	
+
 	--- Initializes the backorifice object
 	--
 	initialize = function(self)
@@ -86,8 +86,8 @@ local backorifice =
 		self.socket:set_timeout(self.host.times.timeout * 1000)
 		return true
 	end,
-	
-	--- Attempts to send an encrypted PING packet to BackOrifice service 
+
+	--- Attempts to send an encrypted PING packet to BackOrifice service
 	--
 	-- @param password string containing password for encryption
 	-- @param initial_seed number containing initial encryption seed
@@ -97,26 +97,26 @@ local backorifice =
 		--initialize BackOrifice PING packet:   |MAGICSTRING|size|packetID|TYPE_PING|arg1|arg_separat|arg2|CRC/disregarded|
 		local PING_PACKET = bin.pack("A<IICACAC", "*!*QWTY?",  19,       0,     0x01,  "",       0x00,  "",           0x00)
 		local seed, status, response, encrypted_ping
-		
-		if not(initial_seed) then 
+
+		if not(initial_seed) then
 			seed = self:gen_initial_seed(password)
 		else
 			seed = initial_seed
 		end
-		
+
 		encrypted_ping = self:BOcrypt(PING_PACKET,seed)
-		
+
 		status, response = self.socket:sendto(self.host.ip, self.port.number, encrypted_ping)
 		if not(status) then
 			return false, response
 		end
 		status, response = self.socket:receive()
-		
-		-- The first 8 bytes of both response and sent data are 
+
+		-- The first 8 bytes of both response and sent data are
 		-- magicstring = "*!*QWTY?", without the quotes, and since
-		-- both are encrypted with the same initial seed, this is 
+		-- both are encrypted with the same initial seed, this is
 		-- how we verify we are talking to a BackOrifice service.
-		-- The statement is optimized so as not to decrypt unless 
+		-- The statement is optimized so as not to decrypt unless
 		-- comparison of encrypted magicstrings succeds
 		if status and response:sub(1,8) == encrypted_ping:sub(1,8)
 				and self:BOcrypt(response,seed):match("!PONG!(1%.20)!.*!") then
@@ -131,14 +131,14 @@ local backorifice =
 			end
 		end
 	end,
-	
+
 	--- Close the socket
 	--
 	-- @return status true on success, false on failure
 	close = function(self)
 		return self.socket:close()
 	end,
-	
+
 	--- Generates the initial encryption seed from a password
 	--
 	-- @param password string containing password
@@ -168,7 +168,7 @@ local backorifice =
 			return z
 		end
 	end,
-	
+
 	--- Generates next encryption seed from given seed
 	--
 	-- @param seed number containing current seed
@@ -178,7 +178,7 @@ local backorifice =
 		seed = bit.band(seed,0xffffff)
 		return seed
 	end,
-	
+
 	--- Encrypts/decrypts data using BackOrifice algorithm
 	--
 	-- @param data binary string containing data to be encrypted/decrypted
@@ -187,7 +187,7 @@ local backorifice =
 	BOcrypt = function(self, data, initial_seed )
 		if data==nil then return end
 
-		local output =""		
+		local output =""
 		local seed = initial_seed
 		local data_byte
 		local crypto_byte
@@ -203,20 +203,20 @@ local backorifice =
 			crypto_byte = bit.bxor(data_byte,key)
 			output = bin.pack("AC",output,crypto_byte)
 			--ARGSIZE limitation from BackOrifice server
-			if i == 256 then break end 
+			if i == 256 then break end
 		end
 		return output
 	end,
-	
+
 	insert_version_info = function(self,BOversion,BOhostname,initial_seed,password)
 		if not self.port.version then self.port.version={} end
-		if not self.port.version.name then 
+		if not self.port.version.name then
 			self.port.version.name ="BackOrifice"
 			self.port.version.name_confidence = 10
 		end
 		if not self.port.version.product then self.port.version.product ="BackOrifice trojan" end
 		if not self.port.version.version then self.port.version.version = BOversion end
-		if not self.port.version.extrainfo then 
+		if not self.port.version.extrainfo then
 			if not password then
 				if not initial_seed then
 					self.port.version.extrainfo = "no password"
@@ -235,7 +235,7 @@ local backorifice =
 }
 
 local Driver =
-{		
+{
 	new = function(self, host, port)
 		local o = {}
        	setmetatable(o, self)
@@ -244,18 +244,18 @@ local Driver =
 		o.port = port
 		return o
 	end,
-	
+
 	connect=function(self)
 		--only initialize since BackOrifice service knows no connect()
 		self.bo = backorifice:new(self.host,self.port)
 		self.bo:initialize()
 		return true
 	end,
-	
+
 	disconnect = function( self )
 		self.bo:close()
 	end,
-	
+
 	--- Attempts to send encrypted PING packet to BackOrifice service
 	--
 	-- @param username string containing username which is disregarded
@@ -273,26 +273,26 @@ local Driver =
 			end
 			table.insert( nmap.registry.credentials.backorifice, { password = password } )
 			return true, brute.Account:new("", password, creds.State.VALID)
-		else  
+		else
 			-- The only indication that the password is incorrect is a timeout
 			local err = brute.Error:new( "Incorrect password" )
 			err:setRetry(false)
 			return false, err
 		end
 	end,
-	
+
 }
 
 action = function( host, port )
-	
+
 	local status, result
 	local engine = brute.Engine:new(Driver,host,port)
-	
+
 	engine.options.firstonly = true
 	engine.options.passonly = true
 	engine.options.script_name = SCRIPT_NAME
-	
+
 	status, result = engine:start()
-	
+
 	return result
 end

@@ -18,7 +18,7 @@ needs to be obtained through free registration for this service:
 -- @usage
 -- nmap --script ip-geolocation-ipinfodb <target> --script-args ip-geolocation-ipinfodb.apikey=<API_key>
 --
--- @args ip-geolocation-ipinfodb.apikey A sting specifying the api-key which 
+-- @args ip-geolocation-ipinfodb.apikey A sting specifying the api-key which
 --       the user wants to use to access this service
 --
 -- @output
@@ -49,7 +49,7 @@ hostrule = function(host)
 		return false
 	end
 
-    return true 
+    return true
 end
 
 -- No limit on requests. A free registration for an API key is a prerequisite
@@ -57,31 +57,31 @@ local ipinfodb = function(ip)
 	local api_key = stdnse.get_script_args(SCRIPT_NAME..".apikey")
 	local response = http.get("api.ipinfodb.com", 80, "/v3/ip-city/?key="..api_key.."&format=json".."&ip="..ip, nil)
 	local stat, loc = json.parse(response.body)
-	if not stat then 
+	if not stat then
 		stdnse.print_debug("No response, possibly a network problem.")
-		return nil 
+		return nil
 	end
 	if loc.statusMessage and loc.statusMessage == "Invalid API key." then
 		stdnse.print_debug(loc.statusMessage)
 		return nil
 	end
-	
+
 	local output = {}
  	table.insert(output, "coordinates (lat,lon): "..loc.latitude..","..loc.longitude)
 	table.insert(output,"city: ".. loc.cityName..", ".. loc.regionName..", ".. loc.countryName)
-	
+
 	return output
 end
 
 action = function(host,port)
 	local output = ipinfodb(host.ip)
-	
-	if(#output~=0) then 
-		output.name = host.ip 
+
+	if(#output~=0) then
+		output.name = host.ip
 		if host.targetname then
-			output.name = output.name.." ("..host.targetname..")" 
+			output.name = output.name.." ("..host.targetname..")"
 		end
 	end
-	
+
 	return stdnse.format_output(true,output)
 end

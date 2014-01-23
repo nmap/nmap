@@ -20,7 +20,7 @@ Original advisory:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-wordpress-enum: 
+-- | http-wordpress-enum:
 -- | Username found: admin
 -- | Username found: mauricio
 -- | Username found: cesar
@@ -28,7 +28,7 @@ Original advisory:
 -- | Username found: alex
 -- | Username found: ricardo
 -- |_Search stopped at ID #25. Increase the upper limit if necessary with 'http-wordpress-enum.limit'
--- 
+--
 -- @args http-wordpress-enum.limit Upper limit for ID search. Default: 25
 -- @args http-wordpress-enum.basepath Base path to Wordpress. Default: /
 -- @args http-wordpress-enum.out If set it saves the username list in this file.
@@ -138,7 +138,7 @@ action = function(host, port)
       output[#output+1] = string.format("Error saving %s: %s\n", filewrite, err)
     end
   end
- 
+
   if #output > 1 then
     output[#output+1] = string.format("Search stopped at ID #%s. Increase the upper limit if necessary with 'http-wordpress-enum.limit'", limit)
     return stdnse.strjoin("\n", output)

@@ -625,14 +625,14 @@ function Packet:u32(index)
         return u32(self.buf, index)
 end
 --- Return part of the packet contents as a byte string.
--- @param index The beginning of the part of the packet to extract. The index 
+-- @param index The beginning of the part of the packet to extract. The index
 -- is 0-based. If omitted the default value is 0 (begining of the string)
--- @param length The length of the part of the packet to extract. If omitted 
+-- @param length The length of the part of the packet to extract. If omitted
 -- the remaining contents from index to the end of the string are returned.
 -- @return A string.
 function Packet:raw(index, length)
 	if not index then index = 0 end
-	if not length then length = #self.buf-index end 
+	if not length then length = #self.buf-index end
 	return string.char(string.byte(self.buf, index+1, index+1+length-1))
 end
 
@@ -753,7 +753,7 @@ end
 -- @param id packet ID.
 function Packet:ip_set_id(id)
 	self:set_u16(self.ip_offset + 4, id)
-	self.ip_id = id 
+	self.ip_id = id
 end
 --- Set the TTL.
 -- @param ttl TTL.
@@ -1125,7 +1125,7 @@ function Packet:udp_parse(force_continue)
 	end
 	self.udp_len		= self:u16(self.udp_offset + 4)
 	self.udp_sum		= self:u16(self.udp_offset + 6)
-	
+
 	return true
 end
 

@@ -14,7 +14,7 @@ server time) from distributed memory object caching system memcached.
 --
 -- @output
 -- 11211/tcp open  unknown
--- | memcached-info: 
+-- | memcached-info:
 -- |   Process ID           18568
 -- |   Uptime               6950 seconds
 -- |   Server time          Sat Dec 31 14:16:10 2011
@@ -38,7 +38,7 @@ categories = {"discovery", "safe"}
 portrule = shortport.port_or_service(11211, "memcached", "tcp")
 
 local filter = {
-	
+
 	["pid"] = { name = "Process ID" },
 	["uptime"] = { name = "Uptime", func = function(v) return ("%d seconds"):format(v) end },
 	["time"] = { name = "Server time", func = stdnse.format_timestamp },
@@ -51,7 +51,7 @@ local filter = {
 	["tcpport"] = { name = "TCP Port" },
 	["udpport"] = { name = "UDP Port" },
 	["auth_enabled_sasl"] = { name = "Authentication" }
-	
+
 }
 
 local order = {
@@ -69,7 +69,7 @@ local function mergetab(tab1, tab2)
 	return tab1
 end
 
-local function recvResponse(socket)	
+local function recvResponse(socket)
 	local kvs = {}
 	repeat
 		local status, response = socket:receive_buf("\r\n", false)
@@ -81,7 +81,7 @@ local function recvResponse(socket)
 			kvs[k] = v
 		end
 	until ( "END" == response or "ERROR" == response )
-	
+
 	return true, kvs
 end
 
@@ -98,24 +98,24 @@ action = function(host, port)
 	if ( not(status) ) then
 		return fail("Failed to send request to server")
 	end
-	
+
 	local status, kvs = recvResponse(socket)
 	if( not(status) ) then
 		return fail(kvs)
 	end
-	
+
 	status = socket:send("stats settings\r\n")
 	if ( not(status) ) then
 		return fail("Failed to send request to server")
 	end
-	
+
 	local status, kvs2 = recvResponse(socket)
 	if( not(status) ) then
 		return fail(kvs2)
 	end
-	
+
 	kvs = mergetab(kvs, kvs2)
-	
+
 	local result = tab.new(2)
 	for _, item in ipairs(order) do
 		if ( kvs[item] ) then

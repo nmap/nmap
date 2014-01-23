@@ -15,25 +15,25 @@ Runs a console command on the Lotus Domino Console using the given authenticatio
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 2050/tcp open  unknown syn-ack
--- | domcon-cmd:  
+-- | domcon-cmd:
 -- |   show server
--- |     
+-- |
 -- |     Lotus Domino (r) Server (Release 8.5 for Windows/32) 2010-07-30 00:52:58
--- |     
+-- |
 -- |     Server name:            server1/cqure - cqure testing server
 -- |     Domain name:            cqure
 -- |     Server directory:       C:\Program Files\IBM\Lotus\Domino\data
 -- |     Partition:              C.Program Files.IBM.Lotus.Domino.data
 -- |     Elapsed time:           00:27:11
 -- |     Transactions/minute:    Last minute: 0; Last hour: 0; Peak: 0
--- |     Peak # of sessions:     0 at 
+-- |     Peak # of sessions:     0 at
 -- |     Transactions: 0         Max. concurrent: 20
 -- |     ThreadPool Threads:     20  (TCPIP Port)
 -- |     Availability Index:     100 (state: AVAILABLE)
 -- |     Mail Tracking:          Not Enabled
 -- |     Mail Journalling:       Not Enabled
 -- |     Number of Mailboxes:    1
--- |     Pending mail: 0         Dead mail: 0    
+-- |     Pending mail: 0         Dead mail: 0
 -- |     Waiting Tasks:          0
 -- |     DAOS:                   Not Enabled
 -- |     Transactional Logging:  Not Enabled
@@ -69,7 +69,7 @@ portrule = shortport.port_or_service(2050, "dominoconsole", "tcp", "open")
 -- @return result table containing lines with server response
 --         or error message if status is false
 local function readAPIBlock( socket )
-	
+
 	local lines
 	local result = {}
 	local status, line = socket:receive_lines(1)
@@ -82,7 +82,7 @@ local function readAPIBlock( socket )
 			table.insert(result, line)
 		end
 	end
-	
+
 	-- Clear trailing empty lines
 	while( true ) do
 		if ( result[#result] == "" ) then
@@ -93,7 +93,7 @@ local function readAPIBlock( socket )
 	end
 
 	return true, result
-	
+
 end
 
 action = function(host, port)
@@ -115,24 +115,24 @@ action = function(host, port)
 	if ( status ) then
 		socket:reconnect_ssl()
 	end
-		
+
 	socket:send("#API\n")
 	socket:send( ("#UI %s,%s\n"):format(user,pass) )
 	socket:receive_lines(1)
 	socket:send("#EXIT\n")
-		
+
 	for i=1, #cmds do
 		socket:send(cmds[i] .. "\n")
 		status, result_part = readAPIBlock( socket )
 		if( status ) then
 			result_part.name = cmds[i]
-			table.insert( result, result_part ) 
+			table.insert( result, result_part )
 		else
 			return "  \n  ERROR: " .. result_part
 		end
-	end	
+	end
 
 	socket:close()
-	
+
 	return stdnse.format_output( true, result )
 end

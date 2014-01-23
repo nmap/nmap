@@ -18,7 +18,7 @@ It does so by requesting a number of different combinations of the filename (eg.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-backup-finder: 
+-- | http-backup-finder:
 -- | Spidering limited to: maxdepth=3; maxpagecount=20; withindomain=example.com
 -- |   http://example.com/index.bak
 -- |   http://example.com/login.php~
@@ -50,19 +50,19 @@ local function backupNames(filename)
 	local function createBackupNames()
 		local dir = filename:match("^(.*/)") or ""
 		local basename, suffix = filename:match("([^/]*)%.(.*)$")
-		
+
 		local backup_names = {}
 		if basename then
 			table.insert(backup_names, "{basename}.bak") -- generic bak file
 		end
-		if basename and suffix then 
+		if basename and suffix then
 			table.insert(backup_names, "{basename}.{suffix}~") -- emacs
 			table.insert(backup_names, "{basename} copy.{suffix}") -- mac copy
 			table.insert(backup_names, "Copy of {basename}.{suffix}") -- windows copy
 			table.insert(backup_names, "Copy (2) of {basename}.{suffix}") -- windows second copy
 			table.insert(backup_names, "{basename}.{suffix}.1") -- generic backup
 			table.insert(backup_names, "{basename}.{suffix}.~1~") -- bzr --revert residue
-		
+
 		end
 
 		local replace_patterns = {
@@ -108,18 +108,18 @@ action = function(host, port)
 
 		-- parse the returned url
 		local parsed = url.parse(tostring(r.url))
-    
+
 		-- handle case where only hostname was provided
 		if ( parsed.path == nil ) then
 			parsed.path = '/'
 		end
-		
+
 		-- only pursue links that have something looking as a file
 		if ( parsed.path:match(".*%.*.$") ) then
 			-- iterate over possible backup files
 			for link in backupNames(parsed.path) do
 				local host, port = parsed.host, parsed.port
-			
+
 				-- if no port was found, try to deduce it from the scheme
 				if ( not(port) ) then
 					port = (parsed.scheme == 'https') and 443
@@ -135,17 +135,17 @@ action = function(host, port)
 				local response = http.head(host, port, escaped_link)
 				if http.page_exists(response, res404, known404, escaped_link, true) then
 					if ( not(parsed.port) ) then
-						table.insert(backups, 
+						table.insert(backups,
 							("%s://%s%s"):format(parsed.scheme, host, link))
 					else
-						table.insert(backups, 
+						table.insert(backups,
 							("%s://%s:%d%s"):format(parsed.scheme, host, port, link))
 					end
 				end
 			end
 		end
 	end
-	
+
 	if ( #backups > 0 ) then
 		backups.name = crawler:getLimitations()
 		return stdnse.format_output(true, backups)

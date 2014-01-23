@@ -111,7 +111,7 @@ function get_method()
         for _, method in ipairs(methods) do
             -- Are the elements of the argument valid methods.
             local upper = string.upper(method)
-      
+
             if (upper == "RCPT") or (upper == "EXPN") or
                (upper == "VRFY") then
                 table.insert(result, upper)
@@ -289,10 +289,10 @@ function go(host, port)
     }
     local domain = stdnse.get_script_args('smtp-enum-users.domain') or
                         smtp.get_domain(host)
-    
+
     local methods
     status, methods = get_method()
-  
+
     if not status then
         return false, string.format("Invalid method found, %s", methods)
     end
@@ -358,7 +358,7 @@ function go(host, port)
             end
             username = nextuser()
         end
-    
+
         -- No more users to test, don't test with other methods.
         if username == nil then
             break

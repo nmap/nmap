@@ -15,13 +15,13 @@ Performs password guessing against Apple Filing Protocol (AFP).
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap -p 548 --script afp-brute <host>
 --
 -- @output
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp
--- | afp-brute:  
+-- | afp-brute:
 -- |_  admin:KenSentMe => Valid credentials
 
 -- Information on AFP implementations
@@ -55,13 +55,13 @@ action = function( host, port )
 	local valid_accounts, found_users = {}, {}
 	local helper
 	local usernames, passwords
-	
+
  	status, usernames = unpwdb.usernames()
 	if not status then return end
 
-	status, passwords = unpwdb.passwords()	
+	status, passwords = unpwdb.passwords()
 	if not status then return end
-	
+
 	for password in passwords do
 		for username in usernames do
 			if ( not(found_users[username]) ) then
@@ -87,11 +87,11 @@ action = function( host, port )
 					found_users[username] = true
 				end
 
-				if status then				
+				if status then
 					-- Add credentials for other afp scripts to use
 					if nmap.registry.afp == nil then
 						nmap.registry.afp = {}
-					end	
+					end
 					nmap.registry.afp[username]=password
 					found_users[username] = true
 
@@ -100,12 +100,12 @@ action = function( host, port )
 				end
 				helper:CloseSession()
 			end
-		end	
+		end
 		usernames("reset")
 	end
-	
+
 	local output = stdnse.format_output(true, valid_accounts)
-	
+
 	return output
-	
+
 end

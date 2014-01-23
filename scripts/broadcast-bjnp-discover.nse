@@ -12,7 +12,7 @@ information for all discovered devices.
 -- nmap --script broadcast-bjnp-discover
 --
 -- @output
--- | broadcast-bjnp-discover: 
+-- | broadcast-bjnp-discover:
 -- |   192.168.0.10
 -- |     Printer
 -- |       Manufacturer: Canon
@@ -75,7 +75,7 @@ local function identifyDevices(devices, devtype)
 end
 
 local function identifyScanners(scanners)
-	return identifyDevices(scanners, "scanners")	
+	return identifyDevices(scanners, "scanners")
 end
 
 local function identifyPrinters(printers)
@@ -136,10 +136,10 @@ action = function()
 
 	local co = stdnse.new_thread(getPrinters, devices)
 	threads[co] = true
-	
+
 	co = stdnse.new_thread(getScanners, devices)
 	threads[co] = true
-	
+
 	while(next(threads)) do
 		for t in pairs(threads) do
 			threads[t] = ( coroutine.status(t) ~= "dead" ) and true or nil
@@ -148,12 +148,12 @@ action = function()
 			condvar "wait"
 		end
 	end
-	
-	for ip in getKeys(devices) do	
+
+	for ip in getKeys(devices) do
 		local result_part = {}
 		local printer = ( devices["printers"] and devices["printers"][ip] )
 		local scanner = ( devices["scanners"] and devices["scanners"][ip] )
-				
+
 		if ( printer ) then
 			printer.name = "Printer"
 			table.insert(result_part, printer)
@@ -167,7 +167,7 @@ action = function()
 			table.insert(result, result_part)
 		end
 	end
-	
+
 	if ( result ) then
 		return stdnse.format_output(true, result)
 	end

@@ -1,6 +1,6 @@
 ---
 -- This library was written by Patrik Karlsson <patrik@cqure.net> to facilitate
--- communication with the Apple AFP Service. It is not feature complete and 
+-- communication with the Apple AFP Service. It is not feature complete and
 -- still missing several functions.
 --
 -- The library currently supports
@@ -44,7 +44,7 @@
 --	status, response = helper:CloseSession()
 -- </code>
 --
--- Here's the longer version, with some explanatory text. To start using the Helper class, 
+-- Here's the longer version, with some explanatory text. To start using the Helper class,
 -- the script has to create it's own instance. We do this by issuing the following:
 -- <code>
 --	helper = afp.Helper:new()
@@ -93,7 +93,7 @@
 
 --
 -- Version 0.5
--- 
+--
 -- Created 01/03/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/20/2010 - v0.2 - updated all bitmaps to hex for better readability
 -- Revised 02/15/2010 - v0.3 - added a bunch of new functions and re-designed the code to be OO
@@ -241,25 +241,25 @@ ACLS = {
 	OwnerSearch = 0x1,
 	OwnerRead = 0x2,
 	OwnerWrite = 0x4,
-	
+
 	GroupSearch = 0x100,
 	GroupRead = 0x200,
 	GroupWrite = 0x400,
-	
+
 	EveryoneSearch = 0x10000,
 	EveryoneRead = 0x20000,
 	EveryoneWrite = 0x40000,
-	
+
 	UserSearch = 0x100000,
 	UserRead = 0x200000,
 	UserWrite = 0x400000,
-	
+
 	BlankAccess = 0x10000000,
 	UserIsOwner = 0x80000000
 }
 
 -- User authentication modules
-UAM = 
+UAM =
 {
 	NoUserAuth = "No User Authent",
 	ClearText = "Cleartxt Passwrd",
@@ -271,11 +271,11 @@ UAM =
 	Reconnect = "Recon1",
 }
 
-ERROR = 
+ERROR =
 {
 	SocketError = 1000,
 	CustomError = 0xdeadbeef,
-		
+
 	FPNoErr = 0,
 	FPAccessDenied = -5000,
 	FPAuthContinue = -5001,
@@ -331,7 +331,7 @@ SERVERFLAGS =
 	SuperClient = 0x8000
 }
 
-local ERROR_MSG = { 
+local ERROR_MSG = {
 	[ERROR.FPAccessDenied]="Access Denied",
 	[ERROR.FPAuthContinue]="Authentication is not yet complete",
 	[ERROR.FPBadUAM]="Specified UAM is unknown",
@@ -356,28 +356,28 @@ end
 
 -- Response class returned by all functions in Proto
 Response = {
-	
+
 	new = function(self,o)
 		o = o or {}
         setmetatable(o, self)
         self.__index = self
 		return o
     end,
-	
+
 	--- Sets the error code
 	--
 	-- @param code number containing the error code
 	setErrorCode = function( self, code )
 		self.error_code = code
 	end,
-	
+
 	--- Gets the error code
 	--
 	-- @return code number containing the error code
 	getErrorCode = function( self )
 		return self.error_code
 	end,
-	
+
 	--- Gets the error message
 	--
 	-- @return msg string containing the error
@@ -388,7 +388,7 @@ Response = {
 			return ERROR_MSG[self.error_code] or ("Unknown error (%d) occured"):format(self.error_code)
 		end
 	end,
-	
+
 	--- Sets the error message
 	--
 	-- @param msg string containing the error message
@@ -396,35 +396,35 @@ Response = {
 		self.error_code = ERROR.CustomError
 		self.error_msg = msg
 	end,
-	
+
 	--- Sets the result
 	--
 	-- @param result result to set
 	setResult = function(self, result)
 		self.result = result
 	end,
-	
+
 	--- Get the result
 	--
-	-- @return result 
+	-- @return result
 	getResult = function(self)
 		return self.result
 	end,
-	
+
 	--- Sets the packet
 	setPacket = function( self, packet )
 		self.packet = packet
 	end,
-		
+
 	getPacket = function( self )
 		return self.packet
 	end,
-		
+
 	--- Gets the packet data
 	getPacketData = function(self)
 		return self.packet.data
 	end,
-	
+
 	--- Gets the packet header
 	getPacketHeader = function(self)
 		return self.packet.header
@@ -436,9 +436,9 @@ Response = {
 -- For more details consult:
 -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html
 Proto = {
-	
+
 	RequestId = 1,
-	
+
 	new = function(self,o)
 		o = o or {}
         setmetatable(o, self)
@@ -455,7 +455,7 @@ Proto = {
 	-- @param command number should be one of the commands in the COMMAND table
 	-- @param data_offset number holding the offset to the data
 	-- @param data the actual data of the request
-	create_fp_packet = function( self, command, data_offset, data )	
+	create_fp_packet = function( self, command, data_offset, data )
 		local reserved = 0
 		local data = data or ""
 		local data_len = data:len()
@@ -493,7 +493,7 @@ Proto = {
 		local packet = {}
 		local buf = ""
 		local status, response
-		
+
 		status, buf = self.socket:receive_bytes(16)
 		if ( not status ) then
 			response = Response:new()
@@ -501,7 +501,7 @@ Proto = {
 			response:setErrorMessage(buf)
 			return response
 		end
-		
+
 		packet.header = self:parse_fp_header( buf )
 		while buf:len() < packet.header.length + packet.header.raw:len() do
 			local tmp
@@ -548,7 +548,7 @@ Proto = {
 		return self:read_fp_packet()
 	end,
 
-	--- Sends an DSICloseSession request to the server and handles the response	
+	--- Sends an DSICloseSession request to the server and handles the response
 	dsi_close_session = function( self )
 		local data_offset = 0
 		local option = 0x01 -- Attention Quantum
@@ -586,7 +586,7 @@ Proto = {
 		data = data .. bin.pack(">CIP", unicode_names, unicode_hint, src_path )
 		data = data .. bin.pack(">CIP", unicode_names, unicode_hint, dst_path )
 		data = data .. bin.pack(">CIP", unicode_names, unicode_hint, new_name )
-		
+
 		packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 		self:send_fp_packet( packet )
 		return self:read_fp_packet()
@@ -597,7 +597,7 @@ Proto = {
 	--
 	-- @return status (true or false)
 	-- @return table with server information (if status is true) or error string
-	-- (if status is false) 
+	-- (if status is false)
 	fp_get_server_info = function(self)
 		local packet
 		local data_offset = 0
@@ -800,7 +800,7 @@ Proto = {
 
 	--- Sends an FPGetUserInfo AFP request to the server and handles the response
 	--
-	-- @return response object with the following result <code>user_bitmap</code> and 
+	-- @return response object with the following result <code>user_bitmap</code> and
 	--     <code>uid</code> fields
 	fp_get_user_info = function( self )
 
@@ -821,14 +821,14 @@ Proto = {
 		end
 
 		pos, response.result.user_bitmap, response.result.uid = bin.unpack(">S>I", packet.data)
-		
+
 		return response
 	end,
 
 	--- Sends an FPGetSrvrParms AFP request to the server and handles the response
 	--
 	-- @return response object with the following result <code>server_time</code>,
-	-- <code>vol_count</code>, <code>volumes</code> fields  
+	-- <code>vol_count</code>, <code>volumes</code> fields
 	fp_get_srvr_parms = function(self)
 		local packet, status, data
 		local data_offset = 0
@@ -890,7 +890,7 @@ Proto = {
 			response:setErrorMessage("OpenSSL not available, aborting ...")
 			return response
 		end
-		
+
 		-- currently we only support AFP3.3
 		if afp_version == nil or ( afp_version ~= "AFP3.3" and afp_version ~= "AFP3.2" and afp_version ~= "AFP3.1" ) then
 			response = Response:new()
@@ -934,7 +934,7 @@ Proto = {
 			end
 
 			_, Id, Mb, EncData = bin.unpack(">SH16A32", response.packet.data )
-			
+
 			Mb = openssl.bignum_hex2bn( Mb )
 			K = openssl.bignum_mod_exp (Mb, Ra, p)
 			K_bin = openssl.bignum_bn2bin(K)
@@ -942,7 +942,7 @@ Proto = {
 			nonce = openssl.bignum_add( openssl.bignum_bin2bn(nonce), openssl.bignum_dec2bn("1") )
 			PlainText = openssl.bignum_bn2bin(nonce) .. Util.ZeroPad(password, 64)
 			auth_response = openssl.encrypt( "cast5-cbc", K_bin, dhx_c2civ, PlainText, true)
-		
+
 			data = bin.pack( "CC>SA", COMMAND.FPLoginCont, 0, Id, auth_response )
 			packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 			self:send_fp_packet( packet )
@@ -956,13 +956,13 @@ Proto = {
 		return response
 	end,
 
-	-- Terminates sessions and frees server resources established by FPLoginand FPLoginExt. 
+	-- Terminates sessions and frees server resources established by FPLoginand FPLoginExt.
 	--
 	-- @return response object
 	fp_logout = function( self )
 		local packet, data, response
 		local data_offset, pad = 0, 0
-		
+
 		data = bin.pack("CC", COMMAND.FPLogout, pad)
 		packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 		self:send_fp_packet( packet )
@@ -973,7 +973,7 @@ Proto = {
 	--
 	-- @param bitmap number bitmask of volume information to request
 	-- @param volume_name string containing the volume name to query
-	-- @return response object with the following result <code>bitmap</code> and 
+	-- @return response object with the following result <code>bitmap</code> and
 	--     <code>volume_id</code> fields
 	fp_open_vol = function( self, bitmap, volume_name )
 		local packet, status, pos, data
@@ -1002,7 +1002,7 @@ Proto = {
 	-- @param dir_bitmap number bitmask of directory information to query
 	-- @param path string containing the name of the directory to query
 	-- @return response object with the following result <code>file_bitmap</code>, <code>dir_bitmap</code>,
-	--     <code>file_type</code> and (<code>dir<code> or <code>file</code> tables) depending on whether 
+	--     <code>file_type</code> and (<code>dir<code> or <code>file</code> tables) depending on whether
 	--     <code>did</code> is a file or directory
 	fp_get_file_dir_parms = function( self, volume_id, did, file_bitmap, dir_bitmap, path )
 
@@ -1042,7 +1042,7 @@ Proto = {
 			-- file
 			pos, parms.file = Util.decode_file_bitmap( parms.file_bitmap, response.packet.data, pos )
 		end
-		
+
 		response:setResult(parms)
 		return response
 	end,
@@ -1103,7 +1103,7 @@ Proto = {
 			record.type = ftype
 			table.insert(records, record)
 		end
-		
+
 		response:setResult(records)
 		return response
 	end,
@@ -1123,7 +1123,7 @@ Proto = {
 		local data_offset = 0
 		local pad = 0
 		local response, fork = {}, {}
-		
+
 		local data = bin.pack( "CC>S>I>S>S", COMMAND.FPOpenFork, flag, volume_id, did, file_bitmap, access_mode )
 
 		if path.type == PATH_TYPE.LongName then
@@ -1132,7 +1132,7 @@ Proto = {
 
 		if path.type == PATH_TYPE.UTF8Name then
 			local unicode_hint = 0x08000103
-			data = data .. bin.pack( "C>I>SA", path.type, unicode_hint, path.len, path.name )		
+			data = data .. bin.pack( "C>I>SA", path.type, unicode_hint, path.len, path.name )
 		end
 
 		packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
@@ -1147,7 +1147,7 @@ Proto = {
 		response:setResult(fork)
 		return response
 	end,
-	
+
 	--- FPCloseFork
 	--
 	-- @param fork number containing the fork to close
@@ -1164,7 +1164,7 @@ Proto = {
 		self:send_fp_packet( packet )
 		return self:read_fp_packet( )
 	end,
-	
+
 	--- FPCreateDir
 	--
 	-- @param vol_id number containing the volume id
@@ -1235,7 +1235,7 @@ Proto = {
 	fp_write_ext = function( self, flag, fork, offset, count, fdata )
 		local packet
 		local data_offset = 20
-		local data 
+		local data
 
 		if count > fdata:len() then
 			local err = Response:new()
@@ -1253,7 +1253,7 @@ Proto = {
 		self:send_fp_packet( packet )
 		return self:read_fp_packet( )
 	end,
-	
+
 	--- FPCreateFile
 	--
 	-- @param flag number where 0 indicates a soft create and 1 indicates a hard create.
@@ -1291,15 +1291,15 @@ Proto = {
 		packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 		self:send_fp_packet( packet )
 		response = self:read_fp_packet( )
-		
+
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return response
 		end
-		
+
 		-- Netatalk returns the name with 1-byte length prefix,
 		-- Mac OS has a 2-byte (UTF-8) length prefix
 		local _, len = bin.unpack("C", response.packet.data)
-		
+
 		-- if length is zero assume 2-byte length (UTF-8 name)
 		if len == 0 then
 			response:setResult( select(2, bin.unpack(">P", response.packet.data )) )
@@ -1308,7 +1308,7 @@ Proto = {
 		end
 		return response
 	end,
-	
+
 	--- FPMapName
 	--
 	-- @param subfunc number containing the subfunction to call
@@ -1323,18 +1323,18 @@ Proto = {
 		packet = self:create_fp_packet( REQUEST.Command, data_offset, data )
 		self:send_fp_packet( packet )
 		response = self:read_fp_packet( )
-		
+
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return response
 		end
-		
+
 		response:setResult( select(2, bin.unpack(">I", response.packet.data)))
 		return response
 	end,
 }
 
 --- The helper class wraps the protocol class and their functions. It contains
--- high-level functions with descriptive names, facilitating the use and 
+-- high-level functions with descriptive names, facilitating the use and
 -- minimizing the need to fully understand the AFP low-level protocol details.
 Helper = {
 
@@ -1356,22 +1356,22 @@ Helper = {
 	-- @return string containing error message (if status is false)
 	OpenSession = function( self, host, port )
 	 	local status, response
-	
+
 		self.socket = nmap.new_socket()
 		self.socket:set_timeout( 5000 )
 		status = self.socket:connect(host, port)
 		if not status then
 			return false, "Socket connection failed"
 		end
-		
+
 		self.proto = Proto:new( { socket=self.socket} )
 		response = self.proto:dsi_open_session(self.socket)
-		
+
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			self.socket:close()
 			return false, response:getErrorMessage()
 		end
-		
+
 		return true
 	end,
 
@@ -1382,7 +1382,7 @@ Helper = {
 	CloseSession = function( self )
 		local status, packet = self.proto:dsi_close_session( )
 		self.socket:close()
-		
+
 		return status, packet
 	end,
 
@@ -1397,18 +1397,18 @@ Helper = {
 
 	--- Logs in to an AFP service
 	--
-	-- @param username (optional) string containing the username 
+	-- @param username (optional) string containing the username
 	-- @param password (optional) string containing the user password
 	-- @param options table containing additional options <code>uam</code>
 	Login = function( self, username, password, options )
 		local uam = ( options and options.UAM ) and options.UAM or "DHCAST128"
 		local response
-		
+
 		-- username and password arguments override the ones supplied using the
 		-- script arguments afp.username and afp.password
 		local username = username or self.username
 		local password = password or self.password
-		
+
 		if ( username and uam == "DHCAST128" ) then
 			response = self.proto:fp_login( "AFP3.1", "DHCAST128", username, password )
 		elseif( username ) then
@@ -1416,22 +1416,22 @@ Helper = {
 		else
 			response = self.proto:fp_login( "AFP3.1", "No User Authent" )
 		end
-		
+
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
-			
+
 		return true, "Success"
 	end,
-		
+
 	--- Logs out from the AFP service
 	Logout = function(self)
 		return self.proto:fp_logout()
 	end,
-	
+
 	--- Walks the directory tree specified by <code>str_path</code> and returns the node information
 	--
-	-- @param str_path string containing the directory 
+	-- @param str_path string containing the directory
 	-- @return status boolean true on success, otherwise false
 	-- @return item table containing node information <code>DirectoryId</code> and <code>DirectoryName</code>
 	WalkDirTree = function( self, str_path )
@@ -1461,7 +1461,7 @@ Helper = {
 
 		return true, item
 	end,
-	
+
 	--- Reads a file on the AFP server
 	--
 	-- @param str_path string containing the AFP sharepoint, path and filename eg. HR/Documents/File.doc
@@ -1477,12 +1477,12 @@ Helper = {
 		if ( not status ) then
 			return false, response
 		end
-		
+
 		vol_id = response.VolumeId
 		did = response.DirectoryId
-								
+
 		path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
-			
+
 		response = self.proto:fp_open_fork(0, vol_id, did, 0, ACCESS_MODE.Read, path )
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
@@ -1499,15 +1499,15 @@ Helper = {
 			content = content .. response.result
 			offset = offset + count
 		end
-		
+
 		response = self.proto:fp_close_fork( fork )
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
-		
+
 		return true, content
 	end,
-	
+
 	--- Writes a file to the AFP server
 	--
 	-- @param str_path string containing the AFP sharepoint, path and filename eg. HR/Documents/File.doc
@@ -1519,15 +1519,15 @@ Helper = {
 		local offset, count = 1, 1024
 		local status, vol_id, did, path
 		local p = Util.SplitPath( str_path )
-	
+
 		status, response = self:WalkDirTree( p.dir )
 		vol_id = response.VolumeId
 		did = response.DirectoryId
-		
+
 		if ( not status ) then
 			return false, response
 		end
-	
+
 		path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
 
 		status, response = self.proto:fp_create_file( 0, vol_id, did, path )
@@ -1543,12 +1543,12 @@ Helper = {
 		end
 
 		fork = response.result.fork_id
-		
+
 		response = self.proto:fp_write_ext( 0, fork, 0, fdata:len(), fdata )
 
 		return true, nil
 	end,
-	
+
 	--- Maps a user id (uid) to a user name
 	--
 	-- @param uid number containing the uid to resolve
@@ -1562,7 +1562,7 @@ Helper = {
 		end
 		return true, response.result
 	end,
-	
+
 	--- Maps a group id (gid) to group name
 	--
 	-- @param gid number containing the gid to lookup
@@ -1576,7 +1576,7 @@ Helper = {
 		end
 		return true, response.result
 	end,
-	
+
 	--- Maps a username to a UID
 	--
 	-- @param name string containing the username to map to an UID
@@ -1589,7 +1589,7 @@ Helper = {
 			return false, response:getErrorMessage()
 		end
 		return true, response.result
-	end,	
+	end,
 
 	--- List the contents of a directory
 	--
@@ -1609,9 +1609,9 @@ Helper = {
 		local f_bm = FILE_BITMAP.NodeId + FILE_BITMAP.ParentDirId + FILE_BITMAP.LongName
 		local d_bm = DIR_BITMAP.NodeId + DIR_BITMAP.ParentDirId + DIR_BITMAP.LongName
 		local path = { ['type']=PATH_TYPE.LongName, name="", len=0 }
-		
+
 		local TYPE_DIR = 0x80
-		
+
 		if ( parent == nil ) then
 			status, response = self:WalkDirTree( str_path )
 			if ( not status ) then
@@ -1624,17 +1624,17 @@ Helper = {
 			parent.dir_name = response.DirectoryName or ""
 			parent.out_tbl = {}
 		end
-		
+
 		if ( options and options.max_depth and options.max_depth > 0 and options.max_depth < depth ) then
 			return false, "Max Depth Reached"
 		end
-		
-		response = self.proto:fp_enumerate_ext2( parent.vol_id, parent.did, f_bm, d_bm, 1000, 1, 52800, path)		
-	
+
+		response = self.proto:fp_enumerate_ext2( parent.vol_id, parent.did, f_bm, d_bm, 1000, 1, 52800, path)
+
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
-	
+
 		records = response.result or {}
 		local dir_item = {}
 
@@ -1652,36 +1652,36 @@ Helper = {
 		end
 
 		table.insert( parent.out_tbl, dir_item )
-		
+
 		return true, parent.out_tbl
 	end,
-	
+
 	--- Displays a directory tree
 	--
 	-- @param str_path string containing the sharepoint and the directory
 	-- @param options table options containing zero or more of the options
 	-- <code>max_depth</code> and <code>dironly</code>
-	-- @return dirtree table containing the directories 
+	-- @return dirtree table containing the directories
 	DirTree = function( self, str_path, options )
 		local options = options or {}
 		options.dironly = true
 		return self:Dir( str_path, options )
 	end,
-	
+
 	--- List the AFP sharepoints
 	--
 	-- @return volumes table containing the sharepoints
 	ListShares = function( self )
 		local response
 		response = self.proto:fp_get_srvr_parms( )
-	
+
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
-	
+
 		return true, response.result.volumes
 	end,
-	
+
 	--- Determine the sharepoint permissions
 	--
 	-- @param vol_name string containing the name of the volume
@@ -1689,18 +1689,18 @@ Helper = {
 	-- @return acls table containing the volume acls as returned by <code>acls_to_long_string</code>
 	GetSharePermissions = function( self, vol_name )
 		local status, response, vol_id, acls
-		
+
 		response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
 
 		if response:getErrorCode() == ERROR.FPNoErr then
 			local vol_id
 			local path = {}
-			
-			vol_id = response.result.volume_id			
+
+			vol_id = response.result.volume_id
 			path.type = PATH_TYPE.LongName
 			path.name = ""
 			path.len = path.name:len()
-				
+
 			response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.ALL, DIR_BITMAP.ALL, path )
 			if response:getErrorCode() == ERROR.FPNoErr then
 				if ( response.result.dir and response.result.dir.AccessRights ) then
@@ -1710,10 +1710,10 @@ Helper = {
 			end
 			self.proto:fp_close_vol( vol_id )
 		end
-		
+
 		return true, acls
 	end,
-	
+
 	--- Gets the Unix permissions of a file
 	-- @param vol_name string containing the name of the volume
 	-- @param str_path string containing the name of the file
@@ -1726,18 +1726,18 @@ Helper = {
 	-- @return err string (on failure) containing the error message
 	GetFileUnixPermissions = function(self, vol_name, str_path)
 		local response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
-		
+
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
-		
+
 		local vol_id = response.result.volume_id
 		local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
 		response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.UnixPrivileges, DIR_BITMAP.UnixPrivileges, path )
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
-		
+
 		local item = ( response.result.file ) and response.result.file or response.result.dir
 		local item_type = ( response.result.file ) and "-" or "d"
 		local privs = ( item.UnixPrivileges and item.UnixPrivileges.ua_permissions ) and
@@ -1749,7 +1749,7 @@ Helper = {
 			return true, { uid = uid, gid = gid, privs = str_privs }
 		end
 	end,
-	
+
 	--- Gets the Unix permissions of a file
 	-- @param vol_name string containing the name of the volume
 	-- @param str_path string containing the name of the file
@@ -1758,24 +1758,24 @@ Helper = {
 	-- @return err string (on failure) containing the error message
 	GetFileSize = function( self, vol_name, str_path )
 		local response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
-		
+
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
-		
+
 		local vol_id = response.result.volume_id
 		local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
 		response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.ExtendedDataForkSize, 0, path )
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
-		
+
 		return true, ( response.result.file and
-						response.result.file.ExtendedDataForkSize) and 
+						response.result.file.ExtendedDataForkSize) and
 						response.result.file.ExtendedDataForkSize or 0
 	end,
-	
-	
+
+
 	--- Returns the creation, modification and backup dates of a file
 	-- @param vol_name string containing the name of the volume
 	-- @param str_path string containing the name of the file
@@ -1787,11 +1787,11 @@ Helper = {
 	-- @return err string (on failure) containing the error message
 	GetFileDates = function( self, vol_name, str_path )
 		local response = self.proto:fp_open_vol( VOL_BITMAP.ID, vol_name )
-	
+
 		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
 			return false, response:getErrorMessage()
 		end
-	
+
 		local vol_id = response.result.volume_id
 		local path = { type = PATH_TYPE.LongName, name = str_path, len = #str_path }
 		local f_bm = FILE_BITMAP.CreationDate + FILE_BITMAP.ModificationDate + FILE_BITMAP.BackupDate
@@ -1802,7 +1802,7 @@ Helper = {
 		end
 
 		local item = ( response.result.file ) and response.result.file or response.result.dir
-		
+
 		local diff = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
 		local create = os.date("%Y-%m-%d %H:%M", item.CreationDate + diff)
 		local backup = os.date("%Y-%m-%d %H:%M", item.BackupDate )
@@ -1817,28 +1817,28 @@ Helper = {
 	-- @return status boolean true on success, false on failure
 	-- @return dirId number containing the new directory id
 	CreateDir = function( self, str_path )
-		local status, response, vol_id, did 
+		local status, response, vol_id, did
 		local p = Util.SplitPath( str_path )
 		local path = { ['type']=PATH_TYPE.LongName, name=p.file, len=p.file:len() }
-		
-	
+
+
 		status, response = self:WalkDirTree( p.dir )
 		if not status then
 			return false, response
 		end
-	
+
 		response = self.proto:fp_create_dir( response.VolumeId, response.DirectoryId, path )
 		if response:getErrorCode() ~= ERROR.FPNoErr then
 			return false, response:getErrorMessage()
 		end
-		
+
 		return true, response
 	end,
-	
+
 }
 
 --- Util class, containing some static functions used by Helper and Proto
-Util = 
+Util =
 {
 	--- Pads a string with zeroes
 	--
@@ -1853,10 +1853,10 @@ Util =
 		for i=1, len - str:len() do
 			str = str .. string.char(0)
 		end
-	
+
 		return str
 	end,
-	
+
 	--- Splits a path into two pieces, directory and file
 	--
 	-- @param str_path string containing the path to split
@@ -1864,20 +1864,20 @@ Util =
 	SplitPath = function( str_path )
 		local elements = stdnse.strsplit("/", str_path)
 		local dir, file = "", ""
-		
+
 		if #elements < 2 then
 			return nil
 		end
-		
+
 		file = elements[#elements]
-		
+
 		table.remove( elements, #elements )
 		dir = stdnse.strjoin( "/", elements )
-		
+
 		return { ['dir']=dir, ['file']=file }
-	
+
 	end,
-	
+
 	--- Converts a group bitmask of Search, Read and Write to table
 	--
 	-- @param acls number containing bitmasked acls
@@ -1888,7 +1888,7 @@ Util =
 
 		if bit.band( acls, ACLS.OwnerSearch ) == ACLS.OwnerSearch then
 			table.insert( acl_table, "Search")
-		end 
+		end
 
 		if bit.band( acls, ACLS.OwnerRead ) == ACLS.OwnerRead then
 			table.insert( acl_table, "Read")
@@ -1961,8 +1961,8 @@ Util =
 
 		return owner .. group .. other
     end,
-    
-	
+
+
 	--- Decodes a file bitmap
 	--
 	-- @param bitmap number containing the bitmap
@@ -2024,10 +2024,10 @@ Util =
 		end
 		if ( bit.band( bitmap, FILE_BITMAP.ExtendedResourceForkSize ) == FILE_BITMAP.ExtendedResourceForkSize ) then
 			pos, file.ExtendedResourceForkSize = bin.unpack(">L", data, pos )
-		end		
+		end
 		if ( bit.band( bitmap, FILE_BITMAP.UnixPrivileges ) == FILE_BITMAP.UnixPrivileges ) then
 		local unixprivs = {}
-			pos, unixprivs.uid, unixprivs.gid, 
+			pos, unixprivs.uid, unixprivs.gid,
 			unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">IIII", data, pos )
 			file.UnixPrivileges = unixprivs
 		end
@@ -2105,13 +2105,13 @@ Util =
 		if ( bit.band( bitmap, DIR_BITMAP.UnixPrivileges ) == DIR_BITMAP.UnixPrivileges ) then
 			local unixprivs = {}
 
-			pos, unixprivs.uid, unixprivs.gid, 
+			pos, unixprivs.uid, unixprivs.gid,
 			unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">I>I>I>I", data, pos )
 			dir.UnixPrivileges = unixprivs
 		end
 		return pos, dir
 	end,
-	
+
 }
 
 

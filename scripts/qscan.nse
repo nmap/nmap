@@ -48,7 +48,7 @@ description = [[
 -- | 25    0       2017.30    404.31  0.0%
 -- | 80    1       4180.80    856.98  0.0%
 -- |_443   0       2013.30    368.91  0.0%
--- 
+--
 
 -- 03/17/2010
 
@@ -153,7 +153,7 @@ local tinv = function(p, dof)
 	elseif p == 0.9995 then
 		pin = 7
 	end
-	
+
 	return tdist[din][pin]
 end
 

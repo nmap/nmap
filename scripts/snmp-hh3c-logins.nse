@@ -91,9 +91,9 @@ function process_answer( tbl )
 
 	local output = stdnse.output_table()
 	output.users = {}
-	
+
 	for _, v in ipairs( tbl ) do
-		
+
 		if ( v.oid:match("^" .. h3cUserName) ) then
 			local item = {}
 			local oldobjid = v.oid:gsub( "^" .. h3cUserName, h3cUserPassword)
@@ -114,9 +114,9 @@ function process_answer( tbl )
 
 			output.users[#output.users + 1] = {username=v.value, password=password, level=level}
 		end
-	
+
 	end
-	
+
 	return output
 end
 
@@ -124,7 +124,7 @@ action = function(host, port)
 
 	local socket = nmap.new_socket()
 	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)	
+	local try = nmap.new_try(catch)
 	local data, oldsnmpoid = nil, "1.3.6.1.4.1.2011.10.2.12.1.1.1"
 	local data, newsnmpoid = nil, "1.3.6.1.4.1.25506.2.12.1.1.1"
 	local users = {}
@@ -132,7 +132,7 @@ action = function(host, port)
 
 	socket:set_timeout(5000)
 	try(socket:connect(host, port))
-	
+
 	status, users = snmp.snmpWalk( socket, oldsnmpoid )
 	socket:close()
 

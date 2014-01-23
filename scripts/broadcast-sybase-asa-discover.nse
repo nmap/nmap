@@ -15,7 +15,7 @@ Discovers Sybase Anywhere servers on the LAN by sending broadcast discovery mess
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-sybase-asa-discover: 
+-- | broadcast-sybase-asa-discover:
 -- |   ip=192.168.0.1; name=mysqlanywhere1; port=2638
 -- |_  ip=192.168.0.2; name=mysqlanywhere2; port=49152
 --
@@ -31,7 +31,7 @@ prerule = function() return ( nmap.address_family() == "inet") end
 -- more scripts that make use of it are developed.
 --
 Ping = {
-	
+
 	-- The PING request class
 	Request = {
 
@@ -49,7 +49,7 @@ Ping = {
 				"000000010000040005000500000102000003010104080000000000000000070204b1")
 		end
 	},
-	
+
 	-- The Ping Response class
 	Response = {
 		-- Creates a new response
@@ -95,7 +95,7 @@ Ping = {
 
 -- Main script interface
 Helper = {
-	
+
 	-- Creates a new helper instance
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
@@ -112,7 +112,7 @@ Helper = {
         self.__index = self
 		return o
 	end,
-	
+
 	-- Sends a ping request to the service and processes the response
 	-- @return status true on success, false on failure
 	-- @return instances table of instance tables containing
@@ -123,7 +123,7 @@ Helper = {
 	ping = function(self)
 		local socket = nmap.new_socket("udp")
 		socket:set_timeout(1000)
-		
+
 		-- send 2 packets just in case
 		for i=1, 2 do
 			local ping_req = Ping.Request:new()
@@ -154,26 +154,26 @@ Helper = {
 			end
 		until( os.time() - stime > timeout )
 		socket:close()
-		
+
 		return true, instances
 	end,
-	
-	
+
+
 }
 
 action = function()
-		
+
 	local timeout = ( 20 / ( nmap.timing_level() + 1 ) )
 	local host = { ip = "255.255.255.255" }
 	local port = { number = 2638, protocol = "udp" }
-		
+
 	local helper = Helper:new(host, port)
 	local status, instances = helper:ping()
-	
+
 	if ( not(status) ) then
 		return ("\n  ERROR: %s"):format(instances)
 	end
-		
+
 	-- if we don't have any instances, silently abort
 	if ( next(instances) == nil ) then
 		return

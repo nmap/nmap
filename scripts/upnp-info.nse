@@ -15,7 +15,7 @@ Attempts to extract system information from the UPnP service.
 --
 -- @args upnp-info.override Controls whether we override the IP address information
 --                          returned by the UPNP service for the location of the XML
---                          file that describes the device.  Defaults to true for 
+--                          file that describes the device.  Defaults to true for
 --                          unicast hosts.
 
 -- 2010-10-05 - add prerule support <patrik@cqure.net>
@@ -34,7 +34,7 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.portnumber(1900, "udp", {"open", "open|filtered"})
 
 ---
--- Sends UPnP discovery packet to host, 
+-- Sends UPnP discovery packet to host,
 -- and extracts service information from results
 action = function(host, port)
 	local override = stdnse.get_script_args("upnp-info.override")

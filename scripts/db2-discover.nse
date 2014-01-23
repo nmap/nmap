@@ -15,13 +15,13 @@ Attempts to discover DB2 servers on the network by querying open ibm-db2 UDP por
 -- @output
 -- PORT    STATE SERVICE
 -- 523/udp open  ibm-db2
--- | db2-discover: 
+-- | db2-discover:
 -- |   Host: EDUSRV011
 -- |_  Version: IBM DB2 v9.07.0
 
 -- Version 0.1
 -- Created 08/27/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
--- Revised 10/10/2010 - v0.2 - add prerule, newtargets <patrik@cqure.net> 
+-- Revised 10/10/2010 - v0.2 - add prerule, newtargets <patrik@cqure.net>
 -- Revised 10/07/2011 - v0.3 - moved broadcast support to
 --                             broadcast-db2-discover.nse <patrik@cqure.net>
 
@@ -43,7 +43,7 @@ local function parseVersion( server_version )
 	if pfx == "SQL" then
 		local major_version = string.sub(server_version,4,5)
 
-		-- strip the leading 0 from the major version, for consistency with 
+		-- strip the leading 0 from the major version, for consistency with
 		-- nmap-service-probes results
 		if string.sub(major_version,1,1) == "0" then
 			major_version = string.sub(major_version,2)
@@ -54,16 +54,16 @@ local function parseVersion( server_version )
 	else
 		return "Unknown version"
 	end
-	
+
 	return ("IBM DB2 v%s"):format(server_version)
 end
 
 action = function(host, port)
-	
+
 	local DB2GETADDR = "DB2GETADDR\0SQL09010\0"
 	local socket = nmap.new_socket()
 	local result = {}
-	
+
 	socket:set_timeout(5000)
 
 	local status, err = socket:connect( host, port, "udp")
@@ -78,7 +78,7 @@ action = function(host, port)
 		socket:close()
 		return
 	end
-		
+
 	local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)\0")
 
 	if ( status ) then
@@ -86,9 +86,9 @@ action = function(host, port)
 		table.insert( result, ("Version: %s"):format(parseVersion(version)) )
 	end
 
-	socket:close()	
+	socket:close()
 	-- set port to open
 	nmap.set_port_state(host, port, "open")
 
-	return stdnse.format_output( true, result )	
+	return stdnse.format_output( true, result )
 end

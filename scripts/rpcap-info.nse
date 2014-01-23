@@ -18,7 +18,7 @@ setup to require authentication or not and also supports IP restrictions.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 2002/tcp open  rpcap   syn-ack
--- | rpcap-info: 
+-- | rpcap-info:
 -- |   \Device\NPF_{0D5D1364-1F1F-4892-8AC3-B838258F9BB8}
 -- |     Intel(R) PRO/1000 MT Desktop Adapter
 -- |     Addresses
@@ -50,7 +50,7 @@ local function getInfo(host, port, username, password)
 		return false, "Failed to connect to server"
 	end
 	status, resp = helper:login(username, password)
-		
+
 	if ( not(status) ) then
 		return false, resp
 	end
@@ -60,11 +60,11 @@ local function getInfo(host, port, username, password)
 	if ( not(status) ) then
 		return false, resp
 	end
-	
+
 	port.version.name = "rpcap"
 	port.version.product = "WinPcap remote packet capture daemon"
 	nmap.set_port_version(host, port)
-	
+
 	return true, resp
 end
 
@@ -73,11 +73,11 @@ action = function(host, port)
 	-- patch-up the service name, so creds.rpcap will work, ugly but needed as
 	-- tcp 2002 is registered to the globe service in nmap-services ...
 	port.service = "rpcap"
-	
+
 	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
 	local states = creds.State.VALID + creds.State.PARAM
 	local status, resp = getInfo(host, port)
-	
+
 	if ( status ) then
 		return stdnse.format_output(true, resp)
 	end

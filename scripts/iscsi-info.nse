@@ -11,14 +11,14 @@ Collects and displays information from remote iSCSI targets.
 -- @output
 -- PORT     STATE SERVICE
 -- 3260/tcp open  iscsi
--- | iscsi-info: 
+-- | iscsi-info:
 -- |   iqn.2006-01.com.openfiler:tsn.c8c08cad469d
 -- |     Target address: 192.168.56.5:3260,1
 -- |     Authentication: NOT required
 -- |   iqn.2006-01.com.openfiler:tsn.6aea7e052952
 -- |     Target address: 192.168.56.5:3260,1
 -- |_    Authentication: required
--- 
+--
 
 -- Version 0.2
 -- Created 2010/11/18 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
@@ -39,7 +39,7 @@ portrule = shortport.portnumber(3260, "tcp", {"open", "open|filtered"})
 local function requiresAuth( host, port, target )
 	local helper = iscsi.Helper:new( host, port )
 	local errors = iscsi.Packet.LoginResponse.Errors
-	
+
 	local status, err = helper:connect()
 	if ( not(status) ) then return false, "Failed to connect" end
 
@@ -51,7 +51,7 @@ local function requiresAuth( host, port, target )
 		-- try to logout
 		status = helper:logout()
 	end
-	
+
 	status = helper:close()
 
 	return true, "Authentication successful"
@@ -60,7 +60,7 @@ end
 action = function( host, port )
 
 	local helper = iscsi.Helper:new( host, port )
-	
+
 	local status = helper:connect()
 	if ( not(status) ) then
 		stdnse.print_debug("%s: failed to connect to server", SCRIPT_NAME )
@@ -75,7 +75,7 @@ action = function( host, port )
 	end
 	status = helper:logout()
 	status = helper:close()
-	
+
 	local result = {}
 	for _, record in ipairs(records) do
 		local result_part = {}
@@ -83,7 +83,7 @@ action = function( host, port )
 		for _, addr in ipairs( record.addr ) do
 			table.insert(result_part, ("Address: %s"):format(addr) )
 		end
-		
+
 		local status, err = requiresAuth( host, port, record.name )
 		if ( not(status) ) then
 			table.insert(result_part, "Authentication: " .. err )
@@ -91,6 +91,6 @@ action = function( host, port )
 			table.insert(result_part, "Authentication: No authentication required")
 		end
 		table.insert(result, result_part)
-	end	
+	end
 	return stdnse.format_output( true, result )
 end

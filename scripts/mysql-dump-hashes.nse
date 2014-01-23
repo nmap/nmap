@@ -19,7 +19,7 @@ scripts.
 -- @output
 -- PORT     STATE SERVICE
 -- 3306/tcp open  mysql
--- | mysql-dump-hashes: 
+-- | mysql-dump-hashes:
 -- |   root:*9B500343BC52E2911172EB52AE5CF4847604C6E5
 -- |   debian-sys-maint:*92357EE43977D9228AC9C0D60BB4B4479BD7A337
 -- |_  toor:*14E65567ABDB5135D0CFD9A70B3032C179A49EE7
@@ -66,7 +66,7 @@ local function mysqlLogin(socket, username, password)
 	end
 	return mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 end
-	
+
 
 action = function(host, port)
 	local creds = getCredentials()
@@ -81,7 +81,7 @@ action = function(host, port)
 		if ( not(socket:connect(host, port)) ) then
 			return fail("Failed to connect to server")
 		end
-		
+
 		local status, response = mysqlLogin(socket, username, password)
 		if ( status ) then
 			local query = "SELECT DISTINCT CONCAT(user, ':', password) FROM mysql.user WHERE password <> ''"
@@ -95,7 +95,7 @@ action = function(host, port)
 			socket:close()
 		end
 	end
-	
+
 	if ( result ) then
 		return stdnse.format_output(true, result)
 	end

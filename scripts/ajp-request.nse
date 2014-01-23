@@ -19,12 +19,12 @@ back-end Java application server containers.
 -- @output
 -- PORT     STATE SERVICE
 -- 8009/tcp open  ajp13
--- | ajp-request: 
+-- | ajp-request:
 -- | <!DOCTYPE HTML>
 -- | <html>
 -- | <head>
 -- | <title>JSP Test</title>
--- | 
+-- |
 -- | </head>
 -- | <body>
 -- | <h2>Hello, World.</h2>
@@ -60,21 +60,21 @@ action = function(host, port)
 	if ( not(helper:connect()) ) then
 		return fail("Failed to connect to AJP server")
 	end
-	
+
 	local valid_methods = {
 		["GET"]    = true,
-		["HEAD"]   = true, 
+		["HEAD"]   = true,
 		["TRACE"]  = true,
 		["PUT"]    = true,
 		["DELETE"] = true,
 		["OPTIONS"]= true,
 	}
-	
+
 	local method = arg_method:upper()
 	if ( not(valid_methods[method]) ) then
 		return fail(("Method not supported: %s"):format(arg_method))
 	end
-	
+
 	local options = { auth = { username = arg_username, password = arg_password } }
 	local status, response = helper:request(arg_method, arg_path, nil, nil, options)
 	if ( not(status) ) then
@@ -83,8 +83,8 @@ action = function(host, port)
 	helper:close()
 
 	if ( response ) then
-		local output = response['status-line'] .. "\n" .. 
-						stdnse.strjoin("\n", response.rawheaders) .. 
+		local output = response['status-line'] .. "\n" ..
+						stdnse.strjoin("\n", response.rawheaders) ..
 						(response.body and "\n\n" .. response.body or "")
 		if ( arg_file ) then
 			local f = io.open(arg_file, "w")

@@ -13,7 +13,7 @@ Lists modules available for rsync (remote file sync) synchronization.
 -- @output
 -- PORT    STATE SERVICE
 -- 873/tcp open  rsync
--- | rsync-list-modules: 
+-- | rsync-list-modules:
 -- |   www            	www directory
 -- |   log            	log directory
 -- |_  etc            	etc directory
@@ -31,12 +31,12 @@ action = function(host, port)
 	if ( not(helper) ) then
 		return "\n  ERROR: Failed to create rsync.Helper"
 	end
-	
+
 	local status, err = helper:connect()
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to connect to rsync server"
 	end
-	
+
 	local modules = {}
 	status, modules = helper:listModules()
 	if ( not(status) ) then

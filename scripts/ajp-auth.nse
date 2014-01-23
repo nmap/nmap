@@ -15,7 +15,7 @@ Retrieves the authentication scheme and realm of an AJP service (Apache JServ Pr
 -- @output
 -- PORT     STATE SERVICE
 -- 8009/tcp open  ajp13
--- | ajp-auth: 
+-- | ajp-auth:
 -- |_  Digest opaque=GPui3SvCGBoHrRMMzSsgaYBV qop=auth nonce=1336063830612:935b5b389696b0f67b9193e19f47e037 realm=example.org
 --
 -- @args ajp-auth.path  Define the request path
@@ -34,11 +34,11 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 	local helper = ajp.Helper:new(host, port)
-	
+
 	if ( not(helper:connect()) ) then
 		return fail("Failed to connect to AJP server")
 	end
-	
+
 	local status, answer = helper:get(arg_path or "/")
 
 	--- check for 401 response code

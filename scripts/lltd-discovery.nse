@@ -18,14 +18,14 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 ]]
 
 ---
--- @usage 
--- nmap -e <interface> --script lltd-discovery 
+-- @usage
+-- nmap -e <interface> --script lltd-discovery
 --
 -- @args lltd-discovery.interface string specifying which interface to do lltd discovery on.  If not specified, all ethernet interfaces are tried.
 -- @args lltd-discover.timeout timespec specifying how long to listen for replies (default 30s)
 --
 -- @output
--- | lltd-discovery: 
+-- | lltd-discovery:
 -- |   192.168.1.64
 -- |     Hostname: acer-PC
 -- |     Mac: 18:f4:6a:4f:de:a2 (Hon Hai Precision Ind. Co.)
@@ -53,12 +53,12 @@ prerule = function()
 		nmap.registry[SCRIPT_NAME].rootfail = true
 		return nil
 	end
-	
+
 	if nmap.address_family() ~= 'inet' then
 		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
 		return false
 	end
-	
+
 	return true
 end
 
@@ -69,7 +69,7 @@ local function get_mac_addr( mac )
 	local catch = function() return end
 	local try = nmap.new_try(catch)
 	local mac_prefixes = try(datafiles.parse_mac_prefixes())
-	
+
 	if mac:len() ~= 6 then
 		return "Unknown"
 	else
@@ -94,24 +94,24 @@ local parseHello = function(data)
 --	generation_number,
 --	tlv_list(dict)
 --}
-	local types = {"Host ID", "Characteristics", "Physical Medium", "Wireless Mode", "802.11 BSSID", 
-		"802.11 SSID", "IPv4 Address", "IPv6 Address", "802.11 Max Operational Rate", 
-		"Performance Counter Frequency", nil, "Link Speed", "802.11 RSSI", "Icon Image", "Machine Name", 
-		"Support Information", "Friendly Name", "Device UUID", "Hardware ID", "QoS Characteristics", 
+	local types = {"Host ID", "Characteristics", "Physical Medium", "Wireless Mode", "802.11 BSSID",
+		"802.11 SSID", "IPv4 Address", "IPv6 Address", "802.11 Max Operational Rate",
+		"Performance Counter Frequency", nil, "Link Speed", "802.11 RSSI", "Icon Image", "Machine Name",
+		"Support Information", "Friendly Name", "Device UUID", "Hardware ID", "QoS Characteristics",
 		"802.11 Physical Medium", "AP Association Table", "Detailed Icon Image", "Sees-List Working Set",
 		"Component Table", "Repeater AP Lineage", "Repeater AP Table"}
 	local mac = nil
 	local ipv4 = nil
 	local ipv6 = nil
 	local hostname = nil
-	
+
 	local pos = 1
 	pos = pos + 6
 	local mac_src = data:sub(pos,pos+5)
-	
+
 	pos = pos + 24
 	local seq_no = data:sub(pos,pos+1)
-	
+
 	pos = pos + 2
 	local generation_no = data:sub(pos,pos+1)
 
@@ -121,24 +121,24 @@ local parseHello = function(data)
 	local tlv_list = {}
 	local p = 1
 	while p < #tlv do
-		local t = tlv:byte(p) 
+		local t = tlv:byte(p)
 		if t == 0x00 then
 			break
-		else 
+		else
 			p = p + 1
 			local l = tlv:byte(p)
 
 			p = p + 1
 			local v = tlv:sub(p,p+l)
-			
-			if t == 0x01 then 
+
+			if t == 0x01 then
 				-- Host ID (MAC Address)
 				mac = get_mac_addr(v:sub(1,6))
 			elseif t == 0x08 then
 				ipv6 = string.format(
 					"%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-					v:byte(1), v:byte(2), v:byte(3), v:byte(4), 
-					v:byte(5), v:byte(6), v:byte(7), v:byte(8), 
+					v:byte(1), v:byte(2), v:byte(3), v:byte(4),
+					v:byte(5), v:byte(6), v:byte(7), v:byte(8),
 					v:byte(9), v:byte(10), v:byte(11), v:byte(12),
 					v:byte(13), v:byte(14), v:byte(15), v:byte(16))
 			elseif t == 0x07 then
@@ -160,10 +160,10 @@ local parseHello = function(data)
 			if ipv4 and ipv6 and mac and hostname then
 				break
 			end
-		end	
+		end
 	end
-	 
-	return ipv4, mac, ipv6, hostname 
+
+	return ipv4, mac, ipv6, hostname
 end
 
 --- Creates an LLTD Quick Discovery packet with the source MAC address
@@ -174,9 +174,9 @@ local QuickDiscoveryPacket = function(mac_src)
 	-- set up ethernet header = [ mac_dst, mac_src, protocol ]
 	local mac_dst = "FF FF FF FF FF FF" -- broadcast
 	local protocol = "88 d9" -- LLTD protocol number
-	
+
 	ethernet_hdr = bin.pack("HAH",mac_dst, mac_src, protocol)
-	
+
 	-- set up LLTD demultiplex header = [ version, type_of_service, reserved, function ]
 	local lltd_version = "01" -- Fixed Value
 	local lltd_type_of_service = "01" -- Type Of Service = Quick Discovery(0x01)
@@ -195,7 +195,7 @@ local QuickDiscoveryPacket = function(mac_src)
 	local number_of_stations = "00 00"
 	local station_list = "00 00 00 00 00 00 " .. "00 00 00 00 00 00 " ..
 						 "00 00 00 00 00 00 " .."00 00 00 00 00 00 "
-	
+
 	discover_up_lev_hdr = bin.pack("AHH", generation_number, number_of_stations, station_list)
 
 	-- put them all together and return
@@ -207,11 +207,11 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 	local timeout_s = 3
 	local condvar = nmap.condvar(lltd_responders)
 	local pcap = nmap.new_socket()
-	pcap:set_timeout(5000)  	
-	
+	pcap:set_timeout(5000)
+
 	local dnet = nmap.new_dnet()
 	local try = nmap.new_try(function() dnet:ethernet_close() pcap:close() end)
-	
+
 	pcap:pcap_open(if_table.device, 256, false, "")
 	try(dnet:ethernet_open(if_table.device))
 
@@ -219,7 +219,7 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 	try( dnet:ethernet_send(packet) )
 	stdnse.sleep(0.5)
 	try( dnet:ethernet_send(packet) )
-	
+
 	local start = os.time()
 	local start_s = os.time()
 	while true do
@@ -228,9 +228,9 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 			local packet = l2..l3
 			if stdnse.tohex(packet:sub(13,14)) == "88d9" then
 				start_s = os.time()
-				
+
 				local ipv4, mac, ipv6, hostname = parseHello(packet)
-				
+
 				if ipv4 then
 					if not lltd_responders[ipv4] then
 						lltd_responders[ipv4] = {}
@@ -245,7 +245,7 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 				end
 			end
 		else
-			break 
+			break
 		end
 
 		if os.time() - start > timeout then
@@ -265,7 +265,7 @@ action = function()
 	--get interface script-args, if any
 	local interface_arg = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
 	local interface_opt = nmap.get_interface()
-	
+
 	-- interfaces list (decide which interfaces to broadcast on)
 	local interfaces ={}
 	if interface_opt or interface_arg then
@@ -280,25 +280,25 @@ action = function()
 	else
 		local tmp_ifaces = nmap.list_interfaces()
 		for _, if_table in ipairs(tmp_ifaces) do
-			if if_table.address and 
-				if_table.link=="ethernet" and 
+			if if_table.address and
+				if_table.link=="ethernet" and
 				if_table.address:match("%d+%.%d+%.%d+%.%d+") then
 
 				table.insert(interfaces, if_table)
 			end
 		end
 	end
-	
-	if #interfaces == 0 then 
+
+	if #interfaces == 0 then
 		stdnse.print_debug("No interfaces found.")
-		return 
+		return
 	end
 
 	local lltd_responders={}
 	local threads ={}
 	local condvar = nmap.condvar(lltd_responders)
 
-	-- party time 
+	-- party time
 	for _, if_table in ipairs(interfaces) do
 		-- create a thread for each interface
 		local co = stdnse.new_thread(LLTDDiscover, if_table, lltd_responders, timeout)
@@ -313,7 +313,7 @@ action = function()
 			condvar "wait"
 		end
 	until next(threads) == nil
-	
+
 	-- generate output
 	local output = {}
 	for ip_addr, info in pairs(lltd_responders) do
@@ -321,13 +321,13 @@ action = function()
 
 	    local s = {}
 	    s.name = ip_addr
-	    if info.hostname then	
+	    if info.hostname then
 		table.insert(s, "Hostname: " .. info.hostname)
 	    end
-	    if info.mac then	
+	    if info.mac then
 		table.insert(s, "Mac: " .. info.mac)
 	    end
-	    if info.ipv6 then	
+	    if info.ipv6 then
 		table.insert(s, "IPv6: " .. info.ipv6)
 	    end
 	    table.insert(output,s)

@@ -14,7 +14,7 @@ Queries Quake3-style master servers for game servers (many games other than Quak
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 27950/udp open  quake3-master
--- | quake3-master-getservers: 
+-- | quake3-master-getservers:
 -- |     192.0.2.22:26002 Xonotic (Xonotic 3)
 -- |     203.0.113.37:26000 Nexuiz (Nexuiz 3)
 -- |_    Only 2 shown. Use --script-args quake3-master-getservers.outputlimit=-1 to see all.

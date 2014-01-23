@@ -23,7 +23,7 @@ servers (this bug was fixed in Oracle's October 2009 Critical Patch Update).
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 1521/tcp open  oracle  syn-ack
--- | oracle-enum-users:  
+-- | oracle-enum-users:
 -- |   haxxor is a valid user account
 -- |   noob is a valid user account
 -- |_  patrik is a valid user account
@@ -47,34 +47,34 @@ categories = {"intrusive", "auth"}
 portrule = shortport.port_or_service(1521, 'oracle-tns' )
 
 local function checkAccount( host, port, user )
-	
+
 	local helper = tns.Helper:new( host, port, nmap.registry.args['oracle-enum-users.sid'] )
 	local status, data = helper:Connect()
 	local tnscomm, auth
 	local auth_options = tns.AuthOptions:new()
-	
-	
+
+
 	if ( not(status) ) then
 		return false, data
 	end
 
 	-- A bit ugly, the helper should probably provide a getSocket function
 	tnscomm = tns.Comm:new( helper.tnssocket )
-	
+
 	status, auth = tnscomm:exchTNSPacket( tns.Packet.PreAuth:new( user, auth_options, helper.os ) )
 	if ( not(status) ) then
 		return false, auth
 	end
 	helper:Close()
-	
-	return true, auth["AUTH_VFR_DATA"]	
+
+	return true, auth["AUTH_VFR_DATA"]
 end
 
----Generates a random string of the requested length. This can be used to check how hosts react to 
--- weird username/password combinations. 
---@param length (optional) The length of the string to return. Default: 8. 
---@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore. 
---@return The random string. 
+---Generates a random string of the requested length. This can be used to check how hosts react to
+-- weird username/password combinations.
+--@param length (optional) The length of the string to return. Default: 8.
+--@param set    (optional) The set of letters to choose from. Default: upper, lower, numbers, and underscore.
+--@return The random string.
 local function get_random_string(length, set)
 	if(length == nil) then
 		length = 8
@@ -104,16 +104,16 @@ action = function( host, port )
 	local count = 0
 	local result = {}
 	local usernames
-	
+
 	if ( not( nmap.registry.args['oracle-enum-users.sid'] ) and not( nmap.registry.args['tns.sid'] ) ) then
 		return "ERROR: Oracle instance not set (see oracle-enum-users.sid or tns.sid)"
 	end
-	
+
 	status, usernames = unpwdb.usernames()
 	if( not(status) ) then
 		return stdnse.format_output(true, "ERROR: Failed to load the usernames dictionary")
 	end
-	
+
 	-- Check for some known good accounts
 	for _, user in ipairs( known_good_accounts ) do
 		status, salt = checkAccount(host, port, user)
@@ -122,12 +122,12 @@ action = function( host, port )
 			count = count + #salt
 		end
 	end
-	
+
 	-- did we atleast get a single salt back?
 	if ( count < 20 ) then
 		return stdnse.format_output(true, "ERROR: None of the known accounts were detected (oracle < 11g)")
 	end
-	
+
 	-- Check for some known bad accounts
 	count = 0
 	for i=1, 10 do
@@ -143,7 +143,7 @@ action = function( host, port )
 	if ( count > 60 ) then
 		return stdnse.format_output(true, ("ERROR: %d of %d random accounts were detected (Patched Oracle 11G or Oracle 11G R2)"):format(count/20, 10))
 	end
-	
+
 	for user in usernames do
 		status, salt = checkAccount(host, port, user)
 		if ( not(status) ) then return salt end
@@ -151,10 +151,10 @@ action = function( host, port )
 			table.insert( result, ("%s is a valid user account"):format(user))
 		end
 	end
-	
+
 	if ( #result == 0 ) then
 		table.insert( result, "Failed to find any valid user accounts")
 	end
-	
+
 	return stdnse.format_output(true, result)
 end

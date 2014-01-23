@@ -17,7 +17,7 @@ Extracts information from a Quake3 game server and other games which use the sam
 -- @output
 -- PORT      STATE         SERVICE VERSION
 -- 27960/udp open          quake3  Quake 3 dedicated server
--- | quake3-info:  
+-- | quake3-info:
 -- | PLAYERS:
 -- |     1. cyberix (frags: 0/20, ping: 4)
 -- | BASIC OPTIONS:

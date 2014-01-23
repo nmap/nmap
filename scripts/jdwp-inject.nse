@@ -46,14 +46,14 @@ action = function(host, port)
 		return nil
 	end
 
-	-- read .class file 
+	-- read .class file
 	local filename = stdnse.get_script_args(SCRIPT_NAME .. '.filename')
 	if filename == nil then
 		return stdnse.format_output(false, "This script requires a .class file to inject.")
 	end
-	local file = io.open(nmap.fetchfile(filename) or filename, "rb") 
+	local file = io.open(nmap.fetchfile(filename) or filename, "rb")
 	local class_bytes = file:read("*all")
-	
+
 	-- inject the class
 	local injectedClass
 	status,injectedClass = jdwp.injectClass(socket,class_bytes)
@@ -67,19 +67,19 @@ action = function(host, port)
 	if runMethodID == nil then
 		stdnse.print_debug(1, "%s: Couldn't find run method", SCRIPT_NAME)
 		return stdnse.format_output(false, "Couldn't find run method.")
-	end	
-	
+	end
+
 	-- invoke run method
-	local result 	
-	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil) 
+	local result
+	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil)
 	if not status then
 		stdnse.print_debug(1, "%s: Couldn't invoke run method", SCRIPT_NAME)
 		return stdnse.format_output(false, result)
 	end
 	-- get the result string
 	local _,_,stringID = bin.unpack(">CL",result)
-	status,result = jdwp.readString(socket,0,stringID)	
-	-- parse results 
-	return stdnse.format_output(status,result)	
+	status,result = jdwp.readString(socket,0,stringID)
+	-- parse results
+	return stdnse.format_output(status,result)
 end
 

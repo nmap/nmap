@@ -13,7 +13,7 @@ dimmers and electric outlets. For more information: http://www.telldus.com/
 -- nmap --script broadcast-tellstick-discover
 --
 -- @output
--- | broadcast-tellstick-discover: 
+-- | broadcast-tellstick-discover:
 -- |   192.168.0.100
 -- |     Product: TellStickNet
 -- |     MAC: ACCA12345678
@@ -32,7 +32,7 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 action = function()
 	local socket = nmap.new_socket("udp")
 	local host, port = { ip = "255.255.255.255" }, { number = 30303, protocol = "udp" }
-	
+
 	socket:set_timeout(5000)
 	if ( not(socket:sendto(host, port, "D")) ) then
 		return fail("Failed to send discovery request to server")
@@ -64,7 +64,7 @@ action = function()
 			table.insert(output, output_part)
 		end
 	end
-	
+
 	if ( 0 < #output ) then
 		return stdnse.format_output(true, output)
 	end

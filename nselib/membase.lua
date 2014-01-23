@@ -17,16 +17,16 @@ _ENV = stdnse.module("membase", stdnse.seeall)
 
 -- A minimalistic implementation of the Couchbase Membase TAP protocol
 TAP = {
-	
+
 	-- Operations
 	Op = {
 		LIST_SASL_MECHS = 0x20,
 		AUTHENTICATE	= 0x21,
 	},
-	
+
 	-- Requests
 	Request = {
-		
+
 		-- Header breakdown
 		-- Field        (offset) (value)
 		-- Magic            (0): 0x80 (PROTOCOL_BINARY_REQ)
@@ -38,8 +38,8 @@ TAP = {
 		-- Total body    (8-11): 0x00000000 (0)
 		-- Opaque       (12-15): 0x00000000 (0)
 		-- CAS          (16-23): 0x0000000000000000 (0)
-		Header = {	
-		
+		Header = {
+
 			-- Creates a new instance of Header
 			-- @param opcode number containing the operation
 			-- @return o new instance of Header
@@ -59,7 +59,7 @@ TAP = {
 				self.__index = self
 				return o
 			end,
-	
+
 			-- Converts the header to string
 			-- @return string containing the Header as string
 			__tostring = function(self)
@@ -68,7 +68,7 @@ TAP = {
 					self.opaque, self.CAS)
 			end,
 		},
-	
+
 		-- List SASL authentication mechanism
 		SASLList = {
 
@@ -90,7 +90,7 @@ TAP = {
 				return tostring(self.header)
 			end,
 		},
-	
+
 		-- Authenticates using SASL
 		Authenticate = {
 
@@ -119,7 +119,7 @@ TAP = {
 				if ( self.mech == "PLAIN" ) then
 					local mech_params = { self.username, self.password }
 					local auth_data = sasl.Helper:new(self.mech):encode(table.unpack(mech_params))
-					
+
 					self.header.keylen = #self.mech
 					self.header.total_body = #auth_data + #self.mech
 					return tostring(self.header) .. self.mech .. auth_data
@@ -127,12 +127,12 @@ TAP = {
 			end,
 
 		}
-	
+
 	},
-	
+
 	-- Responses
 	Response = {
-	
+
 		-- The response header
 		-- Header breakdown
 		-- Field        (offset) (value)
@@ -146,7 +146,7 @@ TAP = {
 		-- Opaque       (12-15): 0x00000000 (0)
 		-- CAS          (16-23): 0x0000000000000000 (0)
 		Header = {
-		
+
 			-- Creates a new instance of Header
 			-- @param data string containing the raw data
 			-- @return o new instance of Header
@@ -160,7 +160,7 @@ TAP = {
 					return o
 				end
 			end,
-		
+
 			-- Parse the raw header and populates the class members
 			-- @return status true on success, false on failure
 			parse = function(self)
@@ -169,17 +169,17 @@ TAP = {
 					return false, "Packet to short"
 				end
 				local pos
-				pos, self.magic, self.opcode, self.keylen, self.extlen, 
+				pos, self.magic, self.opcode, self.keylen, self.extlen,
 					self.data_type,	self.status, self.total_body, self.opaque,
 					self.CAS = bin.unpack(">CCSCCSIIL", self.data)
 				return true
 			end
-			
+
 		},
-		
+
 		-- Decoders
 		Decoder = {
-			
+
 			-- TAP.Op.LIST_SASL_MECHS
 			[0x20] = {
 				-- Creates a new instance of the decoder
@@ -203,7 +203,7 @@ TAP = {
 					return true
 				end
 			},
-			
+
 			-- Login response
 			[0x21] = {
 				-- Creates a new instance of the decoder
@@ -227,23 +227,23 @@ TAP = {
 					return true
 				end
 			}
-			
+
 		}
-	
+
 	},
-	
+
 }
 
 -- The Helper class is the main script interface
 Helper = {
-	
+
 	-- Creates a new instance of the helper
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
 	-- @param options table including options to the helper, currently:
 	--        <code>timeout</code> - socket timeout in milliseconds
 	new = function(self, host, port, options)
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			mech = stdnse.get_script_args("membase.authmech"),
@@ -253,7 +253,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Connects the socket to the server
 	-- @return true on success, false on failure
 	connect = function(self)
@@ -261,12 +261,12 @@ Helper = {
 		self.socket:set_timeout(self.options.timeout or 10000)
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	-- Closes the socket
 	close = function(self)
 		return self.socket:close()
 	end,
-	
+
 	-- Sends a request to the server, receives and parses the response
 	-- @param req a Request instance
 	-- @return status true on success, false on failure
@@ -276,7 +276,7 @@ Helper = {
 		if ( not(status) ) then
 			return false, "Failed to send data"
 		end
-		
+
 		local data
 		status, data = self.socket:receive_buf(match.numbytes(24), true)
 		if ( not(status) ) then
@@ -284,32 +284,32 @@ Helper = {
 		end
 
 		local header = TAP.Response.Header:new(data)
-		
+
 		if ( header.opcode ~= req.header.opcode ) then
 			stdnse.print_debug("WARNING: Received invalid op code, request contained (%d), response contained (%d)", req.header.opcode, header.opcode)
 		end
-		
+
 		if ( not(TAP.Response.Decoder[tonumber(header.opcode)]) ) then
 			return false, ("No response handler for opcode: %d"):format(header.opcode)
 		end
-		
+
 		local status, data = self.socket:receive_buf(match.numbytes(header.total_body), true)
 		if ( not(status) ) then
 			return false, "Failed to receive data"
 		end
-		
+
 		local response = TAP.Response.Decoder[tonumber(header.opcode)]:new(data)
 		if ( not(response) ) then
 			return false, "Failed to parse response from server"
 		end
 		return true, response
 	end,
-	
+
 	-- Gets list of supported SASL authentication mechanisms
 	getSASLMechList = function(self)
 		return self:exch(TAP.Request.SASLList:new())
 	end,
-	
+
 	-- Logins to the server
 	-- @param username string containing the username
 	-- @param password string containing the password

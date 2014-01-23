@@ -14,13 +14,13 @@ Runs a query against a MySQL database and returns the results as a table.
 -- @output
 -- PORT     STATE SERVICE
 -- 3306/tcp open  mysql
--- | mysql-query: 
+-- | mysql-query:
 -- |   host       user
 -- |   127.0.0.1  root
 -- |   localhost  debian-sys-maint
 -- |   localhost  root
 -- |   ubu1110    root
--- |   
+-- |
 -- |   Query: SELECT host, user FROM mysql.user
 -- |_  User: root
 --
@@ -70,20 +70,20 @@ local function mysqlLogin(socket, username, password)
 	end
 	return mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 end
-	
+
 
 action = function(host, port)
 	if ( not(arg_query) ) then
 		stdnse.print_debug(2, "No query was given, aborting ...")
 		return
 	end
-	
+
 	local creds = getCredentials()
 	if ( not(creds) ) then
 		stdnse.print_debug(2, "No credentials were supplied, aborting ...")
 		return
 	end
-	
+
 	if ( arg_noheaders == '1' or arg_noheaders == 'true' ) then
 		arg_noheaders = true
 	else
@@ -97,7 +97,7 @@ action = function(host, port)
 		local socket = nmap.new_socket()
 		if ( not(socket:connect(host, port)) ) then
 			return fail("Failed to connect to server")
-		end		
+		end
 		local status, response = mysqlLogin(socket, username, password)
 		if ( status ) then
 			local status, rs = mysql.sqlQuery( socket, arg_query )

@@ -14,7 +14,7 @@ Be advised that, if launched against a vulnerable host, this script will crash t
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | ftp-libopie: 
+-- | ftp-libopie:
 -- |   VULNERABLE:
 -- |   OPIE off-by-one stack overflow
 -- |     State: LIKELY VULNERABLE

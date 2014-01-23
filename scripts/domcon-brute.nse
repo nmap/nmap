@@ -16,7 +16,7 @@ Performs brute force password auditing against the Lotus Domino Console.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 2050/tcp open  unknown syn-ack
--- | domcon-brute:  
+-- | domcon-brute:
 -- |   Accounts
 -- |_    patrik karlsson:secret => Login correct
 --
@@ -40,7 +40,7 @@ portrule = shortport.port_or_service(2050, "", "tcp", "open")
 local not_admins = {}
 
 SocketPool = {
-	
+
 	new = function(self, max_sockets)
 		local o = {}
        	setmetatable(o, self)
@@ -49,7 +49,7 @@ SocketPool = {
 		o.pool = {}
 		return o
 	end,
-	
+
 	getSocket = function(self, host, port)
 		while(true) do
 			for i=1, #self.pool do
@@ -61,11 +61,11 @@ SocketPool = {
 			if ( #self.pool < self.max_sockets ) then
 				local socket = nmap.new_socket()
 				local status = socket:connect( host.ip, port.number, "tcp")
-				
+
 				if ( status ) then
 					socket:reconnect_ssl()
 				end
-			
+
 				if ( status and socket ) then
 					table.insert( self.pool, {['socket'] = socket, ['inuse'] = false})
 				end
@@ -73,7 +73,7 @@ SocketPool = {
 			stdnse.sleep(1)
 		end
 	end,
-	
+
 	releaseSocket = function( self, socket )
 		for i=1, #self.pool do
 			if( socket == self.pool[i].socket ) then
@@ -82,16 +82,16 @@ SocketPool = {
 			end
 		end
 	end,
-		
+
 	shutdown = function( self )
 		for i=1, #self.pool do
 			self.pool[i].socket:close()
 		end
 	end,
-	
+
 }
 
-Driver = 
+Driver =
 {
 
 	new = function(self, host, port, options)
@@ -103,10 +103,10 @@ Driver =
 		o.sockpool = options
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.socket = self.sockpool:getSocket( self.host, self.port )
-	
+
 		if ( self.socket ) then
 			return true
 		else
@@ -124,7 +124,7 @@ Driver =
 	login = function( self, username, password )
 		local data = ("#UI %s,%s\n"):format(username,password)
 		local status
-		
+
 		if ( not_admins[username] ) then
 			return false, brute.Error:new( "Incorrect password" )
 		end
@@ -135,7 +135,7 @@ Driver =
 			err:setRetry(true)
 			return false, err
 		end
-		
+
 		status, data = self.socket:receive_bytes(5)
 
 		if ( status and data:match("NOT_REG_ADMIN") ) then
@@ -147,22 +147,22 @@ Driver =
 		return false, brute.Error:new( "Incorrect password" )
 
 	end,
-	
+
 	disconnect = function( self )
 		self.sockpool:releaseSocket( self.socket )
 	end,
-		
+
 }
 
 
 action = function(host, port)
-	local status, result 
+	local status, result
 	local pool = SocketPool:new(10)
 	local engine = brute.Engine:new(Driver, host, port, pool )
-   	
+
 	engine.options.script_name = SCRIPT_NAME
 	status, result = engine:start()
 	pool:shutdown()
-	
+
 	return result
 end

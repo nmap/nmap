@@ -4,7 +4,7 @@ local shortport = require "shortport"
 local nmap = require "nmap"
 
 description = "Detect the T3 RMI protocol and Weblogic version"
-author = "Alessandro ZANNI <alessandro.zanni@bt.com>, Daniel Miller" 
+author = "Alessandro ZANNI <alessandro.zanni@bt.com>, Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery","version"}
 
@@ -19,7 +19,7 @@ action = function(host, port)
   local status, result = comm.exchange(host, port,
     "t3 12.1.2\nAS:2048\nHL:19\n\n",
     {proto=port.protocol, timeout=5000})
-	
+
 	if (not status) then
     return nil
   end
@@ -63,13 +63,13 @@ action = function(host, port)
     port.version.extrainfo = extrainfo .. "T3 enabled"
     rval = "T3 protocol in use (No such command)"
   end
-  
+
   if rval then
     if port.version.product == nil then
       port.version.product = "WebLogic application server"
     end
     nmap.set_port_version(host, port, "hardmatched")
   end
-	
+
 	return rval
 end

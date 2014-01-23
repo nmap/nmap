@@ -80,8 +80,8 @@ owns.
 author = "Brandon Enright, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
--- Current version of this script was based entirly on Implementing CIFS, by 
--- Christopher R. Hertel. 
+-- Current version of this script was based entirly on Implementing CIFS, by
+-- Christopher R. Hertel.
 categories = {"default", "discovery", "safe"}
 
 
@@ -121,7 +121,7 @@ action = function(host)
 	local response = {}
 	local catch = function() return end
 	local try = nmap.new_try(catch)
-	
+
 
 	-- Get the list of NetBIOS names
 	status, names, statistics = netbios.do_nbstat(host)
@@ -145,7 +145,7 @@ action = function(host)
 	end
 
   local mac_prefixes = try(datafiles.parse_mac_prefixes())
-	
+
 	-- Format the Mac address in the standard way
 	if(#statistics >= 6) then
 		-- MAC prefixes are matched on the first three bytes, all uppercase
@@ -154,8 +154,8 @@ action = function(host)
 			address = ("%02x:%02x:%02x:%02x:%02x:%02x"):format( statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6) ),
 			manuf = mac_prefixes[prefix] or "unknown"
 		}
-		host.registry['nbstat'] = { 
-			server_name = server_name, 
+		host.registry['nbstat'] = {
+			server_name = server_name,
 			mac = mac.address
 		}
 		-- Samba doesn't set the Mac address, and nmap-mac-prefixes shows that as Xerox

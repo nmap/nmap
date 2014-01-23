@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 local vulns = require "vulns"
 
-description = [[ 
+description = [[
 Detects the Mac OS X AFP directory traversal vulnerability, CVE-2010-0533.
 
 This script attempts to iterate over all AFP shares on the remote
@@ -32,7 +32,7 @@ For additional information:
 --@output
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp
--- | afp-path-vuln: 
+-- | afp-path-vuln:
 -- |   VULNERABLE:
 -- |   Apple Mac OS X AFP server directory traversal
 -- |     State: VULNERABLE (Exploitable)
@@ -59,7 +59,7 @@ For additional information:
 -- Version 0.3
 --
 -- Created 02/09/2010 - v0.1 - created by Patrik Karlsson as PoC for Apple
--- Revised 05/03/2010 - v0.2 - cleaned up and added dependency to afp-brute and added support 
+-- Revised 05/03/2010 - v0.2 - cleaned up and added dependency to afp-brute and added support
 --                             for credentials by argument or registry
 -- Revised 10/03/2010 - v0.3 - combined afp-path-exploit and afp-path-vuln into this script
 -- Revised 21/10/2011 - v0.4 - Use the vulnerability library vulns.lua
@@ -96,10 +96,10 @@ local function processResponse( tbl, max_count, out, count )
 		elseif( type(v) == 'table' ) then
 			local tmp = {}
 			table.insert( out, tmp )
-			processResponse( v, max_count, tmp, count ) 
+			processResponse( v, max_count, tmp, count )
 		end
 	end
-	
+
 	-- strip the outer table
 	return out[1]
 end
@@ -184,7 +184,7 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
 		status, shares = afp_helper:ListShares()
 
 		for _, share in ipairs(shares) do
-					
+
 			local status, response = afp_helper:Dir( share .. "/../", { max_depth = 2 } )
 
 			if ( not(status) ) then
@@ -209,7 +209,7 @@ Directory traversal vulnerability in AFP Server in Apple Mac OS X before
 			end
 		end
 	end
-	
+
 	if ( vulnerable ) then
 	  afp_vuln.state = vulns.STATE.EXPLOIT
 	else

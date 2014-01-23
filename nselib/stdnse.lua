@@ -60,7 +60,7 @@ _ENV.sleep = nmap.socket.sleep;
 ---
 -- Prints a formatted debug message if the current debugging level is greater
 -- than or equal to a given level.
--- 
+--
 -- This is a convenience wrapper around
 -- <code>nmap.log_write</code>. The first optional numeric
 -- argument, <code>level</code>, is used as the debugging level necessary
@@ -81,7 +81,7 @@ end
 ---
 -- Prints a formatted verbosity message if the current verbosity level is greater
 -- than or equal to a given level.
--- 
+--
 -- This is a convenience wrapper around
 -- <code>nmap.log_write</code>. The first optional numeric
 -- argument, <code>level</code>, is used as the verbosity level necessary
@@ -101,7 +101,7 @@ end
 
 
 --- Join a list of strings with a separator string.
--- 
+--
 -- This is Lua's <code>table.concat</code> function with the parameters
 -- swapped for coherence.
 -- @usage
@@ -112,7 +112,7 @@ end
 -- @return Concatenated string.
 function strjoin(delimiter, list)
   assert(type(delimiter) == "string" or type(delimiter) == nil, "delimiter is of the wrong type! (did you get the parameters backward?)")
-    
+
   return concat(list, delimiter);
 end
 
@@ -167,7 +167,7 @@ end
 
 --- Return a wrapper closure around a socket that buffers socket reads into
 -- chunks separated by a pattern.
--- 
+--
 -- This function operates on a socket attempting to read data. It separates the
 -- data by <code>sep</code> and, for each invocation, returns a piece of the
 -- separated data. Typically this is used to iterate over the lines of data
@@ -274,7 +274,7 @@ end
 -- @param s String or number to be encoded.
 -- @param options Table specifiying formatting options.
 -- @return String in hexadecimal format.
-function tohex( s, options ) 
+function tohex( s, options )
   options = options or EMPTY
   local separator = options.separator
   local hex
@@ -539,7 +539,7 @@ function clock_us()
   return nmap.clock() * 1000000
 end
 
----Get the indentation symbols at a given level. 
+---Get the indentation symbols at a given level.
 local function format_get_indent(indent, at_end)
   local str = ""
   local had_continue = false
@@ -642,7 +642,7 @@ local function format_output_sub(status, data, indent)
       end
 
       insert(output, format_output_sub(status, value, new_indent))
-        
+
     elseif(type(value) == 'string') then
       local lines = splitlines(value)
 
@@ -657,30 +657,30 @@ local function format_output_sub(status, data, indent)
   return concat(output)
 end
 
----Takes a table of output on the commandline and formats it for display to the 
--- user. This is basically done by converting an array of nested tables into a 
--- string. In addition to numbered array elements, each table can have a 'name' 
--- and a 'warning' value. The 'name' will be displayed above the table, and 
+---Takes a table of output on the commandline and formats it for display to the
+-- user. This is basically done by converting an array of nested tables into a
+-- string. In addition to numbered array elements, each table can have a 'name'
+-- and a 'warning' value. The 'name' will be displayed above the table, and
 -- 'warning' will be displayed, with a 'WARNING' tag, if and only if debugging
--- is enabled. 
--- 
+-- is enabled.
+--
 -- Here's an example of a table:
 -- <code>
 --   local domains = {}
 --   domains['name'] = "DOMAINS"
 --   table.insert(domains, 'Domain 1')
 --   table.insert(domains, 'Domain 2')
--- 
+--
 --   local names = {}
 --   names['name'] = "NAMES"
 --   names['warning'] = "Not all names could be determined!"
 --   table.insert(names, "Name 1")
--- 
+--
 --   local response = {}
 --   table.insert(response, "Apple pie")
 --   table.insert(response, domains)
 --   table.insert(response, names)
--- 
+--
 --   return stdnse.format_output(true, response)
 -- </code>
 --
@@ -696,13 +696,13 @@ end
 --   |_     Name 1
 -- </code>
 --
---@param status A boolean value dictating whether or not the script succeeded. 
+--@param status A boolean value dictating whether or not the script succeeded.
 --              If status is false, and debugging is enabled, 'ERROR' is prepended
 --              to every line. If status is false and debugging is disabled, no output
---              occurs. 
---@param data   The table of output. 
+--              occurs.
+--@param data   The table of output.
 --@param indent Used for indentation on recursive calls; should generally be set to
---              nil when callling from a script. 
+--              nil when callling from a script.
 -- @return <code>nil</code>, if <code>data</code> is empty, otherwise a
 -- multiline string.
 function format_output(status, data, indent)
@@ -772,7 +772,7 @@ end
 function get_script_args (...)
   local args = {}
 
-  for i, set in ipairs({...}) do 
+  for i, set in ipairs({...}) do
     if type(set) == "string" then
       set = {set}
     end
@@ -788,10 +788,10 @@ function get_script_args (...)
   return unpack(args, 1, select("#", ...))
 end
 
----Get the best possible hostname for the given host. This can be the target as given on 
--- the commandline, the reverse dns name, or simply the ip address. 
---@param host The host table (or a string that'll simply be returned). 
---@return The best possible hostname, as a string. 
+---Get the best possible hostname for the given host. This can be the target as given on
+-- the commandline, the reverse dns name, or simply the ip address.
+--@param host The host table (or a string that'll simply be returned).
+--@return The best possible hostname, as a string.
 function get_hostname(host)
   if type(host) == "table" then
     return host.targetname or ( host.name ~= '' and host.name ) or host.ip
@@ -801,7 +801,7 @@ function get_hostname(host)
 end
 
 ---Retrieve an item from the registry, checking if each sub-key exists. If any key doesn't
--- exist, return nil. 
+-- exist, return nil.
 function registry_get(subkeys)
   local registry = nmap.registry
   local i = 1
@@ -819,7 +819,7 @@ function registry_get(subkeys)
   return registry
 end
 
---Check if the given element exists in the registry. If 'key' is nil, it isn't checked. 
+--Check if the given element exists in the registry. If 'key' is nil, it isn't checked.
 function registry_exists(subkeys, key, value)
   local subkey = registry_get(subkeys)
 
@@ -836,12 +836,12 @@ function registry_exists(subkeys, key, value)
   return false
 end
 
----Add an item to an array in the registry, creating all sub-keys if necessary. 
+---Add an item to an array in the registry, creating all sub-keys if necessary.
 -- For example, calling:
 -- <code>registry_add_array({'192.168.1.100', 'www', '80', 'pages'}, 'index.html')</code>
 -- Will create nmap.registry['192.168.1.100'] as a table, if necessary, then add a table
 -- under the 'www' key, and so on. 'pages', finally, is treated as an array and the value
--- given is added to the end. 
+-- given is added to the end.
 function registry_add_array(subkeys, value, allow_duplicates)
   local registry = nmap.registry
   local i = 1
@@ -871,7 +871,7 @@ function registry_add_array(subkeys, value, allow_duplicates)
 end
 
 ---Similar to <code>registry_add_array</code>, except instead of adding a value to the
--- end of an array, it adds a key:value pair to the table. 
+-- end of an array, it adds a key:value pair to the table.
 function registry_add_table(subkeys, key, value, allow_duplicates)
   local registry = nmap.registry
   local i = 1
@@ -1019,39 +1019,39 @@ do end -- no function here, see nse_main.lua
 --@param port_range a port range string in Nmap standard format (ex. "T:80,1-30,U:31337,21-25")
 --@returns boolean indicating whether the port is in the port range
 function in_port_range(port,port_range)
-	assert(port and type(port.number)=="number" and type(port.protocol)=="string" and 
+	assert(port and type(port.number)=="number" and type(port.protocol)=="string" and
 			(port.protocol=="udp" or port.protocol=="tcp"),"Port structure missing or invalid: port={ number=<port_number>, protocol=<port_protocol> }")
 	assert((type(port_range)=="string" or type(port_range)=="number") and port_range~="","Incorrect port range specification.")
-	
+
 	-- Proto - true for TCP, false for UDP
 	local proto
 	if(port.protocol=="tcp") then proto = true else proto = false end
-	
+
 	--TCP flag for iteration - true for TCP, false for UDP, if not specified we presume TCP
 	local tcp_flag = true
-	
-	-- in case the port_range is a single number 
+
+	-- in case the port_range is a single number
 	if type(port_range)=="number" then
 		if proto and port_range==port.number then return true
 		else return false
 		end
 	end
-	
+
 	--clean the string a bit
 	port_range=port_range:gsub("%s+","")
-	
+
 	-- single_pr - single port range
 	for i, single_pr in ipairs(strsplit(",",port_range)) do
 		if single_pr:match("T:") then
 			tcp_flag = true
 			single_pr = single_pr:gsub("T:","")
-		else 
-			if single_pr:match("U:") then 
-				tcp_flag = false 
+		else
+			if single_pr:match("U:") then
+				tcp_flag = false
 				single_pr = single_pr:gsub("U:","")
 			end
 		end
-		
+
 		-- compare ports only when the port's protocol is the same as
 		-- the current single port range
 		if tcp_flag == proto then
@@ -1059,9 +1059,9 @@ function in_port_range(port,port_range)
 			if pone then
 				pone = tonumber(pone)
 				assert(pone>-1 and pone<65536, "Port range number out of range (0-65535).")
-				
-				if pone == port.number then 
-					return true 
+
+				if pone == port.number then
+					return true
 				end
 			else
 				local pstart, pend = single_pr:match("^(%d+)%-(%d+)$")
@@ -1069,7 +1069,7 @@ function in_port_range(port,port_range)
 				assert(pstart,"Incorrect port range specification.")
 				assert(pstart<=pend,"Incorrect port range specification, the starting port should have a smaller value than the ending port.")
 				assert(pstart>-1 and pstart<65536 and pend>-1 and pend<65536, "Port range number out of range (0-65535).")
-				
+
 				if port.number >=pstart and port.number <= pend then
 					return true
 				end

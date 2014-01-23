@@ -234,13 +234,13 @@ end
 
 local function insert_version_info(host,port,BOversion,BOhostname,initial_seed,password)
 	if(port.version==nil) then port.version={} end
-	if(port.version.name==nil) then 
+	if(port.version.name==nil) then
 		port.version.name ="BackOrifice"
 		port.version.name_confidence = 10
 	end
 	if(port.version.product==nil) then port.version.product ="BackOrifice trojan" end
 	if(port.version.version == nil) then port.version.version = BOversion end
-	if(port.version.extrainfo == nil) then 
+	if(port.version.extrainfo == nil) then
 		if password == nil then
 			if initial_seed == nil then
 				port.version.extrainfo = "no password"
@@ -286,18 +286,18 @@ action = function( host, port )
 			if p_type ~= TYPE.ERROR then
 				local tmp_str = cmds[i].filter(response)
 				if tmp_str ~= nil then
-					if cmds[i].p_code==TYPE.PING then 
+					if cmds[i].p_code==TYPE.PING then
 						--invalid chars for hostname are allowed on old windows boxes
 						local BOversion, BOhostname = string.match(tmp_str,"!PONG!(1%.20)!(.*)!")
-						if BOversion==nil then 
+						if BOversion==nil then
 							--in case of bad PING reply return ""
-							return 
+							return
 						else
 							--fill up version information
 							insert_version_info(host,port,BOversion,BOhostname,initial_seed,password)
 						end
 					end
-						
+
 					table.insert(output,tmp_str)
 				end
 

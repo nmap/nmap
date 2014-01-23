@@ -27,10 +27,10 @@ categories = {"default", "discovery", "safe", "version"}
 portrule = shortport.port_or_service(500, "isakmp", "udp")
 
 
--- Test different methods for getting version 
--- 
+-- Test different methods for getting version
+--
 local function get_version(host, port)
-	local packet, version, t 
+	local packet, version, t
 	local auth			= {"psk", "rsa", "Hybrid", "XAUTH"}
 	local encryption	= {"des", "3des", "aes/128", "aes/192", "aes/256"}
 	local hash			= {"md5", "sha1"}

@@ -23,7 +23,7 @@ matching domain name, it may be suspicious.
 -- @output
 -- PORT     STATE SERVICE
 ---443/tcp open  https
----| ssl-google-cert-catalog: 
+---| ssl-google-cert-catalog:
 ---|   First/last date seen: 19 Aug 2011 / 10 Sep 2011
 ---|_  Days in between: 20
 

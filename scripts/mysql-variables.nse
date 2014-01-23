@@ -20,7 +20,7 @@ Attempts to show all variables on a MySQL server.
 --
 -- @output
 -- 3306/tcp open  mysql
--- | mysql-variables:  
+-- | mysql-variables:
 -- |   auto_increment_increment: 1
 -- |   auto_increment_offset: 1
 -- |   automatic_sp_privileges: ON
@@ -60,10 +60,10 @@ action = function( host, port )
 	local users = {}
 	local nmap_args = nmap.registry.args
 	local status, rows
-	
+
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
-	
+
 	-- first, let's see if the script has any credentials as arguments?
 	if nmap_args.mysqluser then
 		users[nmap_args.mysqluser] = nmap_args.mysqlpass or ""
@@ -71,7 +71,7 @@ action = function( host, port )
 	elseif nmap.registry.mysqlusers then
 		-- do we have root credentials?
 		if nmap.registry.mysqlusers['root'] then
-			users['root'] = nmap.registry.mysqlusers['root'] 
+			users['root'] = nmap.registry.mysqlusers['root']
 		else
 			-- we didn't have root, so let's make sure we loop over them all
 			users = nmap.registry.mysqlusers
@@ -81,17 +81,17 @@ action = function( host, port )
 		stdnse.print_debug("No credentials supplied, aborting ...")
 		return
 	end
-	
+
 	--
 	-- Iterates over credentials, breaks once it successfully recieves results
 	--
 	for username, password in pairs(users) do
-				
+
 		try( socket:connect(host, port) )
-	
+
 		response = try( mysql.receiveGreeting( socket ) )
-		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt ) 
-	
+		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
+
 		if status and response.errorcode == 0 then
 			local status, rs = mysql.sqlQuery( socket, "show variables" )
 			if status then
@@ -100,10 +100,10 @@ action = function( host, port )
 				end
 			end
 		end
-		
+
 		socket:close()
 	end
-	
-	return stdnse.format_output(true, result)	
+
+	return stdnse.format_output(true, result)
 
 end

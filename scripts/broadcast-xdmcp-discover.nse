@@ -15,7 +15,7 @@ are marked using the keyword Willing in the result.
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-xdmcp-discover: 
+-- | broadcast-xdmcp-discover:
 -- |_  192.168.2.162 - Willing
 --
 -- @args broadcast-xdmcp-discover.timeout socket timeout (default: 5s)
@@ -32,16 +32,16 @@ local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. 
 action = function()
 
 	local host, port = { ip = "255.255.255.255" }, { number = 177, protocol = "udp" }
-	local options = { timeout = 1 }	
+	local options = { timeout = 1 }
 	local helper = xdmcp.Helper:new(host, port, options)
 	local status = helper:connect()
-	
+
 	local req = xdmcp.Packet[xdmcp.OpCode.BCAST_QUERY]:new(nil)
 	local status, err = helper:send(req)
 	if ( not(status) ) then
 		return false, err
 	end
-	
+
 	local timeout = arg_timeout or 5
 	local start = os.time()
 	local result = {}
@@ -58,7 +58,7 @@ action = function()
 				result[rhost] = false
 			end
 		end
-		
+
 	until( os.time() - start > timeout )
 
 	local output = {}

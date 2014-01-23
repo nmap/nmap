@@ -14,72 +14,72 @@ Checks for vulnerabilities:
 * MS06-025, a Windows Ras RPC service vulnerability
 * MS07-029, a Windows Dns Server RPC service vulnerability
 
-WARNING: These checks are dangerous, and are very likely to bring down a server. 
+WARNING: These checks are dangerous, and are very likely to bring down a server.
 These should not be run in a production environment unless you (and, more importantly,
-the business) understand the risks! 
+the business) understand the risks!
 
-As a system administrator, performing these kinds of checks is crucial, because 
+As a system administrator, performing these kinds of checks is crucial, because
 a lot more damage can be done by a worm or a hacker using this vulnerability than
 by a scanner. Penetration testers, on the other hand, might not want to use this
-script -- crashing services is not generally a good way of sneaking through a 
-network. 
+script -- crashing services is not generally a good way of sneaking through a
+network.
 
-If you set the script parameter <code>unsafe</code>, then scripts will run that are almost 
+If you set the script parameter <code>unsafe</code>, then scripts will run that are almost
 (or totally) guaranteed to crash a vulnerable system; do NOT specify <code>unsafe</code>
-in a production environment! And that isn't to say that non-unsafe scripts will 
-not crash a system, they're just less likely to. 
+in a production environment! And that isn't to say that non-unsafe scripts will
+not crash a system, they're just less likely to.
 
 If you set the script parameter <code>safe</code>, then script will run that rarely or never
-crash a vulnerable system. No promises, though. 
+crash a vulnerable system. No promises, though.
 
 MS08-067. Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
-can allow remote code execution.  Checking for MS08-067 is very dangerous, as the check 
+can allow remote code execution.  Checking for MS08-067 is very dangerous, as the check
 is likely to crash systems. On a fairly wide scan conducted by Brandon Enright, we determined
 that on average, a vulnerable system is more likely to crash than to survive
-the check. Out of 82 vulnerable systems, 52 crashed. 
+the check. Out of 82 vulnerable systems, 52 crashed.
 At the same time, MS08-067 is extremely critical to fix. Metasploit has a working and
-stable exploit for it, and any system vulnerable can very easily be compromised. 
+stable exploit for it, and any system vulnerable can very easily be compromised.
 Conficker. Checks if a host is infected with a known Conficker strain. This check
 is based on the simple conficker scanner found on this page:
 http://iv.cs.uni-bonn.de/wg/cs/applications/containing-conficker.
 Thanks to the folks who wrote that scanner!
 
-regsvc DoS. Checks if a host is vulnerable to a crash in regsvc, caused 
+regsvc DoS. Checks if a host is vulnerable to a crash in regsvc, caused
 by a null pointer dereference. I inadvertently discovered this crash while working
-on <code>smb-enum-sessions</code>, and discovered that it was repeatable. It's been 
-reported to Microsoft (case #MSRC8742). 
+on <code>smb-enum-sessions</code>, and discovered that it was repeatable. It's been
+reported to Microsoft (case #MSRC8742).
 
 This check WILL crash the service, if it's vulnerable, and requires a guest account
-or higher to work. It is considered <code>unsafe</code>. 
+or higher to work. It is considered <code>unsafe</code>.
 
 SMBv2 DoS. Performs a denial-of-service against the vulnerability disclosed in
 CVE-2009-3103. Checks if the server went offline. This works agianst Windows Vista
 and some versions of Windows 7, and causes a bluescreen if successful. The
-proof-of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used, 
-with one small change. 
+proof-of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used,
+with one small change.
 
 MS06-025. Vulnerability targets the <code>RasRpcSumbitRequest()</code> RPC method which is
-a part of RASRPC interface that serves as a RPC service for configuring and 
+a part of RASRPC interface that serves as a RPC service for configuring and
 getting information from the Remote Access and Routing service. RASRPC can be
 accessed using either "\ROUTER" SMB pipe or the "\SRVSVC" SMB pipe (usually on Windows XP machines).
 This is in RPC world known as "ncan_np" RPC transport. <code>RasRpcSumbitRequest()</code>
 method is a generic method which provides different functionalities according
-to the <code>RequestBuffer</code> structure and particulary the <code>RegType</code> field within that 
+to the <code>RequestBuffer</code> structure and particulary the <code>RegType</code> field within that
 structure. <code>RegType</code> field is of <code>enum ReqTypes</code> type. This enum type lists all
 the different available operation that can be performed using the <code>RasRpcSubmitRequest()</code>
-RPC method. The one particular operation that this vuln targets is the <code>REQTYPE_GETDEVCONFIG</code> 
+RPC method. The one particular operation that this vuln targets is the <code>REQTYPE_GETDEVCONFIG</code>
 request to get device information on the RRAS.
 
 MS07-029. Vulnerability targets the <code>R_DnssrvQuery()</code> and <code>R_DnssrvQuery2()</code> RPC method which is
-a part of DNS Server RPC interface that serves as a RPC service for configuring and 
+a part of DNS Server RPC interface that serves as a RPC service for configuring and
 getting information from the DNS Server service. DNS Server RPC service can be
 accessed using "\dnsserver" SMB named pipe. The vulnerability is triggered when
 a long string is send as the "zone" parameter which causes the buffer overflow which
 crashes the service.
 
 (Note: if you have other SMB/MSRPC vulnerability checks you'd like to see added, and
-you can show me a tool with a license that is compatible with Nmap's, post a request 
-on the nmap-dev mailing list and I'll add it to my list [Ron Bowes].) 
+you can show me a tool with a license that is compatible with Nmap's, post a request
+on the nmap-dev mailing list and I'll add it to my list [Ron Bowes].)
 ]]
 ---
 --@usage
@@ -88,7 +88,7 @@ on the nmap-dev mailing list and I'll add it to my list [Ron Bowes].)
 --
 --@output
 -- Host script results:
--- | smb-check-vulns:  
+-- | smb-check-vulns:
 -- |   MS08-067: NOT VULNERABLE
 -- |   Conficker: Likely CLEAN
 -- |   regsvc DoS: regsvc DoS: NOT VULNERABLE
@@ -100,7 +100,7 @@ on the nmap-dev mailing list and I'll add it to my list [Ron Bowes].)
 --       patched, are basically guaranteed to crash something. Remember that
 --       non-unsafe checks aren't necessarily safe either)
 -- @args safe   If set, this script will only run checks that are known (or at
---       least suspected) to be safe. 
+--       least suspected) to be safe.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -110,7 +110,7 @@ categories = {"intrusive","exploit","dos","vuln"}
 -- run after all smb-* scripts (so if it DOES crash something, it doesn't kill
 -- other scans have had a chance to run)
 dependencies = {
-  "smb-brute", "smb-enum-sessions", "smb-security-mode", 
+  "smb-brute", "smb-enum-sessions", "smb-security-mode",
   "smb-enum-shares", "smb-server-stats",
   "smb-enum-domains", "smb-enum-users", "smb-system-info",
   "smb-enum-groups", "smb-os-discovery", "smb-enum-processes",
@@ -131,23 +131,23 @@ local INFECTED2  = 6
 local CLEAN      = 7
 local NOTUP      = 8
 
----Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an 
+---Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
--- you're safe (for now). 
+-- you're safe (for now).
 --
 -- Based on a packet cap of this script, thanks go out to the author:
 -- http://labs.portcullis.co.uk/application/ms08-067-check/
 --
--- If there's a licensing issue, please let me (Ron Bowes) know so I can 
+-- If there's a licensing issue, please let me (Ron Bowes) know so I can
 --
--- NOTE: This CAN crash stuff (ie, crash svchost and force a reboot), so beware! In about 20 
--- tests I did, it crashed once. This is not a guarantee. 
+-- NOTE: This CAN crash stuff (ie, crash svchost and force a reboot), so beware! In about 20
+-- tests I did, it crashed once. This is not a guarantee.
 --
---@param host The host object. 
---@return (status, result) If status is false, result is an error code; otherwise, result is either 
---        <code>VULNERABLE</code> for vulnerable, <code>PATCHED</code> for not vulnerable, 
+--@param host The host object.
+--@return (status, result) If status is false, result is an error code; otherwise, result is either
+--        <code>VULNERABLE</code> for vulnerable, <code>PATCHED</code> for not vulnerable,
 --        <code>UNKNOWN</code> if there was an error (likely vulnerable), <code>NOTRUN</code>
---        if this check was disabled, and <code>INFECTED</code> if it was patched by Conficker. 
+--        if this check was disabled, and <code>INFECTED</code> if it was patched by Conficker.
 function check_ms08_067(host)
 	if(nmap.registry.args.safe ~= nil) then
 		return true, NOTRUN
@@ -173,7 +173,7 @@ function check_ms08_067(host)
 
 	-- Call netpathcanonicalize
 --	status, netpathcanonicalize_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\a", "\\test\\")
-	
+
 	local path1 = "\\AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\..\\n"
 	local path2 = "\\n"
 	status, netpathcompare_result = msrpc.srvsvc_netpathcompare(smbstate, host.ip, path1, path2, 1, 0)
@@ -211,7 +211,7 @@ CONFICKER_ERROR_HELP = {
 	--       is set to Off/False/No rather than Auto or yes.
 	--    On these systems, if you reenable the browser service, then the
 	--    test will complete."
-	["NT_STATUS_OBJECT_NAME_NOT_FOUND"] = 
+	["NT_STATUS_OBJECT_NAME_NOT_FOUND"] =
 [[UNKNOWN; not Windows, or Windows with disabled browser service (CLEAN); or Windows with crashed browser service (possibly INFECTED).
 |  If you know the remote system is Windows, try rebooting it and scanning
 |_ again. (Error NT_STATUS_OBJECT_NAME_NOT_FOUND)]],
@@ -233,16 +233,16 @@ CONFICKER_ERROR_HELP = {
 	-- [[]]
 }
 
----Check if the server is infected with Conficker. This can be detected by a modified MS08-067 patch, 
--- which rejects a different illegal string than the official patch rejects. 
+---Check if the server is infected with Conficker. This can be detected by a modified MS08-067 patch,
+-- which rejects a different illegal string than the official patch rejects.
 --
 -- Based loosely on the Simple Conficker Scanner, found here:
 -- http://iv.cs.uni-bonn.de/wg/cs/applications/containing-conficker/
 --
 -- If there's a licensing issue, please let me (Ron Bowes) know so I can fix it
 --
---@param host The host object. 
---@return (status, result) If status is false, result is an error code; otherwise, result is either 
+--@param host The host object.
+--@return (status, result) If status is false, result is an error code; otherwise, result is either
 --        <code>INFECTED</code> for infected or <code>CLEAN</code> for not infected.
 function check_conficker(host)
 	local status, smbstate
@@ -291,17 +291,17 @@ function check_conficker(host)
 	return true, CLEAN
 end
 
----While writing <code>smb-enum-sessions</code> I discovered a repeatable null-pointer dereference 
+---While writing <code>smb-enum-sessions</code> I discovered a repeatable null-pointer dereference
 -- in regsvc. I reported it to Microsoft, but because it's a simple DoS (and barely even that, because
 -- the service automatically restarts), and because it's only in Windows 2000, it isn't likely that they'll
--- fix it. This function checks for that crash (by crashing the process). 
+-- fix it. This function checks for that crash (by crashing the process).
 --
--- The crash occurs when the string sent to winreg_enumkey() function is null. 
+-- The crash occurs when the string sent to winreg_enumkey() function is null.
 --
---@param host The host object. 
---@return (status, result) If status is false, result is an error code; otherwise, result is either 
+--@param host The host object.
+--@return (status, result) If status is false, result is an error code; otherwise, result is either
 --        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable. If the check
---        was skipped, <code>NOTRUN</code> is returned. 
+--        was skipped, <code>NOTRUN</code> is returned.
 function check_winreg_Enum_crash(host)
 	if(nmap.registry.args.safe ~= nil) then
 		return true, NOTRUN
@@ -356,7 +356,7 @@ local function check_smbv2_dos(host)
 		return true, NOTRUN
 	end
 
-	-- From http://seclists.org/fulldisclosure/2009/Sep/0039.html with one change on the last line. 
+	-- From http://seclists.org/fulldisclosure/2009/Sep/0039.html with one change on the last line.
 	local buf = string.char(0x00, 0x00, 0x00, 0x90) ..  -- Begin SMB header: Session message
 	            string.char(0xff, 0x53, 0x4d, 0x42) .. -- Server Component: SMB
 	            string.char(0x72, 0x00, 0x00, 0x00) .. -- Negociate Protocol
@@ -408,7 +408,7 @@ local function check_smbv2_dos(host)
 	socket:set_timeout(5000)
 	status, result = socket:connect(host, 445)
 
-	-- Check the result	
+	-- Check the result
 	if(status == false or status == nil) then
 		stdnse.print_debug(1, "smb-check-vulns: Connect failed, host is likely vulnerable!")
 		socket:close()
@@ -434,15 +434,15 @@ end
 --and Access Service. This check is not safe as it crashes the RRAS service and
 --its dependencies.
 --@param host Host object.
---@return (status, result) 
---*	<code>status == false</code> -> <code>result == NOTUP</code> which designates 
+--@return (status, result)
+--*	<code>status == false</code> -> <code>result == NOTUP</code> which designates
 --that the targeted Ras RPC service is not active.
---*	<code>status == true</code> -> 
+--*	<code>status == true</code> ->
 --	** <code>result == VULNERABLE</code> for vulnerable.
 --	** <code>result == PATCHED</code> for not vulnerable.
 --	** <code>result == NOTRUN</code> if check skipped.
 function check_ms06_025(host)
-    --check for safety flag  
+    --check for safety flag
     if(nmap.registry.args.safe ~= nil) then
 		return true, NOTRUN
     end
@@ -464,7 +464,7 @@ function check_ms06_025(host)
     --bind to RRAS service
     local bind_result
     status, bind_result = msrpc.bind(smbstate, msrpc.RASRPC_UUID, msrpc.RASRPC_VERSION, nil)
-    if(status == false) then 
+    if(status == false) then
         msrpc.stop_smb(smbstate)
         return false, UNKNOWN --if bind operation results with a false status we can't conclude anything.
     end
@@ -474,8 +474,8 @@ function check_ms06_025(host)
     end
 	local req, buff, sr_result
 	req = msrpc.RRAS_marshall_RequestBuffer(
-		0x01, 
-		msrpc.RRAS_RegTypes['GETDEVCONFIG'], 
+		0x01,
+		msrpc.RRAS_RegTypes['GETDEVCONFIG'],
 		msrpc.random_crap(3000))
 	status, sr_result = msrpc.RRAS_SubmitRequest(smbstate, req)
 	msrpc.stop_smb(smbstate)
@@ -497,15 +497,15 @@ end
 ---Check the existence of ms07_029 vulnerability in Microsoft Dns Server service.
 --This check is not safe as it crashes the Dns Server RPC service its dependencies.
 --@param host Host object.
---@return (status, result) 
---*	<code>status == false</code> -> <code>result == NOTUP</code> which designates 
+--@return (status, result)
+--*	<code>status == false</code> -> <code>result == NOTUP</code> which designates
 --that the targeted Dns Server RPC service is not active.
---*	<code>status == true</code> -> 
+--*	<code>status == true</code> ->
 --	** <code>result == VULNERABLE</code> for vulnerable.
 --	** <code>result == PATCHED</code> for not vulnerable.
 --	** <code>result == NOTRUN</code> if check skipped.
 function check_ms07_029(host)
- 	--check for safety flag  
+   --check for safety flag
     if(nmap.registry.args.safe ~= nil) then
 		return true, NOTRUN
     end
@@ -528,9 +528,9 @@ function check_ms07_029(host)
 	--call
 	local req_blob, q_result
 	status, q_result = msrpc.DNSSERVER_Query(
-		smbstate, 
-		"VULNSRV", 
-		string.rep("\\\13", 1000), 
+		smbstate,
+		"VULNSRV",
+		string.rep("\\\13", 1000),
 		1)--any op num will do
 	--sanity check
 	msrpc.stop_smb(smbstate)
@@ -548,14 +548,14 @@ function check_ms07_029(host)
 	end
 end
 
----Returns the appropriate text to display, if any. 
+---Returns the appropriate text to display, if any.
 --
 --@param check The name of the check; for example, 'ms08-067'.
 --@param message The message to display, such as 'VULNERABLE' or 'PATCHED'.
---@param description [optional] Extra details about the message. nil for a blank message. 
+--@param description [optional] Extra details about the message. nil for a blank message.
 --@param minimum_verbosity The minimum verbosity level required before the message is displayed.
 --@param minimum_debug [optional] The minimum debug level required before the message is displayed (default: 0).
---@return A string with a textual representation of the error (or empty string, if it was determined that the message shouldn't be displayed). 
+--@return A string with a textual representation of the error (or empty string, if it was determined that the message shouldn't be displayed).
 local function get_response(check, message, description, minimum_verbosity, minimum_debug)
 	if(minimum_debug == nil) then
 		minimum_debug = 0
@@ -660,7 +660,7 @@ action = function(host)
 			table.insert(response, get_response("MS06-025", "NOT VULNERABLE", nil, 1))
         end
     end
-    
+
     -- Check for ms07-029
     status, result = check_ms07_029(host)
     if(status == false) then

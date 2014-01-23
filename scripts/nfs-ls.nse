@@ -10,7 +10,7 @@ description = [[
 Attempts to get useful information about files from NFS exports.
 The output is intended to resemble the output of <code>ls</code>.
 
-The script starts by enumerating and mounting the remote NFS exports. After 
+The script starts by enumerating and mounting the remote NFS exports. After
 that it performs an NFS GETATTR procedure call for each mounted point
 in order to get its ACLs.
 For each mounted directory the script will try to list its file entries
@@ -67,7 +67,7 @@ These access permissions are shown only with NFSv3:
 -- * <code>a</code>: last access time (atime)
 -- * <code>c</code>: last change time (ctime)
 -- The default value is <code>m</code> (mtime).
- 
+
 -- Created 05/28/2010 - v0.1 - combined nfs-dirlist and nfs-acls scripts
 -- Revised 06/04/2010 - v0.2 - make NFS exports listing with their acls
 --                             default action.
@@ -79,7 +79,7 @@ These access permissions are shown only with NFSv3:
 --                             library.
 -- Revised 06/27/2010 - v0.7 - added NFSv3 ACCESS support.
 -- Revised 06/28/2010 - v0.8 - added NFSv2 support.
--- 
+--
 
 author = "Patrik Karlsson, Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -197,7 +197,7 @@ local function table_dirlist(nfs, mount, dirlist)
   for _, v in pairs(files) do
     table.insert(ret, attrs[v])
   end
-    
+
   return ret
 end
 
@@ -221,7 +221,7 @@ local function nfs_ls(nfs, mount, results, access)
   if nfs_comm == nil then
     rpc.Helper.UnmountPath(mnt_comm, mount)
     return false, status
-  end 
+  end
 
   -- check if NFS and Mount versions are compatible
   -- RPC library will check if the Mount and NFS versions are supported
@@ -335,7 +335,7 @@ local mainaction = function(host)
   if nfs_info.maxfiles > 0 then
     local args = {}
     args['name'] = 'Arguments:'
-    table.insert(args, 
+    table.insert(args,
           string.format("maxfiles: %d (file listing output limited)",
                 nfs_info.maxfiles))
     table.insert(o, args)

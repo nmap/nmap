@@ -48,7 +48,7 @@ categories = {"intrusive", "vuln"}
 -- @output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http    syn-ack
--- | http-sql-injection: 
+-- | http-sql-injection:
 -- |   Possible sqli for queries:
 -- |     http://foo.pl/forms/page.php?param=13'%20OR%20sqlspider
 -- |   Possible sqli for forms:
@@ -68,13 +68,13 @@ if it is vulnerable
 
 local errorstrings = {}
 local function check_injection_response(response)
-  
+
   local body = string.lower(response.body)
-  
+
   if not (response.status == 200 or response.status ~= 500) then
-    return false 
+    return false
   end
-  
+
   if errorstrings then
     for _,e in ipairs(errorstrings) do
       if string.find(body, e) then
@@ -94,20 +94,20 @@ local function build_injection_vector(urls)
   local utab, k, v, urlstr, response
   local qtab, old_qtab, results
   local all = {}
-  
+
   for _, injectable in ipairs(urls) do
     if type(injectable) == "string"  then
       utab = url.parse(injectable)
       qtab = url.parse_query(utab.query)
-      
+
       for k, v in pairs(qtab) do
         old_qtab = qtab[k];
         qtab[k] = qtab[k] ..  "'%20OR%20sqlspider"
-        
+
         utab.query = url.build_query(qtab)
         urlstr = url.build(utab)
         table.insert(all, urlstr)
-        
+
 	      qtab[k] = old_qtab
 	      utab.query = url.build_query(qtab)
       end
@@ -181,7 +181,7 @@ local function check_form(form, host, port, path)
     path_cropped = path_cropped and path_cropped or ""
     form_submission_path = path_cropped..form["action"]
   end
-  
+
   -- determine should the form be sent by post or get
   local sending_function
   if form["method"]=="post" then
@@ -189,7 +189,7 @@ local function check_form(form, host, port, path)
   else
     sending_function = function(data) return http.get(host, port, form_submission_path..generate_get_string(data), nil) end
   end
-  
+
   for _,field in ipairs(form["fields"]) do
     if sqli_field(field["type"]) then
       stdnse.print_debug(2, "%s: checking field %s", SCRIPT_NAME, field["name"])
@@ -230,7 +230,7 @@ action = function(host, port)
   local crawler = httpspider.Crawler:new(host, port, nil, {scriptname = SCRIPT_NAME})
   local injectable = {}
   local results_forms = {name="Possible sqli for forms:"}
-  
+
   while(true) do
     local status, r = crawler:crawl()
     if (not(status)) then
@@ -240,7 +240,7 @@ action = function(host, port)
         break
       end
     end
-    
+
     -- first we try sqli on forms
 	  if r.response and r.response.body and r.response.status==200 then
       local all_forms = http.grab_forms(r.response.body)
@@ -266,7 +266,7 @@ action = function(host, port)
       end
     end
   end
-  
+
   -- try to inject
   local results_queries = {}
   if #injectable > 0 then
@@ -275,7 +275,7 @@ action = function(host, port)
     local responses = inject(host, port, injectableQs)
     results_queries = check_responses(injectableQs, responses)
   end
-  
+
   results_queries["name"] = "Possible sqli for queries:"
   local res = {results_queries, results_forms}
   return stdnse.format_output(true, res)

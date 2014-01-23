@@ -13,10 +13,10 @@ Discovers hostnames that resolve to the target's IP address by querying the onli
 -- nmap --script hostmap-robtex -sn -Pn scanme.nmap.org
 --
 -- @output
--- | hostmap-robtex: 
--- |   hosts: 
+-- | hostmap-robtex:
+-- |   hosts:
 -- |_    scanme.nmap.org
--- 
+--
 -- @xmloutput
 -- <table key="hosts">
 --  <elem>nmap.org</elem>

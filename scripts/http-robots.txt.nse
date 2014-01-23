@@ -31,7 +31,7 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.http
 local last_len = 0
 
--- split the output in 50 character length lines 
+-- split the output in 50 character length lines
 local function buildOutput(output, w)
         local nl
 
@@ -41,11 +41,11 @@ local function buildOutput(output, w)
 
 	-- check for duplicates
 	for i,v in ipairs(output) do
-		if w == v or w == v:sub(2, v:len()) then 
-			return nil 
+		if w == v or w == v:sub(2, v:len()) then
+			return nil
 		end
 	end
-	
+
 	-- format lines
 	if last_len == 0 or last_len + w:len() <= 50 then
 		last_len = last_len + w:len()
@@ -60,8 +60,8 @@ end
 
 -- parse all disallowed entries in body and add them to a strbuf
 local function parse_robots(body, output)
-	for line in body:gmatch("[^\r\n]+") do 
-		for w in line:gmatch('[Dd]isallow:%s*(.*)') do 
+	for line in body:gmatch("[^\r\n]+") do
+		for w in line:gmatch('[Dd]isallow:%s*(.*)') do
 			w = w:gsub("%s*#.*", "")
 			buildOutput(output, w)
 		end
@@ -71,7 +71,7 @@ local function parse_robots(body, output)
 end
 
 action = function(host, port)
-        local dis_count, noun 
+        local dis_count, noun
 	local answer = http.get(host, port, "/robots.txt" )
 
 	if answer.status ~= 200 then
@@ -84,28 +84,28 @@ action = function(host, port)
 
 	dis_count = parse_robots(answer.body, output)
 
-	if dis_count == 0 then 
+	if dis_count == 0 then
 		return
 	end
 
 	-- verbose/debug mode, print 50 entries
-	if v_level > 1 and v_level < 5 then 
-		detail = 40 
+	if v_level > 1 and v_level < 5 then
+		detail = 40
 	-- double debug mode, print everything
 	elseif v_level >= 5 then
 		detail = dis_count
 	end
 
 	-- check we have enough entries
-	if detail > dis_count then 
+	if detail > dis_count then
 		detail = dis_count
 	end
 
 	noun = dis_count == 1 and "entry " or "entries "
 
-	local shown = (detail == 0 or detail == dis_count) 
+	local shown = (detail == 0 or detail == dis_count)
                  and "\n" or '(' .. detail .. ' shown)\n'
 
 	return  dis_count .. " disallowed " .. noun ..
-		shown .. table.concat(output, ' ', 1, detail) 
+		shown .. table.concat(output, ' ', 1, detail)
 end

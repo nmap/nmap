@@ -21,7 +21,7 @@
 --   helper:setMulticast(true)
 --   return stdnse.format_output(helper:queryServices())
 -- </code>
--- 
+--
 -- This next snipplet queries a specific host for the same information:
 -- <code>
 --   local helper = dnssd.Helper:new( host, port )
@@ -57,7 +57,7 @@ Util = {
 	ipCompare = function(a, b)
      return ipOps.compare_ip(a, "lt", b)
 	end,
-	
+
 	--- Function used to compare discovered DNS services so they can be sorted
 	--
 	-- @param a table containing first item
@@ -74,8 +74,8 @@ Util = {
 		end
 		return false
 	end,
-	
-	--- Creates a service host table 
+
+	--- Creates a service host table
 	--
 	-- ['_ftp._tcp.local'] = {10.10.10.10,20.20.20.20}
 	-- ['_http._tcp.local'] = {30.30.30.30,40.40.40.40}
@@ -96,7 +96,7 @@ Util = {
 
 		return services
 	end,
-	
+
 	--- Creates a unique list of services
 	--
 	-- @param response containing a single or multiple responses from
@@ -104,7 +104,7 @@ Util = {
 	-- @return array of strings containing service names
 	getUniqueServices = function( response )
 		local services = {}
-	
+
 		for _, r in ipairs(response) do
 			if ( r.output ) then
 				for _, svc in ipairs(r.output) do services[svc] = true end
@@ -112,10 +112,10 @@ Util = {
 				services[r] = true
 			end
 		end
-		
+
 		return services
 	end,
-	
+
 	--- Returns the amount of currenlty active threads
 	--
 	-- @param threads table containing the list of threads
@@ -132,7 +132,7 @@ Util = {
 		end
 		return count
 	end
-	
+
 }
 
 Comm = {
@@ -189,7 +189,7 @@ Comm = {
 	queryService = function( host, port, svc, multiple, svcresponse )
 		local condvar = nmap.condvar(svcresponse)
 		local status, response = dns.query( svc, { port = port, host = host, dtype="PTR", retPkt=true, retAll=true, multiple=multiple, sendCount=1, timeout=2000} )
-		if not status then 
+		if not status then
 			stdnse.print_debug("Failed to query service: %s; Error: %s", svc, response)
 			return
 		end
@@ -266,7 +266,7 @@ Comm = {
 			table.insert( result, service )
 		end
 	end,
-	
+
 	--- Query the mDNS resolvers for a list of their services
 	--
 	-- @param host table as received by the action function
@@ -286,7 +286,7 @@ Comm = {
 		end
 		return dns.query( "_services._dns-sd._udp.local", { port = port, host = ( host.ip or host ), dtype="PTR", retAll=true, multiple=multiple, sendCount=sendCount, timeout=timeout } )
 	end,
-		
+
 }
 
 Helper = {
@@ -305,8 +305,8 @@ Helper = {
 		o.mcast = false
 		return o
 	end,
-	
-    
+
+
 	--- Instructs the helper to use unconnected sockets supporting multicast
 	--
 	-- @param mcast boolean true if multicast is to be used, false otherwise
@@ -314,12 +314,12 @@ Helper = {
 		assert( type(mcast)=="boolean", "mcast has to be either true or false")
 		self.mcast = mcast
 	end,
-		
+
 	--- Performs a DNS-SD query against a host
 	--
 	-- @param host table as received by the action function
 	-- @param port number specifying the port to connect to
-	-- @param service string or table with the service(s) to query eg. 
+	-- @param service string or table with the service(s) to query eg.
 	--         _ssh._tcp.local, _afpovertcp._tcp.local
 	--        if nil defaults to _services._dns-sd._udp.local (all)
 	-- @param mcast boolean true if a multicast query is to be done
@@ -333,7 +333,7 @@ Helper = {
 		local family = nmap.address_family()
 		local host = mcast and (family=="inet6" and "ff02::fb" or "224.0.0.251") or self.host
 		local service = service or stdnse.get_script_args('dnssd.services')
-		
+
 		if ( not(service) ) then
 			status, response = Comm.queryAllServices( host, port, mcast )
 			if ( not(status) ) then return status, response end
@@ -346,12 +346,12 @@ Helper = {
 		end
 
 		response = Util.getUniqueServices(response)
-		
+
 		local svcresponse = {}
 		local condvar = nmap.condvar( svcresponse )
 		local threads = {}
-		
-		for svc in pairs(response) do 
+
+		for svc in pairs(response) do
 			local co = stdnse.new_thread( Comm.queryService, (host.ip or host), port, svc, mcast, svcresponse )
 			threads[co] = true
 		end
@@ -374,7 +374,7 @@ Helper = {
 				Comm.decodeRecords( response, result )
 			end
 		end
-		
+
 		if ( mcast ) then
 			-- Restructure and build our output table
 			for ip, svctbl in pairs( ipsvctbl ) do
@@ -387,10 +387,10 @@ Helper = {
 		else
 			-- sort the tables per port
 			table.sort( result, Util.serviceCompare )
-		end	
+		end
 		return true, result
 	end,
-	
+
 }
 
 return _ENV;

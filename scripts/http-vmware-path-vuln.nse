@@ -16,7 +16,7 @@ The vulnerability was originally released by Justin Morehouse and Tony Flick, wh
 -- nmap --script http-vmware-path-vuln -p80,443,8222,8333 <host>
 --
 -- @output
--- | http-vmware-path-vuln:  
+-- | http-vmware-path-vuln:
 -- |   VMWare path traversal (CVE-2009-3733): VULNERABLE
 -- |     /vmware/Windows 2003/Windows 2003.vmx
 -- |     /vmware/Pentest/Pentest - Linux/Linux Pentest Bravo.vmx

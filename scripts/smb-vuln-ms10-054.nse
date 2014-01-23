@@ -6,13 +6,13 @@ local vulns = require "vulns"
 local stdnse = require "stdnse"
 
 description = [[
-Tests whether target machines are vulnerable to the ms10-054 SMB remote memory 
+Tests whether target machines are vulnerable to the ms10-054 SMB remote memory
 corruption vulnerability.
 
-The vulnerable machine will crash with BSOD. 
+The vulnerable machine will crash with BSOD.
 
 The script requires at least READ access right to a share on a remote machine.
-Either with guest credentials or with specified username/password. 
+Either with guest credentials or with specified username/password.
 
 ]]
 
@@ -60,17 +60,17 @@ local function send_transaction2(smbstate, sub_command, function_parameters)
 
 	-- Header is 0x20 bytes long (not counting NetBIOS header).
 	header = smb.smb_encode_header(smbstate, smb.command_codes['SMB_COM_TRANSACTION2'], {}) -- 0x32 = SMB_COM_TRANSACTION2
-	
+
 	if(function_parameters) then
 		parameter_offset = 0x44
 		parameter_size = #function_parameters
 		data_offset = #function_parameters + 33 + 32
 	end
-	
-	-- Parameters are 0x20 bytes long. 
+
+	-- Parameters are 0x20 bytes long.
 	parameters = bin.pack("<SSSSCCSISSSSSCCS",
-					parameter_size,                  -- Total parameter count. 
-					data_size,                       -- Total data count. 
+					parameter_size,                  -- Total parameter count.
+					data_size,                       -- Total data count.
 					0x000a,                          -- Max parameter count.
 					0x000a,                          -- Max data count, less than 12 causes a crash
 					0x00,                            -- Max setup count.
@@ -112,7 +112,7 @@ action = function(host,port)
 		  CVSSv2 = "10.0 (HIGH) (AV:N/AC:L/Au:N/C:C/I:C/A:C)",
 		},
 		description = [[
-The SMB Server in Microsoft Windows XP SP2 and SP3, Windows Server 2003 SP2, 
+The SMB Server in Microsoft Windows XP SP2 and SP3, Windows Server 2003 SP2,
 Windows Vista SP1 and SP2, Windows Server 2008 Gold, SP2, and R2, and Windows 7
 does not properly validate fields in an SMB request, which allows remote attackers
 to execute arbitrary code via a crafted SMB packet, aka "SMB Pool Overflow Vulnerability."
@@ -129,17 +129,17 @@ to execute arbitrary code via a crafted SMB packet, aka "SMB Pool Overflow Vulne
 
 	local report = vulns.Report:new(SCRIPT_NAME, host, port)
 	ms10_054.state = vulns.STATE.NOT_VULN
-	
+
 	local share = stdnse.get_script_args(SCRIPT_NAME .. '.share') or "SharedDocs"
-	
+
 	local status, smbstate = smb.start_ex(host, true, true, share, nil, nil, nil)
-	
+
 	local param = "0501" -- Query FS Attribute Info
 	local status, result = send_transaction2(smbstate,0x03,bin.pack("H",param))
-	status, result = smb.smb_read(smbstate,true) -- see if we can still talk to the victim 
+	status, result = smb.smb_read(smbstate,true) -- see if we can still talk to the victim
 	if not status then -- if not , it has crashed
 		ms10_054.state = vulns.STATE.VULN
-	else	
+	else
 		stdnse.print_debug("Machine is not vulnerable")
 	end
 	return report:make_output(ms10_054)

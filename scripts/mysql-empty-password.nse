@@ -13,7 +13,7 @@ Checks for MySQL servers with an empty password for <code>root</code> or
 ---
 -- @output
 -- 3306/tcp open  mysql
--- | mysql-empty-password:  
+-- | mysql-empty-password:
 -- |   anonymous account has empty password
 -- |_  root account has empty password
 
@@ -37,19 +37,19 @@ action = function( host, port )
 
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
-	
+
 	for _, v in ipairs( users ) do
 		local status, response = socket:connect(host, port)
 		if( not(status) ) then return "  \n  ERROR: Failed to connect to mysql server" end
-		
+
 		status, response = mysql.receiveGreeting( socket )
 		if ( not(status) ) then
 			stdnse.print_debug(3, SCRIPT_NAME)
 			socket:close()
 			return response
 		end
-		
-		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, v, nil, response.salt )	
+
+		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, v, nil, response.salt )
 		if response.errorcode == 0 then
 			table.insert(result, string.format("%s account has empty password", ( v=="" and "anonymous" or v ) ) )
 			if nmap.registry.mysqlusers == nil then
@@ -59,7 +59,7 @@ action = function( host, port )
 		end
 		socket:close()
 	end
-	
-	return stdnse.format_output(true, result)	
+
+	return stdnse.format_output(true, result)
 
 end

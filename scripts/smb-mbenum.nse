@@ -14,7 +14,7 @@ Queries information managed by the Windows Master Browser.
 -- nmap -p 445 <host> --script smb-mbenum
 --
 -- @output
--- | smb-mbenum: 
+-- | smb-mbenum:
 -- |   Backup Browser
 -- |     WIN2K3-EPI-1  5.2  EPiServer 2003 frontend server
 -- |   DFS Root
@@ -51,7 +51,7 @@ Queries information managed by the Windows Master Browser.
 --		 specific type of server (@see ServerTypes)
 --
 -- @args smb-mbenum.domain (optional) if not specified, lists the domain of the queried browser
--- 
+--
 
 --
 -- Version 0.1
@@ -140,43 +140,43 @@ action = function(host, port)
 	local detail_level = 1
 	local format = stdnse.get_script_args("smb-mbenum.format") or OutputFormat.BY_TYPE_V_DETAILED
 	local filter = stdnse.get_script_args("smb-mbenum.filter") or ServerTypes.SV_TYPE_ALL
-	local domain = stdnse.get_script_args("smb-mbenum.domain") 
+	local domain = stdnse.get_script_args("smb-mbenum.domain")
 
 	filter = tonumber(filter) or ServerTypes[filter]
 	format = tonumber(format)
-	
+
 	if ( not(filter) ) then
 		return "\n The argument smb-mbenum.filter contained an invalid value."
 	end
-	
+
 	if ( not(format) ) then
 		return "\n  The argument smb-mbenum.format contained an invalid value."
 	end
-	
+
 	status, err = smb.negotiate_protocol(smbstate, {})
-	if ( not(status) ) then	
+	if ( not(status) ) then
 		log("ERROR: smb.negotiate_protocol failed")
 		return "\n  ERROR: Failed to connect to browser service"
 	end
-	
+
 	status, err = smb.start_session(smbstate, {})
-	if ( not(status) ) then	
+	if ( not(status) ) then
 		log("ERROR: smb.negotiate_protocol failed")
 		return "\n  ERROR: Failed to connect to browser service"
 	end
-	
+
 	status, err = smb.tree_connect(smbstate, path, {})
-	if ( not(status) ) then	
+	if ( not(status) ) then
 		log("ERROR: smb.negotiate_protocol failed")
 		return "\n  ERROR: Failed to connect to browser service"
 	end
-	
+
 	status, entries = msrpc.rap_netserverenum2(smbstate, domain, filter, detail_level)
-	if ( not(status) ) then 
+	if ( not(status) ) then
 		log("ERROR: msrpc.call_lanmanapi failed")
 		return "\n  ERROR: " .. entries
 	end
-	
+
 	status, err = smb.tree_disconnect(smbstate)
 	if ( not(status) ) then log("ERROR: smb.tree_disconnect failed") end
 
@@ -216,10 +216,10 @@ action = function(host, port)
 		for k, v in pairs(results) do
 			local cat_tab = tab.new(3)
 			table.sort(v, function(a,b) return a.name < b.name end )
-			for _, server in pairs(v) do 
+			for _, server in pairs(v) do
 				tab.addrow(
-					cat_tab, 
-					server.name, 
+					cat_tab,
+					server.name,
 					("%d.%d"):format(server.version.major,server.version.minor),
 					server.comment
 				)

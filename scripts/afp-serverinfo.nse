@@ -57,15 +57,15 @@ action = function(host, port)
   local status
   local result = {}
   local temp
-  
+
   -- set a reasonable timeout value
   socket:set_timeout(5000)
-  
+
   -- do some exception handling / cleanup
   local catch = function()
     socket:close()
   end
-  
+
   local try = nmap.new_try(catch)
 
   try( socket:connect(host, port) )
@@ -75,10 +75,10 @@ action = function(host, port)
 
   local response = afp_proto:fp_get_server_info( socket )
   response = response.result
-  
+
   -- all the server information is output in the order it occurs in the server
   -- response. It might be better rearranged?
-  
+
   -- output the server flags nicely
   table.insert(result, string.format("| Server Flags: 0x%04x", response.flags.raw))
   table.insert(result, string.format("|   Super Client: %s", response.flags.SuperClient and "Yes" or "No"))
@@ -92,12 +92,12 @@ action = function(host, port)
   table.insert(result, string.format("|   ServerMessages: %s", response.flags.ServerMessages and "Yes" or "No"))
   table.insert(result, string.format("|   Password Saving Prohibited: %s", response.flags.NoPasswordSaving and "Yes" or "No"))
   table.insert(result, string.format("|   Password Changing: %s", response.flags.ChangeablePasswords and "Yes" or "No"))
-  table.insert(result, string.format("|_  Copy File: %s", response.flags.CopyFile and "Yes" or "No")) 
+  table.insert(result, string.format("|_  Copy File: %s", response.flags.CopyFile and "Yes" or "No"))
 
   -- other info
   table.insert(result, string.format("Server Name: %s", response.server_name))
   table.insert(result, string.format("Machine Type: %s", response.machine_type))
-  
+
   -- list the supported AFP versions
   temp = "AFP Versions: "
   for i = 1, response.afp_version_count-1 do
@@ -105,7 +105,7 @@ action = function(host, port)
   end
   temp = temp .. response.afp_versions[response.afp_version_count]
   table.insert(result, temp)
-  
+
   -- list the supported UAMs (User Authentication Modules)
   temp = "UAMs: "
   for i = 1, response.uam_count-1 do
@@ -113,28 +113,28 @@ action = function(host, port)
   end
   temp = temp .. response.uams[response.uam_count]
   table.insert(result, temp)
-  
+
   -- server signature, not sure of the format here so just showing a hex string
   if response.flags.ServerSignature then
     table.insert(result, string.format("Server Signature: %s", stdnse.tohex(response.server_signature)))
   end
-  
+
   -- listing the network addresses one line each
   -- the default for Mac OS X AFP server is to bind everywhere, so this will
   -- list all network interfaces that the machine has
   for i = 1, response.network_addresses_count do
     table.insert(result, string.format("Network Address %d: %s", i, response.network_addresses[i]))
   end
-  
+
   -- similar to above
   for i = 1, response.directory_names_count do
     table.insert(result, string.format("Directory Name %d: %s", i, response.directory_names[i]))
   end
-  
+
   -- and finally the utf8 server name
   if response.flags.UTF8ServerName then
     table.insert(result, string.format("UTF8 Server Name: %s", response.utf8_server_name))
   end
-  
+
   return stdnse.format_output(true, result)
 end

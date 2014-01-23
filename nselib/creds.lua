@@ -51,7 +51,7 @@
 -- --script-args creds.http='webadmin:password'
 --
 -- The service name at this point may be anything and the entry is created
--- dynamically without validating whether the service exists or not. 
+-- dynamically without validating whether the service exists or not.
 --
 -- The credential argument is not documented in this library using the <at>args
 -- function as the argument would incorrectly show up in all scripts making use
@@ -71,9 +71,9 @@
 --
 --  Supported output formats are CSV, verbose and plain.  In both verbose and plain
 --  records are seperated by colons.  The difference between the two is that verbose
---  includes the credential state.  The file extension is automatically added to 
+--  includes the credential state.  The file extension is automatically added to
 --  the filename based on the type requested.
--- 
+--
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
@@ -147,7 +147,7 @@ RegStorage = {
 		o.filter = {}
 		return o
 	end,
-	
+
 	--- Add credentials to storage
 	--
 	-- @param scriptname the name of the script adding the credentials
@@ -158,7 +158,7 @@ RegStorage = {
 	-- @param pass the password of the user
 	-- @param state of the account
 	add = function( self, scriptname, host, port, service, user, pass, state )
-		local cred = { 
+		local cred = {
 			scriptname = scriptname,
 			host = host,
 			port = port,
@@ -170,7 +170,7 @@ RegStorage = {
 		nmap.registry.creds = nmap.registry.creds or {}
 		table.insert( nmap.registry.creds, cred )
 	end,
-	
+
 	--- Sets the storage filter
 	--
 	-- @param host table containing the host
@@ -181,7 +181,7 @@ RegStorage = {
 		self.filter.port = port
 		self.filter.state = state
 	end,
-	
+
 	--- Returns a credential iterator matching the selected filters
 	--
 	-- @return a credential iterator
@@ -190,23 +190,23 @@ RegStorage = {
 			local host, port = self.filter.host, self.filter.port
 
 			if ( not(nmap.registry.creds) ) then return end
-		
+
 			for _, v in pairs(nmap.registry.creds) do
 				local h = ( v.host.ip or v.host )
 				if ( not(host) and not(port) ) then
-					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then
 						coroutine.yield(v)
 					end
 				elseif ( not(host) and ( port == v.port ) ) then
-					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then
 						coroutine.yield(v)
 					end
 				elseif ( ( host and ( h == host or h == host.ip ) ) and not(port) ) then
-					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then
 						coroutine.yield(v)
 					end
 				elseif ( ( host and ( h == host or h == host.ip ) ) and port.number == v.port ) then
-					if ( not(self.filter.state) or ( v.state == bit.band(self.filter.state, v.state) ) ) then 
+					if ( not(self.filter.state) or ( v.state == bit.band(self.filter.state, v.state) ) ) then
 						coroutine.yield(v)
 					end
 				end
@@ -214,12 +214,12 @@ RegStorage = {
 		end
 		return coroutine.wrap(get_next)
 	end,
-	
+
 }
 
 -- The credentials class
 Credentials = {
-	
+
 	--- Creates a new instance of the Credentials class
 	-- @param scriptname string containing the name of the script
 	-- @param host table as received by the scripts action method
@@ -231,12 +231,12 @@ Credentials = {
 		o.storage = RegStorage:new()
 		o.storage:setFilter(host, port)
 		o.host = host
-		o.port = ( port and port.number ) and port.number 
+		o.port = ( port and port.number ) and port.number
 		o.service = ( port and port.service ) and port.service
 		o.scriptname = scriptname
 		return o
 	end,
-	
+
 	--- Add a discovered credential
 	--
 	-- @param user the name of the user
@@ -255,11 +255,11 @@ Credentials = {
 			self.storage:add( self.scriptname, self.host, self.port, self.service, user, pass, state )
 		end
 	end,
-	
+
 	--- Returns a credential iterator
 	--
 	-- @param state mask containing values from the <Code>State</code> table
-	-- @return credential iterator, returning a credential each time it's 
+	-- @return credential iterator, returning a credential each time it's
 	--         called. Unless filtered by the state mask all credentials
 	--         for the host, port match are iterated over.
 	--         The credential table has the following fields:
@@ -273,7 +273,7 @@ Credentials = {
 	--                                   script that added the credential
 	getCredentials = function(self, state)
 		local function next_credential()
-			if ( state ) then 
+			if ( state ) then
 				self.storage:setFilter(self.host, { number=self.port, service = self.service }, state)
 			end
 
@@ -288,11 +288,11 @@ Credentials = {
 				local creds_global = stdnse.get_script_args('creds.global')
 				local creds_service
 				local creds_params
-				
+
 				if ( self.service ) then
 					creds_service = stdnse.get_script_args('creds.' .. self.service )
 				end
-				
+
 				if ( creds_service ) then creds_params = creds_service end
 				if ( creds_global and creds_service ) then
 					creds_params = creds_params .. ',' .. creds_global
@@ -311,9 +311,9 @@ Credentials = {
 					else
 						user = cred:match("^(.*)$")
 					end
-					coroutine.yield( { host = self.host, 
+					coroutine.yield( { host = self.host,
 					port = self.port,
-					user = user, 
+					user = user,
 					pass = pass,
 					state = State.PARAM,
 					service = self.service } )
@@ -322,10 +322,10 @@ Credentials = {
 		end
 		return coroutine.wrap( next_credential )
 	end,
-	
+
 	--- Returns a table of credentials
 	--
-	-- @return tbl table containing the discovered credentials	
+	-- @return tbl table containing the discovered credentials
 	getTable = function(self)
 		local result = {}
 
@@ -355,7 +355,7 @@ Credentials = {
 				table.insert( result[h][svc], c )
 			end
 		end
-		
+
 		local output = {}
 		for hostname, host in pairs(result) do
 			local host_tbl = { name = hostname }
@@ -369,7 +369,7 @@ Credentials = {
 				table.insert( host_tbl, svc_tbl )
 			end
 			-- sort the services
-			table.sort( host_tbl, 
+			table.sort( host_tbl,
 			function(a,b)
 				return tonumber(a.name:match("^(%d+)")) < tonumber(b.name:match("^(%d+)"))
 			end
@@ -388,27 +388,27 @@ Credentials = {
 		end
 		return (#output > 0 ) and output
 	end,
-	
+
 	-- Saves credentials in the current object to file
 	-- @param filename string name of the file
 	-- @param fileformat string file format type, values = csv | verbose | plain (default)
 	-- @return status true on success, false on failure
 	-- @return err string containing the error if status is false
 	saveToFile = function(self, filename, fileformat)
-	
+
 		if ( fileformat == 'csv' ) then
 			filename = filename .. '.csv'
 		else
 			filename = filename .. '.txt'
 		end
-	
+
 		local f = io.open( filename, "w")
 		local output = nil
-		
+
 		if ( not(f) ) then
 			return false, ("ERROR: Failed to open file (%s)"):format(filename)
 		end
-	
+
 		for account in self:getCredentials() do
 			if ( fileformat == 'csv' ) then
 				output = "\"" .. account.user .. "\",\"" .. account.pass .. "\",\"" .. StateMsg[account.state] .. "\""
@@ -425,7 +425,7 @@ Credentials = {
 		f:close()
 		return true
 	end,
-	
+
 	--- Get credentials with optional host and port filter
 	-- If no filters are supplied all records are returned
 	--
@@ -436,7 +436,7 @@ Credentials = {
 		local all = self:getTable()
 		if ( all ) then	return stdnse.format_output(true, all) end
 	end,
-	
+
 }
 
 return _ENV;

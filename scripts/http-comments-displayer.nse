@@ -5,32 +5,32 @@ Extracts and outputs HTML and JavaScript comments from HTTP responses.
 ---
 -- @usage nmap -p80 --script http-comments-displayer.nse <host>
 --
--- This scripts uses patterns to extract HTML comments from HTTP 
+-- This scripts uses patterns to extract HTML comments from HTTP
 -- responses and writes these to the command line.
 --
--- @args http-comments-displayer.singlepages Some single pages 
+-- @args http-comments-displayer.singlepages Some single pages
 --       to check for comments. For example, {"/",  "/wiki"}.
 --       Default: nil (crawler mode on)
--- @args http-comments-displayer.context declares the number of chars 
---       to extend our final strings. This is useful when we need to 
---       to see the code that the comments are reffering to. 
+-- @args http-comments-displayer.context declares the number of chars
+--       to extend our final strings. This is useful when we need to
+--       to see the code that the comments are reffering to.
 --       Default: 0, Maximum Value: 50
 --
--- 
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-comments-displayer: 
+-- | http-comments-displayer:
 -- |     Path: /
 -- |     Line number: 214
--- |     Comment: 
+-- |     Comment:
 -- |         <!-- This needs fixing. -->
--- |     
+-- |
 -- |     Path: /register.php
 -- |     Line number: 15
 -- |     Comment:
 -- |_        /* We should avoid the hardcoding here */
--- 
+--
 ---
 
 categories = {"discovery", "safe"}
@@ -52,7 +52,7 @@ PATTERNS = {
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
--- Returns comment's line number by counting the occurences of the 
+-- Returns comment's line number by counting the occurences of the
 -- new line character ("\n") from the start of the HTML file until
 -- the related comment.
 local getLineNumber = function(body, comment)
@@ -65,9 +65,9 @@ local getLineNumber = function(body, comment)
 
 end
 
-action = function(host, port) 
- 
-    local context = stdnse.get_script_args("http-comments-displayer.context") 
+action = function(host, port)
+
+    local context = stdnse.get_script_args("http-comments-displayer.context")
     local singlepages = stdnse.get_script_args("http-comments-displayer.singlepages")
 
     local comments = {}
@@ -84,7 +84,7 @@ action = function(host, port)
         if (tonumber(context) > 100) then
             context = 100
         end
-        
+
         -- Lua's abbreviated patterns support doesn't have a fixed-number-of-repetitions syntax.
         for i, pattern in ipairs(PATTERNS) do
             PATTERNS[i] = string.rep(".", context) .. PATTERNS[i] .. string.rep(".", context)
@@ -93,7 +93,7 @@ action = function(host, port)
 
     local index, k, target, response, path
     while (true) do
- 
+
         if singlepages then
             k, target = next(singlepages, index)
             if (k == nil) then
@@ -123,15 +123,15 @@ action = function(host, port)
             for i, pattern in ipairs(PATTERNS) do
                 for c in string.gmatch(response.body, pattern) do
 
-                    local linenumber = getLineNumber(response.body, c) 
+                    local linenumber = getLineNumber(response.body, c)
 
-                    comments[c] = "\nPath: " .. path .. "\nLine number: " ..  linenumber .. "\nComment: \n" 
+                    comments[c] = "\nPath: " .. path .. "\nLine number: " ..  linenumber .. "\nComment: \n"
                 end
             end
 
             if (index) then
                 index = index + 1
-            else 
+            else
                 index = 1
             end
         end
@@ -150,7 +150,7 @@ action = function(host, port)
   	end
 
 	results.name = crawler:getLimitations()
-	
+
 	return stdnse.format_output(true, results)
 
 end

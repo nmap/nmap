@@ -11,41 +11,41 @@ Enumerates directories used by popular web applications and servers.
 
 This parses a fingerprint file that's similar in format to the Nikto Web application
 scanner. This script, however, takes it one step further by building in advanced pattern matching as well
-as having the ability to identify specific versions of Web applications. 
+as having the ability to identify specific versions of Web applications.
 
-You can also parse a Nikto-formatted database using http-fingerprints.nikto-db-path. This will try to parse 
-most of the fingerprints defined in nikto's database in real time. More documentation about this in the 
+You can also parse a Nikto-formatted database using http-fingerprints.nikto-db-path. This will try to parse
+most of the fingerprints defined in nikto's database in real time. More documentation about this in the
 nselib/data/http-fingerprints.lua file.
 
 Currently, the database can be found under Nmap's directory in the nselib/data folder. The file is called
-http-fingerprints and has a long description of its functionality in the file header. 
+http-fingerprints and has a long description of its functionality in the file header.
 
 Many of the finger prints were discovered by me (Ron Bowes), and a number of them are from the Yokoso
-project, used with permission from Kevin Johnson (http://seclists.org/nmap-dev/2009/q3/0685.html). 
+project, used with permission from Kevin Johnson (http://seclists.org/nmap-dev/2009/q3/0685.html).
 
 Initially, this script attempts to access two different random files in order to detect servers
 that don't return a proper 404 Not Found status. In the event that they return 200 OK, the body
 has any non-static-looking data removed (URI, time, etc), and saved. If the two random attempts
 return different results, the script aborts (since a 200-looking 404 cannot be distinguished from
-an actual 200). This will prevent most false positives. 
+an actual 200). This will prevent most false positives.
 
-In addition, if the root folder returns a 301 Moved Permanently or 401 Authentication Required, 
+In addition, if the root folder returns a 301 Moved Permanently or 401 Authentication Required,
 this script will also abort. If the root folder has disappeared or requires authentication, there
-is little hope of finding anything inside it. 
+is little hope of finding anything inside it.
 
 By default, only pages that return 200 OK or 401 Authentication Required are displayed. If the
 <code>http-enum.displayall</code> script argument is set, however, then all results will be displayed (except
 for 404 Not Found and the status code returned by the random files). Entries in the http-fingerprints
-database can specify their own criteria for accepting a page as valid. 
+database can specify their own criteria for accepting a page as valid.
 
 ]]
 
 ---
--- @args http-enum.basepath         The base path to prepend to each request. Leading/trailing slashes are ignored. 
+-- @args http-enum.basepath         The base path to prepend to each request. Leading/trailing slashes are ignored.
 -- @args http-enum.displayall       Set this argument to display all status codes that may indicate a valid page, not
 --                                  just 200 OK and 401 Authentication Required pages. Although this is more likely
---                                  to find certain hidden folders, it also generates far more false positives. 
--- @args http-enum.fingerprintfile  Specify a different file to read fingerprints from. 
+--                                  to find certain hidden folders, it also generates far more false positives.
+-- @args http-enum.fingerprintfile  Specify a different file to read fingerprints from.
 -- @args http-enum.category         Set to a category (as defined in the fingerprints file). Some options are 'attacks',
 --                                  'database', 'general', 'microsoft', 'printer', etc.
 --
@@ -53,7 +53,7 @@ database can specify their own criteria for accepting a page as valid.
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- |  http-enum:  
+-- |  http-enum:
 -- |  |  /icons/: Icons and images
 -- |  |  /images/: Icons and images
 -- |  |  /robots.txt: Robots file
@@ -80,12 +80,12 @@ local cgi_ext = { 'php', 'asp', 'aspx', 'jsp', 'pl', 'cgi' }
 
 local common_ext = { 'php', 'asp', 'aspx', 'jsp', 'pl', 'cgi', 'css', 'js', 'htm', 'html' }
 
----Convert the filename to backup variations. These can be valuable for a number of reasons. 
--- First, because they may not have the same access restrictions as the main version (file.php 
+---Convert the filename to backup variations. These can be valuable for a number of reasons.
+-- First, because they may not have the same access restrictions as the main version (file.php
 -- may run as a script, but file.php.bak or file.php~ might not). And second, the old versions
 -- might contain old vulnerablities
 --
--- At the time of the writing, these were all decided by me (Ron Bowes). 
+-- At the time of the writing, these were all decided by me (Ron Bowes).
 local function get_variations(filename)
 	local variations = {}
 
@@ -103,8 +103,8 @@ local function get_variations(filename)
 	table.insert(variations, filename .. ".1")
 	table.insert(variations, filename .. ".tmp")
 
-	-- Strip off the extension, if it has one, and try it all again. 
-	-- For now, just look for three-character extensions. 
+	-- Strip off the extension, if it has one, and try it all again.
+	-- For now, just look for three-character extensions.
 	if(string.sub(filename, #filename - 3, #filename - 3) == '.') then
 		local bare = string.sub(filename, 1, #filename - 4)
 		local extension = string.sub(filename, #filename - 3)
@@ -161,7 +161,7 @@ end
 ---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. If category
 -- is non-nil, only choose scripts that are in that category.
 --
---@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>. 
+--@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>.
 local function get_fingerprints(fingerprint_file, category)
 	local entries  = {}
 	local i
@@ -193,8 +193,8 @@ local function get_fingerprints(fingerprint_file, category)
 
 	local fingerprints = env.fingerprints
 
-	-- Sanity check our file to ensure that all the fields were good. If any are bad, we 
-	-- stop and don't load the file. 
+	-- Sanity check our file to ensure that all the fields were good. If any are bad, we
+	-- stop and don't load the file.
 	for i, fingerprint in pairs(fingerprints) do
 		-- Make sure we have a valid index
 		if(type(i) ~= 'number') then
@@ -275,14 +275,14 @@ local function get_fingerprints(fingerprint_file, category)
 			end
 		end
 
-		-- Make sure the severity is an integer between 1 and 4. Default it to 1. 
+		-- Make sure the severity is an integer between 1 and 4. Default it to 1.
 		if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
 			return false, "The 'severity' field has to be an integer between 1 and 4"
 		else
 			fingerprint.severity = 1
 		end
 
-		-- Make sure ignore_404 is a boolean. Default it to false. 
+		-- Make sure ignore_404 is a boolean. Default it to false.
 		if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
 			return false, "The 'ignore_404' field has to be a boolean"
 		else
@@ -377,12 +377,12 @@ action = function(host, port)
 			basepath = '/' .. basepath
 		end
 	end
-  
+
   local results_nopipeline = {}
 	-- Loop through the fingerprints
 	stdnse.print_debug(1, "http-enum: Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
 	for i = 1, #fingerprints, 1 do
-		-- Add each path. The order very much matters here. 
+		-- Add each path. The order very much matters here.
 		for j = 1, #fingerprints[i].probes, 1 do
       if fingerprints[i].probes[j].nopipeline then
         local res = http.generic_request(host, port, fingerprints[i].probes[j].method or 'GET', basepath .. fingerprints[i].probes[j].path, nil)
@@ -397,7 +397,7 @@ action = function(host, port)
     end
 	end
 
-	-- Perform all the requests. 
+	-- Perform all the requests.
 	local results = http.pipeline_go(host, port, all, nil)
 
 	-- Check for http.pipeline error
@@ -426,7 +426,7 @@ action = function(host, port)
 				local path = basepath .. probe['path']
 				local good = true
 				local output = nil
-				-- Unless this check said to ignore 404 messages, check if we got a valid page back using a known 404 message. 
+				-- Unless this check said to ignore 404 messages, check if we got a valid page back using a known 404 message.
 				if(fingerprint.ignore_404 ~= true and not(http.page_exists(result, result_404, known_404, path, displayall))) then
 					good = false
 				else
@@ -477,7 +477,7 @@ action = function(host, port)
 
 					stdnse.print_debug(1, "Found a valid page! %s", output)
 
-					table.insert(response, output)	
+					table.insert(response, output)
 				end
 			end
 		end

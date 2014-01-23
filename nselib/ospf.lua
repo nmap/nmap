@@ -114,7 +114,7 @@ OSPF = {
 
     Hello = {
 	new = function(self)
-	    local o = { 
+	    local o = {
 		header = OSPF.Header:new(OSPF.Message.HELLO),
 		options = 0x02,
 		prio = 0,
@@ -250,7 +250,7 @@ OSPF = {
 		if ( self.more ) then flags = flags + 2 end
 		if ( self.master) then flags= flags + 1 end
 
-		local data = bin.pack(">SCCI", self.mtu, self.options, flags, self.sequence) 
+		local data = bin.pack(">SCCI", self.mtu, self.options, flags, self.sequence)
 		self.header:setLength(#data)
 		return tostring(self.header) .. data
 	    end
@@ -276,7 +276,7 @@ OSPF = {
 		return desc
 	    end
 
-	    return desc		
+	    return desc
 	end,
 
     },
@@ -291,9 +291,9 @@ OSPF = {
 		return OSPF.DBDescription.parse(data)
 	    end
 	    return
-	end,		
+	end,
 
-    }	
+    }
 }
 
 return _ENV;

@@ -23,7 +23,7 @@ http://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%
 -- @output
 -- PORT     STATE SERVICE
 -- 8009/tcp open  ajp13
--- | ajp-methods: 
+-- | ajp-methods:
 -- |   Supported methods: GET HEAD POST PUT DELETE TRACE OPTIONS
 -- |   Potentially risky methods: PUT DELETE TRACE
 -- |_  See http://nmap.org/nsedoc/scripts/ajp-methods.html
@@ -59,19 +59,19 @@ action = function(host, port)
 	if ( not(helper:connect()) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	local status, response = helper:options(arg_url)
 	helper:close()
-	if ( not(status) or response.status ~= 200 or 
+	if ( not(status) or response.status ~= 200 or
 		 not(response.headers) or not(response.headers['allow']) ) then
 		return "Failed to get a valid response for the OPTION request"
 	end
-	
+
 	local methods = stdnse.strsplit(",%s", response.headers['allow'])
 
 	local output = {}
 	table.insert(output, ("Supported methods: %s"):format(stdnse.strjoin(" ", methods)))
-	
+
 	local interesting = filter_out(methods, UNINTERESTING_METHODS)
 	if ( #interesting > 0 ) then
 		table.insert(output, "Potentially risky methods: " .. stdnse.strjoin(" ", interesting))

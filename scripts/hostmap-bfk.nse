@@ -27,8 +27,8 @@ This script was formerly (until April 2012) known as hostmap.nse.
 --
 -- @output
 -- Host script results:
--- | hostmap-bfk: 
--- |   hosts: 
+-- | hostmap-bfk:
+-- |   hosts:
 -- |     insecure.org
 -- |     173.255.243.189
 -- |     images.insecure.org

@@ -23,9 +23,9 @@ References:
 -- nmap --script http-vuln-cve2011-3368 <targets>
 --
 -- @output
--- PORT   STATE SERVICE 
+-- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-vuln-cve2011-3368: 
+-- | http-vuln-cve2011-3368:
 -- |   VULNERABLE:
 -- |   Apache mod_proxy Reverse Proxy Security Bypass
 -- |     State: VULNERABLE
@@ -53,7 +53,7 @@ categories = {"intrusive", "vuln"}
 portrule = shortport.http
 
 action = function(host, port)
-	
+
 	local vuln = {
 		title = 'Apache mod_proxy Reverse Proxy Security Bypass',
 		IDS = { CVE='CVE-2011-3368', OSVDB='76079'},
@@ -87,7 +87,7 @@ servers to remote users who send carefully crafted requests.]],
 		stdnse.print_debug(1, "%s : got no answers from pipelined queries", SCRIPT_NAME)
 		return "\n  ERROR: Got no answers from pipelined queries"
 	end
-  
+
 
 	-- going through the results of TEST 1 we could see
 	-- * 200 OK
@@ -104,7 +104,7 @@ servers to remote users who send carefully crafted requests.]],
 			got_200_ok = true
 		end
 	end
-	
+
 	-- if we didn't get at least one 200 OK, the server is most like NOT vulnerable
 	if ( not(got_200_ok) ) then
 		vuln.state = vulns.STATE.NOT_VULN
@@ -115,16 +115,16 @@ servers to remote users who send carefully crafted requests.]],
 		stdnse.print_debug(1, "%s : test %d returned a %d", SCRIPT_NAME,i,bypass_request[i].status)
 
 		-- here a 400 should be the evidence for a patched server.
-		if ( bypass_request[i].status == 200 and vuln.state ~= vulns.STATE.VULN )  then 
-	
-			-- TEST 2: the internal hosts test. According to Contextis, we expect a delay before a server error. 
+		if ( bypass_request[i].status == 200 and vuln.state ~= vulns.STATE.VULN )  then
+
+			-- TEST 2: the internal hosts test. According to Contextis, we expect a delay before a server error.
 			-- According to my (Patrik) tests, internal hosts reachable by the server may return instant responses
-			local tests = { 
+			local tests = {
 				{ prefix = "", suffix = "" },
 				{ prefix = ":", suffix = ""},
 				{ prefix = ":", suffix = ":80"}
 			}
-			
+
 			-- try a bunch of hosts, and hope we hit one thats
 			-- not on the network, this will give us the delay we're expecting
 			local hosts = {
@@ -132,22 +132,22 @@ servers to remote users who send carefully crafted requests.]],
 				"192.168.211.211",
 				"172.16.16.16"
 			}
-			
+
 			-- perform one request for each host, and stop once we
 			-- receive a timeout for one of them
 			for _, h in ipairs(hosts) do
 				local response = http.get(
-					host, 
-					port, 
+					host,
+					port,
 					("%s%s@%s%s"):format(prefix, tests[i].prefix, h, tests[i].suffix),
 					{ timeout = ( chrono_404 + 5 ) * 1000 }
 				)
-				-- check if the GET timed out	
+				-- check if the GET timed out
 				if ( not(response.status) ) then
 					vuln.state = vulns.STATE.VULN
 					break
 				end
-			end	
+			end
 		end
 	end
 
@@ -156,6 +156,6 @@ servers to remote users who send carefully crafted requests.]],
 	if ( external.status == 200 and string.match(external.body,"Go ahead and ScanMe") ) then
 		vuln.extra_info = "Proxy allows requests to external websites"
 	end
-	return report:make_output(vuln) 
+	return report:make_output(vuln)
 end
 

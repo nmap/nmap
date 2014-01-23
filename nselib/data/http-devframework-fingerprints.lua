@@ -12,7 +12,7 @@ local url = require "url"
 -- * <code>name</code> - Descriptive name
 --   * <code>rapidDetect</code> - Callback function that is called in the beginning
 --   of detection process. It takes the host and port of the target website as
---   arguments. 
+--   arguments.
 --   * <code>consumingDetect</code> - Callback function that is called for each
 --   spidered page. It takes the body of the response (HTML source code) and the
 --   requested path as arguments.
@@ -25,25 +25,25 @@ tools = { Django = { rapidDetect = function(host, port)
                             local response = http.get(host, port, "/admin/")
 
                             if response.body then
-                                if string.find(response.body, "Log in | Django site admin") or 
-                                string.find(response.body, "this_is_the_login_form") or 
+                                if string.find(response.body, "Log in | Django site admin") or
+                                string.find(response.body, "this_is_the_login_form") or
                                 string.find(response.body, "csrfmiddlewaretoken") then
-                                    return "Django detected. Found Django admin login page on /admin/" 
+                                    return "Django detected. Found Django admin login page on /admin/"
                                 end
                             end
 
-                            -- In Django, the cookie sessionid is being set when you log in 
+                            -- In Django, the cookie sessionid is being set when you log in
                             -- and forms will probably set a cookie called csrftoken.
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
                                     if c.name == "csrftoken" then
-                                        return "Django detected. Found sessionid cookie which means the contrib.auth package for authentication is enabled." 
+                                        return "Django detected. Found sessionid cookie which means the contrib.auth package for authentication is enabled."
                                     elseif c.name == "sessionid" then
                                         return "Django detected. Found csrftoken cookie."
                                     end
                                 end
                             end
-                            
+
                             -- See if DEBUG mode still happens to be true.
                             response = http.get(host, port, "/random404page/")
 
@@ -54,7 +54,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             end
 
                         end,
-                        
+
                         consumingDetect = function(page, path)
                             if page then
                                 if string.find(page, "csrfmiddlewaretoken") then
@@ -64,7 +64,7 @@ tools = { Django = { rapidDetect = function(host, port)
                                     return "Django detected. Found id_ preffix in id attribute name on " .. path
                                 end
                                 if string.find(page, "%-TOTAL%-FORMS") or string.find(page, "%-DELETE") then
-                                    return "Django detected. Found -TOTAL-FORMS and -DELETE hidden inputs, which means there is a Django formset on " .. path 
+                                    return "Django detected. Found -TOTAL-FORMS and -DELETE hidden inputs, which means there is a Django formset on " .. path
                                 end
                             end
                         end
@@ -94,7 +94,7 @@ tools = { Django = { rapidDetect = function(host, port)
                                 end
                             end
 
-                            -- Make up a bad path and match the error page 
+                            -- Make up a bad path and match the error page
                             response = http.get(host, port, "/random404page/")
 
                             if response.body then
@@ -104,7 +104,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             end
 
                         end,
-                        
+
                         consumingDetect = function(page, path)
 
                             -- Check the source and look for csrf patterns.
@@ -113,7 +113,7 @@ tools = { Django = { rapidDetect = function(host, port)
                                     return "RoR detected. Found csrf field on" .. path
                                 end
                             end
-                           
+
                         end
                        },
 
@@ -133,16 +133,16 @@ tools = { Django = { rapidDetect = function(host, port)
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
                                     if c.name == "aspnetsessionid" then
-                                        return "ASP.NET detected. Found aspnetsessionid cookie." 
+                                        return "ASP.NET detected. Found aspnetsessionid cookie."
                                     end
                                 end
                             end
                         end,
-                       
+
                         consumingDetect = function(page, path)
                             -- Check the source and look for common traces.
                             if page then
-                                if string.find(page, " __VIEWSTATE") or 
+                                if string.find(page, " __VIEWSTATE") or
                                     string.find(page, "__EVENT") or
                                     string.find(page, "__doPostBack") or
                                     string.find(page, "aspnetForm") or
@@ -166,7 +166,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             end
 
                         end,
-                       
+
                         consumingDetect = function(page, path)
                             return
                         end
@@ -186,7 +186,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             end
 
                         end,
-                       
+
                         consumingDetect = function(page, path)
                             return
                         end
@@ -203,9 +203,9 @@ tools = { Django = { rapidDetect = function(host, port)
                                     return "Symfony detected. Found related header."
                                 end
                             end
-                           
+
                         end,
-                       
+
                         consumingDetect = function(page, path)
                             return
                         end
@@ -217,7 +217,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             local response = http.get(host, port, "/")
 
                             if response.body then
-                                if string.find(response.body, "content=[\"']WordPress") or 
+                                if string.find(response.body, "content=[\"']WordPress") or
                                     string.find(response.body, "wp%-content") then
                                     return "Wordpress detected. Found common traces on /"
                                 end
@@ -233,7 +233,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                         consumingDetect = function(page, path)
                             if page then
-                                if string.find(page, "content=[\"']WordPress") or 
+                                if string.find(page, "content=[\"']WordPress") or
                                     string.find(page, "wp%-content") then
                                     return "Wordpress detected. Found common traces on " .. page
                                 end
@@ -249,7 +249,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                             if response.body then
                                 if string.find(response.body, "content=[\"']Joomla!") then
-                                    return "Joomla detected. Found common traces on /" 
+                                    return "Joomla detected. Found common traces on /"
                                 end
                             end
 
@@ -264,7 +264,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                         consumingDetect = function(page, path)
                             if page and string.find(page, "content=[\"']Joomla!") then
-                                return "Joomla detected. Found common traces on " .. page 
+                                return "Joomla detected. Found common traces on " .. page
                             end
                         end
                     },
@@ -283,7 +283,7 @@ tools = { Django = { rapidDetect = function(host, port)
 
                         consumingDetect = function(page, path)
                             if page and string.find(page, "content=[\"']Drupal") then
-                                return "Drupal detected. Found common traces on " .. page 
+                                return "Drupal detected. Found common traces on " .. page
                             end
                         end
                     },
@@ -294,7 +294,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             local response = http.get(host, port, "/")
 
                             if response.body then
-                                if string.find(response.body, "content=[\"']MediaWiki") or 
+                                if string.find(response.body, "content=[\"']MediaWiki") or
                                 string.find(response.body, "/mediawiki/") then
                                     return "MediaWiki detected. Found common traces on /"
                                 end
@@ -304,7 +304,7 @@ tools = { Django = { rapidDetect = function(host, port)
                         consumingDetect = function(page, path)
                             if page and string.find(page, "content=[\"']MediaWiki") or
                             string.find(page, "/mediawiki/") then
-                                return "MediaWiki detected. Found common traces on " .. page 
+                                return "MediaWiki detected. Found common traces on " .. page
                             end
                         end
                     },
@@ -316,7 +316,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
                                     if c.name == "cfid" or c.name == "cftoken" then
-                                        return "ColdFusion detected. Found " .. c.name .. " cookie." 
+                                        return "ColdFusion detected. Found " .. c.name .. " cookie."
                                     end
                                 end
                             end
@@ -334,7 +334,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
                                     if string.find(c.name, "bv_") then
-                                        return "Broadvision detected. Found " .. c.name .. " cookie." 
+                                        return "Broadvision detected. Found " .. c.name .. " cookie."
                                     end
                                 end
                             end
@@ -352,7 +352,7 @@ tools = { Django = { rapidDetect = function(host, port)
                             if response.cookies then
                                 for _, c in pairs(response.cookies) do
                                     if string.find(c.name, "wc_") then
-                                        return "WebSphere Commerce detected. Found " .. c.name .. " cookie." 
+                                        return "WebSphere Commerce detected. Found " .. c.name .. " cookie."
                                     end
                                 end
                             end

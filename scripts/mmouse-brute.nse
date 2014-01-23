@@ -6,7 +6,7 @@ local stdnse = require "stdnse"
 
 description = [[
 Performs brute force password auditing against the RPA Tech Mobile Mouse
-servers. 
+servers.
 
 The Mobile Mouse server runs on OS X, Windows and Linux and enables remote
 control of the keyboard and mouse from an iOS device. For more information:
@@ -20,7 +20,7 @@ http://mobilemouse.com/
 -- @output
 -- PORT      STATE SERVICE
 -- 51010/tcp open  unknown
--- | mmouse-brute: 
+-- | mmouse-brute:
 -- |   Accounts
 -- |     vanilla - Valid credentials
 -- |   Statistics
@@ -39,33 +39,33 @@ arg_timeout = (arg_timeout or 5) * 1000
 portrule = shortport.port_or_service(51010, "mmouse", "tcp")
 
 Driver = {
-	
+
 	new = function(self, host, port)
 		local o = { host = host, port = port }
        	setmetatable(o, self)
         self.__index = self
 		return o
 	end,
-	
+
 	connect = function( self )
 		self.socket = nmap.new_socket()
 		self.socket:set_timeout(arg_timeout)
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	login = function( self, username, password )
 		local devid = "0123456789abcdef0123456789abcdef0123456"
 		local devname = "Lord Vaders iPad"
 		local suffix = "2".."\30".."2".."\04"
 		local auth = ("CONNECT\30%s\30%s\30%s\30%s"):format(password, devid, devname, suffix)
-		
+
 		local status = self.socket:send(auth)
 		if ( not(status) ) then
 			local err = brute.Error:new( "Failed to send data to server" )
 			err:setRetry( true )
-			return false, err			
+			return false, err
 		end
-		
+
 		local status, data = self.socket:receive_buf("\04", true)
 
 		if (data:match("^CONNECTED\30([^\30]*)") == "NO" ) then
@@ -73,16 +73,16 @@ Driver = {
 		elseif ( data:match("^CONNECTED\30([^\30]*)") == "YES" ) then
 			return true, brute.Account:new("", password, creds.State.VALID)
 		end
-		
+
 		local err = brute.Error:new("An unexpected error occured, retrying ...")
 		err:setRetry(true)
 		return false, err
 	end,
-	
+
 	disconnect = function(self)
 		self.socket:close()
 	end,
-	
+
 }
 
 local function hasPassword(host, port)
@@ -92,7 +92,7 @@ local function hasPassword(host, port)
 	end
 	local status = driver:login(nil, "nmap")
 	driver:disconnect()
-	
+
 	return not(status)
 end
 
@@ -103,16 +103,16 @@ action = function(host, port)
 		return "\n  Server has no password"
 	end
 
-	local status, result 
+	local status, result
 	local engine = brute.Engine:new(Driver, host, port )
-	
+
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	engine.options:setOption( "passonly", true )
 
 	-- mouse server does not behave well when multiple threads are guessing
 	engine:setMaxThreads(1)
-	
+
 	status, result = engine:start()
 
 	return result

@@ -12,12 +12,12 @@ record) returned for each host name.
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap --script=resolveall --script-args=newtargets,resolveall.hosts={<host1>, ...} ...
 -- @args resolveall.hosts Table of hosts to resolve
 -- @output
 -- Pre-scan script results:
--- | resolveall: 
+-- | resolveall:
 -- |   Host 'google.com' resolves to:
 -- |     74.125.39.106
 -- |     74.125.39.147

@@ -19,7 +19,7 @@ on it.
 It also gives information about where the objects are located, (marked
 with @<ip>:port in the output).
 
-Some apps give away the classpath, which this scripts catches in so-called "Custom data". 
+Some apps give away the classpath, which this scripts catches in so-called "Custom data".
 ]]
 
 ---
@@ -27,7 +27,7 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 -- @output
 -- PORT     STATE SERVICE  REASON
 -- 1099/tcp open  java-rmi syn-ack
--- | rmi-dumpregistry:  
+-- | rmi-dumpregistry:
 -- |   jmxrmi
 -- |     javax.management.remote.rmi.RMIServerImpl_Stub
 -- |     @127.0.1.1:40353
@@ -39,7 +39,7 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 -- @output
 -- PORT     STATE SERVICE  REASON
 -- 1099/tcp open  java-rmi syn-ack
--- | rmi-dumpregistry:  
+-- | rmi-dumpregistry:
 -- |   cfassembler/default
 -- |     coldfusion.flex.rmi.DataServicesCFProxyServer_Stub
 -- |     @192.168.0.3:1271
@@ -171,18 +171,18 @@ local function split(str, sep)
  end
 
 
---This is a customData formatter. In some cases, the RMI library finds 'custom data' which belongs to an object. 
+--This is a customData formatter. In some cases, the RMI library finds 'custom data' which belongs to an object.
 -- This data is not handled correctly, instead, the data is dumped in the objects customData field (which is a table with strings)
 -- The RMI library does not do anything more than that - however, here in the land of rmi-dumpregistry land, we may have
--- more knowledge about how to interpret that data. 
--- In the wild, coldfusion.flex.rmi.DataServicesCFProxyServer_Stub e.g discloses the classpath in this variable. This method looks at 
+-- more knowledge about how to interpret that data.
+-- In the wild, coldfusion.flex.rmi.DataServicesCFProxyServer_Stub e.g discloses the classpath in this variable. This method looks at
 -- the contents of the custom data. if it looks like a class path, we display it as such. This method is passed to the toTable() method
--- of the returned RMI object.  
+-- of the returned RMI object.
 -- @return title, data
 function customDataFormatter(className, customData)
 	if customData == nil then return nil end
 	if #customData ==0 then return nil end
-	
+
 	local retData = {}
 	for k,v in ipairs(customData) do
 		if v:find("file:/") == 1 then
@@ -194,30 +194,30 @@ function customDataFormatter(className, customData)
 			table.insert(retData[v])
 		end
 	end
-	
+
 	return "Custom data", retData
 end
 
 
 function action(host,port, args)
-	
+
 	local registry= rmi.Registry:new( host.ip, port.number)
 
-	
+
 	local status, j_array = registry:list()
 	local output = {}
-	if not status then 
+	if not status then
 		return false, ("Registry listing failed (%s)"):format(tostring(j_array))
 	end
 	-- It's definitely RMI!
 	port.version.name ='java-rmi'
 	port.version.product='Java RMI Registry'
 	nmap.set_port_version(host,port)
-	
-	-- Monkey patch the java-class in rmi, to set our own custom data formatter 
+
+	-- Monkey patch the java-class in rmi, to set our own custom data formatter
 	-- for classpaths
 	rmi.JavaClass.customDataFormatter = customDataFormatter
-	
+
 	-- We expect an array of strings to be the return data
 	local data = j_array:getValues()
 	for i,name in ipairs( data ) do
@@ -230,7 +230,7 @@ function action(host,port, args)
 			table.insert(output, j_object:toTable())
 		end
 
-		
+
 	end
 	return stdnse.format_output(true, output)
 end

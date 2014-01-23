@@ -17,7 +17,7 @@ from all devices responding to the request.
 --
 -- @output
 -- Pre-scan script results:
--- | broadcast-rip-discover: 
+-- | broadcast-rip-discover:
 -- | Discovered RIPv2 devices
 -- |   10.0.200.107
 -- |     ip           netmask        nexthop       metric
@@ -30,7 +30,7 @@ from all devices responding to the request.
 -- |   10.0.200.101
 -- |     ip       netmask  nexthop     metric
 -- |_    0.0.0.0  0.0.0.0  10.0.200.1  1
--- 
+--
 -- @args broadcast-rip-discover.timeout timespec defining how long to wait for
 --       a response. (default 5s)
 
@@ -47,25 +47,25 @@ categories = {"broadcast", "safe"}
 prerule = function() return not( nmap.address_family() == "inet6") end
 
 RIPv2 = {
-	
+
 	Command = {
 		Request = 1,
 		Response = 2,
 	},
-	
+
 	AddressFamily = {
 		IP = 2,
 	},
-	
+
 	-- The Request class contains functions to build a RIPv2 Request
 	Request = {
-	
+
 		-- Creates a new Request instance
 		--
 		-- @param command number containing the RIPv2 Command to use
 		-- @return o instance of request
 		new = function(self, command)
-			local o = { 
+			local o = {
 				version = 2,
 				command = command,
 				domain = 0,
@@ -80,7 +80,7 @@ RIPv2 = {
 			self.__index = self
 			return o
 		end,
-    
+
 		-- Converts the whole request to a string
 		__tostring = function(self)
 			assert(self.command, "No command was supplied")
@@ -89,26 +89,26 @@ RIPv2 = {
 			local RESERVED = 0
 			-- RIPv2 stuff, should be 0 for RIPv1
 			local tag, subnet, nexthop = 0, 0, 0
-		
+
 			local data = bin.pack(">CCSSSIIII",
 				self.command, self.version, self.domain, self.family, self.tag,
 				self.address, self.subnet, self.nexthop, self.metric)
-	
+
 			return data
 		end,
-		
+
 	},
-	
+
 	-- The Response class contains code needed to parse a RIPv2 response
 	Response = {
-	
+
 		-- Creates a new Response instance based on raw socket data
 		--
 		-- @param data string containing the raw socket response
 		-- @return o Response instance
 		new = function(self, data)
 			local o = { data = data }
-			
+
 			if ( not(data) or #data < 3 ) then
 				return
 			end
@@ -117,15 +117,15 @@ RIPv2 = {
 			if ( o.command ~= RIPv2 and o.version ~= 2 ) then
 				return
 			end
-			
+
 			local routes = tab.new(2)
 			tab.addrow(routes, "ip", "netmask", "nexthop", "metric")
-			
+
 			while( #data - pos >= 20 ) do
 				local family, address, metric, _, netmask, nexthop
 				pos, family, _, address, netmask, nexthop,
 						metric = bin.unpack(">SS<III>I", data, pos)
-				
+
 				if ( family == RIPv2.AddressFamily.IP ) then
 					local ip = ipOps.fromdword(address)
 					netmask = ipOps.fromdword(netmask)
@@ -133,16 +133,16 @@ RIPv2 = {
 					tab.addrow(routes, ip, netmask, nexthop, metric)
 				end
 			end
-			
+
 			if ( #routes > 1 ) then o.routes = routes end
-			
+
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-			
+
 	}
-	
+
 }
 
 
@@ -152,9 +152,9 @@ action = function()
 
 	local socket = nmap.new_socket("udp")
 	socket:set_timeout(timeout)
-	
+
 	local rip = RIPv2.Request:new(RIPv2.Command.Request)
-	local status, err = socket:sendto("224.0.0.9", 
+	local status, err = socket:sendto("224.0.0.9",
 							{ number = 520, protocol = "udp" },
 							tostring(rip))
 	local result = {}
@@ -165,12 +165,12 @@ action = function()
 			local status, _, _, rhost, _ = socket:get_info()
 			local response = RIPv2.Response:new(data)
 			table.insert(result, rhost)
-			
+
 			if ( response and response.routes and #response.routes > 0 ) then
 				--response.routes.name = "Routes"
 				table.insert(result, { tab.dump(response.routes) } )
 			end
-			
+
 		end
 	until( not(status) )
 

@@ -15,7 +15,7 @@ local xmpp = require "xmpp"
 _ENV = stdnse.module("sslcert", stdnse.seeall)
 
 StartTLS = {
-	
+
 	ftp_prepare_tls_without_reconnect = function(host, port)
 		local s = nmap.new_socket()
 	    -- Attempt to negotiate TLS over FTP for services that support it
@@ -56,7 +56,7 @@ StartTLS = {
 	    -- Should have a solid TLS over FTP session now...
 	    return true, s
 	end,
-	
+
 	ftp_prepare_tls = function(host, port)
 		local err
 		local status, s = StartTLS.ftp_prepare_tls_without_reconnect(host, port)
@@ -66,7 +66,7 @@ StartTLS = {
 	            stdnse.print_debug("1","Could not establish SSL session after STARTTLS command.")
 	            s:close()
 	            return false, "Failed to connect to SMTP server"
-	        else 
+	        else
 				return true,s
 			end
 		end
@@ -79,11 +79,11 @@ StartTLS = {
 	    -- Works for SMTP (25) and SMTP Submission (587)
 
 	    -- Open a standard TCP socket
-	    local status, error = s:connect(host, port, "tcp")  
+	    local status, error = s:connect(host, port, "tcp")
 
-	    if not status then   
+	    if not status then
 	        return nil
-	    else 
+	    else
 			local resultEHLO
 	        -- Loop until the service presents a banner to deal with server
 	        -- load and timing issues.  There may be a better way to handle this.
@@ -108,7 +108,7 @@ StartTLS = {
 
 	        resultEHLO = ""
 
-	        -- Send STARTTLS command ask the service to start encryption    
+	        -- Send STARTTLS command ask the service to start encryption
 	        local query = "STARTTLS\r\n"
 	        status = s:send(query)
 	        status, resultEHLO = s:receive_lines(1)
@@ -119,16 +119,16 @@ StartTLS = {
 
 	            -- Send QUIT to clean up server side connection
 	            local query = "QUIT\r\n"
-	            status = s:send(query)        
+	            status = s:send(query)
 	            resultEHLO = ""
 
 	            return false, "Failed to connect to SMTP server"
 	        end
-	    end    
+	    end
 	    -- Should have a solid TLS over SMTP session now...
 	    return true, s
 	end,
-	
+
 	smtp_prepare_tls = function(host, port)
 		local err
 		local status,s = StartTLS.smtp_prepare_tls_without_reconnect(host, port)
@@ -138,7 +138,7 @@ StartTLS = {
 	            stdnse.print_debug("1","Could not establish SSL session after STARTTLS command.")
 	            s:close()
 	            return false, "Failed to connect to SMTP server"
-	        else 
+	        else
 				return true,s
 			end
 		end
@@ -156,7 +156,7 @@ StartTLS = {
 			sock:close()
 			stdnse.print_debug("Can't send: %s", err)
 			return false, "Failed to connect to XMPP server"
-		end	
+		end
 		status, err = sock:send(xmppStreamStart)
 		if not status then
 			stdnse.print_debug("Couldn't send: %s", err)
@@ -168,7 +168,7 @@ StartTLS = {
 			stdnse.print_debug("Couldn't receive: %s", err)
 			sock:close()
 			return false, "Failed to connect to XMPP server"
-		end	
+		end
 		status, err = sock:send(xmppStartTLS)
 		if not status then
 			stdnse.print_debug("Couldn't send: %s", err)
@@ -180,24 +180,24 @@ StartTLS = {
 			stdnse.print_debug("Couldn't receive: %s", err)
 			sock:close()
 			return false, "Failed to connect to XMPP server"
-		end	
+		end
 		if string.find(result,"proceed") then
 			return true,sock
-		end 
-		
+		end
+
 		status, result = sock:receive() -- might not be in the first reply
 		if not status then
 			stdnse.print_debug("Couldn't receive: %s", err)
 			sock:close()
 			return false, "Failed to connect to XMPP server"
-		end	
+		end
 		if string.find(result,"proceed") then
 			return true,sock
-		else 
+		else
 			return false, "Failed to connect to XMPP server"
-		end		
+		end
 	end,
-	
+
 	xmpp_prepare_tls = function(host, port)
 	    local ls = xmpp.XMPP:new(host, port, { starttls = true } )
 	    ls.socket = nmap.new_socket()
@@ -213,7 +213,7 @@ StartTLS = {
 	        return false, "Failed to connected"
 	    end
 		return true, ls.socket
-	end	
+	end
 }
 
 -- A table mapping port numbers to specialized SSL negotiation functions.
@@ -251,14 +251,14 @@ end
 function getCertificate(host, port)
 	local mutex = nmap.mutex("sslcert-cache-mutex")
 	mutex "lock"
-	
+
 	if ( host.registry["ssl-cert"] and
 		host.registry["ssl-cert"][port.number] ) then
 		stdnse.print_debug(2, "sslcert: Returning cached SSL certificate")
 		mutex "done"
 		return true, host.registry["ssl-cert"][port.number]
 	end
-		
+
 	-- Is there a specialized function for this port?
 	local specialized = SPECIALIZED_PREPARE_TLS[port.number]
 	local status
@@ -276,12 +276,12 @@ function getCertificate(host, port)
 			mutex "done"
 			return false, "Failed to connect to server"
 		end
-    end 
+    end
     local cert = socket:get_ssl_certificate()
 	if ( cert == nil ) then
 		return false, "Unable to get cert"
 	end
-	
+
 	host.registry["ssl-cert"] = host.registry["ssl-cert"] or {}
 	host.registry["ssl-cert"][port.number] = host.registry["ssl-cert"][port.number] or {}
 	host.registry["ssl-cert"][port.number] = cert

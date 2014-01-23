@@ -2,7 +2,7 @@ description = [[
 Attempts to retrieve information about the domain name of the target
 ]]
 
---- 
+---
 -- @usage nmap --script whois-domain.nse <target>
 --
 -- This script starts by quering the whois.iana.org (which is the root of the
@@ -15,7 +15,7 @@ Attempts to retrieve information about the domain name of the target
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | whois-domain: 
+-- | whois-domain:
 -- | whois3: Record found at whois.arin.net
 -- | netrange: 199.19.112.0 - 199.19.119.255
 -- | netname: WEBRULON-NETWORK
@@ -114,7 +114,7 @@ action = function( host )
 
         local result
 
-        -- First server to query is iana's. 
+        -- First server to query is iana's.
         local referral = "whois.iana.org"
 
         while referral do

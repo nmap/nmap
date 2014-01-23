@@ -16,12 +16,12 @@ If the <code>newtargets</code> script argument is given, all discovered Dropbox 
 -- nmap --script=broadcast-dropbox-listener --script-args=newtargets -Pn
 -- @output
 -- Pre-scan script results:
--- | broadcast-dropbox-listener: 
+-- | broadcast-dropbox-listener:
 -- | displayname  ip             port   version  host_int  namespaces
 -- |_noob         192.168.0.110  17500  1.8      34176083  26135075
 --
 -- Pre-scan script results:
--- | broadcast-dropbox-listener: 
+-- | broadcast-dropbox-listener:
 -- | displayname  ip             port   version  host_int  namespaces
 -- |_noob         192.168.0.110  17500  1.8      34176083  26135075
 -- Nmap scan report for 192.168.0.110

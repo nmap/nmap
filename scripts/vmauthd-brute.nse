@@ -14,7 +14,7 @@ Performs brute force password auditing against the VMWare Authentication Daemon 
 -- @output
 -- PORT    STATE SERVICE
 -- 902/tcp open  iss-realsecure
--- | vmauthd-brute: 
+-- | vmauthd-brute:
 -- |   Accounts
 -- |     root:00000 - Valid credentials
 -- |   Statistics
@@ -31,19 +31,19 @@ portrule = shortport.port_or_service(902, {"ssl/vmware-auth", "vmware-auth"}, "t
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
 Driver = {
-	
+
 	new = function(self, host, port, options)
 		local o = { host = host, port = port }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	connect = function(self)
 		self.socket = nmap.new_socket()
 		return self.socket:connect(self.host, self.port)
 	end,
-	
+
 	login = function(self, username, password)
 		local status, line = self.socket:receive_buf("\r\n", false)
 		if ( line:match("^220 VMware Authentication Daemon.*SSL Required") ) then
@@ -56,7 +56,7 @@ Driver = {
 			err:setRetry( true )
 			return false, err
 		end
-		
+
 		local status, response = self.socket:receive_buf("\r\n", false)
 		if ( not(status) or not(response:match("^331") ) ) then
 			local err = brute.Error:new( "Received unexpected response from server" )
@@ -75,20 +75,20 @@ Driver = {
 		if ( response:match("^230") ) then
 			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
-		
+
 		return false, brute.Error:new( "Login incorrect" )
 	end,
-	
+
 	disconnect = function(self)
 		return self.socket:close()
 	end
-	
+
 }
 
-local function checkAuthd(host, port)	
+local function checkAuthd(host, port)
 	local socket = nmap.new_socket()
 	local status = socket:connect(host, port)
-	
+
 	if( not(status) ) then
 		return false, "Failed to connect to server"
 	end

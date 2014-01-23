@@ -6,25 +6,25 @@ local table = require "table"
 description = [[
 Attempts to list shares using the <code>srvsvc.NetShareEnumAll</code> MSRPC function and
 retrieve more information about them using <code>srvsvc.NetShareGetInfo</code>. If access
-to those functions is denied, a list of common share names are checked. 
+to those functions is denied, a list of common share names are checked.
 
 Finding open shares is useful to a penetration tester because there may be private files
 shared, or, if it's writable, it could be a good place to drop a Trojan or to infect a file
-that's already there. Knowing where the share is could make those kinds of tests more useful, 
-except that determiing where the share is requires administrative privileges already. 
+that's already there. Knowing where the share is could make those kinds of tests more useful,
+except that determiing where the share is requires administrative privileges already.
 
-Running <code>NetShareEnumAll</code> will work anonymously against Windows 2000, and 
-requires a user-level account on any other Windows version. Calling <code>NetShareGetInfo</code> 
+Running <code>NetShareEnumAll</code> will work anonymously against Windows 2000, and
+requires a user-level account on any other Windows version. Calling <code>NetShareGetInfo</code>
 requires an administrator account on all versions of Windows up to 2003, as well as Windows Vista
-and Windows 7, if UAC is turned down. 
+and Windows 7, if UAC is turned down.
 
 Even if <code>NetShareEnumAll</code> is restricted, attempting to connect to a share will always
 reveal its existence. So, if <code>NetShareEnumAll</code> fails, a pre-generated list of shares,
-based on a large test network, are used. If any of those succeed, they are recorded. 
+based on a large test network, are used. If any of those succeed, they are recorded.
 
-After a list of shares is found, the script attempts to connect to each of them anonymously, 
+After a list of shares is found, the script attempts to connect to each of them anonymously,
 which divides them into "anonymous", for shares that the NULL user can connect to, or "restricted",
-for shares that require a user account. 
+for shares that require a user account.
 ]]
 
 ---
@@ -95,7 +95,7 @@ action = function(host)
 		local share_output = {}
 		share_output['name'] = share['name']
 
-		if(type(share['details']) ~= 'table') then 
+		if(type(share['details']) ~= 'table') then
 			share_output['warning'] = string.format("Couldn't get details for share: %s", share['details'])
 		else
 			local details = share['details']
@@ -105,8 +105,8 @@ action = function(host)
 			table.insert(share_output, string.format("Users: %s, Max: %s", details['current_users'], details['max_users']))
 			table.insert(share_output, string.format("Path: %s",           details['path']))
 		end
-		
-	
+
+
 		-- A share of 'NT_STATUS_OBJECT_NAME_NOT_FOUND' indicates this isn't a fileshare
 		if(share['user_can_write'] == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
 			-- Print details for a non-file share

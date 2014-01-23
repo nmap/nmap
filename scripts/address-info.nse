@@ -28,48 +28,48 @@ definitions of some terms.
 -- @output
 -- Nmap scan report for ::1.2.3.4
 -- Host script results:
--- | address-info: 
--- |   IPv4-compatible: 
+-- | address-info:
+-- |   IPv4-compatible:
 -- |_    IPv4 address: 1.2.3.4
--- 
+--
 -- Nmap scan report for ::ffff:1.2.3.4
 -- Host script results:
--- | address-info: 
--- |   IPv4-mapped: 
+-- | address-info:
+-- |   IPv4-mapped:
 -- |_    IPv4 address: 1.2.3.4
--- 
+--
 -- Nmap scan report for 2001:0:506:708:282a:3d75:fefd:fcfb
 -- Host script results:
--- | address-info: 
--- |   Teredo: 
+-- | address-info:
+-- |   Teredo:
 -- |     Server IPv4 address: 5.6.7.8
 -- |     Client IPv4 address: 1.2.3.4
 -- |_    UDP port: 49802
--- 
+--
 -- Nmap scan report for 2002:102:304::1
 -- Host script results:
--- | address-info: 
--- |   6to4: 
+-- | address-info:
+-- |   6to4:
 -- |_    IPv4 address: 1.2.3.4
--- 
+--
 -- Nmap scan report for fe80::a8bb:ccff:fedd:eeff
 -- Host script results:
--- | address-info: 
--- |   IPv6 EUI-64: 
--- |     MAC address: 
+-- | address-info:
+-- |   IPv6 EUI-64:
+-- |     MAC address:
 -- |       address: aa:bb:cc:dd:ee:ff
 -- |_      manuf: Unknown
--- 
+--
 -- Nmap scan report for 64:ff9b::c000:221
 -- Host script results:
--- | address-info: 
--- |   IPv4-embedded IPv6 address: 
+-- | address-info:
+-- |   IPv4-embedded IPv6 address:
 -- |_    IPv4 address: 192.0.2.33
--- 
+--
 -- Nmap scan report for ::ffff:0:c0a8:101
 -- Host script results:
--- | address-info: 
--- |   IPv4-translated IPv6 address: 
+-- | address-info:
+-- |   IPv4-translated IPv6 address:
 -- |_    IPv4 address: 192.168.1.1
 
 -- * ISATAP. RFC 5214.
@@ -249,8 +249,8 @@ local function do_ipv6(addr)
 			return {["IPv4-embedded IPv6 address"]= {["IPv4 address"] = format_ipv4(ipv4)}}
 		end
 	elseif matches(addr, "0000:0000:0000:0000:ffff:0000:XXXX:XXXX") then
-		-- IPv4-translated IPv6 addresses. RFC 2765, Section 2.1 
-		return {["IPv4-translated IPv6 address"]= 
+		-- IPv4-translated IPv6 addresses. RFC 2765, Section 2.1
+		return {["IPv4-translated IPv6 address"]=
 			{["IPv4 address"] = format_ipv4( {addr[13], addr[14], addr[15], addr[16]})}}
 	elseif matches(addr, "XXXX:XXXX:XXXX:XX00:0000:5efe:XXXX:XXXX") then
 		-- ISATAP. RFC 5214, Appendix A

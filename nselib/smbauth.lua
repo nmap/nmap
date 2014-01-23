@@ -1,54 +1,54 @@
 ---
--- This module takes care of the authentication used in SMB (LM, NTLM, LMv2, NTLMv2). 
+-- This module takes care of the authentication used in SMB (LM, NTLM, LMv2, NTLMv2).
 --
 -- There is a lot to this functionality, so if you're interested in how it works, read
--- on. 
+-- on.
 -- In SMB authentication, there are two distinct concepts. Each will be dealt with
 -- separately. There are:
 -- * Stored hashes
 -- * Authentication
 --
--- What's confusing is that the same names are used for each of those. 
+-- What's confusing is that the same names are used for each of those.
 --
 -- Stored Hashes:
 -- Windows stores two types of hashes: Lanman and NT Lanman (or NTLM). Vista and later
--- store NTLM only. Lanman passwords are divided into two 7-character passwords and 
--- used as a key in DES, while NTLM is converted to unicode and MD4ed. 
+-- store NTLM only. Lanman passwords are divided into two 7-character passwords and
+-- used as a key in DES, while NTLM is converted to unicode and MD4ed.
 --
 -- The stored hashes can be dumped in a variety of ways (pwdump6, fgdump, Metasploit's
--- <code>priv</code> module, <code>smb-psexec.nse</code>, etc). Generally, two hashes are dumped together 
+-- <code>priv</code> module, <code>smb-psexec.nse</code>, etc). Generally, two hashes are dumped together
 -- (generally, Lanman:NTLM). Sometimes, Lanman is empty and only NTLM is given. Lanman
--- is never required. 
+-- is never required.
 --
--- The password hashes can be given instead of passwords when supplying credentials; 
+-- The password hashes can be given instead of passwords when supplying credentials;
 -- this is done by using the <code>smbhash</code> argument. Either a pair of hashes
 -- can be passed, in the form of Lanman:NTLM, or a single hash, which is assumed to
--- be NTLM. 
+-- be NTLM.
 --
 -- Authentication:
 -- There are four types of authentication. Confusingly, these have the same names as
--- stored hashes, but only slight relationships. The four types are Lanmanv1, NTLMv1, 
--- Lanmanv2, and NTLMv2. By default, Lanmanv1 and NTLMv1 are used together in most 
--- applications. These Nmap scripts default to NTLMv1 alone, except in special cases, 
--- but it can be overridden by the user. 
+-- stored hashes, but only slight relationships. The four types are Lanmanv1, NTLMv1,
+-- Lanmanv2, and NTLMv2. By default, Lanmanv1 and NTLMv1 are used together in most
+-- applications. These Nmap scripts default to NTLMv1 alone, except in special cases,
+-- but it can be overridden by the user.
 --
 -- Lanmanv1 and NTLMv1 both use DES for their response. The DES mixes a server challenge
--- with the hash (Lanman hash for Lanmanv1 response and NTLMv1 hash for NTLM response). 
--- The way the challenge is DESed with the hashes is identical for Lanmanv1 and NTLMv1, 
--- the only difference is the starting hash (Lanman vs NTLM). 
+-- with the hash (Lanman hash for Lanmanv1 response and NTLMv1 hash for NTLM response).
+-- The way the challenge is DESed with the hashes is identical for Lanmanv1 and NTLMv1,
+-- the only difference is the starting hash (Lanman vs NTLM).
 --
--- Lanmanv2 and NTLMv2 both use HMAC-MD5 for their response. The HMAC-MD5 mixes a 
--- server challenge and a client challenge with the NTLM hash, in both cases. The 
+-- Lanmanv2 and NTLMv2 both use HMAC-MD5 for their response. The HMAC-MD5 mixes a
+-- server challenge and a client challenge with the NTLM hash, in both cases. The
 -- difference between Lanmanv2 and NTLMv2 is the length of the client challenge;
 -- Lanmanv2 has a maximum client challenge of 8 bytes, whereas NTLMv2 doesn't limit
--- the length of the client challenge. 
+-- the length of the client challenge.
 --
--- The primary advantage to the 'v2' protocols is the client challenge -- by 
+-- The primary advantage to the 'v2' protocols is the client challenge -- by
 -- incorporating a client challenge, a malicious server can't use a precomputation
--- attack. 
+-- attack.
 --
--- In addition to hashing the passwords, messages are also signed, by default, if a 
--- v1 protocol is being used (I (Ron Bowes) couldn't get signatures to work on v2 
+-- In addition to hashing the passwords, messages are also signed, by default, if a
+-- v1 protocol is being used (I (Ron Bowes) couldn't get signatures to work on v2
 -- protocols; if anybody knows how I'd love to implement it).
 --
 --@args  smbusername The SMB username to log in with. The forms "DOMAIN\username" and "username@DOMAIN"
@@ -59,7 +59,7 @@
 --                   accounts if the incorrect password is given. Although it's rare that the
 --                   Administrator account can be locked out, in the off chance that it can, you could
 --                   get yourself in trouble. To use a blank password, leave this parameter off
---                   altogether. 
+--                   altogether.
 --@args  smbhash     A password hash to use when logging in. This is given as a single hex string (32
 --                   characters) or a pair of hex strings (both 32 characters, optionally separated by a
 --                   single character). These hashes are the LanMan or NTLM hash of the user's password,
@@ -71,14 +71,14 @@
 -- * <code>NTLMv1</code>: Sends NTLMv1 only (default).
 -- * <code>v2</code>:     Sends LMv2 and NTLMv2.
 -- * <code>LMv2</code>:   Sends LMv2 only.
--- * <code>NTLMv2</code>: Doesn't exist; the protocol doesn't support NTLMv2 alone. 
---                   The default, <code>NTLMv1</code>, is a pretty decent compromise between security and 
---                   compatibility. If you are paranoid, you might want to use <code>v2</code> or 
---                   <code>lmv2</code> for this. (Actually, if you're paranoid, you should be avoiding this 
---                   protocol altogether!). If you're using an extremely old system, you might need to set 
---                   this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible.  
---                   For information, see <code>smbauth.lua</code>. 
---@args smbnoguest   Use to disable usage of the 'guest' account. 
+-- * <code>NTLMv2</code>: Doesn't exist; the protocol doesn't support NTLMv2 alone.
+--                   The default, <code>NTLMv1</code>, is a pretty decent compromise between security and
+--                   compatibility. If you are paranoid, you might want to use <code>v2</code> or
+--                   <code>lmv2</code> for this. (Actually, if you're paranoid, you should be avoiding this
+--                   protocol altogether!). If you're using an extremely old system, you might need to set
+--                   this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible.
+--                   For information, see <code>smbauth.lua</code>.
+--@args smbnoguest   Use to disable usage of the 'guest' account.
 
 local bin = require "bin"
 local nmap = require "nmap"
@@ -136,17 +136,17 @@ end
 -- * registry[ip]['smbaccounts']        => array of table containing 'username', 'password', and 'is_admin'
 --
 -- The final place, 'smbaccount', is reserved for the "best" account. This is an administrator
--- account, if one's found; otherwise, it's the first account discovered that isn't <code>guest</code>. 
+-- account, if one's found; otherwise, it's the first account discovered that isn't <code>guest</code>.
 --
 -- This has to be called while no SMB connections are made, since it potentially makes its own connection.
 --
---@param host          The host object. 
---@param username      The username to add. 
---@param domain        The domain to add. 
---@param password      The password to add. 
---@param password_hash The password hash to add. 
+--@param host          The host object.
+--@param username      The username to add.
+--@param domain        The domain to add.
+--@param password      The password to add.
+--@param password_hash The password hash to add.
 --@param hash_type     The hash type to use.
---@param is_admin      [optional] Set to 'true' the account is known to be an administrator. 
+--@param is_admin      [optional] Set to 'true' the account is known to be an administrator.
 function add_account(host, username, domain, password, password_hash, hash_type, is_admin)
 	-- Save the username in a global list -- TODO: restore this
 --	if(nmap.registry.usernames == nil) then
@@ -216,11 +216,11 @@ function add_account(host, username, domain, password, password_hash, hash_type,
 end
 
 ---Retrieve the current set of credentials set in the registry. If these fail, <code>next_credentials</code> should be
--- called. 
+-- called.
 --
---@param host The host object. 
+--@param host The host object.
 --@return (result, username, domain, password, password_hash, hash_type) If result is false, username is an error message. Otherwise, username and password are
---        the current username and password that should be used. 
+--        the current username and password that should be used.
 function get_account(host)
 	if(host.registry['smbindex'] == nil) then
 		host.registry['smbindex'] = 1
@@ -237,9 +237,9 @@ function get_account(host)
 end
 
 ---Create the account table with the anonymous and guest users, as well as the user given in the script's
--- arguments, if there is one. 
+-- arguments, if there is one.
 --
---@param host The host object. 
+--@param host The host object.
 function init_account(host)
 	-- Don't run this more than once for each host
 	if(host.registry['smbaccounts'] ~= nil) then
@@ -327,8 +327,8 @@ end
 
 ---Generate the Lanman v1 hash (LMv1). The generated hash is incredibly easy to reverse, because the input
 -- is padded or truncated to 14 characters, then split into two 7-character strings. Each of these strings
--- are used as a key to encrypt the string, "KGS!@#$%" in DES. Because the keys are no longer than 
--- 7-characters long, it's pretty trivial to bruteforce them. 
+-- are used as a key to encrypt the string, "KGS!@#$%" in DES. Because the keys are no longer than
+-- 7-characters long, it's pretty trivial to bruteforce them.
 --
 --@param password the password to hash
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
@@ -364,7 +364,7 @@ local function lm_create_hash(password)
 end
 
 ---Generate the NTLMv1 hash. This hash is quite a bit better than LMv1, and is far easier to generate. Basically,
--- it's the MD4 of the Unicode password. 
+-- it's the MD4 of the Unicode password.
 --
 --@param password the password to hash
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
@@ -376,12 +376,12 @@ function ntlm_create_hash(password)
 	return true, openssl.md4(to_unicode(password))
 end
 
----Create the Lanman response to send back to the server. To do this, the Lanman password is padded to 21 
+---Create the Lanman response to send back to the server. To do this, the Lanman password is padded to 21
 -- characters and split into three 7-character strings. Each of those strings is used as a key to encrypt
--- the server challenge. The three encrypted strings are concatenated and returned. 
+-- the server challenge. The three encrypted strings are concatenated and returned.
 --
 --@param lanman    The LMv1 hash
---@param challenge The server's challenge. 
+--@param challenge The server's challenge.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function lm_create_response(lanman, challenge)
 	if(have_ssl ~= true) then
@@ -406,7 +406,7 @@ function lm_create_response(lanman, challenge)
 	key3 = openssl.DES_string_to_key(str3)
 
 	-- Print a warning message if a blank challenge is received, and create a phony challenge. A blank challenge is
-	-- invalid in the protocol, and causes some versions of OpenSSL to abort with no possible error handling. 
+	-- invalid in the protocol, and causes some versions of OpenSSL to abort with no possible error handling.
 	if(challenge == "") then
 		stdnse.print_debug(1, "SMB: ERROR: Server returned invalid (blank) challenge value (should be 8 bytes); failing login to avoid OpenSSL crash.")
 		challenge = "AAAAAAAA"
@@ -419,10 +419,10 @@ function lm_create_response(lanman, challenge)
 end
 
 ---Create the NTLM response to send back to the server. This is actually done the exact same way as the Lanman hash,
--- so I call the <code>Lanman</code> function. 
+-- so I call the <code>Lanman</code> function.
 --
 --@param ntlm      The NTLMv1 hash
---@param challenge The server's challenge. 
+--@param challenge The server's challenge.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function ntlm_create_response(ntlm, challenge)
 	if(have_ssl ~= true) then
@@ -432,12 +432,12 @@ function ntlm_create_response(ntlm, challenge)
 	return lm_create_response(ntlm, challenge)
 end
 
----Create the NTLM mac key, which is used for message signing. For basic authentication, this is the md4 of the 
+---Create the NTLM mac key, which is used for message signing. For basic authentication, this is the md4 of the
 -- NTLM hash, concatenated with the response hash; for extended authentication, this is just the md4 of the NTLM
--- hash. 
---@param ntlm_hash The NTLM hash. 
---@param ntlm_response The NTLM response. 
---@param is_extended Should be set if extended security negotiations are being used. 
+-- hash.
+--@param ntlm_hash The NTLM hash.
+--@param ntlm_response The NTLM response.
+--@param is_extended Should be set if extended security negotiations are being used.
 function ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
 	if(have_ssl ~= true) then
 		return false, "SMB: OpenSSL not present"
@@ -449,12 +449,12 @@ function ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
 	end
 end
 
----Create the LM mac key, which is used for message signing. For basic authentication, it's the first 8 bytes 
--- of the lanman hash, followed by 8 null bytes, followed by the lanman response; for extended authentication, 
--- this is just the first 8 bytes of the lanman hash followed by 8 null bytes. 
---@param lm_hash The NTLM hash. 
---@param lm_response The NTLM response. 
---@param is_extended Should be set if extended security negotiations are being used. 
+---Create the LM mac key, which is used for message signing. For basic authentication, it's the first 8 bytes
+-- of the lanman hash, followed by 8 null bytes, followed by the lanman response; for extended authentication,
+-- this is just the first 8 bytes of the lanman hash followed by 8 null bytes.
+--@param lm_hash The NTLM hash.
+--@param lm_response The NTLM response.
+--@param is_extended Should be set if extended security negotiations are being used.
 function lm_create_mac_key(lm_hash, lm_response, is_extended)
 	if(have_ssl ~= true) then
 		return false, "SMB: OpenSSL not present"
@@ -467,13 +467,13 @@ function lm_create_mac_key(lm_hash, lm_response, is_extended)
 	end
 end
 
----Create the NTLMv2 hash, which is based on the NTLMv1 hash (for easy upgrading), the username, and the domain. 
--- Essentially, the NTLM hash is used as a HMAC-MD5 key, which is used to hash the unicode domain concatenated 
--- with the unicode username. 
+---Create the NTLMv2 hash, which is based on the NTLMv1 hash (for easy upgrading), the username, and the domain.
+-- Essentially, the NTLM hash is used as a HMAC-MD5 key, which is used to hash the unicode domain concatenated
+-- with the unicode username.
 --
---@param ntlm     The NTLMv1 hash. 
---@param username The username we're using. 
---@param domain   The domain. 
+--@param ntlm     The NTLMv1 hash.
+--@param username The username we're using.
+--@param domain   The domain.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function ntlmv2_create_hash(ntlm, username, domain)
 	if(have_ssl ~= true) then
@@ -488,8 +488,8 @@ function ntlmv2_create_hash(ntlm, username, domain)
 	return true, openssl.hmac("MD5", ntlm, username .. domain)
 end
 
----Create the LMv2 response, which can be sent back to the server. This is identical to the <code>NTLMv2</code> function, 
--- except that it uses an 8-byte client challenge. 
+---Create the LMv2 response, which can be sent back to the server. This is identical to the <code>NTLMv2</code> function,
+-- except that it uses an 8-byte client challenge.
 --
 -- The reason for LMv2 is a long and twisted story. Well, not really. The reason is basically that the v1 hashes
 -- are always 24-bytes, and some servers expect 24 bytes, but the NTLMv2 hash is more than 24 bytes. So, the only
@@ -498,9 +498,9 @@ end
 -- learned something
 --
 --@param ntlm      The NVLMv1 hash.
---@param username  The username we're using. 
---@param domain    The domain. 
---@param challenge The server challenge. 
+--@param username  The username we're using.
+--@param domain    The domain.
+--@param challenge The server challenge.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function lmv2_create_response(ntlm, username, domain, challenge)
 	if(have_ssl ~= true) then
@@ -511,14 +511,14 @@ function lmv2_create_response(ntlm, username, domain, challenge)
 end
 
 ---Create the NTLMv2 response, which can be sent back to the server. This is done by using the HMAC-MD5 algorithm
--- with the NTLMv2 hash as a key, and the server challenge concatenated with the client challenge for the data. 
+-- with the NTLMv2 hash as a key, and the server challenge concatenated with the client challenge for the data.
 -- The resulting hash is concatenated with the client challenge and returned.
 --
 -- The "proper" implementation for this uses a certain structure for the client challenge, involving the time
--- and computer name and stuff (if you don't do this, Wireshark tells you it's a malformed packet). In my tests, 
+-- and computer name and stuff (if you don't do this, Wireshark tells you it's a malformed packet). In my tests,
 -- however, I couldn't get Vista to recognize a client challenge longer than 24 bytes, and this structure was
 -- guaranteed to be much longer than 24 bytes. So, I just use a random string generated by OpenSSL. I've tested
--- it on every Windows system from Windows 2000 to Windows Vista, and it has always worked. 
+-- it on every Windows system from Windows 2000 to Windows Vista, and it has always worked.
 function ntlmv2_create_response(ntlm, username, domain, challenge, client_challenge_length)
 	if(have_ssl ~= true) then
 		return false, "SMB: OpenSSL not present"
@@ -533,21 +533,21 @@ end
 
 ---Generate the Lanman and NTLM password hashes. The password itself is taken from the function parameters,
 -- the nmap arguments, and the registry (in that order). If no password is set, then the password hash
--- is used (which is read from all the usual places). If neither is set, then a blank password is used. 
+-- is used (which is read from all the usual places). If neither is set, then a blank password is used.
 --
--- The output passwords are hashed based on the hash type. 
+-- The output passwords are hashed based on the hash type.
 --
---@param ip       The ip address of the host, used for registry lookups. 
---@param username The username, which is used for v2 passwords. 
---@param domain The username, which is used for v2 passwords. 
---@param password [optional] The overriding password. 
---@param password_hash [optional] The overriding password hash. Shouldn't be set if password is set. 
+--@param ip       The ip address of the host, used for registry lookups.
+--@param username The username, which is used for v2 passwords.
+--@param domain The username, which is used for v2 passwords.
+--@param password [optional] The overriding password.
+--@param password_hash [optional] The overriding password hash. Shouldn't be set if password is set.
 --@param challenge The server challenge.
---@param hash_type The way in which to hash the password. 
+--@param hash_type The way in which to hash the password.
 --@param is_extended Set to 'true' if extended security negotiations are being used (this has to be known for the
---                   message-signing key to be generated properly). 
---@return (lm_response, ntlm_response, mac_key) The two strings that can be sent directly back to the server, 
---                 and the mac_key, which is used for message signing. 
+--                   message-signing key to be generated properly).
+--@return (lm_response, ntlm_response, mac_key) The two strings that can be sent directly back to the server,
+--                 and the mac_key, which is used for message signing.
 function get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, is_extended)
     local status
 	local lm_hash   = nil
@@ -601,7 +601,7 @@ function get_password_response(ip, username, domain, password, password_hash, ha
 	-- Output what we've got so far
 	stdnse.print_debug(2, "SMB: Lanman hash: %s", stdnse.tohex(lm_hash))
 	stdnse.print_debug(2, "SMB: NTLM   hash: %s", stdnse.tohex(ntlm_hash))
-			
+
 	-- Hash the password the way the user wants
 	if(hash_type == "v1") then
 		-- LM and NTLM are hashed with their respective algorithms
@@ -646,7 +646,7 @@ function get_password_response(ip, username, domain, password, password_hash, ha
 		else
 			stdnse.print_debug(1, "SMB: No login type specified, using default (NTLM)")
 		end
-	
+
 		status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
 		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
 
@@ -665,10 +665,10 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 
 	if(security_blob == nil) then
 		-- If security_blob is nil, this is the initial packet
-		new_blob = bin.pack("<zIILL", 
+		new_blob = bin.pack("<zIILL",
 					"NTLMSSP",            -- Identifier
 					NTLMSSP_NEGOTIATE,    -- Type
-					flags,                -- Flags 
+					flags,                -- Flags
 					0,                    -- Calling workstation domain
 					0                     -- Calling workstation name
 				)
@@ -721,7 +721,7 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 			lanman,
 			ntlm,
 			session_key)
-	
+
 		return true, new_blob, mac_key
 	end
 
@@ -731,7 +731,7 @@ function get_host_info_from_security_blob(security_blob)
 	local ntlm_challenge = {}
 	--local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
 	local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
-	
+
 	-- Do some validation on the NTLMSSP message
 	if ( identifier ~= "NTLMSSP\0" ) then
 		stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected signature." )
@@ -741,7 +741,7 @@ function get_host_info_from_security_blob(security_blob)
 		stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected message type: %d.", message_type )
 		return false, "Invalid message type in NTLM challenge message"
 	end
-	
+
 	-- Parse the TargetName data (i.e. the server authentication realm)
 	if ( domain_length > 0 ) then
 		local length = domain_length
@@ -750,10 +750,10 @@ function get_host_info_from_security_blob(security_blob)
 		pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
 		ntlm_challenge[ "target_realm" ] = from_unicode( target_realm )
 	end
-	
+
 	-- Parse the TargetInfo data (Wireshark calls this the "Address List")
 	if ( target_info_length > 0 ) then
-		
+
 		-- Definition of AvId values (IDs for AV_PAIR (attribute-value pair) structures),
 		-- as definied by the NTLM Authentication Protocol specification [MS-NLMP].
 		local NTLM_AV_ID_VALUES = {
@@ -779,20 +779,20 @@ function get_host_info_from_security_blob(security_blob)
 			[NTLM_AV_ID_VALUES.MsvAvDnsTreeName]		= "dns_forest_name",
 			[NTLM_AV_ID_VALUES.MsvAvTimestamp]			= "timestamp",
 		}
-		
-		
+
+
 		local length = target_info_length
 		local pos = target_info_offset + 1 -- +1 to convert to Lua's 1-based indexes
 		local target_info
 		pos, target_info = bin.unpack( string.format( "A%d", length ), security_blob, pos )
-		
+
 		pos = 1 -- reset pos to 1, since we'll be working out of just the target_info
 		repeat
 			local value, av_id, av_len
 			pos, av_id, av_len = bin.unpack( "<SS", target_info, pos )
 			pos, value = bin.unpack( string.format( "A%d", av_len ), target_info, pos )
 			local friendly_name = NTLM_AV_ID_NAMES[ av_id ]
-			
+
 			if ( av_id == NTLM_AV_ID_VALUES.MsvAvEOL ) then
 				break
 			elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
@@ -803,16 +803,16 @@ function get_host_info_from_security_blob(security_blob)
 			end
 		until ( pos >= #target_info )
 	end
-	
+
 	return ntlm_challenge
 end
 
----Create an 8-byte message signature that's sent with all SMB packets. 
+---Create an 8-byte message signature that's sent with all SMB packets.
 --
 --@param mac_key The key used for authentication. It's the concatination of the session key and the
---               response hash. 
+--               response hash.
 --@param data The packet to generate the signature for. This should be the packet that's about to be
---            sent, except with the signature slot replaced with the sequence number. 
+--            sent, except with the signature slot replaced with the sequence number.
 --@return The 8-byte signature. The signature is equal to the first eight bytes of md5(mac_key .. smb_data)
 function calculate_signature(mac_key, data)
 	if(have_ssl) then

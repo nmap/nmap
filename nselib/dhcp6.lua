@@ -64,9 +64,9 @@ DHCP6.OptionTypes = {
 
 -- DHCP6 options
 DHCP6.Option = {
-	
+
 	[DHCP6.OptionTypes.OPTION_ELAPSED_TIME] = {
-		
+
 		-- Create a new class instance
 		-- @param time in ms since last request
 		-- @return o new instance of class
@@ -82,7 +82,7 @@ DHCP6.Option = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts option to a string
 		-- @return str string containing the class instance as string
 		__tostring = function(self)
@@ -94,11 +94,11 @@ DHCP6.Option = {
 			end
 			return bin.pack(">SP", self.type, data)
 		end,
-		
+
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_CLIENTID] = {
-		
+
 		-- Create a new class instance
 		-- @param mac string containing the mac address
 		-- @param duid number the duid of the client
@@ -117,7 +117,7 @@ DHCP6.Option = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parse the data string and create an instance of the class
 		-- @param data string containing the data as received over the socket
 		-- @return opt new instance of option
@@ -133,15 +133,15 @@ DHCP6.Option = {
 			opt.time = opt.time + os.time({year=2000, day=1, month=1, hour=0, min=0, sec=0})
 			return opt
 		end,
-		
+
 		-- Converts option to a string
 		-- @return str string containing the class instance as string
 		__tostring = function(self)
 			local data = bin.pack(">SSIA", self.duid, self.hwtype, self.time, self.mac)
 			return bin.pack(">SP", self.type, data)
-		end,	
+		end,
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_SERVERID] = {
 		-- Create a new class instance
 		-- @param mac string containing the mac address
@@ -150,7 +150,7 @@ DHCP6.Option = {
 		-- @param time number time since 2000-01-01 00:00:00
 		-- @return o new instance of class
 		new = function(...)	return DHCP6.Option[DHCP6.OptionTypes.OPTION_CLIENTID].new(...) end,
-		
+
 		-- Parse the data string and create an instance of the class
 		-- @param data string containing the data as received over the socket
 		-- @return opt new instance of option
@@ -160,9 +160,9 @@ DHCP6.Option = {
 		-- @return str string containing the class instance as string
 		__tostring = function(...) return DHCP6.Option[DHCP6.OptionTypes.OPTION_CLIENTID].__tostring(...) end,
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_STATUS_CODE] = {
-		
+
 		-- Create a new class instance
 		-- @param code number containing the error code
 		-- @param msg string containing the error message
@@ -184,15 +184,15 @@ DHCP6.Option = {
 		parse = function(data)
 			local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_STATUS_CODE]:new()
 			local pos
-			
+
 			pos, opt.code, opt.msg = bin.unpack(">SA" .. (#data - 2), data)
 			return opt
 		end,
-		
+
 	},
-		
+
 	[DHCP6.OptionTypes.OPTION_DNS_SERVERS] = {
-		
+
 		-- Create a new class instance
 		-- @param servers table containing DNS servers
 		-- @return o new instance of class
@@ -212,7 +212,7 @@ DHCP6.Option = {
 		parse = function(data)
 			local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_DNS_SERVERS]:new()
 			local pos, count = 1, #data/16
-			
+
 			for i=1,count do
 				local srv
 				pos, srv = bin.unpack(">B16", data, pos)
@@ -220,7 +220,7 @@ DHCP6.Option = {
 			end
 			return opt
 		end,
-		
+
 		-- Converts option to a string
 		-- @return str string containing the class instance as string
 		__tostring = function(self)
@@ -232,9 +232,9 @@ DHCP6.Option = {
 			return data
 		end
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_DOMAIN_LIST] = {
-	
+
 		-- Create a new class instance
 		-- @param domain table containing the search domains
 		-- @return o new instance of class
@@ -254,7 +254,7 @@ DHCP6.Option = {
 		parse = function(data)
 			local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_DOMAIN_LIST]:new()
 			local pos = 1
-			
+
 			repeat
 				local domain = {}
 				repeat
@@ -269,11 +269,11 @@ DHCP6.Option = {
 			return opt
 		end,
 
-		
+
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_IA_PD] = {
-		
+
 		-- Create a new class instance
 		-- @param iad number containing iad
 		-- @param t1 number containing t1
@@ -292,18 +292,18 @@ DHCP6.Option = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts option to a string
 		-- @return str string containing the class instance as string
 		__tostring = function(self)
 			local data = bin.pack(">IIIA", self.iaid, self.t1, self.t2, self.options)
 			return bin.pack(">SP", self.type, data)
 		end,
-		
+
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_IA_NA] = {
-		
+
 		-- Create a new class instance
 		-- @param iad number containing iad
 		-- @param t1 number containing t1
@@ -322,21 +322,21 @@ DHCP6.Option = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parse the data string and create an instance of the class
 		-- @param data string containing the data as received over the socket
 		-- @return opt new instance of option
 		parse = function(data)
 			local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_IA_NA]:new()
 			local pos
-			
+
 			pos, opt.iaid, opt.t1, opt.t2 = bin.unpack(">III", data)
-			
+
 			-- do we have any options
 			while ( pos < #data ) do
 				local typ, len, ipv6, pref_lt, valid_lt, options
 				pos, typ, len = bin.unpack(">SS", data, pos)
-				
+
 				if ( 5 == DHCP6.OptionTypes.OPTION_IAADDR ) then
 					local addr = { type = DHCP6.OptionTypes.OPTION_IAADDR }
 					pos, addr.ipv6, addr.pref_lt, addr.valid_lt = bin.unpack(">A16II", data, pos)
@@ -344,10 +344,10 @@ DHCP6.Option = {
 				else
 					pos = pos + len
 				end
-			end	
+			end
 			return opt
 		end,
-		
+
 		-- Converts option to a string
 		-- @return str string containing the class instance as string
 		__tostring = function(self)
@@ -355,9 +355,9 @@ DHCP6.Option = {
 
 			-- TODO: we don't cover self.options here, we should probably add that
 			return bin.pack(">SP", self.type, data)
-		end,	
+		end,
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_SNTP_SERVERS] = {
 
 		-- Create a new class instance
@@ -372,7 +372,7 @@ DHCP6.Option = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parse the data string and create an instance of the class
 		-- @param data string containing the data as received over the socket
 		-- @return opt new instance of option
@@ -387,7 +387,7 @@ DHCP6.Option = {
 			return opt
 		end,
 	},
-	
+
 	[DHCP6.OptionTypes.OPTION_CLIENT_FQDN] = {
 
 		-- Create a new class instance
@@ -402,7 +402,7 @@ DHCP6.Option = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parse the data string and create an instance of the class
 		-- @param data string containing the data as received over the socket
 		-- @return opt new instance of option
@@ -410,7 +410,7 @@ DHCP6.Option = {
 			local opt = DHCP6.Option[DHCP6.OptionTypes.OPTION_CLIENT_FQDN]:new()
 			local pos = 2
 			local pieces = {}
-			
+
 			repeat
 				local tmp
 				pos, tmp = bin.unpack("p", data, pos)
@@ -419,14 +419,14 @@ DHCP6.Option = {
 			opt.fqdn = stdnse.strjoin(".", pieces)
 			return opt
 		end,
-		
+
 	}
-			
+
 }
-	
-	
+
+
 DHCP6.Request = {
-	
+
 	-- Create a new class instance
 	-- @param msgtype number containing the message type
 	-- @param xid number containing the transaction id
@@ -442,13 +442,13 @@ DHCP6.Request = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Adds a new DHCP6 option to the request
 	-- @param opt instance of object to add to the request
 	addOption = function(self, opt)
 		table.insert(self.opts, opt)
 	end,
-	
+
 	-- Converts option to a string
 	-- @return str string containing the class instance as string
 	__tostring = function(self)
@@ -465,7 +465,7 @@ DHCP6.Request = {
 
 -- The Response class handles responses from the server
 DHCP6.Response = {
-		
+
 		-- Creates a new instance of the response class
 		-- @param msgtype number containing the type of DHCP6 message
 		-- @param xid number containing the transaction ID
@@ -479,7 +479,7 @@ DHCP6.Response = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parse the data string and create an instance of the class
 		-- @param data string containing the data as received over the socket
 		-- @return opt new instance of option
@@ -488,7 +488,7 @@ DHCP6.Response = {
 			local pos, tmp = bin.unpack(">I", data)
 
 			resp.msgtype = bit.band(tmp, 0xFF000000)
-			resp.msgtype = bit.rshift(resp.msgtype, 24)			
+			resp.msgtype = bit.rshift(resp.msgtype, 24)
 			resp.xid = bit.band(tmp, 0x00FFFFFF)
 			while( pos < #data ) do
 				local opt = {}
@@ -507,7 +507,7 @@ DHCP6.Response = {
 			end
 			return resp
 		end
-		
+
 }
 
 -- Table of option to string converters
@@ -517,7 +517,7 @@ DHCP6.Response = {
 -- TODO: These functions could eventually be moved to a method in it's
 -- respective class.
 OptionToString = {
-	
+
 	[DHCP6.OptionTypes.OPTION_CLIENTID] = function(opt)
 		local HWTYPE_ETHER = 1
 		if ( HWTYPE_ETHER == opt.hwtype ) then
@@ -527,12 +527,12 @@ OptionToString = {
 			return "Client identifier", ("MAC: %s; Time: %s"):format(mac, tm)
 		end
 	end,
-	
+
 	[DHCP6.OptionTypes.OPTION_SERVERID] = function(opt)
 		local topic, str = OptionToString[DHCP6.OptionTypes.OPTION_CLIENTID](opt)
 		return "Server identifier", str
 	end,
-	
+
 	[DHCP6.OptionTypes.OPTION_IA_NA] = function(opt)
 		if ( opt.options and 1 == #opt.options ) then
 			local ipv6 = opt.options[1].ipv6
@@ -541,7 +541,7 @@ OptionToString = {
 			return "Non-temporary Address", ipv6
 		end
 	end,
-	
+
 	[DHCP6.OptionTypes.OPTION_DNS_SERVERS] = function(opt)
 		local servers = {}
 		for _, srv in ipairs(opt.servers) do
@@ -550,15 +550,15 @@ OptionToString = {
 		end
 		return "DNS Servers", stdnse.strjoin(",", servers)
 	end,
-	
+
 	[DHCP6.OptionTypes.OPTION_DOMAIN_LIST] = function(opt)
 		return "Domain Search", stdnse.strjoin(", ", opt.domains)
 	end,
-	
+
 	[DHCP6.OptionTypes.OPTION_STATUS_CODE] = function(opt)
 		return "Error", ("Code: %d; Message: %s"):format(opt.code, opt.msg)
 	end,
-	
+
 	[DHCP6.OptionTypes.OPTION_SNTP_SERVERS] = function(opt)
 		return "NTP Servers", stdnse.strjoin(", ", opt.servers)
 	end,
@@ -566,7 +566,7 @@ OptionToString = {
 
 -- The Helper class serves as the main interface to scripts
 Helper = {
-	
+
 	-- Creates a new Helper class instance
 	-- @param iface string containing the interface name
 	-- @param options table containing any options, currently
@@ -579,7 +579,7 @@ Helper = {
 		}
 		setmetatable(o, self)
 		self.__index = self
-		
+
 		local info, err = nmap.get_interface_info(iface)
 		-- if we faile to get interface info, don't return a helper
 		-- this is true on OS X for interfaces like: p2p0 and vboxnet0
@@ -592,17 +592,17 @@ Helper = {
 		o.socket:set_timeout(o.options.timeout or 5000)
 		return o
 	end,
-	
+
 	-- Sends a DHCP6 Solicit message to the server, essentiall requesting a new
 	-- IPv6 non-temporary address
-	-- @return table of results suitable for use with 
+	-- @return table of results suitable for use with
 	--         <code>stdnse.format_output</code>
 	solicit = function(self)
 		local req = DHCP6.Request:new( DHCP6.Type.SOLICIT )
 		local option = DHCP6.Option
 		req:addOption(option[DHCP6.OptionTypes.OPTION_ELAPSED_TIME]:new())
 		req:addOption(option[DHCP6.OptionTypes.OPTION_CLIENTID]:new(self.mac))
-		
+
 		local iaid = select(2, bin.unpack(">I", self.mac:sub(3)))
 		req:addOption(option[DHCP6.OptionTypes.OPTION_IA_NA]:new(iaid, 3600, 5400))
 
@@ -624,7 +624,7 @@ Helper = {
 				return false, "Failed to receive DHCP6 request from server"
 			end
 
-			resp = DHCP6.Response.parse(data)		
+			resp = DHCP6.Response.parse(data)
 			if ( not(resp) ) then
 				return false, "Failed to decode DHCP6 response from server"
 			end
@@ -636,7 +636,7 @@ Helper = {
 
 		local result, result_options = {}, { name = "Options" }
 		local resptype = DHCP6.TypeStr[resp.msgtype] or ("Unknown (%d)"):format(resp.msgtype)
-		
+
 		table.insert(result, ("Message type: %s"):format(resptype))
 		table.insert(result, ("Transaction id: %d"):format(resp.xid))
 
@@ -652,7 +652,7 @@ Helper = {
 		end
 		table.insert(result, result_options)
 		return true, result
-	end,	
+	end,
 }
 
 

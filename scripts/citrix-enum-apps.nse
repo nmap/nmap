@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 
-description = [[ 
+description = [[
 Extracts a list of published applications from the ICA Browser service.
 ]]
 
@@ -16,7 +16,7 @@ Extracts a list of published applications from the ICA Browser service.
 -- PORT     STATE SERVICE
 -- 1604/udp open  unknown
 -- 1604/udp open  unknown
--- | citrix-enum-apps:  
+-- | citrix-enum-apps:
 -- |   Notepad
 -- |   iexplorer
 -- |_  registry editor
@@ -41,7 +41,7 @@ portrule = shortport.portnumber(1604, "udp")
 -- @param response string, complete server response
 -- @return string row delimited with \n containing all published applications
 function process_pa_response(response)
-    
+
     local pos, packet_len = bin.unpack("SS", response)
     local app_name
     local pa_list = {}
@@ -56,7 +56,7 @@ function process_pa_response(response)
     while offset < packet_len do
         pos, app_name = bin.unpack("z", response:sub(offset))
 		offset = offset + pos - 1
-		
+
 		table.insert(pa_list, app_name)
     end
 
@@ -73,7 +73,7 @@ action = function(host, port)
 
 	--
 	-- Packets were intercepted from the Citrix Program Neighborhood client
-	-- They are used to query a server for it's list of servers 
+	-- They are used to query a server for it's list of servers
 	--
 	-- We're really not interested in the responses to the first two packets
 	-- The third response contains the list of published applications
@@ -81,12 +81,12 @@ action = function(host, port)
 	-- some brief information for the bits and bytes this script uses.
 	--
 	-- Spec. of response to query[2] that contains a list of published apps
-	-- 
+	--
 	-- offset	size	content
 	-- -------------------------
 	-- 0		16-bit	Length
 	-- 12		32-bit	Server IP (not used here)
-	-- 30		8-bit	Last packet	(1), More packets(0)	
+	-- 30		8-bit	Last packet	(1), More packets(0)
 	-- 40		-		null-separated list of applications
 	--
 	query[0] = string.char(
@@ -99,19 +99,19 @@ action = function(host, port)
 
 	query[1] = string.char(
 				0x20, 0x00, -- Length: 32
-				0x01, 0x36, 0x02, 0xfd, 0xa8, 0xe3, 0x00, 0x00, 
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+				0x01, 0x36, 0x02, 0xfd, 0xa8, 0xe3, 0x00, 0x00,
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 				)
-	
+
 	query[2] = string.char(
 				0x2a, 0x00, -- Length: 42
   			 	0x01, 0x32, 0x02, 0xfd, 0xa8, 0xe3, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				0x00, 0x00, 0x21, 0x00, 0x02, 0x00, 0x00, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
+				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 				)
 
 	counter = 0
@@ -141,18 +141,18 @@ action = function(host, port)
 	while packet:sub(31,31) ~= string.char(0x01) do
 	    packet = try( socket:receive() )
 	    local tmp_table = process_pa_response( packet )
-	
+
 		for _,v in pairs(tmp_table) do
 			table.insert(pa_list, v)
 		end
-	
+
 	end
 
 	-- set port to open
 	if #pa_list>0 then
 	    nmap.set_port_state(host, port, "open")
 	end
-	
+
 	socket:close()
 
 	return stdnse.format_output(true, pa_list)

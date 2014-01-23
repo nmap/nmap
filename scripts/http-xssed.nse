@@ -1,19 +1,19 @@
 description = [[
-This script searches the xssed.com database and outputs the result. 
+This script searches the xssed.com database and outputs the result.
 ]]
 
 ---
 -- @usage nmap -p80 --script http-xssed.nse <target>
--- 
+--
 -- This script will search the xssed.com database and it will output any
--- results. xssed.com is the largest online archive of XSS vulnerable 
+-- results. xssed.com is the largest online archive of XSS vulnerable
 -- websites.
---     
+--
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-xssed: 
+-- | http-xssed:
 -- |   xssed.com found the following previously reported XSS vulnerabilities marked as unfixed:
--- |   
+-- |
 -- |     /redirect/links.aspx?page=http://xssed.com
 -- |
 -- |     /derefer.php?url=http://xssed.com/
@@ -41,7 +41,7 @@ local XSSED_SEARCH = "/search?key="
 local XSSED_FOUND = "<b>XSS:</b>"
 local XSSED_FIXED = "<img src='http://data.xssed.org/images/fixed.gif'>&nbsp;FIXED</th>"
 local XSSED_MIRROR = "<a href='(/mirror/%d+/)' target='_blank'>"
-local XSSED_URL = "URL: ([^%s]+)</th>" 
+local XSSED_URL = "URL: ([^%s]+)</th>"
 
 action = function(host, port)
 
@@ -54,7 +54,7 @@ action = function(host, port)
     mutex "lock"
 
     local response = http.get(XSSED_SITE, 80, target)
-    
+
     if string.find(response.body, XSSED_FOUND) then
         fixed = {}
         unfixed = {}
@@ -64,10 +64,10 @@ action = function(host, port)
                 if string.find(mirror.body, XSSED_FIXED) then
                     table.insert(fixed, "\t" .. v .. "\n")
                 else
-                    table.insert(unfixed, "\t" ..  v .. "\n") 
+                    table.insert(unfixed, "\t" ..  v .. "\n")
                 end
             end
-        end 
+        end
     end
 
     mutex "done"

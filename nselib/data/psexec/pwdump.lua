@@ -1,7 +1,7 @@
----This config file is designed for running password-dumping scripts. So far, 
+---This config file is designed for running password-dumping scripts. So far,
 -- it supports pwdump6 2.0.0 and fgdump.
 --
--- Note that none of these modules are included with Nmap by default. 
+-- Note that none of these modules are included with Nmap by default.
 
 -- Any variable in the 'config' table in smb-psexec.nse can be overriden in the
 -- 'overrides' table. Most of them are not really recommended, such as the host,
@@ -22,7 +22,7 @@ local mod
 --mod.url              = "http://www.foofus.net/fizzgig/pwdump/"
 --table.insert(modules, mod)
 
----Uncomment if you'd like to use PwDump6 1.7.2 (considered obsolete, but still works). 
+---Uncomment if you'd like to use PwDump6 1.7.2 (considered obsolete, but still works).
 -- Note that for some reason, this and 'fgdump' don't get along (fgdump only produces a blank
 -- file if these are run together)
 --mod = {}
@@ -36,8 +36,8 @@ local mod
 --mod.url              = "http://www.foofus.net/fizzgig/pwdump/"
 --table.insert(modules, mod)
 
--- Warning: the danger of using fgdump is that it always write the output to the harddrive unencrypted; 
--- this makes it more obvious that an attack has occurred. 
+-- Warning: the danger of using fgdump is that it always write the output to the harddrive unencrypted;
+-- this makes it more obvious that an attack has occurred.
 mod = {}
 mod.upload           = true
 mod.name             = "FgDump"

@@ -52,7 +52,7 @@ local hex2dec = function(hex)
 	byte2 = string.byte(hex, 2);
 
 	if (byte1 == nil or byte2 == nil) then return 0; end;
-	
+
 	return (byte1 * 256) + byte2;
 
 end
@@ -119,7 +119,7 @@ action = function(host, port)
 
 	local socket = nmap.new_socket();
 	local status = true;
-	
+
 	local tmp;
 
 	local idx = 3;	-- start reading after the end of the length record

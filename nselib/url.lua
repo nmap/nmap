@@ -25,7 +25,7 @@ LuaSocket toolkit.
 Author: Diego Nehab
 RCS ID: $Id: url.lua,v 1.37 2005/11/22 08:33:29 diego Exp $
 
-parse_query and build_query added For nmap (Eddie Bell <ejlbell@gmail.com>) 
+parse_query and build_query added For nmap (Eddie Bell <ejlbell@gmail.com>)
 --]]
 
 -----------------------------------------------------------------------------
@@ -256,7 +256,7 @@ function absolute(base_url, relative_url)
                         relative_parsed.query = base_parsed.query
                     end
                 end
-            else    
+            else
                 relative_parsed.path = absolute_path(base_parsed.path or "",
                     relative_parsed.path)
             end
@@ -365,10 +365,10 @@ end
 function build_query(query)
 	local qstr = ""
 
-	for i,v in pairs(query) do 
+	for i,v in pairs(query) do
 		qstr = qstr .. i .. '=' .. v .. '&'
 	end
 	return string.sub(qstr, 0, #qstr-1)
-end	
+end
 
 return _ENV;

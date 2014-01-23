@@ -1,6 +1,6 @@
 ---
 -- Creates and parses NetBIOS traffic. The primary use for this is to send
--- NetBIOS name requests. 
+-- NetBIOS name requests.
 --
 -- @author Ron Bowes <ron@skullsecurity.net>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -27,15 +27,15 @@ types = {
 --  pass case-sensitive data in a case-insensitive way)
 --
 -- There are two levels of encoding performed:
--- * L1: Pad the string to 16 characters withs spaces (or NULLs if it's the 
+-- * L1: Pad the string to 16 characters withs spaces (or NULLs if it's the
 --     wildcard "*") and replace each byte with two bytes representing each
---     of its nibbles, plus 0x41. 
+--     of its nibbles, plus 0x41.
 -- * L2: Prepend the length to the string, and to each substring in the scope
---     (separated by periods). 
---@param name The name that will be encoded (eg. "TEST1"). 
+--     (separated by periods).
+--@param name The name that will be encoded (eg. "TEST1").
 --@param scope [optional] The scope to encode it with. I've never seen scopes used
---       in the real world (eg, "insecure.org"). 
---@return The L2-encoded name and scope 
+--       in the real world (eg, "insecure.org").
+--@return The L2-encoded name and scope
 --        (eg. "\x20FEEFFDFEDBCACACACACACACACACAAA\x08insecure\x03org")
 function name_encode(name, scope)
 
@@ -65,7 +65,7 @@ function name_encode(name, scope)
 		L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
 	end
 
-	-- Do the L2 encoding 
+	-- Do the L2 encoding
 	local L2_encoded = string.char(32) .. L1_encoded
 
 	if scope ~= nil then
@@ -84,7 +84,7 @@ end
 
 --- Does the exact opposite of name_encode. Converts an encoded name to
 --  the string representation. If the encoding is invalid, it will still attempt
---  to decode the string as best as possible. 
+--  to decode the string as best as possible.
 --@param encoded_name The L2-encoded name
 --@return the decoded name and the scope. The name will still be padded, and the
 --         scope will never be nil (empty string is returned if no scope is present)
@@ -124,11 +124,11 @@ function name_decode(encoded_name)
 end
 
 --- Sends out a UDP probe on port 137 to get a human-readable list of names the
---  the system is using. 
---@param host The IP or hostname to check. 
---@param prefix [optional] The prefix to put on each line when it's returned. 
---@return (status, result) If status is true, the result is a human-readable 
---        list of names. Otherwise, result is an error message. 
+--  the system is using.
+--@param host The IP or hostname to check.
+--@param prefix [optional] The prefix to put on each line when it's returned.
+--@return (status, result) If status is true, the result is a human-readable
+--        list of names. Otherwise, result is an error message.
 function get_names(host, prefix)
 
 	local status, names, statistics = do_nbstat(host)
@@ -151,11 +151,11 @@ function get_names(host, prefix)
 end
 
 --- Sends out a UDP probe on port 137 to get the server's name (that is, the
---  entry in its NBSTAT table with a 0x20 suffix). 
---@param host The IP or hostname of the server. 
---@param names [optional] The names to use, from <code>do_nbstat</code>. 
---@return (status, result) If status is true, the result is the NetBIOS name. 
---        otherwise, result is an error message. 
+--  entry in its NBSTAT table with a 0x20 suffix).
+--@param host The IP or hostname of the server.
+--@param names [optional] The names to use, from <code>do_nbstat</code>.
+--@return (status, result) If status is true, the result is the NetBIOS name.
+--        otherwise, result is an error message.
 function get_server_name(host, names)
 
 	local status
@@ -163,7 +163,7 @@ function get_server_name(host, names)
 
 	if names == nil then
 		status, names = do_nbstat(host)
-	
+
 		if(status == false) then
 			return false, names
 		end
@@ -178,13 +178,13 @@ function get_server_name(host, names)
 	return false, "Couldn't find NetBIOS server name"
 end
 
---- Sends out a UDP probe on port 137 to get the user's name (that is, the 
+--- Sends out a UDP probe on port 137 to get the user's name (that is, the
 --  entry in its NBSTAT table with a 0x03 suffix, that isn't the same as
 --  the server's name. If the username can't be determined, which is frequently
---  the case, nil is returned. 
---@param host The IP or hostname of the server. 
---@param names [optional] The names to use, from <code>do_nbstat</code>. 
---@return (status, result) If status is true, the result is the NetBIOS name or nil. 
+--  the case, nil is returned.
+--@param host The IP or hostname of the server.
+--@param names [optional] The names to use, from <code>do_nbstat</code>.
+--@return (status, result) If status is true, the result is the NetBIOS name or nil.
 --        otherwise, result is an error message.
 function get_user_name(host, names)
 
@@ -196,7 +196,7 @@ function get_user_name(host, names)
 
 	if(names == nil) then
 		status, names = do_nbstat(host)
-	
+
 		if(status == false) then
 			return false, names
 		end
@@ -207,15 +207,15 @@ function get_user_name(host, names)
 			return true, names[i]['name']
 		end
 	end
-	
+
 	return true, nil
-	
+
 end
 
 
 --- This is the function that actually handles the UDP query to retrieve
 --  the NBSTAT information. We make use of the Nmap registry here, so if another
---  script has already performed a nbstat query, the result can be re-used. 
+--  script has already performed a nbstat query, the result can be re-used.
 --
 -- The NetBIOS request's header looks like this:
 --<code>
@@ -231,7 +231,7 @@ end
 --</code>
 --
 -- In this case, the TRN_ID is a constant (0x1337, what else?), the flags
--- are 0, and we have one question. All fields are network byte order. 
+-- are 0, and we have one question. All fields are network byte order.
 --
 -- The body of the packet is a list of names to check for in the following
 -- format:
@@ -254,10 +254,10 @@ end
 -- *  (2 bytes)  flags
 -- * (variable) statistics (usually mac address)
 --
---@param host The IP or hostname of the system. 
+--@param host The IP or hostname of the system.
 --@return (status, names, statistics) If status is true, then the servers names are
---        returned as a table containing 'name', 'suffix', and 'flags'. 
---        Otherwise, names is an error message and statistics is undefined. 
+--        returned as a table containing 'name', 'suffix', and 'flags'.
+--        Otherwise, names is an error message and statistics is undefined.
 function do_nbstat(host)
 
 	local status, err
@@ -288,7 +288,7 @@ function do_nbstat(host)
 	end
 
 	-- Create the query header
-	local query = bin.pack(">SSSSSS", 
+	local query = bin.pack(">SSSSSS",
 			0x1337,  -- Transaction id
 			0x0000,  -- Flags
 			1,       -- Questions
@@ -297,7 +297,7 @@ function do_nbstat(host)
 			0        -- Extra
 		)
 
-	query = query .. bin.pack(">zSS", 
+	query = query .. bin.pack(">zSS",
 			encoded_name, -- Encoded name
 			0x0021,       -- Query type (0x21 = NBSTAT)
 			0x0001        -- Class = IN
@@ -364,8 +364,8 @@ function do_nbstat(host)
 		for i = 1, name_count do
 			local name, suffix, flags
 
-			-- Instead of reading the 16-byte name and pulling off the suffix, 
-			-- we read the first 15 bytes and then the 1-byte suffix. 
+			-- Instead of reading the 16-byte name and pulling off the suffix,
+			-- we read the first 15 bytes and then the 1-byte suffix.
 			pos, name, suffix, flags = bin.unpack(">A15CS", result, pos)
 			name = string.gsub(name, "[ ]*$", "")
 
@@ -403,14 +403,14 @@ function nbquery(host, nbname, options)
 	options.host = host.ip
 	options.flags = options.flags or ( options.multiple and 0x0110 )
 	options.id = math.random(0xFFFF)
-	
+
 	-- encode and chop off the leading byte, as the dns library takes care of
 	-- specifying the length
 	local encoded_name = name_encode(nbname):sub(2)
 
 	local status, response = dns.query( encoded_name, options )
 	if ( not(status) ) then return false, "ERROR: nbquery failed" end
-	
+
 	local results = {}
 	-- discard any additional responses
 	if ( options.multiple and #response > 0 ) then
@@ -426,10 +426,10 @@ function nbquery(host, nbname, options)
 	else
 		local dname = string.char(#response.answers[1].dname) .. response.answers[1].dname
 		return true, { { peer = host.ip, name = name_decode(dname) } }
-	end		
+	end
 end
 
----Convert the 16-bit flags field to a string. 
+---Convert the 16-bit flags field to a string.
 --@param flags The 16-bit flags field
 --@return A string representing the flags
 function flags_to_string(flags)

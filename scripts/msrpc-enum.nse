@@ -5,7 +5,7 @@ local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[
-Queries an MSRPC endpoint mapper for a list of mapped 
+Queries an MSRPC endpoint mapper for a list of mapped
 services and displays the gathered information.
 
 As it is using smb library, you can specify optional
@@ -89,13 +89,13 @@ action = function(host,port)
 		msrpc.stop_smb(smbstate)
 		stdnse.print_debug("SMB: " .. bind_result)
 		return false, bind_result
-	end	
+	end
 	local results = {}
 	status, epresult = msrpc.epmapper_lookup(smbstate,nil) -- get the initial handle
-	if not status then 
+	if not status then
 		stdnse.print_debug("SMB: " .. epresult)
 		return false, epresult
-	
+
 	end
 	local handle = epresult.new_handle
 	epresult.new_handle = nil
@@ -103,7 +103,7 @@ action = function(host,port)
 
 	while not (epresult == nil) do
 		status, epresult = msrpc.epmapper_lookup(smbstate,handle) -- get next result until there are no more
-		if not status then 
+		if not status then
 			break
 		end
 		epresult.new_handle = nil

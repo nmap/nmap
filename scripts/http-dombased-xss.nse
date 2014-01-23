@@ -1,36 +1,36 @@
 description = [[
 It looks for places where attacker-controlled information in the DOM may be used
-to affect JavaScript execution in certain ways. The attack is explained here: 
+to affect JavaScript execution in certain ways. The attack is explained here:
 http://www.webappsec.org/projects/articles/071105.shtml
 ]]
 
 ---
 -- @usage nmap -p80 --script http-dombased-xss.nse <target>
--- 
+--
 -- DOM-based XSS occur in client-side JavaScript and this script tries to detect
--- them by using some patterns. Please note, that the script may generate some 
--- false positives. Don't take everything in the output as a vulnerability, if 
+-- them by using some patterns. Please note, that the script may generate some
+-- false positives. Don't take everything in the output as a vulnerability, if
 -- you don't review it first.
 --
 -- Most of the patterns used to determine the vulnerable code have been taken
 -- from this page: https://code.google.com/p/domxsswiki/wiki/LocationSources
 --
--- @args http-dombased-xss.singlepages The pages to test. For example, 
+-- @args http-dombased-xss.singlepages The pages to test. For example,
 --       {/index.php,  /profile.php}. Default: nil (crawler mode on)
---      
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-dombased-xss: 
+-- | http-dombased-xss:
 -- | Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=some-very-random-page.com
--- |   Found the following indications of potential DOM based XSS: 
--- |     
+-- |   Found the following indications of potential DOM based XSS:
+-- |
 -- |     Source: document.write("<OPTION value=1>"+document.location.href.substring(document.location.href.indexOf("default=")
 -- |     Pages: http://some-very-random-page.com:80/, http://some-very-random-page.com/foo.html
--- |     
+-- |
 -- |     Source: document.write(document.URL.substring(pos,document.URL.length)
 -- |_    Pages: http://some-very-random-page.com/foo.html
--- 
+--
 ---
 
 categories = {"intrusive", "exploit", "vuln"}
@@ -65,8 +65,8 @@ JS_CALLS_PATTERNS = {
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
-action = function(host, port) 
- 
+action = function(host, port)
+
     local singlepages = stdnse.get_script_args("http-dombased-xss.singlepages")
 
     local domxss = {}
@@ -81,7 +81,7 @@ action = function(host, port)
 
     local index, k, target, response, path
     while (true) do
- 
+
         if singlepages then
             k, target = next(singlepages, index)
             if (k == nil) then
@@ -124,7 +124,7 @@ action = function(host, port)
 
             if (index) then
                 index = index + 1
-            else 
+            else
                 index = 1
             end
         end
@@ -144,7 +144,7 @@ action = function(host, port)
     table.insert(results, 1, "Found the following indications of potential DOM based XSS: ")
 
 	results.name = crawler:getLimitations()
-	
+
 	return stdnse.format_output(true, results)
 
 end

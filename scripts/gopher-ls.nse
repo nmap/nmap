@@ -60,7 +60,7 @@ action = function( host, port )
 	if not status then
 		return
 	end
-	
+
 	socket:send("\r\n")
 
 	local buffer, _ = stdnse.make_buffer(socket, "\r\n")

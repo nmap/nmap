@@ -21,8 +21,8 @@ local table = require "table"
 _ENV = stdnse.module("pgsql", stdnse.seeall)
 
 -- Version 0.3
--- Created 02/05/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net> 
--- Revised 02/20/2010 - v0.2 - added detectVersion to automaticaly detect and return 
+-- Created 02/05/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Revised 02/20/2010 - v0.2 - added detectVersion to automaticaly detect and return
 --                             the correct version class
 -- Revised 03/04/2010 - v0.3 - added support for trust authentication method
 
@@ -46,7 +46,7 @@ AuthenticationType = {
 -- Version 2 of the protocol
 v2 =
 {
-	
+
 	--- Pad a string with zeroes
 	--
 	-- @param str string containing the string to be padded
@@ -63,9 +63,9 @@ v2 =
 		end
 		return str
 	end,
-	
+
 	messageDecoder = {
-		
+
 		--- Decodes an Auth Request packet
 		--
 		-- @param data string containing raw data recieved from socket
@@ -105,7 +105,7 @@ v2 =
 		-- @param pos number containing the offset into the data buffer
 		-- @return pos number containing the offset after decoding
 		-- @return response table containing zero or more of the following <code>error.severity</code>,
-		-- <code>error.code</code>, <code>error.message</code>, <code>error.file</code>, 
+		-- <code>error.code</code>, <code>error.message</code>, <code>error.file</code>,
 		-- <code>error.line</code> and <code>error.routine</code>
 		[MessageType.Error] = function( data, len, pos )
 			local tmp = data:sub(pos, pos + len - 4)
@@ -143,8 +143,8 @@ v2 =
 		end
 		return -1, "Decoding failed"
 	end,
-	
-	
+
+
 	--- Reads a packet and handles additional socket reads to retrieve remaining data
 	--
 	-- @param socket socket already connected to the pgsql server
@@ -159,7 +159,7 @@ v2 =
 		local tmp = ""
 		local ptype, len
 
-		local catch = function() socket:close() stdnse.print_debug("processResponse(): failed") end	
+		local catch = function() socket:close() stdnse.print_debug("processResponse(): failed") end
 		local try = nmap.new_try(catch)
 
 		if ( data == nil or data:len() == 0 ) then
@@ -167,7 +167,7 @@ v2 =
 		end
 		return data
 	end,
-	
+
 	--- Sends a startup message to the server containing the username and database to connect to
 	--
 	-- @param socket socket already connected to the pgsql server
@@ -204,9 +204,9 @@ v2 =
 
 		return true, response
 	end,
-	
+
 	--- Attempts to authenticate to the pgsql server
-	-- Supports plain-text and MD5 authentication 
+	-- Supports plain-text and MD5 authentication
 	--
 	-- @param socket socket already connected to the pgsql server
 	-- @param params table containing any additional parameters <code>authtype</code>, <code>version</code>
@@ -215,10 +215,10 @@ v2 =
 	-- @param salt string containing the crypthographic salt value
 	-- @return status true on success, false on failure
 	-- @return result table containing parameter status information,
-	--         result string containing an error message if login fails 
+	--         result string containing an error message if login fails
 	loginRequest = function ( socket, params, username, password, salt )
 
-		local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end	
+		local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end
 		local try = nmap.new_try(catch)
 		local response = {}
 		local status, data, len, pos, tmp
@@ -251,7 +251,7 @@ v2 =
 
 		return true, response
 	end,
-	
+
 }
 
 -- Version 3 of the protocol
@@ -313,7 +313,7 @@ v3 =
 		-- @param pos number containing the offset into the data buffer
 		-- @return pos number containing the offset after decoding
 		-- @return response table containing zero or more of the following <code>error.severity</code>,
-		-- <code>error.code</code>, <code>error.message</code>, <code>error.file</code>, 
+		-- <code>error.code</code>, <code>error.message</code>, <code>error.file</code>,
 		-- <code>error.line</code> and <code>error.routine</code>
 		[MessageType.Error] = function( data, len, pos )
 			local tmp = data:sub(pos, pos + len - 4)
@@ -353,7 +353,7 @@ v3 =
 		--		   error string containing error message if pos is -1
 		[MessageType.BackendKeyData] = function( data, len, pos )
 			local response = {}
-		
+
 			if len ~= 12 then
 				return -1, "ERROR: Invalid BackendKeyData packet"
 			end
@@ -376,12 +376,12 @@ v3 =
 			if len ~= 5 then
 				return -1, "ERROR: Invalid ReadyForQuery packet"
 			end
-		
+
 			pos, response.status = bin.unpack("C", data, pos )
 			return pos, response
 		end,
 	},
-	
+
 	--- Reads a packet and handles additional socket reads to retrieve remaining data
 	--
 	-- @param socket socket already connected to the pgsql server
@@ -397,7 +397,7 @@ v3 =
 		local ptype, len
 		local header
 
-		local catch = function() socket:close() stdnse.print_debug("processResponse(): failed") end	
+		local catch = function() socket:close() stdnse.print_debug("processResponse(): failed") end
 		local try = nmap.new_try(catch)
 
 		if ( data:len() - pos < 5 ) then
@@ -419,7 +419,7 @@ v3 =
 		end
 		return data
 	end,
-	
+
 	--- Decodes the postgres header
 	--
 	-- @param data string containing the server response
@@ -428,11 +428,11 @@ v3 =
 	-- @return header table containing <code>type</code> and <code>len</code>
 	decodeHeader = function(data, pos)
 		local ptype, len
-		
+
 		pos, ptype, len = bin.unpack("C>I", data, pos)
 		return pos, { ['type'] = ptype, ['len'] = len }
 	end,
-	
+
 	--- Process the server response
 	--
 	-- @param data string containing the server response
@@ -444,7 +444,7 @@ v3 =
 		local ptype, len, status, response
 		local pos = pos or 1
 		local header
-		
+
 		pos, header = v3.decodeHeader( data, pos )
 
 		if v3.messageDecoder[header.type] then
@@ -460,9 +460,9 @@ v3 =
 		end
 		return -1, "Decoding failed"
 	end,
-	
+
 	--- Attempts to authenticate to the pgsql server
-	-- Supports plain-text and MD5 authentication 
+	-- Supports plain-text and MD5 authentication
 	--
 	-- @param socket socket already connected to the pgsql server
 	-- @param params table containing any additional parameters <code>authtype</code>, <code>version</code>
@@ -471,10 +471,10 @@ v3 =
 	-- @param salt string containing the crypthographic salt value
 	-- @return status true on success, false on failure
 	-- @return result table containing parameter status information,
-	--         result string containing an error message if login fails 
+	--         result string containing an error message if login fails
 	loginRequest = function ( socket, params, username, password, salt )
 
-		local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end	
+		local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end
 		local try = nmap.new_try(catch)
 		local response, header = {}, {}
 		local status, data, len, tmp, _
@@ -516,7 +516,7 @@ v3 =
 
 		return true, response
 	end,
-	
+
 	--- Sends a startup message to the server containing the username and database to connect to
 	--
 	-- @param socket socket already connected to the pgsql server
@@ -541,7 +541,7 @@ v3 =
 		if ( not(status) ) then
 			return false, "sendStartup failed"
 		end
-		
+
 		if ( not(status) or data:match("^EF") ) then
 			return false, "Incorrect version"
 		end
@@ -559,7 +559,7 @@ v3 =
 
 
 --- Sends a packet requesting SSL communication to be activated
--- 
+--
 -- @param socket socket already connected to the pgsql server
 -- @return boolean true if request was accepted, false if request was denied
 function requestSSL(socket)
@@ -567,14 +567,14 @@ function requestSSL(socket)
 	local ssl_req_code = 80877103
 	local data = bin.pack( ">I>I", 8, ssl_req_code)
 	local status, response
-	
+
 	socket:send(data)
 	status, response = socket:receive_bytes(1)
-	
+
 	if ( not(status) ) then
 		return false
 	end
-	
+
 	if ( response == 'S' ) then
 		return true
 	end
@@ -617,11 +617,11 @@ function detectVersion(host, port)
 	socket:connect(host, port)
 	status, response = v3.sendStartup(socket, "versionprobe", "versionprobe")
 	socket:close()
-	
-	if ( not(status) and response == 'Incorrect version' ) then		
+
+	if ( not(status) and response == 'Incorrect version' ) then
 		return v2
 	end
-	
+
 	return v3
 end
 

@@ -47,31 +47,31 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 -- @args ms-sql-xp-cmdshell.cmd The OS command to run (default: ipconfig /all).
 --
 -- @output
--- | ms-sql-xp-cmdshell:  
+-- | ms-sql-xp-cmdshell:
 -- |   [192.168.56.3\MSSQLSERVER]
 -- |     Command: ipconfig /all
 -- |       output
 -- |       ======
--- |   
+-- |
 -- |       Windows IP Configuration
--- |   
+-- |
 -- |          Host Name . . . . . . . . . . . . : EDUSRV011
 -- |          Primary Dns Suffix  . . . . . . . : cqure.net
 -- |          Node Type . . . . . . . . . . . . : Unknown
 -- |          IP Routing Enabled. . . . . . . . : No
 -- |          WINS Proxy Enabled. . . . . . . . : No
 -- |          DNS Suffix Search List. . . . . . : cqure.net
--- |     
+-- |
 -- |       Ethernet adapter Local Area Connection 3:
--- |   
--- |          Connection-specific DNS Suffix  . : 
+-- |
+-- |          Connection-specific DNS Suffix  . :
 -- |          Description . . . . . . . . . . . : AMD PCNET Family PCI Ethernet Adapter #2
 -- |          Physical Address. . . . . . . . . : 08-00-DE-AD-C0-DE
 -- |          DHCP Enabled. . . . . . . . . . . : Yes
 -- |          Autoconfiguration Enabled . . . . : Yes
 -- |          IP Address. . . . . . . . . . . . : 192.168.56.3
 -- |          Subnet Mask . . . . . . . . . . . : 255.255.255.0
--- |          Default Gateway . . . . . . . . . : 
+-- |          Default Gateway . . . . . . . . . :
 -- |          DHCP Server . . . . . . . . . . . : 192.168.56.2
 -- |          Lease Obtained. . . . . . . . . . : den 21 mars 2010 00:12:10
 -- |          Lease Expires . . . . . . . . . . : den 21 mars 2010 01:12:10
@@ -112,16 +112,16 @@ local function process_instance( instance )
 				output = "ERROR: " .. result
 				break
 			end
-			
+
 			if ( status ) then
 				status = helper:Login( username, password, nil, instance.host.ip )
 			end
-			
+
 			if ( status ) then
 				status, result = helper:Query( query )
 			end
 			helper:Disconnect()
-	
+
 			if ( status ) then
 				output = mssql.Util.FormatOutputTable( result, true )
 				output[ "name" ] = string.format( "Command: %s", cmd )
@@ -131,13 +131,13 @@ local function process_instance( instance )
 					output = "Procedure xp_cmdshell disabled. For more information see \"Surface Area Configuration\" in Books Online."
 				end
 			end
-		end	
+		end
 	end
-	
+
 	local instanceOutput = {}
 	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
 	table.insert( instanceOutput, output )
-	
+
 	return instanceOutput
 
 end
@@ -146,7 +146,7 @@ end
 action = function( host, port )
 	local scriptOutput = {}
 	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
-	
+
 	if ( not status ) then
 		return stdnse.format_output( false, instanceList )
 	else
@@ -156,11 +156,11 @@ action = function( host, port )
 				table.insert( scriptOutput, instanceOutput )
 			end
 		end
-		
+
 		if ( not(stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) ) ) then
 			table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-xp-cmdshell.cmd='<CMD>' to change command.)")
 		end
 	end
-	
+
 	return stdnse.format_output( true, scriptOutput )
 end

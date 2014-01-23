@@ -7,7 +7,7 @@
 --  to the Oracle database server. Some preliminary query support has been
 --  added, which only works against a few specific versions. The library has
 --  been tested against and known to work with Oracle 10g and 11g. Please check
---  the matrix below for tested versions that are known to work. 
+--  the matrix below for tested versions that are known to work.
 --
 --  Due to the lack of documentation the library is based mostly on guesswork
 --  with a lot of unknowns. Bug reports are therefore both welcome and
@@ -25,10 +25,10 @@
 --        contain a function to parse the servers response.
 --
 --   o Comm
---		- Implements a number of functions to handle communication 
+--		- Implements a number of functions to handle communication
 --
 --   o Crypt
--- 		- Implements encryption algorithms and functions to support 
+-- 		- Implements encryption algorithms and functions to support
 --        authentication with Oracle 10G and Oracle 11G.
 --
 --   o Helper
@@ -131,9 +131,9 @@ DataTypes = {
 }
 
 -- A class containing some basic authentication options
-AuthOptions = 
+AuthOptions =
 {
-		
+
 	-- Creates a new AuthOptions instance
 	-- @return o new instance of AuthOptions
 	new = function( self )
@@ -147,22 +147,22 @@ AuthOptions =
 		setmetatable(o, self)
 		self.__index = self
 		return o
-	end,	
-	
+	end,
+
 }
 
 -- Decodes different datatypes from the byte arrays or strings read from the
 -- tns data packets
 DataTypeDecoders = {
-	
+
 	-- Decodes a number
 	[DataTypes.NUMBER] = function(val)
 		if ( #val == 0 ) then return "" end
 		if ( #val == 1 and val == '\128' ) then	return 0 end
-		
+
 		local bytes = {}
 		for i=1, #val do bytes[i] = select(2, bin.unpack("C", val, i)) end
-		
+
 		local positive = ( bit.band(bytes[1], 0x80) ~= 0 )
 
 		local function convert_bytes(bytes, positive)
@@ -176,37 +176,37 @@ DataTypeDecoders = {
 				ret_bytes[1] = bit.band(bit.bxor(bytes[1], 0xFF), 0x7F) - 65
 				for i=2, len do ret_bytes[i] = 101 - bytes[i] end
 			end
-			
+
 			return ret_bytes
 		end
-		
+
 		bytes = convert_bytes(bytes, positive)
 
 		local k = ( #bytes - 1 > bytes[1] +1 ) and ( bytes[1] + 1 ) or #bytes - 1
 		local l = 0
 		for m=1, k do l = l * 100 + bytes[m+1] end
 		for m=bytes[1]-#bytes - 1, 0, -1 do l = l * 100	end
-		
+
 		return (positive and l or -l)
 	end,
 
 	-- Decodes a date
 	[DataTypes.DATE] = function(val)
 		local bytes = {}
-	
+
 		if (#val == 0) then
 			return ""
 		elseif( #val ~= 7 ) then
 			return "ERROR: Failed to decode date"
 		end
-	
+
 		for i=1, 7 do bytes[i] = select(2, bin.unpack("C", val, i))	end
 
 		return ("%d-%02d-%02d"):format( (bytes[1] - 100 ) * 100 + bytes[2] - 100, bytes[3], bytes[4] )
 	end,
-	
-	
-	
+
+
+
 }
 
 -- Packet class table
@@ -216,7 +216,7 @@ DataTypeDecoders = {
 --  o toString - A function that serializes the object to string
 --
 -- Each Packet MAY also optionally implement:
---  o parseResponse 
+--  o parseResponse
 --     x An optional function that parses the servers response
 --     x The function should return status and an undefined second return value
 --
@@ -231,7 +231,7 @@ Packet.TNS = {
 	length = 0,
 	reserved = 0,
 
-	Type = 
+	Type =
 	{
 		CONNECT = 1,
 		ACCEPT = 2,
@@ -249,7 +249,7 @@ Packet.TNS = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Read a TNS packet of the socket
 	--
 	-- @return true on success, false on failure
@@ -263,22 +263,22 @@ Packet.TNS = {
 
 		local _
 		_, self.length = bin.unpack(">S", data )
-		
+
 		status, data = self.socket:receive_buf( match.numbytes(6), true )
 		if ( not(status) ) then
 			return status, data
 		end
-		
+
 		_, self.checksum, self.type, self.reserved, self.hdr_checksum = bin.unpack(">SCCS", data)
-		
+
 		status, data = self.socket:receive_buf( match.numbytes(self.length - 8), true )
 		if ( status ) then
 			self.data = data
 		end
-		
+
 		return true
 	end,
-	
+
 	parse = function(data)
 		local tns = Packet.TNS:new()
 		local pos
@@ -286,7 +286,7 @@ Packet.TNS = {
 		pos, tns.data = bin.unpack("A" .. ( tns.length - 8 ), data, pos)
 		return tns
 	end,
-	
+
 	--- Converts the TNS packet to string suitable to be sent over the socket
 	--
 	-- @return string containing the TNS packet
@@ -294,17 +294,17 @@ Packet.TNS = {
 		local data = bin.pack(">SSCCSA", self.length, self.checksum, self.type, self.reserved, self.hdr_checksum, self.data )
 		return data
 	end,
-	
+
 }
 
 -- Initiates the connection to the listener
 Packet.Connect = {
-	
+
 		CONN_STR = [[
 					(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%d))
 					(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=%s)(CID=
 					(PROGRAM=sqlplus)(HOST=%s)(USER=nmap))))]],
-	
+
 		version = 314,
 		version_comp = 300,
 		svc_options = 0x0c41,
@@ -322,7 +322,7 @@ Packet.Connect = {
 		trace_cross_2 = 0,
 		trace_unique_conn = 0,
 		tns_type = Packet.TNS.Type.CONNECT,
-		
+
 		-- Creates a new Connect instance
 		-- @param rhost string containing host or ip
 		-- @param rport string containing the port number
@@ -339,14 +339,14 @@ Packet.Connect = {
 			self.__index = self
 			return o
 		end,
-		
+
 		setCmd = function( self, cmd )
-			local tmp = [[			
+			local tmp = [[
 				(DESCRIPTION=(CONNECT_DATA=(CID=(PROGRAM=)(HOST=%s)(USER=nmap))(COMMAND=%s)(ARGUMENTS=64)(SERVICE=%s:%d)(VERSION=185599488)))
 				]]
 			self.conn_data = tmp:format( self.rhost, cmd, self.rhost, self.rport )
 		end,
-		
+
 		--- Parses the server response from the CONNECT
 		--
 		-- @param tns Packet.TNS containing the TNS packet received from the
@@ -356,18 +356,18 @@ Packet.Connect = {
 		--         server or an error message on failure
 		parseResponse = function( self, tns )
 			local pos, version
-			
+
 			if ( tns.type ~= Packet.TNS.Type.ACCEPT ) then
 				if ( tns.data:match("ERR=12514") ) then
 					return false, ("TNS: The listener could not resolve \"%s\""):format(self.dbinstance)
 				end
 				return false, tns.data:match("%(ERR=(%d*)%)")
 			end
-			
+
 			pos, version = bin.unpack(">S", tns.data )
 			return true, version
 		end,
-		
+
 		--- Converts the CONNECT packet to string
 		--
 		-- @return string containing the packet
@@ -381,8 +381,8 @@ Packet.Connect = {
 				self.conn_data_flags_1, self.trace_cross_1, self.trace_cross_2,
 				self.trace_unique_conn, 0, self.conn_data )
 		end,
-			
-	
+
+
 }
 
 -- A TNS data packet, one of the most common packets
@@ -401,7 +401,7 @@ Packet.Data = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet
@@ -410,7 +410,7 @@ Packet.Data = {
 		self.TNS.length = #data + 8
 		return tostring(self.TNS) .. data
 	end,
-	
+
 }
 
 -- Packet received by the server to indicate errors or end of
@@ -430,26 +430,26 @@ Packet.Attention = {
 
 	--- Converts the MARKER packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		return bin.pack( ">C", self.att_type ) .. self.data
 	end,
-		
+
 }
 
 -- Packet initializing challenge response authentication
 Packet.PreAuth = {
-	
+
 	tns_type = Packet.TNS.Type.DATA,
-	flags = 0,	
-	param_order = { 
+	flags = 0,
+	param_order = {
 		{ ["AUTH_TERMINAL"] = "auth_term" },
 		{ ["AUTH_PROGRAM_NM"] = "auth_prog" },
 		{ ["AUTH_MACHINE"] = "auth_machine" },
 		{ ["AUTH_PID"] = "auth_pid" },
 		{ ["AUTH_SID"] = "auth_sid" }
 	},
-	
+
 	--- Creates a new PreAuth packet
 	--
 	-- @param user string containing the user name
@@ -463,7 +463,7 @@ Packet.PreAuth = {
 
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		local packet_type = 0x0376
 		local UNKNOWN_MAP = {
@@ -481,10 +481,10 @@ Packet.PreAuth = {
 				data = data .. Marshaller.marshalKvp( k, self.auth_options[v2] )
 			end
 		end
-		
+
 		return data
 	end,
-	
+
 	--- Parses the PreAuth packet response and extracts data needed to
 	--  perform authentication
 	--
@@ -494,7 +494,7 @@ Packet.PreAuth = {
 		local kvps = {}
 		local pos, kvp_count = bin.unpack( "C", tns.data, 4 )
 		pos = 6
-		
+
 		for kvp_itr=1, kvp_count do
 			local key, val, kvp_flags
 			pos, key, val, kvp_flags = Marshaller.unmarshalKvp( tns.data, pos )
@@ -509,10 +509,10 @@ Packet.PreAuth = {
 
 -- Packet containing authentication data
 Packet.Auth = {
-	
+
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
-	param_order = { 
+	param_order = {
 		{ ['key'] = "AUTH_RTT", ['def'] = "25456" },
 		{ ['key'] = "AUTH_CLNT_MEM", ['def'] = "4096" },
 		{ ['key'] = "AUTH_TERMINAL", ['var'] = "auth_term" },
@@ -546,7 +546,7 @@ Packet.Auth = {
 
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		local UNKNOWN_MAP = {
 			["Linuxi386/Linux-2.0.34-8.1.0"] = 	bin.pack("HCH","0338be0808", #self.user, "00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
@@ -554,14 +554,14 @@ Packet.Auth = {
 			["IBMPC/WIN_NT64-9.1.0"] = 			bin.pack("H","03010400000001010000010d0000000101"),
 			["x86_64/Linux 2.4.xx"]  = 			bin.pack("H","03010400000001010000010d0000000101")
 		}
-		
+
 		local sess_id = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16)))
 		local unknown = UNKNOWN_MAP[self.version] or ""
 		local data = bin.pack(">SSA", self.flags, 0x0373, unknown)
 		data = data .. bin.pack("CA", #self.user, self.user )
 		data = data .. Marshaller.marshalKvp( "AUTH_SESSKEY", self.auth_sesskey, 1 )
 		data = data .. Marshaller.marshalKvp( "AUTH_PASSWORD", self.auth_pass )
-								
+
 		for k, v in ipairs( self.param_order ) do
 			if ( v['def'] ) then
 				data = data .. Marshaller.marshalKvp( v['key'], v['def'] )
@@ -571,9 +571,9 @@ Packet.Auth = {
 				data = data .. Marshaller.marshalKvp( v['key'], self[ v['var'] ] )
 			end
 		end
-		return data 
+		return data
 	end,
-	
+
 	-- Parses the response of an Auth packet
 	--
 	-- @param tns Packet.TNS containing the TNS packet recieved from the server
@@ -582,7 +582,7 @@ Packet.Auth = {
 		local kvps = {}
 		local pos, kvp_count = bin.unpack( "C", tns.data, 4 )
 		pos = 6
-		
+
 		for kvp_itr=1, kvp_count do
 			local key, val, kvp_flags
 			pos, key, val, kvp_flags = Marshaller.unmarshalKvp( tns.data, pos )
@@ -592,14 +592,14 @@ Packet.Auth = {
 
 		return true, kvps
 	end,
-	
+
 }
 
 Packet.SNS = {
-	
+
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
-	
+
 	-- Creates a new SNS instance
 	--
 	-- @return o new instance of the SNS packet
@@ -609,21 +609,21 @@ Packet.SNS = {
 		self.__index = self
 		return o
 	end,
-	
+
 
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
-		return  bin.pack("SH", self.flags, 
-			[[ 
+		return  bin.pack("SH", self.flags,
+			[[
 				deadbeef00920b1006000004000004000300000000000400050b10060000080
 				001000015cb353abecb00120001deadbeef0003000000040004000100010002
 				0001000300000000000400050b10060000020003e0e100020006fcff0002000
 				200000000000400050b100600000c0001001106100c0f0a0b08020103000300
 				0200000000000400050b10060000030001000301
 			]] )
-	end,	
+	end,
 }
 
 -- Packet containing protocol negotiation
@@ -631,21 +631,21 @@ Packet.ProtoNeg = {
 
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
-	
+
 	new = function(self)
 		local o = {}
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		local pfx = bin.pack(">SH", self.flags, "0106050403020100")
-		return pfx .. "Linuxi386/Linux-2.0.34-8.1.0\0"		
-	end,		
+		return pfx .. "Linuxi386/Linux-2.0.34-8.1.0\0"
+	end,
 
 	--- Parses and verifies the server response
 	--
@@ -655,7 +655,7 @@ Packet.ProtoNeg = {
 		if ( neg ~= 1 ) then
 			return false, "Error protocol negotiation failed"
 		end
-		
+
 		if ( ver ~= 6 ) then
 			return false, ("Error protocol version (%d) not supported"):format(ver)
 		end
@@ -668,7 +668,7 @@ Packet.Unknown1 = {
 
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
-	
+
 	--- Creates a new Packet.Unknown1
 	--
 	-- @param version containing the version of the packet to send
@@ -679,10 +679,10 @@ Packet.Unknown1 = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 
 		if (  self.os:match("IBMPC/WIN_NT[64]*[-]%d%.%d%.%d") ) then
@@ -823,8 +823,8 @@ Packet.Unknown1 = {
 			return bin.pack(">SH", self.flags, "02b200b2004225060101010d010105010101010101017fff0309030301007f011" ..
 				"fff010301013f01010500010702010000180001800000003c3c3c80000000d007")
 		end
-	end,		
-	
+	end,
+
 }
 
 
@@ -833,17 +833,17 @@ Packet.Unknown2 = {
 
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
-	
+
 	new = function(self, os)
 		local o = { os = os }
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		if ( "x86_64/Linux 2.4.xx" == self.os ) then
 			return bin.pack(">SH", self.flags, [[
@@ -881,8 +881,8 @@ Packet.Unknown2 = {
 				00000e900e90001000000f1006d0001000002030203000100000000
 				]])
 		end
-	end,		
-	
+	end,
+
 }
 
 -- Signals that we're about to close the connection
@@ -890,27 +890,27 @@ Packet.EOF = {
 
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0x0040,
-	
+
 	new = function(self)
 		local o = {}
 		setmetatable(o, self)
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		return bin.pack(">S", self.flags )
-	end	
+	end
 }
 
 Packet.PostLogin = {
-	
+
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0x0000,
-	
+
 	-- Creates a new PostLogin instance
 	--
 	-- @param sessid number containing session id
@@ -921,26 +921,26 @@ Packet.PostLogin = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		local unknown1 = "116b04"
 		local unknown2 = "0000002200000001000000033b05fefffffff4010000fefffffffeffffff"
 		return bin.pack(">SHCH", self.flags, unknown1, tonumber(self.sessid), unknown2 )
 	end
-	
+
 }
 
 -- Class responsible for sending queries to the server and handling the first
 -- row returned by the server. This class is 100% based on packet captures and
 -- guesswork.
 Packet.Query = {
-	
+
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0x0000,
-	
+
 	--- Creates a new instance of Query
 	-- @param query string containing the SQL query
 	-- @return instance of Query
@@ -950,19 +950,19 @@ Packet.Query = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Gets the current counter value
 	-- @return counter number containing the current counter value
 	getCounter = function(self) return self.counter end,
-	
+
 	--- Sets the current counter value
 	-- This function is called from sendTNSPacket
 	-- @param counter number containing the counter value to set
 	setCounter = function(self, counter) self.counter = counter end,
-		
+
 	--- Converts the DATA packet to string
 	--
-	-- @return string containing the packet	
+	-- @return string containing the packet
 	__tostring = function( self )
 		local unknown1 = "035e"
 		local unknown2 = "6180000000000000feffffff"
@@ -970,7 +970,7 @@ Packet.Query = {
 		local unknown4 = "01000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000"
 		return bin.pack(">SHCHCHCAH", self.flags, unknown1, self.counter, unknown2, #self.query, unknown3, #self.query, self.query, unknown4 )
 	end,
-	
+
 	--- Parses the Query response from the server
 	-- @param tns response as received from the <code>Comm.recvTNSPacket</code>
 	--        function.
@@ -983,9 +983,9 @@ Packet.Query = {
 	parseResponse = function( self, tns )
 		local data = tns.data
 		local result = {}
-		
+
 		local pos, columns = bin.unpack("C", tns.data, 35)
-		
+
 		pos = 40
 		for i=1, columns do
 			local sql_type
@@ -1000,9 +1000,9 @@ Packet.Query = {
 			table.insert(result.types, sql_type)
 			pos = pos + 10
 		end
-		
+
 		pos = pos + 55
-		
+
 		result.rows = {}
 		local row = {}
 		for i=1, columns do
@@ -1023,7 +1023,7 @@ Packet.Query = {
 			table.insert(row, val)
 		end
 		table.insert(result.rows, row)
-		
+
 		local moredata = true
 		-- check if we've got any more data?
 		if ( #data > pos + 97 ) then
@@ -1034,7 +1034,7 @@ Packet.Query = {
 				moredata = false
 			end
 		end
-		
+
 		return true, { data = result, moredata = moredata }
 	end,
 }
@@ -1046,7 +1046,7 @@ Packet.QueryResponseAck = {
 
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0x0000,
-	
+
 	--- Creates a new QueryResponseAck instance
 	-- @param result table containing the results as received from the
 	--        <code>Query.parseResponse</code> function.
@@ -1061,19 +1061,19 @@ Packet.QueryResponseAck = {
 	--- Gets the current counter value
 	-- @return counter number containing the current counter value
 	getCounter = function(self) return self.counter end,
-	
+
 	--- Sets the current counter value
 	-- This function is called from sendTNSPacket
 	-- @param counter number containing the counter value to set
 	setCounter = function(self, counter) self.counter = counter end,
-	
+
 	--- Serializes the packet into a string suitable to be sent to the DB
 	-- server.
 	-- @return str string containing the serialized packet
 	__tostring = function(self)
 		return bin.pack(">SHCH", self.flags, "0305", self.counter, "030000000f000000")
 	end,
-	
+
 	--
 	-- This is how I (Patrik Karlsson) think this is supposed to work
 	-- At this point we have the 2nd row (the query response has the first)
@@ -1093,7 +1093,7 @@ Packet.QueryResponseAck = {
 	-- data it is run through a decoder, that decodes the *real* value from
 	-- the encoded data.
 	--
-	parseResponse = function( self, tns )		
+	parseResponse = function( self, tns )
 		local data = tns.data
 		local pos, len = bin.unpack("C", data, 21)
 		local mask = ""
@@ -1108,7 +1108,7 @@ Packet.QueryResponseAck = {
 			end
 			pos = pos + 4
 		else
-			pos = pos +3 
+			pos = pos +3
 		end
 
 		while(true) do
@@ -1149,7 +1149,7 @@ Packet.QueryResponseAck = {
 				else
 					pos, len = bin.unpack("C", data, pos)
 					pos, val = bin.unpack("A" .. len, data, pos)
-				
+
 					local sql_type = result.types[col]
 					if ( DataTypeDecoders[sql_type] ) then
 						val = DataTypeDecoders[sql_type](val)
@@ -1164,7 +1164,7 @@ Packet.QueryResponseAck = {
 
 		return true, tns.data
 	end,
-	
+
 }
 
 Marshaller = {
@@ -1175,11 +1175,11 @@ Marshaller = {
 	-- @param flags The flags
 	-- @return A binary packed string representing the KVP structure
 	marshalKvp = function( key, value, flags )
-		return Marshaller.marshalKvpComponent( key ) .. 
+		return Marshaller.marshalKvpComponent( key ) ..
 			Marshaller.marshalKvpComponent( value ) ..
 			bin.pack( "<I", ( flags or 0 ) )
 	end,
-	
+
 	--- Parses a TNS key-value pair data structure.
 	--
 	-- @param data Packed string to parse
@@ -1187,14 +1187,14 @@ Marshaller = {
 	-- @return table containing the last position read, the key, the value, and the KVP flags
 	unmarshalKvp = function( data, pos )
 		local key, value, flags
-		
+
 		pos, key   = Marshaller.unmarshalKvpComponent( data, pos )
 		pos, value = Marshaller.unmarshalKvpComponent( data, pos )
 		pos, flags = bin.unpack("<I", data, pos )
-		
+
 		return pos, key, value, flags
 	end,
-	
+
 	--- Marshals a key or value element from a TNS key-value pair data structure
 	--
 	-- @param value The key or value
@@ -1241,7 +1241,7 @@ Marshaller = {
 
 		return result
 	end,
-	
+
 	--- Parses a key or value element from a TNS key-value pair data structure.
 	--
 	-- @param data Packed string to parse
@@ -1284,14 +1284,14 @@ Marshaller = {
 
 -- The TNS communication class uses the TNSSocket to transmit data
 Comm = {
-	
+
 	--- Creates a new instance of the Comm class
 	--
 	-- @param socket containing a TNSSocket
 	-- @return new instance of Comm
 	new = function(self, socket)
-		local o = { 
-			socket = socket, 
+		local o = {
+			socket = socket,
 			data_counter = 06
 		}
 		setmetatable(o, self)
@@ -1351,9 +1351,9 @@ Comm = {
 		local msg
 		pos, msg = bin.unpack("p", tns.data, pos )
 
-		return false, msg		
+		return false, msg
 	end,
-	
+
 	--- Recieves a TNS packet and handles TNS-resends
 	--
 	-- @return status true on success, false on failure
@@ -1390,7 +1390,7 @@ Comm = {
 
 		return true, tns
 	end,
-	
+
 	--- Sends a TNS packet and recieves (and handles) the response
 	--
 	-- @param pkt containingt the Packet.* to send to the server
@@ -1400,7 +1400,7 @@ Comm = {
 	exchTNSPacket = function( self, pkt )
 		local status = self:sendTNSPacket( pkt )
 		local tns, response
-		
+
 		if ( not(status) ) then
 			return false, "sendTNSPacket failed"
 		end
@@ -1421,7 +1421,7 @@ Comm = {
 
 		return status, response
 	end
-	
+
 }
 
 --- Class that handles all Oracle encryption
@@ -1432,7 +1432,7 @@ Crypt = {
 		local combined_sesskey = ""
 		local sha1 = openssl.sha1(pass .. salt) .. "\0\0\0\0"
 		local auth_sesskey = s_sesskey
-		local auth_sesskey_c = c_sesskey 
+		local auth_sesskey_c = c_sesskey
 		local server_sesskey = openssl.decrypt( "aes-192-cbc", sha1, nil, auth_sesskey )
 		local client_sesskey = openssl.decrypt( "aes-192-cbc", sha1, nil, auth_sesskey_c )
 
@@ -1475,7 +1475,7 @@ Crypt = {
 		local cli_sesskey = openssl.decrypt( "AES-128-CBC", pwhash, nil, cli_sesskey_enc )
 		local auth_pass = bin.pack("H", "4C5E28E66B6382117F9D41B08957A3B9E363B42760C33B44CA5D53EA90204ABE" )
 		local combined_sesskey = ""
-		local pass 
+		local pass
 
 		for i=17, 32 do
 			combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(srv_sesskey, i), string.byte(cli_sesskey, i) ) )
@@ -1489,7 +1489,7 @@ Crypt = {
 		print( select(2, bin.unpack("H" .. #combined_sesskey, combined_sesskey )))
 		print( "pass=" .. pass )
 	end,
-	
+
 	--- Performs the relevant encryption needed for the Oracle 10g response
 	--
 	-- @param user containing the Oracle user name
@@ -1510,7 +1510,7 @@ Crypt = {
 		local rnd = bin.pack("H", "4C31AFE05F3B012C0AE9AB0CDFF0C508")
 		local combined_sesskey = ""
 		local auth_pass
-		
+
 		for i=17, 32 do
 			combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(srv_sesskey, i), string.byte(cli_sesskey, i) ) )
 		end
@@ -1529,7 +1529,7 @@ Crypt = {
 	-- @param auth_vrfy_data containing the password salt as recieved from the
 	--        PreAuth packet
 	-- @return cli_sesskey_enc the encrypted client session key
-	-- @return auth_pass the encrypted Oracle password	
+	-- @return auth_pass the encrypted Oracle password
 	Encrypt11g = function( self, pass, srv_sesskey_enc, auth_vrfy_data )
 
 		-- This value should really be random, not this static cruft
@@ -1541,7 +1541,7 @@ Crypt = {
 		local cli_sesskey_enc
 		local combined_sesskey = ""
 		local data = ""
-		
+
 		for i=17, 40 do
 			combined_sesskey = combined_sesskey .. string.char( bit.bxor( string.byte(srv_sesskey, i), string.byte(cli_sesskey, i) ) )
 		end
@@ -1555,19 +1555,19 @@ Crypt = {
 
 		return cli_sesskey_enc, auth_password
 	end,
-	
+
 }
 
 Helper = {
-	
+
 	--- Creates a new Helper instance
 	--
 	-- @param host table containing the host table as received by action
 	-- @param port table containing the port table as received by action
 	-- @param instance string containing the instance name
-	-- @return o new instance of Helper			
+	-- @return o new instance of Helper
 	new = function(self, host, port, instance )
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			socket = nmap.new_socket(),
@@ -1578,7 +1578,7 @@ Helper = {
 		self.__index = self
 		return o
 	end,
-	
+
 	--- Connects and performs protocol negotiation with the Oracle server
 	--
 	-- @return true on success, false on failure
@@ -1594,7 +1594,7 @@ Helper = {
 		local conn, packet, tns
 
 		if( not(status) ) then return status, data	end
-		
+
 		self.comm = Comm:new( self.socket )
 
 		status, self.version = self.comm:exchTNSPacket( Packet.Connect:new( self.host.ip, self.port.number, self.dbinstance ) )
@@ -1632,12 +1632,12 @@ Helper = {
 			status = self.comm:sendTNSPacket( Packet.Unknown1:new( self.os ) )
 			if ( not(status) ) then
 				return false, "ERROR: Helper.Connect failed"
-			end			
+			end
 			status, data = self.comm:sendTNSPacket( Packet.Unknown2:new( self.os ) )
-			if ( not(status) ) then	return false, data end			
+			if ( not(status) ) then	return false, data end
 
 			status, data = self.comm:recvTNSPacket( Packet.Unknown2:new( ) )
-			if ( not(status) ) then return false, data end			
+			if ( not(status) ) then return false, data end
 			-- Oracle 10g under Windows needs this additional read, there's
 			-- probably a better way to detect this by analysing the packets
 			-- further.
@@ -1659,7 +1659,7 @@ Helper = {
 			status, data = self.comm:recvTNSPacket( Packet.Unknown2:new( ) )
 			if ( not(status) ) then
 				return false, data
-			end			
+			end
 
 		else
 			status = self.comm:exchTNSPacket( Packet.Unknown1:new( self.os ) )
@@ -1667,10 +1667,10 @@ Helper = {
 				return false, "ERROR: Helper.Connect failed"
 			end
 		end
-		
+
 		return true
 	end,
-	
+
 	--- Sends a command to the TNS lsnr
 	-- It currently accepts and tries to send all commands recieved
 	--
@@ -1706,7 +1706,7 @@ Helper = {
 
 		return true, data
 	end,
-	
+
 	--- Authenticates to the database
 	--
 	-- @param user containing the Oracle user name
@@ -1757,7 +1757,7 @@ Helper = {
 			return false
 		end
 	end,
-	
+
 	--- Queries the database
 	--
 	-- @param query string containing the SQL query
@@ -1812,7 +1812,7 @@ Helper = {
 		local status = self.comm:sendTNSPacket( Packet.EOF:new( ) )
 		self.socket:close()
 	end,
-	
+
 }
 
 return _ENV;

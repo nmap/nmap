@@ -28,7 +28,7 @@ action = function(host, port)
 	if ( not(status) ) then
 		return fail("Failed to connect to server")
 	end
-	
+
 	local status, result = helper:getVersion()
 	if ( not(status) ) then
 		return fail("Failed to retrieve external IP")

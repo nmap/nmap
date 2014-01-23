@@ -49,7 +49,7 @@ function parse_robtex_response(data)
 
 	-- cut out the section we're interested in
 	data = data:match("<span id=\"sharednss\">.-<ul.->(.-)</ul>")
-	
+
 	-- process each html list item
 	for li in data:gmatch("<li>(.-)</li>") do
 		local domain = li:match("<a.->(.*)</a>")
@@ -57,7 +57,7 @@ function parse_robtex_response(data)
 			table.insert(result, domain)
 		end
 	end
-	
+
   return result
 end
 
@@ -70,7 +70,7 @@ local function fetch_robtex_data(url)
 	if ( not(htmldata) or not(htmldata.body) ) then
 		return
 	end
-  
+
 	-- fixup hex encodings
 	return unescape(htmldata.body)
 end
@@ -78,10 +78,10 @@ end
 hostrule = function (host) return host.targetname end
 
 action = function(host)
-	local base_url = "/dns/" .. host.targetname .. ".html" 
+	local base_url = "/dns/" .. host.targetname .. ".html"
 	local data = fetch_robtex_data(base_url)
     local domains = parse_robtex_response(data)
-	
+
 	if ( not(domains) ) then
 		local server = lookup_dns_server(data)
 		if ( not(server) ) then

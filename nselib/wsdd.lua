@@ -13,7 +13,7 @@
 --
 -- The library contains the following classes
 -- * <code>Comm</code>
--- ** A class that handles most communication 
+-- ** A class that handles most communication
 -- * <code>Helper</code>
 -- ** The helper class wraps the <code>Comm</code> class using functions with a more descriptive name.
 -- * <code>Util</code>
@@ -24,7 +24,7 @@
 -- The following code snipplet shows how the library can be used:
 -- <code>
 --	local helper = wsdd.Helper:new()
---  helper:setMulticast(true)	
+--  helper:setMulticast(true)
 --  return stdnse.format_output( helper:discoverDevices() )
 -- </code>
 --
@@ -43,9 +43,9 @@ local HAVE_SSL, openssl = pcall(require,'openssl')
 
 -- The different probes
 local probes = {
-	
+
 	-- Detects devices supporting the WSDD protocol
-	{ 
+	{
 	name  = 'general',
 	desc = 'Devices',
 	data = '<env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" ' ..
@@ -60,7 +60,7 @@ local probes = {
 	    '</wsa:Action><wsa:MessageID>urn:uuid:#uuid#</wsa:MessageID>' ..
 	  '</env:Header><env:Body><wsd:Probe/></env:Body></env:Envelope>'
 	},
-	
+
 	-- Detects Windows Communication Framework (WCF) web services
 	{
 	name = 'wcf',
@@ -91,15 +91,15 @@ local probes = {
 local probe_matches = {}
 
 Util = {
-	
+
 	--- Creates a UUID
 	--
 	-- @return uuid string containing a uuid
 	generateUUID = function()
 		local rnd_bytes = select(2, bin.unpack( "H16", openssl.rand_bytes( 16 ) ) ):lower()
 
-		return ("%s-%s-%s-%s-%s"):format( rnd_bytes:sub(1, 8), 
-			rnd_bytes:sub(9, 12), rnd_bytes:sub( 13, 16 ), rnd_bytes:sub( 17, 20 ), 
+		return ("%s-%s-%s-%s-%s"):format( rnd_bytes:sub(1, 8),
+			rnd_bytes:sub(9, 12), rnd_bytes:sub( 13, 16 ), rnd_bytes:sub( 17, 20 ),
 			rnd_bytes:sub(21, 32) )
 	end,
 
@@ -115,20 +115,20 @@ Util = {
 		end
 		return
 	end,
-	
+
 	getProbes = function() return probes end,
 
 	sha1sum = function(data) return openssl.sha1(data) end
-	
+
 }
 
 Decoders = {
-	
+
 	--- Decodes a wcf probe response
 	--
 	-- @param data string containing the response as received over the wire
 	-- @return status true on success, false on failure
-	-- @return response table containing the following fields 
+	-- @return response table containing the following fields
 	--         <code>msgid</code>, <code>xaddrs</code>, <code>types</code>
 	--         err string containing the error message
 	['wcf'] = function( data )
@@ -147,18 +147,18 @@ Decoders = {
 
 		return true, response
 	end,
-	
+
 	--- Decodes a general probe response
 	--
 	-- @param data string containing the response as received over the wire
 	-- @return status true on success, false on failure
-	-- @return response table containing the following fields 
+	-- @return response table containing the following fields
 	--         <code>msgid</code>, <code>xaddrs</code>, <code>types</code>
 	--         err string containing the error message
 	['general'] = function( data )
 		return Decoders['wcf'](data)
 	end,
-	
+
 	--- Decodes an error message received from the service
 	--
 	-- @param data string containing the response as received over the wire
@@ -168,15 +168,15 @@ Decoders = {
 		local response = "Failed to decode response from device: "
 		local err = data:match("<SOAP.-ENV:Reason><SOAP.-ENV:Text>(.-)<")
 		response = response .. (err or "Unknown error")
-		
+
 		return true, response
 	end,
-	
+
 }
 
 
 Comm = {
-	
+
 	--- Creates a new Comm instance
 	--
 	-- @param host string containing the host name or ip
@@ -193,19 +193,19 @@ Comm = {
 		o.timeout = 5000
 		return o
 	end,
-	
+
 	--- Sets the timeout for socket reads
 	setTimeout = function( self, timeout ) self.timeout = timeout end,
-	
+
 	--- Sends a probe over the wire
 	--
 	-- @return status true on success, false on failure
 	sendProbe = function( self )
 		local status, err
-		
+
 		-- replace all instances of #uuid# in the probe
 		local probedata = self.probe.data:gsub("#uuid#", Util.generateUUID())
-		
+
 		if ( self.mcast ) then
 			self.socket = nmap.new_socket("udp")
 			self.socket:set_timeout(self.timeout)
@@ -215,7 +215,7 @@ Comm = {
 			status, err = self.socket:connect( self.host, self.port, "udp" )
 			if ( not(status) ) then return err end
 		end
-		
+
 		for i=1, self.sendcount do
 			if ( self.mcast ) then
 		 		status, err = self.socket:sendto( self.host, self.port, probedata )
@@ -226,14 +226,14 @@ Comm = {
 		end
 		return true
 	end,
-	
+
 	--- Sets a probe from the <code>probes</code> table to send
 	--
 	-- @param probe table containing a probe from <code>probes</code>
 	setProbe = function( self, probe )
 		self.probe = probe
 	end,
-	
+
 	--- Receives one or more responses for a Probe
 	--
 	-- @return table containing decoded responses suitable for
@@ -241,11 +241,11 @@ Comm = {
 	recvProbeMatches = function( self )
 		local responses = {}
 		repeat
-			local data 
+			local data
 
 			local status, data = self.socket:receive()
 			if ( not(status) ) then
-				if ( data == "TIMEOUT" ) then 
+				if ( data == "TIMEOUT" ) then
 					break
 				else
 					return false, data
@@ -254,7 +254,7 @@ Comm = {
 
 			local _, ip
 			status, _, _, ip, _ = self.socket:get_info()
-			if( not(status) ) then 
+			if( not(status) ) then
 				stdnse.print_debug( 3, "wsdd.recvProbeMatches: ERROR: Failed to get socket info" )
 				return false, "ERROR: Failed to get socket info"
 			end
@@ -278,28 +278,28 @@ Comm = {
 				output = response
 				id = Util.sha1sum(data)
 			end
-						
+
 			if ( self.mcast and not(probe_matches[id]) ) then
 				if target.ALLOW_NEW_TARGETS then target.add(ip)	end
 				table.insert( responses, { name=ip, output } )
 			elseif ( not(probe_matches[id]) ) then
 				responses = output
 			end
-			
+
 			-- avoid duplicates
 			probe_matches[id] = true
 		until( not(self.mcast) )
-		
+
 		-- we're done with the socket
 		self.socket:close()
-		
+
 		return true, responses
 	end
 
 }
 
 Helper = {
-	
+
 	--- Creates a new helper instance
 	--
 	-- @param host string containing the host name or ip
@@ -315,7 +315,7 @@ Helper = {
 		o.timeout = 5000
 		return o
 	end,
-	
+
 	--- Instructs the helper to use unconnected sockets supporting multicast
 	--
 	-- @param mcast boolean true if multicast is to be used, false otherwise
@@ -326,10 +326,10 @@ Helper = {
 		self.host = (family=="inet6" and "FF02::C" or "239.255.255.250")
 		self.port = 3702
 	end,
-	
+
 	--- Sets the timeout for socket reads
 	setTimeout = function( self, timeout ) self.timeout = timeout end,
-	
+
 	--- Sends a probe, receives and decodes a probematch
 	--
 	-- @param probename string containing the name of the probe to send
@@ -339,26 +339,26 @@ Helper = {
 	--         the <code>stdnse.format_output</code> function
 	discoverServices = function( self, probename )
 		if ( not(HAVE_SSL) ) then return false, "The wsdd library requires OpenSSL"	end
-	
+
 		local comm = Comm:new(self.host, self.port, self.mcast)
 		local probe = Util.getProbeByName(probename)
 		comm:setProbe( probe )
 		comm:setTimeout( self.timeout )
 
 		local status = comm:sendProbe()
-		if ( not(status) ) then 
+		if ( not(status) ) then
 			return false, "ERROR: wcf.discoverServices failed"
 		end
 
 		local status, matches = comm:recvProbeMatches()
-		if ( not(status) ) then 
+		if ( not(status) ) then
 			return false, "ERROR: wcf.recvProbeMatches failed"
 		end
 
 		if ( #matches > 0 ) then matches.name = probe.desc end
 		return true, matches
 	end,
-	
+
 	--- Sends a general probe to attempt to discover WSDD supporting devices
 	--
 	-- @return status true on success, false on failure
@@ -367,8 +367,8 @@ Helper = {
 	discoverDevices = function( self )
 		return self:discoverServices('general')
 	end,
-	
-	
+
+
 	--- Sends a probe that attempts to discover WCF web services
 	--
 	-- @return status true on success, false on failure
@@ -377,7 +377,7 @@ Helper = {
 	discoverWCFServices = function( self )
 		return self:discoverServices('wcf')
 	end,
-	
+
 }
 
 return _ENV;

@@ -1,8 +1,8 @@
-description = [[ 
+description = [[
 This script detects Cross Site Request Forgeries (CSRF) vulnerabilities.
 
 It will try to detect them by checking each form if it contains an unpredictable
-token for each user. Without one an attacker may forge malicious requests. 
+token for each user. Without one an attacker may forge malicious requests.
 
 To recognize a token in a form, the script will iterate through the form's
 attributes and will search for common patterns in their names. If that fails, it
@@ -17,28 +17,28 @@ exist. See the http library's documentation to set your own cookie.
 ---
 -- @usage nmap -p80 --script http-csrf.nse <target>
 --
--- @args http-csrf.singlepages The pages that contain the forms to check. 
---       For example, {/upload.php,  /login.php}. Default: nil (crawler 
+-- @args http-csrf.singlepages The pages that contain the forms to check.
+--       For example, {/upload.php,  /login.php}. Default: nil (crawler
 --       mode on)
--- @args http-csrf.checkentropy If this is set the script will also calculate 
---       the entropy of the field's value to determine if it is a token, 
+-- @args http-csrf.checkentropy If this is set the script will also calculate
+--       the entropy of the field's value to determine if it is a token,
 --       rather than just checking its name. Default: true
 --
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-csrf: 
+-- | http-csrf:
 -- | Spidering limited to: maxdepth=3; maxpagecount=20; withinhost=some-very-random-page.com
--- |   Found the following CSRF vulnerabilities: 
--- |     
+-- |   Found the following CSRF vulnerabilities:
+-- |
 -- |     Path: http://www.some-very-random-page.com/
 -- |     Form id: search_bar_input
 -- |     Form action: /search
--- |     
+-- |
 -- |     Path: http://www.some-very-random-page.com/c/334/watches.html
 -- |     Form id: custom_price_filters
 -- |     Form action: /search
--- |     
+-- |
 -- |     Path: http://www.some-very-radom-page.com/c/334/watches.html
 -- |     Form id: custom_price_filters
 -- |_    Form action: /c/334/rologia-xeiros-watches.html
@@ -73,7 +73,7 @@ isToken = function(value)
         -- Does it have a big entropy?
         if entropy >= minentropy then
             -- If it doesn't contain any spaces but contains at least one digit.
-            if not string.find(value, " ") and string.find(value, "%d") then        
+            if not string.find(value, " ") and string.find(value, "%d") then
                 return 1
             end
         end
@@ -83,9 +83,9 @@ isToken = function(value)
 
 end
 
-action = function(host, port) 
- 
-    local singlepages = stdnse.get_script_args("http-csrf.singlepages") 
+action = function(host, port)
+
+    local singlepages = stdnse.get_script_args("http-csrf.singlepages")
     local checkentropy = stdnse.get_script_args("http-csrf.checkentropy") or false
 
     local csrfvuln = {}
@@ -99,7 +99,7 @@ action = function(host, port)
 
     local index, response, path
     while (true) do
- 
+
         if singlepages then
             local k, target,
             k, target = next(singlepages, index)
@@ -129,10 +129,10 @@ action = function(host, port)
 
             local forms = http.grab_forms(response.body)
 
-            for i, form in ipairs(forms) do 
-                
+            for i, form in ipairs(forms) do
+
                 form = http.parse_form(form)
-                
+
                 local resistant = false
                 if form then
                     for _, field in ipairs(form['fields']) do
@@ -145,11 +145,11 @@ action = function(host, port)
                                 resistant = isToken(field['value'])
                             end
 
-                            if resistant then 
-                                break 
+                            if resistant then
+                                break
                             end
                         end
-                      
+
                     end
 
                     if not resistant then
@@ -157,16 +157,16 @@ action = function(host, port)
                         -- Handle forms with no id or action attributes.
                         form['id'] = form['id'] or ""
                         form['action'] = form['action'] or "-"
-                        
-                        local msg = "\nPath: " .. path .. "\nForm id: " .. form['id'] .. "\nForm action: " .. form['action'] 
+
+                        local msg = "\nPath: " .. path .. "\nForm id: " .. form['id'] .. "\nForm action: " .. form['action']
                         table.insert(csrfvuln, { msg } )
                     end
                 end
             end
-                
+
             if (index) then
                 index = index + 1
-            else 
+            else
                 index = 1
             end
         end
@@ -177,11 +177,11 @@ action = function(host, port)
     if next(csrfvuln) == nil then
         return "Couldn't find any CSRF vulnerabilities."
     end
- 
+
     table.insert(csrfvuln, 1, "Found the following possible CSRF vulnerabilities: ")
 
 	csrfvuln.name = crawler:getLimitations()
-	
+
 	return stdnse.format_output(true, csrfvuln)
 
 end

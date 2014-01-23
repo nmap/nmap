@@ -7,7 +7,7 @@ local stdnse = require "stdnse"
 description = [[
 performs brute force password auditing against Wordpress CMS/blog installations.
 
-This script uses the unpwdb and brute libraries to perform password guessing. Any successful guesses are 
+This script uses the unpwdb and brute libraries to perform password guessing. Any successful guesses are
 stored using the credentials library.
 
 Wordpress default uri and form names:
@@ -92,7 +92,7 @@ Driver = {
                 -- This redirect is taking us to /wp-admin
     if response.status == 302 then
       local c = creds.Credentials:new( SCRIPT_NAME, self.host, self.port )
-      c:add(username, password, creds.State.VALID ) 
+      c:add(username, password, creds.State.VALID )
       return true, brute.Account:new( username, password, "OPEN")
     end
 

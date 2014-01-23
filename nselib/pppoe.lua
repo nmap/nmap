@@ -1,7 +1,7 @@
 --- A minimalistic PPPoE (Point-to-point protocol over Ethernet)
 -- library, implementing basic support for PPPoE
 -- Discovery and Configuration requests. The PPPoE protocol is ethernet based
--- and hence does not use any IPs or port numbers. 
+-- and hence does not use any IPs or port numbers.
 --
 -- The library contains a number of classes to support packet creation,
 -- parsing and sending/receiving responses. The classes are:
@@ -33,14 +33,14 @@ _ENV = stdnse.module("pppoe", stdnse.seeall)
 
 EtherType = {
 	PPPOE_DISCOVERY = 0x8863,
-	PPPOE_SESSION = 0x8864,	
+	PPPOE_SESSION = 0x8864,
 }
 
 -- A Class to handle the Link Control Protocol LCP
 LCP = {
-	
+
 	ConfigOption = {
-		
+
 		RESERVED 	= 0,
 		MRU 		= 1,
 		AUTH_PROTO 	= 3,
@@ -51,7 +51,7 @@ LCP = {
 
 		-- Value has already been encoded, treat it as a byte stream
 		RAW 		= -1,
-		
+
 		-- Creates a new config option
 		-- @param option number containing the configuration option
 		-- @param value containing the configuration option value
@@ -67,7 +67,7 @@ LCP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the ConfigOption
 		-- class
 		-- @param data string containing raw bytes to parse
@@ -76,14 +76,14 @@ LCP = {
 			local opt, pos, len = {}, 1, 0
 			pos, opt.option, len = bin.unpack("CC", data, pos)
 			pos, opt.raw = bin.unpack("A" .. ( len - 2 ), data, pos)
-			
+
 			-- MRU
 			if ( 1 == opt.option ) then
 				opt.value = select(2, bin.unpack(">S", opt.raw))
 			end
 			return LCP.ConfigOption:new(opt.option, opt.value, opt.raw)
 		end,
-		
+
 		-- Converts the class instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -97,10 +97,10 @@ LCP = {
 			end
 		end,
 	},
-	
+
 	-- A class to hold multiple ordered config options
 	ConfigOptions = {
-		
+
 		new = function(self, options)
 			local o = {
 				options = options or {},
@@ -109,13 +109,13 @@ LCP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Adds a new config option to the table
 		-- @param option instance of ConfigOption
 		add = function(self, option)
 			table.insert(self.options, option)
 		end,
-		
+
 		-- Gets a config option by ID
 		-- @param opt number containing the configuration option to retrieve
 		-- @return v instance of ConfigOption
@@ -126,7 +126,7 @@ LCP = {
 				end
 			end
 		end,
-		
+
 		-- Returns all config options in an ordered table
 		-- @return tab table containing all configuration options
 		getTable = function(self)
@@ -136,8 +136,8 @@ LCP = {
 			end
 			return tab
 		end,
-		
-		
+
+
 		-- Parses a byte stream and builds a new instance of the ConfigOptions
 		-- class
 		-- @param data string containing raw bytes to parse
@@ -148,13 +148,13 @@ LCP = {
 
 			repeat
 				pos, opt, len = bin.unpack(">CC", data, pos)
-				if ( 0 == opt ) then break end			
+				if ( 0 == opt ) then break end
 				pos, opt_val = bin.unpack("A"..len, data, (pos - 2))
 				options:add(LCP.ConfigOption.parse(opt_val))
 			until( pos == #data )
 			return options
 		end,
-		
+
 		-- Converts the class instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -164,9 +164,9 @@ LCP = {
 			end
 			return str
 		end,
-		
+
 	},
-	
+
 	ConfigOptionName = {
 		[0] = "Reserved",
 		[1] = "Maximum receive unit",
@@ -176,7 +176,7 @@ LCP = {
 		[7] = "Protocol field compression",
 		[8] = "Address and control field compression",
 	},
-	
+
 	Code = {
 		CONFIG_REQUEST 		= 1,
 		CONFIG_ACK			= 2,
@@ -184,10 +184,10 @@ LCP = {
 		TERMINATE_REQUEST	= 5,
 		TERMINATE_ACK		= 6,
 	},
-	
+
 	-- The LCP Header
 	Header = {
-		
+
 		-- Creates a new instance of the LCP header
 		-- @param code number containing the LCP code of the request
 		-- @param identifier number containing the LCP identifier
@@ -218,11 +218,11 @@ LCP = {
 		__tostring = function(self)
 			return bin.pack(">CCS", self.code, self.identifier, self.length)
 		end,
-		
+
 	},
-		
+
 	ConfigRequest = {
-		
+
 		-- Creates a new instance of the ConfigRequest class
 		-- @param identifier number containing the LCP identifier
 		-- @param options table of <code>LCP.ConfigOption</code> options
@@ -236,7 +236,7 @@ LCP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the ConfigRequest
 		-- class
 		-- @param data string containing raw bytes to parse
@@ -247,7 +247,7 @@ LCP = {
 			req.options = LCP.ConfigOptions.parse(data:sub(#tostring(req.header) + 1))
 			return req
 		end,
-		
+
 		-- Converts the class instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -255,9 +255,9 @@ LCP = {
 			return tostring(self.header) .. tostring(self.options)
 		end,
 	},
-	
+
 	ConfigNak = {
-		
+
 		-- Creates a new instance of the ConfigNak class
 		-- @param identifier number containing the LCP identifier
 		-- @param options table of <code>LCP.ConfigOption</code> options
@@ -271,7 +271,7 @@ LCP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts the class instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -279,9 +279,9 @@ LCP = {
 			return tostring(self.header) .. tostring(self.options)
 		end,
 	},
-	
+
 	ConfigAck = {
-		
+
 		-- Creates a new instance of the ConfigAck class
 		-- @param identifier number containing the LCP identifier
 		-- @param options table of <code>LCP.ConfigOption</code> options
@@ -295,7 +295,7 @@ LCP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the ConfigAck class
 		-- @param data string containing raw bytes to parse
 		-- @return o instance of ConfigRequest
@@ -305,21 +305,21 @@ LCP = {
 			ack.options = LCP.ConfigOptions.parse(data:sub(#tostring(ack.header) + 1))
 			return ack
 		end,
-		
+
 		-- Converts the class instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
 			self.header.length = 4 + #tostring(self.options)
 			return tostring(self.header) .. tostring(self.options)
 		end,
-		
+
 	},
-	
+
 	TerminateRequest = {
 
 		-- Creates a new instance of the TerminateRequest class
 		-- @param identifier number containing the LCP identifier
-		-- @return o instance of ConfigNak	
+		-- @return o instance of ConfigNak
 		new = function(self, identifier, data)
 			local o = {
 				header = LCP.Header:new(LCP.Code.TERMINATE_REQUEST, identifier),
@@ -329,7 +329,7 @@ LCP = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts the class instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -337,22 +337,22 @@ LCP = {
 			return tostring(self.header) .. self.data
 		end,
 	}
-	
+
 }
 
 -- The PPPoE class
 PPPoE = {
-	
+
 	-- Supported PPPoE codes (requests/responses)
 	Code = {
 		SESSION_DATA	= 0x00,
 		PADO 			= 0x07,
 		PADI 			= 0x09,
 		PADR 			= 0x19,
-		PADS 			= 0x65,	
-		PADT			= 0xa7,	
+		PADS 			= 0x65,
+		PADT			= 0xa7,
 	},
-	
+
 	-- Support PPPoE Tag types
 	TagType = {
 		SERVICE_NAME	= 0x0101,
@@ -360,7 +360,7 @@ PPPoE = {
 		HOST_UNIQUE 	= 0x0103,
 		AC_COOKIE		= 0x0104,
 	},
-	
+
 	-- Table used to convert table IDs to Names
 	TagName = {
 		[0x0101] = "Service-Name",
@@ -368,14 +368,14 @@ PPPoE = {
 		[0x0103] = "Host-Uniq",
 		[0x0104] = "AC-Cookie",
 	},
-	
-		
+
+
 	Header = {
-		
+
 		-- Creates a new instance of the PPPoE header class
 		-- @param code number containing the PPPoE code
 		-- @param session number containing the PPPoE session
-		-- @return o instance of Header	
+		-- @return o instance of Header
 		new = function(self, code, session)
 			local o = {
 				version = 1,
@@ -388,7 +388,7 @@ PPPoE = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the class
 		-- @param data string containing raw bytes to parse
 		-- @return o instance of Header
@@ -397,56 +397,56 @@ PPPoE = {
 			local header = PPPoE.Header:new()
 			pos, vertyp, header.code, header.session, header.length = bin.unpack(">CCSS", data)
 			header.version = bit.rshift(vertyp,4)
-			header.type = bit.band(vertyp, 0x0F)		
+			header.type = bit.band(vertyp, 0x0F)
 			return header
 		end,
-		
+
 		-- Converts the instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
 			local vertype = bit.lshift(self.version, 4) + self.type
 			return bin.pack(">CCSS", vertype, self.code, self.session, self.length)
 		end,
-		
-		
+
+
 	},
-	
+
 	-- The TAG NVP Class
-	Tag = {		
-		
+	Tag = {
+
 		-- Creates a new instance of the Tag class
 		-- @param tag number containing the tag type
 		-- @param value string/number containing the tag value
-		-- @return o instance of Tag	
+		-- @return o instance of Tag
 		new = function(self, tag, value)
 			local o = { tag = tag, value = value or "" }
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-			
+
 		-- Converts the instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
 			return bin.pack(">SSA", self.tag, #self.value, self.value)
 		end,
 	},
-		
+
 	PADI = {
-		
+
 		-- Creates a new instance of the PADI class
 		-- @param tags table of <code>PPPoE.Tag</code> instances
 		-- @param value string/number containing the tag value
-		-- @return o instance of ConfigNak	
+		-- @return o instance of ConfigNak
 		new = function(self, tags)
 			local c = ""
 			for i=1, 4 do
 				c = c .. math.random(255)
 			end
-			
+
 			local o = {
 				header = PPPoE.Header:new(PPPoE.Code.PADI),
-				tags = tags or { 
+				tags = tags or {
 					PPPoE.Tag:new(PPPoE.TagType.SERVICE_NAME),
 					PPPoE.Tag:new(PPPoE.TagType.HOST_UNIQUE,  bin.pack("A", c))
 				}
@@ -455,7 +455,7 @@ PPPoE = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts the instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -466,20 +466,20 @@ PPPoE = {
 			self.header.length = #tags
 			return tostring(self.header) .. tags
 		end,
-		
+
 	},
-	
+
 	PADO = {
-	
+
 		-- Creates a new instance of the PADO class
-		-- @return o instance of PADO	
+		-- @return o instance of PADO
 		new = function(self)
 			local o = { tags = {} }
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the class
 		-- @param data string containing raw bytes to parse
 		-- @return o instance of PADO
@@ -488,7 +488,7 @@ PPPoE = {
 			pado.header = PPPoE.Header.parse(data)
 			local pos = #tostring(pado.header) + 1
 			pado.data = data:sub(pos)
-			
+
 			repeat
 				local tag, len, decoded, raw
 				pos, tag, len = bin.unpack(">SS", data, pos)
@@ -503,18 +503,18 @@ PPPoE = {
 				t.decoded = decoded
 				table.insert(pado.tags, t)
 			until( pos >= #data )
-			
+
 			return pado
 		end,
 	},
-	
+
 	PADR = {
-		
+
 		-- Creates a new instance of the PADR class
 		-- @param tags table of <code>PPPoE.Tag</code> instances
-		-- @return o instance of PADR	
+		-- @return o instance of PADR
 		new = function(self, tags)
-			local o = { 
+			local o = {
 				tags = tags or {},
 				header = PPPoE.Header:new(PPPoE.Code.PADR)
 			}
@@ -522,7 +522,7 @@ PPPoE = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Converts the instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -533,20 +533,20 @@ PPPoE = {
 			self.header.length = #tags
 			return tostring(self.header) .. tags
 		end,
-		
+
 	},
-	
+
 	PADS = {
-		
+
 		-- Creates a new instance of the PADS class
-		-- @return o instance of PADS	
+		-- @return o instance of PADS
 		new = function(self)
 			local o = { tags = {} }
 			setmetatable(o, self)
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the class
 		-- @param data string containing raw bytes to parse
 		-- @return o instance of PADS
@@ -559,12 +559,12 @@ PPPoE = {
 		end,
 
 	},
-	
+
 	PADT = {
-		
+
 		-- Creates a new instance of the PADT class
 		-- @param session number containing the PPPoE session
-		-- @return o instance of PADT	
+		-- @return o instance of PADT
 		new = function(self, session)
 			local o = { header = PPPoE.Header:new(PPPoE.Code.PADT) }
 			setmetatable(o, self)
@@ -572,7 +572,7 @@ PPPoE = {
 			self.__index = self
 			return o
 		end,
-	
+
 		-- Parses a byte stream and builds a new instance of the class
 		-- @param data string containing raw bytes to parse
 		-- @return o instance of PADI
@@ -581,22 +581,22 @@ PPPoE = {
 			padt.header = PPPoE.Header.parse(data)
 			return padt
 		end,
-		
+
 		-- Converts the instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
 			return tostring(self.header)
 		end,
 	},
-	
+
 	SessionData = {
-		
+
 		-- Creates a new instance of the SessionData class
 		-- @param session number containing the PPPoE session
 		-- @param data string containing the LCP data to send
-		-- @return o instance of ConfigNak	
+		-- @return o instance of ConfigNak
 		new = function(self, session, data)
-			local o = { 
+			local o = {
 				data = data or "",
 				header = PPPoE.Header:new(PPPoE.Code.SESSION_DATA)
 			}
@@ -605,7 +605,7 @@ PPPoE = {
 			self.__index = self
 			return o
 		end,
-		
+
 		-- Parses a byte stream and builds a new instance of the class
 		-- @param data string containing raw bytes to parse
 		-- @return o instance of SessionData
@@ -616,7 +616,7 @@ PPPoE = {
 			sess.data = data:sub(pos)
 			return sess
 		end,
-		
+
 		-- Converts the instance to string
 		-- @return string containing the raw config option
 		__tostring = function(self)
@@ -624,24 +624,24 @@ PPPoE = {
 			self.header.length = 2 + 4 + #self.data
 			return tostring(self.header) .. bin.pack(">S", 0xC021) .. self.data
 		end,
-		
+
 	}
-	
-	
+
+
 }
 
 -- A bunch of tag decoders
 PPPoE.TagDecoder = {}
 PPPoE.TagDecoder.decodeHex = function(data, pos, len) return pos + len, stdnse.tohex(data:sub(pos, pos+len)) end
 PPPoE.TagDecoder.decodeStr = function(data, pos, len) return pos + len, data:sub(pos, pos + len - 1) end
-PPPoE.TagDecoder[PPPoE.TagType.SERVICE_NAME]= PPPoE.TagDecoder.decodeStr		
+PPPoE.TagDecoder[PPPoE.TagType.SERVICE_NAME]= PPPoE.TagDecoder.decodeStr
 PPPoE.TagDecoder[PPPoE.TagType.AC_NAME] 	= PPPoE.TagDecoder.decodeStr
 PPPoE.TagDecoder[PPPoE.TagType.AC_COOKIE] 	= PPPoE.TagDecoder.decodeHex
 PPPoE.TagDecoder[PPPoE.TagType.HOST_UNIQUE] = PPPoE.TagDecoder.decodeHex
 
 -- The Comm class responsible for communication with the PPPoE server
 Comm = {
-	
+
 	-- Creates a new instance of the Comm class
 	-- @param iface string containing the interface name
 	-- @param src_mac string containing the source MAC address
@@ -657,24 +657,24 @@ Comm = {
 		self.__index = self
 		return o
 	end,
-	
+
 	-- Sets up the pcap receiving socket
 	-- @return status true on success
 	connect = function(self)
 		self.socket = nmap.new_socket()
 		self.socket:set_timeout(10000)
-		
+
 		-- there's probably a more elegant way of doing this
 		local mac = {}
 		for i=1, #self.src_mac do table.insert(mac, select(2,bin.unpack("H", self.src_mac, i))) end
 		mac = stdnse.strjoin(":", mac)
-		
-		-- let's set a filter on PPPoE we can then check what packet is ours, 
+
+		-- let's set a filter on PPPoE we can then check what packet is ours,
 		-- based on the HOST_UNIQUE tag, if we need to
-		self.socket:pcap_open(self.iface, 1500, false, "ether[0x0c:2] == 0x8863 or ether[0x0c:2] == 0x8864 and ether dst " .. mac)	
+		self.socket:pcap_open(self.iface, 1500, false, "ether[0x0c:2] == 0x8863 or ether[0x0c:2] == 0x8864 and ether dst " .. mac)
 		return true
 	end,
-	
+
 	-- Sends a packet
 	-- @param data class containing the request to send
 	-- @return status true on success, false on failure
@@ -682,12 +682,12 @@ Comm = {
 		local eth_type = ( data.header.code == PPPoE.Code.SESSION_DATA ) and 0x8864 or 0x8863
 		local ether = bin.pack(">AAS", self.dst_mac, self.src_mac, eth_type)
 		local p = packet.Frame:new(ether .. tostring(data))
-				
+
 		local sock = nmap.new_dnet()
 		if ( not(sock) ) then
 			return false, "Failed to create raw socket"
 		end
-		
+
 		local status = sock:ethernet_open(self.iface)
 		-- we don't actually need to do this as the script simply crashes
 		-- if we don't have the right permissions at this point
@@ -700,9 +700,9 @@ Comm = {
 			return false, "Failed to send data"
 		end
 		sock:ethernet_close()
-		return true	
+		return true
 	end,
-	
+
 	-- Receive a response from the server
 	-- @return status true on success, false on failure
 	-- @return response class containing the response or
@@ -714,10 +714,10 @@ Comm = {
 		if ( not(status) ) then
 			return false
 		end
-		
+
 		local header = PPPoE.Header.parse(l3)
 		local p = packet.Frame:new(l2..l3)
-	
+
 		-- there's probably a more elegant way of doing this
 		if ( EtherType.PPPOE_DISCOVERY == p.ether_type ) then
 			if ( header.code == PPPoE.Code.PADO ) then
@@ -736,19 +736,19 @@ Comm = {
 		end
 		return false, ("Received unsupported response, can't decode code (%d)"):format(header.code)
 	end,
-	
+
 	-- Does an "exchange", ie, sends a request and waits for a response
 	-- @param data class containing the request to send
 	-- @return status true on success, false on failure
 	-- @return response class containing the response or
 	--         err string on error
-	exch = function(self, data)				
+	exch = function(self, data)
 		local status, err = self:send(data)
 		if ( not(status) ) then
 			return false, err
 		end
 		local retries, resp = 3, nil
-		
+
 		repeat
 			status, resp = self:recv()
 			if ( data.header and 0 == data.header.session ) then
@@ -758,15 +758,15 @@ Comm = {
 			end
 			retries = retries - 1
 		until(retries == 0)
-		
+
 		return false, "Failed to retrieve proper PPPoE response"
 	end,
-	
+
 }
 
 -- The Helper class is the main script interface
 Helper = {
-	
+
 	-- Creates a new instance of Helper
 	-- @param iface string containing the name of the interface to use
 	-- @return o new instance on success, nil on failure
@@ -779,11 +779,11 @@ Helper = {
 		}
 		setmetatable(o, self)
 		self.__index = self
-		
+
 		if ( not(nmap.is_privileged()) ) then
 			return nil, "The PPPoE library requires Nmap to be run in privileged mode"
 		end
-		
+
 		-- get src_mac
 		local info = nmap.get_interface_info(iface)
 		if ( not(info) or not(info.mac) ) then
@@ -792,14 +792,14 @@ Helper = {
 		o.comm = Comm:new(iface, info.mac)
 		return o
 	end,
-	
+
 	-- Sets up the pcap socket for listening and does some other preparations
 	-- @return status true on success, false on failure
 	connect = function(self)
 		return self.comm:connect()
 	end,
-		
-	
+
+
 	-- Performs a PPPoE discovery initiation by sending a PADI request to the
 	-- ethernet broadcast address
 	-- @return status true on success, false on failure
@@ -813,12 +813,12 @@ Helper = {
 		end
 		-- wait for a pado
 		local pado, retries = nil, 3
-		
+
 		repeat
 			status, pado = self.comm:recv()
 			if ( not(status) ) then
 				return status, pado
-			end	
+			end
 			retries = retries - 1
 		until( pado.tags or retries == 0 )
 		if ( not(pado.tags) ) then
@@ -831,7 +831,7 @@ Helper = {
 				pado_host_unique = tag.raw
 			end
 		end
-		
+
 		-- store the tags for later use
 		self.tags = pado.tags
 		self.comm.dst_mac = pado.mac_srv
@@ -846,13 +846,13 @@ Helper = {
 
 		return true, pado
 	end,
-	
+
 	-- Performs a Discovery Request by sending PADR to the PPPoE ethernet
 	-- address
 	-- @return status true on success, false on failure
 	-- @return pads instance of PADS on success
 	discoverRequest = function(self)
-	
+
 		-- remove the AC-Name tag if there is one
 		local function getTag(tag)
 			for _, t in ipairs(self.tags) do
@@ -861,20 +861,20 @@ Helper = {
 				end
 			end
 		end
-		
-		local taglist = { 
+
+		local taglist = {
 			PPPoE.TagType.SERVICE_NAME,
 			PPPoE.TagType.HOST_UNIQUE,
 			PPPoE.TagType.AC_COOKIE
 		}
-	
+
 		local tags = {}
 		for _, t in ipairs(taglist) do
 			if ( getTag(t) ) then
 				table.insert(tags, getTag(t))
 			end
 		end
-	
+
 		local padr = PPPoE.PADR:new(tags)
 		local status, pads = self.comm:exch(padr)
 
@@ -910,7 +910,7 @@ Helper = {
 				end
 			end
 		end
-		
+
 		AuthMethod.byValue = function(value)
 			for _, m in ipairs(AuthMethod.methods) do
 				if ( m.value == value ) then
@@ -918,49 +918,49 @@ Helper = {
 				end
 			end
 		end
-		
+
 		local auth_data = ( AuthMethod.byName(method) and AuthMethod.byName(method).value )
 		if ( not(auth_data) ) then
 			return false, ("Unsupported authentication mode (%s)"):format(method)
 		end
-		
+
 		self.identifier = self.identifier + 1
-		
+
 		-- First do a Configuration Request
 		local options = { LCP.ConfigOption:new(LCP.ConfigOption.MRU, 1492) }
 		local lcp_req = LCP.ConfigRequest:new(self.identifier, options)
 		local sess_req = PPPoE.SessionData:new(self.session, tostring(lcp_req))
 		local status, resp = self.comm:exch(sess_req)
-		
+
 		if ( not(status) or PPPoE.Code.SESSION_DATA ~= resp.header.code ) then
 			return false, "Unexpected packet type was received"
 		end
-		
+
 		-- Make sure we got a Configuration Request in return
-		local lcp_header = LCP.Header.parse(resp.data)				
+		local lcp_header = LCP.Header.parse(resp.data)
 		if ( LCP.Code.CONFIG_REQUEST ~= lcp_header.code ) then
 			return false, ("Unexpected packet type was received (%d)"):format(lcp_header.code)
 		end
-			
+
 		local config_req = LCP.ConfigRequest.parse(resp.data)
 		if ( not(config_req.options) ) then
 			return false, "Failed to retrieve any options from response"
 		end
-		
+
 		local auth_proposed = config_req.options:getById(LCP.ConfigOption.AUTH_PROTO)
-				
+
 		if ( auth_proposed.raw ~= auth_data ) then
 			local options = { LCP.ConfigOption:new(LCP.ConfigOption.AUTH_PROTO, nil, bin.pack("A", auth_data)) }
 			local lcp_req = LCP.ConfigNak:new(self.identifier, options)
 			local sess_req = PPPoE.SessionData:new(self.session, tostring(lcp_req))
 			local status, resp = self.comm:exch(sess_req)
-			
+
 			if ( not(status) or PPPoE.Code.SESSION_DATA ~= resp.header.code ) then
 				return false, "Unexpected packet type was received"
 			end
-			
+
 			-- Make sure we got a Configuration Request in return
-			local lcp_header = LCP.Header.parse(resp.data)				
+			local lcp_header = LCP.Header.parse(resp.data)
 			if ( LCP.Code.CONFIG_REQUEST ~= lcp_header.code ) then
 				return false, ("Unexpected packet type was received (%d)"):format(lcp_header.code)
 			end
@@ -972,26 +972,26 @@ Helper = {
 				-- The ACK is essential the Config Request, only with a different code
 				-- Do a dirty attempt to just replace the code and send the request back as an ack
 				self.identifier = self.identifier + 1
-				
+
 				local lcp_req = LCP.ConfigAck:new(config_req.header.identifier, config_req.options:getTable())
 				local sess_req = PPPoE.SessionData:new(self.session, tostring(lcp_req))
 				local status, resp = self.comm:send(sess_req)
-				
+
 				return true
 			end
-			
+
 			return false, "Authentication method was not accepted"
 		end
 
 
 		return false, "Failed to negotiate authentication mechanism"
 	end,
-	
+
 	-- Sends a LCP Terminate Request and waits for an ACK
 	-- Attempts to do so 10 times before aborting
 	-- @return status true on success false on failure
 	close = function(self)
-		local tries = 10		
+		local tries = 10
 		repeat
 			if ( 0 == self.session ) then
 				break
@@ -1001,20 +1001,20 @@ Helper = {
 			local status, resp = self.comm:exch(sess_req)
 			if ( status and resp.header and resp.header.code ) then
 				if ( PPPoE.Code.SESSION_DATA == resp.header.code ) then
-					local lcp_header = LCP.Header.parse(resp.data) 
+					local lcp_header = LCP.Header.parse(resp.data)
 					if ( LCP.Code.TERMINATE_ACK == lcp_header.code ) then
 						break
 					end
 				end
 			end
 			tries = tries - 1
-		until( tries == 0 )	
-		
+		until( tries == 0 )
+
 		self.comm:exch(PPPoE.PADT:new(self.session))
-		
+
 		return true
 	end,
-	
+
 }
 
 return _ENV;

@@ -12,7 +12,7 @@ Shows NFS exports, like the <code>showmount -e</code> command.
 -- @output
 -- PORT    STATE SERVICE
 -- 111/tcp open  rpcbind
--- | nfs-showmount:  
+-- | nfs-showmount:
 -- |   /home/storage/backup 10.46.200.0/255.255.255.0
 -- |_  /home 1.2.3.4/255.255.255.255 10.46.200.0/255.255.255.0
 --
@@ -70,9 +70,9 @@ end
 
 action = function(host, port)
 
-    local status, mounts, proto 
+    local status, mounts, proto
     local result = {}
-    
+
     if port.service == "mountd" then
       status, mounts = get_exports( host, port )
     else
@@ -88,7 +88,7 @@ action = function(host, port)
         entry = entry .. " " .. stdnse.strjoin(" ", v)
         table.insert( result, entry )
     end
-    
+
     return stdnse.format_output( true, result )
-    
+
 end

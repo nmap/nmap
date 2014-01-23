@@ -41,7 +41,7 @@ _ENV = stdnse.module("rtsp", stdnse.seeall)
 
 -- The RTSP Request object
 Request = {
-	
+
 	--- Creates a new Request instance
 	-- @return o instance of Request
 	new = function(self, url, headers)
@@ -50,53 +50,53 @@ Request = {
         self.__index = self
 		return o
 	end,
-		
+
 	--- Sets the RTSP Request method
 	-- @param method string containing the RTSP method
 	setMethod = function(self, method)
 		self.method = method
 	end,
-	
+
 	--- Sets the RTSP sequence number
 	-- @param cseq number containing the sequence number
 	setCSeq = function(self, cseq)
 		self.cseq = cseq
 	end,
-	
+
 	--- Adds an optional header to the RTSP request
 	-- @param header string containing the header name
 	-- @param value string containing the header value
 	addHeader = function(self, header, value)
 		table.insert( self.headers, { header = value } )
 	end,
-	
+
 	--- Converts the Request to a string
 	--
 	-- @return req string containing the request as a string
 	__tostring = function(self)
 		assert(self.cseq, "Request is missing required header CSeq")
 		assert(self.url, "Request is missing URL")
-		
-		local req = stdnse.strjoin("\r\n", { 
-			("%s %s RTSP/1.0"):format(self.method, self.url), 
+
+		local req = stdnse.strjoin("\r\n", {
+			("%s %s RTSP/1.0"):format(self.method, self.url),
 			("CSeq: %d"):format(self.cseq)
 		} ) .. "\r\n"
 		if ( #self.headers > 0 ) then
 			req = req .. stdnse.strjoin("\r\n", self.headers) .. "\r\n"
 		end
-		
+
 		return req .. "\r\n"
-	end,	
+	end,
 }
 
 -- The RTSP response instance
 Response = {
-	
+
 	--- Creates a new Response instance
-	-- @param data string containing the unparsed data 
+	-- @param data string containing the unparsed data
 	new = function(self, data)
 		assert(data, "No data was supplied")
-		local o = { 
+		local o = {
 			raw = data,
 			status = tonumber(data:match("^RTSP%/1%.0 (%d*) "))
 		 }
@@ -104,7 +104,7 @@ Response = {
 		-- Split the response into a temporary array
 		local tmp = stdnse.strsplit("\r\n", data)
 		if ( not(tmp) )	then return nil end
-		
+
 		-- we should have atleas one entry
 		if ( #tmp > 1 ) then
 			o.headers = {}
@@ -121,19 +121,19 @@ Response = {
         self.__index = self
 		return o
 	end,
-		
+
 }
 
 
 -- RTSP Client class
 Client = {
-	
+
 	-- Creates a new Client instance
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
 	-- @return o instance of Client
 	new = function(self, host, port)
-		local o = { 
+		local o = {
 			host = host,
 			port = port,
 			cseq = 0,
@@ -145,22 +145,22 @@ Client = {
         self.__index = self
 		return o
 	end,
-	
+
 	--- Sets the number of retries for socket reads
 	-- @param retries number containing the number of retries
 	setRetries = function(self, retries) self.retries = retries end,
-	
+
 	--- Sets the socket connection timeout in ms
 	-- @param timeout number containing the timeout in ms
 	setTimeout = function(self, timeout) self.timeout = timeout end,
-	
+
 	--- Adds a RTSP header to the request
 	-- @param header string containing the header name
 	-- @param value string containing the header value
 	addHeader = function(self, header, value)
 		table.insert(self.headers, { ("%s: %s"):format(header,value) } )
 	end,
-	
+
 	--- Connects to the RTSP server
 	-- @return status true on success, false on failure
 	-- @return err string containing the error message on failure
@@ -173,8 +173,8 @@ Client = {
 			return false, ("Failed to connect to the server: %s"):format(self.host.ip)
 		end
 		return true
-	end,	
-	
+	end,
+
 	--- Sends a DESCRIBE request to the server and receives the response
 	-- @param url string containing the RTSP URL
 	-- @return status true on success, false on failure
@@ -185,15 +185,15 @@ Client = {
 		req:setMethod("DESCRIBE")
 		return self:exch(req)
 	end,
-	
+
 	options = function(self, url)
 		local req = Request:new(url, self.headers)
 		req:setMethod("OPTIONS")
 		return self:exch(req)
 	end,
-	
+
 	--- Sends a request to the server and receives the response and attempts
-	--  to retry if either send or receive fails. 
+	--  to retry if either send or receive fails.
 	-- @param request instance of Request
 	-- @return status true on success, false on failure
 	-- @return response Response instance on success
@@ -203,7 +203,7 @@ Client = {
 		local status, data
 		self.cseq = self.cseq + 1
 		req:setCSeq( self.cseq )
-		
+
 		repeat
 			local err
 			status, err = self.socket:send( tostring(req) )
@@ -217,7 +217,7 @@ Client = {
 				status, data = self.socket:receive()
 				-- if we got the response allright, break out of retry loop
 				if ( status ) then break end
-			end			
+			end
 			-- if either send or receive fails, re-connect the socket
 			if ( not(status) ) then
 				self:close()
@@ -227,7 +227,7 @@ Client = {
 					stdnse.print_debug(2, "Failed to reconnect socket to server (%s)", err)
 					return false, ("Failed to reconnect socket to server (%s)"):format(err)
 				end
-			end	
+			end
 			retries = retries - 1
 		until( status or retries == 0 )
 
@@ -235,20 +235,20 @@ Client = {
 			stdnse.print_debug(2, "Failed to receive response from server (%s)", data)
 			return false, ("Failed to receive response from server (%s)"):format(data)
 		end
-			
+
 		return true, Response:new(data)
 	end,
-		
+
 	--- Closes the RTSP socket with the server
 	close = function(self)
 		return self.socket:close()
 	end,
-	
+
 }
 
 -- The Helper class is the main script interface
 Helper = {
-	
+
 	-- Creates a new Helper instance
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
@@ -259,19 +259,19 @@ Helper = {
         self.__index = self
 		return o
 	end,
-	
+
 	-- Connects to the RTSP server
 	-- @return status true on success, false on failure
 	-- @return err string containing the error message on failure
 	connect = function(self)
 		return self.client:connect()
 	end,
-	
+
 	-- Closes the RTSP socket with the server
 	close = function(self)
 		return self.client:close()
 	end,
-	
+
 	-- Sends a DESCRIBE request to the server and receives the response
 	--
 	-- @param url string containing the RTSP URL
@@ -281,11 +281,11 @@ Helper = {
 	describe = function(self, url)
 		return self.client:describe(url)
 	end,
-	
+
 	options = function(self, url)
 		return self.client:options(url)
 	end,
-	
+
 }
 
 return _ENV;

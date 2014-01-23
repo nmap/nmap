@@ -15,7 +15,7 @@ discovered and published by Kingcope
 (http://seclists.org/fulldisclosure/2012/Dec/9).
 
 Server version 5.x are succeptible to an user enumeration
-attack due to different messages during login when using 
+attack due to different messages during login when using
 old authentication mechanism from versions 4.x and earlier.
 
 ]]
@@ -78,15 +78,15 @@ Driver = {
 			return false,brute.Error:new(response)
 		end
 		stdnse.print_debug( "Trying %s ...", pass)
-		local auth_string = bin.pack("H","0000018d00000000") .. pass .. bin.pack("H","00504e5f5155454d4500"); -- old authentication method 
+		local auth_string = bin.pack("H","0000018d00000000") .. pass .. bin.pack("H","00504e5f5155454d4500"); -- old authentication method
 		local err
 		status, err = self.socket:send(bin.pack("c",string.len(auth_string)-3) .. auth_string) --send initial auth
 		status, response = self.socket:receive_bytes(0)
 		if not status then
 			return false,brute.Error:new( "Incorrect username" )
-		end        
+		end
 		if string.find(response,"Access denied for user") == nil then
-			-- found it 
+			-- found it
 			return true, brute.Account:new( pass, nil, creds.State.VALID)
 		else
 			return false,brute.Error:new( "Incorrect username" )

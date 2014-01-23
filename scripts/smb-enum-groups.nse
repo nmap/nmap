@@ -5,20 +5,20 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Obtains a list of groups from the remote Windows system, as well as a list of the group's users. 
-This works similarly to <code>enum.exe</code> with the <code>/G</code> switch. 
+Obtains a list of groups from the remote Windows system, as well as a list of the group's users.
+This works similarly to <code>enum.exe</code> with the <code>/G</code> switch.
 
 The following MSRPC functions in SAMR are used to find a list of groups and the RIDs of their users. Keep
-in mind that MSRPC refers to groups as "Aliases". 
+in mind that MSRPC refers to groups as "Aliases".
 
 * <code>Bind</code>: bind to the SAMR service.
 * <code>Connect4</code>: get a connect_handle.
 * <code>EnumDomains</code>: get a list of the domains.
-* <code>LookupDomain</code>: get the RID of the domains. 
+* <code>LookupDomain</code>: get the RID of the domains.
 * <code>OpenDomain</code>: get a handle for each domain.
 * <code>EnumDomainAliases</code>: get the list of groups in the domain.
 * <code>OpenAlias</code>: get a handle to each group.
-* <code>GetMembersInAlias</code>: get the RIDs of the members in the groups. 
+* <code>GetMembersInAlias</code>: get the RIDs of the members in the groups.
 * <code>Close</code>: close the alias handle.
 * <code>Close</code>: close the domain handle.
 * <code>Close</code>: close the connect handle.
@@ -26,12 +26,12 @@ in mind that MSRPC refers to groups as "Aliases".
 Once the RIDs have been termined, the
 * <code>Bind</code>: bind to the LSA service.
 * <code>OpenPolicy2</code>: get a policy handle.
-* <code>LookupSids2</code>: convert SIDs to usernames. 
+* <code>LookupSids2</code>: convert SIDs to usernames.
 
-I (Ron Bowes) originally looked into the possibility of using the SAMR function <code>LookupRids2</code> 
-to convert RIDs to usernames, but the function seemed to return a fault no matter what I tried. Since 
-enum.exe also switches to LSA to convert RIDs to usernames, I figured they had the same issue and I do 
-the same thing. 
+I (Ron Bowes) originally looked into the possibility of using the SAMR function <code>LookupRids2</code>
+to convert RIDs to usernames, but the function seemed to return a fault no matter what I tried. Since
+enum.exe also switches to LSA to convert RIDs to usernames, I figured they had the same issue and I do
+the same thing.
 ]]
 
 ---

@@ -17,7 +17,7 @@ anonymous identity if no argument is passed.
 --
 -- @output
 -- Pre-scan script results:
--- | eap-info: 
+-- | eap-info:
 -- | Available authentication methods with identity="anonymous" on interface eth2
 -- |   true     PEAP
 -- |   true     EAP-TTLS
@@ -72,7 +72,7 @@ action = function()
 	-- failed
 	if not iface then
 		return "please specify an interface with -e"
-	end	    
+	end
 	stdnse.print_debug(1, "iface: %s", iface.device)
 
 	local timeout = (arg_timeout or 10) * 1000
@@ -94,7 +94,7 @@ action = function()
 		scan = default_scan
 	else
 		scan = arg_scan
-	end	    
+	end
 
 	local valid = false
 	for i,v in ipairs(scan) do
@@ -113,15 +113,15 @@ action = function()
 	local tried_all = false
 
 	local start_time = nmap.clock_ms()
-	eap.send_start(iface)	   
+	eap.send_start(iface)
 
 	while(nmap.clock_ms() - start_time < timeout) and not tried_all do
-		local status, plen, l2_data, l3_data, time = pcap:pcap_receive()		
+		local status, plen, l2_data, l3_data, time = pcap:pcap_receive()
 		if (status) then
 			stdnse.print_debug(2, "packet size: 0x%x", plen )
 			local packet = eap.parse(l2_data .. l3_data)
 
-			if packet then	      
+			if packet then
 				stdnse.print_debug(2, "packet valid")
 
 				-- respond to identity requests, using the same session id
@@ -136,13 +136,13 @@ action = function()
 					identity.auth[packet.eap.type] = true
 
 					identity.probe = -1
-					for i,v in pairs(identity.auth) do 
+					for i,v in pairs(identity.auth) do
 						stdnse.print_debug(1, "identity.auth: %d %s",i,tostring(v))
 						if v == UNKNOWN then
 							identity.probe = i
 							eap.send_nak_response(iface, packet.eap.id, i)
 							break
-						end		    
+						end
 					end
 					if identity.probe == -1 then tried_all = true end
 				end
@@ -156,36 +156,36 @@ action = function()
 					-- mac spoofing to avoid to wait too much
 					local d = string.byte(iface.mac,6)
 					d = (d + 1) % 256
-					iface.mac = iface.mac:sub(1,5) .. bin.pack("C",d)			 
+					iface.mac = iface.mac:sub(1,5) .. bin.pack("C",d)
 
 					tried_all = true
-					for i,v in pairs(identity.auth) do 
+					for i,v in pairs(identity.auth) do
 						if v == UNKNOWN then
 							tried_all = false
 							break
 						end
-					end			 
-					if not tried_all then
-						eap.send_start(iface) 
 					end
-				end		      
+					if not tried_all then
+						eap.send_start(iface)
+					end
+				end
 
 			else
 				stdnse.print_debug(1, "packet invalid! wrong filter?")
-			end				   
+			end
 		end
 	end
 
 	local results = { ["name"] = ("Available authentication methods with identity=\"%s\" on interface %s"):format(identity.name, iface.device) }
 	for i,v in pairs(identity.auth) do
-		if v== true then		   
+		if v== true then
 			table.insert(results, 1, ("%-8s %s"):format(tostring(v), eap.eap_str[i] or "unassigned" ))
 		else
 			table.insert(results, ("%-8s %s"):format(tostring(v), eap.eap_str[i] or "unassigned" ))
 		end
 	end
 
-	for i,v in ipairs(results) do			 
+	for i,v in ipairs(results) do
 		stdnse.print_debug(1, "%s", tostring(v))
 	end
 

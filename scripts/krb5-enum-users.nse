@@ -27,7 +27,7 @@ It needs a valid Kerberos REALM in order to operate.
 -- @output
 -- PORT   STATE SERVICE      REASON
 -- 88/tcp open  kerberos-sec syn-ack
--- | krb5-enum-users: 
+-- | krb5-enum-users:
 -- | Discovered Kerberos principals
 -- |     administrator@test
 -- |     mysql@test
@@ -122,9 +122,9 @@ KRB5 = {
 		["A6"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
 		["A7"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
 		["A8"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
-		["A9"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,	
-		["AA"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,	
-		["AC"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,	
+		["A9"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
+		["AA"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
+		["AC"] = function( ... ) return KRB5.tagDecoder["6B"](...) end,
 
 	},
 
@@ -152,7 +152,7 @@ KRB5 = {
 	-- Encodes a sequence using a custom type
 	-- @param encoder class containing an instance of a ASN1Encoder
 	-- @param seqtype number the sequence type to encode
-	-- @param seq string containing the sequence to encode 
+	-- @param seq string containing the sequence to encode
 	encodeSequence = function(self, encoder, seqtype, seq)
 		return encoder:encode( { _type = seqtype, seq } )
 	end,
@@ -166,7 +166,7 @@ KRB5 = {
 		local princ = ""
 
 		for _, n in ipairs(names) do
-			princ = princ .. encoder:encode( { _type = 'GeneralString', n } ) 
+			princ = princ .. encoder:encode( { _type = 'GeneralString', n } )
 		end
 
 		princ = self:encodeSequence(encoder, 0x30, princ)
@@ -308,21 +308,21 @@ local function checkUser( host, port, realm, user )
 
 	socket:send(data)
 	status, data = socket:receive()
-	
+
 	if ( port.protocol == 'tcp' ) then data = data:sub(5) end
-	
+
 	if ( not(status) ) then
 		return false, "ERROR: Failed to receive result from Kerberos service"
 	end
 	socket:close()
-	
+
 	local msg
 	status, msg = krb5:parseResult(data)
 
 	if ( not(status) ) then
 		return false, "ERROR: Failed to parse the result returned from the Kerberos service"
 	end
-	
+
 	if ( msg and msg.error_code ) then
 		if ( msg.error_code == KRB5.ErrorMessages['KRB5KDC_ERR_PREAUTH_REQUIRED'] ) then
 			return true, "VALID"
@@ -379,14 +379,14 @@ action = function( host, port )
 	-- load our user database from unpwdb
 	local status, usernames = unpwdb.usernames()
 	if( not(status) ) then return "ERROR: Failed to load unpwdb usernames" end
-		
+
 	-- start as many threads as there are names in the list
 	local threads = {}
 	for user in usernames do
 		local co = stdnse.new_thread( checkUserThread, host, port, realm, user, result )
 		threads[co] = true
 	end
-	
+
 	-- wait for all threads to finish up
 	repeat
 		for t in pairs(threads) do
@@ -396,7 +396,7 @@ action = function( host, port )
 			condvar "wait"
 		end
 	until( next(threads) == nil )
-	
+
 	if ( #result > 0 ) then
 		result = { name = "Discovered Kerberos principals", result }
 	end

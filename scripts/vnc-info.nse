@@ -15,7 +15,7 @@ categories = {"default", "discovery", "safe"}
 -- @output
 -- PORT    STATE SERVICE
 -- 5900/tcp open  vnc
--- | vnc-info:  
+-- | vnc-info:
 -- |   Protocol version: 3.889
 -- |   Security types:
 -- |     Mac OS X security type (30)
@@ -47,10 +47,10 @@ action = function(host, port)
 	local vnc = vnc.VNC:new( host.ip, port.number )
 	local status, data
 	local result = stdnse.output_table()
-	
+
 	status, data = vnc:connect()
 	if ( not(status) ) then	return "  \n  ERROR: " .. data end
-	
+
 	status, data = vnc:handshake()
 	if ( not(status) ) then	return "  \n  ERROR: " .. data end
 
@@ -62,10 +62,10 @@ action = function(host, port)
 	if ( data and #data ~= 0 ) then
 		result["Security types"] = data
 	end
-	
+
 	if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
 		result["WARNING"] = "Server does not require authentication"
 	end
-	
+
 	return result
 end

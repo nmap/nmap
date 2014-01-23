@@ -33,7 +33,7 @@ _ENV = stdnse.module("imap", stdnse.seeall)
 
 
 IMAP = {
-	
+
 	--- Creates a new instance of the IMAP class
 	--
 	-- @param host table as received by the script action method
@@ -42,17 +42,17 @@ IMAP = {
 	--		<code>timeout<code> - 	number containing the seconds to wait for
 	--								a response
 	new = function(self, host, port, options)
-		local o = { 
+		local o = {
 				host = host,
 				port = port,
-				counter = 1, 
-				timeout = ( options and options.timeout ) or 10000 
+				counter = 1,
+				timeout = ( options and options.timeout ) or 10000
 		}
        	setmetatable(o, self)
         self.__index = self
 		return o
 	end,
-	
+
 	--- Receives a response from the IMAP server
 	--
 	-- @return status true on success, false on failure
@@ -64,10 +64,10 @@ IMAP = {
 			if( not(status) ) then return false, tmp end
 			data = data .. tmp
 		until( tmp:match(("^A%04d"):format(self.counter - 1)) or tmp:match("^%+"))
-		
+
 		return true, data
 	end,
-	
+
 	--- Sends a request to the IMAP server
 	--
 	-- @param cmd string containing the command to send to the server eg.
@@ -87,7 +87,7 @@ IMAP = {
 		self.counter = self.counter + 1
 		return true
 	end,
-	
+
 	--- Connect to the server
 	--
 	-- @return status true on success, false on failure
@@ -100,7 +100,7 @@ IMAP = {
 		self.socket = socket
 		return true, banner
 	end,
-		
+
 	--- Authenticate to the server (non PLAIN text mode)
 	-- Currently supported algorithms are CRAM-MD5 and CRAM-SHA1
 	--
@@ -113,26 +113,26 @@ IMAP = {
 	authenticate = function(self, username, pass, mech)
 		assert( mech == "NTLM" or
 				mech == "DIGEST-MD5" or
-				mech == "CRAM-MD5" or 
+				mech == "CRAM-MD5" or
 				mech == "PLAIN",
 				"Unsupported authentication mechanism")
-		
+
 		local status, err = self:send("AUTHENTICATE", mech)
 
 		if( not(status) ) then return false, "ERROR: Failed to send data" end
 
 		local status, data = self:receive()
 		if( not(status) ) then return false, "ERROR: Failed to receive challenge" end
-		
+
 		if ( mech == "NTLM" ) then
 			-- sniffed of the wire, seems to always be the same
 			-- decodes to some NTLMSSP blob greatness
 			status, data = self.socket:send("TlRMTVNTUAABAAAAB7IIogYABgA3AAAADwAPACgAAAAFASgKAAAAD0FCVVNFLUFJUi5MT0NBTERPTUFJTg==\r\n")
 			if ( not(status) ) then return false, "ERROR: Failed to send NTLM packet" end
 			status, data = self:receive()
-			if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end 
+			if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end
 		end
-		
+
 		if ( data:match(("^A%04d "):format(self.counter-1)) ) then
 			return false, "ERROR: Authentication mechanism not supported"
 		end
@@ -142,19 +142,19 @@ IMAP = {
 			return false, "ERROR: Failed to receive proper response from server"
 		end
 		data = base64.dec(data:match("^+ (.*)"))
-		
+
 		-- All mechanisms expect username and pass
 		-- add the otheronce for those who need them
 		local mech_params = { username, pass, data, "imap" }
 		auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
 		auth_data = base64.enc(auth_data) .. "\r\n"
-			
+
 		status, data = self.socket:send(auth_data)
 		if( not(status) ) then return false, "ERROR: Failed to send data" end
 
 		status, data = self:receive()
 		if( not(status) ) then return false, "ERROR: Failed to receive data" end
-	
+
 		if ( mech == "DIGEST-MD5" ) then
 			local rspauth = data:match("^+ (.*)")
 			if ( rspauth ) then
@@ -168,7 +168,7 @@ IMAP = {
 		end
 		return false, "Login failed"
 	end,
-	
+
 	--- Login to the server using PLAIN text authentication
 	--
 	-- @param username string containing the username
@@ -178,16 +178,16 @@ IMAP = {
 	login = function(self, username, password)
 		local status, err = self:send("LOGIN", ("\"%s\" \"%s\""):format(username, password))
 		if( not(status) ) then return false, "ERROR: Failed to send data" end
-		
+
 		local status, data = self:receive()
 		if( not(status) ) then return false, "ERROR: Failed to receive data" end
-			
+
 		if ( data:match(("^A%04d OK"):format(self.counter - 1)) ) then
 			return true
 		end
 		return false, "Login failed"
 	end,
-	
+
 	--- Retrieves a list of server capabilities (eg. supported authentication
 	--  mechanisms, QUOTA, UIDPLUS, ACL ...)
 	--
@@ -198,11 +198,11 @@ IMAP = {
 		local proto = (self.port.version and self.port.version.service_tunnel == "ssl" and "ssl") or "tcp"
 		local status, err = self:send("CAPABILITY")
 		if( not(status) ) then return false, err end
-	   
+
 		local status, line = self:receive()
 		if (not(status)) then
 			capas.CAPABILITY = false
-		else 
+		else
 			while status do
 				if ( line:match("^%*%s+CAPABILITY") ) then
 		    		line = line:gsub("^%*%s+CAPABILITY", "")
@@ -216,17 +216,17 @@ IMAP = {
 	   end
 	   return true, capas
 	end,
-	
+
 	--- Closes the connection to the IMAP server
 	-- @return true on success, false on failure
 	close = function(self) return self.socket:close() end
-	
+
 }
 
 
 -- The helper class, that servers as interface to script writers
 Helper = {
-	
+
 	-- @param host table as received by the script action method
 	-- @param port table as received by the script action method
 	-- @param options table containing options, currently
@@ -238,13 +238,13 @@ Helper = {
         self.__index = self
 		return o
 	end,
-	
+
 	--- Connects to the IMAP server
 	-- @return status true on success, false on failure
 	connect = function(self)
 		return self.client:connect()
 	end,
-	
+
 	--- Login to the server using eithe plain-text or using the authentication
 	-- mechanism provided in the mech argument.
 	--
@@ -259,7 +259,7 @@ Helper = {
 			return self.client:authenticate(username, password, mech)
 		end
 	end,
-	
+
 	--- Retrieves a list of server capabilities (eg. supported authentication
 	--  mechanisms, QUOTA, UIDPLUS, ACL ...)
 	--
@@ -268,13 +268,13 @@ Helper = {
 	capabilities = function(self)
 		return self.client:capabilities()
 	end,
-	
+
 	--- Closes the connection to the IMAP server
 	-- @return true on success, false on failure
 	close = function(self)
 		return self.client:close()
 	end,
-	
+
 }
 
 return _ENV;

@@ -22,12 +22,12 @@ This works by sending a PIM Hello message to the PIM multicast address
 --@usage
 -- nmap --script broadcast-pim-discovery
 --
--- nmap --script broadcast-pim-discovery -e eth1 
+-- nmap --script broadcast-pim-discovery -e eth1
 --  --script-args 'broadcast-pim-discovery.timeout=10'
 --
 --@output
 -- Pre-scan script results:
--- | broadcast-pim-discovery: 
+-- | broadcast-pim-discovery:
 -- |   172.16.0.12
 -- |   172.16.0.31
 -- |   172.16.0.44
@@ -40,7 +40,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe", "broadcast"}
 
-prerule = function() 
+prerule = function()
     if nmap.address_family() ~= 'inet' then
 	stdnse.print_verbose("%s is IPv4 only.", SCRIPT_NAME)
 	return false
@@ -53,7 +53,7 @@ prerule = function()
 end
 
 -- Generates a raw PIM Hello message.
---@return hello Raw PIM Hello message 
+--@return hello Raw PIM Hello message
 local helloRaw = function()
     -- Version: 2, Type: Hello (0)
     local hello_raw = bin.pack(">C", 0x20)
@@ -73,7 +73,7 @@ local helloRaw = function()
     -- Calculate checksum
     hello_raw = hello_raw:sub(1,2) .. bin.pack(">S", packet.in_cksum(hello_raw)) .. hello_raw:sub(5)
 
-    return hello_raw 
+    return hello_raw
 end
 
 -- Sends a PIM Hello message.
@@ -84,7 +84,7 @@ local helloQuery = function(interface, dstip)
     local srcip = interface.address
 
     local hello_raw = helloRaw()
-    local ip_raw = bin.pack("H", "45c00040ed780000016718bc0a00c8750a00c86b") .. hello_raw 
+    local ip_raw = bin.pack("H", "45c00040ed780000016718bc0a00c8750a00c86b") .. hello_raw
     hello_packet = packet.Packet:new(ip_raw, ip_raw:len())
     hello_packet:ip_set_bin_src(ipOps.ip_to_str(srcip))
     hello_packet:ip_set_bin_dst(ipOps.ip_to_str(dstip))
@@ -157,9 +157,9 @@ action = function()
     local mcast = "224.0.0.13"
 
     -- Get the network interface to use
-    local interface = nmap.get_interface() 
+    local interface = nmap.get_interface()
     if interface then
-	interface = nmap.get_interface_info(interface) 
+	interface = nmap.get_interface_info(interface)
     else
 	interface = getInterface(mcast)
     end
@@ -180,7 +180,7 @@ action = function()
 
     if #responses > 0 then
 	table.sort(responses)
-	if target.ALLOW_NEW_TARGETS then 
+	if target.ALLOW_NEW_TARGETS then
 	    for _, response in pairs(responses) do
 		target.add(response)
 	    end

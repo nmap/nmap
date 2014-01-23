@@ -16,7 +16,7 @@ Retrieves version and database information from a SAP Max DB database.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 7210/tcp open  maxdb   syn-ack
--- | maxdb-info: 
+-- | maxdb-info:
 -- |   Version: 7.8.02
 -- |   Build: DBMServer 7.8.02   Build 021-121-242-175
 -- |   OS: UNIX
@@ -48,7 +48,7 @@ local function exchPacket(socket, packet)
 		stdnse.print_debug(2, "Failed to send packet to server")
 		return false, "Failed to send packet to server"
 	end
-	
+
 	local data
 	status, data= socket:receive()
 	if ( not(status) ) then
@@ -56,7 +56,7 @@ local function exchPacket(socket, packet)
 		return false, "Failed to read packet from server"
 	end
 	local pos, len = bin.unpack("<S", data)
-	
+
 	-- make sure we've got it all
 	if ( len ~= #data ) then
 		local tmp
@@ -98,7 +98,7 @@ end
 --         <code>SWAP</code>, <code>UNICODE</code>, <code>INSTANCE</code>,
 --         <code>SYSNAME</code>, <code>MASKING</code>,
 --         <code>REPLYTREATMENT</code> and <code>SDBDBM_IPCLOCATION</code>
-local function parseVersion(data)	
+local function parseVersion(data)
 	local version_info = {}
 	if ( #data > 27 ) then
 		for _, line in ipairs(stdnse.strsplit("\n", data:sub(28))) do
@@ -131,7 +131,7 @@ action = function(host, port)
 	local handshake   = "5a000000035b000001000000ffffffff000004005a000000000242000409000000400000d03f00000040000070000000000500000004000000020000000300000749343231360004501c2a035201037201097064626d73727600"
 	local dbm_version = "28000000033f000001000000ac130000000004002800000064626d5f76657273696f6e2020202020"
 	local db_enum     = "20000000033f000001000000ac130000000004002000000064625f656e756d20"
-	
+
 	local socket = nmap.new_socket()
 	socket:set_timeout(10000)
 	local status, err = socket:connect(host, port)
@@ -146,12 +146,12 @@ action = function(host, port)
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to request version information from server"
 	end
-	
+
 	local version_info = parseVersion(data)
 	if ( not(version_info) ) then
 		return "\n  ERROR: Failed to parse version information from server"
 	end
-	
+
 	local result, filter = {}, {"Version", "Build", "OS", "Instroot", "Sysname"}
 	for _, f in ipairs(filter) do
 		table.insert(result, ("%s: %s"):format(f, version_info[f:upper()]))
@@ -164,13 +164,13 @@ action = function(host, port)
 	end
 	local dbs = parseDatabases(data)
 	table.insert(result, { name = "Databases", dbs } )
-	
+
 	-- set the version information
 	port.version.name = "maxdb"
 	port.version.product = "SAP MaxDB"
 	port.version.version = version_info.VERSION
 	port.version.ostype = version_info.SYSNAME
 	nmap.set_port_version(host, port)
-	
+
 	return stdnse.format_output(true, result)
 end

@@ -14,13 +14,13 @@ optional directory of an Apache JServ Protocol server and returns the server res
 -- @output
 -- PORT     STATE SERVICE
 -- 8009/tcp open  ajp13
--- | ajp-headers: 
+-- | ajp-headers:
 -- |   X-Powered-By: JSP/2.2
 -- |   Set-Cookie: JSESSIONID=goTHax+8ktEcZsBldANHBAuf.undefined; Path=/helloworld
 -- |   Content-Type: text/html;charset=ISO-8859-1
 -- |_  Content-Length: 149
 --
--- @args ajp-headers.path The path to request, such as <code>/index.php</code>. Default <code>/</code>. 
+-- @args ajp-headers.path The path to request, such as <code>/index.php</code>. Default <code>/</code>.
 
 
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
@@ -40,7 +40,7 @@ action = function(host, port)
 
 	local status, response = helper:get(arg_path)
 	helper:close()
-	
+
 	if ( not(status) ) then
 		return fail("Failed to retrieve server headers")
 	end

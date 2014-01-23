@@ -88,7 +88,7 @@ action = function(host, port)
         else
           answer = nil
         end
-      else 
+      else
         answer = nil
       end
     end
@@ -108,10 +108,10 @@ action = function(host, port)
       result = match
     else
       if nmap.verbosity() > 0 then
-        result = "Unknown favicon MD5: " .. md5sum 
+        result = "Unknown favicon MD5: " .. md5sum
       end
     end
-  else    
+  else
     stdnse.print_debug( 1, "No favicon found.")
     return
   end --- status == 200

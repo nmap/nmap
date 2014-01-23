@@ -17,7 +17,7 @@ content filtering and antivirus scanning.
 -- @output
 -- PORT     STATE SERVICE
 -- 1344/tcp open  unknown
--- | icap-info: 
+-- | icap-info:
 -- |   /avscan
 -- |     Service: C-ICAP/0.1.6 server - Clamav/Antivirus service
 -- |     ISTag: CI0001-000-0973-6314940
@@ -46,7 +46,7 @@ local function parseResponse(resp)
 	if ( not(resp) ) then
 		return
 	end
-	
+
 	local resp_p = { header = {}, rawheader = {} }
 	local resp_tbl = stdnse.strsplit("\r?\n", resp)
 
@@ -57,7 +57,7 @@ local function parseResponse(resp)
 
 	resp_p.status = tonumber(resp_tbl[1]:match("^ICAP/1%.0 (%d*) .*$"))
 	resp_p['status-line'] = resp_tbl[1]
-	
+
 	for i=2, #resp_tbl do
 		local key, val = resp_tbl[i]:match("^([^:]*):%s*(.*)$")
 		if ( not(key) or not(val) ) then
@@ -71,7 +71,7 @@ local function parseResponse(resp)
 end
 
 action = function(host, port)
-	
+
 	local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap" }
 	local headers = {"Service", "ISTag"}
 	local probe = {
@@ -82,21 +82,21 @@ action = function(host, port)
 	}
 	local hostname = stdnse.get_hostname(host)
 	local result = {}
-	
+
 	for _, service in ipairs(services) do
 		local socket = nmap.new_socket()
 		socket:set_timeout(5000)
 		if ( not(socket:connect(host, port)) ) then
 			return fail("Failed to connect to server")
 		end
-		
+
 		local request = (stdnse.strjoin("\r\n", probe) .. "\r\n\r\n"):format(hostname, service, hostname)
-	
+
 		if ( not(socket:send(request)) ) then
 			socket:close()
 			return fail("Failed to send request to server")
 		end
-		
+
 		local status, resp = socket:receive_buf("\r\n\r\n", false)
 		if ( not(status) ) then
 			return fail("Failed to receive response from server")

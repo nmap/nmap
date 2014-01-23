@@ -24,11 +24,11 @@ of that, this list is rarely traversed in whole because:
     * the MTU of the outgoing interface is used as a starting point, and
     * we can jump down the list when an intermediate router sending a
       "can't fragment" message includes its next hop MTU (as described
-      in RFC 1191 and required by RFC 1812) 
+      in RFC 1191 and required by RFC 1812)
 ]]
 
 ---
--- @usage 
+-- @usage
 -- nmap --script path-mtu target
 --
 -- @output

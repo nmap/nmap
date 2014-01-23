@@ -50,12 +50,12 @@ ASN1Decoder = {
 	setStopOnError = function(self, val)
 		self.stoponerror = val
 	end,
-		
+
 	--- Registers the base simple type decoders
-	-- 
+	--
 	registerBaseDecoders = function(self)
 		self.decoder = {}
-	
+
 		-- Boolean
 		self.decoder["01"] = function( self, encStr, elen, pos )
 			local val = bin.unpack("H", encStr, pos)
@@ -85,7 +85,7 @@ ASN1Decoder = {
 		self.decoder["06"] = function( self, encStr, elen, pos )
 			return self:decodeOID( encStr, elen, pos )
 		end
-		
+
 		-- Context specific tags
 		--
 		self.decoder["30"] = function( self, encStr, elen, pos )
@@ -104,7 +104,7 @@ ASN1Decoder = {
 	end,
 
 	--- Decodes the ASN.1's built-in simple types
-	-- 
+	--
 	-- @param encStr Encoded string.
 	-- @param pos Current position in the string.
 	-- @return The position after decoding
@@ -169,7 +169,7 @@ ASN1Decoder = {
 	   end
 	   return pos, seq
 	end,
-	
+
 	-- Decode one component of an OID from a byte string. 7 bits of the component
 	-- are stored in each octet, most significant first, with the eigth bit set in
 	-- all octets but the last. These encoding rules come from
@@ -186,7 +186,7 @@ ASN1Decoder = {
 
 	   return pos, n
 	end,
-	
+
 	--- Decodes an OID from a sequence of bytes.
 	--
 	-- @param encStr Encoded string.
@@ -216,7 +216,7 @@ ASN1Decoder = {
 
 	   return pos, oid
 	end,
-	
+
 	---
 	-- Decodes length part of encoded value according to ASN.1 basic encoding
 	-- rules.
@@ -240,7 +240,7 @@ ASN1Decoder = {
 	   end
 	   return pos, elen
 	end,
-	
+
 	---
 	-- Decodes an Integer according to ASN.1 basic encoding rules.
 	-- @param encStr Encoded string.
@@ -257,7 +257,7 @@ ASN1Decoder = {
 	   end
 	   return pos, value
 	end,
-	
+
 	---
 	-- Decodes an SNMP packet or a part of it according to ASN.1 basic encoding
 	-- rules.
@@ -270,7 +270,7 @@ ASN1Decoder = {
 	   _, result = self:decode(encStr, pos)
 	   return result
 	end,
-	
+
 }
 
 --- The encoder class
@@ -288,7 +288,7 @@ ASN1Encoder = {
 	---
 	-- Encodes an ASN1 sequence, the value of 30 below breaks down as
 	-- 0x30  = 00110000 =  00          1                   10000
-	-- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)  
+	-- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)
 	encodeSeq = function(self, seqData)
 		return bin.pack('HAA' , '30', self.encodeLength(#seqData), seqData)
 	end,
@@ -309,7 +309,7 @@ ASN1Encoder = {
 
 		return ''
 	end,
-	
+
 	--- Allows for registration of additional tag encoders
 	--
 	-- @param tagEncoders table containing encoding functions @see tagEncoders
@@ -319,20 +319,20 @@ ASN1Encoder = {
 			self.encoder[k] = v
 		end
 	end,
-	
+
 	-- ASN.1 Simple types encoders
 	registerBaseEncoders = function(self)
 		self.encoder = {}
 
 		-- Bolean encoder
 		self.encoder['boolean'] = function( self, val )
-			if val then 
+			if val then
 	    		return bin.pack('H','01 01 FF')
-			else 
+			else
 	    		return bin.pack('H', '01 01 00')
 			end
 		end
-		
+
 		-- Table encoder
 		self.encoder['table'] = function( self, val )
 			assert('table' == type(val), "val is not a table")
@@ -340,7 +340,7 @@ ASN1Encoder = {
 			assert(val.value ~= nil, "Table is missing the value field")
 			return bin.pack("HAA", val.type, self.encodeLength(#val.value), val.value)
 		end
-		
+
 		-- Integer encoder
 		self.encoder['number'] = function( self, val )
 			local ival = self.encodeInt(val)
@@ -358,9 +358,9 @@ ASN1Encoder = {
 		self.encoder['nil'] = function( self, val )
 			return bin.pack('H', '05 00')
 		end
-		
+
 	end,
-	
+
 	-- Encode one component of an OID as a byte string. 7 bits of the component are
 	-- stored in each octet, most significant first, with the eigth bit set in all
 	-- octets but the last. These encoding rules come from
@@ -412,7 +412,7 @@ ASN1Encoder = {
 	      return bin.pack("x")
 	   end
 	end,
-	
+
 	---
 	-- Encodes the length part of a ASN.1 encoding triplet using the "primitive,
 	-- definite-length" method.
@@ -459,7 +459,7 @@ end
 -- Converts an integer to a BER encoded type table
 --
 -- @param i number containing the value to decode
--- @return table with the following entries <code>class</code>, <code>constructed</code>, 
+-- @return table with the following entries <code>class</code>, <code>constructed</code>,
 -- <code>primitive</code> and <code>number</code>
 function intToBER( i )
 	local ber = {}
@@ -478,7 +478,7 @@ function intToBER( i )
 		ber.number = i - ber.class - 32
 	else
 		ber.primitive = true
-		ber.number = i - ber.class 
+		ber.number = i - ber.class
 	end
 	return ber
 end

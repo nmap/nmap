@@ -17,7 +17,7 @@ Queries a Bitcoin server for a list of known Bitcoin nodes
 -- @output
 -- PORT     STATE SERVICE
 -- 8333/tcp open  unknown
--- | bitcoin-getaddr: 
+-- | bitcoin-getaddr:
 -- |   ip                    timestamp
 -- |   10.10.10.10:8333      11/09/11 17:38:00
 -- |   10.10.10.11:8333      11/09/11 17:42:39
@@ -32,26 +32,26 @@ categories = {"discovery", "safe"}
 
 --
 -- Version 0.1
--- 
+--
 -- Created 11/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
 
 portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 
 action = function(host, port)
-	
+
 	local bcoin = bitcoin.Helper:new(host, port, { timeout = 20000 })
 	local status = bcoin:connect()
 
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to connect to server"
 	end
-	
+
 	local status, ver = bcoin:exchVersion()
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to extract version information"
 	end
-	
+
 	local status, nodes = bcoin:getNodes()
 	if ( not(status) ) then
 		return "\n  ERROR: Failed to extract address information"

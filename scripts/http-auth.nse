@@ -16,7 +16,7 @@ authentication.
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-auth: 
+-- | http-auth:
 -- | HTTP/1.1 401 Unauthorized
 -- |   Negotiate
 -- |   NTLM

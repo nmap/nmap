@@ -6,7 +6,7 @@ Lists all discovered credentials (e.g. from brute force and default password che
 
 ---
 --@output
--- | creds-summary: 
+-- | creds-summary:
 -- |   10.10.10.10
 -- |     22/ssh
 -- |       lisbon:jane - Account is valid
@@ -29,7 +29,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"auth", "default", "safe"}
 
 
-postrule = function() 
+postrule = function()
 	local all = creds.Credentials:new(creds.ALL_DATA)
 	local tab = all:getTable()
 	if ( tab and #tab > 0 ) then return true end

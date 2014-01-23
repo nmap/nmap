@@ -11,7 +11,7 @@ Detects the Skype version 2 service.
 -- @output
 -- PORT   STATE SERVICE VERSION
 -- 80/tcp open  skype2  Skype
- 
+
 author = "Brandon Enright"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
@@ -47,7 +47,7 @@ action = function(host, port)
                 port.version.name = "skype2"
                 port.version.product = "Skype"
                 nmap.set_port_version(host, port)
-                return  
+                return
         end
         return
 end

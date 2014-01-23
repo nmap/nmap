@@ -10,7 +10,7 @@ This script uses a whois server database operated by the Shadowserver
 Foundation.  We thank them for granting us permission to use this in
 Nmap.
 
-Output is in CIDR notation. 
+Output is in CIDR notation.
 
 http://www.shadowserver.org/wiki/pmwiki.php/Services/IP-BGP
 ]]

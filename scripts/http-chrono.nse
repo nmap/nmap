@@ -28,7 +28,7 @@ the target server. This script could help identifying these web pages.
 --
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-chrono: 
+-- | http-chrono:
 -- | page                         avg      min      max
 -- | /admin/                      1.91ms   1.65ms   2.05ms
 -- | /manager/status              2.14ms   2.03ms   2.24ms
@@ -40,7 +40,7 @@ the target server. This script could help identifying these web pages.
 -- | /RELEASE-NOTES.txt           3.70ms   2.97ms   5.58ms
 -- | /examples/jsp/               4.93ms   3.39ms   8.30ms
 -- |_/docs/changelog.html         10.76ms  10.14ms  11.46ms
--- 
+--
 -- @args http-chrono.maxdepth the maximum amount of directories beneath
 --       the initial url to spider. A negative value disables the limit.
 --       (default: 3)
@@ -68,18 +68,18 @@ action = function(host, port)
 
   local maxpages = stdnse.get_script_args(SCRIPT_NAME .. ".maxpagecount") or 1
   local tries = stdnse.get_script_args(SCRIPT_NAME .. ".tries") or 5
-  
+
   local dump = {}
   local crawler = httpspider.Crawler:new( host, port, nil, { scriptname = SCRIPT_NAME, maxpagecount = tonumber(maxpages) } )
   crawler:set_timeout(10000)
-  
+
   -- launch the crawler
   while(true) do
     local start = stdnse.clock_ms()
     local status, r = crawler:crawl()
     if ( not(status) ) then
       break
-    end 
+    end
     local chrono = stdnse.clock_ms() - start
     dump[chrono] = tostring(r.url)
   end
@@ -92,7 +92,7 @@ action = function(host, port)
   for result, page in pairs (dump) do
     local url_host, url_page = page:match("//(.-)/(.*)")
     url_host = string.gsub(url_host,":%d*","")
-        
+
     local min, max, page_test
     local bulk_start = stdnse.clock_ms()
     for i = 1,tries do
@@ -110,11 +110,11 @@ action = function(host, port)
         min = count
       end
     end
-    
+
     local count = stdnse.clock_ms() - bulk_start
     table.insert(results, { min = min, max = max, avg = (count / tries), page = url.parse(page).path })
   end
-  
+
   local output
   if ( #results > 1 ) then
     table.sort(results, function(a, b) return a.avg < b.avg end)

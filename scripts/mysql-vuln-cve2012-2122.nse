@@ -37,7 +37,7 @@ Interesting post about this vuln:
 -- | mysql-vuln-cve2012-2122:
 -- |   VULNERABLE:
 -- |   Authentication bypass in MySQL servers.
--- |     State: VULNERABLE 
+-- |     State: VULNERABLE
 -- |     IDs:  CVE:CVE-2012-2122
 -- |     Description:
 -- |       When a user connects to MariaDB/MySQL, a token (SHA
@@ -102,7 +102,7 @@ hitting this bug is about 1/256.
 Which means, if one knows a user name to connect (and "root" almost
 always exists), she can connect using *any* password by repeating
 connection attempts. ~300 attempts takes only a fraction of second, so
-basically account password protection is as good as nonexistent. 
+basically account password protection is as good as nonexistent.
 ]],
     references = {
            'http://seclists.org/oss-sec/2012/q2/493',
@@ -133,7 +133,7 @@ basically account password protection is as good as nonexistent.
     stdnse.print_debug(1, "%s: Connection attempt #%d", SCRIPT_NAME, i)
     try( socket:connect(host, port) )
     response = try( mysql.receiveGreeting(socket) )
-    status, response = mysql.loginRequest(socket, {authversion = "post41", charset = response.charset}, mysql_user, mysql_pwd, response.salt) 
+    status, response = mysql.loginRequest(socket, {authversion = "post41", charset = response.charset}, mysql_user, mysql_pwd, response.salt)
     if status and response.errorcode == 0 then
       vuln.extra_info = string.format("Server granted access at iteration #%d\n", iterations)
       vuln.state = vulns.STATE.EXPLOIT
@@ -149,6 +149,6 @@ basically account password protection is as good as nonexistent.
     end
     socket:close()
   end
-	
+
   return vuln_report:make_output(vuln)
 end

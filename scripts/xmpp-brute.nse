@@ -16,7 +16,7 @@ Performs brute force password auditing against XMPP (Jabber) instant messaging s
 -- @output
 -- PORT     STATE SERVICE
 -- 5222/tcp open  xmpp-client
--- | xmpp-brute: 
+-- | xmpp-brute:
 -- |   Accounts
 -- |     CampbellJ:arthur321 - Valid credentials
 -- |     CampbellA:joan123 - Valid credentials
@@ -44,7 +44,7 @@ local mech
 
 ConnectionPool = {}
 
-Driver = 
+Driver =
 {
 
 	-- Creates a new driver instance
@@ -57,7 +57,7 @@ Driver =
         self.__index = self
 		return o
 	end,
-	
+
 	-- Connects to the server (retrieves a connection from the pool)
 	connect = function( self )
 		self.helper = ConnectionPool[coroutine.running()]
@@ -77,7 +77,7 @@ Driver =
 	-- @return brute.Error on failure and brute.Account on success
 	login = function( self, username, password )
 		local status, err = self.helper:login( username, password, mech )
-		if ( status ) then 
+		if ( status ) then
 			self.helper:close()
 			self.helper:connect()
 			return true, brute.Account:new(username, password, creds.State.VALID)
@@ -88,17 +88,17 @@ Driver =
 			local err = brute.Error:new( err )
 			-- This might be temporary, set the retry flag
 			err:setRetry( true )
-			return false, err			
+			return false, err
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
-	
+
 	-- Disconnects from the server (release the connection object back to
 	-- the pool)
 	disconnect = function( self )
 		return true
 	end,
-		
+
 }
 
 
@@ -107,34 +107,34 @@ action = function(host, port)
 	local options = { servername = stdnse.get_script_args("xmpp-brute.servername") }
 	local helper = xmpp.Helper:new(host, port, options)
 	local status, err = helper:connect()
-	if ( not(status) ) then 
+	if ( not(status) ) then
 		return "\n  ERROR: Failed to connect to XMPP server"
 	end
-	
+
 	local mechs = helper:getAuthMechs()
 	if ( not(mechs) ) then
 		return "\n  ERROR: Failed to retreive authentication mechs from XMPP server"
 	end
-	
-	local mech_prio = stdnse.get_script_args("xmpp-brute.auth") 
+
+	local mech_prio = stdnse.get_script_args("xmpp-brute.auth")
 	mech_prio = ( mech_prio and { mech_prio } ) or { "PLAIN", "LOGIN", "CRAM-MD5", "DIGEST-MD5"}
-	
+
 	for _, mp in ipairs(mech_prio) do
-		for m, _ in pairs(mechs) do 
+		for m, _ in pairs(mechs) do
 			if ( mp == m ) then	mech = m; break	end
 		end
 		if ( mech ) then break end
 	end
-	
+
 	if ( not(mech) ) then
 		return "\n  ERROR: Failed to find suitable authentication mechanism"
 	end
-	
+
 	local engine = brute.Engine:new(Driver, host, port, options)
 	engine.options.script_name = SCRIPT_NAME
 	local result
 	status, result = engine:start()
-		
+
 	return result
 
 end

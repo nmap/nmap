@@ -24,7 +24,7 @@ audits by creating appropriate audit files).
 -- @output
 -- PORT     STATE SERVICE
 -- 3306/tcp open  mysql
--- | mysql-audit: 
+-- | mysql-audit:
 -- |   CIS MySQL Benchmarks v1.0.2
 -- |       3.1: Skip symbolic links => PASS
 -- |       3.2: Logs not on system partition => PASS
@@ -79,7 +79,7 @@ audits by creating appropriate audit files).
 -- |       6.8: Skip networking => FAIL
 -- |       6.9: Safe user create => FAIL
 -- |       6.10: Skip symbolic links => FAIL
--- |       
+-- |
 -- |_      The audit was performed using the db-account: root
 
 -- Version 0.1
@@ -105,8 +105,8 @@ local function loadAuditRulebase( filename )
 	if ( not(file) ) then
 		return false, ("ERROR: Failed to load rulebase:\n%s"):format(err)
 	end
-	
-	
+
+
 	file()
 	TEMPLATE_NAME = env.TEMPLATE_NAME
 	ADMIN_ACCOUNTS = env.ADMIN_ACCOUNTS
@@ -136,7 +136,7 @@ action = function( host, port )
 	local response
 	status, response = mysql.receiveGreeting( socket )
 	if ( not(status) ) then return response end
-	
+
 	status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 
 	if ( not(status) ) then return "ERROR: Failed to authenticate" end
@@ -145,7 +145,7 @@ action = function( host, port )
 	for _, test in ipairs(tests) do
 		local queries = ( "string" == type(test.sql) ) and { test.sql } or test.sql
 		local rowstab = {}
-		
+
 		for _, query in ipairs(queries) do
 			local row
 			status, row = mysql.sqlQuery( socket, query )
@@ -155,13 +155,13 @@ action = function( host, port )
 				table.insert(rowstab, row)
 			end
 		end
-		
+
 		if ( #rowstab > 0 ) then
 			local result_part = {}
 			local res = test.check(rowstab)
 			local status, data = res.status, res.result
 			status = ( res.review and "REVIEW" ) or (status and "PASS" or "FAIL")
-			
+
 			table.insert( result_part, ("%s: %s => %s"):format(test.id, test.desc, status) )
 			if ( data ) then
 				table.insert(result_part, { data } )
