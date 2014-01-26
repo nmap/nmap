@@ -103,50 +103,46 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
-pcap_enabled=yes
+dnl Check whether libpcap is already available
+have_libpcap=no
+
+# By default, search for pcap library
+test "${with_libpcap+set}" != "set" && with_libpcap=yes
+
 AC_ARG_WITH(libpcap,
-AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap headers in DIR/include.])
+AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap])
 AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
 [  case "$with_libpcap" in
   yes)
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
-      [pcap_enabled=yes ])])
+      have_libpcap=yes ])
     ;;
-  no)
-    pcap_enabled=no
+  included)
+    LIBPCAP_INC=../../libpcap
+    have_libpcap=yes
    ;;
+  no)
+    ;;
   *)
     _cppflags=$CPPFLAGS
-    _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
-    LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     AC_CHECK_HEADER(pcap.h,[
-      AC_CHECK_LIB(pcap, pcap_datalink,
-	[have_libpcap=yes
-	LIBPCAP_INC=$with_libpcap/include
-	LIBPCAP_LIB=$with_libpcap/lib])])
+      have_libpcap=yes
+      LIBPCAP_INC=$with_libpcap/include])
 
-    LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
     ;;
-  esac],
-[  pcap_enabled=yes
-  LIBPCAP_INC="../../libpcap"
-  LIBPCAP_LIB="../../libpcap"
-   ]
+  esac]
 )
 
-if test $pcap_enabled = yes; then
+if test "$have_libpcap" != "no"; then
+  AC_DEFINE(HAVE_PCAP)
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
-    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi
-
-  AC_DEFINE(HAVE_PCAP)
-  LIBPCAP_LIBS="-lpcap"
 fi
 
 AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL)], )
