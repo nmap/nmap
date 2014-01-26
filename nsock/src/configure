@@ -1310,7 +1310,8 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-localdirs        Explicitly ask compiler to use /usr/local/{include,libs} if they exist
-  --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
+  --with-libpcap=DIR      Look for pcap headers in DIR/include.
+  --with-libpcap=included Always use version included with Nmap
   --without-libpcap       Disable pcap functions.
   --with-openssl=DIR      Use optional openssl libs and includes from
                           [DIR]/lib/ and [DIR]/include/openssl/)
@@ -2323,7 +2324,11 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
-pcap_enabled=yes
+have_libpcap=no
+
+# By default, search for pcap library
+test "${with_libpcap+set}" != "set" && with_libpcap=yes
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3519,131 +3524,44 @@ if test "${with_libpcap+set}" = set; then :
     ac_fn_c_check_header_mongrel "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes; then :
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_datalink in -lpcap" >&5
-$as_echo_n "checking for pcap_datalink in -lpcap... " >&6; }
-if ${ac_cv_lib_pcap_pcap_datalink+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcap  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char pcap_datalink ();
-int
-main ()
-{
-return pcap_datalink ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcap_pcap_datalink=yes
-else
-  ac_cv_lib_pcap_pcap_datalink=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_datalink" >&5
-$as_echo "$ac_cv_lib_pcap_pcap_datalink" >&6; }
-if test "x$ac_cv_lib_pcap_pcap_datalink" = xyes; then :
-  pcap_enabled=yes
-fi
-
+      have_libpcap=yes
 fi
 
 
     ;;
-  no)
-    pcap_enabled=no
+  included)
+    LIBPCAP_INC=../../libpcap
+    have_libpcap=yes
    ;;
+  no)
+    ;;
   *)
     _cppflags=$CPPFLAGS
-    _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
-    LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     ac_fn_c_check_header_mongrel "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes; then :
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_datalink in -lpcap" >&5
-$as_echo_n "checking for pcap_datalink in -lpcap... " >&6; }
-if ${ac_cv_lib_pcap_pcap_datalink+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpcap  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char pcap_datalink ();
-int
-main ()
-{
-return pcap_datalink ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pcap_pcap_datalink=yes
-else
-  ac_cv_lib_pcap_pcap_datalink=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_datalink" >&5
-$as_echo "$ac_cv_lib_pcap_pcap_datalink" >&6; }
-if test "x$ac_cv_lib_pcap_pcap_datalink" = xyes; then :
-  have_libpcap=yes
-	LIBPCAP_INC=$with_libpcap/include
-	LIBPCAP_LIB=$with_libpcap/lib
-fi
-
+      have_libpcap=yes
+      LIBPCAP_INC=$with_libpcap/include
 fi
 
 
 
-    LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
     ;;
   esac
-else
-    pcap_enabled=yes
-  LIBPCAP_INC="../../libpcap"
-  LIBPCAP_LIB="../../libpcap"
-
 
 fi
 
 
-if test $pcap_enabled = yes; then
-  if test "${LIBPCAP_INC+set}" = "set"; then
-    CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
-    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
-  fi
-
+if test "$have_libpcap" != "no"; then
   $as_echo "#define HAVE_PCAP 1" >>confdefs.h
 
-  LIBPCAP_LIBS="-lpcap"
+  if test "${LIBPCAP_INC+set}" = "set"; then
+    CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
+  fi
 fi
 
   ax_have_epoll_cppflags="${CPPFLAGS}"
