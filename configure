@@ -2422,6 +2422,11 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
+if test "${top_nmap_srcdir+set}" != set; then
+  top_nmap_srcdir=`cd "$srcdir" && pwd`
+  export top_nmap_srcdir
+fi
+
 libpcapdir=libpcap
 
 

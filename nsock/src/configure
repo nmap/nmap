@@ -626,6 +626,7 @@ NBASEDIR
 LIBNBASE_LIBS
 OPENSSL_LIBS
 RANLIB
+LIBPCAP_LIBS
 EGREP
 GREP
 CPP
@@ -2107,6 +2108,14 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+if test "${top_nmap_srcdir+set}" != set; then
+  top_nmap_srcdir=../..
+  export top_nmap_srcdir
+fi
+
+ac_config_files="$ac_config_files Makefile ../tests/Makefile"
+
+
 ac_config_headers="$ac_config_headers ../include/nsock_config.h"
 
 
@@ -3530,7 +3539,7 @@ fi
 
     ;;
   included)
-    LIBPCAP_INC=../../libpcap
+    LIBPCAP_INC=${top_nmap_srcdir}/libpcap
     have_libpcap=yes
    ;;
   no)
@@ -3559,10 +3568,12 @@ fi
 if test "$have_libpcap" != "no"; then
   $as_echo "#define HAVE_PCAP 1" >>confdefs.h
 
+  LIBPCAP_LIBS=-lpcap
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
   fi
 fi
+
 
   ax_have_epoll_cppflags="${CPPFLAGS}"
   ac_fn_c_check_header_mongrel "$LINENO" "linux/version.h" "ac_cv_header_linux_version_h" "$ac_includes_default"
@@ -4831,7 +4842,7 @@ if test "${with_libnbase+set}" = set; then :
     ;;
   esac
 else
-  NBASEDIR="../../nbase"
+  NBASEDIR="${top_nmap_srcdir}/nbase"
 
 fi
 
@@ -4847,8 +4858,6 @@ LIBNBASE_LIBS="$LIBS -lnbase"
 
 
 
-
-ac_config_files="$ac_config_files Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -5539,8 +5548,9 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "../include/nsock_config.h") CONFIG_HEADERS="$CONFIG_HEADERS ../include/nsock_config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+    "../tests/Makefile") CONFIG_FILES="$CONFIG_FILES ../tests/Makefile" ;;
+    "../include/nsock_config.h") CONFIG_HEADERS="$CONFIG_HEADERS ../include/nsock_config.h" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

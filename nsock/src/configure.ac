@@ -9,6 +9,15 @@ AC_PREREQ(2.13)
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(nsock_core.c)
 
+dnl Find the Nmap source for nbase, etc.
+if test "${top_nmap_srcdir+set}" != set; then
+  top_nmap_srcdir=../..
+  export top_nmap_srcdir
+fi
+
+dnl Generate these files
+AC_CONFIG_FILES([Makefile ../tests/Makefile])
+
 dnl use nsock_config.h instad of -D macros
 AC_CONFIG_HEADER(../include/nsock_config.h)
 
@@ -119,7 +128,7 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
       have_libpcap=yes ])
     ;;
   included)
-    LIBPCAP_INC=../../libpcap
+    LIBPCAP_INC=${top_nmap_srcdir}/libpcap
     have_libpcap=yes
    ;;
   no)
@@ -140,10 +149,12 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
 
 if test "$have_libpcap" != "no"; then
   AC_DEFINE(HAVE_PCAP)
+  LIBPCAP_LIBS=-lpcap
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
   fi
 fi
+AC_SUBST(LIBPCAP_LIBS)
 
 AX_HAVE_EPOLL([AC_DEFINE(HAVE_EPOLL)], )
 AX_HAVE_POLL([AC_DEFINE(HAVE_POLL)], )
@@ -253,7 +264,7 @@ AC_ARG_WITH(libnbase,
     NBASEDIR="$with_libnbase"
     ;;
   esac],
-NBASEDIR="../../nbase"
+NBASEDIR="${top_nmap_srcdir}/nbase"
 )
 
 NSOCKTESTDIR="../tests"
@@ -268,4 +279,4 @@ AC_SUBST(NSOCKTESTDIR)
 
 AC_SUBST(CFLAGS)
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT()
