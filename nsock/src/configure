@@ -3540,24 +3540,70 @@ fi
     ;;
   included)
     LIBPCAP_INC=${top_nmap_srcdir}/libpcap
+    LIBPCAP_LIB=${top_nmap_srcdir}/libpcap
+    LIBPCAP_LIBS=${LIBPCAP_LIB}/libpcap.a
     have_libpcap=yes
    ;;
   no)
     ;;
   *)
     _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
+    LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     ac_fn_c_check_header_mongrel "$LINENO" "pcap.h" "ac_cv_header_pcap_h" "$ac_includes_default"
 if test "x$ac_cv_header_pcap_h" = xyes; then :
 
-      have_libpcap=yes
-      LIBPCAP_INC=$with_libpcap/include
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pcap_datalink in -lpcap" >&5
+$as_echo_n "checking for pcap_datalink in -lpcap... " >&6; }
+if ${ac_cv_lib_pcap_pcap_datalink+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpcap  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char pcap_datalink ();
+int
+main ()
+{
+return pcap_datalink ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_pcap_pcap_datalink=yes
+else
+  ac_cv_lib_pcap_pcap_datalink=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcap_pcap_datalink" >&5
+$as_echo "$ac_cv_lib_pcap_pcap_datalink" >&6; }
+if test "x$ac_cv_lib_pcap_pcap_datalink" = xyes; then :
+  have_libpcap=yes
+        LIBPCAP_LIBS=-lpcap
+        LIBPCAP_INC=$with_libpcap/include
+        LIBPCAP_LIB=$with_libpcap/lib
+fi
+
 fi
 
 
 
+    LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
     ;;
   esac
@@ -3568,9 +3614,9 @@ fi
 if test "$have_libpcap" != "no"; then
   $as_echo "#define HAVE_PCAP 1" >>confdefs.h
 
-  LIBPCAP_LIBS=-lpcap
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
+    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi
 fi
 
