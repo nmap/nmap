@@ -129,19 +129,27 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
     ;;
   included)
     LIBPCAP_INC=${top_nmap_srcdir}/libpcap
+    LIBPCAP_LIB=${top_nmap_srcdir}/libpcap
+    LIBPCAP_LIBS=${LIBPCAP_LIB}/libpcap.a
     have_libpcap=yes
    ;;
   no)
     ;;
   *)
     _cppflags=$CPPFLAGS
+    _ldflags=$LDFLAGS
 
     CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
+    LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
 
     AC_CHECK_HEADER(pcap.h,[
-      have_libpcap=yes
-      LIBPCAP_INC=$with_libpcap/include])
+      AC_CHECK_LIB(pcap, pcap_datalink,
+        [have_libpcap=yes
+        LIBPCAP_LIBS=-lpcap
+        LIBPCAP_INC=$with_libpcap/include
+        LIBPCAP_LIB=$with_libpcap/lib])])
 
+    LDFLAGS=$_ldflags
     CPPFLAGS=$_cppflags
     ;;
   esac]
@@ -149,9 +157,9 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
 
 if test "$have_libpcap" != "no"; then
   AC_DEFINE(HAVE_PCAP)
-  LIBPCAP_LIBS=-lpcap
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
+    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
   fi
 fi
 AC_SUBST(LIBPCAP_LIBS)
