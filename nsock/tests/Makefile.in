@@ -3,14 +3,14 @@
 # Same license as nmap -- see http://nmap.org/book/man-legal.html
 ##
 
-NBASEDIR=../../nbase
+NBASEDIR=@NBASEDIR@
 NSOCKLIB=../src/libnsock.a
 NBASELIB=$(NBASEDIR)/libnbase.a
 
-CC 	= gcc
-CFLAGS	= -Wall -O0 -ggdb -I../include/ -I$(NBASEDIR)
-LDFLAGS	=
-LIBS	= -lssl -lpcap -lcrypto
+CC 	= @CC@
+CFLAGS	= -Wall -O0 -I../include -I$(NBASEDIR)
+LDFLAGS	= @LDFLAGS@
+LIBS	= @OPENSSL_LIBS@ @LIBPCAP_LIBS@
 
 SRC = tests_main.c \
       basic.c \

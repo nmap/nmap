@@ -30,6 +30,12 @@ if test "$user_localdirs" = 1; then
    fi
 fi
 
+dnl Let subdirs configure scripts find the Nmap source dir
+if test "${top_nmap_srcdir+set}" != set; then
+  top_nmap_srcdir=`cd "$srcdir" && pwd`
+  export top_nmap_srcdir
+fi
+
 libpcapdir=libpcap
 AC_SUBST(libpcapdir)
 
