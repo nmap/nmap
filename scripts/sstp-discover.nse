@@ -56,7 +56,13 @@ portrule = function(host, port)
   return shortport.http(host, port) and shortport.ssl(host, port)
 end
 
-local request = 'SSTP_DUPLEX_POST /sra_{BA195980-CD49-458b-9E23-C84EE0ADCD75} HTTP/1.1\r\nHost: %s\r\nSSTPCORRELATIONID: {}\r\n\r\nContent-Length: 18446744073709551615\r\n\r\n'
+-- The SSTPCORRELATIONID GUID is optional and client-generated.
+-- The last 5 bytes are "Nmap!"
+local request =
+'SSTP_DUPLEX_POST /sra_{BA195980-CD49-458b-9E23-C84EE0ADCD75}/ HTTP/1.1\r\n' ..
+'Host: %s\r\n' ..
+'SSTPCORRELATIONID: {5a433238-8781-11e3-b2e4-4e6d617021}\r\n' ..
+'Content-Length: 18446744073709551615\r\n\r\n'
 
 action = function(host, port)
   local socket, response = comm.tryssl(host,port,
