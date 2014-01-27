@@ -1896,6 +1896,9 @@ HostScanStats *UltraScanInfo::findHost(struct sockaddr_storage *ss) {
   return NULL;
 }
 
+/* Check if incompleteHosts list contains less than n elements. This function
+   is here to replace numIncompleteHosts() < n, which would have to walk
+   through the entire list. */
 bool UltraScanInfo::numIncompleteHostsLessThan(unsigned int n) {
   std::list<HostScanStats *>::iterator hostI;
   unsigned int count;
