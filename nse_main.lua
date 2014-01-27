@@ -315,12 +315,16 @@ do
   -- Changes "%THREAD" with an appropriate identifier for the debug level
   function Thread:d (fmt, ...)
     local against = against_name(self.host, self.port);
+    local function replace(fmt, pattern, repl)
+      -- Escape each % twice: once for gsub, and once for print_debug.
+      return gsub(fmt, pattern, gsub(repl, "%%", "%%%%%%%%"));
+    end
     if debugging() > 1 then
-      fmt = gsub(fmt, "%%THREAD_AGAINST", self.info..against);
-      fmt = gsub(fmt, "%%THREAD", self.info);
+      fmt = replace(fmt, "%%THREAD_AGAINST", self.info..against);
+      fmt = replace(fmt, "%%THREAD", self.info);
     else
-      fmt = gsub(fmt, "%%THREAD_AGAINST", self.short_basename..against);
-      fmt = gsub(fmt, "%%THREAD", self.short_basename);
+      fmt = replace(fmt, "%%THREAD_AGAINST", self.short_basename..against);
+      fmt = replace(fmt, "%%THREAD", self.short_basename);
     end
     print_debug(1, fmt, ...);
   end
