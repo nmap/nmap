@@ -317,7 +317,8 @@ do
     local against = against_name(self.host, self.port);
     local function replace(fmt, pattern, repl)
       -- Escape each % twice: once for gsub, and once for print_debug.
-      return gsub(fmt, pattern, gsub(repl, "%%", "%%%%%%%%"));
+      local r = gsub(repl, "%%", "%%%%%%%%")
+      return gsub(fmt, pattern, r);
     end
     if debugging() > 1 then
       fmt = replace(fmt, "%%THREAD_AGAINST", self.info..against);
