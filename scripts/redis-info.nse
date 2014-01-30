@@ -1,5 +1,6 @@
 local creds = require "creds"
 local redis = require "redis"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local tab = require "tab"
@@ -37,12 +38,28 @@ portrule = shortport.port_or_service(6379, "redis")
 
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
+local function cb_parse_version(host, port, val)
+	port.version.version = val
+	port.version.cpe = port.version.cpe or {}
+	table.insert(port.version.cpe, 'cpe:/a:redis:redis:' .. val)
+	nmap.set_port_version(host, port)
+	return val
+end
+
+local function cb_parse_architecture(host, port, val)
+	val = ("%s bits"):format(val)
+	port.version.extrainfo = val
+	nmap.set_port_version(host, port)
+	return val
+end
+
 local filter = {
 
-	["redis_version"] = { name = "Version" },
-	["arch_bits"] 	= { name = "Architecture", func = function(v) return ("%s bits"):format(v) end },
+	["redis_version"] = { name = "Version", func = cb_parse_version },
+	["os"] = { name = "Operating System" },
+	["arch_bits"] 	= { name = "Architecture", func = cb_parse_architecture },
 	["process_id"]	= { name = "Process ID"},
-	["uptime"]		= { name = "Uptime", func = function(v) return ("%s seconds"):format(v) end },
+	["uptime"]		= { name = "Uptime", func = function(h, p, v) return ("%s seconds"):format(v) end },
 	["used_cpu_sys"]= { name = "Used CPU (sys)"},
 	["used_cpu_user"]		= { name = "Used CPU (user)"},
 	["connected_clients"] 	= { name = "Connected clients"},
@@ -53,7 +70,7 @@ local filter = {
 }
 
 local order = {
-	"redis_version", "arch_bits", "process_id", "used_cpu_sys",
+	"redis_version", "os", "arch_bits", "process_id", "used_cpu_sys",
 	"used_cpu_user", "connected_clients", "connected_slaves",
 	"used_memory_human", "role"
 }
@@ -108,9 +125,15 @@ action = function(host, port)
 
 	local result = tab.new(2)
 	for _, item in ipairs(order) do
-		if ( kvs[item] ) then
+		if kvs[item] then
 			local name = filter[item].name
-			local val = ( filter[item].func and filter[item].func(kvs[item]) or kvs[item] )
+			local val
+
+			if filter[item].func then
+				val = filter[item].func(host, port, kvs[item])
+			else
+				val = kvs[item]
+			end
 			tab.addrow(result, name, val)
 		end
 	end
