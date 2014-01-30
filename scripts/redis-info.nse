@@ -33,7 +33,7 @@ categories = {"discovery", "safe"}
 dependencies = {"redis-brute"}
 
 
-portrule = shortport.port_or_service(6379, "redis-server")
+portrule = shortport.port_or_service(6379, "redis")
 
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
