@@ -95,7 +95,8 @@ TLS_HANDSHAKETYPE_REGISTRY = {
   ["finished"]                    = 20,
   ["certificate_url"]             = 21,
   ["certificate_status"]          = 22,
-  ["supplemental_data"]           = 23
+  ["supplemental_data"]           = 23,
+  ["next_protocol"]               = 67,
 }
 
 --
@@ -108,7 +109,47 @@ COMPRESSORS = {
   ["LZS"]                 = 64
 }
 
---
+---
+-- RFC 4492 section 5.1.1 "Supported Elliptic Curves Extension".
+ELLIPTIC_CURVES = {
+  sect163k1 = 1,
+  sect163r1 = 2,
+  sect163r2 = 3,
+  sect193r1 = 4,
+  sect193r2 = 5,
+  sect233k1 = 6,
+  sect233r1 = 7,
+  sect239k1 = 8,
+  sect283k1 = 9,
+  sect283r1 = 10,
+  sect409k1 = 11,
+  sect409r1 = 12,
+  sect571k1 = 13,
+  sect571r1 = 14,
+  secp160k1 = 15,
+  secp160r1 = 16,
+  secp160r2 = 17,
+  secp192k1 = 18,
+  secp192r1 = 19,
+  secp224k1 = 20,
+  secp224r1 = 21,
+  secp256k1 = 22,
+  secp256r1 = 23,
+  secp384r1 = 24,
+  secp521r1 = 25,
+  arbitrary_explicit_prime_curves = 0xFF01,
+  arbitrary_explicit_char2_curves = 0xFF02,
+}
+
+---
+-- RFC 4492 section 5.1.2 "Supported Point Formats Extension".
+EC_POINT_FORMATS = {
+  uncompressed = 0,
+  ansiX962_compressed_prime = 1,
+  ansiX962_compressed_char2 = 2,
+}
+
+---
 -- Extensions
 -- RFC 6066, draft-agl-tls-nextprotoneg-03
 --
@@ -119,7 +160,40 @@ EXTENSIONS = {
   ["trusted_ca_keys"] = 3,
   ["truncated_hmac"] = 4,
   ["status_request"] = 5,
+  ["elliptic_curves"] = 10,
+  ["ec_point_formats"] = 11,
   ["next_protocol_negotiation"] = 13172,
+}
+
+---
+-- Builds data for each extension
+-- Defaults to tostring (i.e. pass in the packed data you want directly)
+EXTENSION_HELPERS = {
+  ["server_name"] = function (server_name)
+    -- Only supports host_name type (0), as per RFC
+    -- Support for other types could be added later
+    return bin.pack(">CSA", 0, #server_name, server_name)
+  end,
+  ["max_fragment_length"] = tostring,
+  ["client_certificate_url"] = tostring,
+  ["trusted_ca_keys"] = tostring,
+  ["truncated_hmac"] = tostring,
+  ["status_request"] = tostring,
+  ["elliptic_curves"] = function (elliptic_curves)
+    local list = {}
+    for _, name in ipairs(elliptic_curves) do
+      list[#list+1] = bin.pack(">S", ELLIPTIC_CURVES[name])
+    end
+    return bin.pack(">P", table.concat(list))
+  end,
+  ["ec_point_formats"] = function (ec_point_formats)
+    local list = {}
+    for _, format in ipairs(ec_point_formats) do
+      list[#list+1] = bin.pack(">C", EC_POINT_FORMATS[format])
+    end
+    return bin.pack(">p", table.concat(list))
+  end,
+  ["next_protocol_negotiation"] = tostring,
 }
 
 --
@@ -540,51 +614,62 @@ function record_read(buffer, i)
   -- Body --
   ----------
 
-  b = {}
-  h["body"] = b
-  if h["type"] == "alert" then
-    -- Parse body.
-    j, b["level"] = bin.unpack("C", buffer, j)
-    j, b["description"] = bin.unpack("C", buffer, j)
-
-    -- Convert to human-readable form.
-    b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
-    b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
-  elseif h["type"] == "handshake" then
-    -- Parse body.
-    j, b["type"] = bin.unpack("C", buffer, j)
-    local _
-    j, _ = bin.unpack("A3", buffer, j)
-
-    -- Convert to human-readable form.
-    b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
-
-    if b["type"] == "server_hello" then
+  h["body"] = {}
+  while j < len do
+    -- RFC 2246, 6.2.1 "multiple client messages of the same ContentType may
+    -- be coalesced into a single TLSPlaintext record"
+    -- TODO: implement reading of fragmented records
+    b = {}
+    table.insert(h["body"], b)
+    if h["type"] == "alert" then
       -- Parse body.
-      j, b["protocol"] = bin.unpack(">S", buffer, j)
-      j, b["time"] = bin.unpack(">I", buffer, j)
-      j, b["random"] = bin.unpack("A28", buffer, j)
-      j, b["session_id_length"] = bin.unpack("C", buffer, j)
-      j, b["session_id"] = bin.unpack("A" .. b["session_id_length"], buffer, j)
-      j, b["cipher"] = bin.unpack(">S", buffer, j)
-      j, b["compressor"] = bin.unpack("C", buffer, j)
-      -- Optional extensions
-      if j < len then
-        local num_exts
-        b["extensions"] = {}
-        j, num_exts = bin.unpack(">S", buffer, j)
-        for e = 0, num_exts do
-          local extcode, datalen
-          j, extcode = bin.unpack(">S", buffer, j)
-          extcode = find_key(EXTENSIONS, extcode) or extcode
-          j, b["extensions"][extcode] = bin.unpack(">P", buffer, j)
-        end
-      end
+      j, b["level"] = bin.unpack("C", buffer, j)
+      j, b["description"] = bin.unpack("C", buffer, j)
 
       -- Convert to human-readable form.
-      b["protocol"] = find_key(PROTOCOLS, b["protocol"])
-      b["cipher"] = find_key(CIPHERS, b["cipher"])
-      b["compressor"] = find_key(COMPRESSORS, b["compressor"])
+      b["level"] = find_key(TLS_ALERT_LEVELS, b["level"])
+      b["description"] = find_key(TLS_ALERT_REGISTRY, b["description"])
+    elseif h["type"] == "handshake" then
+      -- Parse body.
+      j, b["type"] = bin.unpack("C", buffer, j)
+      local blen, blen_upper
+      j, blen_upper, blen = bin.unpack("C>S", buffer, j)
+      blen = blen + blen_upper * 0x10000
+      local msg_end = j + blen
+
+      -- Convert to human-readable form.
+      b["type"] = find_key(TLS_HANDSHAKETYPE_REGISTRY, b["type"])
+
+      if b["type"] == "server_hello" then
+        -- Parse body.
+        j, b["protocol"] = bin.unpack(">S", buffer, j)
+        j, b["time"] = bin.unpack(">I", buffer, j)
+        j, b["random"] = bin.unpack("A28", buffer, j)
+        j, b["session_id_length"] = bin.unpack("C", buffer, j)
+        j, b["session_id"] = bin.unpack("A" .. b["session_id_length"], buffer, j)
+        j, b["cipher"] = bin.unpack(">S", buffer, j)
+        j, b["compressor"] = bin.unpack("C", buffer, j)
+        -- Optional extensions for TLS only
+        if j < msg_end and h["protocol"] ~= "SSLv3" then
+          local num_exts
+          b["extensions"] = {}
+          j, num_exts = bin.unpack(">S", buffer, j)
+          for e = 0, num_exts do
+            local extcode, datalen
+            j, extcode = bin.unpack(">S", buffer, j)
+            extcode = find_key(EXTENSIONS, extcode) or extcode
+            j, b["extensions"][extcode] = bin.unpack(">P", buffer, j)
+          end
+        end
+
+        -- Convert to human-readable form.
+        b["protocol"] = find_key(PROTOCOLS, b["protocol"])
+        b["cipher"] = find_key(CIPHERS, b["cipher"])
+        b["compressor"] = find_key(COMPRESSORS, b["compressor"])
+      else
+        -- TODO: implement other handshake message types
+        j = msg_end
+      end
     end
   end
 
@@ -653,10 +738,7 @@ function client_hello(t)
     -- Use NULL cipher
     table.insert(ciphers, bin.pack(">S", CIPHERS["TLS_NULL_WITH_NULL_NULL"]))
   end
-  ciphers = table.concat(ciphers)
-
-  table.insert(b, bin.pack(">S", #ciphers))
-  table.insert(b, ciphers)
+  table.insert(b, bin.pack(">P", table.concat(ciphers)))
 
   -- Compression methods.
   compressors = {}
@@ -670,26 +752,23 @@ function client_hello(t)
   end
   -- Always include NULL as last choice
   table.insert(compressors, bin.pack("C", COMPRESSORS["NULL"]))
-  compressors = table.concat(compressors)
-
-  table.insert(b, bin.pack("C", #compressors))
-  table.insert(b, compressors)
+  table.insert(b, bin.pack(">p", table.concat(compressors)))
 
   -- TLS extensions
-  local extensions = {}
-  if t["extensions"] ~= nil then
-    -- Add specified extensions.
-    for extension, data in pairs(t["extensions"]) do
-      table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
-      table.insert(extensions, bin.pack(">P", data))
+  if PROTOCOLS[t["protocol"]] and
+      PROTOCOLS[t["protocol"]] ~= PROTOCOLS["SSLv3"] then
+    local extensions = {}
+    if t["extensions"] ~= nil then
+      -- Add specified extensions.
+      for extension, data in pairs(t["extensions"]) do
+        table.insert(extensions, bin.pack(">S", EXTENSIONS[extension]))
+        table.insert(extensions, bin.pack(">P", data))
+      end
     end
-  end
-  -- Extensions are optional
-  if #extensions ~= 0 then
-    extensions = table.concat(extensions)
-
-    table.insert(b, bin.pack(">S", #extensions))
-    table.insert(b, extensions)
+    -- Extensions are optional
+    if #extensions ~= 0 then
+      table.insert(b, bin.pack(">P", table.concat(extensions)))
+    end
   end
 
   ------------
@@ -705,11 +784,62 @@ function client_hello(t)
 
   -- Set the length of the body.
   len = bin.pack(">I", #b)
-  table.insert(h, bin.pack("CCC", len:byte(2), len:byte(3), len:byte(4)))
+  -- body length is 24 bits big-endian, so the 3 LSB of len
+  table.insert(h, len:sub(2,4))
 
   table.insert(h, b)
 
   return record_write("handshake", t["protocol"], table.concat(h))
+end
+
+local function read_atleast(s, n)
+  local buf = {}
+  local count = 0
+  while count < n do
+    local status, data = s:receive_bytes(n - count)
+    if not status then
+      return status, data, table.concat(buf)
+    end
+    buf[#buf+1] = data
+    count = count + #data
+  end
+  return true, table.concat(buf)
+end
+
+--- Get an entire record into a buffer
+--
+--  Caller is responsible for closing the socket if necessary.
+-- @param sock The socket to read additional data from
+-- @param buffer The string buffer holding any previously-read data
+--               (default: "")
+-- @param i The position in the buffer where the record should start
+--          (default: 1)
+-- @return status Socket status
+-- @return Buffer containing at least 1 record if status is true
+-- @return Error text if there was an error
+function record_buffer(sock, buffer, i)
+  buffer = buffer or ""
+  i = i or 1
+  local count = #buffer:sub(i)
+  local status, resp, rem
+  if count < TLS_RECORD_HEADER_LENGTH then
+    status, resp, rem = read_atleast(sock, TLS_RECORD_HEADER_LENGTH - count)
+    if not status then
+      return false, buffer .. rem, resp
+    end
+    buffer = buffer .. resp
+    count = count + #resp
+  end
+  -- ContentType, ProtocolVersion, length
+  local _, _, _, len = bin.unpack(">CSS", buffer, i)
+  if count < TLS_RECORD_HEADER_LENGTH + len then
+    status, resp = read_atleast(sock, TLS_RECORD_HEADER_LENGTH + len - count)
+    if not status then
+      return false, buffer, resp
+    end
+    buffer = buffer .. resp
+  end
+  return true, buffer
 end
 
 return _ENV;

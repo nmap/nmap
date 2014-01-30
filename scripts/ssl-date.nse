@@ -94,7 +94,7 @@ local client_hello = function(host, port)
     end
 
     -- Read response
-    status, response = sock:receive()
+    status, response, err = tls.record_buffer(sock)
     if not status then
 	stdnse.print_debug("Couldn't receive: %s", err)
 	sock:close()
@@ -112,12 +112,15 @@ local extract_time = function(response)
       return nil
     end
 
-    if record.type == "handshake" and record.body.type == "server_hello" then
-      return true, record.body.time
-    else
-      stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
-      return nil
+    if record.type == "handshake" then
+      for _, body in ipairs(record.body) do
+        if body.type == "server_hello" then
+          return true, body.time
+        end
+      end
     end
+    stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
+    return nil
 end
 
 action = function(host, port)

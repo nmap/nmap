@@ -85,7 +85,7 @@ local client_hello = function(host, port)
     end
 
     -- Read response
-    status, response = sock:receive()
+    status, response, err = tls.record_buffer(sock)
     if not status then
 	stdnse.print_debug("Couldn't receive: %s", err)
 	sock:close()
@@ -105,13 +105,13 @@ local check_npn = function(response)
       return nil
     end
 
-    if record.type == "handshake" and record.body.type == "server_hello" then
-      if record.body.extensions == nil then
+    if record.type == "handshake" and record.body[1].type == "server_hello" then
+      if record.body[1].extensions == nil then
         stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
         return nil
       end
       local results = {}
-      local npndata = record.body.extensions["next_protocol_negotiation"]
+      local npndata = record.body[1].extensions["next_protocol_negotiation"]
       if npndata == nil then
         stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
         return nil
