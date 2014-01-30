@@ -27,7 +27,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "brute"}
 
 
-portrule = shortport.port_or_service(6379, "redis-server")
+portrule = shortport.port_or_service(6379, "redis")
 
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
