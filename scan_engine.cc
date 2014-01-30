@@ -1029,10 +1029,10 @@ ConnectScanInfo::~ConnectScanInfo() {}
    watch an SD that was already being watched. */
 bool ConnectScanInfo::watchSD(int sd) {
   assert(sd >= 0);
-  if (!FD_ISSET(sd, &fds_read)) {
-    CHECKED_FD_SET(sd, &fds_read);
-    CHECKED_FD_SET(sd, &fds_write);
-    CHECKED_FD_SET(sd, &fds_except);
+  if (!checked_fd_isset(sd, &fds_read)) {
+    checked_fd_set(sd, &fds_read);
+    checked_fd_set(sd, &fds_write);
+    checked_fd_set(sd, &fds_except);
     numSDs++;
     if (sd > maxValidSD)
       maxValidSD = sd;
@@ -1047,10 +1047,10 @@ bool ConnectScanInfo::watchSD(int sd) {
    there in the first place. */
 bool ConnectScanInfo::clearSD(int sd) {
   assert(sd >= 0);
-  if (FD_ISSET(sd, &fds_read)) {
-    CHECKED_FD_CLR(sd, &fds_read);
-    CHECKED_FD_CLR(sd, &fds_write);
-    CHECKED_FD_CLR(sd, &fds_except);
+  if (checked_fd_isset(sd, &fds_read)) {
+    checked_fd_clr(sd, &fds_read);
+    checked_fd_clr(sd, &fds_write);
+    checked_fd_clr(sd, &fds_except);
     assert(numSDs > 0);
     numSDs--;
     if (sd == maxValidSD)
@@ -4172,8 +4172,9 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
       assert(probe->type == UltraProbe::UP_CONNECT);
       sd = probe->CP()->sd;
       /* Let see if anything has happened! */
-      if (sd >= 0 && (FD_ISSET(sd, &fds_rtmp)  || FD_ISSET(sd, &fds_wtmp) ||
-                      FD_ISSET(sd, &fds_xtmp))) {
+      if (sd >= 0 && (checked_fd_isset(sd, &fds_rtmp) ||
+                      checked_fd_isset(sd, &fds_wtmp) ||
+                      checked_fd_isset(sd, &fds_xtmp))) {
         numGoodSD++;
         newportstate = PORT_UNKNOWN;
         if (getsockopt(sd, SOL_SOCKET, SO_ERROR, (char *) &optval,

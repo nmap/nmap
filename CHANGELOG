@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Added safe fd_set operations. This makes nmap fail gracefully instead of
+  crashing when the number of file descriptors grows over FD_SETSIZE. Jacek
+  Wielemborek reported the crash. [Henri Doreau]
 
 o [NSE] Added tls library for functions related to SSLv3 and TLS messages.
   Existing ssl-enum-ciphers, ssl-date, and tls-nextprotoneg scripts were

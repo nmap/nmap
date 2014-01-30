@@ -369,37 +369,41 @@ extern "C" int vsnprintf (char *, size_t, const char *, va_list);
 #endif
 
 
-#ifdef WIN32
-#define CHECKED_FD_SET FD_SET
-#else
-#define CHECKED_FD_SET(fd, set) \
-  do { \
-    if ((fd) < FD_SETSIZE) { \
-      FD_SET((fd), (set)); \
-    } else { \
-      fprintf(stderr, "%s:%ld: Attempt to FD_SET fd %d, which is not less than" \
-        " FD_SETSIZE (%d). Try using a lower parallelism.", \
-        __FILE__, (long int) __LINE__, (fd), FD_SETSIZE); \
-      abort(); \
-    } \
-  } while (0)
+static inline int checked_fd_isset(int fd, const fd_set *fds) {
+#ifndef WIN32
+  if (fd >= FD_SETSIZE) {
+    fprintf(stderr, "Attempt to FD_ISSET fd %d, which is not less than "
+                    "FD_SETSIZE (%d). Try using a lower parallelism.",
+                    fd, FD_SETSIZE);
+    abort();
+  }
 #endif
+  return FD_ISSET(fd, fds);
+}
 
-#ifdef WIN32
-#define CHECKED_FD_CLR FD_CLR
-#else
-#define CHECKED_FD_CLR(fd, set) \
-  do { \
-    if ((fd) < FD_SETSIZE) { \
-      FD_CLR((fd), (set)); \
-    } else { \
-      fprintf(stderr, "%s:%ld: Attempt to FD_CLR fd %d, which is not less than" \
-        " FD_SETSIZE (%d). Try using a lower parallelism.", \
-        __FILE__, (long int) __LINE__, (fd), FD_SETSIZE); \
-      abort(); \
-    } \
-  } while (0)
+static inline void checked_fd_clr(int fd, fd_set *fds) {
+#ifndef WIN32
+  if (fd >= FD_SETSIZE) {
+    fprintf(stderr, "Attempt to FD_CLR fd %d, which is not less than "
+                    "FD_SETSIZE (%d). Try using a lower parallelism.",
+                    fd, FD_SETSIZE);
+    abort();
+  }
 #endif
+  FD_CLR(fd, fds);
+}
+
+static inline void checked_fd_set(int fd, fd_set *fds) {
+#ifndef WIN32
+  if (fd >= FD_SETSIZE) {
+    fprintf(stderr, "Attempt to FD_SET fd %d, which is not less than "
+                    "FD_SETSIZE (%d). Try using a lower parallelism.",
+                    fd, FD_SETSIZE);
+    abort();
+  }
+#endif
+  FD_SET(fd, fds);
+}
 
 
 #ifdef __cplusplus

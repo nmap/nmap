@@ -175,18 +175,18 @@ int select_iod_unregister(mspool *nsp, msiod *iod) {
     if (iod->pcap) {
       int sd = ((mspcap *)iod->pcap)->pcap_desc;
       if (sd >= 0) {
-        CHECKED_FD_CLR(sd, &sinfo->fds_master_r);
-        CHECKED_FD_CLR(sd, &sinfo->fds_results_r);
+        checked_fd_clr(sd, &sinfo->fds_master_r);
+        checked_fd_clr(sd, &sinfo->fds_results_r);
       }
     } else
 #endif
     {
-      CHECKED_FD_CLR(iod->sd, &sinfo->fds_master_r);
-      CHECKED_FD_CLR(iod->sd, &sinfo->fds_master_w);
-      CHECKED_FD_CLR(iod->sd, &sinfo->fds_master_x);
-      CHECKED_FD_CLR(iod->sd, &sinfo->fds_results_r);
-      CHECKED_FD_CLR(iod->sd, &sinfo->fds_results_w);
-      CHECKED_FD_CLR(iod->sd, &sinfo->fds_results_x);
+      checked_fd_clr(iod->sd, &sinfo->fds_master_r);
+      checked_fd_clr(iod->sd, &sinfo->fds_master_w);
+      checked_fd_clr(iod->sd, &sinfo->fds_master_x);
+      checked_fd_clr(iod->sd, &sinfo->fds_results_r);
+      checked_fd_clr(iod->sd, &sinfo->fds_results_w);
+      checked_fd_clr(iod->sd, &sinfo->fds_results_x);
     }
 
     if (sinfo->max_sd == iod->sd)
@@ -210,23 +210,23 @@ int select_iod_modify(mspool *nsp, msiod *iod, int ev_set, int ev_clr) {
 
   /* -- set events -- */
   if (ev_set & EV_READ)
-    CHECKED_FD_SET(sd, &sinfo->fds_master_r);
+    checked_fd_set(sd, &sinfo->fds_master_r);
 
   if (ev_set & EV_WRITE)
-    CHECKED_FD_SET(sd, &sinfo->fds_master_w);
+    checked_fd_set(sd, &sinfo->fds_master_w);
 
   if (ev_set & EV_EXCEPT)
-    CHECKED_FD_SET(sd, &sinfo->fds_master_x);
+    checked_fd_set(sd, &sinfo->fds_master_x);
 
   /* -- clear events -- */
   if (ev_clr & EV_READ)
-    CHECKED_FD_CLR(sd, &sinfo->fds_master_r);
+    checked_fd_clr(sd, &sinfo->fds_master_r);
 
   if (ev_clr & EV_WRITE)
-    CHECKED_FD_CLR(sd, &sinfo->fds_master_w);
+    checked_fd_clr(sd, &sinfo->fds_master_w);
 
   if (ev_clr & EV_EXCEPT)
-    CHECKED_FD_CLR(sd, &sinfo->fds_master_x);
+    checked_fd_clr(sd, &sinfo->fds_master_x);
 
 
   /* -- update max_sd -- */
@@ -339,7 +339,7 @@ static inline int get_evmask(const mspool *nsp, const msiod *nsi) {
 #if HAVE_PCAP
 #ifndef PCAP_CAN_DO_SELECT
   if (nsi->pcap) {
-    /* Always assume readable for a non-blocking read. We can't check FD_ISSET
+    /* Always assume readable for a non-blocking read. We can't check checked_fd_isset
        because we don't have a pcap_desc. */
     evmask |= EV_READ;
     return evmask;
@@ -356,11 +356,11 @@ static inline int get_evmask(const mspool *nsp, const msiod *nsi) {
 
   assert(sd >= 0);
 
-  if (FD_ISSET(sd, &sinfo->fds_results_r))
+  if (checked_fd_isset(sd, &sinfo->fds_results_r))
     evmask |= EV_READ;
-  if (FD_ISSET(sd, &sinfo->fds_results_w))
+  if (checked_fd_isset(sd, &sinfo->fds_results_w))
     evmask |= EV_WRITE;
-  if (FD_ISSET(sd, &sinfo->fds_results_x))
+  if (checked_fd_isset(sd, &sinfo->fds_results_x))
     evmask |= EV_EXCEPT;
 
   return evmask;
