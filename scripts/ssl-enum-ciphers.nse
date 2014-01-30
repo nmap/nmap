@@ -159,24 +159,27 @@ local function try_params(host, port, t)
   end
 
   -- Read response.
-  i = 0
   buffer = ""
   record = nil
   while true do
-    status, resp = sock:receive()
+    local status
+    status, buffer, err = tls.record_buffer(sock, buffer, 1)
     if not status then
-      sock:close()
+      stdnse.print_debug(1, "Couldn't read a TLS record: %s", err)
+      local nsedebug = require "nsedebug"
+      nsedebug.print_hex(req)
       return nil
     end
-
-    buffer = buffer .. resp
-
     -- Parse response.
-    i, record = tls.record_read(buffer, i)
-    if record ~= nil then
+    i, record = tls.record_read(buffer, 1)
+    if record and record.type == "alert" and record.body[1].level == "warning" then
+      stdnse.print_debug(1, "Ignoring warning: %s", record.body[1].description)
+      -- Try again.
+    elseif record then
       sock:close()
       return record
     end
+    buffer = buffer:sub(i+1)
   end
 end
 
@@ -213,6 +216,18 @@ end
 local function find_ciphers(host, port, protocol)
   local name, protocol_worked, record, results, t,cipherstr
   local ciphers = in_chunks(keys(tls.CIPHERS), CHUNK_SIZE)
+  local t = {
+        ["protocol"] = protocol,
+        ["extensions"] = {
+          -- Claim to support every elliptic curve
+          ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
+          -- Claim to support every EC point format
+          ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
+        },
+      }
+  if host.targetname then
+    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
+  end
 
   results = {}
 
@@ -221,10 +236,7 @@ local function find_ciphers(host, port, protocol)
   for _, group in ipairs(ciphers) do
     while (next(group)) do
       -- Create structure.
-      t = {
-        ["ciphers"] = group,
-        ["protocol"] = protocol
-      }
+      t["ciphers"] = group
 
       record = try_params(host, port, t)
 
@@ -239,16 +251,16 @@ local function find_ciphers(host, port, protocol)
         stdnse.print_debug(1, "Protocol %s rejected.", protocol)
         protocol_worked = nil
         break
-      elseif record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
+      elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
         protocol_worked = true
         stdnse.print_debug(2, "%d ciphers rejected.", #group)
         break
-      elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
+      elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
         stdnse.print_debug(2, "Unexpected record received.")
         break
       else
         protocol_worked = true
-        name = record["body"]["cipher"]
+        name = record["body"][1]["cipher"]
         stdnse.print_debug(2, "Cipher %s chosen.", name)
         remove(group, name)
 
@@ -266,6 +278,19 @@ end
 local function find_compressors(host, port, protocol, good_cipher)
   local name, protocol_worked, record, results, t
   local compressors = keys(tls.COMPRESSORS)
+  local t = {
+    ["protocol"] = protocol,
+    ["ciphers"] = {good_cipher},
+    ["extensions"] = {
+      -- Claim to support every elliptic curve
+      ["elliptic_curves"] = tls.EXTENSION_HELPERS["elliptic_curves"](keys(tls.ELLIPTIC_CURVES)),
+      -- Claim to support every EC point format
+      ["ec_point_formats"] = tls.EXTENSION_HELPERS["ec_point_formats"](keys(tls.EC_POINT_FORMATS)),
+    },
+  }
+  if host.targetname then
+    t["extensions"]["server_name"] = tls.EXTENSION_HELPERS["server_name"](host.targetname)
+  end
 
   results = {}
 
@@ -273,11 +298,7 @@ local function find_compressors(host, port, protocol, good_cipher)
   protocol_worked = false
   while (next(compressors)) do
     -- Create structure.
-    t = {
-      ["compressors"] = compressors,
-      ["ciphers"] = {good_cipher},
-      ["protocol"] = protocol
-    }
+    t["compressors"] = compressors
 
     -- Try connecting with compressor.
     record = try_params(host, port, t)
@@ -292,16 +313,16 @@ local function find_compressors(host, port, protocol, good_cipher)
     elseif record["protocol"] ~= protocol then
       stdnse.print_debug(1, "Protocol %s rejected.", protocol)
       break
-    elseif record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
+    elseif record["type"] == "alert" and record["body"][1]["description"] == "handshake_failure" then
       protocol_worked = true
       stdnse.print_debug(2, "%d compressors rejected.", #compressors)
       break
-    elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
+    elseif record["type"] ~= "handshake" or record["body"][1]["type"] ~= "server_hello" then
       stdnse.print_debug(2, "Unexpected record received.")
       break
     else
       protocol_worked = true
-      name = record["body"]["compressor"]
+      name = record["body"][1]["compressor"]
       stdnse.print_debug(2, "Compressor %s chosen.", name)
       remove(compressors, name)
 
@@ -451,7 +472,7 @@ action = function(host, port)
 
   for name, _ in pairs(tls.PROTOCOLS) do
     stdnse.print_debug(1, "Trying protocol %s.", name)
-    local co = stdnse.new_thread(try_protocol, host.ip, port.number, name, results)
+    local co = stdnse.new_thread(try_protocol, host, port, name, results)
     threads[co] = true
   end
 
