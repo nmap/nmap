@@ -128,10 +128,7 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
       have_libpcap=yes ])
     ;;
   included)
-    LIBPCAP_INC=${top_nmap_srcdir}/libpcap
-    LIBPCAP_LIB=${top_nmap_srcdir}/libpcap
-    LIBPCAP_LIBS=${LIBPCAP_LIB}/libpcap.a
-    have_libpcap=yes
+    have_libpcap=no
    ;;
   no)
     ;;
@@ -155,6 +152,12 @@ AC_HELP_STRING([--without-libpcap], [Disable pcap functions.]),
   esac]
 )
 
+if test "$with_libpcap" != "no" -a "$have_libpcap" = "no"; then
+  LIBPCAP_INC=${top_nmap_srcdir}/libpcap
+  LIBPCAP_LIB=${top_nmap_srcdir}/libpcap
+  LIBPCAP_LIBS=${LIBPCAP_LIB}/libpcap.a
+  have_libpcap=yes
+fi
 if test "$have_libpcap" != "no"; then
   AC_DEFINE(HAVE_PCAP)
   if test "${LIBPCAP_INC+set}" = "set"; then
