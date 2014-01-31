@@ -63,7 +63,7 @@ end
 action = function(host, port)
 	local result = stdnse.output_table()
 	local flag = false
-	local status, resp = dns.query("id.server", {host = host.ip, dtype='TXT', class=dns.CLASS.CH, retAll=true, retPkt=true, nsid=true, dnssec=true})
+	local status, resp = dns.query("id.server", {host = host.ip, port=port.number, proto=port.protocol, dtype='TXT', class=dns.CLASS.CH, retAll=true, retPkt=true, nsid=true, dnssec=true})
 	if ( status ) then
 		local status, nsid = rr_filter(resp.add,'OPT')
 		if ( status ) then
@@ -83,7 +83,7 @@ action = function(host, port)
 			result["id.server"] = id_server
 		end
 	end
-	local status, bind_version = dns.query("version.bind", {host = host.ip, dtype='TXT', class=dns.CLASS.CH})
+	local status, bind_version = dns.query("version.bind", {host = host.ip, port=port.number, proto=port.protocol, dtype='TXT', class=dns.CLASS.CH})
 	if ( status ) then
 		flag = true
 		result["bind.version"] = bind_version
