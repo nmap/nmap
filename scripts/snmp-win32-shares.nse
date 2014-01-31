@@ -38,13 +38,13 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 -- @return value of relevant type or nil if oid was not found
 function get_value_from_table( tbl, oid )
 
-	for _, v in ipairs( tbl ) do
-		if v.oid == oid then
-			return v.value
-		end
-	end
+  for _, v in ipairs( tbl ) do
+    if v.oid == oid then
+      return v.value
+    end
+  end
 
-	return nil
+  return nil
 end
 
 --- Processes the table and creates the script output
@@ -53,52 +53,52 @@ end
 -- @return table suitable for <code>stdnse.format_output</code>
 function process_answer( tbl )
 
-	local share_name = "1.3.6.1.4.1.77.1.2.27.1.1"
-	local share_path = "1.3.6.1.4.1.77.1.2.27.1.2"
-	local new_tbl = {}
+  local share_name = "1.3.6.1.4.1.77.1.2.27.1.1"
+  local share_path = "1.3.6.1.4.1.77.1.2.27.1.2"
+  local new_tbl = {}
 
-	for _, v in ipairs( tbl ) do
+  for _, v in ipairs( tbl ) do
 
-		if ( v.oid:match("^" .. share_name) ) then
-			local item = {}
-			local objid = v.oid:gsub( "^" .. share_name, share_path)
-			local path = get_value_from_table( tbl, objid )
+    if ( v.oid:match("^" .. share_name) ) then
+      local item = {}
+      local objid = v.oid:gsub( "^" .. share_name, share_path)
+      local path = get_value_from_table( tbl, objid )
 
-			item.name = v.value
-			table.insert( item, path )
-			table.insert( new_tbl, item )
-		end
+      item.name = v.value
+      table.insert( item, path )
+      table.insert( new_tbl, item )
+    end
 
-	end
+  end
 
-	return new_tbl
+  return new_tbl
 
 end
 
 
 action = function(host, port)
 
-	local socket = nmap.new_socket()
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)
-	local data, snmpoid = nil, "1.3.6.1.4.1.77.1.2.27"
-	local shares = {}
-	local status
+  local socket = nmap.new_socket()
+  local catch = function() socket:close()	end
+  local try = nmap.new_try(catch)
+  local data, snmpoid = nil, "1.3.6.1.4.1.77.1.2.27"
+  local shares = {}
+  local status
 
-	socket:set_timeout(5000)
-	try(socket:connect(host, port))
+  socket:set_timeout(5000)
+  try(socket:connect(host, port))
 
-	status, shares = snmp.snmpWalk( socket, snmpoid )
-	socket:close()
+  status, shares = snmp.snmpWalk( socket, snmpoid )
+  socket:close()
 
-	if (not(status)) or ( shares == nil ) or ( #shares == 0 ) then
-		return shares
-	end
+  if (not(status)) or ( shares == nil ) or ( #shares == 0 ) then
+    return shares
+  end
 
-	shares = process_answer( shares )
+  shares = process_answer( shares )
 
-	nmap.set_port_state(host, port, "open")
+  nmap.set_port_state(host, port, "open")
 
-	return stdnse.format_output( true, shares )
+  return stdnse.format_output( true, shares )
 end
 

@@ -40,46 +40,46 @@ categories = {"discovery", "safe"}
 
 
 portrule = function(host, port)
-	local allports = stdnse.get_script_args('vuze-dht-info.allports')
-	if ( tonumber(allports) == 1 or allports == 'true' ) then
-		return true
-	else
-		local f = shortport.port_or_service({17555, 49160, 49161, 49162}, "vuze-dht", "udp", {"open", "open|filtered"})
-		return f(host, port)
-	end
+  local allports = stdnse.get_script_args('vuze-dht-info.allports')
+  if ( tonumber(allports) == 1 or allports == 'true' ) then
+    return true
+  else
+    local f = shortport.port_or_service({17555, 49160, 49161, 49162}, "vuze-dht", "udp", {"open", "open|filtered"})
+    return f(host, port)
+  end
 end
 
 local function getDHTInfo(host, port, lhost)
 
-	local helper = vuzedht.Helper:new(host, port, lhost)
-	local status = helper:connect()
+  local helper = vuzedht.Helper:new(host, port, lhost)
+  local status = helper:connect()
 
-	if ( not(status) ) then
-		return false, "\n  ERROR: Failed to connect to server"
-	end
+  if ( not(status) ) then
+    return false, "\n  ERROR: Failed to connect to server"
+  end
 
-	local response
-	status, response = helper:ping()
-	if ( not(status) ) then
-		return false, "\n  ERROR: Failed to ping vuze node"
-	end
-	helper:close()
+  local response
+  status, response = helper:ping()
+  if ( not(status) ) then
+    return false, "\n  ERROR: Failed to ping vuze node"
+  end
+  helper:close()
 
-	return true, response
+  return true, response
 end
 
 action = function(host, port)
 
-	local status, response = getDHTInfo(host, port)
+  local status, response = getDHTInfo(host, port)
 
-	-- check whether we have an error due to an incorrect address
-	-- ie. we're on a NAT:ed network and we're announcing our private ip
-	if ( status and response.header.action == vuzedht.Response.Actions.ERROR  ) then
-		status, response = getDHTInfo(host, port, response.addr.ip)
-	end
+  -- check whether we have an error due to an incorrect address
+  -- ie. we're on a NAT:ed network and we're announcing our private ip
+  if ( status and response.header.action == vuzedht.Response.Actions.ERROR  ) then
+    status, response = getDHTInfo(host, port, response.addr.ip)
+  end
 
-	if ( status ) then
-		nmap.set_port_state(host, port, "open")
-		return tostring(response)
-	end
+  if ( status ) then
+    nmap.set_port_state(host, port, "open")
+    return tostring(response)
+  end
 end

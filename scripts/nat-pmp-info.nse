@@ -25,14 +25,14 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.port_or_service(5351, "nat-pmp", {"udp"} )
 
 action = function(host, port)
-	local helper = natpmp.Helper:new(host, port)
-	local status, response = helper:getWANIP()
+  local helper = natpmp.Helper:new(host, port)
+  local status, response = helper:getWANIP()
 
-	if ( status ) then
-		nmap.set_port_state(host, port, "open")
-		port.version.name = "nat-pmp"
-		nmap.set_port_version(host, port)
+  if ( status ) then
+    nmap.set_port_state(host, port, "open")
+    port.version.name = "nat-pmp"
+    nmap.set_port_version(host, port)
 
-		return stdnse.format_output(true, ("WAN IP: %s"):format(response.ip))
-	end
+    return stdnse.format_output(true, ("WAN IP: %s"):format(response.ip))
+  end
 end

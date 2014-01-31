@@ -55,13 +55,13 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.portnumber(5353, "udp")
 
 action = function(host, port)
-	local helper = dnssd.Helper:new( host, port )
-	local status, result = helper:queryServices()
+  local helper = dnssd.Helper:new( host, port )
+  local status, result = helper:queryServices()
 
-	if ( status ) then
-		-- set port to open
-		nmap.set_port_state(host, port, "open")
-		return stdnse.format_output(true, result)
-	end
+  if ( status ) then
+    -- set port to open
+    nmap.set_port_state(host, port, "open")
+    return stdnse.format_output(true, result)
+  end
 end
 

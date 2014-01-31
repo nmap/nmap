@@ -20,7 +20,7 @@ action = function(host, port)
     "t3 12.1.2\nAS:2048\nHL:19\n\n",
     {proto=port.protocol, timeout=5000})
 
-	if (not status) then
+  if (not status) then
     return nil
   end
 
@@ -34,10 +34,10 @@ action = function(host, port)
   else
     extrainfo = extrainfo .. "; "
   end
-	if weblogic_version then
+  if weblogic_version then
     port.version.version = weblogic_version
     port.version.extrainfo = extrainfo .. "T3 enabled"
-		rval = "T3 protocol in use (WebLogic version: " .. weblogic_version .. ")"
+    rval = "T3 protocol in use (WebLogic version: " .. weblogic_version .. ")"
   elseif string.match(result, "^LGIN:") then
     port.version.extrainfo = extrainfo .. "T3 enabled"
     rval = "T3 protocol in use (handshake failed)"
@@ -71,5 +71,5 @@ action = function(host, port)
     nmap.set_port_version(host, port, "hardmatched")
   end
 
-	return rval
+  return rval
 end

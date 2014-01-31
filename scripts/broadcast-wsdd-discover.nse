@@ -54,49 +54,49 @@ prerule = function() return true end
 --        the name should be one of the discovery functions in wsdd.Helper
 -- @param result table into which the results are stored
 discoverThread = function( funcname, results )
-	-- calculates a timeout based on the timing template (default: 5s)
-	local timeout = ( 20000 / ( nmap.timing_level() + 1 ) )
-	local condvar = nmap.condvar( results )
-	local helper = wsdd.Helper:new()
-	helper:setMulticast(true)
-	helper:setTimeout(timeout)
+  -- calculates a timeout based on the timing template (default: 5s)
+  local timeout = ( 20000 / ( nmap.timing_level() + 1 ) )
+  local condvar = nmap.condvar( results )
+  local helper = wsdd.Helper:new()
+  helper:setMulticast(true)
+  helper:setTimeout(timeout)
 
-	local status, result = helper[funcname](helper)
-	if ( status ) then table.insert(results, result) end
-	condvar("broadcast")
+  local status, result = helper[funcname](helper)
+  if ( status ) then table.insert(results, result) end
+  condvar("broadcast")
 end
 
 local function sortfunc(a,b)
-	if ( a and b and a.name and b.name ) and ( a.name < b.name ) then
-		return true
-	end
-	return false
+  if ( a and b and a.name and b.name ) and ( a.name < b.name ) then
+    return true
+  end
+  return false
 end
 
 action = function()
 
-	local threads, results = {}, {}
-	local condvar = nmap.condvar( results )
+  local threads, results = {}, {}
+  local condvar = nmap.condvar( results )
 
-	-- Attempt to discover both devices and WCF web services
-	for _, f in ipairs( {"discoverDevices", "discoverWCFServices"} ) do
-		threads[stdnse.new_thread( discoverThread, f, results )] = true
-	end
+  -- Attempt to discover both devices and WCF web services
+  for _, f in ipairs( {"discoverDevices", "discoverWCFServices"} ) do
+    threads[stdnse.new_thread( discoverThread, f, results )] = true
+  end
 
-	local done
-	-- wait for all threads to finish
-	while( not(done) ) do
-		done = true
-		for thread in pairs(threads) do
-			if (coroutine.status(thread) ~= "dead") then done = false end
-		end
-		if ( not(done) ) then
-			condvar("wait")
-		end
-	end
+  local done
+  -- wait for all threads to finish
+  while( not(done) ) do
+    done = true
+    for thread in pairs(threads) do
+      if (coroutine.status(thread) ~= "dead") then done = false end
+    end
+    if ( not(done) ) then
+      condvar("wait")
+    end
+  end
 
-	if ( results ) then
-		table.sort( results, sortfunc )
-		return stdnse.format_output(true, results)
-	end
+  if ( results ) then
+    table.sort( results, sortfunc )
+    return stdnse.format_output(true, results)
+  end
 end

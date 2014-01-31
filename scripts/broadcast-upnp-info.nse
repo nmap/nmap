@@ -40,12 +40,12 @@ prerule = function() return true end
 -- Sends UPnP discovery packet to host,
 -- and extracts service information from results
 action = function()
-	local helper = upnp.Helper:new()
-	helper:setMulticast(true)
-	local status, result = helper:queryServices()
+  local helper = upnp.Helper:new()
+  helper:setMulticast(true)
+  local status, result = helper:queryServices()
 
-	if ( status ) then
-		return stdnse.format_output(true, result)
-	end
+  if ( status ) then
+    return stdnse.format_output(true, result)
+  end
 end
 

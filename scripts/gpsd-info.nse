@@ -34,70 +34,70 @@ local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. 
 arg_timeout = arg_timeout or 10
 
 local function updateData(gpsinfo, entry)
-	for k, v in pairs(gpsinfo) do
-		if ( entry[k] and 0 < #tostring(entry[k]) ) then
-			gpsinfo[k] = entry[k]
-		end
-	end
+  for k, v in pairs(gpsinfo) do
+    if ( entry[k] and 0 < #tostring(entry[k]) ) then
+      gpsinfo[k] = entry[k]
+    end
+  end
 end
 
 local function hasAllData(gpsinfo)
-	for k, v in pairs(gpsinfo) do
-		if ( k ~= "speed" and v == '-' ) then
-			return false
-		end
-	end
-	return true
+  for k, v in pairs(gpsinfo) do
+    if ( k ~= "speed" and v == '-' ) then
+      return false
+    end
+  end
+  return true
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local gpsinfo = {
-		longitude = "-",
-		latitude = "-",
-		speed = "-",
-		time  = "-",
-		date  = "-",
-	}
+  local gpsinfo = {
+    longitude = "-",
+    latitude = "-",
+    speed = "-",
+    time  = "-",
+    date  = "-",
+  }
 
-	local socket = nmap.new_socket()
-	socket:set_timeout(1000)
+  local socket = nmap.new_socket()
+  socket:set_timeout(1000)
 
-	local status = socket:connect(host, port)
+  local status = socket:connect(host, port)
 
-	if ( not(status) ) then
-		return fail("Failed to connect to server")
-	end
+  if ( not(status) ) then
+    return fail("Failed to connect to server")
+  end
 
-	-- get the banner
-	local status, line = socket:receive_lines(1)
-	socket:send('?WATCH={"enable":true,"nmea":true}\r\n')
+  -- get the banner
+  local status, line = socket:receive_lines(1)
+  socket:send('?WATCH={"enable":true,"nmea":true}\r\n')
 
-	local start_time = os.time()
+  local start_time = os.time()
 
-	repeat
-		local entry
-		status, line = socket:receive_buf("\r\n", false)
-		if ( status ) then
-			status, entry = gps.NMEA.parse(line)
-			if ( status ) then
-				updateData(gpsinfo, entry)
-			end
-		end
-	until( os.time() - start_time > arg_timeout or hasAllData(gpsinfo) )
+  repeat
+    local entry
+    status, line = socket:receive_buf("\r\n", false)
+    if ( status ) then
+      status, entry = gps.NMEA.parse(line)
+      if ( status ) then
+        updateData(gpsinfo, entry)
+      end
+    end
+  until( os.time() - start_time > arg_timeout or hasAllData(gpsinfo) )
 
-	socket:send('?WATCH={"enable":false}\r\n')
+  socket:send('?WATCH={"enable":false}\r\n')
 
-	if ( not(hasAllData(gpsinfo)) ) then
-		return
-	end
+  if ( not(hasAllData(gpsinfo)) ) then
+    return
+  end
 
-	local output = {
-		("Time of fix: %s"):format(stdnse.format_timestamp(gps.Util.convertTime(gpsinfo.date, gpsinfo.time))),
-		("Coordinates: %.4f,%.4f"):format(tonumber(gpsinfo.latitude), tonumber(gpsinfo.longitude)),
-		("Speed: %s knots"):format(gpsinfo.speed)
-	}
-	return stdnse.format_output(true, output)
+  local output = {
+    ("Time of fix: %s"):format(stdnse.format_timestamp(gps.Util.convertTime(gpsinfo.date, gpsinfo.time))),
+    ("Coordinates: %.4f,%.4f"):format(tonumber(gpsinfo.latitude), tonumber(gpsinfo.longitude)),
+    ("Speed: %s knots"):format(gpsinfo.speed)
+  }
+  return stdnse.format_output(true, output)
 end

@@ -29,35 +29,35 @@ portrule = shortport.version_port_or_service(10000, "ndmp", "tcp")
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local function vendorLookup(vendor)
-	if ( vendor:match("VERITAS") ) then
-		return "Symantec/Veritas Backup Exec ndmp"
-	else
-		return vendor
-	end
+  if ( vendor:match("VERITAS") ) then
+    return "Symantec/Veritas Backup Exec ndmp"
+  else
+    return vendor
+  end
 end
 
 action = function(host, port)
-	local helper = ndmp.Helper:new(host, port)
-	local status, err = helper:connect()
-	if ( not(status) ) then	return fail("Failed to connect to server") end
+  local helper = ndmp.Helper:new(host, port)
+  local status, err = helper:connect()
+  if ( not(status) ) then	return fail("Failed to connect to server") end
 
-	local hi, si
-	status, hi = helper:getHostInfo()
-	if ( not(status) ) then return fail("Failed to get host information from server") end
+  local hi, si
+  status, hi = helper:getHostInfo()
+  if ( not(status) ) then return fail("Failed to get host information from server") end
 
-	status, si = helper:getServerInfo()
-	if ( not(status) ) then return fail("Failed to get server information from server") end
-	helper:close()
+  status, si = helper:getServerInfo()
+  if ( not(status) ) then return fail("Failed to get server information from server") end
+  helper:close()
 
-	local major, minor, build, smajor, sminor = hi.hostinfo.osver:match("Major Version=(%d+) Minor Version=(%d+) Build Number=(%d+) ServicePack Major=(%d+) ServicePack Minor=(%d+)")
-	port.version.name = "ndmp"
-	port.version.product = vendorLookup(si.serverinfo.vendor)
-	port.version.ostype = hi.hostinfo.ostype
-	if ( hi.hostinfo.hostname ) then
-		port.version.extrainfo = ("Name: %s; "):format(hi.hostinfo.hostname)
-	end
-	if ( major and minor and build and smajor and sminor ) then
-		port.version.extrainfo = port.version.extrainfo .. ("OS ver: %d.%d; OS Build: %d; OS Service Pack: %d"):format(major, minor, build, smajor)
-	end
-	nmap.set_port_version(host, port)
+  local major, minor, build, smajor, sminor = hi.hostinfo.osver:match("Major Version=(%d+) Minor Version=(%d+) Build Number=(%d+) ServicePack Major=(%d+) ServicePack Minor=(%d+)")
+  port.version.name = "ndmp"
+  port.version.product = vendorLookup(si.serverinfo.vendor)
+  port.version.ostype = hi.hostinfo.ostype
+  if ( hi.hostinfo.hostname ) then
+    port.version.extrainfo = ("Name: %s; "):format(hi.hostinfo.hostname)
+  end
+  if ( major and minor and build and smajor and sminor ) then
+    port.version.extrainfo = port.version.extrainfo .. ("OS ver: %d.%d; OS Build: %d; OS Service Pack: %d"):format(major, minor, build, smajor)
+  end
+  nmap.set_port_version(host, port)
 end

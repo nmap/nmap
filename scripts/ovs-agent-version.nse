@@ -34,45 +34,45 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 portrule = shortport.version_port_or_service({8899})
 
 local function set_port_version(host, port, version, server)
-	port.version.name = "ovs-agent"
-	port.version.product = "Oracle Virtual Server Agent"
-	port.version.version = version
-	if server then
-		local basehttp, python = string.match(server, "^BaseHTTP/([%d.]+) Python/([%d.]+)")
-		if basehttp and python then
-			port.version.extrainfo = string.format("BaseHTTP %s; Python SimpleXMLRPCServer; Python %s", basehttp, python)
-		end
-	end
-	nmap.set_port_version(host, port)
+  port.version.name = "ovs-agent"
+  port.version.product = "Oracle Virtual Server Agent"
+  port.version.version = version
+  if server then
+    local basehttp, python = string.match(server, "^BaseHTTP/([%d.]+) Python/([%d.]+)")
+    if basehttp and python then
+      port.version.extrainfo = string.format("BaseHTTP %s; Python SimpleXMLRPCServer; Python %s", basehttp, python)
+    end
+  end
+  nmap.set_port_version(host, port)
 end
 
 function action(host, port)
-	local response
-	local version = {}
+  local response
+  local version = {}
 
-	response = http.get(host, port, "/")
-	if response.status == 200 and string.match(response.body,
-		"<title>Python: OVSAgentServer Document</title>") then
-		set_port_version(host, port, "2.2", response.header["server"])
-		return
-	end
+  response = http.get(host, port, "/")
+  if response.status == 200 and string.match(response.body,
+    "<title>Python: OVSAgentServer Document</title>") then
+    set_port_version(host, port, "2.2", response.header["server"])
+    return
+  end
 
-	-- So much for version 2.2. If the response to GET was 501, then we may
-	-- have a version 3.0 or 3.0.1.
-	if not (response.status == 501) then
-		return
-	end
+  -- So much for version 2.2. If the response to GET was 501, then we may
+  -- have a version 3.0 or 3.0.1.
+  if not (response.status == 501) then
+    return
+  end
 
-	response = http.post(host, port, "/",
-		{header = {["Content-Type"] = "text/xml"}}, nil,
-		"<methodCall><methodName>system.listMethods</methodName><params></params></methodCall>")
-	if response.status == 403 and string.match(response.body,
-		"Message: Unauthorized HTTP Access Attempt from %('[%d.]+', %d+%)!%.") then
-		set_port_version(host, port, "3.0", response.header["server"])
-		return
-	elseif response.status == 403 and string.match(response.body,
-		"Message: Unauthorized access attempt from %('[%d.]+', %d+%)!%.") then
-		set_port_version(host, port, "3.0.1", response.header["server"])
-		return
-	end
+  response = http.post(host, port, "/",
+    {header = {["Content-Type"] = "text/xml"}}, nil,
+    "<methodCall><methodName>system.listMethods</methodName><params></params></methodCall>")
+  if response.status == 403 and string.match(response.body,
+    "Message: Unauthorized HTTP Access Attempt from %('[%d.]+', %d+%)!%.") then
+    set_port_version(host, port, "3.0", response.header["server"])
+    return
+  elseif response.status == 403 and string.match(response.body,
+    "Message: Unauthorized access attempt from %('[%d.]+', %d+%)!%.") then
+    set_port_version(host, port, "3.0.1", response.header["server"])
+    return
+  end
 end

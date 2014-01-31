@@ -34,42 +34,42 @@ categories = {"discovery", "safe"}
 portrule = shortport.http
 
 action = function(host, port)
-	local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
-	local useget = stdnse.get_script_args(SCRIPT_NAME..".useget")
-	local request_type = "HEAD"
-	local status = false
-	local result
+  local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
+  local useget = stdnse.get_script_args(SCRIPT_NAME..".useget")
+  local request_type = "HEAD"
+  local status = false
+  local result
 
-	-- Check if the user didn't want HEAD to be used
-	if(useget == nil) then
-		-- Try using HEAD first
-		status, result = http.can_use_head(host, port, nil, path)
-	end
+  -- Check if the user didn't want HEAD to be used
+  if(useget == nil) then
+    -- Try using HEAD first
+    status, result = http.can_use_head(host, port, nil, path)
+  end
 
-	-- If head failed, try using GET
-	if(status == false) then
-		stdnse.print_debug(1, "http-headers.nse: HEAD request failed, falling back to GET")
-		result = http.get(host, port, path)
-		request_type = "GET"
-	end
+  -- If head failed, try using GET
+  if(status == false) then
+    stdnse.print_debug(1, "http-headers.nse: HEAD request failed, falling back to GET")
+    result = http.get(host, port, path)
+    request_type = "GET"
+  end
 
-	if(result == nil) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: Header request failed"
-		else
-			return nil
-		end
-	end
+  if(result == nil) then
+    if(nmap.debugging() > 0) then
+      return "ERROR: Header request failed"
+    else
+      return nil
+    end
+  end
 
-	if(result.rawheader == nil) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: Header request didn't return a proper header"
-		else
-			return nil
-		end
-	end
+  if(result.rawheader == nil) then
+    if(nmap.debugging() > 0) then
+      return "ERROR: Header request didn't return a proper header"
+    else
+      return nil
+    end
+  end
 
-	table.insert(result.rawheader, "(Request type: " .. request_type .. ")")
+  table.insert(result.rawheader, "(Request type: " .. request_type .. ")")
 
-	return stdnse.format_output(true, result.rawheader)
+  return stdnse.format_output(true, result.rawheader)
 end

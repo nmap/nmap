@@ -67,30 +67,30 @@ dependencies = {"smb-brute"}
 
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 action = function(host)
-	local status, groups = msrpc.samr_enum_groups(host)
-	if(not(status)) then
-		return stdnse.format_output(false, "Couldn't enumerate groups: " .. groups)
-	end
+  local status, groups = msrpc.samr_enum_groups(host)
+  if(not(status)) then
+    return stdnse.format_output(false, "Couldn't enumerate groups: " .. groups)
+  end
 
-	local response = {}
+  local response = {}
 
-	for domain_name, domain_data in pairs(groups) do
+  for domain_name, domain_data in pairs(groups) do
 
-		for rid, group_data in pairs(domain_data) do
-			local members = group_data['members']
-			if(#members > 0) then
-				members = stdnse.strjoin(", ", group_data['members'])
-			else
-				members = "<empty>"
-			end
-			table.insert(response, string.format("%s\\%s (RID: %s): %s", domain_name, group_data['name'], rid, members))
-		end
-	end
+    for rid, group_data in pairs(domain_data) do
+      local members = group_data['members']
+      if(#members > 0) then
+        members = stdnse.strjoin(", ", group_data['members'])
+      else
+        members = "<empty>"
+      end
+      table.insert(response, string.format("%s\\%s (RID: %s): %s", domain_name, group_data['name'], rid, members))
+    end
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 

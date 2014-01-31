@@ -31,24 +31,24 @@ categories = {"default", "safe", "discovery"}
 portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 
 action = function(host, port)
-    local status, session, response
-    session = sip.Session:new(host, port)
-    status = session:connect()
-    if not status then
-	return "ERROR: Failed to connect to the SIP server."
+  local status, session, response
+  session = sip.Session:new(host, port)
+  status = session:connect()
+  if not status then
+    return "ERROR: Failed to connect to the SIP server."
+  end
+
+  status, response = session:options()
+  if status then
+    -- If port state not set to open, set it to open.
+    if nmap.get_port_state(host, port) ~= "open" then
+      nmap.set_port_state(host, port, "open")
     end
 
-    status, response = session:options()
-    if status then
-	-- If port state not set to open, set it to open.
-	if nmap.get_port_state(host, port) ~= "open" then
-	    nmap.set_port_state(host, port, "open")
-	end
-
-	-- Check if allow header exists in response
-	local allow = response:getHeader("allow")
-	if allow then
-	    return stdnse.format_output(true, allow)
-	end
+    -- Check if allow header exists in response
+    local allow = response:getHeader("allow")
+    if allow then
+      return stdnse.format_output(true, allow)
     end
+  end
 end

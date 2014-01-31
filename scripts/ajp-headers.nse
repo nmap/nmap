@@ -34,15 +34,15 @@ local arg_path   = stdnse.get_script_args(SCRIPT_NAME .. '.path') or "/"
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
-	local method
-	local helper = ajp.Helper:new(host, port)
-	helper:connect()
+  local method
+  local helper = ajp.Helper:new(host, port)
+  helper:connect()
 
-	local status, response = helper:get(arg_path)
-	helper:close()
+  local status, response = helper:get(arg_path)
+  helper:close()
 
-	if ( not(status) ) then
-		return fail("Failed to retrieve server headers")
-	end
-	return stdnse.format_output(true, response.rawheaders)
+  if ( not(status) ) then
+    return fail("Failed to retrieve server headers")
+  end
+  return stdnse.format_output(true, response.rawheaders)
 end

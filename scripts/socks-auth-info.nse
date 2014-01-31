@@ -42,25 +42,25 @@ portrule = shortport.port_or_service({1080, 9050}, {"socks", "socks5", "tor-sock
 
 action = function(host, port)
 
-	local helper = socks.Helper:new(host, port)
-	local auth_methods = {}
+  local helper = socks.Helper:new(host, port)
+  local auth_methods = {}
 
-	-- iterate over all authentication methods as the server only responds with
-	-- a single supported one if we send a list.
+  -- iterate over all authentication methods as the server only responds with
+  -- a single supported one if we send a list.
   local mt = { __tostring = function(t) return t.name end }
-	for _, method in pairs(socks.AuthMethod) do
-		local status, response = helper:connect( method )
-		if ( status ) then
+  for _, method in pairs(socks.AuthMethod) do
+    local status, response = helper:connect( method )
+    if ( status ) then
       local out = {
         method = response.method,
         name = helper:authNameByNumber(response.method)
       }
       setmetatable(out, mt)
-			table.insert(auth_methods, out)
-		end
-	end
+      table.insert(auth_methods, out)
+    end
+  end
 
-	helper:close()
-	if ( 0 == #auth_methods ) then return end
-	return auth_methods
+  helper:close()
+  if ( 0 == #auth_methods ) then return end
+  return auth_methods
 end

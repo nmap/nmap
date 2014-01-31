@@ -37,17 +37,17 @@ portrule = shortport.portnumber(1900, "udp", {"open", "open|filtered"})
 -- Sends UPnP discovery packet to host,
 -- and extracts service information from results
 action = function(host, port)
-	local override = stdnse.get_script_args("upnp-info.override")
-	local helper = upnp.Helper:new( host, port )
-	if ( override ~= nil ) and ( string.lower(override) == "false" ) then
-		helper:setOverride( false )
-	else
-		helper:setOverride( true )
-	end
-	local status, result = helper:queryServices()
+  local override = stdnse.get_script_args("upnp-info.override")
+  local helper = upnp.Helper:new( host, port )
+  if ( override ~= nil ) and ( string.lower(override) == "false" ) then
+    helper:setOverride( false )
+  else
+    helper:setOverride( true )
+  end
+  local status, result = helper:queryServices()
 
-	if ( status ) then
-		nmap.set_port_state(host, port, "open")
-		return stdnse.format_output(true, result)
-	end
+  if ( status ) then
+    nmap.set_port_state(host, port, "open")
+    return stdnse.format_output(true, result)
+  end
 end

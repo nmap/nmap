@@ -20,36 +20,36 @@ categories = {"auth", "default", "safe"}
 portrule = shortport.port_or_service(5900, "vnc")
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	local result
-	local status = true
+  local socket = nmap.new_socket()
+  local result
+  local status = true
 
-	socket:connect(host, port)
+  socket:connect(host, port)
 
-	status, result = socket:receive_lines(1)
+  status, result = socket:receive_lines(1)
 
-	if (not status) then
-		socket:close()
-		return
-	end
+  if (not status) then
+    socket:close()
+    return
+  end
 
-	socket:send("RFB 003.008\n")
-	status, result = socket:receive_bytes(2)
+  socket:send("RFB 003.008\n")
+  status, result = socket:receive_bytes(2)
 
-	if (not status or result ~= "\001\002") then
-		socket:close()
-		return
-	end
+  if (not status or result ~= "\001\002") then
+    socket:close()
+    return
+  end
 
-	socket:send("\001")
-	status, result = socket:receive_bytes(4)
+  socket:send("\001")
+  status, result = socket:receive_bytes(4)
 
-	if (not status or result ~= "\000\000\000\000") then
-		socket:close()
-		return
-	end
+  if (not status or result ~= "\000\000\000\000") then
+    socket:close()
+    return
+  end
 
-	socket:close()
+  socket:close()
 
-	return "Vulnerable"
+  return "Vulnerable"
 end

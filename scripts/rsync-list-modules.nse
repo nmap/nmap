@@ -27,20 +27,20 @@ categories = {"discovery", "safe"}
 portrule = shortport.port_or_service(873, "rsync", "tcp")
 
 action = function(host, port)
-	local helper = rsync.Helper:new(host, port, { module = "" })
-	if ( not(helper) ) then
-		return "\n  ERROR: Failed to create rsync.Helper"
-	end
+  local helper = rsync.Helper:new(host, port, { module = "" })
+  if ( not(helper) ) then
+    return "\n  ERROR: Failed to create rsync.Helper"
+  end
 
-	local status, err = helper:connect()
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to connect to rsync server"
-	end
+  local status, err = helper:connect()
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to connect to rsync server"
+  end
 
-	local modules = {}
-	status, modules = helper:listModules()
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to retrieve a list of modules"
-	end
-	return stdnse.format_output(true, modules)
+  local modules = {}
+  status, modules = helper:listModules()
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to retrieve a list of modules"
+  end
+  return stdnse.format_output(true, modules)
 end

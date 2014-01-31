@@ -34,34 +34,34 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local DISPLAY_ID = 1
-	local result = {}
+  local DISPLAY_ID = 1
+  local result = {}
 
-	local helper = xdmcp.Helper:new(host, port)
-	local status = helper:connect()
-	if ( not(status) ) then
-		return fail("Failed to connect to server")
-	end
+  local helper = xdmcp.Helper:new(host, port)
+  local status = helper:connect()
+  if ( not(status) ) then
+    return fail("Failed to connect to server")
+  end
 
-	local status, response = helper:createSession(nil,
-		{"MIT-MAGIC-COOKIE-1", "XDM-AUTHORIZATION-1"}, DISPLAY_ID)
+  local status, response = helper:createSession(nil,
+    {"MIT-MAGIC-COOKIE-1", "XDM-AUTHORIZATION-1"}, DISPLAY_ID)
 
-	if ( not(status) ) then
-		return fail("Failed to create xdmcp session")
-	end
+  if ( not(status) ) then
+    return fail("Failed to create xdmcp session")
+  end
 
-	table.insert(result, ("Session id: 0x%.8X"):format(response.session_id))
-	if ( response.auth_name and 0 < #response.auth_name ) then
-		table.insert(result, ("Authentication name: %s"):format(response.auth_name))
-	end
-	if ( response.auth_data and 0 < #response.auth_data ) then
-		table.insert(result, ("Authentication data: %s"):format(stdnse.tohex(response.auth_data)))
-	end
-	if ( response.authr_name and 0 < #response.authr_name ) then
-		table.insert(result, ("Authorization name: %s"):format(response.authr_name))
-	end
-	if ( response.authr_data and 0 < #response.authr_data ) then
-		table.insert(result, ("Authorization data: %s"):format(stdnse.tohex(response.authr_data)))
-	end
-	return stdnse.format_output(true, result)
+  table.insert(result, ("Session id: 0x%.8X"):format(response.session_id))
+  if ( response.auth_name and 0 < #response.auth_name ) then
+    table.insert(result, ("Authentication name: %s"):format(response.auth_name))
+  end
+  if ( response.auth_data and 0 < #response.auth_data ) then
+    table.insert(result, ("Authentication data: %s"):format(stdnse.tohex(response.auth_data)))
+  end
+  if ( response.authr_name and 0 < #response.authr_name ) then
+    table.insert(result, ("Authorization name: %s"):format(response.authr_name))
+  end
+  if ( response.authr_data and 0 < #response.authr_data ) then
+    table.insert(result, ("Authorization data: %s"):format(stdnse.tohex(response.authr_data)))
+  end
+  return stdnse.format_output(true, result)
 end

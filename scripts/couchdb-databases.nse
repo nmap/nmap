@@ -39,7 +39,7 @@ categories = {"discovery", "safe"}
 portrule = shortport.port_or_service({5984})
 -- Some lazy shortcuts
 local function dbg(str,...)
-	stdnse.print_debug("couchdb-get-tables:"..str, ...)
+  stdnse.print_debug("couchdb-get-tables:"..str, ...)
 end
 
 local DISCARD = {}
@@ -49,51 +49,51 @@ local DISCARD = {}
 -- @param data a table containg data
 --@return another table containing data, with some keys removed
 local function queryResultToTable(data)
-	local result = {}
-	for k,v in pairs(data) do
-		dbg("(%s,%s)",k,tostring(v))
-		if DISCARD[k] ~= 1 then
-			if type(v) == 'table' then
-				table.insert(result,k)
-				table.insert(result,queryResultToTable(v))
-			else
-				table.insert(result,(("%s = %s"):format(tostring(k), tostring(v))))
-			end
-		end
-	end
-	return result
+  local result = {}
+  for k,v in pairs(data) do
+    dbg("(%s,%s)",k,tostring(v))
+    if DISCARD[k] ~= 1 then
+      if type(v) == 'table' then
+        table.insert(result,k)
+        table.insert(result,queryResultToTable(v))
+      else
+        table.insert(result,(("%s = %s"):format(tostring(k), tostring(v))))
+      end
+    end
+  end
+  return result
 end
 
 action = function(host, port)
-	local data, result, err
-	dbg("Requesting all databases")
-	data = http.get( host, port, '/_all_dbs' )
+  local data, result, err
+  dbg("Requesting all databases")
+  data = http.get( host, port, '/_all_dbs' )
 
-	-- check that body was received
-	if not data.body or data.body == "" then
-		local msg = ("%s did not respond with any data."):format(host.targetname or host.ip )
-		dbg( msg )
-		return  msg
-	end
+  -- check that body was received
+  if not data.body or data.body == "" then
+    local msg = ("%s did not respond with any data."):format(host.targetname or host.ip )
+    dbg( msg )
+    return  msg
+  end
 
-	-- The html body should look like this :
-	-- ["somedatabase", "anotherdatabase"]
+  -- The html body should look like this :
+  -- ["somedatabase", "anotherdatabase"]
 
-	local status, result = json.parse(data.body)
-	if not status then
-		dbg(result)
-		return result
-	end
+  local status, result = json.parse(data.body)
+  if not status then
+    dbg(result)
+    return result
+  end
 
-	-- Here we know it is a couchdb
-	port.version.name ='httpd'
-	port.version.product='Apache CouchDB'
-	nmap.set_port_version(host,port)
+  -- Here we know it is a couchdb
+  port.version.name ='httpd'
+  port.version.product='Apache CouchDB'
+  nmap.set_port_version(host,port)
 
-	-- We have a valid table in result containing the parsed json
-	-- now, get all the interesting bits
+  -- We have a valid table in result containing the parsed json
+  -- now, get all the interesting bits
 
-	result = queryResultToTable(result)
+  result = queryResultToTable(result)
 
-	return stdnse.format_output(true, result )
+  return stdnse.format_output(true, result )
 end

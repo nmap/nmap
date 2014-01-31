@@ -25,14 +25,14 @@ categories = {"broadcast", "safe"}
 prerule = function() return true end
 
 action = function()
-	local helper = srvloc.Helper:new()
-	local status, result = helper:ServiceRequest("service:odbms.versant:vod", "default")
-	helper:close()
+  local helper = srvloc.Helper:new()
+  local status, result = helper:ServiceRequest("service:odbms.versant:vod", "default")
+  helper:close()
 
-	if ( not(status) ) then return end
-	local output = {}
-	for _, v in ipairs(result) do
-		table.insert(output, v:match("^service:odbms.versant:vod://(.*)$"))
-	end
-	return stdnse.format_output(true, output)
+  if ( not(status) ) then return end
+  local output = {}
+  for _, v in ipairs(result) do
+    table.insert(output, v:match("^service:odbms.versant:vod://(.*)$"))
+  end
+  return stdnse.format_output(true, output)
 end

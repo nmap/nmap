@@ -44,50 +44,50 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local function getInfo(host, port, username, password)
 
-	local helper = rpcap.Helper:new(host, port)
-	local status, resp = helper:connect()
-	if ( not(status) ) then
-		return false, "Failed to connect to server"
-	end
-	status, resp = helper:login(username, password)
+  local helper = rpcap.Helper:new(host, port)
+  local status, resp = helper:connect()
+  if ( not(status) ) then
+    return false, "Failed to connect to server"
+  end
+  status, resp = helper:login(username, password)
 
-	if ( not(status) ) then
-		return false, resp
-	end
+  if ( not(status) ) then
+    return false, resp
+  end
 
-	status, resp = helper:findAllInterfaces()
-	helper:close()
-	if ( not(status) ) then
-		return false, resp
-	end
+  status, resp = helper:findAllInterfaces()
+  helper:close()
+  if ( not(status) ) then
+    return false, resp
+  end
 
-	port.version.name = "rpcap"
-	port.version.product = "WinPcap remote packet capture daemon"
-	nmap.set_port_version(host, port)
+  port.version.name = "rpcap"
+  port.version.product = "WinPcap remote packet capture daemon"
+  nmap.set_port_version(host, port)
 
-	return true, resp
+  return true, resp
 end
 
 action = function(host, port)
 
-	-- patch-up the service name, so creds.rpcap will work, ugly but needed as
-	-- tcp 2002 is registered to the globe service in nmap-services ...
-	port.service = "rpcap"
+  -- patch-up the service name, so creds.rpcap will work, ugly but needed as
+  -- tcp 2002 is registered to the globe service in nmap-services ...
+  port.service = "rpcap"
 
-	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
-	local states = creds.State.VALID + creds.State.PARAM
-	local status, resp = getInfo(host, port)
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  local states = creds.State.VALID + creds.State.PARAM
+  local status, resp = getInfo(host, port)
 
-	if ( status ) then
-		return stdnse.format_output(true, resp)
-	end
+  if ( status ) then
+    return stdnse.format_output(true, resp)
+  end
 
-	for cred in c:getCredentials(states) do
-		status, resp = getInfo(host, port, cred.user, cred.pass)
-		if ( status ) then
-			return stdnse.format_output(true, resp)
-		end
-	end
+  for cred in c:getCredentials(states) do
+    status, resp = getInfo(host, port, cred.user, cred.pass)
+    if ( status ) then
+      return stdnse.format_output(true, resp)
+    end
+  end
 
-	return fail(resp)
+  return fail(resp)
 end

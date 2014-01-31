@@ -32,49 +32,49 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 portrule = function(host, port)
-	local auth_port = { number=113, protocol="tcp" }
-	local identd = nmap.get_port_state(host, auth_port)
+  local auth_port = { number=113, protocol="tcp" }
+  local identd = nmap.get_port_state(host, auth_port)
 
-	return identd ~= nil
-		and identd.state == "open"
-		and port.protocol == "tcp"
-		and port.state == "open"
+  return identd ~= nil
+    and identd.state == "open"
+    and port.protocol == "tcp"
+    and port.state == "open"
 end
 
 action = function(host, port)
-	local owner = ""
+  local owner = ""
 
-	local client_ident = nmap.new_socket()
-	local client_service = nmap.new_socket()
+  local client_ident = nmap.new_socket()
+  local client_service = nmap.new_socket()
 
-	local catch = function()
-		client_ident:close()
-		client_service:close()
-	end
+  local catch = function()
+    client_ident:close()
+    client_service:close()
+  end
 
-	local try = nmap.new_try(catch)
+  local try = nmap.new_try(catch)
 
-	try(client_ident:connect(host, 113))
-	try(client_service:connect(host, port))
+  try(client_ident:connect(host, 113))
+  try(client_service:connect(host, port))
 
-	local localip, localport, remoteip, remoteport =
-        	try(client_service:get_info())
+  local localip, localport, remoteip, remoteport =
+    try(client_service:get_info())
 
-	local request = port.number .. ", " .. localport .. "\r\n"
+  local request = port.number .. ", " .. localport .. "\r\n"
 
-	try(client_ident:send(request))
+  try(client_ident:send(request))
 
-	owner = try(client_ident:receive_lines(1))
+  owner = try(client_ident:receive_lines(1))
 
-	if string.match(owner, "ERROR") then
-		owner = nil
-	else
-		owner = string.match(owner,
-                	"%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n")
-	end
+  if string.match(owner, "ERROR") then
+    owner = nil
+  else
+    owner = string.match(owner,
+      "%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n")
+  end
 
-	try(client_ident:close())
-	try(client_service:close())
+  try(client_ident:close())
+  try(client_service:close())
 
-	return owner
+  return owner
 end

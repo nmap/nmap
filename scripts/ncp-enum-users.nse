@@ -35,20 +35,20 @@ categories = {"auth", "safe"}
 portrule = shortport.port_or_service(524, "ncp", "tcp")
 
 action = function(host, port)
-	local helper = ncp.Helper:new(host,port)
+  local helper = ncp.Helper:new(host,port)
 
-	local status, resp = helper:connect()
-	if ( not(status) ) then	return stdnse.format_output(false, resp) end
+  local status, resp = helper:connect()
+  if ( not(status) ) then	return stdnse.format_output(false, resp) end
 
-	status, resp = helper:search("[Root]", "User", "*")
-	if ( not(status) ) then	return stdnse.format_output(false, resp) end
+  status, resp = helper:search("[Root]", "User", "*")
+  if ( not(status) ) then	return stdnse.format_output(false, resp) end
 
-	local output = {}
+  local output = {}
 
-	for _, entry in ipairs(resp) do
-		table.insert(output, entry.name)
-	end
+  for _, entry in ipairs(resp) do
+    table.insert(output, entry.name)
+  end
 
-	return stdnse.format_output(true, output)
+  return stdnse.format_output(true, output)
 end
 

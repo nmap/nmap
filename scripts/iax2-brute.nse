@@ -37,40 +37,40 @@ portrule = shortport.port_or_service(4569, "iax2", {"udp", "tcp"})
 
 Driver = {
 
-	new = function(self, host, port)
-		local o = { host = host, port = port }
-       	setmetatable(o, self)
-        self.__index = self
-		return o
-	end,
+  new = function(self, host, port)
+    local o = { host = host, port = port }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function(self)
-		self.helper = iax2.Helper:new(self.host, self.port)
-		return self.helper:connect()
-	end,
+  connect = function(self)
+    self.helper = iax2.Helper:new(self.host, self.port)
+    return self.helper:connect()
+  end,
 
-	login = function(self, username, password)
-		local status, resp = self.helper:regRelease(username, password)
-		if ( status ) then
-			return true, brute.Account:new( username, password, creds.State.VALID )
-		elseif ( resp == "Release failed" ) then
-			return false, brute.Error:new( "Incorrect password" )
-		else
-			local err = brute.Error:new(resp)
-			err:setRetry(true)
-			return false, err
-		end
-	end,
+  login = function(self, username, password)
+    local status, resp = self.helper:regRelease(username, password)
+    if ( status ) then
+      return true, brute.Account:new( username, password, creds.State.VALID )
+    elseif ( resp == "Release failed" ) then
+      return false, brute.Error:new( "Incorrect password" )
+    else
+      local err = brute.Error:new(resp)
+      err:setRetry(true)
+      return false, err
+    end
+  end,
 
-	disconnect = function(self) return self.helper:close() end,
+  disconnect = function(self) return self.helper:close() end,
 }
 
 
 
 
 action = function(host, port)
-	local engine = brute.Engine:new(Driver, host, port)
-	engine.options.script_name = SCRIPT_NAME
-	local status, result = engine:start()
-	return result
+  local engine = brute.Engine:new(Driver, host, port)
+  engine.options.script_name = SCRIPT_NAME
+  local status, result = engine:start()
+  return result
 end

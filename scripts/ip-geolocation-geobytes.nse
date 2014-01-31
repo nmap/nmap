@@ -39,49 +39,49 @@ categories = {"discovery","external","safe"}
 
 
 hostrule = function(host)
-	local is_private, err = ipOps.isPrivate( host.ip )
-    if is_private == nil then
-      stdnse.print_debug( "%s Error in Hostrule: %s.", SCRIPT_NAME, err )
-      return false
-    end
-    return not is_private
+  local is_private, err = ipOps.isPrivate( host.ip )
+  if is_private == nil then
+    stdnse.print_debug( "%s Error in Hostrule: %s.", SCRIPT_NAME, err )
+    return false
+  end
+  return not is_private
 end
 
 -- Limit is 20 request per hour per requesting host, when reached all table
 -- values are filled with a "Limit Exceeded" value. A record in the registry is
 -- made so no more requests are made to the server during one scan
 action = function(host)
-	if nmap.registry["ip-geolocation-geobytes"] and nmap.registry["ip-geolocation-geobytes"].blocked then
-		stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
-		return nil
-	end
-	local response = http.get("www.geobytes.com", 80, "/IpLocator.htm?GetLocation&template=json.txt&IpAddress="..host.ip, nil)
-	local stat, out = json.parse(response.body)
-	if stat then
-		local loc = out.geobytes
-		local output=stdnse.output_table()
-		if loc.city and loc.city == "Limit Exceeded" then
-			if not nmap.registry["ip-geolocation-geobytes"] then nmap.registry["ip-geolocation-geobytes"]={} end
-			nmap.registry["ip-geolocation-geobytes"].blocked = true
-			stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
-			return nil
-		end
-		-- Process output
-		-- an empty table is returned when latitude and longitude can not be determined
-		if ( "table" == type(loc.latitude) or "table" == type(loc.longitude) ) then
-			return "Could not determine location for IP"
-		end
-		output["latitude"] = loc.latitude
-		output["longitude"] = loc.longitude
-		output["city"] = loc.city
-		output["region"] = loc.region
-		output["country"] = loc.country
-		return output
-	elseif response.body:match("Limit Exceeded") then
-			if not nmap.registry["ip-geolocation-geobytes"] then nmap.registry["ip-geolocation-geobytes"]={} end
-			nmap.registry["ip-geolocation-geobytes"].blocked = true
-			stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
-			return nil
-	end
-	return nil
+  if nmap.registry["ip-geolocation-geobytes"] and nmap.registry["ip-geolocation-geobytes"].blocked then
+    stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
+    return nil
+  end
+  local response = http.get("www.geobytes.com", 80, "/IpLocator.htm?GetLocation&template=json.txt&IpAddress="..host.ip, nil)
+  local stat, out = json.parse(response.body)
+  if stat then
+    local loc = out.geobytes
+    local output=stdnse.output_table()
+    if loc.city and loc.city == "Limit Exceeded" then
+      if not nmap.registry["ip-geolocation-geobytes"] then nmap.registry["ip-geolocation-geobytes"]={} end
+      nmap.registry["ip-geolocation-geobytes"].blocked = true
+      stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
+      return nil
+    end
+    -- Process output
+    -- an empty table is returned when latitude and longitude can not be determined
+    if ( "table" == type(loc.latitude) or "table" == type(loc.longitude) ) then
+      return "Could not determine location for IP"
+    end
+    output["latitude"] = loc.latitude
+    output["longitude"] = loc.longitude
+    output["city"] = loc.city
+    output["region"] = loc.region
+    output["country"] = loc.country
+    return output
+  elseif response.body:match("Limit Exceeded") then
+    if not nmap.registry["ip-geolocation-geobytes"] then nmap.registry["ip-geolocation-geobytes"]={} end
+    nmap.registry["ip-geolocation-geobytes"].blocked = true
+    stdnse.print_debug("%s: 20 requests per hour Limit Exceeded", SCRIPT_NAME)
+    return nil
+  end
+  return nil
 end

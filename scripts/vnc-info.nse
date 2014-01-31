@@ -44,28 +44,28 @@ portrule = shortport.port_or_service( {5900, 5901, 5902} , "vnc", "tcp", "open")
 
 action = function(host, port)
 
-	local vnc = vnc.VNC:new( host.ip, port.number )
-	local status, data
-	local result = stdnse.output_table()
+  local vnc = vnc.VNC:new( host.ip, port.number )
+  local status, data
+  local result = stdnse.output_table()
 
-	status, data = vnc:connect()
-	if ( not(status) ) then	return "  \n  ERROR: " .. data end
+  status, data = vnc:connect()
+  if ( not(status) ) then	return "  \n  ERROR: " .. data end
 
-	status, data = vnc:handshake()
-	if ( not(status) ) then	return "  \n  ERROR: " .. data end
+  status, data = vnc:handshake()
+  if ( not(status) ) then	return "  \n  ERROR: " .. data end
 
-	status, data = vnc:getSecTypesAsTable()
-	if ( not(status) ) then	return "  \n  ERROR: " .. data end
+  status, data = vnc:getSecTypesAsTable()
+  if ( not(status) ) then	return "  \n  ERROR: " .. data end
 
-	result["Protocol version"] = vnc:getProtocolVersion()
+  result["Protocol version"] = vnc:getProtocolVersion()
 
-	if ( data and #data ~= 0 ) then
-		result["Security types"] = data
-	end
+  if ( data and #data ~= 0 ) then
+    result["Security types"] = data
+  end
 
-	if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
-		result["WARNING"] = "Server does not require authentication"
-	end
+  if ( vnc:supportsSecType(vnc.sectypes.NONE) ) then
+    result["WARNING"] = "Server does not require authentication"
+  end
 
-	return result
+  return result
 end

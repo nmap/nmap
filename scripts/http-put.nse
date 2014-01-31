@@ -37,23 +37,23 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 action = function( host, port )
 
-	local fname, url = stdnse.get_script_args('http-put.file', 'http-put.url')
-	if ( not(fname) or not(url) ) then
-		 return
-	end
+  local fname, url = stdnse.get_script_args('http-put.file', 'http-put.url')
+  if ( not(fname) or not(url) ) then
+    return
+  end
 
-	local f = io.open(fname, "r")
-	if ( not(f) ) then
-		return stdnse.format_output(true, ("ERROR: Failed to open file: %s"):format(fname))
-	end
-	local content = f:read("*all")
-	f:close()
+  local f = io.open(fname, "r")
+  if ( not(f) ) then
+    return stdnse.format_output(true, ("ERROR: Failed to open file: %s"):format(fname))
+  end
+  local content = f:read("*all")
+  f:close()
 
-	local response = http.put(host, port, url,  nil, content)
+  local response = http.put(host, port, url,  nil, content)
 
-	if ( response.status == 200 or response.status == 204 ) then
-		return stdnse.format_output(true, ("%s was successfully created"):format(url))
-	end
+  if ( response.status == 200 or response.status == 204 ) then
+    return stdnse.format_output(true, ("%s was successfully created"):format(url))
+  end
 
-	return stdnse.format_output(true, ("ERROR: %s could not be created"):format(url))
+  return stdnse.format_output(true, ("ERROR: %s could not be created"):format(url))
 end

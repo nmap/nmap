@@ -30,12 +30,12 @@ categories = {"auth", "default", "safe"}
 
 
 postrule = function()
-	local all = creds.Credentials:new(creds.ALL_DATA)
-	local tab = all:getTable()
-	if ( tab and #tab > 0 ) then return true end
+  local all = creds.Credentials:new(creds.ALL_DATA)
+  local tab = all:getTable()
+  if ( tab and #tab > 0 ) then return true end
 end
 
 action = function()
-	local all = creds.Credentials:new(creds.ALL_DATA)
-	return (all and tostring(all) or nil)
+  local all = creds.Credentials:new(creds.ALL_DATA)
+  return (all and tostring(all) or nil)
 end

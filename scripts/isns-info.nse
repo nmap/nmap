@@ -37,35 +37,35 @@ categories = {"safe", "discovery"}
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
-	local helper = isns.Helper:new(host, port)
-	if ( not(helper:connect()) ) then
-		return fail("Failed to connect to server")
-	end
+  local helper = isns.Helper:new(host, port)
+  if ( not(helper:connect()) ) then
+    return fail("Failed to connect to server")
+  end
 
-	local status, portals = helper:listPortals()
-	if ( not(status) ) then
-		return
-	end
+  local status, portals = helper:listPortals()
+  if ( not(status) ) then
+    return
+  end
 
-	local results = {}
-	local restab = tab.new(2)
-	tab.addrow(restab, "ip", "port")
-	for _, portal in ipairs(portals) do
-		tab.addrow(restab, portal.addr, ("%d/%s"):format(portal.port, portal.proto))
-	end
-	table.insert(results, { name = "Portal", tab.dump(restab) })
+  local results = {}
+  local restab = tab.new(2)
+  tab.addrow(restab, "ip", "port")
+  for _, portal in ipairs(portals) do
+    tab.addrow(restab, portal.addr, ("%d/%s"):format(portal.port, portal.proto))
+  end
+  table.insert(results, { name = "Portal", tab.dump(restab) })
 
-	local status, nodes = helper:listISCINodes()
-	if ( not(status) ) then
-		return
-	end
+  local status, nodes = helper:listISCINodes()
+  if ( not(status) ) then
+    return
+  end
 
-	restab = tab.new(2)
-	tab.addrow(restab, "node", "type")
-	for _, portal in ipairs(nodes) do
-		tab.addrow(restab, portal.name, portal.type)
-	end
-	table.insert(results, { name = "iSCSI Nodes", tab.dump(restab) })
+  restab = tab.new(2)
+  tab.addrow(restab, "node", "type")
+  for _, portal in ipairs(nodes) do
+    tab.addrow(restab, portal.name, portal.type)
+  end
+  table.insert(results, { name = "iSCSI Nodes", tab.dump(restab) })
 
-	return stdnse.format_output(true, results)
+  return stdnse.format_output(true, results)
 end

@@ -31,35 +31,35 @@ portrule = shortport.port_or_service(3306, "mysql")
 
 action = function( host, port )
 
-	local socket = nmap.new_socket()
-	local result = {}
-	local users = {"", "root"}
+  local socket = nmap.new_socket()
+  local result = {}
+  local users = {"", "root"}
 
-	-- set a reasonable timeout value
-	socket:set_timeout(5000)
+  -- set a reasonable timeout value
+  socket:set_timeout(5000)
 
-	for _, v in ipairs( users ) do
-		local status, response = socket:connect(host, port)
-		if( not(status) ) then return "  \n  ERROR: Failed to connect to mysql server" end
+  for _, v in ipairs( users ) do
+    local status, response = socket:connect(host, port)
+    if( not(status) ) then return "  \n  ERROR: Failed to connect to mysql server" end
 
-		status, response = mysql.receiveGreeting( socket )
-		if ( not(status) ) then
-			stdnse.print_debug(3, SCRIPT_NAME)
-			socket:close()
-			return response
-		end
+    status, response = mysql.receiveGreeting( socket )
+    if ( not(status) ) then
+      stdnse.print_debug(3, SCRIPT_NAME)
+      socket:close()
+      return response
+    end
 
-		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, v, nil, response.salt )
-		if response.errorcode == 0 then
-			table.insert(result, string.format("%s account has empty password", ( v=="" and "anonymous" or v ) ) )
-			if nmap.registry.mysqlusers == nil then
-				nmap.registry.mysqlusers = {}
-			end
-			nmap.registry.mysqlusers[v=="" and "anonymous" or v] = ""
-		end
-		socket:close()
-	end
+    status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, v, nil, response.salt )
+    if response.errorcode == 0 then
+      table.insert(result, string.format("%s account has empty password", ( v=="" and "anonymous" or v ) ) )
+      if nmap.registry.mysqlusers == nil then
+        nmap.registry.mysqlusers = {}
+      end
+      nmap.registry.mysqlusers[v=="" and "anonymous" or v] = ""
+    end
+    socket:close()
+  end
 
-	return stdnse.format_output(true, result)
+  return stdnse.format_output(true, result)
 
 end

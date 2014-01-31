@@ -32,60 +32,60 @@ categories = {"default", "discovery", "safe"}
 portrule = shortport.port_or_service (70, "gopher", {"tcp"})
 
 local function typelabel(gtype)
-	if gtype == "0" then
-		return "[txt]"
-	end
-	if gtype == "1" then
-		return "[dir]"
-	end
-	return string.format("[%s]", gtype)
+  if gtype == "0" then
+    return "[txt]"
+  end
+  if gtype == "1" then
+    return "[dir]"
+  end
+  return string.format("[%s]", gtype)
 
 end
 
 action = function( host, port )
 
-	local INFO = "i"
-	local maxfiles = stdnse.get_script_args(SCRIPT_NAME..".maxfiles")
-	if not maxfiles then
-		maxfiles = 10
-	else
-                maxfiles = tonumber(maxfiles)
-	end
-	if maxfiles < 1 then
-		maxfiles = nil
-	end
+  local INFO = "i"
+  local maxfiles = stdnse.get_script_args(SCRIPT_NAME..".maxfiles")
+  if not maxfiles then
+    maxfiles = 10
+  else
+    maxfiles = tonumber(maxfiles)
+  end
+  if maxfiles < 1 then
+    maxfiles = nil
+  end
 
-	local socket = nmap.new_socket()
-	local status, err = socket:connect(host.ip, port.number)
-	if not status then
-		return
-	end
+  local socket = nmap.new_socket()
+  local status, err = socket:connect(host.ip, port.number)
+  if not status then
+    return
+  end
 
-	socket:send("\r\n")
+  socket:send("\r\n")
 
-	local buffer, _ = stdnse.make_buffer(socket, "\r\n")
-	local line = buffer()
-	local files = {}
+  local buffer, _ = stdnse.make_buffer(socket, "\r\n")
+  local line = buffer()
+  local files = {}
 
-	while line ~= nil do
-		if #line > 1 then
-			local gtype = string.sub(line, 1, 1)
-			local fields = stdnse.strsplit("\t", string.sub(line, 2))
-			if #fields > 1 then
-				local label = fields[1]
-				local filename = fields[2]
-				if gtype ~= INFO then
-					if maxfiles and #files >= maxfiles then
-						table.insert(files, string.format('Only %d shown. Use --script-args %s.maxfiles=-1 to see all.', maxfiles, SCRIPT_NAME))
-						break
-					else
-						table.insert(files, string.format('%s %s "%s"', typelabel(gtype), filename, label))
-					end
-				end
-			end
-		end
-		line = buffer()
-	end
-	return "\n" .. stdnse.strjoin("\n", files)
+  while line ~= nil do
+    if #line > 1 then
+      local gtype = string.sub(line, 1, 1)
+      local fields = stdnse.strsplit("\t", string.sub(line, 2))
+      if #fields > 1 then
+        local label = fields[1]
+        local filename = fields[2]
+        if gtype ~= INFO then
+          if maxfiles and #files >= maxfiles then
+            table.insert(files, string.format('Only %d shown. Use --script-args %s.maxfiles=-1 to see all.', maxfiles, SCRIPT_NAME))
+            break
+          else
+            table.insert(files, string.format('%s %s "%s"', typelabel(gtype), filename, label))
+          end
+        end
+      end
+    end
+    line = buffer()
+  end
+  return "\n" .. stdnse.strjoin("\n", files)
 end
 

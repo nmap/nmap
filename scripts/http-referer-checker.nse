@@ -35,57 +35,57 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 action = function(host, port)
 
-    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
-                                                              maxpagecount = 30,
-                                                              maxdepth = -1,
-                                                              withinhost = 0,
-                                                              withindomain = 0
-                                                              })
+  local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
+    maxpagecount = 30,
+    maxdepth = -1,
+    withinhost = 0,
+    withindomain = 0
+  })
 
-    crawler.options.doscraping = function(url)
-        if crawler:iswithinhost(url)
-        and not crawler:isresource(url, "js")
-        and not crawler:isresource(url, "css") then
-            return true
-        end
+  crawler.options.doscraping = function(url)
+    if crawler:iswithinhost(url)
+      and not crawler:isresource(url, "js")
+      and not crawler:isresource(url, "css") then
+      return true
+    end
+  end
+
+  crawler:set_timeout(10000)
+
+  if (not(crawler)) then
+    return
+  end
+
+  local scripts = {}
+
+  while(true) do
+
+    local status, r = crawler:crawl()
+    if (not(status)) then
+      if (r.err) then
+        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+      else
+        break
+      end
     end
 
-    crawler:set_timeout(10000)
-
-    if (not(crawler)) then
-        return
+    if crawler:isresource(r.url, "js") and not crawler:iswithinhost(r.url) then
+      scripts[tostring(r.url)] = true
     end
 
-    local scripts = {}
+  end
 
-    while(true) do
+  if next(scripts) == nil then
+    return "Couldn't find any cross-domain scripts."
+  end
 
-        local status, r = crawler:crawl()
-        if (not(status)) then
-            if (r.err) then
-                return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-            else
-                break
-            end
-        end
+  local results = {}
+  for s, _ in pairs(scripts) do
+    table.insert(results, s)
+  end
 
-       if crawler:isresource(r.url, "js") and not crawler:iswithinhost(r.url) then
-            scripts[tostring(r.url)] = true
-       end
+  results.name = crawler:getLimitations()
 
-    end
-
-    if next(scripts) == nil then
-        return "Couldn't find any cross-domain scripts."
-    end
-
-    local results = {}
-	for s, _ in pairs(scripts) do
-		table.insert(results, s)
-  	end
-
-	results.name = crawler:getLimitations()
-
-	return stdnse.format_output(true, results)
+  return stdnse.format_output(true, results)
 
 end

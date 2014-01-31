@@ -43,24 +43,24 @@ portrule = shortport.http
 
 action = function(host, port)
 
-	local root = stdnse.get_script_args("http-apache-negotiation.root") or "/"
+  local root = stdnse.get_script_args("http-apache-negotiation.root") or "/"
 
-    -- Common default file names. Could add a couple more.
-    local files = {
-		'robots',
-        'index',
-        'home',
-        'blog'
-	}
+  -- Common default file names. Could add a couple more.
+  local files = {
+    'robots',
+    'index',
+    'home',
+    'blog'
+  }
 
-    for _, file in ipairs(files) do
-        local header = http.get(host, port, root .. file).header
+  for _, file in ipairs(files) do
+    local header = http.get(host, port, root .. file).header
 
-        -- Matching file. in content-location header
-        --  or negotiate in vary header.
-        if header["content-location"] and string.find(header["content-location"], file ..".")
-            or header["vary"] and string.find(header["vary"], "negotiate")  then
-                return "mod_negotiation enabled."
-        end
+    -- Matching file. in content-location header
+    --  or negotiate in vary header.
+    if header["content-location"] and string.find(header["content-location"], file ..".")
+      or header["vary"] and string.find(header["vary"], "negotiate")  then
+      return "mod_negotiation enabled."
     end
+  end
 end

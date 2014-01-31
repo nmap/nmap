@@ -43,65 +43,65 @@ portrule = shortport.port_or_service(2401, "cvspserver")
 Driver =
 {
 
-	new = function(self, host, port, repo)
-		local o = { repo = repo, helper = cvs.Helper:new(host, port) }
-       	setmetatable(o, self)
-        self.__index = self
-		return o
-	end,
+  new = function(self, host, port, repo)
+    local o = { repo = repo, helper = cvs.Helper:new(host, port) }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function( self )
-		self.helper:connect()
-		return true
-	end,
+  connect = function( self )
+    self.helper:connect()
+    return true
+  end,
 
-	login = function( self, username, password )
-		local status, err = self.helper:login( self.repo, username, password )
-		if ( status ) then
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
+  login = function( self, username, password )
+    local status, err = self.helper:login( self.repo, username, password )
+    if ( status ) then
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
 
-		-- This error seems to indicate tha the user does not exist
-		if ( err:match("E PAM start error%: Critical error %- immediate abort\0$") ) then
-			stdnse.print_debug(2, "%s: The user %s does not exist", SCRIPT_NAME, username)
-			local err = brute.Error:new("Account invalid")
-			err:setInvalidAccount(username)
-			return false, err
-		end
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+    -- This error seems to indicate tha the user does not exist
+    if ( err:match("E PAM start error%: Critical error %- immediate abort\0$") ) then
+      stdnse.print_debug(2, "%s: The user %s does not exist", SCRIPT_NAME, username)
+      local err = brute.Error:new("Account invalid")
+      err:setInvalidAccount(username)
+      return false, err
+    end
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	disconnect = function( self )
-		self.helper:close()
-	end,
+  disconnect = function( self )
+    self.helper:close()
+  end,
 
 }
 
 local function getDiscoveredRepos(host)
 
-	if ( not(host.registry.cvs_repos)) then
-		return
-	end
+  if ( not(host.registry.cvs_repos)) then
+    return
+  end
 
-	return host.registry.cvs_repos
+  return host.registry.cvs_repos
 end
 
 action = function(host, port)
 
-	local repo = stdnse.get_script_args("cvs-brute.repo") and
-				{ stdnse.get_script_args("cvs-brute.repo") } or
-				getDiscoveredRepos(host)
-	if ( not(repo) ) then return "\n  ERROR: No CVS repository specified (see cvs-brute.repo)" end
+  local repo = stdnse.get_script_args("cvs-brute.repo") and
+    { stdnse.get_script_args("cvs-brute.repo") } or
+    getDiscoveredRepos(host)
+  if ( not(repo) ) then return "\n  ERROR: No CVS repository specified (see cvs-brute.repo)" end
 
-	local status, result
+  local status, result
 
-	-- If repositories were discovered and not overridden by argument
-	-- only attempt to brute force the first one.
-	local engine = brute.Engine:new(Driver, host, port, repo[1])
+  -- If repositories were discovered and not overridden by argument
+  -- only attempt to brute force the first one.
+  local engine = brute.Engine:new(Driver, host, port, repo[1])
 
-	engine.options.script_name = SCRIPT_NAME
-	status, result = engine:start()
+  engine.options.script_name = SCRIPT_NAME
+  status, result = engine:start()
 
-	return result
+  return result
 end
 

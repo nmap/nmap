@@ -43,56 +43,56 @@ end
 function parse_robtex_response(data)
   local result = {}
 
-	if ( not(data) ) then
-		return
-	end
+  if ( not(data) ) then
+    return
+  end
 
-	-- cut out the section we're interested in
-	data = data:match("<span id=\"sharednss\">.-<ul.->(.-)</ul>")
+  -- cut out the section we're interested in
+  data = data:match("<span id=\"sharednss\">.-<ul.->(.-)</ul>")
 
-	-- process each html list item
-	for li in data:gmatch("<li>(.-)</li>") do
-		local domain = li:match("<a.->(.*)</a>")
-		if ( domain ) then
-			table.insert(result, domain)
-		end
-	end
+  -- process each html list item
+  for li in data:gmatch("<li>(.-)</li>") do
+    local domain = li:match("<a.->(.*)</a>")
+    if ( domain ) then
+      table.insert(result, domain)
+    end
+  end
 
   return result
 end
 
 local function lookup_dns_server(data)
-	return data:match("The primary name server is <a.->(.-)</a>.")
+  return data:match("The primary name server is <a.->(.-)</a>.")
 end
 
 local function fetch_robtex_data(url)
-    local htmldata = http.get("www.robtex.com", 443, url)
-	if ( not(htmldata) or not(htmldata.body) ) then
-		return
-	end
+  local htmldata = http.get("www.robtex.com", 443, url)
+  if ( not(htmldata) or not(htmldata.body) ) then
+    return
+  end
 
-	-- fixup hex encodings
-	return unescape(htmldata.body)
+  -- fixup hex encodings
+  return unescape(htmldata.body)
 end
 
 hostrule = function (host) return host.targetname end
 
 action = function(host)
-	local base_url = "/dns/" .. host.targetname .. ".html"
-	local data = fetch_robtex_data(base_url)
-    local domains = parse_robtex_response(data)
+  local base_url = "/dns/" .. host.targetname .. ".html"
+  local data = fetch_robtex_data(base_url)
+  local domains = parse_robtex_response(data)
 
-	if ( not(domains) ) then
-		local server = lookup_dns_server(data)
-		if ( not(server) ) then
-			return
-		end
-		local url = base_url:format(server)
-		stdnse.print_debug(2, "%s: Querying URL: %s", SCRIPT_NAME, url)
-		data = fetch_robtex_data(url)
+  if ( not(domains) ) then
+    local server = lookup_dns_server(data)
+    if ( not(server) ) then
+      return
+    end
+    local url = base_url:format(server)
+    stdnse.print_debug(2, "%s: Querying URL: %s", SCRIPT_NAME, url)
+    data = fetch_robtex_data(url)
 
-		domains = parse_robtex_response(data)
-	end
+    domains = parse_robtex_response(data)
+  end
 
   if (domains and #domains > 0) then
     return stdnse.format_output(true, domains)

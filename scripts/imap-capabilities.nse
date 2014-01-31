@@ -35,17 +35,17 @@ action = function(host, port)
   helper:close()
 
   if type(capa) == "table" then
-     -- Convert the capabilities table into an array of strings.
-     local capstrings = {}
-     local cap, args
-     for cap, args in pairs(capa) do
-	table.insert(capstrings, cap)
-     end
-     return stdnse.strjoin(" ", capstrings)
+    -- Convert the capabilities table into an array of strings.
+    local capstrings = {}
+    local cap, args
+    for cap, args in pairs(capa) do
+      table.insert(capstrings, cap)
+    end
+    return stdnse.strjoin(" ", capstrings)
   elseif type(capa) == "string" then
-     stdnse.print_debug(1, "%s: '%s' for %s", SCRIPT_NAME, capa, host.ip)
-     return
+    stdnse.print_debug(1, "%s: '%s' for %s", SCRIPT_NAME, capa, host.ip)
+    return
   else
-     return "server doesn't support CAPABILITIES"
+    return "server doesn't support CAPABILITIES"
   end
 end

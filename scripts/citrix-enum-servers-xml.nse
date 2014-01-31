@@ -34,14 +34,14 @@ portrule = shortport.portnumber({8080,80,443}, "tcp")
 
 action = function(host, port)
 
-	local xmldata = citrixxml.request_server_data(host.ip, port.number)
-	local servers = citrixxml.parse_server_data_response(xmldata)
-	local response = {}
+  local xmldata = citrixxml.request_server_data(host.ip, port.number)
+  local servers = citrixxml.parse_server_data_response(xmldata)
+  local response = {}
 
-	for _, srv in ipairs(servers) do
-		table.insert(response, srv)
-	end
+  for _, srv in ipairs(servers) do
+    table.insert(response, srv)
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 
 end

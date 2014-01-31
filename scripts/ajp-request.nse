@@ -56,47 +56,47 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local helper = ajp.Helper:new(host, port)
-	if ( not(helper:connect()) ) then
-		return fail("Failed to connect to AJP server")
-	end
+  local helper = ajp.Helper:new(host, port)
+  if ( not(helper:connect()) ) then
+    return fail("Failed to connect to AJP server")
+  end
 
-	local valid_methods = {
-		["GET"]    = true,
-		["HEAD"]   = true,
-		["TRACE"]  = true,
-		["PUT"]    = true,
-		["DELETE"] = true,
-		["OPTIONS"]= true,
-	}
+  local valid_methods = {
+    ["GET"]    = true,
+    ["HEAD"]   = true,
+    ["TRACE"]  = true,
+    ["PUT"]    = true,
+    ["DELETE"] = true,
+    ["OPTIONS"]= true,
+  }
 
-	local method = arg_method:upper()
-	if ( not(valid_methods[method]) ) then
-		return fail(("Method not supported: %s"):format(arg_method))
-	end
+  local method = arg_method:upper()
+  if ( not(valid_methods[method]) ) then
+    return fail(("Method not supported: %s"):format(arg_method))
+  end
 
-	local options = { auth = { username = arg_username, password = arg_password } }
-	local status, response = helper:request(arg_method, arg_path, nil, nil, options)
-	if ( not(status) ) then
-		return fail("Failed to retrieve response for request")
-	end
-	helper:close()
+  local options = { auth = { username = arg_username, password = arg_password } }
+  local status, response = helper:request(arg_method, arg_path, nil, nil, options)
+  if ( not(status) ) then
+    return fail("Failed to retrieve response for request")
+  end
+  helper:close()
 
-	if ( response ) then
-		local output = response['status-line'] .. "\n" ..
-						stdnse.strjoin("\n", response.rawheaders) ..
-						(response.body and "\n\n" .. response.body or "")
-		if ( arg_file ) then
-			local f = io.open(arg_file, "w")
-			if ( not(f) ) then
-				return fail(("Failed to open file %s for writing"):format(arg_file))
-			end
-			f:write(output)
-			f:close()
-			return ("Response was written to file: %s"):format(arg_file)
-		else
-			return "\n" .. output
-		end
-	end
+  if ( response ) then
+    local output = response['status-line'] .. "\n" ..
+      stdnse.strjoin("\n", response.rawheaders) ..
+      (response.body and "\n\n" .. response.body or "")
+    if ( arg_file ) then
+      local f = io.open(arg_file, "w")
+      if ( not(f) ) then
+        return fail(("Failed to open file %s for writing"):format(arg_file))
+      end
+      f:write(output)
+      f:close()
+      return ("Response was written to file: %s"):format(arg_file)
+    else
+      return "\n" .. output
+    end
+  end
 end
 
