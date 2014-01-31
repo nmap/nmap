@@ -40,7 +40,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 
 
-portrule = shortport.portnumber(53)
+portrule = shortport.portnumber(53, {"tcp", "udp"})
 
 -- How many ms should we wait for the server to respond.
 -- Might want to make this an argument, but 500 should always be more then enough.
