@@ -52,60 +52,60 @@ portrule = shortport.http
 -- Shortens a matching string if it exceeds 60 characters
 -- All characters after 60 will be replaced with ...
 local function shortenMatch(match)
-	if ( #match > 60 ) then
-		return match:sub(1, 60) .. " ..."
-	else
-		return match
-	end
+  if ( #match > 60 ) then
+    return match:sub(1, 60) .. " ..."
+  else
+    return match
+  end
 end
 
 action = function(host, port)
 
-	-- read script specific arguments
-	local match 			= stdnse.get_script_args("http-grep.match")
-	local break_on_match 	= stdnse.get_script_args("http-grep.breakonmatch")
+  -- read script specific arguments
+  local match 			= stdnse.get_script_args("http-grep.match")
+  local break_on_match 	= stdnse.get_script_args("http-grep.breakonmatch")
 
-	if ( not(match) ) then
-		return stdnse.format_output(true, "ERROR: Argument http-grep.match was not set")
-	end
+  if ( not(match) ) then
+    return stdnse.format_output(true, "ERROR: Argument http-grep.match was not set")
+  end
 
-	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
-	local results = {}
+  local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
+  local results = {}
 
-	-- set timeout to 10 seconds
-	crawler:set_timeout(10000)
+  -- set timeout to 10 seconds
+  crawler:set_timeout(10000)
 
-	while(true) do
-		local status, r = crawler:crawl()
-		-- if the crawler fails it can be due to a number of different reasons
-		-- most of them are "legitimate" and should not be reason to abort
-		if ( not(status) ) then
-			if ( r.err ) then
-				return stdnse.format_output(true, "ERROR: %s", r.reason)
-			else
-				break
-			end
-		end
+  while(true) do
+    local status, r = crawler:crawl()
+    -- if the crawler fails it can be due to a number of different reasons
+    -- most of them are "legitimate" and should not be reason to abort
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(true, "ERROR: %s", r.reason)
+      else
+        break
+      end
+    end
 
-		local matches = {}
-		local body = r.response.body
-		-- try to match the url and body
-		if body and ( body:match( match ) or tostring(r.url):match(match) ) then
-			local count = select(2, body:gsub(match, match))
-			for match in body:gmatch(match) do
-				table.insert(matches, "+ " .. shortenMatch(match))
-			end
+    local matches = {}
+    local body = r.response.body
+    -- try to match the url and body
+    if body and ( body:match( match ) or tostring(r.url):match(match) ) then
+      local count = select(2, body:gsub(match, match))
+      for match in body:gmatch(match) do
+        table.insert(matches, "+ " .. shortenMatch(match))
+      end
 
-			matches.name = ("(%d) %s"):format(count,tostring(r.url))
-			table.insert(results, matches)
+      matches.name = ("(%d) %s"):format(count,tostring(r.url))
+      table.insert(results, matches)
 
-			-- should we continue to search for matches?
-			if ( break_on_match ) then
-				crawler:stop()
-				break
-			end
-		end
-	end
-	table.sort(results, function(a,b) return a.name>b.name end)
-	return stdnse.format_output(true, results)
+      -- should we continue to search for matches?
+      if ( break_on_match ) then
+        crawler:stop()
+        break
+      end
+    end
+  end
+  table.sort(results, function(a,b) return a.name>b.name end)
+  return stdnse.format_output(true, results)
 end

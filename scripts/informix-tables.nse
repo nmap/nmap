@@ -58,63 +58,63 @@ dependencies = { "informix-brute" }
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
 
 action = function( host, port )
-	local helper
-	local status, data
-	local result, output = {}, {}
-	local user = stdnse.get_script_args('informix-tables.username')
-	local pass = stdnse.get_script_args('informix-tables.password') or ""
-	local query= [[
-		SELECT cast(tabname as char(20)) table, cast(colname as char(20)) column, cast( cast(nrows as int) as char(20)) rows
-		FROM "informix".systables st, "informix".syscolumns sc
-		WHERE sc.tabid = st.tabid and st.tabid > 99 and st.tabtype='T'
-		ORDER BY table, column]]
-	local excluded_dbs = { ["sysmaster"] = true, ["sysutils"] = true, ["sysuser"] = true, ["sysadmin"] = true }
+  local helper
+  local status, data
+  local result, output = {}, {}
+  local user = stdnse.get_script_args('informix-tables.username')
+  local pass = stdnse.get_script_args('informix-tables.password') or ""
+  local query= [[
+    SELECT cast(tabname as char(20)) table, cast(colname as char(20)) column, cast( cast(nrows as int) as char(20)) rows
+    FROM "informix".systables st, "informix".syscolumns sc
+    WHERE sc.tabid = st.tabid and st.tabid > 99 and st.tabtype='T'
+    ORDER BY table, column]]
+  local excluded_dbs = { ["sysmaster"] = true, ["sysutils"] = true, ["sysuser"] = true, ["sysadmin"] = true }
 
-	-- If no user was specified lookup the first user in the registry saved by
-	-- the informix-brute script
-	if ( not(user) ) then
-		if ( nmap.registry['informix-brute'] and nmap.registry['informix-brute'][1]["username"] ) then
-			user = nmap.registry['informix-brute'][1]["username"]
-			pass = nmap.registry['informix-brute'][1]["password"]
-		else
-			return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
-		end
-	end
+  -- If no user was specified lookup the first user in the registry saved by
+  -- the informix-brute script
+  if ( not(user) ) then
+    if ( nmap.registry['informix-brute'] and nmap.registry['informix-brute'][1]["username"] ) then
+      user = nmap.registry['informix-brute'][1]["username"]
+      pass = nmap.registry['informix-brute'][1]["password"]
+    else
+      return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
+    end
+  end
 
-	helper = informix.Helper:new( host, port )
+  helper = informix.Helper:new( host, port )
 
-	status, data = helper:Connect()
-	if ( not(status) ) then
-		return stdnse.format_output(status, data)
-	end
+  status, data = helper:Connect()
+  if ( not(status) ) then
+    return stdnse.format_output(status, data)
+  end
 
-	status, data = helper:Login(user, pass)
-	if ( not(status) ) then	return stdnse.format_output(status, data) end
+  status, data = helper:Login(user, pass)
+  if ( not(status) ) then	return stdnse.format_output(status, data) end
 
   local databases
-	status, databases = helper:GetDatabases()
-	if ( not(status) ) then
-		return "  \n  ERROR: Failed to retrieve a list of databases"
-	end
+  status, databases = helper:GetDatabases()
+  if ( not(status) ) then
+    return "  \n  ERROR: Failed to retrieve a list of databases"
+  end
 
-	for _, db in ipairs(databases) do
-		if ( not( excluded_dbs[db] ) ) then
-			status, data = helper:OpenDatabase(db)
-			if ( not(status) ) then	return stdnse.format_output(status, data) end
-			status, data = helper:Query( query )
-			if ( not(status) ) then	return stdnse.format_output(status, data) end
+  for _, db in ipairs(databases) do
+    if ( not( excluded_dbs[db] ) ) then
+      status, data = helper:OpenDatabase(db)
+      if ( not(status) ) then	return stdnse.format_output(status, data) end
+      status, data = helper:Query( query )
+      if ( not(status) ) then	return stdnse.format_output(status, data) end
 
-			if ( status ) then
-				data = informix.Util.formatTable( data[1] )
-				data.name = "Results"
-				table.insert( result, { "User: " .. user, "Database: " .. db, name="Information" } )
-				table.insert(result, data )
-			end
-			break
-		end
-	end
+      if ( status ) then
+        data = informix.Util.formatTable( data[1] )
+        data.name = "Results"
+        table.insert( result, { "User: " .. user, "Database: " .. db, name="Information" } )
+        table.insert(result, data )
+      end
+      break
+    end
+  end
 
-	helper:Close()
+  helper:Close()
 
-	return stdnse.format_output( true, result )
+  return stdnse.format_output( true, result )
 end

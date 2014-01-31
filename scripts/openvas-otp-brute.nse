@@ -34,79 +34,79 @@ portrule = shortport.port_or_service({9390,9391}, "openvas", "tcp")
 
 Driver =
 {
-	new = function (self, host, port)
-		local o = { host = host, port = port }
-		setmetatable (o,self)
-		self.__index = self
-		return o
-	end,
+  new = function (self, host, port)
+    local o = { host = host, port = port }
+    setmetatable (o,self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function ( self )
-		self.socket = nmap.new_socket()
-		if ( not(self.socket:connect(self.host, self.port, "ssl")) ) then
-			return false
-		end
-		return true
-	end,
+  connect = function ( self )
+    self.socket = nmap.new_socket()
+    if ( not(self.socket:connect(self.host, self.port, "ssl")) ) then
+      return false
+    end
+    return true
+  end,
 
-	login = function( self, username, password )
-		local status, err = self.socket:send("< OTP/1.0 >\n")
+  login = function( self, username, password )
+    local status, err = self.socket:send("< OTP/1.0 >\n")
 
-		if ( not ( status ) ) then
-			local err = brute.Error:new( "Unable to send handshake" )
-			err:setAbort(true)
-			return false, err
-		end
+    if ( not ( status ) ) then
+      local err = brute.Error:new( "Unable to send handshake" )
+      err:setAbort(true)
+      return false, err
+    end
 
-		local response
-		status, response = self.socket:receive_buf("\r?\n", false)
-		if ( not(status) or response ~= "< OTP/1.0 >" ) then
-			local err = brute.Error:new( "Bad handshake from server: "..response )
-			err:setAbort(true)
-			return false, err
-		end
+    local response
+    status, response = self.socket:receive_buf("\r?\n", false)
+    if ( not(status) or response ~= "< OTP/1.0 >" ) then
+      local err = brute.Error:new( "Bad handshake from server: "..response )
+      err:setAbort(true)
+      return false, err
+    end
 
-		status, err = self.socket:send(username.."\n")
-		if ( not(status) ) then
-			local err = brute.Error:new( "Couldn't send user: "..username )
-			err:setAbort( true )
-			return false, err
-		end
+    status, err = self.socket:send(username.."\n")
+    if ( not(status) ) then
+      local err = brute.Error:new( "Couldn't send user: "..username )
+      err:setAbort( true )
+      return false, err
+    end
 
-		status, err = self.socket:send(password.."\n")
-		if ( not(status) ) then
-			local err = brute.Error:new( "Couldn't send password: "..password )
-			err:setAbort( true )
-			return false, err
-		end
+    status, err = self.socket:send(password.."\n")
+    if ( not(status) ) then
+      local err = brute.Error:new( "Couldn't send password: "..password )
+      err:setAbort( true )
+      return false, err
+    end
 
-		-- Create a buffer and receive the first line
-		local line
-		status, line = self.socket:receive_buf("\r?\n", false)
+    -- Create a buffer and receive the first line
+    local line
+    status, line = self.socket:receive_buf("\r?\n", false)
 
-		if (line == nil or string.match(line,"Bad login")) then
-			stdnse.print_debug(2, "openvas-otp-brute: Bad login: %s/%s", username, password)
-			return false, brute.Error:new( "Bad login" )
-		elseif (string.match(line,"SERVER <|>")) then
+    if (line == nil or string.match(line,"Bad login")) then
+      stdnse.print_debug(2, "openvas-otp-brute: Bad login: %s/%s", username, password)
+      return false, brute.Error:new( "Bad login" )
+    elseif (string.match(line,"SERVER <|>")) then
 
-			stdnse.print_debug(1, "openvas-otp-brute: Good login: %s/%s", username, password)
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
+      stdnse.print_debug(1, "openvas-otp-brute: Good login: %s/%s", username, password)
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
 
-		stdnse.print_debug(1, "openvas-otp-brute: WARNING: Unhandled response: %s", line)
-		return false, brute.Error:new( "unhandled response" )
-	end,
+    stdnse.print_debug(1, "openvas-otp-brute: WARNING: Unhandled response: %s", line)
+    return false, brute.Error:new( "unhandled response" )
+  end,
 
-	disconnect = function( self )
-		self.socket:close()
-	end,
+  disconnect = function( self )
+    self.socket:close()
+  end,
 }
 
 action = function(host, port)
-	local engine = brute.Engine:new(Driver, host, port)
-	engine:setMaxThreads(1)
-	engine.options.script_name = SCRIPT_NAME
-	local status, result = engine:start()
-	return result
+  local engine = brute.Engine:new(Driver, host, port)
+  engine:setMaxThreads(1)
+  engine.options.script_name = SCRIPT_NAME
+  local status, result = engine:start()
+  return result
 end
 

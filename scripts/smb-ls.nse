@@ -50,79 +50,79 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
 hostrule = function(host)
-	return ( smb.get_port(host) ~= nil and arg_share and arg_path )
+  return ( smb.get_port(host) ~= nil and arg_share and arg_path )
 end
 
 -- checks whether the file entry is a directory
 local function is_dir(fe)
-	return ( bit.band(fe.attrs, 16) == 16 )
+  return ( bit.band(fe.attrs, 16) == 16 )
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host)
-	local status, smbstate = smb.start_ex(host, true, true, arg_share, nil, nil, nil)
-	if ( not(status) ) then
-		return fail("Failed to authenticate to server (" .. smbstate .. ")")
-	end
+  local status, smbstate = smb.start_ex(host, true, true, arg_share, nil, nil, nil)
+  if ( not(status) ) then
+    return fail("Failed to authenticate to server (" .. smbstate .. ")")
+  end
 
-	-- remove leading slash
-	arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
+  -- remove leading slash
+  arg_path = ( arg_path:sub(1,2) == '\\' and arg_path:sub(2) or arg_path )
 
-	-- fixup checksum argument
-	arg_checksum = ( arg_checksum == 'true' or arg_checksum == '1' ) and true or false
+  -- fixup checksum argument
+  arg_checksum = ( arg_checksum == 'true' or arg_checksum == '1' ) and true or false
 
-	local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
-	local depth, path, output, dirs = 0, arg_path, {}, {}
-	local file_count, dir_count, total_bytes = 0, 0, 0
+  local options = { max_depth = arg_maxdepth, max_files = arg_maxfiles }
+  local depth, path, output, dirs = 0, arg_path, {}, {}
+  local file_count, dir_count, total_bytes = 0, 0, 0
 
-	repeat
-		local lstab = tab.new((arg_checksum and 4 or 3))
+  repeat
+    local lstab = tab.new((arg_checksum and 4 or 3))
 
-		for fe in smb.find_files(smbstate, path .. '\\' .. arg_pattern, options ) do
-			if ( arg_checksum and not(is_dir(fe)) ) then
-				local status, content = smb.file_read(host, arg_share, path .. '\\' .. fe.fname, nil, {file_create_disposition=1})
-				local sha1 = ( status and stdnse.tohex(openssl.sha1(content)) or "" )
-				tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname, sha1)
-			else
-				tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname)
-			end
+    for fe in smb.find_files(smbstate, path .. '\\' .. arg_pattern, options ) do
+      if ( arg_checksum and not(is_dir(fe)) ) then
+        local status, content = smb.file_read(host, arg_share, path .. '\\' .. fe.fname, nil, {file_create_disposition=1})
+        local sha1 = ( status and stdnse.tohex(openssl.sha1(content)) or "" )
+        tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname, sha1)
+      else
+        tab.addrow(lstab, fe.created, (is_dir(fe) and '<DIR>' or fe.eof), fe.fname)
+      end
 
-			arg_maxfiles = ( arg_maxfiles and arg_maxfiles - 1 )
-			if ( arg_maxfiles == 0 ) then
-				break
-			end
+      arg_maxfiles = ( arg_maxfiles and arg_maxfiles - 1 )
+      if ( arg_maxfiles == 0 ) then
+        break
+      end
 
-			if ( is_dir(fe) ) then
-				dir_count = dir_count + 1
-				if ( fe.fname ~= '.' and fe.fname ~= '..' ) then
-					table.insert(dirs, { depth = depth + 1, path = path .. '\\' .. fe.fname } )
-				end
-			else
-				total_bytes = total_bytes + fe.eof
-				file_count = file_count + 1
-			end
-		end
-		table.insert(output, { name = ("Directory of %s"):format( '\\\\' .. stdnse.get_hostname(host) .. '\\' .. arg_share .. path), tab.dump(lstab) })
+      if ( is_dir(fe) ) then
+        dir_count = dir_count + 1
+        if ( fe.fname ~= '.' and fe.fname ~= '..' ) then
+          table.insert(dirs, { depth = depth + 1, path = path .. '\\' .. fe.fname } )
+        end
+      else
+        total_bytes = total_bytes + fe.eof
+        file_count = file_count + 1
+      end
+    end
+    table.insert(output, { name = ("Directory of %s"):format( '\\\\' .. stdnse.get_hostname(host) .. '\\' .. arg_share .. path), tab.dump(lstab) })
 
-		path = nil
-		if ( #dirs ~= 0 ) then
-			local dir = table.remove(dirs, 1)
-			depth = dir.depth
-			if ( not(arg_maxdepth) or ( dir.depth < arg_maxdepth ) ) then
-				path = dir.path
-				table.insert(output, "")
-			end
-		end
-	until(not(path) or arg_maxfiles == 0)
+    path = nil
+    if ( #dirs ~= 0 ) then
+      local dir = table.remove(dirs, 1)
+      depth = dir.depth
+      if ( not(arg_maxdepth) or ( dir.depth < arg_maxdepth ) ) then
+        path = dir.path
+        table.insert(output, "")
+      end
+    end
+  until(not(path) or arg_maxfiles == 0)
 
-	smb.stop(smbstate)
+  smb.stop(smbstate)
 
-	local summary = { name = "Total Files Listed:",
-		("%8d File(s)\t%d bytes"):format(file_count, total_bytes),
-		("%8d Dir(s)"):format(dir_count) }
-	table.insert(output, "")
-	table.insert(output, summary)
+  local summary = { name = "Total Files Listed:",
+    ("%8d File(s)\t%d bytes"):format(file_count, total_bytes),
+    ("%8d Dir(s)"):format(dir_count) }
+  table.insert(output, "")
+  table.insert(output, summary)
 
-	return stdnse.format_output(true, output)
+  return stdnse.format_output(true, output)
 end

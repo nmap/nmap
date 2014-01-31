@@ -51,61 +51,61 @@ portrule = shortport.port_or_service(548, "afp")
 
 action = function( host, port )
 
-	local result, response, status = {}, nil, nil
-	local valid_accounts, found_users = {}, {}
-	local helper
-	local usernames, passwords
+  local result, response, status = {}, nil, nil
+  local valid_accounts, found_users = {}, {}
+  local helper
+  local usernames, passwords
 
- 	status, usernames = unpwdb.usernames()
-	if not status then return end
+  status, usernames = unpwdb.usernames()
+  if not status then return end
 
-	status, passwords = unpwdb.passwords()
-	if not status then return end
+  status, passwords = unpwdb.passwords()
+  if not status then return end
 
-	for password in passwords do
-		for username in usernames do
-			if ( not(found_users[username]) ) then
+  for password in passwords do
+    for username in usernames do
+      if ( not(found_users[username]) ) then
 
-				helper = afp.Helper:new()
-				status, response = helper:OpenSession( host, port )
+        helper = afp.Helper:new()
+        status, response = helper:OpenSession( host, port )
 
-				if ( not(status) ) then
-					stdnse.print_debug("OpenSession failed")
-					return
-				end
+        if ( not(status) ) then
+          stdnse.print_debug("OpenSession failed")
+          return
+        end
 
 
-				stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
-				status, response = helper:Login( username, password )
+        stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
+        status, response = helper:Login( username, password )
 
-				-- if the response is "Parameter error." we're dealing with Netatalk
-				-- This basically means that the user account does not exist
-				-- In this case, why bother continuing? Simply abort and thank Netatalk for the fish
-				if response:match("Parameter error.") then
-					stdnse.print_debug("Netatalk told us the user does not exist! Thanks.")
-					-- mark it as "found" to skip it
-					found_users[username] = true
-				end
+        -- if the response is "Parameter error." we're dealing with Netatalk
+        -- This basically means that the user account does not exist
+        -- In this case, why bother continuing? Simply abort and thank Netatalk for the fish
+        if response:match("Parameter error.") then
+          stdnse.print_debug("Netatalk told us the user does not exist! Thanks.")
+          -- mark it as "found" to skip it
+          found_users[username] = true
+        end
 
-				if status then
-					-- Add credentials for other afp scripts to use
-					if nmap.registry.afp == nil then
-						nmap.registry.afp = {}
-					end
-					nmap.registry.afp[username]=password
-					found_users[username] = true
+        if status then
+          -- Add credentials for other afp scripts to use
+          if nmap.registry.afp == nil then
+            nmap.registry.afp = {}
+          end
+          nmap.registry.afp[username]=password
+          found_users[username] = true
 
-					table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
-					break
-				end
-				helper:CloseSession()
-			end
-		end
-		usernames("reset")
-	end
+          table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
+          break
+        end
+        helper:CloseSession()
+      end
+    end
+    usernames("reset")
+  end
 
-	local output = stdnse.format_output(true, valid_accounts)
+  local output = stdnse.format_output(true, valid_accounts)
 
-	return output
+  return output
 
 end

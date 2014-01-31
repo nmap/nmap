@@ -55,59 +55,59 @@ prerule = function() return true end
 -- This function decodes the single quote as a start and should really
 -- be replaced with a proper UTF-8 decoder in the future
 local function decodeString(str)
-	return str:gsub("\226\128\153", "'")
+  return str:gsub("\226\128\153", "'")
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local function listDevices(mm)
-	local status, devices = mm:getDevices()
-	if ( not(status) ) then
-		return fail("Failed to get devices")
-	end
+  local status, devices = mm:getDevices()
+  if ( not(status) ) then
+    return fail("Failed to get devices")
+  end
 
-	local output = tab.new(2)
-	tab.addrow(output, "id", "name")
-	for i=1, #devices do
-		local name = decodeString(devices[i].name or "")
-		tab.addrow(output, i, name)
-	end
+  local output = tab.new(2)
+  tab.addrow(output, "id", "name")
+  for i=1, #devices do
+    local name = decodeString(devices[i].name or "")
+    tab.addrow(output, i, name)
+  end
 
-	if ( 1 < #output ) then
-		return stdnse.format_output(true, tab.dump(output))
-	end
+  if ( 1 < #output ) then
+    return stdnse.format_output(true, tab.dump(output))
+  end
 end
 
 
 action = function()
-	if ( not(arg_username) or not(arg_password) ) then
-		return fail("No username or password was supplied")
-	end
+  if ( not(arg_username) or not(arg_password) ) then
+    return fail("No username or password was supplied")
+  end
 
-	if ( not(arg_deviceindex) and not(arg_listdevices) ) then
-		return fail("No device ID was specificed")
-	end
+  if ( not(arg_deviceindex) and not(arg_listdevices) ) then
+    return fail("No device ID was specificed")
+  end
 
-	if ( 1 == tonumber(arg_listdevices) or "true" == arg_listdevices ) then
-		local mm = mobileme.Helper:new(arg_username, arg_password)
-		return listDevices(mm)
-	elseif ( not(arg_subject) or not(arg_message) ) then
-		return fail("Missing subject or message")
-	else
-		local mm = mobileme.Helper:new(arg_username, arg_password)
-		local status, devices = mm:getDevices()
+  if ( 1 == tonumber(arg_listdevices) or "true" == arg_listdevices ) then
+    local mm = mobileme.Helper:new(arg_username, arg_password)
+    return listDevices(mm)
+  elseif ( not(arg_subject) or not(arg_message) ) then
+    return fail("Missing subject or message")
+  else
+    local mm = mobileme.Helper:new(arg_username, arg_password)
+    local status, devices = mm:getDevices()
 
-		if ( not(status) ) then
-			return fail("Failed to get devices")
-		end
+    if ( not(status) ) then
+      return fail("Failed to get devices")
+    end
 
-		if ( status and arg_deviceindex <= #devices ) then
-			local status = mm:sendMessage( devices[arg_deviceindex].id, arg_subject, arg_message, arg_sound)
-			if ( status ) then
-				return ("\n  Message was successfully sent to \"%s\""):format(decodeString(devices[arg_deviceindex].name or ""))
-			else
-				return "\n  Failed to send message"
-			end
-		end
-	end
+    if ( status and arg_deviceindex <= #devices ) then
+      local status = mm:sendMessage( devices[arg_deviceindex].id, arg_subject, arg_message, arg_sound)
+      if ( status ) then
+        return ("\n  Message was successfully sent to \"%s\""):format(decodeString(devices[arg_deviceindex].name or ""))
+      else
+        return "\n  Failed to send message"
+      end
+    end
+  end
 end

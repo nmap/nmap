@@ -37,33 +37,33 @@ local arg_bucketname = stdnse.get_script_args(SCRIPT_NAME..".bucketname")
 
 Driver = {
 
-	new = function(self, host, port, options)
-		local o = { host = host, port = port, options = options }
-		setmetatable(o, self)
-		self.__index = self
-		return o
-	end,
+  new = function(self, host, port, options)
+    local o = { host = host, port = port, options = options }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function(self)
-		self.helper = membase.Helper:new(self.host, self.port)
-		return self.helper:connect()
-	end,
+  connect = function(self)
+    self.helper = membase.Helper:new(self.host, self.port)
+    return self.helper:connect()
+  end,
 
-	login = function(self, username, password)
-		local status, response = self.helper:login(arg_bucketname or username, password)
-		if ( not(status) and "Auth failure" == response ) then
-			return false, brute.Error:new( "Incorrect password" )
-		elseif ( not(status) ) then
-			local err = brute.Error:new( response )
-			err:setRetry( true )
-			return false, err
-		end
-		return true, brute.Account:new( arg_bucketname or username, password, creds.State.VALID)
-	end,
+  login = function(self, username, password)
+    local status, response = self.helper:login(arg_bucketname or username, password)
+    if ( not(status) and "Auth failure" == response ) then
+      return false, brute.Error:new( "Incorrect password" )
+    elseif ( not(status) ) then
+      local err = brute.Error:new( response )
+      err:setRetry( true )
+      return false, err
+    end
+    return true, brute.Account:new( arg_bucketname or username, password, creds.State.VALID)
+  end,
 
-	disconnect = function(self)
-		return self.helper:close()
-	end
+  disconnect = function(self)
+    return self.helper:close()
+  end
 
 }
 
@@ -71,43 +71,43 @@ Driver = {
 local function fail(err) return ("\n  ERROR: %s"):format(err) end
 
 local function getMechs(host, port)
-	local helper = membase.Helper:new(host, port)
-	local status, err = helper:connect()
-	if ( not(status) ) then
-		return false, "Failed to connect to server"
-	end
+  local helper = membase.Helper:new(host, port)
+  local status, err = helper:connect()
+  if ( not(status) ) then
+    return false, "Failed to connect to server"
+  end
 
-	local status, response = helper:getSASLMechList()
-	if ( not(status) ) then
-		stdnse.print_debug(2, "%s: Received unexpected response: %s", SCRIPT_NAME, response)
-		return false, "Received unexpected response"
-	end
+  local status, response = helper:getSASLMechList()
+  if ( not(status) ) then
+    stdnse.print_debug(2, "%s: Received unexpected response: %s", SCRIPT_NAME, response)
+    return false, "Received unexpected response"
+  end
 
-	helper:close()
-	return true, response.mechs
+  helper:close()
+  return true, response.mechs
 end
 
 action = function(host, port)
 
-	local status, mechs = getMechs(host, port)
+  local status, mechs = getMechs(host, port)
 
-	if ( not(status) ) then
-		return fail(mechs)
-	end
-	if ( not(mechs:match("PLAIN") ) ) then
-		return fail("Unsupported SASL mechanism")
-	end
+  if ( not(status) ) then
+    return fail(mechs)
+  end
+  if ( not(mechs:match("PLAIN") ) ) then
+    return fail("Unsupported SASL mechanism")
+  end
 
-	local result
-	local engine = brute.Engine:new(Driver, host, port )
+  local result
+  local engine = brute.Engine:new(Driver, host, port )
 
-	engine.options.script_name = SCRIPT_NAME
-	engine.options.firstonly = true
+  engine.options.script_name = SCRIPT_NAME
+  engine.options.firstonly = true
 
-	if ( arg_bucketname ) then
-		engine.options:setOption( "passonly", true )
-	end
+  if ( arg_bucketname ) then
+    engine.options:setOption( "passonly", true )
+  end
 
-	status, result = engine:start()
-	return result
+  status, result = engine:start()
+  return result
 end

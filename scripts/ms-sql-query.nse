@@ -67,56 +67,56 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 ---
 local function process_instance( instance )
-	local status, result
-	-- the tempdb should be a safe guess, anyway the library is set up
-	-- to continue even if the DB is not accessible to the user
+  local status, result
+  -- the tempdb should be a safe guess, anyway the library is set up
+  -- to continue even if the DB is not accessible to the user
   -- TODO: consider renaming this arg to ms-sql-query.database
-	local database = stdnse.get_script_args( 'mssql.database' ) or "tempdb"
-	local query = stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) or "SELECT @@version version"
-	local helper = mssql.Helper:new()
+  local database = stdnse.get_script_args( 'mssql.database' ) or "tempdb"
+  local query = stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) or "SELECT @@version version"
+  local helper = mssql.Helper:new()
 
-	status, result = helper:ConnectEx( instance )
+  status, result = helper:ConnectEx( instance )
 
-	if status then
-		status, result = helper:LoginEx( instance, database )
-		if ( not(status) ) then result = "ERROR: " .. result end
-	end
-	if status then
-		status, result = helper:Query( query )
-		if ( not(status) ) then result = "ERROR: " .. result end
-	end
+  if status then
+    status, result = helper:LoginEx( instance, database )
+    if ( not(status) ) then result = "ERROR: " .. result end
+  end
+  if status then
+    status, result = helper:Query( query )
+    if ( not(status) ) then result = "ERROR: " .. result end
+  end
 
-	helper:Disconnect()
+  helper:Disconnect()
 
-	if status then
-		result = mssql.Util.FormatOutputTable( result, true )
-		result["name"] = string.format( "Query: %s", query )
-	end
-	local instanceOutput = {}
-	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	table.insert( instanceOutput, result )
+  if status then
+    result = mssql.Util.FormatOutputTable( result, true )
+    result["name"] = string.format( "Query: %s", query )
+  end
+  local instanceOutput = {}
+  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  table.insert( instanceOutput, result )
 
-	return instanceOutput
+  return instanceOutput
 end
 
 
 action = function( host, port )
-	local scriptOutput = {}
-	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+  local scriptOutput = {}
+  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
 
-	if ( not status ) then
-		return stdnse.format_output( false, instanceList )
-	else
-		for _, instance in pairs( instanceList ) do
-			local instanceOutput = process_instance( instance )
-			if instanceOutput then
-				table.insert( scriptOutput, instanceOutput )
-			end
-		end
-		if ( not( stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) ) ) then
-			table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-query.query='<QUERY>' to change query.)")
-		end
-	end
+  if ( not status ) then
+    return stdnse.format_output( false, instanceList )
+  else
+    for _, instance in pairs( instanceList ) do
+      local instanceOutput = process_instance( instance )
+      if instanceOutput then
+        table.insert( scriptOutput, instanceOutput )
+      end
+    end
+    if ( not( stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) ) ) then
+      table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-query.query='<QUERY>' to change query.)")
+    end
+  end
 
-	return stdnse.format_output( true, scriptOutput )
+  return stdnse.format_output( true, scriptOutput )
 end

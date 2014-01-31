@@ -40,13 +40,13 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 -- @return value of relevant type or nil if oid was not found
 function get_value_from_table( tbl, oid )
 
-	for _, v in ipairs( tbl ) do
-		if v.oid == oid then
-			return v.value
-		end
-	end
+  for _, v in ipairs( tbl ) do
+    if v.oid == oid then
+      return v.value
+    end
+  end
 
-	return nil
+  return nil
 end
 
 --- Processes the table and creates the script output
@@ -55,55 +55,55 @@ end
 -- @return table suitable for <code>stdnse.format_output</code>
 function process_answer( tbl )
 
-	local sw_name = "1.3.6.1.2.1.25.6.3.1.2"
-	local sw_date = "1.3.6.1.2.1.25.6.3.1.5"
-	local new_tbl = {}
+  local sw_name = "1.3.6.1.2.1.25.6.3.1.2"
+  local sw_date = "1.3.6.1.2.1.25.6.3.1.5"
+  local new_tbl = {}
 
-	for _, v in ipairs( tbl ) do
+  for _, v in ipairs( tbl ) do
 
-		if ( v.oid:match("^" .. sw_name) ) then
-			local objid = v.oid:gsub( "^" .. sw_name, sw_date)
-			local install_date = get_value_from_table( tbl, objid )
-			local sw_item
+    if ( v.oid:match("^" .. sw_name) ) then
+      local objid = v.oid:gsub( "^" .. sw_name, sw_date)
+      local install_date = get_value_from_table( tbl, objid )
+      local sw_item
 
-			local _, year, month, day, hour, min, sec = bin.unpack( ">SCCCCC", install_date )
-			install_date = ("%02d-%02d-%02d %02d:%02d:%02d"):format( year, month, day, hour, min, sec )
+      local _, year, month, day, hour, min, sec = bin.unpack( ">SCCCCC", install_date )
+      install_date = ("%02d-%02d-%02d %02d:%02d:%02d"):format( year, month, day, hour, min, sec )
 
-			sw_item = ("%s; %s"):format(v.value ,install_date)
-			table.insert( new_tbl, sw_item )
-		end
+      sw_item = ("%s; %s"):format(v.value ,install_date)
+      table.insert( new_tbl, sw_item )
+    end
 
-	end
+  end
 
-	table.sort( new_tbl )
-	return new_tbl
+  table.sort( new_tbl )
+  return new_tbl
 
 end
 
 
 action = function(host, port)
 
-	local socket = nmap.new_socket()
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)
-	local data, snmpoid = nil, "1.3.6.1.2.1.25.6.3.1"
-	local sw = {}
-	local status
+  local socket = nmap.new_socket()
+  local catch = function() socket:close()	end
+  local try = nmap.new_try(catch)
+  local data, snmpoid = nil, "1.3.6.1.2.1.25.6.3.1"
+  local sw = {}
+  local status
 
-	socket:set_timeout(5000)
-	try(socket:connect(host, port))
+  socket:set_timeout(5000)
+  try(socket:connect(host, port))
 
-	status, sw = snmp.snmpWalk( socket, snmpoid )
-	socket:close()
+  status, sw = snmp.snmpWalk( socket, snmpoid )
+  socket:close()
 
-	if ( not(status) ) or ( sw == nil ) or ( #sw == 0 ) then
-		return
-	end
+  if ( not(status) ) or ( sw == nil ) or ( #sw == 0 ) then
+    return
+  end
 
-	sw = process_answer( sw )
+  sw = process_answer( sw )
 
-	nmap.set_port_state(host, port, "open")
+  nmap.set_port_state(host, port, "open")
 
-	return stdnse.format_output( true, sw )
+  return stdnse.format_output( true, sw )
 end
 
