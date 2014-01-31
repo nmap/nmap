@@ -83,7 +83,7 @@ CLASS = {
 -- @param multiple If true, keep reading multiple responses until timeout.
 -- @return Status (true or false).
 -- @return Response (if status is true).
-local function sendPackets(data, host, port, timeout, cnt, multiple)
+local function sendPacketsUDP(data, host, port, timeout, cnt, multiple)
     local socket = nmap.new_socket("udp")
     local responses = {}
 
@@ -131,6 +131,56 @@ local function sendPackets(data, host, port, timeout, cnt, multiple)
     return false
 end
 
+---
+-- Send TCP DNS query
+-- @param data Data to be sent.
+-- @param host Host to connect to.
+-- @param port Port to connect to.
+-- @param timeout Number of ms to wait for a response.
+-- @return Status (true or false).
+-- @return Response (if status is true).
+local function sendPacketsTCP(data, host, port, timeout)
+    local socket = nmap.new_socket()
+    local response
+    local responses = {}
+    socket:set_timeout(timeout)
+    socket:connect(host, port)
+    -- add payload size we are assuming a minimum size here of 256?
+    local send_data = '\000' .. string.char(#data) .. data
+    socket:send(send_data)
+    local response = ''
+    while true do
+        local status, recv_data = socket:receive_bytes(1)
+        if not status then break end
+        response = response .. recv_data
+    end
+    local status, _, _, ip, _ = socket:get_info()
+    -- remove payload size
+    table.insert(responses, { data = string.sub(response,3), peer = ip } )
+    socket:close()
+    if (#responses>0) then
+        return true, responses
+    end
+    return false
+
+end
+
+---
+-- Call appropriate protocol handeler
+-- @param data Data to be sent.
+-- @param host Host to connect to.
+-- @param port Port to connect to.
+-- @param timeout Number of ms to wait for a response.
+-- @param cnt Number of tries.
+-- @param multiple If true, keep reading multiple responses until timeout.
+-- @return Status (true or false).
+local function sendPackets(data, host, port, timeout, cnt, multiple, proto)
+    if proto == nil or proto == 'udp' then
+        return sendPacketsUDP(data, host, port, timeout, cnt, multiple)
+    else
+        return sendPacketsTCP(data, host, port, timeout)
+    end
+end
 
 ---
 -- Checks if a DNS response packet contains a useful answer.
@@ -265,7 +315,9 @@ end
 function query(dname, options)
     if not options then options = {} end
 
-    local dtype, host, port = options.dtype, options.host, options.port
+    local dtype, host, port, proto = options.dtype, options.host, options.port, options.proto
+    if proto == nil then proto = 'udp' end
+    if port == nil then port = '53' end
 
     local class = options.class or CLASS.IN
     if not options.tries then options.tries = 10 end -- don't get into an infinite loop
@@ -319,7 +371,7 @@ function query(dname, options)
 
     local data = encode(pkt)
 
-    local status, response = sendPackets(data, host, port, options.timeout, options.sendCount, options.multiple)
+    local status, response = sendPackets(data, host, port, options.timeout, options.sendCount, options.multiple, proto)
 
 
     -- if working with know nameservers, try the others
