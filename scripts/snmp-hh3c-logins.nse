@@ -62,13 +62,13 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 -- @return value of relevant type or nil if oid was not found
 function get_value_from_table( tbl, oid )
 
-	for _, v in ipairs( tbl ) do
-		if v.oid == oid then
-			return v.value
-		end
-	end
+  for _, v in ipairs( tbl ) do
+    if v.oid == oid then
+      return v.value
+    end
+  end
 
-	return nil
+  return nil
 end
 
 --- Processes the table and creates the script output
@@ -77,81 +77,81 @@ end
 -- @return <code>stdnse.output_table</code> formatted table
 function process_answer( tbl )
 
-	-- h3c-user MIB OIDs (oldoid)
-	local h3cUserName = "1.3.6.1.4.1.2011.10.2.12.1.1.1.1"
-	local h3cUserPassword = "1.3.6.1.4.1.2011.10.2.12.1.1.1.2"
-	local h3cUserLevel = "1.3.6.1.4.1.2011.10.2.12.1.1.1.4"
-	local h3cUserState = "1.3.6.1.4.1.2011.10.2.12.1.1.1.5"
+  -- h3c-user MIB OIDs (oldoid)
+  local h3cUserName = "1.3.6.1.4.1.2011.10.2.12.1.1.1.1"
+  local h3cUserPassword = "1.3.6.1.4.1.2011.10.2.12.1.1.1.2"
+  local h3cUserLevel = "1.3.6.1.4.1.2011.10.2.12.1.1.1.4"
+  local h3cUserState = "1.3.6.1.4.1.2011.10.2.12.1.1.1.5"
 
-	-- hh3c-user MIB OIDs (newoid)
-	local hh3cUserName = "1.3.6.1.4.1.25506.2.12.1.1.1.1"
-	local hh3cUserPassword = "1.3.6.1.4.1.25506.2.12.1.1.1.2"
-	local hh3cUserLevel = "1.3.6.1.4.1.25506.2.12.1.1.1.4"
-	local hh3cUserState = "1.3.6.1.4.1.25506.2.12.1.1.1.5"
+  -- hh3c-user MIB OIDs (newoid)
+  local hh3cUserName = "1.3.6.1.4.1.25506.2.12.1.1.1.1"
+  local hh3cUserPassword = "1.3.6.1.4.1.25506.2.12.1.1.1.2"
+  local hh3cUserLevel = "1.3.6.1.4.1.25506.2.12.1.1.1.4"
+  local hh3cUserState = "1.3.6.1.4.1.25506.2.12.1.1.1.5"
 
-	local output = stdnse.output_table()
-	output.users = {}
+  local output = stdnse.output_table()
+  output.users = {}
 
-	for _, v in ipairs( tbl ) do
+  for _, v in ipairs( tbl ) do
 
-		if ( v.oid:match("^" .. h3cUserName) ) then
-			local item = {}
-			local oldobjid = v.oid:gsub( "^" .. h3cUserName, h3cUserPassword)
-			local password = get_value_from_table( tbl, oldobjid )
+    if ( v.oid:match("^" .. h3cUserName) ) then
+      local item = {}
+      local oldobjid = v.oid:gsub( "^" .. h3cUserName, h3cUserPassword)
+      local password = get_value_from_table( tbl, oldobjid )
 
-			if ( password == nil ) or ( #password == 0 ) then
-				local newobjid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserPassword)
-				password = get_value_from_table( tbl, newobjid )
-			end
+      if ( password == nil ) or ( #password == 0 ) then
+        local newobjid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserPassword)
+        password = get_value_from_table( tbl, newobjid )
+      end
 
-			oldobjid = v.oid:gsub( "^" .. h3cUserName, h3cUserLevel)
-			local level = get_value_from_table( tbl, oldobjid )
+      oldobjid = v.oid:gsub( "^" .. h3cUserName, h3cUserLevel)
+      local level = get_value_from_table( tbl, oldobjid )
 
-			if ( level == nil ) then
-				local newobjoid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserLevel)
-				level = get_value_from_table( tbl, oldobjid )
-			end
+      if ( level == nil ) then
+        local newobjoid = v.oid:gsub( "^" .. hh3cUserName, hh3cUserLevel)
+        level = get_value_from_table( tbl, oldobjid )
+      end
 
-			output.users[#output.users + 1] = {username=v.value, password=password, level=level}
-		end
+      output.users[#output.users + 1] = {username=v.value, password=password, level=level}
+    end
 
-	end
+  end
 
-	return output
+  return output
 end
 
 action = function(host, port)
 
-	local socket = nmap.new_socket()
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)
-	local data, oldsnmpoid = nil, "1.3.6.1.4.1.2011.10.2.12.1.1.1"
-	local data, newsnmpoid = nil, "1.3.6.1.4.1.25506.2.12.1.1.1"
-	local users = {}
-	local status
+  local socket = nmap.new_socket()
+  local catch = function() socket:close()	end
+  local try = nmap.new_try(catch)
+  local data, oldsnmpoid = nil, "1.3.6.1.4.1.2011.10.2.12.1.1.1"
+  local data, newsnmpoid = nil, "1.3.6.1.4.1.25506.2.12.1.1.1"
+  local users = {}
+  local status
 
-	socket:set_timeout(5000)
-	try(socket:connect(host, port))
+  socket:set_timeout(5000)
+  try(socket:connect(host, port))
 
-	status, users = snmp.snmpWalk( socket, oldsnmpoid )
-	socket:close()
+  status, users = snmp.snmpWalk( socket, oldsnmpoid )
+  socket:close()
 
-	if (not(status)) or ( users == nil ) or ( #users == 0 ) then
+  if (not(status)) or ( users == nil ) or ( #users == 0 ) then
 
-		-- no status? try new snmp oid
-		socket:set_timeout(5000)
-		try(socket:connect(host, port))
-		status, users = snmp.snmpWalk( socket, newsnmpoid )
-		socket:close()
+    -- no status? try new snmp oid
+    socket:set_timeout(5000)
+    try(socket:connect(host, port))
+    status, users = snmp.snmpWalk( socket, newsnmpoid )
+    socket:close()
 
-		if (not(status)) or ( users == nil ) or ( #users == 0 ) then
-			return users
-		end
+    if (not(status)) or ( users == nil ) or ( #users == 0 ) then
+      return users
+    end
 
-	end
+  end
 
-	nmap.set_port_state(host, port, "open")
-	return process_answer(users)
+  nmap.set_port_state(host, port, "open")
+  return process_answer(users)
 
 end
 

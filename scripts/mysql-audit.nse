@@ -15,7 +15,7 @@ audits by creating appropriate audit files).
 ---
 -- @usage
 -- nmap -p 3306 --script mysql-audit --script-args "mysql-audit.username='root', \
--- 	mysql-audit.password='foobar',mysql-audit.filename='nselib/data/mysql-cis.audit'"
+--   mysql-audit.password='foobar',mysql-audit.filename='nselib/data/mysql-cis.audit'"
 --
 -- @args mysql-audit.username the username with which to connect to the database
 -- @args mysql-audit.password the password with which to connect to the database
@@ -94,89 +94,89 @@ portrule = shortport.port_or_service(3306, "mysql")
 local TEMPLATE_NAME, ADMIN_ACCOUNTS = "", ""
 
 local function loadAuditRulebase( filename )
-	local rules = {}
+  local rules = {}
 
-	local env = setmetatable({
-		test = function(t) table.insert(rules, t) end;
-	}, {__index = _G})
+  local env = setmetatable({
+    test = function(t) table.insert(rules, t) end;
+  }, {__index = _G})
 
-	local file, err = loadfile(filename, "t", env)
+  local file, err = loadfile(filename, "t", env)
 
-	if ( not(file) ) then
-		return false, ("ERROR: Failed to load rulebase:\n%s"):format(err)
-	end
+  if ( not(file) ) then
+    return false, ("ERROR: Failed to load rulebase:\n%s"):format(err)
+  end
 
 
-	file()
-	TEMPLATE_NAME = env.TEMPLATE_NAME
-	ADMIN_ACCOUNTS = env.ADMIN_ACCOUNTS
-	return true, rules
+  file()
+  TEMPLATE_NAME = env.TEMPLATE_NAME
+  ADMIN_ACCOUNTS = env.ADMIN_ACCOUNTS
+  return true, rules
 end
 
 action = function( host, port )
 
-	local username = stdnse.get_script_args("mysql-audit.username")
-	local password = stdnse.get_script_args("mysql-audit.password")
-	local filename = stdnse.get_script_args("mysql-audit.filename")
+  local username = stdnse.get_script_args("mysql-audit.username")
+  local password = stdnse.get_script_args("mysql-audit.password")
+  local filename = stdnse.get_script_args("mysql-audit.filename")
 
-	if ( not(filename) ) then
-		return "\n  No audit rulebase file was supplied (see mysql-audit.filename)"
-	end
+  if ( not(filename) ) then
+    return "\n  No audit rulebase file was supplied (see mysql-audit.filename)"
+  end
 
-	if ( not(username) ) then
-		return "\n  No username was supplied (see mysql-audit.username)"
-	end
+  if ( not(username) ) then
+    return "\n  No username was supplied (see mysql-audit.username)"
+  end
 
-	local status, tests = loadAuditRulebase( filename )
-	if( not(status) ) then return tests end
+  local status, tests = loadAuditRulebase( filename )
+  if( not(status) ) then return tests end
 
-	local socket = nmap.new_socket()
-	status = socket:connect(host, port)
+  local socket = nmap.new_socket()
+  status = socket:connect(host, port)
 
-	local response
-	status, response = mysql.receiveGreeting( socket )
-	if ( not(status) ) then return response end
+  local response
+  status, response = mysql.receiveGreeting( socket )
+  if ( not(status) ) then return response end
 
-	status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
+  status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 
-	if ( not(status) ) then return "ERROR: Failed to authenticate" end
-	local results = {}
+  if ( not(status) ) then return "ERROR: Failed to authenticate" end
+  local results = {}
 
-	for _, test in ipairs(tests) do
-		local queries = ( "string" == type(test.sql) ) and { test.sql } or test.sql
-		local rowstab = {}
+  for _, test in ipairs(tests) do
+    local queries = ( "string" == type(test.sql) ) and { test.sql } or test.sql
+    local rowstab = {}
 
-		for _, query in ipairs(queries) do
-			local row
-			status, row = mysql.sqlQuery( socket, query )
-			if ( not(status) ) then
-				table.insert( results, { ("%s: ERROR: Failed to execute SQL statement"):format(test.id) } )
-			else
-				table.insert(rowstab, row)
-			end
-		end
+    for _, query in ipairs(queries) do
+      local row
+      status, row = mysql.sqlQuery( socket, query )
+      if ( not(status) ) then
+        table.insert( results, { ("%s: ERROR: Failed to execute SQL statement"):format(test.id) } )
+      else
+        table.insert(rowstab, row)
+      end
+    end
 
-		if ( #rowstab > 0 ) then
-			local result_part = {}
-			local res = test.check(rowstab)
-			local status, data = res.status, res.result
-			status = ( res.review and "REVIEW" ) or (status and "PASS" or "FAIL")
+    if ( #rowstab > 0 ) then
+      local result_part = {}
+      local res = test.check(rowstab)
+      local status, data = res.status, res.result
+      status = ( res.review and "REVIEW" ) or (status and "PASS" or "FAIL")
 
-			table.insert( result_part, ("%s: %s => %s"):format(test.id, test.desc, status) )
-			if ( data ) then
-				table.insert(result_part, { data } )
-			end
-			table.insert( results, result_part )
-		end
-	end
+      table.insert( result_part, ("%s: %s => %s"):format(test.id, test.desc, status) )
+      if ( data ) then
+        table.insert(result_part, { data } )
+      end
+      table.insert( results, result_part )
+    end
+  end
 
-	socket:close()
-	results.name = TEMPLATE_NAME
+  socket:close()
+  results.name = TEMPLATE_NAME
 
-	table.insert(results, "")
-	table.insert(results, {name = "Additional information", ("The audit was performed using the db-account: %s"):format(username),
-		("The following admin accounts were excluded from the audit: %s"):format(stdnse.strjoin(",", ADMIN_ACCOUNTS))
-	})
+  table.insert(results, "")
+  table.insert(results, {name = "Additional information", ("The audit was performed using the db-account: %s"):format(username),
+    ("The following admin accounts were excluded from the audit: %s"):format(stdnse.strjoin(",", ADMIN_ACCOUNTS))
+  })
 
-	return stdnse.format_output(true, { results })
+return stdnse.format_output(true, { results })
 end

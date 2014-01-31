@@ -115,7 +115,7 @@ local function findName(host, port, path, number)
       end
       if errors>10 then
         stdnse.print_debug(1, "%s:False positive detected. Exiting.", SCRIPT_NAME)
-	errors_max=true
+        errors_max=true
       else
         stdnse.print_debug(1, "Added folder: %s", path .. "~" .. number)
         table.insert(folders, path .. "~" .. number)

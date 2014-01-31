@@ -66,7 +66,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 02/01/2011 - v0.2 - Added ability to run against all instances on a host;
---							   added compatibility with changes in mssql.lua (Chris Woodbury)
+--                 added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -82,95 +82,95 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 local function process_instance( instance )
 
-	local status, result, rs
-	local query, limit
-	local output = {}
-	local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
+  local status, result, rs
+  local query, limit
+  local output = {}
+  local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
 
-	local RS_LIMIT = stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )
-		and tonumber(stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )) or 5
+  local RS_LIMIT = stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )
+    and tonumber(stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )) or 5
 
-	if ( RS_LIMIT <= 0 ) then
-		limit = ""
-	else
-		limit = string.format( "TOP %d", RS_LIMIT )
-	end
+  if ( RS_LIMIT <= 0 ) then
+    limit = ""
+  else
+    limit = string.format( "TOP %d", RS_LIMIT )
+  end
 
-	local query = { [[CREATE table #hasaccess(dbname varchar(255), owner varchar(255),
-							 DboOnly bit, ReadOnly bit, SingelUser bit, Detached bit,
-							 Suspect bit, Offline bit, InLoad bit, EmergencyMode bit,
-							 StandBy bit, [ShutDown] bit, InRecovery bit, NotRecovered bit )]],
-
-
-							"INSERT INTO #hasaccess EXEC sp_MShasdbaccess",
-							("SELECT %s dbname, owner FROM #hasaccess WHERE dbname NOT IN(%s)"):format(limit, stdnse.strjoin(",", exclude_dbs)),
-	 						"DROP TABLE #hasaccess" }
-
-	local creds = mssql.Helper.GetLoginCredentials_All( instance )
-	if ( not creds ) then
-		output = "ERROR: No login credentials."
-	else
-		for username, password in pairs( creds ) do
-			local helper = mssql.Helper:new()
-	 		status, result = helper:ConnectEx( instance )
-			if ( not(status) ) then
-				output = "ERROR: " .. result
-				break
-			end
-
-			if ( status ) then
-				status = helper:Login( username, password, nil, instance.host.ip )
-			end
-
-			if ( status ) then
-				for _, q in pairs(query) do
-					status, result = helper:Query( q )
-					if ( status ) then
-						-- Only the SELECT statement should produce output
-						if ( #result.rows > 0 ) then
-							rs = result
-						end
-					end
-				end
-			end
-
-			helper:Disconnect()
-
-			if ( status and rs ) then
-				result = mssql.Util.FormatOutputTable( rs, true )
-				result.name = username
-				if ( RS_LIMIT > 0 ) then
-					result.name = result.name .. (" (Showing %d first results)"):format(RS_LIMIT)
-				end
-				table.insert( output, result )
-			end
-		end
-	end
+  local query = { [[CREATE table #hasaccess(dbname varchar(255), owner varchar(255),
+    DboOnly bit, ReadOnly bit, SingelUser bit, Detached bit,
+    Suspect bit, Offline bit, InLoad bit, EmergencyMode bit,
+    StandBy bit, [ShutDown] bit, InRecovery bit, NotRecovered bit )]],
 
 
-	local instanceOutput = {}
-	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	table.insert( instanceOutput, output )
+    "INSERT INTO #hasaccess EXEC sp_MShasdbaccess",
+    ("SELECT %s dbname, owner FROM #hasaccess WHERE dbname NOT IN(%s)"):format(limit, stdnse.strjoin(",", exclude_dbs)),
+    "DROP TABLE #hasaccess" }
 
-	return instanceOutput
+  local creds = mssql.Helper.GetLoginCredentials_All( instance )
+  if ( not creds ) then
+    output = "ERROR: No login credentials."
+  else
+    for username, password in pairs( creds ) do
+      local helper = mssql.Helper:new()
+      status, result = helper:ConnectEx( instance )
+      if ( not(status) ) then
+        output = "ERROR: " .. result
+        break
+      end
+
+      if ( status ) then
+        status = helper:Login( username, password, nil, instance.host.ip )
+      end
+
+      if ( status ) then
+        for _, q in pairs(query) do
+          status, result = helper:Query( q )
+          if ( status ) then
+            -- Only the SELECT statement should produce output
+            if ( #result.rows > 0 ) then
+              rs = result
+            end
+          end
+        end
+      end
+
+      helper:Disconnect()
+
+      if ( status and rs ) then
+        result = mssql.Util.FormatOutputTable( rs, true )
+        result.name = username
+        if ( RS_LIMIT > 0 ) then
+          result.name = result.name .. (" (Showing %d first results)"):format(RS_LIMIT)
+        end
+        table.insert( output, result )
+      end
+    end
+  end
+
+
+  local instanceOutput = {}
+  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  table.insert( instanceOutput, output )
+
+  return instanceOutput
 
 end
 
 
 action = function( host, port )
-	local scriptOutput = {}
-	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+  local scriptOutput = {}
+  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
 
-	if ( not status ) then
-		return stdnse.format_output( false, instanceList )
-	else
-		for _, instance in pairs( instanceList ) do
-			local instanceOutput = process_instance( instance )
-			if instanceOutput then
-				table.insert( scriptOutput, instanceOutput )
-			end
-		end
-	end
+  if ( not status ) then
+    return stdnse.format_output( false, instanceList )
+  else
+    for _, instance in pairs( instanceList ) do
+      local instanceOutput = process_instance( instance )
+      if instanceOutput then
+        table.insert( scriptOutput, instanceOutput )
+      end
+    end
+  end
 
-	return stdnse.format_output( true, scriptOutput )
+  return stdnse.format_output( true, scriptOutput )
 end

@@ -58,18 +58,18 @@ portrule = shortport.port_or_service(5060, "sip", {"tcp", "udp"})
 -- @return status True if we got a response, false else.
 -- @return resp Response table if status is true, error string else.
 local sendinvite = function(session, ua, from, src, extension)
-    local request = sip.Request:new(sip.Method.INVITE)
+  local request = sip.Request:new(sip.Method.INVITE)
 
-    request:setUri("sip:" ..  session.sessdata:getServer())
-    request:setUA(ua)
-    if src then
-	session.sessdata:setDomain(src)
-    end
-    session.sessdata:setUsername(extension)
-    session.sessdata:setName(from)
-    request:setSessionData(session.sessdata)
+  request:setUri("sip:" ..  session.sessdata:getServer())
+  request:setUA(ua)
+  if src then
+    session.sessdata:setDomain(src)
+  end
+  session.sessdata:setUsername(extension)
+  session.sessdata:setName(from)
+  request:setSessionData(session.sessdata)
 
-    return session:exch(request)
+  return session:exch(request)
 end
 
 --- Function that waits for certain responses for an amount of time.
@@ -79,31 +79,31 @@ end
 -- @return responsecode Code for the latest meaningful response.
 --  could be 180, 200, 486, 408 or 603
 local waitresponses = function(session,timeout)
-    local response, status, data, responsecode, ringing, waittime
-    local start = nmap.clock_ms()
+  local response, status, data, responsecode, ringing, waittime
+  local start = nmap.clock_ms()
 
-    while (nmap.clock_ms() - start) < timeout do
-	status, data = session.conn:recv()
-	if status then
-	    response = sip.Response:new(data)
-	    responsecode = response:getErrorCode()
-	    waittime = nmap.clock_ms() - start
-	    if responsecode == sip.Error.RING then
-		ringing = true
-	    elseif responsecode == sip.Error.BUSY then
-		return ringing, sip.Error.BUSY
-	    elseif responsecode == sip.Error.DECLINE then
-		return ringing, sip.Error.DECLINE, waittime
-	    elseif responsecode == sip.Error.OK then
-		return ringing, sip.Error.OK, waittime
-	    elseif responsecode == sip.Error.TIMEOUT then
-		return ringing, sip.Error.OK
-	    end
-	end
+  while (nmap.clock_ms() - start) < timeout do
+    status, data = session.conn:recv()
+    if status then
+      response = sip.Response:new(data)
+      responsecode = response:getErrorCode()
+      waittime = nmap.clock_ms() - start
+      if responsecode == sip.Error.RING then
+        ringing = true
+      elseif responsecode == sip.Error.BUSY then
+        return ringing, sip.Error.BUSY
+      elseif responsecode == sip.Error.DECLINE then
+        return ringing, sip.Error.DECLINE, waittime
+      elseif responsecode == sip.Error.OK then
+        return ringing, sip.Error.OK, waittime
+      elseif responsecode == sip.Error.TIMEOUT then
+        return ringing, sip.Error.OK
+      end
     end
-    if ringing then
-	return ringing, sip.Error.RING
-    end
+  end
+  if ringing then
+    return ringing, sip.Error.RING
+  end
 end
 
 --- Function that spoofs an invite request and listens for responses.
@@ -118,54 +118,54 @@ end
 --  could be 180, 200, 486, 408 or 603
 local invitespoof = function(session, ua, from, src, extension, timeout)
 
-    local status, response = sendinvite(session, ua, from, src,  extension)
-    -- check if we got a 100 Trying response.
-    if status and response:getErrorCode() == 100 then
-	-- wait for responses
-	return waitresponses(session, timeout)
-    end
+  local status, response = sendinvite(session, ua, from, src,  extension)
+  -- check if we got a 100 Trying response.
+  if status and response:getErrorCode() == 100 then
+    -- wait for responses
+    return waitresponses(session, timeout)
+  end
 end
 
 action = function(host, port)
-    local status, session
+  local status, session
 
-    local ua = stdnse.get_script_args(SCRIPT_NAME .. ".ua") or "Ekiga"
-    local from = stdnse.get_script_args(SCRIPT_NAME .. ".from") or "Home"
-    local src = stdnse.get_script_args(SCRIPT_NAME .. ".src")
-    local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or 100
-    local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
+  local ua = stdnse.get_script_args(SCRIPT_NAME .. ".ua") or "Ekiga"
+  local from = stdnse.get_script_args(SCRIPT_NAME .. ".from") or "Home"
+  local src = stdnse.get_script_args(SCRIPT_NAME .. ".src")
+  local extension = stdnse.get_script_args(SCRIPT_NAME .. ".extension") or 100
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout"))
 
-    -- Default timeout value = 5 seconds.
-    timeout = (timeout or 5) * 1000
+  -- Default timeout value = 5 seconds.
+  timeout = (timeout or 5) * 1000
 
-    session = sip.Session:new(host, port)
-    status = session:connect()
-    if not status then
-	return "ERROR: Failed to connect to the SIP server."
+  session = sip.Session:new(host, port)
+  status = session:connect()
+  if not status then
+    return "ERROR: Failed to connect to the SIP server."
+  end
+
+  local ringing, result, waittime = invitespoof(session, ua, from, src, extension, timeout)
+  -- If we get a response, we set the port to open.
+  if result then
+    if nmap.get_port_state(host, port) ~= "open" then
+      nmap.set_port_state(host, port, "open")
     end
+  end
 
-    local ringing, result, waittime = invitespoof(session, ua, from, src, extension, timeout)
-    -- If we get a response, we set the port to open.
-    if result then
-	if nmap.get_port_state(host, port) ~= "open" then
-	    nmap.set_port_state(host, port, "open")
-	end
+  -- We check for ringing to skip false positives.
+  if ringing then
+    if result == sip.Error.BUSY then
+      return stdnse.format_output(true, "Target line is busy.")
+    elseif result == sip.Error.DECLINE then
+      return stdnse.format_output(true, ("Target declined the call. (After %.1f seconds)"):format(waittime / 1000))
+    elseif result == sip.Error.OK then
+      return stdnse.format_output(true, ("Target hung up. (After %.1f seconds)"):format(waittime / 1000))
+    elseif result == sip.Error.TIMEOUT then
+      return stdnse.format_output(true, "Ringing, no answer.")
+    elseif result == sip.Error.RING then
+      return stdnse.format_output(true, "Ringing, got no answer. (script timeout)")
     end
-
-    -- We check for ringing to skip false positives.
-    if ringing then
-	if result == sip.Error.BUSY then
-	    return stdnse.format_output(true, "Target line is busy.")
-	elseif result == sip.Error.DECLINE then
-	    return stdnse.format_output(true, ("Target declined the call. (After %.1f seconds)"):format(waittime / 1000))
-	elseif result == sip.Error.OK then
-	    return stdnse.format_output(true, ("Target hung up. (After %.1f seconds)"):format(waittime / 1000))
-	elseif result == sip.Error.TIMEOUT then
-	    return stdnse.format_output(true, "Ringing, no answer.")
-	elseif result == sip.Error.RING then
-	    return stdnse.format_output(true, "Ringing, got no answer. (script timeout)")
-	end
-    else
-	stdnse.print_debug(SCRIPT_NAME .. "Target phone didn't ring.")
-    end
+  else
+    stdnse.print_debug(SCRIPT_NAME .. "Target phone didn't ring.")
+  end
 end

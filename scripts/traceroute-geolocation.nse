@@ -71,42 +71,42 @@ categories = {"safe", "external", "discovery"}
 local arg_kmlfile = stdnse.get_script_args(SCRIPT_NAME .. ".kmlfile")
 
 hostrule = function(host)
-	if ( not(host.traceroute) ) then
-		return false
-	end
-	return true
+  if ( not(host.traceroute) ) then
+    return false
+  end
+  return true
 end
 
 --
 -- GeoPlugin requires no API key and has no limitations on lookups
 --
 local function geoLookup(ip)
-	local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip)
-	local stat, loc = json.parse(response.body)
+  local response = http.get("www.geoplugin.net", 80, "/json.gp?ip="..ip)
+  local stat, loc = json.parse(response.body)
 
-	if not stat then return nil end
-	local output = {}
-	local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
-	return loc.geoplugin_latitude, loc.geoplugin_longitude, regionName, loc.geoplugin_countryName
+  if not stat then return nil end
+  local output = {}
+  local regionName = (loc.geoplugin_regionName == json.NULL) and "Unknown" or loc.geoplugin_regionName
+  return loc.geoplugin_latitude, loc.geoplugin_longitude, regionName, loc.geoplugin_countryName
 end
 
 local function createKMLFile(filename, coords)
-	local header = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://earth.google.com/kml/2.0"><Document><Placemark><LineString><coordinates>\r\n'
-	local footer = '</coordinates></LineString><Style><LineStyle><color>#ff0000ff</color></LineStyle></Style></Placemark></Document></kml>'
+  local header = '<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://earth.google.com/kml/2.0"><Document><Placemark><LineString><coordinates>\r\n'
+  local footer = '</coordinates></LineString><Style><LineStyle><color>#ff0000ff</color></LineStyle></Style></Placemark></Document></kml>'
 
-	local output = ""
-	for _, coord in ipairs(coords) do
-		output = output .. ("%s,%s, 0.\r\n"):format(coord.lon, coord.lat)
-	end
+  local output = ""
+  for _, coord in ipairs(coords) do
+    output = output .. ("%s,%s, 0.\r\n"):format(coord.lon, coord.lat)
+  end
 
-	local f = io.open(filename, "w")
-	if ( not(f) ) then
-		return false, "Failed to create KML file"
-	end
-	f:write(header .. output .. footer)
-	f:close()
+  local f = io.open(filename, "w")
+  if ( not(f) ) then
+    return false, "Failed to create KML file"
+  end
+  f:write(header .. output .. footer)
+  f:close()
 
-	return true
+  return true
 end
 
 -- Tables used to accumulate output.
@@ -115,53 +115,53 @@ local output = tab.new(4)
 local coordinates = {}
 
 local function output_hop(count, ip, name, rtt, lat, lon, ctry, reg)
-	if ip then
-		local label
-		if name then
-			label = ("%s (%s)"):format(name or "", ip)
-		else
-			label = ("%s"):format(ip)
-		end
-		if lat then
-			table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon })
-			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
-			table.insert(coordinates, { hop = count, lat = lat, lon = lon })
-		else
-			table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt) })
-			tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%s,%s"):format("- ", "- "))
-		end
-	else
-		table.insert(output_structured, { hop = count })
-		tab.addrow(output, count, "...")
-	end
+  if ip then
+    local label
+    if name then
+      label = ("%s (%s)"):format(name or "", ip)
+    else
+      label = ("%s"):format(ip)
+    end
+    if lat then
+      table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt), lat = lat, lon = lon })
+      tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%d,%d %s (%s)"):format(lat, lon, ctry, reg))
+      table.insert(coordinates, { hop = count, lat = lat, lon = lon })
+    else
+      table.insert(output_structured, { hop = count, ip = ip, hostname = name, rtt = ("%.2f"):format(rtt) })
+      tab.addrow(output, count, ("%.2f"):format(rtt), label, ("%s,%s"):format("- ", "- "))
+    end
+  else
+    table.insert(output_structured, { hop = count })
+    tab.addrow(output, count, "...")
+  end
 end
 
 action = function(host)
-	tab.addrow(output, "HOP", "RTT", "ADDRESS", "GEOLOCATION")
-	for count = 1, #host.traceroute do
-		local hop = host.traceroute[count]
-		-- avoid timedout hops, marked as empty entries
-		-- do not add the current scanned host.ip
-		if hop.ip then
-			local rtt = tonumber(hop.times.srtt) * 1000
-			if ( not(ipOps.isPrivate(hop.ip) ) ) then
-				local lat, lon, reg, ctry = geoLookup(hop.ip)
-				output_hop(count, hop.ip, hop.name, rtt, lat, lon, ctry, reg)
-			else
-				output_hop(count, hop.ip, hop.name, rtt)
-			end
-		else
-			output_hop(count)
-		end
-	end
+  tab.addrow(output, "HOP", "RTT", "ADDRESS", "GEOLOCATION")
+  for count = 1, #host.traceroute do
+    local hop = host.traceroute[count]
+    -- avoid timedout hops, marked as empty entries
+    -- do not add the current scanned host.ip
+    if hop.ip then
+      local rtt = tonumber(hop.times.srtt) * 1000
+      if ( not(ipOps.isPrivate(hop.ip) ) ) then
+        local lat, lon, reg, ctry = geoLookup(hop.ip)
+        output_hop(count, hop.ip, hop.name, rtt, lat, lon, ctry, reg)
+      else
+        output_hop(count, hop.ip, hop.name, rtt)
+      end
+    else
+      output_hop(count)
+    end
+  end
 
-	if (#output_structured > 0) then
-		output = tab.dump(output)
-		if ( arg_kmlfile ) then
-			if ( not(createKMLFile(arg_kmlfile, coordinates)) ) then
-				output = output .. ("\n\nERROR: Failed to write KML to file: %s"):format(arg_kmlfile)
-			end
-		end
-		return output_structured, stdnse.format_output(true, output)
-	end
+  if (#output_structured > 0) then
+    output = tab.dump(output)
+    if ( arg_kmlfile ) then
+      if ( not(createKMLFile(arg_kmlfile, coordinates)) ) then
+        output = output .. ("\n\nERROR: Failed to write KML to file: %s"):format(arg_kmlfile)
+      end
+    end
+    return output_structured, stdnse.format_output(true, output)
+  end
 end

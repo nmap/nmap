@@ -120,7 +120,7 @@ local testThread = function(result, host, port, name)
   local condvar = nmap.condvar(result)
   local targetname = makeTargetName(name , arg_domain)
   if targetname ~= nil then
-		local http_response = http.generic_request(host, port, "HEAD", arg_path, {header={Host=targetname}})
+    local http_response = http.generic_request(host, port, "HEAD", arg_path, {header={Host=targetname}})
 
     if not http_response.status  then
       result["ERROR"] = result["ERROR"] or {}

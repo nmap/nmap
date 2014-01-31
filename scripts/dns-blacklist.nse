@@ -78,100 +78,100 @@ categories = {"external", "safe"}
 hostrule = function() return true end
 prerule = function() return true end
 
-local arg_IP   		= stdnse.get_script_args(SCRIPT_NAME .. ".ip")
-local arg_mode 		= stdnse.get_script_args(SCRIPT_NAME .. ".mode") or "long"
-local arg_list 		= stdnse.get_script_args(SCRIPT_NAME .. ".list")
-local arg_services	= stdnse.get_script_args(SCRIPT_NAME .. ".services")
+local arg_IP       = stdnse.get_script_args(SCRIPT_NAME .. ".ip")
+local arg_mode     = stdnse.get_script_args(SCRIPT_NAME .. ".mode") or "long"
+local arg_list     = stdnse.get_script_args(SCRIPT_NAME .. ".list")
+local arg_services  = stdnse.get_script_args(SCRIPT_NAME .. ".services")
 local arg_category  = stdnse.get_script_args(SCRIPT_NAME .. ".category") or "all"
 
 local function listServices()
-	local result = {}
-	if ( "all" == arg_category ) then
-		for cat in pairs(dnsbl.SERVICES) do
-			local helper = dnsbl.Helper:new(cat, arg_mode)
-			local cat_res= helper:listServices()
-			cat_res.name = cat
-			table.insert(result, cat_res)
-		end
-	else
-		result = dnsbl.Helper:new(arg_category, arg_mode):listServices()
-	end
-	return stdnse.format_output(true, result)
+  local result = {}
+  if ( "all" == arg_category ) then
+    for cat in pairs(dnsbl.SERVICES) do
+      local helper = dnsbl.Helper:new(cat, arg_mode)
+      local cat_res= helper:listServices()
+      cat_res.name = cat
+      table.insert(result, cat_res)
+    end
+  else
+    result = dnsbl.Helper:new(arg_category, arg_mode):listServices()
+  end
+  return stdnse.format_output(true, result)
 end
 
 local function formatResult(result)
-	local output = {}
-	for _, svc in ipairs(result) do
-		if ( svc.result.details ) then
-			svc.result.details.name = ("%s - %s"):format(svc.name, svc.result.state)
-			table.insert(output, svc.result.details)
-		else
-			table.insert(output, ("%s - %s"):format(svc.name, svc.result.state))
-		end
-	end
-	return output
+  local output = {}
+  for _, svc in ipairs(result) do
+    if ( svc.result.details ) then
+      svc.result.details.name = ("%s - %s"):format(svc.name, svc.result.state)
+      table.insert(output, svc.result.details)
+    else
+      table.insert(output, ("%s - %s"):format(svc.name, svc.result.state))
+    end
+  end
+  return output
 end
 
 dnsblAction = function(host)
 
-	local helper
-	if ( arg_services and ( not(arg_category) or "all" == arg_category:lower() ) ) then
-		return "\n  ERROR: A service filter can't be used without a specific category"
-	elseif( "all" ~= arg_category ) then
-		helper = dnsbl.Helper:new(arg_category, arg_mode)
-		helper:setFilter(arg_services)
-		local status, err = helper:validateFilter()
-		if ( not(status) ) then
-			return ("\n  ERROR: %s"):format(err)
-		end
-	end
+  local helper
+  if ( arg_services and ( not(arg_category) or "all" == arg_category:lower() ) ) then
+    return "\n  ERROR: A service filter can't be used without a specific category"
+  elseif( "all" ~= arg_category ) then
+    helper = dnsbl.Helper:new(arg_category, arg_mode)
+    helper:setFilter(arg_services)
+    local status, err = helper:validateFilter()
+    if ( not(status) ) then
+      return ("\n  ERROR: %s"):format(err)
+    end
+  end
 
-	local output = {}
-	if ( helper ) then
-		local result = helper:checkBL(host.ip)
-		if ( #result == 0 ) then return end
-		output = formatResult(result)
-	else
-		for cat in pairs(dnsbl.SERVICES) do
-			helper = dnsbl.Helper:new(cat, arg_mode)
-			local result = helper:checkBL(host.ip)
-			local out_part = formatResult(result)
-			if ( #out_part > 0 ) then
-				out_part.name = cat
-				table.insert(output, out_part)
-			end
-		end
-		if ( #output == 0 ) then return end
-	end
+  local output = {}
+  if ( helper ) then
+    local result = helper:checkBL(host.ip)
+    if ( #result == 0 ) then return end
+    output = formatResult(result)
+  else
+    for cat in pairs(dnsbl.SERVICES) do
+      helper = dnsbl.Helper:new(cat, arg_mode)
+      local result = helper:checkBL(host.ip)
+      local out_part = formatResult(result)
+      if ( #out_part > 0 ) then
+        out_part.name = cat
+        table.insert(output, out_part)
+      end
+    end
+    if ( #output == 0 ) then return end
+  end
 
-	if ( "prerule" == SCRIPT_TYPE ) then
-		output.name = host.ip
-	end
+  if ( "prerule" == SCRIPT_TYPE ) then
+    output.name = host.ip
+  end
 
-	return stdnse.format_output(true, output)
+  return stdnse.format_output(true, output)
 end
 
 
 -- execute the action function corresponding to the current rule
 action = function(...)
 
-	if ( arg_mode ~= "short" and arg_mode ~= "long" ) then
-		return "\n  ERROR: Invalid argument supplied, mode should be either 'short' or 'long'"
-	end
+  if ( arg_mode ~= "short" and arg_mode ~= "long" ) then
+    return "\n  ERROR: Invalid argument supplied, mode should be either 'short' or 'long'"
+  end
 
-	if ( arg_IP and not(ipOps.todword(arg_IP)) ) then
-		return "\n  ERROR: Invalid IP address was supplied"
-	end
+  if ( arg_IP and not(ipOps.todword(arg_IP)) ) then
+    return "\n  ERROR: Invalid IP address was supplied"
+  end
 
-	-- if the list argument was given, just list the services and abort
-	if ( arg_list ) then
-		return listServices()
-	end
+  -- if the list argument was given, just list the services and abort
+  if ( arg_list ) then
+    return listServices()
+  end
 
-	if ( arg_IP and "prerule" == SCRIPT_TYPE ) then
-		return dnsblAction( { ip = arg_IP } )
-	elseif ( "hostrule" == SCRIPT_TYPE ) then
-		return dnsblAction(...)
-	end
+  if ( arg_IP and "prerule" == SCRIPT_TYPE ) then
+    return dnsblAction( { ip = arg_IP } )
+  elseif ( "hostrule" == SCRIPT_TYPE ) then
+    return dnsblAction(...)
+  end
 
 end

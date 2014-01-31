@@ -79,7 +79,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 02/01/2011 - v0.2 - Added ability to run against all instances on a host;
---							   added compatibility with changes in mssql.lua (Chris Woodbury)
+--                 added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -94,73 +94,73 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 local function process_instance( instance )
 
-	local status, result
-	local query
-	local cmd = stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) or 'ipconfig /all'
-	local output = {}
+  local status, result
+  local query
+  local cmd = stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) or 'ipconfig /all'
+  local output = {}
 
-	query = ("EXEC master..xp_cmdshell '%s'"):format(cmd)
+  query = ("EXEC master..xp_cmdshell '%s'"):format(cmd)
 
-	local creds = mssql.Helper.GetLoginCredentials_All( instance )
-	if ( not creds ) then
-		output = "ERROR: No login credentials."
-	else
-		for username, password in pairs( creds ) do
-			local helper = mssql.Helper:new()
-	 		status, result = helper:ConnectEx( instance )
-			if ( not(status) ) then
-				output = "ERROR: " .. result
-				break
-			end
+  local creds = mssql.Helper.GetLoginCredentials_All( instance )
+  if ( not creds ) then
+    output = "ERROR: No login credentials."
+  else
+    for username, password in pairs( creds ) do
+      local helper = mssql.Helper:new()
+      status, result = helper:ConnectEx( instance )
+      if ( not(status) ) then
+        output = "ERROR: " .. result
+        break
+      end
 
-			if ( status ) then
-				status = helper:Login( username, password, nil, instance.host.ip )
-			end
+      if ( status ) then
+        status = helper:Login( username, password, nil, instance.host.ip )
+      end
 
-			if ( status ) then
-				status, result = helper:Query( query )
-			end
-			helper:Disconnect()
+      if ( status ) then
+        status, result = helper:Query( query )
+      end
+      helper:Disconnect()
 
-			if ( status ) then
-				output = mssql.Util.FormatOutputTable( result, true )
-				output[ "name" ] = string.format( "Command: %s", cmd )
-				break
-			elseif ( result and result:gmatch("xp_configure") ) then
-				if( nmap.verbosity() > 1 ) then
-					output = "Procedure xp_cmdshell disabled. For more information see \"Surface Area Configuration\" in Books Online."
-				end
-			end
-		end
-	end
+      if ( status ) then
+        output = mssql.Util.FormatOutputTable( result, true )
+        output[ "name" ] = string.format( "Command: %s", cmd )
+        break
+      elseif ( result and result:gmatch("xp_configure") ) then
+        if( nmap.verbosity() > 1 ) then
+          output = "Procedure xp_cmdshell disabled. For more information see \"Surface Area Configuration\" in Books Online."
+        end
+      end
+    end
+  end
 
-	local instanceOutput = {}
-	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	table.insert( instanceOutput, output )
+  local instanceOutput = {}
+  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  table.insert( instanceOutput, output )
 
-	return instanceOutput
+  return instanceOutput
 
 end
 
 
 action = function( host, port )
-	local scriptOutput = {}
-	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+  local scriptOutput = {}
+  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
 
-	if ( not status ) then
-		return stdnse.format_output( false, instanceList )
-	else
-		for _, instance in pairs( instanceList ) do
-			local instanceOutput = process_instance( instance )
-			if instanceOutput then
-				table.insert( scriptOutput, instanceOutput )
-			end
-		end
+  if ( not status ) then
+    return stdnse.format_output( false, instanceList )
+  else
+    for _, instance in pairs( instanceList ) do
+      local instanceOutput = process_instance( instance )
+      if instanceOutput then
+        table.insert( scriptOutput, instanceOutput )
+      end
+    end
 
-		if ( not(stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) ) ) then
-			table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-xp-cmdshell.cmd='<CMD>' to change command.)")
-		end
-	end
+    if ( not(stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) ) ) then
+      table.insert(scriptOutput, 1, "(Use --script-args=ms-sql-xp-cmdshell.cmd='<CMD>' to change command.)")
+    end
+  end
 
-	return stdnse.format_output( true, scriptOutput )
+  return stdnse.format_output( true, scriptOutput )
 end
