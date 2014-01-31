@@ -37,9 +37,9 @@ Joomla's default uri and form names:
 -- @args http-joomla-brute.uri Path to authentication script. Default: /administrator/index.php
 -- @args http-joomla-brute.hostname Virtual Hostname Header
 -- @args http-joomla-brute.uservar sets the http-variable name that holds the
---		 username used to authenticate. Default: username
+--                                 username used to authenticate. Default: username
 -- @args http-joomla-brute.passvar sets the http-variable name that holds the
---		 password used to authenticate. Default: passwd
+--                                 password used to authenticate. Default: passwd
 -- @args http-joomla-brute.threads sets the number of threads. Default: 3
 --
 -- Other useful arguments when using this script are:
@@ -79,19 +79,19 @@ Driver = {
     o.host = stdnse.get_script_args('http-joomla-brute.hostname') or host
     o.port = port
     o.uri = stdnse.get_script_args('http-joomla-brute.uri') or DEFAULT_JOOMLA_LOGIN_URI
-		o.options = options
+    o.options = options
     return o
-	end,
+  end,
 
-	connect = function( self )
-		return true
-	end,
+  connect = function( self )
+    return true
+  end,
 
-	login = function( self, username, password )
+  login = function( self, username, password )
     stdnse.print_debug(2, "HTTP POST %s%s with security token %s\n", self.host, self.uri, security_token)
-		local response = http.post( self.host, self.port, self.uri, { cookies = session_cookie_str, no_cache = true, no_cache_body = true }, nil,
-                              { [self.options.uservar] = username, [self.options.passvar] = password,
-                              [security_token] = 1, lang = "", option = "com_login", task = "login" } )
+    local response = http.post( self.host, self.port, self.uri, { cookies = session_cookie_str, no_cache = true, no_cache_body = true }, nil,
+      { [self.options.uservar] = username, [self.options.passvar] = password,
+      [security_token] = 1, lang = "", option = "com_login", task = "login" } )
 
     if response.body and not( response.body:match('name=[\'"]*'..self.options.passvar ) ) then
       stdnse.print_debug(2, "Response:\n%s", response.body)
@@ -100,22 +100,22 @@ Driver = {
       return true, brute.Account:new( username, password, "OPEN")
     end
     return false, brute.Error:new( "Incorrect password" )
-	end,
+  end,
 
-	disconnect = function( self )
-		return true
-	end,
+  disconnect = function( self )
+    return true
+  end,
 
-	check = function( self )
-		local response = http.get( self.host, self.port, self.uri )
-	  stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
-		-- Check if password field is there
-		if ( response.status == 200 and response.body:match('type=[\'"]password[\'"]')) then
+  check = function( self )
+    local response = http.get( self.host, self.port, self.uri )
+    stdnse.print_debug(1, "HTTP GET %s%s", stdnse.get_hostname(self.host),self.uri)
+    -- Check if password field is there
+    if ( response.status == 200 and response.body:match('type=[\'"]password[\'"]')) then
       stdnse.print_debug(1, "Initial check passed. Launching brute force attack")
       session_cookie_str = response.cookies[1]["name"].."="..response.cookies[1]["value"];
       if response.body then
-      local _
-      _, _, security_token = string.find(response.body, '<input type="hidden" name="(%w+)" value="1" />')
+        local _
+        _, _, security_token = string.find(response.body, '<input type="hidden" name="(%w+)" value="1" />')
       end
       if security_token then
         stdnse.print_debug(2, "Security Token found:%s", security_token)
@@ -124,12 +124,12 @@ Driver = {
         return false
       end
 
-			return true
+      return true
     else
       stdnse.print_debug(1, "Initial check failed. Password field wasn't found")
-	  end
-		return false
-	end
+    end
+    return false
+  end
 
 }
 ---

@@ -47,93 +47,93 @@ ConnectionPool = {}
 Driver =
 {
 
-	-- Creates a new driver instance
-	-- @param host table as received by the action method
-	-- @param port table as received by the action method
-	-- @param pool an instance of the ConnectionPool
-	new = function(self, host, port)
-		local o = { host = host, port = port }
-       	setmetatable(o, self)
-        self.__index = self
-		return o
-	end,
+  -- Creates a new driver instance
+  -- @param host table as received by the action method
+  -- @param port table as received by the action method
+  -- @param pool an instance of the ConnectionPool
+  new = function(self, host, port)
+    local o = { host = host, port = port }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	-- Connects to the server (retrieves a connection from the pool)
-	connect = function( self )
-		self.socket = ConnectionPool[coroutine.running()]
-		if ( not(self.socket) ) then
-			self.socket = smtp.connect(self.host, self.port, { ssl = true, recv_before = true })
-			if ( not(self.socket) ) then return false end
-			ConnectionPool[coroutine.running()] = self.socket
-		end
-		return true
-	end,
+  -- Connects to the server (retrieves a connection from the pool)
+  connect = function( self )
+    self.socket = ConnectionPool[coroutine.running()]
+    if ( not(self.socket) ) then
+      self.socket = smtp.connect(self.host, self.port, { ssl = true, recv_before = true })
+      if ( not(self.socket) ) then return false end
+      ConnectionPool[coroutine.running()] = self.socket
+    end
+    return true
+  end,
 
-	-- Attempts to login to the server
-	-- @param username string containing the username
-	-- @param password string containing the password
-	-- @return status true on success, false on failure
-	-- @return brute.Error on failure and brute.Account on success
-	login = function( self, username, password )
-		local status, err = smtp.login( self.socket, username, password, mech )
-		if ( status ) then
-			smtp.quit(self.socket)
-			ConnectionPool[coroutine.running()] = nil
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
-		if ( err:match("^ERROR: Failed to .*") ) then
-			self.socket:close()
-			ConnectionPool[coroutine.running()] = nil
-			local err = brute.Error:new( err )
-			-- This might be temporary, set the retry flag
-			err:setRetry( true )
-			return false, err
-		end
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+  -- Attempts to login to the server
+  -- @param username string containing the username
+  -- @param password string containing the password
+  -- @return status true on success, false on failure
+  -- @return brute.Error on failure and brute.Account on success
+  login = function( self, username, password )
+    local status, err = smtp.login( self.socket, username, password, mech )
+    if ( status ) then
+      smtp.quit(self.socket)
+      ConnectionPool[coroutine.running()] = nil
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
+    if ( err:match("^ERROR: Failed to .*") ) then
+      self.socket:close()
+      ConnectionPool[coroutine.running()] = nil
+      local err = brute.Error:new( err )
+      -- This might be temporary, set the retry flag
+      err:setRetry( true )
+      return false, err
+    end
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	-- Disconnects from the server (release the connection object back to
-	-- the pool)
-	disconnect = function( self )
-		return true
-	end,
+  -- Disconnects from the server (release the connection object back to
+  -- the pool)
+  disconnect = function( self )
+    return true
+  end,
 
 }
 
 
 action = function(host, port)
 
-	local socket, response = smtp.connect(host, port, { ssl = true, recv_before = true })
-	if ( not(socket) ) then return "\n  ERROR: Failed to connect to SMTP server" end
-	local status, response = smtp.ehlo(socket, smtp.get_domain(host))
-	if ( not(status) ) then return "\n  ERROR: EHLO command failed, aborting ..." end
-	local mechs = smtp.get_auth_mech(response)
-	if ( not(mechs) ) then
-		return "\n  ERROR: Failed to retrieve authentication mechanisms form server"
-	end
-	smtp.quit(socket)
+  local socket, response = smtp.connect(host, port, { ssl = true, recv_before = true })
+  if ( not(socket) ) then return "\n  ERROR: Failed to connect to SMTP server" end
+  local status, response = smtp.ehlo(socket, smtp.get_domain(host))
+  if ( not(status) ) then return "\n  ERROR: EHLO command failed, aborting ..." end
+  local mechs = smtp.get_auth_mech(response)
+  if ( not(mechs) ) then
+    return "\n  ERROR: Failed to retrieve authentication mechanisms form server"
+  end
+  smtp.quit(socket)
 
-	local mech_prio = stdnse.get_script_args("smtp-brute.auth")
-	mech_prio = ( mech_prio and { mech_prio } ) or
-					{ "LOGIN", "PLAIN", "CRAM-MD5", "DIGEST-MD5", "NTLM" }
+  local mech_prio = stdnse.get_script_args("smtp-brute.auth")
+  mech_prio = ( mech_prio and { mech_prio } ) or
+    { "LOGIN", "PLAIN", "CRAM-MD5", "DIGEST-MD5", "NTLM" }
 
-	for _, mp in ipairs(mech_prio) do
-		for _, m in pairs(mechs) do
-			if ( mp == m ) then
-				mech = m
-				break
-			end
-		end
-		if ( mech ) then break end
-	end
+  for _, mp in ipairs(mech_prio) do
+    for _, m in pairs(mechs) do
+      if ( mp == m ) then
+        mech = m
+        break
+      end
+    end
+    if ( mech ) then break end
+  end
 
-	local engine = brute.Engine:new(Driver, host, port)
+  local engine = brute.Engine:new(Driver, host, port)
 
-	engine.options.script_name = SCRIPT_NAME
-	local result
-	status, result = engine:start()
+  engine.options.script_name = SCRIPT_NAME
+  local result
+  status, result = engine:start()
 
-	for _, sock in pairs(ConnectionPool) do sock:close() end
+  for _, sock in pairs(ConnectionPool) do sock:close() end
 
-	return result
+  return result
 end

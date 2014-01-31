@@ -61,19 +61,19 @@ Driver = {
     return o
   end,
 
-	connect = function( self )
-		-- This will cause problems, as ther is no way for us to "reserve"
-		-- a socket. We may end up here early with a set of credentials
-		-- which won't be guessed until the end, due to socket exhaustion.
-		return true
-	end,
+  connect = function( self )
+    -- This will cause problems, as ther is no way for us to "reserve"
+    -- a socket. We may end up here early with a set of credentials
+    -- which won't be guessed until the end, due to socket exhaustion.
+    return true
+  end,
 
   login = function( self, username, password )
     local response
     local opts_table
     if not self.digestauth then
-    -- we need to supply the no_cache directive, or else the http library
-    -- incorrectly tells us that the authentication was successful
+      -- we need to supply the no_cache directive, or else the http library
+      -- incorrectly tells us that the authentication was successful
       opts_table = { auth = { username = username, password = password }, no_cache = true }
     else
       opts_table = { auth = { username = username, password = password, digest = true }, no_cache = true }
@@ -86,47 +86,47 @@ Driver = {
       return false, err
     end
 
-		-- Checking for ~= 401 *should* work to
-		-- but gave me a number of false positives last time I tried.
-		-- We decided to change it to ~= 4xx.
-		if ( response.status < 400 or response.status > 499 ) then
-			if ( not( nmap.registry['credentials'] ) ) then
-				nmap.registry['credentials'] = {}
-			end
-			if ( not( nmap.registry.credentials['http'] ) ) then
-				nmap.registry.credentials['http'] = {}
-			end
-			table.insert( nmap.registry.credentials.http, { username = username, password = password } )
-			return true, brute.Account:new( username, password, creds.State.VALID)
-		end
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+    -- Checking for ~= 401 *should* work to
+    -- but gave me a number of false positives last time I tried.
+    -- We decided to change it to ~= 4xx.
+    if ( response.status < 400 or response.status > 499 ) then
+      if ( not( nmap.registry['credentials'] ) ) then
+        nmap.registry['credentials'] = {}
+      end
+      if ( not( nmap.registry.credentials['http'] ) ) then
+        nmap.registry.credentials['http'] = {}
+      end
+      table.insert( nmap.registry.credentials.http, { username = username, password = password } )
+      return true, brute.Account:new( username, password, creds.State.VALID)
+    end
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	disconnect = function( self )
-		return true
-	end,
-
-	check = function( self )
+  disconnect = function( self )
     return true
-	end,
+  end,
+
+  check = function( self )
+    return true
+  end,
 
 }
 
 
 action = function( host, port )
-	local status, result
-	local path = stdnse.get_script_args("http-brute.path") or "/"
-	local method = string.upper(stdnse.get_script_args("http-brute.method") or "GET")
+  local status, result
+  local path = stdnse.get_script_args("http-brute.path") or "/"
+  local method = string.upper(stdnse.get_script_args("http-brute.method") or "GET")
 
-	if ( not(path) ) then
-		return "  \n  ERROR: No path was specified (see http-brute.path)"
-	end
+  if ( not(path) ) then
+    return "  \n  ERROR: No path was specified (see http-brute.path)"
+  end
 
-	local response = http.generic_request( host, port, method, path, { no_cache = true } )
+  local response = http.generic_request( host, port, method, path, { no_cache = true } )
 
-	if ( response.status ~= 401 ) then
-		return ("  \n  Path \"%s\" does not require authentication"):format(path)
-	end
+  if ( response.status ~= 401 ) then
+    return ("  \n  Path \"%s\" does not require authentication"):format(path)
+  end
 
   -- check if digest auth is required
   local digestauth = false

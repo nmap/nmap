@@ -57,100 +57,100 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 -- the related comment.
 local getLineNumber = function(body, comment)
 
-    local partofresponse = body:find(comment, 1, true)
-    partofresponse = body:sub(0, partofresponse)
-    local _, count = string.gsub(partofresponse, "\n", "\n")
+  local partofresponse = body:find(comment, 1, true)
+  partofresponse = body:sub(0, partofresponse)
+  local _, count = string.gsub(partofresponse, "\n", "\n")
 
-    return count + 1
+  return count + 1
 
 end
 
 action = function(host, port)
 
-    local context = stdnse.get_script_args("http-comments-displayer.context")
-    local singlepages = stdnse.get_script_args("http-comments-displayer.singlepages")
+  local context = stdnse.get_script_args("http-comments-displayer.context")
+  local singlepages = stdnse.get_script_args("http-comments-displayer.singlepages")
 
-    local comments = {}
+  local comments = {}
 
-    local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
+  local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
 
-    if (not(crawler)) then
-		return
-	end
+  if (not(crawler)) then
+    return
+  end
 
-	crawler:set_timeout(10000)
+  crawler:set_timeout(10000)
 
-    if context then
-        if (tonumber(context) > 100) then
-            context = 100
-        end
-
-        -- Lua's abbreviated patterns support doesn't have a fixed-number-of-repetitions syntax.
-        for i, pattern in ipairs(PATTERNS) do
-            PATTERNS[i] = string.rep(".", context) .. PATTERNS[i] .. string.rep(".", context)
-        end
+  if context then
+    if (tonumber(context) > 100) then
+      context = 100
     end
 
-    local index, k, target, response, path
-    while (true) do
+    -- Lua's abbreviated patterns support doesn't have a fixed-number-of-repetitions syntax.
+    for i, pattern in ipairs(PATTERNS) do
+      PATTERNS[i] = string.rep(".", context) .. PATTERNS[i] .. string.rep(".", context)
+    end
+  end
 
-        if singlepages then
-            k, target = next(singlepages, index)
-            if (k == nil) then
-                break
-            end
-            response = http.get(host, port, target)
-            path = target
+  local index, k, target, response, path
+  while (true) do
 
+    if singlepages then
+      k, target = next(singlepages, index)
+      if (k == nil) then
+        break
+      end
+      response = http.get(host, port, target)
+      path = target
+
+    else
+      local status, r = crawler:crawl()
+      -- if the crawler fails it can be due to a number of different reasons
+      -- most of them are "legitimate" and should not be reason to abort
+      if (not(status)) then
+        if (r.err) then
+          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
         else
-            local status, r = crawler:crawl()
-            -- if the crawler fails it can be due to a number of different reasons
-            -- most of them are "legitimate" and should not be reason to abort
-            if (not(status)) then
-                if (r.err) then
-                    return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-                else
-                    break
-                end
-            end
-
-            response = r.response
-            path = tostring(r.url)
+          break
         end
+      end
 
-        if response.body then
-
-            for i, pattern in ipairs(PATTERNS) do
-                for c in string.gmatch(response.body, pattern) do
-
-                    local linenumber = getLineNumber(response.body, c)
-
-                    comments[c] = "\nPath: " .. path .. "\nLine number: " ..  linenumber .. "\nComment: \n"
-                end
-            end
-
-            if (index) then
-                index = index + 1
-            else
-                index = 1
-            end
-        end
-
+      response = r.response
+      path = tostring(r.url)
     end
 
-    -- If the table is empty.
-    if next(comments) == nil then
-        return "Couldn't find any comments."
+    if response.body then
+
+      for i, pattern in ipairs(PATTERNS) do
+        for c in string.gmatch(response.body, pattern) do
+
+          local linenumber = getLineNumber(response.body, c)
+
+          comments[c] = "\nPath: " .. path .. "\nLine number: " ..  linenumber .. "\nComment: \n"
+        end
+      end
+
+      if (index) then
+        index = index + 1
+      else
+        index = 1
+      end
     end
 
-    -- Create a nice output.
-    local results = {}
-	for c, _ in pairs(comments) do
-		table.insert(results, {_, {{c}}})
-  	end
+  end
 
-	results.name = crawler:getLimitations()
+  -- If the table is empty.
+  if next(comments) == nil then
+    return "Couldn't find any comments."
+  end
 
-	return stdnse.format_output(true, results)
+  -- Create a nice output.
+  local results = {}
+  for c, _ in pairs(comments) do
+    table.insert(results, {_, {{c}}})
+  end
+
+  results.name = crawler:getLimitations()
+
+  return stdnse.format_output(true, results)
 
 end

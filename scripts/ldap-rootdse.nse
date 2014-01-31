@@ -100,58 +100,58 @@ portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 
 function action(host,port)
 
-	local socket = nmap.new_socket()
-	local status, searchResEntries, req, result, opt
+  local socket = nmap.new_socket()
+  local status, searchResEntries, req, result, opt
 
-	-- In order to discover what protocol to use (SSL/TCP) we need to send a few bytes to the server
-	-- An anonymous bind should do it
-	local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
-	local _
-	socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
+  -- In order to discover what protocol to use (SSL/TCP) we need to send a few bytes to the server
+  -- An anonymous bind should do it
+  local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
+  local _
+  socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
 
-	if not socket then
-		return
-	end
+  if not socket then
+    return
+  end
 
-	-- We close and re-open the socket so that the anonymous bind does not distract us
-	socket:close()
-	status = socket:connect(host, port, opt)
-	socket:set_timeout(10000)
+  -- We close and re-open the socket so that the anonymous bind does not distract us
+  socket:close()
+  status = socket:connect(host, port, opt)
+  socket:set_timeout(10000)
 
-	-- Searching for an empty argument list against LDAP on W2K3 returns all attributes
-	-- This is not the case for OpenLDAP, so we do a search for an empty attribute list
-	-- Then we compare the results against some known and expected returned attributes
-	req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default }
-	status, searchResEntries = ldap.searchRequest( socket, req )
+  -- Searching for an empty argument list against LDAP on W2K3 returns all attributes
+  -- This is not the case for OpenLDAP, so we do a search for an empty attribute list
+  -- Then we compare the results against some known and expected returned attributes
+  req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default }
+  status, searchResEntries = ldap.searchRequest( socket, req )
 
-	-- Check if we were served all the results or not?
-	if not ldap.extractAttribute( searchResEntries, "namingContexts" ) and
-	   not ldap.extractAttribute( searchResEntries, "supportedLDAPVersion" ) then
+  -- Check if we were served all the results or not?
+  if not ldap.extractAttribute( searchResEntries, "namingContexts" ) and
+      not ldap.extractAttribute( searchResEntries, "supportedLDAPVersion" ) then
 
-		-- The namingContexts was not there, try to query all attributes instead
-		-- Attributes extracted from Windows 2003 and complemented from RFC
-		local attribs = {"_domainControllerFunctionality","configurationNamingContext","currentTime","defaultNamingContext",
-							"dnsHostName","domainFunctionality","dsServiceName","forestFunctionality","highestCommittedUSN",
-							"isGlobalCatalogReady","isSynchronized","ldap-get-baseobject","ldapServiceName","namingContexts",
-							"rootDomainNamingContext","schemaNamingContext","serverName","subschemaSubentry",
-							"supportedCapabilities","supportedControl","supportedLDAPPolicies","supportedLDAPVersion",
-							"supportedSASLMechanisms", "altServer", "supportedExtension"}
+    -- The namingContexts was not there, try to query all attributes instead
+    -- Attributes extracted from Windows 2003 and complemented from RFC
+    local attribs = {"_domainControllerFunctionality","configurationNamingContext","currentTime","defaultNamingContext",
+      "dnsHostName","domainFunctionality","dsServiceName","forestFunctionality","highestCommittedUSN",
+      "isGlobalCatalogReady","isSynchronized","ldap-get-baseobject","ldapServiceName","namingContexts",
+      "rootDomainNamingContext","schemaNamingContext","serverName","subschemaSubentry",
+      "supportedCapabilities","supportedControl","supportedLDAPPolicies","supportedLDAPVersion",
+      "supportedSASLMechanisms", "altServer", "supportedExtension"}
 
-		req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default, attributes = attribs }
-		status, searchResEntries = ldap.searchRequest( socket, req )
-	end
+    req = { baseObject = "", scope = ldap.SCOPE.base, derefPolicy = ldap.DEREFPOLICY.default, attributes = attribs }
+    status, searchResEntries = ldap.searchRequest( socket, req )
+  end
 
-	if not status then
-		socket:close()
-		return
-	end
+  if not status then
+    socket:close()
+    return
+  end
 
-	result = ldap.searchResultToTable( searchResEntries )
-	socket:close()
+  result = ldap.searchResultToTable( searchResEntries )
+  socket:close()
 
-	-- if taken a way and ldap returns a single result, it ain't shown....
-	result.name = "LDAP Results"
+  -- if taken a way and ldap returns a single result, it ain't shown....
+  result.name = "LDAP Results"
 
-	return stdnse.format_output(true, result )
+  return stdnse.format_output(true, result )
 
 end

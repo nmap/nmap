@@ -67,84 +67,84 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 action = function(host, port)
 
-    local singlepages = stdnse.get_script_args("http-dombased-xss.singlepages")
+  local singlepages = stdnse.get_script_args("http-dombased-xss.singlepages")
 
-    local domxss = {}
+  local domxss = {}
 
-    local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
+  local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
 
-    if (not(crawler)) then
-		return
-	end
+  if (not(crawler)) then
+    return
+  end
 
-	crawler:set_timeout(10000)
+  crawler:set_timeout(10000)
 
-    local index, k, target, response, path
-    while (true) do
+  local index, k, target, response, path
+  while (true) do
 
-        if singlepages then
-            k, target = next(singlepages, index)
-            if (k == nil) then
-                break
-            end
-            response = http.get(host, port, target)
-            path = target
+    if singlepages then
+      k, target = next(singlepages, index)
+      if (k == nil) then
+        break
+      end
+      response = http.get(host, port, target)
+      path = target
 
+    else
+      local status, r = crawler:crawl()
+      -- if the crawler fails it can be due to a number of different reasons
+      -- most of them are "legitimate" and should not be reason to abort
+      if (not(status)) then
+        if (r.err) then
+          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
         else
-            local status, r = crawler:crawl()
-            -- if the crawler fails it can be due to a number of different reasons
-            -- most of them are "legitimate" and should not be reason to abort
-            if (not(status)) then
-                if (r.err) then
-                    return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-                else
-                    break
-                end
-            end
-
-            response = r.response
-            path = tostring(r.url)
+          break
         end
+      end
 
-        if response.body then
-
-            for _, fp in ipairs(JS_FUNC_PATTERNS) do
-                for i in string.gmatch(response.body, fp) do
-                    for _, cp in ipairs(JS_CALLS_PATTERNS) do
-                        if string.find(i, cp) then
-                            if not domxss[i] then
-                                domxss[i] = {path}
-                            else
-                                table.insert(domxss[i], ", " .. path)
-                            end
-                        end
-                    end
-                end
-            end
-
-            if (index) then
-                index = index + 1
-            else
-                index = 1
-            end
-        end
-
+      response = r.response
+      path = tostring(r.url)
     end
 
-    -- If the table is empty.
-    if next(domxss) == nil then
-        return "Couldn't find any DOM based XSS."
+    if response.body then
+
+      for _, fp in ipairs(JS_FUNC_PATTERNS) do
+        for i in string.gmatch(response.body, fp) do
+          for _, cp in ipairs(JS_CALLS_PATTERNS) do
+            if string.find(i, cp) then
+              if not domxss[i] then
+                domxss[i] = {path}
+              else
+                table.insert(domxss[i], ", " .. path)
+              end
+            end
+          end
+        end
+      end
+
+      if (index) then
+        index = index + 1
+      else
+        index = 1
+      end
     end
 
-    local results = {}
-	for x, _ in pairs(domxss) do
-		table.insert(results, { "\nSource: " .. x, "Pages: " .. table.concat(_) })
-  	end
+  end
 
-    table.insert(results, 1, "Found the following indications of potential DOM based XSS: ")
+  -- If the table is empty.
+  if next(domxss) == nil then
+    return "Couldn't find any DOM based XSS."
+  end
 
-	results.name = crawler:getLimitations()
+  local results = {}
+  for x, _ in pairs(domxss) do
+    table.insert(results, { "\nSource: " .. x, "Pages: " .. table.concat(_) })
+  end
 
-	return stdnse.format_output(true, results)
+  table.insert(results, 1, "Found the following indications of potential DOM based XSS: ")
+
+  results.name = crawler:getLimitations()
+
+  return stdnse.format_output(true, results)
 
 end

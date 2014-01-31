@@ -54,81 +54,81 @@ portrule = shortport.port_or_service(1352, "lotusnotes", "tcp", "open")
 -- @return status true on success, false on failure
 -- @return err string containing error message if status is false
 local function saveIDFile( filename, data )
-	local f = io.open( filename, "w")
-	if ( not(f) ) then
-		return false, ("Failed to open file (%s)"):format(filename)
-	end
-	if ( not(f:write( data ) ) ) then
-		return false, ("Failed to write file (%s)"):format(filename)
-	end
-	f:close()
+  local f = io.open( filename, "w")
+  if ( not(f) ) then
+    return false, ("Failed to open file (%s)"):format(filename)
+  end
+  if ( not(f:write( data ) ) ) then
+    return false, ("Failed to write file (%s)"):format(filename)
+  end
+  f:close()
 
-	return true
+  return true
 end
 
 action = function(host, port)
 
-	local helper = nrpc.Helper:new( host, port )
-	local status, data, usernames, err
-	local path = stdnse.get_script_args('domino-enum-users.path')
-	local result = {}
-	local save_file = false
-	local counter = 0
-	local domino_username = stdnse.get_script_args("domino-enum-users.username")
-	if ( domino_username ) then
-		usernames = ( 	function()
-							local b = true
-							return function()
-								if ( b ) then
-									b=false;
-									return domino_username
-								end
-               end
-						end )()
-	else
-		status, usernames = unpwdb.usernames()
-		if ( not(status) ) then
-			return false, "Failed to load usernames"
-		end
-	end
+  local helper = nrpc.Helper:new( host, port )
+  local status, data, usernames, err
+  local path = stdnse.get_script_args('domino-enum-users.path')
+  local result = {}
+  local save_file = false
+  local counter = 0
+  local domino_username = stdnse.get_script_args("domino-enum-users.username")
+  if ( domino_username ) then
+    usernames = ( function()
+      local b = true
+      return function()
+        if ( b ) then
+          b=false;
+          return domino_username
+        end
+      end
+    end )()
+  else
+    status, usernames = unpwdb.usernames()
+    if ( not(status) ) then
+      return false, "Failed to load usernames"
+    end
+  end
 
-	for username in usernames do
-		status = helper:connect()
-		if ( not(status) ) then
-			err = ("ERROR: Failed to connect to Lotus Domino Server %s"):format( host.ip )
-			break
-		end
+  for username in usernames do
+    status = helper:connect()
+    if ( not(status) ) then
+      err = ("ERROR: Failed to connect to Lotus Domino Server %s"):format( host.ip )
+      break
+    end
 
-		status, data = helper:isValidUser( username )
-		helper:disconnect()
+    status, data = helper:isValidUser( username )
+    helper:disconnect()
 
-		if ( status and data and path ) then
-			local filename = path .. "/" .. stdnse.filename_escape(username .. ".id")
-			local status, err = saveIDFile( filename, data )
+    if ( status and data and path ) then
+      local filename = path .. "/" .. stdnse.filename_escape(username .. ".id")
+      local status, err = saveIDFile( filename, data )
 
-			if ( status ) then
-				table.insert(result, ("Succesfully stored \"%s\" in %s"):format(username, filename) )
-			else
-				stdnse.print_debug( err )
-				table.insert(result, ("Failed to store \"%s\" to %s"):format(username, filename) )
-			end
-		elseif( status and data ) then
-			table.insert(result, ("Succesfully retrieved ID for \"%s\" (to store set the domino-enum-users.path argument)"):format(username) )
-		elseif ( status ) then
-			table.insert(result, ("User \"%s\" found, but no ID file could be downloaded"):format(username) )
-		end
+      if ( status ) then
+        table.insert(result, ("Succesfully stored \"%s\" in %s"):format(username, filename) )
+      else
+        stdnse.print_debug( err )
+        table.insert(result, ("Failed to store \"%s\" to %s"):format(username, filename) )
+      end
+    elseif( status and data ) then
+      table.insert(result, ("Succesfully retrieved ID for \"%s\" (to store set the domino-enum-users.path argument)"):format(username) )
+    elseif ( status ) then
+      table.insert(result, ("User \"%s\" found, but no ID file could be downloaded"):format(username) )
+    end
 
-		counter = counter + 1
-	end
+    counter = counter + 1
+  end
 
-	if ( #result == 0 ) then
-		table.insert(result, ("Guessed %d usernames, none were found"):format(counter) )
-	end
+  if ( #result == 0 ) then
+    table.insert(result, ("Guessed %d usernames, none were found"):format(counter) )
+  end
 
-	result = stdnse.format_output( true, result )
-	if ( err ) then
-		result = result .. ("  \n  %s"):format(err)
-	end
+  result = stdnse.format_output( true, result )
+  if ( err ) then
+    result = result .. ("  \n  %s"):format(err)
+  end
 
-	return result
+  return result
 end

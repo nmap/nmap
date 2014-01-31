@@ -24,7 +24,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe", "default"}
 
 portrule = function(host, port)
-    return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
 end
 
 
@@ -52,94 +52,94 @@ end
 --@return status true if response, false else.
 --@return response if status is true.
 local client_hello = function(host, port)
-    local sock, status, response, err, cli_h
+  local sock, status, response, err, cli_h
 
-    -- Craft Client Hello
-    cli_h = tls.client_hello({
-      ["protocol"] = "TLSv1.0",
-      ["ciphers"] = {
-        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_RSA_WITH_RC4_128_MD5",
-      },
-      ["compressors"] = {"NULL"},
-    })
+  -- Craft Client Hello
+  cli_h = tls.client_hello({
+    ["protocol"] = "TLSv1.0",
+    ["ciphers"] = {
+      "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+      "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+      "TLS_RSA_WITH_RC4_128_MD5",
+    },
+    ["compressors"] = {"NULL"},
+  })
 
-    -- Connect to the target server
-	local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
+  -- Connect to the target server
+  local specialized_function = sslcert.getPrepareTLSWithoutReconnect(port)
 
-	if not specialized_function then
-		sock = nmap.new_socket()
-		sock:set_timeout(5000)
-		status, err = sock:connect(host, port)
-		if not status then
-			sock:close()
-			stdnse.print_debug("Can't send: %s", err)
-			return false
-		end
-	else
-		status,sock = specialized_function(host,port)
-		if not status then
-			return false
-		end
-	end
-
-
-    -- Send Client Hello to the target server
-    status, err = sock:send(cli_h)
+  if not specialized_function then
+    sock = nmap.new_socket()
+    sock:set_timeout(5000)
+    status, err = sock:connect(host, port)
     if not status then
-	stdnse.print_debug("Couldn't send: %s", err)
-	sock:close()
-	return false
+      sock:close()
+      stdnse.print_debug("Can't send: %s", err)
+      return false
     end
-
-    -- Read response
-    status, response, err = tls.record_buffer(sock)
+  else
+    status,sock = specialized_function(host,port)
     if not status then
-	stdnse.print_debug("Couldn't receive: %s", err)
-	sock:close()
-	return false
+      return false
     end
+  end
 
-    return true, response
+
+  -- Send Client Hello to the target server
+  status, err = sock:send(cli_h)
+  if not status then
+    stdnse.print_debug("Couldn't send: %s", err)
+    sock:close()
+    return false
+  end
+
+  -- Read response
+  status, response, err = tls.record_buffer(sock)
+  if not status then
+    stdnse.print_debug("Couldn't receive: %s", err)
+    sock:close()
+    return false
+  end
+
+  return true, response
 end
 
 -- extract time from ServerHello response
 local extract_time = function(response)
-    local i, record = tls.record_read(response, 0)
-    if record == nil then
-      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
-      return nil
-    end
+  local i, record = tls.record_read(response, 0)
+  if record == nil then
+    stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+    return nil
+  end
 
-    if record.type == "handshake" then
-      for _, body in ipairs(record.body) do
-        if body.type == "server_hello" then
-          return true, body.time
-        end
+  if record.type == "handshake" then
+    for _, body in ipairs(record.body) do
+      if body.type == "server_hello" then
+        return true, body.time
       end
     end
-    stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
-    return nil
+  end
+  stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
+  return nil
 end
 
 action = function(host, port)
-	local status, response
+  local status, response
 
-	-- Send crafted client hello
-	status, response = client_hello(host, port)
-	local now = os.time()
-	if status and response then
-		-- extract time from response
-		local result
-		status, result = extract_time(response)
-		if status then
-			local output = {
-				date = stdnse.format_timestamp(result, 0),
-				delta = os.difftime(result, now),
-			}
-			return output, string.format("%s; %s from local time.", output.date,
-					stdnse.format_difftime(os.date("!*t",result),os.date("!*t", now)))
-		end
-	end
+  -- Send crafted client hello
+  status, response = client_hello(host, port)
+  local now = os.time()
+  if status and response then
+    -- extract time from response
+    local result
+    status, result = extract_time(response)
+    if status then
+      local output = {
+        date = stdnse.format_timestamp(result, 0),
+        delta = os.difftime(result, now),
+      }
+      return output, string.format("%s; %s from local time.", output.date,
+        stdnse.format_difftime(os.date("!*t",result),os.date("!*t", now)))
+    end
+  end
 end
