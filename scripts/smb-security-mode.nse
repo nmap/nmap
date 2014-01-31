@@ -40,61 +40,61 @@ dependencies = {"smb-brute"}
 
 -- Check whether or not this script should be run.
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 
 action = function(host)
 
-	local state
-	local status, err
-	local overrides = {}
+  local state
+  local status, err
+  local overrides = {}
 
-	status, state = smb.start(host)
-	if(status == false) then
-		return stdnse.format_output(false, state)
-	end
+  status, state = smb.start(host)
+  if(status == false) then
+    return stdnse.format_output(false, state)
+  end
 
-	status, err = smb.negotiate_protocol(state, overrides)
-	if(status == false) then
-		smb.stop(state)
-		return stdnse.format_output(false, err)
-	end
+  status, err = smb.negotiate_protocol(state, overrides)
+  if(status == false) then
+    smb.stop(state)
+    return stdnse.format_output(false, err)
+  end
 
-	local security_mode = state['security_mode']
+  local security_mode = state['security_mode']
 
-	local response = {}
+  local response = {}
 
-	local result, username, domain = smb.get_account(host)
-	if(result ~= false) then
-		table.insert(response, string.format("Account that was used for smb scripts: %s%s", domain, stdnse.string_or_blank(username, '<blank>')))
-	end
+  local result, username, domain = smb.get_account(host)
+  if(result ~= false) then
+    table.insert(response, string.format("Account that was used for smb scripts: %s%s", domain, stdnse.string_or_blank(username, '<blank>')))
+  end
 
-	-- User-level authentication or share-level authentication
-	if(bit.band(security_mode, 1) == 1) then
-		table.insert(response, "User-level authentication")
-	else
-		table.insert(response, "Share-level authentication (dangerous)")
-	end
+  -- User-level authentication or share-level authentication
+  if(bit.band(security_mode, 1) == 1) then
+    table.insert(response, "User-level authentication")
+  else
+    table.insert(response, "Share-level authentication (dangerous)")
+  end
 
-	-- Challenge/response supported?
-	if(bit.band(security_mode, 2) == 0) then
-		table.insert(response, "Plaintext passwords required (dangerous)")
-	else
-		table.insert(response, "SMB Security: Challenge/response passwords supported")
-	end
+  -- Challenge/response supported?
+  if(bit.band(security_mode, 2) == 0) then
+    table.insert(response, "Plaintext passwords required (dangerous)")
+  else
+    table.insert(response, "SMB Security: Challenge/response passwords supported")
+  end
 
-	-- Message signing supported/required?
-	if(bit.band(security_mode, 8) == 8) then
-		table.insert(response, "Message signing required")
-	elseif(bit.band(security_mode, 4) == 4) then
-		table.insert(response, "Message signing supported")
-	else
-		table.insert(response, "Message signing disabled (dangerous, but default)")
-	end
+  -- Message signing supported/required?
+  if(bit.band(security_mode, 8) == 8) then
+    table.insert(response, "Message signing required")
+  elseif(bit.band(security_mode, 4) == 4) then
+    table.insert(response, "Message signing supported")
+  else
+    table.insert(response, "Message signing disabled (dangerous, but default)")
+  end
 
-	smb.stop(state)
-	return stdnse.format_output(true, response)
+  smb.stop(state)
+  return stdnse.format_output(true, response)
 end
 
 

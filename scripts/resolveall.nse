@@ -45,46 +45,46 @@ prerule = function()
 end
 
 local addtargets = function(list)
-	local sum = 0
+  local sum = 0
 
-	for _, t in ipairs(list) do
-		local st, err = target.add(t)
-		if st then
-			sum = sum + 1
-		else
-			stdnse.print_debug("Couldn't add target " .. t .. ": " .. err)
-		end
-	end
+  for _, t in ipairs(list) do
+    local st, err = target.add(t)
+    if st then
+      sum = sum + 1
+    else
+      stdnse.print_debug("Couldn't add target " .. t .. ": " .. err)
+    end
+  end
 
-	return sum
+  return sum
 end
 
 action = function()
-	local hosts = stdnse.get_script_args("resolveall.hosts")
+  local hosts = stdnse.get_script_args("resolveall.hosts")
 
-	if type(hosts) ~= "table" then
-	  hosts = {hosts}
-	end
+  if type(hosts) ~= "table" then
+    hosts = {hosts}
+  end
 
-	local sum, output = 0, {}
-	for _, host in ipairs(hosts) do
-		local status, list = nmap.resolve(host, nmap.address_family())
-		if status and #list > 0 then
-		    if target.ALLOW_NEW_TARGETS then
-			sum = sum + addtargets(list)
-		    end
-	            table.insert(output,
-	              string.format("Host '%s' resolves to:", host))
-		    table.insert(output, list)
-		end
-	end
+  local sum, output = 0, {}
+  for _, host in ipairs(hosts) do
+    local status, list = nmap.resolve(host, nmap.address_family())
+    if status and #list > 0 then
+      if target.ALLOW_NEW_TARGETS then
+        sum = sum + addtargets(list)
+      end
+      table.insert(output,
+      string.format("Host '%s' resolves to:", host))
+      table.insert(output, list)
+    end
+  end
 
-	if sum > 0 then
-            table.insert(output,
-              string.format("Successfully added %d new targets",
-              tostring(sum)))
-        else
-            table.insert(output, "Use the 'newtargets' script-arg to add the results as targets")
-        end
-        return stdnse.format_output(true, output)
+  if sum > 0 then
+    table.insert(output,
+    string.format("Successfully added %d new targets",
+    tostring(sum)))
+  else
+    table.insert(output, "Use the 'newtargets' script-arg to add the results as targets")
+  end
+  return stdnse.format_output(true, output)
 end

@@ -61,11 +61,11 @@ action = function()
     local output, hosts, tmp = {}, {}, {}
     for _, hostcfg in pairs(result) do
       for k, ip in pairs(hostcfg) do
-      	if type(k) == "string" and k == "name" then
-      	  if avahi_send_null_udp(ip) then
-      	    table.insert(hosts, ip)
-      	    tmp[ip] = true
-      	  end
+        if type(k) == "string" and k == "name" then
+          if avahi_send_null_udp(ip) then
+            table.insert(hosts, ip)
+            tmp[ip] = true
+          end
         end
       end
     end
@@ -74,7 +74,7 @@ action = function()
       hosts.name = "Discovered hosts:"
       table.insert(output, hosts)
       table.insert(output,
-          "After NULL UDP avahi packet DoS (CVE-2011-1002).")
+      "After NULL UDP avahi packet DoS (CVE-2011-1002).")
 
       stdnse.print_debug(3, "sleeping for %d seconds", wtime)
       stdnse.sleep(wtime)

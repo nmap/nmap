@@ -46,49 +46,49 @@ dependencies = { "informix-brute" }
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open")
 
 action = function( host, port )
-	local instance = stdnse.get_script_args('informix-info.instance')
-	local helper
-	local status, data
-	local result = {}
-	local user = stdnse.get_script_args('informix-query.username')
-	local pass = stdnse.get_script_args('informix-query.password')
-	local query = stdnse.get_script_args('informix-query.query')
-	local db = stdnse.get_script_args('informix-query.database') or "sysmaster"
+  local instance = stdnse.get_script_args('informix-info.instance')
+  local helper
+  local status, data
+  local result = {}
+  local user = stdnse.get_script_args('informix-query.username')
+  local pass = stdnse.get_script_args('informix-query.password')
+  local query = stdnse.get_script_args('informix-query.query')
+  local db = stdnse.get_script_args('informix-query.database') or "sysmaster"
 
-	query = query or "SELECT FIRST 1 DBINFO('dbhostname') hostname, " ..
-					 "DBINFO('version','full') version FROM systables"
+  query = query or "SELECT FIRST 1 DBINFO('dbhostname') hostname, " ..
+    "DBINFO('version','full') version FROM systables"
 
-	helper = informix.Helper:new( host, port, instance )
+  helper = informix.Helper:new( host, port, instance )
 
-	-- If no user was specified lookup the first user in the registry saved by
-	-- the informix-brute script
-	if ( not(user) ) then
-		if ( nmap.registry['informix-brute'] and nmap.registry['informix-brute'][1]["username"] ) then
-			user = nmap.registry['informix-brute'][1]["username"]
-			pass = nmap.registry['informix-brute'][1]["password"]
-		else
-			return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
-		end
-	end
+  -- If no user was specified lookup the first user in the registry saved by
+  -- the informix-brute script
+  if ( not(user) ) then
+    if ( nmap.registry['informix-brute'] and nmap.registry['informix-brute'][1]["username"] ) then
+      user = nmap.registry['informix-brute'][1]["username"]
+      pass = nmap.registry['informix-brute'][1]["password"]
+    else
+      return "  \n  ERROR: No credentials specified (see informix-table.username and informix-table.password)"
+    end
+  end
 
-	status, data = helper:Connect()
-	if ( not(status) ) then
-		return stdnse.format_output(status, data)
-	end
+  status, data = helper:Connect()
+  if ( not(status) ) then
+    return stdnse.format_output(status, data)
+  end
 
-	status, data = helper:Login(user, pass, nil, db)
-	if ( not(status) ) then	return stdnse.format_output(status, data) end
+  status, data = helper:Login(user, pass, nil, db)
+  if ( not(status) ) then	return stdnse.format_output(status, data) end
 
-	status, data = helper:Query(query)
-	if ( not(status) ) then	return stdnse.format_output(status, data) end
+  status, data = helper:Query(query)
+  if ( not(status) ) then	return stdnse.format_output(status, data) end
 
-	for _, rs in ipairs(data) do
-		table.insert( result, { "User: " .. user, "Database: " .. db, ( "Query: \"%s\"" ):format( rs.query ), name="Information" } )
-		local tmp = informix.Util.formatTable( rs )
-		tmp.name = "Results"
-		table.insert(  result, tmp  )
-	end
+  for _, rs in ipairs(data) do
+    table.insert( result, { "User: " .. user, "Database: " .. db, ( "Query: \"%s\"" ):format( rs.query ), name="Information" } )
+    local tmp = informix.Util.formatTable( rs )
+    tmp.name = "Results"
+    table.insert(  result, tmp  )
+  end
 
 
-	return stdnse.format_output(status, result)
+  return stdnse.format_output(status, result)
 end

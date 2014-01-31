@@ -30,31 +30,31 @@ hostrule = function(host) return not(ipOps.isPrivate(host.ip)) end
 
 action = function(host)
 
-	local levels = {
-		"Bulletproof hosted",
-		"Hacked webserver",
-		"Free hosting service",
-		"Unknown",
-		"Hosted on a FastFlux botnet"
-	}
-	local dname = dns.reverse(host.ip)
-	dname = dname:gsub ("%.in%-addr%.arpa",".ipbl.zeustracker.abuse.ch")
-	local status, result = dns.query(dname, {dtype='TXT', retAll=true} )
+  local levels = {
+    "Bulletproof hosted",
+    "Hacked webserver",
+    "Free hosting service",
+    "Unknown",
+    "Hosted on a FastFlux botnet"
+  }
+  local dname = dns.reverse(host.ip)
+  dname = dname:gsub ("%.in%-addr%.arpa",".ipbl.zeustracker.abuse.ch")
+  local status, result = dns.query(dname, {dtype='TXT', retAll=true} )
 
-	if ( not(status) and result == "No Such Name" ) then
-		return
-	elseif ( not(status) ) then
-		return stdnse.format_output(false, "DNS Query failed")
-	end
+  if ( not(status) and result == "No Such Name" ) then
+    return
+  elseif ( not(status) ) then
+    return stdnse.format_output(false, "DNS Query failed")
+  end
 
-	local output = tab.new(9)
-	tab.addrow(output, "Name", "IP", "SBL", "ASN", "Country", "Status", "Level",
-		"Files Online", "Date added")
-	for _, record in ipairs(result) do
-		local name, ip, sbl, asn, country, status, level, files_online,
-			dateadded = table.unpack(stdnse.strsplit("| ", record))
-		level = levels[tonumber(level)] or "Unknown"
-		tab.addrow(output, name, ip, sbl, asn, country, status, level, files_online, dateadded)
-	end
-	return stdnse.format_output(true, tab.dump(output))
+  local output = tab.new(9)
+  tab.addrow(output, "Name", "IP", "SBL", "ASN", "Country", "Status", "Level",
+    "Files Online", "Date added")
+  for _, record in ipairs(result) do
+    local name, ip, sbl, asn, country, status, level, files_online,
+      dateadded = table.unpack(stdnse.strsplit("| ", record))
+    level = levels[tonumber(level)] or "Unknown"
+    tab.addrow(output, name, ip, sbl, asn, country, status, level, files_online, dateadded)
+  end
+  return stdnse.format_output(true, tab.dump(output))
 end

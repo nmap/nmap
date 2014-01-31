@@ -47,24 +47,24 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local helper = ndmp.Helper:new(host, port)
-	local status, msg = helper:connect()
-	if ( not(status) ) then	return fail("Failed to connect to server") end
+  local helper = ndmp.Helper:new(host, port)
+  local status, msg = helper:connect()
+  if ( not(status) ) then	return fail("Failed to connect to server") end
 
-	status, msg = helper:getFsInfo()
-	if ( not(status) ) then return fail("Failed to get filesystem information from server") end
-	helper:close()
+  status, msg = helper:getFsInfo()
+  if ( not(status) ) then return fail("Failed to get filesystem information from server") end
+  helper:close()
 
-	local result = tab.new(3)
-	tab.addrow(result, "FS", "Logical device", "Physical device")
+  local result = tab.new(3)
+  tab.addrow(result, "FS", "Logical device", "Physical device")
 
-	for _, item in ipairs(msg.fsinfo) do
-		if ( item.fs_logical_device and #item.fs_logical_device ~= 0 ) then
-			if ( item and item.fs_type and item.fs_logical_device and item.fs_physical_device ) then
-				tab.addrow(result, item.fs_type, item.fs_logical_device:gsub("?", " "), item.fs_physical_device)
-			end
-		end
-	end
+  for _, item in ipairs(msg.fsinfo) do
+    if ( item.fs_logical_device and #item.fs_logical_device ~= 0 ) then
+      if ( item and item.fs_type and item.fs_logical_device and item.fs_physical_device ) then
+        tab.addrow(result, item.fs_type, item.fs_logical_device:gsub("?", " "), item.fs_physical_device)
+      end
+    end
+  end
 
-	return "\n" .. tab.dump(result)
+  return "\n" .. tab.dump(result)
 end

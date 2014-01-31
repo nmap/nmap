@@ -40,55 +40,55 @@ portrule = shortport.port_or_service({9160}, {"cassandra"})
 
 function action(host,port)
 
-	local socket = nmap.new_socket()
-        local cassinc = 2 -- cmd/resp starts at 2
+  local socket = nmap.new_socket()
+  local cassinc = 2 -- cmd/resp starts at 2
 
-	-- set a reasonable timeout value
-	socket:set_timeout(10000)
-	-- do some exception  / cleanup
-	local catch = function()
-		socket:close()
-	end
+  -- set a reasonable timeout value
+  socket:set_timeout(10000)
+  -- do some exception  / cleanup
+  local catch = function()
+    socket:close()
+  end
 
-	local try = nmap.new_try(catch)
+  local try = nmap.new_try(catch)
 
-	try( socket:connect(host, port) )
+  try( socket:connect(host, port) )
 
-        local results = {}
+  local results = {}
 
-	-- uglyness to allow creds.cassandra to work, as the port is not recognized
-	-- as cassandra even when service scan was run, taken from mongodb
-	local ps = port.service
-	port.service = 'cassandra'
-	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
-	for cred in c:getCredentials(creds.State.VALID + creds.State.PARAM) do
-		local status, err = cassandra.login(socket, cred.user, cred.pass)
-                table.insert(results, ("Using credentials: %s"):format(cred.user.."/"..cred.pass))
-		if ( not(status) ) then
-			return err
-		end
-	end
-	port.service = ps
+  -- uglyness to allow creds.cassandra to work, as the port is not recognized
+  -- as cassandra even when service scan was run, taken from mongodb
+  local ps = port.service
+  port.service = 'cassandra'
+  local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+  for cred in c:getCredentials(creds.State.VALID + creds.State.PARAM) do
+    local status, err = cassandra.login(socket, cred.user, cred.pass)
+    table.insert(results, ("Using credentials: %s"):format(cred.user.."/"..cred.pass))
+    if ( not(status) ) then
+      return err
+    end
+  end
+  port.service = ps
 
-        local status, val = cassandra.describe_cluster_name(socket,cassinc)
-        if (not(status)) then
-          return "Error getting cluster name: " .. val
-        end
-        cassinc = cassinc + 1
-        port.version.name ='cassandra'
-        port.version.product='Cassandra'
-        port.version.name_confidence = 10
-        nmap.set_port_version(host,port)
-        table.insert(results, ("Cluster name: %s"):format(val))
+  local status, val = cassandra.describe_cluster_name(socket,cassinc)
+  if (not(status)) then
+    return "Error getting cluster name: " .. val
+  end
+  cassinc = cassinc + 1
+  port.version.name ='cassandra'
+  port.version.product='Cassandra'
+  port.version.name_confidence = 10
+  nmap.set_port_version(host,port)
+  table.insert(results, ("Cluster name: %s"):format(val))
 
-        local status, val = cassandra.describe_version(socket,cassinc)
-        if (not(status)) then
-          return "Error getting version: " .. val
-        end
-        cassinc = cassinc + 1
-        port.version.product='Cassandra ('..val..')'
-        nmap.set_port_version(host,port)
-        table.insert(results, ("Version: %s"):format(val))
+  local status, val = cassandra.describe_version(socket,cassinc)
+  if (not(status)) then
+    return "Error getting version: " .. val
+  end
+  cassinc = cassinc + 1
+  port.version.product='Cassandra ('..val..')'
+  nmap.set_port_version(host,port)
+  table.insert(results, ("Version: %s"):format(val))
 
-        return stdnse.format_output(true, results)
+  return stdnse.format_output(true, results)
 end

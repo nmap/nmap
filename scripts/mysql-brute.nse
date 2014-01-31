@@ -41,57 +41,57 @@ arg_timeout = (arg_timeout or 5) * 1000
 
 Driver = {
 
-	new = function(self, host, port)
-		local o = {}
-		setmetatable(o, self)
-		self.__index = self
-		o.host = host
-		o.port = port
-		return o
-	end,
+  new = function(self, host, port)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.host = host
+    o.port = port
+    return o
+  end,
 
-	connect = function( self )
-		self.socket = nmap.new_socket()
-		local status, err = self.socket:connect(self.host, self.port)
-		self.socket:set_timeout(arg_timeout)
-		if(not(status)) then
-			return false, brute.Error:new( "Couldn't connect to host: " .. err )
-		end
-		return true
-	end,
+  connect = function( self )
+    self.socket = nmap.new_socket()
+    local status, err = self.socket:connect(self.host, self.port)
+    self.socket:set_timeout(arg_timeout)
+    if(not(status)) then
+      return false, brute.Error:new( "Couldn't connect to host: " .. err )
+    end
+    return true
+  end,
 
-	login = function (self, user, pass)
-		local status, response = mysql.receiveGreeting(self.socket)
-		if(not(status)) then
-			return false,brute.Error:new(response)
-		end
-		stdnse.print_debug( "Trying %s/%s ...", user, pass )
-		status, response = mysql.loginRequest( self.socket, { authversion = "post41", charset = response.charset }, user, pass, response.salt )
-		if status then
-			-- Add credentials for other mysql scripts to use
-			if nmap.registry.mysqlusers == nil then
-				nmap.registry.mysqlusers = {}
-			end
-			nmap.registry.mysqlusers[user]=pass
-			return true, brute.Account:new( user, pass, creds.State.VALID)
-		end
-		return false,brute.Error:new( "Incorrect password" )
-	end,
+  login = function (self, user, pass)
+    local status, response = mysql.receiveGreeting(self.socket)
+    if(not(status)) then
+      return false,brute.Error:new(response)
+    end
+    stdnse.print_debug( "Trying %s/%s ...", user, pass )
+    status, response = mysql.loginRequest( self.socket, { authversion = "post41", charset = response.charset }, user, pass, response.salt )
+    if status then
+      -- Add credentials for other mysql scripts to use
+      if nmap.registry.mysqlusers == nil then
+        nmap.registry.mysqlusers = {}
+      end
+      nmap.registry.mysqlusers[user]=pass
+      return true, brute.Account:new( user, pass, creds.State.VALID)
+    end
+    return false,brute.Error:new( "Incorrect password" )
+  end,
 
-	disconnect = function( self )
-		self.socket:close()
-		return true
-	end
+  disconnect = function( self )
+    self.socket:close()
+    return true
+  end
 
 }
 
 action = function( host, port )
 
-	local status, result
-	local engine = brute.Engine:new(Driver, host, port)
-	engine.options.script_name = SCRIPT_NAME
+  local status, result
+  local engine = brute.Engine:new(Driver, host, port)
+  engine.options.script_name = SCRIPT_NAME
 
-	status, result = engine:start()
+  status, result = engine:start()
 
-	return result
+  return result
 end

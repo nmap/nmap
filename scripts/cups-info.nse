@@ -47,35 +47,35 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local helper = ipp.Helper:new(host, port)
-	if ( not(helper:connect()) ) then
-		return fail("Failed to connect to server")
-	end
+  local helper = ipp.Helper:new(host, port)
+  if ( not(helper:connect()) ) then
+    return fail("Failed to connect to server")
+  end
 
-	local status, printers = helper:getPrinters()
-	if ( not(status) ) then
-		return
-	end
+  local status, printers = helper:getPrinters()
+  if ( not(status) ) then
+    return
+  end
 
-	local output = {}
-	for _, printer in ipairs(printers) do
-		local states = {
-			[ipp.IPP.PrinterState.IPP_PRINTER_IDLE] = "Idle",
-			[ipp.IPP.PrinterState.IPP_PRINTER_PROCESSING] = "Processing",
-			[ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
-		}
-		local pos, state = bin.unpack(">I", printer.state)
-		table.insert(output, {
-			name = printer.name,
-			("DNS-SD Name: %s"):format(printer.dns_sd_name or ""),
-			("Location: %s"):format(printer.location or ""),
-			("Model: %s"):format(printer.model or ""),
-			("State: %s"):format(states[state] or ""),
-			("Queue: %s print jobs"):format(tonumber(printer.queue_count) or 0),
-		} )
-	end
+  local output = {}
+  for _, printer in ipairs(printers) do
+    local states = {
+      [ipp.IPP.PrinterState.IPP_PRINTER_IDLE] = "Idle",
+      [ipp.IPP.PrinterState.IPP_PRINTER_PROCESSING] = "Processing",
+      [ipp.IPP.PrinterState.IPP_PRINTER_STOPPED] = "Stopped",
+    }
+    local pos, state = bin.unpack(">I", printer.state)
+    table.insert(output, {
+      name = printer.name,
+      ("DNS-SD Name: %s"):format(printer.dns_sd_name or ""),
+      ("Location: %s"):format(printer.location or ""),
+      ("Model: %s"):format(printer.model or ""),
+      ("State: %s"):format(states[state] or ""),
+      ("Queue: %s print jobs"):format(tonumber(printer.queue_count) or 0),
+    } )
+  end
 
-	if ( 0 ~= #output ) then
-		return stdnse.format_output(true, output)
-	end
+  if ( 0 ~= #output ) then
+    return stdnse.format_output(true, output)
+  end
 end

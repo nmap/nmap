@@ -58,29 +58,29 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local response = http.get(host, port, ("/secure?command=browse&dir=%s"):format(arg_dir))
+  local response = http.get(host, port, ("/secure?command=browse&dir=%s"):format(arg_dir))
 
-	if ( response.status ~= 200 or not(response.body) or 0 == #response.body ) then
-		if ( response.status == 401 ) then
-			return fail("Server requires authentication")
-		else
-			return
-		end
-	end
+  if ( response.status ~= 200 or not(response.body) or 0 == #response.body ) then
+    if ( response.status == 401 ) then
+      return fail("Server requires authentication")
+    else
+      return
+    end
+  end
 
-	local status, parsed = json.parse(response.body)
-	if ( not(status) ) then
-		return fail("Failed to parse response")
-	end
+  local status, parsed = json.parse(response.body)
+  if ( not(status) ) then
+    return fail("Failed to parse response")
+  end
 
-	if ( parsed.errorMessage ) then
-		return fail(parsed.errorMessage)
-	end
+  if ( parsed.errorMessage ) then
+    return fail(parsed.errorMessage)
+  end
 
-	local output = {}
-	for _, entry in pairs(parsed.files or {}) do
-		table.insert(output,entry.path)
-	end
-	table.sort(output, function(a,b) return a<b end)
-	return stdnse.format_output(true, output)
+  local output = {}
+  for _, entry in pairs(parsed.files or {}) do
+    table.insert(output,entry.path)
+  end
+  table.sort(output, function(a,b) return a<b end)
+  return stdnse.format_output(true, output)
 end

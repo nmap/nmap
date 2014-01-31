@@ -31,55 +31,55 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"exploit","intrusive"}
 
 portrule = function(host, port)
-        -- JDWP will close the port if there is no valid handshake within 2
-	-- seconds, Service detection's NULL probe detects it as tcpwrapped.
-        return port.service == "tcpwrapped"
-               and port.protocol == "tcp" and port.state == "open"
-               and not(shortport.port_is_excluded(port.number,port.protocol))
+  -- JDWP will close the port if there is no valid handshake within 2
+  -- seconds, Service detection's NULL probe detects it as tcpwrapped.
+  return port.service == "tcpwrapped"
+    and port.protocol == "tcp" and port.state == "open"
+    and not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
 action = function(host, port)
-	stdnse.sleep(5) -- let the remote socket recover from connect() scan
-	local status,socket = jdwp.connect(host,port) -- initialize the connection
-	if not status then
-		stdnse.print_debug("error, %s",socket)
-		return nil
-	end
+  stdnse.sleep(5) -- let the remote socket recover from connect() scan
+  local status,socket = jdwp.connect(host,port) -- initialize the connection
+  if not status then
+    stdnse.print_debug("error, %s",socket)
+    return nil
+  end
 
-	-- read .class file
-	local filename = stdnse.get_script_args(SCRIPT_NAME .. '.filename')
-	if filename == nil then
-		return stdnse.format_output(false, "This script requires a .class file to inject.")
-	end
-	local file = io.open(nmap.fetchfile(filename) or filename, "rb")
-	local class_bytes = file:read("*all")
+  -- read .class file
+  local filename = stdnse.get_script_args(SCRIPT_NAME .. '.filename')
+  if filename == nil then
+    return stdnse.format_output(false, "This script requires a .class file to inject.")
+  end
+  local file = io.open(nmap.fetchfile(filename) or filename, "rb")
+  local class_bytes = file:read("*all")
 
-	-- inject the class
-	local injectedClass
-	status,injectedClass = jdwp.injectClass(socket,class_bytes)
-	if not status then
-		stdnse.print_debug(1, "%s: Failed to inject class", SCRIPT_NAME)
-		return stdnse.format_output(false, "Failed to inject class")
-	end
-	-- find injected class method
-	local runMethodID = jdwp.findMethod(socket,injectedClass.id,"run",false)
+  -- inject the class
+  local injectedClass
+  status,injectedClass = jdwp.injectClass(socket,class_bytes)
+  if not status then
+    stdnse.print_debug(1, "%s: Failed to inject class", SCRIPT_NAME)
+    return stdnse.format_output(false, "Failed to inject class")
+  end
+  -- find injected class method
+  local runMethodID = jdwp.findMethod(socket,injectedClass.id,"run",false)
 
-	if runMethodID == nil then
-		stdnse.print_debug(1, "%s: Couldn't find run method", SCRIPT_NAME)
-		return stdnse.format_output(false, "Couldn't find run method.")
-	end
+  if runMethodID == nil then
+    stdnse.print_debug(1, "%s: Couldn't find run method", SCRIPT_NAME)
+    return stdnse.format_output(false, "Couldn't find run method.")
+  end
 
-	-- invoke run method
-	local result
-	status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil)
-	if not status then
-		stdnse.print_debug(1, "%s: Couldn't invoke run method", SCRIPT_NAME)
-		return stdnse.format_output(false, result)
-	end
-	-- get the result string
-	local _,_,stringID = bin.unpack(">CL",result)
-	status,result = jdwp.readString(socket,0,stringID)
-	-- parse results
-	return stdnse.format_output(status,result)
+  -- invoke run method
+  local result
+  status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,0,nil)
+  if not status then
+    stdnse.print_debug(1, "%s: Couldn't invoke run method", SCRIPT_NAME)
+    return stdnse.format_output(false, result)
+  end
+  -- get the result string
+  local _,_,stringID = bin.unpack(">CL",result)
+  status,result = jdwp.readString(socket,0,stringID)
+  -- parse results
+  return stdnse.format_output(status,result)
 end
 

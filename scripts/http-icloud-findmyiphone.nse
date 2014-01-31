@@ -42,46 +42,46 @@ prerule = function() return true end
 -- This function decodes the single quote as a start and should really
 -- be replaced with a proper UTF-8 decoder in the future
 local function decodeString(str)
-	return str:gsub("\226\128\153", "'")
+  return str:gsub("\226\128\153", "'")
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function()
 
-	if ( not(arg_username) or not(arg_password) ) then
-		return fail("No username or password was supplied")
-	end
+  if ( not(arg_username) or not(arg_password) ) then
+    return fail("No username or password was supplied")
+  end
 
-	local mobileme = mobileme.Helper:new(arg_username, arg_password)
-	local status, response = mobileme:getLocation()
+  local mobileme = mobileme.Helper:new(arg_username, arg_password)
+  local status, response = mobileme:getLocation()
 
-	if ( not(status) ) then
-		stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, response)
-		return fail("Failed to retrieve location information")
-	end
+  if ( not(status) ) then
+    stdnse.print_debug(2, "%s: %s", SCRIPT_NAME, response)
+    return fail("Failed to retrieve location information")
+  end
 
-	local output = tab.new(4)
-	tab.addrow(output, "name", "location", "accuracy", "date", "type")
-	for name, info in pairs(response) do
-		local loc
-		if ( info.latitude and info.longitude ) then
-			loc = ("%.3f,%.3f"):format(
-				tonumber(info.latitude) or "-",
-				tonumber(info.longitude) or "-")
-		else
-			loc = "-,-"
-		end
-		local ts
-		if ( info.timestamp and 1000 < info.timestamp ) then
-			ts = os.date("%x %X", info.timestamp/1000)
-		else
-			ts = "-"
-		end
-		tab.addrow(output, decodeString(name), loc, info.accuracy or "-", ts, info.postype or "-")
-	end
+  local output = tab.new(4)
+  tab.addrow(output, "name", "location", "accuracy", "date", "type")
+  for name, info in pairs(response) do
+    local loc
+    if ( info.latitude and info.longitude ) then
+      loc = ("%.3f,%.3f"):format(
+        tonumber(info.latitude) or "-",
+        tonumber(info.longitude) or "-")
+    else
+      loc = "-,-"
+    end
+    local ts
+    if ( info.timestamp and 1000 < info.timestamp ) then
+      ts = os.date("%x %X", info.timestamp/1000)
+    else
+      ts = "-"
+    end
+    tab.addrow(output, decodeString(name), loc, info.accuracy or "-", ts, info.postype or "-")
+  end
 
-	if ( 1 < #output ) then
-		return stdnse.format_output(true, tab.dump(output))
-	end
+  if ( 1 < #output ) then
+    return stdnse.format_output(true, tab.dump(output))
+  end
 end

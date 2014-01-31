@@ -32,63 +32,63 @@ portrule = shortport.port_or_service(2002, "rpcap", "tcp")
 
 Driver = {
 
-	new = function(self, host, port)
-		local o = { helper = rpcap.Helper:new(host, port) }
-		setmetatable(o, self)
-		self.__index = self
-		return o
-	end,
+  new = function(self, host, port)
+    local o = { helper = rpcap.Helper:new(host, port) }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function(self)
-		return self.helper:connect()
-	end,
+  connect = function(self)
+    return self.helper:connect()
+  end,
 
-	login = function(self, username, password)
-		local status, resp = self.helper:login(username, password)
-		if ( status ) then
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+  login = function(self, username, password)
+    local status, resp = self.helper:login(username, password)
+    if ( status ) then
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	disconnect = function(self)
-		return self.helper:close()
-	end,
+  disconnect = function(self)
+    return self.helper:close()
+  end,
 
 }
 
 local function validateAuth(host, port)
-	local helper = rpcap.Helper:new(host, port)
-	local status, result = helper:connect()
-	if ( not(status) ) then
-		return false, result
-	end
-	status, result = helper:login()
-	helper:close()
+  local helper = rpcap.Helper:new(host, port)
+  local status, result = helper:connect()
+  if ( not(status) ) then
+    return false, result
+  end
+  status, result = helper:login()
+  helper:close()
 
-	if ( status ) then
-		return false, "Authentication not required"
-	elseif ( not(status) and
-		"Authentication failed; NULL autentication not permitted." == result ) then
-		return true
-	end
-	return status, result
+  if ( status ) then
+    return false, "Authentication not required"
+  elseif ( not(status) and
+    "Authentication failed; NULL autentication not permitted." == result ) then
+    return true
+  end
+  return status, result
 end
 
 action = function(host, port)
 
-	local status, result = validateAuth(host, port)
-	if ( not(status) ) then
-		return result
-	end
+  local status, result = validateAuth(host, port)
+  if ( not(status) ) then
+    return result
+  end
 
-	local engine = brute.Engine:new(Driver, host, port )
+  local engine = brute.Engine:new(Driver, host, port )
 
-	engine.options.script_name = SCRIPT_NAME
-	engine.options.firstonly = true
-	status, result = engine:start()
+  engine.options.script_name = SCRIPT_NAME
+  engine.options.firstonly = true
+  status, result = engine:start()
 
-	return result
+  return result
 end
 
 

@@ -31,24 +31,24 @@ categories = {"discovery", "safe"}
 portrule = shortport.http
 
 action = function(host, port)
-	local request_time = os.time()
-	local response = http.get(host, port, "/")
-	if not response.status or not response.header["date"] then
-		return
-	end
+  local request_time = os.time()
+  local response = http.get(host, port, "/")
+  if not response.status or not response.header["date"] then
+    return
+  end
 
-	local response_date = http.parse_date(response.header["date"])
-	if not response_date then
-		return
-	end
-	local response_time = stdnse.date_to_timestamp(response_date)
+  local response_date = http.parse_date(response.header["date"])
+  if not response_date then
+    return
+  end
+  local response_time = stdnse.date_to_timestamp(response_date)
 
-	local output_tab = stdnse.output_table()
-	output_tab.date = stdnse.format_timestamp(response_time, 0)
-	output_tab.delta = os.difftime(response_time, request_time)
+  local output_tab = stdnse.output_table()
+  output_tab.date = stdnse.format_timestamp(response_time, 0)
+  output_tab.delta = os.difftime(response_time, request_time)
 
-	local output_str = string.format("%s; %s from local time.",
-		response.header["date"], stdnse.format_difftime(os.date("!*t", response_time), os.date("!*t", request_time)))
+  local output_str = string.format("%s; %s from local time.",
+    response.header["date"], stdnse.format_difftime(os.date("!*t", response_time), os.date("!*t", request_time)))
 
-	return output_tab, output_str
+  return output_tab, output_str
 end

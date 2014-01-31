@@ -40,39 +40,39 @@ portrule = shortport.port_or_service(2628, "dict", "tcp")
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	if ( not(socket:connect(host, port)) ) then
-		return fail("Failed to connect to dictd server")
-	end
+  local socket = nmap.new_socket()
+  if ( not(socket:connect(host, port)) ) then
+    return fail("Failed to connect to dictd server")
+  end
 
-	local probes = {
-		'client "dict 1.12.0/rf on Linux 3.0.0-12-generic"',
-		'show server',
-		'quit',
-	}
+  local probes = {
+    'client "dict 1.12.0/rf on Linux 3.0.0-12-generic"',
+    'show server',
+    'quit',
+  }
 
-	if ( not(socket:send(stdnse.strjoin("\r\n", probes) .. "\r\n")) ) then
-		return fail("Failed to send request to server")
-	end
+  if ( not(socket:send(stdnse.strjoin("\r\n", probes) .. "\r\n")) ) then
+    return fail("Failed to send request to server")
+  end
 
-	local srvinfo
+  local srvinfo
 
-	repeat
-		local status, data = socket:receive_buf("\r\n", false)
-		if ( not(status) ) then
-			return fail("Failed to read response from server")
-		elseif ( data:match("^5") ) then
-			return fail(data)
-		elseif ( data:match("^114") ) then
-			srvinfo = {}
-		elseif ( srvinfo and not(data:match("^%.$")) ) then
-			table.insert(srvinfo, data)
-		end
-	until(not(status) or data:match("^221") or data:match("^%.$"))
-	socket:close()
+  repeat
+    local status, data = socket:receive_buf("\r\n", false)
+    if ( not(status) ) then
+      return fail("Failed to read response from server")
+    elseif ( data:match("^5") ) then
+      return fail(data)
+    elseif ( data:match("^114") ) then
+      srvinfo = {}
+    elseif ( srvinfo and not(data:match("^%.$")) ) then
+      table.insert(srvinfo, data)
+    end
+  until(not(status) or data:match("^221") or data:match("^%.$"))
+  socket:close()
 
-	-- if last item is an empty string remove it, to avoid trailing line feed
-	srvinfo[#srvinfo] = ( srvinfo[#srvinfo] ~= "" and srvinfo[#srvinfo] or nil )
+  -- if last item is an empty string remove it, to avoid trailing line feed
+  srvinfo[#srvinfo] = ( srvinfo[#srvinfo] ~= "" and srvinfo[#srvinfo] or nil )
 
-	return stdnse.format_output(true, srvinfo)
+  return stdnse.format_output(true, srvinfo)
 end

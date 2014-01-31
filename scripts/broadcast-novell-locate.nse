@@ -32,48 +32,48 @@ prerule = function() return true end
 
 function action()
 
-	local helper = srvloc.Helper:new()
+  local helper = srvloc.Helper:new()
 
-	local status, bindery = helper:ServiceRequest("bindery.novell", "DEFAULT")
-	if ( not(status) or not(bindery) ) then
-		helper:close()
-		return
-	end
-	bindery = bindery[1]
-	local srvname = bindery:match("%/%/%/(.*)$")
+  local status, bindery = helper:ServiceRequest("bindery.novell", "DEFAULT")
+  if ( not(status) or not(bindery) ) then
+    helper:close()
+    return
+  end
+  bindery = bindery[1]
+  local srvname = bindery:match("%/%/%/(.*)$")
 
-	local status, attrib = helper:AttributeRequest(bindery, "DEFAULT", "svcaddr-ws")
-	helper:close()
-	attrib = attrib:match("^%(svcaddr%-ws=(.*)%)$")
-	if ( not(attrib) ) then return end
+  local status, attrib = helper:AttributeRequest(bindery, "DEFAULT", "svcaddr-ws")
+  helper:close()
+  attrib = attrib:match("^%(svcaddr%-ws=(.*)%)$")
+  if ( not(attrib) ) then return end
 
-	local attribs = stdnse.strsplit(",", attrib)
-	if ( not(attribs) ) then return end
+  local attribs = stdnse.strsplit(",", attrib)
+  if ( not(attribs) ) then return end
 
-	local addrs = { name = "Addresses"}
-	local ips = {}
-	for _, attr in ipairs(attribs) do
-		local addr = attr:match("^%d*%-%d*%-%d*%-(........)")
-		if ( addr ) then
-			local pos, dw_addr = bin.unpack( "<I", bin.pack("H", addr) )
-			local ip = ipOps.fromdword(dw_addr)
+  local addrs = { name = "Addresses"}
+  local ips = {}
+  for _, attr in ipairs(attribs) do
+    local addr = attr:match("^%d*%-%d*%-%d*%-(........)")
+    if ( addr ) then
+      local pos, dw_addr = bin.unpack( "<I", bin.pack("H", addr) )
+      local ip = ipOps.fromdword(dw_addr)
 
-			if ( not(ips[ip]) ) then
-				table.insert(addrs, ip)
-				ips[ip] = ip
-			end
-		end
-	end
+      if ( not(ips[ip]) ) then
+        table.insert(addrs, ip)
+        ips[ip] = ip
+      end
+    end
+  end
 
-	local output = {}
-	local status, treename = helper:ServiceRequest("ndap.novell", "DEFAULT")
-	if ( status ) then
-		treename = treename[1]
-		treename = treename:match("%/%/%/(.*)%.$")
-		table.insert(output, ("Tree name: %s"):format(treename))
-	end
-	table.insert(output, ("Server name: %s"):format(srvname))
-	table.insert(output, addrs)
+  local output = {}
+  local status, treename = helper:ServiceRequest("ndap.novell", "DEFAULT")
+  if ( status ) then
+    treename = treename[1]
+    treename = treename:match("%/%/%/(.*)%.$")
+    table.insert(output, ("Tree name: %s"):format(treename))
+  end
+  table.insert(output, ("Server name: %s"):format(srvname))
+  table.insert(output, addrs)
 
-	return stdnse.format_output(true, output)
+  return stdnse.format_output(true, output)
 end

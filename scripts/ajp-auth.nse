@@ -33,42 +33,42 @@ local arg_path = stdnse.get_script_args(SCRIPT_NAME .. ".path")
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
-	local helper = ajp.Helper:new(host, port)
+  local helper = ajp.Helper:new(host, port)
 
-	if ( not(helper:connect()) ) then
-		return fail("Failed to connect to AJP server")
-	end
+  if ( not(helper:connect()) ) then
+    return fail("Failed to connect to AJP server")
+  end
 
-	local status, answer = helper:get(arg_path or "/")
+  local status, answer = helper:get(arg_path or "/")
 
-	--- check for 401 response code
-	if ( not(status) or answer.status ~= 401 ) then
-		return
-	end
+  --- check for 401 response code
+  if ( not(status) or answer.status ~= 401 ) then
+    return
+  end
 
-	local result = { name = answer["status-line"]:match("^(.*)\r?\n$") }
+  local result = { name = answer["status-line"]:match("^(.*)\r?\n$") }
 
-	local www_authenticate = answer.headers["www-authenticate"]
-	if not www_authenticate then
-    	table.insert( result, ("Server returned status %d but no WWW-Authenticate header."):format(answer.status) )
-		return stdnse.format_output(true, result)
-	end
+  local www_authenticate = answer.headers["www-authenticate"]
+  if not www_authenticate then
+    table.insert( result, ("Server returned status %d but no WWW-Authenticate header."):format(answer.status) )
+    return stdnse.format_output(true, result)
+  end
 
-	local challenges = http.parse_www_authenticate(www_authenticate)
-	if ( not(challenges) ) then
-    	table.insert( result, ("Server returned status %d but the WWW-Authenticate header could not be parsed."):format(answer.status) )
-		table.insert( result, ("WWW-Authenticate: %s"):format(www_authenticate) )
-		return stdnse.format_output(true, result)
-	end
+  local challenges = http.parse_www_authenticate(www_authenticate)
+  if ( not(challenges) ) then
+    table.insert( result, ("Server returned status %d but the WWW-Authenticate header could not be parsed."):format(answer.status) )
+    table.insert( result, ("WWW-Authenticate: %s"):format(www_authenticate) )
+    return stdnse.format_output(true, result)
+  end
 
-	for _, challenge in ipairs(challenges) do
-		local line = challenge.scheme
-		if ( challenge.params ) then
-			for name, value in pairs(challenge.params) do
-				line = line .. (" %s=%s"):format(name, value)
-			end
-		end
-		table.insert(result, line)
-	end
-	return stdnse.format_output(true, result)
+  for _, challenge in ipairs(challenges) do
+    local line = challenge.scheme
+    if ( challenge.params ) then
+      for name, value in pairs(challenge.params) do
+        line = line .. (" %s=%s"):format(name, value)
+      end
+    end
+    table.insert(result, line)
+  end
+  return stdnse.format_output(true, result)
 end

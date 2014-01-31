@@ -48,57 +48,57 @@ categories = { "default", "discovery", "safe", "version" }
 portrule = shortport.version_port_or_service({2302}, "freelancer", "udp")
 
 action = function(host, port)
-	local status, data = comm.exchange(host, port.number,
-		"\x00\x02\xf1\x26\x01\x26\xf0\x90\xa6\xf0\x26\x57\x4e\xac\xa0\xec\xf8\x68\xe4\x8d\x21",
-		{ proto = "udp", timeout = 3000 })
-	if not status then
-		return
-	end
+  local status, data = comm.exchange(host, port.number,
+    "\x00\x02\xf1\x26\x01\x26\xf0\x90\xa6\xf0\x26\x57\x4e\xac\xa0\xec\xf8\x68\xe4\x8d\x21",
+    { proto = "udp", timeout = 3000 })
+  if not status then
+    return
+  end
 
-	-- port is open
-	nmap.set_port_state(host, port, "open")
+  -- port is open
+  nmap.set_port_state(host, port, "open")
 
-	local passwordbyte, maxplayers, numplayers, name, pvpallow, newplayersallow, description =
-		string.match(data, "^\x00\x03\xf1\x26............(.)...(.)...(.)...................................................................(.*)\0\0(.):(.):.*:.*:.*:(.*)\0\0$")
-	if not passwordbyte then
-		return
-	end
+  local passwordbyte, maxplayers, numplayers, name, pvpallow, newplayersallow, description =
+    string.match(data, "^\x00\x03\xf1\x26............(.)...(.)...(.)...................................................................(.*)\0\0(.):(.):.*:.*:.*:(.*)\0\0$")
+  if not passwordbyte then
+    return
+  end
 
-	local o = stdnse.output_table()
+  local o = stdnse.output_table()
 
-	o["server name"] = string.gsub(name, "[^%g%s]", "")
-	o["server description"] = string.gsub(description, "[^%g%s]", "")
-	o["players"] = numplayers:byte(1) - 1
-	o["max. players"] = maxplayers:byte(1) - 1
+  o["server name"] = string.gsub(name, "[^%g%s]", "")
+  o["server description"] = string.gsub(description, "[^%g%s]", "")
+  o["players"] = numplayers:byte(1) - 1
+  o["max. players"] = maxplayers:byte(1) - 1
 
-	passwordbyte = passwordbyte:byte(1)
-	if bit.band(passwordbyte, 128) ~= 0 then
-		o["password"] = "yes"
-	else
-		o["password"] = "no"
-	end
+  passwordbyte = passwordbyte:byte(1)
+  if bit.band(passwordbyte, 128) ~= 0 then
+    o["password"] = "yes"
+  else
+    o["password"] = "no"
+  end
 
-	o["allow players to harm other players"] = "n/a"
-	if pvpallow == "1" then
-		o["allow players to harm other players"] = "yes"
-	elseif pvpallow == "0" then
-		o["allow players to harm other players"] = "no"
-	end
+  o["allow players to harm other players"] = "n/a"
+  if pvpallow == "1" then
+    o["allow players to harm other players"] = "yes"
+  elseif pvpallow == "0" then
+    o["allow players to harm other players"] = "no"
+  end
 
-	o["allow new players"] = "n/a"
-	if newplayersallow == "1" then
-		o["allow new players"] = "yes"
-	elseif newplayersallow == "0" then
-		o["allow new players"] = "no"
-	end
+  o["allow new players"] = "n/a"
+  if newplayersallow == "1" then
+    o["allow new players"] = "yes"
+  elseif newplayersallow == "0" then
+    o["allow new players"] = "no"
+  end
 
-    port.version.name = "freelancer"
-    port.version.name_confidence = 10
-    port.version.product = "Freelancer"
-    port.version.extrainfo = "name: " .. o["server name"] .. "; players: " ..
-		o["players"] .. "/" ..  o["max. players"] .. "; password: " .. o["password"]
+  port.version.name = "freelancer"
+  port.version.name_confidence = 10
+  port.version.product = "Freelancer"
+  port.version.extrainfo = "name: " .. o["server name"] .. "; players: " ..
+  o["players"] .. "/" ..  o["max. players"] .. "; password: " .. o["password"]
 
-    nmap.set_port_version(host, port, "hardmatched")
+  nmap.set_port_version(host, port, "hardmatched")
 
-    return o
+  return o
 end

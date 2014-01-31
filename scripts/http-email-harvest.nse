@@ -41,48 +41,48 @@ categories = {"discovery", "safe"}
 portrule = shortport.http
 
 function action(host, port)
-	local EMAIL_PATTERN = "[A-Za-z0-9%.%%%+%-]+@[A-Za-z0-9%.%%%+%-]+%.%w%w%w?%w?"
+  local EMAIL_PATTERN = "[A-Za-z0-9%.%%%+%-]+@[A-Za-z0-9%.%%%+%-]+%.%w%w%w?%w?"
 
-	local crawler = httpspider.Crawler:new(host, port, nil, {
-			scriptname = SCRIPT_NAME
-		}
-	)
+  local crawler = httpspider.Crawler:new(host, port, nil, {
+    scriptname = SCRIPT_NAME
+  }
+  )
 
-	if ( not(crawler) ) then
-		return
-	end
-	crawler:set_timeout(10000)
+  if ( not(crawler) ) then
+    return
+  end
+  crawler:set_timeout(10000)
 
-	local emails = {}
-	while(true) do
-		local status, r = crawler:crawl()
-		-- if the crawler fails it can be due to a number of different reasons
-		-- most of them are "legitimate" and should not be reason to abort
-		if ( not(status) ) then
-			if ( r.err ) then
-				return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-			else
-				break
-			end
-		end
+  local emails = {}
+  while(true) do
+    local status, r = crawler:crawl()
+    -- if the crawler fails it can be due to a number of different reasons
+    -- most of them are "legitimate" and should not be reason to abort
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+      else
+        break
+      end
+    end
 
-		-- Collect each e-mail address and build a unique index of them
+    -- Collect each e-mail address and build a unique index of them
     if r.response.body then
       for email in r.response.body:gmatch(EMAIL_PATTERN) do
         emails[email] = true
       end
     end
-	end
+  end
 
-	-- if no email addresses were collected abort
-	if ( not(emails) ) then	return end
+  -- if no email addresses were collected abort
+  if ( not(emails) ) then	return end
 
-	local results = {}
-	for email, _ in pairs(emails) do
-		table.insert(results, email)
-  	end
+  local results = {}
+  for email, _ in pairs(emails) do
+    table.insert(results, email)
+  end
 
-	results.name = crawler:getLimitations()
+  results.name = crawler:getLimitations()
 
-	return stdnse.format_output(true, results)
+  return stdnse.format_output(true, results)
 end

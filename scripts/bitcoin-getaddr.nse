@@ -40,35 +40,35 @@ portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 
 action = function(host, port)
 
-	local bcoin = bitcoin.Helper:new(host, port, { timeout = 20000 })
-	local status = bcoin:connect()
+  local bcoin = bitcoin.Helper:new(host, port, { timeout = 20000 })
+  local status = bcoin:connect()
 
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to connect to server"
-	end
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to connect to server"
+  end
 
-	local status, ver = bcoin:exchVersion()
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to extract version information"
-	end
+  local status, ver = bcoin:exchVersion()
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to extract version information"
+  end
 
-	local status, nodes = bcoin:getNodes()
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to extract address information"
-	end
-	bcoin:close()
+  local status, nodes = bcoin:getNodes()
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to extract address information"
+  end
+  bcoin:close()
 
-	local response = tab.new(2)
-	tab.addrow(response, "ip", "timestamp")
+  local response = tab.new(2)
+  tab.addrow(response, "ip", "timestamp")
 
-	for _, node in ipairs(nodes.addresses or {}) do
-		if ( target.ALLOW_NEW_TARGETS ) then
-			target.add(node.address.host)
-		end
-		tab.addrow(response, ("%s:%d"):format(node.address.host, node.address.port), os.date("%x %X", node.ts))
-	end
+  for _, node in ipairs(nodes.addresses or {}) do
+    if ( target.ALLOW_NEW_TARGETS ) then
+      target.add(node.address.host)
+    end
+    tab.addrow(response, ("%s:%d"):format(node.address.host, node.address.port), os.date("%x %X", node.ts))
+  end
 
-	if ( #response > 1 ) then
-		return stdnse.format_output(true, tab.dump(response) )
-	end
+  if ( #response > 1 ) then
+    return stdnse.format_output(true, tab.dump(response) )
+  end
 end

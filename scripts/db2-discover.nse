@@ -31,64 +31,64 @@ categories = {"discovery", "safe", "default"}
 
 
 portrule = shortport.version_port_or_service(523, "ibm-db2", "udp",
-												{"open", "open|filtered"})
+  {"open", "open|filtered"})
 
 --- Converts the prodrel server string to a version string
 --
 -- @param server_version string containing the product release
 -- @return ver string containing the version information
 local function parseVersion( server_version )
-	local pfx = string.sub(server_version,1,3)
+  local pfx = string.sub(server_version,1,3)
 
-	if pfx == "SQL" then
-		local major_version = string.sub(server_version,4,5)
+  if pfx == "SQL" then
+    local major_version = string.sub(server_version,4,5)
 
-		-- strip the leading 0 from the major version, for consistency with
-		-- nmap-service-probes results
-		if string.sub(major_version,1,1) == "0" then
-			major_version = string.sub(major_version,2)
-		end
-		local minor_version = string.sub(server_version,6,7)
-		local hotfix = string.sub(server_version,8)
-		server_version = major_version .. "." .. minor_version .. "." .. hotfix
-	else
-		return "Unknown version"
-	end
+    -- strip the leading 0 from the major version, for consistency with
+    -- nmap-service-probes results
+    if string.sub(major_version,1,1) == "0" then
+      major_version = string.sub(major_version,2)
+    end
+    local minor_version = string.sub(server_version,6,7)
+    local hotfix = string.sub(server_version,8)
+    server_version = major_version .. "." .. minor_version .. "." .. hotfix
+  else
+    return "Unknown version"
+  end
 
-	return ("IBM DB2 v%s"):format(server_version)
+  return ("IBM DB2 v%s"):format(server_version)
 end
 
 action = function(host, port)
 
-	local DB2GETADDR = "DB2GETADDR\0SQL09010\0"
-	local socket = nmap.new_socket()
-	local result = {}
+  local DB2GETADDR = "DB2GETADDR\0SQL09010\0"
+  local socket = nmap.new_socket()
+  local result = {}
 
-	socket:set_timeout(5000)
+  socket:set_timeout(5000)
 
-	local status, err = socket:connect( host, port, "udp")
-	if ( not(status) ) then return end
+  local status, err = socket:connect( host, port, "udp")
+  if ( not(status) ) then return end
 
-	status, err = socket:send( DB2GETADDR )
-	if ( not(status) ) then return end
+  status, err = socket:send( DB2GETADDR )
+  if ( not(status) ) then return end
 
-	local data
-	status, data = socket:receive()
-	if( not(status) ) then
-		socket:close()
-		return
-	end
+  local data
+  status, data = socket:receive()
+  if( not(status) ) then
+    socket:close()
+    return
+  end
 
-	local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)\0")
+  local version, srvname = data:match("DB2RETADDR.(SQL%d+).(.-)\0")
 
-	if ( status ) then
-		table.insert( result, ("Host: %s"):format(srvname) )
-		table.insert( result, ("Version: %s"):format(parseVersion(version)) )
-	end
+  if ( status ) then
+    table.insert( result, ("Host: %s"):format(srvname) )
+    table.insert( result, ("Version: %s"):format(parseVersion(version)) )
+  end
 
-	socket:close()
-	-- set port to open
-	nmap.set_port_state(host, port, "open")
+  socket:close()
+  -- set port to open
+  nmap.set_port_state(host, port, "open")
 
-	return stdnse.format_output( true, result )
+  return stdnse.format_output( true, result )
 end

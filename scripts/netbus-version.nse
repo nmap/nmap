@@ -23,28 +23,28 @@ portrule = shortport.version_port_or_service ({}, "netbus", {"tcp"})
 
 action = function( host, port )
 
-	local socket = nmap.new_socket()
-	socket:set_timeout(5000)
-	local status, err = socket:connect(host.ip, port.number)
-	if not status then
-		return
-	end
-	local buffer, _ = stdnse.make_buffer(socket, "\r")
-	buffer() --discard banner
-	socket:send("Password;0;\r")
+  local socket = nmap.new_socket()
+  socket:set_timeout(5000)
+  local status, err = socket:connect(host.ip, port.number)
+  if not status then
+    return
+  end
+  local buffer, _ = stdnse.make_buffer(socket, "\r")
+  buffer() --discard banner
+  socket:send("Password;0;\r")
 
-	--NetBus answers to auth
-	if buffer() ~= nil then
-		return
-	end
+  --NetBus answers to auth
+  if buffer() ~= nil then
+    return
+  end
 
-	--NetBuster does not
-	port.version.name = "netbus"
-	port.version.product = "NetBuster"
-	port.version.extrainfo = "honeypot"
-	port.version.version = nil
-	nmap.set_port_version(host, port)
-	return
+  --NetBuster does not
+  port.version.name = "netbus"
+  port.version.product = "NetBuster"
+  port.version.extrainfo = "honeypot"
+  port.version.version = nil
+  nmap.set_port_version(host, port)
+  return
 end
 
 

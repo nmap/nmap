@@ -47,11 +47,11 @@ categories = {"broadcast", "safe"}
 prerule = function() return true end
 
 action = function()
-	local helper = dnssd.Helper:new( )
-	helper:setMulticast(true)
+  local helper = dnssd.Helper:new( )
+  helper:setMulticast(true)
 
-	local status, result = helper:queryServices()
-	if ( status ) then
-		return stdnse.format_output(true, result)
-	end
+  local status, result = helper:queryServices()
+  if ( status ) then
+    return stdnse.format_output(true, result)
+  end
 end

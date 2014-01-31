@@ -45,7 +45,7 @@ action = function(host, port)
 
   -- ensure that root ends with a trailing slash
   if ( not(root:match(".*/$")) ) then
-	root = root .. "/"
+    root = root .. "/"
   end
 
   -- characters that usernames may begin with

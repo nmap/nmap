@@ -55,32 +55,32 @@ portrule = shortport.portnumber({5353,9100}, "udp")
 
 action = function( host, port )
 
-	local result = {}
-	local status, response = dns.query( "", { port = port.number, host = host.ip, dtype="PTR", retPkt=true} )
-	if ( not(status) ) then
-		return
-	end
-	local status, txtrecords = dns.findNiceAnswer( dns.types.TXT, response, true )
-	if ( not(status) ) then
-		return
-	end
+  local result = {}
+  local status, response = dns.query( "", { port = port.number, host = host.ip, dtype="PTR", retPkt=true} )
+  if ( not(status) ) then
+    return
+  end
+  local status, txtrecords = dns.findNiceAnswer( dns.types.TXT, response, true )
+  if ( not(status) ) then
+    return
+  end
 
-	for _, v in ipairs( txtrecords ) do
-		if ( v:len() > 0 ) then
-			if v:find("PRINTERVIDPID") then
-				port.version.name="hbn3"
-			end
-			if not v:find("product=") then
-				v = v:gsub(" ", ": ", 1)
-			end
-			table.insert( result, v )
-		end
-	end
+  for _, v in ipairs( txtrecords ) do
+    if ( v:len() > 0 ) then
+      if v:find("PRINTERVIDPID") then
+        port.version.name="hbn3"
+      end
+      if not v:find("product=") then
+        v = v:gsub(" ", ": ", 1)
+      end
+      table.insert( result, v )
+    end
+  end
 
-	-- set port to open
-	nmap.set_port_state(host, port, "open")
-	nmap.set_port_version(host, port)
+  -- set port to open
+  nmap.set_port_state(host, port, "open")
+  nmap.set_port_version(host, port)
 
-	return stdnse.format_output(true, result)
+  return stdnse.format_output(true, result)
 end
 

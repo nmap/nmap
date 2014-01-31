@@ -45,57 +45,57 @@ portrule = shortport.portnumber(548, "tcp")
 
 action = function(host, port)
 
-	local status, response, shares
-	local result = {}
-	local afpHelper = afp.Helper:new()
-	local args = nmap.registry.args
-	local users = nmap.registry.afp or { ['nil'] = 'nil' }
+  local status, response, shares
+  local result = {}
+  local afpHelper = afp.Helper:new()
+  local args = nmap.registry.args
+  local users = nmap.registry.afp or { ['nil'] = 'nil' }
 
-	if ( args['afp.username'] ) then
-		users = {}
-		users[args['afp.username']] = args['afp.password']
-	end
+  if ( args['afp.username'] ) then
+    users = {}
+    users[args['afp.username']] = args['afp.password']
+  end
 
-	for username, password in pairs(users) do
+  for username, password in pairs(users) do
 
-		status, response = afpHelper:OpenSession(host, port)
-		if ( not status ) then
-			stdnse.print_debug(response)
-			return
-		end
+    status, response = afpHelper:OpenSession(host, port)
+    if ( not status ) then
+      stdnse.print_debug(response)
+      return
+    end
 
-		-- if we have a username attempt to authenticate as the user
-		-- Attempt to use No User Authentication?
-		if ( username ~= 'nil' ) then
-			status, response = afpHelper:Login(username, password)
-		else
-			status, response = afpHelper:Login()
-		end
+    -- if we have a username attempt to authenticate as the user
+    -- Attempt to use No User Authentication?
+    if ( username ~= 'nil' ) then
+      status, response = afpHelper:Login(username, password)
+    else
+      status, response = afpHelper:Login()
+    end
 
-		if ( not status ) then
-			stdnse.print_debug("afp-showmount: Login failed", response)
-			stdnse.print_debug(3, "afp-showmount: Login error: %s", response)
-			return
-		end
+    if ( not status ) then
+      stdnse.print_debug("afp-showmount: Login failed", response)
+      stdnse.print_debug(3, "afp-showmount: Login error: %s", response)
+      return
+    end
 
-		status, shares = afpHelper:ListShares()
+    status, shares = afpHelper:ListShares()
 
-		if status then
-			for _, vol in ipairs( shares ) do
-				local status, response = afpHelper:GetSharePermissions( vol )
-				if status then
-					response.name = vol
-					table.insert(result, response)
-				end
-			end
-		end
+    if status then
+      for _, vol in ipairs( shares ) do
+        local status, response = afpHelper:GetSharePermissions( vol )
+        if status then
+          response.name = vol
+          table.insert(result, response)
+        end
+      end
+    end
 
-		status, response = afpHelper:Logout()
-		status, response = afpHelper:CloseSession()
+    status, response = afpHelper:Logout()
+    status, response = afpHelper:CloseSession()
 
-		if ( result ) then
-			return stdnse.format_output(true, result)
-		end
-	end
-	return
+    if ( result ) then
+      return stdnse.format_output(true, result)
+    end
+  end
+  return
 end

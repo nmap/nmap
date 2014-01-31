@@ -37,30 +37,30 @@ portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 
 action = function(host, port)
 
-	local NETWORK = {
-		[3652501241] = "main",
-		[3669344250] = "testnet"
-	}
+  local NETWORK = {
+    [3652501241] = "main",
+    [3669344250] = "testnet"
+  }
 
-	local bcoin = bitcoin.Helper:new(host, port, { timeout = 10000 })
-	local status = bcoin:connect()
+  local bcoin = bitcoin.Helper:new(host, port, { timeout = 10000 })
+  local status = bcoin:connect()
 
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to connect to server"
-	end
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to connect to server"
+  end
 
-	local status, ver = bcoin:exchVersion()
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to extract version information"
-	end
-	bcoin:close()
+  local status, ver = bcoin:exchVersion()
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to extract version information"
+  end
+  bcoin:close()
 
-	local result = {}
-	table.insert(result, ("Timestamp: %s"):format(stdnse.format_timestamp(ver.timestamp)))
-	table.insert(result, ("Network: %s"):format(NETWORK[ver.magic]))
-	table.insert(result, ("Version: %s"):format(ver.ver))
-	table.insert(result, ("Node Id: %s"):format(ver.nodeid))
-	table.insert(result, ("Lastblock: %s"):format(ver.lastblock))
+  local result = {}
+  table.insert(result, ("Timestamp: %s"):format(stdnse.format_timestamp(ver.timestamp)))
+  table.insert(result, ("Network: %s"):format(NETWORK[ver.magic]))
+  table.insert(result, ("Version: %s"):format(ver.ver))
+  table.insert(result, ("Node Id: %s"):format(ver.nodeid))
+  table.insert(result, ("Lastblock: %s"):format(ver.lastblock))
 
-	return stdnse.format_output(true, result)
+  return stdnse.format_output(true, result)
 end

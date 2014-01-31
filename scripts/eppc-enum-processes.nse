@@ -40,64 +40,64 @@ portrule = shortport.port_or_service(3031, "eppc", "tcp", "open")
 
 action = function( host, port )
 
-	local socket = nmap.new_socket()
-	socket:set_timeout(5000)
+  local socket = nmap.new_socket()
+  socket:set_timeout(5000)
 
-	local try = nmap.new_try(
-		function()
-			stdnse.print_debug("%s: failed", SCRIPT_NAME)
-			socket:close()
-		end
-	)
+  local try = nmap.new_try(
+    function()
+      stdnse.print_debug("%s: failed", SCRIPT_NAME)
+      socket:close()
+    end
+  )
 
-	-- a list of application that may or may not be running on the target
-	local apps = {
-		"Address Book",
-		"App Store",
-		"Facetime",
-		"Finder",
-		"Firefox",
-		"Google Chrome",
-		"iChat",
-		"iPhoto",
-		"Keychain Access",
-		"iTunes",
-		"Photo booth",
-		"QuickTime Player",
-		"Remote Buddy",
-		"Safari",
-		"Spotify",
-		"Terminal",
-		"TextMate",
-		"Transmission",
-		"VLC",
-		"VLC media player",
-	}
+  -- a list of application that may or may not be running on the target
+  local apps = {
+    "Address Book",
+    "App Store",
+    "Facetime",
+    "Finder",
+    "Firefox",
+    "Google Chrome",
+    "iChat",
+    "iPhoto",
+    "Keychain Access",
+    "iTunes",
+    "Photo booth",
+    "QuickTime Player",
+    "Remote Buddy",
+    "Safari",
+    "Spotify",
+    "Terminal",
+    "TextMate",
+    "Transmission",
+    "VLC",
+    "VLC media player",
+  }
 
-	local results = tab.new(3)
-	tab.addrow( results, "application", "uid", "pid" )
+  local results = tab.new(3)
+  tab.addrow( results, "application", "uid", "pid" )
 
-	for _, app in ipairs(apps) do
-		try( socket:connect(host, port, "tcp") )
-		local data
+  for _, app in ipairs(apps) do
+    try( socket:connect(host, port, "tcp") )
+    local data
 
-		local packets = {
-			"PPCT\0\0\0\1\0\0\0\1",
-			-- unfortunately I've found no packet specifications, so this has to do
-			bin.pack("HCpH", "e44c50525401e101", 225 + #app, app, "dfdbe302013ddfdfdfdfd500")
-		}
+    local packets = {
+      "PPCT\0\0\0\1\0\0\0\1",
+      -- unfortunately I've found no packet specifications, so this has to do
+      bin.pack("HCpH", "e44c50525401e101", 225 + #app, app, "dfdbe302013ddfdfdfdfd500")
+    }
 
-		for _, v in ipairs(packets) do
-			try( socket:send(v) )
-			data = try( socket:receive() )
-		end
+    for _, v in ipairs(packets) do
+      try( socket:send(v) )
+      data = try( socket:receive() )
+    end
 
-		local uid, pid = data:match("uid=(%d+)&pid=(%d+)")
-		if ( uid and pid ) then	tab.addrow( results, app, uid, pid ) end
+    local uid, pid = data:match("uid=(%d+)&pid=(%d+)")
+    if ( uid and pid ) then	tab.addrow( results, app, uid, pid ) end
 
-		try( socket:close() )
-	end
+    try( socket:close() )
+  end
 
-	return "\n" .. tab.dump(results)
+  return "\n" .. tab.dump(results)
 
 end
