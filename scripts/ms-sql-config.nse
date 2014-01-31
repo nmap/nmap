@@ -63,7 +63,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 
 -- Created 04/02/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 02/01/2011 - v0.2 - Added ability to run against all instances on a host;
---							   added compatibility with changes in mssql.lua (Chris Woodbury)
+--                 added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -80,78 +80,78 @@ portrule = mssql.Helper.GetPortrule_Standard()
 --- Processes a set of instances
 local function process_instance( instance )
 
-	local status, errorMessage
-	local result, result_part = {}, {}
-	local conf_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and ""
-		or " WHERE configuration_id > 16384"
-	local db_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and ""
-		or " WHERE name NOT IN ('master','model','tempdb','msdb')"
-	local helper = mssql.Helper:new()
+  local status, errorMessage
+  local result, result_part = {}, {}
+  local conf_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and ""
+    or " WHERE configuration_id > 16384"
+  local db_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and ""
+    or " WHERE name NOT IN ('master','model','tempdb','msdb')"
+  local helper = mssql.Helper:new()
 
-	local queries = {
-		[2]={ ["Configuration"] = [[ SELECT name,
-								cast(value as varchar) value,
-								cast(value_in_use as varchar) inuse,
-								description
-								FROM sys.configurations ]] .. conf_filter },
-		[3]={ ["Linked Servers"] = [[ SELECT srvname, srvproduct, providername
-									FROM master..sysservers
-									WHERE srvid > 0 ]] },
-		[1]={ ["Databases"] = [[ CREATE TABLE #nmap_dbs(name varchar(255), db_size varchar(255), owner varchar(255),
-									dbid int, created datetime, status varchar(512), compatibility_level int )
-								INSERT INTO #nmap_dbs EXEC sp_helpdb
-								SELECT name, db_size, owner
-									FROM #nmap_dbs ]] .. db_filter .. [[
-								DROP TABLE #nmap_dbs ]] }
-	}
+  local queries = {
+    [2]={ ["Configuration"] = [[ SELECT name,
+      cast(value as varchar) value,
+      cast(value_in_use as varchar) inuse,
+      description
+      FROM sys.configurations ]] .. conf_filter },
+    [3]={ ["Linked Servers"] = [[ SELECT srvname, srvproduct, providername
+      FROM master..sysservers
+      WHERE srvid > 0 ]] },
+    [1]={ ["Databases"] = [[ CREATE TABLE #nmap_dbs(name varchar(255), db_size varchar(255), owner varchar(255),
+      dbid int, created datetime, status varchar(512), compatibility_level int )
+      INSERT INTO #nmap_dbs EXEC sp_helpdb
+      SELECT name, db_size, owner
+      FROM #nmap_dbs ]] .. db_filter .. [[
+      DROP TABLE #nmap_dbs ]] }
+  }
 
-	status, errorMessage = helper:ConnectEx( instance )
-	if ( not(status) ) then result = "ERROR: " .. errorMessage end
+  status, errorMessage = helper:ConnectEx( instance )
+  if ( not(status) ) then result = "ERROR: " .. errorMessage end
 
-	if status then
-		status, errorMessage = helper:LoginEx( instance )
-		if ( not(status) ) then result = "ERROR: " .. errorMessage end
-	end
+  if status then
+    status, errorMessage = helper:LoginEx( instance )
+    if ( not(status) ) then result = "ERROR: " .. errorMessage end
+  end
 
-	for _, v in ipairs( queries ) do
-		if ( not status ) then break end
-		for header, query in pairs(v) do
-			status, result_part = helper:Query( query )
+  for _, v in ipairs( queries ) do
+    if ( not status ) then break end
+    for header, query in pairs(v) do
+      status, result_part = helper:Query( query )
 
-			if ( not(status) ) then
-				result = "ERROR: " .. result_part
-				break
-			end
-			result_part = mssql.Util.FormatOutputTable( result_part, true )
-			result_part.name = header
-			table.insert( result, result_part )
-		end
-	end
+      if ( not(status) ) then
+        result = "ERROR: " .. result_part
+        break
+      end
+      result_part = mssql.Util.FormatOutputTable( result_part, true )
+      result_part.name = header
+      table.insert( result, result_part )
+    end
+  end
 
-	helper:Disconnect()
+  helper:Disconnect()
 
-	local instanceOutput = {}
-	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	table.insert( instanceOutput, result )
+  local instanceOutput = {}
+  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  table.insert( instanceOutput, result )
 
-	return instanceOutput
+  return instanceOutput
 end
 
 
 action = function( host, port )
-	local scriptOutput = {}
-	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+  local scriptOutput = {}
+  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
 
-	if ( not status ) then
-		return stdnse.format_output( false, instanceList )
-	else
-		for _, instance in pairs( instanceList ) do
-			local instanceOutput = process_instance( instance )
-			if instanceOutput then
-				table.insert( scriptOutput, instanceOutput )
-			end
-		end
-	end
+  if ( not status ) then
+    return stdnse.format_output( false, instanceList )
+  else
+    for _, instance in pairs( instanceList ) do
+      local instanceOutput = process_instance( instance )
+      if instanceOutput then
+        table.insert( scriptOutput, instanceOutput )
+      end
+    end
+  end
 
-	return stdnse.format_output( true, scriptOutput )
+  return stdnse.format_output( true, scriptOutput )
 end

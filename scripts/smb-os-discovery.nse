@@ -79,7 +79,7 @@ dependencies = {"smb-brute"}
 
 --- Check whether or not this script should be run.
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 -- Some observed OS strings:
@@ -92,97 +92,97 @@ end
 -- http://msdn.microsoft.com/en-us/library/cc246806%28v=prot.20%29.aspx has a
 -- list of strings that don't quite match these.
 function make_cpe(result)
-	local os = result.os
-	local parts = {}
+  local os = result.os
+  local parts = {}
 
-	if string.match(os, "^Windows 5%.0") then
-		parts = {"o", "microsoft", "windows_2000"}
-	elseif string.match(os, "^Windows 5%.1") then
-		parts = {"o", "microsoft", "windows_xp"}
-	elseif string.match(os, "^Windows Server.*2003") then
-		parts = {"o", "microsoft", "windows_server_2003"}
-	elseif string.match(os, "^Windows Vista") then
-		parts = {"o", "microsoft", "windows_vista"}
-	elseif string.match(os, "^Windows Server.*2008") then
-		parts = {"o", "microsoft", "windows_server_2008"}
-	elseif string.match(os, "^Windows 7") then
-		parts = {"o", "microsoft", "windows_7"}
-	elseif string.match(os, "^Windows Server.*2012") then
-		parts = {"o", "microsoft", "windows_server_2012"}
-	end
+  if string.match(os, "^Windows 5%.0") then
+    parts = {"o", "microsoft", "windows_2000"}
+  elseif string.match(os, "^Windows 5%.1") then
+    parts = {"o", "microsoft", "windows_xp"}
+  elseif string.match(os, "^Windows Server.*2003") then
+    parts = {"o", "microsoft", "windows_server_2003"}
+  elseif string.match(os, "^Windows Vista") then
+    parts = {"o", "microsoft", "windows_vista"}
+  elseif string.match(os, "^Windows Server.*2008") then
+    parts = {"o", "microsoft", "windows_server_2008"}
+  elseif string.match(os, "^Windows 7") then
+    parts = {"o", "microsoft", "windows_7"}
+  elseif string.match(os, "^Windows Server.*2012") then
+    parts = {"o", "microsoft", "windows_server_2012"}
+  end
 
-	if parts[1] == "o" and parts[2] == "microsoft"
-		and string.match(parts[3], "^windows") then
-		parts[4] = ""
-		local sp = string.match(os, "Service Pack (%d+)")
-		if sp then
-			parts[5] = "sp" .. tostring(sp)
-		else
-			parts[5] = "-"
-		end
-		if string.match(os, "Professional") then
-			parts[6] = "professional"
-		end
-	end
+  if parts[1] == "o" and parts[2] == "microsoft"
+    and string.match(parts[3], "^windows") then
+    parts[4] = ""
+    local sp = string.match(os, "Service Pack (%d+)")
+    if sp then
+      parts[5] = "sp" .. tostring(sp)
+    else
+      parts[5] = "-"
+    end
+    if string.match(os, "Professional") then
+      parts[6] = "professional"
+    end
+  end
 
-	if #parts > 0 then
-		return "cpe:/" .. stdnse.strjoin(":", parts)
-	end
+  if #parts > 0 then
+    return "cpe:/" .. stdnse.strjoin(":", parts)
+  end
 end
 
 function add_to_output(output_table, label, value)
-	if value then
-		table.insert(output_table, string.format("%s: %s", label, value))
-	end
+  if value then
+    table.insert(output_table, string.format("%s: %s", label, value))
+  end
 end
 
 action = function(host)
-	local response = stdnse.output_table()
-	local status, result = smb.get_os(host)
+  local response = stdnse.output_table()
+  local status, result = smb.get_os(host)
 
-	if(status == false) then
-		return stdnse.format_output(false, result)
-	end
+  if(status == false) then
+    return stdnse.format_output(false, result)
+  end
 
-	-- Collect results.
-	response.os = result.os
-	response.lanmanager = result.lanmanager
-	response.domain = result.domain
-	response.server = result.server
-	if result.time and result.timezone then
-		response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
-	end
-	response.fqdn = result.fqdn
-	response.domain_dns = result.domain_dns
-	response.forest_dns = result.forest_dns
-	response.workgroup = result.workgroup
-	response.cpe = make_cpe(result)
+  -- Collect results.
+  response.os = result.os
+  response.lanmanager = result.lanmanager
+  response.domain = result.domain
+  response.server = result.server
+  if result.time and result.timezone then
+    response.date = stdnse.format_timestamp(result.time, result.timezone * 60 * 60)
+  end
+  response.fqdn = result.fqdn
+  response.domain_dns = result.domain_dns
+  response.forest_dns = result.forest_dns
+  response.workgroup = result.workgroup
+  response.cpe = make_cpe(result)
 
-	-- Build normal output.
-	local output_lines = {}
-	if response.os and response.lanmanager then
-		add_to_output(output_lines, "OS", string.format("%s (%s)", smb.get_windows_version(response.os), response.lanmanager))
-	else
-		add_to_output(output_lines, "OS", "Unknown")
-	end
-	add_to_output(output_lines, "OS CPE", response.cpe)
-	if response.fqdn then
-		-- Pull the first part of the FQDN as the computer name.
-		add_to_output(output_lines, "Computer name", string.match(response.fqdn, "^([^.]+)%.?"))
-	end
-	add_to_output(output_lines, "NetBIOS computer name", result.server)
-	if response.fqdn and response.domain_dns and response.fqdn ~= response.domain_dns then
-		-- If the FQDN doesn't match the domain name, the target is a domain member.
-		add_to_output(output_lines, "Domain name", response.domain_dns)
-		add_to_output(output_lines, "Forest name", response.forest_dns)
-		add_to_output(output_lines, "FQDN", response.fqdn)
-		add_to_output(output_lines, "NetBIOS domain name", response.domain)
-	else
-		add_to_output(output_lines, "Workgroup", response.workgroup or response.domain)
-	end
-	add_to_output(output_lines, "System time", response.date or "Unknown")
+  -- Build normal output.
+  local output_lines = {}
+  if response.os and response.lanmanager then
+    add_to_output(output_lines, "OS", string.format("%s (%s)", smb.get_windows_version(response.os), response.lanmanager))
+  else
+    add_to_output(output_lines, "OS", "Unknown")
+  end
+  add_to_output(output_lines, "OS CPE", response.cpe)
+  if response.fqdn then
+    -- Pull the first part of the FQDN as the computer name.
+    add_to_output(output_lines, "Computer name", string.match(response.fqdn, "^([^.]+)%.?"))
+  end
+  add_to_output(output_lines, "NetBIOS computer name", result.server)
+  if response.fqdn and response.domain_dns and response.fqdn ~= response.domain_dns then
+    -- If the FQDN doesn't match the domain name, the target is a domain member.
+    add_to_output(output_lines, "Domain name", response.domain_dns)
+    add_to_output(output_lines, "Forest name", response.forest_dns)
+    add_to_output(output_lines, "FQDN", response.fqdn)
+    add_to_output(output_lines, "NetBIOS domain name", response.domain)
+  else
+    add_to_output(output_lines, "Workgroup", response.workgroup or response.domain)
+  end
+  add_to_output(output_lines, "System time", response.date or "Unknown")
 
-	return response, stdnse.format_output(true, output_lines)
+  return response, stdnse.format_output(true, output_lines)
 end
 
 

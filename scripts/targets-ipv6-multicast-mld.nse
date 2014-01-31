@@ -35,146 +35,146 @@ categories = {"discovery","broadcast"}
 local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. '.timeout'))
 
 prerule = function()
-	if ( not(nmap.is_privileged()) ) then
-		stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
-		return false
-	end
-	return true
+  if ( not(nmap.is_privileged()) ) then
+    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    return false
+  end
+  return true
 end
 
 
 local function get_interfaces()
-	local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
-		or nmap.get_interface()
+  local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
+    or nmap.get_interface()
 
-	-- interfaces list (decide which interfaces to broadcast on)
-	local interfaces = {}
-	if interface_name then
-		-- single interface defined
-		local if_table = nmap.get_interface_info(interface_name)
-		if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
-			interfaces[#interfaces + 1] = if_table
-		else
-			stdnse.print_debug("Interface not supported or not properly configured.")
-		end
-	else
-		for _, if_table in ipairs(nmap.list_interfaces()) do
-			if packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
-				table.insert(interfaces, if_table)
-			end
-		end
-	end
+  -- interfaces list (decide which interfaces to broadcast on)
+  local interfaces = {}
+  if interface_name then
+    -- single interface defined
+    local if_table = nmap.get_interface_info(interface_name)
+    if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+      interfaces[#interfaces + 1] = if_table
+    else
+      stdnse.print_debug("Interface not supported or not properly configured.")
+    end
+  else
+    for _, if_table in ipairs(nmap.list_interfaces()) do
+      if packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+        table.insert(interfaces, if_table)
+      end
+    end
+  end
 
-	return interfaces
+  return interfaces
 end
 
 local function single_interface_broadcast(if_nfo, results)
-	stdnse.print_debug(2, "Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
-	local condvar = nmap.condvar(results)
-	local src_mac = if_nfo.mac
-	local src_ip6 = packet.ip6tobin(if_nfo.address)
-	local dst_mac = packet.mactobin("33:33:00:00:00:01")
-	local dst_ip6 = packet.ip6tobin("ff02::1")
-	local gen_qry = packet.ip6tobin("::")
+  stdnse.print_debug(2, "Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
+  local condvar = nmap.condvar(results)
+  local src_mac = if_nfo.mac
+  local src_ip6 = packet.ip6tobin(if_nfo.address)
+  local dst_mac = packet.mactobin("33:33:00:00:00:01")
+  local dst_ip6 = packet.ip6tobin("ff02::1")
+  local gen_qry = packet.ip6tobin("::")
 
-	local dnet = nmap.new_dnet()
-	local pcap = nmap.new_socket()
+  local dnet = nmap.new_dnet()
+  local pcap = nmap.new_socket()
 
-	dnet:ethernet_open(if_nfo.device)
-	pcap:pcap_open(if_nfo.device, 1500, false, "ip6[40:1] == 58")
+  dnet:ethernet_open(if_nfo.device)
+  pcap:pcap_open(if_nfo.device, 1500, false, "ip6[40:1] == 58")
 
-	local probe = packet.Frame:new()
-	probe.mac_src = src_mac
-	probe.mac_dst = dst_mac
-	probe.ip_bin_src = src_ip6
-	probe.ip_bin_dst = dst_ip6
+  local probe = packet.Frame:new()
+  probe.mac_src = src_mac
+  probe.mac_dst = dst_mac
+  probe.ip_bin_src = src_ip6
+  probe.ip_bin_dst = dst_ip6
 
-	probe.ip6_tc = 0
-	probe.ip6_fl = 0
-	probe.ip6_hlimit = 1
+  probe.ip6_tc = 0
+  probe.ip6_fl = 0
+  probe.ip6_hlimit = 1
 
-	probe.icmpv6_type = packet.MLD_LISTENER_QUERY
-	probe.icmpv6_code = 0
+  probe.icmpv6_type = packet.MLD_LISTENER_QUERY
+  probe.icmpv6_code = 0
 
-	-- Add a non-empty payload too.
-	probe.icmpv6_payload = bin.pack("HA", "00 00 00 00", gen_qry)
-	probe:build_icmpv6_header()
-	probe.exheader = bin.pack("CH", packet.IPPROTO_ICMPV6, "00 05 02 00 00 01 00")
-	probe.ip6_nhdr = packet.IPPROTO_HOPOPTS
+  -- Add a non-empty payload too.
+  probe.icmpv6_payload = bin.pack("HA", "00 00 00 00", gen_qry)
+  probe:build_icmpv6_header()
+  probe.exheader = bin.pack("CH", packet.IPPROTO_ICMPV6, "00 05 02 00 00 01 00")
+  probe.ip6_nhdr = packet.IPPROTO_HOPOPTS
 
-	probe:build_ipv6_packet()
-	probe:build_ether_frame()
+  probe:build_ipv6_packet()
+  probe:build_ether_frame()
 
-	dnet:ethernet_send(probe.frame_buf)
+  dnet:ethernet_send(probe.frame_buf)
 
-	pcap:set_timeout(1000)
-	local pcap_timeout_count = 0
-	local nse_timeout = arg_timeout or 10
-	local start_time = nmap:clock()
-	local addrs = {}
+  pcap:set_timeout(1000)
+  local pcap_timeout_count = 0
+  local nse_timeout = arg_timeout or 10
+  local start_time = nmap:clock()
+  local addrs = {}
 
-	repeat
-		local status, length, layer2, layer3 = pcap:pcap_receive()
-		local cur_time = nmap:clock()
-		if ( status ) then
-			local l2reply = packet.Frame:new(layer2)
-			local reply = packet.Packet:new(layer3, length, true)
-			if ( reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or
-				 reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT ) then
-				local target_str = reply.ip_src
-				if not results[target_str] then
-					if target.ALLOW_NEW_TARGETS then
-						target.add(target_str)
-					end
-					results[target_str] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
-				end
-			end
-		end
-	until ( cur_time - start_time >= nse_timeout )
+  repeat
+    local status, length, layer2, layer3 = pcap:pcap_receive()
+    local cur_time = nmap:clock()
+    if ( status ) then
+      local l2reply = packet.Frame:new(layer2)
+      local reply = packet.Packet:new(layer3, length, true)
+      if ( reply.ip6_nhdr == packet.MLD_LISTENER_REPORT or
+          reply.ip6_nhdr == packet.MLDV2_LISTENER_REPORT ) then
+        local target_str = reply.ip_src
+        if not results[target_str] then
+          if target.ALLOW_NEW_TARGETS then
+            target.add(target_str)
+          end
+          results[target_str] = { address = target_str, mac = stdnse.format_mac(l2reply.mac_src), iface = if_nfo.device }
+        end
+      end
+    end
+  until ( cur_time - start_time >= nse_timeout )
 
-	dnet:ethernet_close()
-	pcap:pcap_close()
+  dnet:ethernet_close()
+  pcap:pcap_close()
 
-	condvar("signal")
+  condvar("signal")
 end
 
 local function format_output(results)
-	local output = tab.new()
+  local output = tab.new()
 
-	for _, record in pairs(results) do
-		tab.addrow(output, "IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
-	end
+  for _, record in pairs(results) do
+    tab.addrow(output, "IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
+  end
 
-	if ( #output > 0 ) then
-		output = { tab.dump(output) }
-		if not target.ALLOW_NEW_TARGETS then
-			table.insert(output, "")
-			table.insert(output, "Use --script-args=newtargets to add the results as targets")
-		end
-		return stdnse.format_output(true, output)
-	end
+  if ( #output > 0 ) then
+    output = { tab.dump(output) }
+    if not target.ALLOW_NEW_TARGETS then
+      table.insert(output, "")
+      table.insert(output, "Use --script-args=newtargets to add the results as targets")
+    end
+    return stdnse.format_output(true, output)
+  end
 end
 
 action = function()
-	local threads = {}
-	local results = {}
-	local condvar = nmap.condvar(results)
+  local threads = {}
+  local results = {}
+  local condvar = nmap.condvar(results)
 
-	for _, if_nfo in ipairs(get_interfaces()) do
-		-- create a thread for each interface
-		local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
-		threads[co] = true
-	end
+  for _, if_nfo in ipairs(get_interfaces()) do
+    -- create a thread for each interface
+    local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
+    threads[co] = true
+  end
 
-	repeat
-		for thread in pairs(threads) do
-			if coroutine.status(thread) == "dead" then threads[thread] = nil end
-		end
-		if ( next(threads) ) then
-			condvar "wait"
-		end
-	until next(threads) == nil
+  repeat
+    for thread in pairs(threads) do
+      if coroutine.status(thread) == "dead" then threads[thread] = nil end
+    end
+    if ( next(threads) ) then
+      condvar "wait"
+    end
+  until next(threads) == nil
 
-	return format_output(results)
+  return format_output(results)
 end
 

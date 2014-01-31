@@ -70,98 +70,98 @@ categories = {"discovery", "safe"}
 
 -- We want to run against a specific host if UDP/67 is open
 function portrule(host, port)
-	if nmap.address_family() ~= 'inet' then
-		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
-		return false
-	end
+  if nmap.address_family() ~= 'inet' then
+    stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+    return false
+  end
 
-	return shortport.portnumber(67, "udp")(host, port)
+  return shortport.portnumber(67, "udp")(host, port)
 end
 
 local function go(host, port)
 
-	-- Build and send a DHCP request using the specified request type, or DHCPINFORM
-	local requests = tonumber(nmap.registry.args.requests or 1)
-	local results = {}
-	for i = 1, requests, 1 do
-		-- Decide which type of request to make
-		local request_type = dhcp.request_types[nmap.registry.args.dhcptype or "DHCPINFORM"]
-		if(request_type == nil) then
-			return false, "Valid request types: " .. stdnse.strjoin(", ", dhcp.request_types_str)
-		end
+  -- Build and send a DHCP request using the specified request type, or DHCPINFORM
+  local requests = tonumber(nmap.registry.args.requests or 1)
+  local results = {}
+  for i = 1, requests, 1 do
+    -- Decide which type of request to make
+    local request_type = dhcp.request_types[nmap.registry.args.dhcptype or "DHCPINFORM"]
+    if(request_type == nil) then
+      return false, "Valid request types: " .. stdnse.strjoin(", ", dhcp.request_types_str)
+    end
 
-		-- Generate the MAC address, if it's random
-		local mac_addr = host.mac_addr_src
-		if(nmap.registry.args.randomize_mac == 'true' or nmap.registry.args.randomize_mac == '1') then
-			stdnse.print_debug(2, "dhcp-discover: Generating a random MAC address")
-			mac_addr = ""
-			for j=1, 6, 1 do
-				mac_addr = mac_addr .. string.char(math.random(1, 255))
-			end
-		end
+    -- Generate the MAC address, if it's random
+    local mac_addr = host.mac_addr_src
+    if(nmap.registry.args.randomize_mac == 'true' or nmap.registry.args.randomize_mac == '1') then
+      stdnse.print_debug(2, "dhcp-discover: Generating a random MAC address")
+      mac_addr = ""
+      for j=1, 6, 1 do
+        mac_addr = mac_addr .. string.char(math.random(1, 255))
+      end
+    end
 
-		local iface, err = nmap.get_interface_info(host.interface)
-		if ( not(iface) or not(iface.address) ) then
-			return false, "Couldn't determine local ip for interface: " .. host.interface
-		end
+    local iface, err = nmap.get_interface_info(host.interface)
+    if ( not(iface) or not(iface.address) ) then
+      return false, "Couldn't determine local ip for interface: " .. host.interface
+    end
 
-		local status, result = dhcp.make_request(host.ip, request_type, iface.address, mac_addr)
-		if( not(status) ) then
-			stdnse.print_debug(1, "dhcp-discover: Couldn't send DHCP request: %s", result)
-			return false, result
-		end
+    local status, result = dhcp.make_request(host.ip, request_type, iface.address, mac_addr)
+    if( not(status) ) then
+      stdnse.print_debug(1, "dhcp-discover: Couldn't send DHCP request: %s", result)
+      return false, result
+    end
 
-		table.insert(results, result)
-	end
+    table.insert(results, result)
+  end
 
-	-- Done!
-	return true, results
+  -- Done!
+  return true, results
 end
 
 action = function(host, port)
-	local status, results = go(host, port)
+  local status, results = go(host, port)
 
 
-	if(not(status)) then
-		return stdnse.format_output(false, results)
-	end
+  if(not(status)) then
+    return stdnse.format_output(false, results)
+  end
 
-	if(not(results)) then
-		return nil
-	end
+  if(not(results)) then
+    return nil
+  end
 
-	-- Set the port state to open
-	if(host) then
-		nmap.set_port_state(host, port, "open")
-	end
+  -- Set the port state to open
+  if(host) then
+    nmap.set_port_state(host, port, "open")
+  end
 
-	local response = {}
+  local response = {}
 
-	-- Display the results
-	for i, result in ipairs(results) do
-		local result_table = {}
+  -- Display the results
+  for i, result in ipairs(results) do
+    local result_table = {}
 
-		if ( nmap.registry.args.dhcptype and
-			 "DHCPINFORM" ~= nmap.registry.args.dhcptype ) then
-			table.insert(result_table, string.format("IP Offered: %s", result.yiaddr_str))
-		end
-		for _, v in ipairs(result.options) do
-			if(type(v['value']) == 'table') then
-				table.insert(result_table, string.format("%s: %s", v['name'], stdnse.strjoin(", ", v['value'])))
-			else
-				table.insert(result_table, string.format("%s: %s\n", v['name'], v['value']))
-			end
-		end
+    if ( nmap.registry.args.dhcptype and
+      "DHCPINFORM" ~= nmap.registry.args.dhcptype ) then
+      table.insert(result_table, string.format("IP Offered: %s", result.yiaddr_str))
+    end
+    for _, v in ipairs(result.options) do
+      if(type(v['value']) == 'table') then
+        table.insert(result_table, string.format("%s: %s", v['name'], stdnse.strjoin(", ", v['value'])))
+      else
+        table.insert(result_table, string.format("%s: %s\n", v['name'], v['value']))
+      end
+    end
 
-		if(#results == 1) then
-			response = result_table
-		else
-			result_table['name'] = string.format("Result %d of %d", i, #results)
-			table.insert(response, result_table)
-		end
-	end
+    if(#results == 1) then
+      response = result_table
+    else
+      result_table['name'] = string.format("Result %d of %d", i, #results)
+      table.insert(response, result_table)
+    end
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 
 

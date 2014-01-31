@@ -123,56 +123,56 @@ function action(host, port)
   local starting_url = stdnse.get_script_args('http-sitemap-generator.url') or "/"
 
   -- create a new crawler instance
-	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME, noblacklist=true, useheadfornonwebfiles=true } )
+  local crawler = httpspider.Crawler:new(  host, port, nil, { scriptname = SCRIPT_NAME, noblacklist=true, useheadfornonwebfiles=true } )
 
-	if ( not(crawler) ) then
-		return
-	end
+  if ( not(crawler) ) then
+    return
+  end
 
-	local visited = {}
+  local visited = {}
   local dir_structure = {}
   local total_ext = {}
   local longest_dir_structure = {dir="/", depth=0}
-	while(true) do
-	  local status, r = crawler:crawl()
+  while(true) do
+    local status, r = crawler:crawl()
 
-	  if ( not(status) ) then
-		  if ( r.err ) then
-			  return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-		  else
-			  break
-		  end
-	  end
-	  if r.response.status and r.response.status == 200 then
-	    --check if we've already visited this file
-	    local path = normalize_path(r.url.path)
-	    if not visited[path] then
-	      local ext = get_file_extension(path)
-	      if total_ext[ext] then total_ext[ext]=total_ext[ext]+1 else total_ext[ext]=1 end
-	      local dir = normalize_path(r.url.dir)
-	      local _,dir_depth = string.gsub(dir,"/","/")
-	      -- check if this path is the longest one
-	      dir_depth = dir_depth - 1 -- first '/'
-	      if dir_depth > longest_dir_structure["depth"] then
-	        longest_dir_structure["dir"] = dir
-	        longest_dir_structure["depth"] = dir_depth
-	      end
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+      else
+        break
+      end
+    end
+    if r.response.status and r.response.status == 200 then
+      --check if we've already visited this file
+      local path = normalize_path(r.url.path)
+      if not visited[path] then
+        local ext = get_file_extension(path)
+        if total_ext[ext] then total_ext[ext]=total_ext[ext]+1 else total_ext[ext]=1 end
+        local dir = normalize_path(r.url.dir)
+        local _,dir_depth = string.gsub(dir,"/","/")
+        -- check if this path is the longest one
+        dir_depth = dir_depth - 1 -- first '/'
+        if dir_depth > longest_dir_structure["depth"] then
+          longest_dir_structure["dir"] = dir
+          longest_dir_structure["depth"] = dir_depth
+        end
         dict_add(dir_structure, dir, ext)
         -- when withinhost=false, then maybe we'd like to include the full url
         -- with each path listed in the output
         visited[path] = true
       end
-	  end
-	end
+    end
+  end
 
-	local out = internal_table_to_output(sort_dirs(dir_structure))
-	local tot = sort_by_keys(total_ext)
-	out =
-	{
-	  "Directory structure:", out,
-	  {name="Longest directory structure:", "Depth: "..tostring(longest_dir_structure.depth), "Dir: "..longest_dir_structure.dir},
-	  {name="Total files found (by extension):", table.concat(tot, "; ")}
-	}
-	return stdnse.format_output(true, out)
+  local out = internal_table_to_output(sort_dirs(dir_structure))
+  local tot = sort_by_keys(total_ext)
+  out =
+  {
+    "Directory structure:", out,
+    {name="Longest directory structure:", "Depth: "..tostring(longest_dir_structure.depth), "Dir: "..longest_dir_structure.dir},
+    {name="Total files found (by extension):", table.concat(tot, "; ")}
+  }
+  return stdnse.format_output(true, out)
 end
 

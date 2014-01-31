@@ -66,105 +66,105 @@ dependencies = {"afp-brute"}
 portrule = shortport.portnumber(548, "tcp")
 
 local function createFileTable()
-	local filetab = tab.new()
+  local filetab = tab.new()
 
-	tab.add(filetab, 1, "PERMISSION")
-	tab.add(filetab, 2, "UID")
-	tab.add(filetab, 3, "GID")
-	tab.add(filetab, 4, "SIZE")
-	tab.add(filetab, 5, "TIME")
-	tab.add(filetab, 6, "FILENAME")
-	tab.nextrow(filetab)
+  tab.add(filetab, 1, "PERMISSION")
+  tab.add(filetab, 2, "UID")
+  tab.add(filetab, 3, "GID")
+  tab.add(filetab, 4, "SIZE")
+  tab.add(filetab, 5, "TIME")
+  tab.add(filetab, 6, "FILENAME")
+  tab.nextrow(filetab)
 
-	return filetab
+  return filetab
 end
 
 
 action = function(host, port)
 
-	local afpHelper = afp.Helper:new()
-	local args = nmap.registry.args
-	local users = nmap.registry.afp or { ['nil'] = 'nil' }
-	local maxfiles = tonumber(stdnse.get_script_args("afp-ls.maxfiles") or 10)
-	local output = {}
+  local afpHelper = afp.Helper:new()
+  local args = nmap.registry.args
+  local users = nmap.registry.afp or { ['nil'] = 'nil' }
+  local maxfiles = tonumber(stdnse.get_script_args("afp-ls.maxfiles") or 10)
+  local output = {}
 
-	if ( args['afp.username'] ) then
-		users = {}
-		users[args['afp.username']] = args['afp.password']
-	end
+  if ( args['afp.username'] ) then
+    users = {}
+    users[args['afp.username']] = args['afp.password']
+  end
 
-	for username, password in pairs(users) do
+  for username, password in pairs(users) do
 
-		local status, response = afpHelper:OpenSession(host, port)
-		if ( not status ) then
-			stdnse.print_debug(response)
-			return
-		end
+    local status, response = afpHelper:OpenSession(host, port)
+    if ( not status ) then
+      stdnse.print_debug(response)
+      return
+    end
 
-		-- if we have a username attempt to authenticate as the user
-		-- Attempt to use No User Authentication?
-		if ( username ~= 'nil' ) then
-			status, response = afpHelper:Login(username, password)
-		else
-			status, response = afpHelper:Login()
-		end
+    -- if we have a username attempt to authenticate as the user
+    -- Attempt to use No User Authentication?
+    if ( username ~= 'nil' ) then
+      status, response = afpHelper:Login(username, password)
+    else
+      status, response = afpHelper:Login()
+    end
 
-		if ( not status ) then
-			stdnse.print_debug("afp-showmount: Login failed", response)
-			stdnse.print_debug(3, "afp-showmount: Login error: %s", response)
-			return
-		end
+    if ( not status ) then
+      stdnse.print_debug("afp-showmount: Login failed", response)
+      stdnse.print_debug(3, "afp-showmount: Login error: %s", response)
+      return
+    end
 
     local vols
-		status, vols = afpHelper:ListShares()
+    status, vols = afpHelper:ListShares()
 
-		if status then
-			for _, vol in ipairs( vols ) do
-				local status, tbl = afpHelper:Dir( vol )
-				if ( not(status) ) then
-					return ("\n\nERROR: Failed to list the contents of %s"):format(vol)
-				end
+    if status then
+      for _, vol in ipairs( vols ) do
+        local status, tbl = afpHelper:Dir( vol )
+        if ( not(status) ) then
+          return ("\n\nERROR: Failed to list the contents of %s"):format(vol)
+        end
 
-				local file_tab = createFileTable()
-				local counter = maxfiles or 10
-				for _, item in ipairs(tbl[1]) do
-					if ( item and item.name ) then
-						local status, result = afpHelper:GetFileUnixPermissions( vol, item.name )
-						if ( status ) then
-							local status, fsize = afpHelper:GetFileSize( vol, item.name)
-							if ( not(status) ) then
-								return ("\n\nERROR: Failed to retreive file size for %/%s"):format(vol, item.name)
-							end
-							local status, date = afpHelper:GetFileDates( vol, item.name)
-							if ( not(status) ) then
-								return ("\n\nERROR: Failed to retreive file dates for %/%s"):format(vol, item.name)
-							end
+        local file_tab = createFileTable()
+        local counter = maxfiles or 10
+        for _, item in ipairs(tbl[1]) do
+          if ( item and item.name ) then
+            local status, result = afpHelper:GetFileUnixPermissions( vol, item.name )
+            if ( status ) then
+              local status, fsize = afpHelper:GetFileSize( vol, item.name)
+              if ( not(status) ) then
+                return ("\n\nERROR: Failed to retreive file size for %/%s"):format(vol, item.name)
+              end
+              local status, date = afpHelper:GetFileDates( vol, item.name)
+              if ( not(status) ) then
+                return ("\n\nERROR: Failed to retreive file dates for %/%s"):format(vol, item.name)
+              end
 
-							tab.addrow(file_tab, result.privs, result.uid, result.gid, fsize, date.create, item.name)
+              tab.addrow(file_tab, result.privs, result.uid, result.gid, fsize, date.create, item.name)
 
-							counter = counter - 1
-						end
-					end
-					if ( counter == 0 ) then break end
-				end
-				local result_part = { name = vol }
-				table.insert(result_part, tab.dump(file_tab))
-				table.insert(output, result_part)
-			end
-		end
+              counter = counter - 1
+            end
+          end
+          if ( counter == 0 ) then break end
+        end
+        local result_part = { name = vol }
+        table.insert(result_part, tab.dump(file_tab))
+        table.insert(output, result_part)
+      end
+    end
 
-		status, response = afpHelper:Logout()
-		status, response = afpHelper:CloseSession()
+    status, response = afpHelper:Logout()
+    status, response = afpHelper:CloseSession()
 
-		-- stop after first succesfull attempt
-		if ( output and #output > 0 ) then
-			table.insert(output, "")
-			table.insert(output, ("Information retrieved as: %s"):format(username))
-			if ( maxfiles > 0 ) then
-				table.insert(output, ("Output restricted to %d entries per volume. (See afp-ls.maxfiles)"):format(maxfiles))
-			end
-			return stdnse.format_output(true, output)
-		end
-	end
-	return
+    -- stop after first succesfull attempt
+    if ( output and #output > 0 ) then
+      table.insert(output, "")
+      table.insert(output, ("Information retrieved as: %s"):format(username))
+      if ( maxfiles > 0 ) then
+        table.insert(output, ("Output restricted to %d entries per volume. (See afp-ls.maxfiles)"):format(maxfiles))
+      end
+      return stdnse.format_output(true, output)
+    end
+  end
+  return
 end

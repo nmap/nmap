@@ -69,113 +69,113 @@ local arg_filter = stdnse.get_script_args(SCRIPT_NAME .. ".filter")
 prerule = function() return not(not(arg_domain)) end
 
 local function parseSvcList(services)
-	local i = 1
-	return function()
-		local svc = services[i]
-		if ( svc ) then
-			i=i + 1
-		else
-			return
-		end
-		return svc.name, svc.query
-	end
+  local i = 1
+  return function()
+    local svc = services[i]
+    if ( svc ) then
+      i=i + 1
+    else
+      return
+    end
+    return svc.name, svc.query
+  end
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local function parseSrvResponse(resp)
-	local i = 1
-	if ( resp.answers ) then
-		table.sort(resp.answers,
-			function(a, b)
-				if ( a.SRV and b.SRV and a.SRV.prio and b.SRV.prio ) then
-					return a.SRV.prio < b.SRV.prio
-				end
-			end
-		)
-	end
-	return function()
-		if ( not(resp.answers) or 0 == #resp.answers ) then	return end
-		if ( not(resp.answers[i]) ) then
-			return
-		elseif ( resp.answers[i].SRV ) then
-			local srv = resp.answers[i].SRV
-			i = i + 1
-			return srv.target, srv.port, srv.prio, srv.weight
-		end
-	end
+  local i = 1
+  if ( resp.answers ) then
+    table.sort(resp.answers,
+      function(a, b)
+        if ( a.SRV and b.SRV and a.SRV.prio and b.SRV.prio ) then
+          return a.SRV.prio < b.SRV.prio
+        end
+      end
+    )
+  end
+  return function()
+    if ( not(resp.answers) or 0 == #resp.answers ) then  return end
+    if ( not(resp.answers[i]) ) then
+      return
+    elseif ( resp.answers[i].SRV ) then
+      local srv = resp.answers[i].SRV
+      i = i + 1
+      return srv.target, srv.port, srv.prio, srv.weight
+    end
+  end
 end
 
 local function checkFilter(services)
-	if ( not(arg_filter) or "" == arg_filter or "all" == arg_filter ) then
-		return true
-	end
-	for name, queries in parseSvcList(services) do
-		if ( name == arg_filter ) then
-			return true
-		end
-	end
-	return false
+  if ( not(arg_filter) or "" == arg_filter or "all" == arg_filter ) then
+    return true
+  end
+  for name, queries in parseSvcList(services) do
+    if ( name == arg_filter ) then
+      return true
+    end
+  end
+  return false
 end
 
 local function doQuery(name, queries, result)
-	local condvar = nmap.condvar(result)
-	local svc_result = tab.new(4)
-	tab.addrow(svc_result, "service", "prio", "weight", "host")
-	for _, query in ipairs(queries) do
-		local fqdn = ("%s.%s"):format(query, arg_domain)
-		local status, resp = dns.query(fqdn, { dtype="SRV", retAll=true, retPkt=true } )
-		for host, port, prio, weight in parseSrvResponse(resp) do
-			if target.ALLOW_NEW_TARGETS then
-				target.add(host)
-			end
-			local proto = query:sub(-3)
-			tab.addrow(svc_result, ("%d/%s"):format(port, proto), prio, weight, host)
-		end
-	end
-	if ( #svc_result ~= 1 ) then
-		table.insert(result, { name = name, tab.dump(svc_result) })
-	end
-	condvar "signal"
+  local condvar = nmap.condvar(result)
+  local svc_result = tab.new(4)
+  tab.addrow(svc_result, "service", "prio", "weight", "host")
+  for _, query in ipairs(queries) do
+    local fqdn = ("%s.%s"):format(query, arg_domain)
+    local status, resp = dns.query(fqdn, { dtype="SRV", retAll=true, retPkt=true } )
+    for host, port, prio, weight in parseSrvResponse(resp) do
+      if target.ALLOW_NEW_TARGETS then
+        target.add(host)
+      end
+      local proto = query:sub(-3)
+      tab.addrow(svc_result, ("%d/%s"):format(port, proto), prio, weight, host)
+    end
+  end
+  if ( #svc_result ~= 1 ) then
+    table.insert(result, { name = name, tab.dump(svc_result) })
+  end
+  condvar "signal"
 end
 
 action = function(host)
 
-	local services = {
-		{ name = "Active Directory Global Catalog", query = {"_gc._tcp"} },
-		{ name = "Exchange Autodiscovery", query = {"_autodiscover._tcp"} },
-		{ name = "Kerberos KDC Service", query = {"_kerberos._tcp", "_kerberos._udp"} },
-		{ name = "Kerberos Password Change Service", query = {"_kpasswd._tcp", "_kpasswd._udp"} },
-		{ name = "LDAP", query = {"_ldap._tcp"} },
-		{ name = "SIP", query = {"_sip._udp", "_sip._tcp"} },
-		{ name = "XMPP server-to-server", query = {"_xmpp-server._tcp"} },
-		{ name = "XMPP client-to-server", query = {"_xmpp-client._tcp"} },
-	}
+  local services = {
+    { name = "Active Directory Global Catalog", query = {"_gc._tcp"} },
+    { name = "Exchange Autodiscovery", query = {"_autodiscover._tcp"} },
+    { name = "Kerberos KDC Service", query = {"_kerberos._tcp", "_kerberos._udp"} },
+    { name = "Kerberos Password Change Service", query = {"_kpasswd._tcp", "_kpasswd._udp"} },
+    { name = "LDAP", query = {"_ldap._tcp"} },
+    { name = "SIP", query = {"_sip._udp", "_sip._tcp"} },
+    { name = "XMPP server-to-server", query = {"_xmpp-server._tcp"} },
+    { name = "XMPP client-to-server", query = {"_xmpp-client._tcp"} },
+  }
 
-	if ( not(checkFilter(services)) ) then
-		return fail(("Invalid filter (%s) was supplied"):format(arg_filter))
-	end
+  if ( not(checkFilter(services)) ) then
+    return fail(("Invalid filter (%s) was supplied"):format(arg_filter))
+  end
 
-	local threads, result = {}, {}
-	for name, queries in parseSvcList(services) do
-		if ( not(arg_filter) or 0 == #arg_filter or
-			"all" == arg_filter or arg_filter == name ) then
-			local co = stdnse.new_thread(doQuery, name, queries, result)
-			threads[co] = true
-		end
-	end
+  local threads, result = {}, {}
+  for name, queries in parseSvcList(services) do
+    if ( not(arg_filter) or 0 == #arg_filter or
+      "all" == arg_filter or arg_filter == name ) then
+      local co = stdnse.new_thread(doQuery, name, queries, result)
+      threads[co] = true
+    end
+  end
 
-	local condvar = nmap.condvar(result)
-	repeat
-		for t in pairs(threads) do
-			if ( coroutine.status(t) == "dead" ) then threads[t] = nil end
-		end
-		if ( next(threads) ) then
-			condvar "wait"
-		end
-	until( next(threads) == nil )
+  local condvar = nmap.condvar(result)
+  repeat
+    for t in pairs(threads) do
+      if ( coroutine.status(t) == "dead" ) then threads[t] = nil end
+    end
+    if ( next(threads) ) then
+      condvar "wait"
+    end
+  until( next(threads) == nil )
 
-	table.sort(result, function(a,b) return a.name < b.name end)
+  table.sort(result, function(a,b) return a.name < b.name end)
 
-	return stdnse.format_output(true, result)
+  return stdnse.format_output(true, result)
 end

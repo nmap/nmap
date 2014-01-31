@@ -62,126 +62,126 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 -- Checks if this is really a token.
 isToken = function(value)
 
-    local minlength = 8
-    local minentropy = 72
+  local minlength = 8
+  local minentropy = 72
 
-    -- If it has a reasonable length.
-    if #value > minlength then
+  -- If it has a reasonable length.
+  if #value > minlength then
 
-        local entropy = formulas.calcPwdEntropy(value)
+    local entropy = formulas.calcPwdEntropy(value)
 
-        -- Does it have a big entropy?
-        if entropy >= minentropy then
-            -- If it doesn't contain any spaces but contains at least one digit.
-            if not string.find(value, " ") and string.find(value, "%d") then
-                return 1
-            end
-        end
+    -- Does it have a big entropy?
+    if entropy >= minentropy then
+      -- If it doesn't contain any spaces but contains at least one digit.
+      if not string.find(value, " ") and string.find(value, "%d") then
+        return 1
+      end
     end
+  end
 
-    return 0
+  return 0
 
 end
 
 action = function(host, port)
 
-    local singlepages = stdnse.get_script_args("http-csrf.singlepages")
-    local checkentropy = stdnse.get_script_args("http-csrf.checkentropy") or false
+  local singlepages = stdnse.get_script_args("http-csrf.singlepages")
+  local checkentropy = stdnse.get_script_args("http-csrf.checkentropy") or false
 
-    local csrfvuln = {}
-    local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
+  local csrfvuln = {}
+  local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME, withinhost = 1 } )
 
-    if (not(crawler)) then
-		return
-	end
+  if (not(crawler)) then
+    return
+  end
 
-	crawler:set_timeout(10000)
+  crawler:set_timeout(10000)
 
-    local index, response, path
-    while (true) do
+  local index, response, path
+  while (true) do
 
-        if singlepages then
-            local k, target,
-            k, target = next(singlepages, index)
-            if (k == nil) then
-                break
-            end
-            response = http.get(host, port, target)
-            path = target
+    if singlepages then
+      local k, target,
+      k, target = next(singlepages, index)
+      if (k == nil) then
+        break
+      end
+      response = http.get(host, port, target)
+      path = target
 
+    else
+      local status, r = crawler:crawl()
+      -- if the crawler fails it can be due to a number of different reasons
+      -- most of them are "legitimate" and should not be reason to abort
+      if (not(status)) then
+        if (r.err) then
+          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
         else
-            local status, r = crawler:crawl()
-            -- if the crawler fails it can be due to a number of different reasons
-            -- most of them are "legitimate" and should not be reason to abort
-            if (not(status)) then
-                if (r.err) then
-                    return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-                else
-                    break
-                end
-            end
-
-            response = r.response
-            path = tostring(r.url)
+          break
         end
+      end
 
-        if response.body then
-
-            local forms = http.grab_forms(response.body)
-
-            for i, form in ipairs(forms) do
-
-                form = http.parse_form(form)
-
-                local resistant = false
-                if form then
-                    for _, field in ipairs(form['fields']) do
-
-                        -- First we check the field's name.
-                        if field['value'] then
-                            resistant = string.find(field['name'], "[Tt][Oo][Kk][Ee][Nn]") or string.find(field['name'], "[cC][sS][Rr][Ff]")
-                            -- Let's be sure, by calculating the entropy of the field's value.
-                            if not resistant and checkentropy then
-                                resistant = isToken(field['value'])
-                            end
-
-                            if resistant then
-                                break
-                            end
-                        end
-
-                    end
-
-                    if not resistant then
-
-                        -- Handle forms with no id or action attributes.
-                        form['id'] = form['id'] or ""
-                        form['action'] = form['action'] or "-"
-
-                        local msg = "\nPath: " .. path .. "\nForm id: " .. form['id'] .. "\nForm action: " .. form['action']
-                        table.insert(csrfvuln, { msg } )
-                    end
-                end
-            end
-
-            if (index) then
-                index = index + 1
-            else
-                index = 1
-            end
-        end
-
+      response = r.response
+      path = tostring(r.url)
     end
 
-    -- If the table is empty.
-    if next(csrfvuln) == nil then
-        return "Couldn't find any CSRF vulnerabilities."
+    if response.body then
+
+      local forms = http.grab_forms(response.body)
+
+      for i, form in ipairs(forms) do
+
+        form = http.parse_form(form)
+
+        local resistant = false
+        if form then
+          for _, field in ipairs(form['fields']) do
+
+            -- First we check the field's name.
+            if field['value'] then
+              resistant = string.find(field['name'], "[Tt][Oo][Kk][Ee][Nn]") or string.find(field['name'], "[cC][sS][Rr][Ff]")
+              -- Let's be sure, by calculating the entropy of the field's value.
+              if not resistant and checkentropy then
+                resistant = isToken(field['value'])
+              end
+
+              if resistant then
+                break
+              end
+            end
+
+          end
+
+          if not resistant then
+
+            -- Handle forms with no id or action attributes.
+            form['id'] = form['id'] or ""
+            form['action'] = form['action'] or "-"
+
+            local msg = "\nPath: " .. path .. "\nForm id: " .. form['id'] .. "\nForm action: " .. form['action']
+            table.insert(csrfvuln, { msg } )
+          end
+        end
+      end
+
+      if (index) then
+        index = index + 1
+      else
+        index = 1
+      end
     end
 
-    table.insert(csrfvuln, 1, "Found the following possible CSRF vulnerabilities: ")
+  end
 
-	csrfvuln.name = crawler:getLimitations()
+  -- If the table is empty.
+  if next(csrfvuln) == nil then
+    return "Couldn't find any CSRF vulnerabilities."
+  end
 
-	return stdnse.format_output(true, csrfvuln)
+  table.insert(csrfvuln, 1, "Found the following possible CSRF vulnerabilities: ")
+
+  csrfvuln.name = crawler:getLimitations()
+
+  return stdnse.format_output(true, csrfvuln)
 
 end

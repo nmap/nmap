@@ -63,112 +63,112 @@ dependencies = {"netbus-version", "netbus-brute"}
 portrule = shortport.port_or_service (12345, "netbus", {"tcp"})
 
 local function format_acl(acl)
-	if acl == nil then
-		return {}
-	end
-	local payload = string.sub(acl, 9) --skip header
-	local fields = stdnse.strsplit("|", payload)
-	table.remove(fields, (# fields))
-	fields["name"] = "ACL"
-	return fields
+  if acl == nil then
+    return {}
+  end
+  local payload = string.sub(acl, 9) --skip header
+  local fields = stdnse.strsplit("|", payload)
+  table.remove(fields, (# fields))
+  fields["name"] = "ACL"
+  return fields
 end
 
 local function format_apps(apps)
-	if apps == nil then
-		return {}
-	end
-	local payload = string.sub(apps, 10) --skip header
-	local fields = stdnse.strsplit("|", payload)
-	table.remove(fields, (# fields))
-	fields["name"] = "APPLICATIONS"
-	return fields
+  if apps == nil then
+    return {}
+  end
+  local payload = string.sub(apps, 10) --skip header
+  local fields = stdnse.strsplit("|", payload)
+  table.remove(fields, (# fields))
+  fields["name"] = "APPLICATIONS"
+  return fields
 end
 
 local function format_info(info)
-	if info == nil then
-		return {}
-	end
-	local payload = string.sub(info, 6) --skip header
-	local fields = stdnse.strsplit("|", payload)
-	fields["name"] = "INFO"
-	return fields
+  if info == nil then
+    return {}
+  end
+  local payload = string.sub(info, 6) --skip header
+  local fields = stdnse.strsplit("|", payload)
+  fields["name"] = "INFO"
+  return fields
 end
 
 local function format_setup(setup)
-	local formatted = {}
-	if setup == nil then
-		return formatted
-	end
-	local fields = stdnse.strsplit(";", setup)
-	if # fields < 7 then
-		return formatted
-	end
-	formatted["name"] = "SETUP"
-	table.insert(formatted, string.format("TCP-port: %s", fields[2]))
-	table.insert(formatted, string.format("Log traffic: %s", fields[3]))
-	table.insert(formatted, string.format("Password: %s", fields[4]))
-	table.insert(formatted, string.format("Notify to: %s", fields[5]))
-	table.insert(formatted, string.format("Notify from: %s", fields[6]))
-	table.insert(formatted, string.format("SMTP-server: %s", fields[7]))
-	return formatted
+  local formatted = {}
+  if setup == nil then
+    return formatted
+  end
+  local fields = stdnse.strsplit(";", setup)
+  if # fields < 7 then
+    return formatted
+  end
+  formatted["name"] = "SETUP"
+  table.insert(formatted, string.format("TCP-port: %s", fields[2]))
+  table.insert(formatted, string.format("Log traffic: %s", fields[3]))
+  table.insert(formatted, string.format("Password: %s", fields[4]))
+  table.insert(formatted, string.format("Notify to: %s", fields[5]))
+  table.insert(formatted, string.format("Notify from: %s", fields[6]))
+  table.insert(formatted, string.format("SMTP-server: %s", fields[7]))
+  return formatted
 end
 
 local function format_volume(volume)
-	local formatted = {}
-	if volume == nil then
-		return formatted
-	end
-	local fields = stdnse.strsplit(";", volume)
-	if # fields < 4 then
-		return formatted
-	end
-	formatted["name"] = "VOLUME"
-	table.insert(formatted, string.format("Wave: %s", fields[2]))
-	table.insert(formatted, string.format("Synth: %s", fields[3]))
-	table.insert(formatted, string.format("Cd: %s", fields[4]))
-	return formatted
+  local formatted = {}
+  if volume == nil then
+    return formatted
+  end
+  local fields = stdnse.strsplit(";", volume)
+  if # fields < 4 then
+    return formatted
+  end
+  formatted["name"] = "VOLUME"
+  table.insert(formatted, string.format("Wave: %s", fields[2]))
+  table.insert(formatted, string.format("Synth: %s", fields[3]))
+  table.insert(formatted, string.format("Cd: %s", fields[4]))
+  return formatted
 end
 
 action = function( host, port )
-	local password = nmap.registry.args[SCRIPT_NAME .. ".password"]
-	if not password and nmap.registry.netbuspasswords then
-		local key = string.format("%s:%d", host.ip, port.number)
-		password = nmap.registry.netbuspasswords[key]
-	end
-	if not password then
-		password = ""
-	end
-	local socket = nmap.new_socket()
-	socket:set_timeout(5000)
-	local status, err = socket:connect(host.ip, port.number)
-	local buffer, err = stdnse.make_buffer(socket, "\r")
-	local _ = buffer()
-	socket:send(string.format("Password;1;%s\r", password))
-	local gotin = buffer()
-	if gotin == "Access;0" then
-		return
-	end
+  local password = nmap.registry.args[SCRIPT_NAME .. ".password"]
+  if not password and nmap.registry.netbuspasswords then
+    local key = string.format("%s:%d", host.ip, port.number)
+    password = nmap.registry.netbuspasswords[key]
+  end
+  if not password then
+    password = ""
+  end
+  local socket = nmap.new_socket()
+  socket:set_timeout(5000)
+  local status, err = socket:connect(host.ip, port.number)
+  local buffer, err = stdnse.make_buffer(socket, "\r")
+  local _ = buffer()
+  socket:send(string.format("Password;1;%s\r", password))
+  local gotin = buffer()
+  if gotin == "Access;0" then
+    return
+  end
 
-	socket:send("GetInfo\r")
-	local info = buffer()
-	socket:send("GetSetup\r")
-	local setup = buffer()
-	socket:send("GetACL\r")
-	local acl = buffer()
-	socket:send("GetApps\r")
-	local apps = buffer()
-	socket:send("GetVolume\r")
-	local volume = buffer()
-	socket:close()
+  socket:send("GetInfo\r")
+  local info = buffer()
+  socket:send("GetSetup\r")
+  local setup = buffer()
+  socket:send("GetACL\r")
+  local acl = buffer()
+  socket:send("GetApps\r")
+  local apps = buffer()
+  socket:send("GetVolume\r")
+  local volume = buffer()
+  socket:close()
 
-	local response = {}
-	table.insert(response, format_acl(acl))
-	table.insert(response, format_apps(apps))
-	table.insert(response, format_info(info))
-	table.insert(response, format_setup(setup))
-	table.insert(response, format_volume(volume))
+  local response = {}
+  table.insert(response, format_acl(acl))
+  table.insert(response, format_apps(apps))
+  table.insert(response, format_info(info))
+  table.insert(response, format_setup(setup))
+  table.insert(response, format_volume(volume))
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 
 
