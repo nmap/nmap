@@ -4,6 +4,7 @@ local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local tab = require "tab"
+local table = require "table"
 
 description = [[
 Retrieves information (such as version number and architecture) from a Redis key-value store.
