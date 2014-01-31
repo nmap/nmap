@@ -76,75 +76,75 @@ portrule = shortport.portnumber({8080,80,443}, "tcp")
 -- @return table suitable for stdnse.format_output
 function format_output(appdata, mode)
 
-		local result = {}
-		local setting_titles = { {appisdisabled="Disabled"}, {appisdesktop="Desktop"}, {AppOnDesktop="On Desktop"},
-									{Encryption="Encryption"}, {AppInStartmenu="In start menu"},
-									{PublisherName="Publisher"}, {SSLEnabled="SSL"}, {RemoteAccessEnabled="Remote Access"} }
+  local result = {}
+  local setting_titles = { {appisdisabled="Disabled"}, {appisdesktop="Desktop"}, {AppOnDesktop="On Desktop"},
+    {Encryption="Encryption"}, {AppInStartmenu="In start menu"},
+    {PublisherName="Publisher"}, {SSLEnabled="SSL"}, {RemoteAccessEnabled="Remote Access"} }
 
 
-		if mode == "short" then
-			for app_name, AppData in ipairs(appdata) do
-				local line = "Application: " .. AppData.FName
+  if mode == "short" then
+    for app_name, AppData in ipairs(appdata) do
+      local line = "Application: " .. AppData.FName
 
-				if AppData.AccessList then
+      if AppData.AccessList then
 
-					if AppData.AccessList.User then
-						line = line .. "; Users: " ..  stdnse.strjoin(", ", AppData.AccessList.User)
-					end
+        if AppData.AccessList.User then
+          line = line .. "; Users: " ..  stdnse.strjoin(", ", AppData.AccessList.User)
+        end
 
-					if AppData.AccessList.Group then
-						line = line .. "; Groups: " .. stdnse.strjoin(", ", AppData.AccessList.Group)
-					end
+        if AppData.AccessList.Group then
+          line = line .. "; Groups: " .. stdnse.strjoin(", ", AppData.AccessList.Group)
+        end
 
-					table.insert(result, line)
-				end
-			end
+        table.insert(result, line)
+      end
+    end
 
-		else
+  else
 
-			for app_name, AppData in ipairs(appdata) do
-				local result_part = {}
+    for app_name, AppData in ipairs(appdata) do
+      local result_part = {}
 
-				result_part.name = "Application: " .. AppData.FName
+      result_part.name = "Application: " .. AppData.FName
 
-				local settings = AppData.Settings
+      local settings = AppData.Settings
 
-				for _, setting_pairs in ipairs(setting_titles) do
-					for setting_key, setting_title in pairs(setting_pairs) do
-						local setting_value = settings[setting_key] and settings[setting_key] or ""
-						table.insert(result_part, setting_title .. ": " .. setting_value )
-					end
-				end
+      for _, setting_pairs in ipairs(setting_titles) do
+        for setting_key, setting_title in pairs(setting_pairs) do
+          local setting_value = settings[setting_key] and settings[setting_key] or ""
+          table.insert(result_part, setting_title .. ": " .. setting_value )
+        end
+      end
 
 
-				if AppData.AccessList then
-					if AppData.AccessList.User then
-						table.insert(result_part, "Users: " .. stdnse.strjoin(", ", AppData.AccessList.User) )
-					end
+      if AppData.AccessList then
+        if AppData.AccessList.User then
+          table.insert(result_part, "Users: " .. stdnse.strjoin(", ", AppData.AccessList.User) )
+        end
 
-					if AppData.AccessList.Group then
-						table.insert(result_part, "Groups: " .. stdnse.strjoin(", ", AppData.AccessList.Group) )
-					end
+        if AppData.AccessList.Group then
+          table.insert(result_part, "Groups: " .. stdnse.strjoin(", ", AppData.AccessList.Group) )
+        end
 
-					table.insert(result, result_part)
-				end
+        table.insert(result, result_part)
+      end
 
-			end
+    end
 
-		end
+  end
 
-		return result
+  return result
 
-	end
+end
 
 
 action = function(host,port)
 
-		local response = citrixxml.request_appdata(host.ip, port.number, {ServerAddress="",attr={addresstype="dot"},DesiredDetails={"all","access-list"} })
-		local appdata = citrixxml.parse_appdata_response(response)
+  local response = citrixxml.request_appdata(host.ip, port.number, {ServerAddress="",attr={addresstype="dot"},DesiredDetails={"all","access-list"} })
+  local appdata = citrixxml.parse_appdata_response(response)
 
-		local response = format_output(appdata, (nmap.verbosity() > 1 and "long" or "short"))
+  local response = format_output(appdata, (nmap.verbosity() > 1 and "long" or "short"))
 
-		return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 
 end

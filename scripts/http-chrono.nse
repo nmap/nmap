@@ -96,7 +96,7 @@ action = function(host, port)
     local min, max, page_test
     local bulk_start = stdnse.clock_ms()
     for i = 1,tries do
-	  local start = stdnse.clock_ms()
+      local start = stdnse.clock_ms()
       if ( url_page:match("%?") ) then
         page_test = http.get(url_host,port,"/"..url_page.."&test="..math.random(100), { no_cache = true })
       else
@@ -121,7 +121,7 @@ action = function(host, port)
     output = tab.new(4)
     tab.addrow(output, "page", "avg", "min", "max")
     for _, entry in ipairs(results) do
-	  tab.addrow(output, entry.page, ("%.2fms"):format(entry.avg), ("%.2fms"):format(entry.min), ("%.2fms"):format(entry.max))
+      tab.addrow(output, entry.page, ("%.2fms"):format(entry.avg), ("%.2fms"):format(entry.min), ("%.2fms"):format(entry.max))
     end
     output = "\n" .. tab.dump(output)
   else

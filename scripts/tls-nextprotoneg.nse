@@ -51,94 +51,94 @@ portrule = shortport.ssl
 --@return status true if response, false else.
 --@return response if status is true.
 local client_hello = function(host, port)
-    local sock, status, response, err, cli_h
+  local sock, status, response, err, cli_h
 
-    cli_h = tls.client_hello({
-      ["protocol"] = "TLSv1.0",
-      ["ciphers"] = {
-        "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
-        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-        "TLS_RSA_WITH_RC4_128_MD5",
-      },
-      ["compressors"] = {"NULL"},
-      ["extensions"] = {
-        ["next_protocol_negotiation"] = "",
-      },
-    })
+  cli_h = tls.client_hello({
+    ["protocol"] = "TLSv1.0",
+    ["ciphers"] = {
+      "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+      "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+      "TLS_RSA_WITH_RC4_128_MD5",
+    },
+    ["compressors"] = {"NULL"},
+    ["extensions"] = {
+      ["next_protocol_negotiation"] = "",
+    },
+  })
 
-    -- Connect to the target server
-    sock = nmap.new_socket()
-    sock:set_timeout(5000)
-    status, err = sock:connect(host, port)
-    if not status then
-	sock:close()
-	stdnse.print_debug("Can't send: %s", err)
-	return false
-    end
+  -- Connect to the target server
+  sock = nmap.new_socket()
+  sock:set_timeout(5000)
+  status, err = sock:connect(host, port)
+  if not status then
+    sock:close()
+    stdnse.print_debug("Can't send: %s", err)
+    return false
+  end
 
-    -- Send Client Hello to the target server
-    status, err = sock:send(cli_h)
-    if not status then
-	stdnse.print_debug("Couldn't send: %s", err)
-	sock:close()
-	return false
-    end
+  -- Send Client Hello to the target server
+  status, err = sock:send(cli_h)
+  if not status then
+    stdnse.print_debug("Couldn't send: %s", err)
+    sock:close()
+    return false
+  end
 
-    -- Read response
-    status, response, err = tls.record_buffer(sock)
-    if not status then
-	stdnse.print_debug("Couldn't receive: %s", err)
-	sock:close()
-	return false
-    end
+  -- Read response
+  status, response, err = tls.record_buffer(sock)
+  if not status then
+    stdnse.print_debug("Couldn't receive: %s", err)
+    sock:close()
+    return false
+  end
 
-    return true, response
+  return true, response
 end
 
 --- Function that checks for the returned protocols to a npn extension request.
 --@args response Response to parse.
 --@return results List of found protocols.
 local check_npn = function(response)
-    local i, record = tls.record_read(response, 0)
-    if record == nil then
-      stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+  local i, record = tls.record_read(response, 0)
+  if record == nil then
+    stdnse.print_debug("%s: Unknown response from server", SCRIPT_NAME)
+    return nil
+  end
+
+  if record.type == "handshake" and record.body[1].type == "server_hello" then
+    if record.body[1].extensions == nil then
+      stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
       return nil
     end
-
-    if record.type == "handshake" and record.body[1].type == "server_hello" then
-      if record.body[1].extensions == nil then
-        stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
-        return nil
-      end
-      local results = {}
-      local npndata = record.body[1].extensions["next_protocol_negotiation"]
-      if npndata == nil then
-        stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
-        return nil
-      end
-      -- Parse data
-      i = 0
-      local protocol
-      while i < #npndata do
-        i, protocol = bin.unpack(">p", npndata, i)
-        table.insert(results, protocol)
-      end
-
-      return results
-    else
-      stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
+    local results = {}
+    local npndata = record.body[1].extensions["next_protocol_negotiation"]
+    if npndata == nil then
+      stdnse.print_debug("%s: Server does not support TLS NPN extension.", SCRIPT_NAME)
       return nil
     end
+    -- Parse data
+    i = 0
+    local protocol
+    while i < #npndata do
+      i, protocol = bin.unpack(">p", npndata, i)
+      table.insert(results, protocol)
+    end
+
+    return results
+  else
+    stdnse.print_debug("%s: Server response was not server_hello", SCRIPT_NAME)
+    return nil
+  end
 end
 
 action = function(host, port)
-    local status, response
+  local status, response
 
-    -- Send crafted client hello
-    status, response = client_hello(host, port)
-    if status and response then
-	-- Analyze response
-	local results = check_npn(response)
-	return results
-    end
+  -- Send crafted client hello
+  status, response = client_hello(host, port)
+  if status and response then
+    -- Analyze response
+    local results = check_npn(response)
+    return results
+  end
 end

@@ -47,86 +47,86 @@ local httpspider = require "httpspider"
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 
 local function compare(a, b)
-    return a[1] < b[1]
+  return a[1] < b[1]
 end
 
 local function inTable(tbl, item)
 
-    item = tostring(item)
-    for key, value in pairs(tbl) do
-        if value == tostring(item) then
-            return true
-        end
+  item = tostring(item)
+  for key, value in pairs(tbl) do
+    if value == tostring(item) then
+      return true
     end
-    return nil
+  end
+  return nil
 
 end
 
 action = function(host, port)
 
-    local errcodes = stdnse.get_script_args("http-errors.errcodes") or nil
+  local errcodes = stdnse.get_script_args("http-errors.errcodes") or nil
 
-    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
-                                                              maxpagecount = 40,
-                                                              maxdepth = -1,
-                                                              withinhost = 1
-                                                              })
+  local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
+    maxpagecount = 40,
+    maxdepth = -1,
+    withinhost = 1
+  })
 
-    crawler.options.doscraping = function(url)
-        if crawler:iswithinhost(url)
-        and not crawler:isresource(url, "js")
-        and not crawler:isresource(url, "css") then
-            return true
-        end
+  crawler.options.doscraping = function(url)
+    if crawler:iswithinhost(url)
+      and not crawler:isresource(url, "js")
+      and not crawler:isresource(url, "css") then
+      return true
+    end
+  end
+
+  crawler:set_timeout(10000)
+
+  local errors = {}
+
+  while (true) do
+
+    local response, path
+
+    local status, r = crawler:crawl()
+    -- if the crawler fails it can be due to a number of different reasons
+    -- most of them are "legitimate" and should not be reason to abort
+    if (not(status)) then
+      if (r.err) then
+        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+      else
+        break
+      end
     end
 
-	crawler:set_timeout(10000)
+    response = r.response
+    path = tostring(r.url)
 
-    local errors = {}
-
-    while (true) do
-
-        local response, path
-
-        local status, r = crawler:crawl()
-        -- if the crawler fails it can be due to a number of different reasons
-        -- most of them are "legitimate" and should not be reason to abort
-        if (not(status)) then
-            if (r.err) then
-                return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-            else
-                break
-            end
-        end
-
-        response = r.response
-        path = tostring(r.url)
-
-        if (response.status >= 400 and not errcodes) or
-        ( errcodes and type(errcodes) == "table" and inTable(errcodes, response.status) ) then
-            table.insert(errors, { tostring(response.status), path })
-        end
-
+    if (response.status >= 400 and not errcodes) or
+      ( errcodes and type(errcodes) == "table" and inTable(errcodes, response.status) ) then
+      table.insert(errors, { tostring(response.status), path })
     end
 
-    -- If the table is empty.
-    if next(errors) == nil then
-        return "Couldn't find any error pages."
-    end
+  end
 
-    table.sort(errors, compare)
+  -- If the table is empty.
+  if next(errors) == nil then
+    return "Couldn't find any error pages."
+  end
 
-    -- Create a nice output.
-    local results = {}
-	for c, _ in pairs(errors) do
-		table.insert(results, "\nError Code: " .. _[1])
-		table.insert(results, "\t" .. _[2])
-  	end
+  table.sort(errors, compare)
 
-    table.insert(results, 1, "Found the following error pages: ")
+  -- Create a nice output.
+  local results = {}
+  for c, _ in pairs(errors) do
+    table.insert(results, "\nError Code: " .. _[1])
+    table.insert(results, "\t" .. _[2])
+  end
 
-	results.name = crawler:getLimitations()
+  table.insert(results, 1, "Found the following error pages: ")
 
-	return stdnse.format_output(true, results)
+  results.name = crawler:getLimitations()
+
+  return stdnse.format_output(true, results)
 
 end

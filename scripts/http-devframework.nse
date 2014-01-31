@@ -78,70 +78,70 @@ end
 
 action = function(host, port)
 
-    local tools = stdnse.get_script_args("http-devframework.fingerprintfile") or loadFingerprints("nselib/data/http-devframework-fingerprints.lua")
-    local rapid = stdnse.get_script_args("http-devframework.rapid")
+  local tools = stdnse.get_script_args("http-devframework.fingerprintfile") or loadFingerprints("nselib/data/http-devframework-fingerprints.lua")
+  local rapid = stdnse.get_script_args("http-devframework.rapid")
 
-    local d
+  local d
 
-    -- Run rapidDetect() callbacks.
-    for f, method in pairs(tools) do
-        d = method["rapidDetect"](host, port)
+  -- Run rapidDetect() callbacks.
+  for f, method in pairs(tools) do
+    d = method["rapidDetect"](host, port)
+    if d then
+      return d
+    end
+  end
+
+  local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
+    maxpagecount = 40,
+    maxdepth = -1,
+    withinhost = 1
+  })
+
+  if rapid then
+    return "Couldn't determine the underlying framework or CMS. Try turning off 'rapid' mode."
+  end
+
+  crawler.options.doscraping = function(url)
+    if crawler:iswithinhost(url)
+      and not crawler:isresource(url, "js")
+      and not crawler:isresource(url, "css") then
+      return true
+    end
+  end
+
+  crawler:set_timeout(10000)
+
+  while (true) do
+
+    local response, path
+
+    local status, r = crawler:crawl()
+    -- if the crawler fails it can be due to a number of different reasons
+    -- most of them are "legitimate" and should not be reason to abort
+    if (not(status)) then
+      if (r.err) then
+        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+      else
+        break
+      end
+    end
+
+    response = r.response
+    path = tostring(r.url)
+
+    if (response.body) then
+
+      -- Run consumingDetect() callbacks.
+      for f, method in pairs(tools) do
+        d = method["consumingDetect"](response.body, path)
         if d then
-            return d
+          return d
         end
+      end
     end
-
-    local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
-                                                              maxpagecount = 40,
-                                                              maxdepth = -1,
-                                                              withinhost = 1
-                                                              })
-
-    if rapid then
-        return "Couldn't determine the underlying framework or CMS. Try turning off 'rapid' mode."
-    end
-
-    crawler.options.doscraping = function(url)
-        if crawler:iswithinhost(url)
-        and not crawler:isresource(url, "js")
-        and not crawler:isresource(url, "css") then
-            return true
-        end
-    end
-
-	crawler:set_timeout(10000)
-
-    while (true) do
-
-        local response, path
-
-        local status, r = crawler:crawl()
-        -- if the crawler fails it can be due to a number of different reasons
-        -- most of them are "legitimate" and should not be reason to abort
-        if (not(status)) then
-            if (r.err) then
-                return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-            else
-                break
-            end
-        end
-
-        response = r.response
-        path = tostring(r.url)
-
-        if (response.body) then
-
-            -- Run consumingDetect() callbacks.
-            for f, method in pairs(tools) do
-                d = method["consumingDetect"](response.body, path)
-                if d then
-                    return d
-                end
-            end
-        end
 
     return "Couldn't determine the underlying framework or CMS. Try increasing 'httpspider.maxpagecount' value to spider more pages."
 
-    end
+  end
 
 end

@@ -43,46 +43,46 @@ portrule = mssql.Helper.GetPortrule_Standard()
 
 local function process_instance(instance)
 
-	local helper = mssql.Helper:new()
-	local status, errorMessage = helper:ConnectEx( instance )
-	if ( not(status) ) then
-		return false, {
-				['name'] = string.format( "[%s]", instance:GetName() ),
-				"ERROR: " .. errorMessage
-			}
-	end
+  local helper = mssql.Helper:new()
+  local status, errorMessage = helper:ConnectEx( instance )
+  if ( not(status) ) then
+    return false, {
+      ['name'] = string.format( "[%s]", instance:GetName() ),
+      "ERROR: " .. errorMessage
+    }
+  end
 
-	status, errorMessage = helper:LoginEx( instance )
-	if ( not(status) ) then
-		return false, {
-				['name'] = string.format( "[%s]", instance:GetName() ),
-				"ERROR: " .. errorMessage
-			}
-	end
+  status, errorMessage = helper:LoginEx( instance )
+  if ( not(status) ) then
+    return false, {
+      ['name'] = string.format( "[%s]", instance:GetName() ),
+      "ERROR: " .. errorMessage
+    }
+  end
 
-	local result
-	local query = [[
-		IF ( OBJECT_ID('master..sysxlogins' ) ) <> 0
-			SELECT name, password FROM master..sysxlogins WHERE password IS NOT NULL
-		ELSE IF ( OBJECT_ID('master.sys.sql_logins') ) <> 0
-			SELECT name, password_hash FROM master.sys.sql_logins
-	]]
-	status, result = helper:Query( query )
+  local result
+  local query = [[
+  IF ( OBJECT_ID('master..sysxlogins' ) ) <> 0
+    SELECT name, password FROM master..sysxlogins WHERE password IS NOT NULL
+  ELSE IF ( OBJECT_ID('master.sys.sql_logins') ) <> 0
+    SELECT name, password_hash FROM master.sys.sql_logins
+  ]]
+  status, result = helper:Query( query )
 
-	local output = {}
+  local output = {}
 
-	if ( status ) then
-		for _, row in ipairs( result.rows ) do
-			table.insert(output, ("%s:%s"):format(row[1] or "",row[2] or "") )
-		end
+  if ( status ) then
+    for _, row in ipairs( result.rows ) do
+      table.insert(output, ("%s:%s"):format(row[1] or "",row[2] or "") )
     end
+  end
 
-	helper:Disconnect()
-	local instanceOutput = {}
-	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	table.insert( instanceOutput, output )
+  helper:Disconnect()
+  local instanceOutput = {}
+  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  table.insert( instanceOutput, output )
 
-	return true, instanceOutput
+  return true, instanceOutput
 
 end
 
@@ -92,44 +92,44 @@ end
 -- @return status true on success, false on failure
 -- @return err string containing the error if status is false
 local function saveToFile(filename, response)
-	local f = io.open( filename, "w")
-	if ( not(f) ) then
-		return false, ("Failed to open file (%s)"):format(filename)
-	end
-	for _, row in ipairs(response) do
-		if ( not(f:write(row .."\n" ) ) ) then
-			return false, ("Failed to write file (%s)"):format(filename)
-		end
-	end
-	f:close()
-	return true
+  local f = io.open( filename, "w")
+  if ( not(f) ) then
+    return false, ("Failed to open file (%s)"):format(filename)
+  end
+  for _, row in ipairs(response) do
+    if ( not(f:write(row .."\n" ) ) ) then
+      return false, ("Failed to write file (%s)"):format(filename)
+    end
+  end
+  f:close()
+  return true
 end
 
 action = function( host, port )
-	local dir = stdnse.get_script_args("ms-sql-dump-hashes.dir")
-	local scriptOutput = {}
-	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+  local dir = stdnse.get_script_args("ms-sql-dump-hashes.dir")
+  local scriptOutput = {}
+  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
 
-	if ( not status ) then
-		return stdnse.format_output( false, instanceList )
-	else
-		for _, instance in pairs( instanceList ) do
-			local status, instanceOutput = process_instance( instance )
-			if ( status ) then
-				local filename
-				if ( dir ) then
-					local instance = instance:GetName():match("%\\+(.+)$") or instance:GetName()
-					filename = dir .. "/" .. stdnse.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
-					saveToFile(filename, instanceOutput[1])
-				end
-			end
-			table.insert( scriptOutput, instanceOutput )
-		end
-	end
+  if ( not status ) then
+    return stdnse.format_output( false, instanceList )
+  else
+    for _, instance in pairs( instanceList ) do
+      local status, instanceOutput = process_instance( instance )
+      if ( status ) then
+        local filename
+        if ( dir ) then
+          local instance = instance:GetName():match("%\\+(.+)$") or instance:GetName()
+          filename = dir .. "/" .. stdnse.filename_escape(("%s_%s_ms-sql_hashes.txt"):format(host.ip, instance))
+          saveToFile(filename, instanceOutput[1])
+        end
+      end
+      table.insert( scriptOutput, instanceOutput )
+    end
+  end
 
-	if ( #scriptOutput == 0 ) then return end
+  if ( #scriptOutput == 0 ) then return end
 
-	local output = ( #scriptOutput > 1 and scriptOutput or scriptOutput[1] )
+  local output = ( #scriptOutput > 1 and scriptOutput or scriptOutput[1] )
 
-	return stdnse.format_output( true, output )
+  return stdnse.format_output( true, output )
 end

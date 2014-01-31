@@ -70,7 +70,7 @@ end
 
 prerule =  function()
   return nmap.is_privileged() and
-	(stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface())
+    (stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface())
 end
 
 

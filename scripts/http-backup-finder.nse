@@ -47,107 +47,107 @@ categories = {"discovery", "safe"}
 portrule = shortport.http
 
 local function backupNames(filename)
-	local function createBackupNames()
-		local dir = filename:match("^(.*/)") or ""
-		local basename, suffix = filename:match("([^/]*)%.(.*)$")
+  local function createBackupNames()
+    local dir = filename:match("^(.*/)") or ""
+    local basename, suffix = filename:match("([^/]*)%.(.*)$")
 
-		local backup_names = {}
-		if basename then
-			table.insert(backup_names, "{basename}.bak") -- generic bak file
-		end
-		if basename and suffix then
-			table.insert(backup_names, "{basename}.{suffix}~") -- emacs
-			table.insert(backup_names, "{basename} copy.{suffix}") -- mac copy
-			table.insert(backup_names, "Copy of {basename}.{suffix}") -- windows copy
-			table.insert(backup_names, "Copy (2) of {basename}.{suffix}") -- windows second copy
-			table.insert(backup_names, "{basename}.{suffix}.1") -- generic backup
-			table.insert(backup_names, "{basename}.{suffix}.~1~") -- bzr --revert residue
+    local backup_names = {}
+    if basename then
+      table.insert(backup_names, "{basename}.bak") -- generic bak file
+    end
+    if basename and suffix then
+      table.insert(backup_names, "{basename}.{suffix}~") -- emacs
+      table.insert(backup_names, "{basename} copy.{suffix}") -- mac copy
+      table.insert(backup_names, "Copy of {basename}.{suffix}") -- windows copy
+      table.insert(backup_names, "Copy (2) of {basename}.{suffix}") -- windows second copy
+      table.insert(backup_names, "{basename}.{suffix}.1") -- generic backup
+      table.insert(backup_names, "{basename}.{suffix}.~1~") -- bzr --revert residue
 
-		end
+    end
 
-		local replace_patterns = {
-			["{filename}"] = filename,
-			["{basename}"] = basename,
-			["{suffix}"] = suffix,
-		}
+    local replace_patterns = {
+      ["{filename}"] = filename,
+      ["{basename}"] = basename,
+      ["{suffix}"] = suffix,
+    }
 
-		for _, name in ipairs(backup_names) do
-			local backup_name = name
-			for p, v in pairs(replace_patterns) do
-				backup_name = backup_name:gsub(p,v)
-			end
-			coroutine.yield(dir .. backup_name)
-		end
-	end
-	return coroutine.wrap(createBackupNames)
+    for _, name in ipairs(backup_names) do
+      local backup_name = name
+      for p, v in pairs(replace_patterns) do
+        backup_name = backup_name:gsub(p,v)
+      end
+      coroutine.yield(dir .. backup_name)
+    end
+  end
+  return coroutine.wrap(createBackupNames)
 end
 
 action = function(host, port)
 
-	local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
-	crawler:set_timeout(10000)
+  local crawler = httpspider.Crawler:new(host, port, nil, { scriptname = SCRIPT_NAME } )
+  crawler:set_timeout(10000)
 
-	local res, res404, known404 = http.identify_404(host, port)
-	if not res then
-		stdnse.print_debug("%s: Can't identify 404 pages", SCRIPT_NAME)
-		return nil
-	end
+  local res, res404, known404 = http.identify_404(host, port)
+  if not res then
+    stdnse.print_debug("%s: Can't identify 404 pages", SCRIPT_NAME)
+    return nil
+  end
 
-	local backups = {}
-	while(true) do
-		local status, r = crawler:crawl()
-		-- if the crawler fails it can be due to a number of different reasons
-		-- most of them are "legitimate" and should not be reason to abort
-		if ( not(status) ) then
-			if ( r.err ) then
-				return stdnse.format_output(true, "ERROR: %s", r.reason)
-			else
-				break
-			end
-		end
+  local backups = {}
+  while(true) do
+    local status, r = crawler:crawl()
+    -- if the crawler fails it can be due to a number of different reasons
+    -- most of them are "legitimate" and should not be reason to abort
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(true, "ERROR: %s", r.reason)
+      else
+        break
+      end
+    end
 
-		-- parse the returned url
-		local parsed = url.parse(tostring(r.url))
+    -- parse the returned url
+    local parsed = url.parse(tostring(r.url))
 
-		-- handle case where only hostname was provided
-		if ( parsed.path == nil ) then
-			parsed.path = '/'
-		end
+    -- handle case where only hostname was provided
+    if ( parsed.path == nil ) then
+      parsed.path = '/'
+    end
 
-		-- only pursue links that have something looking as a file
-		if ( parsed.path:match(".*%.*.$") ) then
-			-- iterate over possible backup files
-			for link in backupNames(parsed.path) do
-				local host, port = parsed.host, parsed.port
+    -- only pursue links that have something looking as a file
+    if ( parsed.path:match(".*%.*.$") ) then
+      -- iterate over possible backup files
+      for link in backupNames(parsed.path) do
+        local host, port = parsed.host, parsed.port
 
-				-- if no port was found, try to deduce it from the scheme
-				if ( not(port) ) then
-					port = (parsed.scheme == 'https') and 443
-					port = port or ((parsed.scheme == 'http') and 80)
-				end
+        -- if no port was found, try to deduce it from the scheme
+        if ( not(port) ) then
+          port = (parsed.scheme == 'https') and 443
+          port = port or ((parsed.scheme == 'http') and 80)
+        end
 
-				-- the url.escape doesn't work here as it encodes / to %2F
-				-- which results in 400 bad request, so we simple do a space
-				-- replacement instead.
-				local escaped_link = link:gsub(" ", "%%20")
+        -- the url.escape doesn't work here as it encodes / to %2F
+        -- which results in 400 bad request, so we simple do a space
+        -- replacement instead.
+        local escaped_link = link:gsub(" ", "%%20")
 
-				-- attempt a HEAD-request against each of the backup files
-				local response = http.head(host, port, escaped_link)
-				if http.page_exists(response, res404, known404, escaped_link, true) then
-					if ( not(parsed.port) ) then
-						table.insert(backups,
-							("%s://%s%s"):format(parsed.scheme, host, link))
-					else
-						table.insert(backups,
-							("%s://%s:%d%s"):format(parsed.scheme, host, port, link))
-					end
-				end
-			end
-		end
-	end
+        -- attempt a HEAD-request against each of the backup files
+        local response = http.head(host, port, escaped_link)
+        if http.page_exists(response, res404, known404, escaped_link, true) then
+          if ( not(parsed.port) ) then
+            table.insert(backups,
+              ("%s://%s%s"):format(parsed.scheme, host, link))
+          else
+            table.insert(backups,
+              ("%s://%s:%d%s"):format(parsed.scheme, host, port, link))
+          end
+        end
+      end
+    end
+  end
 
-	if ( #backups > 0 ) then
-		backups.name = crawler:getLimitations()
-		return stdnse.format_output(true, backups)
-	end
+  if ( #backups > 0 ) then
+    backups.name = crawler:getLimitations()
+    return stdnse.format_output(true, backups)
+  end
 end

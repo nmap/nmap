@@ -10,7 +10,7 @@ Runs a console command on the Lotus Domino Console using the given authenticatio
 ---
 -- @usage
 -- nmap -p 2050 <host> --script domcon-cmd --script-args domcon-cmd.cmd="show server", \
---		domcon-cmd.user="Patrik Karlsson",domcon-cmd.pass="secret"
+--   domcon-cmd.user="Patrik Karlsson",domcon-cmd.pass="secret"
 --
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -70,69 +70,69 @@ portrule = shortport.port_or_service(2050, "dominoconsole", "tcp", "open")
 --         or error message if status is false
 local function readAPIBlock( socket )
 
-	local lines
-	local result = {}
-	local status, line = socket:receive_lines(1)
+  local lines
+  local result = {}
+  local status, line = socket:receive_lines(1)
 
-	if ( not(status) ) then	return false, "Failed to read line" end
-	lines = stdnse.strsplit( "\n", line )
+  if ( not(status) ) then	return false, "Failed to read line" end
+  lines = stdnse.strsplit( "\n", line )
 
-	for _, line in ipairs( lines ) do
-		if ( not(line:match("BeginData")) and not(line:match("EndData")) ) then
-			table.insert(result, line)
-		end
-	end
+  for _, line in ipairs( lines ) do
+    if ( not(line:match("BeginData")) and not(line:match("EndData")) ) then
+      table.insert(result, line)
+    end
+  end
 
-	-- Clear trailing empty lines
-	while( true ) do
-		if ( result[#result] == "" ) then
-			table.remove(result, #result)
-		else
-			break
-		end
-	end
+  -- Clear trailing empty lines
+  while( true ) do
+    if ( result[#result] == "" ) then
+      table.remove(result, #result)
+    else
+      break
+    end
+  end
 
-	return true, result
+  return true, result
 
 end
 
 action = function(host, port)
 
-	local socket = nmap.new_socket()
-	local result_part, result, cmds = {}, {}, {}
-	local user = stdnse.get_script_args('domcon-cmd.user')
-	local pass = stdnse.get_script_args('domcon-cmd.pass')
-	local cmd = stdnse.get_script_args('domcon-cmd.cmd')
+  local socket = nmap.new_socket()
+  local result_part, result, cmds = {}, {}, {}
+  local user = stdnse.get_script_args('domcon-cmd.user')
+  local pass = stdnse.get_script_args('domcon-cmd.pass')
+  local cmd = stdnse.get_script_args('domcon-cmd.cmd')
 
-	if( not(cmd) ) then	return "  \n  ERROR: No command supplied (see domcon-cmd.cmd)" end
-	if( not(user)) then return "  \n  ERROR: No username supplied (see domcon-cmd.user)" end
-	if( not(pass)) then return "  \n  ERROR: No password supplied (see domcon-cmd.pass)" end
+  if( not(cmd) ) then	return "  \n  ERROR: No command supplied (see domcon-cmd.cmd)" end
+  if( not(user)) then return "  \n  ERROR: No username supplied (see domcon-cmd.user)" end
+  if( not(pass)) then return "  \n  ERROR: No password supplied (see domcon-cmd.pass)" end
 
-	cmds = stdnse.strsplit(";%s*", cmd)
+  cmds = stdnse.strsplit(";%s*", cmd)
 
-	socket:set_timeout(10000)
-	local status = socket:connect( host.ip, port.number, "tcp")
-	if ( status ) then
-		socket:reconnect_ssl()
-	end
+  socket:set_timeout(10000)
+  local status = socket:connect( host.ip, port.number, "tcp")
+  if ( status ) then
+    socket:reconnect_ssl()
+  end
 
-	socket:send("#API\n")
-	socket:send( ("#UI %s,%s\n"):format(user,pass) )
-	socket:receive_lines(1)
-	socket:send("#EXIT\n")
+  socket:send("#API\n")
+  socket:send( ("#UI %s,%s\n"):format(user,pass) )
+  socket:receive_lines(1)
+  socket:send("#EXIT\n")
 
-	for i=1, #cmds do
-		socket:send(cmds[i] .. "\n")
-		status, result_part = readAPIBlock( socket )
-		if( status ) then
-			result_part.name = cmds[i]
-			table.insert( result, result_part )
-		else
-			return "  \n  ERROR: " .. result_part
-		end
-	end
+  for i=1, #cmds do
+    socket:send(cmds[i] .. "\n")
+    status, result_part = readAPIBlock( socket )
+    if( status ) then
+      result_part.name = cmds[i]
+      table.insert( result, result_part )
+    else
+      return "  \n  ERROR: " .. result_part
+    end
+  end
 
-	socket:close()
+  socket:close()
 
-	return stdnse.format_output( true, result )
+  return stdnse.format_output( true, result )
 end

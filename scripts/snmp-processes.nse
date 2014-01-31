@@ -52,13 +52,13 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 -- @return value of relevant type or nil if oid was not found
 function get_value_from_table( tbl, oid )
 
-	for _, v in ipairs( tbl ) do
-		if v.oid == oid then
-			return v.value
-		end
-	end
+  for _, v in ipairs( tbl ) do
+    if v.oid == oid then
+      return v.value
+    end
+  end
 
-	return nil
+  return nil
 end
 
 --- Processes the table and creates the script output
@@ -67,72 +67,72 @@ end
 -- @return table suitable for <code>stdnse.format_output</code>
 function process_answer( tbl )
 
-	local swrun_name = "1.3.6.1.2.1.25.4.2.1.2"
-	local swrun_pid = "1.3.6.1.2.1.25.4.2.1.1"
-	local swrun_path = "1.3.6.1.2.1.25.4.2.1.4"
-	local swrun_params = "1.3.6.1.2.1.25.4.2.1.5"
-	local new_tbl = {}
+  local swrun_name = "1.3.6.1.2.1.25.4.2.1.2"
+  local swrun_pid = "1.3.6.1.2.1.25.4.2.1.1"
+  local swrun_path = "1.3.6.1.2.1.25.4.2.1.4"
+  local swrun_params = "1.3.6.1.2.1.25.4.2.1.5"
+  local new_tbl = {}
 
-	for _, v in ipairs( tbl ) do
+  for _, v in ipairs( tbl ) do
 
-		if ( v.oid:match("^" .. swrun_name) ) then
-			local item = {}
-			local objid = v.oid:gsub( "^" .. swrun_name, swrun_path)
-			local value =  get_value_from_table( tbl, objid )
+    if ( v.oid:match("^" .. swrun_name) ) then
+      local item = {}
+      local objid = v.oid:gsub( "^" .. swrun_name, swrun_path)
+      local value =  get_value_from_table( tbl, objid )
 
-			if value and value:len() > 0 then
-				table.insert( item, ("Path: %s"):format( value ) )
-			end
+      if value and value:len() > 0 then
+        table.insert( item, ("Path: %s"):format( value ) )
+      end
 
-			objid = v.oid:gsub( "^" .. swrun_name, swrun_params)
-			value = get_value_from_table( tbl, objid )
+      objid = v.oid:gsub( "^" .. swrun_name, swrun_params)
+      value = get_value_from_table( tbl, objid )
 
-			if value and value:len() > 0 then
-				table.insert( item, ("Params: %s"):format( value ) )
-			end
+      if value and value:len() > 0 then
+        table.insert( item, ("Params: %s"):format( value ) )
+      end
 
-			objid = v.oid:gsub( "^" .. swrun_name, swrun_pid)
-			value = get_value_from_table( tbl, objid )
+      objid = v.oid:gsub( "^" .. swrun_name, swrun_pid)
+      value = get_value_from_table( tbl, objid )
 
-			if value then
-				table.insert( item, ("PID: %s"):format( value ) )
-			end
+      if value then
+        table.insert( item, ("PID: %s"):format( value ) )
+      end
 
-			item.name = v.value
-			table.insert( item, value )
-			table.insert( new_tbl, item )
-		end
+      item.name = v.value
+      table.insert( item, value )
+      table.insert( new_tbl, item )
+    end
 
-	end
+  end
 
-	return new_tbl
+  return new_tbl
 
 end
 
 
 action = function(host, port)
 
-	local socket = nmap.new_socket()
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)
-	local data, snmpoid = nil, "1.3.6.1.2.1.25.4.2"
-	local shares = {}
-	local status
+  local socket = nmap.new_socket()
+  local catch = function() socket:close()	end
+  local try = nmap.new_try(catch)
+  local data, snmpoid = nil, "1.3.6.1.2.1.25.4.2"
+  local shares = {}
+  local status
 
-	socket:set_timeout(5000)
-	try(socket:connect(host, port))
+  socket:set_timeout(5000)
+  try(socket:connect(host, port))
 
-	status, shares = snmp.snmpWalk( socket, snmpoid )
-	socket:close()
+  status, shares = snmp.snmpWalk( socket, snmpoid )
+  socket:close()
 
-	if (not(status)) or ( shares == nil ) or ( #shares == 0 ) then
-		return
-	end
+  if (not(status)) or ( shares == nil ) or ( #shares == 0 ) then
+    return
+  end
 
-	shares = process_answer( shares )
+  shares = process_answer( shares )
 
-	nmap.set_port_state(host, port, "open")
+  nmap.set_port_state(host, port, "open")
 
-	return stdnse.format_output( true, shares )
+  return stdnse.format_output( true, shares )
 end
 

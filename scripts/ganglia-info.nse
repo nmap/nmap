@@ -25,13 +25,13 @@ For more information about Ganglia, see:
 -- nmap --script ganglia-info --script-args ganglia-info.timeout=60,ganglia-info.bytes=1000000 -p <port> <target>
 --
 -- @args ganglia-info.timeout
---		   Set the timeout in seconds. The default value is 60.
---		   This should be enough for a grid of more than 100 hosts at 200Kb/s.
---		   About 5KB-10KB of data is returned for each host in the cluster.
+--       Set the timeout in seconds. The default value is 60.
+--       This should be enough for a grid of more than 100 hosts at 200Kb/s.
+--       About 5KB-10KB of data is returned for each host in the cluster.
 -- @args ganglia-info.bytes
---		   Set the number of bytes to retrieve. The default value is 1000000.
---		   This should be enough for a grid of more than 100 hosts.
---		   About 5KB-10KB of data is returned for each host in the cluster.
+--       Set the number of bytes to retrieve. The default value is 1000000.
+--       This should be enough for a grid of more than 100 hosts.
+--       About 5KB-10KB of data is returned for each host in the cluster.
 --
 -- @output
 -- PORT     STATE SERVICE VERSION
@@ -89,63 +89,63 @@ portrule = shortport.port_or_service ({8649,8651}, "ganglia", {"tcp"})
 
 action = function( host, port )
 
-	local result = {}
+  local result = {}
 
-	-- Set timeout
-	local timeout = nmap.registry.args[SCRIPT_NAME .. '.timeout']
-	if not timeout then
-		timeout = 30
-	else
-		tonumber(timeout)
-	end
+  -- Set timeout
+  local timeout = nmap.registry.args[SCRIPT_NAME .. '.timeout']
+  if not timeout then
+    timeout = 30
+  else
+    tonumber(timeout)
+  end
 
-	-- Set bytes
-	local bytes = nmap.registry.args[SCRIPT_NAME .. '.bytes']
-	if not bytes then
-		bytes = 1000000
-	else
-		tonumber(bytes)
-	end
+  -- Set bytes
+  local bytes = nmap.registry.args[SCRIPT_NAME .. '.bytes']
+  if not bytes then
+    bytes = 1000000
+  else
+    tonumber(bytes)
+  end
 
-	-- Retrieve grid data in XML format over TCP
-	stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-	local status, data = comm.get_banner(host, port, {timeout=timeout*1000,bytes=bytes})
-	if not status then
-		stdnse.print_debug(1, ("%s: Timeout exceeded for %s:%s (Timeout: %ss)."):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
-		return
-	end
+  -- Retrieve grid data in XML format over TCP
+  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  local status, data = comm.get_banner(host, port, {timeout=timeout*1000,bytes=bytes})
+  if not status then
+    stdnse.print_debug(1, ("%s: Timeout exceeded for %s:%s (Timeout: %ss)."):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
+    return
+  end
 
-	-- Parse daemon info
-	if not string.match(data, "<!DOCTYPE GANGLIA_XML") then
-		stdnse.print_debug(1, ("%s: %s:%s is not a Ganglia Daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-		return
-	elseif string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmond"') then
-		table.insert(result, "Service: Ganglia Monitoring Daemon")
-		local version = string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmond"')
-		if version then table.insert(result, string.format("Version: %s\n", version)) end
-	elseif string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmetad"') then
-		table.insert(result, "Service: Ganglia Meta Daemon")
-		local version = string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmetad"')
-		if version then table.insert(result, string.format("Version: %s\n", version)) end
-		local grid = string.match(data, '<GRID NAME="([^"]*)" ')
-		if grid then table.insert(result, string.format("Grid Name: %s", grid)) end
-	else
-		stdnse.print_debug(1, ("%s: %s:%s did not supply Ganglia daemon details."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-		return
-	end
+  -- Parse daemon info
+  if not string.match(data, "<!DOCTYPE GANGLIA_XML") then
+    stdnse.print_debug(1, ("%s: %s:%s is not a Ganglia Daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    return
+  elseif string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmond"') then
+    table.insert(result, "Service: Ganglia Monitoring Daemon")
+    local version = string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmond"')
+    if version then table.insert(result, string.format("Version: %s\n", version)) end
+  elseif string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmetad"') then
+    table.insert(result, "Service: Ganglia Meta Daemon")
+    local version = string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmetad"')
+    if version then table.insert(result, string.format("Version: %s\n", version)) end
+    local grid = string.match(data, '<GRID NAME="([^"]*)" ')
+    if grid then table.insert(result, string.format("Grid Name: %s", grid)) end
+  else
+    stdnse.print_debug(1, ("%s: %s:%s did not supply Ganglia daemon details."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    return
+  end
 
-	-- Extract cluster details and system details for each cluster in the grid
-	for line in string.gmatch(data, "[^\n]+") do
-		if string.match(line, '<CLUSTER NAME="([^"]*)" ') and string.match(line, '<CLUSTER [^>]+ OWNER="([^"]*)" ') then
-			table.insert(result, string.format("Cluster Name: %s\n\tOwner: %s\n", string.match(line, '<CLUSTER NAME="([^"]*)" '), string.match(line, '<CLUSTER [^>]+ OWNER="([^"]*)" ')))
-		elseif string.match(line, '<HOST NAME="([^"]*)" IP="([^"]*)"') then
-			table.insert(result, string.format("\tHostname: %s\n\t\tIP: %s\n", string.match(line, '<HOST NAME="([^"]*)" IP="[^"]*"'), string.match(line, '<HOST NAME="[^"]*" IP="([^"]*)"')))
-		elseif string.match(line, '<METRIC NAME="([^"]*)" VAL="[^"]*" [^>]+ UNITS="[^"]*"') then
-			table.insert(result, string.format("\t\t%s: %s%s", string.gsub(string.match(line, '<METRIC NAME="([^"]*)" VAL="[^"]*" [^>]+ UNITS="[^"]*"'), "_", " "), string.match(line, '<METRIC NAME="[^"]*" VAL="([^"]*)" [^>]+ UNITS="[^"]*"'), string.match(line, '<METRIC NAME="[^"]*" VAL="[^"]*" [^>]+ UNITS="([^"]*)"')))
-		end
-	end
+  -- Extract cluster details and system details for each cluster in the grid
+  for line in string.gmatch(data, "[^\n]+") do
+    if string.match(line, '<CLUSTER NAME="([^"]*)" ') and string.match(line, '<CLUSTER [^>]+ OWNER="([^"]*)" ') then
+      table.insert(result, string.format("Cluster Name: %s\n\tOwner: %s\n", string.match(line, '<CLUSTER NAME="([^"]*)" '), string.match(line, '<CLUSTER [^>]+ OWNER="([^"]*)" ')))
+    elseif string.match(line, '<HOST NAME="([^"]*)" IP="([^"]*)"') then
+      table.insert(result, string.format("\tHostname: %s\n\t\tIP: %s\n", string.match(line, '<HOST NAME="([^"]*)" IP="[^"]*"'), string.match(line, '<HOST NAME="[^"]*" IP="([^"]*)"')))
+    elseif string.match(line, '<METRIC NAME="([^"]*)" VAL="[^"]*" [^>]+ UNITS="[^"]*"') then
+      table.insert(result, string.format("\t\t%s: %s%s", string.gsub(string.match(line, '<METRIC NAME="([^"]*)" VAL="[^"]*" [^>]+ UNITS="[^"]*"'), "_", " "), string.match(line, '<METRIC NAME="[^"]*" VAL="([^"]*)" [^>]+ UNITS="[^"]*"'), string.match(line, '<METRIC NAME="[^"]*" VAL="[^"]*" [^>]+ UNITS="([^"]*)"')))
+    end
+  end
 
-	-- Return results
-	return stdnse.format_output(true, result)
+  -- Return results
+  return stdnse.format_output(true, result)
 
 end
