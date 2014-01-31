@@ -23,7 +23,7 @@ development lifecycle.
 
 ---
 -- @usage
--- nmap --script dns-fuzz --script-args timelimit=2h <target>
+-- nmap -sU --script dns-fuzz --script-args timelimit=2h <target>
 --
 -- @args dns-fuzz.timelimit How long to run the fuzz attack. This is a
 -- number followed by a suffix: <code>s</code> for seconds,
@@ -40,7 +40,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 
 
-portrule = shortport.portnumber(53, "udp")
+portrule = shortport.portnumber(53)
 
 -- How many ms should we wait for the server to respond.
 -- Might want to make this an argument, but 500 should always be more then enough.
@@ -73,7 +73,7 @@ function pingServer (host, port, attempts)
           data = dns.encode(pkt)
 
           for i = 1, attempts do
-             status, result = comm.exchange(host, port, data, {proto="udp", timeout=math.pow(DNStimeout,slowDown)})
+             status, result = comm.exchange(host, port, data, {timeout=math.pow(DNStimeout,slowDown)})
              if status then
                return true
              end
@@ -84,7 +84,7 @@ function pingServer (host, port, attempts)
      else
           -- just do a vanilla recursive lookup of scanme.nmap.org
           for i = 1, attempts do
-               status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, tries=1, timeout=math.pow(DNStimeout,slowDown)})
+               status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, proto=port.protocol, tries=1, timeout=math.pow(DNStimeout,slowDown)})
                if status then
                     return true
                end
@@ -263,7 +263,7 @@ function corruptAndSend (host, port, query)
                query = truncatePacket(query)
           end
 
-          status, result = comm.exchange(host, port, query, {proto="udp", timeout=DNStimeout})
+          status, result = comm.exchange(host, port, query, {timeout=DNStimeout})
           if not status then
                if not pingServer(host,port,3) then
                     -- no response after three tries, the server is probably dead
