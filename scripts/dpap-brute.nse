@@ -35,90 +35,90 @@ portrule = shortport.port_or_service(8770, "apple-iphoto")
 
 Driver = {
 
-	new = function(self, host, port)
-		local o = {}
-       	setmetatable(o, self)
-        self.__index = self
-		o.host = host
-		o.port = port
-		return o
-	end,
+  new = function(self, host, port)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.host = host
+    o.port = port
+    return o
+  end,
 
-	connect = function( self )
-		self.socket = nmap.new_socket()
-		self.socket:set_timeout(5000)
-		return self.socket:connect(self.host, self.port, "tcp")
-	end,
+  connect = function( self )
+    self.socket = nmap.new_socket()
+    self.socket:set_timeout(5000)
+    return self.socket:connect(self.host, self.port, "tcp")
+  end,
 
-	login = function( self, username, password )
-		local data = "GET dpap://%s:%d/login HTTP/1.1\r\n" ..
-			"User-Agent: iPhoto/9.1.1  (Macintosh; N; PPC)\r\n" ..
-			"Host: %s\r\n" ..
-			"Authorization: Basic %s\r\n" ..
-			"Client-DPAP-Version: 1.1\r\n" ..
-			"\r\n\r\n"
+  login = function( self, username, password )
+    local data = "GET dpap://%s:%d/login HTTP/1.1\r\n" ..
+      "User-Agent: iPhoto/9.1.1  (Macintosh; N; PPC)\r\n" ..
+      "Host: %s\r\n" ..
+      "Authorization: Basic %s\r\n" ..
+      "Client-DPAP-Version: 1.1\r\n" ..
+      "\r\n\r\n"
 
-		local c = base64.enc("nmap:" .. password)
-		data = data:format( self.host.ip, self.port.number, self.host.ip, c )
+    local c = base64.enc("nmap:" .. password)
+    data = data:format( self.host.ip, self.port.number, self.host.ip, c )
 
-		local status = self.socket:send( data )
-		if ( not(status) ) then
-			local err = brute.Error:new( "Failed to send data to DPAP server" )
-			err:setRetry( true )
-			return false, err
-		end
+    local status = self.socket:send( data )
+    if ( not(status) ) then
+      local err = brute.Error:new( "Failed to send data to DPAP server" )
+      err:setRetry( true )
+      return false, err
+    end
 
-		status, data = self.socket:receive()
-		if ( not(status) ) then
-			local err = brute.Error:new( "Failed to receive data from DPAP server" )
-			err:setRetry( true )
-			return false, err
-		end
+    status, data = self.socket:receive()
+    if ( not(status) ) then
+      local err = brute.Error:new( "Failed to receive data from DPAP server" )
+      err:setRetry( true )
+      return false, err
+    end
 
-		if ( data:match("^HTTP/1.1 200 OK") ) then
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
+    if ( data:match("^HTTP/1.1 200 OK") ) then
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
 
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	disconnect = function( self )
-		self.socket:close()
-	end,
+  disconnect = function( self )
+    self.socket:close()
+  end,
 
 }
 
 local function checkEmptyPassword(host, port)
-	local d = Driver:new(host, port)
-	local status = d:connect()
+  local d = Driver:new(host, port)
+  local status = d:connect()
 
-	if ( not(status) ) then
-		return false
-	end
+  if ( not(status) ) then
+    return false
+  end
 
-	status = d:login("", "")
-	d:disconnect()
+  status = d:login("", "")
+  d:disconnect()
 
-	return status
+  return status
 end
 
 
 action = function(host, port)
 
-	if ( checkEmptyPassword(host, port) ) then
-		return "Library has no password"
-	end
+  if ( checkEmptyPassword(host, port) ) then
+    return "Library has no password"
+  end
 
-	local status, result
-	local engine = brute.Engine:new(Driver, host, port )
+  local status, result
+  local engine = brute.Engine:new(Driver, host, port )
 
-	engine.options.firstonly = true
-	engine.options:setOption( "passonly", true )
-	engine.options.script_name = SCRIPT_NAME
+  engine.options.firstonly = true
+  engine.options:setOption( "passonly", true )
+  engine.options.script_name = SCRIPT_NAME
 
-	status, result = engine:start()
+  status, result = engine:start()
 
-	return result
+  return result
 end
 
 

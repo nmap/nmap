@@ -45,50 +45,50 @@ categories = {"discovery", "default"}
 portrule = shortport.port_or_service(53, "domain", {"tcp", "udp"})
 
 local function rr_filter(pktRR, label)
-	for _, rec in ipairs(pktRR, label) do
-		if ( rec[label] and 0 < #rec.data ) then
-			if ( dns.types.OPT == rec.dtype ) then
-				local pos, _, len = bin.unpack(">SS", rec.data)
-				if ( len ~= #rec.data - pos + 1 ) then
-					return false, "Failed to decode NSID"
-				end
-				return true, select(2, bin.unpack("A" .. len, rec.data, pos))
-			else
-				return true, select(2, bin.unpack("p", rec.data))
-			end
-		end
-	end
+  for _, rec in ipairs(pktRR, label) do
+    if ( rec[label] and 0 < #rec.data ) then
+      if ( dns.types.OPT == rec.dtype ) then
+        local pos, _, len = bin.unpack(">SS", rec.data)
+        if ( len ~= #rec.data - pos + 1 ) then
+          return false, "Failed to decode NSID"
+        end
+        return true, select(2, bin.unpack("A" .. len, rec.data, pos))
+      else
+        return true, select(2, bin.unpack("p", rec.data))
+      end
+    end
+  end
 end
 
 action = function(host, port)
-	local result = stdnse.output_table()
-	local flag = false
-	local status, resp = dns.query("id.server", {host = host.ip, port=port.number, proto=port.protocol, dtype='TXT', class=dns.CLASS.CH, retAll=true, retPkt=true, nsid=true, dnssec=true})
-	if ( status ) then
-		local status, nsid = rr_filter(resp.add,'OPT')
-		if ( status ) then
-			flag = true
-			-- RFC 5001 says NSID can be any arbitrary bytes, and should be displayed
-			-- as hex, but often it is a readable string. Store both.
-			result["NSID"] = { raw = nsid, hex = stdnse.tohex(nsid) }
-			setmetatable(result["NSID"], {
-				__tostring = function(t)
-					return ("%s (%s)"):format(t.raw, t.hex)
-				end
-			})
-		end
-		local status, id_server = rr_filter(resp.answers,'TXT')
-		if ( status ) then
-			flag = true
-			result["id.server"] = id_server
-		end
-	end
-	local status, bind_version = dns.query("version.bind", {host = host.ip, port=port.number, proto=port.protocol, dtype='TXT', class=dns.CLASS.CH})
-	if ( status ) then
-		flag = true
-		result["bind.version"] = bind_version
-	end
-	if flag then
-		return result
-	end
+  local result = stdnse.output_table()
+  local flag = false
+  local status, resp = dns.query("id.server", {host = host.ip, port=port.number, proto=port.protocol, dtype='TXT', class=dns.CLASS.CH, retAll=true, retPkt=true, nsid=true, dnssec=true})
+  if ( status ) then
+    local status, nsid = rr_filter(resp.add,'OPT')
+    if ( status ) then
+      flag = true
+      -- RFC 5001 says NSID can be any arbitrary bytes, and should be displayed
+      -- as hex, but often it is a readable string. Store both.
+      result["NSID"] = { raw = nsid, hex = stdnse.tohex(nsid) }
+      setmetatable(result["NSID"], {
+        __tostring = function(t)
+          return ("%s (%s)"):format(t.raw, t.hex)
+        end
+      })
+    end
+    local status, id_server = rr_filter(resp.answers,'TXT')
+    if ( status ) then
+      flag = true
+      result["id.server"] = id_server
+    end
+  end
+  local status, bind_version = dns.query("version.bind", {host = host.ip, port=port.number, proto=port.protocol, dtype='TXT', class=dns.CLASS.CH})
+  if ( status ) then
+    flag = true
+    result["bind.version"] = bind_version
+  end
+  if flag then
+    return result
+  end
 end

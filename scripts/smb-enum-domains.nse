@@ -65,59 +65,59 @@ dependencies = {"smb-brute"}
 -- TODO: This script needs some love...
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 action = function(host)
 
-	local status, result = msrpc.get_domains(host)
+  local status, result = msrpc.get_domains(host)
 
-	if(not(status)) then
-		return stdnse.format_output(false, result)
-	else
-		local response = {}
+  if(not(status)) then
+    return stdnse.format_output(false, result)
+  else
+    local response = {}
 
-		for domain, data in pairs(result) do
-			local piece = {}
-			piece['name'] = domain
+    for domain, data in pairs(result) do
+      local piece = {}
+      piece['name'] = domain
 
-			if(#data.groups > 0) then
-				table.insert(piece, string.format("Groups: %s", stdnse.strjoin(", ", data.groups)))
-			else
-				table.insert(piece, string.format("Groups: n/a"))
-			end
+      if(#data.groups > 0) then
+        table.insert(piece, string.format("Groups: %s", stdnse.strjoin(", ", data.groups)))
+      else
+        table.insert(piece, string.format("Groups: n/a"))
+      end
 
-			if(#data.users > 0) then
-				table.insert(piece, string.format("Users: %s", stdnse.strjoin(", ", data.users)))
-			else
-				table.insert(piece, string.format("Users: n/a"))
-			end
+      if(#data.users > 0) then
+        table.insert(piece, string.format("Users: %s", stdnse.strjoin(", ", data.users)))
+      else
+        table.insert(piece, string.format("Users: n/a"))
+      end
 
-			-- Floor data.max_password_age, if possible
-			if(data.max_password_age) then
-				data.max_password_age = math.floor(data.max_password_age)
-			end
+      -- Floor data.max_password_age, if possible
+      if(data.max_password_age) then
+        data.max_password_age = math.floor(data.max_password_age)
+      end
 
-			table.insert(piece, string.format("Creation time: %s", data.created))
-			table.insert(piece, string.format("Passwords: min length: %s; min age: %s days; max age: %s days; history: %s passwords",
-			                                   data.min_password_length or "n/a",
-			                                   data.min_password_age or "n/a",
-			                                   data.max_password_age or "n/a",
-			                                   data.password_history or "n/a"))
-			if(data.password_properties and #data.password_properties) then
-				table.insert(piece, string.format("Properties: %s", stdnse.strjoin(", ", data.password_properties)))
-			end
+      table.insert(piece, string.format("Creation time: %s", data.created))
+      table.insert(piece, string.format("Passwords: min length: %s; min age: %s days; max age: %s days; history: %s passwords",
+        data.min_password_length or "n/a",
+        data.min_password_age or "n/a",
+        data.max_password_age or "n/a",
+        data.password_history or "n/a"))
+      if(data.password_properties and #data.password_properties) then
+        table.insert(piece, string.format("Properties: %s", stdnse.strjoin(", ", data.password_properties)))
+      end
 
-			if(data.lockout_threshold) then
-				table.insert(piece, string.format("Account lockout: %s attempts in %s minutes will lock out the account for %s minutes", data.lockout_threshold, data.lockout_window or "unlimited", data.lockout_duration or "unlimited"))
-			else
-				table.insert(piece, string.format("Account lockout disabled"))
-			end
+      if(data.lockout_threshold) then
+        table.insert(piece, string.format("Account lockout: %s attempts in %s minutes will lock out the account for %s minutes", data.lockout_threshold, data.lockout_window or "unlimited", data.lockout_duration or "unlimited"))
+      else
+        table.insert(piece, string.format("Account lockout disabled"))
+      end
 
-			table.insert(response, piece)
-		end
+      table.insert(response, piece)
+    end
 
-		return stdnse.format_output(true, response)
-	end
+    return stdnse.format_output(true, response)
+  end
 end
 

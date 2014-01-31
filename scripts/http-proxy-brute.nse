@@ -42,74 +42,74 @@ local arg_method	= stdnse.get_script_args(SCRIPT_NAME .. '.method') or "HEAD"
 
 Driver = {
 
-	new = function(self, host, port)
-		local o = { host = host, port = port }
-		setmetatable(o, self)
-		self.__index = self
-		return o
-	end,
+  new = function(self, host, port)
+    local o = { host = host, port = port }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function( self )
-		return true
-	end,
+  connect = function( self )
+    return true
+  end,
 
-	login = function( self, username, password )
+  login = function( self, username, password )
 
-		-- the http library does not yet support proxy authentication, so let's
-		-- do what's necessary here.
-	    local header = { ["Proxy-Authorization"] = "Basic " .. base64.enc(username .. ":" .. password) }
-		local response = http.generic_request(self.host, self.port, arg_method, arg_url, { header = header, bypass_cache = true } )
+    -- the http library does not yet support proxy authentication, so let's
+    -- do what's necessary here.
+    local header = { ["Proxy-Authorization"] = "Basic " .. base64.enc(username .. ":" .. password) }
+    local response = http.generic_request(self.host, self.port, arg_method, arg_url, { header = header, bypass_cache = true } )
 
-		-- if we didn't get a 407 error, assume the credentials
-		-- were correct. we should probably do some more checks here
-		if ( response.status ~= 407 ) then
-			return true, brute.Account:new( username, password, creds.State.VALID)
-		end
+    -- if we didn't get a 407 error, assume the credentials
+    -- were correct. we should probably do some more checks here
+    if ( response.status ~= 407 ) then
+      return true, brute.Account:new( username, password, creds.State.VALID)
+    end
 
-		return false, brute.Error:new( "Incorrect password" )
-	end,
+    return false, brute.Error:new( "Incorrect password" )
+  end,
 
-	disconnect = function( self )
-		return true
-	end,
+  disconnect = function( self )
+    return true
+  end,
 }
 
 -- checks whether the proxy really needs authentication and that the
 -- authentication mechanism can be handled by our script, currently only
 -- BASIC authentication is supported.
 local function checkProxy(host, port, url)
-	local response = http.generic_request(host, port, arg_method, url, { bypass_cache = true })
+  local response = http.generic_request(host, port, arg_method, url, { bypass_cache = true })
 
-	if ( response.status ~= 407 ) then
-		return false, "Proxy server did not require authentication"
-	end
+  if ( response.status ~= 407 ) then
+    return false, "Proxy server did not require authentication"
+  end
 
-	local proxy_auth = response.header["proxy-authenticate"]
-	if ( not(proxy_auth) ) then
-		return false, "No proxy authentication header was found"
-	end
+  local proxy_auth = response.header["proxy-authenticate"]
+  if ( not(proxy_auth) ) then
+    return false, "No proxy authentication header was found"
+  end
 
-	local challenges = http.parse_www_authenticate(proxy_auth)
+  local challenges = http.parse_www_authenticate(proxy_auth)
 
-	for _, challenge in ipairs(challenges) do
-		if ( "Basic" == challenge.scheme ) then
-			return true
-		end
-	end
-	return false, "The authentication scheme wasn't supported"
+  for _, challenge in ipairs(challenges) do
+    if ( "Basic" == challenge.scheme ) then
+      return true
+    end
+  end
+  return false, "The authentication scheme wasn't supported"
 end
 
 action = function(host, port)
 
-	local status, err = checkProxy(host, port, arg_url)
-	if ( not(status) ) then
-		return ("\n  ERROR: %s"):format(err)
-	end
+  local status, err = checkProxy(host, port, arg_url)
+  if ( not(status) ) then
+    return ("\n  ERROR: %s"):format(err)
+  end
 
-	local engine = brute.Engine:new(Driver, host, port)
-	engine.options.script_name = SCRIPT_NAME
-	local result
-	status, result = engine:start()
+  local engine = brute.Engine:new(Driver, host, port)
+  engine.options.script_name = SCRIPT_NAME
+  local result
+  status, result = engine:start()
 
-	return result
+  return result
 end

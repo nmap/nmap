@@ -43,72 +43,72 @@ portrule = shortport.version_port_or_service({50000,60000,9090,1526,1527},
 -- @param server_version string containing the product release
 -- @return ver string containing the version information
 local function parseVersion( server_version )
-	local pfx = string.sub(server_version,1,3)
+  local pfx = string.sub(server_version,1,3)
 
-	if pfx == "SQL" or pfx == "IFX" then
-		local major_version = string.sub(server_version,4,5)
+  if pfx == "SQL" or pfx == "IFX" then
+    local major_version = string.sub(server_version,4,5)
 
-		-- strip the leading 0 from the major version, for consistency with
-		-- nmap-service-probes results
-		if string.sub(major_version,1,1) == "0" then
-			major_version = string.sub(major_version,2)
-		end
-		local minor_version = string.sub(server_version,6,7)
-		local hotfix = string.sub(server_version,8)
-		server_version = major_version .. "." .. minor_version .. "." .. hotfix
-	elseif( pfx == "CSS" ) then
-		return server_version:match("%w+/(.*)")
-	end
+    -- strip the leading 0 from the major version, for consistency with
+    -- nmap-service-probes results
+    if string.sub(major_version,1,1) == "0" then
+      major_version = string.sub(major_version,2)
+    end
+    local minor_version = string.sub(server_version,6,7)
+    local hotfix = string.sub(server_version,8)
+    server_version = major_version .. "." .. minor_version .. "." .. hotfix
+  elseif( pfx == "CSS" ) then
+    return server_version:match("%w+/(.*)")
+  end
 
-	return server_version
+  return server_version
 end
 
 action = function( host, port )
 
-	local helper = drda.Helper:new()
-	local status, response
-	local results = {}
+  local helper = drda.Helper:new()
+  local status, response
+  local results = {}
 
-	status, response = helper:connect(host, port)
-	if( not(status) ) then
-		return response
-	end
+  status, response = helper:connect(host, port)
+  if( not(status) ) then
+    return response
+  end
 
-	status, response = helper:getServerInfo()
-	if( not(status) ) then
-		return response
-	end
+  status, response = helper:getServerInfo()
+  if( not(status) ) then
+    return response
+  end
 
-	helper:close()
+  helper:close()
 
-	-- Set port information
-	if ( response.srvclass and response.srvclass:match("IDS/") ) then
-		port.version.name = "drda"
-		port.version.product = "IBM Informix Dynamic Server"
-		port.version.name_confidence = 10
-		table.insert( results, ("Informix Version: %s"):format( parseVersion(response.prodrel) ) )
-	elseif ( response.srvclass and response.srvclass:match("Apache Derby") ) then
-		port.version.name = "drda"
-		port.version.product = "Apache Derby Server"
-		port.version.name_confidence = 10
-		table.insert( results, ("Derby Version: %s"):format( parseVersion(response.prodrel) ) )
-	elseif ( response.srvclass and response.srvclass:match("DB2") ) then
-		port.version.name = "drda"
-		port.version.product = "IBM DB2 Database Server"
-		port.version.name_confidence = 10
-		table.insert( results, ("DB2 Version: %s"):format( parseVersion(response.prodrel) ) )
-	else
-		table.insert( results, ("Version: %s"):format( response.prodrel ) )
-	end
-	nmap.set_port_state(host, port, "open")
-	if response.srvclass ~= nil then port.version.extrainfo = response.srvclass   end
+  -- Set port information
+  if ( response.srvclass and response.srvclass:match("IDS/") ) then
+    port.version.name = "drda"
+    port.version.product = "IBM Informix Dynamic Server"
+    port.version.name_confidence = 10
+    table.insert( results, ("Informix Version: %s"):format( parseVersion(response.prodrel) ) )
+  elseif ( response.srvclass and response.srvclass:match("Apache Derby") ) then
+    port.version.name = "drda"
+    port.version.product = "Apache Derby Server"
+    port.version.name_confidence = 10
+    table.insert( results, ("Derby Version: %s"):format( parseVersion(response.prodrel) ) )
+  elseif ( response.srvclass and response.srvclass:match("DB2") ) then
+    port.version.name = "drda"
+    port.version.product = "IBM DB2 Database Server"
+    port.version.name_confidence = 10
+    table.insert( results, ("DB2 Version: %s"):format( parseVersion(response.prodrel) ) )
+  else
+    table.insert( results, ("Version: %s"):format( response.prodrel ) )
+  end
+  nmap.set_port_state(host, port, "open")
+  if response.srvclass ~= nil then port.version.extrainfo = response.srvclass   end
 
-	nmap.set_port_version(host, port)
+  nmap.set_port_version(host, port)
 
-	-- Generate results
-	table.insert( results, ("Server Platform: %s"):format( response.srvclass ) )
-	table.insert( results, ("Instance Name: %s"):format( response.srvname ) )
-	table.insert( results, ("External Name: %s"):format( response.extname ) )
+  -- Generate results
+  table.insert( results, ("Server Platform: %s"):format( response.srvclass ) )
+  table.insert( results, ("Instance Name: %s"):format( response.srvname ) )
+  table.insert( results, ("External Name: %s"):format( response.extname ) )
 
-	return stdnse.format_output( true, results )
+  return stdnse.format_output( true, results )
 end

@@ -42,76 +42,76 @@ local RPC_GET_VERSION = 0x00
 local RPC_GET_EXECUTABLE = 0x04
 
 local function check_infected(host, path, save)
-	local file, result, session, status, version
+  local file, result, session, status, version
 
-	-- Create an SMB session.
-	status, session = msrpc.start_smb(host, path)
-	if not status then
-		stdnse.print_debug(1, "Failed to establish session on %s.", path)
-		return false, nil
-	end
+  -- Create an SMB session.
+  status, session = msrpc.start_smb(host, path)
+  if not status then
+    stdnse.print_debug(1, "Failed to establish session on %s.", path)
+    return false, nil
+  end
 
-	-- Bind to the Stuxnet service.
-	status, result = msrpc.bind(session, STUXNET_UUID, STUXNET_VERSION, nil)
-	if not status or result["ack_result"] ~= 0 then
-		stdnse.print_debug(1, "Failed to bind to Stuxnet service.")
-		msrpc.stop_smb(session)
-		return false, nil
-	end
+  -- Bind to the Stuxnet service.
+  status, result = msrpc.bind(session, STUXNET_UUID, STUXNET_VERSION, nil)
+  if not status or result["ack_result"] ~= 0 then
+    stdnse.print_debug(1, "Failed to bind to Stuxnet service.")
+    msrpc.stop_smb(session)
+    return false, nil
+  end
 
-	-- Request version of Stuxnet infection.
-	status, result = msrpc.call_function(session, RPC_GET_VERSION, "")
-	if not status then
-		stdnse.print_debug(1, "Failed to retrieve Stuxnet version: %s", result)
-		msrpc.stop_smb(session)
-		return false, nil
-	end
-	version = stdnse.tohex(result.arguments, {separator = ":"})
+  -- Request version of Stuxnet infection.
+  status, result = msrpc.call_function(session, RPC_GET_VERSION, "")
+  if not status then
+    stdnse.print_debug(1, "Failed to retrieve Stuxnet version: %s", result)
+    msrpc.stop_smb(session)
+    return false, nil
+  end
+  version = stdnse.tohex(result.arguments, {separator = ":"})
 
-	-- Request executable of Stuxnet infection.
-	if save then
-		local file, fmt
+  -- Request executable of Stuxnet infection.
+  if save then
+    local file, fmt
 
-		status, result = msrpc.call_function(session, RPC_GET_EXECUTABLE, "")
-		if not status then
-			stdnse.print_debug(1, "Failed to retrieve Stuxnet executable: %s", result)
-			msrpc.stop_smb(session)
-			return true, version
-		end
+    status, result = msrpc.call_function(session, RPC_GET_EXECUTABLE, "")
+    if not status then
+      stdnse.print_debug(1, "Failed to retrieve Stuxnet executable: %s", result)
+      msrpc.stop_smb(session)
+      return true, version
+    end
 
-		fmt = save:gsub("%%h", host.ip)
-		fmt = fmt:gsub("%%v", version)
-		file = io.open(stdnse.filename_escape(fmt), "w")
-		if file then
-			stdnse.print_debug(1, "Wrote %d bytes to file %s.", #result.arguments, fmt)
-			file:write(result.arguments)
-			file:close()
-		else
-			stdnse.print_debug(1, "Failed to open file: %s", fmt)
-		end
-	end
+    fmt = save:gsub("%%h", host.ip)
+    fmt = fmt:gsub("%%v", version)
+    file = io.open(stdnse.filename_escape(fmt), "w")
+    if file then
+      stdnse.print_debug(1, "Wrote %d bytes to file %s.", #result.arguments, fmt)
+      file:write(result.arguments)
+      file:close()
+    else
+      stdnse.print_debug(1, "Failed to open file: %s", fmt)
+    end
+  end
 
-	-- Destroy the SMB session
-	msrpc.stop_smb(session)
+  -- Destroy the SMB session
+  msrpc.stop_smb(session)
 
-	return true, version
+  return true, version
 end
 
 hostrule = function(host)
-	return (smb.get_port(host) ~= nil)
+  return (smb.get_port(host) ~= nil)
 end
 
 action = function(host, port)
-	local _, path, result, save, status
+  local _, path, result, save, status
 
-	-- Get script arguments.
-	save = stdnse.get_script_args("stuxnet-detect.save")
+  -- Get script arguments.
+  save = stdnse.get_script_args("stuxnet-detect.save")
 
-	-- Try to find Stuxnet on this host.
-	for _, path in pairs(STUXNET_PATHS) do
-		status, result = check_infected(host, path, save)
-		if status then
-			return "INFECTED (version " .. result .. ")"
-		end
-	end
+  -- Try to find Stuxnet on this host.
+  for _, path in pairs(STUXNET_PATHS) do
+    status, result = check_infected(host, path, save)
+    if status then
+      return "INFECTED (version " .. result .. ")"
+    end
+  end
 end

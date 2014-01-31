@@ -48,68 +48,68 @@ local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local v = versant.Versant:new(host, port)
-	local status = v:connect()
-	if ( not(status) ) then
-		return fail("Failed to connect to server")
-	end
+  local v = versant.Versant:new(host, port)
+  local status = v:connect()
+  if ( not(status) ) then
+    return fail("Failed to connect to server")
+  end
 
-	local status, newport = v:getObePort()
-	if ( not(status) ) then
-		return fail("Failed to retrieve OBE port")
-	end
-	v:close()
+  local status, newport = v:getObePort()
+  if ( not(status) ) then
+    return fail("Failed to retrieve OBE port")
+  end
+  v:close()
 
-	v = versant.Versant.OBE:new(host, newport)
-	status = v:connect()
-	if ( not(status) ) then
-		return fail("Failed to connect to server")
-	end
+  v = versant.Versant.OBE:new(host, newport)
+  status = v:connect()
+  if ( not(status) ) then
+    return fail("Failed to connect to server")
+  end
 
   local result
-	status, result = v:getVODInfo()
-	if ( not(status) ) then
-		return fail("Failed to get VOD information")
-	end
-	v:close()
+  status, result = v:getVODInfo()
+  if ( not(status) ) then
+    return fail("Failed to get VOD information")
+  end
+  v:close()
 
-	local output = {}
+  local output = {}
 
-	table.insert(output, ("Hostname: %s"):format(result.hostname))
-	table.insert(output, ("Root path: %s"):format(result.root_path))
-	table.insert(output, ("Database path: %s"):format(result.db_path))
-	table.insert(output, ("Library path: %s"):format(result.lib_path))
-	table.insert(output, ("Version: %s"):format(result.version))
+  table.insert(output, ("Hostname: %s"):format(result.hostname))
+  table.insert(output, ("Root path: %s"):format(result.root_path))
+  table.insert(output, ("Database path: %s"):format(result.db_path))
+  table.insert(output, ("Library path: %s"):format(result.lib_path))
+  table.insert(output, ("Version: %s"):format(result.version))
 
-	port.version.product = "Versant Database"
-	port.version.name = "versant"
-	nmap.set_port_version(host, port)
+  port.version.product = "Versant Database"
+  port.version.name = "versant"
+  nmap.set_port_version(host, port)
 
-	-- the script may fail after this part, but we want to report at least
-	-- the above information if that's the case.
+  -- the script may fail after this part, but we want to report at least
+  -- the above information if that's the case.
 
-	v = versant.Versant:new(host, port)
-	status = v:connect()
-	if ( not(status) ) then
-		return stdnse.format_output(true, output)
-	end
+  v = versant.Versant:new(host, port)
+  status = v:connect()
+  if ( not(status) ) then
+    return stdnse.format_output(true, output)
+  end
 
-	status, result = v:getNodeInfo()
-	if ( not(status) ) then
-		return stdnse.format_output(true, output)
-	end
-	v:close()
+  status, result = v:getNodeInfo()
+  if ( not(status) ) then
+    return stdnse.format_output(true, output)
+  end
+  v:close()
 
-	local databases = { name = "Databases" }
+  local databases = { name = "Databases" }
 
-	for _, db in ipairs(result) do
-		local db_tbl = { name = db.name }
-		table.insert(db_tbl, ("Created: %s"):format(db.created))
-		table.insert(db_tbl, ("Owner: %s"):format(db.owner))
-		table.insert(db_tbl, ("Version: %s"):format(db.version))
-		table.insert(databases, db_tbl)
-	end
+  for _, db in ipairs(result) do
+    local db_tbl = { name = db.name }
+    table.insert(db_tbl, ("Created: %s"):format(db.created))
+    table.insert(db_tbl, ("Owner: %s"):format(db.owner))
+    table.insert(db_tbl, ("Version: %s"):format(db.version))
+    table.insert(databases, db_tbl)
+  end
 
-	table.insert(output, databases)
-	return stdnse.format_output(true, output)
+  table.insert(output, databases)
+  return stdnse.format_output(true, output)
 end

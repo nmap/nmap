@@ -36,95 +36,95 @@ arg_timeout = (arg_timeout or 5) * 1000
 local arg_threads = stdnse.get_script_args("nessus-xmlrpc-brute.threads")
 
 local function authenticate(host, port, username, password)
-	local post_data = ("login=%s&password=%s"):format(username, password)
+  local post_data = ("login=%s&password=%s"):format(username, password)
 
-	local headers = {
-		"POST /login HTTP/1.1",
-		"User-Agent: Nmap",
-		("Host: %s:%d"):format(host.ip, port.number),
-		"Accept: */*",
-		("Content-Length: %d"):format(#post_data),
-		"Content-Type: application/x-www-form-urlencoded",
-	}
+  local headers = {
+    "POST /login HTTP/1.1",
+    "User-Agent: Nmap",
+    ("Host: %s:%d"):format(host.ip, port.number),
+    "Accept: */*",
+    ("Content-Length: %d"):format(#post_data),
+    "Content-Type: application/x-www-form-urlencoded",
+  }
 
-	local data = table.concat(headers, "\r\n") .. "\r\n\r\n" .. post_data
-	local socket = nmap.new_socket()
-	socket:set_timeout(arg_timeout)
+  local data = table.concat(headers, "\r\n") .. "\r\n\r\n" .. post_data
+  local socket = nmap.new_socket()
+  socket:set_timeout(arg_timeout)
 
-	local status, err = socket:connect(host, port)
-	if ( not(status) ) then
-		return false, "Failed to connect to server"
-	end
-	local status, err = socket:send(data)
-	if ( not(status) ) then
-		return false, "Failed to send request to server"
-	end
-	local status, response = socket:receive()
-	socket:close()
-	if ( not(status) ) then
-		return false, "Failed to receive response from server"
-	end
-	return status, response
+  local status, err = socket:connect(host, port)
+  if ( not(status) ) then
+    return false, "Failed to connect to server"
+  end
+  local status, err = socket:send(data)
+  if ( not(status) ) then
+    return false, "Failed to send request to server"
+  end
+  local status, response = socket:receive()
+  socket:close()
+  if ( not(status) ) then
+    return false, "Failed to receive response from server"
+  end
+  return status, response
 end
 
 Driver =
 {
-	new = function (self, host, port )
-		local o = { host = host, port = port }
-		setmetatable (o,self)
-		self.__index = self
-		return o
-	end,
+  new = function (self, host, port )
+    local o = { host = host, port = port }
+    setmetatable (o,self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function ( self )	return true	end,
+  connect = function ( self )	return true	end,
 
-	login = function( self, username, password )
+  login = function( self, username, password )
 
-		local status, response = authenticate(self.host, self.port, username, password)
-		if ( status and response ) then
-			if ( response:match("^HTTP/1.1 200 OK.*<status>OK</status>") ) then
-				return true, brute.Account:new(username, password, creds.State.VALID)
-			elseif ( response:match("^HTTP/1.1 200 OK.*<status>ERROR</status>") ) then
-				return false, brute.Error:new("incorrect login")
-			end
-		end
-		local err = brute.Error:new( "incorrect response from server" )
-		err:setRetry(true)
-		return false, err
-	end,
+    local status, response = authenticate(self.host, self.port, username, password)
+    if ( status and response ) then
+      if ( response:match("^HTTP/1.1 200 OK.*<status>OK</status>") ) then
+        return true, brute.Account:new(username, password, creds.State.VALID)
+      elseif ( response:match("^HTTP/1.1 200 OK.*<status>ERROR</status>") ) then
+        return false, brute.Error:new("incorrect login")
+      end
+    end
+    local err = brute.Error:new( "incorrect response from server" )
+    err:setRetry(true)
+    return false, err
+  end,
 
-	disconnect = function( self ) return true end,
+  disconnect = function( self ) return true end,
 }
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function(host, port)
 
-	local status, response = authenticate(host, port, "nmap-ssl-test-probe", "nmap-ssl-test-probe")
-	if ( not(status) ) then
-		return fail(response)
-	end
-	-- patch the protocol due to the ugly way the Nessus web server works.
-	-- The server answers non-ssl connections as legitimate http stating that
-	-- the server should be connected to using https on the same port. ugly.
-	if ( status and response:match("^HTTP/1.1 400 Bad request\r\n") ) then
-		port.protocol = "ssl"
-		status, response = authenticate(host, port, "nmap-ssl-test-probe", "nmap-ssl-test-probe")
-		if ( not(status) ) then
-			return fail(response)
-		end
-	end
+  local status, response = authenticate(host, port, "nmap-ssl-test-probe", "nmap-ssl-test-probe")
+  if ( not(status) ) then
+    return fail(response)
+  end
+  -- patch the protocol due to the ugly way the Nessus web server works.
+  -- The server answers non-ssl connections as legitimate http stating that
+  -- the server should be connected to using https on the same port. ugly.
+  if ( status and response:match("^HTTP/1.1 400 Bad request\r\n") ) then
+    port.protocol = "ssl"
+    status, response = authenticate(host, port, "nmap-ssl-test-probe", "nmap-ssl-test-probe")
+    if ( not(status) ) then
+      return fail(response)
+    end
+  end
 
-	if ( not(response:match("^HTTP/1.1 200 OK.*Server: NessusWWW.*<status>ERROR</status>")) ) then
-		return fail("Failed to detect Nessus Web server")
-	end
+  if ( not(response:match("^HTTP/1.1 200 OK.*Server: NessusWWW.*<status>ERROR</status>")) ) then
+    return fail("Failed to detect Nessus Web server")
+  end
 
-	local engine = brute.Engine:new(Driver, host, port)
-	if ( arg_threads ) then
-		engine:setMaxThreads(arg_threads)
-	end
-	engine.options.script_name = SCRIPT_NAME
-	local result
-	status, result = engine:start()
-	return result
+  local engine = brute.Engine:new(Driver, host, port)
+  if ( arg_threads ) then
+    engine:setMaxThreads(arg_threads)
+  end
+  engine.options.script_name = SCRIPT_NAME
+  local result
+  status, result = engine:start()
+  return result
 end

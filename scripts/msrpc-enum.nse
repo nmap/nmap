@@ -73,41 +73,41 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","discovery"}
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 action = function(host,port)
-	local status, smbstate
-	status, smbstate = msrpc.start_smb(host,msrpc.EPMAPPER_PATH,true)
-	if(status == false) then
-		stdnse.print_debug("SMB: " .. smbstate)
-		return false, smbstate
-	end
-	local bind_result,epresult -- bind to endpoint mapper service
-	status, bind_result = msrpc.bind(smbstate,msrpc.EPMAPPER_UUID, msrpc.EPMAPPER_VERSION, nil)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		stdnse.print_debug("SMB: " .. bind_result)
-		return false, bind_result
-	end
-	local results = {}
-	status, epresult = msrpc.epmapper_lookup(smbstate,nil) -- get the initial handle
-	if not status then
-		stdnse.print_debug("SMB: " .. epresult)
-		return false, epresult
+  local status, smbstate
+  status, smbstate = msrpc.start_smb(host,msrpc.EPMAPPER_PATH,true)
+  if(status == false) then
+    stdnse.print_debug("SMB: " .. smbstate)
+    return false, smbstate
+  end
+  local bind_result,epresult -- bind to endpoint mapper service
+  status, bind_result = msrpc.bind(smbstate,msrpc.EPMAPPER_UUID, msrpc.EPMAPPER_VERSION, nil)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    stdnse.print_debug("SMB: " .. bind_result)
+    return false, bind_result
+  end
+  local results = {}
+  status, epresult = msrpc.epmapper_lookup(smbstate,nil) -- get the initial handle
+  if not status then
+    stdnse.print_debug("SMB: " .. epresult)
+    return false, epresult
 
-	end
-	local handle = epresult.new_handle
-	epresult.new_handle = nil
-	table.insert(results,epresult)
+  end
+  local handle = epresult.new_handle
+  epresult.new_handle = nil
+  table.insert(results,epresult)
 
-	while not (epresult == nil) do
-		status, epresult = msrpc.epmapper_lookup(smbstate,handle) -- get next result until there are no more
-		if not status then
-			break
-		end
-		epresult.new_handle = nil
-		table.insert(results,epresult)
-	end
-	return results
+  while not (epresult == nil) do
+    status, epresult = msrpc.epmapper_lookup(smbstate,handle) -- get next result until there are no more
+    if not status then
+      break
+    end
+    epresult.new_handle = nil
+    table.insert(results,epresult)
+  end
+  return results
 end

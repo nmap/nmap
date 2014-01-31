@@ -43,75 +43,75 @@ portrule = shortport.port_or_service(1344, "icap")
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local function parseResponse(resp)
-	if ( not(resp) ) then
-		return
-	end
+  if ( not(resp) ) then
+    return
+  end
 
-	local resp_p = { header = {}, rawheader = {} }
-	local resp_tbl = stdnse.strsplit("\r?\n", resp)
+  local resp_p = { header = {}, rawheader = {} }
+  local resp_tbl = stdnse.strsplit("\r?\n", resp)
 
-	if ( not(resp_tbl) or #resp_tbl == 0 ) then
-		stdnse.print_debug(2, "Received an invalid response from server")
-		return
-	end
+  if ( not(resp_tbl) or #resp_tbl == 0 ) then
+    stdnse.print_debug(2, "Received an invalid response from server")
+    return
+  end
 
-	resp_p.status = tonumber(resp_tbl[1]:match("^ICAP/1%.0 (%d*) .*$"))
-	resp_p['status-line'] = resp_tbl[1]
+  resp_p.status = tonumber(resp_tbl[1]:match("^ICAP/1%.0 (%d*) .*$"))
+  resp_p['status-line'] = resp_tbl[1]
 
-	for i=2, #resp_tbl do
-		local key, val = resp_tbl[i]:match("^([^:]*):%s*(.*)$")
-		if ( not(key) or not(val) ) then
-			stdnse.print_debug(2, "Failed to parse header: %s", resp_tbl[i])
-		else
-			resp_p.header[key:lower()] = val
-		end
-		table.insert(resp_p.rawheader, resp_tbl[i])
-	end
-	return resp_p
+  for i=2, #resp_tbl do
+    local key, val = resp_tbl[i]:match("^([^:]*):%s*(.*)$")
+    if ( not(key) or not(val) ) then
+      stdnse.print_debug(2, "Failed to parse header: %s", resp_tbl[i])
+    else
+      resp_p.header[key:lower()] = val
+    end
+    table.insert(resp_p.rawheader, resp_tbl[i])
+  end
+  return resp_p
 end
 
 action = function(host, port)
 
-	local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap" }
-	local headers = {"Service", "ISTag"}
-	local probe = {
-		"OPTIONS icap://%s%s ICAP/1.0",
-		"Host: %s",
-		"User-Agent: nmap icap-client/0.01",
-		"Encapsulated: null-body=0"
-	}
-	local hostname = stdnse.get_hostname(host)
-	local result = {}
+  local services = {"/avscan", "/echo", "/srv_clamav", "/url_check", "/nmap" }
+  local headers = {"Service", "ISTag"}
+  local probe = {
+    "OPTIONS icap://%s%s ICAP/1.0",
+    "Host: %s",
+    "User-Agent: nmap icap-client/0.01",
+    "Encapsulated: null-body=0"
+  }
+  local hostname = stdnse.get_hostname(host)
+  local result = {}
 
-	for _, service in ipairs(services) do
-		local socket = nmap.new_socket()
-		socket:set_timeout(5000)
-		if ( not(socket:connect(host, port)) ) then
-			return fail("Failed to connect to server")
-		end
+  for _, service in ipairs(services) do
+    local socket = nmap.new_socket()
+    socket:set_timeout(5000)
+    if ( not(socket:connect(host, port)) ) then
+      return fail("Failed to connect to server")
+    end
 
-		local request = (stdnse.strjoin("\r\n", probe) .. "\r\n\r\n"):format(hostname, service, hostname)
+    local request = (stdnse.strjoin("\r\n", probe) .. "\r\n\r\n"):format(hostname, service, hostname)
 
-		if ( not(socket:send(request)) ) then
-			socket:close()
-			return fail("Failed to send request to server")
-		end
+    if ( not(socket:send(request)) ) then
+      socket:close()
+      return fail("Failed to send request to server")
+    end
 
-		local status, resp = socket:receive_buf("\r\n\r\n", false)
-		if ( not(status) ) then
-			return fail("Failed to receive response from server")
-		end
+    local status, resp = socket:receive_buf("\r\n\r\n", false)
+    if ( not(status) ) then
+      return fail("Failed to receive response from server")
+    end
 
-		local resp_p = parseResponse(resp)
-		if ( resp_p and resp_p.status == 200 ) then
-			local result_part = { name = service }
-			for _, h in ipairs(headers) do
-				if ( resp_p.header[h:lower()] ) then
-					table.insert(result_part, ("%s: %s"):format(h, resp_p.header[h:lower()]))
-				end
-			end
-			table.insert(result, result_part)
-		end
-	end
-	return stdnse.format_output(true, result)
+    local resp_p = parseResponse(resp)
+    if ( resp_p and resp_p.status == 200 ) then
+      local result_part = { name = service }
+      for _, h in ipairs(headers) do
+        if ( resp_p.header[h:lower()] ) then
+          table.insert(result_part, ("%s: %s"):format(h, resp_p.header[h:lower()]))
+        end
+      end
+      table.insert(result, result_part)
+    end
+  end
+  return stdnse.format_output(true, result)
 end

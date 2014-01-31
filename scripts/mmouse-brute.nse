@@ -40,80 +40,80 @@ portrule = shortport.port_or_service(51010, "mmouse", "tcp")
 
 Driver = {
 
-	new = function(self, host, port)
-		local o = { host = host, port = port }
-       	setmetatable(o, self)
-        self.__index = self
-		return o
-	end,
+  new = function(self, host, port)
+    local o = { host = host, port = port }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	connect = function( self )
-		self.socket = nmap.new_socket()
-		self.socket:set_timeout(arg_timeout)
-		return self.socket:connect(self.host, self.port)
-	end,
+  connect = function( self )
+    self.socket = nmap.new_socket()
+    self.socket:set_timeout(arg_timeout)
+    return self.socket:connect(self.host, self.port)
+  end,
 
-	login = function( self, username, password )
-		local devid = "0123456789abcdef0123456789abcdef0123456"
-		local devname = "Lord Vaders iPad"
-		local suffix = "2".."\30".."2".."\04"
-		local auth = ("CONNECT\30%s\30%s\30%s\30%s"):format(password, devid, devname, suffix)
+  login = function( self, username, password )
+    local devid = "0123456789abcdef0123456789abcdef0123456"
+    local devname = "Lord Vaders iPad"
+    local suffix = "2".."\30".."2".."\04"
+    local auth = ("CONNECT\30%s\30%s\30%s\30%s"):format(password, devid, devname, suffix)
 
-		local status = self.socket:send(auth)
-		if ( not(status) ) then
-			local err = brute.Error:new( "Failed to send data to server" )
-			err:setRetry( true )
-			return false, err
-		end
+    local status = self.socket:send(auth)
+    if ( not(status) ) then
+      local err = brute.Error:new( "Failed to send data to server" )
+      err:setRetry( true )
+      return false, err
+    end
 
-		local status, data = self.socket:receive_buf("\04", true)
+    local status, data = self.socket:receive_buf("\04", true)
 
-		if (data:match("^CONNECTED\30([^\30]*)") == "NO" ) then
-			return false, brute.Error:new( "Incorrect password" )
-		elseif ( data:match("^CONNECTED\30([^\30]*)") == "YES" ) then
-			return true, brute.Account:new("", password, creds.State.VALID)
-		end
+    if (data:match("^CONNECTED\30([^\30]*)") == "NO" ) then
+      return false, brute.Error:new( "Incorrect password" )
+    elseif ( data:match("^CONNECTED\30([^\30]*)") == "YES" ) then
+      return true, brute.Account:new("", password, creds.State.VALID)
+    end
 
-		local err = brute.Error:new("An unexpected error occured, retrying ...")
-		err:setRetry(true)
-		return false, err
-	end,
+    local err = brute.Error:new("An unexpected error occured, retrying ...")
+    err:setRetry(true)
+    return false, err
+  end,
 
-	disconnect = function(self)
-		self.socket:close()
-	end,
+  disconnect = function(self)
+    self.socket:close()
+  end,
 
 }
 
 local function hasPassword(host, port)
-	local driver = Driver:new(host, port)
-	if ( not(driver:connect()) ) then
-		error("Failed to connect to server")
-	end
-	local status = driver:login(nil, "nmap")
-	driver:disconnect()
+  local driver = Driver:new(host, port)
+  if ( not(driver:connect()) ) then
+    error("Failed to connect to server")
+  end
+  local status = driver:login(nil, "nmap")
+  driver:disconnect()
 
-	return not(status)
+  return not(status)
 end
 
 
 action = function(host, port)
 
-	if ( not(hasPassword(host, port)) ) then
-		return "\n  Server has no password"
-	end
+  if ( not(hasPassword(host, port)) ) then
+    return "\n  Server has no password"
+  end
 
-	local status, result
-	local engine = brute.Engine:new(Driver, host, port )
+  local status, result
+  local engine = brute.Engine:new(Driver, host, port )
 
-	engine.options.script_name = SCRIPT_NAME
-	engine.options.firstonly = true
-	engine.options:setOption( "passonly", true )
+  engine.options.script_name = SCRIPT_NAME
+  engine.options.firstonly = true
+  engine.options:setOption( "passonly", true )
 
-	-- mouse server does not behave well when multiple threads are guessing
-	engine:setMaxThreads(1)
+  -- mouse server does not behave well when multiple threads are guessing
+  engine:setMaxThreads(1)
 
-	status, result = engine:start()
+  status, result = engine:start()
 
-	return result
+  return result
 end

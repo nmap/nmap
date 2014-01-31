@@ -59,58 +59,58 @@ local function fail(str) return "\n  ERROR: " .. str end
 
 action = function(host, port)
 
-	local op = arg_op:lower()
+  local op = arg_op:lower()
 
-	if ( "map" ~= op and "unmap" ~= op and "unmapall" ~= op ) then
-		return fail("Operation must be either \"map\", \"unmap\" or \"unmapall\"")
-	end
+  if ( "map" ~= op and "unmap" ~= op and "unmapall" ~= op ) then
+    return fail("Operation must be either \"map\", \"unmap\" or \"unmapall\"")
+  end
 
-	if ( ("map" == op or "unmap" == op ) and
-		 ( not(arg_pubport) or not(arg_privport) or not(arg_protocol) ) ) then
-		return fail("The arguments pubport, privport and protocol are required")
-	elseif ( "unmapall" == op and not(arg_protocol) ) then
-		return fail("The argument protocol is required")
-	end
+  if ( ("map" == op or "unmap" == op ) and
+    ( not(arg_pubport) or not(arg_privport) or not(arg_protocol) ) ) then
+    return fail("The arguments pubport, privport and protocol are required")
+  elseif ( "unmapall" == op and not(arg_protocol) ) then
+    return fail("The argument protocol is required")
+  end
 
-	local helper = natpmp.Helper:new(host, port)
+  local helper = natpmp.Helper:new(host, port)
 
-	if ( "unmap" == op or "unmapall" == op ) then
-		arg_lifetime = 0
-	end
-	if ( "unmapall" == op ) then
-		arg_pubport, arg_privport = 0, 0
-	end
+  if ( "unmap" == op or "unmapall" == op ) then
+    arg_lifetime = 0
+  end
+  if ( "unmapall" == op ) then
+    arg_pubport, arg_privport = 0, 0
+  end
 
-	local status, response = helper:getWANIP()
-	if ( not(status) ) then
-		return fail("Failed to retrieve WAN IP")
-	end
+  local status, response = helper:getWANIP()
+  if ( not(status) ) then
+    return fail("Failed to retrieve WAN IP")
+  end
 
-	local wan_ip = response.ip
-	local lan_ip = (nmap.get_interface_info(host.interface)).address
+  local wan_ip = response.ip
+  local lan_ip = (nmap.get_interface_info(host.interface)).address
 
-	local status, response = helper:mapPort(arg_pubport, arg_privport, arg_protocol, arg_lifetime)
+  local status, response = helper:mapPort(arg_pubport, arg_privport, arg_protocol, arg_lifetime)
 
-	if ( not(status) ) then
-		return fail(response)
-	end
+  if ( not(status) ) then
+    return fail(response)
+  end
 
-	local output
-	if ( "unmap" == op ) then
-		output = ("Successfully unmapped %s %s:%d -> %s:%d"):format(
-			arg_protocol, wan_ip, response.pubport, lan_ip, response.privport )
-	elseif ( "unmapall" == op ) then
-		output = ("Sucessfully unmapped all %s NAT mappings for %s"):format(arg_protocol, lan_ip)
-	else
-		output = ("Successfully mapped %s %s:%d -> %s:%d"):format(
-			arg_protocol, wan_ip, response.pubport, lan_ip, response.privport )
+  local output
+  if ( "unmap" == op ) then
+    output = ("Successfully unmapped %s %s:%d -> %s:%d"):format(
+      arg_protocol, wan_ip, response.pubport, lan_ip, response.privport )
+  elseif ( "unmapall" == op ) then
+    output = ("Sucessfully unmapped all %s NAT mappings for %s"):format(arg_protocol, lan_ip)
+  else
+    output = ("Successfully mapped %s %s:%d -> %s:%d"):format(
+      arg_protocol, wan_ip, response.pubport, lan_ip, response.privport )
 
-		if ( tonumber(arg_pubport) ~= tonumber(response.pubport) ) then
-			output = { output }
-			table.insert(output, "WARNING: Requested public port could not be allocated")
-		end
-	end
+    if ( tonumber(arg_pubport) ~= tonumber(response.pubport) ) then
+      output = { output }
+      table.insert(output, "WARNING: Requested public port could not be allocated")
+    end
+  end
 
-	return stdnse.format_output(true, output)
+  return stdnse.format_output(true, output)
 
 end
