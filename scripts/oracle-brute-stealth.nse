@@ -63,141 +63,141 @@ local johnfile
 Driver =
 {
 
-	new = function(self, host, port, sid )
-		local o = { host = host, port = port, sid = sid }
-		setmetatable(o, self)
-		self.__index = self
-		return o
-	end,
+  new = function(self, host, port, sid )
+    local o = { host = host, port = port, sid = sid }
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-	--- Connects performs protocol negotiation
-	--
-	-- @return true on success, false on failure
-	connect = function( self )
-		local MAX_RETRIES = 10
-		local tries = MAX_RETRIES
+  --- Connects performs protocol negotiation
+  --
+  -- @return true on success, false on failure
+  connect = function( self )
+    local MAX_RETRIES = 10
+    local tries = MAX_RETRIES
 
-		self.helper = ConnectionPool[coroutine.running()]
-		if ( self.helper ) then return true end
+    self.helper = ConnectionPool[coroutine.running()]
+    if ( self.helper ) then return true end
 
-		self.helper = tns.Helper:new( self.host, self.port, self.sid )
+    self.helper = tns.Helper:new( self.host, self.port, self.sid )
 
-		-- This loop is intended for handling failed connections
-		-- A connection may fail for a number of different reasons.
-		-- For the moment, we're just handling the error code 12520
-		--
-		-- Error 12520 has been observed on Oracle XE and seems to
-		-- occur when a maximum connection count is reached.
-		local status, data
-		repeat
-			if ( tries < MAX_RETRIES ) then
-				stdnse.print_debug(2, "%s: Attempting to re-connect (attempt %d of %d)", SCRIPT_NAME, MAX_RETRIES - tries, MAX_RETRIES)
-			end
-			status, data = self.helper:Connect()
-			if ( not(status) ) then
-				stdnse.print_debug(2, "%s: ERROR: An Oracle %s error occured", SCRIPT_NAME, data)
-				self.helper:Close()
-			else
-				break
-			end
-			tries = tries - 1
-			stdnse.sleep(1)
-		until( tries == 0 or data ~= "12520" )
+    -- This loop is intended for handling failed connections
+    -- A connection may fail for a number of different reasons.
+    -- For the moment, we're just handling the error code 12520
+    --
+    -- Error 12520 has been observed on Oracle XE and seems to
+    -- occur when a maximum connection count is reached.
+    local status, data
+    repeat
+      if ( tries < MAX_RETRIES ) then
+        stdnse.print_debug(2, "%s: Attempting to re-connect (attempt %d of %d)", SCRIPT_NAME, MAX_RETRIES - tries, MAX_RETRIES)
+      end
+      status, data = self.helper:Connect()
+      if ( not(status) ) then
+        stdnse.print_debug(2, "%s: ERROR: An Oracle %s error occured", SCRIPT_NAME, data)
+        self.helper:Close()
+      else
+        break
+      end
+      tries = tries - 1
+      stdnse.sleep(1)
+    until( tries == 0 or data ~= "12520" )
 
-		if ( status ) then
-			ConnectionPool[coroutine.running()] = self.helper
-		end
+    if ( status ) then
+      ConnectionPool[coroutine.running()] = self.helper
+    end
 
-		return status, data
-	end,
+    return status, data
+  end,
 
-	--- Attempts to login to the Oracle server
-	--
-	-- @param username string containing the login username
-	-- @param password string containing the login password
-	-- @return status, true on success, false on failure
-	-- @return brute.Error object on failure
-	--         brute.Account object on success
-	login = function( self, username, password )
-		local status, data = self.helper:StealthLogin( username, password )
+  --- Attempts to login to the Oracle server
+  --
+  -- @param username string containing the login username
+  -- @param password string containing the login password
+  -- @return status, true on success, false on failure
+  -- @return brute.Error object on failure
+  --         brute.Account object on success
+  login = function( self, username, password )
+    local status, data = self.helper:StealthLogin( username, password )
 
-		if ( data["AUTH_VFR_DATA"] ) then
-			local hash = string.format("$o5logon$%s*%s", data["AUTH_SESSKEY"], data["AUTH_VFR_DATA"])
-			if ( johnfile ) then
-				johnfile:write(("%s:%s\n"):format(username,hash))
-			end
-			return true, brute.Account:new(username, hash, creds.State.HASHED)
-		else
-			return false, brute.Error:new( data )
-		end
+    if ( data["AUTH_VFR_DATA"] ) then
+      local hash = string.format("$o5logon$%s*%s", data["AUTH_SESSKEY"], data["AUTH_VFR_DATA"])
+      if ( johnfile ) then
+        johnfile:write(("%s:%s\n"):format(username,hash))
+      end
+      return true, brute.Account:new(username, hash, creds.State.HASHED)
+    else
+      return false, brute.Error:new( data )
+    end
 
 
-	end,
+  end,
 
-	--- Disconnects and terminates the Oracle TNS communication
-	disconnect = function( self )
-		return true
-	end,
+  --- Disconnects and terminates the Oracle TNS communication
+  disconnect = function( self )
+    return true
+  end,
 
 }
 
 
 action = function(host, port)
-	local DEFAULT_ACCOUNTS = "nselib/data/oracle-default-accounts.lst"
-	local sid = stdnse.get_script_args(SCRIPT_NAME .. '.sid') or stdnse.get_script_args('tns.sid')
-	local engine = brute.Engine:new(Driver, host, port, sid)
-	local arg_accounts = stdnse.get_script_args(SCRIPT_NAME .. '.accounts')
-	local mode = arg_accounts and "accounts" or "default"
+  local DEFAULT_ACCOUNTS = "nselib/data/oracle-default-accounts.lst"
+  local sid = stdnse.get_script_args(SCRIPT_NAME .. '.sid') or stdnse.get_script_args('tns.sid')
+  local engine = brute.Engine:new(Driver, host, port, sid)
+  local arg_accounts = stdnse.get_script_args(SCRIPT_NAME .. '.accounts')
+  local mode = arg_accounts and "accounts" or "default"
 
-	if ( not(sid) ) then
-		return "\n  ERROR: Oracle instance not set (see oracle-brute-stealth.sid or tns.sid)"
-	end
+  if ( not(sid) ) then
+    return "\n  ERROR: Oracle instance not set (see oracle-brute-stealth.sid or tns.sid)"
+  end
 
-	if ( arg_johnfile ) then
-		johnfile = io.open(arg_johnfile, "w")
-		if ( not(johnfile) ) then
-			return ("\n  ERROR: Failed to open %s for writing"):format(johnfile)
-		end
-	end
+  if ( arg_johnfile ) then
+    johnfile = io.open(arg_johnfile, "w")
+    if ( not(johnfile) ) then
+      return ("\n  ERROR: Failed to open %s for writing"):format(johnfile)
+    end
+  end
 
-	local helper = tns.Helper:new( host, port, sid )
-	local status, result = helper:Connect()
-	if ( not(status) ) then
-		return "\n  ERROR: Failed to connect to oracle server"
-	end
-	helper:Close()
+  local helper = tns.Helper:new( host, port, sid )
+  local status, result = helper:Connect()
+  if ( not(status) ) then
+    return "\n  ERROR: Failed to connect to oracle server"
+  end
+  helper:Close()
 
-	if ( stdnse.get_script_args('userdb') or
-		stdnse.get_script_args('passdb') or
-		stdnse.get_script_args('oracle-brute-stealth.nodefault') or
-		stdnse.get_script_args('brute.credfile') ) then
-		mode = nil
-	end
+  if ( stdnse.get_script_args('userdb') or
+    stdnse.get_script_args('passdb') or
+    stdnse.get_script_args('oracle-brute-stealth.nodefault') or
+    stdnse.get_script_args('brute.credfile') ) then
+    mode = nil
+  end
 
-	if ( mode == "default" ) then
-		local f = nmap.fetchfile(DEFAULT_ACCOUNTS)
-		if ( not(f) ) then
-			return ("\n  ERROR: Failed to find %s"):format(DEFAULT_ACCOUNTS)
-		end
+  if ( mode == "default" ) then
+    local f = nmap.fetchfile(DEFAULT_ACCOUNTS)
+    if ( not(f) ) then
+      return ("\n  ERROR: Failed to find %s"):format(DEFAULT_ACCOUNTS)
+    end
 
-		f = io.open(f)
-		if ( not(f) ) then
-			return ("\n  ERROR: Failed to open %s"):format(DEFAULT_ACCOUNTS)
-		end
+    f = io.open(f)
+    if ( not(f) ) then
+      return ("\n  ERROR: Failed to open %s"):format(DEFAULT_ACCOUNTS)
+    end
 
-		engine.iterator = brute.Iterators.credential_iterator(f)
-	elseif( "accounts" == mode ) then
-		engine.iterator = unpwdb.table_iterator(stdnse.strsplit(",%s*", arg_accounts))
-	end
+    engine.iterator = brute.Iterators.credential_iterator(f)
+  elseif( "accounts" == mode ) then
+    engine.iterator = unpwdb.table_iterator(stdnse.strsplit(",%s*", arg_accounts))
+  end
 
-	engine.options.useraspass = false
-	engine.options.mode = "user"
-	engine.options.script_name = SCRIPT_NAME
-	status, result = engine:start()
+  engine.options.useraspass = false
+  engine.options.mode = "user"
+  engine.options.script_name = SCRIPT_NAME
+  status, result = engine:start()
 
-	if ( johnfile ) then
-		johnfile:close()
-	end
+  if ( johnfile ) then
+    johnfile:close()
+  end
 
-	return result
+  return result
 end

@@ -173,27 +173,27 @@ function action(host, port)
   check_response = function(body) return string.find(body, pattern_to_search) end
 
   -- create a new crawler instance
-	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME} )
+  local crawler = httpspider.Crawler:new(  host, port, nil, { scriptname = SCRIPT_NAME} )
 
-	if ( not(crawler) ) then
-		return
-	end
+  if ( not(crawler) ) then
+    return
+  end
 
-	local return_table = {}
+  local return_table = {}
 
-	while(true) do
-	  local status, r = crawler:crawl()
+  while(true) do
+    local status, r = crawler:crawl()
 
-	  if ( not(status) ) then
-		  if ( r.err ) then
-			  return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-		  else
-			  break
-		  end
-	  end
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+      else
+        break
+      end
+    end
 
-	  -- first we try rfi on forms
-	  if r.response and r.response.body and r.response.status==200 then
+    -- first we try rfi on forms
+    if r.response and r.response.body and r.response.status==200 then
       local all_forms = http.grab_forms(r.response.body)
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
@@ -206,7 +206,7 @@ function action(host, port)
           end
         end
       end --for
-	  end --if
+    end --if
 
     -- now try inclusion by parameters
     local injectable = {}
@@ -232,7 +232,7 @@ function action(host, port)
         end
       end
     end
-	end
-	return stdnse.format_output(true, return_table)
+  end
+  return stdnse.format_output(true, return_table)
 end
 

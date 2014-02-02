@@ -146,120 +146,120 @@ dependencies = {"smb-brute"}
 
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 action = function(host)
 
-	local i, j
-	local samr_status = false
-	local lsa_status  = false
-	local samr_result = "Didn't run"
-	local lsa_result  = "Didn't run"
-	local names = {}
-	local names_lookup = {}
-	local response = {}
-	local samronly = nmap.registry.args.samronly
-	local lsaonly  = nmap.registry.args.lsaonly
-	local do_samr  = samronly ~= nil or (samronly == nil and lsaonly == nil)
-	local do_lsa   = lsaonly  ~= nil or (samronly == nil and lsaonly == nil)
+  local i, j
+  local samr_status = false
+  local lsa_status  = false
+  local samr_result = "Didn't run"
+  local lsa_result  = "Didn't run"
+  local names = {}
+  local names_lookup = {}
+  local response = {}
+  local samronly = nmap.registry.args.samronly
+  local lsaonly  = nmap.registry.args.lsaonly
+  local do_samr  = samronly ~= nil or (samronly == nil and lsaonly == nil)
+  local do_lsa   = lsaonly  ~= nil or (samronly == nil and lsaonly == nil)
 
-	-- Try enumerating through SAMR. This is the better source of information, if we can get it.
-	if(do_samr) then
-		samr_status, samr_result = msrpc.samr_enum_users(host)
+  -- Try enumerating through SAMR. This is the better source of information, if we can get it.
+  if(do_samr) then
+    samr_status, samr_result = msrpc.samr_enum_users(host)
 
-		if(samr_status) then
-			-- Copy the returned array into the names[] table
-			stdnse.print_debug(2, "EnumUsers: Received %d names from SAMR", #samr_result)
-			for i = 1, #samr_result, 1 do
-				-- Insert the full info into the names list
-				table.insert(names, samr_result[i])
-				-- Set the names_lookup value to 'true' to avoid duplicates
-				names_lookup[samr_result[i]['name']] = true
-			end
-		end
-	end
+    if(samr_status) then
+      -- Copy the returned array into the names[] table
+      stdnse.print_debug(2, "EnumUsers: Received %d names from SAMR", #samr_result)
+      for i = 1, #samr_result, 1 do
+        -- Insert the full info into the names list
+        table.insert(names, samr_result[i])
+        -- Set the names_lookup value to 'true' to avoid duplicates
+        names_lookup[samr_result[i]['name']] = true
+      end
+    end
+  end
 
-	-- Try enumerating through LSA.
-	if(do_lsa) then
-		lsa_status, lsa_result  = msrpc.lsa_enum_users(host)
-		if(lsa_status) then
-			-- Copy the returned array into the names[] table
-			stdnse.print_debug(2, "EnumUsers: Received %d names from LSA", #lsa_result)
-			for i = 1, #lsa_result, 1 do
-				if(lsa_result[i]['name'] ~= nil) then
-					-- Check if the name already exists
-					if(not(names_lookup[lsa_result[i]['name']])) then
-						table.insert(names, lsa_result[i])
-					end
-				end
-			end
-		end
-	end
+  -- Try enumerating through LSA.
+  if(do_lsa) then
+    lsa_status, lsa_result  = msrpc.lsa_enum_users(host)
+    if(lsa_status) then
+      -- Copy the returned array into the names[] table
+      stdnse.print_debug(2, "EnumUsers: Received %d names from LSA", #lsa_result)
+      for i = 1, #lsa_result, 1 do
+        if(lsa_result[i]['name'] ~= nil) then
+          -- Check if the name already exists
+          if(not(names_lookup[lsa_result[i]['name']])) then
+            table.insert(names, lsa_result[i])
+          end
+        end
+      end
+    end
+  end
 
-	-- Check if both failed
-	if(samr_status == false and lsa_status == false) then
-		if(string.find(lsa_result, 'ACCESS_DENIED')) then
-			return stdnse.format_output(false, "Access denied while trying to enumerate users; except against Windows 2000, Guest or better is typically required")
-		end
+  -- Check if both failed
+  if(samr_status == false and lsa_status == false) then
+    if(string.find(lsa_result, 'ACCESS_DENIED')) then
+      return stdnse.format_output(false, "Access denied while trying to enumerate users; except against Windows 2000, Guest or better is typically required")
+    end
 
-		return stdnse.format_output(false, {"Couldn't enumerate users", "SAMR returned " .. samr_result, "LSA returned " .. lsa_result})
-	end
+    return stdnse.format_output(false, {"Couldn't enumerate users", "SAMR returned " .. samr_result, "LSA returned " .. lsa_result})
+  end
 
-	-- Sort them
-	table.sort(names, function (a, b) return string.lower(a.name) < string.lower(b.name) end)
+  -- Sort them
+  table.sort(names, function (a, b) return string.lower(a.name) < string.lower(b.name) end)
 
-	-- Break them out by domain
-	local domains = {}
-	for _, name in ipairs(names) do
-		local domain    = name['domain']
+  -- Break them out by domain
+  local domains = {}
+  for _, name in ipairs(names) do
+    local domain    = name['domain']
 
-		-- Make sure the entry in the domains table exists
-		if(not(domains[domain])) then
-			domains[domain] = {}
-		end
+    -- Make sure the entry in the domains table exists
+    if(not(domains[domain])) then
+      domains[domain] = {}
+    end
 
-		table.insert(domains[domain], name)
-	end
+    table.insert(domains[domain], name)
+  end
 
-	-- Check if we actually got any names back
-	if(#names == 0) then
-		table.insert(response, "Couldn't find any account names, sorry!")
-	else
-		-- If we're not verbose, just print out the names. Otherwise, print out everything we can
-		if(nmap.verbosity() < 1) then
-			for domain, domain_users in pairs(domains) do
-				-- Make an impromptu list of users
-				local names = {}
-				for _, info in ipairs(domain_users) do
-					table.insert(names, info['name'])
-				end
+  -- Check if we actually got any names back
+  if(#names == 0) then
+    table.insert(response, "Couldn't find any account names, sorry!")
+  else
+    -- If we're not verbose, just print out the names. Otherwise, print out everything we can
+    if(nmap.verbosity() < 1) then
+      for domain, domain_users in pairs(domains) do
+        -- Make an impromptu list of users
+        local names = {}
+        for _, info in ipairs(domain_users) do
+          table.insert(names, info['name'])
+        end
 
-				-- Add this domain to the response
-				table.insert(response, string.format("Domain: %s; Users: %s", domain, stdnse.strjoin(", ", names)))
-			end
-		else
-			for domain, domain_users in pairs(domains) do
-				for _, info in ipairs(domain_users) do
-					local response_part = {}
-					response_part['name'] = string.format("%s\\%s (RID: %d)", domain, info['name'], info['rid'])
+        -- Add this domain to the response
+        table.insert(response, string.format("Domain: %s; Users: %s", domain, stdnse.strjoin(", ", names)))
+      end
+    else
+      for domain, domain_users in pairs(domains) do
+        for _, info in ipairs(domain_users) do
+          local response_part = {}
+          response_part['name'] = string.format("%s\\%s (RID: %d)", domain, info['name'], info['rid'])
 
-					if(info['fullname']) then
-						table.insert(response_part, string.format("Full name:   %s", info['fullname']))
-					end
-					if(info['description']) then
-						table.insert(response_part, string.format("Description: %s", info['description']))
-					end
-					if(info['flags']) then
-						table.insert(response_part, string.format("Flags:       %s", stdnse.strjoin(", ", info['flags'])))
-					end
+          if(info['fullname']) then
+            table.insert(response_part, string.format("Full name:   %s", info['fullname']))
+          end
+          if(info['description']) then
+            table.insert(response_part, string.format("Description: %s", info['description']))
+          end
+          if(info['flags']) then
+            table.insert(response_part, string.format("Flags:       %s", stdnse.strjoin(", ", info['flags'])))
+          end
 
-					table.insert(response, response_part)
-				end
-			end
-		end
-	end
+          table.insert(response, response_part)
+        end
+      end
+    end
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 

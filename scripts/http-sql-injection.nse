@@ -108,8 +108,8 @@ local function build_injection_vector(urls)
         urlstr = url.build(utab)
         table.insert(all, urlstr)
 
-	      qtab[k] = old_qtab
-	      utab.query = url.build_query(qtab)
+        qtab[k] = old_qtab
+        utab.query = url.build_query(qtab)
       end
     end
   end
@@ -242,7 +242,7 @@ action = function(host, port)
     end
 
     -- first we try sqli on forms
-	  if r.response and r.response.body and r.response.status==200 then
+    if r.response and r.response.body and r.response.status==200 then
       local all_forms = http.grab_forms(r.response.body)
       for _,form_plain in ipairs(all_forms) do
         local form = http.parse_form(form_plain)
@@ -255,7 +255,7 @@ action = function(host, port)
           end
         end
       end --for
-	  end --if
+    end --if
     local links = {}
     if r.response.status and r.response.body then
       links = httpspider.LinkExtractor:new(r.url, r.response.body, crawler.options):getLinks()
