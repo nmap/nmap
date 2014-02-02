@@ -89,31 +89,31 @@ local MAX_PACKET = 0x2000
 -- Flags
 local mode_flags =
 {
-	FLAG_MODE              = bit.lshift(1, 0),
-	FLAG_LOCAL_ACK         = bit.lshift(1, 1),
-	FLAG_IS_TCP            = bit.lshift(1, 2),
-	FLAG_IP_INCLUDED       = bit.lshift(1, 3),
-	FLAG_UNKNOWN0_INCLUDED = bit.lshift(1, 4),
-	FLAG_UNKNOWN1_INCLUDED = bit.lshift(1, 5),
-	FLAG_DATA_INCLUDED     = bit.lshift(1, 6),
-	FLAG_SYSINFO_INCLUDED  = bit.lshift(1, 7),
-	FLAG_ENCODED           = bit.lshift(1, 15)
+  FLAG_MODE              = bit.lshift(1, 0),
+  FLAG_LOCAL_ACK         = bit.lshift(1, 1),
+  FLAG_IS_TCP            = bit.lshift(1, 2),
+  FLAG_IP_INCLUDED       = bit.lshift(1, 3),
+  FLAG_UNKNOWN0_INCLUDED = bit.lshift(1, 4),
+  FLAG_UNKNOWN1_INCLUDED = bit.lshift(1, 5),
+  FLAG_DATA_INCLUDED     = bit.lshift(1, 6),
+  FLAG_SYSINFO_INCLUDED  = bit.lshift(1, 7),
+  FLAG_ENCODED           = bit.lshift(1, 15)
 }
 
 ---For a hostrule, simply use the 'smb' ports as an indicator, unless the user overrides it
 hostrule = function(host)
-	if ( nmap.address_family() ~= 'inet' ) then
-		return false
-	end
-	if(smb.get_port(host) ~= nil) then
-		return true
-	elseif(nmap.registry.args.checkall == "true" or nmap.registry.args.checkall == "1") then
-		return true
-	elseif(nmap.registry.args.checkconficker == "true" or nmap.registry.args.checkconficker == "1") then
-		return true
-	end
+  if ( nmap.address_family() ~= 'inet' ) then
+    return false
+  end
+  if(smb.get_port(host) ~= nil) then
+    return true
+  elseif(nmap.registry.args.checkall == "true" or nmap.registry.args.checkall == "1") then
+    return true
+  elseif(nmap.registry.args.checkconficker == "true" or nmap.registry.args.checkconficker == "1") then
+    return true
+  end
 
-	return false
+  return false
 end
 
 -- Multiply two 32-bit integers and return a 64-bit product. The first return
@@ -124,21 +124,21 @@ end
 --@param v Second number (0 <= v <= 0xFFFFFFFF)
 --@return 64-bit product of u*v, as a pair of 32-bit integers.
 local function mul64(u, v)
-	-- This is based on formula (2) from section 4.3.3 of The Art of
-	-- Computer Programming. We split u and v into upper and lower 16-bit
-	-- chunks, such that
-	--   u = 2**16 u1 + u0    and    v = 2**16 v1 + v0
-	-- Then
-	--   u v = (2**16 u1 + u0) * (2**16 v1 + v0)
-	--       = 2**32 u1 v1 + 2**16 (u0 v1 + u1 v0) + u0 v0
-	assert(0 <= u and u <= 0xFFFFFFFF)
-	assert(0 <= v and v <= 0xFFFFFFFF)
-	local u0, u1 = bit.band(u, 0xFFFF), bit.rshift(u, 16)
-	local v0, v1 = bit.band(v, 0xFFFF), bit.rshift(v, 16)
-	-- t uses at most 49 bits, which is within the range of exact integer
-	-- precision of a Lua number.
-	local t = u0 * v0 + (u0 * v1 + u1 * v0) * 65536
-	return bit.band(t, 0xFFFFFFFF), u1 * v1 + bit.rshift(t, 32)
+  -- This is based on formula (2) from section 4.3.3 of The Art of
+  -- Computer Programming. We split u and v into upper and lower 16-bit
+  -- chunks, such that
+  --   u = 2**16 u1 + u0    and    v = 2**16 v1 + v0
+  -- Then
+  --   u v = (2**16 u1 + u0) * (2**16 v1 + v0)
+  --       = 2**32 u1 v1 + 2**16 (u0 v1 + u1 v0) + u0 v0
+  assert(0 <= u and u <= 0xFFFFFFFF)
+  assert(0 <= v and v <= 0xFFFFFFFF)
+  local u0, u1 = bit.band(u, 0xFFFF), bit.rshift(u, 16)
+  local v0, v1 = bit.band(v, 0xFFFF), bit.rshift(v, 16)
+  -- t uses at most 49 bits, which is within the range of exact integer
+  -- precision of a Lua number.
+  local t = u0 * v0 + (u0 * v1 + u1 * v0) * 65536
+  return bit.band(t, 0xFFFFFFFF), u1 * v1 + bit.rshift(t, 32)
 end
 
 ---Rotates the 64-bit integer defined by h:l left by one bit.
@@ -147,23 +147,23 @@ end
 --@param l The low-order 32 bits
 --@return 64-bit rotated integer, as a pair of 32-bit integers.
 local function rot64(h, l)
-	local i
+  local i
 
-	assert(0 <= h and h <= 0xFFFFFFFF)
-	assert(0 <= l and l <= 0xFFFFFFFF)
+  assert(0 <= h and h <= 0xFFFFFFFF)
+  assert(0 <= l and l <= 0xFFFFFFFF)
 
-	local tmp = bit.band(h, 0x80000000)     -- tmp  = h & 0x80000000
-	h = bit.lshift(h, 1)                    -- h = h << 1
-	h = bit.bor(h, bit.rshift(l, 31))       -- h = h | (l >> 31)
-	l = bit.lshift(l, 1)
-	if(tmp ~= 0) then
-		l = bit.bor(l, 1)
-	end
+  local tmp = bit.band(h, 0x80000000)     -- tmp  = h & 0x80000000
+  h = bit.lshift(h, 1)                    -- h = h << 1
+  h = bit.bor(h, bit.rshift(l, 31))       -- h = h | (l >> 31)
+  l = bit.lshift(l, 1)
+  if(tmp ~= 0) then
+    l = bit.bor(l, 1)
+  end
 
-	h = bit.band(h, 0xFFFFFFFF)
-	l = bit.band(l, 0xFFFFFFFF)
+  h = bit.band(h, 0xFFFFFFFF)
+  l = bit.band(l, 0xFFFFFFFF)
 
-	return h, l
+  return h, l
 end
 
 
@@ -177,15 +177,15 @@ end
 --@param port The port to check
 --@return true if the port is blacklisted, false otherwise
 local function is_blacklisted_port(port)
-	local r, l
+  local r, l
 
-	local blacklist = { 0xFFFFFFFF, 0xFFFFFFFF, 0xF0F6BFBB, 0xBB5A5FF3, 0xF3977011, 0xEB67BFBF, 0x5F9BFAC8, 0x34D88091, 0x1E2282DF, 0x573402C4, 0xC0000084, 0x03000209, 0x01600002, 0x00005000, 0x801000C0, 0x00500040, 0x000000A1, 0x01000000, 0x01000000, 0x00022A20, 0x00000080, 0x04000000, 0x40020000, 0x88000000, 0x00000180, 0x00081000, 0x08801900, 0x00800B81, 0x00000280, 0x080002C0, 0x00A80000, 0x00008000, 0x00100040, 0x00100000, 0x00000000, 0x00000000, 0x10000008, 0x00000000, 0x00000000, 0x00000004, 0x00000002, 0x00000000, 0x00040000, 0x00000000, 0x00000000, 0x00000000, 0x00410000, 0x82000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008, 0x80000000, };
+  local blacklist = { 0xFFFFFFFF, 0xFFFFFFFF, 0xF0F6BFBB, 0xBB5A5FF3, 0xF3977011, 0xEB67BFBF, 0x5F9BFAC8, 0x34D88091, 0x1E2282DF, 0x573402C4, 0xC0000084, 0x03000209, 0x01600002, 0x00005000, 0x801000C0, 0x00500040, 0x000000A1, 0x01000000, 0x01000000, 0x00022A20, 0x00000080, 0x04000000, 0x40020000, 0x88000000, 0x00000180, 0x00081000, 0x08801900, 0x00800B81, 0x00000280, 0x080002C0, 0x00A80000, 0x00008000, 0x00100040, 0x00100000, 0x00000000, 0x00000000, 0x10000008, 0x00000000, 0x00000000, 0x00000004, 0x00000002, 0x00000000, 0x00040000, 0x00000000, 0x00000000, 0x00000000, 0x00410000, 0x82000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008, 0x80000000, };
 
-	r = bit.rshift(port, 5)
-	l = bit.lshift(1, bit.band(r, 0x1f))
-	r = bit.rshift(r, 5)
+  r = bit.rshift(port, 5)
+  l = bit.lshift(1, bit.band(r, 0x1f))
+  r = bit.rshift(r, 5)
 
-	return (bit.band(blacklist[r + 1], l) ~= 0)
+  return (bit.band(blacklist[r + 1], l) ~= 0)
 end
 
 ---Generates the four random ports that Conficker uses, based on the current time and the IP address.
@@ -194,57 +194,57 @@ end
 --@param seed The seed, based on the time (<code>floor((time - 345600) / 604800)</code>)
 --@return An array of four ports; the first and third are TCP, and the second and fourth are UDP.
 local function prng_generate_ports(ip, seed)
-	local ports = {0, 0, 0, 0}
-	local v1, v2
-	local port1, port2, shift1, shift2
-	local i
-	local magic = 0x015A4E35
+  local ports = {0, 0, 0, 0}
+  local v1, v2
+  local port1, port2, shift1, shift2
+  local i
+  local magic = 0x015A4E35
 
-	stdnse.print_debug(1, "Conficker: Generating ports based on ip (0x%08x) and seed (%d)", ip, seed)
+  stdnse.print_debug(1, "Conficker: Generating ports based on ip (0x%08x) and seed (%d)", ip, seed)
 
-	v1 = -(ip + 1)
-	repeat
-		-- Loop 10 times to generate the first pair of ports
-		for i = 0, 9, 1 do
-			v1, v2 = mul64(bit.band(v1, 0xFFFFFFFF), bit.band(magic, 0xFFFFFFFF))
+  v1 = -(ip + 1)
+  repeat
+    -- Loop 10 times to generate the first pair of ports
+    for i = 0, 9, 1 do
+      v1, v2 = mul64(bit.band(v1, 0xFFFFFFFF), bit.band(magic, 0xFFFFFFFF))
 
-			-- Add 1 to v1, handling overflows
-			if(v1 ~= 0xFFFFFFFF) then
-				v1 = v1 + 1
-			else
-				v1 = 0
-				v2 = v2 + 1
-			end
+      -- Add 1 to v1, handling overflows
+      if(v1 ~= 0xFFFFFFFF) then
+        v1 = v1 + 1
+      else
+        v1 = 0
+        v2 = v2 + 1
+      end
 
-			v2 = bit.rshift(v2, i)
+      v2 = bit.rshift(v2, i)
 
-			ports[(i % 2) + 1] = bit.bxor(bit.band(v2, 0xFFFF), ports[(i % 2) + 1])
-		end
-	until(is_blacklisted_port(ports[1]) == false and is_blacklisted_port(ports[2]) == false and ports[1] ~= ports[2])
+      ports[(i % 2) + 1] = bit.bxor(bit.band(v2, 0xFFFF), ports[(i % 2) + 1])
+    end
+  until(is_blacklisted_port(ports[1]) == false and is_blacklisted_port(ports[2]) == false and ports[1] ~= ports[2])
 
-	-- Update the accumlator with the seed
-	v1 = bit.bxor(v1, seed)
+  -- Update the accumlator with the seed
+  v1 = bit.bxor(v1, seed)
 
-	-- Loop 10 more times to generate the second pair of ports
-	repeat
-		for i = 0, 9, 1 do
-			v1, v2 = mul64(bit.band(v1, 0xFFFFFFFF), bit.band(magic, 0xFFFFFFFF))
+  -- Loop 10 more times to generate the second pair of ports
+  repeat
+    for i = 0, 9, 1 do
+      v1, v2 = mul64(bit.band(v1, 0xFFFFFFFF), bit.band(magic, 0xFFFFFFFF))
 
-			-- Add 1 to v1, handling overflows
-			if(v1 ~= 0xFFFFFFFF) then
-				v1 = v1 + 1
-			else
-				v1 = 0
-				v2 = v2 + 1
-			end
+      -- Add 1 to v1, handling overflows
+      if(v1 ~= 0xFFFFFFFF) then
+        v1 = v1 + 1
+      else
+        v1 = 0
+        v2 = v2 + 1
+      end
 
-			v2 = bit.rshift(v2, i)
+      v2 = bit.rshift(v2, i)
 
-			ports[(i % 2) + 3] = bit.bxor(bit.band(v2, 0xFFFF), ports[(i % 2) + 3])
-		end
-	until(is_blacklisted_port(ports[3]) == false and is_blacklisted_port(ports[4]) == false and ports[3] ~= ports[4])
+      ports[(i % 2) + 3] = bit.bxor(bit.band(v2, 0xFFFF), ports[(i % 2) + 3])
+    end
+  until(is_blacklisted_port(ports[3]) == false and is_blacklisted_port(ports[4]) == false and ports[3] ~= ports[4])
 
-	return {ports[1], ports[2], ports[3], ports[4]}
+  return {ports[1], ports[2], ports[3], ports[4]}
 end
 
 ---Calculate a checksum for the data. This checksum is appended to every Conficker packet before the random noise.
@@ -253,24 +253,24 @@ end
 --@param data The data to create a checksum for.
 --@return An integer representing the checksum.
 local function p2p_checksum(data)
-	local pos, i
-	local hash = #data
+  local pos, i
+  local hash = #data
 
-	stdnse.print_debug(2, "Conficker: Calculating checksum for %d-byte buffer", #data)
+  stdnse.print_debug(2, "Conficker: Calculating checksum for %d-byte buffer", #data)
 
-	-- Get the first character
-	pos, i = bin.unpack("<C", data)
-	while i ~= nil do
-		local h = bit.bxor(hash, i)
-		-- Incorporate the current character into the checksum
-		hash = bit.bor((h + h), bit.rshift(h, 31))
-		hash = bit.band(hash, 0xFFFFFFFF)
+  -- Get the first character
+  pos, i = bin.unpack("<C", data)
+  while i ~= nil do
+    local h = bit.bxor(hash, i)
+    -- Incorporate the current character into the checksum
+    hash = bit.bor((h + h), bit.rshift(h, 31))
+    hash = bit.band(hash, 0xFFFFFFFF)
 
-		-- Get the next character
-		pos, i = bin.unpack("<C", data, pos)
-	end
+    -- Get the next character
+    pos, i = bin.unpack("<C", data, pos)
+  end
 
-	return hash
+  return hash
 end
 
 ---Encrypt/decrypt the buffer with a simple xor-based symmetric encryption. It uses a 64-bit key, represented
@@ -282,30 +282,30 @@ end
 --@param key2 The high-order 32 bits in the key.
 --@return The encrypted (or decrypted) data.
 local function p2p_cipher(packet, key1, key2)
-	local i
-	local buf = ""
+  local i
+  local buf = ""
 
-	for i = 1, #packet, 1 do
-		-- Do a 64-bit rotate on key1:key2
-		key2, key1 = rot64(key2, key1)
+  for i = 1, #packet, 1 do
+    -- Do a 64-bit rotate on key1:key2
+    key2, key1 = rot64(key2, key1)
 
-		-- Generate the key (the right-most byte)
-		local k = bit.band(key1, 0x0FF)
+    -- Generate the key (the right-most byte)
+    local k = bit.band(key1, 0x0FF)
 
-		-- Xor the current character and add it to the encrypted buffer
-		buf = buf .. string.char(bit.bxor(string.byte(packet, i), k))
+    -- Xor the current character and add it to the encrypted buffer
+    buf = buf .. string.char(bit.bxor(string.byte(packet, i), k))
 
-		-- Update the key with 'k'
-		key1 = key1 + k
-		if(key1 > 0xFFFFFFFF) then
-			-- Handle overflows
-			key2 = key2 + (bit.rshift(key1, 32))
-			key2 = bit.band(key2, 0xFFFFFFFF)
-			key1 = bit.band(key1, 0xFFFFFFFF)
-		end
-	end
+    -- Update the key with 'k'
+    key1 = key1 + k
+    if(key1 > 0xFFFFFFFF) then
+      -- Handle overflows
+      key2 = key2 + (bit.rshift(key1, 32))
+      key2 = bit.band(key2, 0xFFFFFFFF)
+      key1 = bit.band(key1, 0xFFFFFFFF)
+    end
+  end
 
-	return buf
+  return buf
 end
 
 ---Decrypt the packet, verify it, and parse it. This function will fail with an error if the packet can't be
@@ -317,96 +317,96 @@ end
 --@return (status, result) If status is true, result is a table (including 'hash' and 'real_hash'). If status
 --        is false, result is a string that indicates why the parse failed.
 function p2p_parse(packet)
-	local pos = 1
-	local data = {}
+  local pos = 1
+  local data = {}
 
-	-- Get the key
-	pos, data['key1'], data['key2'] = bin.unpack("<II", packet, pos)
-	if(data['key2'] == nil) then
-		return false, "Packet was too short [1]"
-	end
+  -- Get the key
+  pos, data['key1'], data['key2'] = bin.unpack("<II", packet, pos)
+  if(data['key2'] == nil) then
+    return false, "Packet was too short [1]"
+  end
 
-	-- Decrypt the second half of the packet using the key
-	packet = string.sub(packet, 1, pos - 1) .. p2p_cipher(string.sub(packet, pos), data['key1'], data['key2'])
+  -- Decrypt the second half of the packet using the key
+  packet = string.sub(packet, 1, pos - 1) .. p2p_cipher(string.sub(packet, pos), data['key1'], data['key2'])
 
-	-- Parse the flags
-	pos, data['flags'] = bin.unpack("<S", packet, pos)
-	if(data['flags'] == nil) then
-		return false, "Packet was too short [2]"
-	end
+  -- Parse the flags
+  pos, data['flags'] = bin.unpack("<S", packet, pos)
+  if(data['flags'] == nil) then
+    return false, "Packet was too short [2]"
+  end
 
-	-- Get the IP, if it's present
-	if(bit.band(data['flags'], mode_flags.FLAG_IP_INCLUDED) ~= 0) then
-		pos, data['ip'], data['port'] = bin.unpack("<IS", packet, pos)
-		if(data['ip'] == nil) then
-			return false, "Packet was too short [3]"
-		end
-	end
+  -- Get the IP, if it's present
+  if(bit.band(data['flags'], mode_flags.FLAG_IP_INCLUDED) ~= 0) then
+    pos, data['ip'], data['port'] = bin.unpack("<IS", packet, pos)
+    if(data['ip'] == nil) then
+      return false, "Packet was too short [3]"
+    end
+  end
 
-	-- Read the first unknown value, if present
-	if(bit.band(data['flags'], mode_flags.FLAG_UNKNOWN0_INCLUDED) ~= 0) then
-		pos, data['unknown0'] = bin.unpack("<I", packet, pos)
-		if(data['unknown0'] == nil) then
-			return false, "Packet was too short [3]"
-		end
-	end
+  -- Read the first unknown value, if present
+  if(bit.band(data['flags'], mode_flags.FLAG_UNKNOWN0_INCLUDED) ~= 0) then
+    pos, data['unknown0'] = bin.unpack("<I", packet, pos)
+    if(data['unknown0'] == nil) then
+      return false, "Packet was too short [3]"
+    end
+  end
 
-	-- Read the second unknown value, if present
-	if(bit.band(data['flags'], mode_flags.FLAG_UNKNOWN1_INCLUDED) ~= 0) then
-		pos, data['unknown1'] = bin.unpack("<I", packet, pos)
-		if(data['unknown1'] == nil) then
-			return false, "Packet was too short [4]"
-		end
-	end
+  -- Read the second unknown value, if present
+  if(bit.band(data['flags'], mode_flags.FLAG_UNKNOWN1_INCLUDED) ~= 0) then
+    pos, data['unknown1'] = bin.unpack("<I", packet, pos)
+    if(data['unknown1'] == nil) then
+      return false, "Packet was too short [4]"
+    end
+  end
 
-	-- Read the data, if present
-	if(bit.band(data['flags'], mode_flags.FLAG_DATA_INCLUDED) ~= 0) then
-		pos, data['data_flags'], data['data_length'] = bin.unpack("<CS", packet, pos)
-		if(data['data_length'] == nil) then
-			return false, "Packet was too short [5]"
-		end
-		pos, data['data'] = bin.unpack(string.format("A%d", data['data_length']), packet, pos)
-		if(data['data'] == nil) then
-			return false, "Packet was too short [6]"
-		end
-	end
+  -- Read the data, if present
+  if(bit.band(data['flags'], mode_flags.FLAG_DATA_INCLUDED) ~= 0) then
+    pos, data['data_flags'], data['data_length'] = bin.unpack("<CS", packet, pos)
+    if(data['data_length'] == nil) then
+      return false, "Packet was too short [5]"
+    end
+    pos, data['data'] = bin.unpack(string.format("A%d", data['data_length']), packet, pos)
+    if(data['data'] == nil) then
+      return false, "Packet was too short [6]"
+    end
+  end
 
-	-- Read the sysinfo, if present
-	if(bit.band(data['flags'], mode_flags.FLAG_SYSINFO_INCLUDED) ~= 0) then
-		pos, data['sysinfo_systemtestflags'],
-			data['sysinfo_os_major'],
-			data['sysinfo_os_minor'],
-			data['sysinfo_os_build'],
-			data['sysinfo_os_servicepack_major'],
-			data['sysinfo_os_servicepack_minor'],
-			data['sysinfo_ntdll_translation_file_information'],
-			data['sysinfo_prng_sample'],
-			data['sysinfo_unknown0'],
-			data['sysinfo_unknown1'],
-			data['sysinfo_unknown2'],
-			data['sysinfo_unknown3'],
-			data['sysinfo_unknown4'] = bin.unpack("<SCCSCCSISSISS", packet, pos)
-		if(data['sysinfo_unknown4'] == nil) then
-			return false, "Packet was too short [7]"
-		end
-	end
+  -- Read the sysinfo, if present
+  if(bit.band(data['flags'], mode_flags.FLAG_SYSINFO_INCLUDED) ~= 0) then
+    pos, data['sysinfo_systemtestflags'],
+    data['sysinfo_os_major'],
+    data['sysinfo_os_minor'],
+    data['sysinfo_os_build'],
+    data['sysinfo_os_servicepack_major'],
+    data['sysinfo_os_servicepack_minor'],
+    data['sysinfo_ntdll_translation_file_information'],
+    data['sysinfo_prng_sample'],
+    data['sysinfo_unknown0'],
+    data['sysinfo_unknown1'],
+    data['sysinfo_unknown2'],
+    data['sysinfo_unknown3'],
+    data['sysinfo_unknown4'] = bin.unpack("<SCCSCCSISSISS", packet, pos)
+    if(data['sysinfo_unknown4'] == nil) then
+      return false, "Packet was too short [7]"
+    end
+  end
 
-	-- Pull out the data that's used in the hash
-	data['hash_data'] = string.sub(packet, 1, pos - 1)
+  -- Pull out the data that's used in the hash
+  data['hash_data'] = string.sub(packet, 1, pos - 1)
 
-	-- Read the hash
-	pos, data['hash'] = bin.unpack("<I", packet, pos)
-	if(data['hash'] == nil) then
-		return false, "Packet was too short [8]"
-	end
+  -- Read the hash
+  pos, data['hash'] = bin.unpack("<I", packet, pos)
+  if(data['hash'] == nil) then
+    return false, "Packet was too short [8]"
+  end
 
-	-- Record the noise
-	data['noise'] = string.sub(packet, pos)
+  -- Record the noise
+  data['noise'] = string.sub(packet, pos)
 
-	-- Generate the actual hash (we're going to ignore it for now, but it can be checked higher up)
-	data['real_hash'] = p2p_checksum(data['hash_data'])
+  -- Generate the actual hash (we're going to ignore it for now, but it can be checked higher up)
+  data['real_hash'] = p2p_checksum(data['hash_data'])
 
-	return true, data
+  return true, data
 end
 
 ---Create a peer to peer packet for the given protocol.
@@ -416,46 +416,46 @@ end
 --@param do_encryption (optional) If set to false, packets aren't encrypted (the key '0' is used). Useful
 --       for testing. Default: true.
 local function p2p_create_packet(protocol, do_encryption)
-	assert(protocol == "tcp" or protocol == "udp")
+  assert(protocol == "tcp" or protocol == "udp")
 
-	local key1 = math.random(1, 0x7FFFFFFF)
-	local key2 = math.random(1, 0x7FFFFFFF)
+  local key1 = math.random(1, 0x7FFFFFFF)
+  local key2 = math.random(1, 0x7FFFFFFF)
 
-	-- A key of 0 disables the encryption
-	if(do_encryption == false) then
-		key1 = 0
-		key2 = 0
-	end
+  -- A key of 0 disables the encryption
+  if(do_encryption == false) then
+    key1 = 0
+    key2 = 0
+  end
 
-	local flags = 0
+  local flags = 0
 
-	-- Set a couple flags that we need (we don't send any optional data)
-	flags = bit.bor(flags, mode_flags.FLAG_MODE)
-	flags = bit.bor(flags, mode_flags.FLAG_ENCODED)
---	flags = bit.bor(flags, mode_flags.FLAG_LOCAL_ACK)
-	-- Set the special TCP flag
-	if(protocol == "tcp") then
-		flags = bit.bor(flags, mode_flags.FLAG_IS_TCP)
-	end
+  -- Set a couple flags that we need (we don't send any optional data)
+  flags = bit.bor(flags, mode_flags.FLAG_MODE)
+  flags = bit.bor(flags, mode_flags.FLAG_ENCODED)
+  --  flags = bit.bor(flags, mode_flags.FLAG_LOCAL_ACK)
+  -- Set the special TCP flag
+  if(protocol == "tcp") then
+    flags = bit.bor(flags, mode_flags.FLAG_IS_TCP)
+  end
 
-	-- Add the key and flags that are always present (and skip over the boring stuff)
-	local packet = ""
-	packet = packet .. bin.pack("<II", key1, key2)
-	packet = packet .. bin.pack("<S", flags)
+  -- Add the key and flags that are always present (and skip over the boring stuff)
+  local packet = ""
+  packet = packet .. bin.pack("<II", key1, key2)
+  packet = packet .. bin.pack("<S", flags)
 
-	-- Generate the checksum for the packet
-	local hash = p2p_checksum(packet)
-	packet = packet .. bin.pack("<I", hash)
+  -- Generate the checksum for the packet
+  local hash = p2p_checksum(packet)
+  packet = packet .. bin.pack("<I", hash)
 
-	-- Encrypt the full packet, except for the key and optional length
-	packet = string.sub(packet, 1, 8) .. p2p_cipher(string.sub(packet, 9), key1, key2)
+  -- Encrypt the full packet, except for the key and optional length
+  packet = string.sub(packet, 1, 8) .. p2p_cipher(string.sub(packet, 9), key1, key2)
 
-	-- Add the length in front if it's TCP
-	if(protocol == "tcp") then
-		packet = bin.pack("<SA", #packet, packet)
-	end
+  -- Add the length in front if it's TCP
+  if(protocol == "tcp") then
+    packet = bin.pack("<SA", #packet, packet)
+  end
 
-	return true, packet
+  return true, packet
 end
 
 ---Checks if conficker is present on the given port/protocol. The ports Conficker uses are fairly standard, so
@@ -467,171 +467,171 @@ end
 --        Conficker, <code>false</code> = no Conficker). If status is true, data is the table of information returned by
 --        Conficker.
 local function conficker_check(ip, port, protocol)
-	local status, packet
-	local socket
-	local response
+  local status, packet
+  local socket
+  local response
 
-	status, packet = p2p_create_packet(protocol)
-	if(status == false) then
-		return false, packet
-	end
+  status, packet = p2p_create_packet(protocol)
+  if(status == false) then
+    return false, packet
+  end
 
-	-- Try to connect to the first socket
-	socket = nmap.new_socket()
-	socket:set_timeout(5000)
-	status, response = socket:connect(ip, port, protocol)
-	if(status == false) then
-		return false, "Couldn't establish connection (" .. response .. ")"
-	end
+  -- Try to connect to the first socket
+  socket = nmap.new_socket()
+  socket:set_timeout(5000)
+  status, response = socket:connect(ip, port, protocol)
+  if(status == false) then
+    return false, "Couldn't establish connection (" .. response .. ")"
+  end
 
-	-- Send the packet
-	socket:send(packet)
+  -- Send the packet
+  socket:send(packet)
 
-	-- Read a response (2 bytes minimum, because that's the TCP length)
-	status, response = socket:receive_bytes(2)
-	if(status == false) then
-		return false, "Couldn't receive bytes: " .. response
-	elseif(response == "ERROR") then
-		return false, "Failed to receive data"
-	elseif(response == "TIMEOUT") then
-		return false, "Timeout"
-	elseif(response == "EOF") then
-		return false, "Couldn't connect"
-	end
+  -- Read a response (2 bytes minimum, because that's the TCP length)
+  status, response = socket:receive_bytes(2)
+  if(status == false) then
+    return false, "Couldn't receive bytes: " .. response
+  elseif(response == "ERROR") then
+    return false, "Failed to receive data"
+  elseif(response == "TIMEOUT") then
+    return false, "Timeout"
+  elseif(response == "EOF") then
+    return false, "Couldn't connect"
+  end
 
-	-- If it's TCP, get the length and make sure we have the full packet
-	if(protocol == "tcp") then
-		local _, length = bin.unpack("<S", response, 1)
+  -- If it's TCP, get the length and make sure we have the full packet
+  if(protocol == "tcp") then
+    local _, length = bin.unpack("<S", response, 1)
 
-		while length > (#response - 2) do
-			local response2
+    while length > (#response - 2) do
+      local response2
 
-			status, response2 = socket:receive_bytes(2)
-			if(status == false) then
-				return false, "Couldn't receive bytes: " .. response2
-			elseif(response2 == "ERROR") then
-				return false, "Failed to receive data"
-			elseif(response2 == "TIMEOUT") then
-				return false, "Timeout"
-			elseif(response2 == "EOF") then
-				return false, "Couldn't connect"
-			end
+      status, response2 = socket:receive_bytes(2)
+      if(status == false) then
+        return false, "Couldn't receive bytes: " .. response2
+      elseif(response2 == "ERROR") then
+        return false, "Failed to receive data"
+      elseif(response2 == "TIMEOUT") then
+        return false, "Timeout"
+      elseif(response2 == "EOF") then
+        return false, "Couldn't connect"
+      end
 
-			response = response .. response2
-		end
+      response = response .. response2
+    end
 
-		-- Remove the 'length' bytes
-		response = string.sub(response, 3)
-	end
+    -- Remove the 'length' bytes
+    response = string.sub(response, 3)
+  end
 
-	-- Close the socket
-	socket:close()
+  -- Close the socket
+  socket:close()
 
-	local status, result = p2p_parse(response)
+  local status, result = p2p_parse(response)
 
-	if(status == false) then
-		return false, "Data received, but wasn't Conficker data: " .. result
-	end
+  if(status == false) then
+    return false, "Data received, but wasn't Conficker data: " .. result
+  end
 
-	if(result['hash'] ~= result['real_hash']) then
-		return false, "Data received, but checksum was invalid (possibly INFECTED)"
-	end
+  if(result['hash'] ~= result['real_hash']) then
+    return false, "Data received, but checksum was invalid (possibly INFECTED)"
+  end
 
-	return true, "Received valid data", result
+  return true, "Received valid data", result
 end
 
 action = function(host)
-	local tcp_ports = {}
-	local udp_ports = {}
-	local response = {}
-	local i
-	local port, protocol
-	local count = 0
-	local checks = 0
+  local tcp_ports = {}
+  local udp_ports = {}
+  local response = {}
+  local i
+  local port, protocol
+  local count = 0
+  local checks = 0
 
-	-- Generate a complete list of valid ports
-	if(nmap.registry.args.checkall == "true" or nmap.registry.args.checkall == "1") then
-		for i = 1, 65535, 1 do
-			if(not(is_blacklisted_port(i))) then
-				local tcp = nmap.get_port_state(host, {number=i, protocol="tcp"})
-				if(tcp ~= nil and tcp.state == "open") then
-					tcp_ports[i] = true
-				end
+  -- Generate a complete list of valid ports
+  if(nmap.registry.args.checkall == "true" or nmap.registry.args.checkall == "1") then
+    for i = 1, 65535, 1 do
+      if(not(is_blacklisted_port(i))) then
+        local tcp = nmap.get_port_state(host, {number=i, protocol="tcp"})
+        if(tcp ~= nil and tcp.state == "open") then
+          tcp_ports[i] = true
+        end
 
-				local udp = nmap.get_port_state(host, {number=i, protocol="udp"})
-				if(udp ~= nil and (udp.state == "open" or udp.state == "open|filtered")) then
-					udp_ports[i] = true
-				end
-			end
-		end
-	end
+        local udp = nmap.get_port_state(host, {number=i, protocol="udp"})
+        if(udp ~= nil and (udp.state == "open" or udp.state == "open|filtered")) then
+          udp_ports[i] = true
+        end
+      end
+    end
+  end
 
 
-	-- Generate ports based on the ip and time
-	local seed = math.floor((os.time() - 345600) / 604800)
-	local ip = host.ip
+  -- Generate ports based on the ip and time
+  local seed = math.floor((os.time() - 345600) / 604800)
+  local ip = host.ip
 
-	-- Use the provided IP, if it exists
-	if(nmap.registry.args.realip ~= nil) then
-		ip = nmap.registry.args.realip
-	end
+  -- Use the provided IP, if it exists
+  if(nmap.registry.args.realip ~= nil) then
+    ip = nmap.registry.args.realip
+  end
 
-	-- Reverse the IP's endianness
-	ip = ipOps.todword(ip)
-	ip = bin.pack(">I", ip)
-	local _
-	_, ip = bin.unpack("<I", ip)
+  -- Reverse the IP's endianness
+  ip = ipOps.todword(ip)
+  ip = bin.pack(">I", ip)
+  local _
+  _, ip = bin.unpack("<I", ip)
 
-	-- Generate the ports
-	local generated_ports = prng_generate_ports(ip, seed)
-	tcp_ports[generated_ports[1]] = true
-	tcp_ports[generated_ports[3]] = true
-	udp_ports[generated_ports[2]] = true
-	udp_ports[generated_ports[4]] = true
+  -- Generate the ports
+  local generated_ports = prng_generate_ports(ip, seed)
+  tcp_ports[generated_ports[1]] = true
+  tcp_ports[generated_ports[3]] = true
+  udp_ports[generated_ports[2]] = true
+  udp_ports[generated_ports[4]] = true
 
-	table.insert(response, string.format("Checking for Conficker.C or higher..."))
+  table.insert(response, string.format("Checking for Conficker.C or higher..."))
 
-	-- Check the TCP ports
-	for port in pairs(tcp_ports) do
-		local status, reason
+  -- Check the TCP ports
+  for port in pairs(tcp_ports) do
+    local status, reason
 
-		status, reason = conficker_check(host.ip, port, "tcp")
-		checks = checks + 1
+    status, reason = conficker_check(host.ip, port, "tcp")
+    checks = checks + 1
 
-		if(status == true) then
-			table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "tcp", reason))
-			count = count + 1
-		else
-			table.insert(response, string.format("Check %d (port %d/%s): CLEAN (%s)", checks, port, "tcp", reason))
-		end
-	end
+    if(status == true) then
+      table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "tcp", reason))
+      count = count + 1
+    else
+      table.insert(response, string.format("Check %d (port %d/%s): CLEAN (%s)", checks, port, "tcp", reason))
+    end
+  end
 
-	-- Check the UDP ports
-	for port in pairs(udp_ports) do
-		local status, reason
+  -- Check the UDP ports
+  for port in pairs(udp_ports) do
+    local status, reason
 
-		status, reason = conficker_check(host.ip, port, "udp")
-		checks = checks + 1
+    status, reason = conficker_check(host.ip, port, "udp")
+    checks = checks + 1
 
-		if(status == true) then
-			table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "udp", reason))
-			count = count + 1
-		else
-			table.insert(response, string.format("| Check %d (port %d/%s): CLEAN (%s)", checks, port, "udp", reason))
-		end
-	end
+    if(status == true) then
+      table.insert(response, string.format("Check %d (port %d/%s): INFECTED (%s)", checks, port, "udp", reason))
+      count = count + 1
+    else
+      table.insert(response, string.format("| Check %d (port %d/%s): CLEAN (%s)", checks, port, "udp", reason))
+    end
+  end
 
-	-- Check how many INFECTED hits we got
-	if(count == 0) then
-		if (nmap.verbosity() > 1) then
-			table.insert(response, string.format("%d/%d checks are positive: Host is CLEAN or ports are blocked", count, checks))
-		else
-			response = ''
-		end
-	else
-		table.insert(response, string.format("%d/%d checks are positive: Host is likely INFECTED", count, checks))
-	end
+  -- Check how many INFECTED hits we got
+  if(count == 0) then
+    if (nmap.verbosity() > 1) then
+      table.insert(response, string.format("%d/%d checks are positive: Host is CLEAN or ports are blocked", count, checks))
+    else
+      response = ''
+    end
+  else
+    table.insert(response, string.format("%d/%d checks are positive: Host is likely INFECTED", count, checks))
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 

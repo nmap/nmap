@@ -283,9 +283,9 @@ action = function(host, port)
         local path = basepath .. probe['path']
 
         if http.page_exists(results[j], result_404, known_404, path, true)
-        	and (not fingerprint.target_check
-        		or fingerprint.target_check(host, port, path, results[j]))
-        	then
+          and (not fingerprint.target_check
+          or fingerprint.target_check(host, port, path, results[j]))
+        then
           for _, login_combo in ipairs(fingerprint.login_combos) do
             stdnse.print_debug(2, "%s: Trying login combo -> %s:%s", SCRIPT_NAME, login_combo["username"], login_combo["password"])
             --Check default credentials

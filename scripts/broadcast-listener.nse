@@ -70,11 +70,11 @@ unless a specific interface was given using the -e argument to Nmap.
 -- Version 0.1
 -- Created 07/02/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/25/2011 - v0.2 -
---								* added more documentation
---								* added getInterfaces code to detect available
---								  interfaces.
---								* corrected bug that would fail to load
---								  decoders if not in a relative directory.
+--                * added more documentation
+--                * added getInterfaces code to detect available
+--                  interfaces.
+--                * corrected bug that would fail to load
+--                  decoders if not in a relative directory.
 
 
 
@@ -86,11 +86,11 @@ categories = {"broadcast", "safe"}
 
 
 prerule = function()
-	if not nmap.is_privileged() then
-		stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
-		return false
-	end
-	return true
+  if not nmap.is_privileged() then
+    stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+    return false
+  end
+  return true
 end
 
 ---
@@ -101,26 +101,26 @@ end
 -- @return decoders table of decoder functions on success
 -- @return err string containing the error message on failure
 loadDecoders = function(fname)
-	-- resolve the full, absolute, path
-	local abs_fname = nmap.fetchfile(fname)
+  -- resolve the full, absolute, path
+  local abs_fname = nmap.fetchfile(fname)
 
-	if ( not(abs_fname) ) then
-		return false, ("ERROR: Failed to load decoder definition (%s)"):format(fname)
-	end
+  if ( not(abs_fname) ) then
+    return false, ("ERROR: Failed to load decoder definition (%s)"):format(fname)
+  end
 
-	local env = setmetatable({Decoders = {}}, {__index = _G});
-	local file = loadfile(abs_fname, "t", env)
-	if(not(file)) then
-		stdnse.print_debug("%s: Couldn't load decoder file: %s", SCRIPT_NAME, fname)
-		return false, "ERROR: Couldn't load decoder file: " .. fname
-	end
+  local env = setmetatable({Decoders = {}}, {__index = _G});
+  local file = loadfile(abs_fname, "t", env)
+  if(not(file)) then
+    stdnse.print_debug("%s: Couldn't load decoder file: %s", SCRIPT_NAME, fname)
+    return false, "ERROR: Couldn't load decoder file: " .. fname
+  end
 
-	file()
+  file()
 
-	local d = env.Decoders
+  local d = env.Decoders
 
-	if ( d ) then return true, d end
-	return false, "ERROR: Failed to load decoders"
+  if ( d ) then return true, d end
+  return false, "ERROR: Failed to load decoders"
 end
 
 ---
@@ -130,66 +130,66 @@ end
 -- @param iface table containing <code>name</code> and <code>address</code>
 -- @param Decoders the decoders class loaded externally
 -- @param decodertab the "result" table to which all discovered items are
---			reported
+--      reported
 sniffInterface = function(iface, Decoders, decodertab)
-	local condvar = nmap.condvar(decodertab)
-	local sock = nmap.new_socket()
-	local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-listener.timeout"))
+  local condvar = nmap.condvar(decodertab)
+  local sock = nmap.new_socket()
+  local timeout = stdnse.parse_timespec(stdnse.get_script_args("broadcast-listener.timeout"))
 
-	-- default to 30 seconds, if nothing else was set
-	timeout = (timeout or 30) * 1000
+  -- default to 30 seconds, if nothing else was set
+  timeout = (timeout or 30) * 1000
 
-	-- We want all packets that aren't explicitly for us
- 	sock:pcap_open(iface.name, 1500, true, ("!host %s"):format(iface.address))
+  -- We want all packets that aren't explicitly for us
+  sock:pcap_open(iface.name, 1500, true, ("!host %s"):format(iface.address))
 
-	-- Set a short timeout so that we can timeout in time if needed
-	sock:set_timeout(100)
+  -- Set a short timeout so that we can timeout in time if needed
+  sock:set_timeout(100)
 
-	local start_time = nmap.clock_ms()
-	while( nmap.clock_ms() - start_time < timeout ) do
-		local status, _, _, data = sock:pcap_receive()
+  local start_time = nmap.clock_ms()
+  while( nmap.clock_ms() - start_time < timeout ) do
+    local status, _, _, data = sock:pcap_receive()
 
-		if ( status ) then
-			local p = packet.Packet:new( data, #data )
+    if ( status ) then
+      local p = packet.Packet:new( data, #data )
 
-			-- if we have an UDP-based broadcast, we should have a proper packet
-			if ( p and p.udp_dport and ( decodertab.udp[p.udp_dport] or Decoders.udp[p.udp_dport] ) ) then
-				if ( not(decodertab.udp[p.udp_dport]) ) then
-					decodertab.udp[p.udp_dport] = Decoders.udp[p.udp_dport]:new()
-				end
-				decodertab.udp[p.udp_dport]:process(data)
-			-- The packet was decoded successfully but we don't have a valid decoder
-			-- Report this
-			elseif ( p and p.udp_dport ) then
-				stdnse.print_debug(2, "No decoder for dst port %d", p.udp_dport)
-			-- we don't have a packet, so this is most likely something layer2 based
-			-- in that case, check the ether Decoder table for pattern matches
-			else
-				-- attempt to find a match for a pattern
-				local pos, hex = bin.unpack("H" .. #data, data)
-				local decoded = false
-				for match, _ in pairs(Decoders.ether) do
-					-- attempts to match the "raw" packet against a filter
-					-- supplied in each ethernet packet decoder
-					if ( hex:match(match) ) then
-						if ( not(decodertab.ether[match]) ) then
-							decodertab.ether[match] = Decoders.ether[match]:new()
-						end
-						-- start a new decoding thread. This way, if something gets foobared
-						-- the whole script doesn't break, only the packet decoding for that
-						-- specific packet.
-						stdnse.new_thread( decodertab.ether[match].process, decodertab.ether[match], data )
-						decoded = true
-					end
-				end
-				-- no decoder was found for this layer2 packet
-				if ( not(decoded) and #data > 10 ) then
-					stdnse.print_debug(1, "No decoder for packet hex: %s", select(2, bin.unpack("H10", data) ) )
-				end
-			end
-		end
-	end
-	condvar "signal"
+      -- if we have an UDP-based broadcast, we should have a proper packet
+      if ( p and p.udp_dport and ( decodertab.udp[p.udp_dport] or Decoders.udp[p.udp_dport] ) ) then
+        if ( not(decodertab.udp[p.udp_dport]) ) then
+          decodertab.udp[p.udp_dport] = Decoders.udp[p.udp_dport]:new()
+        end
+        decodertab.udp[p.udp_dport]:process(data)
+        -- The packet was decoded successfully but we don't have a valid decoder
+        -- Report this
+      elseif ( p and p.udp_dport ) then
+        stdnse.print_debug(2, "No decoder for dst port %d", p.udp_dport)
+        -- we don't have a packet, so this is most likely something layer2 based
+        -- in that case, check the ether Decoder table for pattern matches
+      else
+        -- attempt to find a match for a pattern
+        local pos, hex = bin.unpack("H" .. #data, data)
+        local decoded = false
+        for match, _ in pairs(Decoders.ether) do
+          -- attempts to match the "raw" packet against a filter
+          -- supplied in each ethernet packet decoder
+          if ( hex:match(match) ) then
+            if ( not(decodertab.ether[match]) ) then
+              decodertab.ether[match] = Decoders.ether[match]:new()
+            end
+            -- start a new decoding thread. This way, if something gets foobared
+            -- the whole script doesn't break, only the packet decoding for that
+            -- specific packet.
+            stdnse.new_thread( decodertab.ether[match].process, decodertab.ether[match], data )
+            decoded = true
+          end
+        end
+        -- no decoder was found for this layer2 packet
+        if ( not(decoded) and #data > 10 ) then
+          stdnse.print_debug(1, "No decoder for packet hex: %s", select(2, bin.unpack("H10", data) ) )
+        end
+      end
+    end
+  end
+  condvar "signal"
 end
 
 ---
@@ -199,96 +199,96 @@ end
 -- @param link string containing the link type to filter
 -- @param up string containing the interface status to filter
 -- @return result table containing tables of interfaces
---			each interface table has the following fields:
---			<code>name</code> containing the device name
---			<code>address</code> containing the device address
+--      each interface table has the following fields:
+--      <code>name</code> containing the device name
+--      <code>address</code> containing the device address
 getInterfaces = function(link, up)
-	if( not(nmap.list_interfaces) ) then return end
-	local interfaces, err = nmap.list_interfaces()
-	local result = {}
-	if ( not(err) ) then
-		for _, iface in ipairs(interfaces) do
-			if ( iface.link == link and
-				 iface.up == up and
-				 iface.address ) then
+  if( not(nmap.list_interfaces) ) then return end
+  local interfaces, err = nmap.list_interfaces()
+  local result = {}
+  if ( not(err) ) then
+    for _, iface in ipairs(interfaces) do
+      if ( iface.link == link and
+        iface.up == up and
+        iface.address ) then
 
-				-- exclude ipv6 addresses for now
-				if ( not(iface.address:match(":")) ) then
-					table.insert(result, { name = iface.device,
-										address = iface.address } )
-				end
-			end
-		end
-	end
-	return result
+        -- exclude ipv6 addresses for now
+        if ( not(iface.address:match(":")) ) then
+          table.insert(result, { name = iface.device,
+          address = iface.address } )
+        end
+      end
+    end
+  end
+  return result
 end
 
 action = function()
 
-	local DECODERFILE = "nselib/data/packetdecoders.lua"
-	local iface = nmap.get_interface()
-	local interfaces = {}
+  local DECODERFILE = "nselib/data/packetdecoders.lua"
+  local iface = nmap.get_interface()
+  local interfaces = {}
 
-	-- was an interface supplied using the -e argument?
-	if ( iface ) then
-		local iinfo, err = nmap.get_interface_info(iface)
+  -- was an interface supplied using the -e argument?
+  if ( iface ) then
+    local iinfo, err = nmap.get_interface_info(iface)
 
-		if ( not(iinfo.address) ) then
-			return "\n  ERROR: The IP address of the interface could not be determined ..."
-		end
+    if ( not(iinfo.address) ) then
+      return "\n  ERROR: The IP address of the interface could not be determined ..."
+    end
 
-		interfaces = { { name = iface, address = iinfo.address } }
-	else
-		-- no interface was supplied, attempt autodiscovery
-		interfaces = getInterfaces("ethernet", "up")
-	end
+    interfaces = { { name = iface, address = iinfo.address } }
+  else
+    -- no interface was supplied, attempt autodiscovery
+    interfaces = getInterfaces("ethernet", "up")
+  end
 
-	-- make sure we have at least one interface to start sniffing
-	if ( #interfaces == 0 ) then
-		return "\n  ERROR: Could not determine any valid interfaces"
-	end
+  -- make sure we have at least one interface to start sniffing
+  if ( #interfaces == 0 ) then
+    return "\n  ERROR: Could not determine any valid interfaces"
+  end
 
-	-- load the decoders from file
-	local status, Decoders = loadDecoders(DECODERFILE)
-	if ( not(status) ) then return "\n  " .. Decoders end
+  -- load the decoders from file
+  local status, Decoders = loadDecoders(DECODERFILE)
+  if ( not(status) ) then return "\n  " .. Decoders end
 
-	-- create a local table to handle instantiated decoders
-	local decodertab = { udp = {}, ether = {} }
-	local condvar = nmap.condvar(decodertab)
-	local threads = {}
+  -- create a local table to handle instantiated decoders
+  local decodertab = { udp = {}, ether = {} }
+  local condvar = nmap.condvar(decodertab)
+  local threads = {}
 
-	-- start a thread for each interface to sniff
-	for _, iface in ipairs(interfaces) do
-		local co = stdnse.new_thread(sniffInterface, iface, Decoders, decodertab)
-		threads[co] = true
-	end
+  -- start a thread for each interface to sniff
+  for _, iface in ipairs(interfaces) do
+    local co = stdnse.new_thread(sniffInterface, iface, Decoders, decodertab)
+    threads[co] = true
+  end
 
-	-- wait for all threads to finish sniffing
-    repeat
-		for thread in pairs(threads) do
-			if coroutine.status(thread) == "dead" then
-				threads[thread] = nil
-			end
-		end
-		if ( next(threads) ) then
-			condvar "wait"
-		end
-	until next(threads) == nil
+  -- wait for all threads to finish sniffing
+  repeat
+    for thread in pairs(threads) do
+      if coroutine.status(thread) == "dead" then
+        threads[thread] = nil
+      end
+    end
+    if ( next(threads) ) then
+      condvar "wait"
+    end
+  until next(threads) == nil
 
-	local out_outer = {}
+  local out_outer = {}
 
-	-- create the results table
-	for proto, _ in pairs(decodertab) do
-		local out_inner = {}
-		for key, decoder in pairs(decodertab[proto]) do
-			table.insert( out_inner, decodertab[proto][key]:getResults() )
-		end
-		if ( #out_inner > 0 ) then
-			table.insert( out_outer, { name = proto, out_inner } )
-		end
-	end
+  -- create the results table
+  for proto, _ in pairs(decodertab) do
+    local out_inner = {}
+    for key, decoder in pairs(decodertab[proto]) do
+      table.insert( out_inner, decodertab[proto][key]:getResults() )
+    end
+    if ( #out_inner > 0 ) then
+      table.insert( out_outer, { name = proto, out_inner } )
+    end
+  end
 
-	table.sort(out_outer, function(a, b) return a.name < b.name end)
-	return stdnse.format_output(true, out_outer)
+  table.sort(out_outer, function(a, b) return a.name < b.name end)
+  return stdnse.format_output(true, out_outer)
 
 end

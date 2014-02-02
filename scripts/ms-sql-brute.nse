@@ -55,9 +55,9 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --
 ----
 -- @args ms-sql-brute.ignore-lockout WARNING! Including this argument will cause
---			the script to continue attempting to brute-forcing passwords for users
---			even after a user has been locked out. This may result in many SQL
---			Server logins being locked out!
+--      the script to continue attempting to brute-forcing passwords for users
+--      even after a user has been locked out. This may result in many SQL
+--      Server logins being locked out!
 --
 -- @args ms-sql-brute.brute-windows-accounts  Enable targeting Windows accounts
 --          as part of the brute force attack.  This should be used in conjunction
@@ -66,10 +66,10 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 02/01/2011 - v0.2 (Chris Woodbury)
---		- Added ability to run against all instances on a host;
---		- Added recognition of account-locked out and password-expired error codes;
---		- Added storage of credentials on a per-instance basis
---		- Added compatibility with changes in mssql.lua
+--    - Added ability to run against all instances on a host;
+--    - Added recognition of account-locked out and password-expired error codes;
+--    - Added storage of credentials on a per-instance basis
+--    - Added compatibility with changes in mssql.lua
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -86,220 +86,220 @@ portrule = mssql.Helper.GetPortrule_Standard()
 --- Returns formatted output for the given instance
 local function create_instance_output_table( instance )
 
-	local instanceOutput = {}
-	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
-	if ( instance.ms_sql_brute.credentials ) then
-		local credsOutput = {}
-		credsOutput["name"] = "Credentials found:"
-		table.insert( instanceOutput, credsOutput )
+  local instanceOutput = {}
+  instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+  if ( instance.ms_sql_brute.credentials ) then
+    local credsOutput = {}
+    credsOutput["name"] = "Credentials found:"
+    table.insert( instanceOutput, credsOutput )
 
-		for username, result in pairs( instance.ms_sql_brute.credentials ) do
-			local password = result[1]
-			local errorCode = result[2]
-			password = password:len()>0 and password or "<empty>"
-			if errorCode then
-				local errorMessage = mssql.LoginErrorMessage[ errorCode ] or "unknown error"
-				table.insert( credsOutput, string.format( "%s:%s => %s", username, password, errorMessage ) )
-			else
-				table.insert( credsOutput, string.format( "%s:%s => Login Success", username, password ) )
-			end
-		end
+    for username, result in pairs( instance.ms_sql_brute.credentials ) do
+      local password = result[1]
+      local errorCode = result[2]
+      password = password:len()>0 and password or "<empty>"
+      if errorCode then
+        local errorMessage = mssql.LoginErrorMessage[ errorCode ] or "unknown error"
+        table.insert( credsOutput, string.format( "%s:%s => %s", username, password, errorMessage ) )
+      else
+        table.insert( credsOutput, string.format( "%s:%s => Login Success", username, password ) )
+      end
+    end
 
-		if ( #credsOutput == 0 ) then
-			table.insert( instanceOutput, "No credentials found" )
-		end
-	end
+    if ( #credsOutput == 0 ) then
+      table.insert( instanceOutput, "No credentials found" )
+    end
+  end
 
-	if ( instance.ms_sql_brute.warnings ) then
-		local warningsOutput = {}
-		warningsOutput["name"] = "Warnings:"
-		table.insert( instanceOutput, warningsOutput )
+  if ( instance.ms_sql_brute.warnings ) then
+    local warningsOutput = {}
+    warningsOutput["name"] = "Warnings:"
+    table.insert( instanceOutput, warningsOutput )
 
-		for _, warning in ipairs( instance.ms_sql_brute.warnings ) do
-			table.insert( warningsOutput, warning )
-		end
-	end
+    for _, warning in ipairs( instance.ms_sql_brute.warnings ) do
+      table.insert( warningsOutput, warning )
+    end
+  end
 
-	if ( instance.ms_sql_brute.errors ) then
-		local errorsOutput = {}
-		errorsOutput["name"] = "Errors:"
-		table.insert( instanceOutput, errorsOutput )
+  if ( instance.ms_sql_brute.errors ) then
+    local errorsOutput = {}
+    errorsOutput["name"] = "Errors:"
+    table.insert( instanceOutput, errorsOutput )
 
-		for _, error in ipairs( instance.ms_sql_brute.errors ) do
-			table.insert( errorsOutput, error )
-		end
-	end
+    for _, error in ipairs( instance.ms_sql_brute.errors ) do
+      table.insert( errorsOutput, error )
+    end
+  end
 
-	return instanceOutput
+  return instanceOutput
 
 end
 
 
 local function test_credentials( instance, helper, username, password )
-	local database = "tempdb"
-	local stopUser, stopInstance = false, false
+  local database = "tempdb"
+  local stopUser, stopInstance = false, false
 
-	local status, result = helper:ConnectEx( instance )
-	local loginErrorCode
-	if( status ) then
-		stdnse.print_debug( 2, "%s: Attempting login to %s as %s/%s", SCRIPT_NAME, instance:GetName(), username, password )
-		status, result, loginErrorCode = helper:Login( username, password, database, instance.host.ip )
-	end
-	helper:Disconnect()
+  local status, result = helper:ConnectEx( instance )
+  local loginErrorCode
+  if( status ) then
+    stdnse.print_debug( 2, "%s: Attempting login to %s as %s/%s", SCRIPT_NAME, instance:GetName(), username, password )
+    status, result, loginErrorCode = helper:Login( username, password, database, instance.host.ip )
+  end
+  helper:Disconnect()
 
-	local passwordIsGood, canLogin
-	if status then
-		passwordIsGood = true
-		canLogin = true
-	elseif ( loginErrorCode ) then
-		if ( ( loginErrorCode ~= mssql.LoginErrorType.InvalidUsernameOrPassword ) and
-			 ( loginErrorCode ~= mssql.LoginErrorType.NotAssociatedWithTrustedConnection ) ) then
-			stopUser = true
-		end
+  local passwordIsGood, canLogin
+  if status then
+    passwordIsGood = true
+    canLogin = true
+  elseif ( loginErrorCode ) then
+    if ( ( loginErrorCode ~= mssql.LoginErrorType.InvalidUsernameOrPassword ) and
+        ( loginErrorCode ~= mssql.LoginErrorType.NotAssociatedWithTrustedConnection ) ) then
+      stopUser = true
+    end
 
-		if ( loginErrorCode == mssql.LoginErrorType.PasswordExpired ) then passwordIsGood = true
-		elseif ( loginErrorCode == mssql.LoginErrorType.PasswordMustChange ) then passwordIsGood = true
-		elseif ( loginErrorCode == mssql.LoginErrorType.AccountLockedOut ) then
-			stdnse.print_debug( 1, "%s: Account %s locked out on %s", SCRIPT_NAME, username, instance:GetName() )
-			table.insert( instance.ms_sql_brute.warnings, string.format( "%s: Account is locked out.", username ) )
-			if ( not stdnse.get_script_args( "ms-sql-brute.ignore-lockout" ) ) then
-				stopInstance = true
-			end
-		end
-		if ( mssql.LoginErrorMessage[ loginErrorCode ] == nil ) then
-			stdnse.print_debug( 2, "%s: Attemping login to %s as (%s/%s): Unknown login error number: %s",
-				SCRIPT_NAME, instance:GetName(), username, password, loginErrorCode )
-			table.insert( instance.ms_sql_brute.warnings, string.format( "Unknown login error number: %s", loginErrorCode ) )
-		end
-		stdnse.print_debug( 3, "%s: Attempt to login to %s as (%s/%s): %d (%s)",
-			SCRIPT_NAME, instance:GetName(), username, password, loginErrorCode, tostring( mssql.LoginErrorMessage[ loginErrorCode ] ) )
-	else
-		table.insert( instance.ms_sql_brute.errors, string.format("Network error. Skipping instance. Error: %s", result ) )
-		stopUser = true
-		stopInstance = true
-	end
+    if ( loginErrorCode == mssql.LoginErrorType.PasswordExpired ) then passwordIsGood = true
+    elseif ( loginErrorCode == mssql.LoginErrorType.PasswordMustChange ) then passwordIsGood = true
+    elseif ( loginErrorCode == mssql.LoginErrorType.AccountLockedOut ) then
+      stdnse.print_debug( 1, "%s: Account %s locked out on %s", SCRIPT_NAME, username, instance:GetName() )
+      table.insert( instance.ms_sql_brute.warnings, string.format( "%s: Account is locked out.", username ) )
+      if ( not stdnse.get_script_args( "ms-sql-brute.ignore-lockout" ) ) then
+        stopInstance = true
+      end
+    end
+    if ( mssql.LoginErrorMessage[ loginErrorCode ] == nil ) then
+      stdnse.print_debug( 2, "%s: Attemping login to %s as (%s/%s): Unknown login error number: %s",
+        SCRIPT_NAME, instance:GetName(), username, password, loginErrorCode )
+      table.insert( instance.ms_sql_brute.warnings, string.format( "Unknown login error number: %s", loginErrorCode ) )
+    end
+    stdnse.print_debug( 3, "%s: Attempt to login to %s as (%s/%s): %d (%s)",
+      SCRIPT_NAME, instance:GetName(), username, password, loginErrorCode, tostring( mssql.LoginErrorMessage[ loginErrorCode ] ) )
+  else
+    table.insert( instance.ms_sql_brute.errors, string.format("Network error. Skipping instance. Error: %s", result ) )
+    stopUser = true
+    stopInstance = true
+  end
 
-	if ( passwordIsGood ) then
-		stopUser = true
+  if ( passwordIsGood ) then
+    stopUser = true
 
-		instance.ms_sql_brute.credentials[ username ] = { password, loginErrorCode }
-		-- Add credentials for other ms-sql scripts to use but don't
-		-- add accounts that need to change passwords
-		if ( canLogin ) then
-			instance.credentials[ username ] = password
-			-- Legacy storage method (does not distinguish between instances)
-			nmap.registry.mssqlusers = nmap.registry.mssqlusers or {}
-			nmap.registry.mssqlusers[username]=password
-		end
-	end
+    instance.ms_sql_brute.credentials[ username ] = { password, loginErrorCode }
+    -- Add credentials for other ms-sql scripts to use but don't
+    -- add accounts that need to change passwords
+    if ( canLogin ) then
+      instance.credentials[ username ] = password
+      -- Legacy storage method (does not distinguish between instances)
+      nmap.registry.mssqlusers = nmap.registry.mssqlusers or {}
+      nmap.registry.mssqlusers[username]=password
+    end
+  end
 
-	return stopUser, stopInstance
+  return stopUser, stopInstance
 end
 
 --- Processes a single instance, attempting to detect an empty password for "sa"
 local function process_instance( instance )
 
-	-- One of this script's features is that it will report an instance's
-	-- in both the port-script results and the host-script results. In order to
-	-- avoid redundant login attempts on an instance, we will just make the
-	-- attempt once and then re-use the results. We'll use a mutex to make sure
-	-- that multiple script instances (e.g. a host-script and a port-script)
-	-- working on the same SQL Server instance can only enter this block one at
-	-- a time.
-	local mutex = nmap.mutex( instance )
-	mutex( "lock" )
+  -- One of this script's features is that it will report an instance's
+  -- in both the port-script results and the host-script results. In order to
+  -- avoid redundant login attempts on an instance, we will just make the
+  -- attempt once and then re-use the results. We'll use a mutex to make sure
+  -- that multiple script instances (e.g. a host-script and a port-script)
+  -- working on the same SQL Server instance can only enter this block one at
+  -- a time.
+  local mutex = nmap.mutex( instance )
+  mutex( "lock" )
 
-	-- If this instance has already been tested (e.g. if we got to it by both the
-	-- hostrule and the portrule), don't test it again.
-	if ( instance.tested_brute ~= true ) then
-		instance.tested_brute = true
+  -- If this instance has already been tested (e.g. if we got to it by both the
+  -- hostrule and the portrule), don't test it again.
+  if ( instance.tested_brute ~= true ) then
+    instance.tested_brute = true
 
-		instance.credentials = instance.credentials or {}
-		instance.ms_sql_brute = instance.ms_sql_brute or {}
-		instance.ms_sql_brute.credentials = instance.ms_sql_brute.credentials or {}
-		instance.ms_sql_brute.warnings = instance.ms_sql_brute.warnings or {}
-		instance.ms_sql_brute.errors = instance.ms_sql_brute.errors or {}
+    instance.credentials = instance.credentials or {}
+    instance.ms_sql_brute = instance.ms_sql_brute or {}
+    instance.ms_sql_brute.credentials = instance.ms_sql_brute.credentials or {}
+    instance.ms_sql_brute.warnings = instance.ms_sql_brute.warnings or {}
+    instance.ms_sql_brute.errors = instance.ms_sql_brute.errors or {}
 
-		local result, status
-		local stopUser, stopInstance
-		local usernames, passwords, username, password
-		local helper = mssql.Helper:new()
+    local result, status
+    local stopUser, stopInstance
+    local usernames, passwords, username, password
+    local helper = mssql.Helper:new()
 
-		if ( not instance:HasNetworkProtocols() ) then
-			stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
-			table.insert( instance.ms_sql_brute.errors, "No network protocols enabled." )
-			stopInstance = true
-		end
+    if ( not instance:HasNetworkProtocols() ) then
+      stdnse.print_debug( 1, "%s: %s has no network protocols enabled.", SCRIPT_NAME, instance:GetName() )
+      table.insert( instance.ms_sql_brute.errors, "No network protocols enabled." )
+      stopInstance = true
+    end
 
-		status, usernames = unpwdb.usernames()
-		if ( not(status) ) then
-			stdnse.print_debug( 1, "%s: Failed to load usernames list.", SCRIPT_NAME )
-			table.insert( instance.ms_sql_brute.errors, "Failed to load usernames list." )
-			stopInstance = true
-		end
+    status, usernames = unpwdb.usernames()
+    if ( not(status) ) then
+      stdnse.print_debug( 1, "%s: Failed to load usernames list.", SCRIPT_NAME )
+      table.insert( instance.ms_sql_brute.errors, "Failed to load usernames list." )
+      stopInstance = true
+    end
 
-		if ( status ) then
-			status, passwords = unpwdb.passwords()
-			if ( not(status) ) then
-				stdnse.print_debug( 1, "%s: Failed to load passwords list.", SCRIPT_NAME )
-				table.insert( instance.ms_sql_brute.errors, "Failed to load passwords list." )
-				stopInstance = true
-			end
-		end
+    if ( status ) then
+      status, passwords = unpwdb.passwords()
+      if ( not(status) ) then
+        stdnse.print_debug( 1, "%s: Failed to load passwords list.", SCRIPT_NAME )
+        table.insert( instance.ms_sql_brute.errors, "Failed to load passwords list." )
+        stopInstance = true
+      end
+    end
 
-		if ( status ) then
-			for username in usernames do
-				if stopInstance then break end
+    if ( status ) then
+      for username in usernames do
+        if stopInstance then break end
 
-				-- See if the password is the same as the username (which may not
-				-- be in the password list)
-				stopUser, stopInstance = test_credentials( instance, helper, username, username )
+        -- See if the password is the same as the username (which may not
+        -- be in the password list)
+        stopUser, stopInstance = test_credentials( instance, helper, username, username )
 
-				for password in passwords do
-					if stopUser then break end
+        for password in passwords do
+          if stopUser then break end
 
-					stopUser, stopInstance = test_credentials( instance, helper, username, password )
-				end
+          stopUser, stopInstance = test_credentials( instance, helper, username, password )
+        end
 
-				passwords("reset")
-			end
-		end
-	end
+        passwords("reset")
+      end
+    end
+  end
 
-	-- The password testing has been finished. Unlock the mutex.
-	mutex( "done" )
+  -- The password testing has been finished. Unlock the mutex.
+  mutex( "done" )
 
-	return create_instance_output_table( instance )
+  return create_instance_output_table( instance )
 
 end
 
 
 action = function( host, port )
-	local scriptOutput = {}
-	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+  local scriptOutput = {}
+  local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
 
-	local domain, bruteWindows = stdnse.get_script_args("mssql.domain", "ms-sql-brute.brute-windows-accounts")
+  local domain, bruteWindows = stdnse.get_script_args("mssql.domain", "ms-sql-brute.brute-windows-accounts")
 
-	if ( domain and not(bruteWindows) ) then
-		local ret = "\n  " ..
-			"Windows authentication was enabled but the argument\n  " ..
-			"ms-sql-brute.brute-windows-accounts was not given. As there is currently no\n  " ..
-			"way of detecting accounts being locked out when Windows authentication is \n  " ..
-			"used, make sure that the amount entries in the password list\n  " ..
-			"(passdb argument) are at least 2 entries below the lockout threshold."
-		return ret
-	end
+  if ( domain and not(bruteWindows) ) then
+    local ret = "\n  " ..
+    "Windows authentication was enabled but the argument\n  " ..
+    "ms-sql-brute.brute-windows-accounts was not given. As there is currently no\n  " ..
+    "way of detecting accounts being locked out when Windows authentication is \n  " ..
+    "used, make sure that the amount entries in the password list\n  " ..
+    "(passdb argument) are at least 2 entries below the lockout threshold."
+    return ret
+  end
 
-	if ( not status ) then
-		return stdnse.format_output( false, instanceList )
-	else
-		for _, instance in pairs( instanceList ) do
-			local instanceOutput = process_instance( instance )
-			if instanceOutput then
-				table.insert( scriptOutput, instanceOutput )
-			end
-		end
-	end
+  if ( not status ) then
+    return stdnse.format_output( false, instanceList )
+  else
+    for _, instance in pairs( instanceList ) do
+      local instanceOutput = process_instance( instance )
+      if instanceOutput then
+        table.insert( scriptOutput, instanceOutput )
+      end
+    end
+  end
 
-	return stdnse.format_output( true, scriptOutput )
+  return stdnse.format_output( true, scriptOutput )
 end

@@ -68,7 +68,7 @@ dependencies = {"smb-brute"}
 
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 ---Attempts to enumerate the sessions on a remote system using MSRPC calls. This will likely fail
@@ -78,34 +78,34 @@ end
 --@return Status (true or false).
 --@return List of sessions (if status is true) or an an error string (if status is false).
 local function srvsvc_enum_sessions(host)
-	local i
-	local status, smbstate
-	local bind_result, netsessenum_result
+  local i
+  local status, smbstate
+  local bind_result, netsessenum_result
 
-	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.SRVSVC_PATH)
-	if(status == false) then
-		return false, smbstate
-	end
+  -- Create the SMB session
+  status, smbstate = msrpc.start_smb(host, msrpc.SRVSVC_PATH)
+  if(status == false) then
+    return false, smbstate
+  end
 
-	-- Bind to SRVSVC service
-	status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, bind_result
-	end
+  -- Bind to SRVSVC service
+  status, bind_result = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, bind_result
+  end
 
-	-- Call netsessenum
-	status, netsessenum_result = msrpc.srvsvc_netsessenum(smbstate, host.ip)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, netsessenum_result
-	end
+  -- Call netsessenum
+  status, netsessenum_result = msrpc.srvsvc_netsessenum(smbstate, host.ip)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, netsessenum_result
+  end
 
-	-- Stop the SMB session
-	msrpc.stop_smb(smbstate)
+  -- Stop the SMB session
+  msrpc.stop_smb(smbstate)
 
-	return true, netsessenum_result['ctr']['array']
+  return true, netsessenum_result['ctr']['array']
 end
 
 ---Enumerates the users logged in locally (or through terminal services) by using functions
@@ -118,218 +118,218 @@ end
 --@return An array of user tables, each with the keys <code>name</code>, <code>domain</code>, and <code>changed_date</code> (representing
 --        when they logged in).
 local function winreg_enum_rids(host)
-	local i, j
-	local elements = {}
+  local i, j
+  local elements = {}
 
-	-- Create the SMB session
-	local status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
-	if(status == false) then
-		return false, smbstate
-	end
+  -- Create the SMB session
+  local status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
+  if(status == false) then
+    return false, smbstate
+  end
 
-	-- Bind to WINREG service
-	local status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, bind_result
-	end
+  -- Bind to WINREG service
+  local status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, bind_result
+  end
 
-	local status, openhku_result = msrpc.winreg_openhku(smbstate)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, openhku_result
-	end
+  local status, openhku_result = msrpc.winreg_openhku(smbstate)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, openhku_result
+  end
 
-	-- Loop through the keys under HKEY_USERS and grab the names
-	i = 0
-	repeat
-		local status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
+  -- Loop through the keys under HKEY_USERS and grab the names
+  i = 0
+  repeat
+    local status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
 
-		if(status == true) then
-			local status, openkey_result
+    if(status == true) then
+      local status, openkey_result
 
-			local element = {}
-			element['name'] = enumkey_result['name']
+      local element = {}
+      element['name'] = enumkey_result['name']
 
-			-- To get the time the user logged in, we check the 'Volatile Environment' key
-			-- This can fail with the 'guest' account due to access restrictions
-			local status, openkey_result = msrpc.winreg_openkey(smbstate, openhku_result['handle'], element['name'] .. "\\Volatile Environment")
-			if(status ~= false) then
-				local queryinfokey_result, closekey_result
+      -- To get the time the user logged in, we check the 'Volatile Environment' key
+      -- This can fail with the 'guest' account due to access restrictions
+      local status, openkey_result = msrpc.winreg_openkey(smbstate, openhku_result['handle'], element['name'] .. "\\Volatile Environment")
+      if(status ~= false) then
+        local queryinfokey_result, closekey_result
 
-				-- Query the info about this key. The response will tell us when the user logged into the server.
-				local status, queryinfokey_result = msrpc.winreg_queryinfokey(smbstate, openkey_result['handle'])
-				if(status == false) then
-					msrpc.stop_smb(smbstate)
-					return false, queryinfokey_result
-				end
+        -- Query the info about this key. The response will tell us when the user logged into the server.
+        local status, queryinfokey_result = msrpc.winreg_queryinfokey(smbstate, openkey_result['handle'])
+        if(status == false) then
+          msrpc.stop_smb(smbstate)
+          return false, queryinfokey_result
+        end
 
-				local status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'])
-				if(status == false) then
-					msrpc.stop_smb(smbstate)
-					return false, closekey_result
-				end
+        local status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'])
+        if(status == false) then
+          msrpc.stop_smb(smbstate)
+          return false, closekey_result
+        end
 
-				element['changed_date'] = queryinfokey_result['last_changed_date']
-			else
-				-- Getting extra details failed, but we can still handle this
-				element['changed_date'] = "<unknown>"
-			end
-			elements[#elements + 1] = element
-		end
+        element['changed_date'] = queryinfokey_result['last_changed_date']
+      else
+        -- Getting extra details failed, but we can still handle this
+        element['changed_date'] = "<unknown>"
+      end
+      elements[#elements + 1] = element
+    end
 
-		i = i + 1
-	until status ~= true
+    i = i + 1
+  until status ~= true
 
-	local status, closekey_result = msrpc.winreg_closekey(smbstate, openhku_result['handle'])
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, closekey_result
-	end
+  local status, closekey_result = msrpc.winreg_closekey(smbstate, openhku_result['handle'])
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, closekey_result
+  end
 
-	msrpc.stop_smb(smbstate)
+  msrpc.stop_smb(smbstate)
 
-	-- Start a new SMB session
-	local status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
-	if(status == false) then
-		return false, smbstate
-	end
+  -- Start a new SMB session
+  local status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
+  if(status == false) then
+    return false, smbstate
+  end
 
-	-- Bind to LSA service
-	local status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, bind_result
-	end
+  -- Bind to LSA service
+  local status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, bind_result
+  end
 
-	-- Get a policy handle
-	local status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
-	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		return false, openpolicy2_result
-	end
+  -- Get a policy handle
+  local status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
+  if(status == false) then
+    msrpc.stop_smb(smbstate)
+    return false, openpolicy2_result
+  end
 
-	-- Convert the SID to the name of the user
-	local results = {}
-	stdnse.print_debug(3, "MSRPC: Found %d SIDs that might be logged in", #elements)
-	for i = 1, #elements, 1 do
-		if(elements[i]['name'] ~= nil) then
-			local sid = elements[i]['name']
-		    if(string.find(sid, "^S%-") ~= nil and string.find(sid, "%-%d+$") ~= nil) then
-				-- The rid is the last digits before the end of the string
-				local rid = string.sub(sid, string.find(sid, "%d+$"))
+  -- Convert the SID to the name of the user
+  local results = {}
+  stdnse.print_debug(3, "MSRPC: Found %d SIDs that might be logged in", #elements)
+  for i = 1, #elements, 1 do
+    if(elements[i]['name'] ~= nil) then
+      local sid = elements[i]['name']
+      if(string.find(sid, "^S%-") ~= nil and string.find(sid, "%-%d+$") ~= nil) then
+        -- The rid is the last digits before the end of the string
+        local rid = string.sub(sid, string.find(sid, "%d+$"))
 
-				local status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], {elements[i]['name']})
+        local status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], {elements[i]['name']})
 
-				if(status == false) then
-					-- It may not succeed, if it doesn't that's ok
-					stdnse.print_debug(3, "MSRPC: Lookup failed")
-				else
-					-- Create the result array
-					local result = {}
-					result['changed_date'] = elements[i]['changed_date']
-					result['rid'] = rid
+        if(status == false) then
+          -- It may not succeed, if it doesn't that's ok
+          stdnse.print_debug(3, "MSRPC: Lookup failed")
+        else
+          -- Create the result array
+          local result = {}
+          result['changed_date'] = elements[i]['changed_date']
+          result['rid'] = rid
 
-					-- Fill in the result from the response
-					if(lookupsids2_result['names']['names'][1] == nil) then
-						result['name'] = "<unknown>"
-						result['type'] = "<unknown>"
-						result['domain'] = ""
-					else
-						result['name'] = lookupsids2_result['names']['names'][1]['name']
-						result['type'] = lookupsids2_result['names']['names'][1]['sid_type']
-						if(lookupsids2_result['domains'] ~= nil and lookupsids2_result['domains']['domains'] ~= nil and lookupsids2_result['domains']['domains'][1] ~= nil) then
-							result['domain'] = lookupsids2_result['domains']['domains'][1]['name']
-						else
-							result['domain'] = ""
-						end
-					end
+          -- Fill in the result from the response
+          if(lookupsids2_result['names']['names'][1] == nil) then
+            result['name'] = "<unknown>"
+            result['type'] = "<unknown>"
+            result['domain'] = ""
+          else
+            result['name'] = lookupsids2_result['names']['names'][1]['name']
+            result['type'] = lookupsids2_result['names']['names'][1]['sid_type']
+            if(lookupsids2_result['domains'] ~= nil and lookupsids2_result['domains']['domains'] ~= nil and lookupsids2_result['domains']['domains'][1] ~= nil) then
+              result['domain'] = lookupsids2_result['domains']['domains'][1]['name']
+            else
+              result['domain'] = ""
+            end
+          end
 
-					if(result['type'] ~= "SID_NAME_WKN_GRP") then -- Don't show "well known" accounts
-						-- Add it to the results
-						results[#results + 1] = result
-					end
-				end
-			end
-		end
-	end
+          if(result['type'] ~= "SID_NAME_WKN_GRP") then -- Don't show "well known" accounts
+            -- Add it to the results
+            results[#results + 1] = result
+          end
+        end
+      end
+    end
+  end
 
-	-- Close the policy
-	msrpc.lsa_close(smbstate, openpolicy2_result['policy_handle'])
+  -- Close the policy
+  msrpc.lsa_close(smbstate, openpolicy2_result['policy_handle'])
 
-	-- Stop the session
-	msrpc.stop_smb(smbstate)
+  -- Stop the session
+  msrpc.stop_smb(smbstate)
 
-	return true, results
+  return true, results
 end
 
 
 --_G.TRACEBACK = TRACEBACK or {}
 action = function(host)
---    TRACEBACK[coroutine.running()] = true;
+  --    TRACEBACK[coroutine.running()] = true;
 
-	local response = {}
+  local response = {}
 
-	-- Enumerate the logged in users
-	local logged_in = {}
-	local status1, users = winreg_enum_rids(host)
-	if(status1 == false) then
-		logged_in['warning'] = "Couldn't enumerate login sessions: " .. users
-	else
-		logged_in['name'] = "Users logged in"
-		if(#users == 0) then
-			table.insert(response, "<nobody>")
-		else
-			for i = 1, #users, 1 do
-				if(users[i]['name'] ~= nil) then
-					table.insert(logged_in, string.format("%s\\%s since %s", users[i]['domain'], users[i]['name'], users[i]['changed_date']))
-				end
-			end
-		end
-	end
-	table.insert(response, logged_in)
+  -- Enumerate the logged in users
+  local logged_in = {}
+  local status1, users = winreg_enum_rids(host)
+  if(status1 == false) then
+    logged_in['warning'] = "Couldn't enumerate login sessions: " .. users
+  else
+    logged_in['name'] = "Users logged in"
+    if(#users == 0) then
+      table.insert(response, "<nobody>")
+    else
+      for i = 1, #users, 1 do
+        if(users[i]['name'] ~= nil) then
+          table.insert(logged_in, string.format("%s\\%s since %s", users[i]['domain'], users[i]['name'], users[i]['changed_date']))
+        end
+      end
+    end
+  end
+  table.insert(response, logged_in)
 
-	-- Get the connected sessions
-	local sessions_output = {}
-	local status2, sessions = srvsvc_enum_sessions(host)
-	if(status2 == false) then
-		sessions_output['warning'] = "Couldn't enumerate SMB sessions: " .. sessions
-	else
-		sessions_output['name'] = "Active SMB sessions"
-		if(#sessions == 0) then
-			table.insert(sessions_output, "<none>")
-		else
-			-- Format the result
-			for i = 1, #sessions, 1 do
-				local time = sessions[i]['time']
-				if(time == 0) then
-					time = "[just logged in, it's probably you]"
-				elseif(time > 60 * 60 * 24) then
-					time = string.format("%dd%dh%02dm%02ds", time / (60*60*24), (time % (60*60*24)) / 3600, (time % 3600) / 60, time % 60)
-				elseif(time > 60 * 60) then
-					time = string.format("%dh%02dm%02ds", time / 3600, (time % 3600) / 60, time % 60)
-				else
-					time = string.format("%02dm%02ds", time / 60, time % 60)
-				end
+  -- Get the connected sessions
+  local sessions_output = {}
+  local status2, sessions = srvsvc_enum_sessions(host)
+  if(status2 == false) then
+    sessions_output['warning'] = "Couldn't enumerate SMB sessions: " .. sessions
+  else
+    sessions_output['name'] = "Active SMB sessions"
+    if(#sessions == 0) then
+      table.insert(sessions_output, "<none>")
+    else
+      -- Format the result
+      for i = 1, #sessions, 1 do
+        local time = sessions[i]['time']
+        if(time == 0) then
+          time = "[just logged in, it's probably you]"
+        elseif(time > 60 * 60 * 24) then
+          time = string.format("%dd%dh%02dm%02ds", time / (60*60*24), (time % (60*60*24)) / 3600, (time % 3600) / 60, time % 60)
+        elseif(time > 60 * 60) then
+          time = string.format("%dh%02dm%02ds", time / 3600, (time % 3600) / 60, time % 60)
+        else
+          time = string.format("%02dm%02ds", time / 60, time % 60)
+        end
 
-				local idle_time = sessions[i]['idle_time']
-				if(idle_time == 0) then
-					idle_time = "[not idle]"
-				elseif(idle_time > 60 * 60 * 24) then
-					idle_time = string.format("%dd%dh%02dm%02ds", idle_time / (60*60*24), (idle_time % (60*60*24)) / 3600, (idle_time % 3600) / 60, idle_time % 60)
-				elseif(idle_time > 60 * 60) then
-					idle_time = string.format("%dh%02dm%02ds", idle_time / 3600, (idle_time % 3600) / 60, idle_time % 60)
-				else
-					idle_time = string.format("%02dm%02ds", idle_time / 60, idle_time % 60)
-				end
+        local idle_time = sessions[i]['idle_time']
+        if(idle_time == 0) then
+          idle_time = "[not idle]"
+        elseif(idle_time > 60 * 60 * 24) then
+          idle_time = string.format("%dd%dh%02dm%02ds", idle_time / (60*60*24), (idle_time % (60*60*24)) / 3600, (idle_time % 3600) / 60, idle_time % 60)
+        elseif(idle_time > 60 * 60) then
+          idle_time = string.format("%dh%02dm%02ds", idle_time / 3600, (idle_time % 3600) / 60, idle_time % 60)
+        else
+          idle_time = string.format("%02dm%02ds", idle_time / 60, idle_time % 60)
+        end
 
-				table.insert(sessions_output, string.format("%s is connected from %s for %s, idle for %s", sessions[i]['user'], sessions[i]['client'], time, idle_time))
-			end
-		end
-	end
-	table.insert(response, sessions_output)
+        table.insert(sessions_output, string.format("%s is connected from %s for %s, idle for %s", sessions[i]['user'], sessions[i]['client'], time, idle_time))
+      end
+    end
+  end
+  table.insert(response, sessions_output)
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
 
 

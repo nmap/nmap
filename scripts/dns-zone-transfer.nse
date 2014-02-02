@@ -102,15 +102,15 @@ prerule = function()
 
   if not dns_opts.domain then
     stdnse.print_debug(3,
-        "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
-        SCRIPT_NAME, SCRIPT_TYPE)
+    "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
+    SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
   if not dns_opts.server then
     stdnse.print_debug(3,
-        "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
-        SCRIPT_NAME, SCRIPT_TYPE)
+      "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
+      SCRIPT_NAME, SCRIPT_TYPE)
     return false
   end
 
@@ -132,8 +132,8 @@ portrule = function(host, port)
       else
         -- can't do anything without a hostname
         stdnse.print_debug(3,
-            "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
-            SCRIPT_NAME, SCRIPT_TYPE)
+          "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
+          SCRIPT_NAME, SCRIPT_TYPE)
         return false
       end
     end
@@ -149,39 +149,39 @@ end
 --@class table
 --@name typetab
 local typetab = { 'A', 'NS', 'MD', 'MF', 'CNAME', 'SOA', 'MB', 'MG', 'MR',
- 'NULL', 'WKS', 'PTR', 'HINFO', 'MINFO', 'MX', 'TXT', 'RP', 'AFSDB', 'X25',
- 'ISDN', 'RT', 'NSAP', 'NSAP-PTR', 'SIG', 'KEY', 'PX', 'GPOS', 'AAAA', 'LOC',
- 'NXT', 'EID', 'NIMLOC', 'SRV', 'ATMA', 'NAPTR', 'KX', 'CERT', 'A6', 'DNAME',
- 'SINK', 'OPT', 'APL', 'DS', 'SSHFP', 'IPSECKEY', 'RRSIG', 'NSEC', 'DNSKEY',
- 'DHCID', 'NSEC3', 'NSEC3PARAM', 'TLSA', [55]='HIP', [56]='NINFO', [57]='RKEY',
- [58]='TALINK', [59]='CDS', [99]='SPF', [100]='UINFO', [101]='UID', [102]='GID',
- [103]='UNSPEC', [249]='TKEY', [250]='TSIG', [251]='IXFR', [252]='AXFR',
- [253]='MAILB', [254]='MAILA', [255]='ANY', [256]='ZXFR', [257]='CAA',
- [32768]='TA', [32769]='DLV',
+  'NULL', 'WKS', 'PTR', 'HINFO', 'MINFO', 'MX', 'TXT', 'RP', 'AFSDB', 'X25',
+  'ISDN', 'RT', 'NSAP', 'NSAP-PTR', 'SIG', 'KEY', 'PX', 'GPOS', 'AAAA', 'LOC',
+  'NXT', 'EID', 'NIMLOC', 'SRV', 'ATMA', 'NAPTR', 'KX', 'CERT', 'A6', 'DNAME',
+  'SINK', 'OPT', 'APL', 'DS', 'SSHFP', 'IPSECKEY', 'RRSIG', 'NSEC', 'DNSKEY',
+  'DHCID', 'NSEC3', 'NSEC3PARAM', 'TLSA', [55]='HIP', [56]='NINFO', [57]='RKEY',
+  [58]='TALINK', [59]='CDS', [99]='SPF', [100]='UINFO', [101]='UID', [102]='GID',
+  [103]='UNSPEC', [249]='TKEY', [250]='TSIG', [251]='IXFR', [252]='AXFR',
+  [253]='MAILB', [254]='MAILA', [255]='ANY', [256]='ZXFR', [257]='CAA',
+  [32768]='TA', [32769]='DLV',
 }
 
 --- Whitelist of TLDs. Only way to reliably determine the root of a domain
 --@class table
 --@name tld
 local tld = {
- 'aero', 'asia', 'biz', 'cat', 'com', 'coop', 'info', 'jobs', 'mobi', 'museum',
- 'name', 'net', 'org', 'pro', 'tel', 'travel', 'gov', 'edu', 'mil', 'int',
- 'ac','ad','ae','af','ag','ai','al','am','an','ao','aq','ar','as','at','au','aw',
- 'ax','az','ba','bb','bd','be','bf','bg','bh','bi','bj','bm','bn','bo','br','bs',
- 'bt','bv','bw','by','bz','ca','cc','cd','cf','cg','ch','ci','ck','cl','cm','cn',
- 'co','cr','cu','cv','cx','cy','cz','de','dj','dk','dm','do','dz','ec','ee','eg',
- 'eh','er','es','et','eu','fi','fj','fk','fm','fo','fr','ga','gb','gd','ge','gf',
- 'gg','gh','gi','gl','gm','gn','gp','gq','gr','gs','gt','gu','gw','gy','hk','hm',
- 'hn','hr','ht','hu','id','ie','il','im','in','io','iq','ir','is','it','je','jm',
- 'jo','jp','ke','kg','kh','ki','km','kn','kp','kr','kw','ky','kz','la','lb','lc',
- 'li','lk','lr','ls','lt','lu','lv','ly','ma','mc','md','me','mg','mh','mk','ml',
- 'mm','mn','mo','mp','mq','mr','ms','mt','mu','mv','mw','mx','my','mz','na','nc',
- 'ne','nf','ng','ni','nl','no','np','nr','nu','nz','om','pa','pe','pf','pg','ph',
- 'pk','pl','pm','pn','pr','ps','pt','pw','py','qa','re','ro','rs','ru','rw','sa',
- 'sb','sc','sd','se','sg','sh','si','sj','sk','sl','sm','sn','so','sr','st','su',
- 'sv','sy','sz','tc','td','tf','tg','th','tj','tk','tl','tm','tn','to','tp','tr',
- 'tt','tv','tw','tz','ua','ug','uk','um','us','uy','uz','va','vc','ve','vg','vi',
- 'vn','vu','wf','ws','ye','yt','yu','za','zm','zw'
+  'aero', 'asia', 'biz', 'cat', 'com', 'coop', 'info', 'jobs', 'mobi', 'museum',
+  'name', 'net', 'org', 'pro', 'tel', 'travel', 'gov', 'edu', 'mil', 'int',
+  'ac','ad','ae','af','ag','ai','al','am','an','ao','aq','ar','as','at','au','aw',
+  'ax','az','ba','bb','bd','be','bf','bg','bh','bi','bj','bm','bn','bo','br','bs',
+  'bt','bv','bw','by','bz','ca','cc','cd','cf','cg','ch','ci','ck','cl','cm','cn',
+  'co','cr','cu','cv','cx','cy','cz','de','dj','dk','dm','do','dz','ec','ee','eg',
+  'eh','er','es','et','eu','fi','fj','fk','fm','fo','fr','ga','gb','gd','ge','gf',
+  'gg','gh','gi','gl','gm','gn','gp','gq','gr','gs','gt','gu','gw','gy','hk','hm',
+  'hn','hr','ht','hu','id','ie','il','im','in','io','iq','ir','is','it','je','jm',
+  'jo','jp','ke','kg','kh','ki','km','kn','kp','kr','kw','ky','kz','la','lb','lc',
+  'li','lk','lr','ls','lt','lu','lv','ly','ma','mc','md','me','mg','mh','mk','ml',
+  'mm','mn','mo','mp','mq','mr','ms','mt','mu','mv','mw','mx','my','mz','na','nc',
+  'ne','nf','ng','ni','nl','no','np','nr','nu','nz','om','pa','pe','pf','pg','ph',
+  'pk','pl','pm','pn','pr','ps','pt','pw','py','qa','re','ro','rs','ru','rw','sa',
+  'sb','sc','sd','se','sg','sh','si','sj','sk','sl','sm','sn','so','sr','st','su',
+  'sv','sy','sz','tc','td','tf','tg','th','tj','tk','tl','tm','tn','to','tp','tr',
+  'tt','tv','tw','tz','ua','ug','uk','um','us','uy','uz','va','vc','ve','vg','vi',
+  'vn','vu','wf','ws','ye','yt','yu','za','zm','zw'
 }
 
 --- Convert two bytes into a 16bit number.
@@ -189,61 +189,61 @@ local tld = {
 --@param idx Index in the string (first of two consecutive bytes).
 --@return 16 bit number represented by the two bytes.
 function bto16(data, idx)
-    local b1 = string.byte(data, idx)
-    local b2 = string.byte(data, idx+1)
-    -- (b2 & 0xff) | ((b1 & 0xff) << 8)
-    return bit.bor(bit.band(b2, 255), bit.lshift(bit.band(b1, 255), 8))
+  local b1 = string.byte(data, idx)
+  local b2 = string.byte(data, idx+1)
+  -- (b2 & 0xff) | ((b1 & 0xff) << 8)
+  return bit.bor(bit.band(b2, 255), bit.lshift(bit.band(b1, 255), 8))
 end
 
 --- Check if domain name element is a tld
 --@param elm Domain name element to check.
 --@return boolean
 function valid_tld(elm)
-    for i,v in ipairs(tld) do
-        if elm == v then return true end
-    end
-    return false
+  for i,v in ipairs(tld) do
+    if elm == v then return true end
+  end
+  return false
 end
 
 --- Parse an RFC 1035 domain name.
 --@param data String of data.
 --@param offset Offset in the string to read the domain name.
 function parse_domain(data, offset)
-    local offset, domain = dns.decStr(data, offset)
-    domain = domain or "<parse error>"
-    return offset, string.format("%s.", domain)
+  local offset, domain = dns.decStr(data, offset)
+  domain = domain or "<parse error>"
+  return offset, string.format("%s.", domain)
 end
 
 --- Build RFC 1035 root domain name from the name of the DNS server
 --  (e.g ns1.website.com.ar -> \007website\003com\002ar\000).
 --@param host The host.
 function build_domain(host)
-    local names, buf, x
-    local abs_name, i, tmp
+  local names, buf, x
+  local abs_name, i, tmp
 
-    buf = strbuf.new()
-    abs_name = {}
+  buf = strbuf.new()
+  abs_name = {}
 
-    names = stdnse.strsplit('%.', host)
-    if names == nil then names = {host} end
+  names = stdnse.strsplit('%.', host)
+  if names == nil then names = {host} end
 
-    -- try to determine root of domain name
-    for i, x in ipairs(listop.reverse(names)) do
-        table.insert(abs_name, x)
-        if not valid_tld(x) then break end
-    end
+  -- try to determine root of domain name
+  for i, x in ipairs(listop.reverse(names)) do
+    table.insert(abs_name, x)
+    if not valid_tld(x) then break end
+  end
 
-    i = 1
-    abs_name = listop.reverse(abs_name)
+  i = 1
+  abs_name = listop.reverse(abs_name)
 
-    -- prepend each element with its length
-    while i <= #abs_name do
-        buf = buf .. string.char(#abs_name[i]) .. abs_name[i]
-        i = i + 1
-    end
+  -- prepend each element with its length
+  while i <= #abs_name do
+    buf = buf .. string.char(#abs_name[i]) .. abs_name[i]
+    i = i + 1
+  end
 
-    buf = buf .. '\000'
-    return strbuf.dump(buf)
+  buf = buf .. '\000'
+  return strbuf.dump(buf)
 end
 
 local function parse_num_domain(data, offset)
@@ -264,25 +264,25 @@ end
 --- Retrieve type specific data (rdata) from dns packets
 local RD = {
   A = function(data, offset)
-      return offset+4, packet.toip(data:sub(offset, offset+3))
+    return offset+4, packet.toip(data:sub(offset, offset+3))
   end,
   NS = parse_domain,
   MD = parse_domain, -- obsolete per rfc1035, use MX
   MF = parse_domain, -- obsolete per rfc1035, use MX
   CNAME = parse_domain,
   SOA = function(data, offset)
-      local field, info
-      info = strbuf.new()
-      -- name server
-      offset, field = parse_domain(data, offset)
-      info = info .. field;
-      -- mail box
-      offset, field = parse_domain(data, offset)
-      info = info .. field;
-      -- ignore other values
-      offset = offset + 20
-      return offset, strbuf.dump(info, ' ')
-    end,
+    local field, info
+    info = strbuf.new()
+    -- name server
+    offset, field = parse_domain(data, offset)
+    info = info .. field;
+    -- mail box
+    offset, field = parse_domain(data, offset)
+    info = info .. field;
+    -- ignore other values
+    offset = offset + 20
+    return offset, strbuf.dump(info, ' ')
+  end,
   MB = parse_domain, -- experimental per RFC 1035
   MG = parse_domain, -- experimental per RFC 1035
   MR = parse_domain, -- experimental per RFC 1035
@@ -392,7 +392,7 @@ local RD = {
       lon = 0-lon
     end
     return offset, string.format("%f %s %f %s %dm %0.1fm %0.1fm %0.1fm",
-        lat, latd, lon, lond, alt/100 - 100000, siz, hp, vp)
+      lat, latd, lon, lond, alt/100 - 100000, siz, hp, vp)
   end,
   --NXT --obsolete RR relating to DNSSEC
   --EID NIMLOC --related to Nimrod DARPA project (Patton1995)
@@ -453,44 +453,44 @@ local RD = {
 }
 
 function get_rdata(data, offset, ttype)
-    if typetab[ttype] == nil then
-        return offset, ''
-    elseif RD[typetab[ttype]] then
-      return RD[typetab[ttype]](data, offset)
-    else
-	  local field
-      offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
-      return offset, ("hex: %s"):format(stdnse.tohex(field))
-    end
+  if typetab[ttype] == nil then
+    return offset, ''
+  elseif RD[typetab[ttype]] then
+    return RD[typetab[ttype]](data, offset)
+  else
+    local field
+    offset, field = bin.unpack("A" .. bto16(data, offset-2), data, offset)
+    return offset, ("hex: %s"):format(stdnse.tohex(field))
+  end
 end
 
 --- Get a single answer record from the current offset
 function get_answer_record(table, data, offset)
-    local line, rdlen, ttype
+  local line, rdlen, ttype
 
-    -- answer domain
-    offset, line = parse_domain(data, offset)
-    table.domain = line
+  -- answer domain
+  offset, line = parse_domain(data, offset)
+  table.domain = line
 
-    -- answer record type
-    ttype = bto16(data, offset)
-    if not(typetab[ttype] == nil) then
-        table.ttype = typetab[ttype]
-    end
+  -- answer record type
+  ttype = bto16(data, offset)
+  if not(typetab[ttype] == nil) then
+    table.ttype = typetab[ttype]
+  end
 
-    -- length of type specific data
-    rdlen = bto16(data, offset+8)
+  -- length of type specific data
+  rdlen = bto16(data, offset+8)
 
-    -- extra data, ignore ttl and class
-    offset, line =  get_rdata(data, offset+10, ttype)
-    if(line == '') then
-        offset = offset + rdlen
-        return false, offset
-    else
-        table.rdata = line
-    end
+  -- extra data, ignore ttl and class
+  offset, line =  get_rdata(data, offset+10, ttype)
+  if(line == '') then
+    offset = offset + rdlen
+    return false, offset
+  else
+    table.rdata = line
+  end
 
-    return true, offset
+  return true, offset
 end
 
 -- parse and save uniq records in the results table
@@ -514,61 +514,61 @@ end
 
 -- parse and save only valid records
 function parse_records(number, data, results, offset)
-    while number > 0 do
-        local answer, st = {}
-        st, offset = get_answer_record(answer, data, offset)
-        if st then
-          parse_uniq_records(results, answer)
-        end
-        number = number - 1
+  while number > 0 do
+    local answer, st = {}
+    st, offset = get_answer_record(answer, data, offset)
+    if st then
+      parse_uniq_records(results, answer)
     end
-    return offset
+    number = number - 1
+  end
+  return offset
 end
 
 -- parse and save all records in order to dump them to output
 function parse_records_table(number, data, table, offset)
-    while number > 0 do
-        local answer, st = {}
-        st, offset = get_answer_record(answer, data, offset)
-        if st then
-            if answer.domain then
-                tab.add(table, 1, answer.domain)
-            end
-            if answer.ttype then
-                tab.add(table, 2, answer.ttype)
-            end
-            if answer.rdata then
-                tab.add(table, 3, answer.rdata)
-            end
-            tab.nextrow(table)
-        end
-        number = number - 1
+  while number > 0 do
+    local answer, st = {}
+    st, offset = get_answer_record(answer, data, offset)
+    if st then
+      if answer.domain then
+        tab.add(table, 1, answer.domain)
+      end
+      if answer.ttype then
+        tab.add(table, 2, answer.ttype)
+      end
+      if answer.rdata then
+        tab.add(table, 3, answer.rdata)
+      end
+      tab.nextrow(table)
     end
-    return offset
+    number = number - 1
+  end
+  return offset
 end
 
 -- An iterator that breaks up a concatentation of responses. In DNS over TCP,
 -- each response is prefixed by a two-byte length (RFC 1035 section 4.2.2).
 -- Responses returned by this iterator include the two-byte length prefix.
 function responses_iter(data)
-    local offset = 1
+  local offset = 1
 
-    return function()
-        local length, remaining, response
+  return function()
+    local length, remaining, response
 
-        remaining = #data - offset + 1
-        if remaining == 0 then
-            return nil
-        end
-        assert(remaining >= 14 + 2)
-        length = bto16(data, offset)
-        assert(length <= remaining)
-        -- Skip over the length field.
-        offset = offset + 2
-        response = string.sub(data, offset, offset + length - 1)
-        offset = offset + length
-        return response
+    remaining = #data - offset + 1
+    if remaining == 0 then
+      return nil
     end
+    assert(remaining >= 14 + 2)
+    length = bto16(data, offset)
+    assert(length <= remaining)
+    -- Skip over the length field.
+    offset = offset + 2
+    response = string.sub(data, offset, offset + length - 1)
+    offset = offset + length
+    return response
+  end
 end
 
 -- add axfr results to Nmap scan queue
@@ -586,7 +586,7 @@ function add_zone_info(response)
     offset = offset + 12
 
     if questions > 1 then
-        return false, 'More then 1 question record, something has gone wrong'
+      return false, 'More then 1 question record, something has gone wrong'
     end
 
     if answers == 0 then
@@ -601,8 +601,8 @@ function add_zone_info(response)
 
     -- parse all available resource records
     stdnse.print_debug(3,
-        "Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d",
-        SCRIPT_NAME, answers, auth_answers, add_answers)
+      "Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d",
+      SCRIPT_NAME, answers, auth_answers, add_answers)
     RR['Node Names'] = {}
     offset = parse_records(answers, data, RR, offset)
     offset = parse_records(auth_answers, data, RR, offset)
@@ -639,7 +639,7 @@ function add_zone_info(response)
           status, ret = target.add(rdata)
           if not status then
             stdnse.print_debug(3,
-                "Error: failed to add all 'A' records.")
+              "Error: failed to add all 'A' records.")
             break
           end
           newhosts_count = newhosts_count + ret
@@ -650,7 +650,7 @@ function add_zone_info(response)
         status, ret = target.add(rdata)
         if not status then
           stdnse.print_debug(3,
-              "Error: failed to add all '%s' records.", rectype)
+            "Error: failed to add all '%s' records.", rectype)
           break
         end
         newhosts_count = newhosts_count + ret
@@ -672,8 +672,8 @@ function add_zone_info(response)
   end
 
   return true, tab.dump(outtab) .. "\n" ..
-      string.format("Total new targets added to Nmap scan queue: %d.",
-          nhosts)
+    string.format("Total new targets added to Nmap scan queue: %d.",
+    nhosts)
 end
 
 function dump_zone_info(table, response)
@@ -690,11 +690,11 @@ function dump_zone_info(table, response)
     offset = offset + 12
 
     if questions > 1 then
-        return false, 'More then 1 question record, something has gone wrong'
+      return false, 'More then 1 question record, something has gone wrong'
     end
 
     if answers == 0 then
-        return false, 'transfer successful but no records'
+      return false, 'transfer successful but no records'
     end
 
     -- skip over the question section, we don't need it
@@ -716,66 +716,66 @@ function dump_zone_info(table, response)
 end
 
 action = function(host, port)
-    if not dns_opts.domain then
-      return stdnse.format_output(false,
-                string.format("'%s' script needs a dnszonetransfer.domain argument.",
-                    SCRIPT_TYPE))
+  if not dns_opts.domain then
+    return stdnse.format_output(false,
+      string.format("'%s' script needs a dnszonetransfer.domain argument.",
+      SCRIPT_TYPE))
+  end
+  if not dns_opts.port then
+    dns_opts.port = 53
+  end
+
+  local soc = nmap.new_socket()
+  local catch = function() soc:close() end
+  local try = nmap.new_try(catch)
+  soc:set_timeout(4000)
+  try(soc:connect(dns_opts.server, dns_opts.port))
+
+  local req_id = '\222\173'
+  local offset = 1
+  local name = build_domain(string.lower(dns_opts.domain))
+  local pkt_len = #name + 16
+
+  -- build axfr request
+  local buf = strbuf.new()
+  buf = buf .. '\000' .. string.char(pkt_len) .. req_id
+  buf = buf .. '\000\000\000\001\000\000\000\000\000\000'
+  buf = buf .. name .. '\000\252\000\001'
+  try(soc:send(strbuf.dump(buf)))
+
+  -- read all data returned. Common to have
+  -- multiple packets from a single request
+  local response = strbuf.new()
+  while true do
+    local status, data = soc:receive_bytes(1)
+    if not status then break end
+    response = response .. data
+  end
+  soc:close()
+
+  local response_str = strbuf.dump(response)
+  local length = #response_str
+
+  -- check server response code
+  if length < 6 or
+    not (bit.band(string.byte(response_str, 6), 15) == 0) then
+    return nil
+  end
+
+  -- add axfr results to Nmap scanning queue
+  if target.ALLOW_NEW_TARGETS then
+    local status, ret = add_zone_info(response_str)
+    if not status then
+      return stdnse.format_output(false, ret)
     end
-    if not dns_opts.port then
-        dns_opts.port = 53
-    end
-
-    local soc = nmap.new_socket()
-    local catch = function() soc:close() end
-    local try = nmap.new_try(catch)
-    soc:set_timeout(4000)
-    try(soc:connect(dns_opts.server, dns_opts.port))
-
-    local req_id = '\222\173'
-    local offset = 1
-    local name = build_domain(string.lower(dns_opts.domain))
-    local pkt_len = #name + 16
-
-    -- build axfr request
-    local buf = strbuf.new()
-    buf = buf .. '\000' .. string.char(pkt_len) .. req_id
-    buf = buf .. '\000\000\000\001\000\000\000\000\000\000'
-    buf = buf .. name .. '\000\252\000\001'
-    try(soc:send(strbuf.dump(buf)))
-
-    -- read all data returned. Common to have
-    -- multiple packets from a single request
-    local response = strbuf.new()
-    while true do
-        local status, data = soc:receive_bytes(1)
-        if not status then break end
-        response = response .. data
-    end
-    soc:close()
-
-    local response_str = strbuf.dump(response)
-    local length = #response_str
-
-    -- check server response code
-    if length < 6 or
-            not (bit.band(string.byte(response_str, 6), 15) == 0) then
-        return nil
-    end
-
-    -- add axfr results to Nmap scanning queue
-    if target.ALLOW_NEW_TARGETS then
-        local status, ret = add_zone_info(response_str)
-        if not status then
-            return stdnse.format_output(false, ret)
-        end
-        return stdnse.format_output(true, ret)
+    return stdnse.format_output(true, ret)
     -- dump axfr results
-    else
-        local table = tab.new()
-        local status, ret = dump_zone_info(table, response_str)
-        if not status then
-            return stdnse.format_output(false, ret)
-        end
-        return '\n' .. tab.dump(table)
+  else
+    local table = tab.new()
+    local status, ret = dump_zone_info(table, response_str)
+    if not status then
+      return stdnse.format_output(false, ret)
     end
+    return '\n' .. tab.dump(table)
+  end
 end
