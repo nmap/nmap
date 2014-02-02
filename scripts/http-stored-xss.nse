@@ -76,207 +76,207 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 -- Note, that more payloads will slow down your scan.
 payloads = {
 
-    -- Basic vectors. Each one is an indication of potential XSS vulnerability.
-    { vector = 'ghz>hzx', description = "Unfiltered '>' (greater than sign). An indication of potential XSS vulnerability." },
-    { vector = 'hzx"zxc', description = "Unfiltered \" (double quotation mark). An indication of potential XSS vulnerability." },
-    { vector = 'zxc\'xcv', description = "Unfiltered ' (apostrophe). An indication of potential XSS vulnerability." },
-    }
+  -- Basic vectors. Each one is an indication of potential XSS vulnerability.
+  { vector = 'ghz>hzx', description = "Unfiltered '>' (greater than sign). An indication of potential XSS vulnerability." },
+  { vector = 'hzx"zxc', description = "Unfiltered \" (double quotation mark). An indication of potential XSS vulnerability." },
+  { vector = 'zxc\'xcv', description = "Unfiltered ' (apostrophe). An indication of potential XSS vulnerability." },
+}
 
 
 -- Create customized requests for all of our payloads.
 local makeRequests = function(host, port, submission, fields, fieldvalues)
 
-    local postdata = {}
-    for _, p in ipairs(payloads) do
-        for __, field in ipairs(fields) do
-            if field["type"] == "text" or field["type"] == "textarea" or field["type"] == "radio" or field["type"] == "checkbox" then
+  local postdata = {}
+  for _, p in ipairs(payloads) do
+    for __, field in ipairs(fields) do
+      if field["type"] == "text" or field["type"] == "textarea" or field["type"] == "radio" or field["type"] == "checkbox" then
 
-                local value = fieldvalues[field["name"]]
-                if value == nil then
-                    value = p.vector
-                end
-
-                postdata[field["name"]] = value
-
-            end
+        local value = fieldvalues[field["name"]]
+        if value == nil then
+          value = p.vector
         end
+
+        postdata[field["name"]] = value
+
+      end
+    end
 
     stdnse.print_debug(2, "Making a POST request to " .. submission .. ": ")
     for i, content in pairs(postdata) do
-           stdnse.print_debug(2, i .. ": " .. content)
+      stdnse.print_debug(2, i .. ": " .. content)
     end
     local response = http.post(host, port, submission, { no_cache = true }, nil, postdata)
-    end
+  end
 
 end
 
 local checkPayload = function(body, p)
 
-    if (body:match(p)) then
-        return true
-    end
+  if (body:match(p)) then
+    return true
+  end
 
 end
 
 -- Check if the payloads were succesfull by checking the content of pages in the uploadspaths array.
 local checkRequests = function(body, target)
 
-    local output = {}
-    for _, p in ipairs(payloads) do
-        if checkPayload(body, p.vector) then
-            local report = " Payload: " .. p.vector .. "\n\t Uploaded on: " .. target
-            if p.description then
-                report = report .. "\n\t Description: " .. p.description
-            end
-            table.insert(output, report)
-        end
+  local output = {}
+  for _, p in ipairs(payloads) do
+    if checkPayload(body, p.vector) then
+      local report = " Payload: " .. p.vector .. "\n\t Uploaded on: " .. target
+      if p.description then
+        report = report .. "\n\t Description: " .. p.description
+      end
+      table.insert(output, report)
     end
-        return output
+  end
+  return output
 end
 
 local readFromFile = function(filename)
-    local database = { }
-    for l in io.lines(filename) do
-        table.insert(payloads, { vector = l })
-    end
+  local database = { }
+  for l in io.lines(filename) do
+    table.insert(payloads, { vector = l })
+  end
 end
 
 action = function(host, port)
 
-    local formpaths = stdnse.get_script_args("http-stored-xss.formpaths")
-    local uploadspaths = stdnse.get_script_args("http-stored-xss.uploadspaths")
-    local fieldvalues = stdnse.get_script_args("http-stored-xss.fieldvalues") or {}
-    local dbfile = stdnse.get_script_args("http-stored-xss.dbfile")
+  local formpaths = stdnse.get_script_args("http-stored-xss.formpaths")
+  local uploadspaths = stdnse.get_script_args("http-stored-xss.uploadspaths")
+  local fieldvalues = stdnse.get_script_args("http-stored-xss.fieldvalues") or {}
+  local dbfile = stdnse.get_script_args("http-stored-xss.dbfile")
 
-    if dbfile then
-        readFromFile(dbfile)
-    end
+  if dbfile then
+    readFromFile(dbfile)
+  end
 
-    local returntable = {}
-    local result
+  local returntable = {}
+  local result
 
-    local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME,  no_cache = true } )
+  local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME,  no_cache = true } )
 
-    if (not(crawler)) then
-		return
-	end
+  if (not(crawler)) then
+    return
+  end
 
-	crawler:set_timeout(10000)
+  crawler:set_timeout(10000)
 
-    local index, k, target, response
+  local index, k, target, response
 
-    -- Phase 1. Crawls through the website and POSTs malicious payloads.
-    while (true) do
+  -- Phase 1. Crawls through the website and POSTs malicious payloads.
+  while (true) do
 
-        if formpaths then
+    if formpaths then
 
-            k, target = next(formpaths, index)
-            if (k == nil) then
-                break
-            end
-            response = http.get(host, port, target, { no_cache = true })
-            target = host.name .. target
-        else
-
-            local status, r = crawler:crawl()
-            -- if the crawler fails it can be due to a number of different reasons
-            -- most of them are "legitimate" and should not be reason to abort
-            if ( not(status) ) then
-                if ( r.err ) then
-                    return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-                else
-                    break
-                end
-		    end
-
-            target = tostring(r.url)
-            response = r.response
-
-        end
-
-        if response.body then
-
-            local forms = http.grab_forms(response.body)
-
-            for i, form in ipairs(forms) do
-
-                form = http.parse_form(form)
-
-                if form then
-
-                    local action_absolute = string.find(form["action"], "https*://")
-
-                    -- Determine the path where the form needs to be submitted.
-                    local submission
-                    if action_absolute then
-                        submission = form["action"]
-                    else
-                        local path_cropped = string.match(target, "(.*/).*")
-                        path_cropped = path_cropped and path_cropped or ""
-                        submission = path_cropped..form["action"]
-                    end
-
-                    makeRequests(host, port, submission, form["fields"], fieldvalues)
-
-                end
-            end
-        end
-        if (index) then
-            index = index + 1
-        else
-            index = 1
-        end
-
-    end
-
-    local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME } )
-    local index
-
-    -- Phase 2. Crawls through the website and searches for the special crafted strings that were POSTed before.
-    while true do
-        if uploadspaths then
-            k, target = next(uploadspaths, index)
-            if (k == nil) then
-                break
-            end
-            response = http.get(host, port, target)
-        else
-
-            local status, r = crawler:crawl()
-            -- if the crawler fails it can be due to a number of different reasons
-            -- most of them are "legitimate" and should not be reason to abort
-            if ( not(status) ) then
-                if ( r.err ) then
-                    return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
-                else
-                    break
-                end
-		    end
-
-            target = tostring(r.url)
-            response = r.response
-
-        end
-
-        if response.body then
-
-            result = checkRequests(response.body, target)
-
-            if next(result) then
-                table.insert(returntable, result)
-            end
-        end
-        if (index) then
-            index = index + 1
-        else
-            index = 1
-        end
-    end
-
-    if next(returntable) then
-        table.insert(returntable, 1, "Found the following stored XSS vulnerabilities: ")
-        return returntable
+      k, target = next(formpaths, index)
+      if (k == nil) then
+        break
+      end
+      response = http.get(host, port, target, { no_cache = true })
+      target = host.name .. target
     else
-        return "Couldn't find any stored XSS vulnerabilities."
+
+      local status, r = crawler:crawl()
+      -- if the crawler fails it can be due to a number of different reasons
+      -- most of them are "legitimate" and should not be reason to abort
+      if ( not(status) ) then
+        if ( r.err ) then
+          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+        else
+          break
+        end
+      end
+
+      target = tostring(r.url)
+      response = r.response
+
     end
+
+    if response.body then
+
+      local forms = http.grab_forms(response.body)
+
+      for i, form in ipairs(forms) do
+
+        form = http.parse_form(form)
+
+        if form then
+
+          local action_absolute = string.find(form["action"], "https*://")
+
+          -- Determine the path where the form needs to be submitted.
+          local submission
+          if action_absolute then
+            submission = form["action"]
+          else
+            local path_cropped = string.match(target, "(.*/).*")
+            path_cropped = path_cropped and path_cropped or ""
+            submission = path_cropped..form["action"]
+          end
+
+          makeRequests(host, port, submission, form["fields"], fieldvalues)
+
+        end
+      end
+    end
+    if (index) then
+      index = index + 1
+    else
+      index = 1
+    end
+
+  end
+
+  local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME } )
+  local index
+
+  -- Phase 2. Crawls through the website and searches for the special crafted strings that were POSTed before.
+  while true do
+    if uploadspaths then
+      k, target = next(uploadspaths, index)
+      if (k == nil) then
+        break
+      end
+      response = http.get(host, port, target)
+    else
+
+      local status, r = crawler:crawl()
+      -- if the crawler fails it can be due to a number of different reasons
+      -- most of them are "legitimate" and should not be reason to abort
+      if ( not(status) ) then
+        if ( r.err ) then
+          return stdnse.format_output(true, ("ERROR: %s"):format(r.reason))
+        else
+          break
+        end
+      end
+
+      target = tostring(r.url)
+      response = r.response
+
+    end
+
+    if response.body then
+
+      result = checkRequests(response.body, target)
+
+      if next(result) then
+        table.insert(returntable, result)
+      end
+    end
+    if (index) then
+      index = index + 1
+    else
+      index = 1
+    end
+  end
+
+  if next(returntable) then
+    table.insert(returntable, 1, "Found the following stored XSS vulnerabilities: ")
+    return returntable
+  else
+    return "Couldn't find any stored XSS vulnerabilities."
+  end
 end

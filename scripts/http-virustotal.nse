@@ -102,154 +102,154 @@ local arg_checksum = stdnse.get_script_args(SCRIPT_NAME .. ".checksum")
 prerule = function() return true end
 
 local function readFile(filename)
-	local f = io.open(filename, "r")
-	if ( not(f) ) then
-		return false, ("Failed to open file: %s"):format(filename)
-	end
+  local f = io.open(filename, "r")
+  if ( not(f) ) then
+    return false, ("Failed to open file: %s"):format(filename)
+  end
 
-	local str = f:read("*all")
-	if ( not(str) ) then
-		f:close()
-		return false, "Failed to read file contents"
-	end
-	f:close()
-	return true, str
+  local str = f:read("*all")
+  if ( not(str) ) then
+    f:close()
+    return false, "Failed to read file contents"
+  end
+  f:close()
+  return true, str
 end
 
 local function requestFileScan(filename)
-	local status, str = readFile(filename)
-	if ( not(status) ) then
-		return false, str
-	end
+  local status, str = readFile(filename)
+  if ( not(status) ) then
+    return false, str
+  end
 
-	local shortfile = filename:match("^.*[\\/](.*)$")
-	local boundary = "----------------------------nmapboundary"
-	local header = { ["Content-Type"] = ("multipart/form-data; boundary=%s"):format(boundary) }
-	local postdata = ("--%s\r\n"):format(boundary)
-	postdata = postdata .. "Content-Disposition: form-data; name=\"apikey\"\r\n\r\n"
-	postdata = postdata .. arg_apiKey .. "\r\n"
-	postdata = postdata .. ("--%s\r\n" ..
-		"Content-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n" ..
-		"Content-Type: text/plain\r\n\r\n%s\r\n--%s--\r\n"):format(boundary, shortfile, str, boundary)
+  local shortfile = filename:match("^.*[\\/](.*)$")
+  local boundary = "----------------------------nmapboundary"
+  local header = { ["Content-Type"] = ("multipart/form-data; boundary=%s"):format(boundary) }
+  local postdata = ("--%s\r\n"):format(boundary)
+  postdata = postdata .. "Content-Disposition: form-data; name=\"apikey\"\r\n\r\n"
+  postdata = postdata .. arg_apiKey .. "\r\n"
+  postdata = postdata .. ("--%s\r\n" ..
+    "Content-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\n" ..
+    "Content-Type: text/plain\r\n\r\n%s\r\n--%s--\r\n"):format(boundary, shortfile, str, boundary)
 
-	local host = "www.virustotal.com"
-	local port = { number = 80, protocol = "tcp" }
-	local path = "/vtapi/v2/file/scan"
+  local host = "www.virustotal.com"
+  local port = { number = 80, protocol = "tcp" }
+  local path = "/vtapi/v2/file/scan"
 
-	local response = http.post( host, port, path, { header = header }, nil, postdata )
-	if ( not(response) or response.status ~= 200 ) then
-		return false, "Failed to request file scan"
-	end
+  local response = http.post( host, port, path, { header = header }, nil, postdata )
+  if ( not(response) or response.status ~= 200 ) then
+    return false, "Failed to request file scan"
+  end
 
-	local status, json_data = json.parse(response.body)
-	if ( not(status) ) then
-		return false, "Failed to parse JSON response"
-	end
+  local status, json_data = json.parse(response.body)
+  if ( not(status) ) then
+    return false, "Failed to parse JSON response"
+  end
 
-	return true, json_data
+  return true, json_data
 end
 
 local function getFileScanReport(resource)
 
-	local host = "www.virustotal.com"
-	local port = { number = 80, protocol = "tcp" }
-	local path = "/vtapi/v2/file/report"
+  local host = "www.virustotal.com"
+  local port = { number = 80, protocol = "tcp" }
+  local path = "/vtapi/v2/file/report"
 
 
-	local response = http.post(host, port, path, nil, nil, { ["apikey"] = arg_apiKey, ["resource"] = resource })
-	if ( not(response) or response.status ~= 200 ) then
-		return false, "Failed to retrieve scan report"
-	end
+  local response = http.post(host, port, path, nil, nil, { ["apikey"] = arg_apiKey, ["resource"] = resource })
+  if ( not(response) or response.status ~= 200 ) then
+    return false, "Failed to retrieve scan report"
+  end
 
-	local status, json_data = json.parse(response.body)
-	if ( not(status) ) then
-		return false, "Failed to parse JSON response"
-	end
+  local status, json_data = json.parse(response.body)
+  if ( not(status) ) then
+    return false, "Failed to parse JSON response"
+  end
 
-	return true, json_data
+  return true, json_data
 end
 
 local function calcSHA256(filename)
 
-	local status, str = readFile(filename)
-	if ( not(status) ) then
-		return false, str
-	end
-	return true, stdnse.tohex(openssl.digest("sha256", str))
+  local status, str = readFile(filename)
+  if ( not(status) ) then
+    return false, str
+  end
+  return true, stdnse.tohex(openssl.digest("sha256", str))
 end
 
 local function parseScanReport(report)
-	local result = {}
+  local result = {}
 
-	table.insert(result, ("Permalink: %s"):format(report.permalink))
-	table.insert(result, ("Scan date: %s"):format(report.scan_date))
-	table.insert(result, ("Positives: %s"):format(report.positives))
-	table.insert(result, {
-		name = "digests",
-		("SHA1: %s"):format(report.sha1),
-		("SHA256: %s"):format(report.sha256),
-		("MD5: %s"):format(report.md5)
-	})
+  table.insert(result, ("Permalink: %s"):format(report.permalink))
+  table.insert(result, ("Scan date: %s"):format(report.scan_date))
+  table.insert(result, ("Positives: %s"):format(report.positives))
+  table.insert(result, {
+    name = "digests",
+    ("SHA1: %s"):format(report.sha1),
+    ("SHA256: %s"):format(report.sha256),
+    ("MD5: %s"):format(report.md5)
+  })
 
-	local tmp = {}
-	for name, scanres in pairs(report.scans) do
-		local res = ( scanres.detected ) and scanres.result or "-"
-		table.insert(tmp, { name = name, result = res, update = scanres.update, version = scanres.version })
-	end
-	table.sort(tmp, function(a,b) return a.name:upper()<b.name:upper() end)
+  local tmp = {}
+  for name, scanres in pairs(report.scans) do
+    local res = ( scanres.detected ) and scanres.result or "-"
+    table.insert(tmp, { name = name, result = res, update = scanres.update, version = scanres.version })
+  end
+  table.sort(tmp, function(a,b) return a.name:upper()<b.name:upper() end)
 
-	local scan_tbl = tab.new(4)
-	tab.addrow(scan_tbl, "name", "result", "date", "version")
-	for _, v in ipairs(tmp) do
-		tab.addrow(scan_tbl, v.name, v.result, v.update, v.version)
-	end
-	table.insert(result, { name = "Results", tab.dump(scan_tbl) })
+  local scan_tbl = tab.new(4)
+  tab.addrow(scan_tbl, "name", "result", "date", "version")
+  for _, v in ipairs(tmp) do
+    tab.addrow(scan_tbl, v.name, v.result, v.update, v.version)
+  end
+  table.insert(result, { name = "Results", tab.dump(scan_tbl) })
 
-	return result
+  return result
 end
 
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 action = function()
 
-	if ( not(arg_apiKey) ) then
-		return fail("An API key is required in order to use this script (see description)")
-	end
+  if ( not(arg_apiKey) ) then
+    return fail("An API key is required in order to use this script (see description)")
+  end
 
-	local resource
-	if ( arg_upload == "true" and arg_filename ) then
-		local status, json_data = requestFileScan(arg_filename, arg_apiKey)
-		if ( not(status) or not(json_data['resource']) ) then
-			return fail(json_data)
-		end
-		resource = json_data['resource']
+  local resource
+  if ( arg_upload == "true" and arg_filename ) then
+    local status, json_data = requestFileScan(arg_filename, arg_apiKey)
+    if ( not(status) or not(json_data['resource']) ) then
+      return fail(json_data)
+    end
+    resource = json_data['resource']
 
-		local output = {}
-		table.insert(output, "Your file was succesfully uploaded and placed in the scanning queue.")
-		table.insert(output, { name = "To check the current status visit:", json_data['permalink'] })
-		return stdnse.format_output(true, output)
-	elseif ( arg_filename ) then
-		local status, sha256 = calcSHA256(arg_filename)
-		if ( not(status) ) then
-			return fail("Failed to calculate SHA256 checksum for file")
-		end
-		resource = sha256
-	elseif ( arg_checksum ) then
-		resource = arg_checksum
-	else
-		return
-	end
+    local output = {}
+    table.insert(output, "Your file was succesfully uploaded and placed in the scanning queue.")
+    table.insert(output, { name = "To check the current status visit:", json_data['permalink'] })
+    return stdnse.format_output(true, output)
+  elseif ( arg_filename ) then
+    local status, sha256 = calcSHA256(arg_filename)
+    if ( not(status) ) then
+      return fail("Failed to calculate SHA256 checksum for file")
+    end
+    resource = sha256
+  elseif ( arg_checksum ) then
+    resource = arg_checksum
+  else
+    return
+  end
 
-	local status, response
+  local status, response
 
-	local status, response = getFileScanReport(resource)
-	if ( not(status) ) then
-		return fail("Failed to retrieve file scan report")
-	end
+  local status, response = getFileScanReport(resource)
+  if ( not(status) ) then
+    return fail("Failed to retrieve file scan report")
+  end
 
-	if ( not(response.response_code) or 0 == tonumber(response.response_code) ) then
-		return fail(("Failed to retreive scan report for resource: %s"):format(resource))
-	end
+  if ( not(response.response_code) or 0 == tonumber(response.response_code) ) then
+    return fail(("Failed to retreive scan report for resource: %s"):format(resource))
+  end
 
-	return stdnse.format_output(true, parseScanReport(response))
+  return stdnse.format_output(true, parseScanReport(response))
 end

@@ -86,131 +86,131 @@ categories = {"default", "discovery", "safe"}
 
 
 portrule = function(host, port)
-	-- Run for the special port number, or for any HTTP-like service that is
-	-- not on a usual HTTP port.
-	return shortport.port_or_service ({35871}, "flume-master")(host, port)
-		or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
+  -- Run for the special port number, or for any HTTP-like service that is
+  -- not on a usual HTTP port.
+  return shortport.port_or_service ({35871}, "flume-master")(host, port)
+    or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
 end
 
 function add_target(hostname)
-	if target.ALLOW_NEW_TARGETS then
-		stdnse.print_debug(1, ("%s: Added target: %s"):format(SCRIPT_NAME, hostname))
-		local status,err = target.add(hostname)
-	end
+  if target.ALLOW_NEW_TARGETS then
+    stdnse.print_debug(1, ("%s: Added target: %s"):format(SCRIPT_NAME, hostname))
+    local status,err = target.add(hostname)
+  end
 end
 
 -- ref: http://lua-users.org/wiki/TableUtils
 function table_count(tt, item)
-	local count
-	count = 0
-	for ii,xx in pairs(tt) do
-		if item == xx then count = count + 1 end
-	end
-	return count
+  local count
+  count = 0
+  for ii,xx in pairs(tt) do
+    if item == xx then count = count + 1 end
+  end
+  return count
 end
 
 parse_page = function( host, port, uri, intresting_keys )
-	local result = {}
-	local response = http.get( host, port, uri )
-	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response" ))
-	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
-		local body = response['body']:gsub("%%","%%%%")
-		for name,value in string.gmatch(body,"<tr><th>([^][<]+)</th>%s*<td><div%sclass=[^][>]+>([^][<]+)") do
-			stdnse.print_debug(1, ("%s:  %s=%s "):format(SCRIPT_NAME,name,value:gsub("^%s*(.-)%s*$", "%1")))
-			if nmap.verbosity() > 1 then
-				 result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
-			else
-				for i,v in ipairs(intresting_keys) do
-					if name:match(("^%s"):format(v)) then
-						result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
-					end
-				end
-			end
-		end
-	end
-	return result
+  local result = {}
+  local response = http.get( host, port, uri )
+  stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response" ))
+  if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
+    local body = response['body']:gsub("%%","%%%%")
+    for name,value in string.gmatch(body,"<tr><th>([^][<]+)</th>%s*<td><div%sclass=[^][>]+>([^][<]+)") do
+      stdnse.print_debug(1, ("%s:  %s=%s "):format(SCRIPT_NAME,name,value:gsub("^%s*(.-)%s*$", "%1")))
+      if nmap.verbosity() > 1 then
+        result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
+      else
+        for i,v in ipairs(intresting_keys) do
+          if name:match(("^%s"):format(v)) then
+            result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
+          end
+        end
+      end
+    end
+  end
+  return result
 end
 
 action = function( host, port )
 
-	local result = {}
-	local uri = "/flumemaster.jsp"
-	local env_uri = "/masterenv.jsp"
-	local config_uri = "/masterstaticconfig.jsp"
-	local env_keys = {"java.runtime","java.version","java.vm.name","java.vm.vendor","java.vm.version","os","user.name","user.country","user.language,user.timezone"}
-	local config_keys = {"dfs.datanode.address","dfs.datanode.http.address","dfs.datanode.https.address","dfs.datanode.ipc.address","dfs.http.address","dfs.https.address","dfs.secondary.http.address","flume.collector.dfs.dir","flume.collector.event.host","flume.master.servers","fs.default.name","mapred.job.tracker","mapred.job.tracker.http.address","mapred.task.tracker.http.address","mapred.task.tracker.report.address"}
-	local nodes = {  }
-	local zookeepers = {  }
-	local hbasemasters = {  }
-	stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
-	local response = http.get( host, port, uri )
-	stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
-	if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
-		local body = response['body']:gsub("%%","%%%%")
-		local capacity = {}
-		stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
-		if body:match("Version:%s*</b>([^][,]+)") then
-			local version = body:match("Version:%s*</b>([^][,]+)")
-			stdnse.print_debug(1, ("%s: Version %s"):format(SCRIPT_NAME,version))
-			result[#result+1] =  ("Version: %s"):format(version)
-			port.version.version = version
-		end
-		if body:match("Compiled:%s*</b>([^][<]+)") then
-			local compiled = body:match("Compiled:%s*</b>([^][<]+)")
-			stdnse.print_debug(1, ("%s: Compiled %s"):format(SCRIPT_NAME,compiled))
-			result[#result+1] =  ("Compiled: %s"):format(compiled)
-		end
-		if body:match("ServerID:%s*([^][<]+)") then
-			local upgrades = body:match("ServerID:%s*([^][<]+)")
-			stdnse.print_debug(1, ("%s: ServerID %s"):format(SCRIPT_NAME,upgrades))
-			result[#result] = ("ServerID: %s"):format(upgrades)
-		end
-		for logical,physical,hostname in string.gmatch(body,"<tr><td>([%w%.-_:]+)</td><td>([%w%.]+)</td><td>([%w%.]+)</td>") do
-			stdnse.print_debug(2, ("%s:  %s (%s) %s"):format(SCRIPT_NAME,physical,logical,hostname))
-			if (table_count(nodes, hostname) == 0) then
-				nodes[#nodes+1] = hostname
-				add_target(hostname)
-			end
-		end
-		if next(nodes) ~= nil then
-			table.insert(result, "Flume nodes:")
-			result[#result+1] = nodes
-		end
-		for zookeeper in string.gmatch(body,"Dhbase.zookeeper.quorum=([^][\"]+)") do
-			if (table_count(zookeepers, zookeeper) == 0) then
-				zookeepers[#zookeepers+1] = zookeeper
-				add_target(zookeeper)
-			end
-		end
-		if next(zookeepers) ~= nil then
-			result[#result+1] = "Zookeeper Master:"
-			result[#result+1] = zookeepers
-		end
-		for hbasemaster in string.gmatch(body,"Dhbase.rootdir=([^][\"]+)") do
-			if (table_count(hbasemasters, hbasemaster) == 0) then
-				hbasemasters[#hbasemasters+1] = hbasemaster
-				add_target(hbasemaster)
-			end
-		end
-		if next(hbasemasters) ~= nil then
-			result[#result+1] = "Hbase Master Master:"
-			result[#result+1] = hbasemasters
-		end
-		local vars = parse_page(host, port, env_uri, env_keys )
-		if next(vars) ~= nil then
-			result[#result+1] = "Enviroment: "
-			result[#result+1] = vars
-		end
-		local vars = parse_page(host, port, config_uri, config_keys )
-		if next(vars) ~= nil then
-			result[#result+1] = "Config: "
-			result[#result+1] = vars
-		end
-		if #result > 0 then
-			port.version.name = "flume-master"
-			port.version.product = "Apache Flume"
-			nmap.set_port_version(host, port)
-		end
-		return stdnse.format_output(true, result)
-	end
+  local result = {}
+  local uri = "/flumemaster.jsp"
+  local env_uri = "/masterenv.jsp"
+  local config_uri = "/masterstaticconfig.jsp"
+  local env_keys = {"java.runtime","java.version","java.vm.name","java.vm.vendor","java.vm.version","os","user.name","user.country","user.language,user.timezone"}
+  local config_keys = {"dfs.datanode.address","dfs.datanode.http.address","dfs.datanode.https.address","dfs.datanode.ipc.address","dfs.http.address","dfs.https.address","dfs.secondary.http.address","flume.collector.dfs.dir","flume.collector.event.host","flume.master.servers","fs.default.name","mapred.job.tracker","mapred.job.tracker.http.address","mapred.task.tracker.http.address","mapred.task.tracker.report.address"}
+  local nodes = {  }
+  local zookeepers = {  }
+  local hbasemasters = {  }
+  stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
+  local response = http.get( host, port, uri )
+  stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
+  if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
+    local body = response['body']:gsub("%%","%%%%")
+    local capacity = {}
+    stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
+    if body:match("Version:%s*</b>([^][,]+)") then
+      local version = body:match("Version:%s*</b>([^][,]+)")
+      stdnse.print_debug(1, ("%s: Version %s"):format(SCRIPT_NAME,version))
+      result[#result+1] =  ("Version: %s"):format(version)
+      port.version.version = version
+    end
+    if body:match("Compiled:%s*</b>([^][<]+)") then
+      local compiled = body:match("Compiled:%s*</b>([^][<]+)")
+      stdnse.print_debug(1, ("%s: Compiled %s"):format(SCRIPT_NAME,compiled))
+      result[#result+1] =  ("Compiled: %s"):format(compiled)
+    end
+    if body:match("ServerID:%s*([^][<]+)") then
+      local upgrades = body:match("ServerID:%s*([^][<]+)")
+      stdnse.print_debug(1, ("%s: ServerID %s"):format(SCRIPT_NAME,upgrades))
+      result[#result] = ("ServerID: %s"):format(upgrades)
+    end
+    for logical,physical,hostname in string.gmatch(body,"<tr><td>([%w%.-_:]+)</td><td>([%w%.]+)</td><td>([%w%.]+)</td>") do
+      stdnse.print_debug(2, ("%s:  %s (%s) %s"):format(SCRIPT_NAME,physical,logical,hostname))
+      if (table_count(nodes, hostname) == 0) then
+        nodes[#nodes+1] = hostname
+        add_target(hostname)
+      end
+    end
+    if next(nodes) ~= nil then
+      table.insert(result, "Flume nodes:")
+      result[#result+1] = nodes
+    end
+    for zookeeper in string.gmatch(body,"Dhbase.zookeeper.quorum=([^][\"]+)") do
+      if (table_count(zookeepers, zookeeper) == 0) then
+        zookeepers[#zookeepers+1] = zookeeper
+        add_target(zookeeper)
+      end
+    end
+    if next(zookeepers) ~= nil then
+      result[#result+1] = "Zookeeper Master:"
+      result[#result+1] = zookeepers
+    end
+    for hbasemaster in string.gmatch(body,"Dhbase.rootdir=([^][\"]+)") do
+      if (table_count(hbasemasters, hbasemaster) == 0) then
+        hbasemasters[#hbasemasters+1] = hbasemaster
+        add_target(hbasemaster)
+      end
+    end
+    if next(hbasemasters) ~= nil then
+      result[#result+1] = "Hbase Master Master:"
+      result[#result+1] = hbasemasters
+    end
+    local vars = parse_page(host, port, env_uri, env_keys )
+    if next(vars) ~= nil then
+      result[#result+1] = "Enviroment: "
+      result[#result+1] = vars
+    end
+    local vars = parse_page(host, port, config_uri, config_keys )
+    if next(vars) ~= nil then
+      result[#result+1] = "Config: "
+      result[#result+1] = vars
+    end
+    if #result > 0 then
+      port.version.name = "flume-master"
+      port.version.product = "Apache Flume"
+      nmap.set_port_version(host, port)
+    end
+    return stdnse.format_output(true, result)
+  end
 end

@@ -90,41 +90,41 @@ http://sourceforge.net/projects/gameq/
 -- <elem key="num players">2</elem>
 -- <elem key="max players">16</elem>
 -- <table key="settings">
--- 	<elem key="Dedicated">No</elem>
--- 	<elem key="Password Required">No</elem>
--- 	<elem key="Time Limit">30</elem>
--- 	<elem key="Points Limit">200 min.</elem>
--- 	<elem key="Respawns Limit">unlimited</elem>
--- 	<elem key="Respawn Delay">10 sec.</elem>
--- 	<elem key="Enemies Visible On Map">No</elem>
--- 	<elem key="Available Inventory Room">Yes</elem>
--- 	<elem key="Identify Enemy Players">No</elem>
--- 	<elem key="Available Vehicles">Yes</elem>
--- 	<elem key="Vehicle Respaws Limit">unlimited</elem>
--- 	<elem key="Vehicle Respawn Delay">30 sec.</elem>
--- 	<elem key="Vehicle Auto Return Time">90 sec.</elem>
--- 	<elem key="Vehicles Visible On Map">Yes</elem>
--- 	<elem key="Team Balance">Off</elem>
--- 	<elem key="Friendly Fire">On</elem>
--- 	<elem key="Friends Visible On Map">Yes</elem>
+--   <elem key="Dedicated">No</elem>
+--   <elem key="Password Required">No</elem>
+--   <elem key="Time Limit">30</elem>
+--   <elem key="Points Limit">200 min.</elem>
+--   <elem key="Respawns Limit">unlimited</elem>
+--   <elem key="Respawn Delay">10 sec.</elem>
+--   <elem key="Enemies Visible On Map">No</elem>
+--   <elem key="Available Inventory Room">Yes</elem>
+--   <elem key="Identify Enemy Players">No</elem>
+--   <elem key="Available Vehicles">Yes</elem>
+--   <elem key="Vehicle Respaws Limit">unlimited</elem>
+--   <elem key="Vehicle Respawn Delay">30 sec.</elem>
+--   <elem key="Vehicle Auto Return Time">90 sec.</elem>
+--   <elem key="Vehicles Visible On Map">Yes</elem>
+--   <elem key="Team Balance">Off</elem>
+--   <elem key="Friendly Fire">On</elem>
+--   <elem key="Friends Visible On Map">Yes</elem>
 -- </table>
 -- <table key="players">
--- 	<table key="player 0">
--- 		<elem key="name">NoVoDondo</elem>
--- 		<elem key="team">BLUE</elem>
--- 		<elem key="skin"></elem>
--- 		<elem key="score">71</elem>
--- 		<elem key="ping">0</elem>
--- 		<elem key="time"></elem>
--- 	</table>
--- 	<table key="player 1">
--- 		<elem key="name">HeroX</elem>
--- 		<elem key="team">RED</elem>
--- 		<elem key="skin"></elem>
--- 		<elem key="score">0</elem>
--- 		<elem key="ping">11</elem>
--- 		<elem key="time"></elem>
--- 	</table>
+--   <table key="player 0">
+--     <elem key="name">NoVoDondo</elem>
+--     <elem key="team">BLUE</elem>
+--     <elem key="skin"></elem>
+--     <elem key="score">71</elem>
+--     <elem key="ping">0</elem>
+--     <elem key="time"></elem>
+--   </table>
+--   <table key="player 1">
+--     <elem key="name">HeroX</elem>
+--     <elem key="team">RED</elem>
+--     <elem key="skin"></elem>
+--     <elem key="score">0</elem>
+--     <elem key="ping">11</elem>
+--     <elem key="time"></elem>
+--   </table>
 -- </table>
 
 author = "Marin Maržić"
@@ -139,94 +139,94 @@ categories = { "discovery", "safe", "version" }
 -- @return ret_pos the position after the last unpacked byte
 -- @return string the unpacked string
 local unpack_str = function(str, pos)
-	local ret_pos = pos + str:byte(pos)
-	return ret_pos, string.sub(str, pos + 1, ret_pos - 1)
+  local ret_pos = pos + str:byte(pos)
+  return ret_pos, string.sub(str, pos + 1, ret_pos - 1)
 end
 
 portrule = shortport.version_port_or_service({1258,2126,3123,12444,13200,23196,26000,27138,27244,27777,28138}, "allseeingeye", "udp")
 
 action = function(host, port)
-	local status, data = comm.exchange(host, port.number, "s", { proto = "udp", timeout = 3000 })
-	if not status then
-		return
-	end
+  local status, data = comm.exchange(host, port.number, "s", { proto = "udp", timeout = 3000 })
+  if not status then
+    return
+  end
 
-	-- UDP port is open
-	nmap.set_port_state(host, port, "open")
+  -- UDP port is open
+  nmap.set_port_state(host, port, "open")
 
-	if not string.match(data, "^EYE1") then
-		return
-	end
+  if not string.match(data, "^EYE1") then
+    return
+  end
 
-	-- Detected; extract fields
-	local o = stdnse.output_table()
-	local pos = 5
+  -- Detected; extract fields
+  local o = stdnse.output_table()
+  local pos = 5
 
-	pos, o["game"] = unpack_str(data, pos)
-	pos, o["port"] = unpack_str(data, pos)
-	pos, o["server name"] = unpack_str(data, pos)
-	pos, o["game type"] = unpack_str(data, pos)
-	pos, o["map"] = unpack_str(data, pos)
-	pos, o["version"] = unpack_str(data, pos)
-	pos, o["passworded"] = unpack_str(data, pos)
-	pos, o["num players"] = unpack_str(data, pos)
-	pos, o["max players"] = unpack_str(data, pos)
+  pos, o["game"] = unpack_str(data, pos)
+  pos, o["port"] = unpack_str(data, pos)
+  pos, o["server name"] = unpack_str(data, pos)
+  pos, o["game type"] = unpack_str(data, pos)
+  pos, o["map"] = unpack_str(data, pos)
+  pos, o["version"] = unpack_str(data, pos)
+  pos, o["passworded"] = unpack_str(data, pos)
+  pos, o["num players"] = unpack_str(data, pos)
+  pos, o["max players"] = unpack_str(data, pos)
 
-	-- extract the key-value pairs
-	local kv = stdnse.output_table()
-	o["settings"] = kv
-	while data:byte(pos) ~= 1 do
-		local key, value
-		pos, key = unpack_str(data, pos)
-		pos, value = unpack_str(data, pos)
-		kv[key] = value
-	end
-	pos = pos + 1
+  -- extract the key-value pairs
+  local kv = stdnse.output_table()
+  o["settings"] = kv
+  while data:byte(pos) ~= 1 do
+    local key, value
+    pos, key = unpack_str(data, pos)
+    pos, value = unpack_str(data, pos)
+    kv[key] = value
+  end
+  pos = pos + 1
 
-	-- extract player info
-	local players = stdnse.output_table()
-	o["players"] = players
-	local playernum = 0
-	while pos <= #data do
-		local flags = data:byte(pos)
-		pos = pos + 1
+  -- extract player info
+  local players = stdnse.output_table()
+  o["players"] = players
+  local playernum = 0
+  while pos <= #data do
+    local flags = data:byte(pos)
+    pos = pos + 1
 
-		local player = stdnse.output_table()
-		if bit.band(flags, 1) ~= 0 then
-			pos, player.name = unpack_str(data, pos)
-		end
-		if bit.band(flags, 2) ~= 0 then
-			pos, player.team = unpack_str(data, pos)
-		end
-		if bit.band(flags, 4) ~= 0 then
-			pos, player.skin = unpack_str(data, pos)
-		end
-		if bit.band(flags, 8) ~= 0 then
-			pos, player.score = unpack_str(data, pos)
-		end
-		if bit.band(flags, 16) ~= 0 then
-			pos, player.ping = unpack_str(data, pos)
-		end
-		if bit.band(flags, 32) ~= 0 then
-			pos, player.time = unpack_str(data, pos)
-		end
+    local player = stdnse.output_table()
+    if bit.band(flags, 1) ~= 0 then
+      pos, player.name = unpack_str(data, pos)
+    end
+    if bit.band(flags, 2) ~= 0 then
+      pos, player.team = unpack_str(data, pos)
+    end
+    if bit.band(flags, 4) ~= 0 then
+      pos, player.skin = unpack_str(data, pos)
+    end
+    if bit.band(flags, 8) ~= 0 then
+      pos, player.score = unpack_str(data, pos)
+    end
+    if bit.band(flags, 16) ~= 0 then
+      pos, player.ping = unpack_str(data, pos)
+    end
+    if bit.band(flags, 32) ~= 0 then
+      pos, player.time = unpack_str(data, pos)
+    end
 
-		players["player " .. playernum] = player
-		playernum = playernum + 1
-	end
+    players["player " .. playernum] = player
+    playernum = playernum + 1
+  end
 
-	port.version.name = "ase"
-	port.version.name_confidence = 10
-	port.version.product = "All-Seeing Eye"
-	local passworded_string
-	if o["passworded"] == "0" then
-		passworded_string = "; no password"
-	else
-		passworded_string = "; has password"
-	end
-	port.version.extrainfo = "game: " .. o["game"] .. " " .. o["version"] .. "; port: " .. o["port"] .. passworded_string
+  port.version.name = "ase"
+  port.version.name_confidence = 10
+  port.version.product = "All-Seeing Eye"
+  local passworded_string
+  if o["passworded"] == "0" then
+    passworded_string = "; no password"
+  else
+    passworded_string = "; has password"
+  end
+  port.version.extrainfo = "game: " .. o["game"] .. " " .. o["version"] .. "; port: " .. o["port"] .. passworded_string
 
-	nmap.set_port_version(host, port, "hardmatched")
+  nmap.set_port_version(host, port, "hardmatched")
 
-	return o
+  return o
 end

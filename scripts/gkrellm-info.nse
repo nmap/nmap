@@ -55,167 +55,167 @@ portrule = shortport.port_or_service(19150, "gkrellm", "tcp")
 local function fail(err) return ("\n  ERROR: %s"):format(err or "") end
 
 local long_names = {
-	["fs_mounts"] = "Mounts",
-	["net"]       = "Network",
-	["hostname"]  = "Hostname",
-	["sysname"]   = "System",
-	["version"]   = "Version",
-	["uptime"]    = "Uptime",
-	["mem"]       = "Memory",
-	["proc"]     = "Processes",
+  ["fs_mounts"] = "Mounts",
+  ["net"]       = "Network",
+  ["hostname"]  = "Hostname",
+  ["sysname"]   = "System",
+  ["version"]   = "Version",
+  ["uptime"]    = "Uptime",
+  ["mem"]       = "Memory",
+  ["proc"]     = "Processes",
 }
 
 local order = {
-	"Hostname", "System", "Version", "Uptime", "Processes", "Memory", "Network", "Mounts"
+  "Hostname", "System", "Version", "Uptime", "Processes", "Memory", "Network", "Mounts"
 }
 
 local function getOrderPos(tag)
-	for i=1, #order do
-		if ( tag.name == order[i] ) then
-			return i
-		elseif ( "string" == type(tag) and tag:match("^([^:]*)") == order[i] ) then
-			return i
-		end
-	end
-	return 1
+  for i=1, #order do
+    if ( tag.name == order[i] ) then
+      return i
+    elseif ( "string" == type(tag) and tag:match("^([^:]*)") == order[i] ) then
+      return i
+    end
+  end
+  return 1
 end
 
 local function minutesToUptime(value)
-	local days    = math.floor(value / (60 * 24))
-	local htime   = math.fmod(value, (60 * 24))
-	local hours   = math.floor(htime / 60)
-	local mtime   = math.fmod(htime, 60)
-	local minutes = math.floor(mtime)
-	local output = ""
-	if ( days > 0 ) then
-		output = output .. ("%d days, "):format(days)
-	end
-	if ( hours > 0 ) then
-		output = output .. ("%d hours, "):format(hours)
-	end
-	if ( minutes > 0 ) then
-		output = output .. ("%d minutes"):format(minutes)
-	end
-	return output
+  local days    = math.floor(value / (60 * 24))
+  local htime   = math.fmod(value, (60 * 24))
+  local hours   = math.floor(htime / 60)
+  local mtime   = math.fmod(htime, 60)
+  local minutes = math.floor(mtime)
+  local output = ""
+  if ( days > 0 ) then
+    output = output .. ("%d days, "):format(days)
+  end
+  if ( hours > 0 ) then
+    output = output .. ("%d hours, "):format(hours)
+  end
+  if ( minutes > 0 ) then
+    output = output .. ("%d minutes"):format(minutes)
+  end
+  return output
 end
 
 local function decodeTag(tag, lines)
-	local result = { name = long_names[tag] }
-	local order
+  local result = { name = long_names[tag] }
+  local order
 
-	if ( "fs_mounts" == tag ) then
-		local fs_tab = tab.new(4)
-		tab.addrow(fs_tab, "Mount point", "Fs type", "Size", "Available")
-		for _, line in ipairs(lines) do
-			if ( ".clear" ~= line ) then
-				local mount, prefix, fstype, size, free, used, bs = table.unpack(stdnse.strsplit("%s", line))
-				if ( size and free and mount and fstype ) then
-					size = ("%dM"):format(math.ceil(tonumber(size) * tonumber(bs) / 1048576))
-					free = ("%dM"):format(math.ceil(tonumber(free) * tonumber(bs) / 1048576))
-					tab.addrow(fs_tab, mount, fstype, size, free)
-				end
-			end
-		end
-		table.insert(result, tab.dump(fs_tab))
-	elseif ( "net" == tag ) then
-		local net_tab = tab.new(3)
-		tab.addrow(net_tab, "Interface", "Received", "Transmitted")
-		for _, line in ipairs(lines) do
-			local name, rx, tx = line:match("^([^%s]*)%s([^%s]*)%s([^%s]*)$")
-			rx = ("%dM"):format(math.ceil(tonumber(rx) / 1048576))
-			tx = ("%dM"):format(math.ceil(tonumber(tx) / 1048576))
-			tab.addrow(net_tab, name, rx, tx)
-		end
-		table.insert(result, tab.dump(net_tab))
-	elseif ( "hostname" == tag or "sysname" == tag or
-		 	"version" == tag ) then
-		return ("%s: %s"):format(long_names[tag], lines[1])
-	elseif ( "uptime" == tag ) then
-		return ("%s: %s"):format(long_names[tag], minutesToUptime(lines[1]))
-	elseif ( "mem" == tag ) then
-		local total, used = table.unpack(stdnse.strsplit("%s", lines[1]))
-		if ( not(total) or not(used) ) then
-			return
-		end
-		local free = math.ceil((total - used)/1048576)
-		total = math.ceil(tonumber(total)/1048576)
-		return  ("%s: Total %dM, Free %dM"):format(long_names[tag], total, free)
-	elseif ( "proc" == tag ) then
-		local procs, _, forks, load, users = table.unpack(stdnse.strsplit("%s", lines[1]))
-		if ( not(procs) or not(forks) or not(load) or not(users) ) then
-			return
-		end
-		return ("%s: Processes %d, Load %.2f, Users %d"):format(long_names[tag], procs, load, users)
-	end
-	return ( #result > 0 and result or nil )
+  if ( "fs_mounts" == tag ) then
+    local fs_tab = tab.new(4)
+    tab.addrow(fs_tab, "Mount point", "Fs type", "Size", "Available")
+    for _, line in ipairs(lines) do
+      if ( ".clear" ~= line ) then
+        local mount, prefix, fstype, size, free, used, bs = table.unpack(stdnse.strsplit("%s", line))
+        if ( size and free and mount and fstype ) then
+          size = ("%dM"):format(math.ceil(tonumber(size) * tonumber(bs) / 1048576))
+          free = ("%dM"):format(math.ceil(tonumber(free) * tonumber(bs) / 1048576))
+          tab.addrow(fs_tab, mount, fstype, size, free)
+        end
+      end
+    end
+    table.insert(result, tab.dump(fs_tab))
+  elseif ( "net" == tag ) then
+    local net_tab = tab.new(3)
+    tab.addrow(net_tab, "Interface", "Received", "Transmitted")
+    for _, line in ipairs(lines) do
+      local name, rx, tx = line:match("^([^%s]*)%s([^%s]*)%s([^%s]*)$")
+      rx = ("%dM"):format(math.ceil(tonumber(rx) / 1048576))
+      tx = ("%dM"):format(math.ceil(tonumber(tx) / 1048576))
+      tab.addrow(net_tab, name, rx, tx)
+    end
+    table.insert(result, tab.dump(net_tab))
+  elseif ( "hostname" == tag or "sysname" == tag or
+      "version" == tag ) then
+    return ("%s: %s"):format(long_names[tag], lines[1])
+  elseif ( "uptime" == tag ) then
+    return ("%s: %s"):format(long_names[tag], minutesToUptime(lines[1]))
+  elseif ( "mem" == tag ) then
+    local total, used = table.unpack(stdnse.strsplit("%s", lines[1]))
+    if ( not(total) or not(used) ) then
+      return
+    end
+    local free = math.ceil((total - used)/1048576)
+    total = math.ceil(tonumber(total)/1048576)
+    return  ("%s: Total %dM, Free %dM"):format(long_names[tag], total, free)
+  elseif ( "proc" == tag ) then
+    local procs, _, forks, load, users = table.unpack(stdnse.strsplit("%s", lines[1]))
+    if ( not(procs) or not(forks) or not(load) or not(users) ) then
+      return
+    end
+    return ("%s: Processes %d, Load %.2f, Users %d"):format(long_names[tag], procs, load, users)
+  end
+  return ( #result > 0 and result or nil )
 end
 
 action = function(host, port)
-	local socket = nmap.new_socket()
-	socket:set_timeout(5000)
+  local socket = nmap.new_socket()
+  socket:set_timeout(5000)
 
-	if ( not(socket:connect(host, port)) ) then
-		return fail("Failed to connect to the server")
-	end
+  if ( not(socket:connect(host, port)) ) then
+    return fail("Failed to connect to the server")
+  end
 
-	-- If there's an error we get a response back, and only then
-	local status, data = socket:receive_buf("\n", false)
-	if( status and data ~= "<error>" ) then
-		return fail("An unknown error occured, aborting ...")
-	elseif ( status ) then
-		status, data = socket:receive_buf("\n", false)
-		if ( status ) then
-			return fail(data)
-		else
-			return fail("Failed to receive error message from server")
-		end
-	end
+  -- If there's an error we get a response back, and only then
+  local status, data = socket:receive_buf("\n", false)
+  if( status and data ~= "<error>" ) then
+    return fail("An unknown error occured, aborting ...")
+  elseif ( status ) then
+    status, data = socket:receive_buf("\n", false)
+    if ( status ) then
+      return fail(data)
+    else
+      return fail("Failed to receive error message from server")
+    end
+  end
 
-	if ( not(socket:send("gkrellm 2.3.4\n")) ) then
-		return fail("Failed to send data to the server")
-	end
+  if ( not(socket:send("gkrellm 2.3.4\n")) ) then
+    return fail("Failed to send data to the server")
+  end
 
-	local tags = {}
-	local status, tag = socket:receive_buf("\n", false)
-	while(true) do
-		if ( not(status) ) then
-			break
-		end
-		if ( not(tag:match("^<.*>$")) ) then
-			stdnse.print_debug(2, "Expected tag, got: %s", tag)
-			break
-		else
-			tag = tag:match("^<(.*)>$")
-		end
+  local tags = {}
+  local status, tag = socket:receive_buf("\n", false)
+  while(true) do
+    if ( not(status) ) then
+      break
+    end
+    if ( not(tag:match("^<.*>$")) ) then
+      stdnse.print_debug(2, "Expected tag, got: %s", tag)
+      break
+    else
+      tag = tag:match("^<(.*)>$")
+    end
 
-		if ( tags[tag] ) then
-			break
-		end
+    if ( tags[tag] ) then
+      break
+    end
 
-		while(true) do
-			local data
-			status, data = socket:receive_buf("\n", false)
-			if ( not(status) ) then
-				break
-			end
-			if ( status and data:match("^<.*>$") ) then
-				tag = data
-				break
-			end
-			tags[tag] = tags[tag] or {}
-			table.insert(tags[tag], data)
-		end
-	end
-	socket:close()
+    while(true) do
+      local data
+      status, data = socket:receive_buf("\n", false)
+      if ( not(status) ) then
+        break
+      end
+      if ( status and data:match("^<.*>$") ) then
+        tag = data
+        break
+      end
+      tags[tag] = tags[tag] or {}
+      table.insert(tags[tag], data)
+    end
+  end
+  socket:close()
 
-	local output = {}
-	for tag in pairs(tags) do
-		local result, order = decodeTag(tag, tags[tag])
-		if ( result ) then
-			table.insert(output, result)
-		end
-	end
+  local output = {}
+  for tag in pairs(tags) do
+    local result, order = decodeTag(tag, tags[tag])
+    if ( result ) then
+      table.insert(output, result)
+    end
+  end
 
-	table.sort(output, function(a,b) return getOrderPos(a) < getOrderPos(b) end)
-	return stdnse.format_output(true, output)
+  table.sort(output, function(a,b) return getOrderPos(a) < getOrderPos(b) end)
+  return stdnse.format_output(true, output)
 end

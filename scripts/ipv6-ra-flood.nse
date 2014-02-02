@@ -43,50 +43,50 @@ try = nmap.new_try()
 math.randomseed(os.time())
 
 prerule = function()
-	if nmap.address_family() ~= "inet6" then
-	 	stdnse.print_debug("%s is IPv6 compatible only.", SCRIPT_NAME)
-		return false
-	end
+  if nmap.address_family() ~= "inet6" then
+    stdnse.print_debug("%s is IPv6 compatible only.", SCRIPT_NAME)
+    return false
+  end
 
-	if not nmap.is_privileged() then
-		stdnse.print_debug("Running %s needs root privileges.", SCRIPT_NAME)
-		return false
-	end
+  if not nmap.is_privileged() then
+    stdnse.print_debug("Running %s needs root privileges.", SCRIPT_NAME)
+    return false
+  end
 
-	if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
-		stdnse.print_debug("No interface was selected, aborting...", SCRIPT_NAME)
-		return false
-	end
+  if not stdnse.get_script_args(SCRIPT_NAME .. ".interface") and not nmap.get_interface() then
+    stdnse.print_debug("No interface was selected, aborting...", SCRIPT_NAME)
+    return false
+  end
 
-	return true
+  return true
 end
 
 local function get_interface()
-	local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
+  local arg_interface = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
 
-	local if_table = nmap.get_interface_info(arg_interface)
+  local if_table = nmap.get_interface_info(arg_interface)
 
-	if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
-			return if_table.device
-		else
-			stdnse.print_debug("Interface %s not supported or not properly configured, exiting...", arg_interface)
-	end
+  if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+    return if_table.device
+  else
+    stdnse.print_debug("Interface %s not supported or not properly configured, exiting...", arg_interface)
+  end
 end
 
 --- Generates random MAC address
 -- @return mac string containing random MAC address
 local function random_mac()
 
-	local mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", 00, 180, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
-	return mac
+  local mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", 00, 180, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
+  return mac
 end
 
 --- Generates random IPv6 prefix
 -- @return prefix string containing random IPv6 /64 prefix
 local function get_random_prefix()
-	local prefix = string.format("2a01:%02x%02x:%02x%02x:%02x%02x::", math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
+  local prefix = string.format("2a01:%02x%02x:%02x%02x:%02x%02x::", math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1, math.random(256)-1)
 
-	return prefix
+  return prefix
 end
 
 --- Build an ICMPv6 payload of Router Advertisement.
@@ -99,94 +99,94 @@ end
 -- @return icmpv6_payload string representing ICMPv6 RA payload
 
 local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferred_time, mtu)
-	local ra_msg = string.char(0x0, --cur hop limit
-		0x08, --flags
-		0x00,0x00, --router lifetime
-		0x00,0x00,0x00,0x00, --reachable time
-		0x00,0x00,0x00,0x00) --retrans timer
+  local ra_msg = string.char(0x0, --cur hop limit
+  0x08, --flags
+  0x00,0x00, --router lifetime
+  0x00,0x00,0x00,0x00, --reachable time
+  0x00,0x00,0x00,0x00) --retrans timer
 
-	local mtu_option_msg = string.char(0x00, 0x00) .. -- reserved
-		packet.numtostr32(mtu) -- MTU
+  local mtu_option_msg = string.char(0x00, 0x00) .. -- reserved
+  packet.numtostr32(mtu) -- MTU
 
-	local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
-		packet.set_u32("....", 0, valid_time) .. -- valid lifetime
-		packet.set_u32("....", 0, preferred_time) .. -- preffered lifetime
-		string.char(0,0,0,0) .. --unknown
-		prefix
+  local prefix_option_msg = string.char(prefix_len, 0xc0) .. --flags: Onlink, Auto
+  packet.set_u32("....", 0, valid_time) .. -- valid lifetime
+  packet.set_u32("....", 0, preferred_time) .. -- preffered lifetime
+  string.char(0,0,0,0) .. --unknown
+  prefix
 
-	local icmpv6_mtu_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_MTU, mtu_option_msg)
-	local icmpv6_prefix_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_PREFIX_INFORMATION, prefix_option_msg)
-	local icmpv6_src_link_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_SOURCE_LINKADDR, mac_src)
+  local icmpv6_mtu_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_MTU, mtu_option_msg)
+  local icmpv6_prefix_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_PREFIX_INFORMATION, prefix_option_msg)
+  local icmpv6_src_link_option = packet.Packet:set_icmpv6_option(packet.ND_OPT_SOURCE_LINKADDR, mac_src)
 
-	local icmpv6_payload = ra_msg .. icmpv6_mtu_option .. icmpv6_prefix_option .. icmpv6_src_link_option
+  local icmpv6_payload = ra_msg .. icmpv6_mtu_option .. icmpv6_prefix_option .. icmpv6_src_link_option
 
-	return icmpv6_payload
+  return icmpv6_payload
 end
 
 --- Broadcasting on the selected interface
 -- @param iface table containing interface information
 local function broadcast_on_interface(iface)
-	stdnse.print_verbose("Starting " .. SCRIPT_NAME .. " on interface " .. iface)
+  stdnse.print_verbose("Starting " .. SCRIPT_NAME .. " on interface " .. iface)
 
-	-- packet counter
-	local counter = 0
+  -- packet counter
+  local counter = 0
 
-	local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
-	arg_timeout = arg_timeout or 30
+  local arg_timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
+  arg_timeout = arg_timeout or 30
 
-	local dnet = nmap.new_dnet()
+  local dnet = nmap.new_dnet()
 
-	try(dnet:ethernet_open(iface))
+  try(dnet:ethernet_open(iface))
 
-	local dst_mac = packet.mactobin("33:33:00:00:00:01")
-	local dst_ip6_addr = packet.ip6tobin("ff02::1")
+  local dst_mac = packet.mactobin("33:33:00:00:00:01")
+  local dst_ip6_addr = packet.ip6tobin("ff02::1")
 
-	local prefix_len = 64
+  local prefix_len = 64
 
-	--- maximum possible value of 4-byte integer
-	local valid_time = tonumber(0xffffffff)
-	local preffered_time = tonumber(0xffffffff)
+  --- maximum possible value of 4-byte integer
+  local valid_time = tonumber(0xffffffff)
+  local preffered_time = tonumber(0xffffffff)
 
-	local mtu = 1500
+  local mtu = 1500
 
-	local start, stop = os.time()
+  local start, stop = os.time()
 
-	while true do
+  while true do
 
-		local src_mac = packet.mactobin(random_mac())
-		local src_ip6_addr = packet.mac_to_lladdr(src_mac)
+    local src_mac = packet.mactobin(random_mac())
+    local src_ip6_addr = packet.mac_to_lladdr(src_mac)
 
-		local prefix = packet.ip6tobin(get_random_prefix())
+    local prefix = packet.ip6tobin(get_random_prefix())
 
-		local packet = packet.Frame:new()
+    local packet = packet.Frame:new()
 
-		packet.mac_src = src_mac
-		packet.mac_dst = dst_mac
-		packet.ip_bin_src = src_ip6_addr
-		packet.ip_bin_dst = dst_ip6_addr
+    packet.mac_src = src_mac
+    packet.mac_dst = dst_mac
+    packet.ip_bin_src = src_ip6_addr
+    packet.ip_bin_dst = dst_ip6_addr
 
-		local icmpv6_payload = build_router_advert(src_mac, prefix, prefix_len, valid_time, preffered_time, mtu)
-		packet:build_icmpv6_header(134, 0, icmpv6_payload)
-		packet:build_ipv6_packet()
-		packet:build_ether_frame()
+    local icmpv6_payload = build_router_advert(src_mac, prefix, prefix_len, valid_time, preffered_time, mtu)
+    packet:build_icmpv6_header(134, 0, icmpv6_payload)
+    packet:build_ipv6_packet()
+    packet:build_ether_frame()
 
-		try(dnet:ethernet_send(packet.frame_buf))
+    try(dnet:ethernet_send(packet.frame_buf))
 
-		counter = counter + 1
+    counter = counter + 1
 
-		if arg_timeout and arg_timeout > 0 and arg_timeout <= os.time() - start then
-			stop = os.time()
-			break
-		end
-	end
+    if arg_timeout and arg_timeout > 0 and arg_timeout <= os.time() - start then
+      stop = os.time()
+      break
+    end
+  end
 
-	if counter > 0 then
-		stdnse.print_debug("%s generated %d packets in %d seconds.", SCRIPT_NAME, counter, stop - start)
-	end
+  if counter > 0 then
+    stdnse.print_debug("%s generated %d packets in %d seconds.", SCRIPT_NAME, counter, stop - start)
+  end
 end
 
 function action()
-	local interface = get_interface()
+  local interface = get_interface()
 
-	broadcast_on_interface(interface)
+  broadcast_on_interface(interface)
 end

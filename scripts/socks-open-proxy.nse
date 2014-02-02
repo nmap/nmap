@@ -35,7 +35,7 @@ argument.
 --</table>
 --@usage
 -- nmap --script=socks-open-proxy \
---		--script-args proxy.url=<host>,proxy.pattern=<pattern>
+--    --script-args proxy.url=<host>,proxy.pattern=<pattern>
 
 author = "Joao Correa"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -159,7 +159,7 @@ local function default_test(host, port)
 end
 
 portrule = shortport.port_or_service({1080, 9050},
-	{"socks", "socks4", "socks5", "tor-socks"})
+  {"socks", "socks4", "socks5", "tor-socks"})
 
 action = function(host, port)
   local supported_versions
