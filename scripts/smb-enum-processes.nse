@@ -87,206 +87,206 @@ dependencies = {"smb-brute"}
 
 
 function psl_mode (list, i)
-	local mode
+  local mode
 
-	-- Decide connector for process.
-	if #list == 1 then
-		mode = "only"
-	elseif i == 1 then
-		mode = "first"
-	elseif i < #list then
-		mode = "middle"
-	else
-		mode = "last"
-	end
+  -- Decide connector for process.
+  if #list == 1 then
+    mode = "only"
+  elseif i == 1 then
+    mode = "first"
+  elseif i < #list then
+    mode = "middle"
+  else
+    mode = "last"
+  end
 
-	return mode
+  return mode
 end
 
 function psl_print (psl, lvl)
-	-- Print out table header.
-	local result = ""
-	if lvl == 2 then
-		result = result .. " PID  PPID  Priority Threads Handles\n"
-		result = result .. "----- ----- -------- ------- -------\n"
-	end
+  -- Print out table header.
+  local result = ""
+  if lvl == 2 then
+    result = result .. " PID  PPID  Priority Threads Handles\n"
+    result = result .. "----- ----- -------- ------- -------\n"
+  end
 
-	-- Find how many root processes there are.
-	local roots = {}
-	for i, ps in pairs(psl) do
-		if psl[ps.ppid] == nil or ps.ppid == ps.pid then
-			table.insert(roots, i)
-		end
-	end
-	table.sort(roots)
+  -- Find how many root processes there are.
+  local roots = {}
+  for i, ps in pairs(psl) do
+    if psl[ps.ppid] == nil or ps.ppid == ps.pid then
+      table.insert(roots, i)
+    end
+  end
+  table.sort(roots)
 
-	-- Create vertical sibling bars.
-	local bars = {}
-	if #roots ~= 1 then
-		table.insert(bars, 2)
-	end
+  -- Create vertical sibling bars.
+  local bars = {}
+  if #roots ~= 1 then
+    table.insert(bars, 2)
+  end
 
-	-- Print out each root of the tree.
-	for i, root in ipairs(roots) do
-		local mode = psl_mode(roots, i)
-		result = result .. psl_tree(psl, root, 0, bars, mode, lvl)
-	end
+  -- Print out each root of the tree.
+  for i, root in ipairs(roots) do
+    local mode = psl_mode(roots, i)
+    result = result .. psl_tree(psl, root, 0, bars, mode, lvl)
+  end
 
-	return result
+  return result
 end
 
 function psl_tree (psl, pid, column, bars, mode, lvl)
-	local ps = psl[pid]
+  local ps = psl[pid]
 
-	-- Delete vertical sibling link.
-	if mode == "last" then
-		table.remove(bars)
-	end
+  -- Delete vertical sibling link.
+  if mode == "last" then
+    table.remove(bars)
+  end
 
-	-- Print information table.
-	local info = ""
-	if lvl == 2 then
-		info = info .. string.format("% 5d ", ps.pid)
-		info = info .. string.format("% 5d ", ps.ppid)
-		info = info .. string.format("% 8d ", ps.prio)
-		info = info .. string.format("% 7d ", ps.thrd)
-		info = info .. string.format("% 7d ", ps.hndl)
-	end
+  -- Print information table.
+  local info = ""
+  if lvl == 2 then
+    info = info .. string.format("% 5d ", ps.pid)
+    info = info .. string.format("% 5d ", ps.ppid)
+    info = info .. string.format("% 8d ", ps.prio)
+    info = info .. string.format("% 7d ", ps.thrd)
+    info = info .. string.format("% 7d ", ps.hndl)
+  end
 
-	-- Print vertical sibling bars.
-	local prefix = ""
-	local i = 1
-	for j = 1, column do
-		if bars[i] == j then
-			prefix = prefix .. "|"
-			i = i + 1
-		else
-			prefix = prefix .. " "
-		end
-	end
+  -- Print vertical sibling bars.
+  local prefix = ""
+  local i = 1
+  for j = 1, column do
+    if bars[i] == j then
+      prefix = prefix .. "|"
+      i = i + 1
+    else
+      prefix = prefix .. " "
+    end
+  end
 
-	-- Strings used to separate processes from one another.
-	local separators = {
-		first	= "`+-";
-		last	= " `-";
-		middle	= " +-";
-		only	= "`-";
-	}
+  -- Strings used to separate processes from one another.
+  local separators = {
+    first  = "`+-";
+    last  = " `-";
+    middle  = " +-";
+    only  = "`-";
+  }
 
-	-- Format process itself.
-	local result = "\n" .. info .. prefix .. separators[mode] .. ps.name
+  -- Format process itself.
+  local result = "\n" .. info .. prefix .. separators[mode] .. ps.name
 
-	-- Find children of the process.
-	local children = {}
-	for child_pid, child in pairs(psl) do
-		if child_pid ~= pid and child.ppid == pid then
-			table.insert(children, child_pid)
-		end
-	end
-	table.sort(children)
+  -- Find children of the process.
+  local children = {}
+  for child_pid, child in pairs(psl) do
+    if child_pid ~= pid and child.ppid == pid then
+      table.insert(children, child_pid)
+    end
+  end
+  table.sort(children)
 
-	-- Add vertical sibling link between children.
-	column = column + #separators[mode]
-	if #children > 1 then
-		table.insert(bars, column + 2)
-	end
+  -- Add vertical sibling link between children.
+  column = column + #separators[mode]
+  if #children > 1 then
+    table.insert(bars, column + 2)
+  end
 
-	-- Format process's children.
-	for i, pid in ipairs(children) do
-		local mode = psl_mode(children, i)
-		result = result .. psl_tree(psl, pid, column, bars, mode, lvl)
-	end
+  -- Format process's children.
+  for i, pid in ipairs(children) do
+    local mode = psl_mode(children, i)
+    result = result .. psl_tree(psl, pid, column, bars, mode, lvl)
+  end
 
-	return result
+  return result
 end
 
 hostrule = function(host)
-	return smb.get_port(host) ~= nil
+  return smb.get_port(host) ~= nil
 end
 
 action = function(host)
-	-- Get the process list
-	local status, result = msrpcperformance.get_performance_data(host, "230")
-	if status == false then
-		if nmap.debugging() > 0 then
-			return "ERROR: " .. result
-		else
-			return nil
-		end
-	end
+  -- Get the process list
+  local status, result = msrpcperformance.get_performance_data(host, "230")
+  if status == false then
+    if nmap.debugging() > 0 then
+      return "ERROR: " .. result
+    else
+      return nil
+    end
+  end
 
-	-- Get the process table
-	local process = result["Process"]
+  -- Get the process table
+  local process = result["Process"]
 
-	-- Put the processes into an array, and sort them by pid.
-	local names = {}
-	for i, v in pairs(process) do
-		if i ~= "_Total" then
-			names[#names + 1] = i
-		end
-	end
-	table.sort(names, function (a, b) return process[a]["ID Process"] < process[b]["ID Process"] end)
+  -- Put the processes into an array, and sort them by pid.
+  local names = {}
+  for i, v in pairs(process) do
+    if i ~= "_Total" then
+      names[#names + 1] = i
+    end
+  end
+  table.sort(names, function (a, b) return process[a]["ID Process"] < process[b]["ID Process"] end)
 
-	-- Put the processes into an array indexed by pid and with a value equal
-        -- to the name (so we can look it up easily when we need to).
-	local process_id = {}
-	for i, v in pairs(process) do
-		process_id[v["ID Process"]] = i
-	end
+  -- Put the processes into an array indexed by pid and with a value equal
+  -- to the name (so we can look it up easily when we need to).
+  local process_id = {}
+  for i, v in pairs(process) do
+    process_id[v["ID Process"]] = i
+  end
 
-	-- Fill the process list table.
-	--
-	-- Used fields:
-	--   Creating Process ID
-	--   Handle Count
-	--   ID Process
-	--   Priority Base
-	--   Thread Count
-	--
-	-- Unused fields:
-	--   % Privileged Time
-	--   % Processor Time
-	--   % User Time
-	--   Elapsed Time
-	--   IO Data Bytes/sec
-	--   IO Data Operations/sec
-	--   IO Other Bytes/sec
-	--   IO Other Operations/sec
-	--   IO Read Bytes/sec
-	--   IO Read Operations/sec
-	--   IO Write Bytes/sec
-	--   IO Write Operations/sec
-	--   Page Faults/sec
-	--   Page File Bytes
-	--   Page File Bytes Peak
-	--   Pool Nonpaged Bytes
-	--   Pool Paged Bytes
-	--   Private Bytes
-	--   Virtual Bytes
-	--   Virtual Bytes Peak
-	--   Working Set
-	--   Working Set Peak
-	local psl = {}
-	for i, name in ipairs(names) do
-		if name ~= "_Total" then
-			psl[process[name]["ID Process"]] = {
-				name	= name;
-				pid	= process[name]["ID Process"];
-				ppid	= process[name]["Creating Process ID"];
-				prio	= process[name]["Priority Base"];
-				thrd	= process[name]["Thread Count"];
-				hndl	= process[name]["Handle Count"];
-			}
-		end
-	end
+  -- Fill the process list table.
+  --
+  -- Used fields:
+  --   Creating Process ID
+  --   Handle Count
+  --   ID Process
+  --   Priority Base
+  --   Thread Count
+  --
+  -- Unused fields:
+  --   % Privileged Time
+  --   % Processor Time
+  --   % User Time
+  --   Elapsed Time
+  --   IO Data Bytes/sec
+  --   IO Data Operations/sec
+  --   IO Other Bytes/sec
+  --   IO Other Operations/sec
+  --   IO Read Bytes/sec
+  --   IO Read Operations/sec
+  --   IO Write Bytes/sec
+  --   IO Write Operations/sec
+  --   Page Faults/sec
+  --   Page File Bytes
+  --   Page File Bytes Peak
+  --   Pool Nonpaged Bytes
+  --   Pool Paged Bytes
+  --   Private Bytes
+  --   Virtual Bytes
+  --   Virtual Bytes Peak
+  --   Working Set
+  --   Working Set Peak
+  local psl = {}
+  for i, name in ipairs(names) do
+    if name ~= "_Total" then
+      psl[process[name]["ID Process"]] = {
+        name  = name;
+        pid  = process[name]["ID Process"];
+        ppid  = process[name]["Creating Process ID"];
+        prio  = process[name]["Priority Base"];
+        thrd  = process[name]["Thread Count"];
+        hndl  = process[name]["Handle Count"];
+      }
+    end
+  end
 
-	-- Produce final output.
-	local response
-	if nmap.verbosity() == 0 then
-		response = "|_ " .. stdnse.strjoin(", ", names)
-	else
-		response = "\n" .. psl_print(psl, nmap.verbosity())
-	end
+  -- Produce final output.
+  local response
+  if nmap.verbosity() == 0 then
+    response = "|_ " .. stdnse.strjoin(", ", names)
+  else
+    response = "\n" .. psl_print(psl, nmap.verbosity())
+  end
 
-	return response
+  return response
 end

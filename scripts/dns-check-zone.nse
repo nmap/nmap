@@ -59,392 +59,392 @@ hostrule = function(host) return ( arg_domain ~= nil ) end
 local PROBE_HOST = "scanme.nmap.org"
 
 local Status = {
-	PASS = "PASS",
-	FAIL = "FAIL",
+  PASS = "PASS",
+  FAIL = "FAIL",
 }
 
 local function isValidSOA(res)
-	if ( not(res) or type(res.answers) ~= "table" or type(res.answers[1].SOA) ~= "table" ) then
-		return false
-	end
-	return true
+  if ( not(res) or type(res.answers) ~= "table" or type(res.answers[1].SOA) ~= "table" ) then
+    return false
+  end
+  return true
 end
 
 local dns_checks = {
 
-	["NS"] = {
-		{
-			desc = "Recursive queries",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
-				local result = {}
+  ["NS"] = {
+    {
+      desc = "Recursive queries",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
+        local result = {}
 
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of DNS servers"
-				end
-				for _, srv in ipairs(res or {}) do
-					local status, res = dns.query(PROBE_HOST, { host = srv, dtype='A' })
-					if ( status ) then
-						table.insert(result, res)
-					end
-				end
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of DNS servers"
+        end
+        for _, srv in ipairs(res or {}) do
+          local status, res = dns.query(PROBE_HOST, { host = srv, dtype='A' })
+          if ( status ) then
+            table.insert(result, res)
+          end
+        end
 
-				local output = "None of the servers allow recursive queries."
-				if ( 0 < #result ) then
-					output = ("The following servers allow recursive queries: %s"):format(stdnse.strjoin(", ", result))
-					return true, { status = Status.FAIL, output = output }
-				end
-				return true, { status = Status.PASS, output = output }
-			end
-		},
+        local output = "None of the servers allow recursive queries."
+        if ( 0 < #result ) then
+          output = ("The following servers allow recursive queries: %s"):format(stdnse.strjoin(", ", result))
+          return true, { status = Status.FAIL, output = output }
+        end
+        return true, { status = Status.PASS, output = output }
+      end
+    },
 
-		{
-			desc = "Multiple name servers",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
+    {
+      desc = "Multiple name servers",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
 
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of DNS servers"
-				end
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of DNS servers"
+        end
 
-				local status = Status.FAIL
-				if ( 1 < #res ) then
-					status = Status.PASS
-				end
-				return true, { status = status, output = ("Server has %d name servers"):format(#res) }
-			end
-		},
+        local status = Status.FAIL
+        if ( 1 < #res ) then
+          status = Status.PASS
+        end
+        return true, { status = status, output = ("Server has %d name servers"):format(#res) }
+      end
+    },
 
-		{
-			desc = "DNS name server IPs are public",
-			func = function(domain, server)
+    {
+      desc = "DNS name server IPs are public",
+      func = function(domain, server)
 
-				local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of DNS servers"
-				end
+        local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of DNS servers"
+        end
 
-				local result = {}
-				for _, srv in ipairs(res or {}) do
-					local status, res = dns.query(srv, { dtype='A', retAll = true })
-					if ( not(status) ) then
-						return false, ("Failed to retrieve IP for DNS: %s"):format(srv)
-					end
-					for _, ip in ipairs(res) do
-						if ( ipOps.isPrivate(ip) ) then
-							table.insert(result, ip)
-						end
-					end
-				end
+        local result = {}
+        for _, srv in ipairs(res or {}) do
+          local status, res = dns.query(srv, { dtype='A', retAll = true })
+          if ( not(status) ) then
+            return false, ("Failed to retrieve IP for DNS: %s"):format(srv)
+          end
+          for _, ip in ipairs(res) do
+            if ( ipOps.isPrivate(ip) ) then
+              table.insert(result, ip)
+            end
+          end
+        end
 
-				local output = "All DNS IPs were public"
-				if ( 0 < #result ) then
-					output = ("The following private IPs were detected: %s"):format(stdnse.strjoin(", ", result))
-					status = Status.FAIL
-				else
-					status = Status.PASS
-				end
+        local output = "All DNS IPs were public"
+        if ( 0 < #result ) then
+          output = ("The following private IPs were detected: %s"):format(stdnse.strjoin(", ", result))
+          status = Status.FAIL
+        else
+          status = Status.PASS
+        end
 
-				return true, { status = status, output = output }
-			end
-		},
+        return true, { status = status, output = output }
+      end
+    },
 
-		{
-			desc = "DNS server response",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of DNS servers"
-				end
+    {
+      desc = "DNS server response",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of DNS servers"
+        end
 
-				local result = {}
-				for _, srv in ipairs(res or {}) do
-					local status, res = dns.query(domain, { host = srv, dtype='SOA', retPkt = true })
-					if ( not(status) ) then
-						table.insert(result, res)
-					end
-				end
+        local result = {}
+        for _, srv in ipairs(res or {}) do
+          local status, res = dns.query(domain, { host = srv, dtype='SOA', retPkt = true })
+          if ( not(status) ) then
+            table.insert(result, res)
+          end
+        end
 
-				local output = "All servers respond to DNS queries"
-				if ( 0 < #result ) then
-					output = ("The following servers did not respond to DNS queries: %s"):format(stdnse.strjoin(", ", result))
-					return true, { status = Status.FAIL, output = output }
-				end
-				return true, { status = Status.PASS, output = output }
-			end
-		},
+        local output = "All servers respond to DNS queries"
+        if ( 0 < #result ) then
+          output = ("The following servers did not respond to DNS queries: %s"):format(stdnse.strjoin(", ", result))
+          return true, { status = Status.FAIL, output = output }
+        end
+        return true, { status = Status.PASS, output = output }
+      end
+    },
 
-		{
-			desc = "Missing nameservers reported by parent",
-			func = function(domain, server)
-				local tld = domain:match("%.(.*)$")
-				local status, res = dns.query(tld, { dtype = "NS", retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of TLD DNS servers"
-				end
+    {
+      desc = "Missing nameservers reported by parent",
+      func = function(domain, server)
+        local tld = domain:match("%.(.*)$")
+        local status, res = dns.query(tld, { dtype = "NS", retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of TLD DNS servers"
+        end
 
-				local status, parent_res = dns.query(domain, { host = res, dtype = "NS", retAll = true, retPkt = true, noauth = true } )
-				if ( not(status) ) then
-					return false, "Failed to retrieve a list of parent DNS servers"
-				end
+        local status, parent_res = dns.query(domain, { host = res, dtype = "NS", retAll = true, retPkt = true, noauth = true } )
+        if ( not(status) ) then
+          return false, "Failed to retrieve a list of parent DNS servers"
+        end
 
-				if ( not(status) or not(parent_res) or type(parent_res.auth) ~= "table"  ) then
-					return false, "Failed to retrieve a list of parent DNS servers"
-				end
+        if ( not(status) or not(parent_res) or type(parent_res.auth) ~= "table"  ) then
+          return false, "Failed to retrieve a list of parent DNS servers"
+        end
 
-				local parent_dns = {}
-				for _, auth in ipairs(parent_res.auth) do
-					parent_dns[auth.domain] = true
-				end
+        local parent_dns = {}
+        for _, auth in ipairs(parent_res.auth) do
+          parent_dns[auth.domain] = true
+        end
 
-				status, res = dns.query(domain, { host = server, dtype = "NS", retAll = true } )
-				if ( not(status) ) then
-					return false, "Failed to retrieve a list of DNS servers"
-				end
+        status, res = dns.query(domain, { host = server, dtype = "NS", retAll = true } )
+        if ( not(status) ) then
+          return false, "Failed to retrieve a list of DNS servers"
+        end
 
-				local domain_dns = {}
-				for _,srv in ipairs(res) do	domain_dns[srv] = true end
+        local domain_dns = {}
+        for _,srv in ipairs(res) do	domain_dns[srv] = true end
 
-				local result = {}
-				for srv in pairs(domain_dns) do
-					if ( not(parent_dns[srv]) ) then
-						table.insert(result, srv)
-					end
-				end
+        local result = {}
+        for srv in pairs(domain_dns) do
+          if ( not(parent_dns[srv]) ) then
+            table.insert(result, srv)
+          end
+        end
 
-				if ( 0 < #result ) then
-					local output = ("The following servers were found in the zone, but not in the parent: %s"):format(stdnse.strjoin(", ", result))
-					return true, { status = Status.FAIL, output = output }
-				end
+        if ( 0 < #result ) then
+          local output = ("The following servers were found in the zone, but not in the parent: %s"):format(stdnse.strjoin(", ", result))
+          return true, { status = Status.FAIL, output = output }
+        end
 
-				return true, { status = Status.PASS, output = "All DNS servers match" }
-			end,
-		},
+        return true, { status = Status.PASS, output = "All DNS servers match" }
+      end,
+    },
 
 
-		{
-			desc = "Missing nameservers reported by your nameservers",
-			func = function(domain, server)
-				local tld = domain:match("%.(.*)$")
-				local status, res = dns.query(tld, { dtype = "NS", retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of TLD DNS servers"
-				end
+    {
+      desc = "Missing nameservers reported by your nameservers",
+      func = function(domain, server)
+        local tld = domain:match("%.(.*)$")
+        local status, res = dns.query(tld, { dtype = "NS", retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of TLD DNS servers"
+        end
 
-				local status, parent_res = dns.query(domain, { host = res, dtype = "NS", retAll = true, retPkt = true, noauth = true } )
-				if ( not(status) ) then
-					return false, "Failed to retrieve a list of parent DNS servers"
-				end
+        local status, parent_res = dns.query(domain, { host = res, dtype = "NS", retAll = true, retPkt = true, noauth = true } )
+        if ( not(status) ) then
+          return false, "Failed to retrieve a list of parent DNS servers"
+        end
 
-				if ( not(status) or not(parent_res) or type(parent_res.auth) ~= "table"  ) then
-					return false, "Failed to retrieve a list of parent DNS servers"
-				end
+        if ( not(status) or not(parent_res) or type(parent_res.auth) ~= "table"  ) then
+          return false, "Failed to retrieve a list of parent DNS servers"
+        end
 
-				local parent_dns = {}
-				for _, auth in ipairs(parent_res.auth) do
-					parent_dns[auth.domain] = true
-				end
+        local parent_dns = {}
+        for _, auth in ipairs(parent_res.auth) do
+          parent_dns[auth.domain] = true
+        end
 
-				status, res = dns.query(domain, { host = server, dtype = "NS", retAll = true } )
-				if ( not(status) ) then
-					return false, "Failed to retrieve a list of DNS servers"
-				end
+        status, res = dns.query(domain, { host = server, dtype = "NS", retAll = true } )
+        if ( not(status) ) then
+          return false, "Failed to retrieve a list of DNS servers"
+        end
 
-				local domain_dns = {}
-				for _,srv in ipairs(res) do	domain_dns[srv] = true end
+        local domain_dns = {}
+        for _,srv in ipairs(res) do  domain_dns[srv] = true end
 
-				local result = {}
-				for srv in pairs(parent_dns) do
-					if ( not(domain_dns[srv]) ) then
-						table.insert(result, srv)
-					end
-				end
+        local result = {}
+        for srv in pairs(parent_dns) do
+          if ( not(domain_dns[srv]) ) then
+            table.insert(result, srv)
+          end
+        end
 
-				if ( 0 < #result ) then
-					local output = ("The following servers were found in the parent, but not in the zone: %s"):format(stdnse.strjoin(", ", result))
-					return true, { status = Status.FAIL, output = output }
-				end
+        if ( 0 < #result ) then
+          local output = ("The following servers were found in the parent, but not in the zone: %s"):format(stdnse.strjoin(", ", result))
+          return true, { status = Status.FAIL, output = output }
+        end
 
-				return true, { status = Status.PASS, output = "All DNS servers match" }
-			end,
-		},
+        return true, { status = Status.PASS, output = "All DNS servers match" }
+      end,
+    },
 
-	},
+  },
 
-	["SOA"] =
-	{
-		{
-			desc = "SOA REFRESH",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
-				if ( not(status) or not(isValidSOA(res)) ) then
-					return false, "Failed to retrieve SOA record"
-				end
+  ["SOA"] =
+  {
+    {
+      desc = "SOA REFRESH",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
+        if ( not(status) or not(isValidSOA(res)) ) then
+          return false, "Failed to retrieve SOA record"
+        end
 
-				local refresh = tonumber(res.answers[1].SOA.refresh)
-				if ( not(refresh) ) then
-					return false, "Failed to retrieve SOA REFRESH"
-				end
+        local refresh = tonumber(res.answers[1].SOA.refresh)
+        if ( not(refresh) ) then
+          return false, "Failed to retrieve SOA REFRESH"
+        end
 
-				if ( refresh < 1200 or refresh > 43200 ) then
-					return true, { status = Status.FAIL, output = ("SOA REFRESH was NOT within recommended range (%ss)"):format(refresh) }
-				else
-					return true, { status = Status.PASS, output = ("SOA REFRESH was within recommended range (%ss)"):format(refresh) }
-				end
-			end
-		},
+        if ( refresh < 1200 or refresh > 43200 ) then
+          return true, { status = Status.FAIL, output = ("SOA REFRESH was NOT within recommended range (%ss)"):format(refresh) }
+        else
+          return true, { status = Status.PASS, output = ("SOA REFRESH was within recommended range (%ss)"):format(refresh) }
+        end
+      end
+    },
 
-		{
-			desc = "SOA RETRY",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
-				if ( not(status) or not(isValidSOA(res)) ) then
-					return false, "Failed to retrieve SOA record"
-				end
+    {
+      desc = "SOA RETRY",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
+        if ( not(status) or not(isValidSOA(res)) ) then
+          return false, "Failed to retrieve SOA record"
+        end
 
-				local retry = tonumber(res.answers[1].SOA.retry)
-				if ( not(retry) ) then
-					return false, "Failed to retrieve SOA RETRY"
-				end
+        local retry = tonumber(res.answers[1].SOA.retry)
+        if ( not(retry) ) then
+          return false, "Failed to retrieve SOA RETRY"
+        end
 
-				if ( retry < 180 ) then
-					return true, { status = Status.FAIL, output = ("SOA RETRY was NOT within recommended range (%ss)"):format(retry) }
-				else
-					return true, { status = Status.PASS, output = ("SOA RETRY was within recommended range (%ss)"):format(retry) }
-				end
-			end
-		},
+        if ( retry < 180 ) then
+          return true, { status = Status.FAIL, output = ("SOA RETRY was NOT within recommended range (%ss)"):format(retry) }
+        else
+          return true, { status = Status.PASS, output = ("SOA RETRY was within recommended range (%ss)"):format(retry) }
+        end
+      end
+    },
 
-		{
-			desc = "SOA EXPIRE",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
-				if ( not(status) or not(isValidSOA(res)) ) then
-					return false, "Failed to retrieve SOA record"
-				end
+    {
+      desc = "SOA EXPIRE",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
+        if ( not(status) or not(isValidSOA(res)) ) then
+          return false, "Failed to retrieve SOA record"
+        end
 
-				local expire = tonumber(res.answers[1].SOA.expire)
-				if ( not(expire) ) then
-					return false, "Failed to retrieve SOA EXPIRE"
-				end
+        local expire = tonumber(res.answers[1].SOA.expire)
+        if ( not(expire) ) then
+          return false, "Failed to retrieve SOA EXPIRE"
+        end
 
-				if ( expire < 1209600 or expire > 2419200 ) then
-					return true, { status = Status.FAIL, output = ("SOA EXPIRE was NOT within recommended range (%ss)"):format(expire) }
-				else
-					return true, { status = Status.PASS, output = ("SOA EXPIRE was within recommended range (%ss)"):format(expire) }
-				end
-			end
-		},
+        if ( expire < 1209600 or expire > 2419200 ) then
+          return true, { status = Status.FAIL, output = ("SOA EXPIRE was NOT within recommended range (%ss)"):format(expire) }
+        else
+          return true, { status = Status.PASS, output = ("SOA EXPIRE was within recommended range (%ss)"):format(expire) }
+        end
+      end
+    },
 
-		{
-			desc = "SOA MNAME entry check",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
-				if ( not(status) or not(isValidSOA(res)) ) then
-					return false, "Failed to retrieve SOA record"
-				end
-				local mname = res.answers[1].SOA.mname
+    {
+      desc = "SOA MNAME entry check",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='SOA', retPkt=true })
+        if ( not(status) or not(isValidSOA(res)) ) then
+          return false, "Failed to retrieve SOA record"
+        end
+        local mname = res.answers[1].SOA.mname
 
-				status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of DNS servers"
-				end
+        status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of DNS servers"
+        end
 
-				for _, srv in ipairs(res or {}) do
-					if ( srv == mname ) then
-						return true, { status = Status.PASS, output = "SOA MNAME record is listed as DNS server" }
-					end
-				end
-				return true, { status = Status.FAIL, output = "SOA MNAME record is NOT listed as DNS server" }
-			end
-		},
+        for _, srv in ipairs(res or {}) do
+          if ( srv == mname ) then
+            return true, { status = Status.PASS, output = "SOA MNAME record is listed as DNS server" }
+          end
+        end
+        return true, { status = Status.FAIL, output = "SOA MNAME record is NOT listed as DNS server" }
+      end
+    },
 
-		{
-			desc = "Zone serial numbers",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of DNS servers"
-				end
+    {
+      desc = "Zone serial numbers",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='NS', retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of DNS servers"
+        end
 
-				local result = {}
-				local serial
+        local result = {}
+        local serial
 
-				for _, srv in ipairs(res or {}) do
-					local status, res = dns.query(domain, { host = srv, dtype='SOA', retPkt = true })
-					if ( not(status) or not(isValidSOA(res)) ) then
-						return false, "Failed to retrieve SOA record"
-					end
+        for _, srv in ipairs(res or {}) do
+          local status, res = dns.query(domain, { host = srv, dtype='SOA', retPkt = true })
+          if ( not(status) or not(isValidSOA(res)) ) then
+            return false, "Failed to retrieve SOA record"
+          end
 
-					local s = res.answers[1].SOA.serial
-					if ( not(serial) ) then
-						serial = s
-					elseif( serial ~= s ) then
-						return true, { status = Status.FAIL, output = "Different zone serials were detected" }
-					end
-				end
+          local s = res.answers[1].SOA.serial
+          if ( not(serial) ) then
+            serial = s
+          elseif( serial ~= s ) then
+            return true, { status = Status.FAIL, output = "Different zone serials were detected" }
+          end
+        end
 
-				return true, { status = Status.PASS, output = "Zone serials match" }
-			end,
-		},
-	},
+        return true, { status = Status.PASS, output = "Zone serials match" }
+      end,
+    },
+  },
 
-	["MX"] = {
+  ["MX"] = {
 
-		{
-			desc = "Reverse MX A records",
-			func = function(domain, server)
-				local status, res = dns.query(domain, { host = server, dtype='MX', retAll = true })
-				if ( not(status) ) then
-					return false, "Failed to retrieve list of mail servers"
-				end
+    {
+      desc = "Reverse MX A records",
+      func = function(domain, server)
+        local status, res = dns.query(domain, { host = server, dtype='MX', retAll = true })
+        if ( not(status) ) then
+          return false, "Failed to retrieve list of mail servers"
+        end
 
-				local result = {}
-				for _, record in ipairs(res or {}) do
-					local prio, mx = record:match("^(%d*):([^:]*)")
-					local ips
-					status, ips = dns.query(mx, { dtype='A', retAll=true })
-					if ( not(status) ) then
-						return false, "Failed to retrieve A records for MX"
-					end
+        local result = {}
+        for _, record in ipairs(res or {}) do
+          local prio, mx = record:match("^(%d*):([^:]*)")
+          local ips
+          status, ips = dns.query(mx, { dtype='A', retAll=true })
+          if ( not(status) ) then
+            return false, "Failed to retrieve A records for MX"
+          end
 
-					for _, ip in ipairs(ips) do
-						local status, res = dns.query(dns.reverse(ip), { dtype='PTR' })
-						if ( not(status) ) then
-							table.insert(result, ip)
-						end
-					end
-				end
+          for _, ip in ipairs(ips) do
+            local status, res = dns.query(dns.reverse(ip), { dtype='PTR' })
+            if ( not(status) ) then
+              table.insert(result, ip)
+            end
+          end
+        end
 
-				local output = "All MX records have PTR records"
-				if ( 0 < #result ) then
-					output = ("The following IPs do not have PTR records: %s"):format(stdnse.strjoin(", ", result))
-					return true, { status = Status.FAIL, output = output }
-				end
-				return true, { status = Status.PASS, output = output }
-			end
-		},
+        local output = "All MX records have PTR records"
+        if ( 0 < #result ) then
+          output = ("The following IPs do not have PTR records: %s"):format(stdnse.strjoin(", ", result))
+          return true, { status = Status.FAIL, output = output }
+        end
+        return true, { status = Status.PASS, output = output }
+      end
+    },
 
-	}
+  }
 }
 
 action = function(host, port)
-	local server = host.ip
-	local output = { name = ("DNS check results for domain: %s"):format(arg_domain) }
+  local server = host.ip
+  local output = { name = ("DNS check results for domain: %s"):format(arg_domain) }
 
-	for group in pairs(dns_checks) do
-		local group_output = { name = group }
-		for _, check in ipairs(dns_checks[group]) do
-			local status, res = check.func(arg_domain, server)
-			if ( status ) then
-				local test_res = ("%s - %s"):format(res.status, check.desc)
-				table.insert(group_output, { name = test_res, res.output })
-			else
-				local test_res = ("ERROR - %s"):format(check.desc)
-				table.insert(group_output, { name = test_res, res })
-			end
-		end
-		table.insert(output, group_output)
-	end
-	return stdnse.format_output(true, output)
+  for group in pairs(dns_checks) do
+    local group_output = { name = group }
+    for _, check in ipairs(dns_checks[group]) do
+      local status, res = check.func(arg_domain, server)
+      if ( status ) then
+        local test_res = ("%s - %s"):format(res.status, check.desc)
+        table.insert(group_output, { name = test_res, res.output })
+      else
+        local test_res = ("ERROR - %s"):format(check.desc)
+        table.insert(group_output, { name = test_res, res })
+      end
+    end
+    table.insert(output, group_output)
+  end
+  return stdnse.format_output(true, output)
 end

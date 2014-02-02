@@ -500,27 +500,27 @@ function action(host, port)
     return string.match(url.file, "%.jpg") or string.match(url.file, "%.jpeg")
   end
 
-	local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME, whitelist = { whitelist }} )
+  local crawler = httpspider.Crawler:new(  host, port, nil, { scriptname = SCRIPT_NAME, whitelist = { whitelist }} )
 
-	if ( not(crawler) ) then
-		return
-	end
+  if ( not(crawler) ) then
+    return
+  end
 
-	while(true) do
+  while(true) do
     -- Begin the crawler
-	  local status, r = crawler:crawl()
+    local status, r = crawler:crawl()
 
     -- Make sure there's no error
-	  if ( not(status) ) then
-		  if ( r.err ) then
-			  return stdnse.format_output(false, r.reason)
-		  else
-			  break
-		  end
-	  end
+    if ( not(status) ) then
+      if ( r.err ) then
+        return stdnse.format_output(false, r.reason)
+      else
+        break
+      end
+    end
 
     -- Check if we got a response, and the response is a .jpg file
-	  if r.response and r.response.body and r.response.status==200 and (string.match(r.url.path, ".jpg") or string.match(r.url.path, ".jpeg")) then
+    if r.response and r.response.body and r.response.status==200 and (string.match(r.url.path, ".jpg") or string.match(r.url.path, ".jpeg")) then
       local status, result
       stdnse.print_debug(1, "Attempting to read exif data from %s", r.url.raw)
       status, result = parse_jpeg(r.response.body)
@@ -533,7 +533,7 @@ function action(host, port)
           table.insert(results, result)
         end
       end
-	  end
+    end
   end
 
   return stdnse.format_output(true, results)

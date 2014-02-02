@@ -57,24 +57,24 @@ portrule = shortport.port_or_service(3689, "daap")
 -- @param port table containing number and protocol fields.
 -- @return string containing the name of the library
 function getLibraryName( host, port )
-	local _, libname, pos
-	local url = "daap://" .. host.ip .. "/server-info"
-	local response = http.get( host, port, url, nil, nil, nil)
+  local _, libname, pos
+  local url = "daap://" .. host.ip .. "/server-info"
+  local response = http.get( host, port, url, nil, nil, nil)
 
-	if response == nil or response.body == nil or response.body=="" then
-		return
-	end
+  if response == nil or response.body == nil or response.body=="" then
+    return
+  end
 
-	pos = string.find(response.body, "minm")
+  pos = string.find(response.body, "minm")
 
-	if pos > 0 then
-	  local len
-		pos = pos + 4
-		pos, len = bin.unpack( ">I", response.body, pos )
-		pos, libname = bin.unpack( "A" .. len, response.body, pos )
-	end
+  if pos > 0 then
+    local len
+    pos = pos + 4
+    pos, len = bin.unpack( ">I", response.body, pos )
+    pos, libname = bin.unpack( "A" .. len, response.body, pos )
+  end
 
-	return libname
+  return libname
 end
 
 --- Reads the first item value specified by name
@@ -84,23 +84,23 @@ end
 -- @return number
 local function getAttributeAsInt( data, name )
 
-	local pos = string.find(data, name)
-	local attrib
+  local pos = string.find(data, name)
+  local attrib
 
-	if pos and pos > 0 then
-		pos = pos + 4
-		local len
-		pos, len = bin.unpack( ">I", data, pos )
+  if pos and pos > 0 then
+    pos = pos + 4
+    local len
+    pos, len = bin.unpack( ">I", data, pos )
 
-		if ( len ~= 4 ) then
-			stdnse.print_debug( string.format("Unexpected length returned: %d", len ) )
-			return
-		end
+    if ( len ~= 4 ) then
+      stdnse.print_debug( string.format("Unexpected length returned: %d", len ) )
+      return
+    end
 
-		pos, attrib = bin.unpack( ">I", data, pos )
-	end
+    pos, attrib = bin.unpack( ">I", data, pos )
+  end
 
-	return attrib
+  return attrib
 
 end
 
@@ -111,14 +111,14 @@ end
 -- @return number containing the session identity received from the server
 function getSessionId( host, port )
 
-	local _, sessionid
-	local response = http.get( host, port, "/login", nil, nil, nil )
+  local _, sessionid
+  local response = http.get( host, port, "/login", nil, nil, nil )
 
-	if response ~= nil then
-		sessionid = getAttributeAsInt( response.body, "mlid")
-	end
+  if response ~= nil then
+    sessionid = getAttributeAsInt( response.body, "mlid")
+  end
 
-	return sessionid
+  return sessionid
 end
 
 --- Gets the revision number for the library
@@ -128,15 +128,15 @@ end
 -- @param sessionid number containing session identifier from <code>getSessionId</code>
 -- @return number containing the revision number for the library
 function getRevisionNumber( host, port, sessionid )
-	local url = "/update?session-id=" .. sessionid .. "&revision-number=1"
-	local _, revision
-	local response = http.get( host, port, url, nil, nil, nil )
+  local url = "/update?session-id=" .. sessionid .. "&revision-number=1"
+  local _, revision
+  local response = http.get( host, port, url, nil, nil, nil )
 
-	if response ~= nil then
-		revision = getAttributeAsInt( response.body, "musr")
-	end
+  if response ~= nil then
+    revision = getAttributeAsInt( response.body, "musr")
+  end
 
-	return revision
+  return revision
 end
 
 --- Gets the database identitity for the library
@@ -146,15 +146,15 @@ end
 -- @param sessionid number containing session identifier from <code>getSessionId</code>
 -- @param revid number containing the revision id as retrieved from <code>getRevisionNumber</code>
 function getDatabaseId( host, port, sessionid, revid )
-	local url = "/databases?session-id=" .. sessionid .. "&revision-number=" .. revid
-	local response = http.get( host, port, url, nil, nil, nil )
-	local miid
+  local url = "/databases?session-id=" .. sessionid .. "&revision-number=" .. revid
+  local response = http.get( host, port, url, nil, nil, nil )
+  local miid
 
-	if response ~= nil then
-		miid = getAttributeAsInt( response.body, "miid")
-	end
+  if response ~= nil then
+    miid = getAttributeAsInt( response.body, "miid")
+  end
 
-	return miid
+  return miid
 end
 
 --- Gets a string item type from data
@@ -164,19 +164,19 @@ end
 -- @return pos number containing new position after reading string
 -- @return value string containing the string item that was read
 local function getStringItem( data, pos )
-	local len
+  local len
 
-	pos, len = bin.unpack(">I", data, pos)
+  pos, len = bin.unpack(">I", data, pos)
 
-	if ( len > 0 ) then
-		return bin.unpack( "A"..len, data, pos )
-	end
+  if ( len > 0 ) then
+    return bin.unpack( "A"..len, data, pos )
+  end
 
 end
 
 local itemFetcher = {}
 
-itemFetcher["mikd"] = function( data, pos )	return getStringItem( data, pos ) end
+itemFetcher["mikd"] = function( data, pos )  return getStringItem( data, pos ) end
 itemFetcher["miid"] = itemFetcher["mikd"]
 itemFetcher["minm"] = itemFetcher["mikd"]
 itemFetcher["asal"] = itemFetcher["mikd"]
@@ -190,22 +190,22 @@ itemFetcher["asar"] = itemFetcher["mikd"]
 -- <code>asal</code> and <code>asar</code> when available
 parseItem = function( data, len )
 
-	local pos, name, value = 1, nil, nil
-	local item = {}
+  local pos, name, value = 1, nil, nil
+  local item = {}
 
-	while( len - pos > 0 ) do
-		pos, name = bin.unpack( "A4", data, pos )
+  while( len - pos > 0 ) do
+    pos, name = bin.unpack( "A4", data, pos )
 
-		if itemFetcher[name] then
-			pos, item[name] = itemFetcher[name](data, pos )
-		else
-			stdnse.print_debug( string.format("No itemfetcher for: %s", name) )
-			break
-		end
+    if itemFetcher[name] then
+      pos, item[name] = itemFetcher[name](data, pos )
+    else
+      stdnse.print_debug( string.format("No itemfetcher for: %s", name) )
+      break
+    end
 
-	end
+  end
 
-	return item
+  return item
 
 end
 
@@ -218,124 +218,124 @@ end
 -- @param limit number containing the maximum amount of songs to return
 -- @return table containing the following structure [artist][album][songs]
 function getItems( host, port, sessionid, revid, dbid, limit )
-	local meta = "dmap.itemid,dmap.itemname,dmap.itemkind,daap.songalbum,daap.songartist"
-	local url = "/databases/" .. dbid .. "/items?type=music&meta=" .. meta .. "&session-id=" .. sessionid .. "&revision-number=" .. revid
-	local response = http.get( host, port, url, nil, nil, nil )
-	local item, data, pos, len
-	local items = {}
-	local limit = limit or -1
+  local meta = "dmap.itemid,dmap.itemname,dmap.itemkind,daap.songalbum,daap.songartist"
+  local url = "/databases/" .. dbid .. "/items?type=music&meta=" .. meta .. "&session-id=" .. sessionid .. "&revision-number=" .. revid
+  local response = http.get( host, port, url, nil, nil, nil )
+  local item, data, pos, len
+  local items = {}
+  local limit = limit or -1
 
-	if response == nil then
-		return
-	end
+  if response == nil then
+    return
+  end
 
-	-- get our position to the list of items
-	pos = string.find(response.body, "mlcl")
-	pos = pos + 4
+  -- get our position to the list of items
+  pos = string.find(response.body, "mlcl")
+  pos = pos + 4
 
-	while ( pos > 0 and pos + 8 < response.body:len() ) do
+  while ( pos > 0 and pos + 8 < response.body:len() ) do
 
-		-- find the next single item
-		pos = string.find(response.body, "mlit", pos)
-		pos = pos + 4
+    -- find the next single item
+    pos = string.find(response.body, "mlit", pos)
+    pos = pos + 4
 
-		pos, len = bin.unpack( ">I", response.body, pos )
+    pos, len = bin.unpack( ">I", response.body, pos )
 
-		if ( pos < response.body:len() and pos + len < response.body:len() ) then
-			pos, data = bin.unpack( "A" .. len, response.body, pos )
-		else
-			break
-		end
+    if ( pos < response.body:len() and pos + len < response.body:len() ) then
+      pos, data = bin.unpack( "A" .. len, response.body, pos )
+    else
+      break
+    end
 
-		-- parse a single item
-		item = parseItem( data, len )
+    -- parse a single item
+    item = parseItem( data, len )
 
-		local album = item.asal or "unknown"
-		local artist= item.asar or "unknown"
-		local song  = item.minm or ""
+    local album = item.asal or "unknown"
+    local artist= item.asar or "unknown"
+    local song  = item.minm or ""
 
-		if items[artist] == nil then
-			items[artist] = {}
-		end
+    if items[artist] == nil then
+      items[artist] = {}
+    end
 
-		if items[artist][album] == nil then
-			items[artist][album] = {}
-		end
+    if items[artist][album] == nil then
+      items[artist][album] = {}
+    end
 
-		if limit == 0 then
-			break
-		elseif limit > 0 then
-			limit = limit - 1
-		end
+    if limit == 0 then
+      break
+    elseif limit > 0 then
+      limit = limit - 1
+    end
 
-		table.insert( items[artist][album], song )
+    table.insert( items[artist][album], song )
 
-	end
+  end
 
 
-	return items
+  return items
 
 end
 
 
 action = function(host, port)
 
-	local limit = tonumber(nmap.registry.args.daap_item_limit) or 100
-	local libname = getLibraryName( host, port )
+  local limit = tonumber(nmap.registry.args.daap_item_limit) or 100
+  local libname = getLibraryName( host, port )
 
-	if libname == nil then
-		return
-	end
+  if libname == nil then
+    return
+  end
 
-	local sessionid = getSessionId( host, port )
+  local sessionid = getSessionId( host, port )
 
-	if sessionid == nil then
-		return stdnse.format_output(true, "Libname: " .. libname)
-	end
+  if sessionid == nil then
+    return stdnse.format_output(true, "Libname: " .. libname)
+  end
 
-	local revid = getRevisionNumber( host, port, sessionid )
+  local revid = getRevisionNumber( host, port, sessionid )
 
-	if revid == nil then
-		return stdnse.format_output(true, "Libname: " .. libname)
-	end
+  if revid == nil then
+    return stdnse.format_output(true, "Libname: " .. libname)
+  end
 
-	local dbid = getDatabaseId( host, port, sessionid, revid )
+  local dbid = getDatabaseId( host, port, sessionid, revid )
 
-	if dbid == nil then
-		return
-	end
+  if dbid == nil then
+    return
+  end
 
-	local items = getItems( host, port, sessionid, revid, dbid, limit )
+  local items = getItems( host, port, sessionid, revid, dbid, limit )
 
-	if items == nil then
-		return
-	end
+  if items == nil then
+    return
+  end
 
-	local albums, songs, artists, results = {}, {}, {}, {}
+  local albums, songs, artists, results = {}, {}, {}, {}
 
-	table.insert( results, libname )
+  table.insert( results, libname )
 
-	for artist, v in pairs(items) do
-		albums = {}
-		for album, v2 in pairs(v) do
-			songs = {}
-			for _, song in pairs( v2 ) do
-				table.insert( songs, song )
-			end
-			table.insert( albums, album )
-			table.insert( albums, songs )
-		end
-		table.insert( artists, artist )
-		table.insert( artists, albums )
-	end
+  for artist, v in pairs(items) do
+    albums = {}
+    for album, v2 in pairs(v) do
+      songs = {}
+      for _, song in pairs( v2 ) do
+        table.insert( songs, song )
+      end
+      table.insert( albums, album )
+      table.insert( albums, songs )
+    end
+    table.insert( artists, artist )
+    table.insert( artists, albums )
+  end
 
-	table.insert( results, artists )
-	local output = stdnse.format_output( true, results )
+  table.insert( results, artists )
+  local output = stdnse.format_output( true, results )
 
-	if limit > 0 then
-		output = output .. string.format("\n\nOutput limited to %d items", limit )
-	end
+  if limit > 0 then
+    output = output .. string.format("\n\nOutput limited to %d items", limit )
+  end
 
-	return output
+  return output
 
 end

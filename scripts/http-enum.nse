@@ -87,75 +87,75 @@ local common_ext = { 'php', 'asp', 'aspx', 'jsp', 'pl', 'cgi', 'css', 'js', 'htm
 --
 -- At the time of the writing, these were all decided by me (Ron Bowes).
 local function get_variations(filename)
-	local variations = {}
+  local variations = {}
 
-	if(filename == nil or filename == "" or filename == "/") then
-		return {}
-	end
+  if(filename == nil or filename == "" or filename == "/") then
+    return {}
+  end
 
-	local is_directory = (string.sub(filename, #filename, #filename) == "/")
-	if(is_directory) then
-		filename = string.sub(filename, 1, #filename - 1)
-	end
+  local is_directory = (string.sub(filename, #filename, #filename) == "/")
+  if(is_directory) then
+    filename = string.sub(filename, 1, #filename - 1)
+  end
 
-	-- Try some extensions
-	table.insert(variations, filename .. ".bak")
-	table.insert(variations, filename .. ".1")
-	table.insert(variations, filename .. ".tmp")
+  -- Try some extensions
+  table.insert(variations, filename .. ".bak")
+  table.insert(variations, filename .. ".1")
+  table.insert(variations, filename .. ".tmp")
 
-	-- Strip off the extension, if it has one, and try it all again.
-	-- For now, just look for three-character extensions.
-	if(string.sub(filename, #filename - 3, #filename - 3) == '.') then
-		local bare = string.sub(filename, 1, #filename - 4)
-		local extension = string.sub(filename, #filename - 3)
+  -- Strip off the extension, if it has one, and try it all again.
+  -- For now, just look for three-character extensions.
+  if(string.sub(filename, #filename - 3, #filename - 3) == '.') then
+    local bare = string.sub(filename, 1, #filename - 4)
+    local extension = string.sub(filename, #filename - 3)
 
-		table.insert(variations, bare .. ".bak")
-		table.insert(variations, bare .. ".1")
-		table.insert(variations, bare .. ".tmp")
-		table.insert(variations, bare .. "_1" .. extension)
-		table.insert(variations, bare .. "2" .. extension)
-	end
-
-
-	-- Some Windowsy things
-	local onlyname = string.sub(filename, 2)
-	-- If the name contains a '/', forget it
-	if(string.find(onlyname, "/") == nil) then
-		table.insert(variations, "/Copy of " .. onlyname)
-		table.insert(variations, "/Copy (2) of " .. onlyname)
-		table.insert(variations, "/Copy of Copy of " .. onlyname)
-
-		-- Word/Excel/etc replace the first two characters with '~$', it seems
-		table.insert(variations, "/~$" .. string.sub(filename, 4))
-	end
-
-	-- Some editors add a '~'
-	table.insert(variations, filename .. "~")
-
-	-- Try some directories
-	table.insert(variations, "/bak" .. filename)
-	table.insert(variations, "/backup" .. filename)
-	table.insert(variations, "/backups" .. filename)
-	table.insert(variations, "/beta" .. filename)
-	table.insert(variations, "/test" .. filename)
-
-	-- If it's a directory, add a '/' after every entry
-	if(is_directory) then
-		for i, v in ipairs(variations) do
-			variations[i] = v .. "/"
-		end
-	end
-
-	-- Some compressed formats (we don't want a trailing '/' on these, so they go after the loop)
-	table.insert(variations, filename .. ".zip")
-	table.insert(variations, filename .. ".tar")
-	table.insert(variations, filename .. ".tar.gz")
-	table.insert(variations, filename .. ".tgz")
-	table.insert(variations, filename .. ".tar.bz2")
+    table.insert(variations, bare .. ".bak")
+    table.insert(variations, bare .. ".1")
+    table.insert(variations, bare .. ".tmp")
+    table.insert(variations, bare .. "_1" .. extension)
+    table.insert(variations, bare .. "2" .. extension)
+  end
 
 
+  -- Some Windowsy things
+  local onlyname = string.sub(filename, 2)
+  -- If the name contains a '/', forget it
+  if(string.find(onlyname, "/") == nil) then
+    table.insert(variations, "/Copy of " .. onlyname)
+    table.insert(variations, "/Copy (2) of " .. onlyname)
+    table.insert(variations, "/Copy of Copy of " .. onlyname)
 
-	return variations
+    -- Word/Excel/etc replace the first two characters with '~$', it seems
+    table.insert(variations, "/~$" .. string.sub(filename, 4))
+  end
+
+  -- Some editors add a '~'
+  table.insert(variations, filename .. "~")
+
+  -- Try some directories
+  table.insert(variations, "/bak" .. filename)
+  table.insert(variations, "/backup" .. filename)
+  table.insert(variations, "/backups" .. filename)
+  table.insert(variations, "/beta" .. filename)
+  table.insert(variations, "/test" .. filename)
+
+  -- If it's a directory, add a '/' after every entry
+  if(is_directory) then
+    for i, v in ipairs(variations) do
+      variations[i] = v .. "/"
+    end
+  end
+
+  -- Some compressed formats (we don't want a trailing '/' on these, so they go after the loop)
+  table.insert(variations, filename .. ".zip")
+  table.insert(variations, filename .. ".tar")
+  table.insert(variations, filename .. ".tar.gz")
+  table.insert(variations, filename .. ".tgz")
+  table.insert(variations, filename .. ".tar.bz2")
+
+
+
+  return variations
 end
 
 ---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. If category
@@ -163,227 +163,227 @@ end
 --
 --@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>.
 local function get_fingerprints(fingerprint_file, category)
-	local entries  = {}
-	local i
-	local total_count = 0 -- Used for 'limit'
+  local entries  = {}
+  local i
+  local total_count = 0 -- Used for 'limit'
 
-	-- Check if we've already read the file
-	-- There might be a race condition here, where multiple scripts will read the file and set this variable, but the impact
-	-- of that would be minimal (and definitely isn't security)
-	if(nmap.registry.http_fingerprints ~= nil) then
-		stdnse.print_debug(1, "http-enum: Using cached HTTP fingerprints")
-		return nmap.registry.http_fingerprints
-	end
+  -- Check if we've already read the file
+  -- There might be a race condition here, where multiple scripts will read the file and set this variable, but the impact
+  -- of that would be minimal (and definitely isn't security)
+  if(nmap.registry.http_fingerprints ~= nil) then
+    stdnse.print_debug(1, "http-enum: Using cached HTTP fingerprints")
+    return nmap.registry.http_fingerprints
+  end
 
-	-- Try and find the file; if it isn't in Nmap's directories, take it as a direct path
-	local filename_full = nmap.fetchfile('nselib/data/' .. fingerprint_file)
-	if(not(filename_full)) then
-		filename_full = fingerprint_file
-	end
+  -- Try and find the file; if it isn't in Nmap's directories, take it as a direct path
+  local filename_full = nmap.fetchfile('nselib/data/' .. fingerprint_file)
+  if(not(filename_full)) then
+    filename_full = fingerprint_file
+  end
 
-	stdnse.print_debug("http-enum: Loading fingerprint database: %s", filename_full)
-	local env = setmetatable({fingerprints = {}}, {__index = _G})
-	local file = loadfile(filename_full, "t", env)
-	if(not(file)) then
-		stdnse.print_debug("http-enum: Couldn't load configuration file: %s", filename_full)
-		return false, "Couldn't load fingerprint file: " .. filename_full
-	end
+  stdnse.print_debug("http-enum: Loading fingerprint database: %s", filename_full)
+  local env = setmetatable({fingerprints = {}}, {__index = _G})
+  local file = loadfile(filename_full, "t", env)
+  if(not(file)) then
+    stdnse.print_debug("http-enum: Couldn't load configuration file: %s", filename_full)
+    return false, "Couldn't load fingerprint file: " .. filename_full
+  end
 
-	file()
+  file()
 
-	local fingerprints = env.fingerprints
+  local fingerprints = env.fingerprints
 
-	-- Sanity check our file to ensure that all the fields were good. If any are bad, we
-	-- stop and don't load the file.
-	for i, fingerprint in pairs(fingerprints) do
-		-- Make sure we have a valid index
-		if(type(i) ~= 'number') then
-			return false, "The 'fingerprints' table is an array, not a table; all indexes should be numeric"
-		end
+  -- Sanity check our file to ensure that all the fields were good. If any are bad, we
+  -- stop and don't load the file.
+  for i, fingerprint in pairs(fingerprints) do
+    -- Make sure we have a valid index
+    if(type(i) ~= 'number') then
+      return false, "The 'fingerprints' table is an array, not a table; all indexes should be numeric"
+    end
 
-		-- Make sure they have either a string or a table of probes
-		if(not(fingerprint.probes) or
-			(type(fingerprint.probes) ~= 'table' and type(fingerprint.probes) ~= 'string') or
-			(type(fingerprint.probes) == 'table' and #fingerprint.probes == 0)) then
-			return false, "Invalid path found for fingerprint " .. i
-		end
+    -- Make sure they have either a string or a table of probes
+    if(not(fingerprint.probes) or
+      (type(fingerprint.probes) ~= 'table' and type(fingerprint.probes) ~= 'string') or
+      (type(fingerprint.probes) == 'table' and #fingerprint.probes == 0)) then
+      return false, "Invalid path found for fingerprint " .. i
+    end
 
-		-- Make sure fingerprint.path is a table
-		if(type(fingerprint.probes) == 'string') then
-			fingerprint.probes = {fingerprint.probes}
-		end
+    -- Make sure fingerprint.path is a table
+    if(type(fingerprint.probes) == 'string') then
+      fingerprint.probes = {fingerprint.probes}
+    end
 
-		-- Make sure the elements in the probes array are strings or arrays
-		for i, probe in pairs(fingerprint.probes) do
-			-- Make sure we have a valid index
-			if(type(i) ~= 'number') then
-				return false, "The 'probes' table is an array, not a table; all indexes should be numeric"
-			end
+    -- Make sure the elements in the probes array are strings or arrays
+    for i, probe in pairs(fingerprint.probes) do
+      -- Make sure we have a valid index
+      if(type(i) ~= 'number') then
+        return false, "The 'probes' table is an array, not a table; all indexes should be numeric"
+      end
 
-			-- Convert the probe to a table if it's a string
-			if(type(probe) == 'string') then
-				fingerprint.probes[i] = {path=fingerprint.probes[i]}
-				probe = fingerprint.probes[i]
-			end
+      -- Convert the probe to a table if it's a string
+      if(type(probe) == 'string') then
+        fingerprint.probes[i] = {path=fingerprint.probes[i]}
+        probe = fingerprint.probes[i]
+      end
 
-			-- Make sure the probes table has a 'path'
-			if(not(probe['path'])) then
-				return false, "The 'probes' table requires each element to have a 'path'."
-			end
+      -- Make sure the probes table has a 'path'
+      if(not(probe['path'])) then
+        return false, "The 'probes' table requires each element to have a 'path'."
+      end
 
-			-- If they didn't set a method, set it to 'GET'
-			if(not(probe['method'])) then
-				probe['method'] = 'GET'
-			end
+      -- If they didn't set a method, set it to 'GET'
+      if(not(probe['method'])) then
+        probe['method'] = 'GET'
+      end
 
-			-- Make sure the method's a string
-			if(type(probe['method']) ~= 'string') then
-				return false, "The 'method' in the probes file has to be a string"
-			end
-		end
+      -- Make sure the method's a string
+      if(type(probe['method']) ~= 'string') then
+        return false, "The 'method' in the probes file has to be a string"
+      end
+    end
 
-		-- Ensure that matches is an array
-		if(type(fingerprint.matches) ~= 'table') then
-			return false, "'matches' field has to be a table"
-		end
+    -- Ensure that matches is an array
+    if(type(fingerprint.matches) ~= 'table') then
+      return false, "'matches' field has to be a table"
+    end
 
-		-- Loop through the matches
-		for i, match in pairs(fingerprint.matches) do
-			-- Make sure we have a valid index
-			if(type(i) ~= 'number') then
-				return false, "The 'matches' table is an array, not a table; all indexes should be numeric"
-			end
+    -- Loop through the matches
+    for i, match in pairs(fingerprint.matches) do
+      -- Make sure we have a valid index
+      if(type(i) ~= 'number') then
+        return false, "The 'matches' table is an array, not a table; all indexes should be numeric"
+      end
 
-			-- Check that every element in the table is an array
-			if(type(match) ~= 'table') then
-				return false, "Every element of 'matches' field has to be a table"
-			end
+      -- Check that every element in the table is an array
+      if(type(match) ~= 'table') then
+        return false, "Every element of 'matches' field has to be a table"
+      end
 
-			-- Check the output field
-			if(match['output'] == nil or type(match['output']) ~= 'string') then
-				return false, "The 'output' field in 'matches' has to be present and a string"
-			end
+      -- Check the output field
+      if(match['output'] == nil or type(match['output']) ~= 'string') then
+        return false, "The 'output' field in 'matches' has to be present and a string"
+      end
 
-			-- Check the 'match' and 'dontmatch' fields, if present
-			if((match['match'] and type(match['match']) ~= 'string') or (match['dontmatch'] and type(match['dontmatch']) ~= 'string')) then
-				return false, "The 'match' and 'dontmatch' fields in 'matches' have to be strings, if they exist"
-			end
+      -- Check the 'match' and 'dontmatch' fields, if present
+      if((match['match'] and type(match['match']) ~= 'string') or (match['dontmatch'] and type(match['dontmatch']) ~= 'string')) then
+        return false, "The 'match' and 'dontmatch' fields in 'matches' have to be strings, if they exist"
+      end
 
-			-- Change blank 'match' strings to '.*' so they match everything
-			if(not(match['match']) or match['match'] == '') then
-				match['match'] = '(.*)'
-			end
-		end
+      -- Change blank 'match' strings to '.*' so they match everything
+      if(not(match['match']) or match['match'] == '') then
+        match['match'] = '(.*)'
+      end
+    end
 
-		-- Make sure the severity is an integer between 1 and 4. Default it to 1.
-		if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
-			return false, "The 'severity' field has to be an integer between 1 and 4"
-		else
-			fingerprint.severity = 1
-		end
+    -- Make sure the severity is an integer between 1 and 4. Default it to 1.
+    if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
+      return false, "The 'severity' field has to be an integer between 1 and 4"
+    else
+      fingerprint.severity = 1
+    end
 
-		-- Make sure ignore_404 is a boolean. Default it to false.
-		if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
-			return false, "The 'ignore_404' field has to be a boolean"
-		else
-			fingerprint.ignore_404 = false
-		end
-	end
+    -- Make sure ignore_404 is a boolean. Default it to false.
+    if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
+      return false, "The 'ignore_404' field has to be a boolean"
+    else
+      fingerprint.ignore_404 = false
+    end
+  end
 
-	-- Make sure we have some fingerprints fingerprints
-	if(#fingerprints == 0) then
-		return false, "No fingerprints were loaded"
-	end
+  -- Make sure we have some fingerprints fingerprints
+  if(#fingerprints == 0) then
+    return false, "No fingerprints were loaded"
+  end
 
-	-- If the user wanted to filter by category, do it
-	if(category) then
-		local filtered_fingerprints = {}
-		for _, fingerprint in pairs(fingerprints) do
-			if(fingerprint.category == category) then
-				table.insert(filtered_fingerprints, fingerprint)
-			end
-		end
+  -- If the user wanted to filter by category, do it
+  if(category) then
+    local filtered_fingerprints = {}
+    for _, fingerprint in pairs(fingerprints) do
+      if(fingerprint.category == category) then
+        table.insert(filtered_fingerprints, fingerprint)
+      end
+    end
 
-		fingerprints = filtered_fingerprints
+    fingerprints = filtered_fingerprints
 
-		-- Make sure we still have fingerprints after the category filter
-		if(#fingerprints == 0) then
-			return false, "No fingerprints matched the given category (" .. category .. ")"
-		end
-	end
+    -- Make sure we still have fingerprints after the category filter
+    if(#fingerprints == 0) then
+      return false, "No fingerprints matched the given category (" .. category .. ")"
+    end
+  end
 
 
---	-- If the user wants to try variations, add them
---	if(try_variations) then
---		-- Get a list of all variations for this directory
---		local variations = get_variations(entry['checkdir'])
---
---		-- Make a copy of the entry for each of them
---		for _, variation in ipairs(variations) do
---			new_entry = {}
---			for k, v in pairs(entry) do
---				new_entry[k] = v
---			end
---			new_entry['checkdesc'] = new_entry['checkdesc'] .. " (variation)"
---			new_entry['checkdir'] = variation
---			table.insert(entries, new_entry)
---			count = count + 1
---		end
---	end
+  --	-- If the user wants to try variations, add them
+  --  if(try_variations) then
+  --    -- Get a list of all variations for this directory
+  --    local variations = get_variations(entry['checkdir'])
+  --
+  --    -- Make a copy of the entry for each of them
+  --    for _, variation in ipairs(variations) do
+  --      new_entry = {}
+  --      for k, v in pairs(entry) do
+  --        new_entry[k] = v
+  --      end
+  --      new_entry['checkdesc'] = new_entry['checkdesc'] .. " (variation)"
+  --      new_entry['checkdir'] = variation
+  --      table.insert(entries, new_entry)
+  --      count = count + 1
+  --    end
+  --  end
 
-	-- Cache the fingerprints for other scripts, so we aren't reading the files every time
---	nmap.registry.http_fingerprints = fingerprints
+  -- Cache the fingerprints for other scripts, so we aren't reading the files every time
+  --  nmap.registry.http_fingerprints = fingerprints
 
-	return true, fingerprints
+  return true, fingerprints
 end
 
 action = function(host, port)
-	local response = {}
+  local response = {}
 
-	-- Read the script-args, keeping the old ones for reverse compatibility
-	local basepath         = stdnse.get_script_args({'http-enum.basepath',        'path'})         or '/'
-	local displayall       = stdnse.get_script_args({'http-enum.displayall',      'displayall'})   or false
-	local fingerprint_file = stdnse.get_script_args({'http-enum.fingerprintfile', 'fingerprints'}) or 'http-fingerprints.lua'
-	local category         = stdnse.get_script_args('http-enum.category')
---	local try_variations   = stdnse.get_script_args({'http-enum.tryvariations',   'variations'})   or false
---	local limit            = tonumber(stdnse.get_script_args({'http-enum.limit', 'limit'})) or -1
+  -- Read the script-args, keeping the old ones for reverse compatibility
+  local basepath         = stdnse.get_script_args({'http-enum.basepath',        'path'})         or '/'
+  local displayall       = stdnse.get_script_args({'http-enum.displayall',      'displayall'})   or false
+  local fingerprint_file = stdnse.get_script_args({'http-enum.fingerprintfile', 'fingerprints'}) or 'http-fingerprints.lua'
+  local category         = stdnse.get_script_args('http-enum.category')
+  --  local try_variations   = stdnse.get_script_args({'http-enum.tryvariations',   'variations'})   or false
+  --  local limit            = tonumber(stdnse.get_script_args({'http-enum.limit', 'limit'})) or -1
 
-	-- Add URLs from external files
-	local status, fingerprints = get_fingerprints(fingerprint_file, category)
-	if(not(status)) then
-		return stdnse.format_output(false, fingerprints)
-	end
-	stdnse.print_debug(1, "http-enum: Loaded %d fingerprints", #fingerprints)
+  -- Add URLs from external files
+  local status, fingerprints = get_fingerprints(fingerprint_file, category)
+  if(not(status)) then
+    return stdnse.format_output(false, fingerprints)
+  end
+  stdnse.print_debug(1, "http-enum: Loaded %d fingerprints", #fingerprints)
 
-	-- Check what response we get for a 404
-	local result, result_404, known_404 = http.identify_404(host, port)
-	if(result == false) then
-		return stdnse.format_output(false, result_404)
-	end
+  -- Check what response we get for a 404
+  local result, result_404, known_404 = http.identify_404(host, port)
+  if(result == false) then
+    return stdnse.format_output(false, result_404)
+  end
 
-	-- Queue up the checks
-	local all = {}
+  -- Queue up the checks
+  local all = {}
 
-	-- Remove trailing slash, if it exists
-	if(#basepath > 1 and string.sub(basepath, #basepath, #basepath) == '/') then
-		basepath = string.sub(basepath, 1, #basepath - 1)
-	end
+  -- Remove trailing slash, if it exists
+  if(#basepath > 1 and string.sub(basepath, #basepath, #basepath) == '/') then
+    basepath = string.sub(basepath, 1, #basepath - 1)
+  end
 
-	-- Add a leading slash, if it doesn't exist
-	if(#basepath <= 1) then
-		basepath = ''
-	else
-		if(string.sub(basepath, 1, 1) ~= '/') then
-			basepath = '/' .. basepath
-		end
-	end
+  -- Add a leading slash, if it doesn't exist
+  if(#basepath <= 1) then
+    basepath = ''
+  else
+    if(string.sub(basepath, 1, 1) ~= '/') then
+      basepath = '/' .. basepath
+    end
+  end
 
   local results_nopipeline = {}
-	-- Loop through the fingerprints
-	stdnse.print_debug(1, "http-enum: Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
-	for i = 1, #fingerprints, 1 do
-		-- Add each path. The order very much matters here.
-		for j = 1, #fingerprints[i].probes, 1 do
+  -- Loop through the fingerprints
+  stdnse.print_debug(1, "http-enum: Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
+  for i = 1, #fingerprints, 1 do
+    -- Add each path. The order very much matters here.
+    for j = 1, #fingerprints[i].probes, 1 do
       if fingerprints[i].probes[j].nopipeline then
         local res = http.generic_request(host, port, fingerprints[i].probes[j].method or 'GET', basepath .. fingerprints[i].probes[j].path, nil)
         if res.status then
@@ -395,25 +395,25 @@ action = function(host, port)
         all = http.pipeline_add(basepath .. fingerprints[i].probes[j].path, nil, all, fingerprints[i].probes[j].method or 'GET')
       end
     end
-	end
+  end
 
-	-- Perform all the requests.
-	local results = http.pipeline_go(host, port, all, nil)
+  -- Perform all the requests.
+  local results = http.pipeline_go(host, port, all, nil)
 
-	-- Check for http.pipeline error
-	if(results == nil) then
-		stdnse.print_debug(1, "http-enum: http.pipeline_go encountered an error")
-		return stdnse.format_output(false, "http.pipeline_go encountered an error")
-	end
+  -- Check for http.pipeline error
+  if(results == nil) then
+    stdnse.print_debug(1, "http-enum: http.pipeline_go encountered an error")
+    return stdnse.format_output(false, "http.pipeline_go encountered an error")
+  end
 
-	-- Loop through the fingerprints. Note that for each fingerprint, we may have multiple results
-	local j = 1
+  -- Loop through the fingerprints. Note that for each fingerprint, we may have multiple results
+  local j = 1
   local j_nopipeline = 1
-	for i, fingerprint in ipairs(fingerprints) do
+  for i, fingerprint in ipairs(fingerprints) do
 
-		-- Loop through the paths for each fingerprint in the same order we did the requests. Each of these will
-		-- have one result, so increment the result value at each iteration
-		for _, probe in ipairs(fingerprint.probes) do
+    -- Loop through the paths for each fingerprint in the same order we did the requests. Each of these will
+    -- have one result, so increment the result value at each iteration
+    for _, probe in ipairs(fingerprint.probes) do
       local result
       if probe.nopipeline then
         result = results_nopipeline[j_nopipeline]
@@ -422,66 +422,66 @@ action = function(host, port)
         result = results[j]
         j = j + 1
       end
-			if(result) then
-				local path = basepath .. probe['path']
-				local good = true
-				local output = nil
-				-- Unless this check said to ignore 404 messages, check if we got a valid page back using a known 404 message.
-				if(fingerprint.ignore_404 ~= true and not(http.page_exists(result, result_404, known_404, path, displayall))) then
-					good = false
-				else
-					-- Loop through our matches table and see if anything matches our result
-					for _, match in ipairs(fingerprint.matches) do
-						if(match.match) then
-							local result, matches = http.response_contains(result, match.match)
-							if(result) then
-								output = match.output
-								good = true
-								for k, value in ipairs(matches) do
-									output = string.gsub(output, '\\' .. k, matches[k])
-									end
-							end
-						else
-							output = match.output
-						end
+      if(result) then
+        local path = basepath .. probe['path']
+        local good = true
+        local output = nil
+        -- Unless this check said to ignore 404 messages, check if we got a valid page back using a known 404 message.
+        if(fingerprint.ignore_404 ~= true and not(http.page_exists(result, result_404, known_404, path, displayall))) then
+          good = false
+        else
+          -- Loop through our matches table and see if anything matches our result
+          for _, match in ipairs(fingerprint.matches) do
+            if(match.match) then
+              local result, matches = http.response_contains(result, match.match)
+              if(result) then
+                output = match.output
+                good = true
+                for k, value in ipairs(matches) do
+                  output = string.gsub(output, '\\' .. k, matches[k])
+                end
+              end
+            else
+              output = match.output
+            end
 
-						-- If nothing matched, turn off the match
-						if(not(output)) then
-							good = false
-						end
+            -- If nothing matched, turn off the match
+            if(not(output)) then
+              good = false
+            end
 
-						-- If we match the 'dontmatch' line, we're not getting a match
-						if(match.dontmatch and match.dontmatch ~= '' and http.response_contains(result, match.dontmatch)) then
-							output = nil
-							good = false
-						end
+            -- If we match the 'dontmatch' line, we're not getting a match
+            if(match.dontmatch and match.dontmatch ~= '' and http.response_contains(result, match.dontmatch)) then
+              output = nil
+              good = false
+            end
 
-						-- Break the loop if we found it
-						if(output) then
-							break
-						end
-					end
-				end
+            -- Break the loop if we found it
+            if(output) then
+              break
+            end
+          end
+        end
 
-				if(good) then
-					-- Save the path in the registry
-					http.save_path(stdnse.get_hostname(host), port.number, path, result.status)
+        if(good) then
+          -- Save the path in the registry
+          http.save_path(stdnse.get_hostname(host), port.number, path, result.status)
 
-					-- Add the path to the output
-					output = string.format("%s: %s", path, output)
+          -- Add the path to the output
+          output = string.format("%s: %s", path, output)
 
-					-- Build the status code, if it isn't a 200
-					if(result.status ~= 200) then
-						output = output .. " (" .. http.get_status_string(result) .. ")"
-					end
+          -- Build the status code, if it isn't a 200
+          if(result.status ~= 200) then
+            output = output .. " (" .. http.get_status_string(result) .. ")"
+          end
 
-					stdnse.print_debug(1, "Found a valid page! %s", output)
+          stdnse.print_debug(1, "Found a valid page! %s", output)
 
-					table.insert(response, output)
-				end
-			end
-		end
-	end
+          table.insert(response, output)
+        end
+      end
+    end
+  end
 
-	return stdnse.format_output(true, response)
+  return stdnse.format_output(true, response)
 end
