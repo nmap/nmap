@@ -325,9 +325,9 @@ local function check_login(hostinfo, username, password, logintype)
   local status, err
   if(#password == 32 or #password == 64 or #password == 65) then
     -- It's a hash (note: we always use NTLM hashes)
-    status, err	  = smb.start_session(smbstate, smb.get_overrides(username, domain, nil, password, "ntlm"), false)
+    status, err = smb.start_session(smbstate, smb.get_overrides(username, domain, nil, password, "ntlm"), false)
   else
-    status, err	  = smb.start_session(smbstate, smb.get_overrides(username, domain, password, nil, logintype), false)
+    status, err = smb.start_session(smbstate, smb.get_overrides(username, domain, password, nil, logintype), false)
   end
 
   if(status == true) then
@@ -1080,7 +1080,7 @@ end
 
 --_G.TRACEBACK = TRACEBACK or {}
 action = function(host)
-  --	TRACEBACK[coroutine.running()] = true;
+  -- TRACEBACK[coroutine.running()] = true;
 
   local status, result
   local response = {}

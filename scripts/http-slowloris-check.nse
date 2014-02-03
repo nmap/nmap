@@ -151,7 +151,7 @@ so, it starves the http server's resources causing Denial Of Service.
   -- if second connection died 10 or more seconds after the first
   -- it means that sending additional data prolonged the connection's time
   -- and the server is vulnerable to slowloris attack
-  if diff >= 10	then
+  if diff >= 10 then
     stdnse.print_debug("Difference is greater or equal to 10 seconds.")
     slowloris.state = vulns.STATE.VULN
   end

@@ -41,7 +41,7 @@ action = function()
   local BROADCAST_ADDR = "255.255.255.255"
 
   local status, result = netbios.nbquery( { ip = BROADCAST_ADDR }, NBNAME, { multiple = true })
-  if ( not(status) ) then	return end
+  if ( not(status) ) then return end
 
   local outtab = tab.new(3)
   tab.addrow(outtab, 'ip', 'server', 'domain')

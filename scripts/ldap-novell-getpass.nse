@@ -29,9 +29,9 @@ administrative account.
 --
 -- @usage
 -- nmap -p 636 --script ldap-novell-getpass --script-args \
---	'ldap-novell-getpass.username="CN=admin,O=cqure", \
--- 	ldap-novell-getpass.password=pass1234, \
--- 	ldap-novell-getpass.account="CN=paka,OU=hr,O=cqure"'
+-- 'ldap-novell-getpass.username="CN=admin,O=cqure", \
+-- ldap-novell-getpass.password=pass1234, \
+-- ldap-novell-getpass.account="CN=paka,OU=hr,O=cqure"'
 --
 -- @output
 -- PORT    STATE SERVICE REASON
@@ -67,7 +67,7 @@ function action(host,port)
     -- do some basic account validation
     if ( not(account:match("^[Cc][Nn]=.*,") ) ) then
       return "\n  ERROR: The account argument should be specified as:\n" ..
-        "  	\"CN=name,OU=orgunit,O=org\""
+        "    \"CN=name,OU=orgunit,O=org\""
     end
   end
 
@@ -106,7 +106,7 @@ function action(host,port)
   data = ldap.encode( { _ldaptype = '30', bin.pack("H", "020102") .. data } )
 
   status = socket:send(data)
-  if ( not(status) ) then	return "ERROR: Failed to send request" end
+  if ( not(status) ) then return "ERROR: Failed to send request" end
 
   status, data = socket:receive()
   if ( not(status) ) then return data end

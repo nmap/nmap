@@ -24,8 +24,8 @@ Attempts to discover valid IBM Lotus Domino users and download their ID files by
 --
 -- @args domino-id.path the location to which any retrieved ID files are stored
 -- @args domino-id.username the name of the user from which to retrieve the ID.
---		 If this parameter is not specified, the unpwdb library will be used to
---		 brute force names of users.
+--                          If this parameter is not specified, the unpwdb
+--                          library will be used to brute force names of users.
 --
 -- For more information see:
 -- http://www-01.ibm.com/support/docview.wss?rs=463&uid=swg21248026

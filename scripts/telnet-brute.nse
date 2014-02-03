@@ -102,11 +102,11 @@ end
 -- @return Verdict (true or false)
 local is_login_success = function (str)
   pcreptn.login_success = pcreptn.login_success
-  or pcre.new("[/>%$#]\\s*$"			-- general prompt
-    .. "|^Last login\\s*:"			-- linux telnetd
-    .. "|^(?-i:[A-Z]):\\\\"			-- Windows telnet
+  or pcre.new("[/>%$#]\\s*$" -- general prompt
+    .. "|^Last login\\s*:" -- linux telnetd
+    .. "|^(?-i:[A-Z]):\\\\" -- Windows telnet
     .. "|Main(?:\\s|\\x1B\\[\\d+;\\d+H)Menu\\b" -- Netgear RM356
-    .. "|^Enter Terminal Emulation:\\s*$",	-- Hummingbird telnetd
+    .. "|^Enter Terminal Emulation:\\s*$", -- Hummingbird telnetd
   pcre.flags().CASELESS, "C")
   return pcreptn.login_success:match(str)
 end

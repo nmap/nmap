@@ -119,7 +119,7 @@ local function postaction()
     if #siteids[id] > 1 then
       local str = id .. ' used by:'
       for _, site in ipairs(siteids[id]) do
-        str = str .. '\n	' .. site
+        str = str .. '\n  ' .. site
       end
       table.insert(output, str)
     end

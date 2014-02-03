@@ -42,7 +42,7 @@ portrule = shortport.port_or_service(3306, "mysql")
 action = function( host, port )
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   local result, response, dbs = {}, nil, {}
   local users = {}

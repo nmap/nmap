@@ -39,7 +39,7 @@ end
 action = function(host, port)
   local helper = ndmp.Helper:new(host, port)
   local status, err = helper:connect()
-  if ( not(status) ) then	return fail("Failed to connect to server") end
+  if ( not(status) ) then return fail("Failed to connect to server") end
 
   local hi, si
   status, hi = helper:getHostInfo()

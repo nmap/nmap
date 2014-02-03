@@ -79,7 +79,7 @@ end
 action = function(host, port)
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   local data, snmpoid = nil, "1.3.6.1.4.1.77.1.2.27"
   local shares = {}

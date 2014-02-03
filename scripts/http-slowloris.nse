@@ -101,7 +101,7 @@ local function set_parameters()
 end
 
 local function do_half_http(host, port, obj)
-	local condvar = nmap.condvar(obj)
+  local condvar = nmap.condvar(obj)
 
   if StopAll then
     condvar("signal")

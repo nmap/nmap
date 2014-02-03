@@ -77,10 +77,10 @@ action = function( host, port )
   end
 
   status, data = helper:Login(user, pass, nil, db)
-  if ( not(status) ) then	return stdnse.format_output(status, data) end
+  if ( not(status) ) then return stdnse.format_output(status, data) end
 
   status, data = helper:Query(query)
-  if ( not(status) ) then	return stdnse.format_output(status, data) end
+  if ( not(status) ) then return stdnse.format_output(status, data) end
 
   for _, rs in ipairs(data) do
     table.insert( result, { "User: " .. user, "Database: " .. db, ( "Query: \"%s\"" ):format( rs.query ), name="Information" } )

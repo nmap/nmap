@@ -37,8 +37,8 @@ categories = {"brute", "intrusive", "external"}
 
 portrule = shortport.port_or_service({8123,3128,8000,8080},{'polipo','squid-http','http-proxy'})
 
-local arg_url 		= stdnse.get_script_args(SCRIPT_NAME .. '.url') or 'http://scanme.nmap.org/'
-local arg_method	= stdnse.get_script_args(SCRIPT_NAME .. '.method') or "HEAD"
+local arg_url = stdnse.get_script_args(SCRIPT_NAME .. '.url') or 'http://scanme.nmap.org/'
+local arg_method = stdnse.get_script_args(SCRIPT_NAME .. '.method') or "HEAD"
 
 Driver = {
 

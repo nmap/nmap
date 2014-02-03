@@ -148,17 +148,17 @@ action = function(host, port)
       table.insert(failure_urls, r.url)
     elseif ( r.status == 200 ) then
       table.insert(success_urls, r.url)
-      --		elseif ( r.status == 401 ) then
-      --			table.insert(auth_urls, r.url )
+      -- elseif ( r.status == 401 ) then
+      --   table.insert(auth_urls, r.url )
     end
   end
 
   local result = { success_urls, failure_urls }
 
-  --	-- insert our URLs requiring auth ONLY if not ALL urls returned auth
-  --	if (#result > #auth_urls) then
-  --		table.insert(result, 2, auth_urls)
-  --	end
+  -- insert our URLs requiring auth ONLY if not ALL urls returned auth
+  --if (#result > #auth_urls) then
+  --  table.insert(result, 2, auth_urls)
+  --end
 
   return stdnse.format_output(true, result )
 end

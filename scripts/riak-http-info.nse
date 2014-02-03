@@ -93,13 +93,13 @@ local filter = {
 local order = {
   "nodename", "sys_system_architecture", "storage_backend", "mem_total",
   "crypto_version", "skerl_version", "os_mon_version", "basho_stats_version",
-  "lager_version", "cluster_info_version",	"luke_version",	"sasl_version",
+  "lager_version", "cluster_info_version", "luke_version", "sasl_version",
   "sys_driver_version", "bitcask_version", "riak_search_version",
-  "kernel_version", "stdlib_version",	"basho_metrics_version",
-  "webmachine_version", "public_key_version",	"riak_core_version",
+  "kernel_version", "stdlib_version", "basho_metrics_version",
+  "webmachine_version", "public_key_version", "riak_core_version",
   "riak_pipe_version", "runtime_tools_version", "ssl_version",
-  "mochiweb_version",	"erlang_js_version", "riak_kv_version",
-  "luwak_version", "merge_index_version",	"inets_version", "riak_sysmon_version"
+  "mochiweb_version", "erlang_js_version", "riak_kv_version",
+  "luwak_version", "merge_index_version", "inets_version", "riak_sysmon_version"
 }
 
 

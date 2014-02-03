@@ -19,7 +19,7 @@ See nselib/data/jdwp-class/README for more.
 ---
 -- @usage nmap -sT <target> -p <port> --script=+jdwp-inject --script-args filename=HelloWorld.class
 --
--- @args jdwp-inject.filename	Java <code>.class</code> file to inject.
+-- @args jdwp-inject.filename Java <code>.class</code> file to inject.
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 2010/tcp open  search  syn-ack

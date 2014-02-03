@@ -60,7 +60,7 @@ end
 action = function(host, port)
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   local snmpoid = "1.3.6.1.4.1.77.1.2.3.1.1"
   local services = {}

@@ -53,7 +53,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 02/01/2011 - v0.2 - Added ability to run against all instances on a host;
---							   added compatibility with changes in mssql.lua (Chris Woodbury)
+--                             added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

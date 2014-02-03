@@ -343,7 +343,7 @@ action = function(host, port)
   end
 
   local addrs = argAddr or areaIPs
-  if ( "string" == type(addrs) ) then	addrs = {{ ip = addrs }} end
+  if ( "string" == type(addrs) ) then addrs = {{ ip = addrs }} end
 
   local lookup, result = {}, { name = argDomain }
   for _,ip in pairs(addrs) do

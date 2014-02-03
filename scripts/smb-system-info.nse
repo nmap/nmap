@@ -138,7 +138,7 @@ local function get_info_registry(host)
     result['status-processornamestring'..i], result['processornamestring' .. i] = reg_get_value(smbstate, openhklm_result['handle'], "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\" .. i, "ProcessorNameString")
     result['status-vendoridentifier'..i], result['vendoridentifier' .. i]       = reg_get_value(smbstate, openhklm_result['handle'], "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\" .. i, "VendorIdentifier")
   end
-  --	status, result['physicalmemory']   = reg_get_value(smbstate, openhklm_result['handle'], "HARDWARE\\ResourceMap\\System Resources\\Physical Memory", ".Translated")
+  -- status, result['physicalmemory']   = reg_get_value(smbstate, openhklm_result['handle'], "HARDWARE\\ResourceMap\\System Resources\\Physical Memory", ".Translated")
 
   -- TODO: Known DLLs?
 

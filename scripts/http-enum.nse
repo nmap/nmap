@@ -313,7 +313,7 @@ local function get_fingerprints(fingerprint_file, category)
   end
 
 
-  --	-- If the user wants to try variations, add them
+  --  -- If the user wants to try variations, add them
   --  if(try_variations) then
   --    -- Get a list of all variations for this directory
   --    local variations = get_variations(entry['checkdir'])

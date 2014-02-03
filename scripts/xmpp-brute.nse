@@ -25,9 +25,10 @@ Performs brute force password auditing against XMPP (Jabber) instant messaging s
 -- |_    Performed 6237 guesses in 5 seconds, average tps: 1247
 --
 -- @args xmpp-brute.auth authentication mechanism to use LOGIN, PLAIN, CRAM-MD5
---		 or DIGEST-MD5
+--                       or DIGEST-MD5
 -- @args xmpp-brute.servername needed when host name cannot be automatically
---		 determined (eg. when running against an IP, instead of hostname)
+--                             determined (eg. when running against an IP,
+--                             instead of hostname)
 --
 
 -- Version 0.1
@@ -121,7 +122,7 @@ action = function(host, port)
 
   for _, mp in ipairs(mech_prio) do
     for m, _ in pairs(mechs) do
-      if ( mp == m ) then	mech = m; break	end
+      if ( mp == m ) then mech = m; break end
     end
     if ( mech ) then break end
   end

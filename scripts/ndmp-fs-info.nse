@@ -49,7 +49,7 @@ action = function(host, port)
 
   local helper = ndmp.Helper:new(host, port)
   local status, msg = helper:connect()
-  if ( not(status) ) then	return fail("Failed to connect to server") end
+  if ( not(status) ) then return fail("Failed to connect to server") end
 
   status, msg = helper:getFsInfo()
   if ( not(status) ) then return fail("Failed to get filesystem information from server") end

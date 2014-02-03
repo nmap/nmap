@@ -58,15 +58,15 @@ local filter = {
 
   ["redis_version"] = { name = "Version", func = cb_parse_version },
   ["os"] = { name = "Operating System" },
-  ["arch_bits"] 	= { name = "Architecture", func = cb_parse_architecture },
-  ["process_id"]	= { name = "Process ID"},
-  ["uptime"]		= { name = "Uptime", func = function(h, p, v) return ("%s seconds"):format(v) end },
+  ["arch_bits"] = { name = "Architecture", func = cb_parse_architecture },
+  ["process_id"] = { name = "Process ID"},
+  ["uptime"] = { name = "Uptime", func = function(h, p, v) return ("%s seconds"):format(v) end },
   ["used_cpu_sys"]= { name = "Used CPU (sys)"},
-  ["used_cpu_user"]		= { name = "Used CPU (user)"},
-  ["connected_clients"] 	= { name = "Connected clients"},
-  ["connected_slaves"] 	= { name = "Connected slaves"},
-  ["used_memory_human"]	= { name = "Used memory"},
-  ["role"]				= { name = "Role"}
+  ["used_cpu_user"] = { name = "Used CPU (user)"},
+  ["connected_clients"] = { name = "Connected clients"},
+  ["connected_slaves"] = { name = "Connected slaves"},
+  ["used_memory_human"] = { name = "Used memory"},
+  ["role"] = { name = "Role"}
 
 }
 

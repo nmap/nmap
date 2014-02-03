@@ -203,7 +203,7 @@ local dns_checks = {
         end
 
         local domain_dns = {}
-        for _,srv in ipairs(res) do	domain_dns[srv] = true end
+        for _,srv in ipairs(res) do domain_dns[srv] = true end
 
         local result = {}
         for srv in pairs(domain_dns) do

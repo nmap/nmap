@@ -77,17 +77,17 @@ local function fake_xml_parse(str, tag)
 end
 
 --local function parse_vmware_conf(str, field)
---	local index, value_start = string.find(str, field .. "[^\"]*")
---	if(not(index) or not(value_start)) then
---		return nil
---	end
+--  local index, value_start = string.find(str, field .. "[^\"]*")
+--  if(not(index) or not(value_start)) then
+--    return nil
+--  end
 --
---	local value_end = string.find(str, "\"", value_start + 1)
---	if(not(value_end)) then
---		return nil
---	end
+--  local value_end = string.find(str, "\"", value_start + 1)
+--  if(not(value_end)) then
+--    return nil
+--  end
 --
---	return string.sub(str, value_start + 1, value_end - 1)
+--  return string.sub(str, value_start + 1, value_end - 1)
 --end
 
 local function go(host, port)
