@@ -381,10 +381,13 @@ nsock_iod nsi_new2(nsock_pool nsockp, int sd, void *userdata);
  * notification to each event), NSOCK_PENDING_SILENT (do not send notification
  * to the killed events), or NSOCK_PENDING_ERROR (print an error message and
  * quit the program) */
-#define NSOCK_PENDING_NOTIFY 1
-#define NSOCK_PENDING_SILENT 2
-#define NSOCK_PENDING_ERROR 4
-void nsi_delete(nsock_iod nsockiod, int pending_response);
+enum nsock_del_mode {
+  NSOCK_PENDING_NOTIFY,
+  NSOCK_PENDING_SILENT,
+  NSOCK_PENDING_ERROR,
+};
+
+void nsi_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response);
 
 /* Sometimes it is useful to store a pointer to information inside
  * the nsiod so you can retrieve it during a callback. */

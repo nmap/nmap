@@ -170,7 +170,7 @@ int socket_count_zero(msiod *iod, mspool *ms);
  * notification to each event), NSOCK_PENDING_SILENT (do not send notification
  * to the killed events), or NSOCK_PENDING_ERROR (print an error message and
  * quit the program) */
-void nsi_delete(nsock_iod nsockiod, int pending_response) {
+void nsi_delete(nsock_iod nsockiod, enum nsock_del_mode pending_response) {
   msiod *nsi = (msiod *)nsockiod;
   gh_lnode_t *evlist_ar[3];
   gh_list_t *corresp_list[3];
