@@ -74,7 +74,7 @@ local function readAPIBlock( socket )
   local result = {}
   local status, line = socket:receive_lines(1)
 
-  if ( not(status) ) then	return false, "Failed to read line" end
+  if ( not(status) ) then return false, "Failed to read line" end
   lines = stdnse.strsplit( "\n", line )
 
   for _, line in ipairs( lines ) do
@@ -104,7 +104,7 @@ action = function(host, port)
   local pass = stdnse.get_script_args('domcon-cmd.pass')
   local cmd = stdnse.get_script_args('domcon-cmd.cmd')
 
-  if( not(cmd) ) then	return "  \n  ERROR: No command supplied (see domcon-cmd.cmd)" end
+  if( not(cmd) ) then return "  \n  ERROR: No command supplied (see domcon-cmd.cmd)" end
   if( not(user)) then return "  \n  ERROR: No username supplied (see domcon-cmd.user)" end
   if( not(pass)) then return "  \n  ERROR: No password supplied (see domcon-cmd.pass)" end
 

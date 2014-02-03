@@ -35,7 +35,7 @@ With knowledge of the correct repository name, usernames and passwords can be gu
 -- Version 0.2
 -- Created 07/13/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 08/07/2012 - v0.2 - revised to suit the changes in brute
--- 							   library [Aleksandar Nikolic]
+--                             library [Aleksandar Nikolic]
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

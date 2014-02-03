@@ -74,7 +74,7 @@ action = function()
     status, _, _, ip, _ = socket:get_info()
     if ( not(status) ) then return end
 
-    if target.ALLOW_NEW_TARGETS then target.add(ip)	end
+    if target.ALLOW_NEW_TARGETS then target.add(ip) end
 
     if ( status ) then
       table.insert( result, ("%s - Host: %s; Version: %s"):format(ip, srvname, parseVersion( version ) )  )

@@ -284,7 +284,7 @@ local function enum(host, port, domain)
             todo[b] = h2
             break
           end
-          if h1 > b  then 	-- a b h1 h2
+          if h1 > b  then  -- a b h1 h2
             todo[b] = nil
             todo[b] = h1
             todo[h2] = a

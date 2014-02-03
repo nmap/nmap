@@ -32,9 +32,9 @@ For more information about acarsd, see:
 -- |_  Frequency: 131.7250 & 131.45
 --
 -- @args acarsd-info.timeout
---		   Set the timeout in seconds. The default value is 10.
+--       Set the timeout in seconds. The default value is 10.
 -- @args acarsd-info.bytes
---		   Set the number of bytes to retrieve. The default value is 512.
+--       Set the number of bytes to retrieve. The default value is 512.
 --
 -- @changelog
 -- 2012-02-23 - v0.1 - created by Brendan Coles - itsecuritysolutions.org

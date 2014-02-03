@@ -75,7 +75,7 @@ function action(host, port)
   end
 
   -- if no email addresses were collected abort
-  if ( not(emails) ) then	return end
+  if ( not(emails) ) then return end
 
   local results = {}
   for email, _ in pairs(emails) do

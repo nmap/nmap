@@ -160,7 +160,7 @@ aka "Print Spooler Service Impersonation Vulnerability."
   local write_result = string.sub(result.data,25,#result.data-4)
   stdnse.print_debug("Written %s bytes to a file.",stdnse.tohex(write_result))
   if stdnse.tohex(write_result) == "00000000" then -- patched version would report 4 bytes written
-    ms10_061.state = vulns.STATE.VULN			 -- identified by diffing patched an unpatched version
+    ms10_061.state = vulns.STATE.VULN -- identified by diffing patched an unpatched version
   end
   -- call abort_printer to stop the actuall printing in case the remote system is not vulnerable
   -- we care about the environment and don't want to spend more paper then needed :)

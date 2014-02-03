@@ -25,7 +25,7 @@ Performs brute force password auditing against IMAP servers using either LOGIN, 
 -- |_    Performed 62 guesses in 10 seconds, average tps: 6
 --
 -- @args imap-brute.auth authentication mechanism to use LOGIN, PLAIN,
---		 CRAM-MD5, DIGEST-MD5 or NTLM
+--                       CRAM-MD5, DIGEST-MD5 or NTLM
 
 -- Version 0.1
 -- Created 07/15/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

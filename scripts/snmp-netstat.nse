@@ -63,7 +63,7 @@ end
 
 local function format_output(tbl, prefix)
   local result = {}
-  for _, v in ipairs(tbl)	 do
+  for _, v in ipairs(tbl) do
     local value = string.format("%-20s %s", v.left, v.right )
     table.insert( result, string.format( "%-4s %s", prefix, value ) )
   end
@@ -102,7 +102,7 @@ end
 action = function(host, port)
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   local tcp_oid = "1.3.6.1.2.1.6.13.1.1"
   local udp_oid = "1.3.6.1.2.1.7.5.1.1"

@@ -36,7 +36,7 @@ portrule = shortport.port_or_service(873, "rsync", "tcp")
 Driver = {
 
   new = function(self, host, port, options)
-    local o = {	host = host, port = port, options = options	}
+    local o = { host = host, port = port, options = options }
     setmetatable(o, self)
     self.__index = self
     return o

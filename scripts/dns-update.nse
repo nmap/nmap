@@ -28,16 +28,16 @@ categories = {"discovery", "safe"}
 -- Examples
 --
 -- Adding different types of records to a server
---   * dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="10.10.10.10" } )
---	 * dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="www.cqure.net" } )
---	 * dns.update( "cqure.net", { host=host, port=port, dtype="MX", data={ pref=10, mx="mail.cqure.net"} })
---	 * dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data={ prio=0, weight=100, port=389, target="ldap.cqure.net" } } )
+-- * dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="10.10.10.10" } )
+-- * dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="www.cqure.net" } )
+-- * dns.update( "cqure.net", { host=host, port=port, dtype="MX", data={ pref=10, mx="mail.cqure.net"} })
+-- * dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data={ prio=0, weight=100, port=389, target="ldap.cqure.net" } } )
 --
 -- Removing the above records by setting an empty data and a ttl of zero
---   * dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
---	 * dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="", ttl=0 } )
---	 * dns.update( "cqure.net", { host=host, port=port, dtype="MX", data="", ttl=0 } )
---	 * dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data="", ttl=0 } )
+-- * dns.update( "www.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
+-- * dns.update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="", ttl=0 } )
+-- * dns.update( "cqure.net", { host=host, port=port, dtype="MX", data="", ttl=0 } )
+-- * dns.update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data="", ttl=0 } )
 --
 
 -- Version 0.2

@@ -391,7 +391,7 @@ end
 action = function(host, port)
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   -- IF-MIB - used to look up network interfaces
   local if_oid = "1.3.6.1.2.1.2.2.1"

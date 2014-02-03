@@ -76,7 +76,7 @@ Driver =
     return o
   end,
 
-  connect = function ( self )	return true	end,
+  connect = function ( self ) return true end,
 
   login = function( self, username, password )
 

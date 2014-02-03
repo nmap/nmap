@@ -36,9 +36,9 @@ Wordpress default uri and form names:
 -- @args http-wordpress-brute.hostname sets the host header in case of virtual
 --       hosting
 -- @args http-wordpress-brute.uservar sets the http-variable name that holds the
---		 username used to authenticate. Default: log
+--                                    username used to authenticate. Default: log
 -- @args http-wordpress-brute.passvar sets the http-variable name that holds the
---		 password used to authenticate. Default: pwd
+--                                    password used to authenticate. Default: pwd
 -- @args http-wordpress-brute.threads sets the number of threads. Default: 3
 --
 -- Other useful arguments when using this script are:

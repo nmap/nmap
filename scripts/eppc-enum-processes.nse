@@ -93,7 +93,7 @@ action = function( host, port )
     end
 
     local uid, pid = data:match("uid=(%d+)&pid=(%d+)")
-    if ( uid and pid ) then	tab.addrow( results, app, uid, pid ) end
+    if ( uid and pid ) then tab.addrow( results, app, uid, pid ) end
 
     try( socket:close() )
   end

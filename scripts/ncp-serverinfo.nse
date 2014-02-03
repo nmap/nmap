@@ -40,10 +40,10 @@ action = function(host, port)
   local helper = ncp.Helper:new(host,port)
 
   local status, resp = helper:connect()
-  if ( not(status) ) then	return stdnse.format_output(false, resp) end
+  if ( not(status) ) then return stdnse.format_output(false, resp) end
 
   status, resp = helper:getServerInfo()
-  if ( not(status) ) then	return stdnse.format_output(false, resp) end
+  if ( not(status) ) then return stdnse.format_output(false, resp) end
 
   helper:close()
 

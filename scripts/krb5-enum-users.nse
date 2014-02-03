@@ -76,9 +76,9 @@ KRB5 = {
     { ['aes128-cts-hmac-sha1-96'] = 17 },
     { ['des3-cbc-sha1'] = 16 },
     { ['rc4-hmac'] = 23 },
-    --	{ ['des-cbc-crc'] = 1 },
-    --	{ ['des-cbc-md5'] = 3 },
-    --	{ ['des-cbc-md4'] = 2 }
+    -- { ['des-cbc-crc'] = 1 },
+    -- { ['des-cbc-md5'] = 3 },
+    -- { ['des-cbc-md4'] = 2 }
   },
 
   -- A list of principal name types

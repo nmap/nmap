@@ -89,7 +89,7 @@ action = function( host, port )
   end
 
   status, data = helper:Login(user, pass)
-  if ( not(status) ) then	return stdnse.format_output(status, data) end
+  if ( not(status) ) then return stdnse.format_output(status, data) end
 
   local databases
   status, databases = helper:GetDatabases()
@@ -100,9 +100,9 @@ action = function( host, port )
   for _, db in ipairs(databases) do
     if ( not( excluded_dbs[db] ) ) then
       status, data = helper:OpenDatabase(db)
-      if ( not(status) ) then	return stdnse.format_output(status, data) end
+      if ( not(status) ) then return stdnse.format_output(status, data) end
       status, data = helper:Query( query )
-      if ( not(status) ) then	return stdnse.format_output(status, data) end
+      if ( not(status) ) then return stdnse.format_output(status, data) end
 
       if ( status ) then
         data = informix.Util.formatTable( data[1] )

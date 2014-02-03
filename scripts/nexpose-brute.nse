@@ -46,7 +46,7 @@ Driver =
     return o
   end,
 
-  connect = function ( self )	return true	end,
+  connect = function ( self ) return true end,
 
   login = function( self, username, password )
     local postdata='<?xml version="1.0" encoding="UTF-8"?><LoginRequest sync-id="1" user-id="'..username..'" password="'..password..'"></LoginRequest>'

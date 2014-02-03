@@ -62,8 +62,8 @@ end
 action = function(host, port)
 
   -- read script specific arguments
-  local match 			= stdnse.get_script_args("http-grep.match")
-  local break_on_match 	= stdnse.get_script_args("http-grep.breakonmatch")
+  local match = stdnse.get_script_args("http-grep.match")
+  local break_on_match = stdnse.get_script_args("http-grep.breakonmatch")
 
   if ( not(match) ) then
     return stdnse.format_output(true, "ERROR: Argument http-grep.match was not set")

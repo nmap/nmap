@@ -123,7 +123,7 @@ end
 action = function(host, port)
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   local data, oldsnmpoid = nil, "1.3.6.1.4.1.2011.10.2.12.1.1.1"
   local data, newsnmpoid = nil, "1.3.6.1.4.1.25506.2.12.1.1.1"

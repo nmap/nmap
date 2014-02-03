@@ -95,9 +95,9 @@ RIPng = {
     -- @return o instance of request
     new = function(self, entries)
       local o = {
-        command 	= 1,
-        version 	= 1,
-        entries		= entries,
+        command = 1,
+        version = 1,
+        entries = entries,
       }
       setmetatable(o, self)
       self.__index = self

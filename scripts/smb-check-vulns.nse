@@ -172,7 +172,7 @@ function check_ms08_067(host)
   end
 
   -- Call netpathcanonicalize
-  --	status, netpathcanonicalize_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\a", "\\test\\")
+  -- status, netpathcanonicalize_result = msrpc.srvsvc_netpathcanonicalize(smbstate, host.ip, "\\a", "\\test\\")
 
   local path1 = "\\AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\\..\\n"
   local path2 = "\\n"
@@ -435,12 +435,12 @@ end
 --its dependencies.
 --@param host Host object.
 --@return (status, result)
---*	<code>status == false</code> -> <code>result == NOTUP</code> which designates
+--* <code>status == false</code> -> <code>result == NOTUP</code> which designates
 --that the targeted Ras RPC service is not active.
---*	<code>status == true</code> ->
---	** <code>result == VULNERABLE</code> for vulnerable.
---	** <code>result == PATCHED</code> for not vulnerable.
---	** <code>result == NOTRUN</code> if check skipped.
+--* <code>status == true</code> ->
+-- ** <code>result == VULNERABLE</code> for vulnerable.
+-- ** <code>result == PATCHED</code> for not vulnerable.
+-- ** <code>result == NOTRUN</code> if check skipped.
 function check_ms06_025(host)
   --check for safety flag
   if(nmap.registry.args.safe ~= nil) then
@@ -498,12 +498,12 @@ end
 --This check is not safe as it crashes the Dns Server RPC service its dependencies.
 --@param host Host object.
 --@return (status, result)
---*	<code>status == false</code> -> <code>result == NOTUP</code> which designates
+--* <code>status == false</code> -> <code>result == NOTUP</code> which designates
 --that the targeted Dns Server RPC service is not active.
---*	<code>status == true</code> ->
---	** <code>result == VULNERABLE</code> for vulnerable.
---	** <code>result == PATCHED</code> for not vulnerable.
---	** <code>result == NOTRUN</code> if check skipped.
+--* <code>status == true</code> ->
+-- ** <code>result == VULNERABLE</code> for vulnerable.
+-- ** <code>result == PATCHED</code> for not vulnerable.
+-- ** <code>result == NOTRUN</code> if check skipped.
 function check_ms07_029(host)
   --check for safety flag
   if(nmap.registry.args.safe ~= nil) then

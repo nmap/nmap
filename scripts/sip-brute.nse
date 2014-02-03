@@ -68,7 +68,7 @@ Driver = {
     return true, brute.Account:new(username, password, creds.State.VALID)
   end,
 
-  disconnect = function(self)	return self.helper:close() end,
+  disconnect = function(self) return self.helper:close() end,
 }
 
 -- Function used to check if we can distinguish existing from non-existing

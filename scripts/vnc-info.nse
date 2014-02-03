@@ -49,13 +49,13 @@ action = function(host, port)
   local result = stdnse.output_table()
 
   status, data = vnc:connect()
-  if ( not(status) ) then	return "  \n  ERROR: " .. data end
+  if ( not(status) ) then return "  \n  ERROR: " .. data end
 
   status, data = vnc:handshake()
-  if ( not(status) ) then	return "  \n  ERROR: " .. data end
+  if ( not(status) ) then return "  \n  ERROR: " .. data end
 
   status, data = vnc:getSecTypesAsTable()
-  if ( not(status) ) then	return "  \n  ERROR: " .. data end
+  if ( not(status) ) then return "  \n  ERROR: " .. data end
 
   result["Protocol version"] = vnc:getProtocolVersion()
 

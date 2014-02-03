@@ -39,7 +39,7 @@ categories = {"default", "safe"}
 portrule = shortport.port_or_service(8009, 'ajp13', 'tcp')
 
 local arg_url = stdnse.get_script_args(SCRIPT_NAME .. ".path") or "/"
-local UNINTERESTING_METHODS = {	"GET", "HEAD", "POST", "OPTIONS" }
+local UNINTERESTING_METHODS = { "GET", "HEAD", "POST", "OPTIONS" }
 
 local function filter_out(t, filter)
   local result = {}

@@ -60,7 +60,7 @@ end
 action = function(host, port)
 
   -- create a new crawler instance
-  local crawler = httpspider.Crawler:new(	host, port, nil, { scriptname = SCRIPT_NAME } )
+  local crawler = httpspider.Crawler:new( host, port, nil, { scriptname = SCRIPT_NAME } )
 
   if ( not(crawler) ) then
     return

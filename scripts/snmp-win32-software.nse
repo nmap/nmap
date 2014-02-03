@@ -84,7 +84,7 @@ end
 action = function(host, port)
 
   local socket = nmap.new_socket()
-  local catch = function() socket:close()	end
+  local catch = function() socket:close() end
   local try = nmap.new_try(catch)
   local data, snmpoid = nil, "1.3.6.1.2.1.25.6.3.1"
   local sw = {}

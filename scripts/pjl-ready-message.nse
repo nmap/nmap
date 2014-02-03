@@ -40,24 +40,24 @@ end
 
 action = function(host, port)
 
-  local status		--to be used to grab the existing status of the display screen before changing it.
-  local newstatus		--used to repoll the printer after setting the display to check that the probe worked.
-  local statusmsg		--stores the PJL command to get the printer's status
-  local response		--stores the response sent over the network from the printer by the PJL status command
+  local status  --to be used to grab the existing status of the display screen before changing it.
+  local newstatus  --used to repoll the printer after setting the display to check that the probe worked.
+  local statusmsg  --stores the PJL command to get the printer's status
+  local response  --stores the response sent over the network from the printer by the PJL status command
 
   statusmsg="@PJL INFO STATUS\n"
 
-  local rdymsg=""			--string containing text to send to the printer.
-  local rdymsgarg=""		--will contain the argument from the command line if one exists
+  local rdymsg=""  --string containing text to send to the printer.
+  local rdymsgarg=""  --will contain the argument from the command line if one exists
 
   local socket = nmap.new_socket()
   socket:set_timeout(15000)
   local try = nmap.new_try(function() socket:close() end)
   try(socket:connect(host, port))
-  try(socket:send(statusmsg))		--this block gets the current display status
+  try(socket:send(statusmsg))  --this block gets the current display status
   local data
   response,data=socket:receive()
-  if not response then			--send an initial probe. If no response, send nothing further.
+  if not response then  --send an initial probe. If no response, send nothing further.
     socket:close()
     if nmap.verbosity() > 0 then
       return "No response from printer: "..data
@@ -85,9 +85,9 @@ action = function(host, port)
   end
 
   rdymsg="@PJL RDYMSG DISPLAY = \""..rdymsgarg.."\"\r\n"
-  try(socket:send(rdymsg)) 		--actually set the display message here.
+  try(socket:send(rdymsg))  --actually set the display message here.
 
-  try(socket:send(statusmsg))		--this block gets the status again for comparison
+  try(socket:send(statusmsg))  --this block gets the status again for comparison
   response,data=socket:receive()
   if not response then
     socket:close()

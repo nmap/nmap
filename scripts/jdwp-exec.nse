@@ -22,7 +22,7 @@ accepts a shell command as its argument.
 ---
 -- @usage nmap -sT <target> -p <port> --script=+jdwp-exec --script-args cmd="date"
 --
--- @args jdwp-exec.cmd 	Command to execute on the remote system.
+-- @args jdwp-exec.cmd Command to execute on the remote system.
 --
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -81,7 +81,7 @@ action = function(host, port)
     stdnse.print_debug(1, "%s: Couldn't create string", SCRIPT_NAME)
     return stdnse.format_output(false, cmdID)
   end
-  local runArgs = bin.pack(">CL",0x4c,cmdID)	-- 0x4c is object type tag
+  local runArgs = bin.pack(">CL",0x4c,cmdID)  -- 0x4c is object type tag
   -- invoke run method
   local result
   status, result = jdwp.invokeObjectMethod(socket,0,injectedClass.instance,injectedClass.thread,injectedClass.id,runMethodID,1,runArgs)
