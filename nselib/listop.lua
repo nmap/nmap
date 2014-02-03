@@ -17,21 +17,21 @@ _ENV = stdnse.module("listop", stdnse.seeall)
 --
 Functional programming style 'list' operations
 
-    bool	is_empty(list)
-    bool	is_list(value)
+    bool  is_empty(list)
+    bool  is_list(value)
 
-    value	apply(function, list)
-    list	map(function, list)
-    list	filter(function, list)
-    list	flatten(list)
-    list	append(list1, list2)
-    list	cons(value1, value2)
-    list	reverse(list)
+    value apply(function, list)
+    list  map(function, list)
+    list  filter(function, list)
+    list  flatten(list)
+    list  append(list1, list2)
+    list  cons(value1, value2)
+    list  reverse(list)
 
-    value	car(list)
-    value	ncar(list, x)
-    list	cdr(list)
-    list	ncdr(list, x)
+    value car(list)
+    value ncar(list, x)
+    list  cdr(list)
+    list  ncdr(list, x)
 
     where 'list' is an indexed table
     where 'value' is an lua datatype
@@ -59,11 +59,11 @@ end
 -- @param l A list.
 -- @return List of function results.
 function map(f, l)
-    local results = {}
-    for _, v in ipairs(l) do
-    	results[#results+1] = f(v);
-    end
-    return results;
+  local results = {}
+  for _, v in ipairs(l) do
+    results[#results+1] = f(v);
+  end
+  return results;
 end
 
 --- Calls the function with all the elements in the list as the parameters.
@@ -90,9 +90,9 @@ end
 function filter(f, l)
   local results = {}
   for i, v in ipairs(l) do
-  	if(f(v)) then
-   	  results[#results+1] = v;
-   	end
+    if(f(v)) then
+      results[#results+1] = v;
+    end
   end
   return results
 end
@@ -134,7 +134,7 @@ end
 -- @param v2 value or list.
 -- @return New list.
 function cons(v1, v2)
-    return{ is_list(v1) and {table.unpack(v1)} or v1, is_list(v2) and {table.unpack(v2)} or v2}
+  return{ is_list(v1) and {table.unpack(v1)} or v1, is_list(v2) and {table.unpack(v2)} or v2}
 end
 
 --- Concatenate two lists and return the result.
@@ -142,23 +142,23 @@ end
 -- @param l2 List.
 -- @return List.
 function append(l1, l2)
-    local results = {table.unpack(l1)}
+  local results = {table.unpack(l1)}
 
-    for _, v in ipairs(l2) do
-   	  results[#results+1] = v;
-    end
-    return results
+  for _, v in ipairs(l2) do
+    results[#results+1] = v;
+  end
+  return results
 end
 
 --- Return a list in reverse order.
 -- @param l List.
 -- @return Reversed list.
 function reverse(l)
-    local results = {}
-    for i=#l, 1, -1 do
-    	results[#results+1] = l[i];
-    end
-    return results
+  local results = {}
+  for i=#l, 1, -1 do
+    results[#results+1] = l[i];
+  end
+  return results
 end
 
 --- Return a flattened version of a list. The flattened list contains
@@ -168,17 +168,17 @@ end
 -- @param l The list to flatten.
 -- @return Flattened list.
 function flatten(l)
-    local function flat(r, t)
-    	for i, v in ipairs(t) do
-    		if(type(v) == 'table') then
-    			flat(r, v)
-    		else
-    			table.insert(r, v)
-    		end
-    	end
-    	return r
+  local function flat(r, t)
+    for i, v in ipairs(t) do
+      if(type(v) == 'table') then
+        flat(r, v)
+      else
+        table.insert(r, v)
+      end
     end
-    return flat({}, l)
+    return r
+  end
+  return flat({}, l)
 end
 
 return _ENV;

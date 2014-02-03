@@ -16,12 +16,12 @@ _ENV = stdnse.module("shortport", stdnse.seeall)
 -- @param value The value to check for.
 -- @return True if <code>t</code> contains <code>value</code>, false otherwise.
 local function includes(t, value)
-	for _, elem in ipairs(t) do
-		if elem == value then
-			return true
-		end
-	end
-	return false
+  for _, elem in ipairs(t) do
+    if elem == value then
+      return true
+    end
+  end
+  return false
 end
 
 --- Check if the port and it's protocol are in the exclude directive.
@@ -31,8 +31,8 @@ end
 -- @return True if the <code>port</code> and <code>protocol</code> are
 -- in the exclude directive.
 port_is_excluded = function(port, proto)
-        proto = proto or "tcp"
-        return nmap.port_is_excluded(port, proto)
+  proto = proto or "tcp"
+  return nmap.port_is_excluded(port, proto)
 end
 
 --- Return a portrule that returns true when given an open port matching a
@@ -45,24 +45,24 @@ end
 -- @return Function for the portrule.
 -- @usage portrule = shortport.portnumber({80, 443})
 portnumber = function(ports, protos, states)
-	protos = protos or "tcp"
-	states = states or {"open", "open|filtered"}
+  protos = protos or "tcp"
+  states = states or {"open", "open|filtered"}
 
-	if type(ports) ~= "table" then
-		ports = {ports}
-	end
-	if type(protos) ~= "table" then
-		protos = {protos}
-	end
-	if type(states) ~= "table" then
-		states = {states}
-	end
+  if type(ports) ~= "table" then
+    ports = {ports}
+  end
+  if type(protos) ~= "table" then
+    protos = {protos}
+  end
+  if type(states) ~= "table" then
+    states = {states}
+  end
 
-	return function(host, port)
-		return includes(ports, port.number)
-			and includes(protos, port.protocol)
-			and includes(states, port.state)
-	end
+  return function(host, port)
+    return includes(ports, port.number)
+      and includes(protos, port.protocol)
+      and includes(states, port.state)
+  end
 end
 
 --- Return a portrule that returns true when given an open port with a
@@ -82,24 +82,24 @@ end
 -- @return Function for the portrule.
 -- @usage portrule = shortport.service("ftp")
 service = function(services, protos, states)
-	protos = protos or "tcp"
-	states = states or {"open", "open|filtered"}
+  protos = protos or "tcp"
+  states = states or {"open", "open|filtered"}
 
-	if type(services) ~= "table" then
-		services = {services}
-	end
-	if type(protos) ~= "table" then
-		protos = {protos}
-	end
-	if type(states) ~= "table" then
-		states = {states}
-	end
+  if type(services) ~= "table" then
+    services = {services}
+  end
+  if type(protos) ~= "table" then
+    protos = {protos}
+  end
+  if type(states) ~= "table" then
+    states = {states}
+  end
 
-	return function(host, port)
-		return includes(services, port.service)
-			and includes(protos, port.protocol)
-			and includes(states, port.state)
-	end
+  return function(host, port)
+    return includes(services, port.service)
+    and includes(protos, port.protocol)
+    and includes(states, port.state)
+  end
 end
 
 --- Return a portrule that returns true when given an open port matching
@@ -119,11 +119,11 @@ end
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 port_or_service = function(ports, services, protos, states)
-	return function(host, port)
-		local port_checker = portnumber(ports, protos, states)
-		local service_checker = service(services, protos, states)
-		return port_checker(host, port) or service_checker(host, port)
-	end
+  return function(host, port)
+    local port_checker = portnumber(ports, protos, states)
+    local service_checker = service(services, protos, states)
+    return port_checker(host, port) or service_checker(host, port)
+  end
 end
 
 --- Return a portrule that returns true when given an open port matching
@@ -144,24 +144,24 @@ end
 -- {<code>"open"</code>, <code>"open|filtered"</code>}.
 -- @return Function for the portrule.
 version_port_or_service = function(ports, services, protos, states)
-        return function(host, port)
-                local p_s_check = port_or_service(ports, services, protos, states)
-                return p_s_check(host, port)
-                       and not(port_is_excluded(port.number, port.protocol))
-        end
+  return function(host, port)
+    local p_s_check = port_or_service(ports, services, protos, states)
+    return p_s_check(host, port)
+      and not(port_is_excluded(port.number, port.protocol))
+  end
 end
 
 --[[
-  Apache Tomcat HTTP server default ports: 8180 and 8000
-  Litespeed webserver default ports: 8088 and 7080
+Apache Tomcat HTTP server default ports: 8180 and 8000
+Litespeed webserver default ports: 8088 and 7080
 --]]
 LIKELY_HTTP_PORTS = {
-	80, 443, 631, 7080, 8080, 8088, 5800, 3872, 8180, 8000
+  80, 443, 631, 7080, 8080, 8088, 5800, 3872, 8180, 8000
 }
 
 LIKELY_HTTP_SERVICES = {
-	"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent", "soap",
-	"http-proxy",
+  "http", "https", "ipp", "http-alt", "vnc-http", "oem-agent", "soap",
+  "http-proxy",
 }
 
 ---
@@ -179,12 +179,12 @@ LIKELY_HTTP_SERVICES = {
 http = port_or_service(LIKELY_HTTP_PORTS, LIKELY_HTTP_SERVICES)
 
 local LIKELY_SSL_PORTS = {
-    443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
-    9001,
+  443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
+  9001,
 }
 local LIKELY_SSL_SERVICES = {
-    "ftps", "ftps-data", "https", "https-alt", "imaps", "ircs",
-    "ldapssl", "pop3s", "sip-tls", "smtps", "telnets", "tor-orport",
+  "ftps", "ftps-data", "https", "https-alt", "imaps", "ircs",
+  "ldapssl", "pop3s", "sip-tls", "smtps", "telnets", "tor-orport",
 }
 
 ---
@@ -197,8 +197,8 @@ local LIKELY_SSL_SERVICES = {
 -- @usage
 -- portrule = shortport.ssl
 function ssl(host, port)
-    return port.version.service_tunnel == "ssl" or
-        port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port)
+  return port.version.service_tunnel == "ssl" or
+    port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port)
 end
 
 return _ENV;

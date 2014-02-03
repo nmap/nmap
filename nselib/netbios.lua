@@ -17,8 +17,8 @@ _ENV = stdnse.module("netbios", stdnse.seeall)
 
 
 types = {
-	NB = 32,
-	NBSTAT = 33,
+  NB = 32,
+  NBSTAT = 33,
 }
 
 --- Encode a NetBIOS name for transport. Most packets that use the NetBIOS name
@@ -39,45 +39,45 @@ types = {
 --        (eg. "\x20FEEFFDFEDBCACACACACACACACACAAA\x08insecure\x03org")
 function name_encode(name, scope)
 
-	stdnse.print_debug(3, "Encoding name '%s'", name)
-	-- Truncate or pad the string to 16 bytes
-	if(#name >= 16) then
-		name = string.sub(name, 1, 16)
-	else
-		local padding = " "
-		if name == "*" then
-			padding = "\0"
-		end
+  stdnse.print_debug(3, "Encoding name '%s'", name)
+  -- Truncate or pad the string to 16 bytes
+  if(#name >= 16) then
+    name = string.sub(name, 1, 16)
+  else
+    local padding = " "
+    if name == "*" then
+      padding = "\0"
+    end
 
-		repeat
-			name = name .. padding
-		until #name == 16
-	end
+    repeat
+      name = name .. padding
+    until #name == 16
+  end
 
-	-- Convert to uppercase
-	name = string.upper(name)
+  -- Convert to uppercase
+  name = string.upper(name)
 
-	-- Do the L1 encoding
-	local L1_encoded = ""
-	for i=1, #name, 1 do
-		local b = string.byte(name, i)
-		L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0xF0), 4) + 0x41)
-		L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
-	end
+  -- Do the L1 encoding
+  local L1_encoded = ""
+  for i=1, #name, 1 do
+    local b = string.byte(name, i)
+    L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0xF0), 4) + 0x41)
+    L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
+  end
 
-	-- Do the L2 encoding
-	local L2_encoded = string.char(32) .. L1_encoded
+  -- Do the L2 encoding
+  local L2_encoded = string.char(32) .. L1_encoded
 
-	if scope ~= nil then
-		-- Split the scope at its periods
-		local piece
-		for piece in string.gmatch(scope, "[^.]+") do
-			L2_encoded = L2_encoded .. string.char(#piece) .. piece
-		end
-	end
+  if scope ~= nil then
+    -- Split the scope at its periods
+    local piece
+    for piece in string.gmatch(scope, "[^.]+") do
+      L2_encoded = L2_encoded .. string.char(#piece) .. piece
+    end
+  end
 
-	stdnse.print_debug(3, "=> '%s'", L2_encoded)
-	return L2_encoded
+  stdnse.print_debug(3, "=> '%s'", L2_encoded)
+  return L2_encoded
 end
 
 
@@ -89,38 +89,38 @@ end
 --@return the decoded name and the scope. The name will still be padded, and the
 --         scope will never be nil (empty string is returned if no scope is present)
 function name_decode(encoded_name)
-	local name = ""
-	local scope = ""
+  local name = ""
+  local scope = ""
 
-	local len = string.byte(encoded_name, 1)
-	local i
+  local len = string.byte(encoded_name, 1)
+  local i
 
-	stdnse.print_debug(3, "Decoding name '%s'", encoded_name)
+  stdnse.print_debug(3, "Decoding name '%s'", encoded_name)
 
-	for i = 2, len + 1, 2 do
-		local ch = 0
-		ch = bit.bor(ch, bit.lshift(string.byte(encoded_name, i)     - 0x41, 4))
-		ch = bit.bor(ch, bit.lshift(string.byte(encoded_name, i + 1) - 0x41, 0))
+  for i = 2, len + 1, 2 do
+    local ch = 0
+    ch = bit.bor(ch, bit.lshift(string.byte(encoded_name, i)     - 0x41, 4))
+    ch = bit.bor(ch, bit.lshift(string.byte(encoded_name, i + 1) - 0x41, 0))
 
-		name = name .. string.char(ch)
-	end
+    name = name .. string.char(ch)
+  end
 
-	-- Decode the scope
-	local pos = 34
-	while #encoded_name > pos do
-		local len = string.byte(encoded_name, pos)
-		scope = scope .. string.sub(encoded_name, pos + 1, pos + len) .. "."
-		pos = pos + 1 + len
-	end
+  -- Decode the scope
+  local pos = 34
+  while #encoded_name > pos do
+    local len = string.byte(encoded_name, pos)
+    scope = scope .. string.sub(encoded_name, pos + 1, pos + len) .. "."
+    pos = pos + 1 + len
+  end
 
-	-- If there was a scope, remove the trailing period
-	if(#scope > 0) then
-		scope = string.sub(scope, 1, #scope - 1)
-	end
+  -- If there was a scope, remove the trailing period
+  if(#scope > 0) then
+    scope = string.sub(scope, 1, #scope - 1)
+  end
 
-	stdnse.print_debug(3, "=> '%s'", name)
+  stdnse.print_debug(3, "=> '%s'", name)
 
-	return name, scope
+  return name, scope
 end
 
 --- Sends out a UDP probe on port 137 to get a human-readable list of names the
@@ -131,23 +131,23 @@ end
 --        list of names. Otherwise, result is an error message.
 function get_names(host, prefix)
 
-	local status, names, statistics = do_nbstat(host)
+  local status, names, statistics = do_nbstat(host)
 
-	if(prefix == nil) then
-		prefix = ""
-	end
+  if(prefix == nil) then
+    prefix = ""
+  end
 
 
-	if(status) then
-		local result = ""
-		for i = 1, #names, 1 do
-			result = result .. string.format("%s%s<%02x>\n", prefix, names[i]['name'], names[i]['prefix'])
-		end
+  if(status) then
+    local result = ""
+    for i = 1, #names, 1 do
+      result = result .. string.format("%s%s<%02x>\n", prefix, names[i]['name'], names[i]['prefix'])
+    end
 
-		return true, result
-	else
-		return false, names
-	end
+    return true, result
+  else
+    return false, names
+  end
 end
 
 --- Sends out a UDP probe on port 137 to get the server's name (that is, the
@@ -158,24 +158,24 @@ end
 --        otherwise, result is an error message.
 function get_server_name(host, names)
 
-	local status
-	local i
+  local status
+  local i
 
-	if names == nil then
-		status, names = do_nbstat(host)
+  if names == nil then
+    status, names = do_nbstat(host)
 
-		if(status == false) then
-			return false, names
-		end
-	end
+    if(status == false) then
+      return false, names
+    end
+  end
 
-	for i = 1, #names, 1 do
-		if names[i]['suffix'] == 0x20 then
-			return true, names[i]['name']
-		end
-	end
+  for i = 1, #names, 1 do
+    if names[i]['suffix'] == 0x20 then
+      return true, names[i]['name']
+    end
+  end
 
-	return false, "Couldn't find NetBIOS server name"
+  return false, "Couldn't find NetBIOS server name"
 end
 
 --- Sends out a UDP probe on port 137 to get the user's name (that is, the
@@ -188,27 +188,27 @@ end
 --        otherwise, result is an error message.
 function get_user_name(host, names)
 
-	local status, server_name = get_server_name(host, names)
+  local status, server_name = get_server_name(host, names)
 
-	if(status == false) then
-		return false, server_name
-	end
+  if(status == false) then
+    return false, server_name
+  end
 
-	if(names == nil) then
-		status, names = do_nbstat(host)
+  if(names == nil) then
+    status, names = do_nbstat(host)
 
-		if(status == false) then
-			return false, names
-		end
-	end
+    if(status == false) then
+      return false, names
+    end
+  end
 
-	for i = 1, #names, 1 do
-		if names[i]['suffix'] == 0x03 and names[i]['name'] ~= server_name then
-			return true, names[i]['name']
-		end
-	end
+  for i = 1, #names, 1 do
+    if names[i]['suffix'] == 0x03 and names[i]['name'] ~= server_name then
+      return true, names[i]['name']
+    end
+  end
 
-	return true, nil
+  return true, nil
 
 end
 
@@ -260,204 +260,204 @@ end
 --        Otherwise, names is an error message and statistics is undefined.
 function do_nbstat(host)
 
-	local status, err
-	local socket = nmap.new_socket()
-	local encoded_name = name_encode("*")
-	local statistics
-	local reg
-	if type(host) == "string" then --ip
-		stdnse.print_debug(3, "Performing nbstat on host '%s'", host)
-		nmap.registry.netbios = nmap.registry.netbios or {}
-		nmap.registry.netbios[host] = nmap.registry.netbios[host] or {}
-		reg = nmap.registry.netbios[host]
-	else
-		stdnse.print_debug(3, "Performing nbstat on host '%s'", host.ip)
-		if host.registry.netbios == nil and
-				nmap.registry.netbios ~= nil and
-				nmap.registry.netbios[host.ip] ~= nil then
-			host.registry.netbios = nmap.registry.netbios[host.ip]
-		end
-		host.registry.netbios = host.registry.netbios or {}
-		reg = host.registry.netbios
-	end
+  local status, err
+  local socket = nmap.new_socket()
+  local encoded_name = name_encode("*")
+  local statistics
+  local reg
+  if type(host) == "string" then --ip
+    stdnse.print_debug(3, "Performing nbstat on host '%s'", host)
+    nmap.registry.netbios = nmap.registry.netbios or {}
+    nmap.registry.netbios[host] = nmap.registry.netbios[host] or {}
+    reg = nmap.registry.netbios[host]
+  else
+    stdnse.print_debug(3, "Performing nbstat on host '%s'", host.ip)
+    if host.registry.netbios == nil and
+      nmap.registry.netbios ~= nil and
+      nmap.registry.netbios[host.ip] ~= nil then
+      host.registry.netbios = nmap.registry.netbios[host.ip]
+    end
+    host.registry.netbios = host.registry.netbios or {}
+    reg = host.registry.netbios
+  end
 
-	-- Check if it's cached in the registry for this host
-	if(reg["nbstat_names"] ~= nil) then
-		stdnse.print_debug(3, " |_ [using cached value]")
-		return true, reg["nbstat_names"], reg["nbstat_statistics"]
-	end
+  -- Check if it's cached in the registry for this host
+  if(reg["nbstat_names"] ~= nil) then
+    stdnse.print_debug(3, " |_ [using cached value]")
+    return true, reg["nbstat_names"], reg["nbstat_statistics"]
+  end
 
-	-- Create the query header
-	local query = bin.pack(">SSSSSS",
-			0x1337,  -- Transaction id
-			0x0000,  -- Flags
-			1,       -- Questions
-			0,       -- Answers
-			0,       -- Authority
-			0        -- Extra
-		)
+  -- Create the query header
+  local query = bin.pack(">SSSSSS",
+  0x1337,  -- Transaction id
+  0x0000,  -- Flags
+  1,       -- Questions
+  0,       -- Answers
+  0,       -- Authority
+  0        -- Extra
+  )
 
-	query = query .. bin.pack(">zSS",
-			encoded_name, -- Encoded name
-			0x0021,       -- Query type (0x21 = NBSTAT)
-			0x0001        -- Class = IN
-		)
-	status, err = socket:connect(host, 137, "udp")
-	if(status == false) then
-		return false, err
-	end
+  query = query .. bin.pack(">zSS",
+  encoded_name, -- Encoded name
+  0x0021,       -- Query type (0x21 = NBSTAT)
+  0x0001        -- Class = IN
+  )
+  status, err = socket:connect(host, 137, "udp")
+  if(status == false) then
+    return false, err
+  end
 
-	status, err = socket:send(query)
-	if(status == false) then
-		return false, err
-	end
+  status, err = socket:send(query)
+  if(status == false) then
+    return false, err
+  end
 
-	socket:set_timeout(1000)
+  socket:set_timeout(1000)
 
-	local status, result = socket:receive_bytes(1)
-	if(status == false) then
-		return false, result
-	end
+  local status, result = socket:receive_bytes(1)
+  if(status == false) then
+    return false, result
+  end
 
-	local close_status, err = socket:close()
-	if(close_status == false) then
-		return false, err
-	end
+  local close_status, err = socket:close()
+  if(close_status == false) then
+    return false, err
+  end
 
-	if(status) then
-		local pos, TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT, rr_name, rr_type, rr_class, rr_ttl
-		local rrlength, name_count
+  if(status) then
+    local pos, TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT, rr_name, rr_type, rr_class, rr_ttl
+    local rrlength, name_count
 
-		pos, TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT = bin.unpack(">SSSSSS", result)
+    pos, TRN_ID, FLAGS, QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT = bin.unpack(">SSSSSS", result)
 
-		-- Sanity check the result (has to have the same TRN_ID, 1 answer, and proper flags)
-		if(TRN_ID ~= 0x1337) then
-			return false, string.format("Invalid transaction ID returned: 0x%04x", TRN_ID)
-		end
-		if(ANCOUNT ~= 1) then
-			return false, "Server returned an invalid number of answers"
-		end
-		if(bit.band(FLAGS, 0x8000) == 0) then
-			return false, "Server's flags didn't indicate a response"
-		end
-		if(bit.band(FLAGS, 0x0007) ~= 0) then
-			return false, string.format("Server returned a NetBIOS error: 0x%02x", bit.band(FLAGS, 0x0007))
-		end
+    -- Sanity check the result (has to have the same TRN_ID, 1 answer, and proper flags)
+    if(TRN_ID ~= 0x1337) then
+      return false, string.format("Invalid transaction ID returned: 0x%04x", TRN_ID)
+    end
+    if(ANCOUNT ~= 1) then
+      return false, "Server returned an invalid number of answers"
+    end
+    if(bit.band(FLAGS, 0x8000) == 0) then
+      return false, "Server's flags didn't indicate a response"
+    end
+    if(bit.band(FLAGS, 0x0007) ~= 0) then
+      return false, string.format("Server returned a NetBIOS error: 0x%02x", bit.band(FLAGS, 0x0007))
+    end
 
-		-- Start parsing the answer field
-		pos, rr_name, rr_type, rr_class, rr_ttl = bin.unpack(">zSSI", result, pos)
+    -- Start parsing the answer field
+    pos, rr_name, rr_type, rr_class, rr_ttl = bin.unpack(">zSSI", result, pos)
 
-		-- More sanity checks
-		if(rr_name ~= encoded_name) then
-			return false, "Server returned incorrect name"
-		end
-		if(rr_class ~= 0x0001) then
-			return false, "Server returned incorrect class"
-		end
-		if(rr_type ~= 0x0021) then
-			return false, "Server returned incorrect query type"
-		end
+    -- More sanity checks
+    if(rr_name ~= encoded_name) then
+      return false, "Server returned incorrect name"
+    end
+    if(rr_class ~= 0x0001) then
+      return false, "Server returned incorrect class"
+    end
+    if(rr_type ~= 0x0021) then
+      return false, "Server returned incorrect query type"
+    end
 
-		pos, rrlength, name_count = bin.unpack(">SC", result, pos)
+    pos, rrlength, name_count = bin.unpack(">SC", result, pos)
 
-		local names = {}
-		for i = 1, name_count do
-			local name, suffix, flags
+    local names = {}
+    for i = 1, name_count do
+      local name, suffix, flags
 
-			-- Instead of reading the 16-byte name and pulling off the suffix,
-			-- we read the first 15 bytes and then the 1-byte suffix.
-			pos, name, suffix, flags = bin.unpack(">A15CS", result, pos)
-			name = string.gsub(name, "[ ]*$", "")
+      -- Instead of reading the 16-byte name and pulling off the suffix,
+      -- we read the first 15 bytes and then the 1-byte suffix.
+      pos, name, suffix, flags = bin.unpack(">A15CS", result, pos)
+      name = string.gsub(name, "[ ]*$", "")
 
-			names[i] = {}
-			names[i]['name']   = name
-			names[i]['suffix'] = suffix
-			names[i]['flags']  = flags
+      names[i] = {}
+      names[i]['name']   = name
+      names[i]['suffix'] = suffix
+      names[i]['flags']  = flags
 
-			-- Decrement the length
-			rrlength = rrlength - 18
-		end
+      -- Decrement the length
+      rrlength = rrlength - 18
+    end
 
-		if(rrlength > 0) then
-			rrlength = rrlength - 1
-		end
-		pos, statistics = bin.unpack(string.format(">A%d", rrlength), result, pos)
+    if(rrlength > 0) then
+      rrlength = rrlength - 1
+    end
+    pos, statistics = bin.unpack(string.format(">A%d", rrlength), result, pos)
 
-		-- Put it in the registry, in case anybody else needs it
-		reg["nbstat_names"] = names
-		reg["nbstat_statistics"] = statistics
+    -- Put it in the registry, in case anybody else needs it
+    reg["nbstat_names"] = names
+    reg["nbstat_statistics"] = statistics
 
-		return true, names, statistics
+    return true, names, statistics
 
-	else
-		return false, "Name query failed: " .. result
-	end
+  else
+    return false, "Name query failed: " .. result
+  end
 end
 
 function nbquery(host, nbname, options)
-	-- override any options or set the default values
-	local options = options or {}
-	options.port = options.port or 137
-	options.retPkt = options.retPkt or true
-	options.dtype = options.dtype or types.NB
-	options.host = host.ip
-	options.flags = options.flags or ( options.multiple and 0x0110 )
-	options.id = math.random(0xFFFF)
+  -- override any options or set the default values
+  local options = options or {}
+  options.port = options.port or 137
+  options.retPkt = options.retPkt or true
+  options.dtype = options.dtype or types.NB
+  options.host = host.ip
+  options.flags = options.flags or ( options.multiple and 0x0110 )
+  options.id = math.random(0xFFFF)
 
-	-- encode and chop off the leading byte, as the dns library takes care of
-	-- specifying the length
-	local encoded_name = name_encode(nbname):sub(2)
+  -- encode and chop off the leading byte, as the dns library takes care of
+  -- specifying the length
+  local encoded_name = name_encode(nbname):sub(2)
 
-	local status, response = dns.query( encoded_name, options )
-	if ( not(status) ) then return false, "ERROR: nbquery failed" end
+  local status, response = dns.query( encoded_name, options )
+  if ( not(status) ) then return false, "ERROR: nbquery failed" end
 
-	local results = {}
-	-- discard any additional responses
-	if ( options.multiple and #response > 0 ) then
-		for _, resp in ipairs(response) do
-			assert( options.id == resp.output.id, "Received packet with invalid transaction ID" )
-			if ( not(resp.output.answers) or #resp.output.answers < 1 ) then
-				return false, "ERROR: Response contained no answers"
-			end
-			local dname = string.char(#resp.output.answers[1].dname) .. resp.output.answers[1].dname
-			table.insert( results, { peer = resp.peer, name = name_decode(dname) } )
-		end
-		return true, results
-	else
-		local dname = string.char(#response.answers[1].dname) .. response.answers[1].dname
-		return true, { { peer = host.ip, name = name_decode(dname) } }
-	end
+  local results = {}
+  -- discard any additional responses
+  if ( options.multiple and #response > 0 ) then
+    for _, resp in ipairs(response) do
+      assert( options.id == resp.output.id, "Received packet with invalid transaction ID" )
+      if ( not(resp.output.answers) or #resp.output.answers < 1 ) then
+        return false, "ERROR: Response contained no answers"
+      end
+      local dname = string.char(#resp.output.answers[1].dname) .. resp.output.answers[1].dname
+      table.insert( results, { peer = resp.peer, name = name_decode(dname) } )
+    end
+    return true, results
+  else
+    local dname = string.char(#response.answers[1].dname) .. response.answers[1].dname
+    return true, { { peer = host.ip, name = name_decode(dname) } }
+  end
 end
 
 ---Convert the 16-bit flags field to a string.
 --@param flags The 16-bit flags field
 --@return A string representing the flags
 function flags_to_string(flags)
-	local result = ""
+  local result = ""
 
-	if(bit.band(flags, 0x8000) ~= 0) then
-		result = result .. "<group>"
-	else
-		result = result .. "<unique>"
-	end
+  if(bit.band(flags, 0x8000) ~= 0) then
+    result = result .. "<group>"
+  else
+    result = result .. "<unique>"
+  end
 
-	if(bit.band(flags, 0x1000) ~= 0) then
-		result = result .. "<deregister>"
-	end
+  if(bit.band(flags, 0x1000) ~= 0) then
+    result = result .. "<deregister>"
+  end
 
-	if(bit.band(flags, 0x0800) ~= 0) then
-		result = result .. "<conflict>"
-	end
+  if(bit.band(flags, 0x0800) ~= 0) then
+    result = result .. "<conflict>"
+  end
 
-	if(bit.band(flags, 0x0400) ~= 0) then
-		result = result .. "<active>"
-	end
+  if(bit.band(flags, 0x0400) ~= 0) then
+    result = result .. "<active>"
+  end
 
-	if(bit.band(flags, 0x0200) ~= 0) then
-		result = result .. "<permanent>"
-	end
+  if(bit.band(flags, 0x0200) ~= 0) then
+    result = result .. "<permanent>"
+  end
 
-	return result
+  return result
 end
 
 

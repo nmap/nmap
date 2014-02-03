@@ -16,15 +16,15 @@ _ENV = stdnse.module("base64", stdnse.seeall)
 
 
 local b64table = {
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-	'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-	'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-	'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
-	'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-	'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-	'w', 'x', 'y', 'z', '0', '1', '2', '3',
-	'4', '5', '6', '7', '8', '9', '+', '/'
-	}
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+  'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+  'w', 'x', 'y', 'z', '0', '1', '2', '3',
+  '4', '5', '6', '7', '8', '9', '+', '/'
+}
 
 local b64dctable = {} -- efficency
 b64dctable['A'] = '000000'
@@ -104,13 +104,13 @@ local concat = table.concat
 -- @param bits String of six bits to be encoded.
 -- @return Encoded character.
 local function b64enc6bit(bits)
-	-- local byte
-	-- local _, byte = bunpack("C", bpack("B", "00" .. bits))
-	--
+  -- local byte
+  -- local _, byte = bunpack("C", bpack("B", "00" .. bits))
+  --
 
-	-- more efficient, does the same (nb: add one to byte moved up one line):
-	local byte = tonumber(bits, 2) + 1
-	return b64table[byte]
+  -- more efficient, does the same (nb: add one to byte moved up one line):
+  local byte = tonumber(bits, 2) + 1
+  return b64table[byte]
 end
 
 
@@ -119,9 +119,9 @@ end
 -- @param b64byte A single base64-encoded character.
 -- @return String of six decoded bits.
 local function b64dec6bit(b64byte)
-	local bits = b64dctable[b64byte]
-	if bits then return bits end
-	return ''
+  local bits = b64dctable[b64byte]
+  if bits then return bits end
+  return ''
 end
 
 
@@ -130,29 +130,29 @@ end
 -- @param bdata Data to be encoded.
 -- @return Base64-encoded string.
 function enc(bdata)
-	local pos = 1
-	local byte
-	local nbyte = ''
-	-- local nbuffer = {}
-	local b64dataBuf = {}
-	while pos <= #bdata  do
-		pos, byte = bunpack("B1", bdata, pos)
-		nbyte = nbyte .. byte
-		append(b64dataBuf, b64enc6bit(substr(nbyte, 1, 6)))
-		nbyte = substr(nbyte,7)
-		if (#nbyte == 6) then
-			append(b64dataBuf, b64enc6bit(nbyte))
-			nbyte = ''
-		end
-	end
-	if #nbyte == 2 then
-		append(b64dataBuf, b64enc6bit(nbyte .. "0000") )
-		append(b64dataBuf, "==")
-	elseif #nbyte == 4 then
-		append(b64dataBuf, b64enc6bit(nbyte .. "00"))
-		append(b64dataBuf, '=')
-	end
-	return concat(b64dataBuf)
+  local pos = 1
+  local byte
+  local nbyte = ''
+  -- local nbuffer = {}
+  local b64dataBuf = {}
+  while pos <= #bdata  do
+    pos, byte = bunpack("B1", bdata, pos)
+    nbyte = nbyte .. byte
+    append(b64dataBuf, b64enc6bit(substr(nbyte, 1, 6)))
+    nbyte = substr(nbyte,7)
+    if (#nbyte == 6) then
+      append(b64dataBuf, b64enc6bit(nbyte))
+      nbyte = ''
+    end
+  end
+  if #nbyte == 2 then
+    append(b64dataBuf, b64enc6bit(nbyte .. "0000") )
+    append(b64dataBuf, "==")
+  elseif #nbyte == 4 then
+    append(b64dataBuf, b64enc6bit(nbyte .. "00"))
+    append(b64dataBuf, '=')
+  end
+  return concat(b64dataBuf)
 end
 
 
@@ -161,21 +161,21 @@ end
 -- @param b64data Base64 encoded data.
 -- @return Decoded data.
 function dec(b64data)
-	local bdataBuf = {}
-	local pos = 1
-	local byte
-	local nbyte = ''
-	for pos = 1, #b64data do -- while pos <= #b64data do
-		byte = b64dec6bit(substr(b64data, pos, pos))
-		if not byte then return end
-		nbyte = nbyte .. byte
-		if #nbyte >= 8 then
-			append(bdataBuf, bpack("B", substr(nbyte, 1, 8)))
-			nbyte = substr(nbyte, 9)
-		end
---		pos = pos + 1
-	end
-	return concat(bdataBuf)
+  local bdataBuf = {}
+  local pos = 1
+  local byte
+  local nbyte = ''
+  for pos = 1, #b64data do -- while pos <= #b64data do
+    byte = b64dec6bit(substr(b64data, pos, pos))
+    if not byte then return end
+    nbyte = nbyte .. byte
+    if #nbyte >= 8 then
+      append(bdataBuf, bpack("B", substr(nbyte, 1, 8)))
+      nbyte = substr(nbyte, 9)
+    end
+    -- pos = pos + 1
+  end
+  return concat(bdataBuf)
 end
 
 

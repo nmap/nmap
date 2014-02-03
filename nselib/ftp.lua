@@ -40,42 +40,42 @@ end
 -- @return numeric code or <code>nil</code>.
 -- @return text reply or error message.
 function read_reply(buffer)
-	local readline
-	local line, err
-	local code, message
-	local _, p, tmp
+  local readline
+  local line, err
+  local code, message
+  local _, p, tmp
 
-	line, err = buffer()
-	if not line then
-		    return line, err
-	end
+  line, err = buffer()
+  if not line then
+    return line, err
+  end
 
-	-- Single-line response?
-	code, message = string.match(line, "^(%d%d%d) (.*)$")
-	if code then
-		return tonumber(code), message
-	end
+  -- Single-line response?
+  code, message = string.match(line, "^(%d%d%d) (.*)$")
+  if code then
+    return tonumber(code), message
+  end
 
-	-- Multi-line response?
-	_, p, code, message = string.find(line, "^(%d%d%d)%-(.*)$")
-	if p then
-	while true do
-		line, err = buffer()
-		if not line then
-			return line, err
-		end
-		tmp = string.match(line, "^%d%d%d (.*)$")
-		if tmp then
-			message = message .. "\n" .. tmp
-			break
-		end
-		message = message .. "\n" .. line
-		end
+  -- Multi-line response?
+  _, p, code, message = string.find(line, "^(%d%d%d)%-(.*)$")
+  if p then
+    while true do
+      line, err = buffer()
+      if not line then
+        return line, err
+      end
+      tmp = string.match(line, "^%d%d%d (.*)$")
+      if tmp then
+        message = message .. "\n" .. tmp
+        break
+      end
+      message = message .. "\n" .. line
+    end
 
-		return tonumber(code), message
-	end
+    return tonumber(code), message
+  end
 
-	return nil, string.format("Unparseable response: %q", line)
+  return nil, string.format("Unparseable response: %q", line)
 end
 
 return _ENV;

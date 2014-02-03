@@ -22,11 +22,11 @@ _ENV = stdnse.module("base32", stdnse.seeall)
 
 
 local b32standard = {
-	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
-	'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-	'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
-	'Y', 'Z', '2', '3', '4', '5', '6', '7',
-	}
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z', '2', '3', '4', '5', '6', '7',
+}
 
 local b32dcstandard = {} -- efficency
 b32dcstandard['A'] = '00000'
@@ -117,8 +117,8 @@ local concat = table.concat
 -- @param bits String of five bits to be encoded.
 -- @return Encoded character.
 local function b32enc5bit(bits)
-	local byte = tonumber(bits, 2) + 1
-	return b32table[byte]
+  local byte = tonumber(bits, 2) + 1
+  return b32table[byte]
 end
 
 
@@ -127,9 +127,9 @@ end
 -- @param b32byte A single base32-encoded character.
 -- @return String of five decoded bits.
 local function b32dec5bit(b32byte)
-	local bits = b32dctable[b32byte]
-	if bits then return bits end
-	return ''
+  local bits = b32dctable[b32byte]
+  if bits then return bits end
+  return ''
 end
 
 
@@ -139,32 +139,32 @@ end
 -- @param hexExtend pass true to use the hex extended char set
 -- @return Base32-encoded string.
 function enc(bdata, hexExtend)
-	local _, bitstring = bunpack(">B".. #bdata,bdata)
-	local b32dataBuf = {}
+  local _, bitstring = bunpack(">B".. #bdata,bdata)
+  local b32dataBuf = {}
 
-	if hexExtend then
-		b32table = b32hexExtend
-		b32dctable = b32dchexExtend
-	end
+  if hexExtend then
+    b32table = b32hexExtend
+    b32dctable = b32dchexExtend
+  end
 
-	while #bitstring > 4 do
-		append(b32dataBuf,b32enc5bit(substr(bitstring,1,5)))
-		bitstring = substr(bitstring,6)
-	end
-	if #bitstring == 1 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "0000"))
-		append(b32dataBuf, '====')
-	elseif #bitstring == 2 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "000") )
-		append(b32dataBuf, '=')
-	elseif #bitstring == 3 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "00") )
-		append(b32dataBuf, "======")
-	elseif #bitstring == 4 then
-		append(b32dataBuf, b32enc5bit(bitstring .. "0") )
-		append(b32dataBuf, '===')
-	end
-	return concat(b32dataBuf)
+  while #bitstring > 4 do
+    append(b32dataBuf,b32enc5bit(substr(bitstring,1,5)))
+    bitstring = substr(bitstring,6)
+  end
+  if #bitstring == 1 then
+    append(b32dataBuf, b32enc5bit(bitstring .. "0000"))
+    append(b32dataBuf, '====')
+  elseif #bitstring == 2 then
+    append(b32dataBuf, b32enc5bit(bitstring .. "000") )
+    append(b32dataBuf, '=')
+  elseif #bitstring == 3 then
+    append(b32dataBuf, b32enc5bit(bitstring .. "00") )
+    append(b32dataBuf, "======")
+  elseif #bitstring == 4 then
+    append(b32dataBuf, b32enc5bit(bitstring .. "0") )
+    append(b32dataBuf, '===')
+  end
+  return concat(b32dataBuf)
 end
 
 
@@ -174,27 +174,27 @@ end
 -- @param hexExtend pass true to use the hex extended char set
 -- @return Decoded data.
 function dec(b32data, hexExtend)
-	local bdataBuf = {}
-	local pos = 1
-	local byte
-	local nbyte = ''
+  local bdataBuf = {}
+  local pos = 1
+  local byte
+  local nbyte = ''
 
-	if hexExtend then
-		b32table = b32hexExtend
-		b32dctable = b32dchexExtend
-	end
+  if hexExtend then
+    b32table = b32hexExtend
+    b32dctable = b32dchexExtend
+  end
 
-	for pos = 1, #b32data do -- while pos <= string.len(b32data) do
-		byte = b32dec5bit(substr(b32data, pos, pos))
-		if not byte then return end
-		nbyte = nbyte .. byte
-		if #nbyte >= 8 then
-			append(bdataBuf, bpack("B", substr(nbyte, 1, 8)))
-			nbyte = substr(nbyte, 9)
-		end
---		pos = pos + 1
-	end
-	return concat(bdataBuf)
+  for pos = 1, #b32data do -- while pos <= string.len(b32data) do
+    byte = b32dec5bit(substr(b32data, pos, pos))
+    if not byte then return end
+    nbyte = nbyte .. byte
+    if #nbyte >= 8 then
+      append(bdataBuf, bpack("B", substr(nbyte, 1, 8)))
+      nbyte = substr(nbyte, 9)
+    end
+    -- pos = pos + 1
+  end
+  return concat(bdataBuf)
 end
 
 return _ENV;

@@ -80,58 +80,58 @@ local customdata = false
 local args = nmap.registry.args
 
 local userfile = function()
-	if args.userdb then
-		customdata = true
-		return args.userdb
-	end
+  if args.userdb then
+    customdata = true
+    return args.userdb
+  end
 
-	return nmap.fetchfile("nselib/data/usernames.lst")
+  return nmap.fetchfile("nselib/data/usernames.lst")
 end
 
 local passfile = function()
-	if args.passdb then
-		customdata = true
-		return args.passdb
-	end
+  if args.passdb then
+    customdata = true
+    return args.passdb
+  end
 
-	return nmap.fetchfile("nselib/data/passwords.lst")
+  return nmap.fetchfile("nselib/data/passwords.lst")
 end
 
 local filltable = function(filename, table)
-	if #table ~= 0 then
-		return true
-	end
+  if #table ~= 0 then
+    return true
+  end
 
-	local file = io.open(filename, "r")
+  local file = io.open(filename, "r")
 
-	if not file then
-		return false
-	end
+  if not file then
+    return false
+  end
 
-	for l in file:lines() do
-		-- Comments takes up a whole line
-		if not l:match("#!comment:") then
-			table[#table + 1] = l
-		end
-	end
+  for l in file:lines() do
+    -- Comments takes up a whole line
+    if not l:match("#!comment:") then
+      table[#table + 1] = l
+    end
+  end
 
-	file:close()
+  file:close()
 
-	return true
+  return true
 end
 
 table_iterator = function(table)
-	local i = 1
+  local i = 1
 
-	return function(cmd)
-		if cmd == "reset" then
-			i = 1
-			return
-		end
-		local elem = table[i]
-		if elem then i = i + 1 end
-		return elem
-	end
+  return function(cmd)
+    if cmd == "reset" then
+      i = 1
+      return
+    end
+    local elem = table[i]
+    if elem then i = i + 1 end
+    return elem
+  end
 end
 
 --- Returns the suggested number of seconds to attempt a brute force attack,
@@ -145,30 +145,30 @@ end
 -- still check for <code>nil</code> return values on the above two functions in
 -- case you finish before the time limit is up.
 timelimit = function()
-   -- If we're reading from a user-defined username or password list,
-   -- we'll give them a timeout 1.5x the default.  If the "notimelimit"
-   -- script argument is used, we return nil.
-	local t = nmap.timing_level()
+  -- If we're reading from a user-defined username or password list,
+  -- we'll give them a timeout 1.5x the default.  If the "notimelimit"
+  -- script argument is used, we return nil.
+  local t = nmap.timing_level()
 
-	-- Easy enough
-	if args.notimelimit then
-		return nil
-	end
-	if args["unpwdb.timelimit"] then
-		local limit, err = stdnse.parse_timespec(args["unpwdb.timelimit"])
-		if not limit then
-			error(err)
-		end
-		return limit
-	end
+  -- Easy enough
+  if args.notimelimit then
+    return nil
+  end
+  if args["unpwdb.timelimit"] then
+    local limit, err = stdnse.parse_timespec(args["unpwdb.timelimit"])
+    if not limit then
+      error(err)
+    end
+    return limit
+  end
 
-	if t <= 3 then
-		return (customdata and 900) or 600
-	elseif t == 4 then
-		return (customdata and 450) or 300
-	elseif t == 5 then
-		return (customdata and 270) or 180
-	end
+  if t <= 3 then
+    return (customdata and 900) or 600
+  elseif t == 4 then
+    return (customdata and 450) or 300
+  elseif t == 5 then
+    return (customdata and 270) or 180
+  end
 end
 
 --- Returns a function closure which returns a new username with every call
@@ -177,17 +177,17 @@ end
 -- @return boolean Status.
 -- @return function The usernames iterator.
 local usernames_raw = function()
-	local path = userfile()
+  local path = userfile()
 
-	if not path then
-		return false, "Cannot find username list"
-	end
+  if not path then
+    return false, "Cannot find username list"
+  end
 
-	if not filltable(path, usertable) then
-		return false, "Error parsing username list"
-	end
+  if not filltable(path, usertable) then
+    return false, "Error parsing username list"
+  end
 
-	return true, table_iterator(usertable)
+  return true, table_iterator(usertable)
 end
 
 --- Returns a function closure which returns a new password with every call
@@ -196,17 +196,17 @@ end
 -- @return boolean Status.
 -- @return function The passwords iterator.
 local passwords_raw = function()
-	local path = passfile()
+  local path = passfile()
 
-	if not path then
-		return false, "Cannot find password list"
-	end
+  if not path then
+    return false, "Cannot find password list"
+  end
 
-	if not filltable(path, passtable) then
-		return false, "Error parsing password list"
-	end
+  if not filltable(path, passtable) then
+    return false, "Error parsing password list"
+  end
 
-	return true, table_iterator(passtable)
+  return true, table_iterator(passtable)
 end
 
 --- Wraps time and count limits around an iterator. When either limit expires,
@@ -217,27 +217,27 @@ end
 -- @return boolean Status.
 -- @return function The wrapped iterator.
 limited_iterator = function(iterator, time_limit, count_limit)
-	local start, count, elem
+  local start, count, elem
 
-	time_limit = (time_limit and time_limit > 0) and time_limit
-	count_limit = (count_limit and count_limit > 0) and count_limit
+  time_limit = (time_limit and time_limit > 0) and time_limit
+  count_limit = (count_limit and count_limit > 0) and count_limit
 
-	start = os.time()
-	count = 0
-	return function(cmd)
-		if cmd == "reset" then
-			count = 0
-		else
-			count = count + 1
-		end
-		if count_limit and count > count_limit then
-			return
-		end
-		if time_limit and os.time() - start >= time_limit then
-			return
-		end
-		return iterator(cmd)
-	end
+  start = os.time()
+  count = 0
+  return function(cmd)
+    if cmd == "reset" then
+      count = 0
+    else
+      count = count + 1
+    end
+    if count_limit and count > count_limit then
+      return
+    end
+    if time_limit and os.time() - start >= time_limit then
+      return
+    end
+    return iterator(cmd)
+  end
 end
 
 --- Returns a function closure which returns a new password with every call
@@ -248,19 +248,19 @@ end
 -- @return boolean Status.
 -- @return function The usernames iterator.
 usernames = function(time_limit, count_limit)
-	local status, iterator
+  local status, iterator
 
-	status, iterator = usernames_raw()
-	if not status then
-		return false, iterator
-	end
+  status, iterator = usernames_raw()
+  if not status then
+    return false, iterator
+  end
 
-	time_limit = time_limit or timelimit()
-	if not count_limit and args["unpwdb.userlimit"] then
-		count_limit = tonumber(args["unpwdb.userlimit"])
-	end
+  time_limit = time_limit or timelimit()
+  if not count_limit and args["unpwdb.userlimit"] then
+    count_limit = tonumber(args["unpwdb.userlimit"])
+  end
 
-	return true, limited_iterator(iterator, time_limit, count_limit)
+  return true, limited_iterator(iterator, time_limit, count_limit)
 end
 
 --- Returns a function closure which returns a new password with every call
@@ -271,19 +271,19 @@ end
 -- @return boolean Status.
 -- @return function The passwords iterator.
 passwords = function(time_limit, count_limit)
-	local status, iterator
+  local status, iterator
 
-	status, iterator = passwords_raw()
-	if not status then
-		return false, iterator
-	end
+  status, iterator = passwords_raw()
+  if not status then
+    return false, iterator
+  end
 
-	time_limit = time_limit or timelimit()
-	if not count_limit and args["unpwdb.passlimit"] then
-		count_limit = tonumber(args["unpwdb.passlimit"])
-	end
+  time_limit = time_limit or timelimit()
+  if not count_limit and args["unpwdb.passlimit"] then
+    count_limit = tonumber(args["unpwdb.passlimit"])
+  end
 
-	return true, limited_iterator(iterator, time_limit, count_limit)
+  return true, limited_iterator(iterator, time_limit, count_limit)
 end
 
 --- Returns a new iterator that iterates trough it's consecutive iterators,
@@ -308,7 +308,7 @@ function concat_iterators (iter1, iter2)
     end
   end
   return iterator
- end
+end
 
 --- Returns a new iterator that filters it's results based on the filter.
 -- @param iterator Iterator that needs to be filtered
@@ -324,6 +324,6 @@ function filter_iterator (iterator, filter)
     return helper(iterator(command))
   end
   return filter
- end
+end
 
 return _ENV;
