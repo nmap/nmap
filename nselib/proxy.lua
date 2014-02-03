@@ -211,7 +211,7 @@ function socksHandshake(socket, version, hostname)
       stdnse.print_debug("Socks4: Received \"request failed because client is not running identd\" from proxy server")
     elseif (request_status == 0x5d) then
       stdnse.print_debug("Socks4: Received \"request failed because client's identd could not confirm" ..
-      			 "\nthe user ID string in the request from proxy server")
+      "\nthe user ID string in the request from proxy server")
     end
     return false
   end
@@ -234,24 +234,24 @@ function socksHandshake(socket, version, hostname)
       local z = try(socket:receive())
       local request_status = string.byte(z, 2)
       if (request_status == 0x00) then
-	stdnse.print_debug("Socks5: Received \"Request Granted\" from proxy server\n")
-	return socket
+        stdnse.print_debug("Socks5: Received \"Request Granted\" from proxy server\n")
+        return socket
       elseif(request_status == 0x01) then
-	stdnse.print_debug("Socks5: Received \"General failure\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"General failure\" from proxy server")
       elseif (request_status == 0x02) then
-	stdnse.print_debug("Socks5: Received \"Connection not allowed by ruleset\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"Connection not allowed by ruleset\" from proxy server")
       elseif (request_status == 0x03) then
-	stdnse.print_debug("Socks5: Received \"Network unreachable\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"Network unreachable\" from proxy server")
       elseif (request_status == 0x04) then
-	stdnse.print_debug("Socks5: Received \"Host unreachable\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"Host unreachable\" from proxy server")
       elseif (request_status == 0x05) then
-	stdnse.print_debug("Socks5: Received \"Connection refused by destination host\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"Connection refused by destination host\" from proxy server")
       elseif (request_status == 0x06) then
-	stdnse.print_debug("Socks5: Received \"TTL Expired\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"TTL Expired\" from proxy server")
       elseif (request_status == 0x07) then
-	stdnse.print_debug("Socks5: Received \"command not supported / protocol error\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"command not supported / protocol error\" from proxy server")
       elseif (request_status == 0x08) then
-	stdnse.print_debug("Socks5: Received \"Address type not supported\" from proxy server")
+        stdnse.print_debug("Socks5: Received \"Address type not supported\" from proxy server")
       end
     end
     return false

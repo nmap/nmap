@@ -66,7 +66,7 @@ AMQP = {
     local data, status, msg
 
     status, msg = self.amqpsocket:connect(self.host, self.port, "tcp")
-	  return status, msg
+    return status, msg
   end,
 
   --- Disconnects the AMQP socket
@@ -337,7 +337,7 @@ AMQPSocket =
   retries = 3,
 
   new = function(self)
-	local o = {}
+    local o = {}
     setmetatable(o, self)
     self.__index = self
     o.Socket = nmap.new_socket()
@@ -371,7 +371,7 @@ AMQPSocket =
   -- @param count of bytes to read
   -- @return true on success, false on failure
   -- @return data containing bytes read from the socket
-  -- 		   err containing error message if status is false
+  --         err containing error message if status is false
   recv = function( self, count )
     local status, data
 

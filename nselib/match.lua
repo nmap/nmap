@@ -28,12 +28,12 @@ _ENV = stdnse.module("match", stdnse.seeall)
 -- @see nmap.receive_buf
 -- @see pcre.exec
 regex = function(pattern)
-	local r = pcre.new(pattern, 0,"C")
+  local r = pcre.new(pattern, 0,"C")
 
-	return function(buf)
-		local s,e = r:exec(buf, 0,0);
-		return s,e
-	end
+  return function(buf)
+    local s,e = r:exec(buf, 0,0);
+    return s,e
+  end
 end
 
 --- Return a function that allows delimiting at a certain number of bytes.
@@ -46,13 +46,13 @@ end
 -- @usage sock:receive_buf(match.numbytes(80))
 -- @see nmap.receive_buf
 numbytes = function(num)
-	local n = num
-	return function(buf)
-		if(#buf >=n) then
-			return n, n
-		end
-		return nil
-	end
+  local n = num
+  return function(buf)
+    if(#buf >=n) then
+      return n, n
+    end
+    return nil
+  end
 end
 
 

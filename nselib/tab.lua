@@ -33,11 +33,11 @@ _ENV = stdnse.module("tab", stdnse.seeall)
 --- Create and return a new table.
 -- @return A new table.
 function new()
-	local t = {}
+  local t = {}
 
-	t.current_row = 1
-	setmetatable(t, {__tostring=dump})
-	return t
+  t.current_row = 1
+  setmetatable(t, {__tostring=dump})
+  return t
 end
 
 --- Add a new string item to a table at a given column position.
@@ -48,14 +48,14 @@ end
 -- @param v The string to add.
 -- @param c The column position at which to add the item.
 function add(t, c, v)
-	assert(t)
-	assert(type(v) == "string")
+  assert(t)
+  assert(type(v) == "string")
 
-	-- add a new row if one doesn't exist
-	t[t.current_row] = t[t.current_row] or {}
+  -- add a new row if one doesn't exist
+  t[t.current_row] = t[t.current_row] or {}
 
-	t[t.current_row][c] = v
-	return true
+  t[t.current_row][c] = v
+  return true
 end
 
 --- Add a complete row to the table and move on to the next row.
@@ -65,10 +65,10 @@ end
 -- @param t The table.
 -- @param ... The elements to add to the row.
 function addrow(t, ...)
-	for i = 1, select("#", ...) do
-		add(t, i, tostring((select(i, ...))))
-	end
-	nextrow(t)
+  for i = 1, select("#", ...) do
+    add(t, i, tostring((select(i, ...))))
+  end
+  nextrow(t)
 end
 
 --- Move on to the next row in the table. If this is not called
@@ -76,10 +76,10 @@ end
 -- values.
 -- @param t The table.
 function nextrow(t)
-	assert(t)
-	assert(t.current_row)
-	t[t.current_row] = t[t.current_row] or {}
-	t.current_row = t.current_row + 1
+  assert(t)
+  assert(t.current_row)
+  t[t.current_row] = t[t.current_row] or {}
+  t.current_row = t.current_row + 1
 end
 
 --- Return a formatted string representation of the table.
@@ -88,41 +88,41 @@ end
 -- column with an additional two spaces for padding.
 -- @param t The table.
 function dump(t)
-	assert(t)
+  assert(t)
 
-	local column_width = {}
-	local num_columns = {}
-	local buf = strbuf.new()
+  local column_width = {}
+  local num_columns = {}
+  local buf = strbuf.new()
 
-	-- find widest element in each column
-	for i, row in ipairs(t) do
-		num_columns[i] = 0
-		for x, elem in pairs(row) do
-			local elem_width = #elem
-			if not column_width[x] or elem_width > column_width[x] then
-				column_width[x] = elem_width
-			end
-			if x > num_columns[i] then
-				num_columns[i] = x
-			end
-		end
-	end
+  -- find widest element in each column
+  for i, row in ipairs(t) do
+    num_columns[i] = 0
+    for x, elem in pairs(row) do
+      local elem_width = #elem
+      if not column_width[x] or elem_width > column_width[x] then
+        column_width[x] = elem_width
+      end
+      if x > num_columns[i] then
+        num_columns[i] = x
+      end
+    end
+  end
 
-	-- build buf with padding so all column elements line up
-	for i, row in ipairs(t) do
-		local text_row = {}
-		for x = 1, num_columns[i] do
-			local elem = row[x] or ""
-			if x < num_columns[i] then
-				text_row[#text_row + 1] = elem .. string.rep(" ", column_width[x] - #elem)
-			else
-				text_row[#text_row + 1] = elem
-			end
-		end
-		buf = buf .. table.concat(text_row, "  ") .. "\n"
-	end
+  -- build buf with padding so all column elements line up
+  for i, row in ipairs(t) do
+    local text_row = {}
+    for x = 1, num_columns[i] do
+      local elem = row[x] or ""
+      if x < num_columns[i] then
+        text_row[#text_row + 1] = elem .. string.rep(" ", column_width[x] - #elem)
+      else
+        text_row[#text_row + 1] = elem
+      end
+    end
+    buf = buf .. table.concat(text_row, "  ") .. "\n"
+  end
 
-	return strbuf.dump(buf)
+  return strbuf.dump(buf)
 end
 
 return _ENV;
