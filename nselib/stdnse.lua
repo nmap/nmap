@@ -647,9 +647,9 @@ local function format_output_sub(status, data, indent)
       local lines = splitlines(value)
 
       for j, line in ipairs(lines) do
-      	insert(output, format("%s  %s%s\n",
-      	                  format_get_indent(indent, i == #data and j == #lines),
-      	                  prefix, line))
+        insert(output, format("%s  %s%s\n",
+          format_get_indent(indent, i == #data and j == #lines),
+          prefix, line))
       end
     end
   end
@@ -1019,65 +1019,65 @@ do end -- no function here, see nse_main.lua
 --@param port_range a port range string in Nmap standard format (ex. "T:80,1-30,U:31337,21-25")
 --@returns boolean indicating whether the port is in the port range
 function in_port_range(port,port_range)
-	assert(port and type(port.number)=="number" and type(port.protocol)=="string" and
-			(port.protocol=="udp" or port.protocol=="tcp"),"Port structure missing or invalid: port={ number=<port_number>, protocol=<port_protocol> }")
-	assert((type(port_range)=="string" or type(port_range)=="number") and port_range~="","Incorrect port range specification.")
+  assert(port and type(port.number)=="number" and type(port.protocol)=="string" and
+    (port.protocol=="udp" or port.protocol=="tcp"),"Port structure missing or invalid: port={ number=<port_number>, protocol=<port_protocol> }")
+  assert((type(port_range)=="string" or type(port_range)=="number") and port_range~="","Incorrect port range specification.")
 
-	-- Proto - true for TCP, false for UDP
-	local proto
-	if(port.protocol=="tcp") then proto = true else proto = false end
+  -- Proto - true for TCP, false for UDP
+  local proto
+  if(port.protocol=="tcp") then proto = true else proto = false end
 
-	--TCP flag for iteration - true for TCP, false for UDP, if not specified we presume TCP
-	local tcp_flag = true
+  --TCP flag for iteration - true for TCP, false for UDP, if not specified we presume TCP
+  local tcp_flag = true
 
-	-- in case the port_range is a single number
-	if type(port_range)=="number" then
-		if proto and port_range==port.number then return true
-		else return false
-		end
-	end
+  -- in case the port_range is a single number
+  if type(port_range)=="number" then
+    if proto and port_range==port.number then return true
+    else return false
+    end
+  end
 
-	--clean the string a bit
-	port_range=port_range:gsub("%s+","")
+  --clean the string a bit
+  port_range=port_range:gsub("%s+","")
 
-	-- single_pr - single port range
-	for i, single_pr in ipairs(strsplit(",",port_range)) do
-		if single_pr:match("T:") then
-			tcp_flag = true
-			single_pr = single_pr:gsub("T:","")
-		else
-			if single_pr:match("U:") then
-				tcp_flag = false
-				single_pr = single_pr:gsub("U:","")
-			end
-		end
+  -- single_pr - single port range
+  for i, single_pr in ipairs(strsplit(",",port_range)) do
+    if single_pr:match("T:") then
+      tcp_flag = true
+      single_pr = single_pr:gsub("T:","")
+    else
+      if single_pr:match("U:") then
+        tcp_flag = false
+        single_pr = single_pr:gsub("U:","")
+      end
+    end
 
-		-- compare ports only when the port's protocol is the same as
-		-- the current single port range
-		if tcp_flag == proto then
-			local pone = single_pr:match("^(%d+)$")
-			if pone then
-				pone = tonumber(pone)
-				assert(pone>-1 and pone<65536, "Port range number out of range (0-65535).")
+    -- compare ports only when the port's protocol is the same as
+    -- the current single port range
+    if tcp_flag == proto then
+      local pone = single_pr:match("^(%d+)$")
+      if pone then
+        pone = tonumber(pone)
+        assert(pone>-1 and pone<65536, "Port range number out of range (0-65535).")
 
-				if pone == port.number then
-					return true
-				end
-			else
-				local pstart, pend = single_pr:match("^(%d+)%-(%d+)$")
-				pstart, pend = tonumber(pstart), tonumber(pend)
-				assert(pstart,"Incorrect port range specification.")
-				assert(pstart<=pend,"Incorrect port range specification, the starting port should have a smaller value than the ending port.")
-				assert(pstart>-1 and pstart<65536 and pend>-1 and pend<65536, "Port range number out of range (0-65535).")
+        if pone == port.number then
+          return true
+        end
+      else
+        local pstart, pend = single_pr:match("^(%d+)%-(%d+)$")
+        pstart, pend = tonumber(pstart), tonumber(pend)
+        assert(pstart,"Incorrect port range specification.")
+        assert(pstart<=pend,"Incorrect port range specification, the starting port should have a smaller value than the ending port.")
+        assert(pstart>-1 and pstart<65536 and pend>-1 and pend<65536, "Port range number out of range (0-65535).")
 
-				if port.number >=pstart and port.number <= pend then
-					return true
-				end
-			end
-		end
-	end
-	-- if no match is found then the port doesn't belong to the port_range
-	return false
+        if port.number >=pstart and port.number <= pend then
+          return true
+        end
+      end
+    end
+  end
+  -- if no match is found then the port doesn't belong to the port_range
+  return false
 end
 
 --- Module function that mimics some behavior of Lua 5.1 module function.
@@ -1244,12 +1244,12 @@ end
 --@return Boolean true if the item was found, false if not
 --@return The index or key where the value was found, or nil
 function contains(tab, item)
-	for k, val in pairs(tab) do
-		if val == item then
-			return true, k
-		end
-	end
-	return false, nil
+  for k, val in pairs(tab) do
+    if val == item then
+      return true, k
+    end
+  end
+  return false, nil
 end
 
 

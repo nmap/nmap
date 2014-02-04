@@ -254,30 +254,30 @@ Comm = {
     --
     -- @return status boolean true
     SetVersion = function(self, version)
-	if self.checkprogver then
-	    if (RPC_version[self.program] and RPC_args[self.program] and
-		nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
-		self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
-	    elseif (not(self.version) and version) then
-		self.version = version
-	    end
-	else
-	    self.version = version
-	end
-	return true, nil
+      if self.checkprogver then
+        if (RPC_version[self.program] and RPC_args[self.program] and
+          nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
+          self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
+        elseif (not(self.version) and version) then
+          self.version = version
+        end
+      else
+        self.version = version
+      end
+      return true, nil
     end,
 
     --- Sets the verification of the specified program and version support
     -- before trying to connecting.
     -- @param check boolean to enable or disable checking of program and version support.
     SetCheckProgVer = function(self, check)
-	self.checkprogver = check
+      self.checkprogver = check
     end,
 
     --- Sets the RPC program ID to use.
     -- @param progid number Program ID to set.
     SetProgID = function(self, progid)
-	self.program_id = progid
+      self.program_id = progid
     end,
 
     --- Checks if data contains enough bytes to read the <code>needed</code> amount

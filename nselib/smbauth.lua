@@ -98,36 +98,36 @@ local session_key = string.rep(string.char(0x00), 16)
 
 -- Types of accounts (ordered by how useful they are
 local ACCOUNT_TYPES = {
-	ANONYMOUS = 0,
-	GUEST     = 1,
-	USER      = 2,
-	ADMIN     = 3
+  ANONYMOUS = 0,
+  GUEST     = 1,
+  USER      = 2,
+  ADMIN     = 3
 }
 
 local function account_exists(host, username, domain)
-	if(host.registry['smbaccounts'] == nil) then
-		return false
-	end
+  if(host.registry['smbaccounts'] == nil) then
+    return false
+  end
 
-	for i, j in pairs(host.registry['smbaccounts']) do
-		if(j['username'] == username and j['domain'] == domain) then
-			return true
-		end
-	end
+  for i, j in pairs(host.registry['smbaccounts']) do
+    if(j['username'] == username and j['domain'] == domain) then
+      return true
+    end
+  end
 
-	return false
+  return false
 end
 
 function next_account(host, num)
-	if(num == nil) then
-		if(host.registry['smbindex'] == nil) then
-			host.registry['smbindex'] = 1
-		else
-			host.registry['smbindex'] = host.registry['smbindex'] + 1
-		end
-	else
-		host.registry['smbindex'] = num
-	end
+  if(num == nil) then
+    if(host.registry['smbindex'] == nil) then
+      host.registry['smbindex'] = 1
+    else
+      host.registry['smbindex'] = host.registry['smbindex'] + 1
+    end
+  else
+    host.registry['smbindex'] = num
+  end
 end
 
 ---Writes the given account to the registry. There are several places where accounts are stored:
@@ -148,71 +148,71 @@ end
 --@param hash_type     The hash type to use.
 --@param is_admin      [optional] Set to 'true' the account is known to be an administrator.
 function add_account(host, username, domain, password, password_hash, hash_type, is_admin)
-	-- Save the username in a global list -- TODO: restore this
---	if(nmap.registry.usernames == nil) then
---		nmap.registry.usernames = {}
---	end
---	nmap.registry.usernames[username] = true
---
---	-- Save the username/password pair in a global list
---	if(nmap.registry.smbaccounts == nil) then
---		nmap.registry.smbaccounts = {}
---	end
---	nmap.registry.smbaccounts[username] = password
+  -- Save the username in a global list -- TODO: restore this
+  --  if(nmap.registry.usernames == nil) then
+  --    nmap.registry.usernames = {}
+  --  end
+  --  nmap.registry.usernames[username] = true
+  --
+  --  -- Save the username/password pair in a global list
+  --  if(nmap.registry.smbaccounts == nil) then
+  --    nmap.registry.smbaccounts = {}
+  --  end
+  --  nmap.registry.smbaccounts[username] = password
 
-	-- Check if we've already recorded this account
-	if(account_exists(host, username, domain)) then
-		return
-	end
+  -- Check if we've already recorded this account
+  if(account_exists(host, username, domain)) then
+    return
+  end
 
-	if(host.registry['smbaccounts'] == nil) then
-		host.registry['smbaccounts'] = {}
-	end
+  if(host.registry['smbaccounts'] == nil) then
+    host.registry['smbaccounts'] = {}
+  end
 
-	-- Determine the type of account, if it wasn't given
-	local account_type = nil
-	if(is_admin) then
-		account_type = ACCOUNT_TYPES.ADMIN
-	else
-		if(username == '') then
-			-- Anonymous account
-			account_type = ACCOUNT_TYPES.ANONYMOUS
-		elseif(string.lower(username) == 'guest') then
-			-- Guest account
-			account_type = ACCOUNT_TYPES.GUEST
-		else
-			-- We have to assume it's a user-level account (we just can't call any SMB functions from inside here)
-			account_type = ACCOUNT_TYPES.USER
-		end
-	end
+  -- Determine the type of account, if it wasn't given
+  local account_type = nil
+  if(is_admin) then
+    account_type = ACCOUNT_TYPES.ADMIN
+  else
+    if(username == '') then
+      -- Anonymous account
+      account_type = ACCOUNT_TYPES.ANONYMOUS
+    elseif(string.lower(username) == 'guest') then
+      -- Guest account
+      account_type = ACCOUNT_TYPES.GUEST
+    else
+      -- We have to assume it's a user-level account (we just can't call any SMB functions from inside here)
+      account_type = ACCOUNT_TYPES.USER
+    end
+  end
 
-	-- Set some defaults
-	if(hash_type == nil) then
-		hash_type = 'ntlm'
-	end
+  -- Set some defaults
+  if(hash_type == nil) then
+    hash_type = 'ntlm'
+  end
 
-	-- Save the new account if this is our first one, or our other account isn't an admin
-	local new_entry = {}
-	new_entry['username']      = username
-	new_entry['domain']        = domain
-	new_entry['password']      = password
-	new_entry['password_hash'] = password_hash
-	new_entry['hash_type']     = string.lower(hash_type)
-	new_entry['account_type']  = account_type
+  -- Save the new account if this is our first one, or our other account isn't an admin
+  local new_entry = {}
+  new_entry['username']      = username
+  new_entry['domain']        = domain
+  new_entry['password']      = password
+  new_entry['password_hash'] = password_hash
+  new_entry['hash_type']     = string.lower(hash_type)
+  new_entry['account_type']  = account_type
 
-	-- Insert the new entry into the table
-	table.insert(host.registry['smbaccounts'], new_entry)
+  -- Insert the new entry into the table
+  table.insert(host.registry['smbaccounts'], new_entry)
 
-	-- Sort the table based on the account type (we want anonymous at the end, administrator at the front)
-	table.sort(host.registry['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
+  -- Sort the table based on the account type (we want anonymous at the end, administrator at the front)
+  table.sort(host.registry['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
 
-	-- Print a debug message
-	stdnse.print_debug(1, "SMB: Added account '%s' to account list", username)
+  -- Print a debug message
+  stdnse.print_debug(1, "SMB: Added account '%s' to account list", username)
 
-	-- Reset the credentials
-	next_account(host, 1)
+  -- Reset the credentials
+  next_account(host, 1)
 
---	io.write("\n\n" .. nsedebug.tostr(host.registry['smbaccounts']) .. "\n\n")
+  --	io.write("\n\n" .. nsedebug.tostr(host.registry['smbaccounts']) .. "\n\n")
 end
 
 ---Retrieve the current set of credentials set in the registry. If these fail, <code>next_credentials</code> should be
@@ -222,18 +222,18 @@ end
 --@return (result, username, domain, password, password_hash, hash_type) If result is false, username is an error message. Otherwise, username and password are
 --        the current username and password that should be used.
 function get_account(host)
-	if(host.registry['smbindex'] == nil) then
-		host.registry['smbindex'] = 1
-	end
+  if(host.registry['smbindex'] == nil) then
+    host.registry['smbindex'] = 1
+  end
 
-	local index = host.registry['smbindex']
-	local account = host.registry['smbaccounts'][index]
+  local index = host.registry['smbindex']
+  local account = host.registry['smbaccounts'][index]
 
-	if(account == nil) then
-		return false, "No accounts left to try"
-	end
+  if(account == nil) then
+    return false, "No accounts left to try"
+  end
 
-	return true, account['username'], account['domain'], account['password'], account['password_hash'], account['hash_type']
+  return true, account['username'], account['domain'], account['password'], account['password_hash'], account['hash_type']
 end
 
 ---Create the account table with the anonymous and guest users, as well as the user given in the script's
@@ -241,88 +241,88 @@ end
 --
 --@param host The host object.
 function init_account(host)
-	-- Don't run this more than once for each host
-	if(host.registry['smbaccounts'] ~= nil) then
-		return
-	end
+  -- Don't run this more than once for each host
+  if(host.registry['smbaccounts'] ~= nil) then
+    return
+  end
 
-	-- Create the list
-	host.registry['smbaccounts'] = {}
+  -- Create the list
+  host.registry['smbaccounts'] = {}
 
-	-- Add the anonymous/guest accounts
-	add_account(host, '',      '', '', nil, 'none')
+  -- Add the anonymous/guest accounts
+  add_account(host, '',      '', '', nil, 'none')
 
-	if(not stdnse.get_script_args( "smbnoguest" )) then
-		add_account(host, 'guest', '', '', nil, 'ntlm')
-	end
+  if(not stdnse.get_script_args( "smbnoguest" )) then
+    add_account(host, 'guest', '', '', nil, 'ntlm')
+  end
 
-	-- Add the account given on the commandline (TODO: allow more than one?)
-	local args = nmap.registry.args
-	local username      = nil
-	local domain        = ''
-	local password      = nil
-	local password_hash = nil
-	local hash_type     = 'ntlm'
+  -- Add the account given on the commandline (TODO: allow more than one?)
+  local args = nmap.registry.args
+  local username      = nil
+  local domain        = ''
+  local password      = nil
+  local password_hash = nil
+  local hash_type     = 'ntlm'
 
-	-- Do the username first
-	if(args.smbusername ~= nil) then
-		username = args.smbusername
-	elseif(args.smbuser ~= nil) then
-		username = args.smbuser
-	end
+  -- Do the username first
+  if(args.smbusername ~= nil) then
+    username = args.smbusername
+  elseif(args.smbuser ~= nil) then
+    username = args.smbuser
+  end
 
-	-- If the username exists, do everything else
-	if(username ~= nil) then
-		-- Domain
-		if(args.smbdomain ~= nil) then
-			domain = args.smbdomain
-		end
+  -- If the username exists, do everything else
+  if(username ~= nil) then
+    -- Domain
+    if(args.smbdomain ~= nil) then
+      domain = args.smbdomain
+    end
 
-		-- Type
-		if(args.smbtype ~= nil) then
-			hash_type = args.smbtype
-		end
+    -- Type
+    if(args.smbtype ~= nil) then
+      hash_type = args.smbtype
+    end
 
-		-- Do the password
-		if(args.smbpassword ~= nil) then
-			password = args.smbpassword
-		elseif(args.smbpass ~= nil) then
-			password = args.smbpass
-		end
+    -- Do the password
+    if(args.smbpassword ~= nil) then
+      password = args.smbpassword
+    elseif(args.smbpass ~= nil) then
+      password = args.smbpass
+    end
 
-		-- Only use the hash if there's no password
-		if(password == nil) then
-			password_hash = args.smbhash
-		end
+    -- Only use the hash if there's no password
+    if(password == nil) then
+      password_hash = args.smbhash
+    end
 
-		-- Add the account, if we got a password
-		if(password == nil and password_hash == nil) then
-			stdnse.print_debug(1, "SMB: Either smbpass, smbpassword, or smbhash have to be passed as script arguments to use an account")
-		else
-			add_account(host, username, domain, password, password_hash, hash_type)
-		end
-	end
+    -- Add the account, if we got a password
+    if(password == nil and password_hash == nil) then
+      stdnse.print_debug(1, "SMB: Either smbpass, smbpassword, or smbhash have to be passed as script arguments to use an account")
+    else
+      add_account(host, username, domain, password, password_hash, hash_type)
+    end
+  end
 end
 
 local function to_unicode(str)
-	local unicode = ""
+  local unicode = ""
 
-	for i = 1, #str, 1 do
-		unicode = unicode .. bin.pack("<S", string.byte(str, i))
-	end
+  for i = 1, #str, 1 do
+    unicode = unicode .. bin.pack("<S", string.byte(str, i))
+  end
 
-	return unicode
+  return unicode
 end
 
 local function from_unicode(unicode)
-	local str = ""
-	if ( unicode == nil ) then
-		return nil
-	end
-	for char_itr = 1, unicode:len(), 2 do
-		str = str .. unicode:sub(char_itr, char_itr)
-	end
-	return str
+  local str = ""
+  if ( unicode == nil ) then
+    return nil
+  end
+  for char_itr = 1, unicode:len(), 2 do
+    str = str .. unicode:sub(char_itr, char_itr)
+  end
+  return str
 end
 
 ---Generate the Lanman v1 hash (LMv1). The generated hash is incredibly easy to reverse, because the input
@@ -333,34 +333,34 @@ end
 --@param password the password to hash
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
 local function lm_create_hash(password)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	local str1, str2
-	local key1, key2
-	local result
+  local str1, str2
+  local key1, key2
+  local result
 
-	-- Convert the password to uppercase
-	password = string.upper(password)
+  -- Convert the password to uppercase
+  password = string.upper(password)
 
-	-- If password is under 14 characters, pad it to 14
-	if(#password < 14) then
-		password = password .. string.rep(string.char(0), 14 - #password)
-	end
+  -- If password is under 14 characters, pad it to 14
+  if(#password < 14) then
+    password = password .. string.rep(string.char(0), 14 - #password)
+  end
 
-	-- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
-	str1 = string.sub(password, 1, 7)
-	str2 = string.sub(password, 8, 14)
+  -- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
+  str1 = string.sub(password, 1, 7)
+  str2 = string.sub(password, 8, 14)
 
-	-- Generate the keys
-	key1 = openssl.DES_string_to_key(str1)
-	key2 = openssl.DES_string_to_key(str2)
+  -- Generate the keys
+  key1 = openssl.DES_string_to_key(str1)
+  key2 = openssl.DES_string_to_key(str2)
 
-	-- Encrypt the string "KGS!@#$%" with each half, and concatenate it
-	result = openssl.encrypt("DES", key1, nil, "KGS!@#$%") .. openssl.encrypt("DES", key2, nil, "KGS!@#$%")
+  -- Encrypt the string "KGS!@#$%" with each half, and concatenate it
+  result = openssl.encrypt("DES", key1, nil, "KGS!@#$%") .. openssl.encrypt("DES", key2, nil, "KGS!@#$%")
 
-	return true, result
+  return true, result
 end
 
 ---Generate the NTLMv1 hash. This hash is quite a bit better than LMv1, and is far easier to generate. Basically,
@@ -369,11 +369,11 @@ end
 --@param password the password to hash
 --@return (status, hash) If status is true, the hash is returned; otherwise, an error message is returned.
 function ntlm_create_hash(password)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	return true, openssl.md4(to_unicode(password))
+  return true, openssl.md4(to_unicode(password))
 end
 
 ---Create the Lanman response to send back to the server. To do this, the Lanman password is padded to 21
@@ -384,38 +384,38 @@ end
 --@param challenge The server's challenge.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function lm_create_response(lanman, challenge)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	local str1, str2, str3
-	local key1, key2, key3
-	local result
+  local str1, str2, str3
+  local key1, key2, key3
+  local result
 
-	-- Pad the hash to 21 characters
-	lanman = lanman .. string.rep(string.char(0), 21 - #lanman)
+  -- Pad the hash to 21 characters
+  lanman = lanman .. string.rep(string.char(0), 21 - #lanman)
 
-	-- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
-	str1 = string.sub(lanman, 1,  7)
-	str2 = string.sub(lanman, 8,  14)
-	str3 = string.sub(lanman, 15, 21)
+  -- Take the first and second half of the password (note that if it's longer than 14 characters, it's truncated)
+  str1 = string.sub(lanman, 1,  7)
+  str2 = string.sub(lanman, 8,  14)
+  str3 = string.sub(lanman, 15, 21)
 
-	-- Generate the keys
-	key1 = openssl.DES_string_to_key(str1)
-	key2 = openssl.DES_string_to_key(str2)
-	key3 = openssl.DES_string_to_key(str3)
+  -- Generate the keys
+  key1 = openssl.DES_string_to_key(str1)
+  key2 = openssl.DES_string_to_key(str2)
+  key3 = openssl.DES_string_to_key(str3)
 
-	-- Print a warning message if a blank challenge is received, and create a phony challenge. A blank challenge is
-	-- invalid in the protocol, and causes some versions of OpenSSL to abort with no possible error handling.
-	if(challenge == "") then
-		stdnse.print_debug(1, "SMB: ERROR: Server returned invalid (blank) challenge value (should be 8 bytes); failing login to avoid OpenSSL crash.")
-		challenge = "AAAAAAAA"
-	end
+  -- Print a warning message if a blank challenge is received, and create a phony challenge. A blank challenge is
+  -- invalid in the protocol, and causes some versions of OpenSSL to abort with no possible error handling.
+  if(challenge == "") then
+    stdnse.print_debug(1, "SMB: ERROR: Server returned invalid (blank) challenge value (should be 8 bytes); failing login to avoid OpenSSL crash.")
+    challenge = "AAAAAAAA"
+  end
 
-	-- Encrypt the challenge with each key
-	result = openssl.encrypt("DES", key1, nil, challenge) .. openssl.encrypt("DES", key2, nil, challenge) .. openssl.encrypt("DES", key3, nil, challenge)
+  -- Encrypt the challenge with each key
+  result = openssl.encrypt("DES", key1, nil, challenge) .. openssl.encrypt("DES", key2, nil, challenge) .. openssl.encrypt("DES", key3, nil, challenge)
 
-	return true, result
+  return true, result
 end
 
 ---Create the NTLM response to send back to the server. This is actually done the exact same way as the Lanman hash,
@@ -425,11 +425,11 @@ end
 --@param challenge The server's challenge.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function ntlm_create_response(ntlm, challenge)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	return lm_create_response(ntlm, challenge)
+  return lm_create_response(ntlm, challenge)
 end
 
 ---Create the NTLM mac key, which is used for message signing. For basic authentication, this is the md4 of the
@@ -439,14 +439,14 @@ end
 --@param ntlm_response The NTLM response.
 --@param is_extended Should be set if extended security negotiations are being used.
 function ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
-	if(is_extended) then
-		return openssl.md4(ntlm_hash)
-	else
-		return openssl.md4(ntlm_hash) .. ntlm_response
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
+  if(is_extended) then
+    return openssl.md4(ntlm_hash)
+  else
+    return openssl.md4(ntlm_hash) .. ntlm_response
+  end
 end
 
 ---Create the LM mac key, which is used for message signing. For basic authentication, it's the first 8 bytes
@@ -456,15 +456,15 @@ end
 --@param lm_response The NTLM response.
 --@param is_extended Should be set if extended security negotiations are being used.
 function lm_create_mac_key(lm_hash, lm_response, is_extended)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	if(is_extended) then
-		return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8)
-	else
-		return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8) .. lm_response
-	end
+  if(is_extended) then
+    return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8)
+  else
+    return string.sub(lm_hash, 1, 8) .. string.rep(string.char(0), 8) .. lm_response
+  end
 end
 
 ---Create the NTLMv2 hash, which is based on the NTLMv1 hash (for easy upgrading), the username, and the domain.
@@ -476,16 +476,16 @@ end
 --@param domain   The domain.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function ntlmv2_create_hash(ntlm, username, domain)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	local unicode = ""
+  local unicode = ""
 
-	username = to_unicode(string.upper(username))
-	domain   = to_unicode(string.upper(domain))
+  username = to_unicode(string.upper(username))
+  domain   = to_unicode(string.upper(domain))
 
-	return true, openssl.hmac("MD5", ntlm, username .. domain)
+  return true, openssl.hmac("MD5", ntlm, username .. domain)
 end
 
 ---Create the LMv2 response, which can be sent back to the server. This is identical to the <code>NTLMv2</code> function,
@@ -503,11 +503,11 @@ end
 --@param challenge The server challenge.
 --@return (status, response) If status is true, the response is returned; otherwise, an error message is returned.
 function lmv2_create_response(ntlm, username, domain, challenge)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	return ntlmv2_create_response(ntlm, username, domain, challenge, 8)
+  return ntlmv2_create_response(ntlm, username, domain, challenge, 8)
 end
 
 ---Create the NTLMv2 response, which can be sent back to the server. This is done by using the HMAC-MD5 algorithm
@@ -520,15 +520,15 @@ end
 -- guaranteed to be much longer than 24 bytes. So, I just use a random string generated by OpenSSL. I've tested
 -- it on every Windows system from Windows 2000 to Windows Vista, and it has always worked.
 function ntlmv2_create_response(ntlm, username, domain, challenge, client_challenge_length)
-	if(have_ssl ~= true) then
-		return false, "SMB: OpenSSL not present"
-	end
+  if(have_ssl ~= true) then
+    return false, "SMB: OpenSSL not present"
+  end
 
-	local client_challenge = openssl.rand_bytes(client_challenge_length)
+  local client_challenge = openssl.rand_bytes(client_challenge_length)
 
-	local status, ntlmv2_hash = ntlmv2_create_hash(ntlm, username, domain)
+  local status, ntlmv2_hash = ntlmv2_create_hash(ntlm, username, domain)
 
-	return true, openssl.hmac("MD5", ntlmv2_hash, challenge .. client_challenge) .. client_challenge
+  return true, openssl.hmac("MD5", ntlmv2_hash, challenge .. client_challenge) .. client_challenge
 end
 
 ---Generate the Lanman and NTLM password hashes. The password itself is taken from the function parameters,
@@ -549,262 +549,262 @@ end
 --@return (lm_response, ntlm_response, mac_key) The two strings that can be sent directly back to the server,
 --                 and the mac_key, which is used for message signing.
 function get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, is_extended)
-    local status
-	local lm_hash   = nil
-	local ntlm_hash = nil
-	local mac_key   = nil
-    local lm_response, ntlm_response
+  local status
+  local lm_hash   = nil
+  local ntlm_hash = nil
+  local mac_key   = nil
+  local lm_response, ntlm_response
 
-	-- Check for a blank password
-	if(password == nil and password_hash == nil) then
-		stdnse.print_debug(2, "SMB: Couldn't find password or hash to use (assuming blank)")
-		password = ""
-	end
+  -- Check for a blank password
+  if(password == nil and password_hash == nil) then
+    stdnse.print_debug(2, "SMB: Couldn't find password or hash to use (assuming blank)")
+    password = ""
+  end
 
-	-- The anonymous user requires a single 0-byte instead of a LANMAN hash (don't ask me why, but it doesn't work without)
-	if(hash_type == 'none') then
-		return string.char(0), '', nil
-	end
+  -- The anonymous user requires a single 0-byte instead of a LANMAN hash (don't ask me why, but it doesn't work without)
+  if(hash_type == 'none') then
+    return string.char(0), '', nil
+  end
 
-	-- If we got a password, hash it
-	if(password ~= nil) then
-		status, lm_hash   = lm_create_hash(password)
-		status, ntlm_hash = ntlm_create_hash(password)
-	else
-		if(password_hash ~= nil) then
-			if(string.find(password_hash, "^" .. string.rep("%x%x", 16) .. "$")) then
-				stdnse.print_debug(2, "SMB: Found a 16-byte hex string")
-				lm_hash   = bin.pack("H", password_hash:sub(1, 32))
-				ntlm_hash = bin.pack("H", password_hash:sub(1, 32))
-			elseif(string.find(password_hash, "^" .. string.rep("%x%x", 32) .. "$")) then
-				stdnse.print_debug(2, "SMB: Found a 32-byte hex string")
-				lm_hash   = bin.pack("H", password_hash:sub(1, 32))
-				ntlm_hash = bin.pack("H", password_hash:sub(33, 64))
-			elseif(string.find(password_hash, "^" .. string.rep("%x%x", 16) .. "." .. string.rep("%x%x", 16) .. "$")) then
-				stdnse.print_debug(2, "SMB: Found two 16-byte hex strings")
-				lm_hash   = bin.pack("H", password_hash:sub(1, 32))
-				ntlm_hash = bin.pack("H", password_hash:sub(34, 65))
-			else
-				stdnse.print_debug(1, "SMB: ERROR: Hash(es) provided in an invalid format (should be 32, 64, or 65 hex characters)")
-				lm_hash = nil
-				ntlm_hash = nil
-			end
-		end
-	end
+  -- If we got a password, hash it
+  if(password ~= nil) then
+    status, lm_hash   = lm_create_hash(password)
+    status, ntlm_hash = ntlm_create_hash(password)
+  else
+    if(password_hash ~= nil) then
+      if(string.find(password_hash, "^" .. string.rep("%x%x", 16) .. "$")) then
+        stdnse.print_debug(2, "SMB: Found a 16-byte hex string")
+        lm_hash   = bin.pack("H", password_hash:sub(1, 32))
+        ntlm_hash = bin.pack("H", password_hash:sub(1, 32))
+      elseif(string.find(password_hash, "^" .. string.rep("%x%x", 32) .. "$")) then
+        stdnse.print_debug(2, "SMB: Found a 32-byte hex string")
+        lm_hash   = bin.pack("H", password_hash:sub(1, 32))
+        ntlm_hash = bin.pack("H", password_hash:sub(33, 64))
+      elseif(string.find(password_hash, "^" .. string.rep("%x%x", 16) .. "." .. string.rep("%x%x", 16) .. "$")) then
+        stdnse.print_debug(2, "SMB: Found two 16-byte hex strings")
+        lm_hash   = bin.pack("H", password_hash:sub(1, 32))
+        ntlm_hash = bin.pack("H", password_hash:sub(34, 65))
+      else
+        stdnse.print_debug(1, "SMB: ERROR: Hash(es) provided in an invalid format (should be 32, 64, or 65 hex characters)")
+        lm_hash = nil
+        ntlm_hash = nil
+      end
+    end
+  end
 
-	-- At this point, we should have a good lm_hash and ntlm_hash if we're getting one
-	if(lm_hash == nil or ntlm_hash == nil) then
-		stdnse.print_debug(2, "SMB: Couldn't determine which password to use, using a blank one")
-		return "", ""
-	end
+  -- At this point, we should have a good lm_hash and ntlm_hash if we're getting one
+  if(lm_hash == nil or ntlm_hash == nil) then
+    stdnse.print_debug(2, "SMB: Couldn't determine which password to use, using a blank one")
+    return "", ""
+  end
 
-	-- Output what we've got so far
-	stdnse.print_debug(2, "SMB: Lanman hash: %s", stdnse.tohex(lm_hash))
-	stdnse.print_debug(2, "SMB: NTLM   hash: %s", stdnse.tohex(ntlm_hash))
+  -- Output what we've got so far
+  stdnse.print_debug(2, "SMB: Lanman hash: %s", stdnse.tohex(lm_hash))
+  stdnse.print_debug(2, "SMB: NTLM   hash: %s", stdnse.tohex(ntlm_hash))
 
-	-- Hash the password the way the user wants
-	if(hash_type == "v1") then
-		-- LM and NTLM are hashed with their respective algorithms
-		stdnse.print_debug(2, "SMB: Creating v1 response")
-		status, lm_response   = lm_create_response(lm_hash, challenge)
-		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
+  -- Hash the password the way the user wants
+  if(hash_type == "v1") then
+    -- LM and NTLM are hashed with their respective algorithms
+    stdnse.print_debug(2, "SMB: Creating v1 response")
+    status, lm_response   = lm_create_response(lm_hash, challenge)
+    status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
 
-		mac_key               = ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
+    mac_key               = ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
 
-	elseif(hash_type == "lm") then
-		-- LM is hashed with its algorithm, NTLM is blank
-		stdnse.print_debug(2, "SMB: Creating LMv1 response")
-		status, lm_response   = lm_create_response(lm_hash, challenge)
-		        ntlm_response = ""
+  elseif(hash_type == "lm") then
+    -- LM is hashed with its algorithm, NTLM is blank
+    stdnse.print_debug(2, "SMB: Creating LMv1 response")
+    status, lm_response   = lm_create_response(lm_hash, challenge)
+    ntlm_response = ""
 
-		mac_key               = lm_create_mac_key(lm_hash, lm_response, is_extended)
+    mac_key               = lm_create_mac_key(lm_hash, lm_response, is_extended)
 
-	elseif(hash_type == "ntlm") then
-		-- LM and NTLM both use the NTLM algorithm
-		stdnse.print_debug(2, "SMB: Creating NTLMv1 response")
-		status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
-		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
+  elseif(hash_type == "ntlm") then
+    -- LM and NTLM both use the NTLM algorithm
+    stdnse.print_debug(2, "SMB: Creating NTLMv1 response")
+    status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
+    status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
 
-		mac_key               = ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
+    mac_key               = ntlm_create_mac_key(ntlm_hash, ntlm_response, is_extended)
 
-	elseif(hash_type == "v2") then
-		-- LM and NTLM are hashed with their respective v2 algorithms
-		stdnse.print_debug(2, "SMB: Creating v2 response")
-		status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
-		status, ntlm_response = ntlmv2_create_response(ntlm_hash, username, domain, challenge, 24)
+  elseif(hash_type == "v2") then
+    -- LM and NTLM are hashed with their respective v2 algorithms
+    stdnse.print_debug(2, "SMB: Creating v2 response")
+    status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
+    status, ntlm_response = ntlmv2_create_response(ntlm_hash, username, domain, challenge, 24)
 
-	elseif(hash_type == "lmv2") then
-		-- LM is hashed with its v2 algorithm, NTLM is blank
-		stdnse.print_debug(2, "SMB: Creating LMv2 response")
-		status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
-		        ntlm_response = ""
+  elseif(hash_type == "lmv2") then
+    -- LM is hashed with its v2 algorithm, NTLM is blank
+    stdnse.print_debug(2, "SMB: Creating LMv2 response")
+    status, lm_response   = lmv2_create_response(ntlm_hash, username, domain, challenge)
+    ntlm_response = ""
 
-	else
-		-- Default to NTLMv1
-		if(hash_type ~= nil) then
-			stdnse.print_debug(1, "SMB: Invalid login type specified ('%s'), using default (NTLM)", hash_type)
-		else
-			stdnse.print_debug(1, "SMB: No login type specified, using default (NTLM)")
-		end
+  else
+    -- Default to NTLMv1
+    if(hash_type ~= nil) then
+      stdnse.print_debug(1, "SMB: Invalid login type specified ('%s'), using default (NTLM)", hash_type)
+    else
+      stdnse.print_debug(1, "SMB: No login type specified, using default (NTLM)")
+    end
 
-		status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
-		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
+    status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
+    status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
 
-	end
+  end
 
-	stdnse.print_debug(2, "SMB: Lanman response: %s", stdnse.tohex(lm_response))
-	stdnse.print_debug(2, "SMB: NTLM   response: %s", stdnse.tohex(ntlm_response))
+  stdnse.print_debug(2, "SMB: Lanman response: %s", stdnse.tohex(lm_response))
+  stdnse.print_debug(2, "SMB: NTLM   response: %s", stdnse.tohex(ntlm_response))
 
-	return lm_response, ntlm_response, mac_key
+  return lm_response, ntlm_response, mac_key
 end
 
 function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type, flags)
-	local pos = 1
-	local new_blob
-	local flags = flags or 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
+  local pos = 1
+  local new_blob
+  local flags = flags or 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
 
-	if(security_blob == nil) then
-		-- If security_blob is nil, this is the initial packet
-		new_blob = bin.pack("<zIILL",
-					"NTLMSSP",            -- Identifier
-					NTLMSSP_NEGOTIATE,    -- Type
-					flags,                -- Flags
-					0,                    -- Calling workstation domain
-					0                     -- Calling workstation name
-				)
+  if(security_blob == nil) then
+    -- If security_blob is nil, this is the initial packet
+    new_blob = bin.pack("<zIILL",
+    "NTLMSSP",            -- Identifier
+    NTLMSSP_NEGOTIATE,    -- Type
+    flags,                -- Flags
+    0,                    -- Calling workstation domain
+    0                     -- Calling workstation name
+    )
 
-		return true, new_blob, "", ""
-	else
-		-- Parse the old security blob
-		local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
-   	local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
+    return true, new_blob, "", ""
+  else
+    -- Parse the old security blob
+    local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
+    local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
 
-		-- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
-		local hostname = to_unicode("nmap")
-		username = to_unicode(username)
-		domain   = (#username > 0 ) and to_unicode(domain) or ""
-		ntlm     = (#username > 0 ) and ntlm or ""
-		lanman   = (#username > 0 ) and lanman or string.char(0)
+    -- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
+    local hostname = to_unicode("nmap")
+    username = to_unicode(username)
+    domain   = (#username > 0 ) and to_unicode(domain) or ""
+    ntlm     = (#username > 0 ) and ntlm or ""
+    lanman   = (#username > 0 ) and lanman or string.char(0)
 
-		local domain_offset = 0x40
-		local username_offset = domain_offset + #domain
-		local hostname_offset = username_offset + #username
-		local lanman_offset = hostname_offset + #hostname
-		local ntlm_offset = lanman_offset + #lanman
-		local sessionkey_offset = ntlm_offset + #ntlm
+    local domain_offset = 0x40
+    local username_offset = domain_offset + #domain
+    local hostname_offset = username_offset + #username
+    local lanman_offset = hostname_offset + #hostname
+    local ntlm_offset = lanman_offset + #lanman
+    local sessionkey_offset = ntlm_offset + #ntlm
 
-		new_blob = bin.pack("<zISSISSISSISSISSISSIIAAAAAA",
-			"NTLMSSP",
-			NTLMSSP_AUTH,
-			#lanman,
-			#lanman,
-			lanman_offset,
-			( #ntlm > 0 and #ntlm - 16 or 0 ),
-			( #ntlm > 0 and #ntlm - 16 or 0 ),
-			ntlm_offset,
-			#domain,
-			#domain,
-			domain_offset,
-			#username,
-			#username,
-			username_offset,
-			#hostname,
-			#hostname,
-			hostname_offset,
-			#session_key,
-			#session_key,
-			sessionkey_offset,
-			flags,
-			domain,
-			username,
-			hostname,
-			lanman,
-			ntlm,
-			session_key)
+    new_blob = bin.pack("<zISSISSISSISSISSISSIIAAAAAA",
+      "NTLMSSP",
+      NTLMSSP_AUTH,
+      #lanman,
+      #lanman,
+      lanman_offset,
+      ( #ntlm > 0 and #ntlm - 16 or 0 ),
+      ( #ntlm > 0 and #ntlm - 16 or 0 ),
+      ntlm_offset,
+      #domain,
+      #domain,
+      domain_offset,
+      #username,
+      #username,
+      username_offset,
+      #hostname,
+      #hostname,
+      hostname_offset,
+      #session_key,
+      #session_key,
+      sessionkey_offset,
+      flags,
+      domain,
+      username,
+      hostname,
+      lanman,
+      ntlm,
+      session_key)
 
-		return true, new_blob, mac_key
-	end
+    return true, new_blob, mac_key
+  end
 
 end
 
 function get_host_info_from_security_blob(security_blob)
-	local ntlm_challenge = {}
-	--local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
-	local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
+  local ntlm_challenge = {}
+  --local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
+  local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
 
-	-- Do some validation on the NTLMSSP message
-	if ( identifier ~= "NTLMSSP\0" ) then
-		stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected signature." )
-		return false, "Invalid NTLM challenge message"
-	-- Per MS-NLMP, this field must be 2 for an NTLM challenge message
-	elseif ( message_type ~= 0x2 ) then
-		stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected message type: %d.", message_type )
-		return false, "Invalid message type in NTLM challenge message"
-	end
+  -- Do some validation on the NTLMSSP message
+  if ( identifier ~= "NTLMSSP\0" ) then
+    stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected signature." )
+    return false, "Invalid NTLM challenge message"
+    -- Per MS-NLMP, this field must be 2 for an NTLM challenge message
+  elseif ( message_type ~= 0x2 ) then
+    stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected message type: %d.", message_type )
+    return false, "Invalid message type in NTLM challenge message"
+  end
 
-	-- Parse the TargetName data (i.e. the server authentication realm)
-	if ( domain_length > 0 ) then
-		local length = domain_length
-		local pos = domain_offset + 1 -- +1 to convert to Lua's 1-based indexes
-		local target_realm
-		pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
-		ntlm_challenge[ "target_realm" ] = from_unicode( target_realm )
-	end
+  -- Parse the TargetName data (i.e. the server authentication realm)
+  if ( domain_length > 0 ) then
+    local length = domain_length
+    local pos = domain_offset + 1 -- +1 to convert to Lua's 1-based indexes
+    local target_realm
+    pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
+    ntlm_challenge[ "target_realm" ] = from_unicode( target_realm )
+  end
 
-	-- Parse the TargetInfo data (Wireshark calls this the "Address List")
-	if ( target_info_length > 0 ) then
+  -- Parse the TargetInfo data (Wireshark calls this the "Address List")
+  if ( target_info_length > 0 ) then
 
-		-- Definition of AvId values (IDs for AV_PAIR (attribute-value pair) structures),
-		-- as definied by the NTLM Authentication Protocol specification [MS-NLMP].
-		local NTLM_AV_ID_VALUES = {
-			MsvAvEOL				= 0x0,
-			MsvAvNbComputerName		= 0x1,
-			MsvAvNbDomainName		= 0x2,
-			MsvAvDnsComputerName	= 0x3,
-			MsvAvDnsDomainName		= 0x4,
-			MsvAvDnsTreeName		= 0x5,
-			MsvAvFlags				= 0x6,
-			MsvAvTimestamp			= 0x7,
-			MsvAvRestrictions		= 0x8,
-			MsvAvTargetName			= 0x9,
-			MsvAvChannelBindings	= 0xA,
-		}
-		-- Friendlier names for AvId values, to be used as keys in the results table
-		-- e.g. ntlm_challenge[ "dns_computer_name" ] -> "host.test.local"
-		local NTLM_AV_ID_NAMES = {
-			[NTLM_AV_ID_VALUES.MsvAvNbComputerName]		= "netbios_computer_name",
-			[NTLM_AV_ID_VALUES.MsvAvNbDomainName]		= "netbios_domain_name",
-			[NTLM_AV_ID_VALUES.MsvAvDnsComputerName]	= "fqdn",
-			[NTLM_AV_ID_VALUES.MsvAvDnsDomainName]		= "dns_domain_name",
-			[NTLM_AV_ID_VALUES.MsvAvDnsTreeName]		= "dns_forest_name",
-			[NTLM_AV_ID_VALUES.MsvAvTimestamp]			= "timestamp",
-		}
+    -- Definition of AvId values (IDs for AV_PAIR (attribute-value pair) structures),
+    -- as definied by the NTLM Authentication Protocol specification [MS-NLMP].
+    local NTLM_AV_ID_VALUES = {
+      MsvAvEOL = 0x0,
+      MsvAvNbComputerName = 0x1,
+      MsvAvNbDomainName = 0x2,
+      MsvAvDnsComputerName = 0x3,
+      MsvAvDnsDomainName = 0x4,
+      MsvAvDnsTreeName = 0x5,
+      MsvAvFlags = 0x6,
+      MsvAvTimestamp = 0x7,
+      MsvAvRestrictions = 0x8,
+      MsvAvTargetName = 0x9,
+      MsvAvChannelBindings = 0xA,
+    }
+    -- Friendlier names for AvId values, to be used as keys in the results table
+    -- e.g. ntlm_challenge[ "dns_computer_name" ] -> "host.test.local"
+    local NTLM_AV_ID_NAMES = {
+      [NTLM_AV_ID_VALUES.MsvAvNbComputerName] = "netbios_computer_name",
+      [NTLM_AV_ID_VALUES.MsvAvNbDomainName] = "netbios_domain_name",
+      [NTLM_AV_ID_VALUES.MsvAvDnsComputerName] = "fqdn",
+      [NTLM_AV_ID_VALUES.MsvAvDnsDomainName] = "dns_domain_name",
+      [NTLM_AV_ID_VALUES.MsvAvDnsTreeName] = "dns_forest_name",
+      [NTLM_AV_ID_VALUES.MsvAvTimestamp] = "timestamp",
+    }
 
 
-		local length = target_info_length
-		local pos = target_info_offset + 1 -- +1 to convert to Lua's 1-based indexes
-		local target_info
-		pos, target_info = bin.unpack( string.format( "A%d", length ), security_blob, pos )
+    local length = target_info_length
+    local pos = target_info_offset + 1 -- +1 to convert to Lua's 1-based indexes
+    local target_info
+    pos, target_info = bin.unpack( string.format( "A%d", length ), security_blob, pos )
 
-		pos = 1 -- reset pos to 1, since we'll be working out of just the target_info
-		repeat
-			local value, av_id, av_len
-			pos, av_id, av_len = bin.unpack( "<SS", target_info, pos )
-			pos, value = bin.unpack( string.format( "A%d", av_len ), target_info, pos )
-			local friendly_name = NTLM_AV_ID_NAMES[ av_id ]
+    pos = 1 -- reset pos to 1, since we'll be working out of just the target_info
+    repeat
+      local value, av_id, av_len
+      pos, av_id, av_len = bin.unpack( "<SS", target_info, pos )
+      pos, value = bin.unpack( string.format( "A%d", av_len ), target_info, pos )
+      local friendly_name = NTLM_AV_ID_NAMES[ av_id ]
 
-			if ( av_id == NTLM_AV_ID_VALUES.MsvAvEOL ) then
-				break
-			elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
-				-- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
-				ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
-			elseif ( friendly_name ) then
-				ntlm_challenge[ friendly_name ] = from_unicode( value )
-			end
-		until ( pos >= #target_info )
-	end
+      if ( av_id == NTLM_AV_ID_VALUES.MsvAvEOL ) then
+        break
+      elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
+        -- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
+        ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
+      elseif ( friendly_name ) then
+        ntlm_challenge[ friendly_name ] = from_unicode( value )
+      end
+    until ( pos >= #target_info )
+  end
 
-	return ntlm_challenge
+  return ntlm_challenge
 end
 
 ---Create an 8-byte message signature that's sent with all SMB packets.
@@ -815,11 +815,11 @@ end
 --            sent, except with the signature slot replaced with the sequence number.
 --@return The 8-byte signature. The signature is equal to the first eight bytes of md5(mac_key .. smb_data)
 function calculate_signature(mac_key, data)
-	if(have_ssl) then
-		return string.sub(openssl.md5(mac_key .. data), 1, 8)
-	else
-		return string.rep(string.char(0), 8)
-	end
+  if(have_ssl) then
+    return string.sub(openssl.md5(mac_key .. data), 1, 8)
+  else
+    return string.rep(string.char(0), 8)
+  end
 end
 
 

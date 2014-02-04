@@ -517,7 +517,7 @@ function request_reconnect_session_data(host, port, params)
   end
 
   if params.DeviceId then
-    xmldata = xmldata	.. "<DeviceId>" .. params.DeviceId .. "</DeviceId>"
+    xmldata = xmldata .. "<DeviceId>" .. params.DeviceId .. "</DeviceId>"
   end
 
   for _, srvtype in pairs(params.ServerType) do
