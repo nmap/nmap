@@ -57,9 +57,9 @@
 --  o Oracle 11g TNS AES-192 authentication details (Massimiliano Montoro)
 -- 		x http://www.oxid.it/downloads/oracle_tns_aes192_check.txt
 --  o Initial analysis of Oracle native authentication version 11g
---    (László Tóth)
+--    (Lï¿½szlï¿½ Tï¿½th)
 --      x http://www.soonerorlater.hu/index.khtml?article_id=512
---  o Oracle native authentication version 9i and 10g (László Tóth)
+--  o Oracle native authentication version 9i and 10g (Lï¿½szlï¿½ Tï¿½th)
 --      x http://www.soonerorlater.hu/index.khtml?article_id=511
 --
 -- This implementation is tested and known to work against Oracle 10g and 11g
@@ -302,7 +302,7 @@ Packet.Connect = {
 
 		CONN_STR = [[
 					(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=%s)(PORT=%d))
-					(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=%s)(CID=
+					(CONNECT_DATA=(SERVER=DEDICATED)(SID=%s)(CID=
 					(PROGRAM=sqlplus)(HOST=%s)(USER=nmap))))]],
 
 		version = 314,
