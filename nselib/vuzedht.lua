@@ -204,7 +204,7 @@ Response = {
     parse = function(self)
       local pos
       pos, self.action, self.trans_id, self.conn_id,
-      self.proto_version,	self.vendor_id, self.network_id,
+      self.proto_version, self.vendor_id, self.network_id,
       self.instance_id = bin.unpack(">IIH8CCII", self.data)
     end,
 

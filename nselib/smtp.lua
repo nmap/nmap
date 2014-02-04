@@ -596,80 +596,80 @@ end
 --         error message on failures.
 
 login = function(socket, username, password, mech)
-	assert(mech == "LOGIN" or mech == "PLAIN" or mech == "CRAM-MD5"
-			or mech == "DIGEST-MD5" or mech == "NTLM",
-			("Unsupported authentication mechanism (%s)"):format(mech or "nil"))
-	local status, response = query(socket, "AUTH", mech)
-	if ( not(status) ) then
-		return false, "ERROR: Failed to send AUTH to server"
-	end
+  assert(mech == "LOGIN" or mech == "PLAIN" or mech == "CRAM-MD5"
+    or mech == "DIGEST-MD5" or mech == "NTLM",
+    ("Unsupported authentication mechanism (%s)"):format(mech or "nil"))
+  local status, response = query(socket, "AUTH", mech)
+  if ( not(status) ) then
+    return false, "ERROR: Failed to send AUTH to server"
+  end
 
-	if ( mech == "LOGIN" ) then
-		local tmp = response:match("334 (.*)")
-		if ( not(tmp) ) then
-			return false, "ERROR: Failed to decode LOGIN response"
-		end
-		tmp = base64.dec(tmp):lower()
-		if ( not(tmp:match("^username")) ) then
-			return false, ("ERROR: Expected \"Username\", but received (%s)"):format(tmp)
-		end
-		status, response = query(socket, base64.enc(username))
-		if ( not(status) ) then
-			return false, "ERROR: Failed to read LOGIN response"
-		end
-		tmp = response:match("334 (.*)")
-		if ( not(tmp) ) then
-			return false, "ERROR: Failed to decode LOGIN response"
-		end
-		tmp = base64.dec(tmp):lower()
-		if ( not(tmp:match("^password")) ) then
-			return false, ("ERROR: Expected \"password\", but received (%s)"):format(tmp)
-		end
-		status, response = query(socket, base64.enc(password))
-		if ( not(status) ) then
-			return false, "ERROR: Failed to read LOGIN response"
-		end
-		if ( response:match("^235") ) then
-			return true, "Login success"
-		end
-		return false, response
-	end
-
-
-	if ( mech == "NTLM" ) then
-		-- sniffed of the wire, seems to always be the same
-		-- decodes to some NTLMSSP blob greatness
-		status, response = query(socket, "TlRMTVNTUAABAAAAB7IIogYABgA3AAAADwAPACgAAAAFASgKAAAAD0FCVVNFLUFJUi5MT0NBTERPTUFJTg==")
-		if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end
-	end
+  if ( mech == "LOGIN" ) then
+    local tmp = response:match("334 (.*)")
+    if ( not(tmp) ) then
+      return false, "ERROR: Failed to decode LOGIN response"
+    end
+    tmp = base64.dec(tmp):lower()
+    if ( not(tmp:match("^username")) ) then
+      return false, ("ERROR: Expected \"Username\", but received (%s)"):format(tmp)
+    end
+    status, response = query(socket, base64.enc(username))
+    if ( not(status) ) then
+      return false, "ERROR: Failed to read LOGIN response"
+    end
+    tmp = response:match("334 (.*)")
+    if ( not(tmp) ) then
+      return false, "ERROR: Failed to decode LOGIN response"
+    end
+    tmp = base64.dec(tmp):lower()
+    if ( not(tmp:match("^password")) ) then
+      return false, ("ERROR: Expected \"password\", but received (%s)"):format(tmp)
+    end
+    status, response = query(socket, base64.enc(password))
+    if ( not(status) ) then
+      return false, "ERROR: Failed to read LOGIN response"
+    end
+    if ( response:match("^235") ) then
+      return true, "Login success"
+    end
+    return false, response
+  end
 
 
-	local chall = response:match("^334 (.*)")
-	chall = (chall and base64.dec(chall))
-	if (not(chall)) then return false, "ERROR: Failed to retrieve challenge" end
+  if ( mech == "NTLM" ) then
+    -- sniffed of the wire, seems to always be the same
+    -- decodes to some NTLMSSP blob greatness
+    status, response = query(socket, "TlRMTVNTUAABAAAAB7IIogYABgA3AAAADwAPACgAAAAFASgKAAAAD0FCVVNFLUFJUi5MT0NBTERPTUFJTg==")
+    if ( not(status) ) then return false, "ERROR: Failed to receieve NTLM challenge" end
+  end
 
-	-- All mechanisms expect username and pass
-	-- add the otheronce for those who need them
-	local mech_params = { username, password, chall, "smtp" }
-	local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
-	auth_data = base64.enc(auth_data)
 
-	status, response = query(socket, auth_data)
-	if ( not(status) ) then
-		return false, ("ERROR: Failed to authenticate using SASL %s"):format(mech)
-	end
+  local chall = response:match("^334 (.*)")
+  chall = (chall and base64.dec(chall))
+  if (not(chall)) then return false, "ERROR: Failed to retrieve challenge" end
 
-	if ( mech == "DIGEST-MD5" ) then
-		local rspauth = response:match("^334 (.*)")
-		if ( rspauth ) then
-			rspauth = base64.dec(rspauth)
-			status, response = query(socket,"")
-		end
-	end
+  -- All mechanisms expect username and pass
+  -- add the otheronce for those who need them
+  local mech_params = { username, password, chall, "smtp" }
+  local auth_data = sasl.Helper:new(mech):encode(table.unpack(mech_params))
+  auth_data = base64.enc(auth_data)
 
-	if ( response:match("^235") ) then return true, "Login success"	end
+  status, response = query(socket, auth_data)
+  if ( not(status) ) then
+    return false, ("ERROR: Failed to authenticate using SASL %s"):format(mech)
+  end
 
-	return false, response
+  if ( mech == "DIGEST-MD5" ) then
+    local rspauth = response:match("^334 (.*)")
+    if ( rspauth ) then
+      rspauth = base64.dec(rspauth)
+      status, response = query(socket,"")
+    end
+  end
+
+  if ( response:match("^235") ) then return true, "Login success" end
+
+  return false, response
 end
 
 return _ENV;
