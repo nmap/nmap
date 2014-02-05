@@ -31,12 +31,12 @@ local url = require "url"
 -- @return True if login in was successful
 ---
 local function try_http_basic_login(host, port, path, user, pass, digest_auth)
-    local credentials = {username = user, password = pass, digest = digest_auth}
-    local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
-    if req.status and req.status ~= 401 and req.status ~= 403 then
-      return true
-    end
-    return false
+  local credentials = {username = user, password = pass, digest = digest_auth}
+  local req = http.get(host, port, path, {no_cache=true, auth=credentials, redirect_ok = false})
+  if req.status and req.status ~= 401 and req.status ~= 403 then
+    return true
+  end
+  return false
 end
 
 ---
@@ -51,17 +51,17 @@ end
 -- @return True if login in was successful
 ---
 local function try_http_post_login(host, port, path, target, failstr, params, follow_redirects)
-    local req = http.post(host, port, url.absolute(path, target), {no_cache=true}, nil, params)
+  local req = http.post(host, port, url.absolute(path, target), {no_cache=true}, nil, params)
 
-    if not req.status then return false end
-    local status = tonumber(req.status) or 0
-    if follow_redirects and ( status > 300 and status < 400 ) then
-      req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true, redirect_ok = false })
-    end
-    if req.status and req.status ~= 404 and not(http.response_contains(req, failstr)) then
-      return true
-    end
-    return false
+  if not req.status then return false end
+  local status = tonumber(req.status) or 0
+  if follow_redirects and ( status > 300 and status < 400 ) then
+    req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true, redirect_ok = false })
+  end
+  if req.status and req.status ~= 404 and not(http.response_contains(req, failstr)) then
+    return true
+  end
+  return false
 end
 
 ---
@@ -71,8 +71,8 @@ end
 --               (or nil if not present)
 ---
 local function http_auth_realm(response)
-    local auth = response.header["www-authenticate"] or ""
-    return auth:match('%srealm="([^"]*)')
+  local auth = response.header["www-authenticate"] or ""
+  return auth:match('%srealm="([^"]*)')
 end
 
 fingerprints = {}
@@ -110,10 +110,10 @@ table.insert(fingerprints, {
   login_combos = {
     {username = "tomcat", password = "tomcat"},
     {username = "admin", password = "admin"},
-	-- http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
-	{username = "ovwebusr", password = "OvW*busr1"},
-	-- http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4188
-	{username = "j2deployer", password = "j2deployer"}
+    -- http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4189
+    {username = "ovwebusr", password = "OvW*busr1"},
+    -- http://cve.mitre.org/cgi-bin/cvename.cgi?name=2009-4188
+    {username = "j2deployer", password = "j2deployer"}
   },
   login_check = function (host, port, path, user, pass)
     return try_http_basic_login(host, port, path, user, pass, false)
