@@ -727,6 +727,21 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 
 end
 
+---
+-- @class table
+-- @name host_info
+-- @field target_realm
+-- @field netbios_computer_name
+-- @field netbios_domain_name
+-- @field fqdn
+-- @field dns_domain_name
+-- @field dns_forest_name
+-- @field timestamp
+
+---
+-- Gets host info from a security blob
+-- @param security_blob The NTLM security blob
+-- @return A host_info table containing the data in the blob. @see host_info
 function get_host_info_from_security_blob(security_blob)
   local ntlm_challenge = {}
   --local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
