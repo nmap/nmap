@@ -5,15 +5,6 @@
 -- averages, entropy, randomness and other calculations. Scripts that generate statistics
 -- and metrics can also make use of this library.
 --
--- Functions included:
---
--- <code>calcPwdEntropy</code> - Calculate the entropy of a password.  A random
--- password's information entropy, H, is given by the formula: H = L * (logN) / (log2),
--- where N is the number of possible symbols and L is the number of symbols in the
--- password. Based on https://en.wikipedia.org/wiki/Password_strength
---
--- <code>looksRandom</code> - Returns true if the value looks random.
---
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 ---
 
@@ -25,6 +16,13 @@ local table = require "table"
 
 _ENV = stdnse.module("formulas", stdnse.seeall)
 
+--- Calculate the entropy of a password.
+-- A random password's information entropy, H, is given by the formula: H = L *
+-- (logN) / (log2), where N is the number of possible symbols and L is the
+-- number of symbols in the password. Based on
+-- https://en.wikipedia.org/wiki/Password_strength
+-- @param value The password to check
+-- @return The entropy in bits
 calcPwdEntropy = function(value)
 
     local total, hasdigit, haslower, hasupper, hasspaces = 0, 0, 0, 0, false
@@ -95,15 +93,18 @@ local CHI2_CDF = {
     [255] = 293.2478350807001,
 }
 
+--- Checks whether a sample looks random
+-- Because our sample is so small (only 16 bytes), do a chi-square
+-- goodness of fit test across groups of 2, 4, and 8 bits. If using only
+-- 8 bits, for example, any sample whose bytes are all different would
+-- pass the test. Using 2 bits will tend to catch things like pure
+-- ASCII, where one out of every four samples never has its high bit
+-- set.
+-- @param data The data to check
+-- @return True if the data appears to be random, false otherwise
 function looksRandom(data)
     local x2
 
-    -- Because our sample is so small (only 16 bytes), do a chi-square
-    -- goodness of fit test across groups of 2, 4, and 8 bits. If using only
-    -- 8 bits, for example, any sample whose bytes are all different would
-    -- pass the test. Using 2 bits will tend to catch things like pure
-    -- ASCII, where one out of every four samples never has its high bit
-    -- set.
 
     x2 = chi2(splitbits(data, 2), 4)
     if x2 > CHI2_CDF[3] then
