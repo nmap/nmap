@@ -111,8 +111,8 @@ RPC_args = {
 -- Defines the order in which to try to connect to the RPC programs
 -- TCP appears to be more stable than UDP in most cases, so try it first
 local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbind'].proto] and
-    type(nmap.registry.args[RPC_args['rpcbind'].proto]) == 'table') and
-    nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
+  type(nmap.registry.args[RPC_args['rpcbind'].proto]) == 'table') and
+nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
 
 -- used to cache the contents of the rpc datafile
 local RPC_PROGRAMS
@@ -122,228 +122,228 @@ local mutex = nmap.mutex("rpc")
 
 -- Supported protocol versions
 RPC_version = {
-    ["rpcbind"] = { min=2, max=2 },
-    ["nfs"] = { min=1, max=3 },
-    ["mountd"] = { min=1, max=3 },
+  ["rpcbind"] = { min=2, max=2 },
+  ["nfs"] = { min=1, max=3 },
+  ["mountd"] = { min=1, max=3 },
 }
 
 -- Low-level communication class
 Comm = {
 
-    --- Creates a new rpc Comm object
-    --
-    -- @param program name string
-    -- @param version number containing the program version to use
-    -- @return a new Comm object
-    new = function(self, program, version)
-      local o = {}
-      setmetatable(o, self)
-      self.__index = self
-      o.program = program
-      o.program_id = Util.ProgNameToNumber(program)
-      o.checkprogver = true
-      o:SetVersion(version)
-      return o
-    end,
+  --- Creates a new rpc Comm object
+  --
+  -- @param program name string
+  -- @param version number containing the program version to use
+  -- @return a new Comm object
+  new = function(self, program, version)
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.program = program
+    o.program_id = Util.ProgNameToNumber(program)
+    o.checkprogver = true
+    o:SetVersion(version)
+    return o
+  end,
 
-    --- Connects to the remote program
-    --
-    -- @param host table
-    -- @param port table
-    -- @return status boolean true on success, false on failure
-    -- @return string containing error message (if status is false)
-    Connect = function(self, host, port)
-      local status, err, socket
-      status, err = self:ChkProgram()
-      if (not(status)) then
-        return status, err
-      end
-      status, err = self:ChkVersion()
-      if (not(status)) then
-        return status, err
-      end
-      if ( port.protocol == "tcp" ) then
-        if nmap.is_privileged() then
-          -- Try to bind to a reserved port
-          for i = 1, 10, 1 do
-            local resvport = math.random(1, 1024)
-            socket = nmap.new_socket()
-            status, err = socket:bind(nil, resvport)
-            if status then
-              status, err = socket:connect(host, port)
-              if status or err == "TIMEOUT" then break end
-              socket:close()
-            end
-          end
-        else
+  --- Connects to the remote program
+  --
+  -- @param host table
+  -- @param port table
+  -- @return status boolean true on success, false on failure
+  -- @return string containing error message (if status is false)
+  Connect = function(self, host, port)
+    local status, err, socket
+    status, err = self:ChkProgram()
+    if (not(status)) then
+      return status, err
+    end
+    status, err = self:ChkVersion()
+    if (not(status)) then
+      return status, err
+    end
+    if ( port.protocol == "tcp" ) then
+      if nmap.is_privileged() then
+        -- Try to bind to a reserved port
+        for i = 1, 10, 1 do
+          local resvport = math.random(1, 1024)
           socket = nmap.new_socket()
-          status, err = socket:connect(host, port)
-        end
-      else
-        if nmap.is_privileged() then
-          -- Try to bind to a reserved port
-          for i = 1, 10, 1 do
-            local resvport = math.random(1, 1024)
-            socket = nmap.new_socket("udp")
-            status, err = socket:bind(nil, resvport)
-            if status then
-              status, err = socket:connect(host, port)
-              if status or err == "TIMEOUT" then break end
-              socket:close()
-            end
+          status, err = socket:bind(nil, resvport)
+          if status then
+            status, err = socket:connect(host, port)
+            if status or err == "TIMEOUT" then break end
+            socket:close()
           end
-        else
+        end
+      else
+        socket = nmap.new_socket()
+        status, err = socket:connect(host, port)
+      end
+    else
+      if nmap.is_privileged() then
+        -- Try to bind to a reserved port
+        for i = 1, 10, 1 do
+          local resvport = math.random(1, 1024)
           socket = nmap.new_socket("udp")
-          status, err = socket:connect(host, port)
+          status, err = socket:bind(nil, resvport)
+          if status then
+            status, err = socket:connect(host, port)
+            if status or err == "TIMEOUT" then break end
+            socket:close()
+          end
         end
-      end
-      if (not(status)) then
-        return status, string.format("%s connect error: %s",
-                          self.program, err)
       else
-        self.socket = socket
-        self.host = host
-        self.ip = host.ip
-        self.port = port.number
-        self.proto = port.protocol
-        return status, nil
+        socket = nmap.new_socket("udp")
+        status, err = socket:connect(host, port)
       end
-    end,
-
-    --- Disconnects from the remote program
-    --
-    -- @return status boolean true on success, false on failure
-    -- @return string containing error message (if status is false)
-    Disconnect = function(self)
-      local status, err = self.socket:close()
-      if (not(status)) then
-        return status, string.format("%s disconnect error: %s",
-                          self.program, err)
-      end
-      self.socket=nil
+    end
+    if (not(status)) then
+      return status, string.format("%s connect error: %s",
+        self.program, err)
+    else
+      self.socket = socket
+      self.host = host
+      self.ip = host.ip
+      self.port = port.number
+      self.proto = port.protocol
       return status, nil
-    end,
+    end
+  end,
 
-    --- Checks if the rpc program is supported
-    --
-    -- @return status boolean true on success, false on failure
-    -- @return string containing error message (if status is false)
-    ChkProgram = function(self)
-      if (not(RPC_version[self.program])) then
-        return false, string.format("RPC library does not support: %s protocol",
-                          self.program)
-      end
-      return true, nil
-    end,
+  --- Disconnects from the remote program
+  --
+  -- @return status boolean true on success, false on failure
+  -- @return string containing error message (if status is false)
+  Disconnect = function(self)
+    local status, err = self.socket:close()
+    if (not(status)) then
+      return status, string.format("%s disconnect error: %s",
+        self.program, err)
+    end
+    self.socket=nil
+    return status, nil
+  end,
 
-    --- Checks if the rpc program version is supported
-    --
-    -- @return status boolean true on success, false on failure
-    -- @return string containing error message (if status is false)
-    ChkVersion = function(self)
-      if not self.checkprogver then return true end
-      if ( self.version > RPC_version[self.program].max or
-      self.version < RPC_version[self.program].min ) then
-        return false, string.format("RPC library does not support: %s version %d",
-                          self.program,self.version)
-      end
-      return true, nil
-    end,
+  --- Checks if the rpc program is supported
+  --
+  -- @return status boolean true on success, false on failure
+  -- @return string containing error message (if status is false)
+  ChkProgram = function(self)
+    if (not(RPC_version[self.program])) then
+      return false, string.format("RPC library does not support: %s protocol",
+        self.program)
+    end
+    return true, nil
+  end,
 
-    --- Sets the rpc program version
-    --
-    -- @return status boolean true
-    SetVersion = function(self, version)
-      if self.checkprogver then
-        if (RPC_version[self.program] and RPC_args[self.program] and
+  --- Checks if the rpc program version is supported
+  --
+  -- @return status boolean true on success, false on failure
+  -- @return string containing error message (if status is false)
+  ChkVersion = function(self)
+    if not self.checkprogver then return true end
+    if ( self.version > RPC_version[self.program].max or
+        self.version < RPC_version[self.program].min ) then
+      return false, string.format("RPC library does not support: %s version %d",
+        self.program,self.version)
+    end
+    return true, nil
+  end,
+
+  --- Sets the rpc program version
+  --
+  -- @return status boolean true
+  SetVersion = function(self, version)
+    if self.checkprogver then
+      if (RPC_version[self.program] and RPC_args[self.program] and
           nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
-          self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
-        elseif (not(self.version) and version) then
-          self.version = version
-        end
-      else
+        self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
+      elseif (not(self.version) and version) then
         self.version = version
       end
-      return true, nil
-    end,
+    else
+      self.version = version
+    end
+    return true, nil
+  end,
 
-    --- Sets the verification of the specified program and version support
-    -- before trying to connecting.
-    -- @param check boolean to enable or disable checking of program and version support.
-    SetCheckProgVer = function(self, check)
-      self.checkprogver = check
-    end,
+  --- Sets the verification of the specified program and version support
+  -- before trying to connecting.
+  -- @param check boolean to enable or disable checking of program and version support.
+  SetCheckProgVer = function(self, check)
+    self.checkprogver = check
+  end,
 
-    --- Sets the RPC program ID to use.
-    -- @param progid number Program ID to set.
-    SetProgID = function(self, progid)
-      self.program_id = progid
-    end,
+  --- Sets the RPC program ID to use.
+  -- @param progid number Program ID to set.
+  SetProgID = function(self, progid)
+    self.program_id = progid
+  end,
 
-    --- Checks if data contains enough bytes to read the <code>needed</code> amount
-    --  If it doesn't it attempts to read the remaining amount of bytes from the socket
-    --
-    -- @param data string containing the current buffer
-    -- @param pos number containing the current offset into the buffer
-    -- @param needed number containing the number of bytes needed to be available
-    -- @return status success or failure
-    -- @return data string containing the data passed to the function and the additional data appended to it or error message on failure
-    GetAdditionalBytes = function( self, data, pos, needed )
-      local status, tmp
+  --- Checks if data contains enough bytes to read the <code>needed</code> amount
+  --  If it doesn't it attempts to read the remaining amount of bytes from the socket
+  --
+  -- @param data string containing the current buffer
+  -- @param pos number containing the current offset into the buffer
+  -- @param needed number containing the number of bytes needed to be available
+  -- @return status success or failure
+  -- @return data string containing the data passed to the function and the additional data appended to it or error message on failure
+  GetAdditionalBytes = function( self, data, pos, needed )
+    local status, tmp
 
-      if data:len() - pos + 1 < needed then
-        local toread =  needed - ( data:len() - pos + 1 )
-        status, tmp = self.socket:receive_bytes( toread )
-        if status then
-          data = data .. tmp
-        else
-          return false, string.format("getAdditionalBytes() failed to read: %d bytes from the socket",
-                            needed - ( data:len() - pos ) )
-        end
-      end
-      return true, data
-    end,
-
-    --- Creates a RPC header
-    --
-    -- @param xid number. If no xid was provided, a random one will be used.
-    -- @param procedure number containing the procedure to call. Defaults to <code>0</code>.
-    -- @param auth table containing the authentication data to use. Defaults to NULL authentication.
-    -- @return status boolean true on success, false on failure
-    -- @return string of bytes on success, error message on failure
-    CreateHeader = function( self, xid, procedure, auth )
-      local RPC_VERSION = 2
-      local packet
-      -- Defaulting to NULL Authentication
-      local auth = auth or {type = Portmap.AuthType.NULL}
-      local xid = xid or math.random(1234567890)
-      local procedure = procedure or 0
-
-      packet = bin.pack( ">IIIIII", xid, Portmap.MessageType.CALL, RPC_VERSION,
-                    self.program_id, self.version, procedure )
-      if auth.type == Portmap.AuthType.NULL then
-        packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
-      elseif auth.type == Portmap.AuthType.UNIX then
-        packet = packet .. Util.marshall_int32(auth.type)
-        local blob = Util.marshall_int32(nmap.clock()) --time
-        blob = blob .. Util.marshall_vopaque(auth.hostname or 'localhost')
-        blob = blob .. Util.marshall_int32(auth.uid or 0)
-        blob = blob .. Util.marshall_int32(auth.gid or 0)
-        if auth.gids then --len prefix gid list
-          blob = blob .. Util.marshall_int32(#auth.gids)
-          for _,gid in ipairs(auth.gids) do
-            blob = blob .. Util.marshall_int32(gid)
-          end
-        else
-          blob = blob .. Util.marshall_int32(0)
-        end
-        packet = packet .. Util.marshall_vopaque(blob)
-        packet = packet .. bin.pack( "II", 0, 0 ) --AUTH_NULL verf
+    if data:len() - pos + 1 < needed then
+      local toread =  needed - ( data:len() - pos + 1 )
+      status, tmp = self.socket:receive_bytes( toread )
+      if status then
+        data = data .. tmp
       else
-        return false, "Comm.CreateHeader: invalid authentication type specified"
+        return false, string.format("getAdditionalBytes() failed to read: %d bytes from the socket",
+          needed - ( data:len() - pos ) )
       end
-      return true, packet
-    end,
+    end
+    return true, data
+  end,
+
+  --- Creates a RPC header
+  --
+  -- @param xid number. If no xid was provided, a random one will be used.
+  -- @param procedure number containing the procedure to call. Defaults to <code>0</code>.
+  -- @param auth table containing the authentication data to use. Defaults to NULL authentication.
+  -- @return status boolean true on success, false on failure
+  -- @return string of bytes on success, error message on failure
+  CreateHeader = function( self, xid, procedure, auth )
+    local RPC_VERSION = 2
+    local packet
+    -- Defaulting to NULL Authentication
+    local auth = auth or {type = Portmap.AuthType.NULL}
+    local xid = xid or math.random(1234567890)
+    local procedure = procedure or 0
+
+    packet = bin.pack( ">IIIIII", xid, Portmap.MessageType.CALL, RPC_VERSION,
+      self.program_id, self.version, procedure )
+    if auth.type == Portmap.AuthType.NULL then
+      packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
+    elseif auth.type == Portmap.AuthType.UNIX then
+      packet = packet .. Util.marshall_int32(auth.type)
+      local blob = Util.marshall_int32(nmap.clock()) --time
+      blob = blob .. Util.marshall_vopaque(auth.hostname or 'localhost')
+      blob = blob .. Util.marshall_int32(auth.uid or 0)
+      blob = blob .. Util.marshall_int32(auth.gid or 0)
+      if auth.gids then --len prefix gid list
+        blob = blob .. Util.marshall_int32(#auth.gids)
+        for _,gid in ipairs(auth.gids) do
+          blob = blob .. Util.marshall_int32(gid)
+        end
+      else
+        blob = blob .. Util.marshall_int32(0)
+      end
+      packet = packet .. Util.marshall_vopaque(blob)
+      packet = packet .. bin.pack( "II", 0, 0 ) --AUTH_NULL verf
+    else
+      return false, "Comm.CreateHeader: invalid authentication type specified"
+    end
+    return true, packet
+  end,
 
   --- Decodes the RPC header (without the leading 4 bytes as received over TCP)
   --
@@ -365,7 +365,7 @@ Comm = {
       status, tmp = self:GetAdditionalBytes( data, pos, HEADER_LEN - ( data:len() - pos ) )
       if not status then
         stdnse.print_debug(4,
-            string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
+          string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
         return -1, nil
       end
       data = data .. tmp
@@ -385,7 +385,7 @@ Comm = {
       status, data = self:GetAdditionalBytes( data, pos, header.verifier.length - 8 )
       if not status then
         stdnse.print_debug(4,
-            string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
+          string.format("Comm.DecodeHeader: failed to call GetAdditionalBytes"))
         return -1, nil
       end
       pos, header.verifier.data = bin.unpack("A" .. header.verifier.length - 8, data, pos )
@@ -632,7 +632,7 @@ Portmap =
     local program_table = setmetatable({}, { __mode = 'v' })
 
     packet = comm:EncodePacket( nil, Portmap.Procedure[comm.version].DUMP,
-                      { type=Portmap.AuthType.NULL }, data )
+      { type=Portmap.AuthType.NULL }, data )
     if (not(comm:SendPacket(packet))) then
       return false, "Portmap.Dump: Failed to send data"
     end
@@ -653,24 +653,24 @@ Portmap =
     if header.state ~= Portmap.State.MSG_ACCEPTED then
       if (Portmap.RejectMsg[header.denied_state]) then
         return false,
-          string.format("Portmap.Dump: RPC call failed: %s",
-                Portmap.RejectMsg[header.denied_state])
+        string.format("Portmap.Dump: RPC call failed: %s",
+          Portmap.RejectMsg[header.denied_state])
       else
         return false,
-          string.format("Portmap.Dump: RPC call failed: code %d",
-                header.state)
+        string.format("Portmap.Dump: RPC call failed: code %d",
+          header.state)
       end
     end
 
     if header.accept_state ~= Portmap.AcceptState.SUCCESS then
       if (Portmap.AcceptMsg[header.accept_state]) then
         return false,
-          string.format("Portmap.Dump: RPC accepted state: %s",
-                Portmap.AcceptMsg[header.accept_state])
+        string.format("Portmap.Dump: RPC accepted state: %s",
+          Portmap.AcceptMsg[header.accept_state])
       else
         return false,
-          string.format("Portmap.Dump: RPC accepted state code %d",
-                header.accept_state)
+        string.format("Portmap.Dump: RPC accepted state code %d",
+          header.accept_state)
       end
     end
 
@@ -728,7 +728,7 @@ Portmap =
 
     local data = bin.pack(">IIII", Util.ProgNameToNumber(program), version, 0, 0 )
     local packet = comm:EncodePacket(nil, Portmap.Procedure[comm.version].CALLIT,
-                              { type=Portmap.AuthType.NULL }, data )
+      { type=Portmap.AuthType.NULL }, data )
 
     if (not(comm:SendPacket(packet))) then
       return false, "Portmap.Callit: Failed to send data"
@@ -775,9 +775,9 @@ Portmap =
     end
 
     data = bin.pack(">I>I>I>I", Util.ProgNameToNumber(program), version,
-                    Portmap.PROTOCOLS[protocol], 0 )
+      Portmap.PROTOCOLS[protocol], 0 )
     packet = comm:EncodePacket(xid, Portmap.Procedure[comm.version].GETPORT,
-                              { type=Portmap.AuthType.NULL }, data )
+      { type=Portmap.AuthType.NULL }, data )
 
     if (not(comm:SendPacket(packet))) then
       return false, "Portmap.GetPort: Failed to send data"
@@ -802,21 +802,21 @@ Portmap =
     if header.state ~= Portmap.State.MSG_ACCEPTED then
       if (Portmap.RejectMsg[header.denied_state]) then
         return false, string.format("Portmap.GetPort: RPC call failed: %s",
-                            Portmap.RejectMsg[header.denied_state])
+          Portmap.RejectMsg[header.denied_state])
       else
         return false,
-            string.format("Portmap.GetPort: RPC call failed: code %d",
-                      header.state)
+        string.format("Portmap.GetPort: RPC call failed: code %d",
+          header.state)
       end
     end
 
     if header.accept_state ~= Portmap.AcceptState.SUCCESS then
       if (Portmap.AcceptMsg[header.accept_state]) then
         return false, string.format("Portmap.GetPort: RPC accepted state: %s",
-                            Portmap.AcceptMsg[header.accept_state])
+          Portmap.AcceptMsg[header.accept_state])
       else
         return false, string.format("Portmap.GetPort: RPC accepted state code %d",
-                            header.accept_state)
+          header.accept_state)
       end
     end
 
@@ -898,7 +898,7 @@ Mount = {
     end
 
     packet = comm:EncodePacket(nil, Mount.Procedure.EXPORT,
-                              { type=Portmap.AuthType.UNIX }, nil )
+      { type=Portmap.AuthType.UNIX }, nil )
     if (not(comm:SendPacket( packet ))) then
       return false, "Mount.Export: Failed to send data"
     end
@@ -925,20 +925,20 @@ Mount = {
     if header.state ~= Portmap.State.MSG_ACCEPTED then
       if (Portmap.RejectMsg[header.denied_state]) then
         return false, string.format("Mount.Export: RPC call failed: %s",
-                          Portmap.RejectMsg[header.denied_state])
+          Portmap.RejectMsg[header.denied_state])
       else
         return false, string.format("Mount.Export: RPC call failed: code %d",
-                          header.state)
+          header.state)
       end
     end
 
     if header.accept_state ~= Portmap.AcceptState.SUCCESS then
       if (Portmap.AcceptMsg[header.accept_state]) then
         return false, string.format("Mount.Export: RPC accepted state: %s",
-                          Portmap.AcceptMsg[header.accept_state])
+          Portmap.AcceptMsg[header.accept_state])
       else
         return false, string.format("Mount.Export: RPC accepted state code %d",
-                          header.accept_state)
+          header.accept_state)
       end
     end
 
@@ -1057,20 +1057,20 @@ Mount = {
     if header.state ~= Portmap.State.MSG_ACCEPTED then
       if (Portmap.RejectMsg[header.denied_state]) then
         return false, string.format("Mount: RPC call failed: %s",
-                          Portmap.RejectMsg[header.denied_state])
+          Portmap.RejectMsg[header.denied_state])
       else
         return false, string.format("Mount: RPC call failed: code %d",
-                          header.state)
+          header.state)
       end
     end
 
     if header.accept_state ~= Portmap.AcceptState.SUCCESS then
       if (Portmap.AcceptMsg[header.accept_state]) then
         return false, string.format("Mount (%s): RPC accepted state: %s",
-                          path, Portmap.AcceptMsg[header.accept_state])
+          path, Portmap.AcceptMsg[header.accept_state])
       else
         return false, string.format("Mount (%s): RPC accepted state code %d",
-                          path, header.accept_state)
+          path, header.accept_state)
       end
     end
 
@@ -1147,20 +1147,20 @@ Mount = {
     if header.state ~= Portmap.State.MSG_ACCEPTED then
       if (Portmap.RejectMsg[header.denied_state]) then
         return false, string.format("Unmount: RPC call failed: %s",
-                          Portmap.RejectMsg[header.denied_state])
+          Portmap.RejectMsg[header.denied_state])
       else
         return false, string.format("Unmount: RPC call failed: code %d",
-                          header.state)
+          header.state)
       end
     end
 
     if header.accept_state ~= Portmap.AcceptState.SUCCESS then
       if (Portmap.AcceptMsg[header.accept_state]) then
         return false, string.format("Unmount (%s): RPC accepted state: %s",
-                          path, Portmap.AcceptMsg[header.accept_state])
+          path, Portmap.AcceptMsg[header.accept_state])
       else
         return false, string.format("Unmount (%s): RPC accepted state code %d",
-                          path, header.accept_state)
+          path, header.accept_state)
       end
     end
 
@@ -1365,10 +1365,10 @@ NFS = {
     if (status ~= NFS.StatCode[version].NFS_OK) then
       if (NFS.StatMsg[status]) then
         stdnse.print_debug(4,
-            string.format("%s failed: %s", procedurename, NFS.StatMsg[status]))
+          string.format("%s failed: %s", procedurename, NFS.StatMsg[status]))
       else
         stdnse.print_debug(4,
-            string.format("%s failed: code %d", procedurename, status))
+          string.format("%s failed: code %d", procedurename, status))
       end
 
       return false
@@ -1563,7 +1563,7 @@ NFS = {
       data = bin.pack("A>I>I", file_handle, cookie, count)
     end
     packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].READDIR,
-                              { type=Portmap.AuthType.UNIX }, data )
+      { type=Portmap.AuthType.UNIX }, data )
     if(not(comm:SendPacket( packet ))) then
       return false, "ReadDir: Failed to send data"
     end
@@ -1604,51 +1604,51 @@ NFS = {
         stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
         return -1, nil
       end
-    _, len = Util.unmarshall_uint32(data, pos)
-    status, data = comm:GetAdditionalBytes( data, pos, len + 4)
-    if (not(status)) then
-      stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
-      return -1, nil
-    end
-    pos, lookup.fhandle = bin.unpack( "A" .. len + 4, data, pos)
-
-    status, data = comm:GetAdditionalBytes( data, pos, 4)
-    if (not(status)) then
-      stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
-      return -1, nil
-    end
-
-    lookup.attributes = {}
-    pos, value_follows = Util.unmarshall_uint32(data, pos)
-    if (value_follows ~= 0) then
-      status, data = comm:GetAdditionalBytes(data, pos, 84)
+      _, len = Util.unmarshall_uint32(data, pos)
+      status, data = comm:GetAdditionalBytes( data, pos, len + 4)
       if (not(status)) then
         stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
         return -1, nil
       end
-      pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
-    else
-      stdnse.print_debug(4, "NFS.LookUpDecode: File Attributes follow failed")
-    end
+      pos, lookup.fhandle = bin.unpack( "A" .. len + 4, data, pos)
 
-    status, data = comm:GetAdditionalBytes( data, pos, 4)
-    if (not(status)) then
-      stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
-      return -1, nil
-    end
-
-    lookup.dir_attributes = {}
-    pos, value_follows = Util.unmarshall_uint32(data, pos)
-    if (value_follows ~= 0) then
-      status, data = comm:GetAdditionalBytes(data, pos, 84)
+      status, data = comm:GetAdditionalBytes( data, pos, 4)
       if (not(status)) then
         stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
         return -1, nil
       end
-      pos, lookup.dir_attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
-    else
-      stdnse.print_debug(4, "NFS.LookUpDecode: File Attributes follow failed")
-    end
+
+      lookup.attributes = {}
+      pos, value_follows = Util.unmarshall_uint32(data, pos)
+      if (value_follows ~= 0) then
+        status, data = comm:GetAdditionalBytes(data, pos, 84)
+        if (not(status)) then
+          stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+          return -1, nil
+        end
+        pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+      else
+        stdnse.print_debug(4, "NFS.LookUpDecode: File Attributes follow failed")
+      end
+
+      status, data = comm:GetAdditionalBytes( data, pos, 4)
+      if (not(status)) then
+        stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+        return -1, nil
+      end
+
+      lookup.dir_attributes = {}
+      pos, value_follows = Util.unmarshall_uint32(data, pos)
+      if (value_follows ~= 0) then
+        status, data = comm:GetAdditionalBytes(data, pos, 84)
+        if (not(status)) then
+          stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+          return -1, nil
+        end
+        pos, lookup.dir_attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+      else
+        stdnse.print_debug(4, "NFS.LookUpDecode: File Attributes follow failed")
+      end
 
     elseif (comm.version < 3) then
       status, data = comm:GetAdditionalBytes( data, pos, 32)
@@ -1683,7 +1683,7 @@ NFS = {
 
     data = Util.marshall_opaque(dir_handle) .. Util.marshall_vopaque(file)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].LOOKUP,
-                              {type=Portmap.AuthType.UNIX}, data)
+      {type=Portmap.AuthType.UNIX}, data)
     if(not(comm:SendPacket(packet))) then
       return false, "LookUp: Failed to send data"
     end
@@ -1806,7 +1806,7 @@ NFS = {
         pos, entry.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
       else
         stdnse.print_debug(4, "NFS.ReadDirPlusDecode: %s Attributes follow failed",
-                            entry.name)
+          entry.name)
       end
 
       status, data = comm:GetAdditionalBytes(data, pos, 4)
@@ -1831,9 +1831,9 @@ NFS = {
           return -1, nil
         end
         pos, entry.fhandle = bin.unpack( "A" .. len + 4, data, pos )
-        else
-          stdnse.print_debug(4, "NFS.ReadDirPlusDecode: %s handle follow failed",
-                             entry.name)
+      else
+        stdnse.print_debug(4, "NFS.ReadDirPlusDecode: %s handle follow failed",
+          entry.name)
       end
       table.insert(response.entries, entry)
     end
@@ -1849,7 +1849,7 @@ NFS = {
 
     if (comm.version < 3) then
       return false, string.format("NFS version: %d does not support ReadDirPlus",
-                                  comm.version)
+        comm.version)
     end
 
     if not file_handle then
@@ -1857,10 +1857,10 @@ NFS = {
     end
 
     data = bin.pack("A>L>L>I>I", file_handle, cookie,
-                    opaque_data, dircount, maxcount)
+      opaque_data, dircount, maxcount)
 
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].READDIRPLUS,
-                              {type = Portmap.AuthType.UNIX }, data)
+      {type = Portmap.AuthType.UNIX }, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "ReadDirPlus: Failed to send data"
@@ -1930,7 +1930,7 @@ NFS = {
 
     if (comm.version < 3) then
       return false, string.format("NFS version: %d does not support FSSTAT",
-                                  comm.version)
+        comm.version)
     end
 
     if not file_handle then
@@ -1939,7 +1939,7 @@ NFS = {
 
     data = bin.pack("A", file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSSTAT,
-                              {type = Portmap.AuthType.UNIX}, data)
+      {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "FsStat: Failed to send data"
@@ -2012,7 +2012,7 @@ NFS = {
 
     if (comm.version < 3) then
       return false, string.format("NFS version: %d does not support FSINFO",
-                        comm.version)
+        comm.version)
     end
 
     if not file_handle then
@@ -2021,7 +2021,7 @@ NFS = {
 
     data = Util.marshall_opaque(file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSINFO,
-                               {type = Portmap.AuthType.UNIX}, data)
+      {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "FsInfo: Failed to send data"
@@ -2091,7 +2091,7 @@ NFS = {
 
     if (comm.version < 3) then
       return false, string.format("NFS version: %d does not support PATHCONF",
-                        comm.version)
+        comm.version)
     end
 
     if not file_handle then
@@ -2100,7 +2100,7 @@ NFS = {
 
     data = Util.marshall_opaque(file_handle)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].PATHCONF,
-                               {type = Portmap.AuthType.UNIX}, data)
+      {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "PathConf: Failed to send data"
@@ -2168,7 +2168,7 @@ NFS = {
 
     if (comm.version < 3) then
       return false, string.format("NFS version: %d does not support ACCESS",
-                        comm.version)
+        comm.version)
     end
 
     if not file_handle then
@@ -2177,7 +2177,7 @@ NFS = {
 
     data = Util.marshall_opaque(file_handle) .. Util.marshall_uint32(access)
     packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].ACCESS,
-                               {type = Portmap.AuthType.UNIX}, data)
+      {type = Portmap.AuthType.UNIX}, data)
 
     if (not(comm:SendPacket(packet))) then
       return false, "Access: Failed to send data"
@@ -2246,7 +2246,7 @@ NFS = {
     if not statfs then
       return false, "StatFs: Failed to decode statfs structure"
     end
-      return true, statfs
+    return true, statfs
   end,
 
   --- Attempts to decode the attributes section of the reply
@@ -2546,9 +2546,9 @@ Helper = {
     -- TODO: recheck the version mismatch when adding NFSv4
     if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
       stdnse.print_debug(4,"rpc.Helper.ExportStats: versions mismatch, nfs v%d - mount v%d",
-          nfs_comm.version, mnt_comm.version)
+        nfs_comm.version, mnt_comm.version)
       return false, string.format("versions mismatch, nfs v%d - mount v%d",
-                        nfs_comm.version, mnt_comm.version)
+        nfs_comm.version, mnt_comm.version)
     end
     status, result = mnt_comm:Connect(host, mountd.port)
     if ( not(status) ) then
@@ -2619,9 +2619,9 @@ Helper = {
     -- TODO: recheck the version mismatch when adding NFSv4
     if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
       stdnse.print_debug(4, "rpc.Helper.Dir: versions mismatch, nfs v%d - mount v%d",
-          nfs_comm.version, mnt_comm.version)
+        nfs_comm.version, mnt_comm.version)
       return false, string.format("versions mismatch, nfs v%d - mount v%d",
-                        nfs_comm.version, mnt_comm.version)
+        nfs_comm.version, mnt_comm.version)
     end
     status, result = mnt_comm:Connect(host, mountd.port)
     if ( not(status) ) then
@@ -2695,9 +2695,9 @@ Helper = {
     -- TODO: recheck the version mismatch when adding NFSv4
     if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
       stdnse.print_debug(4, "rpc.Helper.GetAttributes: versions mismatch, nfs v%d - mount v%d",
-          nfs_comm.version, mnt_comm.version)
+        nfs_comm.version, mnt_comm.version)
       return false, string.format("versions mismatch, nfs v%d - mount v%d",
-                        nfs_comm.version, mnt_comm.version)
+        nfs_comm.version, mnt_comm.version)
     end
 
     status, result = mnt_comm:Connect(host, mountd.port)
@@ -2741,47 +2741,47 @@ Helper = {
     return true, attribs
   end,
 
-    --- Queries the portmapper for a list of programs
-    --
-    -- @param host table
-    -- @param port table
-    -- @return status true on success, false on failure
-    -- @return table containing the portmapper information as returned by
-    -- <code>Portmap.Dump</code>
-    RpcInfo = function( host, port )
-      local status, result
-      local portmap = Portmap:new()
-      local comm = Comm:new('rpcbind', 2)
+  --- Queries the portmapper for a list of programs
+  --
+  -- @param host table
+  -- @param port table
+  -- @return status true on success, false on failure
+  -- @return table containing the portmapper information as returned by
+  -- <code>Portmap.Dump</code>
+  RpcInfo = function( host, port )
+    local status, result
+    local portmap = Portmap:new()
+    local comm = Comm:new('rpcbind', 2)
 
-      mutex "lock"
+    mutex "lock"
 
-      if nmap.registry[host.ip] == nil then
-        nmap.registry[host.ip] = {}
-      end
-      if nmap.registry[host.ip]['portmapper'] == nil then
-        nmap.registry[host.ip]['portmapper'] = {}
-      elseif next(nmap.registry[host.ip]['portmapper']) ~= nil then
-        mutex "done"
-        return true, nmap.registry[host.ip]['portmapper']
-      end
-
-      status, result = comm:Connect(host, port)
-      if (not(status)) then
-        mutex "done"
-        stdnse.print_debug(4, "rpc.Helper.RpcInfo: %s", result)
-        return status, result
-      end
-
-      status, result = portmap:Dump(comm)
-      comm:Disconnect()
-
+    if nmap.registry[host.ip] == nil then
+      nmap.registry[host.ip] = {}
+    end
+    if nmap.registry[host.ip]['portmapper'] == nil then
+      nmap.registry[host.ip]['portmapper'] = {}
+    elseif next(nmap.registry[host.ip]['portmapper']) ~= nil then
       mutex "done"
-      if (not(status)) then
-        stdnse.print_debug(4, "rpc.Helper.RpcInfo: %s", result)
-      end
+      return true, nmap.registry[host.ip]['portmapper']
+    end
 
+    status, result = comm:Connect(host, port)
+    if (not(status)) then
+      mutex "done"
+      stdnse.print_debug(4, "rpc.Helper.RpcInfo: %s", result)
       return status, result
-    end,
+    end
+
+    status, result = portmap:Dump(comm)
+    comm:Disconnect()
+
+    mutex "done"
+    if (not(status)) then
+      stdnse.print_debug(4, "rpc.Helper.RpcInfo: %s", result)
+    end
+
+    return status, result
+  end,
 
   --- Queries the portmapper for a port for the specified RPC program
   --
@@ -2872,519 +2872,519 @@ Helper = {
 --  and File type codes and permissions emulation
 Util =
 {
-        -- Symbolic letters for file permission codes
-        Fperm =
-        {
-          owner =
-          {
-            -- S_IRUSR
-            [0x00000100] = { idx = 1, char = "r" },
-            -- S_IWUSR
-            [0x00000080] = { idx = 2, char = "w" },
-            -- S_IXUSR
-            [0x00000040] = { idx = 3, char = "x" },
-            -- S_ISUID
-            [0x00000800] = { idx = 3, char = "S" },
-          },
-          group =
-          {
-            -- S_IRGRP
-            [0x00000020] = { idx = 4, char = "r" },
-            -- S_IWGRP
-            [0x00000010] = { idx = 5, char = "w" },
-            -- S_IXGRP
-            [0x00000008] = { idx = 6, char = "x" },
-            -- S_ISGID
-            [0x00000400] = { idx = 6, char = "S" },
-          },
-          other =
-          {
-            -- S_IROTH
-            [0x00000004] = { idx = 7, char = "r" },
-            -- S_IWOTH
-            [0x00000002] = { idx = 8, char = "w" },
-            -- S_IXOTH
-            [0x00000001] = { idx = 9, char = "x" },
-            -- S_ISVTX
-            [0x00000200] = { idx = 9, char = "t" },
-          },
-        },
+  -- Symbolic letters for file permission codes
+  Fperm =
+  {
+    owner =
+    {
+      -- S_IRUSR
+      [0x00000100] = { idx = 1, char = "r" },
+      -- S_IWUSR
+      [0x00000080] = { idx = 2, char = "w" },
+      -- S_IXUSR
+      [0x00000040] = { idx = 3, char = "x" },
+      -- S_ISUID
+      [0x00000800] = { idx = 3, char = "S" },
+    },
+    group =
+    {
+      -- S_IRGRP
+      [0x00000020] = { idx = 4, char = "r" },
+      -- S_IWGRP
+      [0x00000010] = { idx = 5, char = "w" },
+      -- S_IXGRP
+      [0x00000008] = { idx = 6, char = "x" },
+      -- S_ISGID
+      [0x00000400] = { idx = 6, char = "S" },
+    },
+    other =
+    {
+      -- S_IROTH
+      [0x00000004] = { idx = 7, char = "r" },
+      -- S_IWOTH
+      [0x00000002] = { idx = 8, char = "w" },
+      -- S_IXOTH
+      [0x00000001] = { idx = 9, char = "x" },
+      -- S_ISVTX
+      [0x00000200] = { idx = 9, char = "t" },
+    },
+  },
 
-        -- bit mask used to extract the file type code from a mode
-        -- S_IFMT = 00170000 (octal)
-        S_IFMT = 0xF000,
+  -- bit mask used to extract the file type code from a mode
+  -- S_IFMT = 00170000 (octal)
+  S_IFMT = 0xF000,
 
-        FileType =
-        {
-          -- S_IFSOCK
-          [0x0000C000] = { char = "s", str = "socket" },
-          -- S_IFLNK
-          [0x0000A000] = { char = "l", str = "symbolic link" },
-          -- S_IFREG
-          [0x00008000] = { char = "-", str = "file" },
-          -- S_IFBLK
-          [0x00006000] = { char = "b", str = "block device" },
-          -- S_IFDIR
-          [0x00004000] = { char = "d", str = "directory" },
-          -- S_IFCHR
-          [0x00002000] = { char = "c", str = "char device" },
-          -- S_IFIFO
-          [0x00001000] = { char = "p", str = "named pipe" },
-        },
+  FileType =
+  {
+    -- S_IFSOCK
+    [0x0000C000] = { char = "s", str = "socket" },
+    -- S_IFLNK
+    [0x0000A000] = { char = "l", str = "symbolic link" },
+    -- S_IFREG
+    [0x00008000] = { char = "-", str = "file" },
+    -- S_IFBLK
+    [0x00006000] = { char = "b", str = "block device" },
+    -- S_IFDIR
+    [0x00004000] = { char = "d", str = "directory" },
+    -- S_IFCHR
+    [0x00002000] = { char = "c", str = "char device" },
+    -- S_IFIFO
+    [0x00001000] = { char = "p", str = "named pipe" },
+  },
 
-        --- Converts a numeric ACL mode to a file type char
-        --
-        -- @param mode number containing the ACL mode
-        -- @return char containing the file type
-        FtypeToChar = function(mode)
-          local code = bit.band(mode, Util.S_IFMT)
-          if Util.FileType[code] then
-            return Util.FileType[code].char
-          else
-            stdnse.print_debug(1,"FtypeToChar: Unknown file type, mode: %o", mode)
-            return ""
-          end
-        end,
+  --- Converts a numeric ACL mode to a file type char
+  --
+  -- @param mode number containing the ACL mode
+  -- @return char containing the file type
+  FtypeToChar = function(mode)
+    local code = bit.band(mode, Util.S_IFMT)
+    if Util.FileType[code] then
+      return Util.FileType[code].char
+    else
+      stdnse.print_debug(1,"FtypeToChar: Unknown file type, mode: %o", mode)
+      return ""
+    end
+  end,
 
-        --- Converts a numeric ACL mode to a file type string
-        --
-        -- @param mode number containing the ACL mode
-        -- @return string containing the file type name
-        FtypeToString = function(mode)
-          local code = bit.band(mode, Util.S_IFMT)
-          if Util.FileType[code] then
-            return Util.FileType[code].str
-          else
-            stdnse.print_debug(1,"FtypeToString: Unknown file type, mode: %o", mode)
-            return ""
-          end
-        end,
+  --- Converts a numeric ACL mode to a file type string
+  --
+  -- @param mode number containing the ACL mode
+  -- @return string containing the file type name
+  FtypeToString = function(mode)
+    local code = bit.band(mode, Util.S_IFMT)
+    if Util.FileType[code] then
+      return Util.FileType[code].str
+    else
+      stdnse.print_debug(1,"FtypeToString: Unknown file type, mode: %o", mode)
+      return ""
+    end
+  end,
 
-        --- Converts a numeric ACL mode to a string in an octal
-        -- number format.
-        --
-        -- @param mode number containing the ACL mode
-        -- @return string containing the octal ACL mode
-        FmodeToOctalString = function(mode)
-          local code = bit.band(mode, Util.S_IFMT)
-          if Util.FileType[code] then
-            code = bit.bxor(mode, code)
-          else
-            code = mode
-            stdnse.print_debug(1,"FmodeToOctalString: Unknown file type, mode: %o", mode)
-          end
-          return stdnse.tooctal(code)
-        end,
+  --- Converts a numeric ACL mode to a string in an octal
+  -- number format.
+  --
+  -- @param mode number containing the ACL mode
+  -- @return string containing the octal ACL mode
+  FmodeToOctalString = function(mode)
+    local code = bit.band(mode, Util.S_IFMT)
+    if Util.FileType[code] then
+      code = bit.bxor(mode, code)
+    else
+      code = mode
+      stdnse.print_debug(1,"FmodeToOctalString: Unknown file type, mode: %o", mode)
+    end
+    return stdnse.tooctal(code)
+  end,
 
-        --- Converts a numeric ACL to it's character equivalent eg. (rwxr-xr-x)
-        --
-        -- @param mode number containing the ACL mode
-        -- @return string containing the ACL characters
-        FpermToString = function(mode)
-          local tmpacl, acl = {}, ""
-          for i = 1, 9 do
-            tmpacl[i] = "-"
-          end
+  --- Converts a numeric ACL to it's character equivalent eg. (rwxr-xr-x)
+  --
+  -- @param mode number containing the ACL mode
+  -- @return string containing the ACL characters
+  FpermToString = function(mode)
+    local tmpacl, acl = {}, ""
+    for i = 1, 9 do
+      tmpacl[i] = "-"
+    end
 
-          for user,_ in pairs(Util.Fperm) do
-            local t = Util.Fperm[user]
-            for i in pairs(t) do
-              local code = bit.band(mode, i)
-              if t[code] then
-                -- save set-ID and sticky bits
-                if tmpacl[t[code].idx] == "x" then
-                  if t[code].char == "S" then
-                    tmpacl[t[code].idx] = "s"
-                  else
-                    tmpacl[t[code].idx] = t[code].char
-                  end
-                elseif tmpacl[t[code].idx] == "S" then
-                  if t[code].char == "x" then
-                    tmpacl[t[code].idx] = "s"
-                  end
-                else
-                  tmpacl[t[code].idx] = t[code].char
-                end
-              end
+    for user,_ in pairs(Util.Fperm) do
+      local t = Util.Fperm[user]
+      for i in pairs(t) do
+        local code = bit.band(mode, i)
+        if t[code] then
+          -- save set-ID and sticky bits
+          if tmpacl[t[code].idx] == "x" then
+            if t[code].char == "S" then
+              tmpacl[t[code].idx] = "s"
+            else
+              tmpacl[t[code].idx] = t[code].char
             end
-          end
-
-          for i = 1,#tmpacl do
-            acl = acl .. tmpacl[i]
-          end
-
-          return acl
-        end,
-
-        --- Converts the NFS file attributes to a string.
-        --
-        -- An optional second argument is the mactime to use
-        --
-        -- @param attr table returned by NFS GETATTR or ACCESS
-        -- @param mactime to use, the default value is mtime
-        --        Possible values: mtime, atime, ctime
-        -- @return string containing the file attributes
-        format_nfsfattr = function(attr, mactime)
-          local time = "mtime"
-          if mactime then
-            time = mactime
-          end
-
-          return string.format("%s%s  uid: %5d  gid: %5d  %6s  %s",
-                                Util.FtypeToChar(attr.mode),
-                                Util.FpermToString(attr.mode),
-                                attr.uid,
-                                attr.gid,
-                                Util.SizeToHuman(attr.size),
-                                Util.TimeToString(attr[time].seconds))
-        end,
-
-        marshall_int32 = function(int32, count)
-          if count then
-            return bin.pack(">i" .. count, int32)
-          end
-          return bin.pack(">i", int32)
-        end,
-
-        unmarshall_int32 = function(data, pos, count)
-          if count then
-            return bin.unpack(">i" .. count, data, pos)
-          end
-          return bin.unpack(">i", data, pos)
-        end,
-
-        marshall_uint32 = function(uint32, count)
-          if count then
-            return bin.pack(">I" .. count, uint32)
-          end
-          return bin.pack(">I", uint32)
-        end,
-
-        unmarshall_uint32 = function(data, pos, count)
-          if count then
-            return bin.unpack(">I" .. count, data, pos)
-          end
-          return bin.unpack(">I", data, pos)
-        end,
-
-        marshall_int64 = function(int64, count)
-          if count then
-            return bin.pack(">l" .. count, int64)
-          end
-          return bin.pack(">l", int64)
-        end,
-
-        unmarshall_int64 = function(data, pos, count)
-          if count then
-            return bin.unpack(">l" .. count, data, pos)
-          end
-          return bin.unpack(">l", data, pos)
-        end,
-
-        marshall_uint64 = function(uint64, count)
-          if count then
-            return bin.pack(">L" .. count, uint64)
-          end
-          return bin.pack(">L", uint64)
-        end,
-
-        unmarshall_uint64 = function(data, pos, count)
-          if count then
-            return bin.unpack(">L" .. count, data, pos)
-          end
-          return bin.unpack(">L", data, pos)
-        end,
-
-        marshall_opaque = function(data)
-          local opaque = bin.pack(">A", data)
-          for i = 1, Util.CalcFillBytes(data:len()) do
-            opaque = opaque .. string.char(0x00)
-          end
-          return opaque
-        end,
-
-        unmarshall_opaque = function(len, data, pos)
-          return bin.unpack(">A" .. len, data, pos)
-        end,
-
-        marshall_vopaque = function(data)
-          local opaque, l
-          l = data:len()
-          opaque = Util.marshall_uint32(l) .. bin.pack(">A", data)
-          for i = 1, Util.CalcFillBytes(l) do
-            opaque = opaque .. string.char(0x00)
-          end
-          return opaque
-        end,
-
-        unmarshall_vopaque = function(len, data, pos)
-          local opaque, pad
-          pad = Util.CalcFillBytes(len)
-          pos, opaque = bin.unpack(">A" .. len, data, pos)
-          return pos + pad, opaque
-        end,
-
-        unmarshall_nfsftype = function(data, pos, count)
-          return Util.unmarshall_uint32(data, pos, count)
-        end,
-
-        unmarshall_nfsfmode = function(data, pos, count)
-          return Util.unmarshall_uint32(data, pos, count)
-        end,
-
-        unmarshall_nfssize3 = function(data, pos, count)
-          return Util.unmarshall_uint64(data, pos, count)
-        end,
-
-        unmarshall_nfsspecdata3 = function(data, pos)
-          local specdata3 = {}
-          pos, specdata3.specdata1,
-          specdata3.specdata2 = Util.unmarshall_uint32(data, pos, 2)
-          return pos, specdata3
-        end,
-
-        --- Unmarshall NFSv3 fileid field of the NFS attributes
-        --
-        -- @param data   The data being processed.
-        -- @param pos    The position within <code>data</code>
-        -- @return pos   The new position
-        -- @return uint64 The decoded fileid
-        unmarshall_nfsfileid3 = function(data, pos)
-          return Util.unmarshall_uint64(data, pos)
-        end,
-
-        --- Unmarshall NFS time
-        --
-        -- @param data   The data being processed.
-        -- @param pos    The position within <code>data</code>
-        -- @return pos   The new position
-        -- @return table The decoded NFS time table.
-        unmarshall_nfstime = function(data, pos)
-          local nfstime = {}
-          pos, nfstime.seconds,
-          nfstime.nseconds = Util.unmarshall_uint32(data, pos, 2)
-          return pos, nfstime
-        end,
-
-        --- Unmarshall NFS file attributes
-        --
-        -- @param data   The data being processed.
-        -- @param pos    The position within <code>data</code>
-        -- @param number The NFS version.
-        -- @return pos   The new position
-        -- @return table The decoded file attributes table.
-        unmarshall_nfsattr = function(data, pos, nfsversion)
-          local attr = {}
-          pos, attr.type = Util.unmarshall_nfsftype(data, pos)
-          pos, attr.mode = Util.unmarshall_nfsfmode(data, pos)
-          pos, attr.nlink, attr.uid,
-          attr.gid = Util.unmarshall_uint32(data, pos, 3)
-
-          if (nfsversion < 3) then
-            pos, attr.size, attr.blocksize, attr.rdev, attr.blocks,
-            attr.fsid, attr.fileid = Util.unmarshall_uint32(data, pos, 6)
-          elseif (nfsversion == 3) then
-            pos, attr.size = Util.unmarshall_nfssize3(data, pos)
-            pos, attr.used = Util.unmarshall_nfssize3(data, pos)
-            pos, attr.rdev = Util.unmarshall_nfsspecdata3(data, pos)
-            pos, attr.fsid = Util.unmarshall_uint64(data, pos)
-            pos, attr.fileid = Util.unmarshall_nfsfileid3(data, pos)
-          else
-            stdnse.print_debug(4, "unmarshall_nfsattr: unsupported NFS version %d",
-                              nfsversion)
-            return -1, nil
-          end
-
-          pos, attr.atime = Util.unmarshall_nfstime(data, pos)
-          pos, attr.mtime = Util.unmarshall_nfstime(data, pos)
-          pos, attr.ctime = Util.unmarshall_nfstime(data, pos)
-
-          return pos, attr
-        end,
-
-        --- Returns a string containing date and time
-        --
-        -- @param number of seconds since some given start time
-        --        (the "epoch")
-        -- @return string that represents time.
-        TimeToString = stdnse.format_timestamp,
-
-        --- Converts the size in bytes to a human readable format
-        --
-        -- An optional second argument is the size of a block
-        -- @usage
-        -- size_tohuman(1024) --> 1024.0B
-        -- size_tohuman(926548776) --> 883.6M
-        -- size_tohuman(246548, 1024) --> 240.8K
-        -- size_tohuman(246548, 1000) --> 246.5K
-        --
-        -- @param size in bytes
-        -- @param blocksize represents the number of bytes per block
-        --        Possible values are: 1024 or 1000
-        --        Default value is: 1024
-        -- @return string containing the size in the human readable
-        --        format
-        SizeToHuman = function(size, blocksize)
-          local bs, idx = 1024, 1
-          local unit = { "B", "K", "M", "G" , "T"}
-          if blocksize and blocksize == 1000 then
-            bs = blocksize
-          end
-          for i=1, #unit do
-            if (size > bs and idx < #unit) then
-              size = size / bs
-              idx = idx + 1
+          elseif tmpacl[t[code].idx] == "S" then
+            if t[code].char == "x" then
+              tmpacl[t[code].idx] = "s"
             end
-          end
-          return string.format("%.1f%s", size, unit[idx])
-        end,
-
-        format_access = function(mask, version)
-          local ret, nfsobj = "", NFS:new()
-
-          if nfsobj:AccessRead(mask, version) ~= 0 then
-            ret = "Read "
           else
-            ret = "NoRead "
+            tmpacl[t[code].idx] = t[code].char
           end
+        end
+      end
+    end
 
-          if nfsobj:AccessLookup(mask, version) ~= 0 then
-            ret = ret .. "Lookup "
-          else
-            ret = ret .. "NoLookup "
-          end
+    for i = 1,#tmpacl do
+      acl = acl .. tmpacl[i]
+    end
 
-          if nfsobj:AccessModify(mask, version) ~= 0 then
-            ret = ret .. "Modify "
-          else
-            ret = ret .. "NoModify "
-          end
+    return acl
+  end,
 
-          if nfsobj:AccessExtend(mask, version) ~= 0 then
-            ret = ret .. "Extend "
-          else
-            ret = ret .. "NoExtend "
-          end
+  --- Converts the NFS file attributes to a string.
+  --
+  -- An optional second argument is the mactime to use
+  --
+  -- @param attr table returned by NFS GETATTR or ACCESS
+  -- @param mactime to use, the default value is mtime
+  --        Possible values: mtime, atime, ctime
+  -- @return string containing the file attributes
+  format_nfsfattr = function(attr, mactime)
+    local time = "mtime"
+    if mactime then
+      time = mactime
+    end
 
-          if nfsobj:AccessDelete(mask, version) ~= 0 then
-            ret = ret .. "Delete "
-          else
-            ret = ret .. "NoDelete "
-          end
+    return string.format("%s%s  uid: %5d  gid: %5d  %6s  %s",
+      Util.FtypeToChar(attr.mode),
+      Util.FpermToString(attr.mode),
+      attr.uid,
+      attr.gid,
+      Util.SizeToHuman(attr.size),
+      Util.TimeToString(attr[time].seconds))
+  end,
 
-          if nfsobj:AccessExecute(mask, version) ~= 0 then
-            ret = ret .. "Execute"
-          else
-            ret = ret .. "NoExecute"
-          end
+  marshall_int32 = function(int32, count)
+    if count then
+      return bin.pack(">i" .. count, int32)
+    end
+    return bin.pack(">i", int32)
+  end,
 
-          return ret
-        end,
+  unmarshall_int32 = function(data, pos, count)
+    if count then
+      return bin.unpack(">i" .. count, data, pos)
+    end
+    return bin.unpack(">i", data, pos)
+  end,
 
-        --- Return the pathconf filesystem table
-        --
-        -- @param pconf table returned by the NFSv3 PATHCONF call
-        -- @param nfsversion the version of the remote NFS server
-        -- @return fs table that contains the remote filesystem
-        --         pathconf information.
-        calc_pathconf_table = function(pconf, nfsversion)
-          local fs = {}
-          if nfsversion ~= 3 then
-            return nil, "ERROR: unsupported NFS version."
-          end
+  marshall_uint32 = function(uint32, count)
+    if count then
+      return bin.pack(">I" .. count, uint32)
+    end
+    return bin.pack(">I", uint32)
+  end,
 
-          fs.linkmax = pconf.linkmax
-          fs.name_max = pconf.name_max
+  unmarshall_uint32 = function(data, pos, count)
+    if count then
+      return bin.unpack(">I" .. count, data, pos)
+    end
+    return bin.unpack(">I", data, pos)
+  end,
 
-          if pconf.chown_restricted then
-            fs.chown_restricted = "True"
-          else
-            fs.chown_restricted = "False"
-          end
+  marshall_int64 = function(int64, count)
+    if count then
+      return bin.pack(">l" .. count, int64)
+    end
+    return bin.pack(">l", int64)
+  end,
 
-          return fs, nil
-        end,
+  unmarshall_int64 = function(data, pos, count)
+    if count then
+      return bin.unpack(">l" .. count, data, pos)
+    end
+    return bin.unpack(">l", data, pos)
+  end,
 
-        --- Calculate and return the fsinfo filesystem table
-        --
-        -- @param fsinfo table returned by the NFSv3 FSINFO call
-        -- @param nfsversion the version of the remote NFS server
-        -- @param human if set show the size in the human
-        --        readable format.
-        -- @return fs table that contains the remote filesystem
-        --         information.
-        calc_fsinfo_table = function(fsinfo, nfsversion, human)
-          local fs = {}
-          local nfsobj = NFS:new()
-          if nfsversion ~= 3 then
-            return nil, "ERROR: unsupported NFS version."
-          end
+  marshall_uint64 = function(uint64, count)
+    if count then
+      return bin.pack(">L" .. count, uint64)
+    end
+    return bin.pack(">L", uint64)
+  end,
 
-          fs.maxfilesize = Util.SizeToHuman(fsinfo.maxfilesize)
+  unmarshall_uint64 = function(data, pos, count)
+    if count then
+      return bin.unpack(">L" .. count, data, pos)
+    end
+    return bin.unpack(">L", data, pos)
+  end,
 
-          if nfsobj:FSinfoLink(fsinfo.properties, nfsversion) ~= 0 then
-            fs.link = "True"
-          else
-            fs.link = "False"
-          end
+  marshall_opaque = function(data)
+    local opaque = bin.pack(">A", data)
+    for i = 1, Util.CalcFillBytes(data:len()) do
+      opaque = opaque .. string.char(0x00)
+    end
+    return opaque
+  end,
 
-          if nfsobj:FSinfoSymlink(fsinfo.properties, nfsversion) ~= 0 then
-            fs.symlink = "True"
-          else
-            fs.symlink = "False"
-          end
+  unmarshall_opaque = function(len, data, pos)
+    return bin.unpack(">A" .. len, data, pos)
+  end,
 
-          return fs, nil
-        end,
+  marshall_vopaque = function(data)
+    local opaque, l
+    l = data:len()
+    opaque = Util.marshall_uint32(l) .. bin.pack(">A", data)
+    for i = 1, Util.CalcFillBytes(l) do
+      opaque = opaque .. string.char(0x00)
+    end
+    return opaque
+  end,
 
-        --- Calculate and return the fsstat filesystem table
-        --
-        -- @param stats table returned by the NFSv3 FSSTAT or
-        --        NFSv2 STATFS calls
-        -- @param nfsversion the version of the remote NFS server
-        -- @param human if set show the size in the human
-        --        readable format.
-        -- @return df table that contains the remote filesystem
-        --         attributes.
-        calc_fsstat_table = function(stats, nfsversion, human)
-          local df, base = {}, 1024
-          local size, free, total, avail, used, use
-          if (nfsversion == 3) then
-            free = stats.fbytes
-            size = stats.tbytes
-            avail = stats.abytes
-          elseif (nfsversion == 2) then
-            df.bsize = stats.block_size
-            free = stats.free_blocks * df.bsize
-            size = stats.total_blocks * df.bsize
-            avail = stats.available_blocks * df.bsize
-          else
-            return nil, "ERROR: unsupported NFS version."
-          end
+  unmarshall_vopaque = function(len, data, pos)
+    local opaque, pad
+    pad = Util.CalcFillBytes(len)
+    pos, opaque = bin.unpack(">A" .. len, data, pos)
+    return pos + pad, opaque
+  end,
 
-          if (human) then
-            if (df.bsize) then
-              df.bsize = Util.SizeToHuman(df.bsize)
-            end
-            df.size = Util.SizeToHuman(size)
-            df.available = Util.SizeToHuman(avail)
-            used = size - free
-            avail = avail
-            df.used = Util.SizeToHuman(used)
-            total = used + avail
-          else
-            free = free / base
-            df.size = size / base
-            df.available = avail / base
-            used = df.size - free
-            df.used = used
-            total = df.used + df.available
-          end
+  unmarshall_nfsftype = function(data, pos, count)
+    return Util.unmarshall_uint32(data, pos, count)
+  end,
 
-          use = math.ceil(used * 100 / total)
-          df.use = string.format("%.0f%%", use)
-          return df, nil
-        end,
+  unmarshall_nfsfmode = function(data, pos, count)
+    return Util.unmarshall_uint32(data, pos, count)
+  end,
+
+  unmarshall_nfssize3 = function(data, pos, count)
+    return Util.unmarshall_uint64(data, pos, count)
+  end,
+
+  unmarshall_nfsspecdata3 = function(data, pos)
+    local specdata3 = {}
+    pos, specdata3.specdata1,
+    specdata3.specdata2 = Util.unmarshall_uint32(data, pos, 2)
+    return pos, specdata3
+  end,
+
+  --- Unmarshall NFSv3 fileid field of the NFS attributes
+  --
+  -- @param data   The data being processed.
+  -- @param pos    The position within <code>data</code>
+  -- @return pos   The new position
+  -- @return uint64 The decoded fileid
+  unmarshall_nfsfileid3 = function(data, pos)
+    return Util.unmarshall_uint64(data, pos)
+  end,
+
+  --- Unmarshall NFS time
+  --
+  -- @param data   The data being processed.
+  -- @param pos    The position within <code>data</code>
+  -- @return pos   The new position
+  -- @return table The decoded NFS time table.
+  unmarshall_nfstime = function(data, pos)
+    local nfstime = {}
+    pos, nfstime.seconds,
+    nfstime.nseconds = Util.unmarshall_uint32(data, pos, 2)
+    return pos, nfstime
+  end,
+
+  --- Unmarshall NFS file attributes
+  --
+  -- @param data   The data being processed.
+  -- @param pos    The position within <code>data</code>
+  -- @param number The NFS version.
+  -- @return pos   The new position
+  -- @return table The decoded file attributes table.
+  unmarshall_nfsattr = function(data, pos, nfsversion)
+    local attr = {}
+    pos, attr.type = Util.unmarshall_nfsftype(data, pos)
+    pos, attr.mode = Util.unmarshall_nfsfmode(data, pos)
+    pos, attr.nlink, attr.uid,
+    attr.gid = Util.unmarshall_uint32(data, pos, 3)
+
+    if (nfsversion < 3) then
+      pos, attr.size, attr.blocksize, attr.rdev, attr.blocks,
+      attr.fsid, attr.fileid = Util.unmarshall_uint32(data, pos, 6)
+    elseif (nfsversion == 3) then
+      pos, attr.size = Util.unmarshall_nfssize3(data, pos)
+      pos, attr.used = Util.unmarshall_nfssize3(data, pos)
+      pos, attr.rdev = Util.unmarshall_nfsspecdata3(data, pos)
+      pos, attr.fsid = Util.unmarshall_uint64(data, pos)
+      pos, attr.fileid = Util.unmarshall_nfsfileid3(data, pos)
+    else
+      stdnse.print_debug(4, "unmarshall_nfsattr: unsupported NFS version %d",
+        nfsversion)
+      return -1, nil
+    end
+
+    pos, attr.atime = Util.unmarshall_nfstime(data, pos)
+    pos, attr.mtime = Util.unmarshall_nfstime(data, pos)
+    pos, attr.ctime = Util.unmarshall_nfstime(data, pos)
+
+    return pos, attr
+  end,
+
+  --- Returns a string containing date and time
+  --
+  -- @param number of seconds since some given start time
+  --        (the "epoch")
+  -- @return string that represents time.
+  TimeToString = stdnse.format_timestamp,
+
+  --- Converts the size in bytes to a human readable format
+  --
+  -- An optional second argument is the size of a block
+  -- @usage
+  -- size_tohuman(1024) --> 1024.0B
+  -- size_tohuman(926548776) --> 883.6M
+  -- size_tohuman(246548, 1024) --> 240.8K
+  -- size_tohuman(246548, 1000) --> 246.5K
+  --
+  -- @param size in bytes
+  -- @param blocksize represents the number of bytes per block
+  --        Possible values are: 1024 or 1000
+  --        Default value is: 1024
+  -- @return string containing the size in the human readable
+  --        format
+  SizeToHuman = function(size, blocksize)
+    local bs, idx = 1024, 1
+    local unit = { "B", "K", "M", "G" , "T"}
+    if blocksize and blocksize == 1000 then
+      bs = blocksize
+    end
+    for i=1, #unit do
+      if (size > bs and idx < #unit) then
+        size = size / bs
+        idx = idx + 1
+      end
+    end
+    return string.format("%.1f%s", size, unit[idx])
+  end,
+
+  format_access = function(mask, version)
+    local ret, nfsobj = "", NFS:new()
+
+    if nfsobj:AccessRead(mask, version) ~= 0 then
+      ret = "Read "
+    else
+      ret = "NoRead "
+    end
+
+    if nfsobj:AccessLookup(mask, version) ~= 0 then
+      ret = ret .. "Lookup "
+    else
+      ret = ret .. "NoLookup "
+    end
+
+    if nfsobj:AccessModify(mask, version) ~= 0 then
+      ret = ret .. "Modify "
+    else
+      ret = ret .. "NoModify "
+    end
+
+    if nfsobj:AccessExtend(mask, version) ~= 0 then
+      ret = ret .. "Extend "
+    else
+      ret = ret .. "NoExtend "
+    end
+
+    if nfsobj:AccessDelete(mask, version) ~= 0 then
+      ret = ret .. "Delete "
+    else
+      ret = ret .. "NoDelete "
+    end
+
+    if nfsobj:AccessExecute(mask, version) ~= 0 then
+      ret = ret .. "Execute"
+    else
+      ret = ret .. "NoExecute"
+    end
+
+    return ret
+  end,
+
+  --- Return the pathconf filesystem table
+  --
+  -- @param pconf table returned by the NFSv3 PATHCONF call
+  -- @param nfsversion the version of the remote NFS server
+  -- @return fs table that contains the remote filesystem
+  --         pathconf information.
+  calc_pathconf_table = function(pconf, nfsversion)
+    local fs = {}
+    if nfsversion ~= 3 then
+      return nil, "ERROR: unsupported NFS version."
+    end
+
+    fs.linkmax = pconf.linkmax
+    fs.name_max = pconf.name_max
+
+    if pconf.chown_restricted then
+      fs.chown_restricted = "True"
+    else
+      fs.chown_restricted = "False"
+    end
+
+    return fs, nil
+  end,
+
+  --- Calculate and return the fsinfo filesystem table
+  --
+  -- @param fsinfo table returned by the NFSv3 FSINFO call
+  -- @param nfsversion the version of the remote NFS server
+  -- @param human if set show the size in the human
+  --        readable format.
+  -- @return fs table that contains the remote filesystem
+  --         information.
+  calc_fsinfo_table = function(fsinfo, nfsversion, human)
+    local fs = {}
+    local nfsobj = NFS:new()
+    if nfsversion ~= 3 then
+      return nil, "ERROR: unsupported NFS version."
+    end
+
+    fs.maxfilesize = Util.SizeToHuman(fsinfo.maxfilesize)
+
+    if nfsobj:FSinfoLink(fsinfo.properties, nfsversion) ~= 0 then
+      fs.link = "True"
+    else
+      fs.link = "False"
+    end
+
+    if nfsobj:FSinfoSymlink(fsinfo.properties, nfsversion) ~= 0 then
+      fs.symlink = "True"
+    else
+      fs.symlink = "False"
+    end
+
+    return fs, nil
+  end,
+
+  --- Calculate and return the fsstat filesystem table
+  --
+  -- @param stats table returned by the NFSv3 FSSTAT or
+  --        NFSv2 STATFS calls
+  -- @param nfsversion the version of the remote NFS server
+  -- @param human if set show the size in the human
+  --        readable format.
+  -- @return df table that contains the remote filesystem
+  --         attributes.
+  calc_fsstat_table = function(stats, nfsversion, human)
+    local df, base = {}, 1024
+    local size, free, total, avail, used, use
+    if (nfsversion == 3) then
+      free = stats.fbytes
+      size = stats.tbytes
+      avail = stats.abytes
+    elseif (nfsversion == 2) then
+      df.bsize = stats.block_size
+      free = stats.free_blocks * df.bsize
+      size = stats.total_blocks * df.bsize
+      avail = stats.available_blocks * df.bsize
+    else
+      return nil, "ERROR: unsupported NFS version."
+    end
+
+    if (human) then
+      if (df.bsize) then
+        df.bsize = Util.SizeToHuman(df.bsize)
+      end
+      df.size = Util.SizeToHuman(size)
+      df.available = Util.SizeToHuman(avail)
+      used = size - free
+      avail = avail
+      df.used = Util.SizeToHuman(used)
+      total = used + avail
+    else
+      free = free / base
+      df.size = size / base
+      df.available = avail / base
+      used = df.size - free
+      df.used = used
+      total = df.used + df.available
+    end
+
+    use = math.ceil(used * 100 / total)
+    df.use = string.format("%.0f%%", use)
+    return df, nil
+  end,
 
   --- Converts a RPC program name to it's equivalent number
   --
@@ -3429,7 +3429,7 @@ Util =
   -- @param length contains the length of the string
   -- @return the amount of pad needed to be dividable by 4
   CalcFillBytes = function(length)
-      -- calculate fill bytes
+    -- calculate fill bytes
     if math.fmod( length, 4 ) ~= 0 then
       return (4 - math.fmod( length, 4))
     else

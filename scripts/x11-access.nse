@@ -28,47 +28,47 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe", "auth"}
 
 portrule = function(host, port)
-        return ((port.number >= 6000 and port.number <= 6009)
-                or (port.service and string.match(port.service, "^X11")))
-                -- If port.version.product is not equal to nil, version
-                -- detection "-sV" has already done this X server test.
-                and port.version.product == nil
+  return ((port.number >= 6000 and port.number <= 6009)
+    or (port.service and string.match(port.service, "^X11")))
+  -- If port.version.product is not equal to nil, version
+  -- detection "-sV" has already done this X server test.
+  and port.version.product == nil
 end
 
 action = function(host, port)
 
-        local result, socket, try, catch
-        socket = nmap.new_socket()
-        catch = function()
-                socket:close()
-        end
+  local result, socket, try, catch
+  socket = nmap.new_socket()
+  catch = function()
+    socket:close()
+  end
 
-        try = nmap.new_try(catch)
-        try(socket:connect(host, port))
+  try = nmap.new_try(catch)
+  try(socket:connect(host, port))
 
-        -- Sending the network dump of a x11 connection request (captured
-        -- from the XOpenDisplay() function):
-        --
-        --    0x6c 0x00 0x0b 0x00 0x00 0x00 0x00
-        --    0x00 0x00 0x00 0x00 0x00 0x00
-        try(socket:send("\108\000\011\000\000\000\000\000\000\000\000\000"))
+  -- Sending the network dump of a x11 connection request (captured
+  -- from the XOpenDisplay() function):
+  --
+  --    0x6c 0x00 0x0b 0x00 0x00 0x00 0x00
+  --    0x00 0x00 0x00 0x00 0x00 0x00
+  try(socket:send("\108\000\011\000\000\000\000\000\000\000\000\000"))
 
-        -- According to the XOpenDisplay() sources, server answer is
-        -- stored in a xConnSetupPrefix structure [1]. The function
-        -- returns NULL if it does not succeed, and more precisely: When
-        -- the success field of this structure (stored on 1 byte) is not
-        -- equal to xTrue [2]. For more information, see the Xlib
-        -- programming Manual [3].
-        --
-        -- [1] xConnSetupPrefix structure is defined in X11/Xproto.h.
-        -- [2] xTrue = 0x01 according to X11/Xproto.h.
-        -- [3] http://www.sbin.org/doc/Xlib
+  -- According to the XOpenDisplay() sources, server answer is
+  -- stored in a xConnSetupPrefix structure [1]. The function
+  -- returns NULL if it does not succeed, and more precisely: When
+  -- the success field of this structure (stored on 1 byte) is not
+  -- equal to xTrue [2]. For more information, see the Xlib
+  -- programming Manual [3].
+  --
+  -- [1] xConnSetupPrefix structure is defined in X11/Xproto.h.
+  -- [2] xTrue = 0x01 according to X11/Xproto.h.
+  -- [3] http://www.sbin.org/doc/Xlib
 
-        result = try(socket:receive_bytes(1))
-        socket:close()
+  result = try(socket:receive_bytes(1))
+  socket:close()
 
-        -- Check if first byte received is 0x01 (xTrue: succeed).
-        if string.match(result, "^\001") then
-                return true, "X server access is granted"
-        end
+  -- Check if first byte received is 0x01 (xTrue: succeed).
+  if string.match(result, "^\001") then
+    return true, "X server access is granted"
+  end
 end

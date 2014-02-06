@@ -79,210 +79,210 @@ categories = {"discovery","intrusive","external"}
 
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
-                { "smtp", "smtps", "submission" })
+  { "smtp", "smtps", "submission" })
 
 ---Gets the user specified parameters to be used in the tests.
 --
 --@param host Target host (used for the ip parameter default value)
 --@return Domain, from, to and ip to be used in the tests
 function get_parameters(host)
-    -- call smtp.get_domain() without the host table to use the
-    -- 'nmap.scanme.org' host name, we are scanning for open relays.
-    local domain = stdnse.get_script_args('smtp-open-relay.domain') or
-                        smtp.get_domain()
+  -- call smtp.get_domain() without the host table to use the
+  -- 'nmap.scanme.org' host name, we are scanning for open relays.
+  local domain = stdnse.get_script_args('smtp-open-relay.domain') or
+  smtp.get_domain()
 
-    local from = stdnse.get_script_args('smtp-open-relay.from') or "antispam"
+  local from = stdnse.get_script_args('smtp-open-relay.from') or "antispam"
 
-    local to = stdnse.get_script_args('smtp-open-relay.to') or "relaytest"
+  local to = stdnse.get_script_args('smtp-open-relay.to') or "relaytest"
 
-    local ip = stdnse.get_script_args('smtp-open-relay.ip') or host.ip
+  local ip = stdnse.get_script_args('smtp-open-relay.ip') or host.ip
 
-    return domain, from, to, ip
+  return domain, from, to, ip
 end
 
 function go(host, port)
-    local options = {
-        timeout = 10000,
-        recv_before = true,
-        ssl = true,
-    }
+  local options = {
+    timeout = 10000,
+    recv_before = true,
+    ssl = true,
+  }
 
-    local result, status, index = {}
+  local result, status, index = {}
 
-    local domain, from, to, ip = get_parameters(host)
+  local domain, from, to, ip = get_parameters(host)
 
-    local socket, response = smtp.connect(host, port, options)
-    if not socket then
-        return false, string.format("Couldn't establish connection on port %i",
-                          port.number)
+  local socket, response = smtp.connect(host, port, options)
+  if not socket then
+    return false, string.format("Couldn't establish connection on port %i",
+      port.number)
+  end
+
+  local srvname = string.match(response, "%d+%s([%w]+[%w%.-]*)")
+
+  local status, response = smtp.ehlo(socket, domain)
+  if not status then
+    return status, response
+  end
+
+  if not srvname then
+    srvname = string.match(response, "%d+%-([%w]+[%w%.-]*)")
+  end
+
+  -- Antispam tests.
+  local tests = {
+    {
+      from = "",
+      to = string.format("%s@%s", to, domain)
+    },
+    {
+      from = string.format("%s@%s", from, domain),
+      to = string.format("%s@%s", to, domain)
+    },
+    {
+      from = string.format("%s@%s", from, srvname),
+      to = string.format("%s@%s", to, domain)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s@%s", to, domain)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s%%%s@[%s]", to, domain, ip)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s%%%s@%s", to, domain, srvname)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("\"%s@%s\"", to, domain)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("\"%s%%%s\"", to, domain)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s@%s@[%s]", to, domain, ip)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("\"%s@%s\"@[%s]", to, domain, ip)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s@%s@%s", to, domain, srvname)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("@[%s]:%s@%s", ip, to, domain)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("@%s:%s@%s", srvname, to, domain)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s!%s", domain, to)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s!%s@[%s]", domain, to, ip)
+    },
+    {
+      from = string.format("%s@[%s]", from, ip),
+      to = string.format("%s!%s@%s", domain, to, srvname)
+    },
+  }
+
+  -- This function is used when something goes wrong with the connection.
+  -- It makes sure that if it found working combinations before the error
+  -- occurred, they will be returned. If the debug flag is enabled the
+  -- error message will be appended to the combinations list.
+  local failure = function(message)
+    if #result > 0 then
+      table.insert(result, message)
+      return true, result
+    else
+      return false, message
     end
+  end
 
-    local srvname = string.match(response, "%d+%s([%w]+[%w%.-]*)")
-
-    local status, response = smtp.ehlo(socket, domain)
+  for index = 1, #tests do
+    status, response = smtp.reset(socket)
     if not status then
-        return status, response
+      if string.match(response, "530") then
+        return false, "Server isn't an open relay, authentication needed"
+      end
+      return failure(response)
     end
 
-    if not srvname then
-        srvname = string.match(response, "%d+%-([%w]+[%w%.-]*)")
+    status, response = smtp.query(socket, "MAIL",
+      string.format("FROM:<%s>",
+      tests[index]["from"]))
+    -- If this command fails to be sent, then something went
+    -- wrong with the connection.
+    if not status then
+      return failure(string.format("Failed to issue %s command (%s)",
+        tests[index]["from"], response))
     end
 
-    -- Antispam tests.
-    local tests = {
-      {
-        from = "",
-        to = string.format("%s@%s", to, domain)
-      },
-      {
-        from = string.format("%s@%s", from, domain),
-        to = string.format("%s@%s", to, domain)
-      },
-      {
-        from = string.format("%s@%s", from, srvname),
-        to = string.format("%s@%s", to, domain)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s@%s", to, domain)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s%%%s@[%s]", to, domain, ip)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s%%%s@%s", to, domain, srvname)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("\"%s@%s\"", to, domain)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("\"%s%%%s\"", to, domain)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s@%s@[%s]", to, domain, ip)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("\"%s@%s\"@[%s]", to, domain, ip)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s@%s@%s", to, domain, srvname)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("@[%s]:%s@%s", ip, to, domain)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("@%s:%s@%s", srvname, to, domain)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s!%s", domain, to)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s!%s@[%s]", domain, to, ip)
-      },
-      {
-        from = string.format("%s@[%s]", from, ip),
-        to = string.format("%s!%s@%s", domain, to, srvname)
-      },
-    }
+    if string.match(response, "530") then
+      smtp.quit(socket)
+      return false, "Server isn't an open relay, authentication needed"
+    elseif smtp.check_reply("MAIL", response) then
+      -- Lets try to actually relay.
+      status, response = smtp.query(socket, "RCPT",
+        string.format("TO:<%s>",
+        tests[index]["to"]))
+      if not status then
+        return failure(string.format("Failed to issue %s command (%s)",
+          tests[index]["to"], response))
+      end
 
-    -- This function is used when something goes wrong with the connection.
-    -- It makes sure that if it found working combinations before the error
-    -- occurred, they will be returned. If the debug flag is enabled the
-    -- error message will be appended to the combinations list.
-    local failure = function(message)
-        if #result > 0 then
-            table.insert(result, message)
-            return true, result
-        else
-            return false, message
-        end
+      if string.match(response, "530") then
+        smtp.quit(socket)
+        return false, "Server isn't an open relay, authentication needed"
+      elseif smtp.check_reply("RCPT", response) then
+        -- Save the working from and to combination.
+        table.insert(result,
+          string.format("MAIL FROM:<%s> -> RCPT TO:<%s>",
+          tests[index]["from"], tests[index]["to"]))
+      end
     end
+  end
 
-    for index = 1, #tests do
-        status, response = smtp.reset(socket)
-        if not status then
-            if string.match(response, "530") then
-                return false, "Server isn't an open relay, authentication needed"
-            end
-            return failure(response)
-        end
-
-        status, response = smtp.query(socket, "MAIL",
-                                      string.format("FROM:<%s>",
-                                      tests[index]["from"]))
-        -- If this command fails to be sent, then something went
-        -- wrong with the connection.
-        if not status then
-            return failure(string.format("Failed to issue %s command (%s)",
-                          tests[index]["from"], response))
-        end
-
-        if string.match(response, "530") then
-            smtp.quit(socket)
-            return false, "Server isn't an open relay, authentication needed"
-        elseif smtp.check_reply("MAIL", response) then
-            -- Lets try to actually relay.
-            status, response = smtp.query(socket, "RCPT",
-                                          string.format("TO:<%s>",
-                                          tests[index]["to"]))
-            if not status then
-                return failure(string.format("Failed to issue %s command (%s)",
-                               tests[index]["to"], response))
-            end
-
-            if string.match(response, "530") then
-                smtp.quit(socket)
-                return false, "Server isn't an open relay, authentication needed"
-            elseif smtp.check_reply("RCPT", response) then
-                -- Save the working from and to combination.
-                table.insert(result,
-                             string.format("MAIL FROM:<%s> -> RCPT TO:<%s>",
-                             tests[index]["from"], tests[index]["to"]))
-            end
-        end
-    end
-
-    smtp.quit(socket)
-    return true, result
+  smtp.quit(socket)
+  return true, result
 end
 
 action = function(host, port)
-    local status, result = go(host, port)
+  local status, result = go(host, port)
 
-    -- The go function returned false, this means that the result is
-    -- a simple error message.
-    if not status then
-        return result
-    else
-        -- Combinations were found. If verbosity is active, the script
-        -- will print all the successful tests. Otherwise it will only
-        -- print the conclusion.
-        if #result > 0 then
-            local final = {}
-            table.insert(final,
-                        string.format("Server is an open relay (%i/16 tests)",
-                        (#result)))
+  -- The go function returned false, this means that the result is
+  -- a simple error message.
+  if not status then
+    return result
+  else
+    -- Combinations were found. If verbosity is active, the script
+    -- will print all the successful tests. Otherwise it will only
+    -- print the conclusion.
+    if #result > 0 then
+      local final = {}
+      table.insert(final,
+        string.format("Server is an open relay (%i/16 tests)",
+        (#result)))
 
-            if nmap.verbosity() > 1 then
-                for index, test in ipairs(result) do
-                    table.insert(final, test)
-                end
-            end
-
-            return stdnse.strjoin("\n ", final)
+      if nmap.verbosity() > 1 then
+        for index, test in ipairs(result) do
+          table.insert(final, test)
         end
+      end
 
-        return "Server doesn't seem to be an open relay, all tests failed"
+      return stdnse.strjoin("\n ", final)
     end
+
+    return "Server doesn't seem to be an open relay, all tests failed"
+  end
 end

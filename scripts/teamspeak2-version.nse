@@ -26,36 +26,36 @@ local payload = "\xf4\xbe\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x0
 portrule = shortport.version_port_or_service({8767}, "teamspeak2", "udp")
 
 action = function(host, port)
-    local status, result = comm.exchange(
-        host, port.number, payload, { proto = "udp", timeout = 3000 })
-    if not status then
-        return
-    end
-    nmap.set_port_state(host, port, "open")
-
-    local name, platform, version = string.match(result,
-        "^\xf4\xbe\x04\0\0\0\0\0.............([^\0]*)%G+([^\0]*)\0*(........)")
-    if not name then
-        return
-    end
-
-    port.version.name = "teamspeak2"
-    port.version.name_confidence = 10
-    port.version.product = "TeamSpeak"
-    if name == "" then
-        port.version.version = "2"
-    else
-        local _, v_a, v_b, v_c, v_d = bin.unpack("<SSSS", version)
-        port.version.version = v_a .. "." .. v_b .. "." .. v_c .. "." .. v_d
-        port.version.extrainfo = "name: " .. name .. "; no password"
-        if platform == "Win32" then
-            port.version.ostype = "Windows"
-        elseif platform == "Linux" then
-            port.version.ostype = "Linux"
-        end
-    end
-
-    nmap.set_port_version(host, port, "hardmatched")
-
+  local status, result = comm.exchange(
+    host, port.number, payload, { proto = "udp", timeout = 3000 })
+  if not status then
     return
+  end
+  nmap.set_port_state(host, port, "open")
+
+  local name, platform, version = string.match(result,
+    "^\xf4\xbe\x04\0\0\0\0\0.............([^\0]*)%G+([^\0]*)\0*(........)")
+  if not name then
+    return
+  end
+
+  port.version.name = "teamspeak2"
+  port.version.name_confidence = 10
+  port.version.product = "TeamSpeak"
+  if name == "" then
+    port.version.version = "2"
+  else
+    local _, v_a, v_b, v_c, v_d = bin.unpack("<SSSS", version)
+    port.version.version = v_a .. "." .. v_b .. "." .. v_c .. "." .. v_d
+    port.version.extrainfo = "name: " .. name .. "; no password"
+    if platform == "Win32" then
+      port.version.ostype = "Windows"
+    elseif platform == "Linux" then
+      port.version.ostype = "Linux"
+    end
+  end
+
+  nmap.set_port_version(host, port, "hardmatched")
+
+  return
 end

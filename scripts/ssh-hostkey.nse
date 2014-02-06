@@ -170,7 +170,7 @@ local function check_keys(host, keys, f)
           if not foundhostname then
             for _, k in ipairs(keys_found) do
               if ("%s %s"):format(parts[2], parts[3]) == k then
-                  table.insert(same_key_hashed, {lnumber = lnumber})
+                table.insert(same_key_hashed, {lnumber = lnumber})
               end
             end
           end
@@ -182,9 +182,9 @@ local function check_keys(host, keys, f)
         else
           -- Is the key the same but the clear text hostname isn't?
           for _, k in ipairs(keys_found) do
-             if ("%s %s"):format(parts[2], parts[3]) == k then
-               table.insert(same_key, {name=parts[1], key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
-             end
+            if ("%s %s"):format(parts[2], parts[3]) == k then
+              table.insert(same_key, {name=parts[1], key=("%s %s"):format(parts[2], parts[3]), lnumber=lnumber})
+            end
           end
         end
       end
@@ -204,7 +204,7 @@ local function check_keys(host, keys, f)
       end
     end
     if not matched then
-        table.insert(different_keys, k)
+      table.insert(different_keys, k)
     end
   end
 
@@ -214,30 +214,30 @@ local function check_keys(host, keys, f)
     return_string = return_string .. "\n\t" ..  "No entry for scanned host found in known_hosts file."
   else
     if next(matched_keys) or next(same_key_hashed) or next(same_key) then
-        return_string = return_string .. "\n\tGOOD Matches in known_hosts file: "
-        if next(matched_keys) then
-            for __, gm in ipairs(matched_keys) do
-                return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-            end
+      return_string = return_string .. "\n\tGOOD Matches in known_hosts file: "
+      if next(matched_keys) then
+        for __, gm in ipairs(matched_keys) do
+          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
         end
-        if next(same_key) then
-            for __, gm in ipairs(same_key) do
-              return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-            end
+      end
+      if next(same_key) then
+        for __, gm in ipairs(same_key) do
+          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
         end
+      end
 
-        if next(same_key_hashed) then
-            for __, gm in ipairs(same_key_hashed) do
-                return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": <unknown>"
-            end
+      if next(same_key_hashed) then
+        for __, gm in ipairs(same_key_hashed) do
+          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": <unknown>"
         end
+      end
 
-        if different_keys ~= 0 then
-            return_string = return_string .. "\n\tWRONG Matches in known_hosts file: "
-            for __, gm in ipairs(different_keys) do
-                return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-            end
+      if different_keys ~= 0 then
+        return_string = return_string .. "\n\tWRONG Matches in known_hosts file: "
+        for __, gm in ipairs(different_keys) do
+          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
         end
+      end
     end
   end
   return true, return_string
@@ -275,11 +275,11 @@ local function portaction(host, port)
   for _, key in ipairs( keys ) do
     add_key_to_registry( host, key )
     table.insert(output_tab, {
-      fingerprint=stdnse.tohex(key.fingerprint),
-      type=key.key_type,
-      bits=key.bits,
-      key=base64.enc(key.key),
-    })
+        fingerprint=stdnse.tohex(key.fingerprint),
+        type=key.key_type,
+        bits=key.bits,
+        key=base64.enc(key.key),
+      })
     if format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
     end

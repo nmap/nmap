@@ -116,60 +116,60 @@ categories = { "default", "safe", "discovery" }
 
 
 portrule = function(host, port)
-    return shortport.ssl(host, port) or sslcert.isPortSupported(port)
+  return shortport.ssl(host, port) or sslcert.isPortSupported(port)
 end
 
 -- Find the index of a value in an array.
 function table_find(t, value)
-    local i, v
-    for i, v in ipairs(t) do
-        if v == value then
-            return i
-        end
+  local i, v
+  for i, v in ipairs(t) do
+    if v == value then
+      return i
     end
-    return nil
+  end
+  return nil
 end
 
 function date_to_string(date)
-    if not date then
-        return "MISSING"
-    end
-    if type(date) == "string" then
-        return string.format("Can't parse; string is \"%s\"", date)
-    else
-        return stdnse.format_timestamp(stdnse.date_to_timestamp(date, 0), 0)
-    end
+  if not date then
+    return "MISSING"
+  end
+  if type(date) == "string" then
+    return string.format("Can't parse; string is \"%s\"", date)
+  else
+    return stdnse.format_timestamp(stdnse.date_to_timestamp(date, 0), 0)
+  end
 end
 
 -- These are the subject/issuer name fields that will be shown, in this order,
 -- without a high verbosity.
 local NON_VERBOSE_FIELDS = { "commonName", "organizationName",
-    "stateOrProvinceName", "countryName" }
+"stateOrProvinceName", "countryName" }
 
 function stringify_name(name)
-    local fields = {}
-    local _, k, v
-    if not name then
-        return nil
+  local fields = {}
+  local _, k, v
+  if not name then
+    return nil
+  end
+  for _, k in ipairs(NON_VERBOSE_FIELDS) do
+    v = name[k]
+    if v then
+      fields[#fields + 1] = string.format("%s=%s", k, v)
     end
-    for _, k in ipairs(NON_VERBOSE_FIELDS) do
-        v = name[k]
-        if v then
-            fields[#fields + 1] = string.format("%s=%s", k, v)
+  end
+  if nmap.verbosity() > 1 then
+    for k, v in pairs(name) do
+      -- Don't include a field twice.
+      if not table_find(NON_VERBOSE_FIELDS, k) then
+        if type(k) == "table" then
+          k = stdnse.strjoin(".", k)
         end
+        fields[#fields + 1] = string.format("%s=%s", k, v)
+      end
     end
-    if nmap.verbosity() > 1 then
-        for k, v in pairs(name) do
-            -- Don't include a field twice.
-            if not table_find(NON_VERBOSE_FIELDS, k) then
-                if type(k) == "table" then
-                    k = stdnse.strjoin(".", k)
-                end
-                fields[#fields + 1] = string.format("%s=%s", k, v)
-            end
-        end
-    end
-    return stdnse.strjoin("/", fields)
+  end
+  return stdnse.strjoin("/", fields)
 end
 
 local function name_to_table(name)
@@ -184,61 +184,61 @@ local function name_to_table(name)
 end
 
 local function output_tab(cert)
-    local o = stdnse.output_table()
-    o.subject = name_to_table(cert.subject)
-    o.issuer = name_to_table(cert.issuer)
-    o.pubkey = cert.pubkey
-    o.validity = {}
-    for k, v in pairs(cert.validity) do
-      if type(v)=="string" then
-        o.validity[k] = v
-      else
-        o.validity[k] = stdnse.format_timestamp(stdnse.date_to_timestamp(v, 0), 0)
-      end
+  local o = stdnse.output_table()
+  o.subject = name_to_table(cert.subject)
+  o.issuer = name_to_table(cert.issuer)
+  o.pubkey = cert.pubkey
+  o.validity = {}
+  for k, v in pairs(cert.validity) do
+    if type(v)=="string" then
+      o.validity[k] = v
+    else
+      o.validity[k] = stdnse.format_timestamp(stdnse.date_to_timestamp(v, 0), 0)
     end
-    o.md5 = stdnse.tohex(cert:digest("md5"))
-    o.sha1 = stdnse.tohex(cert:digest("sha1"))
-    o.pem = cert.pem
-    return o
+  end
+  o.md5 = stdnse.tohex(cert:digest("md5"))
+  o.sha1 = stdnse.tohex(cert:digest("sha1"))
+  o.pem = cert.pem
+  return o
 end
 
 local function output_str(cert)
-    local lines = {}
+  local lines = {}
 
-    lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
+  lines[#lines + 1] = "Subject: " .. stringify_name(cert.subject)
 
-    if nmap.verbosity() > 0 then
-        lines[#lines + 1] = "Issuer: " .. stringify_name(cert.issuer)
-    end
+  if nmap.verbosity() > 0 then
+    lines[#lines + 1] = "Issuer: " .. stringify_name(cert.issuer)
+  end
 
-    if nmap.verbosity() > 0 then
-        lines[#lines + 1] = "Public Key type: " .. cert.pubkey.type
-        lines[#lines + 1] = "Public Key bits: " .. cert.pubkey.bits
-    end
+  if nmap.verbosity() > 0 then
+    lines[#lines + 1] = "Public Key type: " .. cert.pubkey.type
+    lines[#lines + 1] = "Public Key bits: " .. cert.pubkey.bits
+  end
 
-    lines[#lines + 1] = "Not valid before: " ..
-        date_to_string(cert.validity.notBefore)
-    lines[#lines + 1] = "Not valid after:  " ..
-        date_to_string(cert.validity.notAfter)
+  lines[#lines + 1] = "Not valid before: " ..
+  date_to_string(cert.validity.notBefore)
+  lines[#lines + 1] = "Not valid after:  " ..
+  date_to_string(cert.validity.notAfter)
 
-    if nmap.verbosity() > 0 then
-        lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
-        lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
-    end
+  if nmap.verbosity() > 0 then
+    lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
+    lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
+  end
 
-    if nmap.verbosity() > 1 then
-        lines[#lines + 1] = cert.pem
-    end
-    return stdnse.strjoin("\n", lines)
+  if nmap.verbosity() > 1 then
+    lines[#lines + 1] = cert.pem
+  end
+  return stdnse.strjoin("\n", lines)
 end
 
 action = function(host, port)
-    local status, cert = sslcert.getCertificate(host, port)
-    if ( not(status) ) then
-        return
-    end
+  local status, cert = sslcert.getCertificate(host, port)
+  if ( not(status) ) then
+    return
+  end
 
-    return output_tab(cert), output_str(cert)
+  return output_tab(cert), output_str(cert)
 end
 
 

@@ -58,40 +58,40 @@ recursiveServer = "scanme.nmap.org"
 -- @param port  The servers port
 -- @return      Bool, true if and only if the server is alive
 function pingServer (host, port, attempts)
-     local status, response, result
-     -- If the server doesn't respond to the first in a multiattempt probe, slow down
-     local slowDown = 1
-     if not recursiveOnly then
-          -- try to get a server status message
-          -- The method that nmap uses by default
-          local data
-          local pkt = dns.newPacket()
-          pkt.id = math.random(65535)
+  local status, response, result
+  -- If the server doesn't respond to the first in a multiattempt probe, slow down
+  local slowDown = 1
+  if not recursiveOnly then
+    -- try to get a server status message
+    -- The method that nmap uses by default
+    local data
+    local pkt = dns.newPacket()
+    pkt.id = math.random(65535)
 
-          pkt.flags.OC3 = true
+    pkt.flags.OC3 = true
 
-          data = dns.encode(pkt)
+    data = dns.encode(pkt)
 
-          for i = 1, attempts do
-             status, result = comm.exchange(host, port, data, {timeout=math.pow(DNStimeout,slowDown)})
-             if status then
-               return true
-             end
-             slowDown = slowDown + 0.25
-          end
+    for i = 1, attempts do
+      status, result = comm.exchange(host, port, data, {timeout=math.pow(DNStimeout,slowDown)})
+      if status then
+        return true
+      end
+      slowDown = slowDown + 0.25
+    end
 
-          return false
-     else
-          -- just do a vanilla recursive lookup of scanme.nmap.org
-          for i = 1, attempts do
-               status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, proto=port.protocol, tries=1, timeout=math.pow(DNStimeout,slowDown)})
-               if status then
-                    return true
-               end
-               slowDown = slowDown + 0.25
-          end
-          return false
-     end
+    return false
+  else
+    -- just do a vanilla recursive lookup of scanme.nmap.org
+    for i = 1, attempts do
+      status, response = dns.query(recursiveServer, {host=host.ip, port=port.number, proto=port.protocol, tries=1, timeout=math.pow(DNStimeout,slowDown)})
+      if status then
+        return true
+      end
+      slowDown = slowDown + 0.25
+    end
+    return false
+  end
 end
 
 ---
@@ -99,13 +99,13 @@ end
 -- the requested domain names
 -- @return      Random string of lowercase characters
 function makeWord ()
-     local len =  math.random(3,7)
-     local name = string.char(len)
-     for i = 1, len do
-          -- this next line assumes ascii
-          name = name .. string.char(math.random(string.byte("a"),string.byte("z")))
-     end
-     return name
+  local len =  math.random(3,7)
+  local name = string.char(len)
+  for i = 1, len do
+    -- this next line assumes ascii
+    name = name .. string.char(math.random(string.byte("a"),string.byte("z")))
+  end
+  return name
 end
 
 ---
@@ -115,19 +115,19 @@ end
 -- @param compressed  Bool, whether or not this record should have a compressed field
 -- @return            A dns host string
 function makeHost (compressed)
-     -- randomly choose between 2 to 4 levels in this domain
-     local levels = math.random(2,4)
-     local name = ""
-     for i = 1, levels do
-          name = name .. makeWord ()
-     end
-     if compressed then
-          name = name .. string.char(0xC0) .. string.char(0x0C)
-     else
-          name = name .. string.char(0x00)
-     end
+  -- randomly choose between 2 to 4 levels in this domain
+  local levels = math.random(2,4)
+  local name = ""
+  for i = 1, levels do
+    name = name .. makeWord ()
+  end
+  if compressed then
+    name = name .. string.char(0xC0) .. string.char(0x0C)
+  else
+    name = name .. string.char(0x00)
+  end
 
-     return name
+  return name
 end
 
 ---
@@ -135,25 +135,25 @@ end
 -- makeHost(). This packet is to be corrupted.
 -- @return      Always returns a valid packet
 function makePacket()
-     local recurs = 0x00
-     if recursiveOnly then
-          recurs = 0x01
-     end
-     return
-         string.char( math.random(0,255), math.random(0,255),   -- TXID
-                       recurs, 0x00,                             -- Flags, recursion disabled by default for obvious reasons
-                       0x00, 0x02,                               -- Questions
-                       0x00, 0x00,                               -- Answer RRs
-                       0x00, 0x00,                               -- Authority RRs
-                       0x00, 0x00)                               -- Additional RRs
-                       -- normal host
-                       .. makeHost (false) ..                    -- Hostname
-          string.char( 0x00, 0x01,                               -- Type (A)
-                       0x00, 0x01)                               -- Class (IN)
-                       -- compressed host
-                       .. makeHost (true) ..                     -- Hostname
-          string.char( 0x00, 0x05,                               -- Type (CNAME)
-                       0x00, 0x01)                               -- Class (IN)
+  local recurs = 0x00
+  if recursiveOnly then
+    recurs = 0x01
+  end
+  return
+  string.char( math.random(0,255), math.random(0,255),   -- TXID
+    recurs, 0x00,                             -- Flags, recursion disabled by default for obvious reasons
+    0x00, 0x02,                               -- Questions
+    0x00, 0x00,                               -- Answer RRs
+    0x00, 0x00,                               -- Authority RRs
+    0x00, 0x00)                               -- Additional RRs
+  -- normal host
+  .. makeHost (false) ..                    -- Hostname
+  string.char( 0x00, 0x01,                               -- Type (A)
+    0x00, 0x01)                               -- Class (IN)
+  -- compressed host
+  .. makeHost (true) ..                     -- Hostname
+  string.char( 0x00, 0x05,                               -- Type (CNAME)
+    0x00, 0x01)                               -- Class (IN)
 end
 
 ---
@@ -167,18 +167,18 @@ end
 -- @param dnsPacket  A packet, generated by makePacket()
 -- @return           The same packet, but with bit flip errors
 function nudgePacket (dnsPacket)
-     local newPacket = ""
-     -- Iterate over every byte in the packet
-     dnsPacket:gsub(".", function(c)
-          -- Induce bit errors at a rate of 1/50.
-          if math.random(50) == 25 then
-               -- Bitflip algorithm: c ^ 1<<(rand()%7)
-               newPacket = newPacket .. string.char( bit.bxor(c:byte(), bit.lshift(1, math.random(0,7))) )
-          else
-               newPacket = newPacket .. c
-          end
-     end)
-     return newPacket
+  local newPacket = ""
+  -- Iterate over every byte in the packet
+  dnsPacket:gsub(".", function(c)
+      -- Induce bit errors at a rate of 1/50.
+      if math.random(50) == 25 then
+        -- Bitflip algorithm: c ^ 1<<(rand()%7)
+        newPacket = newPacket .. string.char( bit.bxor(c:byte(), bit.lshift(1, math.random(0,7))) )
+      else
+        newPacket = newPacket .. c
+      end
+    end)
+  return newPacket
 end
 
 ---
@@ -186,17 +186,17 @@ end
 -- @param dnsPacket  A packet, generated by makePacket()
 -- @return           The same packet, but with a single byte missing
 function dropByte (dnsPacket)
-     local newPacket = ""
-     local byteToDrop = math.random(dnsPacket:len())-1
-     local i = 0
-     -- Iterate over every byte in the packet
-     dnsPacket:gsub(".", function(c)
-          i=i+1
-          if not i==byteToDrop then
-               newPacket = newPacket .. c
-          end
-     end)
-     return newPacket
+  local newPacket = ""
+  local byteToDrop = math.random(dnsPacket:len())-1
+  local i = 0
+  -- Iterate over every byte in the packet
+  dnsPacket:gsub(".", function(c)
+      i=i+1
+      if not i==byteToDrop then
+        newPacket = newPacket .. c
+      end
+    end)
+  return newPacket
 end
 
 ---
@@ -204,18 +204,18 @@ end
 -- @param dnsPacket  A packet, generated by makePacket()
 -- @return           The same packet, but with a single byte missing
 function injectByte (dnsPacket)
-     local newPacket = ""
-     local byteToInject = math.random(dnsPacket:len())-1
-     local i = 0
-     -- Iterate over every byte in the packet
-     dnsPacket:gsub(".", function(c)
-          i=i+1
-          if i==byteToInject then
-               newPacket = newPacket .. string.char(math.random(0,255))
-          end
-          newPacket = newPacket .. c
-     end)
-     return newPacket
+  local newPacket = ""
+  local byteToInject = math.random(dnsPacket:len())-1
+  local i = 0
+  -- Iterate over every byte in the packet
+  dnsPacket:gsub(".", function(c)
+      i=i+1
+      if i==byteToInject then
+        newPacket = newPacket .. string.char(math.random(0,255))
+      end
+      newPacket = newPacket .. c
+    end)
+  return newPacket
 end
 
 ---
@@ -223,19 +223,19 @@ end
 -- @param dnsPacket  A packet, generated by makePacket()
 -- @return           The same packet, but with a single byte missing
 function truncatePacket (dnsPacket)
-     local newPacket = ""
-     -- at least 12 bytes to make sure the packet isn't dropped as a tinygram
-     local eatPacketPos = math.random(12,dnsPacket:len())-1
-     local i = 0
-     -- Iterate over every byte in the packet
-     dnsPacket:gsub(".", function(c)
-          i=i+1
-          if i==eatPacketPos then
-               return
-          end
-          newPacket = newPacket .. c
-     end)
-     return newPacket
+  local newPacket = ""
+  -- at least 12 bytes to make sure the packet isn't dropped as a tinygram
+  local eatPacketPos = math.random(12,dnsPacket:len())-1
+  local i = 0
+  -- Iterate over every byte in the packet
+  dnsPacket:gsub(".", function(c)
+      i=i+1
+      if i==eatPacketPos then
+        return
+      end
+      newPacket = newPacket .. c
+    end)
+  return newPacket
 end
 
 ---
@@ -247,89 +247,89 @@ end
 -- @param query     An uncorrupted DNS packet
 -- @return          A string if the server died, else nil
 function corruptAndSend (host, port, query)
-     local randCorr = math.random(0,4)
-     local status
-     local result
-     -- 10 is arbitrary, but seemed like a good number
-     for j = 1, 10 do
-          if randCorr<=1  then
-               -- slight bias to nudging because it seems to work better
-               query = nudgePacket(query)
-          elseif randCorr==2  then
-               query = dropByte(query)
-          elseif randCorr==3  then
-               query = injectByte(query)
-          elseif randCorr==4  then
-               query = truncatePacket(query)
-          end
+  local randCorr = math.random(0,4)
+  local status
+  local result
+  -- 10 is arbitrary, but seemed like a good number
+  for j = 1, 10 do
+    if randCorr<=1  then
+      -- slight bias to nudging because it seems to work better
+      query = nudgePacket(query)
+    elseif randCorr==2  then
+      query = dropByte(query)
+    elseif randCorr==3  then
+      query = injectByte(query)
+    elseif randCorr==4  then
+      query = truncatePacket(query)
+    end
 
-          status, result = comm.exchange(host, port, query, {timeout=DNStimeout})
-          if not status then
-               if not pingServer(host,port,3) then
-                    -- no response after three tries, the server is probably dead
-                    return "Server stopped responding... He's dead, Jim.\n"..
-                           "Offending packet: 0x".. stdnse.tohex(query)
-               else
-                    -- We corrupted the packet too much, the server will just drop it
-                    -- No point in using it again
-                    return nil
-               end
-          end
-          if randCorr==4  then
-               -- no point in using this function more then once
-               return nil
-          end
-     end
-     return nil
+    status, result = comm.exchange(host, port, query, {timeout=DNStimeout})
+    if not status then
+      if not pingServer(host,port,3) then
+        -- no response after three tries, the server is probably dead
+        return "Server stopped responding... He's dead, Jim.\n"..
+        "Offending packet: 0x".. stdnse.tohex(query)
+      else
+        -- We corrupted the packet too much, the server will just drop it
+        -- No point in using it again
+        return nil
+      end
+    end
+    if randCorr==4  then
+      -- no point in using this function more then once
+      return nil
+    end
+  end
+  return nil
 end
 
 action = function(host, port)
-     local endT
-     local timelimit, err
-     local retStr
-     local query
+  local endT
+  local timelimit, err
+  local retStr
+  local query
 
-     for _, k in ipairs({"dns-fuzz.timelimit", "timelimit"}) do
-          if nmap.registry.args[k] then
-               timelimit, err = stdnse.parse_timespec(nmap.registry.args[k])
-               if not timelimit then
-                    error(err)
-               end
-               break
-          end
-     end
-     if timelimit and timelimit > 0 then
-          -- seconds to milliseconds plus the current time
-          endT = timelimit*1000 + nmap.clock_ms()
-     elseif not timelimit then
-          -- 10 minutes
-          endT = 10*60*1000 + nmap.clock_ms()
-     end
+  for _, k in ipairs({"dns-fuzz.timelimit", "timelimit"}) do
+    if nmap.registry.args[k] then
+      timelimit, err = stdnse.parse_timespec(nmap.registry.args[k])
+      if not timelimit then
+        error(err)
+      end
+      break
+    end
+  end
+  if timelimit and timelimit > 0 then
+    -- seconds to milliseconds plus the current time
+    endT = timelimit*1000 + nmap.clock_ms()
+  elseif not timelimit then
+    -- 10 minutes
+    endT = 10*60*1000 + nmap.clock_ms()
+  end
 
 
-     -- Check if the server is a DNS server.
-     if not pingServer(host,port,1) then
-          -- David reported that his DNS server doesn't respond to
-          recursiveOnly = true
-          if not pingServer(host,port,1) then
-               return "Server didn't response to our probe, can't fuzz"
-          end
-     end
-     nmap.set_port_state (host, port, "open")
+  -- Check if the server is a DNS server.
+  if not pingServer(host,port,1) then
+    -- David reported that his DNS server doesn't respond to
+    recursiveOnly = true
+    if not pingServer(host,port,1) then
+      return "Server didn't response to our probe, can't fuzz"
+    end
+  end
+  nmap.set_port_state (host, port, "open")
 
-     -- If the user specified that we should run for n seconds, then don't run for too much longer
-     -- If 0 seconds, then run forever
-     while not endT or nmap.clock_ms()<endT do
-          -- Forge an initial packet
-          -- We start off with an only slightly corrupted packet, then add more and more corruption
-          -- if we corrupt the packet too much then the server will just drop it, so we only recorrupt several times
-          -- then start all over
-          query =  makePacket ()
-          -- induce random jitter
-          retStr = corruptAndSend (host, port, query)
-          if not retStr==nil then
-               return retStr
-          end
-     end
-     return "The server seems impervious to our assault."
+  -- If the user specified that we should run for n seconds, then don't run for too much longer
+  -- If 0 seconds, then run forever
+  while not endT or nmap.clock_ms()<endT do
+    -- Forge an initial packet
+    -- We start off with an only slightly corrupted packet, then add more and more corruption
+    -- if we corrupt the packet too much then the server will just drop it, so we only recorrupt several times
+    -- then start all over
+    query =  makePacket ()
+    -- induce random jitter
+    retStr = corruptAndSend (host, port, query)
+    if not retStr==nil then
+      return retStr
+    end
+  end
+  return "The server seems impervious to our assault."
 end
