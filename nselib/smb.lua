@@ -543,7 +543,7 @@ function start_netbios(host, port, name)
       0x44,                        -- length
       netbios.name_encode(name),   -- server name
       netbios.name_encode("NMAP")  -- client name
-    );
+      );
 
     stdnse.print_debug(3, "SMB: Connecting to %s", host.ip)
     socket:set_timeout(TIMEOUT)
@@ -1867,8 +1867,8 @@ function read_file(smb, offset, count, overrides)
     return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [25]"
   end
   if(status ~= 0 and
-    (status ~= status_codes.NT_STATUS_BUFFER_OVERFLOW and (smb['filetype'] == filetype_codes.FILE_TYPE_BYTE_MODE_PIPE or
-    smb['filetype'] == filetype_codes.FILE_TYPE_MESSAGE_MODE_PIPE) ) ) then
+      (status ~= status_codes.NT_STATUS_BUFFER_OVERFLOW and (smb['filetype'] == filetype_codes.FILE_TYPE_BYTE_MODE_PIPE or
+      smb['filetype'] == filetype_codes.FILE_TYPE_MESSAGE_MODE_PIPE) ) ) then
     return false, get_status_name(status)
   end
 
@@ -1995,9 +1995,9 @@ function close_file(smb, overrides)
 
   header = smb_encode_header(smb, command_codes['SMB_COM_CLOSE'], overrides)
   parameters = bin.pack("<SI",
-  smb['fid'], -- FID
-  0xFFFFFFFF  -- Last write (unspecified)
-  )
+    smb['fid'], -- FID
+    0xFFFFFFFF  -- Last write (unspecified)
+    )
 
   data = ""
 
@@ -2043,12 +2043,12 @@ function delete_file(smb, path, overrides)
 
   header = smb_encode_header(smb, command_codes['SMB_COM_DELETE'], overrides)
   parameters = bin.pack("<S",
-  0x0027 -- Search attributes (0x27 = include read only, hidden, system, and archive)
-  )
+    0x0027 -- Search attributes (0x27 = include read only, hidden, system, and archive)
+    )
 
   data = bin.pack("<Cz",
-  0x04, -- Ascii formatted filename
-  path)
+    0x04, -- Ascii formatted filename
+    path)
 
   -- Send the close file
   stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
@@ -2253,16 +2253,16 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 
   if(no_setup) then
     parameters = parameters .. bin.pack("<CC",
-    0x00,                            -- Number of 'setup' words (none)
-    0x00                             -- Reserved.
-    )
+      0x00,                            -- Number of 'setup' words (none)
+      0x00                             -- Reserved.
+      )
   else
     parameters = parameters .. bin.pack("<CCSS",
-    0x02,                            -- Number of 'setup' words
-    0x00,                            -- Reserved.
-    0x0026,                          -- Function to call.
-    smb['fid']                       -- Handle to open file
-    )
+      0x02,                            -- Number of 'setup' words
+      0x00,                            -- Reserved.
+      0x0026,                          -- Function to call.
+      smb['fid']                       -- Handle to open file
+      )
   end
 
   data = bin.pack("<z", pipe)
@@ -2684,10 +2684,10 @@ function find_files(smbstate, fname, options)
     options.srch_attrs = { ro = true, hidden = true, system = true, dir = true}
   end
 
-  local nattrs = ( options.srch_attrs.ro and 1 or 0 ) + ( options.srch_attrs.hidden and 2 or 0 ) +
+  local nattrs = (( options.srch_attrs.ro and 1 or 0 ) + ( options.srch_attrs.hidden and 2 or 0 ) +
     ( options.srch_attrs.hidden and 2 or 0 ) + ( options.srch_attrs.system and 4 or 0 ) +
     ( options.srch_attrs.volid and 8 or 0 ) + ( options.srch_attrs.dir and 16 or 0 ) +
-    ( options.srch_attrs.archive and 32 or 0 )
+    ( options.srch_attrs.archive and 32 or 0 ))
 
   if ( not(fname) ) then
     fname = '\\*'
@@ -3106,7 +3106,7 @@ function share_get_details(host, share)
     details['details'] = result
   end
 
-    return true, details
+  return true, details
 end
 
 ---Retrieve a list of fileshares, along with any details that could be pulled. This is the core of smb-enum-shares.nse, but
