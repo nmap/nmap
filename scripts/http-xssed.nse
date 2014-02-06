@@ -45,46 +45,46 @@ local XSSED_URL = "URL: ([^%s]+)</th>"
 
 action = function(host, port)
 
-    local fixed, unfixed
+  local fixed, unfixed
 
-    local target = XSSED_SEARCH .. host.targetname
+  local target = XSSED_SEARCH .. host.targetname
 
-    -- Only one instantiation of the script should ping xssed at once.
-    local mutex = nmap.mutex("http-xssed")
-    mutex "lock"
+  -- Only one instantiation of the script should ping xssed at once.
+  local mutex = nmap.mutex("http-xssed")
+  mutex "lock"
 
-    local response = http.get(XSSED_SITE, 80, target)
+  local response = http.get(XSSED_SITE, 80, target)
 
-    if string.find(response.body, XSSED_FOUND) then
-        fixed = {}
-        unfixed = {}
-        for m in string.gmatch(response.body, XSSED_MIRROR) do
-            local mirror = http.get(XSSED_SITE, 80, m)
-            for v in string.gmatch(mirror.body, XSSED_URL) do
-                if string.find(mirror.body, XSSED_FIXED) then
-                    table.insert(fixed, "\t" .. v .. "\n")
-                else
-                    table.insert(unfixed, "\t" ..  v .. "\n")
-                end
-            end
+  if string.find(response.body, XSSED_FOUND) then
+    fixed = {}
+    unfixed = {}
+    for m in string.gmatch(response.body, XSSED_MIRROR) do
+      local mirror = http.get(XSSED_SITE, 80, m)
+      for v in string.gmatch(mirror.body, XSSED_URL) do
+        if string.find(mirror.body, XSSED_FIXED) then
+          table.insert(fixed, "\t" .. v .. "\n")
+        else
+          table.insert(unfixed, "\t" ..  v .. "\n")
         end
+      end
     end
+  end
 
-    mutex "done"
+  mutex "done"
 
-    -- Fix the output.
-    if not fixed and not unfixed then
-        return "No previously reported XSS vuln."
-    end
+  -- Fix the output.
+  if not fixed and not unfixed then
+    return "No previously reported XSS vuln."
+  end
 
-    if next(unfixed) ~= nil then
-        table.insert(unfixed, 1, "UNFIXED XSS vuln.\n")
-    end
+  if next(unfixed) ~= nil then
+    table.insert(unfixed, 1, "UNFIXED XSS vuln.\n")
+  end
 
-    if next(fixed) ~= nil then
-        table.insert(fixed, 1, "FIXED XSS vuln.\n")
-    end
+  if next(fixed) ~= nil then
+    table.insert(fixed, 1, "FIXED XSS vuln.\n")
+  end
 
-    return {unfixed, fixed}
+  return {unfixed, fixed}
 
 end

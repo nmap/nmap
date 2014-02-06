@@ -85,9 +85,9 @@ local function probe_http_verbs(host, port, uri)
   --With a random generated verb we look for 400 and 501 status
   local random_verb_req = http.generic_request(host, port, stdnse.generate_random_string(4), uri)
   local retcodes = {
-      [400] = true, -- Bad Request
-      [401] = true, -- Authentication needed
-      [501] = true, -- Invalid method
+    [400] = true, -- Bad Request
+    [401] = true, -- Authentication needed
+    [501] = true, -- Invalid method
   }
   if random_verb_req and not retcodes[random_verb_req.status] then
     return true, "GENERIC"
@@ -103,20 +103,20 @@ action = function(host, port)
   local timeout = stdnse.parse_timespec(stdnse.get_script_args(SCRIPT_NAME..".timeout"))
   timeout = (timeout or 10) * 1000
   local vuln = {
-       title = 'Authentication bypass by HTTP verb tampering',
-       state = vulns.STATE.NOT_VULN,
-       description = [[
+    title = 'Authentication bypass by HTTP verb tampering',
+    state = vulns.STATE.NOT_VULN,
+    description = [[
 This web server contains password protected resources vulnerable to authentication bypass
 vulnerabilities via HTTP verb tampering. This is often found in web servers that only limit access to the
  common HTTP methods and in misconfigured .htaccess files.
        ]],
-       references = {
-            'http://www.mkit.com.ar/labs/htexploit/',
-            'http://www.imperva.com/resources/glossary/http_verb_tampering.html',
-            'https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29',
-            'http://capec.mitre.org/data/definitions/274.html'
-       }
-     }
+    references = {
+      'http://www.mkit.com.ar/labs/htexploit/',
+      'http://www.imperva.com/resources/glossary/http_verb_tampering.html',
+      'https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29',
+      'http://capec.mitre.org/data/definitions/274.html'
+    }
+  }
   local vuln_report = vulns.Report:new(SCRIPT_NAME, host, port)
 
   -- If paths is not set, crawl the web server looking for http 401 status
@@ -124,15 +124,15 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
     local crawler = httpspider.Crawler:new(host, port, uri, { scriptname = SCRIPT_NAME } )
     crawler:set_timeout(timeout)
 
-   while(true) do
+    while(true) do
       local status, r = crawler:crawl()
-        if ( not(status) ) then
-          if ( r.err ) then
-            return stdnse.format_output(true, "ERROR: %s", r.reason)
-           else
-            break
-          end
+      if ( not(status) ) then
+        if ( r.err ) then
+          return stdnse.format_output(true, "ERROR: %s", r.reason)
+        else
+          break
         end
+      end
       if r.response.status == 401 then
         stdnse.print_debug(2, "%s:%s is protected! Let's try some verb tampering...", SCRIPT_NAME, tostring(r.url))
         local parsed = url.parse(tostring(r.url))
@@ -144,7 +144,7 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
       end
     end
   else
-  -- Paths were set, check them and exit. No crawling here.
+    -- Paths were set, check them and exit. No crawling here.
 
     -- convert single string entry to table
     if ( type(paths) == "string" ) then
@@ -156,10 +156,10 @@ vulnerabilities via HTTP verb tampering. This is often found in web servers that
 
       if path_req.status == 401 then
         local probe_status, probe_type = probe_http_verbs(host, port, path)
-         if probe_status then
+        if probe_status then
           stdnse.print_debug(1, "%s:Vulnerable URI %s", SCRIPT_NAME, path)
           table.insert(vuln_uris, path..string.format(" [%s]", probe_type))
-         end
+        end
       end
 
     end

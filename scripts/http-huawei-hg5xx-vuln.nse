@@ -65,20 +65,20 @@ portrule = shortport.http
 
 action = function(host, port)
   local vuln = {
-       title = 'Remote credential and information disclosure in modems Huawei HG5XX',
-       state = vulns.STATE.NOT_VULN,
-       description = [[
+    title = 'Remote credential and information disclosure in modems Huawei HG5XX',
+    state = vulns.STATE.NOT_VULN,
+    description = [[
 Modems Huawei 530x, 520x and possibly others are vulnerable to remote credential and information disclosure.
 Attackers can query the URIs "/Listadeparametros.html" and "/wanfun.js" to extract sensitive information
 including PPPoE credentials, firmware version, model, gateway, dns servers and active connections among other values.]],
-       references = {
-           'http://routerpwn.com/#huawei',
-           'http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure'
-       },
-       dates = {
-           disclosure = {year = '2011', month = '01', day = '1'},
-       },
-     }
+    references = {
+      'http://routerpwn.com/#huawei',
+      'http://websec.ca/advisories/view/Huawei-HG520c-3.10.18.x-information-disclosure'
+    },
+    dates = {
+      disclosure = {year = '2011', month = '01', day = '1'},
+    },
+  }
 
   -- Identify servers that answer 200 to invalid HTTP requests and exit as these would invalidate the tests
   local _, http_status, _ = http.identify_404(host,port)
@@ -103,8 +103,8 @@ including PPPoE credentials, firmware version, model, gateway, dns servers and a
     local _, _, ssid = string.find(open_session.body, 'Nombre de Red Inal\195\161mbrica %(SSID%):</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
     local _, _, encryption = string.find(open_session.body, 'Encriptaci\195\179n Activada %(0: No, 1:S\195\173%):</td><TD class=tablerowvalue>\n(.-)</td></tr><tr>')
     local info = string.format("\nModel:%s\nFirmware version:%s\nExternal IP:%s\nGateway IP:%s\nDNS 1:%s\nDNS 2:%s\n"..
-                           "Network segment:%s\nActive ethernet connections:%s\nActive wireless connections:%s\nBSSID:%s\nWireless Encryption (Boolean):%s\nPPPoE username:%s\n",
-                            model, firmware_version, ip, gateway, dns1, dns2, network_segment, active_ethernet, active_wireless, ssid, encryption, pppoe_user)
+      "Network segment:%s\nActive ethernet connections:%s\nActive wireless connections:%s\nBSSID:%s\nWireless Encryption (Boolean):%s\nPPPoE username:%s\n",
+      model, firmware_version, ip, gateway, dns1, dns2, network_segment, active_ethernet, active_wireless, ssid, encryption, pppoe_user)
     --Checks if the username string was extracted. If its null, the modem is not vulnerable and we should exit.
     if pppoe_user then
       vuln.state = vulns.STATE.EXPLOIT

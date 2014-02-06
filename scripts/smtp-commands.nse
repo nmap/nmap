@@ -68,64 +68,64 @@ categories = {"default", "discovery", "safe"}
 
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
-                { "smtp", "smtps", "submission" })
+  { "smtp", "smtps", "submission" })
 
 function go(host, port)
-    local options = {
-        timeout = 10000,
-        recv_before = true,
-        ssl = true,
-    }
+  local options = {
+    timeout = 10000,
+    recv_before = true,
+    ssl = true,
+  }
 
-    local domain = stdnse.get_script_args('smtp-commands.domain') or
-                      smtp.get_domain(host)
+  local domain = stdnse.get_script_args('smtp-commands.domain') or
+  smtp.get_domain(host)
 
-    local result, status = {}
-    -- Try to connect to server.
-    local socket, response = smtp.connect(host, port, options)
-    if not socket then
-        return false, string.format("Couldn't establish connection on port %i",
-                          port.number)
-    end
+  local result, status = {}
+  -- Try to connect to server.
+  local socket, response = smtp.connect(host, port, options)
+  if not socket then
+    return false, string.format("Couldn't establish connection on port %i",
+      port.number)
+  end
 
-    status, response = smtp.ehlo(socket, domain)
-    if not status then
-        return status, response
-    end
+  status, response = smtp.ehlo(socket, domain)
+  if not status then
+    return status, response
+  end
 
-    response = string.gsub(response, "250[%-%s]+", "") -- 250 or 250-
-    response = string.gsub(response, "\r\n", "\n") -- normalize CR LF
-    response = string.gsub(response, "\n\r", "\n") -- normalize LF CR
-    response = string.gsub(response, "^\n+(.-)\n+$", "%1")
-    response = string.gsub(response, "\n", ", ") -- LF to comma
+  response = string.gsub(response, "250[%-%s]+", "") -- 250 or 250-
+  response = string.gsub(response, "\r\n", "\n") -- normalize CR LF
+  response = string.gsub(response, "\n\r", "\n") -- normalize LF CR
+  response = string.gsub(response, "^\n+(.-)\n+$", "%1")
+  response = string.gsub(response, "\n", ", ") -- LF to comma
+  response = string.gsub(response, "%s+", " ") -- get rid of extra spaces
+  table.insert(result,response)
+
+  status, response = smtp.help(socket)
+  if status then
+    response = string.gsub(response, "214[%-%s]+", "") -- 214
+    response = string.gsub(response, "^%s+(.-)%s+$", "%1")
     response = string.gsub(response, "%s+", " ") -- get rid of extra spaces
     table.insert(result,response)
+    smtp.quit(socket)
+  end
 
-    status, response = smtp.help(socket)
-    if status then
-        response = string.gsub(response, "214[%-%s]+", "") -- 214
-        response = string.gsub(response, "^%s+(.-)%s+$", "%1")
-        response = string.gsub(response, "%s+", " ") -- get rid of extra spaces
-        table.insert(result,response)
-        smtp.quit(socket)
-    end
-
-    return true, result
+  return true, result
 end
 
 action = function(host, port)
-    local status, result = go(host, port)
+  local status, result = go(host, port)
 
-    -- The go function returned false, this means that the result is a simple error message.
-    if not status then
-        return result
-    else
-        if #result > 0 then
-            local final = {}
-            for index, test in ipairs(result) do
-                table.insert(final, test)
-            end
-            return stdnse.strjoin("\n ", final)
-        end
+  -- The go function returned false, this means that the result is a simple error message.
+  if not status then
+    return result
+  else
+    if #result > 0 then
+      local final = {}
+      for index, test in ipairs(result) do
+        table.insert(final, test)
+      end
+      return stdnse.strjoin("\n ", final)
     end
+  end
 end

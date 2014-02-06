@@ -197,25 +197,25 @@ action = function( host )
     status, retval = pcall( get_next_action, tracking, host.ip )
     if not status then
       stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", SCRIPT_NAME, host.ip, retval )
-    else tracking = retval end
+  else tracking = retval end
 
-    if tracking.this_db then
-      -- do query
-      local response = do_query( tracking.this_db, host.ip )
-      tracking.completed[#tracking.completed+1] = tracking.this_db
+  if tracking.this_db then
+    -- do query
+    local response = do_query( tracking.this_db, host.ip )
+    tracking.completed[#tracking.completed+1] = tracking.this_db
 
-      -- analyse data
-      status, retval = pcall( analyse_response, tracking, host.ip, response, data )
-      if not status then
-        stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", SCRIPT_NAME, host.ip, retval )
-      else data = retval end
+    -- analyse data
+    status, retval = pcall( analyse_response, tracking, host.ip, response, data )
+    if not status then
+      stdnse.print_debug( "%s %s pcall caught an exception in analyse_response: %s.", SCRIPT_NAME, host.ip, retval )
+  else data = retval end
 
-      -- get next action
-      status, retval = pcall( get_next_action, tracking, host.ip )
-      if not status then
-        stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", SCRIPT_NAME, host.ip, retval )
-        if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
-      else tracking = retval end
+  -- get next action
+  status, retval = pcall( get_next_action, tracking, host.ip )
+  if not status then
+    stdnse.print_debug( "%s %s pcall caught an exception in get_next_action: %s.", SCRIPT_NAME, host.ip, retval )
+    if not tracking.last_db then tracking.last_db, tracking.this_db = tracking.this_db or tracking.next_db, nil end
+else tracking = retval end
     end
 
     nmap.registry.whois.mutex[tracking.last_db] "done"
@@ -1366,828 +1366,828 @@ function script_init( )
     rpsl = {
       ob_exist =  "\r?\n?%s*[Ii]net6?num:%s*.-\r?\n",
       ob_netnum = {ob_start = "\r?\n?%s*[Ii]net6?num:%s*.-\r?\n",
-      ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
-      inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
-      netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:%s*(.-)\r?\n",
-      nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:%s*(.-)\r?\n",
-      descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
-      country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
-      status = "\r?\n%s*[Ss]tatus:%s*(.-)\r?\n",
+        ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
+        inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
+        netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:%s*(.-)\r?\n",
+        nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:%s*(.-)\r?\n",
+        descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
+        country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
+        status = "\r?\n%s*[Ss]tatus:%s*(.-)\r?\n",
       source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
       ob_org = {  ob_start = "\r?\n%s*[Oo]rgani[sz]ation:%s*.-\r?\n",
-      ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
-      organisation = "\r?\n%s*[Oo]rgani[sz]ation:%s*(.-)\r?\n",
-      orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:%s*(.-)\r?\n",
-      descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
+        ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
+        organisation = "\r?\n%s*[Oo]rgani[sz]ation:%s*(.-)\r?\n",
+        orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:%s*(.-)\r?\n",
+        descr = "[Dd]escr:[^\r?\n][%s]*(.-)\r?\n",
       email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"},
       ob_role = { ob_start = "\r?\n%s*[Rr]ole:%s*.-\r?\n",
-      ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
-      role = "\r?\n%s*[Rr]ole:%s*(.-)\r?\n",
+        ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
+        role = "\r?\n%s*[Rr]ole:%s*(.-)\r?\n",
       email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"},
       ob_persn = {  ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
-      ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
-      person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
-      email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
-      arin = {
-        ob_exist =  "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
-        ob_netnum = {ob_start = "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
+        ob_end = "\r?\n%s*[Ss]ource:%s*.-\r?\n\r?\n",
+        person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
+    email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
+    arin = {
+      ob_exist =  "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
+      ob_netnum = {ob_start = "\r?\n%s*[Nn]et[-]-[Rr]ange:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         netrange = "\r?\n%s*[Nn]et[-]-[Rr]ange:(.-)\r?\n",
         netname = "\r?\n%s*[Nn]et[-]-[Nn]ame:(.-)\r?\n",
-        nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:(.-)\r?\n"},
-        ob_org = {ob_start = "\r?\n%s*[Oo]rg[-]-[Nn]ame:.-\r?\n",
+      nettype = "\r?\n%s*[Nn]et[-]-[Tt]ype:(.-)\r?\n"},
+      ob_org = {ob_start = "\r?\n%s*[Oo]rg[-]-[Nn]ame:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         orgname = "\r?\n%s*[Oo]rg[-]-[Nn]ame:(.-)\r?\n",
         orgid = "\r?\n%s*[Oo]rg[-]-[Ii][Dd]:(.-)\r?\n",
         stateprov = "\r?\n%s*[Ss]tate[-]-[Pp]rov:(.-)\r?\n",
-        country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
-        ob_cust = {ob_start = "\r?\n%s*[Cc]ust[-]-[Nn]ame:.-\r?\n",
+      country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
+      ob_cust = {ob_start = "\r?\n%s*[Cc]ust[-]-[Nn]ame:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         custname =  "\r?\n%s*[Cc]ust[-]-[Nn]ame:(.-)\r?\n",
         stateprov = "\r?\n%s*[Ss]tate[-]-[Pp]rov:(.-)\r?\n",
-        country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
-        ob_persn = {ob_start = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:.-\r?\n",
+      country = "\r?\n%s*[Cc]ountry:(.-)\r?\n"},
+      ob_persn = {ob_start = "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:.-\r?\n",
         ob_end = "\r?\n\r?\n",
         orgtechname =
         "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Nn]ame:(.-)\r?\n",
         orgtechemail =
-        "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Ee][-]-[Mm]ail:(.-)\r?\n"}  },
-        lacnic = {
-          ob_exist =  "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
-          ob_netnum = {ob_start = "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
-          ob_end = "\r?\n\r?\n",
-          inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
-          owner = "\r?\n%s*[Oo]wner:%s*(.-)\r?\n",
-          ownerid = "\r?\n%s*[Oo]wner[-]-[Ii][Dd]:%s*(.-)\r?\n",
-          responsible = "\r?\n%s*[Rr]esponsible:%s*(.-)\r?\n",
-          country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
-          source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
-          ob_persn = {ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
-          ob_end = "\r?\n\r?\n",
-          person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
-          email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
-          jpnic = {
-            ob_exist =  "\r?\n%s*[Nn]etwork%s-[Ii]nformation:%s*.-\r?\n",
-            ob_netnum = {ob_start = "[[Nn]etwork%s*[Nn]umber]%s*.-\r?\n",
-            ob_end = "\r?\n\r?\n",
-            inetnum = "[[Nn]etwork%s*[Nn]umber]%s*(.-)\r?\n",
-            netname = "[[Nn]etwork%s*[Nn]ame]%s*(.-)\r?\n",
-            orgname = "[[Oo]rganization]%s*(.-)\r?\n"} }
-          }
-
-          ---
-          -- whoisdb defines the whois services this script is able to query and the script output produced for them.
-          -- Each entry is a key-value pair where the key is a short name for the service and value is a table of definitions for that service.
-          -- Note that there is defined here an entry for IANA which does not have a whois service.  The entry is defined to allow us to redirect to ARIN when
-          -- IANA is referred to in a record.
-          --
-          -- Each service defined should contain the following:
-          --
-          -- id:             String. Matches the key for the service and is a short name for the service.
-          -- hostname:       String. Hostname of the service.
-          -- preflag:        String. Prepended to the target IP address sent in the whois query.
-          -- postflag:       String. Appended to the target IP address sent in the whois query.
-          -- longname:       Table of strings. Each is a lowercase official (or semi-official) name of the service.
-          -- fieldreq:       Linked table entry.  The key identifying a table of a set of objects defined in fields_meta.
-          --                 In its records each whois service displays a particular set of objects as defined here.
-          -- smallnet_rule:  Linked table entry. The key of a pattern for the field defined in fields_meta which captures the Assignment Range.  This is an
-          --                 optional entry and is used to extract the smallest (i.e. Most Specific) range from a record when more than one range is detailed.
-          -- redirects:      Table of tables, containing strings.  Used to determine whether a record is referring to a different whois service by
-          --                 searching for service specific information in certain fields of the record.
-          --                 Each entry is a table thus: { "search_object", "search_field", "pattern" }
-          --                 search_object: is the key name for a record object defined in fields_meta, in which to search.
-          --                 search_field:  is the key name for a field of the object, the data of which to search.
-          --                 pattern:       is typically the id or longname key names.
-          --                 In the example: {"ob_org", "orgname", "longname"}, we cycle through each service defined in whoisdb and look for its longname in
-          --                 the ob_org.orgname of the current record.
-          -- output_short:   Table for each object to be displayed when Nmap verbosity is zero.  The first element of each table is the object name and the
-          --                 second element is a table of fields to display.  The elements of the second may be field names, which are each output to a new
-          --                 line, or tables containing field names which are output to the same line.
-          -- output_long:    Table for each object to be displayed when Nmap verbosity is one or above.  The structure is the same as output_short.
-          -- reg:            String name for the field in ob_netnum which captures the Assignment Range (e.g. "netrange", "inetnum"), the data of which is
-          --                 cached in the registry.
-          -- unordered:      Boolean.  Optional. True if the records from the service display an object other than ob_netnum as the first in the record (such
-          --                 as at ARIN).  This flag is used to decide whether we should extract an object immediately before the relevant ob_netnum object
-          --                 from a record.
-
-          nmap.registry.whois.whoisdb = {
-            arin = {
-              id = "arin",
-              hostname = "whois.arin.net", preflag = "+", postflag = "",
-              longname = {"american registry for internet numbers"},
-              fieldreq = nmap.registry.whois.fields_meta.arin,
-              smallnet_rule = nmap.registry.whois.fields_meta.arin.ob_netnum.netrange,
-              redirects = {
-                {"ob_org", "orgname", "longname"},
-                {"ob_org", "orgname", "id"},
-                {"ob_org", "orgid", "id"} },
-                output_short = {
-                  {"ob_netnum", {"netrange", "netname"}},
-                  {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}}  },
-                  output_long = {
-                    {"ob_netnum", {"netrange", "netname"}},
-                    {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}},
-                    {"ob_cust", {"custname", {"country", "stateprov"}}},
-                    {"ob_persn", {"orgtechname", "orgtechemail"}} },
-                    reg = "netrange",
-                    unordered = true
-                  },
-                  ripe = {
-                    id = "ripe",
-                    hostname = "whois.ripe.net", preflag = "-B", postflag = "",
-                    longname = {"ripe network coordination centre"},
-                    fieldreq = nmap.registry.whois.fields_meta.rpsl,
-                    smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
-                    redirects = {
-                      {"ob_role", "role", "longname"},
-                      {"ob_org", "orgname", "id"},
-                      {"ob_org", "orgname", "longname"} },
-                      output_short = {
-                        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-                        {"ob_org", {"orgname", "organisation", "descr", "email"}} },
-                        output_long = {
-                          {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-                          {"ob_org", {"orgname", "organisation", "descr", "email"}},
-                          {"ob_role", {"role", "email"}},
-                          {"ob_persn", {"person", "email"}} },
-                          reg = "inetnum"
-                        },
-                        apnic = {
-                          id = "apnic",
-                          hostname = "whois.apnic.net", preflag = "", postflag = "",
-                          longname = {"asia pacific network information centre"},
-                          fieldreq = nmap.registry.whois.fields_meta.rpsl,
-                          smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
-                          redirects = {
-                            {"ob_netnum", "netname", "id"},
-                            {"ob_org", "orgname", "longname"},
-                            {"ob_role", "role", "longname"},
-                            {"ob_netnum", "source", "id"} },
-                            output_short = {
-                              {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-                              {"ob_org", {"orgname", "organisation", "descr", "email"}} },
-                              output_long = {
-                                {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-                                {"ob_org", {"orgname", "organisation", "descr", "email"}},
-                                {"ob_role", {"role", "email"}},
-                                {"ob_persn", {"person", "email"}} },
-                                reg = "inetnum"
-                              },
-                              lacnic = {
-                                id = "lacnic",
-                                hostname = "whois.lacnic.net", preflag = "", postflag = "",
-                                longname =
-                                {"latin american and caribbean ip address regional registry"},
-                                fieldreq = nmap.registry.whois.fields_meta.lacnic,
-                                smallnet_rule = nmap.registry.whois.fields_meta.lacnic.ob_netnum.inetnum,
-                                redirects = {
-                                  {"ob_netnum", "ownerid", "id"},
-                                  {"ob_netnum", "source", "id"} },
-                                  output_short = {
-                                    {"ob_netnum",
-                                    {"inetnum", "owner", "ownerid", "responsible", "country"}}  },
-                                    output_long = {
-                                      {"ob_netnum",
-                                      {"inetnum", "owner", "ownerid", "responsible", "country"}},
-                                      {"ob_persn", {"person", "email"}} },
-                                      reg = "inetnum"
-                                    },
-                                    afrinic = {
-                                      id = "afrinic",
-                                      hostname = "whois.afrinic.net", preflag = "-c", postflag = "",
-                                      longname = {"african internet numbers registry",
-                                      "african network information center"},
-                                      fieldreq = nmap.registry.whois.fields_meta.rpsl,
-                                      smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
-                                      redirects = {
-                                        {"ob_org", "orgname", "longname"} },
-                                        output_short = {
-                                          {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-                                          {"ob_org", {"orgname", "organisation", "descr", "email"}} },
-                                          output_long = {
-                                            {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
-                                            {"ob_org", {"orgname", "organisation", "descr", "email"}},
-                                            {"ob_role", {"role", "email"}},
-                                            {"ob_persn", {"person", "email"}} },
-                                            reg = "inetnum"
-                                          },--[[
-                                          jpnic = {
-                                          id = "jpnic",
-                                          hostname = "whois.nic.ad.jp", preflag = "", postflag = "/e",
-                                          longname = {"japan network information center"},
-                                          fieldreq = nmap.registry.whois.fields_meta.jpnic,
-                                          output_short = {
-                                          {"ob_netnum", {"inetnum", "netname", "orgname"}}  },
-                                          reg = "inetnum" },--]]
-                                          iana = {  -- not actually a db but required here
-                                          id = "iana", longname = {"internet assigned numbers authority"}
-                                        }
-                                      }
-
-                                      nmap.registry.whois.m_none = {
-                                        "\n%s*([Nn]o match found for[%s+]*$addr)",
-                                        "\n%s*([Uu]nallocated resource:%s*$addr)",
-                                        "\n%s*([Rr]eserved:%s*$addr)",
-                                        "\n[^\n]*([Nn]ot%s[Aa]ssigned[^\n]*$addr)",
-                                        "\n%s*(No match!!)%s*\n",
-                                        "(Invalid IP or CIDR block:%s*$addr)"
-                                      }
-                                      nmap.registry.whois.m_err = {
-                                        "\n%s*([Aa]n [Ee]rror [Oo]ccured)%s*\n",
-                                        "\n[^\n]*([Ee][Rr][Rr][Oo][Rr][^\n]*)\n"
-                                      }
-
-                                      nmap.registry.whois.remote_assignments_files = {}
-                                      nmap.registry.whois.remote_assignments_files.ipv4 = {
-                                        {
-                                          remote_resource = "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt",
-                                          local_resource = "ipv4-address-space",
-                                          match_assignment = "^%s*([%.%d]+/%d+)",
-                                          match_service = "whois%.(%w+)%.net"
-                                        }
-                                      }
-                                      nmap.registry.whois.remote_assignments_files.ipv6 = {
-                                        --[[{
-                                        remote_resource = "http://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.txt",
-                                        local_resource = "ipv6-address-space",
-                                        match_assignment = "^([:%x]+/%d+)",
-                                        match_service = "^[:%x]+/%d+%s*(%w+)"
-                                        },--]]
-                                        {
-                                          remote_resource = "http://www.iana.org/assignments/ipv6-unicast-address-assignments/ipv6-unicast-address-assignments.txt",
-                                          local_resource = "ipv6-unicast-address-assignments",
-                                          match_assignment = "^%s*([:%x]+/%d+)",
-                                          match_service = "whois%.(%w+)%.net"
-                                        }
-                                      }
-
-                                      local err
-
-                                      -- get and validate any --script-args
-                                      get_args()
-
-                                      -- mutex for each service
-                                      nmap.registry.whois.mutex = {}
-                                      for id, v in pairs( nmap.registry.whois.whoisdb ) do
-                                        if id ~= "iana" then
-                                          nmap.registry.whois.mutex[id] = nmap.mutex(nmap.registry.whois.whoisdb[id])
-                                        end
-                                      end
-
-                                      -- get IANA assignments lists
-                                      if nmap.registry.whois.using_local_assignments_file then
-                                        nmap.registry.whois.local_assignments_data, err = get_local_assignments_data()
-                                        if err then nmap.registry.whois.using_local_assignments_file = false end
-                                      end
-
-                                      nmap.registry.whois.init_done = true
-
-                                    end
-
-
-
-                                    ---
-                                    -- Parses the command line arguments passed to the script with --script-args.
-                                    -- Sets flags in the registry which threads read to determine certain behaviours.
-                                    -- Permitted args are 'nofile' - Prevents use of a list of assignments to determine which service to query,
-                                    -- 'nofollow' - Prevents following redirects found in records,
-                                    -- 'arin', 'ripe', 'apnic', etc. - Service id's, as defined in the whoisdb table in the registry (see script_init).
-
-                                    function get_args()
-
-                                      if not nmap.registry.args then return end
-
-                                      local args = stdnse.get_script_args('whois.whodb')
-
-                                      if type( args ) ~= "string" or ( args == "" ) then return end
-
-                                      local t = {}
-                                      -- match words in args which may be whois dbs or other arguments
-                                      for db in string.gmatch( args, "%w+" ) do
-                                        if not nmap.registry.whois.whoisdb[db] then
-                                          if ( db == "nofollow" ) then
-                                            nmap.registry.whois.nofollow = true
-                                          elseif ( db == "nocache" ) then
-                                            nmap.registry.whois.using_cache = false
-                                          elseif ( db == "nofile" ) then
-                                            nmap.registry.whois.using_local_assignments_file = false
-                                            stdnse.print_debug( 2, "%s: Not using local assignments data.", SCRIPT_NAME )
-                                          end
-                                        elseif not ( string.match( table.concat( t, " " ), db ) ) then
-                                          -- we have a unique valid whois db
-                                          t[#t+1] = db
-                                        end
-                                      end
-
-                                      if ( #t > 0 ) and nmap.registry.whois.using_local_assignments_file then
-                                        -- "nofile" was not explicitly supplied, but it is implied by supplying custom whoisdb_default_order
-                                        nmap.registry.whois.using_local_assignments_file = false
-                                        stdnse.print_debug(3, "%s: Not using local assignments data because custom whoisdb_default_order was supplied.", SCRIPT_NAME)
-                                      end
-
-                                      if ( #t > 1 ) and nmap.registry.whois.nofollow then
-                                        -- using nofollow, we do not follow redirects and can only accept what we find as a record therefore we only accept the first db supplied
-                                        t = {t[1]}
-                                        stdnse.print_debug( 1, "%s: Too many args supplied with 'nofollow', only using %s.", SCRIPT_NAME, t[1] )
-                                      end
-
-                                      if ( #t > 0 ) then
-                                        nmap.registry.whois.whoisdb_default_order = t
-                                        stdnse.print_debug( 2, "%s: whoisdb_default_order: %s.", SCRIPT_NAME, table.concat( t, " " ) )
-                                      end
-
-                                    end
-
-
-
-                                    ---
-                                    -- Makes IANA hosted assignments data available for lookups against that data.  In more detail it:
-                                    -- Caches a local copy of remote assignments data if copies do not currently exist or are out-of-date.
-                                    -- Checks whether the cached copies require updating and performs update as required.
-                                    -- Parses the cached copies and populates a table of lookup data which is returned to the caller.
-                                    -- Sets a flag in the registry to prevent use of the lookup data in the event of an error.
-                                    -- @return  Table of lookup data (or nil in case of an error).
-                                    -- @return  Nil or error message in case of an error.
-                                    -- @see     get_parentpath, file_exists, requires_updating, read_from_file, conditional_download,
-                                    --          write_to_file, parse_assignments
-
-                                    function get_local_assignments_data()
-
-                                      if not next( nmap.registry.whois.remote_assignments_files ) then
-                                        nmap.registry.whois.using_local_assignments_file = false
-                                        return nil, "Error in get_local_assignments_data: Remote resources not defined in remote_assignments_files registry key"
-                                      end
-
-                                      -- get the directory path where cached files will be stored.
-                                      local fetchfile = "nmap-services"
-                                      local directory_path, err = get_parentpath( fetchfile )
-                                      if err then
-                                        stdnse.print_debug( 1, "%s: Nmap.fetchfile() failed to get a path to %s: %s.", SCRIPT_NAME, fetchfile, err )
-                                        return nil, err
-                                      end
-
-                                      local ret = {}
-
-                                      -- cache or update and parse each remote file for each address family
-                                      for address_family, t in pairs( nmap.registry.whois.remote_assignments_files ) do
-                                        for i, assignment_data_spec in ipairs( t ) do
-
-                                          local update_required, modified_date, entity_tag, err
-
-                                          -- do we have a cached file and does it need updating?
-                                          local file, exists = directory_path .. assignment_data_spec.local_resource
-                                          exists, err = file_exists( file )
-                                          if not exists and err then
-                                            stdnse.print_debug( 1, "%s: Error accessing %s: %s.", SCRIPT_NAME, file, err )
-                                          elseif not exists then
-                                            update_required = true
-                                            stdnse.print_debug( 2, "%s: %s does not exist or is empty. Fetching it now...", SCRIPT_NAME, file )
-                                          elseif exists then
-                                            update_required, modified_date, entity_tag = requires_updating( file )
-                                          end
-
-                                          local file_content
-
-                                          -- read an existing and up-to-date file into file_content.
-                                          if exists and not update_required then
-                                            stdnse.print_debug( 2, "%s: %s was cached less than %s ago. Reading...", SCRIPT_NAME, file, nmap.registry.whois.local_assignments_file_expiry )
-                                            file_content = read_from_file( file )
-                                          end
-
-                                          -- cache or update and then read into file_content
-                                          local http_response, write_success
-                                          if update_required then
-                                            http_response = ( conditional_download( assignment_data_spec.remote_resource, modified_date, entity_tag ) )
-                                            if not http_response or type( http_response.status ) ~= "number" then
-                                              stdnse.print_debug( 1, "%s: Failed whilst requesting %s.", SCRIPT_NAME, assignment_data_spec.remote_resource )
-                                            elseif http_response.status == 200 then
-                                              -- prepend our file header
-                                              stdnse.print_debug( 2, "%s: Retrieved %s.", SCRIPT_NAME, assignment_data_spec.remote_resource )
-                                              file_content = stdnse.strsplit( "\r?\n", http_response.body )
-                                              table.insert( file_content, 1, "** Do Not Alter This Line or The Following Line **" )
-                                              local hline = {}
-                                              hline[#hline+1] = "<" .. os.time() .. ">"
-                                              hline[#hline+1] = "<" .. http_response.header["last-modified"] .. ">"
-                                              if http_response.header.etag then
-                                                hline[#hline+1] = "<" .. http_response.header.etag .. ">"
-                                              end
-                                              table.insert( file_content, 2, table.concat( hline ) )
-                                              write_success, err = write_to_file( file, file_content )
-                                              if err then
-                                                stdnse.print_debug( 1, "%s: Error writing %s to %s: %s.", SCRIPT_NAME, assignment_data_spec.remote_resource, file, err )
-                                              end
-                                            elseif http_response.status == 304 then
-                                              -- update our file header with a new timestamp
-                                              stdnse.print_debug( 1, "%s: %s is up-to-date.", SCRIPT_NAME, file )
-                                              file_content = read_from_file( file )
-                                              file_content[2] = file_content[2]:gsub("^<[-+]?%d+>(.*)$", "<" .. os.time() .. ">%1")
-                                              write_success, err = write_to_file( file, file_content )
-                                              if err then
-                                                stdnse.print_debug( 1, "%s: Error writing to %s: %s.", SCRIPT_NAME, file, err )
-                                              end
-                                            else
-                                              stdnse.print_debug( 1, "%s: HTTP %s whilst requesting %s.", SCRIPT_NAME, http_response.status, assignment_data_spec.remote_resource )
-                                            end
-                                          end
-
-
-                                          if file_content then
-                                            -- Create a table for this address family (if there isn't one already).
-                                            if not ret[address_family] then ret[address_family] = {} end
-                                            -- Parse data and add to the table for this address family.
-                                            local t
-                                            t, err = parse_assignments( assignment_data_spec, file_content )
-                                            if #t == 0 or err then
-                                              -- good header, but bad file?  Kill the file!
-                                              write_to_file( file, "" )
-                                              stdnse.print_debug( 1, "%s: Problem with the data in %s.", SCRIPT_NAME, file )
-                                            else
-                                              for i, v in pairs( t ) do
-                                                ret[address_family][#ret[address_family]+1] = v
-                                              end
-                                            end
-                                          end
-
-                                        end -- file
-                                      end -- af
-
-                                      -- If we decide to use more than one assignments file for ipv6 we may need to sort the resultant parsed list so that sub-assignments appear
-                                      -- before their parent.  This is expensive, but it's worth doing to ensure the lookup process returns the correct service.
-                                      -- table.sort( ret.ipv6, sort_assignments )
-
-                                      -- final check for an empty table which we'll convert to nil
-                                      for af, t in pairs( ret ) do
-                                        if #t == 0 then
-                                          ret[af] = nil
-                                          stdnse.print_debug( 1, "%s: Cannot use local assignments file for address family %s.", SCRIPT_NAME, af )
-                                        end
-                                      end
-
-                                      return ret
-
-                                    end
-
-
-
-                                    ---
-                                    -- Uses <code>nmap.fetchfile</code> to get the path of the parent directory of the supplied Nmap datafile SCRIPT_NAME.
-                                    -- @param fname  String - Filename of an Nmap datafile.
-                                    -- @return       String - The filepath of the directory containing the supplied SCRIPT_NAME including the trailing slash (or nil in case of an error).
-                                    -- @return       Nil or error message in case of an error.
-
-                                    function get_parentpath( fname )
-
-                                      if type( fname ) ~= "string" or fname == "" then
-                                        return nil, "Error in get_parentpath: Expected fname as a string."
-                                      end
-
-                                      local path = nmap.fetchfile( fname )
-                                      if not path then
-                                        return nil, "Error in get_parentpath: Call to fetchfile() failed."
-                                      end
-
-                                      path = path:sub( 1, path:len() - fname:len() )
-                                      return path
-
-                                    end
-
-
-
-                                    ---
-                                    -- Given a filepath, checks for the existence of that file.
-                                    -- @param file  Path to a file.
-                                    -- @return      Boolean True if file exists and can be read or false if file does not exist or is empty or cannot be otherwise read.
-                                    -- @return      Nil or error message.  No error message if the file is empty or does not exist, only if the file cannot be read for some other reason.
-
-                                    function file_exists( file )
-
-                                      local f, err, _ = io.open( file, "r" )
-                                      if ( f and f:read() ) then
-                                        f:close()
-                                        return true, nil
-                                      elseif f then
-                                        f:close()
-                                        return false, nil
-                                      elseif not f and err:match("No such file or directory") then
-                                        return false, nil
-                                      elseif err then
-                                        return false, err
-                                      else
-                                        return false, ( "unforseen error while checking " .. file )
-                                      end
-
-                                    end
-
-
-
-                                    ---
-                                    -- Checks whether a cached file requires updating via HTTP.
-                                    -- The cached file should contain the following string on the second line: "<timestamp><Last-Modified-Date><Entity-Tag>".
-                                    -- where timestamp is number of seconds since epoch at the time the file was last cached and
-                                    -- Last-Modified-Date is an HTTP compliant date sting returned by an HTTP server at the time the file was last cached and
-                                    -- Entity-Tag is an HTTP Etag returned by an HTTP server at the time the file was last cached.
-                                    -- @param file  Filepath of the cached file.
-                                    -- @return      Boolean False if file does not require updating, true otherwise.
-                                    -- @return      nil or a valid modified-date (string).
-                                    -- @return      nil or a valid entity_tag (string).
-                                    -- @see         file_is_expired
-
-                                    function requires_updating( file )
-
-                                      local last_cached, mod, etag, has_expired
-
-                                      local f, err, _ = io.open( file, "r" )
-                                      if not f then return true, nil end
-
-                                      local _ = f:read("*line")
-                                      local stamp = f:read("*line")
-                                      f:close()
-                                      if not stamp then return true, nil end
-
-                                      last_cached, mod, etag = stamp:match( "^<([^>]*)><([^>]*)><?([^>]*)>?$" )
-                                      if (etag == "") then etag = nil end
-                                      if not ( last_cached or mod or etag ) then return true, nil end
-                                      if not (
-                                        mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
-                                        or
-                                        mod:match( "%a*day,%d%d-%a%a%a-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
-                                        or
-                                        mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
-                                        ) then
-                                        mod = nil
-                                      end
-                                      if not etag and not mod then
-                                        return true, nil
-                                      end
-
-                                      -- Check whether the file was cached within local_assignments_file_expiry (registry value)
-                                      has_expired = file_is_expired( last_cached )
-
-                                      return has_expired, mod, etag
-
-                                    end
-
-
-
-                                    ---
-                                    -- Reads a file, line by line, into a table.
-                                    -- @param file  String representing a filepath.
-                                    -- @return      Table (array-style) of lines read from the file (or nil in case of an error).
-                                    -- @return      Nil or error message in case of an error.
-
-                                    function read_from_file( file )
-
-                                      if type( file ) ~= "string" or file == "" then
-                                        return nil, "Error in read_from_file: Expected file as a string."
-                                      end
-
-                                      local f, err, _ = io.open( file, "r" )
-                                      if not f then
-                                        stdnse.print_debug( 1, "%s: Error opening %s for reading: %s", SCRIPT_NAME, file, err )
-                                        return nil, err
-                                      end
-
-                                      local line, ret = nil, {}
-                                      while true do
-                                        line = f:read()
-                                        if not line then break end
-                                        ret[#ret+1] = line
-                                      end
-
-                                      f:close()
-
-                                      return ret
-
-                                    end
-
-
-
-                                    ---
-                                    -- Performs either an HTTP Conditional GET request if mod_date or e_tag is passed, or a plain GET request otherwise.
-                                    -- Will follow a single redirect for the remote resource.
-                                    -- @param url       String representing the full URL of the remote resource.
-                                    -- @param mod_date  String representing an HTTP date.
-                                    -- @param e_tag     String representing an HTTP entity tag.
-                                    -- @return          Table as per <code>http.request</code> or <code>nil</code> in case of a non-HTTP error.
-                                    -- @return          Nil or error message in case of an error.
-                                    -- @see             http.request
-
-                                    function conditional_download( url, mod_date, e_tag )
-
-                                      if type( url ) ~= "string" or url == "" then
-                                        return nil, "Error in conditional_download: Expected url as a string."
-                                      end
-
-                                      -- mod_date and e_tag allowed to be nil or a non-empty string
-                                      if mod_date and ( type( mod_date ) ~= "string" or mod_date == "" ) then
-                                        return nil, "Error in conditional_download: Expected mod_date as nil or as a non-empty string."
-                                      end
-                                      if e_tag and ( type( e_tag ) ~= "string" or e_tag == "" ) then
-                                        return nil, "Error in conditional_download: Expected e_tag as nil or as a non-empty string."
-                                      end
-
-                                      -- use e_tag in preference to mod_date
-                                      local request_options = {}
-                                      request_options.header = {}
-                                      if e_tag then
-                                        request_options.header["If-None-Match"] = e_tag
-                                      elseif mod_date then
-                                        request_options.header["If-Modified-Since"] = mod_date
-                                      end
-                                      if not next( request_options.header ) then request_options = nil end
-
-                                      local request_response = http.get_url( url, request_options )
-
-                                      -- follow one redirection
-                                      if request_response.status ~= 304 and ( tostring( request_response.status ):match( "30%d" ) and
-                                        type( request_response.header.location ) == "string"  and request_response.header.location ~= "" ) then
-                                        stdnse.print_debug( 2, "%s: HTTP Status:%d New Location: %s.", SCRIPT_NAME, request_response.status, request_response.header.location )
-                                        request_response = http.get_url( request_response.header.location, request_options )
-                                      end
-
-                                      return request_response
-
-                                    end
-
-
-
-                                    ---
-                                    -- Writes the supplied content to file.
-                                    -- @param file     String representing a filepath (if it exists it will be overwritten).
-                                    -- @param content  String or table of data to write to file.  Empty string or table is permitted.
-                                    --                 A table will be written to file with each element of the table on a new line.
-                                    -- @return         Boolean True on success or nil in case of an error.
-                                    -- @return         Nil or error message in case of an error.
-
-                                    function write_to_file( file, content )
-
-                                      if type( file ) ~= "string" or file == "" then
-                                        return nil, "Error in write_to_file: Expected file as a string."
-                                      end
-                                      if type( content ) ~= "string" and type( content ) ~= "table" then
-                                        return nil, "Error in write_to_file: Expected content as a table or string."
-                                      end
-
-                                      local f, err, _ = io.open( file, "w" )
-                                      if not f then
-                                        stdnse.print_debug( 1, "%s: Error opening %s for writing: %s.", SCRIPT_NAME, file, err )
-                                        return nil, err
-                                      end
-
-                                      if ( type( content ) == "table" ) then
-                                        content = table.concat( content, "\n" ) or ""
-                                      end
-                                      f:write( content )
-
-                                      f:close()
-
-                                      return true
-
-                                    end
-
-
-
-                                    ---
-                                    -- Converts raw data from an assignments file into a form optimised for lookups against that data.
-                                    -- @param address_family_spec  Table (assoc. array) containing patterns for extracting data.
-                                    -- @param table_of_lines       Table containing a line of data per table element.
-                                    -- @return                     Table - each element of the form { range = { first = data, last = data }, service = data } (or nil in case of an error).
-                                    -- @return                     Nil or error message in case of an error.
-
-                                    function parse_assignments( address_family_spec, table_of_lines )
-
-                                      if #table_of_lines < 1 then
-                                        return nil, "Error in parse_assignments: Expected table_of_lines as a non-empty table."
-                                      end
-
-                                      local mnetwork = address_family_spec.match_assignment
-                                      local mservice = address_family_spec.match_service
-
-                                      local ret, net, svc = {}
-
-                                      for i, line in ipairs( table_of_lines ) do
-
-                                        net = line:match( mnetwork )
-                                        if net then
-                                          svc = line:match( mservice )
-                                          if svc then svc = string.lower( svc ) end
-                                          if not svc or ( svc == "iana" ) then
-                                            svc = "arin"
-                                          elseif not nmap.registry.whois.whoisdb[svc] then
-                                            svc = "arin"
-                                          end
-                                          -- optimise the data
-                                          local first_ip, last_ip, err = ipOps.get_ips_from_range( net )
-                                          if not err then
-                                            local t = { first = first_ip, last = last_ip }
-                                            ret[#ret+1] = { range = t, service = svc }
-                                          end
-                                        end
-
-                                      end
-
-                                      return ret
-
-                                    end
-
-
-
-                                    ---
-                                    -- Checks the age of the supplied timestamp and compares it to the value of local_assignments_file_expiry.
-                                    -- @param time_string  String representing a timestamp (seconds since epoch).
-                                    -- @return             Boolean True if the period elapsed since the timestamp is longer than the value of local_assignments_file_expiry
-                                    --                     also returns true if the parameter is not of the expected type, otherwise returns false.
-                                    -- @see                sane_expiry_period
-
-                                    function file_is_expired( time_string )
-
-                                      if type( time_string ) ~= "string" or time_string == "" then return true end
-                                      local allowed_age = nmap.registry.whois.local_assignments_file_expiry
-                                      if allowed_age == "" then return true end
-
-                                      local cached_time = tonumber(time_string)
-                                      if not cached_time then return true end
-
-                                      local now_time = os.time()
-                                      if now_time < cached_time then return true end
-                                      if now_time > ( cached_time + sane_expiry_period( allowed_age ) ) then return true end
-
-                                      return false
-
-                                    end
-
-
-
-                                    ---
-                                    -- Checks that the supplied string represents a period of time between 0 and 7 days.
-                                    -- @param period  String representing a period.
-                                    -- @return        Number representing the supplied period or a failsafe period in whole seconds.
-                                    -- @see           get_period
-
-                                    function sane_expiry_period( period )
-
-                                      local sane_default_expiry = 57600 -- 16h
-                                      local max_expiry = 604800 -- 7d
-
-                                      period = get_period( period )
-                                      if not period or ( period == "" ) then return sane_default_expiry end
-
-                                      if period < max_expiry then return period end
-                                      return max_expiry
-
-                                    end
-
-
-
-                                    ---
-                                    -- Converts a string representing a period of time made up of a quantity and a unit such as "24h"
-                                    -- into whole seconds.
-                                    -- @param period  String combining a quantity and a unit of time.
-                                    --                Acceptable units are days (D or d), hours (H or h), minutes (M or m) and seconds (S or s).
-                                    --                If a unit is not supplied or not one of the above acceptable units, it is assumed to be seconds.
-                                    --                Negative or fractional periods are permitted.
-                                    -- @return        Number representing the supplied period in whole seconds (or nil in case of an error).
-
-                                    function get_period( period )
-
-                                      if type( period ) ~= string or ( period == "" ) then return nil end
-                                      local quant, unit = period:match( "(-?+?%d*%.?%d*)([SsMmHhDd]?)" )
-                                      if not ( tonumber( quant ) ) then return nil end
-
-                                      if ( string.lower( unit ) == "m" ) then
-                                        unit = 60
-                                      elseif ( string.lower( unit ) == "h" ) then
-                                        unit = 3600
-                                      elseif ( string.lower( unit ) == "d" ) then
-                                        unit = 86400
-                                      else
-                                        -- seconds and catch all
-                                        unit = 1
-                                      end
-
-                                      return ( math.modf( quant * unit ) )
-
-                                    end
-
-
-
-                                    --
-                                    -- Passed to <code>table.sort</code>, will sort a table of IP assignments such that sub-assignments appear before their parent.
-                                    -- This function is not in use at the moment (see get_local_assignments_data) and will not appear in nse documentation.
-                                    -- @param first   Table { range = { first = IP_addr, last = IP_addr } }
-                                    -- @param second  Table { range = { first = IP_addr, last = IP_addr } }
-                                    -- @return        Boolean True if the tables are already in the correct order, otherwise false.
-
-                                    function sort_assignments( first, second )
-
-                                      local f_lo, f_hi = first.range.first, first.range.last
-                                      local s_lo, s_hi = second.range.first, second.range.last
-
-                                      if ipOps.compare_ip( f_lo, "gt", s_lo ) then return false end
-                                      if ipOps.compare_ip( f_lo, "le", s_lo ) and ipOps.compare_ip( f_hi, "ge", s_hi ) then
-                                        return false
-                                      end
-
-                                      return true
-
-                                    end
+    "\r?\n%s*[Oo]rg[-]-[Tt]ech[-]-[Ee][-]-[Mm]ail:(.-)\r?\n"}  },
+    lacnic = {
+      ob_exist =  "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
+      ob_netnum = {ob_start = "\r?\n%s*[Ii]net6?num:%s*.-\r?\n",
+        ob_end = "\r?\n\r?\n",
+        inetnum = "\r?\n%s*[Ii]net6?num:%s*(.-)\r?\n",
+        owner = "\r?\n%s*[Oo]wner:%s*(.-)\r?\n",
+        ownerid = "\r?\n%s*[Oo]wner[-]-[Ii][Dd]:%s*(.-)\r?\n",
+        responsible = "\r?\n%s*[Rr]esponsible:%s*(.-)\r?\n",
+        country = "\r?\n%s*[Cc]ountry:%s*(.-)\r?\n",
+      source = "\r?\n%s*[Ss]ource:%s*(.-)\r?\n"},
+      ob_persn = {ob_start = "\r?\n%s*[Pp]erson:%s*.-\r?\n",
+        ob_end = "\r?\n\r?\n",
+        person = "\r?\n%s*[Pp]erson:%s*(.-)\r?\n",
+    email = "\r?\n%s*[Ee][-]-[Mm]ail:%s*(.-)\r?\n"}  },
+    jpnic = {
+      ob_exist =  "\r?\n%s*[Nn]etwork%s-[Ii]nformation:%s*.-\r?\n",
+      ob_netnum = {ob_start = "[[Nn]etwork%s*[Nn]umber]%s*.-\r?\n",
+        ob_end = "\r?\n\r?\n",
+        inetnum = "[[Nn]etwork%s*[Nn]umber]%s*(.-)\r?\n",
+        netname = "[[Nn]etwork%s*[Nn]ame]%s*(.-)\r?\n",
+    orgname = "[[Oo]rganization]%s*(.-)\r?\n"} }
+  }
+
+  ---
+  -- whoisdb defines the whois services this script is able to query and the script output produced for them.
+  -- Each entry is a key-value pair where the key is a short name for the service and value is a table of definitions for that service.
+  -- Note that there is defined here an entry for IANA which does not have a whois service.  The entry is defined to allow us to redirect to ARIN when
+  -- IANA is referred to in a record.
+  --
+  -- Each service defined should contain the following:
+  --
+  -- id:             String. Matches the key for the service and is a short name for the service.
+  -- hostname:       String. Hostname of the service.
+  -- preflag:        String. Prepended to the target IP address sent in the whois query.
+  -- postflag:       String. Appended to the target IP address sent in the whois query.
+  -- longname:       Table of strings. Each is a lowercase official (or semi-official) name of the service.
+  -- fieldreq:       Linked table entry.  The key identifying a table of a set of objects defined in fields_meta.
+  --                 In its records each whois service displays a particular set of objects as defined here.
+  -- smallnet_rule:  Linked table entry. The key of a pattern for the field defined in fields_meta which captures the Assignment Range.  This is an
+  --                 optional entry and is used to extract the smallest (i.e. Most Specific) range from a record when more than one range is detailed.
+  -- redirects:      Table of tables, containing strings.  Used to determine whether a record is referring to a different whois service by
+  --                 searching for service specific information in certain fields of the record.
+  --                 Each entry is a table thus: { "search_object", "search_field", "pattern" }
+  --                 search_object: is the key name for a record object defined in fields_meta, in which to search.
+  --                 search_field:  is the key name for a field of the object, the data of which to search.
+  --                 pattern:       is typically the id or longname key names.
+  --                 In the example: {"ob_org", "orgname", "longname"}, we cycle through each service defined in whoisdb and look for its longname in
+  --                 the ob_org.orgname of the current record.
+  -- output_short:   Table for each object to be displayed when Nmap verbosity is zero.  The first element of each table is the object name and the
+  --                 second element is a table of fields to display.  The elements of the second may be field names, which are each output to a new
+  --                 line, or tables containing field names which are output to the same line.
+  -- output_long:    Table for each object to be displayed when Nmap verbosity is one or above.  The structure is the same as output_short.
+  -- reg:            String name for the field in ob_netnum which captures the Assignment Range (e.g. "netrange", "inetnum"), the data of which is
+  --                 cached in the registry.
+  -- unordered:      Boolean.  Optional. True if the records from the service display an object other than ob_netnum as the first in the record (such
+  --                 as at ARIN).  This flag is used to decide whether we should extract an object immediately before the relevant ob_netnum object
+  --                 from a record.
+
+  nmap.registry.whois.whoisdb = {
+    arin = {
+      id = "arin",
+      hostname = "whois.arin.net", preflag = "+", postflag = "",
+      longname = {"american registry for internet numbers"},
+      fieldreq = nmap.registry.whois.fields_meta.arin,
+      smallnet_rule = nmap.registry.whois.fields_meta.arin.ob_netnum.netrange,
+      redirects = {
+        {"ob_org", "orgname", "longname"},
+        {"ob_org", "orgname", "id"},
+      {"ob_org", "orgid", "id"} },
+      output_short = {
+        {"ob_netnum", {"netrange", "netname"}},
+      {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}}  },
+      output_long = {
+        {"ob_netnum", {"netrange", "netname"}},
+        {"ob_org", {"orgname", "orgid", {"country", "stateprov"}}},
+        {"ob_cust", {"custname", {"country", "stateprov"}}},
+      {"ob_persn", {"orgtechname", "orgtechemail"}} },
+      reg = "netrange",
+      unordered = true
+    },
+    ripe = {
+      id = "ripe",
+      hostname = "whois.ripe.net", preflag = "-B", postflag = "",
+      longname = {"ripe network coordination centre"},
+      fieldreq = nmap.registry.whois.fields_meta.rpsl,
+      smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
+      redirects = {
+        {"ob_role", "role", "longname"},
+        {"ob_org", "orgname", "id"},
+      {"ob_org", "orgname", "longname"} },
+      output_short = {
+        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
+      {"ob_org", {"orgname", "organisation", "descr", "email"}} },
+      output_long = {
+        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
+        {"ob_org", {"orgname", "organisation", "descr", "email"}},
+        {"ob_role", {"role", "email"}},
+      {"ob_persn", {"person", "email"}} },
+      reg = "inetnum"
+    },
+    apnic = {
+      id = "apnic",
+      hostname = "whois.apnic.net", preflag = "", postflag = "",
+      longname = {"asia pacific network information centre"},
+      fieldreq = nmap.registry.whois.fields_meta.rpsl,
+      smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
+      redirects = {
+        {"ob_netnum", "netname", "id"},
+        {"ob_org", "orgname", "longname"},
+        {"ob_role", "role", "longname"},
+      {"ob_netnum", "source", "id"} },
+      output_short = {
+        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
+      {"ob_org", {"orgname", "organisation", "descr", "email"}} },
+      output_long = {
+        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
+        {"ob_org", {"orgname", "organisation", "descr", "email"}},
+        {"ob_role", {"role", "email"}},
+      {"ob_persn", {"person", "email"}} },
+      reg = "inetnum"
+    },
+    lacnic = {
+      id = "lacnic",
+      hostname = "whois.lacnic.net", preflag = "", postflag = "",
+      longname =
+      {"latin american and caribbean ip address regional registry"},
+      fieldreq = nmap.registry.whois.fields_meta.lacnic,
+      smallnet_rule = nmap.registry.whois.fields_meta.lacnic.ob_netnum.inetnum,
+      redirects = {
+        {"ob_netnum", "ownerid", "id"},
+      {"ob_netnum", "source", "id"} },
+      output_short = {
+        {"ob_netnum",
+      {"inetnum", "owner", "ownerid", "responsible", "country"}}  },
+      output_long = {
+        {"ob_netnum",
+        {"inetnum", "owner", "ownerid", "responsible", "country"}},
+      {"ob_persn", {"person", "email"}} },
+      reg = "inetnum"
+    },
+    afrinic = {
+      id = "afrinic",
+      hostname = "whois.afrinic.net", preflag = "-c", postflag = "",
+      longname = {"african internet numbers registry",
+      "african network information center"},
+      fieldreq = nmap.registry.whois.fields_meta.rpsl,
+      smallnet_rule = nmap.registry.whois.fields_meta.rpsl.ob_netnum.inetnum,
+      redirects = {
+      {"ob_org", "orgname", "longname"} },
+      output_short = {
+        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
+      {"ob_org", {"orgname", "organisation", "descr", "email"}} },
+      output_long = {
+        {"ob_netnum", {"inetnum", "netname", "descr", "country"}},
+        {"ob_org", {"orgname", "organisation", "descr", "email"}},
+        {"ob_role", {"role", "email"}},
+      {"ob_persn", {"person", "email"}} },
+      reg = "inetnum"
+    },--[[
+    jpnic = {
+    id = "jpnic",
+    hostname = "whois.nic.ad.jp", preflag = "", postflag = "/e",
+    longname = {"japan network information center"},
+    fieldreq = nmap.registry.whois.fields_meta.jpnic,
+    output_short = {
+    {"ob_netnum", {"inetnum", "netname", "orgname"}}  },
+    reg = "inetnum" },--]]
+    iana = {  -- not actually a db but required here
+      id = "iana", longname = {"internet assigned numbers authority"}
+    }
+  }
+
+  nmap.registry.whois.m_none = {
+    "\n%s*([Nn]o match found for[%s+]*$addr)",
+    "\n%s*([Uu]nallocated resource:%s*$addr)",
+    "\n%s*([Rr]eserved:%s*$addr)",
+    "\n[^\n]*([Nn]ot%s[Aa]ssigned[^\n]*$addr)",
+    "\n%s*(No match!!)%s*\n",
+    "(Invalid IP or CIDR block:%s*$addr)"
+  }
+  nmap.registry.whois.m_err = {
+    "\n%s*([Aa]n [Ee]rror [Oo]ccured)%s*\n",
+    "\n[^\n]*([Ee][Rr][Rr][Oo][Rr][^\n]*)\n"
+  }
+
+  nmap.registry.whois.remote_assignments_files = {}
+  nmap.registry.whois.remote_assignments_files.ipv4 = {
+    {
+      remote_resource = "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt",
+      local_resource = "ipv4-address-space",
+      match_assignment = "^%s*([%.%d]+/%d+)",
+      match_service = "whois%.(%w+)%.net"
+    }
+  }
+  nmap.registry.whois.remote_assignments_files.ipv6 = {
+    --[[{
+    remote_resource = "http://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.txt",
+    local_resource = "ipv6-address-space",
+    match_assignment = "^([:%x]+/%d+)",
+    match_service = "^[:%x]+/%d+%s*(%w+)"
+    },--]]
+    {
+      remote_resource = "http://www.iana.org/assignments/ipv6-unicast-address-assignments/ipv6-unicast-address-assignments.txt",
+      local_resource = "ipv6-unicast-address-assignments",
+      match_assignment = "^%s*([:%x]+/%d+)",
+      match_service = "whois%.(%w+)%.net"
+    }
+  }
+
+  local err
+
+  -- get and validate any --script-args
+  get_args()
+
+  -- mutex for each service
+  nmap.registry.whois.mutex = {}
+  for id, v in pairs( nmap.registry.whois.whoisdb ) do
+    if id ~= "iana" then
+      nmap.registry.whois.mutex[id] = nmap.mutex(nmap.registry.whois.whoisdb[id])
+    end
+  end
+
+  -- get IANA assignments lists
+  if nmap.registry.whois.using_local_assignments_file then
+    nmap.registry.whois.local_assignments_data, err = get_local_assignments_data()
+    if err then nmap.registry.whois.using_local_assignments_file = false end
+  end
+
+  nmap.registry.whois.init_done = true
+
+end
+
+
+
+---
+-- Parses the command line arguments passed to the script with --script-args.
+-- Sets flags in the registry which threads read to determine certain behaviours.
+-- Permitted args are 'nofile' - Prevents use of a list of assignments to determine which service to query,
+-- 'nofollow' - Prevents following redirects found in records,
+-- 'arin', 'ripe', 'apnic', etc. - Service id's, as defined in the whoisdb table in the registry (see script_init).
+
+function get_args()
+
+  if not nmap.registry.args then return end
+
+  local args = stdnse.get_script_args('whois.whodb')
+
+  if type( args ) ~= "string" or ( args == "" ) then return end
+
+  local t = {}
+  -- match words in args which may be whois dbs or other arguments
+  for db in string.gmatch( args, "%w+" ) do
+    if not nmap.registry.whois.whoisdb[db] then
+      if ( db == "nofollow" ) then
+        nmap.registry.whois.nofollow = true
+      elseif ( db == "nocache" ) then
+        nmap.registry.whois.using_cache = false
+      elseif ( db == "nofile" ) then
+        nmap.registry.whois.using_local_assignments_file = false
+        stdnse.print_debug( 2, "%s: Not using local assignments data.", SCRIPT_NAME )
+      end
+    elseif not ( string.match( table.concat( t, " " ), db ) ) then
+      -- we have a unique valid whois db
+      t[#t+1] = db
+    end
+  end
+
+  if ( #t > 0 ) and nmap.registry.whois.using_local_assignments_file then
+    -- "nofile" was not explicitly supplied, but it is implied by supplying custom whoisdb_default_order
+    nmap.registry.whois.using_local_assignments_file = false
+    stdnse.print_debug(3, "%s: Not using local assignments data because custom whoisdb_default_order was supplied.", SCRIPT_NAME)
+  end
+
+  if ( #t > 1 ) and nmap.registry.whois.nofollow then
+    -- using nofollow, we do not follow redirects and can only accept what we find as a record therefore we only accept the first db supplied
+    t = {t[1]}
+    stdnse.print_debug( 1, "%s: Too many args supplied with 'nofollow', only using %s.", SCRIPT_NAME, t[1] )
+  end
+
+  if ( #t > 0 ) then
+    nmap.registry.whois.whoisdb_default_order = t
+    stdnse.print_debug( 2, "%s: whoisdb_default_order: %s.", SCRIPT_NAME, table.concat( t, " " ) )
+  end
+
+end
+
+
+
+---
+-- Makes IANA hosted assignments data available for lookups against that data.  In more detail it:
+-- Caches a local copy of remote assignments data if copies do not currently exist or are out-of-date.
+-- Checks whether the cached copies require updating and performs update as required.
+-- Parses the cached copies and populates a table of lookup data which is returned to the caller.
+-- Sets a flag in the registry to prevent use of the lookup data in the event of an error.
+-- @return  Table of lookup data (or nil in case of an error).
+-- @return  Nil or error message in case of an error.
+-- @see     get_parentpath, file_exists, requires_updating, read_from_file, conditional_download,
+--          write_to_file, parse_assignments
+
+function get_local_assignments_data()
+
+  if not next( nmap.registry.whois.remote_assignments_files ) then
+    nmap.registry.whois.using_local_assignments_file = false
+    return nil, "Error in get_local_assignments_data: Remote resources not defined in remote_assignments_files registry key"
+  end
+
+  -- get the directory path where cached files will be stored.
+  local fetchfile = "nmap-services"
+  local directory_path, err = get_parentpath( fetchfile )
+  if err then
+    stdnse.print_debug( 1, "%s: Nmap.fetchfile() failed to get a path to %s: %s.", SCRIPT_NAME, fetchfile, err )
+    return nil, err
+  end
+
+  local ret = {}
+
+  -- cache or update and parse each remote file for each address family
+  for address_family, t in pairs( nmap.registry.whois.remote_assignments_files ) do
+    for i, assignment_data_spec in ipairs( t ) do
+
+      local update_required, modified_date, entity_tag, err
+
+      -- do we have a cached file and does it need updating?
+      local file, exists = directory_path .. assignment_data_spec.local_resource
+      exists, err = file_exists( file )
+      if not exists and err then
+        stdnse.print_debug( 1, "%s: Error accessing %s: %s.", SCRIPT_NAME, file, err )
+      elseif not exists then
+        update_required = true
+        stdnse.print_debug( 2, "%s: %s does not exist or is empty. Fetching it now...", SCRIPT_NAME, file )
+      elseif exists then
+        update_required, modified_date, entity_tag = requires_updating( file )
+      end
+
+      local file_content
+
+      -- read an existing and up-to-date file into file_content.
+      if exists and not update_required then
+        stdnse.print_debug( 2, "%s: %s was cached less than %s ago. Reading...", SCRIPT_NAME, file, nmap.registry.whois.local_assignments_file_expiry )
+        file_content = read_from_file( file )
+      end
+
+      -- cache or update and then read into file_content
+      local http_response, write_success
+      if update_required then
+        http_response = ( conditional_download( assignment_data_spec.remote_resource, modified_date, entity_tag ) )
+        if not http_response or type( http_response.status ) ~= "number" then
+          stdnse.print_debug( 1, "%s: Failed whilst requesting %s.", SCRIPT_NAME, assignment_data_spec.remote_resource )
+        elseif http_response.status == 200 then
+          -- prepend our file header
+          stdnse.print_debug( 2, "%s: Retrieved %s.", SCRIPT_NAME, assignment_data_spec.remote_resource )
+          file_content = stdnse.strsplit( "\r?\n", http_response.body )
+          table.insert( file_content, 1, "** Do Not Alter This Line or The Following Line **" )
+          local hline = {}
+          hline[#hline+1] = "<" .. os.time() .. ">"
+          hline[#hline+1] = "<" .. http_response.header["last-modified"] .. ">"
+          if http_response.header.etag then
+            hline[#hline+1] = "<" .. http_response.header.etag .. ">"
+          end
+          table.insert( file_content, 2, table.concat( hline ) )
+          write_success, err = write_to_file( file, file_content )
+          if err then
+            stdnse.print_debug( 1, "%s: Error writing %s to %s: %s.", SCRIPT_NAME, assignment_data_spec.remote_resource, file, err )
+          end
+        elseif http_response.status == 304 then
+          -- update our file header with a new timestamp
+          stdnse.print_debug( 1, "%s: %s is up-to-date.", SCRIPT_NAME, file )
+          file_content = read_from_file( file )
+          file_content[2] = file_content[2]:gsub("^<[-+]?%d+>(.*)$", "<" .. os.time() .. ">%1")
+          write_success, err = write_to_file( file, file_content )
+          if err then
+            stdnse.print_debug( 1, "%s: Error writing to %s: %s.", SCRIPT_NAME, file, err )
+          end
+        else
+          stdnse.print_debug( 1, "%s: HTTP %s whilst requesting %s.", SCRIPT_NAME, http_response.status, assignment_data_spec.remote_resource )
+        end
+      end
+
+
+      if file_content then
+        -- Create a table for this address family (if there isn't one already).
+        if not ret[address_family] then ret[address_family] = {} end
+        -- Parse data and add to the table for this address family.
+        local t
+        t, err = parse_assignments( assignment_data_spec, file_content )
+        if #t == 0 or err then
+          -- good header, but bad file?  Kill the file!
+          write_to_file( file, "" )
+          stdnse.print_debug( 1, "%s: Problem with the data in %s.", SCRIPT_NAME, file )
+        else
+          for i, v in pairs( t ) do
+            ret[address_family][#ret[address_family]+1] = v
+          end
+        end
+      end
+
+    end -- file
+  end -- af
+
+  -- If we decide to use more than one assignments file for ipv6 we may need to sort the resultant parsed list so that sub-assignments appear
+  -- before their parent.  This is expensive, but it's worth doing to ensure the lookup process returns the correct service.
+  -- table.sort( ret.ipv6, sort_assignments )
+
+  -- final check for an empty table which we'll convert to nil
+  for af, t in pairs( ret ) do
+    if #t == 0 then
+      ret[af] = nil
+      stdnse.print_debug( 1, "%s: Cannot use local assignments file for address family %s.", SCRIPT_NAME, af )
+    end
+  end
+
+  return ret
+
+end
+
+
+
+---
+-- Uses <code>nmap.fetchfile</code> to get the path of the parent directory of the supplied Nmap datafile SCRIPT_NAME.
+-- @param fname  String - Filename of an Nmap datafile.
+-- @return       String - The filepath of the directory containing the supplied SCRIPT_NAME including the trailing slash (or nil in case of an error).
+-- @return       Nil or error message in case of an error.
+
+function get_parentpath( fname )
+
+  if type( fname ) ~= "string" or fname == "" then
+    return nil, "Error in get_parentpath: Expected fname as a string."
+  end
+
+  local path = nmap.fetchfile( fname )
+  if not path then
+    return nil, "Error in get_parentpath: Call to fetchfile() failed."
+  end
+
+  path = path:sub( 1, path:len() - fname:len() )
+  return path
+
+end
+
+
+
+---
+-- Given a filepath, checks for the existence of that file.
+-- @param file  Path to a file.
+-- @return      Boolean True if file exists and can be read or false if file does not exist or is empty or cannot be otherwise read.
+-- @return      Nil or error message.  No error message if the file is empty or does not exist, only if the file cannot be read for some other reason.
+
+function file_exists( file )
+
+  local f, err, _ = io.open( file, "r" )
+  if ( f and f:read() ) then
+    f:close()
+    return true, nil
+  elseif f then
+    f:close()
+    return false, nil
+  elseif not f and err:match("No such file or directory") then
+    return false, nil
+  elseif err then
+    return false, err
+  else
+    return false, ( "unforseen error while checking " .. file )
+  end
+
+end
+
+
+
+---
+-- Checks whether a cached file requires updating via HTTP.
+-- The cached file should contain the following string on the second line: "<timestamp><Last-Modified-Date><Entity-Tag>".
+-- where timestamp is number of seconds since epoch at the time the file was last cached and
+-- Last-Modified-Date is an HTTP compliant date sting returned by an HTTP server at the time the file was last cached and
+-- Entity-Tag is an HTTP Etag returned by an HTTP server at the time the file was last cached.
+-- @param file  Filepath of the cached file.
+-- @return      Boolean False if file does not require updating, true otherwise.
+-- @return      nil or a valid modified-date (string).
+-- @return      nil or a valid entity_tag (string).
+-- @see         file_is_expired
+
+function requires_updating( file )
+
+  local last_cached, mod, etag, has_expired
+
+  local f, err, _ = io.open( file, "r" )
+  if not f then return true, nil end
+
+  local _ = f:read("*line")
+  local stamp = f:read("*line")
+  f:close()
+  if not stamp then return true, nil end
+
+  last_cached, mod, etag = stamp:match( "^<([^>]*)><([^>]*)><?([^>]*)>?$" )
+  if (etag == "") then etag = nil end
+  if not ( last_cached or mod or etag ) then return true, nil end
+  if not (
+      mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+      or
+      mod:match( "%a*day,%d%d-%a%a%a-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+      or
+      mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
+      ) then
+    mod = nil
+  end
+  if not etag and not mod then
+    return true, nil
+  end
+
+  -- Check whether the file was cached within local_assignments_file_expiry (registry value)
+  has_expired = file_is_expired( last_cached )
+
+  return has_expired, mod, etag
+
+end
+
+
+
+---
+-- Reads a file, line by line, into a table.
+-- @param file  String representing a filepath.
+-- @return      Table (array-style) of lines read from the file (or nil in case of an error).
+-- @return      Nil or error message in case of an error.
+
+function read_from_file( file )
+
+  if type( file ) ~= "string" or file == "" then
+    return nil, "Error in read_from_file: Expected file as a string."
+  end
+
+  local f, err, _ = io.open( file, "r" )
+  if not f then
+    stdnse.print_debug( 1, "%s: Error opening %s for reading: %s", SCRIPT_NAME, file, err )
+    return nil, err
+  end
+
+  local line, ret = nil, {}
+  while true do
+    line = f:read()
+    if not line then break end
+    ret[#ret+1] = line
+  end
+
+  f:close()
+
+  return ret
+
+end
+
+
+
+---
+-- Performs either an HTTP Conditional GET request if mod_date or e_tag is passed, or a plain GET request otherwise.
+-- Will follow a single redirect for the remote resource.
+-- @param url       String representing the full URL of the remote resource.
+-- @param mod_date  String representing an HTTP date.
+-- @param e_tag     String representing an HTTP entity tag.
+-- @return          Table as per <code>http.request</code> or <code>nil</code> in case of a non-HTTP error.
+-- @return          Nil or error message in case of an error.
+-- @see             http.request
+
+function conditional_download( url, mod_date, e_tag )
+
+  if type( url ) ~= "string" or url == "" then
+    return nil, "Error in conditional_download: Expected url as a string."
+  end
+
+  -- mod_date and e_tag allowed to be nil or a non-empty string
+  if mod_date and ( type( mod_date ) ~= "string" or mod_date == "" ) then
+    return nil, "Error in conditional_download: Expected mod_date as nil or as a non-empty string."
+  end
+  if e_tag and ( type( e_tag ) ~= "string" or e_tag == "" ) then
+    return nil, "Error in conditional_download: Expected e_tag as nil or as a non-empty string."
+  end
+
+  -- use e_tag in preference to mod_date
+  local request_options = {}
+  request_options.header = {}
+  if e_tag then
+    request_options.header["If-None-Match"] = e_tag
+  elseif mod_date then
+    request_options.header["If-Modified-Since"] = mod_date
+  end
+  if not next( request_options.header ) then request_options = nil end
+
+  local request_response = http.get_url( url, request_options )
+
+  -- follow one redirection
+  if request_response.status ~= 304 and ( tostring( request_response.status ):match( "30%d" ) and
+      type( request_response.header.location ) == "string"  and request_response.header.location ~= "" ) then
+    stdnse.print_debug( 2, "%s: HTTP Status:%d New Location: %s.", SCRIPT_NAME, request_response.status, request_response.header.location )
+    request_response = http.get_url( request_response.header.location, request_options )
+  end
+
+  return request_response
+
+end
+
+
+
+---
+-- Writes the supplied content to file.
+-- @param file     String representing a filepath (if it exists it will be overwritten).
+-- @param content  String or table of data to write to file.  Empty string or table is permitted.
+--                 A table will be written to file with each element of the table on a new line.
+-- @return         Boolean True on success or nil in case of an error.
+-- @return         Nil or error message in case of an error.
+
+function write_to_file( file, content )
+
+  if type( file ) ~= "string" or file == "" then
+    return nil, "Error in write_to_file: Expected file as a string."
+  end
+  if type( content ) ~= "string" and type( content ) ~= "table" then
+    return nil, "Error in write_to_file: Expected content as a table or string."
+  end
+
+  local f, err, _ = io.open( file, "w" )
+  if not f then
+    stdnse.print_debug( 1, "%s: Error opening %s for writing: %s.", SCRIPT_NAME, file, err )
+    return nil, err
+  end
+
+  if ( type( content ) == "table" ) then
+    content = table.concat( content, "\n" ) or ""
+  end
+  f:write( content )
+
+  f:close()
+
+  return true
+
+end
+
+
+
+---
+-- Converts raw data from an assignments file into a form optimised for lookups against that data.
+-- @param address_family_spec  Table (assoc. array) containing patterns for extracting data.
+-- @param table_of_lines       Table containing a line of data per table element.
+-- @return                     Table - each element of the form { range = { first = data, last = data }, service = data } (or nil in case of an error).
+-- @return                     Nil or error message in case of an error.
+
+function parse_assignments( address_family_spec, table_of_lines )
+
+  if #table_of_lines < 1 then
+    return nil, "Error in parse_assignments: Expected table_of_lines as a non-empty table."
+  end
+
+  local mnetwork = address_family_spec.match_assignment
+  local mservice = address_family_spec.match_service
+
+  local ret, net, svc = {}
+
+  for i, line in ipairs( table_of_lines ) do
+
+    net = line:match( mnetwork )
+    if net then
+      svc = line:match( mservice )
+      if svc then svc = string.lower( svc ) end
+      if not svc or ( svc == "iana" ) then
+        svc = "arin"
+      elseif not nmap.registry.whois.whoisdb[svc] then
+        svc = "arin"
+      end
+      -- optimise the data
+      local first_ip, last_ip, err = ipOps.get_ips_from_range( net )
+      if not err then
+        local t = { first = first_ip, last = last_ip }
+        ret[#ret+1] = { range = t, service = svc }
+      end
+    end
+
+  end
+
+  return ret
+
+end
+
+
+
+---
+-- Checks the age of the supplied timestamp and compares it to the value of local_assignments_file_expiry.
+-- @param time_string  String representing a timestamp (seconds since epoch).
+-- @return             Boolean True if the period elapsed since the timestamp is longer than the value of local_assignments_file_expiry
+--                     also returns true if the parameter is not of the expected type, otherwise returns false.
+-- @see                sane_expiry_period
+
+function file_is_expired( time_string )
+
+  if type( time_string ) ~= "string" or time_string == "" then return true end
+  local allowed_age = nmap.registry.whois.local_assignments_file_expiry
+  if allowed_age == "" then return true end
+
+  local cached_time = tonumber(time_string)
+  if not cached_time then return true end
+
+  local now_time = os.time()
+  if now_time < cached_time then return true end
+  if now_time > ( cached_time + sane_expiry_period( allowed_age ) ) then return true end
+
+  return false
+
+end
+
+
+
+---
+-- Checks that the supplied string represents a period of time between 0 and 7 days.
+-- @param period  String representing a period.
+-- @return        Number representing the supplied period or a failsafe period in whole seconds.
+-- @see           get_period
+
+function sane_expiry_period( period )
+
+  local sane_default_expiry = 57600 -- 16h
+  local max_expiry = 604800 -- 7d
+
+  period = get_period( period )
+  if not period or ( period == "" ) then return sane_default_expiry end
+
+  if period < max_expiry then return period end
+  return max_expiry
+
+end
+
+
+
+---
+-- Converts a string representing a period of time made up of a quantity and a unit such as "24h"
+-- into whole seconds.
+-- @param period  String combining a quantity and a unit of time.
+--                Acceptable units are days (D or d), hours (H or h), minutes (M or m) and seconds (S or s).
+--                If a unit is not supplied or not one of the above acceptable units, it is assumed to be seconds.
+--                Negative or fractional periods are permitted.
+-- @return        Number representing the supplied period in whole seconds (or nil in case of an error).
+
+function get_period( period )
+
+  if type( period ) ~= string or ( period == "" ) then return nil end
+  local quant, unit = period:match( "(-?+?%d*%.?%d*)([SsMmHhDd]?)" )
+  if not ( tonumber( quant ) ) then return nil end
+
+  if ( string.lower( unit ) == "m" ) then
+    unit = 60
+  elseif ( string.lower( unit ) == "h" ) then
+    unit = 3600
+  elseif ( string.lower( unit ) == "d" ) then
+    unit = 86400
+  else
+    -- seconds and catch all
+    unit = 1
+  end
+
+  return ( math.modf( quant * unit ) )
+
+end
+
+
+
+--
+-- Passed to <code>table.sort</code>, will sort a table of IP assignments such that sub-assignments appear before their parent.
+-- This function is not in use at the moment (see get_local_assignments_data) and will not appear in nse documentation.
+-- @param first   Table { range = { first = IP_addr, last = IP_addr } }
+-- @param second  Table { range = { first = IP_addr, last = IP_addr } }
+-- @return        Boolean True if the tables are already in the correct order, otherwise false.
+
+function sort_assignments( first, second )
+
+  local f_lo, f_hi = first.range.first, first.range.last
+  local s_lo, s_hi = second.range.first, second.range.last
+
+  if ipOps.compare_ip( f_lo, "gt", s_lo ) then return false end
+  if ipOps.compare_ip( f_lo, "le", s_lo ) and ipOps.compare_ip( f_hi, "ge", s_hi ) then
+    return false
+  end
+
+  return true
+
+end

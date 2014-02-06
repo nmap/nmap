@@ -54,25 +54,25 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 local function loadFingerprints(filename, cat)
 
-    local file, fingerprints
+  local file, fingerprints
 
-    -- Find the file
-    filename = nmap.fetchfile('nselib/data/' .. filename) or filename
+  -- Find the file
+  filename = nmap.fetchfile('nselib/data/' .. filename) or filename
 
-    -- Load the file
-    stdnse.print_debug(1, "%s: Loading fingerprints: %s", SCRIPT_NAME, filename)
-    local env = setmetatable({fingerprints = {}}, {__index = _G});
-    file = loadfile(filename, "t", env)
+  -- Load the file
+  stdnse.print_debug(1, "%s: Loading fingerprints: %s", SCRIPT_NAME, filename)
+  local env = setmetatable({fingerprints = {}}, {__index = _G});
+  file = loadfile(filename, "t", env)
 
-    if( not(file) ) then
-        stdnse.print_debug(1, "%s: Couldn't load the file: %s", SCRIPT_NAME, filename)
-        return
-    end
+  if( not(file) ) then
+    stdnse.print_debug(1, "%s: Couldn't load the file: %s", SCRIPT_NAME, filename)
+    return
+  end
 
-    file()
-    fingerprints = env.tools
+  file()
+  fingerprints = env.tools
 
-    return fingerprints
+  return fingerprints
 
 end
 
@@ -92,10 +92,10 @@ action = function(host, port)
   end
 
   local crawler = httpspider.Crawler:new(host, port, '/', { scriptname = SCRIPT_NAME,
-    maxpagecount = 40,
-    maxdepth = -1,
-    withinhost = 1
-  })
+      maxpagecount = 40,
+      maxdepth = -1,
+      withinhost = 1
+    })
 
   if rapid then
     return "Couldn't determine the underlying framework or CMS. Try turning off 'rapid' mode."
