@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add http-ntlm-info script for getting server information from Web
+  servers that require NTLM authentication. [Justin Cacak]
+
 o Added TCP support to dns.lua. [John Bond]
 
 o Added safe fd_set operations. This makes nmap fail gracefully instead of
