@@ -139,9 +139,6 @@ extern size_t srcaddrlen;
 extern union sockaddr_u targetss;
 extern size_t targetsslen;
 
-extern union sockaddr_u httpconnect, socksconnect;
-extern size_t httpconnectlen, socksconnectlen;
-
 enum exec_mode {
     EXEC_PLAIN,
     EXEC_SHELL,
@@ -197,6 +194,7 @@ struct options {
     enum exec_mode execmode;
     char *proxy_auth;
     char *proxytype;
+    char *proxyaddr;
 
     int ssl;
     char *sslcert;
@@ -265,5 +263,6 @@ extern int ncat_hostaccess(char *matchaddr, char *filename, char *remoteip);
    Defined in ncat_posix.c and ncat_win.c. */
 extern void set_lf_mode(void);
 
+extern int getaddrfamily(const char *addr);
 extern int setenv_portable(const char *name, const char *value);
 extern void setup_environment(struct fdinfo *fdinfo);

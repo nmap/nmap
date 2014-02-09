@@ -150,9 +150,6 @@ size_t srcaddrlen;
 union sockaddr_u targetss;
 size_t targetsslen;
 
-union sockaddr_u httpconnect, socksconnect;
-size_t httpconnectlen, socksconnectlen;
-
 /* Global options structure. */
 struct options o;
 
@@ -533,6 +530,32 @@ static int ncat_hexdump(int logfd, const char *data, int len)
         zmem(outstr, sizeof(outstr));
     }
 
+    return 1;
+}
+
+/* this function will return in what format the target
+ * host is specified. It will return:
+ * 1 - for ipv4,
+ * 2 - for ipv6,
+ * -1 - for hostname
+ * this has to work even if there is no IPv6 support on
+ * local system, proxy may support it.
+ */
+int getaddrfamily(const char *addr)
+{
+    int ret;
+
+    if (strchr(addr,':'))
+      return 2;
+
+    struct addrinfo hint, *info =0;
+    zmem(&hint,sizeof(hint));
+    hint.ai_family = AF_UNSPEC;
+    hint.ai_flags = AI_NUMERICHOST;
+    ret = getaddrinfo(addr, 0, &hint, &info);
+    if (ret)
+        return -1;
+    freeaddrinfo(info);
     return 1;
 }
 

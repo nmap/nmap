@@ -10,8 +10,10 @@ use File::Temp qw/ tempfile /;
 use URI::Escape;
 use Data::Dumper;
 use Socket;
+use Socket6;
 use Digest::MD5 qw/md5_hex/;
 use POSIX ":sys_wait_h";
+use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 
 use IPC::Open3;
 use strict;
@@ -2766,6 +2768,279 @@ sub {
 	$resp eq "abc\n" or die "Second client got \"$resp\", not \"abc\\n\"";
 };
 kill_children;
+
+# expand IPv6
+sub ipv6_expand {
+    local($_) = shift;
+    s/^:/0:/;
+    s/:$/:0/;
+    s/(^|:)([^:]{1,3})(?=:|$)/$1.substr("0000$2", -4)/ge;
+    my $c = tr/:/:/;
+    s/::/":".("0000:" x (8-$c))/e;
+    return $_;
+}
+sub socks5_auth {
+    my ($pid,$code);
+    my $buf="";
+    my @Barray;
+    my $auth_data = shift;
+    my $ipvx = shift;
+    my $dest_addr = shift;
+    my $passed = 0;
+
+    my $username= "";
+    my $passwd= "";
+    my $recv_addr = "";
+    my $recv_port;
+
+    my ($pf,$s_addr);
+
+    local $SIG{CHLD} = sub { };
+    local *SOCK;
+    local *S;
+
+    if ($ipvx eq -4) {
+      $pf = PF_INET;
+      $s_addr = sockaddr_in($PROXY_PORT, INADDR_ANY);
+    } else {
+      $pf = PF_INET6;
+      $s_addr = sockaddr_in6($PROXY_PORT, inet_pton(PF_INET6, "::1"));
+    }
+
+
+    socket(SOCK, $pf, SOCK_STREAM, getprotobyname("tcp")) or die;
+    setsockopt(SOCK, SOL_SOCKET, SO_REUSEADDR, pack("l", 1)) or die;
+    bind(SOCK, $s_addr) or die;
+    listen(SOCK, 1) or die;
+
+    my ($c_pid, $c_out, $c_in) = ncat("--proxy-type", "socks5", "--proxy", "localhost:$PROXY_PORT", @$auth_data, $ipvx, $dest_addr, $PORT);
+
+    accept(S, SOCK) or die "Client not connected";
+    binmode(S);
+    sysread(S, $buf, 10) or die "Connection closed";
+
+    @Barray = map hex($_), unpack("H*", $buf) =~ /(..)/g;
+    die "wrong request format" if scalar(@Barray) < 3;
+    die "wrong protocol version" if $Barray[0] != 5;
+
+    if(scalar(@$auth_data) > 0) {
+        # subnegotiation for authentication
+        for(my $i=2; $i < scalar(@Barray); $i++) {
+            if($Barray[$i] == 2) {
+                $passed = 1;
+            }
+        }
+
+        die "Client did not sent required authentication method x02" if $passed == 0;
+
+
+        send(S, "\x05\x02",0) or die "Send: Connection closed";
+        sysread(S, $buf, $BUFSIZ) or die "Read: Connection closed";
+
+        @Barray = map hex($_), unpack("H*", $buf) =~ /(..)/g;
+        die "wrong request format - small length" if scalar(@Barray) < 5;
+        die "wrong request format - wrong version" if $Barray[0] != 1;
+        die "wrong request format - username legth longer then packet size"
+            if $Barray[1] >= scalar(@Barray);
+
+        # get username
+        for (my $i=2; $i < $Barray[1]+2; $i++) {
+            $username .= chr($Barray[$i]);
+        }
+
+        #get password
+        for (my $i=3+$Barray[1]; $i < scalar(@Barray); $i++) {
+            $passwd .= chr($Barray[$i]);
+        }
+
+        if ($username ne "vasek" or $passwd ne "admin") {
+            send(S, "\x01\x11", 0);
+            # do not close connection - we can check if client try continue
+        } else {
+            send(S, "\x01\x00",0);
+        }
+    } else {
+        # no authentication
+        send(S, "\x05\x00",0) or die "Send: Connection closed";
+
+    }
+
+    sysread(S, $buf, $BUFSIZ) or die "Read: connection closed";
+
+    @Barray = map hex($_), unpack("H*", $buf) =~ /(..)/g;
+    die "wrong request length format" if scalar(@Barray) < 10;
+    die "wrong protocol version after success authentication" if $Barray[0] != 5;
+    die "expected connect cmd" if $Barray[1] != 1;
+
+    if($Barray[3] == 1) {
+        # IPv4
+
+        $recv_addr = $Barray[4] .".". $Barray[5] .".". $Barray[6] .".". $Barray[7];
+        die "received wrong destination IPv4" if $recv_addr ne $dest_addr;
+    }  elsif ($Barray[3] == 4) {
+        #IPv6
+
+        for(my $i=4; $i<20;$i++) {
+            if($i > 4 and $i % 2 == 0) {
+              $recv_addr .= ":";
+            }
+            $recv_addr .= sprintf("%02X",$Barray[$i]);
+        }
+
+        die "received wrong destination IPv6" if $recv_addr ne ipv6_expand($dest_addr);
+    } elsif ($Barray[3] == 3) {
+        # domaint name
+
+        for my $i (@Barray[5..(scalar(@Barray)-3)]) {
+            $recv_addr .= chr($i);
+        }
+        die "received wrong destination domain name" if $recv_addr ne $dest_addr;
+        die "received wrong length of domain name" if length($recv_addr) != $Barray[4];
+    } else {
+      die "unknown ATYP: $Barray[3]";
+    }
+
+    $recv_port = $Barray[-2]*256 + $Barray[-1];
+    die "received wrong destination port" if $recv_port ne $PORT;
+
+    send(S, "\x05\x00\x00\x01\x00\x00\x00\x00\x00\x00", 0);
+
+    # check if connection is still open
+    syswrite($c_in, "abc\n");
+    sysread(S, $buf, 10) or die "Connection closed";
+
+
+    close(S);
+    close(SOCK);
+};
+
+
+test "SOCKS5 client, server require auth username/password (access allowed), IPv4",
+    sub { socks5_auth(["--proxy-auth","vasek:admin"], "-4", "127.0.0.1"); };
+kill_children;
+
+test "SOCKS5 client, server require auth username/password (access allowed), IPv6",
+    sub { socks5_auth(["--proxy-auth","vasek:admin"], "-6", "::1"); };
+kill_children;
+
+test "SOCKS5 client, server require auth username/password (access allowed), domain",
+    sub { socks5_auth(["--proxy-auth","vasek:admin"], "-4", "www.seznam.cz"); };
+kill_children;
+
+test "SOCKS5 client, server allows connection - no auth",
+    sub { socks5_auth([], "-4", "127.0.0.1")};
+kill_children;
+{
+local $xfail = 1;
+    test "SOCKS5 client, server require auth username/password (access denied)",
+        sub { socks5_auth(["--proxy-auth","klara:admin"], "-4", "127.0.0.1"); };
+    kill_children;
+
+    test "SOCKS5 client, server require auth username/password (too long login)",
+        sub { socks5_auth(["--proxy-auth",'monika' x 100 . ':admindd'], "-4", "127.0.0.1");};
+    kill_children;
+}
+
+{
+local $xfail = 1;
+test "SOCKS5 client, server sends short response",
+sub {
+    my ($pid,$code);
+    my $buf="";
+    local $SIG{CHLD} = sub { };
+    local *SOCK;
+    local *S;
+
+    socket(SOCK, PF_INET, SOCK_STREAM, getprotobyname("tcp")) or die;
+    setsockopt(SOCK, SOL_SOCKET, SO_REUSEADDR, pack("l", 1)) or die;
+    bind(SOCK, sockaddr_in($PROXY_PORT, INADDR_ANY)) or die;
+    listen(SOCK, 1) or die;
+
+    my ($c_pid, $c_out, $c_in) = ncat("-4","--proxy-type", "socks5", "--proxy", "$HOST:$PROXY_PORT", "127.0.0.1", $PORT);
+
+    accept(S, SOCK) or die "Client not connected";
+    binmode(S);
+    sysread(S, $buf, 10) or die "Connection closed";
+    # not important received data now,
+    #  when we know that's ok from test above
+
+    # we need O_NONBLOCK for read/write actions else
+    # client block us until we kill process manually
+    fcntl(S, F_SETFL, O_NONBLOCK) or
+        die "Can't set flags for the socket: $!\n";
+    send(S, "\x05", 0) or die "Send: Connection closed";
+
+    sysread(S, $buf, $BUFSIZ) or die "Connection closed";
+
+    close(S);
+    close(SOCK);
+};
+kill_children;
+}
+
+{
+local $xfail = 1;
+test "SOCKS5 client, server sends no acceptable auth method",
+sub {
+    my ($pid,$code);
+    my $buf="";
+    my ($my_addr,$recv_addr,$recv_port);
+
+    local $SIG{CHLD} = sub { };
+    local *SOCK;
+    local *S;
+
+    socket(SOCK, PF_INET, SOCK_STREAM, getprotobyname("tcp")) or die;
+    setsockopt(SOCK, SOL_SOCKET, SO_REUSEADDR, pack("l", 1)) or die;
+    bind(SOCK, sockaddr_in($PROXY_PORT, INADDR_ANY)) or die;
+    listen(SOCK, 1) or die;
+
+    my ($c_pid, $c_out, $c_in) = ncat("-4","--proxy-type", "socks5", "--proxy", "$HOST:$PROXY_PORT", "127.0.0.1", $PORT);
+
+    accept(S, SOCK) or die "Client not connected";
+    binmode(S);
+    sysread(S, $buf, 10) or die "Connection closed";
+
+    send(S, "\x05\xFF",0) or die "Send: Connection closed";
+    sysread(S, $buf, $BUFSIZ) or die "Connection closed";
+
+    close(S);
+    close(SOCK);
+};
+kill_children;
+}
+
+{
+   local $xfail = 1;
+test "SOCKS5 client, server sends unkown code",
+    sub {
+        my ($pid,$code);
+        my $buf="";
+        my ($my_addr,$recv_addr,$recv_port);
+
+        local $SIG{CHLD} = sub { };
+        local *SOCK;
+        local *S;
+
+        socket(SOCK, PF_INET, SOCK_STREAM, getprotobyname("tcp")) or die;
+        setsockopt(SOCK, SOL_SOCKET, SO_REUSEADDR, pack("l", 1)) or die;
+        bind(SOCK, sockaddr_in($PROXY_PORT, INADDR_ANY)) or die;
+        listen(SOCK, 1) or die;
+
+        my ($c_pid, $c_out, $c_in) = ncat("-4","--proxy-type", "socks5", "--proxy", "$HOST:$PROXY_PORT", "127.0.0.1", $PORT);
+
+        accept(S, SOCK) or die "Client not connected";
+        binmode(S);
+        sysread(S, $buf, 10) or die "Connection closed";
+
+        send(S, "\x05\xAA",0) or die "Send: Connection closed";
+        sysread(S, $buf, $BUFSIZ) or die "Connection closed";
+
+        close(S);
+        close(SOCK);
+    };
+    kill_children;
+}
 
 for my $count (0, 1, 10) {
 	max_conns_test_tcp_sctp_ssl("--max-conns $count --keep-open", ["--keep-open"], [], $count);
