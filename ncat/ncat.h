@@ -154,6 +154,8 @@
 #endif
 #endif
 
+#define SOCKS_BUFF_SIZE 512
+
 /* structs */
 
 #ifdef WIN32
@@ -163,8 +165,27 @@ struct socks4_data {
     char version;
     char type;
     unsigned short port;
-    unsigned long address;
-    char username[256];
+    uint32_t address;
+    char data[SOCKS_BUFF_SIZE]; // this has to be able to hold FQDN and username
+} __attribute__((packed));
+
+struct socks5_connect {
+    char ver;
+    char nmethods;
+    char methods[3];
+} __attribute__((packed));
+
+struct socks5_auth {
+  char ver; // must be always 1
+  char data[SOCKS_BUFF_SIZE];
+} __attribute__((packed));
+
+struct socks5_request {
+    char ver;
+    char cmd;
+    char rsv;
+    char atyp;
+    char dst[SOCKS_BUFF_SIZE]; // addr/name and port info
 } __attribute__((packed));
 #ifdef WIN32
 #pragma pack()
@@ -192,6 +213,10 @@ struct socks4_data {
 /* Default port for SOCKS4 */
 #define DEFAULT_SOCKS4_PORT 1080
 
+/* Default port for SOCKS5 */
+#define DEFAULT_SOCKS5_PORT 1080
+
+
 /* The default port Ncat will connect to when trying to connect to an HTTP
  * proxy server.  The current setting is the default for squid and probably
  * other HTTP proxies. But it may also be 8080, 8888, etc.
@@ -217,10 +242,21 @@ struct socks4_data {
 #define SOCKS4_VERSION          4
 #define SOCKS_CONNECT           1
 #define SOCKS_BIND              2
-#define SOCKS_CONN_ACC          90 /* woot */
-#define SOCKS_CONN_REF          91
-#define SOCKS_CONN_IDENT        92
-#define SOCKS_CONN_IDENTDIFF    93
+#define SOCKS4_CONN_ACC         90 /* woot */
+#define SOCKS4_CONN_REF         91
+#define SOCKS4_CONN_IDENT       92
+#define SOCKS4_CONN_IDENTDIFF   93
+
+/* SOCKS5 protocol */
+#define SOCKS5_VERSION          5
+#define SOCKS5_AUTH_NONE        0
+#define SOCKS5_AUTH_GSSAPI      1
+#define SOCKS5_AUTH_USERPASS    2
+#define SOCKS5_AUTH_FAILED      255
+#define SOCKS5_ATYP_IPv4        1
+#define SOCKS5_ATYP_NAME        3
+#define SOCKS5_ATYP_IPv6        4
+
 
 /* Length of IPv6 address */
 #ifndef INET6_ADDRSTRLEN

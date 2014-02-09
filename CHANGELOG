@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Added support for socks5 and corresponding regression tests.
+  [Marek Lucaszuk, Petr Stodulka]
+
 o [NSE] Add http-ntlm-info script for getting server information from Web
   servers that require NTLM authentication. [Justin Cacak]
 
