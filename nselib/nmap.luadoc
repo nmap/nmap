@@ -608,6 +608,7 @@ function receive_bytes(n)
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
 -- @see new_socket
+-- @see match
 -- @usage local status, line = socket:receive_buf("\r?\n", false)
 function receive_buf(delimiter, keeppattern)
 
