@@ -18,14 +18,10 @@
 --
 --   o Comm
 --    - Implements a number of functions to handle communication over the
---        the Socket class.
+--        the socket.
 --
 --   o Helper
 --    - A helper class that provides easy access to the rest of the library
---
---   o Socket
---    - This is a copy of the DB2Socket class which provides fundamental
---      buffering
 --
 --
 -- Example
@@ -58,6 +54,7 @@
 --
 
 local bin = require "bin"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -129,7 +126,7 @@ Packet.GIOP = {
   -- @return status true on success, false on failure
   -- @return err containing the error message if status is false
   recv = function( self, socket )
-    local status, data = socket:recv( 12 )
+    local status, data = socket:receive_buf(match.numbytes(12), true)
     local pos
 
     if ( not(status) ) then return false, "Failed to read Packet.GIOP" end
@@ -139,7 +136,7 @@ Packet.GIOP = {
 
     pos, self.size = bin.unpack( ( self.byte_order == 0 and ">" or "<") .. "I", data, pos )
 
-    status, data = socket:recv( self.size )
+    status, data = socket:receive_buf(match.numbytes(self.size), true)
     if ( not(status) ) then return false, "Failed to read Packet.GIOP" end
 
     self.data = data
@@ -420,80 +417,6 @@ Packet.GIOP.list =
 
 }
 
--- A socket implementation that provides fundamental buffering and allows for
--- reading of an exact number of bytes, instead of atleast ...
-Socket =
-{
-  new = function(self, socket)
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = socket or nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-  getSrcIp = function( self )
-    local status, lhost, _, _, _ = self.Socket:get_info()
-    if (not(status)) then return false, "Error failed to get socket information" end
-    return true, lhost
-  end,
-
-  --- Establishes a connection.
-  --
-  -- @param hostid Hostname or IP address.
-  -- @param port Port number.
-  -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  connect = function( self, hostid, port, protocol )
-    local status = self.Socket:set_timeout(10000)
-    return self.Socket:connect( hostid, port, protocol )
-  end,
-
-  --- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    return self.Socket:close()
-  end,
-
-  --- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  --         err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) or #data < count - #self.Buffer ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  --- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
-  end,
-}
-
 -- Static class containing various message decoders
 MessageDecoder = {
 
@@ -624,7 +547,7 @@ Helper = {
     self.__index = self
     o.host = host
     o.port = port
-    o.socket = Socket:new()
+    o.socket = nmap.new_socket()
     return o
   end,
 
@@ -674,14 +597,15 @@ Helper = {
   -- @return true on success, false on failure
   -- @return err containing error message when status is false
   Connect = function( self )
+    self.socket:set_timeout(10000)
     local status, data = self.socket:connect( self.host.ip, self.port.number, "tcp" )
     if( not(status) ) then return status, data end
     self.comm = Comm:new( self.socket )
 
-    status, self.lhost = self.socket:getSrcIp()
+    status, self.lhost = self.socket:get_info()
     if ( not(status) ) then
       self.socket:close()
-      return false, self.lhost
+      return false, "Error failed to get socket information"
     end
 
     return true

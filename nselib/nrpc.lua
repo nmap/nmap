@@ -16,11 +16,6 @@
 --   o Helper
 --    - A helper class that provides easy access to the rest of the library
 --
---   o DominoSocket
---      - This is a copy of the DB2Socket class which provides fundamental
---        buffering
---
---
 -- Example
 -- -------
 -- The following sample code illustrates how scripts can use the Helper class
@@ -44,6 +39,7 @@
 
 
 local bin = require "bin"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 _ENV = stdnse.module("nrpc", stdnse.seeall)
@@ -63,16 +59,16 @@ DominoPacket = {
     return o
   end,
 
-  --- Reads a packet from the DominoSocket
+  --- Reads a packet from the socket
   --
-  -- @param domsock DominoSocket connected to the server
+  -- @param domsock socket connected to the server
   -- @return Status (true or false).
   -- @return Error code (if status is false).
   read = function( self, domsock )
-    local status, data = domsock:recv(2)
+    local status, data = domsock:receive_buf(match.numbytes(2), true)
     local pos, len = bin.unpack( "<S", data )
 
-    return domsock:recv( len )
+    return domsock:receive_buf(match.numbytes(len), true)
   end,
 
   --- converts the packet to a string
@@ -80,73 +76,6 @@ DominoPacket = {
     return bin.pack("<SA", #self.data, self.data )
   end,
 
-}
-
-DominoSocket =
-{
-
-  new = function(self)
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-  --- Establishes a connection.
-  --
-  -- @param hostid Hostname or IP address.
-  -- @param port Port number.
-  -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  connect = function( self, hostid, port, protocol )
-    self.Socket:set_timeout(5000)
-    return self.Socket:connect( hostid, port, protocol )
-  end,
-
-  --- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    return self.Socket:close()
-  end,
-
-  --- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  --         err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) or #data < count - #self.Buffer ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  --- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
-  end,
 }
 
 Helper = {
@@ -161,7 +90,7 @@ Helper = {
     self.__index = self
     o.host = host
     o.port = port
-    o.domsock = DominoSocket:new()
+    o.domsock = nmap.new_socket()
     return o
   end,
 
@@ -170,6 +99,7 @@ Helper = {
   -- @return status true on success, false on failure
   -- @return err error message if status is false
   connect = function( self )
+    self.domsock:set_timeout(5000)
     if( not( self.domsock:connect( self.host.ip, self.port.number, "tcp" ) ) ) then
       return false, ("ERROR: Failed to connect to Domino server %s:%d\n"):format(self.host, self.port)
     end

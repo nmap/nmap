@@ -5,6 +5,7 @@
 --
 
 local bin = require "bin"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -164,82 +165,6 @@ Response = {
 
 }
 
--- A buffered socket implementation
-Socket =
-{
-  retries = 3,
-
-  -- Creates a new socket instance
-  -- @param host table containing the host table
-  -- @param port table containing the port table
-  -- @param options table containing options, currenlty supports:
-  --        <code>timeout</code> - socket timeout in ms
-  -- @return o new instance of Socket
-  new = function(self, host, port, options)
-    local o = {
-      host = host,
-      port = port,
-      options = options or {}
-    }
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-  -- Connects the socket to the server
-  -- @return status true on success false on failure
-  -- @return err string containing error message on failure
-  connect = function( self )
-    self.Socket:set_timeout(self.options.timeout or 10000)
-    return self.Socket:connect( self.host, self.port )
-  end,
-
-  -- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    return self.Socket:close()
-  end,
-
-  -- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  --         err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) or #data < count - #self.Buffer ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  -- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
-  end,
-}
-
-
 -- The main script interface
 Helper = {
 
@@ -250,6 +175,7 @@ Helper = {
   --        <code>timeout</code> - socket timeout in ms
   -- @return o instance of Helper
   new = function(self, host, port, options)
+    options = options or {}
     local o = { host = host, port = port, options = options }
     setmetatable(o, self)
     self.__index = self
@@ -273,8 +199,9 @@ Helper = {
   -- @return status true on success, false on failure
   -- @return response table containing the respons or err string on failure
   connect = function(self, auth_method)
-    self.socket = Socket:new(self.host, self.port, self.options)
-    local status, err = self.socket:connect()
+    self.socket = nmap.new_socket()
+    self.socket:set_timeout(self.options.timeout or 10000)
+    local status, err = self.socket:connect(self.host, self.port)
     if ( not(status) ) then
       return status, err
     end
@@ -286,7 +213,7 @@ Helper = {
       return false, "Failed to send connection request to server"
     end
 
-    local status, data = self.socket:recv(2)
+    local status, data = self.socket:receive_buf(match.numbytes(2), true)
     if ( not(status) ) then
       self.socket:close()
       return false, "Failed to receive connection response from server"
@@ -332,7 +259,7 @@ Helper = {
     end
 
     if ( 2 == self.auth_method ) then
-      local status, data = self.socket:recv(2)
+      local status, data = self.socket:receive_buf(match.numbytes(2), true)
       local auth = Response.Authenticate:new(data)
 
       if ( not(auth) ) then

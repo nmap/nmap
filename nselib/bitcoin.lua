@@ -16,8 +16,6 @@
 --     o Addr    - The server address packet
 --     o Inv     - The server inventory packet
 --
--- * BCSocket - A buffering socket class
---
 -- * Helper - The primary interface to scripts
 --
 --@author Patrik Karlsson <patrik@cqure.net>
@@ -34,6 +32,7 @@
 
 local bin = require "bin"
 local ipOps = require "ipOps"
+local match = require "match"
 local nmap = require "nmap"
 local os = require "os"
 local stdnse = require "stdnse"
@@ -371,13 +370,13 @@ Response = {
   },
 
   -- Receives the packet and decodes it
-  -- @param socket BCSocket instance
+  -- @param socket socket connected to the server
   -- @param version number containing the server version
   -- @return status true on success, false on failure
   -- @return response instance of response packet if status is true
   --         err string containing the error message if status is false
   recvPacket = function(socket, version)
-    local status, header = socket:recv(24)
+    local status, header = socket:receive_buf(match.numbytes(24), true)
     if ( not(status) ) then
       return false, "Failed to read the packet header"
     end
@@ -387,7 +386,7 @@ Response = {
 
     -- the verack has no payload
     if ( 0 ~= len ) then
-      status, data = socket:recv(len)
+      status, data = socket:receive_buf(match.numbytes(len), true)
       if ( not(status) ) then
         return false, "Failed to read the packet header"
       end
@@ -442,82 +441,6 @@ Util = {
 
 }
 
--- A buffered socket implementation
-BCSocket =
-{
-  retries = 3,
-
-  -- Creates a new BCSocket instance
-  -- @param host table as received by the action method
-  -- @param port table as received by the action method
-  -- @param options table containing additional options
-  --    <code>timeout</code> - the socket timeout in ms
-  -- @return instance of BCSocket
-  new = function(self, host, port, options)
-    local o = {
-      host = host,
-      port = port,
-      timeout = "table" == type(options) and options.timeout or 10000
-    }
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-  --- Establishes a connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  connect = function( self )
-    self.Socket:set_timeout( self.timeout )
-    return self.Socket:connect( self.host, self.port )
-  end,
-
-  --- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    return self.Socket:close()
-  end,
-
-  --- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  -- 		   err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) or #data < count - #self.Buffer ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  --- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
-  end,
-}
-
 -- The Helper class used as a primary interface to scripts
 Helper = {
 
@@ -531,7 +454,7 @@ Helper = {
     local o = {
       host = host,
       port = port,
-      options = options
+      options = options or {}
     }
     setmetatable(o, self)
     self.__index = self
@@ -542,13 +465,14 @@ Helper = {
   -- @return status true on success false on failure
   -- @return err string containing the error message in case status is false
   connect = function(self)
-    self.socket = BCSocket:new(self.host, self.port, self.options)
-    local status, err = self.socket:connect()
+    self.socket = nmap.new_socket()
+    self.socket:set_timeout(self.options.timeout or 10000)
+    local status, err = self.socket:connect(self.host, self.port)
 
     if ( not(status) ) then
       return false, err
     end
-    status, self.lhost, self.lport = self.socket.Socket:get_info()
+    status, self.lhost, self.lport = self.socket:get_info()
     return status, (status and nil or self.lhost)
   end,
 
