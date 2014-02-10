@@ -29,6 +29,20 @@ local table = require "table"
 _ENV = stdnse.module("dnsbl", stdnse.seeall)
 
 
+-- Creates a new Service instance
+-- @param ip host that needs to be checked
+-- @param mode string (short|long) specifying whether short or long
+--        results are to be returned
+-- @param config service configuration in case this service provider
+--        needs user supplied configuration
+-- @return o instance of Helper
+local function service_new (self, ip, mode, config)
+  local o = { ip = ip, mode = mode, config = config }
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
 -- The services table contains a list of valid DNSBL providers
 -- Providers are categorized in categories that should contain services that
 -- do DNS blacklist checks for that particular category.
@@ -80,19 +94,7 @@ SERVICES = {
         ["short"] = "A",
         ["long"] = "TXT",
       },
-      -- Creates a new Service instance
-      -- @param ip host that needs to be checked
-      -- @param mode string (short|long) specifying whether short or long
-      --        results are to be returned
-      -- @param config service configuration in case this service provider
-      --        needs user supplied configuration
-      -- @return o instance of Helper
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       -- Sample fmt_query function, if no function is specified, the library
       -- will assume that the IP should be reversed add suffixed with the
       -- service name.
@@ -118,24 +120,14 @@ SERVICES = {
       ns_type = {
         ["short"] = "A"
       },
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         return ( r[1] == "127.0.0.6" and { state = "SPAM" } )
       end,
     },
 
     ["bl.nszones.com"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.2"] = "SPAM",
@@ -146,12 +138,7 @@ SERVICES = {
     },
 
     ["all.spamrats.com"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.36"] = "DYNAMIC",
@@ -162,12 +149,7 @@ SERVICES = {
     },
 
     ["list.quorum.to"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         -- this service appears to return 127.0.0.0 when the service is
         -- "blocked because it has never been seen to send mail".
@@ -178,12 +160,7 @@ SERVICES = {
     },
 
     ["sbl.spamhaus.org"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.2"] = "SPAM",
@@ -194,12 +171,7 @@ SERVICES = {
     },
 
     ["bl.spamcop.net"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.2"] = "SPAM",
@@ -209,12 +181,7 @@ SERVICES = {
     },
 
     ["dnsbl.ahbl.org"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.4"] = "SPAM",
@@ -228,12 +195,7 @@ SERVICES = {
     },
 
     ["l2.apews.org"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.2"] = "SPAM",
@@ -247,12 +209,7 @@ SERVICES = {
   PROXY = {
 
     ["dnsbl.tornevall.org"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         if ( "short" == self.mode and r[1] ) then
           return { state = "PROXY" }
@@ -286,12 +243,7 @@ SERVICES = {
         ["port"] = "the port to which the target can relay to",
         ["ip"] = "the IP address to which the target can relay to"
       },
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       fmt_query = function(self)
         if ( not(self.config.port) or not(self.config.ip) ) then
           return
@@ -314,12 +266,7 @@ SERVICES = {
         ["short"] = "A",
         ["long"] = "TXT",
       },
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.100"] = "PROXY",
@@ -366,12 +313,7 @@ SERVICES = {
     },
 
     ["dnsbl.ahbl.org"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.3"] = "PROXY",
@@ -381,12 +323,7 @@ SERVICES = {
     },
 
     ["http.dnsbl.sorbs.net"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.2"] = "PROXY",
@@ -396,12 +333,7 @@ SERVICES = {
     },
 
     ["socks.dnsbl.sorbs.net"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.3"] = "PROXY",
@@ -411,12 +343,7 @@ SERVICES = {
     },
 
     ["misc.dnsbl.sorbs.net"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.4"] = "PROXY",
@@ -432,12 +359,7 @@ SERVICES = {
       configuration = {
         ["apikey"] = "the http:BL API key"
       },
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       fmt_query = function(self)
         if ( not(self.config.apikey) ) then
           return
@@ -522,12 +444,7 @@ SERVICES = {
     },
 
     ["all.bl.blocklist.de"] = {
-      new = function(self, ip, mode, config)
-        local o = { ip = ip, mode = mode, config = config }
-        setmetatable(o, self)
-        self.__index = self
-        return o
-      end,
+      new = service_new,
       resp_parser = function(self, r)
         local responses = {
           ["127.0.0.2"] = "Amavis",
