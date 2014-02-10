@@ -13,8 +13,6 @@
 --  o AMQP
 --    - This class contains the core functions needed to communicate with AMQP
 --
---  o AMQPSocket
---    - This is a copy of the VNCSocket class.
 
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Sebastian Dragomir <velorien@gmail.com>"
@@ -24,6 +22,7 @@
 -- Created 05/04/2011 - v0.1 - created by Sebastian Dragomir <velorien@gmail.com>
 
 local bin = require "bin"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
@@ -52,7 +51,7 @@ AMQP = {
     self.__index = self
     o.host = host
     o.port = port
-    o.amqpsocket = AMQPSocket:new()
+    o.amqpsocket = nmap.new_socket()
     o.cli_version = self.client_version_strings[nmap.registry.args['amqp.version']] or self.client_version_strings["0-9-1"]
     o.protover = nil
     o.server_version = nil
@@ -88,27 +87,27 @@ AMQP = {
     while read < tsize do
       local key, value
 
-      status, tmp = self.amqpsocket:recv( 1 )
+      status, tmp = self.amqpsocket:receive_buf(match.numbytes(1), true)
       if ( not(status) ) then
         return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading key length", nil
       end
       read = read + 1
 
       tmp = select( 2, bin.unpack("C", tmp) )
-      status, key = self.amqpsocket:recv( tmp )
+      status, key = self.amqpsocket:receive_buf(match.numbytes(tmp), true)
       if ( not(status) ) then
         return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading key", nil
       end
       read = read + tmp
 
-      status, tmp = self.amqpsocket:recv( 1 )
+      status, tmp = self.amqpsocket:receive_buf(match.numbytes(1), true)
       if ( not(status) ) then
         return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading value type for " .. key, nil
       end
       read = read + 1
 
       if ( tmp == 'F' ) then -- table type
-        status, tmp = self.amqpsocket:recv( 4 )
+        status, tmp = self.amqpsocket:receive_buf(match.numbytes(4), true)
         if ( not(status) ) then
           return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading table size", nil
         end
@@ -152,14 +151,14 @@ AMQP = {
   -- @return number of bytes read after decoding this value
   decodeString = function(self, key, read)
     local value, status, tmp
-    status, tmp = self.amqpsocket:recv( 4 )
+    status, tmp = self.amqpsocket:receive_buf(match.numbytes(4), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading value size for " .. key, nil, 0
     end
 
     read = read + 4
     tmp = select( 2, bin.unpack(">I", tmp) )
-    status, value = self.amqpsocket:recv( tmp )
+    status, value = self.amqpsocket:receive_buf(match.numbytes(tmp), true)
 
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading value for " .. key, nil, 0
@@ -179,7 +178,7 @@ AMQP = {
   -- @return number of bytes read after decoding this value
   decodeBoolean = function(self, key, read)
     local status, value
-    status, value = self.amqpsocket:recv( 1 )
+    status, value = self.amqpsocket:receive_buf(match.numbytes(1), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading value for " .. key, nil, 0
     end
@@ -204,7 +203,7 @@ AMQP = {
       return false, "ERROR: AMQP:handshake failed while sending client version"
     end
 
-    status, tmp = self.amqpsocket:recv( 11 )
+    status, tmp = self.amqpsocket:receive_buf(match.numbytes(11), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading frame header"
     end
@@ -261,7 +260,7 @@ AMQP = {
     end
 
     -- parse protocol version
-    status, tmp = self.amqpsocket:recv( 2 )
+    status, tmp = self.amqpsocket:receive_buf(match.num_bytes(2), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading version"
     end
@@ -273,7 +272,7 @@ AMQP = {
     end
 
     -- parse server properties
-    status, tmp = self.amqpsocket:recv( 4 )
+    status, tmp = self.amqpsocket:receive_buf(match.numbytes(4), true)
     if ( not(status) ) then
       return status, "ERROR: AMQP:handshake connection closed unexpectedly while reading server properties size"
     end
@@ -329,74 +328,6 @@ AMQP = {
   -- @return table containing server properties
   getServerProperties = function( self )
     return self.server_properties
-  end,
-}
-
-AMQPSocket =
-{
-  retries = 3,
-
-  new = function(self)
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-  --- Establishes a connection.
-  --
-  -- @param hostid Hostname or IP address.
-  -- @param port Port number.
-  -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  connect = function( self, hostid, port, protocol )
-    return self.Socket:connect( hostid, port, protocol )
-  end,
-
-  --- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    self.Buffer = nil
-    return self.Socket:close()
-  end,
-
-  --- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  --         err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  --- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
   end,
 }
 

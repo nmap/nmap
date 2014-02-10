@@ -23,14 +23,10 @@
 --
 --  o Comm
 --    - Implements a number of functions to handle communication over the
---        the Socket class.
+--        the socket.
 --
 --  o Helper
 --    - A helper class that provides easy access to the rest of the library
---
---   o Socket
---      - This is a copy of the DB2Socket class which provides fundamental
---        buffering
 --
 -- In addition the library contains the following tables with decoder functions
 --
@@ -77,6 +73,7 @@
 
 local bin = require "bin"
 local nmap = require "nmap"
+local match = require "match"
 local stdnse = require "stdnse"
 local table = require "table"
 _ENV = stdnse.module("informix", stdnse.seeall)
@@ -130,76 +127,6 @@ Constants =
     [-9628] = "Type (%s) not found.",
     [-23101] = "Unable to load locale categories.",
   }
-}
-
--- A socket implementation that provides fundamental buffering and allows for
--- reading of an exact number of bytes, instead of atleast ...
-Socket =
-{
-  new = function(self, socket)
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = socket or nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-
-  --- Establishes a connection.
-  --
-  -- @param hostid Hostname or IP address.
-  -- @param port Port number.
-  -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  connect = function( self, hostid, port, protocol )
-    -- Some Informix server seem to take a LOT of time to respond?!
-    local status = self.Socket:set_timeout(20000)
-    return self.Socket:connect( hostid, port, protocol )
-  end,
-
-  --- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    return self.Socket:close()
-  end,
-
-  --- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  --         err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) or #data < count - #self.Buffer ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  --- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
-  end,
 }
 
 -- The ColMetaData class
@@ -387,7 +314,7 @@ MessageDecoders = {
   -- @return errmsg, Informix error message or decoding error message if
   --         status is false
   [Constants.Message.SQ_ERR] = function( socket )
-    local status, data = socket:recv(8)
+    local status, data = socket:receive_buf(match.numbytes(8), true)
     local _, svcerr, oserr, errmsg, str, len, pos
 
     if( not(status) ) then return false, "Failed to decode error response" end
@@ -395,12 +322,12 @@ MessageDecoders = {
     pos, svcerr, oserr, _, len = bin.unpack(">ssss", data )
 
     if( len and len > 0 ) then
-      status, data = socket:recv(len)
+      status, data = socket:receive_buf(match.numbytes(len), true)
       if( not(status) ) then return false, "Failed to decode error response" end
       _, str = bin.unpack("A" .. len, data)
     end
 
-    status, data = socket:recv(2)
+    status, data = socket:receive_buf(match.numbytes(2), true)
 
     errmsg = Constants.ErrorMsg[svcerr]
     if ( errmsg and str ) then
@@ -418,12 +345,12 @@ MessageDecoders = {
     local status, data
     local len, _
 
-    status, data = socket:recv(2)
+    status, data = socket:receive_buf(match.numbytes(2), true)
     if( not(status) ) then return false, "Failed to decode SQ_PROTOCOLS response" end
     _, len = bin.unpack(">S", data )
 
     -- read the remaining data
-    return socket:recv(len + 2)
+    return socket:receive_buf(match.numbytes(len + 2), true)
   end,
 
   --- Decodes the SQ_EOT message
@@ -439,7 +366,7 @@ MessageDecoders = {
   -- @return status true on success, false on failure
   -- @return err error message if status is false
   [Constants.Message.SQ_DONE] = function( socket )
-    local status, data = socket:recv(2)
+    local status, data = socket:receive_buf(match.numbytes(2), true)
     local _, len, tmp
     if( not(status) ) then return false, "Failed to decode SQ_DONE response" end
     _, len = bin.unpack(">S", data )
@@ -447,9 +374,9 @@ MessageDecoders = {
     -- For some *@#! reason the SQ_DONE packet sometimes contains an
     -- length exeeding the length of the packet by one. Attempt to
     -- detect this and fix.
-    status, data = socket:recv( len )
+    status, data = socket:receive_buf(match.numbytes(len), true)
     _, tmp = bin.unpack(">S", data, len - 2)
-    return socket:recv( (tmp == 0) and 3 or 4 )
+    return socket:receive_buf(match.numbytes((tmp == 0) and 3 or 4), true)
   end,
 
   --- Decodes the metadata for a result set
@@ -458,7 +385,7 @@ MessageDecoders = {
   -- @return status true on success, false on failure
   -- @return column_meta table containing the metadata
   [Constants.Message.SQ_DESCRIBE] = function( socket )
-    local status, data = socket:recv(14)
+    local status, data = socket:receive_buf(match.numbytes(14), true)
     local pos, cols, col_type, col_name, col_len, col_md, stmt_id
     local coldesc_len, x
     local column_meta = {}
@@ -470,33 +397,33 @@ MessageDecoders = {
     if ( cols <= 0 ) then
       -- We can end up here if we executed a CREATE, UPDATE OR INSERT statement
       local tmp
-      status, data = socket:recv(2)
+      status, data = socket:receive_buf(match.numbytes(2), true)
       if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 
       pos, tmp = bin.unpack(">S", data)
 
       -- This was the result of a CREATE or UPDATE statement
       if ( tmp == 0x0f ) then
-        status, data = socket:recv(26)
+        status, data = socket:receive_buf(match.numbytes(26), true)
       -- This was the result of a INSERT statement
       elseif( tmp == 0x5e ) then
-        status, data = socket:recv(46)
+        status, data = socket:receive_buf(match.numbytes(46), true)
       end
       return true
     end
 
-    status, data = socket:recv(6)
+    status, data = socket:receive_buf(match.numbytes(6), true)
     if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 
     for i=1, cols do
 
-      status, data = socket:recv(2)
+      status, data = socket:receive_buf(match.numbytes(2), true)
       if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
       pos, col_type = bin.unpack("C", data, 2)
 
       if ( MetaDataDecoders[col_type] ) then
 
-        status, data = socket:recv(20)
+        status, data = socket:receive_buf(match.numbytes(20), true)
         if( not(status) ) then
           return false, "Failed to read column meta data"
         end
@@ -510,7 +437,7 @@ MessageDecoders = {
       end
 
       if ( i<cols ) then
-        status, data = socket:recv(6)
+        status, data = socket:receive_buf(match.numbytes(6), true)
         if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
       end
 
@@ -518,7 +445,7 @@ MessageDecoders = {
       table.insert( column_meta, col_md )
     end
 
-    status, data = socket:recv( ( coldesc_len % 2 ) == 0 and coldesc_len or coldesc_len + 1 )
+    status, data = socket:receive_buf(match.numbytes(( coldesc_len % 2 ) == 0 and coldesc_len or coldesc_len + 1), true)
     if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
     pos = 1
 
@@ -528,14 +455,14 @@ MessageDecoders = {
       column_meta[i]:setName( col_name )
     end
 
-    status, data = socket:recv(2)
+    status, data = socket:receive_buf(match.numbytes(2), true)
     if( not(status) ) then return false, "Failed to decode SQ_DESCRIBE response" end
 
     pos, data = bin.unpack(">S", data)
     if( data == Constants.Message.SQ_DONE ) then
-      status, data = socket:recv(26)
+      status, data = socket:receive_buf(match.numbytes(26), true)
     else
-      status, data = socket:recv(10)
+      status, data = socket:receive_buf(match.numbytes(10), true)
     end
     return true, { metadata = column_meta, stmt_id = stmt_id }
   end,
@@ -561,11 +488,11 @@ MessageDecoders = {
     while (true) do
       local pos = 1
 
-      status, data = socket:recv(6)
+      status, data = socket:receive_buf(match.numbytes(6), true)
       if( not(status) ) then return false, "Failed to read column data" end
 
       local _, total_len = bin.unpack(">I", data, 3)
-      status, data = socket:recv( ( total_len % 2 == 0 ) and total_len or total_len + 1)
+      status, data = socket:receive_buf(match.numbytes(( total_len % 2 == 0 ) and total_len or total_len + 1), true)
       if( not(status) ) then return false, "Failed to read column data" end
 
       row = {}
@@ -581,7 +508,7 @@ MessageDecoders = {
         table.insert( row, val )
       end
 
-      status, data = socket:recv(2)
+      status, data = socket:receive_buf(match.numbytes(2), true)
 
       local _, flags = bin.unpack(">S", data)
 
@@ -598,7 +525,7 @@ MessageDecoders = {
         local status, tmp = socket:send( tostring(Packet.SQ_ID:new( info.id, nil, "continue" ) ) )
         local pkt_type
 
-        status, tmp = socket:recv( 2 )
+        status, tmp = socket:receive_buf(match.numbytes(2), true)
         pos, pkt_type = bin.unpack(">S", tmp)
 
         return MessageDecoders[pkt_type]( socket, info )
@@ -607,12 +534,12 @@ MessageDecoders = {
     end
 
     -- read the remaining data
-    status, data = socket:recv( 26 )
+    status, data = socket:receive_buf(match.numbytes(26), true)
     if( not(status) ) then return false, "Failed to read column data" end
 
     -- signal finnish reading
     status, data = socket:send( tostring(Packet.SQ_ID:new( info.id, nil, "end" ) ) )
-    status, data = socket:recv( 2 )
+    status, data = socket:receive_buf(match.numbytes(2), true)
 
     return true, info
 
@@ -629,32 +556,32 @@ MessageDecoders = {
     local databases = {}
 
     while( true ) do
-      status, data = socket:recv(2)
+      status, data = socket:receive_buf(match.numbytes(2), true)
       if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
 
       pos, len = bin.unpack(">S", data)
       if ( 0 == len ) then break end
 
-      status, data = socket:recv(len)
+      status, data = socket:receive_buf(match.numbytes(len), true)
       if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
 
       pos, db = bin.unpack("A" .. len, data )
       table.insert( databases, db )
 
       if ( len %2 == 1 ) then
-        socket:recv(1)
+        socket:receive_buf(match.numbytes(1), true)
         if ( not(status) ) then return false, "Failed to parse SQ_DBLIST response" end
       end
     end
 
     -- read SQ_EOT
-    status, data = socket:recv(2)
+    status, data = socket:receive_buf(match.numbytes(2), true)
 
     return true, databases
   end,
 
   [Constants.Message.SQ_EXIT] = function( socket )
-    local status, data = socket:recv(2)
+    local status, data = socket:receive_buf(match.numbytes(2), true)
     if ( not(status) ) then return false, "Failed to parse SQ_EXIT response" end
 
     return true
@@ -1084,12 +1011,12 @@ Packet.Connect = {
   -- @return status true on success, false on failure
   -- @return err msg if status is false
   readResponse = function( self, socket )
-    local status, data = socket:recv( 2 )
+    local status, data = socket:receive_buf(match.numbytes(2), true)
     local len, pos, tmp
 
     if ( not(status) ) then return false, data end
     pos, len = bin.unpack(">S", data)
-    status, data = socket:recv( len - 2 )
+    status, data = socket:receive_buf(match.numbytes(len - 2), true)
     if ( not(status) ) then return false, data end
 
     pos = 13
@@ -1218,7 +1145,7 @@ Comm =
     local status, data = self.socket:send( tostring(packet) )
     if ( not(status) ) then return false, data end
 
-    status, data = self.socket:recv( 2 )
+    status, data = self.socket:receive_buf(match.numbytes(2), true)
     _, typ = bin.unpack(">S", data)
 
     if ( MessageDecoders[typ] ) then
@@ -1249,7 +1176,7 @@ Helper = {
     self.__index = self
     o.host = host
     o.port = port
-    o.socket = Socket:new()
+    o.socket = nmap.new_socket()
     o.instance = instance or "nmap_probe"
     return o
   end,
@@ -1262,6 +1189,8 @@ Helper = {
     local status, data
     local conn, packet
 
+    -- Some Informix server seem to take a LOT of time to respond?!
+    self.socket:set_timeout(20000)
     status, data = self.socket:connect( self.host.ip, self.port.number, "tcp" )
 
     if( not(status) ) then

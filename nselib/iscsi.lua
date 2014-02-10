@@ -18,8 +18,6 @@
 -- * <code>Comm</code>
 -- ** A class used to send and receive packet between the library and server
 -- ** The class handles some of the packet "counting" and value updating
--- * <code>Socket</code>
--- ** A buffered socket class that allows reading of exakt number of bytes
 -- * <code>KVP</code>
 -- ** A key/value pair class that holds key value pairs
 -- * <code>Helper</code>
@@ -39,6 +37,7 @@
 local bin = require "bin"
 local bit = require "bit"
 local ipOps = require "ipOps"
+local match = require "match"
 local nmap = require "nmap"
 local stdnse = require "stdnse"
 local openssl = stdnse.silent_require "openssl"
@@ -202,7 +201,7 @@ Packet = {
     -- @return status true on success, false on failure
     -- @return resp instance of LoginResponse
     fromSocket = function( s )
-      local status, header = s:recv(48)
+      local status, header = s:receive_buf(match.numbytes(48), true)
 
       if ( not(status) ) then
         return false, "Failed to read header from socket"
@@ -218,7 +217,7 @@ Packet = {
       local pad = ( 4 - ( resp.data_seg_len % 4 ) )
       pad = ( pad == 4 ) and 0 or pad
 
-      local status, data = s:recv( resp.data_seg_len + pad )
+      local status, data = s:receive_buf(match.numbytes(resp.data_seg_len + pad), true)
       if ( not(status) ) then
         return false, "Failed to read data from socket"
       end
@@ -308,7 +307,7 @@ Packet = {
       local textdata = ""
 
       repeat
-        local status, header = s:recv(48)
+        local status, header = s:receive_buf(match.numbytes(48), true)
         local pos, _, flags, _, _, len = bin.unpack(">CCCCI", header)
         local cont = ( bit.band(flags, 0x40) == 0x40 )
 
@@ -316,7 +315,7 @@ Packet = {
         resp.data_seg_len = bit.band(len, 0x00ffffff)
 
         local data
-        status, data = s:recv( resp.data_seg_len )
+        status, data = s:receive_buf(match.numbytes(resp.data_seg_len), true)
 
         textdata = textdata .. data
 
@@ -415,7 +414,7 @@ Packet = {
     --         err string containing error message
     fromSocket = function( s )
       local resp = Packet.LogoutResponse:new()
-      local status, header = s:recv(48)
+      local status, header = s:receive_buf(match.numbytes(48), true)
       if ( not(status) ) then return status, header end
       return true, resp
     end
@@ -467,78 +466,6 @@ Comm = {
   end,
 
 
-}
-
---- A buffered socket implementation
-Socket =
-{
-
-  --- Creates a new instance of Socket
-  --
-  -- @return instance of Socket
-  new = function(self)
-    local o = {}
-    setmetatable(o, self)
-    self.__index = self
-    o.Socket = nmap.new_socket()
-    o.Buffer = nil
-    return o
-  end,
-
-
-  --- Establishes a connection.
-  --
-  -- @param hostid Hostname or IP address.
-  -- @param port Port number.
-  -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  connect = function( self, hostid, port, protocol )
-    self.Socket:set_timeout(10000)
-    return self.Socket:connect( hostid, port, protocol )
-  end,
-
-  --- Closes an open connection.
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  close = function( self )
-    return self.Socket:close()
-  end,
-
-  --- Opposed to the <code>socket:receive_bytes</code> function, that returns
-  -- at least x bytes, this function returns the amount of bytes requested.
-  --
-  -- @param count of bytes to read
-  -- @return true on success, false on failure
-  -- @return data containing bytes read from the socket
-  --         err containing error message if status is false
-  recv = function( self, count )
-    local status, data
-
-    self.Buffer = self.Buffer or ""
-
-    if ( #self.Buffer < count ) then
-      status, data = self.Socket:receive_bytes( count - #self.Buffer )
-      if ( not(status) or #data < count - #self.Buffer ) then
-        return false, data
-      end
-      self.Buffer = self.Buffer .. data
-    end
-
-    data = self.Buffer:sub( 1, count )
-    self.Buffer = self.Buffer:sub( count + 1)
-
-    return true, data
-  end,
-
-  --- Sends data over the socket
-  --
-  -- @return Status (true or false).
-  -- @return Error code (if status is false).
-  send = function( self, data )
-    return self.Socket:send( data )
-  end,
 }
 
 --- Key/Value pairs class
@@ -623,7 +550,7 @@ Helper = {
     setmetatable(o, self)
     self.__index = self
     o.host, o.port = host, port
-    o.socket = Socket:new()
+    o.socket = nmap.new_socket()
     return o
   end,
 
@@ -632,6 +559,7 @@ Helper = {
   -- @return status true on success, false on failure
   -- @return err string containing error message is status is false
   connect = function( self )
+    self.socket:set_timeout(10000)
     local status, err = self.socket:connect(self.host, self.port, "tcp")
     if ( not(status) ) then return false, err end
 
