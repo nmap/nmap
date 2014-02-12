@@ -615,7 +615,11 @@ static int do_proxy_socks5(void)
     unsigned short proxyport = htons(o.portno);
     char socksbuf[8];
     int sd,len,lenfqdn;
-
+    struct socks5_request socks5msg2;
+    struct socks5_auth socks5auth;
+    char *proxy_auth;
+    char *username;
+    char *password;
 
     sd = do_connect(SOCK_STREAM);
     if (sd == -1) {
@@ -688,9 +692,6 @@ static int do_proxy_socks5(void)
                 return -1;
             }
 
-            char *proxy_auth;
-            char *username, *password;
-
             /* Split up the proxy auth argument. */
             proxy_auth = Strdup(o.proxy_auth);
             username = strtok(proxy_auth, ":");
@@ -716,7 +717,6 @@ static int do_proxy_socks5(void)
              * 0x00 = success
              * any other value = failure, connection must be closed
              */
-            struct socks5_auth socks5auth;
 
             socks5auth.ver = 1;
             socks5auth.data[0] = strlen(username);
@@ -752,8 +752,6 @@ static int do_proxy_socks5(void)
             close(sd);
             return -1;
     }
-
-    struct socks5_request socks5msg2;
 
     zmem(&socks5msg2,sizeof(socks5msg2));
     socks5msg2.ver = SOCKS5_VERSION;
