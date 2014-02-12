@@ -1826,7 +1826,7 @@ int nmap_main(int argc, char *argv[]) {
 #endif
           ) || o.listscan) {
         /* We're done with the hosts */
-        if (currenths->flags & HOST_UP || o.verbose) {
+        if (currenths->flags & HOST_UP || (o.verbose && !o.openOnly())) {
           xml_start_tag("host");
           write_host_header(currenths);
           printmacinfo(currenths);
