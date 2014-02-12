@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o When doing a ping scan (-sn), the --open option will prevent down hosts from
+  being shown when -v is specified. This aligns with similar output for other
+  scan types. [Daniel Miller]
+
 o [Ncat] Added support for socks5 and corresponding regression tests.
   [Marek Lucaszuk, Petr Stodulka]
 
