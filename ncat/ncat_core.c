@@ -544,11 +544,11 @@ static int ncat_hexdump(int logfd, const char *data, int len)
 int getaddrfamily(const char *addr)
 {
     int ret;
+    struct addrinfo hint, *info =0;
 
     if (strchr(addr,':'))
       return 2;
 
-    struct addrinfo hint, *info =0;
     zmem(&hint,sizeof(hint));
     hint.ai_family = AF_UNSPEC;
     hint.ai_flags = AI_NUMERICHOST;
