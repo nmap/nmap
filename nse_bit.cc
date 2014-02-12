@@ -1,4 +1,4 @@
-/* Bitwise operations library 
+/* Bitwise operations library
  * by Reuben Thomas (rrt@sc3d.org)
  * bitlib is a C library for Lua 5.x that provides bitwise operations
  * It is copyright Reuben Thomas 2000-2006, and is released under the

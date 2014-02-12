@@ -180,7 +180,7 @@ void *realloc();
 #include <sys/wait.h>
 #endif /* !WIN32 */
 
-#ifdef HAVE_SYS_PARAM_H   
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
@@ -193,7 +193,7 @@ void *realloc();
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
- 
+
 #include <sys/stat.h>
 
 #if HAVE_NETINET_IN_H
@@ -250,7 +250,7 @@ void *realloc();
 // #define NET_IF_H
 // #endif
 // #endif
-// #if HAVE_NETINET_IF_ETHER_H 
+// #if HAVE_NETINET_IF_ETHER_H
 // #ifndef NETINET_IF_ETHER_H
 // #include <netinet/if_ether.h>
 // #define NETINET_IF_ETHER_H
@@ -274,12 +274,12 @@ void *realloc();
 
 /* User configurable #defines: */
 #define MAX_PROBE_PORTS 10     /* How many TCP probe ports are allowed ? */
-/* Default number of ports in parallel.  Doesn't always involve actual 
+/* Default number of ports in parallel.  Doesn't always involve actual
    sockets.  Can also adjust with the -M command line option.  */
-#define MAX_SOCKETS 36 
+#define MAX_SOCKETS 36
 
-#define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts 
-                                      in a row before we decide the host is 
+#define MAX_TIMEOUTS MAX_SOCKETS   /* How many timed out connection attempts
+                                      in a row before we decide the host is
                                       dead? */
 #define _STR(X) #X
 #define STR(X)  _STR(X)
@@ -323,7 +323,7 @@ void *realloc();
    drops until many probes later on extremely low-latency
    networks (such as localhost scans).  */
 #ifndef MIN_RTT_TIMEOUT
-#define MIN_RTT_TIMEOUT 100 
+#define MIN_RTT_TIMEOUT 100
 #endif
 
 #ifndef MAX_RTT_TIMEOUT
@@ -349,7 +349,7 @@ void *realloc();
 
 #define HOST_UNKNOWN 0
 #define HOST_UP 1
-#define HOST_DOWN 2 
+#define HOST_DOWN 2
 
 #define PINGTYPE_UNKNOWN 0
 #define PINGTYPE_NONE 1
@@ -398,9 +398,9 @@ void *realloc();
 
 #define IPID_SEQ_UNKNOWN 0
 #define IPID_SEQ_INCR 1  /* simple increment by one each time */
-#define IPID_SEQ_BROKEN_INCR 2 /* Stupid MS -- forgot htons() so it 
+#define IPID_SEQ_BROKEN_INCR 2 /* Stupid MS -- forgot htons() so it
                                   counts by 256 on little-endian platforms */
-#define IPID_SEQ_RPI 3 /* Goes up each time but by a "random" positive 
+#define IPID_SEQ_RPI 3 /* Goes up each time but by a "random" positive
                           increment */
 #define IPID_SEQ_RD 4 /* Appears to select IPID using a "random" distributions (meaning it can go up or down) */
 #define IPID_SEQ_CONSTANT 5 /* Contains 1 or more sequential duplicates */

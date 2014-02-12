@@ -140,7 +140,7 @@
 
 #define SERVICE_TABLE_SIZE 1024
 
-/* just flags to indicate whether a particular port number should get tcp 
+/* just flags to indicate whether a particular port number should get tcp
  * scanned, udp scanned, or both
  */
 #define SCAN_TCP_PORT	(1 << 0)

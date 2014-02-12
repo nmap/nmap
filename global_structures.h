@@ -138,7 +138,7 @@ struct portinfo {
    unsigned long portno; /* TCP/UDP/SCTP port or RPC program id or IP protocool */
    short trynum;
    int sd[3]; /* Socket descriptors for connect_scan */
-   struct timeval sent[3]; 
+   struct timeval sent[3];
    int state;
    int next; /* not struct portinfo * for historical reasons */
    int prev;
@@ -166,15 +166,15 @@ struct udpprobeinfo {
    many ports we can try at once */
 struct scanstats {
   int packet_incr;
-  int initial_packet_width; /* Number of queries in parallel we should 
+  int initial_packet_width; /* Number of queries in parallel we should
                                start with */
   double fallback_percent;
   int numqueries_outstanding; /* How many unexpired queries are on the 'net
                                  right now? */
   double numqueries_ideal; /* How many do we WANT to be on the 'net right now? */
-  int max_width; /* What is the MOST we will tolerate at once.  Can be 
+  int max_width; /* What is the MOST we will tolerate at once.  Can be
                     modified via --max_parallelism */
-  int min_width; /* We must always allow at least this many at once.  Can 
+  int min_width; /* We must always allow at least this many at once.  Can
                     be modified via --min_parallelism*/
   int ports_left;
   int changed; /* Has anything changed since last round? */
@@ -272,7 +272,7 @@ struct scan_performance_vars {
                    outstanding */
   int slow_incr; /* How many probes are incremented for each response
                     in slow start mode */
-  int ca_incr; /* How many probes are incremented per (roughly) rtt in 
+  int ca_incr; /* How many probes are incremented per (roughly) rtt in
                   congestion avoidance mode */
   int cc_scale_max; /* The maximum scaling factor for congestion window
                        increments. */

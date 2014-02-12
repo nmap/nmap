@@ -186,7 +186,7 @@ typedef struct probespec {
 } probespec;
 
 /* 3rd generation Nmap scanning function.  Handles most Nmap port scan types */
-void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports, 
+void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
                 stype scantype, struct timeout_info *to = NULL);
 
 /* Determines an ideal number of hosts to be scanned (port scan, os
@@ -197,7 +197,7 @@ void ultra_scan(std::vector<Target *> &Targets, struct scan_lists *ports,
    results).  Memory consumption usually also increases with the
    number of hosts scanned in parallel, though rarely to significant
    levels. */
-int determineScanGroupSize(int hosts_scanned_so_far, 
+int determineScanGroupSize(int hosts_scanned_so_far,
                            struct scan_lists *ports);
 
 #endif /* SCAN_ENGINE_H */

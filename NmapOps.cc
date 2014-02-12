@@ -363,7 +363,7 @@ void NmapOps::Initialize() {
   ipoptions = NULL;
   ipoptionslen = 0;
   ipopt_firsthop = 0;
-  ipopt_lasthop  = 0;  
+  ipopt_lasthop  = 0;
   release_memory = false;
   topportlevel = -1;
 #ifndef NOLUA
@@ -407,7 +407,7 @@ bool NmapOps::RawScan() {
   if ((pingtype & PINGTYPE_TCP_USE_SYN) && isr00t)
     return true;
 
-   return false; 
+   return false;
 }
 
 
@@ -485,50 +485,50 @@ dialog where you can start NPF if you have administrator privileges.";
  }
 /* We start with stuff users should not do if they are not root */
   if (!isr00t) {
-    
+
     if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan) {
       fatal("You requested a scan type which requires %s", privreq);
     }
-    
+
     if (numdecoys > 0) {
       fatal("Sorry, but decoys (-D) require %s", privreq);
     }
-    
+
     if (fragscan) {
       fatal("Sorry, but fragscan requires %s", privreq);
     }
-    
+
     if (osscan) {
       fatal("TCP/IP fingerprinting (for OS scan) requires %s", privreq);
     }
   }
-  
-  
-  if (bouncescan && pingtype != PINGTYPE_NONE) 
+
+
+  if (bouncescan && pingtype != PINGTYPE_NONE)
     log_write(LOG_STDOUT, "Hint: if your bounce scan target hosts aren't reachable from here, remember to use -Pn so we don't try and ping them prior to the scan\n");
-  
+
   if (ackscan+bouncescan+connectscan+finscan+idlescan+maimonscan+nullscan+synscan+windowscan+xmasscan > 1)
     fatal("You specified more than one type of TCP scan.  Please choose only one of -sA, -b, -sT, -sF, -sI, -sM, -sN, -sS, -sW, and -sX");
-  
+
   if (numdecoys > 0 && (bouncescan || connectscan)) {
     error("WARNING: Decoys are irrelevant to the bounce or connect scans");
   }
-  
+
   if (fragscan && !(ackscan|finscan|maimonscan|nullscan|synscan|windowscan|xmasscan) && \
       !(pingtype&(PINGTYPE_ICMP_TS|PINGTYPE_TCP)) && !(fragscan == 8 && pingtype&PINGTYPE_ICMP_MASK) && \
       !(extra_payload_length + 8 > fragscan)) {
     fatal("Fragscan only works with TCP, ICMP Timestamp or ICMP Mask (mtu=8) ping types or ACK, FIN, Maimon, NULL, SYN, Window, and XMAS scan types");
   }
-  
+
   if (osscan && bouncescan)
     error("Combining bounce scan with OS scan seems silly, but I will let you do whatever you want!");
-  
+
 #if !defined(LINUX) && !defined(OPENBSD) && !defined(FREEBSD) && !defined(NETBSD)
   if (fragscan) {
     error("Warning: Packet fragmentation selected on a host other than Linux, OpenBSD, FreeBSD, or NetBSD.  This may or may not work.");
   }
 #endif
-  
+
   if (osscan && noportscan) {
     fatal("WARNING: OS Scan is unreliable without a port scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sn");
   }
@@ -549,10 +549,10 @@ dialog where you can start NPF if you have administrator privileges.";
   if (defeat_rst_ratelimit && !synscan) {
       fatal("Option --defeat-rst-ratelimit works only with a SYN scan (-sS)");
   }
-  
+
   if (resume_ip.s_addr && generate_random_ips)
     resume_ip.s_addr = 0;
-  
+
   if (magic_port_set && connectscan) {
     error("WARNING: -g is incompatible with the default connect() scan (-sT).  Use a raw scan such as -sS if you want to set the source port.");
   }
@@ -564,7 +564,7 @@ dialog where you can start NPF if you have administrator privileges.";
   if (min_packet_send_rate != 0.0 && max_packet_send_rate != 0.0 && min_packet_send_rate > max_packet_send_rate) {
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
-  
+
   if (af() == AF_INET6 && (generate_random_ips|numdecoys|bouncescan|fragscan)) {
     fatal("Sorry -- IPv6 support is currently only available for TCP, UDP, and SCTP port scans and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
   }
@@ -580,32 +580,32 @@ dialog where you can start NPF if you have administrator privileges.";
 }
 
 void NmapOps::setMaxOSTries(int mot) {
-  if (mot <= 0) 
+  if (mot <= 0)
     fatal("%s: value must be at least 1", __func__);
-  max_os_tries = mot; 
+  max_os_tries = mot;
 }
 
-void NmapOps::setMaxRttTimeout(int rtt) 
-{ 
+void NmapOps::setMaxRttTimeout(int rtt)
+{
   if (rtt <= 0) fatal("%s: maximum round trip time must be greater than 0", __func__);
-  max_rtt_timeout = rtt; 
-  if (rtt < min_rtt_timeout) min_rtt_timeout = rtt; 
+  max_rtt_timeout = rtt;
+  if (rtt < min_rtt_timeout) min_rtt_timeout = rtt;
   if (rtt < initial_rtt_timeout) initial_rtt_timeout = rtt;
 }
 
-void NmapOps::setMinRttTimeout(int rtt) 
-{ 
+void NmapOps::setMinRttTimeout(int rtt)
+{
   if (rtt < 0) fatal("%s: minimum round trip time must be at least 0", __func__);
-  min_rtt_timeout = rtt; 
-  if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;  
+  min_rtt_timeout = rtt;
+  if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;
   if (rtt > initial_rtt_timeout) initial_rtt_timeout = rtt;
 }
 
-void NmapOps::setInitialRttTimeout(int rtt) 
-{ 
+void NmapOps::setInitialRttTimeout(int rtt)
+{
   if (rtt <= 0) fatal("%s: initial round trip time must be greater than 0", __func__);
-  initial_rtt_timeout = rtt; 
-  if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;  
+  initial_rtt_timeout = rtt;
+  if (rtt > max_rtt_timeout) max_rtt_timeout = rtt;
   if (rtt < min_rtt_timeout) min_rtt_timeout = rtt;
 }
 

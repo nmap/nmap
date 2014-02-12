@@ -194,7 +194,7 @@ struct idle_proxy_info {
 };
 
 /* Finds the IPv6 extension header for fragmentation in an IPv6 packet, and returns
- * the identification value of the fragmentation header 
+ * the identification value of the fragmentation header
 */
 int ipv6_get_fragment_id(const struct ip6_hdr *ip6, unsigned int len) {
   const unsigned char *p, *end;
@@ -209,15 +209,15 @@ int ipv6_get_fragment_id(const struct ip6_hdr *ip6, unsigned int len) {
 
   hdr = ip6->ip6_nxt;
   p += sizeof(*ip6);
-   
-  /* If the first extension header is not the fragmentation, we search our way 
+
+  /* If the first extension header is not the fragmentation, we search our way
    * through the extension headers until we find the fragmentation header */
   while (p < end && hdr != IP_PROTO_FRAGMENT) {
     if (p + 2 > end)
       return -1;
     hdr = *p;
     p += (*(p + 1) + 1) * 8;
-  } 
+  }
 
   if ( hdr != IP_PROTO_FRAGMENT ||  (p + 2 + sizeof(ip6_ext_data_fragment)) > end)
     return -1;
@@ -274,7 +274,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
     gettimeofday(&tv_sent[tries], NULL);
 
     /* Time to send the pr0be!*/
-    if (o.af() == AF_INET)  
+    if (o.af() == AF_INET)
       send_tcp_raw(proxy->rawsd, proxy->ethptr,
                   proxy->host.v4sourceip(), proxy->host.v4hostip(),
                   o.ttl, false,
@@ -285,12 +285,12 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
                   NULL, 0);
     else {
       ipv6_packet = build_tcp_raw_ipv6(proxy->host.v6sourceip(), proxy->host.v6hostip(),
-                        0x00, 0x0000,  
+                        0x00, 0x0000,
                         o.ttl,
                         base_port + tries, proxy->probe_port,
                         seq_base + (packet_send_count++ * 500) + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
                         (u8 *) "\x02\x04\x05\xb4", 4,
-                        NULL, 0, 
+                        NULL, 0,
                         &packetlen);
       proxy->host.TargetSockAddr(&ss, &sslen);
       res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
@@ -322,12 +322,12 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
             error("IPv6 packet with a version field != 6 received");
           } else {
             ip6 = (struct ip6_hdr *) ip;
-            ipv6_data = ipv6_get_data(ip6, &packetlen, &hdr); 
+            ipv6_data = ipv6_get_data(ip6, &packetlen, &hdr);
             if (hdr == IPPROTO_TCP && ipv6_data != NULL) {
               tcp = (struct tcp_hdr *) ipv6_data;
-            }  
-          } 
-        } 
+            }
+          }
+        }
         if (tcp) {
           if (ntohs(tcp->th_dport) < base_port || ntohs(tcp->th_dport) - base_port >= tries  || ntohs(tcp->th_sport) != proxy->probe_port || ((tcp->th_flags & TH_RST) == 0)) {
             if (ntohs(tcp->th_dport) > o.magic_port && ntohs(tcp->th_dport) < (o.magic_port + 260)) {
@@ -354,7 +354,7 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 
           if (o.af() == AF_INET)
             ipid = ntohs(ip->ip_id);
-          else if (o.af() == AF_INET6) 
+          else if (o.af() == AF_INET6)
             ipid = ipv6_get_fragment_id(ip6, bytes);
           adjust_timeouts2(&(tv_sent[trynum]), &rcvdtime, &(proxy->host.to));
         }
@@ -409,14 +409,14 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
 }
 
 /* Forces the permanent use of the IPv6 extension header for fragmentation in each IPv6 packet sent from
- * the idle host to the target or the attacker 
- * This is achieved by first sending a ping, and afterwards an ICMPv6 Packet Too Big message 
+ * the idle host to the target or the attacker
+ * This is achieved by first sending a ping, and afterwards an ICMPv6 Packet Too Big message
  * which states that the response from the ping was too big, our MTU is smaller than the IPv6 minimum MTU */
 static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *target) {
   int hardtimeout = 9000000; /* Generally don't wait more than 9 secs total */
   char filter[512]; /* Libpcap filter string */
   struct ip *ip;
-  /* The maximum data size we can create without fragmenting, considering that the headers also need place */ 
+  /* The maximum data size we can create without fragmenting, considering that the headers also need place */
   char data[IP6_MTU_MIN - IPv6_HEADER_LEN - ETH_HDR_LEN - ICMPv6_MIN_HEADER_LEN];
   unsigned int datalen, bytes;
   const unsigned int proxy_reply_timeout = 2000;
@@ -439,7 +439,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
   memset(data,'A', sizeof(data));
   pingid = get_random_u16();
   seq = get_random_u16();
-  
+
   /* pcap, to get the answer. Max size here is the IPv6 minimum MTU  */
   if ((proxy->pd = my_pcap_open_live(proxy->host.deviceName(), IP6_MTU_MIN,  (o.spoofsource) ? 1 : 0, 50)) == NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
@@ -456,7 +456,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
     fatal("Error occured while trying to send ICMPv6 Echo Request to the idle host");
   free(ipv6_packet);
   gettimeofday(&ipv6_packet_send_time, NULL);
-  
+
   /* Now let's wait for the answer */
   while (!response_received) {
     gettimeofday(&tmptv, NULL);
@@ -484,7 +484,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
 
   if (proxy->pd)
     pcap_close(proxy->pd);
-  
+
   /* Now we can tell the idle host that its reply was too big, we want it smaller than the IPV6 minimum MTU */
   /* the data contains first the MTU we want, and then the received IPv6 package */
   *(uint32_t *)&data = ntohl(IP6_MTU_MIN - 2);
@@ -496,7 +496,7 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
     fatal("Error occured while trying to send spoofed ICMPv6 Echo Request to the idle host");
 
   free(ipv6_packet);
-  
+
   /* Now we do the same in the name of the target */
   /* No pcap this time, we won't receive the answer */
   memset(data,'A', sizeof(data));
@@ -509,20 +509,20 @@ static void ipv6_force_fragmentation(struct idle_proxy_info *proxy, Target *targ
     fatal("Error occured while trying to send ICMPv6 Echo Request to the idle host");
 
   free(ipv6_packet);
-  
+
   /* Now we guess what answer the decoy host sent to the target, so that we can piggyback this on the ICMPV6 Packet too Big message */
   ipv6_packet = build_icmpv6_raw(proxy->host.v6hostip(), target->v6hostip(), 0x00, 0x0000, o.ttl, seq , pingid, ICMPV6_ECHOREPLY, 0x00, data, sizeof(data) , &packetlen);
   *(uint32_t *)&data = ntohl(IP6_MTU_MIN - 2);
   memcpy(&data[4], ipv6_packet, sizeof(data)-4);
   free(ipv6_packet);
 
-  ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen); 
+  ipv6_packet = build_icmpv6_raw(target->v6hostip(), proxy->host.v6hostip(), 0x00, 0x0000, o.ttl, 0x00 , 0x00, 0x02, 0x00, data, sizeof(data) , &packetlen);
   /* give the decoy host time to reply to the target */
   usleep(10000);
   res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
   if (res == -1)
     fatal("Error occured while trying to send ICMPv6 PTB to the idle host");
-  free(ipv6_packet);   
+  free(ipv6_packet);
 }
 
 /* takes a proxy name/IP, resolves it if necessary, tests it for IP ID
@@ -561,7 +561,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   const struct ip6_hdr *ip6;
   u8 ip6hdr;
   const void *ip6data;
-  bool retried_forcing_fragmentation = false;  
+  bool retried_forcing_fragmentation = false;
   assert(proxy);
   assert(proxyName);
   int res;
@@ -578,8 +578,8 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   proxy->max_groupsz = MAX(proxy->min_groupsz, o.max_parallelism ? o.max_parallelism : 100);
   proxy->max_senddelay = 100000;
 
-  
-  /* If we have an IPv6 address, we specify the port with [address]:port */ 
+
+  /* If we have an IPv6 address, we specify the port with [address]:port */
   if (o.af() == AF_INET)
     q = strchr(proxyName, ':');
   else if (o.af() == AF_INET6) {
@@ -595,7 +595,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     strncpy(name, proxyName , MIN(strcspn(proxyName,":") , sizeof(name)));
   else if (o.af() == AF_INET6 && strchr(proxyName, '[') != NULL && strchr(proxyName, ']') != NULL)
     strncpy(name, strchr(proxyName, '[') + 1, MIN(strcspn(proxyName,"]") - strcspn(proxyName, "[") - 1, sizeof(name)));
-  else  
+  else
     strncpy(name, proxyName, sizeof(name));
 
   if (q) {
@@ -676,10 +676,10 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   }
 
   if (proxy->host.af() == AF_INET6)
-    ipv6_force_fragmentation(proxy, target); 
+    ipv6_force_fragmentation(proxy, target);
 
-  /* Now for the pcap opening nonsense ... 
-     Snaplen will be the IPv6 minimum MTU of 1280, because an IPv6 packet 
+  /* Now for the pcap opening nonsense ...
+     Snaplen will be the IPv6 minimum MTU of 1280, because an IPv6 packet
      may have any number of extension header up to the minimal IPv6 MTU */
   if ((proxy->pd = my_pcap_open_live(proxy->host.deviceName(), IP6_MTU_MIN,  (o.spoofsource) ? 1 : 0, 50)) == NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
@@ -712,7 +712,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
        a response with the exact request for timing purposes.  So I
        think I'll use TH_SYN, although it is a tough call. */
     /* We can't use decoys 'cause that would screw up the IP IDs */
-    if (o.af() == AF_INET) 
+    if (o.af() == AF_INET)
       send_tcp_raw(proxy->rawsd, proxy->ethptr,
                    proxy->host.v4sourceip(), proxy->host.v4hostip(),
                    o.ttl, false,
@@ -722,13 +722,13 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                    (u8 *) "\x02\x04\x05\xb4", 4,
                    NULL, 0);
     else if (o.af() == AF_INET6) {
-      ipv6_packet = build_tcp_raw_ipv6(proxy->host.v6sourceip(), proxy->host.v6hostip(), 
-                                       0x00, 0x0000,  
-                                       o.ttl, 
+      ipv6_packet = build_tcp_raw_ipv6(proxy->host.v6sourceip(), proxy->host.v6hostip(),
+                                       0x00, 0x0000,
+                                       o.ttl,
                                        o.magic_port + probes_sent + 1, proxy->probe_port,
                                        sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                                       (u8 *) "\x02\x04\x05\xb4", 4, 
-                                       NULL, 0, 
+                                       (u8 *) "\x02\x04\x05\xb4", 4,
+                                       NULL, 0,
                                        &packetlen);
       res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
       if (res == -1)
@@ -802,7 +802,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
           ip6 = (struct ip6_hdr *) ip;
           newipid = ipv6_get_fragment_id(ip6, bytes);
           if (newipid < 0 ) {
-            /* ok, the idle host does not seem to append the extension header for fragmentation. Let's try this once more, 
+            /* ok, the idle host does not seem to append the extension header for fragmentation. Let's try this once more,
             * maybe the idle host just adjusted its Path MTU. If we keep on having the problem, we quit */
             if (!retried_forcing_fragmentation) {
               ipv6_force_fragmentation(proxy, target);
@@ -824,7 +824,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                 continue;
               }
           }else
-          { 
+          {
             error("Malformed packet received");
             continue;
           }
@@ -866,7 +866,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 
   if (o.af() == AF_INET)
     proxy->seqclass = get_ipid_sequence_16(probes_returned, ipids, 0);
-  else 
+  else
     proxy->seqclass = get_ipid_sequence_32(probes_returned, ipids, 0);
   switch (proxy->seqclass) {
   case IPID_SEQ_INCR:
@@ -917,18 +917,18 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
                     4, NULL, 0);
       } else {
         ipv6_packet = build_tcp_raw_ipv6(target->v6hostip(), proxy->host.v6hostip(),
-                                         0x00, 0x0000,  
+                                         0x00, 0x0000,
                                          o.ttl,
                                          o.magic_port, proxy->probe_port,
                                          sequence_base + probes_sent + 1, ack, 0, TH_SYN | TH_ACK, 0, 0,
-                                         (u8 *) "\x02\x04\x05\xb4", 
-                                         4, NULL, 0, 
+                                         (u8 *) "\x02\x04\x05\xb4",
+                                         4, NULL, 0,
                                          &packetlen);
         res = send_ip_packet(proxy->rawsd, proxy->ethptr, &ss, ipv6_packet, packetlen);
         if (res == -1)
           fatal("Error occured while trying to send IPv6 packet ");
         free(ipv6_packet);
-      } 
+      }
     }
 
     /* Sleep a little while to give packets time to reach their destination */
@@ -1091,11 +1091,11 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
                    o.extra_payload, o.extra_payload_length);
    } else {
         packet = build_tcp_raw_ipv6(proxy->host.v6hostip(), target->v6hostip(),
-                                    0x00, 0x0000,  
+                                    0x00, 0x0000,
                                     o.ttl,
                                     proxy->probe_port, ports[pr0be], seq, 0, 0, TH_SYN, 0, 0,
                                     (u8 *) "\x02\x04\x05\xb4", 4,
-                                    o.extra_payload, o.extra_payload_length, 
+                                    o.extra_payload, o.extra_payload_length,
                                     &packetlen);
         res = send_ip_packet(proxy->rawsd, eth.ethsd ? &eth : NULL, &ss, packet, packetlen);
         if (res == -1)

@@ -279,7 +279,7 @@ class NmapOps {
   /* Gets the spoofed MAC address, but returns NULL if it hasn't been set */
   const u8 *spoofMACAddress() { return spoof_mac_set? spoof_mac : NULL; }
 
-  int max_ips_to_scan; // Used for Random input (-iR) to specify how 
+  int max_ips_to_scan; // Used for Random input (-iR) to specify how
                        // many IPs to try before stopping. 0 means unlimited.
   int extra_payload_length; /* These two are for --data-length op */
   char *extra_payload;
@@ -297,10 +297,10 @@ class NmapOps {
             slow against it. If we don't distinguish between closed and filtered ports,
             we can get the list of open ports very fast */
 
-  struct in_addr resume_ip; /* The last IP in the log file if user 
-                               requested --restore .  Otherwise 
-                               restore_ip.s_addr == 0.  Also 
-                               target_struct_get will eventually set it 
+  struct in_addr resume_ip; /* The last IP in the log file if user
+                               requested --restore .  Otherwise
+                               restore_ip.s_addr == 0.  Also
+                               target_struct_get will eventually set it
                                to 0. */
 
   // Version Detection Options
@@ -413,7 +413,7 @@ class NmapOps {
   unsigned int min_host_group_sz;
   unsigned int max_host_group_sz;
   void Initialize();
-  int addressfamily; /*  Address family:  AF_INET or AF_INET6 */  
+  int addressfamily; /*  Address family:  AF_INET or AF_INET6 */
   struct sockaddr_storage sourcesock;
   size_t sourcesocklen;
   struct timeval start_time;
@@ -424,4 +424,4 @@ class NmapOps {
   u8 spoof_mac[6];
   bool spoof_mac_set;
 };
-  
+

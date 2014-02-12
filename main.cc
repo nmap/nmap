@@ -190,7 +190,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef MTRACE
   // This glibc extension enables memory tracing to detect memory
-  // leaks, frees of unallocated memory, etc.  
+  // leaks, frees of unallocated memory, etc.
   // See http://www.gnu.org/manual/glibc-2.2.5/html_node/Allocation-Debugging.html#Allocation%20Debugging .
   // It only works if the environment variable MALLOC_TRACE is set to a file
   // which a memory usage log will be written to.  After the program quits

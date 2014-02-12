@@ -365,9 +365,9 @@ int print_iflist(void) {
   NmapOutputTable *Tbl = NULL;
   char errstr[256];
   errstr[0]='\0';
-  
+
   iflist = getinterfaces(&numifs, errstr, sizeof(errstr));
- 
+
   int i;
   /* First let's handle interfaces ... */
   if (iflist==NULL || numifs<=0) {
@@ -998,7 +998,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
         }
         free(writebuf);
         break;
-  
+
       default:
         /* Unknown log type.
          * ---
@@ -1398,7 +1398,7 @@ static char *num_to_string_sigdigits(double d, int digits) {
 
   return buf;
 }
- 
+
 /* Writes a heading for a full scan report ("Nmap scan report for..."),
    including host status and DNS records. */
 void write_host_header(Target *currenths) {
@@ -2216,7 +2216,7 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
     } else {
       xml_start_tag("postscript");
       log_write(LOG_PLAIN, "Post-scan script results:\n");
-    }               
+    }
     for (iter = scriptResults->begin(); iter != scriptResults->end(); iter++) {
       iter->write_xml();
       script_output = formatScriptOutput((*iter));

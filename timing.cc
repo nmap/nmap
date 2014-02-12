@@ -141,7 +141,7 @@ void initialize_timeout_info(struct timeout_info *to) {
   to->timeout = o.initialRttTimeout() * 1000;
 }
 
-/* Adjust our timeout values based on the time the latest probe took for a 
+/* Adjust our timeout values based on the time the latest probe took for a
    response.  We update our RTT averages, etc. */
 void adjust_timeouts(struct timeval sent, struct timeout_info *to) {
   struct timeval received;
@@ -155,8 +155,8 @@ void adjust_timeouts(struct timeval sent, struct timeout_info *to) {
  the receive time too (which could be because it was received a while
  back or it could be for efficiency because the caller already knows
  the current time */
-void adjust_timeouts2(const struct timeval *sent, 
-                      const struct timeval *received, 
+void adjust_timeouts2(const struct timeval *sent,
+                      const struct timeval *received,
                       struct timeout_info *to) {
   long delta = 0;
 
@@ -200,16 +200,16 @@ void adjust_timeouts2(const struct timeval *sent,
     }
     to->srtt += rttdelta >> 3;
     to->rttvar += (ABS(rttdelta) - to->rttvar) >> 2;
-    to->timeout = to->srtt + (to->rttvar << 2);  
+    to->timeout = to->srtt + (to->rttvar << 2);
   }
   if (to->rttvar > 2300000) {
     error("RTTVAR has grown to over 2.3 seconds, decreasing to 2.0");
     to->rttvar = 2000000;
   }
-  
+
   /* It hurts to do this ... it really does ... but otherwise we are being
      too risky */
-  to->timeout = box(o.minRttTimeout() * 1000, o.maxRttTimeout() * 1000,  
+  to->timeout = box(o.minRttTimeout() * 1000, o.maxRttTimeout() * 1000,
                     to->timeout);
 
   if (o.scan_delay)
@@ -219,7 +219,7 @@ void adjust_timeouts2(const struct timeval *sent,
     log_write(LOG_STDOUT, "delta %ld ==> srtt: %d rttvar: %d to: %d\n", delta, to->srtt, to->rttvar, to->timeout);
   }
 
-  /* if (to->srtt < 0 || to->rttvar < 0 || to->timeout < 0 || delta < -50000000 || 
+  /* if (to->srtt < 0 || to->rttvar < 0 || to->timeout < 0 || delta < -50000000 ||
       sent->tv_sec == 0 || received->tv_sec == 0 ) {
     fatal("Serious time computation problem in adjust_timeout ... received = (%ld, %ld) sent=(%ld,%ld) delta = %ld srtt = %d rttvar = %d to = %d", (long) received->tv_sec, (long)received->tv_usec, (long) sent->tv_sec, (long) sent->tv_usec, delta, to->srtt, to->rttvar, to->timeout);
   } */
@@ -249,7 +249,7 @@ void enforce_scan_delay(struct timeval *tv) {
 
   gettimeofday(&now, NULL);
   time_diff = TIMEVAL_MSEC_SUBTRACT(now, lastcall);
-  if (time_diff < (int) o.scan_delay) {  
+  if (time_diff < (int) o.scan_delay) {
     if (o.debugging > 1) {
       log_write(LOG_PLAIN, "Sleeping for %d milliseconds in %s()\n", o.scan_delay - time_diff, __func__);
     }
@@ -261,7 +261,7 @@ void enforce_scan_delay(struct timeval *tv) {
     memcpy(tv, &lastcall, sizeof(struct timeval));
   }
 
-  return;    
+  return;
 }
 
 
@@ -593,7 +593,7 @@ bool ScanProgressMeter::mayBePrinted(const struct timeval *now) {
       return true;
     else
       return false;
-  } 
+  }
 
   if (difftime(now->tv_sec, last_print_test.tv_sec) < 3)
     return false;  /* No point even checking too often */
@@ -623,7 +623,7 @@ static double estimate_time_left(double perc_done,
    so if mayBePrinted() is true, and it seems reasonable to do so
    because the estimate has changed significantly.  Returns whether
    or not a line was printed.*/
-bool ScanProgressMeter::printStatsIfNecessary(double perc_done, 
+bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
                                                const struct timeval *now) {
   struct timeval tvtmp;
   double time_left_s;
@@ -667,13 +667,13 @@ bool ScanProgressMeter::printStatsIfNecessary(double perc_done,
 
   if (printit) {
      return printStats(perc_done, now);
-  } 
+  }
 
   return false;
 }
 
 /* Prints an estimate of when this scan will complete.  */
-bool ScanProgressMeter::printStats(double perc_done, 
+bool ScanProgressMeter::printStats(double perc_done,
                                    const struct timeval *now) {
   struct timeval tvtmp;
   double time_left_s;
@@ -722,7 +722,7 @@ bool ScanProgressMeter::printStats(double perc_done,
   xml_close_empty_tag();
   xml_newline();
   log_flush(LOG_STDOUT|LOG_XML);
- 
+
   return true;
 }
 

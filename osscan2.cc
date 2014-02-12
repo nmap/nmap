@@ -371,9 +371,9 @@ int get_ipid_sequence_16(int numSamples, u32 *ipids, int islocalhost) {
   assert(numSamples < (int) (sizeof(ipid_diffs) / 2));
   allipideqz = get_diffs(ipid_diffs, numSamples, ipids, islocalhost);
   /* AND with 0xffff so that in case the 16 bit counter was
-   * flipped over we still have a continuous sequence */ 
+   * flipped over we still have a continuous sequence */
   for (i = 0; i < numSamples; i++) {
-    ipid_diffs[i] = ipid_diffs[i] & 0xffff;  
+    ipid_diffs[i] = ipid_diffs[i] & 0xffff;
   }
   return identify_sequence(numSamples, ipid_diffs, islocalhost, allipideqz);
 }

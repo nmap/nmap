@@ -157,7 +157,7 @@ extern "C" {
 
 #ifdef WIN32
 __declspec(noreturn)
-#endif  
+#endif
 void fatal(const char *fmt, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
