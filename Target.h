@@ -226,7 +226,7 @@ class Target {
    or v6).  If the name has not been set, or was set to NULL, an empty
    string ("") is returned to make printing easier. */
   const char *HostName() const { return hostname? hostname : "";  }
-  /* You can set to NULL to erase a name or if it failed to resolve -- or 
+  /* You can set to NULL to erase a name or if it failed to resolve -- or
      just don't call this if it fails to resolve.  The hostname is blown
      away when you setTargetSockAddr(), so make sure you do these in proper
      order
@@ -241,7 +241,7 @@ class Target {
   /* This next version returns a STATIC buffer -- so no concurrency */
   const char *NameIP() const;
 
-  /* Give the name from the last setTargetName() call, which is the 
+  /* Give the name from the last setTargetName() call, which is the
    name of the target given on the command line if it's a named
    host. */
   const char *TargetName() { return targetname; }
@@ -270,7 +270,7 @@ class Target {
   void setMTU(int devmtu);
   int MTU(void);
 
-  /* Sets the interface type to one of: 
+  /* Sets the interface type to one of:
      devt_ethernet, devt_loopback, devt_p2p, devt_other
    */
   void setIfType(devtype iftype) { interface_type = iftype; }
@@ -361,7 +361,7 @@ class Target {
   char targetipstring[INET6_ADDRSTRLEN];
   char sourceipstring[INET6_ADDRSTRLEN];
   mutable char *nameIPBuf; /* for the NameIP(void) function to return */
-  u8 MACaddress[6], SrcMACaddress[6], NextHopMACaddress[6];  
+  u8 MACaddress[6], SrcMACaddress[6], NextHopMACaddress[6];
   bool MACaddress_set, SrcMACaddress_set, NextHopMACaddress_set;
   struct host_timeout_nfo htn;
   devtype interface_type;
@@ -369,9 +369,9 @@ class Target {
   char devfullname[32];
   int mtu;
   /* 0 (OS_NOTPERF) if os detection not performed
-   * 1 (OS_PERF) if os detection performed 
+   * 1 (OS_PERF) if os detection performed
    * 2 (OS_PERF_UNREL) if an unreliable os detection has been performed */
-  int osscan_flag; 
+  int osscan_flag;
 };
 
 #endif /* TARGET_H */

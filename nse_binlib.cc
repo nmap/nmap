@@ -133,7 +133,7 @@ static int l_unpack(lua_State *L) 		/** unpack(f,s, [init]) */
  {
   int c=*f++;
   int N=1;
-  if (isdigit((int) (unsigned char) *f)) 
+  if (isdigit((int) (unsigned char) *f))
   {
    N=0;
    while (isdigit((int) (unsigned char) *f)) N=10*N+(*f++)-'0';
@@ -283,7 +283,7 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
  {
   int c=*f++;
   int N=1;
-  if (isdigit((int) (unsigned char) *f)) 
+  if (isdigit((int) (unsigned char) *f))
   {
    N=0;
    while (isdigit((int) (unsigned char) *f)) N=10*N+(*f++)-'0';
@@ -341,15 +341,15 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
        }
        break;
      }
-   
+
   case OP_NULL:
     {
       char nullbyte = 0;
       luaL_addlstring(&b, &nullbyte, 1);
       break;
     }
-    
-  case OP_HEX: 
+
+  case OP_HEX:
     { // doing digit parsing the lpack way
       unsigned char sbyte = 0;
       size_t l;
@@ -367,7 +367,7 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
           } else if (a[ii] >= 'a' && a[ii] <= 'f') {
             sbyte += a[ii] - 'a' + 10;
             odd++;
-          }	  
+          }
           if (odd == 1) {
             sbyte = sbyte << 4;
           } else if (odd == 2) {

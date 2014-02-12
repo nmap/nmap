@@ -170,7 +170,7 @@ void addrset_free(struct addrset *set)
 void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
 {
     const size_t num_bitvector = sizeof(octet_bitvector) / sizeof(bitvector_t);
-    int i; 
+    int i;
     size_t j;
 
     if (elem->type == ADDRSET_TYPE_IPV4_BITVECTOR) {
@@ -361,7 +361,7 @@ int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns)
             }
             apply_ipv4_netmask_bits(elem, netmask_bits);
             log_debug("Add IPv4 %s/%ld to addrset.\n", addr_string, netmask_bits > 0 ? netmask_bits : 32);
-            
+
 #ifdef HAVE_IPV6
         } else if (addr->ai_family == AF_INET6) {
             const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) addr->ai_addr;

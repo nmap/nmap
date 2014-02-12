@@ -128,7 +128,7 @@
 
 #include "nmap.h" /* u16 */
 
-/* How do we want to log into ftp sites for */ 
+/* How do we want to log into ftp sites for */
 #define FTPUSER "anonymous"
 #define FTPPASS "-wwwuser@"
 #define FTP_RETRIES 2 /* How many times should we relogin if we lose control

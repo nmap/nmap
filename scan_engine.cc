@@ -3751,7 +3751,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     hss->probeSent(packetlen);
     send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
     free(packet);
-  } else assert(0); 
+  } else assert(0);
 
   /* Now that the probe has been sent, add it to the Queue for this host */
   hss->probes_outstanding.push_back(probe);
@@ -5503,7 +5503,7 @@ static void waitForResponses(UltraScanInfo *USI) {
       gotone = get_pcap_result(USI, &stime);
     } else if (USI->scantype == CONNECT_SCAN) {
       gotone = do_one_select_round(USI, &stime);
-    } else assert(0); 
+    } else assert(0);
   } while (gotone && USI->gstats->num_probes_active > 0);
 
   gettimeofday(&USI->now, NULL);

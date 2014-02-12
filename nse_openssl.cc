@@ -224,7 +224,7 @@ static int l_md4(lua_State *L)     /** md4(string s) */
   size_t len;
   const unsigned char *s = (unsigned char *) luaL_checklstring( L, 1, &len );
   unsigned char digest[16];
- 
+
   lua_pushlstring( L, (char *) MD4( s, len, digest ), 16 );
   return 1;
 }
@@ -234,7 +234,7 @@ static int l_md5(lua_State *L)     /** md5(string s) */
   size_t len;
   const unsigned char *s = (unsigned char *) luaL_checklstring( L, 1, &len );
   unsigned char digest[16];
- 
+
   lua_pushlstring( L, (char *) MD5( s, len, digest ), 16 );
   return 1;
 }
@@ -244,7 +244,7 @@ static int l_sha1(lua_State *L)     /** sha1(string s) */
   size_t len;
   const unsigned char *s = (unsigned char *) luaL_checklstring( L, 1, &len );
   unsigned char digest[20];
- 
+
   lua_pushlstring( L, (char *) SHA1( s, len, digest ), 20 );
   return 1;
 }
@@ -254,7 +254,7 @@ static int l_ripemd160(lua_State *L)     /** ripemd160(string s) */
   size_t len;
   const unsigned char *s = (unsigned char *) luaL_checklstring( L, 1, &len );
   unsigned char digest[20];
- 
+
   lua_pushlstring( L, (char *) RIPEMD160( s, len, digest ), 20 );
   return 1;
 }
@@ -270,7 +270,7 @@ static int l_digest(lua_State *L)     /** digest(string algorithm, string messag
   EVP_MD_CTX mdctx;
 
   evp_md = EVP_get_digestbyname( algorithm );
-  
+
   if (!evp_md) return luaL_error( L, "Unknown digest algorithm: %s", algorithm );
 
   EVP_MD_CTX_init(&mdctx);
@@ -280,7 +280,7 @@ static int l_digest(lua_State *L)     /** digest(string algorithm, string messag
       EVP_DigestFinal_ex( &mdctx, digest, &digest_len ))) {
     EVP_MD_CTX_cleanup( &mdctx );
     unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
   EVP_MD_CTX_cleanup( &mdctx );
@@ -299,11 +299,11 @@ static int l_hmac(lua_State *L)     /** hmac(string algorithm, string key, strin
   unsigned char digest[EVP_MAX_MD_SIZE];
   const EVP_MD * evp_md;
   evp_md = EVP_get_digestbyname( algorithm );
-  
+
   if (!evp_md) return luaL_error( L, "Unknown digest algorithm: %s", algorithm );
 
   HMAC( evp_md, key, key_len, msg, msg_len, digest, &digest_len );
- 
+
   lua_pushlstring( L, (char *) digest, digest_len );
   return 1;
 }
@@ -326,7 +326,7 @@ static int l_supported_digests(lua_State *L) /** supported_digests() */
   enumerator_data data;
   data.L = L;
   data.index = 1;
-  
+
   lua_newtable( L );
   OBJ_NAME_do_all_sorted( OBJ_NAME_TYPE_MD_METH,enumerate_algorithms, &data );
 
@@ -338,7 +338,7 @@ static int l_supported_ciphers(lua_State *L) /** supported_ciphers() */
   enumerator_data data;
   data.L = L;
   data.index = 1;
-  
+
   lua_newtable( L );
   OBJ_NAME_do_all_sorted( OBJ_NAME_TYPE_CIPHER_METH,enumerate_algorithms, &data );
 
@@ -360,7 +360,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
     iv = NULL;
 
   EVP_CIPHER_CTX cipher_ctx;
-  EVP_CIPHER_CTX_init( &cipher_ctx );   
+  EVP_CIPHER_CTX_init( &cipher_ctx );
 
   /* First create the cipher context, then set the key length and padding, and
      check the iv length. Below we set the key and iv. */
@@ -369,7 +369,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
       EVP_CIPHER_CTX_set_key_length( &cipher_ctx, key_len ) &&
       EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ))) {
     unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
@@ -389,7 +389,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
     free( out );
     unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
@@ -416,14 +416,14 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
     iv = NULL;
 
   EVP_CIPHER_CTX cipher_ctx;
-  EVP_CIPHER_CTX_init( &cipher_ctx );   
+  EVP_CIPHER_CTX_init( &cipher_ctx );
 
   if (!(
       EVP_DecryptInit_ex( &cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
       EVP_CIPHER_CTX_set_key_length( &cipher_ctx, key_len ) &&
       EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ))) {
     unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
@@ -443,7 +443,7 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
     free( out );
     unsigned long e = ERR_get_error();
-    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e),
                        ERR_func_error_string(e), ERR_reason_error_string(e));
   }
 
@@ -466,7 +466,7 @@ static int l_DES_string_to_key(lua_State *L) /** DES_string_to_key( string data 
   key[0] = data[0];
   for( int i = 1; i < 8; i++ )
     key[i] = data[i-1] << (8-i) | data[i] >> i;
-  
+
   DES_set_odd_parity( &key );
 
   lua_pushlstring( L, (char *) key, 8 );

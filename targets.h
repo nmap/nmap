@@ -1,7 +1,7 @@
 
 /***************************************************************************
  * targets.h -- Functions relating to "ping scanning" as well as           *
- * determining the exact IPs to hit based on CIDR and other input formats. * 
+ * determining the exact IPs to hit based on CIDR and other input formats. *
  *                                                                         *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
@@ -144,7 +144,7 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_PARAM_H   
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
@@ -224,7 +224,7 @@ public:
 
 /* Ports is the list of ports the user asked to be scanned (0 terminated),
    you can just pass NULL (it is only a stupid optimization that needs it) */
-Target *nexthost(HostGroupState *hs,const addrset *exclude_group, 
+Target *nexthost(HostGroupState *hs,const addrset *exclude_group,
                  struct scan_lists *ports, int pingtype);
 int load_exclude_file(addrset *exclude_group, FILE *fp);
 int load_exclude_string(addrset *exclude_group, const char *s);

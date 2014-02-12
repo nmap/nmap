@@ -140,11 +140,11 @@ void initialize_timeout_info(struct timeout_info *to);
  the receive time too (which could be because it was received a while
  back or it could be for efficiency because the caller already knows
  the current time */
-void adjust_timeouts2(const struct timeval *sent, 
-                      const struct timeval *received, 
+void adjust_timeouts2(const struct timeval *sent,
+                      const struct timeval *received,
                       struct timeout_info *to);
 
-/* Adjust our timeout values based on the time the latest probe took for a 
+/* Adjust our timeout values based on the time the latest probe took for a
    response.  We update our RTT averages, etc. */
 void adjust_timeouts(struct timeval sent, struct timeout_info *to);
 

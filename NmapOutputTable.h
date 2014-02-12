@@ -180,11 +180,11 @@ class NmapOutputTable {
     assert(row < numRows);  assert(col < numColumns);
     return table + row * numColumns + col;
   }
-  int *maxColLen; // An array that gives the maximum length of any member of each column 
+  int *maxColLen; // An array that gives the maximum length of any member of each column
                   // (excluding terminator)
   // Array that tells the number of valid (> 0 length) items in each row
-  int *itemsInRow; 
-  unsigned int numRows;  
+  int *itemsInRow;
+  unsigned int numRows;
   unsigned int numColumns;
   char *tableout; // If printableTable() is called, we return this
   int tableoutsz; // Amount of space ALLOCATED for tableout.  Includes space allocated for NUL.

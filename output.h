@@ -215,7 +215,7 @@ void log_flush(int logt);
    corresponding logs immediately */
 void log_flush_all();
 
-/* Open a log descriptor of the type given to the filename given.  If 
+/* Open a log descriptor of the type given to the filename given.  If
    append is nonzero, the file will be appended instead of clobbered if
    it already exists.  If the file does not exist, it will be created */
 int log_open(int logt, int append, char *filename);
@@ -239,7 +239,7 @@ void output_xml_scaninfo_records(struct scan_lists *ports);
 void write_host_header(Target *currenths);
 
 /* Writes host status info to the log streams (including STDOUT).  An
-   example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to 
+   example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to
    machine log. */
 void write_host_status(Target *currenths);
 

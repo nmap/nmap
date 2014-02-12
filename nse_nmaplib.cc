@@ -321,7 +321,7 @@ static int aux_mutex (lua_State *L)
   return 0;
 }
 
-/* This is the mutex destructor called when a thread ends but failed to 
+/* This is the mutex destructor called when a thread ends but failed to
  * unlock the mutex.
  * It has 1 upvalue: The nmap.mutex function closure.
  */
@@ -492,7 +492,7 @@ static int l_port_is_excluded (lua_State *L)
   unsigned short portno = (unsigned short) luaL_checkint(L, 1);
   int protocol = NSE_PROTOCOL[luaL_checkoption(L, 2, NULL, NSE_PROTOCOL_OP)];
 
-  lua_pushboolean(L, AllProbes::check_excluded_port(portno, protocol)); 
+  lua_pushboolean(L, AllProbes::check_excluded_port(portno, protocol));
   return 1;
 }
 
@@ -690,7 +690,7 @@ static int l_get_timing_level (lua_State *L)
  * If this function was called without an argument then it
  * will simply return the number of pending targets that are
  * in the queue (waiting to be passed to Nmap).
- * 
+ *
  * If the function was only able to add a one target, then we
  * consider this success. */
 static int l_add_targets (lua_State *L)
@@ -715,7 +715,7 @@ static int l_add_targets (lua_State *L)
       return 2;
     }
   } else {
-      /* function called without arguments */ 
+      /* function called without arguments */
       /* push the number of pending targets that are in the queue */
       lua_pushnumber(L, NewTargets::insert(""));
       return 1;
@@ -804,7 +804,7 @@ static int l_get_interface (lua_State *L)
   return 1;
 }
 
-/* returns a list of tables where each table contains information about each 
+/* returns a list of tables where each table contains information about each
  * interface.
  */
 static int l_list_interfaces (lua_State *L)
@@ -817,9 +817,9 @@ static int l_list_interfaces (lua_State *L)
   struct addr src, bcast;
 
   iflist = getinterfaces(&numifs, errstr, sizeof(errstr));
- 
+
   int i;
-  
+
   if (iflist==NULL || numifs<=0) {
     return nseU_safeerror(L, "%s", errstr);
   } else {
@@ -827,21 +827,21 @@ static int l_list_interfaces (lua_State *L)
     memset(&src, 0, sizeof(src));
     memset(&bcast, 0, sizeof(bcast));
     lua_newtable(L); //base table
-    
+
     for(i=0; i< numifs; i++) {
       lua_newtable(L); //interface table
       nseU_setsfield(L, -1, "device", iflist[i].devfullname);
       nseU_setsfield(L, -1, "shortname", iflist[i].devname);
       nseU_setnfield(L, -1, "netmask", iflist[i].netmask_bits);
-      nseU_setsfield(L, -1, "address", inet_ntop_ez(&(iflist[i].addr), 
+      nseU_setsfield(L, -1, "address", inet_ntop_ez(&(iflist[i].addr),
             sizeof(iflist[i].addr) ));
-      
+
       switch (iflist[i].device_type){
         case devt_ethernet:
           nseU_setsfield(L, -1, "link", "ethernet");
           lua_pushlstring(L, (const char *) iflist[i].mac, 6);
           lua_setfield(L, -2, "mac");
-          
+
           /* calculate the broadcast address */
           if (iflist[i].addr.ss_family == AF_INET) {
           src.addr_type = ADDR_TYPE_IP;
@@ -863,10 +863,10 @@ static int l_list_interfaces (lua_State *L)
         default:
           nseU_setsfield(L, -1, "link", "other");
       }
-      
+
       nseU_setsfield(L, -1, "up", (iflist[i].device_up ? "up" : "down"));
       nseU_setnfield(L, -1, "mtu", iflist[i].mtu);
-      
+
       /* After setting the fields, add the interface table to the base table */
       lua_rawseti(L, -2, i + 1);
     }
@@ -874,8 +874,8 @@ static int l_list_interfaces (lua_State *L)
   return 1;
 }
 
-/* return the ttl (time to live) specified with the 
- * --ttl command line option. If a wrong value is 
+/* return the ttl (time to live) specified with the
+ * --ttl command line option. If a wrong value is
  * specified it defaults to 64.
  */
 static int l_get_ttl (lua_State *L)
@@ -887,8 +887,8 @@ static int l_get_ttl (lua_State *L)
   return 1;
 }
 
-/* return the payload length specified by the --data-length 
- * command line option. If it  * isn't specified or the value 
+/* return the payload length specified by the --data-length
+ * command line option. If it  * isn't specified or the value
  * is out of range then the default value (0) is returned.
  */
 static int l_get_payload_length(lua_State *L)

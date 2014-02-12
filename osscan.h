@@ -171,7 +171,7 @@ void free_fingerprint_file(FingerPrintDB *DB);
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
    verbose is nonzero, differences will be printed.  The comparison
-   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is 
+   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(const FingerPrint *referenceFP, const FingerPrint *observedFP,
                             const FingerPrint *MatchPoints, int verbose);

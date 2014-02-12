@@ -66,7 +66,7 @@ struct ip
     u_int8_t ip_hl:4;                   /* header length */
 #else
     u_int8_t ip_hl:4;                   /* header length */
-    u_int8_t ip_v:4;                    /* version */ 
+    u_int8_t ip_v:4;                    /* version */
 #endif
     u_int8_t ip_tos;                    /* type of service */
     u_short ip_len;                     /* total length */

@@ -129,7 +129,7 @@
 #include "nbase.h"
 #ifndef NOLUA
 #include "nse_main.h"
-#endif 
+#endif
 
 #include "portreasons.h"
 
@@ -143,9 +143,9 @@
 #define PORT_UNFILTERED 6
 #define PORT_OPENFILTERED 7 /* Like udp/fin/xmas/null/ipproto scan with no response */
 #define PORT_CLOSEDFILTERED 8 /* Idle scan */
-#define PORT_HIGHEST_STATE 9 /* ***IMPORTANT -- BUMP THIS UP WHEN STATES ARE 
+#define PORT_HIGHEST_STATE 9 /* ***IMPORTANT -- BUMP THIS UP WHEN STATES ARE
                                 ADDED *** */
- 
+
 #define TCPANDUDPANDSCTP IPPROTO_MAX
 #define UDPANDSCTP (IPPROTO_MAX + 1)
 
@@ -190,9 +190,9 @@ struct serviceDeductions {
   char *devicetype;
   std::vector<char *> cpe;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
-  enum service_tunnel_type service_tunnel; 
+  enum service_tunnel_type service_tunnel;
   // if we should give the user a service fingerprint to submit, here it is.  Otherwise NULL.
-  char *service_fp; 
+  char *service_fp;
   enum service_detection_type dtype; // definition above
 };
 
@@ -207,7 +207,7 @@ class Port {
 
   u16 portno;
   u8 proto;
-  u8 state; 
+  u8 state;
   state_reason_t reason;
 
 #ifndef NOLUA
@@ -240,7 +240,7 @@ class PortList {
   static void initializePortMap(int protocol, u16 *ports, int portcount);
   /* Free memory used by port_map. It should be done somewhere before quitting*/
   static void freePortMap();
-  
+
   void setDefaultPortState(u8 protocol, int state);
   void setPortState(u16 portno, u8 protocol, int state);
   int getPortState(u16 portno, u8 protocol);
@@ -286,7 +286,7 @@ class PortList {
   // detected and we tried to tunnel through it ).
   void setServiceProbeResults(u16 portno, int protocol,
                               enum serviceprobestate sres, const char *sname,
-                              enum service_tunnel_type tunnel, const char *product, 
+                              enum service_tunnel_type tunnel, const char *product,
                               const char *version, const char *hostname,
                               const char *ostype, const char *devicetype,
                               const char *extrainfo,
@@ -328,7 +328,7 @@ class PortList {
   /* Set Port structure to PortList structure.*/
   void  setPortEntry(u16 portno, u8 protocol, Port *port);
 
-  /* A string identifying the system these ports are on.  Just used for 
+  /* A string identifying the system these ports are on.  Just used for
      printing open ports, if it is set with setIdStr() */
   char *idstr;
   /* Number of ports in each state per each protocol. */
@@ -336,7 +336,7 @@ class PortList {
   Port **port_list[PORTLIST_PROTO_MAX];
  protected:
   /* Maps port_number to index in port_list array.
-   * Only functions: getPortEntry, setPortEntry, initializePortMap and 
+   * Only functions: getPortEntry, setPortEntry, initializePortMap and
    * nextPort should access this structure directly. */
   static u16 *port_map[PORTLIST_PROTO_MAX];
   static u16 *port_map_rev[PORTLIST_PROTO_MAX];

@@ -202,7 +202,7 @@ void pfatal(const char *fmt, ...) {
 
 #ifdef WIN32
   error_number = GetLastError();
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                 NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
                 (LPTSTR) &strerror_s,  0, NULL);
 #else
@@ -264,14 +264,14 @@ void gh_perror(const char *fmt, ...) {
 
 #ifdef WIN32
   error_number = GetLastError();
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
                 NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
                 (LPTSTR) &strerror_s,  0, NULL);
 #else
   error_number = errno;
   strerror_s = strerror(error_number);
 #endif
-  
+
   va_start(ap, fmt);
   log_vwrite(LOG_NORMAL|LOG_STDERR, fmt, ap);
   va_end(ap);

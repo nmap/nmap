@@ -502,7 +502,7 @@ Hop *HostState::insert_hop(u8 ttl, const struct sockaddr_storage *addr,
     } else {
       if (o.debugging) {
         log_write(LOG_STDOUT, "Found existing %s", ss_to_string(&hop->addr));
-        log_write(LOG_STDOUT, " while inserting %s at TTL %d for %s\n", 
+        log_write(LOG_STDOUT, " while inserting %s at TTL %d for %s\n",
           ss_to_string(addr), ttl, target->targetipstr());
       }
     }

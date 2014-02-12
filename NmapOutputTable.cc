@@ -169,7 +169,7 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool fullro
                                 bool copy, const char *item, int itemlen) {
   struct NmapOutputTableCell *cell;
   int mc = maxColLen[column];
-  
+
   addItem(row, column, copy, item, itemlen);
 
   if(fullrow) {
@@ -180,7 +180,7 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool fullro
   return;
 }
 
-void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, const char *item, 
+void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, const char *item,
                               int itemlen) {
   struct NmapOutputTableCell *cell;
 
@@ -214,14 +214,14 @@ void NmapOutputTable::addItem(unsigned int row, unsigned int column, bool copy, 
   return;
 }
 
-void NmapOutputTable::addItemFormatted(unsigned int row, 
+void NmapOutputTable::addItemFormatted(unsigned int row,
                                           unsigned int column,
                                           bool fullrow,
                                           const char *fmt, ...) {
   struct NmapOutputTableCell *cell;
   int mc = maxColLen[column];
   unsigned int res;
-  va_list ap; 
+  va_list ap;
   va_start(ap,fmt);
   char buf[4096];
   res = Vsnprintf(buf, sizeof(buf), fmt, ap);
@@ -244,7 +244,7 @@ bool NmapOutputTable::emptyRow(unsigned int nrow) {
         NmapOutputTableCell *cell;
         unsigned int col;
         bool isEmpty = true;
-        
+
         assert(nrow < numRows);
 
         for(col = 0 ; col < numColumns; col++) {
@@ -254,14 +254,14 @@ bool NmapOutputTable::emptyRow(unsigned int nrow) {
                         break;
                 }
         }
-        return isEmpty;		
+        return isEmpty;
 }
 
  // This function sticks the entire table into a character buffer.
  // Note that the buffer is likely to be reused if you call the
  // function again, and it will also be invalidated if you free the
  // table. If size is not NULL, it will be filled with the size of
- // the ASCII table in bytes (not including the terminating NUL) 
+ // the ASCII table in bytes (not including the terminating NUL)
  // All blank rows are removed from the returned string
 char *NmapOutputTable::printableTable(int *size) {
   unsigned int col, row;
@@ -279,7 +279,7 @@ char *NmapOutputTable::printableTable(int *size) {
   for(row = 0; row < numRows; row++) {
     validthisrow = 0;
 
-    if(emptyRow(row)) 
+    if(emptyRow(row))
         continue;
 
     cell = getCellAddy(row, 0);

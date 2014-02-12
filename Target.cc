@@ -183,7 +183,7 @@ const char * Target::deviceName() const {
 }
 
 const char * Target::deviceFullName() const {
-        return (devfullname[0] != '\0')? devfullname : NULL; 
+        return (devfullname[0] != '\0')? devfullname : NULL;
 }
 
 void Target::Recycle() {
@@ -225,10 +225,10 @@ void Target::GenerateTargetIPString() {
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &targetsock;
 #endif
 
-  if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET)? 
-                (char *) &sin->sin_addr : 
+  if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET)?
+                (char *) &sin->sin_addr :
 #if HAVE_IPV6
-                (char *) &sin6->sin6_addr, 
+                (char *) &sin6->sin6_addr,
 #else
                 (char *) NULL,
 #endif
@@ -269,7 +269,7 @@ int Target::af() const {
      to the size of the sockaddr copied in. */
 int Target::TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
   assert(ss);
-  assert(ss_len);  
+  assert(ss_len);
   if (targetsocklen <= 0)
     return 1;
   assert(targetsocklen <= sizeof(*ss));
@@ -378,7 +378,7 @@ const struct in6_addr *Target::v6sourceip() const {
   return NULL;
 }
 
-  /* You can set to NULL to erase a name or if it failed to resolve -- or 
+  /* You can set to NULL to erase a name or if it failed to resolve -- or
      just don't call this if it fails to resolve */
 void Target::setHostName(const char *name) {
   char *p;

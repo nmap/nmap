@@ -241,7 +241,7 @@ class ServiceProbeMatch {
   // are sufficient).  Returns zero for success.  If no template is available
   // for a string, that string will have zero length after the function
   // call (assuming the corresponding length passed in is at least 1)
-  int getVersionStr(const u8 *subject, int subjectlen, int *ovector, 
+  int getVersionStr(const u8 *subject, int subjectlen, int *ovector,
                   int nummatches, char *product, int productlen,
                   char *version, int versionlen, char *info, int infolen,
                   char *hostname, int hostnamelen, char *ostype, int ostypelen,
@@ -273,16 +273,16 @@ class ServiceProbe {
   // (giving the line number) if it fails to parse the string.
   void setProbeDetails(char *pd, int lineno);
 
-  // obtains the probe string (in raw binary form) and the length.  The string will be 
+  // obtains the probe string (in raw binary form) and the length.  The string will be
   // NUL-terminated, but there may be other \0 in the string, so the termination is only
   // done for ease of printing ASCII probes in debugging cases.
   const u8 *getProbeString(int *stringlen) { *stringlen = probestringlen; return probestring; }
   void setProbeString(const u8 *ps, int stringlen);
 
   /* Protocols are IPPROTO_TCP and IPPROTO_UDP */
-  u8 getProbeProtocol() { 
-    assert(probeprotocol == IPPROTO_TCP || probeprotocol == IPPROTO_UDP); 
-    return probeprotocol;  
+  u8 getProbeProtocol() {
+    assert(probeprotocol == IPPROTO_TCP || probeprotocol == IPPROTO_UDP);
+    return probeprotocol;
   }
   void setProbeProtocol(u8 protocol) { probeprotocol = protocol; }
 
@@ -336,7 +336,7 @@ class ServiceProbe {
   ServiceProbe *fallbacks[MAXFALLBACKS+1];
 
  private:
-  void setPortVector(std::vector<u16> *portv, const char *portstr, 
+  void setPortVector(std::vector<u16> *portv, const char *portstr,
                                  int lineno);
   char *probename;
 
@@ -372,7 +372,7 @@ public:
   int isExcluded(unsigned short port, int proto);
   bool excluded_seen;
   struct scan_lists excludedports;
-  
+
   static AllProbes *service_scan_init(void);
   static void service_scan_free(void);
   static int check_excluded_port(unsigned short port, int proto);

@@ -155,7 +155,7 @@ static std::string hexify (const unsigned char *str, size_t len)
  *
  * THREAD_SOCKETS is a weak keyed table of <Thread, Socket Table> pairs.
  * A socket table is a weak keyed table (socket keys with garbage values) of
- * sockets the Thread has allocated but not necessarily open). You may 
+ * sockets the Thread has allocated but not necessarily open). You may
  * test for an open socket by checking whether its nsiod field in the
  * socket userdata structure is not NULL.
  *
@@ -566,7 +566,7 @@ static int l_sendto (lua_State *L)
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
   freeaddrinfo(dest);
   return yield(L, nu, "SEND", TO, 0, NULL);
-        
+
 }
 
 static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
