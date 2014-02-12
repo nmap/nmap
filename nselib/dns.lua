@@ -149,20 +149,21 @@ local function sendPacketsTCP(data, host, port, timeout)
   local send_data = '\000' .. string.char(#data) .. data
   socket:send(send_data)
   local response = ''
+  local got_response = false
   while true do
     local status, recv_data = socket:receive_bytes(1)
     if not status then break end
+    got_response = true
     response = response .. recv_data
   end
   local status, _, _, ip, _ = socket:get_info()
+  socket:close()
+  if not got_response then
+    return false
+  end
   -- remove payload size
   table.insert(responses, { data = string.sub(response,3), peer = ip } )
-  socket:close()
-  if (#responses>0) then
-    return true, responses
-  end
-  return false
-
+  return true, responses
 end
 
 ---

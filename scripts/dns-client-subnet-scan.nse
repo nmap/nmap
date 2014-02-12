@@ -3,6 +3,7 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -58,18 +59,24 @@ local argMask = stdnse.get_script_args(SCRIPT_NAME .. '.mask') or 24
 local argAddr = stdnse.get_script_args(SCRIPT_NAME .. '.address')
 
 prerule = function()
-  if ( not(argDomain) or nmap.address_family() ~= "inet" ) then
-    return false
-  end
-  return true
+  return argDomain and nmap.address_family() == "inet"
 end
 
 portrule = function(host, port)
   if ( nmap.address_family() ~= "inet" ) then
     return false
-  else
-    return shortport.port_or_service(53, "domain", {"tcp", "udp"})(host, port)
   end
+  if not shortport.port_or_service(53, "domain", {"tcp", "udp"})(host, port) then
+    return false
+  end
+  -- only check tcp if udp is not open or open|filtered
+  if port.protocol == 'tcp' then
+    local tmp_port = nmap.get_port_state(host, {number=port.number, protocol="udp"})
+    if tmp_port then
+      return not string.match(tmp_port.state, '^open')
+    end
+  end
+  return true
 end
 
 local areaIPs = {
@@ -304,7 +311,7 @@ local areaIPs = {
   Z4 = {ip=40321024, desc="GB,Z4,Wrexham"}
 }
 
-local get_addresses = function(address, mask, domain, nameserver)
+local get_addresses = function(address, mask, domain, nameserver, port)
 
   -- translate the IP's in the areaIPs to strings, as this is what the
   -- DNS library expects
@@ -315,7 +322,7 @@ local get_addresses = function(address, mask, domain, nameserver)
   end
 
   local subnet = { family = nmap.address_family(), address = address, mask = mask }
-  local status, resp = dns.query(domain, {host = nameserver, retAll=true, subnet=subnet})
+  local status, resp = dns.query(domain, {host = nameserver, port=port.number, protocol=port.protocol, retAll=true, subnet=subnet})
   if ( not(status) ) then
     return
   end
@@ -331,23 +338,22 @@ action = function(host, port)
     return fail(SCRIPT_NAME .. ".domain was not specified")
   end
 
-  local nameserver = argNS or (host and host.ip)
-  -- as the nameserver argument overrides the host.ip, the prerule should
-  -- already have done our work, so abort
-  if ( argNS and host ) then
-    return
-    -- if we have no nameserver argument and no host, we dont have sufficient
-    -- information to continue, abort
-  elseif ( not(argNS) and not(host) ) then
-    return
+  local nameserver = (host and host.ip) or argNS
+  -- if we have no nameserver argument and no host, we dont have sufficient
+  -- information to continue, abort
+  if not nameserver then
+    return nil
   end
+
+  -- if we are running as a prerule pick some defaults
+  port = port or { number = "53", protocol ="udp" }
 
   local addrs = argAddr or areaIPs
   if ( "string" == type(addrs) ) then addrs = {{ ip = addrs }} end
 
   local lookup, result = {}, { name = argDomain }
   for _,ip in pairs(addrs) do
-    for _, addr in ipairs( get_addresses (ip.ip, argMask, argDomain, nameserver) ) do
+    for _, addr in ipairs( get_addresses (ip.ip, argMask, argDomain, nameserver, port) ) do
       lookup[addr] = true
     end
   end

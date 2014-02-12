@@ -1,7 +1,9 @@
 local bin = require "bin"
 local dns = require "dns"
+local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
+local string = require "string"
 local table = require "table"
 
 description = [[
@@ -42,7 +44,19 @@ license = "Simplified (2-clause) BSD license--See http://nmap.org/svn/docs/licen
 categories = {"discovery", "default"}
 
 
-portrule = shortport.port_or_service(53, "domain", {"tcp", "udp"})
+portrule = function (host, port)
+  if not shortport.port_or_service(53, "domain", {"tcp", "udp"})(host, port) then
+    return false
+  end
+  -- only check tcp if udp is not open or open|filtered
+  if port.protocol == 'tcp' then
+    local tmp_port = nmap.get_port_state(host, {number=port.number, protocol="udp"})
+    if tmp_port then
+      return not string.match(tmp_port.state, '^open')
+    end
+  end
+  return true
+end
 
 local function rr_filter(pktRR, label)
   for _, rec in ipairs(pktRR, label) do
