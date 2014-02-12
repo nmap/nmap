@@ -14,7 +14,7 @@ authentication enabled.
 
 By sending a HTTP NTLM authentication request with null domain and user
 credentials (passed in the 'Authorization' header), the remote service will
-respond with a NTLMSSP message (encoded within the ‘WWW-Authenticate’ header)
+respond with a NTLMSSP message (encoded within the 'WWW-Authenticate' header)
 and disclose information to include NetBIOS, DNS, and OS build version if
 available.
 ]]
