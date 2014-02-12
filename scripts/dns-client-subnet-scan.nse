@@ -82,7 +82,7 @@ end
 local areaIPs = {
   A4 = {ip=47763456, desc="GB,A4,Bath"},
   A5 = {ip=1043402336, desc="GB,A5,Biggleswade"},
-  A6 = {ip=1364222182, desc="FR,A6,Chèvremont"},
+  A6 = {ip=1364222182, desc="FR,A6,ChÃ¨vremont"},
   A7 = {ip=35357952, desc="GB,A7,Birmingham"},
   A8 = {ip=1050694009, desc="FR,A8,Romainville"},
   A9 = {ip=534257152, desc="FR,A9,Montpellier"},

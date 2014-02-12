@@ -55,7 +55,7 @@ result in a large number of accounts being locked out on the database server.
 --                - oracle-brute.sid argument
 -- Revised 07/25/2011 - v0.3 - added support for guessing default accounts
 --                             changed code to use ConnectionPool
--- Revised 03/13/2012 - v0.4 - revised by László Tóth
+-- Revised 03/13/2012 - v0.4 - revised by LÃ¡szlÃ³ TÃ³th
 --                             added support for SYSDBA accounts
 -- Revised 08/07/2012 - v0.5 - revised to suit the changes in brute
 --                  library [Aleksandar Nikolic]
