@@ -544,7 +544,7 @@ static int ncat_hexdump(int logfd, const char *data, int len)
 int getaddrfamily(const char *addr)
 {
     int ret;
-    struct addrinfo hint, *info =0;
+    struct addrinfo hint, *info = 0;
 
     if (strchr(addr,':'))
       return 2;
