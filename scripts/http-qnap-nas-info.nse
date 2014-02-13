@@ -52,7 +52,7 @@ action = function(host, port)
   local config_file = ""
 
   -- Retrieve file
-  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  stdnse.print_debug(1, "%s: Connecting to %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
   local data = http.get(host, port, path)
 
   -- Check if file exists
@@ -63,7 +63,7 @@ action = function(host, port)
     if string.match(data.body, '<QDocRoot version="[^"]+">') then
       config_file = data.body
     else
-      stdnse.print_debug(1, ("%s: %s:%s uses an invalid config file."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+      stdnse.print_debug(1, "%s: %s:%s uses an invalid config file.", SCRIPT_NAME, host.targetname or host.ip, port.number)
       return
     end
 

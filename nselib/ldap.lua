@@ -222,7 +222,7 @@ end
 function searchRequest( socket, params )
 
   local searchResEntries = { errorMessage="", resultCode = 0}
-  local catch = function() socket:close() stdnse.print_debug(string.format("SearchRequest failed")) end
+  local catch = function() socket:close() stdnse.print_debug("SearchRequest failed") end
   local try = nmap.new_try(catch)
   local attributes = params.attributes
   local request = encode(params.baseObject)
@@ -340,7 +340,7 @@ end
 -- @return err string containing error message
 function bindRequest( socket, params )
 
-  local catch = function() socket:close() stdnse.print_debug(string.format("bindRequest failed")) end
+  local catch = function() socket:close() stdnse.print_debug("bindRequest failed") end
   local try = nmap.new_try(catch)
   local ldapAuth = encode( { _ldaptype = 80, params.password } )
   local bindReq = encode( params.version ) .. encode( params.username ) .. ldapAuth
@@ -393,7 +393,7 @@ end
 function unbindRequest( socket )
 
   local ldapMsg, packet
-  local catch = function() socket:close() stdnse.print_debug(string.format("bindRequest failed")) end
+  local catch = function() socket:close() stdnse.print_debug("bindRequest failed") end
   local try = nmap.new_try(catch)
 
   local encoder = asn1.ASN1Encoder:new()

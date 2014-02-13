@@ -108,16 +108,16 @@ action = function( host, port )
   end
 
   -- Retrieve grid data in XML format over TCP
-  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  stdnse.print_debug(1, "%s: Connecting to %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
   local status, data = comm.get_banner(host, port, {timeout=timeout*1000,bytes=bytes})
   if not status then
-    stdnse.print_debug(1, ("%s: Timeout exceeded for %s:%s (Timeout: %ss)."):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
+    stdnse.print_debug(1, "%s: Timeout exceeded for %s:%s (Timeout: %ss).", SCRIPT_NAME, host.targetname or host.ip, port.number, timeout)
     return
   end
 
   -- Parse daemon info
   if not string.match(data, "<!DOCTYPE GANGLIA_XML") then
-    stdnse.print_debug(1, ("%s: %s:%s is not a Ganglia Daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: %s:%s is not a Ganglia Daemon.", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   elseif string.match(data, '<GANGLIA_XML VERSION="([^"]*)" SOURCE="gmond"') then
     table.insert(result, "Service: Ganglia Monitoring Daemon")
@@ -130,7 +130,7 @@ action = function( host, port )
     local grid = string.match(data, '<GRID NAME="([^"]*)" ')
     if grid then table.insert(result, string.format("Grid Name: %s", grid)) end
   else
-    stdnse.print_debug(1, ("%s: %s:%s did not supply Ganglia daemon details."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: %s:%s did not supply Ganglia daemon details.", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   end
 
