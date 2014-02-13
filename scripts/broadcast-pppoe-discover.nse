@@ -1,4 +1,3 @@
-local bin = require "bin"
 local nmap = require "nmap"
 local pppoe = require "pppoe"
 local stdnse = require "stdnse"

@@ -56,7 +56,6 @@ local http = require 'http'
 local stdnse = require 'stdnse'
 local string = require 'string'
 local table = require 'table'
-local tab = require 'tab'
 local url = require 'url'
 
 -- generate a charset that will be used for fuzzing

@@ -7,7 +7,6 @@ local stdnse = require "stdnse"
 local table = require "table"
 local math = require "math"
 local brute = require "brute"
-local creds = require "creds"
 local unpwdb = require "unpwdb"
 
 description = [[

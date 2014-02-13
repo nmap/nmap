@@ -1,7 +1,6 @@
 local bin = require "bin"
 local rmi = require "rmi"
 local shortport = require "shortport"
-local stdnse = require "stdnse"
 local string = require "string"
 local vulns = require "vulns"
 

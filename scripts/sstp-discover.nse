@@ -1,4 +1,3 @@
-local nmap = require 'nmap'
 local comm = require 'comm'
 local string = require 'string'
 local stdnse = require 'stdnse'

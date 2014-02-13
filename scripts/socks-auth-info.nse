@@ -1,6 +1,5 @@
 local shortport = require "shortport"
 local socks = require "socks"
-local stdnse = require "stdnse"
 local table = require "table"
 
 description = [[

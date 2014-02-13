@@ -24,7 +24,6 @@ local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local url = require "url"
 
 portrule = shortport.http
 local DEFAULT_PATH = "/CFIDE/adminapi/"

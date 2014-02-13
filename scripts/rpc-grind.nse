@@ -1,7 +1,6 @@
 local stdnse = require "stdnse"
 local nmap = require "nmap"
 local rpc = require "rpc"
-local datafiles = require "datafiles"
 local bin = require "bin"
 local math = require "math"
 local io = require "io"

@@ -44,7 +44,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"external", "discovery"}
 
-local dns = require "dns"
 local ipOps = require "ipOps"
 local io = require "io"
 local http = require "http"

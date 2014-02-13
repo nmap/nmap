@@ -2,7 +2,6 @@ local dns = require "dns"
 local nmap = require "nmap"
 local packet = require "packet"
 local stdnse = require "stdnse"
-local string = require "string"
 local ipOps = require "ipOps"
 
 description = [[
