@@ -128,8 +128,7 @@ local function do_half_http(host, port, obj)
   -- Build a half-http header.
   local half_http = "POST /" .. tostring(math.random(100000, 900000)) .. " HTTP/1.1\r\n" ..
     "Host: " .. host.ip .. "\r\n" ..
-    "User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; " ..
-    ".NET CLR 1.1.4322; .NET CLR 2.0.503l3; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n" ..
+    "User-Agent: " .. http.USER_AGENT .. "\r\n" ..
     "Content-Length: 42\r\n"
 
   try(slowloris:send(half_http))
@@ -166,8 +165,7 @@ local function do_monitor(host, port)
 
   local request = "GET / HTTP/1.1\r\n" ..
     "Host: " .. host.ip ..
-    "\r\nUser-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; " ..
-    ".NET CLR 1.1.4322; .NET CLR 2.0.503l3; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; MSOffice 12)\r\n\r\n"
+    "\r\nUser-Agent: " .. http.USER_AGENT .. "\r\n\r\n"
   local opts = {}
   local _
 
