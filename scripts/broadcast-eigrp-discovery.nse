@@ -1,6 +1,5 @@
 local eigrp = require "eigrp"
 local nmap = require "nmap"
-local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
 local bin = require "bin"

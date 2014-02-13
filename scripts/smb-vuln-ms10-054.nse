@@ -1,7 +1,5 @@
 local bin = require "bin"
-local msrpc = require "msrpc"
 local smb = require "smb"
-local string = require "string"
 local vulns = require "vulns"
 local stdnse = require "stdnse"
 

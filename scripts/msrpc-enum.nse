@@ -1,6 +1,5 @@
 local msrpc = require "msrpc"
 local smb = require "smb"
-local string = require "string"
 local stdnse = require "stdnse"
 local table = require "table"
 

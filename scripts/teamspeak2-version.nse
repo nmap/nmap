@@ -2,7 +2,6 @@ local comm = require "comm"
 local shortport = require "shortport"
 local nmap = require "nmap"
 local bin = require "bin"
-local stdnse = require "stdnse"
 local string = require "string"
 
 description = [[

@@ -27,7 +27,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive"}
 
 local shortport = require 'shortport'
-local http = require 'http'
 local stdnse = require 'stdnse'
 local httpspider = require 'httpspider'
 local string = require 'string'

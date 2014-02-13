@@ -2,7 +2,6 @@ local ipOps = require "ipOps"
 local nmap = require "nmap"
 local ssh1 = require "ssh1"
 local stdnse = require "stdnse"
-local string = require "string"
 local table = require "table"
 
 description = [[

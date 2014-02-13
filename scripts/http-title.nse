@@ -1,11 +1,8 @@
-local dns = require "dns"
 local http = require "http"
-local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local string = require "string"
-local url = require "url"
 
 description = [[
 Shows the title of the default page of a web server.

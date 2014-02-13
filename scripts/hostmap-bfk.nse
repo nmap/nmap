@@ -1,4 +1,3 @@
-local dns = require "dns"
 local http = require "http"
 local io = require "io"
 local ipOps = require "ipOps"

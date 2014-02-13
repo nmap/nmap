@@ -37,7 +37,6 @@ categories = {"discovery", "intrusive"}
 author = "George Chatzisofroniou"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-local http = require "http"
 local shortport = require "shortport"
 local stdnse = require "stdnse"
 local table = require "table"
