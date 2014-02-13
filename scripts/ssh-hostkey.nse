@@ -1,4 +1,3 @@
-local base64 = require "base64"
 local ipOps = require "ipOps"
 local nmap = require "nmap"
 local shortport = require "shortport"
@@ -97,6 +96,15 @@ gathered keys.
 --   <elem key="fingerprint">f058cef4aaa4591c8edd4d0744c82511</elem>
 --   <elem key="type">ssh-rsa</elem>
 -- </table>
+-- <table key="Key comparison with known_hosts file">
+--   <table key="GOOD Matches in known_hosts file">
+--     <table>
+--       <elem key="lnumber">5</elem>
+--       <elem key="name">localhost</elem>
+--       <elem key="key">ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwVuv2gcr0maaKQ69VVIEv2ob4OxnuI64fkeOnCXD1lUx5tTA+vefXUWEMxgMuA7iX4irJHy2zer0NQ3Z3yJvr5scPgTYIaEOp5Uo/eGFG9Agpk5wE8CoF0e47iCAPHqzlmP2V7aNURLMODb3jVZuI07A2ZRrMGrD8d888E2ORVORv1rYeTYCqcMMoVFmX9l3gWEdk4yx3w5sD8v501Iuyd1v19mPfyhrI5E1E1nl/Xjp5N0/xP2GUBrdkDMxKaxqTPMie/f0dXBUPQQN697a5q+5lBRPhKYOtn6yQKCd9s1Q22nxn72Jmi1RzbMyYJ52FosDT755Qmb46GLrDMaZMQ==</elem>
+--     </table>
+--   </table>
+-- </table>
 --
 --@xmloutput
 -- <table>
@@ -175,7 +183,7 @@ local function check_keys(host, keys, f)
           if not foundhostname then
             for _, k in ipairs(keys_found) do
               if ("%s %s"):format(parts[2], parts[3]) == k then
-                table.insert(same_key_hashed, {lnumber = lnumber})
+                table.insert(same_key_hashed, {name="<unknown>", key=k, lnumber = lnumber})
               end
             end
           end
@@ -214,45 +222,49 @@ local function check_keys(host, keys, f)
   end
 
   -- Start making output.
-  local return_string = "Key comparison with known_hosts file: "
+  local out
   if #keys_from_file == 0 then
-    return_string = return_string .. "\n\t" ..  "No entry for scanned host found in known_hosts file."
+    out = "No entry for scanned host found in known_hosts file."
   else
-    if next(matched_keys) or next(same_key_hashed) or next(same_key) then
-      return_string = return_string .. "\n\tGOOD Matches in known_hosts file: "
-      if next(matched_keys) then
-        for __, gm in ipairs(matched_keys) do
-          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-        end
+    out = stdnse.output_table()
+    local match_mt = {
+      __tostring = function(self)
+        return string.format("L%d: %s", self.lnumber, self.name)
       end
-      if next(same_key) then
-        for __, gm in ipairs(same_key) do
-          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-        end
-      end
+    }
+    local good = {}
+    for __, gm in ipairs(matched_keys) do
+      setmetatable(gm, match_mt)
+      good[#good+1] = gm
+    end
+    for __, gm in ipairs(same_key) do
+      setmetatable(gm, match_mt)
+      good[#good+1] = gm
+    end
+    for __, gm in ipairs(same_key_hashed) do
+      setmetatable(gm, match_mt)
+      good[#good+1] = gm
+    end
+    if #good > 0 then
+      out["GOOD Matches in known_hosts file"] = good
+    end
 
-      if next(same_key_hashed) then
-        for __, gm in ipairs(same_key_hashed) do
-          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": <unknown>"
-        end
-      end
-
-      if different_keys ~= 0 then
-        return_string = return_string .. "\n\tWRONG Matches in known_hosts file: "
-        for __, gm in ipairs(different_keys) do
-          return_string = return_string .. "\n\t\tL" .. gm.lnumber .. ": " .. gm.name
-        end
-      end
+    local wrong = {}
+    for __, gm in ipairs(different_keys) do
+      setmetatable(gm, match_mt)
+      wrong[#wrong+1] = gm
+    end
+    if #wrong > 0 then
+      out["WRONG Matches in known_hosts file"] = wrong
     end
   end
-  return true, return_string
+  return out
 end
 
 --- gather host keys
 --@param host nmap host table
 --@param port nmap port table of the currently probed port
 local function portaction(host, port)
-  local output = {}
   local output_tab = {}
   local keys = {}
   local _,key
@@ -277,14 +289,19 @@ local function portaction(host, port)
   key = ssh2.fetch_host_key( host, port, "ecdsa-sha2-nistp521" )
   if key then table.insert( keys, key ) end
 
+  if #keys < 0 then
+    return nil
+  end
+
   for _, key in ipairs( keys ) do
     add_key_to_registry( host, key )
-    table.insert(output_tab, {
-        fingerprint=stdnse.tohex(key.fingerprint),
-        type=key.key_type,
-        bits=key.bits,
-        key=base64.enc(key.key),
-      })
+    local output = {}
+    local out = {
+      fingerprint=stdnse.tohex(key.fingerprint),
+      type=key.key_type,
+      bits=key.bits,
+      key=base64.enc(key.key),
+    }
     if format:find( 'hex', 1, true ) or all_formats then
       table.insert( output, ssh1.fingerprint_hex( key.fingerprint, key.algorithm, key.bits ) )
     end
@@ -292,29 +309,28 @@ local function portaction(host, port)
       table.insert( output, ssh1.fingerprint_bubblebabble( openssl.sha1(key.fp_input), key.algorithm, key.bits ) )
     end
     if format:find( 'visual', 1, true ) or all_formats then
-      -- insert empty line so table is not destroyed if this is the first
-      -- line of output
-      if #output == 0 then table.insert( output, " " ) end
       table.insert( output, ssh1.fingerprint_visual( key.fingerprint, key.algorithm, key.bits ) )
     end
     if nmap.verbosity() > 1 or format:find( 'full', 1, true ) or all_formats then
       table.insert( output, key.full_key )
     end
+    setmetatable(out, {
+        __tostring = function(self)
+          return table.concat(output, "\n")
+        end
+      })
+    table.insert(output_tab, out)
   end
 
   -- if a known_hosts file was given, then check if it contains a key for the host being scanned
   local known_hosts = stdnse.get_script_args("ssh-hostkey.known-hosts") or false
   if known_hosts then
     known_hosts = ssh1.parse_known_hosts_file(known_hosts)
-    local res, status
-    res, status = check_keys(host, keys, known_hosts)
-    table.insert(output, 1, status)
+    output_tab["Key comparison with known_hosts file"] = check_keys(
+      host, keys, known_hosts)
   end
 
-
-  if #output > 0 then
-    return output_tab, table.concat( output, '\n' )
-  end
+  return output_tab
 end
 
 --- iterate over the list of gathered keys and look for duplicate hosts (sharing the same hostkeys)
