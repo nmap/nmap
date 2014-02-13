@@ -19,8 +19,8 @@ Information gathered:
 
 If this script is run wth -v, it will output lots more info.
 
-Use the <code>newtargets</code> script argument to add discovered hosts to the
-Namp scan queue.
+Use the <code>newtargets</code> script argument to add discovered hosts to
+the Nmap scan queue.
 ]]
 
 ---
@@ -89,7 +89,8 @@ portrule = function(host, port)
   -- Run for the special port number, or for any HTTP-like service that is
   -- not on a usual HTTP port.
   return shortport.port_or_service ({35871}, "flume-master")(host, port)
-    or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port) and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
+    or (shortport.service(shortport.LIKELY_HTTP_SERVICES)(host, port)
+      and not shortport.portnumber(shortport.LIKELY_HTTP_PORTS)(host, port))
 end
 
 function add_target(hostname)
@@ -137,8 +138,34 @@ action = function( host, port )
   local uri = "/flumemaster.jsp"
   local env_uri = "/masterenv.jsp"
   local config_uri = "/masterstaticconfig.jsp"
-  local env_keys = {"java.runtime","java.version","java.vm.name","java.vm.vendor","java.vm.version","os","user.name","user.country","user.language,user.timezone"}
-  local config_keys = {"dfs.datanode.address","dfs.datanode.http.address","dfs.datanode.https.address","dfs.datanode.ipc.address","dfs.http.address","dfs.https.address","dfs.secondary.http.address","flume.collector.dfs.dir","flume.collector.event.host","flume.master.servers","fs.default.name","mapred.job.tracker","mapred.job.tracker.http.address","mapred.task.tracker.http.address","mapred.task.tracker.report.address"}
+  local env_keys = {
+    "java.runtime",
+    "java.version",
+    "java.vm.name",
+    "java.vm.vendor",
+    "java.vm.version",
+    "os",
+    "user.name",
+    "user.country",
+    "user.language,user.timezone"
+  }
+  local config_keys = {
+    "dfs.datanode.address",
+    "dfs.datanode.http.address",
+    "dfs.datanode.https.address",
+    "dfs.datanode.ipc.address",
+    "dfs.http.address",
+    "dfs.https.address",
+    "dfs.secondary.http.address",
+    "flume.collector.dfs.dir",
+    "flume.collector.event.host",
+    "flume.master.servers",
+    "fs.default.name",
+    "mapred.job.tracker",
+    "mapred.job.tracker.http.address",
+    "mapred.task.tracker.http.address",
+    "mapred.task.tracker.report.address"
+  }
   local nodes = {  }
   local zookeepers = {  }
   local hbasemasters = {  }
