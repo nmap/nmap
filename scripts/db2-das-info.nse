@@ -140,9 +140,9 @@ function parse_db2_packet(packet)
   response.info = packet.data:sub(info_offset, info_offset + response.info_length - (info_offset-info_length_offset))
 
   if(nmap.debugging() > 3)  then
-    stdnse.print_debug( string.format("db2-das-info: version: %s", response.version) )
-    stdnse.print_debug( string.format("db2-das-info: info_length: %d", response.info_length) )
-    stdnse.print_debug( string.format("db2-das-info: response.info:len(): %d", response.info:len()))
+    stdnse.print_debug("db2-das-info: version: %s", response.version)
+    stdnse.print_debug("db2-das-info: info_length: %d", response.info_length)
+    stdnse.print_debug("db2-das-info: response.info:len(): %d", response.info:len())
   end
 
   return response
@@ -198,20 +198,20 @@ function read_db2_packet(socket)
     total_len = header_len + packet.header.data_len
 
     if(nmap.debugging() > 3) then
-      stdnse.print_debug( string.format("db2-das-info: data_len: %d", packet.header.data_len) )
-      stdnse.print_debug( string.format("db2-das-info: buf_len: %d", buf:len()))
-      stdnse.print_debug( string.format("db2-das-info: total_len: %d", total_len))
+      stdnse.print_debug("db2-das-info: data_len: %d", packet.header.data_len)
+      stdnse.print_debug("db2-das-info: buf_len: %d", buf:len())
+      stdnse.print_debug("db2-das-info: total_len: %d", total_len)
     end
 
     -- do we have all data as specified by data_len?
     while total_len > buf:len() do
       -- if not read additional bytes
       if(nmap.debugging() > 3)  then
-        stdnse.print_debug( string.format("db2-das-info: Reading %d additional bytes", total_len - buf:len()))
+        stdnse.print_debug("db2-das-info: Reading %d additional bytes", total_len - buf:len())
       end
       local tmp = try( socket:receive_bytes( total_len - buf:len() ) )
       if(nmap.debugging() > 3)  then
-        stdnse.print_debug( string.format("db2-das-info: Read %d bytes", tmp:len()))
+        stdnse.print_debug("db2-das-info: Read %d bytes", tmp:len())
       end
       buf = buf .. tmp
     end

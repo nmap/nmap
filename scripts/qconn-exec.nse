@@ -87,17 +87,17 @@ system commands as the 'root' user.
 
   -- Send command as service launcher request
   local req = string.format("service launcher\nstart/flags run /bin/sh /bin/sh -c \"%s\"\n", cmd)
-  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  stdnse.print_debug(1, "%s: Connecting to %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
   local status, data = comm.exchange(host, port, req, {timeout=timeout*1000,bytes=bytes})
   if not status then
-    stdnse.print_debug(1, ("%s: Timeout exceeded for %s:%s (Timeout: %ss)."):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
+    stdnse.print_debug(1, "%s: Timeout exceeded for %s:%s (Timeout: %ss).", SCRIPT_NAME, host.targetname or host.ip, port.number, timeout)
     return
   end
 
   -- Parse response
-  stdnse.print_debug(2, ("%s: Received reply:\n%s"):format(SCRIPT_NAME, data))
+  stdnse.print_debug(2, "%s: Received reply:\n%s", SCRIPT_NAME, data)
   if not string.match(data, "QCONN") then
-    stdnse.print_debug(1, ("%s: %s:%s is not a QNX QCONN daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: %s:%s is not a QNX QCONN daemon.", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   end
 
@@ -107,7 +107,7 @@ system commands as the 'root' user.
     local report = vulns.Report:new(SCRIPT_NAME, host, port)
     return report:make_output(vuln_table)
   else
-    stdnse.print_debug(1, ("%s: %s:%s QNX QCONN daemon is not vulnerable."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: %s:%s QNX QCONN daemon is not vulnerable.", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   end
 

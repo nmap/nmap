@@ -105,7 +105,7 @@ action = function( host, port )
   for username in usernames do
     ssl_enable = not(nossl)
     for password in passwords do
-      stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
+      stdnse.print_debug("Trying %s/%s ...", username, password )
       local socket = connectSocket( host, port, ssl_enable )
       status, response = pg.sendStartup(socket, username, username)
 

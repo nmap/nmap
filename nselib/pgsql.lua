@@ -89,7 +89,7 @@ v2 =
       elseif ( authtype == 0 ) then
         response.success = true
       else
-        stdnse.print_debug( ("unknown auth type: %d"):format(authtype) )
+        stdnse.print_debug("unknown auth type: %d", authtype)
       end
 
       response.authtype = authtype
@@ -138,7 +138,7 @@ v2 =
         return pos, response
       end
     else
-      stdnse.print_debug( ("Missing decoder for %d"):format(ptype) )
+      stdnse.print_debug("Missing decoder for %d", ptype)
       return -1, ("Missing decoder for %d"):format(ptype)
     end
     return -1, "Decoding failed"
@@ -601,7 +601,7 @@ function printErrorMessage( dberror )
     return
   end
   for k, v in pairs(dberror) do
-    stdnse.print_debug( ("%s=%s"):format(k, v) )
+    stdnse.print_debug("%s=%s", k, v)
   end
 end
 

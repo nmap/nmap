@@ -558,7 +558,7 @@ function query(socket, data)
   --Create an error handler
   local catch = function()
     socket:close()
-    stdnse.print_debug(string.format("Query failed"))
+    stdnse.print_debug("Query failed")
   end
   local try = nmap.new_try(catch)
 

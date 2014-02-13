@@ -75,7 +75,7 @@ action = function( host, port )
         end
 
 
-        stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
+        stdnse.print_debug("Trying %s/%s ...", username, password)
         status, response = helper:Login( username, password )
 
         -- if the response is "Parameter error." we're dealing with Netatalk

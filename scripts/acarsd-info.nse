@@ -60,16 +60,16 @@ action = function(host, port)
   if not bytes then bytes = 512 else tonumber(bytes) end
 
   -- Connect and retrieve acarsd info in XML format over TCP
-  stdnse.print_debug(1, ("%s: Connecting to %s:%s [Timeout: %ss]"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, timeout))
+  stdnse.print_debug(1, "%s: Connecting to %s:%s [Timeout: %ss]", SCRIPT_NAME, host.targetname or host.ip, port.number, timeout)
   local status, data = comm.get_banner(host, port, {timeout=timeout*1000,bytes=bytes})
   if not status or not data then
-    stdnse.print_debug(1, ("%s: Retrieving data from %s:%s failed [Timeout expired]"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: Retrieving data from %s:%s failed [Timeout expired]", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   end
 
   -- Check if retrieved data is valid acarsd data
   if not string.match(data, "acarsd") then
-    stdnse.print_debug(1, ("%s: %s:%s is not an acarsd Daemon."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: %s:%s is not an acarsd Daemon.", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   end
 
@@ -85,7 +85,7 @@ action = function(host, port)
   -- Check for unrestricted access -- Parse daemon info
   else
 
-    stdnse.print_debug(1, ("%s: Parsing data from %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: Parsing data from %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
     local vars = {
       {"Version","Version"},
       {"API Version","APIVersion"},

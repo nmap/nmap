@@ -3926,7 +3926,7 @@ function lsa_enum_users(host)
 
     status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
     if(status == false) then
-      stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
+      stdnse.print_debug(1, "Error looking up RIDs: %s", lookupsids2_result)
     else
       -- Put the details for each name into an array
       -- NOTE: Be sure to mirror any changes here in the next bit!
@@ -3960,7 +3960,7 @@ function lsa_enum_users(host)
       -- Try converting this group of RIDs into names
       status, lookupsids2_result = lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], sids)
       if(status == false) then
-        stdnse.print_debug(1, string.format("Error looking up RIDs: %s", lookupsids2_result))
+        stdnse.print_debug(1, "Error looking up RIDs: %s", lookupsids2_result)
       else
         -- Put the details for each name into an array
         for j = 1, #lookupsids2_result['names']['names'], 1 do

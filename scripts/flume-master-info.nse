@@ -20,7 +20,7 @@ Information gathered:
 If this script is run wth -v, it will output lots more info.
 
 Use the <code>newtargets</code> script argument to add discovered hosts to
-the Nmap scan queue.
+the Namp scan queue.
 ]]
 
 ---
@@ -95,7 +95,7 @@ end
 
 function add_target(hostname)
   if target.ALLOW_NEW_TARGETS then
-    stdnse.print_debug(1, ("%s: Added target: %s"):format(SCRIPT_NAME, hostname))
+    stdnse.print_debug(1, "%s: Added target: %s", SCRIPT_NAME, hostname)
     local status,err = target.add(hostname)
   end
 end
@@ -113,11 +113,15 @@ end
 parse_page = function( host, port, uri, intresting_keys )
   local result = {}
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response" ))
-  if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
+  stdnse.print_debug(1, "%s: Status %s",
+    SCRIPT_NAME, response['status-line'] or "No Response")
+  if response['status-line'] and response['status-line']:match("200%s+OK")
+    and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
-    for name,value in string.gmatch(body,"<tr><th>([^][<]+)</th>%s*<td><div%sclass=[^][>]+>([^][<]+)") do
-      stdnse.print_debug(1, ("%s:  %s=%s "):format(SCRIPT_NAME,name,value:gsub("^%s*(.-)%s*$", "%1")))
+    for name,value in string.gmatch(body,
+      "<tr><th>([^][<]+)</th>%s*<td><div%sclass=[^][>]+>([^][<]+)") do
+      stdnse.print_debug(1, "%s:  %s=%s ",
+        SCRIPT_NAME, name, value:gsub("^%s*(.-)%s*$", "%1"))
       if nmap.verbosity() > 1 then
         result[#result+1] = ("%s: %s"):format(name,value:gsub("^%s*(.-)%s*$", "%1"))
       else
@@ -169,31 +173,36 @@ action = function( host, port )
   local nodes = {  }
   local zookeepers = {  }
   local hbasemasters = {  }
-  stdnse.print_debug(1, ("%s:HTTP GET %s:%s%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number, uri))
+  stdnse.print_debug(1, "%s:HTTP GET %s:%s%s",
+    SCRIPT_NAME, host.targetname or host.ip, port.number, uri)
   local response = http.get( host, port, uri )
-  stdnse.print_debug(1, ("%s: Status %s"):format(SCRIPT_NAME,response['status-line'] or "No Response"))
-  if response['status-line'] and response['status-line']:match("200%s+OK") and response['body']  then
+  stdnse.print_debug(1, "%s: Status %s",
+    SCRIPT_NAME, response['status-line'] or "No Response")
+  if response['status-line'] and response['status-line']:match("200%s+OK")
+    and response['body']  then
     local body = response['body']:gsub("%%","%%%%")
     local capacity = {}
-    stdnse.print_debug(2, ("%s: Body %s\n"):format(SCRIPT_NAME,body))
+    stdnse.print_debug(2, "%s: Body %s\n", SCRIPT_NAME, body)
     if body:match("Version:%s*</b>([^][,]+)") then
       local version = body:match("Version:%s*</b>([^][,]+)")
-      stdnse.print_debug(1, ("%s: Version %s"):format(SCRIPT_NAME,version))
+      stdnse.print_debug(1, "%s: Version %s", SCRIPT_NAME, version)
       result[#result+1] =  ("Version: %s"):format(version)
       port.version.version = version
     end
     if body:match("Compiled:%s*</b>([^][<]+)") then
       local compiled = body:match("Compiled:%s*</b>([^][<]+)")
-      stdnse.print_debug(1, ("%s: Compiled %s"):format(SCRIPT_NAME,compiled))
+      stdnse.print_debug(1, "%s: Compiled %s", SCRIPT_NAME, compiled)
       result[#result+1] =  ("Compiled: %s"):format(compiled)
     end
     if body:match("ServerID:%s*([^][<]+)") then
       local upgrades = body:match("ServerID:%s*([^][<]+)")
-      stdnse.print_debug(1, ("%s: ServerID %s"):format(SCRIPT_NAME,upgrades))
+      stdnse.print_debug(1, "%s: ServerID %s", SCRIPT_NAME, upgrades)
       result[#result] = ("ServerID: %s"):format(upgrades)
     end
-    for logical,physical,hostname in string.gmatch(body,"<tr><td>([%w%.-_:]+)</td><td>([%w%.]+)</td><td>([%w%.]+)</td>") do
-      stdnse.print_debug(2, ("%s:  %s (%s) %s"):format(SCRIPT_NAME,physical,logical,hostname))
+    for logical,physical,hostname in string.gmatch(body,
+      "<tr><td>([%w%.-_:]+)</td><td>([%w%.]+)</td><td>([%w%.]+)</td>") do
+      stdnse.print_debug(2, "%s:  %s (%s) %s",
+        SCRIPT_NAME, physical, logical, hostname)
       if (table_count(nodes, hostname) == 0) then
         nodes[#nodes+1] = hostname
         add_target(hostname)

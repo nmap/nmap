@@ -385,8 +385,9 @@ SERVICES = {
 
         if ( octet1 ~= 127 ) then
           -- This should'nt happen :P
-          stdnse.print_debug(string.format(
-            "The request made to dnsbl.httpbl.org was considered invalid (%i)", octet1))
+          stdnse.print_debug(
+            "The request made to dnsbl.httpbl.org was considered invalid (%i)",
+            octet1)
         elseif ( "short" == self.mode ) then
           return { state = "ATTACK" }
         else
@@ -625,7 +626,7 @@ Helper = {
         local svc_result = svc:resp_parser(answer)
         if ( not(svc_result) ) then
           local resp = ( #answer > 0 and ("UNKNOWN (%s)"):format(answer[1]) or "UNKNOWN" )
-          stdnse.print_debug(2, ("%s received %s"):format(name, resp))
+          stdnse.print_debug(2, "%s received %s", name, resp)
         end
 
         if ( svc_result ) then

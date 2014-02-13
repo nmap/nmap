@@ -92,7 +92,7 @@ action = function(host, port)
   local config_file = ""
 
   -- Loop through vulnerable files
-  stdnse.print_debug(1, ("%s: Connecting to %s:%s"):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+  stdnse.print_debug(1, "%s: Connecting to %s:%s", SCRIPT_NAME, host.targetname or host.ip, port.number)
   for _, path in ipairs(paths) do
 
     -- Retrieve file
@@ -128,7 +128,7 @@ action = function(host, port)
 
   -- No config file found
   if config_file == "" then
-    stdnse.print_debug(1, ("%s: %s:%s is not vulnerable or connection timed out."):format(SCRIPT_NAME, host.targetname or host.ip, port.number))
+    stdnse.print_debug(1, "%s: %s:%s is not vulnerable or connection timed out.", SCRIPT_NAME, host.targetname or host.ip, port.number)
     return
   end
 

@@ -174,7 +174,7 @@ function action(host,port)
     local status, errmsg = ldap.bindRequest( socket, bindParam )
 
     if not status then
-      stdnse.print_debug( string.format("ldap-search failed to bind: %s", errmsg) )
+      stdnse.print_debug("ldap-search failed to bind: %s", errmsg)
       return "  \n  ERROR: Authentication failed"
     end
   -- or if ldap-brute found us something
@@ -240,7 +240,7 @@ function action(host,port)
       if ( searchResEntries:match("DSID[-]0C090627") and not(username) ) then
         return "ERROR: Failed to bind as the anonymous user"
       else
-        stdnse.print_debug( string.format( "ldap.searchRequest returned: %s", searchResEntries ) )
+        stdnse.print_debug("ldap.searchRequest returned: %s", searchResEntries)
         return
       end
     end

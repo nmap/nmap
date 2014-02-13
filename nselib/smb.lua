@@ -1445,9 +1445,9 @@ local function start_session_extended(smb, log_errors, overrides)
           -- Check if they were logged in as a guest
           if(log_errors == nil or log_errors == true) then
             if(smb['is_guest'] == 1) then
-              stdnse.print_debug(1, string.format("SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username)))
+              stdnse.print_debug(1, "SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username))
             else
-              stdnse.print_debug(2, string.format("SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username)))
+              stdnse.print_debug(2, "SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username))
             end
           end
 

@@ -63,7 +63,7 @@ discover_device_id_recursive = function(host, port, sid, start_id)
       local more_follows = string.byte(result, 12)
       local next_object_id = string.byte(result, 13)
       local number_of_objects = string.byte(result, 14)
-      stdnse.print_debug(1, ("more = 0x%x, next_id = 0x%x, obj_number = 0x%x"):format(more_follows, next_object_id, number_of_objects))
+      stdnse.print_debug(1, "more = 0x%x, next_id = 0x%x, obj_number = 0x%x", more_follows, next_object_id, number_of_objects)
       local offset = 15
       for i = start_id, (number_of_objects - 1) do
         local object_id = string.byte(result, offset)
@@ -71,7 +71,7 @@ discover_device_id_recursive = function(host, port, sid, start_id)
         -- error data format --
         if object_len == nil then break end
         local object_value = string.sub(result, offset + 2, offset + 1 + object_len)
-        stdnse.print_debug(1, ("Object id = 0x%x, value = %s"):format(object_id, object_value))
+        stdnse.print_debug(1, "Object id = 0x%x, value = %s", object_id, object_value)
         table.insert(objects_table, object_id + 1, object_value)
         offset = offset + 2 + object_len
       end
