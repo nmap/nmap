@@ -10,29 +10,36 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Checks if a host is infected with Conficker.C or higher, based on Conficker's peer to peer communication.
+Checks if a host is infected with Conficker.C or higher, based on
+Conficker's peer to peer communication.
 
-When Conficker.C or higher infects a system, it opens four ports: two TCP and two UDP. The ports are
-random, but are seeded with the current week and the IP of the infected host. By determining the algorithm,
-one can check if these four ports are open, and can probe them for more data.
+When Conficker.C or higher infects a system, it opens four ports: two TCP
+and two UDP. The ports are random, but are seeded with the current week and
+the IP of the infected host. By determining the algorithm, one can check if
+these four ports are open, and can probe them for more data.
 
-Once the open ports are found, communication can be initiated using Conficker's custom peer to peer protocol.
-If a valid response is received, then a valid Conficker infection has been found.
+Once the open ports are found, communication can be initiated using
+Conficker's custom peer to peer protocol.  If a valid response is received,
+then a valid Conficker infection has been found.
 
-This check won't work properly on a multihomed or NATed system because the open ports will be based on a nonpublic IP.
-The argument <code>checkall</code> tells Nmap to attempt communication with every open port (much like a version
-check) and the argument <code>realip</code> tells Nmap to base its port generation on the given IP address instead
-of the actual IP.
+This check won't work properly on a multihomed or NATed system because the
+open ports will be based on a nonpublic IP.  The argument
+<code>checkall</code> tells Nmap to attempt communication with every open
+port (much like a version check) and the argument <code>realip</code> tells
+Nmap to base its port generation on the given IP address instead of the
+actual IP.
 
-By default, this will run against a system that has a standard Windows port open (445, 139, 137). The arguments
-<code>checkall</code> and <code>checkconficker</code> will both perform checks regardless of which port is open, see the args section for
-more information.
+By default, this will run against a system that has a standard Windows port
+open (445, 139, 137). The arguments <code>checkall</code> and
+<code>checkconficker</code> will both perform checks regardless of which
+port is open, see the args section for more information.
 
 Note: Ensure your clock is correct (within a week) before using this script!
 
-The majority of research for this script was done by Symantec Security Response, and some was taken
-from public sources (most notably the port blacklisting was found by David Fifield). A big thanks goes
-out to everybody who contributed!
+The majority of research for this script was done by Symantec Security
+Response, and some was taken from public sources (most notably the port
+blacklisting was found by David Fifield). A big thanks goes out to everybody
+who contributed!
 ]]
 
 ---
@@ -179,7 +186,18 @@ end
 local function is_blacklisted_port(port)
   local r, l
 
-  local blacklist = { 0xFFFFFFFF, 0xFFFFFFFF, 0xF0F6BFBB, 0xBB5A5FF3, 0xF3977011, 0xEB67BFBF, 0x5F9BFAC8, 0x34D88091, 0x1E2282DF, 0x573402C4, 0xC0000084, 0x03000209, 0x01600002, 0x00005000, 0x801000C0, 0x00500040, 0x000000A1, 0x01000000, 0x01000000, 0x00022A20, 0x00000080, 0x04000000, 0x40020000, 0x88000000, 0x00000180, 0x00081000, 0x08801900, 0x00800B81, 0x00000280, 0x080002C0, 0x00A80000, 0x00008000, 0x00100040, 0x00100000, 0x00000000, 0x00000000, 0x10000008, 0x00000000, 0x00000000, 0x00000004, 0x00000002, 0x00000000, 0x00040000, 0x00000000, 0x00000000, 0x00000000, 0x00410000, 0x82000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008, 0x80000000, };
+  local blacklist = { 0xFFFFFFFF, 0xFFFFFFFF, 0xF0F6BFBB, 0xBB5A5FF3,
+    0xF3977011, 0xEB67BFBF, 0x5F9BFAC8, 0x34D88091, 0x1E2282DF, 0x573402C4,
+    0xC0000084, 0x03000209, 0x01600002, 0x00005000, 0x801000C0, 0x00500040,
+    0x000000A1, 0x01000000, 0x01000000, 0x00022A20, 0x00000080, 0x04000000,
+    0x40020000, 0x88000000, 0x00000180, 0x00081000, 0x08801900, 0x00800B81,
+    0x00000280, 0x080002C0, 0x00A80000, 0x00008000, 0x00100040, 0x00100000,
+    0x00000000, 0x00000000, 0x10000008, 0x00000000, 0x00000000, 0x00000004,
+    0x00000002, 0x00000000, 0x00040000, 0x00000000, 0x00000000, 0x00000000,
+    0x00410000, 0x82000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000008, 0x80000000,
+  }
 
   r = bit.rshift(port, 5)
   l = bit.lshift(1, bit.band(r, 0x1f))

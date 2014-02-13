@@ -10,30 +10,36 @@ local string = require "string"
 local table = require "table"
 
 description = [[
-Implements remote process execution similar to the Sysinternals' psexec tool,
-allowing a user to run a series of programs on a remote machine and read the output. This
-is great for gathering information about servers, running the same tool on a range of
-system, or even installing a backdoor on a collection of computers.
+Implements remote process execution similar to the Sysinternals' psexec
+tool, allowing a user to run a series of programs on a remote machine and
+read the output. This is great for gathering information about servers,
+running the same tool on a range of system, or even installing a backdoor on
+a collection of computers.
 
-This script can run commands present on the remote machine, such as ping or tracert,
-or it can upload a program and run it, such as pwdump6 or a backdoor. Additionally, it
-can read the program's stdout/stderr and return it to the user (works well with ping,
-pwdump6, etc), or it can read a file that the process generated (fgdump, for example,
-generates a file), or it can just start the process and let it run headless (a backdoor
-might run like this).
+This script can run commands present on the remote machine, such as ping or
+tracert, or it can upload a program and run it, such as pwdump6 or a
+backdoor. Additionally, it can read the program's stdout/stderr and return
+it to the user (works well with ping, pwdump6, etc), or it can read a file
+that the process generated (fgdump, for example, generates a file), or it
+can just start the process and let it run headless (a backdoor might run
+like this).
 
-To use this, a configuration file should be created and edited. Several configuration
-files are included that you can customize, or you can write your own. This config file
-is placed in <code>nselib/data/psexec</code> (if you aren't sure where that is, search your system
-for <code>default.lua</code>), then is passed to Nmap as a script argument (for example,
-myconfig.lua would be passed as <code>--script-args=config=myconfig</code>.
+To use this, a configuration file should be created and edited. Several
+configuration files are included that you can customize, or you can write
+your own. This config file is placed in <code>nselib/data/psexec</code> (if
+you aren't sure where that is, search your system for
+<code>default.lua</code>), then is passed to Nmap as a script argument (for
+example, myconfig.lua would be passed as
+<code>--script-args=config=myconfig</code>.
 
-The configuration file consists mainly of a module list. Each module is defined by a lua
-table, and contains fields for the name of the program, the executable and arguments
-for the program, and a score of other options. Modules also have an 'upload' field, which
-determines whether or not the module is to be uploaded. Here is a simple example of how
-to run <code>net localgroup administrators</code>, which returns a list of users in the "administrators"
-group (take a look at the <code>examples.lua</code> configuration file for these examples):
+The configuration file consists mainly of a module list. Each module is
+defined by a lua table, and contains fields for the name of the program, the
+executable and arguments for the program, and a score of other options.
+Modules also have an 'upload' field, which determines whether or not the
+module is to be uploaded. Here is a simple example of how to run <code>net
+localgroup administrators</code>, which returns a list of users in the
+"administrators" group (take a look at the <code>examples.lua</code>
+configuration file for these examples):
 
 <code>
   mod = {}
@@ -44,11 +50,12 @@ group (take a look at the <code>examples.lua</code> configuration file for these
   table.insert(modules, mod)
 </code>
 
-<code>mod.upload</code> is <code>false</code>, meaning the program should already be
-present on the remote system (since 'net.exe' is on every version of Windows, this should
-be the case). <code>mod.name</code> defines the name that the program will have in the
-output. <code>mod.program</code> and <code>mod.args</code> obviously define which program
-is going to be run. The output for this script is this:
+<code>mod.upload</code> is <code>false</code>, meaning the program should
+already be present on the remote system (since 'net.exe' is on every version
+of Windows, this should be the case). <code>mod.name</code> defines the name
+that the program will have in the output. <code>mod.program</code> and
+<code>mod.args</code> obviously define which program is going to be run. The
+output for this script is this:
 
 <code>
   |  Example 1: Membership of 'administrators'
@@ -66,11 +73,12 @@ is going to be run. The output for this script is this:
   |  |_
 </code>
 
-That works, but it's really ugly. In general, we can use <code>mod.find</code>,
-<code>mod.replace</code>, <code>mod.remove</code>, and <code>mod.noblank</code> to clean up
-the output. For this example, we're going to use <code>mod.remove</code> to remove a lot
-of the useless lines, and <code>mod.noblank</code> to get rid of the blank lines that we
-don't want:
+That works, but it's really ugly. In general, we can use
+<code>mod.find</code>, <code>mod.replace</code>, <code>mod.remove</code>,
+and <code>mod.noblank</code> to clean up the output. For this example, we're
+going to use <code>mod.remove</code> to remove a lot of the useless lines,
+and <code>mod.noblank</code> to get rid of the blank lines that we don't
+want:
 
 <code>
   mod = {}
@@ -84,6 +92,7 @@ don't want:
 </code>
 
 We can see that the output is now much cleaner:
+
 <code>
 |  Example 2: Membership of 'administrators', cleaned
 |  | Administrator
@@ -91,10 +100,10 @@ We can see that the output is now much cleaner:
 |  |_test
 </code>
 
-For our next command, we're going to run Windows' ipconfig.exe, which outputs a significant
-amount of unnecessary information, and what we do want isn't formatted very nicely. All we
-want is the IP address and MAC address, and we get it using <code>mod.find</code> and
-<code>mod.replace</code>:
+For our next command, we're going to run Windows' ipconfig.exe, which
+outputs a significant amount of unnecessary information, and what we do want
+isn't formatted very nicely. All we want is the IP address and MAC address,
+and we get it using <code>mod.find</code> and <code>mod.replace</code>:
 
 <code>
   mod = {}
@@ -108,10 +117,11 @@ want is the IP address and MAC address, and we get it using <code>mod.find</code
   table.insert(modules, mod)
 </code>
 
-This module searches for lines that contain "IP Address", "Physical Address", or "Ethernet adapter".
-In these lines, a ". " is replaced with nothing, a "-" is replaced with a colon, and the term
-"Physical Address" is replaced with "MAC Address" (arguably unnecessary). Run ipconfig /all yourself
-to see what we start with, but here's the final output:
+This module searches for lines that contain "IP Address", "Physical
+Address", or "Ethernet adapter".  In these lines, a ". " is replaced with
+nothing, a "-" is replaced with a colon, and the term "Physical Address" is
+replaced with "MAC Address" (arguably unnecessary). Run ipconfig /all
+yourself to see what we start with, but here's the final output:
 
 <code>
 |  Example 3: IP Address and MAC Address
@@ -120,20 +130,25 @@ to see what we start with, but here's the final output:
 |  |_   IP Address: 192.168.1.21|  Example 3: IP Address and MAC Address
 </code>
 
-Another interesting part of this script is that variables can be used in any script fields. There
-are two types of variables: built-in and user-supplied. Built-in variables can be anything found
-in the <code>config</code> table, most of which are listed below. The more interesting ones are:
+Another interesting part of this script is that variables can be used in any
+script fields. There are two types of variables: built-in and user-supplied.
+Built-in variables can be anything found in the <code>config</code> table,
+most of which are listed below. The more interesting ones are:
+
 * <code>$lhost</code>: The address of the scanner
 * <code>$rhost</code>: The address being scanned
 * <code>$path</code>: The path where the scripts are uploaded
 * <code>$share</code>: The share where the script was uploaded
 
-User-supplied arguments are given on the commandline, and can be controlled by <code>mod.req_args</code>
-in the configuration file. Arguments are given by the user in --script-args; for example, to set $host
-to '1.2.3.4', the user would pass in --script-args=host=1.2.3.4. To ensure the user passes in the host
-variable, <code>mod.req_args</code> would be set to <code>{'host'}</code>.
+User-supplied arguments are given on the commandline, and can be controlled
+by <code>mod.req_args</code> in the configuration file. Arguments are given
+by the user in --script-args; for example, to set $host to '1.2.3.4', the
+user would pass in --script-args=host=1.2.3.4. To ensure the user passes in
+the host variable, <code>mod.req_args</code> would be set to
+<code>{'host'}</code>.
 
 Here is a module that pings the local ip address:
+
 <code>
   mod = {}
   mod.upload           = false
@@ -156,7 +171,9 @@ And the output:
 |  |_Reply from 192.168.1.100: bytes=32 time<1ms TTL=64
 </code>
 
-And this module pings an arbitrary address that the user is expected to give:
+And this module pings an arbitrary address that the user is expected to
+give:
+
 <code>
   mod = {}
   mod.upload           = false
@@ -170,8 +187,9 @@ And this module pings an arbitrary address that the user is expected to give:
   table.insert(modules, mod)
 </code>
 
-And the output (note that we had to up the timeout so this would complete; we'll talk about override
-values later):
+And the output (note that we had to up the timeout so this would complete;
+we'll talk about override values later):
+
 <code>
 $ ./nmap -n -d -p445 --script=smb-psexec --script-args=smbuser=test,smbpass=test,config=examples,host=1.2.3.4 192.168.1.21
 [...]
@@ -183,9 +201,11 @@ $ ./nmap -n -d -p445 --script=smb-psexec --script-args=smbuser=test,smbpass=test
 |  |_Request timed out.
 </code>
 
-For the final example, we'll use the <code>upload</code> command to upload <code>fgdump.exe</code>, run it,
-download its output file, and clean up its logfile. You'll have to put <code>fgdump.exe</code>
-in the same folder as the script for this to work:
+For the final example, we'll use the <code>upload</code> command to upload
+<code>fgdump.exe</code>, run it, download its output file, and clean up its
+logfile. You'll have to put <code>fgdump.exe</code> in the same folder as
+the script for this to work:
+
 <code>
   mod = {}
   mod.upload           = true
@@ -197,114 +217,212 @@ in the same folder as the script for this to work:
   mod.outfile          = "127.0.0.1.pwdump"
   table.insert(modules, mod)
 </code>
-The <code>-l</code> argument for fgdump supplies the name of the logfile. That file is listed in the
-<code>mod.tempfiles</code> field. What, exactly, does <code>mod.tempfiles</code> do?
-It simply gives the service a list of files to delete while cleaning up. The cleanup
-process will be discussed later.
 
-<code>mod.url</code> is displayed to the user if <code>mod.program</code> isn't found in
-<code>nselib/data/psexec/</code>. And finally, <code>mod.outfile</code> is the file that is downloaded
-from the system. This is required because fgdump writes to an output file instead of to
+The <code>-l</code> argument for fgdump supplies the name of the logfile.
+That file is listed in the <code>mod.tempfiles</code> field. What, exactly,
+does <code>mod.tempfiles</code> do?  It simply gives the service a list of
+files to delete while cleaning up. The cleanup process will be discussed
+later.
+
+<code>mod.url</code> is displayed to the user if <code>mod.program</code>
+isn't found in <code>nselib/data/psexec/</code>. And finally,
+<code>mod.outfile</code> is the file that is downloaded from the system.
+This is required because fgdump writes to an output file instead of to
 stdout (pwdump6, for example, doesn't require <code>mod.outfile</code>.
 
-Now that we've seen a few possible combinations of fields, I present a complete list of all
-fields available and what each of them do. Many of them will be familiar, but there are a
-few that aren't discussed in the examples:
+Now that we've seen a few possible combinations of fields, I present a
+complete list of all fields available and what each of them do. Many of them
+will be familiar, but there are a few that aren't discussed in the examples:
 
-* <code>upload</code>     (boolean)  true if it's a local file to upload, false if it's already on the host machine. If <code>upload</code> is true, <code>program</code> has to be in <code>nselib/data/psexec</code>.
-* <code>name</code>       (string)   The name to display above the output. If this isn't given, <code>program</code> .. <code>args</code> are used.
-* <code>program</code>    (string)   If <code>upload</code> is false, the name (fully qualified or relative) of the program on the remote system; if <code>upload</code> is true, the name of the local file that will be uploaded (stored in <code>nselib/data/psexec</code>).
-* <code>args</code>       (string)   Arguments to pass to the process.
-* <code>env</code>        (string)   Environmental variables to pass to the process, as name=value pairs, delimited, per Microsoft's spec, by NULL characters (<code>string.char(0)</code>).
-* <code>maxtime</code>    (integer)  The approximate amount of time to wait for this process to complete. The total timeout for the script before it gives up waiting for a response is the total of all <code>maxtime</code> fields.
-* <code>extrafiles</code> (string[]) Extra file(s) to upload before running the program. These will not be renamed (because, presumably, if they are then the program won't be able to find them), but they will be marked as hidden/system/etc. This may cause a race condition if multiple people are doing this at once, but there isn't much we can do. The files are also deleted afterwards as tempfiles would be. The files have to be in the same directory as programs (<code>nselib/data/psexec</code>), but the program doesn't necessarily need to be an uploaded one.
-* <code>tempfiles</code>  (string[]) A list of temporary files that the process is known to create (if the process does create files, using this field is recommended because it helps avoid making a mess on the remote system).
-* <code>find</code>       (string[]) Only display lines that contain the given string(s) (for example, if you're searching for a line that contains "IP Address", set this to <code>{'IP Address'}</code>. This allows Lua-style patterns, see: http://lua-users.org/wiki/PatternsTutorial (don't forget to escape special characters with a <code>%</code>). Note that this is client-side only; the full output is still returned, the rest is removed while displaying. The line of output only needs to match one of the strings given here.
-* <code>remove</code>     (string[]) Opposite of <code>find</code>; this removes lines containing the given string(s) instead of displaying them. Like <code>find</code>, this is client-side only and uses Lua-style patterns. If <code>remove</code> and <code>find</code> are in conflict, then <code>remove</code> takes priority.
-* <code>noblank</code>    (boolean)  Setting this to true removes all blank lines from the output.
-* <code>replace</code>    (table)    A table of values to replace in the strings returned. Like <code>find</code> and <code>replace</code>, this is client-side only and uses Lua-style patterns.
-* <code>headless</code>   (boolean)  If <code>headless</code> is set to true, the program doesn't return any output; rather, it runs detached from the service so that, when the service ends, the program keeps going. This can be useful for, say, a monitoring program. Or a backdoor, if that's what you're into (a Metasploit payload should work nicely). Not compatible with: <code>find</code>, <code>remove</code>, <code>noblank</code>, <code>replace</code>, <code>maxtime</code>, <code>outfile</code>.
-* <code>enabled</code>    (boolean)  Set to false, and optionally set <code>disabled_message</code>, if you don't want a module to run. Alternatively, you can comment out the process.
+* <code>upload</code> (boolean) true if it's a local file to upload, false
+                      if it's already on the host machine. If
+                      <code>upload</code> is true, <code>program</code> has
+                      to be in <code>nselib/data/psexec</code>.
+* <code>name</code> (string) The name to display above the output. If this
+                    isn't given, <code>program</code> .. <code>args</code>
+                    are used.
+* <code>program</code> (string) If <code>upload</code> is false, the name
+                       (fully qualified or relative) of the program on the
+                       remote system; if <code>upload</code> is true, the
+                       name of the local file that will be uploaded (stored
+                       in <code>nselib/data/psexec</code>).
+* <code>args</code> (string) Arguments to pass to the process.
+* <code>env</code> (string) Environmental variables to pass to the process,
+                   as name=value pairs, delimited, per Microsoft's spec, by
+                   NULL characters (<code>string.char(0)</code>).
+* <code>maxtime</code> (integer) The approximate amount of time to wait for
+                       this process to complete. The total timeout for the
+                       script before it gives up waiting for a response is
+                       the total of all <code>maxtime</code> fields.
+* <code>extrafiles</code> (string[]) Extra file(s) to upload before running
+                          the program. These will not be renamed (because,
+                          presumably, if they are then the program won't be
+                          able to find them), but they will be marked as
+                          hidden/system/etc. This may cause a race condition
+                          if multiple people are doing this at once, but
+                          there isn't much we can do. The files are also
+                          deleted afterwards as tempfiles would be. The
+                          files have to be in the same directory as programs
+                          (<code>nselib/data/psexec</code>), but the program
+                          doesn't necessarily need to be an uploaded one.
+* <code>tempfiles</code> (string[]) A list of temporary files that the
+                         process is known to create (if the process does
+                         create files, using this field is recommended
+                         because it helps avoid making a mess on the remote
+                         system).
+* <code>find</code> (string[]) Only display lines that contain the given
+                    string(s) (for example, if you're searching for a line
+                    that contains "IP Address", set this to <code>{'IP
+                    Address'}</code>. This allows Lua-style patterns, see:
+                    http://lua-users.org/wiki/PatternsTutorial (don't forget
+                    to escape special characters with a <code>%</code>).
+                    Note that this is client-side only; the full output is
+                    still returned, the rest is removed while displaying.
+                    The line of output only needs to match one of the
+                    strings given here.
+* <code>remove</code> (string[]) Opposite of <code>find</code>; this removes
+                      lines containing the given string(s) instead of
+                      displaying them. Like <code>find</code>, this is
+                      client-side only and uses Lua-style patterns. If
+                      <code>remove</code> and <code>find</code> are in
+                      conflict, then <code>remove</code> takes priority.
+* <code>noblank</code> (boolean) Setting this to true removes all blank
+                       lines from the output.
+* <code>replace</code> (table) A table of values to replace in the strings
+                       returned. Like <code>find</code> and
+                       <code>replace</code>, this is client-side only and
+                       uses Lua-style patterns.
+* <code>headless</code> (boolean) If <code>headless</code> is set to true,
+                        the program doesn't return any output; rather, it
+                        runs detached from the service so that, when the
+                        service ends, the program keeps going. This can be
+                        useful for, say, a monitoring program. Or a
+                        backdoor, if that's what you're into (a Metasploit
+                        payload should work nicely). Not compatible with:
+                        <code>find</code>, <code>remove</code>,
+                        <code>noblank</code>, <code>replace</code>,
+                        <code>maxtime</code>, <code>outfile</code>.
+* <code>enabled</code> (boolean) Set to false, and optionally set
+                       <code>disabled_message</code>, if you don't want a
+                       module to run.  Alternatively, you can comment out
+                       the process.
 * <code>disabled_message</code> (string) Displayed if the module is disabled.
-* <code>url</code>        (string)   A module where the user can download the uploadable file. Displayed if the uploadable file is missing.
-* <code>outfile</code>    (string)   If set, the specified file will be returned instead of stdout.
-* <code>req_args</code>   (string[]) An array of arguments that the user must set in <code>--script-args</code>.
+* <code>url</code> (string) A module where the user can download the
+                   uploadable file. Displayed if the uploadable file is
+                   missing.
+* <code>outfile</code> (string) If set, the specified file will be returned
+                       instead of stdout.
+* <code>req_args</code> (string[]) An array of arguments that the user must
+                        set in <code>--script-args</code>.
 
 
-Any field in the configuration file can contain variables, as discussed. Here are some of the available built-in variables:
+Any field in the configuration file can contain variables, as discussed.
+Here are some of the available built-in variables:
+
 * <code>$lhost</code>: local IP address as a string.
-* <code>$lport</code>: local port (meaningless; it'll change by the time the module is uploaded since multiple connections are made).
+* <code>$lport</code>: local port (meaningless; it'll change by the time the
+                       module is uploaded since multiple connections are
+                       made).
 * <code>$rhost</code>: remote IP address as a string.
 * <code>$rport</code>: remote port.
-* <code>$lmac</code>:  local MAC address as a string in the xx:xx:xx:xx:xx:xx format (note: requires root).
-* <code>$path</code>:  the path where the file will be uploaded to.
-* <code>$service_name</code>: the name of the service that will be running this program
-* <code>$service_file</code>: the name of the executable file for the service
-* <code>$temp_output_file</code>: The (ciphered) file where the programs' output will be written before being renamed to $output_file
-* <code>$output_file</code>: The final name of the (ciphered) output file. When this file appears, the script downloads it and stops the service
-* <code>$timeout</code>: The total amount of time the script is going to run before it gives up and stops the process
+* <code>$lmac</code>: local MAC address as a string in the
+                      xx:xx:xx:xx:xx:xx format (note: requires root).
+* <code>$path</code>: the path where the file will be uploaded to.
+* <code>$service_name</code>: the name of the service that will be running
+                              this program
+* <code>$service_file</code>: the name of the executable file for the
+                              service
+* <code>$temp_output_file</code>: The (ciphered) file where the programs'
+                                  output will be written before being
+                                  renamed to $output_file
+* <code>$output_file</code>: The final name of the (ciphered) output file.
+                             When this file appears, the script downloads it
+                             and stops the service
+* <code>$timeout</code>: The total amount of time the script is going to run
+                         before it gives up and stops the process
 * <code>$share</code>: The share that everything was uploaded to
-* (script args): Any value passed as a script argument will be replaced (for example, if Nmap is run with <code>--script-args=var3=10</code>, then <code>$var3</code> in any field will be replaced with <code>10</code>. See the <code>req_args</code> field above. Script argument values take priority over config values.
+* (script args): Any value passed as a script argument will be replaced (for
+                 example, if Nmap is run with
+                 <code>--script-args=var3=10</code>, then <code>$var3</code>
+                 in any field will be replaced with <code>10</code>. See the
+                 <code>req_args</code> field above. Script argument values
+                 take priority over config values.
 
-In addition to modules, the configuration file can also contain overrides. Most of these
-aren't useful, so I'm not going to go into great detail. Search <code>smb-psexec.nse</code>
-for any reference to the <code>config</code> table; any value in the <code>config</code>
-table can be overridden with the <code>overrides</code> table in the module. The most useful
-value to override is probably <code>timeout</code>.
+In addition to modules, the configuration file can also contain overrides.
+Most of these aren't useful, so I'm not going to go into great detail.
+Search <code>smb-psexec.nse</code> for any reference to the
+<code>config</code> table; any value in the <code>config</code> table can be
+overridden with the <code>overrides</code> table in the module. The most
+useful value to override is probably <code>timeout</code>.
 
-Before and after scripts are run, and when there's an error, a cleanup is performed. in the
-cleanup, we attempt to stop the remote processes, delete all programs, output files, temporary
-files, extra files, etc. A lot of effort was put into proper cleanup, since making a mess on
-remote systems is a bad idea.
+Before and after scripts are run, and when there's an error, a cleanup is
+performed. in the cleanup, we attempt to stop the remote processes, delete
+all programs, output files, temporary files, extra files, etc. A lot of
+effort was put into proper cleanup, since making a mess on remote systems is
+a bad idea.
 
 
-Now that I've talked at length about how to use this script, I'd like to spend some time
-talking about how it works.
+Now that I've talked at length about how to use this script, I'd like to
+spend some time talking about how it works.
 
 Running a script happens in several stages:
 
-1) An open fileshare is found that we can write to. Finding an open fileshare basically
-consists of enumerating all shares and seeing which one(s) we have access to.
+1. An open fileshare is found that we can write to. Finding an open
+fileshare basically consists of enumerating all shares and seeing which
+one(s) we have access to.
 
-2) A "service wrapper", and all of the uploadable/extra files, are uploaded. Before
-they're uploaded, the name of each file is obfuscated. The obfuscation completely
-renames the file, is unique for each source system, and doesn't change between multiple
-runs. This obfuscation has the benefit of preventing filenames from overlapping if
-multiple people are running this against the same computer, and also makes it more difficult
-to determine their purposes. The reason for keeping them consistent for every run is to
-make cleanup possible: a random filename, if the script somehow fails, will be left on
-the system.
+2. A "service wrapper", and all of the uploadable/extra files, are uploaded.
+Before they're uploaded, the name of each file is obfuscated. The
+obfuscation completely renames the file, is unique for each source system,
+and doesn't change between multiple runs. This obfuscation has the benefit
+of preventing filenames from overlapping if multiple people are running this
+against the same computer, and also makes it more difficult to determine
+their purposes. The reason for keeping them consistent for every run is to
+make cleanup possible: a random filename, if the script somehow fails, will
+be left on the system.
 
-3) A new service is created and started. The new service has a random name for the same
-reason the files do, and points at the 'service wrapper' program that was uploaded.
+3. A new service is created and started. The new service has a random name
+for the same reason the files do, and points at the 'service wrapper'
+program that was uploaded.
 
-4) The service runs the processes.
+4. The service runs the processes. One by one, the processes are run and
+their output is captured. The output is obfuscated using a simple (and
+highly insecure) xor algorithm, which is designed to prevent casual sniffing
+(but won't deter intelligent attackers).  This data is put into a temporary
+output file. When all the programs have finished, the file is renamed to the
+final output file
 
-One by one, the processes are run and their output is captured. The output is obfuscated
-using a simple (and highly insecure) xor algorithm, which is designed to prevent casual
-sniffing (but won't deter intelligent attackers). This data is put into a temporary output
-file. When all the programs have finished, the file is renamed to the final output file
+5. The output file is downloaded, and the cleanup is performced. The file
+being renamed triggers the final stage of the program, where the data is
+downloaded and all relevant files are deleted.
 
-5) The output file is downloaded, and the cleanup is performced. The file being renamed
-triggers the final stage of the program, where the data is downloaded and all relevant
-files are deleted.
-
-6) Output file, now decrypted, is formatted and displayed to the user.
+6. Output file, now decrypted, is formatted and displayed to the user.
 
 And that's how it works!
 
-Please post any questions, or suggestions for better modules, to dev@nmap.org.
+Please post any questions, or suggestions for better modules, to
+dev@nmap.org.
 
-And, as usual, since this tool can be dangerous and can easily be viewed as a malicious
-tool -- use this responsibly, and don't break any laws with it.
+And, as usual, since this tool can be dangerous and can easily be viewed as
+a malicious tool -- use this responsibly, and don't break any laws with it.
 
 Some ideas for later versions (TODO):
-* Set up a better environment for scripts (<code>PATH</code>, <code>SystemRoot</code>, etc). Without this, a lot of programs (especially ones that deal with network traffic) behave oddly.
-* Abstract the code required to run remote processes so other scripts can use it more easily (difficult, but will ultimately be well worth it later). (May actually not be possible. There is a lot of overhead and specialized code in this module. We'll see, though.)
-* Let user specify an output file (per-script) so they can, for example, download binary files (don't think it's worthwhile).
-* Consider running the external programs in parallel (not sure if the benefits outweigh the drawbacks).
-* Let the config request the return code from the process instead of the output (not sure if doing this would be worth the effort).
-* Check multiple shares in a single session to save packets (and see where else we can tighten up the amount of traffic).
+
+* Set up a better environment for scripts (<code>PATH</code>,
+  <code>SystemRoot</code>, etc). Without this, a lot of programs (especially
+  ones that deal with network traffic) behave oddly.
+* Abstract the code required to run remote processes so other scripts can
+  use it more easily (difficult, but will ultimately be well worth it
+  later).  (May actually not be possible. There is a lot of overhead and
+  specialized code in this module. We'll see, though.)
+* Let user specify an output file (per-script) so they can, for example,
+  download binary files (don't think it's worthwhile).
+* Consider running the external programs in parallel (not sure if the
+  benefits outweigh the drawbacks).
+* Let the config request the return code from the process instead of the
+  output (not sure if doing this would be worth the effort).
+* Check multiple shares in a single session to save packets (and see where
+  else we can tighten up the amount of traffic).
 ]]
 
 ---
@@ -744,7 +862,10 @@ local function get_config(host, config)
 
   -- Make sure we got a proper modules array
   if(type(modules) ~= "table") then
-    return false, string.format("The chosen configuration file, %s.lua, doesn't have a proper 'modules' table. If possible, it should be modified to have a public array called 'modules' that contains a list of all modules that will be run.", filename)
+    return false, string.format("The chosen configuration file, %s.lua, \z
+      doesn't have a proper 'modules' table. If possible, it should be \z
+      modified to have a public array called 'modules' that contains a \z
+      list of all modules that will be run.", filename)
   end
 
   -- Loop through the modules for some pre-processing

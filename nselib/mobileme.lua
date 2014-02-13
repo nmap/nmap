@@ -52,7 +52,19 @@ MobileMe = {
   -- @return status true on success, false on failure
   -- @return err string containing the error message (if status is false)
   sendMessage = function(self, devid, subject, message, alarm)
-    local data = '{"clientContext":{"appName":"FindMyiPhone","appVersion":"1.3","buildVersion":"145","deviceUDID":"0000000000000000000000000000000000000000","inactiveTime":5911,"osVersion":"3.2","productType":"iPad1,1","selectedDevice":"%s","shouldLocate":false},"device":"%s","serverContext":{"callbackIntervalInMS":3000,"clientId":"0000000000000000000000000000000000000000","deviceLoadStatus":"203","hasDevices":true,"lastSessionExtensionTime":null,"maxDeviceLoadTime":60000,"maxLocatingTime":90000,"preferredLanguage":"en","prefsUpdateTime":1276872996660,"sessionLifespan":900000,"timezone":{"currentOffset":-25200000,"previousOffset":-28800000,"previousTransition":1268560799999,"tzCurrentName":"Pacific Daylight Time","tzName":"America/Los_Angeles"},"validRegion":true},"sound":%s,"subject":"%s","text":"%s"}'
+    local data = '{"clientContext":{"appName":"FindMyiPhone","appVersion":\z
+    "1.3","buildVersion":"145","deviceUDID":\z
+    "0000000000000000000000000000000000000000","inactiveTime":5911,\z
+    "osVersion":"3.2","productType":"iPad1,1","selectedDevice":"%s",\z
+    "shouldLocate":false},"device":"%s","serverContext":{\z
+    "callbackIntervalInMS":3000,"clientId":\z
+    "0000000000000000000000000000000000000000","deviceLoadStatus":"203",\z
+    "hasDevices":true,"lastSessionExtensionTime":null,"maxDeviceLoadTime":\z
+    60000,"maxLocatingTime":90000,"preferredLanguage":"en","prefsUpdateTime":\z
+    1276872996660,"sessionLifespan":900000,"timezone":{"currentOffset":\z
+    -25200000,"previousOffset":-28800000,"previousTransition":1268560799999,\z
+    "tzCurrentName":"Pacific Daylight Time","tzName":"America/Los_Angeles"},\z
+    "validRegion":true},"sound":%s,"subject":"%s","text":"%s"}'
     data = data:format(devid, devid, tostring(alarm), subject, message)
 
     local url = ("/fmipservice/device/%s/sendMessage"):format(self.username)
@@ -87,7 +99,10 @@ MobileMe = {
     }
 
     local url = ("/fmipservice/device/%s/initClient"):format(self.username)
-    local data= '{"clientContext":{"appName":"FindMyiPhone","appVersion":"1.3","buildVersion":"145","deviceUDID":"0000000000000000000000000000000000000000","inactiveTime":2147483647,"osVersion":"4.2.1","personID":0,"productType":"iPad1,1"}}'
+    local data= '{"clientContext":{"appName":"FindMyiPhone","appVersion":\z
+    "1.3","buildVersion":"145","deviceUDID":\z
+    "0000000000000000000000000000000000000000","inactiveTime":2147483647,\z
+    "osVersion":"4.2.1","personID":0,"productType":"iPad1,1"}}'
 
     local retries = 2
 

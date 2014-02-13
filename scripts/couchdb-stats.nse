@@ -94,9 +94,64 @@ action = function(host, port)
     return  msg
   end
 
-  -- The html body should look like this :
-  --
-  --{"httpd_status_codes":{"200":{"current":10,"count":29894,"mean":0.0003345152873486337,"min":0,"max":1,"stddev":0.01828669972606202,"description":"number of HTTP 200 OK responses"},"500":{"current":1,"count":28429,"mean":0.00003517534911534013,"min":0,"max":1,"stddev":0.005930776661631644,"description":"number of HTTP 500 Internal Server Error responses"}},"httpd_request_methods":{"GET":{"current":12,"count":29894,"mean":0.00040141834481835866,"min":0,"max":2,"stddev":0.02163701147572207,"description":"number of HTTP GET requests"}},"httpd":{"requests":{"current":12,"count":29894,"mean":0.00040141834481835866,"min":0,"max":2,"stddev":0.02163701147572207,"description":"number of HTTP requests"}},"couchdb":{"request_time":{"current":23,"count":12,"mean":32.58333333333333,"min":1,"max":287,"stddev":77.76723638882608,"description":"length of a request inside CouchDB without MochiWeb"}}}
+  -- The html body should look like this (minus whitespace):
+  --[[
+{
+  "httpd_status_codes": {
+    "200": {
+      "count": 29894,
+      "description": "number of HTTP 200 OK responses",
+      "min": 0,
+      "max": 1,
+      "current": 10,
+      "stddev": 0.01828669972606202,
+      "mean": 0.0003345152873486337
+    },
+    "500": {
+      "count": 28429,
+      "description": "number of HTTP 500 Internal Server Error responses",
+      "min": 0,
+      "max": 1,
+      "current": 1,
+      "stddev": 0.005930776661631644,
+      "mean": 3.517534911534013e-05
+    }
+  },
+  "httpd": {
+    "requests": {
+      "count": 29894,
+      "description": "number of HTTP requests",
+      "min": 0,
+      "max": 2,
+      "current": 12,
+      "stddev": 0.02163701147572207,
+      "mean": 0.00040141834481835866
+    }
+  },
+  "couchdb": {
+    "request_time": {
+      "count": 12,
+      "description": "length of a request inside CouchDB without MochiWeb",
+      "min": 1,
+      "max": 287,
+      "current": 23,
+      "stddev": 77.76723638882608,
+      "mean": 32.58333333333333
+    }
+  },
+  "httpd_request_methods": {
+    "GET": {
+      "count": 29894,
+      "description": "number of HTTP GET requests",
+      "min": 0,
+      "max": 2,
+      "current": 12,
+      "stddev": 0.02163701147572207,
+      "mean": 0.00040141834481835866
+    }
+  }
+}
+  ]]--
 
   local status, result = json.parse(data.body)
   if not status then

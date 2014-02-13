@@ -14,11 +14,16 @@ local openssl = stdnse.silent_require "openssl"
 description = [[
 Shows SSH hostkeys.
 
-Shows the target SSH server's key fingerprint and (with high enough verbosity level) the public key itself.  It records the discovered host keys in <code>nmap.registry</code> for use by other scripts.  Output can be controlled with the <code>ssh_hostkey</code> script argument.
+Shows the target SSH server's key fingerprint and (with high enough
+verbosity level) the public key itself.  It records the discovered host keys
+in <code>nmap.registry</code> for use by other scripts.  Output can be
+controlled with the <code>ssh_hostkey</code> script argument.
 
-You may also compare the retrieved key with the keys in your known-hosts file using the <code>known-hosts</code> argument.
+You may also compare the retrieved key with the keys in your known-hosts
+file using the <code>known-hosts</code> argument.
 
-The script also includes a postrule that check for duplicate hosts using the gathered keys.
+The script also includes a postrule that check for duplicate hosts using the
+gathered keys.
 ]]
 
 ---
