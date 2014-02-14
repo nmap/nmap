@@ -288,7 +288,7 @@ void win32_fatal_raw_sockets(const char *devname) {
           "for this scan.", devname);
   } else {
     fatal("Only ethernet devices can be used for raw scans on Windows. Use\n"
-          "the --unprivileged option for this scan.", devname);
+          "the --unprivileged option for this scan.");
   }
 }
 
