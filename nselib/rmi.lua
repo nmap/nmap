@@ -448,33 +448,33 @@ JavaClass = {
   end,
 
   __tostring = function( self )
-    local data
+    local data = {}
     if self.name ~=nil then
-      data = ("%s "):format(self.name)
+      data[#data+1] = ("%s "):format(self.name)
     else
-      data = "???"
+      data[#data+1] = "???"
     end
     if  self.superClass~=nil then
-      data = data .. " extends ".. tostring( self.superClass)
+      data[#data+1] = " extends ".. tostring( self.superClass)
     end
     if self.ifaces ~= nil then
-      data = data .. " implements " ..  self.ifaces
+      data[#data+1] = " implements " ..  self.ifaces
     end
     if self.fields ~=nil then
       for i=1, #self.fields do
         if i == 1 then
-          data = data .. "["
+          data[#data+1] = "["
         end
-        data = data .. tostring(self.fields[i])
+        data[#data+1] = tostring(self.fields[i])
         if ( i < #self.fields ) then
-          data = data .. ";"
+          data[#data+1] = ";"
         else
-          data = data .. "]"
+          data[#data+1] = "]"
         end
 
       end
     end
-    return data
+    return table.concat(data)
   end,
   toTable = function(self, customDataFormatter)
     local data = {self.name}
@@ -571,7 +571,8 @@ JavaField = {
           table.insert(data, self.value)
         end
       else
-        data = data .." = " .. tostring(self.value)
+        --TODO: FIXME This is illegal, but I don't know what the intent was:
+        data = data .." = " .. tostring(self.value) --FIXME
       end
     end
     return data
@@ -592,13 +593,15 @@ JavaArray = {
   setLength = function( self, length ) self.length = length end,
   setValue = function(self, index, object) self.values[index] = object end,
   __tostring=function(self)
-    local data =  ("Array: %s [%d] = {"):format(tostring(self.class), self.length)
+    local data = {
+      ("Array: %s [%d] = {"):format(tostring(self.class), self.length)
+    }
 
     for i=1, #self.values do
-      data = data .. self.values[i]..","
+      data[#data+1] = self.values[i]..","
     end
-    data = data .."}"
-    return data
+    data[#data+1] = "}"
+    return table.concat(data)
   end,
   toTable = function(self)
     local title = ("Array: %s [%d] = {"):format(tostring(self.class), self.length)

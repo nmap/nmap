@@ -13,6 +13,7 @@ local bin = require "bin"
 local match = require "match"
 local nmap = require "nmap"
 local package = require "package"
+local string = require "string"
 local table = require "table"
 _ENV = stdnse.module("versant", stdnse.seeall)
 
@@ -60,22 +61,22 @@ Versant = {
     ver = ver or Versant.VERSION
     arg = arg or ""
 
-    local data = bin.pack("H", "000100000000000000020002000000010000000000000000000000000000000000010000")
-    data = data .. cmd .. "\0" .. user .. "\0" .. ver .. "\0"
+    local data = bin.pack("Hzzz",
+      "000100000000000000020002000000010000000000000000000000000000000000010000",
+      cmd,
+      user,
+      ver
+      )
     -- align to even 4 bytes
-    if ( #data % 4 ~= 0 ) then
-      for i=1, ( 4 - (#data % 4)) do
-        data = data .. "\0"
-      end
-    end
+    data = data .. string.rep("\0", 4 - ((#data % 4) or 0))
 
-    data = data .. bin.pack("H", "0000000b000001000000000000000000")
-    data = data .. ("%s:%d\0"):format(self.host.ip, self.port.number)
-    data = data .. "\0\0\0\0\0\0\0\0\0\0" .. arg
+    data = data .. bin.pack("Hzxxxxxxxxxxz",
+      "0000000b000001000000000000000000",
+      ("%s:%d"):format(self.host.ip, self.port.number),
+      arg
+      )
 
-    while ( #data < 2048 ) do
-      data = data .. "\0"
-    end
+    data = data .. string.rep("\0", 2048 - #data)
 
     local status, err = self.socket:send(data)
     if ( not(status) ) then
@@ -254,12 +255,10 @@ Versant.OBE = {
   --         <code>lib_path</code> - the library directory
   --         <code>hostname</code> - the database host name
   getVODInfo = function(self)
-    local data = bin.pack("H", "1002005d00000000000100000000000d000000000000000000000000")
-    data = data .. "-noprint -i "
-
-    while( #data < 256 ) do
-      data = data .. "\0"
-    end
+    local data = bin.pack("Hz",
+      "1002005d00000000000100000000000d000000000000000000000000", --28
+      "-noprint -i " --12 + 1 (for null)
+      ) .. string.rep("\0", 215) -- 256 - (28 + 12 + 1)
 
     self.socket:send(data)
     local status, data = self.socket:receive_buf(match.numbytes(256), true)
