@@ -325,10 +325,12 @@ Comm = {
       packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
     elseif auth.type == Portmap.AuthType.UNIX then
       packet = packet .. Util.marshall_int32(auth.type)
-      local blob = Util.marshall_int32(nmap.clock()) --time
-      blob = blob .. Util.marshall_vopaque(auth.hostname or 'localhost')
-      blob = blob .. Util.marshall_int32(auth.uid or 0)
-      blob = blob .. Util.marshall_int32(auth.gid or 0)
+      local blob = (
+        Util.marshall_int32(nmap.clock()) --time
+        .. Util.marshall_vopaque(auth.hostname or 'localhost')
+        .. Util.marshall_int32(auth.uid or 0)
+        .. Util.marshall_int32(auth.gid or 0)
+        )
       if auth.gids then --len prefix gid list
         blob = blob .. Util.marshall_int32(#auth.gids)
         for _,gid in ipairs(auth.gids) do
@@ -337,8 +339,9 @@ Comm = {
       else
         blob = blob .. Util.marshall_int32(0)
       end
-      packet = packet .. Util.marshall_vopaque(blob)
-      packet = packet .. bin.pack( "II", 0, 0 ) --AUTH_NULL verf
+      packet = (packet .. Util.marshall_vopaque(blob)
+        .. bin.pack( "II", 0, 0 ) --AUTH_NULL verf
+        )
     else
       return false, "Comm.CreateHeader: invalid authentication type specified"
     end
@@ -2981,10 +2984,7 @@ Util =
   -- @param mode number containing the ACL mode
   -- @return string containing the ACL characters
   FpermToString = function(mode)
-    local tmpacl, acl = {}, ""
-    for i = 1, 9 do
-      tmpacl[i] = "-"
-    end
+    local tmpacl = { "-", "-", "-", "-", "-", "-", "-", "-", "-" }
 
     for user,_ in pairs(Util.Fperm) do
       local t = Util.Fperm[user]
@@ -3009,11 +3009,7 @@ Util =
       end
     end
 
-    for i = 1,#tmpacl do
-      acl = acl .. tmpacl[i]
-    end
-
-    return acl
+    return table.concat(tmpacl)
   end,
 
   --- Converts the NFS file attributes to a string.
@@ -3096,11 +3092,7 @@ Util =
   end,
 
   marshall_opaque = function(data)
-    local opaque = bin.pack(">A", data)
-    for i = 1, Util.CalcFillBytes(data:len()) do
-      opaque = opaque .. string.char(0x00)
-    end
-    return opaque
+    return bin.pack(">A", data) .. string.rep("\0", Util.CalcFillBytes(data:len()))
   end,
 
   unmarshall_opaque = function(len, data, pos)
@@ -3108,13 +3100,11 @@ Util =
   end,
 
   marshall_vopaque = function(data)
-    local opaque, l
-    l = data:len()
-    opaque = Util.marshall_uint32(l) .. bin.pack(">A", data)
-    for i = 1, Util.CalcFillBytes(l) do
-      opaque = opaque .. string.char(0x00)
-    end
-    return opaque
+    local l = data:len()
+    return (
+      Util.marshall_uint32(l) .. bin.pack(">A", data) ..
+      string.rep("\0", Util.CalcFillBytes(l))
+      )
   end,
 
   unmarshall_vopaque = function(len, data, pos)

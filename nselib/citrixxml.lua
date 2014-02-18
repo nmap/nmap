@@ -81,11 +81,11 @@ end
 --
 function request_server_farm_data( host, port )
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"1.1\">"
-  xmldata = xmldata .. "<RequestServerFarmData></RequestServerFarmData>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n\z
+  <!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n\z
+  <NFuseProtocol version=\"1.1\">\z
+  <RequestServerFarmData></RequestServerFarmData>\z
+  </NFuseProtocol>\r\n"
 
   return send_citrix_xml_request(host, port, xmldata)
 end
@@ -127,20 +127,24 @@ function request_appdata(host, port, params)
   local client_type = params['ClientType'] or "ica30"
   local desired_details = params['DesiredDetails'] or nil
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"5.0\">"
-  xmldata = xmldata .. "<RequestAppData>"
-  xmldata = xmldata .. "<Scope traverse=\"" .. scope .. "\" />"
-  xmldata = xmldata .. "<ServerType>" .. server_type .. "</ServerType>"
-  xmldata = xmldata .. "<ClientType>" .. client_type .. "</ClientType>"
+  local xmldata = {
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+    <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+    <NFuseProtocol version="5.0"><RequestAppData><Scope traverse="',
+    scope,
+    '" /><ServerType>',
+    server_type,
+    "</ServerType><ClientType>",
+    client_type,
+    "</ClientType>"
+  }
 
   if desired_details then
     if type(desired_details) == "string" then
-      xmldata = xmldata .. "<DesiredDetails>" .. desired_details .. "</DesiredDetails>"
+      xmldata[#xmldata+1] = "<DesiredDetails>" .. desired_details .. "</DesiredDetails>"
     elseif type(desired_details) == "table" then
       for _, v in ipairs(desired_details) do
-        xmldata = xmldata .. "<DesiredDetails>" .. v .. "</DesiredDetails>"
+        xmldata[#xmldata+1] = "<DesiredDetails>" .. v .. "</DesiredDetails>"
       end
     else
       assert(desired_details)
@@ -148,10 +152,9 @@ function request_appdata(host, port, params)
 
   end
 
-  xmldata = xmldata .. "</RequestAppData>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  xmldata[#xmldata+1] = "</RequestAppData></NFuseProtocol>\r\n"
 
-  return send_citrix_xml_request(host, port, xmldata)
+  return send_citrix_xml_request(host, port, table.concat(xmldata))
 end
 
 
@@ -270,25 +273,23 @@ end
 --
 function request_address(host, port, flags, appname)
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"4.1\">"
-  xmldata = xmldata .. "<RequestAddress>"
+  local xmldata = {
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+    <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+    <NFuseProtocol version="4.1"><RequestAddress>'
+  }
 
   if flags then
-    xmldata = xmldata .. "<Flags>" .. flags .. "</Flags>"
+    xmldata[#xmldata+1] = "<Flags>" .. flags .. "</Flags>"
   end
 
   if appname then
-    xmldata = xmldata .. "<Name>"
-    xmldata = xmldata .. "<AppName>" .. appname .. "</AppName>"
-    xmldata = xmldata .. "</Name>"
+    xmldata[#xmldata+1] = "<Name><AppName>" .. appname .. "</AppName></Name>"
   end
 
-  xmldata = xmldata .. "</RequestAddress>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  xmldata[#xmldata+1] = "</RequestAddress></NFuseProtocol>\r\n"
 
-  return send_citrix_xml_request(host, port, xmldata)
+  return send_citrix_xml_request(host, port, table.concat(xmldata))
 end
 
 --- Request information about the Citrix protocol
@@ -308,23 +309,23 @@ function request_server_data(host, port, params)
   local server_type = params.ServerType or {"all"}
   local client_type = params.ClientType or {"all"}
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"1.1\">"
-  xmldata = xmldata .. "<RequestServerData>"
+  local xmldata = {
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+    <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+    <NFuseProtocol version="1.1"><RequestServerData>'
+  }
 
   for _, srvtype in pairs(server_type) do
-    xmldata = xmldata .. "<ServerType>" .. srvtype .. "</ServerType>"
+    xmldata[#xmldata+1] = "<ServerType>" .. srvtype .. "</ServerType>"
   end
 
   for _, clitype in pairs(client_type) do
-    xmldata = xmldata .. "<ClientType>" .. clitype .. "</ClientType>"
+    xmldata[#xmldata+1] = "<ClientType>" .. clitype .. "</ClientType>"
   end
 
-  xmldata = xmldata .. "</RequestServerData>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  xmldata[#xmldata+1] = "</RequestServerData></NFuseProtocol>\r\n"
 
-  return send_citrix_xml_request(host, port, xmldata)
+  return send_citrix_xml_request(host, port, table.concat(xmldata))
 end
 
 --- Parses the response from the request_server_data request
@@ -359,20 +360,21 @@ function request_protocol_info( host, port, params )
 
   local params = params or {}
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"1.1\">"
-  xmldata = xmldata .. "<RequestProtocolInfo>"
+  local xmldata = {
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+    <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+    <NFuseProtocol version="1.1"><RequestProtocolInfo>'
+  }
 
   if params['ServerAddress'] then
-    xmldata = xmldata .. "<ServerAddress addresstype=\"" .. params['ServerAddress']['attr']['addresstype'] .. "\">"
-    xmldata = xmldata .. params['ServerAddress'] .. "</ServerAddress>"
+    xmldata[#xmldata+1] = ('<ServerAddress addresstype="' ..
+      params['ServerAddress']['attr']['addresstype'] .. '">' ..
+      params['ServerAddress'] .. "</ServerAddress>")
   end
 
-  xmldata = xmldata .. "</RequestProtocolInfo>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  xmldata[#xmldata+1] = "</RequestProtocolInfo></NFuseProtocol>\r\n"
 
-  return send_citrix_xml_request(host, port, xmldata)
+  return send_citrix_xml_request(host, port, table.concat(xmldata))
 end
 
 --- Request capability information
@@ -387,12 +389,10 @@ end
 --
 function request_capabilities( host, port )
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"1.1\">"
-  xmldata = xmldata .. "<RequestCapabilities>"
-  xmldata = xmldata .. "</RequestCapabilities>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  local xmldata = '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+  <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+  <NFuseProtocol version="1.1"><RequestCapabilities>\z
+  </RequestCapabilities></NFuseProtocol>\r\n'
 
   return send_citrix_xml_request(host, port, xmldata)
 end
@@ -431,29 +431,27 @@ function request_validate_credentials(host, port, params )
   local params = params or {}
   local credentials = params['Credentials'] or {}
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"5.0\">"
-  xmldata = xmldata .. "<RequestValidateCredentials>"
-  xmldata = xmldata .. "<Credentials>"
+  local xmldata = {
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+    <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+    <NFuseProtocol version="5.0"><RequestValidateCredentials><Credentials>'
+  }
 
   if credentials['UserName'] then
-    xmldata = xmldata .. "<UserName>" .. credentials['UserName'] .. "</UserName>"
+    xmldata[#xmldata+1] = "<UserName>" .. credentials['UserName'] .. "</UserName>"
   end
 
   if credentials['Password'] then
-    xmldata = xmldata .. "<Password encoding=\"cleartext\">" .. credentials['Password'] .. "</Password>"
+    xmldata[#xmldata+1] = '<Password encoding="cleartext">' .. credentials['Password'] .. "</Password>"
   end
 
   if credentials['Domain'] then
-    xmldata = xmldata .. "<Domain type=\"NT\">" .. credentials['Domain'] .. "</Domain>"
+    xmldata[#xmldata+1] = '<Domain type="NT">' .. credentials['Domain'] .. "</Domain>"
   end
 
-  xmldata = xmldata .. "</Credentials>"
-  xmldata = xmldata .. "</RequestValidateCredentials>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  xmldata[#xmldata+1] = "</Credentials></RequestValidateCredentials></NFuseProtocol>\r\n"
 
-  return send_citrix_xml_request(host, port, xmldata)
+  return send_citrix_xml_request(host, port, table.concat(xmldata))
 
 end
 
@@ -491,47 +489,45 @@ function request_reconnect_session_data(host, port, params)
   params.ServerType = params.ServerType or {}
   params.ClientType = params.ClientType or {}
 
-  local xmldata = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\r\n"
-  xmldata = xmldata .. "<!DOCTYPE NFuseProtocol SYSTEM \"NFuse.dtd\">\r\n"
-  xmldata = xmldata .. "<NFuseProtocol version=\"5.0\">"
-  xmldata = xmldata .. "<RequestReconnectSessionData>"
-
-  xmldata = xmldata .. "<Credentials>"
+  local xmldata = {
+    '<?xml version="1.0" encoding="ISO-8859-1"?>\r\n\z
+    <!DOCTYPE NFuseProtocol SYSTEM "NFuse.dtd">\r\n\z
+    <NFuseProtocol version="5.0"><RequestReconnectSessionData><Credentials>'
+  }
 
   if Credentials.UserName then
-    xmldata = xmldata .. "<UserName>" .. Credentials.UserName .. "</UserName>"
+    xmldata[#xmldata+1] = "<UserName>" .. Credentials.UserName .. "</UserName>"
   end
 
   if Credentials.Password then
-    xmldata = xmldata .. "<Password encoding=\"cleartext\">" .. Credentials.Password .. "</Password>"
+    xmldata[#xmldata+1] = '<Password encoding="cleartext">' .. Credentials.Password .. "</Password>"
   end
 
   if Credentials.Domain then
-    xmldata = xmldata .. "<Domain type=\"NT\">" .. Credentials.Domain .. "</Domain>"
+    xmldata[#xmldata+1] = '<Domain type="NT">' .. Credentials.Domain .. "</Domain>"
   end
 
-  xmldata = xmldata .. "</Credentials>"
+  xmldata[#xmldata+1] = "</Credentials>"
 
   if params.ClientName then
-    xmldata = xmldata .. "<ClientName>" .. params.ClientName .. "</ClientName>"
+    xmldata[#xmldata+1] = "<ClientName>" .. params.ClientName .. "</ClientName>"
   end
 
   if params.DeviceId then
-    xmldata = xmldata .. "<DeviceId>" .. params.DeviceId .. "</DeviceId>"
+    xmldata[#xmldata+1] = "<DeviceId>" .. params.DeviceId .. "</DeviceId>"
   end
 
   for _, srvtype in pairs(params.ServerType) do
-    xmldata = xmldata .. "<ServerType>" .. srvtype .. "</ServerType>"
+    xmldata[#xmldata+1] = "<ServerType>" .. srvtype .. "</ServerType>"
   end
 
   for _, clitype in pairs(params.ClientType) do
-    xmldata = xmldata .. "<ClientType>" .. clitype .. "</ClientType>"
+    xmldata[#xmldata+1] = "<ClientType>" .. clitype .. "</ClientType>"
   end
 
-  xmldata = xmldata .. "</RequestReconnectSessionData>"
-  xmldata = xmldata .. "</NFuseProtocol>\r\n"
+  xmldata[#xmldata+1] = "</RequestReconnectSessionData></NFuseProtocol>\r\n"
 
-  return send_citrix_xml_request(host, port, xmldata)
+  return send_citrix_xml_request(host, port, table.concat(xmldata))
 
 
 end

@@ -290,29 +290,27 @@ end
 -- @return The corresponding path string
 -----------------------------------------------------------------------------
 function build_path(parsed, unsafe)
-  local path = ""
+  local path = {}
+  if parsed.is_absolute then path[#path+1] = "/" end
   local n = #parsed
   if unsafe then
     for i = 1, n-1 do
-      path = path .. parsed[i]
-      path = path .. "/"
+      path[#path+1] = parsed[i] .. "/"
     end
     if n > 0 then
-      path = path .. parsed[n]
-      if parsed.is_directory then path = path .. "/" end
+      path[#path+1] = parsed[n]
+      if parsed.is_directory then path[#path+1] = "/" end
     end
   else
     for i = 1, n-1 do
-      path = path .. protect_segment(parsed[i])
-      path = path .. "/"
+      path[#path+1] = protect_segment(parsed[i]) .. "/"
     end
     if n > 0 then
-      path = path .. protect_segment(parsed[n])
-      if parsed.is_directory then path = path .. "/" end
+      path[#path+1] = protect_segment(parsed[n])
+      if parsed.is_directory then path[#path+1] = "/" end
     end
   end
-  if parsed.is_absolute then path = "/" .. path end
-  return path
+  return table.concat(path)
 end
 
 ---
