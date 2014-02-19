@@ -1233,7 +1233,7 @@ do -- Load script arguments (--script-args)
   if debugging() >= 2 then
     local out = {}
     rawget(stdnse, "pretty_printer")(nmap.registry.args, function (s) out[#out+1] = s end)
-    print_debug(2, concat(out))
+    print_debug(2, "%s", concat(out))
   end
 end
 
