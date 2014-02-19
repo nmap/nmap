@@ -673,7 +673,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
   </para></listitem></varlistentry>
 
   <varlistentry><term>open|filtered(开放或者被过滤的)</term>
-  <listitem><para>当无法确定端口是开放还是被过滤的，Namp就把该端口划分成
+  <listitem><para>当无法确定端口是开放还是被过滤的，Nmap就把该端口划分成
   这种状态。开放的端口不响应就是一个例子。没有响应也可能意味着报文过滤器丢弃
   了探测报文或者它引发的任何响应。因此Nmap无法确定该端口是开放的还是被过滤的。
   UDP，IP协议，
@@ -700,7 +700,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
 <para>大部分扫描类型只对特权用户可用。
 这是因为他们发送接收原始报文，这在Unix系统需要root权限。
 在Windows上推荐使用administrator账户，但是当WinPcap已经被加载到操作系统时，
-非特权用户也可以正常使用Nmap。当Namp在1997年发布时，需要root权限是一个严重的
+非特权用户也可以正常使用Nmap。当Nmap在1997年发布时，需要root权限是一个严重的
 局限，因为很多用户只有共享的shell账户。现在，世界变了，计算机便宜了，更多人拥有互联网连接
 ，桌面UNIX系统 (包括Linux和MAC OS X)很普遍了。Windows版本的Nmap现在也有了，这使它可以运行在更多的桌面上。
 由于所有这些原因，用户不再需要用有限的共享shell账户运行Nmap。
@@ -1464,7 +1464,7 @@ Nmap降低速度，探测报文数量减少。随着网络性能的改善，理�
 
 <para><option>--min-rtt-timeout</option>这个选项很少使用，当网络不可靠时，
 Nmap的默认值也显得过于强烈，这时这个选项可起作用。当网络看起来不可靠时，Nmap仅将
-超时时间降至最小值，这个情况是不正常的，需要向namp-dev邮件列表报告bug。</para>
+超时时间降至最小值，这个情况是不正常的，需要向nmap-dev邮件列表报告bug。</para>
 
         </listitem>
       </varlistentry>
@@ -1956,7 +1956,7 @@ output</literal>格式，在一行中包含目标主机最多的信息；<litera
 后面使用参数设置调试级别。例如，<option>-d9</option>设定级别9。这是
 最高的级别，将会产生上千行的输出，除非只对很少的端口和目标进行简单扫描。</para>
 
-<para>如果Nmap因为Bug而挂起或者对Namp的工作及原理有疑问，调试输出
+<para>如果Nmap因为Bug而挂起或者对Nmap的工作及原理有疑问，调试输出
 非常有效。主要是开发人员用这个选项，调试行不具备自我解释的特点。
 例如，<computeroutput moreinfo="none">Timeoutvals: srtt: -1 
 rttvar: -1 to: 1000000 delta 14987 ==&gt; srtt: 14987
@@ -2398,7 +2398,7 @@ GNU普通公共许可证的规定，可以重新发布和/或修改。这保证�
 <listitem><para>将Nmap集成/包含/组合至一个专用的可执行安装程序，如由
     InstallShield生成的安装程序。
     </para></listitem>
-<listitem><para>将Namp链接到进行上述工作的库或程序中。
+<listitem><para>将Nmap链接到进行上述工作的库或程序中。
 </para></listitem>
 </itemizedlist>
 

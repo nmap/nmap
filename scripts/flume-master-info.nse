@@ -20,7 +20,7 @@ Information gathered:
 If this script is run wth -v, it will output lots more info.
 
 Use the <code>newtargets</code> script argument to add discovered hosts to
-the Namp scan queue.
+the Nmap scan queue.
 ]]
 
 ---
