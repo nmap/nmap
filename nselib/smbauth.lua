@@ -85,6 +85,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("smbauth", stdnse.seeall)
 
 local have_ssl, openssl = pcall(require, "openssl")
@@ -304,27 +305,6 @@ function init_account(host)
   end
 end
 
-local function to_unicode(str)
-  local unicode = ""
-
-  for i = 1, #str, 1 do
-    unicode = unicode .. bin.pack("<S", string.byte(str, i))
-  end
-
-  return unicode
-end
-
-local function from_unicode(unicode)
-  local str = ""
-  if ( unicode == nil ) then
-    return nil
-  end
-  for char_itr = 1, unicode:len(), 2 do
-    str = str .. unicode:sub(char_itr, char_itr)
-  end
-  return str
-end
-
 ---Generate the Lanman v1 hash (LMv1). The generated hash is incredibly easy to reverse, because the input
 -- is padded or truncated to 14 characters, then split into two 7-character strings. Each of these strings
 -- are used as a key to encrypt the string, "KGS!@#$%" in DES. Because the keys are no longer than
@@ -373,7 +353,7 @@ function ntlm_create_hash(password)
     return false, "SMB: OpenSSL not present"
   end
 
-  return true, openssl.md4(to_unicode(password))
+  return true, openssl.md4(unicode.utf8to16(password))
 end
 
 ---Create the Lanman response to send back to the server. To do this, the Lanman password is padded to 21
@@ -482,8 +462,8 @@ function ntlmv2_create_hash(ntlm, username, domain)
 
   local unicode = ""
 
-  username = to_unicode(string.upper(username))
-  domain   = to_unicode(string.upper(domain))
+  username = unicode.utf8to16(string.upper(username))
+  domain   = unicode.utf8to16(string.upper(domain))
 
   return true, openssl.hmac("MD5", ntlm, username .. domain)
 end
@@ -680,9 +660,9 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
     local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
 
     -- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
-    local hostname = to_unicode("nmap")
-    username = to_unicode(username)
-    domain   = (#username > 0 ) and to_unicode(domain) or ""
+    local hostname = unicode.utf8to16("nmap")
+    username = unicode.utf8to16(username)
+    domain   = (#username > 0 ) and unicode.utf8to16(domain) or ""
     ntlm     = (#username > 0 ) and ntlm or ""
     lanman   = (#username > 0 ) and lanman or string.char(0)
 
@@ -763,7 +743,7 @@ function get_host_info_from_security_blob(security_blob)
     local pos = domain_offset + 1 -- +1 to convert to Lua's 1-based indexes
     local target_realm
     pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
-    ntlm_challenge[ "target_realm" ] = from_unicode( target_realm )
+    ntlm_challenge[ "target_realm" ] = unicode.utf16to8( target_realm )
   end
 
   -- Parse the TargetInfo data (Wireshark calls this the "Address List")
@@ -814,7 +794,7 @@ function get_host_info_from_security_blob(security_blob)
         -- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
         ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
       elseif ( friendly_name ) then
-        ntlm_challenge[ friendly_name ] = from_unicode( value )
+        ntlm_challenge[ friendly_name ] = unicode.utf16to8( value )
       end
     until ( pos >= #target_info )
   end

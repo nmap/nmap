@@ -135,6 +135,7 @@ local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("smb", stdnse.seeall)
 
 -- These arrays are filled in with constants at the bottom of this file
@@ -1077,29 +1078,23 @@ function negotiate_protocol(smb, overrides)
       return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
     end
 
-    -- Get the domain as a Unicode string
-    local ch, dummy
+    -- Get the (null-terminated) domain as a Unicode string
     smb['domain'] = ""
     smb['server'] = ""
 
-    pos, ch, dummy = bin.unpack("<CC", data, pos)
-    --if(dummy == nil) then
-    --  return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [13]"
-    --end
-    while ch ~= nil and ch ~= 0 do
-      smb['domain'] = smb['domain'] .. string.char(ch)
-      pos, ch, dummy = bin.unpack("<CC", data, pos)
-      if(ch == nil or dummy == nil) then
-        return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
-      end
+    local remainder = unicode.utf16to8(string.sub(data, pos))
+    pos, pos = string.find(remainder, "\0", 1, true)
+    if pos == nil then
+      return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
     end
+    smb['domain'] = string.sub(remainder, 1, pos)
 
     -- Get the server name as a Unicode string
     -- Note: This can be nil, Samba leaves this off
-    pos, ch, dummy = bin.unpack("<CC", data, pos)
-    while ch ~= nil and ch ~= 0 do
-      smb['server'] = smb['server'] .. string.char(ch)
-      pos, ch, dummy = bin.unpack("<CC", data, pos)
+    local pos2 = pos + 1
+    pos, pos = string.find(remainder, "\0", pos2, true)
+    if pos ~= nil then
+      smb['server'] = string.sub(remainder, pos2, pos)
     end
   end
 
