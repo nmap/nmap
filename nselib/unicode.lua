@@ -183,6 +183,38 @@ function utf8_dec(buf, pos)
   return pos + 1 + n, cp
 end
 
+---Helper function for the common case of UTF-16 to UTF-8 transcoding, such as
+--from a Windows/SMB unicode string to a printable ASCII (subset of UTF-8)
+--string.
+--@param from A string in UTF-16, little-endian
+--@return The string in UTF-8
+function utf16to8(from)
+  local buf = {}
+  local cp
+  local pos = 1
+  while pos <= #from do
+    pos, cp = utf16_dec(from, pos)
+    buf[#buf+1] = utf8_enc(cp)
+  end
+  return table.concat(buf)
+end
+
+---Helper function for the common case of UTF-8 to UTF-16 transcoding, such as
+--from a printable ASCII (subset of UTF-8) string to a Windows/SMB unicode
+--string.
+--@param from A string in UTF-8
+--@return The string in UTF-16, little-endian
+function utf8to16(from)
+  local buf = {}
+  local cp
+  local pos = 1
+  while pos <= #from do
+    pos, cp = utf8_dec(from, pos)
+    buf[#buf+1] = utf16_enc(cp)
+  end
+  return table.concat(buf)
+end
+
 test_suite = unittest.TestSuite:new()
 test_suite:add_test(function()
     local pos, cp = utf8_dec("\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E")
@@ -195,5 +227,7 @@ test_suite:add_test(unittest.equal(encode({0x12345,61,82,97}, utf16_enc, true), 
 test_suite:add_test(unittest.table_equal(decode("\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E", utf8_dec), {0x65E5,0x672C,0x8A9E}),"decode utf-8")
 test_suite:add_test(unittest.table_equal(decode("\x08\xD8\x45\xDF=\0R\0a\0", utf16_dec), {0x12345,61,82,97}),"decode utf-16")
 test_suite:add_test(unittest.table_equal(decode("\xD8\x08\xDF\x45\0=\0R\0a", utf16_dec, true), {0x12345,61,82,97}),"decode utf-16, big-endian")
+test_suite:add_test(unittest.equal(utf16to8("\x08\xD8\x45\xDF=\0R\0a\0"), "\xF0\x92\x8D\x85=Ra"),"utf16to8")
+test_suite:add_test(unittest.equal(utf8to16("\xF0\x92\x8D\x85=Ra"), "\x08\xD8\x45\xDF=\0R\0a\0"),"utf8to16")
 
 return _ENV
