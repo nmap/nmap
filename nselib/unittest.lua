@@ -118,6 +118,7 @@ local libs = {
 "target",
 "tftp",
 "tns",
+"unicode",
 "unittest",
 "unpwdb",
 "upnp",
