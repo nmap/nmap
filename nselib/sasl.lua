@@ -46,6 +46,7 @@ local bit = require "bit"
 local smbauth = require "smbauth"
 local stdnse = require "stdnse"
 local string = require "string"
+local unicode = require "unicode"
 _ENV = stdnse.module("sasl", stdnse.seeall)
 
 local HAVE_SSL, openssl = pcall(require, 'openssl')
@@ -190,17 +191,6 @@ if HAVE_SSL then
       return o
     end,
 
-    --- Converts str to "unicode" (adds null bytes for every other byte)
-    -- @param str containing string to convert
-    -- @return unicode string containing the unicoded str
-    to_unicode = function(str)
-      local unicode = ""
-      for i = 1, #str, 1 do
-        unicode = unicode .. bin.pack("<S", string.byte(str, i))
-      end
-      return unicode
-    end,
-
     --- Parses the NTLM challenge as received from the server
     parseChallenge = function(self)
       local NTLM_NegotiateUnicode = 0x00000001
@@ -222,9 +212,9 @@ if HAVE_SSL then
       self.domain = self.username:match("^(.-)\\(.*)$") or "DOMAIN"
 
       if ( is_unicode ) then
-        self.workstation = self.to_unicode(self.workstation)
-        self.username = self.to_unicode(self.username)
-        self.domain = self.to_unicode(self.domain)
+        self.workstation = unicode.utf8to16(self.workstation)
+        self.username = unicode.utf8to16(self.username)
+        self.domain = unicode.utf8to16(self.domain)
       end
     end,
 
