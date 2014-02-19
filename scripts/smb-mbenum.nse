@@ -153,38 +153,52 @@ action = function(host, port)
     return "\n  The argument smb-mbenum.format contained an invalid value."
   end
 
+  local errstr = nil
   status, err = smb.negotiate_protocol(smbstate, {})
   if ( not(status) ) then
     log("ERROR: smb.negotiate_protocol failed")
-    return "\n  ERROR: Failed to connect to browser service"
+    errstr = "\n  ERROR: Failed to connect to browser service: " .. err
+  else
+
+    status, err = smb.start_session(smbstate, {})
+    if ( not(status) ) then
+      log("ERROR: smb.start_session failed")
+      errstr = "\n  ERROR: Failed to connect to browser service: " .. err
+    else
+
+      status, err = smb.tree_connect(smbstate, path, {})
+      if ( not(status) ) then
+        log("ERROR: smb.tree_connect failed")
+        errstr = "\n  ERROR: Failed to connect to browser service: " .. err
+      else
+
+        status, entries = msrpc.rap_netserverenum2(smbstate, domain, filter, detail_level)
+        if ( not(status) ) then
+          log("ERROR: msrpc.rap_netserverenum2 failed")
+          -- 71 == 0x00000047, ERROR_REQ_NOT_ACCEP
+          -- http://msdn.microsoft.com/en-us/library/cc224501.aspx
+          if entries:match("= 71$") then
+            errstr = "Not a master or backup browser"
+          else
+            errstr = "\n  ERROR: " .. entries
+          end
+        end
+      end
+
+      status, err = smb.tree_disconnect(smbstate)
+      if ( not(status) ) then log("ERROR: smb.tree_disconnect failed") end
+    end
+
+    status, err = smb.logoff(smbstate)
+    if ( not(status) ) then log("ERROR: smb.logoff failed") end
   end
-
-  status, err = smb.start_session(smbstate, {})
-  if ( not(status) ) then
-    log("ERROR: smb.negotiate_protocol failed")
-    return "\n  ERROR: Failed to connect to browser service"
-  end
-
-  status, err = smb.tree_connect(smbstate, path, {})
-  if ( not(status) ) then
-    log("ERROR: smb.negotiate_protocol failed")
-    return "\n  ERROR: Failed to connect to browser service"
-  end
-
-  status, entries = msrpc.rap_netserverenum2(smbstate, domain, filter, detail_level)
-  if ( not(status) ) then
-    log("ERROR: msrpc.call_lanmanapi failed")
-    return "\n  ERROR: " .. entries
-  end
-
-  status, err = smb.tree_disconnect(smbstate)
-  if ( not(status) ) then log("ERROR: smb.tree_disconnect failed") end
-
-  status, err = smb.logoff(smbstate)
-  if ( not(status) ) then log("ERROR: smb.logoff failed") end
 
   status, err = smb.stop(smbstate)
   if ( not(status) ) then log("ERROR: smb.stop failed") end
+
+  if errstr then
+    return errstr
+  end
 
   local results, output = {}, {}
   for k, _ in pairs(ServerTypes) do
