@@ -34,7 +34,7 @@ local unpack = bin.unpack
 function decode(buf, decoder, bigendian)
   local cp = {}
   local pos = 1
-  while pos < #buf do
+  while pos <= #buf do
     pos, cp[#cp+1] = decoder(buf, pos, bigendian)
   end
   return cp
