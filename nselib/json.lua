@@ -28,6 +28,7 @@ local nmap = require "nmap"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("json", stdnse.seeall)
 
 --Some local shortcuts
@@ -403,42 +404,6 @@ function Json:parseUnicodeEscape()
   return cp
 end
 
--- Encode a Unicode code point to UTF-8. See RFC 3629.
--- Does not check that cp is a real character; that is, doesn't exclude the
--- surrogate range U+D800 - U+DFFF and a handful of others.
-local function utf8_enc(cp)
-  local bytes = {}
-  local n, mask
-
-  if cp % 1.0 ~= 0.0 or cp < 0 then
-    -- Only defined for nonnegative integers.
-    return nil
-  elseif cp <= 0x7F then
-    -- Special case of one-byte encoding.
-    return string.char(cp)
-  elseif cp <= 0x7FF then
-    n = 2
-    mask = 0xC0
-  elseif cp <= 0xFFFF then
-    n = 3
-    mask = 0xE0
-  elseif cp <= 0x10FFFF then
-    n = 4
-    mask = 0xF0
-  else
-    return nil
-  end
-
-  while n > 1 do
-    bytes[n] = string.char(0x80 + bit.band(cp, 0x3F))
-    cp = bit.rshift(cp, 6)
-    n = n - 1
-  end
-  bytes[1] = string.char(mask + cp)
-
-  return table.concat(bytes)
-end
-
 -- Parses a json string
 -- @return the string or triggers syntax error
 function Json:parseString()
@@ -460,7 +425,7 @@ function Json:parseString()
       if not codepoint then
         return
       end
-      val = val .. utf8_enc(codepoint)
+      val = val .. unicode.utf8_enc(codepoint)
     else
       self:syntaxerror(("Undefined escape character '%s'"):format(d))
       return false
