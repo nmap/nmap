@@ -19,6 +19,8 @@ local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
 local nmap = require "nmap"
+local nsedebug = require "nsedebug"
+local listop = require "listop"
 _ENV = stdnse.module("unittest", stdnse.seeall)
 
 local libs = {
@@ -234,7 +236,7 @@ make_test = function(test, fmt)
     local nargs = select("#", ...)
     return function(suite)
       if not test(table.unpack(args,1,nargs)) then
-        return false, string.format(fmt, table.unpack(args,1,nargs))
+        return false, string.format(fmt, table.unpack(listop.map(nsedebug.tostr, args),1,nargs))
       end
       return true
     end
