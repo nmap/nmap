@@ -109,6 +109,7 @@ local os = require "os"
 local stdnse = require "stdnse"
 local string = require "string"
 local table = require "table"
+local unicode = require "unicode"
 _ENV = stdnse.module("msrpctypes", stdnse.seeall)
 
 local REFERENT_ID = 0x50414d4e
@@ -125,7 +126,6 @@ local ALL  = 'ALL'
 --@return The unicode version of the string.
 function string_to_unicode(string, do_null)
   local i
-  local result = ""
 
   stdnse.print_debug(4, "MSRPC: Entering string_to_unicode(string = %s)", string)
 
@@ -143,19 +143,16 @@ function string_to_unicode(string, do_null)
   end
 
 
-  -- Loop through the string, adding each character followed by a char(0)
-  for i = 1, #string, 1 do
-    result = result .. string.sub(string, i, i) .. string.char(0)
-  end
+  local result = unicode.utf8to16(string)
 
   -- Add a null, if the caller requested it
   if(do_null == true) then
-    result = result .. string.char(0) .. string.char(0)
+    result = result .. "\0\0"
   end
 
   -- Align it to a multiple of 4, if necessary
   if(#result % 4 ~= 0) then
-    result = result .. string.char(0) .. string.char(0)
+    result = result .. "\0\0"
   end
 
   stdnse.print_debug(4, "MSRPC: Leaving string_to_unicode()")
@@ -173,48 +170,28 @@ end
 --@return (pos, string) The new position and the string read, again imitating <code>bin.unpack</code>. If there was an
 --        attempt to read off the end of the string, then 'nil' is returned for both parameters.
 function unicode_to_string(buffer, pos, length, do_null)
-  local i, j, ch, dummy
-  local string = ""
-
   stdnse.print_debug(4, "MSRPC: Entering unicode_to_string(pos = %d, length = %d)", pos, length)
 
-  if(do_null == nil) then
-    do_null = false
+  local endpos = pos + length * 2 - 1
+
+  if endpos > #buffer then
+    stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a string in unicode_to_string(), this likely means we are reading a packet incorrectly. Please report! (pos = %d, #buffer = %d, endpos = %d)", pos, #buffer, endpos)
+
+    return nil, nil
   end
 
-  if(do_null == true and length > 0) then
-    length = length - 1
+  local str = unicode.utf16to8(string.sub(buffer, pos, endpos))
+
+  if do_null then
+    str = string.sub(str, 1, -2) -- Eat the null terminator
   end
 
-  for j = 1, length, 1 do
-
-    pos, ch, dummy = bin.unpack("<CC", buffer, pos)
-
-    if(ch == nil or dummy == nil) then
-      stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a string in unicode_to_string(), this likely means we are reading a packet incorrectly. Please report! (pos = %d, j = %d, length = %d)", pos, j, length)
-
-      return nil, nil
-    else
-      string = string .. string.char(ch)
-    end
-
-  end
-
-  if(do_null == true) then
-    pos = pos + 2 -- Eat the null terminator
-  end
-
-  if(do_null == true and ((length + 1) % 2) == 1) then
-    pos = pos + 2
-  end
-
-  if(do_null == false and (length % 2) == 1) then
-    pos = pos + 2
-  end
+  -- Align to 4-byte boundary
+  endpos = endpos + (endpos + 1 - pos) % 4
 
   stdnse.print_debug(4, "MSRPC: Leaving unicode_to_string()")
 
-  return pos, string
+  return endpos + 1, str
 end
 
 -------------------------------------
